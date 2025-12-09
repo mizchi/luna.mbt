@@ -20,31 +20,17 @@ pub struct HydrationOptions {
 }
 
 ///|
-/// Default hydration options
-pub fn HydrationOptions::default() -> HydrationOptions {
-  { recover_on_mismatch: true, warn_on_mismatch: true, logger: None }
-}
-
-///|
-/// Strict hydration options - fail on any mismatch
-pub fn HydrationOptions::strict() -> HydrationOptions {
-  { recover_on_mismatch: false, warn_on_mismatch: true, logger: None }
-}
-
-///|
-/// Create options with a custom logger
-pub fn HydrationOptions::with_logger(
-  logger : StringBuilder,
+/// Create hydration options with labeled arguments
+pub fn HydrationOptions::new(
+  recover_on_mismatch? : Bool,
+  warn_on_mismatch? : Bool,
+  logger? : StringBuilder,
 ) -> HydrationOptions {
-  { recover_on_mismatch: true, warn_on_mismatch: true, logger: Some(logger) }
-}
-
-///|
-/// Create strict options with a custom logger
-pub fn HydrationOptions::strict_with_logger(
-  logger : StringBuilder,
-) -> HydrationOptions {
-  { recover_on_mismatch: false, warn_on_mismatch: true, logger: Some(logger) }
+  {
+    recover_on_mismatch: recover_on_mismatch.unwrap_or(true),
+    warn_on_mismatch: warn_on_mismatch.unwrap_or(true),
+    logger,
+  }
 }
 
 ///|
@@ -85,7 +71,7 @@ fn get_text_content(node : @js_dom.Node) -> String {
 ///|
 /// The container should already have server-rendered HTML with hydration markers
 pub fn hydrate(container : @js_dom.Element, node : @ui.VNode) -> Unit {
-  let _ = hydrate_with_options(container, node, HydrationOptions::default())
+  let _ = hydrate_with_options(container, node, HydrationOptions::new())
 
 }
 
