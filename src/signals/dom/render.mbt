@@ -2,7 +2,7 @@
 
 ///|
 /// Create a reactive text node that updates when the content changes
-pub fn text_node(content : () -> String) -> @jsdom.Text {
+pub fn text_node(content : () -> String) -> Node {
   let doc = @jsdom.document()
   let initial = content()
   let node = doc.createTextNode(initial)
@@ -12,12 +12,12 @@ pub fn text_node(content : () -> String) -> @jsdom.Text {
     let new_content = content()
     node.as_node().setTextContent(new_content)
   })
-  node
+  Txt(node)
 }
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_from_signal(sig : @signals.Signal[T]) -> @jsdom.Text {
+pub fn[T : Show] text_from_signal(sig : @signals.Signal[T]) -> Node {
   text_node(fn() { sig.get().to_string() })
 }
 
@@ -32,12 +32,12 @@ pub enum AttrValue {
 }
 
 ///|
-/// Create an element with reactive attributes
+/// Create an element with reactive attributes (returns Node for easy composition)
 pub fn create_element(
   tag : String,
   attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+  children : Array[Node],
+) -> Node {
   let doc = @jsdom.document()
   let elem = doc.createElement(tag)
 
@@ -49,9 +49,9 @@ pub fn create_element(
 
   // Append children
   for i = 0; i < children.length(); i = i + 1 {
-    elem.as_node().appendChild(children[i]) |> ignore
+    elem.as_node().appendChild(children[i].to_jsdom()) |> ignore
   }
-  elem
+  El(Element::from_jsdom(elem))
 }
 
 ///|
@@ -162,26 +162,45 @@ fn apply_style_object(
 
 ///|
 /// Mount a node to a container
-pub fn mount(container : @jsdom.Element, node : @jsdom.Node) -> Unit {
-  container.as_node().appendChild(node) |> ignore
+pub fn mount(container : Element, n : Node) -> Unit {
+  container.to_jsdom().as_node().appendChild(n.to_jsdom()) |> ignore
+}
+
+///|
+/// Mount to a jsdom container (for tests)
+pub fn mount_to(container : @jsdom.Element, n : Node) -> Unit {
+  container.as_node().appendChild(n.to_jsdom()) |> ignore
 }
 
 ///|
 /// Clear a container
-pub fn clear(container : @jsdom.Element) -> Unit {
+pub fn clear(container : Element) -> Unit {
+  container.to_jsdom().as_node().setTextContent("")
+}
+
+///|
+/// Clear a jsdom container (for tests)
+pub fn clear_jsdom(container : @jsdom.Element) -> Unit {
   container.as_node().setTextContent("")
 }
 
 ///|
 /// Render to a container (clear and mount)
-pub fn render(container : @jsdom.Element, node : @jsdom.Node) -> Unit {
+pub fn render(container : Element, n : Node) -> Unit {
   clear(container)
-  mount(container, node)
+  mount(container, n)
+}
+
+///|
+/// Render to a jsdom container (for tests)
+pub fn render_to(container : @jsdom.Element, n : Node) -> Unit {
+  clear_jsdom(container)
+  mount_to(container, n)
 }
 
 ///|
 /// Conditional rendering - shows content when condition is true
-pub fn show(when : () -> Bool, render_fn : () -> @jsdom.Node) -> @jsdom.Node {
+pub fn show(when : () -> Bool, render_fn : () -> Node) -> Node {
   let doc = @jsdom.document()
   let placeholder = doc.createComment("show")
   let mut current_node : @jsdom.Node? = None
@@ -190,20 +209,20 @@ pub fn show(when : () -> Bool, render_fn : () -> @jsdom.Node) -> @jsdom.Node {
     match (should_show, current_node) {
       (true, None) => {
         // Need to show - create and insert node
-        let node = render_fn()
+        let n = render_fn()
         match placeholder.parentNode() {
           Some(parent) => {
-            parent.insertBefore(node, Some(placeholder)) |> ignore
-            current_node = Some(node)
+            parent.insertBefore(n.to_jsdom(), Some(placeholder)) |> ignore
+            current_node = Some(n.to_jsdom())
           }
           None => ()
         }
       }
-      (false, Some(node)) =>
+      (false, Some(n)) =>
         // Need to hide - remove node
-        match node.parentNode() {
+        match n.parentNode() {
           Some(parent) => {
-            parent.removeChild(node) |> ignore
+            parent.removeChild(n) |> ignore
             current_node = None
           }
           None => ()
@@ -211,15 +230,15 @@ pub fn show(when : () -> Bool, render_fn : () -> @jsdom.Node) -> @jsdom.Node {
       _ => () // No change needed
     }
   })
-  placeholder
+  Raw(placeholder)
 }
 
 ///|
 /// List rendering with keyed updates
 pub fn[T] for_each(
   items : () -> Array[T],
-  render_item : (T, Int) -> @jsdom.Node,
-) -> @jsdom.Node {
+  render_item : (T, Int) -> Node,
+) -> Node {
   let doc = @jsdom.document()
   let container = doc.createDocumentFragment()
   let mut current_nodes : Array[@jsdom.Node] = []
@@ -236,10 +255,11 @@ pub fn[T] for_each(
     }
     current_nodes = []
     for i = 0; i < new_items.length(); i = i + 1 {
-      let node = render_item(new_items[i], i)
-      current_nodes.push(node)
-      container.as_node().appendChild(node) |> ignore
+      let n = render_item(new_items[i], i)
+      let jsdom_node = n.to_jsdom()
+      current_nodes.push(jsdom_node)
+      container.as_node().appendChild(jsdom_node) |> ignore
     }
   })
-  container.as_node()
+  Raw(container.as_node())
 }

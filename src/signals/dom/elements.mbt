@@ -6,28 +6,19 @@ pub type Handler = (@core.Any) -> Unit
 
 ///|
 /// Create a div element
-pub fn div(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn div(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("div", attrs, children)
 }
 
 ///|
 /// Create a span element
-pub fn span(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn span(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("span", attrs, children)
 }
 
 ///|
 /// Create a p element
-pub fn p(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn p(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("p", attrs, children)
 }
 
@@ -35,23 +26,20 @@ pub fn p(
 /// Create a button element
 pub fn button(
   attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+  children : Array[Node],
+) -> Node {
   create_element("button", attrs, children)
 }
 
 ///|
 /// Create an a element
-pub fn a(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn a(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("a", attrs, children)
 }
 
 ///|
 /// Create an input element
-pub fn input(attrs : Array[(String, AttrValue)]) -> @jsdom.Element {
+pub fn input(attrs : Array[(String, AttrValue)]) -> Node {
   create_element("input", attrs, [])
 }
 
@@ -59,8 +47,8 @@ pub fn input(attrs : Array[(String, AttrValue)]) -> @jsdom.Element {
 /// Create a textarea element
 pub fn textarea(
   attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+  children : Array[Node],
+) -> Node {
   create_element("textarea", attrs, children)
 }
 
@@ -68,8 +56,8 @@ pub fn textarea(
 /// Create a form element
 pub fn form(
   attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+  children : Array[Node],
+) -> Node {
   create_element("form", attrs, children)
 }
 
@@ -77,99 +65,81 @@ pub fn form(
 /// Create a label element
 pub fn label(
   attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+  children : Array[Node],
+) -> Node {
   create_element("label", attrs, children)
 }
 
 ///|
 /// Create h1 element
-pub fn h1(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn h1(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("h1", attrs, children)
 }
 
 ///|
 /// Create h2 element
-pub fn h2(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn h2(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("h2", attrs, children)
 }
 
 ///|
 /// Create h3 element
-pub fn h3(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn h3(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("h3", attrs, children)
 }
 
 ///|
 /// Create ul element
-pub fn ul(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn ul(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("ul", attrs, children)
 }
 
 ///|
 /// Create ol element
-pub fn ol(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn ol(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("ol", attrs, children)
 }
 
 ///|
 /// Create li element
-pub fn li(
-  attrs : Array[(String, AttrValue)],
-  children : Array[@jsdom.Node],
-) -> @jsdom.Element {
+pub fn li(attrs : Array[(String, AttrValue)], children : Array[Node]) -> Node {
   create_element("li", attrs, children)
 }
 
 ///|
 /// Create img element
-pub fn img(attrs : Array[(String, AttrValue)]) -> @jsdom.Element {
+pub fn img(attrs : Array[(String, AttrValue)]) -> Node {
   create_element("img", attrs, [])
 }
 
 ///|
 /// Create br element
-pub fn br() -> @jsdom.Element {
+pub fn br() -> Node {
   create_element("br", [], [])
 }
 
 ///|
 /// Create hr element
-pub fn hr() -> @jsdom.Element {
+pub fn hr() -> Node {
   create_element("hr", [], [])
 }
 
 ///|
 /// Create a static text node
-pub fn text(content : String) -> @jsdom.Node {
-  @jsdom.document().createTextNode(content).as_node()
+pub fn text(content : String) -> Node {
+  ToNode::to_node(content)
 }
 
 ///|
 /// Create a reactive text node from a getter function
-pub fn text_dyn(content : () -> String) -> @jsdom.Node {
-  text_node(content).as_node()
+pub fn text_dyn(content : () -> String) -> Node {
+  text_node(content)
 }
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_sig(sig : @signals.Signal[T]) -> @jsdom.Node {
-  text_from_signal(sig).as_node()
+pub fn[T : Show] text_sig(sig : @signals.Signal[T]) -> Node {
+  text_from_signal(sig)
 }
 
 // Attribute helpers
