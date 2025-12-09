@@ -1,22 +1,26 @@
 ///| Reactive Context - Tracks current running effect for auto-subscription
 
-///| Effect wrapper with unique ID for deduplication
+///|
+/// Effect wrapper with unique ID for deduplication
 pub struct EffectRunner {
   id : Int
   run : () -> Unit
 }
 
-///| Global effect ID counter
+///|
+/// Global effect ID counter
 let effect_id_counter : Ref[Int] = { val: 0 }
 
-///| Generate a new unique effect ID
+///|
+/// Generate a new unique effect ID
 pub fn new_effect_id() -> Int {
   let id = effect_id_counter.val
   effect_id_counter.val = id + 1
   id
 }
 
-///| Reactive context - tracks currently running computation
+///|
+/// Reactive context - tracks currently running computation
 priv struct ReactiveContext {
   mut current_subscriber : EffectRunner?
   mut current_cleanups : Array[() -> Unit]?
@@ -25,7 +29,8 @@ priv struct ReactiveContext {
   pending_ids : Array[Int]
 }
 
-///| Global reactive context instance
+///|
+/// Global reactive context instance
 let reactive_context : ReactiveContext = {
   current_subscriber: None,
   current_cleanups: None,
@@ -34,13 +39,16 @@ let reactive_context : ReactiveContext = {
   pending_ids: [],
 }
 
-///| Get current subscriber (if any) during signal read
+///|
+/// Get current subscriber (if any) during signal read
 pub fn get_current_subscriber() -> EffectRunner? {
   reactive_context.current_subscriber
 }
 
 ///| Run a function with the given subscriber as current
-///| This enables auto-tracking of signal dependencies
+
+///|
+/// This enables auto-tracking of signal dependencies
 pub fn[T] run_with_subscriber(subscriber : EffectRunner, f : () -> T) -> T {
   let prev = reactive_context.current_subscriber
   reactive_context.current_subscriber = Some(subscriber)
@@ -49,7 +57,8 @@ pub fn[T] run_with_subscriber(subscriber : EffectRunner, f : () -> T) -> T {
   result
 }
 
-///| Run a function without tracking (useful for avoiding circular deps)
+///|
+/// Run a function without tracking (useful for avoiding circular deps)
 pub fn[T] untracked(f : () -> T) -> T {
   let prev = reactive_context.current_subscriber
   reactive_context.current_subscriber = None
@@ -58,12 +67,14 @@ pub fn[T] untracked(f : () -> T) -> T {
   result
 }
 
-///| Start a batch update - effects won't run until batch ends
+///|
+/// Start a batch update - effects won't run until batch ends
 pub fn batch_start() -> Unit {
   reactive_context.batch_depth = reactive_context.batch_depth + 1
 }
 
-///| End a batch update - run all pending effects
+///|
+/// End a batch update - run all pending effects
 pub fn batch_end() -> Unit {
   reactive_context.batch_depth = reactive_context.batch_depth - 1
   if reactive_context.batch_depth == 0 {
@@ -71,7 +82,8 @@ pub fn batch_end() -> Unit {
   }
 }
 
-///| Run a function in a batch - all signal updates are batched
+///|
+/// Run a function in a batch - all signal updates are batched
 pub fn[T] batch(f : () -> T) -> T {
   batch_start()
   let result = f()
@@ -79,7 +91,8 @@ pub fn[T] batch(f : () -> T) -> T {
   result
 }
 
-///| Check if an effect ID is already pending
+///|
+/// Check if an effect ID is already pending
 fn is_pending(id : Int) -> Bool {
   for i = 0; i < reactive_context.pending_ids.length(); i = i + 1 {
     if reactive_context.pending_ids[i] == id {
@@ -89,7 +102,8 @@ fn is_pending(id : Int) -> Bool {
   false
 }
 
-///| Schedule an effect to run (respects batching, deduplicates)
+///|
+/// Schedule an effect to run (respects batching, deduplicates)
 pub fn schedule_effect(effect : EffectRunner) -> Unit {
   if reactive_context.batch_depth > 0 {
     // In batch mode, queue the effect if not already pending
@@ -103,7 +117,8 @@ pub fn schedule_effect(effect : EffectRunner) -> Unit {
   }
 }
 
-///| Flush all pending effects
+///|
+/// Flush all pending effects
 fn flush_effects() -> Unit {
   while reactive_context.pending_effects.length() > 0 {
     let effect = reactive_context.pending_effects.remove(0)
@@ -112,13 +127,16 @@ fn flush_effects() -> Unit {
   }
 }
 
-///| Check if we're currently inside a batch
+///|
+/// Check if we're currently inside a batch
 pub fn is_batching() -> Bool {
   reactive_context.batch_depth > 0
 }
 
 ///| Register a cleanup function to run when the current effect re-runs or disposes
-///| Must be called inside an effect
+
+///|
+/// Must be called inside an effect
 pub fn onCleanup(cleanup : () -> Unit) -> Unit {
   match reactive_context.current_cleanups {
     Some(cleanups) => cleanups.push(cleanup)
@@ -126,17 +144,21 @@ pub fn onCleanup(cleanup : () -> Unit) -> Unit {
   }
 }
 
-///| Set the current cleanup array (used internally by effect)
-pub fn set_current_cleanups(cleanups : Array[() -> Unit]?) -> Array[() -> Unit]? {
+///|
+/// Set the current cleanup array (used internally by effect)
+pub fn set_current_cleanups(
+  cleanups : Array[() -> Unit]?,
+) -> Array[() -> Unit]? {
   let prev = reactive_context.current_cleanups
   reactive_context.current_cleanups = cleanups
   prev
 }
 
-///| Run a function with cleanup tracking enabled
+///|
+/// Run a function with cleanup tracking enabled
 pub fn[T] run_with_cleanup_tracking(
   cleanups : Array[() -> Unit],
-  f : () -> T
+  f : () -> T,
 ) -> T {
   let prev = set_current_cleanups(Some(cleanups))
   let result = f()

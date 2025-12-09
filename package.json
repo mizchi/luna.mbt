@@ -2,11 +2,12 @@
   "name": "@mizchi/ui",
   "version": "0.1.0",
   "description": "Pure MoonBit Virtual DOM library with React-like hooks",
-  "type": "module",
   "scripts": {
-    "test": "moon test --target js",
+    "test": "moon test --target js --build-only && bun target/js/debug/test/vdom/vdom.blackbox_test.js && bun target/js/debug/test/signals/signals.blackbox_test.js && bun target/js/debug/test/signals/dom/dom.blackbox_test.js && bun target/js/debug/test/signals/ssr/ssr.blackbox_test.js",
+    "test:ssr": "moon test --target native --package signals/ssr",
     "build": "moon build --target js",
-    "check": "moon check"
+    "check": "moon check",
+    "check-minify": "moon build src/signals --target js && terser target/js/release/build/signals/signals.js --module --minify --mangle"
   },
   "keywords": [
     "moonbit",
@@ -19,7 +20,10 @@
   "author": "mizchi",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^24.10.2",
     "global-jsdom": "^27.0.0",
-    "jsdom": "^27.0.1"
-  }
+    "jsdom": "^27.0.1",
+    "terser": "^5.44.1"
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
 }

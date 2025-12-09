@@ -1,70 +1,80 @@
 ///|
 /// SSR Tests - Pure MoonBit
 test "render simple text" {
-  let node = vtext("Hello, World!")
+  let node = @signals.vtext("Hello, World!")
   let html = render_to_string(node)
   assert_eq(html, "Hello, World!")
 }
 
 ///|
 test "render escaped text" {
-  let node = vtext("<script>alert('xss')</script>")
+  let node = @signals.vtext("<script>alert('xss')</script>")
   let html = render_to_string(node)
   assert_eq(html, "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
 }
 
 ///|
 test "render simple element" {
-  let node = vdiv([], [])
+  let node = @signals.vdiv([], [])
   let html = render_to_string(node)
   assert_eq(html, "<div></div>")
 }
 
 ///|
 test "render element with text child" {
-  let node = vdiv([], [vtext("Hello")])
+  let node = @signals.vdiv([], [@signals.vtext("Hello")])
   let html = render_to_string(node)
   assert_eq(html, "<div>Hello</div>")
 }
 
 ///|
 test "render element with class" {
-  let node = vdiv([vclass("container")], [])
+  let node = @signals.vdiv([@signals.vclass("container")], [])
   let html = render_to_string(node)
   assert_eq(html, "<div class=\"container\"></div>")
 }
 
 ///|
 test "render element with multiple attrs" {
-  let node = vdiv([vid("main"), vclass("container")], [])
+  let node = @signals.vdiv(
+    [@signals.vid("main"), @signals.vclass("container")],
+    [],
+  )
   let html = render_to_string(node)
   assert_eq(html, "<div id=\"main\" class=\"container\"></div>")
 }
 
 ///|
 test "render nested elements" {
-  let node = vdiv([], [vspan([], [vtext("nested")])])
+  let node = @signals.vdiv([], [@signals.vspan([], [@signals.vtext("nested")])])
   let html = render_to_string(node)
   assert_eq(html, "<div><span>nested</span></div>")
 }
 
 ///|
 test "render void element" {
-  let node = vinput([vtype("text"), vplaceholder("Enter name")])
+  let node = @signals.vinput([
+    @signals.vtype("text"),
+    @signals.vplaceholder("Enter name"),
+  ])
   let html = render_to_string(node)
   assert_eq(html, "<input type=\"text\" placeholder=\"Enter name\" />")
 }
 
 ///|
 test "render br and hr" {
-  let node = vfragment([vbr(), vhr()])
+  let node = @signals.vfragment([@signals.vbr(), @signals.vhr()])
   let html = render_to_string(node)
   assert_eq(html, "<br /><hr />")
 }
 
 ///|
 test "render fragment" {
-  let node = vfragment([vtext("A"), vtext("B"), vtext("C")])
+  let node = @signals.vfragment([
+    @signals.vtext("A"),
+    @signals.vtext("B"),
+    @signals.vtext("C"),
+  ])
   let html = render_to_string(node)
   assert_eq(html, "ABC")
 }
@@ -72,7 +82,7 @@ test "render fragment" {
 ///|
 test "render dynamic text" {
   let count = 42
-  let node = vtext_dyn(fn() { "Count: " + count.to_string() })
+  let node = @signals.vtext_dyn(fn() { "Count: " + count.to_string() })
   let html = render_to_string(node)
   assert_eq(html, "Count: 42")
 }
@@ -80,8 +90,8 @@ test "render dynamic text" {
 ///|
 test "render dynamic attribute" {
   let active = true
-  let node = vdiv(
-    [vclass_dyn(fn() { if active { "active" } else { "inactive" } })],
+  let node = @signals.vdiv(
+    [@signals.vclass_dyn(fn() { if active { "active" } else { "inactive" } })],
     [],
   )
   let html = render_to_string(node)
@@ -90,21 +100,28 @@ test "render dynamic attribute" {
 
 ///|
 test "render style attribute" {
-  let node = vdiv([vstyle([("color", "red"), ("fontSize", "16px")])], [])
+  let node = @signals.vdiv(
+    [@signals.vstyle([("color", "red"), ("fontSize", "16px")])],
+    [],
+  )
   let html = render_to_string(node)
   assert_eq(html, "<div style=\"color: red; font-size: 16px\"></div>")
 }
 
 ///|
 test "render disabled attribute true" {
-  let node = vbutton([vdisabled(true)], [vtext("Submit")])
+  let node = @signals.vbutton([@signals.vdisabled(true)], [
+    @signals.vtext("Submit"),
+  ])
   let html = render_to_string(node)
   assert_eq(html, "<button disabled>Submit</button>")
 }
 
 ///|
 test "render disabled attribute false" {
-  let node = vbutton([vdisabled(false)], [vtext("Submit")])
+  let node = @signals.vbutton([@signals.vdisabled(false)], [
+    @signals.vtext("Submit"),
+  ])
   let html = render_to_string(node)
   assert_eq(html, "<button>Submit</button>")
 }
@@ -112,7 +129,9 @@ test "render disabled attribute false" {
 ///|
 test "render show when true" {
   let visible = true
-  let node = vshow(fn() { visible }, fn() { vtext("Visible!") })
+  let node = @signals.vshow(fn() { visible }, fn() {
+    @signals.vtext("Visible!")
+  })
   let html = render_to_string(node)
   assert_eq(html, "Visible!")
 }
@@ -120,7 +139,9 @@ test "render show when true" {
 ///|
 test "render show when false" {
   let visible = false
-  let node = vshow(fn() { visible }, fn() { vtext("Visible!") })
+  let node = @signals.vshow(fn() { visible }, fn() {
+    @signals.vtext("Visible!")
+  })
   let html = render_to_string(node)
   assert_eq(html, "<!--show-->")
 }
@@ -128,10 +149,10 @@ test "render show when false" {
 ///|
 test "render for list" {
   let items = ["A", "B", "C"]
-  let node = vfor(fn() {
-    let result : Array[VNode] = []
+  let node = @signals.vfor(fn() {
+    let result : Array[@signals.VNode] = []
     for i = 0; i < items.length(); i = i + 1 {
-      result.push(vli([], [vtext(items[i])]))
+      result.push(@signals.vli([], [@signals.vtext(items[i])]))
     }
     result
   })
@@ -141,20 +162,21 @@ test "render for list" {
 
 ///|
 test "render component" {
-  fn greeting(name : String) -> VNode {
-    vdiv([], [vtext("Hello, " + name + "!")])
+  fn greeting(name : String) -> @signals.VNode {
+    @signals.vdiv([], [@signals.vtext("Hello, " + name + "!")])
   }
 
-  let node = vcomponent(fn() { greeting("World") })
+  let node = @signals.vcomponent(fn() { greeting("World") })
   let html = render_to_string(node)
   assert_eq(html, "<div>Hello, World!</div>")
 }
 
 ///|
 test "handlers are not rendered" {
-  let node = vbutton([von_click(fn() { () }), vclass("btn")], [
-    vtext("Click me"),
-  ])
+  let node = @signals.vbutton(
+    [@signals.von_click(@signals.event_handler()), @signals.vclass("btn")],
+    [@signals.vtext("Click me")],
+  )
   let html = render_to_string(node)
   // Handler should not appear in output
   assert_eq(html, "<button class=\"btn\">Click me</button>")
@@ -162,7 +184,7 @@ test "handlers are not rendered" {
 
 ///|
 test "escape attribute value" {
-  let node = vdiv([vattr("data-value", "a\"b&c")], [])
+  let node = @signals.vdiv([@signals.vattr("data-value", "a\"b&c")], [])
   let html = render_to_string(node)
   assert_eq(html, "<div data-value=\"a&quot;b&amp;c\"></div>")
 }
@@ -170,14 +192,16 @@ test "escape attribute value" {
 ///|
 test "render with hydration markers for dynamic text" {
   let count = 5
-  let node = vtext_dyn(fn() { count.to_string() })
+  let node = @signals.vtext_dyn(fn() { count.to_string() })
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<!--t:0-->5<!--/t-->")
 }
 
 ///|
 test "render with hydration markers for element with handler" {
-  let node = vbutton([von_click(fn() { () })], [vtext("Click")])
+  let node = @signals.vbutton([@signals.von_click(@signals.event_handler())], [
+    @signals.vtext("Click"),
+  ])
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<button data-hk=\"0\">Click</button>")
 }
@@ -185,14 +209,14 @@ test "render with hydration markers for element with handler" {
 ///|
 test "render with hydration markers for show" {
   let visible = true
-  let node = vshow(fn() { visible }, fn() { vtext("Content") })
+  let node = @signals.vshow(fn() { visible }, fn() { @signals.vtext("Content") })
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<!--s:0-->Content<!--/s-->")
 }
 
 ///|
 test "render with hydration markers for list" {
-  let node = vfor(fn() { [vtext("A"), vtext("B")] })
+  let node = @signals.vfor(fn() { [@signals.vtext("A"), @signals.vtext("B")] })
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<!--f:0-->AB<!--/f-->")
 }
@@ -202,19 +226,24 @@ test "complex page render" {
   let title = "My App"
   let count = 0
   let items = ["Item 1", "Item 2"]
-  let page = vdiv([vclass("app")], [
-    vh1([], [vtext(title)]),
-    vp([], [vtext("Count: "), vtext_dyn(fn() { count.to_string() })]),
-    vul([], [
-      vfor(fn() {
-        let result : Array[VNode] = []
+  let page = @signals.vdiv([@signals.vclass("app")], [
+    @signals.vh1([], [@signals.vtext(title)]),
+    @signals.vp([], [
+      @signals.vtext("Count: "),
+      @signals.vtext_dyn(fn() { count.to_string() }),
+    ]),
+    @signals.vul([], [
+      @signals.vfor(fn() {
+        let result : Array[@signals.VNode] = []
         for i = 0; i < items.length(); i = i + 1 {
-          result.push(vli([], [vtext(items[i])]))
+          result.push(@signals.vli([], [@signals.vtext(items[i])]))
         }
         result
       }),
     ]),
-    vbutton([von_click(fn() { () })], [vtext("Increment")]),
+    @signals.vbutton([@signals.von_click(@signals.event_handler())], [
+      @signals.vtext("Increment"),
+    ]),
   ])
   let html = render_to_string(page)
   assert_true(html.contains("<h1>My App</h1>"))

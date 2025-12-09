@@ -392,7 +392,11 @@ test "bench: create 100 divs with props" (b : @bench.T) {
     for i = 0; i < 100; i = i + 1 {
       items.push(
         div(
-          [class_name("item"), id("item-" + i.to_string()), data_("data-index", i.to_string())],
+          [
+            class_name("item"),
+            id("item-" + i.to_string()),
+            data_("data-index", i.to_string()),
+          ],
           [text("Content " + i.to_string())],
         ),
       )
@@ -421,7 +425,9 @@ test "bench: create 100 card components" (b : @bench.T) {
     for i = 0; i < 100; i = i + 1 {
       cards.push(
         div([class_name("card")], [
-          div([class_name("card-header")], [h3([], [text("Card " + i.to_string())])]),
+          div([class_name("card-header")], [
+            h3([], [text("Card " + i.to_string())]),
+          ]),
           div([class_name("card-body")], [p([], [text("Content")])]),
         ]),
       )

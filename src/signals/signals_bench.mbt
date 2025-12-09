@@ -1,4 +1,5 @@
-///| Signals Library Benchmarks
+///|
+/// Signals Library Benchmarks
 
 // =============================================================================
 // Signal Creation & Access
@@ -8,16 +9,19 @@ test "signal_create" (b : @bench.T) {
   b.bench(name="Signal::new", fn() { b.keep(Signal::new(42)) })
 }
 
+///|
 test "signal_peek" (b : @bench.T) {
   let sig = Signal::new(42)
   b.bench(name="Signal::peek", fn() { b.keep(sig.peek()) })
 }
 
+///|
 test "signal_get" (b : @bench.T) {
   let sig = Signal::new(42)
   b.bench(name="Signal::get", fn() { b.keep(sig.get()) })
 }
 
+///|
 test "signal_set" (b : @bench.T) {
   let sig = Signal::new(0)
   let mut i = 0
@@ -27,6 +31,7 @@ test "signal_set" (b : @bench.T) {
   })
 }
 
+///|
 test "signal_update" (b : @bench.T) {
   let sig = Signal::new(0)
   b.bench(name="Signal::update", fn() { sig.update(fn(n) { n + 1 }) })
@@ -36,6 +41,7 @@ test "signal_update" (b : @bench.T) {
 // Effect
 // =============================================================================
 
+///|
 test "effect_create_dispose" (b : @bench.T) {
   b.bench(name="effect_create_dispose", fn() {
     let dispose = effect(fn() { () })
@@ -43,22 +49,23 @@ test "effect_create_dispose" (b : @bench.T) {
   })
 }
 
+///|
 test "effect_with_signal" (b : @bench.T) {
   let sig = Signal::new(0)
   b.bench(name="effect_with_1_signal", fn() {
     let dispose = effect(fn() {
       let _ = sig.get()
+
     })
     dispose()
   })
 }
 
+///|
 test "effect_rerun" (b : @bench.T) {
   let sig = Signal::new(0)
   let count = { val: 0 }
-  let _ = effect(fn() {
-    count.val = sig.get()
-  })
+  let _ = effect(fn() { count.val = sig.get() })
   let mut i = 0
   b.bench(name="effect_rerun", fn() {
     i = i + 1
@@ -70,16 +77,19 @@ test "effect_rerun" (b : @bench.T) {
 // Memo
 // =============================================================================
 
+///|
 test "memo_create" (b : @bench.T) {
   b.bench(name="memo_create", fn() { b.keep(memo(fn() { 42 })) })
 }
 
+///|
 test "memo_cached_read" (b : @bench.T) {
   let m = memo(fn() { 42 * 2 })
   let _ = m() // Initialize
   b.bench(name="memo_cached_read", fn() { b.keep(m()) })
 }
 
+///|
 test "memo_recompute" (b : @bench.T) {
   let sig = Signal::new(0)
   let doubled = memo(fn() { sig.get() * 2 })
@@ -95,6 +105,7 @@ test "memo_recompute" (b : @bench.T) {
 // Batch
 // =============================================================================
 
+///|
 test "batch_3_updates" (b : @bench.T) {
   let a = Signal::new(0)
   let b_ = Signal::new(0)
@@ -114,6 +125,7 @@ test "batch_3_updates" (b : @bench.T) {
 // Complex Scenarios
 // =============================================================================
 
+///|
 test "derived_chain_3" (b : @bench.T) {
   let source = Signal::new(1)
   let doubled = memo(fn() { source.get() * 2 })
@@ -126,6 +138,7 @@ test "derived_chain_3" (b : @bench.T) {
   })
 }
 
+///|
 test "diamond_dependency" (b : @bench.T) {
   let a = Signal::new(1)
   let b_ = memo(fn() { a.get() * 2 })
@@ -139,6 +152,7 @@ test "diamond_dependency" (b : @bench.T) {
   })
 }
 
+///|
 test "5_effects_1_signal" (b : @bench.T) {
   let sig = Signal::new(0)
   let counts : Array[Int] = [0, 0, 0, 0, 0]
@@ -154,17 +168,17 @@ test "5_effects_1_signal" (b : @bench.T) {
   })
 }
 
+///|
 test "untracked_read" (b : @bench.T) {
   let sig = Signal::new(42)
-  b.bench(name="untracked_read", fn() {
-    b.keep(untracked(fn() { sig.get() }))
-  })
+  b.bench(name="untracked_read", fn() { b.keep(untracked(fn() { sig.get() })) })
 }
 
 // =============================================================================
 // Large Scale Benchmarks
 // =============================================================================
 
+///|
 test "create_100_signals" (b : @bench.T) {
   b.bench(name="create_100_signals", fn() {
     let signals : Array[Signal[Int]] = []
@@ -175,6 +189,7 @@ test "create_100_signals" (b : @bench.T) {
   })
 }
 
+///|
 test "create_1000_signals" (b : @bench.T) {
   b.bench(name="create_1000_signals", fn() {
     let signals : Array[Signal[Int]] = []
@@ -185,6 +200,7 @@ test "create_1000_signals" (b : @bench.T) {
   })
 }
 
+///|
 test "100_effects_1_signal" (b : @bench.T) {
   let sig = Signal::new(0)
   let counts : Array[Int] = []
@@ -194,6 +210,7 @@ test "100_effects_1_signal" (b : @bench.T) {
   for i = 0; i < 100; i = i + 1 {
     let idx = i
     let _ = effect(fn() { counts[idx] = sig.get() })
+
   }
   let mut i = 0
   b.bench(name="100_effects_on_1_signal", fn() {
@@ -202,6 +219,7 @@ test "100_effects_1_signal" (b : @bench.T) {
   })
 }
 
+///|
 test "derived_chain_10" (b : @bench.T) {
   let source = Signal::new(1)
   let m1 = memo(fn() { source.get() + 1 })
@@ -222,6 +240,7 @@ test "derived_chain_10" (b : @bench.T) {
   })
 }
 
+///|
 test "wide_dependency_100_memos" (b : @bench.T) {
   let source = Signal::new(1)
   let memos : Array[() -> Int] = []
@@ -245,6 +264,7 @@ test "wide_dependency_100_memos" (b : @bench.T) {
   })
 }
 
+///|
 test "batch_100_updates" (b : @bench.T) {
   let signals : Array[Signal[Int]] = []
   for i = 0; i < 100; i = i + 1 {
@@ -270,6 +290,7 @@ test "batch_100_updates" (b : @bench.T) {
   })
 }
 
+///|
 test "unbatched_100_updates" (b : @bench.T) {
   let signals : Array[Signal[Int]] = []
   for i = 0; i < 100; i = i + 1 {

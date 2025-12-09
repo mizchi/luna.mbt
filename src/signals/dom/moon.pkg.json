@@ -1,0 +1,15 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    "mizchi/ui/signals",
+    "mizchi/js/core",
+    { "path": "mizchi/js/browser/dom", "alias": "jsdom" },
+    "mizchi/js/web/event",
+    "mizchi/js/builtins/global"
+  ],
+  "test-import": [
+    "mizchi/js/npm/global_jsdom"
+  ]
+}

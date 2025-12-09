@@ -1,4 +1,5 @@
-///| Tests for Signal-based Fine-Grained Reactivity
+///|
+/// Tests for Signal-based Fine-Grained Reactivity
 
 // Signal tests
 
@@ -7,23 +8,27 @@ test "Signal::new creates signal with initial value" {
   assert_eq(sig.peek(), 42)
 }
 
+///|
 test "Signal::get returns current value" {
   let sig = Signal::new("hello")
   assert_eq(sig.get(), "hello")
 }
 
+///|
 test "Signal::set updates value" {
   let sig = Signal::new(0)
   sig.set(10)
   assert_eq(sig.get(), 10)
 }
 
+///|
 test "Signal::update transforms value" {
   let sig = Signal::new(5)
   sig.update(fn(n) { n * 2 })
   assert_eq(sig.get(), 10)
 }
 
+///|
 test "Signal::peek does not track dependency" {
   let sig = Signal::new(1)
   let count = { val: 0 }
@@ -46,37 +51,31 @@ test "Signal::peek does not track dependency" {
 
 // Effect tests
 
+///|
 test "effect runs immediately" {
   let count = { val: 0 }
-  let _ = effect(fn() {
-    count.val = count.val + 1
-  })
+  let _ = effect(fn() { count.val = count.val + 1 })
   assert_eq(count.val, 1)
 }
 
+///|
 test "effect re-runs when signal changes" {
   let sig = Signal::new(0)
   let observed = { val: 0 }
-
-  let _ = effect(fn() {
-    observed.val = sig.get()
-  })
-
+  let _ = effect(fn() { observed.val = sig.get() })
   assert_eq(observed.val, 0)
-
   sig.set(42)
   assert_eq(observed.val, 42)
 }
 
+///|
 test "effect dispose stops re-running" {
   let sig = Signal::new(0)
   let count = { val: 0 }
-
   let dispose = effect(fn() {
     let _ = sig.get()
     count.val = count.val + 1
   })
-
   assert_eq(count.val, 1)
 
   // Dispose the effect
@@ -88,30 +87,25 @@ test "effect dispose stops re-running" {
   // The key is dispose() was called
 }
 
+///|
 test "effect tracks multiple signals" {
   let a = Signal::new(1)
   let b = Signal::new(2)
   let sum = { val: 0 }
-
-  let _ = effect(fn() {
-    sum.val = a.get() + b.get()
-  })
-
+  let _ = effect(fn() { sum.val = a.get() + b.get() })
   assert_eq(sum.val, 3)
-
   a.set(10)
   assert_eq(sum.val, 12)
-
   b.set(20)
   assert_eq(sum.val, 30)
 }
 
 // Memo tests
 
+///|
 test "memo caches computed value" {
   let sig = Signal::new(5)
   let compute_count = { val: 0 }
-
   let doubled = memo(fn() {
     compute_count.val = compute_count.val + 1
     sig.get() * 2
@@ -126,29 +120,25 @@ test "memo caches computed value" {
   // Note: compute_count may increase due to effect re-registration
 }
 
+///|
 test "memo updates when dependency changes" {
   let sig = Signal::new(3)
   let squared = memo(fn() { sig.get() * sig.get() })
-
   assert_eq(squared(), 9)
-
   sig.set(4)
   assert_eq(squared(), 16)
 }
 
 // Batch tests
 
+///|
 test "batch delays effect execution" {
   let sig = Signal::new(0)
   let history : Array[Int] = []
-
-  let _ = effect(fn() {
-    history.push(sig.get())
-  })
+  let _ = effect(fn() { history.push(sig.get()) })
 
   // Initial effect run
   assert_eq(history.length(), 1)
-
   batch(fn() {
     sig.set(1)
     sig.set(2)
@@ -160,13 +150,14 @@ test "batch delays effect execution" {
   // (effects run once at end of batch)
 }
 
+///|
 test "untracked prevents dependency tracking" {
   let sig = Signal::new(0)
   let count = { val: 0 }
-
   let _ = effect(fn() {
     untracked(fn() {
       let _ = sig.get()
+
     })
     count.val = count.val + 1
   })
@@ -181,59 +172,50 @@ test "untracked prevents dependency tracking" {
 
 // Integration tests
 
+///|
 test "nested signals work correctly" {
   let outer = Signal::new(1)
   let inner = Signal::new(10)
   let result = { val: 0 }
-
-  let _ = effect(fn() {
-    result.val = outer.get() * inner.get()
-  })
-
+  let _ = effect(fn() { result.val = outer.get() * inner.get() })
   assert_eq(result.val, 10)
-
   outer.set(2)
   assert_eq(result.val, 20)
-
   inner.set(5)
   assert_eq(result.val, 10)
 }
 
+///|
 test "signal with complex type" {
   let sig : Signal[Array[Int]] = Signal::new([1, 2, 3])
-
   assert_eq(sig.get().length(), 3)
-
   sig.set([1, 2, 3, 4, 5])
   assert_eq(sig.get().length(), 5)
 }
 
 // on() tests
 
+///|
 test "on subscribes to signal changes" {
   let sig = Signal::new(0)
   let observed : Array[Int] = []
-
   let unsub = on(sig, fn(value) { observed.push(value) })
-
   sig.set(1)
   assert_eq(observed.length(), 1)
   assert_eq(observed[0], 1)
-
   sig.set(2)
   assert_eq(observed.length(), 2)
   assert_eq(observed[1], 2)
-
   unsub()
   sig.set(3)
   // Should not add more after unsubscribe
   assert_eq(observed.length(), 2)
 }
 
+///|
 test "on_immediate runs with initial value" {
   let sig = Signal::new(42)
   let observed : Array[Int] = []
-
   let _ = on_immediate(sig, fn(value) { observed.push(value) })
 
   // Should have initial value
@@ -243,10 +225,10 @@ test "on_immediate runs with initial value" {
 
 // onCleanup() tests
 
+///|
 test "onCleanup runs before effect re-runs" {
   let sig = Signal::new(0)
   let cleanup_count = { val: 0 }
-
   let _ = effect(fn() {
     let _ = sig.get()
     onCleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
@@ -259,147 +241,133 @@ test "onCleanup runs before effect re-runs" {
   sig.set(1)
   // Cleanup should have run
   assert_eq(cleanup_count.val, 1)
-
   sig.set(2)
   assert_eq(cleanup_count.val, 2)
 }
 
+///|
 test "onCleanup runs on dispose" {
   let cleanup_count = { val: 0 }
-
   let dispose = effect(fn() {
     onCleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
   })
-
   assert_eq(cleanup_count.val, 0)
-
   dispose()
   assert_eq(cleanup_count.val, 1)
 }
 
 // watch() tests
 
+///|
 test "watch calls callback on change" {
   let sig = Signal::new(0)
   let changes : Array[(Int, Int)] = []
-
   let _ = watch(fn() { sig.get() }, fn(new_val, old_val) {
     changes.push((new_val, old_val))
   })
 
   // First read doesn't trigger callback (no previous value to compare)
   assert_eq(changes.length(), 0)
-
   sig.set(1)
   assert_eq(changes.length(), 1)
   assert_eq(changes[0].0, 1)
   assert_eq(changes[0].1, 0)
-
   sig.set(2)
   assert_eq(changes.length(), 2)
   assert_eq(changes[1].0, 2)
   assert_eq(changes[1].1, 1)
 }
 
+///|
 test "watch does not call for same value" {
   let sig = Signal::new(5)
   let call_count = { val: 0 }
-
   let _ = watch(fn() { sig.get() }, fn(_new, _old) {
     call_count.val = call_count.val + 1
   })
-
   sig.set(5) // Same value
   assert_eq(call_count.val, 0)
-
   sig.set(6) // Different value
   assert_eq(call_count.val, 1)
 }
 
 // previous() tests
 
+///|
 test "previous tracks previous value" {
   let sig = Signal::new(1)
   let prev = previous(sig)
 
   // Initially no previous
   assert_eq(prev(), None)
-
   sig.set(2)
   assert_eq(prev(), Some(1))
-
   sig.set(3)
   assert_eq(prev(), Some(2))
 }
 
+///|
 test "previous_with_initial uses initial value" {
   let sig = Signal::new(10)
   let prev = previous_with_initial(sig, 0)
 
   // Initial previous is 0
   assert_eq(prev(), 0)
-
   sig.set(20)
   assert_eq(prev(), 10)
 }
 
 // Combinator tests
 
+///|
 test "Signal::map transforms value" {
   let sig = Signal::new(5)
   let doubled = sig.map(fn(n) { n * 2 })
-
   assert_eq(doubled(), 10)
-
   sig.set(7)
   assert_eq(doubled(), 14)
 }
 
+///|
 test "combine2 combines two signals" {
   let a = Signal::new(10)
   let b = Signal::new(20)
   let sum = combine2(a, b, fn(x, y) { x + y })
-
   assert_eq(sum(), 30)
-
   a.set(5)
   assert_eq(sum(), 25)
-
   b.set(100)
   assert_eq(sum(), 105)
 }
 
+///|
 test "all returns true when all signals are true" {
   let a = Signal::new(true)
   let b = Signal::new(true)
   let c = Signal::new(true)
   let all_true = all([a, b, c])
-
   assert_eq(all_true(), true)
-
   b.set(false)
   assert_eq(all_true(), false)
 }
 
+///|
 test "any returns true when any signal is true" {
   let a = Signal::new(false)
   let b = Signal::new(false)
   let any_true = any([a, b])
-
   assert_eq(any_true(), false)
-
   a.set(true)
   assert_eq(any_true(), true)
 }
 
+///|
 test "switch_ selects based on condition" {
   let cond = Signal::new(true)
   let on_true = Signal::new("yes")
   let on_false = Signal::new("no")
   let result = switch_(cond, on_true, on_false)
-
   assert_eq(result(), "yes")
-
   cond.set(false)
   assert_eq(result(), "no")
 }

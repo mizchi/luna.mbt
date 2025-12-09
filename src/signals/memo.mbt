@@ -1,6 +1,7 @@
 ///| Memo - Cached computed value that updates when dependencies change
 
-///| Memo state
+///|
+/// Memo state
 priv struct MemoState[T] {
   mut value : T?
   mut dirty : Bool
@@ -8,7 +9,9 @@ priv struct MemoState[T] {
 }
 
 ///| Create a memoized computation
-///| Returns a getter function that caches the result
+
+///|
+/// Returns a getter function that caches the result
 pub fn[T] memo(compute : () -> T) -> () -> T {
   let id = new_effect_id()
   let state : MemoState[T] = { value: None, dirty: true, subscribers: [] }
@@ -76,7 +79,8 @@ pub fn[T] memo(compute : () -> T) -> () -> T {
   }
 }
 
-///| Create a computed signal (alias for memo with Signal-like API)
+///|
+/// Create a computed signal (alias for memo with Signal-like API)
 pub fn[T] computed(compute : () -> T) -> () -> T {
   memo(compute)
 }

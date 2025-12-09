@@ -1,14 +1,23 @@
 {
-  "supported-targets": [
-    "js"
-  ],
-  "import": [
-    "mizchi/js/core",
-    "mizchi/js/browser/dom",
-    "mizchi/js/web/event",
-    "mizchi/js/builtins/global"
-  ],
-  "test-import": [
-    "mizchi/js/npm/global_jsdom"
-  ]
+  "import": [],
+  "link": {
+    "js": {
+      "exports": [
+        "create_signal:createSignal",
+        "get",
+        "set",
+        "update",
+        "peek",
+        "subscribe",
+        "map",
+        "create_memo:createMemo",
+        "combine",
+        "effect",
+        "batch_start:batchStart",
+        "batch_end:batchEnd",
+        "run_untracked:runUntracked"
+      ],
+      "format": "esm"
+    }
+  }
 }

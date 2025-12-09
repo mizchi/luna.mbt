@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/js/_experimental/ui"
+package "mizchi/ui/vdom"
 
 import(
   "mizchi/js/browser/dom"

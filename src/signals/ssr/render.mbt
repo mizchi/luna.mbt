@@ -1,8 +1,11 @@
 ///| SSR - Server-Side Rendering for VNode
+
 ///| Pure MoonBit implementation with no external dependencies
 
 ///| Self-closing tags that don't need a closing tag
-///| Optimized with length check and first char dispatch
+
+///|
+/// Optimized with length check and first char dispatch
 fn is_void_element(tag : String) -> Bool {
   let len = tag.length()
   // Fast reject: most common tags are not void elements
@@ -21,7 +24,8 @@ fn is_void_element(tag : String) -> Bool {
   }
 }
 
-///| Check if string needs HTML escaping
+///|
+/// Check if string needs HTML escaping
 fn needs_html_escape(s : String) -> Bool {
   for char in s {
     match char {
@@ -32,7 +36,8 @@ fn needs_html_escape(s : String) -> Bool {
   false
 }
 
-///| Escape HTML special characters and write to StringBuilder
+///|
+/// Escape HTML special characters and write to StringBuilder
 fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
   // Fast path: most strings don't need escaping
   if not(needs_html_escape(s)) {
@@ -52,7 +57,8 @@ fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
   }
 }
 
-///| Check if string needs attribute escaping
+///|
+/// Check if string needs attribute escaping
 fn needs_attr_escape(s : String) -> Bool {
   for char in s {
     match char {
@@ -63,7 +69,8 @@ fn needs_attr_escape(s : String) -> Bool {
   false
 }
 
-///| Escape attribute value and write to StringBuilder
+///|
+/// Escape attribute value and write to StringBuilder
 fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
   // Fast path: most attribute values don't need escaping
   if not(needs_attr_escape(s)) {
@@ -80,7 +87,8 @@ fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
   }
 }
 
-///| Convert style array to CSS string and write to StringBuilder
+///|
+/// Convert style array to CSS string and write to StringBuilder
 fn style_to_sb(sb : StringBuilder, styles : Array[(String, String)]) -> Unit {
   for i = 0; i < styles.length(); i = i + 1 {
     let (prop, value) = styles[i]
@@ -94,7 +102,8 @@ fn style_to_sb(sb : StringBuilder, styles : Array[(String, String)]) -> Unit {
   }
 }
 
-///| Check if string has uppercase letters (needs camelCase conversion)
+///|
+/// Check if string has uppercase letters (needs camelCase conversion)
 fn needs_kebab_convert(s : String) -> Bool {
   for char in s {
     if char >= 'A' && char <= 'Z' {
@@ -104,7 +113,8 @@ fn needs_kebab_convert(s : String) -> Bool {
   false
 }
 
-///| Convert camelCase to kebab-case and write to StringBuilder
+///|
+/// Convert camelCase to kebab-case and write to StringBuilder
 fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
   // Fast path: already kebab-case or lowercase
   if not(needs_kebab_convert(s)) {
@@ -122,12 +132,16 @@ fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
   }
 }
 
-///| Render attributes to StringBuilder
-fn render_attrs_to(sb : StringBuilder, attrs : Array[(String, VAttr)]) -> Unit {
+///|
+/// Render attributes to StringBuilder
+fn render_attrs_to(
+  sb : StringBuilder,
+  attrs : Array[(String, @signals.VAttr)],
+) -> Unit {
   for attr in attrs {
     let (name, value) = attr
     match value {
-      VStatic(s) => {
+      VStatic(s) =>
         if s != "__remove__" {
           if s == "" {
             // Boolean attribute (like disabled)
@@ -141,7 +155,6 @@ fn render_attrs_to(sb : StringBuilder, attrs : Array[(String, VAttr)]) -> Unit {
             sb.write_char('"')
           }
         }
-      }
       VDynamic(getter) => {
         let s = getter()
         if s != "__remove__" {
@@ -157,17 +170,15 @@ fn render_attrs_to(sb : StringBuilder, attrs : Array[(String, VAttr)]) -> Unit {
           }
         }
       }
-      VHandler(_) => {
+      VHandler(_) =>
         // Event handlers are not rendered in SSR
         ()
-      }
-      VStyle(styles) => {
+      VStyle(styles) =>
         if styles.length() > 0 {
           sb.write_string(" style=\"")
           style_to_sb(sb, styles)
           sb.write_char('"')
         }
-      }
       VDynamicStyle(getter) => {
         let styles = getter()
         if styles.length() > 0 {
@@ -180,16 +191,16 @@ fn render_attrs_to(sb : StringBuilder, attrs : Array[(String, VAttr)]) -> Unit {
   }
 }
 
-///| Render a VNode to StringBuilder
-fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
+///|
+/// Render a VNode to StringBuilder
+fn render_to_sb(sb : StringBuilder, node : @signals.VNode) -> Unit {
   match node {
     VText(content) => escape_html_to(sb, content)
     VDynamicText(getter) => escape_html_to(sb, getter())
-    VFragment(children) => {
+    VFragment(children) =>
       for child in children {
         render_to_sb(sb, child)
       }
-    }
     VElement(elem) => {
       let tag = elem.tag
       sb.write_char('<')
@@ -207,42 +218,43 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
         sb.write_char('>')
       }
     }
-    VShow(condition=cond, child=child_fn) => {
+    VShow(condition=cond, child=child_fn) =>
       if cond() {
         render_to_sb(sb, child_fn())
       } else {
         sb.write_string("<!--show-->")
       }
-    }
-    VFor(render=render_fn) => {
+    VFor(render=render_fn) =>
       for item in render_fn() {
         render_to_sb(sb, item)
       }
-    }
     VComponent(render=render_fn) => render_to_sb(sb, render_fn())
   }
 }
 
-///| Render a VNode to HTML string
-pub fn render_to_string(node : VNode) -> String {
+///|
+/// Render a VNode to HTML string
+pub fn render_to_string(node : @signals.VNode) -> String {
   let sb = StringBuilder::new(size_hint=256)
   render_to_sb(sb, node)
   sb.to_string()
 }
 
-///| Render with data-ssr-id markers for hydration
-pub fn render_to_string_with_hydration(node : VNode) -> String {
+///|
+/// Render with data-ssr-id markers for hydration
+pub fn render_to_string_with_hydration(node : @signals.VNode) -> String {
   let sb = StringBuilder::new(size_hint=256)
   let id_counter = { val: 0 }
   render_with_id_to(sb, node, id_counter)
   sb.to_string()
 }
 
-///| Internal: Render with hydration markers to StringBuilder
+///|
+/// Internal: Render with hydration markers to StringBuilder
 fn render_with_id_to(
   sb : StringBuilder,
-  node : VNode,
-  id_counter : Ref[Int]
+  node : @signals.VNode,
+  id_counter : Ref[Int],
 ) -> Unit {
   match node {
     VText(content) => escape_html_to(sb, content)
@@ -255,11 +267,10 @@ fn render_with_id_to(
       escape_html_to(sb, getter())
       sb.write_string("<!--/t-->")
     }
-    VFragment(children) => {
+    VFragment(children) =>
       for child in children {
         render_with_id_to(sb, child, id_counter)
       }
-    }
     VElement(elem) => {
       let tag = elem.tag
       let id = id_counter.val
@@ -267,7 +278,6 @@ fn render_with_id_to(
 
       // Check if element has dynamic attributes or handlers
       let needs_hydration = has_dynamic_content(elem.attrs)
-
       sb.write_char('<')
       sb.write_string(tag)
       render_attrs_to(sb, elem.attrs)
@@ -276,7 +286,6 @@ fn render_with_id_to(
         sb.write_object(id)
         sb.write_char('"')
       }
-
       if is_void_element(tag) {
         sb.write_string(" />")
       } else {
@@ -311,12 +320,14 @@ fn render_with_id_to(
       }
       sb.write_string("<!--/f-->")
     }
-    VComponent(render=render_fn) => render_with_id_to(sb, render_fn(), id_counter)
+    VComponent(render=render_fn) =>
+      render_with_id_to(sb, render_fn(), id_counter)
   }
 }
 
-///| Check if element has dynamic content that needs hydration
-fn has_dynamic_content(attrs : Array[(String, VAttr)]) -> Bool {
+///|
+/// Check if element has dynamic content that needs hydration
+fn has_dynamic_content(attrs : Array[(String, @signals.VAttr)]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {
