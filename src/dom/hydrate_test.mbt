@@ -15,10 +15,26 @@ fn get_inner_html(container : @js_dom.Element) -> String {
 }
 
 ///|
-/// Create a test container
+/// Cleanup document.body.innerHTML
+fn cleanup() -> Unit {
+  let doc = @js_dom.document()
+  match doc.body() {
+    Some(body) => body.as_any()._set("innerHTML", @core.any("")) |> ignore
+    None => ()
+  }
+}
+
+///|
+/// Create a test container and append to document.body
 fn create_container() -> @js_dom.Element {
   let doc = @js_dom.document()
-  doc.createElement("div")
+  let container = doc.createElement("div")
+  // Append to body so querySelector can find child elements
+  match doc.body() {
+    Some(body) => body.as_node().appendChild(container.as_node()) |> ignore
+    None => ()
+  }
+  container
 }
 
 // =============================================================================
@@ -28,6 +44,7 @@ fn create_container() -> @js_dom.Element {
 ///|
 test "hydrate simple text" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vtext("Hello")
 
@@ -45,6 +62,7 @@ test "hydrate simple text" {
 ///|
 test "hydrate element with text" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vdiv([], [@ui.vtext("Content")])
 
@@ -58,6 +76,7 @@ test "hydrate element with text" {
 ///|
 test "hydrate element with class" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vdiv([@ui.vclass("test-class")], [@ui.vtext("Styled")])
 
@@ -71,6 +90,7 @@ test "hydrate element with class" {
 ///|
 test "hydrate nested elements" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vdiv([], [
     @ui.vspan([], [@ui.vtext("Nested")]),
@@ -90,6 +110,7 @@ test "hydrate nested elements" {
 ///|
 test "hydrate dynamic text with hydration markers" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let count = @ui.signal(42)
   let vnode = @ui.vtext_dyn(fn() { count.get().to_string() })
@@ -113,6 +134,7 @@ test "hydrate dynamic text with hydration markers" {
 ///|
 test "hydrate element with click handler" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vbutton(
     [@ui.von_click(@ui.event_handler())],
@@ -133,6 +155,7 @@ test "hydrate element with click handler" {
 ///|
 test "hydrate dynamic class" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let active = @ui.signal(false)
   let vnode = @ui.vdiv(
@@ -161,6 +184,7 @@ test "hydrate dynamic class" {
 ///|
 test "hydrate show when visible" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let visible = @ui.signal(true)
   let vnode = @ui.vshow(
@@ -182,6 +206,7 @@ test "hydrate show when visible" {
 ///|
 test "hydrate show when hidden" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let visible = @ui.signal(false)
   let vnode = @ui.vshow(
@@ -206,6 +231,7 @@ test "hydrate show when hidden" {
 ///|
 test "hydrate for loop" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let items = @ui.signal(["A", "B", "C"])
   let vnode = @ui.vfor(fn() {
@@ -241,7 +267,9 @@ test "hydrate for loop" {
 ///|
 test "hydrate detects missing element" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
+  let logger = StringBuilder::new()
 
   // VNode expects a button with handler
   let vnode = @ui.vbutton(
@@ -252,12 +280,17 @@ test "hydrate detects missing element" {
   // But SSR HTML is completely different (simulating mismatch)
   set_inner_html(container, "<span>Wrong element</span>")
 
-  // Hydrate with strict options
-  let result = hydrate(container, vnode, recover_on_mismatch=false)
+  // Hydrate with strict options and logger to suppress console output
+  let result = hydrate(container, vnode, recover_on_mismatch=false, logger=logger)
 
   // Should detect mismatch
   match result {
-    Mismatch(msg) => assert_true(msg.contains("not found"))
+    Mismatch(msg) => {
+      assert_true(msg.contains("not found"))
+      // Logger should contain the mismatch warning
+      let log_output = logger.to_string()
+      assert_true(log_output.contains("[Hydration]"))
+    }
     _ => assert_true(false) // Should not reach here
   }
 }
@@ -265,17 +298,20 @@ test "hydrate detects missing element" {
 ///|
 test "hydrate recovers on mismatch" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
+  let logger = StringBuilder::new()
 
   let vnode = @ui.vdiv([@ui.vclass("expected")], [@ui.vtext("Expected")])
 
   // Wrong HTML
   set_inner_html(container, "<span>Wrong</span>")
 
-  // Hydrate with recovery enabled
+  // Hydrate with recovery enabled and logger to suppress console output
   let result = hydrate(
     container,
     vnode,
+    logger=logger,
   )
 
   // Should recover
@@ -285,6 +321,9 @@ test "hydrate recovers on mismatch" {
       let inner = get_inner_html(container)
       assert_true(inner.contains("expected"))
       assert_true(inner.contains("Expected"))
+      // Logger should contain recovery message
+      let log_output = logger.to_string()
+      assert_true(log_output.contains("Recovering"))
     }
     Success => {
       // No dynamic content, so no mismatch detected
@@ -298,6 +337,7 @@ test "hydrate recovers on mismatch" {
 ///|
 test "hydrate success on correct HTML" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vdiv([], [@ui.vtext("Correct")])
 
@@ -325,7 +365,9 @@ test "hydrate success on correct HTML" {
 ///|
 test "hydrate complex page structure" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
+  let logger = StringBuilder::new()
   let count = @ui.signal(0)
   let items = @ui.signal(["Item 1", "Item 2"])
 
@@ -347,7 +389,7 @@ test "hydrate complex page structure" {
 
   let html = @ssr.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode)
+  let _ = hydrate(container, vnode, logger=logger)
 
   let inner = get_inner_html(container)
   assert_true(inner.contains("Title"))
@@ -365,6 +407,7 @@ test "hydrate complex page structure" {
 ///|
 test "hydrate fragment" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vfragment([
     @ui.vtext("A"),
@@ -382,6 +425,7 @@ test "hydrate fragment" {
 ///|
 test "hydrate component" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
 
   fn greeting(name : String) -> @ui.VNode {
@@ -404,6 +448,7 @@ test "hydrate component" {
 ///|
 test "hydrate empty container" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vtext("")
 
@@ -417,6 +462,7 @@ test "hydrate empty container" {
 ///|
 test "hydrate deeply nested structure" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vdiv([], [
     @ui.vdiv([], [
@@ -438,6 +484,7 @@ test "hydrate deeply nested structure" {
 ///|
 test "hydrate with escaped content" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let vnode = @ui.vtext("<script>alert('xss')</script>")
 
@@ -458,6 +505,7 @@ test "hydrate with escaped content" {
 ///|
 test "hydrate with logger captures mismatch warning" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
 
@@ -487,6 +535,7 @@ test "hydrate with logger captures mismatch warning" {
 ///|
 test "hydrate with logger captures strict mode mismatch" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
 
@@ -520,6 +569,7 @@ test "hydrate with logger captures strict mode mismatch" {
 ///|
 test "hydrate with logger no output on success" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
 
@@ -548,6 +598,7 @@ test "hydrate with logger no output on success" {
 ///|
 test "hydrate logger contains element info" {
   @global_jsdom.register()
+  defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
 

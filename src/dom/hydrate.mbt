@@ -11,6 +11,7 @@ pub enum HydrationResult {
 ///|
 /// Hydration context to track current position in DOM and options
 priv struct HydrationContext {
+  container : @js_dom.Element
   mut current_id : Int
   mismatches : Array[String]
   recover_on_mismatch : Bool
@@ -55,6 +56,7 @@ pub fn hydrate(
   let recover = recover_on_mismatch.unwrap_or(true)
   let warn = warn_on_mismatch.unwrap_or(true)
   let ctx : HydrationContext = {
+    container,
     current_id: 0,
     mismatches: [],
     recover_on_mismatch: recover,
@@ -122,7 +124,7 @@ fn hydrate_node(
         // For elements with dynamic content, find by data-hk attribute
         let id = ctx.current_id
         ctx.current_id = id + 1
-        match find_element_by_hk(id) {
+        match find_element_by_hk(ctx.container, id) {
           Some(dom_elem) => {
             // Verify tag matches
             let dom_tag = dom_elem.tagName().to_lower()
@@ -181,11 +183,10 @@ fn hydrate_node(
 }
 
 ///|
-/// Find element with data-hk="id" attribute
-fn find_element_by_hk(id : Int) -> @js_dom.Element? {
-  let doc = @js_dom.document()
+/// Find element with data-hk="id" attribute within container
+fn find_element_by_hk(container : @js_dom.Element, id : Int) -> @js_dom.Element? {
   let selector = "[data-hk=\"" + id.to_string() + "\"]"
-  doc.querySelector(selector)
+  container.querySelector(selector)
 }
 
 ///|
