@@ -33,7 +33,9 @@ pub fn HydrationOptions::strict() -> HydrationOptions {
 
 ///|
 /// Create options with a custom logger
-pub fn HydrationOptions::with_logger(logger : StringBuilder) -> HydrationOptions {
+pub fn HydrationOptions::with_logger(
+  logger : StringBuilder,
+) -> HydrationOptions {
   { recover_on_mismatch: true, warn_on_mismatch: true, logger: Some(logger) }
 }
 
@@ -105,16 +107,15 @@ pub fn hydrate_with_options(
 
   // Check for mismatches
   if ctx.mismatches.length() > 0 {
-    let mismatch_msg = ctx.mismatches.iter().fold(
-      init="",
-      fn(acc, msg) {
+    let mismatch_msg = ctx.mismatches
+      .iter()
+      .fold(init="", fn(acc, msg) {
         if acc == "" {
           msg
         } else {
           acc + "; " + msg
         }
-      },
-    )
+      })
     if options.warn_on_mismatch {
       warn_hydration(logger, "Hydration mismatch detected: " + mismatch_msg)
     }
@@ -217,8 +218,7 @@ fn hydrate_node(
       ctx.current_id = id + 1
       hydrate_for(parent, id, render_fn, ctx)
     }
-    @ui.VComponent(render=render_fn) =>
-      hydrate_node(parent, render_fn(), ctx)
+    @ui.VComponent(render=render_fn) => hydrate_node(parent, render_fn(), ctx)
   }
 }
 
@@ -232,7 +232,10 @@ fn find_element_by_hk(id : Int) -> @js_dom.Element? {
 
 ///|
 /// Find first child element with matching tag name
-fn find_child_element_by_tag(parent : @js_dom.Node, tag : String) -> @js_dom.Element? {
+fn find_child_element_by_tag(
+  parent : @js_dom.Node,
+  tag : String,
+) -> @js_dom.Element? {
   let children = parent.childNodes()
   let upper_tag = tag.to_upper()
   for i = 0; i < children.length(); i = i + 1 {
