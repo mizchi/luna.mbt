@@ -12,6 +12,14 @@
     "./dom": {
       "types": "./dom.d.ts",
       "import": "./dom.js"
+    },
+    "./jsx-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "import": "./jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "import": "./jsx-runtime.js"
     }
   },
   "scripts": {
