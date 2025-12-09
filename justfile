@@ -6,7 +6,9 @@ test: test-moonbit test-node
 
 # Run MoonBit tests
 test-moonbit:
-    moon test --target js
+    moon test src --target all
+    moon test src/ssr --target all
+    moon test src/dom --target js
 
 # Run Node.js tests
 test-node: build
@@ -15,6 +17,7 @@ test-node: build
 # Build MoonBit
 build:
     moon build --target js
+    pnpm build
 
 # Clean build artifacts
 clean:
@@ -23,7 +26,3 @@ clean:
 # Format code
 fmt:
     moon fmt
-
-# Check formatting
-check:
-    moon check --target js

@@ -136,7 +136,7 @@ fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
 /// Render attributes to StringBuilder
 fn render_attrs_to(
   sb : StringBuilder,
-  attrs : Array[(String, @ui.VAttr)],
+  attrs : Array[(String, @ui.Attr)],
 ) -> Unit {
   for attr in attrs {
     let (name, value) = attr
@@ -193,15 +193,15 @@ fn render_attrs_to(
 
 ///|
 /// Render a VNode to StringBuilder
-fn render_to_sb(sb : StringBuilder, node : @ui.VNode) -> Unit {
+fn render_to_sb(sb : StringBuilder, node : @ui.Node) -> Unit {
   match node {
-    VText(content) => escape_html_to(sb, content)
-    VDynamicText(getter) => escape_html_to(sb, getter())
-    VFragment(children) =>
+    Text(content) => escape_html_to(sb, content)
+    DynamicText(getter) => escape_html_to(sb, getter())
+    Fragment(children) =>
       for child in children {
         render_to_sb(sb, child)
       }
-    VElement(elem) => {
+    Element(elem) => {
       let tag = elem.tag
       sb.write_char('<')
       sb.write_string(tag)
@@ -218,23 +218,23 @@ fn render_to_sb(sb : StringBuilder, node : @ui.VNode) -> Unit {
         sb.write_char('>')
       }
     }
-    VShow(condition=cond, child=child_fn) =>
+    Show(condition=cond, child=child_fn) =>
       if cond() {
         render_to_sb(sb, child_fn())
       } else {
         sb.write_string("<!--show-->")
       }
-    VFor(render=render_fn) =>
+    For(render=render_fn) =>
       for item in render_fn() {
         render_to_sb(sb, item)
       }
-    VComponent(render=render_fn) => render_to_sb(sb, render_fn())
+    Component(render=render_fn) => render_to_sb(sb, render_fn())
   }
 }
 
 ///|
 /// Render a VNode to HTML string
-pub fn render_to_string(node : @ui.VNode) -> String {
+pub fn render_to_string(node : @ui.Node) -> String {
   let sb = StringBuilder::new(size_hint=256)
   render_to_sb(sb, node)
   sb.to_string()
@@ -242,7 +242,7 @@ pub fn render_to_string(node : @ui.VNode) -> String {
 
 ///|
 /// Render with data-ssr-id markers for hydration
-pub fn render_to_string_with_hydration(node : @ui.VNode) -> String {
+pub fn render_to_string_with_hydration(node : @ui.Node) -> String {
   let sb = StringBuilder::new(size_hint=256)
   let id_counter = { val: 0 }
   render_with_id_to(sb, node, id_counter)
@@ -253,12 +253,12 @@ pub fn render_to_string_with_hydration(node : @ui.VNode) -> String {
 /// Internal: Render with hydration markers to StringBuilder
 fn render_with_id_to(
   sb : StringBuilder,
-  node : @ui.VNode,
+  node : @ui.Node,
   id_counter : Ref[Int],
 ) -> Unit {
   match node {
-    VText(content) => escape_html_to(sb, content)
-    VDynamicText(getter) => {
+    Text(content) => escape_html_to(sb, content)
+    DynamicText(getter) => {
       let id = id_counter.val
       id_counter.val = id + 1
       sb.write_string("<!--t:")
@@ -267,11 +267,11 @@ fn render_with_id_to(
       escape_html_to(sb, getter())
       sb.write_string("<!--/t-->")
     }
-    VFragment(children) =>
+    Fragment(children) =>
       for child in children {
         render_with_id_to(sb, child, id_counter)
       }
-    VElement(elem) => {
+    Element(elem) => {
       let tag = elem.tag
       let id = id_counter.val
       id_counter.val = id + 1
@@ -298,7 +298,7 @@ fn render_with_id_to(
         sb.write_char('>')
       }
     }
-    VShow(condition=cond, child=child_fn) => {
+    Show(condition=cond, child=child_fn) => {
       let id = id_counter.val
       id_counter.val = id + 1
       sb.write_string("<!--s:")
@@ -309,7 +309,7 @@ fn render_with_id_to(
       }
       sb.write_string("<!--/s-->")
     }
-    VFor(render=render_fn) => {
+    For(render=render_fn) => {
       let id = id_counter.val
       id_counter.val = id + 1
       sb.write_string("<!--f:")
@@ -320,14 +320,14 @@ fn render_with_id_to(
       }
       sb.write_string("<!--/f-->")
     }
-    VComponent(render=render_fn) =>
+    Component(render=render_fn) =>
       render_with_id_to(sb, render_fn(), id_counter)
   }
 }
 
 ///|
 /// Check if element has dynamic content that needs hydration
-fn has_dynamic_content(attrs : Array[(String, @ui.VAttr)]) -> Bool {
+fn has_dynamic_content(attrs : Array[(String, @ui.Attr)]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {

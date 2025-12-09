@@ -36,10 +36,7 @@ test "render element with class" {
 
 ///|
 test "render element with multiple attrs" {
-  let node = @ui.vdiv(
-    [@ui.vid("main"), @ui.vclass("container")],
-    [],
-  )
+  let node = @ui.vdiv([@ui.vid("main"), @ui.vclass("container")], [])
   let html = render_to_string(node)
   assert_eq(html, "<div id=\"main\" class=\"container\"></div>")
 }
@@ -53,10 +50,7 @@ test "render nested elements" {
 
 ///|
 test "render void element" {
-  let node = @ui.vinput([
-    @ui.vtype("text"),
-    @ui.vplaceholder("Enter name"),
-  ])
+  let node = @ui.vinput([@ui.vtype("text"), @ui.vplaceholder("Enter name")])
   let html = render_to_string(node)
   assert_eq(html, "<input type=\"text\" placeholder=\"Enter name\" />")
 }
@@ -70,11 +64,7 @@ test "render br and hr" {
 
 ///|
 test "render fragment" {
-  let node = @ui.vfragment([
-    @ui.vtext("A"),
-    @ui.vtext("B"),
-    @ui.vtext("C"),
-  ])
+  let node = @ui.vfragment([@ui.vtext("A"), @ui.vtext("B"), @ui.vtext("C")])
   let html = render_to_string(node)
   assert_eq(html, "ABC")
 }
@@ -100,28 +90,21 @@ test "render dynamic attribute" {
 
 ///|
 test "render style attribute" {
-  let node = @ui.vdiv(
-    [@ui.vstyle([("color", "red"), ("fontSize", "16px")])],
-    [],
-  )
+  let node = @ui.vdiv([@ui.vstyle([("color", "red"), ("fontSize", "16px")])], [])
   let html = render_to_string(node)
   assert_eq(html, "<div style=\"color: red; font-size: 16px\"></div>")
 }
 
 ///|
 test "render disabled attribute true" {
-  let node = @ui.vbutton([@ui.vdisabled(true)], [
-    @ui.vtext("Submit"),
-  ])
+  let node = @ui.vbutton([@ui.vdisabled(true)], [@ui.vtext("Submit")])
   let html = render_to_string(node)
   assert_eq(html, "<button disabled>Submit</button>")
 }
 
 ///|
 test "render disabled attribute false" {
-  let node = @ui.vbutton([@ui.vdisabled(false)], [
-    @ui.vtext("Submit"),
-  ])
+  let node = @ui.vbutton([@ui.vdisabled(false)], [@ui.vtext("Submit")])
   let html = render_to_string(node)
   assert_eq(html, "<button>Submit</button>")
 }
@@ -129,9 +112,7 @@ test "render disabled attribute false" {
 ///|
 test "render show when true" {
   let visible = true
-  let node = @ui.vshow(fn() { visible }, fn() {
-    @ui.vtext("Visible!")
-  })
+  let node = @ui.vshow(fn() { visible }, fn() { @ui.vtext("Visible!") })
   let html = render_to_string(node)
   assert_eq(html, "Visible!")
 }
@@ -139,9 +120,7 @@ test "render show when true" {
 ///|
 test "render show when false" {
   let visible = false
-  let node = @ui.vshow(fn() { visible }, fn() {
-    @ui.vtext("Visible!")
-  })
+  let node = @ui.vshow(fn() { visible }, fn() { @ui.vtext("Visible!") })
   let html = render_to_string(node)
   assert_eq(html, "<!--show-->")
 }
@@ -150,7 +129,7 @@ test "render show when false" {
 test "render for list" {
   let items = ["A", "B", "C"]
   let node = @ui.vfor(fn() {
-    let result : Array[@ui.VNode] = []
+    let result : Array[@ui.Node] = []
     for i = 0; i < items.length(); i = i + 1 {
       result.push(@ui.vli([], [@ui.vtext(items[i])]))
     }
@@ -162,7 +141,7 @@ test "render for list" {
 
 ///|
 test "render component" {
-  fn greeting(name : String) -> @ui.VNode {
+  fn greeting(name : String) -> @ui.Node {
     @ui.vdiv([], [@ui.vtext("Hello, " + name + "!")])
   }
 
@@ -228,22 +207,17 @@ test "complex page render" {
   let items = ["Item 1", "Item 2"]
   let page = @ui.vdiv([@ui.vclass("app")], [
     @ui.vh1([], [@ui.vtext(title)]),
-    @ui.vp([], [
-      @ui.vtext("Count: "),
-      @ui.vtext_dyn(fn() { count.to_string() }),
-    ]),
+    @ui.vp([], [@ui.vtext("Count: "), @ui.vtext_dyn(fn() { count.to_string() })]),
     @ui.vul([], [
       @ui.vfor(fn() {
-        let result : Array[@ui.VNode] = []
+        let result : Array[@ui.Node] = []
         for i = 0; i < items.length(); i = i + 1 {
           result.push(@ui.vli([], [@ui.vtext(items[i])]))
         }
         result
       }),
     ]),
-    @ui.vbutton([@ui.von_click(@ui.event_handler())], [
-      @ui.vtext("Increment"),
-    ]),
+    @ui.vbutton([@ui.von_click(@ui.event_handler())], [@ui.vtext("Increment")]),
   ])
   let html = render_to_string(page)
   assert_true(html.contains("<h1>My App</h1>"))

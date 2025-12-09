@@ -9,14 +9,11 @@ pub enum HydrationResult {
 }
 
 ///|
-/// Hydration context to track current position in DOM and options
+/// Hydration context to track current position in DOM
 priv struct HydrationContext {
   container : @js_dom.Element
   mut current_id : Int
   mismatches : Array[String]
-  recover_on_mismatch : Bool
-  warn_on_mismatch : Bool
-  logger : StringBuilder?
 }
 
 ///|
@@ -48,21 +45,14 @@ fn get_text_content(node : @js_dom.Node) -> String {
 /// The container should already have server-rendered HTML with hydration markers.
 pub fn hydrate(
   container : @js_dom.Element,
-  node : @ui.VNode,
+  node : @ui.Node,
   recover_on_mismatch? : Bool,
   warn_on_mismatch? : Bool,
   logger? : StringBuilder,
 ) -> HydrationResult {
   let recover = recover_on_mismatch.unwrap_or(true)
   let warn = warn_on_mismatch.unwrap_or(true)
-  let ctx : HydrationContext = {
-    container,
-    current_id: 0,
-    mismatches: [],
-    recover_on_mismatch: recover,
-    warn_on_mismatch: warn,
-    logger,
-  }
+  let ctx : HydrationContext = { container, current_id: 0, mismatches: [] }
   hydrate_node(container.as_node(), node, ctx)
 
   // Check for mismatches
@@ -98,24 +88,24 @@ pub fn hydrate(
 /// Internal: Hydrate a single node
 fn hydrate_node(
   parent : @js_dom.Node,
-  node : @ui.VNode,
+  node : @ui.Node,
   ctx : HydrationContext,
 ) -> Unit {
   match node {
-    @ui.VText(_) =>
+    @ui.Text(_) =>
       // Static text doesn't need hydration
       ()
-    @ui.VDynamicText(getter) => {
+    @ui.DynamicText(getter) => {
       // Find the text marker comments and set up effect
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_dynamic_text(parent, id, getter)
     }
-    @ui.VFragment(children) =>
+    @ui.Fragment(children) =>
       for i = 0; i < children.length(); i = i + 1 {
         hydrate_node(parent, children[i], ctx)
       }
-    @ui.VElement(elem) => {
+    @ui.Element(elem) => {
       // Check if this element needs hydration (has handlers or dynamic attrs)
       let needs_hydration = @ui.has_dynamic_content(elem.attrs)
 
@@ -168,23 +158,26 @@ fn hydrate_node(
         None => ()
       }
     }
-    @ui.VShow(condition=cond, child=child_fn) => {
+    @ui.Show(condition=cond, child=child_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_show(parent, id, cond, child_fn, ctx)
     }
-    @ui.VFor(render=render_fn) => {
+    @ui.For(render=render_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_for(parent, id, render_fn, ctx)
     }
-    @ui.VComponent(render=render_fn) => hydrate_node(parent, render_fn(), ctx)
+    @ui.Component(render=render_fn) => hydrate_node(parent, render_fn(), ctx)
   }
 }
 
 ///|
 /// Find element with data-hk="id" attribute within container
-fn find_element_by_hk(container : @js_dom.Element, id : Int) -> @js_dom.Element? {
+fn find_element_by_hk(
+  container : @js_dom.Element,
+  id : Int,
+) -> @js_dom.Element? {
   let selector = "[data-hk=\"" + id.to_string() + "\"]"
   container.querySelector(selector)
 }
@@ -247,7 +240,7 @@ fn hydrate_dynamic_text(
 /// Hydrate element attributes and handlers
 fn hydrate_element(
   elem : @js_dom.Element,
-  attrs : Array[(String, @ui.VAttr)],
+  attrs : Array[(String, @ui.Attr)],
 ) -> Unit {
   for i = 0; i < attrs.length(); i = i + 1 {
     let (name, value) = attrs[i]
@@ -334,7 +327,7 @@ fn hydrate_show(
   parent : @js_dom.Node,
   id : Int,
   cond : () -> Bool,
-  child_fn : () -> @ui.VNode,
+  child_fn : () -> @ui.Node,
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "s:" + id.to_string()
@@ -416,38 +409,38 @@ fn hydrate_show(
 /// Hydrate child nodes with VNode
 fn hydrate_child_nodes(
   nodes : Array[@js_dom.Node],
-  node : @ui.VNode,
+  node : @ui.Node,
   ctx : HydrationContext,
 ) -> Unit {
   // For now, just traverse the VNode and update ctx
   let _ = nodes // suppress unused warning
   match node {
-    @ui.VText(_) => ()
-    @ui.VDynamicText(_) => ctx.current_id = ctx.current_id + 1
-    @ui.VFragment(children) =>
+    @ui.Text(_) => ()
+    @ui.DynamicText(_) => ctx.current_id = ctx.current_id + 1
+    @ui.Fragment(children) =>
       for i = 0; i < children.length(); i = i + 1 {
         hydrate_child_nodes(nodes, children[i], ctx)
       }
-    @ui.VElement(elem) => {
+    @ui.Element(elem) => {
       ctx.current_id = ctx.current_id + 1
       for i = 0; i < elem.children.length(); i = i + 1 {
         hydrate_child_nodes(nodes, elem.children[i], ctx)
       }
     }
-    @ui.VShow(condition=condition_fn, child=child_getter) => {
+    @ui.Show(condition=condition_fn, child=child_getter) => {
       ctx.current_id = ctx.current_id + 1
       if condition_fn() {
         hydrate_child_nodes(nodes, child_getter(), ctx)
       }
     }
-    @ui.VFor(render=render_fn) => {
+    @ui.For(render=render_fn) => {
       ctx.current_id = ctx.current_id + 1
       let items = render_fn()
       for i = 0; i < items.length(); i = i + 1 {
         hydrate_child_nodes(nodes, items[i], ctx)
       }
     }
-    @ui.VComponent(render=render_fn) =>
+    @ui.Component(render=render_fn) =>
       hydrate_child_nodes(nodes, render_fn(), ctx)
   }
 }
@@ -457,7 +450,7 @@ fn hydrate_child_nodes(
 fn hydrate_for(
   parent : @js_dom.Node,
   id : Int,
-  render_fn : () -> Array[@ui.VNode],
+  render_fn : () -> Array[@ui.Node],
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "f:" + id.to_string()
@@ -539,11 +532,11 @@ fn hydrate_for(
 
 ///|
 /// Render VNode to DOM node (for client-side rendering after hydration)
-pub fn render_vnode_to_dom(node : @ui.VNode) -> @js_dom.Node {
+pub fn render_vnode_to_dom(node : @ui.Node) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
-    @ui.VText(content) => doc.createTextNode(content).as_node()
-    @ui.VDynamicText(getter) => {
+    @ui.Text(content) => doc.createTextNode(content).as_node()
+    @ui.DynamicText(getter) => {
       let text_node = doc.createTextNode(getter())
       let node_ref = text_node.as_node()
       let _ = @ui.effect(fn() {
@@ -552,7 +545,7 @@ pub fn render_vnode_to_dom(node : @ui.VNode) -> @js_dom.Node {
       })
       node_ref
     }
-    @ui.VFragment(children) => {
+    @ui.Fragment(children) => {
       let fragment = doc.createDocumentFragment()
       for i = 0; i < children.length(); i = i + 1 {
         fragment.as_node().appendChild(render_vnode_to_dom(children[i]))
@@ -560,7 +553,7 @@ pub fn render_vnode_to_dom(node : @ui.VNode) -> @js_dom.Node {
       }
       fragment.as_node()
     }
-    @ui.VElement(elem) => {
+    @ui.Element(elem) => {
       let dom_elem = doc.createElement(elem.tag)
 
       // Apply attributes
@@ -576,7 +569,7 @@ pub fn render_vnode_to_dom(node : @ui.VNode) -> @js_dom.Node {
       }
       dom_elem.as_node()
     }
-    @ui.VShow(condition=cond, child=child_fn) => {
+    @ui.Show(condition=cond, child=child_fn) => {
       let placeholder = doc.createComment("show")
       let mut current_node : @js_dom.Node? = None
       let _ = @ui.effect(fn() {
@@ -605,7 +598,7 @@ pub fn render_vnode_to_dom(node : @ui.VNode) -> @js_dom.Node {
       })
       placeholder
     }
-    @ui.VFor(render=render_fn) => {
+    @ui.For(render=render_fn) => {
       let container = doc.createDocumentFragment()
       let container_node = container.as_node()
       let current_nodes : Array[@js_dom.Node] = []
@@ -631,17 +624,13 @@ pub fn render_vnode_to_dom(node : @ui.VNode) -> @js_dom.Node {
       })
       container_node
     }
-    @ui.VComponent(render=render_fn) => render_vnode_to_dom(render_fn())
+    @ui.Component(render=render_fn) => render_vnode_to_dom(render_fn())
   }
 }
 
 ///|
 /// Apply VAttr to DOM element
-fn apply_vattr(
-  elem : @js_dom.Element,
-  name : String,
-  value : @ui.VAttr,
-) -> Unit {
+fn apply_vattr(elem : @js_dom.Element, name : String, value : @ui.Attr) -> Unit {
   match value {
     @ui.VStatic(s) =>
       if s != "__remove__" {
@@ -698,7 +687,7 @@ fn apply_vattr(
 
 ///|
 /// Convenience function: render VNode to DOM and mount
-pub fn render_vnode(container : @js_dom.Element, node : @ui.VNode) -> Unit {
+pub fn render_vnode(container : @js_dom.Element, node : @ui.Node) -> Unit {
   container.as_node().setTextContent("")
   let dom_node = render_vnode_to_dom(node)
   container.as_node().appendChild(dom_node) |> ignore

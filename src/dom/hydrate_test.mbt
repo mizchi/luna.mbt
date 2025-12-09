@@ -1,5 +1,7 @@
 ///| Hydration Tests
+
 ///|
+
 ///| Test hydration of server-rendered HTML with VNode
 
 ///|
@@ -65,11 +67,9 @@ test "hydrate element with text" {
   defer cleanup()
   let container = create_container()
   let vnode = @ui.vdiv([], [@ui.vtext("Content")])
-
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_eq(get_inner_html(container), "<div>Content</div>")
 }
 
@@ -79,11 +79,9 @@ test "hydrate element with class" {
   defer cleanup()
   let container = create_container()
   let vnode = @ui.vdiv([@ui.vclass("test-class")], [@ui.vtext("Styled")])
-
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_true(get_inner_html(container).contains("test-class"))
 }
 
@@ -92,14 +90,10 @@ test "hydrate nested elements" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @ui.vdiv([], [
-    @ui.vspan([], [@ui.vtext("Nested")]),
-  ])
-
+  let vnode = @ui.vdiv([], [@ui.vspan([], [@ui.vtext("Nested")])])
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_eq(get_inner_html(container), "<div><span>Nested</span></div>")
 }
 
@@ -120,7 +114,6 @@ test "hydrate dynamic text with hydration markers" {
   assert_true(html.contains("<!--t:0-->"))
   assert_true(html.contains("42"))
   assert_true(html.contains("<!--/t-->"))
-
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
 
@@ -136,15 +129,13 @@ test "hydrate element with click handler" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @ui.vbutton(
-    [@ui.von_click(@ui.event_handler())],
-    [@ui.vtext("Click me")],
-  )
+  let vnode = @ui.vbutton([@ui.von_click(@ui.event_handler())], [
+    @ui.vtext("Click me"),
+  ])
 
   // SSR with hydration markers
   let html = @ssr.render_to_string_with_hydration(vnode)
   assert_true(html.contains("data-hk=\"0\""))
-
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
 
@@ -162,7 +153,6 @@ test "hydrate dynamic class" {
     [@ui.vclass_dyn(fn() { if active.get() { "active" } else { "inactive" } })],
     [@ui.vtext("Toggle")],
   )
-
   let html = @ssr.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -187,19 +177,15 @@ test "hydrate show when visible" {
   defer cleanup()
   let container = create_container()
   let visible = @ui.signal(true)
-  let vnode = @ui.vshow(
-    fn() { visible.get() },
-    fn() { @ui.vtext("Visible content") },
-  )
-
+  let vnode = @ui.vshow(fn() { visible.get() }, fn() {
+    @ui.vtext("Visible content")
+  })
   let html = @ssr.render_to_string_with_hydration(vnode)
   assert_true(html.contains("<!--s:0-->"))
   assert_true(html.contains("Visible content"))
   assert_true(html.contains("<!--/s-->"))
-
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_true(get_inner_html(container).contains("Visible content"))
 }
 
@@ -209,14 +195,11 @@ test "hydrate show when hidden" {
   defer cleanup()
   let container = create_container()
   let visible = @ui.signal(false)
-  let vnode = @ui.vshow(
-    fn() { visible.get() },
-    fn() { @ui.vtext("Hidden content") },
-  )
-
+  let vnode = @ui.vshow(fn() { visible.get() }, fn() {
+    @ui.vtext("Hidden content")
+  })
   let html = @ssr.render_to_string(vnode)
   assert_eq(html, "<!--show-->")
-
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
 
@@ -236,20 +219,18 @@ test "hydrate for loop" {
   let items = @ui.signal(["A", "B", "C"])
   let vnode = @ui.vfor(fn() {
     let arr = items.get()
-    let result : Array[@ui.VNode] = []
+    let result : Array[@ui.Node] = []
     for i = 0; i < arr.length(); i = i + 1 {
       result.push(@ui.vli([], [@ui.vtext(arr[i])]))
     }
     result
   })
-
   let html = @ssr.render_to_string_with_hydration(vnode)
   assert_true(html.contains("<!--f:0-->"))
   assert_true(html.contains("<li>A</li>"))
   assert_true(html.contains("<li>B</li>"))
   assert_true(html.contains("<li>C</li>"))
   assert_true(html.contains("<!--/f-->"))
-
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
 
@@ -272,16 +253,15 @@ test "hydrate detects missing element" {
   let logger = StringBuilder::new()
 
   // VNode expects a button with handler
-  let vnode = @ui.vbutton(
-    [@ui.von_click(@ui.event_handler())],
-    [@ui.vtext("Button")],
-  )
+  let vnode = @ui.vbutton([@ui.von_click(@ui.event_handler())], [
+    @ui.vtext("Button"),
+  ])
 
   // But SSR HTML is completely different (simulating mismatch)
   set_inner_html(container, "<span>Wrong element</span>")
 
   // Hydrate with strict options and logger to suppress console output
-  let result = hydrate(container, vnode, recover_on_mismatch=false, logger=logger)
+  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
 
   // Should detect mismatch
   match result {
@@ -301,18 +281,13 @@ test "hydrate recovers on mismatch" {
   defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
-
   let vnode = @ui.vdiv([@ui.vclass("expected")], [@ui.vtext("Expected")])
 
   // Wrong HTML
   set_inner_html(container, "<span>Wrong</span>")
 
   // Hydrate with recovery enabled and logger to suppress console output
-  let result = hydrate(
-    container,
-    vnode,
-    logger=logger,
-  )
+  let result = hydrate(container, vnode, logger~)
 
   // Should recover
   match result {
@@ -325,11 +300,10 @@ test "hydrate recovers on mismatch" {
       let log_output = logger.to_string()
       assert_true(log_output.contains("Recovering"))
     }
-    Success => {
+    Success =>
       // No dynamic content, so no mismatch detected
       // This is expected for static VNode
       assert_true(true)
-    }
     Mismatch(_) => assert_true(false) // Should not fail with default options
   }
 }
@@ -344,12 +318,7 @@ test "hydrate success on correct HTML" {
   // Correct SSR HTML
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-
-  let result = hydrate(
-    container,
-    vnode,
-    recover_on_mismatch=false,
-  )
+  let result = hydrate(container, vnode, recover_on_mismatch=false)
 
   // Should succeed
   match result {
@@ -370,14 +339,13 @@ test "hydrate complex page structure" {
   let logger = StringBuilder::new()
   let count = @ui.signal(0)
   let items = @ui.signal(["Item 1", "Item 2"])
-
   let vnode = @ui.vdiv([@ui.vclass("app")], [
     @ui.vh1([], [@ui.vtext("Title")]),
     @ui.vp([], [@ui.vtext_dyn(fn() { "Count: " + count.get().to_string() })]),
     @ui.vul([], [
       @ui.vfor(fn() {
         let arr = items.get()
-        let result : Array[@ui.VNode] = []
+        let result : Array[@ui.Node] = []
         for i = 0; i < arr.length(); i = i + 1 {
           result.push(@ui.vli([], [@ui.vtext(arr[i])]))
         }
@@ -386,11 +354,9 @@ test "hydrate complex page structure" {
     ]),
     @ui.vbutton([@ui.von_click(@ui.event_handler())], [@ui.vtext("Click")]),
   ])
-
   let html = @ssr.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  let _ = hydrate(container, vnode, logger=logger)
-
+  let _ = hydrate(container, vnode, logger~)
   let inner = get_inner_html(container)
   assert_true(inner.contains("Title"))
   assert_true(inner.contains("Count: 0"))
@@ -409,16 +375,10 @@ test "hydrate fragment" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @ui.vfragment([
-    @ui.vtext("A"),
-    @ui.vtext("B"),
-    @ui.vtext("C"),
-  ])
-
+  let vnode = @ui.vfragment([@ui.vtext("A"), @ui.vtext("B"), @ui.vtext("C")])
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_eq(get_inner_html(container), "ABC")
 }
 
@@ -427,17 +387,14 @@ test "hydrate component" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-
-  fn greeting(name : String) -> @ui.VNode {
+  fn greeting(name : String) -> @ui.Node {
     @ui.vdiv([], [@ui.vtext("Hello, " + name + "!")])
   }
 
   let vnode = @ui.vcomponent(fn() { greeting("World") })
-
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_true(get_inner_html(container).contains("Hello, World!"))
 }
 
@@ -451,11 +408,9 @@ test "hydrate empty container" {
   defer cleanup()
   let container = create_container()
   let vnode = @ui.vtext("")
-
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_eq(get_inner_html(container), "")
 }
 
@@ -466,18 +421,12 @@ test "hydrate deeply nested structure" {
   let container = create_container()
   let vnode = @ui.vdiv([], [
     @ui.vdiv([], [
-      @ui.vdiv([], [
-        @ui.vdiv([], [
-          @ui.vspan([], [@ui.vtext("Deep")]),
-        ]),
-      ]),
+      @ui.vdiv([], [@ui.vdiv([], [@ui.vspan([], [@ui.vtext("Deep")])])]),
     ]),
   ])
-
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
-
   assert_true(get_inner_html(container).contains("Deep"))
 }
 
@@ -487,7 +436,6 @@ test "hydrate with escaped content" {
   defer cleanup()
   let container = create_container()
   let vnode = @ui.vtext("<script>alert('xss')</script>")
-
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -510,20 +458,15 @@ test "hydrate with logger captures mismatch warning" {
   let logger = StringBuilder::new()
 
   // VNode expects a button with handler
-  let vnode = @ui.vbutton(
-    [@ui.von_click(@ui.event_handler())],
-    [@ui.vtext("Button")],
-  )
+  let vnode = @ui.vbutton([@ui.von_click(@ui.event_handler())], [
+    @ui.vtext("Button"),
+  ])
 
   // Wrong HTML
   set_inner_html(container, "<span>Wrong</span>")
 
   // Hydrate with logger
-  let _ = hydrate(
-    container,
-    vnode,
-    logger=logger,
-  )
+  let _ = hydrate(container, vnode, logger~)
 
   // Logger should contain mismatch warning
   let log_output = logger.to_string()
@@ -538,20 +481,11 @@ test "hydrate with logger captures strict mode mismatch" {
   defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
-
-  let vnode = @ui.vbutton(
-    [@ui.von_click(@ui.event_handler())],
-    [@ui.vtext("Click")],
-  )
-
+  let vnode = @ui.vbutton([@ui.von_click(@ui.event_handler())], [
+    @ui.vtext("Click"),
+  ])
   set_inner_html(container, "<div>Wrong</div>")
-
-  let result = hydrate(
-    container,
-    vnode,
-    recover_on_mismatch=false,
-    logger=logger,
-  )
+  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
 
   // Should return Mismatch
   match result {
@@ -572,17 +506,10 @@ test "hydrate with logger no output on success" {
   defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
-
   let vnode = @ui.vdiv([], [@ui.vtext("Content")])
-
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-
-  let result = hydrate(
-    container,
-    vnode,
-    logger=logger,
-  )
+  let result = hydrate(container, vnode, logger~)
 
   // Should succeed
   match result {
@@ -601,21 +528,11 @@ test "hydrate logger contains element info" {
   defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
-
-  let vnode = @ui.vbutton(
-    [@ui.von_click(@ui.event_handler())],
-    [@ui.vtext("Submit")],
-  )
-
+  let vnode = @ui.vbutton([@ui.von_click(@ui.event_handler())], [
+    @ui.vtext("Submit"),
+  ])
   set_inner_html(container, "<input type=\"text\" />")
-
-  let _ = hydrate(
-    container,
-    vnode,
-    recover_on_mismatch=false,
-    logger=logger,
-  )
-
+  let _ = hydrate(container, vnode, recover_on_mismatch=false, logger~)
   let log_output = logger.to_string()
   // Should mention the expected element
   assert_true(log_output.contains("button"))
