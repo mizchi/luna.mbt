@@ -68,11 +68,11 @@ fn create_todo_app() -> (
   }
 
   // Build the UI
-  let app = div([class_name("todo-app")], [
+  let app = div([class("todo-app")], [
     // Header
     h1([], [text("Todo App")]).as_node(),
     // Input form
-    div([class_name("input-section")], [
+    div([class("input-section")], [
       input([
         id("todo-input"),
         type_("text"),
@@ -94,36 +94,26 @@ fn create_todo_app() -> (
     ]).as_node(),
     // Todo list
     ul([id("todo-list")], [
-      for_each(fn() { todos.get() }, fn(todo, _idx) {
-        li(
-          [
-            class_name_dyn(fn() {
-              if todo.completed {
-                "todo-item completed"
-              } else {
-                "todo-item"
-              }
-            }),
-            attr("data-id", todo.id.to_string()),
-          ],
-          [
-            span(
-              [
-                class_name("todo-text"),
-                on_click(fn(_e) { toggle_todo(todo.id) }),
-              ],
-              [text(todo.text)],
-            ).as_node(),
-            button(
-              [
-                class_name("delete-btn"),
-                on_click(fn(_e) { delete_todo(todo.id) }),
-              ],
-              [text("×")],
-            ).as_node(),
-          ],
-        ).as_node()
-      }),
+      for_each(() => todos.get(), (todo, _idx) => li(
+        [
+          class_name_dyn(() => if todo.completed {
+            "todo-item completed"
+          } else {
+            "todo-item"
+          }),
+          attr("data-id", todo.id.to_string()),
+        ],
+        [
+          span(
+            [class("todo-text"), on_click(fn(_e) { toggle_todo(todo.id) })],
+            [text(todo.text)],
+          ).as_node(),
+          button(
+            [class("delete-btn"), on_click(fn(_e) { delete_todo(todo.id) })],
+            [text("×")],
+          ).as_node(),
+        ],
+      ).as_node()),
     ]).as_node(),
     // Stats
     div([id("stats")], [
@@ -678,10 +668,10 @@ test "Fine-grained: DOM text nodes update independently" {
   }
 
   // Build DOM structure
-  let profile = div([class_name("profile")], [
-    div([class_name("name")], [name_text]).as_node(),
-    div([class_name("age")], [age_text]).as_node(),
-    div([class_name("city")], [city_text]).as_node(),
+  let profile = div([class("profile")], [
+    div([class("name")], [name_text]).as_node(),
+    div([class("age")], [age_text]).as_node(),
+    div([class("city")], [city_text]).as_node(),
   ])
   render(container, profile.as_node())
 

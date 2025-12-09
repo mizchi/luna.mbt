@@ -24,6 +24,7 @@ fn run_cleanups(cleanups : Array[() -> Unit]) -> Unit {
 
 ///|
 /// Supports onCleanup() calls inside the effect
+/// If inside an owner scope, the effect is automatically registered for disposal
 pub fn effect(fn_ : () -> Unit) -> () -> Unit {
   let state : EffectState = { active: true, cleanups: [] }
   let id = new_effect_id()
@@ -52,11 +53,16 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
   // Run immediately
   run_effect()
 
-  // Return dispose function
-  fn() {
+  // Create dispose function
+  let dispose = fn() {
     state.active = false
     run_cleanups(state.cleanups)
   }
+
+  // Register with current owner if present
+  register_disposer(dispose)
+
+  dispose
 }
 
 ///| Create an effect with cleanup function (legacy API)
@@ -68,7 +74,7 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
 pub fn effect_with_cleanup(fn_ : () -> (() -> Unit)?) -> () -> Unit {
   effect(fn() {
     match fn_() {
-      Some(cleanup) => onCleanup(cleanup)
+      Some(cleanup) => on_cleanup(cleanup)
       None => ()
     }
   })
@@ -94,4 +100,13 @@ pub fn effect_once(fn_ : () -> Unit) -> Unit {
       }
     }),
   )
+}
+
+///|
+/// Run a function once after mount (Solid.js style onMount)
+/// The function runs without tracking dependencies
+/// Cleanup registered via onCleanup inside will run when owner is disposed
+pub fn on_mount(fn_ : () -> Unit) -> Unit {
+  // Run untracked so we don't create any subscriptions
+  untracked(fn_)
 }

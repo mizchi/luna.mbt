@@ -53,3 +53,33 @@ export function batchEnd(): void;
 
 /** Run a function without tracking dependencies */
 export function runUntracked<T>(fn: () => T): T;
+
+/** Run a function in a batch - all signal updates are batched */
+export function batch<T>(fn: () => T): T;
+
+/** Register a cleanup function inside an effect */
+export function onCleanup(cleanup: () => void): void;
+
+// ============================================================================
+// Owner-based scope management (Solid.js style)
+// ============================================================================
+
+/** Opaque Owner type */
+export interface Owner {
+  readonly __brand: unique symbol;
+}
+
+/** Create a new reactive root scope. The function receives a dispose callback */
+export function createRoot<T>(fn: (dispose: () => void) => T): T;
+
+/** Get the current owner (if any) */
+export function getOwner(): Owner | undefined;
+
+/** Run a function with a specific owner as current */
+export function runWithOwner<T>(owner: Owner, fn: () => T): T;
+
+/** Check if currently inside an owner scope */
+export function hasOwner(): boolean;
+
+/** Run a function once (Solid.js style onMount) */
+export function onMount(fn: () => void): void;

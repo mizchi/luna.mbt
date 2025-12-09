@@ -176,7 +176,7 @@ pub fn[T : Show] text_sig(sig : @signals.Signal[T]) -> @jsdom.Node {
 
 ///|
 /// Create a static className attribute
-pub fn class_name(value : String) -> (String, AttrValue) {
+pub fn class(value : String) -> (String, AttrValue) {
   ("className", Static(value))
 }
 

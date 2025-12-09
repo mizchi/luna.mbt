@@ -7,7 +7,7 @@
     "test:ssr": "moon test --target native --package signals/ssr",
     "build": "moon build --target js",
     "check": "moon check",
-    "check-minify": "moon build src/signals --target js && terser target/js/release/build/signals/signals.js --module --minify --mangle"
+    "check-minify": "moon build src/signals/js_api --target js && terser target/js/release/build/signals/js_api/js_api.js --module --minify --mangle"
   },
   "keywords": [
     "moonbit",

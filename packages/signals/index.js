@@ -14,4 +14,11 @@ export {
   batchStart,
   batchEnd,
   runUntracked,
-} from "../../target/js/release/build/signals/signals.js";
+  batch,
+  onCleanup,
+  createRoot,
+  getOwner,
+  runWithOwner,
+  hasOwner,
+  onMount,
+} from "../../target/js/release/build/signals/js_api/js_api.js";

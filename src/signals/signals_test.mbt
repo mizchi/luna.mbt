@@ -223,15 +223,15 @@ test "on_immediate runs with initial value" {
   assert_eq(observed[0], 42)
 }
 
-// onCleanup() tests
+// on_cleanup() tests
 
 ///|
-test "onCleanup runs before effect re-runs" {
+test "on_cleanup runs before effect re-runs" {
   let sig = Signal::new(0)
   let cleanup_count = { val: 0 }
   let _ = effect(fn() {
     let _ = sig.get()
-    onCleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
+    on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
   })
 
   // No cleanup yet
@@ -246,10 +246,10 @@ test "onCleanup runs before effect re-runs" {
 }
 
 ///|
-test "onCleanup runs on dispose" {
+test "on_cleanup runs on dispose" {
   let cleanup_count = { val: 0 }
   let dispose = effect(fn() {
-    onCleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
+    on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
   })
   assert_eq(cleanup_count.val, 0)
   dispose()
@@ -370,4 +370,138 @@ test "switch_ selects based on condition" {
   assert_eq(result(), "yes")
   cond.set(false)
   assert_eq(result(), "no")
+}
+
+// Owner/createRoot tests
+
+///|
+test "create_root disposes all effects" {
+  let sig = Signal::new(0)
+  let effect_count = { val: 0 }
+  let cleanup_count = { val: 0 }
+  let dispose_ref : Ref[(() -> Unit)?] = { val: None }
+
+  create_root(fn(dispose) {
+    dispose_ref.val = Some(dispose)
+
+    // Create multiple effects inside root
+    let _ = effect(fn() {
+      let _ = sig.get()
+      effect_count.val = effect_count.val + 1
+      on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
+    })
+    let _ = effect(fn() {
+      let _ = sig.get()
+      effect_count.val = effect_count.val + 1
+      on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
+    })
+  })
+
+  // Both effects ran once
+  assert_eq(effect_count.val, 2)
+
+  // Trigger re-run
+  sig.set(1)
+  assert_eq(effect_count.val, 4)
+  assert_eq(cleanup_count.val, 2)
+
+  // Dispose the root
+  match dispose_ref.val {
+    Some(dispose) => dispose()
+    None => ()
+  }
+
+  // After dispose, cleanups should have run
+  assert_eq(cleanup_count.val, 4)
+
+  // Signal changes should not trigger effects anymore
+  let before = effect_count.val
+  sig.set(2)
+  assert_eq(effect_count.val, before)
+}
+
+///|
+test "nested create_root disposes correctly" {
+  let outer_cleanup = { val: 0 }
+  let inner_cleanup = { val: 0 }
+  let dispose_ref : Ref[(() -> Unit)?] = { val: None }
+
+  create_root(fn(dispose_outer) {
+    dispose_ref.val = Some(dispose_outer)
+
+    let _ = effect(fn() {
+      on_cleanup(fn() { outer_cleanup.val = outer_cleanup.val + 1 })
+    })
+
+    create_root(fn(_dispose_inner) {
+      let _ = effect(fn() {
+        on_cleanup(fn() { inner_cleanup.val = inner_cleanup.val + 1 })
+      })
+    })
+  })
+
+  // Disposing outer should dispose inner too
+  match dispose_ref.val {
+    Some(dispose) => dispose()
+    None => ()
+  }
+
+  assert_eq(outer_cleanup.val, 1)
+  assert_eq(inner_cleanup.val, 1)
+}
+
+///|
+test "get_owner returns owner inside create_root" {
+  assert_true(get_owner() is None)
+
+  let has_owner_inside = { val: false }
+  create_root(fn(_) {
+    has_owner_inside.val = get_owner() is Some(_)
+  })
+
+  assert_true(has_owner_inside.val)
+  assert_true(get_owner() is None)
+}
+
+///|
+test "run_with_owner preserves owner context" {
+  let owner_ref : Ref[Owner?] = { val: None }
+
+  create_root(fn(_) {
+    owner_ref.val = get_owner()
+  })
+
+  // Outside root, no owner
+  assert_true(get_owner() is None)
+
+  // Run with saved owner
+  let has_owner_inside = { val: false }
+  match owner_ref.val {
+    Some(owner) => {
+      run_with_owner(owner, fn() {
+        has_owner_inside.val = get_owner() is Some(_)
+      })
+    }
+    None => ()
+  }
+  assert_true(has_owner_inside.val)
+}
+
+///|
+test "on_mount runs without tracking" {
+  let sig = Signal::new(0)
+  let mount_count = { val: 0 }
+
+  create_root(fn(_) {
+    on_mount(fn() {
+      let _ = sig.get() // Should not create dependency
+      mount_count.val = mount_count.val + 1
+    })
+  })
+
+  assert_eq(mount_count.val, 1)
+
+  // Signal change should not re-run on_mount
+  sig.set(1)
+  assert_eq(mount_count.val, 1)
 }

@@ -20,9 +20,85 @@ pub fn new_effect_id() -> Int {
 }
 
 ///|
+/// Owner - manages lifecycle of reactive computations (Solid.js style)
+pub struct Owner {
+  id : Int
+  parent : Owner?
+  children : Array[Owner]
+  cleanups : Array[() -> Unit]
+  disposers : Array[() -> Unit]
+  mut disposed : Bool
+}
+
+///|
+/// Create a new Owner
+pub fn Owner::new(parent : Owner?) -> Owner {
+  let owner : Owner = {
+    id: new_effect_id(),
+    parent,
+    children: [],
+    cleanups: [],
+    disposers: [],
+    disposed: false,
+  }
+  // Register with parent
+  match parent {
+    Some(p) => p.children.push(owner)
+    None => ()
+  }
+  owner
+}
+
+///|
+/// Dispose this owner and all its children
+pub fn Owner::dispose(self : Owner) -> Unit {
+  if self.disposed {
+    return
+  }
+  self.disposed = true
+  // Dispose children first (depth-first)
+  for i = self.children.length() - 1; i >= 0; i = i - 1 {
+    self.children[i].dispose()
+  }
+  // Run disposers (for effects)
+  for i = self.disposers.length() - 1; i >= 0; i = i - 1 {
+    (self.disposers[i])()
+  }
+  // Run cleanups
+  for i = self.cleanups.length() - 1; i >= 0; i = i - 1 {
+    (self.cleanups[i])()
+  }
+  // Clear arrays
+  while self.children.length() > 0 {
+    self.children.pop() |> ignore
+  }
+  while self.disposers.length() > 0 {
+    self.disposers.pop() |> ignore
+  }
+  while self.cleanups.length() > 0 {
+    self.cleanups.pop() |> ignore
+  }
+  // Remove from parent's children
+  match self.parent {
+    Some(p) => {
+      let mut i = 0
+      while i < p.children.length() {
+        if p.children[i].id == self.id {
+          let _ = p.children.remove(i)
+          break
+        }
+        i = i + 1
+      }
+    }
+    None => ()
+  }
+}
+
+///|
 /// Reactive context - tracks currently running computation
 priv struct ReactiveContext {
   mut current_subscriber : EffectRunner?
+  mut current_owner : Owner?
   mut current_cleanups : Array[() -> Unit]?
   mut batch_depth : Int
   pending_effects : Array[EffectRunner]
@@ -33,6 +109,7 @@ priv struct ReactiveContext {
 /// Global reactive context instance
 let reactive_context : ReactiveContext = {
   current_subscriber: None,
+  current_owner: None,
   current_cleanups: None,
   batch_depth: 0,
   pending_effects: [],
@@ -137,7 +214,7 @@ pub fn is_batching() -> Bool {
 
 ///|
 /// Must be called inside an effect
-pub fn onCleanup(cleanup : () -> Unit) -> Unit {
+pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
   match reactive_context.current_cleanups {
     Some(cleanups) => cleanups.push(cleanup)
     None => () // Not inside an effect with cleanup tracking, ignore
@@ -164,4 +241,68 @@ pub fn[T] run_with_cleanup_tracking(
   let result = f()
   reactive_context.current_cleanups = prev
   result
+}
+
+// ============================================================================
+// Owner-based scope management (Solid.js style)
+// ============================================================================
+
+///|
+/// Get the current owner (if any)
+pub fn get_owner() -> Owner? {
+  reactive_context.current_owner
+}
+
+///|
+/// Run a function with a specific owner as current
+pub fn[T] run_with_owner(owner : Owner, f : () -> T) -> T {
+  let prev = reactive_context.current_owner
+  reactive_context.current_owner = Some(owner)
+  let result = f()
+  reactive_context.current_owner = prev
+  result
+}
+
+///|
+/// Create a new reactive root scope
+/// The function receives a dispose callback
+/// Returns the result of the function
+pub fn[T] create_root(f : (() -> Unit) -> T) -> T {
+  let owner = Owner::new(reactive_context.current_owner)
+  let dispose = fn() { owner.dispose() }
+  run_with_owner(owner, fn() { f(dispose) })
+}
+
+///|
+/// Create a reactive root and return both result and dispose function
+pub fn[T] create_root_with_dispose(f : () -> T) -> (T, () -> Unit) {
+  let owner = Owner::new(reactive_context.current_owner)
+  let dispose = fn() { owner.dispose() }
+  let result = run_with_owner(owner, f)
+  (result, dispose)
+}
+
+///|
+/// Register a disposer with the current owner
+/// Called internally by effect() to register its dispose function
+pub fn register_disposer(disposer : () -> Unit) -> Unit {
+  match reactive_context.current_owner {
+    Some(owner) => owner.disposers.push(disposer)
+    None => () // No owner, disposer won't be tracked
+  }
+}
+
+///|
+/// Register a cleanup with the current owner (alternative to onCleanup in effect)
+pub fn register_owner_cleanup(cleanup : () -> Unit) -> Unit {
+  match reactive_context.current_owner {
+    Some(owner) => owner.cleanups.push(cleanup)
+    None => () // No owner, cleanup won't be tracked
+  }
+}
+
+///|
+/// Check if currently inside an owner scope
+pub fn has_owner() -> Bool {
+  reactive_context.current_owner is Some(_)
 }
