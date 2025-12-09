@@ -20,14 +20,10 @@ pub fn[T] Signal::get(self : Signal[T]) -> T {
   match get_current_subscriber() {
     Some(subscriber) => {
       // Check if already subscribed (by ID)
-      let mut found = false
-      for i = 0; i < self.subscribers.length(); i = i + 1 {
-        if self.subscribers[i].id == subscriber.id {
-          found = true
-          break
-        }
-      }
-      if not(found) {
+      let already_subscribed = self.subscribers.iter().any(fn(s) {
+        s.id == subscriber.id
+      })
+      if not(already_subscribed) {
         self.subscribers.push(subscriber)
       }
     }
@@ -62,8 +58,8 @@ fn[T] Signal::notify(self : Signal[T]) -> Unit {
   // Schedule all subscribers to run
   // Note: We don't clear subscribers here anymore
   // Effects will re-register via get() when they re-run
-  for i = 0; i < self.subscribers.length(); i = i + 1 {
-    schedule_effect(self.subscribers[i])
+  for subscriber in self.subscribers {
+    schedule_effect(subscriber)
   }
 }
 

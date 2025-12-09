@@ -24,8 +24,8 @@ pub fn[T] memo(compute : () -> T) -> () -> T {
     if not(state.dirty) {
       state.dirty = true
       // Notify our own subscribers that we changed
-      for i = 0; i < state.subscribers.length(); i = i + 1 {
-        schedule_effect(state.subscribers[i])
+      for subscriber in state.subscribers {
+        schedule_effect(subscriber)
       }
     }
   }
@@ -39,14 +39,10 @@ pub fn[T] memo(compute : () -> T) -> () -> T {
     match get_current_subscriber() {
       Some(subscriber) => {
         // Check if already subscribed (by ID)
-        let mut found = false
-        for i = 0; i < state.subscribers.length(); i = i + 1 {
-          if state.subscribers[i].id == subscriber.id {
-            found = true
-            break
-          }
-        }
-        if not(found) {
+        let already_subscribed = state.subscribers.iter().any(fn(s) {
+          s.id == subscriber.id
+        })
+        if not(already_subscribed) {
           state.subscribers.push(subscriber)
         }
       }

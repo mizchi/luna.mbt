@@ -292,8 +292,8 @@ fn hydrate_element(
   elem : @js_dom.Element,
   attrs : Array[(String, @ui.Attr)],
 ) -> Unit {
-  for i = 0; i < attrs.length(); i = i + 1 {
-    let (name, value) = attrs[i]
+  for attr in attrs {
+    let (name, value) = attr
     match value {
       @ui.VStatic(_) =>
         // Static attributes already rendered, nothing to do
@@ -328,8 +328,8 @@ fn hydrate_element(
         let _ = @ui.effect(fn() {
           let styles = getter()
           let style_prop : @core.Any = elem.as_any()._get("style")
-          for j = 0; j < styles.length(); j = j + 1 {
-            let (prop, val) = styles[j]
+          for style in styles {
+            let (prop, val) = style
             style_prop._set(prop, @core.any(val)) |> ignore
           }
         })
@@ -716,8 +716,8 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @ui.Attr) -> Unit 
     }
     @ui.VStyle(styles) => {
       let style_prop : @core.Any = elem.as_any()._get("style")
-      for i = 0; i < styles.length(); i = i + 1 {
-        let (prop, val) = styles[i]
+      for style in styles {
+        let (prop, val) = style
         style_prop._set(prop, @core.any(val)) |> ignore
       }
     }
@@ -725,8 +725,8 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @ui.Attr) -> Unit 
       let _ = @ui.effect(fn() {
         let styles = getter()
         let style_prop : @core.Any = elem.as_any()._get("style")
-        for i = 0; i < styles.length(); i = i + 1 {
-          let (prop, val) = styles[i]
+        for style in styles {
+          let (prop, val) = style
           style_prop._set(prop, @core.any(val)) |> ignore
         }
       })

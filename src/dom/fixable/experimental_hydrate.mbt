@@ -144,9 +144,9 @@ pub fn ExperimentalHydrationReport::get_repairs_by_type(
   repair_type : RepairType,
 ) -> Array[RepairInfo] {
   let result : Array[RepairInfo] = []
-  for i = 0; i < self.repairs.length(); i = i + 1 {
-    if repair_type_eq(self.repairs[i].repair_type, repair_type) {
-      result.push(self.repairs[i])
+  for repair in self.repairs {
+    if repair_type_eq(repair.repair_type, repair_type) {
+      result.push(repair)
     }
   }
   result
@@ -158,8 +158,8 @@ pub fn ExperimentalHydrationReport::has_repair_type(
   self : ExperimentalHydrationReport,
   repair_type : RepairType,
 ) -> Bool {
-  for i = 0; i < self.repairs.length(); i = i + 1 {
-    if repair_type_eq(self.repairs[i].repair_type, repair_type) {
+  for repair in self.repairs {
+    if repair_type_eq(repair.repair_type, repair_type) {
       return true
     }
   }
@@ -266,14 +266,9 @@ fn get_current_path(ctx : ExperimentalHydrationContext) -> String {
   if ctx.path_stack.length() == 0 {
     "root"
   } else {
-    let mut path = ""
-    for i = 0; i < ctx.path_stack.length(); i = i + 1 {
-      if i > 0 {
-        path = path + " > "
-      }
-      path = path + ctx.path_stack[i]
-    }
-    path
+    ctx.path_stack.iter().fold(init="", fn(acc, part) {
+      if acc == "" { part } else { acc + " > " + part }
+    })
   }
 }
 
@@ -414,8 +409,8 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @ui.Attr) -> Unit 
     }
     @ui.VStyle(styles) => {
       let style_prop : @core.Any = elem.as_any()._get("style")
-      for i = 0; i < styles.length(); i = i + 1 {
-        let (prop, val) = styles[i]
+      for style in styles {
+        let (prop, val) = style
         style_prop._set(prop, @core.any(val)) |> ignore
       }
     }
@@ -423,8 +418,8 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @ui.Attr) -> Unit 
       let _ = @ui.effect(fn() {
         let styles = getter()
         let style_prop : @core.Any = elem.as_any()._get("style")
-        for j = 0; j < styles.length(); j = j + 1 {
-          let (prop, val) = styles[j]
+        for style in styles {
+          let (prop, val) = style
           style_prop._set(prop, @core.any(val)) |> ignore
         }
       })

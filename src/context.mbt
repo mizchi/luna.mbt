@@ -171,8 +171,8 @@ pub fn[T] batch(f : () -> T) -> T {
 ///|
 /// Check if an effect ID is already pending
 fn is_pending(id : Int) -> Bool {
-  for i = 0; i < reactive_context.pending_ids.length(); i = i + 1 {
-    if reactive_context.pending_ids[i] == id {
+  for pending_id in reactive_context.pending_ids {
+    if pending_id == id {
       return true
     }
   }

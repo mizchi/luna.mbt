@@ -77,8 +77,8 @@ pub fn[A, B, C, D, R] combine4(
 /// Create a signal that is true when all input signals are true
 pub fn all(signals : Array[Signal[Bool]]) -> () -> Bool {
   memo(fn() {
-    for i = 0; i < signals.length(); i = i + 1 {
-      if not(signals[i].get()) {
+    for sig in signals {
+      if not(sig.get()) {
         break false
       }
     } else {
@@ -91,8 +91,8 @@ pub fn all(signals : Array[Signal[Bool]]) -> () -> Bool {
 /// Create a signal that is true when any input signal is true
 pub fn any(signals : Array[Signal[Bool]]) -> () -> Bool {
   memo(fn() {
-    for i = 0; i < signals.length(); i = i + 1 {
-      if signals[i].get() {
+    for sig in signals {
+      if sig.get() {
         break true
       }
     } else {
