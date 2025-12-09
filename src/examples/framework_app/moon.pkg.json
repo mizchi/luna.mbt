@@ -1,0 +1,13 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "is-main": true,
+  "import": [
+    "mizchi/ui",
+    "mizchi/ui/element",
+    "mizchi/ui/ssr",
+    "mizchi/ui/framework",
+    "mizchi/js/core"
+  ]
+}

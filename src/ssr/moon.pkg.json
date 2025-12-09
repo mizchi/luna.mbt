@@ -2,6 +2,9 @@
   "import": [
     "mizchi/ui"
   ],
+  "test-import": [
+    "mizchi/ui/element"
+  ],
   "link": {
     "js": {
       "exports": [

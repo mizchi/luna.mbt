@@ -1,3 +1,6 @@
 {
-  "import": []
+  "import": [],
+  "test-import": [
+    "mizchi/ui/element"
+  ]
 }

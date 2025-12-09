@@ -5,6 +5,7 @@
   "scripts": {
     "test": "moon test --target js --build-only && bun target/js/debug/test/vdom/vdom.blackbox_test.js && bun target/js/debug/test/signals/signals.blackbox_test.js && bun target/js/debug/test/signals/dom/dom.blackbox_test.js && bun target/js/debug/test/signals/ssr/ssr.blackbox_test.js",
     "test:ssr": "moon test --target native --package signals/ssr",
+    "test:resume": "bun test src/resume/loader.test.ts",
     "build": "moon build --target js",
     "check": "moon check",
     "check-minify": "moon build src/js_api --target js && terser target/js/release/build/js_api/js_api.js --module --minify --mangle"
@@ -19,6 +20,10 @@
   ],
   "author": "mizchi",
   "license": "MIT",
+  "dependencies": {
+    "hono": "^4.7.0",
+    "@hono/node-server": "^1.14.0"
+  },
   "devDependencies": {
     "@types/bun": "^1.3.4",
     "@types/node": "^24.10.2",

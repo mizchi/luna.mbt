@@ -8,6 +8,56 @@ pub enum HydrationResult {
   Recovered(String)
 }
 
+// HydrationResult constructors for external access
+///|
+pub fn hydration_result_success() -> HydrationResult {
+  Success
+}
+
+///|
+pub fn hydration_result_mismatch(msg : String) -> HydrationResult {
+  Mismatch(msg)
+}
+
+///|
+pub fn hydration_result_recovered(msg : String) -> HydrationResult {
+  Recovered(msg)
+}
+
+// HydrationResult predicates and accessors
+///|
+pub fn HydrationResult::is_success(self : HydrationResult) -> Bool {
+  match self {
+    Success => true
+    _ => false
+  }
+}
+
+///|
+pub fn HydrationResult::is_mismatch(self : HydrationResult) -> Bool {
+  match self {
+    Mismatch(_) => true
+    _ => false
+  }
+}
+
+///|
+pub fn HydrationResult::is_recovered(self : HydrationResult) -> Bool {
+  match self {
+    Recovered(_) => true
+    _ => false
+  }
+}
+
+///|
+pub fn HydrationResult::get_message(self : HydrationResult) -> String {
+  match self {
+    Success => ""
+    Mismatch(msg) => msg
+    Recovered(msg) => msg
+  }
+}
+
 ///|
 /// Hydration context to track current position in DOM
 priv struct HydrationContext {

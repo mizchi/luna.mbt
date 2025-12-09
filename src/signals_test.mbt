@@ -779,7 +779,7 @@ test "vtext_sig creates dynamic text from signal" {
 
 ///|
 test "va creates anchor element" {
-  let node = va([vhref("https://example.com")], [vtext("Link")])
+  let node = @element.va([@element.vhref("https://example.com")], [vtext("Link")])
   match node {
     Element(el) => {
       assert_eq(el.tag, "a")
@@ -792,7 +792,7 @@ test "va creates anchor element" {
 
 ///|
 test "vform creates form element" {
-  let node = vform([vid("myform")], [vinput([vtype("text")])])
+  let node = @element.vform([@element.vid("myform")], [@element.vinput([@element.vtype("text")])])
   match node {
     Element(el) => {
       assert_eq(el.tag, "form")
@@ -805,7 +805,7 @@ test "vform creates form element" {
 
 ///|
 test "vlabel creates label element" {
-  let node = vlabel([vattr("for", "input1")], [vtext("Name:")])
+  let node = @element.vlabel([@element.vattr("for", "input1")], [vtext("Name:")])
   match node {
     Element(el) => {
       assert_eq(el.tag, "label")
@@ -816,7 +816,7 @@ test "vlabel creates label element" {
 
 ///|
 test "vh2 creates h2 element" {
-  let node = vh2([], [vtext("Section")])
+  let node = @element.vh2([], [vtext("Section")])
   match node {
     Element(el) => assert_eq(el.tag, "h2")
     _ => assert_true(false)
@@ -825,7 +825,7 @@ test "vh2 creates h2 element" {
 
 ///|
 test "vh3 creates h3 element" {
-  let node = vh3([], [vtext("Subsection")])
+  let node = @element.vh3([], [vtext("Subsection")])
   match node {
     Element(el) => assert_eq(el.tag, "h3")
     _ => assert_true(false)
@@ -834,7 +834,7 @@ test "vh3 creates h3 element" {
 
 ///|
 test "vol creates ol element" {
-  let node = vol([], [vli([], [vtext("Item 1")])])
+  let node = @element.vol([], [@element.vli([], [vtext("Item 1")])])
   match node {
     Element(el) => assert_eq(el.tag, "ol")
     _ => assert_true(false)
@@ -843,7 +843,7 @@ test "vol creates ol element" {
 
 ///|
 test "vimg creates img element" {
-  let node = vimg([vsrc("/image.png"), valt("An image")])
+  let node = @element.vimg([@element.vsrc("/image.png"), @element.valt("An image")])
   match node {
     Element(el) => {
       assert_eq(el.tag, "img")
@@ -857,7 +857,7 @@ test "vimg creates img element" {
 ///|
 test "vattr_dyn creates dynamic attribute" {
   let getter = fn() { "dynamic-value" }
-  let (key, attr) = vattr_dyn("data-test", getter)
+  let (key, attr) = @element.vattr_dyn("data-test", getter)
   assert_eq(key, "data-test")
   match attr {
     VDynamic(g) => assert_eq(g(), "dynamic-value")
@@ -867,7 +867,7 @@ test "vattr_dyn creates dynamic attribute" {
 
 ///|
 test "vvalue creates value attribute" {
-  let (key, attr) = vvalue("test-value")
+  let (key, attr) = @element.vvalue("test-value")
   assert_eq(key, "value")
   match attr {
     VStatic(v) => assert_eq(v, "test-value")
@@ -877,7 +877,7 @@ test "vvalue creates value attribute" {
 
 ///|
 test "vvalue_dyn creates dynamic value attribute" {
-  let (key, attr) = vvalue_dyn(fn() { "dynamic" })
+  let (key, attr) = @element.vvalue_dyn(fn() { "dynamic" })
   assert_eq(key, "value")
   match attr {
     VDynamic(g) => assert_eq(g(), "dynamic")
@@ -888,7 +888,7 @@ test "vvalue_dyn creates dynamic value attribute" {
 ///|
 test "von_input creates input handler" {
   let handler = event_handler()
-  let (key, attr) = von_input(handler)
+  let (key, attr) = @element.von_input(handler)
   assert_eq(key, "onInput")
   match attr {
     VHandler(_) => assert_true(true)
@@ -899,7 +899,7 @@ test "von_input creates input handler" {
 ///|
 test "von_change creates change handler" {
   let handler = event_handler()
-  let (key, attr) = von_change(handler)
+  let (key, attr) = @element.von_change(handler)
   assert_eq(key, "onChange")
   match attr {
     VHandler(_) => assert_true(true)
@@ -910,7 +910,7 @@ test "von_change creates change handler" {
 ///|
 test "von_submit creates submit handler" {
   let handler = event_handler()
-  let (key, attr) = von_submit(handler)
+  let (key, attr) = @element.von_submit(handler)
   assert_eq(key, "onSubmit")
   match attr {
     VHandler(_) => assert_true(true)
@@ -921,7 +921,7 @@ test "von_submit creates submit handler" {
 ///|
 test "vstyle_dyn creates dynamic style attribute" {
   let styles = fn() { [("color", "red"), ("margin", "10px")] }
-  let (key, attr) = vstyle_dyn(styles)
+  let (key, attr) = @element.vstyle_dyn(styles)
   assert_eq(key, "style")
   match attr {
     VDynamicStyle(g) => assert_eq(g().length(), 2)

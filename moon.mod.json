@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "deps": {
     "moonbitlang/async": "0.14.2",
-    "mizchi/js": {
-      "version": "0.8.8"
-    }
+    "mizchi/js": "0.8.8",
+    "moonbitlang/x": "0.4.37"
   },
   "readme": "README.md",
   "repository": "https://github.com/mizchi/ui.mbt",
