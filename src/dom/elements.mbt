@@ -138,7 +138,7 @@ pub fn text_dyn(content : () -> String) -> Node {
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_sig(sig : @signals.Signal[T]) -> Node {
+pub fn[T : Show] text_sig(sig : @ui.Signal[T]) -> Node {
   text_from_signal(sig)
 }
 

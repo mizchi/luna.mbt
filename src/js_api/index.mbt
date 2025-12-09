@@ -9,96 +9,96 @@ pub type Any
 
 ///|
 /// Create a signal with any value
-pub fn create_signal(initial : Any) -> @signals.Signal[Any] {
-  @signals.signal(initial)
+pub fn create_signal(initial : Any) -> @ui.Signal[Any] {
+  @ui.signal(initial)
 }
 
 ///|
 /// Get signal value
-pub fn get(sig : @signals.Signal[Any]) -> Any {
+pub fn get(sig : @ui.Signal[Any]) -> Any {
   sig.get()
 }
 
 ///|
 /// Set signal value
-pub fn set(sig : @signals.Signal[Any], value : Any) -> Unit {
+pub fn set(sig : @ui.Signal[Any], value : Any) -> Unit {
   sig.set(value)
 }
 
 ///|
 /// Update signal with function
-pub fn update(sig : @signals.Signal[Any], f : (Any) -> Any) -> Unit {
+pub fn update(sig : @ui.Signal[Any], f : (Any) -> Any) -> Unit {
   sig.update(f)
 }
 
 ///|
 /// Peek signal value without tracking
-pub fn peek(sig : @signals.Signal[Any]) -> Any {
+pub fn peek(sig : @ui.Signal[Any]) -> Any {
   sig.peek()
 }
 
 ///|
 /// Subscribe to signal changes
-pub fn subscribe(sig : @signals.Signal[Any], callback : (Any) -> Unit) -> () -> Unit {
-  @signals.on(sig, callback)
+pub fn subscribe(sig : @ui.Signal[Any], callback : (Any) -> Unit) -> () -> Unit {
+  @ui.on(sig, callback)
 }
 
 ///|
 /// Map signal to derived value
-pub fn map(sig : @signals.Signal[Any], f : (Any) -> Any) -> () -> Any {
+pub fn map(sig : @ui.Signal[Any], f : (Any) -> Any) -> () -> Any {
   sig.map(f)
 }
 
 ///|
 /// Create a memo (computed value)
 pub fn create_memo(compute : () -> Any) -> () -> Any {
-  @signals.memo(compute)
+  @ui.memo(compute)
 }
 
 ///|
 /// Combine two signals
 pub fn combine(
-  a : @signals.Signal[Any],
-  b : @signals.Signal[Any],
+  a : @ui.Signal[Any],
+  b : @ui.Signal[Any],
   f : (Any, Any) -> Any,
 ) -> () -> Any {
-  @signals.combine2(a, b, f)
+  @ui.combine2(a, b, f)
 }
 
 ///|
 /// Create an effect
 pub fn effect(fn_ : () -> Unit) -> () -> Unit {
-  @signals.effect(fn_)
+  @ui.effect(fn_)
 }
 
 ///|
 /// Start batch updates
 pub fn batch_start() -> Unit {
-  @signals.batch_start()
+  @ui.batch_start()
 }
 
 ///|
 /// End batch updates
 pub fn batch_end() -> Unit {
-  @signals.batch_end()
+  @ui.batch_end()
 }
 
 ///|
 /// Run function without tracking dependencies
 pub fn run_untracked(f : () -> Any) -> Any {
-  @signals.untracked(f)
+  @ui.untracked(f)
 }
 
 ///|
 /// Run a function in a batch - all signal updates are batched
 pub fn batch(f : () -> Any) -> Any {
-  @signals.batch(f)
+  @ui.batch(f)
 }
 
 ///|
 /// Register a cleanup function inside an effect
 pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
-  @signals.on_cleanup(cleanup)
+  @ui.on_cleanup(cleanup)
 }
 
 // ============================================================================
@@ -107,19 +107,19 @@ pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
 
 ///|
 /// Opaque Owner type for JS
-pub struct JsOwner(@signals.Owner)
+pub struct JsOwner(@ui.Owner)
 
 ///|
 /// Create a new reactive root scope
 /// The function receives a dispose callback
 pub fn create_root(f : (() -> Unit) -> Any) -> Any {
-  @signals.create_root(f)
+  @ui.create_root(f)
 }
 
 ///|
 /// Get the current owner (if any)
 pub fn get_owner() -> JsOwner? {
-  match @signals.get_owner() {
+  match @ui.get_owner() {
     Some(owner) => Some(JsOwner(owner))
     None => None
   }
@@ -128,17 +128,17 @@ pub fn get_owner() -> JsOwner? {
 ///|
 /// Run a function with a specific owner as current
 pub fn run_with_owner(owner : JsOwner, f : () -> Any) -> Any {
-  @signals.run_with_owner(owner.0, f)
+  @ui.run_with_owner(owner.0, f)
 }
 
 ///|
 /// Check if currently inside an owner scope
 pub fn has_owner() -> Bool {
-  @signals.has_owner()
+  @ui.has_owner()
 }
 
 ///|
 /// Run a function once (Solid.js style onMount)
 pub fn on_mount(fn_ : () -> Unit) -> Unit {
-  @signals.on_mount(fn_)
+  @ui.on_mount(fn_)
 }

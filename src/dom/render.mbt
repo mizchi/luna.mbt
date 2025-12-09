@@ -8,7 +8,7 @@ pub fn text_node(content : () -> String) -> Node {
   let node = doc.createTextNode(initial)
 
   // Set up effect to update text when content changes
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let new_content = content()
     node.as_node().setTextContent(new_content)
   })
@@ -17,7 +17,7 @@ pub fn text_node(content : () -> String) -> Node {
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_from_signal(sig : @signals.Signal[T]) -> Node {
+pub fn[T : Show] text_from_signal(sig : @ui.Signal[T]) -> Node {
   text_node(fn() { sig.get().to_string() })
 }
 
@@ -65,7 +65,7 @@ fn apply_attribute(
     Static(s) => apply_static_attr(elem, name, s)
     Dynamic(getter) => {
       // Set up effect to update attribute when value changes
-      let _ = @signals.effect(fn() {
+      let _ = @ui.effect(fn() {
         let new_value = getter()
         apply_static_attr(elem, name, new_value)
       })
@@ -74,7 +74,7 @@ fn apply_attribute(
     Handler(handler) => apply_event_handler(elem, name, handler)
     StyleObj(styles) => apply_style_object(elem, styles)
     DynamicStyle(getter) => {
-      let _ = @signals.effect(fn() {
+      let _ = @ui.effect(fn() {
         let styles = getter()
         apply_style_object(elem, styles)
       })
@@ -204,7 +204,7 @@ pub fn show(when : () -> Bool, render_fn : () -> Node) -> Node {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("show")
   let mut current_node : @js_dom.Node? = None
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let should_show = when()
     match (should_show, current_node) {
       (true, None) => {
@@ -242,7 +242,7 @@ pub fn[T] for_each(
   let doc = @js_dom.document()
   let container = doc.createDocumentFragment()
   let mut current_nodes : Array[@js_dom.Node] = []
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let new_items = items()
 
     // Simple strategy: remove all and re-render

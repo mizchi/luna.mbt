@@ -6,27 +6,27 @@
 // =============================================================================
 
 test "ssr_simple_text" (b : @bench.T) {
-  let node = @signals.vtext("Hello, World!")
+  let node = @ui.vtext("Hello, World!")
   b.bench(name="ssr_simple_text", fn() { b.keep(render_to_string(node)) })
 }
 
 ///|
 test "ssr_simple_div" (b : @bench.T) {
-  let node = @signals.vdiv([], [])
+  let node = @ui.vdiv([], [])
   b.bench(name="ssr_simple_div", fn() { b.keep(render_to_string(node)) })
 }
 
 ///|
 test "ssr_div_with_text" (b : @bench.T) {
-  let node = @signals.vdiv([], [@signals.vtext("Hello")])
+  let node = @ui.vdiv([], [@ui.vtext("Hello")])
   b.bench(name="ssr_div_with_text", fn() { b.keep(render_to_string(node)) })
 }
 
 ///|
 test "ssr_div_with_attrs" (b : @bench.T) {
-  let node = @signals.vdiv(
-    [@signals.vid("main"), @signals.vclass("container")],
-    [@signals.vtext("Content")],
+  let node = @ui.vdiv(
+    [@ui.vid("main"), @ui.vclass("container")],
+    [@ui.vtext("Content")],
   )
   b.bench(name="ssr_div_with_attrs", fn() { b.keep(render_to_string(node)) })
 }
@@ -37,18 +37,18 @@ test "ssr_div_with_attrs" (b : @bench.T) {
 
 ///|
 test "ssr_nested_3_levels" (b : @bench.T) {
-  let node = @signals.vdiv([], [
-    @signals.vdiv([], [@signals.vdiv([], [@signals.vtext("deep")])]),
+  let node = @ui.vdiv([], [
+    @ui.vdiv([], [@ui.vdiv([], [@ui.vtext("deep")])]),
   ])
   b.bench(name="ssr_nested_3_levels", fn() { b.keep(render_to_string(node)) })
 }
 
 ///|
 test "ssr_nested_5_levels" (b : @bench.T) {
-  let node = @signals.vdiv([], [
-    @signals.vdiv([], [
-      @signals.vdiv([], [
-        @signals.vdiv([], [@signals.vdiv([], [@signals.vtext("very deep")])]),
+  let node = @ui.vdiv([], [
+    @ui.vdiv([], [
+      @ui.vdiv([], [
+        @ui.vdiv([], [@ui.vdiv([], [@ui.vtext("very deep")])]),
       ]),
     ]),
   ])
@@ -57,16 +57,16 @@ test "ssr_nested_5_levels" (b : @bench.T) {
 
 ///|
 test "ssr_nested_10_levels" (b : @bench.T) {
-  let node = @signals.vdiv([], [
-    @signals.vdiv([], [
-      @signals.vdiv([], [
-        @signals.vdiv([], [
-          @signals.vdiv([], [
-            @signals.vdiv([], [
-              @signals.vdiv([], [
-                @signals.vdiv([], [
-                  @signals.vdiv([], [
-                    @signals.vdiv([], [@signals.vtext("extremely deep")]),
+  let node = @ui.vdiv([], [
+    @ui.vdiv([], [
+      @ui.vdiv([], [
+        @ui.vdiv([], [
+          @ui.vdiv([], [
+            @ui.vdiv([], [
+              @ui.vdiv([], [
+                @ui.vdiv([], [
+                  @ui.vdiv([], [
+                    @ui.vdiv([], [@ui.vtext("extremely deep")]),
                   ]),
                 ]),
               ]),
@@ -85,31 +85,31 @@ test "ssr_nested_10_levels" (b : @bench.T) {
 
 ///|
 test "ssr_list_10_items" (b : @bench.T) {
-  let items : Array[@signals.VNode] = []
+  let items : Array[@ui.VNode] = []
   for i = 0; i < 10; i = i + 1 {
-    items.push(@signals.vli([], [@signals.vtext("Item " + i.to_string())]))
+    items.push(@ui.vli([], [@ui.vtext("Item " + i.to_string())]))
   }
-  let node = @signals.vul([], items)
+  let node = @ui.vul([], items)
   b.bench(name="ssr_list_10_items", fn() { b.keep(render_to_string(node)) })
 }
 
 ///|
 test "ssr_list_100_items" (b : @bench.T) {
-  let items : Array[@signals.VNode] = []
+  let items : Array[@ui.VNode] = []
   for i = 0; i < 100; i = i + 1 {
-    items.push(@signals.vli([], [@signals.vtext("Item " + i.to_string())]))
+    items.push(@ui.vli([], [@ui.vtext("Item " + i.to_string())]))
   }
-  let node = @signals.vul([], items)
+  let node = @ui.vul([], items)
   b.bench(name="ssr_list_100_items", fn() { b.keep(render_to_string(node)) })
 }
 
 ///|
 test "ssr_list_1000_items" (b : @bench.T) {
-  let items : Array[@signals.VNode] = []
+  let items : Array[@ui.VNode] = []
   for i = 0; i < 1000; i = i + 1 {
-    items.push(@signals.vli([], [@signals.vtext("Item " + i.to_string())]))
+    items.push(@ui.vli([], [@ui.vtext("Item " + i.to_string())]))
   }
-  let node = @signals.vul([], items)
+  let node = @ui.vul([], items)
   b.bench(name="ssr_list_1000_items", fn() { b.keep(render_to_string(node)) })
 }
 
@@ -119,16 +119,16 @@ test "ssr_list_1000_items" (b : @bench.T) {
 
 ///|
 test "ssr_card_component" (b : @bench.T) {
-  fn card(title : String, content : String) -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("card")], [
-      @signals.vdiv([@signals.vclass("card-header")], [
-        @signals.vh3([], [@signals.vtext(title)]),
+  fn card(title : String, content : String) -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("card")], [
+      @ui.vdiv([@ui.vclass("card-header")], [
+        @ui.vh3([], [@ui.vtext(title)]),
       ]),
-      @signals.vdiv([@signals.vclass("card-body")], [
-        @signals.vp([], [@signals.vtext(content)]),
+      @ui.vdiv([@ui.vclass("card-body")], [
+        @ui.vp([], [@ui.vtext(content)]),
       ]),
-      @signals.vdiv([@signals.vclass("card-footer")], [
-        @signals.vbutton([@signals.vclass("btn")], [@signals.vtext("Action")]),
+      @ui.vdiv([@ui.vclass("card-footer")], [
+        @ui.vbutton([@ui.vclass("btn")], [@ui.vtext("Action")]),
       ]),
     ])
   }
@@ -139,22 +139,22 @@ test "ssr_card_component" (b : @bench.T) {
 
 ///|
 test "ssr_100_cards" (b : @bench.T) {
-  fn card(i : Int) -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("card")], [
-      @signals.vdiv([@signals.vclass("card-header")], [
-        @signals.vh3([], [@signals.vtext("Card " + i.to_string())]),
+  fn card(i : Int) -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("card")], [
+      @ui.vdiv([@ui.vclass("card-header")], [
+        @ui.vh3([], [@ui.vtext("Card " + i.to_string())]),
       ]),
-      @signals.vdiv([@signals.vclass("card-body")], [
-        @signals.vp([], [@signals.vtext("Content " + i.to_string())]),
+      @ui.vdiv([@ui.vclass("card-body")], [
+        @ui.vp([], [@ui.vtext("Content " + i.to_string())]),
       ]),
     ])
   }
 
-  let cards : Array[@signals.VNode] = []
+  let cards : Array[@ui.VNode] = []
   for i = 0; i < 100; i = i + 1 {
     cards.push(card(i))
   }
-  let node = @signals.vdiv([@signals.vclass("cards")], cards)
+  let node = @ui.vdiv([@ui.vclass("cards")], cards)
   b.bench(name="ssr_100_cards", fn() { b.keep(render_to_string(node)) })
 }
 
@@ -165,15 +165,15 @@ test "ssr_100_cards" (b : @bench.T) {
 ///|
 test "ssr_dynamic_text" (b : @bench.T) {
   let count = 42
-  let node = @signals.vtext_dyn(fn() { "Count: " + count.to_string() })
+  let node = @ui.vtext_dyn(fn() { "Count: " + count.to_string() })
   b.bench(name="ssr_dynamic_text", fn() { b.keep(render_to_string(node)) })
 }
 
 ///|
 test "ssr_dynamic_attr" (b : @bench.T) {
   let active = true
-  let node = @signals.vdiv(
-    [@signals.vclass_dyn(fn() { if active { "active" } else { "inactive" } })],
+  let node = @ui.vdiv(
+    [@ui.vclass_dyn(fn() { if active { "active" } else { "inactive" } })],
     [],
   )
   b.bench(name="ssr_dynamic_attr", fn() { b.keep(render_to_string(node)) })
@@ -182,10 +182,10 @@ test "ssr_dynamic_attr" (b : @bench.T) {
 ///|
 test "ssr_100_dynamic_items" (b : @bench.T) {
   let count = 100
-  let node = @signals.vfor(fn() {
-    let result : Array[@signals.VNode] = []
+  let node = @ui.vfor(fn() {
+    let result : Array[@ui.VNode] = []
     for i = 0; i < count; i = i + 1 {
-      result.push(@signals.vli([], [@signals.vtext("Item " + i.to_string())]))
+      result.push(@ui.vli([], [@ui.vtext("Item " + i.to_string())]))
     }
     result
   })
@@ -198,8 +198,8 @@ test "ssr_100_dynamic_items" (b : @bench.T) {
 
 ///|
 test "ssr_hydration_simple" (b : @bench.T) {
-  let node = @signals.vdiv([@signals.von_click(@signals.event_handler())], [
-    @signals.vtext("Click me"),
+  let node = @ui.vdiv([@ui.von_click(@ui.event_handler())], [
+    @ui.vtext("Click me"),
   ])
   b.bench(name="ssr_hydration_simple", fn() {
     b.keep(render_to_string_with_hydration(node))
@@ -208,15 +208,15 @@ test "ssr_hydration_simple" (b : @bench.T) {
 
 ///|
 test "ssr_hydration_100_items" (b : @bench.T) {
-  let items : Array[@signals.VNode] = []
+  let items : Array[@ui.VNode] = []
   for i = 0; i < 100; i = i + 1 {
     items.push(
-      @signals.vli([@signals.von_click(@signals.event_handler())], [
-        @signals.vtext("Item " + i.to_string()),
+      @ui.vli([@ui.von_click(@ui.event_handler())], [
+        @ui.vtext("Item " + i.to_string()),
       ]),
     )
   }
-  let node = @signals.vul([], items)
+  let node = @ui.vul([], items)
   b.bench(name="ssr_hydration_100_items", fn() {
     b.keep(render_to_string_with_hydration(node))
   })
@@ -228,9 +228,9 @@ test "ssr_hydration_100_items" (b : @bench.T) {
 
 ///|
 test "ssr_inline_style" (b : @bench.T) {
-  let node = @signals.vdiv(
+  let node = @ui.vdiv(
     [
-      @signals.vstyle([
+      @ui.vstyle([
         ("color", "red"),
         ("fontSize", "16px"),
         ("marginTop", "10px"),
@@ -247,45 +247,45 @@ test "ssr_inline_style" (b : @bench.T) {
 
 ///|
 test "ssr_full_page" (b : @bench.T) {
-  fn nav() -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("nav")], [
-      @signals.va([@signals.vhref("/")], [@signals.vtext("Home")]),
-      @signals.va([@signals.vhref("/about")], [@signals.vtext("About")]),
-      @signals.va([@signals.vhref("/contact")], [@signals.vtext("Contact")]),
+  fn nav() -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("nav")], [
+      @ui.va([@ui.vhref("/")], [@ui.vtext("Home")]),
+      @ui.va([@ui.vhref("/about")], [@ui.vtext("About")]),
+      @ui.va([@ui.vhref("/contact")], [@ui.vtext("Contact")]),
     ])
   }
 
-  fn header(title : String) -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("header")], [
-      @signals.vh1([], [@signals.vtext(title)]),
+  fn header(title : String) -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("header")], [
+      @ui.vh1([], [@ui.vtext(title)]),
     ])
   }
 
-  fn sidebar() -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("sidebar")], [
-      @signals.vul([], [
-        @signals.vli([], [@signals.vtext("Menu 1")]),
-        @signals.vli([], [@signals.vtext("Menu 2")]),
-        @signals.vli([], [@signals.vtext("Menu 3")]),
+  fn sidebar() -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("sidebar")], [
+      @ui.vul([], [
+        @ui.vli([], [@ui.vtext("Menu 1")]),
+        @ui.vli([], [@ui.vtext("Menu 2")]),
+        @ui.vli([], [@ui.vtext("Menu 3")]),
       ]),
     ])
   }
 
-  fn content() -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("content")], [
-      @signals.vp([], [@signals.vtext("Welcome to our site!")]),
-      @signals.vp([], [@signals.vtext("This is some content.")]),
+  fn content() -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("content")], [
+      @ui.vp([], [@ui.vtext("Welcome to our site!")]),
+      @ui.vp([], [@ui.vtext("This is some content.")]),
     ])
   }
 
-  fn footer() -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("footer")], [@signals.vtext("© 2025")])
+  fn footer() -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("footer")], [@ui.vtext("© 2025")])
   }
 
-  let page = @signals.vdiv([@signals.vclass("page")], [
+  let page = @ui.vdiv([@ui.vclass("page")], [
     nav(),
     header("My Website"),
-    @signals.vdiv([@signals.vclass("main")], [sidebar(), content()]),
+    @ui.vdiv([@ui.vclass("main")], [sidebar(), content()]),
     footer(),
   ])
   b.bench(name="ssr_full_page", fn() { b.keep(render_to_string(page)) })
@@ -293,31 +293,31 @@ test "ssr_full_page" (b : @bench.T) {
 
 ///|
 test "ssr_blog_page_10_posts" (b : @bench.T) {
-  fn post(i : Int) -> @signals.VNode {
-    @signals.vdiv([@signals.vclass("post")], [
-      @signals.vh2([], [@signals.vtext("Post Title " + i.to_string())]),
-      @signals.vp([@signals.vclass("meta")], [
-        @signals.vtext("Posted on 2025-01-01"),
+  fn post(i : Int) -> @ui.VNode {
+    @ui.vdiv([@ui.vclass("post")], [
+      @ui.vh2([], [@ui.vtext("Post Title " + i.to_string())]),
+      @ui.vp([@ui.vclass("meta")], [
+        @ui.vtext("Posted on 2025-01-01"),
       ]),
-      @signals.vp([], [
-        @signals.vtext(
+      @ui.vp([], [
+        @ui.vtext(
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         ),
       ]),
-      @signals.vdiv([@signals.vclass("tags")], [
-        @signals.vspan([@signals.vclass("tag")], [@signals.vtext("MoonBit")]),
-        @signals.vspan([@signals.vclass("tag")], [@signals.vtext("SSR")]),
+      @ui.vdiv([@ui.vclass("tags")], [
+        @ui.vspan([@ui.vclass("tag")], [@ui.vtext("MoonBit")]),
+        @ui.vspan([@ui.vclass("tag")], [@ui.vtext("SSR")]),
       ]),
     ])
   }
 
-  let posts : Array[@signals.VNode] = []
+  let posts : Array[@ui.VNode] = []
   for i = 0; i < 10; i = i + 1 {
     posts.push(post(i))
   }
-  let page = @signals.vdiv([@signals.vclass("blog")], [
-    @signals.vh1([], [@signals.vtext("My Blog")]),
-    @signals.vdiv([@signals.vclass("posts")], posts),
+  let page = @ui.vdiv([@ui.vclass("blog")], [
+    @ui.vh1([], [@ui.vtext("My Blog")]),
+    @ui.vdiv([@ui.vclass("posts")], posts),
   ])
   b.bench(name="ssr_blog_page_10_posts", fn() { b.keep(render_to_string(page)) })
 }

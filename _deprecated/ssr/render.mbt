@@ -136,7 +136,7 @@ fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
 /// Render attributes to StringBuilder
 fn render_attrs_to(
   sb : StringBuilder,
-  attrs : Array[(String, @signals.VAttr)],
+  attrs : Array[(String, @ui.VAttr)],
 ) -> Unit {
   for attr in attrs {
     let (name, value) = attr
@@ -193,7 +193,7 @@ fn render_attrs_to(
 
 ///|
 /// Render a VNode to StringBuilder
-fn render_to_sb(sb : StringBuilder, node : @signals.VNode) -> Unit {
+fn render_to_sb(sb : StringBuilder, node : @ui.VNode) -> Unit {
   match node {
     VText(content) => escape_html_to(sb, content)
     VDynamicText(getter) => escape_html_to(sb, getter())
@@ -234,7 +234,7 @@ fn render_to_sb(sb : StringBuilder, node : @signals.VNode) -> Unit {
 
 ///|
 /// Render a VNode to HTML string
-pub fn render_to_string(node : @signals.VNode) -> String {
+pub fn render_to_string(node : @ui.VNode) -> String {
   let sb = StringBuilder::new(size_hint=256)
   render_to_sb(sb, node)
   sb.to_string()
@@ -242,7 +242,7 @@ pub fn render_to_string(node : @signals.VNode) -> String {
 
 ///|
 /// Render with data-ssr-id markers for hydration
-pub fn render_to_string_with_hydration(node : @signals.VNode) -> String {
+pub fn render_to_string_with_hydration(node : @ui.VNode) -> String {
   let sb = StringBuilder::new(size_hint=256)
   let id_counter = { val: 0 }
   render_with_id_to(sb, node, id_counter)
@@ -253,7 +253,7 @@ pub fn render_to_string_with_hydration(node : @signals.VNode) -> String {
 /// Internal: Render with hydration markers to StringBuilder
 fn render_with_id_to(
   sb : StringBuilder,
-  node : @signals.VNode,
+  node : @ui.VNode,
   id_counter : Ref[Int],
 ) -> Unit {
   match node {
@@ -327,7 +327,7 @@ fn render_with_id_to(
 
 ///|
 /// Check if element has dynamic content that needs hydration
-fn has_dynamic_content(attrs : Array[(String, @signals.VAttr)]) -> Bool {
+fn has_dynamic_content(attrs : Array[(String, @ui.VAttr)]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {

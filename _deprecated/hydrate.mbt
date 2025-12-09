@@ -17,7 +17,7 @@ fn get_text_content(node : @js_dom.Node) -> String {
 
 ///|
 /// The container should already have server-rendered HTML with hydration markers
-pub fn hydrate(container : @js_dom.Element, node : @signals.VNode) -> Unit {
+pub fn hydrate(container : @js_dom.Element, node : @ui.VNode) -> Unit {
   let ctx : HydrationContext = { current_id: 0 }
   hydrate_node(container.as_node(), node, ctx)
 }
@@ -26,29 +26,29 @@ pub fn hydrate(container : @js_dom.Element, node : @signals.VNode) -> Unit {
 /// Internal: Hydrate a single node
 fn hydrate_node(
   parent : @js_dom.Node,
-  node : @signals.VNode,
+  node : @ui.VNode,
   ctx : HydrationContext,
 ) -> Unit {
   match node {
-    @signals.VText(_) =>
+    @ui.VText(_) =>
       // Static text doesn't need hydration
       ()
-    @signals.VDynamicText(getter) => {
+    @ui.VDynamicText(getter) => {
       // Find the text marker comments and set up effect
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_dynamic_text(parent, id, getter)
     }
-    @signals.VFragment(children) =>
+    @ui.VFragment(children) =>
       for i = 0; i < children.length(); i = i + 1 {
         hydrate_node(parent, children[i], ctx)
       }
-    @signals.VElement(elem) => {
+    @ui.VElement(elem) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
 
       // Check if this element needs hydration
-      let needs_hydration = @signals.has_dynamic_content(elem.attrs)
+      let needs_hydration = @ui.has_dynamic_content(elem.attrs)
       if needs_hydration {
         // Find element by data-hk attribute
         match find_element_by_hk(id) {
@@ -71,17 +71,17 @@ fn hydrate_node(
           ()
       }
     }
-    @signals.VShow(condition=cond, child=child_fn) => {
+    @ui.VShow(condition=cond, child=child_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_show(parent, id, cond, child_fn, ctx)
     }
-    @signals.VFor(render=render_fn) => {
+    @ui.VFor(render=render_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_for(parent, id, render_fn, ctx)
     }
-    @signals.VComponent(render=render_fn) =>
+    @ui.VComponent(render=render_fn) =>
       hydrate_node(parent, render_fn(), ctx)
   }
 }
@@ -114,7 +114,7 @@ fn hydrate_dynamic_text(
           Some(text_node) =>
             if text_node.nodeType() == 3 { // Text node
               // Set up effect to update text
-              let _ = @signals.effect(fn() {
+              let _ = @ui.effect(fn() {
                 let new_text = getter()
                 text_node.setTextContent(new_text)
               })
@@ -132,17 +132,17 @@ fn hydrate_dynamic_text(
 /// Hydrate element attributes and handlers
 fn hydrate_element(
   elem : @js_dom.Element,
-  attrs : Array[(String, @signals.VAttr)],
+  attrs : Array[(String, @ui.VAttr)],
 ) -> Unit {
   for i = 0; i < attrs.length(); i = i + 1 {
     let (name, value) = attrs[i]
     match value {
-      @signals.VStatic(_) =>
+      @ui.VStatic(_) =>
         // Static attributes already rendered, nothing to do
         ()
-      @signals.VDynamic(getter) => {
+      @ui.VDynamic(getter) => {
         // Set up effect to update attribute
-        let _ = @signals.effect(fn() {
+        let _ = @ui.effect(fn() {
           let new_value = getter()
           if new_value == "__remove__" {
             elem.removeAttribute(name)
@@ -156,18 +156,18 @@ fn hydrate_element(
         })
 
       }
-      @signals.VHandler(handler) => {
+      @ui.VHandler(handler) => {
         // Attach event handler
         let event_name = extract_event_name(name)
         let handler_any : @core.Any = @core.any(handler)
         elem.as_event_target().addEventListener(event_name, handler_any.cast())
       }
-      @signals.VStyle(_) =>
+      @ui.VStyle(_) =>
         // Static style already rendered
         ()
-      @signals.VDynamicStyle(getter) => {
+      @ui.VDynamicStyle(getter) => {
         // Set up effect to update style
-        let _ = @signals.effect(fn() {
+        let _ = @ui.effect(fn() {
           let styles = getter()
           let style_prop : @core.Any = elem.as_any()._get("style")
           for j = 0; j < styles.length(); j = j + 1 {
@@ -219,7 +219,7 @@ fn hydrate_show(
   parent : @js_dom.Node,
   id : Int,
   cond : () -> Bool,
-  child_fn : () -> @signals.VNode,
+  child_fn : () -> @ui.VNode,
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "s:" + id.to_string()
@@ -267,7 +267,7 @@ fn hydrate_show(
       }
 
       // Set up effect for show/hide
-      let _ = @signals.effect(fn() {
+      let _ = @ui.effect(fn() {
         let should_show = cond()
         if should_show && current_nodes.length() == 0 {
           // Need to show - render and insert
@@ -301,38 +301,38 @@ fn hydrate_show(
 /// Hydrate child nodes with VNode
 fn hydrate_child_nodes(
   nodes : Array[@js_dom.Node],
-  node : @signals.VNode,
+  node : @ui.VNode,
   ctx : HydrationContext,
 ) -> Unit {
   // For now, just traverse the VNode and update ctx
   let _ = nodes // suppress unused warning
   match node {
-    @signals.VText(_) => ()
-    @signals.VDynamicText(_) => ctx.current_id = ctx.current_id + 1
-    @signals.VFragment(children) =>
+    @ui.VText(_) => ()
+    @ui.VDynamicText(_) => ctx.current_id = ctx.current_id + 1
+    @ui.VFragment(children) =>
       for i = 0; i < children.length(); i = i + 1 {
         hydrate_child_nodes(nodes, children[i], ctx)
       }
-    @signals.VElement(elem) => {
+    @ui.VElement(elem) => {
       ctx.current_id = ctx.current_id + 1
       for i = 0; i < elem.children.length(); i = i + 1 {
         hydrate_child_nodes(nodes, elem.children[i], ctx)
       }
     }
-    @signals.VShow(condition=condition_fn, child=child_getter) => {
+    @ui.VShow(condition=condition_fn, child=child_getter) => {
       ctx.current_id = ctx.current_id + 1
       if condition_fn() {
         hydrate_child_nodes(nodes, child_getter(), ctx)
       }
     }
-    @signals.VFor(render=render_fn) => {
+    @ui.VFor(render=render_fn) => {
       ctx.current_id = ctx.current_id + 1
       let items = render_fn()
       for i = 0; i < items.length(); i = i + 1 {
         hydrate_child_nodes(nodes, items[i], ctx)
       }
     }
-    @signals.VComponent(render=render_fn) =>
+    @ui.VComponent(render=render_fn) =>
       hydrate_child_nodes(nodes, render_fn(), ctx)
   }
 }
@@ -342,7 +342,7 @@ fn hydrate_child_nodes(
 fn hydrate_for(
   parent : @js_dom.Node,
   id : Int,
-  render_fn : () -> Array[@signals.VNode],
+  render_fn : () -> Array[@ui.VNode],
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "f:" + id.to_string()
@@ -399,7 +399,7 @@ fn hydrate_for(
       }
 
       // Set up effect for list updates
-      let _ = @signals.effect(fn() {
+      let _ = @ui.effect(fn() {
         let new_items = render_fn()
 
         // Simple strategy: clear and re-render
@@ -424,20 +424,20 @@ fn hydrate_for(
 
 ///|
 /// Render VNode to DOM node (for client-side rendering after hydration)
-pub fn render_vnode_to_dom(node : @signals.VNode) -> @js_dom.Node {
+pub fn render_vnode_to_dom(node : @ui.VNode) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
-    @signals.VText(content) => doc.createTextNode(content).as_node()
-    @signals.VDynamicText(getter) => {
+    @ui.VText(content) => doc.createTextNode(content).as_node()
+    @ui.VDynamicText(getter) => {
       let text_node = doc.createTextNode(getter())
       let node_ref = text_node.as_node()
-      let _ = @signals.effect(fn() {
+      let _ = @ui.effect(fn() {
         let new_text = getter()
         node_ref.setTextContent(new_text)
       })
       node_ref
     }
-    @signals.VFragment(children) => {
+    @ui.VFragment(children) => {
       let fragment = doc.createDocumentFragment()
       for i = 0; i < children.length(); i = i + 1 {
         fragment.as_node().appendChild(render_vnode_to_dom(children[i]))
@@ -445,7 +445,7 @@ pub fn render_vnode_to_dom(node : @signals.VNode) -> @js_dom.Node {
       }
       fragment.as_node()
     }
-    @signals.VElement(elem) => {
+    @ui.VElement(elem) => {
       let dom_elem = doc.createElement(elem.tag)
 
       // Apply attributes
@@ -461,10 +461,10 @@ pub fn render_vnode_to_dom(node : @signals.VNode) -> @js_dom.Node {
       }
       dom_elem.as_node()
     }
-    @signals.VShow(condition=cond, child=child_fn) => {
+    @ui.VShow(condition=cond, child=child_fn) => {
       let placeholder = doc.createComment("show")
       let mut current_node : @js_dom.Node? = None
-      let _ = @signals.effect(fn() {
+      let _ = @ui.effect(fn() {
         let should_show = cond()
         match (should_show, current_node) {
           (true, None) => {
@@ -490,11 +490,11 @@ pub fn render_vnode_to_dom(node : @signals.VNode) -> @js_dom.Node {
       })
       placeholder
     }
-    @signals.VFor(render=render_fn) => {
+    @ui.VFor(render=render_fn) => {
       let container = doc.createDocumentFragment()
       let container_node = container.as_node()
       let current_nodes : Array[@js_dom.Node] = []
-      let _ = @signals.effect(fn() {
+      let _ = @ui.effect(fn() {
         let new_items = render_fn()
 
         // Remove old nodes
@@ -516,7 +516,7 @@ pub fn render_vnode_to_dom(node : @signals.VNode) -> @js_dom.Node {
       })
       container_node
     }
-    @signals.VComponent(render=render_fn) => render_vnode_to_dom(render_fn())
+    @ui.VComponent(render=render_fn) => render_vnode_to_dom(render_fn())
   }
 }
 
@@ -525,10 +525,10 @@ pub fn render_vnode_to_dom(node : @signals.VNode) -> @js_dom.Node {
 fn apply_vattr(
   elem : @js_dom.Element,
   name : String,
-  value : @signals.VAttr,
+  value : @ui.VAttr,
 ) -> Unit {
   match value {
-    @signals.VStatic(s) =>
+    @ui.VStatic(s) =>
       if s != "__remove__" {
         if name == "class" || name == "className" {
           elem.setClassName(s)
@@ -540,8 +540,8 @@ fn apply_vattr(
           elem.setAttribute(name, s)
         }
       }
-    @signals.VDynamic(getter) => {
-      let _ = @signals.effect(fn() {
+    @ui.VDynamic(getter) => {
+      let _ = @ui.effect(fn() {
         let new_value = getter()
         if new_value == "__remove__" {
           elem.removeAttribute(name)
@@ -555,20 +555,20 @@ fn apply_vattr(
       })
 
     }
-    @signals.VHandler(handler) => {
+    @ui.VHandler(handler) => {
       let event_name = extract_event_name(name)
       let handler_any : @core.Any = @core.any(handler)
       elem.as_event_target().addEventListener(event_name, handler_any.cast())
     }
-    @signals.VStyle(styles) => {
+    @ui.VStyle(styles) => {
       let style_prop : @core.Any = elem.as_any()._get("style")
       for i = 0; i < styles.length(); i = i + 1 {
         let (prop, val) = styles[i]
         style_prop._set(prop, @core.any(val)) |> ignore
       }
     }
-    @signals.VDynamicStyle(getter) => {
-      let _ = @signals.effect(fn() {
+    @ui.VDynamicStyle(getter) => {
+      let _ = @ui.effect(fn() {
         let styles = getter()
         let style_prop : @core.Any = elem.as_any()._get("style")
         for i = 0; i < styles.length(); i = i + 1 {
@@ -583,7 +583,7 @@ fn apply_vattr(
 
 ///|
 /// Convenience function: render VNode to DOM and mount
-pub fn render_vnode(container : @js_dom.Element, node : @signals.VNode) -> Unit {
+pub fn render_vnode(container : @js_dom.Element, node : @ui.VNode) -> Unit {
   container.as_node().setTextContent("")
   let dom_node = render_vnode_to_dom(node)
   container.as_node().appendChild(dom_node) |> ignore

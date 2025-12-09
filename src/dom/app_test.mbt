@@ -12,11 +12,11 @@ struct Todo {
 /// Create a Todo app component
 fn create_todo_app() -> (
   Node,
-  @signals.Signal[Array[Todo]],
-  @signals.Signal[String],
+  @ui.Signal[Array[Todo]],
+  @ui.Signal[String],
 ) {
-  let todos : @signals.Signal[Array[Todo]] = @signals.signal([])
-  let input_text : @signals.Signal[String] = @signals.signal("")
+  let todos : @ui.Signal[Array[Todo]] = @ui.signal([])
+  let input_text : @ui.Signal[String] = @ui.signal("")
   let next_id = { val: 1 }
 
   // Add todo handler
@@ -252,7 +252,7 @@ test "Todo app reactive text updates" {
   @global_jsdom.register()
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let count = @signals.signal(0)
+  let count = @ui.signal(0)
   let counter_div = div([id("counter")], [text_sig(count)])
   render_to(container, counter_div)
 
@@ -275,7 +275,7 @@ test "Todo app reactive class updates" {
   @global_jsdom.register()
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let is_active = @signals.signal(false)
+  let is_active = @ui.signal(false)
   let elem = div(
     [
       id("toggle-elem"),
@@ -304,9 +304,9 @@ test "Todo app reactive class updates" {
 ///|
 test "Todo app batch updates" {
   @global_jsdom.register()
-  let todos : @signals.Signal[Array[Todo]] = @signals.signal([])
+  let todos : @ui.Signal[Array[Todo]] = @ui.signal([])
   let update_count = { val: 0 }
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = todos.get()
     update_count.val = update_count.val + 1
   })
@@ -315,7 +315,7 @@ test "Todo app batch updates" {
   assert_eq(update_count.val, 1)
 
   // Batch multiple updates
-  @signals.batch(fn() {
+  @ui.batch(fn() {
     todos.set([{ id: 1, text: "A", completed: false }])
     todos.set([
       { id: 1, text: "A", completed: false },
@@ -335,14 +335,14 @@ test "Todo app batch updates" {
 ///|
 test "Todo app with memo for derived state" {
   @global_jsdom.register()
-  let todos : @signals.Signal[Array[Todo]] = @signals.signal([
+  let todos : @ui.Signal[Array[Todo]] = @ui.signal([
     { id: 1, text: "Task 1", completed: true },
     { id: 2, text: "Task 2", completed: false },
     { id: 3, text: "Task 3", completed: true },
   ])
 
   // Memoized computed value
-  let completed_count = @signals.memo(fn() {
+  let completed_count = @ui.memo(fn() {
     let items = todos.get()
     let mut count = 0
     for i = 0; i < items.length(); i = i + 1 {
@@ -352,7 +352,7 @@ test "Todo app with memo for derived state" {
     }
     count
   })
-  let active_count = @signals.memo(fn() {
+  let active_count = @ui.memo(fn() {
     let items = todos.get()
     let mut count = 0
     for i = 0; i < items.length(); i = i + 1 {
@@ -380,15 +380,15 @@ test "Todo app with memo for derived state" {
 ///|
 test "Todo app filter with combinator" {
   @global_jsdom.register()
-  let todos : @signals.Signal[Array[Todo]] = @signals.signal([
+  let todos : @ui.Signal[Array[Todo]] = @ui.signal([
     { id: 1, text: "Task 1", completed: true },
     { id: 2, text: "Task 2", completed: false },
     { id: 3, text: "Task 3", completed: true },
   ])
-  let filter_mode : @signals.Signal[String] = @signals.signal("all") // "all", "active", "completed"
+  let filter_mode : @ui.Signal[String] = @ui.signal("all") // "all", "active", "completed"
 
   // Filtered todos using combine
-  let filtered = @signals.combine2(todos, filter_mode, fn(items, mode) {
+  let filtered = @ui.combine2(todos, filter_mode, fn(items, mode) {
     if mode == "all" {
       items
     } else if mode == "active" {
@@ -425,9 +425,9 @@ test "Todo app filter with combinator" {
 ///|
 test "Signal cleanup on dispose" {
   @global_jsdom.register()
-  let sig = @signals.signal(0)
+  let sig = @ui.signal(0)
   let values : Array[Int] = []
-  let dispose = @signals.effect(fn() { values.push(sig.get()) })
+  let dispose = @ui.effect(fn() { values.push(sig.get()) })
 
   // Initial
   assert_eq(values.length(), 1)
@@ -446,12 +446,12 @@ test "Signal cleanup on dispose" {
 ///|
 test "Nested effects work correctly" {
   @global_jsdom.register()
-  let outer_sig = @signals.signal(1)
-  let inner_sig = @signals.signal(10)
+  let outer_sig = @ui.signal(1)
+  let inner_sig = @ui.signal(10)
   let results : Array[Int] = []
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let outer_val = outer_sig.get()
-    let _ = @signals.effect(fn() {
+    let _ = @ui.effect(fn() {
       let inner_val = inner_sig.get()
       results.push(outer_val * inner_val)
     })
@@ -485,9 +485,9 @@ test "Fine-grained: only dependent effects re-run" {
   @global_jsdom.register()
 
   // Three independent signals
-  let sig1 = @signals.signal("Item 1")
-  let sig2 = @signals.signal("Item 2")
-  let sig3 = @signals.signal("Item 3")
+  let sig1 = @ui.signal("Item 1")
+  let sig2 = @ui.signal("Item 2")
+  let sig3 = @ui.signal("Item 3")
 
   // Counter for each effect
   let counter : EffectCounter = {
@@ -497,19 +497,19 @@ test "Fine-grained: only dependent effects re-run" {
   }
 
   // Effect that depends on sig1
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = sig1.get()
     counter.item1_count = counter.item1_count + 1
   })
 
   // Effect that depends on sig2
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = sig2.get()
     counter.item2_count = counter.item2_count + 1
   })
 
   // Effect that depends on sig3
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = sig3.get()
     counter.item3_count = counter.item3_count + 1
   })
@@ -543,12 +543,12 @@ test "Fine-grained: tree structure with independent branches" {
   @global_jsdom.register()
 
   // Root and branch signals
-  let root_title = @signals.signal("App Title")
-  let branch_a_value = @signals.signal(10)
-  let branch_b_value = @signals.signal(20)
-  let leaf_a1 = @signals.signal("Leaf A1")
-  let leaf_a2 = @signals.signal("Leaf A2")
-  let leaf_b1 = @signals.signal("Leaf B1")
+  let root_title = @ui.signal("App Title")
+  let branch_a_value = @ui.signal(10)
+  let branch_b_value = @ui.signal(20)
+  let leaf_a1 = @ui.signal("Leaf A1")
+  let leaf_a2 = @ui.signal("Leaf A2")
+  let leaf_b1 = @ui.signal("Leaf B1")
 
   // Counters
   let root_count = { val: 0 }
@@ -559,33 +559,33 @@ test "Fine-grained: tree structure with independent branches" {
   let leaf_b1_count = { val: 0 }
 
   // Root effect
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = root_title.get()
     root_count.val = root_count.val + 1
   })
 
   // Branch A effect (depends on branch_a_value)
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = branch_a_value.get()
     branch_a_count.val = branch_a_count.val + 1
   })
 
   // Branch B effect (depends on branch_b_value)
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = branch_b_value.get()
     branch_b_count.val = branch_b_count.val + 1
   })
 
   // Leaf effects
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = leaf_a1.get()
     leaf_a1_count.val = leaf_a1_count.val + 1
   })
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = leaf_a2.get()
     leaf_a2_count.val = leaf_a2_count.val + 1
   })
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = leaf_b1.get()
     leaf_b1_count.val = leaf_b1_count.val + 1
   })
@@ -633,9 +633,9 @@ test "Fine-grained: DOM text nodes update independently" {
   let container = doc.createElement("div")
 
   // Three independent signals for text content
-  let name = @signals.signal("Alice")
-  let age = @signals.signal(25)
-  let city = @signals.signal("Tokyo")
+  let name = @ui.signal("Alice")
+  let age = @ui.signal(25)
+  let city = @ui.signal("Tokyo")
 
   // Counters to track text node updates
   let name_updates = { val: 0 }
@@ -644,21 +644,21 @@ test "Fine-grained: DOM text nodes update independently" {
 
   // Create reactive text nodes with tracking
   let name_text = {
-    let _ = @signals.effect(fn() {
+    let _ = @ui.effect(fn() {
       let _ = name.get()
       name_updates.val = name_updates.val + 1
     })
     text_sig(name)
   }
   let age_text = {
-    let _ = @signals.effect(fn() {
+    let _ = @ui.effect(fn() {
       let _ = age.get()
       age_updates.val = age_updates.val + 1
     })
     text_sig(age)
   }
   let city_text = {
-    let _ = @signals.effect(fn() {
+    let _ = @ui.effect(fn() {
       let _ = city.get()
       city_updates.val = city_updates.val + 1
     })
@@ -700,29 +700,29 @@ test "Fine-grained: DOM text nodes update independently" {
 ///|
 test "Fine-grained: shared signal triggers multiple dependents" {
   @global_jsdom.register()
-  let shared = @signals.signal(100)
+  let shared = @ui.signal(100)
   let consumer_a_count = { val: 0 }
   let consumer_b_count = { val: 0 }
   let consumer_c_count = { val: 0 }
   let unrelated_count = { val: 0 }
 
   // Three effects depend on same signal
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = shared.get()
     consumer_a_count.val = consumer_a_count.val + 1
   })
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = shared.get()
     consumer_b_count.val = consumer_b_count.val + 1
   })
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = shared.get()
     consumer_c_count.val = consumer_c_count.val + 1
   })
 
   // Unrelated effect
-  let unrelated_sig = @signals.signal("unrelated")
-  let _ = @signals.effect(fn() {
+  let unrelated_sig = @ui.signal("unrelated")
+  let _ = @ui.effect(fn() {
     let _ = unrelated_sig.get()
     unrelated_count.val = unrelated_count.val + 1
   })
@@ -752,11 +752,11 @@ test "Fine-grained: shared signal triggers multiple dependents" {
 ///|
 test "Fine-grained: memo prevents unnecessary recomputation" {
   @global_jsdom.register()
-  let base = @signals.signal(10)
+  let base = @ui.signal(10)
   let compute_count = { val: 0 }
 
   // Expensive computation with tracking
-  let doubled = @signals.memo(fn() {
+  let doubled = @ui.memo(fn() {
     compute_count.val = compute_count.val + 1
     base.get() * 2
   })
@@ -764,11 +764,11 @@ test "Fine-grained: memo prevents unnecessary recomputation" {
   // Multiple consumers of the memo
   let consumer1_count = { val: 0 }
   let consumer2_count = { val: 0 }
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = doubled()
     consumer1_count.val = consumer1_count.val + 1
   })
-  let _ = @signals.effect(fn() {
+  let _ = @ui.effect(fn() {
     let _ = doubled()
     consumer2_count.val = consumer2_count.val + 1
   })

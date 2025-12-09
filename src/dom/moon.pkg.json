@@ -3,7 +3,7 @@
     "js"
   ],
   "import": [
-    "mizchi/ui/signals",
+    "mizchi/ui",
     "mizchi/js/core",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/web/event",

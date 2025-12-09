@@ -1,6 +1,6 @@
 {
   "import": [
-    "mizchi/ui/signals"
+    "mizchi/ui"
   ],
   "link": {
     "js": {
