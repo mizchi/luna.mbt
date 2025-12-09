@@ -2,21 +2,23 @@
 ///| Pure MoonBit implementation with no external dependencies
 
 ///| Self-closing tags that don't need a closing tag
+///| Optimized with length check and first char dispatch
 fn is_void_element(tag : String) -> Bool {
-  tag == "area" ||
-  tag == "base" ||
-  tag == "br" ||
-  tag == "col" ||
-  tag == "embed" ||
-  tag == "hr" ||
-  tag == "img" ||
-  tag == "input" ||
-  tag == "link" ||
-  tag == "meta" ||
-  tag == "param" ||
-  tag == "source" ||
-  tag == "track" ||
-  tag == "wbr"
+  let len = tag.length()
+  // Fast reject: most common tags are not void elements
+  // void elements have length 2-6
+  if len < 2 || len > 6 {
+    return false
+  }
+  // Check by length first, then by content
+  match len {
+    2 => tag == "br" || tag == "hr"
+    3 => tag == "img" || tag == "col" || tag == "wbr"
+    4 => tag == "area" || tag == "base" || tag == "link" || tag == "meta"
+    5 => tag == "embed" || tag == "input" || tag == "track"
+    6 => tag == "param" || tag == "source"
+    _ => false
+  }
 }
 
 ///| Check if string needs HTML escaping
@@ -122,7 +124,8 @@ fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
 
 ///| Render attributes to StringBuilder
 fn render_attrs_to(sb : StringBuilder, attrs : Array[(String, VAttr)]) -> Unit {
-  for i = 0; i < attrs.length(); i = i + 1 {
+  let len = attrs.length()
+  for i = 0; i < len; i = i + 1 {
     let (name, value) = attrs[i]
     match value {
       VStatic(s) => {
@@ -184,7 +187,8 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
     VText(content) => escape_html_to(sb, content)
     VDynamicText(getter) => escape_html_to(sb, getter())
     VFragment(children) => {
-      for i = 0; i < children.length(); i = i + 1 {
+      let len = children.length()
+      for i = 0; i < len; i = i + 1 {
         render_to_sb(sb, children[i])
       }
     }
@@ -197,7 +201,8 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
         sb.write_string(" />")
       } else {
         sb.write_char('>')
-        for i = 0; i < elem.children.length(); i = i + 1 {
+        let len = elem.children.length()
+        for i = 0; i < len; i = i + 1 {
           render_to_sb(sb, elem.children[i])
         }
         sb.write_string("</")
@@ -214,7 +219,8 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
     }
     VFor(render=render_fn) => {
       let items = render_fn()
-      for i = 0; i < items.length(); i = i + 1 {
+      let len = items.length()
+      for i = 0; i < len; i = i + 1 {
         render_to_sb(sb, items[i])
       }
     }
@@ -249,13 +255,14 @@ fn render_with_id_to(
       let id = id_counter.val
       id_counter.val = id + 1
       sb.write_string("<!--t:")
-      sb.write_string(id.to_string())
+      sb.write_object(id)
       sb.write_string("-->")
       escape_html_to(sb, getter())
       sb.write_string("<!--/t-->")
     }
     VFragment(children) => {
-      for i = 0; i < children.length(); i = i + 1 {
+      let len = children.length()
+      for i = 0; i < len; i = i + 1 {
         render_with_id_to(sb, children[i], id_counter)
       }
     }
@@ -272,7 +279,7 @@ fn render_with_id_to(
       render_attrs_to(sb, elem.attrs)
       if needs_hydration {
         sb.write_string(" data-hk=\"")
-        sb.write_string(id.to_string())
+        sb.write_object(id)
         sb.write_char('"')
       }
 
@@ -280,7 +287,8 @@ fn render_with_id_to(
         sb.write_string(" />")
       } else {
         sb.write_char('>')
-        for i = 0; i < elem.children.length(); i = i + 1 {
+        let len = elem.children.length()
+        for i = 0; i < len; i = i + 1 {
           render_with_id_to(sb, elem.children[i], id_counter)
         }
         sb.write_string("</")
@@ -292,7 +300,7 @@ fn render_with_id_to(
       let id = id_counter.val
       id_counter.val = id + 1
       sb.write_string("<!--s:")
-      sb.write_string(id.to_string())
+      sb.write_object(id)
       sb.write_string("-->")
       if cond() {
         render_with_id_to(sb, child_fn(), id_counter)
@@ -303,10 +311,11 @@ fn render_with_id_to(
       let id = id_counter.val
       id_counter.val = id + 1
       sb.write_string("<!--f:")
-      sb.write_string(id.to_string())
+      sb.write_object(id)
       sb.write_string("-->")
       let items = render_fn()
-      for i = 0; i < items.length(); i = i + 1 {
+      let len = items.length()
+      for i = 0; i < len; i = i + 1 {
         render_with_id_to(sb, items[i], id_counter)
       }
       sb.write_string("<!--/f-->")
@@ -317,7 +326,8 @@ fn render_with_id_to(
 
 ///| Check if element has dynamic content that needs hydration
 fn has_dynamic_content(attrs : Array[(String, VAttr)]) -> Bool {
-  for i = 0; i < attrs.length(); i = i + 1 {
+  let len = attrs.length()
+  for i = 0; i < len; i = i + 1 {
     let (_, value) = attrs[i]
     match value {
       VDynamic(_) | VHandler(_) | VDynamicStyle(_) => return true
