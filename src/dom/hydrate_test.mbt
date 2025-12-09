@@ -451,3 +451,121 @@ test "hydrate with escaped content" {
   assert_false(inner.contains("<script>"))
   assert_true(inner.contains("&lt;script&gt;"))
 }
+
+// =============================================================================
+// Logger Tests
+// =============================================================================
+
+///|
+test "hydrate with logger captures mismatch warning" {
+  @global_jsdom.register()
+  let container = create_container()
+  let logger = StringBuilder::new()
+
+  // VNode expects a button with handler
+  let vnode = @ui.vbutton(
+    [@ui.von_click(@ui.event_handler())],
+    [@ui.vtext("Button")],
+  )
+
+  // Wrong HTML
+  set_inner_html(container, "<span>Wrong</span>")
+
+  // Hydrate with logger
+  let _ = hydrate_with_options(
+    container,
+    vnode,
+    HydrationOptions::with_logger(logger),
+  )
+
+  // Logger should contain mismatch warning
+  let log_output = logger.to_string()
+  assert_true(log_output.contains("[Hydration]"))
+  assert_true(log_output.contains("mismatch"))
+  assert_true(log_output.contains("Recovering"))
+}
+
+///|
+test "hydrate with logger captures strict mode mismatch" {
+  @global_jsdom.register()
+  let container = create_container()
+  let logger = StringBuilder::new()
+
+  let vnode = @ui.vbutton(
+    [@ui.von_click(@ui.event_handler())],
+    [@ui.vtext("Click")],
+  )
+
+  set_inner_html(container, "<div>Wrong</div>")
+
+  let result = hydrate_with_options(
+    container,
+    vnode,
+    HydrationOptions::strict_with_logger(logger),
+  )
+
+  // Should return Mismatch
+  match result {
+    Mismatch(_) => {
+      let log_output = logger.to_string()
+      assert_true(log_output.contains("[Hydration]"))
+      assert_true(log_output.contains("mismatch"))
+      // Should NOT contain "Recovering" since strict mode
+      assert_false(log_output.contains("Recovering"))
+    }
+    _ => assert_true(false) // Should not reach here
+  }
+}
+
+///|
+test "hydrate with logger no output on success" {
+  @global_jsdom.register()
+  let container = create_container()
+  let logger = StringBuilder::new()
+
+  let vnode = @ui.vdiv([], [@ui.vtext("Content")])
+
+  let html = @ssr.render_to_string(vnode)
+  set_inner_html(container, html)
+
+  let result = hydrate_with_options(
+    container,
+    vnode,
+    HydrationOptions::with_logger(logger),
+  )
+
+  // Should succeed
+  match result {
+    Success => {
+      // Logger should be empty on success
+      let log_output = logger.to_string()
+      assert_eq(log_output, "")
+    }
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "hydrate logger contains element info" {
+  @global_jsdom.register()
+  let container = create_container()
+  let logger = StringBuilder::new()
+
+  let vnode = @ui.vbutton(
+    [@ui.von_click(@ui.event_handler())],
+    [@ui.vtext("Submit")],
+  )
+
+  set_inner_html(container, "<input type=\"text\" />")
+
+  let _ = hydrate_with_options(
+    container,
+    vnode,
+    HydrationOptions::strict_with_logger(logger),
+  )
+
+  let log_output = logger.to_string()
+  // Should mention the expected element
+  assert_true(log_output.contains("button"))
+  assert_true(log_output.contains("data-hk"))
+}

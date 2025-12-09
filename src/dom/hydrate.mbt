@@ -13,20 +13,36 @@ pub enum HydrationResult {
 pub struct HydrationOptions {
   /// If true, re-render on mismatch instead of failing
   recover_on_mismatch : Bool
-  /// If true, log warnings to console
+  /// If true, log warnings
   warn_on_mismatch : Bool
+  /// Optional logger for capturing warnings (if None, uses console)
+  logger : StringBuilder?
 }
 
 ///|
 /// Default hydration options
 pub fn HydrationOptions::default() -> HydrationOptions {
-  { recover_on_mismatch: true, warn_on_mismatch: true }
+  { recover_on_mismatch: true, warn_on_mismatch: true, logger: None }
 }
 
 ///|
 /// Strict hydration options - fail on any mismatch
 pub fn HydrationOptions::strict() -> HydrationOptions {
-  { recover_on_mismatch: false, warn_on_mismatch: true }
+  { recover_on_mismatch: false, warn_on_mismatch: true, logger: None }
+}
+
+///|
+/// Create options with a custom logger
+pub fn HydrationOptions::with_logger(logger : StringBuilder) -> HydrationOptions {
+  { recover_on_mismatch: true, warn_on_mismatch: true, logger: Some(logger) }
+}
+
+///|
+/// Create strict options with a custom logger
+pub fn HydrationOptions::strict_with_logger(
+  logger : StringBuilder,
+) -> HydrationOptions {
+  { recover_on_mismatch: false, warn_on_mismatch: true, logger: Some(logger) }
 }
 
 ///|
@@ -35,14 +51,24 @@ priv struct HydrationContext {
   mut current_id : Int
   mismatches : Array[String]
   options : HydrationOptions
+  logger : StringBuilder?
 }
 
 ///|
-/// Log a hydration warning to console
-fn warn_hydration(msg : String) -> Unit {
-  let global = @global.global_this()
-  let console = global["console"]
-  console._call("warn", [@core.any("[Hydration] " + msg)]) |> ignore
+/// Log a hydration warning to logger or console
+fn warn_hydration(logger : StringBuilder?, msg : String) -> Unit {
+  let full_msg = "[Hydration] " + msg
+  match logger {
+    Some(sb) => {
+      sb.write_string(full_msg)
+      sb.write_string("\n")
+    }
+    None => {
+      let global = @global.global_this()
+      let console = global["console"]
+      console._call("warn", [@core.any(full_msg)]) |> ignore
+    }
+  }
 }
 
 ///|
@@ -68,10 +94,12 @@ pub fn hydrate_with_options(
   node : @ui.VNode,
   options : HydrationOptions,
 ) -> HydrationResult {
+  let logger = options.logger
   let ctx : HydrationContext = {
     current_id: 0,
     mismatches: [],
     options,
+    logger,
   }
   hydrate_node(container.as_node(), node, ctx)
 
@@ -88,11 +116,11 @@ pub fn hydrate_with_options(
       },
     )
     if options.warn_on_mismatch {
-      warn_hydration("Hydration mismatch detected: " + mismatch_msg)
+      warn_hydration(logger, "Hydration mismatch detected: " + mismatch_msg)
     }
     if options.recover_on_mismatch {
       // Recovery: clear and re-render
-      warn_hydration("Recovering by re-rendering...")
+      warn_hydration(logger, "Recovering by re-rendering...")
       container.as_node().setTextContent("")
       let dom_node = render_vnode_to_dom(node)
       container.as_node().appendChild(dom_node) |> ignore
