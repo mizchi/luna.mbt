@@ -1,5 +1,4 @@
-import { test } from "node:test";
-import { strict as assert } from "node:assert";
+import { describe, test, expect } from "bun:test";
 import {
   createSignal,
   get,
@@ -14,201 +13,311 @@ import {
   batchStart,
   batchEnd,
   runUntracked,
+  batch,
+  onCleanup,
+  createRoot,
+  getOwner,
+  runWithOwner,
+  hasOwner,
+  onMount,
   type Signal,
 } from "./index.js";
 
-test("createSignal and get", () => {
-  const count: Signal<number> = createSignal(0);
-  assert.equal(get(count), 0);
+describe("Signal basics", () => {
+  test("createSignal and get", () => {
+    const count: Signal<number> = createSignal(0);
+    expect(get(count)).toBe(0);
 
-  const name: Signal<string> = createSignal("hello");
-  assert.equal(get(name), "hello");
+    const name: Signal<string> = createSignal("hello");
+    expect(get(name)).toBe("hello");
 
-  const flag: Signal<boolean> = createSignal(true);
-  assert.equal(get(flag), true);
-});
-
-test("set updates value", () => {
-  const count = createSignal(0);
-  set(count, 10);
-  assert.equal(get(count), 10);
-
-  const name = createSignal("hello");
-  set(name, "world");
-  assert.equal(get(name), "world");
-});
-
-test("update with function", () => {
-  const count = createSignal(5);
-  update(count, (x) => x + 1);
-  assert.equal(get(count), 6);
-
-  update(count, (x) => x * 2);
-  assert.equal(get(count), 12);
-});
-
-test("peek does not track", () => {
-  const count = createSignal(42);
-  let effectRuns = 0;
-
-  effect(() => {
-    peek(count); // should not track
-    effectRuns++;
+    const flag: Signal<boolean> = createSignal(true);
+    expect(get(flag)).toBe(true);
   });
 
-  assert.equal(effectRuns, 1);
-  set(count, 100);
-  // effect should not re-run because we used peek
-  assert.equal(effectRuns, 1);
-});
+  test("set updates value", () => {
+    const count = createSignal(0);
+    set(count, 10);
+    expect(get(count)).toBe(10);
 
-test("subscribe to changes", () => {
-  const count = createSignal(0);
-  const values: number[] = [];
-
-  const unsub = subscribe(count, (value) => {
-    values.push(value);
+    const name = createSignal("hello");
+    set(name, "world");
+    expect(get(name)).toBe("world");
   });
 
-  set(count, 1);
-  set(count, 2);
-  set(count, 3);
+  test("update with function", () => {
+    const count = createSignal(5);
+    update(count, (x) => x + 1);
+    expect(get(count)).toBe(6);
 
-  assert.deepEqual(values, [1, 2, 3]);
-
-  unsub();
-  set(count, 4);
-  // should not receive after unsubscribe
-  assert.deepEqual(values, [1, 2, 3]);
-});
-
-test("map derives value", () => {
-  const count = createSignal(5);
-  const doubled = map(count, (x) => x * 2);
-
-  assert.equal(doubled(), 10);
-
-  set(count, 10);
-  assert.equal(doubled(), 20);
-});
-
-test("createMemo caches computation", () => {
-  const count = createSignal(5);
-  let computeCount = 0;
-
-  const memo = createMemo(() => {
-    computeCount++;
-    return get(count) * 2;
+    update(count, (x) => x * 2);
+    expect(get(count)).toBe(12);
   });
 
-  assert.equal(memo(), 10);
-  assert.equal(memo(), 10);
-  // memo should cache - only computed once until dependency changes
-  assert.equal(computeCount, 1);
+  test("peek does not track", () => {
+    const count = createSignal(42);
+    let effectRuns = 0;
 
-  set(count, 10);
-  assert.equal(memo(), 20);
+    effect(() => {
+      peek(count);
+      effectRuns++;
+    });
+
+    expect(effectRuns).toBe(1);
+    set(count, 100);
+    expect(effectRuns).toBe(1);
+  });
 });
 
-test("combine two signals", () => {
-  const a = createSignal(2);
-  const b = createSignal(3);
-  const sum = combine(a, b, (x, y) => x + y);
+describe("Subscriptions", () => {
+  test("subscribe to changes", () => {
+    const count = createSignal(0);
+    const values: number[] = [];
 
-  assert.equal(sum(), 5);
+    const unsub = subscribe(count, (value) => {
+      values.push(value);
+    });
 
-  set(a, 10);
-  assert.equal(sum(), 13);
+    set(count, 1);
+    set(count, 2);
+    set(count, 3);
 
-  set(b, 7);
-  assert.equal(sum(), 17);
+    expect(values).toEqual([1, 2, 3]);
+
+    unsub();
+    set(count, 4);
+    expect(values).toEqual([1, 2, 3]);
+  });
 });
 
-test("effect runs on dependency change", () => {
-  const count = createSignal(0);
-  const log: number[] = [];
+describe("Derived values", () => {
+  test("map derives value", () => {
+    const count = createSignal(5);
+    const doubled = map(count, (x) => x * 2);
 
-  const cleanup = effect(() => {
-    log.push(get(count));
+    expect(doubled()).toBe(10);
+
+    set(count, 10);
+    expect(doubled()).toBe(20);
   });
 
-  assert.deepEqual(log, [0]);
+  test("createMemo caches computation", () => {
+    const count = createSignal(5);
+    let computeCount = 0;
 
-  set(count, 1);
-  assert.deepEqual(log, [0, 1]);
+    const memo = createMemo(() => {
+      computeCount++;
+      return get(count) * 2;
+    });
 
-  set(count, 2);
-  assert.deepEqual(log, [0, 1, 2]);
+    expect(memo()).toBe(10);
+    expect(memo()).toBe(10);
+    expect(computeCount).toBe(1);
 
-  cleanup();
-  set(count, 3);
-  // should not run after cleanup
-  assert.deepEqual(log, [0, 1, 2]);
-});
-
-test("batch delays updates", () => {
-  const a = createSignal(0);
-  const b = createSignal(0);
-  let effectRuns = 0;
-
-  effect(() => {
-    get(a);
-    get(b);
-    effectRuns++;
+    set(count, 10);
+    expect(memo()).toBe(20);
   });
 
-  assert.equal(effectRuns, 1);
+  test("combine two signals", () => {
+    const a = createSignal(2);
+    const b = createSignal(3);
+    const sum = combine(a, b, (x, y) => x + y);
 
-  batchStart();
-  set(a, 1);
-  set(b, 1);
-  // effect should not run yet
-  assert.equal(effectRuns, 1);
-  batchEnd();
+    expect(sum()).toBe(5);
 
-  // effect runs once after batch
-  assert.equal(effectRuns, 2);
+    set(a, 10);
+    expect(sum()).toBe(13);
+
+    set(b, 7);
+    expect(sum()).toBe(17);
+  });
 });
 
-test("runUntracked prevents tracking", () => {
-  const count = createSignal(0);
-  let effectRuns = 0;
+describe("Effects", () => {
+  test("effect runs on dependency change", () => {
+    const count = createSignal(0);
+    const log: number[] = [];
 
-  effect(() => {
-    runUntracked(() => get(count));
-    effectRuns++;
+    const cleanup = effect(() => {
+      log.push(get(count));
+    });
+
+    expect(log).toEqual([0]);
+
+    set(count, 1);
+    expect(log).toEqual([0, 1]);
+
+    set(count, 2);
+    expect(log).toEqual([0, 1, 2]);
+
+    cleanup();
+    set(count, 3);
+    expect(log).toEqual([0, 1, 2]);
   });
 
-  assert.equal(effectRuns, 1);
-  set(count, 100);
-  // effect should not re-run
-  assert.equal(effectRuns, 1);
+  test("onCleanup is called on re-run", () => {
+    const count = createSignal(0);
+    const cleanups: number[] = [];
+
+    effect(() => {
+      const val = get(count);
+      onCleanup(() => {
+        cleanups.push(val);
+      });
+    });
+
+    expect(cleanups).toEqual([]);
+
+    set(count, 1);
+    expect(cleanups).toEqual([0]);
+
+    set(count, 2);
+    expect(cleanups).toEqual([0, 1]);
+  });
 });
 
-// Type tests (compile-time only)
-test("type safety", () => {
-  const count = createSignal(0);
-  const name = createSignal("hello");
+describe("Batching", () => {
+  test("batch delays updates", () => {
+    const a = createSignal(0);
+    const b = createSignal(0);
+    let effectRuns = 0;
 
-  // These should compile - type inference works
-  const n: number = get(count);
-  const s: string = get(name);
-  set(count, 42);
-  set(name, "world");
+    effect(() => {
+      get(a);
+      get(b);
+      effectRuns++;
+    });
 
-  // Map preserves/transforms types correctly
-  const doubled = map(count, (x) => x * 2);
-  const upper = map(name, (s) => s.toUpperCase());
-  const _d: number = doubled();
-  const _u: string = upper();
+    expect(effectRuns).toBe(1);
 
-  // Combine infers return type from function
-  const combined = combine(count, name, (c, n) => `${n}: ${c}`);
-  const _c: string = combined();
+    batchStart();
+    set(a, 1);
+    set(b, 1);
+    expect(effectRuns).toBe(1);
+    batchEnd();
 
-  // Memo infers type from compute function
-  const memoized = createMemo(() => get(count) * 2);
-  const _m: number = memoized();
+    expect(effectRuns).toBe(2);
+  });
 
-  assert.ok(true);
+  test("batch helper function", () => {
+    const a = createSignal(0);
+    const b = createSignal(0);
+    let effectRuns = 0;
+
+    effect(() => {
+      get(a);
+      get(b);
+      effectRuns++;
+    });
+
+    expect(effectRuns).toBe(1);
+
+    batch(() => {
+      set(a, 1);
+      set(b, 1);
+    });
+
+    expect(effectRuns).toBe(2);
+  });
+
+  test("runUntracked prevents tracking", () => {
+    const count = createSignal(0);
+    let effectRuns = 0;
+
+    effect(() => {
+      runUntracked(() => get(count));
+      effectRuns++;
+    });
+
+    expect(effectRuns).toBe(1);
+    set(count, 100);
+    expect(effectRuns).toBe(1);
+  });
+});
+
+describe("Owner system", () => {
+  test("createRoot provides disposal", () => {
+    const count = createSignal(0);
+    let effectRuns = 0;
+
+    createRoot((dispose) => {
+      effect(() => {
+        get(count);
+        effectRuns++;
+      });
+
+      expect(effectRuns).toBe(1);
+      set(count, 1);
+      expect(effectRuns).toBe(2);
+
+      dispose();
+    });
+
+    set(count, 2);
+    expect(effectRuns).toBe(2);
+  });
+
+  test("hasOwner returns correct state", () => {
+    expect(hasOwner()).toBe(false);
+
+    createRoot(() => {
+      expect(hasOwner()).toBe(true);
+    });
+
+    expect(hasOwner()).toBe(false);
+  });
+
+  test("getOwner and runWithOwner", () => {
+    let capturedOwner: any;
+
+    createRoot(() => {
+      capturedOwner = getOwner();
+      expect(capturedOwner).toBeDefined();
+    });
+
+    expect(hasOwner()).toBe(false);
+
+    if (capturedOwner) {
+      runWithOwner(capturedOwner, () => {
+        expect(hasOwner()).toBe(true);
+      });
+    }
+  });
+
+  test("onMount runs once", () => {
+    let mountCount = 0;
+
+    createRoot(() => {
+      onMount(() => {
+        mountCount++;
+      });
+    });
+
+    expect(mountCount).toBe(1);
+  });
+});
+
+describe("Type safety", () => {
+  test("type inference works correctly", () => {
+    const count = createSignal(0);
+    const name = createSignal("hello");
+
+    const n: number = get(count);
+    const s: string = get(name);
+    set(count, 42);
+    set(name, "world");
+
+    const doubled = map(count, (x) => x * 2);
+    const upper = map(name, (s) => s.toUpperCase());
+    const _d: number = doubled();
+    const _u: string = upper();
+
+    const combined = combine(count, name, (c, n) => `${n}: ${c}`);
+    const _c: string = combined();
+
+    const memoized = createMemo(() => get(count) * 2);
+    const _m: number = memoized();
+
+    expect(true).toBe(true);
+  });
 });
