@@ -19,8 +19,25 @@ fn is_void_element(tag : String) -> Bool {
   tag == "wbr"
 }
 
+///| Check if string needs HTML escaping
+fn needs_html_escape(s : String) -> Bool {
+  for char in s {
+    match char {
+      '&' | '<' | '>' | '"' | '\'' => return true
+      _ => ()
+    }
+  }
+  false
+}
+
 ///| Escape HTML special characters and write to StringBuilder
 fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
+  // Fast path: most strings don't need escaping
+  if not(needs_html_escape(s)) {
+    sb.write_string(s)
+    return
+  }
+  // Slow path: escape character by character
   for char in s {
     match char {
       '&' => sb.write_string("&amp;")
@@ -33,8 +50,25 @@ fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
   }
 }
 
+///| Check if string needs attribute escaping
+fn needs_attr_escape(s : String) -> Bool {
+  for char in s {
+    match char {
+      '&' | '"' => return true
+      _ => ()
+    }
+  }
+  false
+}
+
 ///| Escape attribute value and write to StringBuilder
 fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
+  // Fast path: most attribute values don't need escaping
+  if not(needs_attr_escape(s)) {
+    sb.write_string(s)
+    return
+  }
+  // Slow path: escape character by character
   for char in s {
     match char {
       '&' => sb.write_string("&amp;")
@@ -58,8 +92,24 @@ fn style_to_sb(sb : StringBuilder, styles : Array[(String, String)]) -> Unit {
   }
 }
 
+///| Check if string has uppercase letters (needs camelCase conversion)
+fn needs_kebab_convert(s : String) -> Bool {
+  for char in s {
+    if char >= 'A' && char <= 'Z' {
+      return true
+    }
+  }
+  false
+}
+
 ///| Convert camelCase to kebab-case and write to StringBuilder
 fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
+  // Fast path: already kebab-case or lowercase
+  if not(needs_kebab_convert(s)) {
+    sb.write_string(s)
+    return
+  }
+  // Slow path: convert camelCase to kebab-case
   for char in s {
     if char >= 'A' && char <= 'Z' {
       sb.write_char('-')
@@ -174,14 +224,14 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
 
 ///| Render a VNode to HTML string
 pub fn render_to_string(node : VNode) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder::new(size_hint=256)
   render_to_sb(sb, node)
   sb.to_string()
 }
 
 ///| Render with data-ssr-id markers for hydration
 pub fn render_to_string_with_hydration(node : VNode) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder::new(size_hint=256)
   let id_counter = { val: 0 }
   render_with_id_to(sb, node, id_counter)
   sb.to_string()
