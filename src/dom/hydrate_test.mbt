@@ -36,7 +36,7 @@ test "hydrate simple text" {
   set_inner_html(container, html)
 
   // Hydrate
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   // Text should remain
   assert_eq(get_inner_html(container), "Hello")
@@ -50,7 +50,7 @@ test "hydrate element with text" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_eq(get_inner_html(container), "<div>Content</div>")
 }
@@ -63,7 +63,7 @@ test "hydrate element with class" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_true(get_inner_html(container).contains("test-class"))
 }
@@ -78,7 +78,7 @@ test "hydrate nested elements" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_eq(get_inner_html(container), "<div><span>Nested</span></div>")
 }
@@ -101,7 +101,7 @@ test "hydrate dynamic text with hydration markers" {
   assert_true(html.contains("<!--/t-->"))
 
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   // Update signal
   count.set(100)
@@ -124,7 +124,7 @@ test "hydrate element with click handler" {
   assert_true(html.contains("data-hk=\"0\""))
 
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   // Button should have been found
   assert_true(get_inner_html(container).contains("Click me"))
@@ -142,7 +142,7 @@ test "hydrate dynamic class" {
 
   let html = @ssr.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   // Initially inactive
   assert_true(get_inner_html(container).contains("inactive"))
@@ -174,7 +174,7 @@ test "hydrate show when visible" {
   assert_true(html.contains("<!--/s-->"))
 
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_true(get_inner_html(container).contains("Visible content"))
 }
@@ -193,7 +193,7 @@ test "hydrate show when hidden" {
   assert_eq(html, "<!--show-->")
 
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   // Should remain hidden
   assert_false(get_inner_html(container).contains("Hidden content"))
@@ -225,7 +225,7 @@ test "hydrate for loop" {
   assert_true(html.contains("<!--/f-->"))
 
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   // All items should be present
   let inner = get_inner_html(container)
@@ -239,7 +239,7 @@ test "hydrate for loop" {
 // =============================================================================
 
 ///|
-test "hydrate_with_options detects missing element" {
+test "hydrate detects missing element" {
   @global_jsdom.register()
   let container = create_container()
 
@@ -253,7 +253,7 @@ test "hydrate_with_options detects missing element" {
   set_inner_html(container, "<span>Wrong element</span>")
 
   // Hydrate with strict options
-  let result = hydrate_with_options(container, vnode, recover_on_mismatch=false)
+  let result = hydrate(container, vnode, recover_on_mismatch=false)
 
   // Should detect mismatch
   match result {
@@ -263,7 +263,7 @@ test "hydrate_with_options detects missing element" {
 }
 
 ///|
-test "hydrate_with_options recovers on mismatch" {
+test "hydrate recovers on mismatch" {
   @global_jsdom.register()
   let container = create_container()
 
@@ -273,7 +273,7 @@ test "hydrate_with_options recovers on mismatch" {
   set_inner_html(container, "<span>Wrong</span>")
 
   // Hydrate with recovery enabled
-  let result = hydrate_with_options(
+  let result = hydrate(
     container,
     vnode,
   )
@@ -296,7 +296,7 @@ test "hydrate_with_options recovers on mismatch" {
 }
 
 ///|
-test "hydrate_with_options success on correct HTML" {
+test "hydrate success on correct HTML" {
   @global_jsdom.register()
   let container = create_container()
   let vnode = @ui.vdiv([], [@ui.vtext("Correct")])
@@ -305,7 +305,7 @@ test "hydrate_with_options success on correct HTML" {
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
 
-  let result = hydrate_with_options(
+  let result = hydrate(
     container,
     vnode,
     recover_on_mismatch=false,
@@ -347,7 +347,7 @@ test "hydrate complex page structure" {
 
   let html = @ssr.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   let inner = get_inner_html(container)
   assert_true(inner.contains("Title"))
@@ -374,7 +374,7 @@ test "hydrate fragment" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_eq(get_inner_html(container), "ABC")
 }
@@ -392,7 +392,7 @@ test "hydrate component" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_true(get_inner_html(container).contains("Hello, World!"))
 }
@@ -409,7 +409,7 @@ test "hydrate empty container" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_eq(get_inner_html(container), "")
 }
@@ -430,7 +430,7 @@ test "hydrate deeply nested structure" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   assert_true(get_inner_html(container).contains("Deep"))
 }
@@ -443,7 +443,7 @@ test "hydrate with escaped content" {
 
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
-  hydrate(container, vnode)
+  let _ = hydrate(container, vnode)
 
   // Content should be escaped
   let inner = get_inner_html(container)
@@ -471,7 +471,7 @@ test "hydrate with logger captures mismatch warning" {
   set_inner_html(container, "<span>Wrong</span>")
 
   // Hydrate with logger
-  let _ = hydrate_with_options(
+  let _ = hydrate(
     container,
     vnode,
     logger=logger,
@@ -497,7 +497,7 @@ test "hydrate with logger captures strict mode mismatch" {
 
   set_inner_html(container, "<div>Wrong</div>")
 
-  let result = hydrate_with_options(
+  let result = hydrate(
     container,
     vnode,
     recover_on_mismatch=false,
@@ -528,7 +528,7 @@ test "hydrate with logger no output on success" {
   let html = @ssr.render_to_string(vnode)
   set_inner_html(container, html)
 
-  let result = hydrate_with_options(
+  let result = hydrate(
     container,
     vnode,
     logger=logger,
@@ -558,7 +558,7 @@ test "hydrate logger contains element info" {
 
   set_inner_html(container, "<input type=\"text\" />")
 
-  let _ = hydrate_with_options(
+  let _ = hydrate(
     container,
     vnode,
     recover_on_mismatch=false,

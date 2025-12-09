@@ -42,18 +42,10 @@ fn get_text_content(node : @js_dom.Node) -> String {
   data.cast()
 }
 
-///| Hydrate a VNode into an existing DOM container
-
 ///|
-/// The container should already have server-rendered HTML with hydration markers
-pub fn hydrate(container : @js_dom.Element, node : @ui.VNode) -> Unit {
-  let _ = hydrate_with_options(container, node)
-
-}
-
-///|
-/// Hydrate with custom options, returning result
-pub fn hydrate_with_options(
+/// Hydrate a VNode into an existing DOM container.
+/// The container should already have server-rendered HTML with hydration markers.
+pub fn hydrate(
   container : @js_dom.Element,
   node : @ui.VNode,
   recover_on_mismatch? : Bool,
