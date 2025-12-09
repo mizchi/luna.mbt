@@ -1,0 +1,115 @@
+///| Signal Serialization - Serialize Signal values to ResumableState
+
+///|
+/// Trait for types that can be serialized to StateValue
+pub(open) trait Serializable {
+  to_state_value(Self) -> StateValue
+  from_state_value(StateValue) -> Self?
+}
+
+///|
+impl Serializable for Int with to_state_value(self) { Int(self) }
+
+///|
+impl Serializable for Int with from_state_value(value) {
+  match value {
+    Int(n) => Some(n)
+    _ => None
+  }
+}
+
+///|
+impl Serializable for String with to_state_value(self) { Str(self) }
+
+///|
+impl Serializable for String with from_state_value(value) {
+  match value {
+    Str(s) => Some(s)
+    _ => None
+  }
+}
+
+///|
+impl Serializable for Bool with to_state_value(self) { Bool(self) }
+
+///|
+impl Serializable for Bool with from_state_value(value) {
+  match value {
+    Bool(b) => Some(b)
+    _ => None
+  }
+}
+
+///|
+impl Serializable for Double with to_state_value(self) { Float(self) }
+
+///|
+impl Serializable for Double with from_state_value(value) {
+  match value {
+    Float(f) => Some(f)
+    _ => None
+  }
+}
+
+///|
+/// Register a signal's current value to state and return its ID
+pub fn[T : Serializable] register_signal(
+  state : ResumableState,
+  signal : @ui.Signal[T],
+) -> Int {
+  let value = signal.peek()
+  let state_value = Serializable::to_state_value(value)
+  let id = state.next_id
+  state.next_id = id + 1
+  state.values.push(state_value)
+  id
+}
+
+///|
+/// Restore a signal's value from state
+pub fn[T : Serializable] restore_signal(
+  state : ResumableState,
+  signal : @ui.Signal[T],
+  id : Int,
+) -> Bool {
+  match state.get(id) {
+    Some(value) =>
+      match Serializable::from_state_value(value) {
+        Some(v) => {
+          signal.set(v)
+          true
+        }
+        None => false
+      }
+    None => false
+  }
+}
+
+///|
+/// Create a signal and register it to state, returning (signal, id)
+pub fn[T : Serializable] create_resumable_signal(
+  state : ResumableState,
+  initial : T,
+) -> (@ui.Signal[T], Int) {
+  let signal = @ui.signal(initial)
+  let id = register_signal(state, signal)
+  (signal, id)
+}
+
+///|
+/// Restore or create a signal from state
+/// If state has a value at the given ID, use it; otherwise use initial
+pub fn[T : Serializable] resume_signal(
+  state : ResumableState,
+  id : Int,
+  initial : T,
+) -> @ui.Signal[T] {
+  match state.get(id) {
+    Some(value) =>
+      match Serializable::from_state_value(value) {
+        Some(v) => @ui.signal(v)
+        None => @ui.signal(initial)
+      }
+    None => @ui.signal(initial)
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "import": [
+    "mizchi/ui"
+  ],
+  "test-import": [
+    "mizchi/ui/ssr"
+  ]
+}
