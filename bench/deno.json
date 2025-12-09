@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "imports": {
+    "preact": "npm:preact@10.25.4",
+    "preact/jsx-runtime": "npm:preact@10.25.4/jsx-runtime",
+    "preact/hooks": "npm:preact@10.25.4/hooks",
+    "preact-render-to-string": "npm:preact-render-to-string@6.5.11"
+  }
+}
