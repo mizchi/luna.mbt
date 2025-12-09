@@ -124,9 +124,8 @@ fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
 
 ///| Render attributes to StringBuilder
 fn render_attrs_to(sb : StringBuilder, attrs : Array[(String, VAttr)]) -> Unit {
-  let len = attrs.length()
-  for i = 0; i < len; i = i + 1 {
-    let (name, value) = attrs[i]
+  for attr in attrs {
+    let (name, value) = attr
     match value {
       VStatic(s) => {
         if s != "__remove__" {
@@ -187,9 +186,8 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
     VText(content) => escape_html_to(sb, content)
     VDynamicText(getter) => escape_html_to(sb, getter())
     VFragment(children) => {
-      let len = children.length()
-      for i = 0; i < len; i = i + 1 {
-        render_to_sb(sb, children[i])
+      for child in children {
+        render_to_sb(sb, child)
       }
     }
     VElement(elem) => {
@@ -201,9 +199,8 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
         sb.write_string(" />")
       } else {
         sb.write_char('>')
-        let len = elem.children.length()
-        for i = 0; i < len; i = i + 1 {
-          render_to_sb(sb, elem.children[i])
+        for child in elem.children {
+          render_to_sb(sb, child)
         }
         sb.write_string("</")
         sb.write_string(tag)
@@ -218,10 +215,8 @@ fn render_to_sb(sb : StringBuilder, node : VNode) -> Unit {
       }
     }
     VFor(render=render_fn) => {
-      let items = render_fn()
-      let len = items.length()
-      for i = 0; i < len; i = i + 1 {
-        render_to_sb(sb, items[i])
+      for item in render_fn() {
+        render_to_sb(sb, item)
       }
     }
     VComponent(render=render_fn) => render_to_sb(sb, render_fn())
@@ -261,9 +256,8 @@ fn render_with_id_to(
       sb.write_string("<!--/t-->")
     }
     VFragment(children) => {
-      let len = children.length()
-      for i = 0; i < len; i = i + 1 {
-        render_with_id_to(sb, children[i], id_counter)
+      for child in children {
+        render_with_id_to(sb, child, id_counter)
       }
     }
     VElement(elem) => {
@@ -287,9 +281,8 @@ fn render_with_id_to(
         sb.write_string(" />")
       } else {
         sb.write_char('>')
-        let len = elem.children.length()
-        for i = 0; i < len; i = i + 1 {
-          render_with_id_to(sb, elem.children[i], id_counter)
+        for child in elem.children {
+          render_with_id_to(sb, child, id_counter)
         }
         sb.write_string("</")
         sb.write_string(tag)
@@ -313,10 +306,8 @@ fn render_with_id_to(
       sb.write_string("<!--f:")
       sb.write_object(id)
       sb.write_string("-->")
-      let items = render_fn()
-      let len = items.length()
-      for i = 0; i < len; i = i + 1 {
-        render_with_id_to(sb, items[i], id_counter)
+      for item in render_fn() {
+        render_with_id_to(sb, item, id_counter)
       }
       sb.write_string("<!--/f-->")
     }
@@ -326,9 +317,8 @@ fn render_with_id_to(
 
 ///| Check if element has dynamic content that needs hydration
 fn has_dynamic_content(attrs : Array[(String, VAttr)]) -> Bool {
-  let len = attrs.length()
-  for i = 0; i < len; i = i + 1 {
-    let (_, value) = attrs[i]
+  for attr in attrs {
+    let (_, value) = attr
     match value {
       VDynamic(_) | VHandler(_) | VDynamicStyle(_) => return true
       _ => ()
