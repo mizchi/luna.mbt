@@ -5,7 +5,7 @@
   ],
   "import": [
     "mizchi/ui",
-    "mizchi/ui/dom",
+    "mizchi/ui/js/dom",
     "mizchi/js/core",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/builtins/global"

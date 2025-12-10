@@ -1,7 +1,13 @@
 {
+  "supported-targets": [
+    "js"
+  ],
   "import": [
     "mizchi/ui",
-    "mizchi/ui/ssr",
+    {
+      "path": "mizchi/ui/ssr",
+      "alias": "ssr_core"
+    },
     {
       "path": "mizchi/js/core",
       "alias": "js"

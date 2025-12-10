@@ -7,7 +7,7 @@
     "mizchi/ui",
     "mizchi/ui/element",
     "mizchi/ui/ssr",
-    "mizchi/ui/framework",
+    "mizchi/ui/js/framework",
     "mizchi/js/core"
   ]
 }

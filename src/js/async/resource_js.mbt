@@ -7,8 +7,8 @@
 /// Create a Resource from an async function (JS environment)
 /// The async function is executed immediately and the Resource
 /// is updated when it resolves or rejects.
-pub fn[T] from_async(fetcher : async () -> T) -> @async.Resource[T] {
-  @async.resource(fn(resolve, reject) {
+pub fn[T] from_async(fetcher : async () -> T) -> @async_core.Resource[T] {
+  @async_core.resource(fn(resolve, reject) {
     @js.run_async(async fn() noraise {
       try {
         let value = fetcher()
@@ -22,13 +22,13 @@ pub fn[T] from_async(fetcher : async () -> T) -> @async.Resource[T] {
 
 ///|
 /// Create a Resource from a Promise (JS environment)
-pub fn[T] from_promise(promise : @js.Promise[T]) -> @async.Resource[T] {
+pub fn[T] from_promise(promise : @js.Promise[T]) -> @async_core.Resource[T] {
   from_async(async fn() { promise.wait() })
 }
 
 ///|
 /// Create a Resource that fetches from a URL (convenience helper)
-pub fn fetch_text(url : String) -> @async.Resource[String] {
+pub fn fetch_text(url : String) -> @async_core.Resource[String] {
   from_async(async fn() { js_fetch_text(url).wait() })
 }
 
@@ -38,7 +38,7 @@ extern "js" fn js_fetch_text(url : String) -> @js.Promise[String] =
 
 ///|
 /// Create a Resource that fetches JSON from a URL
-pub fn fetch_json(url : String) -> @async.Resource[@js.Any] {
+pub fn fetch_json(url : String) -> @async_core.Resource[@js.Any] {
   from_async(async fn() { js_fetch_json(url).wait() })
 }
 
@@ -49,8 +49,8 @@ extern "js" fn js_fetch_json(url : String) -> @js.Promise[@js.Any] =
 ///|
 /// Create a refetchable Resource from an async function
 /// Returns a Resource that can be refetched with resource.refetch()
-pub fn[T] create_resource(fetcher : async () -> T) -> @async.Resource[T] {
-  @async.resource(fn(resolve, reject) {
+pub fn[T] create_resource(fetcher : async () -> T) -> @async_core.Resource[T] {
+  @async_core.resource(fn(resolve, reject) {
     @js.run_async(async fn() noraise {
       try {
         let value = fetcher()
@@ -64,7 +64,7 @@ pub fn[T] create_resource(fetcher : async () -> T) -> @async.Resource[T] {
 
 ///|
 /// Sleep for given milliseconds, then resolve with value
-pub fn[T] delayed(ms : Int, value : T) -> @async.Resource[T] {
+pub fn[T] delayed(ms : Int, value : T) -> @async_core.Resource[T] {
   from_async(async fn() {
     @js.sleep(ms)
     value

@@ -7,7 +7,7 @@
 /// Waits for all async operations to complete before rendering
 pub async fn render_async(component : async () -> @ui.Node) -> String {
   let node = component()
-  @ssr.render_to_string(node)
+  @ssr_core.render_to_string(node)
 }
 
 ///|
@@ -16,7 +16,7 @@ pub async fn render_async_with_hydration(
   component : async () -> @ui.Node
 ) -> String {
   let node = component()
-  @ssr.render_to_string_with_hydration(node)
+  @ssr_core.render_to_string_with_hydration(node)
 }
 
 ///|

@@ -94,7 +94,7 @@ pub async fn render_with_suspense(
   // 3. Resolve each suspense and stream replacement
   for s in suspenses {
     let content = (s.content)()
-    let html = @ssr.render_to_string(content)
+    let html = @ssr_core.render_to_string(content)
     let escaped = escape_js_string(html)
     write("<script>$RC(" + s.id.to_string() + ",\"" + escaped + "\")</script>")
   }

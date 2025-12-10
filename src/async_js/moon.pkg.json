@@ -1,9 +1,0 @@
-{
-  "import": [
-    "mizchi/ui/async",
-    {
-      "path": "mizchi/js/core",
-      "alias": "js"
-    }
-  ]
-}

@@ -8,7 +8,7 @@
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/web/event",
     "mizchi/js/builtins/global",
-    "mizchi/ui/dom"
+    "mizchi/ui/js/dom"
   ],
   "test-import": [
     "mizchi/js/npm/global_jsdom",
