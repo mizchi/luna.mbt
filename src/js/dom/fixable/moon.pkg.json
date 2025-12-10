@@ -8,11 +8,11 @@
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/web/event",
     "mizchi/js/builtins/global",
-    "mizchi/ui/js/dom"
+    "mizchi/ui/js/dom",
+    "mizchi/js/npm/global_jsdom",
+    { "path": "mizchi/ui/ssr", "alias": "ssr" }
   ],
   "test-import": [
-    "mizchi/js/npm/global_jsdom",
-    "mizchi/ui/ssr",
     "mizchi/ui/element"
   ]
 }
