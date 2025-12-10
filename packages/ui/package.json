@@ -23,7 +23,7 @@
     }
   },
   "scripts": {
-    "test": "bun test"
+    "test": "vitest run"
   },
   "devDependencies": {
     "global-jsdom": "^27.0.0",

@@ -10,9 +10,9 @@ test-moonbit:
     moon test src/ssr --target all
     moon test src/js/dom --target js
 
-# Run Node.js tests
+# Run Node.js tests (vitest)
 test-node: build
-    cd packages/ui && npm test
+    pnpm test
 
 # Build MoonBit
 build:
