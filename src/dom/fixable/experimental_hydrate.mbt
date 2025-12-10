@@ -263,7 +263,7 @@ priv struct ExperimentalHydrationContext {
 ///|
 /// Get current node path from stack
 fn get_current_path(ctx : ExperimentalHydrationContext) -> String {
-  if ctx.path_stack.length() == 0 {
+  if ctx.path_stack.is_empty() {
     "root"
   } else {
     ctx.path_stack.iter().fold(init="", fn(acc, part) {
@@ -455,7 +455,7 @@ pub fn experimental_hydrate(
   experimental_hydrate_node(container.as_node(), node, ctx)
 
   // Return result based on repairs made
-  if ctx.repairs.length() == 0 {
+  if ctx.repairs.is_empty() {
     Clean
   } else {
     Repaired(ctx.repairs)
@@ -483,7 +483,7 @@ pub fn experimental_hydrate_with_report(
   experimental_hydrate_node(container.as_node(), node, ctx)
 
   // Return detailed report
-  if ctx.repair_infos.length() == 0 {
+  if ctx.repair_infos.is_empty() {
     ExperimentalHydrationReport::clean()
   } else {
     ExperimentalHydrationReport::with_repairs(ctx.repair_infos)
@@ -921,7 +921,7 @@ fn experimental_hydrate_show(
   }
 
   // Initial render if needed
-  if cond() && current_nodes.length() == 0 {
+  if cond() && current_nodes.is_empty() {
     log_repair_detailed(
       ctx,
       ShowContentMissing,
@@ -940,17 +940,15 @@ fn experimental_hydrate_show(
   // Set up effect for updates
   let _ = @ui.effect(fn() {
     let should_show = cond()
-    if should_show && current_nodes.length() == 0 {
+    if should_show && current_nodes.is_empty() {
       let child_node = @dom.render_vnode_to_dom(child_fn())
       parent.insertBefore(child_node, Some(end)) |> ignore
       current_nodes.push(child_node)
-    } else if not(should_show) && current_nodes.length() > 0 {
-      for j = 0; j < current_nodes.length(); j = j + 1 {
-        parent.removeChild(current_nodes[j]) |> ignore
+    } else if not(should_show) && not(current_nodes.is_empty()) {
+      for node in current_nodes {
+        parent.removeChild(node) |> ignore
       }
-      while current_nodes.length() > 0 {
-        let _ = current_nodes.pop()
-      }
+      current_nodes.clear()
     }
   })
   let _ = ctx.path_stack.pop()
@@ -1090,6 +1088,7 @@ fn experimental_hydrate_for(
   for i = min_count; i < node_count; i = i + 1 {
     parent.removeChild(current_nodes[i]) |> ignore
   }
+  // Trim array to item_count
   while current_nodes.length() > item_count {
     let _ = current_nodes.pop()
   }
@@ -1099,14 +1098,12 @@ fn experimental_hydrate_for(
     let new_items = render_fn()
 
     // Simple reconciliation: clear and re-render
-    for j = 0; j < current_nodes.length(); j = j + 1 {
-      parent.removeChild(current_nodes[j]) |> ignore
+    for node in current_nodes {
+      parent.removeChild(node) |> ignore
     }
-    while current_nodes.length() > 0 {
-      let _ = current_nodes.pop()
-    }
-    for j = 0; j < new_items.length(); j = j + 1 {
-      let new_node = @dom.render_vnode_to_dom(new_items[j])
+    current_nodes.clear()
+    for item in new_items {
+      let new_node = @dom.render_vnode_to_dom(item)
       parent.insertBefore(new_node, Some(end)) |> ignore
       current_nodes.push(new_node)
     }

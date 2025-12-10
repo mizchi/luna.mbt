@@ -427,7 +427,7 @@ fn hydrate_show(
       // Set up effect for show/hide
       let _ = @ui.effect(fn() {
         let should_show = cond()
-        if should_show && current_nodes.length() == 0 {
+        if should_show && current_nodes.is_empty() {
           // Need to show - render and insert
           let child_vnode = child_fn()
           let new_node = render_vnode_to_dom(child_vnode)
@@ -438,15 +438,12 @@ fn hydrate_show(
             }
             None => ()
           }
-        } else if not(should_show) && current_nodes.length() > 0 {
+        } else if not(should_show) && not(current_nodes.is_empty()) {
           // Need to hide - remove nodes
-          for j = 0; j < current_nodes.length(); j = j + 1 {
-            parent.removeChild(current_nodes[j]) |> ignore
+          for node in current_nodes {
+            parent.removeChild(node) |> ignore
           }
-          while current_nodes.length() > 0 {
-            let _ = current_nodes.pop()
-
-          }
+          current_nodes.clear()
         }
       })
 
@@ -561,15 +558,12 @@ fn hydrate_for(
         let new_items = render_fn()
 
         // Simple strategy: clear and re-render
-        for j = 0; j < current_nodes.length(); j = j + 1 {
-          parent.removeChild(current_nodes[j]) |> ignore
+        for node in current_nodes {
+          parent.removeChild(node) |> ignore
         }
-        while current_nodes.length() > 0 {
-          let _ = current_nodes.pop()
-
-        }
-        for j = 0; j < new_items.length(); j = j + 1 {
-          let new_node = render_vnode_to_dom(new_items[j])
+        current_nodes.clear()
+        for item in new_items {
+          let new_node = render_vnode_to_dom(item)
           parent.insertBefore(new_node, Some(end)) |> ignore
           current_nodes.push(new_node)
         }
@@ -656,18 +650,15 @@ pub fn render_vnode_to_dom(node : @ui.Node) -> @js_dom.Node {
         let new_items = render_fn()
 
         // Remove old nodes
-        for i = 0; i < current_nodes.length(); i = i + 1 {
-          match current_nodes[i].parentNode() {
-            Some(par) => par.removeChild(current_nodes[i]) |> ignore
+        for node in current_nodes {
+          match node.parentNode() {
+            Some(par) => par.removeChild(node) |> ignore
             None => ()
           }
         }
-        while current_nodes.length() > 0 {
-          let _ = current_nodes.pop()
-
-        }
-        for i = 0; i < new_items.length(); i = i + 1 {
-          let rendered = render_vnode_to_dom(new_items[i])
+        current_nodes.clear()
+        for item in new_items {
+          let rendered = render_vnode_to_dom(item)
           current_nodes.push(rendered)
           container_node.appendChild(rendered) |> ignore
         }
