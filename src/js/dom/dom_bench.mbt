@@ -270,3 +270,328 @@ test "dom_batched_updates" (b : @bench.T) {
     })
   })
 }
+
+// =============================================================================
+// Shallow vs Deep Updates
+// =============================================================================
+
+///|
+/// Shallow update: single signal at root level
+test "dom_shallow_update_root" (b : @bench.T) {
+  @global_jsdom.register()
+  let title = @ui.signal("Title")
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vnode("h1", [], [@ui.text_dyn(fn() { title.get() })]),
+      @ui.vnode("p", [], [@ui.vtext("Static content 1")]),
+      @ui.vnode("p", [], [@ui.vtext("Static content 2")]),
+      @ui.vnode("p", [], [@ui.vtext("Static content 3")]),
+    ],
+  )
+  let _ = render_vnode_to_dom(node)
+  let mut i = 0
+  b.bench(name="dom_shallow_update_root", fn() {
+    i = i + 1
+    title.set("Title " + i.to_string())
+  })
+}
+
+///|
+/// Shallow update: signal in sibling elements (3 updates)
+test "dom_shallow_update_siblings" (b : @bench.T) {
+  @global_jsdom.register()
+  let a = @ui.signal("A")
+  let b_sig = @ui.signal("B")
+  let c = @ui.signal("C")
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { a.get() })]),
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { b_sig.get() })]),
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { c.get() })]),
+    ],
+  )
+  let _ = render_vnode_to_dom(node)
+  let mut i = 0
+  b.bench(name="dom_shallow_update_siblings", fn() {
+    i = i + 1
+    @ui.batch(fn() {
+      a.set("A" + i.to_string())
+      b_sig.set("B" + i.to_string())
+      c.set("C" + i.to_string())
+    })
+  })
+}
+
+///|
+/// Deep update: signal nested 3 levels deep
+test "dom_deep_update_3_levels" (b : @bench.T) {
+  @global_jsdom.register()
+  let deep_value = @ui.signal("Deep")
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vnode(
+        "section",
+        [],
+        [
+          @ui.vnode(
+            "article",
+            [],
+            [@ui.vnode("span", [], [@ui.text_dyn(fn() { deep_value.get() })])],
+          ),
+        ],
+      ),
+    ],
+  )
+  let _ = render_vnode_to_dom(node)
+  let mut i = 0
+  b.bench(name="dom_deep_update_3_levels", fn() {
+    i = i + 1
+    deep_value.set("Deep " + i.to_string())
+  })
+}
+
+///|
+/// Deep update: signal nested 5 levels deep
+test "dom_deep_update_5_levels" (b : @bench.T) {
+  @global_jsdom.register()
+  let deep_value = @ui.signal("Very Deep")
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vnode(
+        "section",
+        [],
+        [
+          @ui.vnode(
+            "article",
+            [],
+            [
+              @ui.vnode(
+                "div",
+                [],
+                [
+                  @ui.vnode(
+                    "p",
+                    [],
+                    [@ui.text_dyn(fn() { deep_value.get() })],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  )
+  let _ = render_vnode_to_dom(node)
+  let mut i = 0
+  b.bench(name="dom_deep_update_5_levels", fn() {
+    i = i + 1
+    deep_value.set("Very Deep " + i.to_string())
+  })
+}
+
+///|
+/// Deep update: multiple signals at different depths
+test "dom_deep_update_multi_depth" (b : @bench.T) {
+  @global_jsdom.register()
+  let level1 = @ui.signal("L1")
+  let level2 = @ui.signal("L2")
+  let level3 = @ui.signal("L3")
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.text_dyn(fn() { level1.get() }),
+      @ui.vnode(
+        "section",
+        [],
+        [
+          @ui.text_dyn(fn() { level2.get() }),
+          @ui.vnode(
+            "article",
+            [],
+            [@ui.text_dyn(fn() { level3.get() })],
+          ),
+        ],
+      ),
+    ],
+  )
+  let _ = render_vnode_to_dom(node)
+  let mut i = 0
+  b.bench(name="dom_deep_update_multi_depth", fn() {
+    i = i + 1
+    @ui.batch(fn() {
+      level1.set("L1-" + i.to_string())
+      level2.set("L2-" + i.to_string())
+      level3.set("L3-" + i.to_string())
+    })
+  })
+}
+
+///|
+/// Wide shallow update: many siblings with signals
+test "dom_wide_shallow_10" (b : @bench.T) {
+  @global_jsdom.register()
+  let signals : Array[@ui.Signal[Int]] = []
+  let children : Array[@ui.Node] = []
+  for i = 0; i < 10; i = i + 1 {
+    let sig = @ui.signal(i)
+    signals.push(sig)
+    children.push(@ui.vnode("span", [], [@ui.text_dyn(fn() { sig.get().to_string() })]))
+  }
+  let node = @ui.vnode("div", [], children)
+  let _ = render_vnode_to_dom(node)
+  let mut iter = 0
+  b.bench(name="dom_wide_shallow_10", fn() {
+    iter = iter + 1
+    @ui.batch(fn() {
+      for i = 0; i < signals.length(); i = i + 1 {
+        signals[i].set(iter + i)
+      }
+    })
+  })
+}
+
+///|
+/// Wide shallow update: many siblings (50)
+test "dom_wide_shallow_50" (b : @bench.T) {
+  @global_jsdom.register()
+  let signals : Array[@ui.Signal[Int]] = []
+  let children : Array[@ui.Node] = []
+  for i = 0; i < 50; i = i + 1 {
+    let sig = @ui.signal(i)
+    signals.push(sig)
+    children.push(@ui.vnode("span", [], [@ui.text_dyn(fn() { sig.get().to_string() })]))
+  }
+  let node = @ui.vnode("div", [], children)
+  let _ = render_vnode_to_dom(node)
+  let mut iter = 0
+  b.bench(name="dom_wide_shallow_50", fn() {
+    iter = iter + 1
+    @ui.batch(fn() {
+      for i = 0; i < signals.length(); i = i + 1 {
+        signals[i].set(iter + i)
+      }
+    })
+  })
+}
+
+///|
+/// Derived value chain: shallow memo dependency
+test "dom_derived_shallow" (b : @bench.T) {
+  @global_jsdom.register()
+  let base = @ui.signal(0)
+  let derived = @ui.memo(fn() { base.get() * 2 })
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { base.get().to_string() })]),
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived().to_string() })]),
+    ],
+  )
+  let _ = render_vnode_to_dom(node)
+  let mut i = 0
+  b.bench(name="dom_derived_shallow", fn() {
+    i = i + 1
+    base.set(i)
+  })
+}
+
+///|
+/// Derived value chain: deep memo chain (3 levels)
+test "dom_derived_deep_chain" (b : @bench.T) {
+  @global_jsdom.register()
+  let base = @ui.signal(0)
+  let derived1 = @ui.memo(fn() { base.get() + 1 })
+  let derived2 = @ui.memo(fn() { derived1() * 2 })
+  let derived3 = @ui.memo(fn() { derived2() + 10 })
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { base.get().to_string() })]),
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived1().to_string() })]),
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived2().to_string() })]),
+      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived3().to_string() })]),
+    ],
+  )
+  let _ = render_vnode_to_dom(node)
+  let mut i = 0
+  b.bench(name="dom_derived_deep_chain", fn() {
+    i = i + 1
+    base.set(i)
+  })
+}
+
+///|
+/// Conditional rendering: shallow show toggle
+test "dom_conditional_shallow" (b : @bench.T) {
+  @global_jsdom.register()
+  let show_a = @ui.signal(true)
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vshow(fn() { show_a.get() }, fn() { @ui.vtext("A") }),
+      @ui.vshow(fn() { not(show_a.get()) }, fn() { @ui.vtext("B") }),
+    ],
+  )
+  let doc = @js_dom.document()
+  let container = doc.createElement("div")
+  let dom = render_vnode_to_dom(node)
+  container.appendChild(dom) |> ignore
+  b.bench(name="dom_conditional_shallow", fn() {
+    show_a.update(fn(v) { not(v) })
+  })
+}
+
+///|
+/// Conditional rendering: deep nested show
+test "dom_conditional_deep" (b : @bench.T) {
+  @global_jsdom.register()
+  let visible = @ui.signal(true)
+  let node = @ui.vnode(
+    "div",
+    [],
+    [
+      @ui.vnode(
+        "section",
+        [],
+        [
+          @ui.vnode(
+            "article",
+            [],
+            [
+              @ui.vshow(
+                fn() { visible.get() },
+                fn() {
+                  @ui.vnode(
+                    "div",
+                    [],
+                    [@ui.vnode("p", [], [@ui.vtext("Deep conditional content")])],
+                  )
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  )
+  let doc = @js_dom.document()
+  let container = doc.createElement("div")
+  let dom = render_vnode_to_dom(node)
+  container.appendChild(dom) |> ignore
+  b.bench(name="dom_conditional_deep", fn() {
+    visible.update(fn(v) { not(v) })
+  })
+}
