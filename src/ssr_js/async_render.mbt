@@ -21,14 +21,14 @@ pub async fn render_async_with_hydration(
 
 ///|
 /// Collect multiple async operations in parallel (Promise.all equivalent)
-pub async fn collect[T](fetchers : Array[async () -> T]) -> Array[T] {
+pub async fn[T] collect(fetchers : Array[async () -> T]) -> Array[T] {
   let promises = fetchers.map(fn(f) { @js.from_async(f) })
   @js.Promise::all(promises).wait()
 }
 
 ///|
 /// Collect two async operations in parallel
-pub async fn collect2[A, B](
+pub async fn[A, B] collect2(
   a : async () -> A,
   b : async () -> B
 ) -> (A, B) {
@@ -53,7 +53,7 @@ pub async fn collect2[A, B](
 
 ///|
 /// Collect three async operations in parallel
-pub async fn collect3[A, B, C](
+pub async fn[A, B, C] collect3(
   a : async () -> A,
   b : async () -> B,
   c : async () -> C
@@ -76,14 +76,14 @@ pub async fn collect3[A, B, C](
 
 ///|
 /// Race multiple async operations (Promise.race equivalent)
-pub async fn race[T](fetchers : Array[async () -> T]) -> T {
+pub async fn[T] race(fetchers : Array[async () -> T]) -> T {
   let promises = fetchers.map(fn(f) { @js.from_async(f) })
   @js.Promise::race(promises).wait()
 }
 
 ///|
 /// Timeout wrapper - fails if async takes too long
-pub async fn with_timeout[T](
+pub async fn[T] with_timeout(
   ms : Int,
   fetcher : async () -> T
 ) -> T raise {
@@ -97,7 +97,7 @@ pub async fn with_timeout[T](
 }
 
 ///|
-type! TimeoutError Int
+suberror TimeoutError Int
 
 ///|
 pub fn TimeoutError::to_string(self : TimeoutError) -> String {
