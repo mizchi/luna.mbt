@@ -226,6 +226,109 @@ packages/loader/
 └── loader.test.ts     # Tests
 ```
 
+## Current Status (WIP)
+
+This module is currently a **proof of concept**. The current implementation:
+
+### What Works
+- ✅ HTML snippet generation with `kg:*` attributes
+- ✅ XSS escaping for inline JSON state (`escape_json_for_html`)
+- ✅ Various trigger modes (load, visible, idle, none)
+- ✅ Script reference state (`#id` format)
+- ✅ Basic E2E tests with mock hydration components
+
+### What's Missing (TODO)
+
+#### 1. SSR Integration (High Priority)
+The current E2E tests use **static HTML strings**, not actual SSR output:
+
+```moonbit
+// Current: Manual HTML string
+let html = "<span data-count>5</span><button>+</button>"
+
+// Goal: Generate from VNode via SSR
+let vnode = Counter::render(state)
+let html = @ssr.render_to_string(vnode)
+```
+
+**Task**: Create `src/js/ssr/` module that renders VNodes to HTML strings.
+
+#### 2. Idempotent Hydration Test (High Priority)
+Need to verify SSR → Hydration produces identical DOM (like Next.js/Remix/Qwik):
+
+```typescript
+// E2E test pseudocode
+test("hydration is idempotent", async ({ page }) => {
+  await page.goto("/ssr-test");
+
+  // Get initial SSR HTML
+  const ssrHtml = await page.locator("#app").innerHTML();
+
+  // Wait for hydration
+  await expect(page.locator("#app")).toHaveAttribute("data-hydrated", "true");
+
+  // HTML should be identical (or semantically equivalent)
+  const hydratedHtml = await page.locator("#app").innerHTML();
+  expect(hydratedHtml).toBe(ssrHtml);
+});
+```
+
+**Task**: Implement in `e2e/embedding/` with real MoonBit SSR output.
+
+#### 3. Component Hydration Module (Medium Priority)
+Current loader expects JS modules with `hydrate(el, state)` function.
+Need MoonBit-generated component modules:
+
+```moonbit
+// src/js/component/counter.mbt
+pub fn hydrate(el: @dom.Element, state: Json) -> Unit {
+  // Attach event handlers, setup reactivity
+}
+```
+
+**Task**: Create component export pattern for JS backend.
+
+#### 4. State Serialization from Hooks (Medium Priority)
+Hooks state needs to be serializable for resumability:
+
+```moonbit
+// During SSR
+let serialized = @hooks.serialize_state(context)
+// Output: {"useState:0": 5, "useEffect:1": {...}}
+
+// During hydration
+@hooks.restore_state(context, serialized)
+```
+
+**Task**: Implement in `src/js/vdom/hooks_serialization.mbt`.
+
+#### 5. Reconcile + Hydration Mode (Medium Priority)
+Current reconcile module does full diff. Need hydration mode that:
+- Walks existing DOM (from SSR)
+- Attaches event handlers without re-rendering
+- Only updates if state differs
+
+```moonbit
+pub fn hydrate(el: @dom.Element, vnode: VNode) -> Unit {
+  // Don't mutate DOM, just attach handlers
+}
+```
+
+**Task**: Add `experimental_hydrate` to reconcile module.
+
+### Architecture Evolution
+
+```
+Phase 1 (Current):
+  embedding → static HTML strings → loader → mock JS hydrate()
+
+Phase 2 (Next):
+  embedding → VNode SSR → loader → MoonBit hydrate()
+
+Phase 3 (Goal):
+  Component → SSR HTML + serialized state → loader → resumable hydration
+```
+
 ## Future Considerations
 
 - WebComponents output (`<kg-counter>` custom elements)
