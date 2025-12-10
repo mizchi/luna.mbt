@@ -252,12 +252,13 @@ pub enum ExperimentalHydrationResult {
 ///|
 /// Context for experimental hydration
 priv struct ExperimentalHydrationContext {
-  container : @js_dom.Element
   mut current_id : Int
   repairs : Array[String]
   repair_infos : Array[RepairInfo]
   logger : StringBuilder?
   path_stack : Array[String]
+  /// Cache: data-hk -> Element mapping for O(1) lookup
+  hk_cache : @hashmap.HashMap[Int, @js_dom.Element]
 }
 
 ///|
@@ -402,14 +403,44 @@ fn get_text_content(node : @js_dom.Node) -> String {
 }
 
 ///|
-/// Find element with data-hk="id" attribute within container
-fn find_element_by_hk(
-  container : @js_dom.Element,
+/// Build hk_cache by scanning all elements with data-hk attribute once
+fn build_hk_cache(container : @js_dom.Element) -> @hashmap.HashMap[Int, @js_dom.Element] {
+  let cache : @hashmap.HashMap[Int, @js_dom.Element] = @hashmap.new()
+  let elements = container.querySelectorAll("[data-hk]")
+  for i in 0..<elements.length() {
+    let elem = elements[i]
+    match elem.getAttribute("data-hk") {
+      Some(id_str) => {
+        // Parse integer manually (simple positive int parser)
+        let mut id = 0
+        let mut valid = true
+        for c in id_str {
+          if c >= '0' && c <= '9' {
+            id = id * 10 + (c.to_int() - '0'.to_int())
+          } else {
+            valid = false
+            break
+          }
+        }
+        if valid && id_str.length() > 0 {
+          cache.set(id, elem)
+        }
+      }
+      None => ()
+    }
+  }
+  cache
+}
+
+///|
+/// Find element with data-hk="id" attribute using cache (O(1))
+fn find_element_by_hk_cached(
+  ctx : ExperimentalHydrationContext,
   id : Int,
 ) -> @js_dom.Element? {
-  let selector = "[data-hk=\"" + id.to_string() + "\"]"
-  container.querySelector(selector)
+  ctx.hk_cache.get(id)
 }
+
 
 ///|
 /// Find first child element with matching tag name
@@ -533,13 +564,15 @@ pub fn experimental_hydrate(
   node : @ui.Node,
   logger? : StringBuilder,
 ) -> ExperimentalHydrationResult {
+  // Build hk_cache once for O(1) lookups
+  let hk_cache = build_hk_cache(container)
   let ctx : ExperimentalHydrationContext = {
-    container,
     current_id: 0,
     repairs: [],
     repair_infos: [],
     logger,
     path_stack: [],
+    hk_cache,
   }
 
   // Perform hydration with repair capability
@@ -620,13 +653,14 @@ pub fn experimental_hydrate_with_report(
   node : @ui.Node,
   logger? : StringBuilder,
 ) -> ExperimentalHydrationReport {
+  let hk_cache = build_hk_cache(container)
   let ctx : ExperimentalHydrationContext = {
-    container,
     current_id: 0,
     repairs: [],
     repair_infos: [],
     logger,
     path_stack: [],
+    hk_cache,
   }
 
   // Perform hydration with repair capability
@@ -809,8 +843,8 @@ fn experimental_hydrate_element(
     let id = ctx.current_id
     ctx.current_id = id + 1
 
-    // Try to find by data-hk
-    match find_element_by_hk(ctx.container, id) {
+    // Try to find by data-hk using cached lookup (O(1))
+    match find_element_by_hk_cached(ctx, id) {
       Some(found_elem) => {
         // Verify tag
         let dom_tag = found_elem.tagName().to_lower()
