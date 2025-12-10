@@ -21,4 +21,4 @@ export {
   runWithOwner,
   hasOwner,
   onMount,
-} from "../../target/js/release/build/js_api/js_api.js";
+} from "../../target/js/release/build/js/api/api.js";

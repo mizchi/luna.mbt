@@ -56,4 +56,4 @@ export {
   // Generic attributes
   attr,
   attrDyn,
-} from "../../target/js/release/build/dom/dom.js";
+} from "../../target/js/release/build/js/dom/dom.js";
