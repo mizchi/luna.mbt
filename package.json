@@ -1,7 +1,7 @@
 {
-  "name": "@mizchi/ui",
+  "name": "@mizchi/kaguya",
   "version": "0.1.0",
-  "description": "Pure MoonBit Virtual DOM library with React-like hooks",
+  "description": "MoonBit Island Architecture UI Framework",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
@@ -20,12 +20,12 @@
     "bench:flame": "rm -rf *.0x && 0x -o bench/run.js"
   },
   "keywords": [
+    "kaguya",
     "moonbit",
-    "ui",
-    "vdom",
-    "virtual-dom",
-    "hooks",
-    "ssr"
+    "island",
+    "signals",
+    "ssr",
+    "hydration"
   ],
   "author": "mizchi",
   "license": "MIT",

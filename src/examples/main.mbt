@@ -25,11 +25,11 @@ fn console_log(msg : String) -> Unit {
 ///|
 fn counter_example() -> @dom.Node {
   // Create a signal for count state
-  let count = @ui.signal(0)
+  let count = @signal.signal(0)
 
   // Create computed values
-  let doubled = @ui.memo(fn() { count.get() * 2 })
-  let is_even = @ui.memo(fn() { count.get() % 2 == 0 })
+  let doubled = @signal.memo(fn() { count.get() * 2 })
+  let is_even = @signal.memo(fn() { count.get() % 2 == 0 })
 
   // Create the UI
   @dom.div(
@@ -84,8 +84,8 @@ fn counter_example() -> @dom.Node {
 
 ///|
 fn input_example() -> @dom.Node {
-  let text = @ui.signal("")
-  let char_count = @ui.memo(fn() { text.get().length() })
+  let text = @signal.signal("")
+  let char_count = @signal.memo(fn() { text.get().length() })
 
   @dom.div(
     [@dom.class("input-example")],
@@ -115,15 +115,15 @@ fn input_example() -> @dom.Node {
 
 ///|
 fn effect_example() -> @dom.Node {
-  let active = @ui.signal(false)
-  let ticks = @ui.signal(0)
+  let active = @signal.signal(false)
+  let ticks = @signal.signal(0)
 
   // Effect that logs on change
-  let _ = @ui.effect(fn() {
+  let _ = @signal.effect(fn() {
     let is_active = active.get()
     console_log("Active state changed: " + is_active.to_string())
     // Register cleanup for this effect
-    @ui.on_cleanup(fn() { console_log("Cleaning up effect") })
+    @signal.on_cleanup(fn() { console_log("Cleaning up effect") })
   })
 
   @dom.div(
@@ -173,12 +173,12 @@ fn effect_example() -> @dom.Node {
 
 ///|
 fn batch_example() -> @dom.Node {
-  let a = @ui.signal(0)
-  let b = @ui.signal(0)
-  let update_count = @ui.signal(0)
+  let a = @signal.signal(0)
+  let b = @signal.signal(0)
+  let update_count = @signal.signal(0)
 
   // Effect that counts updates
-  let _ = @ui.effect(fn() {
+  let _ = @signal.effect(fn() {
     let _ = a.get()
     let _ = b.get()
     update_count.update(fn(n) { n + 1 })
@@ -215,7 +215,7 @@ fn batch_example() -> @dom.Node {
             [
               @dom.on_click(fn(_e : @js_dom.MouseEvent) {
                 // With batch - effect runs once
-                @ui.batch(fn() {
+                @signal.batch(fn() {
                   a.update(fn(n) { n + 1 })
                   b.update(fn(n) { n + 1 })
                 })
@@ -235,11 +235,11 @@ fn batch_example() -> @dom.Node {
 
 ///|
 fn combine_example() -> @dom.Node {
-  let first_name = @ui.signal("John")
-  let last_name = @ui.signal("Doe")
+  let first_name = @signal.signal("John")
+  let last_name = @signal.signal("Doe")
 
   // Combine two signals
-  let full_name = @ui.combine2(first_name, last_name, fn(f, l) { f + " " + l })
+  let full_name = @signal.combine2(first_name, last_name, fn(f, l) { f + " " + l })
 
   @dom.div(
     [@dom.class("combine-example")],
@@ -284,8 +284,8 @@ fn combine_example() -> @dom.Node {
 
 ///|
 fn style_example() -> @dom.Node {
-  let hue = @ui.signal(180)
-  let size = @ui.signal(100)
+  let hue = @signal.signal(180)
+  let size = @signal.signal(100)
 
   @dom.div(
     [@dom.class("style-example")],
@@ -358,7 +358,7 @@ fn style_example() -> @dom.Node {
 
 ///|
 fn conditional_example() -> @dom.Node {
-  let show_message = @ui.signal(true)
+  let show_message = @signal.signal(true)
 
   @dom.div(
     [@dom.class("conditional-example")],
@@ -402,7 +402,7 @@ fn conditional_example() -> @dom.Node {
 
 ///|
 fn owner_example() -> @dom.Node {
-  let log_messages = @ui.signal("")
+  let log_messages = @signal.signal("")
 
   fn add_log(msg : String) -> Unit {
     log_messages.update(fn(current) {
@@ -425,10 +425,10 @@ fn owner_example() -> @dom.Node {
         [
           @dom.on_click(fn(_e : @js_dom.MouseEvent) {
             add_log("Creating root...")
-            @ui.create_root(fn(dispose) {
+            @signal.create_root(fn(dispose) {
               add_log("Inside root - setting up effect")
-              let counter = @ui.signal(0)
-              let _ = @ui.effect(fn() {
+              let counter = @signal.signal(0)
+              let _ = @signal.effect(fn() {
                 let val = counter.get()
                 add_log("Effect: counter = " + val.to_string())
               })
@@ -479,13 +479,13 @@ priv struct TodoItem {
 
 ///|
 fn todo_example() -> @dom.Node {
-  let todos : @ui.Signal[Array[TodoItem]] = @ui.signal([])
-  let input_text = @ui.signal("")
-  let next_id = @ui.signal(1)
+  let todos : @signal.Signal[Array[TodoItem]] = @signal.signal([])
+  let input_text = @signal.signal("")
+  let next_id = @signal.signal(1)
 
   // Computed stats
-  let total = @ui.memo(fn() { todos.get().length() })
-  let completed_count = @ui.memo(fn() {
+  let total = @signal.memo(fn() { todos.get().length() })
+  let completed_count = @signal.memo(fn() {
     let items = todos.get()
     let mut count = 0
     for i = 0; i < items.length(); i = i + 1 {

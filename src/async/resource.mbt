@@ -61,7 +61,7 @@ pub fn[T] AsyncState::error(self : AsyncState[T]) -> String? {
 /// Environment-agnostic: uses callbacks instead of Promise/async directly
 pub struct Resource[T] {
   /// The reactive state
-  state : @ui.Signal[AsyncState[T]]
+  state : @signal.Signal[AsyncState[T]]
   /// Called by runtime to resolve with value
   priv resolve_ : (T) -> Unit
   /// Called by runtime to reject with error
@@ -126,7 +126,7 @@ pub fn[T] Resource::refetch(self : Resource[T]) -> Unit {
 pub fn[T] resource(
   fetcher : ((T) -> Unit, (String) -> Unit) -> Unit
 ) -> Resource[T] {
-  let state : @ui.Signal[AsyncState[T]] = @ui.signal(Pending)
+  let state : @signal.Signal[AsyncState[T]] = @signal.signal(Pending)
 
   let resolve_ = fn(value : T) {
     state.set(Success(value))
@@ -150,7 +150,7 @@ pub fn[T] resource(
 ///|
 /// Create a Resource with initial value (already resolved)
 pub fn[T] resource_resolved(value : T) -> Resource[T] {
-  let state : @ui.Signal[AsyncState[T]] = @ui.signal(Success(value))
+  let state : @signal.Signal[AsyncState[T]] = @signal.signal(Success(value))
   {
     state,
     resolve_: fn(v) { state.set(Success(v)) },
@@ -162,7 +162,7 @@ pub fn[T] resource_resolved(value : T) -> Resource[T] {
 ///|
 /// Create a Resource with initial error (already rejected)
 pub fn[T] resource_rejected(error : String) -> Resource[T] {
-  let state : @ui.Signal[AsyncState[T]] = @ui.signal(Failure(error))
+  let state : @signal.Signal[AsyncState[T]] = @signal.signal(Failure(error))
   {
     state,
     resolve_: fn(v) { state.set(Success(v)) },
@@ -174,7 +174,7 @@ pub fn[T] resource_rejected(error : String) -> Resource[T] {
 ///|
 /// Create a deferred Resource (starts pending, resolve/reject manually)
 pub fn[T] deferred() -> (Resource[T], (T) -> Unit, (String) -> Unit) {
-  let state : @ui.Signal[AsyncState[T]] = @ui.signal(Pending)
+  let state : @signal.Signal[AsyncState[T]] = @signal.signal(Pending)
 
   let resolve_ = fn(value : T) {
     state.set(Success(value))

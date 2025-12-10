@@ -6,20 +6,20 @@
 
 ///|
 /// Home page component
-fn home_page(_ctx : @framework.Ctx) -> @ui.Node {
+fn home_page(_ctx : @framework.Ctx) -> @kaguya.Node {
   @element.div([@element.class("container")], [
-    @element.h1([], [@ui.vtext("Welcome to MoonBit Framework")]),
+    @element.h1([], [@kaguya.vtext("Welcome to MoonBit Framework")]),
     @element.p([], [
-      @ui.vtext("A SSR-first web framework built on Hono and ui.mbt"),
+      @kaguya.vtext("A SSR-first web framework built on Hono and ui.mbt"),
     ]),
     @element.div([@element.class("nav")], [
       @element.ul([], [
-        @element.li([], [@element.a([@element.href("/")], [@ui.vtext("Home")])]),
+        @element.li([], [@element.a([@element.href("/")], [@kaguya.vtext("Home")])]),
         @element.li([], [
-          @element.a([@element.href("/about")], [@ui.vtext("About")]),
+          @element.a([@element.href("/about")], [@kaguya.vtext("About")]),
         ]),
         @element.li([], [
-          @element.a([@element.href("/counter")], [@ui.vtext("Counter Demo")]),
+          @element.a([@element.href("/counter")], [@kaguya.vtext("Counter Demo")]),
         ]),
       ]),
     ]),
@@ -28,35 +28,35 @@ fn home_page(_ctx : @framework.Ctx) -> @ui.Node {
 
 ///|
 /// About page component
-fn about_page(_ctx : @framework.Ctx) -> @ui.Node {
+fn about_page(_ctx : @framework.Ctx) -> @kaguya.Node {
   @element.div([@element.class("container")], [
-    @element.h1([], [@ui.vtext("About")]),
-    @element.p([], [@ui.vtext("This is a demonstration of SSR with MoonBit.")]),
+    @element.h1([], [@kaguya.vtext("About")]),
+    @element.p([], [@kaguya.vtext("This is a demonstration of SSR with MoonBit.")]),
     @element.p([], [
-      @ui.vtext("The HTML is rendered on the server using ui.mbt VNodes."),
+      @kaguya.vtext("The HTML is rendered on the server using ui.mbt VNodes."),
     ]),
-    @element.a([@element.href("/")], [@ui.vtext("← Back to Home")]),
+    @element.a([@element.href("/")], [@kaguya.vtext("← Back to Home")]),
   ])
 }
 
 ///|
 /// Counter page with reactive state (demonstrates hydration markers)
-fn counter_page(_ctx : @framework.Ctx) -> @ui.Node {
-  let count = @ui.signal(0)
+fn counter_page(_ctx : @framework.Ctx) -> @kaguya.Node {
+  let count = @signal.signal(0)
   @element.div([@element.class("container")], [
-    @element.h1([], [@ui.vtext("Counter Demo")]),
+    @element.h1([], [@kaguya.vtext("Counter Demo")]),
     @element.p([], [
-      @ui.vtext("This page demonstrates reactive state with hydration markers."),
+      @kaguya.vtext("This page demonstrates reactive state with hydration markers."),
     ]),
     @element.div([@element.class("counter")], [
-      @element.span([], [@ui.vtext("Count: ")]),
-      @element.span([], [@ui.text_dyn(fn() { count.get().to_string() })]),
+      @element.span([], [@kaguya.vtext("Count: ")]),
+      @element.span([], [@kaguya.text_dyn(fn() { count.get().to_string() })]),
     ]),
     @element.div([@element.class("buttons")], [
-      @element.button([@element.on_click(@ui.event_handler())], [@ui.vtext("-")]),
-      @element.button([@element.on_click(@ui.event_handler())], [@ui.vtext("+")]),
+      @element.button([@element.on_click(@kaguya.event_handler())], [@kaguya.vtext("-")]),
+      @element.button([@element.on_click(@kaguya.event_handler())], [@kaguya.vtext("+")]),
     ]),
-    @element.a([@element.href("/")], [@ui.vtext("← Back to Home")]),
+    @element.a([@element.href("/")], [@kaguya.vtext("← Back to Home")]),
   ])
 }
 

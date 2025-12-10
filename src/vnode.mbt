@@ -80,7 +80,7 @@ pub fn text_dyn(content : () -> String) -> Node {
 
 ///|
 /// Create a text VNode from a signal
-pub fn[T : Show] vtext_sig(sig : Signal[T]) -> Node {
+pub fn[T : Show] vtext_sig(sig : @signal.Signal[T]) -> Node {
   DynamicText(fn() { sig.get().to_string() })
 }
 

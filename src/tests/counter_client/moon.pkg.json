@@ -1,11 +1,12 @@
 {
   "supported-targets": ["js"],
   "import": [
-    "mizchi/ui",
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
-    { "path": "mizchi/ui/js/dom", "alias": "dom" },
+    { "path": "mizchi/kaguya/runtime/js/dom", "alias": "dom" },
     "mizchi/js/core",
-    { "path": "mizchi/ui/tests/counter_component", "alias": "counter_component" }
+    { "path": "mizchi/kaguya/tests/counter_component", "alias": "counter_component" }
   ],
   "link": {
     "js": {

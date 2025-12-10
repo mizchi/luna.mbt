@@ -1,5 +1,5 @@
 {
-  "name": "mizchi/ui",
+  "name": "mizchi/kaguya",
   "version": "0.1.0",
   "deps": {
     "moonbitlang/async": "0.14.2",
@@ -8,18 +8,18 @@
     "mizchi/npm_typed": "0.1.0"
   },
   "readme": "README.md",
-  "repository": "https://github.com/mizchi/ui.mbt",
+  "repository": "https://github.com/aspect-apps/kaguya",
   "license": "MIT",
   "keywords": [
+    "kaguya",
     "ui",
     "vdom",
-    "virtual-dom",
-    "react",
-    "hooks",
+    "island",
     "ssr",
-    "hydration"
+    "hydration",
+    "signals"
   ],
-  "description": "Pure MoonBit Virtual DOM library with React-like hooks",
+  "description": "MoonBit Island Architecture UI Framework",
   "source": "src",
   "warn-list": "-29-53",
   "preferred-target": "js"

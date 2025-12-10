@@ -3,7 +3,7 @@
 ///|
 test "register_signal int" {
   let state = ResumableState::new()
-  let signal = @ui.signal(42)
+  let signal = @signal.signal(42)
   let id = register_signal(state, signal)
   assert_eq(id, 0)
   assert_eq(state.get_int(id), Some(42))
@@ -12,7 +12,7 @@ test "register_signal int" {
 ///|
 test "register_signal string" {
   let state = ResumableState::new()
-  let signal = @ui.signal("hello")
+  let signal = @signal.signal("hello")
   let id = register_signal(state, signal)
   assert_eq(state.get_string(id), Some("hello"))
 }
@@ -20,7 +20,7 @@ test "register_signal string" {
 ///|
 test "register_signal bool" {
   let state = ResumableState::new()
-  let signal = @ui.signal(true)
+  let signal = @signal.signal(true)
   let id = register_signal(state, signal)
   assert_eq(state.get_bool(id), Some(true))
 }
@@ -29,7 +29,7 @@ test "register_signal bool" {
 test "restore_signal int" {
   let state = ResumableState::new()
   let _ = state.register_int(100)
-  let signal = @ui.signal(0)
+  let signal = @signal.signal(0)
   let success = restore_signal(state, signal, 0)
   assert_true(success)
   assert_eq(signal.get(), 100)
@@ -39,7 +39,7 @@ test "restore_signal int" {
 test "restore_signal string" {
   let state = ResumableState::new()
   let _ = state.register_string("restored")
-  let signal = @ui.signal("")
+  let signal = @signal.signal("")
   let success = restore_signal(state, signal, 0)
   assert_true(success)
   assert_eq(signal.get(), "restored")
@@ -67,14 +67,14 @@ test "create_resumable_signal string" {
 test "resume_signal with existing value" {
   let state = ResumableState::new()
   let _ = state.register_int(100)
-  let signal : @ui.Signal[Int] = resume_signal(state, 0, 0)
+  let signal : @signal.Signal[Int] = resume_signal(state, 0, 0)
   assert_eq(signal.get(), 100)
 }
 
 ///|
 test "resume_signal with missing value" {
   let state = ResumableState::new()
-  let signal : @ui.Signal[Int] = resume_signal(state, 0, 42)
+  let signal : @signal.Signal[Int] = resume_signal(state, 0, 42)
   assert_eq(signal.get(), 42)
 }
 
@@ -96,12 +96,12 @@ test "full resumable signal flow" {
   // === Client Phase ===
   match parse_state_from_html(html) {
     Some(client_state) => {
-      let client_count : @ui.Signal[Int] = resume_signal(
+      let client_count : @signal.Signal[Int] = resume_signal(
         client_state,
         count_id,
         0,
       )
-      let client_name : @ui.Signal[String] = resume_signal(
+      let client_name : @signal.Signal[String] = resume_signal(
         client_state,
         name_id,
         "",
@@ -152,7 +152,7 @@ test "Serializable Double from wrong type returns None" {
 test "restore_signal returns false for wrong type" {
   let state = ResumableState::new()
   let _ = state.register_string("not an int")
-  let sig = @ui.signal(0)
+  let sig = @signal.signal(0)
   let result = restore_signal(state, sig, 0)
   assert_eq(result, false)
   // Signal should still have initial value
@@ -162,7 +162,7 @@ test "restore_signal returns false for wrong type" {
 ///|
 test "restore_signal returns false for missing id" {
   let state = ResumableState::new()
-  let sig = @ui.signal(42)
+  let sig = @signal.signal(42)
   let result = restore_signal(state, sig, 999)
   assert_eq(result, false)
   // Signal should still have initial value
@@ -173,7 +173,7 @@ test "restore_signal returns false for missing id" {
 test "resume_signal uses initial for wrong type" {
   let state = ResumableState::new()
   let _ = state.register_string("not an int")
-  let sig : @ui.Signal[Int] = resume_signal(state, 0, 42)
+  let sig : @signal.Signal[Int] = resume_signal(state, 0, 42)
   // Should use initial value since type doesn't match
   assert_eq(sig.peek(), 42)
 }

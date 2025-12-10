@@ -1,8 +1,9 @@
 {
   "import": [
-    "mizchi/ui",
-    "mizchi/ui/element",
-    "mizchi/ui/ssr"
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
+    "mizchi/kaguya/element",
+    "mizchi/kaguya/ssr"
   ],
   "link": {
     "js": {

@@ -1,0 +1,15 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    {
+      "path": "mizchi/kaguya/async",
+      "alias": "async_core"
+    },
+    {
+      "path": "mizchi/js/core",
+      "alias": "js"
+    }
+  ]
+}

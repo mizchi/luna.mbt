@@ -1,0 +1,20 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
+    {
+      "path": "mizchi/kaguya/ssr",
+      "alias": "ssr_core"
+    },
+    {
+      "path": "mizchi/js/core",
+      "alias": "js"
+    }
+  ],
+  "test-import": [
+    "mizchi/kaguya/element"
+  ]
+}

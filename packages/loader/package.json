@@ -1,7 +1,7 @@
 {
-  "name": "@mizchi/ui-loader",
+  "name": "@mizchi/kaguya-loader",
   "version": "0.1.0",
-  "description": "Resumable loader for ui.mbt SSR hydration",
+  "description": "Island loader for Kaguya SSR hydration",
   "type": "module",
   "main": "loader.js",
   "exports": {
@@ -19,11 +19,11 @@
     "minify:v1": "terser kg-loader-v1.js --module --compress --mangle -o kg-loader-v1.min.js"
   },
   "keywords": [
+    "kaguya",
     "moonbit",
-    "ui",
+    "island",
     "ssr",
-    "hydration",
-    "resumable"
+    "hydration"
   ],
   "author": "mizchi",
   "license": "MIT"

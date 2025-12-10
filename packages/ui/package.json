@@ -1,6 +1,7 @@
 {
-  "name": "@mizchi/ui",
+  "name": "@mizchi/kaguya",
   "version": "0.1.0",
+  "description": "MoonBit Island Architecture UI Framework",
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",

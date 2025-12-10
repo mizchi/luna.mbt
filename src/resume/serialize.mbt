@@ -55,7 +55,7 @@ impl Serializable for Double with from_state_value(value) {
 /// Register a signal's current value to state and return its ID
 pub fn[T : Serializable] register_signal(
   state : ResumableState,
-  signal : @ui.Signal[T],
+  signal : @signal.Signal[T],
 ) -> Int {
   let value = signal.peek()
   let state_value = Serializable::to_state_value(value)
@@ -69,7 +69,7 @@ pub fn[T : Serializable] register_signal(
 /// Restore a signal's value from state
 pub fn[T : Serializable] restore_signal(
   state : ResumableState,
-  signal : @ui.Signal[T],
+  signal : @signal.Signal[T],
   id : Int,
 ) -> Bool {
   match state.get(id) {
@@ -90,8 +90,8 @@ pub fn[T : Serializable] restore_signal(
 pub fn[T : Serializable] create_resumable_signal(
   state : ResumableState,
   initial : T,
-) -> (@ui.Signal[T], Int) {
-  let signal = @ui.signal(initial)
+) -> (@signal.Signal[T], Int) {
+  let signal = @signal.signal(initial)
   let id = register_signal(state, signal)
   (signal, id)
 }
@@ -103,13 +103,13 @@ pub fn[T : Serializable] resume_signal(
   state : ResumableState,
   id : Int,
   initial : T,
-) -> @ui.Signal[T] {
+) -> @signal.Signal[T] {
   match state.get(id) {
     Some(value) =>
       match Serializable::from_state_value(value) {
-        Some(v) => @ui.signal(v)
-        None => @ui.signal(initial)
+        Some(v) => @signal.signal(v)
+        None => @signal.signal(initial)
       }
-    None => @ui.signal(initial)
+    None => @signal.signal(initial)
   }
 }

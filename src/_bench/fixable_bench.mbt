@@ -45,7 +45,7 @@ extern "js" fn fixable_set_inner_html(elem : @js_dom.Element, html : String) -> 
 ///|
 test "fixable_clean_simple" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode("div", [], [@ui.vtext("Hello")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Hello")])
   let html = @ssr.render_to_string(node)
   let logger = StringBuilder::new()
   b.bench(name="fixable_clean_simple", fn() {
@@ -57,14 +57,14 @@ test "fixable_clean_simple" (b : @bench.T) {
 ///|
 test "fixable_clean_nested" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
-        [@ui.vnode("p", [], [@ui.vtext("Nested content")])],
+        [@kaguya.vnode("p", [], [@kaguya.vtext("Nested content")])],
       ),
     ],
   )
@@ -77,12 +77,12 @@ test "fixable_clean_nested" (b : @bench.T) {
 }
 
 ///|
-fn create_fixable_list_node(count : Int) -> @ui.Node {
-  let items : Array[@ui.Node] = []
+fn create_fixable_list_node(count : Int) -> @kaguya.Node {
+  let items : Array[@kaguya.Node] = []
   for i = 0; i < count; i = i + 1 {
-    items.push(@ui.vnode("li", [], [@ui.vtext("Item " + i.to_string())]))
+    items.push(@kaguya.vnode("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
-  @ui.vnode("ul", [], items)
+  @kaguya.vnode("ul", [], items)
 }
 
 ///|
@@ -104,7 +104,7 @@ test "fixable_clean_list_50" (b : @bench.T) {
 ///|
 test "fixable_repair_text_mismatch" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode("div", [], [@ui.vtext("Expected Text")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Expected Text")])
   let html = "<div>Different Text</div>"
   let logger = StringBuilder::new()
   b.bench(name="fixable_repair_text_mismatch", fn() {
@@ -116,7 +116,7 @@ test "fixable_repair_text_mismatch" (b : @bench.T) {
 ///|
 test "fixable_repair_text_missing" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode("div", [], [@ui.vtext("Expected Text")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Expected Text")])
   let html = "<div></div>"
   let logger = StringBuilder::new()
   b.bench(name="fixable_repair_text_missing", fn() {
@@ -132,10 +132,10 @@ test "fixable_repair_text_missing" (b : @bench.T) {
 ///|
 test "fixable_repair_element_missing" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
     [],
-    [@ui.vnode("span", [], [@ui.vtext("Child")])],
+    [@kaguya.vnode("span", [], [@kaguya.vtext("Child")])],
   )
   let html = ""
   let logger = StringBuilder::new()
@@ -152,10 +152,10 @@ test "fixable_repair_element_missing" (b : @bench.T) {
 ///|
 test "fixable_repair_attr_mismatch" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
-    [("class", @ui.attr_static("expected-class"))],
-    [@ui.vtext("Content")],
+    [("class", @kaguya.attr_static("expected-class"))],
+    [@kaguya.vtext("Content")],
   )
   let html = "<div class=\"wrong-class\">Content</div>"
   let logger = StringBuilder::new()
@@ -172,8 +172,8 @@ test "fixable_repair_attr_mismatch" (b : @bench.T) {
 ///|
 test "fixable_repair_dynamic_text_marker" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @ui.signal(42)
-  let node = @ui.text_dyn(fn() { "Count: " + count.get().to_string() })
+  let count = @signal.signal(42)
+  let node = @kaguya.text_dyn(fn() { "Count: " + count.get().to_string() })
   let html = "Count: 42"
   let logger = StringBuilder::new()
   b.bench(name="fixable_repair_dynamic_text_marker", fn() {
@@ -185,10 +185,10 @@ test "fixable_repair_dynamic_text_marker" (b : @bench.T) {
 ///|
 test "fixable_repair_show_marker" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @ui.signal(true)
-  let node = @ui.vshow(
+  let visible = @signal.signal(true)
+  let node = @kaguya.vshow(
     fn() { visible.get() },
-    fn() { @ui.vnode("div", [], [@ui.vtext("Visible")]) },
+    fn() { @kaguya.vnode("div", [], [@kaguya.vtext("Visible")]) },
   )
   let html = "<div>Visible</div>"
   let logger = StringBuilder::new()
@@ -201,9 +201,9 @@ test "fixable_repair_show_marker" (b : @bench.T) {
 ///|
 test "fixable_repair_for_marker" (b : @bench.T) {
   @global_jsdom.register()
-  let items_sig = @ui.signal(["a", "b", "c"])
-  let node = @ui.vfor(fn() {
-    items_sig.get().map(fn(item) { @ui.vnode("li", [], [@ui.vtext(item)]) })
+  let items_sig = @signal.signal(["a", "b", "c"])
+  let node = @kaguya.vfor(fn() {
+    items_sig.get().map(fn(item) { @kaguya.vnode("li", [], [@kaguya.vtext(item)]) })
   })
   let html = "<li>a</li><li>b</li><li>c</li>"
   let logger = StringBuilder::new()
@@ -216,9 +216,9 @@ test "fixable_repair_for_marker" (b : @bench.T) {
 ///|
 test "fixable_repair_for_item_count" (b : @bench.T) {
   @global_jsdom.register()
-  let items_sig = @ui.signal(["a", "b", "c", "d", "e"])
-  let node = @ui.vfor(fn() {
-    items_sig.get().map(fn(item) { @ui.vnode("li", [], [@ui.vtext(item)]) })
+  let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
+  let node = @kaguya.vfor(fn() {
+    items_sig.get().map(fn(item) { @kaguya.vnode("li", [], [@kaguya.vtext(item)]) })
   })
   let html = "<!--f:0--><li>a</li><li>b</li><!--/f-->"
   let logger = StringBuilder::new()
@@ -233,20 +233,20 @@ test "fixable_repair_for_item_count" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_fixable_card(title : String, content : String) -> @ui.Node {
-  @ui.vnode(
+fn create_fixable_card(title : String, content : String) -> @kaguya.Node {
+  @kaguya.vnode(
     "div",
-    [("class", @ui.attr_static("card"))],
+    [("class", @kaguya.attr_static("card"))],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "h3",
-        [("class", @ui.attr_static("card-title"))],
-        [@ui.vtext(title)],
+        [("class", @kaguya.attr_static("card-title"))],
+        [@kaguya.vtext(title)],
       ),
-      @ui.vnode(
+      @kaguya.vnode(
         "p",
-        [("class", @ui.attr_static("card-content"))],
-        [@ui.vtext(content)],
+        [("class", @kaguya.attr_static("card-content"))],
+        [@kaguya.vtext(content)],
       ),
     ],
   )
@@ -255,11 +255,11 @@ fn create_fixable_card(title : String, content : String) -> @ui.Node {
 ///|
 test "fixable_repair_multiple_cards" (b : @bench.T) {
   @global_jsdom.register()
-  let cards : Array[@ui.Node] = []
+  let cards : Array[@kaguya.Node] = []
   for i = 0; i < 5; i = i + 1 {
     cards.push(create_fixable_card("Card " + i.to_string(), "Content " + i.to_string()))
   }
-  let node = @ui.vnode("div", [("class", @ui.attr_static("container"))], cards)
+  let node = @kaguya.vnode("div", [("class", @kaguya.attr_static("container"))], cards)
   let html = "<div class=\"wrong-container\"><div class=\"card\"><h3>Card 0</h3><p>Old Content</p></div></div>"
   let logger = StringBuilder::new()
   b.bench(name="fixable_repair_multiple_cards", fn() {
@@ -275,7 +275,7 @@ test "fixable_repair_multiple_cards" (b : @bench.T) {
 ///|
 test "fixable_with_report_clean" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode("div", [], [@ui.vtext("Hello")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Hello")])
   let html = @ssr.render_to_string(node)
   let logger = StringBuilder::new()
   b.bench(name="fixable_with_report_clean", fn() {
@@ -287,10 +287,10 @@ test "fixable_with_report_clean" (b : @bench.T) {
 ///|
 test "fixable_with_report_repairs" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
-    [("class", @ui.attr_static("expected"))],
-    [@ui.vtext("Expected")],
+    [("class", @kaguya.attr_static("expected"))],
+    [@kaguya.vtext("Expected")],
   )
   let html = "<div class=\"wrong\">Wrong</div>"
   let logger = StringBuilder::new()
@@ -303,7 +303,7 @@ test "fixable_with_report_repairs" (b : @bench.T) {
 ///|
 test "fixable_hydrate_with_fallback" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode("div", [], [@ui.vtext("Content")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Content")])
   let html = "<span>Wrong tag</span>"
   let logger = StringBuilder::new()
   b.bench(name="fixable_hydrate_with_fallback", fn() {

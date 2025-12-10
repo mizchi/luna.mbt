@@ -9,7 +9,7 @@
 ///|
 test "dom_render_simple_text" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vtext("Hello, World!")
+  let node = @kaguya.vtext("Hello, World!")
   b.bench(name="dom_render_simple_text", fn() {
     b.keep(@dom.render_vnode_to_dom(node))
   })
@@ -18,7 +18,7 @@ test "dom_render_simple_text" (b : @bench.T) {
 ///|
 test "dom_render_simple_element" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode("div", [], [@ui.vtext("Hello")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Hello")])
   b.bench(name="dom_render_simple_element", fn() {
     b.keep(@dom.render_vnode_to_dom(node))
   })
@@ -27,10 +27,10 @@ test "dom_render_simple_element" (b : @bench.T) {
 ///|
 test "dom_render_element_with_attrs" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
-    [("class", @ui.attr_static("container")), ("id", @ui.attr_static("main"))],
-    [@ui.vtext("Content")],
+    [("class", @kaguya.attr_static("container")), ("id", @kaguya.attr_static("main"))],
+    [@kaguya.vtext("Content")],
   )
   b.bench(name="dom_render_element_with_attrs", fn() {
     b.keep(@dom.render_vnode_to_dom(node))
@@ -44,14 +44,14 @@ test "dom_render_element_with_attrs" (b : @bench.T) {
 ///|
 test "dom_render_nested_3" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
-        [@ui.vnode("p", [], [@ui.vtext("Nested")])],
+        [@kaguya.vnode("p", [], [@kaguya.vtext("Nested")])],
       ),
     ],
   )
@@ -61,22 +61,22 @@ test "dom_render_nested_3" (b : @bench.T) {
 ///|
 test "dom_render_nested_5" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
         [
-          @ui.vnode(
+          @kaguya.vnode(
             "article",
             [],
             [
-              @ui.vnode(
+              @kaguya.vnode(
                 "div",
                 [],
-                [@ui.vnode("span", [], [@ui.vtext("Deep")])],
+                [@kaguya.vnode("span", [], [@kaguya.vtext("Deep")])],
               ),
             ],
           ),
@@ -92,12 +92,12 @@ test "dom_render_nested_5" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_list_node(count : Int) -> @ui.Node {
-  let items : Array[@ui.Node] = []
+fn create_list_node(count : Int) -> @kaguya.Node {
+  let items : Array[@kaguya.Node] = []
   for i = 0; i < count; i = i + 1 {
-    items.push(@ui.vnode("li", [], [@ui.vtext("Item " + i.to_string())]))
+    items.push(@kaguya.vnode("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
-  @ui.vnode("ul", [], items)
+  @kaguya.vnode("ul", [], items)
 }
 
 ///|
@@ -121,8 +121,8 @@ test "dom_render_list_100" (b : @bench.T) {
 ///|
 test "dom_reactive_text_update" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @ui.signal(0)
-  let node = @ui.text_dyn(fn() { count.get().to_string() })
+  let count = @signal.signal(0)
+  let node = @kaguya.text_dyn(fn() { count.get().to_string() })
   let _ = @dom.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_reactive_text_update", fn() {
@@ -134,11 +134,11 @@ test "dom_reactive_text_update" (b : @bench.T) {
 ///|
 test "dom_reactive_attr_update" (b : @bench.T) {
   @global_jsdom.register()
-  let active = @ui.signal(false)
-  let node = @ui.vnode(
+  let active = @signal.signal(false)
+  let node = @kaguya.vnode(
     "button",
-    [("class", @ui.attr_dynamic(fn() { if active.get() { "on" } else { "off" } }))],
-    [@ui.vtext("Toggle")],
+    [("class", @kaguya.attr_dynamic(fn() { if active.get() { "on" } else { "off" } }))],
+    [@kaguya.vtext("Toggle")],
   )
   let _ = @dom.render_vnode_to_dom(node)
   b.bench(name="dom_reactive_attr_update", fn() {
@@ -149,13 +149,13 @@ test "dom_reactive_attr_update" (b : @bench.T) {
 ///|
 test "dom_reactive_style_update" (b : @bench.T) {
   @global_jsdom.register()
-  let width = @ui.signal(100)
-  let node = @ui.vnode(
+  let width = @signal.signal(100)
+  let node = @kaguya.vnode(
     "div",
     [
       (
         "style",
-        @ui.attr_dynamic_style(fn() { [("width", width.get().to_string() + "px")] }),
+        @kaguya.attr_dynamic_style(fn() { [("width", width.get().to_string() + "px")] }),
       ),
     ],
     [],
@@ -175,10 +175,10 @@ test "dom_reactive_style_update" (b : @bench.T) {
 ///|
 test "dom_show_toggle" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @ui.signal(true)
-  let node = @ui.vshow(
+  let visible = @signal.signal(true)
+  let node = @kaguya.vshow(
     fn() { visible.get() },
-    fn() { @ui.vnode("div", [], [@ui.vtext("Content")]) },
+    fn() { @kaguya.vnode("div", [], [@kaguya.vtext("Content")]) },
   )
   let doc = @js_dom.document()
   let container = doc.createElement("div")
@@ -196,9 +196,9 @@ test "dom_show_toggle" (b : @bench.T) {
 ///|
 test "dom_for_list_update" (b : @bench.T) {
   @global_jsdom.register()
-  let items_sig = @ui.signal(["a", "b", "c"])
-  let node = @ui.vfor(fn() {
-    items_sig.get().map(fn(item) { @ui.vnode("li", [], [@ui.vtext(item)]) })
+  let items_sig = @signal.signal(["a", "b", "c"])
+  let node = @kaguya.vfor(fn() {
+    items_sig.get().map(fn(item) { @kaguya.vnode("li", [], [@kaguya.vtext(item)]) })
   })
   let doc = @js_dom.document()
   let container = doc.createElement("div")
@@ -218,21 +218,21 @@ test "dom_for_list_update" (b : @bench.T) {
 ///|
 test "dom_component_counter" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @ui.signal(0)
-  let doubled = @ui.memo(fn() { count.get() * 2 })
-  let node = @ui.vnode(
+  let count = @signal.signal(0)
+  let doubled = @signal.memo(fn() { count.get() * 2 })
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "span",
-        [("id", @ui.attr_static("count"))],
-        [@ui.text_dyn(fn() { count.get().to_string() })],
+        [("id", @kaguya.attr_static("count"))],
+        [@kaguya.text_dyn(fn() { count.get().to_string() })],
       ),
-      @ui.vnode(
+      @kaguya.vnode(
         "span",
-        [("id", @ui.attr_static("doubled"))],
-        [@ui.text_dyn(fn() { doubled().to_string() })],
+        [("id", @kaguya.attr_static("doubled"))],
+        [@kaguya.text_dyn(fn() { doubled().to_string() })],
       ),
     ],
   )
@@ -247,23 +247,23 @@ test "dom_component_counter" (b : @bench.T) {
 ///|
 test "dom_batched_updates" (b : @bench.T) {
   @global_jsdom.register()
-  let a = @ui.signal(0)
-  let b_ = @ui.signal(0)
-  let c = @ui.signal(0)
-  let node = @ui.vnode(
+  let a = @signal.signal(0)
+  let b_ = @signal.signal(0)
+  let c = @signal.signal(0)
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.text_dyn(fn() { a.get().to_string() }),
-      @ui.text_dyn(fn() { b_.get().to_string() }),
-      @ui.text_dyn(fn() { c.get().to_string() }),
+      @kaguya.text_dyn(fn() { a.get().to_string() }),
+      @kaguya.text_dyn(fn() { b_.get().to_string() }),
+      @kaguya.text_dyn(fn() { c.get().to_string() }),
     ],
   )
   let _ = @dom.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_batched_3_updates", fn() {
     i = i + 1
-    @ui.batch(fn() {
+    @signal.batch(fn() {
       a.set(i)
       b_.set(i)
       c.set(i)
@@ -279,15 +279,15 @@ test "dom_batched_updates" (b : @bench.T) {
 /// Shallow update: single signal at root level
 test "dom_shallow_update_root" (b : @bench.T) {
   @global_jsdom.register()
-  let title = @ui.signal("Title")
-  let node = @ui.vnode(
+  let title = @signal.signal("Title")
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode("h1", [], [@ui.text_dyn(fn() { title.get() })]),
-      @ui.vnode("p", [], [@ui.vtext("Static content 1")]),
-      @ui.vnode("p", [], [@ui.vtext("Static content 2")]),
-      @ui.vnode("p", [], [@ui.vtext("Static content 3")]),
+      @kaguya.vnode("h1", [], [@kaguya.text_dyn(fn() { title.get() })]),
+      @kaguya.vnode("p", [], [@kaguya.vtext("Static content 1")]),
+      @kaguya.vnode("p", [], [@kaguya.vtext("Static content 2")]),
+      @kaguya.vnode("p", [], [@kaguya.vtext("Static content 3")]),
     ],
   )
   let _ = @dom.render_vnode_to_dom(node)
@@ -302,23 +302,23 @@ test "dom_shallow_update_root" (b : @bench.T) {
 /// Shallow update: signal in sibling elements (3 updates)
 test "dom_shallow_update_siblings" (b : @bench.T) {
   @global_jsdom.register()
-  let a = @ui.signal("A")
-  let b_sig = @ui.signal("B")
-  let c = @ui.signal("C")
-  let node = @ui.vnode(
+  let a = @signal.signal("A")
+  let b_sig = @signal.signal("B")
+  let c = @signal.signal("C")
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { a.get() })]),
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { b_sig.get() })]),
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { c.get() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { a.get() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { b_sig.get() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { c.get() })]),
     ],
   )
   let _ = @dom.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_shallow_update_siblings", fn() {
     i = i + 1
-    @ui.batch(fn() {
+    @signal.batch(fn() {
       a.set("A" + i.to_string())
       b_sig.set("B" + i.to_string())
       c.set("C" + i.to_string())
@@ -330,19 +330,19 @@ test "dom_shallow_update_siblings" (b : @bench.T) {
 /// Deep update: signal nested 3 levels deep
 test "dom_deep_update_3_levels" (b : @bench.T) {
   @global_jsdom.register()
-  let deep_value = @ui.signal("Deep")
-  let node = @ui.vnode(
+  let deep_value = @signal.signal("Deep")
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
         [
-          @ui.vnode(
+          @kaguya.vnode(
             "article",
             [],
-            [@ui.vnode("span", [], [@ui.text_dyn(fn() { deep_value.get() })])],
+            [@kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { deep_value.get() })])],
           ),
         ],
       ),
@@ -360,27 +360,27 @@ test "dom_deep_update_3_levels" (b : @bench.T) {
 /// Deep update: signal nested 5 levels deep
 test "dom_deep_update_5_levels" (b : @bench.T) {
   @global_jsdom.register()
-  let deep_value = @ui.signal("Very Deep")
-  let node = @ui.vnode(
+  let deep_value = @signal.signal("Very Deep")
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
         [
-          @ui.vnode(
+          @kaguya.vnode(
             "article",
             [],
             [
-              @ui.vnode(
+              @kaguya.vnode(
                 "div",
                 [],
                 [
-                  @ui.vnode(
+                  @kaguya.vnode(
                     "p",
                     [],
-                    [@ui.text_dyn(fn() { deep_value.get() })],
+                    [@kaguya.text_dyn(fn() { deep_value.get() })],
                   ),
                 ],
               ),
@@ -402,23 +402,23 @@ test "dom_deep_update_5_levels" (b : @bench.T) {
 /// Deep update: multiple signals at different depths
 test "dom_deep_update_multi_depth" (b : @bench.T) {
   @global_jsdom.register()
-  let level1 = @ui.signal("L1")
-  let level2 = @ui.signal("L2")
-  let level3 = @ui.signal("L3")
-  let node = @ui.vnode(
+  let level1 = @signal.signal("L1")
+  let level2 = @signal.signal("L2")
+  let level3 = @signal.signal("L3")
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.text_dyn(fn() { level1.get() }),
-      @ui.vnode(
+      @kaguya.text_dyn(fn() { level1.get() }),
+      @kaguya.vnode(
         "section",
         [],
         [
-          @ui.text_dyn(fn() { level2.get() }),
-          @ui.vnode(
+          @kaguya.text_dyn(fn() { level2.get() }),
+          @kaguya.vnode(
             "article",
             [],
-            [@ui.text_dyn(fn() { level3.get() })],
+            [@kaguya.text_dyn(fn() { level3.get() })],
           ),
         ],
       ),
@@ -428,7 +428,7 @@ test "dom_deep_update_multi_depth" (b : @bench.T) {
   let mut i = 0
   b.bench(name="dom_deep_update_multi_depth", fn() {
     i = i + 1
-    @ui.batch(fn() {
+    @signal.batch(fn() {
       level1.set("L1-" + i.to_string())
       level2.set("L2-" + i.to_string())
       level3.set("L3-" + i.to_string())
@@ -440,19 +440,19 @@ test "dom_deep_update_multi_depth" (b : @bench.T) {
 /// Wide shallow update: many siblings with signals
 test "dom_wide_shallow_10" (b : @bench.T) {
   @global_jsdom.register()
-  let signals : Array[@ui.Signal[Int]] = []
-  let children : Array[@ui.Node] = []
+  let signals : Array[@signal.Signal[Int]] = []
+  let children : Array[@kaguya.Node] = []
   for i = 0; i < 10; i = i + 1 {
-    let sig = @ui.signal(i)
+    let sig = @signal.signal(i)
     signals.push(sig)
-    children.push(@ui.vnode("span", [], [@ui.text_dyn(fn() { sig.get().to_string() })]))
+    children.push(@kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { sig.get().to_string() })]))
   }
-  let node = @ui.vnode("div", [], children)
+  let node = @kaguya.vnode("div", [], children)
   let _ = @dom.render_vnode_to_dom(node)
   let mut iter = 0
   b.bench(name="dom_wide_shallow_10", fn() {
     iter = iter + 1
-    @ui.batch(fn() {
+    @signal.batch(fn() {
       for i = 0; i < signals.length(); i = i + 1 {
         signals[i].set(iter + i)
       }
@@ -464,19 +464,19 @@ test "dom_wide_shallow_10" (b : @bench.T) {
 /// Wide shallow update: many siblings (50)
 test "dom_wide_shallow_50" (b : @bench.T) {
   @global_jsdom.register()
-  let signals : Array[@ui.Signal[Int]] = []
-  let children : Array[@ui.Node] = []
+  let signals : Array[@signal.Signal[Int]] = []
+  let children : Array[@kaguya.Node] = []
   for i = 0; i < 50; i = i + 1 {
-    let sig = @ui.signal(i)
+    let sig = @signal.signal(i)
     signals.push(sig)
-    children.push(@ui.vnode("span", [], [@ui.text_dyn(fn() { sig.get().to_string() })]))
+    children.push(@kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { sig.get().to_string() })]))
   }
-  let node = @ui.vnode("div", [], children)
+  let node = @kaguya.vnode("div", [], children)
   let _ = @dom.render_vnode_to_dom(node)
   let mut iter = 0
   b.bench(name="dom_wide_shallow_50", fn() {
     iter = iter + 1
-    @ui.batch(fn() {
+    @signal.batch(fn() {
       for i = 0; i < signals.length(); i = i + 1 {
         signals[i].set(iter + i)
       }
@@ -488,14 +488,14 @@ test "dom_wide_shallow_50" (b : @bench.T) {
 /// Derived value chain: shallow memo dependency
 test "dom_derived_shallow" (b : @bench.T) {
   @global_jsdom.register()
-  let base = @ui.signal(0)
-  let derived = @ui.memo(fn() { base.get() * 2 })
-  let node = @ui.vnode(
+  let base = @signal.signal(0)
+  let derived = @signal.memo(fn() { base.get() * 2 })
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { base.get().to_string() })]),
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived().to_string() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { base.get().to_string() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { derived().to_string() })]),
     ],
   )
   let _ = @dom.render_vnode_to_dom(node)
@@ -510,18 +510,18 @@ test "dom_derived_shallow" (b : @bench.T) {
 /// Derived value chain: deep memo chain (3 levels)
 test "dom_derived_deep_chain" (b : @bench.T) {
   @global_jsdom.register()
-  let base = @ui.signal(0)
-  let derived1 = @ui.memo(fn() { base.get() + 1 })
-  let derived2 = @ui.memo(fn() { derived1() * 2 })
-  let derived3 = @ui.memo(fn() { derived2() + 10 })
-  let node = @ui.vnode(
+  let base = @signal.signal(0)
+  let derived1 = @signal.memo(fn() { base.get() + 1 })
+  let derived2 = @signal.memo(fn() { derived1() * 2 })
+  let derived3 = @signal.memo(fn() { derived2() + 10 })
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { base.get().to_string() })]),
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived1().to_string() })]),
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived2().to_string() })]),
-      @ui.vnode("span", [], [@ui.text_dyn(fn() { derived3().to_string() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { base.get().to_string() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { derived1().to_string() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { derived2().to_string() })]),
+      @kaguya.vnode("span", [], [@kaguya.text_dyn(fn() { derived3().to_string() })]),
     ],
   )
   let _ = @dom.render_vnode_to_dom(node)
@@ -536,13 +536,13 @@ test "dom_derived_deep_chain" (b : @bench.T) {
 /// Conditional rendering: shallow show toggle
 test "dom_conditional_shallow" (b : @bench.T) {
   @global_jsdom.register()
-  let show_a = @ui.signal(true)
-  let node = @ui.vnode(
+  let show_a = @signal.signal(true)
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vshow(fn() { show_a.get() }, fn() { @ui.vtext("A") }),
-      @ui.vshow(fn() { not(show_a.get()) }, fn() { @ui.vtext("B") }),
+      @kaguya.vshow(fn() { show_a.get() }, fn() { @kaguya.vtext("A") }),
+      @kaguya.vshow(fn() { not(show_a.get()) }, fn() { @kaguya.vtext("B") }),
     ],
   )
   let doc = @js_dom.document()
@@ -558,26 +558,26 @@ test "dom_conditional_shallow" (b : @bench.T) {
 /// Conditional rendering: deep nested show
 test "dom_conditional_deep" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @ui.signal(true)
-  let node = @ui.vnode(
+  let visible = @signal.signal(true)
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
         [
-          @ui.vnode(
+          @kaguya.vnode(
             "article",
             [],
             [
-              @ui.vshow(
+              @kaguya.vshow(
                 fn() { visible.get() },
                 fn() {
-                  @ui.vnode(
+                  @kaguya.vnode(
                     "div",
                     [],
-                    [@ui.vnode("p", [], [@ui.vtext("Deep conditional content")])],
+                    [@kaguya.vnode("p", [], [@kaguya.vtext("Deep conditional content")])],
                   )
                 },
               ),

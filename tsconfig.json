@@ -5,13 +5,13 @@
     "moduleResolution": "bundler",
     "strict": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@mizchi/ui",
+    "jsxImportSource": "@mizchi/kaguya",
     "noEmit": true,
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@mizchi/ui": ["./packages/ui"],
-      "@mizchi/ui/*": ["./packages/ui/*"]
+      "@mizchi/kaguya": ["./packages/ui"],
+      "@mizchi/kaguya/*": ["./packages/ui/*"]
     }
   },
   "include": ["packages/**/*.ts", "packages/**/*.tsx"]

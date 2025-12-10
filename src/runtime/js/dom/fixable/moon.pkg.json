@@ -1,0 +1,19 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
+    "mizchi/js/core",
+    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    "mizchi/js/web/event",
+    "mizchi/js/builtins/global",
+    "mizchi/kaguya/runtime/js/dom"
+  ],
+  "test-import": [
+    "mizchi/npm_typed/global_jsdom",
+    "mizchi/kaguya/ssr",
+    "mizchi/kaguya/element"
+  ]
+}

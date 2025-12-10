@@ -4,10 +4,11 @@
   ],
   "is-main": true,
   "import": [
-    "mizchi/ui",
-    "mizchi/ui/element",
-    "mizchi/ui/ssr",
-    "mizchi/ui/js/framework",
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
+    "mizchi/kaguya/element",
+    "mizchi/kaguya/ssr",
+    "mizchi/kaguya/runtime/js/framework",
     "mizchi/js/core"
   ]
 }

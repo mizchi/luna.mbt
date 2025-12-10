@@ -20,11 +20,11 @@ pub fn hydrate(el : @js_dom.Element, state : @core.Any) -> Unit {
   let initial_count = js_getCount(state)
 
   // Create reactive signal
-  let count_sig = @ui.signal(initial_count)
+  let count_sig = @signal.signal(initial_count)
 
   // Create event handlers that update the signal
-  let on_inc = @ui.handler_from_callback(fn() { count_sig.update(fn(c) { c + 1 }) })
-  let on_dec = @ui.handler_from_callback(fn() { count_sig.update(fn(c) { c - 1 }) })
+  let on_inc = @kaguya.handler_from_callback(fn() { count_sig.update(fn(c) { c + 1 }) })
+  let on_dec = @kaguya.handler_from_callback(fn() { count_sig.update(fn(c) { c - 1 }) })
 
   // Render the component with the same function used for SSR
   let vnode = @counter_component.render_counter(count_sig, on_inc, on_dec)

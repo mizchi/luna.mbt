@@ -1,0 +1,7 @@
+{
+  "import": [],
+  "test-import": [
+    "mizchi/kaguya",
+    "mizchi/kaguya/element"
+  ]
+}

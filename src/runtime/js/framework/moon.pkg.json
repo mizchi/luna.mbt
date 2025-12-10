@@ -1,0 +1,12 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
+    "mizchi/kaguya/ssr",
+    "mizchi/js/core",
+    "mizchi/npm_typed/hono"
+  ]
+}

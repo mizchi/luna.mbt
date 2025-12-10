@@ -136,7 +136,7 @@ fn camel_to_kebab_to(sb : StringBuilder, s : String) -> Unit {
 /// Render attributes to StringBuilder
 fn render_attrs_to(
   sb : StringBuilder,
-  attrs : Array[(String, @ui.Attr)],
+  attrs : Array[(String, @kaguya.Attr)],
 ) -> Unit {
   for attr in attrs {
     let (name, value) = attr
@@ -193,7 +193,7 @@ fn render_attrs_to(
 
 ///|
 /// Render a VNode to StringBuilder
-fn render_to_sb(sb : StringBuilder, node : @ui.Node) -> Unit {
+fn render_to_sb(sb : StringBuilder, node : @kaguya.Node) -> Unit {
   match node {
     Text(content) => escape_html_to(sb, content)
     DynamicText(getter) => escape_html_to(sb, getter())
@@ -234,7 +234,7 @@ fn render_to_sb(sb : StringBuilder, node : @ui.Node) -> Unit {
 
 ///|
 /// Render a VNode to HTML string
-pub fn render_to_string(node : @ui.Node) -> String {
+pub fn render_to_string(node : @kaguya.Node) -> String {
   let sb = StringBuilder::new(size_hint=256)
   render_to_sb(sb, node)
   sb.to_string()
@@ -242,7 +242,7 @@ pub fn render_to_string(node : @ui.Node) -> String {
 
 ///|
 /// Render with data-ssr-id markers for hydration
-pub fn render_to_string_with_hydration(node : @ui.Node) -> String {
+pub fn render_to_string_with_hydration(node : @kaguya.Node) -> String {
   let sb = StringBuilder::new(size_hint=256)
   let id_counter = { val: 0 }
   render_with_id_to(sb, node, id_counter)
@@ -253,7 +253,7 @@ pub fn render_to_string_with_hydration(node : @ui.Node) -> String {
 /// Internal: Render with hydration markers to StringBuilder
 fn render_with_id_to(
   sb : StringBuilder,
-  node : @ui.Node,
+  node : @kaguya.Node,
   id_counter : Ref[Int],
 ) -> Unit {
   match node {
@@ -327,7 +327,7 @@ fn render_with_id_to(
 
 ///|
 /// Check if element has dynamic content that needs hydration
-fn has_dynamic_content(attrs : Array[(String, @ui.Attr)]) -> Bool {
+fn has_dynamic_content(attrs : Array[(String, @kaguya.Attr)]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {

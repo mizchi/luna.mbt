@@ -112,7 +112,7 @@ test "Resource::get tracks signal" {
 
   // Track changes via effect
   let log : Array[String] = []
-  let dispose = @ui.effect(fn() {
+  let dispose = @signal.effect(fn() {
     match res.get() {
       Pending => log.push("pending")
       Success(v) => log.push("success:" + v.to_string())

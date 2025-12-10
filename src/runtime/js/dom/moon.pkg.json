@@ -1,0 +1,74 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
+    "mizchi/js/core",
+    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    "mizchi/js/web/event",
+    "mizchi/js/builtins/global"
+  ],
+  "test-import": [
+    "mizchi/npm_typed/global_jsdom",
+    "mizchi/kaguya/ssr",
+    "mizchi/kaguya/element"
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "div",
+        "span",
+        "p",
+        "button",
+        "a",
+        "input",
+        "textarea",
+        "form",
+        "label",
+        "h1",
+        "h2",
+        "h3",
+        "ul",
+        "ol",
+        "li",
+        "img",
+        "br",
+        "hr",
+        "text",
+        "text_dyn:textDyn",
+        "render_to:render",
+        "mount_to:mount",
+        "show",
+        "class:className",
+        "class_name_dyn:classNameDyn",
+        "id",
+        "type_:type",
+        "placeholder",
+        "value",
+        "value_dyn:valueDyn",
+        "href",
+        "src",
+        "alt",
+        "disabled",
+        "disabled_dyn:disabledDyn",
+        "on_click:onClick",
+        "on_input:onInput",
+        "on_change:onChange",
+        "on_submit:onSubmit",
+        "on_key_down:onKeyDown",
+        "on_key_up:onKeyUp",
+        "on_focus:onFocus",
+        "on_blur:onBlur",
+        "on_mouse_enter:onMouseEnter",
+        "on_mouse_leave:onMouseLeave",
+        "style",
+        "style_dyn:styleDyn",
+        "attr",
+        "attr_dyn:attrDyn"
+      ],
+      "format": "esm"
+    }
+  }
+}

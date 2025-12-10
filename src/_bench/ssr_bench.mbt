@@ -7,22 +7,22 @@
 
 ///|
 test "ssr_simple_text" (b : @bench.T) {
-  let node = @ui.vtext("Hello, World!")
+  let node = @kaguya.vtext("Hello, World!")
   b.bench(name="ssr_simple_text", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 
 ///|
 test "ssr_simple_element" (b : @bench.T) {
-  let node = @ui.vnode("div", [], [@ui.vtext("Hello")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Hello")])
   b.bench(name="ssr_simple_element", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 
 ///|
 test "ssr_element_with_attrs" (b : @bench.T) {
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
-    [("class", @ui.attr_static("container")), ("id", @ui.attr_static("main"))],
-    [@ui.vtext("Content")],
+    [("class", @kaguya.attr_static("container")), ("id", @kaguya.attr_static("main"))],
+    [@kaguya.vtext("Content")],
   )
   b.bench(name="ssr_element_with_attrs", fn() { b.keep(@ssr.render_to_string(node)) })
 }
@@ -33,14 +33,14 @@ test "ssr_element_with_attrs" (b : @bench.T) {
 
 ///|
 test "ssr_nested_3_levels" (b : @bench.T) {
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
-        [@ui.vnode("p", [], [@ui.vtext("Nested content")])],
+        [@kaguya.vnode("p", [], [@kaguya.vtext("Nested content")])],
       ),
     ],
   )
@@ -49,22 +49,22 @@ test "ssr_nested_3_levels" (b : @bench.T) {
 
 ///|
 test "ssr_nested_5_levels" (b : @bench.T) {
-  let node = @ui.vnode(
+  let node = @kaguya.vnode(
     "div",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "section",
         [],
         [
-          @ui.vnode(
+          @kaguya.vnode(
             "article",
             [],
             [
-              @ui.vnode(
+              @kaguya.vnode(
                 "div",
                 [],
-                [@ui.vnode("span", [], [@ui.vtext("Deep content")])],
+                [@kaguya.vnode("span", [], [@kaguya.vtext("Deep content")])],
               ),
             ],
           ),
@@ -80,12 +80,12 @@ test "ssr_nested_5_levels" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_list(count : Int) -> @ui.Node {
-  let items : Array[@ui.Node] = []
+fn create_list(count : Int) -> @kaguya.Node {
+  let items : Array[@kaguya.Node] = []
   for i = 0; i < count; i = i + 1 {
-    items.push(@ui.vnode("li", [], [@ui.vtext("Item " + i.to_string())]))
+    items.push(@kaguya.vnode("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
-  @ui.vnode("ul", [], items)
+  @kaguya.vnode("ul", [], items)
 }
 
 ///|
@@ -111,55 +111,55 @@ test "ssr_list_1000_items" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_card(title : String, content : String) -> @ui.Node {
-  @ui.vnode(
+fn create_card(title : String, content : String) -> @kaguya.Node {
+  @kaguya.vnode(
     "div",
-    [("class", @ui.attr_static("card"))],
+    [("class", @kaguya.attr_static("card"))],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "h3",
-        [("class", @ui.attr_static("card-title"))],
-        [@ui.vtext(title)],
+        [("class", @kaguya.attr_static("card-title"))],
+        [@kaguya.vtext(title)],
       ),
-      @ui.vnode(
+      @kaguya.vnode(
         "p",
-        [("class", @ui.attr_static("card-content"))],
-        [@ui.vtext(content)],
+        [("class", @kaguya.attr_static("card-content"))],
+        [@kaguya.vtext(content)],
       ),
-      @ui.vnode(
+      @kaguya.vnode(
         "button",
-        [("class", @ui.attr_static("card-button"))],
-        [@ui.vtext("Read more")],
+        [("class", @kaguya.attr_static("card-button"))],
+        [@kaguya.vtext("Read more")],
       ),
     ],
   )
 }
 
 ///|
-fn create_page(card_count : Int) -> @ui.Node {
-  let cards : Array[@ui.Node] = []
+fn create_page(card_count : Int) -> @kaguya.Node {
+  let cards : Array[@kaguya.Node] = []
   for i = 0; i < card_count; i = i + 1 {
     cards.push(create_card("Card " + i.to_string(), "Content for card " + i.to_string()))
   }
-  @ui.vnode(
+  @kaguya.vnode(
     "html",
     [],
     [
-      @ui.vnode(
+      @kaguya.vnode(
         "head",
         [],
-        [@ui.vnode("title", [], [@ui.vtext("Test Page")])],
+        [@kaguya.vnode("title", [], [@kaguya.vtext("Test Page")])],
       ),
-      @ui.vnode(
+      @kaguya.vnode(
         "body",
         [],
         [
-          @ui.vnode("header", [], [@ui.vnode("h1", [], [@ui.vtext("Welcome")])]),
-          @ui.vnode("main", [("class", @ui.attr_static("container"))], cards),
-          @ui.vnode(
+          @kaguya.vnode("header", [], [@kaguya.vnode("h1", [], [@kaguya.vtext("Welcome")])]),
+          @kaguya.vnode("main", [("class", @kaguya.attr_static("container"))], cards),
+          @kaguya.vnode(
             "footer",
             [],
-            [@ui.vnode("p", [], [@ui.vtext("Footer content")])],
+            [@kaguya.vnode("p", [], [@kaguya.vtext("Footer content")])],
           ),
         ],
       ),
@@ -191,7 +191,7 @@ test "ssr_page_100_cards" (b : @bench.T) {
 
 ///|
 test "ssr_hydration_simple" (b : @bench.T) {
-  let node = @ui.vnode("div", [], [@ui.vtext("Hello")])
+  let node = @kaguya.vnode("div", [], [@kaguya.vtext("Hello")])
   b.bench(name="ssr_hydration_simple", fn() {
     b.keep(@ssr.render_to_string_with_hydration(node))
   })
@@ -219,37 +219,37 @@ test "ssr_hydration_page_50_cards" (b : @bench.T) {
 
 ///|
 test "ssr_dynamic_text" (b : @bench.T) {
-  let count = @ui.signal(0)
-  let node = @ui.text_dyn(fn() { "Count: " + count.get().to_string() })
+  let count = @signal.signal(0)
+  let node = @kaguya.text_dyn(fn() { "Count: " + count.get().to_string() })
   b.bench(name="ssr_dynamic_text", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 
 ///|
 test "ssr_dynamic_attrs" (b : @bench.T) {
-  let active = @ui.signal(true)
-  let node = @ui.vnode(
+  let active = @signal.signal(true)
+  let node = @kaguya.vnode(
     "button",
-    [("class", @ui.attr_dynamic(fn() { if active.get() { "active" } else { "inactive" } }))],
-    [@ui.vtext("Toggle")],
+    [("class", @kaguya.attr_dynamic(fn() { if active.get() { "active" } else { "inactive" } }))],
+    [@kaguya.vtext("Toggle")],
   )
   b.bench(name="ssr_dynamic_attrs", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 
 ///|
 test "ssr_show_conditional" (b : @bench.T) {
-  let visible = @ui.signal(true)
-  let node = @ui.vshow(
+  let visible = @signal.signal(true)
+  let node = @kaguya.vshow(
     fn() { visible.get() },
-    fn() { @ui.vnode("div", [], [@ui.vtext("Visible content")]) },
+    fn() { @kaguya.vnode("div", [], [@kaguya.vtext("Visible content")]) },
   )
   b.bench(name="ssr_show_conditional", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 
 ///|
 test "ssr_for_loop" (b : @bench.T) {
-  let items_sig = @ui.signal(["a", "b", "c", "d", "e"])
-  let node = @ui.vfor(fn() {
-    items_sig.get().map(fn(item) { @ui.vnode("li", [], [@ui.vtext(item)]) })
+  let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
+  let node = @kaguya.vfor(fn() {
+    items_sig.get().map(fn(item) { @kaguya.vnode("li", [], [@kaguya.vtext(item)]) })
   })
   b.bench(name="ssr_for_loop", fn() { b.keep(@ssr.render_to_string(node)) })
 }

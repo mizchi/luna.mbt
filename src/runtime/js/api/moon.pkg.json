@@ -1,0 +1,32 @@
+{
+  "import": [
+    "mizchi/kaguya/signal"
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "create_signal:createSignal",
+        "get",
+        "set",
+        "update",
+        "peek",
+        "subscribe",
+        "map",
+        "create_memo:createMemo",
+        "combine",
+        "effect",
+        "batch_start:batchStart",
+        "batch_end:batchEnd",
+        "run_untracked:runUntracked",
+        "batch",
+        "on_cleanup:onCleanup",
+        "create_root:createRoot",
+        "get_owner:getOwner",
+        "run_with_owner:runWithOwner",
+        "has_owner:hasOwner",
+        "on_mount:onMount"
+      ],
+      "format": "esm"
+    }
+  }
+}

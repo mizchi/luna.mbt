@@ -4,8 +4,8 @@
     "js"
   ],
   "import": [
-    "mizchi/ui",
-    "mizchi/ui/js/dom",
+    "mizchi/kaguya/signal",
+    "mizchi/kaguya/runtime/js/dom",
     "mizchi/js/core",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/builtins/global"

@@ -30,7 +30,7 @@ test "scenario: counter app state preservation" {
   match parse_state_from_html(html) {
     Some(client_state) => {
       // Client creates signal from server state - NO re-execution of server code!
-      let client_count : @ui.Signal[Int] = resume_signal(client_state, count_id, 0)
+      let client_count : @signal.Signal[Int] = resume_signal(client_state, count_id, 0)
 
       // The count is already 6, not the initial value
       assert_eq(client_count.get(), 6)
@@ -80,18 +80,18 @@ test "scenario: form state preservation with multiple fields" {
   match parse_state_from_html(html) {
     Some(client_state) => {
       // All form fields are restored with their current values
-      let c_username : @ui.Signal[String] = resume_signal(
+      let c_username : @signal.Signal[String] = resume_signal(
         client_state,
         username_id,
         "",
       )
-      let c_email : @ui.Signal[String] = resume_signal(
+      let c_email : @signal.Signal[String] = resume_signal(
         client_state,
         email_id,
         "",
       )
-      let c_age : @ui.Signal[Int] = resume_signal(client_state, age_id, 0)
-      let c_newsletter : @ui.Signal[Bool] = resume_signal(
+      let c_age : @signal.Signal[Int] = resume_signal(client_state, age_id, 0)
+      let c_newsletter : @signal.Signal[Bool] = resume_signal(
         client_state,
         newsletter_id,
         false,
@@ -133,18 +133,18 @@ test "scenario: shopping cart state" {
   // === Client Phase ===
   match parse_state_from_html(html) {
     Some(client_state) => {
-      let c_items : @ui.Signal[Int] = resume_signal(
+      let c_items : @signal.Signal[Int] = resume_signal(
         client_state,
         item_count_id,
         0,
       )
-      let c_total : @ui.Signal[Double] = resume_signal(client_state, total_id, 0.0)
-      let c_coupon : @ui.Signal[String] = resume_signal(
+      let c_total : @signal.Signal[Double] = resume_signal(client_state, total_id, 0.0)
+      let c_coupon : @signal.Signal[String] = resume_signal(
         client_state,
         coupon_id,
         "",
       )
-      let c_checkout : @ui.Signal[Bool] = resume_signal(
+      let c_checkout : @signal.Signal[Bool] = resume_signal(
         client_state,
         checkout_id,
         false,
@@ -188,8 +188,8 @@ test "scenario: tab component active state" {
   // === Client Phase ===
   match parse_state_from_html(html) {
     Some(client_state) => {
-      let c_tab : @ui.Signal[Int] = resume_signal(client_state, tab_id, 0)
-      let c_names : @ui.Signal[String] = resume_signal(client_state, names_id, "")
+      let c_tab : @signal.Signal[Int] = resume_signal(client_state, tab_id, 0)
+      let c_names : @signal.Signal[String] = resume_signal(client_state, names_id, "")
 
       // User sees "Settings" tab still selected
       assert_eq(c_tab.get(), 2)
@@ -216,8 +216,8 @@ test "scenario: fresh client without server state" {
     Some(_) => assert_true(false) // Should not find state
     None => {
       // Client creates signals with default values
-      let count = @ui.signal(0)
-      let name = @ui.signal("Guest")
+      let count = @signal.signal(0)
+      let name = @signal.signal("Guest")
 
       assert_eq(count.get(), 0)
       assert_eq(name.get(), "Guest")
@@ -239,15 +239,15 @@ test "scenario: partial state recovery with missing values" {
   match parse_state_from_html(html) {
     Some(client_state) => {
       // ID 0 exists - restored
-      let count : @ui.Signal[Int] = resume_signal(client_state, 0, 0)
+      let count : @signal.Signal[Int] = resume_signal(client_state, 0, 0)
       assert_eq(count.get(), 42)
 
       // ID 1 doesn't exist - uses default
-      let name : @ui.Signal[String] = resume_signal(client_state, 1, "default")
+      let name : @signal.Signal[String] = resume_signal(client_state, 1, "default")
       assert_eq(name.get(), "default")
 
       // ID 99 doesn't exist - uses default
-      let flag : @ui.Signal[Bool] = resume_signal(client_state, 99, false)
+      let flag : @signal.Signal[Bool] = resume_signal(client_state, 99, false)
       assert_eq(flag.get(), false)
     }
     None => assert_true(false)
@@ -280,13 +280,13 @@ test "scenario: modal dialog state preservation" {
   // === Client Phase ===
   match parse_state_from_html(html) {
     Some(client_state) => {
-      let c_open : @ui.Signal[Bool] = resume_signal(client_state, open_id, false)
-      let c_title : @ui.Signal[String] = resume_signal(
+      let c_open : @signal.Signal[Bool] = resume_signal(client_state, open_id, false)
+      let c_title : @signal.Signal[String] = resume_signal(
         client_state,
         title_id,
         "",
       )
-      let c_msg : @ui.Signal[String] = resume_signal(client_state, msg_id, "")
+      let c_msg : @signal.Signal[String] = resume_signal(client_state, msg_id, "")
 
       // Modal is still open with same content
       assert_eq(c_open.get(), true)
@@ -323,12 +323,12 @@ test "scenario: theme preference persistence" {
   // === Client Phase ===
   match parse_state_from_html(html) {
     Some(client_state) => {
-      let c_dark : @ui.Signal[Bool] = resume_signal(
+      let c_dark : @signal.Signal[Bool] = resume_signal(
         client_state,
         theme_id,
         false,
       )
-      let c_font : @ui.Signal[Int] = resume_signal(client_state, font_id, 14)
+      let c_font : @signal.Signal[Int] = resume_signal(client_state, font_id, 14)
 
       // Theme is preserved
       assert_eq(c_dark.get(), true)

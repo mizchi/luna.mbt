@@ -1,5 +1,6 @@
 {
   "import": [
-    "mizchi/ui"
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal"
   ]
 }

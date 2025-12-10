@@ -10,33 +10,33 @@
 /// For SSR: pass noop handlers (event_handler())
 /// For client: pass actual callbacks that update the signal
 pub fn render_counter(
-  count_sig : @ui.Signal[Int],
-  on_inc : @ui.EventHandler,
-  on_dec : @ui.EventHandler,
-) -> @ui.Node {
+  count_sig : @signal.Signal[Int],
+  on_inc : @kaguya.EventHandler,
+  on_dec : @kaguya.EventHandler,
+) -> @kaguya.Node {
   @element.div(
     [
-      ("class", @ui.attr_static("counter")),
-      ("data-count", @ui.attr_dynamic(fn() { count_sig.get().to_string() })),
+      ("class", @kaguya.attr_static("counter")),
+      ("data-count", @kaguya.attr_dynamic(fn() { count_sig.get().to_string() })),
     ],
     [
       @element.span(
-        [("data-count", @ui.attr_static("true"))],
-        [@ui.text_dyn(fn() { count_sig.get().to_string() })],
+        [("data-count", @kaguya.attr_static("true"))],
+        [@kaguya.text_dyn(fn() { count_sig.get().to_string() })],
       ),
       @element.button(
         [
-          ("data-inc", @ui.attr_static("true")),
-          ("onClick", @ui.attr_handler(on_inc)),
+          ("data-inc", @kaguya.attr_static("true")),
+          ("onClick", @kaguya.attr_handler(on_inc)),
         ],
-        [@ui.vtext("+1")],
+        [@kaguya.vtext("+1")],
       ),
       @element.button(
         [
-          ("data-dec", @ui.attr_static("true")),
-          ("onClick", @ui.attr_handler(on_dec)),
+          ("data-dec", @kaguya.attr_static("true")),
+          ("onClick", @kaguya.attr_handler(on_dec)),
         ],
-        [@ui.vtext("-1")],
+        [@kaguya.vtext("-1")],
       ),
     ],
   )
@@ -47,8 +47,8 @@ pub fn render_counter(
 /// Uses static signal value and noop handlers
 /// Uses render_to_string_with_hydration to add data-hk markers for client hydration
 pub fn render_counter_html(count : Int) -> String {
-  let sig = @ui.signal(count)
-  let noop = @ui.event_handler()
+  let sig = @signal.signal(count)
+  let noop = @kaguya.event_handler()
   let vnode = render_counter(sig, noop, noop)
   @ssr.render_to_string_with_hydration(vnode)
 }

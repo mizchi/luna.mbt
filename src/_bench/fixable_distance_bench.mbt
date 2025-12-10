@@ -7,27 +7,27 @@
 // =============================================================================
 
 ///|
-fn create_distance_tree(count : Int) -> @ui.Node {
-  let items : Array[@ui.Node] = []
+fn create_distance_tree(count : Int) -> @kaguya.Node {
+  let items : Array[@kaguya.Node] = []
   for i in 0..<count {
-    items.push(@ui.vnode("li", [], [@ui.vtext("Item " + i.to_string())]))
+    items.push(@kaguya.vnode("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
-  @ui.vnode("ul", [], items)
+  @kaguya.vnode("ul", [], items)
 }
 
 ///|
-fn create_distance_tree_with_attrs(count : Int) -> @ui.Node {
-  let items : Array[@ui.Node] = []
+fn create_distance_tree_with_attrs(count : Int) -> @kaguya.Node {
+  let items : Array[@kaguya.Node] = []
   for i in 0..<count {
     items.push(
-      @ui.vnode(
+      @kaguya.vnode(
         "li",
-        [("class", @ui.attr_static("item-" + i.to_string()))],
-        [@ui.vtext("Item " + i.to_string())],
+        [("class", @kaguya.attr_static("item-" + i.to_string()))],
+        [@kaguya.vtext("Item " + i.to_string())],
       ),
     )
   }
-  @ui.vnode("ul", [], items)
+  @kaguya.vnode("ul", [], items)
 }
 
 ///|
