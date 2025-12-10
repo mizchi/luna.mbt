@@ -6,6 +6,6 @@
     "mizchi/ui",
     "mizchi/ui/ssr",
     "mizchi/js/core",
-    "mizchi/js/npm/hono"
+    "mizchi/npm_typed/hono"
   ]
 }

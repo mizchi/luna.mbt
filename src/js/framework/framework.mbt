@@ -20,9 +20,23 @@ pub type App = @hono.Hono[Env, ExecutionContext]
 pub type Ctx = @hono.Context[Env, ExecutionContext]
 
 ///|
-/// Create a new framework application
-pub fn create_app() -> App {
+/// Create a new framework application (async)
+pub async fn create_app() -> App {
   @hono.Hono::new()
+}
+
+///|
+extern "js" fn ffi_new_hono_async() -> @core.Promise[@core.Any] =
+  #| () => import("hono").then(m => new m.Hono())
+
+///|
+/// Create a new framework application and run callback with it
+/// This is useful for main function that cannot be async
+pub fn create_app_then(callback : (App) -> Unit) -> Unit {
+  let _ = ffi_new_hono_async().then(fn(app) {
+    callback(app.cast())
+    @core.Promise::resolve(@core.any(()))
+  })
 }
 
 ///|

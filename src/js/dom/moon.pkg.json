@@ -10,7 +10,7 @@
     "mizchi/js/builtins/global"
   ],
   "test-import": [
-    "mizchi/js/npm/global_jsdom",
+    "mizchi/npm_typed/global_jsdom",
     "mizchi/ui/ssr",
     "mizchi/ui/element"
   ],

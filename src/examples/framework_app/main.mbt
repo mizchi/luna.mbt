@@ -61,10 +61,8 @@ fn counter_page(_ctx : @framework.Ctx) -> @ui.Node {
 }
 
 ///|
-/// Create and configure the application
-fn create_app() -> @framework.App {
-  let app = @framework.create_app()
-
+/// Configure the application with routes
+fn configure_app(app : @framework.App) -> @framework.App {
   // Register pages
   let app = @framework.page(
     app,
@@ -97,8 +95,10 @@ fn create_app() -> @framework.App {
 
 ///|
 fn main {
-  let app = create_app()
   let port = 3000
-  println("Starting MoonBit Framework on port " + port.to_string() + "...")
-  @framework.serve(app, port)
+  @framework.create_app_then(fn(app) {
+    let app = configure_app(app)
+    println("Starting MoonBit Framework on port " + port.to_string() + "...")
+    @framework.serve(app, port)
+  })
 }

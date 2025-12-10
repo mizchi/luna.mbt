@@ -9,7 +9,7 @@
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" }
   ],
   "test-import": [
-    "mizchi/js/npm/global_jsdom",
+    "mizchi/npm_typed/global_jsdom",
     { "path": "mizchi/ui/element", "alias": "el" }
   ]
 }
