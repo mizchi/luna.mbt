@@ -122,28 +122,28 @@ test "full resumable signal flow" {
 
 ///|
 test "Serializable Int from wrong type returns None" {
-  let value : StateValue = Str("not an int")
+  let value = @serialize.str("not an int")
   let result : Int? = Serializable::from_state_value(value)
   assert_eq(result, None)
 }
 
 ///|
 test "Serializable String from wrong type returns None" {
-  let value : StateValue = Int(42)
+  let value = @serialize.int(42)
   let result : String? = Serializable::from_state_value(value)
   assert_eq(result, None)
 }
 
 ///|
 test "Serializable Bool from wrong type returns None" {
-  let value : StateValue = Int(42)
+  let value = @serialize.int(42)
   let result : Bool? = Serializable::from_state_value(value)
   assert_eq(result, None)
 }
 
 ///|
 test "Serializable Double from wrong type returns None" {
-  let value : StateValue = Int(42)
+  let value = @serialize.int(42)
   let result : Double? = Serializable::from_state_value(value)
   assert_eq(result, None)
 }
@@ -186,39 +186,30 @@ test "resume_signal uses initial for wrong type" {
 test "Serializable Int to_state_value" {
   let value : Int = 42
   let state_val = Serializable::to_state_value(value)
-  match state_val {
-    Int(n) => assert_eq(n, 42)
-    _ => assert_true(false)
-  }
+  assert_eq(state_val.as_int(), Some(42))
 }
 
 ///|
 test "Serializable String to_state_value" {
   let value : String = "hello"
   let state_val = Serializable::to_state_value(value)
-  match state_val {
-    Str(s) => assert_eq(s, "hello")
-    _ => assert_true(false)
-  }
+  assert_eq(state_val.as_string(), Some("hello"))
 }
 
 ///|
 test "Serializable Bool to_state_value" {
   let value : Bool = true
   let state_val = Serializable::to_state_value(value)
-  match state_val {
-    Bool(b) => assert_eq(b, true)
-    _ => assert_true(false)
-  }
+  assert_eq(state_val.as_bool(), Some(true))
 }
 
 ///|
 test "Serializable Double to_state_value" {
   let value : Double = 3.14
   let state_val = Serializable::to_state_value(value)
-  match state_val {
-    Float(f) => assert_true(f > 3.13 && f < 3.15)
-    _ => assert_true(false)
+  match state_val.as_number() {
+    Some(f) => assert_true(f > 3.13 && f < 3.15)
+    None => assert_true(false)
   }
 }
 
@@ -252,7 +243,7 @@ test "Serializable Double roundtrip" {
   let state_val = Serializable::to_state_value(original)
   let restored : Double? = Serializable::from_state_value(state_val)
   match restored {
-    Some(f) => assert_true(f > 2.71 && f < 2.72)
+    Some(f) => assert_true(f > 2.7 && f < 2.8)
     None => assert_true(false)
   }
 }

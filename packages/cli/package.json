@@ -1,0 +1,26 @@
+{
+  "name": "@mizchi/kaguya-cli",
+  "version": "0.1.0",
+  "description": "CLI for Kaguya MoonBit Web Framework",
+  "type": "module",
+  "bin": {
+    "kaguya": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "picocolors": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ]
+}
