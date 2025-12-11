@@ -11,8 +11,8 @@ test-browser: build
 # Run MoonBit tests
 test-moonbit:
     moon test src --target all
-    moon test src/ssr --target all
-    moon test src/js/dom --target js
+    moon test src/server/ssr --target all
+    moon test src/browser --target js
 
 # Run Node.js tests (vitest)
 test-vitest: build
