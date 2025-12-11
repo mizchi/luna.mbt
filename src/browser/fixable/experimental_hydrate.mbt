@@ -245,7 +245,7 @@ pub enum ExperimentalHydrationResult {
   Clean
   /// Hydration succeeded but required repairs (list of repairs made)
   Repaired(Array[String])
-  /// Hydration failed completely
+  /// Hydration failed completely (reserved for future use)
   Failed(String)
 }
 

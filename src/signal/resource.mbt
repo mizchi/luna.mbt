@@ -62,10 +62,6 @@ pub fn[T] AsyncState::error(self : AsyncState[T]) -> String? {
 pub struct Resource[T] {
   /// The reactive state
   state : Signal[AsyncState[T]]
-  /// Called by runtime to resolve with value
-  priv resolve_ : (T) -> Unit
-  /// Called by runtime to reject with error
-  priv reject_ : (String) -> Unit
   /// Trigger refetch
   priv refetch_ : () -> Unit
 }
@@ -144,31 +140,21 @@ pub fn[T] resource(
   // Initial fetch
   do_fetch()
 
-  { state, resolve_, reject_, refetch_: do_fetch }
+  { state, refetch_: do_fetch }
 }
 
 ///|
 /// Create a Resource with initial value (already resolved)
 pub fn[T] resource_resolved(value : T) -> Resource[T] {
   let state : Signal[AsyncState[T]] = signal(Success(value))
-  {
-    state,
-    resolve_: fn(v) { state.set(Success(v)) },
-    reject_: fn(e) { state.set(Failure(e)) },
-    refetch_: fn() { () }, // No-op for pre-resolved
-  }
+  { state, refetch_: fn() { () } } // No-op for pre-resolved
 }
 
 ///|
 /// Create a Resource with initial error (already rejected)
 pub fn[T] resource_rejected(error : String) -> Resource[T] {
   let state : Signal[AsyncState[T]] = signal(Failure(error))
-  {
-    state,
-    resolve_: fn(v) { state.set(Success(v)) },
-    reject_: fn(e) { state.set(Failure(e)) },
-    refetch_: fn() { () }, // No-op for pre-rejected
-  }
+  { state, refetch_: fn() { () } } // No-op for pre-rejected
 }
 
 ///|
@@ -176,20 +162,10 @@ pub fn[T] resource_rejected(error : String) -> Resource[T] {
 pub fn[T] deferred() -> (Resource[T], (T) -> Unit, (String) -> Unit) {
   let state : Signal[AsyncState[T]] = signal(Pending)
 
-  let resolve_ = fn(value : T) {
-    state.set(Success(value))
-  }
+  let resolve = fn(value : T) { state.set(Success(value)) }
+  let reject = fn(error : String) { state.set(Failure(error)) }
 
-  let reject_ = fn(error : String) {
-    state.set(Failure(error))
-  }
+  let res : Resource[T] = { state, refetch_: fn() { state.set(Pending) } }
 
-  let res : Resource[T] = {
-    state,
-    resolve_,
-    reject_,
-    refetch_: fn() { state.set(Pending) },
-  }
-
-  (res, resolve_, reject_)
+  (res, resolve, reject)
 }
