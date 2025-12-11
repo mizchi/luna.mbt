@@ -9,7 +9,7 @@
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/web/event",
     "mizchi/js/builtins/global",
-    "mizchi/kaguya/runtime/js/dom"
+    { "path": "mizchi/kaguya/browser", "alias": "dom" }
   ],
   "test-import": [
     "mizchi/npm_typed/global_jsdom",

@@ -4,7 +4,7 @@
     "mizchi/kaguya",
     "mizchi/kaguya/signal",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
-    { "path": "mizchi/kaguya/runtime/js/dom", "alias": "dom" },
+    { "path": "mizchi/kaguya/browser", "alias": "dom" },
     "mizchi/js/core",
     { "path": "mizchi/kaguya/tests/counter_component", "alias": "counter_component" }
   ],

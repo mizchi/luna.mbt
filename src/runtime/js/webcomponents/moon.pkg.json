@@ -5,7 +5,7 @@
   "import": [
     "mizchi/kaguya",
     "mizchi/kaguya/signal",
-    "mizchi/kaguya/runtime/js/dom",
+    { "path": "mizchi/kaguya/browser", "alias": "dom" },
     "mizchi/js/core",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" }
   ],
