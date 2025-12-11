@@ -1,10 +1,9 @@
 {
   "import": [
-    "mizchi/js",
     "mizchi/js/core",
     "mizchi/js/web/http",
     "mizchi/npm_typed/hono",
-    "mizchi/kaguya/server/embed"
+    "mizchi/kaguya/framework"
   ],
   "link": {
     "js": {

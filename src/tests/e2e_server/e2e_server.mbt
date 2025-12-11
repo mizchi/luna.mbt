@@ -1,22 +1,17 @@
 ///| E2E Test Server for MoonBit UI
 ///| Provides Hono app for Playwright E2E tests
-
-///|
-type Ctx = @hono.Context[Unit, Unit]
-
-///|
-type App = @hono.Hono[Unit, Unit]
+///| Uses @framework module for Island Architecture support
 
 ///|
 /// Create the main E2E test server app
 /// Exports a Hono app that can be used from JavaScript
-pub async fn create_app() -> App {
-  let app : App = @hono.Hono::new()
+pub async fn create_app() -> @framework.App {
+  let app = @framework.create_app()
 
   // Health check
   let _ = app.get(
     "/",
-    async fn(c : Ctx) -> @http.Response { c.text("ok") },
+    async fn(c : @framework.Ctx) -> @http.Response { c.text("ok") },
   )
 
   // Mount loader test routes
@@ -32,30 +27,24 @@ pub async fn create_app() -> App {
 
 ///|
 /// Create loader test routes
-async fn create_loader_app() -> App {
-  let app : App = @hono.Hono::new()
+async fn create_loader_app() -> @framework.App {
+  let app = @framework.create_app()
 
   // Basic hydration test - trigger: load
   let _ = app.get(
     "/basic",
-    async fn(c : Ctx) -> @http.Response {
-      let html =
-        #|<!DOCTYPE html>
-        #|<html>
-        #|<head>
-        #|  <title>Basic Hydration Test</title>
-        #|  <script type="module" src="/kg-loader-v1.js"></script>
-        #|</head>
-        #|<body>
-        #|  <div kg:id="counter-1"
-        #|       kg:url="/components/counter.js"
-        #|       kg:state='{"count":5}'>
-        #|    <span data-count>5</span>
-        #|    <button data-inc>+1</button>
-        #|    <button data-dec>-1</button>
-        #|  </div>
-        #|</body>
-        #|</html>
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("counter-1", "/components/counter.js")
+          .with_state("{\"count\":5}")
+          .with_ssr_html(
+            "<span data-count>5</span><button data-inc>+1</button><button data-dec>-1</button>",
+          ),
+      )
+      let html = @framework.render_island_page(
+        [island],
+        title="Basic Hydration Test",
+      )
       c.html(html)
     },
   )
@@ -63,28 +52,21 @@ async fn create_loader_app() -> App {
   // Visible trigger test
   let _ = app.get(
     "/visible",
-    async fn(c : Ctx) -> @http.Response {
-      let html =
-        #|<!DOCTYPE html>
-        #|<html>
-        #|<head>
-        #|  <title>Visible Trigger Test</title>
-        #|  <script type="module" src="/kg-loader-v1.js"></script>
-        #|  <style>
-        #|    .spacer { height: 150vh; background: linear-gradient(#eee, #ccc); }
-        #|    .lazy-component { padding: 20px; background: #f0f0f0; }
-        #|  </style>
-        #|</head>
-        #|<body>
-        #|  <div class="spacer">Scroll down to trigger hydration</div>
-        #|  <div kg:id="lazy-1"
-        #|       kg:url="/components/lazy.js"
-        #|       kg:trigger="visible"
-        #|       kg:state='{"message":"Hello from state!"}'>
-        #|    <div data-content class="lazy-component">Not hydrated yet</div>
-        #|  </div>
-        #|</body>
-        #|</html>
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("lazy-1", "/components/lazy.js")
+          .with_trigger(@framework.TriggerType::Visible)
+          .with_state("{\"message\":\"Hello from state!\"}")
+          .with_ssr_html("<div data-content class=\"lazy-component\">Not hydrated yet</div>"),
+      )
+      let html = @framework.render_island_page(
+        [
+          "<div class=\"spacer\">Scroll down to trigger hydration</div>",
+          island,
+        ],
+        title="Visible Trigger Test",
+        head="<style>.spacer { height: 150vh; background: linear-gradient(#eee, #ccc); } .lazy-component { padding: 20px; background: #f0f0f0; }</style>",
+      )
       c.html(html)
     },
   )
@@ -92,23 +74,17 @@ async fn create_loader_app() -> App {
   // Idle trigger test
   let _ = app.get(
     "/idle",
-    async fn(c : Ctx) -> @http.Response {
-      let html =
-        #|<!DOCTYPE html>
-        #|<html>
-        #|<head>
-        #|  <title>Idle Trigger Test</title>
-        #|  <script type="module" src="/kg-loader-v1.js"></script>
-        #|</head>
-        #|<body>
-        #|  <div kg:id="idle-1"
-        #|       kg:url="/components/lazy.js"
-        #|       kg:trigger="idle"
-        #|       kg:state='{"message":"Loaded on idle"}'>
-        #|    <div data-content>Waiting for idle...</div>
-        #|  </div>
-        #|</body>
-        #|</html>
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("idle-1", "/components/lazy.js")
+          .with_trigger(@framework.TriggerType::Idle)
+          .with_state("{\"message\":\"Loaded on idle\"}")
+          .with_ssr_html("<div data-content>Waiting for idle...</div>"),
+      )
+      let html = @framework.render_island_page(
+        [island],
+        title="Idle Trigger Test",
+      )
       c.html(html)
     },
   )
@@ -116,25 +92,22 @@ async fn create_loader_app() -> App {
   // Script reference state test
   let _ = app.get(
     "/script-ref",
-    async fn(c : Ctx) -> @http.Response {
-      let html =
-        #|<!DOCTYPE html>
-        #|<html>
-        #|<head>
-        #|  <title>Script Reference State Test</title>
-        #|  <script type="module" src="/kg-loader-v1.js"></script>
-        #|</head>
-        #|<body>
-        #|  <div kg:id="counter-ref"
-        #|       kg:url="/components/counter.js"
-        #|       kg:state="#kg-state-counter-ref">
-        #|    <span data-count>10</span>
-        #|    <button data-inc>+1</button>
-        #|    <button data-dec>-1</button>
-        #|  </div>
-        #|  <script id="kg-state-counter-ref" type="kg/json">{"count":10}</script>
-        #|</body>
-        #|</html>
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("counter-ref", "/components/counter.js")
+          .with_state_ref("kg-state-counter-ref")
+          .with_ssr_html(
+            "<span data-count>10</span><button data-inc>+1</button><button data-dec>-1</button>",
+          ),
+      )
+      let state_script = @framework.generate_state_script(
+        "kg-state-counter-ref",
+        "{\"count\":10}",
+      )
+      let html = @framework.render_island_page(
+        [island, state_script],
+        title="Script Reference State Test",
+      )
       c.html(html)
     },
   )
@@ -142,32 +115,25 @@ async fn create_loader_app() -> App {
   // Multiple components test
   let _ = app.get(
     "/multiple",
-    async fn(c : Ctx) -> @http.Response {
-      let html =
-        #|<!DOCTYPE html>
-        #|<html>
-        #|<head>
-        #|  <title>Multiple Components Test</title>
-        #|  <script type="module" src="/kg-loader-v1.js"></script>
-        #|</head>
-        #|<body>
-        #|  <div kg:id="counter-a"
-        #|       kg:url="/components/counter.js"
-        #|       kg:state='{"count":1}'>
-        #|    <span data-count>1</span>
-        #|    <button data-inc>+1</button>
-        #|    <button data-dec>-1</button>
-        #|  </div>
-        #|
-        #|  <div kg:id="counter-b"
-        #|       kg:url="/components/counter.js"
-        #|       kg:state='{"count":100}'>
-        #|    <span data-count>100</span>
-        #|    <button data-inc>+1</button>
-        #|    <button data-dec>-1</button>
-        #|  </div>
-        #|</body>
-        #|</html>
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island_a = @framework.render_island(
+        @framework.IslandConfig::new("counter-a", "/components/counter.js")
+          .with_state("{\"count\":1}")
+          .with_ssr_html(
+            "<span data-count>1</span><button data-inc>+1</button><button data-dec>-1</button>",
+          ),
+      )
+      let island_b = @framework.render_island(
+        @framework.IslandConfig::new("counter-b", "/components/counter.js")
+          .with_state("{\"count\":100}")
+          .with_ssr_html(
+            "<span data-count>100</span><button data-inc>+1</button><button data-dec>-1</button>",
+          ),
+      )
+      let html = @framework.render_island_page(
+        [island_a, island_b],
+        title="Multiple Components Test",
+      )
       c.html(html)
     },
   )
@@ -175,26 +141,19 @@ async fn create_loader_app() -> App {
   // Manual trigger test
   let _ = app.get(
     "/manual",
-    async fn(c : Ctx) -> @http.Response {
-      let html =
-        #|<!DOCTYPE html>
-        #|<html>
-        #|<head>
-        #|  <title>Manual Trigger Test</title>
-        #|  <script type="module" src="/kg-loader-v1.js"></script>
-        #|</head>
-        #|<body>
-        #|  <div kg:id="manual-1"
-        #|       kg:url="/components/lazy.js"
-        #|       kg:trigger="none"
-        #|       kg:state='{"message":"Manually triggered"}'>
-        #|    <div data-content>Should not auto-hydrate</div>
-        #|  </div>
-        #|  <button id="trigger-btn" onclick="window.__KG_HYDRATE__(document.querySelector('[kg\\:id=manual-1]'))">
-        #|    Trigger Hydration
-        #|  </button>
-        #|</body>
-        #|</html>
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("manual-1", "/components/lazy.js")
+          .with_trigger(@framework.TriggerType::None)
+          .with_state("{\"message\":\"Manually triggered\"}")
+          .with_ssr_html("<div data-content>Should not auto-hydrate</div>"),
+      )
+      let trigger_button =
+        "<button id=\"trigger-btn\" onclick=\"window.__KG_HYDRATE__(document.querySelector('[kg\\\\:id=manual-1]'))\">Trigger Hydration</button>"
+      let html = @framework.render_island_page(
+        [island, trigger_button],
+        title="Manual Trigger Test",
+      )
       c.html(html)
     },
   )
@@ -202,23 +161,16 @@ async fn create_loader_app() -> App {
   // URL state test
   let _ = app.get(
     "/url-state",
-    async fn(c : Ctx) -> @http.Response {
-      let html =
-        #|<!DOCTYPE html>
-        #|<html>
-        #|<head>
-        #|  <title>URL State Test</title>
-        #|  <script type="module" src="/kg-loader-v1.js"></script>
-        #|</head>
-        #|<body>
-        #|  <div kg:id="user-1"
-        #|       kg:url="/components/user.js"
-        #|       kg:state="url:/api/state/user">
-        #|    <div data-name>Loading...</div>
-        #|    <div data-email></div>
-        #|  </div>
-        #|</body>
-        #|</html>
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("user-1", "/components/user.js")
+          .with_state_url("/api/state/user")
+          .with_ssr_html("<div data-name>Loading...</div><div data-email></div>"),
+      )
+      let html = @framework.render_island_page(
+        [island],
+        title="URL State Test",
+      )
       c.html(html)
     },
   )
@@ -227,24 +179,25 @@ async fn create_loader_app() -> App {
 }
 
 ///|
-/// Create embedding test routes using MoonBit embedding module
-async fn create_embedding_app() -> App {
-  let app : App = @hono.Hono::new()
+/// Create embedding test routes using @framework module
+async fn create_embedding_app() -> @framework.App {
+  let app = @framework.create_app()
 
   // Minimal embed test
   let _ = app.get(
     "/minimal",
-    async fn(c : Ctx) -> @http.Response {
-      let embed_html = @embed.generate_minimal_embed(
-        "counter-1",
-        "/components/counter.js",
-        "{\"count\":42}",
-        "<span data-count>42</span><button data-inc>+</button><button data-dec>-</button>",
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("counter-1", "/components/counter.js")
+          .with_state("{\"count\":42}")
+          .with_ssr_html(
+            "<span data-count>42</span><button data-inc>+</button><button data-dec>-</button>",
+          ),
       )
-      let html =
-        "<!DOCTYPE html>\n<html>\n<head>\n  <title>Minimal Embed Test</title>\n  <script type=\"module\" src=\"/kg-loader-v1.js\"></script>\n</head>\n<body>\n  " +
-        embed_html +
-        "\n</body>\n</html>"
+      let html = @framework.render_island_page(
+        [island],
+        title="Minimal Embed Test",
+      )
       c.html(html)
     },
   )
@@ -252,18 +205,16 @@ async fn create_embedding_app() -> App {
   // Standalone embed test (includes loader)
   let _ = app.get(
     "/standalone",
-    async fn(c : Ctx) -> @http.Response {
-      let embed_html = @embed.generate_standalone_embed(
-        "greeting-1",
-        "/components/greeting.js",
-        "/kg-loader-v1.js",
-        "{\"name\":\"World\"}",
-        "<p>Hello, <span data-name>World</span>!</p>",
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("greeting-1", "/components/greeting.js")
+          .with_state("{\"name\":\"World\"}")
+          .with_ssr_html("<p>Hello, <span data-name>World</span>!</p>"),
       )
-      let html =
-        "<!DOCTYPE html>\n<html>\n<head>\n  <title>Standalone Embed Test</title>\n</head>\n<body>\n  " +
-        embed_html +
-        "\n</body>\n</html>"
+      let html = @framework.render_island_page(
+        [island],
+        title="Standalone Embed Test",
+      )
       c.html(html)
     },
   )
@@ -271,17 +222,23 @@ async fn create_embedding_app() -> App {
   // Lazy embed test (visible trigger)
   let _ = app.get(
     "/lazy",
-    async fn(c : Ctx) -> @http.Response {
-      let embed_html = @embed.generate_lazy_embed(
-        "lazy-counter",
-        "/components/counter.js",
-        "{\"count\":100}",
-        "<span data-count>100</span><button data-inc>+</button><button data-dec>-</button>",
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("lazy-counter", "/components/counter.js")
+          .with_trigger(@framework.TriggerType::Visible)
+          .with_state("{\"count\":100}")
+          .with_ssr_html(
+            "<span data-count>100</span><button data-inc>+</button><button data-dec>-</button>",
+          ),
       )
-      let html =
-        "<!DOCTYPE html>\n<html>\n<head>\n  <title>Lazy Embed Test</title>\n  <script type=\"module\" src=\"/kg-loader-v1.js\"></script>\n  <style>\n    .spacer { height: 150vh; background: linear-gradient(#eee, #ccc); }\n  </style>\n</head>\n<body>\n  <div class=\"spacer\">Scroll down to trigger hydration</div>\n  " +
-        embed_html +
-        "\n</body>\n</html>"
+      let html = @framework.render_island_page(
+        [
+          "<div class=\"spacer\">Scroll down to trigger hydration</div>",
+          island,
+        ],
+        title="Lazy Embed Test",
+        head="<style>.spacer { height: 150vh; background: linear-gradient(#eee, #ccc); }</style>",
+      )
       c.html(html)
     },
   )
@@ -289,18 +246,19 @@ async fn create_embedding_app() -> App {
   // XSS safety test
   let _ = app.get(
     "/xss-safety",
-    async fn(c : Ctx) -> @http.Response {
+    async fn(c : @framework.Ctx) -> @http.Response {
       let dangerous_state = "{\"message\":\"<script>alert(1)</script>\",\"html\":\"</script><script>\"}"
-      let embed_html = @embed.generate_minimal_embed(
-        "xss-test",
-        "/components/greeting.js",
-        dangerous_state,
-        "<p data-name>Safe content</p>",
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("xss-test", "/components/greeting.js")
+          .with_state(dangerous_state)
+          .with_ssr_html("<p data-name>Safe content</p>"),
       )
-      let html =
-        "<!DOCTYPE html>\n<html>\n<head>\n  <title>XSS Safety Test</title>\n  <script type=\"module\" src=\"/kg-loader-v1.js\"></script>\n</head>\n<body>\n  " +
-        embed_html +
-        "\n  <script>\n    window.xssTriggered = false;\n    window.alert = () => { window.xssTriggered = true; };\n  </script>\n</body>\n</html>"
+      let xss_check_script =
+        "<script>window.xssTriggered = false; window.alert = () => { window.xssTriggered = true; };</script>"
+      let html = @framework.render_island_page(
+        [island, xss_check_script],
+        title="XSS Safety Test",
+      )
       c.html(html)
     },
   )
@@ -308,15 +266,22 @@ async fn create_embedding_app() -> App {
   // State script test
   let _ = app.get(
     "/state-script",
-    async fn(c : Ctx) -> @http.Response {
-      let state_script = @embed.generate_state_script(
+    async fn(c : @framework.Ctx) -> @http.Response {
+      let island = @framework.render_island(
+        @framework.IslandConfig::new("counter-script", "/components/counter.js")
+          .with_state_ref("counter-state")
+          .with_ssr_html(
+            "<span data-count>999</span><button data-inc>+</button><button data-dec>-</button>",
+          ),
+      )
+      let state_script = @framework.generate_state_script(
         "counter-state",
         "{\"count\":999}",
       )
-      let html =
-        "<!DOCTYPE html>\n<html>\n<head>\n  <title>State Script Test</title>\n  <script type=\"module\" src=\"/kg-loader-v1.js\"></script>\n</head>\n<body>\n  <div kg:id=\"counter-script\"\n       kg:url=\"/components/counter.js\"\n       kg:state=\"#counter-state\">\n    <span data-count>999</span>\n    <button data-inc>+</button>\n    <button data-dec>-</button>\n  </div>\n  " +
-        state_script +
-        "\n</body>\n</html>"
+      let html = @framework.render_island_page(
+        [island, state_script],
+        title="State Script Test",
+      )
       c.html(html)
     },
   )

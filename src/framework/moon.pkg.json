@@ -6,7 +6,9 @@
     "mizchi/kaguya",
     "mizchi/kaguya/signal",
     "mizchi/kaguya/server/ssr",
+    "mizchi/kaguya/server/embed",
     "mizchi/js/core",
+    "mizchi/js/web/http",
     "mizchi/npm_typed/hono"
   ]
 }
