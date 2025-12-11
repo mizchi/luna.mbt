@@ -20,7 +20,14 @@ pub enum AttrVal {
   String(String)
   Bool(Bool)
   Int(Int)
-  Float(Double)
+  Double(Double)
+}
+
+///|
+/// Convert Double to String using JS toString (avoids MoonBit's ryu algorithm overhead)
+fn double_to_string(d : Double) -> String {
+  let any : @core.Any = d |> @core.identity
+  any._call("toString", []).cast()
 }
 
 ///|
@@ -29,7 +36,7 @@ impl Show for AttrVal with output(self, logger) {
     String(s) => logger.write_string(s)
     Bool(b) => logger.write_string(b.to_string())
     Int(i) => logger.write_string(i.to_string())
-    Float(f) => logger.write_string(f.to_string())
+    Double(d) => logger.write_string(double_to_string(d))
   }
 }
 
