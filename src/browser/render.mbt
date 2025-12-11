@@ -110,42 +110,16 @@ fn apply_static_attr(
 
 ///|
 /// Apply an event handler
-fn apply_event_handler(
+/// Converts "onClick" to "click", "onInput" to "input", etc. using JS FFI
+extern "js" fn apply_event_handler(
   elem : @js_dom.Element,
   name : String,
   handler : (@core.Any) -> Unit,
-) -> Unit {
-  // Convert "onClick" to "click", "onInput" to "input", etc.
-  let event_name = if name.length() >= 2 {
-    // Check if starts with "on"
-    if name.code_unit_at(0) == "o".code_unit_at(0) &&
-      name.code_unit_at(1) == "n".code_unit_at(0) {
-      // Convert rest to lowercase manually
-      let mut result = ""
-      let iter = name.iter()
-      let mut skip_count = 0
-      for char in iter {
-        if skip_count < 2 {
-          skip_count = skip_count + 1
-          continue
-        }
-        let lower_char = if char >= 'A' && char <= 'Z' {
-          (char.to_int() + 32).unsafe_to_char()
-        } else {
-          char
-        }
-        result = result + lower_char.to_string()
-      }
-      result
-    } else {
-      name
-    }
-  } else {
-    name
-  }
-  let handler_any : @core.Any = @core.any(handler)
-  elem.as_event_target().addEventListener(event_name, handler_any.cast())
-}
+) -> Unit =
+  #|(elem, name, handler) => {
+  #|  const eventName = name.startsWith('on') ? name.slice(2).toLowerCase() : name;
+  #|  elem.addEventListener(eventName, handler);
+  #|}
 
 ///|
 /// Apply style object
