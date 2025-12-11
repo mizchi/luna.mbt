@@ -1,10 +1,24 @@
 ///| Element DSL - Simplified API for creating reactive elements
-
 ///|
-
 ///| Usage:
-
 ///|   div(class="myapp", on=on(click=fn(_) { ... }), [text("Hello")])
+///|
+///| ## Bundle Size Optimization Notes
+///|
+///| This module uses JS FFI extensively to minimize bundle size:
+///|
+///| 1. **Double.to_string via JS FFI**: MoonBit's native Double.to_string uses the
+///|    ryu algorithm which pulls in ~31KB of Int64 operations. We use JS's native
+///|    toString() instead.
+///|
+///| 2. **HandlerMap as opaque JS object**: Instead of a MoonBit struct with 16 fields,
+///|    we use a plain JS object created via FFI. This avoids generating large
+///|    to_attrs() functions with 16 if-statements.
+///|
+///| 3. **Lowercase event names**: Event names are stored as lowercase DOM standard
+///|    names (click, input) instead of React-style camelCase (onClick, onInput).
+///|    This avoids runtime string conversion and prevents future bloat from
+///|    conversion dictionaries.
 
 ///|
 /// Type alias for event handler
@@ -24,7 +38,8 @@ pub enum AttrVal {
 }
 
 ///|
-/// Convert Double to String using JS toString (avoids MoonBit's ryu algorithm overhead)
+/// Convert Double to String using JS toString
+/// Note: We avoid MoonBit's Double.to_string() which uses ryu algorithm (~31KB overhead)
 fn double_to_string(d : Double) -> String {
   let any : @core.Any = d |> @core.identity
   any._call("toString", []).cast()
@@ -52,13 +67,14 @@ fn AttrVal::to_attr_value(self : AttrVal) -> AttrValue {
 
 ///|
 /// Event handlers collection - opaque JS object
-/// Internally stores { click?: fn, input?: fn, ... } (lowercase event names)
+/// Internally stores { click?: fn, input?: fn, ... } (lowercase DOM event names)
+/// Note: Using opaque JS object instead of MoonBit struct to avoid code bloat
 pub type HandlerMap
 
 ///|
 /// Create a HandlerMap with optional event handlers
 /// Uses JS FFI to create a plain object directly, avoiding MoonBit struct overhead
-/// Event names are stored in lowercase (DOM standard) to avoid conversion overhead
+/// Event names are lowercase DOM standard (click, not onClick) to avoid conversion
 pub extern "js" fn on(
   click? : ((@js_dom.MouseEvent) -> Unit)?,
   dblclick? : ((@js_dom.MouseEvent) -> Unit)?,
