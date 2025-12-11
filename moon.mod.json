@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "deps": {
     "moonbitlang/async": "0.14.2",
-    "mizchi/js": "0.9.0",
+    "mizchi/js": "0.10.0",
     "moonbitlang/x": "0.4.37",
-    "mizchi/npm_typed": "0.1.0"
+    "mizchi/npm_typed": "0.1.1"
   },
   "readme": "README.md",
   "repository": "https://github.com/aspect-apps/kaguya",
