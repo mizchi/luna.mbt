@@ -1,0 +1,24 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    "mizchi/kaguya",
+    "mizchi/kaguya/signal",
+    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    { "path": "mizchi/kaguya/browser", "alias": "dom" },
+    "mizchi/kaguya/element",
+    "mizchi/js/core"
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "hydrate_signal_effect",
+        "hydrate_dynamic_attrs",
+        "hydrate_show_toggle",
+        "hydrate_for_each",
+        "hydrate_events",
+        "hydrate_input_binding"
+      ],
+      "format": "esm"
+    }
+  }
+}
