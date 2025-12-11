@@ -166,39 +166,52 @@ pub fn HandlerMap::to_attrs(self : HandlerMap) -> Array[(String, AttrValue)] {
 
 ///|
 fn build_props(
-  id : String,
-  class : String,
-  style : Array[(String, String)],
-  on : HandlerMap,
-  attrs : Array[(String, AttrVal)],
+  id : String?,
+  class : String?,
+  style : Array[(String, String)]?,
+  on : HandlerMap?,
+  attrs : Array[(String, AttrVal)]?,
 ) -> Array[(String, AttrValue)] {
   let result : Array[(String, AttrValue)] = []
 
   // id
-  if id != "" {
-    result.push(("id", Static(id)))
+  match id {
+    Some(v) => result.push(("id", Static(v)))
+    None => ()
   }
 
   // class
-  if class != "" {
-    result.push(("className", Static(class)))
+  match class {
+    Some(v) => result.push(("className", Static(v)))
+    None => ()
   }
 
   // style
-  if style.length() > 0 {
-    result.push(("style", StyleObj(style)))
+  match style {
+    Some(styles) => result.push(("style", StyleObj(styles)))
+    None => ()
   }
 
   // event handlers
-  let event_attrs = on.to_attrs()
-  for attr in event_attrs {
-    result.push(attr)
+  match on {
+    Some(handlers) => {
+      let event_attrs = handlers.to_attrs()
+      for attr in event_attrs {
+        result.push(attr)
+      }
+    }
+    None => ()
   }
 
   // additional attrs
-  for pair in attrs {
-    let (key, val) = pair
-    result.push((key, val.to_attr_value()))
+  match attrs {
+    Some(extra) => {
+      for pair in extra {
+        let (key, val) = pair
+        result.push((key, val.to_attr_value()))
+      }
+    }
+    None => ()
   }
   result
 }
@@ -210,12 +223,12 @@ fn build_props(
 ///|
 /// Create a div element
 pub fn div(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("div", build_props(id, class, style, on, attrs), children)
 }
@@ -223,12 +236,12 @@ pub fn div(
 ///|
 /// Create a span element
 pub fn span(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("span", build_props(id, class, style, on, attrs), children)
 }
@@ -236,12 +249,12 @@ pub fn span(
 ///|
 /// Create a p element
 pub fn p(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("p", build_props(id, class, style, on, attrs), children)
 }
@@ -249,17 +262,18 @@ pub fn p(
 ///|
 /// Create a button element
 pub fn button(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  disabled? : Bool = false,
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  disabled? : Bool,
+  children~ : Array[Node] = [],
 ) -> Node {
   let props = build_props(id, class, style, on, attrs)
-  if disabled {
-    props.push(("disabled", Static("true")))
+  match disabled {
+    Some(true) => props.push(("disabled", Static("true")))
+    _ => ()
   }
   create_element("button", props, children)
 }
@@ -267,17 +281,18 @@ pub fn button(
 ///|
 /// Create an anchor element
 pub fn a(
-  href? : String = "",
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  href? : String,
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   let props = build_props(id, class, style, on, attrs)
-  if href != "" {
-    props.push(("href", Static(href)))
+  match href {
+    Some(v) => props.push(("href", Static(v)))
+    None => ()
   }
   create_element("a", props, children)
 }
@@ -285,28 +300,32 @@ pub fn a(
 ///|
 /// Create an input element
 pub fn input(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  type_? : String = "",
-  value? : String = "",
-  placeholder? : String = "",
-  disabled? : Bool = false,
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  type_? : String,
+  value? : String,
+  placeholder? : String,
+  disabled? : Bool,
 ) -> Node {
   let props = build_props(id, class, style, on, attrs)
-  if type_ != "" {
-    props.push(("type", Static(type_)))
+  match type_ {
+    Some(v) => props.push(("type", Static(v)))
+    None => ()
   }
-  if value != "" {
-    props.push(("value", Static(value)))
+  match value {
+    Some(v) => props.push(("value", Static(v)))
+    None => ()
   }
-  if placeholder != "" {
-    props.push(("placeholder", Static(placeholder)))
+  match placeholder {
+    Some(v) => props.push(("placeholder", Static(v)))
+    None => ()
   }
-  if disabled {
-    props.push(("disabled", Static("true")))
+  match disabled {
+    Some(true) => props.push(("disabled", Static("true")))
+    _ => ()
   }
   create_element("input", props, [])
 }
@@ -314,21 +333,23 @@ pub fn input(
 ///|
 /// Create a textarea element
 pub fn textarea(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  placeholder? : String = "",
-  disabled? : Bool = false,
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  placeholder? : String,
+  disabled? : Bool,
+  children~ : Array[Node] = [],
 ) -> Node {
   let props = build_props(id, class, style, on, attrs)
-  if placeholder != "" {
-    props.push(("placeholder", Static(placeholder)))
+  match placeholder {
+    Some(v) => props.push(("placeholder", Static(v)))
+    None => ()
   }
-  if disabled {
-    props.push(("disabled", Static("true")))
+  match disabled {
+    Some(true) => props.push(("disabled", Static("true")))
+    _ => ()
   }
   create_element("textarea", props, children)
 }
@@ -336,12 +357,12 @@ pub fn textarea(
 ///|
 /// Create a form element
 pub fn form(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("form", build_props(id, class, style, on, attrs), children)
 }
@@ -349,17 +370,18 @@ pub fn form(
 ///|
 /// Create a label element
 pub fn label(
-  for_? : String = "",
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  for_? : String,
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   let props = build_props(id, class, style, on, attrs)
-  if for_ != "" {
-    props.push(("for", Static(for_)))
+  match for_ {
+    Some(v) => props.push(("for", Static(v)))
+    None => ()
   }
   create_element("label", props, children)
 }
@@ -367,12 +389,12 @@ pub fn label(
 ///|
 /// Create h1 element
 pub fn h1(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("h1", build_props(id, class, style, on, attrs), children)
 }
@@ -380,12 +402,12 @@ pub fn h1(
 ///|
 /// Create h2 element
 pub fn h2(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("h2", build_props(id, class, style, on, attrs), children)
 }
@@ -393,12 +415,12 @@ pub fn h2(
 ///|
 /// Create h3 element
 pub fn h3(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("h3", build_props(id, class, style, on, attrs), children)
 }
@@ -406,12 +428,12 @@ pub fn h3(
 ///|
 /// Create ul element
 pub fn ul(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("ul", build_props(id, class, style, on, attrs), children)
 }
@@ -419,12 +441,12 @@ pub fn ul(
 ///|
 /// Create ol element
 pub fn ol(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("ol", build_props(id, class, style, on, attrs), children)
 }
@@ -432,12 +454,12 @@ pub fn ol(
 ///|
 /// Create li element
 pub fn li(
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
-  children? : Array[Node] = [],
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
+  children~ : Array[Node] = [],
 ) -> Node {
   create_element("li", build_props(id, class, style, on, attrs), children)
 }
@@ -445,20 +467,22 @@ pub fn li(
 ///|
 /// Create img element
 pub fn img(
-  src? : String = "",
-  alt? : String = "",
-  id? : String = "",
-  class? : String = "",
-  style? : Array[(String, String)] = [],
-  on? : HandlerMap = on(),
-  attrs? : Array[(String, AttrVal)] = [],
+  src? : String,
+  alt? : String,
+  id? : String,
+  class? : String,
+  style? : Array[(String, String)],
+  on? : HandlerMap,
+  attrs? : Array[(String, AttrVal)],
 ) -> Node {
   let props = build_props(id, class, style, on, attrs)
-  if src != "" {
-    props.push(("src", Static(src)))
+  match src {
+    Some(v) => props.push(("src", Static(v)))
+    None => ()
   }
-  if alt != "" {
-    props.push(("alt", Static(alt)))
+  match alt {
+    Some(v) => props.push(("alt", Static(v)))
+    None => ()
   }
   create_element("img", props, [])
 }
