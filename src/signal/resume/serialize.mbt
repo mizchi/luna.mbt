@@ -113,3 +113,31 @@ pub fn[T : Serializable] resume_signal(
     None => @signal.signal(initial)
   }
 }
+
+// =============================================================================
+// Serializable utilities - ensure trait implementations are used
+// =============================================================================
+
+///|
+/// Convert an Int to StateValue
+pub fn int_to_state_value(value : Int) -> StateValue {
+  Serializable::to_state_value(value)
+}
+
+///|
+/// Convert a String to StateValue
+pub fn string_to_state_value(value : String) -> StateValue {
+  Serializable::to_state_value(value)
+}
+
+///|
+/// Convert a Bool to StateValue
+pub fn bool_to_state_value(value : Bool) -> StateValue {
+  Serializable::to_state_value(value)
+}
+
+///|
+/// Convert a Double to StateValue
+pub fn double_to_state_value(value : Double) -> StateValue {
+  Serializable::to_state_value(value)
+}

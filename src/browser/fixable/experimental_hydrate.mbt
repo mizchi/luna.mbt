@@ -1262,6 +1262,13 @@ fn experimental_hydrate_for(
 }
 
 ///|
+/// Create a failed hydration result
+/// Used for constructing Failed variant in error scenarios
+pub fn hydration_failed(message : String) -> ExperimentalHydrationResult {
+  Failed(message)
+}
+
+///|
 /// Convenience function: Try regular hydration first, fall back to experimental
 pub fn hydrate_with_fallback(
   container : @js_dom.Element,

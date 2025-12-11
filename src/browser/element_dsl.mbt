@@ -550,3 +550,31 @@ pub fn fragment(children : Array[Node]) -> Node {
     _ => create_element("span", [], children)
   }
 }
+
+// =============================================================================
+// AttrVal factory functions - ensure all variants are used
+// =============================================================================
+
+///|
+/// Create a String AttrVal
+pub fn attr_string(value : String) -> AttrVal {
+  String(value)
+}
+
+///|
+/// Create a Bool AttrVal
+pub fn attr_bool(value : Bool) -> AttrVal {
+  Bool(value)
+}
+
+///|
+/// Create an Int AttrVal
+pub fn attr_int(value : Int) -> AttrVal {
+  Int(value)
+}
+
+///|
+/// Create a Double AttrVal
+pub fn attr_double(value : Double) -> AttrVal {
+  Double(value)
+}

@@ -177,3 +177,82 @@ test "resume_signal uses initial for wrong type" {
   // Should use initial value since type doesn't match
   assert_eq(sig.peek(), 42)
 }
+
+// =============================================================================
+// Serializable to_state_value Tests (for coverage)
+// =============================================================================
+
+///|
+test "Serializable Int to_state_value" {
+  let value : Int = 42
+  let state_val = Serializable::to_state_value(value)
+  match state_val {
+    Int(n) => assert_eq(n, 42)
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "Serializable String to_state_value" {
+  let value : String = "hello"
+  let state_val = Serializable::to_state_value(value)
+  match state_val {
+    Str(s) => assert_eq(s, "hello")
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "Serializable Bool to_state_value" {
+  let value : Bool = true
+  let state_val = Serializable::to_state_value(value)
+  match state_val {
+    Bool(b) => assert_eq(b, true)
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "Serializable Double to_state_value" {
+  let value : Double = 3.14
+  let state_val = Serializable::to_state_value(value)
+  match state_val {
+    Float(f) => assert_true(f > 3.13 && f < 3.15)
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "Serializable Int roundtrip" {
+  let original : Int = 99
+  let state_val = Serializable::to_state_value(original)
+  let restored : Int? = Serializable::from_state_value(state_val)
+  assert_eq(restored, Some(99))
+}
+
+///|
+test "Serializable String roundtrip" {
+  let original : String = "test string"
+  let state_val = Serializable::to_state_value(original)
+  let restored : String? = Serializable::from_state_value(state_val)
+  assert_eq(restored, Some("test string"))
+}
+
+///|
+test "Serializable Bool roundtrip" {
+  let original : Bool = false
+  let state_val = Serializable::to_state_value(original)
+  let restored : Bool? = Serializable::from_state_value(state_val)
+  assert_eq(restored, Some(false))
+}
+
+///|
+test "Serializable Double roundtrip" {
+  let original : Double = 2.718
+  let state_val = Serializable::to_state_value(original)
+  let restored : Double? = Serializable::from_state_value(state_val)
+  match restored {
+    Some(f) => assert_true(f > 2.71 && f < 2.72)
+    None => assert_true(false)
+  }
+}
