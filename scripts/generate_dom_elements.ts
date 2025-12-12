@@ -344,9 +344,10 @@ function generateHeader(opts: GeneratorOptions): string {
   if (opts.target === "dom") {
     return (
       warning +
-      `///| Element factories for browser DOM
+      `///| Element factories for browser DOM with DSL syntax
 ///|
 ///| These functions create DOM elements with event handler support.
+///| Uses HandlerMap and build_props from dsl.mbt.
 `
     );
   } else {
@@ -476,6 +477,104 @@ function generateFile(opts: GeneratorOptions): string {
 // Main
 // =============================================================================
 
+function generateDomTextHelpers(): string {
+  return `
+// =============================================================================
+// Text helpers
+// =============================================================================
+
+///|
+/// Create a static text node
+pub fn text(content : String) -> DomNode {
+  ToDomNode::to_dom_node(content)
+}
+
+///|
+/// Create a reactive text node from a getter function
+pub fn text_dyn(content : () -> String) -> DomNode {
+  text_node(content)
+}
+
+///|
+/// Create a reactive text node from a signal
+pub fn[T : Show] text_sig(sig : @signal.Signal[T]) -> DomNode {
+  text_from_signal(sig)
+}
+
+// =============================================================================
+// AttrValue factory functions for external use
+// =============================================================================
+
+///|
+/// Create a static attribute value
+pub fn attr_static(value : String) -> AttrValue {
+  Static(value)
+}
+
+///|
+/// Create a dynamic attribute value
+pub fn attr_dynamic(getter : () -> String) -> AttrValue {
+  Dynamic(getter)
+}
+
+///|
+/// Create an event handler attribute
+pub fn attr_handler(handler : (@js.Any) -> Unit) -> AttrValue {
+  Handler(handler)
+}
+
+///|
+/// Create a static style attribute (string form, e.g. "color: red; margin: 10px")
+pub fn attr_style(style : String) -> AttrValue {
+  Static(style)
+}
+
+///|
+/// Create a dynamic style attribute
+pub fn attr_dynamic_style(getter : () -> String) -> AttrValue {
+  Dynamic(getter)
+}
+
+// =============================================================================
+// JSX Runtime - For TSX/JSX compatibility
+// =============================================================================
+
+///|
+/// JSX runtime: jsx function (maps directly to create_element)
+/// Usage in TSX: <div class="foo">children</div>
+pub fn jsx(
+  tag : String,
+  attrs : Array[(String, AttrValue)],
+  children : Array[DomNode]
+) -> DomNode {
+  create_element(tag, attrs, children)
+}
+
+///|
+/// JSX runtime: jsxs function (same as jsx, for static children)
+pub fn jsxs(
+  tag : String,
+  attrs : Array[(String, AttrValue)],
+  children : Array[DomNode]
+) -> DomNode {
+  create_element(tag, attrs, children)
+}
+
+///|
+/// JSX runtime: Fragment (returns children as-is wrapped in a container)
+pub fn fragment(children : Array[DomNode]) -> DomNode {
+  // Return a document fragment or first child
+  // For simplicity, wrap in a span with no attributes
+  // In production, this should return a proper fragment
+  match children.length() {
+    0 => create_element("span", [], [])
+    1 => children[0]
+    _ => create_element("span", [], children)
+  }
+}
+`;
+}
+
 function main() {
   const rootDir = join(__dirname, "..");
 
@@ -484,6 +583,12 @@ function main() {
   const serverDomContent = generateFile({ target: "server_dom" });
   writeFileSync(serverDomPath, serverDomContent);
   console.log(`Generated: ${serverDomPath}`);
+
+  // Generate dom/element elements
+  const domPath = join(rootDir, "src/platform/dom/element/__generated.mbt");
+  const domContent = generateFile({ target: "dom" }) + generateDomTextHelpers();
+  writeFileSync(domPath, domContent);
+  console.log(`Generated: ${domPath}`);
 
   // Run moon fmt
   console.log("Running moon fmt...");
