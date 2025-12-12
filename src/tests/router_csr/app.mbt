@@ -44,7 +44,7 @@ fn get_routes() -> Array[@router.Route] {
 
 fn home_page() -> @dom.Node {
   @dom.div(
-    attrs=[("data-page", @dom.attr_string("home"))],
+    attrs=[("data-page", @dom.Attr::AttrString("home"))],
     [
       @dom.h1([@dom.text("Home Page")]),
       @dom.p([@dom.text("Welcome to the CSR Router Demo!")]),
@@ -54,7 +54,7 @@ fn home_page() -> @dom.Node {
 
 fn about_page() -> @dom.Node {
   @dom.div(
-    attrs=[("data-page", @dom.attr_string("about"))],
+    attrs=[("data-page", @dom.Attr::AttrString("about"))],
     [
       @dom.h1([@dom.text("About Page")]),
       @dom.p([@dom.text("This is the about page.")]),
@@ -64,7 +64,7 @@ fn about_page() -> @dom.Node {
 
 fn contact_page() -> @dom.Node {
   @dom.div(
-    attrs=[("data-page", @dom.attr_string("contact"))],
+    attrs=[("data-page", @dom.Attr::AttrString("contact"))],
     [
       @dom.h1([@dom.text("Contact Page")]),
       @dom.p([@dom.text("Get in touch with us!")]),
@@ -75,8 +75,8 @@ fn contact_page() -> @dom.Node {
 fn post_page(post_id : String) -> @dom.Node {
   @dom.div(
     attrs=[
-      ("data-page", @dom.attr_string("post")),
-      ("data-post-id", @dom.attr_string(post_id)),
+      ("data-page", @dom.Attr::AttrString("post")),
+      ("data-post-id", @dom.Attr::AttrString(post_id)),
     ],
     [
       @dom.h1([@dom.text("Post: " + post_id)]),
@@ -87,7 +87,7 @@ fn post_page(post_id : String) -> @dom.Node {
 
 fn not_found_page() -> @dom.Node {
   @dom.div(
-    attrs=[("data-page", @dom.attr_string("404"))],
+    attrs=[("data-page", @dom.Attr::AttrString("404"))],
     [
       @dom.h1([@dom.text("404 Not Found")]),
       @dom.p([@dom.text("The page you are looking for does not exist.")]),
@@ -141,7 +141,7 @@ fn nav_link(
 
 fn router_app(router : @dom.ClientRouter) -> @dom.Node {
   @dom.div(
-    attrs=[("data-router-app", @dom.attr_string("true"))],
+    attrs=[("data-router-app", @dom.Attr::AttrString("true"))],
     [
       // Navigation
       @dom.create_element(
@@ -157,7 +157,7 @@ fn router_app(router : @dom.ClientRouter) -> @dom.Node {
       ),
       // Current path display (reactive)
       @dom.div(
-        attrs=[("data-current-path-container", @dom.attr_string("true"))],
+        attrs=[("data-current-path-container", @dom.Attr::AttrString("true"))],
         [
           @dom.text("Current path: "),
           @dom.text_dyn(fn() { router.get_path() }),
@@ -165,7 +165,7 @@ fn router_app(router : @dom.ClientRouter) -> @dom.Node {
       ),
       // Page content - render based on current match
       @dom.div(
-        attrs=[("data-content", @dom.attr_string("true"))],
+        attrs=[("data-content", @dom.Attr::AttrString("true"))],
         [render_page_for_match(router)],
       ),
     ],

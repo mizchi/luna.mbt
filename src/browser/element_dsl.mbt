@@ -45,16 +45,17 @@
 pub type Handler = (@core.Any) -> Unit
 
 // =============================================================================
-// AttrVal - Simplified attribute value for attrs array
+// Attr - Attribute value for attrs array
 // =============================================================================
 
 ///|
-/// Simplified attribute value type for attrs array
-pub enum AttrVal {
-  String(String)
-  Bool(Bool)
-  Int(Int)
-  Double(Double)
+/// Attribute value type for attrs array
+/// Usage: Attr::AttrString("value"), Attr::AttrInt(42), etc.
+pub(all) enum Attr {
+  AttrString(String)
+  AttrNumber(Double)
+  AttrInt(Int)
+  AttrBool(Bool)
 }
 
 ///|
@@ -66,18 +67,18 @@ fn double_to_string(d : Double) -> String {
 }
 
 ///|
-impl Show for AttrVal with output(self, logger) {
+impl Show for Attr with output(self, logger) {
   match self {
-    String(s) => logger.write_string(s)
-    Bool(b) => logger.write_string(b.to_string())
-    Int(i) => logger.write_string(i.to_string())
-    Double(d) => logger.write_string(double_to_string(d))
+    AttrString(s) => logger.write_string(s)
+    AttrNumber(d) => logger.write_string(double_to_string(d))
+    AttrInt(i) => logger.write_string(i.to_string())
+    AttrBool(b) => logger.write_string(b.to_string())
   }
 }
 
 ///|
-/// Convert AttrVal to AttrValue
-fn AttrVal::to_attr_value(self : AttrVal) -> AttrValue {
+/// Convert Attr to AttrValue
+fn Attr::to_attr_value(self : Attr) -> AttrValue {
   Static(self.to_string())
 }
 
@@ -152,7 +153,7 @@ fn build_props(
   class : String?,
   style : String?,
   on : HandlerMap?,
-  attrs : Array[(String, AttrVal)]?,
+  attrs : Array[(String, Attr)]?,
 ) -> Array[(String, AttrValue)] {
   let result : Array[(String, AttrValue)] = []
 

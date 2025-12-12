@@ -180,7 +180,7 @@ fn style_example() -> @dom.Node {
       @dom.input(
         type_="range",
         value="180",
-        attrs=[("min", @dom.attr_int(0)), ("max", @dom.attr_int(360))],
+        attrs=[("min", @dom.Attr::AttrInt(0)), ("max", @dom.Attr::AttrInt(360))],
         on=@dom.on(
           input=Some(fn(e) {
             let target : @core.Any = e.target() |> @core.identity
@@ -198,7 +198,7 @@ fn style_example() -> @dom.Node {
       @dom.input(
         type_="range",
         value="100",
-        attrs=[("min", @dom.attr_int(50)), ("max", @dom.attr_int(200))],
+        attrs=[("min", @dom.Attr::AttrInt(50)), ("max", @dom.Attr::AttrInt(200))],
         on=@dom.on(
           input=Some(fn(e) {
             let target : @core.Any = e.target() |> @core.identity
