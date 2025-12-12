@@ -393,6 +393,99 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @core.Any) -> Unit {
 }
 
 ///|
+/// Sortable list test component
+/// Tests: List reordering without destroying DOM instances
+pub fn hydrate_sortable_list(el : @js_dom.Element, state : @core.Any) -> Unit {
+  // Item struct with id and label
+  struct Item {
+    id : Int
+    label : String
+  }
+
+  // Parse initial items from state
+  let initial_items = js_getArray(state, "items")
+  let items : Array[Item] = []
+  for i = 0; i < initial_items.length(); i = i + 1 {
+    items.push({ id: i, label: initial_items[i] })
+  }
+  let items_sig = @signal.signal(items)
+
+  // Build UI using @dom functions for DOM reuse support
+  let controls = @dom.create_element(
+    "div",
+    [("class", @dom.Static("controls"))],
+    [
+      @dom.create_element(
+        "button",
+        [
+          ("data-reverse", @dom.Static("true")),
+          (
+            "click",
+            @dom.Handler(fn(_event) {
+              let current = items_sig.get()
+              let reversed : Array[Item] = []
+              for i = current.length() - 1; i >= 0; i = i - 1 {
+                reversed.push(current[i])
+              }
+              items_sig.set(reversed)
+            }),
+          ),
+        ],
+        [@dom.text_node(fn() { "Reverse" })],
+      ),
+      @dom.create_element(
+        "button",
+        [
+          ("data-move-first-to-last", @dom.Static("true")),
+          (
+            "click",
+            @dom.Handler(fn(_event) {
+              let current = items_sig.get()
+              if current.length() > 1 {
+                let reordered : Array[Item] = []
+                for i = 1; i < current.length(); i = i + 1 {
+                  reordered.push(current[i])
+                }
+                reordered.push(current[0])
+                items_sig.set(reordered)
+              }
+            }),
+          ),
+        ],
+        [@dom.text_node(fn() { "Move First to Last" })],
+      ),
+    ],
+  )
+
+  // Use @dom.for_each for reference-based DOM reuse
+  let list_items = @dom.for_each(
+    fn() { items_sig.get() },
+    fn(item, _index) {
+      @dom.create_element(
+        "li",
+        [
+          ("data-key", @dom.Static(item.id.to_string())),
+        ],
+        [@dom.text_node(fn() { item.label })],
+      )
+    },
+  )
+
+  let list = @dom.create_element(
+    "ul",
+    [("data-list", @dom.Static("true"))],
+    [list_items],
+  )
+
+  let container = @dom.create_element("div", [], [controls, list])
+
+  // Clear and mount
+  el.as_node().setTextContent("")
+  @dom.mount_to(el, container)
+  js_setAttribute(el, "data-hydrated", "true")
+}
+
+///|
 /// Input binding test component
 /// Tests: Form interaction via signals
 pub fn hydrate_input_binding(el : @js_dom.Element, state : @core.Any) -> Unit {

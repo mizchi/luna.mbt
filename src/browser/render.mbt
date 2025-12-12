@@ -197,32 +197,44 @@ pub fn show(when : () -> Bool, render_fn : () -> Node) -> Node {
 }
 
 ///|
-/// List rendering with keyed updates
+/// List rendering with reference-based DOM reuse (Solid-style)
+///
+/// Items are tracked by reference equality (JavaScript ===).
+/// When items are reordered, their DOM nodes are moved rather than recreated.
 pub fn[T] for_each(
   items : () -> Array[T],
   render_item : (T, Int) -> Node,
 ) -> Node {
   let doc = @js_dom.document()
-  let container = doc.createDocumentFragment()
-  let mut current_nodes : Array[@js_dom.Node] = []
+  let placeholder = doc.createComment("for")
+  let entries : Ref[Array[ItemEntry[T]]] = { val: [] }
+  let is_first = { val: true }
+
+  // Initial render
+  let fragment = doc.createDocumentFragment()
+  let initial_items = items()
+  for i = 0; i < initial_items.length(); i = i + 1 {
+    let item = initial_items[i]
+    let dom = render_item(item, i).to_jsdom()
+    entries.val.push(ItemEntry::new(item, dom))
+    fragment.as_node().appendChild(dom) |> ignore
+  }
+  fragment.as_node().appendChild(placeholder) |> ignore
+
+  // Update effect using reconciliation
   let _ = @signal.effect(fn() {
     let new_items = items()
-
-    // Simple strategy: remove all and re-render
-    // (Can be optimized with keyed reconciliation later)
-    for i = 0; i < current_nodes.length(); i = i + 1 {
-      match current_nodes[i].parentNode() {
-        Some(parent) => parent.removeChild(current_nodes[i]) |> ignore
-        None => ()
-      }
+    if is_first.val {
+      is_first.val = false
+      return
     }
-    current_nodes = []
-    for i = 0; i < new_items.length(); i = i + 1 {
-      let n = render_item(new_items[i], i)
-      let jsdom_node = n.to_jsdom()
-      current_nodes.push(jsdom_node)
-      container.as_node().appendChild(jsdom_node) |> ignore
-    }
+    reconcile_for_each(
+      entries,
+      placeholder,
+      new_items,
+      fn(item, i) { render_item(item, i).to_jsdom() },
+    )
   })
-  Raw(container.as_node())
+
+  Raw(fragment.as_node())
 }

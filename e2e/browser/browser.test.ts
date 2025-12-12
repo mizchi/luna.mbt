@@ -340,6 +340,170 @@ test.describe("Kaguya UI Framework Browser Tests", () => {
     });
   });
 
+  test.describe("List Reorder DOM Reuse", () => {
+    test("renders initial list with correct order", async ({ page }) => {
+      await page.goto("/browser/sortable-list");
+      await expect(page.locator("#app")).toHaveAttribute(
+        "data-hydrated",
+        "true"
+      );
+
+      const list = page.locator("[data-list]");
+      const items = list.locator("li");
+
+      await expect(items).toHaveCount(4);
+      await expect(items.nth(0)).toHaveText("Apple");
+      await expect(items.nth(1)).toHaveText("Banana");
+      await expect(items.nth(2)).toHaveText("Cherry");
+      await expect(items.nth(3)).toHaveText("Date");
+    });
+
+    // NOTE: These tests verify DOM element reuse during list reordering.
+    // Using reference-based reconciliation (Solid-style).
+    test("reverse reorders list without destroying DOM elements", async ({
+      page,
+    }) => {
+      await page.goto("/browser/sortable-list");
+      await expect(page.locator("#app")).toHaveAttribute(
+        "data-hydrated",
+        "true"
+      );
+
+      const list = page.locator("[data-list]");
+      const items = list.locator("li");
+
+      // Mark each DOM element with a unique property before reorder
+      await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        elements.forEach((el, i) => {
+          (el as any).__testMarker = `marker-${i}`;
+        });
+      });
+
+      // Click reverse button
+      await page.locator("[data-reverse]").click();
+
+      // Verify order is reversed
+      await expect(items.nth(0)).toHaveText("Date");
+      await expect(items.nth(1)).toHaveText("Cherry");
+      await expect(items.nth(2)).toHaveText("Banana");
+      await expect(items.nth(3)).toHaveText("Apple");
+
+      // Verify DOM elements are reused (markers should still exist)
+      const markers = await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        return Array.from(elements).map((el) => (el as any).__testMarker);
+      });
+
+      // After reverse: Date(was 3), Cherry(was 2), Banana(was 1), Apple(was 0)
+      // So markers should be: marker-3, marker-2, marker-1, marker-0
+      expect(markers).toEqual(["marker-3", "marker-2", "marker-1", "marker-0"]);
+    });
+
+    test("move first to last reorders without destroying DOM elements", async ({
+      page,
+    }) => {
+      await page.goto("/browser/sortable-list");
+      await expect(page.locator("#app")).toHaveAttribute(
+        "data-hydrated",
+        "true"
+      );
+
+      const list = page.locator("[data-list]");
+      const items = list.locator("li");
+
+      // Mark each DOM element with a unique property before reorder
+      await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        elements.forEach((el, i) => {
+          (el as any).__testMarker = `marker-${i}`;
+        });
+      });
+
+      // Click move first to last button
+      await page.locator("[data-move-first-to-last]").click();
+
+      // Verify order: Apple moved to end
+      await expect(items.nth(0)).toHaveText("Banana");
+      await expect(items.nth(1)).toHaveText("Cherry");
+      await expect(items.nth(2)).toHaveText("Date");
+      await expect(items.nth(3)).toHaveText("Apple");
+
+      // Verify DOM elements are reused
+      const markers = await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        return Array.from(elements).map((el) => (el as any).__testMarker);
+      });
+
+      // After move: Banana(was 1), Cherry(was 2), Date(was 3), Apple(was 0)
+      expect(markers).toEqual(["marker-1", "marker-2", "marker-3", "marker-0"]);
+    });
+
+    test("multiple reorders maintain DOM element identity", async ({ page }) => {
+      await page.goto("/browser/sortable-list");
+      await expect(page.locator("#app")).toHaveAttribute(
+        "data-hydrated",
+        "true"
+      );
+
+      const list = page.locator("[data-list]");
+      const items = list.locator("li");
+
+      // Mark elements
+      await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        elements.forEach((el, i) => {
+          (el as any).__testMarker = `marker-${i}`;
+        });
+      });
+
+      // Reverse twice should return to original order
+      await page.locator("[data-reverse]").click();
+      await page.locator("[data-reverse]").click();
+
+      // Verify order is back to original
+      await expect(items.nth(0)).toHaveText("Apple");
+      await expect(items.nth(1)).toHaveText("Banana");
+      await expect(items.nth(2)).toHaveText("Cherry");
+      await expect(items.nth(3)).toHaveText("Date");
+
+      // Verify same DOM elements (markers should be in original order)
+      const markers = await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        return Array.from(elements).map((el) => (el as any).__testMarker);
+      });
+
+      expect(markers).toEqual(["marker-0", "marker-1", "marker-2", "marker-3"]);
+    });
+
+    test("data-key attributes are preserved during reorder", async ({
+      page,
+    }) => {
+      await page.goto("/browser/sortable-list");
+      await expect(page.locator("#app")).toHaveAttribute(
+        "data-hydrated",
+        "true"
+      );
+
+      // Initial keys
+      const initialKeys = await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        return Array.from(elements).map((el) => el.getAttribute("data-key"));
+      });
+      expect(initialKeys).toEqual(["0", "1", "2", "3"]);
+
+      // Reverse
+      await page.locator("[data-reverse]").click();
+
+      // Keys should follow their elements (item with key 0 is now last)
+      const reversedKeys = await page.evaluate(() => {
+        const elements = document.querySelectorAll("[data-list] li");
+        return Array.from(elements).map((el) => el.getAttribute("data-key"));
+      });
+      expect(reversedKeys).toEqual(["3", "2", "1", "0"]);
+    });
+  });
+
   test.describe("Input Binding", () => {
     test("displays initial value from state", async ({ page }) => {
       await page.goto("/browser/input-binding");

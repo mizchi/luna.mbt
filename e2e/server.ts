@@ -78,6 +78,28 @@ const routerCsrPath = join(
   "router_csr.js"
 );
 
+// Import MoonBit chunked counter server module
+const chunkedCounterServerPath = join(
+  rootDir,
+  "target",
+  "js",
+  "release",
+  "build",
+  "examples",
+  "chunked_counter",
+  "server",
+  "server.js"
+);
+
+// Chunked counter static files directory
+const chunkedCounterStaticDir = join(
+  rootDir,
+  "src",
+  "examples",
+  "chunked_counter",
+  "static"
+);
+
 // Promisify MoonBit async callback
 function promisifyMoonBit<T>(fn: (cont: (v: T) => void, err: (e: Error) => void) => void): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -324,6 +346,29 @@ app.get("/browser/events", (c) => {
   return c.html(html);
 });
 
+// Sortable list test (for DOM reuse verification)
+app.get("/browser/sortable-list", (c) => {
+  const html = browserTestPage(
+    "Sortable List Test",
+    "sortable-list-1",
+    "hydrate_sortable_list",
+    { items: ["Apple", "Banana", "Cherry", "Date"] },
+    `<div>
+      <div class="controls">
+        <button data-reverse>Reverse</button>
+        <button data-move-first-to-last>Move First to Last</button>
+      </div>
+      <ul data-list>
+        <li data-key="0" data-index="0">Apple</li>
+        <li data-key="1" data-index="1">Banana</li>
+        <li data-key="2" data-index="2">Cherry</li>
+        <li data-key="3" data-index="3">Date</li>
+      </ul>
+    </div>`
+  );
+  return c.html(html);
+});
+
 // Input binding test
 app.get("/browser/input-binding", (c) => {
   const html = browserTestPage(
@@ -375,6 +420,32 @@ app.get("/csr-router/about", (c) => c.html(csrRouterHtml));
 app.get("/csr-router/contact", (c) => c.html(csrRouterHtml));
 app.get("/csr-router/posts/:id", (c) => c.html(csrRouterHtml));
 app.get("/csr-router/unknown/*", (c) => c.html(csrRouterHtml));
+
+// Chunked Counter routes (for ESM import architecture tests)
+// Serve static files from chunked counter static directory
+// Support both /static/ and /chunked-counter/static/ paths
+const serveChunkedCounterStatic = async (c: any, file: string) => {
+  const filePath = join(chunkedCounterStaticDir, file);
+  try {
+    const code = readFileSync(filePath, "utf-8");
+    const ext = file.split('.').pop();
+    const contentType = ext === 'js' ? 'application/javascript' : 'text/plain';
+    return c.body(code, 200, { "Content-Type": contentType });
+  } catch {
+    return c.notFound();
+  }
+};
+
+app.get("/chunked-counter/static/:file", (c) => serveChunkedCounterStatic(c, c.req.param("file")));
+app.get("/static/:file", (c) => serveChunkedCounterStatic(c, c.req.param("file")));
+
+// Chunked counter main page (SSR)
+app.get("/chunked-counter", async (c) => {
+  const count = parseInt(c.req.query("count") || "5");
+  const chunkedCounterServer = await import(chunkedCounterServerPath);
+  const html = chunkedCounterServer.renderPage(count);
+  return c.html(html);
+});
 
 // Island Node SSR test routes
 // These test the visland() VNode rendering with kg:* attributes and HTML comment markers
