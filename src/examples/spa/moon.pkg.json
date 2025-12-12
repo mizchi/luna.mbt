@@ -1,8 +1,6 @@
 {
   "is-main": true,
-  "supported-targets": [
-    "js"
-  ],
+  "supported-targets": ["js"],
   "import": [
     "mizchi/kaguya/core/signal",
     { "path": "mizchi/kaguya/browser", "alias": "dom" },

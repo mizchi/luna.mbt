@@ -115,22 +115,22 @@ pub extern "js" fn on(
 ) -> HandlerMap =
   #|(click, dblclick, input, change, submit, keydown, keyup, keypress, focus, blur, mouseenter, mouseleave, mouseover, mouseout, mousedown, mouseup) => {
   #|  const m = {};
-  #|  if (click) m.click = click;
-  #|  if (dblclick) m.dblclick = dblclick;
-  #|  if (input) m.input = input;
-  #|  if (change) m.change = change;
-  #|  if (submit) m.submit = submit;
-  #|  if (keydown) m.keydown = keydown;
-  #|  if (keyup) m.keyup = keyup;
-  #|  if (keypress) m.keypress = keypress;
-  #|  if (focus) m.focus = focus;
-  #|  if (blur) m.blur = blur;
-  #|  if (mouseenter) m.mouseenter = mouseenter;
-  #|  if (mouseleave) m.mouseleave = mouseleave;
-  #|  if (mouseover) m.mouseover = mouseover;
-  #|  if (mouseout) m.mouseout = mouseout;
-  #|  if (mousedown) m.mousedown = mousedown;
-  #|  if (mouseup) m.mouseup = mouseup;
+  #|  if (click?._0) m.click = click._0;
+  #|  if (dblclick?._0) m.dblclick = dblclick._0;
+  #|  if (input?._0) m.input = input._0;
+  #|  if (change?._0) m.change = change._0;
+  #|  if (submit?._0) m.submit = submit._0;
+  #|  if (keydown?._0) m.keydown = keydown._0;
+  #|  if (keyup?._0) m.keyup = keyup._0;
+  #|  if (keypress?._0) m.keypress = keypress._0;
+  #|  if (focus?._0) m.focus = focus._0;
+  #|  if (blur?._0) m.blur = blur._0;
+  #|  if (mouseenter?._0) m.mouseenter = mouseenter._0;
+  #|  if (mouseleave?._0) m.mouseleave = mouseleave._0;
+  #|  if (mouseover?._0) m.mouseover = mouseover._0;
+  #|  if (mouseout?._0) m.mouseout = mouseout._0;
+  #|  if (mousedown?._0) m.mousedown = mousedown._0;
+  #|  if (mouseup?._0) m.mouseup = mouseup._0;
   #|  return m;
   #|}
 
