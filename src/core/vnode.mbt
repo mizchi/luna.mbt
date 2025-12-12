@@ -200,20 +200,8 @@ pub fn[E] action(name : String) -> Attr[E] {
 }
 
 // =============================================================================
-// SSR convenience types and functions (E = Unit)
+// SSR convenience functions (E = Unit)
 // =============================================================================
-
-///|
-/// SSR Node type (no event handling)
-pub struct SsrNode {
-  inner : Node[Unit]
-}
-
-///|
-/// SSR Attr type
-pub struct SsrAttr {
-  inner : Attr[Unit]
-}
 
 ///|
 /// Create a placeholder event handler for SSR (noop)

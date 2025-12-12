@@ -1,26 +1,8 @@
 ///| Node types - DOM-independent interface for signals/dom
 
 // =============================================================================
-// Browser-specific VNode type aliases (Event type = @js.Any)
+// Browser-specific helper functions
 // =============================================================================
-
-///|
-/// Browser VNode type (uses @js.Any for event type)
-pub struct BrowserVNode {
-  inner : @luna.Node[@js.Any]
-}
-
-///|
-/// Browser Attr type (uses @js.Any for event type)
-pub struct BrowserAttr {
-  inner : @luna.Attr[@js.Any]
-}
-
-///|
-/// Browser EventHandler type
-pub struct BrowserEventHandler {
-  inner : @luna.EventHandler[@js.Any]
-}
 
 ///|
 /// Create a browser event handler from a callback

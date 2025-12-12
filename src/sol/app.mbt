@@ -1,6 +1,6 @@
-///| Framework - SSR-first Web Framework for MoonBit
+///| Sol - SSR-first Web Framework for MoonBit
 ///|
-///| Built on top of Hono, providing SSR with ui.mbt VNodes.
+///| Built on top of Hono, providing SSR with Luna VNodes.
 ///| Inspired by Next.js, Solid Start, and Qwik City.
 
 ///|
@@ -20,7 +20,7 @@ pub type App = @hono.Hono[Env, ExecutionContext]
 pub type Ctx = @hono.Context[Env, ExecutionContext]
 
 ///|
-/// Create a new framework application (async)
+/// Create a new Sol application (async)
 pub async fn create_app() -> App {
   @hono.Hono::new()
 }
@@ -30,7 +30,7 @@ extern "js" fn ffi_new_hono_async() -> @js.Promise[@js.Any] =
   #| () => import("hono").then(m => new m.Hono())
 
 ///|
-/// Create a new framework application and run callback with it
+/// Create a new Sol application and run callback with it
 /// This is useful for main function that cannot be async
 pub fn create_app_then(callback : (App) -> Unit) -> Unit {
   let _ = ffi_new_hono_async().then(fn(app) {
@@ -142,10 +142,10 @@ extern "js" fn ffi_serve(app : @js.Any, port : Int) -> Unit =
 
 ///|
 /// Default loader script URL
-pub let default_loader_url : String = "/kg-loader-v1.js"
+pub let default_loader_url : String = "/ln-loader-v1.js"
 
-// Re-export embed types for convenience
-pub using @embed {type TriggerType, type StateConfig, type EmbedConfig}
+// Re-export shard types for convenience
+pub using @shard {type TriggerType, type StateConfig, type ShardConfig}
 
 ///|
 /// Island configuration
@@ -155,9 +155,9 @@ pub struct IslandConfig[E] {
   /// ES module URL for hydration script
   script_url : String
   /// Hydration trigger type
-  trigger : @embed.TriggerType
+  trigger : @shard.TriggerType
   /// State configuration
-  state : @embed.StateConfig
+  state : @shard.StateConfig
   /// SSR rendered content (VNode)
   content : @luna.Node[E]?
   /// SSR rendered HTML string (alternative to content)
@@ -170,8 +170,8 @@ pub fn[E] IslandConfig::new(id : String, script_url : String) -> IslandConfig[E]
   {
     id,
     script_url,
-    trigger: @embed.TriggerType::Load,
-    state: @embed.StateConfig::Empty,
+    trigger: @shard.TriggerType::Load,
+    state: @shard.StateConfig::Empty,
     content: None,
     ssr_html: None,
   }
@@ -181,7 +181,7 @@ pub fn[E] IslandConfig::new(id : String, script_url : String) -> IslandConfig[E]
 /// Builder: set trigger type
 pub fn[E] IslandConfig::with_trigger(
   self : IslandConfig[E],
-  trigger : @embed.TriggerType
+  trigger : @shard.TriggerType
 ) -> IslandConfig[E] {
   { ..self, trigger }
 }
@@ -189,7 +189,7 @@ pub fn[E] IslandConfig::with_trigger(
 ///|
 /// Builder: set inline state from JSON
 pub fn[E] IslandConfig::with_state(self : IslandConfig[E], json : String) -> IslandConfig[E] {
-  { ..self, state: @embed.StateConfig::Inline(json) }
+  { ..self, state: @shard.StateConfig::Inline(json) }
 }
 
 ///|
@@ -198,13 +198,13 @@ pub fn[E] IslandConfig::with_state_ref(
   self : IslandConfig[E],
   script_id : String
 ) -> IslandConfig[E] {
-  { ..self, state: @embed.StateConfig::ScriptRef(script_id) }
+  { ..self, state: @shard.StateConfig::ScriptRef(script_id) }
 }
 
 ///|
 /// Builder: set state from URL
 pub fn[E] IslandConfig::with_state_url(self : IslandConfig[E], url : String) -> IslandConfig[E] {
-  { ..self, state: @embed.StateConfig::Url(url) }
+  { ..self, state: @shard.StateConfig::Url(url) }
 }
 
 ///|
@@ -235,20 +235,20 @@ pub fn[E] render_island(config : IslandConfig[E]) -> String {
       }
   }
 
-  // Convert state to embed format
-  let embed_config = @embed.EmbedConfig::new(config.id, config.script_url)
+  // Convert state to shard format
+  let shard_config = @shard.ShardConfig::new(config.id, config.script_url)
     .with_trigger(config.trigger)
     .with_ssr_content(ssr_content)
 
   // Apply state configuration
   let final_config = match config.state {
-    @embed.StateConfig::Empty => embed_config
-    @embed.StateConfig::Inline(json) => embed_config.with_state(json)
-    @embed.StateConfig::ScriptRef(id) => embed_config.with_state_ref(id)
-    @embed.StateConfig::Url(url) => embed_config.with_state_url(url)
+    @shard.StateConfig::Empty => shard_config
+    @shard.StateConfig::Inline(json) => shard_config.with_state(json)
+    @shard.StateConfig::ScriptRef(id) => shard_config.with_state_ref(id)
+    @shard.StateConfig::Url(url) => shard_config.with_state_url(url)
   }
 
-  @embed.generate_embed(final_config).html
+  @shard.generate_shard(final_config).html
 }
 
 ///|
@@ -315,29 +315,29 @@ pub fn[E] render_island_with_state_script(
       }
   }
 
-  let embed_config = @embed.EmbedConfig::new(config.id, config.script_url)
+  let shard_config = @shard.ShardConfig::new(config.id, config.script_url)
     .with_trigger(config.trigger)
     .with_ssr_content(ssr_content)
 
-  @embed.generate_embed_with_state_script(embed_config, state_json).html
+  @shard.generate_shard_with_state_script(shard_config, state_json).html
 }
 
 ///|
 /// Generate state script tag for external state
 pub fn generate_state_script(id : String, json : String) -> String {
-  @embed.generate_state_script(id, json)
+  @shard.generate_state_script(id, json)
 }
 
 ///|
 /// Escape JSON for safe embedding in HTML attributes
 pub fn escape_json_for_attr(json : String) -> String {
-  @embed.escape_json_for_attr(json)
+  @shard.escape_json_for_attr(json)
 }
 
 ///|
 /// Escape JSON for safe embedding in script tags
 pub fn escape_json_for_html(json : String) -> String {
-  @embed.escape_json_for_html(json)
+  @shard.escape_json_for_html(json)
 }
 
 // ============================================================================
@@ -446,7 +446,7 @@ pub fn StaticFileConfig::default() -> StaticFileConfig {
     path_prefix: "/static",
     local_dir: "static",
     mappings: [
-      ("kg-loader-v1.js", "static/kg-loader-v1.js"),
+      ("ln-loader-v1.js", "static/ln-loader-v1.js"),
     ],
   }
 }

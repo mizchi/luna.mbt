@@ -19,7 +19,7 @@ src/                    # MoonBitソースコード
 │   ├── renderer/       # SSRレンダリング
 │   ├── renderer_web/   # WebストリーミングSSR
 │   └── embed/          # Island埋め込み
-├── app/                # アプリケーションフレームワーク
+├── sol/                # SSRフレームワーク（Next.js相当）
 ├── router/             # ルーティング
 ├── tests/              # テストコンポーネント
 └── examples/           # サンプル
@@ -58,6 +58,7 @@ pnpm test:e2e:loader     # Loaderテストのみ
 - `@luna.` - Signal, Node, Attr等のエイリアス
 - `@dom.` - DOM操作のエイリアス
 - `@ssr.` - SSRのエイリアス
+- `@sol.` - SSRフレームワーク（App, Ctx等）のエイリアス
 
 ### NPMパッケージ
 - `@mizchi/luna` - コアランタイム

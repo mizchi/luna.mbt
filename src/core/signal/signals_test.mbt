@@ -728,7 +728,7 @@ test "computed is alias for memo" {
 ///|
 test "vtext_sig creates dynamic text from signal" {
   let sig = Signal::new(42)
-  let node = @luna.vtext_sig(sig)
+  let node : @luna.Node[Unit] = @luna.vtext_sig(sig)
   match node {
     @luna.DynamicText(getter) => assert_eq(getter(), "42")
     _ => assert_true(false)
@@ -742,7 +742,7 @@ test "vtext_sig creates dynamic text from signal" {
 
 ///|
 test "vnode creates anchor element" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "a",
     [("href", @luna.attr_static("https://example.com"))],
     [@luna.vtext("Link")],
@@ -759,7 +759,7 @@ test "vnode creates anchor element" {
 
 ///|
 test "vnode creates form element" {
-  let node = @luna.h("form", [("id", @luna.attr_static("myform"))], [
+  let node : @luna.Node[Unit] = @luna.h("form", [("id", @luna.attr_static("myform"))], [
     @luna.h("input", [("type", @luna.attr_static("text"))], []),
   ])
   match node {
@@ -774,7 +774,7 @@ test "vnode creates form element" {
 
 ///|
 test "vnode creates label element" {
-  let node = @luna.h("label", [("for", @luna.attr_static("input1"))], [
+  let node : @luna.Node[Unit] = @luna.h("label", [("for", @luna.attr_static("input1"))], [
     @luna.vtext("Name:"),
   ])
   match node {
@@ -785,7 +785,7 @@ test "vnode creates label element" {
 
 ///|
 test "vnode creates h2 element" {
-  let node = @luna.h("h2", [], [@luna.vtext("Section")])
+  let node : @luna.Node[Unit] = @luna.h("h2", [], [@luna.vtext("Section")])
   match node {
     @luna.Element(el) => assert_eq(el.tag, "h2")
     _ => assert_true(false)
@@ -794,7 +794,7 @@ test "vnode creates h2 element" {
 
 ///|
 test "vnode creates h3 element" {
-  let node = @luna.h("h3", [], [@luna.vtext("Subsection")])
+  let node : @luna.Node[Unit] = @luna.h("h3", [], [@luna.vtext("Subsection")])
   match node {
     @luna.Element(el) => assert_eq(el.tag, "h3")
     _ => assert_true(false)
@@ -803,7 +803,7 @@ test "vnode creates h3 element" {
 
 ///|
 test "vnode creates ol element" {
-  let node = @luna.h("ol", [], [
+  let node : @luna.Node[Unit] = @luna.h("ol", [], [
     @luna.h("li", [], [@luna.vtext("Item 1")]),
   ])
   match node {
@@ -814,7 +814,7 @@ test "vnode creates ol element" {
 
 ///|
 test "vnode creates img element" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "img",
     [
       ("src", @luna.attr_static("/image.png")),
@@ -835,7 +835,7 @@ test "vnode creates img element" {
 ///|
 test "attr_dynamic creates dynamic attribute" {
   let getter = fn() { "dynamic-value" }
-  let attr = @luna.attr_dynamic(getter)
+  let attr : @luna.Attr[Unit] = @luna.attr_dynamic(getter)
   match attr {
     @luna.VDynamic(g) => assert_eq(g(), "dynamic-value")
     _ => assert_true(false)
@@ -844,7 +844,7 @@ test "attr_dynamic creates dynamic attribute" {
 
 ///|
 test "attr_static creates value attribute" {
-  let attr = @luna.attr_static("test-value")
+  let attr : @luna.Attr[Unit] = @luna.attr_static("test-value")
   match attr {
     @luna.VStatic(v) => assert_eq(v, "test-value")
     _ => assert_true(false)
@@ -853,7 +853,7 @@ test "attr_static creates value attribute" {
 
 ///|
 test "attr_dynamic creates dynamic value attribute" {
-  let attr = @luna.attr_dynamic(fn() { "dynamic" })
+  let attr : @luna.Attr[Unit] = @luna.attr_dynamic(fn() { "dynamic" })
   match attr {
     @luna.VDynamic(g) => assert_eq(g(), "dynamic")
     _ => assert_true(false)
@@ -863,7 +863,7 @@ test "attr_dynamic creates dynamic value attribute" {
 ///|
 test "attr_handler creates input handler" {
   let handler = @luna.event_handler()
-  let attr = @luna.attr_handler(handler)
+  let attr : @luna.Attr[Unit] = @luna.attr_handler(handler)
   match attr {
     @luna.VHandler(_) => assert_true(true)
     _ => assert_true(false)
@@ -873,7 +873,7 @@ test "attr_handler creates input handler" {
 ///|
 test "attr_handler creates change handler" {
   let handler = @luna.event_handler()
-  let attr = @luna.attr_handler(handler)
+  let attr : @luna.Attr[Unit] = @luna.attr_handler(handler)
   match attr {
     @luna.VHandler(_) => assert_true(true)
     _ => assert_true(false)
@@ -883,7 +883,7 @@ test "attr_handler creates change handler" {
 ///|
 test "attr_handler creates submit handler" {
   let handler = @luna.event_handler()
-  let attr = @luna.attr_handler(handler)
+  let attr : @luna.Attr[Unit] = @luna.attr_handler(handler)
   match attr {
     @luna.VHandler(_) => assert_true(true)
     _ => assert_true(false)
@@ -893,7 +893,7 @@ test "attr_handler creates submit handler" {
 ///|
 test "attr_dynamic_style creates dynamic style attribute" {
   let style_getter = fn() { "color: red; margin: 10px" }
-  let attr = @luna.attr_dynamic_style(style_getter)
+  let attr : @luna.Attr[Unit] = @luna.attr_dynamic_style(style_getter)
   match attr {
     @luna.VDynamic(g) => assert_eq(g(), "color: red; margin: 10px")
     _ => assert_true(false)

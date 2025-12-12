@@ -3,18 +3,18 @@
   "is-main": true,
   "import": [
     {
-      "path": "mizchi/kaguya/core",
-      "alias": "kaguya"
+      "path": "mizchi/luna/core",
+      "alias": "luna"
     },
     {
-      "path": "mizchi/kaguya/core/signal",
+      "path": "mizchi/luna/core/signal",
       "alias": "signal"
     },
     {
-      "path": "mizchi/kaguya/app",
-      "alias": "framework"
+      "path": "mizchi/luna/sol",
+      "alias": "sol"
     },
-    "mizchi/js/core",
+    { "path": "mizchi/js/core", "alias": "core" },
     {
       "path": "{{PACKAGE_NAME}}/client/components",
       "alias": "counter"

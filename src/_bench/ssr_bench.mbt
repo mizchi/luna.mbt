@@ -8,13 +8,13 @@
 
 ///|
 test "ssr_simple_text" (b : @bench.T) {
-  let node = @luna.vtext("Hello, World!")
+  let node : @luna.Node[Unit] = @luna.vtext("Hello, World!")
   b.bench(name="ssr_simple_text", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 
 ///|
 test "ssr_simple_element" (b : @bench.T) {
-  let node = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.vtext("Hello")])
   b.bench(name="ssr_simple_element", fn() {
     b.keep(@ssr.render_to_string(node))
   })
@@ -22,7 +22,7 @@ test "ssr_simple_element" (b : @bench.T) {
 
 ///|
 test "ssr_element_with_attrs" (b : @bench.T) {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "div",
     [
       ("class", @luna.attr_static("container")),
@@ -41,7 +41,7 @@ test "ssr_element_with_attrs" (b : @bench.T) {
 
 ///|
 test "ssr_nested_3_levels" (b : @bench.T) {
-  let node = @luna.h("div", [], [
+  let node : @luna.Node[Unit] = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("p", [], [@luna.vtext("Nested content")]),
     ]),
@@ -53,7 +53,7 @@ test "ssr_nested_3_levels" (b : @bench.T) {
 
 ///|
 test "ssr_nested_5_levels" (b : @bench.T) {
-  let node = @luna.h("div", [], [
+  let node : @luna.Node[Unit] = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
         @luna.h("div", [], [
@@ -167,7 +167,7 @@ test "ssr_page_100_cards" (b : @bench.T) {
 
 ///|
 test "ssr_hydration_simple" (b : @bench.T) {
-  let node = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.vtext("Hello")])
   b.bench(name="ssr_hydration_simple", fn() {
     b.keep(@ssr.render_to_string_with_hydration(node))
   })
@@ -196,14 +196,14 @@ test "ssr_hydration_page_50_cards" (b : @bench.T) {
 ///|
 test "ssr_dynamic_text" (b : @bench.T) {
   let count = @signal.signal(0)
-  let node = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
+  let node : @luna.Node[Unit] = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
   b.bench(name="ssr_dynamic_text", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 
 ///|
 test "ssr_dynamic_attrs" (b : @bench.T) {
   let active = @signal.signal(true)
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "button",
     [
       (
@@ -225,7 +225,7 @@ test "ssr_dynamic_attrs" (b : @bench.T) {
 ///|
 test "ssr_show_conditional" (b : @bench.T) {
   let visible = @signal.signal(true)
-  let node = @luna.vshow(fn() { visible.get() }, fn() {
+  let node : @luna.Node[Unit] = @luna.vshow(fn() { visible.get() }, fn() {
     @luna.h("div", [], [@luna.vtext("Visible content")])
   })
   b.bench(name="ssr_show_conditional", fn() {
@@ -236,7 +236,7 @@ test "ssr_show_conditional" (b : @bench.T) {
 ///|
 test "ssr_for_loop" (b : @bench.T) {
   let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
-  let node = @luna.vfor(fn() {
+  let node : @luna.Node[Unit] = @luna.vfor(fn() {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.vtext(item)]) })
   })
   b.bench(name="ssr_for_loop", fn() { b.keep(@ssr.render_to_string(node)) })

@@ -1,4 +1,4 @@
-# Luna App Framework 実装計画
+# Luna + Sol 実装計画
 
 フルスタックWebフレームワークの実装計画。Hono上でSSRとresumable stateを統合する。
 
@@ -27,8 +27,8 @@ myapp/
 
 ## 現状の実装
 
-### src/app/app.mbt
-- Hono上のSSRフレームワーク基盤
+### src/sol/app.mbt
+- Hono上のSSRフレームワーク基盤 (Sol)
 - `create_app()`, `page()`, `api()`, `serve()`
 - Island Architecture (`IslandConfig`, `render_island`)
 - 依存: `mizchi/npm_typed/hono`, `mizchi/js/core`
@@ -147,21 +147,21 @@ dist/
 
 ```moonbit
 ///| ルーティング定義
-pub fn setup_routes(app : @framework.App) -> @framework.App {
+pub fn setup_routes(app : @sol.App) -> @sol.App {
   // 静的ページ
   app
-  |> @framework.page("/", home_page, title="Home")
-  |> @framework.page("/about", about_page, title="About")
+  |> @sol.page("/", home_page, title="Home")
+  |> @sol.page("/about", about_page, title="About")
 
   // 動的ルート (URLPattern使用)
-  |> @framework.page("/posts/:id", post_page, title="Post")
+  |> @sol.page("/posts/:id", post_page, title="Post")
 
   // API
-  |> @framework.api("/api/posts", list_posts)
-  |> @framework.api_post("/api/posts", create_post)
+  |> @sol.api("/api/posts", list_posts)
+  |> @sol.api_post("/api/posts", create_post)
 
   // Island (クライアントコンポーネント)
-  |> @framework.island_page("/counter", counter_islands)
+  |> @sol.island_page("/counter", counter_islands)
 }
 ```
 
@@ -184,7 +184,7 @@ let params = ctx.params()  // { "id": "123" }
 
 ```moonbit
 ///| サーバー専用: 非同期データフェッチ
-async fn post_page(ctx : @framework.Ctx) -> @luna.Node {
+async fn post_page(ctx : @sol.Ctx) -> @luna.Node {
   let id = ctx.params().get("id").unwrap()
   let post = fetch_post(id)  // async
 
@@ -260,7 +260,7 @@ function validateClientServerBoundary(projectDir: string) {
 |-------|--------|
 | `"use client"` / `"use server"` | ディレクトリ規約 (`client/`, `server/`) |
 | Server Components (RSC) | サーバーコンポーネント（非同期OK、SSR専用） |
-| Server Actions | API routes (`@framework.api_post`) |
+| Server Actions | API routes (`@sol.api_post`) |
 | 自動バンドル分離 | CLI による明示的ビルド |
 
 ### 型安全性
@@ -275,7 +275,7 @@ function validateClientServerBoundary(projectDir: string) {
 
 ## 参考
 
-- [src/app/app.mbt](../src/app/app.mbt) - 現在のフレームワーク基盤
+- [src/sol/app.mbt](../src/sol/app.mbt) - Sol フレームワーク基盤
 - [src/core/resume/](../src/core/resume/) - Resumable State実装
 - [docs/IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) - 全体計画
 - [docs/next-xany.md](./next-xany.md) - クロスターゲットAny型

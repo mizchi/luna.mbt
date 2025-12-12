@@ -3,7 +3,7 @@
     { "path": "mizchi/js/core", "alias": "js" },
     "mizchi/js/web/http",
     "mizchi/npm_typed/hono",
-    { "path": "mizchi/luna/app", "alias": "framework" }
+    { "path": "mizchi/luna/sol", "alias": "sol" }
   ],
   "link": {
     "js": {

@@ -1,42 +1,46 @@
 ///|
 /// SSR Tests - Pure MoonBit
+///
+/// Type alias for SSR nodes (Event type = Unit)
+
+
 test "render simple text" {
-  let node = @luna.vtext("Hello, World!")
+  let node : @luna.Node[Unit] = @luna.vtext("Hello, World!")
   let html = render_to_string(node)
   assert_eq(html, "Hello, World!")
 }
 
 ///|
 test "render escaped text" {
-  let node = @luna.vtext("<script>alert('xss')</script>")
+  let node : @luna.Node[Unit] = @luna.vtext("<script>alert('xss')</script>")
   let html = render_to_string(node)
   assert_eq(html, "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
 }
 
 ///|
 test "render simple element" {
-  let node = @luna.h("div", [], [])
+  let node : @luna.Node[Unit] = @luna.h("div", [], [])
   let html = render_to_string(node)
   assert_eq(html, "<div></div>")
 }
 
 ///|
 test "render element with text child" {
-  let node = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.vtext("Hello")])
   let html = render_to_string(node)
   assert_eq(html, "<div>Hello</div>")
 }
 
 ///|
 test "render element with class" {
-  let node = @luna.h("div", [("class", @luna.attr_static("container"))], [])
+  let node : @luna.Node[Unit] = @luna.h("div", [("class", @luna.attr_static("container"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<div class=\"container\"></div>")
 }
 
 ///|
 test "render element with multiple attrs" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "div",
     [
       ("id", @luna.attr_static("main")),
@@ -50,7 +54,7 @@ test "render element with multiple attrs" {
 
 ///|
 test "render nested elements" {
-  let node = @luna.h("div", [], [
+  let node : @luna.Node[Unit] = @luna.h("div", [], [
     @luna.h("span", [], [@luna.vtext("nested")]),
   ])
   let html = render_to_string(node)
@@ -59,7 +63,7 @@ test "render nested elements" {
 
 ///|
 test "render void element" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "input",
     [
       ("type", @luna.attr_static("text")),
@@ -73,7 +77,7 @@ test "render void element" {
 
 ///|
 test "render br and hr" {
-  let node = @luna.vfragment([
+  let node : @luna.Node[Unit] = @luna.vfragment([
     @luna.h("br", [], []),
     @luna.h("hr", [], []),
   ])
@@ -83,7 +87,7 @@ test "render br and hr" {
 
 ///|
 test "render fragment" {
-  let node = @luna.vfragment([
+  let node : @luna.Node[Unit] = @luna.vfragment([
     @luna.vtext("A"),
     @luna.vtext("B"),
     @luna.vtext("C"),
@@ -95,7 +99,7 @@ test "render fragment" {
 ///|
 test "render dynamic text" {
   let count = 42
-  let node = @luna.text_dyn(fn() { "Count: " + count.to_string() })
+  let node : @luna.Node[Unit] = @luna.text_dyn(fn() { "Count: " + count.to_string() })
   let html = render_to_string(node)
   assert_eq(html, "Count: 42")
 }
@@ -103,7 +107,7 @@ test "render dynamic text" {
 ///|
 test "render dynamic attribute" {
   let active = true
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "div",
     [
       (
@@ -119,7 +123,7 @@ test "render dynamic attribute" {
 
 ///|
 test "render style attribute" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "div",
     [("style", @luna.attr_style("color: red; font-size: 16px"))],
     [],
@@ -130,7 +134,7 @@ test "render style attribute" {
 
 ///|
 test "render disabled attribute true" {
-  let node = @luna.h("button", [("disabled", @luna.attr_static(""))], [
+  let node : @luna.Node[Unit] = @luna.h("button", [("disabled", @luna.attr_static(""))], [
     @luna.vtext("Submit"),
   ])
   let html = render_to_string(node)
@@ -139,7 +143,7 @@ test "render disabled attribute true" {
 
 ///|
 test "render disabled attribute false" {
-  let node = @luna.h("button", [], [@luna.vtext("Submit")])
+  let node : @luna.Node[Unit] = @luna.h("button", [], [@luna.vtext("Submit")])
   let html = render_to_string(node)
   assert_eq(html, "<button>Submit</button>")
 }
@@ -147,7 +151,7 @@ test "render disabled attribute false" {
 ///|
 test "render show when true" {
   let visible = true
-  let node = @luna.vshow(fn() { visible }, fn() { @luna.vtext("Visible!") })
+  let node : @luna.Node[Unit] = @luna.vshow(fn() { visible }, fn() { @luna.vtext("Visible!") })
   let html = render_to_string(node)
   assert_eq(html, "Visible!")
 }
@@ -155,7 +159,7 @@ test "render show when true" {
 ///|
 test "render show when false" {
   let visible = false
-  let node = @luna.vshow(fn() { visible }, fn() { @luna.vtext("Visible!") })
+  let node : @luna.Node[Unit] = @luna.vshow(fn() { visible }, fn() { @luna.vtext("Visible!") })
   let html = render_to_string(node)
   assert_eq(html, "<!--show-->")
 }
@@ -163,7 +167,7 @@ test "render show when false" {
 ///|
 test "render for list" {
   let items = ["A", "B", "C"]
-  let node = @luna.vfor(fn() {
+  let node : @luna.Node[Unit] = @luna.vfor(fn() {
     let result : Array[@luna.Node[Unit]] = []
     for i = 0; i < items.length(); i = i + 1 {
       result.push(@luna.h("li", [], [@luna.vtext(items[i])]))
@@ -180,14 +184,14 @@ test "render component" {
     @luna.h("div", [], [@luna.vtext("Hello, " + name + "!")])
   }
 
-  let node = @luna.vcomponent(fn() { greeting("World") })
+  let node : @luna.Node[Unit] = @luna.vcomponent(fn() { greeting("World") })
   let html = render_to_string(node)
   assert_eq(html, "<div>Hello, World!</div>")
 }
 
 ///|
 test "handlers are not rendered" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "button",
     [
       ("onClick", @luna.attr_handler(@luna.event_handler())),
@@ -202,7 +206,7 @@ test "handlers are not rendered" {
 
 ///|
 test "escape attribute value" {
-  let node = @luna.h("div", [("data-value", @luna.attr_static("a\"b&c"))], [])
+  let node : @luna.Node[Unit] = @luna.h("div", [("data-value", @luna.attr_static("a\"b&c"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<div data-value=\"a&quot;b&amp;c\"></div>")
 }
@@ -210,14 +214,14 @@ test "escape attribute value" {
 ///|
 test "render with hydration markers for dynamic text" {
   let count = 5
-  let node = @luna.text_dyn(fn() { count.to_string() })
+  let node : @luna.Node[Unit] = @luna.text_dyn(fn() { count.to_string() })
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<!--t:0-->5<!--/t-->")
 }
 
 ///|
 test "render with hydration markers for element with handler" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.event_handler()))],
     [@luna.vtext("Click")],
@@ -229,14 +233,14 @@ test "render with hydration markers for element with handler" {
 ///|
 test "render with hydration markers for show" {
   let visible = true
-  let node = @luna.vshow(fn() { visible }, fn() { @luna.vtext("Content") })
+  let node : @luna.Node[Unit] = @luna.vshow(fn() { visible }, fn() { @luna.vtext("Content") })
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<!--s:0-->Content<!--/s-->")
 }
 
 ///|
 test "render with hydration markers for list" {
-  let node = @luna.vfor(fn() { [@luna.vtext("A"), @luna.vtext("B")] })
+  let node : @luna.Node[Unit] = @luna.vfor(fn() { [@luna.vtext("A"), @luna.vtext("B")] })
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<!--f:0-->AB<!--/f-->")
 }
@@ -246,7 +250,7 @@ test "complex page render" {
   let title = "My App"
   let count = 0
   let items = ["Item 1", "Item 2"]
-  let page = @luna.h("div", [("class", @luna.attr_static("app"))], [
+  let page : @luna.Node[Unit] = @luna.h("div", [("class", @luna.attr_static("app"))], [
     @luna.h("h1", [], [@luna.vtext(title)]),
     @luna.h("p", [], [
       @luna.vtext("Count: "),
@@ -280,84 +284,84 @@ test "complex page render" {
 
 ///|
 test "render text with ampersand" {
-  let node = @luna.vtext("Tom & Jerry")
+  let node : @luna.Node[Unit] = @luna.vtext("Tom & Jerry")
   let html = render_to_string(node)
   assert_eq(html, "Tom &amp; Jerry")
 }
 
 ///|
 test "render text with double quote" {
-  let node = @luna.vtext("Say \"hello\"")
+  let node : @luna.Node[Unit] = @luna.vtext("Say \"hello\"")
   let html = render_to_string(node)
   assert_eq(html, "Say &quot;hello&quot;")
 }
 
 ///|
 test "render void elements img" {
-  let node = @luna.h("img", [("src", @luna.attr_static("/image.png"))], [])
+  let node : @luna.Node[Unit] = @luna.h("img", [("src", @luna.attr_static("/image.png"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<img src=\"/image.png\" />")
 }
 
 ///|
 test "render void element col" {
-  let node = @luna.h("col", [("span", @luna.attr_static("2"))], [])
+  let node : @luna.Node[Unit] = @luna.h("col", [("span", @luna.attr_static("2"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<col span=\"2\" />")
 }
 
 ///|
 test "render void element wbr" {
-  let node = @luna.h("wbr", [], [])
+  let node : @luna.Node[Unit] = @luna.h("wbr", [], [])
   let html = render_to_string(node)
   assert_eq(html, "<wbr />")
 }
 
 ///|
 test "render void element area" {
-  let node = @luna.h("area", [("shape", @luna.attr_static("rect"))], [])
+  let node : @luna.Node[Unit] = @luna.h("area", [("shape", @luna.attr_static("rect"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<area shape=\"rect\" />")
 }
 
 ///|
 test "render void element base" {
-  let node = @luna.h("base", [("href", @luna.attr_static("/"))], [])
+  let node : @luna.Node[Unit] = @luna.h("base", [("href", @luna.attr_static("/"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<base href=\"/\" />")
 }
 
 ///|
 test "render void element link" {
-  let node = @luna.h("link", [("rel", @luna.attr_static("stylesheet"))], [])
+  let node : @luna.Node[Unit] = @luna.h("link", [("rel", @luna.attr_static("stylesheet"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<link rel=\"stylesheet\" />")
 }
 
 ///|
 test "render void element meta" {
-  let node = @luna.h("meta", [("charset", @luna.attr_static("utf-8"))], [])
+  let node : @luna.Node[Unit] = @luna.h("meta", [("charset", @luna.attr_static("utf-8"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<meta charset=\"utf-8\" />")
 }
 
 ///|
 test "render void element embed" {
-  let node = @luna.h("embed", [("src", @luna.attr_static("/video.swf"))], [])
+  let node : @luna.Node[Unit] = @luna.h("embed", [("src", @luna.attr_static("/video.swf"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<embed src=\"/video.swf\" />")
 }
 
 ///|
 test "render void element track" {
-  let node = @luna.h("track", [("kind", @luna.attr_static("subtitles"))], [])
+  let node : @luna.Node[Unit] = @luna.h("track", [("kind", @luna.attr_static("subtitles"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<track kind=\"subtitles\" />")
 }
 
 ///|
 test "render void element source" {
-  let node = @luna.h("source", [("src", @luna.attr_static("/audio.mp3"))], [])
+  let node : @luna.Node[Unit] = @luna.h("source", [("src", @luna.attr_static("/audio.mp3"))], [])
   let html = render_to_string(node)
   assert_eq(html, "<source src=\"/audio.mp3\" />")
 }
@@ -365,14 +369,14 @@ test "render void element source" {
 ///|
 test "render non-void element with length 7" {
   // "section" has length 7, should not be void element
-  let node = @luna.h("section", [], [@luna.vtext("content")])
+  let node : @luna.Node[Unit] = @luna.h("section", [], [@luna.vtext("content")])
   let html = render_to_string(node)
   assert_eq(html, "<section>content</section>")
 }
 
 ///|
 test "render dynamic style" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "div",
     [
       (
@@ -388,7 +392,7 @@ test "render dynamic style" {
 
 ///|
 test "render empty dynamic style" {
-  let node = @luna.h(
+  let node : @luna.Node[Unit] = @luna.h(
     "div",
     [("style", @luna.attr_dynamic_style(fn() { "" }))],
     [],
@@ -404,7 +408,7 @@ test "render empty dynamic style" {
 
 ///|
 test "render island basic" {
-  let node = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.visland(
     "counter-1",
     "/components/counter.js",
     "{\"count\":5}",
@@ -433,7 +437,7 @@ test "render island basic" {
 
 ///|
 test "render island with idle trigger" {
-  let node = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.visland(
     "lazy-1",
     "/components/lazy.js",
     "{}",
@@ -447,7 +451,7 @@ test "render island with idle trigger" {
 
 ///|
 test "render island with visible trigger" {
-  let node = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.visland(
     "lazy-2",
     "/components/lazy.js",
     "{}",
@@ -461,7 +465,7 @@ test "render island with visible trigger" {
 
 ///|
 test "render island with media trigger" {
-  let node = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.visland(
     "responsive-1",
     "/components/responsive.js",
     "{}",
@@ -475,13 +479,13 @@ test "render island with media trigger" {
 
 ///|
 test "render nested islands" {
-  let inner_island = @luna.visland(
+  let inner_island : @luna.Node[Unit] = @luna.visland(
     "inner-1",
     "/components/inner.js",
     "{\"value\":42}",
     [@luna.vtext("Inner")],
   )
-  let outer_island = @luna.visland("outer-1", "/components/outer.js", "{}", [
+  let outer_island : @luna.Node[Unit] = @luna.visland("outer-1", "/components/outer.js", "{}", [
     @luna.h("div", [], [inner_island]),
   ])
   let html = render_to_string(outer_island)
@@ -497,7 +501,7 @@ test "render nested islands" {
 ///|
 test "render island state escaping" {
   // State with special characters that need escaping
-  let node = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.visland(
     "escape-1",
     "/components/test.js",
     "{\"text\":\"<script>alert(1)</script>\"}",
@@ -512,7 +516,7 @@ test "render island state escaping" {
 ///|
 test "render island with complex children" {
   let count = 3
-  let node = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.visland(
     "complex-1",
     "/components/complex.js",
     "{\"items\":[\"a\",\"b\",\"c\"]}",
@@ -542,7 +546,7 @@ test "render island with complex children" {
 
 ///|
 test "render island with hydration markers" {
-  let node = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.visland(
     "hyd-1",
     "/components/counter.js",
     "{\"count\":10}",

@@ -8,7 +8,7 @@
       "alias": "luna"
     },
     { "path": "mizchi/luna/server/renderer", "alias": "renderer" },
-    "mizchi/luna/server/embed",
+    "mizchi/luna/server/shard",
     { "path": "mizchi/js/core", "alias": "js" },
     {
       "path": "mizchi/npm_typed/hono",
