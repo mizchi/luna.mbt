@@ -20,11 +20,183 @@
 
 ///| - List rendering (for_each)
 
+///| - Client-side routing (ClientRouter)
+
+///| - Async data fetching patterns
+
+///| - Component composition
+
 ///|
 /// Console logging helper
 fn console_log(msg : String) -> Unit {
   let global = @global.global_this()
   global["console"]._call("log", [@js.any(msg)]) |> ignore
+}
+
+// =============================================================================
+// Async Data Fetching Pattern
+// =============================================================================
+
+///|
+/// Async state for data fetching
+priv struct AsyncState[T] {
+  is_loading : @signal.Signal[Bool]
+  data : @signal.Signal[T?]
+  error : @signal.Signal[String?]
+}
+
+///|
+/// Create a new async state
+fn[T] AsyncState::new() -> AsyncState[T] {
+  {
+    is_loading: @signal.signal(false),
+    data: @signal.signal(None),
+    error: @signal.signal(None),
+  }
+}
+
+///|
+/// Simulate async data fetching with setTimeout
+extern "js" fn set_timeout(callback : () -> Unit, ms : Int) -> Unit =
+  #| (callback, ms) => setTimeout(callback, ms)
+
+///|
+/// Simulated user data
+priv struct User {
+  id : Int
+  name : String
+  email : String
+}
+
+///|
+/// Async data fetching example
+fn async_data_example(
+  router : @client.ClientRouter,
+  user_id : Int,
+) -> @dom.DomNode {
+  let state : AsyncState[User] = AsyncState::new()
+
+  // Simulate data fetching
+  fn fetch_user(id : Int) -> Unit {
+    state.is_loading.set(true)
+    state.error.set(None)
+    // Simulate API delay
+    set_timeout(
+      fn() {
+        if id > 0 && id <= 3 {
+          state.data.set(
+            Some({
+              id,
+              name: "User " + id.to_string(),
+              email: "user" + id.to_string() + "@example.com",
+            }),
+          )
+          state.is_loading.set(false)
+        } else {
+          state.error.set(Some("User not found"))
+          state.is_loading.set(false)
+        }
+      },
+      500,
+    )
+  }
+
+  // Fetch on mount
+  fetch_user(user_id)
+
+  @dom.div(class="async-example", [
+    @dom.h2([@dom.text("Async Data Example")]),
+    @dom.p([@dom.text("User ID: " + user_id.to_string())]),
+    // Loading state
+    @dom.show(fn() { state.is_loading.get() }, fn() {
+      @dom.p(class="loading", [@dom.text("Loading...")])
+    }),
+    // Error state
+    @dom.show(
+      fn() { not(state.error.get() is None) && not(state.is_loading.get()) },
+      fn() {
+        @dom.p(
+          class="error",
+          style="color: red;",
+          [
+            @dom.text_dyn(fn() {
+              match state.error.get() {
+                Some(err) => "Error: " + err
+                None => ""
+              }
+            }),
+          ],
+        )
+      },
+    ),
+    // Data display
+    @dom.show(
+      fn() { not(state.data.get() is None) && not(state.is_loading.get()) },
+      fn() {
+        @dom.div(class="user-card", style="padding: 10px; border: 1px solid #ccc;", [
+          @dom.p([
+            @dom.text_dyn(fn() {
+              match state.data.get() {
+                Some(user) => "Name: " + user.name
+                None => ""
+              }
+            }),
+          ]),
+          @dom.p([
+            @dom.text_dyn(fn() {
+              match state.data.get() {
+                Some(user) => "Email: " + user.email
+                None => ""
+              }
+            }),
+          ]),
+        ])
+      },
+    ),
+    @dom.hr(),
+    @dom.p([@dom.text("Try different users:")]),
+    @dom.div(class="buttons", [
+      link_button("/user/1", "User 1", router),
+      link_button("/user/2", "User 2", router),
+      link_button("/user/3", "User 3", router),
+      link_button("/user/999", "User 999 (Not Found)", router),
+    ]),
+  ])
+}
+
+// =============================================================================
+// Component Pattern - Props-based composition
+// =============================================================================
+
+///|
+/// Card component props
+priv struct CardProps {
+  title : String
+  children : Array[@dom.DomNode]
+}
+
+///|
+/// Reusable Card component
+fn card(props : CardProps) -> @dom.DomNode {
+  @dom.div(
+    class="card",
+    style="border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin: 8px 0;",
+    [@dom.h3(style="margin-top: 0;", [@dom.text(props.title)]), ..props.children],
+  )
+}
+
+///|
+/// Button component with onClick
+fn link_button(
+  href : String,
+  label : String,
+  router : @client.ClientRouter,
+) -> @dom.DomNode {
+  @dom.button(
+    style="margin-right: 8px;",
+    on=@dom.on(click=Some(fn(_) { router.navigate(href) })),
+    [@dom.text(label)],
+  )
 }
 
 // =============================================================================
@@ -36,25 +208,29 @@ fn counter_example() -> @dom.DomNode {
   let count = @signal.signal(0)
   let doubled = @signal.memo(fn() { count.get() * 2 })
   let is_even = @signal.memo(fn() { count.get() % 2 == 0 })
-  @dom.div(class="counter-example", [
-    @dom.h2([@dom.text("Counter Example")]),
-    @dom.p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } })]),
-    @dom.div(class="buttons", [
-      @dom.button(
-        on=@dom.on(click=Some(fn(_) { count.update(fn(n) { n - 1 }) })),
-        [@dom.text("-")],
-      ),
-      @dom.button(
-        on=@dom.on(click=Some(fn(_) { count.update(fn(n) { n + 1 }) })),
-        [@dom.text("+")],
-      ),
-      @dom.button(on=@dom.on(click=Some(fn(_) { count.set(0) })), [
-        @dom.text("Reset"),
-      ]),
-    ]),
-  ])
+  card(
+    {
+      title: "Counter Example",
+      children: [
+        @dom.p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
+        @dom.p([@dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
+        @dom.p([@dom.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } })]),
+        @dom.div(class="buttons", [
+          @dom.button(
+            on=@dom.on(click=Some(fn(_) { count.update(fn(n) { n - 1 }) })),
+            [@dom.text("-")],
+          ),
+          @dom.button(
+            on=@dom.on(click=Some(fn(_) { count.update(fn(n) { n + 1 }) })),
+            [@dom.text("+")],
+          ),
+          @dom.button(on=@dom.on(click=Some(fn(_) { count.set(0) })), [
+            @dom.text("Reset"),
+          ]),
+        ]),
+      ],
+    },
+  )
 }
 
 // =============================================================================
@@ -65,156 +241,28 @@ fn counter_example() -> @dom.DomNode {
 fn input_example() -> @dom.DomNode {
   let text = @signal.signal("")
   let char_count = @signal.memo(fn() { text.get().length() })
-  @dom.div(class="input-example", [
-    @dom.h2([@dom.text("Input Example")]),
-    @dom.input(
-      type_="text",
-      placeholder="Type something...",
-      on=@dom.on(
-        input=Some(fn(e) {
-          let target : @js.Any = e.target() |> @js.identity
-          let value : String = target._get("value").cast()
-          text.set(value)
-        }),
-      ),
-    ),
-    @dom.p([@dom.text_dyn(fn() { "Characters: " + char_count().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { "You typed: " + text.get() })]),
-  ])
-}
-
-// =============================================================================
-// Effect Example - Side effects and cleanup
-// =============================================================================
-
-///|
-fn effect_example() -> @dom.DomNode {
-  let active = @signal.signal(false)
-  let ticks = @signal.signal(0)
-  let _ = @signal.effect(fn() {
-    let is_active = active.get()
-    console_log("Active state changed: " + is_active.to_string())
-    @signal.on_cleanup(fn() { console_log("Cleaning up effect") })
-  })
-  @dom.div(class="effect-example", [
-    @dom.h2([@dom.text("Effect Example")]),
-    @dom.p([
-      @dom.text_dyn(fn() {
-        let status = if active.get() { "Active" } else { "Inactive" }
-        "Status: " + status
-      }),
-    ]),
-    @dom.p([@dom.text_dyn(fn() { "Ticks: " + ticks.get().to_string() })]),
-    @dom.button(
-      on=@dom.on(click=Some(fn(_) { active.update(fn(b) { not(b) }) })),
-      [@dom.text_dyn(fn() { if active.get() { "Stop" } else { "Start" } })],
-    ),
-    @dom.button(
-      on=@dom.on(click=Some(fn(_) { ticks.update(fn(n) { n + 1 }) })),
-      [@dom.text("Tick")],
-    ),
-  ])
-}
-
-// =============================================================================
-// Conditional Example - show/hide
-// =============================================================================
-
-///|
-fn conditional_example() -> @dom.DomNode {
-  let show_message = @signal.signal(true)
-  @dom.div(class="conditional-example", [
-    @dom.h2([@dom.text("Conditional Example")]),
-    @dom.button(
-      on=@dom.on(click=Some(fn(_) { show_message.update(fn(b) { not(b) }) })),
-      [
-        @dom.text_dyn(fn() {
-          if show_message.get() {
-            "Hide Message"
-          } else {
-            "Show Message"
-          }
-        }),
+  card(
+    {
+      title: "Input Example",
+      children: [
+        @dom.input(
+          type_="text",
+          placeholder="Type something...",
+          on=@dom.on(
+            input=Some(fn(e) {
+              let target : @js.Any = e.target() |> @js.identity
+              let value : String = target._get("value").cast()
+              text.set(value)
+            }),
+          ),
+        ),
+        @dom.p([
+          @dom.text_dyn(fn() { "Characters: " + char_count().to_string() }),
+        ]),
+        @dom.p([@dom.text_dyn(fn() { "You typed: " + text.get() })]),
       ],
-    ),
-    @dom.show(fn() { show_message.get() }, fn() {
-      @dom.div(
-        class="message",
-        style="padding: 10px; background-color: #e0f7fa;",
-        [@dom.text("Hello! This message is conditionally rendered.")],
-      )
-    }),
-  ])
-}
-
-// =============================================================================
-// Style Example - Dynamic styles with range inputs
-// =============================================================================
-
-///|
-fn style_example() -> @dom.DomNode {
-  let hue = @signal.signal(180)
-  let size = @signal.signal(100)
-  @dom.div(class="style-example", [
-    @dom.h2([@dom.text("Style Example")]),
-    @dom.create_element(
-      "div",
-      [
-        (
-          "style",
-          @dom.attr_dynamic(fn() {
-            "width: " +
-            size.get().to_string() +
-            "px; height: " +
-            size.get().to_string() +
-            "px; background-color: hsl(" +
-            hue.get().to_string() +
-            ", 70%, 50%); transition: all 0.3s ease; border-radius: 8px;"
-          }),
-        ),
-      ],
-      [],
-    ),
-    @dom.div([
-      @dom.label([@dom.text("Hue: ")]),
-      @dom.input(
-        type_="range",
-        value="180",
-        attrs=[("min", @dom.Attr::AttrInt(0)), ("max", @dom.Attr::AttrInt(360))],
-        on=@dom.on(
-          input=Some(fn(e) {
-            let target : @js.Any = e.target() |> @js.identity
-            let value : String = target._get("value").cast()
-            match @global.parseInt(value) {
-              Some(n) => hue.set(n)
-              None => ()
-            }
-          }),
-        ),
-      ),
-    ]),
-    @dom.div([
-      @dom.label([@dom.text("Size: ")]),
-      @dom.input(
-        type_="range",
-        value="100",
-        attrs=[
-          ("min", @dom.Attr::AttrInt(50)),
-          ("max", @dom.Attr::AttrInt(200)),
-        ],
-        on=@dom.on(
-          input=Some(fn(e) {
-            let target : @js.Any = e.target() |> @js.identity
-            let value : String = target._get("value").cast()
-            match @global.parseInt(value) {
-              Some(n) => size.set(n)
-              None => ()
-            }
-          }),
-        ),
-      ),
-    ]),
-  ])
+    },
+  )
 }
 
 // =============================================================================
@@ -285,77 +333,237 @@ fn todo_example() -> @dom.DomNode {
     })
   }
 
-  @dom.div(class="todo-example", [
-    @dom.h2([@dom.text("Todo List Example")]),
-    @dom.form(
-      on=@dom.on(
-        submit=Some(fn(e) {
-          e.preventDefault()
-          add_todo()
-        }),
-      ),
-      [
-        @dom.input(
-          type_="text",
-          placeholder="Add a todo...",
+  card(
+    {
+      title: "Todo List",
+      children: [
+        @dom.form(
           on=@dom.on(
-            input=Some(fn(e) {
-              let target : @js.Any = e.target() |> @js.identity
-              input_text.set(target._get("value").cast())
+            submit=Some(fn(e) {
+              e.preventDefault()
+              add_todo()
             }),
           ),
+          [
+            @dom.input(
+              type_="text",
+              placeholder="Add a todo...",
+              on=@dom.on(
+                input=Some(fn(e) {
+                  let target : @js.Any = e.target() |> @js.identity
+                  input_text.set(target._get("value").cast())
+                }),
+              ),
+            ),
+            @dom.create_element(
+              "button",
+              [("type", @dom.attr_static("submit"))],
+              [@dom.text("Add")],
+            ),
+          ],
         ),
-        @dom.create_element("button", [("type", @dom.attr_static("submit"))], [
-          @dom.text("Add"),
+        @dom.p([
+          @dom.text_dyn(fn() {
+            completed_count().to_string() + "/" + total().to_string() + " completed"
+          }),
+        ]),
+        @dom.ul([
+          @dom.for_each(fn() { todos.get() }, fn(todo, _index) {
+            let todo_id = todo.id
+            @dom.create_element(
+              "li",
+              [
+                (
+                  "style",
+                  @dom.attr_dynamic(fn() {
+                    let items = todos.get()
+                    let mut is_completed = false
+                    for i = 0; i < items.length(); i = i + 1 {
+                      if items[i].id == todo_id && items[i].completed {
+                        is_completed = true
+                        break
+                      }
+                    }
+                    if is_completed {
+                      "text-decoration: line-through; opacity: 0.6;"
+                    } else {
+                      "text-decoration: none; opacity: 1;"
+                    }
+                  }),
+                ),
+              ],
+              [
+                @dom.span(
+                  style="cursor: pointer;",
+                  on=@dom.on(click=Some(fn(_) { toggle_todo(todo_id) })),
+                  [@dom.text(todo.text)],
+                ),
+                @dom.button(
+                  style="margin-left: 10px;",
+                  on=@dom.on(click=Some(fn(_) { remove_todo(todo_id) })),
+                  [@dom.text("x")],
+                ),
+              ],
+            )
+          }),
         ]),
       ],
-    ),
+    },
+  )
+}
+
+// =============================================================================
+// Page Components for Routing
+// =============================================================================
+
+///|
+/// Home page component
+fn home_page(router : @client.ClientRouter) -> @dom.DomNode {
+  @dom.div(class="page home", [
+    @dom.h1([@dom.text("Luna SPA Examples")]),
     @dom.p([
-      @dom.text_dyn(fn() {
-        completed_count().to_string() + "/" + total().to_string() + " completed"
-      }),
+      @dom.text("A collection of examples demonstrating the reactive UI library."),
     ]),
+    @dom.hr(),
+    counter_example(),
+    input_example(),
+    todo_example(),
+    @dom.hr(),
+    @dom.h2([@dom.text("Navigation")]),
+    @dom.p([@dom.text("Explore more features:")]),
     @dom.ul([
-      @dom.for_each(fn() { todos.get() }, fn(todo, _index) {
-        let todo_id = todo.id
-        @dom.create_element(
-          "li",
-          [
-            (
-              "style",
-              @dom.attr_dynamic(fn() {
-                let items = todos.get()
-                let mut is_completed = false
-                for i = 0; i < items.length(); i = i + 1 {
-                  if items[i].id == todo_id && items[i].completed {
-                    is_completed = true
-                    break
-                  }
-                }
-                if is_completed {
-                  "text-decoration: line-through; opacity: 0.6;"
-                } else {
-                  "text-decoration: none; opacity: 1;"
-                }
-              }),
-            ),
-          ],
-          [
-            @dom.span(
-              style="cursor: pointer;",
-              on=@dom.on(click=Some(fn(_) { toggle_todo(todo_id) })),
-              [@dom.text(todo.text)],
-            ),
-            @dom.button(
-              style="margin-left: 10px;",
-              on=@dom.on(click=Some(fn(_) { remove_todo(todo_id) })),
-              [@dom.text("x")],
-            ),
-          ],
-        )
-      }),
+      @dom.li([
+        @dom.a(
+          href="/about",
+          on=@dom.on(click=Some(fn(e) {
+            e.preventDefault()
+            router.navigate("/about")
+          })),
+          [@dom.text("About Page")],
+        ),
+      ]),
+      @dom.li([
+        @dom.a(
+          href="/user/1",
+          on=@dom.on(click=Some(fn(e) {
+            e.preventDefault()
+            router.navigate("/user/1")
+          })),
+          [@dom.text("User Profile (Async Data)")],
+        ),
+      ]),
     ]),
   ])
+}
+
+///|
+/// About page component
+fn about_page(router : @client.ClientRouter) -> @dom.DomNode {
+  @dom.div(class="page about", [
+    @dom.h1([@dom.text("About Luna")]),
+    card(
+      {
+        title: "Features",
+        children: [
+          @dom.ul([
+            @dom.li([@dom.text("Fine-grained reactivity with Signals")]),
+            @dom.li([@dom.text("SPA routing with History API")]),
+            @dom.li([@dom.text("Component-based architecture")]),
+            @dom.li([@dom.text("Async data fetching patterns")]),
+            @dom.li([@dom.text("SSR with Island Architecture")]),
+          ]),
+        ],
+      },
+    ),
+    @dom.hr(),
+    link_button("/", "Back to Home", router),
+  ])
+}
+
+///|
+/// User page component (with async data)
+fn user_page(router : @client.ClientRouter, user_id : Int) -> @dom.DomNode {
+  @dom.div(class="page user", [
+    @dom.h1([@dom.text("User Profile")]),
+    async_data_example(router, user_id),
+    @dom.hr(),
+    link_button("/", "Back to Home", router),
+  ])
+}
+
+///|
+/// 404 Not Found page
+fn not_found_page(router : @client.ClientRouter, path : String) -> @dom.DomNode {
+  @dom.div(class="page not-found", [
+    @dom.h1([@dom.text("404 - Not Found")]),
+    @dom.p([@dom.text("Page not found: " + path)]),
+    @dom.hr(),
+    link_button("/", "Back to Home", router),
+  ])
+}
+
+// =============================================================================
+// Router Setup
+// =============================================================================
+
+///|
+/// Create routes configuration
+fn create_routes() -> Array[@router.Route] {
+  [
+    @router.Route::Page(path="/", title="Home", meta=[]),
+    @router.Route::Page(path="/about", title="About", meta=[]),
+    @router.Route::Path(
+      "/user",
+      [
+        @router.Route::Param(
+          ":id",
+          key="id",
+          title="User Profile",
+          meta=[],
+        ),
+      ],
+      title="Users",
+      meta=[],
+    ),
+  ]
+}
+
+///|
+/// Render the current route
+fn render_route(
+  router : @client.ClientRouter,
+  container : @dom.DomElement,
+) -> Unit {
+  let _ = @signal.effect(fn() {
+    let path = router.current_path_signal().get()
+    let match_result = router.current_match_signal().get()
+    console_log("Navigating to: " + path)
+
+    // Clear and render new content
+    @dom.clear(container)
+    let page = match match_result {
+      Some(m) => {
+        let ctx = @router.RouterContext::from_match(m)
+        if ctx.path == "/" {
+          home_page(router)
+        } else if ctx.path == "/about" {
+          about_page(router)
+        } else {
+          // Check for user route
+          match ctx.get_param("id") {
+            Some(id_str) =>
+              match @global.parseInt(id_str) {
+                Some(id) => user_page(router, id)
+                None => not_found_page(router, path)
+              }
+            None => not_found_page(router, path)
+          }
+        }
+      }
+      None => not_found_page(router, path)
+    }
+    @dom.mount(container, page)
+  })
 }
 
 // =============================================================================
@@ -363,39 +571,23 @@ fn todo_example() -> @dom.DomNode {
 // =============================================================================
 
 ///|
-/// Main function - renders the sample app
+/// Main function - renders the SPA with routing
 fn main {
-  console_log("Luna SPA Sample Application")
-  console_log("==============================")
+  console_log("Luna SPA Application")
+  console_log("====================")
+
   let doc = @js_dom.document()
   let container = doc.getElementById("app")
   match container {
     Some(el) => {
-      let app = @dom.div(
-        class="app",
-        style="padding: 20px; max-width: 800px; margin: 0 auto;",
-        [
-          @dom.h1([@dom.text("Luna Examples")]),
-          @dom.p([
-            @dom.text(
-              "A collection of examples demonstrating the reactive UI library.",
-            ),
-          ]),
-          @dom.hr(),
-          counter_example(),
-          @dom.hr(),
-          input_example(),
-          @dom.hr(),
-          effect_example(),
-          @dom.hr(),
-          conditional_example(),
-          @dom.hr(),
-          style_example(),
-          @dom.hr(),
-          todo_example(),
-        ],
-      )
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+      // Create router with routes
+      let router = @client.ClientRouter::new(create_routes())
+      console_log("Router initialized with path: " + router.get_path())
+
+      // Setup reactive routing
+      let dom_container = el |> @dom.DomElement::from_jsdom
+      render_route(router, dom_container)
+
       console_log("App rendered successfully!")
     }
     None => console_log("ERROR: Could not find #app container")

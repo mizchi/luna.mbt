@@ -4,6 +4,8 @@
   "import": [
     "mizchi/luna/core/signal",
     { "path": "mizchi/luna/platform/dom/element", "alias": "dom" },
+    { "path": "mizchi/luna/platform/dom/client", "alias": "client" },
+    { "path": "mizchi/luna/router", "alias": "router" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/builtins/global"
