@@ -13,7 +13,7 @@ test "dom_render_simple_text" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.vtext("Hello, World!")
   b.bench(name="dom_render_simple_text", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -22,7 +22,7 @@ test "dom_render_simple_element" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [@luna.vtext("Hello")])
   b.bench(name="dom_render_simple_element", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -38,7 +38,7 @@ test "dom_render_element_with_attrs" (b : @bench.T) {
     [@luna.vtext("Content")],
   )
   b.bench(name="dom_render_element_with_attrs", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -53,7 +53,7 @@ test "dom_render_nested_3" (b : @bench.T) {
     @luna.h("section", [], [@luna.h("p", [], [@luna.vtext("Nested")])]),
   ])
   b.bench(name="dom_render_nested_3", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -68,7 +68,7 @@ test "dom_render_nested_5" (b : @bench.T) {
     ]),
   ])
   b.bench(name="dom_render_nested_5", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -90,7 +90,7 @@ test "dom_render_list_10" (b : @bench.T) {
   @global_jsdom.register()
   let node = create_list_node(10)
   b.bench(name="dom_render_list_10", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -99,7 +99,7 @@ test "dom_render_list_100" (b : @bench.T) {
   @global_jsdom.register()
   let node = create_list_node(100)
   b.bench(name="dom_render_list_100", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -112,7 +112,7 @@ test "dom_reactive_text_update" (b : @bench.T) {
   @global_jsdom.register()
   let count = @signal.signal(0)
   let node = @luna.text_dyn(fn() { count.get().to_string() })
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_reactive_text_update", fn() {
     i = i + 1
@@ -134,7 +134,7 @@ test "dom_reactive_attr_update" (b : @bench.T) {
     ],
     [@luna.vtext("Toggle")],
   )
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   b.bench(name="dom_reactive_attr_update", fn() {
     active.update(fn(b) { not(b) })
   })
@@ -156,7 +156,7 @@ test "dom_reactive_style_update" (b : @bench.T) {
     ],
     [],
   )
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 100
   b.bench(name="dom_reactive_style_update", fn() {
     i = i + 1
@@ -177,7 +177,7 @@ test "dom_show_toggle" (b : @bench.T) {
   })
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let dom = @dom.render_vnode_to_dom(node)
+  let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
   b.bench(name="dom_show_toggle", fn() { visible.update(fn(v) { not(v) }) })
 }
@@ -195,7 +195,7 @@ test "dom_for_list_update" (b : @bench.T) {
   })
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let dom = @dom.render_vnode_to_dom(node)
+  let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
   let mut i = 0
   b.bench(name="dom_for_list_update", fn() {
@@ -225,7 +225,7 @@ test "dom_component_counter" (b : @bench.T) {
       @luna.text_dyn(fn() { doubled().to_string() }),
     ]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_component_counter", fn() {
     i = i + 1
@@ -244,7 +244,7 @@ test "dom_batched_updates" (b : @bench.T) {
     @luna.text_dyn(fn() { b_.get().to_string() }),
     @luna.text_dyn(fn() { c.get().to_string() }),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_batched_3_updates", fn() {
     i = i + 1
@@ -271,7 +271,7 @@ test "dom_shallow_update_root" (b : @bench.T) {
     @luna.h("p", [], [@luna.vtext("Static content 2")]),
     @luna.h("p", [], [@luna.vtext("Static content 3")]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_shallow_update_root", fn() {
     i = i + 1
@@ -291,7 +291,7 @@ test "dom_shallow_update_siblings" (b : @bench.T) {
     @luna.h("span", [], [@luna.text_dyn(fn() { b_sig.get() })]),
     @luna.h("span", [], [@luna.text_dyn(fn() { c.get() })]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_shallow_update_siblings", fn() {
     i = i + 1
@@ -315,7 +315,7 @@ test "dom_deep_update_3_levels" (b : @bench.T) {
       ]),
     ]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_deep_update_3_levels", fn() {
     i = i + 1
@@ -337,7 +337,7 @@ test "dom_deep_update_5_levels" (b : @bench.T) {
       ]),
     ]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_deep_update_5_levels", fn() {
     i = i + 1
@@ -359,7 +359,7 @@ test "dom_deep_update_multi_depth" (b : @bench.T) {
       @luna.h("article", [], [@luna.text_dyn(fn() { level3.get() })]),
     ]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_deep_update_multi_depth", fn() {
     i = i + 1
@@ -385,7 +385,7 @@ test "dom_wide_shallow_10" (b : @bench.T) {
     )
   }
   let node = @luna.h("div", [], children)
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut iter = 0
   b.bench(name="dom_wide_shallow_10", fn() {
     iter = iter + 1
@@ -411,7 +411,7 @@ test "dom_wide_shallow_50" (b : @bench.T) {
     )
   }
   let node = @luna.h("div", [], children)
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut iter = 0
   b.bench(name="dom_wide_shallow_50", fn() {
     iter = iter + 1
@@ -433,7 +433,7 @@ test "dom_derived_shallow" (b : @bench.T) {
     @luna.h("span", [], [@luna.text_dyn(fn() { base.get().to_string() })]),
     @luna.h("span", [], [@luna.text_dyn(fn() { derived().to_string() })]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_derived_shallow", fn() {
     i = i + 1
@@ -455,7 +455,7 @@ test "dom_derived_deep_chain" (b : @bench.T) {
     @luna.h("span", [], [@luna.text_dyn(fn() { derived2().to_string() })]),
     @luna.h("span", [], [@luna.text_dyn(fn() { derived3().to_string() })]),
   ])
-  let _ = @dom.render_vnode_to_dom(node)
+  let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
   b.bench(name="dom_derived_deep_chain", fn() {
     i = i + 1
@@ -474,7 +474,7 @@ test "dom_conditional_shallow" (b : @bench.T) {
   ])
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let dom = @dom.render_vnode_to_dom(node)
+  let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
   b.bench(name="dom_conditional_shallow", fn() {
     show_a.update(fn(v) { not(v) })
@@ -499,7 +499,7 @@ test "dom_conditional_deep" (b : @bench.T) {
   ])
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let dom = @dom.render_vnode_to_dom(node)
+  let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
   b.bench(name="dom_conditional_deep", fn() { visible.update(fn(v) { not(v) }) })
 }

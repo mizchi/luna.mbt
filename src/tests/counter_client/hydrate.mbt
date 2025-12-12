@@ -71,7 +71,7 @@ pub fn hydrate(el : @js_dom.Element, state : @js.Any) -> Unit {
   )
 
   // Hydrate: connect VNode to existing DOM
-  let _ = @dom.hydrate(el, vnode)
+  let _ = @client.hydrate(el, vnode)
 
   // Mark as hydrated
   js_setAttribute(el, "data-hydrated", "true")

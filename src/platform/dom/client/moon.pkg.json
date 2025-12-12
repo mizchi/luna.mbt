@@ -1,0 +1,50 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    {
+      "path": "mizchi/luna/core",
+      "alias": "luna"
+    },
+    "mizchi/luna/core/signal",
+    {
+      "path": "mizchi/luna/router",
+      "alias": "router"
+    },
+    {
+      "path": "mizchi/luna/platform/dom/element",
+      "alias": "element"
+    },
+    { "path": "mizchi/js/core", "alias": "js" },
+    {
+      "path": "mizchi/js/browser/dom",
+      "alias": "js_dom"
+    },
+    "mizchi/js/web/event",
+    "mizchi/js/builtins/global"
+  ],
+  "test-import": [
+    "mizchi/npm_typed/global_jsdom",
+    { "path": "mizchi/luna/renderer", "alias": "renderer" },
+    { "path": "mizchi/luna/platform/dom", "alias": "dom" }
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "HydrationResult",
+        "hydration_result_success:hydrationResultSuccess",
+        "hydration_result_mismatch:hydrationResultMismatch",
+        "hydration_result_recovered:hydrationResultRecovered",
+        "hydrate",
+        "render_vnode_to_dom:renderVnodeToDom",
+        "render_vnode:renderVnode",
+        "bind_actions_from_dom:bindActionsFromDom",
+        "hydrate_with_actions:hydrateWithActions",
+        "ClientRouter",
+        "link_attrs:linkAttrs"
+      ],
+      "format": "esm"
+    }
+  }
+}

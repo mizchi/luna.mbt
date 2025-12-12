@@ -554,7 +554,7 @@ test "exp: fallback succeeds when normal hydration works" {
   exp_set_inner_html(container, html)
   let result = hydrate_with_fallback(container, vnode, logger~)
   match result {
-    @dom.Success => assert_true(true)
+    @client.Success => assert_true(true)
     _ => assert_true(false)
   }
 }
@@ -574,14 +574,14 @@ test "exp: fallback recovers from complete mismatch" {
   exp_set_inner_html(container, "<table><tr><td>Wrong</td></tr></table>")
   let result = hydrate_with_fallback(container, vnode, logger~)
   match result {
-    @dom.Recovered(msg) =>
+    @client.Recovered(msg) =>
       assert_true(
         msg.contains("Experimental") ||
         msg.contains("repaired") ||
         msg.contains("cleanly"),
       )
-    @dom.Success => assert_true(true)
-    @dom.Mismatch(_) => assert_true(true)
+    @client.Success => assert_true(true)
+    @client.Mismatch(_) => assert_true(true)
   }
 }
 

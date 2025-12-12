@@ -55,7 +55,7 @@ test "hydrate_simple_text" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_simple_text", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -66,7 +66,7 @@ test "hydrate_simple_element" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_simple_element", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -84,7 +84,7 @@ test "hydrate_element_with_attrs" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_element_with_attrs", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -101,7 +101,7 @@ test "hydrate_nested_3" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_nested_3", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -118,7 +118,7 @@ test "hydrate_nested_5" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_nested_5", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -142,7 +142,7 @@ test "hydrate_list_10" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_list_10", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -153,7 +153,7 @@ test "hydrate_list_100" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_list_100", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -169,7 +169,7 @@ test "hydrate_dynamic_text" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_dynamic_text", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -196,7 +196,7 @@ test "hydrate_dynamic_attrs" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_dynamic_attrs", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -214,7 +214,7 @@ test "hydrate_show_visible" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_show_visible", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -228,7 +228,7 @@ test "hydrate_show_hidden" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_show_hidden", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -246,7 +246,7 @@ test "hydrate_for_5_items" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_for_5_items", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -264,7 +264,7 @@ test "hydrate_for_20_items" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_for_20_items", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -315,7 +315,7 @@ test "hydrate_page_10_cards" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_page_10_cards", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -326,7 +326,7 @@ test "hydrate_page_50_cards" (b : @bench.T) {
   let html = @ssr.render_to_string(node)
   b.bench(name="hydrate_page_50_cards", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -349,7 +349,7 @@ test "hydrate_with_click_handler" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_with_click_handler", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }
 
@@ -378,6 +378,6 @@ test "hydrate_form_with_handlers" (b : @bench.T) {
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_form_with_handlers", fn() {
     let container = setup_hydrate_container(html)
-    b.keep(@dom.hydrate(container, node))
+    b.keep(@client.hydrate(container, node))
   })
 }

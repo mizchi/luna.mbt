@@ -9,12 +9,12 @@
     },
     "mizchi/luna/core/signal",
     {
-      "path": "mizchi/luna/router",
-      "alias": "router"
-    },
-    {
       "path": "mizchi/luna/platform/dom/element",
       "alias": "element"
+    },
+    {
+      "path": "mizchi/luna/platform/dom/client",
+      "alias": "client"
     },
     { "path": "mizchi/js/core", "alias": "js" },
     {
@@ -84,8 +84,6 @@
         "jsx",
         "jsxs",
         "fragment:Fragment",
-        "hydrate_with_actions:hydrateWithActions",
-        "bind_actions_from_dom:bindActionsFromDom",
         "hydrate_island:hydrateIsland",
         "IslandContext"
       ],

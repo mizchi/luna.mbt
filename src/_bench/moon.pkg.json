@@ -17,7 +17,11 @@
       "alias": "dom"
     },
     {
-      "path": "mizchi/luna/platform/dom/repair",
+      "path": "mizchi/luna/platform/dom/client",
+      "alias": "client"
+    },
+    {
+      "path": "mizchi/luna/platform/dom/client/repair",
       "alias": "fixable"
     },
     {

@@ -17,7 +17,7 @@ pub fn register(
     // Create reactive root for this component instance
     @signal.create_root(fn(_dispose) {
       let vnode = render(host)
-      let dom_node = @dom.render_vnode_to_dom(vnode)
+      let dom_node = @client.render_vnode_to_dom(vnode)
       host.appendChild(dom_node) |> ignore
     })
   })
@@ -33,7 +33,7 @@ pub fn register_shadow(
   js_define_element_shadow(name, mode, fn(host, shadow_root) {
     @signal.create_root(fn(_dispose) {
       let vnode = render(host)
-      let dom_node = @dom.render_vnode_to_dom(vnode)
+      let dom_node = @client.render_vnode_to_dom(vnode)
       shadow_root.appendChild(dom_node) |> ignore
     })
   })
@@ -69,7 +69,7 @@ pub fn register_with_attrs(
         }
       })
       let vnode = render(host, attr_signals)
-      let dom_node = @dom.render_vnode_to_dom(vnode)
+      let dom_node = @client.render_vnode_to_dom(vnode)
       host.appendChild(dom_node) |> ignore
     })
   })

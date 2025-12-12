@@ -658,7 +658,7 @@ pub fn smart_hydrate(
 
     // Clear and full render
     container.as_node().setTextContent("")
-    let dom_node = @dom.render_vnode_to_dom(node)
+    let dom_node = @client.render_vnode_to_dom(node)
     container.as_node().appendChild(dom_node) |> ignore
     FellBackToFullRender(reason)
   } else {
@@ -980,7 +980,7 @@ fn create_element_from_velem(
 
   // Recursively create children
   for i = 0; i < elem.children.length(); i = i + 1 {
-    let child_dom = @dom.render_vnode_to_dom(elem.children[i])
+    let child_dom = @client.render_vnode_to_dom(elem.children[i])
     dom_elem.as_node().appendChild(child_dom) |> ignore
   }
   dom_elem
@@ -1139,7 +1139,7 @@ fn experimental_hydrate_show(
       "content",
       "",
     )
-    let child_node = @dom.render_vnode_to_dom(child_fn())
+    let child_node = @client.render_vnode_to_dom(child_fn())
     parent.insertBefore(child_node, Some(end)) |> ignore
     current_nodes.push(child_node)
   } else if cond() {
@@ -1151,7 +1151,7 @@ fn experimental_hydrate_show(
   let _ = @signal.effect(fn() {
     let should_show = cond()
     if should_show && current_nodes.is_empty() {
-      let child_node = @dom.render_vnode_to_dom(child_fn())
+      let child_node = @client.render_vnode_to_dom(child_fn())
       parent.insertBefore(child_node, Some(end)) |> ignore
       current_nodes.push(child_node)
     } else if not(should_show) && not(current_nodes.is_empty()) {
@@ -1272,7 +1272,7 @@ fn experimental_hydrate_for(
         }
         _ => {
           // Replace text node with element
-          let new_node = @dom.render_vnode_to_dom(items[i])
+          let new_node = @client.render_vnode_to_dom(items[i])
           parent.replaceChild(new_node, current_node) |> ignore
           current_nodes[i] = new_node
         }
@@ -1281,7 +1281,7 @@ fn experimental_hydrate_for(
       experimental_hydrate_node(current_node, items[i], ctx)
     } else {
       // For other node types, just replace
-      let new_node = @dom.render_vnode_to_dom(items[i])
+      let new_node = @client.render_vnode_to_dom(items[i])
       parent.replaceChild(new_node, current_node) |> ignore
       current_nodes[i] = new_node
     }
@@ -1289,7 +1289,7 @@ fn experimental_hydrate_for(
 
   // Add missing items
   for i = min_count; i < item_count; i = i + 1 {
-    let new_node = @dom.render_vnode_to_dom(items[i])
+    let new_node = @client.render_vnode_to_dom(items[i])
     parent.insertBefore(new_node, Some(end)) |> ignore
     current_nodes.push(new_node)
   }
@@ -1314,7 +1314,7 @@ fn experimental_hydrate_for(
     }
     current_nodes.clear()
     for item in new_items {
-      let new_node = @dom.render_vnode_to_dom(item)
+      let new_node = @client.render_vnode_to_dom(item)
       parent.insertBefore(new_node, Some(end)) |> ignore
       current_nodes.push(new_node)
     }
@@ -1336,9 +1336,9 @@ pub fn hydrate_with_fallback(
   container : @js_dom.Element,
   node : @luna.Node[@js.Any],
   logger? : StringBuilder,
-) -> @dom.HydrationResult {
+) -> @client.HydrationResult {
   // First try regular hydration
-  let result = @dom.hydrate(
+  let result = @client.hydrate(
     container,
     node,
     recover_on_mismatch=false,
@@ -1347,9 +1347,9 @@ pub fn hydrate_with_fallback(
 
   // Check result using helper method and handle accordingly
   if result.is_success() {
-    @dom.hydration_result_success()
+    @client.hydration_result_success()
   } else if result.is_recovered() {
-    @dom.hydration_result_recovered(result.get_message())
+    @client.hydration_result_recovered(result.get_message())
   } else {
     // Mismatch - fall back to experimental hydration
     let msg = result.get_message()
@@ -1374,22 +1374,22 @@ pub fn hydrate_with_fallback(
 
     // Clear and re-render with experimental hydration
     container.as_node().setTextContent("")
-    let dom_node = @dom.render_vnode_to_dom(node)
+    let dom_node = @client.render_vnode_to_dom(node)
     container.as_node().appendChild(dom_node) |> ignore
     let exp_result = experimental_hydrate(container, node, logger?)
     match exp_result {
       Clean =>
-        @dom.hydration_result_recovered(
+        @client.hydration_result_recovered(
           "Experimental hydration succeeded cleanly",
         )
       Repaired(repairs) =>
-        @dom.hydration_result_recovered(
+        @client.hydration_result_recovered(
           "Experimental hydration repaired " +
           repairs.length().to_string() +
           " issues",
         )
       Failed(err) =>
-        @dom.hydration_result_mismatch("Experimental hydration failed: " + err)
+        @client.hydration_result_mismatch("Experimental hydration failed: " + err)
     }
   }
 }

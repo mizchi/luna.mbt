@@ -5,6 +5,7 @@
     "mizchi/luna/core/signal",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     { "path": "mizchi/luna/platform/dom", "alias": "dom" },
+    { "path": "mizchi/luna/platform/dom/client", "alias": "client" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/luna/tests/counter_component", "alias": "counter_component" }
   ],

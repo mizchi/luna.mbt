@@ -317,7 +317,7 @@ test "baseline_full_render_10_nodes" (b : @bench.T) {
   @global_jsdom.register()
   let node = create_distance_tree(10)
   b.bench(name="baseline_full_render_10_nodes", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -326,7 +326,7 @@ test "baseline_full_render_50_nodes" (b : @bench.T) {
   @global_jsdom.register()
   let node = create_distance_tree(50)
   b.bench(name="baseline_full_render_50_nodes", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 
@@ -335,7 +335,7 @@ test "baseline_full_render_100_nodes" (b : @bench.T) {
   @global_jsdom.register()
   let node = create_distance_tree(100)
   b.bench(name="baseline_full_render_100_nodes", fn() {
-    b.keep(@dom.render_vnode_to_dom(node))
+    b.keep(@client.render_vnode_to_dom(node))
   })
 }
 

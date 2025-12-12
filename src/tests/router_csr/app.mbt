@@ -101,7 +101,7 @@ fn not_found_page() -> @dom.DomNode {
 
 ///|
 /// 現在のマッチに基づいてページをレンダリング
-fn render_page_for_match(router : @browser.ClientRouter) -> @dom.DomNode {
+fn render_page_for_match(router : @client.ClientRouter) -> @dom.DomNode {
   match router.get_match() {
     Some(m) => {
       let path = m.props.path
@@ -125,11 +125,11 @@ fn render_page_for_match(router : @browser.ClientRouter) -> @dom.DomNode {
 
 ///|
 fn nav_link(
-  router : @browser.ClientRouter,
+  router : @client.ClientRouter,
   href : String,
   label : String,
 ) -> @dom.DomNode {
-  let attrs = @browser.link_attrs(href, router)
+  let attrs = @client.link_attrs(href, router)
   @dom.create_element(
     "a",
     [
@@ -142,7 +142,7 @@ fn nav_link(
 }
 
 ///|
-fn router_app(router : @browser.ClientRouter) -> @dom.DomNode {
+fn router_app(router : @client.ClientRouter) -> @dom.DomNode {
   @dom.div(attrs=[("data-router-app", @dom.Attr::AttrString("true"))], [
     // Navigation
     @dom.create_element(
@@ -176,7 +176,7 @@ fn router_app(router : @browser.ClientRouter) -> @dom.DomNode {
 /// Mount the router app to #app element
 pub fn mount_router_app() -> Unit {
   let routes = get_routes()
-  let router = @browser.ClientRouter::new(routes)
+  let router = @client.ClientRouter::new(routes)
   let app = router_app(router)
   let container = js_querySelector("#app")
   @dom.mount_to(container, app)
