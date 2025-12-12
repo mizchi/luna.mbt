@@ -10,8 +10,8 @@ pub fn div(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("div", build_props(id, class, style, on, attrs), children)
 }
 
@@ -23,8 +23,8 @@ pub fn span(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("span", build_props(id, class, style, on, attrs), children)
 }
 
@@ -36,8 +36,8 @@ pub fn p(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("p", build_props(id, class, style, on, attrs), children)
 }
 
@@ -50,8 +50,8 @@ pub fn button(
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
   disabled? : Bool,
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   let props = build_props(id, class, style, on, attrs)
   match disabled {
     Some(true) => props.push(("disabled", Static("true")))
@@ -69,8 +69,8 @@ pub fn a(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   let props = build_props(id, class, style, on, attrs)
   match href {
     Some(v) => props.push(("href", Static(v)))
@@ -91,7 +91,7 @@ pub fn input(
   value? : String,
   placeholder? : String,
   disabled? : Bool,
-) -> Node {
+) -> DomNode {
   let props = build_props(id, class, style, on, attrs)
   match type_ {
     Some(v) => props.push(("type", Static(v)))
@@ -122,8 +122,8 @@ pub fn textarea(
   attrs? : Array[(String, Attr)],
   placeholder? : String,
   disabled? : Bool,
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   let props = build_props(id, class, style, on, attrs)
   match placeholder {
     Some(v) => props.push(("placeholder", Static(v)))
@@ -144,8 +144,8 @@ pub fn form(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("form", build_props(id, class, style, on, attrs), children)
 }
 
@@ -158,8 +158,8 @@ pub fn label(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   let props = build_props(id, class, style, on, attrs)
   match for_ {
     Some(v) => props.push(("for", Static(v)))
@@ -176,8 +176,8 @@ pub fn h1(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("h1", build_props(id, class, style, on, attrs), children)
 }
 
@@ -189,8 +189,8 @@ pub fn h2(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("h2", build_props(id, class, style, on, attrs), children)
 }
 
@@ -202,8 +202,8 @@ pub fn h3(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("h3", build_props(id, class, style, on, attrs), children)
 }
 
@@ -215,8 +215,8 @@ pub fn ul(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("ul", build_props(id, class, style, on, attrs), children)
 }
 
@@ -228,8 +228,8 @@ pub fn ol(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("ol", build_props(id, class, style, on, attrs), children)
 }
 
@@ -241,8 +241,8 @@ pub fn li(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element("li", build_props(id, class, style, on, attrs), children)
 }
 
@@ -256,7 +256,7 @@ pub fn img(
   style? : String,
   on? : HandlerMap,
   attrs? : Array[(String, Attr)],
-) -> Node {
+) -> DomNode {
   let props = build_props(id, class, style, on, attrs)
   match src {
     Some(v) => props.push(("src", Static(v)))
@@ -271,13 +271,13 @@ pub fn img(
 
 ///|
 /// Create br element
-pub fn br() -> Node {
+pub fn br() -> DomNode {
   create_element("br", [], [])
 }
 
 ///|
 /// Create hr element
-pub fn hr() -> Node {
+pub fn hr() -> DomNode {
   create_element("hr", [], [])
 }
 
@@ -287,19 +287,19 @@ pub fn hr() -> Node {
 
 ///|
 /// Create a static text node
-pub fn text(content : String) -> Node {
-  ToNode::to_node(content)
+pub fn text(content : String) -> DomNode {
+  ToDomNode::to_dom_node(content)
 }
 
 ///|
 /// Create a reactive text node from a getter function
-pub fn text_dyn(content : () -> String) -> Node {
+pub fn text_dyn(content : () -> String) -> DomNode {
   text_node(content)
 }
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_sig(sig : @signal.Signal[T]) -> Node {
+pub fn[T : Show] text_sig(sig : @signal.Signal[T]) -> DomNode {
   text_from_signal(sig)
 }
 
@@ -347,8 +347,8 @@ pub fn attr_dynamic_style(getter : () -> String) -> AttrValue {
 pub fn jsx(
   tag : String,
   attrs : Array[(String, AttrValue)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element(tag, attrs, children)
 }
 
@@ -357,14 +357,14 @@ pub fn jsx(
 pub fn jsxs(
   tag : String,
   attrs : Array[(String, AttrValue)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   create_element(tag, attrs, children)
 }
 
 ///|
 /// JSX runtime: Fragment (returns children as-is wrapped in a container)
-pub fn fragment(children : Array[Node]) -> Node {
+pub fn fragment(children : Array[DomNode]) -> DomNode {
   // Return a document fragment or first child
   // For simplicity, wrap in a span with no attributes
   // In production, this should return a proper fragment
@@ -374,4 +374,3 @@ pub fn fragment(children : Array[Node]) -> Node {
     _ => create_element("span", [], children)
   }
 }
-

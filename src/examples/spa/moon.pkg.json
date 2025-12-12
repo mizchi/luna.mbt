@@ -3,7 +3,7 @@
   "supported-targets": ["js"],
   "import": [
     "mizchi/kaguya/core/signal",
-    { "path": "mizchi/kaguya/browser", "alias": "dom" },
+    { "path": "mizchi/kaguya/browser/dom", "alias": "dom" },
     "mizchi/js/core",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/builtins/global"

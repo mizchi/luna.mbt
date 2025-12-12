@@ -8,7 +8,7 @@
 /// The render function receives the host element and returns a VNode tree
 pub fn register(
   name : String,
-  render : (@js_dom.Element) -> @kaguya.Node
+  render : (@js_dom.Element) -> @kaguya.Node[@core.Any]
 ) -> Unit {
   js_define_element(name, fn(host) {
     // Create reactive root for this component instance
@@ -25,7 +25,7 @@ pub fn register(
 pub fn register_shadow(
   name : String,
   mode~ : String = "open",
-  render : (@js_dom.Element) -> @kaguya.Node
+  render : (@js_dom.Element) -> @kaguya.Node[@core.Any]
 ) -> Unit {
   js_define_element_shadow(name, mode, fn(host, shadow_root) {
     @signal.create_root(fn(_dispose) {
@@ -41,7 +41,7 @@ pub fn register_shadow(
 pub fn register_with_attrs(
   name : String,
   observed_attrs : Array[String],
-  render : (@js_dom.Element, Map[String, @signal.Signal[String]]) -> @kaguya.Node
+  render : (@js_dom.Element, Map[String, @signal.Signal[String]]) -> @kaguya.Node[@core.Any]
 ) -> Unit {
   js_define_element_with_attrs(
     name,

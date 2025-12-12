@@ -24,6 +24,10 @@
       "path": "mizchi/js/browser/dom",
       "alias": "js_dom"
     },
+    {
+      "path": "mizchi/js/core",
+      "alias": "core"
+    },
     "mizchi/npm_typed/global_jsdom"
   ]
 }

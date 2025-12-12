@@ -2,14 +2,14 @@
 
 ///|
 test "Attr AttrString variant to_attr_value" {
-  let val : Attr = AttrString("test-value")
+  let val : @dom.Attr = @dom.AttrString("test-value")
   let attr_val = val.to_attr_value()
   assert_true(attr_val is Static("test-value"))
 }
 
 ///|
 test "Attr AttrBool variant to_attr_value true" {
-  let val : Attr = AttrBool(true)
+  let val : @dom.Attr = @dom.AttrBool(true)
   let attr_val = val.to_attr_value()
   match attr_val {
     Static(s) => assert_eq(s, "true")
@@ -19,7 +19,7 @@ test "Attr AttrBool variant to_attr_value true" {
 
 ///|
 test "Attr AttrBool variant to_attr_value false" {
-  let val : Attr = AttrBool(false)
+  let val : @dom.Attr = @dom.AttrBool(false)
   let attr_val = val.to_attr_value()
   match attr_val {
     Static(s) => assert_eq(s, "false")
@@ -29,7 +29,7 @@ test "Attr AttrBool variant to_attr_value false" {
 
 ///|
 test "Attr AttrInt variant to_attr_value" {
-  let val : Attr = AttrInt(42)
+  let val : @dom.Attr = @dom.AttrInt(42)
   let attr_val = val.to_attr_value()
   match attr_val {
     Static(s) => assert_eq(s, "42")
@@ -39,7 +39,7 @@ test "Attr AttrInt variant to_attr_value" {
 
 ///|
 test "Attr AttrInt variant to_attr_value negative" {
-  let val : Attr = AttrInt(-123)
+  let val : @dom.Attr = @dom.AttrInt(-123)
   let attr_val = val.to_attr_value()
   match attr_val {
     Static(s) => assert_eq(s, "-123")
@@ -49,7 +49,7 @@ test "Attr AttrInt variant to_attr_value negative" {
 
 ///|
 test "Attr AttrNumber variant to_attr_value" {
-  let val : Attr = AttrNumber(3.14)
+  let val : @dom.Attr = @dom.AttrNumber(3.14)
   let attr_val = val.to_attr_value()
   match attr_val {
     Static(s) =>
@@ -61,19 +61,31 @@ test "Attr AttrNumber variant to_attr_value" {
 
 ///|
 test "Attr Show implementation" {
-  // Test AttrString variant Show
-  let str_val : Attr = AttrString("hello")
-  assert_eq(str_val.to_string(), "hello")
+  // Test AttrString variant Show via to_attr_value
+  let str_val : @dom.Attr = @dom.AttrString("hello")
+  match str_val.to_attr_value() {
+    Static(s) => assert_eq(s, "hello")
+    _ => assert_true(false)
+  }
 
-  // Test AttrBool variant Show
-  let bool_val : Attr = AttrBool(true)
-  assert_eq(bool_val.to_string(), "true")
+  // Test AttrBool variant Show via to_attr_value
+  let bool_val : @dom.Attr = @dom.AttrBool(true)
+  match bool_val.to_attr_value() {
+    Static(s) => assert_eq(s, "true")
+    _ => assert_true(false)
+  }
 
-  // Test AttrInt variant Show
-  let int_val : Attr = AttrInt(100)
-  assert_eq(int_val.to_string(), "100")
+  // Test AttrInt variant Show via to_attr_value
+  let int_val : @dom.Attr = @dom.AttrInt(100)
+  match int_val.to_attr_value() {
+    Static(s) => assert_eq(s, "100")
+    _ => assert_true(false)
+  }
 
-  // Test AttrNumber variant Show
-  let double_val : Attr = AttrNumber(2.5)
-  assert_true(double_val.to_string().contains("2.5"))
+  // Test AttrNumber variant Show via to_attr_value
+  let double_val : @dom.Attr = @dom.AttrNumber(2.5)
+  match double_val.to_attr_value() {
+    Static(s) => assert_true(s.contains("2.5"))
+    _ => assert_true(false)
+  }
 }

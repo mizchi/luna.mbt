@@ -22,12 +22,39 @@ pub fn hydrate(el : @js_dom.Element, state : @core.Any) -> Unit {
   // Create reactive signal
   let count_sig = @signal.signal(initial_count)
 
-  // Create event handlers that update the signal
-  let on_inc = @kaguya.handler_from_callback(fn() { count_sig.update(fn(c) { c + 1 }) })
-  let on_dec = @kaguya.handler_from_callback(fn() { count_sig.update(fn(c) { c - 1 }) })
+  // Create browser event handlers that update the signal
+  let on_inc = @dom.browser_handler_from_callback(fn() { count_sig.update(fn(c) { c + 1 }) })
+  let on_dec = @dom.browser_handler_from_callback(fn() { count_sig.update(fn(c) { c - 1 }) })
 
-  // Render the component with the same function used for SSR
-  let vnode = @counter_component.render_counter(count_sig, on_inc, on_dec)
+  // Build counter VNode for browser (with @core.Any event type)
+  let vnode : @kaguya.Node[@core.Any] = @kaguya.h(
+    "div",
+    [
+      ("class", @kaguya.attr_static("counter")),
+      ("data-count", @kaguya.attr_dynamic(fn() { count_sig.get().to_string() })),
+    ],
+    [
+      @kaguya.h("span", [("data-count", @kaguya.attr_static("true"))], [
+        @kaguya.text_dyn(fn() { count_sig.get().to_string() }),
+      ]),
+      @kaguya.h(
+        "button",
+        [
+          ("data-inc", @kaguya.attr_static("true")),
+          ("onClick", @kaguya.attr_handler(on_inc)),
+        ],
+        [@kaguya.vtext("+1")],
+      ),
+      @kaguya.h(
+        "button",
+        [
+          ("data-dec", @kaguya.attr_static("true")),
+          ("onClick", @kaguya.attr_handler(on_dec)),
+        ],
+        [@kaguya.vtext("-1")],
+      ),
+    ],
+  )
 
   // Hydrate: connect VNode to existing DOM
   let _ = @dom.hydrate(el, vnode)

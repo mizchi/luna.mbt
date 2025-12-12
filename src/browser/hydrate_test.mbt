@@ -135,7 +135,7 @@ test "hydrate element with click handler" {
   let container = create_container()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
     [@kaguya.vtext("Click me")],
   )
 
@@ -237,7 +237,7 @@ test "hydrate for loop" {
   let items = @signal.signal(["A", "B", "C"])
   let vnode = @kaguya.vfor(fn() {
     let arr = items.get()
-    let result : Array[@kaguya.Node] = []
+    let result : Array[@kaguya.Node[@core.Any]] = []
     for i = 0; i < arr.length(); i = i + 1 {
       result.push(@kaguya.h("li", [], [@kaguya.vtext(arr[i])]))
     }
@@ -273,7 +273,7 @@ test "hydrate detects missing element" {
   // VNode expects a button with handler
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
     [@kaguya.vtext("Button")],
   )
 
@@ -369,7 +369,7 @@ test "hydrate complex page structure" {
     @kaguya.h("ul", [], [
       @kaguya.vfor(fn() {
         let arr = items.get()
-        let result : Array[@kaguya.Node] = []
+        let result : Array[@kaguya.Node[@core.Any]] = []
         for i = 0; i < arr.length(); i = i + 1 {
           result.push(@kaguya.h("li", [], [@kaguya.vtext(arr[i])]))
         }
@@ -378,7 +378,7 @@ test "hydrate complex page structure" {
     ]),
     @kaguya.h(
       "button",
-      [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+      [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
       [@kaguya.vtext("Click")],
     ),
   ])
@@ -419,7 +419,7 @@ test "hydrate component" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  fn greeting(name : String) -> @kaguya.Node {
+  fn greeting(name : String) -> @kaguya.Node[@core.Any] {
     @kaguya.h("div", [], [@kaguya.vtext("Hello, " + name + "!")])
   }
 
@@ -494,7 +494,7 @@ test "hydrate with logger captures mismatch warning" {
   // VNode expects a button with handler
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
     [@kaguya.vtext("Button")],
   )
 
@@ -519,7 +519,7 @@ test "hydrate with logger captures strict mode mismatch" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
     [@kaguya.vtext("Click")],
   )
   set_inner_html(container, "<div>Wrong</div>")
@@ -568,7 +568,7 @@ test "hydrate logger contains element info" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
     [@kaguya.vtext("Submit")],
   )
   set_inner_html(container, "<input type=\"text\" />")
@@ -590,7 +590,7 @@ test "hydrate without logger outputs to console" {
   let container = create_container()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
     [@kaguya.vtext("Button")],
   )
   // Wrong HTML - will trigger mismatch without logger
@@ -614,12 +614,12 @@ test "hydrate multiple mismatches joined with semicolon" {
   let vnode = @kaguya.vfragment([
     @kaguya.h(
       "button",
-      [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+      [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
       [@kaguya.vtext("A")],
     ),
     @kaguya.h(
       "button",
-      [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+      [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
       [@kaguya.vtext("B")],
     ),
   ])
@@ -643,7 +643,7 @@ test "hydrate tag mismatch with correct data-hk" {
   // Expect a button
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@browser.browser_noop_handler()))],
     [@kaguya.vtext("Click")],
   )
   // HTML has a span with correct data-hk but wrong tag
@@ -839,7 +839,7 @@ test "render_vnode_to_dom with For list" {
   let items = @signal.signal(["X", "Y"])
   let vnode = @kaguya.vfor(fn() {
     let arr = items.get()
-    let result : Array[@kaguya.Node] = []
+    let result : Array[@kaguya.Node[@core.Any]] = []
     for i = 0; i < arr.length(); i = i + 1 {
       result.push(@kaguya.vtext(arr[i]))
     }

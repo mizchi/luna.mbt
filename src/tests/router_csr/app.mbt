@@ -42,7 +42,7 @@ fn get_routes() -> Array[@router.Route] {
 // Page Components
 // =============================================================================
 
-fn home_page() -> @dom.Node {
+fn home_page() -> @dom.DomNode {
   @dom.div(
     attrs=[("data-page", @dom.Attr::AttrString("home"))],
     [
@@ -52,7 +52,7 @@ fn home_page() -> @dom.Node {
   )
 }
 
-fn about_page() -> @dom.Node {
+fn about_page() -> @dom.DomNode {
   @dom.div(
     attrs=[("data-page", @dom.Attr::AttrString("about"))],
     [
@@ -62,7 +62,7 @@ fn about_page() -> @dom.Node {
   )
 }
 
-fn contact_page() -> @dom.Node {
+fn contact_page() -> @dom.DomNode {
   @dom.div(
     attrs=[("data-page", @dom.Attr::AttrString("contact"))],
     [
@@ -72,7 +72,7 @@ fn contact_page() -> @dom.Node {
   )
 }
 
-fn post_page(post_id : String) -> @dom.Node {
+fn post_page(post_id : String) -> @dom.DomNode {
   @dom.div(
     attrs=[
       ("data-page", @dom.Attr::AttrString("post")),
@@ -85,7 +85,7 @@ fn post_page(post_id : String) -> @dom.Node {
   )
 }
 
-fn not_found_page() -> @dom.Node {
+fn not_found_page() -> @dom.DomNode {
   @dom.div(
     attrs=[("data-page", @dom.Attr::AttrString("404"))],
     [
@@ -100,7 +100,7 @@ fn not_found_page() -> @dom.Node {
 // =============================================================================
 
 ///| 現在のマッチに基づいてページをレンダリング
-fn render_page_for_match(router : @dom.ClientRouter) -> @dom.Node {
+fn render_page_for_match(router : @browser.ClientRouter) -> @dom.DomNode {
   match router.get_match() {
     Some(m) => {
       let path = m.props.path
@@ -123,11 +123,11 @@ fn render_page_for_match(router : @dom.ClientRouter) -> @dom.Node {
 }
 
 fn nav_link(
-  router : @dom.ClientRouter,
+  router : @browser.ClientRouter,
   href : String,
   label : String
-) -> @dom.Node {
-  let attrs = @dom.link_attrs(href, router)
+) -> @dom.DomNode {
+  let attrs = @browser.link_attrs(href, router)
   @dom.create_element(
     "a",
     [
@@ -139,7 +139,7 @@ fn nav_link(
   )
 }
 
-fn router_app(router : @dom.ClientRouter) -> @dom.Node {
+fn router_app(router : @browser.ClientRouter) -> @dom.DomNode {
   @dom.div(
     attrs=[("data-router-app", @dom.Attr::AttrString("true"))],
     [
@@ -180,7 +180,7 @@ fn router_app(router : @dom.ClientRouter) -> @dom.Node {
 /// Mount the router app to #app element
 pub fn mount_router_app() -> Unit {
   let routes = get_routes()
-  let router = @dom.ClientRouter::new(routes)
+  let router = @browser.ClientRouter::new(routes)
   let app = router_app(router)
 
   let container = js_querySelector("#app")

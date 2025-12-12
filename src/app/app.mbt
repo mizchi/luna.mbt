@@ -42,8 +42,8 @@ pub fn create_app_then(callback : (App) -> Unit) -> Unit {
 ///|
 /// Render a VNode to HTML string with full document wrapper
 /// Use hydration=true to enable hydration markers (for pages with Islands)
-pub fn render_page(
-  node : @kaguya.Node,
+pub fn[E] render_page(
+  node : @kaguya.Node[E],
   title? : String,
   head? : String,
   hydration? : Bool,
@@ -68,17 +68,17 @@ pub fn render_page(
 
 ///|
 /// Render a VNode to HTML string without document wrapper (for partial/fragment responses)
-pub fn render_fragment(node : @kaguya.Node) -> String {
+pub fn[E] render_fragment(node : @kaguya.Node[E]) -> String {
   @renderer.render_to_string_with_hydration(node)
 }
 
 ///|
 /// Register a page route that renders a VNode
 /// Use hydration=true for pages with Islands (adds loader script and hydration markers)
-pub fn page(
+pub fn[E] page(
   app : App,
   path : String,
-  render_fn : (Ctx) -> @kaguya.Node,
+  render_fn : (Ctx) -> @kaguya.Node[E],
   title? : String,
   head? : String,
   hydration? : Bool,
@@ -149,7 +149,7 @@ pub using @embed {type TriggerType, type StateConfig, type EmbedConfig}
 
 ///|
 /// Island configuration
-pub struct IslandConfig {
+pub struct IslandConfig[E] {
   /// Unique identifier for the island
   id : String
   /// ES module URL for hydration script
@@ -159,14 +159,14 @@ pub struct IslandConfig {
   /// State configuration
   state : @embed.StateConfig
   /// SSR rendered content (VNode)
-  content : @kaguya.Node?
+  content : @kaguya.Node[E]?
   /// SSR rendered HTML string (alternative to content)
   ssr_html : String?
 }
 
 ///|
 /// Create a new island configuration
-pub fn IslandConfig::new(id : String, script_url : String) -> IslandConfig {
+pub fn[E] IslandConfig::new(id : String, script_url : String) -> IslandConfig[E] {
   {
     id,
     script_url,
@@ -179,52 +179,52 @@ pub fn IslandConfig::new(id : String, script_url : String) -> IslandConfig {
 
 ///|
 /// Builder: set trigger type
-pub fn IslandConfig::with_trigger(
-  self : IslandConfig,
+pub fn[E] IslandConfig::with_trigger(
+  self : IslandConfig[E],
   trigger : @embed.TriggerType
-) -> IslandConfig {
+) -> IslandConfig[E] {
   { ..self, trigger }
 }
 
 ///|
 /// Builder: set inline state from JSON
-pub fn IslandConfig::with_state(self : IslandConfig, json : String) -> IslandConfig {
+pub fn[E] IslandConfig::with_state(self : IslandConfig[E], json : String) -> IslandConfig[E] {
   { ..self, state: @embed.StateConfig::Inline(json) }
 }
 
 ///|
 /// Builder: set state from script reference
-pub fn IslandConfig::with_state_ref(
-  self : IslandConfig,
+pub fn[E] IslandConfig::with_state_ref(
+  self : IslandConfig[E],
   script_id : String
-) -> IslandConfig {
+) -> IslandConfig[E] {
   { ..self, state: @embed.StateConfig::ScriptRef(script_id) }
 }
 
 ///|
 /// Builder: set state from URL
-pub fn IslandConfig::with_state_url(self : IslandConfig, url : String) -> IslandConfig {
+pub fn[E] IslandConfig::with_state_url(self : IslandConfig[E], url : String) -> IslandConfig[E] {
   { ..self, state: @embed.StateConfig::Url(url) }
 }
 
 ///|
 /// Builder: set SSR content from VNode
-pub fn IslandConfig::with_content(
-  self : IslandConfig,
-  node : @kaguya.Node
-) -> IslandConfig {
+pub fn[E] IslandConfig::with_content(
+  self : IslandConfig[E],
+  node : @kaguya.Node[E]
+) -> IslandConfig[E] {
   { ..self, content: Some(node) }
 }
 
 ///|
 /// Builder: set SSR content from raw HTML string
-pub fn IslandConfig::with_ssr_html(self : IslandConfig, html : String) -> IslandConfig {
+pub fn[E] IslandConfig::with_ssr_html(self : IslandConfig[E], html : String) -> IslandConfig[E] {
   { ..self, ssr_html: Some(html) }
 }
 
 ///|
 /// Render an island to HTML string
-pub fn render_island(config : IslandConfig) -> String {
+pub fn[E] render_island(config : IslandConfig[E]) -> String {
   // Priority: ssr_html > content (VNode) > empty
   let ssr_content = match config.ssr_html {
     Some(html) => html
@@ -283,10 +283,10 @@ pub fn render_island_page(
 
 ///|
 /// Register an island page route
-pub fn island_page(
+pub fn[E] island_page(
   app : App,
   path : String,
-  render_fn : (Ctx) -> Array[IslandConfig],
+  render_fn : (Ctx) -> Array[IslandConfig[E]],
   title? : String,
   head? : String,
   loader_url? : String
@@ -301,8 +301,8 @@ pub fn island_page(
 
 ///|
 /// Render island with separate state script (for large state)
-pub fn render_island_with_state_script(
-  config : IslandConfig,
+pub fn[E] render_island_with_state_script(
+  config : IslandConfig[E],
   state_json : String
 ) -> String {
   // Priority: ssr_html > content (VNode) > empty
@@ -349,42 +349,38 @@ pub using @kaguya {
   type IslandTrigger,
   type VIsland,
   visland,
-  trigger_load,
-  trigger_idle,
-  trigger_visible,
-  trigger_media,
   trigger_to_string,
 }
 
 ///|
 /// Create an Island VNode from a component render function
 /// This is the recommended way to create Islands with type-safe VNode children
-pub fn island(
+pub fn[E] island(
   id : String,
   url : String,
   state : String,
-  children : Array[@kaguya.Node],
+  children : Array[@kaguya.Node[E]],
   trigger~ : @kaguya.IslandTrigger = @kaguya.Load,
-) -> @kaguya.Node {
+) -> @kaguya.Node[E] {
   @kaguya.visland(id, url, state, children, trigger~)
 }
 
 ///|
 /// Create an Island VNode with a render function for children
-pub fn island_with(
+pub fn[E] island_with(
   id : String,
   url : String,
   state : String,
-  render : () -> @kaguya.Node,
+  render : () -> @kaguya.Node[E],
   trigger~ : @kaguya.IslandTrigger = @kaguya.Load,
-) -> @kaguya.Node {
+) -> @kaguya.Node[E] {
   @kaguya.visland(id, url, state, [render()], trigger~)
 }
 
 ///|
 /// Render a VNode to HTML string
 /// Use hydration=true to enable hydration markers
-pub fn render_node(node : @kaguya.Node, hydration~ : Bool = false) -> String {
+pub fn[E] render_node(node : @kaguya.Node[E], hydration~ : Bool = false) -> String {
   if hydration {
     @renderer.render_to_string_with_hydration(node)
   } else {

@@ -77,8 +77,8 @@ test "fixable_clean_nested" (b : @bench.T) {
 }
 
 ///|
-fn create_fixable_list_node(count : Int) -> @kaguya.Node {
-  let items : Array[@kaguya.Node] = []
+fn create_fixable_list_node(count : Int) -> @kaguya.Node[@core.Any] {
+  let items : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < count; i = i + 1 {
     items.push(@kaguya.h("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
@@ -230,7 +230,7 @@ test "fixable_repair_for_item_count" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_fixable_card(title : String, content : String) -> @kaguya.Node {
+fn create_fixable_card(title : String, content : String) -> @kaguya.Node[@core.Any] {
   @kaguya.h("div", [("class", @kaguya.attr_static("card"))], [
     @kaguya.h("h3", [("class", @kaguya.attr_static("card-title"))], [
       @kaguya.vtext(title),
@@ -244,7 +244,7 @@ fn create_fixable_card(title : String, content : String) -> @kaguya.Node {
 ///|
 test "fixable_repair_multiple_cards" (b : @bench.T) {
   @global_jsdom.register()
-  let cards : Array[@kaguya.Node] = []
+  let cards : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < 5; i = i + 1 {
     cards.push(
       create_fixable_card("Card " + i.to_string(), "Content " + i.to_string()),

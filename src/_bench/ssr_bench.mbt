@@ -72,8 +72,8 @@ test "ssr_nested_5_levels" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_list(count : Int) -> @kaguya.Node {
-  let items : Array[@kaguya.Node] = []
+fn create_list(count : Int) -> @kaguya.Node[@core.Any] {
+  let items : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < count; i = i + 1 {
     items.push(@kaguya.h("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
@@ -107,7 +107,7 @@ test "ssr_list_1000_items" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_card(title : String, content : String) -> @kaguya.Node {
+fn create_card(title : String, content : String) -> @kaguya.Node[@core.Any] {
   @kaguya.h("div", [("class", @kaguya.attr_static("card"))], [
     @kaguya.h("h3", [("class", @kaguya.attr_static("card-title"))], [
       @kaguya.vtext(title),
@@ -122,8 +122,8 @@ fn create_card(title : String, content : String) -> @kaguya.Node {
 }
 
 ///|
-fn create_page(card_count : Int) -> @kaguya.Node {
-  let cards : Array[@kaguya.Node] = []
+fn create_page(card_count : Int) -> @kaguya.Node[@core.Any] {
+  let cards : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < card_count; i = i + 1 {
     cards.push(
       create_card("Card " + i.to_string(), "Content for card " + i.to_string()),

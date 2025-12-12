@@ -92,7 +92,7 @@ test "exp: repair missing element with handler" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [@kaguya.vtext("Click me")],
   )
   // Empty container
@@ -119,7 +119,7 @@ test "exp: repair tag mismatch with data-hk" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [@kaguya.vtext("Submit")],
   )
   // Wrong tag (span instead of button) but correct data-hk
@@ -394,7 +394,7 @@ test "exp: repair missing for markers" {
   let items = @signal.signal(["A", "B", "C"])
   let vnode = @kaguya.vfor(fn() {
     let arr = items.get()
-    let result : Array[@kaguya.Node] = []
+    let result : Array[@kaguya.Node[@core.Any]] = []
     for i = 0; i < arr.length(); i = i + 1 {
       result.push(@kaguya.h("li", [], [@kaguya.vtext(arr[i])]))
     }
@@ -520,14 +520,14 @@ test "exp: repair component render" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  fn counter_component(initial : Int) -> @kaguya.Node {
+  fn counter_component(initial : Int) -> @kaguya.Node[@core.Any] {
     let count = @signal.signal(initial)
     let _ = count // suppress unused warning
     @kaguya.h("div", [], [
       @kaguya.text_dyn(fn() { "Count: " + count.get().to_string() }),
       @kaguya.h(
         "button",
-        [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+        [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
         [@kaguya.vtext("+")],
       ),
     ])
@@ -573,7 +573,7 @@ test "exp: fallback recovers from complete mismatch" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [@kaguya.vtext("Click")],
   )
   // Completely wrong HTML
@@ -599,7 +599,7 @@ test "exp: fallback with logger captures both phases" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [@kaguya.vtext("Submit")],
   )
   // Wrong HTML
@@ -702,7 +702,7 @@ test "exp: handle event handler attachment" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [@kaguya.vtext("Click")],
   )
   // Correct HTML with data-hk
@@ -776,7 +776,7 @@ test "report: element missing has correct repair type" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [@kaguya.vtext("Click")],
   )
   exp_set_inner_html(container, "")
@@ -797,7 +797,7 @@ test "report: tag mismatch has correct repair type" {
   let logger = StringBuilder::new()
   let vnode = @kaguya.h(
     "button",
-    [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [@kaguya.vtext("Click")],
   )
   exp_set_inner_html(container, "<span data-hk=\"0\">Click</span>")
@@ -947,7 +947,7 @@ test "report: multiple repairs tracked" {
     @kaguya.vtext("Wrong"),
     @kaguya.h(
       "button",
-      [("onClick", @kaguya.attr_handler(@kaguya.event_handler()))],
+      [("onClick", @kaguya.attr_handler(@dom.browser_noop_handler()))],
       [@kaguya.vtext("Click")],
     ),
   ])

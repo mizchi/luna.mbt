@@ -142,7 +142,7 @@ test "render for loop" {
   let items = @signal.signal(["A", "B", "C"])
   let node = @kaguya.vfor(fn() {
     let arr = items.get()
-    let result : Array[@kaguya.Node] = []
+    let result : Array[@kaguya.Node[Unit]] = []
     for item in arr {
       result.push(@kaguya.vtext(item))
     }
@@ -167,7 +167,7 @@ test "render for loop" {
 
 ///|
 test "render component" {
-  fn my_component() -> @kaguya.Node {
+  fn my_component() -> @kaguya.Node[Unit] {
     @kaguya.h("div", [("class", @kaguya.attr_static("component"))], [
       @kaguya.vtext("Content"),
     ])

@@ -95,7 +95,7 @@ fn get_text_content(node : @js_dom.Node) -> String {
 /// The container should already have server-rendered HTML with hydration markers.
 pub fn hydrate(
   container : @js_dom.Element,
-  node : @kaguya.Node,
+  node : @kaguya.Node[@core.Any],
   recover_on_mismatch? : Bool,
   warn_on_mismatch? : Bool,
   logger? : StringBuilder,
@@ -138,7 +138,7 @@ pub fn hydrate(
 /// Internal: Hydrate a single node
 fn hydrate_node(
   parent : @js_dom.Node,
-  node : @kaguya.Node,
+  node : @kaguya.Node[@core.Any],
   ctx : HydrationContext,
 ) -> Unit {
   match node {
@@ -298,7 +298,7 @@ fn hydrate_dynamic_text(
 /// Hydrate element attributes and handlers
 fn hydrate_element(
   elem : @js_dom.Element,
-  attrs : Array[(String, @kaguya.Attr)],
+  attrs : Array[(String, @kaguya.Attr[@core.Any])],
 ) -> Unit {
   hydrate_element_with_dispatch(elem, attrs, None)
 }
@@ -307,7 +307,7 @@ fn hydrate_element(
 /// Hydrate element attributes with optional action dispatcher
 fn hydrate_element_with_dispatch(
   elem : @js_dom.Element,
-  attrs : Array[(String, @kaguya.Attr)],
+  attrs : Array[(String, @kaguya.Attr[@core.Any])],
   dispatcher : ((String) -> Unit)?,
 ) -> Unit {
   for attr in attrs {
@@ -336,8 +336,8 @@ fn hydrate_element_with_dispatch(
         // Attach event handler
         let event_name = extract_event_name(name)
         let callback = handler.get_callback()
-        // Wrap callback to ignore event argument
-        let wrapper : (@core.Any) -> Unit = fn(_event) { callback() }
+        // Pass event to callback
+        let wrapper : (@core.Any) -> Unit = fn(event) { callback(event) }
         elem.as_event_target().addEventListener(event_name, @core.any(wrapper).cast())
       }
       @kaguya.VAction(action_name) =>
@@ -395,7 +395,7 @@ fn hydrate_show(
   parent : @js_dom.Node,
   id : Int,
   cond : () -> Bool,
-  child_fn : () -> @kaguya.Node,
+  child_fn : () -> @kaguya.Node[@core.Any],
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "s:" + id.to_string()
@@ -474,7 +474,7 @@ fn hydrate_show(
 /// Hydrate child nodes with VNode
 fn hydrate_child_nodes(
   nodes : Array[@js_dom.Node],
-  node : @kaguya.Node,
+  node : @kaguya.Node[@core.Any],
   ctx : HydrationContext,
 ) -> Unit {
   // For now, just traverse the VNode and update ctx
@@ -519,7 +519,7 @@ fn hydrate_child_nodes(
 fn hydrate_for(
   parent : @js_dom.Node,
   id : Int,
-  render_fn : () -> Array[@kaguya.Node],
+  render_fn : () -> Array[@kaguya.Node[@core.Any]],
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "f:" + id.to_string()
@@ -598,7 +598,7 @@ fn hydrate_for(
 
 ///|
 /// Render VNode to DOM node (for client-side rendering after hydration)
-pub fn render_vnode_to_dom(node : @kaguya.Node) -> @js_dom.Node {
+pub fn render_vnode_to_dom(node : @kaguya.Node[@core.Any]) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
     @kaguya.Text(content) => doc.createTextNode(content).as_node()
@@ -738,7 +738,7 @@ pub fn render_vnode_to_dom(node : @kaguya.Node) -> @js_dom.Node {
 
 ///|
 /// Apply VAttr to DOM element
-fn apply_vattr(elem : @js_dom.Element, name : String, value : @kaguya.Attr) -> Unit {
+fn apply_vattr(elem : @js_dom.Element, name : String, value : @kaguya.Attr[@core.Any]) -> Unit {
   match value {
     @kaguya.VStatic(s) =>
       if s != "__remove__" {
@@ -770,8 +770,8 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @kaguya.Attr) -> U
     @kaguya.VHandler(handler) => {
       let event_name = extract_event_name(name)
       let callback = handler.get_callback()
-      // Wrap callback to ignore event argument
-      let wrapper : (@core.Any) -> Unit = fn(_event) { callback() }
+      // Pass event to callback
+      let wrapper : (@core.Any) -> Unit = fn(event) { callback(event) }
       elem.as_event_target().addEventListener(event_name, @core.any(wrapper).cast())
     }
     @kaguya.VAction(_) =>
@@ -783,7 +783,7 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @kaguya.Attr) -> U
 
 ///|
 /// Convenience function: render VNode to DOM and mount
-pub fn render_vnode(container : @js_dom.Element, node : @kaguya.Node) -> Unit {
+pub fn render_vnode(container : @js_dom.Element, node : @kaguya.Node[@core.Any]) -> Unit {
   container.as_node().setTextContent("")
   let dom_node = render_vnode_to_dom(node)
   container.as_node().appendChild(dom_node) |> ignore
@@ -865,7 +865,7 @@ fn bind_action_handlers(elem : @js_dom.Element, dispatch : (String) -> Unit) -> 
 pub fn[State] hydrate_with_actions(
   container : @js_dom.Element,
   initial_state : State,
-  render : (State) -> @kaguya.Node,
+  render : (State) -> @kaguya.Node[@core.Any],
   update : (State, String) -> State,
 ) -> Unit {
   let state_signal = @signal.signal(initial_state)

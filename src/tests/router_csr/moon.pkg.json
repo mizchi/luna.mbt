@@ -4,7 +4,8 @@
     { "path": "mizchi/kaguya/core", "alias": "kaguya" },
     "mizchi/kaguya/core/signal",
     { "path": "mizchi/kaguya/router", "alias": "router" },
-    { "path": "mizchi/kaguya/browser", "alias": "dom" },
+    { "path": "mizchi/kaguya/browser/dom", "alias": "dom" },
+    { "path": "mizchi/kaguya/browser", "alias": "browser" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "mizchi/js/core"
   ],

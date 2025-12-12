@@ -1,5 +1,45 @@
 ///| Node types - DOM-independent interface for signals/dom
 
+// =============================================================================
+// Browser-specific VNode type aliases (Event type = @core.Any)
+// =============================================================================
+
+///|
+/// Browser VNode type (uses @core.Any for event type)
+pub struct BrowserVNode {
+  inner : @kaguya.Node[@core.Any]
+}
+
+///|
+/// Browser Attr type (uses @core.Any for event type)
+pub struct BrowserAttr {
+  inner : @kaguya.Attr[@core.Any]
+}
+
+///|
+/// Browser EventHandler type
+pub struct BrowserEventHandler {
+  inner : @kaguya.EventHandler[@core.Any]
+}
+
+///|
+/// Create a browser event handler from a callback
+pub fn browser_event_handler(f : (@core.Any) -> Unit) -> @kaguya.EventHandler[@core.Any] {
+  @kaguya.handler(f)
+}
+
+///|
+/// Create a noop browser event handler (for SSR compatibility in browser context)
+pub fn browser_noop_handler() -> @kaguya.EventHandler[@core.Any] {
+  @kaguya.handler(fn(_event) { () })
+}
+
+///|
+/// Create a browser event handler from a simple callback (ignores event)
+pub fn browser_handler_from_callback(f : () -> Unit) -> @kaguya.EventHandler[@core.Any] {
+  @kaguya.handler(fn(_event) { f() })
+}
+
 ///|
 /// Element wraps a DOM element (internal jsdom.Element)
 pub struct Element {
@@ -23,6 +63,11 @@ pub fn Element::to_jsdom(self : Element) -> @js_dom.Element {
 pub fn Element::to_node(self : Element) -> Node {
   El(self)
 }
+
+///|
+/// Internal any value type
+#external
+pub type AnyValue
 
 ///|
 /// Node represents any DOM node

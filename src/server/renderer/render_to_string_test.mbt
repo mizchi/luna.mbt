@@ -164,7 +164,7 @@ test "render show when false" {
 test "render for list" {
   let items = ["A", "B", "C"]
   let node = @kaguya.vfor(fn() {
-    let result : Array[@kaguya.Node] = []
+    let result : Array[@kaguya.Node[Unit]] = []
     for i = 0; i < items.length(); i = i + 1 {
       result.push(@kaguya.h("li", [], [@kaguya.vtext(items[i])]))
     }
@@ -176,7 +176,7 @@ test "render for list" {
 
 ///|
 test "render component" {
-  fn greeting(name : String) -> @kaguya.Node {
+  fn greeting(name : String) -> @kaguya.Node[Unit] {
     @kaguya.h("div", [], [@kaguya.vtext("Hello, " + name + "!")])
   }
 
@@ -254,7 +254,7 @@ test "complex page render" {
     ]),
     @kaguya.h("ul", [], [
       @kaguya.vfor(fn() {
-        let result : Array[@kaguya.Node] = []
+        let result : Array[@kaguya.Node[Unit]] = []
         for i = 0; i < items.length(); i = i + 1 {
           result.push(@kaguya.h("li", [], [@kaguya.vtext(items[i])]))
         }
@@ -438,7 +438,7 @@ test "render island with idle trigger" {
     "/components/lazy.js",
     "{}",
     [@kaguya.vtext("Loading...")],
-    trigger=@kaguya.trigger_idle(),
+    trigger=@kaguya.Idle,
   )
   let html = render_to_string(node)
   assert_true(html.contains("kg:trigger=\"idle\""))
@@ -452,7 +452,7 @@ test "render island with visible trigger" {
     "/components/lazy.js",
     "{}",
     [@kaguya.vtext("Loading...")],
-    trigger=@kaguya.trigger_visible(),
+    trigger=@kaguya.Visible,
   )
   let html = render_to_string(node)
   assert_true(html.contains("kg:trigger=\"visible\""))
@@ -466,7 +466,7 @@ test "render island with media trigger" {
     "/components/responsive.js",
     "{}",
     [@kaguya.vtext("Content")],
-    trigger=@kaguya.trigger_media("(min-width: 768px)"),
+    trigger=@kaguya.Media("(min-width: 768px)"),
   )
   let html = render_to_string(node)
   assert_true(html.contains("kg:trigger=\"media:(min-width: 768px)\""))
@@ -520,7 +520,7 @@ test "render island with complex children" {
       @kaguya.h("h2", [], [@kaguya.vtext("Title")]),
       @kaguya.h("ul", [], [
         @kaguya.vfor(fn() {
-          let items : Array[@kaguya.Node] = []
+          let items : Array[@kaguya.Node[Unit]] = []
           for i = 0; i < count; i = i + 1 {
             items.push(
               @kaguya.h("li", [], [@kaguya.vtext("Item " + i.to_string())]),
@@ -559,11 +559,11 @@ test "render island with hydration markers" {
 
 ///|
 test "trigger_to_string" {
-  assert_eq(@kaguya.trigger_to_string(@kaguya.trigger_load()), "load")
-  assert_eq(@kaguya.trigger_to_string(@kaguya.trigger_idle()), "idle")
-  assert_eq(@kaguya.trigger_to_string(@kaguya.trigger_visible()), "visible")
+  assert_eq(@kaguya.trigger_to_string(@kaguya.Load), "load")
+  assert_eq(@kaguya.trigger_to_string(@kaguya.Idle), "idle")
+  assert_eq(@kaguya.trigger_to_string(@kaguya.Visible), "visible")
   assert_eq(
-    @kaguya.trigger_to_string(@kaguya.trigger_media("(max-width: 600px)")),
+    @kaguya.trigger_to_string(@kaguya.Media("(max-width: 600px)")),
     "media:(max-width: 600px)",
   )
 }

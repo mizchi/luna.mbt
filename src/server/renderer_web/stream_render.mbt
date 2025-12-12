@@ -9,12 +9,12 @@ pub struct StreamWriter ((String) -> Unit)
 
 ///|
 /// Render a node to a stream, calling writer for each chunk
-pub fn render_to_stream(node : @kaguya.Node, writer : StreamWriter) -> Unit {
+pub fn render_to_stream(node : @kaguya.Node[Unit], writer : StreamWriter) -> Unit {
   render_node_to_stream(node, writer)
 }
 
 ///|
-fn render_node_to_stream(node : @kaguya.Node, writer : StreamWriter) -> Unit {
+fn render_node_to_stream(node : @kaguya.Node[Unit], writer : StreamWriter) -> Unit {
   let write = writer.0
   match node {
     Text(content) => write(escape_html(content))
@@ -62,7 +62,7 @@ fn render_node_to_stream(node : @kaguya.Node, writer : StreamWriter) -> Unit {
 ///|
 /// Render Island node to stream
 fn render_island_to_stream(
-  island : @kaguya.VIsland,
+  island : @kaguya.VIsland[Unit],
   writer : StreamWriter,
 ) -> Unit {
   let write = writer.0
@@ -102,16 +102,16 @@ fn render_island_to_stream(
 /// then streams content when ready
 pub struct Suspense {
   id : Int
-  fallback : @kaguya.Node
-  content : async () -> @kaguya.Node
+  fallback : @kaguya.Node[Unit]
+  content : async () -> @kaguya.Node[Unit]
 }
 
 ///|
 /// Create a suspense boundary
 pub fn suspense(
   id : Int,
-  fallback~ : @kaguya.Node,
-  content~ : async () -> @kaguya.Node
+  fallback~ : @kaguya.Node[Unit],
+  content~ : async () -> @kaguya.Node[Unit]
 ) -> Suspense {
   { id, fallback, content }
 }
@@ -120,7 +120,7 @@ pub fn suspense(
 /// Render with suspense boundaries - streams shell immediately,
 /// then streams resolved content with replacement scripts
 pub async fn render_with_suspense(
-  shell : @kaguya.Node,
+  shell : @kaguya.Node[Unit],
   suspenses : Array[Suspense],
   writer : StreamWriter
 ) -> Unit {
@@ -209,7 +209,7 @@ fn is_void_element(tag : String) -> Bool {
 
 ///|
 /// Helper: render attributes to StringBuilder
-fn render_attrs_to_sb(sb : StringBuilder, attrs : Array[(String, @kaguya.Attr)]) -> Unit {
+fn render_attrs_to_sb(sb : StringBuilder, attrs : Array[(String, @kaguya.Attr[Unit])]) -> Unit {
   for attr in attrs {
     let (name, value) = attr
     match value {
@@ -269,7 +269,7 @@ extern "js" fn js_create_readable_stream(
 
 ///|
 /// Render to a ReadableStream for streaming HTTP response
-pub fn render_to_readable_stream(node : @kaguya.Node) -> @streams.ReadableStream {
+pub fn render_to_readable_stream(node : @kaguya.Node[Unit]) -> @streams.ReadableStream {
   js_create_readable_stream(fn(enqueue) {
     render_to_stream(node, StreamWriter(fn(chunk) { enqueue(chunk) }))
   })
@@ -278,7 +278,7 @@ pub fn render_to_readable_stream(node : @kaguya.Node) -> @streams.ReadableStream
 ///|
 /// Async render to stream with suspense support
 pub async fn render_to_readable_stream_with_suspense(
-  shell : @kaguya.Node,
+  shell : @kaguya.Node[Unit],
   suspenses : Array[Suspense]
 ) -> @streams.ReadableStream {
   let chunks : Array[String] = []

@@ -9,8 +9,8 @@
 // =============================================================================
 
 ///|
-fn create_distance_tree(count : Int) -> @kaguya.Node {
-  let items : Array[@kaguya.Node] = []
+fn create_distance_tree(count : Int) -> @kaguya.Node[@core.Any] {
+  let items : Array[@kaguya.Node[@core.Any]] = []
   for i in 0..<count {
     items.push(@kaguya.h("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
@@ -18,8 +18,8 @@ fn create_distance_tree(count : Int) -> @kaguya.Node {
 }
 
 ///|
-fn create_distance_tree_with_attrs(count : Int) -> @kaguya.Node {
-  let items : Array[@kaguya.Node] = []
+fn create_distance_tree_with_attrs(count : Int) -> @kaguya.Node[@core.Any] {
+  let items : Array[@kaguya.Node[@core.Any]] = []
   for i in 0..<count {
     items.push(
       @kaguya.h(

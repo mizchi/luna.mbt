@@ -55,7 +55,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() {
+            @browser.browser_handler_from_callback(fn() {
               count_sig.update(fn(c) { c + 1 })
             }),
           ),
@@ -70,7 +70,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() {
+            @browser.browser_handler_from_callback(fn() {
               count_sig.update(fn(c) { c - 1 })
             }),
           ),
@@ -85,7 +85,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() { count_sig.set(0) }),
+            @browser.browser_handler_from_callback(fn() { count_sig.set(0) }),
           ),
         ),
       ],
@@ -94,7 +94,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @core.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @dom.render_vnode(el, vnode)
+  @browser.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -143,7 +143,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() {
+            @browser.browser_handler_from_callback(fn() {
               active.update(fn(a) { not(a) })
             }),
           ),
@@ -158,7 +158,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() { color.set("red") }),
+            @browser.browser_handler_from_callback(fn() { color.set("red") }),
           ),
         ),
       ],
@@ -171,7 +171,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() { color.set("blue") }),
+            @browser.browser_handler_from_callback(fn() { color.set("blue") }),
           ),
         ),
       ],
@@ -180,7 +180,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @core.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @dom.render_vnode(el, vnode)
+  @browser.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -197,7 +197,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() {
+            @browser.browser_handler_from_callback(fn() {
               visible.update(fn(v) { not(v) })
             }),
           ),
@@ -218,7 +218,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @core.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @dom.render_vnode(el, vnode)
+  @browser.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -249,7 +249,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @core.Any) -> Unit {
           (
             "onClick",
             @kaguya.attr_handler(
-              @kaguya.handler_from_callback(fn() {
+              @browser.browser_handler_from_callback(fn() {
                 // In a real app, we'd read from the input element
                 // For testing, we'll add a placeholder item
                 let current = items.get()
@@ -273,7 +273,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @core.Any) -> Unit {
     @kaguya.h("ul", [("data-list", @kaguya.attr_static("true"))], [
       @kaguya.vfor(fn() {
         let current_items = items.get()
-        let result : Array[@kaguya.Node] = []
+        let result : Array[@kaguya.Node[@core.Any]] = []
         for i = 0; i < current_items.length(); i = i + 1 {
           let item = current_items[i]
           let index = i
@@ -290,7 +290,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @core.Any) -> Unit {
                     (
                       "onClick",
                       @kaguya.attr_handler(
-                        @kaguya.handler_from_callback(fn() {
+                        @browser.browser_handler_from_callback(fn() {
                           let current = items.get()
                           let new_arr : Array[String] = []
                           for j = 0; j < current.length(); j = j + 1 {
@@ -315,7 +315,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @core.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @dom.render_vnode(el, vnode)
+  @browser.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
   ignore(pending_input)
 }
@@ -342,7 +342,7 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @core.Any) -> Unit {
         (
           "onClick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() {
+            @browser.browser_handler_from_callback(fn() {
               click_count.update(fn(c) { c + 1 })
             }),
           ),
@@ -350,7 +350,7 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @core.Any) -> Unit {
         (
           "onDblclick",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() {
+            @browser.browser_handler_from_callback(fn() {
               dblclick_count.update(fn(c) { c + 1 })
             }),
           ),
@@ -358,13 +358,13 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @core.Any) -> Unit {
         (
           "onMouseenter",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() { hover_state.set("hovering") }),
+            @browser.browser_handler_from_callback(fn() { hover_state.set("hovering") }),
           ),
         ),
         (
           "onMouseleave",
           @kaguya.attr_handler(
-            @kaguya.handler_from_callback(fn() { hover_state.set("none") }),
+            @browser.browser_handler_from_callback(fn() { hover_state.set("none") }),
           ),
         ),
       ],
@@ -388,7 +388,7 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @core.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @dom.render_vnode(el, vnode)
+  @browser.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -509,7 +509,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @core.Any) -> Unit {
           (
             "onClick",
             @kaguya.attr_handler(
-              @kaguya.handler_from_callback(fn() {
+              @browser.browser_handler_from_callback(fn() {
                 submitted.set(text_value.get())
               }),
             ),
@@ -524,7 +524,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @core.Any) -> Unit {
           (
             "onClick",
             @kaguya.attr_handler(
-              @kaguya.handler_from_callback(fn() { text_value.set("") }),
+              @browser.browser_handler_from_callback(fn() { text_value.set("") }),
             ),
           ),
         ],
@@ -537,7 +537,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @core.Any) -> Unit {
           (
             "onClick",
             @kaguya.attr_handler(
-              @kaguya.handler_from_callback(fn() {
+              @browser.browser_handler_from_callback(fn() {
                 text_value.set("Hello World")
               }),
             ),
@@ -559,6 +559,6 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @core.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @dom.render_vnode(el, vnode)
+  @browser.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }

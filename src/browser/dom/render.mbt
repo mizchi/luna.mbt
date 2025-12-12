@@ -2,7 +2,7 @@
 
 ///|
 /// Create a reactive text node that updates when the content changes
-pub fn text_node(content : () -> String) -> Node {
+pub fn text_node(content : () -> String) -> DomNode {
   let doc = @js_dom.document()
   let initial = content()
   let node = doc.createTextNode(initial)
@@ -17,7 +17,7 @@ pub fn text_node(content : () -> String) -> Node {
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_from_signal(sig : @signal.Signal[T]) -> Node {
+pub fn[T : Show] text_from_signal(sig : @signal.Signal[T]) -> DomNode {
   text_node(fn() { sig.get().to_string() })
 }
 
@@ -34,8 +34,8 @@ pub(all) enum AttrValue {
 pub fn create_element(
   tag : String,
   attrs : Array[(String, AttrValue)],
-  children : Array[Node],
-) -> Node {
+  children : Array[DomNode],
+) -> DomNode {
   let doc = @js_dom.document()
   let elem = doc.createElement(tag)
 
@@ -49,7 +49,7 @@ pub fn create_element(
   for i = 0; i < children.length(); i = i + 1 {
     elem.as_node().appendChild(children[i].to_jsdom()) |> ignore
   }
-  El(Element::from_jsdom(elem))
+  El(DomElement::from_jsdom(elem))
 }
 
 ///|
@@ -125,19 +125,19 @@ fn apply_style_string(elem : @js_dom.Element, style : String) -> Unit {
 
 ///|
 /// Mount a node to a container
-pub fn mount(container : Element, n : Node) -> Unit {
+pub fn mount(container : DomElement, n : DomNode) -> Unit {
   container.to_jsdom().as_node().appendChild(n.to_jsdom()) |> ignore
 }
 
 ///|
 /// Mount to a jsdom container (for tests)
-pub fn mount_to(container : @js_dom.Element, n : Node) -> Unit {
+pub fn mount_to(container : @js_dom.Element, n : DomNode) -> Unit {
   container.as_node().appendChild(n.to_jsdom()) |> ignore
 }
 
 ///|
 /// Clear a container
-pub fn clear(container : Element) -> Unit {
+pub fn clear(container : DomElement) -> Unit {
   container.to_jsdom().as_node().setTextContent("")
 }
 
@@ -149,21 +149,21 @@ pub fn clear_jsdom(container : @js_dom.Element) -> Unit {
 
 ///|
 /// Render to a container (clear and mount)
-pub fn render(container : Element, n : Node) -> Unit {
+pub fn render(container : DomElement, n : DomNode) -> Unit {
   clear(container)
   mount(container, n)
 }
 
 ///|
 /// Render to a jsdom container (for tests)
-pub fn render_to(container : @js_dom.Element, n : Node) -> Unit {
+pub fn render_to(container : @js_dom.Element, n : DomNode) -> Unit {
   clear_jsdom(container)
   mount_to(container, n)
 }
 
 ///|
 /// Conditional rendering - shows content when condition is true
-pub fn show(when : () -> Bool, render_fn : () -> Node) -> Node {
+pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("show")
   let mut current_node : @js_dom.Node? = None
@@ -203,8 +203,8 @@ pub fn show(when : () -> Bool, render_fn : () -> Node) -> Node {
 /// When items are reordered, their DOM nodes are moved rather than recreated.
 pub fn[T] for_each(
   items : () -> Array[T],
-  render_item : (T, Int) -> Node,
-) -> Node {
+  render_item : (T, Int) -> DomNode,
+) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("for")
   let entries : Ref[Array[ItemEntry[T]]] = { val: [] }

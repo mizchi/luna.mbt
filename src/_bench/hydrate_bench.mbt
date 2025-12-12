@@ -127,8 +127,8 @@ test "hydrate_nested_5" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_hydrate_list_node(count : Int) -> @kaguya.Node {
-  let items : Array[@kaguya.Node] = []
+fn create_hydrate_list_node(count : Int) -> @kaguya.Node[@core.Any] {
+  let items : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < count; i = i + 1 {
     items.push(@kaguya.h("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
@@ -273,7 +273,7 @@ test "hydrate_for_20_items" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_hydrate_card(title : String, content : String) -> @kaguya.Node {
+fn create_hydrate_card(title : String, content : String) -> @kaguya.Node[@core.Any] {
   @kaguya.h("div", [("class", @kaguya.attr_static("card"))], [
     @kaguya.h("h3", [("class", @kaguya.attr_static("card-title"))], [
       @kaguya.vtext(title),
@@ -288,8 +288,8 @@ fn create_hydrate_card(title : String, content : String) -> @kaguya.Node {
 }
 
 ///|
-fn create_hydrate_page(card_count : Int) -> @kaguya.Node {
-  let cards : Array[@kaguya.Node] = []
+fn create_hydrate_page(card_count : Int) -> @kaguya.Node[@core.Any] {
+  let cards : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < card_count; i = i + 1 {
     cards.push(
       create_hydrate_card(
@@ -347,7 +347,7 @@ test "hydrate_with_click_handler" (b : @bench.T) {
         "class",
         @kaguya.attr_dynamic(fn() { "count-" + count.get().to_string() }),
       ),
-      ("onClick", @kaguya.attr_handler(@kaguya.event_handler())),
+      ("onClick", @kaguya.attr_handler(@dom.browser_noop_handler())),
     ],
     [@kaguya.text_dyn(fn() { "Count: " + count.get().to_string() })],
   )
@@ -364,14 +364,14 @@ test "hydrate_form_with_handlers" (b : @bench.T) {
   let value = @signal.signal("")
   let node = @kaguya.h(
     "form",
-    [("onSubmit", @kaguya.attr_handler(@kaguya.event_handler()))],
+    [("onSubmit", @kaguya.attr_handler(@dom.browser_noop_handler()))],
     [
       @kaguya.h(
         "input",
         [
           ("type", @kaguya.attr_static("text")),
           ("value", @kaguya.attr_dynamic(fn() { value.get() })),
-          ("onInput", @kaguya.attr_handler(@kaguya.event_handler())),
+          ("onInput", @kaguya.attr_handler(@dom.browser_noop_handler())),
         ],
         [],
       ),

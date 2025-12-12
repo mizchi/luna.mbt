@@ -1,0 +1,58 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    "mizchi/kaguya/core/signal",
+    "mizchi/js/core",
+    {
+      "path": "mizchi/js/browser/dom",
+      "alias": "js_dom"
+    },
+    "mizchi/js/web/event"
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "div",
+        "span",
+        "p",
+        "button",
+        "a",
+        "input",
+        "textarea",
+        "form",
+        "label",
+        "h1",
+        "h2",
+        "h3",
+        "ul",
+        "ol",
+        "li",
+        "img",
+        "br",
+        "hr",
+        "text",
+        "text_dyn:textDyn",
+        "text_sig:textSig",
+        "render_to:render",
+        "mount_to:mount",
+        "show",
+        "for_each:forEach",
+        "on",
+        "create_element:createElement",
+        "attr_static:attrStatic",
+        "attr_dynamic:attrDynamic",
+        "attr_handler:attrHandler",
+        "attr_style:attrStyle",
+        "attr_dynamic_style:attrDynamicStyle",
+        "jsx",
+        "jsxs",
+        "fragment:Fragment",
+        "DomNode",
+        "DomElement"
+      ],
+      "format": "esm"
+    }
+  }
+}

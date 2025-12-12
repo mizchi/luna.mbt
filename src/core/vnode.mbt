@@ -1,37 +1,34 @@
-///| VNode - DOM-independent virtual node representation for SSR
+///| VNode - DOM-independent virtual node representation
+///|
+///| Type parameter E represents the event type for handlers:
+///| - Browser: E = DomEvent (or specific event types)
+///| - SSR: E = Unit (no events)
+///| - Other platforms: custom event types
 
 ///|
-/// Event handler type - wraps a callback function
-/// For SSR: noop function. For DOM: actual event handler
-pub struct EventHandler {
-  /// The callback function (no-arg for simplicity, event can be captured via closure)
-  callback : () -> Unit
+/// Event handler type - newtype wrapper for callback function
+pub struct EventHandler[E] {
+  callback : (E) -> Unit
 }
 
 ///|
-/// Create a placeholder event handler (for SSR - creates noop function)
-pub fn event_handler() -> EventHandler {
-  { callback: fn() { () } }
-}
-
-///|
-/// Create an event handler from a simple callback
-pub fn handler_from_callback(f : () -> Unit) -> EventHandler {
+/// Create an event handler from a callback
+pub fn[E] handler(f : (E) -> Unit) -> EventHandler[E] {
   { callback: f }
 }
 
 ///|
 /// Get the callback function
-pub fn EventHandler::get_callback(self : EventHandler) -> () -> Unit {
+pub fn[E] EventHandler::get_callback(self : EventHandler[E]) -> (E) -> Unit {
   self.callback
 }
 
 ///|
 /// Attribute value that can be static or dynamic (signal-based)
-pub enum Attr {
+pub enum Attr[E] {
   VStatic(String)
   VDynamic(() -> String)
-  VHandler(EventHandler)
+  VHandler(EventHandler[E])
   VAction(String) // Action name for declarative event handling
 }
 
@@ -44,125 +41,98 @@ pub(all) enum IslandTrigger {
   Media(String) // Hydrate when media query matches
 }
 
-// Factory functions for IslandTrigger (for external package access)
-
-///|
-/// Create a Load trigger (hydrate immediately on page load)
-pub fn trigger_load() -> IslandTrigger {
-  Load
-}
-
-///|
-/// Create an Idle trigger (hydrate during browser idle time)
-pub fn trigger_idle() -> IslandTrigger {
-  Idle
-}
-
-///|
-/// Create a Visible trigger (hydrate when element becomes visible)
-pub fn trigger_visible() -> IslandTrigger {
-  Visible
-}
-
-///|
-/// Create a Media trigger (hydrate when media query matches)
-pub fn trigger_media(query : String) -> IslandTrigger {
-  Media(query)
-}
-
 ///|
 /// Virtual Island node - serializable hydration unit
-pub struct VIsland {
+pub struct VIsland[E] {
   id : String // Unique identifier (kg:id)
   url : String // Script URL for loading implementation (kg:url)
   state : String // Serialized state JSON (kg:state)
   trigger : IslandTrigger // Hydration trigger (kg:trigger)
-  children : Array[Node] // SSR-rendered content (can contain nested Islands)
+  children : Array[Node[E]] // SSR-rendered content (can contain nested Islands)
 }
 
 ///|
 /// Virtual DOM node types
-pub enum Node {
-  Element(VElement)
+pub enum Node[E] {
+  Element(VElement[E])
   Text(String)
   DynamicText(() -> String)
-  Fragment(Array[Node])
-  Show(condition~ : () -> Bool, child~ : () -> Node)
-  For(render~ : () -> Array[Node])
-  Component(render~ : () -> Node)
-  Island(VIsland) // Hydration boundary for partial hydration
+  Fragment(Array[Node[E]])
+  Show(condition~ : () -> Bool, child~ : () -> Node[E])
+  For(render~ : () -> Array[Node[E]])
+  Component(render~ : () -> Node[E])
+  Island(VIsland[E]) // Hydration boundary for partial hydration
 }
 
 ///|
 /// Virtual element node
-pub struct VElement {
+pub struct VElement[E] {
   tag : String
-  attrs : Array[(String, Attr)]
-  children : Array[Node]
+  attrs : Array[(String, Attr[E])]
+  children : Array[Node[E]]
 }
 
 ///|
 /// Create a VNode element
-pub fn h(
+pub fn[E] h(
   tag : String,
-  attrs : Array[(String, Attr)],
-  children : Array[Node],
-) -> Node {
+  attrs : Array[(String, Attr[E])],
+  children : Array[Node[E]],
+) -> Node[E] {
   Element({ tag, attrs, children })
 }
 
-
 ///|
 /// Create a text VNode
-pub fn vtext(content : String) -> Node {
+pub fn[E] vtext(content : String) -> Node[E] {
   Text(content)
 }
 
 ///|
 /// Create a dynamic text VNode
-pub fn text_dyn(content : () -> String) -> Node {
+pub fn[E] text_dyn(content : () -> String) -> Node[E] {
   DynamicText(content)
 }
 
 ///|
 /// Create a text VNode from a signal
-pub fn[T : Show] vtext_sig(sig : @signal.Signal[T]) -> Node {
+pub fn[E, T : Show] vtext_sig(sig : @signal.Signal[T]) -> Node[E] {
   DynamicText(fn() { sig.get().to_string() })
 }
 
 ///|
 /// Create a fragment VNode
-pub fn vfragment(children : Array[Node]) -> Node {
+pub fn[E] vfragment(children : Array[Node[E]]) -> Node[E] {
   Fragment(children)
 }
 
 ///|
 /// Create a conditional VNode
-pub fn vshow(when : () -> Bool, child : () -> Node) -> Node {
+pub fn[E] vshow(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
   Show(condition=when, child~)
 }
 
 ///|
 /// Create a list VNode
-pub fn vfor(items : () -> Array[Node]) -> Node {
+pub fn[E] vfor(items : () -> Array[Node[E]]) -> Node[E] {
   For(render=items)
 }
 
 ///|
 /// Create a component VNode
-pub fn vcomponent(render : () -> Node) -> Node {
+pub fn[E] vcomponent(render : () -> Node[E]) -> Node[E] {
   Component(render~)
 }
 
 ///|
 /// Create an island VNode for partial hydration
-pub fn visland(
+pub fn[E] visland(
   id : String,
   url : String,
   state : String,
-  children : Array[Node],
+  children : Array[Node[E]],
   trigger? : IslandTrigger = Load,
-) -> Node {
+) -> Node[E] {
   Island({ id, url, state, trigger, children })
 }
 
@@ -179,7 +149,7 @@ pub fn trigger_to_string(trigger : IslandTrigger) -> String {
 
 ///|
 /// Check if element has dynamic content that needs hydration
-pub fn has_dynamic_content(attrs : Array[(String, Attr)]) -> Bool {
+pub fn[E] has_dynamic_content(attrs : Array[(String, Attr[E])]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {
@@ -194,37 +164,65 @@ pub fn has_dynamic_content(attrs : Array[(String, Attr)]) -> Bool {
 
 ///|
 /// Create a static attribute value
-pub fn attr_static(value : String) -> Attr {
+pub fn[E] attr_static(value : String) -> Attr[E] {
   VStatic(value)
 }
 
 ///|
 /// Create a dynamic attribute value
-pub fn attr_dynamic(getter : () -> String) -> Attr {
+pub fn[E] attr_dynamic(getter : () -> String) -> Attr[E] {
   VDynamic(getter)
 }
 
 ///|
 /// Create a handler attribute value
-pub fn attr_handler(handler : EventHandler) -> Attr {
+pub fn[E] attr_handler(handler : EventHandler[E]) -> Attr[E] {
   VHandler(handler)
 }
 
 ///|
 /// Create a style attribute value (string form, e.g. "color: red; margin: 10px")
-pub fn attr_style(style : String) -> Attr {
+pub fn[E] attr_style(style : String) -> Attr[E] {
   VStatic(style)
 }
 
 ///|
 /// Create a dynamic style attribute value
-pub fn attr_dynamic_style(getter : () -> String) -> Attr {
+pub fn[E] attr_dynamic_style(getter : () -> String) -> Attr[E] {
   VDynamic(getter)
 }
 
 ///|
 /// Create an action attribute value - dispatches named action on event
 /// Used for declarative event handling: ("onclick", action("increment"))
-pub fn action(name : String) -> Attr {
+pub fn[E] action(name : String) -> Attr[E] {
   VAction(name)
+}
+
+// =============================================================================
+// SSR convenience types and functions (E = Unit)
+// =============================================================================
+
+///|
+/// SSR Node type (no event handling)
+pub struct SsrNode {
+  inner : Node[Unit]
+}
+
+///|
+/// SSR Attr type
+pub struct SsrAttr {
+  inner : Attr[Unit]
+}
+
+///|
+/// Create a placeholder event handler for SSR (noop)
+pub fn event_handler() -> EventHandler[Unit] {
+  { callback: fn(_) { () } }
+}
+
+///|
+/// Create an event handler from a simple callback (ignores event, for SSR compatibility)
+pub fn handler_from_callback(f : () -> Unit) -> EventHandler[Unit] {
+  { callback: fn(_) { f() } }
 }

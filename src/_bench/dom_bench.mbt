@@ -77,8 +77,8 @@ test "dom_render_nested_5" (b : @bench.T) {
 // =============================================================================
 
 ///|
-fn create_list_node(count : Int) -> @kaguya.Node {
-  let items : Array[@kaguya.Node] = []
+fn create_list_node(count : Int) -> @kaguya.Node[@core.Any] {
+  let items : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < count; i = i + 1 {
     items.push(@kaguya.h("li", [], [@kaguya.vtext("Item " + i.to_string())]))
   }
@@ -376,7 +376,7 @@ test "dom_deep_update_multi_depth" (b : @bench.T) {
 test "dom_wide_shallow_10" (b : @bench.T) {
   @global_jsdom.register()
   let signals : Array[@signal.Signal[Int]] = []
-  let children : Array[@kaguya.Node] = []
+  let children : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < 10; i = i + 1 {
     let sig = @signal.signal(i)
     signals.push(sig)
@@ -402,7 +402,7 @@ test "dom_wide_shallow_10" (b : @bench.T) {
 test "dom_wide_shallow_50" (b : @bench.T) {
   @global_jsdom.register()
   let signals : Array[@signal.Signal[Int]] = []
-  let children : Array[@kaguya.Node] = []
+  let children : Array[@kaguya.Node[@core.Any]] = []
   for i = 0; i < 50; i = i + 1 {
     let sig = @signal.signal(i)
     signals.push(sig)

@@ -11,7 +11,7 @@ struct Todo {
 ///|
 /// Create a Todo app component
 fn create_todo_app() -> (
-  Node,
+  @dom.DomNode,
   @signal.Signal[Array[Todo]],
   @signal.Signal[String],
 ) {
@@ -68,25 +68,25 @@ fn create_todo_app() -> (
   }
 
   // Build the UI
-  let app = div(
+  let app = @dom.div(
     class="todo-app",
     [
       // Header
-      h1([text("Todo App")]),
+      @dom.h1([@dom.text("Todo App")]),
       // Input form
-      div(
+      @dom.div(
         class="input-section",
         [
-          create_element(
+          @dom.create_element(
             "input",
             [
-              ("id", attr_static("todo-input")),
-              ("type", attr_static("text")),
-              ("placeholder", attr_static("What needs to be done?")),
-              ("value", attr_dynamic(fn() { input_text.get() })),
+              ("id", @dom.attr_static("todo-input")),
+              ("type", @dom.attr_static("text")),
+              ("placeholder", @dom.attr_static("What needs to be done?")),
+              ("value", @dom.attr_dynamic(fn() { input_text.get() })),
               (
                 "onInput",
-                attr_handler(fn(e : @core.Any) {
+                @dom.attr_handler(fn(e : @core.Any) {
                   let target : @js_dom.HTMLInputElement = e
                     ._call("target", [])
                     .cast()
@@ -95,7 +95,7 @@ fn create_todo_app() -> (
               ),
               (
                 "onKeydown",
-                attr_handler(fn(e : @core.Any) {
+                @dom.attr_handler(fn(e : @core.Any) {
                   let key : String = e._get("key").cast()
                   if key == "Enter" {
                     add_todo()
@@ -105,27 +105,27 @@ fn create_todo_app() -> (
             ],
             [],
           ),
-          button(
+          @dom.button(
             id="add-btn",
-            on=on(click=Some(fn(_) { add_todo() })),
-            [text("Add")],
+            on=@dom.on(click=Some(fn(_) { add_todo() })),
+            [@dom.text("Add")],
           ),
         ],
       ),
       // Todo list
-      create_element(
+      @dom.create_element(
         "ul",
-        [("id", attr_static("todo-list"))],
+        [("id", @dom.attr_static("todo-list"))],
         [
-          for_each(
+          @dom.for_each(
             fn() { todos.get() },
             fn(todo, _idx) {
-              create_element(
+              @dom.create_element(
                 "li",
                 [
                   (
                     "className",
-                    attr_dynamic(fn() {
+                    @dom.attr_dynamic(fn() {
                       if todo.completed {
                         "todo-item completed"
                       } else {
@@ -133,18 +133,18 @@ fn create_todo_app() -> (
                       }
                     }),
                   ),
-                  ("data-id", attr_static(todo.id.to_string())),
+                  ("data-id", @dom.attr_static(todo.id.to_string())),
                 ],
                 [
-                  span(
+                  @dom.span(
                     class="todo-text",
-                    on=on(click=Some(fn(_) { toggle_todo(todo.id) })),
-                    [text(todo.text)],
+                    on=@dom.on(click=Some(fn(_) { toggle_todo(todo.id) })),
+                    [@dom.text(todo.text)],
                   ),
-                  button(
+                  @dom.button(
                     class="delete-btn",
-                    on=on(click=Some(fn(_) { delete_todo(todo.id) })),
-                    [text("×")],
+                    on=@dom.on(click=Some(fn(_) { delete_todo(todo.id) })),
+                    [@dom.text("×")],
                   ),
                 ],
               )
@@ -153,10 +153,10 @@ fn create_todo_app() -> (
         ],
       ),
       // Stats
-      div(
+      @dom.div(
         id="stats",
         [
-          text_dyn(fn() {
+          @dom.text_dyn(fn() {
             let items = todos.get()
             let total = items.length()
             let mut completed = 0
@@ -184,7 +184,7 @@ test "Todo app renders initial state" {
   let doc = @js_dom.document()
   let container = doc.getElementById("root").unwrap_or(doc.createElement("div"))
   let (app, _todos, _input) = create_todo_app()
-  render_to(container, app)
+  @dom.render_to(container, app)
 
   // Check header exists
   let h1_elem = container.querySelector("h1")
@@ -209,7 +209,7 @@ test "Todo app adds new todo" {
   let doc = @js_dom.document()
   let container = doc.createElement("div")
   let (app, todos, input_text) = create_todo_app()
-  render_to(container, app)
+  @dom.render_to(container, app)
 
   // Simulate typing
   input_text.set("Buy groceries")
@@ -230,7 +230,7 @@ test "Todo app toggles todo completion" {
   let doc = @js_dom.document()
   let container = doc.createElement("div")
   let (app, todos, _input) = create_todo_app()
-  render_to(container, app)
+  @dom.render_to(container, app)
 
   // Add initial todos
   todos.set([
@@ -263,7 +263,7 @@ test "Todo app deletes todo" {
   let doc = @js_dom.document()
   let container = doc.createElement("div")
   let (app, todos, _input) = create_todo_app()
-  render_to(container, app)
+  @dom.render_to(container, app)
 
   // Add initial todos
   todos.set([
@@ -296,8 +296,8 @@ test "Todo app reactive text updates" {
   let doc = @js_dom.document()
   let container = doc.createElement("div")
   let count = @signal.signal(0)
-  let counter_div = div(id="counter", [text_sig(count)])
-  render_to(container, counter_div)
+  let counter_div = @dom.div(id="counter", [@dom.text_sig(count)])
+  @dom.render_to(container, counter_div)
 
   // Initial value
   assert_eq(count.get(), 0)
@@ -319,13 +319,13 @@ test "Todo app reactive class updates" {
   let doc = @js_dom.document()
   let container = doc.createElement("div")
   let is_active = @signal.signal(false)
-  let elem = create_element(
+  let elem = @dom.create_element(
     "div",
     [
-      ("id", attr_static("toggle-elem")),
+      ("id", @dom.attr_static("toggle-elem")),
       (
         "className",
-        attr_dynamic(fn() {
+        @dom.attr_dynamic(fn() {
           if is_active.get() {
             "active"
           } else {
@@ -336,7 +336,7 @@ test "Todo app reactive class updates" {
     ],
     [],
   )
-  render_to(container, elem)
+  @dom.render_to(container, elem)
 
   // Initial state
   assert_eq(is_active.get(), false)
@@ -695,33 +695,33 @@ test "Fine-grained: DOM text nodes update independently" {
       let _ = name.get()
       name_updates.val = name_updates.val + 1
     })
-    text_sig(name)
+    @dom.text_sig(name)
   }
   let age_text = {
     let _ = @signal.effect(fn() {
       let _ = age.get()
       age_updates.val = age_updates.val + 1
     })
-    text_sig(age)
+    @dom.text_sig(age)
   }
   let city_text = {
     let _ = @signal.effect(fn() {
       let _ = city.get()
       city_updates.val = city_updates.val + 1
     })
-    text_sig(city)
+    @dom.text_sig(city)
   }
 
   // Build DOM structure
-  let profile = div(
+  let profile = @dom.div(
     class="profile",
     [
-      div(class="name", [name_text]),
-      div(class="age", [age_text]),
-      div(class="city", [city_text]),
+      @dom.div(class="name", [name_text]),
+      @dom.div(class="age", [age_text]),
+      @dom.div(class="city", [city_text]),
     ],
   )
-  render_to(container, profile)
+  @dom.render_to(container, profile)
 
   // Initial state
   assert_eq(name_updates.val, 1)

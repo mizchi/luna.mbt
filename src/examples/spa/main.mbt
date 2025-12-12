@@ -32,7 +32,7 @@ fn console_log(msg : String) -> Unit {
 // =============================================================================
 
 ///|
-fn counter_example() -> @dom.Node {
+fn counter_example() -> @dom.DomNode {
   let count = @signal.signal(0)
   let doubled = @signal.memo(fn() { count.get() * 2 })
   let is_even = @signal.memo(fn() { count.get() % 2 == 0 })
@@ -62,7 +62,7 @@ fn counter_example() -> @dom.Node {
 // =============================================================================
 
 ///|
-fn input_example() -> @dom.Node {
+fn input_example() -> @dom.DomNode {
   let text = @signal.signal("")
   let char_count = @signal.memo(fn() { text.get().length() })
   @dom.div(class="input-example", [
@@ -88,7 +88,7 @@ fn input_example() -> @dom.Node {
 // =============================================================================
 
 ///|
-fn effect_example() -> @dom.Node {
+fn effect_example() -> @dom.DomNode {
   let active = @signal.signal(false)
   let ticks = @signal.signal(0)
   let _ = @signal.effect(fn() {
@@ -121,7 +121,7 @@ fn effect_example() -> @dom.Node {
 // =============================================================================
 
 ///|
-fn conditional_example() -> @dom.Node {
+fn conditional_example() -> @dom.DomNode {
   let show_message = @signal.signal(true)
   @dom.div(class="conditional-example", [
     @dom.h2([@dom.text("Conditional Example")]),
@@ -152,7 +152,7 @@ fn conditional_example() -> @dom.Node {
 // =============================================================================
 
 ///|
-fn style_example() -> @dom.Node {
+fn style_example() -> @dom.DomNode {
   let hue = @signal.signal(180)
   let size = @signal.signal(100)
   @dom.div(class="style-example", [
@@ -226,7 +226,7 @@ priv struct TodoItem {
 }
 
 ///|
-fn todo_example() -> @dom.Node {
+fn todo_example() -> @dom.DomNode {
   let todos : @signal.Signal[Array[TodoItem]] = @signal.signal([])
   let input_text = @signal.signal("")
   let next_id = @signal.signal(1)
@@ -392,7 +392,7 @@ fn main {
           todo_example(),
         ],
       )
-      @dom.render(el |> @dom.Element::from_jsdom, app)
+      @dom.render(el |> @dom.DomElement::from_jsdom, app)
       console_log("App rendered successfully!")
     }
     None => console_log("ERROR: Could not find #app container")

@@ -78,7 +78,7 @@ impl Show for Attr with output(self, logger) {
 
 ///|
 /// Convert Attr to AttrValue
-fn Attr::to_attr_value(self : Attr) -> AttrValue {
+pub fn Attr::to_attr_value(self : Attr) -> AttrValue {
   Static(self.to_string())
 }
 

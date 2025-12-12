@@ -143,12 +143,12 @@ extern "js" fn prevent_default_event(e : @core.Any) -> Unit =
 pub fn link_attrs(
   href : String,
   router : ClientRouter
-) -> Array[(String, AttrValue)] {
+) -> Array[(String, @dom.AttrValue)] {
   [
-    ("href", AttrValue::Static(href)),
+    ("href", @dom.AttrValue::Static(href)),
     (
       "onclick",
-      AttrValue::Handler(fn(e) {
+      @dom.AttrValue::Handler(fn(e) {
         prevent_default_event(e)
         router.navigate(href)
       }),

@@ -12,6 +12,10 @@
       "path": "mizchi/kaguya/router",
       "alias": "router"
     },
+    {
+      "path": "mizchi/kaguya/browser/dom",
+      "alias": "dom"
+    },
     "mizchi/js/core",
     {
       "path": "mizchi/js/browser/dom",

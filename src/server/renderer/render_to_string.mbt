@@ -4,7 +4,7 @@
 
 ///|
 /// Render a VNode to HTML string
-pub fn render_to_string(node : @kaguya.Node) -> String {
+pub fn[E] render_to_string(node : @kaguya.Node[E]) -> String {
   let sb = StringBuilder::new(size_hint=256)
   render_to_sb(sb, node)
   sb.to_string()
@@ -19,7 +19,7 @@ pub struct SSRResult {
 
 ///|
 /// Render a VNode to HTML string and collect preload URLs from islands
-pub fn render_with_preloads(node : @kaguya.Node) -> SSRResult {
+pub fn[E] render_with_preloads(node : @kaguya.Node[E]) -> SSRResult {
   render_with_options(node)
 }
 
@@ -27,8 +27,8 @@ pub fn render_with_preloads(node : @kaguya.Node) -> SSRResult {
 /// Render a VNode to HTML string with options
 /// - preload: Whether to collect preload URLs from islands (default: true)
 /// - hydration: Whether to include hydration markers (default: true, reserved for future use)
-pub fn render_with_options(
-  node : @kaguya.Node,
+pub fn[E] render_with_options(
+  node : @kaguya.Node[E],
   preload~ : Bool = true,
   hydration~ : Bool = true
 ) -> SSRResult {
@@ -61,9 +61,9 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
 
 ///|
 /// Render a VNode to StringBuilder and collect island URLs
-fn render_and_collect_urls(
+fn[E] render_and_collect_urls(
   sb : StringBuilder,
-  node : @kaguya.Node,
+  node : @kaguya.Node[E],
   urls : Array[String],
 ) -> Unit {
   match node {
@@ -107,9 +107,9 @@ fn render_and_collect_urls(
 
 ///|
 /// Render Island node and collect its URL
-fn render_island_and_collect_urls(
+fn[E] render_island_and_collect_urls(
   sb : StringBuilder,
-  island : @kaguya.VIsland,
+  island : @kaguya.VIsland[E],
   urls : Array[String],
 ) -> Unit {
   // Collect URL if not already present
@@ -233,9 +233,9 @@ fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
 
 ///|
 /// Render attributes to StringBuilder
-fn render_attrs_to(
+fn[E] render_attrs_to(
   sb : StringBuilder,
-  attrs : Array[(String, @kaguya.Attr)],
+  attrs : Array[(String, @kaguya.Attr[E])],
 ) -> Unit {
   for attr in attrs {
     let (name, value) = attr
@@ -292,7 +292,7 @@ fn render_attrs_to(
 
 ///|
 /// Render a VNode to StringBuilder
-fn render_to_sb(sb : StringBuilder, node : @kaguya.Node) -> Unit {
+fn[E] render_to_sb(sb : StringBuilder, node : @kaguya.Node[E]) -> Unit {
   match node {
     Text(content) => escape_html_to(sb, content)
     DynamicText(getter) => escape_html_to(sb, getter())
@@ -334,7 +334,7 @@ fn render_to_sb(sb : StringBuilder, node : @kaguya.Node) -> Unit {
 
 ///|
 /// Render Island node with kg:* attributes for hydration
-fn render_island_to(sb : StringBuilder, island : @kaguya.VIsland) -> Unit {
+fn[E] render_island_to(sb : StringBuilder, island : @kaguya.VIsland[E]) -> Unit {
   // Start comment marker for preload detection (allows finding islands before DOM parsing)
   // Format: <!--kg:island:ID url=URL state=STATE trigger=TRIGGER-->
   sb.write_string("<!--kg:island:")
@@ -372,7 +372,7 @@ fn render_island_to(sb : StringBuilder, island : @kaguya.VIsland) -> Unit {
 
 ///|
 /// Render with data-ssr-id markers for hydration
-pub fn render_to_string_with_hydration(node : @kaguya.Node) -> String {
+pub fn[E] render_to_string_with_hydration(node : @kaguya.Node[E]) -> String {
   let sb = StringBuilder::new(size_hint=256)
   let id_counter = { val: 0 }
   render_with_id_to(sb, node, id_counter)
@@ -381,9 +381,9 @@ pub fn render_to_string_with_hydration(node : @kaguya.Node) -> String {
 
 ///|
 /// Internal: Render with hydration markers to StringBuilder
-fn render_with_id_to(
+fn[E] render_with_id_to(
   sb : StringBuilder,
-  node : @kaguya.Node,
+  node : @kaguya.Node[E],
   id_counter : Ref[Int],
 ) -> Unit {
   match node {
@@ -458,9 +458,9 @@ fn render_with_id_to(
 
 ///|
 /// Render Island node with kg:* attributes and hydration markers
-fn render_island_with_id_to(
+fn[E] render_island_with_id_to(
   sb : StringBuilder,
-  island : @kaguya.VIsland,
+  island : @kaguya.VIsland[E],
   id_counter : Ref[Int],
 ) -> Unit {
   // Start comment marker for preload detection
@@ -498,7 +498,7 @@ fn render_island_with_id_to(
 
 ///|
 /// Check if element has dynamic content that needs hydration
-fn has_dynamic_content(attrs : Array[(String, @kaguya.Attr)]) -> Bool {
+fn[E] has_dynamic_content(attrs : Array[(String, @kaguya.Attr[E])]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {

@@ -4,7 +4,7 @@
 ///|
 /// Render a VNode to JsonNode
 /// Dynamic values are evaluated at the time of rendering
-pub fn render_to_json(node : @kaguya.Node) -> JsonNode {
+pub fn render_to_json(node : @kaguya.Node[Unit]) -> JsonNode {
   match node {
     @kaguya.Text(content) => Text(content)
     @kaguya.DynamicText(getter) => Text(getter())
@@ -61,7 +61,7 @@ pub fn render_to_json(node : @kaguya.Node) -> JsonNode {
 
 ///|
 /// Convert VNode attribute to JsonAttrValue
-fn convert_attr(attr : @kaguya.Attr) -> JsonAttrValue {
+fn convert_attr(attr : @kaguya.Attr[Unit]) -> JsonAttrValue {
   match attr {
     @kaguya.VStatic(value) => Static(value)
     @kaguya.VDynamic(getter) => Dynamic(getter())
@@ -72,7 +72,7 @@ fn convert_attr(attr : @kaguya.Attr) -> JsonAttrValue {
 
 ///|
 /// Render to JSON string (for debugging/serialization)
-pub fn render_to_json_string(node : @kaguya.Node) -> String {
+pub fn render_to_json_string(node : @kaguya.Node[Unit]) -> String {
   let json_node = render_to_json(node)
   json_node_to_string(json_node)
 }

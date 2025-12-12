@@ -15,9 +15,9 @@
 /// For client: pass actual callbacks that update the signal
 pub fn render_counter(
   count_sig : @signal.Signal[Int],
-  on_inc : @kaguya.EventHandler,
-  on_dec : @kaguya.EventHandler,
-) -> @kaguya.Node {
+  on_inc : @kaguya.EventHandler[Unit],
+  on_dec : @kaguya.EventHandler[Unit],
+) -> @kaguya.Node[Unit] {
   @kaguya.h(
     "div",
     [
