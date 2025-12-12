@@ -24,10 +24,11 @@ pub fn main_(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("main", props, children)
 }
 
@@ -38,10 +39,11 @@ pub fn nav(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("nav", props, children)
 }
 
@@ -52,10 +54,11 @@ pub fn header_(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("header", props, children)
 }
 
@@ -66,10 +69,11 @@ pub fn footer_(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("footer", props, children)
 }
 
@@ -80,10 +84,11 @@ pub fn section(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("section", props, children)
 }
 
@@ -94,10 +99,11 @@ pub fn article(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("article", props, children)
 }
 
@@ -108,10 +114,11 @@ pub fn aside(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("aside", props, children)
 }
 
@@ -122,10 +129,11 @@ pub fn div(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("div", props, children)
 }
 
@@ -136,10 +144,11 @@ pub fn span(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("span", props, children)
 }
 
@@ -150,10 +159,11 @@ pub fn p(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("p", props, children)
 }
 
@@ -166,10 +176,11 @@ pub fn a(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   match href {
     Some(v) => props.push(("href", Static(v)))
     None => ()
@@ -188,10 +199,11 @@ pub fn h1(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("h1", props, children)
 }
 
@@ -202,10 +214,11 @@ pub fn h2(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("h2", props, children)
 }
 
@@ -216,10 +229,11 @@ pub fn h3(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("h3", props, children)
 }
 
@@ -230,10 +244,11 @@ pub fn h4(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("h4", props, children)
 }
 
@@ -244,10 +259,11 @@ pub fn h5(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("h5", props, children)
 }
 
@@ -258,10 +274,11 @@ pub fn h6(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("h6", props, children)
 }
 
@@ -272,10 +289,11 @@ pub fn ul(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("ul", props, children)
 }
 
@@ -286,10 +304,11 @@ pub fn ol(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("ol", props, children)
 }
 
@@ -300,10 +319,11 @@ pub fn li(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("li", props, children)
 }
 
@@ -315,10 +335,11 @@ pub fn button(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   match disabled {
     Some(true) => props.push(("disabled", Static("true")))
     _ => ()
@@ -337,9 +358,10 @@ pub fn input(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   match type_ {
     Some(v) => props.push(("type", Static(v)))
     None => ()
@@ -368,10 +390,11 @@ pub fn textarea(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   match placeholder {
     Some(v) => props.push(("placeholder", Static(v)))
     None => ()
@@ -390,10 +413,11 @@ pub fn form(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("form", props, children)
 }
 
@@ -405,10 +429,11 @@ pub fn label(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
   children : Array[DomNode],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   match for_ {
     Some(v) => props.push(("for", Static(v)))
     None => ()
@@ -427,9 +452,10 @@ pub fn img(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   match src {
     Some(v) => props.push(("src", Static(v)))
     None => ()
@@ -456,9 +482,10 @@ pub fn br(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("br", props, [])
 }
 
@@ -469,9 +496,10 @@ pub fn hr(
   class? : String,
   style? : String,
   on? : HandlerMap,
+  ref_? : ElementRef,
   attrs? : Array[(String, Attr)],
 ) -> DomNode {
-  let props = build_props(id, class, style, on, attrs)
+  let props = build_props(id, class, style, on, ref_, attrs)
   create_element("hr", props, [])
 }
 

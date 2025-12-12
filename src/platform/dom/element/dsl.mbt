@@ -164,6 +164,7 @@ fn build_props(
   class : String?,
   style : String?,
   on : HandlerMap?,
+  ref_ : ElementRef?,
   attrs : Array[(String, Attr)]?,
 ) -> Array[(String, AttrValue)] {
   let result : Array[(String, AttrValue)] = []
@@ -190,6 +191,18 @@ fn build_props(
       for attr in event_attrs {
         result.push(attr)
       }
+    }
+    None => ()
+  }
+
+  // ref callback - stored as special __ref key with Handler variant
+  // Will be processed during render to call the callback with the element
+  match ref_ {
+    Some(cb) => {
+      // Wrap ElementRef callback as Handler for storage in AttrValue
+      // ElementRef is type alias for (@js_dom.Element) -> Unit
+      let handler : (@js.Any) -> Unit = fn(el) { cb(el.cast()) }
+      result.push(("__ref", Handler(handler)))
     }
     None => ()
   }

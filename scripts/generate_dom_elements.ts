@@ -243,6 +243,7 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
   // Target-specific params
   if (opts.target === "dom") {
     params.push("on? : HandlerMap");
+    params.push("ref_? : ElementRef");
     params.push("attrs? : Array[(String, Attr)]");
   } else {
     params.push("attrs? : Array[(String, @luna.Attr[Unit])]");
@@ -264,7 +265,7 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
   const bodyLines: string[] = [];
 
   if (opts.target === "dom") {
-    bodyLines.push("let props = build_props(id, class, style, on, attrs)");
+    bodyLines.push("let props = build_props(id, class, style, on, ref_, attrs)");
   } else {
     bodyLines.push("let props = build_attrs(id, class, style, attrs)");
   }

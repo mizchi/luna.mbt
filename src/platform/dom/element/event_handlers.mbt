@@ -1,16 +1,29 @@
 ///| Event Handler Types - Type-safe event handlers for Luna DOM
+
 ///|
+
 ///| This module provides typed event handler aliases similar to React's event handler types.
+
 ///| Each handler type is parameterized by the target element type [T] for type safety.
+
 ///|
+
 ///| Usage:
+
 ///|   // Type-safe handler with specific element type
+
 ///|   let handler : MouseEventHandler[@js_dom.HTMLButtonElement] = fn(e) {
+
 ///|     let target = e.target() // Returns HTMLButtonElement
+
 ///|     e.preventDefault()
+
 ///|   }
+
 ///|
+
 ///|   // Or use with generic Element when element type doesn't matter
+
 ///|   let handler : MouseEventHandler[@js_dom.Element] = fn(e) { ... }
 
 // =============================================================================
@@ -110,8 +123,28 @@ pub type ScrollEventHandler[T] = (@js_dom.ScrollEvent) -> Unit
 pub type GenericEventHandler[T] = (@js_dom.Event) -> Unit
 
 // =============================================================================
+// Ref Callback Type - For direct DOM element access (Solid.js style)
+// =============================================================================
+
+///|
+/// RefCallback[T] - Callback for accessing the DOM element after creation
+/// T is the target element type (e.g., HTMLButtonElement, HTMLInputElement)
+/// Called when the element is created, before it connects to the DOM
+///
+/// Usage:
+///   button(ref=fn(el) { myButtonRef = el }, children=[text("Click me")])
+///
+/// Note: The ref callback receives the raw @js_dom element, not DomElement wrapper
+pub type RefCallback[T] = (T) -> Unit
+
+// =============================================================================
 // Non-generic aliases for convenience (using Element as target)
 // =============================================================================
+
+///|
+/// Convenience alias: ElementRef - RefCallback for generic Element
+/// Use when you don't need specific element type
+pub type ElementRef = (@js_dom.Element) -> Unit
 
 ///|
 /// Convenience alias: MouseHandler = MouseEventHandler[@js_dom.Element]
