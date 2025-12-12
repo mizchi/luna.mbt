@@ -32,6 +32,7 @@ pub enum Attr {
   VStatic(String)
   VDynamic(() -> String)
   VHandler(EventHandler)
+  VAction(String) // Action name for declarative event handling
 }
 
 ///|
@@ -112,7 +113,7 @@ pub fn has_dynamic_content(attrs : Array[(String, Attr)]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {
-      VDynamic(_) | VHandler(_) => return true
+      VDynamic(_) | VHandler(_) | VAction(_) => return true
       _ => ()
     }
   }
@@ -149,4 +150,11 @@ pub fn attr_style(style : String) -> Attr {
 /// Create a dynamic style attribute value
 pub fn attr_dynamic_style(getter : () -> String) -> Attr {
   VDynamic(getter)
+}
+
+///|
+/// Create an action attribute value - dispatches named action on event
+/// Used for declarative event handling: ("onclick", action("increment"))
+pub fn action(name : String) -> Attr {
+  VAction(name)
 }

@@ -185,6 +185,19 @@ fn render_attrs_to_sb(sb : StringBuilder, attrs : Array[(String, @kaguya.Attr)])
         }
       }
       VHandler(_) => () // Skip handlers
+      VAction(action_name) => {
+        // Render action as data-action attribute for hydration
+        let event_name = if name.has_prefix("on") {
+          name.substring(start=2)
+        } else {
+          name
+        }
+        sb.write_string(" data-action-")
+        sb.write_string(event_name)
+        sb.write_string("=\"")
+        sb.write_string(escape_html(action_name))
+        sb.write_char('"')
+      }
     }
   }
 }

@@ -1,0 +1,13 @@
+{
+  "name": "myapp",
+  "version": "0.1.0",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "moon build --target js && node target/js/release/build/server/run/run.js",
+    "build": "moon build --target js"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@hono/node-server": "^1.0.0"
+  }
+}

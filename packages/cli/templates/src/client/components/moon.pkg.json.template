@@ -1,0 +1,10 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    {
+      "path": "mizchi/kaguya/core",
+      "alias": "kaguya"
+    },
+    "mizchi/kaguya/core/signal"
+  ]
+}

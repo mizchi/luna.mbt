@@ -318,3 +318,130 @@ pub fn escape_json_for_attr(json : String) -> String {
 pub fn escape_json_for_html(json : String) -> String {
   @embed.escape_json_for_html(json)
 }
+
+// ============================================================================
+// Static File Serving
+// ============================================================================
+
+///|
+extern "js" fn ffi_create_js_response(body : String, content_type : String) -> @http.Response =
+  #| (body, contentType) => new Response(body, { headers: { 'Content-Type': contentType } })
+
+///|
+extern "js" fn ffi_read_file_sync(path : String) -> String? =
+  #| (path) => { try { return require('fs').readFileSync(path, 'utf-8'); } catch { return null; } }
+
+///|
+extern "js" fn ffi_get_req_path(c : @core.Any) -> String =
+  #| (c) => new URL(c.req.url).pathname
+
+///|
+/// Create a text response with content type
+pub fn text_response(body : String, content_type : String) -> @http.Response {
+  ffi_create_js_response(body, content_type)
+}
+
+///|
+/// Create a JavaScript response
+pub fn js_response(body : String) -> @http.Response {
+  ffi_create_js_response(body, "application/javascript")
+}
+
+///|
+/// Read file synchronously (for static file serving)
+pub fn read_file_sync(path : String) -> String? {
+  ffi_read_file_sync(path)
+}
+
+///|
+/// Get request pathname from context
+pub fn get_request_path(ctx : Ctx) -> String {
+  ffi_get_req_path(ctx.as_any())
+}
+
+///|
+/// Static file configuration
+pub struct StaticFileConfig {
+  /// URL path prefix (e.g., "/static")
+  path_prefix : String
+  /// Local directory path (e.g., "static")
+  local_dir : String
+  /// File mappings: (url_filename, local_path)
+  mappings : Array[(String, String)]
+}
+
+///|
+/// Create default static file config for Kaguya apps
+pub fn StaticFileConfig::default() -> StaticFileConfig {
+  {
+    path_prefix: "/static",
+    local_dir: "static",
+    mappings: [
+      ("kg-loader-v1.js", "static/kg-loader-v1.js"),
+    ],
+  }
+}
+
+///|
+/// Builder: add file mapping
+pub fn StaticFileConfig::with_mapping(
+  self : StaticFileConfig,
+  url_filename : String,
+  local_path : String
+) -> StaticFileConfig {
+  let new_mappings = self.mappings.copy()
+  new_mappings.push((url_filename, local_path))
+  { ..self, mappings: new_mappings }
+}
+
+///|
+/// Register static file serving middleware
+pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
+  let cfg = config.unwrap_or(StaticFileConfig::default())
+  let prefix = cfg.path_prefix
+  let mappings = cfg.mappings
+
+  app.get(prefix + "/*", fn(c) {
+    let path = get_request_path(c)
+    let start_idx = prefix.length() + 1
+    let filename = path[start_idx:].to_string() // Remove prefix + "/"
+
+    // Check mappings
+    for mapping in mappings {
+      let (url_file, local_path) = mapping
+      if filename == url_file {
+        match read_file_sync(local_path) {
+          Some(content) => {
+            let content_type = if url_file.has_suffix(".js") {
+              "application/javascript"
+            } else if url_file.has_suffix(".css") {
+              "text/css"
+            } else {
+              "text/plain"
+            }
+            return text_response(content, content_type)
+          }
+          None => return text_response("// " + url_file + " not found", "application/javascript")
+        }
+      }
+    }
+
+    // Fallback: try to read from local_dir/filename
+    let local_path = cfg.local_dir + "/" + filename
+    match read_file_sync(local_path) {
+      Some(content) => {
+        let content_type = if filename.has_suffix(".js") {
+          "application/javascript"
+        } else if filename.has_suffix(".css") {
+          "text/css"
+        } else if filename.has_suffix(".html") {
+          "text/html"
+        } else {
+          "text/plain"
+        }
+        text_response(content, content_type)
+      }
+      None => text_response("Not found: " + filename, "text/plain")
+    }
+  })
+}

@@ -1,0 +1,23 @@
+///| Counter Component - Pure render logic only
+///|
+///| This file contains only the component's view logic.
+///| Hydration is handled separately in ../hydrate.mbt
+
+///| Counter component VNode
+pub fn render(count : @signal.Signal[Int]) -> @kaguya.Node {
+  @kaguya.vnode("div", [("class", @kaguya.attr_static("counter"))], [
+    @kaguya.vnode("span", [("class", @kaguya.attr_static("count-display"))], [
+      @kaguya.vtext_sig(count),
+    ]),
+    @kaguya.vnode("div", [("class", @kaguya.attr_static("buttons"))], [
+      @kaguya.vnode("button", [
+        ("class", @kaguya.attr_static("dec")),
+        ("onclick", @kaguya.action("decrement")),
+      ], [@kaguya.vtext("-")]),
+      @kaguya.vnode("button", [
+        ("class", @kaguya.attr_static("inc")),
+        ("onclick", @kaguya.action("increment")),
+      ], [@kaguya.vtext("+")]),
+    ]),
+  ])
+}

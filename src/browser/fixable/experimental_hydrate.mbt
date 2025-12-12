@@ -529,6 +529,9 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @kaguya.Attr) -> U
       let handler_any : @core.Any = @core.any(handler)
       elem.as_event_target().addEventListener(event_name, handler_any.cast())
     }
+    @kaguya.VAction(_) =>
+      // VAction without dispatcher - skip in experimental hydrate
+      ()
   }
 }
 
@@ -992,6 +995,9 @@ fn repair_attributes(
         let handler_any : @core.Any = @core.any(handler)
         elem.as_event_target().addEventListener(event_name, handler_any.cast())
       }
+      @kaguya.VAction(_) =>
+        // VAction without dispatcher - skip in repair
+        ()
     }
   }
 }

@@ -1,0 +1,13 @@
+import { defineConfig } from 'rolldown';
+
+export default defineConfig({
+  input: {
+    // Use the client package which exports hydrate
+    counter: './target/js/release/build/client/client.js',
+  },
+  output: {
+    dir: './static',
+    format: 'esm',
+    entryFileNames: '[name].js',
+  },
+});

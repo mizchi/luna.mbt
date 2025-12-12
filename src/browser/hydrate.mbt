@@ -294,6 +294,16 @@ fn hydrate_element(
   elem : @js_dom.Element,
   attrs : Array[(String, @kaguya.Attr)],
 ) -> Unit {
+  hydrate_element_with_dispatch(elem, attrs, None)
+}
+
+///|
+/// Hydrate element attributes with optional action dispatcher
+fn hydrate_element_with_dispatch(
+  elem : @js_dom.Element,
+  attrs : Array[(String, @kaguya.Attr)],
+  dispatcher : ((String) -> Unit)?,
+) -> Unit {
   for attr in attrs {
     let (name, value) = attr
     match value {
@@ -324,6 +334,19 @@ fn hydrate_element(
         let wrapper : (@core.Any) -> Unit = fn(_event) { callback() }
         elem.as_event_target().addEventListener(event_name, @core.any(wrapper).cast())
       }
+      @kaguya.VAction(action_name) =>
+        // Attach action handler - dispatch action when event fires
+        match dispatcher {
+          Some(dispatch) => {
+            let event_name = extract_event_name(name)
+            let captured_action = action_name
+            let wrapper : (@core.Any) -> Unit = fn(_event) { dispatch(captured_action) }
+            elem.as_event_target().addEventListener(event_name, @core.any(wrapper).cast())
+          }
+          None =>
+            // No dispatcher provided, action won't work
+            ()
+        }
     }
   }
 }
@@ -725,6 +748,10 @@ fn apply_vattr(elem : @js_dom.Element, name : String, value : @kaguya.Attr) -> U
       let wrapper : (@core.Any) -> Unit = fn(_event) { callback() }
       elem.as_event_target().addEventListener(event_name, @core.any(wrapper).cast())
     }
+    @kaguya.VAction(_) =>
+      // VAction without dispatcher does nothing in CSR context
+      // Actions are meant to be bound during action-based hydration
+      ()
   }
 }
 
@@ -734,4 +761,117 @@ pub fn render_vnode(container : @js_dom.Element, node : @kaguya.Node) -> Unit {
   container.as_node().setTextContent("")
   let dom_node = render_vnode_to_dom(node)
   container.as_node().appendChild(dom_node) |> ignore
+}
+
+// =============================================================================
+// Action-based Hydration
+// =============================================================================
+
+///|
+/// Bind action handlers by scanning DOM for data-action-* attributes
+/// This is used for declarative action binding without VNode traversal
+pub fn bind_actions_from_dom(
+  container : @js_dom.Element,
+  dispatch : (String) -> Unit,
+) -> Unit {
+  // Find all elements with data-action-* attributes
+  let all_elements = query_all_with_action_attrs(container)
+  for elem_any in all_elements {
+    let elem : @js_dom.Element = elem_any.cast()
+    bind_action_handlers(elem, dispatch)
+  }
+}
+
+///|
+extern "js" fn query_all_with_action_attrs(
+  container : @js_dom.Element
+) -> Array[@core.Any] =
+  #| (container) => {
+  #|   const result = [];
+  #|   const walk = (node) => {
+  #|     if (node.nodeType === 1) {
+  #|       const attrs = node.attributes;
+  #|       for (let i = 0; i < attrs.length; i++) {
+  #|         if (attrs[i].name.startsWith('data-action-')) {
+  #|           result.push(node);
+  #|           break;
+  #|         }
+  #|       }
+  #|       for (const child of node.childNodes) walk(child);
+  #|     }
+  #|   };
+  #|   walk(container);
+  #|   return result;
+  #| }
+
+///|
+extern "js" fn get_action_attrs(elem : @js_dom.Element) -> Array[(String, String)] =
+  #| (elem) => {
+  #|   const result = [];
+  #|   const attrs = elem.attributes;
+  #|   for (let i = 0; i < attrs.length; i++) {
+  #|     const name = attrs[i].name;
+  #|     if (name.startsWith('data-action-')) {
+  #|       const eventName = name.slice(12); // Remove 'data-action-'
+  #|       // MoonBit tuple format: {_0: first, _1: second}
+  #|       result.push({_0: eventName, _1: attrs[i].value});
+  #|     }
+  #|   }
+  #|   return result;
+  #| }
+
+///|
+/// Bind action handlers to a single element based on data-action-* attributes
+fn bind_action_handlers(elem : @js_dom.Element, dispatch : (String) -> Unit) -> Unit {
+  let action_attrs = get_action_attrs(elem)
+  for attr in action_attrs {
+    let (event_name, action_name) = attr
+    let captured_action = action_name
+    let wrapper : (@core.Any) -> Unit = fn(_event) { dispatch(captured_action) }
+    elem.as_event_target().addEventListener(event_name, @core.any(wrapper).cast())
+  }
+}
+
+///|
+/// High-level hydration function for action-based components
+/// Takes an element, dispatcher function, and render function
+/// Binds actions and sets up re-rendering on state changes
+pub fn[State] hydrate_with_actions(
+  container : @js_dom.Element,
+  initial_state : State,
+  render : (State) -> @kaguya.Node,
+  update : (State, String) -> State,
+) -> Unit {
+  let state_signal = @signal.signal(initial_state)
+
+  // Create dispatcher that updates state
+  let dispatch : (String) -> Unit = fn(action : String) {
+    let current = state_signal.peek()
+    let new_state = update(current, action)
+    state_signal.set(new_state)
+  }
+
+  // Bind actions from existing DOM
+  bind_actions_from_dom(container, dispatch)
+
+  // Set up effect to re-render when state changes
+  let is_first_render : Ref[Bool] = { val: true }
+  let _ = @signal.effect(fn() {
+    let current_state = state_signal.get()
+
+    // Skip first render as DOM already contains SSR content
+    if is_first_render.val {
+      is_first_render.val = false
+      return
+    }
+
+    // Re-render on state change
+    let new_vnode = render(current_state)
+    container.as_node().setTextContent("")
+    let dom_node = render_vnode_to_dom(new_vnode)
+    container.as_node().appendChild(dom_node) |> ignore
+
+    // Re-bind actions after re-render
+    bind_actions_from_dom(container, dispatch)
+  })
 }

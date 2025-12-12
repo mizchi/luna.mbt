@@ -5,16 +5,15 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  testDir: __dirname,
+  testDir: join(__dirname, "e2e"),
   testMatch: "**/*.test.ts",
-  testIgnore: "**/template-app/**", // template-app has its own config
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: "list",
   use: {
-    baseURL: "http://localhost:3456",
+    baseURL: "http://localhost:3000",
     trace: "on-first-retry",
   },
   projects: [
@@ -24,8 +23,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node --import tsx ${join(__dirname, "server.ts")}`,
-    url: "http://127.0.0.1:3456",
+    command: `node ${join(__dirname, "tmp/test/target/js/release/build/server/run/run.js")}`,
+    url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     timeout: 30000,

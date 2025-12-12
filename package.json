@@ -10,6 +10,7 @@
     "test:e2e": "playwright test --config e2e/playwright.config.mts",
     "test:e2e:loader": "playwright test --config e2e/playwright.config.mts --project=loader",
     "test:e2e:embedding": "playwright test --config e2e/playwright.config.mts --project=embedding",
+    "test:e2e:template": "playwright test --config e2e/template-app/playwright.config.mts",
     "test:e2e:ui": "playwright test --config e2e/playwright.config.mts --ui",
     "build": "moon build --target js",
     "check": "moon check",

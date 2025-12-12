@@ -4,17 +4,25 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Playwright config for CLI-generated template app tests
+ *
+ * The webServer command runs the setup script that:
+ * 1. Generates app from templates using CLI
+ * 2. Builds the MoonBit code
+ * 3. Bundles the client code
+ * 4. Starts the server on port 3000
+ */
 export default defineConfig({
   testDir: __dirname,
   testMatch: "**/*.test.ts",
-  testIgnore: "**/template-app/**", // template-app has its own config
-  fullyParallel: true,
+  fullyParallel: false, // Sequential for template app
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: "list",
   use: {
-    baseURL: "http://localhost:3456",
+    baseURL: "http://localhost:3000",
     trace: "on-first-retry",
   },
   projects: [
@@ -24,10 +32,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node --import tsx ${join(__dirname, "server.ts")}`,
-    url: "http://127.0.0.1:3456",
+    command: `bash ${join(__dirname, "../../packages/cli/test-template.sh")}`,
+    url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
-    timeout: 30000,
+    timeout: 120000, // 2 minutes for build + start
   },
 });

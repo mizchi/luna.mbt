@@ -10,7 +10,8 @@ import pc from "picocolors";
 export const buildCommand = new Command("build")
   .description("Build for production")
   .option("--target <target>", "Build target (js, wasm)", "js")
-  .action(async (options: { target: string }) => {
+  .option("--skip-bundle", "Skip rolldown bundling", false)
+  .action(async (options: { target: string; skipBundle: boolean }) => {
     const cwd = process.cwd();
 
     // Check if this is a MoonBit project
@@ -29,11 +30,31 @@ export const buildCommand = new Command("build")
     ]);
 
     if (!buildResult.success) {
-      console.error(pc.red("Build failed"));
+      console.error(pc.red("Moon build failed"));
       process.exit(1);
     }
 
-    console.log(pc.green("✓ Build complete"));
+    console.log(pc.green("✓ Moon build complete"));
+
+    // Bundle client code with rolldown if config exists
+    const rolldownConfig = join(cwd, "rolldown.config.mjs");
+    if (!options.skipBundle && existsSync(rolldownConfig)) {
+      console.log(pc.cyan("Bundling client code with rolldown..."));
+
+      const bundleResult = await runCommand("npx", [
+        "rolldown",
+        "-c",
+        "rolldown.config.mjs",
+      ]);
+
+      if (!bundleResult.success) {
+        console.error(pc.red("Rolldown bundle failed"));
+        process.exit(1);
+      }
+
+      console.log(pc.green("✓ Client bundle complete"));
+    }
+
     console.log(pc.gray(`Output: target/${options.target}/release/build/`));
   });
 

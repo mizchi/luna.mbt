@@ -53,6 +53,7 @@ fn convert_attr(attr : @kaguya.Attr) -> JsonAttrValue {
     @kaguya.VStatic(value) => Static(value)
     @kaguya.VDynamic(getter) => Dynamic(getter())
     @kaguya.VHandler(_) => Handler
+    @kaguya.VAction(name) => Dynamic("action:" + name)
   }
 }
 

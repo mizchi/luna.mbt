@@ -1,0 +1,23 @@
+{
+  "supported-targets": ["js"],
+  "is-main": true,
+  "import": [
+    {
+      "path": "mizchi/kaguya/core",
+      "alias": "kaguya"
+    },
+    {
+      "path": "mizchi/kaguya/core/signal",
+      "alias": "signal"
+    },
+    {
+      "path": "mizchi/kaguya/app",
+      "alias": "framework"
+    },
+    "mizchi/js/core",
+    {
+      "path": "{{PACKAGE_NAME}}/client/components",
+      "alias": "counter"
+    }
+  ]
+}

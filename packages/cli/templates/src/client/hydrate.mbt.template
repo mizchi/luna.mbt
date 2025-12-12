@@ -1,0 +1,25 @@
+///| Counter Hydration - Boilerplate for hydrating counter component
+///|
+///| This file is separate from the component logic and can be auto-generated
+///| or customized as needed. It bridges the kg-loader interface with the
+///| component's render/update functions.
+
+///| Hydration entry point (called by kg-loader)
+pub fn hydrate(element : @core.Any, state : @core.Any, id : String) -> Unit {
+  @dom.hydrate_island(element, state, id, fn(ctx) {
+    // Create signal from state
+    let count = ctx.signal_int("count", 0)
+
+    // Bind actions to dispatch
+    ctx.bind_actions(fn(action) {
+      match action {
+        "increment" => count.set(count.get() + 1)
+        "decrement" => count.set(count.get() - 1)
+        _ => ()
+      }
+    })
+
+    // Set up reactive display update (must match SSR format)
+    ctx.on_update(".count-display", fn() { count.get().to_string() })
+  })
+}

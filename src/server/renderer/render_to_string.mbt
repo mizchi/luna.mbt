@@ -136,6 +136,20 @@ fn render_attrs_to(
       VHandler(_) =>
         // Event handlers are not rendered in SSR
         ()
+      VAction(action_name) => {
+        // Render action as data-action attribute for hydration
+        // onclick -> data-action-click="increment"
+        let event_name = if name.has_prefix("on") {
+          name.substring(start=2)
+        } else {
+          name
+        }
+        sb.write_string(" data-action-")
+        sb.write_string(event_name)
+        sb.write_string("=\"")
+        escape_attr_to(sb, action_name)
+        sb.write_char('"')
+      }
     }
   }
 }
@@ -272,7 +286,7 @@ fn has_dynamic_content(attrs : Array[(String, @kaguya.Attr)]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {
-      VDynamic(_) | VHandler(_) => return true
+      VDynamic(_) | VHandler(_) | VAction(_) => return true
       _ => ()
     }
   }

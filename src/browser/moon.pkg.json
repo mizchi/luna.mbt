@@ -79,7 +79,11 @@
         "create_element:createElement",
         "jsx",
         "jsxs",
-        "fragment:Fragment"
+        "fragment:Fragment",
+        "hydrate_with_actions:hydrateWithActions",
+        "bind_actions_from_dom:bindActionsFromDom",
+        "hydrate_island:hydrateIsland",
+        "IslandContext"
       ],
       "format": "esm"
     }
