@@ -1,5 +1,5 @@
 // Re-export DOM API from MoonBit build output
-import * as raw from "../../target/js/release/build/browser/browser.js";
+import * as raw from "../../target/js/release/build/browser/dom/dom.js";
 
 // Text
 export const text = raw.text;
