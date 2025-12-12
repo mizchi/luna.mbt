@@ -1,6 +1,9 @@
 ///| WebComponents - Custom Elements integration with Signal reactivity
+
 ///|
+
 ///| Provides lightweight WebComponents support using jsdom's customElements API.
+
 ///| Each component gets its own reactive root for automatic cleanup.
 
 ///|
@@ -8,7 +11,7 @@
 /// The render function receives the host element and returns a VNode tree
 pub fn register(
   name : String,
-  render : (@js_dom.Element) -> @luna.Node[@js.Any]
+  render : (@js_dom.Element) -> @luna.Node[@js.Any],
 ) -> Unit {
   js_define_element(name, fn(host) {
     // Create reactive root for this component instance
@@ -24,8 +27,8 @@ pub fn register(
 /// Register a custom element with Shadow DOM
 pub fn register_shadow(
   name : String,
-  mode~ : String = "open",
-  render : (@js_dom.Element) -> @luna.Node[@js.Any]
+  mode? : String = "open",
+  render : (@js_dom.Element) -> @luna.Node[@js.Any],
 ) -> Unit {
   js_define_element_shadow(name, mode, fn(host, shadow_root) {
     @signal.create_root(fn(_dispose) {
@@ -41,40 +44,41 @@ pub fn register_shadow(
 pub fn register_with_attrs(
   name : String,
   observed_attrs : Array[String],
-  render : (@js_dom.Element, Map[String, @signal.Signal[String]]) -> @luna.Node[@js.Any]
+  render : (@js_dom.Element, Map[String, @signal.Signal[String]]) -> @luna.Node[
+    @js.Any,
+  ],
 ) -> Unit {
-  js_define_element_with_attrs(
-    name,
-    observed_attrs,
-    fn(host, get_attr, on_attr_change) {
-      @signal.create_root(fn(_dispose) {
-        // Create signals for each observed attribute
-        let attr_signals : Map[String, @signal.Signal[String]] = {}
-        for attr in observed_attrs {
-          let initial = get_attr(attr)
-          attr_signals[attr] = @signal.signal(initial)
+  js_define_element_with_attrs(name, observed_attrs, fn(
+    host,
+    get_attr,
+    on_attr_change,
+  ) {
+    @signal.create_root(fn(_dispose) {
+      // Create signals for each observed attribute
+      let attr_signals : Map[String, @signal.Signal[String]] = {}
+      for attr in observed_attrs {
+        let initial = get_attr(attr)
+        attr_signals[attr] = @signal.signal(initial)
+      }
+
+      // Set up attribute change callback
+      on_attr_change(fn(attr_name, _old_val, new_val) {
+        match attr_signals.get(attr_name) {
+          Some(sig) => sig.set(new_val)
+          None => ()
         }
-
-        // Set up attribute change callback
-        on_attr_change(fn(attr_name, _old_val, new_val) {
-          match attr_signals.get(attr_name) {
-            Some(sig) => sig.set(new_val)
-            None => ()
-          }
-        })
-
-        let vnode = render(host, attr_signals)
-        let dom_node = @dom.render_vnode_to_dom(vnode)
-        host.appendChild(dom_node) |> ignore
       })
-    },
-  )
+      let vnode = render(host, attr_signals)
+      let dom_node = @dom.render_vnode_to_dom(vnode)
+      host.appendChild(dom_node) |> ignore
+    })
+  })
 }
 
 ///|
 extern "js" fn js_define_element(
   name : String,
-  connected_callback : (@js_dom.Element) -> Unit
+  connected_callback : (@js_dom.Element) -> Unit,
 ) -> Unit =
   #| (name, connectedCallback) => {
   #|   customElements.define(name, class extends HTMLElement {
@@ -88,7 +92,7 @@ extern "js" fn js_define_element(
 extern "js" fn js_define_element_shadow(
   name : String,
   mode : String,
-  connected_callback : (@js_dom.Element, @js_dom.Node) -> Unit
+  connected_callback : (@js_dom.Element, @js_dom.Node) -> Unit,
 ) -> Unit =
   #| (name, mode, connectedCallback) => {
   #|   customElements.define(name, class extends HTMLElement {
@@ -109,8 +113,8 @@ extern "js" fn js_define_element_with_attrs(
   connected_callback : (
     @js_dom.Element,
     (String) -> String,
-    ((String, String, String) -> Unit) -> Unit
-  ) -> Unit
+    ((String, String, String) -> Unit) -> Unit,
+  ) -> Unit,
 ) -> Unit =
   #| (name, observedAttrs, connectedCallback) => {
   #|   customElements.define(name, class extends HTMLElement {

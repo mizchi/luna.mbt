@@ -62,11 +62,11 @@ pub fn Owner::dispose(self : Owner) -> Unit {
   }
   // Run disposers (for effects)
   for i = self.disposers.length() - 1; i >= 0; i = i - 1 {
-    (self.disposers[i])()
+    self.disposers[i]()
   }
   // Run cleanups
   for i = self.cleanups.length() - 1; i >= 0; i = i - 1 {
-    (self.cleanups[i])()
+    self.cleanups[i]()
   }
   // Clear arrays
   self.children.clear()

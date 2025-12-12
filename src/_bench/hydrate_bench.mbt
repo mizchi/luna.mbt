@@ -303,9 +303,7 @@ fn create_hydrate_page(card_count : Int) -> @luna.Node[@js.Any] {
     @luna.h("body", [], [
       @luna.h("header", [], [@luna.h("h1", [], [@luna.vtext("Welcome")])]),
       @luna.h("main", [("class", @luna.attr_static("container"))], cards),
-      @luna.h("footer", [], [
-        @luna.h("p", [], [@luna.vtext("Footer content")]),
-      ]),
+      @luna.h("footer", [], [@luna.h("p", [], [@luna.vtext("Footer content")])]),
     ]),
   ])
 }
@@ -343,10 +341,7 @@ test "hydrate_with_click_handler" (b : @bench.T) {
   let node = @luna.h(
     "button",
     [
-      (
-        "class",
-        @luna.attr_dynamic(fn() { "count-" + count.get().to_string() }),
-      ),
+      ("class", @luna.attr_dynamic(fn() { "count-" + count.get().to_string() })),
       ("onClick", @luna.attr_handler(@dom.browser_noop_handler())),
     ],
     [@luna.text_dyn(fn() { "Count: " + count.get().to_string() })],

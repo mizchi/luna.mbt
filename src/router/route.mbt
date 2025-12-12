@@ -3,10 +3,10 @@
 ///|
 /// ルートコンポーネントが受け取るProps
 pub struct RouteProps {
-  is_client : Bool                     // クライアントサイドかどうか
-  params : Array[(String, String)]     // URLパラメータ [("id", "123")]
-  query : Array[(String, String)]      // クエリパラメータ [("page", "1")]
-  path : String                        // 現在のパス
+  is_client : Bool // クライアントサイドかどうか
+  params : Array[(String, String)] // URLパラメータ [("id", "123")]
+  query : Array[(String, String)] // クエリパラメータ [("page", "1")]
+  path : String // 現在のパス
 }
 
 ///|
@@ -41,27 +41,20 @@ pub fn RouteProps::get_query(self : RouteProps, key : String) -> String? {
 /// ルート定義
 pub(all) enum Route {
   /// ページルート
-  Page(
-    path~ : String,
-    title~ : String,
-    meta~ : Array[(String, String)]
-  )
+  Page(path~ : String, title~ : String, meta~ : Array[(String, String)])
   /// APIルート (GET)
-  Get(
-    path~ : String,
-    title~ : String,
-    meta~ : Array[(String, String)]
-  )
+  Get(path~ : String, title~ : String, meta~ : Array[(String, String)])
   /// APIルート (POST)
-  Post(
-    path~ : String,
-    title~ : String,
-    meta~ : Array[(String, String)]
-  )
+  Post(path~ : String, title~ : String, meta~ : Array[(String, String)])
   /// 動的パラメータセグメント ":id"
   Param(String, key~ : String, title~ : String, meta~ : Array[(String, String)])
   /// 正規表現パラメータ ":user_id(\\d+)"
-  RegexParam(String, key~ : String, title~ : String, meta~ : Array[(String, String)])
+  RegexParam(
+    String,
+    key~ : String,
+    title~ : String,
+    meta~ : Array[(String, String)]
+  )
   /// ワイルドカード "*"
   Wildcard(key~ : String, title~ : String, meta~ : Array[(String, String)])
   /// ネストしたルートグループ

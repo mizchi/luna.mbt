@@ -1,8 +1,12 @@
 ///| State Serialization with XSS Prevention
+
 ///|
+
 ///| Safely serialize state for embedding in HTML.
+
 ///| Prevents XSS attacks from malicious state values.
 
+///|
 /// Convert string to char array for indexed access
 fn to_char_array(s : String) -> Array[Char] {
   let arr : Array[Char] = []
@@ -12,6 +16,7 @@ fn to_char_array(s : String) -> Array[Char] {
   arr
 }
 
+///|
 /// Check if JSON string contains characters that need escaping for HTML attribute
 fn needs_html_attr_escape(s : String) -> Bool {
   let chars = to_char_array(s)
@@ -26,6 +31,7 @@ fn needs_html_attr_escape(s : String) -> Bool {
   false
 }
 
+///|
 /// Escape JSON for safe embedding in HTML <script> tags
 ///
 /// Prevents XSS by escaping:
@@ -48,7 +54,6 @@ pub fn escape_json_for_html(json : String) -> String {
       }
     }
   }
-
   if not(needs_escape) {
     return json
   }
@@ -56,7 +61,6 @@ pub fn escape_json_for_html(json : String) -> String {
   // Slow path: build escaped string
   let sb = StringBuilder::new(size_hint=json.length() + 16)
   let mut i = 0
-
   while i < len {
     let c = chars[i]
     if c == '<' && i + 1 < len {
@@ -78,10 +82,10 @@ pub fn escape_json_for_html(json : String) -> String {
     sb.write_char(c)
     i = i + 1
   }
-
   sb.to_string()
 }
 
+///|
 /// Escape JSON for safe embedding in HTML attribute values
 ///
 /// Escapes:
@@ -93,7 +97,6 @@ pub fn escape_json_for_attr(json : String) -> String {
   if not(needs_html_attr_escape(json)) {
     return json
   }
-
   let sb = StringBuilder::new(size_hint=json.length() + 32)
   for c in json {
     match c {
@@ -107,6 +110,7 @@ pub fn escape_json_for_attr(json : String) -> String {
   sb.to_string()
 }
 
+///|
 /// Format state for ln:state attribute
 /// Returns the attribute value based on StateConfig
 pub fn format_state_attr(state : StateConfig) -> String? {
@@ -118,6 +122,7 @@ pub fn format_state_attr(state : StateConfig) -> String? {
   }
 }
 
+///|
 /// Generate a <script type="ln/json"> element for state
 /// Used when state is too large for inline attribute
 pub fn generate_state_script(id : String, json : String) -> String {
@@ -131,6 +136,7 @@ pub fn generate_state_script(id : String, json : String) -> String {
   sb.to_string()
 }
 
+///|
 /// Recommended state format based on size
 /// - < 1KB: Inline in attribute
 /// - 1KB - 100KB: Script reference

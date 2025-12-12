@@ -56,10 +56,10 @@ pub impl Show for RouterContext with output(self, logger) {
 /// RouterContext を作成
 pub fn RouterContext::new(
   path~ : String,
-  params~ : Array[(String, String)] = [],
-  query~ : Array[(String, String)] = [],
-  route_meta~ : RouteMeta = { title: "", meta: [] },
-  kind~ : RouteKind = Page
+  params? : Array[(String, String)] = [],
+  query? : Array[(String, String)] = [],
+  route_meta? : RouteMeta = { title: "", meta: [] },
+  kind? : RouteKind = Page,
 ) -> RouterContext {
   { path, params, query, route_meta, kind }
 }

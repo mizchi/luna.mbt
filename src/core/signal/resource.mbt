@@ -1,6 +1,9 @@
 ///| Async Resource - Environment-agnostic async state management
+
 ///|
+
 ///| This module provides a callback-based async primitive that can be
+
 ///| integrated with any async runtime (JS Promise, native async, etc.)
 
 ///|
@@ -120,18 +123,11 @@ pub fn[T] Resource::refetch(self : Resource[T]) -> Unit {
 /// This is environment-agnostic - the actual async execution
 /// is handled by the caller
 pub fn[T] resource(
-  fetcher : ((T) -> Unit, (String) -> Unit) -> Unit
+  fetcher : ((T) -> Unit, (String) -> Unit) -> Unit,
 ) -> Resource[T] {
   let state : Signal[AsyncState[T]] = signal(Pending)
-
-  let resolve_ = fn(value : T) {
-    state.set(Success(value))
-  }
-
-  let reject_ = fn(error : String) {
-    state.set(Failure(error))
-  }
-
+  let resolve_ = fn(value : T) { state.set(Success(value)) }
+  let reject_ = fn(error : String) { state.set(Failure(error)) }
   fn do_fetch() {
     state.set(Pending)
     fetcher(resolve_, reject_)
@@ -139,7 +135,6 @@ pub fn[T] resource(
 
   // Initial fetch
   do_fetch()
-
   { state, refetch_: do_fetch }
 }
 
@@ -161,11 +156,8 @@ pub fn[T] resource_rejected(error : String) -> Resource[T] {
 /// Create a deferred Resource (starts pending, resolve/reject manually)
 pub fn[T] deferred() -> (Resource[T], (T) -> Unit, (String) -> Unit) {
   let state : Signal[AsyncState[T]] = signal(Pending)
-
   let resolve = fn(value : T) { state.set(Success(value)) }
   let reject = fn(error : String) { state.set(Failure(error)) }
-
   let res : Resource[T] = { state, refetch_: fn() { state.set(Pending) } }
-
   (res, resolve, reject)
 }

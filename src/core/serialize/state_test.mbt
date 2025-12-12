@@ -265,7 +265,6 @@ test "state_to_script_tag_with_id multiple components" {
   let form_state = ResumableState::new()
   let _ = form_state.register_string("alice")
   let _ = form_state.register_string("alice@example.com")
-
   let counter_tag = state_to_script_tag_with_id(counter_state, "counter")
   let form_tag = state_to_script_tag_with_id(form_state, "form")
 
@@ -278,7 +277,9 @@ test "state_to_script_tag_with_id multiple components" {
 
 ///|
 test "state_endpoint_tag" {
-  let tag = state_endpoint_tag("user-profile", "/api/user/123", "<div>Loading...</div>")
+  let tag = state_endpoint_tag(
+    "user-profile", "/api/user/123", "<div>Loading...</div>",
+  )
   assert_true(tag.contains("data-state-id=\"user-profile\""))
   assert_true(tag.contains("data-state-src=\"/api/user/123\""))
   assert_true(tag.contains("<div>Loading...</div>"))
@@ -289,7 +290,6 @@ test "portable HTML with multiple states" {
   // Simulate SSR rendering multiple components
   let counter_state = ResumableState::new()
   let _ = counter_state.register_int(10)
-
   let todo_state = ResumableState::new()
   let _ = todo_state.register_string("Buy milk")
   let _ = todo_state.register_bool(false)
@@ -458,7 +458,6 @@ test "state embedding roundtrip with special chars" {
     None => assert_true(false)
   }
 }
-
 
 // =============================================================================
 // JSON Parser Edge Cases (for coverage)

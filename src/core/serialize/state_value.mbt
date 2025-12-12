@@ -1,6 +1,9 @@
 ///| StateValue - JSON-compatible value types for serialization
+
 ///|
+
 ///| Pure MoonBit implementation with no external dependencies.
+
 ///| Can be used across all targets (JS, WASM, Native).
 
 ///|

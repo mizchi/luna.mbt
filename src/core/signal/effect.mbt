@@ -12,7 +12,7 @@ priv struct EffectState {
 fn run_cleanups(cleanups : Array[() -> Unit]) -> Unit {
   // Run in reverse order (LIFO)
   for i = cleanups.length() - 1; i >= 0; i = i - 1 {
-    (cleanups[i])()
+    cleanups[i]()
   }
   cleanups.clear()
 }
@@ -60,7 +60,6 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
 
   // Register with current owner if present
   register_disposer(dispose)
-
   dispose
 }
 

@@ -97,14 +97,10 @@ test "full resumable signal flow" {
   match parse_state_from_html(html) {
     Some(client_state) => {
       let client_count : @signal.Signal[Int] = resume_signal(
-        client_state,
-        count_id,
-        0,
+        client_state, count_id, 0,
       )
       let client_name : @signal.Signal[String] = resume_signal(
-        client_state,
-        name_id,
-        "",
+        client_state, name_id, "",
       )
       assert_eq(client_count.get(), 15)
       assert_eq(client_name.get(), "Alice")

@@ -1,4 +1,5 @@
-///| CSR Router Demo - Client-Side Routing with History API
+///|
+/// CSR Router Demo - Client-Side Routing with History API
 
 // =============================================================================
 // FFI
@@ -7,13 +8,19 @@
 extern "js" fn js_querySelector(selector : String) -> @js_dom.Element =
   #| (s) => document.querySelector(s)
 
-extern "js" fn js_setAttribute(el : @js_dom.Element, name : String, value : String) -> Unit =
+///|
+extern "js" fn js_setAttribute(
+  el : @js_dom.Element,
+  name : String,
+  value : String,
+) -> Unit =
   #| (el, n, v) => el.setAttribute(n, v)
 
 // =============================================================================
 // Routes Definition
 // =============================================================================
 
+///|
 fn get_routes() -> Array[@router.Route] {
   [
     @router.Path(
@@ -42,36 +49,31 @@ fn get_routes() -> Array[@router.Route] {
 // Page Components
 // =============================================================================
 
+///|
 fn home_page() -> @dom.DomNode {
-  @dom.div(
-    attrs=[("data-page", @dom.Attr::AttrString("home"))],
-    [
-      @dom.h1([@dom.text("Home Page")]),
-      @dom.p([@dom.text("Welcome to the CSR Router Demo!")]),
-    ],
-  )
+  @dom.div(attrs=[("data-page", @dom.Attr::AttrString("home"))], [
+    @dom.h1([@dom.text("Home Page")]),
+    @dom.p([@dom.text("Welcome to the CSR Router Demo!")]),
+  ])
 }
 
+///|
 fn about_page() -> @dom.DomNode {
-  @dom.div(
-    attrs=[("data-page", @dom.Attr::AttrString("about"))],
-    [
-      @dom.h1([@dom.text("About Page")]),
-      @dom.p([@dom.text("This is the about page.")]),
-    ],
-  )
+  @dom.div(attrs=[("data-page", @dom.Attr::AttrString("about"))], [
+    @dom.h1([@dom.text("About Page")]),
+    @dom.p([@dom.text("This is the about page.")]),
+  ])
 }
 
+///|
 fn contact_page() -> @dom.DomNode {
-  @dom.div(
-    attrs=[("data-page", @dom.Attr::AttrString("contact"))],
-    [
-      @dom.h1([@dom.text("Contact Page")]),
-      @dom.p([@dom.text("Get in touch with us!")]),
-    ],
-  )
+  @dom.div(attrs=[("data-page", @dom.Attr::AttrString("contact"))], [
+    @dom.h1([@dom.text("Contact Page")]),
+    @dom.p([@dom.text("Get in touch with us!")]),
+  ])
 }
 
+///|
 fn post_page(post_id : String) -> @dom.DomNode {
   @dom.div(
     attrs=[
@@ -85,21 +87,20 @@ fn post_page(post_id : String) -> @dom.DomNode {
   )
 }
 
+///|
 fn not_found_page() -> @dom.DomNode {
-  @dom.div(
-    attrs=[("data-page", @dom.Attr::AttrString("404"))],
-    [
-      @dom.h1([@dom.text("404 Not Found")]),
-      @dom.p([@dom.text("The page you are looking for does not exist.")]),
-    ],
-  )
+  @dom.div(attrs=[("data-page", @dom.Attr::AttrString("404"))], [
+    @dom.h1([@dom.text("404 Not Found")]),
+    @dom.p([@dom.text("The page you are looking for does not exist.")]),
+  ])
 }
 
 // =============================================================================
 // Router App
 // =============================================================================
 
-///| 現在のマッチに基づいてページをレンダリング
+///|
+/// 現在のマッチに基づいてページをレンダリング
 fn render_page_for_match(router : @browser.ClientRouter) -> @dom.DomNode {
   match router.get_match() {
     Some(m) => {
@@ -122,10 +123,11 @@ fn render_page_for_match(router : @browser.ClientRouter) -> @dom.DomNode {
   }
 }
 
+///|
 fn nav_link(
   router : @browser.ClientRouter,
   href : String,
-  label : String
+  label : String,
 ) -> @dom.DomNode {
   let attrs = @browser.link_attrs(href, router)
   @dom.create_element(
@@ -139,37 +141,31 @@ fn nav_link(
   )
 }
 
+///|
 fn router_app(router : @browser.ClientRouter) -> @dom.DomNode {
-  @dom.div(
-    attrs=[("data-router-app", @dom.Attr::AttrString("true"))],
-    [
-      // Navigation
-      @dom.create_element(
-        "nav",
-        [("data-nav-container", @dom.AttrValue::Static("true"))],
-        [
-          nav_link(router, "/csr-router/home", "Home"),
-          nav_link(router, "/csr-router/about", "About"),
-          nav_link(router, "/csr-router/contact", "Contact"),
-          nav_link(router, "/csr-router/posts/123", "Post 123"),
-          nav_link(router, "/csr-router/posts/456", "Post 456"),
-        ],
-      ),
-      // Current path display (reactive)
-      @dom.div(
-        attrs=[("data-current-path-container", @dom.Attr::AttrString("true"))],
-        [
-          @dom.text("Current path: "),
-          @dom.text_dyn(fn() { router.get_path() }),
-        ],
-      ),
-      // Page content - render based on current match
-      @dom.div(
-        attrs=[("data-content", @dom.Attr::AttrString("true"))],
-        [render_page_for_match(router)],
-      ),
-    ],
-  )
+  @dom.div(attrs=[("data-router-app", @dom.Attr::AttrString("true"))], [
+    // Navigation
+    @dom.create_element(
+      "nav",
+      [("data-nav-container", @dom.AttrValue::Static("true"))],
+      [
+        nav_link(router, "/csr-router/home", "Home"),
+        nav_link(router, "/csr-router/about", "About"),
+        nav_link(router, "/csr-router/contact", "Contact"),
+        nav_link(router, "/csr-router/posts/123", "Post 123"),
+        nav_link(router, "/csr-router/posts/456", "Post 456"),
+      ],
+    ),
+    // Current path display (reactive)
+    @dom.div(
+      attrs=[("data-current-path-container", @dom.Attr::AttrString("true"))],
+      [@dom.text("Current path: "), @dom.text_dyn(fn() { router.get_path() })],
+    ),
+    // Page content - render based on current match
+    @dom.div(attrs=[("data-content", @dom.Attr::AttrString("true"))], [
+      render_page_for_match(router),
+    ]),
+  ])
 }
 
 // =============================================================================
@@ -182,7 +178,6 @@ pub fn mount_router_app() -> Unit {
   let routes = get_routes()
   let router = @browser.ClientRouter::new(routes)
   let app = router_app(router)
-
   let container = js_querySelector("#app")
   @dom.mount_to(container, app)
 

@@ -1,5 +1,7 @@
 ///| Render functions for server_dom
+
 ///|
+
 ///| Converts Node tree to HTML string.
 
 ///|
@@ -55,7 +57,7 @@ pub fn document(
   head_children~ : Array[@luna.Node[Unit]],
   body_children~ : Array[@luna.Node[Unit]],
   body_class? : String,
-  body_id? : String
+  body_id? : String,
 ) -> @luna.Node[Unit] {
   let body_node = match (body_class, body_id) {
     (Some(c), Some(i)) => body(class=c, id=i, children=body_children)

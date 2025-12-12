@@ -30,7 +30,7 @@ extern "js" fn move_before_supported() -> Bool =
 pub fn move_before(
   parent : @js_dom.Node,
   node : @js_dom.Node,
-  ref_node : @js_dom.Node?
+  ref_node : @js_dom.Node?,
 ) -> @js_dom.Node {
   match ref_node {
     Some(reference) => move_before_impl(parent, node, reference)
@@ -42,7 +42,7 @@ pub fn move_before(
 extern "js" fn move_before_impl(
   parent : @js_dom.Node,
   node : @js_dom.Node,
-  ref_node : @js_dom.Node
+  ref_node : @js_dom.Node,
 ) -> @js_dom.Node =
   #| (parent, node, refNode) => {
   #|   if (typeof parent.moveBefore === 'function') {
@@ -56,7 +56,7 @@ extern "js" fn move_before_impl(
 ///|
 extern "js" fn move_before_impl_null(
   parent : @js_dom.Node,
-  node : @js_dom.Node
+  node : @js_dom.Node,
 ) -> @js_dom.Node =
   #| (parent, node) => {
   #|   if (typeof parent.moveBefore === 'function') {
@@ -72,7 +72,7 @@ extern "js" fn move_before_impl_null(
 pub fn move_before_strict(
   parent : @js_dom.Node,
   node : @js_dom.Node,
-  ref_node : @js_dom.Node?
+  ref_node : @js_dom.Node?,
 ) -> @js_dom.Node {
   match ref_node {
     Some(reference) => move_before_strict_impl(parent, node, reference)
@@ -84,7 +84,7 @@ pub fn move_before_strict(
 extern "js" fn move_before_strict_impl(
   parent : @js_dom.Node,
   node : @js_dom.Node,
-  ref_node : @js_dom.Node
+  ref_node : @js_dom.Node,
 ) -> @js_dom.Node =
   #| (parent, node, refNode) => {
   #|   parent.moveBefore(node, refNode);
@@ -94,7 +94,7 @@ extern "js" fn move_before_strict_impl(
 ///|
 extern "js" fn move_before_strict_impl_null(
   parent : @js_dom.Node,
-  node : @js_dom.Node
+  node : @js_dom.Node,
 ) -> @js_dom.Node =
   #| (parent, node) => {
   #|   parent.moveBefore(node, null);

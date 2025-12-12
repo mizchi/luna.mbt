@@ -1,5 +1,7 @@
 ///| Island helpers for server_dom
+
 ///|
+
 ///| Provides integration with client-side components through islands.
 
 ///|
@@ -19,7 +21,7 @@ pub fn island(
   url : String,
   state? : String,
   trigger? : @luna.IslandTrigger,
-  children~ : Array[@luna.Node[Unit]]
+  children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let state_value = match state {
     Some(s) => s
@@ -38,7 +40,7 @@ pub fn island_load(
   id : String,
   url : String,
   state : String,
-  children~ : Array[@luna.Node[Unit]]
+  children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   island(id, url, state~, trigger=@luna.Load, children~)
 }
@@ -49,7 +51,7 @@ pub fn island_idle(
   id : String,
   url : String,
   state : String,
-  children~ : Array[@luna.Node[Unit]]
+  children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   island(id, url, state~, trigger=@luna.Idle, children~)
 }
@@ -60,7 +62,7 @@ pub fn island_visible(
   id : String,
   url : String,
   state : String,
-  children~ : Array[@luna.Node[Unit]]
+  children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   island(id, url, state~, trigger=@luna.Visible, children~)
 }
@@ -72,7 +74,7 @@ pub fn island_media(
   url : String,
   state : String,
   media_query : String,
-  children~ : Array[@luna.Node[Unit]]
+  children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   island(id, url, state~, trigger=@luna.Media(media_query), children~)
 }

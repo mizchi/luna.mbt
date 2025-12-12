@@ -1,7 +1,11 @@
 ///| Solid-style reference-based reconciliation for DOM reuse
+
 ///|
+
 ///| Unlike React's key-based reconciliation, this approach tracks item references
+
 ///| using JavaScript's === operator. When items are reordered, their DOM nodes
+
 ///| are moved rather than recreated.
 
 ///|
@@ -20,7 +24,7 @@ pub fn[T] ref_equal(a : T, b : T) -> Bool {
 /// Check if a node's next sibling matches the expected node
 extern "js" fn next_sibling_is(
   node : @js_dom.Node,
-  expected : @js_dom.Node
+  expected : @js_dom.Node,
 ) -> Bool =
   #| (node, expected) => node.nextSibling === expected
 
@@ -85,7 +89,6 @@ pub fn[T] reconcile_items(
     }
     return []
   }
-
   let new_entries : Array[ItemEntry[T]] = []
   for j = 0; j < n; j = j + 1 {
     new_entries.push({ item: new_items[0], dom: end_marker })
@@ -101,7 +104,6 @@ pub fn[T] reconcile_items(
   for i = n - 1; i >= 0; i = i - 1 {
     let item = new_items[i]
     let old_index = find_entry_index(old_entries, item)
-
     if old_index >= 0 {
       // Reuse existing DOM node
       let entry = old_entries[old_index]
@@ -112,7 +114,6 @@ pub fn[T] reconcile_items(
       if not(next_sibling_is(entry.dom, cursor.val)) {
         move_before(parent, entry.dom, Some(cursor.val)) |> ignore
       }
-
       cursor.val = entry.dom
       new_entries[i] = entry
     } else {
@@ -130,7 +131,6 @@ pub fn[T] reconcile_items(
       parent.removeChild(old_entries[i].dom) |> ignore
     }
   }
-
   new_entries
 }
 
@@ -144,7 +144,7 @@ pub fn[T] reconcile_for_each(
   render_item : (T, Int) -> @js_dom.Node,
 ) -> Unit {
   match placeholder.parentNode() {
-    Some(parent) => {
+    Some(parent) =>
       entries_ref.val = reconcile_items(
         parent,
         entries_ref.val,
@@ -152,7 +152,6 @@ pub fn[T] reconcile_for_each(
         render_item,
         placeholder,
       )
-    }
     None => ()
   }
 }

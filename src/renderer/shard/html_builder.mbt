@@ -1,7 +1,10 @@
 ///| HTML Builder for Shards
+
 ///|
+
 ///| Generates portable HTML snippets for resumable components (shards)
 
+///|
 /// Generate the complete shard HTML
 pub fn generate_shard(config : ShardConfig) -> ShardOutput {
   let sb = StringBuilder::new(size_hint=512)
@@ -52,7 +55,6 @@ pub fn generate_shard(config : ShardConfig) -> ShardOutput {
     }
     None => ()
   }
-
   sb.write_char('>')
 
   // 4. SSR content (if any)
@@ -63,15 +65,15 @@ pub fn generate_shard(config : ShardConfig) -> ShardOutput {
 
   // 5. Close container
   sb.write_string("</div>")
-
   { html: sb.to_string(), head_scripts, state_scripts }
 }
 
+///|
 /// Generate shard with automatic state script
 /// Use this when you have large state that should be in a separate script tag
 pub fn generate_shard_with_state_script(
   config : ShardConfig,
-  state_json : String
+  state_json : String,
 ) -> ShardOutput {
   let state_script_id = "ln-state-" + config.id
   let state_script = generate_state_script(state_script_id, state_json)
@@ -84,16 +86,16 @@ pub fn generate_shard_with_state_script(
   let combined_html = base_output.html + "\n" + state_script
   let state_scripts = base_output.state_scripts
   state_scripts.push(state_script)
-
   { html: combined_html, head_scripts: base_output.head_scripts, state_scripts }
 }
 
+///|
 /// Generate minimal shard (no loader, inline state)
 pub fn generate_minimal_shard(
   id : String,
   script_url : String,
   state_json : String,
-  ssr_content : String
+  ssr_content : String,
 ) -> String {
   let config = ShardConfig::new(id, script_url)
     .with_state(state_json)
@@ -101,13 +103,14 @@ pub fn generate_minimal_shard(
   generate_shard(config).html
 }
 
+///|
 /// Generate standalone shard (with loader)
 pub fn generate_standalone_shard(
   id : String,
   script_url : String,
   loader_url : String,
   state_json : String,
-  ssr_content : String
+  ssr_content : String,
 ) -> String {
   let config = ShardConfig::new(id, script_url)
     .with_loader(loader_url)
@@ -116,12 +119,13 @@ pub fn generate_standalone_shard(
   generate_shard(config).html
 }
 
+///|
 /// Generate shard with visible trigger
 pub fn generate_lazy_shard(
   id : String,
   script_url : String,
   state_json : String,
-  ssr_content : String
+  ssr_content : String,
 ) -> String {
   let config = ShardConfig::new(id, script_url)
     .with_trigger(Visible)
@@ -130,10 +134,11 @@ pub fn generate_lazy_shard(
   generate_shard(config).html
 }
 
+///|
 /// Generate multiple shards that share a single loader
 pub fn generate_shard_group(
   loader_url : String,
-  configs : Array[ShardConfig]
+  configs : Array[ShardConfig],
 ) -> String {
   let sb = StringBuilder::new(size_hint=1024)
 
@@ -149,14 +154,14 @@ pub fn generate_shard_group(
     sb.write_string(output.html)
     sb.write_char('\n')
   }
-
   sb.to_string()
 }
 
+///|
 /// Estimate the recommended state format based on JSON size
 pub fn auto_select_state_format(
   json : String,
-  base_config : ShardConfig
+  base_config : ShardConfig,
 ) -> ShardConfig {
   let size = json.length()
   if size < 1024 {

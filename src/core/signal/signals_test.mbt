@@ -759,9 +759,11 @@ test "vnode creates anchor element" {
 
 ///|
 test "vnode creates form element" {
-  let node : @luna.Node[Unit] = @luna.h("form", [("id", @luna.attr_static("myform"))], [
-    @luna.h("input", [("type", @luna.attr_static("text"))], []),
-  ])
+  let node : @luna.Node[Unit] = @luna.h(
+    "form",
+    [("id", @luna.attr_static("myform"))],
+    [@luna.h("input", [("type", @luna.attr_static("text"))], [])],
+  )
   match node {
     @luna.Element(el) => {
       assert_eq(el.tag, "form")
@@ -774,9 +776,11 @@ test "vnode creates form element" {
 
 ///|
 test "vnode creates label element" {
-  let node : @luna.Node[Unit] = @luna.h("label", [("for", @luna.attr_static("input1"))], [
-    @luna.vtext("Name:"),
-  ])
+  let node : @luna.Node[Unit] = @luna.h(
+    "label",
+    [("for", @luna.attr_static("input1"))],
+    [@luna.vtext("Name:")],
+  )
   match node {
     @luna.Element(el) => assert_eq(el.tag, "label")
     _ => assert_true(false)

@@ -148,11 +148,9 @@ test "exp: repair class attribute mismatch" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode = @luna.h(
-    "div",
-    [("class", @luna.attr_static("correct-class"))],
-    [@luna.vtext("Content")],
-  )
+  let vnode = @luna.h("div", [("class", @luna.attr_static("correct-class"))], [
+    @luna.vtext("Content"),
+  ])
   // Wrong class
   exp_set_inner_html(container, "<div class=\"wrong-class\">Content</div>")
   let result = experimental_hydrate(container, vnode, logger~)
@@ -198,11 +196,9 @@ test "exp: repair missing attribute" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode = @luna.h(
-    "div",
-    [("data-testid", @luna.attr_static("my-test"))],
-    [@luna.vtext("Content")],
-  )
+  let vnode = @luna.h("div", [("data-testid", @luna.attr_static("my-test"))], [
+    @luna.vtext("Content"),
+  ])
   // No attribute
   exp_set_inner_html(container, "<div>Content</div>")
   let result = experimental_hydrate(container, vnode, logger~)
@@ -368,9 +364,7 @@ test "exp: repair show with condition initially false" {
   let container = exp_create_container()
   let logger = StringBuilder::new()
   let visible = @signal.signal(false)
-  let vnode = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Hidden")
-  })
+  let vnode = @luna.vshow(fn() { visible.get() }, fn() { @luna.vtext("Hidden") })
   exp_set_inner_html(container, "")
   let result = experimental_hydrate(container, vnode, logger~)
   match result {

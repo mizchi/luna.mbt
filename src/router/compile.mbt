@@ -13,13 +13,12 @@ fn compile_routes_inner(
   routes : Array[Route],
   prefix : String,
   inherited_params : Array[String],
-  result : Array[CompiledRoute]
+  result : Array[CompiledRoute],
 ) -> Unit {
   // 現在のスコープで定義されたパラメータを収集（パス用）
   let current_params = inherited_params.copy()
   // パラメータセグメントをパスに追加するためのプレフィックス
   let mut current_prefix = prefix
-
   for route in routes {
     match route {
       Param(_, key~, ..) => {
@@ -38,7 +37,6 @@ fn compile_routes_inner(
       _ => ()
     }
   }
-
   for route in routes {
     match route {
       Page(path~, title~, meta~) => {
@@ -105,6 +103,7 @@ fn normalize_path(path : String) -> String {
   let len = result.length()
   if len > 1 && result[len - 1] == '/' {
     let _ = result.pop()
+
   }
   String::from_array(result)
 }

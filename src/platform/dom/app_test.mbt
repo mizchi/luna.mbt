@@ -68,109 +68,93 @@ fn create_todo_app() -> (
   }
 
   // Build the UI
-  let app = @element.div(
-    class="todo-app",
-    [
-      // Header
-      @element.h1([@element.text("Todo App")]),
-      // Input form
-      @element.div(
-        class="input-section",
-        [
-          @element.create_element(
-            "input",
-            [
-              ("id", @element.attr_static("todo-input")),
-              ("type", @element.attr_static("text")),
-              ("placeholder", @element.attr_static("What needs to be done?")),
-              ("value", @element.attr_dynamic(fn() { input_text.get() })),
-              (
-                "onInput",
-                @element.attr_handler(fn(e : @js.Any) {
-                  let target : @js_dom.HTMLInputElement = e
-                    ._call("target", [])
-                    .cast()
-                  input_text.set(target.value)
-                }),
-              ),
-              (
-                "onKeydown",
-                @element.attr_handler(fn(e : @js.Any) {
-                  let key : String = e._get("key").cast()
-                  if key == "Enter" {
-                    add_todo()
-                  }
-                }),
-              ),
-            ],
-            [],
-          ),
-          @element.button(
-            id="add-btn",
-            on=@element.on(click=Some(fn(_) { add_todo() })),
-            [@element.text("Add")],
-          ),
-        ],
-      ),
-      // Todo list
+  let app = @element.div(class="todo-app", [
+    // Header
+    @element.h1([@element.text("Todo App")]),
+    // Input form
+    @element.div(class="input-section", [
       @element.create_element(
-        "ul",
-        [("id", @element.attr_static("todo-list"))],
+        "input",
         [
-          @element.for_each(
-            fn() { todos.get() },
-            fn(todo, _idx) {
-              @element.create_element(
-                "li",
-                [
-                  (
-                    "className",
-                    @element.attr_dynamic(fn() {
-                      if todo.completed {
-                        "todo-item completed"
-                      } else {
-                        "todo-item"
-                      }
-                    }),
-                  ),
-                  ("data-id", @element.attr_static(todo.id.to_string())),
-                ],
-                [
-                  @element.span(
-                    class="todo-text",
-                    on=@element.on(click=Some(fn(_) { toggle_todo(todo.id) })),
-                    [@element.text(todo.text)],
-                  ),
-                  @element.button(
-                    class="delete-btn",
-                    on=@element.on(click=Some(fn(_) { delete_todo(todo.id) })),
-                    [@element.text("×")],
-                  ),
-                ],
-              )
-            },
+          ("id", @element.attr_static("todo-input")),
+          ("type", @element.attr_static("text")),
+          ("placeholder", @element.attr_static("What needs to be done?")),
+          ("value", @element.attr_dynamic(fn() { input_text.get() })),
+          (
+            "onInput",
+            @element.attr_handler(fn(e : @js.Any) {
+              let target : @js_dom.HTMLInputElement = e
+                ._call("target", [])
+                .cast()
+              input_text.set(target.value)
+            }),
+          ),
+          (
+            "onKeydown",
+            @element.attr_handler(fn(e : @js.Any) {
+              let key : String = e._get("key").cast()
+              if key == "Enter" {
+                add_todo()
+              }
+            }),
           ),
         ],
+        [],
       ),
-      // Stats
-      @element.div(
-        id="stats",
-        [
-          @element.text_dyn(fn() {
-            let items = todos.get()
-            let total = items.length()
-            let mut completed = 0
-            for i = 0; i < items.length(); i = i + 1 {
-              if items[i].completed {
-                completed = completed + 1
-              }
-            }
-            "\{total} items, \{completed} completed"
-          }),
-        ],
+      @element.button(
+        id="add-btn",
+        on=@element.on(click=Some(fn(_) { add_todo() })),
+        [@element.text("Add")],
       ),
-    ],
-  )
+    ]),
+    // Todo list
+    @element.create_element("ul", [("id", @element.attr_static("todo-list"))], [
+      @element.for_each(fn() { todos.get() }, fn(todo, _idx) {
+        @element.create_element(
+          "li",
+          [
+            (
+              "className",
+              @element.attr_dynamic(fn() {
+                if todo.completed {
+                  "todo-item completed"
+                } else {
+                  "todo-item"
+                }
+              }),
+            ),
+            ("data-id", @element.attr_static(todo.id.to_string())),
+          ],
+          [
+            @element.span(
+              class="todo-text",
+              on=@element.on(click=Some(fn(_) { toggle_todo(todo.id) })),
+              [@element.text(todo.text)],
+            ),
+            @element.button(
+              class="delete-btn",
+              on=@element.on(click=Some(fn(_) { delete_todo(todo.id) })),
+              [@element.text("×")],
+            ),
+          ],
+        )
+      }),
+    ]),
+    // Stats
+    @element.div(id="stats", [
+      @element.text_dyn(fn() {
+        let items = todos.get()
+        let total = items.length()
+        let mut completed = 0
+        for i = 0; i < items.length(); i = i + 1 {
+          if items[i].completed {
+            completed = completed + 1
+          }
+        }
+        "\{total} items, \{completed} completed"
+      }),
+    ]),
+  ])
   (app, todos, input_text)
 }
 
@@ -713,14 +697,11 @@ test "Fine-grained: DOM text nodes update independently" {
   }
 
   // Build DOM structure
-  let profile = @element.div(
-    class="profile",
-    [
-      @element.div(class="name", [name_text]),
-      @element.div(class="age", [age_text]),
-      @element.div(class="city", [city_text]),
-    ],
-  )
+  let profile = @element.div(class="profile", [
+    @element.div(class="name", [name_text]),
+    @element.div(class="age", [age_text]),
+    @element.div(class="city", [city_text]),
+  ])
   @element.render_to(container, profile)
 
   // Initial state
@@ -838,4 +819,3 @@ test "Fine-grained: memo prevents unnecessary recomputation" {
   assert_eq(doubled(), 40)
   // Memo recomputed once for the new value
 }
-

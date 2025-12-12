@@ -85,9 +85,7 @@ test "TriggerType::parse - parses from string" {
 
 ///|
 test "format_state_attr - inline JSON" {
-  let result = @shard.format_state_attr(
-    @shard.StateConfig::Inline("{\"x\":1}"),
-  )
+  let result = @shard.format_state_attr(@shard.StateConfig::Inline("{\"x\":1}"))
   // " is escaped as &quot; for HTML attribute safety
   assert_eq(result, Some("{&quot;x&quot;:1}"))
 }

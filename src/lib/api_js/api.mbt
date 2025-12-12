@@ -39,7 +39,10 @@ pub fn peek(sig : @signal.Signal[Any]) -> Any {
 
 ///|
 /// Subscribe to signal changes
-pub fn subscribe(sig : @signal.Signal[Any], callback : (Any) -> Unit) -> () -> Unit {
+pub fn subscribe(
+  sig : @signal.Signal[Any],
+  callback : (Any) -> Unit,
+) -> () -> Unit {
   @signal.on(sig, callback)
 }
 

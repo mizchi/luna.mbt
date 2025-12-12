@@ -8,7 +8,9 @@ pub(open) trait Serializable {
 }
 
 ///|
-impl Serializable for Int with to_state_value(self) { sv_int(self) }
+impl Serializable for Int with to_state_value(self) {
+  sv_int(self)
+}
 
 ///|
 impl Serializable for Int with from_state_value(value) {
@@ -16,7 +18,9 @@ impl Serializable for Int with from_state_value(value) {
 }
 
 ///|
-impl Serializable for String with to_state_value(self) { sv_str(self) }
+impl Serializable for String with to_state_value(self) {
+  sv_str(self)
+}
 
 ///|
 impl Serializable for String with from_state_value(value) {
@@ -24,7 +28,9 @@ impl Serializable for String with from_state_value(value) {
 }
 
 ///|
-impl Serializable for Bool with to_state_value(self) { sv_bool(self) }
+impl Serializable for Bool with to_state_value(self) {
+  sv_bool(self)
+}
 
 ///|
 impl Serializable for Bool with from_state_value(value) {
@@ -32,7 +38,9 @@ impl Serializable for Bool with from_state_value(value) {
 }
 
 ///|
-impl Serializable for Double with to_state_value(self) { sv_number(self) }
+impl Serializable for Double with to_state_value(self) {
+  sv_number(self)
+}
 
 ///|
 impl Serializable for Double with from_state_value(value) {

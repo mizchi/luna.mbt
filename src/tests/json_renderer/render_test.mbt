@@ -114,9 +114,7 @@ test "render fragment" {
 ///|
 test "render show when true" {
   let visible = @signal.signal(true)
-  let node = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Visible")
-  })
+  let node = @luna.vshow(fn() { visible.get() }, fn() { @luna.vtext("Visible") })
   let json = render_to_json(node)
   match json {
     Text(content) => assert_eq(content, "Visible")
@@ -127,9 +125,7 @@ test "render show when true" {
 ///|
 test "render show when false" {
   let visible = @signal.signal(false)
-  let node = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Hidden")
-  })
+  let node = @luna.vshow(fn() { visible.get() }, fn() { @luna.vtext("Hidden") })
   let json = render_to_json(node)
   match json {
     Fragment(children) => assert_eq(children.length(), 0)

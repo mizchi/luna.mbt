@@ -12,19 +12,13 @@ pub struct MatchResult {
 pub fn match_route(
   url : String,
   routes : Array[CompiledRoute],
-  is_client : Bool
+  is_client : Bool,
 ) -> MatchResult? {
   let (path, query) = parse_url(url)
-
   for route in routes {
     match try_match(path, route) {
       Some(params) => {
-        let props : RouteProps = {
-          is_client,
-          params,
-          query,
-          path,
-        }
+        let props : RouteProps = { is_client, params, query, path }
         return Some({ route, props })
       }
       None => continue
@@ -38,18 +32,15 @@ pub fn match_route(
 fn parse_url(url : String) -> (String, Array[(String, String)]) {
   let chars = url.to_array()
   let mut query_start = -1
-
   for i, c in chars {
     if c == '?' {
       query_start = i
       break
     }
   }
-
   if query_start == -1 {
     return (url, [])
   }
-
   let path = String::from_array(chars[0:query_start])
   let query_str = String::from_array(chars[query_start + 1:])
   let query = parse_query_string(query_str)
@@ -62,10 +53,8 @@ fn parse_query_string(query : String) -> Array[(String, String)] {
   if query == "" {
     return []
   }
-
   let result : Array[(String, String)] = []
   let pairs = split_string(query, '&')
-
   for pair in pairs {
     let kv = split_string(pair, '=')
     if kv.length() == 2 {
@@ -83,7 +72,6 @@ fn split_string(s : String, sep : Char) -> Array[String] {
   let result : Array[String] = []
   let chars = s.to_array()
   let current : Array[Char] = []
-
   for c in chars {
     if c == sep {
       result.push(String::from_array(current))
@@ -99,10 +87,7 @@ fn split_string(s : String, sep : Char) -> Array[String] {
 ///|
 /// ルートパターンに対してパスをマッチング
 /// パターンは :param 形式のプレースホルダーを含む
-fn try_match(
-  path : String,
-  route : CompiledRoute
-) -> Array[(String, String)]? {
+fn try_match(path : String, route : CompiledRoute) -> Array[(String, String)]? {
   let pattern = route.pattern
   let param_names = route.param_names
 
@@ -118,7 +103,6 @@ fn try_match(
   // パラメータを収集しながらセグメントを比較
   let params : Array[(String, String)] = []
   let mut param_idx = 0
-
   for i, pattern_seg in pattern_segments {
     let path_seg = path_segments[i]
 
@@ -130,14 +114,11 @@ fn try_match(
       } else {
         return None
       }
-    } else {
       // 静的セグメントは完全一致
-      if pattern_seg != path_seg {
-        return None
-      }
+    } else if pattern_seg != path_seg {
+      return None
     }
   }
-
   Some(params)
 }
 

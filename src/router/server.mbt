@@ -12,8 +12,8 @@ pub struct ServerRenderOptions {
 ///|
 /// ServerRenderOptions をラベル引数で作成
 pub fn ServerRenderOptions::new(
-  preload~ : Bool = true,
-  hydration~ : Bool = true
+  preload? : Bool = true,
+  hydration? : Bool = true,
 ) -> ServerRenderOptions {
   { preload, hydration }
 }
@@ -55,14 +55,16 @@ pub fn ServerRouter::new(routes : Array[Route]) -> ServerRouter {
 /// オプション付きで ServerRouter を作成
 pub fn ServerRouter::with_options(
   routes : Array[Route],
-  options : ServerRenderOptions
+  options : ServerRenderOptions,
 ) -> ServerRouter {
   { routes: compile_routes(routes), options }
 }
 
 ///|
 /// コンパイル済みルートから ServerRouter を作成
-pub fn ServerRouter::from_compiled(routes : Array[CompiledRoute]) -> ServerRouter {
+pub fn ServerRouter::from_compiled(
+  routes : Array[CompiledRoute],
+) -> ServerRouter {
   { routes, options: ServerRenderOptions::default() }
 }
 
@@ -70,7 +72,7 @@ pub fn ServerRouter::from_compiled(routes : Array[CompiledRoute]) -> ServerRoute
 /// URLに対してルートをマッチング
 pub fn ServerRouter::match_url(
   self : ServerRouter,
-  url : String
+  url : String,
 ) -> MatchResult? {
   match_route(url, self.routes, false)
 }
@@ -79,7 +81,7 @@ pub fn ServerRouter::match_url(
 /// URLに対してルートをマッチングし、RouterContext を返す
 pub fn ServerRouter::resolve(
   self : ServerRouter,
-  url : String
+  url : String,
 ) -> RouterContext? {
   match self.match_url(url) {
     Some(m) => Some(RouterContext::from_match(m))

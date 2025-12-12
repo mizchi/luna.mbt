@@ -1,7 +1,11 @@
 ///| Island Hydration API
+
 ///|
+
 ///| Provides a minimal API for component hydration.
+
 ///| Components only need to provide render() and dispatch() functions.
+
 ///| All FFI/boilerplate is handled by the framework.
 
 // =============================================================================
@@ -25,7 +29,7 @@ pub struct IslandContext {
 pub fn IslandContext::new(
   element : @js_dom.Element,
   id : String,
-  state_json : String
+  state_json : String,
 ) -> IslandContext {
   { element, id, state_json }
 }
@@ -69,7 +73,7 @@ extern "js" fn console_log_island(msg : String) -> Unit =
 pub fn IslandContext::signal_int(
   self : IslandContext,
   key : String,
-  default_value : Int
+  default_value : Int,
 ) -> @signal.Signal[Int] {
   let value = if self.state_json == "" {
     default_value
@@ -83,7 +87,7 @@ pub fn IslandContext::signal_int(
 /// Bind action handlers from DOM and set up reactive updates
 pub fn IslandContext::bind_actions(
   self : IslandContext,
-  dispatch : (String) -> Unit
+  dispatch : (String) -> Unit,
 ) -> Unit {
   bind_actions_from_dom(self.element, dispatch)
 }
@@ -93,20 +97,21 @@ pub fn IslandContext::bind_actions(
 pub fn IslandContext::on_update(
   self : IslandContext,
   selector : String,
-  update_fn : () -> String
+  update_fn : () -> String,
 ) -> Unit {
   let elem = self.element
   let _ = @signal.effect(fn() {
     let text = update_fn()
     update_element_text(elem, selector, text)
   })
+
 }
 
 ///|
 extern "js" fn update_element_text(
   container : @js_dom.Element,
   selector : String,
-  text : String
+  text : String,
 ) -> Unit =
   #| (container, selector, text) => {
   #|   const el = container.querySelector(selector);
@@ -141,7 +146,7 @@ pub fn hydrate_island(
   element : @js.Any,
   state : @js.Any,
   id : String,
-  setup : (IslandContext) -> Unit
+  setup : (IslandContext) -> Unit,
 ) -> Unit {
   console_log_island("[" + id + "] hydrating...")
 
@@ -156,6 +161,5 @@ pub fn hydrate_island(
 
   // Run component setup
   setup(ctx)
-
   console_log_island("[" + id + "] hydration complete")
 }

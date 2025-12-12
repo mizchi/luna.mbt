@@ -92,9 +92,7 @@ test "hydrate nested elements" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.h("div", [], [
-    @luna.h("span", [], [@luna.vtext("Nested")]),
-  ])
+  let vnode = @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Nested")])])
   let html = @renderer.render_to_string(vnode)
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -737,12 +735,7 @@ test "hydrate dynamic style" {
   let color_sig = @signal.signal("red")
   let vnode = @luna.h(
     "div",
-    [
-      (
-        "style",
-        @luna.attr_dynamic_style(fn() { "color: " + color_sig.get() }),
-      ),
-    ],
+    [("style", @luna.attr_dynamic_style(fn() { "color: " + color_sig.get() }))],
     [@luna.vtext("Styled")],
   )
   let html = @renderer.render_to_string_with_hydration(vnode)
@@ -915,11 +908,7 @@ test "render_vnode_to_dom with static attribute value" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.h(
-    "input",
-    [("value", @luna.attr_static("test-value"))],
-    [],
-  )
+  let vnode = @luna.h("input", [("value", @luna.attr_static("test-value"))], [])
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("input"))

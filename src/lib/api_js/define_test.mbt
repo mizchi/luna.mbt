@@ -8,9 +8,7 @@ test "register: basic custom element" {
     let count = @signal.signal(0)
     @luna.h("div", [], [
       @luna.h("span", [], [@luna.text_dyn(fn() { count.get().to_string() })]),
-      @luna.h("button", [("id", @luna.attr_static("inc"))], [
-        @luna.vtext("+"),
-      ]),
+      @luna.h("button", [("id", @luna.attr_static("inc"))], [@luna.vtext("+")]),
     ])
   })
 

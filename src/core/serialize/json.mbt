@@ -1,5 +1,7 @@
 ///| JSON Serializer/Parser - Serialize/Parse StateValue to/from JSON string
+
 ///|
+
 ///| Pure MoonBit implementation using builtin @json package.
 
 // =============================================================================
@@ -93,7 +95,9 @@ fn write_escaped_string(s : String, buf : StringBuilder) -> Unit {
 ///|
 /// Write 4-digit hex number
 fn write_hex4(n : Int, buf : StringBuilder) -> Unit {
-  let hex_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+  let hex_chars = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+  ]
   buf.write_char(hex_chars[(n >> 12) & 0xF])
   buf.write_char(hex_chars[(n >> 8) & 0xF])
   buf.write_char(hex_chars[(n >> 4) & 0xF])

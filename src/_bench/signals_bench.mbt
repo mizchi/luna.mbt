@@ -171,7 +171,9 @@ test "5_effects_1_signal" (b : @bench.T) {
 ///|
 test "untracked_read" (b : @bench.T) {
   let sig = @signal.signal(42)
-  b.bench(name="untracked_read", fn() { b.keep(@signal.untracked(fn() { sig.get() })) })
+  b.bench(name="untracked_read", fn() {
+    b.keep(@signal.untracked(fn() { sig.get() }))
+  })
 }
 
 // =============================================================================

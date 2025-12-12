@@ -22,11 +22,9 @@ fn create_distance_tree_with_attrs(count : Int) -> @luna.Node[@js.Any] {
   let items : Array[@luna.Node[@js.Any]] = []
   for i in 0..<count {
     items.push(
-      @luna.h(
-        "li",
-        [("class", @luna.attr_static("item-" + i.to_string()))],
-        [@luna.vtext("Item " + i.to_string())],
-      ),
+      @luna.h("li", [("class", @luna.attr_static("item-" + i.to_string()))], [
+        @luna.vtext("Item " + i.to_string()),
+      ]),
     )
   }
   @luna.h("ul", [], items)

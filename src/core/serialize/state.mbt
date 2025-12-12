@@ -1,6 +1,9 @@
 ///| Resumable State - Qwik-like state serialization and restoration
+
 ///|
+
 ///| This module provides functionality to serialize Signal states to JSON
+
 ///| and restore them on the client side for hydration.
 
 ///|
@@ -74,10 +77,7 @@ pub fn ResumableState::register_float(
 
 ///|
 /// Get value at index
-pub fn ResumableState::get(
-  self : ResumableState,
-  id : Int,
-) -> StateValue? {
+pub fn ResumableState::get(self : ResumableState, id : Int) -> StateValue? {
   if id >= 0 && id < self.values.length() {
     Some(self.values[id])
   } else {

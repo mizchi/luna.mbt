@@ -1,6 +1,8 @@
 ///| Shard Types
+
 ///| Types for generating portable, resumable UI snippets (shards)
 
+///|
 /// When to hydrate the component
 pub(all) enum TriggerType {
   /// Hydrate on page load (DOMContentLoaded)
@@ -15,6 +17,7 @@ pub(all) enum TriggerType {
   None
 }
 
+///|
 /// How state is provided
 pub(all) enum StateConfig {
   /// No state
@@ -27,6 +30,7 @@ pub(all) enum StateConfig {
   Url(String)
 }
 
+///|
 /// Configuration for generating a shard snippet
 pub struct ShardConfig {
   /// Unique identifier for the component
@@ -45,6 +49,7 @@ pub struct ShardConfig {
   loader_url : String
 }
 
+///|
 /// Output from shard generation
 pub struct ShardOutput {
   /// Complete HTML snippet
@@ -55,9 +60,11 @@ pub struct ShardOutput {
   state_scripts : Array[String]
 }
 
+///|
 /// Default loader URL
 pub let default_loader_url : String = "ln-loader-v1.js"
 
+///|
 /// Create a minimal shard config
 pub fn ShardConfig::new(id : String, script_url : String) -> ShardConfig {
   {
@@ -71,41 +78,67 @@ pub fn ShardConfig::new(id : String, script_url : String) -> ShardConfig {
   }
 }
 
+///|
 /// Builder pattern: set trigger
-pub fn ShardConfig::with_trigger(self : ShardConfig, trigger : TriggerType) -> ShardConfig {
-  { ..self, trigger }
+pub fn ShardConfig::with_trigger(
+  self : ShardConfig,
+  trigger : TriggerType,
+) -> ShardConfig {
+  { ..self, trigger, }
 }
 
+///|
 /// Builder pattern: set inline state from JSON string
-pub fn ShardConfig::with_state(self : ShardConfig, json : String) -> ShardConfig {
+pub fn ShardConfig::with_state(
+  self : ShardConfig,
+  json : String,
+) -> ShardConfig {
   { ..self, state: Inline(json) }
 }
 
+///|
 /// Builder pattern: set state from script reference
-pub fn ShardConfig::with_state_ref(self : ShardConfig, script_id : String) -> ShardConfig {
+pub fn ShardConfig::with_state_ref(
+  self : ShardConfig,
+  script_id : String,
+) -> ShardConfig {
   { ..self, state: ScriptRef(script_id) }
 }
 
+///|
 /// Builder pattern: set state from URL
-pub fn ShardConfig::with_state_url(self : ShardConfig, url : String) -> ShardConfig {
+pub fn ShardConfig::with_state_url(
+  self : ShardConfig,
+  url : String,
+) -> ShardConfig {
   { ..self, state: Url(url) }
 }
 
+///|
 /// Builder pattern: set SSR content
-pub fn ShardConfig::with_ssr_content(self : ShardConfig, content : String) -> ShardConfig {
+pub fn ShardConfig::with_ssr_content(
+  self : ShardConfig,
+  content : String,
+) -> ShardConfig {
   { ..self, ssr_content: Some(content) }
 }
 
+///|
 /// Builder pattern: include loader script
-pub fn ShardConfig::with_loader(self : ShardConfig, url : String) -> ShardConfig {
+pub fn ShardConfig::with_loader(
+  self : ShardConfig,
+  url : String,
+) -> ShardConfig {
   { ..self, include_loader: true, loader_url: url }
 }
 
+///|
 /// Builder pattern: include loader script with default URL
 pub fn ShardConfig::with_default_loader(self : ShardConfig) -> ShardConfig {
   { ..self, include_loader: true }
 }
 
+///|
 /// Convert TriggerType to attribute value
 pub fn TriggerType::to_string(self : TriggerType) -> String {
   match self {
@@ -117,6 +150,7 @@ pub fn TriggerType::to_string(self : TriggerType) -> String {
   }
 }
 
+///|
 /// Parse TriggerType from string
 pub fn TriggerType::parse(s : String) -> TriggerType {
   match s {

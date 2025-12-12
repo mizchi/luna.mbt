@@ -42,9 +42,7 @@ test "ssr_element_with_attrs" (b : @bench.T) {
 ///|
 test "ssr_nested_3_levels" (b : @bench.T) {
   let node : @luna.Node[Unit] = @luna.h("div", [], [
-    @luna.h("section", [], [
-      @luna.h("p", [], [@luna.vtext("Nested content")]),
-    ]),
+    @luna.h("section", [], [@luna.h("p", [], [@luna.vtext("Nested content")])]),
   ])
   b.bench(name="ssr_nested_3_levels", fn() {
     b.keep(@ssr.render_to_string(node))
@@ -56,9 +54,7 @@ test "ssr_nested_5_levels" (b : @bench.T) {
   let node : @luna.Node[Unit] = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
-        @luna.h("div", [], [
-          @luna.h("span", [], [@luna.vtext("Deep content")]),
-        ]),
+        @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Deep content")])]),
       ]),
     ]),
   ])
@@ -134,9 +130,7 @@ fn create_page(card_count : Int) -> @luna.Node[@js.Any] {
     @luna.h("body", [], [
       @luna.h("header", [], [@luna.h("h1", [], [@luna.vtext("Welcome")])]),
       @luna.h("main", [("class", @luna.attr_static("container"))], cards),
-      @luna.h("footer", [], [
-        @luna.h("p", [], [@luna.vtext("Footer content")]),
-      ]),
+      @luna.h("footer", [], [@luna.h("p", [], [@luna.vtext("Footer content")])]),
     ]),
   ])
 }
@@ -196,7 +190,9 @@ test "ssr_hydration_page_50_cards" (b : @bench.T) {
 ///|
 test "ssr_dynamic_text" (b : @bench.T) {
   let count = @signal.signal(0)
-  let node : @luna.Node[Unit] = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
+  let node : @luna.Node[Unit] = @luna.text_dyn(fn() {
+    "Count: " + count.get().to_string()
+  })
   b.bench(name="ssr_dynamic_text", fn() { b.keep(@ssr.render_to_string(node)) })
 }
 

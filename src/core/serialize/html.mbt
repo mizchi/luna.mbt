@@ -17,7 +17,10 @@ pub fn state_to_script_tag(state : ResumableState) -> String {
 
 ///|
 /// Generate script tag with embedded state and ID
-pub fn state_to_script_tag_with_id(state : ResumableState, id : String) -> String {
+pub fn state_to_script_tag_with_id(
+  state : ResumableState,
+  id : String,
+) -> String {
   let json = state.to_json()
   "<script type=\"application/json\" " +
   state_attr +
@@ -30,7 +33,11 @@ pub fn state_to_script_tag_with_id(state : ResumableState, id : String) -> Strin
 
 ///|
 /// Generate a container div with state endpoint for lazy loading
-pub fn state_endpoint_tag(id : String, endpoint : String, content : String) -> String {
+pub fn state_endpoint_tag(
+  id : String,
+  endpoint : String,
+  content : String,
+) -> String {
   "<div data-state-id=\"" +
   id +
   "\" data-state-src=\"" +

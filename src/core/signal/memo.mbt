@@ -39,9 +39,9 @@ pub fn[T] memo(compute : () -> T) -> () -> T {
     match get_current_subscriber() {
       Some(subscriber) => {
         // Check if already subscribed (by ID)
-        let already_subscribed = state.subscribers.iter().any(fn(s) {
-          s.id == subscriber.id
-        })
+        let already_subscribed = state.subscribers
+          .iter()
+          .any(fn(s) { s.id == subscriber.id })
         if not(already_subscribed) {
           state.subscribers.push(subscriber)
         }

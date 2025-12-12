@@ -17,7 +17,9 @@ pub fn BrowserRouter::new(routes : Array[Route]) -> BrowserRouter {
 
 ///|
 /// コンパイル済みルートから BrowserRouter を作成
-pub fn BrowserRouter::from_compiled(routes : Array[CompiledRoute]) -> BrowserRouter {
+pub fn BrowserRouter::from_compiled(
+  routes : Array[CompiledRoute],
+) -> BrowserRouter {
   { routes, current_path: { val: "/" } }
 }
 
@@ -37,7 +39,7 @@ pub fn BrowserRouter::get_path(self : BrowserRouter) -> String {
 /// URLに対してルートをマッチング（クライアントサイド）
 pub fn BrowserRouter::match_url(
   self : BrowserRouter,
-  url : String
+  url : String,
 ) -> MatchResult? {
   match_route(url, self.routes, true)
 }
@@ -46,7 +48,7 @@ pub fn BrowserRouter::match_url(
 /// URLに対してルートをマッチングし、RouterContext を返す
 pub fn BrowserRouter::resolve(
   self : BrowserRouter,
-  url : String
+  url : String,
 ) -> RouterContext? {
   match self.match_url(url) {
     Some(m) => Some(RouterContext::from_match(m))
@@ -56,7 +58,10 @@ pub fn BrowserRouter::resolve(
 
 ///|
 /// ナビゲーション（パス更新のみ、DOM操作はJS側で行う）
-pub fn BrowserRouter::navigate(self : BrowserRouter, path : String) -> RouterContext? {
+pub fn BrowserRouter::navigate(
+  self : BrowserRouter,
+  path : String,
+) -> RouterContext? {
   self.current_path.val = path
   self.resolve(path)
 }

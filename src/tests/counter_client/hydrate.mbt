@@ -1,14 +1,24 @@
 ///| Counter Client - Client-side hydration using @dom.hydrate
+
 ///|
+
 ///| This module provides the hydrate function that connects SSR'd HTML
-///| to the reactive counter component using the @dom.hydrate runtime.
+
+///|
+/// to the reactive counter component using the @dom.hydrate runtime.
 
 // FFI for JSON parsing
 extern "js" fn js_getCount(state : @js.Any) -> Int =
   #|(s) => (s && typeof s.count === 'number') ? s.count : 0
 
 // FFI to set data-hydrated attribute
-extern "js" fn js_setAttribute(el : @js_dom.Element, name : String, value : String) -> Unit =
+
+///|
+extern "js" fn js_setAttribute(
+  el : @js_dom.Element,
+  name : String,
+  value : String,
+) -> Unit =
   #|(el, n, v) => { el.setAttribute(n, v); }
 
 ///|
@@ -23,8 +33,12 @@ pub fn hydrate(el : @js_dom.Element, state : @js.Any) -> Unit {
   let count_sig = @signal.signal(initial_count)
 
   // Create browser event handlers that update the signal
-  let on_inc = @dom.browser_handler_from_callback(fn() { count_sig.update(fn(c) { c + 1 }) })
-  let on_dec = @dom.browser_handler_from_callback(fn() { count_sig.update(fn(c) { c - 1 }) })
+  let on_inc = @dom.browser_handler_from_callback(fn() {
+    count_sig.update(fn(c) { c + 1 })
+  })
+  let on_dec = @dom.browser_handler_from_callback(fn() {
+    count_sig.update(fn(c) { c - 1 })
+  })
 
   // Build counter VNode for browser (with @js.Any event type)
   let vnode : @luna.Node[@js.Any] = @luna.h(

@@ -6,7 +6,9 @@
 
 ///|
 /// Create a browser event handler from a callback
-pub fn browser_event_handler(f : (@js.Any) -> Unit) -> @luna.EventHandler[@js.Any] {
+pub fn browser_event_handler(
+  f : (@js.Any) -> Unit,
+) -> @luna.EventHandler[@js.Any] {
   @luna.handler(f)
 }
 
@@ -18,7 +20,9 @@ pub fn browser_noop_handler() -> @luna.EventHandler[@js.Any] {
 
 ///|
 /// Create a browser event handler from a simple callback (ignores event)
-pub fn browser_handler_from_callback(f : () -> Unit) -> @luna.EventHandler[@js.Any] {
+pub fn browser_handler_from_callback(
+  f : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(_event) { f() })
 }
 
