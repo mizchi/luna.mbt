@@ -45,7 +45,7 @@ fn render_node_to_stream(
       let sb = StringBuilder::new()
       sb.write_char('<')
       sb.write_string(tag)
-      render_attrs_to_sb(sb, elem.attrs)
+      render_attrs_to(sb, elem.attrs)
       if is_void_element(tag) {
         sb.write_string(" />")
         write(sb.to_string())
@@ -120,57 +120,7 @@ fn render_island_to_stream(
 
 // Note: escape_html, escape_attr_to, escape_js_string are defined in escape.mbt
 
-///|
-/// Helper: render attributes to StringBuilder
-fn render_attrs_to_sb(
-  sb : StringBuilder,
-  attrs : Array[(String, @luna.Attr[Unit])],
-) -> Unit {
-  for attr in attrs {
-    let (name, value) = attr
-    match value {
-      VStatic(s) =>
-        if s != "__remove__" {
-          if s == "" {
-            sb.write_char(' ')
-            sb.write_string(name)
-          } else {
-            sb.write_char(' ')
-            sb.write_string(name)
-            sb.write_string("=\"")
-            sb.write_string(escape_html(s))
-            sb.write_char('"')
-          }
-        }
-      VDynamic(getter) => {
-        let s = getter()
-        if s != "__remove__" && s != "" {
-          sb.write_char(' ')
-          sb.write_string(name)
-          sb.write_string("=\"")
-          sb.write_string(escape_html(s))
-          sb.write_char('"')
-        }
-      }
-      VHandler(_) => () // Skip handlers
-      VAction(action_name) => {
-        // Render action as data-action attribute for hydration
-        let event_name = if name.has_prefix("on") {
-          name[2:].to_string() catch {
-            _ => name
-          }
-        } else {
-          name
-        }
-        sb.write_string(" data-action-")
-        sb.write_string(event_name)
-        sb.write_string("=\"")
-        sb.write_string(escape_html(action_name))
-        sb.write_char('"')
-      }
-    }
-  }
-}
+// Note: Attribute rendering uses render_attrs_to from render_to_string.mbt
 
 ///|
 /// Create a ReadableStream for HTTP response (Web Streams API)
@@ -241,7 +191,7 @@ fn render_node_collecting_async(
       let sb = StringBuilder::new()
       sb.write_char('<')
       sb.write_string(tag)
-      render_attrs_to_sb(sb, elem.attrs)
+      render_attrs_to(sb, elem.attrs)
       if is_void_element(tag) {
         sb.write_string(" />")
         write(sb.to_string())

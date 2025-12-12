@@ -122,8 +122,18 @@ fn[E] render_island_and_collect_urls(
   if not(urls.contains(island.url)) {
     urls.push(island.url)
   }
+  render_island_open_to(sb, island)
+  for child in island.children {
+    render_and_collect_urls(sb, child, urls)
+  }
+  render_island_close_to(sb, island)
+}
 
-  // Render the island (same as render_island_to)
+// Note: is_void_element, escape_html_to, escape_attr_to are defined in escape.mbt
+
+///|
+/// Render Island wrapper opening (comment + div with attributes)
+fn[E] render_island_open_to(sb : StringBuilder, island : @luna.VIsland[E]) -> Unit {
   sb.write_string("<!--ln:island:")
   sb.write_string(island.id)
   sb.write_string(" url=")
@@ -140,16 +150,16 @@ fn[E] render_island_and_collect_urls(
   sb.write_string("\" ln:trigger=\"")
   sb.write_string(@luna.trigger_to_string(island.trigger))
   sb.write_string("\">")
-  for child in island.children {
-    render_and_collect_urls(sb, child, urls)
-  }
+}
+
+///|
+/// Render Island wrapper closing (div + comment)
+fn[E] render_island_close_to(sb : StringBuilder, island : @luna.VIsland[E]) -> Unit {
   sb.write_string("</div>")
   sb.write_string("<!--/ln:island:")
   sb.write_string(island.id)
   sb.write_string("-->")
 }
-
-// Note: is_void_element, escape_html_to, escape_attr_to are defined in escape.mbt
 
 ///|
 /// Render attributes to StringBuilder
@@ -260,38 +270,11 @@ fn[E] render_to_sb(sb : StringBuilder, node : @luna.Node[E]) -> Unit {
 ///|
 /// Render Island node with ln:* attributes for hydration
 fn[E] render_island_to(sb : StringBuilder, island : @luna.VIsland[E]) -> Unit {
-  // Start comment marker for preload detection (allows finding islands before DOM parsing)
-  // Format: <!--ln:island:ID url=URL state=STATE trigger=TRIGGER-->
-  sb.write_string("<!--ln:island:")
-  sb.write_string(island.id)
-  sb.write_string(" url=")
-  sb.write_string(island.url)
-  sb.write_string(" trigger=")
-  sb.write_string(@luna.trigger_to_string(island.trigger))
-  sb.write_string("-->")
-
-  // Wrapper div with ln:* attributes
-  sb.write_string("<div ln:id=\"")
-  sb.write_string(island.id)
-  sb.write_string("\" ln:url=\"")
-  sb.write_string(island.url)
-  sb.write_string("\" ln:state=\"")
-  // State needs attribute escaping (it's JSON)
-  escape_attr_to(sb, island.state)
-  sb.write_string("\" ln:trigger=\"")
-  sb.write_string(@luna.trigger_to_string(island.trigger))
-  sb.write_string("\">")
-
-  // Render children (may contain nested islands)
+  render_island_open_to(sb, island)
   for child in island.children {
     render_to_sb(sb, child)
   }
-  sb.write_string("</div>")
-
-  // End comment marker
-  sb.write_string("<!--/ln:island:")
-  sb.write_string(island.id)
-  sb.write_string("-->")
+  render_island_close_to(sb, island)
 }
 
 ///|
@@ -397,36 +380,11 @@ fn[E] render_island_with_id_to(
   island : @luna.VIsland[E],
   id_counter : Ref[Int],
 ) -> Unit {
-  // Start comment marker for preload detection
-  sb.write_string("<!--ln:island:")
-  sb.write_string(island.id)
-  sb.write_string(" url=")
-  sb.write_string(island.url)
-  sb.write_string(" trigger=")
-  sb.write_string(@luna.trigger_to_string(island.trigger))
-  sb.write_string("-->")
-
-  // Wrapper div with ln:* attributes
-  sb.write_string("<div ln:id=\"")
-  sb.write_string(island.id)
-  sb.write_string("\" ln:url=\"")
-  sb.write_string(island.url)
-  sb.write_string("\" ln:state=\"")
-  escape_attr_to(sb, island.state)
-  sb.write_string("\" ln:trigger=\"")
-  sb.write_string(@luna.trigger_to_string(island.trigger))
-  sb.write_string("\">")
-
-  // Render children with hydration markers
+  render_island_open_to(sb, island)
   for child in island.children {
     render_with_id_to(sb, child, id_counter)
   }
-  sb.write_string("</div>")
-
-  // End comment marker
-  sb.write_string("<!--/ln:island:")
-  sb.write_string(island.id)
-  sb.write_string("-->")
+  render_island_close_to(sb, island)
 }
 
 ///|
