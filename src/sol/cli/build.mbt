@@ -1,9 +1,9 @@
-///| luna build command - Build for production
+///| sol build command - Build for production
 
 ///|
 fn show_build_help() -> Unit {
   let help =
-    #|Usage: luna build [options]
+    #|Usage: sol build [options]
     #|
     #|Options:
     #|  --target <target>   Build target (js, wasm) (default: js)

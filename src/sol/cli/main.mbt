@@ -1,4 +1,4 @@
-///| Luna CLI - MoonBit Web Framework CLI
+///| Sol CLI - MoonBit SSR Framework CLI
 
 ///|
 extern "js" fn console_error(msg : String) -> Unit =
@@ -7,12 +7,12 @@ extern "js" fn console_error(msg : String) -> Unit =
 ///|
 fn show_help() -> Unit {
   let help =
-    #|Luna CLI - MoonBit Web Framework
+    #|Sol CLI - MoonBit SSR Framework
     #|
-    #|Usage: luna <command> [options]
+    #|Usage: sol <command> [options]
     #|
     #|Commands:
-    #|  new <name>     Create a new Luna project
+    #|  new <name>     Create a new Sol project
     #|  dev            Start development server
     #|  build          Build for production
     #|
@@ -24,7 +24,7 @@ fn show_help() -> Unit {
 
 ///|
 fn show_version() -> Unit {
-  println("luna 0.1.0")
+  println("sol 0.1.0")
 }
 
 ///|

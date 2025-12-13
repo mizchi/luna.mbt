@@ -1,15 +1,14 @@
-///| luna dev command - Start development server
+///| sol dev command - Start development server
 
 ///|
 fn show_dev_help() -> Unit {
-  println(
-    #|Usage: luna dev [options]
+  let help =
+    #|Usage: sol dev [options]
     #|
     #|Options:
     #|  -p, --port <port>   Port to listen on (default: 3000)
     #|  -h, --help          Show help
-    ,
-  )
+  println(help)
 }
 
 ///|
@@ -44,7 +43,7 @@ fn run_dev_command(args : Array[String]) -> Unit {
     )
     @process.exit(1)
   }
-  println(@colorette.cyan("Starting Luna development server..."))
+  println(@colorette.cyan("Starting Sol development server..."))
   // Step 1: Build MoonBit project
   println(@colorette.gray("Building MoonBit project..."))
   try {

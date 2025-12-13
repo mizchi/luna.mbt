@@ -33,7 +33,7 @@
       "alias": "colorette"
     }
   ],
-  "warn-list": "-27",
+  "warn-list": "-27-20",
   "link": {
     "js": {
       "format": "cjs"

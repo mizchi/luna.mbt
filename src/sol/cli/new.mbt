@@ -1,9 +1,9 @@
-///| luna new command - Create a new Luna project
+///| sol new command - Create a new Sol project
 
 ///|
 fn show_new_help() -> Unit {
   let help =
-    #|Usage: luna new <name> [options]
+    #|Usage: sol new <name> [options]
     #|
     #|Arguments:
     #|  <name>              Project name or path
@@ -66,7 +66,7 @@ fn run_new_command(args : Array[String]) -> Unit {
   }
   // Get package name from directory
   let package_name = @path.basename(project_dir)
-  println(@colorette.cyan("Creating new Luna project: \{project_dir}"))
+  println(@colorette.cyan("Creating new Sol project: \{project_dir}"))
   // Copy template with variable substitution (synchronous)
   copy_template_sync(template_dir, project_dir, package_name) catch {
     e => {
@@ -126,7 +126,7 @@ fn copy_template_sync(
   for entry in entries {
     let src_path = @path.join2(src, entry)
     // Remove .template extension if present
-    let dest_name = if entry.has_suffix(".template") {
+    let dest_name : String = if entry.has_suffix(".template") {
       let len = entry.length() - 9
       entry.substring(end=len)
     } else {
