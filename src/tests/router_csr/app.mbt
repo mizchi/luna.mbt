@@ -16,31 +16,35 @@ extern "js" fn js_setAttribute(
 ) -> Unit =
   #| (el, n, v) => el.setAttribute(n, v)
 
+///|
+extern "js" fn prevent_default_event(e : @js.Any) -> Unit =
+  #| (e) => e.preventDefault()
+
 // =============================================================================
 // Routes Definition
 // =============================================================================
 
 ///|
-fn get_routes() -> Array[@router.Route] {
+fn get_routes() -> Array[@router.Routes] {
   [
-    @router.Path(
-      "/csr-router",
-      [
-        @router.Page(path="/home", title="Home", meta=[]),
-        @router.Page(path="/about", title="About", meta=[]),
-        @router.Page(path="/contact", title="Contact", meta=[]),
-        @router.Path(
-          "/posts",
-          [
-            @router.Param("id", key="id", title="", meta=[]),
-            @router.Page(path="", title="Post Detail", meta=[]),
+    @router.Routes::Group(
+      segment="/csr-router",
+      children=[
+        @router.Routes::Page(path="/home", component="home", title="Home", meta=[]),
+        @router.Routes::Page(path="/about", component="about", title="About", meta=[]),
+        @router.Routes::Page(path="/contact", component="contact", title="Contact", meta=[]),
+        @router.Routes::Group(
+          segment="/posts",
+          children=[
+            @router.Routes::Param(
+              key="id",
+              children=[
+                @router.Routes::Page(path="", component="post", title="Post Detail", meta=[]),
+              ],
+            ),
           ],
-          title="",
-          meta=[],
         ),
       ],
-      title="",
-      meta=[],
     ),
   ]
 }
@@ -101,22 +105,24 @@ fn not_found_page() -> @dom.DomNode {
 
 ///|
 /// 現在のマッチに基づいてページをレンダリング
-fn render_page_for_match(router : @client.ClientRouter) -> @dom.DomNode {
+fn render_page_for_match(router : @client.BrowserRouter) -> @dom.DomNode {
   match router.get_match() {
     Some(m) => {
-      let path = m.props.path
-      if path == "/csr-router/home" {
+      let component = m.component()
+      if component == "home" {
         home_page()
-      } else if path == "/csr-router/about" {
+      } else if component == "about" {
         about_page()
-      } else if path == "/csr-router/contact" {
+      } else if component == "contact" {
         contact_page()
-      } else {
+      } else if component == "post" {
         // /csr-router/posts/:id の場合
-        match m.props.get_param("id") {
+        match m.get_param("id") {
           Some(id) => post_page(id)
           None => not_found_page()
         }
+      } else {
+        not_found_page()
       }
     }
     None => not_found_page()
@@ -125,15 +131,21 @@ fn render_page_for_match(router : @client.ClientRouter) -> @dom.DomNode {
 
 ///|
 fn nav_link(
-  router : @client.ClientRouter,
+  router : @client.BrowserRouter,
   href : String,
   label : String,
 ) -> @dom.DomNode {
-  let attrs = @client.link_attrs(href, router)
   @dom.create_element(
     "a",
     [
-      ..attrs,
+      ("href", @dom.AttrValue::Static(href)),
+      (
+        "onclick",
+        @dom.AttrValue::Handler(fn(e) {
+          prevent_default_event(e)
+          router.navigate(href)
+        }),
+      ),
       ("data-nav", @dom.AttrValue::Static(href)),
       ("style", @dom.AttrValue::Static("margin-right: 10px;")),
     ],
@@ -142,7 +154,7 @@ fn nav_link(
 }
 
 ///|
-fn router_app(router : @client.ClientRouter) -> @dom.DomNode {
+fn router_app(router : @client.BrowserRouter) -> @dom.DomNode {
   @dom.div(attrs=[("data-router-app", @dom.Attr::AttrString("true"))], [
     // Navigation
     @dom.create_element(
@@ -176,7 +188,7 @@ fn router_app(router : @client.ClientRouter) -> @dom.DomNode {
 /// Mount the router app to #app element
 pub fn mount_router_app() -> Unit {
   let routes = get_routes()
-  let router = @client.ClientRouter::new(routes)
+  let router = @client.BrowserRouter::new(routes)
   let app = router_app(router)
   let container = js_querySelector("#app")
   @dom.mount_to(container, app)

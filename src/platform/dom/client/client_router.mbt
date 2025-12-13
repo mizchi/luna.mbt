@@ -41,26 +41,32 @@ fn get_current_url() -> String {
 }
 
 // =============================================================================
-// SpaRouter - 新しいRoutes対応ルーター
+// BrowserRouter - シンプルなクライアントサイドルーター
 // =============================================================================
 
 ///|
-/// SPAルーター (新API)
-/// Routes enum を使用し、ServerComponent/Island区別に対応
-pub struct SpaRouter {
+/// ブラウザルーター
+/// History API と Signal を使ったSPAナビゲーション
+pub struct BrowserRouter {
   routes : Array[@router.CompiledRoutes]
+  base : String
   current_path : @signal.Signal[String]
   current_match : @signal.Signal[@router.RoutesMatch?]
 }
 
 ///|
-/// Routes定義から SpaRouter を作成
-pub fn SpaRouter::new(routes : Array[@router.Routes]) -> SpaRouter {
-  let compiled = @router.compile(routes)
+/// Routes定義から BrowserRouter を作成
+/// base~ : ベースパス（例: "/playground/browser_app"）
+pub fn BrowserRouter::new(
+  routes : Array[@router.Routes],
+  base~ : String = "",
+) -> BrowserRouter {
+  let compiled = @router.compile_with_base(routes, base)
   let initial_path = get_current_url()
   let initial_match = @router.match_url(initial_path, compiled)
-  let router : SpaRouter = {
+  let router : BrowserRouter = {
     routes: compiled,
+    base,
     current_path: @signal.signal(initial_path),
     current_match: @signal.signal(initial_match),
   }
@@ -69,22 +75,32 @@ pub fn SpaRouter::new(routes : Array[@router.Routes]) -> SpaRouter {
 }
 
 ///|
-/// コンパイル済みルートから SpaRouter を作成
-pub fn SpaRouter::from_compiled(routes : Array[@router.CompiledRoutes]) -> SpaRouter {
+/// コンパイル済みルートから BrowserRouter を作成
+pub fn BrowserRouter::from_compiled(
+  routes : Array[@router.CompiledRoutes],
+  base~ : String = "",
+) -> BrowserRouter {
   let initial_path = get_current_url()
   let initial_match = @router.match_url(initial_path, routes)
-  let router : SpaRouter = {
+  let router : BrowserRouter = {
     routes,
+    base,
     current_path: @signal.signal(initial_path),
     current_match: @signal.signal(initial_match),
   }
   add_popstate_listener(fn() { router.sync_from_url() })
   router
+}
+
+///|
+/// ベースパスを取得
+pub fn BrowserRouter::get_base(self : BrowserRouter) -> String {
+  self.base
 }
 
 ///|
 /// URLからSignal状態を同期
-fn SpaRouter::sync_from_url(self : SpaRouter) -> Unit {
+fn BrowserRouter::sync_from_url(self : BrowserRouter) -> Unit {
   let path = get_current_url()
   self.current_path.set(path)
   self.current_match.set(@router.match_url(path, self.routes))
@@ -92,198 +108,57 @@ fn SpaRouter::sync_from_url(self : SpaRouter) -> Unit {
 
 ///|
 /// 指定パスでSignal状態を更新
-fn SpaRouter::update_state(self : SpaRouter, path : String) -> Unit {
+fn BrowserRouter::update_state(self : BrowserRouter, path : String) -> Unit {
   self.current_path.set(path)
   self.current_match.set(@router.match_url(path, self.routes))
 }
 
 ///|
 /// プログラマティックナビゲーション（履歴に追加）
-pub fn SpaRouter::navigate(self : SpaRouter, path : String) -> Unit {
+pub fn BrowserRouter::navigate(self : BrowserRouter, path : String) -> Unit {
   push_state(path)
   self.update_state(path)
 }
 
 ///|
 /// 履歴を置換するナビゲーション（戻るボタンに残らない）
-pub fn SpaRouter::replace(self : SpaRouter, path : String) -> Unit {
+pub fn BrowserRouter::replace(self : BrowserRouter, path : String) -> Unit {
   replace_state(path)
   self.update_state(path)
 }
 
 ///|
 /// 現在のパスを取得
-pub fn SpaRouter::get_path(self : SpaRouter) -> String {
+pub fn BrowserRouter::get_path(self : BrowserRouter) -> String {
   self.current_path.get()
 }
 
 ///|
 /// 現在のマッチ結果を取得
-pub fn SpaRouter::get_match(self : SpaRouter) -> @router.RoutesMatch? {
+pub fn BrowserRouter::get_match(self : BrowserRouter) -> @router.RoutesMatch? {
   self.current_match.get()
 }
 
 ///|
 /// 現在のコンポーネントIDを取得
-pub fn SpaRouter::get_component(self : SpaRouter) -> String? {
+pub fn BrowserRouter::get_component(self : BrowserRouter) -> String? {
   self.current_match.get().map(fn(m) { m.component() })
 }
 
 ///|
 /// ナビゲーション関数を取得（コンポーネントに渡す用）
-pub fn SpaRouter::get_navigate(self : SpaRouter) -> (String) -> Unit {
+pub fn BrowserRouter::get_navigate(self : BrowserRouter) -> (String) -> Unit {
   fn(path) { self.navigate(path) }
 }
 
 ///|
 /// パスSignalを取得（リアクティブUI用）
-pub fn SpaRouter::path_signal(self : SpaRouter) -> @signal.Signal[String] {
+pub fn BrowserRouter::path_signal(self : BrowserRouter) -> @signal.Signal[String] {
   self.current_path
 }
 
 ///|
 /// マッチ結果Signalを取得（リアクティブUI用）
-pub fn SpaRouter::match_signal(self : SpaRouter) -> @signal.Signal[@router.RoutesMatch?] {
+pub fn BrowserRouter::match_signal(self : BrowserRouter) -> @signal.Signal[@router.RoutesMatch?] {
   self.current_match
-}
-
-// =============================================================================
-// ClientRouter - 旧API (後方互換性)
-// =============================================================================
-
-///|
-/// クライアントサイドルーター (旧API)
-/// History API と Signal を使った反応的なSPAナビゲーション
-pub struct ClientRouter {
-  routes : Array[@router.CompiledRoute]
-  current_path : @signal.Signal[String]
-  current_match : @signal.Signal[@router.MatchResult?]
-}
-
-///|
-/// 内部: ルーターを初期化してpopstateリスナーを登録
-fn init_router(routes : Array[@router.CompiledRoute]) -> ClientRouter {
-  let initial_path = get_current_url()
-  let initial_match = @router.match_route(initial_path, routes, true)
-  let router : ClientRouter = {
-    routes,
-    current_path: @signal.signal(initial_path),
-    current_match: @signal.signal(initial_match),
-  }
-  // popstate イベントをリッスン（ブラウザの戻る/進む）
-  add_popstate_listener(fn() { router.sync_from_url() })
-  router
-}
-
-///|
-/// Route定義から ClientRouter を作成
-pub fn ClientRouter::new(routes : Array[@router.Route]) -> ClientRouter {
-  init_router(@router.compile_routes(routes))
-}
-
-///|
-/// コンパイル済みルートから ClientRouter を作成
-pub fn ClientRouter::from_compiled(
-  routes : Array[@router.CompiledRoute],
-) -> ClientRouter {
-  init_router(routes)
-}
-
-///|
-/// URLからSignal状態を同期
-fn ClientRouter::sync_from_url(self : ClientRouter) -> Unit {
-  let path = get_current_url()
-  self.current_path.set(path)
-  self.current_match.set(@router.match_route(path, self.routes, true))
-}
-
-///|
-/// 指定パスでSignal状態を更新
-fn ClientRouter::update_state(self : ClientRouter, path : String) -> Unit {
-  self.current_path.set(path)
-  self.current_match.set(@router.match_route(path, self.routes, true))
-}
-
-///|
-/// プログラマティックナビゲーション（履歴に追加）
-pub fn ClientRouter::navigate(self : ClientRouter, path : String) -> Unit {
-  push_state(path)
-  self.update_state(path)
-}
-
-///|
-/// 履歴を置換するナビゲーション（戻るボタンに残らない）
-pub fn ClientRouter::replace(self : ClientRouter, path : String) -> Unit {
-  replace_state(path)
-  self.update_state(path)
-}
-
-// =============================================================================
-// Getters (ClientRouter)
-// =============================================================================
-
-///|
-/// 現在のパスを取得
-pub fn ClientRouter::get_path(self : ClientRouter) -> String {
-  self.current_path.get()
-}
-
-///|
-/// 現在のマッチ結果を取得
-pub fn ClientRouter::get_match(self : ClientRouter) -> @router.MatchResult? {
-  self.current_match.get()
-}
-
-///|
-/// 現在の RouterContext を取得
-pub fn ClientRouter::get_context(self : ClientRouter) -> @router.RouterContext? {
-  self.current_match.get().map(@router.RouterContext::from_match)
-}
-
-///|
-/// ナビゲーション関数を取得（コンポーネントに渡す用）
-pub fn ClientRouter::get_navigate(self : ClientRouter) -> (String) -> Unit {
-  fn(path) { self.navigate(path) }
-}
-
-///|
-/// パスSignalを取得（リアクティブUI用）
-pub fn ClientRouter::current_path_signal(
-  self : ClientRouter,
-) -> @signal.Signal[String] {
-  self.current_path
-}
-
-///|
-/// マッチ結果Signalを取得（リアクティブUI用）
-pub fn ClientRouter::current_match_signal(
-  self : ClientRouter,
-) -> @signal.Signal[@router.MatchResult?] {
-  self.current_match
-}
-
-// =============================================================================
-// Link Attributes
-// =============================================================================
-
-///|
-extern "js" fn prevent_default_event(e : @js.Any) -> Unit =
-  #| (e) => e.preventDefault()
-
-///|
-/// クライアントナビゲーション用リンク属性を生成
-pub fn link_attrs(
-  href : String,
-  router : ClientRouter,
-) -> Array[(String, @element.AttrValue)] {
-  [
-    ("href", @element.AttrValue::Static(href)),
-    (
-      "onclick",
-      @element.AttrValue::Handler(fn(e) {
-        prevent_default_event(e)
-        router.navigate(href)
-      }),
-    ),
-  ]
 }

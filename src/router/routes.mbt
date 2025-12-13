@@ -93,10 +93,49 @@ pub enum RoutesKind {
 } derive(Eq, Show)
 
 ///|
+/// パスを正規化（重複スラッシュ除去、末尾スラッシュ除去）
+fn normalize_path(path : String) -> String {
+  if path == "" || path == "/" {
+    return "/"
+  }
+  let chars = path.to_array()
+  let result : Array[Char] = []
+  let mut prev_slash = false
+  for c in chars {
+    if c == '/' {
+      if not(prev_slash) {
+        result.push(c)
+      }
+      prev_slash = true
+    } else {
+      result.push(c)
+      prev_slash = false
+    }
+  }
+  // 末尾スラッシュを除去（ルート以外）
+  let len = result.length()
+  if len > 1 && result[len - 1] == '/' {
+    let _ = result.pop()
+  }
+  String::from_array(result)
+}
+
+///|
 /// Routes を CompiledRoutes にコンパイル
 pub fn compile(routes : Array[Routes]) -> Array[CompiledRoutes] {
   let result : Array[CompiledRoutes] = []
   compile_inner(routes, "", [], [], result)
+  result
+}
+
+///|
+/// Routes を CompiledRoutes にコンパイル（ベースパス指定）
+pub fn compile_with_base(
+  routes : Array[Routes],
+  base : String,
+) -> Array[CompiledRoutes] {
+  let result : Array[CompiledRoutes] = []
+  compile_inner(routes, base, [], [], result)
   result
 }
 
@@ -301,12 +340,6 @@ fn starts_with_char(s : String, c : Char) -> Bool {
 ///|
 fn split_path_segments(path : String) -> Array[String] {
   split_by(path, '/').filter(fn(s) { s != "" })
-}
-
-///|
-/// RoutesMatch から RouteProps を取得
-pub fn RoutesMatch::to_props(self : RoutesMatch, is_client : Bool) -> RouteProps {
-  { is_client, params: self.params, query: self.query, path: self.path }
 }
 
 ///|

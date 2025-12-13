@@ -1,6 +1,6 @@
-///| Router App Example
+///| Browser App Example
 ///|
-///| SpaRouter を使った新しいルーティングシステムのデモ
+///| BrowserRouter を使った新しいルーティングシステムのデモ
 ///| - Routes enum によるルート定義
 ///| - component ID ベースのコンポーネント解決
 ///| - Layout によるネストしたレイアウト
@@ -20,69 +20,54 @@ fn console_log(msg : String) -> Unit {
 
 ///|
 /// ルート定義
-/// ベースパス /router-app を使用（E2Eテスト環境対応）
+/// ベースパスは BrowserRouter::new の base~ パラメータで指定
 fn create_routes() -> Array[@router.Routes] {
   [
-    @router.Routes::Group(
-      segment="/router-app",
+    // ホームページ
+    @router.Routes::Page(path="", component="home", title="Home", meta=[]),
+    // About ページ
+    @router.Routes::Page(path="/about", component="about", title="About", meta=[]),
+    // ユーザー関連ページ (レイアウト付き)
+    @router.Routes::Layout(
+      segment="/users",
+      layout="users_layout",
       children=[
-        // ホームページ (ServerComponent)
+        // ユーザー一覧
         @router.Routes::Page(
           path="",
-          component="home",
-          title="Home",
+          component="users_list",
+          title="Users",
           meta=[],
         ),
-        // About ページ (ServerComponent)
+        // ユーザー詳細 (動的パラメータ)
+        @router.Routes::Param(
+          key="id",
+          children=[
+            @router.Routes::Page(
+              path="",
+              component="user_detail",
+              title="User Detail",
+              meta=[],
+            ),
+          ],
+        ),
+      ],
+    ),
+    // 設定ページ (グループ)
+    @router.Routes::Group(
+      segment="/settings",
+      children=[
         @router.Routes::Page(
-          path="/about",
-          component="about",
-          title="About",
+          path="",
+          component="settings_index",
+          title="Settings",
           meta=[],
         ),
-        // ユーザー関連ページ (レイアウト付き)
-        @router.Routes::Layout(
-          segment="/users",
-          layout="users_layout",
-          children=[
-            // ユーザー一覧
-            @router.Routes::Page(
-              path="",
-              component="users_list",
-              title="Users",
-              meta=[],
-            ),
-            // ユーザー詳細 (動的パラメータ)
-            @router.Routes::Param(
-              key="id",
-              children=[
-                @router.Routes::Page(
-                  path="",
-                  component="user_detail",
-                  title="User Detail",
-                  meta=[],
-                ),
-              ],
-            ),
-          ],
-        ),
-        // 設定ページ (グループ、レイアウトなし)
-        @router.Routes::Group(
-          segment="/settings",
-          children=[
-            @router.Routes::Page(
-              path="",
-              component="settings_index",
-              title="Settings",
-              meta=[],
-            ),
-            @router.Routes::Page(
-              path="/profile",
-              component="settings_profile",
-              title="Profile Settings",
-              meta=[],
-            ),
-          ],
+        @router.Routes::Page(
+          path="/profile",
+          component="settings_profile",
+          title="Profile Settings",
+          meta=[],
         ),
       ],
     ),
@@ -95,7 +80,8 @@ fn create_routes() -> Array[@router.Routes] {
 
 ///|
 /// ナビゲーションコンポーネント
-fn nav_component(router : @client.SpaRouter) -> @dom.DomNode {
+fn nav_component(router : @client.BrowserRouter) -> @dom.DomNode {
+  let base = router.get_base()
   fn nav_link(href : String, label : String) -> @dom.DomNode {
     @dom.a(
       href=href,
@@ -111,16 +97,16 @@ fn nav_component(router : @client.SpaRouter) -> @dom.DomNode {
     style="background: #333; padding: 10px;",
     [
       @dom.span(style="color: white; margin-right: 20px;", [
-        nav_link("/router-app", "Home"),
+        nav_link(base, "Home"),
       ]),
       @dom.span(style="color: white; margin-right: 20px;", [
-        nav_link("/router-app/about", "About"),
+        nav_link(base + "/about", "About"),
       ]),
       @dom.span(style="color: white; margin-right: 20px;", [
-        nav_link("/router-app/users", "Users"),
+        nav_link(base + "/users", "Users"),
       ]),
       @dom.span(style="color: white; margin-right: 20px;", [
-        nav_link("/router-app/settings", "Settings"),
+        nav_link(base + "/settings", "Settings"),
       ]),
     ],
   )
@@ -174,12 +160,12 @@ fn counter_component() -> @dom.DomNode {
 
 ///|
 /// ホームページ
-fn home_component(router : @client.SpaRouter) -> @dom.DomNode {
+fn home_component(router : @client.BrowserRouter) -> @dom.DomNode {
   @dom.div(
     class="page home",
     attrs=[("data-page", @dom.AttrString("home"))],
     [
-      @dom.h1([@dom.text("Welcome to Router App")]),
+      @dom.h1([@dom.text("Welcome to Browser App")]),
       @dom.p([@dom.text("This is an example of the new Routes-based routing system.")]),
       // カウンターを追加（動的要素のテスト）
       counter_component(),
@@ -205,7 +191,7 @@ fn home_component(router : @client.SpaRouter) -> @dom.DomNode {
 
 ///|
 /// About ページ
-fn about_component(_router : @client.SpaRouter) -> @dom.DomNode {
+fn about_component(_router : @client.BrowserRouter) -> @dom.DomNode {
   @dom.div(
     class="page about",
     attrs=[("data-page", @dom.AttrString("about"))],
@@ -224,9 +210,10 @@ fn about_component(_router : @client.SpaRouter) -> @dom.DomNode {
 ///|
 /// ユーザーレイアウト
 fn users_layout_component(
-  router : @client.SpaRouter,
+  router : @client.BrowserRouter,
   children : @dom.DomNode,
 ) -> @dom.DomNode {
+  let base = router.get_base()
   @dom.div(
     class="users-layout",
     style="border: 2px solid #007bff; padding: 15px; margin: 10px 0;",
@@ -243,21 +230,21 @@ fn users_layout_component(
       @dom.div(style="margin-bottom: 10px;", [
         @dom.button(
           style="margin-right: 10px;",
-          on=@dom.on(click=Some(fn(_) { router.navigate("/router-app/users") })),
+          on=@dom.on(click=Some(fn(_) { router.navigate(base + "/users") })),
           [@dom.text("User List")],
         ),
         @dom.button(
           style="margin-right: 10px;",
-          on=@dom.on(click=Some(fn(_) { router.navigate("/router-app/users/1") })),
+          on=@dom.on(click=Some(fn(_) { router.navigate(base + "/users/1") })),
           [@dom.text("User 1")],
         ),
         @dom.button(
           style="margin-right: 10px;",
-          on=@dom.on(click=Some(fn(_) { router.navigate("/router-app/users/2") })),
+          on=@dom.on(click=Some(fn(_) { router.navigate(base + "/users/2") })),
           [@dom.text("User 2")],
         ),
         @dom.button(
-          on=@dom.on(click=Some(fn(_) { router.navigate("/router-app/users/3") })),
+          on=@dom.on(click=Some(fn(_) { router.navigate(base + "/users/3") })),
           [@dom.text("User 3")],
         ),
       ]),
@@ -268,7 +255,7 @@ fn users_layout_component(
 
 ///|
 /// ユーザー一覧
-fn users_list_component(_router : @client.SpaRouter) -> @dom.DomNode {
+fn users_list_component(_router : @client.BrowserRouter) -> @dom.DomNode {
   @dom.div(class="users-list", [
     @dom.h3([@dom.text("User List")]),
     @dom.ul([
@@ -282,7 +269,7 @@ fn users_list_component(_router : @client.SpaRouter) -> @dom.DomNode {
 ///|
 /// ユーザー詳細
 fn user_detail_component(
-  _router : @client.SpaRouter,
+  _router : @client.BrowserRouter,
   m : @router.RoutesMatch,
 ) -> @dom.DomNode {
   let user_id = m.get_param("id").unwrap_or("unknown")
@@ -305,16 +292,18 @@ fn user_detail_component(
 
 ///|
 /// 設定インデックス
-fn settings_index_component(router : @client.SpaRouter) -> @dom.DomNode {
+fn settings_index_component(router : @client.BrowserRouter) -> @dom.DomNode {
+  let base = router.get_base()
+  let profile_path = base + "/settings/profile"
   @dom.div(class="settings-index", [
     @dom.h1([@dom.text("Settings")]),
     @dom.ul([
       @dom.li([
         @dom.a(
-          href="/router-app/settings/profile",
+          href=profile_path,
           on=@dom.on(click=Some(fn(e) {
             e.preventDefault()
-            router.navigate("/router-app/settings/profile")
+            router.navigate(profile_path)
           })),
           [@dom.text("Profile Settings")],
         ),
@@ -325,11 +314,12 @@ fn settings_index_component(router : @client.SpaRouter) -> @dom.DomNode {
 
 ///|
 /// プロファイル設定
-fn settings_profile_component(router : @client.SpaRouter) -> @dom.DomNode {
+fn settings_profile_component(router : @client.BrowserRouter) -> @dom.DomNode {
+  let base = router.get_base()
   @dom.div(class="settings-profile", [
     @dom.h1([@dom.text("Profile Settings")]),
     @dom.p([@dom.text("Edit your profile here.")]),
-    @dom.button(on=@dom.on(click=Some(fn(_) { router.navigate("/router-app/settings") })), [
+    @dom.button(on=@dom.on(click=Some(fn(_) { router.navigate(base + "/settings") })), [
       @dom.text("Back to Settings"),
     ]),
   ])
@@ -337,14 +327,15 @@ fn settings_profile_component(router : @client.SpaRouter) -> @dom.DomNode {
 
 ///|
 /// 404 ページ
-fn not_found_component(router : @client.SpaRouter) -> @dom.DomNode {
+fn not_found_component(router : @client.BrowserRouter) -> @dom.DomNode {
+  let base = router.get_base()
   @dom.div(class="not-found", [
     @dom.h1([@dom.text("404 - Not Found")]),
     @dom.p([
       @dom.text("Page not found: "),
       @dom.text_dyn(fn() { router.get_path() }),
     ]),
-    @dom.button(on=@dom.on(click=Some(fn(_) { router.navigate("/router-app") })), [
+    @dom.button(on=@dom.on(click=Some(fn(_) { router.navigate(base) })), [
       @dom.text("Go Home"),
     ]),
   ])
@@ -357,7 +348,7 @@ fn not_found_component(router : @client.SpaRouter) -> @dom.DomNode {
 ///|
 /// コンポーネントIDからコンポーネントを解決
 fn resolve_component(
-  router : @client.SpaRouter,
+  router : @client.BrowserRouter,
   m : @router.RoutesMatch,
 ) -> @dom.DomNode {
   let component_id = m.component()
@@ -397,7 +388,7 @@ fn resolve_component(
 
 ///|
 /// ルートをレンダリング
-fn render_route(router : @client.SpaRouter, container : @dom.DomElement) -> Unit {
+fn render_route(router : @client.BrowserRouter, container : @dom.DomElement) -> Unit {
   let _ = @signal.effect(fn() {
     // Track only the match_signal for re-rendering
     let match_result = router.match_signal().get()
@@ -436,20 +427,23 @@ fn render_route(router : @client.SpaRouter, container : @dom.DomElement) -> Unit
 // =============================================================================
 
 fn main {
-  console_log("Router App Starting...")
+  console_log("Browser App Starting...")
 
   let doc = @js_dom.document()
   let container = doc.getElementById("app")
   match container {
     Some(el) => {
-      // ルーターを作成
+      // ルーターを作成（ベースパスを指定）
+      let base = "/playground/browser_app"
       let routes = create_routes()
+      let router = @client.BrowserRouter::new(routes, base=base)
+
       // Debug: log compiled routes
-      let compiled = @router.compile(routes)
-      for route in compiled {
-        console_log("Compiled route: pattern=" + route.pattern + ", component=" + route.component)
+      for route in router.routes {
+        console_log(
+          "Compiled route: pattern=" + route.pattern + ", component=" + route.component,
+        )
       }
-      let router = @client.SpaRouter::new(routes)
       console_log("Router created with path: " + router.get_path())
 
       // レンダリング開始

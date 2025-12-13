@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Router App Example</title>
+  <title>Browser App Example</title>
   <style>
     * {
       box-sizing: border-box;
@@ -45,14 +45,9 @@
       line-height: 1.8;
     }
   </style>
+  <script type="module" src="../../target/js/release/build/examples/browser_app/browser_app.js"></script>
 </head>
 <body>
   <div id="app">Loading...</div>
-  <script type="module">
-    // MoonBit build output
-    // Run: moon build --target js
-    // Then serve from project root: npx serve .
-    import '../../../target/js/release/build/examples/router_app/router_app.js';
-  </script>
 </body>
 </html>

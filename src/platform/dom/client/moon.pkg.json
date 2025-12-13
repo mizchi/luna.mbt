@@ -41,8 +41,7 @@
         "render_vnode:renderVnode",
         "bind_actions_from_dom:bindActionsFromDom",
         "hydrate_with_actions:hydrateWithActions",
-        "ClientRouter",
-        "link_attrs:linkAttrs"
+        "BrowserRouter"
       ],
       "format": "esm"
     }

@@ -112,16 +112,16 @@ const spaModulePath = join(
   "spa.js"
 );
 
-// Import MoonBit router_app example module path
-const routerAppModulePath = join(
+// Import MoonBit browser_app example module path
+const browserAppModulePath = join(
   rootDir,
   "target",
   "js",
   "release",
   "build",
   "examples",
-  "router_app",
-  "router_app.js"
+  "browser_app",
+  "browser_app.js"
 );
 
 // Promisify MoonBit async callback
@@ -497,14 +497,14 @@ app.get("/spa/main.js", (c) => {
   return c.body(code, 200, { "Content-Type": "application/javascript" });
 });
 
-// Router App Example routes
-// Serve the router_app example HTML page that loads the MoonBit router_app module
-const routerAppHtml = `<!DOCTYPE html>
+// Browser App Example routes
+// Serve the browser_app example HTML page that loads the MoonBit browser_app module
+const browserAppHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Router App Example</title>
+  <title>Browser App Example</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; padding: 0; background: #f5f5f5; }
@@ -520,19 +520,19 @@ const routerAppHtml = `<!DOCTYPE html>
 <body>
   <div id="app">Loading...</div>
   <script type="module">
-    import '/router-app/main.js';
+    import '/playground/browser_app/main.js';
   </script>
 </body>
 </html>`;
 
-// Serve router-app routes
+// Serve browser-app routes
 // Note: Order matters - static files first, then wildcard SPA route
-app.get("/router-app/main.js", (c) => {
-  const code = readFileSync(routerAppModulePath, "utf-8");
+app.get("/playground/browser_app/main.js", (c) => {
+  const code = readFileSync(browserAppModulePath, "utf-8");
   return c.body(code, 200, { "Content-Type": "application/javascript" });
 });
-app.get("/router-app", (c) => c.html(routerAppHtml));
-app.get("/router-app/*", (c) => c.html(routerAppHtml));
+app.get("/playground/browser_app", (c) => c.html(browserAppHtml));
+app.get("/playground/browser_app/*", (c) => c.html(browserAppHtml));
 
 // Chunked Counter routes (for ESM import architecture tests)
 // Serve static files from chunked counter static directory
