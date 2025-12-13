@@ -77,7 +77,6 @@ describe("Sol CLI", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Usage: sol new");
     expect(result.stdout).toContain("<name>");
-    expect(result.stdout).toContain("--template");
   });
 
   test("dev --help shows dev command help", () => {
@@ -116,13 +115,23 @@ describe("Sol CLI - new command", () => {
     }
   });
 
-  test("fails with template not found for default template", () => {
+  test("creates new project with embedded templates", () => {
     const projectName = "my-app";
     const result = runCli(["new", projectName], tempDir);
 
-    // Expected: fails because templates directory doesn't exist yet
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain("Template");
+    // Should succeed with embedded templates
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Project created successfully");
+
+    // Verify generated files
+    const projectPath = join(tempDir, projectName);
+    expect(existsSync(join(projectPath, "moon.mod.json"))).toBe(true);
+    expect(existsSync(join(projectPath, "package.json"))).toBe(true);
+    expect(existsSync(join(projectPath, ".gitignore"))).toBe(true);
+    expect(existsSync(join(projectPath, "rolldown.config.mjs"))).toBe(true);
+    expect(existsSync(join(projectPath, "src/client/hydrate.mbt"))).toBe(true);
+    expect(existsSync(join(projectPath, "src/server/run/main.mbt"))).toBe(true);
+    expect(existsSync(join(projectPath, "static/ln-loader-v1.js"))).toBe(true);
   });
 
   test("fails if directory already exists", () => {
