@@ -15,11 +15,9 @@ fn show_dev_help() -> Unit {
 fn run_dev_command(args : Array[String]) -> Unit {
   // Parse dev command options
   let result = @util.parseArgs(
-    args=args,
+    args~,
     options=[
-      @util.String(
-        key="port", short="p", multiple=false, default=Some("3000"),
-      ),
+      @util.String(key="port", short="p", multiple=false, default=Some("3000")),
       @util.Boolean(key="help", short="h"),
     ],
     allow_positionals=false,
@@ -48,7 +46,9 @@ fn run_dev_command(args : Array[String]) -> Unit {
   println(@colorette.gray("Building MoonBit project..."))
   try {
     let build_result = @child_process.spawnSync(
-      "moon", args=["build", "--target", "js"], stdio="inherit",
+      "moon",
+      args=["build", "--target", "js"],
+      stdio="inherit",
     )
     if build_result.status() != Some(0) {
       console_error(@colorette.red("Build failed"))
@@ -63,8 +63,7 @@ fn run_dev_command(args : Array[String]) -> Unit {
   println(@colorette.green("✓ Build complete"))
   // Step 2: Find and run the server entry point
   let possible_entries = [
-    "target/js/release/build/server/run/run.js",
-    "target/js/release/build/examples/example_app/example_app.js",
+    "target/js/release/build/server/run/run.js", "target/js/release/build/examples/example_app/example_app.js",
     "target/js/release/build/main/main.js",
   ]
   let mut entry_point : String? = None
@@ -87,24 +86,22 @@ fn run_dev_command(args : Array[String]) -> Unit {
     Some(entry) => {
       println(@colorette.cyan("Running \{entry}..."))
       // Run the server with inherited stdio
-      let server = @child_process.spawn("node", args=[entry], cwd=cwd)
+      let server = @child_process.spawn("node", args=[entry], cwd~)
       // Set PORT environment variable
       set_env("PORT", port)
       // Handle server exit
-      server.to_event_emitter().on(
-        "exit",
-        fn(code : @js.Any) {
-          let exit_code : Int = code.cast()
-          @process.exit(exit_code)
-        },
-      )
-      server.to_event_emitter().on(
-        "error",
-        fn(err : @js.Any) {
-          console_error(@colorette.red("Server error: " + err.to_string()))
-          @process.exit(1)
-        },
-      )
+      server
+      .to_event_emitter()
+      .on("exit", fn(code : @js.Any) {
+        let exit_code : Int = code.cast()
+        @process.exit(exit_code)
+      })
+      server
+      .to_event_emitter()
+      .on("error", fn(err : @js.Any) {
+        console_error(@colorette.red("Server error: " + err.to_string()))
+        @process.exit(1)
+      })
     }
   }
 }

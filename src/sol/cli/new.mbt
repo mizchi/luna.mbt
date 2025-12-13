@@ -107,11 +107,11 @@ fn run_new_command(args : Array[String]) -> Unit {
 /// Get templates directory path
 /// This needs to be adjusted based on how the CLI is installed
 fn get_templates_dir() -> String {
-  // For development, templates are in packages/cli/templates
+  // For development, templates are in src/sol/cli/templates
   // This path needs to be determined at runtime based on the script location
   // For now, we use process.cwd() as a fallback
   let cwd = @process.cwd()
-  @path.join2(cwd, "packages/cli/templates")
+  @path.join2(cwd, "src/sol/cli/templates")
 }
 
 ///|
