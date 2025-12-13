@@ -6,6 +6,7 @@
     { "path": "mizchi/luna/core", "alias": "luna" },
     "mizchi/luna/core/signal",
     { "path": "mizchi/luna/platform/dom/client", "alias": "client" },
+    { "path": "mizchi/luna/platform/dom/element", "alias": "element" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" }
   ],
@@ -34,7 +35,8 @@
         "get_owner:getOwner",
         "run_with_owner:runWithOwner",
         "has_owner:hasOwner",
-        "on_mount:onMount"
+        "on_mount:onMount",
+        "for_each:forEach"
       ],
       "format": "esm"
     }

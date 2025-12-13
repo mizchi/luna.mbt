@@ -145,3 +145,17 @@ pub fn has_owner() -> Bool {
 pub fn on_mount(fn_ : () -> Unit) -> Unit {
   @signal.on_mount(fn_)
 }
+
+// ============================================================================
+// DOM utilities (type-erased wrappers for JS)
+// ============================================================================
+
+///|
+/// List rendering with reference-based DOM reuse (Solid-style)
+/// Type-erased wrapper for @element.for_each
+pub fn for_each(
+  items : () -> Array[Any],
+  render_item : (Any, Int) -> @element.DomNode,
+) -> @element.DomNode {
+  @element.for_each(items, render_item)
+}

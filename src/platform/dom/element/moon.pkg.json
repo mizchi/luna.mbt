@@ -40,7 +40,6 @@
         "render_to:render",
         "mount_to:mount",
         "show",
-        "for_each:forEach",
         "events",
         "create_element:createElement",
         "attr_static:attrStatic",
