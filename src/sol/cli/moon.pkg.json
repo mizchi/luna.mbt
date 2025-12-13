@@ -1,0 +1,42 @@
+{
+  "is-main": true,
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    {
+      "path": "mizchi/js/core",
+      "alias": "js"
+    },
+    {
+      "path": "mizchi/js/node/process",
+      "alias": "process"
+    },
+    {
+      "path": "mizchi/js/node/fs",
+      "alias": "fs"
+    },
+    {
+      "path": "mizchi/js/node/path",
+      "alias": "path"
+    },
+    {
+      "path": "mizchi/js/node/child_process",
+      "alias": "child_process"
+    },
+    {
+      "path": "mizchi/js/node/util",
+      "alias": "util"
+    },
+    {
+      "path": "mizchi/npm_typed/colorette",
+      "alias": "colorette"
+    }
+  ],
+  "warn-list": "-27",
+  "link": {
+    "js": {
+      "format": "cjs"
+    }
+  }
+}
