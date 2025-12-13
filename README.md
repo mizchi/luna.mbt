@@ -1,4 +1,8 @@
-# MoonBit UI Library
+# Luna
+
+> **⚠️ Warning: This is a Proof of Concept (PoC)**
+>
+> This project is experimental and under active development. APIs may change without notice. Not recommended for production use.
 
 A reactive UI library for MoonBit with Fine-Grained Reactivity inspired by [Solid.js](https://www.solidjs.com/).
 
@@ -7,7 +11,7 @@ A reactive UI library for MoonBit with Fine-Grained Reactivity inspired by [Soli
 - **Fine-Grained Reactivity** - Signal-based reactive primitives (`Signal`, `effect`, `memo`) with automatic dependency tracking
 - **SSR (Server-Side Rendering)** - Render to HTML string
 - **Hydration** - Restore interactivity on SSR-rendered content
-- **JSX/TSX Support** - Use familiar JSX syntax via `@mizchi/ui` npm package
+- **JSX/TSX Support** - Use familiar JSX syntax via `@mizchi/luna` npm package
 - **Multi-target Support** - Core signals work on js, native, wasm, wasm-gc
 
 ## Installation
@@ -18,7 +22,7 @@ A reactive UI library for MoonBit with Fine-Grained Reactivity inspired by [Soli
 // moon.mod.json
 {
   "deps": {
-    "mizchi/ui": "0.1.0"
+    "mizchi/luna": "0.1.0"
   }
 }
 ```
@@ -26,107 +30,132 @@ A reactive UI library for MoonBit with Fine-Grained Reactivity inspired by [Soli
 ### npm (for JSX/TSX)
 
 ```bash
-npm install @mizchi/ui
+npm install @mizchi/luna
 ```
 
 ## Target Support
 
 | Package | js | native | wasm | wasm-gc |
 |---------|:--:|:------:|:----:|:-------:|
-| `mizchi/ui` (core) | ✅ | ✅ | ✅ | ✅ |
-| `mizchi/ui/ssr` | ✅ | ✅ | ✅ | ✅ |
-| `mizchi/ui/dom` | ✅ | - | - | - |
+| `mizchi/luna` (core) | ✅ | ✅ | ✅ | ✅ |
+| `mizchi/luna/ssr` | ✅ | ✅ | ✅ | ✅ |
+| `mizchi/luna/dom` | ✅ | - | - | - |
 
-- **Core (`mizchi/ui`)**: Signals, VNode, reactive primitives - works on all targets
-- **SSR (`mizchi/ui/ssr`)**: Server-side rendering - works on all targets
-- **DOM (`mizchi/ui/dom`)**: Browser DOM rendering and hydration - JavaScript only
+- **Core (`mizchi/luna`)**: Signals, VNode, reactive primitives - works on all targets
+- **SSR (`mizchi/luna/ssr`)**: Server-side rendering - works on all targets
+- **DOM (`mizchi/luna/dom`)**: Browser DOM rendering and hydration - JavaScript only
 
 ## Usage
 
-### MoonBit - Signals
+### Signals - Reactive Primitives
 
 ```moonbit
 // Create a signal
-let count = @ui.signal(0)
+let count = @signal.signal(0)
+
+// Create a computed value (memo)
+let doubled = @signal.memo(fn() { count.get() * 2 })
 
 // Create an effect that auto-tracks dependencies
-let _ = @ui.effect(fn() {
+let _ = @signal.effect(fn() {
   println("Count: " + count.get().to_string())
+  @signal.on_cleanup(fn() { println("Cleaning up") })
 })
 
 // Update triggers the effect
-count.set(1)  // prints: Count: 1
+count.set(1)       // prints: Count: 1
+count.update(fn(n) { n + 1 })  // prints: Count: 2
 ```
 
-### MoonBit - VNode and SSR
+### DOM Rendering (JavaScript target)
 
 ```moonbit
-// Build virtual DOM
-let vnode = @ui.vdiv(
-  [@ui.vclass("container")],
-  [
-    @ui.vh1([], [@ui.vtext("Hello")]),
-    @ui.vp([], [@ui.vtext_dyn(fn() { count.get().to_string() })]),
-  ]
-)
+fn counter_component() -> @dom.DomNode {
+  let count = @signal.signal(0)
+  let doubled = @signal.memo(fn() { count.get() * 2 })
 
-// Render to HTML string
-let html = @ssr.render_to_string(vnode)
-
-// Render with hydration markers
-let html_with_markers = @ssr.render_to_string_with_hydration(vnode)
-```
-
-### MoonBit - DOM Rendering
-
-```moonbit
-// Render to DOM (JavaScript target only)
-let container = @js_dom.document().getElementById("app")
-match container {
-  Some(el) => @dom.render_vnode(el, vnode)
-  None => ()
+  @dom.div(class="counter", [
+    @dom.h2([@dom.text("Counter")]),
+    // Dynamic text updates automatically
+    @dom.p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
+    @dom.p([@dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
+    @dom.div(class="buttons", [
+      @dom.button(
+        on=@dom.on(click=Some(fn(_) { count.update(fn(n) { n - 1 }) })),
+        [@dom.text("-")],
+      ),
+      @dom.button(
+        on=@dom.on(click=Some(fn(_) { count.update(fn(n) { n + 1 }) })),
+        [@dom.text("+")],
+      ),
+      @dom.button(
+        on=@dom.on(click=Some(fn(_) { count.set(0) })),
+        [@dom.text("Reset")],
+      ),
+    ]),
+  ])
 }
 
-// Or hydrate SSR content
-match container {
-  Some(el) => {
-    let result = @dom.hydrate(el, vnode)
-    // Handle result...
-  }
-  None => ()
-}
-```
-
-### TypeScript/JSX
-
-```tsx
-// tsconfig.json
-{
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "@mizchi/ui"
+fn main {
+  let doc = @js_dom.document()
+  match doc.getElementById("app") {
+    Some(el) => {
+      let app = counter_component()
+      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+    }
+    None => ()
   }
 }
 ```
 
-```tsx
-import { createSignal, get, set } from "@mizchi/ui";
-import { render } from "@mizchi/ui/dom";
+### Conditional Rendering
 
-function Counter() {
-  const count = createSignal(0);
-  return (
-    <div>
-      <p>Count: {() => get(count)}</p>
-      <button onClick={() => set(count, get(count) + 1)}>
-        Increment
-      </button>
-    </div>
-  );
+```moonbit
+fn conditional_example() -> @dom.DomNode {
+  let show = @signal.signal(true)
+
+  @dom.div([
+    @dom.button(
+      on=@dom.on(click=Some(fn(_) { show.update(fn(b) { not(b) }) })),
+      [@dom.text_dyn(fn() { if show.get() { "Hide" } else { "Show" } })],
+    ),
+    @dom.show(fn() { show.get() }, fn() {
+      @dom.div([@dom.text("Conditionally rendered content")])
+    }),
+  ])
 }
+```
 
-const container = document.getElementById("app")!;
-render(container, <Counter />);
+### List Rendering
+
+```moonbit
+fn list_example() -> @dom.DomNode {
+  let items : @signal.Signal[Array[String]] = @signal.signal(["A", "B", "C"])
+
+  @dom.ul([
+    @dom.for_each(fn() { items.get() }, fn(item, index) {
+      @dom.li([@dom.text(item)])
+    }),
+  ])
+}
+```
+
+### Dynamic Attributes
+
+```moonbit
+fn style_example() -> @dom.DomNode {
+  let size = @signal.signal(100)
+
+  @dom.create_element(
+    "div",
+    [
+      ("style", @dom.attr_dynamic(fn() {
+        "width: " + size.get().to_string() + "px; height: " + size.get().to_string() + "px;"
+      })),
+    ],
+    [],
+  )
+}
 ```
 
 ## Development
@@ -155,17 +184,18 @@ just fmt
 
 ```
 src/
-├── *.mbt           # Core: Signal, effect, memo (all targets)
-├── ssr/            # SSR rendering (all targets)
-├── dom/            # DOM rendering & hydration (js only)
-├── js_api/         # JavaScript API exports
-└── examples/       # Example code
+├── core/
+│   └── signal/        # Reactive primitives (all targets)
+├── platform/
+│   └── dom/           # DOM rendering & hydration (js only)
+├── renderer/          # HTML string rendering (SSR)
+├── router/            # Client-side routing
+└── examples/          # Example applications
 
-packages/ui/        # npm package (@mizchi/ui)
-├── index.js        # Core exports
-├── dom.js          # DOM rendering
-├── jsx-runtime.js  # JSX runtime
-└── *.d.ts          # TypeScript definitions
+packages/
+├── luna/              # npm package (@mizchi/luna)
+├── loader/            # Island hydration loader
+└── cli/               # CLI tools
 ```
 
 ## License

@@ -1,6 +1,6 @@
 {
   "name": "mizchi/luna",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "deps": {
     "moonbitlang/async": "0.14.2",
     "mizchi/js": "0.10.0",
@@ -19,7 +19,7 @@
     "hydration",
     "signals"
   ],
-  "description": "MoonBit Island Architecture UI Framework",
+  "description": "Experimental MoonBit Island Architecture UI Framework",
   "source": "src",
   "warn-list": "-29-53",
   "preferred-target": "js"
