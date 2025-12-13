@@ -9,3 +9,4 @@ dist
 *.generated.mbti
 *.0x
 test-results/
+wrangler.json

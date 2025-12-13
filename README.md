@@ -4,7 +4,11 @@
 >
 > This project is experimental and under active development. APIs may change without notice. Not recommended for production use.
 
-A reactive UI library for MoonBit with Fine-Grained Reactivity inspired by [Solid.js](https://www.solidjs.com/).
+A reactive UI library written in [MoonBit](https://www.moonbitlang.com/) with Fine-Grained Reactivity inspired by [Solid.js](https://www.solidjs.com/) and [Qwik](https://qwik.dev/).
+
+- **Client-side**: Compiles to JavaScript for browser DOM rendering and hydration
+- **Server-side**: Runs on native backend for high-performance SSR
+- **JavaScript API**: Use from JavaScript/TypeScript via `@mizchi/luna` npm package
 
 ## Features
 

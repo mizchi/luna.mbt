@@ -3,14 +3,9 @@
 - [ ] CI 棚卸し
 - [x] src/server_dom
 - [x] ref 対応
-- [ ] ServerComponent
+- [x] ServerComponent
 - [ ] ErrorBoundary
 - [ ] src/sol/ssg で、静的サイト生成に対応
-- プロダクトの方向性の整理
-  - Qwik の　Resumeable + preact-signal の良いとこどり
-  - バンドルサイズは最重要
-  - コア部分はクロスプラットフォームで動くことを保証できる。
-  - API 設計は、同じく https://docs.solidjs.com/quick-start#create-a-solid-project
 - [ ] react-hook-form 相当のものを試作する
   - valibot を使うか、自前のバリデータを作るか
 
