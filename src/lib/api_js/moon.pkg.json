@@ -34,8 +34,7 @@
         "get_owner:getOwner",
         "run_with_owner:runWithOwner",
         "has_owner:hasOwner",
-        "on_mount:onMount",
-        "define"
+        "on_mount:onMount"
       ],
       "format": "esm"
     }

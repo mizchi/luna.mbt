@@ -24,22 +24,5 @@
     "mizchi/npm_typed/global_jsdom",
     { "path": "mizchi/luna/renderer", "alias": "renderer" },
     { "path": "mizchi/luna/platform/dom/element", "alias": "element" }
-  ],
-  "link": {
-    "js": {
-      "exports": [
-        "HydrationResult",
-        "hydration_result_success:hydrationResultSuccess",
-        "hydration_result_mismatch:hydrationResultMismatch",
-        "hydration_result_recovered:hydrationResultRecovered",
-        "hydrate",
-        "render_vnode_to_dom:renderVnodeToDom",
-        "render_vnode:renderVnode",
-        "bind_actions_from_dom:bindActionsFromDom",
-        "hydrate_with_actions:hydrateWithActions",
-        "BrowserRouter"
-      ],
-      "format": "esm"
-    }
-  }
+  ]
 }

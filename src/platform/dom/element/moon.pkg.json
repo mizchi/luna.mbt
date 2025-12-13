@@ -41,7 +41,7 @@
         "mount_to:mount",
         "show",
         "for_each:forEach",
-        "on",
+        "events",
         "create_element:createElement",
         "attr_static:attrStatic",
         "attr_dynamic:attrDynamic",
