@@ -1,9 +1,8 @@
-#!/usr/bin/env npx tsx
 /**
  * Test script for `sol new` command
  * Verifies that generated templates build and run correctly
  *
- * Usage: npx tsx scripts/test-sol-new.ts
+ * Usage: node scripts/test-sol-new.ts
  */
 
 import { execSync, spawn, type ChildProcess } from "node:child_process";
