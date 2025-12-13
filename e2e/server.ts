@@ -112,6 +112,18 @@ const spaModulePath = join(
   "spa.js"
 );
 
+// Import MoonBit router_app example module path
+const routerAppModulePath = join(
+  rootDir,
+  "target",
+  "js",
+  "release",
+  "build",
+  "examples",
+  "router_app",
+  "router_app.js"
+);
+
 // Promisify MoonBit async callback
 function promisifyMoonBit<T>(fn: (cont: (v: T) => void, err: (e: Error) => void) => void): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -484,6 +496,43 @@ app.get("/spa/main.js", (c) => {
   const code = readFileSync(spaModulePath, "utf-8");
   return c.body(code, 200, { "Content-Type": "application/javascript" });
 });
+
+// Router App Example routes
+// Serve the router_app example HTML page that loads the MoonBit router_app module
+const routerAppHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Router App Example</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; background: #f5f5f5; }
+    nav a { color: #fff; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    .page { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #333; margin-top: 0; }
+    button { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    ul { line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <div id="app">Loading...</div>
+  <script type="module">
+    import '/router-app/main.js';
+  </script>
+</body>
+</html>`;
+
+// Serve router-app routes
+// Note: Order matters - static files first, then wildcard SPA route
+app.get("/router-app/main.js", (c) => {
+  const code = readFileSync(routerAppModulePath, "utf-8");
+  return c.body(code, 200, { "Content-Type": "application/javascript" });
+});
+app.get("/router-app", (c) => c.html(routerAppHtml));
+app.get("/router-app/*", (c) => c.html(routerAppHtml));
 
 // Chunked Counter routes (for ESM import architecture tests)
 // Serve static files from chunked counter static directory

@@ -535,33 +535,39 @@ fn render_route(
   container : @dom.DomElement,
 ) -> Unit {
   let _ = @signal.effect(fn() {
-    let path = router.current_path_signal().get()
+    // Track route changes
     let match_result = router.current_match_signal().get()
+    let path = router.current_path_signal().peek() // Use peek to avoid double subscription
     console_log("Navigating to: " + path)
 
     // Clear and render new content
     @dom.clear(container)
-    let page = match match_result {
-      Some(m) => {
-        let ctx = @router.RouterContext::from_match(m)
-        if ctx.path == "/" {
-          home_page(router)
-        } else if ctx.path == "/about" {
-          about_page(router)
-        } else {
-          // Check for user route
-          match ctx.get_param("id") {
-            Some(id_str) =>
-              match @global.parseInt(id_str) {
-                Some(id) => user_page(router, id)
-                None => not_found_page(router, path)
-              }
-            None => not_found_page(router, path)
+
+    // Create components untracked to avoid subscribing to their internal signals
+    // This ensures counter's signal changes don't re-trigger the route effect
+    let page = @signal.untracked(fn() {
+      match match_result {
+        Some(m) => {
+          let ctx = @router.RouterContext::from_match(m)
+          if ctx.path == "/" {
+            home_page(router)
+          } else if ctx.path == "/about" {
+            about_page(router)
+          } else {
+            // Check for user route
+            match ctx.get_param("id") {
+              Some(id_str) =>
+                match @global.parseInt(id_str) {
+                  Some(id) => user_page(router, id)
+                  None => not_found_page(router, path)
+                }
+              None => not_found_page(router, path)
+            }
           }
         }
+        None => not_found_page(router, path)
       }
-      None => not_found_page(router, path)
-    }
+    })
     @dom.mount(container, page)
   })
 }

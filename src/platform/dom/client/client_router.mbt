@@ -1,5 +1,9 @@
 ///|
 /// Client-Side Router - SPA navigation with History API
+///|
+///| 2つのRouter API:
+///| - ClientRouter: 旧API (Route enum使用) - 後方互換性のため維持
+///| - SpaRouter: 新API (Routes enum使用) - ServerComponent/Island対応
 
 // =============================================================================
 // Browser API FFI (History API)
@@ -24,19 +28,6 @@ extern "js" fn replace_state(path : String) -> Unit =
 extern "js" fn add_popstate_listener(callback : () -> Unit) -> Unit =
   #| (callback) => window.addEventListener('popstate', () => callback())
 
-// =============================================================================
-// ClientRouter
-// =============================================================================
-
-///|
-/// クライアントサイドルーター
-/// History API と Signal を使った反応的なSPAナビゲーション
-pub struct ClientRouter {
-  routes : Array[@router.CompiledRoute]
-  current_path : @signal.Signal[String]
-  current_match : @signal.Signal[@router.MatchResult?]
-}
-
 ///|
 /// 現在のURLを取得（pathname + search）
 fn get_current_url() -> String {
@@ -47,6 +38,126 @@ fn get_current_url() -> String {
   } else {
     pathname
   }
+}
+
+// =============================================================================
+// SpaRouter - 新しいRoutes対応ルーター
+// =============================================================================
+
+///|
+/// SPAルーター (新API)
+/// Routes enum を使用し、ServerComponent/Island区別に対応
+pub struct SpaRouter {
+  routes : Array[@router.CompiledRoutes]
+  current_path : @signal.Signal[String]
+  current_match : @signal.Signal[@router.RoutesMatch?]
+}
+
+///|
+/// Routes定義から SpaRouter を作成
+pub fn SpaRouter::new(routes : Array[@router.Routes]) -> SpaRouter {
+  let compiled = @router.compile(routes)
+  let initial_path = get_current_url()
+  let initial_match = @router.match_url(initial_path, compiled)
+  let router : SpaRouter = {
+    routes: compiled,
+    current_path: @signal.signal(initial_path),
+    current_match: @signal.signal(initial_match),
+  }
+  add_popstate_listener(fn() { router.sync_from_url() })
+  router
+}
+
+///|
+/// コンパイル済みルートから SpaRouter を作成
+pub fn SpaRouter::from_compiled(routes : Array[@router.CompiledRoutes]) -> SpaRouter {
+  let initial_path = get_current_url()
+  let initial_match = @router.match_url(initial_path, routes)
+  let router : SpaRouter = {
+    routes,
+    current_path: @signal.signal(initial_path),
+    current_match: @signal.signal(initial_match),
+  }
+  add_popstate_listener(fn() { router.sync_from_url() })
+  router
+}
+
+///|
+/// URLからSignal状態を同期
+fn SpaRouter::sync_from_url(self : SpaRouter) -> Unit {
+  let path = get_current_url()
+  self.current_path.set(path)
+  self.current_match.set(@router.match_url(path, self.routes))
+}
+
+///|
+/// 指定パスでSignal状態を更新
+fn SpaRouter::update_state(self : SpaRouter, path : String) -> Unit {
+  self.current_path.set(path)
+  self.current_match.set(@router.match_url(path, self.routes))
+}
+
+///|
+/// プログラマティックナビゲーション（履歴に追加）
+pub fn SpaRouter::navigate(self : SpaRouter, path : String) -> Unit {
+  push_state(path)
+  self.update_state(path)
+}
+
+///|
+/// 履歴を置換するナビゲーション（戻るボタンに残らない）
+pub fn SpaRouter::replace(self : SpaRouter, path : String) -> Unit {
+  replace_state(path)
+  self.update_state(path)
+}
+
+///|
+/// 現在のパスを取得
+pub fn SpaRouter::get_path(self : SpaRouter) -> String {
+  self.current_path.get()
+}
+
+///|
+/// 現在のマッチ結果を取得
+pub fn SpaRouter::get_match(self : SpaRouter) -> @router.RoutesMatch? {
+  self.current_match.get()
+}
+
+///|
+/// 現在のコンポーネントIDを取得
+pub fn SpaRouter::get_component(self : SpaRouter) -> String? {
+  self.current_match.get().map(fn(m) { m.component() })
+}
+
+///|
+/// ナビゲーション関数を取得（コンポーネントに渡す用）
+pub fn SpaRouter::get_navigate(self : SpaRouter) -> (String) -> Unit {
+  fn(path) { self.navigate(path) }
+}
+
+///|
+/// パスSignalを取得（リアクティブUI用）
+pub fn SpaRouter::path_signal(self : SpaRouter) -> @signal.Signal[String] {
+  self.current_path
+}
+
+///|
+/// マッチ結果Signalを取得（リアクティブUI用）
+pub fn SpaRouter::match_signal(self : SpaRouter) -> @signal.Signal[@router.RoutesMatch?] {
+  self.current_match
+}
+
+// =============================================================================
+// ClientRouter - 旧API (後方互換性)
+// =============================================================================
+
+///|
+/// クライアントサイドルーター (旧API)
+/// History API と Signal を使った反応的なSPAナビゲーション
+pub struct ClientRouter {
+  routes : Array[@router.CompiledRoute]
+  current_path : @signal.Signal[String]
+  current_match : @signal.Signal[@router.MatchResult?]
 }
 
 ///|
@@ -108,7 +219,7 @@ pub fn ClientRouter::replace(self : ClientRouter, path : String) -> Unit {
 }
 
 // =============================================================================
-// Getters
+// Getters (ClientRouter)
 // =============================================================================
 
 ///|
