@@ -36,7 +36,17 @@
         "run_with_owner:runWithOwner",
         "has_owner:hasOwner",
         "on_mount:onMount",
-        "for_each:forEach"
+        "for_each:forEach",
+        "text",
+        "text_dyn:textDyn",
+        "render_to:render",
+        "mount_to:mount",
+        "show",
+        "jsx",
+        "jsxs",
+        "fragment:Fragment",
+        "create_element:createElement",
+        "events"
       ],
       "format": "esm"
     }

@@ -13,48 +13,5 @@
       "alias": "js_dom"
     }
   ],
-  "link": {
-    "js": {
-      "exports": [
-        "div",
-        "span",
-        "p",
-        "button",
-        "a",
-        "input",
-        "textarea",
-        "form",
-        "label",
-        "h1",
-        "h2",
-        "h3",
-        "ul",
-        "ol",
-        "li",
-        "img",
-        "br",
-        "hr",
-        "text",
-        "text_dyn:textDyn",
-        "text_sig:textSig",
-        "render_to:render",
-        "mount_to:mount",
-        "show",
-        "events",
-        "create_element:createElement",
-        "attr_static:attrStatic",
-        "attr_dynamic:attrDynamic",
-        "attr_handler:attrHandler",
-        "attr_style:attrStyle",
-        "attr_dynamic_style:attrDynamicStyle",
-        "jsx",
-        "jsxs",
-        "fragment:Fragment",
-        "DomNode",
-        "DomElement"
-      ],
-      "format": "esm"
-    }
-  },
   "warn-list": "-5"
 }
