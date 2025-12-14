@@ -136,6 +136,14 @@ just minify-loader   # ローダーのminify
 # Sol CLI
 just sol --help      # sol CLIヘルプ
 just sol new myapp   # 新規プロジェクト作成
+
+# メトリクス（ローカル計測・履歴トラッキング）
+just metrics-record        # ビルド時間+サイズ記録
+just metrics-record-clean  # クリーンビルドで記録
+just metrics-record-bench  # ベンチマーク付きで記録
+just metrics-report        # 直近の記録を表示
+just metrics-compare       # 前回との差分比較
+just metrics-trend         # トレンドグラフ表示
 ```
 
 ## 開発ポリシー

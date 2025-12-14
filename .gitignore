@@ -10,3 +10,4 @@ dist
 *.0x
 test-results/
 wrangler.json
+.metrics.db

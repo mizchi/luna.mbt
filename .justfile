@@ -101,9 +101,42 @@ bench:
 bench-happydom:
     node bench/run-happydom.js
 
+# === Metrics Commands ===
+
+# Record build metrics (time + sizes)
+metrics-record:
+    node scripts/metrics.ts record
+
+# Record with clean build
+metrics-record-clean:
+    node scripts/metrics.ts record --clean
+
+# Record with benchmarks
+metrics-record-bench:
+    node scripts/metrics.ts record --bench
+
+# Record full (clean build + benchmarks)
+metrics-record-full:
+    node scripts/metrics.ts record --clean --bench
+
+# Show recent metrics
+metrics-report *n:
+    node scripts/metrics.ts report {{n}}
+
+# Compare with previous build
+metrics-compare *hash:
+    node scripts/metrics.ts compare {{hash}}
+
+# Show trend graph
+metrics-trend *metric:
+    node scripts/metrics.ts trend {{metric}}
+
 # Watch and rebuild
 watch:
     moon build --target js --watch
+
+[parallel]
+dev: watch
 
 # === Sol CLI Commands ===
 
@@ -114,3 +147,4 @@ sol *args:
 # Create new sol project
 sol-new name:
     node target/js/release/build/sol/cli/cli.js new {{name}}
+
