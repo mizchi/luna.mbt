@@ -36,6 +36,7 @@
     "jsdom": "^27.0.1",
     "monocart-coverage-reports": "^2.12.9",
     "playwright": "^1.57.0",
+    "source-map": "^0.7.6",
     "terser": "^5.44.1",
     "vite": "8.0.0-beta.1",
     "vitest": "^4.0.15",

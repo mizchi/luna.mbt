@@ -154,27 +154,39 @@ sol-new name:
 
 # === Coverage Commands ===
 
+# Build MoonBit with debug info (generates source maps)
+build-debug:
+    moon build --target js -g
+
 # Run MoonBit tests with coverage
 coverage-moonbit:
     moon test --target js --enable-coverage
     moon coverage report -f cobertura -o coverage/moonbit-coverage.xml
     moon coverage report -f summary
 
-# Run vitest with V8 coverage
-coverage-vitest: build-moon
+# Run vitest with V8 coverage (uses debug build for source maps)
+coverage-vitest: build-debug
     pnpm vitest run --coverage --coverage.provider=v8 --coverage.reporter=json --coverage.reportsDirectory=coverage/vitest
 
-# Run E2E tests with V8 coverage
-coverage-e2e: build-moon
+# Run E2E tests with V8 coverage (uses debug build for source maps)
+coverage-e2e: build-debug
     rm -rf coverage/e2e-v8
     pnpm playwright test --config e2e/playwright.config.mts e2e/browser-app/coverage.test.mts
 
-# Merge all coverage reports
+# Show coverage summary (legacy)
 coverage-merge:
     node scripts/coverage-merge.ts
 
-# Run all tests with coverage and merge
-coverage: coverage-moonbit coverage-vitest coverage-e2e coverage-merge
+# Generate unified coverage report (uses source maps to map JS -> .mbt)
+coverage-unified:
+    node scripts/coverage-unified.ts
+
+# Generate unified HTML coverage report
+coverage-html:
+    node scripts/coverage-unified.ts html
+
+# Run all tests with coverage and generate unified report
+coverage: coverage-moonbit coverage-vitest coverage-e2e coverage-unified
     @echo "✓ Coverage reports generated in coverage/"
 
 # Clean coverage data
