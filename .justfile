@@ -180,16 +180,16 @@ coverage-e2e: build-debug
     rm -rf coverage/e2e-v8
     pnpm playwright test --config e2e/playwright.config.mts e2e/browser-app/coverage.test.mts
 
-# Generate unified coverage report (uses source maps to map JS -> .mbt)
-coverage-unified:
-    node scripts/coverage-unified.ts
+# Generate coverage report (uses source maps to map JS -> .mbt)
+coverage-report:
+    node scripts/coverage.ts
 
-# Generate unified HTML coverage report
+# Generate HTML coverage report
 coverage-html:
-    node scripts/coverage-unified.ts html
+    node scripts/coverage.ts html
 
-# Run all tests with coverage and generate unified report
-coverage: coverage-moonbit coverage-vitest coverage-e2e coverage-unified
+# Run all tests with coverage and generate report
+coverage: coverage-moonbit coverage-vitest coverage-e2e coverage-report
     @echo "✓ Coverage reports generated in coverage/"
 
 # Clean coverage data
