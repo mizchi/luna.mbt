@@ -46,8 +46,8 @@ pub fn[T] ItemEntry::new(item : T, dom : @js_dom.Node) -> ItemEntry[T] {
 /// Find an entry by item reference in the entries array
 /// Returns the index if found, -1 otherwise
 fn[T] find_entry_index(entries : Array[ItemEntry[T]], item : T) -> Int {
-  for i = 0; i < entries.length(); i = i + 1 {
-    if ref_equal(entries[i].item, item) {
+  for i, entry in entries {
+    if ref_equal(entry.item, item) {
       return i
     }
   }
@@ -126,9 +126,9 @@ pub fn[T] reconcile_items(
   }
 
   // Remove unused DOM nodes
-  for i = 0; i < old_entries.length(); i = i + 1 {
+  for i, entry in old_entries {
     if not(used_indices[i]) {
-      parent.removeChild(old_entries[i].dom) |> ignore
+      parent.removeChild(entry.dom) |> ignore
     }
   }
   new_entries
@@ -143,15 +143,13 @@ pub fn[T] reconcile_for_each(
   new_items : Array[T],
   render_item : (T, Int) -> @js_dom.Node,
 ) -> Unit {
-  match placeholder.parentNode() {
-    Some(parent) =>
-      entries_ref.val = reconcile_items(
-        parent,
-        entries_ref.val,
-        new_items,
-        render_item,
-        placeholder,
-      )
-    None => ()
+  if placeholder.parentNode() is Some(parent) {
+    entries_ref.val = reconcile_items(
+      parent,
+      entries_ref.val,
+      new_items,
+      render_item,
+      placeholder,
+    )
   }
 }

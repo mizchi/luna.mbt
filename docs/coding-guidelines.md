@@ -315,6 +315,74 @@ fn starts_with_char(s : String, c : Char) -> Bool {
 }
 ```
 
+### 文字列を配列に変換する
+
+`for` ループで手動で配列を作成する代わりに `.to_array()` を使用:
+
+```moonbit
+// Bad
+fn to_char_array(s : String) -> Array[Char] {
+  let arr : Array[Char] = []
+  for c in s {
+    arr.push(c)
+  }
+  arr
+}
+
+// Good
+let chars = s.to_array()
+```
+
+### 述語チェックには `.iter().any()` を使用
+
+特定の条件をチェックする場合:
+
+```moonbit
+// Bad
+fn needs_html_attr_escape(s : String) -> Bool {
+  let chars = to_char_array(s)
+  for c in chars {
+    if c == '"' || c == '&' || c == '<' || c == '>' {
+      return true
+    }
+  }
+  false
+}
+
+// Good
+fn needs_html_attr_escape(s : String) -> Bool {
+  s.iter().any(fn(c) { c == '"' || c == '&' || c == '<' || c == '>' })
+}
+```
+
+## 述語メソッドの簡略化
+
+Bool を返すメソッドでは `is` パターンを直接使用:
+
+```moonbit
+// Bad
+pub fn HydrationResult::is_success(self : HydrationResult) -> Bool {
+  match self {
+    Success => true
+    _ => false
+  }
+}
+
+// Good
+pub fn HydrationResult::is_success(self : HydrationResult) -> Bool {
+  self is Success
+}
+```
+
+ワイルドカードパターンも使用可能:
+
+```moonbit
+// Good
+pub fn HydrationResult::is_mismatch(self : HydrationResult) -> Bool {
+  self is Mismatch(_)
+}
+```
+
 ## コード生成スクリプト
 
 `__generated.mbt` ファイルを生成するスクリプトも同じ規約に従う:

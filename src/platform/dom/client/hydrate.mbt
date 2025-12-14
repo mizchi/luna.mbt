@@ -29,26 +29,17 @@ pub fn hydration_result_recovered(msg : String) -> HydrationResult {
 
 ///|
 pub fn HydrationResult::is_success(self : HydrationResult) -> Bool {
-  match self {
-    Success => true
-    _ => false
-  }
+  self is Success
 }
 
 ///|
 pub fn HydrationResult::is_mismatch(self : HydrationResult) -> Bool {
-  match self {
-    Mismatch(_) => true
-    _ => false
-  }
+  self is Mismatch(_)
 }
 
 ///|
 pub fn HydrationResult::is_recovered(self : HydrationResult) -> Bool {
-  match self {
-    Recovered(_) => true
-    _ => false
-  }
+  self is Recovered(_)
 }
 
 ///|
@@ -72,16 +63,13 @@ priv struct HydrationContext {
 /// Log a hydration warning to logger or console
 fn warn_hydration(logger : StringBuilder?, msg : String) -> Unit {
   let full_msg = "[Hydration] " + msg
-  match logger {
-    Some(sb) => {
-      sb.write_string(full_msg)
-      sb.write_string("\n")
-    }
-    None => {
-      let global = @global.global_this()
-      let console = global["console"]
-      console._call("warn", [@js.any(full_msg)]) |> ignore
-    }
+  if logger is Some(sb) {
+    sb.write_string(full_msg)
+    sb.write_string("\n")
+  } else {
+    let global = @global.global_this()
+    let console = global["console"]
+    console._call("warn", [@js.any(full_msg)]) |> ignore
   }
 }
 
@@ -208,12 +196,10 @@ fn hydrate_node(
       }
 
       // Hydrate children
-      match dom_elem_opt {
-        Some(dom_elem) =>
-          for child in elem.children {
-            hydrate_node(dom_elem.as_node(), child, ctx)
-          }
-        None => ()
+      if dom_elem_opt is Some(dom_elem) {
+        for child in elem.children {
+          hydrate_node(dom_elem.as_node(), child, ctx)
+        }
       }
     }
     @luna.Show(condition=cond, child=child_fn) => {
@@ -293,17 +279,12 @@ fn hydrate_dynamic_text(
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
         // Found start marker, next sibling should be the text node
-        match child.nextSibling() {
-          Some(text_node) =>
-            if text_node.nodeType() == 3 { // Text node
-              // Set up effect to update text
-              let _ = @signal.effect(fn() {
-                let new_text = getter()
-                text_node.setTextContent(new_text)
-              })
-
-            }
-          None => ()
+        if child.nextSibling() is Some(text_node) && text_node.nodeType() == 3 {
+          // Set up effect to update text
+          let _ = @signal.effect(fn() {
+            let new_text = getter()
+            text_node.setTextContent(new_text)
+          })
         }
         break
       }
@@ -361,21 +342,17 @@ fn hydrate_element_with_dispatch(
       }
       @luna.VAction(action_name) =>
         // Attach action handler - dispatch action when event fires
-        match dispatcher {
-          Some(dispatch) => {
-            let event_name = extract_event_name(name)
-            let captured_action = action_name
-            let wrapper : (@js.Any) -> Unit = fn(_event) {
-              dispatch(captured_action)
-            }
-            elem
-            .as_event_target()
-            .addEventListener(event_name, @js.any(wrapper).cast())
+        if dispatcher is Some(dispatch) {
+          let event_name = extract_event_name(name)
+          let captured_action = action_name
+          let wrapper : (@js.Any) -> Unit = fn(_event) {
+            dispatch(captured_action)
           }
-          None =>
-            // No dispatcher provided, action won't work
-            ()
+          elem
+          .as_event_target()
+          .addEventListener(event_name, @js.any(wrapper).cast())
         }
+        // No dispatcher provided, action won't work
     }
   }
 }
@@ -435,63 +412,55 @@ fn hydrate_show(
       }
     }
   }
-  match start_marker {
-    Some(marker) => {
-      let current_nodes : Array[@js_dom.Node] = []
+  guard start_marker is Some(marker) else { return }
+  let current_nodes : Array[@js_dom.Node] = []
 
-      // Collect nodes between markers
-      let mut sibling = marker.nextSibling()
-      while true {
-        match sibling {
-          Some(node) => {
-            if node.nodeType() == 8 { // Comment
-              let text = get_text_content(node)
-              if text == "/s" {
-                break
-              }
-            }
-            current_nodes.push(node)
-            sibling = node.nextSibling()
+  // Collect nodes between markers
+  let mut sibling = marker.nextSibling()
+  while true {
+    match sibling {
+      Some(node) => {
+        if node.nodeType() == 8 { // Comment
+          let text = get_text_content(node)
+          if text == "/s" {
+            break
           }
-          None => break
         }
+        current_nodes.push(node)
+        sibling = node.nextSibling()
       }
-
-      // If currently showing, hydrate the child
-      if cond() && not(current_nodes.is_empty()) {
-        let child_vnode = child_fn()
-        // We need to hydrate the existing nodes
-        hydrate_child_nodes(current_nodes, child_vnode, ctx) catch {
-          _ => () // Ignore errors during hydration of show content
-        }
-      }
-
-      // Set up effect for show/hide
-      let _ = @signal.effect(fn() {
-        let should_show = cond()
-        if should_show && current_nodes.is_empty() {
-          // Need to show - render and insert
-          let child_vnode = child_fn()
-          let new_node = render_vnode_to_dom(child_vnode)
-          match marker.nextSibling() {
-            Some(end_marker) => {
-              parent.insertBefore(new_node, Some(end_marker)) |> ignore
-              current_nodes.push(new_node)
-            }
-            None => ()
-          }
-        } else if not(should_show) && not(current_nodes.is_empty()) {
-          // Need to hide - remove nodes
-          for node in current_nodes {
-            parent.removeChild(node) |> ignore
-          }
-          current_nodes.clear()
-        }
-      })
-
+      None => break
     }
-    None => ()
   }
+
+  // If currently showing, hydrate the child
+  if cond() && not(current_nodes.is_empty()) {
+    let child_vnode = child_fn()
+    // We need to hydrate the existing nodes
+    hydrate_child_nodes(current_nodes, child_vnode, ctx) catch {
+      _ => () // Ignore errors during hydration of show content
+    }
+  }
+
+  // Set up effect for show/hide
+  let _ = @signal.effect(fn() {
+    let should_show = cond()
+    if should_show && current_nodes.is_empty() {
+      // Need to show - render and insert
+      let child_vnode = child_fn()
+      let new_node = render_vnode_to_dom(child_vnode)
+      if marker.nextSibling() is Some(end_marker) {
+        parent.insertBefore(new_node, Some(end_marker)) |> ignore
+        current_nodes.push(new_node)
+      }
+    } else if not(should_show) && not(current_nodes.is_empty()) {
+      // Need to hide - remove nodes
+      for node in current_nodes {
+        parent.removeChild(node) |> ignore
+      }
+      current_nodes.clear()
+    }
+  })
 }
 
 ///|
@@ -567,14 +536,9 @@ fn hydrate_for(
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
         start_marker = Some(child)
-      } else if comment_text == "/f" {
-        match start_marker {
-          Some(_) => {
-            end_marker = Some(child)
-            break
-          }
-          None => ()
-        }
+      } else if comment_text == "/f" && start_marker is Some(_) {
+        end_marker = Some(child)
+        break
       }
     }
   }
@@ -602,9 +566,9 @@ fn hydrate_for(
 
       // Hydrate existing items
       let items = render_fn()
-      for i = 0; i < items.length(); i = i + 1 {
+      for i, item in items {
         if i < current_nodes.length() {
-          hydrate_child_nodes([current_nodes[i]], items[i], ctx) catch {
+          hydrate_child_nodes([current_nodes[i]], item, ctx) catch {
             _ => () // Ignore errors during hydration of for items
           }
         }
@@ -674,23 +638,16 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       let _ = @signal.effect(fn() {
         let should_show = cond()
         match (should_show, current_node) {
-          (true, None) => {
-            let rendered = render_vnode_to_dom(child_fn())
-            match placeholder.parentNode() {
-              Some(par) => {
-                par.insertBefore(rendered, Some(placeholder)) |> ignore
-                current_node = Some(rendered)
-              }
-              None => ()
+          (true, None) =>
+            if placeholder.parentNode() is Some(par) {
+              let rendered = render_vnode_to_dom(child_fn())
+              par.insertBefore(rendered, Some(placeholder)) |> ignore
+              current_node = Some(rendered)
             }
-          }
           (false, Some(n)) =>
-            match n.parentNode() {
-              Some(par) => {
-                par.removeChild(n) |> ignore
-                current_node = None
-              }
-              None => ()
+            if n.parentNode() is Some(par) {
+              par.removeChild(n) |> ignore
+              current_node = None
             }
           _ => ()
         }
@@ -727,22 +684,19 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
 
         // Remove old nodes
         for node in current_nodes {
-          match node.parentNode() {
-            Some(par) => par.removeChild(node) |> ignore
-            None => ()
+          if node.parentNode() is Some(par) {
+            par.removeChild(node) |> ignore
           }
         }
         current_nodes.clear()
 
         // Insert new items before the placeholder
-        match placeholder.parentNode() {
-          Some(parent) =>
-            for item in new_items {
-              let rendered = render_vnode_to_dom(item)
-              current_nodes.push(rendered)
-              parent.insertBefore(rendered, Some(placeholder)) |> ignore
-            }
-          None => ()
+        if placeholder.parentNode() is Some(parent) {
+          for item in new_items {
+            let rendered = render_vnode_to_dom(item)
+            current_nodes.push(rendered)
+            parent.insertBefore(rendered, Some(placeholder)) |> ignore
+          }
         }
       })
       fragment_node
@@ -894,9 +848,8 @@ fn render_error_boundary_to_dom(
     error_state.val = None
     // Clear current content
     for node in content_nodes {
-      match node.parentNode() {
-        Some(par) => par.removeChild(node) |> ignore
-        None => ()
+      if node.parentNode() is Some(par) {
+        par.removeChild(node) |> ignore
       }
     }
     content_nodes.clear()

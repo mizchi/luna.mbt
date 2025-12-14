@@ -78,10 +78,7 @@ pub fn extract_state_from_html(html : String) -> String? {
       break
     }
   }
-  let start = match start_pos {
-    Some(pos) => pos
-    None => return None
-  }
+  guard start_pos is Some(start) else { return None }
   // Find end position
   let end_len = end_marker.length()
   for i = start; i <= html_len - end_len; i = i + 1 {

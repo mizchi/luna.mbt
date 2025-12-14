@@ -7,26 +7,10 @@
 ///| Prevents XSS attacks from malicious state values.
 
 ///|
-/// Convert string to char array for indexed access
-fn to_char_array(s : String) -> Array[Char] {
-  let arr : Array[Char] = []
-  for c in s {
-    arr.push(c)
-  }
-  arr
-}
-
-///|
 /// Check if JSON string contains characters that need escaping for HTML attribute
 fn needs_html_attr_escape(s : String) -> Bool {
-  let chars = to_char_array(s)
-  for c in chars {
-    // Check for characters that need escaping in HTML attributes
-    if c == '"' || c == '&' || c == '<' || c == '>' {
-      return true
-    }
-  }
-  false
+  // Check for characters that need escaping in HTML attributes
+  s.iter().any(fn(c) { c == '"' || c == '&' || c == '<' || c == '>' })
 }
 
 ///|
@@ -38,13 +22,13 @@ fn needs_html_attr_escape(s : String) -> Bool {
 ///
 /// Reference: https://sophiebits.com/2012/08/03/preventing-xss-json
 pub fn escape_json_for_html(json : String) -> String {
-  let chars = to_char_array(json)
+  let chars = json.to_array()
   let len = chars.length()
 
   // Check if escaping is needed
   let mut needs_escape = false
-  for i = 0; i < len; i = i + 1 {
-    if chars[i] == '<' && i + 1 < len {
+  for i, c in chars {
+    if c == '<' && i + 1 < len {
       let next = chars[i + 1]
       if next == '/' || next == 's' || next == 'S' {
         needs_escape = true

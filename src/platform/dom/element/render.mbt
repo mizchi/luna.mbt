@@ -176,25 +176,18 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let _ = @signal.effect(fn() {
     let should_show = when()
     match (should_show, current_node) {
-      (true, None) => {
+      (true, None) =>
         // Need to show - create and insert node
-        let n = render_fn()
-        match placeholder.parentNode() {
-          Some(parent) => {
-            parent.insertBefore(n.to_jsdom(), Some(placeholder)) |> ignore
-            current_node = Some(n.to_jsdom())
-          }
-          None => ()
+        if placeholder.parentNode() is Some(parent) {
+          let n = render_fn()
+          parent.insertBefore(n.to_jsdom(), Some(placeholder)) |> ignore
+          current_node = Some(n.to_jsdom())
         }
-      }
       (false, Some(n)) =>
         // Need to hide - remove node
-        match n.parentNode() {
-          Some(parent) => {
-            parent.removeChild(n) |> ignore
-            current_node = None
-          }
-          None => ()
+        if n.parentNode() is Some(parent) {
+          parent.removeChild(n) |> ignore
+          current_node = None
         }
       _ => () // No change needed
     }
@@ -219,8 +212,7 @@ pub fn[T] for_each(
   // Initial render
   let fragment = doc.createDocumentFragment()
   let initial_items = items()
-  for i = 0; i < initial_items.length(); i = i + 1 {
-    let item = initial_items[i]
+  for i, item in initial_items {
     let dom = render_item(item, i).to_jsdom()
     entries.val.push(ItemEntry::new(item, dom))
     fragment.as_node().appendChild(dom) |> ignore
