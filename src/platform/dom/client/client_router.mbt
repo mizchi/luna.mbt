@@ -66,7 +66,7 @@ pub fn BrowserRouter::new(
   routes : Array[@router.Routes],
   base? : String = "",
 ) -> BrowserRouter {
-  let compiled = @router.compile_with_base(routes, base)
+  let compiled = @router.compile(routes, base~)
   let initial_path = get_current_url()
   let initial_match = @router.match_url(initial_path, compiled)
   let router : BrowserRouter = {

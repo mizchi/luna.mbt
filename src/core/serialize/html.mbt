@@ -5,28 +5,18 @@
 let state_attr : String = "data-resumable-state"
 
 ///|
-/// Generate script tag with embedded state (global state, no ID)
-pub fn state_to_script_tag(state : ResumableState) -> String {
+/// Generate script tag with embedded state
+/// If id is provided, includes it as attribute value
+pub fn state_to_script_tag(state : ResumableState, id? : String) -> String {
   let json = state.to_json()
+  let id_part = match id {
+    Some(i) => "=\"" + i + "\""
+    None => ""
+  }
   "<script type=\"application/json\" " +
   state_attr +
+  id_part +
   ">" +
-  escape_html_content(json) +
-  "</script>"
-}
-
-///|
-/// Generate script tag with embedded state and ID
-pub fn state_to_script_tag_with_id(
-  state : ResumableState,
-  id : String,
-) -> String {
-  let json = state.to_json()
-  "<script type=\"application/json\" " +
-  state_attr +
-  "=\"" +
-  id +
-  "\">" +
   escape_html_content(json) +
   "</script>"
 }

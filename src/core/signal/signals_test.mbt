@@ -617,29 +617,6 @@ test "combine4 combines four signals" {
 // =============================================================================
 
 ///|
-test "effect_with_cleanup runs cleanup function" {
-  let sig = Signal::new(0)
-  let cleanup_count = { val: 0 }
-  let effect_count = { val: 0 }
-  let dispose = effect_with_cleanup(fn() {
-    let _ = sig.get()
-    effect_count.val = effect_count.val + 1
-    Some(fn() { cleanup_count.val = cleanup_count.val + 1 })
-  })
-  assert_eq(effect_count.val, 1)
-  assert_eq(cleanup_count.val, 0)
-
-  // Trigger re-run - cleanup should run
-  sig.set(1)
-  assert_eq(effect_count.val, 2)
-  assert_eq(cleanup_count.val, 1)
-
-  // Dispose - cleanup should run again
-  dispose()
-  assert_eq(cleanup_count.val, 2)
-}
-
-///|
 test "effect_when only runs when condition is true" {
   let condition = Signal::new(false)
   let count = { val: 0 }
@@ -1180,19 +1157,6 @@ test "deferred reject works" {
 // =============================================================================
 // Effect edge cases
 // =============================================================================
-
-///|
-test "effect_with_cleanup with no cleanup returned" {
-  let count = { val: 0 }
-
-  let dispose = effect_with_cleanup(fn() {
-    count.val = count.val + 1
-    None // No cleanup
-  })
-
-  assert_eq(count.val, 1)
-  dispose()
-}
 
 ///|
 test "effect_once runs only once" {

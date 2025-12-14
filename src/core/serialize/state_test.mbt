@@ -247,16 +247,16 @@ test "state embedding roundtrip" {
 // =============================================================================
 
 ///|
-test "state_to_script_tag_with_id" {
+test "state_to_script_tag with id" {
   let state = ResumableState::new()
   let _ = state.register_int(42)
-  let tag = state_to_script_tag_with_id(state, "counter")
+  let tag = state_to_script_tag(state, id="counter")
   assert_true(tag.contains("data-resumable-state=\"counter\""))
   assert_true(tag.contains("[42]"))
 }
 
 ///|
-test "state_to_script_tag_with_id multiple components" {
+test "state_to_script_tag with id multiple components" {
   // Counter component state
   let counter_state = ResumableState::new()
   let _ = counter_state.register_int(5)
@@ -265,8 +265,8 @@ test "state_to_script_tag_with_id multiple components" {
   let form_state = ResumableState::new()
   let _ = form_state.register_string("alice")
   let _ = form_state.register_string("alice@example.com")
-  let counter_tag = state_to_script_tag_with_id(counter_state, "counter")
-  let form_tag = state_to_script_tag_with_id(form_state, "form")
+  let counter_tag = state_to_script_tag(counter_state, id="counter")
+  let form_tag = state_to_script_tag(form_state, id="form")
 
   // Both should have unique IDs
   assert_true(counter_tag.contains("data-resumable-state=\"counter\""))
@@ -297,9 +297,9 @@ test "portable HTML with multiple states" {
   // Build portable HTML
   let html = "<!DOCTYPE html><html><body>" +
     "<div data-state-id=\"counter\"><span>10</span><button on:click=\"./app.js#increment\">+1</button></div>" +
-    state_to_script_tag_with_id(counter_state, "counter") +
+    state_to_script_tag(counter_state, id="counter") +
     "<div data-state-id=\"todo\"><input value=\"Buy milk\"><input type=\"checkbox\"></div>" +
-    state_to_script_tag_with_id(todo_state, "todo") +
+    state_to_script_tag(todo_state, id="todo") +
     "</body></html>"
 
   // Verify structure

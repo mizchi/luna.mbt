@@ -63,21 +63,6 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
   dispose
 }
 
-///| Create an effect with cleanup function (legacy API)
-
-///| The effect function returns a cleanup function that runs before re-execution
-
-///|
-/// Prefer using effect() with onCleanup() instead
-pub fn effect_with_cleanup(fn_ : () -> (() -> Unit)?) -> () -> Unit {
-  effect(fn() {
-    match fn_() {
-      Some(cleanup) => on_cleanup(cleanup)
-      None => ()
-    }
-  })
-}
-
 ///|
 /// Create an effect that only runs when condition is true
 pub fn effect_when(condition : () -> Bool, fn_ : () -> Unit) -> () -> Unit {

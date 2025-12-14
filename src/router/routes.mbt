@@ -126,17 +126,9 @@ fn normalize_path(path : String) -> String {
 
 ///|
 /// Routes を CompiledRoutes にコンパイル
-pub fn compile(routes : Array[Routes]) -> Array[CompiledRoutes] {
-  let result : Array[CompiledRoutes] = []
-  compile_inner(routes, "", [], [], result)
-  result
-}
-
-///|
-/// Routes を CompiledRoutes にコンパイル（ベースパス指定）
-pub fn compile_with_base(
+pub fn compile(
   routes : Array[Routes],
-  base : String,
+  base? : String = "",
 ) -> Array[CompiledRoutes] {
   let result : Array[CompiledRoutes] = []
   compile_inner(routes, base, [], [], result)
