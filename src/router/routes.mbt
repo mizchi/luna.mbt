@@ -334,8 +334,7 @@ fn try_match_pattern(
 
 ///|
 fn starts_with_char(s : String, c : Char) -> Bool {
-  let chars = s.to_array()
-  chars.length() > 0 && chars[0] == c
+  s.has_prefix(c.to_string())
 }
 
 ///|

@@ -112,7 +112,7 @@ pub fn hydrate(
   }
 
   // Check for mismatches
-  if ctx.mismatches.length() > 0 {
+  if not(ctx.mismatches.is_empty()) {
     let mismatch_msg = ctx.mismatches
       .iter()
       .fold(init="", fn(acc, msg) {
@@ -458,7 +458,7 @@ fn hydrate_show(
       }
 
       // If currently showing, hydrate the child
-      if cond() && current_nodes.length() > 0 {
+      if cond() && not(current_nodes.is_empty()) {
         let child_vnode = child_fn()
         // We need to hydrate the existing nodes
         hydrate_child_nodes(current_nodes, child_vnode, ctx) catch {

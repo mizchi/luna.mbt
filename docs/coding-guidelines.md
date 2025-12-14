@@ -220,6 +220,101 @@ match value {
 }
 ```
 
+## コレクション操作
+
+### `.filter()` / `.iter().any()` を使用する
+
+条件に合う要素をフィルタリングする場合:
+
+```moonbit
+// Bad
+fn get_repairs_by_type(repairs : Array[RepairInfo], t : RepairType) -> Array[RepairInfo] {
+  let result : Array[RepairInfo] = []
+  for repair in repairs {
+    if repair.repair_type == t {
+      result.push(repair)
+    }
+  }
+  result
+}
+
+// Good
+fn get_repairs_by_type(repairs : Array[RepairInfo], t : RepairType) -> Array[RepairInfo] {
+  repairs.filter(fn(repair) { repair.repair_type == t })
+}
+```
+
+条件を満たす要素が存在するか確認する場合:
+
+```moonbit
+// Bad
+fn has_repair_type(repairs : Array[RepairInfo], t : RepairType) -> Bool {
+  for repair in repairs {
+    if repair.repair_type == t {
+      return true
+    }
+  }
+  false
+}
+
+// Good
+fn has_repair_type(repairs : Array[RepairInfo], t : RepairType) -> Bool {
+  repairs.iter().any(fn(repair) { repair.repair_type == t })
+}
+```
+
+### `.is_empty()` を使用する
+
+配列や文字列が空かどうかの判定:
+
+```moonbit
+// Bad
+if arr.length() > 0 { ... }
+if str.length() == 0 { ... }
+
+// Good
+if not(arr.is_empty()) { ... }
+if str.is_empty() { ... }
+```
+
+## derive を活用する
+
+手動で比較関数を書く代わりに `derive(Eq)` を使用:
+
+```moonbit
+// Bad
+pub enum RepairType { TextMismatch, TextMissing, ... }
+
+fn repair_type_eq(a : RepairType, b : RepairType) -> Bool {
+  match (a, b) {
+    (TextMismatch, TextMismatch) => true
+    (TextMissing, TextMissing) => true
+    ...
+    _ => false
+  }
+}
+
+// Good
+pub enum RepairType { TextMismatch, TextMissing, ... } derive(Eq)
+
+// 使用時: a == b
+```
+
+## 標準ライブラリのメソッドを活用する
+
+```moonbit
+// Bad
+fn starts_with_char(s : String, c : Char) -> Bool {
+  let chars = s.to_array()
+  chars.length() > 0 && chars[0] == c
+}
+
+// Good
+fn starts_with_char(s : String, c : Char) -> Bool {
+  s.has_prefix(c.to_string())
+}
+```
+
 ## コード生成スクリプト
 
 `__generated.mbt` ファイルを生成するスクリプトも同じ規約に従う:

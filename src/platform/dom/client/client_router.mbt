@@ -38,7 +38,7 @@ extern "js" fn add_popstate_listener(callback : () -> Unit) -> Unit =
 fn get_current_url() -> String {
   let pathname = get_pathname()
   let search = get_search()
-  if search.length() > 0 {
+  if not(search.is_empty()) {
     pathname + search
   } else {
     pathname

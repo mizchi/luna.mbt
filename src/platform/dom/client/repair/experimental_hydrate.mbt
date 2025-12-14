@@ -35,7 +35,7 @@ pub enum RepairType {
   ForItemCountMismatch
   /// Show content was missing when condition was true
   ShowContentMissing
-}
+} derive(Eq)
 
 ///|
 /// Detailed information about a single repair operation
@@ -149,13 +149,7 @@ pub fn ExperimentalHydrationReport::get_repairs_by_type(
   self : ExperimentalHydrationReport,
   repair_type : RepairType,
 ) -> Array[RepairInfo] {
-  let result : Array[RepairInfo] = []
-  for repair in self.repairs {
-    if repair_type_eq(repair.repair_type, repair_type) {
-      result.push(repair)
-    }
-  }
-  result
+  self.repairs.filter(fn(repair) { repair.repair_type == repair_type })
 }
 
 ///|
@@ -164,30 +158,7 @@ pub fn ExperimentalHydrationReport::has_repair_type(
   self : ExperimentalHydrationReport,
   repair_type : RepairType,
 ) -> Bool {
-  for repair in self.repairs {
-    if repair_type_eq(repair.repair_type, repair_type) {
-      return true
-    }
-  }
-  false
-}
-
-///|
-/// Helper to compare RepairType
-fn repair_type_eq(a : RepairType, b : RepairType) -> Bool {
-  match (a, b) {
-    (TextMismatch, TextMismatch) => true
-    (TextMissing, TextMissing) => true
-    (ElementMissing, ElementMissing) => true
-    (TagMismatch, TagMismatch) => true
-    (AttributeMismatch, AttributeMismatch) => true
-    (DynamicTextMarkerMissing, DynamicTextMarkerMissing) => true
-    (ShowMarkerMissing, ShowMarkerMissing) => true
-    (ForMarkerMissing, ForMarkerMissing) => true
-    (ForItemCountMismatch, ForItemCountMismatch) => true
-    (ShowContentMissing, ShowContentMissing) => true
-    _ => false
-  }
+  self.repairs.iter().any(fn(repair) { repair.repair_type == repair_type })
 }
 
 // =============================================================================
@@ -447,7 +418,7 @@ fn build_hk_cache(
             break
           }
         }
-        if valid && id_str.length() > 0 {
+        if valid && not(id_str.is_empty()) {
           cache.set(id, elem)
         }
       }
