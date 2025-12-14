@@ -20,9 +20,7 @@ fn to_char_array(s : String) -> Array[Char] {
 /// Check if JSON string contains characters that need escaping for HTML attribute
 fn needs_html_attr_escape(s : String) -> Bool {
   let chars = to_char_array(s)
-  let len = chars.length()
-  for i = 0; i < len; i = i + 1 {
-    let c = chars[i]
+  for c in chars {
     // Check for characters that need escaping in HTML attributes
     if c == '"' || c == '&' || c == '<' || c == '>' {
       return true

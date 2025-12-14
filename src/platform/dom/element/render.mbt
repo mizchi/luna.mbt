@@ -40,14 +40,14 @@ pub fn create_element(
   let elem = doc.createElement(tag)
 
   // Apply attributes
-  for i = 0; i < attrs.length(); i = i + 1 {
-    let (name, value) = attrs[i]
+  for attr in attrs {
+    let (name, value) = attr
     apply_attribute(elem, name, value)
   }
 
   // Append children
-  for i = 0; i < children.length(); i = i + 1 {
-    elem.as_node().appendChild(children[i].to_jsdom()) |> ignore
+  for child in children {
+    elem.as_node().appendChild(child.to_jsdom()) |> ignore
   }
   El(DomElement::from_jsdom(elem))
 }

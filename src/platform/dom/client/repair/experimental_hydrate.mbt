@@ -476,8 +476,7 @@ fn find_child_element_by_tag(
 ) -> @js_dom.Element? {
   let children = parent.childNodes()
   let upper_tag = tag.to_upper()
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 1 { // Element node
       let elem : @js_dom.Element = child.as_any().cast()
       if elem.tagName() == upper_tag {
@@ -718,8 +717,8 @@ fn experimental_hydrate_node(
       experimental_hydrate_dynamic_text(parent, id, getter, ctx)
     }
     @luna.Fragment(children) =>
-      for i = 0; i < children.length(); i = i + 1 {
-        experimental_hydrate_node(parent, children[i], ctx)
+      for child in children {
+        experimental_hydrate_node(parent, child, ctx)
       }
     @luna.Element(elem) => experimental_hydrate_element(parent, elem, ctx)
     @luna.Show(condition=cond, child=child_fn) => {
@@ -772,8 +771,7 @@ fn experimental_hydrate_text(
   ctx.path_stack.push("#text")
   // Find first text node child
   let children = parent.childNodes()
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 3 { // Text node
       let actual = get_text_content(child)
       if actual != expected {
@@ -822,8 +820,7 @@ fn experimental_hydrate_dynamic_text(
   let children = parent.childNodes()
 
   // Look for existing marker
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 8 { // Comment node
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
@@ -972,8 +969,8 @@ fn experimental_hydrate_element(
   }
 
   // Hydrate children
-  for i = 0; i < elem.children.length(); i = i + 1 {
-    experimental_hydrate_node(dom_elem.as_node(), elem.children[i], ctx)
+  for child in elem.children {
+    experimental_hydrate_node(dom_elem.as_node(), child, ctx)
   }
   let _ = ctx.path_stack.pop()
 
@@ -994,14 +991,14 @@ fn create_element_from_velem(
   }
 
   // Apply attributes
-  for i = 0; i < elem.attrs.length(); i = i + 1 {
-    let (name, value) = elem.attrs[i]
+  for attr in elem.attrs {
+    let (name, value) = attr
     apply_vattr(dom_elem, name, value)
   }
 
   // Recursively create children
-  for i = 0; i < elem.children.length(); i = i + 1 {
-    let child_dom = @client.render_vnode_to_dom(elem.children[i])
+  for child in elem.children {
+    let child_dom = @client.render_vnode_to_dom(child)
     dom_elem.as_node().appendChild(child_dom) |> ignore
   }
   dom_elem
@@ -1014,8 +1011,8 @@ fn repair_attributes(
   attrs : Array[(String, @luna.Attr[@js.Any])],
   ctx : ExperimentalHydrationContext,
 ) -> Unit {
-  for i = 0; i < attrs.length(); i = i + 1 {
-    let (name, value) = attrs[i]
+  for attr in attrs {
+    let (name, value) = attr
     match value {
       @luna.VStatic(expected) => {
         // Check if attribute matches
@@ -1094,8 +1091,7 @@ fn experimental_hydrate_show(
   let children = parent.childNodes()
   let mut start_marker : @js_dom.Node? = None
   let mut end_marker : @js_dom.Node? = None
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 8 {
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
@@ -1201,8 +1197,7 @@ fn experimental_hydrate_for(
   let children = parent.childNodes()
   let mut start_marker : @js_dom.Node? = None
   let mut end_marker : @js_dom.Node? = None
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 8 {
       let comment_text = get_text_content(child)
       if comment_text == marker_start {

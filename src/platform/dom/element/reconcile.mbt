@@ -84,8 +84,8 @@ pub fn[T] reconcile_items(
 
   // Handle empty case - just remove all old entries
   if n == 0 {
-    for i = 0; i < old_entries.length(); i = i + 1 {
-      parent.removeChild(old_entries[i].dom) |> ignore
+    for entry in old_entries {
+      parent.removeChild(entry.dom) |> ignore
     }
     return []
   }

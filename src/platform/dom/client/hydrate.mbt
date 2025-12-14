@@ -161,8 +161,8 @@ fn hydrate_node(
       hydrate_dynamic_text(parent, id, getter)
     }
     @luna.Fragment(children) =>
-      for i = 0; i < children.length(); i = i + 1 {
-        hydrate_node(parent, children[i], ctx)
+      for child in children {
+        hydrate_node(parent, child, ctx)
       }
     @luna.Element(elem) => {
       // Check if this element needs hydration (has handlers or dynamic attrs)
@@ -213,8 +213,8 @@ fn hydrate_node(
       // Hydrate children
       match dom_elem_opt {
         Some(dom_elem) =>
-          for i = 0; i < elem.children.length(); i = i + 1 {
-            hydrate_node(dom_elem.as_node(), elem.children[i], ctx)
+          for child in elem.children {
+            hydrate_node(dom_elem.as_node(), child, ctx)
           }
         None => ()
       }
@@ -270,8 +270,7 @@ fn find_child_element_by_tag(
 ) -> @js_dom.Element? {
   let children = parent.childNodes()
   let upper_tag = tag.to_upper()
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 1 { // Element node
       let elem : @js_dom.Element = child.as_any().cast()
       if elem.tagName() == upper_tag {
@@ -292,8 +291,7 @@ fn hydrate_dynamic_text(
   // Find the text marker comments <!--t:id-->...<!--/t-->
   let marker_start = "t:" + id.to_string()
   let children = parent.childNodes()
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 8 { // Comment node
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
@@ -431,8 +429,7 @@ fn hydrate_show(
   // Find the show marker
   let children = parent.childNodes()
   let mut start_marker : @js_dom.Node? = None
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 8 { // Comment node
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
@@ -515,13 +512,13 @@ fn hydrate_child_nodes(
     @luna.Text(_) => ()
     @luna.DynamicText(_) => ctx.current_id = ctx.current_id + 1
     @luna.Fragment(children) =>
-      for i = 0; i < children.length(); i = i + 1 {
-        hydrate_child_nodes(nodes, children[i], ctx)
+      for child in children {
+        hydrate_child_nodes(nodes, child, ctx)
       }
     @luna.Element(elem) => {
       ctx.current_id = ctx.current_id + 1
-      for i = 0; i < elem.children.length(); i = i + 1 {
-        hydrate_child_nodes(nodes, elem.children[i], ctx)
+      for child in elem.children {
+        hydrate_child_nodes(nodes, child, ctx)
       }
     }
     @luna.Show(condition=condition_fn, child=child_getter) => {
@@ -533,8 +530,8 @@ fn hydrate_child_nodes(
     @luna.For(render=render_fn) => {
       ctx.current_id = ctx.current_id + 1
       let items = render_fn()
-      for i = 0; i < items.length(); i = i + 1 {
-        hydrate_child_nodes(nodes, items[i], ctx)
+      for item in items {
+        hydrate_child_nodes(nodes, item, ctx)
       }
     }
     @luna.Component(render=render_fn) =>
@@ -572,8 +569,7 @@ fn hydrate_for(
   let children = parent.childNodes()
   let mut start_marker : @js_dom.Node? = None
   let mut end_marker : @js_dom.Node? = None
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 8 { // Comment node
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
@@ -661,9 +657,8 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
     }
     @luna.Fragment(children) => {
       let fragment = doc.createDocumentFragment()
-      for i = 0; i < children.length(); i = i + 1 {
-        fragment.as_node().appendChild(render_vnode_to_dom(children[i]))
-        |> ignore
+      for child in children {
+        fragment.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
       }
       fragment.as_node()
     }
@@ -671,15 +666,14 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       let dom_elem = doc.createElement(elem.tag)
 
       // Apply attributes
-      for i = 0; i < elem.attrs.length(); i = i + 1 {
-        let (name, value) = elem.attrs[i]
+      for attr in elem.attrs {
+        let (name, value) = attr
         apply_vattr(dom_elem, name, value)
       }
 
       // Append children
-      for i = 0; i < elem.children.length(); i = i + 1 {
-        dom_elem.as_node().appendChild(render_vnode_to_dom(elem.children[i]))
-        |> ignore
+      for child in elem.children {
+        dom_elem.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
       }
       dom_elem.as_node()
     }
@@ -863,8 +857,7 @@ fn hydrate_error_boundary(
   let marker_start = "eb:" + id.to_string()
   let children = parent.childNodes()
   let mut found = false
-  for i = 0; i < children.length(); i = i + 1 {
-    let child = children[i]
+  for child in children {
     if child.nodeType() == 8 { // Comment node
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
