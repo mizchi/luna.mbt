@@ -50,7 +50,7 @@ test "match_url simple" {
   ]
   let compiled = compile(routes)
   let m = match_url("/about", compiled)
-  assert_true(m.is_some())
+  assert_true(m is Some(_))
   assert_eq(m.unwrap().component(), "about")
 }
 
@@ -63,7 +63,7 @@ test "match_url with param" {
   ]
   let compiled = compile(routes, base="/items")
   let m = match_url("/items/123", compiled)
-  assert_true(m.is_some())
+  assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.component(), "item")
   assert_eq(matched.get_param("id"), Some("123"))
@@ -76,7 +76,7 @@ test "match_url with query" {
   ]
   let compiled = compile(routes)
   let m = match_url("/search?q=hello&page=1", compiled)
-  assert_true(m.is_some())
+  assert_true(m is Some(_))
   let matched = m.unwrap()
   assert_eq(matched.get_query("q"), Some("hello"))
   assert_eq(matched.get_query("page"), Some("1"))
@@ -89,7 +89,7 @@ test "match_url no match" {
   ]
   let compiled = compile(routes)
   let m = match_url("/notfound", compiled)
-  assert_true(m.is_none())
+  assert_true(m is None)
 }
 
 ///|

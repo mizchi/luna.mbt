@@ -191,6 +191,69 @@ PRマージ前に以下を確認：
 | `media` | メディアクエリマッチ時 |
 | `none` | 手動トリガー（__LN_HYDRATE__経由） |
 
+## テストポリシー
+
+テストピラミッドに基づき、可能な限り低レイヤーでテストする。
+
+### テストレイヤー
+
+```
+        /\
+       /  \  E2E (Playwright)
+      /----\  - SSR + Hydration統合
+     /      \  - 複数ページ遷移
+    /--------\  - サーバー必須シナリオ
+   /          \
+  /  Browser   \  Vitest Browser Mode
+ /   (DOM)      \  - DOM操作、イベント
+/----------------\  - Hydration単体
+/                  \
+/    MoonBit Unit   \  moon test
+/    (純粋ロジック)    \  - Signal, VNode, Routes, Serialize
+/______________________\  - カバレッジ100%目標
+```
+
+### テスト配置
+
+| レイヤー | ディレクトリ | 対象 |
+|---------|-------------|------|
+| MoonBit Unit | `src/**/*_test.mbt` | 純粋ロジック（DOM非依存） |
+| Browser | `packages/luna/tests/*.test.ts` | DOM操作、Hydration |
+| E2E | `e2e/**/*.test.ts` | SSR統合、複数ページ |
+
+### 判断基準
+
+**MoonBit Unit で書く:**
+- Signal/Effect のロジック
+- VNode 生成・変換
+- Routes マッチング
+- 状態シリアライズ/デシリアライズ
+- `src/core/` 配下は**カバレッジ100%目標**
+
+**Browser Test で書く:**
+- DOM要素の生成・更新
+- イベントハンドラの動作
+- Hydration (単一コンポーネント)
+- CSS クラス・スタイルの反映
+
+**E2E で書く:**
+- SSR → Hydration の統合フロー
+- ページ間ナビゲーション
+- Island間の連携
+- ストリーミングSSR
+
+### テスト追加時のルール
+
+1. **まず MoonBit Unit を検討** - DOM不要なら `*_test.mbt` に追加
+2. **DOM必須なら Browser Test** - `packages/luna/tests/` に追加
+3. **統合が必要なら E2E** - `e2e/` に追加（件数は最小限に）
+
+### 重複禁止
+
+- 同じロジックを複数レイヤーでテストしない
+- MoonBit でカバー済みの Signal ロジックを TS で再テストしない
+- Browser Test でカバー済みの DOM 操作を E2E で再テストしない
+
 ## 参照ドキュメント
 
 - [Architecture](./docs/architecture.md) - モジュール構成の詳細

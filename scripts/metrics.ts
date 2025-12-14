@@ -25,6 +25,7 @@ function getDb(): DatabaseSync {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       timestamp TEXT NOT NULL,
       git_hash TEXT,
+      is_dirty INTEGER DEFAULT 0,
       loader_min_size INTEGER,
       spa_bundle_size INTEGER,
       browser_app_bundle_size INTEGER,
@@ -32,6 +33,13 @@ function getDb(): DatabaseSync {
     );
     CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp);
   `);
+
+  // Add is_dirty column if it doesn't exist (migration)
+  try {
+    db.exec(`ALTER TABLE metrics ADD COLUMN is_dirty INTEGER DEFAULT 0`);
+  } catch {
+    // Column already exists
+  }
 
   return db;
 }
@@ -43,6 +51,15 @@ function getGitHash(): string {
     return execSync("git rev-parse --short HEAD", { cwd: PROJECT_ROOT, encoding: "utf-8" }).trim();
   } catch {
     return "unknown";
+  }
+}
+
+function isGitDirty(): boolean {
+  try {
+    const status = execSync("git status --porcelain", { cwd: PROJECT_ROOT, encoding: "utf-8" });
+    return status.trim().length > 0;
+  } catch {
+    return false;
   }
 }
 
@@ -84,6 +101,21 @@ function formatMs(ms: number): string {
   return `${(ms / 1000).toFixed(2)}s`;
 }
 
+// === Cleanup: Keep only latest per commit hash ===
+
+function cleanupDuplicates(db: DatabaseSync) {
+  // Keep only the latest record per git_hash, except for dirty (uncommitted) entries
+  // Dirty entries are kept as "current" until committed
+  db.exec(`
+    DELETE FROM metrics
+    WHERE id NOT IN (
+      SELECT MAX(id)
+      FROM metrics
+      GROUP BY git_hash, is_dirty
+    )
+  `);
+}
+
 // === Commands ===
 
 function collect() {
@@ -95,11 +127,14 @@ function collect() {
   console.log("🔨 Building MoonBit...");
   execSync("moon build --target js", { cwd: PROJECT_ROOT, stdio: "inherit" });
 
+  console.log("\n🔨 Minifying loader...");
+  execSync("pnpm terser packages/loader/src/loader.js --module --compress --mangle -o packages/loader/loader.min.js", { cwd: PROJECT_ROOT, stdio: "inherit" });
+
   console.log("\n🔨 Building Vite...");
   execSync("pnpm vite build", { cwd: PROJECT_ROOT, stdio: "inherit" });
 
-  // Get file sizes
-  const loaderSize = getFileSize("packages/loader/src/loader.js");
+  // Get file sizes (use minified loader)
+  const loaderSize = getFileSize("packages/loader/loader.min.js");
 
   // Find bundled files with hash in name
   const spaFile = findFileByPattern("dist/assets", /^spa-.*\.js$/);
@@ -110,7 +145,7 @@ function collect() {
 
   console.log("\n📦 Bundle sizes:");
   if (loaderSize !== null) {
-    console.log(`   loader.js: ${formatBytes(loaderSize)}`);
+    console.log(`   loader.min.js: ${formatBytes(loaderSize)}`);
   }
   if (spaSize !== null) {
     console.log(`   spa bundle: ${formatBytes(spaSize)}`);
@@ -124,19 +159,27 @@ function collect() {
   const testTime = measureTestTime();
   console.log(`   Test time: ${formatMs(testTime)}`);
 
+  // Check if working tree is dirty
+  const isDirty = isGitDirty();
+  const gitHash = getGitHash();
+
   // Save to database
   const stmt = db.prepare(`
-    INSERT INTO metrics (timestamp, git_hash, loader_min_size, spa_bundle_size, browser_app_bundle_size, test_time_ms)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO metrics (timestamp, git_hash, is_dirty, loader_min_size, spa_bundle_size, browser_app_bundle_size, test_time_ms)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
     new Date().toISOString(),
-    getGitHash(),
+    gitHash,
+    isDirty ? 1 : 0,
     loaderSize,
     spaSize,
     browserAppSize,
     testTime
   );
+
+  // Cleanup old duplicates
+  cleanupDuplicates(db);
 
   console.log("\n✅ Metrics recorded\n");
   db.close();
@@ -148,8 +191,11 @@ function collect() {
 function showTrend() {
   const db = getDb();
 
+  // First cleanup duplicates
+  cleanupDuplicates(db);
+
   const records = db.prepare(`
-    SELECT git_hash, timestamp, loader_min_size, spa_bundle_size, browser_app_bundle_size, test_time_ms
+    SELECT git_hash, is_dirty, timestamp, loader_min_size, spa_bundle_size, browser_app_bundle_size, test_time_ms
     FROM metrics
     ORDER BY timestamp DESC
     LIMIT 15
@@ -161,24 +207,26 @@ function showTrend() {
     return;
   }
 
-  console.log("📈 Metrics Trend (last 15 builds)\n");
-  console.log("─".repeat(70));
+  console.log("📈 Metrics Trend (latest per commit)\n");
+  console.log("─".repeat(78));
 
   // Reverse for chronological display
   const data = records.reverse();
 
   // Show table header
-  console.log("Hash    │ loader     │ spa        │ browser_app │ test time");
-  console.log("────────┼────────────┼────────────┼─────────────┼────────────");
+  console.log("Hash      │ loader.min │ spa        │ browser_app │ test time");
+  console.log("──────────┼────────────┼────────────┼─────────────┼────────────");
 
   for (const r of data) {
-    const hash = r.git_hash.substring(0, 7);
+    const isDirty = r.is_dirty === 1;
+    const hash = isDirty ? "current*" : r.git_hash.substring(0, 7);
+    const hashDisplay = hash.padEnd(8);
     const loader = r.loader_min_size ? formatBytes(r.loader_min_size).padStart(7) : "    N/A";
     const spa = r.spa_bundle_size ? formatBytes(r.spa_bundle_size).padStart(7) : "    N/A";
     const browserApp = r.browser_app_bundle_size ? formatBytes(r.browser_app_bundle_size).padStart(8) : "     N/A";
     const test = r.test_time_ms ? formatMs(r.test_time_ms).padStart(8) : "     N/A";
 
-    console.log(`${hash} │ ${loader}    │ ${spa}    │ ${browserApp}    │ ${test}`);
+    console.log(`${hashDisplay} │ ${loader}    │ ${spa}    │ ${browserApp}    │ ${test}`);
   }
 
   // Show summary with change from previous
@@ -186,7 +234,7 @@ function showTrend() {
     const current = data[data.length - 1];
     const previous = data[data.length - 2];
 
-    console.log("\n" + "─".repeat(70));
+    console.log("\n" + "─".repeat(78));
     console.log("📊 Latest vs Previous:\n");
 
     const showDiff = (name: string, curr: number | null, prev: number | null) => {
@@ -198,7 +246,7 @@ function showTrend() {
       }
     };
 
-    showDiff("loader.js", current.loader_min_size, previous.loader_min_size);
+    showDiff("loader.min.js", current.loader_min_size, previous.loader_min_size);
     showDiff("spa bundle", current.spa_bundle_size, previous.spa_bundle_size);
     showDiff("browser_app bundle", current.browser_app_bundle_size, previous.browser_app_bundle_size);
 
@@ -209,6 +257,8 @@ function showTrend() {
       console.log(`   test time: ${formatMs(current.test_time_ms)} (${icon} ${diff > 0 ? "+" : ""}${formatMs(Math.abs(diff))} / ${diff > 0 ? "+" : ""}${pct}%)`);
     }
   }
+
+  console.log("\n* current = uncommitted changes");
 
   db.close();
 }
@@ -234,10 +284,14 @@ Usage:
   node scripts/metrics.ts show    Show trend only (no build)
 
 Tracked metrics:
-  - packages/loader/src/loader.js size
+  - packages/loader/loader.min.js size (minified)
   - dist/assets/spa-*.js bundle size
   - dist/assets/playground/browser_app-*.js bundle size
   - moon test execution time
+
+Data retention:
+  - Only the latest record per git commit hash is kept
+  - Uncommitted changes are shown as "current*"
 `);
     break;
   default:
