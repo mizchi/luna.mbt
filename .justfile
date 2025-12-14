@@ -180,10 +180,6 @@ coverage-e2e: build-debug
     rm -rf coverage/e2e-v8
     pnpm playwright test --config e2e/playwright.config.mts e2e/browser-app/coverage.test.mts
 
-# Show coverage summary (legacy)
-coverage-merge:
-    node scripts/coverage-merge.ts
-
 # Generate unified coverage report (uses source maps to map JS -> .mbt)
 coverage-unified:
     node scripts/coverage-unified.ts
