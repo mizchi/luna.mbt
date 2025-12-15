@@ -1062,6 +1062,23 @@ fn run_generate_command(args : Array[String]) -> Unit {
         @process.exit(1)
       }
     }
+    // Generate island manifest for programmatic build
+    let manifest_entries : Array[(String, String)] = []
+    for entry in islands {
+      let island_name = extract_island_name(entry.name)
+      manifest_entries.push((island_name, "./.sol/islands/\{entry.name}.js"))
+    }
+    let manifest_json = @sol.generate_island_manifest(manifest_entries, "./static")
+    let manifest_path = @path.join2(sol_dir, "manifest.json")
+    try {
+      @fs.writeFileSync(manifest_path, @js.any(manifest_json))
+      println(@colorette.gray("  Generated .sol/manifest.json"))
+    } catch {
+      e => {
+        console_error(@colorette.red("Error writing manifest.json: \{e}"))
+        @process.exit(1)
+      }
+    }
   }
   // Generate entry.client.js (data-island style - legacy)
   if not(islands.is_empty()) {

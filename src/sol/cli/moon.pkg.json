@@ -31,6 +31,10 @@
     {
       "path": "mizchi/npm_typed/colorette",
       "alias": "colorette"
+    },
+    {
+      "path": "mizchi/luna/sol",
+      "alias": "sol"
     }
   ],
   "warn-list": "-27-20",

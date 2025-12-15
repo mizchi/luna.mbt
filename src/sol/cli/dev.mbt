@@ -68,28 +68,31 @@ fn run_dev_command(args : Array[String]) -> Unit {
     }
   }
   println(@colorette.green("✓ Build complete"))
-  // Step 3: Bundle client code with rolldown if config exists
-  let rolldown_config = @path.join2(cwd, "rolldown.config.mjs")
-  if @fs.existsSync(rolldown_config) {
+  // Step 3: Bundle client code with rolldown if manifest exists
+  let manifest_path = @path.join2(cwd, ".sol/manifest.json")
+  if @fs.existsSync(manifest_path) {
     println(@colorette.gray("Bundling client code with rolldown..."))
-    try {
-      let bundle_result = @child_process.spawnSync(
-        "npx",
-        args=["rolldown", "-c", "rolldown.config.mjs"],
-        stdio="inherit",
-      )
-      if bundle_result.status() != Some(0) {
-        console_error(@colorette.red("Rolldown bundle failed"))
+    @sol.build_from_manifest_file(
+      manifest_path,
+      cwd,
+      fn(files) {
+        println(@colorette.green("✓ Client bundle complete (\{files.length()} files)"))
+        // Continue to step 4: run server
+        run_server(cwd, port)
+      },
+      fn(error) {
+        console_error(@colorette.red("Bundle error: \{error}"))
         @process.exit(1)
-      }
-    } catch {
-      e => {
-        console_error(@colorette.red("Bundle error: \{e}"))
-        @process.exit(1)
-      }
-    }
-    println(@colorette.green("✓ Client bundle complete"))
+      },
+    )
+  } else {
+    // No manifest, skip bundling and run server directly
+    run_server(cwd, port)
   }
+}
+
+///|
+fn run_server(cwd : String, port : String) -> Unit {
   // Step 4: Find and run the server entry point
   let possible_entries = [
     "target/js/release/build/server/run/run.js", "target/js/release/build/examples/example_app/example_app.js",
