@@ -15,7 +15,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
 
 // Load static assets
-const loaderPath = join(rootDir, "packages", "loader", "src", "loader.js");
+const loaderPath = join(rootDir, "js", "loader", "src", "loader.js");
 const loaderCode = readFileSync(loaderPath, "utf-8");
 
 // Import MoonBit counter_component module for SSR
