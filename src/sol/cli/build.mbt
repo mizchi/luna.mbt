@@ -8,6 +8,7 @@ fn show_build_help() -> Unit {
     #|Options:
     #|  --target <target>   Build target (js, wasm) (default: js)
     #|  --skip-bundle       Skip rolldown bundling
+    #|  --skip-generate     Skip _sol directory generation
     #|  -h, --help          Show help
   println(help)
 }
@@ -20,6 +21,7 @@ fn run_build_command(args : Array[String]) -> Unit {
     options=[
       @util.String(key="target", short="t", multiple=false, default=Some("js")),
       @util.Boolean(key="skip-bundle", short="s"),
+      @util.Boolean(key="skip-generate", short="g"),
       @util.Boolean(key="help", short="h"),
     ],
     allow_positionals=false,
@@ -39,6 +41,11 @@ fn run_build_command(args : Array[String]) -> Unit {
   } else {
     false
   }
+  let skip_generate : Bool = if result.values.contains("skip-generate") {
+    result.values["skip-generate"].cast()
+  } else {
+    false
+  }
   let cwd = @process.cwd()
   // Check if this is a MoonBit project
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
@@ -47,6 +54,12 @@ fn run_build_command(args : Array[String]) -> Unit {
       @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
     )
     @process.exit(1)
+  }
+  // Run generate if sol.config.json exists
+  let sol_config_path = @path.join2(cwd, "sol.config.json")
+  if not(skip_generate) && @fs.existsSync(sol_config_path) {
+    println(@colorette.cyan("Generating _sol directory..."))
+    run_generate_command([])
   }
   println(@colorette.cyan("Building for production (target: \{target})..."))
   // Run moon build

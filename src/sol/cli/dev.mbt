@@ -42,7 +42,14 @@ fn run_dev_command(args : Array[String]) -> Unit {
     @process.exit(1)
   }
   println(@colorette.cyan("Starting Sol development server..."))
-  // Step 1: Build MoonBit project
+  // Step 1: Run generate if sol.config.json exists
+  let sol_config_path = @path.join2(cwd, "sol.config.json")
+  if @fs.existsSync(sol_config_path) {
+    println(@colorette.gray("Generating .sol directory..."))
+    run_generate_command([])
+    println(@colorette.green("✓ Generate complete"))
+  }
+  // Step 2: Build MoonBit project
   println(@colorette.gray("Building MoonBit project..."))
   try {
     let build_result = @child_process.spawnSync(
@@ -61,7 +68,29 @@ fn run_dev_command(args : Array[String]) -> Unit {
     }
   }
   println(@colorette.green("✓ Build complete"))
-  // Step 2: Find and run the server entry point
+  // Step 3: Bundle client code with rolldown if config exists
+  let rolldown_config = @path.join2(cwd, "rolldown.config.mjs")
+  if @fs.existsSync(rolldown_config) {
+    println(@colorette.gray("Bundling client code with rolldown..."))
+    try {
+      let bundle_result = @child_process.spawnSync(
+        "npx",
+        args=["rolldown", "-c", "rolldown.config.mjs"],
+        stdio="inherit",
+      )
+      if bundle_result.status() != Some(0) {
+        console_error(@colorette.red("Rolldown bundle failed"))
+        @process.exit(1)
+      }
+    } catch {
+      e => {
+        console_error(@colorette.red("Bundle error: \{e}"))
+        @process.exit(1)
+      }
+    }
+    println(@colorette.green("✓ Client bundle complete"))
+  }
+  // Step 4: Find and run the server entry point
   let possible_entries = [
     "target/js/release/build/server/run/run.js", "target/js/release/build/examples/example_app/example_app.js",
     "target/js/release/build/main/main.js",
@@ -85,10 +114,13 @@ fn run_dev_command(args : Array[String]) -> Unit {
     }
     Some(entry) => {
       println(@colorette.cyan("Running \{entry}..."))
+      // Set PORT environment variable before starting server
+      set_env("PORT", port)
+      println(
+        @colorette.green("✓ Server starting at http://localhost:\{port}"),
+      )
       // Run the server with inherited stdio
       let server = @child_process.spawn("node", args=[entry], cwd~)
-      // Set PORT environment variable
-      set_env("PORT", port)
       // Handle server exit
       server
       .to_event_emitter()

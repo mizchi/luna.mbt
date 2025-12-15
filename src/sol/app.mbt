@@ -29,6 +29,10 @@ pub async fn create_app() -> App {
 }
 
 ///|
+extern "js" fn ffi_init_fs() -> @js.Promise[Unit] =
+  #| () => import('node:fs').then(fs => { globalThis.__SOL_FS__ = fs; })
+
+///|
 extern "js" fn ffi_new_hono_async() -> @js.Promise[@js.Any] =
   #| () => import("hono").then(m => new m.Hono())
 
@@ -36,11 +40,13 @@ extern "js" fn ffi_new_hono_async() -> @js.Promise[@js.Any] =
 /// Create a new Sol application and run callback with it
 /// This is useful for main function that cannot be async
 pub fn create_app_then(callback : (App) -> Unit) -> Unit {
-  let _ = ffi_new_hono_async().then(fn(app) {
-    callback(app.cast())
-    @js.Promise::resolve(@js.any(()))
+  // Initialize fs module first, then create Hono app
+  let _ = ffi_init_fs().then(fn(_) {
+    ffi_new_hono_async().then(fn(app) {
+      callback(app.cast())
+      @js.Promise::resolve(@js.any(()))
+    })
   })
-
 }
 
 ///|
@@ -114,6 +120,18 @@ pub fn api(app : App, path : String, handler : (Ctx) -> @js.Any) -> App {
 }
 
 ///|
+/// Create a plain JavaScript object from key-value pairs
+/// Use this for API responses instead of MoonBit Map
+extern "js" fn ffi_create_json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any =
+  #| (pairs) => Object.fromEntries(pairs.map(p => [p._0, p._1]))
+
+///|
+/// Create a JSON object for API responses
+pub fn json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any {
+  ffi_create_json_obj(pairs)
+}
+
+///|
 /// Register a POST API route
 pub fn api_post(app : App, path : String, handler : (Ctx) -> @js.Any) -> App {
   app.post(path, fn(c) { c.json(handler(c)) })
@@ -128,10 +146,21 @@ pub fn serve(app : App, port : Int) -> Unit {
 ///|
 extern "js" fn ffi_serve(app : @js.Any, port : Int) -> Unit =
   #|(app, port) => {
-  #|  const { serve } = require('@hono/node-server');
-  #|  serve({ fetch: app.fetch, port });
-  #|  console.log(`Server running at http://localhost:${port}`);
+  #|  import('@hono/node-server').then(({ serve }) => {
+  #|    serve({ fetch: app.fetch, port });
+  #|    console.log(`Server running at http://localhost:${port}`);
+  #|  });
   #|}
+
+///|
+/// Get port from PORT environment variable, default to 3000
+pub fn get_port() -> Int {
+  ffi_get_port()
+}
+
+///|
+extern "js" fn ffi_get_port() -> Int =
+  #| () => parseInt(process.env.PORT || '3000', 10)
 
 // ============================================================================
 // Island Architecture Support
@@ -573,7 +602,18 @@ extern "js" fn ffi_create_js_response(
 
 ///|
 extern "js" fn ffi_read_file_sync(path : String) -> String? =
-  #| (path) => { try { return require('fs').readFileSync(path, 'utf-8'); } catch { return null; } }
+  #| (path) => {
+  #|   try {
+  #|     // Use pre-initialized fs module from globalThis (set by server startup)
+  #|     if (!globalThis.__SOL_FS__) {
+  #|       throw new Error('fs module not initialized. Call __SOL_INIT_FS__ first.');
+  #|     }
+  #|     return globalThis.__SOL_FS__.readFileSync(path, 'utf-8');
+  #|   } catch (e) {
+  #|     console.error('Failed to read file:', path, e);
+  #|     return null;
+  #|   }
+  #| }
 
 ///|
 extern "js" fn ffi_get_req_path(c : @js.Any) -> String =
