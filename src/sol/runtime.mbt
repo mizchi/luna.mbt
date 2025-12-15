@@ -207,7 +207,7 @@ pub let default_loader_url : String = "/loader.min.js"
 // Re-export shard types for convenience
 
 ///|
-pub using @shard {type TriggerType, type StateConfig, type ShardConfig}
+pub using @mercurius {type TriggerType, type StateConfig, type ShardConfig}
 
 ///|
 /// Island configuration
@@ -217,9 +217,9 @@ pub struct IslandConfig[E] {
   /// ES module URL for hydration script
   script_url : String
   /// Hydration trigger type
-  trigger : @shard.TriggerType
+  trigger : @mercurius.TriggerType
   /// State configuration
-  state : @shard.StateConfig
+  state : @mercurius.StateConfig
   /// SSR rendered content (VNode)
   content : @luna.Node[E]?
   /// SSR rendered HTML string (alternative to content)
@@ -235,8 +235,8 @@ pub fn[E] IslandConfig::new(
   {
     id,
     script_url,
-    trigger: @shard.TriggerType::Load,
-    state: @shard.StateConfig::Empty,
+    trigger: @mercurius.TriggerType::Load,
+    state: @mercurius.StateConfig::Empty,
     content: None,
     ssr_html: None,
   }
@@ -246,7 +246,7 @@ pub fn[E] IslandConfig::new(
 /// Builder: set trigger type
 pub fn[E] IslandConfig::with_trigger(
   self : IslandConfig[E],
-  trigger : @shard.TriggerType,
+  trigger : @mercurius.TriggerType,
 ) -> IslandConfig[E] {
   { ..self, trigger, }
 }
@@ -257,7 +257,7 @@ pub fn[E] IslandConfig::with_state(
   self : IslandConfig[E],
   json : String,
 ) -> IslandConfig[E] {
-  { ..self, state: @shard.StateConfig::Inline(json) }
+  { ..self, state: @mercurius.StateConfig::Inline(json) }
 }
 
 ///|
@@ -266,7 +266,7 @@ pub fn[E] IslandConfig::with_state_ref(
   self : IslandConfig[E],
   script_id : String,
 ) -> IslandConfig[E] {
-  { ..self, state: @shard.StateConfig::ScriptRef(script_id) }
+  { ..self, state: @mercurius.StateConfig::ScriptRef(script_id) }
 }
 
 ///|
@@ -275,7 +275,7 @@ pub fn[E] IslandConfig::with_state_url(
   self : IslandConfig[E],
   url : String,
 ) -> IslandConfig[E] {
-  { ..self, state: @shard.StateConfig::Url(url) }
+  { ..self, state: @mercurius.StateConfig::Url(url) }
 }
 
 ///|
@@ -310,18 +310,18 @@ pub fn[E] render_island(config : IslandConfig[E]) -> String {
   }
 
   // Convert state to shard format
-  let shard_config = @shard.ShardConfig::new(config.id, config.script_url)
+  let shard_config = @mercurius.ShardConfig::new(config.id, config.script_url)
     .with_trigger(config.trigger)
     .with_ssr_content(ssr_content)
 
   // Apply state configuration
   let final_config = match config.state {
-    @shard.StateConfig::Empty => shard_config
-    @shard.StateConfig::Inline(json) => shard_config.with_state(json)
-    @shard.StateConfig::ScriptRef(id) => shard_config.with_state_ref(id)
-    @shard.StateConfig::Url(url) => shard_config.with_state_url(url)
+    @mercurius.StateConfig::Empty => shard_config
+    @mercurius.StateConfig::Inline(json) => shard_config.with_state(json)
+    @mercurius.StateConfig::ScriptRef(id) => shard_config.with_state_ref(id)
+    @mercurius.StateConfig::Url(url) => shard_config.with_state_url(url)
   }
-  @shard.generate_shard(final_config).html
+  @mercurius.generate_shard(final_config).html
 }
 
 ///|
@@ -386,28 +386,28 @@ pub fn[E] render_island_with_state_script(
         None => ""
       }
   }
-  let shard_config = @shard.ShardConfig::new(config.id, config.script_url)
+  let shard_config = @mercurius.ShardConfig::new(config.id, config.script_url)
     .with_trigger(config.trigger)
     .with_ssr_content(ssr_content)
-  @shard.generate_shard_with_state_script(shard_config, state_json).html
+  @mercurius.generate_shard_with_state_script(shard_config, state_json).html
 }
 
 ///|
 /// Generate state script tag for external state
 pub fn generate_state_script(id : String, json : String) -> String {
-  @shard.generate_state_script(id, json)
+  @mercurius.generate_state_script(id, json)
 }
 
 ///|
 /// Escape JSON for safe embedding in HTML attributes
 pub fn escape_json_for_attr(json : String) -> String {
-  @shard.escape_json_for_attr(json)
+  @mercurius.escape_json_for_attr(json)
 }
 
 ///|
 /// Escape JSON for safe embedding in script tags
 pub fn escape_json_for_html(json : String) -> String {
-  @shard.escape_json_for_html(json)
+  @mercurius.escape_json_for_html(json)
 }
 
 // ============================================================================

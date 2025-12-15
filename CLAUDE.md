@@ -160,7 +160,7 @@ just metrics-trend         # トレンドグラフ表示
 - MoonBitのデッドコード削除を活用
 
 ### セキュリティ
-- XSSエスケープは `src/renderer/shard/serializer.mbt` で処理
+- XSSエスケープは `src/mercurius/serializer.mbt` で処理
 - ln:state に含まれるJSONは必ずエスケープ
 - `</script>` インジェクション対策済み
 
@@ -257,4 +257,4 @@ PRマージ前に以下を確認：
 ## 参照ドキュメント
 
 - [Architecture](./docs/architecture.md) - モジュール構成の詳細
-- [Shard Architecture](./src/renderer/shard/ARCHITECTURE.md) - Island埋め込みの仕組み
+- [Shard Architecture](./src/mercurius/ARCHITECTURE.md) - Island埋め込みの仕組み

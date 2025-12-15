@@ -91,7 +91,7 @@ let html = @server_dom.render_document(doc)
 ```
 core/signal  ←  core/  ←  renderer/
                   ↑           ↑
-         platform/dom/element renderer/shard/
+         platform/dom/element mercurius/
                   ↑
             platform/dom/
                   ↑

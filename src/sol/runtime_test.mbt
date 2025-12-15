@@ -45,9 +45,9 @@ test "IslandConfig::new: creates config with defaults" {
 ///|
 test "IslandConfig::with_trigger: sets trigger" {
   let config : IslandConfig[Unit] = IslandConfig::new("test", "/test.js").with_trigger(
-    @shard.TriggerType::Idle,
+    @mercurius.TriggerType::Idle,
   )
-  assert_true(config.trigger is @shard.TriggerType::Idle)
+  assert_true(config.trigger is @mercurius.TriggerType::Idle)
 }
 
 ///|
@@ -55,7 +55,7 @@ test "IslandConfig::with_state: sets inline state" {
   let config : IslandConfig[Unit] = IslandConfig::new("test", "/test.js").with_state(
     "{\"count\":0}",
   )
-  assert_true(config.state is @shard.StateConfig::Inline(_))
+  assert_true(config.state is @mercurius.StateConfig::Inline(_))
 }
 
 ///|
@@ -63,7 +63,7 @@ test "IslandConfig::with_state_ref: sets script ref state" {
   let config : IslandConfig[Unit] = IslandConfig::new("test", "/test.js").with_state_ref(
     "state-script-id",
   )
-  assert_true(config.state is @shard.StateConfig::ScriptRef(_))
+  assert_true(config.state is @mercurius.StateConfig::ScriptRef(_))
 }
 
 ///|
@@ -71,7 +71,7 @@ test "IslandConfig::with_state_url: sets url state" {
   let config : IslandConfig[Unit] = IslandConfig::new("test", "/test.js").with_state_url(
     "/api/state",
   )
-  assert_true(config.state is @shard.StateConfig::Url(_))
+  assert_true(config.state is @mercurius.StateConfig::Url(_))
 }
 
 ///|
@@ -85,13 +85,13 @@ test "IslandConfig::with_ssr_html: sets ssr html" {
 ///|
 test "IslandConfig: builder chain" {
   let config : IslandConfig[Unit] = IslandConfig::new("counter", "/counter.js")
-    .with_trigger(@shard.TriggerType::Visible)
+    .with_trigger(@mercurius.TriggerType::Visible)
     .with_state("{\"value\":42}")
     .with_ssr_html("<span>42</span>")
   assert_eq(config.id, "counter")
   assert_eq(config.script_url, "/counter.js")
-  assert_true(config.trigger is @shard.TriggerType::Visible)
-  assert_true(config.state is @shard.StateConfig::Inline(_))
+  assert_true(config.trigger is @mercurius.TriggerType::Visible)
+  assert_true(config.state is @mercurius.StateConfig::Inline(_))
   assert_true(config.ssr_html is Some(_))
 }
 
@@ -168,7 +168,7 @@ test "render_island: with state" {
 ///|
 test "render_island: with trigger" {
   let config : IslandConfig[Unit] = IslandConfig::new("lazy", "/lazy.js")
-    .with_trigger(@shard.TriggerType::Visible)
+    .with_trigger(@mercurius.TriggerType::Visible)
     .with_ssr_html("<div>Lazy</div>")
   let html = render_island(config)
   assert_true(html.contains("ln:trigger=\"visible\""))
