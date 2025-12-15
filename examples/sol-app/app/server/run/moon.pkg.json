@@ -1,0 +1,10 @@
+{
+  "supported-targets": ["js"],
+  "is-main": true,
+  "import": [
+    { "path": "mizchi/luna/sol", "alias": "sol" },
+    { "path": "mizchi/js/core", "alias": "core" },
+    { "path": "example/sol-app/server/pages/home", "alias": "page_home" },
+    { "path": "example/sol-app/server/pages/about", "alias": "page_about" }
+  ]
+}

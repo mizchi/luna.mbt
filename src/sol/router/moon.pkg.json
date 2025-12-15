@@ -1,0 +1,12 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    { "path": "mizchi/luna/core", "alias": "luna" },
+    { "path": "mizchi/luna/core/routes", "alias": "routes" },
+    { "path": "mizchi/luna/core/render", "alias": "render" },
+    { "path": "mizchi/npm_typed/hono", "alias": "hono" },
+    { "path": "mizchi/js/core", "alias": "js" }
+  ]
+}

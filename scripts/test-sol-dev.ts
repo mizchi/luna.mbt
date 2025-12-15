@@ -97,6 +97,7 @@ async function createProject() {
 
   // Verify project structure
   const requiredFiles = [
+    ".gitignore",
     "moon.mod.json",
     "package.json",
     "sol.config.json",
@@ -210,7 +211,7 @@ async function testSolDev() {
     }
 
     // Wait for static files to be generated
-    const staticFile = join(testDir, "static/hydrate_counter.js");
+    const staticFile = join(testDir, ".sol/static/hydrate_counter.js");
     let staticWait = 0;
     while (!existsSync(staticFile) && staticWait < 10000) {
       await sleep(500);
@@ -252,7 +253,7 @@ async function testSolDev() {
       ".sol/luna-client-entry.js",
       ".sol/islands/island_client_hydrate_counter.js",
       "rolldown.config.mjs",
-      "static/hydrate_counter.js",
+      ".sol/static/hydrate_counter.js",
     ];
 
     for (const file of generatedFiles) {

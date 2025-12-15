@@ -1,0 +1,7 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/luna/platform/dom", "alias": "dom" },
+    { "path": "mizchi/js/core", "alias": "core" }
+  ]
+}

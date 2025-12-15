@@ -640,14 +640,12 @@ extern "js" fn ffi_create_js_response(
 extern "js" fn ffi_read_file_sync(path : String) -> String? =
   #| (path) => {
   #|   try {
-  #|     // Use pre-initialized fs module from globalThis (set by server startup)
   #|     if (!globalThis.__SOL_FS__) {
   #|       throw new Error('fs module not initialized. Call __SOL_INIT_FS__ first.');
   #|     }
   #|     return globalThis.__SOL_FS__.readFileSync(path, 'utf-8');
   #|   } catch (e) {
-  #|     console.error('Failed to read file:', path, e);
-  #|     return null;
+  #|     return undefined;
   #|   }
   #| }
 
@@ -747,10 +745,15 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
       }
     }
 
-    // Fallback: try to read from local_dir/filename
+    // Fallback: try to read from local_dir/filename, then .sol/static/filename
     let local_path = cfg.local_dir + "/" + filename
-    match read_file_sync(local_path) {
-      Some(content) => {
+    let sol_static_path = ".sol/static/" + filename
+    let content = match read_file_sync(local_path) {
+      Some(c) => Some(c)
+      None => read_file_sync(sol_static_path)
+    }
+    match content {
+      Some(c) => {
         let content_type = if filename.has_suffix(".js") {
           "application/javascript"
         } else if filename.has_suffix(".css") {
@@ -760,7 +763,7 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
         } else {
           "text/plain"
         }
-        text_response(content, content_type)
+        text_response(c, content_type)
       }
       None => text_response("Not found: " + filename, "text/plain")
     }

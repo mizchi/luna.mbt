@@ -706,7 +706,7 @@ fn generate_rolldown_config(islands : Array[ExportEntry]) -> String {
   }
   buf.write_string("  },\n")
   buf.write_string("  output: {\n")
-  buf.write_string("    dir: './static',\n")
+  buf.write_string("    dir: './.sol/static',\n")
   buf.write_string("    format: 'esm',\n")
   buf.write_string("    entryFileNames: '[name].js',\n")
   buf.write_string("    chunkFileNames: '_shared/[name]-[hash].js',\n")
@@ -1068,7 +1068,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
       let island_name = extract_island_name(entry.name)
       manifest_entries.push((island_name, "./.sol/islands/\{entry.name}.js"))
     }
-    let manifest_json = @sol.generate_island_manifest(manifest_entries, "./static")
+    let manifest_json = @sol.generate_island_manifest(manifest_entries, "./.sol/static")
     let manifest_path = @path.join2(sol_dir, "manifest.json")
     try {
       @fs.writeFileSync(manifest_path, @js.any(manifest_json))
