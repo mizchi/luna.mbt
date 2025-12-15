@@ -8,7 +8,7 @@
       "alias": "luna"
     },
     { "path": "mizchi/luna/core/render", "alias": "render" },
-    { "path": "mizchi/luna/renderer", "alias": "renderer" },
+    { "path": "mizchi/luna/platform/js/stream_renderer", "alias": "stream_renderer" },
     "mizchi/luna/mercurius",
     { "path": "mizchi/js/core", "alias": "js" },
     {

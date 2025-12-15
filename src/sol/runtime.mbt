@@ -476,7 +476,7 @@ pub using @render {
 // Re-export streaming types from renderer (JS-only)
 
 ///|
-pub using @renderer {
+pub using @stream_renderer {
   type StreamWriter,
   render_to_stream,
   render_to_readable_stream,
@@ -528,9 +528,9 @@ fn create_streaming_response_with_async(
 ) -> @js.Any {
   ffi_create_streaming_response_async(header, footer, async fn(write) {
     // Use render_to_stream_with_async which handles VAsync nodes
-    @renderer.render_to_stream_with_async(
+    @stream_renderer.render_to_stream_with_async(
       shell,
-      @renderer.StreamWriter::from_callback(write),
+      @stream_renderer.StreamWriter::from_callback(write),
     )
   })
 }

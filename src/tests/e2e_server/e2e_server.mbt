@@ -272,10 +272,10 @@ async fn create_async_app() -> @sol.App {
 
     // Render with async boundaries collected
     let chunks : Array[String] = []
-    let writer = @renderer.StreamWriter::from_callback(fn(chunk) {
+    let writer = @stream_renderer.StreamWriter::from_callback(fn(chunk) {
       chunks.push(chunk)
     })
-    let boundaries = @renderer.render_to_stream_collecting_async(node, writer)
+    let boundaries = @stream_renderer.render_to_stream_collecting_async(node, writer)
 
     // Build the HTML with template replacement
     let sb = StringBuilder::new()
@@ -339,10 +339,10 @@ async fn create_async_app() -> @sol.App {
       ),
     ])
     let chunks : Array[String] = []
-    let writer = @renderer.StreamWriter::from_callback(fn(chunk) {
+    let writer = @stream_renderer.StreamWriter::from_callback(fn(chunk) {
       chunks.push(chunk)
     })
-    let boundaries = @renderer.render_to_stream_collecting_async(node, writer)
+    let boundaries = @stream_renderer.render_to_stream_collecting_async(node, writer)
     let sb = StringBuilder::new()
     sb.write_string(
       "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Multiple Async Test</title></head><body>",
@@ -406,10 +406,10 @@ async fn create_async_app() -> @sol.App {
       ],
     )
     let chunks : Array[String] = []
-    let writer = @renderer.StreamWriter::from_callback(fn(chunk) {
+    let writer = @stream_renderer.StreamWriter::from_callback(fn(chunk) {
       chunks.push(chunk)
     })
-    let boundaries = @renderer.render_to_stream_collecting_async(node, writer)
+    let boundaries = @stream_renderer.render_to_stream_collecting_async(node, writer)
     let sb = StringBuilder::new()
     sb.write_string(
       "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Nested Async Test</title></head><body>",
@@ -454,10 +454,10 @@ async fn create_async_app() -> @sol.App {
       ),
     ])
     let chunks : Array[String] = []
-    let writer = @renderer.StreamWriter::from_callback(fn(chunk) {
+    let writer = @stream_renderer.StreamWriter::from_callback(fn(chunk) {
       chunks.push(chunk)
     })
-    let _ = @renderer.render_to_stream_collecting_async(node, writer)
+    let _ = @stream_renderer.render_to_stream_collecting_async(node, writer)
     let sb = StringBuilder::new()
     sb.write_string(
       "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Fallback Only Test</title></head><body>",
