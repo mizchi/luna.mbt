@@ -8,7 +8,7 @@ test.describe("Browser App - Coverage Tests", () => {
   test("collects coverage on home page interaction", async ({
     coveragePage: page,
   }) => {
-    await page.goto("/playground/browser_app");
+    await page.goto("/playground/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Interact with counter to exercise code paths
@@ -30,7 +30,7 @@ test.describe("Browser App - Coverage Tests", () => {
   });
 
   test("collects coverage on navigation", async ({ coveragePage: page }) => {
-    await page.goto("/playground/browser_app");
+    await page.goto("/playground/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Navigate through pages
@@ -53,7 +53,7 @@ test.describe("Browser App - Coverage Tests", () => {
   test("collects coverage on browser navigation", async ({
     coveragePage: page,
   }) => {
-    await page.goto("/playground/browser_app");
+    await page.goto("/playground/browser_router");
     await expect(page.locator("[data-page='home']")).toBeVisible();
 
     await page.locator("nav").getByText("About").click();

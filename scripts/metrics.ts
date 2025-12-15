@@ -28,7 +28,7 @@ function getDb(): DatabaseSync {
       is_dirty INTEGER DEFAULT 0,
       loader_min_size INTEGER,
       spa_bundle_size INTEGER,
-      browser_app_bundle_size INTEGER,
+      browser_router_bundle_size INTEGER,
       test_time_ms REAL
     );
     CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp);
@@ -138,7 +138,7 @@ function collect() {
 
   // Find bundled files with hash in name
   const spaFile = findFileByPattern("dist/assets", /^spa-.*\.js$/);
-  const browserAppFile = findFileByPattern("dist/assets/playground", /^browser_app-.*\.js$/);
+  const browserAppFile = findFileByPattern("dist/assets/playground", /^browser_router-.*\.js$/);
 
   const spaSize = spaFile ? getFileSize(spaFile) : null;
   const browserAppSize = browserAppFile ? getFileSize(browserAppFile) : null;
@@ -151,7 +151,7 @@ function collect() {
     console.log(`   spa bundle: ${formatBytes(spaSize)}`);
   }
   if (browserAppSize !== null) {
-    console.log(`   browser_app bundle: ${formatBytes(browserAppSize)}`);
+    console.log(`   browser_router bundle: ${formatBytes(browserAppSize)}`);
   }
 
   // Run tests and measure time
@@ -165,7 +165,7 @@ function collect() {
 
   // Save to database
   const stmt = db.prepare(`
-    INSERT INTO metrics (timestamp, git_hash, is_dirty, loader_min_size, spa_bundle_size, browser_app_bundle_size, test_time_ms)
+    INSERT INTO metrics (timestamp, git_hash, is_dirty, loader_min_size, spa_bundle_size, browser_router_bundle_size, test_time_ms)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
@@ -195,7 +195,7 @@ function showTrend() {
   cleanupDuplicates(db);
 
   const records = db.prepare(`
-    SELECT git_hash, is_dirty, timestamp, loader_min_size, spa_bundle_size, browser_app_bundle_size, test_time_ms
+    SELECT git_hash, is_dirty, timestamp, loader_min_size, spa_bundle_size, browser_router_bundle_size, test_time_ms
     FROM metrics
     ORDER BY timestamp DESC
     LIMIT 15
@@ -214,7 +214,7 @@ function showTrend() {
   const data = records.reverse();
 
   // Show table header
-  console.log("Hash      │ loader.min │ spa        │ browser_app │ test time");
+  console.log("Hash      │ loader.min │ spa        │ browser_router │ test time");
   console.log("──────────┼────────────┼────────────┼─────────────┼────────────");
 
   for (const r of data) {
@@ -223,7 +223,7 @@ function showTrend() {
     const hashDisplay = hash.padEnd(8);
     const loader = r.loader_min_size ? formatBytes(r.loader_min_size).padStart(7) : "    N/A";
     const spa = r.spa_bundle_size ? formatBytes(r.spa_bundle_size).padStart(7) : "    N/A";
-    const browserApp = r.browser_app_bundle_size ? formatBytes(r.browser_app_bundle_size).padStart(8) : "     N/A";
+    const browserApp = r.browser_router_bundle_size ? formatBytes(r.browser_router_bundle_size).padStart(8) : "     N/A";
     const test = r.test_time_ms ? formatMs(r.test_time_ms).padStart(8) : "     N/A";
 
     console.log(`${hashDisplay} │ ${loader}    │ ${spa}    │ ${browserApp}    │ ${test}`);
@@ -248,7 +248,7 @@ function showTrend() {
 
     showDiff("loader.min.js", current.loader_min_size, previous.loader_min_size);
     showDiff("spa bundle", current.spa_bundle_size, previous.spa_bundle_size);
-    showDiff("browser_app bundle", current.browser_app_bundle_size, previous.browser_app_bundle_size);
+    showDiff("browser_router bundle", current.browser_router_bundle_size, previous.browser_router_bundle_size);
 
     if (current.test_time_ms && previous.test_time_ms) {
       const diff = current.test_time_ms - previous.test_time_ms;
@@ -286,7 +286,7 @@ Usage:
 Tracked metrics:
   - js/loader/loader.min.js size (minified)
   - dist/assets/spa-*.js bundle size
-  - dist/assets/playground/browser_app-*.js bundle size
+  - dist/assets/playground/browser_router-*.js bundle size
   - moon test execution time
 
 Data retention:

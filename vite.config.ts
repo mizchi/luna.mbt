@@ -32,7 +32,7 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, './index.html'),
         "playground/spa": resolve(__dirname, './playground/spa/index.html'),
-        "playground/browser_app": resolve(__dirname, './playground/browser_app/index.html'),
+        "playground/browser_router": resolve(__dirname, './playground/browser_router/index.html'),
       },
     },
   },

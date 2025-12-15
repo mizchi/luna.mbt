@@ -74,7 +74,7 @@ fn create_routes() -> Array[@routes.Routes] {
 
 ///|
 /// ナビゲーションコンポーネント
-fn nav_component(router : @browser_router.BrowserRouter) -> @dom.DomNode {
+fn nav_component(router : @router.BrowserRouter) -> @dom.DomNode {
   let base = router.get_base()
   fn nav_link(href : String, label : String) -> @dom.DomNode {
     a(
@@ -146,7 +146,7 @@ fn counter_component() -> @dom.DomNode {
 
 ///|
 /// ホームページ
-fn home_component(router : @browser_router.BrowserRouter) -> @dom.DomNode {
+fn home_component(router : @router.BrowserRouter) -> @dom.DomNode {
   div(class="page home", attrs=[("data-page", AttrString("home"))], [
     h1([text("Welcome to Browser App")]),
     p([text("This is an example of the new Routes-based routing system.")]),
@@ -170,7 +170,7 @@ fn home_component(router : @browser_router.BrowserRouter) -> @dom.DomNode {
 
 ///|
 /// About ページ
-fn about_component(_router : @browser_router.BrowserRouter) -> @dom.DomNode {
+fn about_component(_router : @router.BrowserRouter) -> @dom.DomNode {
   div(class="page about", attrs=[("data-page", AttrString("about"))], [
     h1([text("About")]),
     p([text("This app demonstrates the new routing architecture:")]),
@@ -185,7 +185,7 @@ fn about_component(_router : @browser_router.BrowserRouter) -> @dom.DomNode {
 ///|
 /// ユーザーレイアウト
 fn users_layout_component(
-  router : @browser_router.BrowserRouter,
+  router : @router.BrowserRouter,
   children : @dom.DomNode,
 ) -> @dom.DomNode {
   let base = router.get_base()
@@ -231,7 +231,7 @@ fn users_layout_component(
 ///|
 /// ユーザー一覧
 fn users_list_component(
-  _router : @browser_router.BrowserRouter,
+  _router : @router.BrowserRouter,
 ) -> @dom.DomNode {
   div(class="users-list", [
     h3([text("User List")]),
@@ -246,7 +246,7 @@ fn users_list_component(
 ///|
 /// ユーザー詳細
 fn user_detail_component(
-  _router : @browser_router.BrowserRouter,
+  _router : @router.BrowserRouter,
   m : @routes.RoutesMatch,
 ) -> @dom.DomNode {
   let user_id = m.get_param("id").unwrap_or("unknown")
@@ -269,7 +269,7 @@ fn user_detail_component(
 ///|
 /// 設定インデックス
 fn settings_index_component(
-  router : @browser_router.BrowserRouter,
+  router : @router.BrowserRouter,
 ) -> @dom.DomNode {
   let base = router.get_base()
   let profile_path = base + "/settings/profile"
@@ -293,7 +293,7 @@ fn settings_index_component(
 ///|
 /// プロファイル設定
 fn settings_profile_component(
-  router : @browser_router.BrowserRouter,
+  router : @router.BrowserRouter,
 ) -> @dom.DomNode {
   let base = router.get_base()
   div(class="settings-profile", [
@@ -307,7 +307,7 @@ fn settings_profile_component(
 
 ///|
 /// 404 ページ
-fn not_found_component(router : @browser_router.BrowserRouter) -> @dom.DomNode {
+fn not_found_component(router : @router.BrowserRouter) -> @dom.DomNode {
   let base = router.get_base()
   div(class="not-found", [
     h1([text("404 - Not Found")]),
@@ -323,7 +323,7 @@ fn not_found_component(router : @browser_router.BrowserRouter) -> @dom.DomNode {
 ///|
 /// コンポーネントIDからコンポーネントを解決
 fn resolve_component(
-  router : @browser_router.BrowserRouter,
+  router : @router.BrowserRouter,
   m : @routes.RoutesMatch,
 ) -> @dom.DomNode {
   let component_id = m.component()
@@ -367,7 +367,7 @@ fn resolve_component(
 ///|
 /// ルートをレンダリング
 fn render_route(
-  router : @browser_router.BrowserRouter,
+  router : @router.BrowserRouter,
   container : @dom.DomElement,
 ) -> Unit {
   let _ = @signal.effect(fn() {
@@ -415,9 +415,9 @@ fn main {
   match container {
     Some(el) => {
       // ルーターを作成（ベースパスを指定）
-      let base = "/playground/browser_app"
+      let base = "/playground/browser_router"
       let routes = create_routes()
-      let router = @browser_router.BrowserRouter::new(routes, base~)
+      let router = @router.BrowserRouter::new(routes, base~)
 
       // Debug: log compiled routes
       for route in router.routes {

@@ -112,7 +112,7 @@ const spaModulePath = join(
   "spa.js"
 );
 
-// Import MoonBit browser_app example module path
+// Import MoonBit browser_router example module path
 const browserAppModulePath = join(
   rootDir,
   "target",
@@ -120,8 +120,8 @@ const browserAppModulePath = join(
   "release",
   "build",
   "examples",
-  "browser_app",
-  "browser_app.js"
+  "browser_router",
+  "browser_router.js"
 );
 
 // Promisify MoonBit async callback
@@ -503,7 +503,7 @@ app.get("/spa/main.js", (c) => {
 });
 
 // Browser App Example routes
-// Serve the browser_app example HTML page that loads the MoonBit browser_app module
+// Serve the browser_router example HTML page that loads the MoonBit browser_router module
 const browserAppHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -525,19 +525,19 @@ const browserAppHtml = `<!DOCTYPE html>
 <body>
   <div id="app">Loading...</div>
   <script type="module">
-    import '/playground/browser_app/main.js';
+    import '/playground/browser_router/main.js';
   </script>
 </body>
 </html>`;
 
 // Serve browser-app routes
 // Note: Order matters - static files first, then wildcard SPA route
-app.get("/playground/browser_app/main.js", (c) => {
+app.get("/playground/browser_router/main.js", (c) => {
   const code = readFileSync(browserAppModulePath, "utf-8");
   return c.body(code, 200, { "Content-Type": "application/javascript" });
 });
-app.get("/playground/browser_app", (c) => c.html(browserAppHtml));
-app.get("/playground/browser_app/*", (c) => c.html(browserAppHtml));
+app.get("/playground/browser_router", (c) => c.html(browserAppHtml));
+app.get("/playground/browser_router/*", (c) => c.html(browserAppHtml));
 
 // Chunked Counter routes (for ESM import architecture tests)
 // Serve static files from chunked counter static directory

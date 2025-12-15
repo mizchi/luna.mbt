@@ -30,7 +30,7 @@ export const test = base.extend({
       return (
         url.includes("/target/js/") ||
         url.includes("/js/loader/") ||
-        url.includes("browser_app") ||
+        url.includes("browser_router") ||
         url.includes("playground")
       );
     });
