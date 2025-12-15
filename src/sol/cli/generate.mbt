@@ -1,11 +1,11 @@
-///| sol generate command - Generate _gen and .sol directories from sol.config.json
+///| sol generate command - Generate __gen__ and .sol directories from sol.config.json
 
 ///|
 fn show_generate_help() -> Unit {
   let help =
     #|Usage: sol generate [options]
     #|
-    #|Generate app/_gen (MoonBit) and .sol (JS) directories from sol.config.json
+    #|Generate app/__gen__ (MoonBit) and .sol (JS) directories from sol.config.json
     #|
     #|Options:
     #|  -c, --config <path>  Config file path (default: sol.config.json)
@@ -17,7 +17,8 @@ fn show_generate_help() -> Unit {
 // Config Types
 // =============================================================================
 
-///| Sol configuration (new architecture)
+///|
+/// Sol configuration (new architecture)
 pub struct SolConfig {
   /// Island directories (client hydration)
   islands : Array[String]
@@ -27,7 +28,8 @@ pub struct SolConfig {
   output : String
 }
 
-///| Parsed export entry from mbti
+///|
+/// Parsed export entry from mbti
 struct ExportEntry {
   /// Export name (function name)
   name : String
@@ -37,17 +39,14 @@ struct ExportEntry {
   package_path : String
   /// Import alias (e.g., "components")
   import_alias : String
-  /// Function signature (parameters and return type)
-  signature : String
-  /// Category: "component", "island", or "page"
-  category : String
 }
 
 // =============================================================================
 // Config Parser
 // =============================================================================
 
-///| Parse sol.config.json
+///|
+/// Parse sol.config.json
 pub fn parse_sol_config(json_str : String) -> SolConfig? {
   try {
     let json = @json.parse(json_str.view())
@@ -59,7 +58,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
     }
     let output = match obj.get("output") {
       Some(String(s)) => s
-      _ => "app/_gen"
+      _ => "app/__gen__"
     }
     Some(SolConfig::{ islands, routes, output })
   } catch {
@@ -67,7 +66,8 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
   }
 }
 
-///| Parse string array from JSON object
+///|
+/// Parse string array from JSON object
 fn parse_string_array(obj : Map[String, Json], key : String) -> Array[String] {
   match obj.get(key) {
     Some(Array(arr)) => {
@@ -86,7 +86,8 @@ fn parse_string_array(obj : Map[String, Json], key : String) -> Array[String] {
 // MBTI Parser
 // =============================================================================
 
-///| Parse mbti imports to build alias mapping
+///|
+/// Parse mbti imports to build alias mapping
 pub fn parse_mbti_imports(content : String) -> Map[String, String] {
   // Returns: Map[alias -> package_path]
   let result : Map[String, String] = {}
@@ -107,13 +108,13 @@ pub fn parse_mbti_imports(content : String) -> Map[String, String] {
       // Parse: "package/path" or "package/path" as alias
       if trimmed.has_prefix("\"") {
         // Find second quote
-        let after_first = trimmed.unsafe_substring(start=1, end=trimmed.length())
+        let after_first = trimmed.unsafe_substring(
+          start=1,
+          end=trimmed.length(),
+        )
         match after_first.find("\"") {
           Some(end_quote) => {
-            let pkg_path = after_first.unsafe_substring(
-              start=0,
-              end=end_quote,
-            )
+            let pkg_path = after_first.unsafe_substring(start=0, end=end_quote)
             // Extract alias (last part of path)
             let parts = pkg_path.split("/").to_array()
             if parts.length() > 0 {
@@ -129,8 +130,12 @@ pub fn parse_mbti_imports(content : String) -> Map[String, String] {
   result
 }
 
-///| Rewrite type references from mbti format to exports format
-pub fn rewrite_type_refs(sig : String, _imports : Map[String, String]) -> String {
+///|
+/// Rewrite type references from mbti format to exports format
+pub fn rewrite_type_refs(
+  sig : String,
+  _imports : Map[String, String],
+) -> String {
   // mbti uses @alias.Type where alias is the last part of package path
   // We need to map to the correct alias in exports module
   // Use known type patterns for robust mapping
@@ -144,7 +149,8 @@ pub fn rewrite_type_refs(sig : String, _imports : Map[String, String]) -> String
   result
 }
 
-///| Parse mbti file and extract pub fn declarations
+///|
+/// Parse mbti file and extract pub fn declarations
 pub fn parse_mbti(content : String) -> Array[(String, String)] {
   let result : Array[(String, String)] = []
   let imports = parse_mbti_imports(content)
@@ -172,10 +178,11 @@ pub fn parse_mbti(content : String) -> Array[(String, String)] {
   result
 }
 
-///| Find mbti files in directories matching glob patterns
+///|
+/// Find mbti files in directories matching glob patterns
 fn find_mbti_files(
   cwd : String,
-  patterns : Array[String]
+  patterns : Array[String],
 ) -> Array[(String, String)] {
   // Returns: Array of (dir_path, mbti_content)
   let result : Array[(String, String)] = []
@@ -216,7 +223,8 @@ fn find_mbti_files(
   result
 }
 
-///| Extract package path from mbti content
+///|
+/// Extract package path from mbti content
 pub fn extract_package_path(mbti_content : String) -> String? {
   let lines = mbti_content.split("\n").to_array()
   for line in lines {
@@ -224,15 +232,10 @@ pub fn extract_package_path(mbti_content : String) -> String? {
     let trimmed = line_str.trim_start(" \t").to_string()
     if trimmed.has_prefix("package \"") {
       let start = 9 // len of 'package "'
-      let after_prefix = trimmed.unsafe_substring(
-        start~,
-        end=trimmed.length(),
-      )
+      let after_prefix = trimmed.unsafe_substring(start~, end=trimmed.length())
       match after_prefix.find("\"") {
         Some(end_quote) =>
-          return Some(
-            trimmed.unsafe_substring(start~, end=end_quote + start),
-          )
+          return Some(trimmed.unsafe_substring(start~, end=end_quote + start))
         None => ()
       }
     }
@@ -245,7 +248,9 @@ pub fn extract_package_path(mbti_content : String) -> String? {
 // =============================================================================
 
 ///| Extract clean island name from export name
-///| Removes "island_client_" or "island_" prefix
+
+///|
+/// Removes "island_client_" or "island_" prefix
 pub fn extract_island_name(name : String) -> String {
   if name.has_prefix("island_client_") {
     name.substring(start=14)
@@ -256,8 +261,12 @@ pub fn extract_island_name(name : String) -> String {
   }
 }
 
-///| Generate import alias from package path
-pub fn generate_import_alias(package_path : String, category : String) -> String {
+///|
+/// Generate import alias from package path
+pub fn generate_import_alias(
+  package_path : String,
+  category : String,
+) -> String {
   // e.g., "myproject/islands/counter" -> "island_counter"
   // e.g., "myproject/pages/home" -> "page_home"
   // e.g., "myproject/components" -> "components"
@@ -273,11 +282,12 @@ pub fn generate_import_alias(package_path : String, category : String) -> String
   }
 }
 
-///| Generate export name
+///|
+/// Generate export name
 pub fn generate_export_name(
   fn_name : String,
   import_alias : String,
-  category : String
+  category : String,
 ) -> String {
   match category {
     "island" =>
@@ -298,7 +308,8 @@ pub fn generate_export_name(
   }
 }
 
-///| Collect island exports from config
+///|
+/// Collect island exports from config
 fn collect_exports(cwd : String, config : SolConfig) -> Array[ExportEntry] {
   let entries : Array[ExportEntry] = []
   // Islands only (new architecture)
@@ -310,27 +321,24 @@ fn collect_exports(cwd : String, config : SolConfig) -> Array[ExportEntry] {
     let import_alias = generate_import_alias(pkg_path, "island")
     let funcs = parse_mbti(content)
     for func in funcs {
-      let (name, sig) = func
+      let (name, _sig) = func
       // Only include hydrate_* functions
       if name.has_prefix("hydrate_") {
         let export_name = name // Keep original name
-        entries.push(
-          ExportEntry::{
-            name: export_name,
-            source_name: name,
-            package_path: pkg_path,
-            import_alias,
-            signature: sig,
-            category: "island",
-          },
-        )
+        entries.push(ExportEntry::{
+          name: export_name,
+          source_name: name,
+          package_path: pkg_path,
+          import_alias,
+        })
       }
     }
   }
   entries
 }
 
-///| Split parameters respecting nested brackets
+///|
+/// Split parameters respecting nested brackets
 pub fn split_params(params_str : String) -> Array[String] {
   let result : Array[String] = []
   let current = StringBuilder::new()
@@ -366,7 +374,8 @@ pub fn split_params(params_str : String) -> Array[String] {
   result
 }
 
-///| Find matching closing paren position
+///|
+/// Find matching closing paren position
 pub fn find_matching_paren(s : String, start : Int) -> Int? {
   let mut depth = 0
   let chars = s.to_array()
@@ -385,14 +394,15 @@ pub fn find_matching_paren(s : String, start : Int) -> Int? {
   None
 }
 
-///| Generate parameter names for signature
+///|
+/// Generate parameter names for signature
 pub fn generate_params_with_names(signature : String) -> (String, String) {
   // signature: "(Type1, Type2) -> RetType" or "() -> RetType"
   // Returns: (signature_with_names, call_args)
   // e.g., "(String, Int) -> Unit" => ("(p0 : String, p1 : Int) -> Unit", "(p0, p1)")
   match signature.find("(") {
     None => (signature, "()")
-    Some(paren_start) => {
+    Some(paren_start) =>
       match find_matching_paren(signature, paren_start) {
         None => (signature, "()")
         Some(paren_end) => {
@@ -430,26 +440,29 @@ pub fn generate_params_with_names(signature : String) -> (String, String) {
           }
         }
       }
-    }
   }
 }
 
-///| Check if signature uses @luna types
+///|
+/// Check if signature uses @luna types
 pub fn uses_luna_types(signature : String) -> Bool {
   signature.contains("@luna.")
 }
 
-///| Check if signature uses @js types
+///|
+/// Check if signature uses @js types
 pub fn uses_js_types(signature : String) -> Bool {
   signature.contains("@js.")
 }
 
-///| Check if signature uses @signal types
+///|
+/// Check if signature uses @signal types
 pub fn uses_signal_types(signature : String) -> Bool {
   signature.contains("@signal.")
 }
 
-///| Check if signature uses @hono types
+///|
+/// Check if signature uses @hono types
 pub fn uses_hono_types(signature : String) -> Bool {
   signature.contains("@hono.")
 }
@@ -458,21 +471,27 @@ pub fn uses_hono_types(signature : String) -> Bool {
 // New Architecture: Client/Server Generation
 // =============================================================================
 
-///| Generate client exports.mbt for islands
+///|
+/// Generate client exports.mbt for islands
 fn generate_client_exports_mbt(islands : Array[ExportEntry]) -> String {
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated client exports\n")
   buf.write_string("///| Re-exports hydration functions from app/client/*\n\n")
   for entry in islands {
     buf.write_string("///| Re-export \{entry.name}\n")
-    buf.write_string("pub fn \{entry.name}(element : @js.Any, state : @js.Any, id : String) -> Unit {\n")
-    buf.write_string("  @\{entry.import_alias}.\{entry.source_name}(element, state, id)\n")
+    buf.write_string(
+      "pub fn \{entry.name}(element : @js.Any, state : @js.Any, id : String) -> Unit {\n",
+    )
+    buf.write_string(
+      "  @\{entry.import_alias}.\{entry.source_name}(element, state, id)\n",
+    )
     buf.write_string("}\n\n")
   }
   buf.to_string()
 }
 
-///| Generate client moon.pkg.json for islands
+///|
+/// Generate client moon.pkg.json for islands
 fn generate_client_pkg_json(islands : Array[ExportEntry]) -> String {
   let buf = StringBuilder::new()
   buf.write_string("{\n")
@@ -487,7 +506,9 @@ fn generate_client_pkg_json(islands : Array[ExportEntry]) -> String {
       if not(first) {
         buf.write_string(",\n")
       }
-      buf.write_string("    { \"path\": \"\{entry.package_path}\", \"alias\": \"\{entry.import_alias}\" }")
+      buf.write_string(
+        "    { \"path\": \"\{entry.package_path}\", \"alias\": \"\{entry.import_alias}\" }",
+      )
       first = false
     }
   }
@@ -511,13 +532,16 @@ fn generate_client_pkg_json(islands : Array[ExportEntry]) -> String {
   buf.to_string()
 }
 
-///| Generate server main.mbt
+///|
+/// Generate server main.mbt
 fn generate_server_main_mbt(routes_pkg : String) -> String {
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated server entry point\n")
   buf.write_string("///| Generated by: sol generate\n")
   buf.write_string("///|\n")
-  buf.write_string("///| DO NOT EDIT - This file is auto-generated from server/routes.mbt\n\n")
+  buf.write_string(
+    "///| DO NOT EDIT - This file is auto-generated from server/routes.mbt\n\n",
+  )
   buf.write_string("///| Configure the application using shared routes\n")
   buf.write_string("fn configure_app(app : @sol.App) -> @sol.App {\n")
   buf.write_string("  // Get routes and config from server/routes.mbt\n")
@@ -567,35 +591,50 @@ fn generate_server_main_mbt(routes_pkg : String) -> String {
   buf.to_string()
 }
 
-///| Generate server moon.pkg.json
+///|
+/// Generate server moon.pkg.json
 fn generate_server_pkg_json(routes_pkg : String) -> String {
   let buf = StringBuilder::new()
   buf.write_string("{\n")
   buf.write_string("  \"supported-targets\": [\"js\"],\n")
   buf.write_string("  \"is-main\": true,\n")
   buf.write_string("  \"import\": [\n")
-  buf.write_string("    { \"path\": \"mizchi/luna/sol\", \"alias\": \"sol\" },\n")
-  buf.write_string("    { \"path\": \"mizchi/luna/sol/router\", \"alias\": \"router\" },\n")
-  buf.write_string("    { \"path\": \"mizchi/luna/core\", \"alias\": \"luna\" },\n")
-  buf.write_string("    { \"path\": \"mizchi/js/core\", \"alias\": \"core\" },\n")
-  buf.write_string("    { \"path\": \"\{routes_pkg}\", \"alias\": \"app_server\" }\n")
+  buf.write_string(
+    "    { \"path\": \"mizchi/luna/sol\", \"alias\": \"sol\" },\n",
+  )
+  buf.write_string(
+    "    { \"path\": \"mizchi/luna/sol/router\", \"alias\": \"router\" },\n",
+  )
+  buf.write_string(
+    "    { \"path\": \"mizchi/luna/core\", \"alias\": \"luna\" },\n",
+  )
+  buf.write_string(
+    "    { \"path\": \"mizchi/js/core\", \"alias\": \"core\" },\n",
+  )
+  buf.write_string(
+    "    { \"path\": \"\{routes_pkg}\", \"alias\": \"app_server\" }\n",
+  )
   buf.write_string("  ]\n")
   buf.write_string("}\n")
   buf.to_string()
 }
 
-///| Generate island entry JS file
+///|
+/// Generate island entry JS file
 fn generate_island_entry_js(entry : ExportEntry) -> String {
   let buf = StringBuilder::new()
   buf.write_string("// Island entry for: \{entry.name}\n")
   buf.write_string("// Generated by: sol generate\n\n")
-  buf.write_string("import { \{entry.name} } from '../../target/js/release/build/_gen/client/client.js';\n\n")
+  buf.write_string(
+    "import { \{entry.name} } from '../../target/js/release/build/__gen__/client/client.js';\n\n",
+  )
   buf.write_string("export { \{entry.name} };\n")
   buf.write_string("export default \{entry.name};\n")
   buf.to_string()
 }
 
-///| Generate rolldown.config.mjs
+///|
+/// Generate rolldown.config.mjs
 fn generate_rolldown_config_new(islands : Array[ExportEntry]) -> String {
   let buf = StringBuilder::new()
   buf.write_string("import { defineConfig } from 'rolldown';\n\n")
@@ -656,9 +695,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     )
     @process.exit(1)
   }
-  let config_content : String = try {
-    @fs.readFileSync(full_config_path).to_string()
-  } catch {
+  let config_content : String = @fs.readFileSync(full_config_path).to_string() catch {
     e => {
       console_error(@colorette.red("Error reading config: \{e}"))
       @process.exit(1)
@@ -669,7 +706,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     console_error(@colorette.red("Error: Invalid config file format"))
     @process.exit(1)
   }
-  println(@colorette.cyan("Generating app/_gen and .sol directories..."))
+  println(@colorette.cyan("Generating app/__gen__ and .sol directories..."))
   // Run moon info to generate mbti files
   println(@colorette.gray("  Running moon info..."))
   try {
@@ -715,7 +752,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     let client_exports_path = @path.join2(client_dir, "exports.mbt")
     try {
       @fs.writeFileSync(client_exports_path, @js.any(client_exports_mbt))
-      println(@colorette.gray("  Generated _gen/client/exports.mbt"))
+      println(@colorette.gray("  Generated __gen__/client/exports.mbt"))
     } catch {
       e => {
         console_error(@colorette.red("Error writing client/exports.mbt: \{e}"))
@@ -727,10 +764,12 @@ fn run_generate_command(args : Array[String]) -> Unit {
     let client_pkg_path = @path.join2(client_dir, "moon.pkg.json")
     try {
       @fs.writeFileSync(client_pkg_path, @js.any(client_pkg))
-      println(@colorette.gray("  Generated _gen/client/moon.pkg.json"))
+      println(@colorette.gray("  Generated __gen__/client/moon.pkg.json"))
     } catch {
       e => {
-        console_error(@colorette.red("Error writing client/moon.pkg.json: \{e}"))
+        console_error(
+          @colorette.red("Error writing client/moon.pkg.json: \{e}"),
+        )
         @process.exit(1)
       }
     }
@@ -740,7 +779,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
   let server_main_path = @path.join2(server_dir, "main.mbt")
   try {
     @fs.writeFileSync(server_main_path, @js.any(server_main))
-    println(@colorette.gray("  Generated _gen/server/main.mbt"))
+    println(@colorette.gray("  Generated __gen__/server/main.mbt"))
   } catch {
     e => {
       console_error(@colorette.red("Error writing server/main.mbt: \{e}"))
@@ -752,7 +791,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
   let server_pkg_path = @path.join2(server_dir, "moon.pkg.json")
   try {
     @fs.writeFileSync(server_pkg_path, @js.any(server_pkg))
-    println(@colorette.gray("  Generated _gen/server/moon.pkg.json"))
+    println(@colorette.gray("  Generated __gen__/server/moon.pkg.json"))
   } catch {
     e => {
       console_error(@colorette.red("Error writing server/moon.pkg.json: \{e}"))
@@ -764,9 +803,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     for entry in islands {
       let island_entry_content = generate_island_entry_js(entry)
       let island_entry_path = @path.join2(islands_dir, "\{entry.name}.js")
-      try {
-        @fs.writeFileSync(island_entry_path, @js.any(island_entry_content))
-      } catch {
+      @fs.writeFileSync(island_entry_path, @js.any(island_entry_content)) catch {
         e => {
           console_error(
             @colorette.red("Error writing island entry \{entry.name}.js: \{e}"),
@@ -796,7 +833,8 @@ fn run_generate_command(args : Array[String]) -> Unit {
   println(@colorette.green("✓ Generation complete"))
 }
 
-///| Get routes package path from moon.mod.json
+///|
+/// Get routes package path from moon.mod.json
 fn get_routes_package_path(cwd : String, routes_dir : String) -> String {
   // Read moon.mod.json to get package name
   let mod_path = @path.join2(cwd, "moon.mod.json")

@@ -6,7 +6,7 @@ fn template_gitignore() -> String {
     #|.mooncakes
     #|target
     #|node_modules
-    #|app/_gen
+    #|app/__gen__
     #|.sol
     #|rolldown.config.mjs
   )
@@ -32,8 +32,8 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "preferred-target": "js"
         #|}
       tmpl
-        .replace(old="{{PACKAGE_NAME}}", new=package_name)
-        .replace(old="{{LUNA_PATH}}", new=path)
+      .replace(old="{{PACKAGE_NAME}}", new=package_name)
+      .replace(old="{{LUNA_PATH}}", new=path)
     }
     None => {
       // Production mode - use mooncakes version
@@ -64,7 +64,7 @@ fn template_package_json(project_name : String) -> String {
     #|  "scripts": {
     #|    "dev": "sol dev",
     #|    "build": "sol build",
-    #|    "start": "node target/js/release/build/_gen/server/server.js"
+    #|    "start": "node target/js/release/build/__gen__/server/server.js"
     #|  },
     #|  "dependencies": {
     #|    "hono": "^4.0.0",
@@ -83,43 +83,7 @@ fn template_sol_config_json() -> String {
     #|{
     #|  "islands": ["app/client/*"],
     #|  "routes": "app/routes",
-    #|  "output": "app/_gen"
-    #|}
-  )
-}
-
-
-///|
-fn template_client_moon_pkg_json(_package_name : String) -> String {
-  (
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "import": [
-    #|    { "path": "mizchi/luna/platform/dom", "alias": "dom" },
-    #|    { "path": "mizchi/js/core", "alias": "core" }
-    #|  ]
-    #|}
-  )
-}
-
-///|
-fn template_client_hydrate_mbt() -> String {
-  (
-    #|///| Client Hydration Entry
-    #|
-    #|///| Hydration entry point (called by loader)
-    #|pub fn hydrate_counter(element : @core.Any, state : @core.Any, id : String) -> Unit {
-    #|  @dom.hydrate_island(element, state, id, fn(ctx) {
-    #|    let count = ctx.signal_int("count", 0)
-    #|    ctx.bind_actions(fn(action) {
-    #|      match action {
-    #|        "increment" => count.set(count.get() + 1)
-    #|        "decrement" => count.set(count.get() - 1)
-    #|        _ => ()
-    #|      }
-    #|    })
-    #|    ctx.on_update(".count-display", fn() { count.get().to_string() })
-    #|  })
+    #|  "output": "app/__gen__"
     #|}
   )
 }
@@ -142,6 +106,12 @@ pub fn template_counter_mbt() -> String {
   (
     #|///| Counter Component - Shared between SSR and client
     #|
+    #|///| Action enum for type-safe event handling
+    #|pub enum CounterAction {
+    #|  Increment
+    #|  Decrement
+    #|} derive(Show)
+    #|
     #|///| Counter component VNode
     #|pub fn render(count : @signal.Signal[Int]) -> @luna.Node[Unit] {
     #|  @luna.h("div", [("class", @luna.attr_static("counter"))], [
@@ -151,11 +121,11 @@ pub fn template_counter_mbt() -> String {
     #|    @luna.h("div", [("class", @luna.attr_static("buttons"))], [
     #|      @luna.h("button", [
     #|        ("class", @luna.attr_static("dec")),
-    #|        ("onclick", @luna.action("decrement")),
+    #|        ("onclick", @luna.action(Decrement)),
     #|      ], [@luna.vtext("-")]),
     #|      @luna.h("button", [
     #|        ("class", @luna.attr_static("inc")),
-    #|        ("onclick", @luna.action("increment")),
+    #|        ("onclick", @luna.action(Increment)),
     #|      ], [@luna.vtext("+")]),
     #|    ]),
     #|  ])
@@ -179,7 +149,8 @@ pub fn template_server_run_moon_pkg_json(package_name : String) -> String {
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
 
-///| Page moon.pkg.json with island support (signal + counter)
+///|
+/// Page moon.pkg.json with island support (signal + counter)
 pub fn template_page_with_island_moon_pkg_json(package_name : String) -> String {
   let tmpl =
     #|{
@@ -194,7 +165,8 @@ pub fn template_page_with_island_moon_pkg_json(package_name : String) -> String 
   tmpl.replace(old="{{PACKAGE_NAME}}", new=package_name)
 }
 
-///| Simple page moon.pkg.json without island dependencies
+///|
+/// Simple page moon.pkg.json without island dependencies
 pub fn template_page_simple_moon_pkg_json() -> String {
   (
     #|{
@@ -282,7 +254,8 @@ pub fn template_server_main_mbt() -> String {
 // New Architecture Templates (routes-based)
 // ============================================================================
 
-///| Layout template - provides basic HTML structure
+///|
+/// Layout template - provides basic HTML structure
 /// Users explicitly call layout([...inner]) in their pages
 pub fn template_layout_mbt() -> String {
   (
@@ -314,7 +287,8 @@ pub fn template_layout_mbt() -> String {
   )
 }
 
-///| Layout moon.pkg.json
+///|
+/// Layout moon.pkg.json
 pub fn template_layout_moon_pkg_json() -> String {
   (
     #|{
@@ -326,7 +300,8 @@ pub fn template_layout_moon_pkg_json() -> String {
   )
 }
 
-///| Routes template - single source of truth for all routes
+///|
+/// Routes template - single source of truth for all routes
 pub fn template_routes_mbt(package_name : String) -> String {
   let tmpl =
     #|///| Route Definitions
@@ -414,7 +389,8 @@ pub fn template_routes_mbt(package_name : String) -> String {
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
 
-///| Routes moon.pkg.json
+///|
+/// Routes moon.pkg.json
 pub fn template_routes_moon_pkg_json(package_name : String) -> String {
   let tmpl =
     #|{
@@ -433,7 +409,8 @@ pub fn template_routes_moon_pkg_json(package_name : String) -> String {
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
 
-///| Client island template (counter example)
+///|
+/// Client island template (counter example)
 pub fn template_client_counter_mbt() -> String {
   (
     #|///| Counter Island
@@ -441,6 +418,12 @@ pub fn template_client_counter_mbt() -> String {
     #|///| Component + Hydration in one file.
     #|///| - `counter` is the component function (SSR and client shared)
     #|///| - `hydrate_counter` is auto-invoked by the loader
+    #|
+    #|///| Action enum for type-safe event handling
+    #|pub enum CounterAction {
+    #|  Increment
+    #|  Decrement
+    #|} derive(Show)
     #|
     #|///| Counter component VNode
     #|pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[Unit] {
@@ -451,11 +434,11 @@ pub fn template_client_counter_mbt() -> String {
     #|    @luna.h("div", [("class", @luna.attr_static("buttons"))], [
     #|      @luna.h("button", [
     #|        ("class", @luna.attr_static("dec")),
-    #|        ("onclick", @luna.action("decrement")),
+    #|        ("onclick", @luna.action(Decrement)),
     #|      ], [@luna.vtext("-")]),
     #|      @luna.h("button", [
     #|        ("class", @luna.attr_static("inc")),
-    #|        ("onclick", @luna.action("increment")),
+    #|        ("onclick", @luna.action(Increment)),
     #|      ], [@luna.vtext("+")]),
     #|    ]),
     #|  ])
@@ -467,8 +450,8 @@ pub fn template_client_counter_mbt() -> String {
     #|    let count = ctx.signal_int("count", 0)
     #|    ctx.bind_actions(fn(action) {
     #|      match action {
-    #|        "increment" => count.set(count.get() + 1)
-    #|        "decrement" => count.set(count.get() - 1)
+    #|        "Increment" => count.set(count.get() + 1)
+    #|        "Decrement" => count.set(count.get() - 1)
     #|        _ => ()
     #|      }
     #|    })
@@ -478,7 +461,8 @@ pub fn template_client_counter_mbt() -> String {
   )
 }
 
-///| Client counter moon.pkg.json
+///|
+/// Client counter moon.pkg.json
 pub fn template_client_counter_moon_pkg_json() -> String {
   (
     #|{
@@ -585,7 +569,7 @@ pub struct TemplateFile {
 pub fn generate_templates(
   package_name : String,
   project_name : String,
-  luna_path : String?
+  luna_path : String?,
 ) -> Array[TemplateFile] {
   [
     // Root config files

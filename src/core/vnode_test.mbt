@@ -67,11 +67,27 @@ test "attr_dynamic_style" {
   }
 }
 
+// Test enum for action
+enum TestAction {
+  Increment
+  Decrement
+  Click
+} derive(Show)
+
 ///|
-test "action" {
-  let attr : Attr[Unit] = action("increment")
+test "action with enum - Increment" {
+  let attr : Attr[Unit] = action(Increment)
   match attr {
-    VAction(name) => assert_eq(name, "increment")
+    VAction(name) => assert_eq(name, "Increment")
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "action with enum - Decrement" {
+  let attr : Attr[Unit] = action(Decrement)
+  match attr {
+    VAction(name) => assert_eq(name, "Decrement")
     _ => assert_true(false)
   }
 }
@@ -198,10 +214,9 @@ test "visland with custom trigger" {
 
 ///|
 test "vasync creates Async node" {
-  let node : Node[Unit] = vasync(
-    render=async fn() { vtext("resolved") },
-    fallback=fn() { vtext("loading") },
-  )
+  let node : Node[Unit] = vasync(render=async fn() { vtext("resolved") }, fallback=fn() {
+    vtext("loading")
+  })
   match node {
     Async(async_node) =>
       match (async_node.fallback)() {
@@ -214,10 +229,12 @@ test "vasync creates Async node" {
 
 ///|
 test "error_boundary creates ErrorBoundary node" {
-  let node : Node[Unit] = error_boundary(
-    children=fn() { vtext("content") },
-    fallback=fn(_err, _reset) { vtext("error") },
-  )
+  let node : Node[Unit] = error_boundary(children=fn() { vtext("content") }, fallback=fn(
+    _err,
+    _reset,
+  ) {
+    vtext("error")
+  })
   match node {
     ErrorBoundary(boundary) =>
       match (boundary.children)() {
@@ -230,10 +247,9 @@ test "error_boundary creates ErrorBoundary node" {
 
 ///|
 test "match_case creates MatchCase" {
-  let case_ : MatchCase[Unit] = match_case(
-    when=fn() { true },
-    render=fn() { vtext("matched") },
-  )
+  let case_ : MatchCase[Unit] = match_case(when=fn() { true }, render=fn() {
+    vtext("matched")
+  })
   assert_true((case_.when)())
   match (case_.render)() {
     Text(s) => assert_eq(s, "matched")
@@ -268,7 +284,10 @@ test "trigger_to_string" {
   assert_eq(trigger_to_string(Load), "load")
   assert_eq(trigger_to_string(Idle), "idle")
   assert_eq(trigger_to_string(Visible), "visible")
-  assert_eq(trigger_to_string(Media("(min-width: 768px)")), "media:(min-width: 768px)")
+  assert_eq(
+    trigger_to_string(Media("(min-width: 768px)")),
+    "media:(min-width: 768px)",
+  )
 }
 
 // =============================================================================
@@ -303,7 +322,7 @@ test "has_dynamic_content returns true for VHandler" {
 
 ///|
 test "has_dynamic_content returns true for VAction" {
-  let attrs : Array[(String, Attr[Unit])] = [("onclick", action("click"))]
+  let attrs : Array[(String, Attr[Unit])] = [("onclick", action(Click))]
   assert_true(has_dynamic_content(attrs))
 }
 

@@ -236,7 +236,10 @@ pub fn[E] error_boundary(
 /// Create a match case for Switch
 /// - when: condition function, evaluated lazily
 /// - render: content to render when condition is true
-pub fn[E] match_case(when~ : () -> Bool, render~ : () -> Node[E]) -> MatchCase[E] {
+pub fn[E] match_case(
+  when~ : () -> Bool,
+  render~ : () -> Node[E],
+) -> MatchCase[E] {
   { when, render }
 }
 
@@ -319,9 +322,16 @@ pub fn[E] attr_dynamic_style(getter : () -> String) -> Attr[E] {
 
 ///|
 /// Create an action attribute value - dispatches named action on event
-/// Used for declarative event handling: ("onclick", action("increment"))
-pub fn[E] action(name : String) -> Attr[E] {
-  VAction(name)
+/// Used for declarative event handling with enum types:
+///   ("onclick", action(Increment))  // requires derive(Show)
+///
+/// Example:
+/// ```
+/// pub enum MyAction { Increment; Decrement } derive(Show)
+/// @luna.h("button", [("onclick", action(Increment))], [...])
+/// ```
+pub fn[E, A : Show] action(a : A) -> Attr[E] {
+  VAction(a.to_string())
 }
 
 // =============================================================================

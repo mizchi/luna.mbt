@@ -2,6 +2,13 @@
 /// SSR Tests - Pure MoonBit
 ///
 /// Type alias for SSR nodes (Event type = Unit)
+
+// Test enum for action
+enum TestAction {
+  Increment
+  DoSomething
+} derive(Show)
+
 test "render simple text" {
   let node : @luna.Node[Unit] = @luna.vtext("Hello, World!")
   let html = render_to_string(node).html
@@ -1076,25 +1083,24 @@ test "render_to_string preload=false" {
 test "render action attribute" {
   let node : @luna.Node[Unit] = @luna.h(
     "button",
-    [("onclick", @luna.action("increment"))],
+    [("onclick", @luna.action(Increment))],
     [@luna.vtext("Click")],
   )
   let html = render_to_string(node).html
   // Action should render as data-action-click attribute
-  assert_true(html.contains("data-action-click=\"increment\""))
+  assert_true(html.contains("data-action-click=\"Increment\""))
 }
 
 ///|
-test "render action attribute with special chars" {
+test "render action attribute with enum" {
   let node : @luna.Node[Unit] = @luna.h(
     "button",
-    [("onclick", @luna.action("do \"something\""))],
+    [("onclick", @luna.action(DoSomething))],
     [@luna.vtext("Click")],
   )
   let html = render_to_string(node).html
-  // Action value should be escaped
-  assert_true(html.contains("data-action-click="))
-  assert_true(html.contains("&quot;"))
+  // Action should render as data-action-click attribute
+  assert_true(html.contains("data-action-click=\"DoSomething\""))
 }
 
 ///|
@@ -1130,10 +1136,7 @@ test "render switch second case matches" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Second") },
-      ),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1145,14 +1148,10 @@ test "render switch second case matches" {
 test "render switch fallback" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("First") },
-      ),
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("Second") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("First") }),
+      @luna.match_case(when=fn() { false }, render=fn() {
+        @luna.vtext("Second")
+      }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1171,13 +1170,11 @@ test "render switch no fallback" {
 
 ///|
 test "render switch with preloads" {
-  let node : @luna.Node[Unit] = @luna.vswitch(
-    cases=[
-      @luna.match_case(when=fn() { true }, render=fn() {
-        @luna.visland("sw-island", "/sw.js", "{}", [@luna.vtext("Island")])
-      }),
-    ],
-  )
+  let node : @luna.Node[Unit] = @luna.vswitch(cases=[
+    @luna.match_case(when=fn() { true }, render=fn() {
+      @luna.visland("sw-island", "/sw.js", "{}", [@luna.vtext("Island")])
+    }),
+  ])
   let result = render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 1)
   assert_true(result.preload_urls.contains("/sw.js"))
@@ -1187,10 +1184,9 @@ test "render switch with preloads" {
 test "render switch with hydration markers case match" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Matched") },
-      ),
+      @luna.match_case(when=fn() { true }, render=fn() {
+        @luna.vtext("Matched")
+      }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1204,10 +1200,7 @@ test "render switch with hydration markers case match" {
 test "render switch with hydration markers fallback" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("Never") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1232,10 +1225,9 @@ test "render switch with hydration markers no fallback" {
 test "stream render switch first case" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Stream First") },
-      ),
+      @luna.match_case(when=fn() { true }, render=fn() {
+        @luna.vtext("Stream First")
+      }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1250,10 +1242,7 @@ test "stream render switch first case" {
 test "stream render switch fallback" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("Never") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
     ],
     fallback=Some(fn() { @luna.vtext("Stream Fallback") }),
   )
@@ -1278,15 +1267,13 @@ test "stream render switch no fallback" {
 
 ///|
 test "stream render collecting async switch" {
-  let node : @luna.Node[Unit] = @luna.vswitch(
-    cases=[
-      @luna.match_case(when=fn() { true }, render=fn() {
-        @luna.vasync(render=async fn() { @luna.vtext("Loaded") }, fallback=fn() {
-          @luna.vtext("Loading...")
-        })
-      }),
-    ],
-  )
+  let node : @luna.Node[Unit] = @luna.vswitch(cases=[
+    @luna.match_case(when=fn() { true }, render=fn() {
+      @luna.vasync(render=async fn() { @luna.vtext("Loaded") }, fallback=fn() {
+        @luna.vtext("Loading...")
+      })
+    }),
+  ])
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   let boundaries = render_to_stream_collecting_async(node, writer)
@@ -1308,7 +1295,7 @@ test "render_to_string returns SSRResult with html field" {
 test "stream_async_replacement" {
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
-  stream_async_replacement(42, writer, fn(w) { w.0("Replaced Content") })
+  stream_async_replacement(42, writer, fn(w) { (w.0)("Replaced Content") })
   let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
   assert_true(html.contains("<template id=\"T:42\">"))
   assert_true(html.contains("Replaced Content"))

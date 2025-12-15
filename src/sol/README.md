@@ -45,7 +45,7 @@ myapp/
 │   │   └── counter/
 │   │       ├── moon.pkg.json
 │   │       └── counter.mbt # render + hydrate 関数
-│   └── _gen/               # 自動生成 (sol generate)
+│   └── __gen__/            # 自動生成 (sol generate)
 │       ├── client/         # クライアントエクスポート
 │       └── server/         # サーバーエントリポイント
 └── static/
@@ -97,8 +97,8 @@ sol generate --config my.json   # カスタム設定
 ```
 
 生成されるファイル:
-- `app/_gen/client/exports.mbt` - hydrate 関数のエクスポート
-- `app/_gen/server/main.mbt` - サーバーエントリポイント
+- `app/__gen__/client/exports.mbt` - hydrate 関数のエクスポート
+- `app/__gen__/server/main.mbt` - サーバーエントリポイント
 - `.sol/islands/*.js` - rolldown 用エントリ
 - `rolldown.config.mjs` - バンドラー設定
 
@@ -108,7 +108,7 @@ sol generate --config my.json   # カスタム設定
 {
   "islands": ["app/client/*"],  // Island ディレクトリ (glob)
   "routes": "app/routes",       // ルート定義ディレクトリ
-  "output": "app/_gen"          // 生成出力先
+  "output": "app/__gen__"        // 生成出力先
 }
 ```
 
@@ -181,6 +181,12 @@ Island は SSR と クライアントで共有されるコンポーネント:
 ```moonbit
 // app/client/counter/counter.mbt
 
+///| Action enum for type-safe event handling
+pub enum CounterAction {
+  Increment
+  Decrement
+} derive(Show)
+
 ///| コンポーネント関数 (SSR + クライアント共用)
 pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[Unit] {
   @luna.h("div", [("class", @luna.attr_static("counter"))], [
@@ -188,7 +194,7 @@ pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[Unit] {
       @luna.vtext_sig(count),
     ]),
     @luna.h("button", [
-      ("onclick", @luna.action("increment")),
+      ("onclick", @luna.action(Increment)),
     ], [@luna.vtext("+")]),
   ])
 }
@@ -199,7 +205,8 @@ pub fn hydrate_counter(element : @core.Any, state : @core.Any, id : String) -> U
     let count = ctx.signal_int("count", 0)
     ctx.bind_actions(fn(action) {
       match action {
-        "increment" => count.set(count.get() + 1)
+        "Increment" => count.set(count.get() + 1)
+        "Decrement" => count.set(count.get() - 1)
         _ => ()
       }
     })

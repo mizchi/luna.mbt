@@ -1,5 +1,10 @@
 ///| Tests for JSON Renderer
 
+// Test enum for action
+enum TestAction {
+  Increment
+} derive(Show)
+
 ///|
 test "render simple text" {
   let node = @luna.vtext("Hello")
@@ -401,10 +406,7 @@ test "render switch first case match" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Second") },
-      ),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -419,14 +421,8 @@ test "render switch first case match" {
 test "render switch second case match" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("First") },
-      ),
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Second") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("First") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -441,10 +437,7 @@ test "render switch second case match" {
 test "render switch fallback" {
   let node : @luna.Node[Unit] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("Never") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -472,14 +465,14 @@ test "render switch no fallback" {
 test "render action attribute" {
   let node : @luna.Node[Unit] = @luna.h(
     "button",
-    [("onclick", @luna.action("increment"))],
+    [("onclick", @luna.action(Increment))],
     [@luna.vtext("Click")],
   )
   let json = render_to_json(node)
   match json {
     Element(elem) =>
       match elem.attrs.get("onclick") {
-        Some(Dynamic(v)) => assert_eq(v, "action:increment")
+        Some(Dynamic(v)) => assert_eq(v, "action:Increment")
         _ => assert_true(false)
       }
     _ => assert_true(false)

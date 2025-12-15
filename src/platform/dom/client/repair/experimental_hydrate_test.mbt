@@ -1,5 +1,10 @@
 ///| Experimental Hydration Tests - jsdom based testing
 
+// Test enum for action
+enum TestAction {
+  TestAction
+} derive(Show)
+
 ///|
 /// Helper to set innerHTML on container
 fn exp_set_inner_html(container : @js_dom.Element, html : String) -> Unit {
@@ -1029,10 +1034,9 @@ test "smart_hydrate falls back for empty DOM" {
   exp_set_inner_html(container, "")
   let result = smart_hydrate(container, vnode, logger~)
   match result {
-    FellBackToFullRender(reason) => {
+    FellBackToFullRender(reason) =>
       // Should mention ratio
       assert_true(reason.contains("ratio") || reason.contains("DOM"))
-    }
     Hydrated(_) => assert_true(true) // Also acceptable
   }
 }
@@ -1078,12 +1082,9 @@ test "exp: hydrate island node" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.visland(
-    "island-1",
-    "/app.js",
-    "{}",
-    [@luna.vtext("Island content")],
-  )
+  let vnode : @luna.Node[@js.Any] = @luna.visland("island-1", "/app.js", "{}", [
+    @luna.vtext("Island content"),
+  ])
   exp_set_inner_html(container, "")
   let result = experimental_hydrate(container, vnode, logger~)
   match result {
@@ -1107,10 +1108,9 @@ test "exp: hydrate async node fallback" {
   let result = experimental_hydrate(container, vnode, logger~)
   match result {
     Clean => assert_true(true)
-    Repaired(_) => {
+    Repaired(_) =>
       // Should render fallback
       assert_true(exp_get_inner_html(container).contains("Loading"))
-    }
     Failed(_) => assert_true(false)
   }
 }
@@ -1143,10 +1143,7 @@ test "exp: hydrate switch first case" {
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Second") },
-      ),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1167,10 +1164,7 @@ test "exp: hydrate switch fallback" {
   let logger = StringBuilder::new()
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("Never") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1212,11 +1206,9 @@ test "exp: apply_vattr with className" {
   let container = exp_create_container()
   let logger = StringBuilder::new()
   // className is an alias for class
-  let vnode = @luna.h(
-    "div",
-    [("className", @luna.attr_static("my-class"))],
-    [@luna.vtext("Content")],
-  )
+  let vnode = @luna.h("div", [("className", @luna.attr_static("my-class"))], [
+    @luna.vtext("Content"),
+  ])
   exp_set_inner_html(container, "<div>Content</div>")
   let result = experimental_hydrate(container, vnode, logger~)
   match result {
@@ -1331,7 +1323,7 @@ test "exp: apply_vattr VAction skipped" {
   let logger = StringBuilder::new()
   let vnode : @luna.Node[@js.Any] = @luna.h(
     "button",
-    [("onclick", @luna.action("test-action"))],
+    [("onclick", @luna.action(TestAction))],
     [@luna.vtext("Click")],
   )
   exp_set_inner_html(container, "<button>Click</button>")

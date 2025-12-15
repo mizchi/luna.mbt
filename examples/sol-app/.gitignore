@@ -1,6 +1,6 @@
 .mooncakes
 target
 node_modules
-app/_gen
+app/__gen__
 .sol
 rolldown.config.mjs

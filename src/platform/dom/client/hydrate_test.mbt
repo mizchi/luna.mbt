@@ -1,8 +1,10 @@
 ///| Hydration Tests
 
-///|
-
-///| Test hydration of server-rendered HTML with VNode
+// Test enum for action
+enum TestAction {
+  Increment
+  TestAction
+} derive(Show)
 
 ///|
 /// Helper to set innerHTML on container
@@ -1062,10 +1064,7 @@ test "hydrate switch first case matches" {
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Second") },
-      ),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1083,14 +1082,8 @@ test "hydrate switch second case matches" {
   let container = create_container()
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("First") },
-      ),
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.vtext("Second") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("First") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1108,10 +1101,7 @@ test "hydrate switch fallback" {
   let container = create_container()
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("Never") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback shown") }),
   )
@@ -1195,14 +1185,12 @@ test "render_vnode_to_dom with Switch" {
   let condition = @signal.signal(true)
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { condition.get() },
-        render=fn() { @luna.vtext("Case 1") },
-      ),
-      @luna.match_case(
-        when=fn() { not(condition.get()) },
-        render=fn() { @luna.vtext("Case 2") },
-      ),
+      @luna.match_case(when=fn() { condition.get() }, render=fn() {
+        @luna.vtext("Case 1")
+      }),
+      @luna.match_case(when=fn() { not(condition.get()) }, render=fn() {
+        @luna.vtext("Case 2")
+      }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback") }),
   )
@@ -1218,10 +1206,7 @@ test "render_vnode_to_dom Switch with fallback" {
   let container = create_container()
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { false },
-        render=fn() { @luna.vtext("Never") },
-      ),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
     ],
     fallback=Some(fn() { @luna.vtext("Fallback rendered") }),
   )
@@ -1252,14 +1237,12 @@ test "render_vnode_to_dom Switch reactive update" {
   let case_index = @signal.signal(0)
   let vnode : @luna.Node[@js.Any] = @luna.vswitch(
     cases=[
-      @luna.match_case(
-        when=fn() { case_index.get() == 0 },
-        render=fn() { @luna.vtext("Zero") },
-      ),
-      @luna.match_case(
-        when=fn() { case_index.get() == 1 },
-        render=fn() { @luna.vtext("One") },
-      ),
+      @luna.match_case(when=fn() { case_index.get() == 0 }, render=fn() {
+        @luna.vtext("Zero")
+      }),
+      @luna.match_case(when=fn() { case_index.get() == 1 }, render=fn() {
+        @luna.vtext("One")
+      }),
     ],
     fallback=Some(fn() { @luna.vtext("Other") }),
   )
@@ -1286,7 +1269,7 @@ test "hydrate action attribute" {
   let container = create_container()
   let vnode : @luna.Node[@js.Any] = @luna.h(
     "button",
-    [("onclick", @luna.action("increment"))],
+    [("onclick", @luna.action(Increment))],
     [@luna.vtext("Click")],
   )
   let html = @render.render_to_string_with_hydration(vnode)
@@ -1303,8 +1286,7 @@ test "bind_actions_from_dom" {
   defer cleanup()
   let container = create_container()
   set_inner_html(
-    container,
-    "<button data-action-click=\"test-action\">Click</button>",
+    container, "<button data-action-click=\"test-action\">Click</button>",
   )
   let dispatched : Array[String] = []
   bind_actions_from_dom(container, fn(action) { dispatched.push(action) })
@@ -1318,14 +1300,14 @@ test "hydrate_with_actions" {
   defer cleanup()
   let container = create_container()
   // Setup initial HTML with action attribute
-  set_inner_html(container, "<div data-action-click=\"increment\">0</div>")
+  set_inner_html(container, "<div data-action-click=\"Increment\">0</div>")
   let render_fn : (Int) -> @luna.Node[@js.Any] = fn(state) {
-    @luna.h("div", [("onclick", @luna.action("increment"))], [
+    @luna.h("div", [("onclick", @luna.action(Increment))], [
       @luna.vtext(state.to_string()),
     ])
   }
   let update_fn : (Int, String) -> Int = fn(state, action) {
-    if action == "increment" {
+    if action == "Increment" {
       state + 1
     } else {
       state
@@ -1405,7 +1387,7 @@ test "apply_vattr VAction without dispatcher" {
   let container = create_container()
   let vnode : @luna.Node[@js.Any] = @luna.h(
     "button",
-    [("onclick", @luna.action("test-action"))],
+    [("onclick", @luna.action(TestAction))],
     [@luna.vtext("Click")],
   )
   let dom_node = render_vnode_to_dom(vnode)

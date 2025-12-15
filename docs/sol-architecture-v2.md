@@ -64,6 +64,11 @@ client/ ──import──→ server/  ✗ NG（禁止）
 ```moonbit
 // app/client/counter.mbt
 
+pub enum CounterAction {
+  Increment
+  Decrement
+} derive(Show)
+
 pub(all) struct CounterProps {
   initial_count: Int
 }
@@ -77,11 +82,11 @@ pub fn counter(props: CounterProps) -> @luna.Node[Unit] {
     @luna.h("div", [("class", @luna.attr_static("buttons"))], [
       @luna.h("button", [
         ("class", @luna.attr_static("dec")),
-        ("onclick", @luna.action("decrement")),
+        ("onclick", @luna.action(Decrement)),
       ], [@luna.vtext("-")]),
       @luna.h("button", [
         ("class", @luna.attr_static("inc")),
-        ("onclick", @luna.action("increment")),
+        ("onclick", @luna.action(Increment)),
       ], [@luna.vtext("+")]),
     ]),
   ])

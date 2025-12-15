@@ -1,5 +1,5 @@
 {
   "islands": ["app/client"],
   "routes": "app/server",
-  "output": "app/_gen"
+  "output": "app/__gen__"
 }
