@@ -1,5 +1,14 @@
 # Sol Architecture v2
 
+> **ステータス: 設計提案 (Draft)**
+>
+> このドキュメントは Sol の将来の設計提案です。
+> 現在の実装については [src/sol/README.md](../src/sol/README.md) を参照してください。
+>
+> 主な違い:
+> - v2 提案: `app/client/` と `app/server/` の明確な分離
+> - 現在の実装: `app/routes/` にルートとページを統合
+
 ## 概要
 
 Sol は MoonBit で実装された Next.js 風の SSR-first Web フレームワーク。

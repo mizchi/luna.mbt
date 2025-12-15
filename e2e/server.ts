@@ -718,6 +718,522 @@ app.get("/test/idempotent-hydrate", async (c) => {
   return c.html(html);
 });
 
+// ============================================================================
+// Sol SSR/Hydration Test Routes
+// ============================================================================
+
+// Helper to create island test pages
+const solTestPage = (title: string, body: string, scripts: string = "") => `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <script>window.xssTriggered = false;</script>
+  <script type="module" src="/loader.js"></script>
+  ${scripts}
+</head>
+<body>
+  <h1>${title}</h1>
+  ${body}
+</body>
+</html>`;
+
+// Counter component hydration script
+const counterHydrateScript = `
+export function hydrate(el, state, id) {
+  const countSpan = el.querySelector('.count-display');
+  const incBtn = el.querySelector('[data-action-click="increment"]');
+  const decBtn = el.querySelector('[data-action-click="decrement"]');
+
+  let count = state?.count ?? 0;
+
+  const render = () => {
+    if (countSpan) countSpan.textContent = count.toString();
+  };
+
+  incBtn?.addEventListener('click', () => { count++; render(); });
+  decBtn?.addEventListener('click', () => { count--; render(); });
+
+  el.setAttribute('data-hydrated', 'true');
+  render();
+}
+export default hydrate;
+`;
+
+// State display hydration script
+const stateDisplayScript = `
+export function hydrate(el, state, id) {
+  // Display various state types
+  const intEl = el.querySelector('[data-int]');
+  const floatEl = el.querySelector('[data-float]');
+  const stringEl = el.querySelector('[data-string]');
+  const boolEl = el.querySelector('[data-bool]');
+
+  if (intEl && state?.int !== undefined) intEl.textContent = state.int.toString();
+  if (floatEl && state?.float !== undefined) floatEl.textContent = state.float.toString();
+  if (stringEl && state?.string !== undefined) stringEl.textContent = state.string;
+  if (boolEl && state?.bool !== undefined) boolEl.textContent = state.bool.toString();
+
+  el.setAttribute('data-hydrated', 'true');
+}
+export default hydrate;
+`;
+
+// Special chars hydration script
+const specialCharsScript = `
+export function hydrate(el, state, id) {
+  const htmlEl = el.querySelector('[data-html]');
+  const unicodeEl = el.querySelector('[data-unicode]');
+  const quotesEl = el.querySelector('[data-quotes]');
+
+  if (htmlEl && state?.html) htmlEl.textContent = state.html;
+  if (unicodeEl && state?.unicode) unicodeEl.textContent = state.unicode;
+  if (quotesEl && state?.quotes) quotesEl.textContent = state.quotes;
+
+  el.setAttribute('data-hydrated', 'true');
+}
+export default hydrate;
+`;
+
+// Nested state hydration script
+const nestedStateScript = `
+export function hydrate(el, state, id) {
+  const nameEl = el.querySelector('[data-user-name]');
+  const emailEl = el.querySelector('[data-user-email]');
+  const countEl = el.querySelector('[data-items-count]');
+
+  if (nameEl && state?.user?.name) nameEl.textContent = state.user.name;
+  if (emailEl && state?.user?.email) emailEl.textContent = state.user.email;
+  if (countEl && state?.items) countEl.textContent = state.items.length.toString();
+
+  el.setAttribute('data-hydrated', 'true');
+}
+export default hydrate;
+`;
+
+// Serve component scripts for sol tests
+app.get("/sol-components/counter.js", (c) => {
+  return c.body(counterHydrateScript, 200, { "Content-Type": "application/javascript" });
+});
+
+app.get("/sol-components/state-display.js", (c) => {
+  return c.body(stateDisplayScript, 200, { "Content-Type": "application/javascript" });
+});
+
+app.get("/sol-components/special-chars.js", (c) => {
+  return c.body(specialCharsScript, 200, { "Content-Type": "application/javascript" });
+});
+
+app.get("/sol-components/nested-state.js", (c) => {
+  return c.body(nestedStateScript, 200, { "Content-Type": "application/javascript" });
+});
+
+// 1. SSR Output Correctness Tests
+app.get("/sol-test/ssr-basic", (c) => {
+  const html = solTestPage("SSR Basic Test", `
+    <div id="island-container">
+      <div ln:id="counter"
+           ln:url="/sol-components/counter.js"
+           ln:state='{"count":0}'
+           ln:trigger="load">
+        <span class="count-display">0</span>
+        <button data-action-click="increment">+</button>
+        <button data-action-click="decrement">-</button>
+      </div>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/ssr-escape", (c) => {
+  const html = solTestPage("SSR Escape Test", `
+    <script>window.xssTriggered = false; window.alert = () => { window.xssTriggered = true; };</script>
+    <div data-content>&lt;script&gt;alert('xss')&lt;/script&gt;</div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/ssr-state-escape", (c) => {
+  // JSON with dangerous content that should be escaped
+  const state = JSON.stringify({ content: "</script><script>alert(1)</script>" });
+  const escapedState = state.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const html = solTestPage("SSR State Escape Test", `
+    <div ln:id="json-test"
+         ln:url="/sol-components/counter.js"
+         ln:state="${escapedState}"
+         ln:trigger="load">
+      <span>Test</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/ssr-fragment", (c) => {
+  const html = solTestPage("SSR Fragment Test", `
+    <div id="fragment-parent">
+      <span>Child 1</span>
+      <span>Child 2</span>
+      <span>Child 3</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+// 2. Hydration Integrity Tests
+app.get("/sol-test/hydration-match", (c) => {
+  const html = solTestPage("Hydration Match Test", `
+    <div id="island-container">
+      <div ln:id="counter"
+           ln:url="/sol-components/counter.js"
+           ln:state='{"count":0}'
+           ln:trigger="load">
+        <span class="count-display">0</span>
+        <button data-action-click="increment">+</button>
+        <button data-action-click="decrement">-</button>
+      </div>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/hydration-state", (c) => {
+  const html = solTestPage("Hydration State Test", `
+    <div ln:id="counter"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":42}'
+         ln:trigger="load">
+      <span class="count-display">42</span>
+      <button data-action-click="increment">+</button>
+      <button data-action-click="decrement">-</button>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/hydration-interactive", (c) => {
+  const html = solTestPage("Hydration Interactive Test", `
+    <div ln:id="counter"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":0}'
+         ln:trigger="load">
+      <span class="count-display">0</span>
+      <button data-action-click="increment">+</button>
+      <button data-action-click="decrement">-</button>
+    </div>
+  `);
+  return c.html(html);
+});
+
+// 4. Island Isolation Tests
+app.get("/sol-test/multi-island", (c) => {
+  const html = solTestPage("Multi Island Test", `
+    <div id="counter-a"
+         ln:id="counter-a"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":10}'
+         ln:trigger="load">
+      <h2>Counter A</h2>
+      <span class="count-display">10</span>
+      <button data-action-click="increment">+</button>
+      <button data-action-click="decrement">-</button>
+    </div>
+
+    <div id="counter-b"
+         ln:id="counter-b"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":20}'
+         ln:trigger="load">
+      <h2>Counter B</h2>
+      <span class="count-display">20</span>
+      <button data-action-click="increment">+</button>
+      <button data-action-click="decrement">-</button>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/island-failure", (c) => {
+  const html = solTestPage("Island Failure Test", `
+    <!-- This island will fail to load -->
+    <div id="broken"
+         ln:id="broken"
+         ln:url="/sol-components/non-existent.js"
+         ln:state='{"count":0}'
+         ln:trigger="load">
+      <span>Broken Island</span>
+    </div>
+
+    <!-- This island should still work -->
+    <div id="working"
+         ln:id="working"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":5}'
+         ln:trigger="load">
+      <span class="count-display">5</span>
+      <button data-action-click="increment">+</button>
+      <button data-action-click="decrement">-</button>
+    </div>
+  `);
+  return c.html(html);
+});
+
+// 5. State Serialization Tests
+app.get("/sol-test/state-types", (c) => {
+  const state = JSON.stringify({
+    int: 42,
+    float: 3.14,
+    string: "hello",
+    bool: true
+  });
+
+  const html = solTestPage("State Types Test", `
+    <div ln:id="state-test"
+         ln:url="/sol-components/state-display.js"
+         ln:state='${state}'
+         ln:trigger="load">
+      <div><span data-int>42</span></div>
+      <div><span data-float>3.14</span></div>
+      <div><span data-string>hello</span></div>
+      <div><span data-bool>true</span></div>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/state-special-chars", (c) => {
+  const state = {
+    html: '<script>alert("xss")</script>',
+    unicode: "日本語 emoji: 🎉",
+    quotes: 'say "hello"'
+  };
+  const stateJson = JSON.stringify(state)
+    .replace(/&/g, '&amp;')
+    .replace(/'/g, '&#39;');
+
+  const html = solTestPage("State Special Chars Test", `
+    <div ln:id="special"
+         ln:url="/sol-components/special-chars.js"
+         ln:state='${stateJson}'
+         ln:trigger="load">
+      <div><span data-html>${state.html.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
+      <div><span data-unicode>${state.unicode}</span></div>
+      <div><span data-quotes>${state.quotes.replace(/"/g, '&quot;')}</span></div>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/state-nested", (c) => {
+  const state = {
+    user: { name: "Alice", email: "alice@example.com" },
+    items: ["a", "b", "c"]
+  };
+  const stateJson = JSON.stringify(state).replace(/'/g, '&#39;');
+
+  const html = solTestPage("State Nested Test", `
+    <div ln:id="nested"
+         ln:url="/sol-components/nested-state.js"
+         ln:state='${stateJson}'
+         ln:trigger="load">
+      <div><span data-user-name>Alice</span></div>
+      <div><span data-user-email>alice@example.com</span></div>
+      <div><span data-items-count>3</span></div>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/state-large", (c) => {
+  // Generate large state
+  const largeData = Array(100).fill(null).map((_, i) => ({ id: i, name: `Item ${i}` }));
+  const state = { items: largeData };
+  const stateJson = JSON.stringify(state);
+
+  const html = solTestPage("State Large Test", `
+    <script type="ln/json" id="large-state-data">${stateJson}</script>
+    <div ln:id="large-state"
+         ln:url="/sol-components/counter.js"
+         ln:state="#large-state-data"
+         ln:trigger="load">
+      <span>Large state test</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+// 6. Hydration Trigger Tests
+app.get("/sol-test/trigger-load", (c) => {
+  const html = solTestPage("Trigger Load Test", `
+    <div ln:id="load-trigger"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":0}'
+         ln:trigger="load">
+      <span class="count-display">0</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/trigger-idle", (c) => {
+  const html = solTestPage("Trigger Idle Test", `
+    <div ln:id="idle-trigger"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":0}'
+         ln:trigger="idle">
+      <span class="count-display">0</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/trigger-visible", (c) => {
+  const html = solTestPage("Trigger Visible Test", `
+    <div style="height: 200vh; background: linear-gradient(#eee, #ccc);">
+      Scroll down to see the island
+    </div>
+    <div ln:id="visible-trigger"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":0}'
+         ln:trigger="visible">
+      <span class="count-display">0</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/trigger-media", (c) => {
+  const html = solTestPage("Trigger Media Test", `
+    <div ln:id="media-trigger"
+         ln:url="/sol-components/counter.js"
+         ln:state='{"count":0}'
+         ln:trigger="media:(max-width: 600px)">
+      <span class="count-display">0</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+// Mismatch detection hydration script
+const mismatchDetectScript = `
+export function hydrate(el, state, id) {
+  // Check for text content mismatch
+  const expectedText = state?.expectedText;
+  const actualText = el.textContent?.trim();
+
+  if (expectedText !== undefined && actualText !== expectedText) {
+    console.warn('[Hydration] mismatch detected: expected "' + expectedText + '", got "' + actualText + '"');
+  }
+
+  // Check for element structure
+  const expectedTag = state?.expectedTag;
+  if (expectedTag) {
+    const firstChild = el.querySelector('*');
+    if (firstChild && firstChild.tagName.toLowerCase() !== expectedTag.toLowerCase()) {
+      console.warn('[Hydration] mismatch: expected <' + expectedTag + '>, got <' + firstChild.tagName.toLowerCase() + '>');
+    }
+  }
+
+  // Check for attribute
+  const expectedAttr = state?.expectedAttr;
+  if (expectedAttr) {
+    const actualAttr = el.getAttribute(expectedAttr.name);
+    if (actualAttr !== expectedAttr.value) {
+      console.warn('[Hydration] mismatch: attribute ' + expectedAttr.name + ' expected "' + expectedAttr.value + '", got "' + actualAttr + '"');
+    }
+  }
+
+  // Check for extra elements
+  const expectedChildCount = state?.expectedChildCount;
+  if (expectedChildCount !== undefined) {
+    const actualCount = el.children.length;
+    if (actualCount !== expectedChildCount) {
+      console.warn('[Hydration] mismatch: expected ' + expectedChildCount + ' children, got ' + actualCount);
+    }
+  }
+
+  el.setAttribute('data-hydrated', 'true');
+}
+export default hydrate;
+`;
+
+app.get("/sol-components/mismatch-detect.js", (c) => {
+  return c.body(mismatchDetectScript, 200, { "Content-Type": "application/javascript" });
+});
+
+// 7. Mismatch Detection Test Routes
+app.get("/sol-test/mismatch-text", (c) => {
+  // SSR renders "Server Text", but state expects "Client Text"
+  const state = JSON.stringify({ expectedText: "Client Text" });
+  const html = solTestPage("Mismatch Text Test", `
+    <div ln:id="mismatch-text"
+         ln:url="/sol-components/mismatch-detect.js"
+         ln:state='${state}'
+         ln:trigger="load">
+      Server Text
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/mismatch-element", (c) => {
+  // SSR renders <span>, but state expects <div>
+  const state = JSON.stringify({ expectedTag: "div" });
+  const html = solTestPage("Mismatch Element Test", `
+    <div ln:id="mismatch-element"
+         ln:url="/sol-components/mismatch-detect.js"
+         ln:state='${state}'
+         ln:trigger="load">
+      <span>Content</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/mismatch-attr", (c) => {
+  // SSR renders class="wrong", but state expects class="correct"
+  const state = JSON.stringify({ expectedAttr: { name: "data-test", value: "correct" } });
+  const html = solTestPage("Mismatch Attr Test", `
+    <div ln:id="mismatch-attr"
+         ln:url="/sol-components/mismatch-detect.js"
+         ln:state='${state}'
+         ln:trigger="load"
+         data-test="wrong">
+      Content
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/mismatch-extra-client", (c) => {
+  // SSR renders 1 child, but state expects 2
+  const state = JSON.stringify({ expectedChildCount: 2 });
+  const html = solTestPage("Mismatch Extra Client Test", `
+    <div ln:id="mismatch-extra"
+         ln:url="/sol-components/mismatch-detect.js"
+         ln:state='${state}'
+         ln:trigger="load">
+      <span>Only one child</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
+app.get("/sol-test/mismatch-extra-server", (c) => {
+  // SSR renders 2 children, but state expects 1
+  const state = JSON.stringify({ expectedChildCount: 1 });
+  const html = solTestPage("Mismatch Extra Server Test", `
+    <div ln:id="mismatch-extra-server"
+         ln:url="/sol-components/mismatch-detect.js"
+         ln:state='${state}'
+         ln:trigger="load">
+      <span>Child 1</span>
+      <span>Child 2</span>
+    </div>
+  `);
+  return c.html(html);
+});
+
 // Mount MoonBit Hono app
 async function setupMoonBitRoutes() {
   const e2eServer = await import(e2eServerPath);
