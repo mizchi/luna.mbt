@@ -1,17 +1,9 @@
-///| Async Exception Handling Tests
-
-///|
-
-///| Exploring MoonBit's try-catch expression for error handling patterns.
-
-///| MoonBit's try-catch is an expression that returns a value,
-
-///| making synchronous error handling natural and composable.
-
-///|
-
-///| For async rendering, use @luna.vasync() with on_error handler.
-
+//  Async Exception Handling Tests
+// Exploring MoonBit's try-catch expression for error handling patterns.
+// MoonBit's try-catch is an expression that returns a value,
+// making synchronous error handling natural and composable.
+//
+// For async rendering, use @luna.vasync() with on_error handler.
 // =============================================================================
 // Error Types for Async Rendering
 // =============================================================================
