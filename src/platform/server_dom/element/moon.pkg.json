@@ -1,0 +1,46 @@
+{
+  "import": [
+    { "path": "mizchi/luna/core", "alias": "luna" }
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "html",
+        "head",
+        "body",
+        "title",
+        "meta",
+        "link",
+        "script",
+        "style_",
+        "main_",
+        "nav",
+        "header_",
+        "footer_",
+        "section",
+        "article",
+        "aside",
+        "div",
+        "span",
+        "p",
+        "a",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "ul",
+        "ol",
+        "li",
+        "img",
+        "br",
+        "hr",
+        "text",
+        "fragment",
+        "attr"
+      ],
+      "format": "esm"
+    }
+  }
+}

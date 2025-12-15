@@ -1,19 +1,15 @@
 これは開発者が次にやりたいことをメモとして残していく場所だから、AIは言われるまで修正しない。
 
-- [x] CI 棚卸し
-- [x] src/server_dom
-- [x] ref 対応
-- [x] ServerComponent
-- [x] ErrorBoundary
-- [x] 非同期コンポーネントの設計
-  - 中間ビルドファイルの生成
-  - dynamic_component() 中間ビルドを作る
-- [ ] Vite Enviroment Apiに対応? -> やらない。やるにしても最後
 - [ ] src/sol/ssg で、静的サイト生成に対応
-- [ ] Dynamic https://docs.solidjs.com/reference/components/dynamic
+- [ ] src/sol/rpc: capnweb
 - [ ] react-hook-form 相当のものを試作する
   - valibot を使うか、自前のバリデータを作るか
 - [ ] sol: chunk hydration
+- [ ] src/platform/dom/portal
+- [ ] src/integrations
+- [ ] src/platform/native/server
+- [ ] src/platform/dom/integrations/react
+- [ ] src/platform/dom/integrations/preact
 
 ## Icebox
 
@@ -22,4 +18,5 @@
 - [ ] shadcn
 - [ ] React Bridge
 - [ ] Fix playwright
-- [ ] js/cli を src/eclipse/cli で、CLIをMoonbitで書き直す
+- [x] js/cli を src/eclipse/cli で、CLIをMoonbitで書き直す
+- [ ] Vite Enviroment Apiに対応? -> やらない。やるにしても最後

@@ -1,14 +1,18 @@
 ///|
 /// Tests for server_dom module
 test "render simple div" {
-  let node = div(children=[text("Hello")])
+  let node = @element.div(children=[@element.text("Hello")])
   let html = render(node)
   assert_eq(html, "<div>Hello</div>")
 }
 
 ///|
 test "render div with attributes" {
-  let node = div(id="main", class="container", children=[text("Content")])
+  let node = @element.div(
+    id="main",
+    class="container",
+    children=[@element.text("Content")],
+  )
   let html = render(node)
   assert_true(html.contains("id=\"main\""))
   assert_true(html.contains("class=\"container\""))
@@ -17,9 +21,9 @@ test "render div with attributes" {
 
 ///|
 test "render nested elements" {
-  let node = div(children=[
-    h1(children=[text("Title")]),
-    p(children=[text("Paragraph")]),
+  let node = @element.div(children=[
+    @element.h1(children=[@element.text("Title")]),
+    @element.p(children=[@element.text("Paragraph")]),
   ])
   let html = render(node)
   assert_true(html.contains("<h1>Title</h1>"))
@@ -28,9 +32,9 @@ test "render nested elements" {
 
 ///|
 test "render html document structure" {
-  let node = html(lang="en", children=[
-    head(children=[title("My Page")]),
-    body(children=[h1(children=[text("Hello")])]),
+  let node = @element.html(lang="en", children=[
+    @element.head(children=[@element.title("My Page")]),
+    @element.body(children=[@element.h1(children=[@element.text("Hello")])]),
   ])
   let html_str = render(node)
   assert_true(html_str.contains("<html lang=\"en\">"))
@@ -42,8 +46,8 @@ test "render html document structure" {
 test "render document helper" {
   let node = document(
     lang="ja",
-    head_children=[title("Test"), meta(charset="UTF-8")],
-    body_children=[p(children=[text("Hello World")])],
+    head_children=[@element.title("Test"), @element.meta(charset="UTF-8")],
+    body_children=[@element.p(children=[@element.text("Hello World")])],
   )
   let html = render_document(node)
   assert_true(html.has_prefix("<!DOCTYPE html>"))
@@ -53,7 +57,11 @@ test "render document helper" {
 
 ///|
 test "render void elements" {
-  let node = div(children=[img(src="/image.png", alt="test"), br(), hr()])
+  let node = @element.div(children=[
+    @element.img(src="/image.png", alt="test"),
+    @element.br(),
+    @element.hr(),
+  ])
   let html = render(node)
   assert_true(html.contains("<img"))
   assert_true(html.contains("src=\"/image.png\""))
@@ -63,9 +71,9 @@ test "render void elements" {
 
 ///|
 test "render list elements" {
-  let node = ul(children=[
-    li(children=[text("Item 1")]),
-    li(children=[text("Item 2")]),
+  let node = @element.ul(children=[
+    @element.li(children=[@element.text("Item 1")]),
+    @element.li(children=[@element.text("Item 2")]),
   ])
   let html = render(node)
   assert_true(html.contains("<ul>"))
@@ -75,8 +83,8 @@ test "render list elements" {
 
 ///|
 test "render anchor with href" {
-  let node = a(href="https://example.com", target="_blank", children=[
-    text("Link"),
+  let node = @element.a(href="https://example.com", target="_blank", children=[
+    @element.text("Link"),
   ])
   let html = render(node)
   assert_true(html.contains("href=\"https://example.com\""))
@@ -85,7 +93,7 @@ test "render anchor with href" {
 
 ///|
 test "render script element" {
-  let node = script(src="/app.js", type_="module", defer_=true)
+  let node = @element.script(src="/app.js", type_="module", defer_=true)
   let html = render(node)
   assert_true(html.contains("src=\"/app.js\""))
   assert_true(html.contains("type=\"module\""))
@@ -94,7 +102,7 @@ test "render script element" {
 
 ///|
 test "render style element" {
-  let node = style_("body { margin: 0; }")
+  let node = @element.style_("body { margin: 0; }")
   let html = render(node)
   assert_true(html.contains("<style>body { margin: 0; }</style>"))
 }
@@ -105,7 +113,7 @@ test "render island" {
     "counter",
     "/components/counter.js",
     state="{\"count\":0}",
-    children=[text("Loading...")],
+    children=[@element.text("Loading...")],
   )
   let html = render(node)
   assert_true(html.contains("ln:id=\"counter\""))
@@ -116,7 +124,7 @@ test "render island" {
 ///|
 test "render island with visible trigger" {
   let node = island_visible("lazy", "/components/lazy.js", "{}", children=[
-    text("Lazy content"),
+    @element.text("Lazy content"),
   ])
   let html = render(node)
   assert_true(html.contains("ln:trigger=\"visible\""))
@@ -124,9 +132,9 @@ test "render island with visible trigger" {
 
 ///|
 test "render_with_preloads collects island URLs" {
-  let node = div(children=[
-    island("a", "/a.js", children=[text("A")]),
-    island("b", "/b.js", children=[text("B")]),
+  let node = @element.div(children=[
+    island("a", "/a.js", children=[@element.text("A")]),
+    island("b", "/b.js", children=[@element.text("B")]),
   ])
   let result = render_with_preloads(node)
   assert_eq(result.preload_urls.length(), 2)
@@ -136,17 +144,23 @@ test "render_with_preloads collects island URLs" {
 
 ///|
 test "render fragment" {
-  let node = fragment([text("A"), text("B"), text("C")])
+  let node = @element.fragment([
+    @element.text("A"),
+    @element.text("B"),
+    @element.text("C"),
+  ])
   let html = render(node)
   assert_eq(html, "ABC")
 }
 
 ///|
 test "render semantic elements" {
-  let node = main_(children=[
-    header_(children=[nav(children=[text("Nav")])]),
-    section(children=[article(children=[text("Content")])]),
-    footer_(children=[text("Footer")]),
+  let node = @element.main_(children=[
+    @element.header_(children=[@element.nav(children=[@element.text("Nav")])]),
+    @element.section(children=[
+      @element.article(children=[@element.text("Content")]),
+    ]),
+    @element.footer_(children=[@element.text("Footer")]),
   ])
   let html = render(node)
   assert_true(html.contains("<main>"))
@@ -159,7 +173,9 @@ test "render semantic elements" {
 
 ///|
 test "html escaping in text" {
-  let node = p(children=[text("<script>alert('xss')</script>")])
+  let node = @element.p(children=[
+    @element.text("<script>alert('xss')</script>"),
+  ])
   let html = render(node)
   assert_true(html.contains("&lt;script&gt;"))
   assert_false(html.contains("<script>alert"))

@@ -2,47 +2,26 @@
   "supported-targets": ["js"],
   "import": [
     { "path": "mizchi/luna/core", "alias": "luna" },
-    { "path": "mizchi/luna/core/render", "alias": "render" }
+    { "path": "mizchi/luna/core/render", "alias": "render" },
+    { "path": "mizchi/luna/platform/server_dom/element", "alias": "element" }
+  ],
+  "test-import": [
+    { "path": "mizchi/luna/platform/server_dom/element", "alias": "element" }
   ],
   "link": {
     "js": {
       "exports": [
         "render",
         "render_with_preloads",
-        "html",
-        "head",
-        "body",
-        "title",
-        "meta",
-        "link",
-        "script",
-        "style",
-        "div",
-        "span",
-        "p",
-        "a",
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-        "ul",
-        "ol",
-        "li",
-        "img",
-        "br",
-        "hr",
-        "main_",
-        "nav",
-        "header_",
-        "footer_",
-        "section",
-        "article",
-        "aside",
-        "text",
-        "fragment",
-        "island"
+        "render_document",
+        "render_document_with_preloads",
+        "generate_preload_tags",
+        "document",
+        "island",
+        "island_load",
+        "island_idle",
+        "island_visible",
+        "island_media"
       ],
       "format": "esm"
     }

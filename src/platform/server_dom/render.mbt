@@ -60,10 +60,10 @@ pub fn document(
   body_id? : String,
 ) -> @luna.Node[Unit] {
   let body_node = match (body_class, body_id) {
-    (Some(c), Some(i)) => body(class=c, id=i, children=body_children)
-    (Some(c), None) => body(class=c, children=body_children)
-    (None, Some(i)) => body(id=i, children=body_children)
-    (None, None) => body(children=body_children)
+    (Some(c), Some(i)) => @element.body(class=c, id=i, children=body_children)
+    (Some(c), None) => @element.body(class=c, children=body_children)
+    (None, Some(i)) => @element.body(id=i, children=body_children)
+    (None, None) => @element.body(children=body_children)
   }
-  html(lang?, children=[head(children=head_children), body_node])
+  @element.html(lang?, children=[@element.head(children=head_children), body_node])
 }
