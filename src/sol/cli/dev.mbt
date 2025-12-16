@@ -95,7 +95,7 @@ fn run_dev_command(args : Array[String]) -> Unit {
   // Step 4: Bundle client code with rolldown if config exists
   let rolldown_config = @path.join2(cwd, "rolldown.config.mjs")
   if @fs.existsSync(rolldown_config) {
-    println(@colorette.gray("Bundling client code with rolldown..."))
+    println(@colorette.gray("Bundling client code with rolldown -> .sol/dev/static/"))
     try {
       let bundle_result = @child_process.spawnSync(
         "npx",

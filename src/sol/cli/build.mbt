@@ -116,7 +116,7 @@ fn run_build_command(args : Array[String]) -> Unit {
   if not(skip_bundle) && @fs.existsSync(rolldown_config) {
     let minify_msg = if skip_minify { "" } else { " (minified)" }
     println(
-      @colorette.cyan("Bundling client code with rolldown\{minify_msg}..."),
+      @colorette.cyan("Bundling client code with rolldown -> .sol/prod/static/\{minify_msg}"),
     )
     try {
       // Use -m flag for minification in production builds
