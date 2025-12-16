@@ -2,6 +2,11 @@
   "name": "sol-app-example",
   "version": "0.1.0",
   "type": "module",
+  "scripts": {
+    "dev": "node ../../target/js/release/build/sol/cli/cli.js dev",
+    "build": "node ../../target/js/release/build/sol/cli/cli.js build",
+    "serve": "node ../../target/js/release/build/sol/cli/cli.js serve"
+  },
   "dependencies": {
     "@hono/node-server": "^1.0.0",
     "hono": "^4.0.0"

@@ -1,13 +1,40 @@
 {
-  "supported-targets": ["js"],
+  "supported-targets": [
+    "js"
+  ],
   "import": [
-    { "path": "mizchi/luna/core", "alias": "luna" },
-    { "path": "mizchi/luna/core/routes", "alias": "routes" },
-    { "path": "mizchi/luna/sol", "alias": "sol" },
-    { "path": "mizchi/luna/sol/router", "alias": "router" },
-    { "path": "mizchi/luna/platform/server_dom", "alias": "server_dom" },
-    { "path": "mizchi/luna/platform/server_dom/element", "alias": "element" },
-    { "path": "mizchi/js/core", "alias": "core" },
-    { "path": "example/sol-app/__gen__/types", "alias": "types" }
-  ]
+    {
+      "path": "mizchi/luna/core",
+      "alias": "luna"
+    },
+    {
+      "path": "mizchi/luna/core/routes",
+      "alias": "routes"
+    },
+    {
+      "path": "mizchi/luna/sol",
+      "alias": "sol"
+    },
+    {
+      "path": "mizchi/luna/sol/router",
+      "alias": "router"
+    },
+    {
+      "path": "mizchi/luna/platform/server_dom",
+      "alias": "server_dom"
+    },
+    {
+      "path": "mizchi/luna/platform/server_dom/element",
+      "alias": "element"
+    },
+    {
+      "path": "mizchi/js/core",
+      "alias": "core"
+    },
+    {
+      "path": "example/sol-app/__gen__/types",
+      "alias": "types"
+    }
+  ],
+  "warn-list": "-35"
 }
