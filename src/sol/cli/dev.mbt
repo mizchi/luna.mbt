@@ -42,16 +42,20 @@ fn run_dev_command(args : Array[String]) -> Unit {
     @process.exit(1)
   }
   println(@colorette.cyan("Starting Sol development server..."))
-  // Step 1: Clean generated files to avoid stale cache issues
+  // Step 1: Clean generated files and target to avoid stale cache issues
   let sol_dir = @path.join2(cwd, ".sol")
   let gen_dir = @path.join2(cwd, "app/__gen__")
-  if @fs.existsSync(sol_dir) || @fs.existsSync(gen_dir) {
+  let target_dir = @path.join2(cwd, "target")
+  if @fs.existsSync(sol_dir) || @fs.existsSync(gen_dir) || @fs.existsSync(target_dir) {
     println(@colorette.gray("Cleaning generated files..."))
     if @fs.existsSync(sol_dir) {
       rm_rf_sync(sol_dir)
     }
     if @fs.existsSync(gen_dir) {
       rm_rf_sync(gen_dir)
+    }
+    if @fs.existsSync(target_dir) {
+      rm_rf_sync(target_dir)
     }
     println(@colorette.green("✓ Clean complete"))
   }
@@ -81,31 +85,31 @@ fn run_dev_command(args : Array[String]) -> Unit {
     }
   }
   println(@colorette.green("✓ Build complete"))
-  // Step 4: Bundle client code with rolldown if manifest exists
-  let manifest_path = @path.join2(cwd, ".sol/manifest.json")
-  if @fs.existsSync(manifest_path) {
+  // Step 4: Bundle client code with rolldown if config exists
+  let rolldown_config = @path.join2(cwd, "rolldown.config.mjs")
+  if @fs.existsSync(rolldown_config) {
     println(@colorette.gray("Bundling client code with rolldown..."))
-    @sol.build_from_manifest_file(
-      manifest_path,
-      cwd,
-      fn(files) {
-        println(
-          @colorette.green(
-            "✓ Client bundle complete (\{files.length()} files)",
-          ),
-        )
-        // Continue to step 4: run server
-        run_server(cwd, port)
-      },
-      fn(error) {
-        console_error(@colorette.red("Bundle error: \{error}"))
+    try {
+      let bundle_result = @child_process.spawnSync(
+        "npx",
+        args=["rolldown", "-c", "rolldown.config.mjs"],
+        stdio="inherit",
+        cwd~,
+      )
+      if bundle_result.status() != Some(0) {
+        console_error(@colorette.red("Rolldown bundle failed"))
         @process.exit(1)
-      },
-    )
-  } else {
-    // No manifest, skip bundling and run server directly
-    run_server(cwd, port)
+      }
+      println(@colorette.green("✓ Client bundle complete"))
+    } catch {
+      e => {
+        console_error(@colorette.red("Bundle error: \{e}"))
+        @process.exit(1)
+      }
+    }
   }
+  // Run server
+  run_server(cwd, port)
 }
 
 ///|
@@ -141,21 +145,22 @@ fn run_server(cwd : String, port : String) -> Unit {
       println(
         @colorette.green("✓ Server starting at http://localhost:\{port}"),
       )
-      // Run the server with inherited stdio
-      let server = @child_process.spawn("node", args=[entry], cwd~)
-      // Handle server exit
-      server
-      .to_event_emitter()
-      .on("exit", fn(code : @js.Any) {
-        let exit_code : Int = code.cast()
+      // Run the server with inherited stdio (blocking)
+      try {
+        let result = @child_process.spawnSync(
+          "node",
+          args=[entry],
+          cwd~,
+          stdio="inherit",
+        )
+        let exit_code = result.status().unwrap_or(1)
         @process.exit(exit_code)
-      })
-      server
-      .to_event_emitter()
-      .on("error", fn(err : @js.Any) {
-        console_error(@colorette.red("Server error: " + err.to_string()))
-        @process.exit(1)
-      })
+      } catch {
+        e => {
+          console_error(@colorette.red("Server error: \{e}"))
+          @process.exit(1)
+        }
+      }
     }
   }
 }

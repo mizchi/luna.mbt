@@ -380,7 +380,61 @@ fn collect_island_functions(
 }
 
 ///|
-/// Collect Props struct definitions from island directories
+/// Collect Props struct definitions from island source files (.mbt)
+/// This parses source directly, not mbti, to avoid circular dependency
+fn collect_island_structs_from_source(
+  cwd : String,
+  config : SolConfig
+) -> Array[StructExport] {
+  let exports : Array[StructExport] = []
+  for pattern in config.islands {
+    let base_path = @path.join2(cwd, pattern)
+    // List all .mbt files in the directory
+    if @fs.existsSync(base_path) {
+      try {
+        let entries = @fs.readdirSync(base_path)
+        for entry in entries {
+          if entry.has_suffix(".mbt") && not(entry.has_suffix("_test.mbt")) {
+            let file_path = @path.join2(base_path, entry)
+            let content = @fs.readFileSync(file_path).to_string()
+            // Parse struct definitions from source
+            let structs = @mbti_utils.parse_struct_defs(content, entry)
+            let props_structs = @mbti_utils.get_props_structs(structs)
+            // Get package info from moon.pkg.json
+            let pkg_json_path = @path.join2(base_path, "moon.pkg.json")
+            let import_alias = get_dir_name(base_path)
+            for s in props_structs {
+              exports.push(StructExport::{
+                name: s.name,
+                raw_definition: s.raw_definition,
+                package_path: pattern, // Will be resolved later
+                import_alias,
+              })
+            }
+            let _ = pkg_json_path
+          }
+        }
+      } catch {
+        _ => ()
+      }
+    }
+  }
+  exports
+}
+
+///|
+/// Get directory name from path
+fn get_dir_name(path : String) -> String {
+  let parts = path.split("/").to_array()
+  if parts.length() > 0 {
+    parts[parts.length() - 1].to_string()
+  } else {
+    "unknown"
+  }
+}
+
+///|
+/// Collect Props struct definitions from island directories (from mbti)
 fn collect_island_structs(
   cwd : String,
   config : SolConfig
@@ -420,10 +474,15 @@ fn generate_types_mbt(structs : Array[StructExport]) -> String {
   buf.write_string("///| Auto-generated types for island props\n")
   buf.write_string("///| Re-exports Props structs from client packages\n\n")
   for s in structs {
-    // Add derive for JSON serialization
     buf.write_string("///| Props type from @\{s.import_alias}\n")
-    buf.write_string(s.raw_definition)
-    buf.write_string(" derive(ToJson, FromJson)\n\n")
+    // Check if raw_definition already has derive
+    if s.raw_definition.contains("derive(") {
+      buf.write_string(s.raw_definition)
+      buf.write_string("\n\n")
+    } else {
+      buf.write_string(s.raw_definition)
+      buf.write_string(" derive(ToJson, FromJson)\n\n")
+    }
   }
   buf.to_string()
 }
@@ -678,18 +737,58 @@ fn generate_client_exports_mbt_v2(
   buf.write_string("///| Auto-generated client exports\n")
   buf.write_string("///| Re-exports all public functions from app/client/*\n\n")
   for func in funcs {
+    // Use "app_" prefix to match moon.pkg.json import alias
+    let prefixed_alias = "app_\{func.import_alias}"
     let rewritten_sig = rewrite_signature_types(
       func.signature,
-      func.import_alias,
+      prefixed_alias,
       props_names,
     )
     let (sig_with_names, call_args) = generate_params_with_names(rewritten_sig)
-    buf.write_string("///| Re-export \{func.name} from @\{func.import_alias}\n")
+    buf.write_string("///| Re-export \{func.name} from @\{prefixed_alias}\n")
     buf.write_string("pub fn \{func.name}\{sig_with_names} {\n")
-    buf.write_string("  @\{func.import_alias}.\{func.name}\{call_args}\n")
+    buf.write_string("  @\{prefixed_alias}.\{func.name}\{call_args}\n")
     buf.write_string("}\n\n")
+    // Generate hydrate wrapper if function takes Props and returns DomNode
+    let props_type = extract_props_type(func.signature, prefixed_alias)
+    if props_type.length() > 0 && func.signature.contains("DomNode") {
+      // Get the qualified props type name
+      let qualified_props = "@\{prefixed_alias}.\{props_type}"
+      buf.write_string("///| Hydrate wrapper for \{func.name} - called by ln-loader\n")
+      buf.write_string("pub fn hydrate(element : @js.Any, state : @js.Any, _id : String) -> Unit {\n")
+      buf.write_string("  let jsdom_el : @js_dom.Element = element.cast()\n")
+      buf.write_string("  let el = @element.DomElement::from_jsdom(jsdom_el)\n")
+      buf.write_string("  // state is already a JS object from JSON.parse in loader\n")
+      buf.write_string("  // Convert to Json then parse to Props\n")
+      buf.write_string("  let json = @mbtconv.to_json(state)\n")
+      buf.write_string("  let props : \{qualified_props} = try { @json.from_json(json) } catch { _ => return }\n")
+      buf.write_string("  let node = \{func.name}(props)\n")
+      buf.write_string("  @element.render(el, node)\n")
+      buf.write_string("}\n\n")
+    }
   }
   buf.to_string()
+}
+
+///|
+/// Extract Props type from signature like "(CounterProps) -> DomNode"
+fn extract_props_type(sig : String, _alias : String) -> String {
+  // Look for pattern: (SomeProps) -> ...
+  match sig.find("(") {
+    None => ""
+    Some(start) =>
+      match sig.find(")") {
+        None => ""
+        Some(end) => {
+          let inner = sig.substring(start=start + 1, end~)
+          if inner.contains("Props") {
+            inner.trim_space().to_string()
+          } else {
+            ""
+          }
+        }
+      }
+  }
 }
 
 ///|
@@ -765,12 +864,15 @@ fn generate_client_pkg_json_v2(funcs : Array[FuncExport]) -> String {
   buf.write_string("  \"supported-targets\": [\"js\"],\n")
   buf.write_string("  \"import\": [\n")
   // Collect unique imports from function packages
+  // Use "app_" prefix to avoid alias collision with __gen__/client package itself
   let seen : Map[String, Bool] = {}
   let imports : Array[(String, String)] = []
   for func in funcs {
     if not(seen.contains(func.package_path)) {
       seen[func.package_path] = true
-      imports.push((func.package_path, func.import_alias))
+      // Add "app_" prefix to avoid collision with __gen__/client's default alias
+      let alias = "app_\{func.import_alias}"
+      imports.push((func.package_path, alias))
     }
   }
   // Also add packages used in signatures
@@ -785,6 +887,24 @@ fn generate_client_pkg_json_v2(funcs : Array[FuncExport]) -> String {
       None => ()
     }
   }
+  // Always add @js for hydrate wrapper
+  let js_path = "mizchi/js/core"
+  if not(seen.contains(js_path)) {
+    seen[js_path] = true
+    imports.push((js_path, "js"))
+  }
+  // Always add @mbtconv for JS <-> MoonBit Json conversion
+  let mbtconv_path = "mizchi/js/mbtconv"
+  if not(seen.contains(mbtconv_path)) {
+    seen[mbtconv_path] = true
+    imports.push((mbtconv_path, "mbtconv"))
+  }
+  // Always add @js_dom for DOM element types
+  let js_dom_path = "mizchi/js/browser/dom"
+  if not(seen.contains(js_dom_path)) {
+    seen[js_dom_path] = true
+    imports.push((js_dom_path, "js_dom"))
+  }
   for i, imp in imports {
     let (pkg_path, pkg_alias) = imp
     if i > 0 {
@@ -796,11 +916,18 @@ fn generate_client_pkg_json_v2(funcs : Array[FuncExport]) -> String {
   buf.write_string("  \"link\": {\n")
   buf.write_string("    \"js\": {\n")
   buf.write_string("      \"exports\": [")
+  // Check if any function has Props -> DomNode signature (needs hydrate)
+  let has_hydrate = funcs.iter().any(fn(f) {
+    f.signature.contains("Props") && f.signature.contains("DomNode")
+  })
   for i, func in funcs {
     if i > 0 {
       buf.write_string(", ")
     }
     buf.write_string("\"\{func.name}\"")
+  }
+  if has_hydrate {
+    buf.write_string(", \"hydrate\"")
   }
   buf.write_string("],\n")
   buf.write_string("      \"format\": \"esm\"\n")
@@ -941,15 +1068,23 @@ fn generate_server_pkg_json(routes_pkg : String) -> String {
 
 ///|
 /// Generate client entry JS file (new architecture)
-fn generate_island_entry_js_v2(func : FuncExport) -> String {
+fn generate_island_entry_js_v2(func : FuncExport, include_hydrate : Bool) -> String {
   let buf = StringBuilder::new()
   buf.write_string("// Client entry for: \{func.name}\n")
   buf.write_string("// Generated by: sol generate\n\n")
-  buf.write_string(
-    "import { \{func.name} } from '../../target/js/release/build/__gen__/client/client.js';\n\n",
-  )
-  buf.write_string("export { \{func.name} };\n")
-  buf.write_string("export default \{func.name};\n")
+  if include_hydrate {
+    buf.write_string(
+      "import { \{func.name}, hydrate } from '../../target/js/release/build/__gen__/client/client.js';\n\n",
+    )
+    buf.write_string("export { \{func.name}, hydrate };\n")
+    buf.write_string("export default hydrate;\n")
+  } else {
+    buf.write_string(
+      "import { \{func.name} } from '../../target/js/release/build/__gen__/client/client.js';\n\n",
+    )
+    buf.write_string("export { \{func.name} };\n")
+    buf.write_string("export default \{func.name};\n")
+  }
   buf.to_string()
 }
 
@@ -1078,7 +1213,55 @@ fn run_generate_command(args : Array[String]) -> Unit {
     @process.exit(1)
   }
   println(@colorette.cyan("Generating app/__gen__ and .sol directories..."))
-  // Run moon info to generate mbti files
+  // Create output directories first (needed for types)
+  let output_dir = @path.join2(cwd, config.output) // app/__gen__
+  let types_dir = @path.join2(output_dir, "types")
+  try {
+    @fs.mkdirSync(types_dir, recursive=true)
+  } catch {
+    e => {
+      console_error(@colorette.red("Error creating types directory: \{e}"))
+      @process.exit(1)
+    }
+  }
+  // Step 1: Parse source files to extract Props structs (before moon info)
+  println(@colorette.gray("  Parsing source files for Props types..."))
+  let source_structs = collect_island_structs_from_source(cwd, config)
+  println(@colorette.gray("  Found \{source_structs.length()} Props types from source"))
+  // Step 2: Generate types package from source (so moon info can resolve imports)
+  let project_name = get_project_name(cwd)
+  if not(source_structs.is_empty()) {
+    let types_mbt_content = generate_types_mbt(source_structs)
+    let types_pkg_content = generate_types_pkg_json(source_structs, project_name)
+    let types_mbt_path = @path.join2(types_dir, "types.mbt")
+    let types_pkg_path = @path.join2(types_dir, "moon.pkg.json")
+    try {
+      @fs.writeFileSync(types_mbt_path, @js.any(types_mbt_content))
+      @fs.writeFileSync(types_pkg_path, @js.any(types_pkg_content))
+      println(@colorette.gray("  Generated __gen__/types/ from source"))
+    } catch {
+      e => {
+        console_error(@colorette.red("Error writing types package: \{e}"))
+        @process.exit(1)
+      }
+    }
+  } else {
+    // Create empty stub if no Props found
+    let stub_types_mbt_path = @path.join2(types_dir, "types.mbt")
+    let stub_types_pkg_path = @path.join2(types_dir, "moon.pkg.json")
+    if not(@fs.existsSync(stub_types_mbt_path)) {
+      try {
+        @fs.writeFileSync(stub_types_mbt_path, @js.any("///| No Props types found\n"))
+        @fs.writeFileSync(stub_types_pkg_path, @js.any("{\n  \"supported-targets\": [\"js\"]\n}\n"))
+      } catch {
+        e => {
+          console_error(@colorette.red("Error writing stub types: \{e}"))
+          @process.exit(1)
+        }
+      }
+    }
+  }
+  // Step 3: Run moon info to generate mbti files
   println(@colorette.gray("  Running moon info..."))
   try {
     let info_result = @child_process.spawnSync(
@@ -1096,25 +1279,20 @@ fn run_generate_command(args : Array[String]) -> Unit {
       @process.exit(1)
     }
   }
-  // Collect all pub functions from island directories
+  // Collect all pub functions from island directories (using mbti)
   let funcs = collect_island_functions(cwd, config)
   println(@colorette.gray("  Found \{funcs.length()} island exports"))
-  // Collect Props struct definitions
-  let structs = collect_island_structs(cwd, config)
-  let props_names : Array[String] = structs.map(fn(s) { s.name })
-  println(@colorette.gray("  Found \{structs.length()} Props types"))
-  // Create output directories
-  let output_dir = @path.join2(cwd, config.output) // app/_gen
+  // Props names from source structs (already collected)
+  let props_names : Array[String] = source_structs.map(fn(s) { s.name })
+  // Create remaining output directories (types_dir already created above)
   let client_dir = @path.join2(output_dir, "client")
   let server_dir = @path.join2(output_dir, "server")
-  let types_dir = @path.join2(output_dir, "types")
   let sol_dir = @path.join2(cwd, ".sol")
   let sol_client_dir = @path.join2(sol_dir, "client")
   let sol_server_dir = @path.join2(sol_dir, "server")
   try {
     @fs.mkdirSync(client_dir, recursive=true)
     @fs.mkdirSync(server_dir, recursive=true)
-    @fs.mkdirSync(types_dir, recursive=true)
     @fs.mkdirSync(sol_client_dir, recursive=true)
     @fs.mkdirSync(sol_server_dir, recursive=true)
   } catch {
@@ -1125,38 +1303,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
   }
   // Get routes package path from config
   let routes_pkg = get_routes_package_path(cwd, config.routes)
-  // Get project name from moon.mod.json
-  let project_name = get_project_name(cwd)
-  // Calculate types package path
-  let _ = project_name // types_pkg_path not needed for client anymore
-  // Generate types.mbt (Props struct definitions)
-  if not(structs.is_empty()) {
-    let types_mbt = generate_types_mbt(structs)
-    let types_mbt_path = @path.join2(types_dir, "types.mbt")
-    try {
-      @fs.writeFileSync(types_mbt_path, @js.any(types_mbt))
-      println(@colorette.gray("  Generated __gen__/types/types.mbt"))
-    } catch {
-      e => {
-        console_error(@colorette.red("Error writing types/types.mbt: \{e}"))
-        @process.exit(1)
-      }
-    }
-    // Generate types moon.pkg.json
-    let types_pkg = generate_types_pkg_json(structs, project_name)
-    let types_pkg_path_file = @path.join2(types_dir, "moon.pkg.json")
-    try {
-      @fs.writeFileSync(types_pkg_path_file, @js.any(types_pkg))
-      println(@colorette.gray("  Generated __gen__/types/moon.pkg.json"))
-    } catch {
-      e => {
-        console_error(
-          @colorette.red("Error writing types/moon.pkg.json: \{e}"),
-        )
-        @process.exit(1)
-      }
-    }
-  }
+  // Note: types package already generated from source in Step 2
   // Generate client exports.mbt (re-exports all pub functions)
   if not(funcs.is_empty()) {
     let client_exports_mbt = generate_client_exports_mbt_v2(funcs, props_names)
@@ -1212,7 +1359,10 @@ fn run_generate_command(args : Array[String]) -> Unit {
   // Generate client JS entry files in .sol/client/
   if not(funcs.is_empty()) {
     for func in funcs {
-      let island_entry_content = generate_island_entry_js_v2(func)
+      // Check if this function has Props -> DomNode signature (needs hydrate)
+      let include_hydrate = func.signature.contains("Props") &&
+        func.signature.contains("DomNode")
+      let island_entry_content = generate_island_entry_js_v2(func, include_hydrate)
       let island_entry_path = @path.join2(sol_client_dir, "\{func.name}.js")
       @fs.writeFileSync(island_entry_path, @js.any(island_entry_content)) catch {
         e => {

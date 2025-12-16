@@ -5,9 +5,9 @@
 ///| Home page - with counter island
 pub fn home(props : @router.PageProps) -> @luna.Node[Unit] {
   let _ = props // Available for dynamic pages
-  let initial_count = 0
-  // Serialize initial state for hydration
-  let state_json = "{\"initial_count\":" + initial_count.to_string() + "}"
+  // Create props using generated types - auto-serializes to JSON
+  let counter_props : @types.CounterProps = { initial_count: 0 }
+  let state_json = counter_props.to_json().stringify()
 
   layout([
     @luna.h("h1", [], [@luna.vtext("Welcome to Sol")]),
@@ -16,14 +16,14 @@ pub fn home(props : @router.PageProps) -> @luna.Node[Unit] {
     ]),
     @server_dom.island(
       "counter",
-      "/static/hydrate_counter.js",
+      "/static/counter.js",
       state=state_json,
       trigger=@luna.Load,
       // SSR placeholder - will be hydrated on client
       children=[
         @luna.h("div", [("class", @luna.attr_static("counter"))], [
           @luna.h("span", [("class", @luna.attr_static("count-display"))], [
-            @luna.vtext(initial_count.to_string()),
+            @luna.vtext(counter_props.initial_count.to_string()),
           ]),
           @luna.h("div", [("class", @luna.attr_static("buttons"))], [
             @luna.h("button", [("class", @luna.attr_static("dec"))], [
