@@ -8,9 +8,9 @@ export default defineConfig({
       provider: 'playwright',
       headless: true,
     },
-    include: ['tests/bench.browser.test.ts'],
+    include: ['tests/*.bench.ts', 'tests/bench.browser.test.ts'],
     benchmark: {
-      include: ['tests/bench.browser.test.ts'],
+      include: ['tests/*.bench.ts', 'tests/bench.browser.test.ts'],
       reporters: ['default'],
     },
   },
