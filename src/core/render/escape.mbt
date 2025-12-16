@@ -1,9 +1,11 @@
 ///| HTML/Attribute/JS String Escaping Utilities
-
-///| Pure MoonBit - works on all targets (js, wasm-gc, native)
+///|
+///| Cross-platform implementation with target-specific optimizations:
+///| - JS target: Uses native String.replace (fastest)
+///| - WASM/Native: Pure MoonBit implementation
 
 // =============================================================================
-// HTML Escaping
+// HTML Escaping - Public API
 // =============================================================================
 
 ///|
@@ -21,37 +23,17 @@ pub fn needs_html_escape(s : String) -> Bool {
 ///|
 /// Escape HTML special characters and write to StringBuilder
 pub fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
-  // Fast path: most strings don't need escaping
-  if not(needs_html_escape(s)) {
-    sb.write_string(s)
-    return
-  }
-  // Slow path: escape character by character
-  for char in s {
-    match char {
-      '&' => sb.write_string("&amp;")
-      '<' => sb.write_string("&lt;")
-      '>' => sb.write_string("&gt;")
-      '"' => sb.write_string("&quot;")
-      '\'' => sb.write_string("&#39;")
-      _ => sb.write_char(char)
-    }
-  }
+  escape_html_to_internal(sb, s)
 }
 
 ///|
 /// Escape HTML and return new string
 pub fn escape_html(s : String) -> String {
-  if not(needs_html_escape(s)) {
-    return s
-  }
-  let sb = StringBuilder::new(size_hint=s.length() + 16)
-  escape_html_to(sb, s)
-  sb.to_string()
+  escape_html_internal(s)
 }
 
 // =============================================================================
-// Attribute Escaping
+// Attribute Escaping - Public API
 // =============================================================================
 
 ///|
@@ -69,64 +51,34 @@ pub fn needs_attr_escape(s : String) -> Bool {
 ///|
 /// Escape attribute value and write to StringBuilder
 pub fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
-  // Fast path: most attribute values don't need escaping
-  if not(needs_attr_escape(s)) {
-    sb.write_string(s)
-    return
-  }
-  // Slow path: escape character by character
-  for char in s {
-    match char {
-      '&' => sb.write_string("&amp;")
-      '"' => sb.write_string("&quot;")
-      _ => sb.write_char(char)
-    }
-  }
+  escape_attr_to_internal(sb, s)
 }
 
 ///|
 /// Escape attribute and return new string
 pub fn escape_attr(s : String) -> String {
-  if not(needs_attr_escape(s)) {
-    return s
-  }
-  let sb = StringBuilder::new(size_hint=s.length() + 8)
-  escape_attr_to(sb, s)
-  sb.to_string()
+  escape_attr_internal(s)
 }
 
 // =============================================================================
-// JavaScript String Escaping
+// JavaScript String Escaping - Public API
 // =============================================================================
 
 ///|
 /// Escape JS string for embedding in script tags
 /// Handles </script> injection prevention
 pub fn escape_js_string(s : String) -> String {
-  let sb = StringBuilder::new(size_hint=s.length() + 16)
-  escape_js_string_to(sb, s)
-  sb.to_string()
+  escape_js_string_internal(s)
 }
 
 ///|
 /// Escape JS string and write to StringBuilder
 pub fn escape_js_string_to(sb : StringBuilder, s : String) -> Unit {
-  for char in s {
-    match char {
-      '\\' => sb.write_string("\\\\")
-      '"' => sb.write_string("\\\"")
-      '\n' => sb.write_string("\\n")
-      '\r' => sb.write_string("\\r")
-      '\t' => sb.write_string("\\t")
-      '<' => sb.write_string("\\u003c") // Prevent </script> injection
-      '>' => sb.write_string("\\u003e")
-      _ => sb.write_char(char)
-    }
-  }
+  escape_js_string_to_internal(sb, s)
 }
 
 // =============================================================================
-// Void Element Check
+// Void Element Check (shared across all targets)
 // =============================================================================
 
 ///|

@@ -3,7 +3,7 @@
 - [ ] 再 export するのに、moonbitlang/parser を使用する
 - [ ] BF Cache 最適化
 - [ ] sol/test_utils
-  - playwright テストをビルトインしたい
+  - playwright テストをビルトインできないか
 - [ ] sol dev コード監視を最適化を追加
 - [ ] src/sol/ssg で、静的サイト生成に対応
 - [ ] src/sol/rpc: capnweb
@@ -19,9 +19,14 @@
 - [ ] sol validate
   - client/*.mbt の link.js.exports で、Generic パラメータを持つものを警告する
 - [ ] webcomponents SSR を試す
+- [ ] WASM/Native 向け escape 関数の最適化
+  - JS は FFI で高速化済み (18-22倍)
+  - WASM: SIMD 的なバッチ処理、または extern "wasm" で最適化
+  - Native: extern "C" で C 実装を検討
 - [ ] virtual package を導入してクロスプラットフォーム化の基盤を作る
   - https://www.moonbitlang.com/blog/virtual-package
 - [ ] 内部的に cbor encoder を使う
+- [ ] Inline Editor
 
 ## Icebox
 

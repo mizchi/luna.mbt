@@ -6,5 +6,11 @@
     "js",
     "wasm-gc",
     "native"
-  ]
+  ],
+  "targets": {
+    "escape_js.mbt": ["js"],
+    "escape_non_js.mbt": ["not", "js"],
+    "escape_bench.mbt": ["js"],
+    "escape_v2.mbt": ["js"]
+  }
 }

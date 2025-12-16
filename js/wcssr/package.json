@@ -31,7 +31,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:browser": "vitest run --config vitest.browser.config.ts",
-    "test:browser:ui": "vitest --config vitest.browser.config.ts --ui"
+    "test:browser:ui": "vitest --config vitest.browser.config.ts --ui",
+    "test:browser:chromium": "BROWSER=chromium vitest run --config vitest.browser.config.ts",
+    "test:browser:firefox": "BROWSER=firefox vitest run --config vitest.browser.config.ts",
+    "test:browser:webkit": "BROWSER=webkit vitest run --config vitest.browser.config.ts",
+    "test:browser:all": "pnpm test:browser:chromium && pnpm test:browser:firefox && pnpm test:browser:webkit",
+    "bench": "vitest bench --run --config vitest.bench.config.ts",
+    "bench:watch": "vitest bench --config vitest.bench.config.ts"
   },
   "keywords": [
     "web-components",
