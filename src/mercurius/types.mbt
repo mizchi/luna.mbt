@@ -62,7 +62,7 @@ pub struct ShardOutput {
 
 ///|
 /// Default loader URL
-pub let default_loader_url : String = "loader.min.js"
+pub let default_loader_url : String = "loader.js"
 
 ///|
 /// Create a minimal shard config

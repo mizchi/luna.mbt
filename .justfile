@@ -75,12 +75,12 @@ test-sol-new: build-moon
 build-moon:
     moon build --target js
 
-# Minify loader
-minify-loader:
-    pnpm terser js/loader/src/loader.js --module --compress --mangle -o js/loader/loader.min.js
+# Build loader with rolldown
+build-loader:
+    pnpm exec rolldown -c rolldown.config.mjs
 
-# Build all (MoonBit + minify loader + Vite)
-build: build-moon minify-loader
+# Build all (MoonBit + loader + Vite)
+build: build-moon build-loader
     pnpm vite build
 
 # Clean build artifacts

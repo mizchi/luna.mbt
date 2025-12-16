@@ -127,14 +127,14 @@ function collect() {
   console.log("🔨 Building MoonBit...");
   execSync("moon build --target js", { cwd: PROJECT_ROOT, stdio: "inherit" });
 
-  console.log("\n🔨 Minifying loader...");
-  execSync("pnpm terser js/loader/src/loader.js --module --compress --mangle -o js/loader/loader.min.js", { cwd: PROJECT_ROOT, stdio: "inherit" });
+  console.log("\n🔨 Building loader...");
+  execSync("pnpm exec rolldown -c rolldown.config.mjs", { cwd: PROJECT_ROOT, stdio: "inherit" });
 
   console.log("\n🔨 Building Vite...");
   execSync("pnpm vite build", { cwd: PROJECT_ROOT, stdio: "inherit" });
 
-  // Get file sizes (use minified loader)
-  const loaderSize = getFileSize("js/loader/loader.min.js");
+  // Get file sizes (use built loader)
+  const loaderSize = getFileSize("js/loader/dist/loader.js");
 
   // Find bundled files with hash in name
   const spaFile = findFileByPattern("dist/assets", /^spa-.*\.js$/);
@@ -145,7 +145,7 @@ function collect() {
 
   console.log("\n📦 Bundle sizes:");
   if (loaderSize !== null) {
-    console.log(`   loader.min.js: ${formatBytes(loaderSize)}`);
+    console.log(`   loader.js: ${formatBytes(loaderSize)}`);
   }
   if (spaSize !== null) {
     console.log(`   spa bundle: ${formatBytes(spaSize)}`);
@@ -246,7 +246,7 @@ function showTrend() {
       }
     };
 
-    showDiff("loader.min.js", current.loader_min_size, previous.loader_min_size);
+    showDiff("loader.js", current.loader_min_size, previous.loader_min_size);
     showDiff("spa bundle", current.spa_bundle_size, previous.spa_bundle_size);
     showDiff("browser_router bundle", current.browser_router_bundle_size, previous.browser_router_bundle_size);
 

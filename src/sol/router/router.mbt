@@ -30,7 +30,7 @@ pub fn RouterConfig::default() -> RouterConfig {
     title_prefix: "",
     default_title: "App",
     default_head: "",
-    loader_url: "/static/loader.min.js",
+    loader_url: "/static/loader.js",
   }
 }
 
@@ -191,7 +191,7 @@ pub fn[E] register_routes(
   title_prefix? : String = "",
   default_title? : String = "App",
   default_head? : String = "",
-  loader_url? : String = "/static/loader.min.js",
+  loader_url? : String = "/static/loader.js",
 ) -> App {
   // Use config if provided, otherwise use individual parameters
   let (tp, dt, dh, lu) = match config {

@@ -132,7 +132,7 @@ describe("Sol CLI - new command", () => {
     expect(existsSync(join(projectPath, "app/layout/layout.mbt"))).toBe(true);
     expect(existsSync(join(projectPath, "app/routes/routes.mbt"))).toBe(true);
     expect(existsSync(join(projectPath, "app/client/counter/counter.mbt"))).toBe(true);
-    expect(existsSync(join(projectPath, "static/loader.min.js"))).toBe(true);
+    expect(existsSync(join(projectPath, "static/loader.js"))).toBe(true);
   });
 
   test("fails if directory already exists", () => {

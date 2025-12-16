@@ -6,7 +6,9 @@ Luna Island Architecture 用の軽量ローダー。
 
 | ファイル | サイズ |
 |---------|--------|
-| loader.min.js | ~1.4KB |
+| dist/loader.js | ~2.3KB |
+| dist/wc-loader.js | ~2.4KB |
+| dist/sol-nav.js | ~3.1KB |
 
 ### 機能別サイズ内訳（概算）
 

@@ -146,8 +146,8 @@ test.describe("Sol App E2E", () => {
   });
 
   test.describe("Static Files", () => {
-    test("loader.min.js is served", async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/static/loader.min.js`);
+    test("loader.js is served", async ({ request }) => {
+      const response = await request.get(`${BASE_URL}/static/loader.js`);
       expect(response.ok()).toBeTruthy();
       const content = await response.text();
       expect(content).toContain("luna loader");

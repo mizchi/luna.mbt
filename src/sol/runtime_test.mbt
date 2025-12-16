@@ -10,8 +10,8 @@ test "StaticFileConfig::default: creates default config" {
   assert_eq(config.path_prefix, "/static")
   assert_eq(config.local_dir, "static")
   assert_eq(config.mappings.length(), 1)
-  assert_eq(config.mappings[0].0, "loader.min.js")
-  assert_eq(config.mappings[0].1, "static/loader.min.js")
+  assert_eq(config.mappings[0].0, "loader.js")
+  assert_eq(config.mappings[0].1, "static/loader.js")
 }
 
 ///|
@@ -104,7 +104,7 @@ test "render_island_page: basic page" {
   let html = render_island_page([])
   assert_true(html.contains("<!DOCTYPE html>"))
   assert_true(html.contains("<title>App</title>"))
-  assert_true(html.contains("loader.min.js"))
+  assert_true(html.contains("loader.js"))
 }
 
 ///|

@@ -105,7 +105,7 @@ async function createProject() {
     "app/client/components/counter.mbt",
     "app/server/run/main.mbt",
     "app/server/pages/home/home.mbt",
-    "static/loader.min.js",
+    "static/loader.js",
   ];
 
   for (const file of requiredFiles) {
@@ -324,7 +324,7 @@ async function testSolDev() {
 
     // Test static loader
     const loaderResponse = await fetchWithRetry(
-      `http://localhost:${testPort}/static/loader.min.js`
+      `http://localhost:${testPort}/static/loader.js`
     );
     if (!loaderResponse.ok) {
       throw new Error(`Static loader returned ${loaderResponse.status}`);

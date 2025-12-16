@@ -40,7 +40,7 @@ test.describe("Shard Module E2E Tests", () => {
       await page.goto("/shard/standalone");
 
       // Loader should be embedded
-      const loaderScript = page.locator('script[src="/loader.min.js"]');
+      const loaderScript = page.locator('script[src="/loader.js"]');
       await expect(loaderScript).toHaveCount(1);
     });
 

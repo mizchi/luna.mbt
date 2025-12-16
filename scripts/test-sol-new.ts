@@ -88,7 +88,7 @@ async function createProject() {
     "src/client/moon.pkg.json",
     "src/client/components/counter.mbt",
     "src/server/run/main.mbt",
-    "static/loader.min.js",
+    "static/loader.js",
   ];
 
   for (const file of requiredFiles) {
@@ -210,7 +210,7 @@ async function testServer() {
 
     // Test static file serving
     const loaderResponse = await fetch(
-      "http://localhost:3000/static/loader.min.js"
+      "http://localhost:3000/static/loader.js"
     );
     if (!loaderResponse.ok) {
       throw new Error(`Static file returned ${loaderResponse.status}`);

@@ -14,8 +14,8 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
 
-// Load static assets
-const loaderPath = join(rootDir, "js", "loader", "src", "loader.js");
+// Load static assets (use IIFE bundled version for serving)
+const loaderPath = join(rootDir, "js", "loader", "dist", "loader.iife.js");
 const loaderCode = readFileSync(loaderPath, "utf-8");
 
 // Import MoonBit counter_component module for SSR

@@ -6,8 +6,8 @@ import { dirname, join } from "node:path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load the loader script from src/
-const loaderCode = readFileSync(join(__dirname, "src", "loader.js"), "utf-8");
+// Load the loader script from dist/ (IIFE bundled version for eval)
+const loaderCode = readFileSync(join(__dirname, "dist", "loader.iife.js"), "utf-8");
 
 describe("Luna Loader", () => {
   let originalMutationObserver: typeof MutationObserver;

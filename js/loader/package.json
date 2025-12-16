@@ -3,34 +3,31 @@
   "version": "0.1.0",
   "description": "Island loader for Luna SSR hydration",
   "type": "module",
-  "main": "loader.js",
+  "main": "./dist/loader.js",
   "exports": {
-    ".": "./loader.js",
-    "./min": "./loader.min.js",
-    "./v1": "./ln-loader-v1.js",
-    "./sol-nav": "./sol-nav.js",
-    "./sol-nav/min": "./sol-nav.min.js"
+    ".": "./dist/loader.js",
+    "./wc": "./dist/wc-loader.js",
+    "./sol-nav": "./dist/sol-nav.js",
+    "./lib": "./dist/lib.js",
+    "./src/loader": "./src/loader.ts",
+    "./src/wc-loader": "./src/wc-loader.ts",
+    "./src/sol-nav": "./src/sol-nav.ts",
+    "./src/lib": "./src/lib.ts"
   },
   "files": [
-    "loader.js",
-    "loader.min.js",
-    "ln-loader-v1.js",
-    "sol-nav.js",
-    "sol-nav.min.js"
+    "dist",
+    "src"
   ],
   "scripts": {
-    "minify": "terser loader.js --module --compress --mangle -o loader.min.js",
-    "minify:v1": "terser ln-loader-v1.js --module --compress --mangle -o ln-loader-v1.min.js",
-    "minify:nav": "terser src/sol-nav.js --module --compress --mangle -o sol-nav.min.js",
-    "minify:all": "npm run minify && npm run minify:v1 && npm run minify:nav",
-    "build:nav": "cp src/sol-nav.js sol-nav.js && npm run minify:nav"
+    "build": "rolldown -c rolldown.config.mjs"
   },
   "keywords": [
     "luna",
     "moonbit",
     "island",
     "ssr",
-    "hydration"
+    "hydration",
+    "web-components"
   ],
   "author": "mizchi",
   "license": "MIT"

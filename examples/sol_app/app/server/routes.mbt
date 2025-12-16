@@ -47,7 +47,7 @@ pub fn routes() -> Array[@routes.Routes] {
 pub fn config() -> @router.RouterConfig {
   @router.RouterConfig::default()
     .with_default_head(head())
-    .with_loader_url("/static/loader.min.js")
+    .with_loader_url("/static/loader.js")
 }
 
 ///| API handler: health check
