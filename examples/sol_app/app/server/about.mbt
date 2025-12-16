@@ -6,9 +6,7 @@
 pub fn about(props : @router.PageProps) -> @luna.Node[Unit] {
   let _ = props
   layout([
-    @luna.h("h1", [], [@luna.vtext("About")]),
-    @luna.h("p", [], [
-      @luna.vtext("Built with MoonBit and Sol framework."),
-    ]),
+    h1(children=[text("About")]),
+    p(children=[text("Built with MoonBit and Sol framework.")]),
   ])
 }

@@ -191,7 +191,8 @@ const elements: ElementDef[] = [
 ];
 
 // Elements only for browser DOM (not server_dom)
-const browserOnlyElements = new Set(["button", "input", "textarea", "form", "label"]);
+// Note: button is included in server_dom for SSR rendering
+const browserOnlyElements = new Set(["input", "textarea", "form", "label"]);
 
 // Elements only for server_dom (document structure)
 const serverOnlyElements = new Set(["html", "head", "body", "title", "meta", "link", "script", "style"]);
@@ -573,8 +574,8 @@ pub fn fragment(children : Array[DomNode]) -> DomNode {
 function main() {
   const rootDir = join(__dirname, "..");
 
-  // Generate server_dom elements
-  const serverDomPath = join(rootDir, "src/platform/server_dom/__generated.mbt");
+  // Generate server_dom/element elements
+  const serverDomPath = join(rootDir, "src/platform/server_dom/element/__generated.mbt");
   const serverDomContent = generateFile({ target: "server_dom" });
   writeFileSync(serverDomPath, serverDomContent);
   console.log(`Generated: ${serverDomPath}`);

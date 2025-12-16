@@ -13,13 +13,11 @@ pub fn head() -> String {
 
 ///| Basic layout wrapper - wraps content in container with navigation
 pub fn layout(inner : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
-  @luna.h("div", [("class", @luna.attr_static("container"))], [
-    @luna.h("nav", [], [
-      @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.vtext("Home")]),
-      @luna.h("a", [("href", @luna.attr_static("/about"))], [
-        @luna.vtext("About"),
-      ]),
+  div(class="container", children=[
+    nav(children=[
+      a(href="/", children=[text("Home")]),
+      a(href="/about", children=[text("About")]),
     ]),
-    @luna.vfragment(inner),
+    fragment(inner),
   ])
 }

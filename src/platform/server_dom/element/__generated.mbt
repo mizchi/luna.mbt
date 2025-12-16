@@ -491,6 +491,23 @@ pub fn li(
 }
 
 ///|
+/// Create a button element
+pub fn button(
+  disabled? : Bool,
+  id? : String,
+  class? : String,
+  style? : String,
+  attrs? : Array[(String, @luna.Attr[Unit])],
+  children~ : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
+  let props = build_attrs(id, class, style, attrs)
+  if disabled is Some(true) {
+    props.push(("disabled", static_attr("")))
+  }
+  create_element("button", props, children)
+}
+
+///|
 /// Create img element
 pub fn img(
   src? : String,

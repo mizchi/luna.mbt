@@ -10,28 +10,21 @@ pub fn home(props : @router.PageProps) -> @luna.Node[Unit] {
   let state_json = counter_props.to_json().stringify()
 
   layout([
-    @luna.h("h1", [], [@luna.vtext("Welcome to Sol")]),
-    @luna.h("p", [], [
-      @luna.vtext("A SSR-first web framework for MoonBit"),
-    ]),
+    h1(children=[text("Welcome to Sol")]),
+    p(children=[text("A SSR-first web framework for MoonBit")]),
     @server_dom.island(
       "counter",
       "/static/counter.js",
       state=state_json,
       trigger=@luna.Load,
-      // SSR placeholder - will be hydrated on client
       children=[
-        @luna.h("div", [("class", @luna.attr_static("counter"))], [
-          @luna.h("span", [("class", @luna.attr_static("count-display"))], [
-            @luna.vtext(counter_props.initial_count.to_string()),
+        div(class="counter", children=[
+          span(class="count-display", children=[
+            text(counter_props.initial_count.to_string()),
           ]),
-          @luna.h("div", [("class", @luna.attr_static("buttons"))], [
-            @luna.h("button", [("class", @luna.attr_static("dec"))], [
-              @luna.vtext("-"),
-            ]),
-            @luna.h("button", [("class", @luna.attr_static("inc"))], [
-              @luna.vtext("+"),
-            ]),
+          div(class="buttons", children=[
+            button(class="dec", children=[text("-")]),
+            button(class="inc", children=[text("+")]),
           ]),
         ]),
       ],
