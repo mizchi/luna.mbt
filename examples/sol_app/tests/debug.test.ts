@@ -40,23 +40,23 @@ test('debug hydration', async ({ page }) => {
 
   // Check island element
   const island = await page.evaluate(() => {
-    const el = document.querySelector('[ln\\:id]');
+    const el = document.querySelector('[luna\\:id]');
     if (!el) return null;
     return {
-      id: el.getAttribute('ln:id'),
-      url: el.getAttribute('ln:url'),
-      state: el.getAttribute('ln:state'),
-      trigger: el.getAttribute('ln:trigger'),
+      id: el.getAttribute('luna:id'),
+      url: el.getAttribute('luna:url'),
+      state: el.getAttribute('luna:state'),
+      trigger: el.getAttribute('luna:trigger'),
     };
   });
   console.log('\n=== Island Element ===');
   console.log(island);
 
-  // Check if __LN_STATE__ is populated
+  // Check if __LUNA_STATE__ is populated
   const lnState = await page.evaluate(() => {
-    return (window as any).__LN_STATE__;
+    return (window as any).__LUNA_STATE__;
   });
-  console.log('\n=== __LN_STATE__ ===');
+  console.log('\n=== __LUNA_STATE__ ===');
   console.log(lnState);
 
   expect(true).toBe(true);
