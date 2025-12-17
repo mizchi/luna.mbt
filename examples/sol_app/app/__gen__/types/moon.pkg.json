@@ -8,5 +8,6 @@
       "exports": ["CounterProps", "counter", "ContactFormProps", "contact_form", "WcCounterProps", "wc_counter"],
       "format": "esm"
     }
-  }
+  },
+  "warn-list": "-29"
 }

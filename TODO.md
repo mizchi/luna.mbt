@@ -2,20 +2,23 @@
 
 ## TODO
 
-- [ ] Prototype: src/platform/native/server
+- [ ] preload 挿入
 - [ ] src/sol/ssg で、静的サイト生成に対応
 - DX
-  - sol dev コード監視を最適化を追加
+  - sol: dev コード監視を最適化を追加
   - sol: hot reload
   - mizchi/luna から mizchi/luna のコアAPIを再 export
   - client trigger を astro と互換にする
     - https://r4ai.dev/posts/astro_hydration/
+  - 今の仕様に合わせて sol new を再設計
 - Features
   - src/platform/dom/portal
   - Critical CSS の抽出
+  - JS API を増やす。Solid風にする
 - Internal
   - sol generate で `.sol/client/exports.mbt` を削除して直接 moon.pkg.json の link を更新する
-  - [ ] sol 中間生成ファイルを見直す
+  - sol 中間生成ファイルを見直す
+  - Fix moonbitlang/parser for coverage
 - virtual package を導入してクロスプラットフォーム化の基盤を作る
   - https://www.moonbitlang.com/blog/virtual-package
 - v0.1.0
@@ -35,6 +38,7 @@
   - valibot を使うか、自前のバリデータを作るか
   - standard schema 相当のものを作るといいのでは
 - [ ] marimo notebook
+- [ ] ink ui
 - [ ] sol/test_utils
   - playwright テストをビルトインできないか
 - [ ] Async Server Function
@@ -50,6 +54,7 @@
   - JS は FFI で高速化済み (18-22倍)
   - WASM: SIMD 的なバッチ処理、または extern "wasm" で最適化
   - Native: extern "C" で C 実装を検討
+- [ ] Prototype: src/platform/native/server
 
 ## Done
 
