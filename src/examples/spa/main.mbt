@@ -349,6 +349,69 @@ fn todo_example() -> @dom.DomNode {
 }
 
 // =============================================================================
+// Modal Example - Portal for rendering outside component tree
+// =============================================================================
+
+///|
+/// Convert DomNode from element to portal
+fn to_portal_node(n : @dom.DomNode) -> @portal.DomNode {
+  @portal.DomNode::Raw(n.to_jsdom())
+}
+
+///|
+/// Convert DomNode from portal to element
+fn from_portal_node(n : @portal.DomNode) -> @dom.DomNode {
+  @dom.dom_node(n.to_jsdom())
+}
+
+///|
+fn modal_example() -> @dom.DomNode {
+  let is_open = @signal.signal(false)
+  @dom.div(class="modal-example", [
+    @dom.h2([@dom.text("Modal Example (Portal)")]),
+    @dom.p([@dom.text("Modal renders outside the component tree using Portal.")]),
+    @dom.button(
+      on=@dom.events().click(fn(_) { is_open.set(true) }),
+      id="open-modal-btn",
+      [@dom.text("Open Modal")],
+    ),
+    @dom.show(fn() { is_open.get() }, fn() {
+      // The modal content will be rendered to document.body via Portal
+      let modal_content = @dom.div(
+        class="modal-overlay",
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;",
+        id="modal-overlay",
+        on=@dom.events().click(fn(e) {
+          // Close when clicking the overlay (not the modal content)
+          let target : @js.Any = e.target() |> @js.identity
+          let target_id : String = target._get("id").cast()
+          if target_id == "modal-overlay" {
+            is_open.set(false)
+          }
+        }),
+        [
+          @dom.div(
+            class="modal-content",
+            style="background: white; padding: 20px; border-radius: 8px; min-width: 300px; max-width: 500px;",
+            id="modal-content",
+            [
+              @dom.h3([@dom.text("Modal Title")]),
+              @dom.p([@dom.text("This modal is rendered using Portal, which teleports the content to document.body. This helps avoid z-index and overflow issues.")]),
+              @dom.button(
+                on=@dom.events().click(fn(_) { is_open.set(false) }),
+                id="close-modal-btn",
+                [@dom.text("Close")],
+              ),
+            ],
+          ),
+        ],
+      )
+      from_portal_node(@portal.portal_to_body([to_portal_node(modal_content)]))
+    }),
+  ])
+}
+
+// =============================================================================
 // Main Application
 // =============================================================================
 
@@ -383,6 +446,8 @@ fn main {
           style_example(),
           @dom.hr(),
           todo_example(),
+          @dom.hr(),
+          modal_example(),
         ],
       )
       @dom.render(el |> @dom.DomElement::from_jsdom, app)

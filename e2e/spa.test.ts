@@ -155,6 +155,70 @@ test.describe("SPA Example", () => {
     expect(finalStyle).toContain("150px");
   });
 
+  test("modal example works with portal", async ({ page }) => {
+    await page.waitForSelector(".modal-example");
+
+    const modalSection = page.locator(".modal-example");
+
+    // Modal should not be visible initially
+    await expect(page.locator("#modal-overlay")).toHaveCount(0);
+
+    // Click to open modal
+    await modalSection.locator("#open-modal-btn").click();
+
+    // Modal should be rendered to body via Portal
+    // The modal overlay should be a direct child of body, not inside .modal-example
+    await expect(page.locator("body > div > #modal-overlay")).toBeVisible();
+    await expect(page.locator("#modal-content")).toBeVisible();
+
+    // Check modal content
+    const modalContent = page.locator("#modal-content");
+    await expect(modalContent.locator("h3")).toHaveText("Modal Title");
+    await expect(modalContent.locator("p")).toContainText("rendered using Portal");
+
+    // Close modal by clicking close button
+    await page.locator("#close-modal-btn").click();
+
+    // Modal should be removed
+    await expect(page.locator("#modal-overlay")).toHaveCount(0);
+  });
+
+  test("modal closes when clicking overlay", async ({ page }) => {
+    await page.waitForSelector(".modal-example");
+
+    const modalSection = page.locator(".modal-example");
+
+    // Open modal
+    await modalSection.locator("#open-modal-btn").click();
+    await expect(page.locator("#modal-overlay")).toBeVisible();
+
+    // Click on overlay (not modal content) to close
+    // Need to click on the overlay area outside the modal content
+    await page.locator("#modal-overlay").click({ position: { x: 10, y: 10 } });
+
+    // Modal should be closed
+    await expect(page.locator("#modal-overlay")).toHaveCount(0);
+  });
+
+  test("modal stays open when clicking content", async ({ page }) => {
+    await page.waitForSelector(".modal-example");
+
+    const modalSection = page.locator(".modal-example");
+
+    // Open modal
+    await modalSection.locator("#open-modal-btn").click();
+    await expect(page.locator("#modal-overlay")).toBeVisible();
+
+    // Click on modal content (not overlay)
+    await page.locator("#modal-content").click();
+
+    // Modal should still be visible
+    await expect(page.locator("#modal-overlay")).toBeVisible();
+
+    // Clean up - close modal
+    await page.locator("#close-modal-btn").click();
+  });
+
   test("no console errors during rendering", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (msg) => {
