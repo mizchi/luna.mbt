@@ -1,0 +1,6 @@
+{
+  "import": [
+    { "path": "mizchi/luna/core", "alias": "core" },
+    { "path": "mizchi/luna/core/signal", "alias": "signal" }
+  ]
+}
