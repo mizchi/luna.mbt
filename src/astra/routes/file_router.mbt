@@ -44,7 +44,7 @@ fn slice_view_from(s : StringView, start : Int) -> String {
 
 ///|
 /// Safely slice StringView to end index
-fn slice_view_to(s : StringView, end : Int) -> String {
+fn _slice_view_to(s : StringView, end : Int) -> String {
   if end <= 0 || end > s.length() {
     s.to_string()
   } else {

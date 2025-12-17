@@ -1,30 +1,30 @@
 ///|
 /// Tests for shard module
-test "escape_json_for_html - safe string passes through" {
+test "escape_json_for_script - safe string passes through" {
   let safe = "{\"count\":0}"
-  let result = @mercurius.escape_json_for_html(safe)
+  let result = @render.escape_json_for_script(safe)
   assert_eq(result, safe)
 }
 
 ///|
-test "escape_json_for_html - escapes script closing tag" {
+test "escape_json_for_script - escapes script closing tag" {
   let dangerous = "{\"html\":\"</script><script>alert(1)</script>\"}"
-  let result = @mercurius.escape_json_for_html(dangerous)
+  let result = @render.escape_json_for_script(dangerous)
   assert_true(result.contains("<\\/script>"))
   assert_true(not(result.contains("</script>")))
 }
 
 ///|
-test "escape_json_for_html - escapes lowercase script tag" {
+test "escape_json_for_script - escapes lowercase script tag" {
   let dangerous = "<script>alert(1)</script>"
-  let result = @mercurius.escape_json_for_html(dangerous)
+  let result = @render.escape_json_for_script(dangerous)
   assert_true(result.contains("<\\u0073cript>"))
 }
 
 ///|
-test "escape_json_for_html - escapes uppercase Script tag" {
+test "escape_json_for_script - escapes uppercase Script tag" {
   let dangerous = "<Script>alert(1)</Script>"
-  let result = @mercurius.escape_json_for_html(dangerous)
+  let result = @render.escape_json_for_script(dangerous)
   assert_true(result.contains("<\\u0053cript>"))
 }
 

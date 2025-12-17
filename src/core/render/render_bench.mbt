@@ -176,7 +176,7 @@ test "render: page" (b : @bench.T) {
 
 ///|
 /// Visitor interface for VNode traversal
-trait NodeVisitor {
+priv trait NodeVisitor {
   on_text(Self, String) -> Unit
   on_element_open(Self, String, Array[(String, @luna.Attr[Unit])]) -> Unit
   on_element_close(Self, String, Bool) -> Unit // (tag, is_void)
@@ -215,7 +215,7 @@ fn visitor_traverse(node : @luna.Node[Unit], visitor : &NodeVisitor) -> Unit {
 
 ///|
 /// Simple StringBuilder visitor for comparison
-struct SBVisitor {
+priv struct SBVisitor {
   sb : StringBuilder
 }
 
@@ -251,12 +251,12 @@ impl NodeVisitor for SBVisitor with on_element_close(self, tag, is_void) {
 }
 
 ///|
-impl NodeVisitor for SBVisitor with on_fragment_start(self) {
+impl NodeVisitor for SBVisitor with on_fragment_start(_self) {
   // No output for fragment
 }
 
 ///|
-impl NodeVisitor for SBVisitor with on_fragment_end(self) {
+impl NodeVisitor for SBVisitor with on_fragment_end(_self) {
   // No output for fragment
 }
 

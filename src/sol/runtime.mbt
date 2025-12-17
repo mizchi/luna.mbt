@@ -556,7 +556,7 @@ pub using @stream_renderer {
 /// Returns a ReadableStream for HTTP response
 /// VAsync nodes in the tree will be rendered with fallback first,
 /// then resolved content will be streamed as replacement scripts
-pub async fn render_streaming_page(
+pub fn render_streaming_page(
   shell : @luna.Node[Unit],
   title? : String,
   head? : String,

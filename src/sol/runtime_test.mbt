@@ -180,13 +180,13 @@ test "render_island: with trigger" {
 
 ///|
 test "escape_json_for_attr: basic" {
-  let escaped = escape_json_for_attr("{\"key\":\"value\"}")
+  let escaped = @render.escape_json_for_attr("{\"key\":\"value\"}")
   // Should escape quotes for HTML attribute
   assert_true(escaped.contains("key"))
 }
 
 ///|
-test "escape_json_for_html: basic" {
-  let escaped = escape_json_for_html("{\"key\":\"value\"}")
+test "escape_json_for_script: basic" {
+  let escaped = @render.escape_json_for_script("{\"key\":\"value\"}")
   assert_true(escaped.contains("key"))
 }

@@ -126,7 +126,7 @@ extern "js" fn math_random() -> Double =
   #| () => Math.random()
 
 ///|
-extern "js" fn math_floor(x : Double) -> Int =
+extern "js" fn _math_floor(x : Double) -> Int =
   #| (x) => Math.floor(x)
 
 ///|
