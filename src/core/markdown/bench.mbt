@@ -364,3 +364,85 @@ test "incremental: 50 paragraphs, edit end" (b : @bench.T) {
     b.keep(result)
   })
 }
+
+// === CRDT実験ベンチマーク ===
+
+// LogicalId生成のオーバーヘッド
+test "crdt: LogicalId generation 1000x" (b : @bench.T) {
+  let gen = IdGenerator::new(AgentId(1))
+  b.bench(fn() {
+    for i = 0; i < 1000; i = i + 1 {
+      let _ = gen.next()
+    }
+    b.keep(gen)
+  })
+}
+
+// LogicalId比較のオーバーヘッド
+test "crdt: LogicalId compare 1000x" (b : @bench.T) {
+  let gen = IdGenerator::new(AgentId(1))
+  let ids : Array[LogicalId] = []
+  for i = 0; i < 100; i = i + 1 {
+    ids.push(gen.next())
+  }
+  b.bench(fn() {
+    let mut count = 0
+    for i = 0; i < 100; i = i + 1 {
+      for j = 0; j < 10; j = j + 1 {
+        if ids[i].lt(ids[(i + j) % 100]) {
+          count += 1
+        }
+      }
+    }
+    b.keep(count)
+  })
+}
+
+// CrdtDocument挿入のオーバーヘッド
+test "crdt: CrdtDocument insert 100 runs" (b : @bench.T) {
+  b.bench(fn() {
+    let doc = CrdtDocument::new(AgentId(1))
+    for i = 0; i < 100; i = i + 1 {
+      let _ = doc.insert("Hello World ")
+    }
+    b.keep(doc)
+  })
+}
+
+// Tombstone蓄積の影響
+test "crdt: CrdtDocument with 50% tombstones" (b : @bench.T) {
+  let doc = CrdtDocument::new(AgentId(1))
+  // 200 runs作成、半分を削除
+  for i = 0; i < 200; i = i + 1 {
+    let _ = doc.insert("Text ")
+  }
+  for i = 0; i < 100; i = i + 1 {
+    doc.delete(i * 2)  // 偶数インデックスを削除
+  }
+  b.bench(fn() {
+    let text = doc.get_text()
+    b.keep(text)
+  })
+}
+
+// Span vs CrdtSpan のサイズ比較用
+test "crdt: Span creation 1000x" (b : @bench.T) {
+  b.bench(fn() {
+    let mut last = Span::new(0, 0)
+    for i = 0; i < 1000; i = i + 1 {
+      last = Span::new(i, i + 10)
+    }
+    b.keep(last)
+  })
+}
+
+test "crdt: CrdtSpan creation 1000x" (b : @bench.T) {
+  let gen = IdGenerator::new(AgentId(1))
+  b.bench(fn() {
+    let mut last = CrdtSpan::new(gen.next(), gen.next(), 0, 0)
+    for i = 0; i < 1000; i = i + 1 {
+      last = CrdtSpan::new(gen.next(), gen.next(), i, i + 10)
+    }
+    b.keep(last)
+  })
+}
