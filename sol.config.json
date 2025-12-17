@@ -1,0 +1,29 @@
+{
+  "ssg": {
+    "docs": "docs",
+    "output": "dist",
+    "title": "Luna",
+    "base": "/",
+    "exclude": ["internal"],
+    "i18n": {
+      "defaultLocale": "en",
+      "locales": [
+        { "code": "en", "label": "English", "path": "" },
+        { "code": "ja", "label": "日本語", "path": "ja" }
+      ]
+    },
+    "nav": [
+      { "text": "Guide", "link": "/guide/" },
+      { "text": "API", "link": "/api/" },
+      { "text": "Performance", "link": "/performance/" }
+    ],
+    "sidebar": "auto",
+    "theme": {
+      "primaryColor": "#6366f1",
+      "footer": {
+        "message": "Released under the MIT License.",
+        "copyright": "Copyright 2024 mizchi"
+      }
+    }
+  }
+}
