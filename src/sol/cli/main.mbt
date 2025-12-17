@@ -18,6 +18,7 @@ fn show_help() -> Unit {
     #|  serve          Serve production build
     #|  generate       Generate _sol directory from config
     #|  clean          Remove generated files and caches
+    #|  ssg            Static site generator commands
     #|
     #|Options:
     #|  -h, --help     Show help
@@ -65,6 +66,7 @@ fn main {
     "serve" => run_serve_command(command_args)
     "generate" => run_generate_command(command_args)
     "clean" => run_clean_command(command_args)
+    "ssg" => run_ssg_command(command_args)
     _ => {
       console_error(@colorette.red("Error: Unknown command '\{command}'"))
       println("")

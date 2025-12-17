@@ -1,0 +1,27 @@
+{
+  "ssg": {
+    "docs": "docs",
+    "output": "dist",
+    "title": "🌗 Luna SSG",
+    "description": "MoonBit製の静的サイトジェネレーター",
+    "base": "/",
+    "nav": [
+      { "text": "Guide", "link": "/guide/" }
+    ],
+    "sidebar": "auto",
+    "theme": {
+      "primaryColor": "#10b981"
+    },
+    "footer": {
+      "message": "Built with Luna SSG",
+      "copyright": "2024 Luna Framework"
+    },
+    "i18n": {
+      "defaultLocale": "en",
+      "locales": [
+        { "code": "en", "label": "English", "path": "" },
+        { "code": "ja", "label": "日本語", "path": "ja" }
+      ]
+    }
+  }
+}

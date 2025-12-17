@@ -35,6 +35,14 @@
     {
       "path": "mizchi/luna/sol/mbti_utils",
       "alias": "mbti_utils"
+    },
+    {
+      "path": "mizchi/luna/sol/ssg",
+      "alias": "ssg"
+    },
+    {
+      "path": "mizchi/luna/sol/ssg/generator",
+      "alias": "ssg_gen"
     }
   ],
   "warn-list": "-27-20",

@@ -1,0 +1,333 @@
+///| Sidebar Generator for SSG
+///| Auto-generates sidebar from page structure
+
+// Note: slice_from, slice_to, slice_view_from, slice_view_to helpers
+// are defined in file_router.mbt (same package)
+
+// =============================================================================
+// Helper Functions (same pattern as transformer.mbt)
+// =============================================================================
+
+///| Create a server-side element
+fn h(
+  tag : String,
+  attrs : Array[(String, @luna.Attr[Unit])],
+  children : Array[@luna.Node[Unit]]
+) -> @luna.Node[Unit] {
+  @luna.h(tag, attrs, children)
+}
+
+///| Create a static attribute
+fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
+  (key, @luna.attr_static(value))
+}
+
+// =============================================================================
+// Auto Sidebar Generation
+// =============================================================================
+
+///| Generate sidebar from pages automatically (filtered by locale)
+pub fn generate_auto_sidebar(
+  pages : Array[@ssg.PageMeta],
+  locale~ : String = "en"
+) -> Array[@ssg.SidebarGroup] {
+  let groups : Array[@ssg.SidebarGroup] = []
+
+  // Filter pages by locale first
+  let locale_pages = pages.filter(fn(p) { p.locale == locale })
+
+  // Group pages by top-level directory (using canonical_path for grouping)
+  let page_groups = group_pages_by_canonical_dir(locale_pages)
+
+  // Get sorted directory names
+  let dirs = page_groups.keys().to_array()
+  dirs.sort()
+
+  for dir in dirs {
+    match page_groups.get(dir) {
+      Some(dir_pages) => {
+        let group = create_sidebar_group(dir, dir_pages)
+        groups.push(group)
+      }
+      None => ()
+    }
+  }
+
+  groups
+}
+
+///| Group pages by canonical directory (locale-independent path)
+fn group_pages_by_canonical_dir(
+  pages : Array[@ssg.PageMeta]
+) -> Map[String, Array[@ssg.PageMeta]] {
+  let groups : Map[String, Array[@ssg.PageMeta]] = {}
+
+  for page in pages {
+    let dir = get_canonical_dir(page.canonical_path)
+    match groups.get(dir) {
+      Some(arr) => arr.push(page)
+      None => groups[dir] = [page]
+    }
+  }
+
+  groups
+}
+
+///| Get directory from canonical path
+fn get_canonical_dir(canonical_path : String) -> String {
+  let trimmed = if canonical_path.has_prefix("/") {
+    slice_from(canonical_path, 1)
+  } else {
+    canonical_path
+  }
+
+  match trimmed.rev_find("/") {
+    Some(idx) => "/" + slice_to(trimmed, idx)
+    None => "/"
+  }
+}
+
+///| Create sidebar group from pages
+fn create_sidebar_group(
+  dir : String,
+  pages : Array[@ssg.PageMeta]
+) -> @ssg.SidebarGroup {
+  // Sort pages within group
+  let sorted = sort_pages(pages)
+
+  // Create items
+  let items : Array[@ssg.SidebarItem] = []
+  for page in sorted {
+    let text = page.frontmatter.title.unwrap_or(get_page_name(page.url_path))
+    items.push(@ssg.SidebarItem::Link(text~, link=page.url_path))
+  }
+
+  // Get group title from directory name
+  let text = if dir == "/" {
+    "Getting Started"
+  } else {
+    let name = dir.trim_start(chars="/").trim_end(chars="/").to_string()
+    capitalize(name.replace(old="-", new=" "))
+  }
+
+  @ssg.SidebarGroup::{ text, collapsed: false, items }
+}
+
+///| Get sidebar for specific URL path (filtered by locale)
+pub fn get_sidebar_for_path(
+  config : @ssg.SsgConfig,
+  pages : Array[@ssg.PageMeta],
+  url_path : String,
+  locale~ : String = "en"
+) -> Array[@ssg.SidebarGroup] {
+  match config.sidebar {
+    @ssg.SidebarConfig::Auto => generate_auto_sidebar(pages, locale~)
+    @ssg.SidebarConfig::Manual(groups) =>
+      // For manual sidebar, find matching path group
+      find_sidebar_for_path(groups, url_path)
+  }
+}
+
+///| Find sidebar groups that match the current path
+fn find_sidebar_for_path(
+  groups : Array[@ssg.SidebarGroup],
+  url_path : String
+) -> Array[@ssg.SidebarGroup] {
+  // For path /guide/intro, look for /guide sidebar
+  let dir = get_url_directory(url_path)
+
+  // Try to find exact match first
+  for group in groups {
+    if group.text == dir || "/" + group.text == dir {
+      return [group]
+    }
+  }
+
+  // Return all groups if no specific match
+  groups
+}
+
+///| Get directory from URL path
+fn get_url_directory(url_path : String) -> String {
+  let trimmed = if url_path.has_prefix("/") {
+    slice_from(url_path, 1)
+  } else {
+    url_path
+  }
+
+  match trimmed.find("/") {
+    Some(idx) => "/" + slice_to(trimmed, idx)
+    None => "/"
+  }
+}
+
+///| Get page name from URL path
+fn get_page_name(url_path : String) -> String {
+  let trimmed = url_path.trim_end(chars="/")
+  match trimmed.rev_find("/") {
+    Some(idx) => {
+      let name = slice_view_from(trimmed, idx + 1)
+      if name.is_empty() {
+        "Introduction"
+      } else {
+        capitalize(name.replace(old="-", new=" "))
+      }
+    }
+    None =>
+      if trimmed == "/" || trimmed.is_empty() {
+        "Introduction"
+      } else {
+        capitalize(trimmed.to_string().replace(old="-", new=" "))
+      }
+  }
+}
+
+///| Capitalize first letter
+fn capitalize(s : String) -> String {
+  if s.is_empty() {
+    return s
+  }
+  let chars = s.to_array()
+  let first = chars[0]
+  if first >= 'a' && first <= 'z' {
+    chars[0] = Int::unsafe_to_char(first.to_int() - 32)
+  }
+  String::from_array(chars)
+}
+
+// =============================================================================
+// Sidebar Rendering
+// =============================================================================
+
+///| Render sidebar to VNode (desktop version with collapse button)
+pub fn render_sidebar(
+  groups : Array[@ssg.SidebarGroup],
+  current_path : String
+) -> @luna.Node[Unit] {
+  let group_vnodes = groups.map(fn(group) { render_sidebar_group(group, current_path) })
+
+  let content = h("div", [attr("class", "sidebar-content")], group_vnodes)
+
+  // Collapse button at bottom
+  let collapse_btn = h(
+    "button",
+    [
+      attr("class", "sidebar-collapse-btn"),
+      attr("type", "button"),
+      attr("onclick", "document.body.classList.toggle('sidebar-collapsed')"),
+      attr("aria-label", "Toggle sidebar"),
+    ],
+    [h("span", [attr("class", "collapse-icon")], [])],
+  )
+
+  h("aside", [attr("class", "sidebar sidebar-desktop")], [content, collapse_btn])
+}
+
+///| Render mobile sidebar dropdown (Docusaurus-style)
+pub fn render_mobile_sidebar(
+  groups : Array[@ssg.SidebarGroup],
+  current_path : String
+) -> @luna.Node[Unit] {
+  // Find current page title for the dropdown summary
+  let current_title = find_current_page_title(groups, current_path)
+
+  let summary = h(
+    "summary",
+    [attr("class", "mobile-sidebar-trigger")],
+    [
+      h("span", [attr("class", "mobile-sidebar-label")], [@luna.vtext(current_title)]),
+      h("span", [attr("class", "mobile-sidebar-arrow")], []),
+    ],
+  )
+
+  let group_vnodes = groups.map(fn(group) { render_sidebar_group(group, current_path) })
+  let content = h("nav", [attr("class", "mobile-sidebar-content")], group_vnodes)
+
+  h("details", [attr("class", "mobile-sidebar")], [summary, content])
+}
+
+///| Find current page title from sidebar groups
+fn find_current_page_title(groups : Array[@ssg.SidebarGroup], current_path : String) -> String {
+  for group in groups {
+    for item in group.items {
+      match item {
+        @ssg.SidebarItem::Link(text~, link~) => {
+          if link == current_path || (link.has_suffix("/") && current_path.has_prefix(link)) {
+            return text
+          }
+        }
+        _ => ()
+      }
+    }
+  }
+  "Menu"
+}
+
+///| Render sidebar group (collapsible with details/summary)
+fn render_sidebar_group(
+  group : @ssg.SidebarGroup,
+  current_path : String
+) -> @luna.Node[Unit] {
+  // Check if any item in this group is active
+  let has_active = group.items.iter().any(fn(item) {
+    match item {
+      @ssg.SidebarItem::Link(link~, ..) =>
+        link == current_path ||
+          (link.has_suffix("/") && current_path.has_prefix(link))
+      @ssg.SidebarItem::Group(_) => false
+    }
+  })
+
+  // Open by default if has active item or not collapsed in config
+  let is_open = has_active || not(group.collapsed)
+
+  let summary = h(
+    "summary",
+    [],
+    [@luna.vtext(group.text)],
+  )
+
+  let item_vnodes = group.items.map(fn(item) {
+    render_sidebar_item(item, current_path)
+  })
+  let items_container = h(
+    "ul",
+    [attr("class", "sidebar-items")],
+    item_vnodes,
+  )
+
+  // Use details element for collapsible behavior
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    attr("class", "sidebar-collapse"),
+  ]
+  if is_open {
+    attrs.push(("open", @luna.attr_static("")))
+  }
+
+  h("details", attrs, [summary, items_container])
+}
+
+///| Render sidebar item
+fn render_sidebar_item(
+  item : @ssg.SidebarItem,
+  current_path : String
+) -> @luna.Node[Unit] {
+  match item {
+    @ssg.SidebarItem::Link(text~, link~) => {
+      let is_active = link == current_path ||
+        (link.has_suffix("/") && current_path.has_prefix(link))
+      let class_name = if is_active {
+        "sidebar-link active"
+      } else {
+        "sidebar-link"
+      }
+      let link_el = h(
+        "a",
+        [attr("href", link), attr("class", class_name)],
+        [@luna.vtext(text)],
+      )
+      h("li", [], [link_el])
+    }
+    @ssg.SidebarItem::Group(nested) => render_sidebar_group(nested, current_path)
+  }
+}

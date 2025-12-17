@@ -20,7 +20,9 @@
   "dependencies": {
     "@hono/node-server": "^1.14.0",
     "colorette": "^2.0.20",
-    "hono": "^4.7.0"
+    "gray-matter": "^4.0.3",
+    "hono": "^4.7.0",
+    "marked": "^15.0.0"
   },
   "devDependencies": {
     "0x": "^6.0.0",
