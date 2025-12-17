@@ -451,37 +451,6 @@ app.get("/browser/element-ref", (c) => {
   return c.html(html);
 });
 
-// CSR Router test routes
-// Wildcard route handler for CSR Router SPA
-const csrRouterHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>CSR Router Demo</title>
-  <style>
-    nav { margin-bottom: 20px; }
-    nav a { margin-right: 10px; color: blue; text-decoration: underline; cursor: pointer; }
-    [data-content] { padding: 10px; border: 1px solid #ccc; margin-top: 10px; }
-  </style>
-</head>
-<body>
-  <h1>CSR Router Demo</h1>
-  <div id="app"></div>
-  <script type="module">
-    import { mount_router_app } from '/components/router-csr.js';
-    mount_router_app();
-  </script>
-</body>
-</html>`;
-
-// CSR Router routes - serve the same HTML for all SPA routes
-// The MoonBit router handles client-side routing
-app.get("/csr-router/home", (c) => c.html(csrRouterHtml));
-app.get("/csr-router/about", (c) => c.html(csrRouterHtml));
-app.get("/csr-router/contact", (c) => c.html(csrRouterHtml));
-app.get("/csr-router/posts/:id", (c) => c.html(csrRouterHtml));
-app.get("/csr-router/unknown/*", (c) => c.html(csrRouterHtml));
-
 // SPA Example routes
 // Serve the SPA example HTML page that loads the MoonBit SPA module
 const spaHtml = `<!DOCTYPE html>
