@@ -4,6 +4,14 @@
     { "path": "mizchi/luna/platform/dom/element", "alias": "element" },
     { "path": "mizchi/luna/core/signal", "alias": "signal" },
     { "path": "mizchi/js/core", "alias": "js" },
-    { "path": "mizchi/js/browser/dom", "alias": "js_dom" }
-  ]
+    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    { "path": "mizchi/js/mbtconv", "alias": "mbtconv" },
+    { "path": "mizchi/luna/platform/dom", "alias": "wc" }
+  ],
+  "link": {
+    "js": {
+      "exports": ["contact_form", "hydrate_contact_form", "counter", "hydrate_counter", "hydrate_contact_form", "hydrate_counter", "hydrate_wc_counter", "wc_counter", "hydrate_wc_counter"],
+      "format": "esm"
+    }
+  }
 }

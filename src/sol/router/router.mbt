@@ -11,6 +11,159 @@
 // ============================================================================
 
 ///|
+/// Chunk manifest entry (from Rolldown/Vite manifest.json)
+/// Maps entry files to their output chunks and dependencies
+pub struct ChunkManifestEntry {
+  /// Output file path (e.g., "counter.js")
+  file : String
+  /// Import dependencies (e.g., ["_shared/client-abc123.js"])
+  imports : Array[String]
+}
+
+///|
+/// Create a chunk manifest entry
+pub fn ChunkManifestEntry::new(
+  file : String,
+  imports : Array[String],
+) -> ChunkManifestEntry {
+  { file, imports }
+}
+
+///|
+/// Chunk manifest - maps entry names to their output info
+/// Used to resolve shared chunk dependencies for preloading
+pub struct ChunkManifest {
+  /// Map of entry name -> manifest entry
+  entries : Map[String, ChunkManifestEntry]
+  /// Base URL prefix for chunks (e.g., "/static/")
+  base_url : String
+}
+
+///|
+/// Create empty chunk manifest
+pub fn ChunkManifest::empty() -> ChunkManifest {
+  { entries: {}, base_url: "/static/" }
+}
+
+///|
+/// Create chunk manifest with base URL
+pub fn ChunkManifest::new(base_url : String) -> ChunkManifest {
+  { entries: {}, base_url }
+}
+
+///|
+/// Add entry to manifest
+pub fn ChunkManifest::add(
+  self : ChunkManifest,
+  name : String,
+  entry : ChunkManifestEntry,
+) -> Unit {
+  self.entries[name] = entry
+}
+
+///|
+/// Get all chunk URLs for an entry (including dependencies)
+pub fn ChunkManifest::get_chunks(
+  self : ChunkManifest,
+  entry_url : String,
+) -> Array[String] {
+  // Extract entry name from URL (e.g., "/static/counter.js" -> "counter.js")
+  let entry_name = extract_entry_name(entry_url, self.base_url)
+  match self.entries.get(entry_name) {
+    Some(entry) => {
+      let chunks : Array[String] = []
+      // Add all import dependencies with base URL prefix
+      for imp in entry.imports {
+        let chunk_url = self.base_url + imp
+        if not(chunks.contains(chunk_url)) {
+          chunks.push(chunk_url)
+        }
+      }
+      chunks
+    }
+    None => []
+  }
+}
+
+///|
+fn extract_entry_name(url : String, base_url : String) -> String {
+  if url.has_prefix(base_url) {
+    // Remove base_url prefix
+    let result = try {
+      url[base_url.length():].to_string()
+    } catch {
+      _ => url
+    }
+    result
+  } else {
+    // Find last slash and get filename
+    let mut last_slash = -1
+    let chars = url.to_array()
+    for i = 0; i < chars.length(); i = i + 1 {
+      if chars[i] == '/' {
+        last_slash = i
+      }
+    }
+    if last_slash >= 0 && last_slash < url.length() - 1 {
+      let result = try {
+        url[last_slash + 1:].to_string()
+      } catch {
+        _ => url
+      }
+      result
+    } else {
+      url
+    }
+  }
+}
+
+///|
+/// Parse chunk manifest from JSON string (Rolldown/Vite format)
+pub fn ChunkManifest::parse(
+  json_str : String,
+  base_url : String,
+) -> ChunkManifest? {
+  let json : Json = try {
+    @json.parse(json_str)
+  } catch {
+    _ => return None
+  }
+  let obj = match json {
+    Object(o) => o
+    _ => return None
+  }
+  let manifest = ChunkManifest::new(base_url)
+  for entry in obj {
+    let name = entry.0
+    let entry_obj = match entry.1 {
+      Object(o) => o
+      _ => continue
+    }
+    // Get "file" field
+    let file = match entry_obj.get("file") {
+      Some(String(s)) => s
+      _ => continue
+    }
+    // Get "imports" field (optional)
+    let imports : Array[String] = match entry_obj.get("imports") {
+      Some(Array(arr)) => {
+        let result : Array[String] = []
+        for item in arr {
+          match item {
+            String(s) => result.push(s)
+            _ => continue
+          }
+        }
+        result
+      }
+      _ => []
+    }
+    manifest.add(name, { file, imports })
+  }
+  Some(manifest)
+}
+
+///|
 /// Router configuration for customizing routing behavior
 pub struct RouterConfig {
   /// Prefix for page titles (e.g., "MyApp - ")
@@ -23,6 +176,12 @@ pub struct RouterConfig {
   loader_url : String
   /// URL for the Web Components loader script
   wc_loader_url : String
+  /// Enable modulepreload for island scripts (default: true)
+  enable_preload : Bool
+  /// Additional library URLs to preload (e.g., ["/static/lib.js"])
+  preload_libs : Array[String]
+  /// Chunk manifest for resolving shared chunk dependencies
+  chunk_manifest : ChunkManifest?
 }
 
 ///|
@@ -34,7 +193,28 @@ pub fn RouterConfig::default() -> RouterConfig {
     default_head: "",
     loader_url: "/static/loader.js",
     wc_loader_url: "/static/wc-loader.js",
+    enable_preload: true,
+    preload_libs: [],
+    chunk_manifest: None,
   }
+}
+
+///|
+/// Set chunk manifest for resolving shared chunk dependencies
+pub fn RouterConfig::with_chunk_manifest(
+  self : RouterConfig,
+  manifest : ChunkManifest,
+) -> RouterConfig {
+  { ..self, chunk_manifest: Some(manifest) }
+}
+
+///|
+/// Add library URLs to preload
+pub fn RouterConfig::with_preload_libs(
+  self : RouterConfig,
+  libs : Array[String],
+) -> RouterConfig {
+  { ..self, preload_libs: libs }
 }
 
 ///|
@@ -207,7 +387,7 @@ pub fn[E] register_routes(
   wc_loader_url? : String = "/static/wc-loader.js",
 ) -> App {
   // Use config if provided, otherwise use individual parameters
-  let (tp, dt, dh, lu, wlu) = match config {
+  let (tp, dt, dh, lu, wlu, ep, pl, cm) = match config {
     Some(c) =>
       (
         c.title_prefix,
@@ -215,8 +395,21 @@ pub fn[E] register_routes(
         c.default_head,
         c.loader_url,
         c.wc_loader_url,
+        c.enable_preload,
+        c.preload_libs,
+        c.chunk_manifest,
       )
-    None => (title_prefix, default_title, default_head, loader_url, wc_loader_url)
+    None =>
+      (
+        title_prefix,
+        default_title,
+        default_head,
+        loader_url,
+        wc_loader_url,
+        true,
+        [],
+        None,
+      )
   }
   register_routes_inner(
     app,
@@ -229,6 +422,9 @@ pub fn[E] register_routes(
     default_head=dh,
     loader_url=lu,
     wc_loader_url=wlu,
+    enable_preload=ep,
+    preload_libs=pl,
+    chunk_manifest=cm,
   )
 }
 
@@ -244,6 +440,9 @@ fn[E] register_routes_inner(
   default_head~ : String,
   loader_url~ : String,
   wc_loader_url~ : String,
+  enable_preload~ : Bool,
+  preload_libs~ : Array[String],
+  chunk_manifest~ : ChunkManifest?,
 ) -> App {
   let mut result = app
   for route in routes {
@@ -270,7 +469,7 @@ fn[E] register_routes_inner(
                 )
                 send_fragment_response(c, fragment_html)
               } else {
-                let html = render_page_html(node, page_title, default_head, false)
+                let html = render_page_html(node, page_title, default_head, false, enable_preload~, preload_libs~, chunk_manifest~)
                 c.html(html)
               }
             }
@@ -300,7 +499,7 @@ fn[E] register_routes_inner(
                   loader_url +
                   "\"></script>"
                 let head = default_head + loader_script
-                let html = render_page_html(node, page_title, head, true)
+                let html = render_page_html(node, page_title, head, true, enable_preload~, preload_libs~, chunk_manifest~)
                 c.html(html)
               }
             }
@@ -321,6 +520,9 @@ fn[E] register_routes_inner(
           default_head~,
           loader_url~,
           wc_loader_url~,
+          enable_preload~,
+          preload_libs~,
+          chunk_manifest~,
         )
       }
       @routes.Layout(segment~, children~, layout~) => {
@@ -337,6 +539,9 @@ fn[E] register_routes_inner(
           default_head~,
           loader_url~,
           wc_loader_url~,
+          enable_preload~,
+          preload_libs~,
+          chunk_manifest~,
         )
       }
       @routes.Group(segment~, children~) => {
@@ -352,6 +557,9 @@ fn[E] register_routes_inner(
           default_head~,
           loader_url~,
           wc_loader_url~,
+          enable_preload~,
+          preload_libs~,
+          chunk_manifest~,
         )
       }
       @routes.Get(path~, handler~) => {
@@ -427,21 +635,84 @@ fn format_title(
 // ============================================================================
 
 ///|
-/// Render VNode to full HTML page
+/// Render VNode to full HTML page with optional preload support
 fn[E] render_page_html(
   node : @luna.Node[E],
   title : String,
   head : String,
   hydration : Bool,
+  enable_preload? : Bool = true,
+  preload_libs? : Array[String] = [],
+  chunk_manifest? : ChunkManifest? = None,
 ) -> String {
-  let body_html = if hydration {
-    @render.render_to_string_with_hydration(node)
+  let (body_html, preload_tags) = if hydration {
+    // With hydration, always collect preload URLs
+    let result = @render.render_to_string(node, preload=enable_preload)
+    let tags = if enable_preload {
+      // Build preload URLs: libs first, then chunks for each island, then islands
+      let all_urls = preload_libs.copy()
+      // Add chunk dependencies for each island URL (if manifest provided)
+      match chunk_manifest {
+        Some(manifest) =>
+          for url in result.preload_urls {
+            // Add chunk dependencies for this entry
+            let chunks = manifest.get_chunks(url)
+            for chunk in chunks {
+              if not(all_urls.contains(chunk)) {
+                all_urls.push(chunk)
+              }
+            }
+          }
+        None => ()
+      }
+      // Add island entry URLs
+      for url in result.preload_urls {
+        if not(all_urls.contains(url)) {
+          all_urls.push(url)
+        }
+      }
+      @render.generate_preload_tags(all_urls)
+    } else {
+      ""
+    }
+    // Add hydration markers
+    let html = @render.render_to_string_with_hydration(node)
+    (html, tags)
   } else {
-    @render.render_to_string(node).html
+    let result = @render.render_to_string(node, preload=enable_preload)
+    let tags = if enable_preload {
+      // Build preload URLs: libs first, then chunks for each island, then islands
+      let all_urls = preload_libs.copy()
+      // Add chunk dependencies for each island URL (if manifest provided)
+      match chunk_manifest {
+        Some(manifest) =>
+          for url in result.preload_urls {
+            // Add chunk dependencies for this entry
+            let chunks = manifest.get_chunks(url)
+            for chunk in chunks {
+              if not(all_urls.contains(chunk)) {
+                all_urls.push(chunk)
+              }
+            }
+          }
+        None => ()
+      }
+      // Add island entry URLs
+      for url in result.preload_urls {
+        if not(all_urls.contains(url)) {
+          all_urls.push(url)
+        }
+      }
+      @render.generate_preload_tags(all_urls)
+    } else {
+      ""
+    }
+    (result.html, tags)
   }
   "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>" +
   title +
   "</title>" +
+  preload_tags +
   head +
   "</head><body><div id=\"app\">" +
   body_html +

@@ -26,6 +26,8 @@ pub struct SolConfig {
   routes : String
   /// Output directory for generated MoonBit files
   output : String
+  /// Auto-generate exports in island moon.pkg.json (default: true)
+  client_auto_exports : Bool
 }
 
 ///|
@@ -124,7 +126,12 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       Some(String(s)) => s
       _ => "app/__gen__"
     }
-    Some(SolConfig::{ islands, routes, output })
+    let client_auto_exports = match obj.get("client_auto_exports") {
+      Some(True) => true
+      Some(False) => false
+      _ => true // default: true
+    }
+    Some(SolConfig::{ islands, routes, output, client_auto_exports })
   } catch {
     _ => None
   }
@@ -267,9 +274,9 @@ pub fn parse_mbti(content : String) -> Array[(String, String)] {
 fn find_mbti_files(
   cwd : String,
   patterns : Array[String],
-) -> Array[(String, String)] {
-  // Returns: Array of (dir_path, mbti_content)
-  let result : Array[(String, String)] = []
+) -> Array[(String, String, String)] {
+  // Returns: Array of (pattern, dir_path, mbti_content)
+  let result : Array[(String, String, String)] = []
   for pattern in patterns {
     let base_path = @path.join2(cwd, pattern)
     // Check if pattern ends with /* (directory glob)
@@ -284,7 +291,9 @@ fn find_mbti_files(
             let mbti_path = @path.join2(entry_path, "pkg.generated.mbti")
             if @fs.existsSync(mbti_path) {
               let content = @fs.readFileSync(mbti_path).to_string()
-              result.push((entry_path, content))
+              // For glob patterns, use the actual subdirectory as the pattern
+              let sub_pattern = pattern.substring(end=pattern.length() - 2) + "/" + entry.to_string()
+              result.push((sub_pattern, entry_path, content))
             }
           }
         } catch {
@@ -297,7 +306,7 @@ fn find_mbti_files(
       if @fs.existsSync(mbti_path) {
         try {
           let content = @fs.readFileSync(mbti_path).to_string()
-          result.push((base_path, content))
+          result.push((pattern, base_path, content))
         } catch {
           _ => ()
         }
@@ -399,6 +408,7 @@ pub(all) struct FuncExport {
   signature : String
   package_path : String
   import_alias : String
+  source_pattern : String // The island pattern from config (e.g., "app/client")
 }
 
 ///|
@@ -418,9 +428,8 @@ fn collect_island_functions(
 ) -> Array[FuncExport] {
   let exports : Array[FuncExport] = []
   let island_files = find_mbti_files(cwd, config.islands)
-  for pair in island_files {
-    let (dir_path, content) = pair
-    let _ = dir_path
+  for tuple in island_files {
+    let (source_pattern, _dir_path, content) = tuple
     guard extract_package_path(content) is Some(pkg_path) else { continue }
     // Use last part of package path as alias
     let parts = pkg_path.split("/").to_array()
@@ -437,6 +446,7 @@ fn collect_island_functions(
         signature: sig,
         package_path: pkg_path,
         import_alias,
+        source_pattern,
       })
     }
   }
@@ -604,7 +614,8 @@ fn generate_types_pkg_json(
   buf.write_string("      \"exports\": [\{exports_str}],\n")
   buf.write_string("      \"format\": \"esm\"\n")
   buf.write_string("    }\n")
-  buf.write_string("  }\n")
+  buf.write_string("  },\n")
+  buf.write_string("  \"warn-list\": \"-29\"\n")
   buf.write_string("}\n")
   buf.to_string()
 }
@@ -744,93 +755,19 @@ pub fn uses_hono_types(signature : String) -> Bool {
 // =============================================================================
 
 ///|
-/// Rewrite types in signature to use fully qualified names
-/// All types are qualified with @import_alias
-fn rewrite_signature_types(
-  sig : String,
-  import_alias : String,
-  _props_names : Array[String],
-) -> String {
-  let result = sig
-  // Rewrite @xxx.Type patterns - keep them as is (they reference imported packages)
-  // Rewrite bare types (like CounterProps) to @import_alias.Type
-  let chars = result.to_array()
-  let new_buf = StringBuilder::new()
-  let word_buf = StringBuilder::new()
-  let mut i = 0
-  while i < chars.length() {
-    let c = chars[i]
-    if c >= 'A' && c <= 'Z' {
-      // Start of potential type name
-      word_buf.write_char(c)
-      i += 1
-      while i < chars.length() {
-        let nc = chars[i]
-        if (nc >= 'a' && nc <= 'z') ||
-          (nc >= 'A' && nc <= 'Z') ||
-          (nc >= '0' && nc <= '9') ||
-          nc == '_' {
-          word_buf.write_char(nc)
-          i += 1
-        } else {
-          break
-        }
-      }
-      let word = word_buf.to_string()
-      word_buf.reset()
-      // Check if it's a known primitive type
-      let primitives = [
-        "Int", "String", "Bool", "Unit", "Float", "Double", "Byte", "Char", "Array",
-        "Self",
-      ]
-      let is_primitive = primitives.contains(word)
-      // Check if this type is already qualified with @xxx. pattern
-      // by checking if previous char is '.' (from @package.Type)
-      let prev_str = new_buf.to_string()
-      let already_qualified = prev_str.has_suffix(".")
-      if is_primitive || already_qualified {
-        new_buf.write_string(word)
-      } else {
-        // All types use import alias (client's own types)
-        new_buf.write_string("@\{import_alias}.\{word}")
-      }
-    } else {
-      new_buf.write_char(c)
-      i += 1
-    }
-  }
-  new_buf.to_string()
-}
-
-///|
-/// Generate client exports.mbt for islands (new architecture - all pub fns)
-fn generate_client_exports_mbt_v2(
-  funcs : Array[FuncExport],
-  props_names : Array[String],
-) -> String {
+/// Generate hydrate functions only (for __gen__.mbt in island directory)
+/// Unlike generate_client_exports_mbt_v2, this generates hydrate_* functions
+/// that call the original functions directly (same package, no re-export needed)
+fn generate_hydrate_mbt(funcs : Array[FuncExport]) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("///| Auto-generated client exports\n")
-  buf.write_string("///| Re-exports all public functions from app/client/*\n\n")
+  buf.write_string("///| Auto-generated hydrate functions\n")
+  buf.write_string("///| DO NOT EDIT - regenerated by sol generate\n\n")
   for func in funcs {
-    // Use "app_" prefix to match moon.pkg.json import alias
-    let prefixed_alias = "app_\{func.import_alias}"
-    let rewritten_sig = rewrite_signature_types(
-      func.signature,
-      prefixed_alias,
-      props_names,
-    )
-    let (sig_with_names, call_args) = generate_params_with_names(rewritten_sig)
-    buf.write_string("///| Re-export \{func.name} from @\{prefixed_alias}\n")
-    buf.write_string("pub fn \{func.name}\{sig_with_names} {\n")
-    buf.write_string("  @\{prefixed_alias}.\{func.name}\{call_args}\n")
-    buf.write_string("}\n\n")
-    // Generate hydrate wrapper if function takes Props and returns DomNode or Node
-    let props_type = extract_props_type(func.signature, prefixed_alias)
+    // Check if function takes Props and returns DomNode or Node
+    let props_type = extract_props_type(func.signature, "")
     let returns_dom_node = func.signature.contains("DomNode")
     let returns_vnode = func.signature.contains("Node[")
     if props_type.length() > 0 && (returns_dom_node || returns_vnode) {
-      // Get the qualified props type name
-      let qualified_props = "@\{prefixed_alias}.\{props_type}"
       buf.write_string(
         "///| Hydrate wrapper for \{func.name} - called by ln-loader and wc-loader\n",
       )
@@ -847,15 +784,13 @@ fn generate_client_exports_mbt_v2(
       buf.write_string("  // Convert to Json then parse to Props\n")
       buf.write_string("  let json = @mbtconv.to_json(state)\n")
       buf.write_string(
-        "  let props : \{qualified_props} = try { @json.from_json(json) } catch { _ => return }\n",
+        "  let props : \{props_type} = try { @json.from_json(json) } catch { _ => return }\n",
       )
       buf.write_string("  let node = \{func.name}(props)\n")
       buf.write_string("  // Auto-detect WC (shadowRoot) vs Luna mode\n")
       if returns_dom_node {
-        // DomNode - use hydrate_auto_dom (renders into element/shadow)
         buf.write_string("  @wc.hydrate_auto_dom(jsdom_el, node)\n")
       } else {
-        // VNode - use hydrate_auto (proper hydration)
         buf.write_string("  @wc.hydrate_auto(jsdom_el, node)\n")
       }
       buf.write_string("}\n\n")
@@ -886,138 +821,172 @@ fn extract_props_type(sig : String, _alias : String) -> String {
 }
 
 ///|
-/// Extract package aliases used in signatures (patterns like @xxx.)
-fn extract_used_packages(funcs : Array[FuncExport]) -> Array[String] {
-  let used : Map[String, Bool] = {}
-  for func in funcs {
-    let sig = func.signature
-    // Find @xxx. patterns
-    let chars = sig.to_array()
-    let mut i = 0
-    while i < chars.length() {
-      if chars[i] == '@' {
-        i += 1
-        let alias_buf = StringBuilder::new()
-        while i < chars.length() {
-          let c = chars[i]
-          if (c >= 'a' && c <= 'z') ||
-            (c >= 'A' && c <= 'Z') ||
-            (c >= '0' && c <= '9') ||
-            c == '_' {
-            alias_buf.write_char(c)
-            i += 1
-          } else {
-            break
-          }
-        }
-        let alias_str = alias_buf.to_string()
-        if not(alias_str.is_empty()) {
-          used[alias_str] = true
-        }
-      } else {
-        i += 1
-      }
+/// Required imports for hydrate functions
+let hydrate_required_imports : Array[(String, String)] = [
+  ("mizchi/js/core", "js"),
+  ("mizchi/js/mbtconv", "mbtconv"),
+  ("mizchi/js/browser/dom", "js_dom"),
+  ("mizchi/luna/platform/dom", "wc"),
+]
+
+///|
+/// Update island moon.pkg.json with exports and required imports
+/// This modifies the existing moon.pkg.json to add link.js.exports
+fn update_island_pkg_json(
+  pkg_json_path : String,
+  exports : Array[String],
+) -> Unit {
+  // Read existing moon.pkg.json
+  let content : String = try {
+    @fs.readFileSync(pkg_json_path).to_string()
+  } catch {
+    _ => return // File doesn't exist, skip
+  }
+  // Parse JSON
+  let json = try { @json.parse(content.view()) } catch { _ => return }
+  guard json is Object(obj) else { return }
+  // Get existing imports
+  let existing_imports : Array[Json] = match obj.get("import") {
+    Some(Array(arr)) => arr
+    _ => []
+  }
+  // Check which required imports are missing
+  let existing_paths : Map[String, Bool] = {}
+  for imp in existing_imports {
+    guard imp is Object(imp_obj) else { continue }
+    match imp_obj.get("path") {
+      Some(String(path)) => existing_paths[path] = true
+      _ => ()
     }
   }
-  used.keys().to_array()
-}
-
-///|
-/// Map common aliases to their full package paths
-fn alias_to_package_path(pkg_alias : String) -> String? {
-  match pkg_alias {
-    "element" => Some("mizchi/luna/platform/dom/element")
-    "signal" => Some("mizchi/luna/core/signal")
-    "luna" => Some("mizchi/luna/core")
-    "js" => Some("mizchi/js/core")
-    _ => None
+  // Add missing required imports
+  let new_imports : Array[Json] = existing_imports.copy()
+  for item in hydrate_required_imports {
+    let (path, pkg_alias) = item
+    if not(existing_paths.contains(path)) {
+      let imp_obj : Map[String, Json] = {}
+      imp_obj["path"] = Json::string(path)
+      imp_obj["alias"] = Json::string(pkg_alias)
+      new_imports.push(Json::object(imp_obj))
+    }
+  }
+  // Build new JSON object
+  let new_obj : Map[String, Json] = {}
+  // Copy supported-targets
+  match obj.get("supported-targets") {
+    Some(targets) => new_obj["supported-targets"] = targets
+    None => new_obj["supported-targets"] = Json::array([Json::string("js")])
+  }
+  // Set updated imports
+  new_obj["import"] = Json::array(new_imports)
+  // Set link.js.exports
+  let exports_json : Array[Json] = exports.map(fn(s) { Json::string(s) })
+  let js_link : Map[String, Json] = {}
+  js_link["exports"] = Json::array(exports_json)
+  js_link["format"] = Json::string("esm")
+  let link : Map[String, Json] = {}
+  link["js"] = Json::object(js_link)
+  new_obj["link"] = Json::object(link)
+  // Write back
+  let output = format_pkg_json(new_obj)
+  try {
+    @fs.writeFileSync(pkg_json_path, @js.any(output))
+  } catch {
+    _ => ()
   }
 }
 
 ///|
-/// Generate client moon.pkg.json for islands (new architecture - all pub fns)
-fn generate_client_pkg_json_v2(funcs : Array[FuncExport]) -> String {
+/// Format moon.pkg.json with proper indentation
+fn format_pkg_json(obj : Map[String, Json]) -> String {
   let buf = StringBuilder::new()
   buf.write_string("{\n")
-  buf.write_string("  \"supported-targets\": [\"js\"],\n")
-  buf.write_string("  \"import\": [\n")
-  // Collect unique imports from function packages
-  // Use "app_" prefix to avoid alias collision with __gen__/client package itself
-  let seen : Map[String, Bool] = {}
-  let imports : Array[(String, String)] = []
-  for func in funcs {
-    if not(seen.contains(func.package_path)) {
-      seen[func.package_path] = true
-      // Add "app_" prefix to avoid collision with __gen__/client's default alias
-      let pkg_alias = "app_\{func.import_alias}"
-      imports.push((func.package_path, pkg_alias))
-    }
-  }
-  // Also add packages used in signatures
-  let used_packages = extract_used_packages(funcs)
-  for pkg_alias in used_packages {
-    match alias_to_package_path(pkg_alias) {
-      Some(pkg_path) =>
-        if not(seen.contains(pkg_path)) {
-          seen[pkg_path] = true
-          imports.push((pkg_path, pkg_alias))
+  let mut first = true
+  // supported-targets
+  match obj.get("supported-targets") {
+    Some(Array(targets)) => {
+      if not(first) {
+        buf.write_string(",\n")
+      }
+      first = false
+      buf.write_string("  \"supported-targets\": [")
+      for i, t in targets {
+        if i > 0 {
+          buf.write_string(", ")
         }
-      None => ()
+        guard t is String(s) else { continue }
+        buf.write_string("\"\{s}\"")
+      }
+      buf.write_string("]")
     }
+    _ => ()
   }
-  // Always add @js for hydrate wrapper
-  let js_path = "mizchi/js/core"
-  if not(seen.contains(js_path)) {
-    seen[js_path] = true
-    imports.push((js_path, "js"))
-  }
-  // Always add @mbtconv for JS <-> MoonBit Json conversion
-  let mbtconv_path = "mizchi/js/mbtconv"
-  if not(seen.contains(mbtconv_path)) {
-    seen[mbtconv_path] = true
-    imports.push((mbtconv_path, "mbtconv"))
-  }
-  // Always add @js_dom for DOM element types
-  let js_dom_path = "mizchi/js/browser/dom"
-  if not(seen.contains(js_dom_path)) {
-    seen[js_dom_path] = true
-    imports.push((js_dom_path, "js_dom"))
-  }
-  // Always add @wc for unified hydration (hydrate_auto)
-  let wc_path = "mizchi/luna/platform/dom"
-  if not(seen.contains(wc_path)) {
-    seen[wc_path] = true
-    imports.push((wc_path, "wc"))
-  }
-  for i, imp in imports {
-    let (pkg_path, pkg_alias) = imp
-    if i > 0 {
-      buf.write_string(",\n")
+  // import
+  match obj.get("import") {
+    Some(Array(imports)) => {
+      if not(first) {
+        buf.write_string(",\n")
+      }
+      first = false
+      buf.write_string("  \"import\": [\n")
+      for i, imp in imports {
+        if i > 0 {
+          buf.write_string(",\n")
+        }
+        guard imp is Object(imp_obj) else { continue }
+        let path = match imp_obj.get("path") {
+          Some(String(s)) => s
+          _ => continue
+        }
+        let pkg_alias = match imp_obj.get("alias") {
+          Some(String(s)) => s
+          _ => continue
+        }
+        buf.write_string(
+          "    { \"path\": \"\{path}\", \"alias\": \"\{pkg_alias}\" }",
+        )
+      }
+      buf.write_string("\n  ]")
     }
-    buf.write_string(
-      "    { \"path\": \"\{pkg_path}\", \"alias\": \"\{pkg_alias}\" }",
-    )
+    _ => ()
   }
-  buf.write_string("\n  ],\n")
-  buf.write_string("  \"link\": {\n")
-  buf.write_string("    \"js\": {\n")
-  buf.write_string("      \"exports\": [")
-  // Collect function names and hydrate function names
-  for i, func in funcs {
-    if i > 0 {
-      buf.write_string(", ")
+  // link
+  match obj.get("link") {
+    Some(Object(link)) => {
+      if not(first) {
+        buf.write_string(",\n")
+      }
+      buf.write_string("  \"link\": {\n")
+      buf.write_string("    \"js\": {\n")
+      match link.get("js") {
+        Some(Object(js_obj)) => {
+          match js_obj.get("exports") {
+            Some(Array(exports)) => {
+              buf.write_string("      \"exports\": [")
+              for i, exp in exports {
+                if i > 0 {
+                  buf.write_string(", ")
+                }
+                guard exp is String(s) else { continue }
+                buf.write_string("\"\{s}\"")
+              }
+              buf.write_string("],\n")
+            }
+            _ => ()
+          }
+          match js_obj.get("format") {
+            Some(String(fmt)) => buf.write_string("      \"format\": \"\{fmt}\"\n")
+            _ => buf.write_string("      \"format\": \"esm\"\n")
+          }
+        }
+        _ => ()
+      }
+      buf.write_string("    }\n")
+      buf.write_string("  }")
     }
-    buf.write_string("\"\{func.name}\"")
-    // Add hydrate_<func_name> for functions with Props -> DomNode signature
-    if func.signature.contains("Props") && func.signature.contains("DomNode") {
-      buf.write_string(", \"hydrate_\{func.name}\"")
-    }
+    _ => ()
   }
-  buf.write_string("],\n")
-  buf.write_string("      \"format\": \"esm\"\n")
-  buf.write_string("    }\n")
-  buf.write_string("  }\n")
-  buf.write_string("}\n")
+  buf.write_string("\n}\n")
   buf.to_string()
 }
 
@@ -1111,7 +1080,8 @@ fn generate_server_pkg_json(routes_pkg : String) -> String {
   buf.write_string(
     "    { \"path\": \"\{routes_pkg}\", \"alias\": \"app_server\" }\n",
   )
-  buf.write_string("  ]\n")
+  buf.write_string("  ],\n")
+  buf.write_string("  \"warn-list\": \"-29\"\n")
   buf.write_string("}\n")
   buf.to_string()
 }
@@ -1285,7 +1255,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
         )
         @fs.writeFileSync(
           stub_types_pkg_path,
-          @js.any("{\n  \"supported-targets\": [\"js\"]\n}\n"),
+          @js.any("{\n  \"supported-targets\": [\"js\"],\n  \"warn-list\": \"-29\"\n}\n"),
         )
       } catch {
         e => {
@@ -1293,6 +1263,32 @@ fn run_generate_command(args : Array[String]) -> Unit {
           @process.exit(1)
         }
       }
+    }
+  }
+  // Step 2.5: Pre-create server moon.pkg.json with warn-list (before moon info)
+  // This ensures warnings are suppressed during moon info
+  let server_dir = @path.join2(output_dir, "server")
+  @fs.mkdirSync(server_dir, recursive=true) catch {
+    e => {
+      console_error(@colorette.red("Error creating server directory: \{e}"))
+      @process.exit(1)
+    }
+  }
+  let routes_pkg = get_routes_package_path(cwd, config.routes)
+  let server_pkg = generate_server_pkg_json(routes_pkg)
+  let server_pkg_path = @path.join2(server_dir, "moon.pkg.json")
+  @fs.writeFileSync(server_pkg_path, @js.any(server_pkg)) catch {
+    e => {
+      console_error(@colorette.red("Error writing server/moon.pkg.json: \{e}"))
+      @process.exit(1)
+    }
+  }
+  // Create stub main.mbt so is-main: true doesn't fail
+  let stub_main_path = @path.join2(server_dir, "main.mbt")
+  @fs.writeFileSync(stub_main_path, @js.any("///| Stub - will be replaced\nfn main { () }\n")) catch {
+    e => {
+      console_error(@colorette.red("Error writing stub main.mbt: \{e}"))
+      @process.exit(1)
     }
   }
   // Step 3: Run moon info to generate mbti files
@@ -1316,18 +1312,12 @@ fn run_generate_command(args : Array[String]) -> Unit {
   // Collect all pub functions from island directories (using mbti)
   let funcs = collect_island_functions(cwd, config)
   println(@colorette.gray("  Found \{funcs.length()} island exports"))
-  // Props names from source structs (already collected)
-  let props_names : Array[String] = source_structs.map(fn(s) { s.name })
-  // Create remaining output directories (types_dir already created above)
-  let client_dir = @path.join2(output_dir, "client")
-  let server_dir = @path.join2(output_dir, "server")
+  // Create remaining output directories (types_dir and server_dir already created above)
   // Use mode-specific .sol directory: .sol/dev or .sol/prod
   let sol_dir = @path.join2(@path.join2(cwd, ".sol"), mode)
   let sol_client_dir = @path.join2(sol_dir, "client")
   let sol_server_dir = @path.join2(sol_dir, "server")
   try {
-    @fs.mkdirSync(client_dir, recursive=true)
-    @fs.mkdirSync(server_dir, recursive=true)
     @fs.mkdirSync(sol_client_dir, recursive=true)
     @fs.mkdirSync(sol_server_dir, recursive=true)
   } catch {
@@ -1336,35 +1326,48 @@ fn run_generate_command(args : Array[String]) -> Unit {
       @process.exit(1)
     }
   }
-  // Get routes package path from config
-  let routes_pkg = get_routes_package_path(cwd, config.routes)
-  // Note: types package already generated from source in Step 2
-  // Generate client exports.mbt (re-exports all pub functions)
-  if not(funcs.is_empty()) {
-    let client_exports_mbt = generate_client_exports_mbt_v2(funcs, props_names)
-    let client_exports_path = @path.join2(client_dir, "exports.mbt")
-    try {
-      @fs.writeFileSync(client_exports_path, @js.any(client_exports_mbt))
-      println(@colorette.gray("  Generated __gen__/client/exports.mbt"))
-    } catch {
-      e => {
-        console_error(@colorette.red("Error writing client/exports.mbt: \{e}"))
-        @process.exit(1)
-      }
+  // Generate hydrate functions and update moon.pkg.json in each island directory
+  if config.client_auto_exports && not(funcs.is_empty()) {
+    // Group functions by source_pattern
+    let patterns_seen : Map[String, Bool] = {}
+    for f in funcs {
+      patterns_seen[f.source_pattern] = true
     }
-    // Generate client moon.pkg.json with link.js.exports
-    let client_pkg = generate_client_pkg_json_v2(funcs)
-    let client_pkg_path = @path.join2(client_dir, "moon.pkg.json")
-    try {
-      @fs.writeFileSync(client_pkg_path, @js.any(client_pkg))
-      println(@colorette.gray("  Generated __gen__/client/moon.pkg.json"))
-    } catch {
-      e => {
-        console_error(
-          @colorette.red("Error writing client/moon.pkg.json: \{e}"),
-        )
-        @process.exit(1)
+    for island_pattern in patterns_seen.keys() {
+      let island_dir = @path.join2(cwd, island_pattern)
+      // Filter functions for this island
+      let island_funcs = funcs.filter(fn(f) { f.source_pattern == island_pattern })
+      if island_funcs.is_empty() {
+        continue
       }
+      // Generate __gen__.mbt
+      let hydrate_content = generate_hydrate_mbt(island_funcs)
+      let hydrate_path = @path.join2(island_dir, "__gen__.mbt")
+      try {
+        @fs.writeFileSync(hydrate_path, @js.any(hydrate_content))
+        println(@colorette.gray("  Generated \{island_pattern}/__gen__.mbt"))
+      } catch {
+        e => {
+          console_error(@colorette.red("Error writing __gen__.mbt: \{e}"))
+          @process.exit(1)
+        }
+      }
+      // Collect export names (original functions + hydrate functions)
+      let export_names : Array[String] = []
+      for f in island_funcs {
+        export_names.push(f.name)
+        // Add hydrate_<name> if it's a Props -> DomNode function
+        let props_type = extract_props_type(f.signature, "")
+        let returns_dom_node = f.signature.contains("DomNode")
+        let returns_vnode = f.signature.contains("Node[")
+        if props_type.length() > 0 && (returns_dom_node || returns_vnode) {
+          export_names.push("hydrate_\{f.name}")
+        }
+      }
+      // Update moon.pkg.json
+      let pkg_json_path = @path.join2(island_dir, "moon.pkg.json")
+      update_island_pkg_json(pkg_json_path, export_names)
+      println(@colorette.gray("  Updated \{island_pattern}/moon.pkg.json"))
     }
   }
   // Parse routes.mbt to extract component/handler info
@@ -1382,18 +1385,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
       @process.exit(1)
     }
   }
-  // Generate server moon.pkg.json
-  let server_pkg = generate_server_pkg_json(routes_pkg)
-  let server_pkg_path = @path.join2(server_dir, "moon.pkg.json")
-  try {
-    @fs.writeFileSync(server_pkg_path, @js.any(server_pkg))
-    println(@colorette.gray("  Generated __gen__/server/moon.pkg.json"))
-  } catch {
-    e => {
-      console_error(@colorette.red("Error writing server/moon.pkg.json: \{e}"))
-      @process.exit(1)
-    }
-  }
+  // Note: server/moon.pkg.json already generated before moon info (with warn-list)
   // Generate client JS entry files in .sol/client/
   if not(funcs.is_empty()) {
     for func in funcs {
