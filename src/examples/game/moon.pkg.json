@@ -1,0 +1,16 @@
+{
+  "is-main": true,
+  "supported-targets": ["js"],
+  "import": [
+    "mizchi/luna/core/signal",
+    { "path": "mizchi/luna/platform/dom/element", "alias": "dom" },
+    { "path": "mizchi/js/core", "alias": "js" },
+    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    "mizchi/js/builtins/global"
+  ],
+  "link": {
+    "js": {
+      "format": "esm"
+    }
+  }
+}
