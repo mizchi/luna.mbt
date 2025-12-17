@@ -3,6 +3,7 @@
   "import": [
     { "path": "mizchi/luna/core", "alias": "luna" },
     { "path": "mizchi/luna/core/render", "alias": "render" },
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" },
     { "path": "mizchi/js/web/streams", "alias": "streams" }
   ]
 }

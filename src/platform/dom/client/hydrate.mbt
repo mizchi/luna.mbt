@@ -780,7 +780,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       // For client-side rendering, create appropriate element based on wc flag
       if iref.wc {
         // Web Components island - extract name from URL
-        let name = extract_wc_name_from_url(iref.url)
+        let name = @utils.extract_wc_name_from_url(iref.url)
         let wrapper = doc.createElement(name)
         wrapper.setAttribute("luna:wc-url", iref.url)
         wrapper.setAttribute("luna:wc-state", iref.state)
@@ -1226,26 +1226,3 @@ fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
 }
 
 
-///|
-/// Extract Web Component name from URL (e.g., /static/wc_counter.js -> wc-counter)
-fn extract_wc_name_from_url(url : String) -> String {
-  // Extract filename without extension
-  let parts = url.split("/").collect()
-  let filename_view = if parts.length() > 0 {
-    parts[parts.length() - 1]
-  } else {
-    "".view()
-  }
-  let filename = filename_view.to_string()
-  let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    try {
-      filename[:filename.length() - 3].to_string()
-    } catch {
-      _ => filename
-    }
-  } else {
-    filename
-  }
-  // Convert underscores to hyphens for custom element name
-  name.replace(old="_", new="-")
-}

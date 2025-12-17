@@ -242,7 +242,7 @@ fn render_internal_ref_wc_to_stream(
   writer : StreamWriter,
 ) -> Unit {
   let write = writer.0
-  let name = extract_wc_name(iref.url)
+  let name = @utils.extract_wc_name_from_url(iref.url)
   let sb = StringBuilder::new()
 
   // Custom element opening tag with luna:wc-* attributes
@@ -282,27 +282,6 @@ fn render_internal_ref_wc_to_stream(
   write("</template></" + name + ">")
 }
 
-///|
-/// Extract Web Component name from URL
-fn extract_wc_name(url : String) -> String {
-  let parts = url.split("/").collect()
-  let filename_view = if parts.length() > 0 {
-    parts[parts.length() - 1]
-  } else {
-    "".view()
-  }
-  let filename = filename_view.to_string()
-  let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    try {
-      filename[:filename.length() - 3].to_string()
-    } catch {
-      _ => filename
-    }
-  } else {
-    filename
-  }
-  name.replace(old="_", new="-")
-}
 
 ///|
 /// Create a ReadableStream for HTTP response (Web Streams API)

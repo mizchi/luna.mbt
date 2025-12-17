@@ -1,6 +1,7 @@
 {
   "import": [
-    { "path": "mizchi/luna/core", "alias": "luna" }
+    { "path": "mizchi/luna/core", "alias": "luna" },
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" }
   ],
   "supported-targets": [
     "js",
@@ -10,7 +11,6 @@
   "targets": {
     "escape_js.mbt": ["js"],
     "escape_non_js.mbt": ["not", "js"],
-    "escape_bench.mbt": ["js"],
-    "escape_v2.mbt": ["js"]
+    "escape_bench.mbt": ["js"]
   }
 }

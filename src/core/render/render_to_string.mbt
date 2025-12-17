@@ -386,7 +386,7 @@ fn[E] render_internal_ref_wc_to(
   iref : @luna.VInternalRef[E],
 ) -> Unit {
   // Extract custom element name from URL (e.g., /static/wc_counter.js -> wc-counter)
-  let name = extract_wc_name_from_url(iref.url)
+  let name = @utils.extract_wc_name_from_url(iref.url)
 
   sb.write_char('<')
   sb.write_string(name)
@@ -421,29 +421,6 @@ fn[E] render_internal_ref_wc_to(
   sb.write_char('>')
 }
 
-///|
-/// Extract Web Component name from URL (e.g., /static/wc_counter.js -> wc-counter)
-fn extract_wc_name_from_url(url : String) -> String {
-  // Extract filename without extension
-  let parts = url.split("/").collect()
-  let filename_view = if parts.length() > 0 {
-    parts[parts.length() - 1]
-  } else {
-    "".view()
-  }
-  let filename = filename_view.to_string()
-  let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    try {
-      filename[:filename.length() - 3].to_string()
-    } catch {
-      _ => filename
-    }
-  } else {
-    filename
-  }
-  // Convert underscores to hyphens for custom element name
-  name.replace(old="_", new="-")
-}
 
 ///|
 /// Render InternalRef and collect URLs
@@ -507,7 +484,7 @@ fn[E] render_internal_ref_wc_and_collect_urls(
   iref : @luna.VInternalRef[E],
   urls : Array[String],
 ) -> Unit {
-  let name = extract_wc_name_from_url(iref.url)
+  let name = @utils.extract_wc_name_from_url(iref.url)
 
   sb.write_char('<')
   sb.write_string(name)
@@ -609,7 +586,7 @@ fn[E] render_internal_ref_wc_with_id_to(
 ) -> Unit {
   let id = id_counter.val
   id_counter.val = id + 1
-  let name = extract_wc_name_from_url(iref.url)
+  let name = @utils.extract_wc_name_from_url(iref.url)
 
   sb.write_string("<!--wc:")
   sb.write_object(id)

@@ -157,3 +157,131 @@ test "render: page" (b : @bench.T) {
   let node = vnode_page()
   b.bench(fn() { b.keep(render_to_string(node).html) })
 }
+
+// =============================================================================
+// Visitor Pattern Comparison (Experimental)
+// =============================================================================
+// Compare direct pattern matching vs visitor pattern for VNode traversal
+// This helps decide whether to refactor for deduplication
+
+///|
+/// Visitor interface for VNode traversal
+trait NodeVisitor {
+  on_text(Self, String) -> Unit
+  on_element_open(Self, String, Array[(String, @luna.Attr[Unit])]) -> Unit
+  on_element_close(Self, String, Bool) -> Unit // (tag, is_void)
+  on_fragment_start(Self) -> Unit
+  on_fragment_end(Self) -> Unit
+}
+
+///|
+/// Visitor-based traversal (experimental)
+fn visitor_traverse(node : @luna.Node[Unit], visitor : &NodeVisitor) -> Unit {
+  match node {
+    Text(content) => visitor.on_text(content)
+    DynamicText(getter) => visitor.on_text(getter())
+    Fragment(children) => {
+      visitor.on_fragment_start()
+      for child in children {
+        visitor_traverse(child, visitor)
+      }
+      visitor.on_fragment_end()
+    }
+    Element(elem) => {
+      let tag = elem.tag
+      let is_void = is_void_element(tag)
+      visitor.on_element_open(tag, elem.attrs)
+      if not(is_void) {
+        for child in elem.children {
+          visitor_traverse(child, visitor)
+        }
+      }
+      visitor.on_element_close(tag, is_void)
+    }
+    // Skip other node types for this benchmark
+    _ => ()
+  }
+}
+
+///|
+/// Simple StringBuilder visitor for comparison
+struct SBVisitor {
+  sb : StringBuilder
+}
+
+///|
+fn SBVisitor::new() -> SBVisitor {
+  { sb: StringBuilder::new(size_hint=256) }
+}
+
+///|
+impl NodeVisitor for SBVisitor with on_text(self, content) {
+  escape_html_to(self.sb, content)
+}
+
+///|
+impl NodeVisitor for SBVisitor with on_element_open(self, tag, attrs) {
+  self.sb.write_char('<')
+  self.sb.write_string(tag)
+  render_attrs_to(self.sb, attrs)
+  if is_void_element(tag) {
+    self.sb.write_string(" />")
+  } else {
+    self.sb.write_char('>')
+  }
+}
+
+///|
+impl NodeVisitor for SBVisitor with on_element_close(self, tag, is_void) {
+  if not(is_void) {
+    self.sb.write_string("</")
+    self.sb.write_string(tag)
+    self.sb.write_char('>')
+  }
+}
+
+///|
+impl NodeVisitor for SBVisitor with on_fragment_start(self) {
+  // No output for fragment
+}
+
+///|
+impl NodeVisitor for SBVisitor with on_fragment_end(self) {
+  // No output for fragment
+}
+
+///|
+/// Render using visitor pattern (for benchmark comparison)
+fn render_with_visitor(node : @luna.Node[Unit]) -> String {
+  let visitor = SBVisitor::new()
+  visitor_traverse(node, visitor)
+  visitor.sb.to_string()
+}
+
+// =============================================================================
+// Visitor vs Direct Comparison Benchmarks
+// =============================================================================
+
+test "compare: nested - direct vs visitor" (b : @bench.T) {
+  let node = vnode_nested()
+  b.bench(name="direct", fn() { b.keep(render_to_string(node).html) })
+  b.bench(name="visitor", fn() { b.keep(render_with_visitor(node)) })
+}
+
+test "compare: list - direct vs visitor" (b : @bench.T) {
+  let node = vnode_list()
+  b.bench(name="direct", fn() { b.keep(render_to_string(node).html) })
+  b.bench(name="visitor", fn() { b.keep(render_with_visitor(node)) })
+}
+
+test "compare: large_list - direct vs visitor" (b : @bench.T) {
+  let node = vnode_large_list()
+  b.bench(name="direct", fn() { b.keep(render_to_string(node).html) })
+  b.bench(name="visitor", fn() { b.keep(render_with_visitor(node)) })
+}
+
+test "compare: page - direct vs visitor" (b : @bench.T) {
+  let node = vnode_page()
+  b.bench(name="direct", fn() { b.keep(render_to_string(node).html) })
+  b.bench(name="visitor", fn() { b.keep(render_with_visitor(node)) })
+}
