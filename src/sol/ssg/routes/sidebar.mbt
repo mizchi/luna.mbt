@@ -196,6 +196,34 @@ fn capitalize(s : String) -> String {
 }
 
 // =============================================================================
+// Page Order (for navigation)
+// =============================================================================
+
+///| Get flat list of page URLs in sidebar order
+pub fn get_sidebar_page_order(
+  groups : Array[@ssg.SidebarGroup]
+) -> Array[String] {
+  let urls : Array[String] = []
+  for group in groups {
+    for item in group.items {
+      match item {
+        @ssg.SidebarItem::Link(link~, ..) => urls.push(link)
+        @ssg.SidebarItem::Group(nested) => {
+          // Recursively get URLs from nested groups
+          for nested_item in nested.items {
+            match nested_item {
+              @ssg.SidebarItem::Link(link~, ..) => urls.push(link)
+              _ => ()
+            }
+          }
+        }
+      }
+    }
+  }
+  urls
+}
+
+// =============================================================================
 // Sidebar Rendering
 // =============================================================================
 

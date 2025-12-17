@@ -467,7 +467,7 @@ fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit] {
 ///| Build complete HTML document
 fn build_html_document(
   ctx : @ssg.BuildContext,
-  _page : @ssg.PageMeta,
+  page : @ssg.PageMeta,
   frontmatter : @ssg.Frontmatter,
   render_result : @render.SSRResult
 ) -> String {
@@ -485,7 +485,32 @@ fn build_html_document(
   // Primary color CSS variable
   let primary = ctx.config.theme.primary_color.unwrap_or("#3451b2")
 
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n</body>\n</html>"
+  // Get page order for current locale
+  let page_order = get_page_order(ctx.pages, page.locale)
+
+  // Navigation script for View Transition direction
+  let nav_script = get_navigation_script(page_order)
+
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{nav_script}\n</body>\n</html>"
+}
+
+// =============================================================================
+// Navigation Script
+// =============================================================================
+
+///| Get page order (URL list) for a locale based on sidebar order
+fn get_page_order(pages : Array[@ssg.PageMeta], locale : String) -> Array[String] {
+  // Generate sidebar groups for this locale to get the correct order
+  let sidebar_groups = @routes.generate_auto_sidebar(pages, locale~)
+  @routes.get_sidebar_page_order(sidebar_groups)
+}
+
+///| Get inline script for View Transition direction detection
+fn get_navigation_script(page_order : Array[String]) -> String {
+  // Build JSON array of page URLs
+  let urls_json = page_order.map(fn(url) { "\"\{url}\"" }).join(", ")
+
+  "<script>\n(function() {\n  const pageOrder = [\{urls_json}];\n  function getPageIndex(url) {\n    if (!url) return -1;\n    const path = new URL(url).pathname.replace(/\\/$/, '') || '/';\n    return pageOrder.findIndex(p => p.replace(/\\/$/, '') === path || p === path + '/');\n  }\n  function getCurrentIndex() {\n    return getPageIndex(location.href);\n  }\n  function navigateTo(url) {\n    window.scrollTo({ top: 0, behavior: 'instant' });\n    location.href = url;\n  }\n  window.addEventListener('pagereveal', (e) => {\n    if (!e.viewTransition || !navigation.activation) return;\n    const nav = navigation.activation;\n    const fromIdx = getPageIndex(nav.from?.url);\n    const toIdx = getPageIndex(nav.entry?.url);\n    if (fromIdx !== -1 && toIdx !== -1) {\n      e.viewTransition.types.add(toIdx > fromIdx ? 'forwards' : 'backwards');\n    } else {\n      e.viewTransition.types.add('forwards');\n    }\n  });\n  document.addEventListener('keydown', (e) => {\n    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;\n    const idx = getCurrentIndex();\n    if (idx === -1) return;\n    if (e.key === 'ArrowRight' && idx < pageOrder.length - 1) {\n      e.preventDefault();\n      navigateTo(pageOrder[idx + 1]);\n    } else if (e.key === 'ArrowLeft' && idx > 0) {\n      const prevPage = pageOrder[idx - 1];\n      if (prevPage === '/' || prevPage === '') return;\n      e.preventDefault();\n      navigateTo(prevPage);\n    }\n  });\n})();\n</script>"
 }
 
 // =============================================================================
@@ -568,6 +593,56 @@ fn get_default_css(config : @ssg.SsgConfig) -> String {
   #|    --border-color: #3f3f3f;
   #|    --code-bg: #2d2d2d;
   #|  }
+  #|}
+  #|
+  #|/* View Transition API (MPA) */
+  #|@view-transition {
+  #|  navigation: auto;
+  #|}
+  #|
+  #|/* Disable root transition, only transition main content */
+  #|::view-transition-old(root),
+  #|::view-transition-new(root) {
+  #|  animation: none;
+  #|  mix-blend-mode: normal;
+  #|}
+  #|
+  #|/* Main content transition */
+  #|.doc-content {
+  #|  view-transition-name: main-content;
+  #|}
+  #|
+  #|::view-transition-old(main-content),
+  #|::view-transition-new(main-content) {
+  #|  animation-duration: 0.2s;
+  #|  animation-timing-function: ease-out;
+  #|}
+  #|
+  #|/* Direction-based animations */
+  #|@keyframes slide-out-to-left {
+  #|  from { transform: translateX(0); opacity: 1; }
+  #|  to { transform: translateX(-5%); opacity: 0; }
+  #|}
+  #|@keyframes slide-in-from-right {
+  #|  from { transform: translateX(5%); opacity: 0; }
+  #|  to { transform: translateX(0); opacity: 1; }
+  #|}
+  #|@keyframes slide-out-to-right {
+  #|  from { transform: translateX(0); opacity: 1; }
+  #|  to { transform: translateX(5%); opacity: 0; }
+  #|}
+  #|@keyframes slide-in-from-left {
+  #|  from { transform: translateX(-5%); opacity: 0; }
+  #|  to { transform: translateX(0); opacity: 1; }
+  #|}
+  #|
+  #|html:active-view-transition-type(forwards) {
+  #|  &::view-transition-old(main-content) { animation-name: slide-out-to-right; }
+  #|  &::view-transition-new(main-content) { animation-name: slide-in-from-left; }
+  #|}
+  #|html:active-view-transition-type(backwards) {
+  #|  &::view-transition-old(main-content) { animation-name: slide-out-to-left; }
+  #|  &::view-transition-new(main-content) { animation-name: slide-in-from-right; }
   #|}
   #|
   #|* { box-sizing: border-box; margin: 0; padding: 0; }
@@ -943,6 +1018,7 @@ fn get_default_css(config : @ssg.SsgConfig) -> String {
   #|  .sidebar-desktop { display: none; }
   #|  .mobile-sidebar { display: block; }
   #|  .toc { display: none; }
+  #|  .doc-main { margin-left: 0; margin-right: 0; max-width: none; }
   #|}
   "/* Luna SSG Default Theme */\n:root {\n  --primary-color: \{primary_color};\n" + css_rest
 }
