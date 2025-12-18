@@ -33,4 +33,13 @@ export default defineConfig([
     },
     minify: true,
   },
+  // HMR client (dev-only, injected by sol dev server)
+  {
+    input: './js/loader/src/hmr-client.ts',
+    output: {
+      file: './js/loader/dist/hmr-client.js',
+      format: 'iife',
+    },
+    minify: false, // Keep readable for debugging
+  },
 ]);

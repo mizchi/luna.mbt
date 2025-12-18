@@ -3,28 +3,19 @@
 ## TODO
 
 - [ ] preload 挿入
-- [ ] src/astra: 静的サイト生成 (src/sol/ssg から再設計)
 - DX
   - sol: dev コード監視を最適化を追加
   - sol: hot reload
-  - mizchi/luna から mizchi/luna のコアAPIを再 export
-  - client trigger を astro と互換にする
-    - https://r4ai.dev/posts/astro_hydration/
-  - 今の仕様に合わせて sol new を再設計
+  - 今の仕様に合わせて sol new のテンプレートをアップデート
 - Features
   - Critical CSS の抽出
 - Internal
-  - sol generate で `.sol/client/exports.mbt` を削除して直接 moon.pkg.json の link を更新する
-  - sol 中間生成ファイルを見直す
+  - sol 中間生成ファイルを見直す。特にHydrate
   - Fix moonbitlang/parser for coverage
-- virtual package を導入してクロスプラットフォーム化の基盤を作る
-  - https://www.moonbitlang.com/blog/virtual-package
 - v0.1.0
   - v0.1.0 ドキュメントの英語化
-- [ ] Prototype: ViewTransition
-  - [x] BF Cache 最適化
-  - [x] MPA Mode
-  - [ ] SSR Stream が機能しているかテスト. 意図的に遅延を入れて体験を確認
+- [ ] SSR Stream が機能しているかテスト. 意図的に遅延を入れて体験を確認
+- [ ] sol: キャッシュレイヤーの設計
 
 ## Icebox
 
@@ -60,6 +51,12 @@
 
 ## Done
 
+- [x] sol multi-runtime support (Node.js, Cloudflare Workers, Deno, Bun)
+  - ServerRuntime enum, sol.config.json の runtime フィールド, wrangler で動作確認済み
+- [x] client trigger を astro と互換にする (`luna:trigger` → `luna:client-trigger`)
+  - https://r4ai.dev/posts/astro_hydration/
+- [x] src/core/markdown を mizchi/markdown に移行
+  - 外部パッケージ化、5077行削除、FootnoteDefinition/Reference 対応
 - [x] 再 export するのに、moonbitlang/parser を使用する
 - [x] js/cli を src/eclipse/cli で、CLIをMoonbitで書き直す
 - [x] data 属性を修正する
@@ -69,6 +66,16 @@
   - Server Route から Client を Route に登録するとき、 Props を取らないといけない
   - Server Component 同士は呼び出せる。
   - `__gen__/types` には Client/Server 共に使える Opaque Type を定義して、それを呼び出す
+- [x] src/astra: 静的サイト生成 (src/sol/ssg から再設計)
+  - astra build/dev, Shiki syntax highlighting, dark/light toggle, file ordering
+- virtual package を導入してクロスプラットフォーム化の基盤を作る
+  - https://www.moonbitlang.com/blog/virtual-package
+  - => 厳しい
+  - [x] mizchi/luna から mizchi/luna のコアAPIを再 export
+- [ ] Prototype: ViewTransition
+  - [x] BF Cache 最適化
+  - [x] MPA Mode
+  - [x] sol generate で `.sol/client/exports.mbt` を削除して直接 moon.pkg.json の link を更新する
 
 -----
 
@@ -82,8 +89,8 @@
 - [ ] v0.1.0 ドキュメントの英語化 - 海外ユーザーの参入障壁
 
 ### 高優先（実用性向上）
-- [ ] src/astra で静的サイト生成に対応 - ブログ/静的サイトの需要
-- [ ] client trigger を astro と互換にする - 学習コスト低減
+- [x] src/astra で静的サイト生成に対応 - ブログ/静的サイトの需要 ✓実装済み
+- [x] client trigger を astro と互換にする - 学習コスト低減 ✓実装済み (`luna:client-trigger`)
 - [ ] ViewTransition - モダンなページ遷移UX
 
 ### 中優先（機能拡充）
@@ -106,9 +113,9 @@
 - [ ] hot reload → 上記が決まってから実装
 
 ### 後回しでよい
-- SSG (src/astra) - MPAモードが動けば、静的出力はビルド時オプションで対応可
+- ~~SSG (src/astra)~~ ✓実装済み (astra build/dev, Shiki, dark/light toggle, file ordering)
 - ~~portal~~ ✓実装済み
-- Astro互換trigger - 属性名の話。後から互換レイヤーで対応可
+- ~~Astro互換trigger~~ ✓実装済み (`luna:client-trigger`)
 
 ### 推奨順序
 1. ViewTransition プロトタイプ → MPA/CSR比重を決定
