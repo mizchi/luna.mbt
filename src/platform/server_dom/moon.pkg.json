@@ -17,6 +17,7 @@
         "render_document_with_preloads",
         "generate_preload_tags",
         "document",
+        "client",
         "island_from_ref",
         "island",
         "island_load",

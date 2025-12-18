@@ -1,25 +1,21 @@
 ///| Contact Form Page Server Component
 ///|
-///| Uses island() to embed the contact_form client component.
+///| Uses client() to embed the contact_form client component.
 
-///| Contact form page - with contact_form island (sync server component)
+///| Contact form page - with contact_form client component (sync server component)
 pub fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
-  // Create props using generated types - auto-serializes to JSON
+  // Create props using generated types
   let form_props : @types.ContactFormProps = {
     action: "/api/contact",
     initial_name: "",
     initial_email: "",
   }
-  let state_json = form_props.to_json().stringify()
 
   let content = [
     h1(children=[text("Contact Form")]),
     p(children=[text("A demo of data binding and form submission")]),
-    @server_dom.island(
-      "contact_form",
-      "/static/contact_form.js",
-      state=state_json,
-      trigger=@luna.Load,
+    @server_dom.client(
+      @types.contact_form(form_props),
       children=[
         // SSR placeholder matching client component structure
         form(

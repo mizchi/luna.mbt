@@ -3,13 +3,13 @@
 // Provides integration with client-side components through islands.
 
 // =============================================================================
-// New ComponentRef-based island API
+// Type-safe client component API (Recommended)
 // =============================================================================
 
 ///|
-/// Create an island from ComponentRef (type-safe API)
+/// Embed a client component with type-safe props
 ///
-/// This is the recommended way to create islands in server components.
+/// This is the recommended way to create interactive components in server-rendered HTML.
 /// The ComponentRef contains all necessary information (url, props, trigger, wc flag).
 ///
 /// Example:
@@ -20,12 +20,12 @@
 /// }
 ///
 /// // In server component
-/// island_from_ref(
+/// client(
 ///   @types.counter({ initial_count: 42 }),
 ///   children=[text("Loading...")],
 /// )
 /// ```
-pub fn[T : ToJson] island_from_ref(
+pub fn[T : ToJson] client(
   cref : @luna.ComponentRef[T],
   styles? : String = "",
   children? : Array[@luna.Node[Unit]] = [],
@@ -40,22 +40,40 @@ pub fn[T : ToJson] island_from_ref(
   )
 }
 
+///|
+/// @deprecated Use `client()` instead
+#deprecated("Use client() instead")
+pub fn[T : ToJson] island_from_ref(
+  cref : @luna.ComponentRef[T],
+  styles? : String = "",
+  children? : Array[@luna.Node[Unit]] = [],
+) -> @luna.Node[Unit] {
+  client(cref, styles~, children~)
+}
+
 // =============================================================================
-// Legacy island API (for backward compatibility)
+// Legacy island API (deprecated)
 // =============================================================================
 
 ///|
 /// Create an island for client-side hydration (legacy API)
 ///
+/// @deprecated Use `client()` with ComponentRef instead
+///
 /// Example:
 /// ```moonbit
+/// // Old way (deprecated):
 /// island(
 ///   id="counter",
 ///   url="/components/counter.js",
 ///   state="{\"count\":0}",
 ///   children=[text("Loading...")],
 /// )
+///
+/// // New way (recommended):
+/// client(@types.counter({ initial_count: 0 }), children=[text("Loading...")])
 /// ```
+#deprecated("Use client() with ComponentRef instead")
 pub fn island(
   id : String,
   url : String,
@@ -75,9 +93,8 @@ pub fn island(
 }
 
 ///|
-/// Create an island with load trigger (hydrates immediately)
-/// @deprecated Use `island(id, url, state~, trigger=@luna.Load, children~)` instead
-#deprecated("Use island() with trigger parameter instead")
+/// @deprecated Use `client()` with ComponentRef instead
+#deprecated("Use client() with ComponentRef instead")
 pub fn island_load(
   id : String,
   url : String,
@@ -88,9 +105,8 @@ pub fn island_load(
 }
 
 ///|
-/// Create an island with idle trigger (hydrates when browser is idle)
-/// @deprecated Use `island(id, url, state~, trigger=@luna.Idle, children~)` instead
-#deprecated("Use island() with trigger parameter instead")
+/// @deprecated Use `client()` with ComponentRef instead
+#deprecated("Use client() with ComponentRef instead")
 pub fn island_idle(
   id : String,
   url : String,
@@ -101,9 +117,8 @@ pub fn island_idle(
 }
 
 ///|
-/// Create an island with visible trigger (hydrates when visible)
-/// @deprecated Use `island(id, url, state~, trigger=@luna.Visible, children~)` instead
-#deprecated("Use island() with trigger parameter instead")
+/// @deprecated Use `client()` with ComponentRef instead
+#deprecated("Use client() with ComponentRef instead")
 pub fn island_visible(
   id : String,
   url : String,
@@ -114,9 +129,8 @@ pub fn island_visible(
 }
 
 ///|
-/// Create an island with media trigger
-/// @deprecated Use `island(id, url, state~, trigger=@luna.Media(query), children~)` instead
-#deprecated("Use island() with trigger parameter instead")
+/// @deprecated Use `client()` with ComponentRef instead
+#deprecated("Use client() with ComponentRef instead")
 pub fn island_media(
   id : String,
   url : String,
