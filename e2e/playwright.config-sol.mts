@@ -7,7 +7,7 @@ const solAppDir = join(__dirname, "../examples/sol_app");
 
 export default defineConfig({
   testDir: __dirname,
-  testMatch: ["**/wc_counter*.test.ts", "**/sol_*.test.ts"],
+  testMatch: ["**/wc_counter*.test.ts", "**/sol_*.test.ts", "**/wc-css-isolation.test.ts"],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

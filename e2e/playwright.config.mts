@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   testDir: __dirname,
   testMatch: ["**/*.test.ts", "**/*.test.mts"],
-  testIgnore: ["**/template-app/**", "**/sol/cli/**", "**/sol-app/**", "**/wc_counter*.test.ts"], // template-app and sol-app have their own configs, sol/cli uses vitest, wc_counter uses playwright.config-sol.mts
+  testIgnore: ["**/template-app/**", "**/sol/cli/**", "**/sol-app/**", "**/wc_counter*.test.ts", "**/wc-css-isolation.test.ts"], // template-app and sol-app have their own configs, sol/cli uses vitest, wc_counter and wc-css-isolation use playwright.config-sol.mts
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

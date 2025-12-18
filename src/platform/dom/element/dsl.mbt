@@ -311,19 +311,34 @@ pub fn use_style(css : String, root : @js_dom.Element) -> Unit {
 
 ///|
 /// FFI: Inject style into Shadow DOM or document.head
-/// Uses getRootNode() to find the ShadowRoot that contains the element
+/// Waits for element to be connected to DOM before injection.
+/// Uses exponential backoff for retries (16ms, 32ms, 64ms, 128ms, 256ms).
+/// Only injects into ShadowRoot if element is inside one; otherwise uses document.head.
 extern "js" fn ffi_use_style(css : String, style_id : String, root : @js.Any) =
   #|(css, id, el) => {
-  #|  const rootNode = el.getRootNode();
-  #|  const isShadow = rootNode instanceof ShadowRoot;
-  #|  const target = isShadow ? rootNode : document.head;
-  #|  if (!target.querySelector('#' + id)) {
-  #|    const style = document.createElement('style');
-  #|    style.id = id;
-  #|    style.textContent = css;
-  #|    if (isShadow) target.prepend(style);
-  #|    else target.appendChild(style);
-  #|  }
+  #|  const inject = () => {
+  #|    const rootNode = el.getRootNode();
+  #|    const isShadow = rootNode instanceof ShadowRoot;
+  #|    const target = isShadow ? rootNode : document.head;
+  #|    if (!target.querySelector('#' + id)) {
+  #|      const style = document.createElement('style');
+  #|      style.id = id;
+  #|      style.textContent = css;
+  #|      if (isShadow) target.prepend(style);
+  #|      else target.appendChild(style);
+  #|    }
+  #|  };
+  #|  const tryInject = (delay, maxDelay) => {
+  #|    if (el.isConnected) {
+  #|      inject();
+  #|    } else if (delay <= maxDelay) {
+  #|      // Exponential backoff: 16ms, 32ms, 64ms, 128ms, 256ms (total ~500ms)
+  #|      setTimeout(() => tryInject(delay * 2, maxDelay), delay);
+  #|    }
+  #|    // If still not connected after max delay, assume SSR style exists
+  #|  };
+  #|  // Start with requestAnimationFrame, then exponential backoff
+  #|  requestAnimationFrame(() => tryInject(16, 256));
   #|}
 
 ///|
