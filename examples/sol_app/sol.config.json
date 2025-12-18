@@ -1,5 +1,6 @@
 {
   "islands": ["app/client"],
   "routes": "app/server",
-  "output": "app/__gen__"
+  "output": "app/__gen__",
+  "client_auto_exports": false
 }

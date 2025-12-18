@@ -81,8 +81,8 @@ fn run_dev_command(args : Array[String]) -> Unit {
     }
     println(@colorette.green("✓ Clean complete"))
   }
-  // Step 2: Run build
-  if not(run_build_dev(cwd)) {
+  // Step 2: Run initial build (includes sol generate)
+  if not(run_initial_build_dev(cwd)) {
     @process.exit(1)
   }
   // Run server (watch mode or blocking mode)
@@ -94,9 +94,9 @@ fn run_dev_command(args : Array[String]) -> Unit {
 }
 
 ///|
-/// Run build steps for dev mode
+/// Run initial build steps for dev mode (includes sol generate)
 /// Returns true on success, false on failure
-fn run_build_dev(cwd : String) -> Bool {
+fn run_initial_build_dev(cwd : String) -> Bool {
   // Clean stale static files before rebuild to avoid hash conflicts
   let static_dir = @path.join2(cwd, ".sol/dev/static")
   if @fs.existsSync(static_dir) {
@@ -107,12 +107,26 @@ fn run_build_dev(cwd : String) -> Bool {
   if @fs.existsSync(prod_dir) {
     rm_rf_sync(prod_dir)
   }
-  // Run generate if sol.config.json exists
+  // Run generate if sol.config.json exists (only at startup)
   let sol_config_path = @path.join2(cwd, "sol.config.json")
   if @fs.existsSync(sol_config_path) {
     println(@colorette.gray("Generating .sol directory..."))
     run_generate_command(["--mode", "dev"])
     println(@colorette.green("✓ Generate complete"))
+  }
+  // Run incremental build
+  run_incremental_build_dev(cwd)
+}
+
+///|
+/// Run incremental build steps for dev mode (moon build + rolldown only)
+/// Skips sol generate for faster rebuilds
+/// Returns true on success, false on failure
+fn run_incremental_build_dev(cwd : String) -> Bool {
+  // Clean stale static files before rebuild to avoid hash conflicts
+  let static_dir = @path.join2(cwd, ".sol/dev/static")
+  if @fs.existsSync(static_dir) {
+    rm_rf_sync(static_dir)
   }
   // Build MoonBit project
   println(@colorette.gray("Building MoonBit project..."))
@@ -261,7 +275,7 @@ fn run_dev_watch_mode(cwd : String, port : String) -> Unit {
                   ),
                 )
                 stop_server()
-                if run_build_dev(cwd) {
+                if run_incremental_build_dev(cwd) {
                   // Determine if this is a client-side change (Island)
                   let is_client_change = filename.contains("client/") ||
                     filename.contains("islands/")

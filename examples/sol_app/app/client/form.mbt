@@ -61,7 +61,7 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
         input(
           type_="email",
           id="email",
-          placeholder="Enter your",
+          placeholder="Enter your email",
           value=props.initial_email,
           on=events().input(on_email_input),
         ),

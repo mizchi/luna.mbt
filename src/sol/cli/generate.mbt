@@ -933,6 +933,76 @@ fn update_island_pkg_json(
 }
 
 ///|
+/// Read exports from moon.pkg.json (for user-managed exports mode)
+fn read_exports_from_pkg_json(pkg_json_path : String) -> Array[String] {
+  let content : String = @fs.readFileSync(pkg_json_path).to_string() catch {
+    _ => return []
+  }
+  let json = @json.parse(content.view()) catch { _ => return [] }
+  guard json is Object(obj) else { return [] }
+  match obj.get("link") {
+    Some(Object(link)) =>
+      match link.get("js") {
+        Some(Object(js)) =>
+          match js.get("exports") {
+            Some(Array(exports)) => {
+              let result : Array[String] = []
+              for e in exports {
+                guard e is String(s) else { continue }
+                result.push(s)
+              }
+              result
+            }
+            _ => []
+          }
+        _ => []
+      }
+    _ => []
+  }
+}
+
+///|
+/// Generate FuncExport from export name (for user-managed exports mode)
+/// Derives Props type from function name using convention:
+/// counter -> CounterProps, contact_form -> ContactFormProps
+fn func_export_from_name(
+  name : String,
+  source_pattern : String,
+) -> FuncExport {
+  // Convert snake_case to PascalCase for Props type
+  let props_type = snake_to_pascal(name) + "Props"
+  FuncExport::{
+    name,
+    signature: "(\{props_type}) -> DomNode", // Assumed signature
+    package_path: source_pattern,
+    import_alias: get_dir_name(source_pattern),
+    source_pattern,
+  }
+}
+
+///|
+/// Convert snake_case to PascalCase
+fn snake_to_pascal(s : String) -> String {
+  let buf = StringBuilder::new()
+  let mut capitalize_next = true
+  for c in s {
+    if c == '_' {
+      capitalize_next = true
+    } else if capitalize_next {
+      if c >= 'a' && c <= 'z' {
+        buf.write_char(Char::from_int(c.to_int() - 32))
+      } else {
+        buf.write_char(c)
+      }
+      capitalize_next = false
+    } else {
+      buf.write_char(c)
+    }
+  }
+  buf.to_string()
+}
+
+///|
 /// Format moon.pkg.json with proper indentation
 fn format_pkg_json(obj : Map[String, Json]) -> String {
   let buf = StringBuilder::new()
@@ -1406,26 +1476,46 @@ fn run_generate_command(args : Array[String]) -> Unit {
       @process.exit(1)
     }
   }
-  // Step 3: Run moon info to generate mbti files
-  println(@colorette.gray("  Running moon info..."))
-  try {
-    let info_result = @child_process.spawnSync(
-      "moon",
-      args=["info", "--target", "js"],
-      stdio="inherit",
-    )
-    if info_result.status() != Some(0) {
-      console_error(@colorette.red("moon info failed"))
-      @process.exit(1)
+  // Step 3: Collect island exports
+  // If client_auto_exports is true, run moon info and parse mbti
+  // If client_auto_exports is false, read exports from moon.pkg.json (faster)
+  let funcs : Array[FuncExport] = if config.client_auto_exports {
+    println(@colorette.gray("  Running moon info..."))
+    try {
+      let info_result = @child_process.spawnSync(
+        "moon",
+        args=["info", "--target", "js"],
+        stdio="inherit",
+      )
+      if info_result.status() != Some(0) {
+        console_error(@colorette.red("moon info failed"))
+        @process.exit(1)
+      }
+    } catch {
+      e => {
+        console_error(@colorette.red("Error running moon info: \{e}"))
+        @process.exit(1)
+      }
     }
-  } catch {
-    e => {
-      console_error(@colorette.red("Error running moon info: \{e}"))
-      @process.exit(1)
+    // Collect all pub functions from island directories (using mbti)
+    collect_island_functions(cwd, config)
+  } else {
+    // User-managed exports mode: read from moon.pkg.json directly
+    println(@colorette.gray("  Reading exports from moon.pkg.json (user-managed)..."))
+    let result : Array[FuncExport] = []
+    for island_pattern in config.islands {
+      let island_dir = @path.join2(cwd, island_pattern)
+      let pkg_json_path = @path.join2(island_dir, "moon.pkg.json")
+      let exports = read_exports_from_pkg_json(pkg_json_path)
+      for export_name in exports {
+        // Skip hydrate_* exports (they are generated, not source functions)
+        if not(export_name.has_prefix("hydrate_")) {
+          result.push(func_export_from_name(export_name, island_pattern))
+        }
+      }
     }
+    result
   }
-  // Collect all pub functions from island directories (using mbti)
-  let funcs = collect_island_functions(cwd, config)
   println(@colorette.gray("  Found \{funcs.length()} island exports"))
   // Create remaining output directories (types_dir and server_dir already created above)
   // Use mode-specific .sol directory: .sol/dev or .sol/prod
@@ -1441,8 +1531,9 @@ fn run_generate_command(args : Array[String]) -> Unit {
       @process.exit(1)
     }
   }
-  // Generate hydrate functions and update moon.pkg.json in each island directory
-  if config.client_auto_exports && not(funcs.is_empty()) {
+  // Generate hydrate functions in each island directory
+  // Note: When client_auto_exports is true, also update moon.pkg.json
+  if not(funcs.is_empty()) {
     // Group functions by source_pattern
     let patterns_seen : Map[String, Bool] = {}
     for f in funcs {
@@ -1457,7 +1548,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
       if island_funcs.is_empty() {
         continue
       }
-      // Generate __gen__.mbt
+      // Generate __gen__.mbt (always, for hydrate functions)
       let hydrate_content = generate_hydrate_mbt(island_funcs)
       let hydrate_path = @path.join2(island_dir, "__gen__.mbt")
       try {
@@ -1469,22 +1560,25 @@ fn run_generate_command(args : Array[String]) -> Unit {
           @process.exit(1)
         }
       }
-      // Collect export names (original functions + hydrate functions)
-      let export_names : Array[String] = []
-      for f in island_funcs {
-        export_names.push(f.name)
-        // Add hydrate_<name> if it's a Props -> DomNode function
-        let props_type = extract_props_type(f.signature, "")
-        let returns_dom_node = f.signature.contains("DomNode")
-        let returns_vnode = f.signature.contains("Node[")
-        if props_type.length() > 0 && (returns_dom_node || returns_vnode) {
-          export_names.push("hydrate_\{f.name}")
+      // Update moon.pkg.json only if client_auto_exports is true
+      if config.client_auto_exports {
+        // Collect export names (original functions + hydrate functions)
+        let export_names : Array[String] = []
+        for f in island_funcs {
+          export_names.push(f.name)
+          // Add hydrate_<name> if it's a Props -> DomNode function
+          let props_type = extract_props_type(f.signature, "")
+          let returns_dom_node = f.signature.contains("DomNode")
+          let returns_vnode = f.signature.contains("Node[")
+          if props_type.length() > 0 && (returns_dom_node || returns_vnode) {
+            export_names.push("hydrate_\{f.name}")
+          }
         }
+        // Update moon.pkg.json
+        let pkg_json_path = @path.join2(island_dir, "moon.pkg.json")
+        update_island_pkg_json(pkg_json_path, export_names)
+        println(@colorette.gray("  Updated \{island_pattern}/moon.pkg.json"))
       }
-      // Update moon.pkg.json
-      let pkg_json_path = @path.join2(island_dir, "moon.pkg.json")
-      update_island_pkg_json(pkg_json_path, export_names)
-      println(@colorette.gray("  Updated \{island_pattern}/moon.pkg.json"))
     }
   }
   // Parse routes.mbt to extract component/handler info
