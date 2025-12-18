@@ -151,9 +151,12 @@ const elements: ElementDef[] = [
     description: "Create an input element",
     attrs: [
       { name: "type_", type: "string", htmlAttr: "type" },
+      { name: "name", type: "string" },
       { name: "value", type: "string" },
       { name: "placeholder", type: "string" },
       { name: "disabled", type: "bool" },
+      { name: "readonly_", type: "bool", htmlAttr: "readonly" },
+      { name: "required", type: "bool" },
     ],
     isVoid: true,
     hasChildren: false,
@@ -162,11 +165,19 @@ const elements: ElementDef[] = [
     tag: "textarea",
     description: "Create a textarea element",
     attrs: [
+      { name: "name", type: "string" },
       { name: "placeholder", type: "string" },
       { name: "disabled", type: "bool" },
     ],
   },
-  { tag: "form", description: "Create a form element" },
+  {
+    tag: "form",
+    description: "Create a form element",
+    attrs: [
+      { name: "action", type: "string" },
+      { name: "http_method", type: "string", htmlAttr: "method" },
+    ],
+  },
   {
     tag: "label",
     description: "Create a label element",
@@ -191,8 +202,8 @@ const elements: ElementDef[] = [
 ];
 
 // Elements only for browser DOM (not server_dom)
-// Note: button is included in server_dom for SSR rendering
-const browserOnlyElements = new Set(["input", "textarea", "form", "label"]);
+// Note: form elements are now included in server_dom for SSR rendering
+const browserOnlyElements = new Set(["textarea"]);
 
 // Elements only for server_dom (document structure)
 const serverOnlyElements = new Set(["html", "head", "body", "title", "meta", "link", "script", "style"]);
@@ -250,12 +261,12 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
     params.push("attrs? : Array[(String, @luna.Attr[Unit])]");
   }
 
-  // Children (required, labeled)
+  // Children (required, positional - same style for both DOM and server_dom)
   if (hasChildren) {
     if (opts.target === "dom") {
       params.push("children : Array[DomNode]");
     } else {
-      params.push("children~ : Array[@luna.Node[Unit]]");
+      params.push("children : Array[@luna.Node[Unit]]");
     }
   }
 
@@ -426,13 +437,13 @@ function generateTextHelpers(opts: GeneratorOptions): string {
 ///|
 /// Create a text node
 pub fn text(content : String) -> @luna.Node[Unit] {
-  @luna.vtext(content)
+  @luna.text(content)
 }
 
 ///|
 /// Create a fragment (multiple nodes without wrapper)
 pub fn fragment(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
-  @luna.vfragment(children)
+  @luna.fragment(children)
 }
 
 ///|
@@ -494,6 +505,12 @@ pub fn text_dyn(content : () -> String) -> DomNode {
 ///|
 /// Create a reactive text node from a signal
 pub fn[T : Show] text_sig(sig : @signal.Signal[T]) -> DomNode {
+  text_from_signal(sig)
+}
+
+///|
+/// Create a reactive text node from a signal (alias for text_sig)
+pub fn[T : Show] text_of(sig : @signal.Signal[T]) -> DomNode {
   text_from_signal(sig)
 }
 

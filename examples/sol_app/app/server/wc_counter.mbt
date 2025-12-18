@@ -15,14 +15,14 @@ pub fn wc_counter(props : @router.PageProps) -> @server_dom.ServerNode {
   let counter_styles = @client.wc_counter_css
 
   let content = [
-    h1(children=[text("Web Components Counter")]),
-    p(children=[
+    h1([text("Web Components Counter")]),
+    p([
       text("This counter uses Declarative Shadow DOM for SSR."),
     ]),
-    p(children=[
+    p([
       text("CSS is defined in app/client/wc_counter.mbt and shared between SSR and hydration."),
     ]),
-    p(children=[
+    p([
       text("Inspect the element to see <template shadowrootmode=\"open\"> with <style>."),
     ]),
     // WcIsland with Declarative Shadow DOM
@@ -30,34 +30,34 @@ pub fn wc_counter(props : @router.PageProps) -> @server_dom.ServerNode {
     @server_dom.wc_island(
       "wc-counter",
       "/static/wc_counter.js", // WC-specific component
-      styles=counter_styles,
-      state=state_json,
-      trigger=@luna.Load,
-      children=[
-        div(class="counter", children=[
-          span(class="count-display", children=[
+      [
+        div(class="counter", [
+          span(class="count-display", [
             text(counter_props.initial_count.to_string()),
           ]),
-          div(class="buttons", children=[
+          div(class="buttons", [
             button(
               class="dec",
               attrs=[("data-on-click", @luna.attr_static("decrement"))],
-              children=[text("-")],
+              [text("-")],
             ),
             button(
               class="inc",
               attrs=[("data-on-click", @luna.attr_static("increment"))],
-              children=[text("+")],
+              [text("+")],
             ),
           ]),
         ]),
       ],
+      styles=counter_styles,
+      state=state_json,
+      trigger=@luna.Load,
     ),
-    h2(children=[text("How it works")]),
-    p(children=[
+    h2([text("How it works")]),
+    p([
       text("The WcIsland generates a custom element with Declarative Shadow DOM:"),
     ]),
-    div(class="code-block", style="background: #f5f5f5; padding: 1rem; border-radius: 4px; font-family: monospace; white-space: pre; overflow-x: auto;", children=[
+    div(class="code-block", style="background: #f5f5f5; padding: 1rem; border-radius: 4px; font-family: monospace; white-space: pre; overflow-x: auto;", [
       text("<wc-counter data-wc-url=\"...\" data-state=\"...\">\\n"),
       text("  <template shadowrootmode=\"open\">\\n"),
       text("    <style>:host { ... }</style>\\n"),

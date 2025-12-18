@@ -187,7 +187,6 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   } else {
     None
   }
-
   let current_node : Ref[@js_dom.Node?] = { val: initial_node }
 
   // Effect handles subsequent updates only

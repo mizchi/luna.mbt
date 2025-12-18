@@ -12,19 +12,19 @@ pub fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
   }
 
   let content = [
-    h1(children=[text("Contact Form")]),
-    p(children=[text("A demo of data binding and form submission")]),
+    h1([text("Contact Form")]),
+    p([text("A demo of data binding and form submission")]),
     @server_dom.client(
       @types.contact_form(form_props),
-      children=[
+      [
         // SSR placeholder matching client component structure
         form(
           class="contact-form",
           action=form_props.action,
           http_method="POST",
-          children=[
-            div(class="form-group", children=[
-              label(for_="name", children=[text("Name:")]),
+          [
+            div(class="form-group", [
+              label(for_="name", [text("Name:")]),
               input(
                 type_="text",
                 id="name",
@@ -33,8 +33,8 @@ pub fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
                 value=form_props.initial_name,
               ),
             ]),
-            div(class="form-group", children=[
-              label(for_="email", children=[text("Email:")]),
+            div(class="form-group", [
+              label(for_="email", [text("Email:")]),
               input(
                 type_="email",
                 id="email",
@@ -43,20 +43,20 @@ pub fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
                 value=form_props.initial_email,
               ),
             ]),
-            div(class="form-preview", children=[
-              span(children=[text("Preview: ")]),
-              span(class="preview-name", children=[text(form_props.initial_name)]),
-              span(children=[text(" <")]),
-              span(class="preview-email", children=[text(form_props.initial_email)]),
-              span(children=[text(">")]),
+            div(class="form-preview", [
+              span([text("Preview: ")]),
+              span(class="preview-name", [text(form_props.initial_name)]),
+              span([text(" <")]),
+              span(class="preview-email", [text(form_props.initial_email)]),
+              span([text(">")]),
             ]),
-            div(class="form-actions", children=[
+            div(class="form-actions", [
               button(
                 attrs=[("type", @luna.attr_static("submit"))],
-                children=[text("Submit")],
+                [text("Submit")],
               ),
             ]),
-            div(class="form-result", children=[text("")]),
+            div(class="form-result", [text("")]),
           ],
         ),
       ],

@@ -42,12 +42,12 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
 /// ```moonbit
 /// document(
 ///   lang="en",
-///   head_children=[
+///   head_[
 ///     title("My App"),
 ///     meta(charset="UTF-8"),
 ///   ],
-///   body_children=[
-///     h1(children=[text("Hello!")]),
+///   body_[
+///     h1([text("Hello!")]),
 ///   ],
 /// )
 /// ```
@@ -59,13 +59,10 @@ pub fn document(
   body_id? : String,
 ) -> @luna.Node[Unit] {
   let body_node = match (body_class, body_id) {
-    (Some(c), Some(i)) => @element.body(class=c, id=i, children=body_children)
-    (Some(c), None) => @element.body(class=c, children=body_children)
-    (None, Some(i)) => @element.body(id=i, children=body_children)
-    (None, None) => @element.body(children=body_children)
+    (Some(c), Some(i)) => @element.body(class=c, id=i, body_children)
+    (Some(c), None) => @element.body(class=c, body_children)
+    (None, Some(i)) => @element.body(id=i, body_children)
+    (None, None) => @element.body(body_children)
   }
-  @element.html(lang?, children=[
-    @element.head(children=head_children),
-    body_node,
-  ])
+  @element.html(lang?, [@element.head(head_children), body_node])
 }

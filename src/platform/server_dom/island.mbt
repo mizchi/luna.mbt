@@ -22,13 +22,13 @@
 /// // In server component
 /// client(
 ///   @types.counter({ initial_count: 42 }),
-///   children=[text("Loading...")],
+///   [text("Loading...")],
 /// )
 /// ```
 pub fn[T : ToJson] client(
   cref : @luna.ComponentRef[T],
+  children : Array[@luna.Node[Unit]],
   styles? : String = "",
-  children? : Array[@luna.Node[Unit]] = [],
 ) -> @luna.Node[Unit] {
   @luna.internal_ref(
     cref.url,

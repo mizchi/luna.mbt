@@ -348,9 +348,12 @@ pub fn button(
 /// Create an input element
 pub fn input(
   type_? : String,
+  name? : String,
   value? : String,
   placeholder? : String,
   disabled? : Bool,
+  readonly_? : Bool,
+  required? : Bool,
   id? : String,
   class? : String,
   style? : String,
@@ -362,6 +365,9 @@ pub fn input(
   if type_ is Some(v) {
     props.push(("type", Static(v)))
   }
+  if name is Some(v) {
+    props.push(("name", Static(v)))
+  }
   if value is Some(v) {
     props.push(("value", Static(v)))
   }
@@ -371,12 +377,19 @@ pub fn input(
   if disabled is Some(true) {
     props.push(("disabled", Static("true")))
   }
+  if readonly_ is Some(true) {
+    props.push(("readonly", Static("true")))
+  }
+  if required is Some(true) {
+    props.push(("required", Static("true")))
+  }
   create_element("input", props, [])
 }
 
 ///|
 /// Create a textarea element
 pub fn textarea(
+  name? : String,
   placeholder? : String,
   disabled? : Bool,
   id? : String,
@@ -388,6 +401,9 @@ pub fn textarea(
   children : Array[DomNode],
 ) -> DomNode {
   let props = build_props(id, class, style, on, ref_, attrs)
+  if name is Some(v) {
+    props.push(("name", Static(v)))
+  }
   if placeholder is Some(v) {
     props.push(("placeholder", Static(v)))
   }
@@ -400,6 +416,8 @@ pub fn textarea(
 ///|
 /// Create a form element
 pub fn form(
+  action? : String,
+  http_method? : String,
   id? : String,
   class? : String,
   style? : String,
@@ -409,6 +427,12 @@ pub fn form(
   children : Array[DomNode],
 ) -> DomNode {
   let props = build_props(id, class, style, on, ref_, attrs)
+  if action is Some(v) {
+    props.push(("action", Static(v)))
+  }
+  if http_method is Some(v) {
+    props.push(("method", Static(v)))
+  }
   create_element("form", props, children)
 }
 
@@ -507,6 +531,12 @@ pub fn text_dyn(content : () -> String) -> DomNode {
 
 ///|
 /// Create a reactive text node from a signal
+pub fn[T : Show] text_sig(sig : @signal.Signal[T]) -> DomNode {
+  text_from_signal(sig)
+}
+
+///|
+/// Create a reactive text node from a signal (alias for text_sig)
 pub fn[T : Show] text_of(sig : @signal.Signal[T]) -> DomNode {
   text_from_signal(sig)
 }
@@ -571,24 +601,14 @@ pub fn jsxs(
 }
 
 ///|
-/// JSX runtime: Fragment (returns children using DocumentFragment)
+/// JSX runtime: Fragment (returns children as-is wrapped in a container)
 pub fn fragment(children : Array[DomNode]) -> DomNode {
-  // Return single child directly, otherwise use DocumentFragment
+  // Return a document fragment or first child
+  // For simplicity, wrap in a span with no attributes
+  // In production, this should return a proper fragment
   match children.length() {
-    0 => {
-      // Empty fragment - return a placeholder comment
-      let doc = @js_dom.document()
-      Raw(doc.createComment(""))
-    }
+    0 => create_element("span", [], [])
     1 => children[0]
-    _ => {
-      // Multiple children - use DocumentFragment
-      let doc = @js_dom.document()
-      let frag = doc.createDocumentFragment()
-      for child in children {
-        frag.as_node().appendChild(child.to_jsdom()) |> ignore
-      }
-      Raw(frag.as_node())
-    }
+    _ => create_element("span", [], children)
   }
 }

@@ -3,14 +3,14 @@
 ///|
 /// Tests for server_dom module
 test "render simple div" {
-  let node = @element.div(children=[@element.text("Hello")])
+  let node = @element.div([@element.text("Hello")])
   let html = render(node)
   assert_eq(html, "<div>Hello</div>")
 }
 
 ///|
 test "render div with attributes" {
-  let node = @element.div(id="main", class="container", children=[
+  let node = @element.div(id="main", class="container", [
     @element.text("Content"),
   ])
   let html = render(node)
@@ -21,9 +21,9 @@ test "render div with attributes" {
 
 ///|
 test "render nested elements" {
-  let node = @element.div(children=[
-    @element.h1(children=[@element.text("Title")]),
-    @element.p(children=[@element.text("Paragraph")]),
+  let node = @element.div([
+    @element.h1([@element.text("Title")]),
+    @element.p([@element.text("Paragraph")]),
   ])
   let html = render(node)
   assert_true(html.contains("<h1>Title</h1>"))
@@ -32,9 +32,9 @@ test "render nested elements" {
 
 ///|
 test "render html document structure" {
-  let node = @element.html(lang="en", children=[
-    @element.head(children=[@element.title("My Page")]),
-    @element.body(children=[@element.h1(children=[@element.text("Hello")])]),
+  let node = @element.html(lang="en", [
+    @element.head([@element.title("My Page")]),
+    @element.body([@element.h1([@element.text("Hello")])]),
   ])
   let html_str = render(node)
   assert_true(html_str.contains("<html lang=\"en\">"))
@@ -47,7 +47,7 @@ test "render document helper" {
   let node = document(
     lang="ja",
     head_children=[@element.title("Test"), @element.meta(charset="UTF-8")],
-    body_children=[@element.p(children=[@element.text("Hello World")])],
+    body_children=[@element.p([@element.text("Hello World")])],
   )
   let html = render_document(node)
   assert_true(html.has_prefix("<!DOCTYPE html>"))
@@ -57,7 +57,7 @@ test "render document helper" {
 
 ///|
 test "render void elements" {
-  let node = @element.div(children=[
+  let node = @element.div([
     @element.img(src="/image.png", alt="test"),
     @element.br(),
     @element.hr(),
@@ -71,9 +71,9 @@ test "render void elements" {
 
 ///|
 test "render list elements" {
-  let node = @element.ul(children=[
-    @element.li(children=[@element.text("Item 1")]),
-    @element.li(children=[@element.text("Item 2")]),
+  let node = @element.ul([
+    @element.li([@element.text("Item 1")]),
+    @element.li([@element.text("Item 2")]),
   ])
   let html = render(node)
   assert_true(html.contains("<ul>"))
@@ -83,7 +83,7 @@ test "render list elements" {
 
 ///|
 test "render anchor with href" {
-  let node = @element.a(href="https://example.com", target="_blank", children=[
+  let node = @element.a(href="https://example.com", target="_blank", [
     @element.text("Link"),
   ])
   let html = render(node)
@@ -136,7 +136,7 @@ test "render island with visible trigger" {
 
 ///|
 test "render_with_preloads collects island URLs" {
-  let node = @element.div(children=[
+  let node = @element.div([
     @luna.island("a", "/a.js", "{}", [@element.text("A")]),
     @luna.island("b", "/b.js", "{}", [@element.text("B")]),
   ])
@@ -159,12 +159,10 @@ test "render fragment" {
 
 ///|
 test "render semantic elements" {
-  let node = @element.main_(children=[
-    @element.header_(children=[@element.nav(children=[@element.text("Nav")])]),
-    @element.section(children=[
-      @element.article(children=[@element.text("Content")]),
-    ]),
-    @element.footer_(children=[@element.text("Footer")]),
+  let node = @element.main_([
+    @element.header_([@element.nav([@element.text("Nav")])]),
+    @element.section([@element.article([@element.text("Content")])]),
+    @element.footer_([@element.text("Footer")]),
   ])
   let html = render(node)
   assert_true(html.contains("<main>"))
@@ -177,9 +175,7 @@ test "render semantic elements" {
 
 ///|
 test "html escaping in text" {
-  let node = @element.p(children=[
-    @element.text("<script>alert('xss')</script>"),
-  ])
+  let node = @element.p([@element.text("<script>alert('xss')</script>")])
   let html = render(node)
   assert_true(html.contains("&lt;script&gt;"))
   assert_false(html.contains("<script>alert"))

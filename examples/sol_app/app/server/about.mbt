@@ -5,8 +5,8 @@
 ///| About page - static content (sync server component)
 pub fn about(props : @router.PageProps) -> @server_dom.ServerNode {
   let content = [
-    h1(children=[text("About")]),
-    p(children=[text("Built with MoonBit and Sol framework.")]),
+    h1([text("About")]),
+    p([text("Built with MoonBit and Sol framework.")]),
   ]
 
   // Fragment request: return content only (no layout)

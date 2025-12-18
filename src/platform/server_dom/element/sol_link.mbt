@@ -11,13 +11,13 @@
 /// by sol-nav.js for client-side navigation.
 pub fn sol_link(
   href~ : String,
+  children : Array[@luna.Node[Unit]],
   id? : String,
   class? : String,
   style? : String,
   prefetch? : Bool,
   replace? : Bool,
   attrs? : Array[(String, @luna.Attr[Unit])],
-  children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let props = build_attrs(id, class, style, attrs)
   props.push(("href", static_attr(href)))

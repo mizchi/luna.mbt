@@ -15,29 +15,29 @@ pub fn home(props : @router.PageProps) -> @server_dom.ServerNode {
     let counter_props : @types.CounterProps = { initial_count: server_random }
 
     let content = [
-      h1(children=[text("Welcome to Sol")]),
-      p(children=[text("A SSR-first web framework for MoonBit")]),
-      p(children=[
+      h1([text("Welcome to Sol")]),
+      p([text("A SSR-first web framework for MoonBit")]),
+      p([
         text("Server-generated random number: "),
         span(
           style="font-weight: bold; color: #0066cc;",
-          children=[text(server_random.to_string())],
+          [text(server_random.to_string())],
         ),
       ]),
       p(
         style="color: #666; font-size: 0.9em;",
-        children=[text("(Refresh to see a new random number from the server)")],
+        [text("(Refresh to see a new random number from the server)")],
       ),
       @server_dom.client(
         @types.counter(counter_props),
-        children=[
-          div(class="counter", children=[
-            span(class="count-display", children=[
+        [
+          div(class="counter", [
+            span(class="count-display", [
               text(counter_props.initial_count.to_string()),
             ]),
-            div(class="buttons", children=[
-              button(class="dec", children=[text("-")]),
-              button(class="inc", children=[text("+")]),
+            div(class="buttons", [
+              button(class="dec", [text("-")]),
+              button(class="inc", [text("+")]),
             ]),
           ]),
         ],
