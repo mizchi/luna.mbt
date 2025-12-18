@@ -277,22 +277,6 @@ pub fn route_page_full(
 }
 
 ///|
-/// Create a route group with a segment prefix
-pub fn route_group(
-  segment : String,
-  children : Array[@routes.Routes],
-) -> @routes.Routes {
-  @routes.Routes::Group(segment~, children~)
-}
-
-///|
-/// Create a param route (dynamic segment)
-pub fn route_param(
-  key : String,
-  children : Array[@routes.Routes],
-) -> @routes.Routes {
-  @routes.Routes::Param(key~, children~)
-}
 
 // ============================================================================
 // Client Router

@@ -31,13 +31,33 @@ fn normalize_path(path : String) -> String {
 }
 
 ///|
+/// パスパターンからパラメータ名を抽出
+/// 例: "/user/:id/posts/:postId" -> ["id", "postId"]
+fn extract_param_names(path : String) -> Array[String] {
+  let result : Array[String] = []
+  let segments = @utils.split_by(path, '/')
+  for segment in segments {
+    if segment.has_prefix(":") && segment.length() > 1 {
+      // ":id" -> "id"
+      let name = try {
+        segment[1:].to_string()
+      } catch {
+        _ => continue
+      }
+      result.push(name)
+    }
+  }
+  result
+}
+
+///|
 /// Routes を CompiledRoutes にコンパイル
 pub fn compile(
   routes : Array[Routes],
   base? : String = "",
 ) -> Array[CompiledRoutes] {
   let result : Array[CompiledRoutes] = []
-  compile_inner(routes, base, [], [], result)
+  compile_inner(routes, base, [], result)
   result
 }
 
@@ -45,7 +65,6 @@ pub fn compile(
 fn compile_inner(
   routes : Array[Routes],
   prefix : String,
-  inherited_params : Array[String],
   inherited_layouts : Array[String],
   result : Array[CompiledRoutes],
 ) -> Unit {
@@ -53,9 +72,10 @@ fn compile_inner(
     match route {
       Page(path~, component~, title~, meta~) => {
         let full_path = normalize_path(prefix + path)
+        let param_names = extract_param_names(full_path)
         result.push({
           pattern: full_path,
-          param_names: inherited_params.copy(),
+          param_names,
           component,
           layouts: inherited_layouts.copy(),
           kind: Page,
@@ -65,9 +85,10 @@ fn compile_inner(
       }
       Get(path~, handler~) => {
         let full_path = normalize_path(prefix + path)
+        let param_names = extract_param_names(full_path)
         result.push({
           pattern: full_path,
-          param_names: inherited_params.copy(),
+          param_names,
           component: handler,
           layouts: [],
           kind: GetApi,
@@ -77,9 +98,10 @@ fn compile_inner(
       }
       Post(path~, handler~) => {
         let full_path = normalize_path(prefix + path)
+        let param_names = extract_param_names(full_path)
         result.push({
           pattern: full_path,
-          param_names: inherited_params.copy(),
+          param_names,
           component: handler,
           layouts: [],
           kind: PostApi,
@@ -87,28 +109,11 @@ fn compile_inner(
           meta: [],
         })
       }
-      Param(key~, children~) => {
-        // Param adds :key to the prefix and passes it to children
-        let new_prefix = normalize_path(prefix + "/:" + key)
-        let new_params = inherited_params.copy()
-        new_params.push(key)
-        compile_inner(
-          children, new_prefix, new_params, inherited_layouts, result,
-        )
-      }
       Layout(segment~, children~, layout~) => {
         let new_prefix = normalize_path(prefix + segment)
         let new_layouts = inherited_layouts.copy()
         new_layouts.push(layout)
-        compile_inner(
-          children, new_prefix, inherited_params, new_layouts, result,
-        )
-      }
-      Group(segment~, children~) => {
-        let new_prefix = normalize_path(prefix + segment)
-        compile_inner(
-          children, new_prefix, inherited_params, inherited_layouts, result,
-        )
+        compile_inner(children, new_prefix, new_layouts, result)
       }
     }
   }

@@ -322,12 +322,14 @@ pub struct RouteParams {
   path : String
   /// Whether this is a fragment request (CSR navigation)
   is_fragment : Bool
+  /// URLPatternResult for advanced pattern matching (optional)
+  url_pattern_result : @url.URLPatternResult?
 }
 
 ///|
 /// Create empty route params
 pub fn RouteParams::empty() -> RouteParams {
-  { params: [], query: [], path: "", is_fragment: false }
+  { params: [], query: [], path: "", is_fragment: false, url_pattern_result: None }
 }
 
 ///|
@@ -350,6 +352,46 @@ pub fn RouteParams::get_query(self : RouteParams, key : String) -> String? {
     }
   }
   None
+}
+
+///|
+/// Get pathname group from URLPatternResult
+/// Returns None if URLPatternResult is not available or group doesn't exist
+pub fn RouteParams::get_pathname_group(
+  self : RouteParams,
+  name : String,
+) -> String? {
+  match self.url_pattern_result {
+    Some(result) => {
+      let value = result.pathname.groups[name]
+      if @js.is_nullish(value) {
+        None
+      } else {
+        Some(@js.identity(value))
+      }
+    }
+    None => None
+  }
+}
+
+///|
+/// Get search group from URLPatternResult
+/// Returns None if URLPatternResult is not available or group doesn't exist
+pub fn RouteParams::get_search_group(
+  self : RouteParams,
+  name : String,
+) -> String? {
+  match self.url_pattern_result {
+    Some(result) => {
+      let value = result.search.groups[name]
+      if @js.is_nullish(value) {
+        None
+      } else {
+        Some(@js.identity(value))
+      }
+    }
+    None => None
+  }
 }
 
 // ============================================================================
@@ -390,6 +432,36 @@ pub fn PageProps::from_ctx_with_params(
   params : RouteParams,
 ) -> PageProps {
   { ctx, params, is_fragment: params.is_fragment }
+}
+
+///|
+/// Get path parameter by name (convenience method)
+pub fn PageProps::get_param(self : PageProps, key : String) -> String? {
+  self.params.get_param(key)
+}
+
+///|
+/// Get query parameter by name (convenience method)
+pub fn PageProps::get_query(self : PageProps, key : String) -> String? {
+  self.params.get_query(key)
+}
+
+///|
+/// Get pathname group from URLPatternResult (convenience method)
+pub fn PageProps::get_pathname_group(self : PageProps, name : String) -> String? {
+  self.params.get_pathname_group(name)
+}
+
+///|
+/// Get search group from URLPatternResult (convenience method)
+pub fn PageProps::get_search_group(self : PageProps, name : String) -> String? {
+  self.params.get_search_group(name)
+}
+
+///|
+/// Get the full path
+pub fn PageProps::path(self : PageProps) -> String {
+  self.params.path
 }
 
 // ============================================================================
@@ -513,46 +585,8 @@ fn[E] register_routes_inner(
           }
         })
       }
-      @routes.Param(key~, children~) => {
-        let new_prefix = prefix + "/:" + key
-        register_routes_inner(
-          result,
-          children,
-          new_prefix,
-          page_resolver,
-          api_resolver,
-          title_prefix~,
-          default_title~,
-          default_head~,
-          loader_url~,
-          wc_loader_url~,
-          enable_preload~,
-          preload_libs~,
-          chunk_manifest~,
-          root_template~,
-        )
-      }
       @routes.Layout(segment~, children~, layout~) => {
         let _ = layout // TODO: Layout support
-        let new_prefix = prefix + segment
-        register_routes_inner(
-          result,
-          children,
-          new_prefix,
-          page_resolver,
-          api_resolver,
-          title_prefix~,
-          default_title~,
-          default_head~,
-          loader_url~,
-          wc_loader_url~,
-          enable_preload~,
-          preload_libs~,
-          chunk_manifest~,
-          root_template~,
-        )
-      }
-      @routes.Group(segment~, children~) => {
         let new_prefix = prefix + segment
         register_routes_inner(
           result,
@@ -602,7 +636,7 @@ fn extract_route_params(c : Ctx, is_fragment? : Bool = false) -> RouteParams {
   let params = ffi_get_all_params(c.as_any())
   let query = ffi_get_query_params(c.as_any())
   let path = ffi_get_path(c.as_any())
-  { params, query, path, is_fragment }
+  { params, query, path, is_fragment, url_pattern_result: None }
 }
 
 ///|
@@ -837,40 +871,8 @@ fn register_server_routes_inner(
           }
         })
       }
-      @routes.Param(key~, children~) => {
-        let new_prefix = prefix + "/:" + key
-        register_server_routes_inner(
-          result,
-          children,
-          new_prefix,
-          page_resolver,
-          api_resolver,
-          title_prefix~,
-          default_title~,
-          default_head~,
-          loader_url~,
-          wc_loader_url~,
-          root_template~,
-        )
-      }
       @routes.Layout(segment~, children~, layout~) => {
         let _ = layout // TODO: Layout support
-        let new_prefix = prefix + segment
-        register_server_routes_inner(
-          result,
-          children,
-          new_prefix,
-          page_resolver,
-          api_resolver,
-          title_prefix~,
-          default_title~,
-          default_head~,
-          loader_url~,
-          wc_loader_url~,
-          root_template~,
-        )
-      }
-      @routes.Group(segment~, children~) => {
         let new_prefix = prefix + segment
         register_server_routes_inner(
           result,

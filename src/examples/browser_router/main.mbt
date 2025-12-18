@@ -52,13 +52,11 @@ fn create_routes() -> Array[@routes.Routes] {
     Layout(segment="/users", layout="users_layout", children=[
       // ユーザー一覧
       Page(path="", component="users_list", title="Users", meta=[]),
-      // ユーザー詳細 (動的パラメータ)
-      Param(key="id", children=[
-        Page(path="", component="user_detail", title="User Detail", meta=[]),
-      ]),
+      // ユーザー詳細 (動的パラメータ - パスに直接埋め込み)
+      Page(path="/:id", component="user_detail", title="User Detail", meta=[]),
     ]),
-    // 設定ページ (グループ)
-    Group(segment="/settings", children=[
+    // 設定ページ (レイアウトなしでも Layout で代用)
+    Layout(segment="/settings", layout="settings_layout", children=[
       Page(path="", component="settings_index", title="Settings", meta=[]),
       Page(
         path="/profile",

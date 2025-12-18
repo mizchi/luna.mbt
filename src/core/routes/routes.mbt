@@ -5,10 +5,11 @@
 //
 
 ///|
-/// Route定義 - コンポーネントIDを持つツリー構造
+/// Route定義 - フラットな構造（URLPattern 構文をサポート）
 pub(all) enum Routes {
   /// サーバーコンポーネントページ
-  /// - path: パス (e.g., "/", "/about")
+  /// - path: パス (e.g., "/", "/about", "/user/:id")
+  ///   URLPattern 構文で動的パラメータを定義可能
   /// - component: コンポーネントID (resolver で解決)
   /// - title: ページタイトル
   /// - meta: メタ情報
@@ -18,17 +19,11 @@ pub(all) enum Routes {
     title~ : String,
     meta~ : Array[(String, String)]
   )
-  /// 動的パラメータセグメント
-  /// - key: パラメータ名 (e.g., "id" for ":id")
-  /// - children: 子ルート
-  Param(key~ : String, children~ : Array[Routes])
   /// パスグループ (共通プレフィックス + レイアウト)
   /// - segment: パスセグメント (e.g., "/user", "/api")
   /// - children: 子ルート
   /// - layout: レイアウトコンポーネントID
   Layout(segment~ : String, children~ : Array[Routes], layout~ : String)
-  /// パスグループ (レイアウトなし)
-  Group(segment~ : String, children~ : Array[Routes])
   /// APIルート (GET)
   Get(path~ : String, handler~ : String)
   /// APIルート (POST)

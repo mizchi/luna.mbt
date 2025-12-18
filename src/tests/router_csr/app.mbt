@@ -29,7 +29,7 @@ extern "js" fn prevent_default_event(e : @js.Any) -> Unit =
 ///|
 fn get_routes() -> Array[@routes.Routes] {
   [
-    @routes.Routes::Group(segment="/csr-router", children=[
+    @routes.Routes::Layout(segment="/csr-router", layout="main", children=[
       @routes.Routes::Page(path="/home", component="home", title="Home", meta=[]),
       @routes.Routes::Page(path="/about", component="about", title="About", meta=[]),
       @routes.Routes::Page(
@@ -38,11 +38,12 @@ fn get_routes() -> Array[@routes.Routes] {
         title="Contact",
         meta=[],
       ),
-      @routes.Routes::Group(segment="/posts", children=[
-        @routes.Routes::Param(key="id", children=[
-          @routes.Routes::Page(path="", component="post", title="Post Detail", meta=[]),
-        ]),
-      ]),
+      @routes.Routes::Page(
+        path="/posts/:id",
+        component="post",
+        title="Post Detail",
+        meta=[],
+      ),
     ]),
   ]
 }

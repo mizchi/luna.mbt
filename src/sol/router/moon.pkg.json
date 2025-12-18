@@ -9,6 +9,7 @@
     { "path": "mizchi/luna/platform/server_dom", "alias": "server_dom" },
     { "path": "mizchi/npm_typed/hono", "alias": "hono" },
     { "path": "mizchi/js/core", "alias": "js" },
-    { "path": "mizchi/js/web/http", "alias": "http" }
+    { "path": "mizchi/js/web/http", "alias": "http" },
+    { "path": "mizchi/js/web/url", "alias": "url" }
   ]
 }
