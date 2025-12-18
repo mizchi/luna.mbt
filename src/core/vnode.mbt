@@ -38,13 +38,20 @@ pub enum Attr[E] {
 }
 
 ///|
-/// Island hydration trigger types
-pub(all) enum IslandTrigger {
-  Load // Hydrate immediately on page load
-  Idle // Hydrate during browser idle time
-  Visible // Hydrate when element becomes visible
-  Media(String) // Hydrate when media query matches
+/// Hydration trigger types - when to hydrate a component
+pub(all) enum TriggerType {
+  /// Hydrate on page load (DOMContentLoaded)
+  Load
+  /// Hydrate when browser is idle (requestIdleCallback)
+  Idle
+  /// Hydrate when element enters viewport (IntersectionObserver)
+  Visible
+  /// Hydrate when media query matches
+  Media(String)
+  /// Never auto-hydrate (manual only via __LUNA_HYDRATE__)
+  None
 }
+
 
 ///|
 /// Virtual Island node - serializable hydration unit
@@ -52,7 +59,7 @@ pub struct VIsland[E] {
   id : String // Unique identifier (luna:id)
   url : String // Script URL for loading implementation (luna:url)
   state : String // Serialized state JSON (luna:state)
-  trigger : IslandTrigger // Hydration trigger (luna:client-trigger)
+  trigger : TriggerType // Hydration trigger (luna:client-trigger)
   children : Array[Node[E]] // SSR-rendered content (can contain nested Islands)
 }
 
@@ -64,7 +71,7 @@ pub struct VWcIsland[E] {
   url : String // Hydration script URL (luna:wc-url)
   styles : String // CSS for Shadow DOM
   state : String // Serialized state JSON
-  trigger : IslandTrigger // Hydration trigger
+  trigger : TriggerType // Hydration trigger
   children : Array[Node[E]] // SSR content inside Shadow DOM
 }
 
@@ -108,7 +115,7 @@ pub enum Node[E] {
 pub struct VInternalRef[E] {
   url : String
   state : String
-  trigger : IslandTrigger
+  trigger : TriggerType
   wc : Bool
   styles : String // CSS for Shadow DOM (empty for non-WC)
   children : Array[Node[E]]
@@ -173,7 +180,7 @@ pub fn[E] h(
 
 ///|
 /// Create a text VNode
-pub fn[E] vtext(content : String) -> Node[E] {
+pub fn[E] text(content : String) -> Node[E] {
   Text(content)
 }
 
@@ -185,42 +192,42 @@ pub fn[E] text_dyn(content : () -> String) -> Node[E] {
 
 ///|
 /// Create a text VNode from a signal
-pub fn[E, T : Show] vtext_sig(sig : @signal.Signal[T]) -> Node[E] {
+pub fn[E, T : Show] text_of(sig : @signal.Signal[T]) -> Node[E] {
   DynamicText(fn() { sig.get().to_string() })
 }
 
 ///|
 /// Create a fragment VNode
-pub fn[E] vfragment(children : Array[Node[E]]) -> Node[E] {
+pub fn[E] fragment(children : Array[Node[E]]) -> Node[E] {
   Fragment(children)
 }
 
 ///|
 /// Create a conditional VNode
-pub fn[E] vshow(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
+pub fn[E] show(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
   Show(condition=when, child~)
 }
 
 ///|
 /// Create a list VNode
-pub fn[E] vfor(items : () -> Array[Node[E]]) -> Node[E] {
+pub fn[E] for_each(items : () -> Array[Node[E]]) -> Node[E] {
   For(render=items)
 }
 
 ///|
 /// Create a component VNode
-pub fn[E] vcomponent(render : () -> Node[E]) -> Node[E] {
+pub fn[E] component(render : () -> Node[E]) -> Node[E] {
   Component(render~)
 }
 
 ///|
 /// Create an island VNode for partial hydration
-pub fn[E] visland(
+pub fn[E] island(
   id : String,
   url : String,
   state : String,
   children : Array[Node[E]],
-  trigger? : IslandTrigger = Load,
+  trigger? : TriggerType = Load,
 ) -> Node[E] {
   Island({ id, url, state, trigger, children })
 }
@@ -228,13 +235,13 @@ pub fn[E] visland(
 ///|
 /// Create a Web Components island VNode for partial hydration
 /// Uses Declarative Shadow DOM for SSR
-pub fn[E] vwc_island(
+pub fn[E] wc_island(
   name : String,
   url : String,
   styles : String,
   state : String,
   children : Array[Node[E]],
-  trigger? : IslandTrigger = Load,
+  trigger? : TriggerType = Load,
 ) -> Node[E] {
   WcIsland({ name, url, styles, state, trigger, children })
 }
@@ -244,7 +251,7 @@ pub fn[E] vwc_island(
 /// - render: async function that produces the content (may raise errors)
 /// - fallback: shown while loading or on error (if no on_error handler)
 /// - on_error: optional custom error UI handler
-pub fn[E] vasync(
+pub fn[E] async_(
   render~ : async () -> Node[E],
   fallback~ : () -> Node[E],
   on_error? : ((Error) -> Node[E])? = None,
@@ -266,8 +273,8 @@ pub fn[E] vasync(
 ///   children=fn() { risky_component() },
 ///   fallback=fn(err, reset) {
 ///     h("div", [], [
-///       vtext("Error: " + err.to_string()),
-///       h("button", [("onclick", handler(fn(_) { reset() }))], [vtext("Retry")])
+///       text("Error: " + err.to_string()),
+///       h("button", [("onclick", handler(fn(_) { reset() }))], [text("Retry")])
 ///     ])
 ///   }
 /// )
@@ -296,15 +303,15 @@ pub fn[E] match_case(
 ///
 /// Example:
 /// ```
-/// vswitch(
+/// switch_(
 ///   cases=[
-///     match_case(when=fn() { state.get() == 1 }, render=fn() { vtext("One") }),
-///     match_case(when=fn() { state.get() == 2 }, render=fn() { vtext("Two") }),
+///     match_case(when=fn() { state.get() == 1 }, render=fn() { text("One") }),
+///     match_case(when=fn() { state.get() == 2 }, render=fn() { text("Two") }),
 ///   ],
-///   fallback=Some(fn() { vtext("Other") })
+///   fallback=Some(fn() { text("Other") })
 /// )
 /// ```
-pub fn[E] vswitch(
+pub fn[E] switch_(
   cases~ : Array[MatchCase[E]],
   fallback? : (() -> Node[E])? = None,
 ) -> Node[E] {
@@ -313,10 +320,10 @@ pub fn[E] vswitch(
 
 ///|
 /// Create an internal reference VNode (for server_dom.island())
-pub fn[E] vinternal_ref(
+pub fn[E] internal_ref(
   url : String,
   state : String,
-  trigger? : IslandTrigger = Load,
+  trigger? : TriggerType = Load,
   wc? : Bool = false,
   styles? : String = "",
   children? : Array[Node[E]] = [],
@@ -325,13 +332,35 @@ pub fn[E] vinternal_ref(
 }
 
 ///|
-/// Convert IslandTrigger to string for ln:trigger attribute
-pub fn trigger_to_string(trigger : IslandTrigger) -> String {
-  match trigger {
+/// Convert TriggerType to attribute value
+pub fn TriggerType::to_string(self : TriggerType) -> String {
+  match self {
     Load => "load"
     Idle => "idle"
     Visible => "visible"
     Media(query) => "media:" + query
+    None => "none"
+  }
+}
+
+///|
+/// Parse TriggerType from string
+pub fn TriggerType::parse(s : String) -> TriggerType {
+  match s {
+    "load" => Load
+    "idle" => Idle
+    "visible" => Visible
+    "none" => None
+    _ =>
+      if s.has_prefix("media:") {
+        let sb = StringBuilder::new()
+        for i = 6; i < s.length(); i = i + 1 {
+          sb.write_char(s.iter().nth(i).unwrap())
+        }
+        Media(sb.to_string())
+      } else {
+        Load // default
+      }
   }
 }
 
@@ -400,7 +429,7 @@ pub fn[E, A : Show] action(a : A) -> Attr[E] {
 
 ///|
 /// Hydration trigger type alias for external use
-pub type Trigger = IslandTrigger
+pub type Trigger = TriggerType
 
 ///|
 /// Component reference for type-safe Island embedding
@@ -413,7 +442,7 @@ pub(all) struct ComponentRef[T] {
   url : String
   props : T
   wc : Bool
-  trigger : IslandTrigger
+  trigger : TriggerType
 }
 
 ///|
@@ -421,7 +450,7 @@ pub(all) struct ComponentRef[T] {
 pub fn[T] component_ref(
   url : String,
   props : T,
-  trigger? : IslandTrigger = Load,
+  trigger? : TriggerType = Load,
 ) -> ComponentRef[T] {
   { url, props, wc: false, trigger }
 }
@@ -431,7 +460,7 @@ pub fn[T] component_ref(
 pub fn[T] wc_component_ref(
   url : String,
   props : T,
-  trigger? : IslandTrigger = Load,
+  trigger? : TriggerType = Load,
 ) -> ComponentRef[T] {
   { url, props, wc: true, trigger }
 }

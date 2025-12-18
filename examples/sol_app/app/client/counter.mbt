@@ -12,7 +12,7 @@ pub(all) struct CounterProps {
 pub fn counter(props : CounterProps) -> DomNode {
   let count = @signal.signal(props.initial_count)
   div(class="counter", [
-    span(class="count-display", [text_sig(count)]),
+    span(class="count-display", [text_of(count)]),
     div(class="buttons", [
       button(class="dec", on=events().click(_ => count.update(n => n - 1)), [
         text("-"),

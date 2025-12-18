@@ -280,7 +280,7 @@ test "Todo app reactive text updates" {
   let doc = @js_dom.document()
   let container = doc.createElement("div")
   let count = @signal.signal(0)
-  let counter_div = @element.div(id="counter", [@element.text_sig(count)])
+  let counter_div = @element.div(id="counter", [@element.text_of(count)])
   @element.render_to(container, counter_div)
 
   // Initial value
@@ -679,21 +679,21 @@ test "Fine-grained: DOM text nodes update independently" {
       let _ = name.get()
       name_updates.val = name_updates.val + 1
     })
-    @element.text_sig(name)
+    @element.text_of(name)
   }
   let age_text = {
     let _ = @signal.effect(fn() {
       let _ = age.get()
       age_updates.val = age_updates.val + 1
     })
-    @element.text_sig(age)
+    @element.text_of(age)
   }
   let city_text = {
     let _ = @signal.effect(fn() {
       let _ = city.get()
       city_updates.val = city_updates.val + 1
     })
-    @element.text_sig(city)
+    @element.text_of(city)
   }
 
   // Build DOM structure

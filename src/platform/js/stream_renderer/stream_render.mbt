@@ -115,7 +115,7 @@ fn render_island_to_stream(
     " url=" +
     island.url +
     " trigger=" +
-    @luna.trigger_to_string(island.trigger) +
+    island.trigger.to_string() +
     "-->",
   )
   // Wrapper div with luna:* attributes
@@ -127,7 +127,7 @@ fn render_island_to_stream(
   sb.write_string("\" luna:state=\"")
   @render.escape_attr_to(sb, island.state)
   sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(@luna.trigger_to_string(island.trigger))
+  sb.write_string(island.trigger.to_string())
   sb.write_string("\">")
   write(sb.to_string())
   // Render children
@@ -156,7 +156,7 @@ fn render_wc_island_to_stream(
   sb.write_char('"')
   if not(wc_island.trigger is Load) {
     sb.write_string(" data-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(wc_island.trigger))
+    sb.write_string(wc_island.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')
@@ -210,7 +210,7 @@ fn render_internal_ref_island_to_stream(
     " url=" +
     iref.url +
     " trigger=" +
-    @luna.trigger_to_string(iref.trigger) +
+    iref.trigger.to_string() +
     "-->",
   )
   // Wrapper div with luna:* attributes
@@ -222,7 +222,7 @@ fn render_internal_ref_island_to_stream(
   sb.write_string("\" luna:state=\"")
   @render.escape_attr_to(sb, iref.state)
   sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(@luna.trigger_to_string(iref.trigger))
+  sb.write_string(iref.trigger.to_string())
   sb.write_string("\">")
   write(sb.to_string())
   // Render children
@@ -255,7 +255,7 @@ fn render_internal_ref_wc_to_stream(
   sb.write_char('"')
   if not(iref.trigger is @luna.Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(iref.trigger))
+    sb.write_string(iref.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')

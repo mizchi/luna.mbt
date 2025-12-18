@@ -3,7 +3,7 @@
 // MoonBit's try-catch is an expression that returns a value,
 // making synchronous error handling natural and composable.
 //
-// For async rendering, use @luna.vasync() with on_error handler.
+// For async rendering, use @luna.async_() with on_error handler.
 // =============================================================================
 // Error Types for Async Rendering
 // =============================================================================
@@ -90,15 +90,15 @@ fn render_with_error_boundary(
   fetch() catch {
     NetworkError(msg) =>
       @luna.h("div", [("class", @luna.attr_static("error network-error"))], [
-        @luna.vtext("Network Error: " + msg),
+        @luna.text("Network Error: " + msg),
       ])
     NotFound(msg) =>
       @luna.h("div", [("class", @luna.attr_static("error not-found"))], [
-        @luna.vtext("Not Found: " + msg),
+        @luna.text("Not Found: " + msg),
       ])
     Timeout =>
       @luna.h("div", [("class", @luna.attr_static("error timeout"))], [
-        @luna.vtext("Request timed out"),
+        @luna.text("Request timed out"),
       ])
   }
 }
@@ -106,7 +106,7 @@ fn render_with_error_boundary(
 ///|
 test "render_with_error_boundary success" {
   let node = render_with_error_boundary(fn() {
-    @luna.h("div", [], [@luna.vtext("Success!")])
+    @luna.h("div", [], [@luna.text("Success!")])
   })
   let html = @render.render_to_string(node).html
   assert_eq(html, "<div>Success!</div>")
@@ -157,22 +157,22 @@ pub fn ErrorBoundaryConfig::default() -> ErrorBoundaryConfig {
   {
     on_network_error: fn(msg) {
       @luna.h("div", [("class", @luna.attr_static("error"))], [
-        @luna.vtext("Network Error: " + msg),
+        @luna.text("Network Error: " + msg),
       ])
     },
     on_not_found: fn(msg) {
       @luna.h("div", [("class", @luna.attr_static("error"))], [
-        @luna.vtext("Not Found: " + msg),
+        @luna.text("Not Found: " + msg),
       ])
     },
     on_timeout: fn() {
       @luna.h("div", [("class", @luna.attr_static("error"))], [
-        @luna.vtext("Request timed out"),
+        @luna.text("Request timed out"),
       ])
     },
     on_unknown: fn() {
       @luna.h("div", [("class", @luna.attr_static("error"))], [
-        @luna.vtext("An error occurred"),
+        @luna.text("An error occurred"),
       ])
     },
   }
@@ -196,8 +196,8 @@ test "configurable error boundary" {
   let config : ErrorBoundaryConfig = {
     on_network_error: fn(msg) {
       @luna.h("div", [("class", @luna.attr_static("custom-error"))], [
-        @luna.h("h2", [], [@luna.vtext("Oops!")]),
-        @luna.h("p", [], [@luna.vtext(msg)]),
+        @luna.h("h2", [], [@luna.text("Oops!")]),
+        @luna.h("p", [], [@luna.text(msg)]),
       ])
     },
     on_not_found: ErrorBoundaryConfig::default().on_not_found,
@@ -237,9 +237,9 @@ test "render_async_result ok" {
   let result : AsyncResult[String] = Ok("Hello World")
   let node = render_async_result(
     result,
-    fn(s) { @luna.h("div", [], [@luna.vtext(s)]) },
-    fn() { @luna.h("div", [], [@luna.vtext("Loading...")]) },
-    fn(_e) { @luna.h("div", [], [@luna.vtext("Error")]) },
+    fn(s) { @luna.h("div", [], [@luna.text(s)]) },
+    fn() { @luna.h("div", [], [@luna.text("Loading...")]) },
+    fn(_e) { @luna.h("div", [], [@luna.text("Error")]) },
   )
   let html = @render.render_to_string(node).html
   assert_eq(html, "<div>Hello World</div>")
@@ -250,13 +250,13 @@ test "render_async_result loading" {
   let result : AsyncResult[String] = Loading
   let node = render_async_result(
     result,
-    fn(s) { @luna.h("div", [], [@luna.vtext(s)]) },
+    fn(s) { @luna.h("div", [], [@luna.text(s)]) },
     fn() {
       @luna.h("div", [("class", @luna.attr_static("spinner"))], [
-        @luna.vtext("Loading..."),
+        @luna.text("Loading..."),
       ])
     },
-    fn(_e) { @luna.h("div", [], [@luna.vtext("Error")]) },
+    fn(_e) { @luna.h("div", [], [@luna.text("Error")]) },
   )
   let html = @render.render_to_string(node).html
   assert_true(html.contains("spinner"))
@@ -268,14 +268,14 @@ test "render_async_result error" {
   let result : AsyncResult[String] = Err(Timeout)
   let node = render_async_result(
     result,
-    fn(s) { @luna.h("div", [], [@luna.vtext(s)]) },
-    fn() { @luna.h("div", [], [@luna.vtext("Loading...")]) },
+    fn(s) { @luna.h("div", [], [@luna.text(s)]) },
+    fn() { @luna.h("div", [], [@luna.text("Loading...")]) },
     fn(e) {
       let msg = match e {
         Timeout => "Timed out"
         _ => "Error"
       }
-      @luna.h("div", [("class", @luna.attr_static("error"))], [@luna.vtext(msg)])
+      @luna.h("div", [("class", @luna.attr_static("error"))], [@luna.text(msg)])
     },
   )
   let html = @render.render_to_string(node).html
@@ -303,15 +303,15 @@ fn fetch_and_transform(id : Int) -> @luna.Node[Unit] raise FetchError {
 
   // Return rendered node
   @luna.h("div", [("class", @luna.attr_static("user-card"))], [
-    @luna.h("h2", [], [@luna.vtext(data)]),
-    @luna.h("p", [], [@luna.vtext("ID: " + id.to_string())]),
+    @luna.h("h2", [], [@luna.text(data)]),
+    @luna.h("p", [], [@luna.text("ID: " + id.to_string())]),
   ])
 }
 
 ///|
 test "chained operations success" {
   let node = fetch_and_transform(42) catch {
-    _ => @luna.h("div", [], [@luna.vtext("Error")])
+    _ => @luna.h("div", [], [@luna.text("Error")])
   }
   let html = @render.render_to_string(node).html
   assert_true(html.contains("User 42"))
@@ -323,9 +323,9 @@ test "chained operations not found" {
   let node = fetch_and_transform(-1) catch {
     NotFound(msg) =>
       @luna.h("div", [("class", @luna.attr_static("error"))], [
-        @luna.vtext("Resource not found: " + msg),
+        @luna.text("Resource not found: " + msg),
       ])
-    _ => @luna.h("div", [], [@luna.vtext("Error")])
+    _ => @luna.h("div", [], [@luna.text("Error")])
   }
   let html = @render.render_to_string(node).html
   assert_true(html.contains("Resource not found"))
@@ -337,10 +337,10 @@ test "chained operations timeout" {
   let node = fetch_and_transform(999) catch {
     Timeout =>
       @luna.h("div", [("class", @luna.attr_static("retry"))], [
-        @luna.vtext("Request timed out. "),
-        @luna.h("button", [], [@luna.vtext("Retry")]),
+        @luna.text("Request timed out. "),
+        @luna.h("button", [], [@luna.text("Retry")]),
       ])
-    _ => @luna.h("div", [], [@luna.vtext("Error")])
+    _ => @luna.h("div", [], [@luna.text("Error")])
   }
   let html = @render.render_to_string(node).html
   assert_true(html.contains("retry"))
@@ -389,12 +389,12 @@ test "combined pattern: try-catch for sync error handling" {
   }
 
   let fallback = @luna.h("div", [("class", @luna.attr_static("skeleton"))], [
-    @luna.vtext("Loading..."),
+    @luna.text("Loading..."),
   ])
 
   // Success case
   let success_node = create_content_with_fallback(
-    fn() { @luna.h("div", [], [@luna.vtext("Content loaded!")]) },
+    fn() { @luna.h("div", [], [@luna.text("Content loaded!")]) },
     fallback,
   )
   assert_eq(

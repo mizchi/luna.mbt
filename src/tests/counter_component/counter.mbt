@@ -34,7 +34,7 @@ pub fn render_counter(
           ("data-inc", @luna.attr_static("true")),
           ("onClick", @luna.attr_handler(on_inc)),
         ],
-        [@luna.vtext("+1")],
+        [@luna.text("+1")],
       ),
       @luna.h(
         "button",
@@ -42,7 +42,7 @@ pub fn render_counter(
           ("data-dec", @luna.attr_static("true")),
           ("onClick", @luna.attr_handler(on_dec)),
         ],
-        [@luna.vtext("-1")],
+        [@luna.text("-1")],
       ),
     ],
   )

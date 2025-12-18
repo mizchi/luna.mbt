@@ -45,9 +45,9 @@ test "IslandConfig::new: creates config with defaults" {
 ///|
 test "IslandConfig::with_trigger: sets trigger" {
   let config : IslandConfig[Unit] = IslandConfig::new("test", "/test.js").with_trigger(
-    @mercurius.TriggerType::Idle,
+    @luna.TriggerType::Idle,
   )
-  assert_true(config.trigger is @mercurius.TriggerType::Idle)
+  assert_true(config.trigger is @luna.TriggerType::Idle)
 }
 
 ///|
@@ -85,12 +85,12 @@ test "IslandConfig::with_ssr_html: sets ssr html" {
 ///|
 test "IslandConfig: builder chain" {
   let config : IslandConfig[Unit] = IslandConfig::new("counter", "/counter.js")
-    .with_trigger(@mercurius.TriggerType::Visible)
+    .with_trigger(@luna.TriggerType::Visible)
     .with_state("{\"value\":42}")
     .with_ssr_html("<span>42</span>")
   assert_eq(config.id, "counter")
   assert_eq(config.script_url, "/counter.js")
-  assert_true(config.trigger is @mercurius.TriggerType::Visible)
+  assert_true(config.trigger is @luna.TriggerType::Visible)
   assert_true(config.state is @mercurius.StateConfig::Inline(_))
   assert_true(config.ssr_html is Some(_))
 }
@@ -168,7 +168,7 @@ test "render_island: with state" {
 ///|
 test "render_island: with trigger" {
   let config : IslandConfig[Unit] = IslandConfig::new("lazy", "/lazy.js")
-    .with_trigger(@mercurius.TriggerType::Visible)
+    .with_trigger(@luna.TriggerType::Visible)
     .with_ssr_html("<div>Lazy</div>")
   let html = render_island(config)
   assert_true(html.contains("luna:client-trigger=\"visible\""))

@@ -264,7 +264,7 @@ pub fn render_mobile_sidebar(
   let current_title = find_current_page_title(groups, current_path)
   let summary = h("summary", [attr("class", "mobile-sidebar-trigger")], [
     h("span", [attr("class", "mobile-sidebar-label")], [
-      @luna.vtext(current_title),
+      @luna.text(current_title),
     ]),
     h("span", [attr("class", "mobile-sidebar-arrow")], []),
   ])
@@ -320,7 +320,7 @@ fn render_sidebar_group(
 
   // Open by default if has active item or not collapsed in config
   let is_open = has_active || not(group.collapsed)
-  let summary = h("summary", [], [@luna.vtext(group.text)])
+  let summary = h("summary", [], [@luna.text(group.text)])
   let item_vnodes = group.items.map(fn(item) {
     render_sidebar_item(item, current_path)
   })
@@ -352,7 +352,7 @@ fn render_sidebar_item(
         "sidebar-link"
       }
       let link_el = h("a", [attr("href", link), attr("class", class_name)], [
-        @luna.vtext(text),
+        @luna.text(text),
       ])
       h("li", [], [link_el])
     }

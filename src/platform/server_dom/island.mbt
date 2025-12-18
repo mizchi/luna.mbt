@@ -32,7 +32,7 @@ pub fn[T : ToJson] island_from_ref(
   styles? : String = "",
   children? : Array[@luna.Node[Unit]] = [],
 ) -> @luna.Node[Unit] {
-  @luna.vinternal_ref(
+  @luna.internal_ref(
     cref.url,
     cref.props.to_json().stringify(),
     trigger=cref.trigger,
@@ -62,7 +62,7 @@ pub fn island(
   id : String,
   url : String,
   state? : String,
-  trigger? : @luna.IslandTrigger,
+  trigger? : @luna.TriggerType,
   children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let state_value = match state {
@@ -73,7 +73,7 @@ pub fn island(
     Some(t) => t
     None => @luna.Load
   }
-  @luna.visland(id, url, state_value, children, trigger=trigger_value)
+  @luna.island(id, url, state_value, children, trigger=trigger_value)
 }
 
 ///|

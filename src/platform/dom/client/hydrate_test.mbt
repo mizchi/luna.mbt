@@ -51,7 +51,7 @@ test "hydrate simple text" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.vtext("Hello")
+  let vnode = @luna.text("Hello")
 
   // SSR render
   let html = @render.render_to_string(vnode).html
@@ -69,7 +69,7 @@ test "hydrate element with text" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.h("div", [], [@luna.vtext("Content")])
+  let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -82,7 +82,7 @@ test "hydrate element with class" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.h("div", [("class", @luna.attr_static("test-class"))], [
-    @luna.vtext("Styled"),
+    @luna.text("Styled"),
   ])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
@@ -95,7 +95,7 @@ test "hydrate nested elements" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Nested")])])
+  let vnode = @luna.h("div", [], [@luna.h("span", [], [@luna.text("Nested")])])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -137,7 +137,7 @@ test "hydrate element with click handler" {
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-    [@luna.vtext("Click me")],
+    [@luna.text("Click me")],
   )
 
   // SSR with hydration markers
@@ -170,7 +170,7 @@ test "hydrate dynamic class" {
         }),
       ),
     ],
-    [@luna.vtext("Toggle")],
+    [@luna.text("Toggle")],
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -196,8 +196,8 @@ test "hydrate show when visible" {
   defer cleanup()
   let container = create_container()
   let visible = @signal.signal(true)
-  let vnode = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Visible content")
+  let vnode = @luna.show(fn() { visible.get() }, fn() {
+    @luna.text("Visible content")
   })
   let html = @render.render_to_string_with_hydration(vnode)
   assert_true(html.contains("<!--s:0-->"))
@@ -214,8 +214,8 @@ test "hydrate show when hidden" {
   defer cleanup()
   let container = create_container()
   let visible = @signal.signal(false)
-  let vnode = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Hidden content")
+  let vnode = @luna.show(fn() { visible.get() }, fn() {
+    @luna.text("Hidden content")
   })
   let html = @render.render_to_string(vnode).html
   assert_eq(html, "<!--show-->")
@@ -236,11 +236,11 @@ test "hydrate for loop" {
   defer cleanup()
   let container = create_container()
   let items = @signal.signal(["A", "B", "C"])
-  let vnode = @luna.vfor(fn() {
+  let vnode = @luna.for_each(fn() {
     let arr = items.get()
     let result : Array[@luna.Node[@js.Any]] = []
     for i = 0; i < arr.length(); i = i + 1 {
-      result.push(@luna.h("li", [], [@luna.vtext(arr[i])]))
+      result.push(@luna.h("li", [], [@luna.text(arr[i])]))
     }
     result
   })
@@ -275,7 +275,7 @@ test "hydrate detects missing element" {
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-    [@luna.vtext("Button")],
+    [@luna.text("Button")],
   )
 
   // But SSR HTML is completely different (simulating mismatch)
@@ -303,7 +303,7 @@ test "hydrate recovers on mismatch" {
   let container = create_container()
   let logger = StringBuilder::new()
   let vnode = @luna.h("div", [("class", @luna.attr_static("expected"))], [
-    @luna.vtext("Expected"),
+    @luna.text("Expected"),
   ])
 
   // Wrong HTML
@@ -336,7 +336,7 @@ test "hydrate success on correct HTML" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.h("div", [], [@luna.vtext("Correct")])
+  let vnode = @luna.h("div", [], [@luna.text("Correct")])
 
   // Correct SSR HTML
   let html = @render.render_to_string(vnode).html
@@ -363,16 +363,16 @@ test "hydrate complex page structure" {
   let count = @signal.signal(0)
   let items = @signal.signal(["Item 1", "Item 2"])
   let vnode = @luna.h("div", [("class", @luna.attr_static("app"))], [
-    @luna.h("h1", [], [@luna.vtext("Title")]),
+    @luna.h("h1", [], [@luna.text("Title")]),
     @luna.h("p", [], [
       @luna.text_dyn(fn() { "Count: " + count.get().to_string() }),
     ]),
     @luna.h("ul", [], [
-      @luna.vfor(fn() {
+      @luna.for_each(fn() {
         let arr = items.get()
         let result : Array[@luna.Node[@js.Any]] = []
         for i = 0; i < arr.length(); i = i + 1 {
-          result.push(@luna.h("li", [], [@luna.vtext(arr[i])]))
+          result.push(@luna.h("li", [], [@luna.text(arr[i])]))
         }
         result
       }),
@@ -380,7 +380,7 @@ test "hydrate complex page structure" {
     @luna.h(
       "button",
       [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-      [@luna.vtext("Click")],
+      [@luna.text("Click")],
     ),
   ])
   let html = @render.render_to_string_with_hydration(vnode)
@@ -404,10 +404,10 @@ test "hydrate fragment" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.vfragment([
-    @luna.vtext("A"),
-    @luna.vtext("B"),
-    @luna.vtext("C"),
+  let vnode = @luna.fragment([
+    @luna.text("A"),
+    @luna.text("B"),
+    @luna.text("C"),
   ])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
@@ -421,10 +421,10 @@ test "hydrate component" {
   defer cleanup()
   let container = create_container()
   fn greeting(name : String) -> @luna.Node[@js.Any] {
-    @luna.h("div", [], [@luna.vtext("Hello, " + name + "!")])
+    @luna.h("div", [], [@luna.text("Hello, " + name + "!")])
   }
 
-  let vnode = @luna.vcomponent(fn() { greeting("World") })
+  let vnode = @luna.component(fn() { greeting("World") })
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -440,7 +440,7 @@ test "hydrate empty container" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.vtext("")
+  let vnode = @luna.text("")
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -455,7 +455,7 @@ test "hydrate deeply nested structure" {
   let vnode = @luna.h("div", [], [
     @luna.h("div", [], [
       @luna.h("div", [], [
-        @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Deep")])]),
+        @luna.h("div", [], [@luna.h("span", [], [@luna.text("Deep")])]),
       ]),
     ]),
   ])
@@ -470,7 +470,7 @@ test "hydrate with escaped content" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.vtext("<script>alert('xss')</script>")
+  let vnode = @luna.text("<script>alert('xss')</script>")
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
   let _ = hydrate(container, vnode)
@@ -496,7 +496,7 @@ test "hydrate with logger captures mismatch warning" {
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-    [@luna.vtext("Button")],
+    [@luna.text("Button")],
   )
 
   // Wrong HTML
@@ -521,7 +521,7 @@ test "hydrate with logger captures strict mode mismatch" {
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-    [@luna.vtext("Click")],
+    [@luna.text("Click")],
   )
   set_inner_html(container, "<div>Wrong</div>")
   let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
@@ -545,7 +545,7 @@ test "hydrate with logger no output on success" {
   defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
-  let vnode = @luna.h("div", [], [@luna.vtext("Content")])
+  let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
   let result = hydrate(container, vnode, logger~)
@@ -570,7 +570,7 @@ test "hydrate logger contains element info" {
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-    [@luna.vtext("Submit")],
+    [@luna.text("Submit")],
   )
   set_inner_html(container, "<input type=\"text\" />")
   let _ = hydrate(container, vnode, recover_on_mismatch=false, logger~)
@@ -592,7 +592,7 @@ test "hydrate without logger outputs to console" {
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-    [@luna.vtext("Button")],
+    [@luna.text("Button")],
   )
   // Wrong HTML - will trigger mismatch without logger
   set_inner_html(container, "<span>Wrong</span>")
@@ -612,16 +612,16 @@ test "hydrate multiple mismatches joined with semicolon" {
   let container = create_container()
   let logger = StringBuilder::new()
   // Two buttons with handlers - both need data-hk
-  let vnode = @luna.vfragment([
+  let vnode = @luna.fragment([
     @luna.h(
       "button",
       [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-      [@luna.vtext("A")],
+      [@luna.text("A")],
     ),
     @luna.h(
       "button",
       [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-      [@luna.vtext("B")],
+      [@luna.text("B")],
     ),
   ])
   // Wrong HTML - neither button has data-hk
@@ -645,7 +645,7 @@ test "hydrate tag mismatch with correct data-hk" {
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
-    [@luna.vtext("Click")],
+    [@luna.text("Click")],
   )
   // HTML has a span with correct data-hk but wrong tag
   set_inner_html(container, "<span data-hk=\"0\">Wrong tag</span>")
@@ -688,7 +688,7 @@ test "hydrate dynamic attribute general" {
   let vnode = @luna.h(
     "div",
     [("title", @luna.attr_dynamic(fn() { title_sig.get() }))],
-    [@luna.vtext("Content")],
+    [@luna.text("Content")],
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -719,7 +719,7 @@ test "hydrate dynamic attribute removal" {
         }),
       ),
     ],
-    [@luna.vtext("Content")],
+    [@luna.text("Content")],
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -739,7 +739,7 @@ test "hydrate dynamic style" {
   let vnode = @luna.h(
     "div",
     [("style", @luna.attr_dynamic_style(fn() { "color: " + color_sig.get() }))],
-    [@luna.vtext("Styled")],
+    [@luna.text("Styled")],
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -756,7 +756,7 @@ test "render_vnode directly" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.h("div", [("class", @luna.attr_static("test"))], [
-    @luna.vtext("Direct render"),
+    @luna.text("Direct render"),
   ])
   // Use render_vnode directly (not hydrate)
   render_vnode(container, vnode)
@@ -769,10 +769,10 @@ test "render_vnode_to_dom with fragment" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.vfragment([
-    @luna.vtext("A"),
-    @luna.vtext("B"),
-    @luna.vtext("C"),
+  let vnode = @luna.fragment([
+    @luna.text("A"),
+    @luna.text("B"),
+    @luna.text("C"),
   ])
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -784,7 +784,7 @@ test "render_vnode_to_dom with component" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode = @luna.vcomponent(fn() { @luna.vtext("Component content") })
+  let vnode = @luna.component(fn() { @luna.text("Component content") })
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_eq(get_inner_html(container), "Component content")
@@ -796,8 +796,8 @@ test "render_vnode_to_dom with Show initially true" {
   defer cleanup()
   let container = create_container()
   let visible = @signal.signal(true)
-  let vnode = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Visible")
+  let vnode = @luna.show(fn() { visible.get() }, fn() {
+    @luna.text("Visible")
   })
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -812,8 +812,8 @@ test "render_vnode_to_dom with Show toggle" {
   defer cleanup()
   let container = create_container()
   let visible = @signal.signal(false)
-  let vnode = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Toggle me")
+  let vnode = @luna.show(fn() { visible.get() }, fn() {
+    @luna.text("Toggle me")
   })
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -833,11 +833,11 @@ test "render_vnode_to_dom with For list" {
   defer cleanup()
   let container = create_container()
   let items = @signal.signal(["X", "Y"])
-  let vnode = @luna.vfor(fn() {
+  let vnode = @luna.for_each(fn() {
     let arr = items.get()
     let result : Array[@luna.Node[@js.Any]] = []
     for i = 0; i < arr.length(); i = i + 1 {
-      result.push(@luna.vtext(arr[i]))
+      result.push(@luna.text(arr[i]))
     }
     result
   })
@@ -856,7 +856,7 @@ test "render_vnode_to_dom with static style" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.h("div", [("style", @luna.attr_style("color: red"))], [
-    @luna.vtext("Styled"),
+    @luna.text("Styled"),
   ])
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -877,7 +877,7 @@ test "render_vnode_to_dom with dynamic style" {
         @luna.attr_dynamic_style(fn() { "background-color: " + color.get() }),
       ),
     ],
-    [@luna.vtext("Dynamic styled")],
+    [@luna.text("Dynamic styled")],
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -896,7 +896,7 @@ test "render_vnode_to_dom with VDynamic attribute" {
   let vnode = @luna.h(
     "a",
     [("href", @luna.attr_dynamic(fn() { href.get() }))],
-    [@luna.vtext("Link")],
+    [@luna.text("Link")],
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -923,8 +923,8 @@ test "hydrate show toggle visibility" {
   defer cleanup()
   let container = create_container()
   let visible = @signal.signal(true)
-  let vnode = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.vtext("Toggle content")
+  let vnode = @luna.show(fn() { visible.get() }, fn() {
+    @luna.text("Toggle content")
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -979,11 +979,11 @@ test "hydrate island node" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.visland(
+  let vnode : @luna.Node[@js.Any] = @luna.island(
     "island-1",
     "/components/counter.js",
     "{}",
-    [@luna.vtext("Island content")],
+    [@luna.text("Island content")],
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -998,11 +998,11 @@ test "hydrate island with nested elements" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.visland(
+  let vnode : @luna.Node[@js.Any] = @luna.island(
     "island-nested",
     "/components/nested.js",
     "{\"count\":0}",
-    [@luna.h("div", [], [@luna.vtext("Nested in island")])],
+    [@luna.h("div", [], [@luna.text("Nested in island")])],
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1020,9 +1020,9 @@ test "hydrate async node renders fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vasync(
-    render=async fn() { @luna.vtext("Loaded") },
-    fallback=fn() { @luna.vtext("Loading...") },
+  let vnode : @luna.Node[@js.Any] = @luna.async_(
+    render=async fn() { @luna.text("Loaded") },
+    fallback=fn() { @luna.text("Loading...") },
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1043,8 +1043,8 @@ test "hydrate error_boundary success" {
   defer cleanup()
   let container = create_container()
   let vnode : @luna.Node[@js.Any] = @luna.error_boundary(
-    children=fn() { @luna.h("div", [], [@luna.vtext("Safe content")]) },
-    fallback=fn(_err, _reset) { @luna.vtext("Error occurred") },
+    children=fn() { @luna.h("div", [], [@luna.text("Safe content")]) },
+    fallback=fn(_err, _reset) { @luna.text("Error occurred") },
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1062,12 +1062,12 @@ test "hydrate switch first case matches" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
-      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.text("First") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback") }),
+    fallback=Some(fn() { @luna.text("Fallback") }),
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1081,12 +1081,12 @@ test "hydrate switch second case matches" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
-      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.text("First") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback") }),
+    fallback=Some(fn() { @luna.text("Fallback") }),
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1100,11 +1100,11 @@ test "hydrate switch fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
-      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback shown") }),
+    fallback=Some(fn() { @luna.text("Fallback shown") }),
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1118,8 +1118,8 @@ test "hydrate switch no fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(cases=[
-    @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(cases=[
+    @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1136,11 +1136,11 @@ test "render_vnode_to_dom with Island" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.visland(
+  let vnode : @luna.Node[@js.Any] = @luna.island(
     "island-render",
     "/module.js",
     "{\"state\":1}",
-    [@luna.vtext("Island child")],
+    [@luna.text("Island child")],
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1155,9 +1155,9 @@ test "render_vnode_to_dom with Async renders fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vasync(
-    render=async fn() { @luna.vtext("Async content") },
-    fallback=fn() { @luna.vtext("Fallback content") },
+  let vnode : @luna.Node[@js.Any] = @luna.async_(
+    render=async fn() { @luna.text("Async content") },
+    fallback=fn() { @luna.text("Fallback content") },
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1170,8 +1170,8 @@ test "render_vnode_to_dom with ErrorBoundary success" {
   defer cleanup()
   let container = create_container()
   let vnode : @luna.Node[@js.Any] = @luna.error_boundary(
-    children=fn() { @luna.vtext("Safe content") },
-    fallback=fn(_err, _reset) { @luna.vtext("Error") },
+    children=fn() { @luna.text("Safe content") },
+    fallback=fn(_err, _reset) { @luna.text("Error") },
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1184,16 +1184,16 @@ test "render_vnode_to_dom with Switch" {
   defer cleanup()
   let container = create_container()
   let condition = @signal.signal(true)
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { condition.get() }, render=fn() {
-        @luna.vtext("Case 1")
+        @luna.text("Case 1")
       }),
       @luna.match_case(when=fn() { not(condition.get()) }, render=fn() {
-        @luna.vtext("Case 2")
+        @luna.text("Case 2")
       }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback") }),
+    fallback=Some(fn() { @luna.text("Fallback") }),
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1205,11 +1205,11 @@ test "render_vnode_to_dom Switch with fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
-      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback rendered") }),
+    fallback=Some(fn() { @luna.text("Fallback rendered") }),
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1221,8 +1221,8 @@ test "render_vnode_to_dom Switch no fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(cases=[
-    @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(cases=[
+    @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1236,16 +1236,16 @@ test "render_vnode_to_dom Switch reactive update" {
   defer cleanup()
   let container = create_container()
   let case_index = @signal.signal(0)
-  let vnode : @luna.Node[@js.Any] = @luna.vswitch(
+  let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { case_index.get() == 0 }, render=fn() {
-        @luna.vtext("Zero")
+        @luna.text("Zero")
       }),
       @luna.match_case(when=fn() { case_index.get() == 1 }, render=fn() {
-        @luna.vtext("One")
+        @luna.text("One")
       }),
     ],
-    fallback=Some(fn() { @luna.vtext("Other") }),
+    fallback=Some(fn() { @luna.text("Other") }),
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1271,7 +1271,7 @@ test "hydrate action attribute" {
   let vnode : @luna.Node[@js.Any] = @luna.h(
     "button",
     [("onclick", @luna.action(Increment))],
-    [@luna.vtext("Click")],
+    [@luna.text("Click")],
   )
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1304,7 +1304,7 @@ test "hydrate_with_actions" {
   set_inner_html(container, "<div data-action-click=\"Increment\">0</div>")
   let render_fn : (Int) -> @luna.Node[@js.Any] = fn(state) {
     @luna.h("div", [("onclick", @luna.action(Increment))], [
-      @luna.vtext(state.to_string()),
+      @luna.text(state.to_string()),
     ])
   }
   let update_fn : (Int, String) -> Int = fn(state, action) {
@@ -1330,7 +1330,7 @@ test "apply_vattr static __remove__" {
   defer cleanup()
   let container = create_container()
   let vnode = @luna.h("div", [("data-test", @luna.attr_static("__remove__"))], [
-    @luna.vtext("Content"),
+    @luna.text("Content"),
   ])
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1369,7 +1369,7 @@ test "apply_vattr dynamic __remove__" {
         }),
       ),
     ],
-    [@luna.vtext("Content")],
+    [@luna.text("Content")],
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1389,7 +1389,7 @@ test "apply_vattr VAction without dispatcher" {
   let vnode : @luna.Node[@js.Any] = @luna.h(
     "button",
     [("onclick", @luna.action(TestAction))],
-    [@luna.vtext("Click")],
+    [@luna.text("Click")],
   )
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1408,12 +1408,12 @@ test "hydrate nested show in for" {
   let container = create_container()
   let items = @signal.signal(["A", "B"])
   let visible = @signal.signal(true)
-  let vnode = @luna.vfor(fn() {
+  let vnode = @luna.for_each(fn() {
     let arr = items.get()
     let result : Array[@luna.Node[@js.Any]] = []
     for item in arr {
       result.push(
-        @luna.vshow(fn() { visible.get() }, fn() { @luna.vtext(item) }),
+        @luna.show(fn() { visible.get() }, fn() { @luna.text(item) }),
       )
     }
     result
@@ -1431,11 +1431,11 @@ test "hydrate nested component in for" {
   defer cleanup()
   let container = create_container()
   let items = @signal.signal(["X", "Y"])
-  let vnode = @luna.vfor(fn() {
+  let vnode = @luna.for_each(fn() {
     let arr = items.get()
     let result : Array[@luna.Node[@js.Any]] = []
     for item in arr {
-      result.push(@luna.vcomponent(fn() { @luna.vtext("Item: " + item) }))
+      result.push(@luna.component(fn() { @luna.text("Item: " + item) }))
     }
     result
   })

@@ -39,12 +39,12 @@ test "generate_state_script - generates script element" {
 
 ///|
 test "TriggerType::to_string - converts to string" {
-  assert_eq(@mercurius.TriggerType::Load.to_string(), "load")
-  assert_eq(@mercurius.TriggerType::Idle.to_string(), "idle")
-  assert_eq(@mercurius.TriggerType::Visible.to_string(), "visible")
-  assert_eq(@mercurius.TriggerType::None.to_string(), "none")
+  assert_eq(@luna.TriggerType::Load.to_string(), "load")
+  assert_eq(@luna.TriggerType::Idle.to_string(), "idle")
+  assert_eq(@luna.TriggerType::Visible.to_string(), "visible")
+  assert_eq(@luna.TriggerType::None.to_string(), "none")
   assert_eq(
-    @mercurius.TriggerType::Media("(min-width: 768px)").to_string(),
+    @luna.TriggerType::Media("(min-width: 768px)").to_string(),
     "media:(min-width: 768px)",
   )
 }
@@ -52,31 +52,31 @@ test "TriggerType::to_string - converts to string" {
 ///|
 test "TriggerType::parse - parses from string" {
   assert_true(
-    match @mercurius.TriggerType::parse("load") {
+    match @luna.TriggerType::parse("load") {
       Load => true
       _ => false
     },
   )
   assert_true(
-    match @mercurius.TriggerType::parse("idle") {
+    match @luna.TriggerType::parse("idle") {
       Idle => true
       _ => false
     },
   )
   assert_true(
-    match @mercurius.TriggerType::parse("visible") {
+    match @luna.TriggerType::parse("visible") {
       Visible => true
       _ => false
     },
   )
   assert_true(
-    match @mercurius.TriggerType::parse("none") {
+    match @luna.TriggerType::parse("none") {
       None => true
       _ => false
     },
   )
   assert_true(
-    match @mercurius.TriggerType::parse("media:(min-width: 768px)") {
+    match @luna.TriggerType::parse("media:(min-width: 768px)") {
       Media(_) => true
       _ => false
     },
@@ -127,7 +127,7 @@ test "generate_shard - minimal config" {
 ///|
 test "generate_shard - with visible trigger" {
   let config = @mercurius.ShardConfig::new("lazy-1", "./lazy.js").with_trigger(
-    @mercurius.TriggerType::Visible,
+    @luna.TriggerType::Visible,
   )
   let output = @mercurius.generate_shard(config)
   assert_true(output.html.contains("luna:client-trigger=\"visible\""))
@@ -289,7 +289,7 @@ test "auto_select_state_format - medium state uses script ref" {
 ///|
 test "generate_shard - with media trigger" {
   let config = @mercurius.ShardConfig::new("media-1", "./media.js").with_trigger(
-    @mercurius.TriggerType::Media("(min-width: 768px)"),
+    @luna.TriggerType::Media("(min-width: 768px)"),
   )
   let output = @mercurius.generate_shard(config)
   assert_true(

@@ -28,7 +28,7 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 /// Convert MdNode array to VNode
 pub fn md_nodes_to_vnode(nodes : Array[@astra.MdNode]) -> @luna.Node[Unit] {
   let children = nodes.map(fn(n) { md_node_to_vnode(n) })
-  @luna.vfragment(children)
+  @luna.fragment(children)
 }
 
 ///|
@@ -45,7 +45,7 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
       let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
       h("p", [], child_vnodes)
     }
-    @astra.MdNode::Text(text) => @luna.vtext(text)
+    @astra.MdNode::Text(text) => @luna.text(text)
     @astra.MdNode::Bold(children~) => {
       let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
       h("strong", [], child_vnodes)
@@ -54,7 +54,7 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
       let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
       h("em", [], child_vnodes)
     }
-    @astra.MdNode::Code(code) => h("code", [], [@luna.vtext(code)])
+    @astra.MdNode::Code(code) => h("code", [], [@luna.text(code)])
     @astra.MdNode::CodeBlock(lang~, code~) => {
       // Parse info string to extract lang, filename, and meta
       let info = parse_code_block_info(lang)
@@ -64,7 +64,7 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
       if not(info.lang.is_empty()) {
         code_attrs.push(attr("class", "language-\{info.lang}"))
       }
-      let code_el = h("code", code_attrs, [@luna.vtext(code)])
+      let code_el = h("code", code_attrs, [@luna.text(code)])
 
       // Build pre element attributes with data for shiki processing
       let pre_attrs : Array[(String, @luna.Attr[Unit])] = [
@@ -138,7 +138,7 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
     @astra.MdNode::Html(_html) =>
       // Raw HTML - TODO: implement raw HTML support
       // For now, skip raw HTML blocks
-      @luna.vfragment([])
+      @luna.fragment([])
     @astra.MdNode::Island(embed) =>
       // Convert to VIsland for hydration
       create_island_vnode(embed)
@@ -151,7 +151,7 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
 /// Create island VNode from IslandEmbed
 fn create_island_vnode(embed : @astra.IslandEmbed) -> @luna.Node[Unit] {
   let url = "/static/\{embed.name}.js"
-  @luna.visland(embed.name, url, embed.props, [], trigger=embed.trigger)
+  @luna.island(embed.name, url, embed.props, [], trigger=embed.trigger)
 }
 
 // =============================================================================

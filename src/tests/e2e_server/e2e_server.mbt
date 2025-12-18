@@ -51,7 +51,7 @@ async fn create_loader_app() -> @sol.App {
     let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
         "lazy-1", "/components/lazy.js",
       )
-      .with_trigger(@sol.TriggerType::Visible)
+      .with_trigger(@luna.Visible)
       .with_state("{\"message\":\"Hello from state!\"}")
       .with_ssr_html(
         "<div data-content class=\"lazy-component\">Not hydrated yet</div>",
@@ -70,7 +70,7 @@ async fn create_loader_app() -> @sol.App {
     let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
         "idle-1", "/components/lazy.js",
       )
-      .with_trigger(@sol.TriggerType::Idle)
+      .with_trigger(@luna.Idle)
       .with_state("{\"message\":\"Loaded on idle\"}")
       .with_ssr_html("<div data-content>Waiting for idle...</div>")
     let island : String = @sol.render_island(config)
@@ -128,7 +128,7 @@ async fn create_loader_app() -> @sol.App {
     let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
         "manual-1", "/components/lazy.js",
       )
-      .with_trigger(@sol.TriggerType::None)
+      .with_trigger(@luna.TriggerType::None)
       .with_state("{\"message\":\"Manually triggered\"}")
       .with_ssr_html("<div data-content>Should not auto-hydrate</div>")
     let island : String = @sol.render_island(config)
@@ -190,7 +190,7 @@ async fn create_shard_app() -> @sol.App {
     let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
         "lazy-counter", "/components/counter.js",
       )
-      .with_trigger(@sol.TriggerType::Visible)
+      .with_trigger(@luna.Visible)
       .with_state("{\"count\":100}")
       .with_ssr_html(
         "<span data-count>100</span><button data-inc>+</button><button data-dec>-</button>",
@@ -251,20 +251,20 @@ async fn create_async_app() -> @sol.App {
   // Basic async streaming test - simulates streaming SSR with template replacement
   let _ = app.get("/basic", async fn(c : @sol.Ctx) -> @http.Response {
     // Build page with VAsync nodes
-    let node : @luna.Node[Unit] = @luna.vfragment([
-      @luna.h("h1", [], [@luna.vtext("Async Streaming Test")]),
+    let node : @luna.Node[Unit] = @luna.fragment([
+      @luna.h("h1", [], [@luna.text("Async Streaming Test")]),
       @luna.h("div", [("id", @luna.attr_static("static-content"))], [
-        @luna.vtext("This is static content"),
+        @luna.text("This is static content"),
       ]),
-      @luna.vasync(
+      @luna.async_(
         render=async fn() {
           @luna.h("div", [("class", @luna.attr_static("resolved"))], [
-            @luna.vtext("Async content loaded!"),
+            @luna.text("Async content loaded!"),
           ])
         },
         fallback=fn() {
           @luna.h("div", [("class", @luna.attr_static("loading"))], [
-            @luna.vtext("Loading..."),
+            @luna.text("Loading..."),
           ])
         },
       ),
@@ -310,32 +310,32 @@ async fn create_async_app() -> @sol.App {
 
   // Multiple async boundaries test
   let _ = app.get("/multiple", async fn(c : @sol.Ctx) -> @http.Response {
-    let node : @luna.Node[Unit] = @luna.vfragment([
-      @luna.h("h1", [], [@luna.vtext("Multiple Async Test")]),
-      @luna.vasync(
+    let node : @luna.Node[Unit] = @luna.fragment([
+      @luna.h("h1", [], [@luna.text("Multiple Async Test")]),
+      @luna.async_(
         render=async fn() {
           @luna.h("div", [("id", @luna.attr_static("first-resolved"))], [
-            @luna.vtext("First resolved"),
+            @luna.text("First resolved"),
           ])
         },
         fallback=fn() {
           @luna.h("div", [("id", @luna.attr_static("first-loading"))], [
-            @luna.vtext("First loading..."),
+            @luna.text("First loading..."),
           ])
         },
       ),
       @luna.h("div", [("id", @luna.attr_static("middle"))], [
-        @luna.vtext("Static middle content"),
+        @luna.text("Static middle content"),
       ]),
-      @luna.vasync(
+      @luna.async_(
         render=async fn() {
           @luna.h("div", [("id", @luna.attr_static("second-resolved"))], [
-            @luna.vtext("Second resolved"),
+            @luna.text("Second resolved"),
           ])
         },
         fallback=fn() {
           @luna.h("div", [("id", @luna.attr_static("second-loading"))], [
-            @luna.vtext("Second loading..."),
+            @luna.text("Second loading..."),
           ])
         },
       ),
@@ -389,24 +389,24 @@ async fn create_async_app() -> @sol.App {
       "div",
       [("id", @luna.attr_static("container"))],
       [
-        @luna.h("header", [], [@luna.vtext("Header")]),
-        @luna.vasync(
+        @luna.h("header", [], [@luna.text("Header")]),
+        @luna.async_(
           render=async fn() {
             @luna.h("main", [("id", @luna.attr_static("main-content"))], [
-              @luna.h("p", [], [@luna.vtext("Main content loaded")]),
+              @luna.h("p", [], [@luna.text("Main content loaded")]),
               @luna.h("ul", [], [
-                @luna.h("li", [], [@luna.vtext("Item 1")]),
-                @luna.h("li", [], [@luna.vtext("Item 2")]),
+                @luna.h("li", [], [@luna.text("Item 1")]),
+                @luna.h("li", [], [@luna.text("Item 2")]),
               ]),
             ])
           },
           fallback=fn() {
             @luna.h("main", [("class", @luna.attr_static("skeleton"))], [
-              @luna.vtext("Loading main content..."),
+              @luna.text("Loading main content..."),
             ])
           },
         ),
-        @luna.h("footer", [], [@luna.vtext("Footer")]),
+        @luna.h("footer", [], [@luna.text("Footer")]),
       ],
     )
     let chunks : Array[String] = []
@@ -444,17 +444,17 @@ async fn create_async_app() -> @sol.App {
 
   // Fallback only test (no replacement scripts - for testing initial state)
   let _ = app.get("/fallback-only", async fn(c : @sol.Ctx) -> @http.Response {
-    let node : @luna.Node[Unit] = @luna.vfragment([
-      @luna.h("h1", [], [@luna.vtext("Fallback Only Test")]),
-      @luna.vasync(
+    let node : @luna.Node[Unit] = @luna.fragment([
+      @luna.h("h1", [], [@luna.text("Fallback Only Test")]),
+      @luna.async_(
         render=async fn() {
           @luna.h("div", [("id", @luna.attr_static("never-seen"))], [
-            @luna.vtext("This should not appear"),
+            @luna.text("This should not appear"),
           ])
         },
         fallback=fn() {
           @luna.h("div", [("id", @luna.attr_static("fallback-visible"))], [
-            @luna.vtext("Fallback is visible"),
+            @luna.text("Fallback is visible"),
           ])
         },
       ),

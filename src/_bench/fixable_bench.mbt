@@ -51,7 +51,7 @@ extern "js" fn fixable_set_inner_html(
 ///|
 test "fixable_clean_simple" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node = @luna.h("div", [], [@luna.text("Hello")])
   let html = @ssr.render_to_string(node).html
   let logger = StringBuilder::new()
   b.bench(name="fixable_clean_simple", fn() {
@@ -64,7 +64,7 @@ test "fixable_clean_simple" (b : @bench.T) {
 test "fixable_clean_nested" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [
-    @luna.h("section", [], [@luna.h("p", [], [@luna.vtext("Nested content")])]),
+    @luna.h("section", [], [@luna.h("p", [], [@luna.text("Nested content")])]),
   ])
   let html = @ssr.render_to_string(node).html
   let logger = StringBuilder::new()
@@ -78,7 +78,7 @@ test "fixable_clean_nested" (b : @bench.T) {
 fn create_fixable_list_node(count : Int) -> @luna.Node[@js.Any] {
   let items : Array[@luna.Node[@js.Any]] = []
   for i = 0; i < count; i = i + 1 {
-    items.push(@luna.h("li", [], [@luna.vtext("Item " + i.to_string())]))
+    items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   @luna.h("ul", [], items)
 }
@@ -102,7 +102,7 @@ test "fixable_clean_list_50" (b : @bench.T) {
 ///|
 test "fixable_repair_text_mismatch" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.vtext("Expected Text")])
+  let node = @luna.h("div", [], [@luna.text("Expected Text")])
   let html = "<div>Different Text</div>"
   let logger = StringBuilder::new()
   b.bench(name="fixable_repair_text_mismatch", fn() {
@@ -114,7 +114,7 @@ test "fixable_repair_text_mismatch" (b : @bench.T) {
 ///|
 test "fixable_repair_text_missing" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.vtext("Expected Text")])
+  let node = @luna.h("div", [], [@luna.text("Expected Text")])
   let html = "<div></div>"
   let logger = StringBuilder::new()
   b.bench(name="fixable_repair_text_missing", fn() {
@@ -130,7 +130,7 @@ test "fixable_repair_text_missing" (b : @bench.T) {
 ///|
 test "fixable_repair_element_missing" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Child")])])
+  let node = @luna.h("div", [], [@luna.h("span", [], [@luna.text("Child")])])
   let html = ""
   let logger = StringBuilder::new()
   b.bench(name="fixable_repair_element_missing", fn() {
@@ -147,7 +147,7 @@ test "fixable_repair_element_missing" (b : @bench.T) {
 test "fixable_repair_attr_mismatch" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [("class", @luna.attr_static("expected-class"))], [
-    @luna.vtext("Content"),
+    @luna.text("Content"),
   ])
   let html = "<div class=\"wrong-class\">Content</div>"
   let logger = StringBuilder::new()
@@ -178,8 +178,8 @@ test "fixable_repair_dynamic_text_marker" (b : @bench.T) {
 test "fixable_repair_show_marker" (b : @bench.T) {
   @global_jsdom.register()
   let visible = @signal.signal(true)
-  let node = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.h("div", [], [@luna.vtext("Visible")])
+  let node = @luna.show(fn() { visible.get() }, fn() {
+    @luna.h("div", [], [@luna.text("Visible")])
   })
   let html = "<div>Visible</div>"
   let logger = StringBuilder::new()
@@ -193,8 +193,8 @@ test "fixable_repair_show_marker" (b : @bench.T) {
 test "fixable_repair_for_marker" (b : @bench.T) {
   @global_jsdom.register()
   let items_sig = @signal.signal(["a", "b", "c"])
-  let node = @luna.vfor(fn() {
-    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.vtext(item)]) })
+  let node = @luna.for_each(fn() {
+    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = "<li>a</li><li>b</li><li>c</li>"
   let logger = StringBuilder::new()
@@ -208,8 +208,8 @@ test "fixable_repair_for_marker" (b : @bench.T) {
 test "fixable_repair_for_item_count" (b : @bench.T) {
   @global_jsdom.register()
   let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
-  let node = @luna.vfor(fn() {
-    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.vtext(item)]) })
+  let node = @luna.for_each(fn() {
+    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = "<!--f:0--><li>a</li><li>b</li><!--/f-->"
   let logger = StringBuilder::new()
@@ -227,10 +227,10 @@ test "fixable_repair_for_item_count" (b : @bench.T) {
 fn create_fixable_card(title : String, content : String) -> @luna.Node[@js.Any] {
   @luna.h("div", [("class", @luna.attr_static("card"))], [
     @luna.h("h3", [("class", @luna.attr_static("card-title"))], [
-      @luna.vtext(title),
+      @luna.text(title),
     ]),
     @luna.h("p", [("class", @luna.attr_static("card-content"))], [
-      @luna.vtext(content),
+      @luna.text(content),
     ]),
   ])
 }
@@ -260,7 +260,7 @@ test "fixable_repair_multiple_cards" (b : @bench.T) {
 ///|
 test "fixable_with_report_clean" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node = @luna.h("div", [], [@luna.text("Hello")])
   let html = @ssr.render_to_string(node).html
   let logger = StringBuilder::new()
   b.bench(name="fixable_with_report_clean", fn() {
@@ -273,7 +273,7 @@ test "fixable_with_report_clean" (b : @bench.T) {
 test "fixable_with_report_repairs" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [("class", @luna.attr_static("expected"))], [
-    @luna.vtext("Expected"),
+    @luna.text("Expected"),
   ])
   let html = "<div class=\"wrong\">Wrong</div>"
   let logger = StringBuilder::new()
@@ -286,7 +286,7 @@ test "fixable_with_report_repairs" (b : @bench.T) {
 ///|
 test "fixable_hydrate_with_fallback" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.vtext("Content")])
+  let node = @luna.h("div", [], [@luna.text("Content")])
   let html = "<span>Wrong tag</span>"
   let logger = StringBuilder::new()
   b.bench(name="fixable_hydrate_with_fallback", fn() {

@@ -234,14 +234,14 @@ fn build_doc_layout(
   let sidebar = if frontmatter.sidebar {
     @routes.render_sidebar(sidebar_groups, page.url_path)
   } else {
-    @luna.vfragment([])
+    @luna.fragment([])
   }
 
   // Mobile sidebar dropdown
   let mobile_sidebar = if frontmatter.sidebar {
     @routes.render_mobile_sidebar(sidebar_groups, page.url_path)
   } else {
-    @luna.vfragment([])
+    @luna.fragment([])
   }
 
   // Main content
@@ -253,7 +253,7 @@ fn build_doc_layout(
   let toc_vnode = if not(toc.is_empty()) {
     build_toc(toc)
   } else {
-    @luna.vfragment([])
+    @luna.fragment([])
   }
 
   // Prev/Next navigation
@@ -291,7 +291,7 @@ fn build_nav(
         [],
       )
     None =>
-      h("span", [attr("class", "nav-title")], [@luna.vtext(ctx.config.title)])
+      h("span", [attr("class", "nav-title")], [@luna.text(ctx.config.title)])
   }
   let home_link = h(
     "a",
@@ -328,7 +328,7 @@ fn build_language_switcher(
 
   // Only show if more than one locale
   if i18n.locales.length() <= 1 {
-    return @luna.vfragment([])
+    return @luna.fragment([])
   }
 
   // Get available translations
@@ -366,14 +366,14 @@ fn build_language_switcher(
     }
     items.push(
       h("a", [attr("href", target_url), attr("class", class_name)], [
-        @luna.vtext(locale.label),
+        @luna.text(locale.label),
       ]),
     )
   }
 
   // Build dropdown with details/summary
   let summary = h("summary", [attr("class", "lang-trigger")], [
-    @luna.vtext(current_label),
+    @luna.text(current_label),
   ])
   let menu = h("div", [attr("class", "lang-menu")], items)
   h("details", [attr("class", "lang-switcher")], [summary, menu])
@@ -446,18 +446,18 @@ fn build_nav_item(item : @astra.NavItem) -> @luna.Node[Unit] {
   if item.items.is_empty() {
     // Simple link
     h("a", [attr("href", item.link), attr("class", "nav-link")], [
-      @luna.vtext(item.text),
+      @luna.text(item.text),
     ])
   } else {
     // Dropdown (simplified - actual dropdown needs JS)
     let dropdown_items = item.items.map(fn(sub) {
       h("a", [attr("href", sub.link), attr("class", "nav-dropdown-item")], [
-        @luna.vtext(sub.text),
+        @luna.text(sub.text),
       ])
     })
     h("div", [attr("class", "nav-dropdown")], [
       h("span", [attr("class", "nav-dropdown-trigger")], [
-        @luna.vtext(item.text),
+        @luna.text(item.text),
       ]),
       h("div", [attr("class", "nav-dropdown-menu")], dropdown_items),
     ])
@@ -470,7 +470,7 @@ fn build_toc(toc : Array[@markdown.TocItem]) -> @luna.Node[Unit] {
   let items = toc.map(fn(item) {
     let indent_class = "toc-item toc-level-\{item.level}"
     h("li", [attr("class", indent_class)], [
-      h("a", [attr("href", "#" + item.id)], [@luna.vtext(item.text)]),
+      h("a", [attr("href", "#" + item.id)], [@luna.text(item.text)]),
     ])
   })
 
@@ -486,7 +486,7 @@ fn build_toc(toc : Array[@markdown.TocItem]) -> @luna.Node[Unit] {
     [h("span", [attr("class", "toc-collapse-icon")], [])],
   )
   let title = h("div", [attr("class", "toc-title")], [
-    @luna.vtext("On this page"),
+    @luna.text("On this page"),
   ])
   let content = h("div", [attr("class", "toc-content")], [
     title,
@@ -507,16 +507,16 @@ fn build_prev_next(
   if prev is Some(link) {
     children.push(
       h("a", [attr("href", link.link), attr("class", "prev-link")], [
-        h("span", [attr("class", "label")], [@luna.vtext("Previous")]),
-        h("span", [attr("class", "title")], [@luna.vtext(link.text)]),
+        h("span", [attr("class", "label")], [@luna.text("Previous")]),
+        h("span", [attr("class", "title")], [@luna.text(link.text)]),
       ]),
     )
   }
   if next is Some(link) {
     children.push(
       h("a", [attr("href", link.link), attr("class", "next-link")], [
-        h("span", [attr("class", "label")], [@luna.vtext("Next")]),
-        h("span", [attr("class", "title")], [@luna.vtext(link.text)]),
+        h("span", [attr("class", "label")], [@luna.text("Next")]),
+        h("span", [attr("class", "title")], [@luna.text(link.text)]),
       ]),
     )
   }
@@ -531,17 +531,17 @@ fn build_footer(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
       let children : Array[@luna.Node[Unit]] = []
       if footer_config.message is Some(msg) {
         children.push(
-          h("p", [attr("class", "footer-message")], [@luna.vtext(msg)]),
+          h("p", [attr("class", "footer-message")], [@luna.text(msg)]),
         )
       }
       if footer_config.copyright is Some(copyright) {
         children.push(
-          h("p", [attr("class", "footer-copyright")], [@luna.vtext(copyright)]),
+          h("p", [attr("class", "footer-copyright")], [@luna.text(copyright)]),
         )
       }
       h("footer", [attr("class", "site-footer")], children)
     }
-    None => @luna.vfragment([])
+    None => @luna.fragment([])
   }
 }
 

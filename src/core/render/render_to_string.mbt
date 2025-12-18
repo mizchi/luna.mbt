@@ -148,7 +148,7 @@ fn[E] render_island_open_to(
   sb.write_string(" url=")
   sb.write_string(island.url)
   sb.write_string(" trigger=")
-  sb.write_string(@luna.trigger_to_string(island.trigger))
+  sb.write_string(island.trigger.to_string())
   sb.write_string("-->")
   sb.write_string("<div luna:id=\"")
   sb.write_string(island.id)
@@ -157,7 +157,7 @@ fn[E] render_island_open_to(
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, island.state)
   sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(@luna.trigger_to_string(island.trigger))
+  sb.write_string(island.trigger.to_string())
   sb.write_string("\">")
 }
 
@@ -200,7 +200,7 @@ fn[E] render_wc_island_to(
   // Only add trigger attribute if not default (load)
   if not(island.trigger is Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(island.trigger))
+    sb.write_string(island.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')
@@ -253,7 +253,7 @@ fn[E] render_wc_island_and_collect_urls(
   sb.write_char('"')
   if not(island.trigger is Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(island.trigger))
+    sb.write_string(island.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')
@@ -299,7 +299,7 @@ fn[E] render_wc_island_with_id_to(
   sb.write_char('"')
   if not(island.trigger is Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(island.trigger))
+    sb.write_string(island.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')
@@ -348,7 +348,7 @@ fn[E] render_internal_ref_island_to(
   sb.write_string(" url=")
   sb.write_string(iref.url)
   sb.write_string(" trigger=")
-  sb.write_string(@luna.trigger_to_string(iref.trigger))
+  sb.write_string(iref.trigger.to_string())
   sb.write_string("-->")
   sb.write_string("<div luna:id=\"")
   sb.write_string(id)
@@ -357,7 +357,7 @@ fn[E] render_internal_ref_island_to(
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, iref.state)
   sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(@luna.trigger_to_string(iref.trigger))
+  sb.write_string(iref.trigger.to_string())
   sb.write_string("\">")
   for child in iref.children {
     render_to_sb(sb, child)
@@ -386,7 +386,7 @@ fn[E] render_internal_ref_wc_to(
   sb.write_char('"')
   if not(iref.trigger is @luna.Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(iref.trigger))
+    sb.write_string(iref.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')
@@ -435,7 +435,7 @@ fn[E] render_internal_ref_island_and_collect_urls(
   sb.write_string(" url=")
   sb.write_string(iref.url)
   sb.write_string(" trigger=")
-  sb.write_string(@luna.trigger_to_string(iref.trigger))
+  sb.write_string(iref.trigger.to_string())
   sb.write_string("-->")
   sb.write_string("<div luna:id=\"")
   sb.write_string(id)
@@ -444,7 +444,7 @@ fn[E] render_internal_ref_island_and_collect_urls(
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, iref.state)
   sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(@luna.trigger_to_string(iref.trigger))
+  sb.write_string(iref.trigger.to_string())
   sb.write_string("\">")
   for child in iref.children {
     render_and_collect_urls(sb, child, urls)
@@ -473,7 +473,7 @@ fn[E] render_internal_ref_wc_and_collect_urls(
   sb.write_char('"')
   if not(iref.trigger is @luna.Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(iref.trigger))
+    sb.write_string(iref.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')
@@ -523,7 +523,7 @@ fn[E] render_internal_ref_island_with_id_to(
   sb.write_string(" url=")
   sb.write_string(iref.url)
   sb.write_string(" trigger=")
-  sb.write_string(@luna.trigger_to_string(iref.trigger))
+  sb.write_string(iref.trigger.to_string())
   sb.write_string("-->")
   sb.write_string("<div luna:id=\"")
   sb.write_string(island_id)
@@ -532,7 +532,7 @@ fn[E] render_internal_ref_island_with_id_to(
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, iref.state)
   sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(@luna.trigger_to_string(iref.trigger))
+  sb.write_string(iref.trigger.to_string())
   sb.write_string("\">")
   for child in iref.children {
     render_with_id_to(sb, child, id_counter)
@@ -567,7 +567,7 @@ fn[E] render_internal_ref_wc_with_id_to(
   sb.write_char('"')
   if not(iref.trigger is @luna.Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(@luna.trigger_to_string(iref.trigger))
+    sb.write_string(iref.trigger.to_string())
     sb.write_char('"')
   }
   sb.write_char('>')

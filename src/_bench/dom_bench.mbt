@@ -11,7 +11,7 @@
 ///|
 test "dom_render_simple_text" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.vtext("Hello, World!")
+  let node = @luna.text("Hello, World!")
   b.bench(name="dom_render_simple_text", fn() {
     b.keep(@client.render_vnode_to_dom(node))
   })
@@ -20,7 +20,7 @@ test "dom_render_simple_text" (b : @bench.T) {
 ///|
 test "dom_render_simple_element" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node = @luna.h("div", [], [@luna.text("Hello")])
   b.bench(name="dom_render_simple_element", fn() {
     b.keep(@client.render_vnode_to_dom(node))
   })
@@ -35,7 +35,7 @@ test "dom_render_element_with_attrs" (b : @bench.T) {
       ("class", @luna.attr_static("container")),
       ("id", @luna.attr_static("main")),
     ],
-    [@luna.vtext("Content")],
+    [@luna.text("Content")],
   )
   b.bench(name="dom_render_element_with_attrs", fn() {
     b.keep(@client.render_vnode_to_dom(node))
@@ -50,7 +50,7 @@ test "dom_render_element_with_attrs" (b : @bench.T) {
 test "dom_render_nested_3" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [
-    @luna.h("section", [], [@luna.h("p", [], [@luna.vtext("Nested")])]),
+    @luna.h("section", [], [@luna.h("p", [], [@luna.text("Nested")])]),
   ])
   b.bench(name="dom_render_nested_3", fn() {
     b.keep(@client.render_vnode_to_dom(node))
@@ -63,7 +63,7 @@ test "dom_render_nested_5" (b : @bench.T) {
   let node = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
-        @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Deep")])]),
+        @luna.h("div", [], [@luna.h("span", [], [@luna.text("Deep")])]),
       ]),
     ]),
   ])
@@ -80,7 +80,7 @@ test "dom_render_nested_5" (b : @bench.T) {
 fn create_list_node(count : Int) -> @luna.Node[@js.Any] {
   let items : Array[@luna.Node[@js.Any]] = []
   for i = 0; i < count; i = i + 1 {
-    items.push(@luna.h("li", [], [@luna.vtext("Item " + i.to_string())]))
+    items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   @luna.h("ul", [], items)
 }
@@ -132,7 +132,7 @@ test "dom_reactive_attr_update" (b : @bench.T) {
         @luna.attr_dynamic(fn() { if active.get() { "on" } else { "off" } }),
       ),
     ],
-    [@luna.vtext("Toggle")],
+    [@luna.text("Toggle")],
   )
   let _ = @client.render_vnode_to_dom(node)
   b.bench(name="dom_reactive_attr_update", fn() {
@@ -172,8 +172,8 @@ test "dom_reactive_style_update" (b : @bench.T) {
 test "dom_show_toggle" (b : @bench.T) {
   @global_jsdom.register()
   let visible = @signal.signal(true)
-  let node = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.h("div", [], [@luna.vtext("Content")])
+  let node = @luna.show(fn() { visible.get() }, fn() {
+    @luna.h("div", [], [@luna.text("Content")])
   })
   let doc = @js_dom.document()
   let container = doc.createElement("div")
@@ -190,8 +190,8 @@ test "dom_show_toggle" (b : @bench.T) {
 test "dom_for_list_update" (b : @bench.T) {
   @global_jsdom.register()
   let items_sig = @signal.signal(["a", "b", "c"])
-  let node = @luna.vfor(fn() {
-    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.vtext(item)]) })
+  let node = @luna.for_each(fn() {
+    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let doc = @js_dom.document()
   let container = doc.createElement("div")
@@ -267,9 +267,9 @@ test "dom_shallow_update_root" (b : @bench.T) {
   let title = @signal.signal("Title")
   let node = @luna.h("div", [], [
     @luna.h("h1", [], [@luna.text_dyn(fn() { title.get() })]),
-    @luna.h("p", [], [@luna.vtext("Static content 1")]),
-    @luna.h("p", [], [@luna.vtext("Static content 2")]),
-    @luna.h("p", [], [@luna.vtext("Static content 3")]),
+    @luna.h("p", [], [@luna.text("Static content 1")]),
+    @luna.h("p", [], [@luna.text("Static content 2")]),
+    @luna.h("p", [], [@luna.text("Static content 3")]),
   ])
   let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
@@ -469,8 +469,8 @@ test "dom_conditional_shallow" (b : @bench.T) {
   @global_jsdom.register()
   let show_a = @signal.signal(true)
   let node = @luna.h("div", [], [
-    @luna.vshow(fn() { show_a.get() }, fn() { @luna.vtext("A") }),
-    @luna.vshow(fn() { not(show_a.get()) }, fn() { @luna.vtext("B") }),
+    @luna.show(fn() { show_a.get() }, fn() { @luna.text("A") }),
+    @luna.show(fn() { not(show_a.get()) }, fn() { @luna.text("B") }),
   ])
   let doc = @js_dom.document()
   let container = doc.createElement("div")
@@ -489,9 +489,9 @@ test "dom_conditional_deep" (b : @bench.T) {
   let node = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
-        @luna.vshow(fn() { visible.get() }, fn() {
+        @luna.show(fn() { visible.get() }, fn() {
           @luna.h("div", [], [
-            @luna.h("p", [], [@luna.vtext("Deep conditional content")]),
+            @luna.h("p", [], [@luna.text("Deep conditional content")]),
           ])
         }),
       ]),

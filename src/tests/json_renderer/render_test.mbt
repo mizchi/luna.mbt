@@ -8,7 +8,7 @@ enum TestAction {
 
 ///|
 test "render simple text" {
-  let node = @luna.vtext("Hello")
+  let node = @luna.text("Hello")
   let json = render_to_json(node)
   match json {
     Text(content) => assert_eq(content, "Hello")
@@ -76,8 +76,8 @@ test "render element with dynamic attr" {
 ///|
 test "render element with children" {
   let node = @luna.h("div", [], [
-    @luna.vtext("First"),
-    @luna.h("span", [], [@luna.vtext("Second")]),
+    @luna.text("First"),
+    @luna.h("span", [], [@luna.text("Second")]),
   ])
   let json = render_to_json(node)
   match json {
@@ -99,10 +99,10 @@ test "render element with children" {
 
 ///|
 test "render fragment" {
-  let node = @luna.vfragment([
-    @luna.vtext("A"),
-    @luna.vtext("B"),
-    @luna.vtext("C"),
+  let node = @luna.fragment([
+    @luna.text("A"),
+    @luna.text("B"),
+    @luna.text("C"),
   ])
   let json = render_to_json(node)
   match json {
@@ -120,7 +120,7 @@ test "render fragment" {
 ///|
 test "render show when true" {
   let visible = @signal.signal(true)
-  let node = @luna.vshow(fn() { visible.get() }, fn() { @luna.vtext("Visible") })
+  let node = @luna.show(fn() { visible.get() }, fn() { @luna.text("Visible") })
   let json = render_to_json(node)
   match json {
     Text(content) => assert_eq(content, "Visible")
@@ -131,7 +131,7 @@ test "render show when true" {
 ///|
 test "render show when false" {
   let visible = @signal.signal(false)
-  let node = @luna.vshow(fn() { visible.get() }, fn() { @luna.vtext("Hidden") })
+  let node = @luna.show(fn() { visible.get() }, fn() { @luna.text("Hidden") })
   let json = render_to_json(node)
   match json {
     Fragment(children) => assert_eq(children.length(), 0)
@@ -142,11 +142,11 @@ test "render show when false" {
 ///|
 test "render for loop" {
   let items = @signal.signal(["A", "B", "C"])
-  let node = @luna.vfor(fn() {
+  let node = @luna.for_each(fn() {
     let arr = items.get()
     let result : Array[@luna.Node[Unit]] = []
     for item in arr {
-      result.push(@luna.vtext(item))
+      result.push(@luna.text(item))
     }
     result
   })
@@ -171,11 +171,11 @@ test "render for loop" {
 test "render component" {
   fn my_component() -> @luna.Node[Unit] {
     @luna.h("div", [("class", @luna.attr_static("component"))], [
-      @luna.vtext("Content"),
+      @luna.text("Content"),
     ])
   }
 
-  let node = @luna.vcomponent(my_component)
+  let node = @luna.component(my_component)
   let json = render_to_json(node)
   match json {
     Element(elem) => {
@@ -194,7 +194,7 @@ test "render event handler" {
   let node = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.event_handler()))],
-    [@luna.vtext("Click")],
+    [@luna.text("Click")],
   )
   let json = render_to_json(node)
   match json {
@@ -212,7 +212,7 @@ test "render event handler" {
 ///|
 test "render to json string" {
   let node = @luna.h("div", [("id", @luna.attr_static("test"))], [
-    @luna.vtext("Hello"),
+    @luna.text("Hello"),
   ])
   let json_str = render_to_json_string(node)
   assert_true(json_str.contains("\"type\":\"element\""))
@@ -253,7 +253,7 @@ test "fragment children" {
 test "nested structure" {
   let node = @luna.h("div", [("class", @luna.attr_static("outer"))], [
     @luna.h("div", [("class", @luna.attr_static("inner"))], [
-      @luna.h("span", [], [@luna.vtext("Deep")]),
+      @luna.h("span", [], [@luna.text("Deep")]),
     ]),
   ])
   let json = render_to_json(node)
@@ -283,7 +283,7 @@ test "nested structure" {
 
 ///|
 test "json string escaping" {
-  let node = @luna.vtext("Hello \"World\"\nNew line")
+  let node = @luna.text("Hello \"World\"\nNew line")
   let json_str = render_to_json_string(node)
   assert_true(json_str.contains("\\\""))
   assert_true(json_str.contains("\\n"))
@@ -318,11 +318,11 @@ test "signal reactivity captured at render time" {
 
 ///|
 test "render island node" {
-  let node : @luna.Node[Unit] = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.island(
     "island-1",
     "/components/counter.js",
     "{\"count\":5}",
-    [@luna.vtext("content")],
+    [@luna.text("content")],
   )
   let json = render_to_json(node)
   match json {
@@ -354,7 +354,7 @@ test "render island node" {
 
 ///|
 test "render island with idle trigger" {
-  let node : @luna.Node[Unit] = @luna.visland(
+  let node : @luna.Node[Unit] = @luna.island(
     "lazy-1",
     "/lazy.js",
     "{}",
@@ -374,9 +374,9 @@ test "render island with idle trigger" {
 
 ///|
 test "render async fallback" {
-  let node : @luna.Node[Unit] = @luna.vasync(
-    render=async fn() { @luna.vtext("Loaded") },
-    fallback=fn() { @luna.vtext("Loading...") },
+  let node : @luna.Node[Unit] = @luna.async_(
+    render=async fn() { @luna.text("Loaded") },
+    fallback=fn() { @luna.text("Loading...") },
   )
   let json = render_to_json(node)
   // Should render fallback
@@ -389,8 +389,8 @@ test "render async fallback" {
 ///|
 test "render error_boundary success" {
   let node : @luna.Node[Unit] = @luna.error_boundary(
-    children=fn() { @luna.h("div", [], [@luna.vtext("Success")]) },
-    fallback=fn(_err, _reset) { @luna.vtext("Error") },
+    children=fn() { @luna.h("div", [], [@luna.text("Success")]) },
+    fallback=fn(_err, _reset) { @luna.text("Error") },
   )
   let json = render_to_json(node)
   match json {
@@ -404,12 +404,12 @@ test "render error_boundary success" {
 
 ///|
 test "render switch first case match" {
-  let node : @luna.Node[Unit] = @luna.vswitch(
+  let node : @luna.Node[Unit] = @luna.switch_(
     cases=[
-      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.text("First") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback") }),
+    fallback=Some(fn() { @luna.text("Fallback") }),
   )
   let json = render_to_json(node)
   match json {
@@ -420,12 +420,12 @@ test "render switch first case match" {
 
 ///|
 test "render switch second case match" {
-  let node : @luna.Node[Unit] = @luna.vswitch(
+  let node : @luna.Node[Unit] = @luna.switch_(
     cases=[
-      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("First") }),
-      @luna.match_case(when=fn() { true }, render=fn() { @luna.vtext("Second") }),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.text("First") }),
+      @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback") }),
+    fallback=Some(fn() { @luna.text("Fallback") }),
   )
   let json = render_to_json(node)
   match json {
@@ -436,11 +436,11 @@ test "render switch second case match" {
 
 ///|
 test "render switch fallback" {
-  let node : @luna.Node[Unit] = @luna.vswitch(
+  let node : @luna.Node[Unit] = @luna.switch_(
     cases=[
-      @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
+      @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
-    fallback=Some(fn() { @luna.vtext("Fallback") }),
+    fallback=Some(fn() { @luna.text("Fallback") }),
   )
   let json = render_to_json(node)
   match json {
@@ -451,8 +451,8 @@ test "render switch fallback" {
 
 ///|
 test "render switch no fallback" {
-  let node : @luna.Node[Unit] = @luna.vswitch(cases=[
-    @luna.match_case(when=fn() { false }, render=fn() { @luna.vtext("Never") }),
+  let node : @luna.Node[Unit] = @luna.switch_(cases=[
+    @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let json = render_to_json(node)
   // Returns empty fragment when no case matches and no fallback
@@ -467,7 +467,7 @@ test "render action attribute" {
   let node : @luna.Node[Unit] = @luna.h(
     "button",
     [("onclick", @luna.action(Increment))],
-    [@luna.vtext("Click")],
+    [@luna.text("Click")],
   )
   let json = render_to_json(node)
   match json {
@@ -521,7 +521,7 @@ test "json_node_to_string handler attr" {
 
 ///|
 test "json string special char escaping" {
-  let node = @luna.vtext("tab\there\rcarriage\nreturn\\backslash")
+  let node = @luna.text("tab\there\rcarriage\nreturn\\backslash")
   let str = render_to_json_string(node)
   assert_true(str.contains("\\t"))
   assert_true(str.contains("\\r"))

@@ -51,7 +51,7 @@ extern "js" fn hydrate_set_inner_html(
 ///|
 test "hydrate_simple_text" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.vtext("Hello, World!")
+  let node = @luna.text("Hello, World!")
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_simple_text", fn() {
     let container = setup_hydrate_container(html)
@@ -62,7 +62,7 @@ test "hydrate_simple_text" (b : @bench.T) {
 ///|
 test "hydrate_simple_element" (b : @bench.T) {
   @global_jsdom.register()
-  let node = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node = @luna.h("div", [], [@luna.text("Hello")])
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_simple_element", fn() {
     let container = setup_hydrate_container(html)
@@ -79,7 +79,7 @@ test "hydrate_element_with_attrs" (b : @bench.T) {
       ("class", @luna.attr_static("container")),
       ("id", @luna.attr_static("main")),
     ],
-    [@luna.vtext("Content")],
+    [@luna.text("Content")],
   )
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_element_with_attrs", fn() {
@@ -96,7 +96,7 @@ test "hydrate_element_with_attrs" (b : @bench.T) {
 test "hydrate_nested_3" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [
-    @luna.h("section", [], [@luna.h("p", [], [@luna.vtext("Nested")])]),
+    @luna.h("section", [], [@luna.h("p", [], [@luna.text("Nested")])]),
   ])
   let html = @ssr.render_to_string(node).html
   b.bench(name="hydrate_nested_3", fn() {
@@ -111,7 +111,7 @@ test "hydrate_nested_5" (b : @bench.T) {
   let node = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
-        @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Deep")])]),
+        @luna.h("div", [], [@luna.h("span", [], [@luna.text("Deep")])]),
       ]),
     ]),
   ])
@@ -130,7 +130,7 @@ test "hydrate_nested_5" (b : @bench.T) {
 fn create_hydrate_list_node(count : Int) -> @luna.Node[@js.Any] {
   let items : Array[@luna.Node[@js.Any]] = []
   for i = 0; i < count; i = i + 1 {
-    items.push(@luna.h("li", [], [@luna.vtext("Item " + i.to_string())]))
+    items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   @luna.h("ul", [], items)
 }
@@ -191,7 +191,7 @@ test "hydrate_dynamic_attrs" (b : @bench.T) {
         }),
       ),
     ],
-    [@luna.vtext("Toggle")],
+    [@luna.text("Toggle")],
   )
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_dynamic_attrs", fn() {
@@ -208,8 +208,8 @@ test "hydrate_dynamic_attrs" (b : @bench.T) {
 test "hydrate_show_visible" (b : @bench.T) {
   @global_jsdom.register()
   let visible = @signal.signal(true)
-  let node = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.h("div", [], [@luna.vtext("Visible content")])
+  let node = @luna.show(fn() { visible.get() }, fn() {
+    @luna.h("div", [], [@luna.text("Visible content")])
   })
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_show_visible", fn() {
@@ -222,8 +222,8 @@ test "hydrate_show_visible" (b : @bench.T) {
 test "hydrate_show_hidden" (b : @bench.T) {
   @global_jsdom.register()
   let visible = @signal.signal(false)
-  let node = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.h("div", [], [@luna.vtext("Hidden content")])
+  let node = @luna.show(fn() { visible.get() }, fn() {
+    @luna.h("div", [], [@luna.text("Hidden content")])
   })
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_show_hidden", fn() {
@@ -240,8 +240,8 @@ test "hydrate_show_hidden" (b : @bench.T) {
 test "hydrate_for_5_items" (b : @bench.T) {
   @global_jsdom.register()
   let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
-  let node = @luna.vfor(fn() {
-    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.vtext(item)]) })
+  let node = @luna.for_each(fn() {
+    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_for_5_items", fn() {
@@ -258,8 +258,8 @@ test "hydrate_for_20_items" (b : @bench.T) {
     items.push("item_" + i.to_string())
   }
   let items_sig = @signal.signal(items)
-  let node = @luna.vfor(fn() {
-    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.vtext(item)]) })
+  let node = @luna.for_each(fn() {
+    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_for_20_items", fn() {
@@ -276,13 +276,13 @@ test "hydrate_for_20_items" (b : @bench.T) {
 fn create_hydrate_card(title : String, content : String) -> @luna.Node[@js.Any] {
   @luna.h("div", [("class", @luna.attr_static("card"))], [
     @luna.h("h3", [("class", @luna.attr_static("card-title"))], [
-      @luna.vtext(title),
+      @luna.text(title),
     ]),
     @luna.h("p", [("class", @luna.attr_static("card-content"))], [
-      @luna.vtext(content),
+      @luna.text(content),
     ]),
     @luna.h("button", [("class", @luna.attr_static("card-button"))], [
-      @luna.vtext("Read more"),
+      @luna.text("Read more"),
     ]),
   ])
 }
@@ -299,11 +299,11 @@ fn create_hydrate_page(card_count : Int) -> @luna.Node[@js.Any] {
     )
   }
   @luna.h("html", [], [
-    @luna.h("head", [], [@luna.h("title", [], [@luna.vtext("Test Page")])]),
+    @luna.h("head", [], [@luna.h("title", [], [@luna.text("Test Page")])]),
     @luna.h("body", [], [
-      @luna.h("header", [], [@luna.h("h1", [], [@luna.vtext("Welcome")])]),
+      @luna.h("header", [], [@luna.h("h1", [], [@luna.text("Welcome")])]),
       @luna.h("main", [("class", @luna.attr_static("container"))], cards),
-      @luna.h("footer", [], [@luna.h("p", [], [@luna.vtext("Footer content")])]),
+      @luna.h("footer", [], [@luna.h("p", [], [@luna.text("Footer content")])]),
     ]),
   ])
 }
@@ -371,7 +371,7 @@ test "hydrate_form_with_handlers" (b : @bench.T) {
         [],
       ),
       @luna.h("button", [("type", @luna.attr_static("submit"))], [
-        @luna.vtext("Submit"),
+        @luna.text("Submit"),
       ]),
     ],
   )

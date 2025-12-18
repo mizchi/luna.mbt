@@ -66,14 +66,14 @@ test "escape_attr_to" {
 
 ///|
 test "render_to_string text node" {
-  let node : @luna.Node[Unit] = @luna.vtext("Hello")
+  let node : @luna.Node[Unit] = @luna.text("Hello")
   let result = render_to_string(node)
   assert_eq(result.html, "Hello")
 }
 
 ///|
 test "render_to_string element" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.vtext("content")])
+  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("content")])
   let result = render_to_string(node)
   assert_eq(result.html, "<div>content</div>")
 }
@@ -98,17 +98,17 @@ test "render_to_string with static attr" {
 
 ///|
 test "render_to_string escapes content" {
-  let node : @luna.Node[Unit] = @luna.vtext("<script>alert('xss')</script>")
+  let node : @luna.Node[Unit] = @luna.text("<script>alert('xss')</script>")
   let result = render_to_string(node)
   assert_eq(result.html, "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
 }
 
 ///|
 test "render_to_string fragment" {
-  let node : @luna.Node[Unit] = @luna.vfragment([
-    @luna.vtext("a"),
-    @luna.vtext("b"),
-    @luna.vtext("c"),
+  let node : @luna.Node[Unit] = @luna.fragment([
+    @luna.text("a"),
+    @luna.text("b"),
+    @luna.text("c"),
   ])
   let result = render_to_string(node)
   assert_eq(result.html, "abc")

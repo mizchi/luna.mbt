@@ -70,7 +70,7 @@ pub fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
   // Fragment request: return content only (no layout)
   // Full page request: wrap with layout
   let node = if props.params.is_fragment {
-    @luna.vfragment(content)
+    @luna.fragment(content)
   } else {
     layout(content)
   }

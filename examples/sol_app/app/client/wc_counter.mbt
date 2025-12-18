@@ -30,7 +30,7 @@ pub fn wc_counter(props : WcCounterProps) -> DomNode {
     class="counter",
     ref_=fn(el) { use_style(wc_counter_css, el) },
     [
-      span(class="count-display", [text_sig(count)]),
+      span(class="count-display", [text_of(count)]),
       div(class="buttons", [
         button(class="dec", on=events().click(_ => count.update(n => n - 1)), [
           text("-"),

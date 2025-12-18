@@ -15,19 +15,19 @@
 ///|
 /// Simple text node
 fn vnode_text() -> @luna.Node[Unit] {
-  @luna.vtext("Hello, World!")
+  @luna.text("Hello, World!")
 }
 
 ///|
 /// Text with HTML special characters (needs escaping)
 fn vnode_text_escape() -> @luna.Node[Unit] {
-  @luna.vtext("<script>alert('xss')</script> & \"dangerous\" content")
+  @luna.text("<script>alert('xss')</script> & \"dangerous\" content")
 }
 
 ///|
 /// Simple element with no attrs
 fn vnode_simple_element() -> @luna.Node[Unit] {
-  @luna.h("div", [], [@luna.vtext("content")])
+  @luna.h("div", [], [@luna.text("content")])
 }
 
 ///|
@@ -40,7 +40,7 @@ fn vnode_with_attrs() -> @luna.Node[Unit] {
       ("class", @luna.attr_static("container mx-auto")),
       ("data-value", @luna.attr_static("{\"count\":42,\"name\":\"test\"}")),
     ],
-    [@luna.vtext("content")],
+    [@luna.text("content")],
   )
 }
 
@@ -49,12 +49,12 @@ fn vnode_with_attrs() -> @luna.Node[Unit] {
 fn vnode_nested() -> @luna.Node[Unit] {
   @luna.h("div", [("class", @luna.attr_static("card"))], [
     @luna.h("header", [("class", @luna.attr_static("card-header"))], [
-      @luna.h("h2", [], [@luna.vtext("Title")]),
+      @luna.h("h2", [], [@luna.text("Title")]),
     ]),
     @luna.h("div", [("class", @luna.attr_static("card-body"))], [
-      @luna.h("p", [], [@luna.vtext("This is the card body content.")]),
+      @luna.h("p", [], [@luna.text("This is the card body content.")]),
       @luna.h("button", [("class", @luna.attr_static("btn"))], [
-        @luna.vtext("Click me"),
+        @luna.text("Click me"),
       ]),
     ]),
   ])
@@ -67,7 +67,7 @@ fn vnode_list() -> @luna.Node[Unit] {
   for i = 0; i < 10; i = i + 1 {
     items.push(
       @luna.h("li", [("class", @luna.attr_static("item"))], [
-        @luna.vtext("Item \{i}"),
+        @luna.text("Item \{i}"),
       ]),
     )
   }
@@ -81,7 +81,7 @@ fn vnode_large_list() -> @luna.Node[Unit] {
   for i = 0; i < 100; i = i + 1 {
     items.push(
       @luna.h("li", [("class", @luna.attr_static("item"))], [
-        @luna.vtext("Item \{i} with some <special> & \"characters\""),
+        @luna.text("Item \{i} with some <special> & \"characters\""),
       ]),
     )
   }
@@ -94,24 +94,24 @@ fn vnode_page() -> @luna.Node[Unit] {
   @luna.h("html", [], [
     @luna.h("head", [], [
       @luna.h("meta", [("charset", @luna.attr_static("utf-8"))], []),
-      @luna.h("title", [], [@luna.vtext("Test Page")]),
+      @luna.h("title", [], [@luna.text("Test Page")]),
     ]),
     @luna.h("body", [], [
       @luna.h("header", [], [
         @luna.h("nav", [("class", @luna.attr_static("navbar"))], [
-          @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.vtext("Home")]),
+          @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.text("Home")]),
           @luna.h("a", [("href", @luna.attr_static("/about"))], [
-            @luna.vtext("About"),
+            @luna.text("About"),
           ]),
         ]),
       ]),
       @luna.h("main", [("class", @luna.attr_static("container"))], [
-        @luna.h("h1", [], [@luna.vtext("Welcome")]),
+        @luna.h("h1", [], [@luna.text("Welcome")]),
         @luna.h("p", [], [
-          @luna.vtext("This is a test page with <special> & \"characters\"."),
+          @luna.text("This is a test page with <special> & \"characters\"."),
         ]),
       ]),
-      @luna.h("footer", [], [@luna.vtext("© 2024")]),
+      @luna.h("footer", [], [@luna.text("© 2024")]),
     ]),
   ])
 }

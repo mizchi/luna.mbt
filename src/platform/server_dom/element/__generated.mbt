@@ -644,13 +644,13 @@ pub fn hr(
 ///|
 /// Create a text node
 pub fn text(content : String) -> @luna.Node[Unit] {
-  @luna.vtext(content)
+  @luna.text(content)
 }
 
 ///|
 /// Create a fragment (multiple nodes without wrapper)
 pub fn fragment(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
-  @luna.vfragment(children)
+  @luna.fragment(children)
 }
 
 ///|

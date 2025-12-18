@@ -119,17 +119,17 @@ pub fn template_counter_mbt() -> String {
     #|pub fn render(count : @signal.Signal[Int]) -> @luna.Node[Unit] {
     #|  @luna.h("div", [("class", @luna.attr_static("counter"))], [
     #|    @luna.h("span", [("class", @luna.attr_static("count-display"))], [
-    #|      @luna.vtext_sig(count),
+    #|      @luna.text_of(count),
     #|    ]),
     #|    @luna.h("div", [("class", @luna.attr_static("buttons"))], [
     #|      @luna.h("button", [
     #|        ("class", @luna.attr_static("dec")),
     #|        ("onclick", @luna.action(Decrement)),
-    #|      ], [@luna.vtext("-")]),
+    #|      ], [@luna.text("-")]),
     #|      @luna.h("button", [
     #|        ("class", @luna.attr_static("inc")),
     #|        ("onclick", @luna.action(Increment)),
-    #|      ], [@luna.vtext("+")]),
+    #|      ], [@luna.text("+")]),
     #|    ]),
     #|  ])
     #|}
@@ -193,14 +193,14 @@ pub fn template_home_page_mbt() -> String {
     #|  let state_json = "{\"count\":" + initial_count.to_string() + "}"
     #|  let count_signal = @signal.signal(initial_count)
     #|
-    #|  @luna.vfragment([
+    #|  @luna.fragment([
     #|    @luna.h("div", [("class", @luna.attr_static("container"))], [
-    #|      @luna.h("h1", [], [@luna.vtext("Welcome to Sol")]),
-    #|      @luna.h("p", [], [@luna.vtext("A SSR-first web framework for MoonBit")]),
+    #|      @luna.h("h1", [], [@luna.text("Welcome to Sol")]),
+    #|      @luna.h("p", [], [@luna.text("A SSR-first web framework for MoonBit")]),
     #|      @luna.h("nav", [], [
-    #|        @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.vtext("Home")]),
-    #|        @luna.vtext(" | "),
-    #|        @luna.h("a", [("href", @luna.attr_static("/about"))], [@luna.vtext("About")]),
+    #|        @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.text("Home")]),
+    #|        @luna.text(" | "),
+    #|        @luna.h("a", [("href", @luna.attr_static("/about"))], [@luna.text("About")]),
     #|      ]),
     #|    ]),
     #|    @sol.island(
@@ -222,9 +222,9 @@ pub fn template_about_page_mbt() -> String {
     #|///| About page
     #|pub fn page(_ctx : @sol.Ctx) -> @luna.Node[Unit] {
     #|  @luna.h("div", [("class", @luna.attr_static("container"))], [
-    #|    @luna.h("h1", [], [@luna.vtext("About")]),
-    #|    @luna.h("p", [], [@luna.vtext("Built with MoonBit and Sol framework.")]),
-    #|    @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.vtext("← Back")]),
+    #|    @luna.h("h1", [], [@luna.text("About")]),
+    #|    @luna.h("p", [], [@luna.text("Built with MoonBit and Sol framework.")]),
+    #|    @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.text("← Back")]),
     #|  ])
     #|}
   )

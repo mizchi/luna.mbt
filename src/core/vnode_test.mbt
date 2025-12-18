@@ -108,8 +108,8 @@ test "h creates Element node" {
 }
 
 ///|
-test "vtext creates Text node" {
-  let node : Node[Unit] = vtext("hello")
+test "text creates Text node" {
+  let node : Node[Unit] = text("hello")
   match node {
     Text(content) => assert_eq(content, "hello")
     _ => assert_true(false)
@@ -126,9 +126,9 @@ test "text_dyn creates DynamicText node" {
 }
 
 ///|
-test "vtext_sig creates DynamicText node from signal" {
+test "text_of creates DynamicText node from signal" {
   let sig = @signal.signal(42)
-  let node : Node[Unit] = vtext_sig(sig)
+  let node : Node[Unit] = text_of(sig)
   match node {
     DynamicText(getter) => assert_eq(getter(), "42")
     _ => assert_true(false)
@@ -136,8 +136,8 @@ test "vtext_sig creates DynamicText node from signal" {
 }
 
 ///|
-test "vfragment creates Fragment node" {
-  let node : Node[Unit] = vfragment([vtext("a"), vtext("b")])
+test "fragment creates Fragment node" {
+  let node : Node[Unit] = fragment([text("a"), text("b")])
   match node {
     Fragment(children) => assert_eq(children.length(), 2)
     _ => assert_true(false)
@@ -145,8 +145,8 @@ test "vfragment creates Fragment node" {
 }
 
 ///|
-test "vshow creates Show node" {
-  let node : Node[Unit] = vshow(fn() { true }, fn() { vtext("shown") })
+test "show creates Show node" {
+  let node : Node[Unit] = show(fn() { true }, fn() { text("shown") })
   match node {
     Show(condition~, child~) => {
       assert_true(condition())
@@ -160,8 +160,8 @@ test "vshow creates Show node" {
 }
 
 ///|
-test "vfor creates For node" {
-  let node : Node[Unit] = vfor(fn() { [vtext("a"), vtext("b")] })
+test "for_each creates For node" {
+  let node : Node[Unit] = for_each(fn() { [text("a"), text("b")] })
   match node {
     For(render~) => assert_eq(render().length(), 2)
     _ => assert_true(false)
@@ -169,8 +169,8 @@ test "vfor creates For node" {
 }
 
 ///|
-test "vcomponent creates Component node" {
-  let node : Node[Unit] = vcomponent(fn() { vtext("component") })
+test "component creates Component node" {
+  let node : Node[Unit] = component(fn() { text("component") })
   match node {
     Component(render~) =>
       match render() {
@@ -182,8 +182,8 @@ test "vcomponent creates Component node" {
 }
 
 ///|
-test "visland creates Island node" {
-  let node : Node[Unit] = visland("id1", "/app.js", "{}", [vtext("child")])
+test "island creates Island node" {
+  let node : Node[Unit] = island("id1", "/app.js", "{}", [text("child")])
   match node {
     Island(island) => {
       assert_eq(island.id, "id1")
@@ -196,13 +196,13 @@ test "visland creates Island node" {
 }
 
 ///|
-test "visland with custom trigger" {
-  let node : Node[Unit] = visland(
+test "island with custom trigger" {
+  let node : Node[Unit] = island(
     "id1",
     "/app.js",
     "{}",
     [],
-    trigger=IslandTrigger::Idle,
+    trigger=TriggerType::Idle,
   )
   match node {
     Island(island) =>
@@ -215,9 +215,9 @@ test "visland with custom trigger" {
 }
 
 ///|
-test "vasync creates Async node" {
-  let node : Node[Unit] = vasync(render=async fn() { vtext("resolved") }, fallback=fn() {
-    vtext("loading")
+test "async_ creates Async node" {
+  let node : Node[Unit] = async_(render=async fn() { text("resolved") }, fallback=fn() {
+    text("loading")
   })
   match node {
     Async(async_node) =>
@@ -231,11 +231,11 @@ test "vasync creates Async node" {
 
 ///|
 test "error_boundary creates ErrorBoundary node" {
-  let node : Node[Unit] = error_boundary(children=fn() { vtext("content") }, fallback=fn(
+  let node : Node[Unit] = error_boundary(children=fn() { text("content") }, fallback=fn(
     _err,
     _reset,
   ) {
-    vtext("error")
+    text("error")
   })
   match node {
     ErrorBoundary(boundary) =>
@@ -250,7 +250,7 @@ test "error_boundary creates ErrorBoundary node" {
 ///|
 test "match_case creates MatchCase" {
   let case_ : MatchCase[Unit] = match_case(when=fn() { true }, render=fn() {
-    vtext("matched")
+    text("matched")
   })
   assert_true((case_.when)())
   match (case_.render)() {
@@ -260,13 +260,13 @@ test "match_case creates MatchCase" {
 }
 
 ///|
-test "vswitch creates Switch node" {
-  let node : Node[Unit] = vswitch(
+test "switch_ creates Switch node" {
+  let node : Node[Unit] = switch_(
     cases=[
-      match_case(when=fn() { false }, render=fn() { vtext("first") }),
-      match_case(when=fn() { true }, render=fn() { vtext("second") }),
+      match_case(when=fn() { false }, render=fn() { text("first") }),
+      match_case(when=fn() { true }, render=fn() { text("second") }),
     ],
-    fallback=Some(fn() { vtext("fallback") }),
+    fallback=Some(fn() { text("fallback") }),
   )
   match node {
     Switch(switch_node) => {
@@ -278,18 +278,16 @@ test "vswitch creates Switch node" {
 }
 
 // =============================================================================
-// IslandTrigger Tests
+// TriggerType Tests
 // =============================================================================
 
 ///|
-test "trigger_to_string" {
-  assert_eq(trigger_to_string(Load), "load")
-  assert_eq(trigger_to_string(Idle), "idle")
-  assert_eq(trigger_to_string(Visible), "visible")
-  assert_eq(
-    trigger_to_string(Media("(min-width: 768px)")),
-    "media:(min-width: 768px)",
-  )
+test "TriggerType::to_string" {
+  assert_eq(TriggerType::Load.to_string(), "load")
+  assert_eq(TriggerType::Idle.to_string(), "idle")
+  assert_eq(TriggerType::Visible.to_string(), "visible")
+  assert_eq(TriggerType::Media("(min-width: 768px)").to_string(), "media:(min-width: 768px)")
+  assert_eq(TriggerType::None.to_string(), "none")
 }
 
 // =============================================================================
@@ -413,8 +411,8 @@ test "wc_component_ref with custom trigger" {
 // =============================================================================
 
 ///|
-test "vinternal_ref creates InternalRef node" {
-  let node : Node[Unit] = vinternal_ref("/static/counter.js", "{\"count\":0}")
+test "internal_ref creates InternalRef node" {
+  let node : Node[Unit] = internal_ref("/static/counter.js", "{\"count\":0}")
   match node {
     InternalRef(iref) => {
       assert_eq(iref.url, "/static/counter.js")
@@ -428,13 +426,13 @@ test "vinternal_ref creates InternalRef node" {
 }
 
 ///|
-test "vinternal_ref with wc flag" {
-  let node : Node[Unit] = vinternal_ref(
+test "internal_ref with wc flag" {
+  let node : Node[Unit] = internal_ref(
     "/static/wc_counter.js",
     "{}",
     wc=true,
     styles=":host { display: block; }",
-    children=[vtext("child")],
+    children=[text("child")],
   )
   match node {
     InternalRef(iref) => {
@@ -448,8 +446,8 @@ test "vinternal_ref with wc flag" {
 }
 
 ///|
-test "vinternal_ref with custom trigger" {
-  let node : Node[Unit] = vinternal_ref(
+test "internal_ref with custom trigger" {
+  let node : Node[Unit] = internal_ref(
     "/static/counter.js",
     "{}",
     trigger=Idle,

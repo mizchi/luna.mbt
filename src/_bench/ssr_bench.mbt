@@ -8,7 +8,7 @@
 
 ///|
 test "ssr_simple_text" (b : @bench.T) {
-  let node : @luna.Node[Unit] = @luna.vtext("Hello, World!")
+  let node : @luna.Node[Unit] = @luna.text("Hello, World!")
   b.bench(name="ssr_simple_text", fn() {
     b.keep(@ssr.render_to_string(node).html)
   })
@@ -16,7 +16,7 @@ test "ssr_simple_text" (b : @bench.T) {
 
 ///|
 test "ssr_simple_element" (b : @bench.T) {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Hello")])
   b.bench(name="ssr_simple_element", fn() {
     b.keep(@ssr.render_to_string(node).html)
   })
@@ -30,7 +30,7 @@ test "ssr_element_with_attrs" (b : @bench.T) {
       ("class", @luna.attr_static("container")),
       ("id", @luna.attr_static("main")),
     ],
-    [@luna.vtext("Content")],
+    [@luna.text("Content")],
   )
   b.bench(name="ssr_element_with_attrs", fn() {
     b.keep(@ssr.render_to_string(node).html)
@@ -44,7 +44,7 @@ test "ssr_element_with_attrs" (b : @bench.T) {
 ///|
 test "ssr_nested_3_levels" (b : @bench.T) {
   let node : @luna.Node[Unit] = @luna.h("div", [], [
-    @luna.h("section", [], [@luna.h("p", [], [@luna.vtext("Nested content")])]),
+    @luna.h("section", [], [@luna.h("p", [], [@luna.text("Nested content")])]),
   ])
   b.bench(name="ssr_nested_3_levels", fn() {
     b.keep(@ssr.render_to_string(node).html)
@@ -56,7 +56,7 @@ test "ssr_nested_5_levels" (b : @bench.T) {
   let node : @luna.Node[Unit] = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
-        @luna.h("div", [], [@luna.h("span", [], [@luna.vtext("Deep content")])]),
+        @luna.h("div", [], [@luna.h("span", [], [@luna.text("Deep content")])]),
       ]),
     ]),
   ])
@@ -73,7 +73,7 @@ test "ssr_nested_5_levels" (b : @bench.T) {
 fn create_list(count : Int) -> @luna.Node[@js.Any] {
   let items : Array[@luna.Node[@js.Any]] = []
   for i = 0; i < count; i = i + 1 {
-    items.push(@luna.h("li", [], [@luna.vtext("Item " + i.to_string())]))
+    items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   @luna.h("ul", [], items)
 }
@@ -110,13 +110,13 @@ test "ssr_list_1000_items" (b : @bench.T) {
 fn create_card(title : String, content : String) -> @luna.Node[@js.Any] {
   @luna.h("div", [("class", @luna.attr_static("card"))], [
     @luna.h("h3", [("class", @luna.attr_static("card-title"))], [
-      @luna.vtext(title),
+      @luna.text(title),
     ]),
     @luna.h("p", [("class", @luna.attr_static("card-content"))], [
-      @luna.vtext(content),
+      @luna.text(content),
     ]),
     @luna.h("button", [("class", @luna.attr_static("card-button"))], [
-      @luna.vtext("Read more"),
+      @luna.text("Read more"),
     ]),
   ])
 }
@@ -130,11 +130,11 @@ fn create_page(card_count : Int) -> @luna.Node[@js.Any] {
     )
   }
   @luna.h("html", [], [
-    @luna.h("head", [], [@luna.h("title", [], [@luna.vtext("Test Page")])]),
+    @luna.h("head", [], [@luna.h("title", [], [@luna.text("Test Page")])]),
     @luna.h("body", [], [
-      @luna.h("header", [], [@luna.h("h1", [], [@luna.vtext("Welcome")])]),
+      @luna.h("header", [], [@luna.h("h1", [], [@luna.text("Welcome")])]),
       @luna.h("main", [("class", @luna.attr_static("container"))], cards),
-      @luna.h("footer", [], [@luna.h("p", [], [@luna.vtext("Footer content")])]),
+      @luna.h("footer", [], [@luna.h("p", [], [@luna.text("Footer content")])]),
     ]),
   ])
 }
@@ -169,7 +169,7 @@ test "ssr_page_100_cards" (b : @bench.T) {
 
 ///|
 test "ssr_hydration_simple" (b : @bench.T) {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.vtext("Hello")])
+  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Hello")])
   b.bench(name="ssr_hydration_simple", fn() {
     b.keep(@ssr.render_to_string_with_hydration(node))
   })
@@ -223,7 +223,7 @@ test "ssr_dynamic_attrs" (b : @bench.T) {
         }),
       ),
     ],
-    [@luna.vtext("Toggle")],
+    [@luna.text("Toggle")],
   )
   b.bench(name="ssr_dynamic_attrs", fn() {
     b.keep(@ssr.render_to_string(node).html)
@@ -233,8 +233,8 @@ test "ssr_dynamic_attrs" (b : @bench.T) {
 ///|
 test "ssr_show_conditional" (b : @bench.T) {
   let visible = @signal.signal(true)
-  let node : @luna.Node[Unit] = @luna.vshow(fn() { visible.get() }, fn() {
-    @luna.h("div", [], [@luna.vtext("Visible content")])
+  let node : @luna.Node[Unit] = @luna.show(fn() { visible.get() }, fn() {
+    @luna.h("div", [], [@luna.text("Visible content")])
   })
   b.bench(name="ssr_show_conditional", fn() {
     b.keep(@ssr.render_to_string(node).html)
@@ -244,8 +244,8 @@ test "ssr_show_conditional" (b : @bench.T) {
 ///|
 test "ssr_for_loop" (b : @bench.T) {
   let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
-  let node : @luna.Node[Unit] = @luna.vfor(fn() {
-    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.vtext(item)]) })
+  let node : @luna.Node[Unit] = @luna.for_each(fn() {
+    items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   b.bench(name="ssr_for_loop", fn() { b.keep(@ssr.render_to_string(node).html) })
 }

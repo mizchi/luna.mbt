@@ -2,20 +2,6 @@
 
 ///| Types for generating portable, resumable UI snippets (shards)
 
-///|
-/// When to hydrate the component
-pub(all) enum TriggerType {
-  /// Hydrate on page load (DOMContentLoaded)
-  Load
-  /// Hydrate when browser is idle (requestIdleCallback)
-  Idle
-  /// Hydrate when element enters viewport (IntersectionObserver)
-  Visible
-  /// Hydrate when media query matches
-  Media(String)
-  /// Never auto-hydrate (manual only)
-  None
-}
 
 ///|
 /// How state is provided
@@ -38,7 +24,7 @@ pub struct ShardConfig {
   /// ES module URL to load for hydration
   script_url : String
   /// When to trigger hydration
-  trigger : TriggerType
+  trigger : @luna.TriggerType
   /// Initial state configuration
   state : StateConfig
   /// Pre-rendered HTML content (SSR output)
@@ -70,7 +56,7 @@ pub fn ShardConfig::new(id : String, script_url : String) -> ShardConfig {
   {
     id,
     script_url,
-    trigger: Load,
+    trigger: @luna.Load,
     state: Empty,
     ssr_content: None,
     include_loader: false,
@@ -82,7 +68,7 @@ pub fn ShardConfig::new(id : String, script_url : String) -> ShardConfig {
 /// Builder pattern: set trigger
 pub fn ShardConfig::with_trigger(
   self : ShardConfig,
-  trigger : TriggerType,
+  trigger : @luna.TriggerType,
 ) -> ShardConfig {
   { ..self, trigger, }
 }
@@ -136,38 +122,4 @@ pub fn ShardConfig::with_loader(
 /// Builder pattern: include loader script with default URL
 pub fn ShardConfig::with_default_loader(self : ShardConfig) -> ShardConfig {
   { ..self, include_loader: true }
-}
-
-///|
-/// Convert TriggerType to attribute value
-pub fn TriggerType::to_string(self : TriggerType) -> String {
-  match self {
-    Load => "load"
-    Idle => "idle"
-    Visible => "visible"
-    Media(query) => "media:" + query
-    None => "none"
-  }
-}
-
-///|
-/// Parse TriggerType from string
-pub fn TriggerType::parse(s : String) -> TriggerType {
-  match s {
-    "load" => Load
-    "idle" => Idle
-    "visible" => Visible
-    "none" => None
-    _ =>
-      if s.has_prefix("media:") {
-        // Extract substring after "media:" prefix
-        let sb = StringBuilder::new()
-        for i = 6; i < s.length(); i = i + 1 {
-          sb.write_char(s.iter().nth(i).unwrap())
-        }
-        Media(sb.to_string())
-      } else {
-        Load // default
-      }
-  }
 }

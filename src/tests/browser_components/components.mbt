@@ -61,7 +61,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
           ),
         ),
       ],
-      [@luna.vtext("+1")],
+      [@luna.text("+1")],
     ),
     @luna.h(
       "button",
@@ -76,7 +76,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
           ),
         ),
       ],
-      [@luna.vtext("-1")],
+      [@luna.text("-1")],
     ),
     @luna.h(
       "button",
@@ -89,7 +89,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
           ),
         ),
       ],
-      [@luna.vtext("Reset")],
+      [@luna.text("Reset")],
     ),
   ])
 
@@ -143,7 +143,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
           ),
         ),
       ],
-      [@luna.vtext("Toggle Active")],
+      [@luna.text("Toggle Active")],
     ),
     @luna.h(
       "button",
@@ -156,7 +156,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
           ),
         ),
       ],
-      [@luna.vtext("Red")],
+      [@luna.text("Red")],
     ),
     @luna.h(
       "button",
@@ -169,7 +169,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
           ),
         ),
       ],
-      [@luna.vtext("Blue")],
+      [@luna.text("Blue")],
     ),
   ])
 
@@ -180,7 +180,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
 
 ///|
 /// Show/hide toggle test component
-/// Tests: Conditional rendering with vshow()
+/// Tests: Conditional rendering with show()
 pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
   let visible = @signal.signal(js_getBool(state, "visible"))
   let vnode = @luna.h("div", [], [
@@ -199,14 +199,14 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
       ],
       [@luna.text_dyn(fn() { if visible.get() { "Hide" } else { "Show" } })],
     ),
-    @luna.vshow(fn() { visible.get() }, fn() {
+    @luna.show(fn() { visible.get() }, fn() {
       @luna.h(
         "div",
         [
           ("data-content", @luna.attr_static("true")),
           ("class", @luna.attr_static("content-box")),
         ],
-        [@luna.vtext("This content is conditionally shown")],
+        [@luna.text("This content is conditionally shown")],
       )
     }),
   ])
@@ -218,7 +218,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
 
 ///|
 /// For each list test component
-/// Tests: List rendering with vfor()
+/// Tests: List rendering with for_each()
 pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
   let items = @signal.signal(js_getArray(state, "items"))
   // Store the pending input value separately since we need to capture it at add time
@@ -258,14 +258,14 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
             ),
           ),
         ],
-        [@luna.vtext("Add")],
+        [@luna.text("Add")],
       ),
     ]),
     @luna.h("span", [("data-count", @luna.attr_static("true"))], [
       @luna.text_dyn(fn() { items.get().length().to_string() + " items" }),
     ]),
     @luna.h("ul", [("data-list", @luna.attr_static("true"))], [
-      @luna.vfor(fn() {
+      @luna.for_each(fn() {
         let current_items = items.get()
         let result : Array[@luna.Node[@js.Any]] = []
         for i = 0; i < current_items.length(); i = i + 1 {
@@ -276,7 +276,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
               "li",
               [("data-item", @luna.attr_static(index.to_string()))],
               [
-                @luna.h("span", [], [@luna.vtext(item)]),
+                @luna.h("span", [], [@luna.text(item)]),
                 @luna.h(
                   "button",
                   [
@@ -297,7 +297,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
                       ),
                     ),
                   ],
-                  [@luna.vtext("x")],
+                  [@luna.text("x")],
                 ),
               ],
             ),
@@ -362,19 +362,19 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @js.Any) -> Unit {
           ),
         ),
       ],
-      [@luna.vtext("Click or double-click me")],
+      [@luna.text("Click or double-click me")],
     ),
     @luna.h("div", [], [
       @luna.h("span", [("data-clicks", @luna.attr_static("true"))], [
         @luna.text_dyn(fn() { "Clicks: " + click_count.get().to_string() }),
       ]),
-      @luna.vtext(" | "),
+      @luna.text(" | "),
       @luna.h("span", [("data-dblclicks", @luna.attr_static("true"))], [
         @luna.text_dyn(fn() {
           "Double-clicks: " + dblclick_count.get().to_string()
         }),
       ]),
-      @luna.vtext(" | "),
+      @luna.text(" | "),
       @luna.h("span", [("data-hover", @luna.attr_static("true"))], [
         @luna.text_dyn(fn() { "Hover: " + hover_state.get() }),
       ]),
@@ -500,7 +500,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
             ),
           ),
         ],
-        [@luna.vtext("Submit")],
+        [@luna.text("Submit")],
       ),
       @luna.h(
         "button",
@@ -513,7 +513,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
             ),
           ),
         ],
-        [@luna.vtext("Clear")],
+        [@luna.text("Clear")],
       ),
       @luna.h(
         "button",
@@ -528,7 +528,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
             ),
           ),
         ],
-        [@luna.vtext("Set Hello")],
+        [@luna.text("Set Hello")],
       ),
     ]),
     @luna.h("div", [], [

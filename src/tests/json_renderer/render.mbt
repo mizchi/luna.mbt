@@ -51,7 +51,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       attrs.set("luna:state", Static(island.state))
       attrs.set(
         "luna:client-trigger",
-        Static(@luna.trigger_to_string(island.trigger)),
+        Static(island.trigger.to_string()),
       )
       let children : Array[JsonNode] = []
       for child in island.children {
@@ -65,7 +65,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       attrs.set("data-state", Static(wc_island.state))
       attrs.set(
         "data-trigger",
-        Static(@luna.trigger_to_string(wc_island.trigger)),
+        Static(wc_island.trigger.to_string()),
       )
       let children : Array[JsonNode] = []
       for child in wc_island.children {
@@ -81,14 +81,14 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
         attrs.set("luna:wc-state", Static(iref.state))
         attrs.set(
           "luna:wc-trigger",
-          Static(@luna.trigger_to_string(iref.trigger)),
+          Static(iref.trigger.to_string()),
         )
       } else {
         attrs.set("luna:url", Static(iref.url))
         attrs.set("luna:state", Static(iref.state))
         attrs.set(
           "luna:client-trigger",
-          Static(@luna.trigger_to_string(iref.trigger)),
+          Static(iref.trigger.to_string()),
         )
       }
       let children : Array[JsonNode] = []

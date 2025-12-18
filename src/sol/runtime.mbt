@@ -237,10 +237,6 @@ extern "js" fn ffi_set_env(key : String, value : String) -> Unit =
 /// Default loader script URL
 pub let default_loader_url : String = "/loader.js"
 
-// Re-export shard types for convenience
-
-///|
-pub using @mercurius {type TriggerType, type StateConfig, type ShardConfig}
 
 ///|
 /// Island configuration
@@ -250,7 +246,7 @@ pub struct IslandConfig[E] {
   /// ES module URL for hydration script
   script_url : String
   /// Hydration trigger type
-  trigger : @mercurius.TriggerType
+  trigger : @luna.TriggerType
   /// State configuration
   state : @mercurius.StateConfig
   /// SSR rendered content (VNode)
@@ -268,7 +264,7 @@ pub fn[E] IslandConfig::new(
   {
     id,
     script_url,
-    trigger: @mercurius.TriggerType::Load,
+    trigger: @luna.TriggerType::Load,
     state: @mercurius.StateConfig::Empty,
     content: None,
     ssr_html: None,
@@ -279,7 +275,7 @@ pub fn[E] IslandConfig::new(
 /// Builder: set trigger type
 pub fn[E] IslandConfig::with_trigger(
   self : IslandConfig[E],
-  trigger : @mercurius.TriggerType,
+  trigger : @luna.TriggerType,
 ) -> IslandConfig[E] {
   { ..self, trigger, }
 }
@@ -448,13 +444,9 @@ pub fn escape_json_for_html(json : String) -> String {
 }
 
 // ============================================================================
-// Island VNode Support (using @luna.visland)
+// Island VNode Support (using @luna.island)
 // ============================================================================
 
-// Re-export Island types from @luna for convenience
-
-///|
-pub using @luna {type IslandTrigger, type VIsland, visland, trigger_to_string}
 
 ///|
 /// Create an Island VNode from a component render function
@@ -464,9 +456,9 @@ pub fn[E] island(
   url : String,
   state : String,
   children : Array[@luna.Node[E]],
-  trigger? : @luna.IslandTrigger = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.Load,
 ) -> @luna.Node[E] {
-  @luna.visland(id, url, state, children, trigger~)
+  @luna.island(id, url, state, children, trigger~)
 }
 
 ///|
@@ -476,9 +468,9 @@ pub fn[E] island_with(
   url : String,
   state : String,
   render : () -> @luna.Node[E],
-  trigger? : @luna.IslandTrigger = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.Load,
 ) -> @luna.Node[E] {
-  @luna.visland(id, url, state, [render()], trigger~)
+  @luna.island(id, url, state, [render()], trigger~)
 }
 
 ///|
@@ -496,13 +488,9 @@ pub fn[E] render_node(
 }
 
 // ============================================================================
-// Web Components Island VNode Support (using @luna.vwc_island)
+// Web Components Island VNode Support (using @luna.wc_island)
 // ============================================================================
 
-// Re-export WcIsland types from @luna for convenience
-
-///|
-pub using @luna {type VWcIsland, vwc_island}
 
 ///|
 /// Default wc-loader script URL
@@ -517,9 +505,9 @@ pub fn[E] wc_island(
   styles : String,
   state : String,
   children : Array[@luna.Node[E]],
-  trigger? : @luna.IslandTrigger = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.Load,
 ) -> @luna.Node[E] {
-  @luna.vwc_island(name, url, styles, state, children, trigger~)
+  @luna.wc_island(name, url, styles, state, children, trigger~)
 }
 
 ///|
@@ -530,9 +518,9 @@ pub fn[E] wc_island_with(
   styles : String,
   state : String,
   render : () -> @luna.Node[E],
-  trigger? : @luna.IslandTrigger = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.Load,
 ) -> @luna.Node[E] {
-  @luna.vwc_island(name, url, styles, state, [render()], trigger~)
+  @luna.wc_island(name, url, styles, state, [render()], trigger~)
 }
 
 ///|
@@ -564,28 +552,7 @@ pub fn[E] wc_page(
 // Streaming SSR Support
 // ============================================================================
 
-// Re-export render types from core/render
 
-///|
-pub using @render {
-  type SSRResult,
-  generate_preload_tags,
-  escape_html,
-  escape_attr,
-  escape_js_string,
-}
-
-// Re-export streaming types from renderer (JS-only)
-
-///|
-pub using @stream_renderer {
-  type StreamWriter,
-  render_to_stream,
-  render_to_readable_stream,
-  render_to_stream_with_async,
-  render_to_stream_collecting_async,
-  stream_async_replacement,
-}
 
 ///|
 /// Render a page with streaming SSR and async boundaries (VAsync nodes)

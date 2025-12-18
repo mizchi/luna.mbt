@@ -57,7 +57,7 @@ pub fn hydrate(el : @js_dom.Element, state : @js.Any) -> Unit {
           ("data-inc", @luna.attr_static("true")),
           ("onClick", @luna.attr_handler(on_inc)),
         ],
-        [@luna.vtext("+1")],
+        [@luna.text("+1")],
       ),
       @luna.h(
         "button",
@@ -65,7 +65,7 @@ pub fn hydrate(el : @js_dom.Element, state : @js.Any) -> Unit {
           ("data-dec", @luna.attr_static("true")),
           ("onClick", @luna.attr_handler(on_dec)),
         ],
-        [@luna.vtext("-1")],
+        [@luna.text("-1")],
       ),
     ],
   )

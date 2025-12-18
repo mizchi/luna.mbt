@@ -68,9 +68,9 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
       ]),
       div(class="form-preview", [
         span([text("Preview: ")]),
-        span(class="preview-name", [text_sig(name)]),
+        span(class="preview-name", [text_of(name)]),
         span([text(" <")]),
-        span(class="preview-email", [text_sig(email)]),
+        span(class="preview-email", [text_of(email)]),
         span([text(">")]),
       ]),
       div(class="form-actions", [
@@ -80,7 +80,7 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
           [text("Submit")],
         ),
       ]),
-      div(class="form-result", [text_sig(result_msg)]),
+      div(class="form-result", [text_of(result_msg)]),
     ],
   )
 }

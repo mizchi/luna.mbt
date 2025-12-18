@@ -24,7 +24,7 @@ pub fn wc_island(
   url : String,
   styles? : String,
   state? : String,
-  trigger? : @luna.IslandTrigger,
+  trigger? : @luna.TriggerType,
   children~ : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let styles_value = match styles {
@@ -39,7 +39,7 @@ pub fn wc_island(
     Some(t) => t
     None => @luna.Load
   }
-  @luna.vwc_island(
+  @luna.wc_island(
     name,
     url,
     styles_value,

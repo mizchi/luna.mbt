@@ -703,9 +703,9 @@ test "computed is alias for memo" {
 // =============================================================================
 
 ///|
-test "vtext_sig creates dynamic text from signal" {
+test "text_sig creates dynamic text from signal" {
   let sig = Signal::new(42)
-  let node : @luna.Node[Unit] = @luna.vtext_sig(sig)
+  let node : @luna.Node[Unit] = @luna.text_of(sig)
   match node {
     @luna.DynamicText(getter) => assert_eq(getter(), "42")
     _ => assert_true(false)
@@ -722,7 +722,7 @@ test "vnode creates anchor element" {
   let node : @luna.Node[Unit] = @luna.h(
     "a",
     [("href", @luna.attr_static("https://example.com"))],
-    [@luna.vtext("Link")],
+    [@luna.text("Link")],
   )
   match node {
     @luna.Element(el) => {
@@ -756,7 +756,7 @@ test "vnode creates label element" {
   let node : @luna.Node[Unit] = @luna.h(
     "label",
     [("for", @luna.attr_static("input1"))],
-    [@luna.vtext("Name:")],
+    [@luna.text("Name:")],
   )
   match node {
     @luna.Element(el) => assert_eq(el.tag, "label")
@@ -766,7 +766,7 @@ test "vnode creates label element" {
 
 ///|
 test "vnode creates h2 element" {
-  let node : @luna.Node[Unit] = @luna.h("h2", [], [@luna.vtext("Section")])
+  let node : @luna.Node[Unit] = @luna.h("h2", [], [@luna.text("Section")])
   match node {
     @luna.Element(el) => assert_eq(el.tag, "h2")
     _ => assert_true(false)
@@ -775,7 +775,7 @@ test "vnode creates h2 element" {
 
 ///|
 test "vnode creates h3 element" {
-  let node : @luna.Node[Unit] = @luna.h("h3", [], [@luna.vtext("Subsection")])
+  let node : @luna.Node[Unit] = @luna.h("h3", [], [@luna.text("Subsection")])
   match node {
     @luna.Element(el) => assert_eq(el.tag, "h3")
     _ => assert_true(false)
@@ -785,7 +785,7 @@ test "vnode creates h3 element" {
 ///|
 test "vnode creates ol element" {
   let node : @luna.Node[Unit] = @luna.h("ol", [], [
-    @luna.h("li", [], [@luna.vtext("Item 1")]),
+    @luna.h("li", [], [@luna.text("Item 1")]),
   ])
   match node {
     @luna.Element(el) => assert_eq(el.tag, "ol")
