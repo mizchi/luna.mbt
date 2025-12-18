@@ -177,8 +177,8 @@ fn run_dev_watch_mode(cwd : String, port : String) -> Unit {
         ._call("on", [
           @js.any("data"),
           @js.any(fn(data : @js.Any) {
-            let s : String = data.cast()
-            println(s)
+            let s : String = data._call("toString", []).cast()
+            print_string(s)
           }),
         ])
         |> ignore
@@ -188,8 +188,8 @@ fn run_dev_watch_mode(cwd : String, port : String) -> Unit {
         ._call("on", [
           @js.any("data"),
           @js.any(fn(data : @js.Any) {
-            let s : String = data.cast()
-            console_error(s)
+            let s : String = data._call("toString", []).cast()
+            print_string_stderr(s)
           }),
         ])
         |> ignore
@@ -348,3 +348,13 @@ fn run_server(cwd : String, port : String, mode : String) -> Unit {
 ///|
 extern "js" fn set_env(key : String, value : String) -> Unit =
   #| (key, value) => { process.env[key] = value }
+
+///|
+/// Print string to stdout without adding newline
+extern "js" fn print_string(s : String) -> Unit =
+  #| (s) => process.stdout.write(s)
+
+///|
+/// Print string to stderr without adding newline
+extern "js" fn print_string_stderr(s : String) -> Unit =
+  #| (s) => process.stderr.write(s)
