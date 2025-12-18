@@ -173,33 +173,52 @@ pub fn render_to(container : @js_dom.Element, n : DomNode) -> Unit {
 pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("show")
-  let mut current_node : @js_dom.Node? = None
   // Capture current owner for context inheritance
   let captured_owner = @signal.get_owner()
+
+  // Evaluate initial state immediately
+  let initial_show = when()
+  let initial_node : @js_dom.Node? = if initial_show {
+    let n = match captured_owner {
+      Some(owner) => @signal.run_with_owner(owner, render_fn)
+      None => render_fn()
+    }
+    Some(n.to_jsdom())
+  } else {
+    None
+  }
+
+  let current_node : Ref[@js_dom.Node?] = { val: initial_node }
+
+  // Effect handles subsequent updates only
   let _ = @signal.effect(fn() {
     let should_show = when()
-    match (should_show, current_node) {
+    match (should_show, current_node.val) {
       (true, None) =>
         // Need to show - create and insert node
         if placeholder.parentNode() is Some(parent) {
-          // Run render_fn with captured owner for context access
           let n = match captured_owner {
             Some(owner) => @signal.run_with_owner(owner, render_fn)
             None => render_fn()
           }
           parent.insertBefore(n.to_jsdom(), Some(placeholder)) |> ignore
-          current_node = Some(n.to_jsdom())
+          current_node.val = Some(n.to_jsdom())
         }
       (false, Some(n)) =>
         // Need to hide - remove node
         if n.parentNode() is Some(parent) {
           parent.removeChild(n) |> ignore
-          current_node = None
+          current_node.val = None
         }
       _ => () // No change needed
     }
   })
-  Raw(placeholder)
+
+  // Return fragment containing initial node (if any) and placeholder
+  match initial_node {
+    Some(node) => fragment([Raw(node), Raw(placeholder)])
+    None => Raw(placeholder)
+  }
 }
 
 ///|

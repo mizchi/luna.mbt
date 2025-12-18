@@ -571,14 +571,24 @@ pub fn jsxs(
 }
 
 ///|
-/// JSX runtime: Fragment (returns children as-is wrapped in a container)
+/// JSX runtime: Fragment (returns children using DocumentFragment)
 pub fn fragment(children : Array[DomNode]) -> DomNode {
-  // Return a document fragment or first child
-  // For simplicity, wrap in a span with no attributes
-  // In production, this should return a proper fragment
+  // Return single child directly, otherwise use DocumentFragment
   match children.length() {
-    0 => create_element("span", [], [])
+    0 => {
+      // Empty fragment - return a placeholder comment
+      let doc = @js_dom.document()
+      Raw(doc.createComment(""))
+    }
     1 => children[0]
-    _ => create_element("span", [], children)
+    _ => {
+      // Multiple children - use DocumentFragment
+      let doc = @js_dom.document()
+      let frag = doc.createDocumentFragment()
+      for child in children {
+        frag.as_node().appendChild(child.to_jsdom()) |> ignore
+      }
+      Raw(frag.as_node())
+    }
   }
 }
