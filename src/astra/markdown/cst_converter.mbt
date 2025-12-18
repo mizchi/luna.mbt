@@ -174,6 +174,7 @@ fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
       Some(@astra.MdNode::Table(headers=md_headers, rows=md_rows))
     }
     @md_parser.Block::BlankLines(..) => None // Skip blank lines (not represented in MdNode)
+    @md_parser.Block::FootnoteDefinition(..) => None // Skip footnotes (not supported in MdNode)
   }
 }
 
@@ -244,6 +245,9 @@ fn convert_inline(inline : @md_parser.Inline) -> @astra.MdNode? {
       // Reference images need resolution - for now, use label as src
       Some(@astra.MdNode::Image(src="#" + label, alt~, title=""))
     @md_parser.Inline::HtmlInline(html~, ..) => Some(@astra.MdNode::Html(html))
+    @md_parser.Inline::FootnoteReference(label~, ..) =>
+      // Convert footnote reference to superscript link
+      Some(@astra.MdNode::Text("[^\{label}]"))
   }
 }
 
@@ -293,6 +297,8 @@ fn cst_extract_text_recursive(
     @md_parser.Inline::Image(alt~, ..) => buf.write_string(alt)
     @md_parser.Inline::RefImage(alt~, ..) => buf.write_string(alt)
     @md_parser.Inline::HtmlInline(..) => () // Skip HTML in text extraction
+    @md_parser.Inline::FootnoteReference(label~, ..) =>
+      buf.write_string("[^\{label}]")
   }
 }
 

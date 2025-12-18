@@ -2,6 +2,6 @@
   "import": [
     { "path": "mizchi/luna/core", "alias": "luna" },
     { "path": "mizchi/luna/astra", "alias": "astra" },
-    { "path": "mizchi/luna/core/markdown", "alias": "md_parser" }
+    { "path": "mizchi/markdown", "alias": "md_parser" }
   ]
 }
