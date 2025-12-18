@@ -8,11 +8,10 @@
     "jsxImportSource": "@mizchi/luna",
     "noEmit": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@mizchi/luna": ["./js/ui"],
-      "@mizchi/luna/*": ["./js/ui/*"]
-    }
+    "baseUrl": "."
   },
-  "include": ["js/**/*.ts", "js/**/*.tsx"]
+  "include": [
+    "js/**/*.ts",
+    "js/**/*.tsx"
+  ]
 }
