@@ -241,18 +241,9 @@ pub fn generate_shiki_css() -> String {
     #|  background-color: var(--shiki-light-bg);
     #|}
     #|
-    #|/* Dark theme */
-    #|@media (prefers-color-scheme: dark) {
-    #|  .shiki,
-    #|  .shiki span {
-    #|    color: var(--shiki-dark);
-    #|    background-color: var(--shiki-dark-bg);
-    #|  }
-    #|}
-    #|
-    #|/* Manual dark mode class */
-    #|.dark .shiki,
-    #|.dark .shiki span {
+    #|/* Dark theme - controlled by .dark class on html */
+    #|html.dark .shiki,
+    #|html.dark .shiki span {
     #|  color: var(--shiki-dark);
     #|  background-color: var(--shiki-dark-bg);
     #|}

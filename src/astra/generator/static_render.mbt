@@ -314,9 +314,13 @@ fn build_nav(
   // Language switcher
   let lang_switcher = build_language_switcher(ctx, page)
 
-  // Combine nav links and language switcher
+  // Theme toggle button
+  let theme_toggle = build_theme_toggle()
+
+  // Combine nav links, language switcher, and theme toggle
   let nav_children : Array[@luna.Node[Unit]] = nav_items.copy()
   nav_children.push(lang_switcher)
+  nav_children.push(theme_toggle)
   let nav_links = h("div", [attr("class", "nav-links")], nav_children)
   h("header", [attr("class", "nav-bar")], [
     h("div", [attr("class", "nav-container")], [home_link, nav_links]),
@@ -382,6 +386,73 @@ fn build_language_switcher(
   ])
   let menu = h("div", [attr("class", "lang-menu")], items)
   h("details", [attr("class", "lang-switcher")], [summary, menu])
+}
+
+///|
+/// Build theme toggle button (dark/light mode)
+fn build_theme_toggle() -> @luna.Node[Unit] {
+  // Sun icon (for dark mode - click to switch to light)
+  let sun_icon = h(
+    "svg",
+    [
+      attr("class", "theme-icon theme-icon-light"),
+      attr("viewBox", "0 0 24 24"),
+      attr("width", "18"),
+      attr("height", "18"),
+      attr("fill", "none"),
+      attr("stroke", "currentColor"),
+      attr("stroke-width", "2"),
+    ],
+    [
+      h(
+        "circle",
+        [attr("cx", "12"), attr("cy", "12"), attr("r", "5")],
+        [],
+      ),
+      h(
+        "path",
+        [
+          attr(
+            "d",
+            "M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42",
+          ),
+        ],
+        [],
+      ),
+    ],
+  )
+
+  // Moon icon (for light mode - click to switch to dark)
+  let moon_icon = h(
+    "svg",
+    [
+      attr("class", "theme-icon theme-icon-dark"),
+      attr("viewBox", "0 0 24 24"),
+      attr("width", "18"),
+      attr("height", "18"),
+      attr("fill", "none"),
+      attr("stroke", "currentColor"),
+      attr("stroke-width", "2"),
+    ],
+    [
+      h(
+        "path",
+        [attr("d", "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z")],
+        [],
+      ),
+    ],
+  )
+
+  h(
+    "button",
+    [
+      attr("class", "theme-toggle"),
+      attr("type", "button"),
+      attr("aria-label", "Toggle dark mode"),
+      attr("onclick", "toggleTheme()"),
+    ],
+    [sun_icon, moon_icon],
+  )
 }
 
 ///|
@@ -528,7 +599,10 @@ fn build_html_document(
 
   // Navigation script for View Transition direction
   let nav_script = get_navigation_script(page_order)
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{nav_script}\n</body>\n</html>"
+
+  // Theme initialization script (runs early to prevent flash)
+  let theme_script = get_theme_script()
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{nav_script}\n</body>\n</html>"
 }
 
 // =============================================================================
@@ -552,6 +626,32 @@ fn get_navigation_script(page_order : Array[String]) -> String {
   // Build JSON array of page URLs
   let urls_json = page_order.map(fn(url) { "\"\{url}\"" }).join(", ")
   "<script>\n(function() {\n  const pageOrder = [\{urls_json}];\n  function getPageIndex(url) {\n    if (!url) return -1;\n    const path = new URL(url).pathname.replace(/\\/$/, '') || '/';\n    return pageOrder.findIndex(p => p.replace(/\\/$/, '') === path || p === path + '/');\n  }\n  function getCurrentIndex() {\n    return getPageIndex(location.href);\n  }\n  function navigateTo(url) {\n    window.scrollTo({ top: 0, behavior: 'instant' });\n    location.href = url;\n  }\n  window.addEventListener('pagereveal', (e) => {\n    if (!e.viewTransition || !navigation.activation) return;\n    const nav = navigation.activation;\n    const fromIdx = getPageIndex(nav.from?.url);\n    const toIdx = getPageIndex(nav.entry?.url);\n    if (fromIdx !== -1 && toIdx !== -1) {\n      e.viewTransition.types.add(toIdx > fromIdx ? 'forwards' : 'backwards');\n    } else {\n      e.viewTransition.types.add('forwards');\n    }\n  });\n  document.addEventListener('keydown', (e) => {\n    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;\n    const idx = getCurrentIndex();\n    if (idx === -1) return;\n    if (e.key === 'ArrowRight' && idx < pageOrder.length - 1) {\n      e.preventDefault();\n      navigateTo(pageOrder[idx + 1]);\n    } else if (e.key === 'ArrowLeft' && idx > 0) {\n      const prevPage = pageOrder[idx - 1];\n      if (prevPage === '/' || prevPage === '') return;\n      e.preventDefault();\n      navigateTo(prevPage);\n    }\n  });\n})();\n</script>"
+}
+
+///|
+/// Get theme toggle script (early load to prevent flash)
+fn get_theme_script() -> String {
+  let script =
+    #|(function(){
+    #|  var theme = localStorage.getItem('theme');
+    #|  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    #|  var isDark = theme === 'dark' || (theme !== 'light' && prefersDark);
+    #|  if (isDark) {
+    #|    document.documentElement.classList.add('dark');
+    #|  }
+    #|  window.toggleTheme = function() {
+    #|    var html = document.documentElement;
+    #|    var wasDark = html.classList.contains('dark');
+    #|    if (wasDark) {
+    #|      html.classList.remove('dark');
+    #|      localStorage.setItem('theme', 'light');
+    #|    } else {
+    #|      html.classList.add('dark');
+    #|      localStorage.setItem('theme', 'dark');
+    #|    }
+    #|  };
+    #|})();
+  script
 }
 
 // =============================================================================
@@ -710,15 +810,39 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|  --code-bg: #f6f6f7;
     #|}
     #|
-    #|@media (prefers-color-scheme: dark) {
-    #|  :root {
-    #|    --text-color: #e5e7eb;
-    #|    --bg-color: #1a1a1a;
-    #|    --sidebar-bg: #242424;
-    #|    --border-color: #3f3f3f;
-    #|    --code-bg: #2d2d2d;
-    #|  }
+    #|/* Dark mode - controlled by .dark class on html */
+    #|html.dark {
+    #|  --text-color: #e5e7eb;
+    #|  --bg-color: #1a1a1a;
+    #|  --sidebar-bg: #242424;
+    #|  --border-color: #3f3f3f;
+    #|  --code-bg: #2d2d2d;
     #|}
+    #|
+    #|/* Theme toggle button */
+    #|.theme-toggle {
+    #|  display: flex;
+    #|  align-items: center;
+    #|  justify-content: center;
+    #|  width: 36px;
+    #|  height: 36px;
+    #|  padding: 0;
+    #|  border: 1px solid var(--border-color);
+    #|  border-radius: 6px;
+    #|  background: transparent;
+    #|  color: var(--text-color);
+    #|  cursor: pointer;
+    #|  transition: background 0.2s, border-color 0.2s;
+    #|}
+    #|.theme-toggle:hover {
+    #|  background: var(--sidebar-bg);
+    #|}
+    #|
+    #|/* Theme icons - moon in light mode, sun in dark mode */
+    #|.theme-icon-dark { display: block; }
+    #|.theme-icon-light { display: none; }
+    #|html.dark .theme-icon-dark { display: none; }
+    #|html.dark .theme-icon-light { display: block; }
     #|
     #|/* View Transition API (MPA) */
     #|@view-transition {
