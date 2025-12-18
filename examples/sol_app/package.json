@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
-    "rolldown": "^1.0.0-beta.54"
+    "rolldown": "^1.0.0-beta.54",
+    "wrangler": "^4.54.0"
   }
 }
