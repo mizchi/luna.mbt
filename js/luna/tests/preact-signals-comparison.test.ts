@@ -460,8 +460,7 @@ describe("Fragment Comparison with Preact", () => {
     expect(getVisibleNodes(lunaContainer)).toEqual(getVisibleNodes(preactContainer));
   });
 
-  // Luna uses span wrapper for Fragments, Preact uses true fragments
-  test.skip("Fragment with multiple children (no wrapper)", () => {
+  test("Fragment with multiple children (no wrapper)", () => {
     // Luna
     const lunaNode = Fragment([
       createElement("span", [], [text("A")]),
@@ -485,7 +484,7 @@ describe("Fragment Comparison with Preact", () => {
     expect(getVisibleNodes(lunaContainer)).toEqual(getVisibleNodes(preactContainer));
   });
 
-  test.skip("Fragment with no children", () => {
+  test("Fragment with no children", () => {
     // Luna
     const lunaNode = Fragment([]);
     lunaRender(lunaContainer, lunaNode);
@@ -497,7 +496,7 @@ describe("Fragment Comparison with Preact", () => {
     expect(getVisibleNodes(lunaContainer)).toEqual(getVisibleNodes(preactContainer));
   });
 
-  test.skip("nested Fragments work correctly", () => {
+  test("nested Fragments work correctly", () => {
     // Luna
     const lunaNode = Fragment([
       Fragment([createElement("div", [], [text("A1")])]),
@@ -527,7 +526,7 @@ describe("Fragment Comparison with Preact", () => {
     expect(getVisibleNodes(lunaContainer)).toEqual(getVisibleNodes(preactContainer));
   });
 
-  test.skip("fragment with list", () => {
+  test("fragment with list", () => {
     const items = ["x", "y", "z"];
 
     // Luna
