@@ -14,8 +14,7 @@
   "nav": [
     { "text": "Guide", "link": "/guide/" },
     { "text": "Tutorial", "link": "/tutorial/" },
-    { "text": "Astra", "link": "/guide/astra" },
-    { "text": "Performance", "link": "/performance/" }
+    { "text": "Astra", "link": "/astra/" }
   ],
   "sidebar": "auto",
   "theme": {

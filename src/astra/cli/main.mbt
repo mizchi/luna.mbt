@@ -32,7 +32,7 @@ fn show_version() -> Unit {
 }
 
 ///|
-fn main {
+async fn main {
   let argv = @process.argv()
   // argv[0] = node, argv[1] = script path, argv[2..] = args
   let args : Array[String] = if argv.length() > 2 {

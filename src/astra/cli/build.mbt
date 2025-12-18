@@ -31,7 +31,7 @@ fn show_build_help() -> Unit {
 }
 
 ///|
-fn run_build_command(args : Array[String]) -> Unit {
+async fn run_build_command(args : Array[String]) -> Unit {
   let result = @util.parseArgs(
     args~,
     options=[
@@ -95,7 +95,7 @@ fn run_build_command(args : Array[String]) -> Unit {
   println(@colorette.cyan("Building static site..."))
   println(@colorette.gray("  Docs: \{final_config.docs_dir}"))
   println(@colorette.gray("  Output: \{final_config.output_dir}"))
-  match @astra_gen.generate_site(final_config, cwd) {
+  match @astra_gen.generate_site_async(final_config, cwd) {
     Ok(_) =>
       println(@colorette.green("✓ Build complete: \{final_config.output_dir}"))
     Err(e) => {

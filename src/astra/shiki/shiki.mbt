@@ -67,14 +67,19 @@ pub fn is_language_supported(lang : String) -> Bool {
 ///| Create a new Shiki highlighter with specified themes and languages
 
 ///|
-/// Languages are loaded on-demand, so you can leave the array empty initially
+/// Languages are loaded eagerly to support sync highlighting
 pub extern "js" fn create_highlighter_async(
   themes : Array[String],
   langs : Array[String],
 ) -> @core.Promise[Highlighter] =
   #| async (themes, langs) => {
   #|   const { createHighlighter } = await import("shiki");
-  #|   return await createHighlighter({ themes, langs: [] });
+  #|   // Default common languages if none specified
+  #|   const defaultLangs = langs.length > 0 ? langs : [
+  #|     "javascript", "typescript", "json", "html", "css", "bash",
+  #|     "rust", "python", "go", "yaml", "markdown", "tsx", "jsx"
+  #|   ];
+  #|   return await createHighlighter({ themes, langs: defaultLangs });
   #| }
 
 ///|

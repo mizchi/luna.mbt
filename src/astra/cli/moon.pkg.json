@@ -2,13 +2,16 @@
   "is-main": true,
   "supported-targets": ["js"],
   "import": [
+    "moonbitlang/async",
     { "path": "mizchi/js/node/process", "alias": "process" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },
     { "path": "mizchi/js/node/path", "alias": "path" },
     { "path": "mizchi/js/node/util", "alias": "util" },
+    { "path": "mizchi/js/node/http", "alias": "http" },
     { "path": "mizchi/npm_typed/colorette", "alias": "colorette" },
     { "path": "mizchi/luna/astra", "alias": "astra" },
-    { "path": "mizchi/luna/astra/generator", "alias": "astra_gen" }
+    { "path": "mizchi/luna/astra/generator", "alias": "astra_gen" },
+    { "path": "mizchi/luna/astra/shiki", "alias": "shiki" }
   ],
   "warn-list": "-27-20",
   "link": {

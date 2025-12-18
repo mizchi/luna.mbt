@@ -25,10 +25,41 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 // =============================================================================
 
 ///|
-/// Generate entire static site
+/// Generate entire static site (sync version without syntax highlighting)
 pub fn generate_site(
   config : @astra.SsgConfig,
   cwd : String,
+) -> Result[Unit, String] {
+  generate_site_internal(config, cwd, None)
+}
+
+///|
+/// Generate entire static site with Shiki syntax highlighting (async)
+pub async fn generate_site_async(
+  config : @astra.SsgConfig,
+  cwd : String,
+) -> Result[Unit, String] {
+  // Create Shiki highlighter
+  let highlighter = @shiki.create_default_highlighter().wait()
+  generate_site_internal(config, cwd, Some(highlighter))
+}
+
+///|
+/// Generate entire static site with pre-created highlighter
+pub fn generate_site_with_highlighter(
+  config : @astra.SsgConfig,
+  cwd : String,
+  highlighter : @shiki.Highlighter,
+) -> Result[Unit, String] {
+  generate_site_internal(config, cwd, Some(highlighter))
+}
+
+///|
+/// Internal site generation
+fn generate_site_internal(
+  config : @astra.SsgConfig,
+  cwd : String,
+  highlighter : @shiki.Highlighter?,
 ) -> Result[Unit, String] {
   println("Scanning docs directory: \{config.docs_dir}")
 
@@ -59,7 +90,7 @@ pub fn generate_site(
 
   // Step 5: Generate each page
   for page in pages {
-    match generate_page(ctx, page) {
+    match generate_page_with_highlight(ctx, page, highlighter) {
       Ok(_) => println("  Generated: \{page.url_path}")
       Err(e) => println("  Error generating \{page.url_path}: \{e}")
     }
@@ -74,10 +105,20 @@ pub fn generate_site(
 }
 
 ///|
-/// Generate single page
+/// Generate single page (sync, no highlighting)
 fn generate_page(
   ctx : @astra.BuildContext,
   page : @astra.PageMeta,
+) -> Result[Unit, String] {
+  generate_page_with_highlight(ctx, page, None)
+}
+
+///|
+/// Generate single page with optional syntax highlighting
+fn generate_page_with_highlight(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  highlighter : @shiki.Highlighter?,
 ) -> Result[Unit, String] {
   // Read markdown file
   let source_path = @path.join2(
@@ -100,6 +141,12 @@ fn generate_page(
   // Build page HTML
   let html = build_page_html(ctx, page, frontmatter, content_vnode, toc)
 
+  // Apply syntax highlighting if highlighter is available
+  let final_html = match highlighter {
+    Some(h) => apply_syntax_highlighting(html, h)
+    None => html
+  }
+
   // Write to output
   let output_path = @path.join2(
     @path.join2(ctx.cwd, ctx.config.output_dir),
@@ -110,7 +157,7 @@ fn generate_page(
   let parent_dir = @path.dirname(output_path)
   ensure_dir(parent_dir)
   try {
-    @fs.writeFileSync(output_path, @js.any(html))
+    @fs.writeFileSync(output_path, @js.any(final_html))
     Ok(())
   } catch {
     e => Err("Failed to write \{output_path}: \{e}")
@@ -512,6 +559,71 @@ fn get_navigation_script(page_order : Array[String]) -> String {
 // =============================================================================
 
 ///|
+/// Apply syntax highlighting to code blocks in HTML
+/// Finds <pre class="code-block" data-lang="xxx"> elements and highlights them
+fn apply_syntax_highlighting(
+  html : String,
+  highlighter : @shiki.Highlighter,
+) -> String {
+  apply_syntax_highlighting_js(html, highlighter)
+}
+
+///|
+/// JS implementation of syntax highlighting
+extern "js" fn apply_syntax_highlighting_js(
+  html : String,
+  highlighter : @shiki.Highlighter,
+) -> String =
+  #| (html, h) => {
+  #|   // Match <pre class="code-block" data-lang="xxx"><code ...>...</code></pre>
+  #|   const codeBlockRegex = /<pre class="code-block"(?: data-lang="([^"]*)")?(?: data-filename="([^"]*)")?(?: data-meta="([^"]*)")?><code[^>]*>([\s\S]*?)<\/code><\/pre>/g;
+  #|   const aliases = { js: "javascript", ts: "typescript", mbt: "rust", moonbit: "rust", sh: "bash", shell: "bash", yml: "yaml" };
+  #|
+  #|   let result = html;
+  #|   let match;
+  #|   const replacements = [];
+  #|
+  #|   while ((match = codeBlockRegex.exec(html)) !== null) {
+  #|     const [fullMatch, lang, filename, meta, codeContent] = match;
+  #|     if (!lang) continue;
+  #|
+  #|     // Decode HTML entities
+  #|     const code = codeContent
+  #|       .replace(/&lt;/g, '<')
+  #|       .replace(/&gt;/g, '>')
+  #|       .replace(/&quot;/g, '"')
+  #|       .replace(/&#39;/g, "'")
+  #|       .replace(/&amp;/g, '&');
+  #|
+  #|     const resolved = aliases[lang] || lang;
+  #|
+  #|     // Try to highlight (sync since we preloaded themes)
+  #|     try {
+  #|       const loaded = h.getLoadedLanguages();
+  #|       if (!loaded.includes(resolved)) {
+  #|         // Skip if language not loaded (will use fallback styling)
+  #|         continue;
+  #|       }
+  #|       const highlighted = h.codeToHtml(code, {
+  #|         lang: resolved,
+  #|         themes: { light: "github-light", dark: "github-dark" },
+  #|         defaultColor: false,
+  #|       });
+  #|       replacements.push({ original: fullMatch, replacement: highlighted });
+  #|     } catch (e) {
+  #|       // Keep original on error
+  #|     }
+  #|   }
+  #|
+  #|   // Apply replacements
+  #|   for (const { original, replacement } of replacements) {
+  #|     result = result.replace(original, replacement);
+  #|   }
+  #|
+  #|   return result;
+  #| }
+
+///|
 /// Ensure directory exists
 fn ensure_dir(path : String) -> Unit {
   @fs.mkdirSync(path, recursive=true) catch {
@@ -532,6 +644,27 @@ fn copy_static_assets(ctx : @astra.BuildContext) -> Unit {
   let css = get_default_css(ctx.config)
   let css_path = @path.join2(output_assets, "style.css")
   @fs.writeFileSync(css_path, @js.any(css)) catch {
+    _ => ()
+  }
+
+  // Write shiki CSS
+  let shiki_css = @shiki.generate_shiki_css()
+  let shiki_css_path = @path.join2(output_assets, "shiki.css")
+  @fs.writeFileSync(shiki_css_path, @js.any(shiki_css)) catch {
+    _ => ()
+  }
+
+  // Write github-markdown CSS
+  let github_md_css = get_github_markdown_css()
+  let github_md_css_path = @path.join2(output_assets, "github-markdown.css")
+  @fs.writeFileSync(github_md_css_path, @js.any(github_md_css)) catch {
+    _ => ()
+  }
+
+  // Write loader.js (for island hydration)
+  let loader_js = get_loader_js()
+  let loader_js_path = @path.join2(output_assets, "loader.js")
+  @fs.writeFileSync(loader_js_path, @js.any(loader_js)) catch {
     _ => ()
   }
 }
@@ -1005,4 +1138,93 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|}
   "/* Luna SSG Default Theme */\n:root {\n  --primary-color: \{primary_color};\n" +
   css_rest
+}
+
+///|
+/// Get GitHub Markdown CSS (minimal subset)
+fn get_github_markdown_css() -> String {
+  let css =
+    #|/* GitHub Markdown CSS - minimal subset for Astra */
+    #|.markdown-body {
+    #|  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    #|  font-size: 16px;
+    #|  line-height: 1.5;
+    #|  word-wrap: break-word;
+    #|}
+    #|.markdown-body h1, .markdown-body h2 {
+    #|  padding-bottom: 0.3em;
+    #|  border-bottom: 1px solid var(--border-color, #d0d7de);
+    #|}
+    #|.markdown-body h1 { font-size: 2em; }
+    #|.markdown-body h2 { font-size: 1.5em; }
+    #|.markdown-body h3 { font-size: 1.25em; }
+    #|.markdown-body h4 { font-size: 1em; }
+    #|.markdown-body code {
+    #|  padding: 0.2em 0.4em;
+    #|  margin: 0;
+    #|  font-size: 85%;
+    #|  background-color: var(--code-bg, rgba(175, 184, 193, 0.2));
+    #|  border-radius: 6px;
+    #|  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    #|}
+    #|.markdown-body pre {
+    #|  padding: 16px;
+    #|  overflow: auto;
+    #|  font-size: 85%;
+    #|  line-height: 1.45;
+    #|  background-color: var(--code-bg, #f6f8fa);
+    #|  border-radius: 6px;
+    #|}
+    #|.markdown-body pre code {
+    #|  padding: 0;
+    #|  margin: 0;
+    #|  background: transparent;
+    #|  border: 0;
+    #|  font-size: 100%;
+    #|}
+    #|.markdown-body blockquote {
+    #|  padding: 0 1em;
+    #|  color: #656d76;
+    #|  border-left: 0.25em solid #d0d7de;
+    #|}
+    #|.markdown-body table {
+    #|  border-spacing: 0;
+    #|  border-collapse: collapse;
+    #|  width: 100%;
+    #|  overflow: auto;
+    #|}
+    #|.markdown-body td, .markdown-body th {
+    #|  padding: 6px 13px;
+    #|  border: 1px solid #d0d7de;
+    #|}
+    #|.markdown-body tr:nth-child(2n) {
+    #|  background-color: var(--code-bg, #f6f8fa);
+    #|}
+    #|.markdown-body hr {
+    #|  height: 0.25em;
+    #|  padding: 0;
+    #|  margin: 24px 0;
+    #|  background-color: #d0d7de;
+    #|  border: 0;
+    #|}
+    #|.markdown-body ul, .markdown-body ol {
+    #|  padding-left: 2em;
+    #|}
+    #|.markdown-body li + li {
+    #|  margin-top: 0.25em;
+    #|}
+    #|@media (prefers-color-scheme: dark) {
+    #|  .markdown-body blockquote { color: #9198a1; border-left-color: #3d444d; }
+    #|  .markdown-body td, .markdown-body th { border-color: #3d444d; }
+    #|  .markdown-body hr { background-color: #3d444d; }
+    #|}
+  css
+}
+
+///|
+/// Get loader.js for island hydration (IIFE format)
+fn get_loader_js() -> String {
+  let js =
+    #|(function(){function setupTrigger(e,t,n){if(t==="load")document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>n(),{once:true}):n();else if(t==="idle")requestIdleCallback(()=>n());else if(t[0]==="v")new IntersectionObserver((r,o)=>{r.some(i=>i.isIntersecting)&&(o.disconnect(),n())},{rootMargin:"50px"}).observe(e);else if(t[0]==="m"){const r=matchMedia(t.slice(6)),o=()=>{r.matches&&(r.removeEventListener("change",o),n())};r.matches?n():r.addEventListener("change",o)}}function onReady(e){document.readyState==="loading"?document.addEventListener("DOMContentLoaded",e,{once:true}):e()}function observeAdditions(e,t){new MutationObserver(n=>n.forEach(r=>r.addedNodes.forEach(o=>{o.nodeType===1&&e(o)&&t(o)}))).observe(document.body??document.documentElement,{childList:true,subtree:true})}function createLoadedTracker(){const e=new Set;return{loaded:e,unload:t=>e.delete(t),clear:()=>e.clear()}}const d=document,w=window,S={},{loaded,unload,clear}=createLoadedTracker(),parseState=async e=>{const t=e.getAttribute("luna:state");if(t){if(t[0]==="#")return JSON.parse(d.getElementById(t.slice(1))?.textContent??"null");try{return JSON.parse(t)}catch{}}},hydrate=async e=>{const t=e.getAttribute("luna:id");if(!t||loaded.has(t))return;loaded.add(t);const n=e.getAttribute("luna:url");if(!n)return;S[t]=await parseState(e);const r=await import(n),o=e.getAttribute("luna:export");(o?r[o]:r.hydrate??r.default)?.(e,S[t],t)},setup=e=>{setupTrigger(e,e.getAttribute("luna:trigger")??"load",()=>hydrate(e))},scan=()=>{d.querySelectorAll("[luna\\:id]").forEach(setup)};d.querySelectorAll('script[type="luna/json"]').forEach(e=>{e.id&&(S[e.id]=JSON.parse(e.textContent??"{}"))});onReady(scan);observeAdditions(e=>e.hasAttribute("luna:id"),setup);const unloadAll=(e=d.body)=>{e.querySelectorAll("[luna\\:id]").forEach(t=>{const n=t.getAttribute("luna:id");n&&loaded.delete(n)})};w.__LUNA_STATE__=S;w.__LUNA_HYDRATE__=hydrate;w.__LUNA_SCAN__=scan;w.__LUNA_UNLOAD__=unload;w.__LUNA_UNLOAD_ALL__=unloadAll;w.__LUNA_CLEAR_LOADED__=clear})();
+  js
 }

@@ -181,12 +181,13 @@ Control exactly when and how components hydrate.
 
 Luna's loader is incredibly small.
 
-| Component | Size |
-|-----------|------|
-| Hydration Loader | **1.6 KB** |
-| Island Runtime | **3.2 KB** |
+| Component | Size (minified) |
+|-----------|-----------------|
+| Hydration Loader | **~1.6 KB** |
+| Island Runtime (IIFE) | **~3.2 KB** |
+| WC Loader | **~1.7 KB** |
 
-### Comparison
+### Framework Comparison
 
 | Framework | Minimum Runtime |
 |-----------|----------------|
@@ -198,6 +199,69 @@ Luna's loader is incredibly small.
 | React | ~42 KB |
 
 **Smaller runtime = Faster load = Better Core Web Vitals**
+
+## SSR Performance
+
+### Template Overhead
+
+Shadow DOM template syntax has **near-zero overhead**:
+
+| Operation | ops/sec | vs Plain HTML |
+|-----------|---------|---------------|
+| String concatenation | 25,450 | baseline |
+| Shadow DOM syntax | 25,382 | **~0%** slower |
+| Plain HTML syntax | 25,332 | ~0% slower |
+
+### Fair Comparison
+
+When comparing with proper escaping:
+
+| Approach | ops/sec | Ratio |
+|----------|---------|-------|
+| Plain HTML (with escape) | 4,456 | baseline |
+| Plain HTML (function components) | 4,359 | 1.02x slower |
+| **WC SSR (full processing)** | **4,022** | **1.11x slower** |
+
+Web Components SSR is only **~10% slower** than plain HTML.
+
+## Optimization Tips
+
+### 1. Use Appropriate Triggers
+
+```html
+<!-- Don't hydrate until visible -->
+<div luna:trigger="visible">...</div>
+
+<!-- Defer non-critical components -->
+<div luna:trigger="idle">...</div>
+```
+
+### 2. Batch Signal Updates
+
+```typescript
+import { batch } from '@mizchi/luna';
+
+// Bad: 3 effect runs
+setA(1);
+setB(2);
+setC(3);
+
+// Good: 1 effect run
+batch(() => {
+  setA(1);
+  setB(2);
+  setC(3);
+});
+```
+
+### 3. Use Memos for Expensive Computations
+
+```typescript
+// Computed only when dependencies change
+const filtered = createMemo(() =>
+  items().filter(item => item.active)
+);
+```
 
 ## Type-Safe State Serialization
 
