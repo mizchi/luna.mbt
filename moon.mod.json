@@ -2,10 +2,10 @@
   "name": "mizchi/luna",
   "version": "0.0.3",
   "deps": {
-    "moonbitlang/async": "0.14.2",
-    "mizchi/js": "0.10.0",
+    "moonbitlang/async": "0.14.3",
+    "mizchi/js": "0.10.2",
     "moonbitlang/x": "0.4.37",
-    "mizchi/npm_typed": "0.1.1",
+    "mizchi/npm_typed": "0.1.5",
     "moonbitlang/parser": "0.1.12",
     "mizchi/markdown": "0.1.0"
   },
@@ -15,10 +15,6 @@
   "keywords": [
     "luna",
     "ui",
-    "vdom",
-    "island",
-    "ssr",
-    "hydration",
     "signals"
   ],
   "description": "Fine-grained reactive UI library",
