@@ -156,7 +156,7 @@ fn[E] render_island_open_to(
   sb.write_string(island.url)
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, island.state)
-  sb.write_string("\" luna:trigger=\"")
+  sb.write_string("\" luna:client-trigger=\"")
   sb.write_string(@luna.trigger_to_string(island.trigger))
   sb.write_string("\">")
 }
@@ -356,7 +356,7 @@ fn[E] render_internal_ref_island_to(
   sb.write_string(iref.url)
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, iref.state)
-  sb.write_string("\" luna:trigger=\"")
+  sb.write_string("\" luna:client-trigger=\"")
   sb.write_string(@luna.trigger_to_string(iref.trigger))
   sb.write_string("\">")
   for child in iref.children {
@@ -443,7 +443,7 @@ fn[E] render_internal_ref_island_and_collect_urls(
   sb.write_string(iref.url)
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, iref.state)
-  sb.write_string("\" luna:trigger=\"")
+  sb.write_string("\" luna:client-trigger=\"")
   sb.write_string(@luna.trigger_to_string(iref.trigger))
   sb.write_string("\">")
   for child in iref.children {
@@ -531,7 +531,7 @@ fn[E] render_internal_ref_island_with_id_to(
   sb.write_string(iref.url)
   sb.write_string("\" luna:state=\"")
   escape_attr_to(sb, iref.state)
-  sb.write_string("\" luna:trigger=\"")
+  sb.write_string("\" luna:client-trigger=\"")
   sb.write_string(@luna.trigger_to_string(iref.trigger))
   sb.write_string("\">")
   for child in iref.children {

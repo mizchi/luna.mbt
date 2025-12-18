@@ -47,7 +47,7 @@ Control when islands hydrate:
 ### `load` - Immediate
 
 ```html
-<div luna:id="critical" luna:trigger="load">
+<div luna:id="critical" luna:client-trigger="load">
   <!-- Hydrates immediately on page load -->
 </div>
 ```
@@ -55,7 +55,7 @@ Control when islands hydrate:
 ### `idle` - When Browser is Idle
 
 ```html
-<div luna:id="analytics" luna:trigger="idle">
+<div luna:id="analytics" luna:client-trigger="idle">
   <!-- Hydrates during requestIdleCallback -->
 </div>
 ```
@@ -63,7 +63,7 @@ Control when islands hydrate:
 ### `visible` - When Scrolled Into View
 
 ```html
-<div luna:id="comments" luna:trigger="visible">
+<div luna:id="comments" luna:client-trigger="visible">
   <!-- Hydrates when IntersectionObserver fires -->
 </div>
 ```
@@ -71,7 +71,7 @@ Control when islands hydrate:
 ### `media` - When Media Query Matches
 
 ```html
-<div luna:id="sidebar" luna:trigger="media:(min-width: 768px)">
+<div luna:id="sidebar" luna:client-trigger="media:(min-width: 768px)">
   <!-- Hydrates only on desktop -->
 </div>
 ```
@@ -136,7 +136,7 @@ Pass serialized state from server to client:
   luna:id="counter"
   luna:url="/static/counter.js"
   luna:state='{"count":5}'
-  luna:trigger="load"
+  luna:client-trigger="load"
 >
   <button>Count: 5</button>
 </div>

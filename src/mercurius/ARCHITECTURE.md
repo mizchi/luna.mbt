@@ -18,7 +18,7 @@ Inspired by [Qwik's Resumability](https://qwik.dev/docs/concepts/resumable/) and
 <!-- Minimal snippet -->
 <div luna:id="counter-1"
      luna:url="https://cdn.example.com/components/counter.js"
-     luna:trigger="visible"
+     luna:client-trigger="visible"
      luna:state='{"count":0}'>
   <span>0</span>
   <button>+1</button>
@@ -31,7 +31,7 @@ Inspired by [Qwik's Resumability](https://qwik.dev/docs/concepts/resumable/) and
 <!-- With inline state for large data -->
 <div luna:id="app-1"
      luna:url="./app.js"
-     luna:trigger="load"
+     luna:client-trigger="load"
      luna:state="#luna-state-app-1">
   <!-- SSR content -->
 </div>
@@ -40,7 +40,7 @@ Inspired by [Qwik's Resumability](https://qwik.dev/docs/concepts/resumable/) and
 <!-- With remote state -->
 <div luna:id="user-1"
      luna:url="./user-profile.js"
-     luna:trigger="idle"
+     luna:client-trigger="idle"
      luna:state="url:https://api.example.com/user/123/state">
   <span>Loading...</span>
 </div>
@@ -52,7 +52,7 @@ Inspired by [Qwik's Resumability](https://qwik.dev/docs/concepts/resumable/) and
 |-----------|----------|-------------|
 | `luna:id` | Yes | Unique identifier for the component |
 | `luna:url` | Yes | ES module URL to load for hydration |
-| `luna:trigger` | No | When to hydrate (default: `load`) |
+| `luna:client-trigger` | No | When to hydrate (default: `load`) |
 | `luna:state` | No | Initial state (inline JSON, `#id` ref, or `url:` prefix) |
 
 ## Trigger Types

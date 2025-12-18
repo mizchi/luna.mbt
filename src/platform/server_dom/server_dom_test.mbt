@@ -128,7 +128,7 @@ test "render island with visible trigger" {
     children=[@element.text("Lazy content")],
   )
   let html = render(node)
-  assert_true(html.contains("luna:trigger=\"visible\""))
+  assert_true(html.contains("luna:client-trigger=\"visible\""))
 }
 
 ///|

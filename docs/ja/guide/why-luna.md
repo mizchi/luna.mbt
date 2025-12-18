@@ -111,7 +111,7 @@ Lunaはきめ細かいリアクティビティとIslandsを組み合わせてい
 
 ```html
 <!-- このIslandだけがJavaScriptを読み込む -->
-<div luna:id="search" luna:trigger="visible">
+<div luna:id="search" luna:client-trigger="visible">
   <!-- 内部できめ細かいリアクティビティ -->
 </div>
 
@@ -155,16 +155,16 @@ LunaはDeclarative Shadow DOMでWeb Componentsを採用。
 
 ```html
 <!-- 重要: 即座にハイドレート -->
-<div luna:trigger="load">...</div>
+<div luna:client-trigger="load">...</div>
 
 <!-- ファーストビュー外: 表示されたらハイドレート -->
-<div luna:trigger="visible">...</div>
+<div luna:client-trigger="visible">...</div>
 
 <!-- 重要でない: アイドル時にハイドレート -->
-<div luna:trigger="idle">...</div>
+<div luna:client-trigger="idle">...</div>
 
 <!-- レスポンシブ: デスクトップのみハイドレート -->
-<div luna:trigger="media:(min-width: 768px)">...</div>
+<div luna:client-trigger="media:(min-width: 768px)">...</div>
 ```
 
 ### 比較
@@ -230,10 +230,10 @@ Web Components SSRはPlain HTMLより**約10%遅いだけ**。
 
 ```html
 <!-- 表示されるまでハイドレートしない -->
-<div luna:trigger="visible">...</div>
+<div luna:client-trigger="visible">...</div>
 
 <!-- 重要でないコンポーネントを遅延 -->
-<div luna:trigger="idle">...</div>
+<div luna:client-trigger="idle">...</div>
 ```
 
 ### 2. Signal更新をバッチ処理

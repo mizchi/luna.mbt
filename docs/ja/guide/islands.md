@@ -47,7 +47,7 @@ Islandがいつハイドレートするかを制御:
 ### `load` - 即座に
 
 ```html
-<div luna:id="critical" luna:trigger="load">
+<div luna:id="critical" luna:client-trigger="load">
   <!-- ページロード時に即座にハイドレート -->
 </div>
 ```
@@ -55,7 +55,7 @@ Islandがいつハイドレートするかを制御:
 ### `idle` - ブラウザがアイドル時
 
 ```html
-<div luna:id="analytics" luna:trigger="idle">
+<div luna:id="analytics" luna:client-trigger="idle">
   <!-- requestIdleCallback中にハイドレート -->
 </div>
 ```
@@ -63,7 +63,7 @@ Islandがいつハイドレートするかを制御:
 ### `visible` - ビューポートに入った時
 
 ```html
-<div luna:id="comments" luna:trigger="visible">
+<div luna:id="comments" luna:client-trigger="visible">
   <!-- IntersectionObserverが発火したらハイドレート -->
 </div>
 ```
@@ -71,7 +71,7 @@ Islandがいつハイドレートするかを制御:
 ### `media` - メディアクエリにマッチした時
 
 ```html
-<div luna:id="sidebar" luna:trigger="media:(min-width: 768px)">
+<div luna:id="sidebar" luna:client-trigger="media:(min-width: 768px)">
   <!-- デスクトップでのみハイドレート -->
 </div>
 ```
@@ -136,7 +136,7 @@ hydrate("comments", Comments);
   luna:id="counter"
   luna:url="/static/counter.js"
   luna:state='{"count":5}'
-  luna:trigger="load"
+  luna:client-trigger="load"
 >
   <button>Count: 5</button>
 </div>

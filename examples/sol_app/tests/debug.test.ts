@@ -46,7 +46,7 @@ test('debug hydration', async ({ page }) => {
       id: el.getAttribute('luna:id'),
       url: el.getAttribute('luna:url'),
       state: el.getAttribute('luna:state'),
-      trigger: el.getAttribute('luna:trigger'),
+      trigger: el.getAttribute('luna:client-trigger'),
     };
   });
   console.log('\n=== Island Element ===');

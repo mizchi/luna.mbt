@@ -17,7 +17,7 @@ Luna Island Architecture 用の軽量ローダー。
 | 機能 | 削減量 | 説明 |
 |------|--------|------|
 | MutationObserver | ~170B | 動的追加要素の自動検出 |
-| media trigger | ~150B | `luna:trigger="media:(query)"` |
+| media trigger | ~150B | `luna:client-trigger="media:(query)"` |
 | luna/json preload | ~70B | `<script type="luna/json">` の事前読み込み |
 | url: state fetch | ~60B | `luna:state="url:/api/state"` |
 | luna:export | ~50B | カスタム export 名指定 |
@@ -30,11 +30,11 @@ Luna Island Architecture 用の軽量ローダー。
 |------|------|------|
 | `luna:id` | Yes | Island の一意識別子 |
 | `luna:url` | Yes | Hydration モジュールの URL |
-| `luna:trigger` | No | Hydration トリガー (default: `load`) |
+| `luna:client-trigger` | No | Hydration トリガー (default: `load`) |
 | `luna:state` | No | 状態の取得方法 |
 | `luna:export` | No | モジュールの export 名 |
 
-### luna:trigger
+### luna:client-trigger
 
 | 値 | 説明 |
 |----|------|
@@ -67,7 +67,7 @@ window.__LUNA_SCAN__     // () => void - 再スキャン
 <script type="luna/json" id="counter-state">{"count":0}</script>
 
 <!-- Island 要素 -->
-<div luna:id="counter" luna:url="./counter.js" luna:state="#counter-state" luna:trigger="visible">
+<div luna:id="counter" luna:url="./counter.js" luna:state="#counter-state" luna:client-trigger="visible">
   <span>0</span>
   <button>+1</button>
 </div>

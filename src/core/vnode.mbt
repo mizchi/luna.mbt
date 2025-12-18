@@ -52,7 +52,7 @@ pub struct VIsland[E] {
   id : String // Unique identifier (luna:id)
   url : String // Script URL for loading implementation (luna:url)
   state : String // Serialized state JSON (luna:state)
-  trigger : IslandTrigger // Hydration trigger (luna:trigger)
+  trigger : IslandTrigger // Hydration trigger (luna:client-trigger)
   children : Array[Node[E]] // SSR-rendered content (can contain nested Islands)
 }
 

@@ -275,7 +275,7 @@ Island は以下の属性でマークアップされる:
 <div luna:id="counter"
      luna:url="/static/hydrate_counter.js"
      luna:state='{"count":0}'
-     luna:trigger="load">
+     luna:client-trigger="load">
   <!-- SSR 済みコンテンツ -->
 </div>
 ```

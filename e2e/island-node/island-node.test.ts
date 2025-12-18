@@ -9,7 +9,7 @@ test.describe("Island Node SSR E2E Tests", () => {
       const island = page.locator('[luna\\:id="counter-1"]');
       await expect(island).toBeVisible();
       await expect(island).toHaveAttribute("luna:url", "/components/counter.js");
-      await expect(island).toHaveAttribute("luna:trigger", "load");
+      await expect(island).toHaveAttribute("luna:client-trigger", "load");
 
       // Check state attribute (entity-encoded JSON)
       const state = await island.getAttribute("luna:state");
@@ -111,15 +111,15 @@ test.describe("Island Node SSR E2E Tests", () => {
 
       // Check trigger attribute values
       await expect(page.locator('[luna\\:id="load-1"]')).toHaveAttribute(
-        "luna:trigger",
+        "luna:client-trigger",
         "load"
       );
       await expect(page.locator('[luna\\:id="idle-1"]')).toHaveAttribute(
-        "luna:trigger",
+        "luna:client-trigger",
         "idle"
       );
       await expect(page.locator('[luna\\:id="visible-1"]')).toHaveAttribute(
-        "luna:trigger",
+        "luna:client-trigger",
         "visible"
       );
     });

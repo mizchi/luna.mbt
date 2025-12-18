@@ -31,7 +31,7 @@ test.describe("Sol SSR/Hydration E2E", () => {
       // Verify luna:* attributes are present
       await expect(counter).toHaveAttribute("luna:url");
       await expect(counter).toHaveAttribute("luna:state");
-      await expect(counter).toHaveAttribute("luna:trigger", "load");
+      await expect(counter).toHaveAttribute("luna:client-trigger", "load");
     });
 
     test("escapes HTML special characters in text content", async ({

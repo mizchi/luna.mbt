@@ -26,7 +26,7 @@ const hydrate = async (el) => {
 	(ex ? mod[ex] : mod.hydrate ?? mod.default)?.(el, S[id], id);
 };
 const setup = (el) => {
-	setupTrigger(el, el.getAttribute("luna:trigger") ?? "load", () => hydrate(el));
+	setupTrigger(el, el.getAttribute("luna:client-trigger") ?? "load", () => hydrate(el));
 };
 const scan = () => {
 	d.querySelectorAll("[luna\\:id]").forEach(setup);

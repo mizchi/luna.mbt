@@ -102,7 +102,7 @@ The server renders:
   luna:id="counter"
   luna:url="/static/counter.js"
   luna:state="0"
-  luna:trigger="load"
+  luna:client-trigger="load"
 >
   <button>Count: 0</button>
 </div>
@@ -122,7 +122,7 @@ The server renders:
 | `luna:id` | Component identifier for hydration |
 | `luna:url` | URL to load component JavaScript |
 | `luna:state` | Serialized props (JSON) |
-| `luna:trigger` | When to hydrate |
+| `luna:client-trigger` | When to hydrate |
 
 ## How Hydration Works
 

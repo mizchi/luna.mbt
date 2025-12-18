@@ -49,7 +49,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       attrs.set("luna:id", Static(island.id))
       attrs.set("luna:url", Static(island.url))
       attrs.set("luna:state", Static(island.state))
-      attrs.set("luna:trigger", Static(@luna.trigger_to_string(island.trigger)))
+      attrs.set("luna:client-trigger", Static(@luna.trigger_to_string(island.trigger)))
       let children : Array[JsonNode] = []
       for child in island.children {
         children.push(render_to_json(child))
@@ -83,7 +83,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       } else {
         attrs.set("luna:url", Static(iref.url))
         attrs.set("luna:state", Static(iref.state))
-        attrs.set("luna:trigger", Static(@luna.trigger_to_string(iref.trigger)))
+        attrs.set("luna:client-trigger", Static(@luna.trigger_to_string(iref.trigger)))
       }
       let children : Array[JsonNode] = []
       for child in iref.children {

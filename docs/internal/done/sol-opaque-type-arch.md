@@ -151,7 +151,7 @@ pub fn wc_counter(props: @router.PageProps) -> @server_dom.ServerNode {
    @server_dom.island(ref, children) -> Node[Unit]::InternalRef(...)
 
 3. server_dom でレンダリング
-   InternalRef -> <wc-counter luna:url="..." luna:state="..." luna:trigger="...">
+   InternalRef -> <wc-counter luna:url="..." luna:state="..." luna:client-trigger="...">
                     <template shadowrootmode="open">...</template>
                   </wc-counter>
 

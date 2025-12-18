@@ -52,7 +52,7 @@ setCount(c => c + 1);  // Logs: 2
 
 ```html
 <!-- このIslandだけがJavaScriptを配信 -->
-<div luna:id="counter" luna:trigger="visible">
+<div luna:id="counter" luna:client-trigger="visible">
   <button>Count: 0</button>
 </div>
 <!-- それ以外は純粋なHTML -->

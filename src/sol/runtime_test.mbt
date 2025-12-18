@@ -171,7 +171,7 @@ test "render_island: with trigger" {
     .with_trigger(@mercurius.TriggerType::Visible)
     .with_ssr_html("<div>Lazy</div>")
   let html = render_island(config)
-  assert_true(html.contains("luna:trigger=\"visible\""))
+  assert_true(html.contains("luna:client-trigger=\"visible\""))
 }
 
 // =============================================================================

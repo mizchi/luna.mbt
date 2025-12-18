@@ -531,7 +531,7 @@ pub fn template_ln_loader_js() -> String {
     #|  };
     #|
     #|  const setupTrigger = (el) => {
-    #|    const trigger = el.getAttribute('luna:trigger') || 'load';
+    #|    const trigger = el.getAttribute('luna:client-trigger') || 'load';
     #|    if (trigger === 'load') {
     #|      if (d.readyState === 'loading') {
     #|        d.addEventListener('DOMContentLoaded', () => hydrate(el), { once: true });

@@ -65,7 +65,7 @@ e2e/                           # Playwrightテスト
 ### HTML属性 (luna:*)
 - `luna:id` - コンポーネントID
 - `luna:url` - Hydration用モジュールURL
-- `luna:trigger` - Hydrationトリガー (load, idle, visible, media)
+- `luna:client-trigger` - Hydrationトリガー (load, idle, visible, media)
 - `luna:state` - シリアライズされた状態JSON
 
 ### Web Components属性 (luna:wc-*)

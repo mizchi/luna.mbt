@@ -121,7 +121,7 @@ test "generate_shard - minimal config" {
   assert_true(output.html.contains("luna:id=\"counter-1\""))
   assert_true(output.html.contains("luna:url=\"./counter.js\""))
   // load is default, should not be included
-  assert_true(not(output.html.contains("luna:trigger")))
+  assert_true(not(output.html.contains("luna:client-trigger")))
 }
 
 ///|
@@ -130,7 +130,7 @@ test "generate_shard - with visible trigger" {
     @mercurius.TriggerType::Visible,
   )
   let output = @mercurius.generate_shard(config)
-  assert_true(output.html.contains("luna:trigger=\"visible\""))
+  assert_true(output.html.contains("luna:client-trigger=\"visible\""))
 }
 
 ///|
@@ -208,7 +208,7 @@ test "generate_minimal_shard - creates minimal HTML" {
   assert_true(html.contains("luna:url=\"./min.js\""))
   assert_true(html.contains("<span>Content</span>"))
   // Should not have trigger (default load is omitted)
-  assert_true(not(html.contains("luna:trigger")))
+  assert_true(not(html.contains("luna:client-trigger")))
   // Should not have loader script
   assert_true(not(html.contains("<script type=\"module\"")))
 }
@@ -233,7 +233,7 @@ test "generate_lazy_shard - uses visible trigger" {
   let html = @mercurius.generate_lazy_shard(
     "lazy-1", "./lazy.js", "{\"z\":3}", "<p>Lazy</p>",
   )
-  assert_true(html.contains("luna:trigger=\"visible\""))
+  assert_true(html.contains("luna:client-trigger=\"visible\""))
   assert_true(html.contains("<p>Lazy</p>"))
 }
 
@@ -292,5 +292,5 @@ test "generate_shard - with media trigger" {
     @mercurius.TriggerType::Media("(min-width: 768px)"),
   )
   let output = @mercurius.generate_shard(config)
-  assert_true(output.html.contains("luna:trigger=\"media:(min-width: 768px)\""))
+  assert_true(output.html.contains("luna:client-trigger=\"media:(min-width: 768px)\""))
 }

@@ -753,7 +753,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       wrapper.setAttribute("luna:url", island.url)
       wrapper.setAttribute("luna:state", island.state)
       wrapper.setAttribute(
-        "luna:trigger",
+        "luna:client-trigger",
         @luna.trigger_to_string(island.trigger),
       )
       for child in island.children {
@@ -800,7 +800,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
         wrapper.setAttribute("luna:url", iref.url)
         wrapper.setAttribute("luna:state", iref.state)
         wrapper.setAttribute(
-          "luna:trigger",
+          "luna:client-trigger",
           @luna.trigger_to_string(iref.trigger),
         )
         for child in iref.children {

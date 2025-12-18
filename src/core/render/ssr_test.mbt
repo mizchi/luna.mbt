@@ -485,7 +485,7 @@ test "render island basic" {
   assert_true(html.contains("luna:id=\"counter-1\""))
   assert_true(html.contains("luna:url=\"/components/counter.js\""))
   assert_true(html.contains("luna:state=\"{&quot;count&quot;:5}\""))
-  assert_true(html.contains("luna:trigger=\"load\""))
+  assert_true(html.contains("luna:client-trigger=\"load\""))
   // Check children are rendered
   assert_true(html.contains("<span data-count>5</span>"))
 }
@@ -500,7 +500,7 @@ test "render island with idle trigger" {
     trigger=@luna.Idle,
   )
   let html = render_to_string(node).html
-  assert_true(html.contains("luna:trigger=\"idle\""))
+  assert_true(html.contains("luna:client-trigger=\"idle\""))
   assert_true(html.contains("trigger=idle-->"))
 }
 
@@ -514,7 +514,7 @@ test "render island with visible trigger" {
     trigger=@luna.Visible,
   )
   let html = render_to_string(node).html
-  assert_true(html.contains("luna:trigger=\"visible\""))
+  assert_true(html.contains("luna:client-trigger=\"visible\""))
   assert_true(html.contains("trigger=visible-->"))
 }
 
@@ -528,7 +528,7 @@ test "render island with media trigger" {
     trigger=@luna.Media("(min-width: 768px)"),
   )
   let html = render_to_string(node).html
-  assert_true(html.contains("luna:trigger=\"media:(min-width: 768px)\""))
+  assert_true(html.contains("luna:client-trigger=\"media:(min-width: 768px)\""))
   assert_true(html.contains("trigger=media:(min-width: 768px)-->"))
 }
 

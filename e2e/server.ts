@@ -291,7 +291,7 @@ const browserTestPage = (
        luna:id="${componentId}"
        luna:url="/components/browser-components.js"
        luna:export="${hydrateFn}"
-       luna:trigger="load"
+       luna:client-trigger="load"
        luna:state='${JSON.stringify(state).replace(/'/g, "&#39;")}'>${ssrHtml}</div>
 </body>
 </html>`;
@@ -622,7 +622,7 @@ app.get("/island-node/basic-ssr", (c) => {
   // Simulate what @luna.visland() + @ssr.render_to_string() would produce
   const html = islandTestPage("Island Node Basic SSR", `
     <!--luna:island:counter-1 url=/components/counter.js trigger=load-->
-    <div luna:id="counter-1" luna:url="/components/counter.js" luna:state="{&quot;count&quot;:5}" luna:trigger="load">
+    <div luna:id="counter-1" luna:url="/components/counter.js" luna:state="{&quot;count&quot;:5}" luna:client-trigger="load">
       <span data-count>5</span>
       <button data-inc>+1</button>
       <button data-dec>-1</button>
@@ -637,14 +637,14 @@ app.get("/island-node/triggers", (c) => {
   const html = islandTestPage("Island Node Triggers", `
     <h2>Load Trigger (immediate)</h2>
     <!--luna:island:load-1 url=/components/lazy.js trigger=load-->
-    <div luna:id="load-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Load trigger&quot;}" luna:trigger="load">
+    <div luna:id="load-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Load trigger&quot;}" luna:client-trigger="load">
       <div data-content>Load trigger</div>
     </div>
     <!--/luna:island:load-1-->
 
     <h2>Idle Trigger</h2>
     <!--luna:island:idle-1 url=/components/lazy.js trigger=idle-->
-    <div luna:id="idle-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Idle trigger&quot;}" luna:trigger="idle">
+    <div luna:id="idle-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Idle trigger&quot;}" luna:client-trigger="idle">
       <div data-content>Idle trigger</div>
     </div>
     <!--/luna:island:idle-1-->
@@ -654,7 +654,7 @@ app.get("/island-node/triggers", (c) => {
       Scroll down to see visible trigger
     </div>
     <!--luna:island:visible-1 url=/components/lazy.js trigger=visible-->
-    <div luna:id="visible-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Visible trigger&quot;}" luna:trigger="visible">
+    <div luna:id="visible-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Visible trigger&quot;}" luna:client-trigger="visible">
       <div data-content>Visible trigger</div>
     </div>
     <!--/luna:island:visible-1-->
@@ -666,14 +666,14 @@ app.get("/island-node/triggers", (c) => {
 app.get("/island-node/nested", (c) => {
   const html = islandTestPage("Nested Islands", `
     <!--luna:island:outer-1 url=/components/counter.js trigger=load-->
-    <div luna:id="outer-1" luna:url="/components/counter.js" luna:state="{&quot;count&quot;:10}" luna:trigger="load">
+    <div luna:id="outer-1" luna:url="/components/counter.js" luna:state="{&quot;count&quot;:10}" luna:client-trigger="load">
       <h2>Outer Island</h2>
       <span data-count>10</span>
       <button data-inc>+1</button>
       <button data-dec>-1</button>
       <div style="margin-left: 20px; padding: 10px; border-left: 2px solid #ccc;">
         <!--luna:island:inner-1 url=/components/lazy.js trigger=load-->
-        <div luna:id="inner-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Inner island content&quot;}" luna:trigger="load">
+        <div luna:id="inner-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;Inner island content&quot;}" luna:client-trigger="load">
           <h3>Inner Island</h3>
           <div data-content>Inner island content</div>
         </div>
@@ -691,7 +691,7 @@ app.get("/island-node/xss-safety", (c) => {
   const html = islandTestPage("Island XSS Safety Test", `
     <script>window.xssTriggered = false; window.alert = () => { window.xssTriggered = true; };</script>
     <!--luna:island:xss-1 url=/components/lazy.js trigger=load-->
-    <div luna:id="xss-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;}" luna:trigger="load">
+    <div luna:id="xss-1" luna:url="/components/lazy.js" luna:state="{&quot;message&quot;:&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;}" luna:client-trigger="load">
       <div data-content>Safe content</div>
     </div>
     <!--/luna:island:xss-1-->
@@ -722,7 +722,7 @@ app.get("/test/idempotent-hydrate", async (c) => {
   <div id="counter"
        luna:id="counter-1"
        luna:url="/components/counter-mbt.js"
-       luna:trigger="load"
+       luna:client-trigger="load"
        luna:state='${stateJson}'>${ssrHtml}</div>
 
   <!-- Debug info -->
@@ -870,7 +870,7 @@ app.get("/sol-test/ssr-basic", (c) => {
       <div luna:id="counter"
            luna:url="/sol-components/counter.js"
            luna:state='{"count":0}'
-           luna:trigger="load">
+           luna:client-trigger="load">
         <span class="count-display">0</span>
         <button data-action-click="increment">+</button>
         <button data-action-click="decrement">-</button>
@@ -897,7 +897,7 @@ app.get("/sol-test/ssr-state-escape", (c) => {
     <div luna:id="json-test"
          luna:url="/sol-components/counter.js"
          luna:state="${escapedState}"
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span>Test</span>
     </div>
   `);
@@ -922,7 +922,7 @@ app.get("/sol-test/hydration-match", (c) => {
       <div luna:id="counter"
            luna:url="/sol-components/counter.js"
            luna:state='{"count":0}'
-           luna:trigger="load">
+           luna:client-trigger="load">
         <span class="count-display">0</span>
         <button data-action-click="increment">+</button>
         <button data-action-click="decrement">-</button>
@@ -937,7 +937,7 @@ app.get("/sol-test/hydration-state", (c) => {
     <div luna:id="counter"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":42}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span class="count-display">42</span>
       <button data-action-click="increment">+</button>
       <button data-action-click="decrement">-</button>
@@ -951,7 +951,7 @@ app.get("/sol-test/hydration-interactive", (c) => {
     <div luna:id="counter"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":0}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span class="count-display">0</span>
       <button data-action-click="increment">+</button>
       <button data-action-click="decrement">-</button>
@@ -967,7 +967,7 @@ app.get("/sol-test/multi-island", (c) => {
          luna:id="counter-a"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":10}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <h2>Counter A</h2>
       <span class="count-display">10</span>
       <button data-action-click="increment">+</button>
@@ -978,7 +978,7 @@ app.get("/sol-test/multi-island", (c) => {
          luna:id="counter-b"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":20}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <h2>Counter B</h2>
       <span class="count-display">20</span>
       <button data-action-click="increment">+</button>
@@ -995,7 +995,7 @@ app.get("/sol-test/island-failure", (c) => {
          luna:id="broken"
          luna:url="/sol-components/non-existent.js"
          luna:state='{"count":0}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span>Broken Island</span>
     </div>
 
@@ -1004,7 +1004,7 @@ app.get("/sol-test/island-failure", (c) => {
          luna:id="working"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":5}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span class="count-display">5</span>
       <button data-action-click="increment">+</button>
       <button data-action-click="decrement">-</button>
@@ -1026,7 +1026,7 @@ app.get("/sol-test/state-types", (c) => {
     <div luna:id="state-test"
          luna:url="/sol-components/state-display.js"
          luna:state='${state}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <div><span data-int>42</span></div>
       <div><span data-float>3.14</span></div>
       <div><span data-string>hello</span></div>
@@ -1050,7 +1050,7 @@ app.get("/sol-test/state-special-chars", (c) => {
     <div luna:id="special"
          luna:url="/sol-components/special-chars.js"
          luna:state='${stateJson}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <div><span data-html>${state.html.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
       <div><span data-unicode>${state.unicode}</span></div>
       <div><span data-quotes>${state.quotes.replace(/"/g, '&quot;')}</span></div>
@@ -1070,7 +1070,7 @@ app.get("/sol-test/state-nested", (c) => {
     <div luna:id="nested"
          luna:url="/sol-components/nested-state.js"
          luna:state='${stateJson}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <div><span data-user-name>Alice</span></div>
       <div><span data-user-email>alice@example.com</span></div>
       <div><span data-items-count>3</span></div>
@@ -1090,7 +1090,7 @@ app.get("/sol-test/state-large", (c) => {
     <div luna:id="large-state"
          luna:url="/sol-components/counter.js"
          luna:state="#large-state-data"
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span>Large state test</span>
     </div>
   `);
@@ -1103,7 +1103,7 @@ app.get("/sol-test/trigger-load", (c) => {
     <div luna:id="load-trigger"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":0}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span class="count-display">0</span>
     </div>
   `);
@@ -1115,7 +1115,7 @@ app.get("/sol-test/trigger-idle", (c) => {
     <div luna:id="idle-trigger"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":0}'
-         luna:trigger="idle">
+         luna:client-trigger="idle">
       <span class="count-display">0</span>
     </div>
   `);
@@ -1130,7 +1130,7 @@ app.get("/sol-test/trigger-visible", (c) => {
     <div luna:id="visible-trigger"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":0}'
-         luna:trigger="visible">
+         luna:client-trigger="visible">
       <span class="count-display">0</span>
     </div>
   `);
@@ -1142,7 +1142,7 @@ app.get("/sol-test/trigger-media", (c) => {
     <div luna:id="media-trigger"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":0}'
-         luna:trigger="media:(max-width: 600px)">
+         luna:client-trigger="media:(max-width: 600px)">
       <span class="count-display">0</span>
     </div>
   `);
@@ -1204,7 +1204,7 @@ app.get("/sol-test/mismatch-text", (c) => {
     <div luna:id="mismatch-text"
          luna:url="/sol-components/mismatch-detect.js"
          luna:state='${state}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       Server Text
     </div>
   `);
@@ -1218,7 +1218,7 @@ app.get("/sol-test/mismatch-element", (c) => {
     <div luna:id="mismatch-element"
          luna:url="/sol-components/mismatch-detect.js"
          luna:state='${state}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span>Content</span>
     </div>
   `);
@@ -1232,7 +1232,7 @@ app.get("/sol-test/mismatch-attr", (c) => {
     <div luna:id="mismatch-attr"
          luna:url="/sol-components/mismatch-detect.js"
          luna:state='${state}'
-         luna:trigger="load"
+         luna:client-trigger="load"
          data-test="wrong">
       Content
     </div>
@@ -1247,7 +1247,7 @@ app.get("/sol-test/mismatch-extra-client", (c) => {
     <div luna:id="mismatch-extra"
          luna:url="/sol-components/mismatch-detect.js"
          luna:state='${state}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span>Only one child</span>
     </div>
   `);
@@ -1261,7 +1261,7 @@ app.get("/sol-test/mismatch-extra-server", (c) => {
     <div luna:id="mismatch-extra-server"
          luna:url="/sol-components/mismatch-detect.js"
          luna:state='${state}'
-         luna:trigger="load">
+         luna:client-trigger="load">
       <span>Child 1</span>
       <span>Child 2</span>
     </div>

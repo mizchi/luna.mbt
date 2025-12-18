@@ -341,7 +341,7 @@ test "render island node" {
         Some(Static(v)) => assert_eq(v, "{\"count\":5}")
         _ => assert_true(false)
       }
-      match elem.attrs.get("luna:trigger") {
+      match elem.attrs.get("luna:client-trigger") {
         Some(Static(v)) => assert_eq(v, "load")
         _ => assert_true(false)
       }
@@ -364,7 +364,7 @@ test "render island with idle trigger" {
   let json = render_to_json(node)
   match json {
     Element(elem) =>
-      match elem.attrs.get("luna:trigger") {
+      match elem.attrs.get("luna:client-trigger") {
         Some(Static(v)) => assert_eq(v, "idle")
         _ => assert_true(false)
       }

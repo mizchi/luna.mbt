@@ -111,7 +111,7 @@ Luna combines Islands with fine-grained reactivity - the best of both worlds.
 
 ```html
 <!-- Only this island loads JavaScript -->
-<div luna:id="search" luna:trigger="visible">
+<div luna:id="search" luna:client-trigger="visible">
   <!-- Fine-grained reactivity inside -->
 </div>
 
@@ -155,16 +155,16 @@ Control exactly when and how components hydrate.
 
 ```html
 <!-- Critical: hydrate immediately -->
-<div luna:trigger="load">...</div>
+<div luna:client-trigger="load">...</div>
 
 <!-- Below fold: hydrate when visible -->
-<div luna:trigger="visible">...</div>
+<div luna:client-trigger="visible">...</div>
 
 <!-- Non-critical: hydrate when idle -->
-<div luna:trigger="idle">...</div>
+<div luna:client-trigger="idle">...</div>
 
 <!-- Responsive: hydrate on desktop only -->
-<div luna:trigger="media:(min-width: 768px)">...</div>
+<div luna:client-trigger="media:(min-width: 768px)">...</div>
 ```
 
 ### Comparison
@@ -230,10 +230,10 @@ Web Components SSR is only **~10% slower** than plain HTML.
 
 ```html
 <!-- Don't hydrate until visible -->
-<div luna:trigger="visible">...</div>
+<div luna:client-trigger="visible">...</div>
 
 <!-- Defer non-critical components -->
-<div luna:trigger="idle">...</div>
+<div luna:client-trigger="idle">...</div>
 ```
 
 ### 2. Batch Signal Updates

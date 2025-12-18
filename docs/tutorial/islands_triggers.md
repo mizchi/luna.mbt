@@ -31,7 +31,7 @@ Hydrate immediately when the page loads:
 ```
 
 ```html
-<div luna:id="search" luna:trigger="load">...</div>
+<div luna:id="search" luna:client-trigger="load">...</div>
 ```
 
 **Use for:**
@@ -54,7 +54,7 @@ Hydrate when the browser is idle (using `requestIdleCallback`):
 ```
 
 ```html
-<div luna:id="analytics" luna:trigger="idle">...</div>
+<div luna:id="analytics" luna:client-trigger="idle">...</div>
 ```
 
 **Use for:**
@@ -77,7 +77,7 @@ Hydrate when the element scrolls into view (using `IntersectionObserver`):
 ```
 
 ```html
-<div luna:id="comments" luna:trigger="visible">...</div>
+<div luna:id="comments" luna:client-trigger="visible">...</div>
 ```
 
 **Use for:**
@@ -101,7 +101,7 @@ Hydrate when a media query matches:
 ```
 
 ```html
-<div luna:id="sidebar" luna:trigger="media:(min-width: 768px)">...</div>
+<div luna:id="sidebar" luna:client-trigger="media:(min-width: 768px)">...</div>
 ```
 
 **Use for:**
@@ -114,19 +114,19 @@ Hydrate when a media query matches:
 
 ```html
 <!-- Desktop only (768px+) -->
-<div luna:trigger="media:(min-width: 768px)">...</div>
+<div luna:client-trigger="media:(min-width: 768px)">...</div>
 
 <!-- Mobile only (under 768px) -->
-<div luna:trigger="media:(max-width: 767px)">...</div>
+<div luna:client-trigger="media:(max-width: 767px)">...</div>
 
 <!-- Dark mode preference -->
-<div luna:trigger="media:(prefers-color-scheme: dark)">...</div>
+<div luna:client-trigger="media:(prefers-color-scheme: dark)">...</div>
 
 <!-- Reduced motion preference -->
-<div luna:trigger="media:(prefers-reduced-motion: no-preference)">...</div>
+<div luna:client-trigger="media:(prefers-reduced-motion: no-preference)">...</div>
 
 <!-- Landscape orientation -->
-<div luna:trigger="media:(orientation: landscape)">...</div>
+<div luna:client-trigger="media:(orientation: landscape)">...</div>
 ```
 
 ## Choosing the Right Trigger

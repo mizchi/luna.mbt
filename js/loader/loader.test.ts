@@ -149,13 +149,13 @@ describe("Luna Loader", () => {
       expect(el!.getAttribute("luna:url")).toBe("./counter.js");
     });
 
-    test("elements can have luna:trigger attribute", () => {
-      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:trigger="idle">Counter</div>`;
+    test("elements can have luna:client-trigger attribute", () => {
+      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:client-trigger="idle">Counter</div>`;
       initLoader();
 
       const el = findIslandById("counter");
       expect(el).not.toBeNull();
-      expect(el!.getAttribute("luna:trigger")).toBe("idle");
+      expect(el!.getAttribute("luna:client-trigger")).toBe("idle");
     });
 
     test("elements can have luna:state attribute with inline JSON", () => {
@@ -193,14 +193,14 @@ describe("Luna Loader", () => {
     test("complete island HTML structure", () => {
       const html = `
         <script type="luna/json" id="counter-state">{"count":10}</script>
-        <div luna:id="counter" luna:url="./counter.js" luna:state="#counter-state" luna:trigger="load">
+        <div luna:id="counter" luna:url="./counter.js" luna:state="#counter-state" luna:client-trigger="load">
           <span id="count">10</span>
           <button class="inc">+1</button>
           <button class="dec">-1</button>
         </div>
 
         <script type="luna/json" id="todo-state">{"text":"Buy milk","done":false}</script>
-        <div luna:id="todo" luna:url="./todo.js" luna:state="#todo-state" luna:trigger="visible">
+        <div luna:id="todo" luna:url="./todo.js" luna:state="#todo-state" luna:client-trigger="visible">
           <input id="todo-input" value="Buy milk" />
           <input type="checkbox" />
         </div>
@@ -223,12 +223,12 @@ describe("Luna Loader", () => {
       const counterEl = findIslandById("counter");
       expect(counterEl).not.toBeNull();
       expect(counterEl!.getAttribute("luna:url")).toBe("./counter.js");
-      expect(counterEl!.getAttribute("luna:trigger")).toBe("load");
+      expect(counterEl!.getAttribute("luna:client-trigger")).toBe("load");
 
       const todoEl = findIslandById("todo");
       expect(todoEl).not.toBeNull();
       expect(todoEl!.getAttribute("luna:url")).toBe("./todo.js");
-      expect(todoEl!.getAttribute("luna:trigger")).toBe("visible");
+      expect(todoEl!.getAttribute("luna:client-trigger")).toBe("visible");
     });
   });
 
@@ -239,43 +239,43 @@ describe("Luna Loader", () => {
 
       const el = findIslandById("counter");
       expect(el).not.toBeNull();
-      expect(el!.getAttribute("luna:trigger")).toBeNull();
+      expect(el!.getAttribute("luna:client-trigger")).toBeNull();
     });
 
     test("idle trigger", () => {
-      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:trigger="idle">Counter</div>`;
+      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:client-trigger="idle">Counter</div>`;
       initLoader();
 
       const el = findIslandById("counter");
       expect(el).not.toBeNull();
-      expect(el!.getAttribute("luna:trigger")).toBe("idle");
+      expect(el!.getAttribute("luna:client-trigger")).toBe("idle");
     });
 
     test("visible trigger", () => {
-      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:trigger="visible">Counter</div>`;
+      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:client-trigger="visible">Counter</div>`;
       initLoader();
 
       const el = findIslandById("counter");
       expect(el).not.toBeNull();
-      expect(el!.getAttribute("luna:trigger")).toBe("visible");
+      expect(el!.getAttribute("luna:client-trigger")).toBe("visible");
     });
 
     test("media trigger", () => {
-      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:trigger="media:(min-width: 768px)">Counter</div>`;
+      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:client-trigger="media:(min-width: 768px)">Counter</div>`;
       initLoader();
 
       const el = findIslandById("counter");
       expect(el).not.toBeNull();
-      expect(el!.getAttribute("luna:trigger")).toBe("media:(min-width: 768px)");
+      expect(el!.getAttribute("luna:client-trigger")).toBe("media:(min-width: 768px)");
     });
 
     test("none trigger", () => {
-      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:trigger="none">Counter</div>`;
+      document.body.innerHTML = `<div luna:id="counter" luna:url="./counter.js" luna:client-trigger="none">Counter</div>`;
       initLoader();
 
       const el = findIslandById("counter");
       expect(el).not.toBeNull();
-      expect(el!.getAttribute("luna:trigger")).toBe("none");
+      expect(el!.getAttribute("luna:client-trigger")).toBe("none");
     });
   });
 
