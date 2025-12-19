@@ -28,24 +28,16 @@ let storage_key : String = "todos-luna"
 
 ///|
 fn save_todos(todos : Array[Todo]) -> Unit {
-  ffi_local_storage_set(storage_key, todos_to_json(todos))
+  @storage.localStorage().setItem(storage_key, todos_to_json(todos))
 }
 
 ///|
 fn load_todos() -> Array[Todo] {
-  match ffi_local_storage_get(storage_key) {
+  match @storage.localStorage().getItem(storage_key) {
     Some(json) => json_to_todos(json)
     None => []
   }
 }
-
-///|
-extern "js" fn ffi_local_storage_set(key : String, value : String) -> Unit =
-  #|(key, value) => localStorage.setItem(key, value)
-
-///|
-extern "js" fn ffi_local_storage_get(key : String) -> String? =
-  #|(key) => { const v = localStorage.getItem(key); return v === null ? undefined : v; }
 
 ///|
 fn todos_to_json(todos : Array[Todo]) -> String {
@@ -112,15 +104,7 @@ fn json_to_todos(json : String) -> Array[Todo] {
 
 ///|
 fn get_current_filter() -> Filter {
-  hash_to_filter(ffi_get_hash())
-}
-
-///|
-extern "js" fn ffi_get_hash() -> String =
-  #|() => location.hash || "#/"
-
-///|
-fn hash_to_filter(hash : String) -> Filter {
+  let hash = @location.location().hash
   match hash {
     "#/active" => Active
     "#/completed" => Completed
@@ -128,37 +112,21 @@ fn hash_to_filter(hash : String) -> Filter {
   }
 }
 
-///|
-extern "js" fn ffi_on_hash_change(callback : () -> Unit) -> Unit =
-  #|(callback) => window.addEventListener("hashchange", callback)
-
 // =============================================================================
 // DOM Helpers
 // =============================================================================
 
 ///|
-fn focus_element(el : @js_dom.Element) -> Unit {
-  el.as_any()._call("focus", []) |> ignore
-}
-
-///|
-fn get_input_value(el : @js_dom.Element) -> String {
-  el.as_any()._get("value").cast()
-}
-
-///|
-fn set_input_value(el : @js_dom.Element, value : String) -> Unit {
-  el.as_any()._set("value", @js.any(value)) |> ignore
-}
-
-///|
-fn select_input(el : @js_dom.Element) -> Unit {
+/// Select all text in an input element
+fn select_input(el : @js_dom.HTMLInputElement) -> Unit {
   el.as_any()._call("select", []) |> ignore
 }
 
 ///|
-extern "js" fn ffi_request_animation_frame(callback : () -> Unit) -> Unit =
-  #|(callback) => requestAnimationFrame(callback)
+/// Schedule a callback for the next animation frame
+fn next_frame(callback : () -> Unit) -> Unit {
+  @js_dom.window().requestAnimationFrame(fn(_) { callback() }) |> ignore
+}
 
 // =============================================================================
 // UI Helpers
@@ -222,7 +190,9 @@ fn app() -> @dom.DomNode {
   let _ = @signal.effect(fn() { save_todos(todos.get()) })
 
   // Listen for hash changes
-  ffi_on_hash_change(fn() { filter.set(get_current_filter()) })
+  @js_dom.window().add_hashchange_listener(fn(_) {
+    filter.set(get_current_filter())
+  })
 
   // ---------------------------------------------------------------------------
   // Computed Values
@@ -238,11 +208,9 @@ fn app() -> @dom.DomNode {
       }
     })
   })
-  let completed_count = @signal.memo(fn() {
-    todos
+  let completed_count = @signal.memo(() => todos
     .get()
-    .fold(init=0, fn(count, t) { if t.completed { count + 1 } else { count } })
-  })
+    .fold(init=0, (count, t) => if t.completed { count + 1 } else { count }))
   let all_completed = @signal.memo(fn() {
     let items = todos.get()
     items.length() > 0 && active_count() == 0
@@ -321,18 +289,18 @@ fn app() -> @dom.DomNode {
 
   /// Render a single todo item
   fn render_todo_item(get_todo : () -> Todo, _index : Int) -> @dom.DomNode {
-    let edit_ref : Ref[@js_dom.Element?] = { val: None }
+    let edit_ref : Ref[@js_dom.HTMLInputElement?] = { val: None }
     let edit_composing : Ref[Bool] = { val: false }
 
     // Focus edit input when entering edit mode
     let _ = @signal.effect(fn() {
       let todo = get_todo()
       if editing_id.get() == Some(todo.id) {
-        ffi_request_animation_frame(fn() {
-          if edit_ref.val is Some(el) {
-            set_input_value(el, todo.title)
-            focus_element(el)
-            select_input(el)
+        next_frame(fn() {
+          if edit_ref.val is Some(input) {
+            input.value = todo.title
+            input.as_html_element().focus()
+            select_input(input)
           }
         })
       }
@@ -375,41 +343,46 @@ fn app() -> @dom.DomNode {
         ),
       ]),
       // Edit mode input
-      @dom.input(class="edit", ref_=fn(el) { edit_ref.val = Some(el) }, dyn_attrs=[
-        ("value", @dom.attr_dynamic(fn() { get_todo().title })),
-        ("compositionstart", @dom.Handler(fn(_) { edit_composing.val = true })),
-        ("compositionend", @dom.Handler(fn(_) { edit_composing.val = false })),
-        (
-          "blur",
-          @dom.Handler(fn(e) {
-            let todo = get_todo()
-            if editing_id.peek() == Some(todo.id) {
-              update_todo_title(
-                todo.id,
-                get_input_value(e._get("target").cast()),
-              )
-              editing_id.set(None)
-            }
-          }),
-        ),
-        (
-          "keydown",
-          @dom.Handler(fn(e) {
-            let key : String = e._get("key").cast()
-            let todo = get_todo()
-            if key == "Enter" && not(edit_composing.val) {
-              update_todo_title(
-                todo.id,
-                get_input_value(e._get("target").cast()),
-              )
-              editing_id.set(None)
-            } else if key == "Escape" {
-              set_input_value(e._get("target").cast(), todo.title)
-              editing_id.set(None)
-            }
-          }),
-        ),
-      ]),
+      @dom.input(
+        class="edit",
+        ref_=fn(el) {
+          edit_ref.val = Some(@js_dom.HTMLInputElement::cast_from_element(el))
+        },
+        dyn_attrs=[
+          ("value", @dom.attr_dynamic(fn() { get_todo().title })),
+          (
+            "compositionstart",
+            @dom.Handler(fn(_) { edit_composing.val = true }),
+          ),
+          ("compositionend", @dom.Handler(fn(_) { edit_composing.val = false })),
+          (
+            "blur",
+            @dom.Handler(fn(e) {
+              let todo = get_todo()
+              if editing_id.peek() == Some(todo.id) {
+                let input : @js_dom.HTMLInputElement = e._get("target").cast()
+                update_todo_title(todo.id, input.value)
+                editing_id.set(None)
+              }
+            }),
+          ),
+          (
+            "keydown",
+            @dom.Handler(fn(e) {
+              let key : String = e._get("key").cast()
+              let todo = get_todo()
+              let input : @js_dom.HTMLInputElement = e._get("target").cast()
+              if key == "Enter" && not(edit_composing.val) {
+                update_todo_title(todo.id, input.value)
+                editing_id.set(None)
+              } else if key == "Escape" {
+                input.value = todo.title
+                editing_id.set(None)
+              }
+            }),
+          ),
+        ],
+      ),
     ])
   }
 
@@ -422,13 +395,16 @@ fn app() -> @dom.DomNode {
         placeholder="What needs to be done?",
         attrs=[("autofocus", @dom.Attr::AttrBool(true))],
         on=@dom.events()
-          .input(fn(e) { new_todo_text.set(get_input_value(e.target())) })
+          .input(fn(e) {
+            let input = @js_dom.HTMLInputElement::cast_from_element(e.target())
+            new_todo_text.set(input.value)
+          })
           .compositionstart(fn(_) { is_composing.set(true) })
           .compositionend(fn(_) { is_composing.set(false) })
           .keydown(fn(e) {
             if e.key == "Enter" && not(is_composing.peek()) {
               add_todo()
-              set_input_value(e.target(), "")
+              @js_dom.HTMLInputElement::cast_from_element(e.target()).value = ""
             }
           }),
       ),
