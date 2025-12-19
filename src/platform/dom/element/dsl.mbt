@@ -205,6 +205,22 @@ pub extern "js" fn HandlerMap::mouseup(
   #|(m, handler) => { m.mouseup = handler; return m; }
 
 ///|
+/// Composition start event (for IME input)
+pub extern "js" fn HandlerMap::compositionstart(
+  self : Self,
+  handler : Handler,
+) -> HandlerMap =
+  #|(m, handler) => { m.compositionstart = handler; return m; }
+
+///|
+/// Composition end event (for IME input)
+pub extern "js" fn HandlerMap::compositionend(
+  self : Self,
+  handler : Handler,
+) -> HandlerMap =
+  #|(m, handler) => { m.compositionend = handler; return m; }
+
+///|
 /// Convert HandlerMap to Array of attribute tuples using JS Object.entries
 /// Keys are already lowercase event names, tag 2 = Handler variant
 extern "js" fn HandlerMap::to_attrs(

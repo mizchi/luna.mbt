@@ -272,6 +272,18 @@ pub fn[T] for_each(
 // =============================================================================
 
 ///|
+/// Entry for index_each - stores node and its dispose function
+priv struct IndexEntry {
+  node : @js_dom.Node
+  dispose : () -> Unit
+}
+
+///|
+fn IndexEntry::new(node : @js_dom.Node, dispose : () -> Unit) -> IndexEntry {
+  { node, dispose }
+}
+
+///|
 /// Index-based list rendering - optimized for lists where items are identified by index
 /// Unlike for_each which tracks by reference, index_each tracks by index position.
 /// When items change at an index, only that element is re-rendered.
@@ -299,19 +311,30 @@ pub fn[T] index_each(
 ) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("index")
-  let nodes : Array[@js_dom.Node] = []
+  let entries : Array[IndexEntry] = []
   let is_first = { val: true }
+  // Capture current owner for context inheritance
+  let captured_owner = @signal.get_owner()
+
+  // Helper to render item with owner scope for proper cleanup
+  fn render_with_scope(index : Int) -> IndexEntry {
+    let item_getter = fn() -> T { items()[index] }
+    let (dom, dispose) = @signal.create_root_with_dispose(fn() {
+      match captured_owner {
+        Some(owner) => @signal.run_with_owner(owner, fn() { render_item(item_getter, index) })
+        None => render_item(item_getter, index)
+      }
+    })
+    IndexEntry::new(dom.to_jsdom(), dispose)
+  }
 
   // Initial render
   let fragment = doc.createDocumentFragment()
   let initial_items = items()
   for i, _ in initial_items {
-    // Create a getter for this index position
-    let index = i // Capture index
-    let item_getter = fn() -> T { items()[index] }
-    let dom = render_item(item_getter, i).to_jsdom()
-    nodes.push(dom)
-    fragment.as_node().appendChild(dom) |> ignore
+    let entry = render_with_scope(i)
+    entries.push(entry)
+    fragment.as_node().appendChild(entry.node) |> ignore
   }
   fragment.as_node().appendChild(placeholder) |> ignore
 
@@ -322,30 +345,31 @@ pub fn[T] index_each(
       is_first.val = false
       return
     }
-    let old_len = nodes.length()
+    let old_len = entries.length()
     let new_len = new_items.length()
 
-    // Remove excess nodes
-    while nodes.length() > new_len {
-      let node = nodes.pop()
-      match node {
-        Some(n) =>
-          if n.parentNode() is Some(par) {
-            par.removeChild(n) |> ignore
+    // Remove excess nodes and dispose their effects
+    while entries.length() > new_len {
+      let entry = entries.pop()
+      match entry {
+        Some(e) => {
+          // Dispose effects first to prevent stale callbacks
+          (e.dispose)()
+          if e.node.parentNode() is Some(par) {
+            par.removeChild(e.node) |> ignore
           }
+        }
         None => ()
       }
     }
 
     // Add new nodes for indices beyond old length
-    while nodes.length() < new_len {
-      let i = nodes.length()
-      let index = i
-      let item_getter = fn() -> T { items()[index] }
-      let dom = render_item(item_getter, i).to_jsdom()
-      nodes.push(dom)
+    while entries.length() < new_len {
+      let i = entries.length()
+      let entry = render_with_scope(i)
+      entries.push(entry)
       if placeholder.parentNode() is Some(par) {
-        par.insertBefore(dom, Some(placeholder)) |> ignore
+        par.insertBefore(entry.node, Some(placeholder)) |> ignore
       }
     }
 
