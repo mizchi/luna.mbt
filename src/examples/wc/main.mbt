@@ -148,16 +148,12 @@ fn register_wc_counter() -> Unit {
     // Bind events
     match query_selector(shadow, ".dec") {
       Some(btn) =>
-        add_event_listener_ffi(btn, "click", fn() {
-          count.update(fn(n) { n - 1 })
-        })
+        add_event_listener_ffi(btn, "click", fn() { count.update(n => n - 1) })
       None => ()
     }
     match query_selector(shadow, ".inc") {
       Some(btn) =>
-        add_event_listener_ffi(btn, "click", fn() {
-          count.update(fn(n) { n + 1 })
-        })
+        add_event_listener_ffi(btn, "click", fn() { count.update(n => n + 1) })
       None => ()
     }
     match query_selector(shadow, ".reset") {
@@ -251,16 +247,12 @@ fn register_wc_effect() -> Unit {
     set_inner_html(shadow, html)
     match query_selector(shadow, ".toggle") {
       Some(btn) =>
-        add_event_listener_ffi(btn, "click", fn() {
-          active.update(fn(b) { not(b) })
-        })
+        add_event_listener_ffi(btn, "click", fn() { active.update(b => not(b)) })
       None => ()
     }
     match query_selector(shadow, ".tick") {
       Some(btn) =>
-        add_event_listener_ffi(btn, "click", fn() {
-          ticks.update(fn(n) { n + 1 })
-        })
+        add_event_listener_ffi(btn, "click", fn() { ticks.update(n => n + 1) })
       None => ()
     }
     let _ = @signal.effect(fn() {
@@ -307,7 +299,7 @@ fn register_wc_conditional() -> Unit {
     match query_selector(shadow, ".toggle") {
       Some(btn) =>
         add_event_listener_ffi(btn, "click", fn() {
-          show_message.update(fn(b) { not(b) })
+          show_message.update(b => not(b))
         })
       None => ()
     }
@@ -645,7 +637,7 @@ fn register_wc_child_button() -> Unit {
     match query_selector(shadow, ".child-btn") {
       Some(btn) =>
         add_event_listener_ffi(btn, "click", fn() {
-          click_count.update(fn(n) { n + 1 })
+          click_count.update(n => n + 1)
           // Dispatch custom event to parent (bubbles through shadow DOM)
           dispatch_custom_event(
             host,
@@ -698,7 +690,7 @@ fn register_wc_nested_parent() -> Unit {
 
     // Listen for custom events from child components (bubbles through shadow DOM)
     add_custom_event_listener(host, "child-clicked", fn(_detail) {
-      total_child_clicks.update(fn(n) { n + 1 })
+      total_child_clicks.update(n => n + 1)
     })
     let _ = @signal.effect(fn() {
       match query_selector(shadow, ".total-clicks") {

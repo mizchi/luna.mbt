@@ -539,7 +539,7 @@ pub fn get_pages_for_locale(
   pages : Array[@astra.PageMeta],
   locale : String,
 ) -> Array[@astra.PageMeta] {
-  pages.filter(fn(p) { p.locale == locale })
+  pages.filter(p => p.locale == locale)
 }
 
 ///|

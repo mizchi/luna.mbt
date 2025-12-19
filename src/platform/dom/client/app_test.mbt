@@ -293,7 +293,7 @@ test "Todo app reactive text updates" {
 
   // Multiple updates
   for i = 0; i < 10; i = i + 1 {
-    count.update(fn(n) { n + 1 })
+    count.update(n => n + 1)
   }
   assert_eq(count.get(), 52)
 }

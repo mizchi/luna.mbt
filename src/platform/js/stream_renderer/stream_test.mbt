@@ -28,7 +28,7 @@ test "render_to_stream_collecting_async collects boundaries" {
   assert_eq(boundaries.length(), 2)
 
   // Output should contain fallbacks
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_true(html.contains("Loading 1..."))
   assert_true(html.contains("Loading 2..."))
   assert_true(html.contains("Header"))
@@ -48,7 +48,7 @@ test "render_to_stream no async returns empty boundaries" {
 
   // No async nodes = no boundaries
   assert_eq(boundaries.length(), 0)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_eq(html, "<div>Simple</div>")
 }
 
@@ -64,7 +64,7 @@ test "render_to_stream nested async" {
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   let boundaries = render_to_stream_collecting_async(node, writer)
   assert_eq(boundaries.length(), 1)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_true(html.contains("Loading..."))
   assert_true(html.contains("id=\"A:0\""))
 }
@@ -207,7 +207,7 @@ test "stream render error_boundary children when no error" {
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   render_to_stream(node, writer)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_eq(html, "<div>Stream Success</div>")
 }
 
@@ -228,7 +228,7 @@ test "stream render error_boundary with async boundaries" {
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   let boundaries = render_to_stream_collecting_async(node, writer)
   assert_eq(boundaries.length(), 1)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_true(html.contains("Header"))
   assert_true(html.contains("Loading..."))
 }
@@ -402,7 +402,7 @@ test "stream render switch first case" {
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   render_to_stream(node, writer)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_eq(html, "Stream First")
 }
 
@@ -417,7 +417,7 @@ test "stream render switch fallback" {
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   render_to_stream(node, writer)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_eq(html, "Stream Fallback")
 }
 
@@ -429,7 +429,7 @@ test "stream render switch no fallback" {
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   render_to_stream(node, writer)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_eq(html, "<!--switch-->")
 }
 
@@ -446,7 +446,7 @@ test "stream render collecting async switch" {
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   let boundaries = render_to_stream_collecting_async(node, writer)
   assert_eq(boundaries.length(), 1)
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_true(html.contains("Loading..."))
 }
 
@@ -464,7 +464,7 @@ test "stream_async_replacement" {
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   stream_async_replacement(42, writer, fn(w) { (w.0)("Replaced Content") })
-  let html = chunks.iter().fold(init="", fn(acc, chunk) { acc + chunk })
+  let html = chunks.iter().join("")
   assert_true(html.contains("<template id=\"T:42\">"))
   assert_true(html.contains("Replaced Content"))
   assert_true(html.contains("</template>"))

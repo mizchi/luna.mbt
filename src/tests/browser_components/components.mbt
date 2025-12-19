@@ -55,9 +55,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) {
-              count_sig.update(fn(c) { c + 1 })
-            }),
+            @luna.handler(fn(_event : @js.Any) { count_sig.update(c => c + 1) }),
           ),
         ),
       ],
@@ -70,9 +68,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) {
-              count_sig.update(fn(c) { c - 1 })
-            }),
+            @luna.handler(fn(_event : @js.Any) { count_sig.update(c => c - 1) }),
           ),
         ),
       ],
@@ -137,9 +133,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) {
-              active.update(fn(a) { not(a) })
-            }),
+            @luna.handler(fn(_event : @js.Any) { active.update(a => not(a)) }),
           ),
         ),
       ],
@@ -191,9 +185,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) {
-              visible.update(fn(v) { not(v) })
-            }),
+            @luna.handler(fn(_event : @js.Any) { visible.update(v => not(v)) }),
           ),
         ),
       ],
@@ -336,17 +328,13 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) {
-              click_count.update(fn(c) { c + 1 })
-            }),
+            @luna.handler(fn(_event : @js.Any) { click_count.update(c => c + 1) }),
           ),
         ),
         (
           "onDblclick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) {
-              dblclick_count.update(fn(c) { c + 1 })
-            }),
+            @luna.handler(fn(_event : @js.Any) { dblclick_count.update(c => c + 1) }),
           ),
         ),
         (
@@ -574,7 +562,7 @@ pub fn hydrate_element_ref(el : @js_dom.Element, _state : @js.Any) -> Unit {
           match input_ref.val {
             Some(input_el) => {
               input_el.as_any()._call("focus", []) |> ignore
-              focus_count.update(fn(c) { c + 1 })
+              focus_count.update(c => c + 1)
             }
             None => ()
           }
@@ -589,7 +577,7 @@ pub fn hydrate_element_ref(el : @js_dom.Element, _state : @js.Any) -> Unit {
             Some(input_el) => {
               input_el.as_any()._set("value", @js.any("")) |> ignore
               input_el.as_any()._call("focus", []) |> ignore
-              focus_count.update(fn(c) { c + 1 })
+              focus_count.update(c => c + 1)
             }
             None => ()
           }

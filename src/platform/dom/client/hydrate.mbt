@@ -102,15 +102,7 @@ pub fn hydrate(
 
   // Check for mismatches
   if not(ctx.mismatches.is_empty()) {
-    let mismatch_msg = ctx.mismatches
-      .iter()
-      .fold(init="", fn(acc, msg) {
-        if acc == "" {
-          msg
-        } else {
-          acc + "; " + msg
-        }
-      })
+    let mismatch_msg = ctx.mismatches.iter().join("; ")
     if warn {
       warn_hydration(logger, "Hydration mismatch detected: " + mismatch_msg)
     }

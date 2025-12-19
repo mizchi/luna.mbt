@@ -144,7 +144,7 @@ pub fn ExperimentalHydrationReport::get_repairs_by_type(
   self : ExperimentalHydrationReport,
   repair_type : RepairType,
 ) -> Array[RepairInfo] {
-  self.repairs.filter(fn(repair) { repair.repair_type == repair_type })
+  self.repairs.filter(repair => repair.repair_type == repair_type)
 }
 
 ///|
@@ -153,7 +153,7 @@ pub fn ExperimentalHydrationReport::has_repair_type(
   self : ExperimentalHydrationReport,
   repair_type : RepairType,
 ) -> Bool {
-  self.repairs.iter().any(fn(repair) { repair.repair_type == repair_type })
+  self.repairs.iter().any(repair => repair.repair_type == repair_type)
 }
 
 // =============================================================================
@@ -239,15 +239,7 @@ fn get_current_path(ctx : ExperimentalHydrationContext) -> String {
   if ctx.path_stack.is_empty() {
     "root"
   } else {
-    ctx.path_stack
-    .iter()
-    .fold(init="", fn(acc, part) {
-      if acc == "" {
-        part
-      } else {
-        acc + " > " + part
-      }
-    })
+    ctx.path_stack.iter().join(" > ")
   }
 }
 

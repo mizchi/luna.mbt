@@ -36,7 +36,7 @@ test "signal_set" (b : @bench.T) {
 ///|
 test "signal_update" (b : @bench.T) {
   let sig = @signal.signal(0)
-  b.bench(name="Signal::update", fn() { sig.update(fn(n) { n + 1 }) })
+  b.bench(name="Signal::update", fn() { sig.update(n => n + 1) })
 }
 
 // =============================================================================

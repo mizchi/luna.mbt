@@ -34,14 +34,14 @@ fn counter_example() -> @dom.DomNode {
     @dom.p([@dom.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } })]),
     @dom.div(class="buttons", [
       @dom.button(
-        on=@dom.events().click(fn(_) { count.update(fn(n) { n - 1 }) }),
+        on=@dom.events().click(_ => count.update(n => n - 1)),
         [@dom.text("-")],
       ),
       @dom.button(
-        on=@dom.events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
+        on=@dom.events().click(_ => count.update(n => n + 1)),
         [@dom.text("+")],
       ),
-      @dom.button(on=@dom.events().click(fn(_) { count.set(0) }), [
+      @dom.button(on=@dom.events().click(_ => count.set(0)), [
         @dom.text("Reset"),
       ]),
     ]),
@@ -95,11 +95,11 @@ fn effect_example() -> @dom.DomNode {
     ]),
     @dom.p([@dom.text_dyn(fn() { "Ticks: " + ticks.get().to_string() })]),
     @dom.button(
-      on=@dom.events().click(fn(_) { active.update(fn(b) { not(b) }) }),
+      on=@dom.events().click(_ => active.update(b => not(b))),
       [@dom.text_dyn(fn() { if active.get() { "Stop" } else { "Start" } })],
     ),
     @dom.button(
-      on=@dom.events().click(fn(_) { ticks.update(fn(n) { n + 1 }) }),
+      on=@dom.events().click(_ => ticks.update(n => n + 1)),
       [@dom.text("Tick")],
     ),
   ])
@@ -115,7 +115,7 @@ fn conditional_example() -> @dom.DomNode {
   @dom.div(class="conditional-example", [
     @dom.h2([@dom.text("Conditional Example")]),
     @dom.button(
-      on=@dom.events().click(fn(_) { show_message.update(fn(b) { not(b) }) }),
+      on=@dom.events().click(_ => show_message.update(b => not(b))),
       [
         @dom.text_dyn(fn() {
           if show_message.get() {
@@ -324,12 +324,12 @@ fn todo_example() -> @dom.DomNode {
           [
             @dom.span(
               style="cursor: pointer;",
-              on=@dom.events().click(fn(_) { toggle_todo(todo_id) }),
+              on=@dom.events().click(_ => toggle_todo(todo_id)),
               [@dom.text(todo.text)],
             ),
             @dom.button(
               style="margin-left: 10px;",
-              on=@dom.events().click(fn(_) { remove_todo(todo_id) }),
+              on=@dom.events().click(_ => remove_todo(todo_id)),
               [@dom.text("x")],
             ),
           ],
@@ -362,7 +362,7 @@ fn modal_example() -> @dom.DomNode {
     @dom.h2([@dom.text("Modal Example (Portal)")]),
     @dom.p([@dom.text("Modal renders outside the component tree using Portal.")]),
     @dom.button(
-      on=@dom.events().click(fn(_) { is_open.set(true) }),
+      on=@dom.events().click(_ => is_open.set(true)),
       id="open-modal-btn",
       [@dom.text("Open Modal")],
     ),
@@ -393,7 +393,7 @@ fn modal_example() -> @dom.DomNode {
                 ),
               ]),
               @dom.button(
-                on=@dom.events().click(fn(_) { is_open.set(false) }),
+                on=@dom.events().click(_ => is_open.set(false)),
                 id="close-modal-btn",
                 [@dom.text("Close")],
               ),

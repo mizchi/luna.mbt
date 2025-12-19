@@ -118,7 +118,7 @@ fn counter_component() -> @dom.DomNode {
         attrs=[("data-testid", AttrString("decrement-btn"))],
         on=events().click(fn(_) {
           console_log("Decrement clicked, current: " + count.get().to_string())
-          count.update(fn(n) { n - 1 })
+          count.update(n => n - 1)
           console_log("After decrement: " + count.get().to_string())
         }),
         [text("-")],
@@ -127,7 +127,7 @@ fn counter_component() -> @dom.DomNode {
         attrs=[("data-testid", AttrString("increment-btn"))],
         on=events().click(fn(_) {
           console_log("Increment clicked, current: " + count.get().to_string())
-          count.update(fn(n) { n + 1 })
+          count.update(n => n + 1)
           console_log("After increment: " + count.get().to_string())
         }),
         [text("+")],

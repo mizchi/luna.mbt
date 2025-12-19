@@ -37,7 +37,7 @@ pub fn generate_auto_sidebar(
   let groups : Array[@astra.SidebarGroup] = []
 
   // Filter pages by locale first
-  let locale_pages = pages.filter(fn(p) { p.locale == locale })
+  let locale_pages = pages.filter(p => p.locale == locale)
 
   // Group pages by top-level directory (using canonical_path for grouping)
   let page_groups = group_pages_by_canonical_dir(locale_pages)

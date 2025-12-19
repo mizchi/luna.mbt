@@ -143,13 +143,13 @@ pub fn BrowserRouter::get_match(self : BrowserRouter) -> @routes.RoutesMatch? {
 ///|
 /// 現在のコンポーネントIDを取得
 pub fn BrowserRouter::get_component(self : BrowserRouter) -> String? {
-  self.current_match.get().map(fn(m) { m.component() })
+  self.current_match.get().map(m => m.component())
 }
 
 ///|
 /// ナビゲーション関数を取得（コンポーネントに渡す用）
 pub fn BrowserRouter::get_navigate(self : BrowserRouter) -> (String) -> Unit {
-  fn(path) { self.navigate(path) }
+  path => self.navigate(path)
 }
 
 ///|

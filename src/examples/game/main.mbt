@@ -447,7 +447,7 @@ fn render_grid(state_sig : @signal.Signal[GameState]) -> @dom.DomNode {
   })
   @dom.div(class="grid", [
     @dom.for_each(fn() { indices }, fn(_, _) {
-      @dom.div(class="cell c0", ref_=fn(el) { cell_elements.push(el) }, [])
+      @dom.div(class="cell c0", ref_=el => cell_elements.push(el), [])
     }),
   ])
 }
@@ -481,10 +481,10 @@ fn render_controls(
 ) -> @dom.DomNode {
   @dom.div(class="controls", [
     @dom.button(
-      on=@dom.events().click(fn(_) { running_sig.update(fn(r) { not(r) }) }),
+      on=@dom.events().click(_ => running_sig.update(r => not(r))),
       [@dom.text_dyn(fn() { if running_sig.get() { "Pause" } else { "Run" } })],
     ),
-    @dom.button(on=@dom.events().click(fn(_) { on_reset() }), [
+    @dom.button(on=@dom.events().click(_ => on_reset()), [
       @dom.text("Reset"),
     ]),
   ])

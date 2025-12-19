@@ -300,7 +300,7 @@ fn build_nav(
   )
 
   // Nav items
-  let nav_items = ctx.config.nav.map(fn(item) { build_nav_item(item) })
+  let nav_items = ctx.config.nav.map(item => build_nav_item(item))
 
   // Language switcher
   let lang_switcher = build_language_switcher(ctx, page)
@@ -341,8 +341,8 @@ fn build_language_switcher(
   // Find current locale label
   let current_label = i18n.locales
     .iter()
-    .find_first(fn(l) { l.code == page.locale })
-    .map(fn(l) { l.label })
+    .find_first(l => l.code == page.locale)
+    .map(l => l.label)
     .unwrap_or(page.locale)
 
   // Build dropdown items

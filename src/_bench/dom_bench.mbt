@@ -133,9 +133,7 @@ test "dom_reactive_attr_update" (b : @bench.T) {
     [@luna.text("Toggle")],
   )
   let _ = @client.render_vnode_to_dom(node)
-  b.bench(name="dom_reactive_attr_update", fn() {
-    active.update(fn(b) { not(b) })
-  })
+  b.bench(name="dom_reactive_attr_update", fn() { active.update(b => not(b)) })
 }
 
 ///|
@@ -177,7 +175,7 @@ test "dom_show_toggle" (b : @bench.T) {
   let container = doc.createElement("div")
   let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
-  b.bench(name="dom_show_toggle", fn() { visible.update(fn(v) { not(v) }) })
+  b.bench(name="dom_show_toggle", fn() { visible.update(v => not(v)) })
 }
 
 // =============================================================================
@@ -475,7 +473,7 @@ test "dom_conditional_shallow" (b : @bench.T) {
   let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
   b.bench(name="dom_conditional_shallow", fn() {
-    show_a.update(fn(v) { not(v) })
+    show_a.update(v => not(v))
   })
 }
 
@@ -499,5 +497,5 @@ test "dom_conditional_deep" (b : @bench.T) {
   let container = doc.createElement("div")
   let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
-  b.bench(name="dom_conditional_deep", fn() { visible.update(fn(v) { not(v) }) })
+  b.bench(name="dom_conditional_deep", fn() { visible.update(v => not(v)) })
 }
