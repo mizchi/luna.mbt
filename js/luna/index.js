@@ -495,6 +495,221 @@ export function Portal(props) {
   return portalToBody(resolvedChildren);
 }
 
+// ============================================================================
+// Store API (SolidJS-style)
+// ============================================================================
+
+/**
+ * Creates a reactive store with nested property tracking (SolidJS-style)
+ * @template T
+ * @param {T} initialValue - Initial store state
+ * @returns {[T, SetStoreFunction<T>]} - [state proxy, setState function]
+ *
+ * @example
+ * const [state, setState] = createStore({ count: 0, user: { name: "John" } });
+ *
+ * // Read (reactive - tracks dependencies)
+ * state.count
+ * state.user.name
+ *
+ * // Update by path
+ * setState("count", 1);
+ * setState("user", "name", "Jane");
+ *
+ * // Functional update
+ * setState("count", c => c + 1);
+ *
+ * // Object merge at path
+ * setState("user", { name: "Jane", age: 30 });
+ */
+export function createStore(initialValue) {
+  // Store signals for each path
+  const signals = new Map();
+  // Deep clone the initial value to avoid mutation issues
+  const store = structuredClone(initialValue);
+
+  // Get or create a signal for a path
+  function getSignal(path) {
+    const key = path.join(".");
+    if (!signals.has(key)) {
+      const value = getValueAtPath(store, path);
+      signals.set(key, _createSignal(value));
+    }
+    return signals.get(key);
+  }
+
+  // Get value at a path in an object
+  function getValueAtPath(obj, path) {
+    let current = obj;
+    for (const key of path) {
+      if (current == null) return undefined;
+      current = current[key];
+    }
+    return current;
+  }
+
+  // Set value at a path in an object
+  function setValueAtPath(obj, path, value) {
+    if (path.length === 0) return;
+    let current = obj;
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i];
+      if (current[key] == null) {
+        // Preserve array vs object based on next key
+        const nextKey = path[i + 1];
+        current[key] = typeof nextKey === "number" || /^\d+$/.test(nextKey) ? [] : {};
+      }
+      current = current[key];
+    }
+    current[path[path.length - 1]] = value;
+  }
+
+  // Notify all signals that might be affected by a path change
+  // Uses batch to ensure effects only run once even if multiple signals are updated
+  function notifyPath(path) {
+    const pathStr = path.join(".");
+
+    batchStart();
+    try {
+      for (const [key, signal] of signals.entries()) {
+        // Only notify:
+        // 1. The exact path that changed
+        // 2. Child paths (paths that start with the changed path)
+        // Do NOT notify parent paths - they didn't change (object reference is same)
+        if (key === pathStr || key.startsWith(pathStr + ".")) {
+          const signalPath = key.split(".");
+          const newValue = getValueAtPath(store, signalPath);
+          _set(signal, newValue);
+        }
+      }
+    } finally {
+      batchEnd();
+    }
+  }
+
+  // Create a proxy for reactive access
+  function createProxy(target, path = []) {
+    if (target === null || typeof target !== "object") {
+      return target;
+    }
+
+    return new Proxy(target, {
+      get(obj, prop) {
+        if (typeof prop === "symbol") {
+          return obj[prop];
+        }
+
+        const currentPath = [...path, prop];
+        const signal = getSignal(currentPath);
+        // Track dependency by reading the signal
+        _get(signal);
+
+        const value = obj[prop];
+        if (value !== null && typeof value === "object") {
+          return createProxy(value, currentPath);
+        }
+        return value;
+      },
+
+      set(obj, prop, value) {
+        // Direct assignment on proxy - update store and notify
+        const currentPath = [...path, prop];
+        obj[prop] = value;
+        notifyPath(currentPath);
+        return true;
+      },
+    });
+  }
+
+  // setState function supporting path-based updates
+  function setState(...args) {
+    if (args.length === 0) return;
+
+    // Collect path segments and final value/updater
+    const path = [];
+    let i = 0;
+
+    // Collect string path segments
+    while (i < args.length - 1 && typeof args[i] === "string") {
+      path.push(args[i]);
+      i++;
+    }
+
+    const valueOrUpdater = args[i];
+
+    // If no path, treat as root update
+    if (path.length === 0 && typeof valueOrUpdater === "object" && valueOrUpdater !== null) {
+      // Merge at root
+      Object.assign(store, valueOrUpdater);
+      // Notify all signals
+      for (const [key, signal] of signals.entries()) {
+        const signalPath = key.split(".");
+        const newValue = getValueAtPath(store, signalPath);
+        _set(signal, newValue);
+      }
+      return;
+    }
+
+    // Get current value at path
+    const currentValue = getValueAtPath(store, path);
+
+    // Determine new value
+    let newValue;
+    if (typeof valueOrUpdater === "function") {
+      newValue = valueOrUpdater(currentValue);
+    } else if (
+      Array.isArray(valueOrUpdater)
+    ) {
+      // Arrays are replaced, not merged
+      newValue = valueOrUpdater;
+    } else if (
+      typeof valueOrUpdater === "object" &&
+      valueOrUpdater !== null &&
+      typeof currentValue === "object" &&
+      currentValue !== null &&
+      !Array.isArray(currentValue)
+    ) {
+      // Merge objects (but not arrays)
+      newValue = { ...currentValue, ...valueOrUpdater };
+    } else {
+      newValue = valueOrUpdater;
+    }
+
+    // Set value in store
+    setValueAtPath(store, path, newValue);
+
+    // Notify affected signals
+    notifyPath(path);
+  }
+
+  const proxy = createProxy(store);
+  return [proxy, setState];
+}
+
+/**
+ * Produce helper for immer-style mutations (SolidJS-style)
+ * @template T
+ * @param {(draft: T) => void} fn - Mutation function
+ * @returns {(state: T) => T} - Function that applies mutations to a copy
+ */
+export function produce(fn) {
+  return (state) => {
+    const draft = structuredClone(state);
+    fn(draft);
+    return draft;
+  };
+}
+
+/**
+ * Reconcile helper for efficient array/object updates (SolidJS-style)
+ * @template T
+ * @param {T} value - New value to reconcile
+ * @returns {(state: T) => T} - Function that returns the new value
+ */
+export function reconcile(value) {
+  return () => value;
+}
+
 // Re-export unchanged APIs
 export {
   // Batch control

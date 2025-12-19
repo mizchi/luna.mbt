@@ -426,6 +426,73 @@ export function stateError<T>(state: any): string | undefined;
 export function debounced<T>(signal: Signal<T>, delayMs: number): Signal<T>;
 
 // ============================================================================
+// Store API (SolidJS-style)
+// ============================================================================
+
+/** Path segment type for setState */
+type PathSegment = string | number;
+
+/** Store setter function type */
+export interface SetStoreFunction<T> {
+  /** Update value at path */
+  <K1 extends keyof T>(key1: K1, value: T[K1] | ((prev: T[K1]) => T[K1])): void;
+  <K1 extends keyof T, K2 extends keyof T[K1]>(
+    key1: K1,
+    key2: K2,
+    value: T[K1][K2] | ((prev: T[K1][K2]) => T[K1][K2])
+  ): void;
+  <K1 extends keyof T, K2 extends keyof T[K1], K3 extends keyof T[K1][K2]>(
+    key1: K1,
+    key2: K2,
+    key3: K3,
+    value: T[K1][K2][K3] | ((prev: T[K1][K2][K3]) => T[K1][K2][K3])
+  ): void;
+  /** Merge object at root */
+  (value: Partial<T>): void;
+  /** Generic path-based update */
+  (...args: [...PathSegment[], unknown]): void;
+}
+
+/** Store tuple type */
+export type Store<T> = [T, SetStoreFunction<T>];
+
+/**
+ * Creates a reactive store with nested property tracking (SolidJS-style)
+ * @example
+ * const [state, setState] = createStore({ count: 0, user: { name: "John" } });
+ *
+ * // Read (reactive - tracks dependencies)
+ * state.count
+ * state.user.name
+ *
+ * // Update by path
+ * setState("count", 1);
+ * setState("user", "name", "Jane");
+ *
+ * // Functional update
+ * setState("count", c => c + 1);
+ *
+ * // Object merge at path
+ * setState("user", { name: "Jane", age: 30 });
+ */
+export function createStore<T extends object>(initialValue: T): Store<T>;
+
+/**
+ * Produce helper for immer-style mutations (SolidJS-style)
+ * @example
+ * setState("user", produce(user => { user.name = "Jane"; }));
+ */
+export function produce<T>(fn: (draft: T) => void): (state: T) => T;
+
+/**
+ * Reconcile helper for efficient array/object updates (SolidJS-style)
+ * Replaces the entire value at the path
+ * @example
+ * setState("items", reconcile(newItems));
+ */
+export function reconcile<T>(value: T): (state: T) => T;
+
+// ============================================================================
 // Router API
 // ============================================================================
 
