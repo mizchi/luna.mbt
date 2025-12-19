@@ -31,7 +31,7 @@ export const test = base.extend({
         url.includes("/target/js/") ||
         url.includes("/js/loader/") ||
         url.includes("browser_router") ||
-        url.includes("playground")
+        url.includes("demo")
       );
     });
 

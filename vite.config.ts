@@ -32,14 +32,18 @@ function mpaFallback(): Plugin {
 export default defineConfig({
   appType: 'mpa',
   plugins: [mpaFallback()],
+  root: 'demo-src',
+  base: '/demo/',
   build: {
+    outDir: '../docs/public/demo',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        index: resolve(__dirname, './index.html'),
-        "playground/spa": resolve(__dirname, './playground/spa/index.html'),
-        "playground/browser_router": resolve(__dirname, './playground/browser_router/index.html'),
-        "playground/game": resolve(__dirname, './playground/game/index.html'),
-        "playground/wc": resolve(__dirname, './playground/wc/index.html'),
+        "index": resolve(__dirname, './demo-src/index.html'),
+        "spa": resolve(__dirname, './demo-src/spa/index.html'),
+        "browser_router": resolve(__dirname, './demo-src/browser_router/index.html'),
+        "game": resolve(__dirname, './demo-src/game/index.html'),
+        "wc": resolve(__dirname, './demo-src/wc/index.html'),
       },
     },
   },

@@ -102,6 +102,9 @@ fn generate_site_internal(
 
   // Step 7: Generate sitemap
   generate_sitemap(ctx)
+
+  // Step 8: Generate 404 page
+  generate_404_page(ctx)
   Ok(())
 }
 
@@ -578,7 +581,119 @@ fn build_html_document(
 
   // Theme initialization script (runs early to prevent flash)
   let theme_script = get_theme_script()
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{nav_script}\n</body>\n</html>"
+
+  // Generate OGP meta tags
+  let ogp_tags = build_ogp_meta_tags(ctx, page, frontmatter)
+
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{nav_script}\n</body>\n</html>"
+}
+
+///|
+/// Build OGP (Open Graph Protocol) meta tags
+fn build_ogp_meta_tags(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  frontmatter : @astra.Frontmatter,
+) -> String {
+  let ogp = ctx.config.ogp
+  let tags = StringBuilder::new()
+
+  // Get title and description
+  let title = frontmatter.title.unwrap_or(ctx.config.title)
+  let desc = frontmatter.description.unwrap_or("")
+
+  // og:title (always include)
+  tags.write_string("\n  <meta property=\"og:title\" content=\"\{title}\">")
+
+  // og:description
+  if not(desc.is_empty()) {
+    tags.write_string("\n  <meta property=\"og:description\" content=\"\{desc}\">")
+  }
+
+  // og:type (article for docs, website for home)
+  let og_type = frontmatter.og_type.unwrap_or("article")
+  tags.write_string("\n  <meta property=\"og:type\" content=\"\{og_type}\">")
+
+  // og:url (requires site_url config)
+  match ogp.site_url {
+    Some(site_url) => {
+      let url = "\{site_url}\{page.url_path}"
+      tags.write_string("\n  <meta property=\"og:url\" content=\"\{url}\">")
+    }
+    None => ()
+  }
+
+  // og:image (frontmatter overrides config default)
+  let image : String? = match frontmatter.image {
+    Some(img) => Some(img)
+    None => ogp.image
+  }
+  match image {
+    Some(img) => {
+      // Make absolute URL if site_url is configured
+      let img_url = match ogp.site_url {
+        Some(site_url) =>
+          if img.has_prefix("http://") || img.has_prefix("https://") {
+            img
+          } else if img.has_prefix("/") {
+            "\{site_url}\{img}"
+          } else {
+            "\{site_url}/\{img}"
+          }
+        None => img
+      }
+      tags.write_string("\n  <meta property=\"og:image\" content=\"\{img_url}\">")
+    }
+    None => ()
+  }
+
+  // og:site_name
+  tags.write_string(
+    "\n  <meta property=\"og:site_name\" content=\"\{ctx.config.title}\">",
+  )
+
+  // Twitter Card meta tags
+  let twitter_card = match frontmatter.twitter_card {
+    Some(tc) => tc
+    None =>
+      match ogp.twitter_card {
+        Some(tc) => tc
+        None => "summary"
+      }
+  }
+  tags.write_string("\n  <meta name=\"twitter:card\" content=\"\{twitter_card}\">")
+  tags.write_string("\n  <meta name=\"twitter:title\" content=\"\{title}\">")
+  if not(desc.is_empty()) {
+    tags.write_string("\n  <meta name=\"twitter:description\" content=\"\{desc}\">")
+  }
+
+  // Twitter image (same as og:image)
+  match image {
+    Some(img) => {
+      let img_url = match ogp.site_url {
+        Some(site_url) =>
+          if img.has_prefix("http://") || img.has_prefix("https://") {
+            img
+          } else if img.has_prefix("/") {
+            "\{site_url}\{img}"
+          } else {
+            "\{site_url}/\{img}"
+          }
+        None => img
+      }
+      tags.write_string("\n  <meta name=\"twitter:image\" content=\"\{img_url}\">")
+    }
+    None => ()
+  }
+
+  // Twitter site handle
+  match ogp.twitter_handle {
+    Some(handle) =>
+      tags.write_string("\n  <meta name=\"twitter:site\" content=\"\{handle}\">")
+    None => ()
+  }
+
+  tags.to_string()
 }
 
 // =============================================================================
@@ -613,11 +728,11 @@ fn get_navigation_script(
   let parts : Array[String] = []
 
   // Common utilities
-  parts.push(
+  let page_order_start =
     #|const pageOrder = [
-  )
+  parts.push(page_order_start)
   parts.push(urls_json)
-  parts.push(
+  let page_order_end =
     #|];
     #|function getPageIndex(url) {
     #|  if (!url) return -1;
@@ -628,11 +743,11 @@ fn get_navigation_script(
     #|  const path = new URL(url, location.origin).pathname;
     #|  return path === '/' || path === '/ja/' || path === '/en/';
     #|}
-  )
+  parts.push(page_order_end)
 
   // SPA navigation
   if config.spa {
-    parts.push(
+    let spa_script =
       #|let currentAbortController = null;
       #|async function spaNavigate(url, pushState = true) {
       #|  // Abort any pending navigation
@@ -691,20 +806,20 @@ fn get_navigation_script(
       #|  }
       #|  spaNavigate(location.href, false);
       #|});
-    )
+    parts.push(spa_script)
   } else {
     // Non-SPA navigation (full page reload)
-    parts.push(
+    let non_spa_script =
       #|function navigateTo(url) {
       #|  window.scrollTo({ top: 0, behavior: 'instant' });
       #|  location.href = url;
       #|}
-    )
+    parts.push(non_spa_script)
   }
 
   // View Transitions API
   if config.view_transitions {
-    parts.push(
+    let view_transitions_script =
       #|window.addEventListener('pagereveal', (e) => {
       #|  if (!e.viewTransition || !navigation.activation) return;
       #|  const nav = navigation.activation;
@@ -716,12 +831,12 @@ fn get_navigation_script(
       #|    e.viewTransition.types.add('forwards');
       #|  }
       #|});
-    )
+    parts.push(view_transitions_script)
   }
 
   // Keyboard navigation
   if config.keyboard {
-    parts.push(
+    let keyboard_script =
       #|document.addEventListener('keydown', (e) => {
       #|  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       #|  const idx = getPageIndex(location.href);
@@ -736,7 +851,7 @@ fn get_navigation_script(
       #|    navigateTo(prevPage);
       #|  }
       #|});
-    )
+    parts.push(keyboard_script)
   }
 
   let script_body = parts.join("\n")
@@ -882,6 +997,30 @@ fn copy_static_assets(ctx : @astra.BuildContext) -> Unit {
   @fs.writeFileSync(loader_js_path, @js.any(loader_js)) catch {
     _ => ()
   }
+
+  // Copy public directory if it exists
+  copy_public_dir(ctx)
+}
+
+///|
+/// Copy docs/public directory to output root
+fn copy_public_dir(ctx : @astra.BuildContext) -> Unit {
+  let public_dir = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.docs_dir),
+    "public",
+  )
+  let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
+
+  // Check if public directory exists
+  if not(@fs.existsSync(public_dir)) {
+    return
+  }
+
+  // Copy entire public directory contents to output
+  println("  Copying public assets...")
+  @fs.cpSync(public_dir, output_dir, recursive=true) catch {
+    e => println("  Warning: Failed to copy public directory: \{e}")
+  }
 }
 
 ///|
@@ -911,6 +1050,75 @@ fn generate_sitemap(ctx : @astra.BuildContext) -> Unit {
   @fs.writeFileSync(sitemap_path, @js.any(buf.to_string())) catch {
     _ => ()
   }
+}
+
+///|
+/// Generate 404.html page
+fn generate_404_page(ctx : @astra.BuildContext) -> Unit {
+  let base = ctx.config.base_url
+  let title = "Page Not Found"
+  let site_title = ctx.config.title
+  let primary = ctx.config.theme.primary_color.unwrap_or("#3451b2")
+  let theme_script = get_theme_script()
+
+  // Build 404 page content
+  let content =
+    #|<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 2rem;">
+    #|  <h1 style="font-size: 6rem; margin: 0; color: var(--text-muted);">404</h1>
+    #|  <h2 style="font-size: 1.5rem; margin: 1rem 0; color: var(--text-color);">Page Not Found</h2>
+    #|  <p style="color: var(--text-muted); margin-bottom: 2rem;">The page you're looking for doesn't exist or has been moved.</p>
+    #|  <a href="/" style="color: var(--primary-color); text-decoration: none; padding: 0.75rem 1.5rem; border: 1px solid var(--primary-color); border-radius: 0.5rem;">Go to Home</a>
+    #|</div>
+
+  let html =
+    #|<!DOCTYPE html>
+    #|<html lang="en">
+    #|<head>
+    #|  <meta charset="UTF-8">
+    #|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    #|  <title>
+  let html2 =
+    #|</title>
+    #|  <meta name="robots" content="noindex">
+    #|  <script>
+  let html3 =
+    #|</script>
+    #|  <link rel="stylesheet" href="
+  let html4 =
+    #|assets/style.css">
+    #|  <style>:root { --primary-color:
+  let html5 =
+    #|; }</style>
+    #|</head>
+    #|<body>
+    #|  <div id="app">
+  let html6 =
+    #|  </div>
+    #|</body>
+    #|</html>
+
+  let full_html = html +
+    title +
+    " | " +
+    site_title +
+    html2 +
+    theme_script +
+    html3 +
+    base +
+    html4 +
+    primary +
+    html5 +
+    content +
+    html6
+
+  let output_path = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.output_dir),
+    "404.html",
+  )
+  @fs.writeFileSync(output_path, @js.any(full_html)) catch {
+    e => println("  Warning: Failed to generate 404.html: \{e}")
+  }
+  println("  Generated: /404.html")
 }
 
 ///|

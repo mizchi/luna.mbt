@@ -3,6 +3,7 @@
   "output": "dist",
   "title": "🌓 Luna UI",
   "base": "/",
+  "trailingSlash": true,
   "exclude": ["internal"],
   "i18n": {
     "defaultLocale": "en",
@@ -30,5 +31,11 @@
       "message": "Released under the MIT License.",
       "copyright": "Copyright 2024 mizchi"
     }
+  },
+  "ogp": {
+    "siteUrl": "https://luna.mbt",
+    "image": "/og-image.png",
+    "twitterHandle": "@mizchi",
+    "twitterCard": "summary_large_image"
   }
 }

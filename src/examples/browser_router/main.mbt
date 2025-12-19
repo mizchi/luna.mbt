@@ -409,7 +409,7 @@ fn main {
   match container {
     Some(el) => {
       // ルーターを作成（ベースパスを指定）
-      let base = "/playground/browser_router"
+      let base = "/demo/browser_router"
       let routes = create_routes()
       let router = @router.BrowserRouter::new(routes, base~)
 

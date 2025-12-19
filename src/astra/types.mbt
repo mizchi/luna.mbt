@@ -31,6 +31,8 @@ pub(all) struct SsgConfig {
   exclude : Array[String]
   /// Use trailing slashes in URLs (default: true for SSG compatibility)
   trailing_slash : Bool
+  /// OGP configuration
+  ogp : OgpConfig
 }
 
 ///|
@@ -78,6 +80,7 @@ pub fn SsgConfig::default() -> SsgConfig {
     i18n: I18nConfig::default(),
     exclude: [],
     trailing_slash: true,
+    ogp: OgpConfig::default(),
   }
 }
 
@@ -171,6 +174,25 @@ pub(all) struct FooterConfig {
   copyright : String?
 } derive(ToJson, FromJson)
 
+///|
+/// OGP (Open Graph Protocol) configuration
+pub(all) struct OgpConfig {
+  /// Site URL for og:url (required for absolute URLs)
+  site_url : String?
+  /// Default OGP image URL (relative or absolute)
+  image : String?
+  /// Site Twitter/X handle (e.g., "@mysite")
+  twitter_handle : String?
+  /// Default Twitter card type (summary, summary_large_image)
+  twitter_card : String?
+}
+
+///|
+/// Default OGP configuration
+pub fn OgpConfig::default() -> OgpConfig {
+  { site_url: None, image: None, twitter_handle: None, twitter_card: None }
+}
+
 // =============================================================================
 // Frontmatter Types
 // =============================================================================
@@ -194,6 +216,12 @@ pub(all) struct Frontmatter {
   prev : NavLink?
   /// Next page link
   next : NavLink?
+  /// OGP image URL (overrides site default)
+  image : String?
+  /// OGP type (article, website, etc.)
+  og_type : String?
+  /// Twitter card type (summary, summary_large_image)
+  twitter_card : String?
 }
 
 ///|
@@ -208,6 +236,9 @@ pub fn Frontmatter::default() -> Frontmatter {
     islands: [],
     prev: None,
     next: None,
+    image: None,
+    og_type: None,
+    twitter_card: None,
   }
 }
 

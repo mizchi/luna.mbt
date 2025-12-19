@@ -600,19 +600,19 @@ const browserAppHtml = `<!DOCTYPE html>
 <body>
   <div id="app">Loading...</div>
   <script type="module">
-    import '/playground/browser_router/main.js';
+    import '/demo/browser_router/main.js';
   </script>
 </body>
 </html>`;
 
 // Serve browser-app routes
 // Note: Order matters - static files first, then wildcard SPA route
-app.get("/playground/browser_router/main.js", (c) => {
+app.get("/demo/browser_router/main.js", (c) => {
   const code = readFileSync(browserAppModulePath, "utf-8");
   return c.body(code, 200, { "Content-Type": "application/javascript" });
 });
-app.get("/playground/browser_router", (c) => c.html(browserAppHtml));
-app.get("/playground/browser_router/*", (c) => c.html(browserAppHtml));
+app.get("/demo/browser_router", (c) => c.html(browserAppHtml));
+app.get("/demo/browser_router/*", (c) => c.html(browserAppHtml));
 
 // WC Example routes
 const wcHtml = `<!DOCTYPE html>
@@ -658,12 +658,12 @@ const wcHtml = `<!DOCTYPE html>
     <!-- Nested Components Example -->
     <wc-nested-parent></wc-nested-parent>
   </div>
-  <script type="module" src="/playground/wc/main.js"></script>
+  <script type="module" src="/demo/wc/main.js"></script>
 </body>
 </html>`;
 
-app.get("/playground/wc", (c) => c.html(wcHtml));
-app.get("/playground/wc/main.js", (c) => {
+app.get("/demo/wc", (c) => c.html(wcHtml));
+app.get("/demo/wc/main.js", (c) => {
   const code = readFileSync(wcModulePath, "utf-8");
   return c.body(code, 200, { "Content-Type": "application/javascript" });
 });

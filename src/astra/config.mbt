@@ -97,6 +97,9 @@ fn parse_ssg_object(
     _ => true
   }
 
+  // Parse OGP config
+  let ogp = parse_ogp_config(ssg_obj)
+
   Some(SsgConfig::{
     docs_dir,
     output_dir,
@@ -110,6 +113,7 @@ fn parse_ssg_object(
     i18n,
     exclude,
     trailing_slash,
+    ogp,
   })
 }
 
@@ -367,5 +371,32 @@ fn parse_navigation_config(obj : Map[String, Json]) -> NavigationConfig {
       NavigationConfig::{ spa, view_transitions, keyboard }
     }
     _ => NavigationConfig::default()
+  }
+}
+
+///|
+/// Parse OGP configuration
+fn parse_ogp_config(obj : Map[String, Json]) -> OgpConfig {
+  match obj.get("ogp") {
+    Some(Object(ogp_obj)) => {
+      let site_url = match ogp_obj.get("siteUrl") {
+        Some(String(s)) => Some(s)
+        _ => None
+      }
+      let image = match ogp_obj.get("image") {
+        Some(String(s)) => Some(s)
+        _ => None
+      }
+      let twitter_handle = match ogp_obj.get("twitterHandle") {
+        Some(String(s)) => Some(s)
+        _ => None
+      }
+      let twitter_card = match ogp_obj.get("twitterCard") {
+        Some(String(s)) => Some(s)
+        _ => None
+      }
+      OgpConfig::{ site_url, image, twitter_handle, twitter_card }
+    }
+    _ => OgpConfig::default()
   }
 }

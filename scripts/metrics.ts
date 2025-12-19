@@ -138,7 +138,7 @@ function collect() {
 
   // Find bundled files with hash in name
   const spaFile = findFileByPattern("dist/assets", /^spa-.*\.js$/);
-  const browserAppFile = findFileByPattern("dist/assets/playground", /^browser_router-.*\.js$/);
+  const browserAppFile = findFileByPattern("dist/assets", /^browser_router-.*\.js$/);
 
   const spaSize = spaFile ? getFileSize(spaFile) : null;
   const browserAppSize = browserAppFile ? getFileSize(browserAppFile) : null;
@@ -286,7 +286,7 @@ Usage:
 Tracked metrics:
   - js/loader/loader.min.js size (minified)
   - dist/assets/spa-*.js bundle size
-  - dist/assets/playground/browser_router-*.js bundle size
+  - dist/assets/browser_router-*.js bundle size
   - moon test execution time
 
 Data retention:

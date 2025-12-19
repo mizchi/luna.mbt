@@ -10,7 +10,7 @@ test.describe("Web Components Example", () => {
         console.log(`[Browser ${msg.type()}]`, msg.text());
       });
     }
-    await page.goto("/playground/wc");
+    await page.goto("/demo/wc");
   });
 
   test("renders the app title", async ({ page }) => {
@@ -394,7 +394,7 @@ test.describe("Web Components Example", () => {
       }
     });
 
-    await page.goto("/playground/wc");
+    await page.goto("/demo/wc");
     await page.waitForSelector("h1");
 
     // Wait for all custom elements to be defined

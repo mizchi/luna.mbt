@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Browser App - Hydration and Reactivity", () => {
   test("mounts and displays home page with counter", async ({ page }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
 
     // Wait for app to mount
     await expect(page.locator(".app")).toBeVisible();
@@ -18,7 +18,7 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   });
 
   test("counter reactivity: clicks update count display", async ({ page }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
 
     // Wait for app to mount
     await expect(page.locator(".app")).toBeVisible();
@@ -54,14 +54,14 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   test("CSR navigation: navigates to about page via nav click", async ({
     page,
   }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Click About link in nav
     await page.locator("nav").getByText("About").click();
 
     // Wait for URL change
-    await expect(page).toHaveURL(/\/playground\/browser_router\/about$/);
+    await expect(page).toHaveURL(/\/demo\/browser_router\/about$/);
 
     // Check about page is displayed
     const aboutPage = page.locator("[data-page='about']");
@@ -72,7 +72,7 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   test("CSR navigation: counter state persists when navigating back", async ({
     page,
   }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Increment counter
@@ -100,14 +100,14 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   test("CSR navigation: navigates to users page with layout", async ({
     page,
   }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Click Users link
     await page.locator("nav").getByText("Users").click();
 
     // Check URL changed
-    await expect(page).toHaveURL(/\/playground\/browser_router\/users$/);
+    await expect(page).toHaveURL(/\/demo\/browser_router\/users$/);
 
     // Check layout is applied (users section header)
     await expect(page.locator(".users-layout")).toBeVisible();
@@ -121,14 +121,14 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   test("CSR navigation: navigates to user detail page with dynamic param", async ({
     page,
   }) => {
-    await page.goto("/playground/browser_router/users");
+    await page.goto("/demo/browser_router/users");
     await expect(page.locator(".users-layout")).toBeVisible();
 
     // Click User 1 button
     await page.getByRole("button", { name: "User 1" }).click();
 
     // Check URL changed
-    await expect(page).toHaveURL(/\/playground\/browser_router\/users\/1$/);
+    await expect(page).toHaveURL(/\/demo\/browser_router\/users\/1$/);
 
     // Check user detail is displayed
     const userDetail = page.locator(".user-detail");
@@ -138,7 +138,7 @@ test.describe("Browser App - Hydration and Reactivity", () => {
 
     // Click User 2 button
     await page.getByRole("button", { name: "User 2" }).click();
-    await expect(page).toHaveURL(/\/playground\/browser_router\/users\/2$/);
+    await expect(page).toHaveURL(/\/demo\/browser_router\/users\/2$/);
     await expect(userDetail).toContainText("User ID: 2");
     await expect(userDetail).toContainText("Name: Bob");
   });
@@ -146,14 +146,14 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   test("CSR navigation: navigates to settings group pages", async ({
     page,
   }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Click Settings link
     await page.locator("nav").getByText("Settings").click();
 
     // Check URL changed
-    await expect(page).toHaveURL(/\/playground\/browser_router\/settings$/);
+    await expect(page).toHaveURL(/\/demo\/browser_router\/settings$/);
 
     // Check settings index is displayed
     await expect(page.locator(".settings-index")).toBeVisible();
@@ -163,7 +163,7 @@ test.describe("Browser App - Hydration and Reactivity", () => {
     await page.getByRole("link", { name: "Profile Settings" }).click();
 
     // Check URL changed
-    await expect(page).toHaveURL(/\/playground\/browser_router\/settings\/profile$/);
+    await expect(page).toHaveURL(/\/demo\/browser_router\/settings\/profile$/);
 
     // Check profile settings is displayed
     await expect(page.locator(".settings-profile")).toBeVisible();
@@ -173,24 +173,24 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   });
 
   test("current path display updates on navigation", async ({ page }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Check initial path display on home
     const pathDisplay = page.locator("[data-testid='current-path']");
-    await expect(pathDisplay).toContainText("Current path: /playground/browser_router");
+    await expect(pathDisplay).toContainText("Current path: /demo/browser_router");
 
     // Navigate to about and back to home
     await page.locator("nav").getByText("About").click();
-    await expect(page).toHaveURL(/\/playground\/browser_router\/about$/);
+    await expect(page).toHaveURL(/\/demo\/browser_router\/about$/);
 
     // Navigate back to home and verify path updated
     await page.locator("nav").getByText("Home").click();
-    await expect(pathDisplay).toContainText("Current path: /playground/browser_router");
+    await expect(pathDisplay).toContainText("Current path: /demo/browser_router");
   });
 
   test("browser back/forward navigation works", async ({ page }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
     await expect(page.locator("[data-page='home']")).toBeVisible();
 
     // Navigate to about
@@ -216,14 +216,14 @@ test.describe("Browser App - Hydration and Reactivity", () => {
 
   test("direct URL access works (MPA navigation)", async ({ page }) => {
     // Direct access to about page
-    await page.goto("/playground/browser_router/about");
+    await page.goto("/demo/browser_router/about");
     await expect(page.locator("[data-page='about']")).toBeVisible();
     await expect(page.locator("[data-page='about'] h1")).toHaveText("About");
   });
 
   test("direct URL access to user detail page works", async ({ page }) => {
     // Direct access to user detail page
-    await page.goto("/playground/browser_router/users/3");
+    await page.goto("/demo/browser_router/users/3");
 
     // Should show user detail with layout
     await expect(page.locator(".users-layout")).toBeVisible();
@@ -233,7 +233,7 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   });
 
   test("displays 404 for unknown routes", async ({ page }) => {
-    await page.goto("/playground/browser_router/unknown/path");
+    await page.goto("/demo/browser_router/unknown/path");
 
     // Should show 404 page
     await expect(page.locator(".not-found")).toBeVisible();
@@ -241,7 +241,7 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   });
 
   test("home page structure snapshot", async ({ page }) => {
-    await page.goto("/playground/browser_router");
+    await page.goto("/demo/browser_router");
     await expect(page.locator(".app")).toBeVisible();
 
     // Get the app content HTML (without dynamic parts)
@@ -257,7 +257,7 @@ test.describe("Browser App - Hydration and Reactivity", () => {
   });
 
   test("users page with layout snapshot", async ({ page }) => {
-    await page.goto("/playground/browser_router/users");
+    await page.goto("/demo/browser_router/users");
     await expect(page.locator(".users-layout")).toBeVisible();
 
     const layoutHtml = await page.locator(".users-layout").innerHTML();

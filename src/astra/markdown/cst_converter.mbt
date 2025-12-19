@@ -46,6 +46,9 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
   let mut layout : String? = None
   let mut sidebar = true
   let islands : Array[String] = []
+  let mut image : String? = None
+  let mut og_type : String? = None
+  let mut twitter_card : String? = None
   for entry in fm.entries {
     let (key, value) = entry
     match key {
@@ -63,6 +66,10 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
           }
         }
       }
+      // OGP fields
+      "image" | "ogImage" | "og_image" => image = Some(value)
+      "ogType" | "og_type" => og_type = Some(value)
+      "twitterCard" | "twitter_card" => twitter_card = Some(value)
       _ => () // Ignore unknown fields
     }
   }
@@ -75,6 +82,9 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
     islands,
     prev: None,
     next: None,
+    image,
+    og_type,
+    twitter_card,
   }
 }
 

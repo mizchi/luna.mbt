@@ -57,7 +57,7 @@ pub struct BrowserRouter {
 
 ///|
 /// Routes定義から BrowserRouter を作成
-/// base~ : ベースパス（例: "/playground/browser_app"）
+/// base~ : ベースパス（例: "/demo/browser_router"）
 pub fn BrowserRouter::new(
   routes : Array[@routes.Routes],
   base? : String = "",

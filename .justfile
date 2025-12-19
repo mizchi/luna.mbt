@@ -196,8 +196,18 @@ coverage-clean:
     rm -rf coverage/
     moon coverage clean
 
-doc:
+# Start docs dev server
+doc: build-moon
     node target/js/release/build/astra/cli/cli.js dev
 
-build-doc:
+# Build full documentation site (demo + docs)
+build-doc: build-moon
+    @echo "Building demo..."
+    pnpm vite build
+    @echo "Building docs..."
     node target/js/release/build/astra/cli/cli.js build
+    @echo "✓ Documentation built in dist/"
+
+# Preview built docs
+preview-doc:
+    npx serve dist
