@@ -5,7 +5,6 @@
 - [ ] todomvc サンプルで JSON を使わない
   - JSON/strconv 依存で +200KB 以上のバンドルサイズ増加
   - localStorage 保存を独自シリアライズに変更する
-- [ ] _dyn のDSLをどうするか
 - [ ] インラインCSS の扱いを統一する
 - [ ] SSG で埋め込めることを説明しよう
 - [ ] preload 挿入
@@ -22,7 +21,6 @@
   - v0.1.0 ドキュメントの英語化
 - [ ] SSR Stream が機能しているかテスト. 意図的に遅延を入れて体験を確認
 - [ ] sol: キャッシュレイヤーの設計
-- `**AAAA**` がおかしい。
 - atlas
   - GitHub
   - 埋め込む
@@ -126,6 +124,7 @@
 ### 技術的な依存関係
 - [x] sol generate で moon.pkg.json の link を直接更新 → 中間ファイル見直しの一部
 - [x] hot reload (基本実装) → WebSocket通知、ページリロード
+- [x] _dyn のDSLをどうするか:
 - [ ] 細粒度 HMR → Island差分更新、rolldown watch mode
 
 ### 後回しでよい

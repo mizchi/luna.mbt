@@ -4,7 +4,7 @@ title: 概要
 
 # Luna エコシステム概要
 
-Luna は MoonBit と JavaScript でモダンな Web アプリケーションを構築するためのツール群です。このドキュメントでは4つの連携するプロジェクトを解説します。
+Luna は MoonBit と JavaScript でモダンな Web アプリケーションを構築するためのツール群です。
 
 ## アーキテクチャ
 
@@ -12,11 +12,11 @@ Luna は MoonBit と JavaScript でモダンな Web アプリケーションを�
 ┌─────────────────────────────────────────────────────────────┐
 │                     あなたのアプリケーション                    │
 ├─────────────────────────────────────────────────────────────┤
-│  Astra (SSG)          │  Sol (SSR フレームワーク)              │
-│  静的ドキュメントサイト   │  Islands を使ったフルスタックアプリ     │
+│  Astra (SSG)           │  Sol (SSR フレームワーク)             │
+│  静的サイト生成          │  フルスタックアプリ                   │
 ├─────────────────────────────────────────────────────────────┤
-│                       Luna (コア)                            │
-│           Signals, Islands, Hydration, Components            │
+│                       Luna (コアライブラリ)                    │
+│                Signals, Islands, Hydration                   │
 ├─────────────────────────────────────────────────────────────┤
 │                      MoonBit / JavaScript                    │
 └─────────────────────────────────────────────────────────────┘
@@ -24,13 +24,12 @@ Luna は MoonBit と JavaScript でモダンな Web アプリケーションを�
 
 ## プロジェクト
 
-### [Luna](/ja/luna/) - コア UI ライブラリ
+### [Luna](/ja/luna/) - コアライブラリ
 
-すべての基盤となるライブラリ。Luna が提供する機能：
+すべての基盤となる UI ライブラリ。
 
 - **Signals** - きめ細かいリアクティブプリミティブ
-- **Islands** - 最適なパフォーマンスのための部分的 Hydration
-- **Components** - 宣言的構文による Web Components
+- **Islands** - 部分的 Hydration による最適なパフォーマンス
 - **Hydration** - スマートなローディング戦略 (load, idle, visible, media)
 
 ```typescript
@@ -43,32 +42,26 @@ setCount(1);  // Logs: 1
 
 ### [Astra](/ja/astra/) - 静的サイトジェネレーター
 
-Markdown からドキュメントサイトやブログを構築。機能：
+Markdown からドキュメントサイトやブログを生成するビルドツール。
 
 - Frontmatter 対応の Markdown
 - ナビゲーションとサイドバーの自動生成
 - i18n（国際化）サポート
 - Shiki によるシンタックスハイライト
-- View Transitions を使った SPA ナビゲーション
 
 このドキュメントサイトは Astra で構築されています。
 
 ### [Sol](/ja/sol/) - フルスタックフレームワーク
 
-Hono 統合によるサーバーサイドレンダリングフレームワーク：
+Hono 統合による SSR フレームワーク。
 
-- SSR + 部分的 Hydration のための Island Architecture
+- Island Architecture による SSR + 部分的 Hydration
 - ファイルベースルーティング
 - Edge 対応デプロイ
-- 状態のシリアライズと復元
 
-### [Stella](/ja/stella/) - 開発ツール
+### Stella - 配布プラットフォーム
 
-開発ユーティリティと実験的機能：
-
-- ホットリロード付き開発サーバー
-- ビルドツール統合
-- テストユーティリティ
+生成したコードを外部に配布するためのプラットフォーム。詳細は別途公開予定。
 
 ## 学習パス
 
