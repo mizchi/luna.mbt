@@ -13,11 +13,11 @@
     ]
   },
   "nav": [
-    { "text": "Guide", "link": "/guide/" },
-    { "text": "Tutorial (MoonBit)", "link": "/tutorial-moonbit/" },
-    { "text": "Tutorial (JS)", "link": "/tutorial-js/" },
-    { "text": "Astra SSG", "link": "/astra/" },
-    { "text": "Sol", "link": "/sol/" }
+    { "text": "📖 Guide", "link": "/guide/" },
+    { "text": "🌙 Tutorial (MoonBit)", "link": "/tutorial-moonbit/" },
+    { "text": "⚡ Tutorial (JS)", "link": "/tutorial-js/" },
+    { "text": "🌟 Astra SSG", "link": "/astra/" },
+    { "text": "☀️ Sol", "link": "/sol/" }
   ],
   "sidebar": "auto",
   "navigation": {
@@ -27,6 +27,9 @@
   },
   "theme": {
     "primaryColor": "#fbbf24",
+    "socialLinks": [
+      { "icon": "github", "link": "https://github.com/prafster/luna.mbt" }
+    ],
     "footer": {
       "message": "Released under the MIT License.",
       "copyright": "Copyright 2024 mizchi"

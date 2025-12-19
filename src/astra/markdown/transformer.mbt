@@ -26,32 +26,46 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 
 ///|
 /// Convert MdNode array to VNode
-pub fn md_nodes_to_vnode(nodes : Array[@astra.MdNode]) -> @luna.Node[Unit] {
-  let children = nodes.map(fn(n) { md_node_to_vnode(n) })
+pub fn md_nodes_to_vnode(
+  nodes : Array[@astra.MdNode],
+  islands_base_path? : String = "/static/",
+) -> @luna.Node[Unit] {
+  let children = nodes.map(fn(n) { md_node_to_vnode(n, islands_base_path~) })
   @luna.fragment(children)
 }
 
 ///|
 /// Convert single MdNode to VNode
-pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
+pub fn md_node_to_vnode(
+  node : @astra.MdNode,
+  islands_base_path? : String = "/static/",
+) -> @luna.Node[Unit] {
   match node {
     @astra.MdNode::Heading(level~, children~, id~) => {
-      let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
+      let child_vnodes = children.map(fn(n) {
+        md_node_to_vnode(n, islands_base_path~)
+      })
       let attrs = [attr("id", id), attr("class", "heading heading-\{level}")]
       let tag = "h\{level}"
       h(tag, attrs, child_vnodes)
     }
     @astra.MdNode::Paragraph(children~) => {
-      let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
+      let child_vnodes = children.map(fn(n) {
+        md_node_to_vnode(n, islands_base_path~)
+      })
       h("p", [], child_vnodes)
     }
     @astra.MdNode::Text(text) => @luna.text(text)
     @astra.MdNode::Bold(children~) => {
-      let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
+      let child_vnodes = children.map(fn(n) {
+        md_node_to_vnode(n, islands_base_path~)
+      })
       h("strong", [], child_vnodes)
     }
     @astra.MdNode::Italic(children~) => {
-      let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
+      let child_vnodes = children.map(fn(n) {
+        md_node_to_vnode(n, islands_base_path~)
+      })
       h("em", [], child_vnodes)
     }
     @astra.MdNode::Code(code) => h("code", [], [@luna.text(code)])
@@ -82,7 +96,9 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
       h("pre", pre_attrs, [code_el])
     }
     @astra.MdNode::Link(href~, title~, children~) => {
-      let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
+      let child_vnodes = children.map(fn(n) {
+        md_node_to_vnode(n, islands_base_path~)
+      })
       let attrs : Array[(String, @luna.Attr[Unit])] = [attr("href", href)]
       if not(title.is_empty()) {
         attrs.push(attr("title", title))
@@ -106,7 +122,9 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
     }
     @astra.MdNode::List(ordered~, items~) => {
       let item_vnodes = items.map(fn(item_nodes) {
-        let children = item_nodes.map(fn(n) { md_node_to_vnode(n) })
+        let children = item_nodes.map(fn(n) {
+          md_node_to_vnode(n, islands_base_path~)
+        })
         h("li", [], children)
       })
       if ordered {
@@ -116,20 +134,24 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
       }
     }
     @astra.MdNode::Blockquote(children~) => {
-      let child_vnodes = children.map(fn(n) { md_node_to_vnode(n) })
+      let child_vnodes = children.map(fn(n) {
+        md_node_to_vnode(n, islands_base_path~)
+      })
       h("blockquote", [], child_vnodes)
     }
     @astra.MdNode::Table(headers~, rows~) => {
       // Build header row
       let header_cells = headers.map(fn(h_node) {
-        h("th", [], [md_node_to_vnode(h_node)])
+        h("th", [], [md_node_to_vnode(h_node, islands_base_path~)])
       })
       let header_row = h("tr", [], header_cells)
       let thead = h("thead", [], [header_row])
 
       // Build body rows
       let body_rows = rows.map(fn(row) {
-        let cells = row.map(fn(cell) { h("td", [], [md_node_to_vnode(cell)]) })
+        let cells = row.map(fn(cell) {
+          h("td", [], [md_node_to_vnode(cell, islands_base_path~)])
+        })
         h("tr", [], cells)
       })
       let tbody = h("tbody", [], body_rows)
@@ -140,18 +162,66 @@ pub fn md_node_to_vnode(node : @astra.MdNode) -> @luna.Node[Unit] {
       // For now, skip raw HTML blocks
       @luna.fragment([])
     @astra.MdNode::Island(embed) =>
-      // Convert to VIsland for hydration
-      create_island_vnode(embed)
+      // Convert to VIsland for hydration (legacy)
+      create_island_vnode(embed, islands_base_path)
+    @astra.MdNode::Component(embed) =>
+      // Convert to Web Component with luna:wc-* attributes
+      create_component_vnode(embed, islands_base_path)
     @astra.MdNode::ThematicBreak => h("hr", [], [])
     @astra.MdNode::LineBreak => h("br", [], [])
   }
 }
 
 ///|
-/// Create island VNode from IslandEmbed
-fn create_island_vnode(embed : @astra.IslandEmbed) -> @luna.Node[Unit] {
-  let url = "/static/\{embed.name}.js"
+/// Create island VNode from IslandEmbed (legacy)
+fn create_island_vnode(
+  embed : @astra.IslandEmbed,
+  base_path : String,
+) -> @luna.Node[Unit] {
+  let url = "\{base_path}\{embed.name}.js"
   @luna.island(embed.name, url, embed.props, [], trigger=embed.trigger)
+}
+
+///|
+/// Create Web Component VNode from ComponentEmbed
+/// Generates custom element with luna:wc-url and luna:wc-trigger attributes
+fn create_component_vnode(
+  embed : @astra.ComponentEmbed,
+  base_path : String,
+) -> @luna.Node[Unit] {
+  // Build URL from tag name (e.g., "my-counter" -> "/components/my-counter.js")
+  let url = "\{base_path}\{embed.tag}.js"
+
+  // Build attributes array
+  let attrs : Array[(String, @luna.Attr[Unit])] = []
+
+  // Add luna:wc-url for hydration
+  attrs.push(attr("luna:wc-url", url))
+
+  // Add luna:wc-trigger
+  let trigger_str = match embed.trigger {
+    @luna.Load => "load"
+    @luna.Idle => "idle"
+    @luna.Visible => "visible"
+    @luna.Media(_) => "media"
+    @luna.None => "none"
+  }
+  attrs.push(attr("luna:wc-trigger", trigger_str))
+
+  // Add user-provided attributes
+  for pair in embed.attrs {
+    let (key, value) = pair
+    attrs.push(attr(key, value))
+  }
+
+  // Build children (inner content as text)
+  let children : Array[@luna.Node[Unit]] = if embed.content.is_empty() {
+    []
+  } else {
+    [@luna.text(embed.content)]
+  }
+
+  h(embed.tag, attrs, children)
 }
 
 // =============================================================================

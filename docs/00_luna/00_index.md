@@ -1,14 +1,14 @@
 ---
-title: Guide
+title: Luna
 ---
 
-# Luna Guide
+# Luna
 
-Welcome to the Luna UI guide. This section covers the core concepts and features of Luna.
+Luna is a reactive UI library for MoonBit and JavaScript with fine-grained reactivity and Island Architecture.
 
 ## Core Concepts
 
-### [Why Luna?](/guide/why-luna)
+### [Why Luna?](/luna/why-luna/)
 
 Learn about Luna's philosophy, performance characteristics, and how it compares to other frameworks.
 
@@ -16,7 +16,7 @@ Learn about Luna's philosophy, performance characteristics, and how it compares 
 - Fine-grained reactivity without Virtual DOM
 - Island Architecture for optimal performance
 
-### [Signals](/guide/signals)
+### [Signals](/luna/signals/)
 
 Signals are the foundation of Luna's reactivity system. Learn how to create and use reactive primitives.
 
@@ -24,7 +24,7 @@ Signals are the foundation of Luna's reactivity system. Learn how to create and 
 - `createEffect` - React to signal changes
 - `createMemo` - Compute derived values
 
-### [Islands](/guide/islands)
+### [Islands](/luna/islands/)
 
 Island Architecture enables partial hydration, shipping JavaScript only where needed.
 
@@ -34,6 +34,7 @@ Island Architecture enables partial hydration, shipping JavaScript only where ne
 
 ## Quick Links
 
-- [Getting Started](/getting-started/) - Installation and first steps
-- [Tutorial](/tutorial/) - Interactive learning path
-- [Performance](/performance/) - Benchmarks and optimization tips
+- [Tutorial (MoonBit)](/tutorial-moonbit/) - Learn Luna with MoonBit
+- [Tutorial (JavaScript)](/tutorial-js/) - Learn Luna with JavaScript
+- [Astra SSG](/astra/) - Static site generator
+- [Sol Framework](/sol/) - Full-stack SSR framework

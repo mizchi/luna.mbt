@@ -55,6 +55,16 @@ pub fn generate_site_with_highlighter(
 }
 
 ///|
+/// Generate a single page (for incremental builds in dev mode)
+pub fn generate_single_page(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  highlighter : @shiki.Highlighter,
+) -> Result[Unit, String] {
+  generate_page_with_highlight(ctx, page, Some(highlighter))
+}
+
+///|
 /// Internal site generation
 fn generate_site_internal(
   config : @astra.SsgConfig,
@@ -127,8 +137,14 @@ fn generate_page_with_highlight(
   // Parse markdown
   let (frontmatter, nodes) = @markdown.parse_markdown(content)
 
+  // Get islands base path from config
+  let islands_base_path = match ctx.config.islands {
+    Some(islands_config) => islands_config.base_path
+    None => "/static/"
+  }
+
   // Convert to VNode
-  let content_vnode = @markdown.md_nodes_to_vnode(nodes)
+  let content_vnode = @markdown.md_nodes_to_vnode(nodes, islands_base_path~)
 
   // Extract TOC
   let toc = @markdown.extract_toc(nodes)
@@ -312,14 +328,66 @@ fn build_nav(
   // Theme toggle button
   let theme_toggle = build_theme_toggle()
 
-  // Combine nav links, language switcher, and theme toggle
+  // Social links (GitHub, etc.)
+  let social_links = build_social_links(ctx.config.theme.social_links)
+
+  // Combine nav links, language switcher, social links, and theme toggle
   let nav_children : Array[@luna.Node[Unit]] = nav_items.copy()
   nav_children.push(lang_switcher)
+  nav_children.push(social_links)
   nav_children.push(theme_toggle)
   let nav_links = h("div", [attr("class", "nav-links")], nav_children)
   h("header", [attr("class", "nav-bar")], [
     h("div", [attr("class", "nav-container")], [home_link, nav_links]),
   ])
+}
+
+///|
+/// Build social links (GitHub, Twitter, etc.)
+fn build_social_links(links : Array[@astra.SocialLink]) -> @luna.Node[Unit] {
+  if links.is_empty() {
+    return @luna.fragment([])
+  }
+  let link_nodes = links.map(link => {
+    let icon = build_social_icon(link.icon)
+    h(
+      "a",
+      [
+        attr("href", link.link),
+        attr("class", "social-link"),
+        attr("target", "_blank"),
+        attr("rel", "noopener noreferrer"),
+        attr("aria-label", link.icon),
+      ],
+      [icon],
+    )
+  })
+  h("div", [attr("class", "social-links")], link_nodes)
+}
+
+///|
+/// Build SVG icon element for social platform
+fn build_social_icon(icon : String) -> @luna.Node[Unit] {
+  let path_d = match icon {
+    "github" =>
+      "M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+    "twitter" | "x" =>
+      "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+    _ => ""
+  }
+  if path_d.is_empty() {
+    return @luna.fragment([])
+  }
+  h(
+    "svg",
+    [
+      attr("viewBox", "0 0 24 24"),
+      attr("width", "20"),
+      attr("height", "20"),
+      attr("fill", "currentColor"),
+    ],
+    [h("path", [attr("d", path_d)], [])],
+  )
 }
 
 ///|
@@ -582,10 +650,16 @@ fn build_html_document(
   // Theme initialization script (runs early to prevent flash)
   let theme_script = get_theme_script()
 
+  // Sidebar state script
+  let sidebar_script = get_sidebar_script()
+
+  // Web Components loader script
+  let wc_loader_script = get_wc_loader_script()
+
   // Generate OGP meta tags
   let ogp_tags = build_ogp_meta_tags(ctx, page, frontmatter)
 
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{nav_script}\n</body>\n</html>"
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n</body>\n</html>"
 }
 
 ///|
@@ -768,7 +842,13 @@ fn get_navigation_script(
       #|    if (pushState) history.pushState({}, '', url);
       #|    window.scrollTo({ top: 0, behavior: 'instant' });
       #|    // Re-run loader for new islands
-      #|    if (window.__LUNA_HYDRATE_ALL__) window.__LUNA_HYDRATE_ALL__();
+      #|    if (window.__LUNA_CLEAR_LOADED__) window.__LUNA_CLEAR_LOADED__();
+      #|    if (window.__LUNA_SCAN__) window.__LUNA_SCAN__();
+      #|    // Re-run Web Components loader
+      #|    if (window.__LUNA_WC_CLEAR_LOADED__) window.__LUNA_WC_CLEAR_LOADED__();
+      #|    if (window.__LUNA_WC_SCAN__) window.__LUNA_WC_SCAN__();
+      #|    // Re-initialize sidebar state
+      #|    if (window.__ASTRA_INIT_SIDEBAR__) window.__ASTRA_INIT_SIDEBAR__();
       #|  } catch (e) {
       #|    if (e.name !== 'AbortError') location.href = url;
       #|  }
@@ -791,8 +871,10 @@ fn get_navigation_script(
       #|  if (link.target === '_blank' || link.hasAttribute('download')) return;
       #|  const url = new URL(href, location.origin);
       #|  if (url.origin !== location.origin) return;
-      #|  // Skip if same page
+      #|  // Skip if same page (including hash links)
       #|  if (url.pathname === location.pathname) return;
+      #|  // Skip if URL has hash (anchor link to different page)
+      #|  if (url.hash) return;
       #|  // Skip SPA for home page
       #|  if (isHomePage(url.href) || isHomePage(location.href)) return;
       #|  e.preventDefault();
@@ -881,6 +963,82 @@ fn get_theme_script() -> String {
     #|    }
     #|  };
     #|})();
+  script
+}
+
+///|
+/// Get sidebar state persistence script
+fn get_sidebar_script() -> String {
+  let script =
+    #|<script>
+    #|(function(){
+    #|  var STORAGE_KEY = 'astra-sidebar-state';
+    #|  function loadState() {
+    #|    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+    #|  }
+    #|  function saveState(state) {
+    #|    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+    #|  }
+    #|  function initSidebar() {
+    #|    var state = loadState();
+    #|    document.querySelectorAll('[data-sidebar-group]').forEach(function(el) {
+    #|      var key = el.dataset.sidebarGroup;
+    #|      if (key && state[key] !== undefined) {
+    #|        el.open = state[key];
+    #|      }
+    #|      el.addEventListener('toggle', function() {
+    #|        var s = loadState();
+    #|        s[key] = el.open;
+    #|        saveState(s);
+    #|      });
+    #|    });
+    #|  }
+    #|  if (document.readyState === 'loading') {
+    #|    document.addEventListener('DOMContentLoaded', initSidebar);
+    #|  } else {
+    #|    initSidebar();
+    #|  }
+    #|  window.__ASTRA_INIT_SIDEBAR__ = initSidebar;
+    #|})();
+    #|</script>
+  script
+}
+
+///|
+/// Get Web Components loader script (inline IIFE)
+/// Handles luna:wc-url and luna:wc-trigger attributes
+fn get_wc_loader_script() -> String {
+  let script =
+    #|<script>
+    #|(function(){
+    #|  function setupTrigger(el, t, cb) {
+    #|    if (t === 'load') document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', cb, {once:true}) : cb();
+    #|    else if (t === 'idle') requestIdleCallback(cb);
+    #|    else if (t[0] === 'v') new IntersectionObserver((e,o) => { if(e.some(x=>x.isIntersecting)){o.disconnect();cb();}}, {rootMargin:'50px'}).observe(el);
+    #|    else if (t[0] === 'm') { var mq = matchMedia(t.slice(6)); var h = () => { if(mq.matches){mq.removeEventListener('change',h);cb();}}; mq.matches ? cb() : mq.addEventListener('change',h);}
+    #|  }
+    #|  var loaded = new Set();
+    #|  async function hydrate(el) {
+    #|    var name = el.tagName.toLowerCase();
+    #|    if (loaded.has(name)) return;
+    #|    var url = el.getAttribute('luna:wc-url');
+    #|    if (!url) return;
+    #|    loaded.add(name);
+    #|    try {
+    #|      var mod = await import(url);
+    #|      var fn = mod.hydrate || mod.default;
+    #|      if (typeof fn === 'function') fn(el, {}, name);
+    #|    } catch(e) { console.error('[wc] Failed:', name, e); }
+    #|  }
+    #|  function setup(el) { setupTrigger(el, el.getAttribute('luna:wc-trigger') || 'load', () => hydrate(el)); }
+    #|  function scan() { document.querySelectorAll('[luna\\:wc-url]').forEach(setup); }
+    #|  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan, {once:true});
+    #|  else scan();
+    #|  new MutationObserver(m => m.forEach(x => x.addedNodes.forEach(n => { if(n.nodeType === 1 && n.hasAttribute('luna:wc-url')) setup(n); }))).observe(document.body || document.documentElement, {childList:true,subtree:true});
+    #|  window.__LUNA_WC_SCAN__ = scan;
+    #|  window.__LUNA_WC_CLEAR_LOADED__ = () => loaded.clear();
+    #|})();
+    #|</script>
   script
 }
 
@@ -1000,6 +1158,57 @@ fn copy_static_assets(ctx : @astra.BuildContext) -> Unit {
 
   // Copy public directory if it exists
   copy_public_dir(ctx)
+
+  // Copy islands directory if configured
+  copy_islands_dir(ctx)
+}
+
+///|
+/// Copy components directory to output (convention: docs/components -> /components/)
+fn copy_islands_dir(ctx : @astra.BuildContext) -> Unit {
+  // Use config if provided, otherwise use convention (docs/components)
+  let (src_dir, base_path) = match ctx.config.islands {
+    Some(islands_config) => (islands_config.dir, islands_config.base_path)
+    None => {
+      // Convention-based: look for docs/components
+      let docs_components = @path.join2(ctx.config.docs_dir, "components")
+      (docs_components, "/components/")
+    }
+  }
+
+  let islands_src = @path.join2(ctx.cwd, src_dir)
+
+  // Check if source directory exists
+  if not(@fs.existsSync(islands_src)) {
+    // Silently skip if using convention and directory doesn't exist
+    return
+  }
+
+  // Output path: strip leading slash from base_path
+  let output_subdir = if base_path.has_prefix("/") {
+    base_path.unsafe_substring(start=1, end=base_path.length())
+  } else {
+    base_path
+  }
+  // Remove trailing slash for directory path
+  let output_subdir_clean = if output_subdir.has_suffix("/") {
+    output_subdir.unsafe_substring(start=0, end=output_subdir.length() - 1)
+  } else {
+    output_subdir
+  }
+  let islands_dest = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.output_dir),
+    output_subdir_clean,
+  )
+
+  // Ensure destination directory exists
+  ensure_dir(islands_dest)
+
+  // Copy components directory
+  println("  Copying components from \{src_dir}...")
+  @fs.cpSync(islands_src, islands_dest, recursive=true) catch {
+    e => println("  Warning: Failed to copy components directory: \{e}")
+  }
 }
 
 ///|
@@ -1311,6 +1520,29 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|.lang-item-active {
     #|  color: var(--primary-color);
     #|  font-weight: 500;
+    #|}
+    #|
+    #|/* Social Links */
+    #|.social-links {
+    #|  display: flex;
+    #|  align-items: center;
+    #|  gap: 0.5rem;
+    #|}
+    #|.social-link {
+    #|  display: flex;
+    #|  align-items: center;
+    #|  justify-content: center;
+    #|  color: var(--text-muted);
+    #|  padding: 0.375rem;
+    #|  border-radius: 4px;
+    #|  transition: color 0.2s, background 0.2s;
+    #|}
+    #|.social-link:hover {
+    #|  color: var(--text-color);
+    #|  background: var(--sidebar-bg);
+    #|}
+    #|.social-link svg {
+    #|  display: block;
     #|}
     #|
     #|/* Layout */

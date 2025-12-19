@@ -161,6 +161,86 @@ docs/
 }
 ```
 
+## Web Components (Interactive Components)
+
+Astra supports embedding interactive Web Components in your static pages using a convention-based approach.
+
+### Convention
+
+Place your Web Component files in `docs/components/`:
+
+```
+docs/
+├── components/
+│   ├── my-counter.js     # <my-counter> element
+│   └── my-widget.js      # <my-widget> element
+└── index.md
+```
+
+Component filenames must use kebab-case (contain a hyphen) to comply with Custom Elements naming requirements.
+
+### Creating a Web Component
+
+Create a JavaScript module with a `hydrate` function:
+
+```javascript
+// docs/components/my-counter.js
+export function hydrate(element, state, name) {
+  let count = parseInt(element.getAttribute('initial') || '0', 10);
+
+  const render = () => {
+    element.innerHTML = `<button>${count}</button>`;
+    element.querySelector("button").onclick = () => {
+      count++;
+      render();
+    };
+  };
+
+  render();
+}
+```
+
+### Embedding in Markdown
+
+Use the custom element tag directly in your markdown:
+
+```html
+<my-counter initial="5" luna:trigger="load"></my-counter>
+```
+
+#### Attributes
+
+| Attribute | Description |
+|-----------|-------------|
+| `luna:trigger` | When to hydrate: `load`, `idle`, `visible`, `media`, `none` |
+| (other attrs) | Passed as element attributes, accessible via `element.getAttribute()` |
+
+### Live Demo
+
+Try clicking the buttons:
+
+<my-counter initial="0"></my-counter>
+
+### Trigger Types
+
+| Trigger | Description |
+|---------|-------------|
+| `load` | Hydrate immediately on page load (default) |
+| `idle` | Hydrate when browser is idle (requestIdleCallback) |
+| `visible` | Hydrate when element enters viewport (IntersectionObserver) |
+| `media` | Hydrate when media query matches |
+| `none` | Manual hydration only |
+
+### How It Works
+
+When Astra processes markdown, custom element tags are converted to HTML with hydration attributes:
+
+```html
+<my-counter initial="0" luna:wc-url="/components/my-counter.js" luna:wc-trigger="load"></my-counter>
+```
+
+The built-in wc-loader script automatically hydrates components when their trigger conditions are met.
+
 ## Markdown Features
 
 ### Frontmatter

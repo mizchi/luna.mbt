@@ -12,6 +12,7 @@
     { "path": "mizchi/npm_typed/colorette", "alias": "colorette" },
     { "path": "mizchi/luna/astra", "alias": "astra" },
     { "path": "mizchi/luna/astra/generator", "alias": "astra_gen" },
+    { "path": "mizchi/luna/astra/routes", "alias": "routes" },
     { "path": "mizchi/luna/astra/shiki", "alias": "shiki" }
   ],
   "warn-list": "-27-20",

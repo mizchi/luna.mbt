@@ -132,7 +132,7 @@ fn group_pages_by_canonical_dir(
 }
 
 ///|
-/// Get directory from canonical path
+/// Get directory from canonical path (top-level directory for grouping)
 fn get_canonical_dir(canonical_path : String) -> String {
   // Remove leading slash
   let trimmed = if canonical_path.has_prefix("/") {
@@ -146,10 +146,12 @@ fn get_canonical_dir(canonical_path : String) -> String {
   } else {
     trimmed
   }
-  // Find last slash to get directory
-  match trimmed2.rev_find("/") {
+  // Find first slash to get top-level directory
+  match trimmed2.find("/") {
     Some(idx) => "/" + slice_to(trimmed2, idx)
-    None => "/"
+    None =>
+      // No slash - this is either root or a top-level page
+      if trimmed2.is_empty() { "/" } else { "/" + trimmed2 }
   }
 }
 
@@ -171,7 +173,7 @@ fn create_sidebar_group(
 
   // Get group title from directory name
   let text = if dir == "/" {
-    "Getting Started"
+    "Home"
   } else {
     let name = dir.trim_start(chars="/").trim_end(chars="/").to_string()
     capitalize(name.replace(old="-", new=" "))
@@ -394,9 +396,13 @@ fn render_sidebar_group(
   })
   let items_container = h("ul", [attr("class", "sidebar-items")], item_vnodes)
 
+  // Generate a simple key from group text for localStorage
+  let group_key = group.text.to_lower().replace(old=" ", new="-")
+
   // Use details element for collapsible behavior
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     attr("class", "sidebar-collapse"),
+    attr("data-sidebar-group", group_key),
   ]
   if is_open {
     attrs.push(("open", @luna.attr_static("")))

@@ -126,19 +126,7 @@ fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
       }
     }
     @md_parser.Block::FencedCode(info~, code~, ..) =>
-      // Check for island code block
-      if info.has_prefix("island:") {
-        let name = info.unsafe_substring(start=7, end=info.length())
-        Some(
-          @astra.MdNode::Island(@astra.IslandEmbed::{
-            name,
-            props: code.trim_space().to_string(),
-            trigger: @luna.Load,
-          }),
-        )
-      } else {
-        Some(@astra.MdNode::CodeBlock(lang=info, code~))
-      }
+      Some(@astra.MdNode::CodeBlock(lang=info, code~))
     @md_parser.Block::IndentedCode(code~, ..) =>
       Some(@astra.MdNode::CodeBlock(lang="", code~))
     @md_parser.Block::Blockquote(children~, ..) => {
@@ -154,10 +142,15 @@ fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
       Some(@astra.MdNode::List(ordered=true, items=md_items))
     }
     @md_parser.Block::HtmlBlock(html~, ..) =>
-      // Check for Island directive in HTML
-      match parse_island_directive(html) {
-        Some(island) => Some(@astra.MdNode::Island(island))
-        None => Some(@astra.MdNode::Html(html))
+      // Check for custom element (Web Component) first
+      match parse_custom_element(html) {
+        Some(component) => Some(@astra.MdNode::Component(component))
+        None =>
+          // Check for legacy Island directive
+          match parse_island_directive(html) {
+            Some(island) => Some(@astra.MdNode::Island(island))
+            None => Some(@astra.MdNode::Html(html))
+          }
       }
     @md_parser.Block::Table(header~, rows~, ..) => {
       let md_headers = header.map(fn(cell) {

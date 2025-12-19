@@ -3,6 +3,7 @@
 ## TODO
 
 - [ ] _dyn のDSLをどうするか
+- [ ] インラインCSS の扱いを統一する
 - [ ] preload 挿入
 - DX
   - sol: 細粒度 HMR (Island単位の差分更新、状態保持)
@@ -18,6 +19,13 @@
 - [ ] SSR Stream が機能しているかテスト. 意図的に遅延を入れて体験を確認
 - [ ] sol: キャッシュレイヤーの設計
 - `**AAAA**` がおかしい。
+- atlas
+  - GitHub
+  - 埋め込む
+  - Footer
+- stella
+  - editor
+  - inline ssr
 
 ## Icebox
 

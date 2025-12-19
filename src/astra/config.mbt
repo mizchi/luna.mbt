@@ -25,13 +25,7 @@ pub fn parse_ssg_from_sol_config(json_str : String) -> SsgConfig? {
       // No ssg section, return default
       return Some(SsgConfig::default())
     }
-
-    // Get islands from root config (sol.config.json specific)
-    let islands = match obj.get("islands") {
-      Some(Array(arr)) => parse_string_array_json(arr)
-      _ => []
-    }
-    parse_ssg_object(ssg_obj, islands~)
+    parse_ssg_object(ssg_obj)
   } catch {
     _ => None
   }
@@ -39,10 +33,7 @@ pub fn parse_ssg_from_sol_config(json_str : String) -> SsgConfig? {
 
 ///|
 /// Parse SSG object (shared by both config formats)
-fn parse_ssg_object(
-  ssg_obj : Map[String, Json],
-  islands? : Array[String] = [],
-) -> SsgConfig? {
+fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
   // Parse ssg fields
   let docs_dir = match ssg_obj.get("docs") {
     Some(String(s)) => s
@@ -79,15 +70,9 @@ fn parse_ssg_object(
     _ => []
   }
 
-  // Parse islands (astra.json format can have islands in root)
-  let final_islands = if islands.is_empty() {
-    match ssg_obj.get("islands") {
-      Some(Array(arr)) => parse_string_array_json(arr)
-      _ => []
-    }
-  } else {
-    islands
-  }
+  // Parse islands config
+  let islands_config = parse_islands_config(ssg_obj)
+
   // Parse navigation config
   let navigation = parse_navigation_config(ssg_obj)
 
@@ -107,7 +92,7 @@ fn parse_ssg_object(
     base_url,
     nav,
     sidebar,
-    islands: final_islands,
+    islands: islands_config,
     theme,
     navigation,
     i18n,
@@ -284,10 +269,33 @@ fn parse_theme_config(obj : Map[String, Json]) -> ThemeConfig {
         }
         _ => None
       }
-      ThemeConfig::{ primary_color, logo, footer }
+      let social_links = match theme_obj.get("socialLinks") {
+        Some(Array(arr)) => parse_social_links(arr)
+        _ => []
+      }
+      ThemeConfig::{ primary_color, logo, footer, social_links }
     }
     _ => ThemeConfig::default()
   }
+}
+
+///|
+/// Parse social links array
+fn parse_social_links(arr : Array[Json]) -> Array[SocialLink] {
+  let result : Array[SocialLink] = []
+  for item in arr {
+    guard item is Object(obj) else { continue }
+    let icon = match obj.get("icon") {
+      Some(String(s)) => s
+      _ => continue
+    }
+    let link = match obj.get("link") {
+      Some(String(s)) => s
+      _ => continue
+    }
+    result.push(SocialLink::{ icon, link })
+  }
+  result
 }
 
 ///|
@@ -398,5 +406,24 @@ fn parse_ogp_config(obj : Map[String, Json]) -> OgpConfig {
       OgpConfig::{ site_url, image, twitter_handle, twitter_card }
     }
     _ => OgpConfig::default()
+  }
+}
+
+///|
+/// Parse Islands configuration
+fn parse_islands_config(obj : Map[String, Json]) -> IslandsConfig? {
+  match obj.get("islands") {
+    Some(Object(islands_obj)) => {
+      let dir = match islands_obj.get("dir") {
+        Some(String(s)) => s
+        _ => "islands"
+      }
+      let base_path = match islands_obj.get("basePath") {
+        Some(String(s)) => s
+        _ => "/islands/"
+      }
+      Some(IslandsConfig::{ dir, base_path })
+    }
+    _ => None
   }
 }

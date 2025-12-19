@@ -19,8 +19,8 @@ pub(all) struct SsgConfig {
   nav : Array[NavItem]
   /// Sidebar configuration
   sidebar : SidebarConfig
-  /// Island directories for hydration (inherits from sol.config.json)
-  islands : Array[String]
+  /// Islands configuration for hydration
+  islands : IslandsConfig?
   /// Theme configuration
   theme : ThemeConfig
   /// Navigation configuration
@@ -74,7 +74,7 @@ pub fn SsgConfig::default() -> SsgConfig {
     base_url: "/",
     nav: [],
     sidebar: SidebarConfig::Auto,
-    islands: [],
+    islands: None,
     theme: ThemeConfig::default(),
     navigation: NavigationConfig::default(),
     i18n: I18nConfig::default(),
@@ -156,13 +156,24 @@ pub(all) struct ThemeConfig {
   logo : String?
   /// Footer configuration
   footer : FooterConfig?
+  /// Social links (GitHub, Twitter, etc.)
+  social_links : Array[SocialLink]
 }
+
+///|
+/// Social link configuration
+pub(all) struct SocialLink {
+  /// Icon type: "github", "twitter", "discord", etc.
+  icon : String
+  /// Link URL
+  link : String
+} derive(ToJson, FromJson)
 
 ///|
 /// Default theme configuration
 /// Luna theme: Moon-inspired gold color
 pub fn ThemeConfig::default() -> ThemeConfig {
-  { primary_color: Some("#fbbf24"), logo: None, footer: None }
+  { primary_color: Some("#fbbf24"), logo: None, footer: None, social_links: [] }
 }
 
 ///|
@@ -191,6 +202,21 @@ pub(all) struct OgpConfig {
 /// Default OGP configuration
 pub fn OgpConfig::default() -> OgpConfig {
   { site_url: None, image: None, twitter_handle: None, twitter_card: None }
+}
+
+///|
+/// Islands configuration for SSG (legacy)
+pub(all) struct IslandsConfig {
+  /// Directory containing island source files (relative to cwd)
+  dir : String
+  /// Base path for island URLs in generated HTML
+  base_path : String
+}
+
+///|
+/// Default Islands configuration (uses docs/components convention)
+pub fn IslandsConfig::default() -> IslandsConfig {
+  { dir: "docs/components", base_path: "/components/" }
 }
 
 // =============================================================================
@@ -351,8 +377,10 @@ pub(all) enum MdNode {
   Table(headers~ : Array[MdNode], rows~ : Array[Array[MdNode]])
   /// Raw HTML
   Html(String)
-  /// Island component directive
+  /// Island component directive (legacy)
   Island(IslandEmbed)
+  /// Web Component custom element
+  Component(ComponentEmbed)
   /// Horizontal rule
   ThematicBreak
   /// Line break
@@ -360,7 +388,7 @@ pub(all) enum MdNode {
 }
 
 ///|
-/// Island embedding in markdown
+/// Island embedding in markdown (legacy, prefer ComponentEmbed)
 pub(all) struct IslandEmbed {
   /// Island component name
   name : String
@@ -368,12 +396,34 @@ pub(all) struct IslandEmbed {
   props : String
   /// Hydration trigger
   trigger : @luna.Trigger
+  /// Whether to render server-side (default: false, client-only placeholder)
+  ssr : Bool
 }
 
 ///|
 /// Default Island embed
 pub fn IslandEmbed::new(name : String) -> IslandEmbed {
-  { name, props: "{}", trigger: @luna.Load }
+  { name, props: "{}", trigger: @luna.Load, ssr: false }
+}
+
+///|
+/// Web Component embedding in markdown
+/// Custom elements (names containing `-`) are registered via customElements.define
+pub(all) struct ComponentEmbed {
+  /// Custom element tag name (e.g., "my-counter", "foo-bar")
+  tag : String
+  /// HTML attributes as key-value pairs
+  attrs : Array[(String, String)]
+  /// Inner HTML content
+  content : String
+  /// Hydration trigger
+  trigger : @luna.Trigger
+}
+
+///|
+/// Default Component embed
+pub fn ComponentEmbed::new(tag : String) -> ComponentEmbed {
+  { tag, attrs: [], content: "", trigger: @luna.Load }
 }
 
 // =============================================================================

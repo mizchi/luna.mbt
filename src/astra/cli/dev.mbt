@@ -96,16 +96,76 @@ async fn run_dev_command(args : Array[String]) -> Unit {
   let docs_dir = @path.join2(cwd, config.docs_dir)
   println(@colorette.gray("Watching for changes in: \{config.docs_dir}/"))
   println("")
+
   // Create highlighter once for reuse
   let highlighter = @shiki.create_default_highlighter().wait()
+
+  // Track known pages for detecting add/remove
+  let known_pages : Map[String, Bool] = {}
+  let pages = @routes.scan_docs_dir(
+    config.docs_dir,
+    cwd,
+    i18n=config.i18n,
+    exclude=config.exclude,
+    trailing_slash=config.trailing_slash,
+  )
+  for page in pages {
+    known_pages[page.source_path] = true
+  }
+
+  // Build context for incremental builds
+  let sidebar = match config.sidebar {
+    @astra.SidebarConfig::Auto => @routes.generate_auto_sidebar(pages)
+    @astra.SidebarConfig::Manual(groups) => groups
+  }
+  let build_ctx : @astra.BuildContext = {
+    config,
+    pages,
+    sidebar,
+    cwd,
+  }
+
   let _ = @fs.watch(docs_dir, recursive=true, listener=fn(
     event_type,
     filename,
   ) {
-    if filename.ends_with(".md") || filename.ends_with(".json") {
-      println(@colorette.yellow("[\{event_type}] \{filename} - rebuilding..."))
-      // Use sync rebuild with pre-created highlighter
+    if filename.ends_with(".md") {
+      let source_path = filename
+      let full_path = @path.join2(docs_dir, filename)
+      let file_exists = @fs.existsSync(full_path)
+
+      // Detect if this is a new file, deleted file, or update
+      let is_known = known_pages.contains(source_path)
+
+      if file_exists && not(is_known) {
+        // New file added - need full rebuild for sidebar
+        println(
+          @colorette.yellow("[\{event_type}] \{filename} - new file, full rebuild..."),
+        )
+        known_pages[source_path] = true
+        run_build_sync(config, cwd, highlighter)
+      } else if not(file_exists) && is_known {
+        // File deleted - need full rebuild for sidebar
+        println(
+          @colorette.yellow("[\{event_type}] \{filename} - deleted, full rebuild..."),
+        )
+        let _ = known_pages.remove(source_path)
+        run_build_sync(config, cwd, highlighter)
+      } else if file_exists && is_known {
+        // Existing file updated - incremental build
+        println(
+          @colorette.yellow("[\{event_type}] \{filename} - incremental rebuild..."),
+        )
+        rebuild_single_page(build_ctx, source_path, highlighter)
+      }
+    } else if filename.ends_with(".json") {
+      // Config change - full rebuild
+      println(@colorette.yellow("[\{event_type}] \{filename} - config change, full rebuild..."))
       run_build_sync(config, cwd, highlighter)
+    } else if filename.ends_with(".js") {
+      // Component change - just copy components
+      println(@colorette.yellow("[\{event_type}] \{filename} - copying components..."))
+      copy_components_only(config, cwd)
     }
   })
 
@@ -125,6 +185,72 @@ fn run_build_sync(
     }
     Err(e) => @cli_utils.console_error(@colorette.red("Build failed: \{e}"))
   }
+}
+
+///|
+/// Rebuild a single page (incremental build)
+fn rebuild_single_page(
+  ctx : @astra.BuildContext,
+  source_path : String,
+  highlighter : @shiki.Highlighter,
+) -> Unit {
+  // Find the page in context
+  let page : @astra.PageMeta? = ctx.pages
+    .iter()
+    .find_first(fn(p) { p.source_path == source_path })
+  guard page is Some(page_meta) else {
+    println(@colorette.red("  Page not found in context: \{source_path}"))
+    return
+  }
+
+  // Generate single page
+  match @astra_gen.generate_single_page(ctx, page_meta, highlighter) {
+    Ok(_) => {
+      println(@colorette.green("✓ Page rebuilt: \{page_meta.url_path}"))
+      println("")
+    }
+    Err(e) => @cli_utils.console_error(@colorette.red("Build failed: \{e}"))
+  }
+}
+
+///|
+/// Copy components directory only (for JS file changes)
+fn copy_components_only(config : @astra.SsgConfig, cwd : String) -> Unit {
+  // Determine source directory (convention: docs/components)
+  let (src_dir, base_path) = match config.islands {
+    Some(islands_config) => (islands_config.dir, islands_config.base_path)
+    None => {
+      let docs_components = @path.join2(config.docs_dir, "components")
+      (docs_components, "/components/")
+    }
+  }
+
+  let src = @path.join2(cwd, src_dir)
+  if not(@fs.existsSync(src)) {
+    return
+  }
+
+  // Output path
+  let output_subdir = if base_path.has_prefix("/") {
+    base_path.substring(start=1)
+  } else {
+    base_path
+  }
+  let output_subdir_clean = if output_subdir.has_suffix("/") {
+    output_subdir.substring(end=output_subdir.length() - 1)
+  } else {
+    output_subdir
+  }
+  let dest = @path.join2(@path.join2(cwd, config.output_dir), output_subdir_clean)
+
+  @fs.cpSync(src, dest, recursive=true) catch {
+    e => {
+      println(@colorette.red("  Failed to copy components: \{e}"))
+      return
+    }
+  }
+  println(@colorette.green("✓ Components copied"))
+  println("")
 }
 
 ///|
