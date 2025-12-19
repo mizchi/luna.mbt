@@ -134,13 +134,21 @@ fn group_pages_by_canonical_dir(
 ///|
 /// Get directory from canonical path
 fn get_canonical_dir(canonical_path : String) -> String {
+  // Remove leading slash
   let trimmed = if canonical_path.has_prefix("/") {
     slice_from(canonical_path, 1)
   } else {
     canonical_path
   }
-  match trimmed.rev_find("/") {
-    Some(idx) => "/" + slice_to(trimmed, idx)
+  // Remove trailing slash
+  let trimmed2 = if trimmed.has_suffix("/") {
+    slice_to(trimmed, trimmed.length() - 1)
+  } else {
+    trimmed
+  }
+  // Find last slash to get directory
+  match trimmed2.rev_find("/") {
+    Some(idx) => "/" + slice_to(trimmed2, idx)
     None => "/"
   }
 }

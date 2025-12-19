@@ -88,6 +88,15 @@ fn parse_ssg_object(
   } else {
     islands
   }
+  // Parse navigation config
+  let navigation = parse_navigation_config(ssg_obj)
+
+  // Parse trailing slash config (default: true for SSG compatibility)
+  let trailing_slash = match ssg_obj.get("trailingSlash") {
+    Some(False) => false
+    _ => true
+  }
+
   Some(SsgConfig::{
     docs_dir,
     output_dir,
@@ -97,8 +106,10 @@ fn parse_ssg_object(
     sidebar,
     islands: final_islands,
     theme,
+    navigation,
     i18n,
     exclude,
+    trailing_slash,
   })
 }
 
@@ -334,4 +345,27 @@ fn parse_locale_config(json : Json) -> LocaleConfig? {
     _ => if code == "en" { "" } else { code }
   }
   Some(LocaleConfig::{ code, label, path })
+}
+
+///|
+/// Parse navigation configuration
+fn parse_navigation_config(obj : Map[String, Json]) -> NavigationConfig {
+  match obj.get("navigation") {
+    Some(Object(nav_obj)) => {
+      let spa = match nav_obj.get("spa") {
+        Some(True) => true
+        _ => false
+      }
+      let view_transitions = match nav_obj.get("viewTransitions") {
+        Some(False) => false
+        _ => true // default to true
+      }
+      let keyboard = match nav_obj.get("keyboard") {
+        Some(False) => false
+        _ => true // default to true
+      }
+      NavigationConfig::{ spa, view_transitions, keyboard }
+    }
+    _ => NavigationConfig::default()
+  }
 }

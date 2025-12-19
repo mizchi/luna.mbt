@@ -7,19 +7,24 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // MPA用のディレクトリアクセスをindex.htmlにリダイレクトするプラグイン
 function mpaFallback(): Plugin {
+  const middleware = (baseDir: string) => (req: any, _res: any, next: any) => {
+    if (req.url && !req.url.includes('.') && !req.url.endsWith('/')) {
+      // Check if directory/index.html exists
+      const indexPath = resolve(baseDir, '.' + req.url, 'index.html');
+      if (existsSync(indexPath)) {
+        req.url = req.url + '/index.html';
+      }
+    }
+    next();
+  };
+
   return {
     name: 'mpa-fallback',
     configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
-        if (req.url && !req.url.includes('.') && !req.url.endsWith('/')) {
-          // Check if directory/index.html exists
-          const indexPath = resolve(__dirname, '.' + req.url, 'index.html');
-          if (existsSync(indexPath)) {
-            req.url = req.url + '/index.html';
-          }
-        }
-        next();
-      });
+      server.middlewares.use(middleware(__dirname));
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(middleware(resolve(__dirname, 'dist')));
     },
   };
 }

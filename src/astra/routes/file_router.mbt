@@ -146,13 +146,16 @@ pub fn scan_docs_dir(
   cwd : String,
   i18n? : @astra.I18nConfig = @astra.I18nConfig::default(),
   exclude? : Array[String] = [],
+  trailing_slash? : Bool = true,
 ) -> Array[@astra.PageMeta] {
   let pages : Array[@astra.PageMeta] = []
   let full_path = @path.join2(cwd, docs_dir)
   if not(@fs.existsSync(full_path)) {
     return pages
   }
-  scan_recursive(full_path, "", docs_dir, cwd, i18n, exclude, pages)
+  scan_recursive(
+    full_path, "", docs_dir, cwd, i18n, exclude, pages, trailing_slash,
+  )
   pages
 }
 
@@ -166,6 +169,7 @@ fn scan_recursive(
   i18n : @astra.I18nConfig,
   exclude : Array[String],
   pages : Array[@astra.PageMeta],
+  trailing_slash : Bool,
 ) -> Unit {
   let entries : Array[String] = @fs.readdirSync(dir_path) catch { _ => return }
   for entry in entries {
@@ -182,14 +186,23 @@ fn scan_recursive(
       }
       // Recurse into subdirectory
       scan_recursive(
-        entry_path, entry_relative, docs_dir, cwd, i18n, exclude, pages,
+        entry_path,
+        entry_relative,
+        docs_dir,
+        cwd,
+        i18n,
+        exclude,
+        pages,
+        trailing_slash,
       )
     } else if entry.has_suffix(".md") {
       // Process markdown file
       let source_path = entry_relative
 
       // Detect locale from path
-      let (locale, canonical_path) = detect_locale_from_path(source_path, i18n)
+      let (locale, canonical_path) = detect_locale_from_path(
+        source_path, i18n, trailing_slash~,
+      )
       let url_path = build_localized_url(canonical_path, locale, i18n)
 
       // Build sort key for ordering (preserves numeric prefixes)
@@ -221,6 +234,7 @@ fn scan_recursive(
 fn detect_locale_from_path(
   path : String,
   i18n : @astra.I18nConfig,
+  trailing_slash~ : Bool = true,
 ) -> (String, String) {
   // Check if path starts with a locale directory
   for locale in i18n.locales {
@@ -230,11 +244,11 @@ fn detect_locale_from_path(
     let prefix = locale.path + "/"
     if path.has_prefix(prefix) {
       let canonical = slice_from(path, prefix.length())
-      return (locale.code, file_to_url_path(canonical))
+      return (locale.code, file_to_url_path(canonical, trailing_slash~))
     }
   }
   // No locale prefix found, use default locale
-  (i18n.default_locale, file_to_url_path(path))
+  (i18n.default_locale, file_to_url_path(path, trailing_slash~))
 }
 
 ///|
@@ -318,9 +332,13 @@ fn get_file_mtime(path : String) -> String? {
 
 ///|
 /// Convert file path to URL path (strips numeric prefixes)
-/// 00_guide/01_getting-started.md -> /guide/getting-started
+/// 00_guide/01_getting-started.md -> /guide/getting-started/ (with trailing slash)
+/// 00_guide/01_getting-started.md -> /guide/getting-started (without trailing slash)
 /// docs/index.md -> /
-pub fn file_to_url_path(file_path : String) -> String {
+pub fn file_to_url_path(
+  file_path : String,
+  trailing_slash? : Bool = true,
+) -> String {
   // First strip numeric prefixes, then remove .md and handle Windows paths
   let stripped = strip_numeric_prefixes(file_path)
   let path = stripped.replace(old=".md", new="").replace(old="\\", new="/")
@@ -328,11 +346,15 @@ pub fn file_to_url_path(file_path : String) -> String {
     let trimmed = slice_to(path, path.length() - 6)
     if trimmed.is_empty() {
       "/"
-    } else {
+    } else if trailing_slash {
       "/" + trimmed + "/"
+    } else {
+      "/" + trimmed
     }
   } else if path == "index" {
     "/"
+  } else if trailing_slash {
+    "/" + path + "/"
   } else {
     "/" + path
   }

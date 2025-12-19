@@ -19,6 +19,11 @@
     { "text": "Sol", "link": "/sol/" }
   ],
   "sidebar": "auto",
+  "navigation": {
+    "spa": true,
+    "viewTransitions": false,
+    "keyboard": true
+  },
   "theme": {
     "primaryColor": "#fbbf24",
     "footer": {

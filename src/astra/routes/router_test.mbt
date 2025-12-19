@@ -71,7 +71,7 @@ test "build_sort_key unprefixed comes last" {
 ///|
 test "file_to_url_path strips prefix" {
   let url = @routes.file_to_url_path("00_guide/01_getting-started.md")
-  assert_eq(url, "/guide/getting-started")
+  assert_eq(url, "/guide/getting-started/")
 }
 
 ///|
@@ -84,6 +84,21 @@ test "file_to_url_path with index" {
 test "file_to_url_path root index" {
   let url = @routes.file_to_url_path("index.md")
   assert_eq(url, "/")
+}
+
+///|
+test "file_to_url_path without trailing slash" {
+  let url = @routes.file_to_url_path(
+    "00_guide/01_getting-started.md",
+    trailing_slash=false,
+  )
+  assert_eq(url, "/guide/getting-started")
+}
+
+///|
+test "file_to_url_path index without trailing slash" {
+  let url = @routes.file_to_url_path("00_guide/index.md", trailing_slash=false)
+  assert_eq(url, "/guide")
 }
 
 ///|

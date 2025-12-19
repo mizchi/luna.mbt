@@ -23,10 +23,14 @@ pub(all) struct SsgConfig {
   islands : Array[String]
   /// Theme configuration
   theme : ThemeConfig
+  /// Navigation configuration
+  navigation : NavigationConfig
   /// Internationalization configuration
   i18n : I18nConfig
   /// Directories to exclude from scanning (e.g., ["internal", "drafts"])
   exclude : Array[String]
+  /// Use trailing slashes in URLs (default: true for SSG compatibility)
+  trailing_slash : Bool
 }
 
 ///|
@@ -70,8 +74,10 @@ pub fn SsgConfig::default() -> SsgConfig {
     sidebar: SidebarConfig::Auto,
     islands: [],
     theme: ThemeConfig::default(),
+    navigation: NavigationConfig::default(),
     i18n: I18nConfig::default(),
     exclude: [],
+    trailing_slash: true,
   }
 }
 
@@ -120,6 +126,23 @@ pub(all) enum SidebarItem {
   /// Nested group
   Group(SidebarGroup)
 } derive(ToJson, FromJson)
+
+///|
+/// Navigation configuration
+pub(all) struct NavigationConfig {
+  /// Enable SPA-style navigation (fetch + content swap)
+  spa : Bool
+  /// Enable View Transitions API
+  view_transitions : Bool
+  /// Enable keyboard navigation (arrow keys)
+  keyboard : Bool
+} derive(ToJson, FromJson)
+
+///|
+/// Default navigation configuration
+pub fn NavigationConfig::default() -> NavigationConfig {
+  { spa: false, view_transitions: true, keyboard: true }
+}
 
 ///|
 /// Theme configuration

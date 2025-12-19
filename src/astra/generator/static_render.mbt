@@ -69,6 +69,7 @@ fn generate_site_internal(
     cwd,
     i18n=config.i18n,
     exclude=config.exclude,
+    trailing_slash=config.trailing_slash,
   )
   if pages.is_empty() {
     return Err("No markdown files found in \{config.docs_dir}")
@@ -572,8 +573,8 @@ fn build_html_document(
   // Get page order for current locale
   let page_order = get_page_order(ctx.pages, page.locale)
 
-  // Navigation script for View Transition direction
-  let nav_script = get_navigation_script(page_order)
+  // Navigation script for SPA/View Transitions
+  let nav_script = get_navigation_script(page_order, ctx.config.navigation)
 
   // Theme initialization script (runs early to prevent flash)
   let theme_script = get_theme_script()
@@ -596,11 +597,150 @@ fn get_page_order(
 }
 
 ///|
-/// Get inline script for View Transition direction detection
-fn get_navigation_script(page_order : Array[String]) -> String {
+/// Get inline script for navigation (SPA / View Transitions / Keyboard)
+fn get_navigation_script(
+  page_order : Array[String],
+  config : @astra.NavigationConfig,
+) -> String {
+  // If all navigation features are disabled, return empty
+  if not(config.spa) && not(config.view_transitions) && not(config.keyboard) {
+    return ""
+  }
   // Build JSON array of page URLs
   let urls_json = page_order.map(fn(url) { "\"\{url}\"" }).join(", ")
-  "<script>\n(function() {\n  const pageOrder = [\{urls_json}];\n  function getPageIndex(url) {\n    if (!url) return -1;\n    const path = new URL(url).pathname.replace(/\\/$/, '') || '/';\n    return pageOrder.findIndex(p => p.replace(/\\/$/, '') === path || p === path + '/');\n  }\n  function getCurrentIndex() {\n    return getPageIndex(location.href);\n  }\n  function navigateTo(url) {\n    window.scrollTo({ top: 0, behavior: 'instant' });\n    location.href = url;\n  }\n  window.addEventListener('pagereveal', (e) => {\n    if (!e.viewTransition || !navigation.activation) return;\n    const nav = navigation.activation;\n    const fromIdx = getPageIndex(nav.from?.url);\n    const toIdx = getPageIndex(nav.entry?.url);\n    if (fromIdx !== -1 && toIdx !== -1) {\n      e.viewTransition.types.add(toIdx > fromIdx ? 'forwards' : 'backwards');\n    } else {\n      e.viewTransition.types.add('forwards');\n    }\n  });\n  document.addEventListener('keydown', (e) => {\n    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;\n    const idx = getCurrentIndex();\n    if (idx === -1) return;\n    if (e.key === 'ArrowRight' && idx < pageOrder.length - 1) {\n      e.preventDefault();\n      navigateTo(pageOrder[idx + 1]);\n    } else if (e.key === 'ArrowLeft' && idx > 0) {\n      const prevPage = pageOrder[idx - 1];\n      if (prevPage === '/' || prevPage === '') return;\n      e.preventDefault();\n      navigateTo(prevPage);\n    }\n  });\n})();\n</script>"
+
+  // Generate script parts based on config
+  let parts : Array[String] = []
+
+  // Common utilities
+  parts.push(
+    #|const pageOrder = [
+  )
+  parts.push(urls_json)
+  parts.push(
+    #|];
+    #|function getPageIndex(url) {
+    #|  if (!url) return -1;
+    #|  const path = new URL(url).pathname.replace(/\/$/, '') || '/';
+    #|  return pageOrder.findIndex(p => p.replace(/\/$/, '') === path || p === path + '/');
+    #|}
+    #|function isHomePage(url) {
+    #|  const path = new URL(url, location.origin).pathname;
+    #|  return path === '/' || path === '/ja/' || path === '/en/';
+    #|}
+  )
+
+  // SPA navigation
+  if config.spa {
+    parts.push(
+      #|let currentAbortController = null;
+      #|async function spaNavigate(url, pushState = true) {
+      #|  // Abort any pending navigation
+      #|  if (currentAbortController) currentAbortController.abort();
+      #|  currentAbortController = new AbortController();
+      #|  try {
+      #|    const res = await fetch(url, { signal: currentAbortController.signal });
+      #|    if (!res.ok) { location.href = url; return; }
+      #|    const html = await res.text();
+      #|    const parser = new DOMParser();
+      #|    const doc = parser.parseFromString(html, 'text/html');
+      #|    const newApp = doc.getElementById('app');
+      #|    const newTitle = doc.querySelector('title')?.textContent;
+      #|    if (!newApp) { location.href = url; return; }
+      #|    // Update DOM
+      #|    document.getElementById('app').innerHTML = newApp.innerHTML;
+      #|    if (newTitle) document.title = newTitle;
+      #|    if (pushState) history.pushState({}, '', url);
+      #|    window.scrollTo({ top: 0, behavior: 'instant' });
+      #|    // Re-run loader for new islands
+      #|    if (window.__LUNA_HYDRATE_ALL__) window.__LUNA_HYDRATE_ALL__();
+      #|  } catch (e) {
+      #|    if (e.name !== 'AbortError') location.href = url;
+      #|  }
+      #|}
+      #|function navigateTo(url) {
+      #|  // Skip SPA for home page transitions
+      #|  if (isHomePage(url) || isHomePage(location.href)) {
+      #|    window.scrollTo({ top: 0, behavior: 'instant' });
+      #|    location.href = url;
+      #|    return;
+      #|  }
+      #|  spaNavigate(url);
+      #|}
+      #|// Intercept link clicks
+      #|document.addEventListener('click', (e) => {
+      #|  const link = e.target.closest('a');
+      #|  if (!link) return;
+      #|  const href = link.getAttribute('href');
+      #|  if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+      #|  if (link.target === '_blank' || link.hasAttribute('download')) return;
+      #|  const url = new URL(href, location.origin);
+      #|  if (url.origin !== location.origin) return;
+      #|  // Skip if same page
+      #|  if (url.pathname === location.pathname) return;
+      #|  // Skip SPA for home page
+      #|  if (isHomePage(url.href) || isHomePage(location.href)) return;
+      #|  e.preventDefault();
+      #|  spaNavigate(url.href);
+      #|});
+      #|// Handle back/forward
+      #|window.addEventListener('popstate', () => {
+      #|  if (isHomePage(location.href)) {
+      #|    location.reload();
+      #|    return;
+      #|  }
+      #|  spaNavigate(location.href, false);
+      #|});
+    )
+  } else {
+    // Non-SPA navigation (full page reload)
+    parts.push(
+      #|function navigateTo(url) {
+      #|  window.scrollTo({ top: 0, behavior: 'instant' });
+      #|  location.href = url;
+      #|}
+    )
+  }
+
+  // View Transitions API
+  if config.view_transitions {
+    parts.push(
+      #|window.addEventListener('pagereveal', (e) => {
+      #|  if (!e.viewTransition || !navigation.activation) return;
+      #|  const nav = navigation.activation;
+      #|  const fromIdx = getPageIndex(nav.from?.url);
+      #|  const toIdx = getPageIndex(nav.entry?.url);
+      #|  if (fromIdx !== -1 && toIdx !== -1) {
+      #|    e.viewTransition.types.add(toIdx > fromIdx ? 'forwards' : 'backwards');
+      #|  } else {
+      #|    e.viewTransition.types.add('forwards');
+      #|  }
+      #|});
+    )
+  }
+
+  // Keyboard navigation
+  if config.keyboard {
+    parts.push(
+      #|document.addEventListener('keydown', (e) => {
+      #|  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      #|  const idx = getPageIndex(location.href);
+      #|  if (idx === -1) return;
+      #|  if (e.key === 'ArrowRight' && idx < pageOrder.length - 1) {
+      #|    e.preventDefault();
+      #|    navigateTo(pageOrder[idx + 1]);
+      #|  } else if (e.key === 'ArrowLeft' && idx > 0) {
+      #|    const prevPage = pageOrder[idx - 1];
+      #|    if (isHomePage(prevPage)) return;
+      #|    e.preventDefault();
+      #|    navigateTo(prevPage);
+      #|  }
+      #|});
+    )
+  }
+
+  let script_body = parts.join("\n")
+  "<script>\n(function() {\n\{script_body}\n})();\n</script>"
 }
 
 ///|
