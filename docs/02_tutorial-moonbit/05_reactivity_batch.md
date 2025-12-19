@@ -53,15 +53,18 @@ batch(() => {
 ### MoonBit
 
 ```moonbit
-let first_name = @luna.signal("John")
-let last_name = @luna.signal("Doe")
+///|
+using @luna { signal, effect, batch }
 
-@luna.effect(fn() {
+let first_name = signal("John")
+let last_name = signal("Doe")
+
+let _ = effect(() => {
   println("Name: \{first_name.get()} \{last_name.get()}")
 })
 
 // Batched = one effect run
-@luna.batch(fn() {
+batch(() => {
   first_name.set("Jane")
   last_name.set("Smith")
 })

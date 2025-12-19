@@ -1,8 +1,10 @@
 ---
-title: Astra - Static Site Generator
+title: Astra SSG
 ---
 
-# Astra
+# Astra SSG
+
+> **Experimental**: Astra is under active development. APIs may change.
 
 Astra is Luna's static site generator for documentation and content sites.
 

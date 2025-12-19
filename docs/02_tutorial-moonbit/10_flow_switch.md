@@ -35,23 +35,30 @@ function StatusBadge() {
 ### MoonBit
 
 ```moonbit
-fn status_badge() -> @element.DomNode {
-  let status = @luna.signal("pending")
+///|
+using @element {
+  span, text, switch_, match_,
+  type DomNode,
+}
+using @luna { signal }
 
-  @element.switch_(
-    fallback=@element.span([@element.text("Unknown")]),
+fn status_badge() -> DomNode {
+  let status = signal("pending")
+
+  switch_(
+    fallback=span([text("Unknown")]),
     [
-      @element.match_(
+      match_(
         when=fn() { status.get() == "pending" },
-        @element.span([@element.text("Pending")]),
+        span([text("Pending")]),
       ),
-      @element.match_(
+      match_(
         when=fn() { status.get() == "active" },
-        @element.span([@element.text("Active")]),
+        span([text("Active")]),
       ),
-      @element.match_(
+      match_(
         when=fn() { status.get() == "error" },
-        @element.span([@element.text("Error")]),
+        span([text("Error")]),
       ),
     ],
   )

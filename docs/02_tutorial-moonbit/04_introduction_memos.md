@@ -27,15 +27,18 @@ console.log(doubled());  // 10
 ### MoonBit
 
 ```moonbit
-let count = @luna.signal(2)
+///|
+using @luna { signal, memo }
+
+let count = signal(2)
 
 // Computed value that depends on count
-let doubled = @luna.memo(fn() { count.get() * 2 })
+let doubled = memo(() => count.get() * 2)
 
-println(doubled.get())  // 4
+println(doubled())  // 4
 
 count.set(5)
-println(doubled.get())  // 10
+println(doubled())  // 10
 ```
 
 ## Why Use Memos?
@@ -135,13 +138,16 @@ console.log(total());  // 330 (only affected memos recompute)
 ```
 
 ```moonbit
-let price = @luna.signal(100)
-let quantity = @luna.signal(2)
-let tax_rate = @luna.signal(0.1)
+///|
+using @luna { signal, memo }
 
-let subtotal = @luna.memo(fn() { price.get() * quantity.get() })
-let tax = @luna.memo(fn() { subtotal.get() * tax_rate.get() })
-let total = @luna.memo(fn() { subtotal.get() + tax.get() })
+let price = signal(100)
+let quantity = signal(2)
+let tax_rate = signal(0.1)
+
+let subtotal = memo(() => price.get() * quantity.get())
+let tax = memo(() => subtotal.get() * tax_rate.get())
+let total = memo(() => subtotal.get() + tax.get())
 
 println(total.get())  // 220.0
 ```

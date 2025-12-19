@@ -134,8 +134,9 @@ pub(all) struct ThemeConfig {
 
 ///|
 /// Default theme configuration
+/// Luna theme: Moon-inspired gold color
 pub fn ThemeConfig::default() -> ThemeConfig {
-  { primary_color: Some("#3451b2"), logo: None, footer: None }
+  { primary_color: Some("#fbbf24"), logo: None, footer: None }
 }
 
 ///|

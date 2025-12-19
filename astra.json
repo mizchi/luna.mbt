@@ -1,7 +1,7 @@
 {
   "docs": "docs",
   "output": "dist",
-  "title": "Luna",
+  "title": "🌓 Luna UI",
   "base": "/",
   "exclude": ["internal"],
   "i18n": {
@@ -13,12 +13,14 @@
   },
   "nav": [
     { "text": "Guide", "link": "/guide/" },
-    { "text": "Tutorial", "link": "/tutorial/" },
-    { "text": "Astra", "link": "/astra/" }
+    { "text": "Tutorial (MoonBit)", "link": "/tutorial-moonbit/" },
+    { "text": "Tutorial (JS)", "link": "/tutorial-js/" },
+    { "text": "Astra SSG", "link": "/astra/" },
+    { "text": "Sol", "link": "/sol/" }
   ],
   "sidebar": "auto",
   "theme": {
-    "primaryColor": "#6366f1",
+    "primaryColor": "#fbbf24",
     "footer": {
       "message": "Released under the MIT License.",
       "copyright": "Copyright 2024 mizchi"

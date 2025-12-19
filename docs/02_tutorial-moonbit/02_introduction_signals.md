@@ -26,14 +26,17 @@ const [user, setUser] = createSignal({ name: "Alice", age: 25 });
 ### MoonBit
 
 ```moonbit
+///|
+using @luna { signal }
+
 // Basic signal
-let count = @luna.signal(0)
+let count = signal(0)
 
 // With initial value
-let name = @luna.signal("Luna")
+let name = signal("Luna")
 
 // With struct
-let user = @luna.signal({ name: "Alice", age: 25 })
+let user = signal({ name: "Alice", age: 25 })
 ```
 
 ## Reading Values
@@ -54,12 +57,16 @@ console.log(count());  // 5
 ### MoonBit
 
 ```moonbit
-let count = @luna.signal(5)
+///|
+using @luna { signal }
+using @element { text_dyn }
+
+let count = signal(5)
 
 println(count.get())  // 5
 
 // In component - creates reactive binding
-@element.text_dyn(fn() { "Count: \{count.get()}" })
+text_dyn(() => "Count: " + count.get().to_string())
 ```
 
 ## Writing Values
@@ -74,7 +81,10 @@ setCount(10);       // Set to 10
 ```
 
 ```moonbit
-let count = @luna.signal(0)
+///|
+using @luna { signal }
+
+let count = signal(0)
 
 count.set(5)        // Set to 5
 count.set(10)       // Set to 10
@@ -92,10 +102,13 @@ setCount(c => c * 2);  // Double
 ```
 
 ```moonbit
-let count = @luna.signal(0)
+///|
+using @luna { signal }
 
-count.update(fn(n) { n + 1 })  // Increment
-count.update(fn(n) { n * 2 })  // Double
+let count = signal(0)
+
+count.update(n => n + 1)  // Increment
+count.update(n => n * 2)  // Double
 ```
 
 ## Peek (Read Without Tracking)
@@ -116,12 +129,15 @@ createEffect(() => {
 ```
 
 ```moonbit
-let count = @luna.signal(0)
-let other = @luna.signal(0)
+///|
+using @luna { signal, effect }
 
-@luna.effect(fn() {
+let count = signal(0)
+let other = signal(0)
+
+let _ = effect(() => {
   // This effect only re-runs when `other` changes
-  println("\{count.peek()}, \{other.get()}")
+  println(count.peek().to_string() + ", " + other.get().to_string())
 })
 ```
 
@@ -140,10 +156,13 @@ setUser(u => ({ ...u, age: 26 }));
 ```
 
 ```moonbit
-let user = @luna.signal({ name: "Alice", age: 25 })
+///|
+using @luna { signal }
+
+let user = signal({ name: "Alice", age: 25 })
 
 // Create new struct with updated field
-user.update(fn(u) { { ..u, age: 26 } })
+user.update(u => { ..u, age: 26 })
 ```
 
 ## Multiple Signals

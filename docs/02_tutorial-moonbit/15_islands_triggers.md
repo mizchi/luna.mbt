@@ -22,10 +22,14 @@ Luna provides four hydration triggers:
 Hydrate immediately when the page loads:
 
 ```moonbit
-@server_dom.island(
+///|
+using @server_dom { island }
+using @luna { Load }
+
+island(
   id="search",
   url="/static/search.js",
-  trigger=@luna.Load,  // Hydrate immediately
+  trigger=Load,  // Hydrate immediately
   children=[...],
 )
 ```
@@ -45,10 +49,14 @@ Hydrate immediately when the page loads:
 Hydrate when the browser is idle (using `requestIdleCallback`):
 
 ```moonbit
-@server_dom.island(
+///|
+using @server_dom { island }
+using @luna { Idle }
+
+island(
   id="analytics",
   url="/static/analytics.js",
-  trigger=@luna.Idle,  // Hydrate when browser is idle
+  trigger=Idle,  // Hydrate when browser is idle
   children=[...],
 )
 ```
@@ -68,10 +76,14 @@ Hydrate when the browser is idle (using `requestIdleCallback`):
 Hydrate when the element scrolls into view (using `IntersectionObserver`):
 
 ```moonbit
-@server_dom.island(
+///|
+using @server_dom { island }
+using @luna { Visible }
+
+island(
   id="comments",
   url="/static/comments.js",
-  trigger=@luna.Visible,  // Hydrate when scrolled to
+  trigger=Visible,  // Hydrate when scrolled to
   children=[...],
 )
 ```
@@ -92,10 +104,14 @@ Hydrate when the element scrolls into view (using `IntersectionObserver`):
 Hydrate when a media query matches:
 
 ```moonbit
-@server_dom.island(
+///|
+using @server_dom { island }
+using @luna { Media }
+
+island(
   id="sidebar",
   url="/static/sidebar.js",
-  trigger=@luna.Media("(min-width: 768px)"),  // Desktop only
+  trigger=Media("(min-width: 768px)"),  // Desktop only
   children=[...],
 )
 ```
@@ -159,22 +175,26 @@ Is it above the fold?
 A typical page might use all triggers:
 
 ```moonbit
-fn blog_page() -> @server_dom.Node {
-  @server_dom.div([
+///|
+using @server_dom { div, type Node }
+using @luna { Load, Idle, Visible, Media }
+
+fn blog_page() -> Node {
+  div([
     // Immediate - critical for UX
-    search_island(trigger=@luna.Load),
+    search_island(trigger=Load),
 
     // Idle - nice to have but not urgent
-    theme_toggle_island(trigger=@luna.Idle),
+    theme_toggle_island(trigger=Idle),
 
     // Static article content - no JS
     article_content(),
 
     // Visible - only load when user scrolls down
-    comments_island(trigger=@luna.Visible),
+    comments_island(trigger=Visible),
 
     // Media - only on desktop
-    sidebar_widget(trigger=@luna.Media("(min-width: 1024px)")),
+    sidebar_widget(trigger=Media("(min-width: 1024px)")),
   ])
 }
 ```
@@ -184,10 +204,14 @@ fn blog_page() -> @server_dom.Node {
 For programmatic control, use `none`:
 
 ```moonbit
-@server_dom.island(
+///|
+using @server_dom { island }
+using @luna { None }
+
+island(
   id="modal",
   url="/static/modal.js",
-  trigger=@luna.None,  // Manual hydration
+  trigger=None,  // Manual hydration
   children=[...],
 )
 ```

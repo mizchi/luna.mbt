@@ -32,16 +32,20 @@ function Timer() {
 ### MoonBit
 
 ```moonbit
-fn timer() -> @element.DomNode {
-  let count = @luna.signal(0)
+///|
+using @element { p, text_dyn, type DomNode }
+using @luna { signal, on_cleanup }
+
+fn timer() -> DomNode {
+  let count = signal(0)
 
   // Start interval...
 
-  @luna.on_cleanup(fn() {
+  on_cleanup(() => {
     // Clear interval when component unmounts
   })
 
-  @element.p([@element.text_dyn(fn() { "Count: \{count.get()}" })])
+  p([text_dyn(() => "Count: \{count.get()}")])
 }
 ```
 

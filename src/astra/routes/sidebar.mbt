@@ -42,16 +42,77 @@ pub fn generate_auto_sidebar(
   // Group pages by top-level directory (using canonical_path for grouping)
   let page_groups = group_pages_by_canonical_dir(locale_pages)
 
-  // Get sorted directory names
-  let dirs = page_groups.keys().to_array()
-  dirs.sort()
-  for dir in dirs {
+  // Get directories with their sort keys
+  let dir_entries : Array[(String, String)] = [] // (dir, min_sort_key)
+  for dir in page_groups.keys() {
+    if page_groups.get(dir) is Some(dir_pages) {
+      // Get minimum sort key from pages in this directory for ordering
+      let min_sort_key = get_dir_sort_key(dir_pages)
+      dir_entries.push((dir, min_sort_key))
+    }
+  }
+
+  // Sort directories by their sort keys
+  let sorted_dirs = sort_dir_entries(dir_entries)
+
+  for entry in sorted_dirs {
+    let (dir, _) = entry
     if page_groups.get(dir) is Some(dir_pages) {
       let group = create_sidebar_group(dir, dir_pages)
       groups.push(group)
     }
   }
   groups
+}
+
+///|
+/// Get sort key for a directory from its pages
+/// Uses the directory portion of the first page's sort key
+fn get_dir_sort_key(pages : Array[@astra.PageMeta]) -> String {
+  if pages.is_empty() {
+    return "zzzzzzzz" // Sort empty dirs last
+  }
+  // Get the minimum sort key and extract directory portion
+  let mut min_key = pages[0].sort_key
+  for page in pages {
+    if compare_strings_lex(page.sort_key, min_key) < 0 {
+      min_key = page.sort_key
+    }
+  }
+  // Extract directory portion (first segment)
+  match min_key.find("/") {
+    Some(idx) => slice_to(min_key, idx)
+    None => min_key
+  }
+}
+
+///|
+/// Sort directory entries by their sort keys
+fn sort_dir_entries(
+  entries : Array[(String, String)],
+) -> Array[(String, String)] {
+  let result : Array[(String, String)] = []
+  for entry in entries {
+    let (_, key) = entry
+    let mut pos = result.length()
+    for i = 0; i < result.length(); i = i + 1 {
+      let (_, existing_key) = result[i]
+      if compare_strings_lex(key, existing_key) < 0 {
+        pos = i
+        break
+      }
+    }
+    if pos == result.length() {
+      result.push(entry)
+    } else {
+      result.push(result[result.length() - 1])
+      for j = result.length() - 2; j > pos; j = j - 1 {
+        result[j] = result[j - 1]
+      }
+      result[pos] = entry
+    }
+  }
+  result
 }
 
 ///|

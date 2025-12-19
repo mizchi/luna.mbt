@@ -33,19 +33,24 @@ function Toggle() {
 ### MoonBit
 
 ```moonbit
-fn toggle() -> @element.DomNode {
-  let visible = @luna.signal(false)
+///|
+using @element {
+  div, button, p, text, events, show,
+  type DomNode,
+}
+using @luna { signal }
 
-  @element.div([
-    @element.button(
-      on=@element.events().click(fn(_) {
-        visible.update(fn(v) { not(v) })
-      }),
-      [@element.text("Toggle")],
+fn toggle() -> DomNode {
+  let visible = signal(false)
+
+  div([
+    button(
+      on=events().click(_ => visible.update(fn(v) { not(v) })),
+      [text("Toggle")],
     ),
-    @element.show(
+    show(
       when=fn() { visible.get() },
-      [@element.p([@element.text("Now you see me!")])],
+      [p([text("Now you see me!")])],
     ),
   ])
 }
@@ -62,7 +67,10 @@ Show alternate content when the condition is false:
 ```
 
 ```moonbit
-@element.show(
+///|
+using @element { show }
+
+show(
   when=fn() { is_logged_in.get() },
   fallback=login_form(),
   [dashboard()],

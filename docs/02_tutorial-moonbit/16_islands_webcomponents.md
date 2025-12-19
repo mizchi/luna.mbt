@@ -22,18 +22,20 @@ Web Components provide:
 ### Server Side (MoonBit)
 
 ```moonbit
-fn counter_wc(initial : Int) -> @server_dom.Node {
-  @server_dom.wc_island(
+///|
+using @server_dom { wc_island, button, text, type Node }
+using @luna { Load }
+
+fn counter_wc(initial : Int) -> Node {
+  wc_island(
     name="wc-counter",           // Custom element name
     url="/static/wc-counter.js",
     state=initial.to_string(),
-    trigger=@luna.Load,
+    trigger=Load,
     styles=":host { display: block; padding: 16px; }
             button { background: blue; color: white; }",
     children=[
-      @server_dom.button([
-        @server_dom.text("Count: \{initial}")
-      ])
+      button([text("Count: \{initial}")])
     ],
   )
 }
@@ -152,11 +154,14 @@ Pass content into Web Components:
 ### Server
 
 ```moonbit
-@server_dom.wc_island(
+///|
+using @server_dom { wc_island, slot_ }
+
+wc_island(
   name="wc-card",
   children=[
-    @server_dom.slot_(),  // Default slot
-    @server_dom.slot_(name="footer"),  // Named slot
+    slot_(),              // Default slot
+    slot_(name="footer"), // Named slot
   ],
 )
 ```
@@ -240,7 +245,10 @@ function Counter() {
 ### Card Component
 
 ```moonbit
-@server_dom.wc_island(
+///|
+using @server_dom { wc_island, slot_ }
+
+wc_island(
   name="wc-card",
   styles="
     :host {
@@ -254,7 +262,7 @@ function Counter() {
     }
   ",
   children=[
-    @server_dom.slot_(),
+    slot_(),
   ],
 )
 ```
@@ -262,9 +270,13 @@ function Counter() {
 ### Modal Component
 
 ```moonbit
-@server_dom.wc_island(
+///|
+using @server_dom { wc_island, div, slot_ }
+using @luna { None }
+
+wc_island(
   name="wc-modal",
-  trigger=@luna.None,  // Open manually
+  trigger=None,  // Open manually
   styles="
     :host {
       position: fixed;
@@ -281,9 +293,7 @@ function Counter() {
     }
   ",
   children=[
-    @server_dom.div(class_="modal", [
-      @server_dom.slot_(),
-    ])
+    div(class_="modal", [slot_()])
   ],
 )
 ```
@@ -291,7 +301,10 @@ function Counter() {
 ### Tab Component
 
 ```moonbit
-@server_dom.wc_island(
+///|
+using @server_dom { wc_island }
+
+wc_island(
   name="wc-tabs",
   styles="
     :host { display: block; }
@@ -313,17 +326,21 @@ Design a Web Component island for a notification toast:
 **Server (MoonBit):**
 
 ```moonbit
+///|
+using @server_dom { wc_island, span, button, text, type Node }
+using @luna { Load }
+
 pub struct ToastProps {
   message : String
   type_ : String  // "success" | "error" | "info"
 } derive(ToJson, FromJson)
 
-fn toast_wc(props : ToastProps) -> @server_dom.Node {
-  @server_dom.wc_island(
+fn toast_wc(props : ToastProps) -> Node {
+  wc_island(
     name="wc-toast",
     url="/static/wc-toast.js",
     state=props.to_json().stringify(),
-    trigger=@luna.Load,
+    trigger=Load,
     styles="
       :host {
         position: fixed;
@@ -350,8 +367,8 @@ fn toast_wc(props : ToastProps) -> @server_dom.Node {
       }
     ",
     children=[
-      @server_dom.span([@server_dom.text(props.message)]),
-      @server_dom.button([@server_dom.text("×")]),
+      span([text(props.message)]),
+      button([text("×")]),
     ],
   )
 }

@@ -1,11 +1,11 @@
 ---
-title: Luna
+title: "Luna UI"
 layout: home
 ---
 
-# Luna
+# Luna UI
 
-**A blazing-fast reactive UI framework written in MoonBit**
+A blazing-fast reactive UI framework written in MoonBit
 
 Fine-grained reactivity meets Island Architecture. Ship less JavaScript, load faster.
 

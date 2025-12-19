@@ -31,10 +31,13 @@ setCount(2);
 ### MoonBit
 
 ```moonbit
-let count = @luna.signal(0)
+///|
+using @luna { signal, effect }
 
-@luna.effect(fn() {
-  println("Count is: \{count.get()}")
+let count = signal(0)
+
+let _ = effect(() => {
+  println("Count is: " + count.get().to_string())
 })
 
 // Prints: "Count is: 0"
@@ -138,7 +141,10 @@ dispose();
 ```
 
 ```moonbit
-let dispose = @luna.effect(fn() {
+///|
+using @luna { effect }
+
+let dispose = effect(() => {
   println("Running")
 })
 
@@ -168,12 +174,15 @@ createEffect(() => {
 ```
 
 ```moonbit
-let count = @luna.signal(0)
+///|
+using @luna { signal, effect, on_cleanup }
 
-@luna.effect(fn() {
+let count = signal(0)
+
+let _ = effect(() => {
   // Setup interval...
 
-  @luna.on_cleanup(fn() {
+  on_cleanup(() => {
     // Clear interval when effect re-runs or disposes
   })
 })

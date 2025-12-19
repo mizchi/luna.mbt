@@ -1,9 +1,9 @@
 ---
-title: Luna
+title: "Luna UI"
 layout: home
 ---
 
-# Luna
+# Luna UI
 
 **MoonBitで書かれた超高速リアクティブUIフレームワーク**
 

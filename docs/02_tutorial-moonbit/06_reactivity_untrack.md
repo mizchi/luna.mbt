@@ -46,12 +46,15 @@ setCount(6);        // Effect runs: 18 (uses current multiplier)
 ### MoonBit
 
 ```moonbit
-let count = @luna.signal(0)
-let multiplier = @luna.signal(2)
+///|
+using @luna { signal, effect, untrack }
 
-@luna.effect(fn() {
+let count = signal(0)
+let multiplier = signal(2)
+
+let _ = effect(() => {
   // Only tracks `count`, not `multiplier`
-  let mult = @luna.untrack(fn() { multiplier.get() })
+  let mult = untrack(() => multiplier.get())
   println("\{count.get() * mult}")
 })
 ```

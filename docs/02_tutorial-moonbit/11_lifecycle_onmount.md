@@ -25,12 +25,14 @@ function MyComponent() {
 ### MoonBit
 
 ```moonbit
-fn my_component() -> @element.DomNode {
-  @luna.on_mount(fn() {
-    println("Component mounted!")
-  })
+///|
+using @element { div, text, type DomNode }
+using @luna { on_mount }
 
-  @element.div([@element.text("Hello")])
+fn my_component() -> DomNode {
+  on_mount(() => println("Component mounted!"))
+
+  div([text("Hello")])
 }
 ```
 

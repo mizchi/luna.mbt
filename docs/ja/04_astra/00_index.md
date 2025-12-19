@@ -1,8 +1,10 @@
 ---
-title: Astra - 静的サイトジェネレーター
+title: Astra SSG
 ---
 
-# Astra
+# Astra SSG
+
+> **実験的**: Astraは開発中です。APIは変更される可能性があります。
 
 AstraはLunaの静的サイトジェネレーターです。ドキュメントサイトやコンテンツサイトの構築に使用します。
 

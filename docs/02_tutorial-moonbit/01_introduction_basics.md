@@ -42,23 +42,28 @@ function Counter() {
 ### MoonBit
 
 ```moonbit
-fn counter() -> @element.DomNode {
-  // Create reactive state
-  let count = @luna.signal(0)
+///|
+using @element {
+  div, p, button, text, text_dyn, events,
+  type DomNode,
+}
+using @luna { signal }
 
-  @element.div([
-    @element.p([
-      @element.text_dyn(fn() { "Count: \{count.get()}" })
-    ]),
-    @element.button(
-      on=@element.events().click(fn(_) {
-        count.update(fn(n) { n + 1 })
-      }),
-      [@element.text("Increment")],
+fn counter() -> DomNode {
+  // Create reactive state
+  let count = signal(0)
+
+  div([
+    p([text_dyn(() => "Count: " + count.get().to_string())]),
+    button(
+      on=events().click(_ => count.update(n => n + 1)),
+      [text("Increment")],
     ),
   ])
 }
 ```
+
+The `using` declaration imports specific items into the local scope, allowing cleaner DSL-style code without module prefixes.
 
 ## Key Concepts
 

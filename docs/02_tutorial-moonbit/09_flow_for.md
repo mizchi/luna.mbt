@@ -33,17 +33,24 @@ function TodoList() {
 ### MoonBit
 
 ```moonbit
-fn todo_list() -> @element.DomNode {
-  let todos = @luna.signal([
+///|
+using @element {
+  ul, li, text, for_each,
+  type DomNode,
+}
+using @luna { signal }
+
+fn todo_list() -> DomNode {
+  let todos = signal([
     { id: 1, text: "Learn Luna" },
     { id: 2, text: "Build app" },
   ])
 
-  @element.ul([
-    @element.for_each(
+  ul([
+    for_each(
       each=fn() { todos.get() },
       fn(todo) {
-        @element.li([@element.text(todo.text)])
+        li([text(todo.text)])
       },
     ),
   ])

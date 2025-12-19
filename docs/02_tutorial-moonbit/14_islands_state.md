@@ -39,22 +39,24 @@ Luna serializes state as JSON in the HTML:
 ### Server Side (MoonBit)
 
 ```moonbit
+///|
+using @server_dom { island, button, text, type Node }
+using @luna { Load }
+
 // Define a struct for your props
 pub struct CounterProps {
   initial : Int
   max : Int
 } derive(ToJson, FromJson)
 
-fn counter_island(props : CounterProps) -> @server_dom.Node {
-  @server_dom.island(
+fn counter_island(props : CounterProps) -> Node {
+  island(
     id="counter",
     url="/static/counter.js",
     state=props.to_json().stringify(),  // Serialize to JSON
-    trigger=@luna.Load,
+    trigger=Load,
     children=[
-      @server_dom.button([
-        @server_dom.text("Count: \{props.initial}")
-      ])
+      button([text("Count: \{props.initial}")])
     ],
   )
 }

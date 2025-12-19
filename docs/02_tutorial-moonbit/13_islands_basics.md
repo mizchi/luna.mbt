@@ -51,17 +51,19 @@ Result: Minimal JavaScript, fast load, great Core Web Vitals.
 Create an island that renders on the server:
 
 ```moonbit
-fn counter_island(initial : Int) -> @server_dom.Node {
-  @server_dom.island(
+///|
+using @server_dom { island, button, text, type Node }
+using @luna { Load }
+
+fn counter_island(initial : Int) -> Node {
+  island(
     id="counter",
     url="/static/counter.js",
     state=initial.to_string(),
-    trigger=@luna.Load,
+    trigger=Load,
     children=[
       // SSR content shown before hydration
-      @server_dom.button([
-        @server_dom.text("Count: \{initial}")
-      ])
+      button([text("Count: \{initial}")])
     ],
   )
 }
@@ -150,23 +152,26 @@ Server HTML          Luna Loader           Island Component
 Each island is independent:
 
 ```moonbit
-fn page() -> @server_dom.Node {
-  @server_dom.div([
-    @server_dom.h1([@server_dom.text("My Page")]),
+///|
+using @server_dom { div, h1, article, p, footer, text, type Node }
+
+fn page() -> Node {
+  div([
+    h1([text("My Page")]),
 
     // Search island - hydrates immediately
     search_island(),
 
     // Article - pure HTML, no JS
-    @server_dom.article([
-      @server_dom.p([@server_dom.text("Static content...")])
+    article([
+      p([text("Static content...")])
     ]),
 
     // Comments island - hydrates when visible
     comments_island(post_id),
 
     // Footer - pure HTML
-    @server_dom.footer([...]),
+    footer([...]),
   ])
 }
 ```

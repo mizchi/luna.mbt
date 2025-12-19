@@ -776,22 +776,31 @@ fn generate_sitemap(ctx : @astra.BuildContext) -> Unit {
 ///|
 /// Get default CSS styles
 fn get_default_css(config : @astra.SsgConfig) -> String {
-  let primary_color = config.theme.primary_color.unwrap_or("#3451b2")
+  // Luna theme: Moon-inspired black and gold colors
+  // Primary color from config is used for dark mode (bright gold)
+  // Light mode uses a darker amber for better readability on white background
+  let primary_dark = config.theme.primary_color.unwrap_or("#fbbf24") // amber-400, bright gold for dark
+  let primary_light = "#b45309" // amber-700, darker gold for light mode readability
   let css_rest =
-    #|  --text-color: #213547;
+    #|  --text-color: #1f2937;
+    #|  --text-muted: #4b5563;
     #|  --bg-color: #ffffff;
-    #|  --sidebar-bg: #f6f6f7;
-    #|  --border-color: #e2e2e3;
-    #|  --code-bg: #f6f6f7;
+    #|  --sidebar-bg: #fafafa;
+    #|  --border-color: #e5e7eb;
+    #|  --code-bg: #f3f4f6;
+    #|  --link-color: var(--primary-color);
+    #|  --nav-link-color: var(--text-muted);
     #|}
     #|
     #|/* Dark mode - controlled by .dark class on html */
     #|html.dark {
-    #|  --text-color: #e5e7eb;
-    #|  --bg-color: #1a1a1a;
-    #|  --sidebar-bg: #242424;
-    #|  --border-color: #3f3f3f;
-    #|  --code-bg: #2d2d2d;
+    #|  --text-color: #f3f4f6;
+    #|  --text-muted: #d1d5db;
+    #|  --bg-color: #0f0f0f;
+    #|  --sidebar-bg: #171717;
+    #|  --border-color: #2d2d2d;
+    #|  --code-bg: #1f1f1f;
+    #|  --nav-link-color: #e5e7eb;
     #|}
     #|
     #|/* Theme toggle button */
@@ -978,7 +987,7 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|.home-content > p:first-of-type {
     #|  font-size: 1.25rem;
     #|  text-align: center;
-    #|  color: #666;
+    #|  color: var(--text-muted);
     #|  margin-bottom: 2rem;
     #|}
     #|
@@ -1040,12 +1049,12 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|.sidebar-link {
     #|  display: block;
     #|  padding: 0.375rem 0;
-    #|  color: #666;
+    #|  color: var(--nav-link-color);
     #|  text-decoration: none;
     #|  font-size: 0.9375rem;
     #|}
     #|.sidebar-link:hover { color: var(--primary-color); }
-    #|.sidebar-link.active { color: var(--primary-color); font-weight: 500; }
+    #|.sidebar-link.active { color: var(--primary-color); font-weight: 600; }
     #|
     #|/* Collapsible sidebar groups */
     #|.sidebar-collapse {
@@ -1148,7 +1157,7 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|.toc-title { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; }
     #|.toc-list { list-style: none; font-size: 0.875rem; }
     #|.toc-item { padding: 0.25rem 0; }
-    #|.toc-item a { color: #666; text-decoration: none; }
+    #|.toc-item a { color: var(--nav-link-color); text-decoration: none; }
     #|.toc-item a:hover { color: var(--primary-color); }
     #|.toc-level-3 { padding-left: 0.75rem; }
     #|.toc-level-4 { padding-left: 1.5rem; }
@@ -1168,7 +1177,7 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|  text-decoration: none;
     #|}
     #|
-    #|.prev-link .label, .next-link .label { font-size: 0.75rem; color: #666; }
+    #|.prev-link .label, .next-link .label { font-size: 0.75rem; color: var(--text-muted); }
     #|.prev-link .title, .next-link .title { color: var(--primary-color); font-weight: 500; }
     #|.next-link { text-align: right; margin-left: auto; }
     #|
@@ -1177,18 +1186,21 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|  padding: 2rem;
     #|  text-align: center;
     #|  border-top: 1px solid var(--border-color);
-    #|  color: #666;
+    #|  color: var(--text-muted);
     #|  font-size: 0.875rem;
     #|}
     #|
-    #|/* Dark mode overrides */
+    #|/* Ensure dark mode styles work with system preference */
     #|@media (prefers-color-scheme: dark) {
-    #|  .sidebar-link { color: #9ca3af; }
-    #|  .toc-item a { color: #9ca3af; }
-    #|  .prev-link .label, .next-link .label { color: #9ca3af; }
-    #|  .site-footer { color: #9ca3af; }
-    #|  .home-content > p:first-of-type { color: #9ca3af; }
-    #|  .lang-menu { background: var(--bg-color); }
+    #|  :root:not(.light) {
+    #|    --text-color: #f3f4f6;
+    #|    --text-muted: #d1d5db;
+    #|    --bg-color: #0f0f0f;
+    #|    --sidebar-bg: #171717;
+    #|    --border-color: #2d2d2d;
+    #|    --code-bg: #1f1f1f;
+    #|    --nav-link-color: #e5e7eb;
+    #|  }
     #|}
     #|
     #|/* Mobile Sidebar Dropdown */
@@ -1235,8 +1247,9 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|  .toc { display: none; }
     #|  .doc-main { margin-left: 0; margin-right: 0; max-width: none; }
     #|}
-  "/* Luna SSG Default Theme */\n:root {\n  --primary-color: \{primary_color};\n" +
-  css_rest
+  "/* Luna SSG Default Theme - Moon-inspired colors */\n:root {\n  --primary-color: \{primary_light};\n" +
+  css_rest +
+  "\nhtml.dark { --primary-color: \{primary_dark}; }\n@media (prefers-color-scheme: dark) { :root:not(.light) { --primary-color: \{primary_dark}; } }\n"
 }
 
 ///|
