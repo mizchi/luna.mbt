@@ -33,14 +33,12 @@ fn counter_example() -> @dom.DomNode {
     @dom.p([@dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
     @dom.p([@dom.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } })]),
     @dom.div(class="buttons", [
-      @dom.button(
-        on=@dom.events().click(_ => count.update(n => n - 1)),
-        [@dom.text("-")],
-      ),
-      @dom.button(
-        on=@dom.events().click(_ => count.update(n => n + 1)),
-        [@dom.text("+")],
-      ),
+      @dom.button(on=@dom.events().click(_ => count.update(n => n - 1)), [
+        @dom.text("-"),
+      ]),
+      @dom.button(on=@dom.events().click(_ => count.update(n => n + 1)), [
+        @dom.text("+"),
+      ]),
       @dom.button(on=@dom.events().click(_ => count.set(0)), [
         @dom.text("Reset"),
       ]),
@@ -94,14 +92,12 @@ fn effect_example() -> @dom.DomNode {
       }),
     ]),
     @dom.p([@dom.text_dyn(fn() { "Ticks: " + ticks.get().to_string() })]),
-    @dom.button(
-      on=@dom.events().click(_ => active.update(b => not(b))),
-      [@dom.text_dyn(fn() { if active.get() { "Stop" } else { "Start" } })],
-    ),
-    @dom.button(
-      on=@dom.events().click(_ => ticks.update(n => n + 1)),
-      [@dom.text("Tick")],
-    ),
+    @dom.button(on=@dom.events().click(_ => active.update(b => not(b))), [
+      @dom.text_dyn(fn() { if active.get() { "Stop" } else { "Start" } }),
+    ]),
+    @dom.button(on=@dom.events().click(_ => ticks.update(n => n + 1)), [
+      @dom.text("Tick"),
+    ]),
   ])
 }
 
@@ -114,18 +110,15 @@ fn conditional_example() -> @dom.DomNode {
   let show_message = @signal.signal(true)
   @dom.div(class="conditional-example", [
     @dom.h2([@dom.text("Conditional Example")]),
-    @dom.button(
-      on=@dom.events().click(_ => show_message.update(b => not(b))),
-      [
-        @dom.text_dyn(fn() {
-          if show_message.get() {
-            "Hide Message"
-          } else {
-            "Show Message"
-          }
-        }),
-      ],
-    ),
+    @dom.button(on=@dom.events().click(_ => show_message.update(b => not(b))), [
+      @dom.text_dyn(fn() {
+        if show_message.get() {
+          "Hide Message"
+        } else {
+          "Show Message"
+        }
+      }),
+    ]),
     @dom.show(fn() { show_message.get() }, fn() {
       @dom.div(
         class="message",

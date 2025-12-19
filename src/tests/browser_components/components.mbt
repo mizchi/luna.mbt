@@ -328,13 +328,17 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) { click_count.update(c => c + 1) }),
+            @luna.handler(fn(_event : @js.Any) {
+              click_count.update(c => c + 1)
+            }),
           ),
         ),
         (
           "onDblclick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) { dblclick_count.update(c => c + 1) }),
+            @luna.handler(fn(_event : @js.Any) {
+              dblclick_count.update(c => c + 1)
+            }),
           ),
         ),
         (

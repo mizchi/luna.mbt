@@ -2,6 +2,7 @@
 
 ## TODO
 
+- [ ] _dyn のDSLをどうするか
 - [ ] preload 挿入
 - DX
   - sol: 細粒度 HMR (Island単位の差分更新、状態保持)

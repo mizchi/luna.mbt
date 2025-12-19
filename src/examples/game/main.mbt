@@ -480,13 +480,10 @@ fn render_controls(
   on_reset : () -> Unit,
 ) -> @dom.DomNode {
   @dom.div(class="controls", [
-    @dom.button(
-      on=@dom.events().click(_ => running_sig.update(r => not(r))),
-      [@dom.text_dyn(fn() { if running_sig.get() { "Pause" } else { "Run" } })],
-    ),
-    @dom.button(on=@dom.events().click(_ => on_reset()), [
-      @dom.text("Reset"),
+    @dom.button(on=@dom.events().click(_ => running_sig.update(r => not(r))), [
+      @dom.text_dyn(fn() { if running_sig.get() { "Pause" } else { "Run" } }),
     ]),
+    @dom.button(on=@dom.events().click(_ => on_reset()), [@dom.text("Reset")]),
   ])
 }
 

@@ -472,9 +472,7 @@ test "dom_conditional_shallow" (b : @bench.T) {
   let container = doc.createElement("div")
   let dom = @client.render_vnode_to_dom(node)
   container.appendChild(dom) |> ignore
-  b.bench(name="dom_conditional_shallow", fn() {
-    show_a.update(v => not(v))
-  })
+  b.bench(name="dom_conditional_shallow", fn() { show_a.update(v => not(v)) })
 }
 
 ///|
