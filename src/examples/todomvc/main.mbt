@@ -125,8 +125,7 @@ fn app() -> DomNode {
   let new_todo_text = @luna.signal("")
   let is_composing = @luna.signal(false)
   let next_id = @luna.signal(
-    todos.peek().fold(init=0, (max, t) => if t.id > max { t.id } else { max }) +
-    1,
+    todos.peek().iter().map(t => t.id).maximum().unwrap_or(0) + 1,
   )
 
   // Auto-save todos to localStorage
@@ -140,10 +139,14 @@ fn app() -> DomNode {
   // ---------------------------------------------------------------------------
   let active_count = memo(() => todos
     .get()
-    .fold(init=0, (count, t) => if not(t.completed) { count + 1 } else { count }))
+    .iter()
+    .filter(t => not(t.completed))
+    .count())
   let completed_count = memo(() => todos
     .get()
-    .fold(init=0, (count, t) => if t.completed { count + 1 } else { count }))
+    .iter()
+    .filter(t => t.completed)
+    .count())
   let all_completed = memo(() => {
     let items = todos.get()
     items.length() > 0 && active_count() == 0
