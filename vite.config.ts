@@ -5,37 +5,48 @@ import { existsSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// MPA用のディレクトリアクセスをindex.htmlにリダイレクトするプラグイン
-function mpaFallback(): Plugin {
-  const middleware = (baseDir: string) => (req: any, _res: any, next: any) => {
-    if (req.url && !req.url.includes('.') && !req.url.endsWith('/')) {
-      // Check if directory/index.html exists
-      const indexPath = resolve(baseDir, '.' + req.url, 'index.html');
-      if (existsSync(indexPath)) {
-        req.url = req.url + '/index.html';
-      }
-    }
-    next();
+// Rewrite /demo/* requests to demo-src/*
+function serveDemoSrc(): Plugin {
+  return {
+    name: 'serve-demo-src',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (req.url?.startsWith('/demo/')) {
+          // Rewrite /demo/foo to /demo-src/foo
+          req.url = req.url.replace('/demo/', '/demo-src/');
+        }
+        next();
+      });
+    },
   };
+}
 
+// MPA: redirect directory access to index.html
+function mpaFallback(): Plugin {
   return {
     name: 'mpa-fallback',
     configureServer(server) {
-      server.middlewares.use(middleware(__dirname));
-    },
-    configurePreviewServer(server) {
-      server.middlewares.use(middleware(resolve(__dirname, 'dist')));
+      server.middlewares.use((req, _res, next) => {
+        if (req.url && !req.url.includes('.') && !req.url.endsWith('/')) {
+          const indexPath = resolve(__dirname, '.' + req.url, 'index.html');
+          if (existsSync(indexPath)) {
+            req.url = req.url + '/index.html';
+          }
+        }
+        next();
+      });
     },
   };
 }
 
 export default defineConfig({
   appType: 'mpa',
-  plugins: [mpaFallback()],
-  root: 'demo-src',
-  base: '/demo/',
+  plugins: [serveDemoSrc(), mpaFallback()],
+  // Use project root so target/ is accessible
+  root: '.',
+  base: '/',
   build: {
-    outDir: '../docs/public/demo',
+    outDir: 'docs/public/demo',
     emptyOutDir: true,
     rollupOptions: {
       input: {
