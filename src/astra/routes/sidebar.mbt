@@ -30,78 +30,191 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 
 ///|
 /// Generate sidebar from pages automatically (filtered by locale)
+/// Supports arbitrary nesting depth
 pub fn generate_auto_sidebar(
   pages : Array[@astra.PageMeta],
   locale? : String = "en",
 ) -> Array[@astra.SidebarGroup] {
-  let groups : Array[@astra.SidebarGroup] = []
-
   // Filter pages by locale first
   let locale_pages = pages.filter(p => p.locale == locale)
 
-  // Group pages by top-level directory (using canonical_path for grouping)
-  let page_groups = group_pages_by_canonical_dir(locale_pages)
+  // Build hierarchical tree structure
+  let tree = build_page_tree(locale_pages)
 
-  // Get directories with their sort keys
-  let dir_entries : Array[(String, String)] = [] // (dir, min_sort_key)
-  for dir in page_groups.keys() {
-    if page_groups.get(dir) is Some(dir_pages) {
-      // Get minimum sort key from pages in this directory for ordering
-      let min_sort_key = get_dir_sort_key(dir_pages)
-      dir_entries.push((dir, min_sort_key))
+  // Convert tree to sidebar groups
+  tree_to_sidebar_groups(tree)
+}
+
+///|
+/// Represents a node in the page tree
+priv struct PageTreeNode {
+  sort_key : String
+  pages : Array[@astra.PageMeta] // Pages directly in this directory
+  children : Map[String, PageTreeNode] // Subdirectories
+}
+
+///|
+/// Build a hierarchical tree from flat page list
+fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] {
+  let root : Map[String, PageTreeNode] = {}
+
+  for page in pages {
+    // Get path segments from canonical_path
+    // For index pages (source ends with "index.md"), don't strip last segment
+    let is_index = page.source_path.has_suffix("index.md")
+    let segments = get_path_segments(page.canonical_path, is_index~)
+    if segments.is_empty() {
+      // Root page - skip for sidebar (accessible via nav)
+      continue
+    }
+
+    // Navigate/create tree structure
+    let mut current_map = root
+    for i = 0; i < segments.length(); i = i + 1 {
+      let segment = segments[i]
+      let is_last = i == segments.length() - 1
+
+      match current_map.get(segment) {
+        Some(node) => {
+          if is_last {
+            // Add page to this node
+            node.pages.push(page)
+          } else {
+            // Continue down the tree
+            current_map = node.children
+          }
+        }
+        None => {
+          // Create new node
+          let sort_key = get_segment_sort_key(page.sort_key, i)
+          let new_node = PageTreeNode::{
+            sort_key,
+            pages: if is_last { [page] } else { [] },
+            children: {},
+          }
+          current_map[segment] = new_node
+          if not(is_last) {
+            current_map = new_node.children
+          }
+        }
+      }
+    }
+  }
+  root
+}
+
+///|
+/// Get path segments from canonical path
+/// For index pages (is_index=true), all segments are directory names
+/// For non-index pages, the last segment is the page filename and should be stripped
+fn get_path_segments(
+  canonical_path : String,
+  is_index~ : Bool = false,
+) -> Array[String] {
+  let segments : Array[String] = []
+  let trimmed = canonical_path.trim_start(chars="/").trim_end(chars="/").to_string()
+  if trimmed.is_empty() {
+    return segments
+  }
+
+  // Split by /
+  let chars = trimmed.to_array()
+  let mut start = 0
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '/' {
+      if i > start {
+        segments.push(slice(trimmed, start, i))
+      }
+      start = i + 1
+    }
+  }
+  // Last segment
+  if start < chars.length() {
+    segments.push(slice_from(trimmed, start))
+  }
+
+  // For index pages, return all segments (they're all directory names)
+  // For non-index pages, remove the last segment (page filename)
+  if is_index {
+    segments
+  } else if segments.length() > 1 {
+    // Remove the last segment (page name), keep directory structure
+    let dir_segments : Array[String] = []
+    for i = 0; i < segments.length() - 1; i = i + 1 {
+      dir_segments.push(segments[i])
+    }
+    dir_segments
+  } else {
+    // Single segment non-index - this is a top-level page
+    segments
+  }
+}
+
+///|
+/// Get sort key for a specific segment depth
+fn get_segment_sort_key(full_sort_key : String, depth : Int) -> String {
+  let parts : Array[String] = []
+  let chars = full_sort_key.to_array()
+  let mut start = 0
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '/' {
+      if i > start {
+        parts.push(slice(full_sort_key, start, i))
+      }
+      start = i + 1
+    }
+  }
+  if start < chars.length() {
+    parts.push(slice_from(full_sort_key, start))
+  }
+
+  if depth < parts.length() {
+    parts[depth]
+  } else if parts.length() > 0 {
+    parts[0]
+  } else {
+    "zzzzzzzz"
+  }
+}
+
+///|
+/// Convert page tree to sidebar groups (top level)
+fn tree_to_sidebar_groups(
+  tree : Map[String, PageTreeNode],
+) -> Array[@astra.SidebarGroup] {
+  let groups : Array[@astra.SidebarGroup] = []
+
+  // Collect and sort nodes
+  let nodes : Array[(String, PageTreeNode)] = []
+  for name in tree.keys() {
+    if tree.get(name) is Some(node) {
+      nodes.push((name, node))
     }
   }
 
-  // Sort directories by their sort keys
-  let sorted_dirs = sort_dir_entries(dir_entries)
+  // Sort by sort_key
+  let sorted_nodes = sort_tree_nodes(nodes)
 
-  for entry in sorted_dirs {
-    let (dir, _) = entry
-    // Skip root directory (Home) - accessible via nav title
-    if dir == "/" {
-      continue
-    }
-    if page_groups.get(dir) is Some(dir_pages) {
-      let group = create_sidebar_group(dir, dir_pages)
-      groups.push(group)
-    }
+  for entry in sorted_nodes {
+    let (name, node) = entry
+    let group = tree_node_to_sidebar_group(name, node)
+    groups.push(group)
   }
   groups
 }
 
 ///|
-/// Get sort key for a directory from its pages
-/// Uses the directory portion of the first page's sort key
-fn get_dir_sort_key(pages : Array[@astra.PageMeta]) -> String {
-  if pages.is_empty() {
-    return "zzzzzzzz" // Sort empty dirs last
-  }
-  // Get the minimum sort key and extract directory portion
-  let mut min_key = pages[0].sort_key
-  for page in pages {
-    if compare_strings_lex(page.sort_key, min_key) < 0 {
-      min_key = page.sort_key
-    }
-  }
-  // Extract directory portion (first segment)
-  match min_key.find("/") {
-    Some(idx) => slice_to(min_key, idx)
-    None => min_key
-  }
-}
-
-///|
-/// Sort directory entries by their sort keys
-fn sort_dir_entries(
-  entries : Array[(String, String)],
-) -> Array[(String, String)] {
-  let result : Array[(String, String)] = []
-  for entry in entries {
-    let (_, key) = entry
+/// Sort tree nodes by sort_key
+fn sort_tree_nodes(
+  nodes : Array[(String, PageTreeNode)],
+) -> Array[(String, PageTreeNode)] {
+  let result : Array[(String, PageTreeNode)] = []
+  for entry in nodes {
+    let (_, node) = entry
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
-      let (_, existing_key) = result[i]
-      if compare_strings_lex(key, existing_key) < 0 {
+      let (_, existing) = result[i]
+      if compare_strings_lex(node.sort_key, existing.sort_key) < 0 {
         pos = i
         break
       }
@@ -120,69 +233,49 @@ fn sort_dir_entries(
 }
 
 ///|
-/// Group pages by canonical directory (locale-independent path)
-fn group_pages_by_canonical_dir(
-  pages : Array[@astra.PageMeta],
-) -> Map[String, Array[@astra.PageMeta]] {
-  let groups : Map[String, Array[@astra.PageMeta]] = {}
-  for page in pages {
-    let dir = get_canonical_dir(page.canonical_path)
-    match groups.get(dir) {
-      Some(arr) => arr.push(page)
-      None => groups[dir] = [page]
-    }
-  }
-  groups
-}
-
-///|
-/// Get directory from canonical path (top-level directory for grouping)
-fn get_canonical_dir(canonical_path : String) -> String {
-  // Remove leading slash
-  let trimmed = if canonical_path.has_prefix("/") {
-    slice_from(canonical_path, 1)
-  } else {
-    canonical_path
-  }
-  // Remove trailing slash
-  let trimmed2 = if trimmed.has_suffix("/") {
-    slice_to(trimmed, trimmed.length() - 1)
-  } else {
-    trimmed
-  }
-  // Find first slash to get top-level directory
-  match trimmed2.find("/") {
-    Some(idx) => "/" + slice_to(trimmed2, idx)
-    None =>
-      // No slash - this is either root or a top-level page
-      if trimmed2.is_empty() { "/" } else { "/" + trimmed2 }
-  }
-}
-
-///|
-/// Create sidebar group from pages
-fn create_sidebar_group(
-  dir : String,
-  pages : Array[@astra.PageMeta],
+/// Convert a tree node to a SidebarGroup
+fn tree_node_to_sidebar_group(
+  name : String,
+  node : PageTreeNode,
 ) -> @astra.SidebarGroup {
-  // Sort pages within group by sort_key (numeric prefix ordering)
-  let sorted = sort_pages(pages)
-
-  // Create items
   let items : Array[@astra.SidebarItem] = []
-  for page in sorted {
+
+  // Add pages in this directory (sorted)
+  let sorted_pages = sort_pages(node.pages)
+  for page in sorted_pages {
     let text = page.frontmatter.title.unwrap_or(get_page_name(page.url_path))
     items.push(@astra.SidebarItem::Link(text~, link=page.url_path))
   }
 
-  // Get group title from directory name
-  let text = if dir == "/" {
-    "Home"
-  } else {
-    let name = dir.trim_start(chars="/").trim_end(chars="/").to_string()
-    capitalize(name.replace(old="-", new=" "))
+  // Add child directories as nested groups
+  let child_nodes : Array[(String, PageTreeNode)] = []
+  for child_name in node.children.keys() {
+    if node.children.get(child_name) is Some(child_node) {
+      child_nodes.push((child_name, child_node))
+    }
   }
+  let sorted_children = sort_tree_nodes(child_nodes)
+
+  for entry in sorted_children {
+    let (child_name, child_node) = entry
+    let nested_group = tree_node_to_sidebar_group(child_name, child_node)
+    items.push(@astra.SidebarItem::Group(nested_group))
+  }
+
+  // Get group title
+  let text = capitalize(name.replace(old="-", new=" ").replace(old="_", new=" "))
   @astra.SidebarGroup::{ text, collapsed: false, items }
+}
+
+///|
+/// Slice string from start to end (exclusive)
+fn slice(s : String, start : Int, end : Int) -> String {
+  let arr = s.to_array()
+  let chars : Array[Char] = []
+  for i = start; i < end && i < arr.length(); i = i + 1 {
+    chars.push(arr[i])
+  }
+  String::from_array(chars)
 }
 
 ///|
@@ -276,27 +369,35 @@ fn capitalize(s : String) -> String {
 // =============================================================================
 
 ///|
-/// Get flat list of page URLs in sidebar order
+/// Get flat list of page URLs in sidebar order (supports arbitrary nesting)
 pub fn get_sidebar_page_order(
   groups : Array[@astra.SidebarGroup],
 ) -> Array[String] {
   let urls : Array[String] = []
   for group in groups {
-    for item in group.items {
-      match item {
-        @astra.SidebarItem::Link(link~, ..) => urls.push(link)
-        @astra.SidebarItem::Group(nested) =>
-          // Recursively get URLs from nested groups
-          for nested_item in nested.items {
-            match nested_item {
-              @astra.SidebarItem::Link(link~, ..) => urls.push(link)
-              _ => ()
-            }
-          }
-      }
-    }
+    collect_urls_from_group(group, urls)
   }
   urls
+}
+
+///|
+/// Recursively collect URLs from a sidebar group
+fn collect_urls_from_group(
+  group : @astra.SidebarGroup,
+  urls : Array[String],
+) -> Unit {
+  for item in group.items {
+    collect_urls_from_item(item, urls)
+  }
+}
+
+///|
+/// Recursively collect URLs from a sidebar item
+fn collect_urls_from_item(item : @astra.SidebarItem, urls : Array[String]) -> Unit {
+  match item {
+    @astra.SidebarItem::Link(link~, ..) => urls.push(link)
+    @astra.SidebarItem::Group(nested) => collect_urls_from_group(nested, urls)
+  }
 }
 
 // =============================================================================
@@ -354,24 +455,68 @@ pub fn render_mobile_sidebar(
 }
 
 ///|
-/// Find current page title from sidebar groups
+/// Find current page title from sidebar groups (supports arbitrary nesting)
 fn find_current_page_title(
   groups : Array[@astra.SidebarGroup],
   current_path : String,
 ) -> String {
   for group in groups {
-    for item in group.items {
-      match item {
-        @astra.SidebarItem::Link(text~, link~) =>
-          if link == current_path ||
-            (link.has_suffix("/") && current_path.has_prefix(link)) {
-            return text
-          }
-        _ => ()
-      }
+    match find_title_in_group(group, current_path) {
+      Some(title) => return title
+      None => continue
     }
   }
   "Menu"
+}
+
+///|
+/// Recursively find title in a sidebar group
+fn find_title_in_group(
+  group : @astra.SidebarGroup,
+  current_path : String,
+) -> String? {
+  for item in group.items {
+    match find_title_in_item(item, current_path) {
+      Some(title) => return Some(title)
+      None => continue
+    }
+  }
+  None
+}
+
+///|
+/// Recursively find title in a sidebar item
+fn find_title_in_item(
+  item : @astra.SidebarItem,
+  current_path : String,
+) -> String? {
+  match item {
+    @astra.SidebarItem::Link(text~, link~) =>
+      if link == current_path ||
+        (link.has_suffix("/") && current_path.has_prefix(link)) {
+        Some(text)
+      } else {
+        None
+      }
+    @astra.SidebarItem::Group(nested) => find_title_in_group(nested, current_path)
+  }
+}
+
+///|
+/// Check if a sidebar item or its children are active
+fn is_item_active(item : @astra.SidebarItem, current_path : String) -> Bool {
+  match item {
+    @astra.SidebarItem::Link(link~, ..) =>
+      link == current_path ||
+      (link.has_suffix("/") && current_path.has_prefix(link))
+    @astra.SidebarItem::Group(nested) => is_group_active(nested, current_path)
+  }
+}
+
+///|
+/// Check if a sidebar group or its children are active
+fn is_group_active(group : @astra.SidebarGroup, current_path : String) -> Bool {
+  group.items.iter().any(fn(item) { is_item_active(item, current_path) })
 }
 
 ///|
@@ -380,17 +525,8 @@ fn render_sidebar_group(
   group : @astra.SidebarGroup,
   current_path : String,
 ) -> @luna.Node[Unit] {
-  // Check if any item in this group is active
-  let has_active = group.items
-    .iter()
-    .any(fn(item) {
-      match item {
-        @astra.SidebarItem::Link(link~, ..) =>
-          link == current_path ||
-          (link.has_suffix("/") && current_path.has_prefix(link))
-        @astra.SidebarItem::Group(_) => false
-      }
-    })
+  // Check if any item in this group or nested groups is active
+  let has_active = is_group_active(group, current_path)
 
   // Open by default if has active item or not collapsed in config
   let is_open = has_active || not(group.collapsed)

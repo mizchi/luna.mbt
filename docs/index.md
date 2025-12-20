@@ -137,10 +137,10 @@ count.set(5)  // Prints: Count: 5, Doubled: 10
 
 ## Learn More
 
-- [Getting Started](/getting-started/) - Installation and first steps
-- [Signals Guide](/guide/signals) - Reactive primitives in depth
-- [Island Architecture](/guide/islands) - Partial hydration patterns
-- [Performance](/performance/) - Benchmarks and optimization
+- [JavaScript Tutorial](/js/tutorial/) - Get started with TypeScript/JavaScript
+- [MoonBit Tutorial](/moonbit/tutorial/) - Server-side rendering with MoonBit
+- [Astra](/astra/) - Static site generator for documentation
+- [Sol](/sol/) - Full-stack SSR framework
 
 ---
 
