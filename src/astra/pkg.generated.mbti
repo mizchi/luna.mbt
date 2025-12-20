@@ -1,0 +1,225 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/astra"
+
+import(
+  "mizchi/luna/core"
+  "moonbitlang/core/json"
+)
+
+// Values
+pub fn parse_ssg_config(String) -> SsgConfig?
+
+pub fn parse_ssg_from_sol_config(String) -> SsgConfig?
+
+// Errors
+
+// Types and methods
+pub(all) struct BuildContext {
+  config : SsgConfig
+  pages : Array[PageMeta]
+  sidebar : Array[SidebarGroup]
+  cwd : String
+}
+pub fn BuildContext::new(SsgConfig, String) -> Self
+
+pub(all) struct ComponentEmbed {
+  tag : String
+  attrs : Array[(String, String)]
+  content : String
+  trigger : @core.TriggerType
+}
+pub fn ComponentEmbed::new(String) -> Self
+
+pub(all) struct FooterColumn {
+  title : String
+  items : Array[FooterLink]
+}
+pub impl ToJson for FooterColumn
+pub impl @json.FromJson for FooterColumn
+
+pub(all) struct FooterConfig {
+  message : String?
+  copyright : String?
+  links : Array[FooterColumn]
+}
+pub impl ToJson for FooterConfig
+pub impl @json.FromJson for FooterConfig
+
+pub(all) struct FooterLink {
+  label : String
+  href : String
+}
+pub impl ToJson for FooterLink
+pub impl @json.FromJson for FooterLink
+
+pub(all) struct Frontmatter {
+  title : String?
+  description : String?
+  layout : String?
+  sidebar : Bool
+  outline : OutlineConfig?
+  islands : Array[String]
+  prev : NavLink?
+  next : NavLink?
+  image : String?
+  og_type : String?
+  twitter_card : String?
+}
+pub fn Frontmatter::default() -> Self
+
+pub(all) struct I18nConfig {
+  default_locale : String
+  locales : Array[LocaleConfig]
+}
+pub fn I18nConfig::default() -> Self
+
+pub(all) struct IslandEmbed {
+  name : String
+  props : String
+  trigger : @core.TriggerType
+  ssr : Bool
+}
+pub fn IslandEmbed::new(String) -> Self
+
+pub(all) struct IslandsConfig {
+  dir : String
+  base_path : String
+}
+pub fn IslandsConfig::default() -> Self
+
+pub(all) struct LocaleConfig {
+  code : String
+  label : String
+  path : String
+}
+pub impl ToJson for LocaleConfig
+pub impl @json.FromJson for LocaleConfig
+
+pub(all) enum MdNode {
+  Heading(level~ : Int, children~ : Array[MdNode], id~ : String)
+  Paragraph(children~ : Array[MdNode])
+  Text(String)
+  Bold(children~ : Array[MdNode])
+  Italic(children~ : Array[MdNode])
+  Code(String)
+  CodeBlock(lang~ : String, code~ : String)
+  Link(href~ : String, title~ : String, children~ : Array[MdNode])
+  Image(src~ : String, alt~ : String, title~ : String)
+  List(ordered~ : Bool, items~ : Array[Array[MdNode]])
+  Blockquote(children~ : Array[MdNode])
+  Table(headers~ : Array[MdNode], rows~ : Array[Array[MdNode]])
+  Html(String)
+  Island(IslandEmbed)
+  Component(ComponentEmbed)
+  ThematicBreak
+  LineBreak
+}
+
+pub(all) struct NavItem {
+  text : String
+  link : String
+  items : Array[NavItem]
+}
+pub fn NavItem::new(String, String) -> Self
+pub impl ToJson for NavItem
+pub impl @json.FromJson for NavItem
+
+pub(all) struct NavLink {
+  text : String
+  link : String
+}
+pub impl ToJson for NavLink
+pub impl @json.FromJson for NavLink
+
+pub(all) struct NavigationConfig {
+  spa : Bool
+  view_transitions : Bool
+  keyboard : Bool
+}
+pub fn NavigationConfig::default() -> Self
+pub impl ToJson for NavigationConfig
+pub impl @json.FromJson for NavigationConfig
+
+pub(all) struct OgpConfig {
+  site_url : String?
+  image : String?
+  twitter_handle : String?
+  twitter_card : String?
+}
+pub fn OgpConfig::default() -> Self
+
+pub(all) struct OutlineConfig {
+  level_min : Int
+  level_max : Int
+}
+pub impl ToJson for OutlineConfig
+pub impl @json.FromJson for OutlineConfig
+
+pub(all) struct PageMeta {
+  source_path : String
+  url_path : String
+  frontmatter : Frontmatter
+  last_modified : String?
+  locale : String
+  canonical_path : String
+  sort_key : String
+}
+pub fn PageMeta::new(String, String, locale? : String, canonical_path? : String, sort_key? : String) -> Self
+pub fn PageMeta::with_frontmatter(Self, Frontmatter) -> Self
+
+pub(all) enum SidebarConfig {
+  Auto
+  Manual(Array[SidebarGroup])
+}
+
+pub(all) struct SidebarGroup {
+  text : String
+  collapsed : Bool
+  items : Array[SidebarItem]
+}
+pub impl ToJson for SidebarGroup
+pub impl @json.FromJson for SidebarGroup
+
+pub(all) enum SidebarItem {
+  Link(text~ : String, link~ : String)
+  Group(SidebarGroup)
+}
+pub impl ToJson for SidebarItem
+pub impl @json.FromJson for SidebarItem
+
+pub(all) struct SocialLink {
+  icon : String
+  link : String
+}
+pub impl ToJson for SocialLink
+pub impl @json.FromJson for SocialLink
+
+pub(all) struct SsgConfig {
+  docs_dir : String
+  output_dir : String
+  title : String
+  base_url : String
+  nav : Array[NavItem]
+  sidebar : SidebarConfig
+  islands : IslandsConfig?
+  theme : ThemeConfig
+  navigation : NavigationConfig
+  i18n : I18nConfig
+  exclude : Array[String]
+  trailing_slash : Bool
+  ogp : OgpConfig
+}
+pub fn SsgConfig::default() -> Self
+
+pub(all) struct ThemeConfig {
+  primary_color : String?
+  logo : String?
+  footer : FooterConfig?
+  social_links : Array[SocialLink]
+}
+pub fn ThemeConfig::default() -> Self
+
+// Type aliases
+
+// Traits
+

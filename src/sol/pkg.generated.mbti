@@ -1,0 +1,186 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/sol"
+
+import(
+  "mizchi/js/web/http"
+  "mizchi/luna/core/render"
+  "mizchi/luna/mercurius"
+  "mizchi/npm_typed/hono"
+)
+
+// Values
+pub fn api(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/js/core.Any) -> @hono.Hono[Unit, Unit]
+
+pub fn api_post(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/js/core.Any) -> @hono.Hono[Unit, Unit]
+
+pub async fn build(BundleConfig) -> RolldownOutput
+
+pub async fn build_from_manifest(IslandManifest) -> RolldownOutput
+
+pub fn build_from_manifest_file(String, String, (Array[String]) -> Unit, (String) -> Unit) -> Unit
+
+pub async fn bundle_islands(Array[(String, String)], String) -> RolldownOutput
+
+pub async fn bundle_islands_prod(Array[(String, String)], String) -> RolldownOutput
+
+pub async fn bundle_islands_result(Array[(String, String)], String) -> BundleResult
+
+pub async fn create_app() -> @hono.Hono[Unit, Unit]
+
+pub fn create_app_then((@hono.Hono[Unit, Unit]) -> Unit) -> Unit
+
+pub let default_loader_url : String
+
+pub let default_wc_loader_url : String
+
+#deprecated
+pub fn escape_json_for_attr(String) -> String
+
+#deprecated
+pub fn escape_json_for_html(String) -> String
+
+pub fn generate_island_manifest(Array[(String, String)], String) -> String
+
+pub fn generate_state_script(String, String) -> String
+
+pub fn get_port() -> Int
+
+pub fn get_request_path(@hono.Context[Unit, Unit]) -> String
+
+pub fn[E] island(String, String, String, Array[@mizchi/luna/core.Node[E]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+
+pub fn[E] island_page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> Array[IslandConfig[E]], title? : String, head? : String, loader_url? : String) -> @hono.Hono[Unit, Unit]
+
+pub fn[E] island_with(String, String, String, () -> @mizchi/luna/core.Node[E], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+
+pub fn js_response(String) -> @http.Response
+
+pub fn json_obj(Array[(String, @mizchi/js/core.Any)]) -> @mizchi/js/core.Any
+
+pub fn[E] page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/luna/core.Node[E], title? : String, head? : String, hydration? : Bool, loader_url? : String) -> @hono.Hono[Unit, Unit]
+
+pub fn parse_island_manifest(String) -> IslandManifest?
+
+pub fn read_file_sync(String) -> String?
+
+pub fn[E] render_fragment(@mizchi/luna/core.Node[E]) -> String
+
+pub fn[E] render_island(IslandConfig[E]) -> String
+
+pub fn render_island_page(Array[String], title? : String, head? : String, loader_url? : String) -> String
+
+pub fn[E] render_island_with_state_script(IslandConfig[E], String) -> String
+
+pub fn[E] render_node(@mizchi/luna/core.Node[E], hydration? : Bool) -> String
+
+pub fn[E] render_page(@mizchi/luna/core.Node[E], title? : String, head? : String, hydration? : Bool) -> String
+
+pub fn[E] render_page_with_preloads(@mizchi/luna/core.Node[E], title? : String, head? : String, hydration? : Bool) -> String
+
+pub fn render_streaming_page(@mizchi/luna/core.Node[Unit], title? : String, head? : String, loader_url? : String) -> @http.Response
+
+pub fn[E] render_with_island_preloads(@mizchi/luna/core.Node[E]) -> @render.SSRResult
+
+pub fn run((@hono.Hono[Unit, Unit]) -> @hono.Hono[Unit, Unit], port? : Int) -> Unit
+
+pub fn serve(@hono.Hono[Unit, Unit], Int) -> Unit
+
+pub fn serve_static(@hono.Hono[Unit, Unit], config? : StaticFileConfig) -> @hono.Hono[Unit, Unit]
+
+pub fn set_env(String, String) -> Unit
+
+pub fn streaming_page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/luna/core.Node[Unit], title? : String, head? : String, loader_url? : String) -> @hono.Hono[Unit, Unit]
+
+pub fn text_response(String, String) -> @http.Response
+
+pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna/core.Node[E]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+
+pub fn[E] wc_island_with(String, String, String, String, () -> @mizchi/luna/core.Node[E], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+
+pub fn[E] wc_page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/luna/core.Node[E], title? : String, head? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+
+// Errors
+
+// Types and methods
+pub struct BundleConfig {
+  input : Array[(String, String)]
+  output_dir : String
+  format : OutputFormat
+  entry_file_names : String
+  chunk_file_names : String
+  minify : Bool
+  sourcemap : Bool
+}
+pub fn BundleConfig::new(Array[(String, String)], String) -> Self
+pub fn BundleConfig::with_format(Self, OutputFormat) -> Self
+pub fn BundleConfig::with_minify(Self, Bool) -> Self
+pub fn BundleConfig::with_sourcemap(Self, Bool) -> Self
+
+pub struct BundleResult {
+  success : Bool
+  output : Array[String]
+  errors : Array[String]
+}
+
+pub struct IslandConfig[E] {
+  id : String
+  script_url : String
+  trigger : @mizchi/luna/core.TriggerType
+  state : @mercurius.StateConfig
+  content : @mizchi/luna/core.Node[E]?
+  ssr_html : String?
+}
+pub fn[E] IslandConfig::new(String, String) -> Self[E]
+pub fn[E] IslandConfig::with_content(Self[E], @mizchi/luna/core.Node[E]) -> Self[E]
+pub fn[E] IslandConfig::with_ssr_html(Self[E], String) -> Self[E]
+pub fn[E] IslandConfig::with_state(Self[E], String) -> Self[E]
+pub fn[E] IslandConfig::with_state_ref(Self[E], String) -> Self[E]
+pub fn[E] IslandConfig::with_state_url(Self[E], String) -> Self[E]
+pub fn[E] IslandConfig::with_trigger(Self[E], @mizchi/luna/core.TriggerType) -> Self[E]
+
+pub struct IslandManifest {
+  islands : Array[IslandManifestEntry]
+  output_dir : String
+}
+
+pub struct IslandManifestEntry {
+  name : String
+  entry_path : String
+}
+
+pub enum OutputFormat {
+  Esm
+}
+pub fn OutputFormat::to_string(Self) -> String
+
+#external
+pub type RolldownChunk
+pub fn RolldownChunk::as_any(Self) -> @mizchi/js/core.Any
+pub fn RolldownChunk::code(Self) -> String
+pub fn RolldownChunk::file_name(Self) -> String
+pub fn RolldownChunk::is_entry(Self) -> Bool
+
+#external
+pub type RolldownOutput
+pub fn RolldownOutput::as_any(Self) -> @mizchi/js/core.Any
+pub fn RolldownOutput::output(Self) -> Array[RolldownChunk]
+
+pub struct StaticFileConfig {
+  path_prefix : String
+  local_dir : String
+  mappings : Array[(String, String)]
+}
+pub fn StaticFileConfig::default() -> Self
+pub fn StaticFileConfig::with_mapping(Self, String, String) -> Self
+
+// Type aliases
+pub type App = @hono.Hono[Unit, Unit]
+
+pub type Ctx = @hono.Context[Unit, Unit]
+
+pub type Env = Unit
+
+pub type ExecutionContext = Unit
+
+// Traits
+

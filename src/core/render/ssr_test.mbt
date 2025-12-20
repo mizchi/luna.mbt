@@ -1376,8 +1376,12 @@ test "wc_island CSS with multiple rules" {
     css,
     "{}",
     [
-      @luna.h("h1", [("class", @luna.attr_static("title"))], [@luna.text("Title")]),
-      @luna.h("div", [("class", @luna.attr_static("content"))], [@luna.text("Body")]),
+      @luna.h("h1", [("class", @luna.attr_static("title"))], [
+        @luna.text("Title"),
+      ]),
+      @luna.h("div", [("class", @luna.attr_static("content"))], [
+        @luna.text("Body"),
+      ]),
     ],
   )
   let html = render_to_string(node).html
@@ -1410,7 +1414,9 @@ test "multiple wc_islands with different styles" {
   assert_true(html.contains(":host{background:blue;}"))
   assert_true(html.contains(":host{background:red;}"))
   // Check both templates are present
-  let template_count = count_occurrences(html, "<template shadowrootmode=\"open\">")
+  let template_count = count_occurrences(
+    html, "<template shadowrootmode=\"open\">",
+  )
   assert_eq(template_count, 2)
 }
 
@@ -1423,7 +1429,11 @@ test "wc_island CSS preserved in nested structure" {
         "/static/wc-nested.js",
         ".inner { display: flex; gap: 1rem; }",
         "{}",
-        [@luna.h("div", [("class", @luna.attr_static("inner"))], [@luna.text("Nested")])],
+        [
+          @luna.h("div", [("class", @luna.attr_static("inner"))], [
+            @luna.text("Nested"),
+          ]),
+        ],
       ),
     ]),
   ])
@@ -1443,7 +1453,11 @@ test "wc_island CSS with CSS variables" {
     "/static/wc-vars.js",
     css,
     "{}",
-    [@luna.h("button", [("class", @luna.attr_static("btn"))], [@luna.text("Click")])],
+    [
+      @luna.h("button", [("class", @luna.attr_static("btn"))], [
+        @luna.text("Click"),
+      ]),
+    ],
   )
   let html = render_to_string(node).html
   // CSS is minified: spaces around : are removed
@@ -1457,7 +1471,7 @@ fn count_occurrences(s : String, pattern : String) -> Int {
   let mut count = 0
   let mut start = 0
   while start < s.length() {
-    let view = try { s.sub(start=start) } catch { _ => break }
+    let view = s.sub(start~) catch { _ => break }
     match view.find(pattern) {
       Some(idx) => {
         count = count + 1

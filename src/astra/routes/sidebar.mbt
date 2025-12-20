@@ -57,7 +57,6 @@ priv struct PageTreeNode {
 /// Build a hierarchical tree from flat page list
 fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] {
   let root : Map[String, PageTreeNode] = {}
-
   for page in pages {
     // Get path segments from canonical_path
     // For index pages (source ends with "index.md"), don't strip last segment
@@ -73,9 +72,8 @@ fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] 
     for i = 0; i < segments.length(); i = i + 1 {
       let segment = segments[i]
       let is_last = i == segments.length() - 1
-
       match current_map.get(segment) {
-        Some(node) => {
+        Some(node) =>
           if is_last {
             // Add page to this node
             node.pages.push(page)
@@ -83,13 +81,16 @@ fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] 
             // Continue down the tree
             current_map = node.children
           }
-        }
         None => {
           // Create new node
           let sort_key = get_segment_sort_key(page.sort_key, i)
           let new_node = PageTreeNode::{
             sort_key,
-            pages: if is_last { [page] } else { [] },
+            pages: if is_last {
+              [page]
+            } else {
+              []
+            },
             children: {},
           }
           current_map[segment] = new_node
@@ -109,10 +110,13 @@ fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] 
 /// For non-index pages, the last segment is the page filename and should be stripped
 fn get_path_segments(
   canonical_path : String,
-  is_index~ : Bool = false,
+  is_index? : Bool = false,
 ) -> Array[String] {
   let segments : Array[String] = []
-  let trimmed = canonical_path.trim_start(chars="/").trim_end(chars="/").to_string()
+  let trimmed = canonical_path
+    .trim_start(chars="/")
+    .trim_end(chars="/")
+    .to_string()
   if trimmed.is_empty() {
     return segments
   }
@@ -167,7 +171,6 @@ fn get_segment_sort_key(full_sort_key : String, depth : Int) -> String {
   if start < chars.length() {
     parts.push(slice_from(full_sort_key, start))
   }
-
   if depth < parts.length() {
     parts[depth]
   } else if parts.length() > 0 {
@@ -194,7 +197,6 @@ fn tree_to_sidebar_groups(
 
   // Sort by sort_key
   let sorted_nodes = sort_tree_nodes(nodes)
-
   for entry in sorted_nodes {
     let (name, node) = entry
     let group = tree_node_to_sidebar_group(name, node)
@@ -255,7 +257,6 @@ fn tree_node_to_sidebar_group(
     }
   }
   let sorted_children = sort_tree_nodes(child_nodes)
-
   for entry in sorted_children {
     let (child_name, child_node) = entry
     let nested_group = tree_node_to_sidebar_group(child_name, child_node)
@@ -263,7 +264,9 @@ fn tree_node_to_sidebar_group(
   }
 
   // Get group title
-  let text = capitalize(name.replace(old="-", new=" ").replace(old="_", new=" "))
+  let text = capitalize(
+    name.replace(old="-", new=" ").replace(old="_", new=" "),
+  )
   @astra.SidebarGroup::{ text, collapsed: false, items }
 }
 
@@ -393,7 +396,10 @@ fn collect_urls_from_group(
 
 ///|
 /// Recursively collect URLs from a sidebar item
-fn collect_urls_from_item(item : @astra.SidebarItem, urls : Array[String]) -> Unit {
+fn collect_urls_from_item(
+  item : @astra.SidebarItem,
+  urls : Array[String],
+) -> Unit {
   match item {
     @astra.SidebarItem::Link(link~, ..) => urls.push(link)
     @astra.SidebarItem::Group(nested) => collect_urls_from_group(nested, urls)
@@ -498,7 +504,8 @@ fn find_title_in_item(
       } else {
         None
       }
-    @astra.SidebarItem::Group(nested) => find_title_in_group(nested, current_path)
+    @astra.SidebarItem::Group(nested) =>
+      find_title_in_group(nested, current_path)
   }
 }
 

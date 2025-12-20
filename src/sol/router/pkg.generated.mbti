@@ -1,0 +1,142 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/sol/router"
+
+import(
+  "mizchi/js/web/http"
+  "mizchi/js/web/url"
+  "mizchi/luna/core/routes"
+  "mizchi/luna/platform/server_dom"
+  "mizchi/npm_typed/hono"
+)
+
+// Values
+pub fn compile_sol_routes(Array[SolRoutes], base? : String) -> Array[CompiledSolRoute]
+
+pub fn default_root_template() -> String
+
+pub fn has_fragment_header(@hono.Context[Unit, Unit]) -> Bool
+
+pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/luna/core.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+
+pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @server_dom.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+
+pub fn register_sol_routes(@hono.Hono[Unit, Unit], Array[SolRoutes], config? : RouterConfig) -> @hono.Hono[Unit, Unit]
+
+pub fn[E] render_fragment_response(@mizchi/luna/core.Node[E], String, Bool) -> String
+
+pub fn send_fragment_response(@hono.Context[Unit, Unit], String) -> @http.Response
+
+// Errors
+
+// Types and methods
+pub(all) struct ApiHandler(async (PageProps) -> @mizchi/js/core.Any)
+#deprecated
+pub fn ApiHandler::inner(Self) -> async (PageProps) -> @mizchi/js/core.Any
+
+pub struct ChunkManifest {
+  entries : Map[String, ChunkManifestEntry]
+  base_url : String
+}
+pub fn ChunkManifest::add(Self, String, ChunkManifestEntry) -> Unit
+pub fn ChunkManifest::empty() -> Self
+pub fn ChunkManifest::get_chunks(Self, String) -> Array[String]
+pub fn ChunkManifest::new(String) -> Self
+pub fn ChunkManifest::parse(String, String) -> Self?
+
+pub struct ChunkManifestEntry {
+  file : String
+  imports : Array[String]
+}
+pub fn ChunkManifestEntry::new(String, Array[String]) -> Self
+
+pub struct CompiledSolRoute {
+  pattern : String
+  param_names : Array[String]
+  page_handler : PageHandler?
+  api_handler : ApiHandler?
+  layouts : Array[(PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise]
+  kind : SolRouteKind
+  title : String
+  meta : Array[(String, String)]
+}
+
+pub(all) struct PageHandler(async (PageProps) -> @server_dom.ServerNode)
+#deprecated
+pub fn PageHandler::inner(Self) -> async (PageProps) -> @server_dom.ServerNode
+
+pub struct PageProps {
+  ctx : @hono.Context[Unit, Unit]
+  params : RouteParams
+  is_fragment : Bool
+}
+pub fn PageProps::from_ctx(@hono.Context[Unit, Unit]) -> Self
+pub fn PageProps::from_ctx_fragment(@hono.Context[Unit, Unit]) -> Self
+pub fn PageProps::from_ctx_with_params(@hono.Context[Unit, Unit], RouteParams) -> Self
+pub fn PageProps::get_param(Self, String) -> String?
+pub fn PageProps::get_pathname_group(Self, String) -> String?
+pub fn PageProps::get_query(Self, String) -> String?
+pub fn PageProps::get_search_group(Self, String) -> String?
+pub fn PageProps::path(Self) -> String
+
+pub struct RouteParams {
+  params : Array[(String, String)]
+  query : Array[(String, String)]
+  path : String
+  is_fragment : Bool
+  url_pattern_result : @url.URLPatternResult?
+}
+pub fn RouteParams::empty() -> Self
+pub fn RouteParams::get_param(Self, String) -> String?
+pub fn RouteParams::get_pathname_group(Self, String) -> String?
+pub fn RouteParams::get_query(Self, String) -> String?
+pub fn RouteParams::get_search_group(Self, String) -> String?
+
+pub struct RouterConfig {
+  title_prefix : String
+  default_title : String
+  default_head : String
+  loader_url : String
+  wc_loader_url : String
+  enable_preload : Bool
+  preload_libs : Array[String]
+  chunk_manifest : ChunkManifest?
+  root_template : String
+}
+pub fn RouterConfig::default() -> Self
+pub fn RouterConfig::with_chunk_manifest(Self, ChunkManifest) -> Self
+pub fn RouterConfig::with_default_head(Self, String) -> Self
+pub fn RouterConfig::with_default_title(Self, String) -> Self
+pub fn RouterConfig::with_loader_url(Self, String) -> Self
+pub fn RouterConfig::with_preload_libs(Self, Array[String]) -> Self
+pub fn RouterConfig::with_root_template(Self, String) -> Self
+pub fn RouterConfig::with_title_prefix(Self, String) -> Self
+pub fn RouterConfig::with_wc_loader_url(Self, String) -> Self
+
+pub enum SolRouteKind {
+  Page
+  GetApi
+  PostApi
+}
+pub impl Eq for SolRouteKind
+pub impl Show for SolRouteKind
+
+pub(all) enum SolRoutes {
+  Page(path~ : String, handler~ : PageHandler, title~ : String, meta~ : Array[(String, String)])
+  Layout(segment~ : String, layout~ : (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise, children~ : Array[SolRoutes])
+  Get(path~ : String, handler~ : ApiHandler)
+  Post(path~ : String, handler~ : ApiHandler)
+}
+
+// Type aliases
+pub type App = @hono.Hono[Unit, Unit]
+
+pub type AsyncPageResolver = (String, @hono.Context[Unit, Unit], RouteParams) -> @server_dom.ServerNode?
+
+pub type Ctx = @hono.Context[Unit, Unit]
+
+pub type Env = Unit
+
+pub type ExecutionContext = Unit
+
+// Traits
+

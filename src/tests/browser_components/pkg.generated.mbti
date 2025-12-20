@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/tests/browser_components"
+
+import(
+  "mizchi/js/browser/dom"
+  "mizchi/js/core"
+)
+
+// Values
+pub fn hydrate_dynamic_attrs(@dom.Element, @core.Any) -> Unit
+
+pub fn hydrate_element_ref(@dom.Element, @core.Any) -> Unit
+
+pub fn hydrate_events(@dom.Element, @core.Any) -> Unit
+
+pub fn hydrate_for_each(@dom.Element, @core.Any) -> Unit
+
+pub fn hydrate_input_binding(@dom.Element, @core.Any) -> Unit
+
+pub fn hydrate_show_toggle(@dom.Element, @core.Any) -> Unit
+
+pub fn hydrate_signal_effect(@dom.Element, @core.Any) -> Unit
+
+pub fn hydrate_sortable_list(@dom.Element, @core.Any) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

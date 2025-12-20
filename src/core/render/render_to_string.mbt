@@ -51,20 +51,14 @@ fn minify_css(css : String) -> String {
   let sb = StringBuilder::new(size_hint=css.length())
   let mut prev_char : Char = ' '
   let mut in_space = false
-
   for c in css {
     match c {
-      '\n' | '\r' | '\t' => {
+      '\n' | '\r' | '\t' =>
         // Convert to space, will be handled by space collapsing
         if not(in_space) {
           in_space = true
         }
-      }
-      ' ' => {
-        if not(in_space) {
-          in_space = true
-        }
-      }
+      ' ' => if not(in_space) { in_space = true }
       '{' | '}' | ':' | ';' | ',' => {
         // Remove space before these characters
         in_space = false

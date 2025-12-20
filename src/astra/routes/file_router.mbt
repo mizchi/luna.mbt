@@ -186,14 +186,7 @@ fn scan_recursive(
       }
       // Recurse into subdirectory
       scan_recursive(
-        entry_path,
-        entry_relative,
-        docs_dir,
-        cwd,
-        i18n,
-        exclude,
-        pages,
-        trailing_slash,
+        entry_path, entry_relative, docs_dir, cwd, i18n, exclude, pages, trailing_slash,
       )
     } else if entry.has_suffix(".md") {
       // Process markdown file
@@ -201,7 +194,9 @@ fn scan_recursive(
 
       // Detect locale from path
       let (locale, canonical_path) = detect_locale_from_path(
-        source_path, i18n, trailing_slash~,
+        source_path,
+        i18n,
+        trailing_slash~,
       )
       let url_path = build_localized_url(canonical_path, locale, i18n)
 
@@ -234,7 +229,7 @@ fn scan_recursive(
 fn detect_locale_from_path(
   path : String,
   i18n : @astra.I18nConfig,
-  trailing_slash~ : Bool = true,
+  trailing_slash? : Bool = true,
 ) -> (String, String) {
   // Check if path starts with a locale directory
   for locale in i18n.locales {

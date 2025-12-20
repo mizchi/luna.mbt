@@ -1,0 +1,54 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/core/routes"
+
+// Values
+pub fn compile(Array[Routes], base? : String) -> Array[CompiledRoutes]
+
+pub fn match_url(String, Array[CompiledRoutes]) -> RoutesMatch?
+
+// Errors
+
+// Types and methods
+pub struct CompiledRoutes {
+  pattern : String
+  param_names : Array[String]
+  component : String
+  layouts : Array[String]
+  kind : RoutesKind
+  title : String
+  meta : Array[(String, String)]
+}
+
+pub(all) enum Routes {
+  Page(path~ : String, component~ : String, title~ : String, meta~ : Array[(String, String)])
+  Layout(segment~ : String, children~ : Array[Routes], layout~ : String)
+  Get(path~ : String, handler~ : String)
+  Post(path~ : String, handler~ : String)
+}
+
+pub enum RoutesKind {
+  Page
+  GetApi
+  PostApi
+}
+pub impl Eq for RoutesKind
+pub impl Show for RoutesKind
+
+pub struct RoutesMatch {
+  route : CompiledRoutes
+  params : Array[(String, String)]
+  query : Array[(String, String)]
+  path : String
+}
+pub fn RoutesMatch::component(Self) -> String
+pub fn RoutesMatch::get_param(Self, String) -> String?
+pub fn RoutesMatch::get_query(Self, String) -> String?
+pub fn RoutesMatch::kind(Self) -> RoutesKind
+pub fn RoutesMatch::layouts(Self) -> Array[String]
+pub fn RoutesMatch::meta(Self) -> Array[(String, String)]
+pub fn RoutesMatch::title(Self) -> String
+
+// Type aliases
+
+// Traits
+

@@ -220,7 +220,6 @@ fn create_component_vnode(
   } else {
     [@luna.text(embed.content)]
   }
-
   h(embed.tag, attrs, children)
 }
 

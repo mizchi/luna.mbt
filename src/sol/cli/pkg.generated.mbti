@@ -1,0 +1,145 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/sol/cli"
+
+import(
+  "mizchi/js/core"
+)
+
+// Values
+pub fn extract_component_name_from_props(String) -> String
+
+pub fn extract_island_name(String) -> String
+
+pub fn extract_package_path(String) -> String?
+
+pub fn find_matching_paren(String, Int) -> Int?
+
+pub fn generate_export_name(String, String, String) -> String
+
+pub fn generate_import_alias(String, String) -> String
+
+pub fn generate_params_with_names(String) -> (String, String)
+
+pub fn generate_sol_server_main_js(String, ServerRuntime) -> String
+
+pub fn generate_templates(String, String, String?) -> Array[TemplateFile]
+
+pub fn is_web_component(String) -> Bool
+
+pub fn parse_mbti(String) -> Array[(String, String)]
+
+pub fn parse_mbti_imports(String) -> Map[String, String]
+
+pub fn parse_runtime(String) -> ServerRuntime
+
+pub fn parse_sol_config(String) -> SolConfig?
+
+pub fn rewrite_type_refs(String, Map[String, String]) -> String
+
+pub fn split_params(String) -> Array[String]
+
+pub fn template_about_page_mbt() -> String
+
+pub fn template_client_counter_mbt() -> String
+
+pub fn template_client_counter_moon_pkg_json() -> String
+
+pub fn template_components_moon_pkg_json() -> String
+
+pub fn template_counter_mbt() -> String
+
+pub fn template_gen_types_mbt() -> String
+
+pub fn template_gen_types_moon_pkg_json() -> String
+
+pub fn template_home_page_mbt() -> String
+
+pub fn template_layout_mbt() -> String
+
+pub fn template_layout_moon_pkg_json() -> String
+
+pub fn template_ln_loader_js() -> String
+
+pub fn template_page_simple_moon_pkg_json() -> String
+
+pub fn template_page_with_island_moon_pkg_json(String) -> String
+
+pub fn template_routes_mbt(String) -> String
+
+pub fn template_routes_moon_pkg_json(String) -> String
+
+pub fn template_routes_using_mbt() -> String
+
+pub fn template_server_main_mbt() -> String
+
+pub fn template_server_run_moon_pkg_json(String) -> String
+
+pub fn template_server_using_mbt() -> String
+
+pub fn uses_hono_types(String) -> Bool
+
+pub fn uses_js_types(String) -> Bool
+
+pub fn uses_luna_types(String) -> Bool
+
+pub fn uses_signal_types(String) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) struct FuncExport {
+  name : String
+  signature : String
+  package_path : String
+  import_alias : String
+  source_pattern : String
+}
+
+pub struct HmrServer {
+  port : Int
+  // private fields
+}
+pub fn HmrServer::broadcast(Self, String) -> Unit
+pub fn HmrServer::client_count(Self) -> Int
+pub fn HmrServer::close(Self) -> Unit
+pub fn HmrServer::notify_error(Self, String) -> Unit
+pub fn HmrServer::notify_full_reload(Self) -> Unit
+pub fn HmrServer::notify_update(Self, Array[String]) -> Unit
+pub fn HmrServer::on_connection(Self, (@core.Any) -> Unit) -> Unit
+pub fn HmrServer::start(Int) -> Self
+
+type RouteInfo
+
+pub enum ServerRuntime {
+  RuntimeNode
+  RuntimeCloudflare
+  RuntimeDeno
+  RuntimeBun
+}
+pub impl Eq for ServerRuntime
+pub impl Show for ServerRuntime
+
+pub struct SolConfig {
+  islands : Array[String]
+  routes : String
+  output : String
+  client_auto_exports : Bool
+  runtime : ServerRuntime
+}
+
+pub(all) struct StructExport {
+  name : String
+  raw_definition : String
+  package_path : String
+  import_alias : String
+}
+
+pub struct TemplateFile {
+  path : String
+  content : String
+}
+
+// Type aliases
+
+// Traits
+

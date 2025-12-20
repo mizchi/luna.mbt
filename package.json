@@ -7,6 +7,33 @@
     "test": "just test",
     "build": "just build"
   },
+  "exports": {
+    ".": {
+      "import": "./js/luna/index.js",
+      "types": "./js/luna/index.d.ts"
+    },
+    "./jsx-runtime": {
+      "import": "./js/luna/jsx-runtime.js",
+      "types": "./js/luna/jsx-runtime.d.ts"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./js/luna/jsx-dev-runtime.js",
+      "types": "./js/luna/jsx-dev-runtime.d.ts"
+    },
+    "./loader": {
+      "import": "./js/luna/loader.js",
+      "types": "./js/luna/loader.d.ts"
+    },
+    "./dom": {
+      "import": "./js/luna/dom.js",
+      "types": "./js/luna/dom.d.ts"
+    },
+    "./js/*": "./js/*"
+  },
+  "files": [
+    "js",
+    "target/js/release/build"
+  ],
   "keywords": [
     "luna",
     "moonbit",

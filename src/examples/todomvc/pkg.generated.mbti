@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/examples/todomvc"
+
+import(
+  "moonbitlang/core/json"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+type Todo
+pub impl Eq for Todo
+pub impl ToJson for Todo
+pub impl @json.FromJson for Todo
+
+// Type aliases
+
+// Traits
+

@@ -118,13 +118,7 @@ async fn run_dev_command(args : Array[String]) -> Unit {
     @astra.SidebarConfig::Auto => @routes.generate_auto_sidebar(pages)
     @astra.SidebarConfig::Manual(groups) => groups
   }
-  let build_ctx : @astra.BuildContext = {
-    config,
-    pages,
-    sidebar,
-    cwd,
-  }
-
+  let build_ctx : @astra.BuildContext = { config, pages, sidebar, cwd }
   let _ = @fs.watch(docs_dir, recursive=true, listener=fn(
     event_type,
     filename,
@@ -136,35 +130,46 @@ async fn run_dev_command(args : Array[String]) -> Unit {
 
       // Detect if this is a new file, deleted file, or update
       let is_known = known_pages.contains(source_path)
-
       if file_exists && not(is_known) {
         // New file added - need full rebuild for sidebar
         println(
-          @colorette.yellow("[\{event_type}] \{filename} - new file, full rebuild..."),
+          @colorette.yellow(
+            "[\{event_type}] \{filename} - new file, full rebuild...",
+          ),
         )
         known_pages[source_path] = true
         run_build_sync(config, cwd, highlighter)
       } else if not(file_exists) && is_known {
         // File deleted - need full rebuild for sidebar
         println(
-          @colorette.yellow("[\{event_type}] \{filename} - deleted, full rebuild..."),
+          @colorette.yellow(
+            "[\{event_type}] \{filename} - deleted, full rebuild...",
+          ),
         )
         let _ = known_pages.remove(source_path)
         run_build_sync(config, cwd, highlighter)
       } else if file_exists && is_known {
         // Existing file updated - incremental build
         println(
-          @colorette.yellow("[\{event_type}] \{filename} - incremental rebuild..."),
+          @colorette.yellow(
+            "[\{event_type}] \{filename} - incremental rebuild...",
+          ),
         )
         rebuild_single_page(build_ctx, source_path, highlighter)
       }
     } else if filename.ends_with(".json") {
       // Config change - full rebuild
-      println(@colorette.yellow("[\{event_type}] \{filename} - config change, full rebuild..."))
+      println(
+        @colorette.yellow(
+          "[\{event_type}] \{filename} - config change, full rebuild...",
+        ),
+      )
       run_build_sync(config, cwd, highlighter)
     } else if filename.ends_with(".js") {
       // Component change - just copy components
-      println(@colorette.yellow("[\{event_type}] \{filename} - copying components..."))
+      println(
+        @colorette.yellow("[\{event_type}] \{filename} - copying components..."),
+      )
       copy_components_only(config, cwd)
     }
   })
@@ -224,7 +229,6 @@ fn copy_components_only(config : @astra.SsgConfig, cwd : String) -> Unit {
       (docs_components, "/components/")
     }
   }
-
   let src = @path.join2(cwd, src_dir)
   if not(@fs.existsSync(src)) {
     return
@@ -241,8 +245,10 @@ fn copy_components_only(config : @astra.SsgConfig, cwd : String) -> Unit {
   } else {
     output_subdir
   }
-  let dest = @path.join2(@path.join2(cwd, config.output_dir), output_subdir_clean)
-
+  let dest = @path.join2(
+    @path.join2(cwd, config.output_dir),
+    output_subdir_clean,
+  )
   @fs.cpSync(src, dest, recursive=true) catch {
     e => {
       println(@colorette.red("  Failed to copy components: \{e}"))

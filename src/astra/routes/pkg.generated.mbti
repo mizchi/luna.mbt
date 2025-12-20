@@ -1,0 +1,57 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/astra/routes"
+
+import(
+  "mizchi/luna/astra"
+  "mizchi/luna/core"
+)
+
+// Values
+pub fn build_sort_key(String) -> String
+
+pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
+
+pub fn find_fallback_page(Array[@astra.PageMeta], String, @astra.I18nConfig) -> @astra.PageMeta?
+
+pub fn find_next_page(Array[@astra.PageMeta], String) -> @astra.NavLink?
+
+pub fn find_prev_page(Array[@astra.PageMeta], String) -> @astra.NavLink?
+
+pub fn find_translation(Array[@astra.PageMeta], String, String) -> @astra.PageMeta?
+
+pub fn generate_auto_sidebar(Array[@astra.PageMeta], locale? : String) -> Array[@astra.SidebarGroup]
+
+pub fn get_available_translations(Array[@astra.PageMeta], String, @astra.I18nConfig) -> Array[(@astra.LocaleConfig, @astra.PageMeta?)]
+
+pub fn get_pages_for_locale(Array[@astra.PageMeta], String) -> Array[@astra.PageMeta]
+
+pub fn get_sidebar_for_path(@astra.SsgConfig, Array[@astra.PageMeta], String, locale? : String) -> Array[@astra.SidebarGroup]
+
+pub fn get_sidebar_page_order(Array[@astra.SidebarGroup]) -> Array[String]
+
+pub fn group_pages_by_dir(Array[@astra.PageMeta]) -> Map[String, Array[@astra.PageMeta]]
+
+pub fn pad_number(Int, Int) -> String
+
+pub fn parse_numeric_prefix(String) -> (Int, String)
+
+pub fn render_mobile_sidebar(Array[@astra.SidebarGroup], String) -> @core.Node[Unit]
+
+pub fn render_sidebar(Array[@astra.SidebarGroup], String) -> @core.Node[Unit]
+
+pub fn scan_docs_dir(String, String, i18n? : @astra.I18nConfig, exclude? : Array[String], trailing_slash? : Bool) -> Array[@astra.PageMeta]
+
+pub fn sort_pages(Array[@astra.PageMeta]) -> Array[@astra.PageMeta]
+
+pub fn strip_numeric_prefixes(String) -> String
+
+pub fn url_to_output_path(String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

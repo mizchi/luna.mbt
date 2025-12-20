@@ -62,10 +62,17 @@ fn parse_routes_file(routes_path : String) -> RouteInfo {
   let page_components : Array[String] = []
   let api_handlers : Array[String] = []
   if not(@fs.existsSync(routes_path)) {
-    return RouteInfo::{ _page_components: page_components, _api_handlers: api_handlers }
+    return RouteInfo::{
+      _page_components: page_components,
+      _api_handlers: api_handlers,
+    }
   }
   let content = @fs.readFileSync(routes_path).to_string() catch {
-    _ => return RouteInfo::{ _page_components: page_components, _api_handlers: api_handlers }
+    _ =>
+      return RouteInfo::{
+        _page_components: page_components,
+        _api_handlers: api_handlers,
+      }
   }
 
   // Find all component="..." values (for Page and Island routes)

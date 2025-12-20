@@ -1,0 +1,108 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/platform/server_dom/element"
+
+import(
+  "mizchi/luna/core"
+)
+
+// Values
+pub fn a(href? : String, target? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn article(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn aside(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn attr(String) -> @core.Attr[Unit]
+
+pub fn body(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn br(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn button(disabled? : Bool, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn code(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn div(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn em(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn footer_(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn form(action? : String, http_method? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn fragment(Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn h1(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn h2(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn h3(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn h4(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn h5(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn h6(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn head(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn header_(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn hr(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn html(lang? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn img(src? : String, alt? : String, width? : String, height? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn input(type_? : String, name? : String, value? : String, placeholder? : String, disabled? : Bool, readonly_? : Bool, required? : Bool, checked? : Bool, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn label(for_? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn li(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn link(rel? : String, href? : String, type_? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn main_(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn meta(charset? : String, name? : String, content? : String, http_equiv? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn nav(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn ol(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn outlet(name~ : String, Array[@core.Node[Unit]], id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn p(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn pre(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn script(src? : String, type_? : String, defer_? : Bool, async_? : Bool, content? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn section(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn sol_link(href~ : String, Array[@core.Node[Unit]], id? : String, class? : String, style? : String, prefetch? : Bool, replace? : Bool, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn span(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn strong(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn style_(String, type_? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn template_outlet(name~ : String, Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+pub fn template_title(String) -> @core.Node[Unit]
+
+pub fn text(String) -> @core.Node[Unit]
+
+pub fn title(String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])]) -> @core.Node[Unit]
+
+pub fn ul(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit])], Array[@core.Node[Unit]]) -> @core.Node[Unit]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

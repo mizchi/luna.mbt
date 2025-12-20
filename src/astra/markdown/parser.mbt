@@ -93,7 +93,6 @@ fn parse_custom_element(html : String) -> @astra.ComponentEmbed? {
 
   // Extract inner content (if not self-closing)
   let content = extract_inner_content(trimmed, tag)
-
   Some(@astra.ComponentEmbed::{ tag, attrs, content, trigger })
 }
 
@@ -113,7 +112,11 @@ fn extract_tag_name(html : String) -> String? {
     buf.write_char(c)
   }
   let tag = buf.to_string()
-  if tag.is_empty() { None } else { Some(tag) }
+  if tag.is_empty() {
+    None
+  } else {
+    Some(tag)
+  }
 }
 
 ///|
@@ -132,14 +135,12 @@ fn extract_all_attributes(html : String) -> Array[(String, String)] {
     Some(idx) => idx
     None => html.length()
   }
-
   let attr_str = html.unsafe_substring(start=tag_end, end=attr_end)
 
   // Simple attribute parsing: key="value" or key='value'
   let mut i = 0
   let chars = attr_str.to_array()
   let len = chars.length()
-
   while i < len {
     // Skip whitespace
     while i < len && (chars[i] == ' ' || chars[i] == '\n' || chars[i] == '\t') {
@@ -187,21 +188,17 @@ fn extract_all_attributes(html : String) -> Array[(String, String)] {
         if i < len {
           i = i + 1 // skip closing quote
         }
-
         let attr_value = value_buf.to_string()
         // Skip luna:trigger (handled separately)
         if attr_name != "luna:trigger" {
           attrs.push((attr_name, attr_value))
         }
       }
-    } else {
       // Boolean attribute (no value)
-      if attr_name != "luna:trigger" {
-        attrs.push((attr_name, ""))
-      }
+    } else if attr_name != "luna:trigger" {
+      attrs.push((attr_name, ""))
     }
   }
-
   attrs
 }
 
@@ -222,8 +219,7 @@ fn extract_inner_content(html : String, tag : String) -> String {
   // Find closing tag
   let close_tag = "</" + tag + ">"
   match html.find(close_tag) {
-    Some(close_start) =>
-      html.unsafe_substring(start=open_end, end=close_start)
+    Some(close_start) => html.unsafe_substring(start=open_end, end=close_start)
     None => ""
   }
 }

@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/mercurius"
+
+import(
+  "mizchi/luna/core"
+)
+
+// Values
+pub fn auto_select_state_format(String, ShardConfig) -> ShardConfig
+
+pub let default_loader_url : String
+
+#deprecated
+pub fn escape_json_for_attr(String) -> String
+
+#deprecated
+pub fn escape_json_for_html(String) -> String
+
+pub fn format_state_attr(StateConfig) -> String?
+
+pub fn generate_lazy_shard(String, String, String, String) -> String
+
+pub fn generate_minimal_shard(String, String, String, String) -> String
+
+pub fn generate_shard(ShardConfig) -> ShardOutput
+
+pub fn generate_shard_group(String, Array[ShardConfig]) -> String
+
+pub fn generate_shard_with_state_script(ShardConfig, String) -> ShardOutput
+
+pub fn generate_standalone_shard(String, String, String, String, String) -> String
+
+pub fn generate_state_script(String, String) -> String
+
+pub fn recommend_state_format(Int) -> String
+
+// Errors
+
+// Types and methods
+pub struct ShardConfig {
+  id : String
+  script_url : String
+  trigger : @core.TriggerType
+  state : StateConfig
+  ssr_content : String?
+  include_loader : Bool
+  loader_url : String
+}
+pub fn ShardConfig::new(String, String) -> Self
+pub fn ShardConfig::with_default_loader(Self) -> Self
+pub fn ShardConfig::with_loader(Self, String) -> Self
+pub fn ShardConfig::with_ssr_content(Self, String) -> Self
+pub fn ShardConfig::with_state(Self, String) -> Self
+pub fn ShardConfig::with_state_ref(Self, String) -> Self
+pub fn ShardConfig::with_state_url(Self, String) -> Self
+pub fn ShardConfig::with_trigger(Self, @core.TriggerType) -> Self
+
+pub struct ShardOutput {
+  html : String
+  head_scripts : Array[String]
+  state_scripts : Array[String]
+}
+
+pub(all) enum StateConfig {
+  Empty
+  Inline(String)
+  ScriptRef(String)
+  Url(String)
+}
+
+// Type aliases
+
+// Traits
+

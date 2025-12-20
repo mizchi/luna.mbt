@@ -1,0 +1,102 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/core/serialize"
+
+import(
+  "mizchi/luna/core/signal"
+)
+
+// Values
+pub fn bool_to_state_value(Bool) -> StateValue
+
+pub fn[T : Serializable] create_resumable_signal(ResumableState, T) -> (@signal.Signal[T], Int)
+
+pub fn double_to_state_value(Double) -> StateValue
+
+pub fn escape_json_string(String) -> String
+
+pub fn extract_state_from_html(String) -> String?
+
+pub fn int_to_state_value(Int) -> StateValue
+
+pub fn parse_state_from_html(String) -> ResumableState?
+
+pub fn[T : Serializable] register_signal(ResumableState, @signal.Signal[T]) -> Int
+
+pub fn[T : Serializable] restore_signal(ResumableState, @signal.Signal[T], Int) -> Bool
+
+pub fn[T : Serializable] resume_signal(ResumableState, Int, T) -> @signal.Signal[T]
+
+pub fn state_endpoint_tag(String, String, String) -> String
+
+pub fn state_to_script_tag(ResumableState, id? : String) -> String
+
+pub fn state_value_from_json(String) -> StateValue?
+
+pub fn state_value_to_json(StateValue) -> String
+
+pub fn state_value_to_json_value(StateValue) -> Json
+
+pub fn state_values_from_json(String) -> Array[StateValue]?
+
+pub fn state_values_to_json(Array[StateValue]) -> String
+
+pub fn string_to_state_value(String) -> StateValue
+
+pub fn sv_arr(Array[StateValue]) -> StateValue
+
+pub fn sv_bool(Bool) -> StateValue
+
+pub fn sv_int(Int) -> StateValue
+
+pub fn sv_null() -> StateValue
+
+pub fn sv_number(Double) -> StateValue
+
+pub fn sv_str(String) -> StateValue
+
+// Errors
+
+// Types and methods
+pub struct ResumableState {
+  values : Array[StateValue]
+  mut next_id : Int
+}
+pub fn ResumableState::from_json(String) -> Self?
+pub fn ResumableState::get(Self, Int) -> StateValue?
+pub fn ResumableState::get_bool(Self, Int) -> Bool?
+pub fn ResumableState::get_float(Self, Int) -> Double?
+pub fn ResumableState::get_int(Self, Int) -> Int?
+pub fn ResumableState::get_string(Self, Int) -> String?
+pub fn ResumableState::new() -> Self
+pub fn ResumableState::register_bool(Self, Bool) -> Int
+pub fn ResumableState::register_float(Self, Double) -> Int
+pub fn ResumableState::register_int(Self, Int) -> Int
+pub fn ResumableState::register_null(Self) -> Int
+pub fn ResumableState::register_string(Self, String) -> Int
+pub fn ResumableState::to_json(Self) -> String
+
+pub enum StateValue {
+  Null
+  Bool(Bool)
+  Int(Int)
+  Number(Double)
+  Str(String)
+  Arr(Array[StateValue])
+}
+pub fn StateValue::as_array(Self) -> Array[Self]?
+pub fn StateValue::as_bool(Self) -> Bool?
+pub fn StateValue::as_int(Self) -> Int?
+pub fn StateValue::as_number(Self) -> Double?
+pub fn StateValue::as_string(Self) -> String?
+pub fn StateValue::is_null(Self) -> Bool
+pub impl Eq for StateValue
+pub impl Show for StateValue
+
+// Type aliases
+
+// Traits
+pub(open) trait Serializable {
+  to_state_value(Self) -> StateValue
+  from_state_value(StateValue) -> Self?
+}
+

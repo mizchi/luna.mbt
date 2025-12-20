@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/astra/markdown"
+
+import(
+  "mizchi/luna/astra"
+  "mizchi/luna/core"
+)
+
+// Values
+pub fn convert_cst_document(@mizchi/markdown.Document) -> (@astra.Frontmatter, Array[@astra.MdNode])
+
+pub fn extract_toc(Array[@astra.MdNode]) -> Array[TocItem]
+
+pub fn md_node_to_vnode(@astra.MdNode, islands_base_path? : String) -> @core.Node[Unit]
+
+pub fn md_nodes_to_vnode(Array[@astra.MdNode], islands_base_path? : String) -> @core.Node[Unit]
+
+pub fn parse_code_block_info(String) -> CodeBlockInfo
+
+pub fn parse_markdown(String) -> (@astra.Frontmatter, Array[@astra.MdNode])
+
+pub fn parse_markdown_native(String) -> (@astra.Frontmatter, Array[@astra.MdNode])
+
+// Errors
+
+// Types and methods
+pub(all) struct CodeBlockInfo {
+  lang : String
+  filename : String
+  meta : String
+}
+
+pub(all) struct TocItem {
+  level : Int
+  text : String
+  id : String
+}
+
+// Type aliases
+
+// Traits
+

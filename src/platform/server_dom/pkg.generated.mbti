@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/platform/server_dom"
+
+import(
+  "mizchi/luna/core"
+)
+
+// Values
+pub fn[T : ToJson] client(@core.ComponentRef[T], Array[@core.Node[Unit]], styles? : String) -> @core.Node[Unit]
+
+pub fn document(lang? : String, head_children~ : Array[@core.Node[Unit]], body_children~ : Array[@core.Node[Unit]], body_class? : String, body_id? : String) -> @core.Node[Unit]
+
+pub fn generate_preload_tags(Array[String]) -> String
+
+pub fn render(@core.Node[Unit]) -> String
+
+pub fn render_document(@core.Node[Unit]) -> String
+
+pub fn render_document_with_preloads(@core.Node[Unit]) -> RenderResult
+
+pub fn render_with_preloads(@core.Node[Unit]) -> RenderResult
+
+pub fn wc_island(String, String, Array[@core.Node[Unit]], styles? : String, state? : String, trigger? : @core.TriggerType) -> @core.Node[Unit]
+
+// Errors
+
+// Types and methods
+pub struct RenderResult {
+  html : String
+  preload_urls : Array[String]
+}
+
+pub enum ServerNode {
+  Sync(@core.Node[Unit])
+  Async(async () -> @core.Node[Unit])
+}
+pub fn ServerNode::async_(async () -> @core.Node[Unit]) -> Self
+pub fn ServerNode::is_async(Self) -> Bool
+pub async fn ServerNode::resolve(Self) -> @core.Node[Unit]
+pub fn ServerNode::sync(@core.Node[Unit]) -> Self
+
+// Type aliases
+
+// Traits
+

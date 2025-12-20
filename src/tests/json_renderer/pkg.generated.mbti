@@ -1,0 +1,60 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/tests/json_renderer"
+
+import(
+  "mizchi/luna/core"
+)
+
+// Values
+pub fn attr_dynamic_value(String) -> JsonAttrValue
+
+pub fn attr_handler_value() -> JsonAttrValue
+
+pub fn attr_static(String) -> JsonAttrValue
+
+pub fn json_element(String, Map[String, JsonAttrValue], Array[JsonNode]) -> JsonNode
+
+pub fn json_fragment(Array[JsonNode]) -> JsonNode
+
+pub fn json_node_to_string(JsonNode) -> String
+
+pub fn json_text(String) -> JsonNode
+
+pub fn render_to_json(@core.Node[Unit]) -> JsonNode
+
+pub fn render_to_json_string(@core.Node[Unit]) -> String
+
+// Errors
+
+// Types and methods
+pub enum JsonAttrValue {
+  Static(String)
+  Dynamic(String)
+  Handler
+}
+pub impl Eq for JsonAttrValue
+pub impl Show for JsonAttrValue
+
+pub struct JsonElement {
+  tag : String
+  attrs : Map[String, JsonAttrValue]
+  children : Array[JsonNode]
+}
+pub impl Eq for JsonElement
+pub impl Show for JsonElement
+
+pub enum JsonNode {
+  Element(JsonElement)
+  Text(String)
+  Fragment(Array[JsonNode])
+}
+pub fn JsonNode::children(Self) -> Array[Self]
+pub fn JsonNode::get_attr(Self, String) -> JsonAttrValue?
+pub fn JsonNode::tag(Self) -> String?
+pub impl Eq for JsonNode
+pub impl Show for JsonNode
+
+// Type aliases
+
+// Traits
+

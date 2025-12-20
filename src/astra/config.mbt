@@ -84,7 +84,6 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
 
   // Parse OGP config
   let ogp = parse_ogp_config(ssg_obj)
-
   Some(SsgConfig::{
     docs_dir,
     output_dir,

@@ -635,7 +635,6 @@ fn build_footer(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
       if not(bottom_items.is_empty()) {
         children.push(h("div", [attr("class", "footer-bottom")], bottom_items))
       }
-
       h("footer", [attr("class", "site-footer")], children)
     }
     None => @luna.fragment([])
@@ -685,7 +684,6 @@ fn build_html_document(
 
   // Generate OGP meta tags
   let ogp_tags = build_ogp_meta_tags(ctx, page, frontmatter)
-
   "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n</body>\n</html>"
 }
 
@@ -708,7 +706,9 @@ fn build_ogp_meta_tags(
 
   // og:description
   if not(desc.is_empty()) {
-    tags.write_string("\n  <meta property=\"og:description\" content=\"\{desc}\">")
+    tags.write_string(
+      "\n  <meta property=\"og:description\" content=\"\{desc}\">",
+    )
   }
 
   // og:type (article for docs, website for home)
@@ -743,7 +743,9 @@ fn build_ogp_meta_tags(
           }
         None => img
       }
-      tags.write_string("\n  <meta property=\"og:image\" content=\"\{img_url}\">")
+      tags.write_string(
+        "\n  <meta property=\"og:image\" content=\"\{img_url}\">",
+      )
     }
     None => ()
   }
@@ -762,10 +764,14 @@ fn build_ogp_meta_tags(
         None => "summary"
       }
   }
-  tags.write_string("\n  <meta name=\"twitter:card\" content=\"\{twitter_card}\">")
+  tags.write_string(
+    "\n  <meta name=\"twitter:card\" content=\"\{twitter_card}\">",
+  )
   tags.write_string("\n  <meta name=\"twitter:title\" content=\"\{title}\">")
   if not(desc.is_empty()) {
-    tags.write_string("\n  <meta name=\"twitter:description\" content=\"\{desc}\">")
+    tags.write_string(
+      "\n  <meta name=\"twitter:description\" content=\"\{desc}\">",
+    )
   }
 
   // Twitter image (same as og:image)
@@ -782,7 +788,9 @@ fn build_ogp_meta_tags(
           }
         None => img
       }
-      tags.write_string("\n  <meta name=\"twitter:image\" content=\"\{img_url}\">")
+      tags.write_string(
+        "\n  <meta name=\"twitter:image\" content=\"\{img_url}\">",
+      )
     }
     None => ()
   }
@@ -790,10 +798,11 @@ fn build_ogp_meta_tags(
   // Twitter site handle
   match ogp.twitter_handle {
     Some(handle) =>
-      tags.write_string("\n  <meta name=\"twitter:site\" content=\"\{handle}\">")
+      tags.write_string(
+        "\n  <meta name=\"twitter:site\" content=\"\{handle}\">",
+      )
     None => ()
   }
-
   tags.to_string()
 }
 
@@ -992,7 +1001,6 @@ fn get_navigation_script(
       #|});
     parts.push(keyboard_script)
   }
-
   let script_body = parts.join("\n")
   "<script>\n(function() {\n\{script_body}\n})();\n</script>"
 }
@@ -1232,7 +1240,6 @@ fn copy_islands_dir(ctx : @astra.BuildContext) -> Unit {
       (docs_components, "/components/")
     }
   }
-
   let islands_src = @path.join2(ctx.cwd, src_dir)
 
   // Check if source directory exists
@@ -1335,7 +1342,6 @@ fn generate_404_page(ctx : @astra.BuildContext) -> Unit {
     #|  <p style="color: var(--text-muted); margin-bottom: 2rem;">The page you're looking for doesn't exist or has been moved.</p>
     #|  <a href="/" style="color: var(--primary-color); text-decoration: none; padding: 0.75rem 1.5rem; border: 1px solid var(--primary-color); border-radius: 0.5rem;">Go to Home</a>
     #|</div>
-
   let html =
     #|<!DOCTYPE html>
     #|<html lang="en">
@@ -1362,7 +1368,6 @@ fn generate_404_page(ctx : @astra.BuildContext) -> Unit {
     #|  </div>
     #|</body>
     #|</html>
-
   let full_html = html +
     title +
     " | " +
@@ -1376,7 +1381,6 @@ fn generate_404_page(ctx : @astra.BuildContext) -> Unit {
     html5 +
     content +
     html6
-
   let output_path = @path.join2(
     @path.join2(ctx.cwd, ctx.config.output_dir),
     "404.html",

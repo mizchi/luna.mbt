@@ -7,29 +7,35 @@
 // CSS Definitions
 // =============================================================================
 
+///|
 let counter_css : String =
   #|:host { display: block; font-family: system-ui, sans-serif; }
   #|.buttons button { font-size: 18px; min-width: 40px; padding: 8px 16px; margin: 4px; cursor: pointer; }
 
+///|
 let input_css : String =
   #|:host { display: block; font-family: system-ui, sans-serif; }
   #|input { padding: 8px; margin: 4px; border: 1px solid #ccc; border-radius: 4px; }
 
+///|
 let effect_css : String =
   #|:host { display: block; font-family: system-ui, sans-serif; }
   #|button { padding: 8px 16px; margin: 4px; cursor: pointer; }
 
+///|
 let conditional_css : String =
   #|:host { display: block; font-family: system-ui, sans-serif; }
   #|button { padding: 8px 16px; margin: 4px; cursor: pointer; }
   #|.message { padding: 10px; background-color: #e0f7fa; border-radius: 4px; margin-top: 8px; }
 
+///|
 let style_css : String =
   #|:host { display: block; font-family: system-ui, sans-serif; }
   #|.box { transition: all 0.3s ease; border-radius: 8px; }
   #|label { margin-right: 8px; }
   #|.control { margin: 8px 0; }
 
+///|
 let todo_css : String =
   #|:host { display: block; font-family: system-ui, sans-serif; }
   #|input { padding: 8px; margin: 4px; border: 1px solid #ccc; border-radius: 4px; }
@@ -39,12 +45,14 @@ let todo_css : String =
   #|.todo-text { cursor: pointer; }
   #|.completed { text-decoration: line-through; opacity: 0.6; }
 
+///|
 let child_button_css : String =
   #|:host { display: inline-block; }
   #|button { padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
   #|button:hover { background: #45a049; }
   #|.local-count { font-size: 12px; color: #666; margin-top: 4px; }
 
+///|
 let nested_parent_css : String =
   #|:host { display: block; font-family: system-ui, sans-serif; }
   #|.parent-container { border: 2px solid #2196F3; padding: 16px; border-radius: 8px; }
@@ -101,68 +109,57 @@ fn register_wc_counter() -> Unit {
     let count = @signal.signal(0)
     let doubled = @signal.memo(fn() { count.get() * 2 })
     let is_even = @signal.memo(fn() { count.get() % 2 == 0 })
-
     @luna.fragment([
       style(counter_css),
       @luna.h("h2", [], [@luna.text("Counter Example")]),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("count"))],
-        [@luna.text_dyn(fn() { "Count: " + count.get().to_string() })],
-      ),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("doubled"))],
-        [@luna.text_dyn(fn() { "Doubled: " + doubled().to_string() })],
-      ),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("parity"))],
-        [@luna.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } })],
-      ),
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("buttons"))],
-        [
-          @luna.h(
-            "button",
-            [
-              ("class", @luna.attr_static("dec")),
-              (
-                "onclick",
-                @luna.attr_handler(
-                  @luna.handler(fn(_) { count.update(fn(n) { n - 1 }) }),
-                ),
+      @luna.h("p", [("class", @luna.attr_static("count"))], [
+        @luna.text_dyn(fn() { "Count: " + count.get().to_string() }),
+      ]),
+      @luna.h("p", [("class", @luna.attr_static("doubled"))], [
+        @luna.text_dyn(fn() { "Doubled: " + doubled().to_string() }),
+      ]),
+      @luna.h("p", [("class", @luna.attr_static("parity"))], [
+        @luna.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } }),
+      ]),
+      @luna.h("div", [("class", @luna.attr_static("buttons"))], [
+        @luna.h(
+          "button",
+          [
+            ("class", @luna.attr_static("dec")),
+            (
+              "onclick",
+              @luna.attr_handler(
+                @luna.handler(fn(_) { count.update(fn(n) { n - 1 }) }),
               ),
-            ],
-            [@luna.text("-")],
-          ),
-          @luna.h(
-            "button",
-            [
-              ("class", @luna.attr_static("inc")),
-              (
-                "onclick",
-                @luna.attr_handler(
-                  @luna.handler(fn(_) { count.update(fn(n) { n + 1 }) }),
-                ),
+            ),
+          ],
+          [@luna.text("-")],
+        ),
+        @luna.h(
+          "button",
+          [
+            ("class", @luna.attr_static("inc")),
+            (
+              "onclick",
+              @luna.attr_handler(
+                @luna.handler(fn(_) { count.update(fn(n) { n + 1 }) }),
               ),
-            ],
-            [@luna.text("+")],
-          ),
-          @luna.h(
-            "button",
-            [
-              ("class", @luna.attr_static("reset")),
-              (
-                "onclick",
-                @luna.attr_handler(@luna.handler(fn(_) { count.set(0) })),
-              ),
-            ],
-            [@luna.text("Reset")],
-          ),
-        ],
-      ),
+            ),
+          ],
+          [@luna.text("+")],
+        ),
+        @luna.h(
+          "button",
+          [
+            ("class", @luna.attr_static("reset")),
+            (
+              "onclick",
+              @luna.attr_handler(@luna.handler(fn(_) { count.set(0) })),
+            ),
+          ],
+          [@luna.text("Reset")],
+        ),
+      ]),
     ])
   })
 }
@@ -176,7 +173,6 @@ fn register_wc_input() -> Unit {
   @luna_api.register_shadow("wc-input", fn(_host) {
     let text_signal = @signal.signal("")
     let char_count = @signal.memo(fn() { text_signal.get().length() })
-
     @luna.fragment([
       style(input_css),
       @luna.h("h2", [], [@luna.text("Input Example")]),
@@ -198,16 +194,12 @@ fn register_wc_input() -> Unit {
         ],
         [],
       ),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("char-count"))],
-        [@luna.text_dyn(fn() { "Characters: " + char_count().to_string() })],
-      ),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("typed"))],
-        [@luna.text_dyn(fn() { "You typed: " + text_signal.get() })],
-      ),
+      @luna.h("p", [("class", @luna.attr_static("char-count"))], [
+        @luna.text_dyn(fn() { "Characters: " + char_count().to_string() }),
+      ]),
+      @luna.h("p", [("class", @luna.attr_static("typed"))], [
+        @luna.text_dyn(fn() { "You typed: " + text_signal.get() }),
+      ]),
     ])
   })
 }
@@ -221,25 +213,18 @@ fn register_wc_effect() -> Unit {
   @luna_api.register_shadow("wc-effect", fn(_host) {
     let active = @signal.signal(false)
     let ticks = @signal.signal(0)
-
     @luna.fragment([
       style(effect_css),
       @luna.h("h2", [], [@luna.text("Effect Example")]),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("status"))],
-        [
-          @luna.text_dyn(fn() {
-            let status = if active.get() { "Active" } else { "Inactive" }
-            "Status: " + status
-          }),
-        ],
-      ),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("ticks"))],
-        [@luna.text_dyn(fn() { "Ticks: " + ticks.get().to_string() })],
-      ),
+      @luna.h("p", [("class", @luna.attr_static("status"))], [
+        @luna.text_dyn(fn() {
+          let status = if active.get() { "Active" } else { "Inactive" }
+          "Status: " + status
+        }),
+      ]),
+      @luna.h("p", [("class", @luna.attr_static("ticks"))], [
+        @luna.text_dyn(fn() { "Ticks: " + ticks.get().to_string() }),
+      ]),
       @luna.h(
         "button",
         [
@@ -278,7 +263,6 @@ fn register_wc_effect() -> Unit {
 fn register_wc_conditional() -> Unit {
   @luna_api.register_shadow("wc-conditional", fn(_host) {
     let show_message = @signal.signal(true)
-
     @luna.fragment([
       style(conditional_css),
       @luna.h("h2", [], [@luna.text("Conditional Example")]),
@@ -303,15 +287,22 @@ fn register_wc_conditional() -> Unit {
           }),
         ],
       ),
-      @luna.show(
-        fn() { show_message.get() },
-        fn() {
-          @luna.h(
-            "div",
-            [("class", @luna.attr_static("message"))],
-            [@luna.text("Hello! This message is conditionally rendered.")],
-          )
-        },
+      @luna.h(
+        "div",
+        [
+          ("class", @luna.attr_static("message")),
+          (
+            "style",
+            @luna.attr_dynamic(fn() {
+              if show_message.get() {
+                "display: block"
+              } else {
+                "display: none"
+              }
+            }),
+          ),
+        ],
+        [@luna.text("Hello! This message is conditionally rendered.")],
       ),
     ])
   })
@@ -326,7 +317,6 @@ fn register_wc_style() -> Unit {
   @luna_api.register_shadow("wc-style", fn(_host) {
     let hue = @signal.signal(180)
     let size = @signal.signal(100)
-
     @luna.fragment([
       style(style_css),
       @luna.h("h2", [], [@luna.text("Style Example")]),
@@ -351,66 +341,58 @@ fn register_wc_style() -> Unit {
         ],
         [],
       ),
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("control"))],
-        [
-          @luna.h("label", [], [@luna.text("Hue:")]),
-          @luna.h(
-            "input",
-            [
-              ("class", @luna.attr_static("hue")),
-              ("type", @luna.attr_static("range")),
-              ("value", @luna.attr_static("180")),
-              ("min", @luna.attr_static("0")),
-              ("max", @luna.attr_static("360")),
-              (
-                "oninput",
-                @luna.attr_handler(
-                  @luna.handler(fn(e : @js.Any) {
-                    let value : String = e._get("target")._get("value").cast()
-                    match @global.parseInt(value) {
-                      Some(n) => hue.set(n)
-                      None => ()
-                    }
-                  }),
-                ),
+      @luna.h("div", [("class", @luna.attr_static("control"))], [
+        @luna.h("label", [], [@luna.text("Hue:")]),
+        @luna.h(
+          "input",
+          [
+            ("class", @luna.attr_static("hue")),
+            ("type", @luna.attr_static("range")),
+            ("value", @luna.attr_static("180")),
+            ("min", @luna.attr_static("0")),
+            ("max", @luna.attr_static("360")),
+            (
+              "oninput",
+              @luna.attr_handler(
+                @luna.handler(fn(e : @js.Any) {
+                  let value : String = e._get("target")._get("value").cast()
+                  match @global.parseInt(value) {
+                    Some(n) => hue.set(n)
+                    None => ()
+                  }
+                }),
               ),
-            ],
-            [],
-          ),
-        ],
-      ),
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("control"))],
-        [
-          @luna.h("label", [], [@luna.text("Size:")]),
-          @luna.h(
-            "input",
-            [
-              ("class", @luna.attr_static("size")),
-              ("type", @luna.attr_static("range")),
-              ("value", @luna.attr_static("100")),
-              ("min", @luna.attr_static("50")),
-              ("max", @luna.attr_static("200")),
-              (
-                "oninput",
-                @luna.attr_handler(
-                  @luna.handler(fn(e : @js.Any) {
-                    let value : String = e._get("target")._get("value").cast()
-                    match @global.parseInt(value) {
-                      Some(n) => size.set(n)
-                      None => ()
-                    }
-                  }),
-                ),
+            ),
+          ],
+          [],
+        ),
+      ]),
+      @luna.h("div", [("class", @luna.attr_static("control"))], [
+        @luna.h("label", [], [@luna.text("Size:")]),
+        @luna.h(
+          "input",
+          [
+            ("class", @luna.attr_static("size")),
+            ("type", @luna.attr_static("range")),
+            ("value", @luna.attr_static("100")),
+            ("min", @luna.attr_static("50")),
+            ("max", @luna.attr_static("200")),
+            (
+              "oninput",
+              @luna.attr_handler(
+                @luna.handler(fn(e : @js.Any) {
+                  let value : String = e._get("target")._get("value").cast()
+                  match @global.parseInt(value) {
+                    Some(n) => size.set(n)
+                    None => ()
+                  }
+                }),
               ),
-            ],
-            [],
-          ),
-        ],
-      ),
+            ),
+          ],
+          [],
+        ),
+      ]),
     ])
   })
 }
@@ -432,7 +414,6 @@ fn register_wc_todo() -> Unit {
     let todos : @signal.Signal[Array[TodoItem]] = @signal.signal([])
     let input_text = @signal.signal("")
     let next_id = @signal.signal(1)
-
     fn add_todo() -> Unit {
       let t = input_text.get()
       if t != "" {
@@ -504,68 +485,56 @@ fn register_wc_todo() -> Unit {
             ],
             [],
           ),
-          @luna.h(
-            "button",
-            [("type", @luna.attr_static("submit"))],
-            [@luna.text("Add")],
-          ),
+          @luna.h("button", [("type", @luna.attr_static("submit"))], [
+            @luna.text("Add"),
+          ]),
         ],
       ),
-      @luna.h(
-        "p",
-        [("class", @luna.attr_static("stats"))],
-        [
-          @luna.text_dyn(fn() {
-            let total = todos.get().length()
-            let completed = get_completed_count()
-            completed.to_string() + "/" + total.to_string() + " completed"
-          }),
-        ],
-      ),
-      @luna.h(
-        "ul",
-        [("class", @luna.attr_static("todo-list"))],
-        [
-          @luna.for_each(fn() {
-            todos.get().map(fn(item) {
-              let class_name = if item.completed { "completed" } else { "" }
-              let item_id = item.id
+      @luna.h("p", [("class", @luna.attr_static("stats"))], [
+        @luna.text_dyn(fn() {
+          let total = todos.get().length()
+          let completed = get_completed_count()
+          completed.to_string() + "/" + total.to_string() + " completed"
+        }),
+      ]),
+      @luna.h("ul", [("class", @luna.attr_static("todo-list"))], [
+        @luna.for_each(fn() {
+          todos
+          .get()
+          .map(fn(item) {
+            let class_name = if item.completed { "completed" } else { "" }
+            let item_id = item.id
+            @luna.h("li", [("class", @luna.attr_static(class_name))], [
               @luna.h(
-                "li",
-                [("class", @luna.attr_static(class_name))],
+                "span",
                 [
-                  @luna.h(
-                    "span",
-                    [
-                      ("class", @luna.attr_static("todo-text")),
-                      (
-                        "onclick",
-                        @luna.attr_handler(
-                          @luna.handler(fn(_) { toggle_todo(item_id) }),
-                        ),
-                      ),
-                    ],
-                    [@luna.text(item.text)],
-                  ),
-                  @luna.h(
-                    "button",
-                    [
-                      ("class", @luna.attr_static("remove")),
-                      (
-                        "onclick",
-                        @luna.attr_handler(
-                          @luna.handler(fn(_) { remove_todo(item_id) }),
-                        ),
-                      ),
-                    ],
-                    [@luna.text("×")],
+                  ("class", @luna.attr_static("todo-text")),
+                  (
+                    "onclick",
+                    @luna.attr_handler(
+                      @luna.handler(fn(_) { toggle_todo(item_id) }),
+                    ),
                   ),
                 ],
-              )
-            })
-          }),
-        ],
-      ),
+                [@luna.text(item.text)],
+              ),
+              @luna.h(
+                "button",
+                [
+                  ("class", @luna.attr_static("remove")),
+                  (
+                    "onclick",
+                    @luna.attr_handler(
+                      @luna.handler(fn(_) { remove_todo(item_id) }),
+                    ),
+                  ),
+                ],
+                [@luna.text("×")],
+              ),
+            ])
+          })
+        }),
+      ]),
     ])
   })
 }
@@ -578,7 +547,6 @@ fn register_wc_todo() -> Unit {
 fn register_wc_child_button() -> Unit {
   @luna_api.register_shadow("wc-child-button", fn(host) {
     let click_count = @signal.signal(0)
-
     @luna.fragment([
       style(child_button_css),
       @luna.h(
@@ -601,13 +569,9 @@ fn register_wc_child_button() -> Unit {
         ],
         [@luna.text("Child Button")],
       ),
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("local-count"))],
-        [
-          @luna.text_dyn(fn() { click_count.get().to_string() }),
-        ],
-      ),
+      @luna.h("div", [("class", @luna.attr_static("local-count"))], [
+        @luna.text_dyn(fn() { click_count.get().to_string() }),
+      ]),
     ])
   })
 }
@@ -625,44 +589,25 @@ fn register_wc_nested_parent() -> Unit {
     add_custom_event_listener(host, "child-clicked", fn(_detail) {
       total_child_clicks.update(fn(n) { n + 1 })
     })
-
     @luna.fragment([
       style(nested_parent_css),
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("parent-container"))],
-        [
-          @luna.h(
-            "h3",
-            [("class", @luna.attr_static("parent-header"))],
-            [@luna.text("Parent Component")],
-          ),
-          @luna.h(
-            "div",
-            [("class", @luna.attr_static("children"))],
-            [
-              // Use custom element tag directly
-              @luna.h("wc-child-button", [], []),
-              @luna.h("wc-child-button", [], []),
-              @luna.h("wc-child-button", [], []),
-            ],
-          ),
-          @luna.h(
-            "div",
-            [("class", @luna.attr_static("stats"))],
-            [
-              @luna.text("Total clicks from children: "),
-              @luna.h(
-                "span",
-                [("class", @luna.attr_static("total-clicks"))],
-                [
-                  @luna.text_dyn(fn() { total_child_clicks.get().to_string() }),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
+      @luna.h("div", [("class", @luna.attr_static("parent-container"))], [
+        @luna.h("h3", [("class", @luna.attr_static("parent-header"))], [
+          @luna.text("Parent Component"),
+        ]),
+        @luna.h("div", [("class", @luna.attr_static("children"))], [
+          // Use custom element tag directly
+          @luna.h("wc-child-button", [], []),
+          @luna.h("wc-child-button", [], []),
+          @luna.h("wc-child-button", [], []),
+        ]),
+        @luna.h("div", [("class", @luna.attr_static("stats"))], [
+          @luna.text("Total clicks from children: "),
+          @luna.h("span", [("class", @luna.attr_static("total-clicks"))], [
+            @luna.text_dyn(fn() { total_child_clicks.get().to_string() }),
+          ]),
+        ]),
+      ]),
     ])
   })
 }

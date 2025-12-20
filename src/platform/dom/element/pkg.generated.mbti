@@ -1,0 +1,265 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/platform/dom/element"
+
+import(
+  "mizchi/js/browser/dom"
+  "mizchi/js/core"
+  "mizchi/luna/core/signal"
+)
+
+// Values
+pub fn a(href? : String, target? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn article(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn aside(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn attr_dynamic(() -> String) -> AttrValue
+
+pub fn attr_dynamic_style(() -> String) -> AttrValue
+
+pub fn attr_handler((@core.Any) -> Unit) -> AttrValue
+
+pub fn attr_static(String) -> AttrValue
+
+pub fn attr_style(String) -> AttrValue
+
+pub fn br(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn button(disabled? : Bool, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, dyn_disabled? : () -> Bool, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn clear(DomElement) -> Unit
+
+pub fn clear_jsdom(@dom.Element) -> Unit
+
+pub fn code(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn create_element(String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn div(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn[T : ToDomNode] dom_children(Array[T]) -> Array[DomNode]
+
+pub fn[T : ToDomNode] dom_node(T) -> DomNode
+
+pub fn em(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn events() -> HandlerMap
+
+pub fn footer_(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn[T] for_each(() -> Array[T], (T, Int) -> DomNode) -> DomNode
+
+pub fn form(action? : String, http_method? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn fragment(Array[DomNode]) -> DomNode
+
+pub fn h1(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn h2(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn h3(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn h4(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn h5(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn h6(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn header_(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn hr(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn img(src? : String, alt? : String, width? : String, height? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn[T] index_each(() -> Array[T], (() -> T, Int) -> DomNode) -> DomNode
+
+pub fn input(type_? : String, name? : String, value? : String, placeholder? : String, disabled? : Bool, readonly_? : Bool, required? : Bool, checked? : Bool, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, dyn_value? : () -> String, dyn_disabled? : () -> Bool, dyn_checked? : () -> Bool, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn is_move_before_supported() -> Bool
+
+pub fn jsx(String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn jsxs(String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn label(for_? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn li(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn main_(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn mount(DomElement, DomNode) -> Unit
+
+pub fn mount_to(@dom.Element, DomNode) -> Unit
+
+pub fn move_before(@dom.Node, @dom.Node, @dom.Node?) -> @dom.Node
+
+pub fn move_before_strict(@dom.Node, @dom.Node, @dom.Node?) -> @dom.Node
+
+pub fn nav(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn ol(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn p(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn portal(target~ : @dom.Element, children~ : Array[DomNode]) -> DomNode
+
+pub fn portal_to(String, Array[DomNode]) -> DomNode
+
+pub fn portal_to_body(Array[DomNode]) -> DomNode
+
+pub fn pre(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn[T] reconcile_for_each(Ref[Array[ItemEntry[T]]], @dom.Node, Array[T], (T, Int) -> @dom.Node) -> Unit
+
+pub fn[T] reconcile_items(@dom.Node, Array[ItemEntry[T]], Array[T], (T, Int) -> @dom.Node, @dom.Node) -> Array[ItemEntry[T]]
+
+pub fn[T] ref_equal(T, T) -> Bool
+
+pub fn render(DomElement, DomNode) -> Unit
+
+pub fn render_to(@dom.Element, DomNode) -> Unit
+
+pub fn section(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn show(() -> Bool, () -> DomNode) -> DomNode
+
+pub fn span(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn strong(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn text(String) -> DomNode
+
+pub fn text_dyn(() -> String) -> DomNode
+
+pub fn[T : Show] text_from_signal(@signal.Signal[T]) -> DomNode
+
+pub fn text_node(() -> String) -> DomNode
+
+pub fn[T : Show] text_of(@signal.Signal[T]) -> DomNode
+
+pub fn[T : Show] text_sig(@signal.Signal[T]) -> DomNode
+
+pub fn textarea(name? : String, placeholder? : String, disabled? : Bool, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn ul(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn use_style(String, @dom.Element) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) enum Attr {
+  AttrString(String)
+  AttrNumber(Double)
+  AttrInt(Int)
+  AttrBool(Bool)
+}
+pub fn Attr::to_attr_value(Self) -> AttrValue
+
+pub(all) enum AttrValue {
+  Static(String)
+  Dynamic(() -> String)
+  Handler((@core.Any) -> Unit)
+}
+
+pub struct DomElement {
+  // private fields
+}
+pub fn DomElement::from_jsdom(@dom.Element) -> Self
+pub fn DomElement::to_jsdom(Self) -> @dom.Element
+pub fn DomElement::to_node(Self) -> DomNode
+pub impl ToDomNode for DomElement
+
+pub enum DomNode {
+  El(DomElement)
+  Txt(@dom.Text)
+  Raw(@dom.Node)
+}
+pub fn DomNode::to_jsdom(Self) -> @dom.Node
+pub impl ToDomNode for DomNode
+
+pub type HandlerMap
+pub fn HandlerMap::blur(Self, (@dom.FocusEvent) -> Unit) -> Self
+pub fn HandlerMap::change(Self, (@dom.ChangeEvent) -> Unit) -> Self
+pub fn HandlerMap::click(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::compositionend(Self, (@core.Any) -> Unit) -> Self
+pub fn HandlerMap::compositionstart(Self, (@core.Any) -> Unit) -> Self
+pub fn HandlerMap::dblclick(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::focus(Self, (@dom.FocusEvent) -> Unit) -> Self
+pub fn HandlerMap::input(Self, (@dom.InputEvent) -> Unit) -> Self
+pub fn HandlerMap::keydown(Self, (@dom.KeyboardEvent) -> Unit) -> Self
+pub fn HandlerMap::keypress(Self, (@dom.KeyboardEvent) -> Unit) -> Self
+pub fn HandlerMap::keyup(Self, (@dom.KeyboardEvent) -> Unit) -> Self
+pub fn HandlerMap::mousedown(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::mouseenter(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::mouseleave(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::mouseout(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::mouseover(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::mouseup(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::submit(Self, (@dom.FormEvent) -> Unit) -> Self
+
+pub(all) struct ItemEntry[T] {
+  item : T
+  dom : @dom.Node
+}
+pub fn[T] ItemEntry::new(T, @dom.Node) -> Self[T]
+
+// Type aliases
+pub type AnimationEventHandler[T] = (@dom.AnimationEvent) -> Unit
+
+pub type ChangeEventHandler[T] = (@dom.ChangeEvent) -> Unit
+
+pub type ChangeHandler = (@dom.ChangeEvent) -> Unit
+
+pub type ClipboardEventHandler[T] = (@dom.ClipboardEvent) -> Unit
+
+pub type DragEventHandler[T] = (@dom.DragEvent) -> Unit
+
+pub type ElementRef = (@dom.Element) -> Unit
+
+pub type FocusEventHandler[T] = (@dom.FocusEvent) -> Unit
+
+pub type FocusHandler = (@dom.FocusEvent) -> Unit
+
+pub type FormEventHandler[T] = (@dom.FormEvent) -> Unit
+
+pub type FormHandler = (@dom.FormEvent) -> Unit
+
+pub type GenericEventHandler[T] = (@dom.Event) -> Unit
+
+pub type Handler = (@core.Any) -> Unit
+
+pub type InputEventHandler[T] = (@dom.InputEvent) -> Unit
+
+pub type InputHandler = (@dom.InputEvent) -> Unit
+
+pub type KeyboardEventHandler[T] = (@dom.KeyboardEvent) -> Unit
+
+pub type KeyboardHandler = (@dom.KeyboardEvent) -> Unit
+
+pub type MouseEventHandler[T] = (@dom.MouseEvent) -> Unit
+
+pub type MouseHandler = (@dom.MouseEvent) -> Unit
+
+pub type PointerEventHandler[T] = (@dom.PointerEvent) -> Unit
+
+pub type RefCallback[T] = (T) -> Unit
+
+pub type ScrollEventHandler[T] = (@dom.ScrollEvent) -> Unit
+
+pub type TouchEventHandler[T] = (@dom.TouchEvent) -> Unit
+
+pub type TransitionEventHandler[T] = (@dom.TransitionEvent) -> Unit
+
+pub type WheelEventHandler[T] = (@dom.WheelEvent) -> Unit
+
+// Traits
+pub trait ToDomNode {
+  to_dom_node(Self) -> DomNode
+}
+pub impl ToDomNode for String
+pub impl ToDomNode for @dom.Element
+pub impl ToDomNode for @dom.Node
+pub impl ToDomNode for @dom.Text
+

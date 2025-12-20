@@ -6,7 +6,6 @@ node_modules/
 pnpm-lock.yaml
 dist
 *.coverage
-*.generated.mbti
 *.0x
 test-results/
 wrangler.json

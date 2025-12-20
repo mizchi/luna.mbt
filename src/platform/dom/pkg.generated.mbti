@@ -1,0 +1,88 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/platform/dom"
+
+import(
+  "mizchi/luna/core/signal"
+  "mizchi/luna/platform/dom/element"
+)
+
+// Values
+pub fn[T : ToNode] children(Array[T]) -> Array[Node]
+
+pub fn[T] debounced(@signal.Signal[T], Int) -> @signal.Signal[T]
+
+pub fn get_shadow_root_for_hydrate(@mizchi/js/browser/dom.Element) -> @mizchi/js/browser/dom.Element?
+
+pub fn hydrate_auto(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any]) -> Unit
+
+pub fn hydrate_auto_dom(@mizchi/js/browser/dom.Element, @element.DomNode) -> Unit
+
+pub fn hydrate_island(@mizchi/js/core.Any, @mizchi/js/core.Any, String, (IslandContext) -> Unit) -> Unit
+
+pub fn hydrate_wc_island(@mizchi/js/core.Any, (WcIslandContext) -> Unit) -> Unit
+
+pub fn is_wc_element(@mizchi/js/browser/dom.Element) -> Bool
+
+pub fn[T : ToNode] node(T) -> Node
+
+// Errors
+
+// Types and methods
+#external
+pub type AnyValue
+
+pub struct Element {
+  // private fields
+}
+pub fn Element::from_jsdom(@mizchi/js/browser/dom.Element) -> Self
+pub fn Element::to_jsdom(Self) -> @mizchi/js/browser/dom.Element
+pub fn Element::to_node(Self) -> Node
+pub impl ToNode for Element
+
+pub struct IslandContext {
+  element : @mizchi/js/browser/dom.Element
+  id : String
+  // private fields
+}
+pub fn IslandContext::bind_actions(Self, (String) -> Unit) -> Unit
+pub fn IslandContext::get_element(Self) -> @mizchi/js/browser/dom.Element
+pub fn IslandContext::get_id(Self) -> String
+pub fn IslandContext::get_state_json(Self) -> String
+pub fn IslandContext::new(@mizchi/js/browser/dom.Element, String, String) -> Self
+pub fn IslandContext::on_update(Self, String, () -> String) -> Unit
+pub fn IslandContext::signal_int(Self, String, Int) -> @signal.Signal[Int]
+
+pub enum Node {
+  El(Element)
+  Txt(@mizchi/js/browser/dom.Text)
+  Raw(@mizchi/js/browser/dom.Node)
+}
+pub fn Node::to_jsdom(Self) -> @mizchi/js/browser/dom.Node
+pub impl ToNode for Node
+
+pub struct WcIslandContext {
+  element : @mizchi/js/browser/dom.Element
+  shadow_root : @mizchi/js/core.Any
+  parts : @mizchi/js/core.Any
+  // private fields
+}
+pub fn WcIslandContext::bind_actions(Self, (String) -> Unit) -> Unit
+pub fn[T : Show] WcIslandContext::bind_signal(Self, String, @signal.Signal[T]) -> Unit
+pub fn WcIslandContext::get_element(Self) -> @mizchi/js/browser/dom.Element
+pub fn WcIslandContext::get_shadow_root(Self) -> @mizchi/js/core.Any
+pub fn WcIslandContext::get_state_json(Self) -> String
+pub fn WcIslandContext::new(@mizchi/js/browser/dom.Element) -> Self?
+pub fn WcIslandContext::on(Self, String, String, () -> Unit) -> Unit
+pub fn WcIslandContext::signal_int(Self, String, Int) -> @signal.Signal[Int]
+
+// Type aliases
+
+// Traits
+pub trait ToNode {
+  to_node(Self) -> Node
+}
+pub impl ToNode for String
+pub impl ToNode for @mizchi/js/browser/dom.Element
+pub impl ToNode for @mizchi/js/browser/dom.Node
+pub impl ToNode for @mizchi/js/browser/dom.Text
+

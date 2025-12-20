@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/core/render"
+
+import(
+  "mizchi/luna/core"
+)
+
+// Values
+pub fn escape_attr(String) -> String
+
+pub fn escape_attr_to(StringBuilder, String) -> Unit
+
+pub fn escape_html(String) -> String
+
+pub fn escape_html_to(StringBuilder, String) -> Unit
+
+pub fn escape_js_string(String) -> String
+
+pub fn escape_js_string_to(StringBuilder, String) -> Unit
+
+pub fn escape_json_for_attr(String) -> String
+
+pub fn escape_json_for_script(String) -> String
+
+pub fn generate_preload_tags(Array[String]) -> String
+
+pub fn is_void_element(String) -> Bool
+
+pub fn needs_attr_escape(String) -> Bool
+
+pub fn needs_html_escape(String) -> Bool
+
+pub fn render_attr_value(StringBuilder, String, String) -> Unit
+
+pub fn[E] render_attrs_to(StringBuilder, Array[(String, @core.Attr[E])]) -> Unit
+
+pub fn[E] render_to_string(@core.Node[E], preload? : Bool) -> SSRResult
+
+pub fn[E] render_to_string_with_hydration(@core.Node[E]) -> String
+
+// Errors
+
+// Types and methods
+pub struct SSRResult {
+  html : String
+  preload_urls : Array[String]
+}
+
+// Type aliases
+
+// Traits
+

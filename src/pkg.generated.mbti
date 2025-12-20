@@ -1,0 +1,188 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna"
+
+import(
+  "mizchi/luna/core"
+  "mizchi/luna/core/signal"
+)
+
+// Values
+pub fn[E, A : Show] action(A) -> @core.Attr[E]
+
+pub fn all(Array[@signal.Signal[Bool]]) -> () -> Bool
+
+pub fn any(Array[@signal.Signal[Bool]]) -> () -> Bool
+
+pub fn[E] async_(render~ : async () -> @core.Node[E], fallback~ : () -> @core.Node[E], on_error? : ((Error) -> @core.Node[E])?) -> @core.Node[E]
+
+pub fn[E] attr_dynamic(() -> String) -> @core.Attr[E]
+
+pub fn[E] attr_dynamic_style(() -> String) -> @core.Attr[E]
+
+pub fn[E] attr_handler(@core.EventHandler[E]) -> @core.Attr[E]
+
+pub fn[E] attr_static(String) -> @core.Attr[E]
+
+pub fn[E] attr_style(String) -> @core.Attr[E]
+
+pub fn[T] batch(() -> T) -> T
+
+pub fn batch_end() -> Unit
+
+pub fn batch_start() -> Unit
+
+pub fn[A, B, R] combine2(@signal.Signal[A], @signal.Signal[B], (A, B) -> R) -> () -> R
+
+pub fn[A, B, C, R] combine3(@signal.Signal[A], @signal.Signal[B], @signal.Signal[C], (A, B, C) -> R) -> () -> R
+
+pub fn[A, B, C, D, R] combine4(@signal.Signal[A], @signal.Signal[B], @signal.Signal[C], @signal.Signal[D], (A, B, C, D) -> R) -> () -> R
+
+pub fn[E] component(() -> @core.Node[E]) -> @core.Node[E]
+
+pub fn[T] component_ref(String, T, trigger? : @core.TriggerType) -> @core.ComponentRef[T]
+
+pub fn[T] computed(() -> T) -> () -> T
+
+pub fn[T] create_context(T) -> @signal.Context[T]
+
+pub fn[T] create_root((() -> Unit) -> T) -> T
+
+pub fn[T] create_root_with_dispose(() -> T) -> (T, () -> Unit)
+
+pub fn[T] deferred() -> (@signal.Resource[T], (T) -> Unit, (String) -> Unit)
+
+pub fn effect(() -> Unit) -> () -> Unit
+
+pub fn effect_once(() -> Unit) -> Unit
+
+pub fn effect_when(() -> Bool, () -> Unit) -> () -> Unit
+
+pub fn[E] error_boundary(children~ : () -> @core.Node[E] raise, fallback~ : (Error, () -> Unit) -> @core.Node[E] raise) -> @core.Node[E]
+
+pub fn event_handler() -> @core.EventHandler[Unit]
+
+pub fn[T] flatten(@signal.Signal[@signal.Signal[T]]) -> () -> T
+
+pub fn[E] for_each(() -> Array[@core.Node[E]]) -> @core.Node[E]
+
+pub fn[E] fragment(Array[@core.Node[E]]) -> @core.Node[E]
+
+pub fn get_owner() -> @signal.Owner?
+
+pub fn[E] h(String, Array[(String, @core.Attr[E])], Array[@core.Node[E]]) -> @core.Node[E]
+
+pub fn[E] handler((E) -> Unit) -> @core.EventHandler[E]
+
+pub fn handler_from_callback(() -> Unit) -> @core.EventHandler[Unit]
+
+pub fn[E] has_dynamic_content(Array[(String, @core.Attr[E])]) -> Bool
+
+pub fn has_owner() -> Bool
+
+pub fn[E] internal_ref(String, String, trigger? : @core.TriggerType, wc? : Bool, styles? : String, children? : Array[@core.Node[E]]) -> @core.Node[E]
+
+pub fn[E] island(String, String, String, Array[@core.Node[E]], trigger? : @core.TriggerType) -> @core.Node[E]
+
+pub fn[E] match_case(when~ : () -> Bool, render~ : () -> @core.Node[E]) -> @core.MatchCase[E]
+
+pub fn[T] memo(() -> T) -> () -> T
+
+pub fn[T] on(@signal.Signal[T], (T) -> Unit) -> () -> Unit
+
+pub fn on_cleanup(() -> Unit) -> Unit
+
+pub fn[T] on_immediate(@signal.Signal[T], (T) -> Unit) -> () -> Unit
+
+pub fn on_mount(() -> Unit) -> Unit
+
+pub fn[T] previous(@signal.Signal[T]) -> () -> T?
+
+pub fn[T] previous_with_initial(@signal.Signal[T], T) -> () -> T
+
+pub fn[T, R] provide(@signal.Context[T], T, () -> R) -> R
+
+pub fn register_disposer(() -> Unit) -> Unit
+
+pub fn register_owner_cleanup(() -> Unit) -> Unit
+
+pub fn[T] resource(((T) -> Unit, (String) -> Unit) -> Unit) -> @signal.Resource[T]
+
+pub fn[T] resource_rejected(String) -> @signal.Resource[T]
+
+pub fn[T] resource_resolved(T) -> @signal.Resource[T]
+
+pub fn[T] run_with_owner(@signal.Owner, () -> T) -> T
+
+pub fn[T] select(@signal.Signal[Array[T]], @signal.Signal[Int]) -> () -> T?
+
+pub fn[E] show(() -> Bool, () -> @core.Node[E]) -> @core.Node[E]
+
+pub fn[T] signal(T) -> @signal.Signal[T]
+
+pub fn[E] switch_(cases~ : Array[@core.MatchCase[E]], fallback? : (() -> @core.Node[E])?) -> @core.Node[E]
+
+pub fn[E] text(String) -> @core.Node[E]
+
+pub fn[E] text_dyn(() -> String) -> @core.Node[E]
+
+pub fn[E, T : Show] text_of(@signal.Signal[T]) -> @core.Node[E]
+
+pub fn[T] untracked(() -> T) -> T
+
+pub fn[T] use_context(@signal.Context[T]) -> T
+
+pub fn[T : Eq] watch(() -> T, (T, T) -> Unit) -> () -> Unit
+
+pub fn[T : Eq] watch_immediate(() -> T, (T, T?) -> Unit) -> () -> Unit
+
+pub fn[T] wc_component_ref(String, T, trigger? : @core.TriggerType) -> @core.ComponentRef[T]
+
+pub fn[E] wc_island(String, String, String, String, Array[@core.Node[E]], trigger? : @core.TriggerType) -> @core.Node[E]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @signal {type AsyncState}
+
+pub using @core {type Attr}
+
+pub using @core {type ComponentRef}
+
+pub using @signal {type Context}
+
+pub using @signal {type EffectRunner}
+
+pub using @core {type EventHandler}
+
+pub using @core {type MatchCase}
+
+pub using @core {type Node}
+
+pub using @signal {type Owner}
+
+pub using @signal {type Resource}
+
+pub using @signal {type Signal}
+
+pub using @core {type TriggerType as Trigger}
+
+pub using @core {type TriggerType}
+
+pub using @core {type VAsync}
+
+pub using @core {type VElement}
+
+pub using @core {type VErrorBoundary}
+
+pub using @core {type VInternalRef}
+
+pub using @core {type VIsland}
+
+pub using @core {type VSwitch}
+
+pub using @core {type VWcIsland}
+
+// Traits
+
