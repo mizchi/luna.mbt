@@ -137,10 +137,11 @@ count.set(5)  // Prints: Count: 5, Doubled: 10
 
 ## Learn More
 
-- [JavaScript Tutorial](/js/tutorial/) - Get started with TypeScript/JavaScript
-- [MoonBit Tutorial](/moonbit/tutorial/) - Server-side rendering with MoonBit
-- [Astra](/astra/) - Static site generator for documentation
-- [Sol](/sol/) - Full-stack SSR framework
+- 📖 [Introduction](/introduction/) - Overview, Getting Started, FAQ
+- 🌙 [Luna](/luna/) - Core reactive library with Signals and Islands
+- ☀️ [Sol](/sol/) - Full-stack SSR framework
+- ✨ [Astra](/astra/) - Static site generator for documentation
+- ⭐ [Stella](/stella/) - Development tools
 
 ---
 

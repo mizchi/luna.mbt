@@ -264,6 +264,9 @@ fn build_doc_layout(
     @luna.fragment([])
   }
 
+  // Breadcrumb
+  let breadcrumb = build_breadcrumb(ctx, page)
+
   // Main content
   let article = h("article", [attr("class", "doc-content markdown-body")], [
     content,
@@ -279,7 +282,7 @@ fn build_doc_layout(
   // Prev/Next navigation
   let prev_next = build_prev_next(ctx, page)
   let main = h("main", [attr("class", "doc-main")], [
-    mobile_sidebar, article, prev_next,
+    mobile_sidebar, breadcrumb, article, prev_next,
   ])
   let content_wrapper = h("div", [attr("class", "doc-container")], [
     sidebar, main, toc_vnode,
@@ -566,6 +569,153 @@ fn build_toc(toc : Array[@markdown.TocItem]) -> @luna.Node[Unit] {
 }
 
 ///|
+/// Slice string from start to end (for breadcrumb)
+fn bc_slice(s : String, start : Int, end : Int) -> String {
+  let arr = s.to_array()
+  let chars : Array[Char] = []
+  for i = start; i < end && i < arr.length(); i = i + 1 {
+    chars.push(arr[i])
+  }
+  String::from_array(chars)
+}
+
+///|
+/// Slice string from start to end (for breadcrumb)
+fn bc_slice_from(s : String, start : Int) -> String {
+  let arr = s.to_array()
+  let chars : Array[Char] = []
+  for i = start; i < arr.length(); i = i + 1 {
+    chars.push(arr[i])
+  }
+  String::from_array(chars)
+}
+
+///|
+/// Build breadcrumb navigation
+fn build_breadcrumb(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+) -> @luna.Node[Unit] {
+  // Parse URL path into segments
+  let path = page.url_path.trim_start(chars="/").trim_end(chars="/").to_string()
+  if path.is_empty() {
+    return @luna.fragment([])
+  }
+
+  // Split path into segments
+  let segments : Array[String] = []
+  let chars = path.to_array()
+  let mut start = 0
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '/' {
+      if i > start {
+        segments.push(bc_slice(path, start, i))
+      }
+      start = i + 1
+    }
+  }
+  if start < chars.length() {
+    segments.push(bc_slice_from(path, start))
+  }
+
+  if segments.is_empty() {
+    return @luna.fragment([])
+  }
+
+  // Build breadcrumb items
+  let items : Array[@luna.Node[Unit]] = []
+  let mut current_path = ""
+
+  for i = 0; i < segments.length(); i = i + 1 {
+    let segment = segments[i]
+    current_path = current_path + "/" + segment
+
+    // Find page title for this path
+    let title = find_page_title(ctx.pages, current_path + "/", page.locale)
+      .unwrap_or(capitalize_segment(segment))
+
+    // Add separator (except for first item)
+    if i > 0 {
+      items.push(
+        h("span", [attr("class", "breadcrumb-separator")], [@luna.text("/")]),
+      )
+    }
+
+    // Last item is current page (no link)
+    if i == segments.length() - 1 {
+      items.push(
+        h("span", [attr("class", "breadcrumb-current")], [@luna.text(title)]),
+      )
+    } else {
+      items.push(
+        h(
+          "a",
+          [attr("href", current_path + "/"), attr("class", "breadcrumb-link")],
+          [@luna.text(title)],
+        ),
+      )
+    }
+  }
+
+  h("nav", [attr("class", "breadcrumb")], items)
+}
+
+///|
+/// Find page title by URL path
+fn find_page_title(
+  pages : Array[@astra.PageMeta],
+  url_path : String,
+  locale : String,
+) -> String? {
+  for page in pages {
+    if page.url_path == url_path && page.locale == locale {
+      return page.frontmatter.title
+    }
+  }
+  None
+}
+
+///|
+/// Capitalize first letter
+fn capitalize(s : String) -> String {
+  if s.is_empty() {
+    return s
+  }
+  let chars = s.to_array()
+  let first = chars[0]
+  if first >= 'a' && first <= 'z' {
+    chars[0] = Int::unsafe_to_char(first.to_int() - 32)
+  }
+  String::from_array(chars)
+}
+
+///|
+/// Capitalize segment for display (remove numbers prefix, replace dashes)
+fn capitalize_segment(segment : String) -> String {
+  // Remove leading number prefix (e.g., "01_" or "01-")
+  let mut s = segment
+  let chars = s.to_array()
+  let mut skip = 0
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] >= '0' && chars[i] <= '9' {
+      skip = i + 1
+    } else if (chars[i] == '_' || chars[i] == '-') && skip == i {
+      skip = i + 1
+      break
+    } else {
+      break
+    }
+  }
+  if skip > 0 && skip < chars.length() {
+    s = bc_slice_from(s, skip)
+  }
+
+  // Replace dashes/underscores with spaces and capitalize
+  let result = s.replace(old="-", new=" ").replace(old="_", new=" ")
+  capitalize(result)
+}
+
+///|
 /// Build prev/next navigation
 fn build_prev_next(
   ctx : @astra.BuildContext,
@@ -679,12 +829,15 @@ fn build_html_document(
   // Sidebar state script
   let sidebar_script = get_sidebar_script()
 
+  // TOC scroll spy script
+  let toc_script = get_toc_script()
+
   // Web Components loader script
   let wc_loader_script = get_wc_loader_script()
 
   // Generate OGP meta tags
   let ogp_tags = build_ogp_meta_tags(ctx, page, frontmatter)
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n</body>\n</html>"
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\n</body>\n</html>"
 }
 
 ///|
@@ -866,6 +1019,15 @@ fn get_navigation_script(
       #|  const el = document.getElementById(id);
       #|  if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
       #|}
+      #|function closeAccordion(details) {
+      #|  if (!details.open) return Promise.resolve();
+      #|  details.classList.add('closing');
+      #|  return new Promise(r => {
+      #|    const done = () => { details.open = false; details.classList.remove('closing'); r(); };
+      #|    details.querySelector('.sidebar-items')?.addEventListener('transitionend', done, { once: true });
+      #|    setTimeout(done, 220);
+      #|  });
+      #|}
       #|async function spaNavigate(url, pushState = true) {
       #|  // Abort any pending navigation
       #|  if (currentAbortController) currentAbortController.abort();
@@ -875,8 +1037,19 @@ fn get_navigation_script(
       #|  // Save sidebar scroll position before navigation
       #|  const sidebar = document.querySelector('.sidebar-content');
       #|  const sidebarScrollTop = sidebar ? sidebar.scrollTop : 0;
+      #|  // Close non-target accordions with animation before fetching
+      #|  const targetPath = urlObj.pathname;
+      #|  const openDetails = document.querySelectorAll('.sidebar-collapse[open]');
+      #|  const closePromises = [];
+      #|  openDetails.forEach(d => {
+      #|    const link = d.querySelector('.sidebar-group-link');
+      #|    if (link && !targetPath.startsWith(link.getAttribute('href')?.replace(/\/$/, '') || '###')) {
+      #|      closePromises.push(closeAccordion(d));
+      #|    }
+      #|  });
       #|  try {
-      #|    const res = await fetch(url, { signal: currentAbortController.signal });
+      #|    // Fetch in parallel with close animation
+      #|    const [res] = await Promise.all([fetch(url, { signal: currentAbortController.signal }), ...closePromises]);
       #|    if (!res.ok) { location.href = url; return; }
       #|    const html = await res.text();
       #|    const parser = new DOMParser();
@@ -900,6 +1073,8 @@ fn get_navigation_script(
       #|    // Re-run Web Components loader
       #|    if (window.__LUNA_WC_CLEAR_LOADED__) window.__LUNA_WC_CLEAR_LOADED__();
       #|    if (window.__LUNA_WC_SCAN__) window.__LUNA_WC_SCAN__();
+      #|    // Re-init TOC scroll spy
+      #|    if (window.__ASTRA_INIT_TOC_SPY__) window.__ASTRA_INIT_TOC_SPY__();
       #|  } catch (e) {
       #|    if (e.name !== 'AbortError') location.href = url;
       #|  }
@@ -920,7 +1095,8 @@ fn get_navigation_script(
       #|  e.preventDefault();
       #|  e.stopPropagation();
       #|  const details = chevron.closest('details');
-      #|  if (details) details.open = !details.open;
+      #|  if (!details) return;
+      #|  if (details.open) { closeAccordion(details); } else { details.open = true; }
       #|});
       #|// Intercept link clicks
       #|document.addEventListener('click', (e) => {
@@ -1077,6 +1253,56 @@ fn get_sidebar_script() -> String {
     #|    initSidebar();
     #|  }
     #|  window.__ASTRA_INIT_SIDEBAR__ = initSidebar;
+    #|})();
+    #|</script>
+  script
+}
+
+///|
+/// Get TOC scroll spy script (highlights current section in TOC)
+fn get_toc_script() -> String {
+  let script =
+    #|<script>
+    #|(function(){
+    #|  var observer = null;
+    #|  var tocLinks = [];
+    #|  var headings = [];
+    #|  function initTocSpy() {
+    #|    if (observer) observer.disconnect();
+    #|    tocLinks = Array.from(document.querySelectorAll('.toc-item a'));
+    #|    headings = tocLinks.map(function(link) {
+    #|      var id = link.getAttribute('href')?.slice(1);
+    #|      return id ? document.getElementById(id) : null;
+    #|    }).filter(Boolean);
+    #|    if (!headings.length) return;
+    #|    var current = null;
+    #|    observer = new IntersectionObserver(function(entries) {
+    #|      entries.forEach(function(entry) {
+    #|        if (entry.isIntersecting) current = entry.target;
+    #|      });
+    #|      if (!current) {
+    #|        var scrollY = window.scrollY + 100;
+    #|        for (var i = headings.length - 1; i >= 0; i--) {
+    #|          if (headings[i].offsetTop <= scrollY) { current = headings[i]; break; }
+    #|        }
+    #|      }
+    #|      tocLinks.forEach(function(link) {
+    #|        var id = link.getAttribute('href')?.slice(1);
+    #|        if (current && id === current.id) {
+    #|          link.classList.add('active');
+    #|        } else {
+    #|          link.classList.remove('active');
+    #|        }
+    #|      });
+    #|    }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+    #|    headings.forEach(function(h) { observer.observe(h); });
+    #|  }
+    #|  if (document.readyState === 'loading') {
+    #|    document.addEventListener('DOMContentLoaded', initTocSpy);
+    #|  } else {
+    #|    initTocSpy();
+    #|  }
+    #|  window.__ASTRA_INIT_TOC_SPY__ = initTocSpy;
     #|})();
     #|</script>
   script
@@ -1760,8 +1986,14 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|  border-bottom: 5px solid transparent;
     #|  border-left: 6px solid currentColor;
     #|}
+    #|.sidebar-collapse .sidebar-chevron {
+    #|  transition: transform 0.2s ease;
+    #|}
     #|.sidebar-collapse[open] .sidebar-chevron {
     #|  transform: rotate(90deg);
+    #|}
+    #|.sidebar-collapse.closing .sidebar-chevron {
+    #|  transform: rotate(0deg);
     #|}
     #|.sidebar-collapse .sidebar-items {
     #|  display: grid;
@@ -1771,10 +2003,36 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|.sidebar-collapse[open] .sidebar-items {
     #|  grid-template-rows: 1fr;
     #|}
+    #|.sidebar-collapse.closing .sidebar-items {
+    #|  grid-template-rows: 0fr;
+    #|}
     #|.sidebar-collapse .sidebar-items-inner {
     #|  overflow: hidden;
     #|  padding-left: 1rem;
     #|}
+    #|
+    #|/* Breadcrumb */
+    #|.breadcrumb {
+    #|  display: flex;
+    #|  align-items: center;
+    #|  flex-wrap: wrap;
+    #|  gap: 0.25rem;
+    #|  font-size: 0.875rem;
+    #|  color: var(--text-muted);
+    #|  margin-bottom: 1rem;
+    #|}
+    #|.breadcrumb-link {
+    #|  color: var(--text-muted);
+    #|  text-decoration: none;
+    #|  transition: color 0.15s;
+    #|}
+    #|.breadcrumb-link:hover { color: var(--primary-color); }
+    #|.breadcrumb-separator {
+    #|  color: var(--text-muted);
+    #|  opacity: 0.5;
+    #|  margin: 0 0.25rem;
+    #|}
+    #|.breadcrumb-current { color: var(--text-color); }
     #|
     #|/* Main Content */
     #|.doc-main { flex: 1; padding: 2rem; max-width: 800px; margin-left: 260px; margin-right: 220px; }
@@ -1843,8 +2101,9 @@ fn get_default_css(config : @astra.SsgConfig) -> String {
     #|.toc-title { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; }
     #|.toc-list { list-style: none; font-size: 0.875rem; }
     #|.toc-item { padding: 0.25rem 0; }
-    #|.toc-item a { color: var(--nav-link-color); text-decoration: none; }
+    #|.toc-item a { color: var(--nav-link-color); text-decoration: none; transition: color 0.15s; }
     #|.toc-item a:hover { color: var(--primary-color); }
+    #|.toc-item a.active { color: var(--primary-color); font-weight: 500; }
     #|.toc-level-3 { padding-left: 0.75rem; }
     #|.toc-level-4 { padding-left: 1.5rem; }
     #|

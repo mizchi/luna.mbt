@@ -13,10 +13,9 @@
     ]
   },
   "nav": [
-    { "text": "📋 Overview", "link": "/overview/" },
-    { "text": "📚 Tutorial", "link": "/js/tutorial/" },
-    { "text": "🌟 Astra", "link": "/astra/" },
-    { "text": "☀️ Sol", "link": "/sol/" }
+    { "text": "🌙 Luna", "link": "/luna/" },
+    { "text": "☀️ Sol", "link": "/sol/" },
+    { "text": "✨ Astra", "link": "/astra/" }
   ],
   "sidebar": "auto",
   "navigation": {

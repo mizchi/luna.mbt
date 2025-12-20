@@ -1,8 +1,8 @@
 ---
-title: Tutorial (JavaScript)
+title: JavaScript
 ---
 
-# Tutorial (JavaScript)
+# JavaScript Tutorial
 
 Learn Luna UI with JavaScript/TypeScript.
 
@@ -45,6 +45,6 @@ npm install @mizchi/luna
 
 ## See Also
 
-- [JavaScript API Reference](/js/api/) - API Reference
-- [MoonBit Tutorial](/moonbit/tutorial/) - MoonBit version
+- [JavaScript API Reference](/luna/api/js/) - API Reference
+- [MoonBit Tutorial](/luna/tutorial/moonbit/) - MoonBit version
 - [Astra SSG](/astra/) - Static site generation

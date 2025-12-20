@@ -1,8 +1,8 @@
 ---
-title: Tutorial (MoonBit)
+title: MoonBit
 ---
 
-# Tutorial (MoonBit)
+# MoonBit Tutorial
 
 Learn Luna's reactive primitives and server-side rendering with MoonBit.
 
@@ -56,5 +56,5 @@ Learn Luna's reactive primitives and server-side rendering with MoonBit.
 
 ## See Also
 
-- [JavaScript Tutorial](/js/tutorial/) - Client-side hydration
-- [MoonBit API Reference](/moonbit/api/) - API details
+- [JavaScript Tutorial](/luna/tutorial/js/) - Client-side hydration
+- [MoonBit API Reference](/luna/api/moonbit/) - API details
