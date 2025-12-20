@@ -1,6 +1,6 @@
 {
   "name": "mizchi/luna",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "deps": {
     "moonbitlang/async": "0.14.3",
     "mizchi/js": "0.10.3",
