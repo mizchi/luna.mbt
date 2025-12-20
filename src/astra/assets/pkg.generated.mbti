@@ -1,0 +1,46 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/astra/assets"
+
+import(
+  "mizchi/luna/astra"
+)
+
+// Values
+pub fn clear_cache() -> Unit
+
+pub fn get_default_css(@astra.SsgConfig) -> String
+
+pub fn get_github_markdown_css() -> String
+
+pub fn get_island_loader_js() -> String
+
+pub fn get_loader_js() -> String
+
+pub fn get_main_css() -> String
+
+pub fn get_markdown_css() -> String
+
+pub fn get_sidebar_js() -> String
+
+pub fn get_sidebar_script() -> String
+
+pub fn get_theme_js() -> String
+
+pub fn get_theme_script() -> String
+
+pub fn get_toc_js() -> String
+
+pub fn get_toc_script() -> String
+
+pub fn get_wc_loader_js() -> String
+
+pub fn get_wc_loader_script() -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

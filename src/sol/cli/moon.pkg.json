@@ -9,6 +9,10 @@
       "alias": "cli_utils"
     },
     {
+      "path": "mizchi/luna/core/json_utils",
+      "alias": "json_utils"
+    },
+    {
       "path": "mizchi/js/core",
       "alias": "js"
     },

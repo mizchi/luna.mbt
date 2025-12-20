@@ -1,139 +1,7 @@
 // File-based Router for SSG
 // Scans docs/ directory and generates routes
-
-// =============================================================================
-// String Slice Helpers (safe wrappers)
-// =============================================================================
-
-///|
-/// Safely slice string from start index
-fn slice_from(s : String, start : Int) -> String {
-  if start >= s.length() || start < 0 {
-    ""
-  } else {
-    s[start:].to_string() catch {
-      _ => ""
-    }
-  }
-}
-
-///|
-/// Safely slice string to end index
-fn slice_to(s : String, end : Int) -> String {
-  if end <= 0 || end > s.length() {
-    s
-  } else {
-    s[:end].to_string() catch {
-      _ => s
-    }
-  }
-}
-
-///|
-/// Safely slice StringView from start index
-fn slice_view_from(s : StringView, start : Int) -> String {
-  if start >= s.length() || start < 0 {
-    ""
-  } else {
-    s[start:].to_string() catch {
-      _ => ""
-    }
-  }
-}
-
-///|
-/// Safely slice StringView to end index
-fn _slice_view_to(s : StringView, end : Int) -> String {
-  if end <= 0 || end > s.length() {
-    s.to_string()
-  } else {
-    s[:end].to_string() catch {
-      _ => s.to_string()
-    }
-  }
-}
-
-// =============================================================================
-// Numeric Prefix Handling
-// =============================================================================
-
-///|
-/// Parse numeric prefix from a path segment (e.g., "00_guide" -> (0, "guide"))
-/// Returns (sort_order, stripped_name). If no prefix, returns (max_int, original)
-pub fn parse_numeric_prefix(name : String) -> (Int, String) {
-  // Look for pattern: digits followed by underscore
-  let chars = name.to_array()
-  let mut i = 0
-  while i < chars.length() && chars[i] >= '0' && chars[i] <= '9' {
-    i = i + 1
-  }
-  // Check if we found digits followed by underscore
-  if i > 0 && i < chars.length() && chars[i] == '_' {
-    let num_str = slice_to(name, i)
-    let stripped = slice_from(name, i + 1)
-    let num = parse_int_simple(num_str)
-    (num, stripped)
-  } else {
-    // No valid prefix, use max int so unprefixed items sort last
-    (2147483647, name)
-  }
-}
-
-///|
-/// Simple integer parser (positive only)
-fn parse_int_simple(s : String) -> Int {
-  let mut result = 0
-  for c in s {
-    if c >= '0' && c <= '9' {
-      result = result * 10 + (c.to_int() - '0'.to_int())
-    }
-  }
-  result
-}
-
-///|
-/// Strip numeric prefixes from all segments of a path
-/// e.g., "00_guide/01_intro.md" -> "guide/intro.md"
-pub fn strip_numeric_prefixes(path : String) -> String {
-  let segments = path.split("/")
-  let stripped : Array[String] = []
-  for seg in segments {
-    let (_, name) = parse_numeric_prefix(seg.to_string())
-    stripped.push(name)
-  }
-  stripped.join("/")
-}
-
-///|
-/// Build sort key from path (preserves structure for proper sorting)
-/// e.g., "00_guide/01_intro.md" -> "00000000_guide/00000001_intro.md"
-pub fn build_sort_key(path : String) -> String {
-  let segments = path.split("/")
-  let keyed : Array[String] = []
-  for seg in segments {
-    let (order, name) = parse_numeric_prefix(seg.to_string())
-    // Pad to 8 digits for proper string sorting
-    let padded = pad_number(order, 8)
-    keyed.push(padded + "_" + name)
-  }
-  keyed.join("/")
-}
-
-///|
-/// Pad number with leading zeros
-pub fn pad_number(n : Int, width : Int) -> String {
-  let s = n.to_string()
-  if s.length() >= width {
-    s
-  } else {
-    let zeros = width - s.length()
-    let mut result = ""
-    for i = 0; i < zeros; i = i + 1 {
-      result = result + "0"
-    }
-    result + s
-  }
-}
+//
+// Uses @path_utils for common path operations
 
 // =============================================================================
 // Directory Scanning
@@ -201,7 +69,7 @@ fn scan_recursive(
       let url_path = build_localized_url(canonical_path, locale, i18n)
 
       // Build sort key for ordering (preserves numeric prefixes)
-      let sort_key = build_sort_key(source_path)
+      let sort_key = @path_utils.build_sort_key(source_path)
 
       // Parse frontmatter to get title
       let content : String = @fs.readFileSync(entry_path).to_string() catch {
@@ -238,12 +106,12 @@ fn detect_locale_from_path(
     }
     let prefix = locale.path + "/"
     if path.has_prefix(prefix) {
-      let canonical = slice_from(path, prefix.length())
-      return (locale.code, file_to_url_path(canonical, trailing_slash~))
+      let canonical = @path_utils.slice_from(path, prefix.length())
+      return (locale.code, @path_utils.file_to_url_path(canonical, trailing_slash~))
     }
   }
   // No locale prefix found, use default locale
-  (i18n.default_locale, file_to_url_path(path, trailing_slash~))
+  (i18n.default_locale, @path_utils.file_to_url_path(path, trailing_slash~))
 }
 
 ///|
@@ -322,93 +190,30 @@ fn get_file_mtime(path : String) -> String? {
 }
 
 // =============================================================================
-// Path Conversion
+// Path Conversion (re-exports from @path_utils)
 // =============================================================================
 
 ///|
 /// Convert file path to URL path (strips numeric prefixes)
-/// 00_guide/01_getting-started.md -> /guide/getting-started/ (with trailing slash)
-/// 00_guide/01_getting-started.md -> /guide/getting-started (without trailing slash)
-/// docs/index.md -> /
+/// Delegates to @path_utils.file_to_url_path
 pub fn file_to_url_path(
   file_path : String,
   trailing_slash? : Bool = true,
 ) -> String {
-  // First strip numeric prefixes, then remove .md and handle Windows paths
-  let stripped = strip_numeric_prefixes(file_path)
-  let path = stripped.replace(old=".md", new="").replace(old="\\", new="/")
-  if path.has_suffix("/index") {
-    let trimmed = slice_to(path, path.length() - 6)
-    if trimmed.is_empty() {
-      "/"
-    } else if trailing_slash {
-      "/" + trimmed + "/"
-    } else {
-      "/" + trimmed
-    }
-  } else if path == "index" {
-    "/"
-  } else if trailing_slash {
-    "/" + path + "/"
-  } else {
-    "/" + path
-  }
+  @path_utils.file_to_url_path(file_path, trailing_slash~)
 }
 
 ///|
 /// Convert URL path to output file path
-/// / -> index.html
-/// /guide/intro -> guide/intro/index.html
+/// Delegates to @path_utils.url_to_output_path
 pub fn url_to_output_path(url_path : String) -> String {
-  if url_path == "/" {
-    "index.html"
-  } else {
-    let trimmed = if url_path.has_prefix("/") {
-      slice_from(url_path, 1)
-    } else {
-      url_path
-    }
-    if trimmed.has_suffix("/") {
-      trimmed + "index.html"
-    } else {
-      trimmed + "/index.html"
-    }
-  }
+  @path_utils.url_to_output_path(url_path)
 }
 
 // =============================================================================
 // Page Sorting and Organization
 // =============================================================================
 
-///|
-/// Compare two strings with proper lexicographic ordering
-/// (Workaround for MoonBit String.compare bug with different length strings)
-fn compare_strings_lex(a : String, b : String) -> Int {
-  let a_chars = a.to_array()
-  let b_chars = b.to_array()
-  let min_len = if a_chars.length() < b_chars.length() {
-    a_chars.length()
-  } else {
-    b_chars.length()
-  }
-  // Compare character by character
-  for i = 0; i < min_len; i = i + 1 {
-    if a_chars[i] < b_chars[i] {
-      return -1
-    }
-    if a_chars[i] > b_chars[i] {
-      return 1
-    }
-  }
-  // If all compared chars equal, shorter string is "less"
-  if a_chars.length() < b_chars.length() {
-    -1
-  } else if a_chars.length() > b_chars.length() {
-    1
-  } else {
-    0
-  }
-}
 
 ///|
 /// Sort pages by sort_key (numeric prefix ordering)
@@ -422,7 +227,7 @@ pub fn sort_pages(pages : Array[@astra.PageMeta]) -> Array[@astra.PageMeta] {
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
       let existing_key = result[i].sort_key
-      if compare_strings_lex(key, existing_key) < 0 {
+      if @path_utils.compare_strings_lex(key, existing_key) < 0 {
         pos = i
         break
       }
@@ -461,15 +266,7 @@ pub fn group_pages_by_dir(
 ///|
 /// Get directory part of URL path (local helper)
 fn get_url_dir(url_path : String) -> String {
-  let trimmed = if url_path.has_prefix("/") {
-    slice_from(url_path, 1)
-  } else {
-    url_path
-  }
-  match trimmed.rev_find("/") {
-    Some(idx) => "/" + slice_to(trimmed, idx)
-    None => "/"
-  }
+  @path_utils.get_url_dir(url_path)
 }
 
 // =============================================================================
@@ -516,34 +313,20 @@ fn url_to_name(url_path : String) -> String {
   let trimmed = url_path.trim_end(chars="/")
   match trimmed.rev_find("/") {
     Some(idx) => {
-      let name = slice_view_from(trimmed, idx + 1)
+      let name = @path_utils.slice_view_from(trimmed, idx + 1)
       if name.is_empty() {
         "Home"
       } else {
-        capitalize_first(name.replace(old="-", new=" "))
+        @path_utils.capitalize_first(name.replace(old="-", new=" "))
       }
     }
     None =>
       if trimmed == "/" || trimmed.is_empty() {
         "Home"
       } else {
-        capitalize_first(trimmed.to_string().replace(old="-", new=" "))
+        @path_utils.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
       }
   }
-}
-
-///|
-/// Capitalize first letter (local helper)
-fn capitalize_first(s : String) -> String {
-  if s.is_empty() {
-    return s
-  }
-  let chars = s.to_array()
-  let first = chars[0]
-  if first >= 'a' && first <= 'z' {
-    chars[0] = Int::unsafe_to_char(first.to_int() - 32)
-  }
-  String::from_array(chars)
 }
 
 // =============================================================================

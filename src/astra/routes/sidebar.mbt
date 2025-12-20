@@ -1,8 +1,7 @@
 // Sidebar Generator for SSG
 // Auto-generates sidebar from page structure
-
-// Note: slice_from, slice_to, slice_view_from, slice_view_to helpers
-// are defined in file_router.mbt (same package)
+//
+// Uses @path_utils for common string operations
 
 // =============================================================================
 // Helper Functions (same pattern as transformer.mbt)
@@ -134,7 +133,7 @@ fn get_path_segments(
   }
   // Last segment
   if start < chars.length() {
-    segments.push(slice_from(trimmed, start))
+    segments.push(@path_utils.slice_from(trimmed, start))
   }
 
   // For index pages, return all segments (they're all directory names)
@@ -169,7 +168,7 @@ fn get_segment_sort_key(full_sort_key : String, depth : Int) -> String {
     }
   }
   if start < chars.length() {
-    parts.push(slice_from(full_sort_key, start))
+    parts.push(@path_utils.slice_from(full_sort_key, start))
   }
   if depth < parts.length() {
     parts[depth]
@@ -216,7 +215,7 @@ fn sort_tree_nodes(
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
       let (_, existing) = result[i]
-      if compare_strings_lex(node.sort_key, existing.sort_key) < 0 {
+      if @path_utils.compare_strings_lex(node.sort_key, existing.sort_key) < 0 {
         pos = i
         break
       }
@@ -336,12 +335,12 @@ fn find_sidebar_for_path(
 /// Get directory from URL path
 fn get_url_directory(url_path : String) -> String {
   let trimmed = if url_path.has_prefix("/") {
-    slice_from(url_path, 1)
+    @path_utils.slice_from(url_path, 1)
   } else {
     url_path
   }
   match trimmed.find("/") {
-    Some(idx) => "/" + slice_to(trimmed, idx)
+    Some(idx) => "/" + @path_utils.slice_to(trimmed, idx)
     None => "/"
   }
 }
@@ -352,7 +351,7 @@ fn get_page_name(url_path : String) -> String {
   let trimmed = url_path.trim_end(chars="/")
   match trimmed.rev_find("/") {
     Some(idx) => {
-      let name = slice_view_from(trimmed, idx + 1)
+      let name = @path_utils.slice_view_from(trimmed, idx + 1)
       if name.is_empty() {
         "Introduction"
       } else {

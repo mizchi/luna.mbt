@@ -34,23 +34,11 @@ pub fn parse_ssg_from_sol_config(json_str : String) -> SsgConfig? {
 ///|
 /// Parse SSG object (shared by both config formats)
 fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
-  // Parse ssg fields
-  let docs_dir = match ssg_obj.get("docs") {
-    Some(String(s)) => s
-    _ => "docs"
-  }
-  let output_dir = match ssg_obj.get("output") {
-    Some(String(s)) => s
-    _ => "dist"
-  }
-  let title = match ssg_obj.get("title") {
-    Some(String(s)) => s
-    _ => "Documentation"
-  }
-  let base_url = match ssg_obj.get("base") {
-    Some(String(s)) => s
-    _ => "/"
-  }
+  // Parse ssg fields using json_utils helpers
+  let docs_dir = @json_utils.extract_string(ssg_obj, "docs", "docs")
+  let output_dir = @json_utils.extract_string(ssg_obj, "output", "dist")
+  let title = @json_utils.extract_string(ssg_obj, "title", "Documentation")
+  let base_url = @json_utils.extract_string(ssg_obj, "base", "/")
 
   // Parse nav items
   let nav = parse_nav_items(ssg_obj)
@@ -65,10 +53,7 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
   let i18n = parse_i18n_config(ssg_obj)
 
   // Parse exclude patterns
-  let exclude = match ssg_obj.get("exclude") {
-    Some(Array(arr)) => parse_string_array_json(arr)
-    _ => []
-  }
+  let exclude = @json_utils.extract_string_array(ssg_obj, "exclude")
 
   // Parse islands config
   let islands_config = parse_islands_config(ssg_obj)
@@ -77,10 +62,7 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
   let navigation = parse_navigation_config(ssg_obj)
 
   // Parse trailing slash config (default: true for SSG compatibility)
-  let trailing_slash = match ssg_obj.get("trailingSlash") {
-    Some(False) => false
-    _ => true
-  }
+  let trailing_slash = @json_utils.extract_bool(ssg_obj, "trailingSlash", true)
 
   // Parse OGP config
   let ogp = parse_ogp_config(ssg_obj)
@@ -122,14 +104,10 @@ fn parse_nav_items(obj : Map[String, Json]) -> Array[NavItem] {
 /// Parse single nav item
 fn parse_nav_item(json : Json) -> NavItem? {
   guard json is Object(obj) else { return None }
-  let text = match obj.get("text") {
-    Some(String(s)) => s
-    _ => return None
+  guard @json_utils.extract_string_opt(obj, "text") is Some(text) else {
+    return None
   }
-  let link = match obj.get("link") {
-    Some(String(s)) => s
-    _ => ""
-  }
+  let link = @json_utils.extract_string(obj, "link", "")
   let items = match obj.get("items") {
     Some(Array(arr)) => {
       let result : Array[NavItem] = []
@@ -200,14 +178,8 @@ fn parse_sidebar_group_from_array(
 /// Parse sidebar group
 fn parse_sidebar_group(json : Json) -> SidebarGroup? {
   guard json is Object(obj) else { return None }
-  let text = match obj.get("text") {
-    Some(String(s)) => s
-    _ => ""
-  }
-  let collapsed = match obj.get("collapsed") {
-    Some(True) => true
-    _ => false
-  }
+  let text = @json_utils.extract_string(obj, "text", "")
+  let collapsed = @json_utils.extract_bool(obj, "collapsed", false)
   let items = match obj.get("items") {
     Some(Array(arr)) => {
       let result : Array[SidebarItem] = []
@@ -236,50 +208,42 @@ fn parse_sidebar_item(json : Json) -> SidebarItem? {
     return None
   }
   // It's a link
-  guard obj.get("text") is Some(String(text)) else { return None }
-  guard obj.get("link") is Some(String(link)) else { return None }
+  guard @json_utils.extract_string_opt(obj, "text") is Some(text) else {
+    return None
+  }
+  guard @json_utils.extract_string_opt(obj, "link") is Some(link) else {
+    return None
+  }
   Some(SidebarItem::Link(text~, link~))
 }
 
 ///|
 /// Parse theme configuration
 fn parse_theme_config(obj : Map[String, Json]) -> ThemeConfig {
-  match obj.get("theme") {
-    Some(Object(theme_obj)) => {
-      let primary_color = match theme_obj.get("primaryColor") {
-        Some(String(s)) => Some(s)
-        _ => Some("#3451b2")
-      }
-      let logo = match theme_obj.get("logo") {
-        Some(String(s)) => Some(s)
-        _ => None
-      }
-      let footer = match theme_obj.get("footer") {
-        Some(Object(footer_obj)) => {
-          let message = match footer_obj.get("message") {
-            Some(String(s)) => Some(s)
-            _ => None
-          }
-          let copyright = match footer_obj.get("copyright") {
-            Some(String(s)) => Some(s)
-            _ => None
-          }
-          let links = match footer_obj.get("links") {
-            Some(Array(arr)) => parse_footer_columns(arr)
-            _ => []
-          }
-          Some(FooterConfig::{ message, copyright, links })
-        }
-        _ => None
-      }
-      let social_links = match theme_obj.get("socialLinks") {
-        Some(Array(arr)) => parse_social_links(arr)
+  guard @json_utils.extract_object(obj, "theme") is Some(theme_obj) else {
+    return ThemeConfig::default()
+  }
+  let primary_color = Some(
+    @json_utils.extract_string(theme_obj, "primaryColor", "#3451b2"),
+  )
+  let logo = @json_utils.extract_string_opt(theme_obj, "logo")
+  let footer = match @json_utils.extract_object(theme_obj, "footer") {
+    Some(footer_obj) => {
+      let message = @json_utils.extract_string_opt(footer_obj, "message")
+      let copyright = @json_utils.extract_string_opt(footer_obj, "copyright")
+      let links = match footer_obj.get("links") {
+        Some(Array(arr)) => parse_footer_columns(arr)
         _ => []
       }
-      ThemeConfig::{ primary_color, logo, footer, social_links }
+      Some(FooterConfig::{ message, copyright, links })
     }
-    _ => ThemeConfig::default()
+    None => None
   }
+  let social_links = match theme_obj.get("socialLinks") {
+    Some(Array(arr)) => parse_social_links(arr)
+    _ => []
+  }
+  ThemeConfig::{ primary_color, logo, footer, social_links }
 }
 
 ///|
@@ -288,13 +252,11 @@ fn parse_social_links(arr : Array[Json]) -> Array[SocialLink] {
   let result : Array[SocialLink] = []
   for item in arr {
     guard item is Object(obj) else { continue }
-    let icon = match obj.get("icon") {
-      Some(String(s)) => s
-      _ => continue
+    guard @json_utils.extract_string_opt(obj, "icon") is Some(icon) else {
+      continue
     }
-    let link = match obj.get("link") {
-      Some(String(s)) => s
-      _ => continue
+    guard @json_utils.extract_string_opt(obj, "link") is Some(link) else {
+      continue
     }
     result.push(SocialLink::{ icon, link })
   }
@@ -307,9 +269,8 @@ fn parse_footer_columns(arr : Array[Json]) -> Array[FooterColumn] {
   let result : Array[FooterColumn] = []
   for item in arr {
     guard item is Object(obj) else { continue }
-    let title = match obj.get("title") {
-      Some(String(s)) => s
-      _ => continue
+    guard @json_utils.extract_string_opt(obj, "title") is Some(title) else {
+      continue
     }
     let items = match obj.get("items") {
       Some(Array(links_arr)) => parse_footer_links(links_arr)
@@ -326,47 +287,32 @@ fn parse_footer_links(arr : Array[Json]) -> Array[FooterLink] {
   let result : Array[FooterLink] = []
   for item in arr {
     guard item is Object(obj) else { continue }
-    let label = match obj.get("label") {
-      Some(String(s)) => s
-      _ => continue
+    guard @json_utils.extract_string_opt(obj, "label") is Some(label) else {
+      continue
     }
-    let href = match obj.get("href") {
-      Some(String(s)) => s
-      _ => continue
+    guard @json_utils.extract_string_opt(obj, "href") is Some(href) else {
+      continue
     }
     result.push(FooterLink::{ label, href })
   }
   result
 }
 
-///|
-/// Parse string array from JSON array
-fn parse_string_array_json(arr : Array[Json]) -> Array[String] {
-  let result : Array[String] = []
-  for item in arr {
-    guard item is String(s) else { continue }
-    result.push(s)
-  }
-  result
-}
 
 ///|
 /// Parse i18n configuration
 fn parse_i18n_config(obj : Map[String, Json]) -> I18nConfig {
-  match obj.get("i18n") {
-    Some(Object(i18n_obj)) => {
-      let default_locale = match i18n_obj.get("defaultLocale") {
-        Some(String(s)) => s
-        _ => "en"
-      }
-      let locales = match i18n_obj.get("locales") {
-        Some(Array(arr)) => parse_locale_configs(arr)
-        _ => [LocaleConfig::{ code: "en", label: "English", path: "" }]
-      }
-      I18nConfig::{ default_locale, locales }
-    }
-    _ => I18nConfig::default()
+  guard @json_utils.extract_object(obj, "i18n") is Some(i18n_obj) else {
+    return I18nConfig::default()
   }
+  let default_locale = @json_utils.extract_string(
+    i18n_obj, "defaultLocale", "en",
+  )
+  let locales = match i18n_obj.get("locales") {
+    Some(Array(arr)) => parse_locale_configs(arr)
+    _ => [LocaleConfig::{ code: "en", label: "English", path: "" }]
+  }
+  I18nConfig::{ default_locale, locales }
 }
 
 ///|
@@ -385,17 +331,13 @@ fn parse_locale_configs(arr : Array[Json]) -> Array[LocaleConfig] {
 /// Parse single locale configuration
 fn parse_locale_config(json : Json) -> LocaleConfig? {
   guard json is Object(obj) else { return None }
-  let code = match obj.get("code") {
-    Some(String(s)) => s
-    _ => return None
+  guard @json_utils.extract_string_opt(obj, "code") is Some(code) else {
+    return None
   }
-  let label = match obj.get("label") {
-    Some(String(s)) => s
-    _ => code // Fallback to code if no label
-  }
-  let path = match obj.get("path") {
-    Some(String(s)) => s
-    _ => if code == "en" { "" } else { code }
+  let label = @json_utils.extract_string(obj, "label", code)
+  let path = match @json_utils.extract_string_opt(obj, "path") {
+    Some(p) => p
+    None => if code == "en" { "" } else { code }
   }
   Some(LocaleConfig::{ code, label, path })
 }
@@ -403,68 +345,37 @@ fn parse_locale_config(json : Json) -> LocaleConfig? {
 ///|
 /// Parse navigation configuration
 fn parse_navigation_config(obj : Map[String, Json]) -> NavigationConfig {
-  match obj.get("navigation") {
-    Some(Object(nav_obj)) => {
-      let spa = match nav_obj.get("spa") {
-        Some(True) => true
-        _ => false
-      }
-      let view_transitions = match nav_obj.get("viewTransitions") {
-        Some(False) => false
-        _ => true // default to true
-      }
-      let keyboard = match nav_obj.get("keyboard") {
-        Some(False) => false
-        _ => true // default to true
-      }
-      NavigationConfig::{ spa, view_transitions, keyboard }
-    }
-    _ => NavigationConfig::default()
+  guard @json_utils.extract_object(obj, "navigation") is Some(nav_obj) else {
+    return NavigationConfig::default()
   }
+  let spa = @json_utils.extract_bool(nav_obj, "spa", false)
+  let view_transitions = @json_utils.extract_bool(
+    nav_obj, "viewTransitions", true,
+  )
+  let keyboard = @json_utils.extract_bool(nav_obj, "keyboard", true)
+  NavigationConfig::{ spa, view_transitions, keyboard }
 }
 
 ///|
 /// Parse OGP configuration
 fn parse_ogp_config(obj : Map[String, Json]) -> OgpConfig {
-  match obj.get("ogp") {
-    Some(Object(ogp_obj)) => {
-      let site_url = match ogp_obj.get("siteUrl") {
-        Some(String(s)) => Some(s)
-        _ => None
-      }
-      let image = match ogp_obj.get("image") {
-        Some(String(s)) => Some(s)
-        _ => None
-      }
-      let twitter_handle = match ogp_obj.get("twitterHandle") {
-        Some(String(s)) => Some(s)
-        _ => None
-      }
-      let twitter_card = match ogp_obj.get("twitterCard") {
-        Some(String(s)) => Some(s)
-        _ => None
-      }
-      OgpConfig::{ site_url, image, twitter_handle, twitter_card }
-    }
-    _ => OgpConfig::default()
+  guard @json_utils.extract_object(obj, "ogp") is Some(ogp_obj) else {
+    return OgpConfig::default()
   }
+  let site_url = @json_utils.extract_string_opt(ogp_obj, "siteUrl")
+  let image = @json_utils.extract_string_opt(ogp_obj, "image")
+  let twitter_handle = @json_utils.extract_string_opt(ogp_obj, "twitterHandle")
+  let twitter_card = @json_utils.extract_string_opt(ogp_obj, "twitterCard")
+  OgpConfig::{ site_url, image, twitter_handle, twitter_card }
 }
 
 ///|
 /// Parse Islands configuration
 fn parse_islands_config(obj : Map[String, Json]) -> IslandsConfig? {
-  match obj.get("islands") {
-    Some(Object(islands_obj)) => {
-      let dir = match islands_obj.get("dir") {
-        Some(String(s)) => s
-        _ => "islands"
-      }
-      let base_path = match islands_obj.get("basePath") {
-        Some(String(s)) => s
-        _ => "/islands/"
-      }
-      Some(IslandsConfig::{ dir, base_path })
-    }
-    _ => None
+  guard @json_utils.extract_object(obj, "islands") is Some(islands_obj) else {
+    return None
   }
+  let dir = @json_utils.extract_string(islands_obj, "dir", "islands")
+  let base_path = @json_utils.extract_string(islands_obj, "basePath", "/islands/")
+  Some(IslandsConfig::{ dir, base_path })
 }

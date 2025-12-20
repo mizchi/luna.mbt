@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/core/path_utils"
+
+// Values
+pub fn build_sort_key(String) -> String
+
+pub fn capitalize_first(String) -> String
+
+pub fn compare_strings_lex(String, String) -> Int
+
+pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
+
+pub fn get_dir_name(String) -> String
+
+pub fn get_url_dir(String) -> String
+
+pub fn pad_number(Int, Int) -> String
+
+pub fn parse_int_simple(String) -> Int
+
+pub fn parse_numeric_prefix(String) -> (Int, String)
+
+pub fn slice_from(String, Int) -> String
+
+pub fn slice_to(String, Int) -> String
+
+pub fn slice_view_from(StringView, Int) -> String
+
+pub fn slice_view_to(StringView, Int) -> String
+
+pub fn strip_numeric_prefixes(String) -> String
+
+pub fn url_to_output_path(String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

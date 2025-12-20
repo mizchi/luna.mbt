@@ -155,43 +155,19 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
   try {
     let json = @json.parse(json_str.view())
     guard json is Object(obj) else { return None }
-    let islands = parse_string_array(obj, "islands")
-    let routes = match obj.get("routes") {
-      Some(String(s)) => s
-      _ => "app/routes"
-    }
-    let output = match obj.get("output") {
-      Some(String(s)) => s
-      _ => "app/__gen__"
-    }
-    let client_auto_exports = match obj.get("client_auto_exports") {
-      Some(True) => true
-      Some(False) => false
-      _ => true // default: true
-    }
-    let runtime = match obj.get("runtime") {
-      Some(String(s)) => parse_runtime(s)
-      _ => RuntimeNode // default
+    let islands = @json_utils.extract_string_array(obj, "islands")
+    let routes = @json_utils.extract_string(obj, "routes", "app/routes")
+    let output = @json_utils.extract_string(obj, "output", "app/__gen__")
+    let client_auto_exports = @json_utils.extract_bool(
+      obj, "client_auto_exports", true,
+    )
+    let runtime = match @json_utils.extract_string_opt(obj, "runtime") {
+      Some(s) => parse_runtime(s)
+      None => RuntimeNode
     }
     Some(SolConfig::{ islands, routes, output, client_auto_exports, runtime })
   } catch {
     _ => None
-  }
-}
-
-///|
-/// Parse string array from JSON object
-fn parse_string_array(obj : Map[String, Json], key : String) -> Array[String] {
-  match obj.get(key) {
-    Some(Array(arr)) => {
-      let result : Array[String] = []
-      for item in arr {
-        guard item is String(s) else { continue }
-        result.push(s)
-      }
-      result
-    }
-    _ => []
   }
 }
 

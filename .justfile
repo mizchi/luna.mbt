@@ -1,17 +1,121 @@
-# Default recipe
-default: test
+# Luna UI Framework - Task Runner
+#
+# テストはピラミッド構造:
+#   test-unit        → 最速・最多 (MoonBit, TypeScript)
+#   test-integration → 中間 (Vitest, Browser)
+#   test-e2e         → 最遅・最少 (Playwright)
 
-# === CI Commands ===
+default: check
 
-# Run all CI checks (use before PR)
-ci: check test size-check
-    @echo "✓ All CI checks passed"
+# =============================================================================
+# 日常開発
+# =============================================================================
 
-# Type check
+# 型チェック
 check:
     moon check --target js
 
-# Check bundle sizes are within limits
+# フォーマット
+fmt:
+    moon fmt
+
+# 自動リビルド
+watch:
+    moon build --target js --watch
+
+# クリーン
+clean:
+    moon clean
+    rm -rf target coverage
+
+# =============================================================================
+# ビルド
+# =============================================================================
+
+# MoonBit ビルド
+build-moon:
+    moon build --target js
+
+# MoonBit デバッグビルド（ソースマップ付き）
+build-debug:
+    moon build --target js -g
+
+# Loader ビルド
+build-loader:
+    pnpm exec rolldown -c rolldown.config.mjs
+
+# フルビルド
+build: build-moon build-loader
+    pnpm vite build
+
+# =============================================================================
+# テスト（ピラミッド構造）
+# =============================================================================
+
+# 全テスト（ピラミッド順: unit → integration → e2e）
+test: test-unit test-integration test-e2e test-examples
+    @echo "✓ All tests passed"
+
+# --- Layer 1: Unit Tests (最速・最多) ---
+test-unit: test-moonbit test-xplat test-ts
+
+# --- Layer 2: Integration Tests (中間) ---
+test-integration: test-vitest test-browser
+
+# --- Layer 3: E2E Tests (最遅・最少) ---
+test-e2e: build-moon
+    pnpm playwright test --config e2e/playwright.config.mts
+
+# =============================================================================
+# テスト（カテゴリ別）
+# =============================================================================
+
+# MoonBit ユニットテスト
+test-moonbit:
+    moon test --target js
+
+# クロスプラットフォームテスト (js, wasm-gc, native)
+test-xplat:
+    moon test --target all src/core/signal
+    moon test --target all src/core/routes
+    moon test --target all src/core/render
+    moon test --target all src/core/serialize
+
+# TypeScript 型チェック
+test-ts:
+    pnpm tsc -p .
+
+# Vitest テスト
+test-vitest: build-moon
+    pnpm vitest run
+
+# ブラウザテスト (Vitest)
+test-browser: build-moon
+    pnpm vitest run --config vitest.browser.config.ts
+
+# E2E UI モード
+test-e2e-ui: build-moon
+    pnpm playwright test --config e2e/playwright.config.mts --ui
+
+# サンプルプロジェクトテスト
+test-examples:
+    rm -f target/js/release/check/check.moon_db
+    moon info
+    moon build -C examples/sol_app
+
+# Sol new テンプレートテスト
+test-sol-new: build-moon
+    node scripts/test-sol-new.ts
+
+# =============================================================================
+# CI
+# =============================================================================
+
+# PR前チェック
+ci: check test size-check
+    @echo "✓ All CI checks passed"
+
+# バンドルサイズチェック
 size-check:
     #!/usr/bin/env bash
     set -e
@@ -23,85 +127,7 @@ size-check:
     fi
     echo "✓ Bundle sizes OK"
 
-# === Test Commands ===
-
-# Run all tests
-test: test-moonbit test-xplat test-ts test-vitest test-browser test-e2e test-examples
-    @echo "✓ All tests passed"
-
-# Run TypeScript type check
-test-ts:
-    pnpm tsc -p .
-
-test-examples:
-    # Clean up potentially corrupted moon_db files (workaround for vitest/moon interaction issue)
-    rm -f target/js/release/check/check.moon_db
-    moon info
-    moon build -C examples/sol_app
-
-# Run MoonBit unit tests
-test-moonbit:
-    moon test --target js
-    moon test --target all src/core/signal
-
-# Run cross-platform tests (core modules on all targets: js, wasm-gc, native)
-test-xplat:
-    moon test --target all src/core/signal
-    moon test --target all src/core/routes
-    moon test --target all src/core/render
-    moon test --target all src/core/serialize
-#     moon test --target all src/core/markdown
-
-# Run vitest tests
-test-vitest: build-moon
-    pnpm vitest run
-
-# Run browser tests
-test-browser: build-moon
-    pnpm vitest run --config vitest.browser.config.ts
-
-# Run E2E tests (playwright)
-test-e2e: build-moon
-    pnpm playwright test --config e2e/playwright.config.mts
-
-# Run E2E tests with UI
-test-e2e-ui: build-moon
-    pnpm playwright test --config e2e/playwright.config.mts --ui
-
-# Run E2E coverage tests
-test-e2e-coverage: build-moon
-    pnpm playwright test --config e2e/playwright.config.mts e2e/browser-app/coverage.test.ts
-
-# Run sol new template test
-test-sol-new: build-moon
-    node scripts/test-sol-new.ts
-
-# === Build Commands ===
-
-# Build MoonBit only
-build-moon:
-    moon build --target js
-
-# Build loader with rolldown
-build-loader:
-    pnpm exec rolldown -c rolldown.config.mjs
-
-# Build all (MoonBit + loader + Vite)
-build: build-moon build-loader
-    pnpm vite build
-
-# Clean build artifacts
-clean:
-    moon clean
-    rm -rf target
-
-# Format code
-fmt:
-    moon fmt
-
-# === Utility Commands ===
-
-# Show bundle sizes
+# バンドルサイズ表示
 size:
     @echo "=== Bundle Sizes ==="
     @ls -lh js/loader/*.js 2>/dev/null | awk '{print $9 ": " $5}'
@@ -109,100 +135,64 @@ size:
     @echo "=== MoonBit Output Sizes ==="
     @find target/js/release/build -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 ": " $5}' | head -20
 
-# Run benchmarks
-bench:
-    node bench/run.js
+# =============================================================================
+# カバレッジ
+# =============================================================================
 
-# Run benchmarks with happydom
-bench-happydom:
-    node bench/run-happydom.js
+# 全カバレッジ（レポート生成）
+coverage: coverage-moonbit coverage-vitest coverage-e2e coverage-report
+    @echo "✓ Coverage reports generated in coverage/"
 
-# === Metrics Commands ===
-
-# Build, collect metrics, and show trend
-metrics:
-    node scripts/metrics.ts
-
-# Show metrics trend only (no build)
-metrics-show:
-    node scripts/metrics.ts show
-
-# Watch and rebuild
-watch:
-    moon build --target js --watch
-
-[parallel]
-dev: watch
-
-# === Sol CLI Commands ===
-
-# Run sol CLI
-sol *args:
-    node target/js/release/build/sol/cli/cli.js {{args}}
-
-# Create new sol project
-sol-new name:
-    node target/js/release/build/sol/cli/cli.js new {{name}}
-
-# === Astra CLI Commands ===
-
-# Run astra CLI (static site generator)
-astra *args:
-    node target/js/release/build/astra/cli/cli.js {{args}}
-
-# Build SSG with syntax highlighting
-ssg-build output="dist": build-moon
-    node target/js/release/build/astra/cli/cli.js build -o {{output}}
-    npx tsx scripts/shiki-highlight.ts {{output}}
-
-# Build SSG without syntax highlighting (faster)
-ssg-build-fast output="dist": build-moon
-    node target/js/release/build/astra/cli/cli.js build -o {{output}}
-
-# === Coverage Commands ===
-
-# Build MoonBit with debug info (generates source maps)
-build-debug:
-    moon build --target js -g
-
-# Run MoonBit tests with coverage
+# MoonBit カバレッジ
 coverage-moonbit:
     rm -f target/moonbit_coverage_*.txt
     moon test --target js --enable-coverage
     moon coverage report -f cobertura -o coverage/moonbit-coverage.xml
     moon coverage report -f summary
 
-# Run vitest with V8 coverage (uses debug build for source maps)
+# Vitest カバレッジ
 coverage-vitest: build-debug
     pnpm vitest run --coverage --coverage.provider=v8 --coverage.reporter=json --coverage.reportsDirectory=coverage/vitest
 
-# Run E2E tests with V8 coverage (uses debug build for source maps)
+# E2E カバレッジ
 coverage-e2e: build-debug
     rm -rf coverage/e2e-v8
     pnpm playwright test --config e2e/playwright.config.mts e2e/browser-app/coverage.test.mts
 
-# Generate coverage report (uses source maps to map JS -> .mbt)
+# カバレッジレポート生成
 coverage-report:
     node scripts/coverage.ts
 
-# Generate HTML coverage report
+# HTML カバレッジレポート
 coverage-html:
     node scripts/coverage.ts html
 
-# Run all tests with coverage and generate report
-coverage: coverage-moonbit coverage-vitest coverage-e2e coverage-report
-    @echo "✓ Coverage reports generated in coverage/"
-
-# Clean coverage data
+# カバレッジクリーン
 coverage-clean:
     rm -rf coverage/
     moon coverage clean
 
-# Start docs dev server
+# =============================================================================
+# CLI
+# =============================================================================
+
+# Sol CLI
+sol *args: build-moon
+    node target/js/release/build/sol/cli/cli.js {{args}}
+
+# Astra CLI
+astra *args: build-moon
+    node target/js/release/build/astra/cli/cli.js {{args}}
+
+# =============================================================================
+# ドキュメント
+# =============================================================================
+
+# docs 開発サーバー
 doc: build-moon
     node target/js/release/build/astra/cli/cli.js dev
 
-# Build full documentation site (demo + docs)
+# docs ビルド
 build-doc: build-moon
     @echo "Building demo..."
     pnpm vite build
@@ -210,6 +200,35 @@ build-doc: build-moon
     node target/js/release/build/astra/cli/cli.js build
     @echo "✓ Documentation built in dist/"
 
-# Preview built docs
+# docs プレビュー
 preview-doc:
     npx serve dist
+
+# SSG ビルド（シンタックスハイライト付き）
+ssg-build output="dist": build-moon
+    node target/js/release/build/astra/cli/cli.js build -o {{output}}
+    npx tsx scripts/shiki-highlight.ts {{output}}
+
+# SSG ビルド（高速、ハイライトなし）
+ssg-build-fast output="dist": build-moon
+    node target/js/release/build/astra/cli/cli.js build -o {{output}}
+
+# =============================================================================
+# ベンチマーク・メトリクス
+# =============================================================================
+
+# ベンチマーク実行
+bench:
+    node bench/run.js
+
+# ベンチマーク (happydom)
+bench-happydom:
+    node bench/run-happydom.js
+
+# メトリクス収集
+metrics:
+    node scripts/metrics.ts
+
+# メトリクス表示
+metrics-show:
+    node scripts/metrics.ts show

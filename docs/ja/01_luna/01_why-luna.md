@@ -1,8 +1,154 @@
 ---
-title: Why Luna?
+title: Why Luna UI?
 ---
 
-# Why Luna?
+# Why Luna LUI?
+
+- 軽量 7.5k
+- 
+
+⏺ Update(~/mizchi/luna.mbt/docs/benchmark.md)
+  ⎿  Added 9 lines                                                        
+       2  
+       3  Luna vs React vs Preact の比較ベンチマーク結果。
+       4  
+       5 +## TL;DR - Luna の強み                                          
+       6 +                                                                
+       7 +| 指標 | Luna | 備考 |                                          
+       8 +|------|------|------|                                          
+       9 +| **バンドルサイズ** | 9.4 KB (gzip) | React の 1/6 |           
+      10 +| **SSR 性能** | 12,800 pages/sec | 1000アイテムリスト |        
+      11 +| **Signal 更新** | 11M ops/sec | Fine-Grained Reactivity |     
+      12 +| **部分更新** | 4.5M ops/sec | DOM 操作なしで更新 |            
+      13 +                                                                
+      14  ## Bundle Size Comparison
+      15  
+      16  | Library | Minified | Gzip | vs React |
+
+⏺ Update(~/mizchi/luna.mbt/docs/benchmark.md)
+  ⎿  Added 78 lines, removed 8 lines                                      
+      109  npx vitest bench js/luna/benches/grid.bench.ts --run
+      110  ```
+      111  
+      112 -## Conclusion                                                  
+      112 +## Luna の強み - MoonBit ベンチマーク                          
+      113  
+      114 -**Luna はパフォーマンス重視のアプリには現時点では推奨しません。
+          -**                                                             
+      114 +Luna 内部の MoonBit ベンチマーク結果。これらは Luna の設計上の 
+          +強みを示しています。                                           
+      115  
+      116 -以下のケースで Luna を検討してください：                       
+      116 +### SSR (Server-Side Rendering)                                
+      117  
+      118 -- ✅ Island Architecture で部分ハイドレーションしたい          
+      118 +| テスト | 時間 | ops/sec |                                    
+      119 +|--------|------|---------|                                    
+      120 +| Simple element | 0.13 µs | 7.7M |                            
+      121 +| 10 item list | 0.83 µs | 1.2M |                              
+      122 +| 100 item list | 8.12 µs | 123K |                             
+      123 +| **1000 item list** | **78 µs** | **12.8K** |                 
+      124 +| 10 card page | 5.95 µs | 168K |                              
+      125 +| 50 card page | 28.5 µs | 35K |                               
+      126 +| 100 card page | 58.4 µs | 17K |                              
+      127 +                                                               
+      128 +**SSR 性能は非常に高速** - 1000要素のリストを 78µs で生成可能。
+      129 +                                                               
+      130 +### Signal (Fine-Grained Reactivity)                           
+      131 +                                                               
+      132 +| 操作 | 時間 | ops/sec |                                      
+      133 +|------|------|---------|                                      
+      134 +| Signal::new | ~0.36 µs/100 | 280K |                          
+      135 +| Signal::get | 0.28 µs/1000 | 3.6M |                          
+      136 +| **Signal::set** | **0.09 µs** | **11M** |                    
+      137 +| Memo cached read | 0.28 µs/1000 | 3.6M |                     
+      138 +| Memo recompute | 0.63 µs | 1.6M |                            
+      139 +| Effect rerun | ~1 µs | 1M |                                  
+      140 +| Batch 100 updates | 5 µs | 200K |                            
+      141 +                                                               
+      142 +**Signal 更新は 11M ops/sec** - React の setState より桁違いに 
+          +高速。                                                         
+      143 +                                                               
+      144 +### DOM 更新 (Fine-Grained)                                    
+      145 +                                                               
+      146 +| 操作 | 時間 | ops/sec |                                      
+      147 +|------|------|---------|                                      
+      148 +| **Text update** | **0.22 µs** | **4.5M** |                   
+      149 +| Attr update | 0.39 µs | 2.6M |                               
+      150 +| Show toggle | 2.56 µs | 390K |                               
+      151 +| Deep update (5 levels) | 0.37 µs | 2.7M |                    
+      152 +                                                               
+      153 +**部分更新は 4.5M ops/sec** - VDOM diff なしで直接 DOM 更新。  
+      154 +                                                               
+      155 +### なぜ Luna は VDOM ベンチで遅いのか                         
+      156 +                                                               
+      157 +Grid ベンチマーク（2,500セル全更新）では Luna は Preact より遅 
+          +いが、これは：                                                 
+      158 +                                                               
+      159 +1. **全要素更新は Luna の想定外ユースケース**                  
+      160 +   - Fine-Grained Reactivity は「一部だけ更新」が前提          
+      161 +   - 2,500セル全部を毎回更新するのは VDOM 向き                 
+      162 +                                                               
+      163 +2. **Luna の設計思想**                                         
+      164 +   - 変更された Signal だけが DOM を更新                       
+      165 +   - 1セルの更新 = 0.22µs（VDOM diff 不要）                    
+      166 +                                                               
+      167 +3. **実際のアプリでは Luna が有利なケース**                    
+      168 +   - ほとんどの UI は部分更新                                  
+      169 +   - Island Architecture で初期化コストを分散                  
+      170 +                                                               
+      171 +## Conclusion                                                  
+      172 +                                                               
+      173 +### Luna が向いているケース                                    
+      174 +                                                               
+      175 +- ✅ **SSR + 選択的ハイドレーション** が必要                   
+      176 +- ✅ **Island Architecture** で部分ハイドレーションしたい      
+      177 +- ✅ **部分更新が多い** UI（リアクティブなダッシュボード等）   
+      178 +- ✅ **小さなバンドルサイズ** が重要（React の 1/6）           
+      179  - ✅ MoonBit で型安全な UI を書きたい
+      120 -- ✅ SSR + 選択的ハイドレーションが必要                        
+      180  - ✅ 将来的な wasm-gc 対応を見据えている
+      181  
+      123 -パフォーマンスが最優先の場合：                                 
+      124 -- Preact (最小・最速)                                          
+      125 -- React (エコシステム)                                         
+      182 +### Luna が向いていないケース                                  
+      183 +                                                               
+      184 +- ❌ **大量要素の全更新**（ゲームのフレーム更新等）            
+      185 +- ❌ React/Preact エコシステム（既存ライブラリ）が必要         
+      186 +                                                               
+      187 +### 比較まとめ                                                 
+      188 +                                                               
+      189 +| 特性 | Luna | Preact | React |                               
+      190 +|------|------|--------|-------|                               
+      191 +| バンドルサイズ | ⭐⭐⭐ 9KB | ⭐⭐⭐⭐ 5KB | ⭐ 60KB |       
+      192 +| 全要素更新 | ⭐ | ⭐⭐⭐⭐ | ⭐⭐ |                          
+      193 +| 部分更新 | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ |                          
+      194 +| SSR | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ |                               
+      195 +| Island Architecture | ⭐⭐⭐⭐ Built-in | ❌ | ❌ |          
+
+  Luna の強み
+
+  | 指標           | Luna             | 備考           |
+  |----------------|------------------|----------------|
+  | バンドルサイズ | 9.4 KB           | React の 1/6   |
+  | SSR            | 12,800 pages/sec | 1000アイテム   |
+  | Signal 更新    | 11M ops/sec      | Fine-Grained   |
+  | 部分更新       | 4.5M ops/sec     | VDOM diff 不要 |
+
+  Luna の弱み（正直に）
+
+  | 指標              | Luna vs Preact |
+  |-------------------|----------------|
+  | 全要素更新        | 14x 遅い       |
+  | Grid 初期マウント | 13x 遅い       |
+
+  結論
+
+  Luna は 「全部更新」には向かない が、「部分更新」「SSR」「Island Architecture」 では強い。
+
+  - 2,500 セル全更新 → Preact/React が速い（VDOM 向き）
+  - 1 セルだけ更新 → Luna が速い（0.22µs、Signal 直結）
 
 Lunaは単なるJavaScriptフレームワークではありません。Web UIを構築するための根本的に異なるアプローチです。
 
