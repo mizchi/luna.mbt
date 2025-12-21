@@ -5,6 +5,7 @@ import(
   "mizchi/js/web/http"
   "mizchi/js/web/url"
   "mizchi/luna/core/routes"
+  "mizchi/luna/core/ssg"
   "mizchi/luna/platform/server_dom"
   "mizchi/npm_typed/hono"
 )
@@ -126,6 +127,21 @@ pub(all) enum SolRoutes {
   Get(path~ : String, handler~ : ApiHandler)
   Post(path~ : String, handler~ : ApiHandler)
 }
+
+pub(all) struct StaticDir {
+  path_prefix : String
+  source_dir : String
+  title : String
+  config : StaticDirConfig
+}
+
+pub(all) struct StaticDirConfig {
+  i18n : @ssg.I18nConfig
+  navigation : @ssg.NavigationConfig
+  exclude : Array[String]
+  trailing_slash : Bool
+}
+pub fn StaticDirConfig::default() -> Self
 
 // Type aliases
 pub type App = @hono.Hono[Unit, Unit]

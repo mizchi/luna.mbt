@@ -1,0 +1,76 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/core/ssg"
+
+import(
+  "moonbitlang/core/json"
+)
+
+// Values
+pub fn build_sort_key(String) -> String
+
+pub fn capitalize_first(String) -> String
+
+pub fn compare_strings_lex(String, String) -> Int
+
+pub fn extract_substring(String, Int, Int) -> String
+
+pub fn extract_until(String, Array[Char]) -> String
+
+pub fn extract_wc_name_from_url(String) -> String
+
+pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
+
+pub fn get_dir_name(String) -> String
+
+pub fn get_url_dir(String) -> String
+
+pub fn pad_number(Int, Int) -> String
+
+pub fn parse_int_simple(String) -> Int
+
+pub fn parse_numeric_prefix(String) -> (Int, String)
+
+pub fn slice_from(String, Int) -> String
+
+pub fn slice_to(String, Int) -> String
+
+pub fn slice_view_from(StringView, Int) -> String
+
+pub fn slice_view_to(StringView, Int) -> String
+
+pub fn split_by(String, Char) -> Array[String]
+
+pub fn strip_numeric_prefixes(String) -> String
+
+pub fn url_to_output_path(String) -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct I18nConfig {
+  default_locale : String
+  locales : Array[LocaleConfig]
+}
+pub fn I18nConfig::default() -> Self
+
+pub(all) struct LocaleConfig {
+  code : String
+  label : String
+  path : String
+}
+pub impl ToJson for LocaleConfig
+pub impl @json.FromJson for LocaleConfig
+
+pub(all) struct NavigationConfig {
+  spa : Bool
+  view_transitions : Bool
+  keyboard : Bool
+}
+pub fn NavigationConfig::default() -> Self
+pub impl ToJson for NavigationConfig
+pub impl @json.FromJson for NavigationConfig
+
+// Type aliases
+
+// Traits
+

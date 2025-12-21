@@ -719,8 +719,8 @@ fn collect_island_structs_from_source(
             let file_path = @path.join2(base_path, entry)
             let content = @fs.readFileSync(file_path).to_string()
             // Parse struct definitions from source
-            let structs = @mbti_utils.parse_struct_defs(content, entry)
-            let props_structs = @mbti_utils.get_props_structs(structs)
+            let structs = @parser.parse_struct_defs(content, entry)
+            let props_structs = @parser.get_props_structs(structs)
             // Get package info from moon.pkg.json
             let pkg_json_path = @path.join2(base_path, "moon.pkg.json")
             let import_alias = get_dir_name(base_path)

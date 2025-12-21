@@ -53,8 +53,8 @@
       "alias": "colorette"
     },
     {
-      "path": "mizchi/luna/sol/mbti_utils",
-      "alias": "mbti_utils"
+      "path": "mizchi/luna/core/parser",
+      "alias": "parser"
     }
   ],
   "warn-list": "-27-20",

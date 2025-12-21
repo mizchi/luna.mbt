@@ -3,6 +3,8 @@ package "mizchi/luna/sol/cli"
 
 import(
   "mizchi/js/core"
+  "mizchi/luna/astra"
+  "mizchi/luna/core/ssg"
 )
 
 // Values
@@ -125,7 +127,23 @@ pub struct SolConfig {
   output : String
   client_auto_exports : Bool
   runtime : ServerRuntime
+  static_dirs : Array[StaticDirEntry]
 }
+
+pub struct StaticDirEntry {
+  path_prefix : String
+  source_dir : String
+  title : String
+  nav : Array[@astra.NavItem]
+  sidebar : @astra.SidebarConfig
+  i18n : @ssg.I18nConfig
+  navigation : @ssg.NavigationConfig
+  exclude : Array[String]
+  trailing_slash : Bool
+  theme : @astra.ThemeConfig
+  ogp : @astra.OgpConfig
+}
+pub fn StaticDirEntry::default(String, String, String) -> Self
 
 pub(all) struct StructExport {
   name : String

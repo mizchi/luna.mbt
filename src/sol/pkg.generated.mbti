@@ -87,6 +87,8 @@ pub fn serve(@hono.Hono[Unit, Unit], Int) -> Unit
 
 pub fn serve_static(@hono.Hono[Unit, Unit], config? : StaticFileConfig) -> @hono.Hono[Unit, Unit]
 
+pub fn serve_static_dir(@hono.Hono[Unit, Unit], StaticDirServeConfig) -> @hono.Hono[Unit, Unit]
+
 pub fn set_env(String, String) -> Unit
 
 pub fn streaming_page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/luna/core.Node[Unit], title? : String, head? : String, loader_url? : String) -> @hono.Hono[Unit, Unit]
@@ -164,6 +166,12 @@ pub fn RolldownChunk::is_entry(Self) -> Bool
 pub type RolldownOutput
 pub fn RolldownOutput::as_any(Self) -> @mizchi/js/core.Any
 pub fn RolldownOutput::output(Self) -> Array[RolldownChunk]
+
+pub(all) struct StaticDirServeConfig {
+  path_prefix : String
+  local_dir : String
+}
+pub fn StaticDirServeConfig::new(String, String) -> Self
 
 pub struct StaticFileConfig {
   path_prefix : String

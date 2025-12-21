@@ -3,6 +3,7 @@ package "mizchi/luna/astra"
 
 import(
   "mizchi/luna/core"
+  "mizchi/luna/core/ssg"
   "moonbitlang/core/json"
 )
 
@@ -67,12 +68,6 @@ pub(all) struct Frontmatter {
 }
 pub fn Frontmatter::default() -> Self
 
-pub(all) struct I18nConfig {
-  default_locale : String
-  locales : Array[LocaleConfig]
-}
-pub fn I18nConfig::default() -> Self
-
 pub(all) struct IslandEmbed {
   name : String
   props : String
@@ -86,14 +81,6 @@ pub(all) struct IslandsConfig {
   base_path : String
 }
 pub fn IslandsConfig::default() -> Self
-
-pub(all) struct LocaleConfig {
-  code : String
-  label : String
-  path : String
-}
-pub impl ToJson for LocaleConfig
-pub impl @json.FromJson for LocaleConfig
 
 pub(all) enum MdNode {
   Heading(level~ : Int, children~ : Array[MdNode], id~ : String)
@@ -130,15 +117,6 @@ pub(all) struct NavLink {
 }
 pub impl ToJson for NavLink
 pub impl @json.FromJson for NavLink
-
-pub(all) struct NavigationConfig {
-  spa : Bool
-  view_transitions : Bool
-  keyboard : Bool
-}
-pub fn NavigationConfig::default() -> Self
-pub impl ToJson for NavigationConfig
-pub impl @json.FromJson for NavigationConfig
 
 pub(all) struct OgpConfig {
   site_url : String?
@@ -204,8 +182,8 @@ pub(all) struct SsgConfig {
   sidebar : SidebarConfig
   islands : IslandsConfig?
   theme : ThemeConfig
-  navigation : NavigationConfig
-  i18n : I18nConfig
+  navigation : @ssg.NavigationConfig
+  i18n : @ssg.I18nConfig
   exclude : Array[String]
   trailing_slash : Bool
   ogp : OgpConfig
@@ -221,6 +199,11 @@ pub(all) struct ThemeConfig {
 pub fn ThemeConfig::default() -> Self
 
 // Type aliases
+pub using @ssg {type I18nConfig}
+
+pub using @ssg {type LocaleConfig}
+
+pub using @ssg {type NavigationConfig}
 
 // Traits
 
