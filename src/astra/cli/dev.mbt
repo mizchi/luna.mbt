@@ -52,24 +52,24 @@ async fn run_dev_command(args : Array[String]) -> Unit {
   }
   let full_config_path = @path.join2(cwd, config_path)
   if not(@fs.existsSync(full_config_path)) {
-    @cli_utils.console_error(
+    console_error(
       @colorette.red("Error: Config file not found: \{config_path}"),
     )
-    @cli_utils.console_error(
+    console_error(
       @colorette.gray("  Create astra.json or sol.config.json with ssg config"),
     )
     @process.exit(1)
   }
   let config_content : String = @fs.readFileSync(full_config_path).to_string() catch {
     e => {
-      @cli_utils.console_error(@colorette.red("Error reading config: \{e}"))
+      console_error(@colorette.red("Error reading config: \{e}"))
       @process.exit(1)
       ""
     }
   }
   let ssg_config = parse_config(config_content, config_path)
   guard ssg_config is Some(config) else {
-    @cli_utils.console_error(
+    console_error(
       @colorette.red("Error: Invalid config file format"),
     )
     @process.exit(1)
@@ -188,7 +188,7 @@ fn run_build_sync(
       println(@colorette.green("✓ Rebuild complete"))
       println("")
     }
-    Err(e) => @cli_utils.console_error(@colorette.red("Build failed: \{e}"))
+    Err(e) => console_error(@colorette.red("Build failed: \{e}"))
   }
 }
 
@@ -214,7 +214,7 @@ fn rebuild_single_page(
       println(@colorette.green("✓ Page rebuilt: \{page_meta.url_path}"))
       println("")
     }
-    Err(e) => @cli_utils.console_error(@colorette.red("Build failed: \{e}"))
+    Err(e) => console_error(@colorette.red("Build failed: \{e}"))
   }
 }
 
@@ -264,7 +264,7 @@ async fn run_build_async(config : @astra.SsgConfig, cwd : String) -> Unit {
   match @astra_gen.generate_site_async(config, cwd) {
     Ok(_) =>
       println(@colorette.green("✓ Build complete: \{config.output_dir}"))
-    Err(e) => @cli_utils.console_error(@colorette.red("Build failed: \{e}"))
+    Err(e) => console_error(@colorette.red("Build failed: \{e}"))
     // Don't exit in dev mode, just report the error
   }
 }

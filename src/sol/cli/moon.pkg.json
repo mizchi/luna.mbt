@@ -5,8 +5,8 @@
   ],
   "import": [
     {
-      "path": "mizchi/luna/internal/cli",
-      "alias": "cli_utils"
+      "path": "mizchi/js/web/console",
+      "alias": "console"
     },
     {
       "path": "mizchi/luna/internal/json_utils",

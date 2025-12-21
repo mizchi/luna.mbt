@@ -2,7 +2,8 @@
   "is-main": true,
   "supported-targets": ["js"],
   "import": [
-    { "path": "mizchi/luna/internal/cli", "alias": "cli_utils" },
+    { "path": "mizchi/js/core", "alias": "js" },
+    { "path": "mizchi/js/web/console", "alias": "console" },
     "moonbitlang/async",
     { "path": "mizchi/js/node/process", "alias": "process" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },

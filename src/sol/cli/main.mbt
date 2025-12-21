@@ -74,7 +74,7 @@ fn main {
       @process.exit(0)
     }
     _ => {
-      @cli_utils.console_error(
+      console_error(
         @colorette.red("Error: Unknown command '\{command}'"),
       )
       println("")
