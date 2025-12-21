@@ -1,6 +1,6 @@
 {
   "import": [
-    "mizchi/luna/internal/utils"
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" }
   ],
   "supported-targets": [
     "js",

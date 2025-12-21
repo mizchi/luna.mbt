@@ -1,7 +1,7 @@
-// Path and string utility functions
+// SSG Path Utilities
 //
-// Shared helpers for path manipulation and string operations.
-// Used by both Astra (file_router.mbt) and Sol.
+// Path manipulation and string operations for static site generation.
+// Handles numeric prefix parsing, URL conversion, and path transformations.
 
 // =============================================================================
 // String Slice Helpers
@@ -256,4 +256,78 @@ pub fn get_url_dir(url_path : String) -> String {
     Some(idx) => "/" + slice_to(trimmed, idx)
     None => "/"
   }
+}
+
+// =============================================================================
+// String Split and Extract
+// =============================================================================
+
+///|
+/// Split string by a single separator character
+pub fn split_by(s : String, sep : Char) -> Array[String] {
+  let result : Array[String] = []
+  let chars = s.to_array()
+  let current : Array[Char] = []
+  for c in chars {
+    if c == sep {
+      result.push(String::from_array(current))
+      current.clear()
+    } else {
+      current.push(c)
+    }
+  }
+  result.push(String::from_array(current))
+  result
+}
+
+///|
+/// Extract string until one of the delimiter characters
+pub fn extract_until(s : String, delimiters : Array[Char]) -> String {
+  let buf = StringBuilder::new()
+  for c in s {
+    if delimiters.contains(c) {
+      break
+    }
+    buf.write_char(c)
+  }
+  buf.to_string()
+}
+
+///|
+/// Extract substring from start to end position
+pub fn extract_substring(s : String, start : Int, end : Int) -> String {
+  let buf = StringBuilder::new()
+  let mut idx = 0
+  for c in s {
+    if idx >= start && idx < end {
+      buf.write_char(c)
+    }
+    idx = idx + 1
+    if idx >= end {
+      break
+    }
+  }
+  buf.to_string()
+}
+
+///|
+/// Extract Web Component name from URL (e.g., /static/wc_counter.js -> wc-counter)
+pub fn extract_wc_name_from_url(url : String) -> String {
+  // Extract filename without extension
+  let parts = url.split("/").collect()
+  let filename_view = if parts.length() > 0 {
+    parts[parts.length() - 1]
+  } else {
+    "".view()
+  }
+  let filename = filename_view.to_string()
+  let name = if filename.has_suffix(".js") && filename.length() > 3 {
+    filename[:filename.length() - 3].to_string() catch {
+      _ => filename
+    }
+  } else {
+    filename
+  }
+  // Convert underscores to hyphens for custom element name
+  name.replace(old="_", new="-")
 }

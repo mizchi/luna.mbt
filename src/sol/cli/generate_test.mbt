@@ -488,3 +488,274 @@ test "generate_sol_server_main_js: bun runtime" {
   assert_true(js.contains("port,"))
   assert_true(js.contains("fetch: app.fetch"))
 }
+
+// =============================================================================
+// Static Dirs Parser Tests
+// =============================================================================
+
+///|
+test "parse_sol_config: with staticDirs" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs",
+    #|      "title": "Documentation"
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_eq(c.static_dirs.length(), 1)
+  assert_eq(c.static_dirs[0].path_prefix, "/docs")
+  assert_eq(c.static_dirs[0].source_dir, "docs")
+  assert_eq(c.static_dirs[0].title, "Documentation")
+}
+
+///|
+test "parse_sol_config: staticDirs with i18n" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs",
+    #|      "title": "Docs",
+    #|      "i18n": {
+    #|        "default_locale": "en",
+    #|        "locales": [
+    #|          { "code": "en", "label": "English", "path": "" },
+    #|          { "code": "ja", "label": "日本語", "path": "ja" }
+    #|        ]
+    #|      }
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_eq(c.static_dirs.length(), 1)
+  let i18n = c.static_dirs[0].i18n
+  assert_eq(i18n.default_locale, "en")
+  assert_eq(i18n.locales.length(), 2)
+  assert_eq(i18n.locales[0].code, "en")
+  assert_eq(i18n.locales[1].code, "ja")
+  assert_eq(i18n.locales[1].label, "日本語")
+  assert_eq(i18n.locales[1].path, "ja")
+}
+
+///|
+test "parse_sol_config: staticDirs with navigation config" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs",
+    #|      "navigation": {
+    #|        "spa": true,
+    #|        "view_transitions": false,
+    #|        "keyboard": true
+    #|      }
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  let nav = c.static_dirs[0].navigation
+  assert_true(nav.spa)
+  assert_true(not(nav.view_transitions))
+  assert_true(nav.keyboard)
+}
+
+///|
+test "parse_sol_config: staticDirs with sidebar auto" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs",
+    #|      "sidebar": "auto"
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_true(c.static_dirs[0].sidebar is @astra.SidebarConfig::Auto)
+}
+
+///|
+test "parse_sol_config: staticDirs defaults" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs"
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  let entry = c.static_dirs[0]
+  // Default title
+  assert_eq(entry.title, "Documentation")
+  // Default trailing_slash
+  assert_true(entry.trailing_slash)
+  // Default sidebar
+  assert_true(entry.sidebar is @astra.SidebarConfig::Auto)
+  // Default i18n
+  assert_eq(entry.i18n.default_locale, "en")
+}
+
+///|
+test "parse_sol_config: multiple staticDirs" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    { "path_prefix": "/docs", "source_dir": "docs", "title": "Docs" },
+    #|    { "path_prefix": "/blog", "source_dir": "blog", "title": "Blog" }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_eq(c.static_dirs.length(), 2)
+  assert_eq(c.static_dirs[0].path_prefix, "/docs")
+  assert_eq(c.static_dirs[1].path_prefix, "/blog")
+}
+
+///|
+test "parse_sol_config: staticDirs missing required fields" {
+  // Missing source_dir
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    { "path_prefix": "/docs" }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  // Entry should be skipped due to missing source_dir
+  assert_eq(c.static_dirs.length(), 0)
+}
+
+///|
+test "parse_sol_config: empty staticDirs" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": []
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  assert_eq(config.unwrap().static_dirs.length(), 0)
+}
+
+///|
+test "parse_sol_config: no staticDirs field" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes"
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  assert_eq(config.unwrap().static_dirs.length(), 0)
+}
+
+///|
+test "parse_sol_config: staticDirs with exclude" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs",
+    #|      "exclude": ["internal", "drafts"]
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_eq(c.static_dirs[0].exclude.length(), 2)
+  assert_eq(c.static_dirs[0].exclude[0], "internal")
+  assert_eq(c.static_dirs[0].exclude[1], "drafts")
+}
+
+///|
+test "parse_sol_config: staticDirs with theme" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs",
+    #|      "theme": {
+    #|        "primary_color": "#ff6600",
+    #|        "logo": "/logo.svg"
+    #|      }
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  let theme = c.static_dirs[0].theme
+  assert_eq(theme.primary_color, Some("#ff6600"))
+  assert_eq(theme.logo, Some("/logo.svg"))
+}
+
+///|
+test "parse_sol_config: staticDirs with ogp" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/routes",
+    #|  "staticDirs": [
+    #|    {
+    #|      "path_prefix": "/docs",
+    #|      "source_dir": "docs",
+    #|      "ogp": {
+    #|        "site_url": "https://example.com",
+    #|        "image": "/og-image.png",
+    #|        "twitter_handle": "@example"
+    #|      }
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  let ogp = c.static_dirs[0].ogp
+  assert_eq(ogp.site_url, Some("https://example.com"))
+  assert_eq(ogp.image, Some("/og-image.png"))
+  assert_eq(ogp.twitter_handle, Some("@example"))
+}

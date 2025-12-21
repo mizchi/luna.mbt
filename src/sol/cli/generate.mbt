@@ -40,6 +40,57 @@ pub struct SolConfig {
   client_auto_exports : Bool
   /// Server runtime (node, cloudflare, deno, bun)
   runtime : ServerRuntime
+  /// Static directories for SSG (markdown -> HTML)
+  static_dirs : Array[StaticDirEntry]
+}
+
+///|
+/// Static directory configuration entry
+pub struct StaticDirEntry {
+  /// URL path prefix (e.g., "/docs")
+  path_prefix : String
+  /// Source directory containing markdown files (e.g., "docs")
+  source_dir : String
+  /// Section title
+  title : String
+  /// Navigation items for this section
+  nav : Array[@astra.NavItem]
+  /// Sidebar configuration ("auto" or manual)
+  sidebar : @astra.SidebarConfig
+  /// Internationalization configuration
+  i18n : @ssg.I18nConfig
+  /// Navigation config (SPA, View Transitions)
+  navigation : @ssg.NavigationConfig
+  /// Directories to exclude
+  exclude : Array[String]
+  /// Use trailing slash
+  trailing_slash : Bool
+  /// Theme configuration
+  theme : @astra.ThemeConfig
+  /// OGP configuration
+  ogp : @astra.OgpConfig
+}
+
+///|
+/// Default static directory entry
+pub fn StaticDirEntry::default(
+  path_prefix : String,
+  source_dir : String,
+  title : String,
+) -> StaticDirEntry {
+  {
+    path_prefix,
+    source_dir,
+    title,
+    nav: [],
+    sidebar: @astra.SidebarConfig::Auto,
+    i18n: @ssg.I18nConfig::default(),
+    navigation: @ssg.NavigationConfig::default(),
+    exclude: [],
+    trailing_slash: true,
+    theme: @astra.ThemeConfig::default(),
+    ogp: @astra.OgpConfig::default(),
+  }
 }
 
 ///|
@@ -165,9 +216,193 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       Some(s) => parse_runtime(s)
       None => RuntimeNode
     }
-    Some(SolConfig::{ islands, routes, output, client_auto_exports, runtime })
+    let static_dirs = parse_static_dirs(obj)
+    Some(
+      SolConfig::{
+        islands,
+        routes,
+        output,
+        client_auto_exports,
+        runtime,
+        static_dirs,
+      },
+    )
   } catch {
     _ => None
+  }
+}
+
+///|
+/// Parse staticDirs array from config
+fn parse_static_dirs(obj : Map[String, Json]) -> Array[StaticDirEntry] {
+  let result : Array[StaticDirEntry] = []
+  match obj.get("staticDirs") {
+    Some(Array(arr)) => {
+      for item in arr {
+        if item is Object(item_obj) {
+          match parse_static_dir_entry(item_obj) {
+            Some(entry) => result.push(entry)
+            None => continue
+          }
+        }
+      }
+    }
+    _ => ()
+  }
+  result
+}
+
+///|
+/// Parse single static directory entry
+fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
+  let path_prefix = match @json_utils.extract_string_opt(obj, "path_prefix") {
+    Some(v) => v
+    None => return None
+  }
+  let source_dir = match @json_utils.extract_string_opt(obj, "source_dir") {
+    Some(v) => v
+    None => return None
+  }
+  let title = @json_utils.extract_string(obj, "title", "Documentation")
+  let nav = parse_nav_items(obj)
+  let sidebar = parse_sidebar_config(obj)
+  let i18n = parse_i18n_config(obj)
+  let navigation = parse_navigation_config(obj)
+  let exclude = @json_utils.extract_string_array(obj, "exclude")
+  let trailing_slash = @json_utils.extract_bool(obj, "trailing_slash", true)
+  let theme = parse_theme_config(obj)
+  let ogp = parse_ogp_config(obj)
+  Some(
+    StaticDirEntry::{
+      path_prefix,
+      source_dir,
+      title,
+      nav,
+      sidebar,
+      i18n,
+      navigation,
+      exclude,
+      trailing_slash,
+      theme,
+      ogp,
+    },
+  )
+}
+
+///|
+/// Parse navigation items array
+fn parse_nav_items(obj : Map[String, Json]) -> Array[@astra.NavItem] {
+  let result : Array[@astra.NavItem] = []
+  match obj.get("nav") {
+    Some(Array(arr)) => {
+      for item in arr {
+        if item is Object(item_obj) {
+          let text = @json_utils.extract_string(item_obj, "text", "")
+          let link = @json_utils.extract_string(item_obj, "link", "")
+          if not(text.is_empty()) && not(link.is_empty()) {
+            result.push(@astra.NavItem::new(text, link))
+          }
+        }
+      }
+    }
+    _ => ()
+  }
+  result
+}
+
+///|
+/// Parse sidebar configuration
+fn parse_sidebar_config(obj : Map[String, Json]) -> @astra.SidebarConfig {
+  match obj.get("sidebar") {
+    Some(String("auto")) => @astra.SidebarConfig::Auto
+    Some(String("Auto")) => @astra.SidebarConfig::Auto
+    Some(Array(_)) =>
+      // TODO: Parse manual sidebar groups
+      @astra.SidebarConfig::Auto
+    _ => @astra.SidebarConfig::Auto
+  }
+}
+
+///|
+/// Parse i18n configuration
+fn parse_i18n_config(obj : Map[String, Json]) -> @ssg.I18nConfig {
+  match obj.get("i18n") {
+    Some(Object(i18n_obj)) => {
+      let default_locale = @json_utils.extract_string(
+        i18n_obj, "default_locale", "en",
+      )
+      let locales : Array[@ssg.LocaleConfig] = []
+      match i18n_obj.get("locales") {
+        Some(Array(arr)) => {
+          for item in arr {
+            if item is Object(locale_obj) {
+              let code = @json_utils.extract_string(locale_obj, "code", "en")
+              let label = @json_utils.extract_string(locale_obj, "label", code)
+              let path = @json_utils.extract_string(locale_obj, "path", "")
+              locales.push(@ssg.LocaleConfig::{ code, label, path })
+            }
+          }
+        }
+        _ => ()
+      }
+      if locales.is_empty() {
+        locales.push(
+          @ssg.LocaleConfig::{ code: "en", label: "English", path: "" },
+        )
+      }
+      @ssg.I18nConfig::{ default_locale, locales }
+    }
+    _ => @ssg.I18nConfig::default()
+  }
+}
+
+///|
+/// Parse navigation config
+fn parse_navigation_config(obj : Map[String, Json]) -> @ssg.NavigationConfig {
+  match obj.get("navigation") {
+    Some(Object(nav_obj)) => {
+      let spa = @json_utils.extract_bool(nav_obj, "spa", false)
+      let view_transitions = @json_utils.extract_bool(
+        nav_obj, "view_transitions", true,
+      )
+      let keyboard = @json_utils.extract_bool(nav_obj, "keyboard", true)
+      @ssg.NavigationConfig::{ spa, view_transitions, keyboard }
+    }
+    _ => @ssg.NavigationConfig::default()
+  }
+}
+
+///|
+/// Parse theme configuration
+fn parse_theme_config(obj : Map[String, Json]) -> @astra.ThemeConfig {
+  match obj.get("theme") {
+    Some(Object(theme_obj)) => {
+      let primary_color = @json_utils.extract_string_opt(
+        theme_obj, "primary_color",
+      )
+      let logo = @json_utils.extract_string_opt(theme_obj, "logo")
+      let footer : @astra.FooterConfig? = None // TODO: parse footer
+      let social_links : Array[@astra.SocialLink] = [] // TODO: parse social links
+      @astra.ThemeConfig::{ primary_color, logo, footer, social_links }
+    }
+    _ => @astra.ThemeConfig::default()
+  }
+}
+
+///|
+/// Parse OGP configuration
+fn parse_ogp_config(obj : Map[String, Json]) -> @astra.OgpConfig {
+  match obj.get("ogp") {
+    Some(Object(ogp_obj)) => {
+      let site_url = @json_utils.extract_string_opt(ogp_obj, "site_url")
+      let image = @json_utils.extract_string_opt(ogp_obj, "image")
+      let twitter_handle = @json_utils.extract_string_opt(
+        ogp_obj, "twitter_handle",
+      )
+      let twitter_card = @json_utils.extract_string_opt(ogp_obj, "twitter_card")
+      @astra.OgpConfig::{ site_url, image, twitter_handle, twitter_card }
+    }
+    _ => @astra.OgpConfig::default()
   }
 }
 
@@ -991,6 +1226,7 @@ fn snake_to_pascal(s : String) -> String {
 fn generate_server_main_mbt(
   routes_pkg : String,
   route_info : RouteInfo,
+  static_dirs : Array[StaticDirEntry],
 ) -> String {
   let _ = routes_pkg
   let _ = route_info
@@ -1012,6 +1248,20 @@ fn generate_server_main_mbt(
   buf.write_string(
     "  let app = @router.register_sol_routes(app, routes, config=config)\n\n",
   )
+
+  // Generate static directory routes
+  if not(static_dirs.is_empty()) {
+    buf.write_string("  // Serve static directories (SSG)\n")
+    for entry in static_dirs {
+      let path_prefix = entry.path_prefix
+      let source_dir = entry.source_dir
+      buf.write_string(
+        "  let app = @sol.serve_static_dir(app, @sol.StaticDirServeConfig::new(\"\{path_prefix}\", \"\{source_dir}\"))\n",
+      )
+    }
+    buf.write_string("\n")
+  }
+
   buf.write_string("  // Serve static files\n")
   buf.write_string("  @sol.serve_static(app)\n")
   buf.write_string("}\n\n")
@@ -1517,7 +1767,9 @@ fn run_generate_command(args : Array[String]) -> Unit {
   )
   let route_info = parse_routes_file(routes_file_path)
   // Generate server main.mbt
-  let server_main = generate_server_main_mbt(routes_pkg, route_info)
+  let server_main = generate_server_main_mbt(
+    routes_pkg, route_info, config.static_dirs,
+  )
   let server_main_path = @path.join2(server_dir, "main.mbt")
   try {
     @fs.writeFileSync(server_main_path, @js.any(server_main))

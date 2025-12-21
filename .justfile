@@ -80,6 +80,7 @@ test-xplat:
     moon test --target all src/core/routes
     moon test --target all src/core/render
     moon test --target all src/core/serialize
+    moon test --target all src/core/ssg
 
 # TypeScript 型チェック
 test-ts:

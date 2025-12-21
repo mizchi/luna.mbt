@@ -1,7 +1,7 @@
 // File-based Router for SSG
 // Scans docs/ directory and generates routes
 //
-// Uses @path_utils for common path operations
+// Uses @ssg for common path operations
 
 // =============================================================================
 // Directory Scanning
@@ -69,7 +69,7 @@ fn scan_recursive(
       let url_path = build_localized_url(canonical_path, locale, i18n)
 
       // Build sort key for ordering (preserves numeric prefixes)
-      let sort_key = @path_utils.build_sort_key(source_path)
+      let sort_key = @ssg.build_sort_key(source_path)
 
       // Parse frontmatter to get title
       let content : String = @fs.readFileSync(entry_path).to_string() catch {
@@ -106,12 +106,12 @@ fn detect_locale_from_path(
     }
     let prefix = locale.path + "/"
     if path.has_prefix(prefix) {
-      let canonical = @path_utils.slice_from(path, prefix.length())
-      return (locale.code, @path_utils.file_to_url_path(canonical, trailing_slash~))
+      let canonical = @ssg.slice_from(path, prefix.length())
+      return (locale.code, @ssg.file_to_url_path(canonical, trailing_slash~))
     }
   }
   // No locale prefix found, use default locale
-  (i18n.default_locale, @path_utils.file_to_url_path(path, trailing_slash~))
+  (i18n.default_locale, @ssg.file_to_url_path(path, trailing_slash~))
 }
 
 ///|
@@ -190,24 +190,24 @@ fn get_file_mtime(path : String) -> String? {
 }
 
 // =============================================================================
-// Path Conversion (re-exports from @path_utils)
+// Path Conversion (re-exports from @ssg)
 // =============================================================================
 
 ///|
 /// Convert file path to URL path (strips numeric prefixes)
-/// Delegates to @path_utils.file_to_url_path
+/// Delegates to @ssg.file_to_url_path
 pub fn file_to_url_path(
   file_path : String,
   trailing_slash? : Bool = true,
 ) -> String {
-  @path_utils.file_to_url_path(file_path, trailing_slash~)
+  @ssg.file_to_url_path(file_path, trailing_slash~)
 }
 
 ///|
 /// Convert URL path to output file path
-/// Delegates to @path_utils.url_to_output_path
+/// Delegates to @ssg.url_to_output_path
 pub fn url_to_output_path(url_path : String) -> String {
-  @path_utils.url_to_output_path(url_path)
+  @ssg.url_to_output_path(url_path)
 }
 
 // =============================================================================
@@ -227,7 +227,7 @@ pub fn sort_pages(pages : Array[@astra.PageMeta]) -> Array[@astra.PageMeta] {
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
       let existing_key = result[i].sort_key
-      if @path_utils.compare_strings_lex(key, existing_key) < 0 {
+      if @ssg.compare_strings_lex(key, existing_key) < 0 {
         pos = i
         break
       }
@@ -266,7 +266,7 @@ pub fn group_pages_by_dir(
 ///|
 /// Get directory part of URL path (local helper)
 fn get_url_dir(url_path : String) -> String {
-  @path_utils.get_url_dir(url_path)
+  @ssg.get_url_dir(url_path)
 }
 
 // =============================================================================
@@ -313,18 +313,18 @@ fn url_to_name(url_path : String) -> String {
   let trimmed = url_path.trim_end(chars="/")
   match trimmed.rev_find("/") {
     Some(idx) => {
-      let name = @path_utils.slice_view_from(trimmed, idx + 1)
+      let name = @ssg.slice_view_from(trimmed, idx + 1)
       if name.is_empty() {
         "Home"
       } else {
-        @path_utils.capitalize_first(name.replace(old="-", new=" "))
+        @ssg.capitalize_first(name.replace(old="-", new=" "))
       }
     }
     None =>
       if trimmed == "/" || trimmed.is_empty() {
         "Home"
       } else {
-        @path_utils.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
+        @ssg.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
       }
   }
 }

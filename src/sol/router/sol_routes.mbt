@@ -389,3 +389,44 @@ fn escape_html_title(s : String) -> String {
   }
   buf.to_string()
 }
+
+// ============================================================================
+// Static Directory (SSG Integration)
+// ============================================================================
+
+///|
+/// Configuration for static directory generation (minimal, backend-independent)
+pub(all) struct StaticDirConfig {
+  /// Internationalization configuration
+  i18n : @ssg.I18nConfig
+  /// Navigation configuration (SPA, View Transitions, Keyboard)
+  navigation : @ssg.NavigationConfig
+  /// Directories to exclude from scanning
+  exclude : Array[String]
+  /// Use trailing slash in URLs
+  trailing_slash : Bool
+}
+
+///|
+/// Default static directory configuration
+pub fn StaticDirConfig::default() -> StaticDirConfig {
+  {
+    i18n: @ssg.I18nConfig::default(),
+    navigation: @ssg.NavigationConfig::default(),
+    exclude: [],
+    trailing_slash: true,
+  }
+}
+
+///|
+/// Static directory route definition
+pub(all) struct StaticDir {
+  /// URL path prefix (e.g., "/docs")
+  path_prefix : String
+  /// Source directory containing markdown files (e.g., "docs")
+  source_dir : String
+  /// Section title
+  title : String
+  /// SSG configuration
+  config : StaticDirConfig
+}

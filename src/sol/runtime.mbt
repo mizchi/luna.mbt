@@ -773,6 +773,92 @@ pub fn StaticFileConfig::with_mapping(
 }
 
 ///|
+/// Configuration for serving a static directory (SSG output)
+pub(all) struct StaticDirServeConfig {
+  /// URL path prefix (e.g., "/docs")
+  path_prefix : String
+  /// Local directory path (relative to cwd)
+  local_dir : String
+}
+
+///|
+/// Create default StaticDirServeConfig
+pub fn StaticDirServeConfig::new(
+  path_prefix : String,
+  _source_dir : String,
+) -> StaticDirServeConfig {
+  // Map to .sol/prod/static/{path_prefix}
+  let local_dir = ".sol/prod/static" + path_prefix.trim_end(chars="/").to_string()
+  { path_prefix, local_dir }
+}
+
+///|
+/// Register a static directory for serving SSG output
+/// This serves HTML files from .sol/prod/static/{path_prefix}
+pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> App {
+  let prefix = config.path_prefix.trim_end(chars="/").to_string()
+  let local_dir = config.local_dir
+
+  // Serve index.html for directory roots
+  let app = app.get(prefix, fn(c) {
+    serve_static_html(c, local_dir, "index.html")
+  })
+
+  // Serve all paths under the prefix
+  app.get(prefix + "/*", fn(c) {
+    let path = get_request_path(c)
+    let start_idx = prefix.length() + 1
+    let rest = path[start_idx:].to_string().trim_end(chars="/").to_string()
+
+    // Try exact path first, then as directory index
+    if rest.is_empty() {
+      serve_static_html(c, local_dir, "index.html")
+    } else if rest.has_suffix(".html") {
+      serve_static_html(c, local_dir, rest)
+    } else if rest.has_suffix(".css") {
+      serve_static_css(c, local_dir, rest)
+    } else if rest.has_suffix(".js") {
+      serve_static_js(c, local_dir, rest)
+    } else {
+      // Try as directory with index.html
+      serve_static_html(c, local_dir, rest + "/index.html")
+    }
+  })
+}
+
+///|
+fn serve_static_html(_c : Ctx, local_dir : String, filename : String) -> @http.Response {
+  let path = local_dir + "/" + filename
+  match read_file_sync(path) {
+    Some(content) => html_response(content)
+    None => text_response("Not found: " + filename, "text/plain")
+  }
+}
+
+///|
+fn serve_static_css(_c : Ctx, local_dir : String, filename : String) -> @http.Response {
+  let path = local_dir + "/" + filename
+  match read_file_sync(path) {
+    Some(content) => text_response(content, "text/css")
+    None => text_response("/* Not found: " + filename + " */", "text/css")
+  }
+}
+
+///|
+fn serve_static_js(_c : Ctx, local_dir : String, filename : String) -> @http.Response {
+  let path = local_dir + "/" + filename
+  match read_file_sync(path) {
+    Some(content) => text_response(content, "application/javascript")
+    None => text_response("// Not found: " + filename, "application/javascript")
+  }
+}
+
+///|
+fn html_response(content : String) -> @http.Response {
+  text_response(content, "text/html; charset=utf-8")
+}
+
+///|
 /// Register static file serving middleware
 pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
   let cfg = config.unwrap_or(StaticFileConfig::default())

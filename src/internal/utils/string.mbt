@@ -1,5 +1,62 @@
-// String Utility Functions
+// Generic String Utilities
 //
+// Shared string manipulation helpers used across Luna modules.
+
+// =============================================================================
+// String Slice Helpers
+// =============================================================================
+
+///|
+/// Safely slice string from start index
+pub fn slice_from(s : String, start : Int) -> String {
+  if start >= s.length() || start < 0 {
+    ""
+  } else {
+    s[start:].to_string() catch {
+      _ => ""
+    }
+  }
+}
+
+///|
+/// Safely slice string to end index
+pub fn slice_to(s : String, end : Int) -> String {
+  if end <= 0 || end > s.length() {
+    s
+  } else {
+    s[:end].to_string() catch {
+      _ => s
+    }
+  }
+}
+
+///|
+/// Safely slice StringView from start index
+pub fn slice_view_from(s : StringView, start : Int) -> String {
+  if start >= s.length() || start < 0 {
+    ""
+  } else {
+    s[start:].to_string() catch {
+      _ => ""
+    }
+  }
+}
+
+///|
+/// Safely slice StringView to end index
+pub fn slice_view_to(s : StringView, end : Int) -> String {
+  if end <= 0 || end > s.length() {
+    s.to_string()
+  } else {
+    s[:end].to_string() catch {
+      _ => s.to_string()
+    }
+  }
+}
+
+// =============================================================================
+// String Split and Extract
+// =============================================================================
 
 ///|
 /// Split string by a single separator character

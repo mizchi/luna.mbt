@@ -24,9 +24,9 @@ pub(all) struct SsgConfig {
   /// Theme configuration
   theme : ThemeConfig
   /// Navigation configuration
-  navigation : NavigationConfig
+  navigation : @ssg.NavigationConfig
   /// Internationalization configuration
-  i18n : I18nConfig
+  i18n : @ssg.I18nConfig
   /// Directories to exclude from scanning (e.g., ["internal", "drafts"])
   exclude : Array[String]
   /// Use trailing slashes in URLs (default: true for SSG compatibility)
@@ -35,34 +35,11 @@ pub(all) struct SsgConfig {
   ogp : OgpConfig
 }
 
-///|
-/// Internationalization configuration
-pub(all) struct I18nConfig {
-  /// Default locale code (e.g., "en")
-  default_locale : String
-  /// Available locales
-  locales : Array[LocaleConfig]
-}
+// I18nConfig, LocaleConfig are defined in core/ssg
+// Re-exported for backward compatibility
+pub type I18nConfig = @ssg.I18nConfig
 
-///|
-/// Default i18n configuration (English only)
-pub fn I18nConfig::default() -> I18nConfig {
-  {
-    default_locale: "en",
-    locales: [LocaleConfig::{ code: "en", label: "English", path: "" }],
-  }
-}
-
-///|
-/// Locale configuration
-pub(all) struct LocaleConfig {
-  /// Locale code (e.g., "en", "ja", "fr")
-  code : String
-  /// Display label (e.g., "English", "日本語")
-  label : String
-  /// URL path prefix (empty for default locale)
-  path : String
-} derive(ToJson, FromJson)
+pub type LocaleConfig = @ssg.LocaleConfig
 
 ///|
 /// Default SSG configuration
@@ -76,8 +53,8 @@ pub fn SsgConfig::default() -> SsgConfig {
     sidebar: SidebarConfig::Auto,
     islands: None,
     theme: ThemeConfig::default(),
-    navigation: NavigationConfig::default(),
-    i18n: I18nConfig::default(),
+    navigation: @ssg.NavigationConfig::default(),
+    i18n: @ssg.I18nConfig::default(),
     exclude: [],
     trailing_slash: true,
     ogp: OgpConfig::default(),
@@ -132,22 +109,8 @@ pub(all) enum SidebarItem {
   Group(SidebarGroup)
 } derive(ToJson, FromJson)
 
-///|
-/// Navigation configuration
-pub(all) struct NavigationConfig {
-  /// Enable SPA-style navigation (fetch + content swap)
-  spa : Bool
-  /// Enable View Transitions API
-  view_transitions : Bool
-  /// Enable keyboard navigation (arrow keys)
-  keyboard : Bool
-} derive(ToJson, FromJson)
-
-///|
-/// Default navigation configuration
-pub fn NavigationConfig::default() -> NavigationConfig {
-  { spa: false, view_transitions: true, keyboard: true }
-}
+// NavigationConfig is defined in core/ssg
+pub type NavigationConfig = @ssg.NavigationConfig
 
 ///|
 /// Theme configuration

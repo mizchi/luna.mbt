@@ -156,5 +156,63 @@ fn run_build_command(args : Array[String]) -> Unit {
     }
     println(@colorette.green("✓ Client bundle complete"))
   }
+  // Build static directories (SSG) if configured
+  if @fs.existsSync(sol_config_path) {
+    let config_content = @fs.readFileSync(sol_config_path).to_string() catch {
+      _ => ""
+    }
+    if not(config_content.is_empty()) {
+      match parse_sol_config(config_content) {
+        Some(config) =>
+          if not(config.static_dirs.is_empty()) {
+            build_static_dirs(config.static_dirs, cwd)
+          }
+        None => ()
+      }
+    }
+  }
   println(@colorette.gray("Output: target/\{target}/release/build/"))
+}
+
+///|
+/// Build static directories using Astra SSG
+fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit {
+  for entry in static_dirs {
+    println(
+      @colorette.cyan(
+        "Building static directory: \{entry.source_dir} -> \{entry.path_prefix}",
+      ),
+    )
+
+    // Convert StaticDirEntry to SsgConfig
+    let output_dir = ".sol/prod/static" +
+      entry.path_prefix.trim_end(chars="/").to_string()
+    let ssg_config = @astra.SsgConfig::{
+      docs_dir: entry.source_dir,
+      output_dir,
+      title: entry.title,
+      base_url: entry.path_prefix,
+      nav: entry.nav,
+      sidebar: entry.sidebar,
+      islands: None,
+      theme: entry.theme,
+      navigation: entry.navigation,
+      i18n: entry.i18n,
+      exclude: entry.exclude,
+      trailing_slash: entry.trailing_slash,
+      ogp: entry.ogp,
+    }
+
+    // Generate static site
+    match @ssg_gen.generate_site(ssg_config, cwd) {
+      Ok(_) =>
+        println(
+          @colorette.green("✓ Static directory \{entry.path_prefix} built"),
+        )
+      Err(e) =>
+        println(
+          @colorette.red("✗ Failed to build \{entry.path_prefix}: \{e}"),
+        )
+    }
+  }
 }

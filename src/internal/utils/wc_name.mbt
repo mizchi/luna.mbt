@@ -1,4 +1,4 @@
-//
+// Web Component Name Utilities
 
 ///|
 /// Extract Web Component name from URL (e.g., /static/wc_counter.js -> wc-counter)
