@@ -7,7 +7,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1, // Single worker to avoid conflicts
-  reporter: "list",
+  reporter: "dot",
   timeout: 60000, // 60 seconds per test
   use: {
     trace: "on-first-retry",

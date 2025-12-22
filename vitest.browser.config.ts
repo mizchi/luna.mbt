@@ -7,6 +7,7 @@ export default defineConfig({
     jsxImportSource: "@mizchi/luna",
   },
   test: {
+    reporters: ["dot"],
     browser: {
       enabled: true,
       headless: true,

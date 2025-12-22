@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     // Default: Node.js environment with jsdom for DOM tests
     environment: "jsdom",
+    reporters: ["dot"],
     include: [
       "src/**/*.test.ts",
       "js/loader/**/*.test.ts",
