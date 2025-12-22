@@ -59,9 +59,7 @@ async fn main {
     "build" => run_build_command(command_args)
     "dev" => run_dev_command(command_args)
     _ => {
-      console_error(
-        @colorette.red("Error: Unknown command '\{command}'"),
-      )
+      console_error(@colorette.red("Error: Unknown command '\{command}'"))
       println("")
       show_help()
       @process.exit(1)

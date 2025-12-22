@@ -7,7 +7,7 @@ pub struct NodeFS {}
 ///|
 /// Create a NodeFS instance
 pub fn NodeFS::new() -> NodeFS {
-  NodeFS::{}
+  NodeFS::{  }
 }
 
 ///|

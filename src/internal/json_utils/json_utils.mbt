@@ -41,11 +41,7 @@ pub fn extract_bool(
 
 ///|
 /// Extract an integer value from a JSON object with a default fallback
-pub fn extract_int(
-  obj : Map[String, Json],
-  key : String,
-  default : Int,
-) -> Int {
+pub fn extract_int(obj : Map[String, Json], key : String, default : Int) -> Int {
   match obj.get(key) {
     Some(Number(n, ..)) => n.to_int()
     _ => default

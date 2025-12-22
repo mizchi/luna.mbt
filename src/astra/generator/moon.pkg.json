@@ -8,6 +8,7 @@
     { "path": "mizchi/luna/astra/routes", "alias": "routes" },
     { "path": "mizchi/luna/astra/shiki", "alias": "shiki" },
     { "path": "mizchi/luna/astra/assets", "alias": "assets" },
+    { "path": "mizchi/luna/astra/tree", "alias": "tree" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },
     { "path": "mizchi/js/node/path", "alias": "path" }

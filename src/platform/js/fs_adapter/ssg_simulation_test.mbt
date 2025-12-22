@@ -10,19 +10,20 @@ test "SSG simulation: read markdown and write HTML" {
   mem.mkdirSync("/project/docs", recursive=true)
   mem.writeFileSync(
     "/project/docs/index.md",
-    #|---
-    #|title: Hello World
-    #|---
-    #|# Welcome
-    #|
-    #|This is a test page.
-    ,
+    (
+      #|---
+      #|title: Hello World
+      #|---
+      #|# Welcome
+      #|
+      #|This is a test page.
+    ),
   )
 
   // Simulate SSG: Read markdown
   let content = mem.readFileSync("/project/docs/index.md")
-  inspect!(content.contains("title: Hello World"), content="true")
-  inspect!(content.contains("# Welcome"), content="true")
+  inspect(content.contains("title: Hello World"), content="true")
+  inspect(content.contains("# Welcome"), content="true")
 
   // Simulate SSG: Create output directory
   mem.mkdirSync("/project/dist", recursive=true)
@@ -37,9 +38,9 @@ test "SSG simulation: read markdown and write HTML" {
   mem.writeFileSync("/project/dist/index.html", html)
 
   // Verify output
-  inspect!(mem.existsSync("/project/dist/index.html"), content="true")
+  inspect(mem.existsSync("/project/dist/index.html"), content="true")
   let output = mem.readFileSync("/project/dist/index.html")
-  inspect!(output.contains("<title>Hello World</title>"), content="true")
+  inspect(output.contains("<title>Hello World</title>"), content="true")
 }
 
 ///|
@@ -64,9 +65,9 @@ test "SSG simulation: generate assets" {
 
   // Verify
   let entries = mem.readdirSync("/project/dist/assets")
-  inspect!(entries.length(), content="2")
-  inspect!(mem.existsSync("/project/dist/assets/style.css"), content="true")
-  inspect!(mem.existsSync("/project/dist/assets/loader.js"), content="true")
+  inspect(entries.length(), content="2")
+  inspect(mem.existsSync("/project/dist/assets/style.css"), content="true")
+  inspect(mem.existsSync("/project/dist/assets/loader.js"), content="true")
 }
 
 ///|
@@ -85,18 +86,17 @@ test "SSG simulation: scan docs directory" {
 
   // Scan root
   let root_entries = mem.readdirSync("/docs")
-  inspect!(root_entries.length(), content="3") // index.md, guide/, api/
+  inspect(root_entries.length(), content="3") // index.md, guide/, api/
 
   // Check if entry is directory
   let guide_stat = mem.statSync("/docs/guide")
-  inspect!(guide_stat.isDirectory(), content="true")
-
+  inspect(guide_stat.isDirectory(), content="true")
   let index_stat = mem.statSync("/docs/index.md")
-  inspect!(index_stat.isFile(), content="true")
+  inspect(index_stat.isFile(), content="true")
 
   // Scan subdirectory
   let guide_entries = mem.readdirSync("/docs/guide")
-  inspect!(guide_entries.length(), content="2")
+  inspect(guide_entries.length(), content="2")
 }
 
 ///|
@@ -128,13 +128,13 @@ test "SSG simulation: copy public directory" {
   )
 
   // Verify copied files
-  inspect!(mem.existsSync("/project/dist/favicon.ico"), content="true")
-  inspect!(mem.existsSync("/project/dist/robots.txt"), content="true")
-  inspect!(mem.existsSync("/project/dist/images/logo.png"), content="true")
+  inspect(mem.existsSync("/project/dist/favicon.ico"), content="true")
+  inspect(mem.existsSync("/project/dist/robots.txt"), content="true")
+  inspect(mem.existsSync("/project/dist/images/logo.png"), content="true")
 
   // Verify content
   let favicon = mem.readFileSync("/project/dist/favicon.ico")
-  inspect!(favicon, content="icon data")
+  inspect(favicon, content="icon data")
 }
 
 ///|
@@ -149,9 +149,10 @@ test "SSG simulation: generate sitemap" {
   // Generate sitemap XML
   let sitemap = StringBuilder::new()
   sitemap.write_string(
-    #|<?xml version="1.0" encoding="UTF-8"?>
-    #|<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    ,
+    (
+      #|<?xml version="1.0" encoding="UTF-8"?>
+      #|<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ),
   )
   let urls = ["/", "/guide/", "/api/"]
   for url in urls {
@@ -160,11 +161,10 @@ test "SSG simulation: generate sitemap" {
     sitemap.write_string("</loc></url>\n")
   }
   sitemap.write_string("</urlset>")
-
   mem.writeFileSync("/dist/sitemap.xml", sitemap.to_string())
 
   // Verify
   let content = mem.readFileSync("/dist/sitemap.xml")
-  inspect!(content.contains("<urlset"), content="true")
-  inspect!(content.contains("https://example.com/guide/"), content="true")
+  inspect(content.contains("<urlset"), content="true")
+  inspect(content.contains("https://example.com/guide/"), content="true")
 }
