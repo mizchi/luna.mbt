@@ -35,6 +35,12 @@ clean:
 # MoonBit ビルド
 build-moon:
     moon build --target js
+    @# Add createRequire for ESM compatibility (mizchi/js uses require internally)
+    @node -e "const fs=require('fs'); \
+      const files=['target/js/release/build/sol/cli/cli.js','target/js/release/build/astra/cli/cli.js']; \
+      const prefix='import{createRequire}from\"node:module\";const require=createRequire(import.meta.url);'; \
+      files.forEach(f=>{if(fs.existsSync(f)){const c=fs.readFileSync(f,'utf8');if(!c.startsWith('import{createRequire')){fs.writeFileSync(f,prefix+c);}}})" \
+    && rm -f target/js/release/build/package.json
 
 # MoonBit デバッグビルド（ソースマップ付き）
 build-debug:
