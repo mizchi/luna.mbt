@@ -298,7 +298,6 @@ fn parse_footer_links(arr : Array[Json]) -> Array[FooterLink] {
   result
 }
 
-
 ///|
 /// Parse i18n configuration
 fn parse_i18n_config(obj : Map[String, Json]) -> @ssg.I18nConfig {
@@ -376,6 +375,8 @@ fn parse_islands_config(obj : Map[String, Json]) -> IslandsConfig? {
     return None
   }
   let dir = @json_utils.extract_string(islands_obj, "dir", "islands")
-  let base_path = @json_utils.extract_string(islands_obj, "basePath", "/islands/")
+  let base_path = @json_utils.extract_string(
+    islands_obj, "basePath", "/islands/",
+  )
   Some(IslandsConfig::{ dir, base_path })
 }

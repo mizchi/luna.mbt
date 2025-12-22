@@ -788,7 +788,8 @@ pub fn StaticDirServeConfig::new(
   _source_dir : String,
 ) -> StaticDirServeConfig {
   // Map to .sol/prod/static/{path_prefix}
-  let local_dir = ".sol/prod/static" + path_prefix.trim_end(chars="/").to_string()
+  let local_dir = ".sol/prod/static" +
+    path_prefix.trim_end(chars="/").to_string()
   { path_prefix, local_dir }
 }
 
@@ -827,7 +828,11 @@ pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> App {
 }
 
 ///|
-fn serve_static_html(_c : Ctx, local_dir : String, filename : String) -> @http.Response {
+fn serve_static_html(
+  _c : Ctx,
+  local_dir : String,
+  filename : String,
+) -> @http.Response {
   let path = local_dir + "/" + filename
   match read_file_sync(path) {
     Some(content) => html_response(content)
@@ -836,7 +841,11 @@ fn serve_static_html(_c : Ctx, local_dir : String, filename : String) -> @http.R
 }
 
 ///|
-fn serve_static_css(_c : Ctx, local_dir : String, filename : String) -> @http.Response {
+fn serve_static_css(
+  _c : Ctx,
+  local_dir : String,
+  filename : String,
+) -> @http.Response {
   let path = local_dir + "/" + filename
   match read_file_sync(path) {
     Some(content) => text_response(content, "text/css")
@@ -845,7 +854,11 @@ fn serve_static_css(_c : Ctx, local_dir : String, filename : String) -> @http.Re
 }
 
 ///|
-fn serve_static_js(_c : Ctx, local_dir : String, filename : String) -> @http.Response {
+fn serve_static_js(
+  _c : Ctx,
+  local_dir : String,
+  filename : String,
+) -> @http.Response {
   let path = local_dir + "/" + filename
   match read_file_sync(path) {
     Some(content) => text_response(content, "application/javascript")

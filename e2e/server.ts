@@ -471,7 +471,7 @@ const spaHtml = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <title>Luna SPA Example</title>
   <style>
-    body { font-family: system-ui, sans-serif; }
+    body { font-family: Arial, Helvetica, sans-serif; }
     .app { padding: 20px; max-width: 800px; margin: 0 auto; }
     .buttons { display: flex; gap: 8px; }
     button { padding: 8px 16px; cursor: pointer; }
@@ -505,7 +505,7 @@ const todomvcHtml = `<!DOCTYPE html>
   <style>
     html, body { margin: 0; padding: 0; }
     button { margin: 0; padding: 0; border: 0; background: none; font-size: 100%; vertical-align: baseline; font-family: inherit; font-weight: inherit; color: inherit; -webkit-appearance: none; appearance: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    body { font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4em; background: #f5f5f5; color: #111111; min-width: 230px; max-width: 550px; margin: 0 auto; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-weight: 300; }
+    body { font: 14px Arial, Helvetica, sans-serif; line-height: 1.4em; background: #f5f5f5; color: #111111; min-width: 230px; max-width: 550px; margin: 0 auto; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-weight: 300; }
     .hidden { display: none; }
     .todoapp { background: #fff; margin: 130px 0 40px 0; position: relative; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1); }
     .todoapp input::-webkit-input-placeholder { font-style: italic; font-weight: 400; color: rgba(0, 0, 0, 0.4); }
@@ -624,7 +624,7 @@ const wcHtml = `<!DOCTYPE html>
   <style>
     * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       margin: 0; padding: 0; background: #fafafa;
     }
     h1 { color: #333; }

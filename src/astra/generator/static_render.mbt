@@ -110,8 +110,9 @@ fn generate_site_internal(
   // Step 6: Copy static assets (if any)
   copy_static_assets(ctx)
 
-  // Step 7: Generate sitemap
-  generate_sitemap(ctx)
+  // Step 7: Build DocumentTree and generate meta files (sitemap, RSS, llms.txt)
+  let doc_tree = @tree.build_document_tree(config, pages, cwd)
+  generate_meta_files(ctx, doc_tree)
 
   // Step 8: Generate 404 page
   generate_404_page(ctx)
@@ -617,7 +618,6 @@ fn build_breadcrumb(
   if start < chars.length() {
     segments.push(bc_slice_from(path, start))
   }
-
   if segments.is_empty() {
     return @luna.fragment([])
   }
@@ -625,14 +625,14 @@ fn build_breadcrumb(
   // Build breadcrumb items
   let items : Array[@luna.Node[Unit]] = []
   let mut current_path = ""
-
   for i = 0; i < segments.length(); i = i + 1 {
     let segment = segments[i]
     current_path = current_path + "/" + segment
 
     // Find page title for this path
-    let title = find_page_title(ctx.pages, current_path + "/", page.locale)
-      .unwrap_or(capitalize_segment(segment))
+    let title = find_page_title(ctx.pages, current_path + "/", page.locale).unwrap_or(
+      capitalize_segment(segment),
+    )
 
     // Add separator (except for first item)
     if i > 0 {
@@ -656,7 +656,6 @@ fn build_breadcrumb(
       )
     }
   }
-
   h("nav", [attr("class", "breadcrumb")], items)
 }
 
@@ -1384,32 +1383,36 @@ fn copy_public_dir(ctx : @astra.BuildContext) -> Unit {
 }
 
 ///|
-/// Generate sitemap.xml
-fn generate_sitemap(ctx : @astra.BuildContext) -> Unit {
-  let buf = StringBuilder::new()
-  buf.write_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-  buf.write_string(
-    "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n",
-  )
-  for page in ctx.pages {
-    let url = ctx.config.base_url +
-      page.url_path.trim_start(chars="/").to_string()
-    buf.write_string("  <url>\n")
-    buf.write_string("    <loc>\{url}</loc>\n")
-    match page.last_modified {
-      Some(date) => buf.write_string("    <lastmod>\{date}</lastmod>\n")
-      None => ()
-    }
-    buf.write_string("  </url>\n")
+/// Generate meta files (sitemap.xml, feed.xml, llms.txt) using DocumentTree
+fn generate_meta_files(
+  ctx : @astra.BuildContext,
+  doc_tree : @tree.DocumentTree,
+) -> Unit {
+  let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
+
+  // Generate sitemap.xml
+  let sitemap_content = @tree.generate_sitemap(doc_tree)
+  let sitemap_path = @path.join2(output_dir, "sitemap.xml")
+  @fs.writeFileSync(sitemap_path, @js.any(sitemap_content)) catch {
+    e => println("  Warning: Failed to generate sitemap.xml: \{e}")
   }
-  buf.write_string("</urlset>\n")
-  let sitemap_path = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    "sitemap.xml",
-  )
-  @fs.writeFileSync(sitemap_path, @js.any(buf.to_string())) catch {
-    _ => ()
+  println("  Generated: /sitemap.xml")
+
+  // Generate feed.xml (RSS)
+  let rss_content = @tree.generate_rss(doc_tree)
+  let rss_path = @path.join2(output_dir, "feed.xml")
+  @fs.writeFileSync(rss_path, @js.any(rss_content)) catch {
+    e => println("  Warning: Failed to generate feed.xml: \{e}")
   }
+  println("  Generated: /feed.xml")
+
+  // Generate llms.txt
+  let llms_content = @tree.generate_llms_txt(doc_tree)
+  let llms_path = @path.join2(output_dir, "llms.txt")
+  @fs.writeFileSync(llms_path, @js.any(llms_content)) catch {
+    e => println("  Warning: Failed to generate llms.txt: \{e}")
+  }
+  println("  Generated: /llms.txt")
 }
 
 ///|

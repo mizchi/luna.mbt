@@ -18,8 +18,14 @@ pub fn get_default_css(config : @astra.SsgConfig) -> String {
   } else {
     // Replace default primary colors with configured ones
     base_css
-      .replace(old="--primary-color: #b45309", new="--primary-color: \{primary_light}")
-      .replace(old="--primary-color: #fbbf24", new="--primary-color: \{primary_dark}")
+    .replace(
+      old="--primary-color: #b45309",
+      new="--primary-color: \{primary_light}",
+    )
+    .replace(
+      old="--primary-color: #fbbf24",
+      new="--primary-color: \{primary_dark}",
+    )
   }
 }
 

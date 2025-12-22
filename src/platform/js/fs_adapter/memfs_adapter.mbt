@@ -44,7 +44,7 @@ pub impl @env.FileSystem for MemFSAdapter with read_file_sync(self, path) {
 pub impl @env.FileSystem for MemFSAdapter with write_file_sync(
   self,
   path,
-  content
+  content,
 ) {
   @js.throwable(fn() { self.fs.writeFileSync(path, content) })
 }
@@ -79,7 +79,7 @@ pub impl @env.FileSystem for MemFSAdapter with cp_sync(
   self,
   src,
   dest,
-  recursive
+  recursive,
 ) {
   @js.throwable(fn() { copy_recursive(self.fs, src, dest, recursive) })
 }

@@ -84,9 +84,7 @@ async fn run_build_command(args : Array[String]) -> Unit {
   }
   let ssg_config = parse_config(config_content, config_path)
   guard ssg_config is Some(config) else {
-    console_error(
-      @colorette.red("Error: Invalid config file format"),
-    )
+    console_error(@colorette.red("Error: Invalid config file format"))
     @process.exit(1)
   }
 

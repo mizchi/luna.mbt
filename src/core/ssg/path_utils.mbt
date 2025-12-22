@@ -142,7 +142,10 @@ pub fn build_sort_key(path : String) -> String {
 /// 00_guide/01_getting-started.md -> /guide/getting-started/ (with trailing slash)
 /// 00_guide/01_getting-started.md -> /guide/getting-started (without trailing slash)
 /// docs/index.md -> /
-pub fn file_to_url_path(file_path : String, trailing_slash? : Bool = true) -> String {
+pub fn file_to_url_path(
+  file_path : String,
+  trailing_slash? : Bool = true,
+) -> String {
   let stripped = strip_numeric_prefixes(file_path)
   let path = stripped.replace(old=".md", new="").replace(old="\\", new="/")
   if path.has_suffix("/index") {

@@ -188,9 +188,7 @@ fn run_dev_watch_mode(cwd : String, port : String) -> Unit {
   let entry = find_server_entry(cwd, "dev")
   match entry {
     None => {
-      console_error(
-        @colorette.red("Error: Could not find server entry point"),
-      )
+      console_error(@colorette.red("Error: Could not find server entry point"))
       @process.exit(1)
     }
     Some(entry_path) => {
@@ -366,9 +364,7 @@ fn run_server(cwd : String, port : String, mode : String) -> Unit {
   }
   match entry_point {
     None => {
-      console_error(
-        @colorette.red("Error: Could not find server entry point"),
-      )
+      console_error(@colorette.red("Error: Could not find server entry point"))
       println(@colorette.gray("Expected one of:"))
       for entry in possible_entries {
         println(@colorette.gray("  - \{entry}"))

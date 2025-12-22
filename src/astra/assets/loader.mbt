@@ -5,16 +5,22 @@
 // Cache for loaded assets
 let main_css_cache : Ref[String?] = { val: None }
 
+///|
 let markdown_css_cache : Ref[String?] = { val: None }
 
+///|
 let theme_js_cache : Ref[String?] = { val: None }
 
+///|
 let sidebar_js_cache : Ref[String?] = { val: None }
 
+///|
 let toc_js_cache : Ref[String?] = { val: None }
 
+///|
 let wc_loader_js_cache : Ref[String?] = { val: None }
 
+///|
 let loader_js_cache : Ref[String?] = { val: None }
 
 ///|

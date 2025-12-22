@@ -38,9 +38,7 @@ test "strip_numeric_prefixes single segment" {
 
 ///|
 test "strip_numeric_prefixes multiple segments" {
-  let result = @ssg.strip_numeric_prefixes(
-    "00_guide/01_getting-started.md",
-  )
+  let result = @ssg.strip_numeric_prefixes("00_guide/01_getting-started.md")
   assert_eq(result, "guide/getting-started.md")
 }
 

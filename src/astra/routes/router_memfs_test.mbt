@@ -104,12 +104,7 @@ test "scan_docs_dir_with_fs - exclude directories" {
     #|
   fs.memfs().writeFileSync("/project/docs/public.md", public_content)
   fs.memfs().writeFileSync("/project/docs/internal/secret.md", secret_content)
-  let pages = scan_docs_dir_with_fs(
-    fs,
-    "docs",
-    "/project",
-    exclude=["internal"],
-  )
+  let pages = scan_docs_dir_with_fs(fs, "docs", "/project", exclude=["internal"])
   inspect(pages.length(), content="1")
   inspect(pages[0].frontmatter.title, content="Some(\"Public\")")
 }

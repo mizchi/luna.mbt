@@ -217,16 +217,14 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       None => RuntimeNode
     }
     let static_dirs = parse_static_dirs(obj)
-    Some(
-      SolConfig::{
-        islands,
-        routes,
-        output,
-        client_auto_exports,
-        runtime,
-        static_dirs,
-      },
-    )
+    Some(SolConfig::{
+      islands,
+      routes,
+      output,
+      client_auto_exports,
+      runtime,
+      static_dirs,
+    })
   } catch {
     _ => None
   }
@@ -237,7 +235,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
 fn parse_static_dirs(obj : Map[String, Json]) -> Array[StaticDirEntry] {
   let result : Array[StaticDirEntry] = []
   match obj.get("staticDirs") {
-    Some(Array(arr)) => {
+    Some(Array(arr)) =>
       for item in arr {
         if item is Object(item_obj) {
           match parse_static_dir_entry(item_obj) {
@@ -246,7 +244,6 @@ fn parse_static_dirs(obj : Map[String, Json]) -> Array[StaticDirEntry] {
           }
         }
       }
-    }
     _ => ()
   }
   result
@@ -272,21 +269,19 @@ fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
   let trailing_slash = @json_utils.extract_bool(obj, "trailing_slash", true)
   let theme = parse_theme_config(obj)
   let ogp = parse_ogp_config(obj)
-  Some(
-    StaticDirEntry::{
-      path_prefix,
-      source_dir,
-      title,
-      nav,
-      sidebar,
-      i18n,
-      navigation,
-      exclude,
-      trailing_slash,
-      theme,
-      ogp,
-    },
-  )
+  Some(StaticDirEntry::{
+    path_prefix,
+    source_dir,
+    title,
+    nav,
+    sidebar,
+    i18n,
+    navigation,
+    exclude,
+    trailing_slash,
+    theme,
+    ogp,
+  })
 }
 
 ///|
@@ -294,7 +289,7 @@ fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
 fn parse_nav_items(obj : Map[String, Json]) -> Array[@astra.NavItem] {
   let result : Array[@astra.NavItem] = []
   match obj.get("nav") {
-    Some(Array(arr)) => {
+    Some(Array(arr)) =>
       for item in arr {
         if item is Object(item_obj) {
           let text = @json_utils.extract_string(item_obj, "text", "")
@@ -304,7 +299,6 @@ fn parse_nav_items(obj : Map[String, Json]) -> Array[@astra.NavItem] {
           }
         }
       }
-    }
     _ => ()
   }
   result
@@ -333,7 +327,7 @@ fn parse_i18n_config(obj : Map[String, Json]) -> @ssg.I18nConfig {
       )
       let locales : Array[@ssg.LocaleConfig] = []
       match i18n_obj.get("locales") {
-        Some(Array(arr)) => {
+        Some(Array(arr)) =>
           for item in arr {
             if item is Object(locale_obj) {
               let code = @json_utils.extract_string(locale_obj, "code", "en")
@@ -342,13 +336,14 @@ fn parse_i18n_config(obj : Map[String, Json]) -> @ssg.I18nConfig {
               locales.push(@ssg.LocaleConfig::{ code, label, path })
             }
           }
-        }
         _ => ()
       }
       if locales.is_empty() {
-        locales.push(
-          @ssg.LocaleConfig::{ code: "en", label: "English", path: "" },
-        )
+        locales.push(@ssg.LocaleConfig::{
+          code: "en",
+          label: "English",
+          path: "",
+        })
       }
       @ssg.I18nConfig::{ default_locale, locales }
     }
@@ -1261,7 +1256,6 @@ fn generate_server_main_mbt(
     }
     buf.write_string("\n")
   }
-
   buf.write_string("  // Serve static files\n")
   buf.write_string("  @sol.serve_static(app)\n")
   buf.write_string("}\n\n")
@@ -1496,9 +1490,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     }
   }
   guard parse_sol_config(config_content) is Some(config) else {
-    console_error(
-      @colorette.red("Error: Invalid config file format"),
-    )
+    console_error(@colorette.red("Error: Invalid config file format"))
     @process.exit(1)
   }
   println(@colorette.cyan("Generating app/__gen__ and .sol directories..."))
@@ -1514,9 +1506,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
   let types_dir = @path.join2(output_dir, "types")
   @fs.mkdirSync(types_dir, recursive=true) catch {
     e => {
-      console_error(
-        @colorette.red("Error creating types directory: \{e}"),
-      )
+      console_error(@colorette.red("Error creating types directory: \{e}"))
       @process.exit(1)
     }
   }
@@ -1543,9 +1533,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
       println(@colorette.gray("  Generated __gen__/types/ from source"))
     } catch {
       e => {
-        console_error(
-          @colorette.red("Error writing types package: \{e}"),
-        )
+        console_error(@colorette.red("Error writing types package: \{e}"))
         @process.exit(1)
       }
     }
@@ -1567,9 +1555,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
         )
       } catch {
         e => {
-          console_error(
-            @colorette.red("Error writing stub types: \{e}"),
-          )
+          console_error(@colorette.red("Error writing stub types: \{e}"))
           @process.exit(1)
         }
       }
@@ -1580,9 +1566,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
   let server_dir = @path.join2(output_dir, "server")
   @fs.mkdirSync(server_dir, recursive=true) catch {
     e => {
-      console_error(
-        @colorette.red("Error creating server directory: \{e}"),
-      )
+      console_error(@colorette.red("Error creating server directory: \{e}"))
       @process.exit(1)
     }
   }
@@ -1591,9 +1575,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
   let server_pkg_path = @path.join2(server_dir, "moon.pkg.json")
   @fs.writeFileSync(server_pkg_path, @js.any(server_pkg)) catch {
     e => {
-      console_error(
-        @colorette.red("Error writing server/moon.pkg.json: \{e}"),
-      )
+      console_error(@colorette.red("Error writing server/moon.pkg.json: \{e}"))
       @process.exit(1)
     }
   }
@@ -1604,9 +1586,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     @js.any("///| Stub - will be replaced\nfn main { () }\n"),
   ) catch {
     e => {
-      console_error(
-        @colorette.red("Error writing stub main.mbt: \{e}"),
-      )
+      console_error(@colorette.red("Error writing stub main.mbt: \{e}"))
       @process.exit(1)
     }
   }
@@ -1627,9 +1607,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
       }
     } catch {
       e => {
-        console_error(
-          @colorette.red("Error running moon info: \{e}"),
-        )
+        console_error(@colorette.red("Error running moon info: \{e}"))
         @process.exit(1)
       }
     }
@@ -1665,9 +1643,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     @fs.mkdirSync(sol_server_dir, recursive=true)
   } catch {
     e => {
-      console_error(
-        @colorette.red("Error creating directories: \{e}"),
-      )
+      console_error(@colorette.red("Error creating directories: \{e}"))
       @process.exit(1)
     }
   }
@@ -1768,7 +1744,9 @@ fn run_generate_command(args : Array[String]) -> Unit {
   let route_info = parse_routes_file(routes_file_path)
   // Generate server main.mbt
   let server_main = generate_server_main_mbt(
-    routes_pkg, route_info, config.static_dirs,
+    routes_pkg,
+    route_info,
+    config.static_dirs,
   )
   let server_main_path = @path.join2(server_dir, "main.mbt")
   try {
@@ -1776,9 +1754,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
     println(@colorette.gray("  Generated __gen__/server/main.mbt"))
   } catch {
     e => {
-      console_error(
-        @colorette.red("Error writing server/main.mbt: \{e}"),
-      )
+      console_error(@colorette.red("Error writing server/main.mbt: \{e}"))
       @process.exit(1)
     }
   }
@@ -1827,9 +1803,7 @@ fn run_generate_command(args : Array[String]) -> Unit {
       println(@colorette.gray("  Generated .sol/\{mode}/manifest.json"))
     } catch {
       e => {
-        console_error(
-          @colorette.red("Error writing manifest.json: \{e}"),
-        )
+        console_error(@colorette.red("Error writing manifest.json: \{e}"))
         @process.exit(1)
       }
     }

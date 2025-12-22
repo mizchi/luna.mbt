@@ -13,5 +13,8 @@
   "include": [
     "js/**/*.ts",
     "js/**/*.tsx"
+  ],
+  "exclude": [
+    "js/wcssr/**"
   ]
 }

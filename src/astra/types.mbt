@@ -37,8 +37,11 @@ pub(all) struct SsgConfig {
 
 // I18nConfig, LocaleConfig are defined in core/ssg
 // Re-exported for backward compatibility
+
+///|
 pub type I18nConfig = @ssg.I18nConfig
 
+///|
 pub type LocaleConfig = @ssg.LocaleConfig
 
 ///|
@@ -110,6 +113,8 @@ pub(all) enum SidebarItem {
 } derive(ToJson, FromJson)
 
 // NavigationConfig is defined in core/ssg
+
+///|
 pub type NavigationConfig = @ssg.NavigationConfig
 
 ///|

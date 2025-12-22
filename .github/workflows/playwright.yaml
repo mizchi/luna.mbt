@@ -1,52 +1,67 @@
-name: playwright
+name: browser
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - 'src/npm/playwright/**'
-      - 'src/npm/playwright_test/**'
-      - '.github/workflows/playwright.yaml'
   pull_request:
-    paths:
-      - 'src/npm/playwright/**'
-      - 'src/npm/playwright_test/**'
-      - '.github/workflows/playwright.yaml'
 
 jobs:
-  playwright-test:
+  # Vitest browser tests
+  vitest-browser:
     runs-on: ubuntu-latest
-    continue-on-error: false
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
-      - name: Setup Moon
-        uses: illusory0x0/setup-moonbit@v0.1.0
+      - uses: illusory0x0/setup-moonbit@v0.1.0
         with:
           version: stable
-      - name: moon version
-        run: |
-          moon version --all
-      - name: install module dependencies
-        run: |
+      - run: |
           moon update
           moon install
+      - name: Build MoonBit
+        run: moon build --target js
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
-      - name: moon build
-        run: moon check --deny-warn
-      - name: e2e
-        run: pnpm test:e2e
+      - name: Vitest browser tests
+        run: pnpm vitest run --config vitest.browser.config.ts
+
+  # E2E tests with Playwright
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - uses: illusory0x0/setup-moonbit@v0.1.0
+        with:
+          version: stable
+      - run: |
+          moon update
+          moon install
+      - name: Build MoonBit
+        run: moon build --target js
+      - name: Build Loader
+        run: pnpm exec rolldown -c rolldown.config.mjs
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+      - name: E2E tests
+        run: pnpm playwright test --config e2e/playwright.config.mts

@@ -214,7 +214,6 @@ pub fn url_to_output_path(url_path : String) -> String {
 // Page Sorting and Organization
 // =============================================================================
 
-
 ///|
 /// Sort pages by sort_key (numeric prefix ordering)
 /// Files with numeric prefixes (e.g., 00_intro) come before those without
@@ -289,15 +288,7 @@ pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(
     return pages
   }
   scan_recursive_with_fs(
-    filesystem,
-    full_path,
-    "",
-    docs_dir,
-    cwd,
-    i18n,
-    exclude,
-    pages,
-    trailing_slash,
+    filesystem, full_path, "", docs_dir, cwd, i18n, exclude, pages, trailing_slash,
   )
   pages
 }
@@ -315,9 +306,9 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
   pages : Array[@astra.PageMeta],
   trailing_slash : Bool,
 ) -> Unit {
-  let entries : Array[String] = try {
-    @env.FileSystem::readdir_sync(filesystem, dir_path)
-  } catch {
+  let entries : Array[String] = @env.FileSystem::readdir_sync(
+    filesystem, dir_path,
+  ) catch {
     _ => return
   }
   for entry in entries {
@@ -334,14 +325,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       }
       // Recurse into subdirectory
       scan_recursive_with_fs(
-        filesystem,
-        entry_path,
-        entry_relative,
-        docs_dir,
-        cwd,
-        i18n,
-        exclude,
-        pages,
+        filesystem, entry_path, entry_relative, docs_dir, cwd, i18n, exclude, pages,
         trailing_slash,
       )
     } else if entry.has_suffix(".md") {
@@ -360,9 +344,9 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       let sort_key = @ssg.build_sort_key(source_path)
 
       // Parse frontmatter to get title
-      let content : String = try {
-        @env.FileSystem::read_file_sync(filesystem, entry_path)
-      } catch {
+      let content : String = @env.FileSystem::read_file_sync(
+        filesystem, entry_path,
+      ) catch {
         _ => continue
       }
       let (frontmatter, _) = @markdown.parse_markdown(content)
@@ -386,9 +370,7 @@ fn[FS : @env.FileSystem] is_directory_with_fs(
   filesystem : FS,
   path : String,
 ) -> Bool {
-  try {
-    @env.FileSystem::is_directory_sync(filesystem, path)
-  } catch {
+  @env.FileSystem::is_directory_sync(filesystem, path) catch {
     _ => false
   }
 }

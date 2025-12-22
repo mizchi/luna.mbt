@@ -6,8 +6,10 @@
     { "path": "mizchi/luna/luna", "alias": "luna" },
     { "path": "mizchi/luna/core/ssg", "alias": "ssg" },
     { "path": "mizchi/luna/core/env", "alias": "env" },
-    { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },
     { "path": "mizchi/js/node/path", "alias": "path" }
+  ],
+  "test-import": [
+    { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" }
   ]
 }

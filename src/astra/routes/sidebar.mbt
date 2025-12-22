@@ -598,10 +598,17 @@ fn render_sidebar_group(
         h("span", [attr("class", "sidebar-chevron")], []),
       ]
     }
-    None => [@luna.text(group.text), h("span", [attr("class", "sidebar-chevron")], [])]
+    None =>
+      [
+        @luna.text(group.text),
+        h("span", [attr("class", "sidebar-chevron")], []),
+      ]
   }
-  let summary = h("summary", [attr("class", "sidebar-group-summary")], summary_content)
-
+  let summary = h(
+    "summary",
+    [attr("class", "sidebar-group-summary")],
+    summary_content,
+  )
   let item_vnodes = group.items.map(fn(item) {
     render_sidebar_item(item, current_path)
   })
@@ -610,7 +617,9 @@ fn render_sidebar_group(
   let items_container = h("div", [attr("class", "sidebar-items")], [items_list])
 
   // Use details element for collapsible behavior
-  let attrs : Array[(String, @luna.Attr[Unit])] = [attr("class", "sidebar-collapse")]
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    attr("class", "sidebar-collapse"),
+  ]
   if is_open {
     attrs.push(("open", @luna.attr_static("")))
   }

@@ -8,33 +8,119 @@ on:
   pull_request:
 
 jobs:
+  # Fast: moon check + TypeScript type check
   check:
     runs-on: ubuntu-latest
-    continue-on-error: false
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: taiki-e/install-action@just
-      # Checkout js.mbt dependency (required for mizchi/js)
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "pnpm"
-      - name: Setup Moon
-        uses: illusory0x0/setup-moonbit@v0.1.0
+      - uses: illusory0x0/setup-moonbit@v0.1.0
         with:
           version: stable
-      - name: Install module dependencies
-        run: |
+      - run: |
           moon update
           moon install
-      - name: Moon test
+      - name: moon check
+        run: moon check --target js
+      - name: TypeScript check
+        run: pnpm tsc -p .
+
+  # MoonBit unit tests
+  test-moonbit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - uses: illusory0x0/setup-moonbit@v0.1.0
+        with:
+          version: stable
+      - run: |
+          moon update
+          moon install
+      - name: Setup CJS test environment
         run: |
-          just test
+          mkdir -p target/js/debug/test
+          echo '{"type": "commonjs"}' > target/js/debug/test/package.json
+      - name: moon test
+        run: moon test --target js
+
+  # Cross-platform tests (non-JS targets: wasm, wasm-gc, native)
+  test-xplat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: illusory0x0/setup-moonbit@v0.1.0
+        with:
+          version: stable
+      - run: |
+          moon update
+          moon install
+      - name: Test luna/signal (wasm, wasm-gc, native)
+        run: |
+          moon test --target wasm src/luna/signal
+          moon test --target wasm-gc src/luna/signal
+          moon test --target native src/luna/signal
+      - name: Test luna/routes (wasm, wasm-gc, native)
+        run: |
+          moon test --target wasm src/luna/routes
+          moon test --target wasm-gc src/luna/routes
+          moon test --target native src/luna/routes
+      - name: Test luna/render (wasm, wasm-gc, native)
+        run: |
+          moon test --target wasm src/luna/render
+          moon test --target wasm-gc src/luna/render
+          moon test --target native src/luna/render
+      - name: Test luna/serialize (wasm, wasm-gc, native)
+        run: |
+          moon test --target wasm src/luna/serialize
+          moon test --target wasm-gc src/luna/serialize
+          moon test --target native src/luna/serialize
+      - name: Test core/parser (wasm, wasm-gc, native)
+        run: |
+          moon test --target wasm src/core/parser
+          moon test --target wasm-gc src/core/parser
+          moon test --target native src/core/parser
+      - name: Test core/ssg (wasm, wasm-gc, native)
+        run: |
+          moon test --target wasm src/core/ssg
+          moon test --target wasm-gc src/core/ssg
+          moon test --target native src/core/ssg
+
+  # Example projects
+  test-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: illusory0x0/setup-moonbit@v0.1.0
+        with:
+          version: stable
+      - run: |
+          moon update
+          moon install
+      - name: Build examples
+        run: |
+          rm -f target/js/release/check/check.moon_db
+          moon info
+          moon build -C examples/sol_app
