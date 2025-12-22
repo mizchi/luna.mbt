@@ -7,6 +7,10 @@
     "test": "just test",
     "build": "just build"
   },
+  "bin": {
+    "sol": "./bin/sol.mjs",
+    "astra": "./bin/astra.mjs"
+  },
   "exports": {
     ".": {
       "import": "./js/luna/index.js",
@@ -31,6 +35,7 @@
     "./js/*": "./js/*"
   },
   "files": [
+    "bin",
     "js",
     "target/js/release/build"
   ],
