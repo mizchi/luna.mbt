@@ -23,6 +23,9 @@ pub fn[F : @env.FileSystem] build_document_tree_with_fs(
   pages : Array[@astra.PageMeta],
   cwd : String,
 ) -> DocumentTree {
+  // fs and cwd are kept for API compatibility and future use
+  // when async file I/O issues in MoonBit coroutine scheduler are resolved
+  let _ = (fs, cwd)
   // SiteInfo の構築
   let site = SiteInfo::new(
     title=config.title,
@@ -31,8 +34,8 @@ pub fn[F : @env.FileSystem] build_document_tree_with_fs(
     language=config.i18n.default_locale,
     updated_at=get_latest_update(pages),
   )
-  // PageInfo 配列の構築
-  let page_infos = build_page_infos_with_fs(fs, pages, cwd, config.docs_dir)
+  // PageInfo 配列の構築 (using metadata only to avoid async issue with file reads)
+  let page_infos = build_page_infos_from_meta(pages)
   // TreeNode の構築
   let root = build_tree_node(page_infos, config.i18n.default_locale)
   DocumentTree::new(site~, pages=page_infos, root~)
@@ -51,46 +54,27 @@ fn get_latest_update(pages : Array[@astra.PageMeta]) -> String {
 }
 
 ///|
-fn[F : @env.FileSystem] build_page_infos_with_fs(
-  fs : F,
-  pages : Array[@astra.PageMeta],
-  cwd : String,
-  docs_dir : String,
-) -> Array[PageInfo] {
+/// Build PageInfo array from PageMeta only (avoids async file I/O issues)
+fn build_page_infos_from_meta(pages : Array[@astra.PageMeta]) -> Array[PageInfo] {
+  // Build minimal PageInfo without reading files
   let result : Array[PageInfo] = []
   for page in pages {
-    let info = page_meta_to_page_info_with_fs(fs, page, cwd, docs_dir)
+    let id = url_to_id(page.url_path)
+    let info = PageInfo::new(
+      id~,
+      url_path=page.url_path,
+      source_path=page.source_path,
+      title=page.frontmatter.title.unwrap_or(""),
+      description=page.frontmatter.description.unwrap_or(""),
+      locale=page.locale,
+      updated_at=page.last_modified.unwrap_or(""),
+      content_md="",
+      headings=[],
+      sort_key=page.sort_key,
+    )
     result.push(info)
   }
   result
-}
-
-///|
-fn[F : @env.FileSystem] page_meta_to_page_info_with_fs(
-  fs : F,
-  meta : @astra.PageMeta,
-  cwd : String,
-  docs_dir : String,
-) -> PageInfo {
-  // ファイルからMarkdownコンテンツを読み込み
-  let full_path = join_path(cwd, docs_dir, meta.source_path)
-  let content_md = read_file_content_with_fs(fs, full_path)
-  // 見出しを抽出
-  let headings = extract_headings(content_md)
-  // IDを生成（URLパスから）
-  let id = url_to_id(meta.url_path)
-  PageInfo::new(
-    id~,
-    url_path=meta.url_path,
-    source_path=meta.source_path,
-    title=meta.frontmatter.title.unwrap_or(""),
-    description=meta.frontmatter.description.unwrap_or(""),
-    locale=meta.locale,
-    updated_at=meta.last_modified.unwrap_or(""),
-    content_md~,
-    headings~,
-    sort_key=meta.sort_key,
-  )
 }
 
 ///|
@@ -114,100 +98,6 @@ fn url_to_id(url_path : String) -> String {
     "index"
   } else {
     path.replace(old="/", new="-")
-  }
-}
-
-///|
-fn join_path(base : String, dir : String, file : String) -> String {
-  let base = if base.has_suffix("/") {
-    base[:base.length() - 1].to_string() catch {
-      _ => base
-    }
-  } else {
-    base
-  }
-  let dir = if dir.has_prefix("/") {
-    dir[1:].to_string() catch {
-      _ => dir
-    }
-  } else {
-    dir
-  }
-  let dir = if dir.has_suffix("/") {
-    dir[:dir.length() - 1].to_string() catch {
-      _ => dir
-    }
-  } else {
-    dir
-  }
-  base + "/" + dir + "/" + file
-}
-
-///|
-fn[F : @env.FileSystem] read_file_content_with_fs(
-  fs : F,
-  path : String,
-) -> String {
-  fs.read_file_sync(path) catch {
-    _ => ""
-  }
-}
-
-///|
-/// Markdownから見出しを抽出
-fn extract_headings(content : String) -> Array[Heading] {
-  let headings : Array[Heading] = []
-  let lines = content.split("\n")
-  for line in lines {
-    let trimmed = line.trim(chars=" \t").to_string()
-    if trimmed.has_prefix("#") {
-      let level = count_heading_level(trimmed)
-      if level > 0 && level <= 6 {
-        let text = trimmed[level:].trim(chars=" \t#").to_string() catch {
-            _ => continue
-          }
-        let id = text_to_id(text)
-        headings.push(Heading::new(level~, text~, id~))
-      }
-    }
-  }
-  headings
-}
-
-///|
-fn count_heading_level(line : String) -> Int {
-  let mut count = 0
-  for c in line {
-    if c == '#' {
-      count = count + 1
-    } else {
-      break
-    }
-  }
-  count
-}
-
-///|
-fn text_to_id(text : String) -> String {
-  // 簡易的なスラッグ生成
-  let mut result = ""
-  for c in text.to_lower() {
-    if (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') {
-      result = result + c.to_string()
-    } else if c == ' ' || c == '-' || c == '_' {
-      if not(result.has_suffix("-")) {
-        result = result + "-"
-      }
-    }
-    // 他の文字は無視
-  }
-  // 末尾のハイフンを除去
-  if result.has_suffix("-") {
-    result[:result.length() - 1].to_string() catch {
-      _ => result
-    }
-  } else {
-    result
   }
 }
 
