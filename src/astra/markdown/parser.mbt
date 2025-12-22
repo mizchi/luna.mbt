@@ -23,7 +23,7 @@ pub fn parse_markdown(
 /// Parse Island directive from HTML string
 /// Format: <Island name="counter" :props='{"initial": 0}' trigger="visible" />
 fn parse_island_directive(html : String) -> @astra.IslandEmbed? {
-  let trimmed = html.trim_space().to_string()
+  let trimmed = html.trim().to_string()
   if not(trimmed.has_prefix("<Island")) && not(trimmed.has_prefix("<island")) {
     return None
   }
@@ -63,7 +63,7 @@ fn parse_island_directive(html : String) -> @astra.IslandEmbed? {
 /// Custom elements must have a hyphen in their name (e.g., <my-counter>, <foo-bar>)
 /// Supports luna:trigger attribute for hydration timing
 fn parse_custom_element(html : String) -> @astra.ComponentEmbed? {
-  let trimmed = html.trim_space().to_string()
+  let trimmed = html.trim().to_string()
   if not(trimmed.has_prefix("<")) {
     return None
   }

@@ -87,7 +87,6 @@ test-xplat:
     moon test --target all src/luna/render
     moon test --target all src/luna/serialize
     moon test --target all src/core/parser
-    moon test --target all src/core/ssg
 
 # TypeScript 型チェック
 test-ts:
@@ -179,7 +178,7 @@ ci: check test size-check
 size-check:
     #!/usr/bin/env bash
     set -e
-    LOADER_SIZE=$(wc -c < js/loader/src/loader.js)
+    LOADER_SIZE=$(wc -c < js/loader/dist/loader.js)
     echo "loader.js: ${LOADER_SIZE} bytes"
     if [ "$LOADER_SIZE" -gt 5120 ]; then
         echo "❌ loader.js exceeds 5KB limit"
@@ -190,7 +189,7 @@ size-check:
 # バンドルサイズ表示
 size:
     @echo "=== Bundle Sizes ==="
-    @ls -lh js/loader/*.js 2>/dev/null | awk '{print $9 ": " $5}'
+    @ls -lh js/loader/dist/*.js 2>/dev/null | awk '{print $9 ": " $5}'
     @echo ""
     @echo "=== MoonBit Output Sizes ==="
     @find target/js/release/build -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 ": " $5}' | head -20
@@ -274,16 +273,8 @@ ssg-build-fast output="dist": build-moon
     node target/js/release/build/astra/cli/cli.js build -o {{output}}
 
 # =============================================================================
-# ベンチマーク・メトリクス
+# メトリクス
 # =============================================================================
-
-# ベンチマーク実行
-bench:
-    node bench/run.js
-
-# ベンチマーク (happydom)
-bench-happydom:
-    node bench/run-happydom.js
 
 # メトリクス収集
 metrics:

@@ -13,5 +13,5 @@
     { "path": "mizchi/js/web/http", "alias": "http" },
     { "path": "mizchi/js/web/url", "alias": "url" }
   ],
-  "warn-list": "-24"
+  "warn-list": "-24-67"
 }

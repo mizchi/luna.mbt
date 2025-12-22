@@ -41,6 +41,13 @@ function getDb(): DatabaseSync {
     // Column already exists
   }
 
+  // Add browser_router_bundle_size column if it doesn't exist (migration)
+  try {
+    db.exec(`ALTER TABLE metrics ADD COLUMN browser_router_bundle_size INTEGER`);
+  } catch {
+    // Column already exists
+  }
+
   return db;
 }
 
@@ -137,8 +144,8 @@ function collect() {
   const loaderSize = getFileSize("js/loader/dist/loader.js");
 
   // Find bundled files with hash in name
-  const spaFile = findFileByPattern("dist/assets", /^spa-.*\.js$/);
-  const browserAppFile = findFileByPattern("dist/assets", /^browser_router-.*\.js$/);
+  const spaFile = findFileByPattern("docs/public/demo/assets", /^spa-.*\.js$/);
+  const browserAppFile = findFileByPattern("docs/public/demo/assets", /^browser_router-.*\.js$/);
 
   const spaSize = spaFile ? getFileSize(spaFile) : null;
   const browserAppSize = browserAppFile ? getFileSize(browserAppFile) : null;
