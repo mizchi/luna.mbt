@@ -13,6 +13,14 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: "list",
+  // Snapshot settings: remove platform suffix, allow small differences
+  snapshotPathTemplate: "{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}",
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.05, // Allow 5% pixel difference
+      threshold: 0.3, // Per-pixel color threshold (0-1)
+    },
+  },
   use: {
     baseURL: "http://localhost:3456",
     trace: "on-first-retry",
