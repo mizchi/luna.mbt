@@ -1,0 +1,83 @@
+name: docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'src/astra/**'
+      - 'astra.json'
+      - '.github/workflows/docs.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - run: pnpm install
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - uses: illusory0x0/setup-moonbit@v0.1.0
+        with:
+          version: stable
+
+      - run: |
+          moon update
+          moon install
+
+      - name: Build MoonBit
+        run: moon build --target js
+
+      - name: Build docs with Astra
+        run: node target/js/release/build/astra/cli/cli.js build
+
+      - name: Apply syntax highlighting
+        run: npx tsx scripts/shiki-highlight.ts dist
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      # Cloudflare Pages deploy (dry-run)
+      # To enable actual deployment:
+      # 1. Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to repository secrets
+      # 2. Remove the --dry-run flag below
+      - name: Deploy to Cloudflare Pages (dry-run)
+        run: |
+          echo "=== Cloudflare Pages Deploy (dry-run) ==="
+          echo "Would deploy dist/ to Cloudflare Pages"
+          echo ""
+          echo "Files to deploy:"
+          find dist -type f | head -20
+          echo "..."
+          echo ""
+          echo "Total files: $(find dist -type f | wc -l)"
+          echo "Total size: $(du -sh dist | cut -f1)"
+          echo ""
+          echo "To enable actual deployment, configure the following secrets:"
+          echo "  - CLOUDFLARE_API_TOKEN"
+          echo "  - CLOUDFLARE_ACCOUNT_ID"
+          echo "And uncomment the wrangler deploy step below"
+
+      # Uncomment to enable actual Cloudflare Pages deployment:
+      # - name: Deploy to Cloudflare Pages
+      #   if: github.ref == 'refs/heads/main'
+      #   env:
+      #     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #   run: |
+      #     npx wrangler pages deploy dist --project-name=luna-docs
