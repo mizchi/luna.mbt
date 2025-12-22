@@ -8,7 +8,6 @@ let hmr_port : Int = 24679
 /// HMR WebSocket server handle
 struct HmrServer {
   inner : @js.Any
-  port : Int
 }
 
 ///|
@@ -16,7 +15,7 @@ fn HmrServer::start(port : Int) -> HmrServer {
   let ws = @node.esm_require("ws")
   let wss_class = ws["WebSocketServer"]
   let inner = create_wss_instance(wss_class, port)
-  let server = HmrServer::{ inner, port }
+  let server = HmrServer::{ inner, }
   inner._call("on", [
     @js.any("connection"),
     @js.any(fn(_ws : @js.Any) {
@@ -41,7 +40,9 @@ extern "js" fn create_wss_instance(wss_class : @js.Any, port : Int) -> @js.Any =
 
 ///|
 fn HmrServer::broadcast(self : HmrServer, message : String) -> Unit {
-  self.inner._call("clients", [])._call("forEach", [
+  // clients is a property (Set), not a method
+  let clients = self.inner["clients"]
+  clients._call("forEach", [
     @js.any(fn(client : @js.Any) {
       let ready_state : Int = client["readyState"].cast()
       if ready_state == 1 {
@@ -96,6 +97,12 @@ fn show_dev_help() -> Unit {
 
 ///|
 async fn run_dev_command(args : Array[String]) -> Unit {
+  // Keep Node.js event loop alive first
+  keep_alive()
+
+  // Initialize ESM require for ws package
+  @node.init_esm_require().wait()
+
   let result = @util.parseArgs(
     args~,
     options=[
@@ -155,7 +162,7 @@ async fn run_dev_command(args : Array[String]) -> Unit {
   // Initial build
   println(@colorette.cyan("Starting development server..."))
   println("")
-  run_build_async(config, cwd)
+  run_initial_build(config, cwd)
 
   // Start HMR WebSocket server
   let hmr_server = HmrServer::start(hmr_port)
@@ -258,8 +265,11 @@ async fn run_dev_command(args : Array[String]) -> Unit {
       hmr_server.notify_reload()
     }
   })
-
 }
+
+///|
+extern "js" fn keep_alive() -> Unit =
+  #| () => { setInterval(() => {}, 1000 * 60 * 60) }
 
 ///|
 /// Rebuild using highlighter (sync call with pre-created highlighter)
@@ -345,8 +355,8 @@ fn copy_components_only(config : @astra.SsgConfig, cwd : String) -> Unit {
 }
 
 ///|
-async fn run_build_async(config : @astra.SsgConfig, cwd : String) -> Unit {
-  match @astra_gen.generate_site_async(config, cwd) {
+fn run_initial_build(config : @astra.SsgConfig, cwd : String) -> Unit {
+  match @astra_gen.generate_site(config, cwd) {
     Ok(_) =>
       println(@colorette.green("✓ Build complete: \{config.output_dir}"))
     Err(e) => console_error(@colorette.red("Build failed: \{e}"))

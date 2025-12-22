@@ -10,7 +10,7 @@ fn show_help() -> Unit {
     #|
     #|Commands:
     #|  build          Build static site from docs/
-    #|  dev            Start development server with watch (planned)
+    #|  dev            Start development server with HMR
     #|
     #|Options:
     #|  -h, --help     Show help

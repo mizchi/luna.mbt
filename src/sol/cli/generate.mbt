@@ -493,7 +493,7 @@ pub fn parse_mbti(content : String) -> Array[(String, String)] {
   let lines = content.split("\n").to_array()
   for line in lines {
     let line_str = line.to_string()
-    let trimmed = line_str.trim_start(" \t").to_string()
+    let trimmed = line_str.trim_start(chars=" \t").to_string()
     // Look for "pub fn name(...) -> RetType"
     if trimmed.has_prefix("pub fn ") {
       let rest = trimmed.unsafe_substring(start=7, end=trimmed.length()) // After "pub fn "
@@ -566,7 +566,7 @@ pub fn extract_package_path(mbti_content : String) -> String? {
   let lines = mbti_content.split("\n").to_array()
   for line in lines {
     let line_str = line.to_string()
-    let trimmed = line_str.trim_start(" \t").to_string()
+    let trimmed = line_str.trim_start(chars=" \t").to_string()
     if trimmed.has_prefix("package \"") {
       let start = 9 // len of 'package "'
       let after_prefix = trimmed.unsafe_substring(start~, end=trimmed.length())
