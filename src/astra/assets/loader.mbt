@@ -25,11 +25,13 @@ let loader_js_cache : Ref[String?] = { val: None }
 
 ///|
 /// Load a file from the assets directory
+/// Note: Uses simple string concatenation instead of @path.join to avoid
+/// async issues with the MoonBit coroutine scheduler
 fn load_asset(relative_path : String) -> String {
   // Try relative to current working directory first
   let paths = [
-    @path.join(["src/astra/assets", relative_path]),
-    @path.join(["node_modules/mizchi/luna/src/astra/assets", relative_path]),
+    "src/astra/assets/" + relative_path,
+    "node_modules/mizchi/luna/src/astra/assets/" + relative_path,
   ]
   for p in paths {
     try {
