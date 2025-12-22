@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "deps": {
     "moonbitlang/async": "0.14.3",
-    "mizchi/js": "0.10.5",
+    "mizchi/js": "0.10.6",
     "moonbitlang/x": "0.4.37",
     "mizchi/npm_typed": "0.1.5",
     "moonbitlang/parser": "0.1.12",
