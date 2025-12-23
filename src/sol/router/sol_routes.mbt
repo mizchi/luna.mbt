@@ -515,7 +515,7 @@ fn register_compiled_sol_routes(
             default_title=config.default_title,
           )
           match route.page_handler {
-            Some(PageHandler(handler)) => {
+            Some(PageHandler(handler)) =>
               // Check if ISR is enabled for this route (only for full page requests)
               match (route.revalidate, config.isr_cache, is_fragment) {
                 (Some(revalidate), Some(cache), false) => {
@@ -525,14 +525,13 @@ fn register_compiled_sol_routes(
                   let now = @isr.now_ms()
                   let status = @isr.check_status(entry, now)
                   match status {
-                    @isr.Fresh => {
+                    @isr.Fresh =>
                       // Return cached HTML directly
                       match entry {
                         Some(e) => c.html(e.html)
                         None => c.text("Cache error")
                       }
-                    }
-                    @isr.Stale => {
+                    @isr.Stale =>
                       // Return cached HTML and schedule background revalidation
                       match entry {
                         Some(e) => {
@@ -551,7 +550,9 @@ fn register_compiled_sol_routes(
                               _ => return
                             }
                             let new_entry = @isr.CacheEntry::new(
-                              html, @isr.now_ms(), revalidate,
+                              html,
+                              @isr.now_ms(),
+                              revalidate,
                             )
                             @isr.ISRCache::put(cache, cache_key, new_entry)
                           })
@@ -559,7 +560,6 @@ fn register_compiled_sol_routes(
                         }
                         None => c.text("Cache error")
                       }
-                    }
                     @isr.Miss => {
                       // Render, cache, and return
                       let html = render_page_to_html(
@@ -574,7 +574,9 @@ fn register_compiled_sol_routes(
                       ) catch {
                         e => return c.text("Error: " + e.to_string())
                       }
-                      let new_entry = @isr.CacheEntry::new(html, now, revalidate)
+                      let new_entry = @isr.CacheEntry::new(
+                        html, now, revalidate,
+                      )
                       @isr.ISRCache::put(cache, cache_key, new_entry)
                       c.html(html)
                     }
@@ -614,7 +616,6 @@ fn register_compiled_sol_routes(
                   }
                 }
               }
-            }
             None => c.text("No handler for route")
           }
         })

@@ -4,6 +4,7 @@
     "js"
   ],
   "import": [
+    "moonbitlang/async",
     {
       "path": "mizchi/js/web/console",
       "alias": "console"
@@ -55,10 +56,6 @@
     {
       "path": "mizchi/js/node/util",
       "alias": "util"
-    },
-    {
-      "path": "mizchi/js/node",
-      "alias": "node"
     },
     {
       "path": "mizchi/npm_typed/colorette",

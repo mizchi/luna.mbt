@@ -11,9 +11,9 @@ pub struct HmrServer {
 
 ///|
 /// Create and start HMR WebSocket server on specified port
-/// Uses Node.js 'ws' package via esm_require
-pub fn HmrServer::start(port : Int) -> HmrServer {
-  let inner = create_ws_server_sync(port)
+/// Uses Node.js 'ws' package via dynamic import
+pub async fn HmrServer::start(port : Int) -> HmrServer {
+  let inner = create_ws_server_async(port)
   let server = HmrServer::{ inner, port }
   // Log connections
   inner._call("on", [
@@ -151,12 +151,17 @@ fn escape_json_string(s : String) -> String {
 // FFI functions
 
 ///|
-/// Create WebSocket server using 'ws' package
-fn create_ws_server_sync(port : Int) -> @js.Any {
-  let ws = @node.require("ws")
+/// Create WebSocket server using 'ws' package (async for ESM compatibility)
+async fn create_ws_server_async(port : Int) -> @js.Any {
+  let ws = import_ws().wait()
   let wss_class = ws["WebSocketServer"]
   create_wss_instance(wss_class, port)
 }
+
+///|
+/// Dynamic import for 'ws' module (ESM compatible)
+extern "js" fn import_ws() -> @js.Promise[@js.Any] =
+  #| () => import('ws')
 
 ///|
 extern "js" fn create_wss_instance(wss_class : @js.Any, port : Int) -> @js.Any =

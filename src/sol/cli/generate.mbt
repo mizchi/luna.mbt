@@ -1299,6 +1299,10 @@ fn generate_server_main_mbt(
   buf.write_string(
     "  let app = @router.register_sol_routes(app, routes, config=config)\n\n",
   )
+  buf.write_string("  // Register Server Actions (if action_registry is defined in routes.mbt)\n")
+  buf.write_string(
+    "  let app = @action.register_actions(app, @app_server.action_registry())\n\n",
+  )
 
   // Generate static directory routes
   if not(static_dirs.is_empty()) {
@@ -1335,6 +1339,9 @@ fn generate_server_pkg_json(routes_pkg : String) -> String {
   )
   buf.write_string(
     "    { \"path\": \"mizchi/luna/sol/router\", \"alias\": \"router\" },\n",
+  )
+  buf.write_string(
+    "    { \"path\": \"mizchi/luna/sol/action\", \"alias\": \"action\" },\n",
   )
   buf.write_string(
     "    { \"path\": \"mizchi/js/core\", \"alias\": \"core\" },\n",

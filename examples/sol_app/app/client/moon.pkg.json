@@ -3,6 +3,7 @@
   "import": [
     { "path": "mizchi/luna/platform/dom/element", "alias": "element" },
     { "path": "mizchi/luna/luna/signal", "alias": "signal" },
+    { "path": "mizchi/luna/sol/action", "alias": "action" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" }
   ],

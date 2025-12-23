@@ -54,7 +54,7 @@ build: build-moon build-loader
 # =============================================================================
 
 # 全テスト（ピラミッド順: unit → integration → e2e）
-test: test-unit test-integration test-e2e test-examples
+test: test-unit test-integration test-e2e test-examples test-sol-example
     @echo "✓ All tests passed"
 
 # --- Layer 1: Unit Tests (最速・最多) ---
@@ -241,6 +241,14 @@ sol *args: build-moon
 # Astra CLI
 astra *args: build-moon
     node target/js/release/build/astra/cli/cli.js {{args}}
+
+# =============================================================================
+# 開発サーバー
+# =============================================================================
+
+# Sol 開発サーバー（examples/sol_app）
+dev-sol: build-moon
+    cd examples/sol_app && pnpm dev
 
 # =============================================================================
 # ドキュメント

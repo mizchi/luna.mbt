@@ -255,34 +255,38 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
     ]),
     @luna.h("ul", [("data-list", @luna.attr_static("true"))], [
       @luna.for_each(fn() {
-        items.get().mapi(fn(index, item) {
-          @luna.h(
-            "li",
-            [("data-item", @luna.attr_static(index.to_string()))],
-            [
-              @luna.h("span", [], [@luna.text(item)]),
-              @luna.h(
-                "button",
-                [
-                  ("data-remove", @luna.attr_static(index.to_string())),
-                  (
-                    "onClick",
-                    @luna.attr_handler(
-                      @luna.handler(fn(_event : @js.Any) {
-                        items.set(
-                          items
-                            .get()
-                            .mapi(fn(j, x) { if j != index { Some(x) } else { None } })
-                            .filter_map(fn(x) { x }),
-                        )
-                      }),
-                    ),
+        items
+        .get()
+        .mapi(fn(index, item) {
+          @luna.h("li", [("data-item", @luna.attr_static(index.to_string()))], [
+            @luna.h("span", [], [@luna.text(item)]),
+            @luna.h(
+              "button",
+              [
+                ("data-remove", @luna.attr_static(index.to_string())),
+                (
+                  "onClick",
+                  @luna.attr_handler(
+                    @luna.handler(fn(_event : @js.Any) {
+                      items.set(
+                        items
+                        .get()
+                        .mapi(fn(j, x) {
+                          if j != index {
+                            Some(x)
+                          } else {
+                            None
+                          }
+                        })
+                        .filter_map(fn(x) { x }),
+                      )
+                    }),
                   ),
-                ],
-                [@luna.text("x")],
-              ),
-            ],
-          )
+                ),
+              ],
+              [@luna.text("x")],
+            ),
+          ])
         })
       }),
     ]),

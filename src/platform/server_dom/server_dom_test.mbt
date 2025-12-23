@@ -217,12 +217,9 @@ test "render error_boundary with island inside" {
   let node : @luna.Node[Unit] = @luna.error_boundary(
     children=fn() {
       @element.div([
-        @luna.island(
-          "counter",
-          "/components/counter.js",
-          "{\"count\":0}",
-          [@element.text("Loading...")],
-        ),
+        @luna.island("counter", "/components/counter.js", "{\"count\":0}", [
+          @element.text("Loading..."),
+        ]),
       ])
     },
     fallback=fn(_err, _reset) { @element.text("Error") },

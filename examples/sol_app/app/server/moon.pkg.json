@@ -20,6 +20,10 @@
       "alias": "mw"
     },
     {
+      "path": "mizchi/luna/sol/action",
+      "alias": "action"
+    },
+    {
       "path": "mizchi/luna/platform/server_dom",
       "alias": "server_dom"
     },

@@ -1,0 +1,12 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    { "path": "mizchi/npm_typed/hono", "alias": "hono" },
+    { "path": "mizchi/js/core", "alias": "js" },
+    { "path": "mizchi/js/web/http", "alias": "http" },
+    { "path": "mizchi/luna/sol/middleware", "alias": "middleware" }
+  ],
+  "warn-list": "-6"
+}

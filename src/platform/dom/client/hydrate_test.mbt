@@ -1387,10 +1387,10 @@ test "hydrate nested show in for" {
   let visible = @signal.signal(true)
   let vnode = @luna.for_each(fn() {
     items
-      .get()
-      .map(fn(item) {
-        @luna.show(fn() { visible.get() }, fn() { @luna.text(item) })
-      })
+    .get()
+    .map(fn(item) {
+      @luna.show(fn() { visible.get() }, fn() { @luna.text(item) })
+    })
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1406,7 +1406,9 @@ test "hydrate nested component in for" {
   let container = create_container()
   let items = @signal.signal(["X", "Y"])
   let vnode = @luna.for_each(fn() {
-    items.get().map(fn(item) { @luna.component(fn() { @luna.text("Item: " + item) }) })
+    items
+    .get()
+    .map(fn(item) { @luna.component(fn() { @luna.text("Item: " + item) }) })
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)

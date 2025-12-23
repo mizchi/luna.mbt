@@ -134,6 +134,63 @@ async fn api_health(_props : @router.PageProps) -> @core.Any {
   @sol.json_obj([("status", @core.any("ok"))])
 }
 
+// ============================================================================
+// Server Actions
+// ============================================================================
+
+///|
+/// Contact form submission handler
+let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(
+  async fn(ctx) {
+    // Parse JSON body
+    let body = ctx.body
+    let data : @core.Any = parse_json(body)
+
+    // Extract fields
+    let name = get_field(data, "name")
+    let email = get_field(data, "email")
+
+    // Validate
+    if name == "" {
+      return @action.ActionResult::bad_request("Name is required")
+    }
+    if email == "" {
+      return @action.ActionResult::bad_request("Email is required")
+    }
+    if not(email.contains("@")) {
+      return @action.ActionResult::bad_request("Invalid email format")
+    }
+
+    // In a real app, you would save to database here
+    // For demo, just return success with the submitted data
+    @action.ActionResult::ok(
+      @sol.json_obj([
+        ("success", @core.any(true)),
+        ("message", @core.any("Form submitted successfully!")),
+        (
+          "data",
+          @sol.json_obj([("name", @core.any(name)), ("email", @core.any(email))]),
+        ),
+      ]),
+    )
+  },
+)
+
+///|
+extern "js" fn parse_json(s : String) -> @core.Any =
+  #| (s) => { try { return JSON.parse(s); } catch { return {}; } }
+
+///|
+extern "js" fn get_field(obj : @core.Any, field : String) -> String =
+  #| (obj, field) => obj[field] || ""
+
+///|
+/// Create action registry for the application
+pub fn action_registry() -> @action.ActionRegistry {
+  @action.ActionRegistry::new(allowed_origins=["http://localhost:3000", "http://localhost:3457"])
+    .register(@action.ActionDef::new("submit-contact", submit_contact_handler))
+}
+
 ///|
 /// API handler: middleware test - returns request info
 async fn api_middleware_test(_props : @router.PageProps) -> @core.Any {

@@ -7,7 +7,13 @@ test "compile simple sol page route" {
   }
 
   let routes = [
-    SolRoutes::Page(path="/", handler=PageHandler(home_handler), title="Home", meta=[], revalidate=None),
+    SolRoutes::Page(
+      path="/",
+      handler=PageHandler(home_handler),
+      title="Home",
+      meta=[],
+      revalidate=None,
+    ),
   ]
   let compiled = compile_sol_routes(routes)
   assert_eq(compiled.length(), 1)

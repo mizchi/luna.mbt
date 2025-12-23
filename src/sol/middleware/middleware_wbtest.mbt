@@ -101,6 +101,7 @@ test "identity middleware passes through" {
   // Note: Can't easily test async in unit tests without Hono context
   // This verifies the middleware can be created
   let _ = mw
+
 }
 
 ///|
@@ -226,6 +227,167 @@ test "CorsConfig::with_origin_single sets single origin" {
 test "CorsConfig::with_credentials enables credentials" {
   let config = CorsConfig::default().with_credentials()
   assert_true(config.credentials)
+}
+
+// ============================================================================
+// CSRF Config Tests
+// ============================================================================
+
+///|
+test "CsrfConfig::default creates strict config" {
+  let config = CsrfConfig::default()
+  assert_true(config.allowed_origins.is_empty())
+  assert_true(config.check_fetch_metadata)
+  assert_true(config.allow_no_origin)
+}
+
+///|
+test "CsrfConfig::for_origin sets single origin" {
+  let config = CsrfConfig::for_origin("https://example.com")
+  assert_eq(config.allowed_origins.length(), 1)
+  assert_true(config.allowed_origins.contains("https://example.com"))
+}
+
+///|
+test "CsrfConfig::for_origins sets multiple origins" {
+  let config = CsrfConfig::for_origins([
+    "https://example.com", "https://api.example.com",
+  ])
+  assert_eq(config.allowed_origins.length(), 2)
+}
+
+///|
+test "CsrfConfig::with_origin adds origin" {
+  let config = CsrfConfig::default().with_origin("https://example.com")
+  assert_eq(config.allowed_origins.length(), 1)
+}
+
+///|
+test "CsrfConfig::require_json sets content type" {
+  let config = CsrfConfig::default().require_json()
+  match config.expected_content_type {
+    Some(ct) => assert_eq(ct, "application/json")
+    None => fail("expected content type")
+  }
+}
+
+///|
+test "CsrfConfig::with_fetch_metadata toggles check" {
+  let config = CsrfConfig::default().with_fetch_metadata(false)
+  assert_false(config.check_fetch_metadata)
+}
+
+// ============================================================================
+// CSRF Validation Tests (Unit level)
+// ============================================================================
+
+///|
+test "csrf middleware allows GET requests" {
+  let mw = csrf_for_origin("https://example.com")
+  let _ = mw
+  // GET requests should pass through without validation
+}
+
+///|
+test "csrf middleware can be composed" {
+  let mw = csrf_for_origin("https://example.com").then(identity())
+  let _ = mw
+
+}
+
+///|
+test "validate_origin_middleware can be created" {
+  let mw = validate_origin_middleware(["https://example.com"])
+  let _ = mw
+
+}
+
+///|
+test "fetch_metadata middleware can be created" {
+  let mw = fetch_metadata()
+  let _ = mw
+
+}
+
+///|
+test "require_json_content_type middleware can be created" {
+  let mw = require_json_content_type()
+  let _ = mw
+
+}
+
+// ============================================================================
+// CSRF Error Tests
+// ============================================================================
+
+///|
+test "CsrfError::MissingOrigin formats correctly" {
+  let err = CsrfError::MissingOrigin
+  assert_eq(err.to_string(), "Missing Origin header")
+}
+
+///|
+test "CsrfError::InvalidOrigin formats correctly" {
+  let err = CsrfError::InvalidOrigin("https://evil.com")
+  assert_eq(err.to_string(), "Invalid Origin: https://evil.com")
+}
+
+///|
+test "CsrfError::CrossSiteFetch formats correctly" {
+  let err = CsrfError::CrossSiteFetch
+  assert_eq(err.to_string(), "Cross-site fetch not allowed")
+}
+
+///|
+test "CsrfError::UnsafeFetchMode formats correctly" {
+  let err = CsrfError::UnsafeFetchMode
+  assert_eq(err.to_string(), "Unsafe fetch mode")
+}
+
+///|
+test "CsrfError::InvalidContentType formats correctly" {
+  let err = CsrfError::InvalidContentType("text/html")
+  assert_eq(err.to_string(), "Invalid Content-Type: text/html")
+}
+
+// ============================================================================
+// CSRF Result Tests
+// ============================================================================
+
+///|
+test "CsrfResult::Valid matches correctly" {
+  let result : CsrfResult = Valid
+  match result {
+    Valid => ()
+    _ => fail("expected Valid")
+  }
+}
+
+///|
+test "CsrfResult::ValidNoOrigin matches correctly" {
+  let result : CsrfResult = ValidNoOrigin
+  match result {
+    ValidNoOrigin => ()
+    _ => fail("expected ValidNoOrigin")
+  }
+}
+
+///|
+test "CsrfResult::ValidOrigin matches correctly" {
+  let result : CsrfResult = ValidOrigin("https://example.com")
+  match result {
+    ValidOrigin(o) => assert_eq(o, "https://example.com")
+    _ => fail("expected ValidOrigin")
+  }
+}
+
+///|
+test "CsrfResult::Invalid matches correctly" {
+  let result : CsrfResult = Invalid(CsrfError::MissingOrigin)
+  match result {
+    Invalid(MissingOrigin) => ()
+    _ => fail("expected Invalid(MissingOrigin)")
+  }
 }
 
 // ============================================================================

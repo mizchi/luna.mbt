@@ -9,8 +9,7 @@ fn generate_rolldown_build_script(
 ) -> String {
   let minify_line = if skip_minify { "" } else { "minify: true," }
   // Inline node script that reads manifest and runs rolldown programmatically
-  // manifest: true generates .vite/manifest.json with chunk dependencies
-  "import { readFileSync } from 'node:fs';\nimport { build } from 'rolldown';\nconst manifest = JSON.parse(readFileSync('\{manifest_path}', 'utf-8'));\nconst input = {};\nfor (const island of manifest.islands) { input[island.name] = island.entry_path; }\nawait build({ input, output: { dir: manifest.output_dir, format: 'esm', entryFileNames: '[name].js', chunkFileNames: '_shared/[name]-[hash].js', manifest: true, \{minify_line} } });"
+  "import { readFileSync } from 'node:fs';\nimport { build } from 'rolldown';\nconst manifest = JSON.parse(readFileSync('\{manifest_path}', 'utf-8'));\nconst input = {};\nfor (const island of manifest.islands) { input[island.name] = island.entry_path; }\nawait build({ input, output: { dir: manifest.output_dir, format: 'esm', entryFileNames: '[name].js', chunkFileNames: '_shared/[name]-[hash].js', \{minify_line} } });"
 }
 
 ///|

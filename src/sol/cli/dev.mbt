@@ -4,8 +4,7 @@
 ///|
 /// Generate inline JS script for rolldown build (dev mode, no minify)
 fn generate_rolldown_build_script_dev(manifest_path : String) -> String {
-  // manifest: true generates .vite/manifest.json with chunk dependencies
-  "import { readFileSync } from 'node:fs';\nimport { build } from 'rolldown';\nconst manifest = JSON.parse(readFileSync('\{manifest_path}', 'utf-8'));\nconst input = {};\nfor (const island of manifest.islands) { input[island.name] = island.entry_path; }\nawait build({ input, output: { dir: manifest.output_dir, format: 'esm', entryFileNames: '[name].js', chunkFileNames: '_shared/[name]-[hash].js', manifest: true } });"
+  "import { readFileSync } from 'node:fs';\nimport { build } from 'rolldown';\nconst manifest = JSON.parse(readFileSync('\{manifest_path}', 'utf-8'));\nconst input = {};\nfor (const island of manifest.islands) { input[island.name] = island.entry_path; }\nawait build({ input, output: { dir: manifest.output_dir, format: 'esm', entryFileNames: '[name].js', chunkFileNames: '_shared/[name]-[hash].js' } });"
 }
 
 ///|
@@ -22,13 +21,13 @@ fn show_dev_help() -> Unit {
 }
 
 ///|
-fn run_dev_command(args : Array[String]) -> Unit {
+async fn run_dev_command(args : Array[String]) -> Unit {
   let fs = @fs_adapter.NodeFsAdapter::new()
   run_dev_command_with_fs(fs, args)
 }
 
 ///|
-fn[FS : @env.FileSystem] run_dev_command_with_fs(
+async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   fs : FS,
   args : Array[String],
 ) -> Unit {
@@ -210,7 +209,7 @@ let hmr_port : Int = 24678
 
 ///|
 /// Run dev server with watch mode
-fn run_dev_watch_mode(cwd : String, port : String) -> Unit {
+async fn run_dev_watch_mode(cwd : String, port : String) -> Unit {
   let fs = @fs_adapter.NodeFsAdapter::new()
   // Find server entry point
   let entry = find_server_entry_with_fs(fs, cwd, "dev")

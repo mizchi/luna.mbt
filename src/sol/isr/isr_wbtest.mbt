@@ -44,9 +44,9 @@ test "lexicographic_compare basic" {
   assert_eq(lexicographic_compare("z", "a"), 1)
   assert_eq(lexicographic_compare("a", "a"), 0)
   // Different lengths - alphabetical order wins
-  assert_eq(lexicographic_compare("category", "sort"), -1)  // c < s
-  assert_eq(lexicographic_compare("sort", "category"), 1)   // s > c
-  assert_eq(lexicographic_compare("cat", "category"), -1)   // shorter prefix
+  assert_eq(lexicographic_compare("category", "sort"), -1) // c < s
+  assert_eq(lexicographic_compare("sort", "category"), 1) // s > c
+  assert_eq(lexicographic_compare("cat", "category"), -1) // shorter prefix
 }
 
 ///|

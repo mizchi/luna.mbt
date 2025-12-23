@@ -3,13 +3,15 @@
 ///|
 
 ///| Uses client() to embed the contact_form client component.
+///| Demonstrates Server Action integration.
 
 ///|
 /// Contact form page - with contact_form client component (sync server component)
 async fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
   // Create props using generated types
+  // Use Server Action endpoint instead of API endpoint
   let form_props : @types.ContactFormProps = {
-    action: "/api/contact",
+    action: "/_action/submit-contact",
     initial_name: "",
     initial_email: "",
   }
@@ -49,7 +51,7 @@ async fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
         div(class="form-actions", [
           button(attrs=[("type", @luna.attr_static("submit"))], [text("Submit")]),
         ]),
-        div(class="form-result", [text("")]),
+        div(class="form-result", attrs=[("data-testid", @luna.attr_static("form-result"))], [text("")]),
       ]),
     ]),
   ]
