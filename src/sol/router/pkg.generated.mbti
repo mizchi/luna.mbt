@@ -9,6 +9,8 @@ import(
   "mizchi/luna/luna"
   "mizchi/luna/luna/routes"
   "mizchi/luna/platform/server_dom"
+  "mizchi/luna/sol/isr"
+  "mizchi/luna/sol/middleware"
   "mizchi/npm_typed/hono"
 )
 
@@ -36,6 +38,11 @@ pub(all) struct ApiHandler(async (PageProps) -> @core.Any)
 #deprecated
 pub fn ApiHandler::inner(Self) -> async (PageProps) -> @core.Any
 
+pub(all) struct CatchAllInfo {
+  name : String
+  optional : Bool
+}
+
 pub struct ChunkManifest {
   entries : Map[String, ChunkManifestEntry]
   base_url : String
@@ -58,9 +65,12 @@ pub struct CompiledSolRoute {
   page_handler : PageHandler?
   api_handler : ApiHandler?
   layouts : Array[(PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise]
+  middlewares : Array[@middleware.Middleware]
   kind : SolRouteKind
   title : String
   meta : Array[(String, String)]
+  catch_all : CatchAllInfo?
+  revalidate : Int?
 }
 
 pub(all) struct PageHandler(async (PageProps) -> @server_dom.ServerNode)
@@ -104,11 +114,13 @@ pub struct RouterConfig {
   preload_libs : Array[String]
   chunk_manifest : ChunkManifest?
   root_template : String
+  isr_cache : @isr.MemoryCache?
 }
 pub fn RouterConfig::default() -> Self
 pub fn RouterConfig::with_chunk_manifest(Self, ChunkManifest) -> Self
 pub fn RouterConfig::with_default_head(Self, String) -> Self
 pub fn RouterConfig::with_default_title(Self, String) -> Self
+pub fn RouterConfig::with_isr_cache(Self, @isr.MemoryCache) -> Self
 pub fn RouterConfig::with_loader_url(Self, String) -> Self
 pub fn RouterConfig::with_preload_libs(Self, Array[String]) -> Self
 pub fn RouterConfig::with_root_template(Self, String) -> Self
@@ -124,10 +136,11 @@ pub impl Eq for SolRouteKind
 pub impl Show for SolRouteKind
 
 pub(all) enum SolRoutes {
-  Page(path~ : String, handler~ : PageHandler, title~ : String, meta~ : Array[(String, String)])
+  Page(path~ : String, handler~ : PageHandler, title~ : String, meta~ : Array[(String, String)], revalidate~ : Int?)
   Layout(segment~ : String, layout~ : (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise, children~ : Array[SolRoutes])
   Get(path~ : String, handler~ : ApiHandler)
   Post(path~ : String, handler~ : ApiHandler)
+  WithMiddleware(middleware~ : Array[@middleware.Middleware], children~ : Array[SolRoutes])
 }
 
 pub(all) struct StaticDir {

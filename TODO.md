@@ -8,7 +8,7 @@
     - [x] ミドルウェア (ROP、Logger、CORS、`.then()` 合成)
     - [x] レイアウト完成 (ネストレイアウト対応)
     - [ ] 環境変数管理 (`.env` ファイル)
-    - [ ] Error Boundary (コンポーネント単位エラー処理)
+    - [x] Error Boundary (コンポーネント単位エラー処理)
   - 中優先
     - [ ] Server Actions (フォーム送信のサーバー直接処理)
     - [ ] ISR (Incremental Static Regeneration) → Astra借用

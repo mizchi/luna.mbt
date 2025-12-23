@@ -220,45 +220,4 @@ test.describe("Sol CSR Navigation", () => {
       await expect(page.locator("h1")).toContainText("About");
     });
   });
-
-  test.describe("Title Updates", () => {
-    // Skip: Title update timing can be inconsistent in different browsers
-    test.skip("page title updates on CSR navigation", async ({ page }) => {
-      await page.goto(BASE_URL);
-
-      // Navigate to about
-      await page.click('[data-sol-link][href="/about"]');
-      await page.waitForURL(`${BASE_URL}/about`);
-
-      // Wait for title update
-      await page.waitForTimeout(500);
-
-      // Check title
-      const title = await page.title();
-      expect(title.toLowerCase()).toContain("about");
-    });
-  });
-
-  test.describe("Modifier Keys", () => {
-    // Skip this test as modifier key behavior varies by OS and browser
-    test.skip("ctrl+click opens new tab (not CSR)", async ({ page, context }) => {
-      await page.goto(BASE_URL);
-
-      // Listen for new page
-      const pagePromise = context.waitForEvent("page");
-
-      // Ctrl+click (or Meta+click on Mac)
-      await page.click('[data-sol-link][href="/about"]', {
-        modifiers: ["Control"],
-      });
-
-      // Should open new tab
-      const newPage = await pagePromise;
-      await newPage.waitForLoadState();
-      expect(newPage.url()).toContain("/about");
-
-      // Original page should still be on home
-      await expect(page.locator("h1")).toContainText("Welcome to Sol");
-    });
-  });
 });

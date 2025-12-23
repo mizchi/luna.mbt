@@ -55,7 +55,9 @@ fn get_latest_update(pages : Array[@astra.PageMeta]) -> String {
 
 ///|
 /// Build PageInfo array from PageMeta only (avoids async file I/O issues)
-fn build_page_infos_from_meta(pages : Array[@astra.PageMeta]) -> Array[@ssg.PageInfo] {
+fn build_page_infos_from_meta(
+  pages : Array[@astra.PageMeta],
+) -> Array[@ssg.PageInfo] {
   // Build minimal PageInfo without reading files
   let result : Array[@ssg.PageInfo] = []
   for page in pages {

@@ -141,12 +141,7 @@ test "render show when false" {
 test "render for loop" {
   let items = @signal.signal(["A", "B", "C"])
   let node = @luna.for_each(fn() {
-    let arr = items.get()
-    let result : Array[@luna.Node[Unit]] = []
-    for item in arr {
-      result.push(@luna.text(item))
-    }
-    result
+    items.get().map(fn(item) { @luna.text(item) })
   })
   let json = render_to_json(node)
   match json {

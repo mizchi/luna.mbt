@@ -213,14 +213,7 @@ fn todo_example() -> @dom.DomNode {
   let next_id = @signal.signal(1)
   let total = @signal.memo(fn() { todos.get().length() })
   let completed_count = @signal.memo(fn() {
-    let items = todos.get()
-    let mut count = 0
-    for i = 0; i < items.length(); i = i + 1 {
-      if items[i].completed {
-        count = count + 1
-      }
-    }
-    count
+    todos.get().filter(fn(item) { item.completed }).length()
   })
   fn add_todo() -> Unit {
     let text = input_text.get()
@@ -238,29 +231,18 @@ fn todo_example() -> @dom.DomNode {
 
   fn toggle_todo(id : Int) -> Unit {
     todos.update(fn(items) {
-      let new_items : Array[TodoItem] = []
-      for i = 0; i < items.length(); i = i + 1 {
-        let item = items[i]
+      items.map(fn(item) {
         if item.id == id {
-          new_items.push({ ..item, completed: not(item.completed) })
+          { ..item, completed: not(item.completed) }
         } else {
-          new_items.push(item)
+          item
         }
-      }
-      new_items
+      })
     })
   }
 
   fn remove_todo(id : Int) -> Unit {
-    todos.update(fn(items) {
-      let new_items : Array[TodoItem] = []
-      for i = 0; i < items.length(); i = i + 1 {
-        if items[i].id != id {
-          new_items.push(items[i])
-        }
-      }
-      new_items
-    })
+    todos.update(fn(items) { items.filter(fn(item) { item.id != id }) })
   }
 
   @dom.div(class="todo-example", [
@@ -298,14 +280,10 @@ fn todo_example() -> @dom.DomNode {
             (
               "style",
               @dom.attr_dynamic(fn() {
-                let items = todos.get()
-                let mut is_completed = false
-                for i = 0; i < items.length(); i = i + 1 {
-                  if items[i].id == todo_id && items[i].completed {
-                    is_completed = true
-                    break
-                  }
-                }
+                let is_completed = todos
+                  .get()
+                  .iter()
+                  .any(fn(item) { item.id == todo_id && item.completed })
                 if is_completed {
                   "text-decoration: line-through; opacity: 0.6;"
                 } else {

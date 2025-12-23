@@ -4,69 +4,23 @@ package "mizchi/luna/astra/tree"
 import(
   "mizchi/luna/astra"
   "mizchi/luna/core/env"
+  "mizchi/luna/core/ssg"
 )
 
 // Values
-pub fn build_document_tree(@astra.SsgConfig, Array[@astra.PageMeta], String) -> DocumentTree
+pub fn build_document_tree(@astra.SsgConfig, Array[@astra.PageMeta], String) -> @ssg.DocumentTree
 
-pub fn[F : @env.FileSystem] build_document_tree_with_fs(F, @astra.SsgConfig, Array[@astra.PageMeta], String) -> DocumentTree
+pub fn[F : @env.FileSystem] build_document_tree_with_fs(F, @astra.SsgConfig, Array[@astra.PageMeta], String) -> @ssg.DocumentTree
 
-pub fn generate_llms_txt(DocumentTree) -> String
+pub fn generate_llms_txt(@ssg.DocumentTree) -> String
 
-pub fn generate_rss(DocumentTree, limit? : Int) -> String
+pub fn generate_rss(@ssg.DocumentTree, limit? : Int) -> String
 
-pub fn generate_sitemap(DocumentTree) -> String
+pub fn generate_sitemap(@ssg.DocumentTree) -> String
 
 // Errors
 
 // Types and methods
-pub struct DocumentTree {
-  site : SiteInfo
-  pages : Array[PageInfo]
-  root : TreeNode
-}
-pub fn DocumentTree::get_page(Self, String) -> PageInfo?
-pub fn DocumentTree::get_page_by_url(Self, String) -> PageInfo?
-pub fn DocumentTree::get_pages_by_locale(Self, String) -> Array[PageInfo]
-pub fn DocumentTree::get_pages_sorted_by_date(Self, limit? : Int) -> Array[PageInfo]
-pub fn DocumentTree::new(site~ : SiteInfo, pages? : Array[PageInfo], root? : TreeNode) -> Self
-
-pub struct Heading {
-  level : Int
-  text : String
-  id : String
-}
-pub fn Heading::new(level~ : Int, text~ : String, id? : String) -> Self
-
-pub struct PageInfo {
-  id : String
-  url_path : String
-  source_path : String
-  title : String
-  description : String
-  locale : String
-  updated_at : String
-  content_md : String
-  headings : Array[Heading]
-  sort_key : String
-}
-pub fn PageInfo::canonical_url(Self, String) -> String
-pub fn PageInfo::new(id~ : String, url_path~ : String, source_path? : String, title? : String, description? : String, locale? : String, updated_at? : String, content_md? : String, headings? : Array[Heading], sort_key? : String) -> Self
-
-pub struct SiteInfo {
-  title : String
-  description : String
-  base_url : String
-  language : String
-  updated_at : String
-}
-pub fn SiteInfo::new(title~ : String, description? : String, base_url? : String, language? : String, updated_at? : String) -> Self
-
-pub enum TreeNode {
-  Section(name~ : String, path~ : String, children~ : Array[TreeNode])
-  Page(page_id~ : String)
-}
-pub fn TreeNode::flatten(Self) -> Array[String]
 
 // Type aliases
 

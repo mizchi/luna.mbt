@@ -133,11 +133,7 @@ test "render error_boundary with for" {
   let node : @luna.Node[Unit] = @luna.error_boundary(
     children=fn() {
       @luna.for_each(fn() {
-        let result : Array[@luna.Node[Unit]] = []
-        for item in items {
-          result.push(@luna.h("li", [], [@luna.text(item)]))
-        }
-        result
+        items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
       })
     },
     fallback=fn(_err, _reset) { @luna.text("Error") },

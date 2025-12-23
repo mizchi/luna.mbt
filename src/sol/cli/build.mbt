@@ -167,11 +167,7 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   // Build static directories (SSG) if configured
   if fs.exists_sync(sol_config_path) {
-    let config_content = try {
-      fs.read_file_sync(sol_config_path)
-    } catch {
-      _ => ""
-    }
+    let config_content = fs.read_file_sync(sol_config_path) catch { _ => "" }
     if not(config_content.is_empty()) {
       match parse_sol_config(config_content) {
         Some(config) =>

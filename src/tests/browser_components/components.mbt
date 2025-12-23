@@ -239,10 +239,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
                 // In a real app, we'd read from the input element
                 // For testing, we'll add a placeholder item
                 let current = items.get()
-                let new_arr : Array[String] = []
-                for i = 0; i < current.length(); i = i + 1 {
-                  new_arr.push(current[i])
-                }
+                let new_arr = current.copy()
                 // Add new item with timestamp to make it unique
                 new_arr.push("Item " + (current.length() + 1).to_string())
                 items.set(new_arr)
@@ -258,44 +255,35 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
     ]),
     @luna.h("ul", [("data-list", @luna.attr_static("true"))], [
       @luna.for_each(fn() {
-        let current_items = items.get()
-        let result : Array[@luna.Node[@js.Any]] = []
-        for i = 0; i < current_items.length(); i = i + 1 {
-          let item = current_items[i]
-          let index = i
-          result.push(
-            @luna.h(
-              "li",
-              [("data-item", @luna.attr_static(index.to_string()))],
-              [
-                @luna.h("span", [], [@luna.text(item)]),
-                @luna.h(
-                  "button",
-                  [
-                    ("data-remove", @luna.attr_static(index.to_string())),
-                    (
-                      "onClick",
-                      @luna.attr_handler(
-                        @luna.handler(fn(_event : @js.Any) {
-                          let current = items.get()
-                          let new_arr : Array[String] = []
-                          for j = 0; j < current.length(); j = j + 1 {
-                            if j != index {
-                              new_arr.push(current[j])
-                            }
-                          }
-                          items.set(new_arr)
-                        }),
-                      ),
+        items.get().mapi(fn(index, item) {
+          @luna.h(
+            "li",
+            [("data-item", @luna.attr_static(index.to_string()))],
+            [
+              @luna.h("span", [], [@luna.text(item)]),
+              @luna.h(
+                "button",
+                [
+                  ("data-remove", @luna.attr_static(index.to_string())),
+                  (
+                    "onClick",
+                    @luna.attr_handler(
+                      @luna.handler(fn(_event : @js.Any) {
+                        items.set(
+                          items
+                            .get()
+                            .mapi(fn(j, x) { if j != index { Some(x) } else { None } })
+                            .filter_map(fn(x) { x }),
+                        )
+                      }),
                     ),
-                  ],
-                  [@luna.text("x")],
-                ),
-              ],
-            ),
+                  ),
+                ],
+                [@luna.text("x")],
+              ),
+            ],
           )
-        }
-        result
+        })
       }),
     ]),
   ])
@@ -390,10 +378,7 @@ pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
 
   // Parse initial items from state
   let initial_items = js_getArray(state, "items")
-  let items : Array[Item] = []
-  for i = 0; i < initial_items.length(); i = i + 1 {
-    items.push({ id: i, label: initial_items[i] })
-  }
+  let items = initial_items.mapi(fn(i, label) { { id: i, label } })
   let items_sig = @signal.signal(items)
 
   // Build UI using @dom functions for DOM reuse support
@@ -407,14 +392,7 @@ pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
           ("data-reverse", @dom.Static("true")),
           (
             "click",
-            @dom.Handler(fn(_event) {
-              let current = items_sig.get()
-              let reversed : Array[Item] = []
-              for i = current.length() - 1; i >= 0; i = i - 1 {
-                reversed.push(current[i])
-              }
-              items_sig.set(reversed)
-            }),
+            @dom.Handler(fn(_event) { items_sig.set(items_sig.get().rev()) }),
           ),
         ],
         [@dom.text_node(fn() { "Reverse" })],

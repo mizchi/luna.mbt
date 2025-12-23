@@ -9,6 +9,11 @@ pub fn match_url(String, Array[CompiledRoutes]) -> RoutesMatch?
 // Errors
 
 // Types and methods
+pub(all) struct CatchAllInfo {
+  name : String
+  optional : Bool
+}
+
 pub struct CompiledRoutes {
   pattern : String
   param_names : Array[String]
@@ -17,6 +22,7 @@ pub struct CompiledRoutes {
   kind : RoutesKind
   title : String
   meta : Array[(String, String)]
+  catch_all : CatchAllInfo?
 }
 
 pub(all) enum Routes {

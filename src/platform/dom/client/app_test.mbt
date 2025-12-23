@@ -38,34 +38,19 @@ fn create_todo_app() -> (
   // Toggle todo handler
   fn toggle_todo(id : Int) {
     todos.update(fn(arr) {
-      let new_arr : Array[Todo] = []
-      for i = 0; i < arr.length(); i = i + 1 {
-        let todo = arr[i]
+      arr.map(fn(todo) {
         if todo.id == id {
-          new_arr.push({
-            id: todo.id,
-            text: todo.text,
-            completed: not(todo.completed),
-          })
+          { id: todo.id, text: todo.text, completed: not(todo.completed) }
         } else {
-          new_arr.push(todo)
+          todo
         }
-      }
-      new_arr
+      })
     })
   }
 
   // Delete todo handler
   fn delete_todo(id : Int) {
-    todos.update(fn(arr) {
-      let new_arr : Array[Todo] = []
-      for i = 0; i < arr.length(); i = i + 1 {
-        if arr[i].id != id {
-          new_arr.push(arr[i])
-        }
-      }
-      new_arr
-    })
+    todos.update(fn(arr) { arr.filter(fn(todo) { todo.id != id }) })
   }
 
   // Build the UI
@@ -146,12 +131,7 @@ fn create_todo_app() -> (
       @element.text_dyn(fn() {
         let items = todos.get()
         let total = items.length()
-        let mut completed = 0
-        for i = 0; i < items.length(); i = i + 1 {
-          if items[i].completed {
-            completed = completed + 1
-          }
-        }
+        let completed = items.filter(fn(item) { item.completed }).length()
         "\{total} items, \{completed} completed"
       }),
     ]),
@@ -225,16 +205,13 @@ test "Todo app toggles todo completion" {
 
   // Toggle first todo
   todos.update(fn(arr) {
-    let new_arr : Array[Todo] = []
-    for i = 0; i < arr.length(); i = i + 1 {
-      let todo = arr[i]
+    arr.map(fn(todo) {
       if todo.id == 1 {
-        new_arr.push({ id: todo.id, text: todo.text, completed: true })
+        { id: todo.id, text: todo.text, completed: true }
       } else {
-        new_arr.push(todo)
+        todo
       }
-    }
-    new_arr
+    })
   })
 
   // Verify state
@@ -259,15 +236,7 @@ test "Todo app deletes todo" {
   assert_eq(todos.get().length(), 3)
 
   // Delete middle todo
-  todos.update(fn(arr) {
-    let new_arr : Array[Todo] = []
-    for i = 0; i < arr.length(); i = i + 1 {
-      if arr[i].id != 2 {
-        new_arr.push(arr[i])
-      }
-    }
-    new_arr
-  })
+  todos.update(fn(arr) { arr.filter(fn(todo) { todo.id != 2 }) })
 
   // Verify state
   assert_eq(todos.get().length(), 2)
@@ -375,24 +344,10 @@ test "Todo app with memo for derived state" {
 
   // Memoized computed value
   let completed_count = @signal.memo(fn() {
-    let items = todos.get()
-    let mut count = 0
-    for i = 0; i < items.length(); i = i + 1 {
-      if items[i].completed {
-        count = count + 1
-      }
-    }
-    count
+    todos.get().filter(fn(item) { item.completed }).length()
   })
   let active_count = @signal.memo(fn() {
-    let items = todos.get()
-    let mut count = 0
-    for i = 0; i < items.length(); i = i + 1 {
-      if not(items[i].completed) {
-        count = count + 1
-      }
-    }
-    count
+    todos.get().filter(fn(item) { not(item.completed) }).length()
   })
 
   // Initial counts
@@ -424,21 +379,9 @@ test "Todo app filter with combinator" {
     if mode == "all" {
       items
     } else if mode == "active" {
-      let result : Array[Todo] = []
-      for i = 0; i < items.length(); i = i + 1 {
-        if not(items[i].completed) {
-          result.push(items[i])
-        }
-      }
-      result
+      items.filter(fn(item) { not(item.completed) })
     } else {
-      let result : Array[Todo] = []
-      for i = 0; i < items.length(); i = i + 1 {
-        if items[i].completed {
-          result.push(items[i])
-        }
-      }
-      result
+      items.filter(fn(item) { item.completed })
     }
   })
 

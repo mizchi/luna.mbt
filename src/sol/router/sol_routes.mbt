@@ -27,11 +27,13 @@ pub(all) enum SolRoutes {
   /// - handler: Async function that returns ServerNode
   /// - title: Page title
   /// - meta: Meta information
+  /// - revalidate: ISR revalidation interval in seconds (None = no caching)
   Page(
     path~ : String,
     handler~ : PageHandler,
     title~ : String,
-    meta~ : Array[(String, String)]
+    meta~ : Array[(String, String)],
+    revalidate~ : Int?
   )
   /// Layout wrapper for nested routes
   /// - segment: Path segment (e.g., "/admin")
@@ -97,6 +99,8 @@ pub struct CompiledSolRoute {
   meta : Array[(String, String)]
   /// Catch-all parameter info (for [...slug] or [[...slug]])
   catch_all : CatchAllInfo?
+  /// ISR revalidation interval in seconds (None = no caching)
+  revalidate : Int?
 }
 
 ///|
@@ -289,7 +293,7 @@ fn compile_sol_routes_inner(
 ) -> Unit {
   for route in routes {
     match route {
-      Page(path~, handler~, title~, meta~) => {
+      Page(path~, handler~, title~, meta~, revalidate~) => {
         let full_path = normalize_path(prefix + path)
         let param_names = extract_param_names(full_path)
         let catch_all = extract_catch_all(full_path)
@@ -304,6 +308,7 @@ fn compile_sol_routes_inner(
           title,
           meta,
           catch_all,
+          revalidate,
         })
       }
       Layout(segment~, layout~, children~) => {
@@ -329,6 +334,7 @@ fn compile_sol_routes_inner(
           title: "",
           meta: [],
           catch_all,
+          revalidate: None,
         })
       }
       Post(path~, handler~) => {
@@ -346,6 +352,7 @@ fn compile_sol_routes_inner(
           title: "",
           meta: [],
           catch_all,
+          revalidate: None,
         })
       }
       WithMiddleware(middleware~, children~) => {
@@ -444,6 +451,40 @@ fn apply_response_headers(c : Ctx, mw_ctx : @middleware.MwContext) -> Unit {
 }
 
 ///|
+/// Render page and return HTML (helper for ISR)
+async fn render_page_to_html(
+  _c : Ctx,
+  props : PageProps,
+  handler : async (PageProps) -> @server_dom.ServerNode,
+  layouts : Array[
+    (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise Error,
+  ],
+  is_fragment : Bool,
+  title : String,
+  default_head : String,
+  root_template : String,
+) -> String raise Error {
+  // Call handler and apply layouts
+  let content : @server_dom.ServerNode = handler(props)
+
+  // Apply layouts from innermost to outermost (only for full page)
+  let mut node = content
+  if not(is_fragment) {
+    let mut i = layouts.length() - 1
+    while i >= 0 {
+      let layout_fn = layouts[i]
+      node = layout_fn(props, node)
+      i -= 1
+    }
+  }
+  if is_fragment {
+    render_server_fragment(node, title)
+  } else {
+    render_server_page_html(node, title, default_head, root_template)
+  }
+}
+
+///|
 fn register_compiled_sol_routes(
   app : App,
   routes : Array[CompiledSolRoute],
@@ -468,44 +509,110 @@ fn register_compiled_sol_routes(
           // Add catch-all parameter if present
           params = add_catch_all_param(params, route.catch_all)
           let props = PageProps::from_ctx_with_params(c, params)
+          let page_title = format_title(
+            route.title,
+            title_prefix=config.title_prefix,
+            default_title=config.default_title,
+          )
           match route.page_handler {
             Some(PageHandler(handler)) => {
-              // Call handler and apply layouts
-              let content : @server_dom.ServerNode = handler(props) catch {
-                e => return c.text("Error: " + e.to_string())
-              }
-
-              // Apply layouts from innermost to outermost
-              // BUT only for full page requests, not fragments
-              // Fragments only need the page content (outlet will swap it)
-              let mut node = content
-              if not(is_fragment) {
-                let layouts = route.layouts
-                let mut i = layouts.length() - 1
-                while i >= 0 {
-                  let layout_fn = layouts[i]
-                  node = layout_fn(props, node) catch {
-                    e => return c.text("Layout error: " + e.to_string())
+              // Check if ISR is enabled for this route (only for full page requests)
+              match (route.revalidate, config.isr_cache, is_fragment) {
+                (Some(revalidate), Some(cache), false) => {
+                  // ISR enabled - check cache
+                  let cache_key = @isr.cache_key(params.path, params.query)
+                  let entry = @isr.ISRCache::get(cache, cache_key)
+                  let now = @isr.now_ms()
+                  let status = @isr.check_status(entry, now)
+                  match status {
+                    @isr.Fresh => {
+                      // Return cached HTML directly
+                      match entry {
+                        Some(e) => c.html(e.html)
+                        None => c.text("Cache error")
+                      }
+                    }
+                    @isr.Stale => {
+                      // Return cached HTML and schedule background revalidation
+                      match entry {
+                        Some(e) => {
+                          // Schedule background revalidation
+                          @isr.ISRCache::schedule_revalidation(cache, async fn() {
+                            let html = render_page_to_html(
+                              c,
+                              props,
+                              handler,
+                              route.layouts,
+                              false,
+                              page_title,
+                              config.default_head,
+                              config.root_template,
+                            ) catch {
+                              _ => return
+                            }
+                            let new_entry = @isr.CacheEntry::new(
+                              html, @isr.now_ms(), revalidate,
+                            )
+                            @isr.ISRCache::put(cache, cache_key, new_entry)
+                          })
+                          c.html(e.html)
+                        }
+                        None => c.text("Cache error")
+                      }
+                    }
+                    @isr.Miss => {
+                      // Render, cache, and return
+                      let html = render_page_to_html(
+                        c,
+                        props,
+                        handler,
+                        route.layouts,
+                        false,
+                        page_title,
+                        config.default_head,
+                        config.root_template,
+                      ) catch {
+                        e => return c.text("Error: " + e.to_string())
+                      }
+                      let new_entry = @isr.CacheEntry::new(html, now, revalidate)
+                      @isr.ISRCache::put(cache, cache_key, new_entry)
+                      c.html(html)
+                    }
                   }
-                  i -= 1
                 }
-              }
-              let page_title = format_title(
-                route.title,
-                title_prefix=config.title_prefix,
-                default_title=config.default_title,
-              )
-              if is_fragment {
-                let fragment_html = render_server_fragment(node, page_title)
-                send_fragment_response(c, fragment_html)
-              } else {
-                let html = render_server_page_html(
-                  node,
-                  page_title,
-                  config.default_head,
-                  config.root_template,
-                )
-                c.html(html)
+                _ => {
+                  // No ISR - render normally
+                  let content : @server_dom.ServerNode = handler(props) catch {
+                    e => return c.text("Error: " + e.to_string())
+                  }
+
+                  // Apply layouts from innermost to outermost
+                  // BUT only for full page requests, not fragments
+                  let mut node = content
+                  if not(is_fragment) {
+                    let layouts = route.layouts
+                    let mut i = layouts.length() - 1
+                    while i >= 0 {
+                      let layout_fn = layouts[i]
+                      node = layout_fn(props, node) catch {
+                        e => return c.text("Layout error: " + e.to_string())
+                      }
+                      i -= 1
+                    }
+                  }
+                  if is_fragment {
+                    let fragment_html = render_server_fragment(node, page_title)
+                    send_fragment_response(c, fragment_html)
+                  } else {
+                    let html = render_server_page_html(
+                      node,
+                      page_title,
+                      config.default_head,
+                      config.root_template,
+                    )
+                    c.html(html)
+                  }
+                }
               }
             }
             None => c.text("No handler for route")

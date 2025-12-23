@@ -1,0 +1,36 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/platform/js/cache"
+
+import(
+  "mizchi/luna/core/env"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct CacheEntry {
+  mtime_ms : Double
+  cached_at : Double
+}
+pub impl Eq for CacheEntry
+pub impl Show for CacheEntry
+
+pub struct FileCache {
+  entries : Map[String, CacheEntry]
+  contents : Map[String, String]
+}
+pub fn FileCache::clear(Self) -> Unit
+pub fn FileCache::invalidate(Self, String) -> Unit
+pub fn[FS : @env.FileSystem] FileCache::is_stale(Self, FS, String) -> Bool
+pub fn FileCache::len(Self) -> Int
+pub fn FileCache::new() -> Self
+pub fn[FS : @env.FileSystem] FileCache::persist(Self, FS, String) -> Unit raise
+pub fn[FS : @env.FileSystem] FileCache::read_file(Self, FS, String) -> String raise
+pub fn[FS : @env.FileSystem] FileCache::restore(Self, FS, String) -> Unit raise
+
+// Type aliases
+
+// Traits
+

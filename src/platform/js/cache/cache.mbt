@@ -36,15 +36,14 @@ pub fn[FS : @env.FileSystem] FileCache::is_stale(
 ) -> Bool {
   match self.entries.get(path) {
     None => true // Not cached
-    Some(entry) => {
+    Some(entry) =>
       // Check if file still exists and mtime matches
       if not(fs.exists_sync(path)) {
         true
       } else {
-        let stat = try { fs.stat_sync(path) } catch { _ => return true }
+        let stat = fs.stat_sync(path) catch { _ => return true }
         stat.mtime_ms.to_double() != entry.mtime_ms
       }
-    }
   }
 }
 
@@ -68,11 +67,7 @@ pub fn[FS : @env.FileSystem] FileCache::read_file(
   let content = fs.read_file_sync(path)
   let stat = fs.stat_sync(path)
   let now = current_time_ms()
-
-  self.entries[path] = {
-    mtime_ms: stat.mtime_ms.to_double(),
-    cached_at: now,
-  }
+  self.entries[path] = { mtime_ms: stat.mtime_ms.to_double(), cached_at: now }
   self.contents[path] = content
   content
 }
@@ -113,7 +108,6 @@ pub fn[FS : @env.FileSystem] FileCache::persist(
   if not(parent.is_empty()) && not(fs.exists_sync(parent)) {
     fs.mkdir_sync(parent, true)
   }
-
   fs.write_file_sync(cache_path, content)
 }
 
@@ -127,13 +121,8 @@ pub fn[FS : @env.FileSystem] FileCache::restore(
   if not(fs.exists_sync(cache_path)) {
     return
   }
-
   let content = fs.read_file_sync(cache_path)
-  let json : Json = try {
-    @json.parse(content)
-  } catch {
-    _ => return
-  }
+  let json : Json = @json.parse(content) catch { _ => return }
   self.from_json(json)
 }
 
@@ -157,15 +146,17 @@ fn FileCache::to_json(self : FileCache) -> Json {
 fn FileCache::from_json(self : FileCache, json : Json) -> Unit {
   self.entries.clear()
   self.contents.clear()
-
   match json {
     { "entries": Object(entries), .. } =>
       for entry in entries {
         let path = entry.0
         let obj = entry.1
         match obj {
-          { "mtime_ms": Number(mtime, ..), "cached_at": Number(cached_at, ..), .. } =>
-            self.entries[path] = { mtime_ms: mtime, cached_at }
+          {
+            "mtime_ms": Number(mtime, ..),
+            "cached_at": Number(cached_at, ..),
+            ..
+          } => self.entries[path] = { mtime_ms: mtime, cached_at }
           _ => ()
         }
       }

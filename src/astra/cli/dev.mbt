@@ -2,6 +2,7 @@
 //
 
 // HMR WebSocket port
+///|
 let hmr_port : Int = 24679
 
 ///|
@@ -99,8 +100,6 @@ fn show_dev_help() -> Unit {
 async fn run_dev_command(args : Array[String]) -> Unit {
   // Keep Node.js event loop alive first
   keep_alive()
-
-
   let result = @util.parseArgs(
     args~,
     options=[
@@ -263,6 +262,7 @@ async fn run_dev_command(args : Array[String]) -> Unit {
       hmr_server.notify_reload()
     }
   })
+
 }
 
 ///|

@@ -186,6 +186,9 @@ pub struct RouterConfig {
   /// - __LUNA_HEAD__ : Custom head HTML
   /// - __LUNA_MAIN__ : Main content
   root_template : String
+  /// ISR cache for incremental static regeneration (None = disabled)
+  /// Currently uses MemoryCache; can be replaced with KVCache for production
+  isr_cache : @isr.MemoryCache?
 }
 
 ///|
@@ -207,7 +210,17 @@ pub fn RouterConfig::default() -> RouterConfig {
     preload_libs: [],
     chunk_manifest: None,
     root_template: default_root_template(),
+    isr_cache: None,
   }
+}
+
+///|
+/// Set ISR cache for incremental static regeneration
+pub fn RouterConfig::with_isr_cache(
+  self : RouterConfig,
+  cache : @isr.MemoryCache,
+) -> RouterConfig {
+  { ..self, isr_cache: Some(cache) }
 }
 
 ///|

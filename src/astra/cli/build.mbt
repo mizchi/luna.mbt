@@ -84,9 +84,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
 
   // Read and parse config
-  let config_content : String = try {
-    fs.read_file_sync(full_config_path)
-  } catch {
+  let config_content : String = fs.read_file_sync(full_config_path) catch {
     e => {
       console_error(@colorette.red("Error reading config: \{e}"))
       @process.exit(1)
@@ -126,7 +124,10 @@ fn find_config_file(cwd : String) -> String {
 }
 
 ///|
-fn[FS : @env.FileSystem] find_config_file_with_fs(fs : FS, cwd : String) -> String {
+fn[FS : @env.FileSystem] find_config_file_with_fs(
+  fs : FS,
+  cwd : String,
+) -> String {
   // Try astra.json first
   let astra_path = @path.join2(cwd, "astra.json")
   if fs.exists_sync(astra_path) {

@@ -153,17 +153,18 @@ createElement("div", [attr("className", AttrValue.Static("foo"))], [text("Hello"
 
 `show()` has a known limitation when initial condition is `true` - the content may not render until a re-render. Start with `false` and toggle to `true` for reliable behavior.
 
-### 5. No Suspense/ErrorBoundary
+### 5. No Suspense
 
-These require async rendering primitives not yet implemented in Luna.
+Suspense requires async rendering primitives not yet fully implemented in Luna.
+
+**Note:** ErrorBoundary is now implemented! See `error_boundary()` in `@luna`.
 
 ## Future Directions
 
 1. **JSX compilation support** - Optional Babel/SWC plugin for JSX syntax
 2. **Suspense** - Async boundary for loading states
-3. **ErrorBoundary** - Error handling component
-4. **Transition API** - Animation coordination
-5. **Store** - Nested reactive state (like SolidJS stores)
+3. **Transition API** - Animation coordination
+4. **Store** - Nested reactive state (like SolidJS stores)
 
 ## Example: Todo App
 

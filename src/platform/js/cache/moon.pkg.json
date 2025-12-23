@@ -3,5 +3,6 @@
   "import": [
     { "path": "mizchi/luna/core/env", "alias": "env" },
     { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" }
-  ]
+  ],
+  "warn-list": "-29"
 }

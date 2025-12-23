@@ -395,12 +395,7 @@ test "exp: repair missing for markers" {
   let logger = StringBuilder::new()
   let items = @signal.signal(["A", "B", "C"])
   let vnode = @luna.for_each(fn() {
-    let arr = items.get()
-    let result : Array[@luna.Node[@js.Any]] = []
-    for i = 0; i < arr.length(); i = i + 1 {
-      result.push(@luna.h("li", [], [@luna.text(arr[i])]))
-    }
-    result
+    items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   // No markers
   exp_set_inner_html(container, "")
@@ -968,8 +963,7 @@ test "report: get_repairs returns all repair infos" {
   exp_set_inner_html(container, "<div class=\"wrong\">World</div>")
   let report = experimental_hydrate_with_report(container, vnode, logger~)
   let repairs = report.get_repairs()
-  for i = 0; i < repairs.length(); i = i + 1 {
-    let repair = repairs[i]
+  for repair in repairs {
     // Each repair should have valid info
     assert_true(repair.get_message().length() > 0)
   }

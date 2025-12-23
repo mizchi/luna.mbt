@@ -157,12 +157,7 @@ test "compile catch-all route [...slug]" {
 ///|
 test "compile optional catch-all route [[...slug]]" {
   let routes = [
-    Routes::Page(
-      path="/blog/[[...path]]",
-      component="blog",
-      title="Blog",
-      meta=[],
-    ),
+    Routes::Page(path="/blog/[[...path]]", component="blog", title="Blog", meta=[]),
   ]
   let compiled = compile(routes)
   assert_eq(compiled.length(), 1)
@@ -212,12 +207,7 @@ test "match_url required catch-all no segments fails" {
 ///|
 test "match_url optional catch-all no segments succeeds" {
   let routes = [
-    Routes::Page(
-      path="/blog/[[...path]]",
-      component="blog",
-      title="Blog",
-      meta=[],
-    ),
+    Routes::Page(path="/blog/[[...path]]", component="blog", title="Blog", meta=[]),
   ]
   let compiled = compile(routes)
   let m = match_url("/blog", compiled)
@@ -230,12 +220,7 @@ test "match_url optional catch-all no segments succeeds" {
 ///|
 test "match_url optional catch-all with segments" {
   let routes = [
-    Routes::Page(
-      path="/blog/[[...path]]",
-      component="blog",
-      title="Blog",
-      meta=[],
-    ),
+    Routes::Page(path="/blog/[[...path]]", component="blog", title="Blog", meta=[]),
   ]
   let compiled = compile(routes)
   let m = match_url("/blog/2024/12/post", compiled)

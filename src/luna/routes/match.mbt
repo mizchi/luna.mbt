@@ -68,11 +68,9 @@ fn try_match_pattern(
         if path_len < base_pattern_len {
           return None
         }
-      } else {
         // 必須: path_len >= base_pattern_len + 1
-        if path_len <= base_pattern_len {
-          return None
-        }
+      } else if path_len <= base_pattern_len {
+        return None
       }
 
       // ベースパターンのマッチング
@@ -100,7 +98,6 @@ fn try_match_pattern(
       }
       let catch_all_value = join_segments(catch_all_segments)
       params.push((catch_all_info.name, catch_all_value))
-
       return Some(params)
     }
     None => {

@@ -71,22 +71,6 @@ test.describe("Middleware", () => {
       const headers = response.headers();
       expect(headers["access-control-allow-origin"]).toBe("*");
     });
-
-    // TODO: OPTIONS preflight requires explicit route registration
-    // The CORS middleware handles OPTIONS when the route exists,
-    // but Hono returns 404 for unregistered OPTIONS routes.
-    test.skip("OPTIONS preflight request returns CORS headers", async ({
-      request,
-    }) => {
-      const response = await request.fetch(`${BASE_URL}/api/middleware-test`, {
-        method: "OPTIONS",
-        headers: { Origin: "http://example.com" },
-      });
-      expect(response.status()).toBe(204);
-      const headers = response.headers();
-      expect(headers["access-control-allow-origin"]).toBe("*");
-      expect(headers["access-control-allow-methods"]).toContain("GET");
-    });
   });
 
   test.describe("Navigation to Middleware Test", () => {

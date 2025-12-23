@@ -33,16 +33,24 @@ pub(all) struct StatInfo {
 } derive(Eq, Show)
 
 ///|
-pub impl FileStat for StatInfo with isFile(self) { self.is_file }
+pub impl FileStat for StatInfo with isFile(self) {
+  self.is_file
+}
 
 ///|
-pub impl FileStat for StatInfo with isDirectory(self) { self.is_directory }
+pub impl FileStat for StatInfo with isDirectory(self) {
+  self.is_directory
+}
 
 ///|
-pub impl FileStat for StatInfo with mtime_ms(self) { self.mtime_ms }
+pub impl FileStat for StatInfo with mtime_ms(self) {
+  self.mtime_ms
+}
 
 ///|
-pub impl FileStat for StatInfo with size(self) { self.size }
+pub impl FileStat for StatInfo with size(self) {
+  self.size
+}
 
 ///|
 /// Abstract file system operations

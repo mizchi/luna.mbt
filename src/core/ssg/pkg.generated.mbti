@@ -6,11 +6,15 @@ import(
 )
 
 // Values
+pub fn build_localized_url(String, String, I18nConfig) -> String
+
 pub fn build_sort_key(String) -> String
 
 pub fn capitalize_first(String) -> String
 
 pub fn compare_strings_lex(String, String) -> Int
+
+pub fn detect_locale_from_path(String, I18nConfig, trailing_slash? : Bool) -> (String, String)
 
 pub fn extract_substring(String, Int, Int) -> String
 
@@ -22,7 +26,13 @@ pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
 
 pub fn get_dir_name(String) -> String
 
+pub fn get_locale_config(I18nConfig, String) -> LocaleConfig?
+
+pub fn get_locale_url_prefix(I18nConfig, String) -> String
+
 pub fn get_url_dir(String) -> String
+
+pub fn is_default_locale(I18nConfig, String) -> Bool
 
 pub fn pad_number(Int, Int) -> String
 
@@ -40,6 +50,8 @@ pub fn slice_view_to(StringView, Int) -> String
 
 pub fn split_by(String, Char) -> Array[String]
 
+pub fn strip_locale_from_url(String, I18nConfig) -> (String, String)
+
 pub fn strip_numeric_prefixes(String) -> String
 
 pub fn url_to_output_path(String) -> String
@@ -47,6 +59,24 @@ pub fn url_to_output_path(String) -> String
 // Errors
 
 // Types and methods
+pub(all) struct DocumentTree {
+  site : SiteInfo
+  pages : Array[PageInfo]
+  root : TreeNode
+}
+pub fn DocumentTree::get_page(Self, String) -> PageInfo?
+pub fn DocumentTree::get_page_by_url(Self, String) -> PageInfo?
+pub fn DocumentTree::get_pages_by_locale(Self, String) -> Array[PageInfo]
+pub fn DocumentTree::get_pages_sorted_by_date(Self, limit? : Int) -> Array[PageInfo]
+pub fn DocumentTree::new(site~ : SiteInfo, pages? : Array[PageInfo], root? : TreeNode) -> Self
+
+pub(all) struct Heading {
+  level : Int
+  text : String
+  id : String
+}
+pub fn Heading::new(level~ : Int, text~ : String, id? : String) -> Self
+
 pub(all) struct I18nConfig {
   default_locale : String
   locales : Array[LocaleConfig]
@@ -69,6 +99,36 @@ pub(all) struct NavigationConfig {
 pub fn NavigationConfig::default() -> Self
 pub impl ToJson for NavigationConfig
 pub impl @json.FromJson for NavigationConfig
+
+pub(all) struct PageInfo {
+  id : String
+  url_path : String
+  source_path : String
+  title : String
+  description : String
+  locale : String
+  updated_at : String
+  content_md : String
+  headings : Array[Heading]
+  sort_key : String
+}
+pub fn PageInfo::canonical_url(Self, String) -> String
+pub fn PageInfo::new(id~ : String, url_path~ : String, source_path? : String, title? : String, description? : String, locale? : String, updated_at? : String, content_md? : String, headings? : Array[Heading], sort_key? : String) -> Self
+
+pub(all) struct SiteInfo {
+  title : String
+  description : String
+  base_url : String
+  language : String
+  updated_at : String
+}
+pub fn SiteInfo::new(title~ : String, description? : String, base_url? : String, language? : String, updated_at? : String) -> Self
+
+pub(all) enum TreeNode {
+  Section(name~ : String, path~ : String, children~ : Array[TreeNode])
+  Page(page_id~ : String)
+}
+pub fn TreeNode::flatten(Self) -> Array[String]
 
 // Type aliases
 

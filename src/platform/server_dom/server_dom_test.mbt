@@ -180,3 +180,117 @@ test "html escaping in text" {
   assert_true(html.contains("&lt;script&gt;"))
   assert_false(html.contains("<script>alert"))
 }
+
+// =============================================================================
+// Error Boundary Tests
+// =============================================================================
+
+///|
+test "render error_boundary success" {
+  let node : @luna.Node[Unit] = @luna.error_boundary(
+    children=fn() { @element.div([@element.text("Success!")]) },
+    fallback=fn(_err, _reset) { @element.text("Error occurred") },
+  )
+  let html = render(node)
+  assert_eq(html, "<div>Success!</div>")
+}
+
+///|
+test "render error_boundary with nested elements" {
+  let node : @luna.Node[Unit] = @luna.error_boundary(
+    children=fn() {
+      @element.div(class="container", [
+        @element.h1([@element.text("Title")]),
+        @element.p([@element.text("Content")]),
+      ])
+    },
+    fallback=fn(_err, _reset) { @element.text("Error") },
+  )
+  let html = render(node)
+  assert_true(html.contains("<h1>Title</h1>"))
+  assert_true(html.contains("<p>Content</p>"))
+  assert_true(html.contains("class=\"container\""))
+}
+
+///|
+test "render error_boundary with island inside" {
+  let node : @luna.Node[Unit] = @luna.error_boundary(
+    children=fn() {
+      @element.div([
+        @luna.island(
+          "counter",
+          "/components/counter.js",
+          "{\"count\":0}",
+          [@element.text("Loading...")],
+        ),
+      ])
+    },
+    fallback=fn(_err, _reset) { @element.text("Error") },
+  )
+  let html = render(node)
+  assert_true(html.contains("luna:id=\"counter\""))
+  assert_true(html.contains("luna:url=\"/components/counter.js\""))
+}
+
+///|
+test "render nested error_boundaries" {
+  let node : @luna.Node[Unit] = @luna.error_boundary(
+    children=fn() {
+      @element.div([
+        @luna.error_boundary(
+          children=fn() { @element.span([@element.text("Inner content")]) },
+          fallback=fn(_err, _reset) { @element.text("Inner error") },
+        ),
+      ])
+    },
+    fallback=fn(_err, _reset) { @element.text("Outer error") },
+  )
+  let html = render(node)
+  assert_true(html.contains("<span>Inner content</span>"))
+}
+
+///|
+test "render error_boundary with show" {
+  let visible = true
+  let node : @luna.Node[Unit] = @luna.error_boundary(
+    children=fn() {
+      @luna.show(fn() { visible }, fn() { @element.text("Visible!") })
+    },
+    fallback=fn(_err, _reset) { @element.text("Error") },
+  )
+  let html = render(node)
+  assert_eq(html, "Visible!")
+}
+
+///|
+test "render error_boundary with fragment" {
+  let node : @luna.Node[Unit] = @luna.error_boundary(
+    children=fn() {
+      @element.fragment([
+        @element.text("A"),
+        @element.text("B"),
+        @element.text("C"),
+      ])
+    },
+    fallback=fn(_err, _reset) { @element.text("Error") },
+  )
+  let html = render(node)
+  assert_eq(html, "ABC")
+}
+
+///|
+test "render_with_preloads error_boundary collects island URLs" {
+  let node : @luna.Node[Unit] = @luna.error_boundary(
+    children=fn() {
+      @element.div([
+        @luna.island("a", "/a.js", "{}", [@element.text("A")]),
+        @luna.island("b", "/b.js", "{}", [@element.text("B")]),
+      ])
+    },
+    fallback=fn(_err, _reset) { @element.text("Error") },
+  )
+  let result = render_with_preloads(node)
+  assert_eq(result.preload_urls.length(), 2)
+  assert_true(result.preload_urls.contains("/a.js"))
+  assert_true(result.preload_urls.contains("/b.js"))
+}

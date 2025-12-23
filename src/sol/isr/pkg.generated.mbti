@@ -1,0 +1,48 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/sol/isr"
+
+// Values
+pub fn cache_key(String, Array[(String, String)]) -> String
+
+pub fn check_status(CacheEntry?, Int64) -> CacheStatus
+
+pub fn now_ms() -> Int64
+
+// Errors
+
+// Types and methods
+pub struct CacheEntry {
+  html : String
+  generated_at : Int64
+  revalidate : Int
+}
+pub fn CacheEntry::new(String, Int64, Int) -> Self
+
+pub enum CacheStatus {
+  Fresh
+  Stale
+  Miss
+}
+
+pub struct ISRConfig {
+  enabled : Bool
+  default_revalidate : Int
+}
+pub fn ISRConfig::default() -> Self
+
+pub struct MemoryCache {
+  store : Map[String, CacheEntry]
+}
+pub fn MemoryCache::new() -> Self
+pub impl ISRCache for MemoryCache
+
+// Type aliases
+
+// Traits
+pub(open) trait ISRCache {
+  get(Self, String) -> CacheEntry?
+  put(Self, String, CacheEntry) -> Unit
+  delete(Self, String) -> Unit
+  schedule_revalidation(Self, async () -> Unit) -> Unit
+}
+

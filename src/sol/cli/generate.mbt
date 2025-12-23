@@ -127,9 +127,7 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
       _api_handlers: api_handlers,
     }
   }
-  let content = try {
-    fs.read_file_sync(routes_path)
-  } catch {
+  let content = fs.read_file_sync(routes_path) catch {
     _ =>
       return RouteInfo::{
         _page_components: page_components,
@@ -420,7 +418,10 @@ fn get_project_name(cwd : String) -> String {
 }
 
 ///|
-fn[FS : @env.FileSystem] get_project_name_with_fs(fs : FS, cwd : String) -> String {
+fn[FS : @env.FileSystem] get_project_name_with_fs(
+  fs : FS,
+  cwd : String,
+) -> String {
   let mod_path = @path.join2(cwd, "moon.mod.json")
   if not(fs.exists_sync(mod_path)) {
     return "unknown"
@@ -1120,9 +1121,7 @@ fn[FS : @env.FileSystem] read_mod_info_with_fs(
   fs : FS,
   mod_json_path : String,
 ) -> (String, String) {
-  let content : String = try {
-    fs.read_file_sync(mod_json_path)
-  } catch {
+  let content : String = fs.read_file_sync(mod_json_path) catch {
     _ => return ("", "")
   }
   if content.length() == 0 {
@@ -1209,9 +1208,7 @@ fn[FS : @env.FileSystem] read_exports_from_pkg_json_with_fs(
   fs : FS,
   pkg_json_path : String,
 ) -> Array[String] {
-  let content : String = try {
-    fs.read_file_sync(pkg_json_path)
-  } catch {
+  let content : String = fs.read_file_sync(pkg_json_path) catch {
     _ => return []
   }
   let json = @json.parse(content.view()) catch { _ => return [] }
@@ -1544,9 +1541,7 @@ fn[FS : @env.FileSystem] run_generate_command_with_fs(
     )
     @process.exit(1)
   }
-  let config_content : String = try {
-    fs.read_file_sync(full_config_path)
-  } catch {
+  let config_content : String = fs.read_file_sync(full_config_path) catch {
     e => {
       console_error(@colorette.red("Error reading config: \{e}"))
       @process.exit(1)
@@ -1609,8 +1604,7 @@ fn[FS : @env.FileSystem] run_generate_command_with_fs(
       try {
         fs.write_file_sync(stub_types_mbt_path, "///| No Props types found\n")
         fs.write_file_sync(
-          stub_types_pkg_path,
-          "{\n  \"supported-targets\": [\"js\"],\n  \"warn-list\": \"-29\"\n}\n",
+          stub_types_pkg_path, "{\n  \"supported-targets\": [\"js\"],\n  \"warn-list\": \"-29\"\n}\n",
         )
       } catch {
         e => {
@@ -1641,8 +1635,7 @@ fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Create stub main.mbt so is-main: true doesn't fail
   let stub_main_path = @path.join2(server_dir, "main.mbt")
   fs.write_file_sync(
-    stub_main_path,
-    "///| Stub - will be replaced\nfn main { () }\n",
+    stub_main_path, "///| Stub - will be replaced\nfn main { () }\n",
   ) catch {
     e => {
       console_error(@colorette.red("Error writing stub main.mbt: \{e}"))

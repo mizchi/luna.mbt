@@ -268,7 +268,11 @@ test "DocumentTree::get_pages_sorted_by_date - with limit" {
 
 ///|
 test "PageInfo::canonical_url" {
-  let page = @ssg.PageInfo::new(id="test", url_path="/guide/intro/", title="Test")
+  let page = @ssg.PageInfo::new(
+    id="test",
+    url_path="/guide/intro/",
+    title="Test",
+  )
   inspect(
     page.canonical_url("https://example.com"),
     content="https://example.com/guide/intro/",

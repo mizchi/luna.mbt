@@ -239,12 +239,7 @@ test "hydrate for loop" {
   let container = create_container()
   let items = @signal.signal(["A", "B", "C"])
   let vnode = @luna.for_each(fn() {
-    let arr = items.get()
-    let result : Array[@luna.Node[@js.Any]] = []
-    for i = 0; i < arr.length(); i = i + 1 {
-      result.push(@luna.h("li", [], [@luna.text(arr[i])]))
-    }
-    result
+    items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = @render.render_to_string_with_hydration(vnode)
   assert_true(html.contains("<!--f:0-->"))
@@ -371,12 +366,7 @@ test "hydrate complex page structure" {
     ]),
     @luna.h("ul", [], [
       @luna.for_each(fn() {
-        let arr = items.get()
-        let result : Array[@luna.Node[@js.Any]] = []
-        for i = 0; i < arr.length(); i = i + 1 {
-          result.push(@luna.h("li", [], [@luna.text(arr[i])]))
-        }
-        result
+        items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
       }),
     ]),
     @luna.h(
@@ -826,12 +816,7 @@ test "render_vnode_to_dom with For list" {
   let container = create_container()
   let items = @signal.signal(["X", "Y"])
   let vnode = @luna.for_each(fn() {
-    let arr = items.get()
-    let result : Array[@luna.Node[@js.Any]] = []
-    for i = 0; i < arr.length(); i = i + 1 {
-      result.push(@luna.text(arr[i]))
-    }
-    result
+    items.get().map(fn(item) { @luna.text(item) })
   })
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -1401,12 +1386,11 @@ test "hydrate nested show in for" {
   let items = @signal.signal(["A", "B"])
   let visible = @signal.signal(true)
   let vnode = @luna.for_each(fn() {
-    let arr = items.get()
-    let result : Array[@luna.Node[@js.Any]] = []
-    for item in arr {
-      result.push(@luna.show(fn() { visible.get() }, fn() { @luna.text(item) }))
-    }
-    result
+    items
+      .get()
+      .map(fn(item) {
+        @luna.show(fn() { visible.get() }, fn() { @luna.text(item) })
+      })
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)
@@ -1422,12 +1406,7 @@ test "hydrate nested component in for" {
   let container = create_container()
   let items = @signal.signal(["X", "Y"])
   let vnode = @luna.for_each(fn() {
-    let arr = items.get()
-    let result : Array[@luna.Node[@js.Any]] = []
-    for item in arr {
-      result.push(@luna.component(fn() { @luna.text("Item: " + item) }))
-    }
-    result
+    items.get().map(fn(item) { @luna.component(fn() { @luna.text("Item: " + item) }) })
   })
   let html = @render.render_to_string_with_hydration(vnode)
   set_inner_html(container, html)

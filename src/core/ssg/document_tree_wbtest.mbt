@@ -120,11 +120,9 @@ test "TreeNode::Page construction" {
 
 ///|
 test "TreeNode::Section construction" {
-  let node = TreeNode::Section(
-    name="guide",
-    path="/guide/",
-    children=[TreeNode::Page(page_id="intro")],
-  )
+  let node = TreeNode::Section(name="guide", path="/guide/", children=[
+    TreeNode::Page(page_id="intro"),
+  ])
   match node {
     TreeNode::Section(name~, path~, children~) => {
       inspect(name, content="guide")
@@ -145,21 +143,13 @@ test "TreeNode::flatten - single page" {
 
 ///|
 test "TreeNode::flatten - section with pages" {
-  let node = TreeNode::Section(
-    name="",
-    path="/",
-    children=[
-      TreeNode::Page(page_id="index"),
-      TreeNode::Section(
-        name="guide",
-        path="/guide/",
-        children=[
-          TreeNode::Page(page_id="guide-intro"),
-          TreeNode::Page(page_id="guide-advanced"),
-        ],
-      ),
-    ],
-  )
+  let node = TreeNode::Section(name="", path="/", children=[
+    TreeNode::Page(page_id="index"),
+    TreeNode::Section(name="guide", path="/guide/", children=[
+      TreeNode::Page(page_id="guide-intro"),
+      TreeNode::Page(page_id="guide-advanced"),
+    ]),
+  ])
   let ids = node.flatten()
   inspect(ids.length(), content="3")
   inspect(ids.contains("index"), content="true")
@@ -215,21 +205,13 @@ fn create_test_document_tree() -> DocumentTree {
       updated_at="2024-12-20",
     ),
   ]
-  let root = TreeNode::Section(
-    name="",
-    path="/",
-    children=[
-      TreeNode::Page(page_id="index"),
-      TreeNode::Section(
-        name="guide",
-        path="/guide/",
-        children=[
-          TreeNode::Page(page_id="guide-intro"),
-          TreeNode::Page(page_id="guide-advanced"),
-        ],
-      ),
-    ],
-  )
+  let root = TreeNode::Section(name="", path="/", children=[
+    TreeNode::Page(page_id="index"),
+    TreeNode::Section(name="guide", path="/guide/", children=[
+      TreeNode::Page(page_id="guide-intro"),
+      TreeNode::Page(page_id="guide-advanced"),
+    ]),
+  ])
   DocumentTree::new(site~, pages~, root~)
 }
 

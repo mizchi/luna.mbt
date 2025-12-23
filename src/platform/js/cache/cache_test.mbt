@@ -10,9 +10,7 @@ test "FileCache::new creates empty cache" {
 test "FileCache reads file and caches" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cache = FileCache::new()
-
   fs.write_file_sync("/test.txt", "content")
-
   let content = cache.read_file(fs, "/test.txt")
   inspect(content, content="content")
   inspect(cache.len(), content="1")
@@ -26,7 +24,6 @@ test "FileCache reads file and caches" {
 test "FileCache detects stale file after invalidation" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cache = FileCache::new()
-
   fs.write_file_sync("/test.txt", "content")
   let _ = cache.read_file(fs, "/test.txt")
 
@@ -48,14 +45,11 @@ test "FileCache detects stale file after invalidation" {
 test "FileCache::clear removes all entries" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cache = FileCache::new()
-
   fs.write_file_sync("/a.txt", "a")
   fs.write_file_sync("/b.txt", "b")
-
   let _ = cache.read_file(fs, "/a.txt")
   let _ = cache.read_file(fs, "/b.txt")
   inspect(cache.len(), content="2")
-
   cache.clear()
   inspect(cache.len(), content="0")
 }
@@ -64,14 +58,11 @@ test "FileCache::clear removes all entries" {
 test "FileCache::invalidate removes specific entry" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cache = FileCache::new()
-
   fs.write_file_sync("/a.txt", "a")
   fs.write_file_sync("/b.txt", "b")
-
   let _ = cache.read_file(fs, "/a.txt")
   let _ = cache.read_file(fs, "/b.txt")
   inspect(cache.len(), content="2")
-
   cache.invalidate("/a.txt")
   inspect(cache.len(), content="1")
 
@@ -85,7 +76,6 @@ test "FileCache::invalidate removes specific entry" {
 test "FileCache persist and restore" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cache1 = FileCache::new()
-
   fs.write_file_sync("/test.txt", "content")
   let _ = cache1.read_file(fs, "/test.txt")
   cache1.persist(fs, "/.cache/manifest.json")
@@ -113,7 +103,6 @@ test "FileCache restore handles missing cache file" {
 test "FileCache is_stale returns true for uncached files" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cache = FileCache::new()
-
   fs.write_file_sync("/test.txt", "content")
 
   // File exists but not cached
@@ -124,7 +113,6 @@ test "FileCache is_stale returns true for uncached files" {
 test "FileCache is_stale returns true for deleted files" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cache = FileCache::new()
-
   fs.write_file_sync("/test.txt", "content")
   let _ = cache.read_file(fs, "/test.txt")
 

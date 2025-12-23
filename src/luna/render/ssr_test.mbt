@@ -181,11 +181,7 @@ test "render show when false" {
 test "render for list" {
   let items = ["A", "B", "C"]
   let node : @luna.Node[Unit] = @luna.for_each(fn() {
-    let result : Array[@luna.Node[Unit]] = []
-    for i = 0; i < items.length(); i = i + 1 {
-      result.push(@luna.h("li", [], [@luna.text(items[i])]))
-    }
-    result
+    items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = render_to_string(node).html
   assert_eq(html, "<li>A</li><li>B</li><li>C</li>")
@@ -282,11 +278,7 @@ test "complex page render" {
       ]),
       @luna.h("ul", [], [
         @luna.for_each(fn() {
-          let result : Array[@luna.Node[Unit]] = []
-          for i = 0; i < items.length(); i = i + 1 {
-            result.push(@luna.h("li", [], [@luna.text(items[i])]))
-          }
-          result
+          items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
         }),
       ]),
       @luna.h(
@@ -1264,11 +1256,7 @@ test "render wc_island with complex children" {
       @luna.h("h2", [], [@luna.text("Items")]),
       @luna.h("ul", [], [
         @luna.for_each(fn() {
-          let result : Array[@luna.Node[Unit]] = []
-          for i = 0; i < items.length(); i = i + 1 {
-            result.push(@luna.h("li", [], [@luna.text(items[i])]))
-          }
-          result
+          items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
         }),
       ]),
     ],

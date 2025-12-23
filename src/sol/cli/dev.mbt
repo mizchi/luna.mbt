@@ -336,6 +336,7 @@ fn run_dev_watch_mode(cwd : String, port : String) -> Unit {
               }
             }
           })
+
         }
       }
       // Keep process alive

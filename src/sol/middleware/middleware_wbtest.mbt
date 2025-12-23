@@ -97,11 +97,10 @@ test "MwResponse::with_header adds header" {
 ///|
 test "identity middleware passes through" {
   let mw = identity()
-  let ctx = create_test_context()
+  let _ctx = create_test_context()
   // Note: Can't easily test async in unit tests without Hono context
   // This verifies the middleware can be created
   let _ = mw
-
 }
 
 ///|

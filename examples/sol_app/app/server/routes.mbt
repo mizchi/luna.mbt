@@ -27,6 +27,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(home),
               title="Home",
               meta=[],
+              revalidate=None,
             ),
             // About page (static, no hydration)
             @router.SolRoutes::Page(
@@ -34,6 +35,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(about),
               title="About",
               meta=[],
+              revalidate=None,
             ),
             // Contact form page with contact_form island
             @router.SolRoutes::Page(
@@ -41,6 +43,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(form_page),
               title="Contact Form",
               meta=[],
+              revalidate=None,
             ),
             // WC Counter page - Web Components based island
             @router.SolRoutes::Page(
@@ -48,6 +51,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(wc_counter),
               title="WC Counter",
               meta=[],
+              revalidate=None,
             ),
             // WC Multiple page - multiple instances of same component
             @router.SolRoutes::Page(
@@ -55,6 +59,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(wc_multiple),
               title="WC Multiple",
               meta=[],
+              revalidate=None,
             ),
             // Docs page - catch-all route [...slug]
             @router.SolRoutes::Page(
@@ -62,6 +67,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(docs_page),
               title="Documentation",
               meta=[],
+              revalidate=None,
             ),
             // Blog page - optional catch-all route [[...path]]
             @router.SolRoutes::Page(
@@ -69,6 +75,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(blog_page),
               title="Blog",
               meta=[],
+              revalidate=None,
             ),
             // Middleware test page
             @router.SolRoutes::Page(
@@ -76,6 +83,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
               handler=@router.PageHandler(middleware_test),
               title="Middleware Test",
               meta=[],
+              revalidate=None,
             ),
           ],
         ),

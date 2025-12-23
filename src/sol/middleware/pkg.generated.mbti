@@ -1,0 +1,145 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/sol/middleware"
+
+import(
+  "mizchi/js/core"
+  "mizchi/npm_typed/hono"
+)
+
+// Values
+pub fn catch_error(Middleware, (Error) -> MwResponse) -> Middleware
+
+pub fn catch_error_default(Middleware) -> Middleware
+
+pub fn cors() -> Middleware
+
+pub fn cors_with_config(CorsConfig) -> Middleware
+
+pub fn halt(MwResponse) -> Middleware
+
+pub fn identity() -> Middleware
+
+pub fn logger() -> Middleware
+
+pub fn logger_with_config(LoggerConfig) -> Middleware
+
+pub fn map_((MwContext) -> MwContext) -> Middleware
+
+pub fn or_(Middleware, Middleware) -> Middleware
+
+pub fn pipeline(Array[Middleware]) -> Middleware
+
+pub async fn run(Middleware, MwContext) -> Flow[MwContext]
+
+pub fn tap((MwContext) -> Unit) -> Middleware
+
+pub fn then_(Middleware, Middleware) -> Middleware
+
+pub fn unless((MwContext) -> Bool, Middleware) -> Middleware
+
+pub fn when((MwContext) -> Bool, Middleware) -> Middleware
+
+// Errors
+
+// Types and methods
+pub struct CorsConfig {
+  origin : CorsOrigin
+  methods : Array[String]
+  allowed_headers : Array[String]
+  exposed_headers : Array[String]
+  credentials : Bool
+  max_age : Int?
+}
+pub fn CorsConfig::default() -> Self
+pub fn CorsConfig::strict() -> Self
+pub fn CorsConfig::with_allowed_headers(Self, Array[String]) -> Self
+pub fn CorsConfig::with_credentials(Self) -> Self
+pub fn CorsConfig::with_exposed_headers(Self, Array[String]) -> Self
+pub fn CorsConfig::with_max_age(Self, Int) -> Self
+pub fn CorsConfig::with_methods(Self, Array[String]) -> Self
+pub fn CorsConfig::with_origin(Self, CorsOrigin) -> Self
+pub fn CorsConfig::with_origin_single(Self, String) -> Self
+
+pub enum CorsOrigin {
+  All
+  Single(String)
+  List(Array[String])
+  Dynamic((String) -> Bool)
+}
+
+pub(all) enum Flow[T] {
+  Continue(T)
+  Halt(MwResponse)
+}
+
+pub enum LogFormat {
+  Dev
+  Combined
+  Json
+}
+
+pub struct LoggerConfig {
+  format : LogFormat
+  skip : ((MwRequest) -> Bool)?
+  log_fn : ((String) -> Unit)?
+}
+pub fn LoggerConfig::combined() -> Self
+pub fn LoggerConfig::default() -> Self
+pub fn LoggerConfig::dev() -> Self
+pub fn LoggerConfig::json() -> Self
+pub fn LoggerConfig::with_log_fn(Self, (String) -> Unit) -> Self
+pub fn LoggerConfig::with_skip(Self, (MwRequest) -> Bool) -> Self
+
+pub(all) struct Middleware(async (MwContext) -> Flow[MwContext])
+#deprecated
+pub fn Middleware::inner(Self) -> async (MwContext) -> Flow[MwContext]
+pub fn Middleware::then(Self, Self) -> Self
+
+pub struct MwContext {
+  ctx : @hono.Context[Unit, Unit]
+  request : MwRequest
+  state : Map[String, @core.Any]
+  response_headers : Array[(String, String)]
+}
+pub fn MwContext::add_header(Self, String, String) -> Self
+pub fn MwContext::add_headers(Self, Array[(String, String)]) -> Self
+pub fn MwContext::from_ctx(@hono.Context[Unit, Unit]) -> Self
+pub fn MwContext::get(Self, String) -> @core.Any?
+pub fn MwContext::has(Self, String) -> Bool
+pub fn MwContext::set(Self, String, @core.Any) -> Self
+
+pub struct MwRequest {
+  http_method : String
+  path : String
+  headers : Array[(String, String)]
+  query : Array[(String, String)]
+  url : String
+}
+pub fn MwRequest::get_header(Self, String) -> String?
+pub fn MwRequest::get_query(Self, String) -> String?
+
+pub struct MwResponse {
+  status : Int
+  headers : Array[(String, String)]
+  body : String
+  content_type : String
+}
+pub fn MwResponse::bad_request(message? : String) -> Self
+pub fn MwResponse::forbidden(message? : String) -> Self
+pub fn MwResponse::html(String, status? : Int) -> Self
+pub fn MwResponse::json(String, status? : Int) -> Self
+pub fn MwResponse::not_found(message? : String) -> Self
+pub fn MwResponse::redirect(String, status? : Int) -> Self
+pub fn MwResponse::text(String, status? : Int) -> Self
+pub fn MwResponse::unauthorized(message? : String) -> Self
+pub fn MwResponse::with_header(Self, String, String) -> Self
+
+// Type aliases
+pub type Ctx = @hono.Context[Unit, Unit]
+
+pub type Env = Unit
+
+pub type ExecutionContext = Unit
+
+// Traits
+

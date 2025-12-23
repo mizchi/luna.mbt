@@ -6,6 +6,15 @@ package "mizchi/luna/core/env"
 // Errors
 
 // Types and methods
+pub(all) struct StatInfo {
+  is_file : Bool
+  is_directory : Bool
+  mtime_ms : Float
+  size : Int
+}
+pub impl FileStat for StatInfo
+pub impl Eq for StatInfo
+pub impl Show for StatInfo
 
 // Type aliases
 
@@ -13,6 +22,8 @@ package "mizchi/luna/core/env"
 pub(open) trait FileStat {
   isFile(Self) -> Bool
   isDirectory(Self) -> Bool
+  mtime_ms(Self) -> Float
+  size(Self) -> Int
 }
 
 pub(open) trait FileSystem {
@@ -26,5 +37,6 @@ pub(open) trait FileSystem {
   cp_sync(Self, String, String, Bool) -> Unit raise
   unlink_sync(Self, String) -> Unit raise
   rmdir_sync(Self, String, Bool) -> Unit raise
+  stat_sync(Self, String) -> StatInfo raise
 }
 

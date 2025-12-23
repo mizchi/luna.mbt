@@ -106,7 +106,6 @@ test-e2e-ui: build-moon
 
 # サンプルプロジェクトテスト
 test-examples:
-    rm -f target/js/release/check/check.moon_db
     moon info
     moon build -C examples/sol_app
 
