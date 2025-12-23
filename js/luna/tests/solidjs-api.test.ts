@@ -23,7 +23,7 @@ import {
   text,
   mount,
   For,
-} from "../index.js";
+} from "../src/index";
 
 // MoonBit AttrValue constructors
 const AttrValue = {

@@ -19,15 +19,13 @@ npm install @mizchi/luna
 
 **tsconfig.json:**
 
+Set `"jsxImportSource": "@mizchi/luna"`
+
 ```json
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
+    //...
     "jsxImportSource": "@mizchi/luna",
-    "strict": true
   }
 }
 ```
@@ -38,15 +36,6 @@ npm install @mizchi/luna
 import { defineConfig } from 'vite';
 
 export default defineConfig({});
-```
-
-### esbuild
-
-```ts
-esbuild.build({
-  jsx: 'automatic',
-  jsxImportSource: '@mizchi/luna',
-});
 ```
 
 ## Basic Usage

@@ -5,7 +5,7 @@ import {
   useContext,
   createRoot,
   effect,
-} from "../index.js";
+} from "../src/index";
 
 describe("Context API", () => {
   describe("createContext", () => {

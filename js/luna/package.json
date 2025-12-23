@@ -1,29 +1,40 @@
 {
   "name": "@mizchi/luna",
-  "version": "0.1.0",
-  "description": "MoonBit Island Architecture UI Framework",
+  "version": "0.1.4",
+  "description": "Fine-grained reactive UI library for Moonbit/JS",
   "type": "module",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "import": "./index.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./jsx-runtime": {
-      "types": "./jsx-runtime.d.ts",
-      "import": "./jsx-runtime.js"
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
-      "types": "./jsx-runtime.d.ts",
-      "import": "./jsx-runtime.js"
+      "types": "./dist/jsx-dev-runtime.d.ts",
+      "import": "./dist/jsx-dev-runtime.js"
     }
   },
   "scripts": {
-    "test": "vitest run"
+    "build": "tsdown",
+    "test": "vitest run",
+    "build:examples": "vite build examples"
   },
   "devDependencies": {
     "global-jsdom": "^27.0.0",
-    "jsdom": "^27.3.0"
-  }
+    "jsdom": "^27.3.0",
+    "preact": "^10.28.0",
+    "tsdown": "^0.18.2"
+  },
+  "repository": {
+    "directory": "js/luna",
+    "url": "https://github.com/mizchi/luna.mbt"
+  },
+  "files": [
+    "dist"
+  ]
 }

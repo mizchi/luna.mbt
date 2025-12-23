@@ -10,7 +10,7 @@ import {
   render as lunaRender,
   createSignal,
   For,
-} from "../index.js";
+} from "../src/index";
 
 // Preact
 import { h, render as preactRender } from "preact";
@@ -524,7 +524,7 @@ describe("List Operations - Add/Remove Items", () => {
     "Luna - Add 100 items to list",
     () => {
       const [, setItems] = lunaItems;
-      setItems((prev) => [...prev, ...Array.from({ length: 100 }, (_, i) => prev.length + i)]);
+      setItems((prev: number[]) => [...prev, ...Array.from({ length: 100 }, (_, i) => prev.length + i)]);
     },
     {
       setup: () => {

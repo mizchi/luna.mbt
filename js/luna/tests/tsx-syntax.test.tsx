@@ -1,9 +1,8 @@
 // Test actual TSX syntax with jsxImportSource
 import { describe, test, expect } from "vitest";
 import "global-jsdom/register";
-import { createSignal } from "../index.js";
-import { render } from "../dom.js";
-import type { JSX } from "../jsx-runtime.js";
+import { createSignal, render } from "../src/index";
+import type { JSX } from "../src/jsx-runtime";
 
 describe("TSX Syntax with jsxImportSource", () => {
   test("basic element", () => {

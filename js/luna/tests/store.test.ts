@@ -5,7 +5,7 @@ import {
   createRoot,
   produce,
   reconcile,
-} from "../index.js";
+} from "../src/index";
 
 describe("createStore", () => {
   describe("Basic functionality", () => {

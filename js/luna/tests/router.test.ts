@@ -11,7 +11,7 @@ import {
   routerGetBase,
   type Routes,
   type BrowserRouter,
-} from "../index.js";
+} from "../src/index";
 
 describe("Route definitions", () => {
   test("routePage creates a page route", () => {

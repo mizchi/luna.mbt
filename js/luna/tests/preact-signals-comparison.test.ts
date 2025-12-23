@@ -31,7 +31,7 @@ import {
   onCleanup,
   untrack,
   peek,
-} from "../index.js";
+} from "../src/index";
 
 // Preact imports
 import { h, render as preactRender, Fragment as PreactFragment, type VNode } from "preact";

@@ -1,5 +1,67 @@
+// @ts-nocheck
 // Re-export from MoonBit build output (api_js)
 // This file wraps MoonBit APIs to provide SolidJS-compatible interface
+
+// Type definitions for SolidJS-compatible API
+export type Accessor<T> = () => T;
+export type Setter<T> = (value: T | ((prev: T) => T)) => void;
+export type Signal<T> = [Accessor<T>, Setter<T>];
+
+export interface ForProps<T> {
+  each: Accessor<T[]> | T[];
+  fallback?: any;
+  children: (item: T, index: Accessor<number>) => any;
+}
+
+export interface ShowProps<T> {
+  when: T | Accessor<T>;
+  fallback?: any;
+  children: any | ((item: T) => any);
+}
+
+export interface IndexProps<T> {
+  each: Accessor<T[]> | T[];
+  fallback?: any;
+  children: (item: Accessor<T>, index: number) => any;
+}
+
+export interface Context<T> {
+  id: number;
+  default_value: () => T;
+  providers: any[];
+}
+
+export interface ProviderProps<T> {
+  context: Context<T>;
+  value: T;
+  children: any | (() => any);
+}
+
+export interface MatchProps<T> {
+  when: T | Accessor<T>;
+  children: any | ((item: T) => any);
+}
+
+export interface SwitchProps {
+  fallback?: any;
+  children: any[];
+}
+
+export interface PortalProps {
+  mount?: Element | string;
+  useShadow?: boolean;
+  children: any | (() => any);
+}
+
+export interface ResourceAccessor<T> {
+  (): T | undefined;
+  loading: boolean;
+  error: string | undefined;
+  state: 'pending' | 'ready' | 'errored' | 'unresolved';
+  latest: T | undefined;
+}
+
+export type SetStoreFunction<T> = (...args: any[]) => void;
 
 import {
   // Signal API (internal)
@@ -72,7 +134,7 @@ import {
   portalToSelector,
   portalWithShadow,
   portalToElementWithShadow,
-} from "../../target/js/release/build/platform/js/api/api.js";
+} from "../../../target/js/release/build/platform/js/api/api.js";
 
 // ============================================================================
 // SolidJS-compatible Signal API
@@ -80,16 +142,13 @@ import {
 
 /**
  * Creates a reactive signal (SolidJS-style)
- * @template T
- * @param {T} initialValue
- * @returns {[() => T, (value: T | ((prev: T) => T)) => void]}
  */
-export function createSignal(initialValue) {
+export function createSignal<T>(initialValue: T): Signal<T> {
   const signal = _createSignal(initialValue);
 
-  const getter = () => _get(signal);
+  const getter: Accessor<T> = () => _get(signal);
 
-  const setter = (valueOrUpdater) => {
+  const setter: Setter<T> = (valueOrUpdater) => {
     if (typeof valueOrUpdater === "function") {
       _update(signal, valueOrUpdater);
     } else {
@@ -103,17 +162,14 @@ export function createSignal(initialValue) {
 /**
  * Creates a reactive effect (SolidJS-style alias)
  */
-export function createEffect(fn) {
+export function createEffect(fn: () => void): () => void {
   return _effect(fn);
 }
 
 /**
  * Creates a memoized computed value (SolidJS-style)
- * @template T
- * @param {() => T} fn
- * @returns {() => T}
  */
-export function createMemo(fn) {
+export function createMemo<T>(fn: () => T): Accessor<T> {
   return _createMemo(fn);
 }
 
@@ -258,11 +314,8 @@ export function splitProps(props, ...keys) {
 
 /**
  * Creates a resource for async data (SolidJS-style)
- * @template T
- * @param {(resolve: (v: T) => void, reject: (e: string) => void) => void} fetcher
- * @returns {[ResourceAccessor<T>, { refetch: () => void }]}
  */
-export function createResource(fetcher) {
+export function createResource<T>(fetcher: (resolve: (v: T) => void, reject: (e: string) => void) => void): [ResourceAccessor<T>, { refetch: () => void }] {
   const resource = _createResource(fetcher);
 
   // Use resourceGet for tracking dependencies, stateValue for actual value
@@ -287,7 +340,7 @@ export function createResource(fetcher) {
 /**
  * Creates a deferred resource (SolidJS-style)
  */
-export function createDeferred() {
+export function createDeferred<T>(): [ResourceAccessor<T>, (value: T) => void, (error: string) => void] {
   const result = _createDeferred();
   const resource = result._0;
   const resolve = result._1;
@@ -306,7 +359,7 @@ export function createDeferred() {
 /**
  * Debounces a signal (returns SolidJS-style signal)
  */
-export function debounced(signal, delayMs) {
+export function debounced<T>(signal: Signal<T>, delayMs: number): Signal<T> {
   const [getter] = signal;
   const innerSignal = _createSignal(getter());
   const debouncedInner = _debounced(innerSignal, delayMs);
@@ -319,11 +372,8 @@ export function debounced(signal, delayMs) {
 
 /**
  * For component for list rendering (SolidJS-style)
- * @template T
- * @param {{ each: () => T[], fallback?: any, children: (item: T, index: () => number) => any }} props
- * @returns {any}
  */
-export function For(props) {
+export function For<T>(props: ForProps<T>): any {
   const { each, fallback, children } = props;
 
   // If each is not provided or is falsy, show fallback
@@ -342,12 +392,8 @@ export function For(props) {
 
 /**
  * Show component for conditional rendering (SolidJS-style)
- * Note: fallback prop is not yet supported (Luna limitation)
- * @template T
- * @param {{ when: T | (() => T), fallback?: any, children: any | ((item: T) => any) }} props
- * @returns {any}
  */
-export function Show(props) {
+export function Show<T>(props: ShowProps<T>): any {
   const { when, children } = props;
   // TODO: fallback support requires MoonBit-side changes
 
@@ -363,14 +409,8 @@ export function Show(props) {
 
 /**
  * Index component for index-based list rendering (SolidJS-style)
- * Unlike For which tracks items by reference, Index tracks by index position
- * Item signals update in place when values change at the same index
- *
- * @template T
- * @param {{ each: () => T[], fallback?: any, children: (item: () => T, index: number) => any }} props
- * @returns {any}
  */
-export function Index(props) {
+export function Index<T>(props: IndexProps<T>): any {
   const { each, fallback, children } = props;
 
   if (!each) {
@@ -395,13 +435,8 @@ export function Index(props) {
 
 /**
  * Provider component for Context (SolidJS-style)
- * Provides a context value to all descendants
- *
- * @template T
- * @param {{ context: Context<T>, value: T, children: any | (() => any) }} props
- * @returns {any}
  */
-export function Provider(props) {
+export function Provider<T>(props: ProviderProps<T>): any {
   const { context, value, children } = props;
 
   return provide(context, value, () => {
@@ -411,12 +446,8 @@ export function Provider(props) {
 
 /**
  * Switch component for conditional rendering with multiple branches (SolidJS-style)
- * Renders the first Match that evaluates to true
- *
- * @param {{ fallback?: any, children: any[] }} props
- * @returns {any}
  */
-export function Switch(props) {
+export function Switch(props: SwitchProps): any {
   const { fallback, children } = props;
 
   // children should be Match components, each with { when, children }
@@ -438,12 +469,8 @@ export function Switch(props) {
 
 /**
  * Match component for use inside Switch (SolidJS-style)
- *
- * @template T
- * @param {{ when: T | (() => T), children: any | ((item: T) => any) }} props
- * @returns {{ __isMatch: true, when: () => boolean, children: any }}
  */
-export function Match(props) {
+export function Match<T>(props: MatchProps<T>): { __isMatch: true; when: () => boolean; children: any } {
   const { when, children } = props;
   const condition = typeof when === "function" ? when : () => when;
 
@@ -459,12 +486,8 @@ export function Match(props) {
 
 /**
  * Portal component for rendering outside the component tree (SolidJS-style)
- * Teleports children to a different DOM location
- *
- * @param {{ mount?: Element | string, useShadow?: boolean, children: any | (() => any) }} props
- * @returns {any}
  */
-export function Portal(props) {
+export function Portal(props: PortalProps): any {
   const { mount, useShadow = false, children } = props;
 
   // Resolve children
@@ -501,28 +524,8 @@ export function Portal(props) {
 
 /**
  * Creates a reactive store with nested property tracking (SolidJS-style)
- * @template T
- * @param {T} initialValue - Initial store state
- * @returns {[T, SetStoreFunction<T>]} - [state proxy, setState function]
- *
- * @example
- * const [state, setState] = createStore({ count: 0, user: { name: "John" } });
- *
- * // Read (reactive - tracks dependencies)
- * state.count
- * state.user.name
- *
- * // Update by path
- * setState("count", 1);
- * setState("user", "name", "Jane");
- *
- * // Functional update
- * setState("count", c => c + 1);
- *
- * // Object merge at path
- * setState("user", { name: "Jane", age: 30 });
  */
-export function createStore(initialValue) {
+export function createStore<T extends object>(initialValue: T): [T, SetStoreFunction<T>] {
   // Store signals for each path
   const signals = new Map();
   // Deep clone the initial value to avoid mutation issues

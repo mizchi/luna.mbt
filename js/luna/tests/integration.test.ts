@@ -19,7 +19,7 @@ import {
   mount,
   forEach,
   show,
-} from "../index.js";
+} from "../src/index";
 
 // MoonBit AttrValue constructors
 const AttrValue = {

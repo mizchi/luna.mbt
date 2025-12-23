@@ -15,7 +15,7 @@ import {
   Show,
   createSignal,
   createEffect,
-} from "../index.js";
+} from "../src/index";
 
 // MoonBit tuple representation for attrs: [name, value] -> { _0: name, _1: value }
 // AttrValue constructors: $tag: 0 = Static, 1 = Dynamic, 2 = Handler

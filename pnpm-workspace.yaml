@@ -1,3 +1,10 @@
+packages:
+  - 'js/*'
+  - 'js/luna/examples'
+  - 'js/luna/examples_preact'
+  - 'luna-mbt-example'
+  - 'luna-ts-example'
+
 onlyBuiltDependencies:
   - esbuild
   - sharp

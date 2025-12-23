@@ -4,7 +4,7 @@ import {
   createDeferred,
   createEffect,
   createRoot,
-} from "../index.js";
+} from "../src/index";
 
 describe("Resource API (SolidJS-style)", () => {
   describe("createResource", () => {

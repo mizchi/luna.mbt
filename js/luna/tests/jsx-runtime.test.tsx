@@ -1,8 +1,7 @@
 import { describe, test, expect } from "vitest";
 import "global-jsdom/register";
-import { jsx, jsxs, Fragment, type JSX } from "../jsx-runtime.js";
-import { createSignal, createMemo, get, set, For, Show } from "../index.js";
-import { render } from "../dom.js";
+import { jsx, jsxs, Fragment, type JSX } from "../src/jsx-runtime";
+import { createSignal, createMemo, get, set, For, Show, render } from "../src/index";
 
 describe("JSX Runtime", () => {
   test("jsx creates element", () => {
