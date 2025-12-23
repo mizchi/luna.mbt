@@ -12,9 +12,9 @@
 /// Demonstrates middleware composition with Railway Oriented Programming
 pub fn routes() -> Array[@router.SolRoutes] {
   [
-    // Apply logger middleware to all routes
+    // Apply security headers and logger middleware to all routes
     @router.SolRoutes::WithMiddleware(
-      middleware=[@mw.logger()],
+      middleware=[@mw.security_headers_relaxed(), @mw.logger()],
       children=[
         // Root layout - wraps all pages with navigation
         @router.SolRoutes::Layout(
