@@ -73,8 +73,9 @@ pub fn routes() -> Array[@router.SolRoutes] {
           ],
         ),
         // API endpoints with CORS middleware
+        // Using method-style composition: logger().then(cors())
         @router.SolRoutes::WithMiddleware(
-          middleware=[@mw.cors()],
+          middleware=[@mw.logger().then(@mw.cors())],
           children=[
             @router.SolRoutes::Get(
               path="/api/health",

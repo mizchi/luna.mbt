@@ -31,6 +31,14 @@ pub fn then_(m1 : Middleware, m2 : Middleware) -> Middleware {
 }
 
 ///|
+/// Method-style composition: m1.then(m2)
+/// Composes two middlewares sequentially (like fish operator >=> in Haskell)
+/// Usage: logger().then(cors()).then(auth())
+pub fn Middleware::then(self : Middleware, other : Middleware) -> Middleware {
+  then_(self, other)
+}
+
+///|
 /// Compose array of middlewares into single middleware
 pub fn pipeline(middlewares : Array[Middleware]) -> Middleware {
   Middleware(async fn(ctx) {
