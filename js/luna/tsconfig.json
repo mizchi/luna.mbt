@@ -5,17 +5,17 @@
     "moduleResolution": "bundler",
     "strict": true,
     "jsx": "react-jsx",
-    "jsxImportSource": ".",
+    "jsxImportSource": "@mizchi/luna",
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@mizchi/luna": ["./src/index.ts"],
+      "@mizchi/luna/jsx-runtime": ["./src/jsx-runtime.ts"]
+    }
   },
   "include": [
-    "*.ts",
-    "*.tsx",
-    "tests/dom.test.ts",
-    "tests/jsx-runtime.test.tsx",
-    "tests/signals.test.ts",
-    "tests/move-before.bench.ts",
-    "tests/tsx-syntax.test.tsx"
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
   ]
 }
