@@ -1,5 +1,4 @@
-//
-
+///|
 /// moveBefore API - Experimental DOM API for moving nodes without losing state
 /// https://developer.mozilla.org/en-US/docs/Web/API/Element/moveBefore
 ///

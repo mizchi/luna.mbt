@@ -1,6 +1,5 @@
-/// NodeFsAdapter - FileSystem implementation for Node.js fs module
-
 ///|
+/// NodeFsAdapter - FileSystem implementation for Node.js fs module
 /// Wrapper type for Node.js fs module
 pub struct NodeFsAdapter {}
 

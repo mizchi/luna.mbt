@@ -6,9 +6,8 @@
 // Native Parser Entry Point
 // =============================================================================
 
-///| Parse markdown using the native MoonBit parser (no FFI)
-
 ///|
+/// Parse markdown using the native MoonBit parser (no FFI)
 /// This is a drop-in replacement for parse_markdown() from parser.mbt
 pub fn parse_markdown_native(
   content : String,
@@ -310,17 +309,12 @@ fn cst_extract_text_recursive(
 // Info String Parsing
 // =============================================================================
 
-///| Parsed info string from code block fence
-
-///| Format: "lang:filename {meta}"
-
-///| Examples:
-
-///|   "javascript" → (lang="javascript", filename="", meta="")
-
-///|   "js:app.js" → (lang="js", filename="app.js", meta="")
-
 ///|
+/// Parsed info string from code block fence
+/// Format: "lang:filename {meta}"
+/// Examples:
+///   "javascript" → (lang="javascript", filename="", meta="")
+///   "js:app.js" → (lang="js", filename="app.js", meta="")
 ///   "ts:index.ts {highlight=[1,3]}" → (lang="ts", filename="index.ts", meta="{highlight=[1,3]}")
 pub(all) struct CodeBlockInfo {
   lang : String

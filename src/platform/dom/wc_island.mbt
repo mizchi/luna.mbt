@@ -284,6 +284,7 @@ pub fn get_shadow_root_for_hydrate(
   }
 }
 
+///|
 /// Unified hydration function that auto-detects WC vs Luna mode
 ///
 /// For Web Components (has shadowRoot):
@@ -291,6 +292,8 @@ pub fn get_shadow_root_for_hydrate(
 ///
 /// For Luna Islands (no shadowRoot):
 ///   - Renders new DOM into element (clears and creates new content)
+///
+/// When is_rerender is true, always uses render mode (full re-render)
 ///
 /// Usage:
 /// ```moonbit
@@ -301,22 +304,31 @@ pub fn get_shadow_root_for_hydrate(
 ///   @wc.hydrate_auto(jsdom_el, node)
 /// }
 /// ```
-
-///|
-/// Unified hydration for VNode-based components
-/// Auto-detects WC mode (shadowRoot) vs Luna mode (direct render)
 pub fn hydrate_auto(
   element : @js_dom.Element,
   node : @luna.Node[@js.Any],
+  is_rerender? : Bool = false,
 ) -> Unit {
   if has_shadow_root(element) {
     // WC mode - hydrate into shadow root
     let shadow_root = get_shadow_root_as_element(element)
-    console_log_wc("[" + element.tagName() + "] WC mode - hydrating shadow DOM")
-    // Use Luna's hydrate function on shadow root
-    @client.hydrate(shadow_root, node) |> ignore
+    if is_rerender {
+      console_log_wc(
+        "[" + element.tagName() + "] WC mode - re-rendering shadow DOM",
+      )
+      // Re-render: clear and create new content
+      let js_node = @client.render_vnode_to_dom(node)
+      shadow_root.as_node().setTextContent("")
+      shadow_root.as_node().appendChild(js_node) |> ignore
+    } else {
+      console_log_wc(
+        "[" + element.tagName() + "] WC mode - hydrating shadow DOM",
+      )
+      // Use Luna's hydrate function on shadow root
+      @client.hydrate(shadow_root, node) |> ignore
+    }
   } else {
-    // Luna mode - render new DOM
+    // Luna mode - render new DOM (always re-renders for DomNode)
     let el = @element.DomElement::from_jsdom(element)
     let js_node = @client.render_vnode_to_dom(node)
     let dom_node = @element.dom_node(js_node)
@@ -331,10 +343,13 @@ pub fn hydrate_auto(
 ///
 /// For WC mode: Replaces shadow root content (preserves SSR styles, smooth transition)
 /// For Luna mode: Renders into element (clears and mounts)
+/// When is_rerender is true, forces full re-render (same behavior since DomNode always renders)
 pub fn hydrate_auto_dom(
   element : @js_dom.Element,
   node : @element.DomNode,
+  is_rerender? : Bool = false,
 ) -> Unit {
+  let _ = is_rerender // DomNode always renders (not true hydration)
   if has_shadow_root(element) {
     // WC mode - replace shadow root content while preserving styles
     let shadow_root = get_shadow_root_as_element(element)

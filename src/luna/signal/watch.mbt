@@ -42,9 +42,8 @@ pub fn[T : Eq] watch_immediate(
   })
 }
 
-///| Create a signal that holds the previous value of another signal
-
 ///|
+/// Create a signal that holds the previous value of another signal
 /// Returns a getter function for the previous value
 pub fn[T] previous(sig : Signal[T]) -> () -> T? {
   let prev : Ref[T?] = { val: None }

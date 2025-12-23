@@ -5,9 +5,8 @@
 // Markdown Parsing
 // =============================================================================
 
-///| Parse markdown content and return frontmatter + AST
-
 ///|
+/// Parse markdown content and return frontmatter + AST
 /// This uses the native MoonBit parser (no external dependencies)
 pub fn parse_markdown(
   content : String,

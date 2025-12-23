@@ -9,9 +9,8 @@ priv struct MemoState[T] {
   subscribers : Array[EffectRunner]
 }
 
-///| Create a memoized computation
-
 ///|
+/// Create a memoized computation
 /// Returns a getter function that caches the result
 pub fn[T] memo(compute : () -> T) -> () -> T {
   let id = new_effect_id()

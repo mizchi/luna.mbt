@@ -1,7 +1,5 @@
-//
-
+///|
 /// SSR Tests - Pure MoonBit
-///
 /// Type alias for SSR nodes (Event type = Unit)
 
 ///|

@@ -1,10 +1,6 @@
-///| DocumentTree Builder
-
 ///|
-
-///| PageMeta と SsgConfig から DocumentTree を構築する
-
-///|
+/// DocumentTree Builder
+/// PageMeta と SsgConfig から DocumentTree を構築する
 /// SsgConfig と PageMeta 配列から DocumentTree を構築（実ファイルシステムを使用）
 pub fn build_document_tree(
   config : @astra.SsgConfig,

@@ -108,9 +108,8 @@ pub fn get_current_subscriber() -> EffectRunner? {
   reactive_context.current_subscriber
 }
 
-///| Run a function with the given subscriber as current
-
 ///|
+/// Run a function with the given subscriber as current
 /// This enables auto-tracking of signal dependencies
 pub fn[T] run_with_subscriber(subscriber : EffectRunner, f : () -> T) -> T {
   let prev = reactive_context.current_subscriber
@@ -196,9 +195,8 @@ pub fn is_batching() -> Bool {
   reactive_context.batch_depth > 0
 }
 
-///| Register a cleanup function to run when the current effect re-runs or disposes
-
 ///|
+/// Register a cleanup function to run when the current effect re-runs or disposes
 /// Must be called inside an effect
 pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
   match reactive_context.current_cleanups {

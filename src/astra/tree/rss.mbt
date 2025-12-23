@@ -1,10 +1,6 @@
-///| RSS Feed Generator
-
 ///|
-
-///| DocumentTree から RSS 2.0 フィードを生成する
-
-///|
+/// RSS Feed Generator
+/// DocumentTree から RSS 2.0 フィードを生成する
 /// RSS 2.0 フィードを生成
 pub fn generate_rss(tree : @ssg.DocumentTree, limit? : Int = 20) -> String {
   let pages = tree.get_pages_sorted_by_date(limit~)

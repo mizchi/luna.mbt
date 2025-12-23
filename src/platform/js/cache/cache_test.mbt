@@ -1,6 +1,5 @@
-/// FileCache tests using MemFSAdapter
-
 ///|
+/// FileCache tests using MemFSAdapter
 test "FileCache::new creates empty cache" {
   let cache = FileCache::new()
   inspect(cache.len(), content="0")

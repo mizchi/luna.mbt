@@ -1,6 +1,5 @@
-/// MemFSAdapter - FileSystem implementation for memfs
-
 ///|
+/// MemFSAdapter - FileSystem implementation for memfs
 /// Wrapper type for memfs
 pub struct MemFSAdapter {
   fs : @memfs.MemFS

@@ -88,11 +88,9 @@ pub fn[T] signal(initial : T) -> Signal[T] {
   Signal::new(initial)
 }
 
-///| Explicitly subscribe to a signal with a callback
-
-///| Returns an unsubscribe function
-
 ///|
+/// Explicitly subscribe to a signal with a callback
+/// Returns an unsubscribe function
 /// Unlike effect(), this doesn't auto-track and only listens to this one signal
 pub fn[T] on(sig : Signal[T], callback : (T) -> Unit) -> () -> Unit {
   let id = new_effect_id()

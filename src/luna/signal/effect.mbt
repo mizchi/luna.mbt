@@ -18,11 +18,9 @@ fn run_cleanups(cleanups : Array[() -> Unit]) -> Unit {
   cleanups.clear()
 }
 
-///| Create an effect that runs immediately and re-runs when dependencies change
-
-///| Returns a dispose function to stop the effect
-
 ///|
+/// Create an effect that runs immediately and re-runs when dependencies change
+/// Returns a dispose function to stop the effect
 /// Supports onCleanup() calls inside the effect
 /// If inside an owner scope, the effect is automatically registered for disposal
 pub fn effect(fn_ : () -> Unit) -> () -> Unit {

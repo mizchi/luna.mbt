@@ -8,9 +8,8 @@ pub fn[T, U] Signal::map(self : Signal[T], f : (T) -> U) -> () -> U {
   memo(fn() { f(self.get()) })
 }
 
-///| Filter signal updates - only updates when predicate is true
-
 ///|
+/// Filter signal updates - only updates when predicate is true
 /// Returns a signal that only updates when predicate passes
 pub fn[T] Signal::filter(
   self : Signal[T],

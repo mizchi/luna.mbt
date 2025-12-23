@@ -610,9 +610,8 @@ pub fn extract_package_path(mbti_content : String) -> String? {
 // Code Generators
 // =============================================================================
 
-///| Extract clean island name from export name
-
 ///|
+/// Extract clean island name from export name
 /// Removes "island_client_" or "island_" prefix
 pub fn extract_island_name(name : String) -> String {
   if name.has_prefix("island_client_") {
@@ -1062,7 +1061,10 @@ fn generate_hydrate_mbt(
         "///| Auto-detects WC mode (shadowRoot) vs Luna mode (direct render)\n",
       )
       buf.write_string(
-        "pub fn __sol_internal__client_\{func.name}(element : @js.Any, state : @js.Any, _id : String) -> Unit {\n",
+        "///| When is_rerender is true, performs full re-render instead of hydration\n",
+      )
+      buf.write_string(
+        "pub fn __sol_internal__client_\{func.name}(element : @js.Any, state : @js.Any, _id : String, is_rerender : Bool) -> Unit {\n",
       )
       buf.write_string("  let jsdom_el : @js_dom.Element = element.cast()\n")
       buf.write_string(
@@ -1077,9 +1079,11 @@ fn generate_hydrate_mbt(
       buf.write_string("  let node = @\{client_alias}.\{func.name}(props)\n")
       buf.write_string("  // Auto-detect WC (shadowRoot) vs Luna mode\n")
       if returns_dom_node {
-        buf.write_string("  @wc.hydrate_auto_dom(jsdom_el, node)\n")
+        buf.write_string(
+          "  @wc.hydrate_auto_dom(jsdom_el, node, is_rerender~)\n",
+        )
       } else {
-        buf.write_string("  @wc.hydrate_auto(jsdom_el, node)\n")
+        buf.write_string("  @wc.hydrate_auto(jsdom_el, node, is_rerender~)\n")
       }
       buf.write_string("}\n\n")
     }
@@ -1299,7 +1303,9 @@ fn generate_server_main_mbt(
   buf.write_string(
     "  let app = @router.register_sol_routes(app, routes, config=config)\n\n",
   )
-  buf.write_string("  // Register Server Actions (if action_registry is defined in routes.mbt)\n")
+  buf.write_string(
+    "  // Register Server Actions (if action_registry is defined in routes.mbt)\n",
+  )
   buf.write_string(
     "  let app = @action.register_actions(app, @app_server.action_registry())\n\n",
   )

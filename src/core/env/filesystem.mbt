@@ -1,3 +1,4 @@
+///|
 /// FileSystem Trait - Abstract file system operations
 ///
 /// This trait abstracts file system operations to allow:

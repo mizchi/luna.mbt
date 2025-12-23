@@ -1,12 +1,7 @@
-///| llms.txt Generator
-
 ///|
-
-///| DocumentTree から llms.txt を生成する
-
-///| 参考: https://llmstxt.org/
-
-///|
+/// llms.txt Generator
+/// DocumentTree から llms.txt を生成する
+/// 参考: https://llmstxt.org/
 /// llms.txt を生成
 pub fn generate_llms_txt(tree : @ssg.DocumentTree) -> String {
   let mut result = ""

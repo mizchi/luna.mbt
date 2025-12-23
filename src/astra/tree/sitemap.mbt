@@ -1,10 +1,6 @@
-///| Sitemap Generator
-
 ///|
-
-///| DocumentTree から sitemap.xml を生成する
-
-///|
+/// Sitemap Generator
+/// DocumentTree から sitemap.xml を生成する
 /// sitemap.xml を生成
 pub fn generate_sitemap(tree : @ssg.DocumentTree) -> String {
   let mut urls = ""

@@ -1,8 +1,6 @@
-// HMR WebSocket Server
-
-/// Provides WebSocket server functionality for Hot Module Replacement
-
 ///|
+/// HMR WebSocket Server
+/// Provides WebSocket server functionality for Hot Module Replacement
 /// WebSocket server handle (opaque type wrapping Node.js WebSocketServer)
 pub struct HmrServer {
   priv inner : @js.Any

@@ -299,14 +299,9 @@ pub fn config() -> @router.RouterConfig {
   .with_default_head(head())
   .with_loader_url("/static/loader.js")
 }
-///| Middleware Test Page
-
 ///|
-
-///| Demonstrates middleware functionality with Logger and CORS.
-
-///|
-/// Middleware test page - shows middleware information
+/// Middleware Test Page
+/// Demonstrates middleware functionality with Logger and CORS.
 async fn middleware_test(_props : @router.PageProps) -> @server_dom.ServerNode {
   let content : Array[@luna.Node[Unit]] = [
     h1([text("Middleware Test")]),

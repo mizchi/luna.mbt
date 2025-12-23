@@ -43,9 +43,8 @@ pub fn resolve_language(lang : String) -> String {
 // Supported Languages
 // =============================================================================
 
-///| Check if a language is likely supported
-
 ///|
+/// Check if a language is likely supported
 /// Note: This is a best-effort check. Shiki will gracefully handle unknown languages.
 pub fn is_language_supported(lang : String) -> Bool {
   let resolved = resolve_language(lang)
@@ -63,9 +62,8 @@ pub fn is_language_supported(lang : String) -> Bool {
 // Create Highlighter
 // =============================================================================
 
-///| Create a new Shiki highlighter with specified themes and languages
-
 ///|
+/// Create a new Shiki highlighter with specified themes and languages
 /// Languages are loaded eagerly to support sync highlighting
 pub extern "js" fn create_highlighter_async(
   themes : Array[String],
@@ -213,9 +211,8 @@ pub extern "js" fn Highlighter::highlight_async(
 // Utility Functions
 // =============================================================================
 
-///| Decode HTML entities in code content
-
 ///|
+/// Decode HTML entities in code content
 /// Note: &amp; must be decoded last to avoid double-decoding
 pub fn decode_html_entities(html : String) -> String {
   html

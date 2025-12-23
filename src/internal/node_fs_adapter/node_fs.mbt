@@ -1,6 +1,5 @@
-/// NodeFS - FileSystem implementation for Node.js fs module
-
 ///|
+/// NodeFS - FileSystem implementation for Node.js fs module
 /// Wrapper type for Node.js fs module
 pub struct NodeFS {}
 

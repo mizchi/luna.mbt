@@ -1,18 +1,9 @@
-///| WC Counter Page Server Component
-
 ///|
-
-///| Uses wc_island() to embed a Web Components based counter.
-
-///| Demonstrates Declarative Shadow DOM SSR with unified hydration.
-
-///|
-
-///| CSS is defined in app/client/wc_counter.mbt and shared between SSR and hydration.
-
-///|
-/// WC Counter page - Web Components based island (sync server component)
-async fn wc_counter(props : @router.PageProps) -> @server_dom.ServerNode {
+/// WC Counter Page Server Component
+/// Uses wc_island() to embed a Web Components based counter.
+/// Demonstrates Declarative Shadow DOM SSR with unified hydration.
+/// CSS is defined in app/client/wc_counter.mbt and shared between SSR and hydration.
+async fn wc_counter(_props : @router.PageProps) -> @server_dom.ServerNode {
   // Create props using WcCounterProps from client module
   let counter_props : @client.WcCounterProps = { initial_count: 0 }
   let state_json = counter_props.to_json().stringify()

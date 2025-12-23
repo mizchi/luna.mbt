@@ -370,13 +370,12 @@ test "chained operations timeout" {
 /// - Parallel async resolution
 /// - Better for slow network conditions
 /// - Built-in on_error handler
-///
+
+///|
 /// **Recommendation:**
 /// - Use try-catch for: synchronous errors, validation, parsing
 /// - Use VAsync for: network requests with loading states, streaming SSR
 /// - Combine both: try-catch inside VAsync.render for error handling
-
-///|
 test "combined pattern: try-catch for sync error handling" {
   fn create_content_with_fallback(
     fetch : () -> @luna.Node[Unit] raise FetchError,

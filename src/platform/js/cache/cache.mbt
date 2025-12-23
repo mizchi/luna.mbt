@@ -1,3 +1,4 @@
+///|
 /// FileCache - Disk cache layer for build artifacts
 ///
 /// Provides mtime-based caching to avoid re-reading unchanged files.

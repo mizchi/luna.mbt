@@ -22,13 +22,9 @@ extern "js" fn ffi_has_fragment_header(c : @js.Any) -> Bool =
 // Fragment Response Generation
 // ============================================================================
 
-///| Extract outlets from rendered HTML and wrap in templates
-
 ///|
-
-///| This function takes the full page HTML and extracts elements
-
-///|
+/// Extract outlets from rendered HTML and wrap in templates
+/// This function takes the full page HTML and extracts elements
 /// with data-sol-outlet attributes, wrapping each in a template.
 pub fn[E] render_fragment_response(
   node : @luna.Node[E],
