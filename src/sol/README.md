@@ -23,6 +23,9 @@ just sol dev
 - **CLI ツール**: プロジェクト作成からビルドまで一貫したワークフロー
 - **Streaming SSR**: 非同期コンテンツのストリーミング対応
 - **CSR ナビゲーション**: `sol-link` 属性による SPA ライクなページ遷移
+- **Middleware**: Railway Oriented Programming ベースのミドルウェアシステム
+- **Server Actions**: CSRF 保護付きのサーバーサイド関数
+- **Nested Layouts**: 階層的なレイアウト構造のサポート
 
 ## クイックスタート
 
@@ -48,12 +51,9 @@ myapp/
 ├── package.json            # npm パッケージ定義
 ├── sol.config.json         # Sol 設定ファイル
 ├── app/
-│   ├── layout/             # レイアウトコンポーネント
+│   ├── server/             # サーバーコンポーネント
 │   │   ├── moon.pkg.json
-│   │   └── layout.mbt      # layout() 関数を定義
-│   ├── routes/             # ルート定義
-│   │   ├── moon.pkg.json
-│   │   └── routes.mbt      # routes() + ページ関数を定義
+│   │   └── routes.mbt      # routes() + config() + ページ関数
 │   ├── client/             # クライアントコンポーネント (Islands)
 │   │   └── counter/
 │   │       ├── moon.pkg.json
@@ -115,22 +115,13 @@ sol serve --port 8080  # ポート指定
 
 `sol.config.json` に基づいてコードを自動生成。
 
-> **Note**: 通常は `sol dev` や `sol build` が内部で自動的に呼び出すため、明示的に実行する必要はない。デバッグや生成ファイルの確認時に使用する。
+> **Note**: 通常は `sol dev` や `sol build` が内部で自動的に呼び出すため、明示的に実行する必要はない。
 
 ```bash
 sol generate                    # sol.config.json を使用 (デフォルト: dev)
 sol generate --mode dev         # 開発モード (.sol/dev/ に出力)
 sol generate --mode prod        # 本番モード (.sol/prod/ に出力)
-sol generate --config my.json   # カスタム設定
 ```
-
-生成されるファイル:
-- `app/__gen__/client/exports.mbt` - hydrate 関数のエクスポート
-- `app/__gen__/server/main.mbt` - サーバーエントリポイント (routes.mbt から動的生成)
-- `.sol/{mode}/client/*.js` - rolldown 用 Island エントリ
-- `.sol/{mode}/server/main.js` - サーバーエントリポイント (re-export)
-- `.sol/{mode}/manifest.json` - rolldown programmatic API 用マニフェスト
-- `.sol/{mode}/static/` - バンドル出力先
 
 ### `sol clean`
 
@@ -140,75 +131,199 @@ sol generate --config my.json   # カスタム設定
 sol clean  # .sol/, app/__gen__/, target/ を削除
 ```
 
-## sol.config.json
+## SolRoutes 定義
 
-```json
-{
-  "islands": ["app/client/*"],  // Island ディレクトリ (glob)
-  "routes": "app/routes",       // ルート定義ディレクトリ
-  "output": "app/__gen__"        // 生成出力先
-}
-```
-
-## Runtime API
-
-### アプリケーション起動
+`SolRoutes` を使った宣言的なルート定義:
 
 ```moonbit
-fn main {
-  @sol.run(fn(app) {
-    // ルート定義
-    let app = @sol.page(app, "/", home_page, title="Home")
-    let app = @sol.api(app, "/api/health", health_handler)
-    @sol.serve_static(app)
-  })
-}
-```
+// app/server/routes.mbt
 
-### ページ定義
-
-```moonbit
-// 静的ページ
-pub fn about_page(ctx : @sol.Ctx) -> @luna.Node[Unit] {
-  @luna.h("div", [], [@luna.vtext("About")])
-}
-
-// Island を含むページ
-pub fn home_page(ctx : @sol.Ctx) -> @luna.Node[Unit] {
-  let count = @signal.signal(0)
-  let state_json = "{\"count\":0}"
-
-  @luna.vfragment([
-    @luna.h("h1", [], [@luna.vtext("Home")]),
-    @sol.island(
-      "counter",                        // Island ID
-      "/static/hydrate_counter.js",     // hydrate スクリプト URL
-      state_json,                       // 初期状態 JSON
-      [@counter.counter(count)],        // SSR 用 VNode
+pub fn routes() -> Array[SolRoutes] {
+  [
+    // ページルート
+    SolRoutes::Page(
+      path="/",
+      handler=PageHandler(home_page),
+      title="Home",
+      meta=[],
     ),
-  ])
+    // API ルート (GET)
+    SolRoutes::Get(
+      path="/api/health",
+      handler=ApiHandler(api_health),
+    ),
+    // API ルート (POST)
+    SolRoutes::Post(
+      path="/api/submit",
+      handler=ApiHandler(api_submit),
+    ),
+    // ネストされたレイアウト
+    SolRoutes::Layout(
+      segment="admin",
+      layout=admin_layout,
+      children=[
+        SolRoutes::Page(path="/admin", handler=PageHandler(admin_dashboard), title="Admin"),
+        SolRoutes::Page(path="/admin/users", handler=PageHandler(admin_users), title="Users"),
+      ],
+    ),
+    // ミドルウェア適用
+    SolRoutes::WithMiddleware(
+      middleware=[@middleware.cors(), @middleware.logger()],
+      children=[
+        SolRoutes::Get(path="/api/data", handler=ApiHandler(api_data)),
+      ],
+    ),
+  ]
+}
+
+pub fn config() -> RouterConfig {
+  RouterConfig::default()
+    .with_default_head(head())
+    .with_loader_url("/static/loader.min.js")
 }
 ```
 
-### API ハンドラ
+### SolRoutes バリアント
+
+| バリアント | 説明 |
+|-----------|------|
+| `Page` | ページルート (HTML レスポンス) |
+| `Get` | GET API ルート (JSON レスポンス) |
+| `Post` | POST API ルート (JSON レスポンス) |
+| `Layout` | ネストされたレイアウトグループ |
+| `WithMiddleware` | ミドルウェアを適用したルートグループ |
+
+## Nested Layouts
+
+階層的なレイアウト構造をサポート:
 
 ```moonbit
-pub fn health_handler(ctx : @sol.Ctx) -> @js.Any {
-  @sol.json_obj([("status", @core.any("ok"))])
+// Admin セクションのレイアウト
+fn admin_layout(
+  props : PageProps,
+  content : ServerNode,
+) -> ServerNode raise {
+  ServerNode::sync(@luna.fragment([
+    h1([text("Admin Panel")]),
+    nav([
+      a(href="/admin", attrs=[("sol-link", @luna.attr_static(""))], [text("Dashboard")]),
+      a(href="/admin/users", attrs=[("sol-link", @luna.attr_static(""))], [text("Users")]),
+    ]),
+    div(class="admin-content", [content.to_vnode()]),
+  ]))
 }
-```
 
-### ページ登録オプション
-
-```moonbit
-@sol.page(app, "/",
-  home_page,
-  title="Home",                    // ページタイトル
-  head="<style>...</style>",       // head に挿入する HTML
-  hydration=true,                  // hydration 有効化
-  loader_url="/static/loader.js",  // ローダー URL
+// ルート定義
+SolRoutes::Layout(
+  segment="admin",     // URL プレフィックス
+  layout=admin_layout, // レイアウト関数
+  children=[
+    // /admin
+    SolRoutes::Page(path="/admin", handler=PageHandler(admin_dashboard), title="Admin"),
+    // /admin/users
+    SolRoutes::Page(path="/admin/users", handler=PageHandler(admin_users), title="Users"),
+  ],
 )
 ```
+
+## Middleware
+
+Railway Oriented Programming ベースのミドルウェアシステム。
+
+### 基本的な使い方
+
+```moonbit
+// ミドルウェアの合成
+let middleware = @middleware.logger()
+  .then(@middleware.cors())
+  .then(@middleware.security_headers())
+
+// ルートに適用
+SolRoutes::WithMiddleware(
+  middleware=[middleware],
+  children=[...],
+)
+```
+
+### 組み込みミドルウェア
+
+| ミドルウェア | 説明 |
+|-------------|------|
+| `logger()` | リクエストログ |
+| `cors()` | CORS ヘッダー |
+| `csrf()` | CSRF 保護 |
+| `security_headers()` | セキュリティヘッダー |
+| `nosniff()` | X-Content-Type-Options |
+| `frame_options(value)` | X-Frame-Options |
+
+### CORS 設定
+
+```moonbit
+@middleware.cors_with_config(
+  CorsConfig::default()
+    .with_origin_single("https://example.com")
+    .with_methods(["GET", "POST"])
+    .with_credentials()
+)
+```
+
+### Security Headers
+
+```moonbit
+@middleware.security_headers_with_config(
+  SecurityHeadersConfig::default()
+    .with_csp("default-src 'self'")
+    .with_frame_options("DENY")
+)
+```
+
+### ミドルウェア合成
+
+```moonbit
+// 順次実行 (m1 → m2)
+let combined = @middleware.then_(m1, m2)
+// または
+let combined = m1.then(m2)
+
+// 配列から合成
+let pipeline = @middleware.pipeline([m1, m2, m3])
+
+// 条件付き実行
+let conditional = @middleware.when(
+  fn(ctx) { ctx.request.method == "POST" },
+  csrf_middleware,
+)
+```
+
+## Server Actions
+
+CSRF 保護付きのサーバーサイド関数。詳細は [Server Actions README](./action/README.md) を参照。
+
+### 基本的な使い方
+
+```moonbit
+// アクションハンドラを定義
+let submit_handler = ActionHandler(async fn(ctx) {
+  let body = ctx.body
+  // ... 処理
+  ActionResult::ok(@js.any({ "success": true }))
+})
+
+// レジストリに登録
+pub fn action_registry() -> ActionRegistry {
+  ActionRegistry::new(allowed_origins=["http://localhost:3000"])
+    .register(ActionDef::new("submit-form", submit_handler))
+}
+```
+
+### ActionResult タイプ
+
+| タイプ | 説明 |
+|--------|------|
+| `Success(data)` | 成功、JSON データを返す |
+| `Redirect(url)` | 成功、リダイレクト |
+| `ClientError(status, msg)` | クライアントエラー (4xx) |
+| `ServerError(msg)` | サーバーエラー (5xx) |
 
 ## Island Architecture
 
@@ -219,83 +334,31 @@ Island は SSR と クライアントで共有されるコンポーネント:
 ```moonbit
 // app/client/counter/counter.mbt
 
-///| Action enum for type-safe event handling
-pub enum CounterAction {
-  Increment
-  Decrement
-} derive(Show)
-
-///| コンポーネント関数 (SSR + クライアント共用)
-pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[Unit] {
-  @luna.h("div", [("class", @luna.attr_static("counter"))], [
-    @luna.h("span", [("class", @luna.attr_static("count-display"))], [
-      @luna.vtext_sig(count),
-    ]),
-    @luna.h("button", [
-      ("onclick", @luna.action(Increment)),
-    ], [@luna.vtext("+")]),
+pub fn counter(count : Signal[Int]) -> @luna.Node[CounterAction] {
+  div(class="counter", [
+    span(class="count-display", [text_signal(count)]),
+    button(onclick=@luna.action(Increment), [text("+")]),
+    button(onclick=@luna.action(Decrement), [text("-")]),
   ])
-}
-
-///| Hydration 関数 (ローダーから呼び出される)
-pub fn hydrate_counter(element : @core.Any, state : @core.Any, id : String) -> Unit {
-  @dom.hydrate_island(element, state, id, fn(ctx) {
-    let count = ctx.signal_int("count", 0)
-    ctx.bind_actions(fn(action) {
-      match action {
-        "Increment" => count.set(count.get() + 1)
-        "Decrement" => count.set(count.get() - 1)
-        _ => ()
-      }
-    })
-    ctx.on_update(".count-display", fn() { count.get().to_string() })
-  })
 }
 ```
 
 ### Hydration トリガー
 
-| トリガー | 説明 | 属性値 |
-|---------|------|--------|
-| Load | ページロード時即座 | `load` |
-| Idle | requestIdleCallback 時 | `idle` |
-| Visible | IntersectionObserver 検知時 | `visible` |
-| Media | メディアクエリマッチ時 | `media:query` |
-| None | 手動トリガー | `none` |
-
-```moonbit
-@sol.island("counter", url, state, children, trigger=@luna.Idle)
-```
-
-### luna:* 属性
-
-Island は以下の属性でマークアップされる:
-
-```html
-<div luna:id="counter"
-     luna:url="/static/hydrate_counter.js"
-     luna:state='{"count":0}'
-     luna:client-trigger="load">
-  <!-- SSR 済みコンテンツ -->
-</div>
-```
+| トリガー | 説明 |
+|---------|------|
+| `Load` | ページロード時即座 |
+| `Idle` | requestIdleCallback 時 |
+| `Visible` | IntersectionObserver 検知時 |
+| `Media(query)` | メディアクエリマッチ時 |
+| `None` | 手動トリガー |
 
 ## CSR ナビゲーション
 
-`sol-link` 属性を持つリンクは、ページ遷移時に CSR (Client-Side Rendering) で処理される:
+`sol-link` 属性を持つリンクは CSR で処理される:
 
 ```moonbit
-// サーバーサイドで sol-link 属性付きリンクを生成
-@server_dom.a(
-  href="/about",
-  attrs=[("sol-link", @luna.attr_static(""))],
-  children=[@luna.vtext("About")],
-)
-```
-
-生成される HTML:
-```html
-<a href="/about" sol-link>About</a>
+a(href="/about", attrs=[("sol-link", @luna.attr_static(""))], [text("About")])
 ```
 
 クリック時の動作:
@@ -305,135 +368,49 @@ Island は以下の属性でマークアップされる:
 4. History API でブラウザ履歴を更新
 5. 新しいページの Island を hydrate
 
-フルページリロードを避け、SPA ライクな UX を提供する。
-
-## Routes 定義 (型安全ルーティング)
-
-`@routes.Routes` を使った宣言的なルート定義:
-
-```moonbit
-// app/routes/routes.mbt
-
-pub fn routes() -> Array[@routes.Routes] {
-  [
-    @routes.Island(
-      path="/",
-      component="home",
-      url="/static/hydrate_counter.js",
-      trigger=@luna.Load,
-      title="Home",
-      meta=[],
-    ),
-    @routes.Page(
-      path="/about",
-      component="about",
-      title="About",
-      meta=[],
-    ),
-    @routes.Get(path="/api/health", handler="health"),
-  ]
-}
-
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
-    .with_default_head(@layout.head())
-    .with_loader_url("/static/loader.min.js")
-}
-```
-
 ## Streaming SSR
 
 非同期コンテンツのストリーミング:
 
 ```moonbit
-@sol.streaming_page(app, "/stream", fn(ctx) {
-  @luna.vfragment([
-    @luna.h("h1", [], [@luna.vtext("Loading...")]),
-    @luna.vasync(async fn() {
-      // 非同期データ取得
-      let data = fetch_data()
-      @luna.h("div", [], [@luna.vtext(data)])
-    }),
-  ])
+@luna.vasync(async fn() {
+  let data = fetch_data().await
+  div([text(data)])
 })
 ```
-
-## データフロー
-
-```
-[Server]                              [Client]
-   │                                     │
-   │  1. routes() でページ解決            │
-   │  2. page() 実行、VNode 生成          │
-   │  3. island() で SSR レンダリング      │
-   │  4. HTML + luna:* 属性を送信  ─────────→│
-   │                                     │  5. loader.js が luna:* を検知
-   │                                     │  6. hydrate_*.js をロード
-   │                                     │  7. hydrate_*() 実行
-   │                                     │  8. イベントハンドラ接続
-```
-
-## 静的ファイル配信
-
-```moonbit
-// デフォルト設定
-@sol.serve_static(app)
-
-// カスタム設定
-@sol.serve_static(app, config=@sol.StaticFileConfig::default()
-  .with_mapping("custom.js", "path/to/custom.js"))
-```
-
-ファイル検索順序:
-1. `static/` ディレクトリ (プロジェクトの静的ファイル)
-2. `.sol/prod/static/` ディレクトリ (本番 rolldown 出力)
-3. `.sol/dev/static/` ディレクトリ (開発 rolldown 出力)
 
 ## モジュール構成
 
 ```
 src/sol/
-├── runtime.mbt      # コア API (@sol.run, @sol.page, @sol.island 等)
+├── runtime.mbt      # コア API
 ├── compiler.mbt     # Rolldown バインディング
 ├── router/          # Hono ルーター統合
-│   └── router.mbt   # @routes.Routes → Hono 変換
+│   ├── router.mbt   # ルート登録
+│   ├── sol_routes.mbt # SolRoutes 定義
+│   └── fragment.mbt # フラグメントレスポンス (CSR)
+├── middleware/      # ミドルウェアシステム
+│   ├── types.mbt    # MwContext, MwRequest, MwResponse
+│   ├── compose.mbt  # 合成関数 (then, pipeline)
+│   ├── logger.mbt   # Logger ミドルウェア
+│   ├── cors.mbt     # CORS ミドルウェア
+│   ├── csrf.mbt     # CSRF ミドルウェア
+│   └── security_headers.mbt # セキュリティヘッダー
+├── action/          # Server Actions
+│   ├── action.mbt   # ActionHandler, ActionResult
+│   └── router.mbt   # register_actions
 └── cli/             # CLI ツール
     ├── main.mbt     # エントリポイント
     ├── new.mbt      # sol new
     ├── dev.mbt      # sol dev
     ├── build.mbt    # sol build
     ├── serve.mbt    # sol serve
-    ├── generate.mbt # sol generate (routes.mbt パース、コード生成)
-    ├── clean.mbt    # sol clean
-    └── templates.mbt # テンプレート
+    ├── generate.mbt # sol generate
+    └── clean.mbt    # sol clean
 ```
-
-## .sol ディレクトリ構造
-
-`sol generate` で生成されるディレクトリ構造:
-
-```
-.sol/
-├── dev/                  # 開発用出力 (sol dev)
-│   ├── client/           # Island エントリポイント JS
-│   │   └── counter.js    # import { hydrate_counter } from '...'
-│   ├── server/
-│   │   └── main.js       # サーバーエントリ (re-export)
-│   └── static/           # rolldown 出力 (sol dev 後)
-│       └── counter.js    # バンドル済み Island
-└── prod/                 # 本番用出力 (sol build)
-    ├── client/
-    ├── server/
-    └── static/           # minify 済みバンドル
-```
-
-dev と prod を分離することで:
-- 開発中は高速なインクリメンタルビルド
-- 本番ビルドは独立して実行可能
-- キャッシュの衝突を防止
 
 ## 参照
 
-- [Sol Architecture v2](../../docs/sol-architecture-v2.md) - 将来の設計提案
-- [Luna Core](../core/README.md) - VNode/Signal の詳細
-- [Shard Architecture](../stella/ARCHITECTURE.md) - Island 埋め込みの仕組み
+- [Server Actions](./action/README.md) - Server Actions の詳細
+- [Luna Core](../luna/README.md) - VNode/Signal の詳細
+- [Stella](../stella/README.md) - Island 埋め込みの仕組み

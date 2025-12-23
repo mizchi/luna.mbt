@@ -6,8 +6,8 @@ MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
 
 | モジュール | 責務 | ドキュメント |
 |-----------|------|-------------|
-| **Luna** | コアUIライブラリ。Signal、VNode、DOM操作、Hydration | [src/core/](src/core/README.md), [src/platform/](src/platform/README.md) |
-| **Sol** | SSRフレームワーク。Hono統合、Rolldownビルド | [src/sol/](src/sol/README.md) |
+| **Luna** | コアUIライブラリ。Signal、VNode、DOM操作、Hydration | [src/luna/](src/luna/README.md), [src/platform/](src/platform/README.md) |
+| **Sol** | SSRフレームワーク。Hono統合、Middleware、Server Actions | [src/sol/](src/sol/README.md) |
 | **Astra** | SSG（静的サイトジェネレーター）。Markdown → HTML | [src/astra/](src/astra/README.md) |
 | **Stella** | Island埋め込み用Shard生成 | [src/stella/](src/stella/README.md) |
 
@@ -15,16 +15,18 @@ MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
 
 ```
 src/
-├── core/           # Luna Core: Signal, Virtual Node, Routes, Serialize（ターゲット非依存）
+├── luna/           # Luna Core: Signal, Virtual Node, Render（ターゲット非依存）
+├── core/           # 共有型定義: Routes, Serialize, SSG Types
 ├── platform/       # DOM, JS API, Server DOM（プラットフォーム固有）
 ├── stella/         # Island埋め込み用Shard生成
-├── sol/            # SSRフレームワーク
+├── sol/            # SSRフレームワーク (Middleware, Server Actions)
 ├── astra/          # SSG
-├── examples/       # サンプルコード
-└── tests/          # テストコード
+├── internal/       # 内部ユーティリティ
+└── _bench/         # ベンチマーク
 js/                 # NPMパッケージ (@mizchi/luna)
 e2e/                # Playwrightテスト
 docs/               # ドキュメント（Astraで生成）
+examples/           # サンプルプロジェクト
 ```
 
 docs/ は astra のパターンに沿って生成される。

@@ -21,7 +21,7 @@
 | `router/` | クライアントサイドルーティング |
 | `portal/` | Portalコンポーネント |
 | `island.mbt` | Island Hydration |
-| `wc_island.mbt` | Web Components Island |
+| `wc_island.mbt` | Web Components Island (Declarative Shadow DOM) |
 
 ## js/
 
@@ -31,6 +31,8 @@ JavaScript固有の機能。
 |-----|------|
 | `api/` | JS向け公開API (`@mizchi/luna`) |
 | `stream_renderer/` | ストリーミングSSR |
+| `cache/` | ファイルキャッシュ (mtime ベース) |
+| `fs_adapter/` | FileSystem アダプター (Node.js, memfs) |
 
 ## server_dom/
 
@@ -53,5 +55,5 @@ JS固有機能    → js/
 
 ## 参照
 
-- [Luna Core](../core/README.md) - VNode定義
+- [Luna Core](../luna/README.md) - VNode定義
 - [Stella](../stella/README.md) - Shard生成

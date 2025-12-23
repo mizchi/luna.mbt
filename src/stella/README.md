@@ -61,5 +61,5 @@ pub enum StateConfig {
 
 ## 参照
 
-- [Luna Core](../core/README.md) - TriggerType の定義
+- [Luna Core](../luna/README.md) - TriggerType の定義
 - [Sol](../sol/README.md) - Island統合の実装
