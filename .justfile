@@ -149,6 +149,10 @@ test-sol-new: build-moon
 test-sol-example: build-moon
     cd examples/sol_app && pnpm test:e2e
 
+# Sol セキュリティテスト
+test-security: build-moon
+    cd examples/sol_app && pnpm vitest run tests/security.test.ts tests/security-headers.test.ts
+
 # --- Luna (Core UI Library) ---
 # Luna 全テスト
 test-luna: test-luna-unit test-luna-browser
@@ -262,6 +266,9 @@ dev-doc: build-moon
 build-doc: build-moon
     @echo "Building demo..."
     pnpm vite build
+    # Move demo-src contents up one level (vite outputs with demo-src/ prefix)
+    mv docs/public/demo/demo-src/* docs/public/demo/
+    rm -rf docs/public/demo/demo-src
     @echo "Building docs..."
     node target/js/release/build/astra/cli/cli.js build
     @echo "✓ Documentation built in dist/"
@@ -278,6 +285,38 @@ ssg-build output="dist": build-moon
 # SSG ビルド（高速、ハイライトなし）
 ssg-build-fast output="dist": build-moon
     node target/js/release/build/astra/cli/cli.js build -o {{output}}
+
+# =============================================================================
+# ベンチマーク
+# =============================================================================
+
+# bench-moonbit: build-moon
+
+# サーバーベンチマーク（autocannon）
+bench-server: build-moon
+    #!/usr/bin/env bash
+    set -e
+    cd examples/sol_app
+    echo "Starting server..."
+    pnpm serve &
+    SERVER_PID=$!
+    sleep 3
+
+    echo ""
+    echo "=== Benchmark: / (SSR) ==="
+    npx autocannon -c 100 -d 10 http://localhost:3000/
+
+    echo ""
+    echo "=== Benchmark: /form (SSR) ==="
+    npx autocannon -c 100 -d 10 http://localhost:3000/form
+
+    echo ""
+    echo "=== Benchmark: /api/health (JSON) ==="
+    npx autocannon -c 100 -d 10 http://localhost:3000/api/health
+
+    kill $SERVER_PID 2>/dev/null || true
+    echo ""
+    echo "✓ Benchmark completed"
 
 # =============================================================================
 # メトリクス

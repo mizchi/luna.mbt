@@ -1,6 +1,6 @@
 {
   "name": "mizchi/luna",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "deps": {
     "moonbitlang/async": "0.14.3",
     "moonbitlang/x": "0.4.38",
@@ -19,6 +19,6 @@
   ],
   "description": "Fine-grained reactive UI library for Moonbit/JS",
   "source": "src",
-  "warn-list": "-53",
+  "warn-list": "-unused_trait_bound",
   "preferred-target": "js"
 }

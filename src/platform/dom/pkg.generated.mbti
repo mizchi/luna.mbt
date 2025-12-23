@@ -15,9 +15,9 @@ pub fn[T] debounced(@signal.Signal[T], Int) -> @signal.Signal[T]
 
 pub fn get_shadow_root_for_hydrate(@mizchi/js/browser/dom.Element) -> @mizchi/js/browser/dom.Element?
 
-pub fn hydrate_auto(@mizchi/js/browser/dom.Element, @luna.Node[@core.Any]) -> Unit
+pub fn hydrate_auto(@mizchi/js/browser/dom.Element, @luna.Node[@core.Any], is_rerender? : Bool) -> Unit
 
-pub fn hydrate_auto_dom(@mizchi/js/browser/dom.Element, @element.DomNode) -> Unit
+pub fn hydrate_auto_dom(@mizchi/js/browser/dom.Element, @element.DomNode, is_rerender? : Bool) -> Unit
 
 pub fn hydrate_island(@core.Any, @core.Any, String, (IslandContext) -> Unit) -> Unit
 

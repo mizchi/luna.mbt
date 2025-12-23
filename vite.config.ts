@@ -47,7 +47,7 @@ export default defineConfig({
   })],
   // Use project root so target/ is accessible
   root: '.',
-  base: '/',
+  base: '/demo/',
   build: {
     outDir: 'docs/public/demo',
     emptyOutDir: true,
@@ -58,6 +58,7 @@ export default defineConfig({
         "browser_router": resolve(__dirname, './demo-src/browser_router/index.html'),
         "game": resolve(__dirname, './demo-src/game/index.html'),
         "wc": resolve(__dirname, './demo-src/wc/index.html'),
+        "todomvc": resolve(__dirname, './demo-src/todomvc/index.html'),
       },
     },
   },

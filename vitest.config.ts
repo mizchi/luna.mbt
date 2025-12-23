@@ -4,7 +4,7 @@ import { resolve } from "path";
 export default defineConfig({
   esbuild: {
     jsx: "automatic",
-    jsxImportSource: resolve(__dirname, "js/luna"),
+    jsxImportSource: resolve(__dirname, "js/luna/src"),
   },
   test: {
     // Default: Node.js environment with jsdom for DOM tests
