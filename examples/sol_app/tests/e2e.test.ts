@@ -1,6 +1,35 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Sol App E2E', () => {
+  test.describe('Progressive Enhancement (JavaScript Disabled)', () => {
+    test.use({ javaScriptEnabled: false });
+
+    test('form submission without JavaScript redirects to home', async ({ page, request }) => {
+      // Navigate to form page (no JavaScript)
+      await page.goto('/form');
+      await expect(page).toHaveURL('/form');
+
+      // Verify form is visible (SSR content)
+      const form = page.locator('form.contact-form');
+      await expect(form).toBeVisible();
+
+      // Test Server Action endpoint with form-urlencoded data (non-JS form submission)
+      // Playwright follows redirects automatically, so we get 200 (home page) after 302
+      const response = await request.post('/_action/submit-contact', {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Referer': 'http://localhost:3000/form',
+        },
+        data: 'name=Test&email=test@example.com',
+      });
+      // After following redirect, we should get 200 OK from the home page
+      expect(response.status()).toBe(200);
+      // The response URL should be the home page (redirect target)
+      expect(response.url()).toContain('/');
+    });
+  });
+
+
   test('full user flow: counter interaction and navigation', async ({ page }) => {
     // 1. Navigate to home page
     await page.goto('/');

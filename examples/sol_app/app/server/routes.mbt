@@ -140,15 +140,24 @@ async fn api_health(_props : @router.PageProps) -> @core.Any {
 
 ///|
 /// Contact form submission handler
+/// Supports both JSON (JavaScript) and form-urlencoded (no-JS) submissions
 let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(
   async fn(ctx) {
-    // Parse JSON body
-    let body = ctx.body
-    let data : @core.Any = parse_json(body)
+    // Check Content-Type to determine how to parse
+    let content_type = ctx.get_header("Content-Type").unwrap_or("")
+    let is_form = content_type.contains("application/x-www-form-urlencoded")
 
-    // Extract fields
-    let name = get_field(data, "name")
-    let email = get_field(data, "email")
+    // Parse body based on content type
+    let body = ctx.body
+    let (name, email) = if is_form {
+      // Parse URL-encoded form data
+      let data = parse_form_urlencoded(body)
+      (get_field(data, "name"), get_field(data, "email"))
+    } else {
+      // Parse JSON
+      let data : @core.Any = parse_json(body)
+      (get_field(data, "name"), get_field(data, "email"))
+    }
 
     // Validate
     if name == "" {
@@ -162,23 +171,35 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(
     }
 
     // In a real app, you would save to database here
-    // For demo, just return success with the submitted data
-    @action.ActionResult::ok(
-      @sol.json_obj([
-        ("success", @core.any(true)),
-        ("message", @core.any("Form submitted successfully!")),
-        (
-          "data",
-          @sol.json_obj([("name", @core.any(name)), ("email", @core.any(email))]),
-        ),
-      ]),
-    )
+    // For demo, just return success
+
+    // Different response for form vs AJAX
+    if is_form {
+      // Non-JS form submission: HTTP redirect to home page (302)
+      @action.ActionResult::http_redirect("/")
+    } else {
+      // AJAX submission: return JSON
+      @action.ActionResult::ok(
+        @sol.json_obj([
+          ("success", @core.any(true)),
+          ("message", @core.any("Form submitted successfully!")),
+          (
+            "data",
+            @sol.json_obj([("name", @core.any(name)), ("email", @core.any(email))]),
+          ),
+        ]),
+      )
+    }
   },
 )
 
 ///|
 extern "js" fn parse_json(s : String) -> @core.Any =
   #| (s) => { try { return JSON.parse(s); } catch { return {}; } }
+
+///|
+extern "js" fn parse_form_urlencoded(s : String) -> @core.Any =
+  #| (s) => Object.fromEntries(new URLSearchParams(s))
 
 ///|
 extern "js" fn get_field(obj : @core.Any, field : String) -> String =
@@ -188,7 +209,10 @@ extern "js" fn get_field(obj : @core.Any, field : String) -> String =
 /// Create action registry for the application
 pub fn action_registry() -> @action.ActionRegistry {
   @action.ActionRegistry::new(allowed_origins=["http://localhost:3000", "http://localhost:3457"])
-    .register(@action.ActionDef::new("submit-contact", submit_contact_handler))
+    .register(
+      @action.ActionDef::new("submit-contact", submit_contact_handler)
+        .with_require_json(false), // Allow form-urlencoded for progressive enhancement
+    )
 }
 
 ///|

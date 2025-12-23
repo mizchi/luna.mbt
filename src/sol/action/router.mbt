@@ -28,17 +28,15 @@ pub fn register_actions(app : App, registry : ActionRegistry) -> App {
     let allowed_origins = registry.allowed_origins
 
     // Create CSRF middleware for this action
-    let csrf_mw = @middleware.csrf_with_config(
-      @middleware.CsrfConfig::for_origins(allowed_origins)
+    let csrf_config = @middleware.CsrfConfig::for_origins(allowed_origins)
       .with_fetch_metadata(true)
-      .with_content_type(
-        if action.require_json {
-          "application/json"
-        } else {
-          ""
-        },
-      ),
-    )
+    // Only require JSON content-type if action.require_json is true
+    let csrf_mw = if action.require_json {
+      @middleware.csrf_with_config(csrf_config.with_content_type("application/json"))
+    } else {
+      // Allow any content-type (for progressive enhancement with form submissions)
+      @middleware.csrf_with_config(csrf_config)
+    }
 
     // Combine CSRF with action-specific middlewares
     let middlewares : Array[@middleware.Middleware] = [csrf_mw]
@@ -118,8 +116,12 @@ fn action_result_to_response(c : Ctx, result : ActionResult) -> @http.Response {
   match result {
     Success(data) => c.json(data)
     Redirect(url) =>
-      // Return JSON with redirect instruction
+      // Return JSON with redirect instruction (for JavaScript clients)
       c.json(ffi_json_obj1("redirect", url))
+    HttpRedirect(url) =>
+      // Return actual HTTP redirect (302 with Location header)
+      // For non-JavaScript form submissions (progressive enhancement)
+      c.redirect(url)
     ClientError(status, message) => {
       ffi_set_header(c.as_any(), "Content-Type", "application/json")
       ffi_create_response(

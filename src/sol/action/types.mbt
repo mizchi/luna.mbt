@@ -75,8 +75,10 @@ pub fn ActionContext::get_state(self : ActionContext, key : String) -> @js.Any? 
 pub enum ActionResult {
   /// Success with JSON data
   Success(@js.Any)
-  /// Success with redirect
+  /// Success with redirect (returns JSON with redirect instruction for JavaScript clients)
   Redirect(String)
+  /// HTTP redirect (returns 302 status with Location header, for non-JS form submissions)
+  HttpRedirect(String)
   /// Client error (4xx)
   ClientError(Int, String)
   /// Server error (5xx)
@@ -90,9 +92,16 @@ pub fn ActionResult::ok(data : @js.Any) -> ActionResult {
 }
 
 ///|
-/// Create redirect result
+/// Create redirect result (returns JSON for JavaScript clients)
 pub fn ActionResult::redirect(url : String) -> ActionResult {
   Redirect(url)
+}
+
+///|
+/// Create HTTP redirect result (returns 302 with Location header)
+/// Use this for non-JavaScript form submissions (progressive enhancement)
+pub fn ActionResult::http_redirect(url : String) -> ActionResult {
+  HttpRedirect(url)
 }
 
 ///|
