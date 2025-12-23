@@ -19,6 +19,32 @@ test.describe("TodoMVC", () => {
     await input.press("Enter");
   }
 
+  // Helper to edit a todo with proper state synchronization
+  async function editTodo(
+    page: import("@playwright/test").Page,
+    todoItem: import("@playwright/test").Locator,
+    newText: string,
+    confirm: "enter" | "escape" = "enter",
+  ) {
+    const label = todoItem.locator("label");
+    const editInput = todoItem.locator(".edit");
+
+    // Enter edit mode
+    await label.dblclick();
+    await expect(todoItem).toHaveClass(/editing/);
+
+    // Wait for input to be focused and ready
+    await expect(editInput).toBeFocused();
+
+    // Fill and verify the value is set before confirming
+    await editInput.fill(newText);
+    await expect(editInput).toHaveValue(newText);
+
+    // Confirm or cancel
+    await editInput.press(confirm === "enter" ? "Enter" : "Escape");
+    await expect(todoItem).not.toHaveClass(/editing/);
+  }
+
   test("renders the app with empty state", async ({ page }) => {
     // Check title is rendered
     const title = page.locator(".todoapp h1");
@@ -148,39 +174,20 @@ test.describe("TodoMVC", () => {
   test("can edit a todo by double-clicking", async ({ page }) => {
     await addTodo(page, "Original text");
 
-    // Double-click to enter edit mode
     const todoItem = page.locator(".todo-list li").first();
-    const label = todoItem.locator("label");
-    await label.dblclick();
-
-    // Check editing mode is active
-    await expect(todoItem).toHaveClass(/editing/);
-
-    // Find edit input and change text
-    const editInput = todoItem.locator(".edit");
-    await expect(editInput).toBeVisible();
-    await editInput.fill("Updated text");
-    await editInput.press("Enter");
+    await editTodo(page, todoItem, "Updated text", "enter");
 
     // Check todo is updated
-    await expect(todoItem).not.toHaveClass(/editing/);
     await expect(todoItem.locator("label")).toHaveText("Updated text");
   });
 
   test("can cancel editing with Escape", async ({ page }) => {
     await addTodo(page, "Original text");
 
-    // Double-click to enter edit mode
     const todoItem = page.locator(".todo-list li").first();
-    await todoItem.locator("label").dblclick();
+    await editTodo(page, todoItem, "Changed text", "escape");
 
-    // Change text but cancel
-    const editInput = todoItem.locator(".edit");
-    await editInput.fill("Changed text");
-    await editInput.press("Escape");
-
-    // Check todo is NOT updated
-    await expect(todoItem).not.toHaveClass(/editing/);
+    // Check todo is NOT updated (original text preserved)
     await expect(todoItem.locator("label")).toHaveText("Original text");
   });
 
@@ -324,15 +331,15 @@ test.describe("TodoMVC", () => {
 
     // Perform various operations
     await addTodo(page, "Test todo");
-    await page.locator(".todo-list li").first().locator(".toggle").click();
-    await page.locator(".todo-list li label").dblclick();
-    await page.locator(".todo-list li .edit").fill("Updated");
-    await page.locator(".todo-list li .edit").press("Enter");
-    await page.locator(".todo-list li").hover();
-    await page.locator(".todo-list li .destroy").click();
 
-    // Wait for any async errors
-    await page.waitForTimeout(500);
+    const todoItem = page.locator(".todo-list li").first();
+    await todoItem.locator(".toggle").click();
+    await editTodo(page, todoItem, "Updated", "enter");
+    await todoItem.hover();
+    await todoItem.locator(".destroy").click();
+
+    // Verify todo is deleted
+    await expect(page.locator(".todo-list li")).toHaveCount(0);
 
     expect(errors).toEqual([]);
   });
