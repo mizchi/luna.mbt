@@ -279,16 +279,43 @@ fn validate_origin(request : MwRequest, config : CsrfConfig) -> CsrfResult {
 
 ///|
 /// Check if Referer matches any allowed origin
+/// SECURITY: Extract origin from Referer URL and compare exactly
+/// (Previous implementation used has_prefix which was vulnerable to
+///  attacks like http://allowed-origin.attacker.com)
 fn is_referer_allowed(
   referer : String,
   allowed_origins : Array[String],
 ) -> Bool {
-  for origin in allowed_origins {
-    if referer.has_prefix(origin) {
-      return true
-    }
+  // Extract origin from Referer URL
+  // Referer format: scheme://host[:port]/path
+  let referer_origin = extract_origin_from_url(referer)
+  match referer_origin {
+    Some(origin) => allowed_origins.contains(origin)
+    None => false
   }
-  false
+}
+
+///|
+/// Extract origin (scheme://host[:port]) from a URL
+/// Returns None if URL is malformed
+fn extract_origin_from_url(url : String) -> String? {
+  // Find scheme separator
+  let scheme_sep = match url.find("://") {
+    Some(idx) => idx
+    None => return None
+  }
+
+  // Find path separator after scheme
+  let after_scheme = scheme_sep + 3
+  guard after_scheme < url.length() else { return None }
+
+  // Find end of host:port (first "/" after scheme://)
+  let rest = url.unsafe_substring(start=after_scheme, end=url.length())
+  let origin = match rest.find("/") {
+    Some(path_sep) => url.unsafe_substring(start=0, end=after_scheme + path_sep)
+    None => url // No path - entire URL is the origin
+  }
+  Some(origin)
 }
 
 ///|
