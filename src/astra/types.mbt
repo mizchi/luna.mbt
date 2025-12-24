@@ -1,6 +1,27 @@
 // SSG (Static Site Generator) Type Definitions
 
 // =============================================================================
+// Deploy Target
+// =============================================================================
+
+///|
+/// Deploy target for build output
+pub(all) enum DeployTarget {
+  /// Pure static files (default, works with any host)
+  Static
+  /// Cloudflare Workers/Pages (generates _routes.json)
+  Cloudflare
+  /// Node.js server
+  Node
+} derive(Eq, Show)
+
+///|
+/// Default deploy target
+pub fn DeployTarget::default() -> DeployTarget {
+  Static
+}
+
+// =============================================================================
 // Configuration Types
 // =============================================================================
 
@@ -42,6 +63,8 @@ pub(all) struct SsgConfig {
   /// Sanitize HTML content from .html files (default: false)
   /// When true, removes potentially dangerous tags like <script>
   sanitize_html : Bool
+  /// Deploy target (static, cloudflare, node)
+  deploy_target : DeployTarget
 }
 
 // I18nConfig, LocaleConfig are defined in core/ssg
@@ -74,6 +97,7 @@ pub fn SsgConfig::default() -> SsgConfig {
     head_snippets: [],
     body_snippets: [],
     sanitize_html: false,
+    deploy_target: DeployTarget::default(),
   }
 }
 

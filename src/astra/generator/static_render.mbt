@@ -184,6 +184,9 @@ fn generate_site_internal(
 
   // Step 9: Generate client manifest for chunk loading
   generate_client_manifest(ctx)
+
+  // Step 10: Generate Cloudflare _routes.json (if deploy target is Cloudflare)
+  write_routes_json(ctx)
   Ok(())
 }
 

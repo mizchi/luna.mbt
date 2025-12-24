@@ -74,6 +74,10 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
 
   // Parse sanitize HTML option (default: false)
   let sanitize_html = @json_utils.extract_bool(ssg_obj, "sanitizeHtml", false)
+
+  // Parse deploy target (default: static)
+  let deploy_target = parse_deploy_target(ssg_obj)
+
   Some(SsgConfig::{
     docs_dir,
     output_dir,
@@ -92,7 +96,24 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
     head_snippets,
     body_snippets,
     sanitize_html,
+    deploy_target,
   })
+}
+
+///|
+/// Parse deploy target from config
+fn parse_deploy_target(obj : Map[String, Json]) -> DeployTarget {
+  match obj.get("deploy") {
+    Some(String(s)) =>
+      if s == "cloudflare" {
+        Cloudflare
+      } else if s == "node" {
+        Node
+      } else {
+        Static
+      }
+    _ => Static
+  }
 }
 
 ///|

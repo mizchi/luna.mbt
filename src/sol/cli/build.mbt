@@ -211,6 +211,7 @@ fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit 
       head_snippets: entry.head_snippets,
       body_snippets: entry.body_snippets,
       sanitize_html: false,
+      deploy_target: @astra.DeployTarget::default(),
     }
 
     // Generate static site
