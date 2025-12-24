@@ -7,7 +7,6 @@ import(
   "mizchi/js/web/url"
   "mizchi/luna/core/ssg"
   "mizchi/luna/luna"
-  "mizchi/luna/luna/routes"
   "mizchi/luna/platform/server_dom"
   "mizchi/luna/sol/isr"
   "mizchi/luna/sol/middleware"
@@ -21,15 +20,17 @@ pub fn default_root_template() -> String
 
 pub fn has_fragment_header(@hono.Context[Unit, Unit]) -> Bool
 
-pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @luna.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @luna.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
 
-pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @server_dom.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @server_dom.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
 
 pub fn register_sol_routes(@hono.Hono[Unit, Unit], Array[SolRoutes], config? : RouterConfig) -> @hono.Hono[Unit, Unit]
 
 pub fn[E] render_fragment_response(@luna.Node[E], String, Bool) -> String
 
 pub fn send_fragment_response(@hono.Context[Unit, Unit], String) -> @http.Response
+
+pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/luna/core/routes.RouteManifest
 
 // Errors
 

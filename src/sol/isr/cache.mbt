@@ -14,8 +14,8 @@ fn lexicographic_compare(a : String, b : String) -> Int {
   let len_b = b.length()
   let min_len = if len_a < len_b { len_a } else { len_b }
   for i = 0; i < min_len; i = i + 1 {
-    let char_a = a[i]
-    let char_b = b[i]
+    let char_a = a.code_unit_at(i)
+    let char_b = b.code_unit_at(i)
     if char_a < char_b {
       return -1
     }

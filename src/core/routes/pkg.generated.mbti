@@ -1,0 +1,165 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/core/routes"
+
+import(
+  "mizchi/luna/core/env"
+)
+
+// Values
+pub fn filter_by_mode(RouteManifest, RenderMode) -> RouteManifest
+
+pub fn find_route(RouteManifest, String) -> RouteEntry?
+
+pub fn find_static_route(RouteManifest, String) -> StaticRouteEntry?
+
+pub fn get_api_routes(RouteManifest) -> Array[ApiRouteEntry]
+
+pub fn get_dynamic_routes(RouteManifest) -> Array[DynamicRouteEntry]
+
+pub fn get_static_routes(RouteManifest) -> Array[StaticRouteEntry]
+
+pub fn merge_all_manifests(Array[RouteManifest]) -> RouteManifest
+
+pub fn merge_manifests(RouteManifest, RouteManifest) -> RouteManifest
+
+pub fn parse_page_config(String) -> PageConfig?
+
+pub fn[FS : @env.FileSystem] scan_pages_dir(FS, String, String) -> RouteManifest
+
+// Errors
+
+// Types and methods
+pub(all) struct ApiRouteEntry {
+  path : String
+  pattern : String
+  param_names : Array[String]
+  http_method : HttpMethod
+  source : String
+}
+pub fn ApiRouteEntry::new(path~ : String, pattern~ : String, http_method~ : HttpMethod, source~ : String) -> Self
+
+pub(all) struct CatchAllInfo {
+  name : String
+  optional : Bool
+}
+
+pub(all) struct DynamicRouteEntry {
+  path : String
+  pattern : String
+  param_names : Array[String]
+  source : String
+  mode : RenderMode
+  layout : String?
+  catch_all : CatchAllInfo?
+  title : String?
+  islands : Array[String]
+}
+pub fn DynamicRouteEntry::new(path~ : String, pattern~ : String, param_names~ : Array[String], source~ : String, mode~ : RenderMode) -> Self
+
+pub(all) enum FallbackConfig {
+  NotFound(path~ : String)
+  Spa(entry~ : String)
+  SpaPrefix(prefix~ : String, entry~ : String)
+}
+pub fn FallbackConfig::default() -> Self
+pub fn FallbackConfig::is_spa(Self) -> Bool
+pub fn FallbackConfig::spa_entry(Self) -> String?
+pub impl Eq for FallbackConfig
+pub impl Show for FallbackConfig
+
+pub(all) struct FileHandlerConfig {
+  layout : String?
+  islands : Array[String]
+  passthrough : Bool
+}
+pub fn FileHandlerConfig::default() -> Self
+
+pub(all) enum FileType {
+  MoonBit
+  Markdown
+  Mdx
+  Html
+  Unknown
+}
+pub fn FileType::from_extension(String) -> Self
+pub fn FileType::is_page(Self) -> Bool
+pub impl Eq for FileType
+pub impl Show for FileType
+
+pub(all) enum HttpMethod {
+  Get
+  Post
+  Put
+  Delete
+  Patch
+  All
+}
+pub fn HttpMethod::from_string(String) -> Self?
+pub fn HttpMethod::to_string(Self) -> String
+pub impl Eq for HttpMethod
+pub impl Show for HttpMethod
+
+pub(all) struct PageConfig {
+  mode : String?
+  revalidate : Int?
+  title : String?
+  description : String?
+  layout : String?
+  islands : Array[String]
+  generate_params : Bool
+  fallback : Bool
+  extends : String?
+  handlers : Map[String, FileHandlerConfig]
+}
+pub fn PageConfig::default() -> Self
+pub fn PageConfig::is_dynamic(Self) -> Bool
+pub fn PageConfig::is_spa(Self) -> Bool
+pub fn PageConfig::is_static(Self) -> Bool
+pub fn PageConfig::merge(Self, Self) -> Self
+pub fn PageConfig::to_render_mode(Self) -> RenderMode
+
+pub(all) enum RenderMode {
+  Ssr
+  Isr(revalidate~ : Int)
+  Spa
+}
+pub fn RenderMode::default() -> Self
+pub fn RenderMode::requires_server(Self) -> Bool
+pub fn RenderMode::revalidate_seconds(Self) -> Int?
+pub impl Eq for RenderMode
+pub impl Show for RenderMode
+
+pub(all) enum RouteEntry {
+  Static(StaticRouteEntry)
+  Dynamic(DynamicRouteEntry)
+  Api(ApiRouteEntry)
+}
+pub fn RouteEntry::is_api(Self) -> Bool
+pub fn RouteEntry::is_dynamic(Self) -> Bool
+pub fn RouteEntry::is_static(Self) -> Bool
+pub fn RouteEntry::path(Self) -> String
+pub fn RouteEntry::source(Self) -> String
+
+pub(all) struct RouteManifest {
+  routes : Array[RouteEntry]
+  fallback : FallbackConfig
+}
+pub fn RouteManifest::empty() -> Self
+
+pub(all) struct StaticRouteEntry {
+  path : String
+  source : String
+  output : String
+  layout : String?
+  title : String?
+  description : String?
+  islands : Array[String]
+  locale : String
+  generated_params : Array[Map[String, String]]
+}
+pub fn StaticRouteEntry::new(path~ : String, source~ : String, output~ : String) -> Self
+
+// Type aliases
+
+// Traits
+

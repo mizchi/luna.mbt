@@ -31,6 +31,12 @@ pub fn get_sidebar_page_order(Array[@astra.SidebarGroup]) -> Array[String]
 
 pub fn group_pages_by_dir(Array[@astra.PageMeta]) -> Map[String, Array[@astra.PageMeta]]
 
+pub fn manifest_to_page_metas(@mizchi/luna/core/routes.RouteManifest) -> Array[@astra.PageMeta]
+
+pub fn page_meta_to_static_route(@astra.PageMeta) -> @mizchi/luna/core/routes.StaticRouteEntry
+
+pub fn page_metas_to_manifest(Array[@astra.PageMeta], @astra.SsgConfig) -> @mizchi/luna/core/routes.RouteManifest
+
 pub fn render_mobile_sidebar(Array[@astra.SidebarGroup], String) -> @luna.Node[Unit]
 
 pub fn render_sidebar(Array[@astra.SidebarGroup], String) -> @luna.Node[Unit]
@@ -40,6 +46,8 @@ pub fn scan_docs_dir(String, String, i18n? : @ssg.I18nConfig, exclude? : Array[S
 pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(FS, String, String, i18n? : @ssg.I18nConfig, exclude? : Array[String], trailing_slash? : Bool) -> Array[@astra.PageMeta]
 
 pub fn sort_pages(Array[@astra.PageMeta]) -> Array[@astra.PageMeta]
+
+pub fn static_route_to_page_meta(@mizchi/luna/core/routes.StaticRouteEntry) -> @astra.PageMeta
 
 pub fn url_to_output_path(String) -> String
 

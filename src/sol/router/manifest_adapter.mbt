@@ -250,7 +250,7 @@ fn char_at(s : String, idx : Int) -> Char {
   if idx < 0 || idx >= s.length() {
     '\u0000'
   } else {
-    let code : Int = s[idx].to_int()
+    let code = s.code_unit_at(idx).to_int()
     code.unsafe_to_char()
   }
 }
