@@ -272,6 +272,9 @@ dev-doc: build-moon
 
 # docs ビルド
 build-doc: build-moon
+    @echo "Linting docs..."
+    -node target/js/release/build/astra/cli/cli.js lint
+    @echo ""
     @echo "Building demo..."
     pnpm vite build
     # Move demo-src contents up one level (vite outputs with demo-src/ prefix)
@@ -280,6 +283,10 @@ build-doc: build-moon
     @echo "Building docs..."
     node target/js/release/build/astra/cli/cli.js build
     @echo "✓ Documentation built in dist/"
+
+# docs lint のみ
+lint-doc: build-moon
+    node target/js/release/build/astra/cli/cli.js lint
 
 # docs プレビュー
 preview-doc:
