@@ -100,11 +100,16 @@ html:active-view-transition-type(backwards) {
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   color: var(--text-color);
   background: var(--bg-color);
   line-height: 1.6;
+  min-width: 320px;
 }
 
 /* Navigation */
@@ -125,11 +130,11 @@ body {
   align-items: center;
 }
 
-.nav-home { text-decoration: none; font-weight: 600; color: var(--text-color); }
+.nav-home { text-decoration: none; font-weight: 600; color: var(--text-color); flex-shrink: 0; }
 .nav-logo { height: 32px; }
 .nav-title { font-size: 1.25rem; }
-.nav-links { display: flex; gap: 1.5rem; align-items: center; }
-.nav-link { color: var(--text-color); text-decoration: none; }
+.nav-links { display: flex; gap: 1.5rem; align-items: center; flex-shrink: 0; }
+.nav-link { color: var(--text-color); text-decoration: none; white-space: nowrap; }
 .nav-link:hover { color: var(--primary-color); }
 
 /* Language Switcher */
@@ -589,4 +594,19 @@ a { color: var(--primary-color); }
   .mobile-sidebar { display: block; }
   .toc { display: none; }
   .doc-main { margin-left: 0; margin-right: 0; max-width: none; }
+}
+
+@media (max-width: 768px) {
+  .nav-bar { padding: 0.5rem 1rem; }
+  .nav-links { gap: 0.75rem; }
+  .nav-link { display: none; }
+  .lang-switcher { margin-left: 0; }
+  .doc-main { padding: 1rem; }
+  .home-content { padding: 2rem 1rem; }
+}
+
+@media (max-width: 480px) {
+  .nav-title { font-size: 1rem; }
+  .social-links { gap: 0.25rem; }
+  .theme-toggle { width: 32px; height: 32px; }
 }
