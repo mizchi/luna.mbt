@@ -6,10 +6,16 @@
   "main": "./dist/loader.js",
   "exports": {
     ".": "./dist/loader.js",
+    "./boot": "./dist/boot/index.js",
+    "./boot/loader": "./dist/boot/loader.js",
+    "./boot/router": "./dist/boot/router.js",
     "./wc": "./dist/wc-loader.js",
     "./sol-nav": "./dist/sol-nav.js",
     "./lib": "./dist/lib.js",
     "./src/loader": "./src/loader.ts",
+    "./src/boot": "./src/boot/index.ts",
+    "./src/boot/loader": "./src/boot/loader.ts",
+    "./src/boot/router": "./src/boot/router.ts",
     "./src/wc-loader": "./src/wc-loader.ts",
     "./src/sol-nav": "./src/sol-nav.ts",
     "./src/lib": "./src/lib.ts"

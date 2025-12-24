@@ -23,7 +23,7 @@ pub fn RouteManifest::empty() -> RouteManifest {
 }
 
 ///|
-/// A single route entry - can be static, dynamic, or API
+/// A single route entry - can be static, dynamic, API, or component
 pub(all) enum RouteEntry {
   /// Static page (HTML generated at build time)
   Static(StaticRouteEntry)
@@ -31,6 +31,8 @@ pub(all) enum RouteEntry {
   Dynamic(DynamicRouteEntry)
   /// API endpoint
   Api(ApiRouteEntry)
+  /// SSR Component (moon.pkg.json directory with client/server)
+  Component(ComponentRouteEntry)
 }
 
 // =============================================================================
@@ -169,6 +171,104 @@ pub fn ApiRouteEntry::new(
 }
 
 // =============================================================================
+// Component Route (SSR + Hydration)
+// =============================================================================
+
+///|
+/// Component type based on directory structure
+pub(all) enum ComponentType {
+  /// client/ + server/ → SSR + Hydration
+  SsrComponent
+  /// client/ only → Hydration only (no server-side HTML)
+  ClientOnlyComponent
+  /// server/ only → SSR only (no hydration)
+  ServerOnlyComponent
+} derive(Show)
+
+///|
+/// A component route entry for moon.pkg.json directories
+pub(all) struct ComponentRouteEntry {
+  /// URL path (e.g., "/counter")
+  path : String
+  /// Source directory path relative to pages (e.g., "counter/")
+  source : String
+  /// Component type (SSR, client-only, server-only)
+  component_type : ComponentType
+  /// Rendering mode
+  mode : RenderMode
+  /// Layout identifier
+  layout : String?
+  /// Props type name (e.g., "CounterProps")
+  props_type : String?
+  /// Client export function name (e.g., "counter")
+  client_export : String?
+  /// Server export function name (e.g., "render_ssr")
+  server_export : String?
+  /// Pre-generated static paths from staticParams
+  static_paths : Array[StaticPathEntry]
+  /// Islands to hydrate
+  islands : Array[String]
+}
+
+///|
+/// A static path entry generated from staticParams
+pub(all) struct StaticPathEntry {
+  /// Parameter values (e.g., {"id": "1", "name": "foo"})
+  params : Map[String, String]
+  /// Output file path (e.g., "counter/1/index.html")
+  output : String
+}
+
+///|
+/// Create a component route entry
+pub fn ComponentRouteEntry::new(
+  path~ : String,
+  source~ : String,
+  component_type~ : ComponentType,
+  mode~ : RenderMode,
+) -> ComponentRouteEntry {
+  {
+    path,
+    source,
+    component_type,
+    mode,
+    layout: None,
+    props_type: None,
+    client_export: None,
+    server_export: None,
+    static_paths: [],
+    islands: [],
+  }
+}
+
+///|
+/// Create a static path entry
+pub fn StaticPathEntry::new(
+  params~ : Map[String, String],
+  output~ : String,
+) -> StaticPathEntry {
+  { params, output }
+}
+
+///|
+/// Check if this component can be server-rendered
+pub fn ComponentType::can_ssr(self : ComponentType) -> Bool {
+  match self {
+    SsrComponent | ServerOnlyComponent => true
+    ClientOnlyComponent => false
+  }
+}
+
+///|
+/// Check if this component can be hydrated
+pub fn ComponentType::can_hydrate(self : ComponentType) -> Bool {
+  match self {
+    SsrComponent | ClientOnlyComponent => true
+    ServerOnlyComponent => false
+  }
+}
+
+// =============================================================================
 // Helper Functions
 // =============================================================================
 
@@ -179,6 +279,7 @@ pub fn RouteEntry::path(self : RouteEntry) -> String {
     Static(r) => r.path
     Dynamic(r) => r.path
     Api(r) => r.path
+    Component(r) => r.path
   }
 }
 
@@ -189,6 +290,7 @@ pub fn RouteEntry::source(self : RouteEntry) -> String {
     Static(r) => r.source
     Dynamic(r) => r.source
     Api(r) => r.source
+    Component(r) => r.source
   }
 }
 
@@ -215,6 +317,15 @@ pub fn RouteEntry::is_dynamic(self : RouteEntry) -> Bool {
 pub fn RouteEntry::is_api(self : RouteEntry) -> Bool {
   match self {
     Api(_) => true
+    _ => false
+  }
+}
+
+///|
+/// Check if this is a component route
+pub fn RouteEntry::is_component(self : RouteEntry) -> Bool {
+  match self {
+    Component(_) => true
     _ => false
   }
 }

@@ -99,9 +99,13 @@ async fn handle_init(data : WorkerInitData) -> Unit {
   let highlighter = @shiki.create_default_highlighter().wait()
 
   // Store context
-  worker_ctx.val = Some(
-    WorkerContext::{ config: cfg, pages, sidebar, cwd: data.cwd, highlighter },
-  )
+  worker_ctx.val = Some(WorkerContext::{
+    config: cfg,
+    pages,
+    sidebar,
+    cwd: data.cwd,
+    highlighter,
+  })
 
   // Notify parent we're ready
   send_ready()
@@ -117,17 +121,14 @@ fn handle_job(page_index : Int) -> Unit {
 
   // Validate page index
   if page_index < 0 || page_index >= ctx.pages.length() {
-    send_done(
-      JobResult::{
-        page_index,
-        url_path: "",
-        success: false,
-        error: Some("Invalid page index: \{page_index}"),
-      },
-    )
+    send_done(JobResult::{
+      page_index,
+      url_path: "",
+      success: false,
+      error: Some("Invalid page index: \{page_index}"),
+    })
     return
   }
-
   let page = ctx.pages[page_index]
 
   // Create build context
@@ -141,18 +142,19 @@ fn handle_job(page_index : Int) -> Unit {
   // Generate the page
   match @generator.generate_single_page(build_ctx, page, ctx.highlighter) {
     Ok(_) =>
-      send_done(
-        JobResult::{ page_index, url_path: page.url_path, success: true, error: None },
-      )
+      send_done(JobResult::{
+        page_index,
+        url_path: page.url_path,
+        success: true,
+        error: None,
+      })
     Err(e) =>
-      send_done(
-        JobResult::{
-          page_index,
-          url_path: page.url_path,
-          success: false,
-          error: Some(e),
-        },
-      )
+      send_done(JobResult::{
+        page_index,
+        url_path: page.url_path,
+        success: false,
+        error: Some(e),
+      })
   }
 }
 
@@ -176,7 +178,12 @@ async fn handle_message_async(msg : @core.Any) -> Unit {
       let pages_json : String = msg["pagesJson"].cast()
       let sidebar_json : String = msg["sidebarJson"].cast()
       let cwd : String = msg["cwd"].cast()
-      let init_data = WorkerInitData::{ config_json, pages_json, sidebar_json, cwd }
+      let init_data = WorkerInitData::{
+        config_json,
+        pages_json,
+        sidebar_json,
+        cwd,
+      }
       handle_init(init_data)
     }
     "job" => {
@@ -199,5 +206,6 @@ pub fn start_worker() -> Unit {
   ffi_on_message(fn(msg) {
     // Handle message - spawn async task using Promise
     let _ = @core.from_async(async fn() { handle_message_async(msg) })
+
   })
 }

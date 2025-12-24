@@ -316,7 +316,6 @@ pub fn check_duplicate_pages(
       duplicates.push(DuplicatePage::{ url_path: url, sources })
     }
   }
-
   duplicates
 }
 

@@ -76,7 +76,10 @@ fn BuilderPool::spawn_worker(self : BuilderPool) -> Unit {
   )
 
   // Create worker handle (starts as Initializing, becomes Idle when ready)
-  let handle = WorkerHandle::{ process: child, state: WorkerState::Initializing }
+  let handle = WorkerHandle::{
+    process: child,
+    state: WorkerState::Initializing,
+  }
   let worker_id = self.workers.length()
   self.workers.push(handle)
 
@@ -128,7 +131,6 @@ fn BuilderPool::handle_worker_message(
     println("  Warning: Invalid message from worker \{worker_id}")
     return
   }
-
   match worker_msg {
     Ready => {
       // Worker is ready - assign pending job if any
@@ -292,6 +294,8 @@ pub async fn run_parallel_build(
     }
   }
   let fail_count = results.length() - success_count
-  println("Parallel build complete: \{success_count} succeeded, \{fail_count} failed")
+  println(
+    "Parallel build complete: \{success_count} succeeded, \{fail_count} failed",
+  )
   results
 }

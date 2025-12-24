@@ -147,7 +147,10 @@ pub fn file_to_url_path(
   trailing_slash? : Bool = true,
 ) -> String {
   let stripped = strip_numeric_prefixes(file_path)
-  let path = stripped.replace(old=".md", new="").replace(old="\\", new="/")
+  let path = stripped
+    .replace(old=".md", new="")
+    .replace(old=".html", new="")
+    .replace(old="\\", new="/")
   if path.has_suffix("/index") {
     let trimmed = slice_to(path, path.length() - 6)
     if trimmed.is_empty() {

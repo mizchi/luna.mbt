@@ -243,6 +243,8 @@ async fn run_parallel_build_internal(
   // Step 9: Generate 404 page
   @astra_gen.generate_404_page(ctx)
 
+  // Step 10: Generate client manifest for chunk loading
+  @astra_gen.generate_client_manifest(ctx)
   Ok(())
 }
 

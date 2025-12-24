@@ -110,7 +110,10 @@ fn write_nav_item(item : @astra.NavItem, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_sidebar_config(config : @astra.SidebarConfig, buf : StringBuilder) -> Unit {
+fn write_sidebar_config(
+  config : @astra.SidebarConfig,
+  buf : StringBuilder,
+) -> Unit {
   match config {
     @astra.SidebarConfig::Auto => buf.write_string("\"auto\"")
     @astra.SidebarConfig::Manual(groups) => {
@@ -127,7 +130,10 @@ fn write_sidebar_config(config : @astra.SidebarConfig, buf : StringBuilder) -> U
 }
 
 ///|
-fn write_sidebar_group(group : @astra.SidebarGroup, buf : StringBuilder) -> Unit {
+fn write_sidebar_group(
+  group : @astra.SidebarGroup,
+  buf : StringBuilder,
+) -> Unit {
   buf.write_string("{\"text\":\"")
   write_escaped_string(group.text, buf)
   buf.write_string("\"")
@@ -170,7 +176,10 @@ fn write_sidebar_item(item : @astra.SidebarItem, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_islands_config(config : @astra.IslandsConfig?, buf : StringBuilder) -> Unit {
+fn write_islands_config(
+  config : @astra.IslandsConfig?,
+  buf : StringBuilder,
+) -> Unit {
   match config {
     Some(c) => {
       buf.write_string("{\"dir\":\"")
@@ -237,7 +246,10 @@ fn write_theme_config(config : @astra.ThemeConfig, buf : StringBuilder) -> Unit 
 }
 
 ///|
-fn write_footer_config(config : @astra.FooterConfig, buf : StringBuilder) -> Unit {
+fn write_footer_config(
+  config : @astra.FooterConfig,
+  buf : StringBuilder,
+) -> Unit {
   buf.write_string("{")
   let mut first = true
   match config.message {
@@ -288,7 +300,10 @@ fn write_footer_config(config : @astra.FooterConfig, buf : StringBuilder) -> Uni
 }
 
 ///|
-fn write_navigation_config(config : @ssg.NavigationConfig, buf : StringBuilder) -> Unit {
+fn write_navigation_config(
+  config : @ssg.NavigationConfig,
+  buf : StringBuilder,
+) -> Unit {
   buf.write_string("{\"spa\":")
   buf.write_string(if config.spa { "true" } else { "false" })
   buf.write_string(",\"viewTransitions\":")
@@ -449,27 +464,25 @@ fn parse_ssg_config_obj(obj : Map[String, Json]) -> @astra.SsgConfig? {
     Some(Object(ogp_obj)) => parse_ogp_config(ogp_obj)
     _ => @astra.OgpConfig::default()
   }
-  Some(
-    @astra.SsgConfig::{
-      docs_dir,
-      output_dir,
-      title,
-      base_url,
-      nav,
-      sidebar,
-      islands,
-      theme,
-      navigation,
-      i18n,
-      exclude,
-      trailing_slash,
-      ogp,
-      ogp_text: None,
-      head_snippets: [],
-      body_snippets: [],
-      sanitize_html: false,
-    },
-  )
+  Some(@astra.SsgConfig::{
+    docs_dir,
+    output_dir,
+    title,
+    base_url,
+    nav,
+    sidebar,
+    islands,
+    theme,
+    navigation,
+    i18n,
+    exclude,
+    trailing_slash,
+    ogp,
+    ogp_text: None,
+    head_snippets: [],
+    body_snippets: [],
+    sanitize_html: false,
+  })
 }
 
 ///|
@@ -899,18 +912,16 @@ fn parse_page_meta(json : Json) -> @astra.PageMeta? {
     Some(String(sk)) => sk
     _ => source_path
   }
-  Some(
-    @astra.PageMeta::{
-      source_path,
-      url_path,
-      content_type: @astra.Markdown,
-      frontmatter,
-      last_modified,
-      locale,
-      canonical_path,
-      sort_key,
-    },
-  )
+  Some(@astra.PageMeta::{
+    source_path,
+    url_path,
+    content_type: @astra.Markdown,
+    frontmatter,
+    last_modified,
+    locale,
+    canonical_path,
+    sort_key,
+  })
 }
 
 ///|

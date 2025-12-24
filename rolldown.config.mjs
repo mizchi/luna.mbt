@@ -8,6 +8,10 @@ export default defineConfig([
       'wc-loader': './js/loader/src/wc-loader.ts',
       'sol-nav': './js/loader/src/sol-nav.ts',
       'lib': './js/loader/src/lib.ts',
+      // Boot runtime (chunk loader + minimal router)
+      'boot/index': './js/loader/src/boot/index.ts',
+      'boot/loader': './js/loader/src/boot/loader.ts',
+      'boot/router': './js/loader/src/boot/router.ts',
     },
     output: {
       dir: './js/loader/dist',
@@ -41,5 +45,15 @@ export default defineConfig([
       format: 'iife',
     },
     minify: false, // Keep readable for debugging
+  },
+  // Boot runtime IIFE (self-contained, for static sites)
+  {
+    input: './js/loader/src/boot/index.ts',
+    output: {
+      file: './js/loader/dist/boot.iife.js',
+      format: 'iife',
+      name: 'LunaBoot',
+    },
+    minify: true,
   },
 ]);

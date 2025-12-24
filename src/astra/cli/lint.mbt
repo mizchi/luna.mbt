@@ -43,7 +43,6 @@ pub fn run_lint_command(args : Array[String]) -> Unit {
   // Load config
   let cwd = @process.cwd()
   let config = load_config(cwd)
-
   println(@colorette.cyan("Linting documentation..."))
   println("")
 
@@ -130,7 +129,14 @@ pub fn lint_docs(config : @astra.SsgConfig, cwd : String) -> LintResult {
 
     // Check links - pass source_path to determine if it's an index page
     let is_index = page.source_path.has_suffix("index.md")
-    check_links(page.source_path, page.url_path, is_index, nodes, valid_urls, issues)
+    check_links(
+      page.source_path,
+      page.url_path,
+      is_index,
+      nodes,
+      valid_urls,
+      issues,
+    )
 
     // Check images
     check_images(page.source_path, nodes, issues)
@@ -146,13 +152,7 @@ pub fn lint_docs(config : @astra.SsgConfig, cwd : String) -> LintResult {
       Info => ()
     }
   }
-
-  LintResult::{
-    issues,
-    files_checked: pages.length(),
-    errors,
-    warnings,
-  }
+  LintResult::{ issues, files_checked: pages.length(), errors, warnings }
 }
 
 ///|
@@ -286,11 +286,7 @@ fn is_internal_link(href : String) -> Bool {
 /// Resolve relative link to absolute path
 /// - For index pages: use standard browser behavior (./foo = child)
 /// - For content pages: use sibling behavior (./foo = sibling in parent dir)
-fn resolve_link(
-  current_url : String,
-  href : String,
-  is_index : Bool,
-) -> String {
+fn resolve_link(current_url : String, href : String, is_index : Bool) -> String {
   // Already absolute
   if href.has_prefix("/") {
     return normalize_url(href)
@@ -298,7 +294,7 @@ fn resolve_link(
 
   // Handle ./ prefix
   let clean_href = if href.has_prefix("./") {
-    let slice_result : String = (href[2:]).to_string() catch { _ => href }
+    let slice_result : String = href[2:].to_string() catch { _ => href }
     slice_result
   } else {
     href
@@ -313,7 +309,6 @@ fn resolve_link(
     // Content page: /luna/tutorial-js/introduction_basics/ -> parent /luna/tutorial-js/
     get_parent_directory(current_url)
   }
-
   normalize_url(base + clean_href)
 }
 
@@ -323,7 +318,7 @@ fn resolve_link(
 fn get_parent_directory(url_path : String) -> String {
   // Remove trailing slash if present
   let trimmed = if url_path.has_suffix("/") {
-    let slice_result : String = (url_path[:url_path.length() - 1]).to_string() catch {
+    let slice_result : String = url_path[:url_path.length() - 1].to_string() catch {
       _ => url_path
     }
     slice_result
@@ -339,7 +334,6 @@ fn get_parent_directory(url_path : String) -> String {
       last_slash = i
     }
   }
-
   if last_slash > 0 {
     String::from_array(chars[:last_slash + 1].to_array())
   } else {
@@ -363,7 +357,6 @@ fn normalize_url(url : String) -> String {
   if not(result.has_suffix("/")) && not(has_extension(result)) {
     result = result + "/"
   }
-
   result
 }
 
@@ -406,7 +399,6 @@ fn is_valid_internal_link(url : String, valid_urls : Map[String, Bool]) -> Bool 
       return true
     }
   }
-
   false
 }
 
@@ -429,7 +421,7 @@ fn check_images_recursive(
 ) -> Unit {
   for node in nodes {
     match node {
-      @astra.MdNode::Image(src~, alt~, ..) => {
+      @astra.MdNode::Image(src~, alt~, ..) =>
         if alt.is_empty() {
           issues.push(LintIssue::{
             severity: Warning,
@@ -439,7 +431,6 @@ fn check_images_recursive(
             rule: "missing-alt",
           })
         }
-      }
       @astra.MdNode::Paragraph(children~) =>
         check_images_recursive(file, children, issues)
       @astra.MdNode::Heading(children~, ..) =>

@@ -7,10 +7,9 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
     @luna.Text(content) => doc.createTextNode(content).as_node()
-    @luna.RawHtml(html) => {
+    @luna.RawHtml(html) =>
       // Create a template element and parse the HTML using JS
       parse_html_to_node(html)
-    }
     @luna.DynamicText(getter) => {
       let text_node = doc.createTextNode(getter())
       let node_ref = text_node.as_node()

@@ -142,3 +142,96 @@ test "scan_docs_dir_with_fs - numeric prefix sorting" {
   inspect(sorted[1].url_path, content="/second/")
   inspect(sorted[2].url_path, content="/tenth/")
 }
+
+///|
+test "scan_docs_dir_with_fs - html file" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  fs.memfs().mkdirSync("/project/docs", recursive=true)
+  let html_content = "<h1>Hello World</h1><p>This is raw HTML</p>"
+  fs.memfs().writeFileSync("/project/docs/custom.html", html_content)
+  let pages = scan_docs_dir_with_fs(fs, "docs", "/project")
+  inspect(pages.length(), content="1")
+  inspect(pages[0].url_path, content="/custom/")
+  inspect(pages[0].content_type, content="Html")
+}
+
+///|
+test "scan_docs_dir_with_fs - mixed md and html files" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  fs.memfs().mkdirSync("/project/docs", recursive=true)
+  let md_content =
+    #|---
+    #|title: Markdown Page
+    #|---
+    #|# Hello
+    #|
+  let html_content = "<h1>HTML Page</h1>"
+  fs.memfs().writeFileSync("/project/docs/page1.md", md_content)
+  fs.memfs().writeFileSync("/project/docs/page2.html", html_content)
+  let pages = scan_docs_dir_with_fs(fs, "docs", "/project")
+  inspect(pages.length(), content="2")
+  let md_page = pages
+    .iter()
+    .find_first(fn(p) { p.content_type == @astra.Markdown })
+  let html_page = pages
+    .iter()
+    .find_first(fn(p) { p.content_type == @astra.Html })
+  inspect(md_page.unwrap().url_path, content="/page1/")
+  inspect(html_page.unwrap().url_path, content="/page2/")
+}
+
+///|
+test "check_duplicate_pages - no duplicates" {
+  let pages : Array[@astra.PageMeta] = [
+    @astra.PageMeta::new("intro.md", "/intro/", sort_key="intro.md"),
+    @astra.PageMeta::new("guide.md", "/guide/", sort_key="guide.md"),
+  ]
+  let duplicates = check_duplicate_pages(pages)
+  inspect(duplicates.length(), content="0")
+}
+
+///|
+test "check_duplicate_pages - detects duplicates" {
+  let pages : Array[@astra.PageMeta] = [
+    @astra.PageMeta::new("index.md", "/", sort_key="index.md"),
+    @astra.PageMeta::new("index.html", "/", sort_key="index.html"),
+  ]
+  let duplicates = check_duplicate_pages(pages)
+  inspect(duplicates.length(), content="1")
+  inspect(duplicates[0].url_path, content="/")
+  inspect(duplicates[0].sources.length(), content="2")
+}
+
+///|
+test "check_duplicate_pages - multiple duplicates in subdirs" {
+  let pages : Array[@astra.PageMeta] = [
+    @astra.PageMeta::new("guide/index.md", "/guide/", sort_key="guide/index.md"),
+    @astra.PageMeta::new(
+      "guide/index.html",
+      "/guide/",
+      sort_key="guide/index.html",
+    ),
+    @astra.PageMeta::new("about/index.md", "/about/", sort_key="about/index.md"),
+    @astra.PageMeta::new(
+      "about/index.html",
+      "/about/",
+      sort_key="about/index.html",
+    ),
+    @astra.PageMeta::new("unique.md", "/unique/", sort_key="unique.md"),
+  ]
+  let duplicates = check_duplicate_pages(pages)
+  inspect(duplicates.length(), content="2")
+}
+
+///|
+test "format_duplicate_error" {
+  let dup = DuplicatePage::{
+    url_path: "/guide/",
+    sources: ["guide/index.md", "guide/index.html"],
+  }
+  let msg = format_duplicate_error(dup)
+  inspect(
+    msg,
+    content="Duplicate content for URL '/guide/': [guide/index.md, guide/index.html]",
+  )
+}

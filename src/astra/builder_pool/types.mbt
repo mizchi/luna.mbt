@@ -22,12 +22,7 @@ pub(all) struct PoolConfig {
 ///|
 /// Default pool configuration
 pub fn PoolConfig::default(worker_script : String, cwd : String) -> PoolConfig {
-  PoolConfig::{
-    num_workers: 4,
-    worker_script,
-    cwd,
-    timeout_ms: 60000,
-  }
+  PoolConfig::{ num_workers: 4, worker_script, cwd, timeout_ms: 60000 }
 }
 
 // =============================================================================
@@ -127,9 +122,7 @@ pub fn ParentMessage::to_json(self : ParentMessage) -> @core.Any {
       obj["type"] = @core.any("job")
       obj["pageIndex"] = @core.any(page_index)
     }
-    Shutdown => {
-      obj["type"] = @core.any("shutdown")
-    }
+    Shutdown => obj["type"] = @core.any("shutdown")
   }
   obj
 }

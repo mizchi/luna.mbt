@@ -41,66 +41,65 @@ fn collect_routes(
         }
 
         // Create dynamic route entry
-        let entry = @core_routes.RouteEntry::Dynamic(
-          @core_routes.DynamicRouteEntry::{
-            path: full_path,
-            pattern,
-            param_names,
-            source: full_path, // For Sol, source is the path
-            mode,
-            layout: None,
-            catch_all,
-            title: Some(title),
-            islands: [],
-          },
-        )
+        let entry = @core_routes.RouteEntry::Dynamic(@core_routes.DynamicRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          source: full_path, // For Sol, source is the path
+          mode,
+          layout: None,
+          catch_all,
+          title: Some(title),
+          islands: [],
+        })
         result.push(entry)
 
         // Suppress unused warnings
         let _ = handler
         let _ = meta
         let _ = cache
+
       }
       Layout(segment~, layout~, children~) => {
         // Recurse into children with updated base path
         let new_base = manifest_normalize_path(base + segment)
         collect_routes(children, new_base, result)
         let _ = layout
+
       }
       Get(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
         let (pattern, param_names) = extract_route_pattern(full_path)
-        let entry = @core_routes.RouteEntry::Api(
-          @core_routes.ApiRouteEntry::{
-            path: full_path,
-            pattern,
-            param_names,
-            http_method: @core_routes.HttpMethod::Get,
-            source: full_path,
-          },
-        )
+        let entry = @core_routes.RouteEntry::Api(@core_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @core_routes.HttpMethod::Get,
+          source: full_path,
+        })
         result.push(entry)
         let _ = handler
+
       }
       Post(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
         let (pattern, param_names) = extract_route_pattern(full_path)
-        let entry = @core_routes.RouteEntry::Api(
-          @core_routes.ApiRouteEntry::{
-            path: full_path,
-            pattern,
-            param_names,
-            http_method: @core_routes.HttpMethod::Post,
-            source: full_path,
-          },
-        )
+        let entry = @core_routes.RouteEntry::Api(@core_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @core_routes.HttpMethod::Post,
+          source: full_path,
+        })
         result.push(entry)
         let _ = handler
+
       }
       WithMiddleware(middleware~, children~) => {
         // Middleware doesn't affect manifest, just recurse
         collect_routes(children, base, result)
         let _ = middleware
+
       }
     }
   }
@@ -128,13 +127,10 @@ fn extract_route_pattern(path : String) -> (String, Array[String]) {
   let param_names : Array[String] = []
   let pattern = StringBuilder::new()
   pattern.write_string("^")
-
   let mut i = 0
   let len = path.length()
-
   while i < len {
     let ch = char_at(path, i)
-
     if ch == ':' {
       // Named parameter :name
       let param_start = i + 1
@@ -171,7 +167,6 @@ fn extract_route_pattern(path : String) -> (String, Array[String]) {
       i = i + 1
     }
   }
-
   pattern.write_char('$')
   (pattern.to_string(), param_names)
 }
@@ -231,7 +226,6 @@ fn parse_bracket_param(path : String, start : Int) -> (Int, String, Bool) {
 
   // Suppress unused
   let _ = is_optional
-
   (i, param_name, is_catch_all)
 }
 

@@ -132,10 +132,9 @@ fn template_index_md(project_name : String, title : String) -> String {
     #|## Getting Started
     #|
     #|Check out the [Introduction](./introduction/) to learn more.
-  tmpl.replace_all(old="{{TITLE}}", new=title).replace_all(
-    old="{{PROJECT_NAME}}",
-    new=project_name,
-  )
+  tmpl
+  .replace_all(old="{{TITLE}}", new=title)
+  .replace_all(old="{{PROJECT_NAME}}", new=project_name)
 }
 
 ///|
@@ -222,10 +221,9 @@ fn template_readme_md(project_name : String, title : String) -> String {
     #|    00_*/         # Sections (sorted by prefix)
     #|  dist-docs/      # Generated static site
     #|```
-  tmpl.replace_all(old="{{TITLE}}", new=title).replace_all(
-    old="{{PROJECT_NAME}}",
-    new=project_name,
-  )
+  tmpl
+  .replace_all(old="{{TITLE}}", new=title)
+  .replace_all(old="{{PROJECT_NAME}}", new=project_name)
 }
 
 ///|

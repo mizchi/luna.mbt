@@ -38,20 +38,12 @@ fn[FS : @env.FileSystem] scan_recursive(
   routes : Array[RouteEntry],
 ) -> Unit {
   // Read directory entries
-  let entries : Array[String] = try {
-    fs.readdir_sync(abs_path)
-  } catch {
-    _ => []
-  }
+  let entries : Array[String] = fs.readdir_sync(abs_path) catch { _ => [] }
 
   // Load page.json if exists
   let page_json_path = join_path(abs_path, "page.json")
   let config = if fs.exists_sync(page_json_path) {
-    let content : String = try {
-      fs.read_file_sync(page_json_path)
-    } catch {
-      _ => ""
-    }
+    let content : String = fs.read_file_sync(page_json_path) catch { _ => "" }
     match parse_page_config(content) {
       Some(cfg) => PageConfig::merge(parent_config, cfg)
       None => parent_config
@@ -63,25 +55,176 @@ fn[FS : @env.FileSystem] scan_recursive(
   // Process entries
   for entry in entries {
     let entry_path = join_path(abs_path, entry)
-    let entry_rel = if rel_path.is_empty() { entry } else { rel_path + "/" + entry }
-
+    let entry_rel = if rel_path.is_empty() {
+      entry
+    } else {
+      rel_path + "/" + entry
+    }
     if is_directory(fs, entry_path) {
-      // Check if it's a dynamic segment
-      match extract_param_name(entry) {
-        Some(param) => {
-          // Dynamic or catch-all route
-          scan_dynamic_dir(fs, entry_path, pages_dir, entry_rel, param, config, routes)
-        }
-        None => {
-          // Regular directory
-          scan_recursive(fs, entry_path, pages_dir, entry_rel, config, routes)
+      // Check if it's a component directory (has moon.pkg.json)
+      let moon_pkg_path = join_path(entry_path, "moon.pkg.json")
+      if fs.exists_sync(moon_pkg_path) {
+        // Component directory - process as component
+        process_component_dir(fs, entry_path, pages_dir, entry_rel, config, routes)
+      } else {
+        // Check if it's a dynamic segment
+        match extract_param_name(entry) {
+          Some(param) =>
+            // Dynamic or catch-all route
+            scan_dynamic_dir(
+              fs, entry_path, pages_dir, entry_rel, param, config, routes,
+            )
+          None =>
+            // Regular directory
+            scan_recursive(fs, entry_path, pages_dir, entry_rel, config, routes)
         }
       }
     } else {
       // Regular file
-      process_page_file(fs, entry_path, pages_dir, entry_rel, entry, config, routes)
+      process_page_file(
+        fs, entry_path, pages_dir, entry_rel, entry, config, routes,
+      )
     }
   }
+}
+
+// =============================================================================
+// Component Directory Processing
+// =============================================================================
+
+///|
+/// Process a component directory (moon.pkg.json with optional client/server)
+fn[FS : @env.FileSystem] process_component_dir(
+  fs : FS,
+  abs_path : String,
+  _pages_dir : String,
+  rel_path : String,
+  parent_config : PageConfig,
+  routes : Array[RouteEntry],
+) -> Unit {
+  // Load page.json if exists
+  let page_json_path = join_path(abs_path, "page.json")
+  let config = if fs.exists_sync(page_json_path) {
+    let content : String = fs.read_file_sync(page_json_path) catch { _ => "" }
+    match parse_page_config(content) {
+      Some(cfg) => PageConfig::merge(parent_config, cfg)
+      None => parent_config
+    }
+  } else {
+    parent_config
+  }
+
+  // Detect component type by checking for client/ and server/ directories
+  let client_path = join_path(abs_path, "client")
+  let server_path = join_path(abs_path, "server")
+  let has_client = fs.exists_sync(client_path) && is_directory(fs, client_path)
+  let has_server = fs.exists_sync(server_path) && is_directory(fs, server_path)
+
+  let component_type = detect_component_type(has_client, has_server)
+
+  // Build URL path from relative path
+  let url_path = "/" + rel_path
+
+  // Get component configuration from page.json
+  let (props_type, client_export, server_export) = match config.component {
+    Some(comp) => (comp.props_type, comp.client_export, comp.server_export)
+    None => (None, None, None)
+  }
+
+  // Build static paths from staticParams
+  let static_paths = build_static_paths(rel_path, config.static_params)
+
+  // Determine render mode
+  let mode = config.to_render_mode()
+
+  // Create component route entry
+  let entry = RouteEntry::Component(ComponentRouteEntry::{
+    path: url_path,
+    source: rel_path + "/",
+    component_type,
+    mode,
+    layout: config.layout,
+    props_type,
+    client_export,
+    server_export,
+    static_paths,
+    islands: config.islands,
+  })
+  routes.push(entry)
+}
+
+///|
+/// Detect component type based on client/server directory presence
+pub fn detect_component_type(has_client : Bool, has_server : Bool) -> ComponentType {
+  match (has_client, has_server) {
+    (true, true) => ComponentType::SsrComponent
+    (true, false) => ComponentType::ClientOnlyComponent
+    (false, true) => ComponentType::ServerOnlyComponent
+    // If neither client nor server, treat as server-only (static content)
+    (false, false) => ComponentType::ServerOnlyComponent
+  }
+}
+
+///|
+/// Build static path entries from staticParams array
+pub fn build_static_paths(
+  base_path : String,
+  static_params : Array[Map[String, String]],
+) -> Array[StaticPathEntry] {
+  let result : Array[StaticPathEntry] = []
+  for params in static_params {
+    // Build output path from params
+    // e.g., base="counter", params={"id": "1"} -> "counter/1/index.html"
+    let output = build_output_path_from_params(base_path, params)
+    result.push(StaticPathEntry::{ params, output })
+  }
+  result
+}
+
+///|
+/// Build output path from base path and parameters
+fn build_output_path_from_params(
+  base_path : String,
+  params : Map[String, String],
+) -> String {
+  // For single param, append the value
+  // For multiple params, append them in order (sorted by key for consistency)
+  let mut path = base_path
+  let keys = params.keys().collect()
+  // Sort keys for consistent ordering
+  let sorted_keys = sort_strings(keys)
+  for key in sorted_keys {
+    match params.get(key) {
+      Some(value) => path = path + "/" + value
+      None => ()
+    }
+  }
+  path + "/index.html"
+}
+
+///|
+/// Sort strings lexicographically (simple insertion sort)
+fn sort_strings(arr : Array[String]) -> Array[String] {
+  let result : Array[String] = []
+  for s in arr {
+    let mut pos = result.length()
+    for i = 0; i < result.length(); i = i + 1 {
+      if @ssg.compare_strings_lex(s, result[i]) < 0 {
+        pos = i
+        break
+      }
+    }
+    if pos == result.length() {
+      result.push(s)
+    } else {
+      result.push(result[result.length() - 1])
+      for j = result.length() - 2; j > pos; j = j - 1 {
+        result[j] = result[j - 1]
+      }
+      result[pos] = s
+    }
+  }
+  result
 }
 
 ///|
@@ -98,58 +241,49 @@ fn[FS : @env.FileSystem] scan_dynamic_dir(
   let is_catch_all = param_name == "catchall"
 
   // Read directory entries
-  let entries : Array[String] = try {
-    fs.readdir_sync(abs_path)
-  } catch {
-    _ => []
-  }
+  let entries : Array[String] = fs.readdir_sync(abs_path) catch { _ => [] }
 
   // Look for index file
   for entry in entries {
     let file_type = FileType::from_extension(get_extension(entry))
-
     if file_type.is_page() && is_index_file(entry) {
       // Build dynamic route
-      let url_pattern = build_dynamic_url_pattern(rel_path, param_name, is_catch_all)
+      let url_pattern = build_dynamic_url_pattern(
+        rel_path, param_name, is_catch_all,
+      )
       let regex_pattern = build_regex_pattern(url_pattern)
-
       let catch_all_info = if is_catch_all {
         Some(CatchAllInfo::{ name: param_name, optional: false })
       } else {
         None
       }
-
       if config.is_static() && config.generate_params {
         // Static generation with params - will be filled later
-        let entry = RouteEntry::Static(
-          StaticRouteEntry::{
-            path: url_pattern,
-            source: rel_path + "/" + entry,
-            output: "", // Filled during generation
-            layout: config.layout,
-            title: config.title,
-            description: config.description,
-            islands: config.islands,
-            locale: "en",
-            generated_params: [], // Filled by getStaticParams
-          },
-        )
+        let entry = RouteEntry::Static(StaticRouteEntry::{
+          path: url_pattern,
+          source: rel_path + "/" + entry,
+          output: "", // Filled during generation
+          layout: config.layout,
+          title: config.title,
+          description: config.description,
+          islands: config.islands,
+          locale: "en",
+          generated_params: [], // Filled by getStaticParams
+        })
         routes.push(entry)
       } else {
         // Dynamic route
-        let entry = RouteEntry::Dynamic(
-          DynamicRouteEntry::{
-            path: url_pattern,
-            pattern: regex_pattern,
-            param_names: [param_name],
-            source: rel_path + "/" + entry,
-            mode: config.to_render_mode(),
-            layout: config.layout,
-            catch_all: catch_all_info,
-            title: config.title,
-            islands: config.islands,
-          },
-        )
+        let entry = RouteEntry::Dynamic(DynamicRouteEntry::{
+          path: url_pattern,
+          pattern: regex_pattern,
+          param_names: [param_name],
+          source: rel_path + "/" + entry,
+          mode: config.to_render_mode(),
+          layout: config.layout,
+          catch_all: catch_all_info,
+          title: config.title,
+          islands: config.islands,
+        })
         routes.push(entry)
       }
     }
@@ -168,7 +302,6 @@ fn[FS : @env.FileSystem] process_page_file(
   routes : Array[RouteEntry],
 ) -> Unit {
   let file_type = FileType::from_extension(get_extension(filename))
-
   if not(file_type.is_page()) {
     return
   }
@@ -203,34 +336,30 @@ fn[FS : @env.FileSystem] process_page_file(
 
   // Create route entry
   if effective_config.is_static() {
-    let entry = RouteEntry::Static(
-      StaticRouteEntry::{
-        path: url_path,
-        source: rel_path,
-        output: output_path,
-        layout: effective_config.layout,
-        title: effective_config.title,
-        description: effective_config.description,
-        islands: effective_config.islands,
-        locale: "en",
-        generated_params: [],
-      },
-    )
+    let entry = RouteEntry::Static(StaticRouteEntry::{
+      path: url_path,
+      source: rel_path,
+      output: output_path,
+      layout: effective_config.layout,
+      title: effective_config.title,
+      description: effective_config.description,
+      islands: effective_config.islands,
+      locale: "en",
+      generated_params: [],
+    })
     routes.push(entry)
   } else {
-    let entry = RouteEntry::Dynamic(
-      DynamicRouteEntry::{
-        path: url_path,
-        pattern: "^" + url_path + "$",
-        param_names: [],
-        source: rel_path,
-        mode: effective_config.to_render_mode(),
-        layout: effective_config.layout,
-        catch_all: None,
-        title: effective_config.title,
-        islands: effective_config.islands,
-      },
-    )
+    let entry = RouteEntry::Dynamic(DynamicRouteEntry::{
+      path: url_path,
+      pattern: "^" + url_path + "$",
+      param_names: [],
+      source: rel_path,
+      mode: effective_config.to_render_mode(),
+      layout: effective_config.layout,
+      catch_all: None,
+      title: effective_config.title,
+      islands: effective_config.islands,
+    })
     routes.push(entry)
   }
 }
@@ -272,7 +401,6 @@ fn build_dynamic_url_pattern(
   // Convert _catchall_/index.mbt to /*
   let dir_path = get_parent_path(rel_path)
   let base = if dir_path.is_empty() { "/" } else { "/" + dir_path + "/" }
-
   if is_catch_all {
     base + "*"
   } else {
@@ -295,7 +423,11 @@ fn build_regex_pattern(url_pattern : String) -> String {
 fn file_to_url_path(rel_path : String) -> String {
   // Strip numeric prefixes and convert to URL
   let url = @ssg.file_to_url_path(rel_path, trailing_slash=true)
-  if url.is_empty() { "/" } else { url }
+  if url.is_empty() {
+    "/"
+  } else {
+    url
+  }
 }
 
 ///|
@@ -351,9 +483,7 @@ fn join_path(a : String, b : String) -> String {
 ///|
 /// Check if path is a directory
 fn[FS : @env.FileSystem] is_directory(fs : FS, path : String) -> Bool {
-  try {
-    fs.is_directory_sync(path)
-  } catch {
+  fs.is_directory_sync(path) catch {
     _ => false
   }
 }

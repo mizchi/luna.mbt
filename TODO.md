@@ -1,7 +1,86 @@
 これは開発者が次にやりたいことをメモとして残していく場所だから、AIは言われるまで修正しない。
 
-## TODO
+## 🚧 実装中: Unified Progressive Architecture
 
+設計ドキュメント: `docs/internal/unified-progressive-arch.md`
+
+### Phase 1: 型定義 ✅ 完了
+
+| タスク | ファイル | 状態 |
+|--------|----------|------|
+| RouteManifest 拡張 | `src/core/routes/manifest.mbt` | ✅ |
+| ComponentRouteEntry 追加 | `src/core/routes/manifest.mbt` | ✅ |
+| ComponentType enum 追加 | `src/core/routes/manifest.mbt` | ✅ |
+| StaticPathEntry 追加 | `src/core/routes/manifest.mbt` | ✅ |
+| PageConfig.staticParams | `src/core/routes/page_config.mbt` | ✅ |
+| PageConfig.component | `src/core/routes/page_config.mbt` | ✅ |
+| ComponentConfig 型 | `src/core/routes/page_config.mbt` | ✅ |
+| LunaConfig 型 | `src/core/config/config.mbt` | ✅ |
+| E2E ハイドレーションテスト | `e2e/sol-app/navigation-hydration.test.ts` | ✅ (10件) |
+
+### Phase 2: ディレクトリスキャナー ✅ 完了
+
+`moon.pkg.json` ディレクトリを検出し、ComponentRoute を生成する。
+
+| タスク | ファイル | 状態 |
+|--------|----------|------|
+| moon.pkg.json 検出 | `src/core/routes/scanner.mbt` | ✅ |
+| client/server 構造判定 | `src/core/routes/scanner.mbt` | ✅ |
+| ComponentType 決定ロジック | `src/core/routes/scanner.mbt` | ✅ |
+| staticParams → StaticPathEntry 変換 | `src/core/routes/scanner.mbt` | ✅ |
+| page.json 継承マージ | `src/core/routes/merge.mbt` | ✅ |
+| スキャナーテスト | `src/core/routes/scanner_test.mbt` | ✅ (9件) |
+
+**スキャナーのルール:**
+```
+counter/                      # moon.pkg.json ディレクトリ
+├── moon.pkg.json            # ← これがあればコンポーネント
+├── page.json                # ページ設定 (mode, staticParams)
+├── client/                  # ← あれば Hydration
+└── server/                  # ← あれば SSR
+```
+
+| 構造 | ComponentType | 動作 |
+|------|--------------|------|
+| `client/` + `server/` | SsrComponent | SSR + Hydration |
+| `client/` のみ | ClientOnlyComponent | Hydration のみ |
+| `server/` のみ | ServerOnlyComponent | SSR のみ |
+
+### Phase 3: クライアントランタイム ✅ 完了
+
+| タスク | ファイル | 状態 |
+|--------|----------|------|
+| boot/loader.ts (チャンクローダー) | `js/loader/src/boot/loader.ts` | ✅ |
+| boot/router.ts (最小ルーター) | `js/loader/src/boot/router.ts` | ✅ |
+| boot/index.ts (エントリ) | `js/loader/src/boot/index.ts` | ✅ |
+| ChunkManifest 型 | `src/core/routes/client_manifest.mbt` | ✅ |
+| manifest.json 生成 | `src/astra/generator/static_render.mbt` | ✅ |
+
+**実装済み機能:**
+- `ChunkLoader`: manifest.json ベースのチャンクロード
+- `MinimalRouter`: リンクインターセプト、prefetch、History API
+- `ChunkManifest`: RouteManifest → クライアント向けマニフェスト変換
+- ビルド時に `_luna/manifest.json` を自動生成
+
+### Phase 4: ビルドパイプライン 🔄 進行中
+
+| タスク | ファイル | 状態 |
+|--------|----------|------|
+| Rolldown 設定 | `rolldown.config.js` | 未着手 |
+| エントリポイント解析 | `src/astra/cli/build.mbt` | 未着手 |
+| チャンク依存グラフ生成 | `src/astra/builder_pool/` | 未着手 |
+| modulepreload 挿入 | `src/astra/html/inject.mbt` | 未着手 |
+
+### 残りのフェーズ (未着手)
+
+- **Phase 5**: SSR コンポーネント
+- **Phase 6**: CFW デプロイ
+- **Phase 7**: 拡張ルーター (Hybrid/SPA)
+- **Phase 8**: Lint & DX
+
+---
+
+## TODO
 
 - sol (フルスタック)
   - 高優先

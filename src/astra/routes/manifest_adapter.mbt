@@ -13,22 +13,19 @@ pub fn page_metas_to_manifest(
   config : @astra.SsgConfig,
 ) -> @core_routes.RouteManifest {
   let routes : Array[@core_routes.RouteEntry] = []
-
   for page in pages {
     let output = @ssg.url_to_output_path(page.url_path)
-    let entry = @core_routes.RouteEntry::Static(
-      @core_routes.StaticRouteEntry::{
-        path: page.url_path,
-        source: page.source_path,
-        output,
-        layout: page.frontmatter.layout,
-        title: page.frontmatter.title,
-        description: page.frontmatter.description,
-        islands: page.frontmatter.islands,
-        locale: page.locale,
-        generated_params: [],
-      },
-    )
+    let entry = @core_routes.RouteEntry::Static(@core_routes.StaticRouteEntry::{
+      path: page.url_path,
+      source: page.source_path,
+      output,
+      layout: page.frontmatter.layout,
+      title: page.frontmatter.title,
+      description: page.frontmatter.description,
+      islands: page.frontmatter.islands,
+      locale: page.locale,
+      generated_params: [],
+    })
     routes.push(entry)
   }
 
@@ -36,8 +33,7 @@ pub fn page_metas_to_manifest(
   let fallback = @core_routes.FallbackConfig::NotFound(
     path=@ssg.url_to_output_path("/404/"),
   )
-  @core_routes.RouteManifest::{ routes, fallback }
-  |> ignore
+  @core_routes.RouteManifest::{ routes, fallback } |> ignore
   // Use config for potential SPA fallback
   if config.navigation.spa {
     @core_routes.RouteManifest::{
@@ -60,7 +56,6 @@ pub fn manifest_to_page_metas(
   manifest : @core_routes.RouteManifest,
 ) -> Array[@astra.PageMeta] {
   let pages : Array[@astra.PageMeta] = []
-
   for route in manifest.routes {
     match route {
       @core_routes.RouteEntry::Static(static_route) => {
@@ -80,9 +75,9 @@ pub fn manifest_to_page_metas(
         let page = @astra.PageMeta::{
           source_path: static_route.source,
           url_path: static_route.path,
-          content_type: @astra.Markdown, // Assume Markdown for manifest-imported routes
+          content_type: @astra.Markdown,
           frontmatter,
-          last_modified: None,
+          last_modified: None, // Assume Markdown for manifest-imported routes
           locale: static_route.locale,
           canonical_path: static_route.path, // Simplified
           sort_key: static_route.source, // Use source as sort key
@@ -92,7 +87,6 @@ pub fn manifest_to_page_metas(
       _ => () // Skip dynamic and API routes
     }
   }
-
   pages
 }
 
@@ -139,9 +133,9 @@ pub fn static_route_to_page_meta(
   @astra.PageMeta::{
     source_path: route.source,
     url_path: route.path,
-    content_type: @astra.Markdown, // Assume Markdown for manifest-imported routes
+    content_type: @astra.Markdown,
     frontmatter,
-    last_modified: None,
+    last_modified: None, // Assume Markdown for manifest-imported routes
     locale: route.locale,
     canonical_path: route.path,
     sort_key: route.source,

@@ -144,6 +144,9 @@ fn generate_site_internal(
 
   // Step 8: Generate 404 page
   generate_404_page(ctx)
+
+  // Step 9: Generate client manifest for chunk loading
+  generate_client_manifest(ctx)
   Ok(())
 }
 
@@ -1477,6 +1480,63 @@ pub fn copy_static_assets(ctx : @astra.BuildContext) -> Unit {
 
   // Copy islands directory if configured
   copy_islands_dir(ctx)
+
+  // Copy boot runtime files to _luna/
+  copy_boot_runtime(ctx)
+}
+
+///|
+/// Copy boot runtime files to _luna/ directory
+fn copy_boot_runtime(ctx : @astra.BuildContext) -> Unit {
+  // Try to find boot files in various locations
+  let possible_sources = [
+    // Development: monorepo structure
+    @path.join2(ctx.cwd, "js/loader/dist"),
+    // NPM package: node_modules
+    @path.join2(ctx.cwd, "node_modules/@luna_ui/luna-loader/dist"),
+  ]
+
+  // Find first existing source
+  let mut boot_src : String? = None
+  for src in possible_sources {
+    let boot_file = @path.join2(src, "boot.iife.js")
+    if @fs.existsSync(boot_file) {
+      boot_src = Some(src)
+      break
+    }
+  }
+
+  // Skip if no boot files found
+  guard boot_src is Some(src_dir) else { return }
+
+  // Create _luna/ directory
+  let luna_dir = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.output_dir),
+    "_luna",
+  )
+  ensure_dir(luna_dir)
+
+  // Copy boot.iife.js (self-contained boot runtime)
+  let boot_src_file = @path.join2(src_dir, "boot.iife.js")
+  let boot_dest_file = @path.join2(luna_dir, "boot.js")
+  @fs.copyFileSync(boot_src_file, boot_dest_file) catch {
+    e => {
+      println("  Warning: Failed to copy boot.js: \{e}")
+      return
+    }
+  }
+  println("  Copied: /_luna/boot.js")
+
+  // Optionally copy modular boot files for advanced usage
+  let boot_dir = @path.join2(src_dir, "boot")
+  if @fs.existsSync(boot_dir) {
+    let luna_boot_dir = @path.join2(luna_dir, "boot")
+    ensure_dir(luna_boot_dir)
+    @fs.cpSync(boot_dir, luna_boot_dir, recursive=true) catch {
+      _ => ()
+    }
+    println("  Copied: /_luna/boot/ (modular)")
+  }
 }
 
 ///|
@@ -1578,6 +1638,44 @@ pub fn generate_meta_files(
     e => println("  Warning: Failed to generate llms.txt: \{e}")
   }
   println("  Generated: /llms.txt")
+}
+
+///|
+/// Generate client manifest.json for chunk loading
+/// This enables dynamic chunk loading in the client-side router
+pub fn generate_client_manifest(ctx : @astra.BuildContext) -> Unit {
+  // Convert PageMeta to RouteManifest
+  let route_manifest = @routes.page_metas_to_manifest(ctx.pages, ctx.config)
+
+  // Define chunk file mappings
+  let chunk_files : Array[(String, String)] = [
+    ("boot", "boot.js"),
+    ("hydrate", "boot/index.js"),
+    ("signal", "boot/loader.js"),
+    ("router", "boot/router.js"),
+  ]
+
+  // Convert RouteManifest to ChunkManifest with chunk mappings
+  let chunk_manifest = @core_routes.build_chunk_manifest(
+    route_manifest,
+    chunk_files~,
+    base="/_luna/",
+  )
+
+  // Serialize to JSON
+  let manifest_json = chunk_manifest.to_json()
+
+  // Write to output directory
+  let luna_dir = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.output_dir),
+    "_luna",
+  )
+  ensure_dir(luna_dir)
+  let manifest_path = @path.join2(luna_dir, "manifest.json")
+  @fs.writeFileSync(manifest_path, @js.any(manifest_json)) catch {
+    e => println("  Warning: Failed to generate manifest.json: \{e}")
+  }
+  println("  Generated: /_luna/manifest.json")
 }
 
 ///|

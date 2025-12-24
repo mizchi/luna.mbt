@@ -55,7 +55,7 @@ fn resolve_href(
 
   // Handle ./ prefix
   let clean_href = if href.has_prefix("./") {
-    let slice_result : String = (href[2:]).to_string() catch { _ => href }
+    let slice_result : String = href[2:].to_string() catch { _ => href }
     slice_result
   } else {
     href
@@ -70,7 +70,6 @@ fn resolve_href(
     // Content page: /luna/tutorial-js/introduction_basics/ -> parent /luna/tutorial-js/
     get_parent_directory(current_url_path)
   }
-
   normalize_href(base + clean_href)
 }
 
@@ -80,7 +79,7 @@ fn resolve_href(
 fn get_parent_directory(url_path : String) -> String {
   // Remove trailing slash if present
   let trimmed = if url_path.has_suffix("/") {
-    let slice_result : String = (url_path[:url_path.length() - 1]).to_string() catch {
+    let slice_result : String = url_path[:url_path.length() - 1].to_string() catch {
       _ => url_path
     }
     slice_result
@@ -96,7 +95,6 @@ fn get_parent_directory(url_path : String) -> String {
       last_slash = i
     }
   }
-
   if last_slash > 0 {
     String::from_array(chars[:last_slash + 1].to_array())
   } else {
@@ -269,7 +267,14 @@ pub fn md_node_to_vnode(
     @astra.MdNode::Table(headers~, rows~) => {
       // Build header row
       let header_cells = headers.map(fn(h_node) {
-        h("th", [], [md_node_to_vnode(h_node, islands_base_path~, current_url_path~, is_index~)])
+        h("th", [], [
+          md_node_to_vnode(
+            h_node,
+            islands_base_path~,
+            current_url_path~,
+            is_index~,
+          ),
+        ])
       })
       let header_row = h("tr", [], header_cells)
       let thead = h("thead", [], [header_row])
@@ -277,7 +282,14 @@ pub fn md_node_to_vnode(
       // Build body rows
       let body_rows = rows.map(fn(row) {
         let cells = row.map(fn(cell) {
-          h("td", [], [md_node_to_vnode(cell, islands_base_path~, current_url_path~, is_index~)])
+          h("td", [], [
+            md_node_to_vnode(
+              cell,
+              islands_base_path~,
+              current_url_path~,
+              is_index~,
+            ),
+          ])
         })
         h("tr", [], cells)
       })

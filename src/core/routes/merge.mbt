@@ -40,7 +40,6 @@ pub fn merge_manifests(
     FallbackConfig::NotFound(path="/404.html") => file_based.fallback
     _ => explicit.fallback
   }
-
   RouteManifest::{ routes: merged_routes, fallback }
 }
 
@@ -50,7 +49,6 @@ pub fn merge_all_manifests(manifests : Array[RouteManifest]) -> RouteManifest {
   if manifests.is_empty() {
     return RouteManifest::empty()
   }
-
   let mut result = manifests[0]
   let mut i = 1
   while i < manifests.length() {
@@ -71,28 +69,28 @@ pub fn filter_by_mode(
   mode : RenderMode,
 ) -> RouteManifest {
   let filtered : Array[RouteEntry] = []
-
   for route in manifest.routes {
     match route {
-      RouteEntry::Static(_) => {
+      RouteEntry::Static(_) =>
         // Static routes always match if mode is SSG-like
         match mode {
           RenderMode::Ssr | RenderMode::Isr(_) => ()
           RenderMode::Spa => filtered.push(route)
         }
-      }
-      RouteEntry::Dynamic(entry) => {
+      RouteEntry::Dynamic(entry) =>
         if modes_compatible(entry.mode, mode) {
           filtered.push(route)
         }
-      }
-      RouteEntry::Api(_) => {
+      RouteEntry::Api(_) =>
         // API routes are always included
         filtered.push(route)
-      }
+      RouteEntry::Component(entry) =>
+        // Component routes are filtered by mode
+        if modes_compatible(entry.mode, mode) {
+          filtered.push(route)
+        }
     }
   }
-
   RouteManifest::{ routes: filtered, fallback: manifest.fallback }
 }
 
@@ -158,11 +156,7 @@ pub fn find_static_route(
 ) -> StaticRouteEntry? {
   for route in manifest.routes {
     match route {
-      RouteEntry::Static(entry) => {
-        if entry.path == path {
-          return Some(entry)
-        }
-      }
+      RouteEntry::Static(entry) => if entry.path == path { return Some(entry) }
       _ => ()
     }
   }
@@ -180,6 +174,7 @@ fn get_route_path(route : RouteEntry) -> String {
     RouteEntry::Static(entry) => entry.path
     RouteEntry::Dynamic(entry) => entry.path
     RouteEntry::Api(entry) => entry.path
+    RouteEntry::Component(entry) => entry.path
   }
 }
 
