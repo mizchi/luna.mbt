@@ -33,6 +33,12 @@ pub(all) struct SsgConfig {
   trailing_slash : Bool
   /// OGP configuration
   ogp : OgpConfig
+  /// Raw OGP meta tags text (optional, added after generated OGP tags)
+  ogp_text : String?
+  /// Custom HTML snippets to inject at end of <head>
+  head_snippets : Array[String]
+  /// Custom HTML snippets to inject before </body>
+  body_snippets : Array[String]
 }
 
 // I18nConfig, LocaleConfig are defined in core/ssg
@@ -61,6 +67,9 @@ pub fn SsgConfig::default() -> SsgConfig {
     exclude: [],
     trailing_slash: true,
     ogp: OgpConfig::default(),
+    ogp_text: None,
+    head_snippets: [],
+    body_snippets: [],
   }
 }
 

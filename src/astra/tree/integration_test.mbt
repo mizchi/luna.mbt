@@ -20,6 +20,9 @@ fn create_test_config() -> @astra.SsgConfig {
     exclude: [],
     navigation: @astra.NavigationConfig::default(),
     islands: None,
+    ogp_text: None,
+    head_snippets: [],
+    body_snippets: [],
   }
 }
 

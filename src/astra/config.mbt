@@ -66,6 +66,11 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
 
   // Parse OGP config
   let ogp = parse_ogp_config(ssg_obj)
+  let ogp_text = @json_utils.extract_string_opt(ssg_obj, "ogpText")
+
+  // Parse custom snippets
+  let head_snippets = @json_utils.extract_string_array(ssg_obj, "headSnippets")
+  let body_snippets = @json_utils.extract_string_array(ssg_obj, "bodySnippets")
   Some(SsgConfig::{
     docs_dir,
     output_dir,
@@ -80,6 +85,9 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
     exclude,
     trailing_slash,
     ogp,
+    ogp_text,
+    head_snippets,
+    body_snippets,
   })
 }
 

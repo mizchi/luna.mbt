@@ -69,6 +69,12 @@ pub struct StaticDirEntry {
   theme : @astra.ThemeConfig
   /// OGP configuration
   ogp : @astra.OgpConfig
+  /// Raw OGP meta tags text (optional)
+  ogp_text : String?
+  /// Custom HTML snippets to inject at end of <head>
+  head_snippets : Array[String]
+  /// Custom HTML snippets to inject before </body>
+  body_snippets : Array[String]
 }
 
 ///|
@@ -90,6 +96,9 @@ pub fn StaticDirEntry::default(
     trailing_slash: true,
     theme: @astra.ThemeConfig::default(),
     ogp: @astra.OgpConfig::default(),
+    ogp_text: None,
+    head_snippets: [],
+    body_snippets: [],
   }
 }
 
@@ -278,6 +287,9 @@ fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
   let trailing_slash = @json_utils.extract_bool(obj, "trailing_slash", true)
   let theme = parse_theme_config(obj)
   let ogp = parse_ogp_config(obj)
+  let ogp_text = @json_utils.extract_string_opt(obj, "ogpText")
+  let head_snippets = @json_utils.extract_string_array(obj, "headSnippets")
+  let body_snippets = @json_utils.extract_string_array(obj, "bodySnippets")
   Some(StaticDirEntry::{
     path_prefix,
     source_dir,
@@ -290,6 +302,9 @@ fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
     trailing_slash,
     theme,
     ogp,
+    ogp_text,
+    head_snippets,
+    body_snippets,
   })
 }
 

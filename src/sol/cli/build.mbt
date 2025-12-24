@@ -207,6 +207,9 @@ fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit 
       exclude: entry.exclude,
       trailing_slash: entry.trailing_slash,
       ogp: entry.ogp,
+      ogp_text: entry.ogp_text,
+      head_snippets: entry.head_snippets,
+      body_snippets: entry.body_snippets,
     }
 
     // Generate static site

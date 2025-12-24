@@ -464,6 +464,9 @@ fn parse_ssg_config_obj(obj : Map[String, Json]) -> @astra.SsgConfig? {
       exclude,
       trailing_slash,
       ogp,
+      ogp_text: None,
+      head_snippets: [],
+      body_snippets: [],
     },
   )
 }

@@ -836,7 +836,25 @@ fn build_html_document(
 
   // Generate OGP meta tags
   let ogp_tags = build_ogp_meta_tags(ctx, page, frontmatter)
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\n</body>\n</html>"
+
+  // Custom OGP text (added after generated OGP tags)
+  let ogp_text = match ctx.config.ogp_text {
+    Some(text) => "\n  " + text
+    None => ""
+  }
+
+  // Custom HTML snippets
+  let head_snippets = if ctx.config.head_snippets.length() > 0 {
+    "\n  " + ctx.config.head_snippets.join("\n  ")
+  } else {
+    ""
+  }
+  let body_snippets = if ctx.config.body_snippets.length() > 0 {
+    "\n  " + ctx.config.body_snippets.join("\n  ")
+  } else {
+    ""
+  }
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\{ogp_text}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\{head_snippets}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\{body_snippets}\n</body>\n</html>"
 }
 
 ///|
