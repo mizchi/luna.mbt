@@ -425,6 +425,14 @@ p { margin: 1rem 0; }
 
 a { color: var(--primary-color); }
 
+/* Lists in markdown content */
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+.markdown-body li { margin: 0.25rem 0; }
+
 /* Markdown body container */
 .markdown-body {
   box-sizing: border-box;
