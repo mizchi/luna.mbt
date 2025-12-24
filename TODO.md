@@ -2,6 +2,7 @@
 
 ## TODO
 
+
 - sol (フルスタック)
   - 高優先
     - [x] キャッチオールルート (`[...slug]`, `[[...slug]]`)
@@ -18,6 +19,7 @@
     - [ ] ルートグループ `(group)`
 
 - astra (SSG)
+  - [ ] preload
   - [x] AI 用 llm.txt の生成
   - [x] sitemap.xml
   - [x] RSS

@@ -813,6 +813,20 @@ fn build_html_document(
     ""
   }
 
+  // Generate prefetch tags for prev/next pages
+  let prefetch_tags = {
+    let tags = StringBuilder::new()
+    let prev = @routes.find_prev_page(ctx.pages, page.url_path)
+    let next = @routes.find_next_page(ctx.pages, page.url_path)
+    if prev is Some(link) {
+      tags.write_string("\n  <link rel=\"prefetch\" href=\"\{link.link}\">")
+    }
+    if next is Some(link) {
+      tags.write_string("\n  <link rel=\"prefetch\" href=\"\{link.link}\">")
+    }
+    tags.to_string()
+  }
+
   // Primary color CSS variable
   let primary = ctx.config.theme.primary_color.unwrap_or("#3451b2")
 
@@ -854,7 +868,7 @@ fn build_html_document(
   } else {
     ""
   }
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\{ogp_text}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\{head_snippets}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\{body_snippets}\n</body>\n</html>"
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\{ogp_text}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\{prefetch_tags}\{head_snippets}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\{body_snippets}\n</body>\n</html>"
 }
 
 ///|
@@ -1160,6 +1174,29 @@ fn get_navigation_script(
       #|  lastPathname = location.pathname;
       #|  spaNavigate(location.href, false);
       #|});
+      #|// Hover prefetch for internal links
+      #|const prefetched = new Set();
+      #|function prefetchUrl(url) {
+      #|  if (prefetched.has(url)) return;
+      #|  prefetched.add(url);
+      #|  const link = document.createElement('link');
+      #|  link.rel = 'prefetch';
+      #|  link.href = url;
+      #|  document.head.appendChild(link);
+      #|}
+      #|document.addEventListener('mouseover', (e) => {
+      #|  const anchor = e.target.closest('a');
+      #|  if (!anchor) return;
+      #|  const href = anchor.getAttribute('href');
+      #|  if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+      #|  if (anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+      #|  try {
+      #|    const url = new URL(href, location.origin);
+      #|    if (url.origin !== location.origin) return;
+      #|    if (url.pathname === location.pathname) return;
+      #|    prefetchUrl(url.href);
+      #|  } catch {}
+      #|}, { passive: true });
     parts.push(spa_script)
   } else {
     // Non-SPA navigation (full page reload)
