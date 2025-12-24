@@ -15,6 +15,7 @@ export default defineConfig({
       "js/luna/tests/**/*.test.tsx", // TSX tests need jsdom (global-jsdom)
       "e2e/sol/cli/**/*.test.ts",
       "scripts/**/*.test.ts",
+      "tests/cloudflare/**/*.test.ts", // Cloudflare routing logic tests
     ],
     exclude: [
       "**/node_modules/**",

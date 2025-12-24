@@ -1,0 +1,7 @@
+# Wrangler config for Cloudflare Workers Vitest tests
+name = "luna-test-worker"
+main = "./worker.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+TEST_MODE = "true"
