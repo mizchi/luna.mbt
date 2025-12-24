@@ -15,6 +15,7 @@
     "js/**/*.tsx"
   ],
   "exclude": [
-    "js/wcssr/**"
+    "js/wcssr/**",
+    "js/astra/src/cli.ts"
   ]
 }
