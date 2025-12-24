@@ -293,5 +293,12 @@ pub fn generate_shiki_css() -> String {
     #|  margin: 0;
     #|  border-radius: 0;
     #|}
+    #|
+    #|/* Improve contrast for comments in dark mode */
+    #|/* WCAG AA requires 4.5:1 for normal text, 3:1 for large text */
+    #|html.dark .shiki span[style*="--shiki-dark:#6e7681"],
+    #|html.dark .shiki span[style*="--shiki-dark:#8b949e"] {
+    #|  --shiki-dark: #9ca3af !important;
+    #|}
   css
 }
