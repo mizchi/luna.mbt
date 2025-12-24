@@ -4,6 +4,7 @@
 // Component Directory Detection Tests
 // =============================================================================
 
+///|
 test "scan_pages_dir - detects component directory with moon.pkg.json" {
   let fs = @fs_adapter.MemFSAdapter::new()
 
@@ -19,7 +20,8 @@ test "scan_pages_dir - detects component directory with moon.pkg.json" {
   fs.memfs().mkdirSync("/project/src/pages/counter/server", recursive=true)
 
   // Create page.json
-  let page_json = #|{
+  let page_json =
+    #|{
     #|  "mode": "static",
     #|  "component": {
     #|    "propsType": "CounterProps",
@@ -28,16 +30,13 @@ test "scan_pages_dir - detects component directory with moon.pkg.json" {
     #|  }
     #|}
   fs.memfs().writeFileSync("/project/src/pages/counter/page.json", page_json)
-
   let manifest = scan_pages_dir(fs, "src/pages", "/project")
-
   inspect(manifest.routes.length(), content="1")
 
   // Verify it's a Component route
   guard manifest.routes[0] is Component(entry) else {
-    fail!("Expected Component route")
+    fail("Expected Component route")
   }
-
   inspect(entry.path, content="/counter")
   inspect(entry.source, content="counter/")
   inspect(entry.component_type, content="SsrComponent")
@@ -46,6 +45,7 @@ test "scan_pages_dir - detects component directory with moon.pkg.json" {
   inspect(entry.server_export, content="Some(\"render_ssr\")")
 }
 
+///|
 test "scan_pages_dir - client only component" {
   let fs = @fs_adapter.MemFSAdapter::new()
 
@@ -59,16 +59,14 @@ test "scan_pages_dir - client only component" {
   // No server/ directory
 
   let manifest = scan_pages_dir(fs, "src/pages", "/project")
-
   inspect(manifest.routes.length(), content="1")
-
   guard manifest.routes[0] is Component(entry) else {
-    fail!("Expected Component route")
+    fail("Expected Component route")
   }
-
   inspect(entry.component_type, content="ClientOnlyComponent")
 }
 
+///|
 test "scan_pages_dir - server only component" {
   let fs = @fs_adapter.MemFSAdapter::new()
 
@@ -77,21 +75,23 @@ test "scan_pages_dir - server only component" {
 
   // Create component directory with only server/
   fs.memfs().mkdirSync("/project/src/pages/static-render", recursive=true)
-  fs.memfs().writeFileSync("/project/src/pages/static-render/moon.pkg.json", "{}")
-  fs.memfs().mkdirSync("/project/src/pages/static-render/server", recursive=true)
+  fs
+  .memfs()
+  .writeFileSync("/project/src/pages/static-render/moon.pkg.json", "{}")
+  fs
+  .memfs()
+  .mkdirSync("/project/src/pages/static-render/server", recursive=true)
   // No client/ directory
 
   let manifest = scan_pages_dir(fs, "src/pages", "/project")
-
   inspect(manifest.routes.length(), content="1")
-
   guard manifest.routes[0] is Component(entry) else {
-    fail!("Expected Component route")
+    fail("Expected Component route")
   }
-
   inspect(entry.component_type, content="ServerOnlyComponent")
 }
 
+///|
 test "scan_pages_dir - component with staticParams" {
   let fs = @fs_adapter.MemFSAdapter::new()
 
@@ -105,7 +105,8 @@ test "scan_pages_dir - component with staticParams" {
   fs.memfs().mkdirSync("/project/src/pages/product/server", recursive=true)
 
   // Create page.json with staticParams
-  let page_json = #|{
+  let page_json =
+    #|{
     #|  "mode": "static",
     #|  "staticParams": [
     #|    { "id": "1" },
@@ -114,13 +115,10 @@ test "scan_pages_dir - component with staticParams" {
     #|  ]
     #|}
   fs.memfs().writeFileSync("/project/src/pages/product/page.json", page_json)
-
   let manifest = scan_pages_dir(fs, "src/pages", "/project")
-
   guard manifest.routes[0] is Component(entry) else {
-    fail!("Expected Component route")
+    fail("Expected Component route")
   }
-
   inspect(entry.static_paths.length(), content="3")
   inspect(entry.static_paths[0].params.get("id"), content="Some(\"1\")")
   inspect(entry.static_paths[0].output, content="product/1/index.html")
@@ -128,6 +126,7 @@ test "scan_pages_dir - component with staticParams" {
   inspect(entry.static_paths[2].output, content="product/3/index.html")
 }
 
+///|
 test "scan_pages_dir - mixed regular and component directories" {
   let fs = @fs_adapter.MemFSAdapter::new()
 
@@ -139,14 +138,15 @@ test "scan_pages_dir - mixed regular and component directories" {
 
   // Create about directory with index.mbt
   fs.memfs().mkdirSync("/project/src/pages/about", recursive=true)
-  fs.memfs().writeFileSync("/project/src/pages/about/index.mbt", "// about page")
+  fs
+  .memfs()
+  .writeFileSync("/project/src/pages/about/index.mbt", "// about page")
 
   // Create component directory
   fs.memfs().mkdirSync("/project/src/pages/counter", recursive=true)
   fs.memfs().writeFileSync("/project/src/pages/counter/moon.pkg.json", "{}")
   fs.memfs().mkdirSync("/project/src/pages/counter/client", recursive=true)
   fs.memfs().mkdirSync("/project/src/pages/counter/server", recursive=true)
-
   let manifest = scan_pages_dir(fs, "src/pages", "/project")
 
   // Should have 3 routes: index.mbt, about/index.mbt, counter (component)
@@ -162,7 +162,6 @@ test "scan_pages_dir - mixed regular and component directories" {
       _ => ()
     }
   }
-
   inspect(static_count, content="2")
   inspect(component_count, content="1")
 }
@@ -171,6 +170,7 @@ test "scan_pages_dir - mixed regular and component directories" {
 // Helper Function Tests
 // =============================================================================
 
+///|
 test "detect_component_type - all combinations" {
   inspect(detect_component_type(true, true), content="SsrComponent")
   inspect(detect_component_type(true, false), content="ClientOnlyComponent")
@@ -178,25 +178,28 @@ test "detect_component_type - all combinations" {
   inspect(detect_component_type(false, false), content="ServerOnlyComponent")
 }
 
+///|
 test "build_static_paths - empty params" {
   let params : Array[Map[String, String]] = []
   let result = build_static_paths("counter", params)
   inspect(result.length(), content="0")
 }
 
+///|
 test "build_static_paths - single param" {
   let params : Array[Map[String, String]] = [{ "id": "1" }, { "id": "2" }]
   let result = build_static_paths("product", params)
-
   inspect(result.length(), content="2")
   inspect(result[0].output, content="product/1/index.html")
   inspect(result[1].output, content="product/2/index.html")
 }
 
+///|
 test "build_static_paths - multiple params" {
-  let params : Array[Map[String, String]] = [{ "category": "books", "id": "123" }]
+  let params : Array[Map[String, String]] = [
+    { "category": "books", "id": "123" },
+  ]
   let result = build_static_paths("shop", params)
-
   inspect(result.length(), content="1")
   // Keys are sorted alphabetically: category, id
   inspect(result[0].output, content="shop/books/123/index.html")

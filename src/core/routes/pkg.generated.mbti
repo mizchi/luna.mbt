@@ -6,6 +6,12 @@ import(
 )
 
 // Values
+pub fn build_chunk_manifest(RouteManifest, chunk_files? : Array[(String, String)], base? : String) -> ChunkManifest
+
+pub fn build_static_paths(String, Array[Map[String, String]]) -> Array[StaticPathEntry]
+
+pub fn detect_component_type(Bool, Bool) -> ComponentType
+
 pub fn filter_by_mode(RouteManifest, RenderMode) -> RouteManifest
 
 pub fn find_route(RouteManifest, String) -> RouteEntry?
@@ -23,6 +29,8 @@ pub fn merge_all_manifests(Array[RouteManifest]) -> RouteManifest
 pub fn merge_manifests(RouteManifest, RouteManifest) -> RouteManifest
 
 pub fn parse_page_config(String) -> PageConfig?
+
+pub fn route_manifest_to_chunk_manifest(RouteManifest, chunk_hashes? : Map[String, String]) -> ChunkManifest
 
 pub fn[FS : @env.FileSystem] scan_pages_dir(FS, String, String) -> RouteManifest
 
@@ -42,6 +50,45 @@ pub(all) struct CatchAllInfo {
   name : String
   optional : Bool
 }
+
+pub(all) struct ChunkManifest {
+  routes : Map[String, Array[String]]
+  chunks : Map[String, String]
+  base : String
+}
+pub fn ChunkManifest::empty() -> Self
+pub fn ChunkManifest::new(base? : String) -> Self
+pub fn ChunkManifest::to_json(Self) -> String
+
+pub(all) struct ComponentConfig {
+  props_type : String?
+  client_export : String?
+  server_export : String?
+}
+pub fn ComponentConfig::default() -> Self
+
+pub(all) struct ComponentRouteEntry {
+  path : String
+  source : String
+  component_type : ComponentType
+  mode : RenderMode
+  layout : String?
+  props_type : String?
+  client_export : String?
+  server_export : String?
+  static_paths : Array[StaticPathEntry]
+  islands : Array[String]
+}
+pub fn ComponentRouteEntry::new(path~ : String, source~ : String, component_type~ : ComponentType, mode~ : RenderMode) -> Self
+
+pub(all) enum ComponentType {
+  SsrComponent
+  ClientOnlyComponent
+  ServerOnlyComponent
+}
+pub fn ComponentType::can_hydrate(Self) -> Bool
+pub fn ComponentType::can_ssr(Self) -> Bool
+pub impl Show for ComponentType
 
 pub(all) struct DynamicRouteEntry {
   path : String
@@ -107,12 +154,17 @@ pub(all) struct PageConfig {
   layout : String?
   islands : Array[String]
   generate_params : Bool
+  static_params : Array[Map[String, String]]
   fallback : Bool
   extends : String?
   handlers : Map[String, FileHandlerConfig]
+  component : ComponentConfig?
 }
 pub fn PageConfig::default() -> Self
+pub fn PageConfig::has_static_params(Self) -> Bool
+pub fn PageConfig::is_component(Self) -> Bool
 pub fn PageConfig::is_dynamic(Self) -> Bool
+pub fn PageConfig::is_isr(Self) -> Bool
 pub fn PageConfig::is_spa(Self) -> Bool
 pub fn PageConfig::is_static(Self) -> Bool
 pub fn PageConfig::merge(Self, Self) -> Self
@@ -133,8 +185,10 @@ pub(all) enum RouteEntry {
   Static(StaticRouteEntry)
   Dynamic(DynamicRouteEntry)
   Api(ApiRouteEntry)
+  Component(ComponentRouteEntry)
 }
 pub fn RouteEntry::is_api(Self) -> Bool
+pub fn RouteEntry::is_component(Self) -> Bool
 pub fn RouteEntry::is_dynamic(Self) -> Bool
 pub fn RouteEntry::is_static(Self) -> Bool
 pub fn RouteEntry::path(Self) -> String
@@ -145,6 +199,12 @@ pub(all) struct RouteManifest {
   fallback : FallbackConfig
 }
 pub fn RouteManifest::empty() -> Self
+
+pub(all) struct StaticPathEntry {
+  params : Map[String, String]
+  output : String
+}
+pub fn StaticPathEntry::new(params~ : Map[String, String], output~ : String) -> Self
 
 pub(all) struct StaticRouteEntry {
   path : String

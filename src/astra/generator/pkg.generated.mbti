@@ -12,7 +12,11 @@ pub fn copy_static_assets(@astra.BuildContext) -> Unit
 
 pub fn generate_404_page(@astra.BuildContext) -> Unit
 
+pub fn generate_client_manifest(@astra.BuildContext) -> Unit
+
 pub fn generate_meta_files(@astra.BuildContext, @ssg.DocumentTree) -> Unit
+
+pub fn generate_routes_json(Array[@astra.PageMeta]) -> String
 
 pub fn generate_single_page(@astra.BuildContext, @astra.PageMeta, @shiki.Highlighter) -> Result[Unit, String]
 
@@ -21,6 +25,8 @@ pub fn generate_site(@astra.SsgConfig, String) -> Result[Unit, String]
 pub async fn generate_site_async(@astra.SsgConfig, String) -> Result[Unit, String]
 
 pub fn generate_site_with_highlighter(@astra.SsgConfig, String, @shiki.Highlighter) -> Result[Unit, String]
+
+pub fn write_routes_json(@astra.BuildContext) -> Unit
 
 // Errors
 

@@ -49,7 +49,6 @@ fn get_component_name_from_path(source_path : String) -> String {
     }
     idx = idx + 1
   }
-
   if last_slash >= 0 && last_slash < path.length() - 1 {
     path.substring(start=last_slash + 1)
   } else {
@@ -197,18 +196,28 @@ fn generate_page_with_highlight(
   page : @astra.PageMeta,
   highlighter : @shiki.Highlighter?,
 ) -> Result[Unit, String] {
-  // Read source file
+  // Build full source path
   let source_path = @path.join2(
     @path.join2(ctx.cwd, ctx.config.docs_dir),
     page.source_path,
   )
-  let content : String = @fs.readFileSync(source_path).to_string() catch {
-    e => return Err("Failed to read \{source_path}: \{e}")
-  }
 
   // Process based on content type
+  // Component type doesn't need file reading (it's a directory)
   let (frontmatter, content_vnode, toc) = match page.content_type {
+    @astra.Component => {
+      // Component pages - generate placeholder for now
+      // TODO: Implement actual SSR rendering
+      let component_name = get_component_name_from_path(page.source_path)
+      let placeholder_html = "<div data-component=\"\{component_name}\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR rendering not yet implemented for this component.</p></div>"
+      let vnode = @luna.raw_html(placeholder_html)
+      (page.frontmatter, vnode, [])
+    }
     @astra.Markdown => {
+      // Read source file
+      let content : String = @fs.readFileSync(source_path).to_string() catch {
+        e => return Err("Failed to read \{source_path}: \{e}")
+      }
       // Parse markdown
       let (parsed_frontmatter, nodes) = @markdown.parse_markdown(content)
 
@@ -243,6 +252,10 @@ fn generate_page_with_highlight(
       (fm, vnode, extracted_toc)
     }
     @astra.Html => {
+      // Read source file
+      let content : String = @fs.readFileSync(source_path).to_string() catch {
+        e => return Err("Failed to read \{source_path}: \{e}")
+      }
       // For HTML files, use the content as raw HTML
       // Optionally sanitize if configured
       let html_content = if ctx.config.sanitize_html {
@@ -254,14 +267,6 @@ fn generate_page_with_highlight(
       let vnode = @luna.raw_html(html_content)
       // Use page frontmatter (from file_router, which is default for HTML)
       // No TOC for HTML files
-      (page.frontmatter, vnode, [])
-    }
-    @astra.Component => {
-      // Component pages - generate placeholder for now
-      // TODO: Implement actual SSR rendering
-      let component_name = get_component_name_from_path(page.source_path)
-      let placeholder_html = "<div data-component=\"\{component_name}\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR rendering not yet implemented for this component.</p></div>"
-      let vnode = @luna.raw_html(placeholder_html)
       (page.frontmatter, vnode, [])
     }
   }

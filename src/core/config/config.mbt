@@ -339,13 +339,16 @@ fn parse_performance_config(obj : Map[String, Json]) -> PerformanceConfig {
       let inline_threshold = @json_utils.extract_int(
         perf_obj, "inlineThreshold", 1024,
       )
-      let prefetch = match @json_utils.extract_string_opt(perf_obj, "prefetch") {
+      let prefetch = match
+        @json_utils.extract_string_opt(perf_obj, "prefetch") {
         Some("hover") => PrefetchStrategy::Hover
         Some("visible") => PrefetchStrategy::Visible
         Some("none") => PrefetchStrategy::None
         _ => PrefetchStrategy::Hover
       }
-      let lazy_islands = @json_utils.extract_bool(perf_obj, "lazyIslands", false)
+      let lazy_islands = @json_utils.extract_bool(
+        perf_obj, "lazyIslands", false,
+      )
       let module_preload = @json_utils.extract_bool(
         perf_obj, "modulePreload", true,
       )

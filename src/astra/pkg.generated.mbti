@@ -34,9 +34,19 @@ pub fn ComponentEmbed::new(String) -> Self
 pub(all) enum ContentType {
   Markdown
   Html
+  Component
 }
 pub impl Eq for ContentType
 pub impl Show for ContentType
+
+pub(all) enum DeployTarget {
+  Static
+  Cloudflare
+  Node
+}
+pub fn DeployTarget::default() -> Self
+pub impl Eq for DeployTarget
+pub impl Show for DeployTarget
 
 pub(all) struct FooterColumn {
   title : String
@@ -199,6 +209,7 @@ pub(all) struct SsgConfig {
   head_snippets : Array[String]
   body_snippets : Array[String]
   sanitize_html : Bool
+  deploy_target : DeployTarget
 }
 pub fn SsgConfig::default() -> Self
 

@@ -264,7 +264,6 @@ pub fn PageConfig::merge(base : PageConfig, child : PageConfig) -> PageConfig {
     Some(_) => child.component
     None => base.component
   }
-
   PageConfig::{
     mode,
     revalidate,

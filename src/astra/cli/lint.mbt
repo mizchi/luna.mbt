@@ -482,7 +482,6 @@ fn check_components_recursive(
 
   // Read directory entries
   let entries : Array[String] = @fs.readdirSync(current_path) catch { _ => [] }
-
   for entry in entries {
     let entry_path = @path.join2(current_path, entry)
 
@@ -490,9 +489,12 @@ fn check_components_recursive(
     let is_dir : Bool = @fs.statSync(entry_path).isDirectory() catch {
       _ => false
     }
-
     if is_dir {
-      let entry_rel = if rel_path.is_empty() { entry } else { rel_path + "/" + entry }
+      let entry_rel = if rel_path.is_empty() {
+        entry
+      } else {
+        rel_path + "/" + entry
+      }
 
       // Check if it's a component directory (has moon.pkg.json)
       let moon_pkg_path = @path.join2(entry_path, "moon.pkg.json")

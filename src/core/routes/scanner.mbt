@@ -65,7 +65,9 @@ fn[FS : @env.FileSystem] scan_recursive(
       let moon_pkg_path = join_path(entry_path, "moon.pkg.json")
       if fs.exists_sync(moon_pkg_path) {
         // Component directory - process as component
-        process_component_dir(fs, entry_path, pages_dir, entry_rel, config, routes)
+        process_component_dir(
+          fs, entry_path, pages_dir, entry_rel, config, routes,
+        )
       } else {
         // Check if it's a dynamic segment
         match extract_param_name(entry) {
@@ -119,7 +121,6 @@ fn[FS : @env.FileSystem] process_component_dir(
   let server_path = join_path(abs_path, "server")
   let has_client = fs.exists_sync(client_path) && is_directory(fs, client_path)
   let has_server = fs.exists_sync(server_path) && is_directory(fs, server_path)
-
   let component_type = detect_component_type(has_client, has_server)
 
   // Build URL path from relative path
@@ -155,7 +156,10 @@ fn[FS : @env.FileSystem] process_component_dir(
 
 ///|
 /// Detect component type based on client/server directory presence
-pub fn detect_component_type(has_client : Bool, has_server : Bool) -> ComponentType {
+pub fn detect_component_type(
+  has_client : Bool,
+  has_server : Bool,
+) -> ComponentType {
   match (has_client, has_server) {
     (true, true) => ComponentType::SsrComponent
     (true, false) => ComponentType::ClientOnlyComponent

@@ -9,6 +9,8 @@ import(
 )
 
 // Values
+pub fn check_duplicate_pages(Array[@astra.PageMeta]) -> Array[DuplicatePage]
+
 pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
 
 pub fn find_fallback_page(Array[@astra.PageMeta], String, @ssg.I18nConfig) -> @astra.PageMeta?
@@ -18,6 +20,8 @@ pub fn find_next_page(Array[@astra.PageMeta], String) -> @astra.NavLink?
 pub fn find_prev_page(Array[@astra.PageMeta], String) -> @astra.NavLink?
 
 pub fn find_translation(Array[@astra.PageMeta], String, String) -> @astra.PageMeta?
+
+pub fn format_duplicate_error(DuplicatePage) -> String
 
 pub fn generate_auto_sidebar(Array[@astra.PageMeta], locale? : String) -> Array[@astra.SidebarGroup]
 
@@ -54,6 +58,10 @@ pub fn url_to_output_path(String) -> String
 // Errors
 
 // Types and methods
+pub(all) struct DuplicatePage {
+  url_path : String
+  sources : Array[String]
+}
 
 // Type aliases
 

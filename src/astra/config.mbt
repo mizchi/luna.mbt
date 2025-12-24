@@ -77,7 +77,6 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
 
   // Parse deploy target (default: static)
   let deploy_target = parse_deploy_target(ssg_obj)
-
   Some(SsgConfig::{
     docs_dir,
     output_dir,

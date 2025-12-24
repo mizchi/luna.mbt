@@ -27,7 +27,7 @@ pub fn ChunkManifest::empty() -> ChunkManifest {
 
 ///|
 /// Create a new chunk manifest with the given base path
-pub fn ChunkManifest::new(base~ : String = "/_luna/") -> ChunkManifest {
+pub fn ChunkManifest::new(base? : String = "/_luna/") -> ChunkManifest {
   { routes: {}, chunks: {}, base }
 }
 
@@ -40,7 +40,7 @@ pub fn ChunkManifest::new(base~ : String = "/_luna/") -> ChunkManifest {
 /// Analyzes routes and determines which chunks each path needs
 pub fn route_manifest_to_chunk_manifest(
   manifest : RouteManifest,
-  chunk_hashes~ : Map[String, String] = {},
+  chunk_hashes? : Map[String, String] = {},
 ) -> ChunkManifest {
   let routes : Map[String, Array[String]] = {}
   let chunks : Map[String, String] = {}
@@ -62,7 +62,6 @@ pub fn route_manifest_to_chunk_manifest(
   if not(routes.contains("*")) {
     routes["*"] = ["boot"]
   }
-
   ChunkManifest::{ routes, chunks, base: "/_luna/" }
 }
 
@@ -82,10 +81,9 @@ fn analyze_route_chunks(entry : RouteEntry) -> (String, Array[String]) {
       let chunks = get_component_route_chunks(route)
       (route.path, chunks)
     }
-    Api(_) => {
+    Api(_) =>
       // API routes don't need client chunks
       ("", [])
-    }
   }
 }
 
@@ -104,7 +102,6 @@ fn get_static_route_chunks(route : StaticRouteEntry) -> Array[String] {
       chunks.push("island-" + island)
     }
   }
-
   chunks
 }
 
@@ -117,7 +114,6 @@ fn get_dynamic_route_chunks(route : DynamicRouteEntry) -> Array[String] {
   if not(route.islands.is_empty()) {
     chunks.push("hydrate")
     chunks.push("signal")
-
     for island in route.islands {
       chunks.push("island-" + island)
     }
@@ -125,12 +121,10 @@ fn get_dynamic_route_chunks(route : DynamicRouteEntry) -> Array[String] {
 
   // SSR routes may need additional runtime
   match route.mode {
-    Ssr | Isr(_) | Spa => {
+    Ssr | Isr(_) | Spa =>
       // Could add router-hybrid for navigation
       ()
-    }
   }
-
   chunks
 }
 
@@ -157,7 +151,6 @@ fn get_component_route_chunks(route : ComponentRouteEntry) -> Array[String] {
       chunks.push(island_chunk)
     }
   }
-
   chunks
 }
 
@@ -179,14 +172,12 @@ pub fn ChunkManifest::to_json(self : ChunkManifest) -> String {
     buf.write_string("    ")
     buf.write_string(json_string(path))
     buf.write_string(": [")
-
     for j, chunk in chunks {
       buf.write_string(json_string(chunk))
       if j < chunks.length() - 1 {
         buf.write_string(", ")
       }
     }
-
     buf.write_string("]")
     if i < route_entries.length() - 1 {
       buf.write_string(",")
@@ -215,7 +206,6 @@ pub fn ChunkManifest::to_json(self : ChunkManifest) -> String {
   buf.write_string("  \"base\": ")
   buf.write_string(json_string(self.base))
   buf.write_string("\n")
-
   buf.write_string("}")
   buf.to_string()
 }
@@ -269,8 +259,8 @@ fn json_string(s : String) -> String {
 /// Build a complete chunk manifest from route manifest and build info
 pub fn build_chunk_manifest(
   route_manifest : RouteManifest,
-  chunk_files~ : Array[(String, String)] = [],
-  base~ : String = "/_luna/",
+  chunk_files? : Array[(String, String)] = [],
+  base? : String = "/_luna/",
 ) -> ChunkManifest {
   let chunk_hashes : Map[String, String] = {}
 
@@ -279,11 +269,6 @@ pub fn build_chunk_manifest(
     let (name, file_path) = pair
     chunk_hashes[name] = file_path
   }
-
-  let manifest = route_manifest_to_chunk_manifest(
-    route_manifest,
-    chunk_hashes~,
-  )
-
-  ChunkManifest::{ ..manifest, base }
+  let manifest = route_manifest_to_chunk_manifest(route_manifest, chunk_hashes~)
+  ChunkManifest::{ ..manifest, base, }
 }

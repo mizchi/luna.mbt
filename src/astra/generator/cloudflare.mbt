@@ -45,10 +45,8 @@ pub fn generate_routes_json(pages : Array[@astra.PageMeta]) -> String {
   let include_items = include_patterns.map(fn(s) {
     "\"" + escape_json_string(s) + "\""
   })
-
   let exclude_json = exclude_items.join(", ")
   let include_json = include_items.join(", ")
-
   "{\n  \"version\": 1,\n  \"include\": [" +
   include_json +
   "],\n  \"exclude\": [" +
@@ -83,13 +81,11 @@ fn escape_json_string(s : String) -> String {
 pub fn write_routes_json(ctx : @astra.BuildContext) -> Unit {
   // Only generate for Cloudflare target
   guard ctx.config.deploy_target == @astra.Cloudflare else { return }
-
   let content = generate_routes_json(ctx.pages)
   let output_path = @path.join2(
     @path.join2(ctx.cwd, ctx.config.output_dir),
     "_routes.json",
   )
-
   @fs.writeFileSync(output_path, @js.any(content)) catch {
     err => println("Warning: Failed to write _routes.json: \{err}")
   }

@@ -209,11 +209,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       if @env.FileSystem::exists_sync(filesystem, moon_pkg_path) {
         // This is a component directory - treat as a single page
         let page = scan_component_dir_with_fs(
-          filesystem,
-          entry_path,
-          entry_relative,
-          i18n,
-          trailing_slash,
+          filesystem, entry_path, entry_relative, i18n, trailing_slash,
         )
         pages.push(page)
         // Don't recurse into component directories
@@ -309,7 +305,6 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
   } else {
     url_path
   }
-
   @astra.PageMeta::{
     source_path: relative_path,
     url_path: url_path_normalized,
@@ -332,11 +327,7 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
   let json : Json = @json.parse(content.view()) catch {
     _ => return @astra.Frontmatter::default()
   }
-
-  guard json is Object(obj) else {
-    return @astra.Frontmatter::default()
-  }
-
+  guard json is Object(obj) else { return @astra.Frontmatter::default() }
   let title = @json_utils.extract_string_opt(obj, "title")
   let description = @json_utils.extract_string_opt(obj, "description")
   let layout = @json_utils.extract_string_opt(obj, "layout")
@@ -355,7 +346,6 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
     }
     _ => []
   }
-
   @astra.Frontmatter::{
     title,
     description,
