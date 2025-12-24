@@ -20,6 +20,27 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
   (key, @luna.attr_static(value))
 }
 
+///|
+/// Simple CSS minification - removes excessive whitespace
+fn minify_css(css : String) -> String {
+  // Simple whitespace normalization using string operations
+  css
+  .replace(old="\n", new=" ")
+  .replace(old="\r", new="")
+  .replace(old="\t", new=" ")
+  .replace(old="  ", new=" ")
+  .replace(old="  ", new=" ")
+  .replace(old="  ", new=" ")
+  .replace(old=" {", new="{")
+  .replace(old="{ ", new="{")
+  .replace(old=" }", new="}")
+  .replace(old="} ", new="}")
+  .replace(old=" :", new=":")
+  .replace(old=": ", new=":")
+  .replace(old=" ;", new=";")
+  .replace(old="; ", new=";")
+}
+
 // =============================================================================
 // Site Generation
 // =============================================================================
@@ -136,7 +157,17 @@ fn generate_page_with_highlight(
   }
 
   // Parse markdown
-  let (frontmatter, nodes) = @markdown.parse_markdown(content)
+  let (parsed_frontmatter, nodes) = @markdown.parse_markdown(content)
+
+  // Auto-generate description from first paragraph if not provided
+  let frontmatter = if parsed_frontmatter.description is None {
+    match @markdown.extract_description(nodes) {
+      Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
+      None => parsed_frontmatter
+    }
+  } else {
+    parsed_frontmatter
+  }
 
   // Get islands base path from config
   let islands_base_path = match ctx.config.islands {
@@ -804,6 +835,11 @@ fn build_html_document(
 ) -> String {
   let page_title = frontmatter.title.unwrap_or(ctx.config.title)
   let desc = frontmatter.description.unwrap_or("")
+  let desc_tag = if desc.is_empty() {
+    ""
+  } else {
+    "\n  <meta name=\"description\" content=\"\{desc}\">"
+  }
   let base = ctx.config.base_url
 
   // Generate preload tags for islands
@@ -829,6 +865,14 @@ fn build_html_document(
 
   // Primary color CSS variable
   let primary = ctx.config.theme.primary_color.unwrap_or("#3451b2")
+
+  // Combine all CSS into inline style (eliminates render-blocking external CSS)
+  let main_css = @assets.get_default_css(ctx.config)
+  let markdown_css = @assets.get_github_markdown_css()
+  let shiki_css = @shiki.generate_shiki_css()
+  let combined_css = minify_css(
+    main_css + "\n" + markdown_css + "\n" + shiki_css,
+  )
 
   // Get page order for current locale
   let page_order = get_page_order(ctx.pages, page.locale)
@@ -868,7 +912,7 @@ fn build_html_document(
   } else {
     ""
   }
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\n  <meta name=\"description\" content=\"\{desc}\">\{ogp_tags}\{ogp_text}\n  <script>\{theme_script}</script>\n  <link rel=\"stylesheet\" href=\"\{base}assets/github-markdown.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/shiki.css\">\n  <link rel=\"stylesheet\" href=\"\{base}assets/style.css\">\n  <style>:root { --primary-color: \{primary}; }</style>\n  \{preloads}\{prefetch_tags}\{head_snippets}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\{body_snippets}\n</body>\n</html>"
+  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\{desc_tag}\{ogp_tags}\{ogp_text}\n  <script>\{theme_script}</script>\n  <style>\{combined_css}:root{--primary-color:\{primary};}</style>\n  \{preloads}\{prefetch_tags}\{head_snippets}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\{body_snippets}\n</body>\n</html>"
 }
 
 ///|

@@ -224,6 +224,55 @@ fn create_component_vnode(
 }
 
 // =============================================================================
+// Description Extraction (for meta description)
+// =============================================================================
+
+///|
+/// Extract description from markdown nodes
+/// Returns the first paragraph's text, truncated to max_length
+pub fn extract_description(
+  nodes : Array[@astra.MdNode],
+  max_length? : Int = 160,
+) -> String? {
+  // Find the first paragraph
+  for node in nodes {
+    match node {
+      @astra.MdNode::Paragraph(children~) => {
+        let text = extract_text_from_nodes(children)
+        if not(text.is_empty()) {
+          return Some(truncate_text(text, max_length))
+        }
+      }
+      _ => continue
+    }
+  }
+  None
+}
+
+///|
+/// Truncate text to max_length, adding ellipsis if needed
+fn truncate_text(text : String, max_length : Int) -> String {
+  let chars = text.to_array()
+  if chars.length() <= max_length {
+    return text
+  }
+  // Find last space before max_length to avoid cutting words
+  let mut cut_point = max_length
+  for i = max_length - 1; i >= max_length - 30 && i >= 0; i = i - 1 {
+    if chars[i] == ' ' {
+      cut_point = i
+      break
+    }
+  }
+  // Build truncated string
+  let result : Array[Char] = []
+  for i = 0; i < cut_point; i = i + 1 {
+    result.push(chars[i])
+  }
+  String::from_array(result) + "..."
+}
+
+// =============================================================================
 // Table of Contents Extraction
 // =============================================================================
 
