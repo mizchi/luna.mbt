@@ -23,7 +23,7 @@ src/
 ├── astra/          # SSG
 ├── internal/       # 内部ユーティリティ
 └── _bench/         # ベンチマーク
-js/                 # NPMパッケージ (@mizchi/luna)
+js/                 # NPMパッケージ (@luna_ui/luna)
 e2e/                # Playwrightテスト
 docs/               # ドキュメント（Astraで生成）
 examples/           # サンプルプロジェクト

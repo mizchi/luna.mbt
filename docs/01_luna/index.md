@@ -27,7 +27,7 @@ Luna is a reactive UI library with fine-grained reactivity and Islands Architect
 ### JavaScript
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 createEffect(() => console.log(count()));

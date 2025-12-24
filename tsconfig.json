@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "strict": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@mizchi/luna",
+    "jsxImportSource": "@luna_ui/luna",
     "noEmit": true,
     "skipLibCheck": true,
     "baseUrl": "."

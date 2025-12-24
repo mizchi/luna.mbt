@@ -264,13 +264,7 @@ pub fn generate_shiki_css() -> String {
     #|  margin: 1rem 0;
     #|  border-radius: 6px;
     #|  overflow: hidden;
-    #|  border: 1px solid var(--color-border-default, #d0d7de);
-    #|}
-    #|
-    #|@media (prefers-color-scheme: dark) {
-    #|  .code-block-wrapper {
-    #|    border-color: var(--color-border-default, #30363d);
-    #|  }
+    #|  border: 1px solid var(--border-color, #d0d7de);
     #|}
     #|
     #|.code-block-header {
@@ -278,16 +272,9 @@ pub fn generate_shiki_css() -> String {
     #|  justify-content: space-between;
     #|  align-items: center;
     #|  padding: 0.5rem 1rem;
-    #|  background: var(--color-canvas-subtle, #f6f8fa);
-    #|  border-bottom: 1px solid var(--color-border-default, #d0d7de);
+    #|  background: var(--sidebar-bg, #f6f8fa);
+    #|  border-bottom: 1px solid var(--border-color, #d0d7de);
     #|  font-size: 0.75rem;
-    #|}
-    #|
-    #|@media (prefers-color-scheme: dark) {
-    #|  .code-block-header {
-    #|    background: var(--color-canvas-subtle, #161b22);
-    #|    border-bottom-color: var(--color-border-default, #30363d);
-    #|  }
     #|}
     #|
     #|.code-block-filename {
@@ -296,7 +283,7 @@ pub fn generate_shiki_css() -> String {
     #|}
     #|
     #|.code-block-lang {
-    #|  color: var(--color-fg-muted, #656d76);
+    #|  color: var(--text-muted, #656d76);
     #|  text-transform: uppercase;
     #|  font-size: 0.625rem;
     #|  letter-spacing: 0.05em;

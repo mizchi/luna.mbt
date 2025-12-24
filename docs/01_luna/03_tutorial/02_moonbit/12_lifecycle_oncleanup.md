@@ -163,7 +163,7 @@ For actual DOM cleanup, use TypeScript:
 
 ```typescript
 // TypeScript (client-side)
-import { onCleanup, createEffect } from '@mizchi/luna';
+import { onCleanup, createEffect } from '@luna_ui/luna';
 
 function Timer() {
   createEffect(() => {

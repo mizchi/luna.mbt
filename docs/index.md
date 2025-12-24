@@ -28,7 +28,7 @@ Luna's Island Architecture means you only ship JavaScript for interactive compon
 No virtual DOM. No diffing. Direct DOM updates at the signal level.
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -92,13 +92,13 @@ Core reactivity works on all MoonBit targets. Use native for SSR, JavaScript for
 ### Install
 
 ```bash
-npm install @mizchi/luna
+npm install @luna_ui/luna
 ```
 
 ### Create a Component
 
 ```tsx
-import { createSignal } from '@mizchi/luna';
+import { createSignal } from '@luna_ui/luna';
 
 function Counter() {
   const [count, setCount] = createSignal(0);
@@ -151,5 +151,5 @@ count.set(5)  // Prints: Count: 5, Doubled: 10
 
 Built with [MoonBit](https://www.moonbitlang.com/) - a fast, safe language designed for cloud and edge computing.
 
-[GitHub](https://github.com/aspect-build/aspect-cli) | [npm](https://www.npmjs.com/package/@mizchi/luna)
+[GitHub](https://github.com/aspect-build/aspect-cli) | [npm](https://www.npmjs.com/package/@luna_ui/luna)
 

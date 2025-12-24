@@ -22,7 +22,7 @@ AstraはLunaの静的サイトジェネレーターです。ドキュメント�
 ### 1. 新規プロジェクト作成
 
 ```bash
-npx @mizchi/astra new my-docs
+npx @luna_ui/astra new my-docs
 cd my-docs
 npm install
 ```

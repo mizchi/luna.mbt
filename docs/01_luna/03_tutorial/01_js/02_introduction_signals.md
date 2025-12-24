@@ -9,7 +9,7 @@ Signals are reactive containers that hold values and notify subscribers when cha
 ## Creating Signals
 
 ```typescript
-import { createSignal } from '@mizchi/luna';
+import { createSignal } from '@luna_ui/luna';
 
 // Basic signal
 const [count, setCount] = createSignal(0);
@@ -61,7 +61,7 @@ setCount(c => c * 2);  // Double
 Read a signal without creating a dependency:
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 const [other, setOther] = createSignal(0);

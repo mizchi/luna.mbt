@@ -33,7 +33,7 @@ Luna は MoonBit と JavaScript でモダンな Web アプリケーションを�
 - **Hydration** - スマートなローディング戦略 (load, idle, visible, media)
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 createEffect(() => console.log(count()));

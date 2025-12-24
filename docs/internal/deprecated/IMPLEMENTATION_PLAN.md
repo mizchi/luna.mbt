@@ -44,8 +44,8 @@ Preactの軽量ランタイム + Qwikのresumability + Solidのシグナルを�
 - `mizchi/luna/js/dom` - DOM操作
 
 ### NPMパッケージ
-- `@mizchi/luna` - コアランタイム
-- `@mizchi/luna-loader` - Islandローダー
+- `@luna_ui/luna` - コアランタイム
+- `@luna_ui/luna-loader` - Islandローダー
 
 ---
 
@@ -55,8 +55,8 @@ Preactの軽量ランタイム + Qwikのresumability + Solidのシグナルを�
 - [x] 全moon.pkg.json 変更 (20ファイル)
 - [x] ソースコード変更 (`@ui.` → `@luna.`)
 - [x] NPMパッケージ名変更
-  - [x] `@mizchi/ui` → `@mizchi/luna`
-  - [x] `@mizchi/ui-loader` → `@mizchi/luna-loader`
+  - [x] `@mizchi/ui` → `@luna_ui/luna`
+  - [x] `@mizchi/ui-loader` → `@luna_ui/luna-loader`
 - [x] tsconfig.json 更新 (jsxImportSource, paths)
 - [x] `moon check` 通過確認
 

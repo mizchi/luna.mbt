@@ -223,7 +223,7 @@ pub fn wc_island_visible(...) -> @luna.Node[Unit]
 
     if (def && typeof def === 'object') {
       // wcssr の registerComponent を使用
-      const { registerComponent } = await import('@mizchi/wcssr/client');
+      const { registerComponent } = await import('@luna_ui/wcssr/client');
       registerComponent(def);
     }
   };

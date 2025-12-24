@@ -1,5 +1,5 @@
 {
-  "name": "@mizchi/wcssr",
+  "name": "@luna_ui/wcssr",
   "version": "0.0.1",
   "description": "Web Components SSR runtime with functional API",
   "type": "module",

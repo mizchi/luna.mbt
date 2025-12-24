@@ -9,7 +9,7 @@ Effects are functions that run automatically when their dependencies change.
 ## Creating Effects
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -125,7 +125,7 @@ dispose();
 Register cleanup functions inside effects:
 
 ```typescript
-import { createSignal, createEffect, onCleanup } from '@mizchi/luna';
+import { createSignal, createEffect, onCleanup } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 

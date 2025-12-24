@@ -44,7 +44,7 @@ The server serializes state as JSON in the `luna:state` attribute. For server-si
 
 ```typescript
 // counter.ts
-import { createSignal, hydrate } from '@mizchi/luna';
+import { createSignal, hydrate } from '@luna_ui/luna';
 
 // Define matching TypeScript interface
 interface CounterProps {

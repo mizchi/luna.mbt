@@ -75,7 +75,7 @@ For actual DOM mount, the client-side TypeScript handles it:
 
 ```typescript
 // TypeScript (client-side)
-import { onMount } from '@mizchi/luna';
+import { onMount } from '@luna_ui/luna';
 
 function Counter(props) {
   onMount(() => {

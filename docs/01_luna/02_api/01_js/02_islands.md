@@ -13,7 +13,7 @@ Islands enable partial hydration, and control flow components help build reactiv
 Register a component for hydration.
 
 ```typescript
-import { createSignal, hydrate } from '@mizchi/luna';
+import { createSignal, hydrate } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
@@ -57,7 +57,7 @@ hydrate("counter", Counter);
 Register a Web Component for hydration with Shadow DOM.
 
 ```typescript
-import { createSignal, hydrateWC } from '@mizchi/luna';
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
 function Counter(props: { initial: number }) {
   const [count, setCount] = createSignal(props.initial);
@@ -101,7 +101,7 @@ SolidJS-compatible control flow components.
 Render a list of items.
 
 ```tsx
-import { createSignal, For } from '@mizchi/luna';
+import { createSignal, For } from '@luna_ui/luna';
 
 const [items, setItems] = createSignal(['a', 'b', 'c']);
 
@@ -131,7 +131,7 @@ function For<T, U extends Node>(props: ForProps<T, U>): Node;
 Render a list with item getters (tracks by index, not reference).
 
 ```tsx
-import { createSignal, Index } from '@mizchi/luna';
+import { createSignal, Index } from '@luna_ui/luna';
 
 const [items, setItems] = createSignal(['a', 'b', 'c']);
 
@@ -153,7 +153,7 @@ const [items, setItems] = createSignal(['a', 'b', 'c']);
 Conditional rendering.
 
 ```tsx
-import { createSignal, Show } from '@mizchi/luna';
+import { createSignal, Show } from '@luna_ui/luna';
 
 const [isVisible, setIsVisible] = createSignal(false);
 
@@ -186,7 +186,7 @@ function Show<T>(props: ShowProps<T>): Node;
 Multi-branch conditional rendering.
 
 ```tsx
-import { createSignal, Switch, Match } from '@mizchi/luna';
+import { createSignal, Switch, Match } from '@luna_ui/luna';
 
 const [status, setStatus] = createSignal<'loading' | 'success' | 'error'>('loading');
 
@@ -225,7 +225,7 @@ function Switch(props: SwitchProps): Node;
 Render children to a different DOM location.
 
 ```tsx
-import { Portal } from '@mizchi/luna';
+import { Portal } from '@luna_ui/luna';
 
 // Render to document.body (default)
 <Portal>
@@ -258,7 +258,7 @@ function Portal(props: PortalProps): Node;
 #### Low-level APIs
 
 ```typescript
-import { portalToBody, portalToSelector, portalWithShadow } from '@mizchi/luna';
+import { portalToBody, portalToSelector, portalWithShadow } from '@luna_ui/luna';
 
 // Portal to body
 portalToBody([modalContent]);
@@ -275,7 +275,7 @@ portalWithShadow([content]);
 Provide context values to descendants.
 
 ```tsx
-import { createContext, useContext, Provider } from '@mizchi/luna';
+import { createContext, useContext, Provider } from '@luna_ui/luna';
 
 const ThemeContext = createContext('light');
 
@@ -294,7 +294,7 @@ const theme = useContext(ThemeContext);  // 'dark'
 Mount a component to a DOM element.
 
 ```typescript
-import { mount, render, createElement, text } from '@mizchi/luna';
+import { mount, render, createElement, text } from '@luna_ui/luna';
 
 // Using mount
 mount(document.getElementById('app'), <App />);
@@ -308,7 +308,7 @@ render(document.getElementById('app'), myComponent);
 Create text nodes.
 
 ```typescript
-import { text, textDyn, createSignal } from '@mizchi/luna';
+import { text, textDyn, createSignal } from '@luna_ui/luna';
 
 // Static text
 const staticText = text("Hello");
@@ -323,7 +323,7 @@ const dynamicText = textDyn(() => `Hello, ${name()}`);
 Conditional rendering helper.
 
 ```typescript
-import { show, text, createSignal } from '@mizchi/luna';
+import { show, text, createSignal } from '@luna_ui/luna';
 
 const [visible, setVisible] = createSignal(true);
 
@@ -338,7 +338,7 @@ const node = show(
 Low-level list rendering.
 
 ```typescript
-import { forEach, text, createSignal } from '@mizchi/luna';
+import { forEach, text, createSignal } from '@luna_ui/luna';
 
 const [items, setItems] = createSignal(['a', 'b', 'c']);
 
@@ -353,7 +353,7 @@ const list = forEach(
 Create event handler maps with method chaining.
 
 ```typescript
-import { events } from '@mizchi/luna';
+import { events } from '@luna_ui/luna';
 
 const handlers = events()
   .click((e) => console.log('clicked'))
@@ -366,7 +366,7 @@ const handlers = events()
 Get the host element in a Web Component.
 
 ```typescript
-import { useHost, hydrateWC } from '@mizchi/luna';
+import { useHost, hydrateWC } from '@luna_ui/luna';
 
 function Counter() {
   const host = useHost();

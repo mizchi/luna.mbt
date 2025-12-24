@@ -45,7 +45,7 @@ The server renders an island with Web Component attributes:
 
 ```typescript
 // wc-counter.ts
-import { createSignal, hydrateWC } from '@mizchi/luna';
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;

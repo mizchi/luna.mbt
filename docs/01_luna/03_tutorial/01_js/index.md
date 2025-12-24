@@ -9,7 +9,7 @@ Learn Luna UI with JavaScript/TypeScript.
 ## Getting Started
 
 ```bash
-npm install @mizchi/luna
+npm install @luna_ui/luna
 ```
 
 ## Introduction

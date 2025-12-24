@@ -385,7 +385,7 @@ Web Components SSRはPlain HTMLより**約10%遅いだけ**。
 ### 2. Signal更新をバッチ処理
 
 ```typescript
-import { batch } from '@mizchi/luna';
+import { batch } from '@luna_ui/luna';
 
 // 悪い例: 3回のeffect実行
 setA(1);

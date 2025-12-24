@@ -9,7 +9,7 @@ Register cleanup functions to run when a component unmounts or an effect re-runs
 ## Basic Usage
 
 ```typescript
-import { onCleanup } from '@mizchi/luna';
+import { onCleanup } from '@luna_ui/luna';
 
 function Timer() {
   const [count, setCount] = createSignal(0);

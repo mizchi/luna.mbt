@@ -4,7 +4,7 @@ import { playwright } from "@vitest/browser-playwright";
 export default defineConfig({
   esbuild: {
     jsx: "automatic",
-    jsxImportSource: "@mizchi/luna",
+    jsxImportSource: "@luna_ui/luna",
   },
   test: {
     reporters: ["dot"],

@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mizchi/luna": "workspace:*"
+    "@luna_ui/luna": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

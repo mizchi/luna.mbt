@@ -29,7 +29,7 @@ JavaScript固有の機能。
 
 | パス | 責務 |
 |-----|------|
-| `api/` | JS向け公開API (`@mizchi/luna`) |
+| `api/` | JS向け公開API (`@luna_ui/luna`) |
 | `stream_renderer/` | ストリーミングSSR |
 | `cache/` | ファイルキャッシュ (mtime ベース) |
 | `fs_adapter/` | FileSystem アダプター (Node.js, memfs) |

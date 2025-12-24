@@ -1,4 +1,4 @@
-# @mizchi/wcssr
+# @luna_ui/wcssr
 
 Web Components SSR runtime with functional API.
 
@@ -15,7 +15,7 @@ MoonBit FFI から利用しやすい関数型インターフェースを提供�
 ## インストール
 
 ```bash
-pnpm add @mizchi/wcssr
+pnpm add @luna_ui/wcssr
 ```
 
 ## 使い方
@@ -23,7 +23,7 @@ pnpm add @mizchi/wcssr
 ### コンポーネント定義
 
 ```ts
-import { defineComponent } from '@mizchi/wcssr/client';
+import { defineComponent } from '@luna_ui/wcssr/client';
 
 const Counter = defineComponent({
   name: 'my-counter',
@@ -47,7 +47,7 @@ const Counter = defineComponent({
 ### サーバーサイド (SSR)
 
 ```ts
-import { createSSRRenderer, renderDocument } from '@mizchi/wcssr/server';
+import { createSSRRenderer, renderDocument } from '@luna_ui/wcssr/server';
 
 // レンダラー作成
 const renderer = createSSRRenderer({
@@ -73,7 +73,7 @@ const html = renderDocument({
 ### クライアントサイド (Hydration)
 
 ```ts
-import { registerComponent } from '@mizchi/wcssr/client';
+import { registerComponent } from '@luna_ui/wcssr/client';
 
 // コンポーネントを登録（Hydration開始）
 registerComponent(Counter);

@@ -1,6 +1,6 @@
-# @mizchi/luna
+# @luna_ui/luna
 
-A lightweight reactive UI library with SolidJS-compatible API. Implemented in MoonBit.
+A lightweight reactive UI library with SolidJS-Like API. Implemented in MoonBit.
 
 ## Documentation
 
@@ -10,7 +10,7 @@ A lightweight reactive UI library with SolidJS-compatible API. Implemented in Mo
 ## Installation
 
 ```bash
-npm install @mizchi/luna
+npm install @luna_ui/luna
 ```
 
 ## Setup
@@ -19,13 +19,13 @@ npm install @mizchi/luna
 
 **tsconfig.json:**
 
-Set `"jsxImportSource": "@mizchi/luna"`
+Set `"jsxImportSource": "@luna_ui/luna"`
 
 ```json
 {
   "compilerOptions": {
     //...
-    "jsxImportSource": "@mizchi/luna",
+    "jsxImportSource": "@luna_ui/luna",
   }
 }
 ```
@@ -41,7 +41,7 @@ export default defineConfig({});
 ## Basic Usage
 
 ```tsx
-import { createSignal, createMemo, render } from '@mizchi/luna';
+import { createSignal, createMemo, render } from '@luna_ui/luna';
 
 function Counter() {
   const [count, setCount] = createSignal(0);
@@ -66,7 +66,7 @@ render(document.getElementById('app')!, <Counter />);
 ### Signal
 
 ```tsx
-import { createSignal, createMemo, createEffect } from '@mizchi/luna';
+import { createSignal, createMemo, createEffect } from '@luna_ui/luna';
 
 // Signal: reactive value
 const [count, setCount] = createSignal(0);
@@ -86,7 +86,7 @@ createEffect(() => {
 ### Components
 
 ```tsx
-import { For, Show } from '@mizchi/luna';
+import { For, Show } from '@luna_ui/luna';
 
 // For: list rendering
 <For each={items}>

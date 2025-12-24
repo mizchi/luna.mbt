@@ -9,7 +9,7 @@ Efficiently render lists with reactive updates.
 ## Basic Usage
 
 ```typescript
-import { createSignal, For } from '@mizchi/luna';
+import { createSignal, For } from '@luna_ui/luna';
 
 function TodoList() {
   const [todos, setTodos] = createSignal([

@@ -1,4 +1,4 @@
-# @mizchi/luna-loader
+# @luna_ui/luna-loader
 
 Luna Island Architecture 用の軽量ローダー。
 

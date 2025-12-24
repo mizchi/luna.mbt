@@ -28,7 +28,7 @@ LunaのIsland Architectureは、インタラクティブなコンポーネント
 Virtual DOMなし。差分計算なし。Signal単位でDOMを直接更新。
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -92,13 +92,13 @@ Shadow DOM SSRのオーバーヘッドはほぼゼロ：
 ### インストール
 
 ```bash
-npm install @mizchi/luna
+npm install @luna_ui/luna
 ```
 
 ### コンポーネントを作成
 
 ```tsx
-import { createSignal } from '@mizchi/luna';
+import { createSignal } from '@luna_ui/luna';
 
 function Counter() {
   const [count, setCount] = createSignal(0);
@@ -150,4 +150,4 @@ count.set(5)  // 出力: Count: 5, Doubled: 10
 
 [MoonBit](https://www.moonbitlang.com/)で構築 - クラウドとエッジコンピューティング向けに設計された高速で安全な言語。
 
-[GitHub](https://github.com/mizchi/luna) | [npm](https://www.npmjs.com/package/@mizchi/luna)
+[GitHub](https://github.com/mizchi/luna) | [npm](https://www.npmjs.com/package/@luna_ui/luna)

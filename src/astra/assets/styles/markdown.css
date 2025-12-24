@@ -38,8 +38,8 @@
 }
 .markdown-body blockquote {
   padding: 0 1em;
-  color: #656d76;
-  border-left: 0.25em solid #d0d7de;
+  color: var(--text-muted, #656d76);
+  border-left: 0.25em solid var(--border-color, #d0d7de);
 }
 .markdown-body table {
   border-spacing: 0;
@@ -49,7 +49,7 @@
 }
 .markdown-body td, .markdown-body th {
   padding: 6px 13px;
-  border: 1px solid #d0d7de;
+  border: 1px solid var(--border-color, #d0d7de);
 }
 .markdown-body tr:nth-child(2n) {
   background-color: var(--code-bg, #f6f8fa);
@@ -58,17 +58,6 @@
   height: 0.25em;
   padding: 0;
   margin: 24px 0;
-  background-color: #d0d7de;
+  background-color: var(--border-color, #d0d7de);
   border: 0;
-}
-.markdown-body ul, .markdown-body ol {
-  padding-left: 2em;
-}
-.markdown-body li + li {
-  margin-top: 0.25em;
-}
-@media (prefers-color-scheme: dark) {
-  .markdown-body blockquote { color: #9198a1; border-left-color: #3d444d; }
-  .markdown-body td, .markdown-body th { border-color: #3d444d; }
-  .markdown-body hr { background-color: #3d444d; }
 }

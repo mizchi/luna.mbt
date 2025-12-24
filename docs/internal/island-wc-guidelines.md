@@ -147,7 +147,7 @@ fn widget_embed() -> @luna.Node {
 
 ```typescript
 // client/counter.ts
-import { createSignal, hydrate } from '@mizchi/luna';
+import { createSignal, hydrate } from '@luna_ui/luna';
 
 interface CounterProps {
   initial_count: number;
@@ -168,7 +168,7 @@ function Counter(props: CounterProps) {
 hydrate("counter-component", Counter);
 ```
 
-ハイドレーションローダー (`@mizchi/luna-loader`) は、
+ハイドレーションローダー (`@luna_ui/luna-loader`) は、
 Shadow Root の有無を自動検出して適切に動作します。
 
 ## WC Island を選ぶべき具体例

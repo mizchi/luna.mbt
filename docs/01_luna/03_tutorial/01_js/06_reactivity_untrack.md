@@ -25,7 +25,7 @@ But what if you only want to react to `count` changes?
 ## Using Untrack
 
 ```typescript
-import { createSignal, createEffect, untrack } from '@mizchi/luna';
+import { createSignal, createEffect, untrack } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 const [multiplier, setMultiplier] = createSignal(2);

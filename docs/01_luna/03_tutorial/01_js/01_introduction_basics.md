@@ -20,7 +20,7 @@ Luna:         State → Direct Update
 Here's a simple counter:
 
 ```typescript
-import { createSignal } from '@mizchi/luna';
+import { createSignal } from '@luna_ui/luna';
 
 function Counter() {
   // Create reactive state

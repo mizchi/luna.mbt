@@ -61,7 +61,7 @@ fn counter_wc(initial : Int) -> @luna.Node {
 ### TypeScript (Client)
 
 ```typescript
-import { createSignal, hydrateWC } from '@mizchi/luna';
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;

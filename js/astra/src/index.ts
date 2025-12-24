@@ -1,2 +1,2 @@
-// @mizchi/astra - MoonBit Island Architecture SSG Framework
+// @luna_ui/astra - MoonBit Island Architecture SSG Framework
 export {};

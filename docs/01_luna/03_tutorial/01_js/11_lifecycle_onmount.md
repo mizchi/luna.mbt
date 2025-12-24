@@ -9,7 +9,7 @@ Run code once when a component is mounted to the DOM.
 ## Basic Usage
 
 ```typescript
-import { onMount } from '@mizchi/luna';
+import { onMount } from '@luna_ui/luna';
 
 function MyComponent() {
   onMount(() => {

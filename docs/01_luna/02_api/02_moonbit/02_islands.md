@@ -242,12 +242,12 @@ fn counter_island(state : CounterState) -> @luna.Node {
 
 ## Client-Side Hydration
 
-The island loader (`@mizchi/luna-loader`) handles hydration on the client:
+The island loader (`@luna_ui/luna-loader`) handles hydration on the client:
 
 ```html
 <!-- Add to your page -->
 <script type="module">
-import { setupHydration } from '@mizchi/luna-loader';
+import { setupHydration } from '@luna_ui/luna-loader';
 setupHydration();
 </script>
 ```

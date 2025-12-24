@@ -5,12 +5,12 @@
     "moduleResolution": "bundler",
     "strict": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@mizchi/luna",
+    "jsxImportSource": "@luna_ui/luna",
     "noEmit": true,
     "skipLibCheck": true,
     "paths": {
-      "@mizchi/luna": ["./src/index.ts"],
-      "@mizchi/luna/jsx-runtime": ["./src/jsx-runtime.ts"]
+      "@luna_ui/luna": ["./src/index.ts"],
+      "@luna_ui/luna/jsx-runtime": ["./src/jsx-runtime.ts"]
     }
   },
   "include": [

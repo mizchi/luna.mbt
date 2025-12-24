@@ -9,7 +9,7 @@ Render content conditionally based on a signal.
 ## Basic Usage
 
 ```typescript
-import { createSignal, Show } from '@mizchi/luna';
+import { createSignal, Show } from '@luna_ui/luna';
 
 function Toggle() {
   const [visible, setVisible] = createSignal(false);

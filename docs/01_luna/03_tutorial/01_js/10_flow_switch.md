@@ -9,7 +9,7 @@ Handle multiple mutually exclusive conditions.
 ## Basic Usage
 
 ```typescript
-import { createSignal, Switch, Match } from '@mizchi/luna';
+import { createSignal, Switch, Match } from '@luna_ui/luna';
 
 function StatusBadge() {
   const [status, setStatus] = createSignal("pending");

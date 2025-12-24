@@ -121,7 +121,7 @@ setTabs(["home", "settings", "profile"]);
 Effects track their "owner" - the context that created them:
 
 ```typescript
-import { getOwner, runWithOwner } from '@mizchi/luna';
+import { getOwner, runWithOwner } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 

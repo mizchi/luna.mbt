@@ -1,7 +1,7 @@
-// JSX Runtime for @mizchi/luna
+// JSX Runtime for @luna_ui/luna
 // Usage: Configure tsconfig.json with:
 //   "jsx": "react-jsx",
-//   "jsxImportSource": "@mizchi/luna"
+//   "jsxImportSource": "@luna_ui/luna"
 
 import { text, textDyn, createElement } from "./index";
 

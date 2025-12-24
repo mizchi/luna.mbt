@@ -69,7 +69,7 @@ Create the interactive component:
 
 ```typescript
 // counter.ts
-import { createSignal, hydrate } from '@mizchi/luna';
+import { createSignal, hydrate } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;

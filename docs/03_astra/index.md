@@ -22,7 +22,7 @@ Astra is Luna's static site generator for documentation and content sites.
 ### 1. Create a New Project
 
 ```bash
-npx @mizchi/astra new my-docs
+npx @luna_ui/astra new my-docs
 cd my-docs
 npm install
 ```

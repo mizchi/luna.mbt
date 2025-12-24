@@ -31,7 +31,7 @@ This can cause:
 ## Using Batch
 
 ```typescript
-import { createSignal, createEffect, batch } from '@mizchi/luna';
+import { createSignal, createEffect, batch } from '@luna_ui/luna';
 
 const [firstName, setFirstName] = createSignal("John");
 const [lastName, setLastName] = createSignal("Doe");

@@ -11,7 +11,7 @@ Signals are the foundation of Luna's reactivity system. The API is compatible wi
 Create a reactive signal that holds a value.
 
 ```typescript
-import { createSignal } from '@mizchi/luna';
+import { createSignal } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -41,7 +41,7 @@ type Setter<T> = (value: T | ((prev: T) => T)) => void;
 Create a side effect that automatically tracks and re-runs when dependencies change.
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [name, setName] = createSignal("Luna");
 
@@ -67,7 +67,7 @@ Returns a dispose function to stop the effect.
 Create a cached computed value that updates when dependencies change.
 
 ```typescript
-import { createSignal, createMemo } from '@mizchi/luna';
+import { createSignal, createMemo } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(2);
 const squared = createMemo(() => count() ** 2);
@@ -89,7 +89,7 @@ function createMemo<T>(fn: () => T): Accessor<T>;
 Batch multiple signal updates to avoid redundant effect runs.
 
 ```typescript
-import { createSignal, createEffect, batch } from '@mizchi/luna';
+import { createSignal, createEffect, batch } from '@luna_ui/luna';
 
 const [a, setA] = createSignal(0);
 const [b, setB] = createSignal(0);
@@ -112,7 +112,7 @@ batch(() => {
 Read signals without creating a dependency.
 
 ```typescript
-import { createSignal, createEffect, untrack } from '@mizchi/luna';
+import { createSignal, createEffect, untrack } from '@luna_ui/luna';
 
 const [a, setA] = createSignal(0);
 const [b, setB] = createSignal(0);
@@ -131,7 +131,7 @@ setB(1);  // Effect does NOT re-run
 Register a cleanup function that runs before an effect re-runs or when disposed.
 
 ```typescript
-import { createSignal, createEffect, onCleanup } from '@mizchi/luna';
+import { createSignal, createEffect, onCleanup } from '@luna_ui/luna';
 
 const [active, setActive] = createSignal(true);
 
@@ -148,7 +148,7 @@ createEffect(() => {
 Run code once without tracking dependencies (like a mount lifecycle).
 
 ```typescript
-import { createSignal, onMount } from '@mizchi/luna';
+import { createSignal, onMount } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -165,7 +165,7 @@ setCount(1);  // onMount does NOT re-run
 Explicit dependency tracking helper (SolidJS-style).
 
 ```typescript
-import { createSignal, createEffect, on } from '@mizchi/luna';
+import { createSignal, createEffect, on } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -210,7 +210,7 @@ function on<T extends readonly Accessor<any>[], U>(
 Create a reactive scope that can dispose all nested effects.
 
 ```typescript
-import { createSignal, createEffect, createRoot } from '@mizchi/luna';
+import { createSignal, createEffect, createRoot } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -229,7 +229,7 @@ setCount(2);  // Effect does NOT run
 ## Owner Utilities
 
 ```typescript
-import { createRoot, getOwner, runWithOwner, hasOwner } from '@mizchi/luna';
+import { createRoot, getOwner, runWithOwner, hasOwner } from '@luna_ui/luna';
 
 // Check if inside an owner scope
 console.log(hasOwner());  // false outside createRoot
@@ -253,7 +253,7 @@ createRoot(() => {
 Provide and consume values through the component tree.
 
 ```typescript
-import { createContext, useContext, provide, Provider } from '@mizchi/luna';
+import { createContext, useContext, provide, Provider } from '@luna_ui/luna';
 
 // Create context with default value
 const ThemeContext = createContext('light');
@@ -277,7 +277,7 @@ const result = provide(ThemeContext, 'dark', () => {
 Handle async operations with loading/error states.
 
 ```typescript
-import { createResource, createDeferred } from '@mizchi/luna';
+import { createResource, createDeferred } from '@luna_ui/luna';
 
 // Create resource with fetcher
 const [data, { refetch }] = createResource((resolve, reject) => {
@@ -310,7 +310,7 @@ reject("Failed!");
 Create reactive stores with nested property tracking.
 
 ```typescript
-import { createStore, produce, reconcile } from '@mizchi/luna';
+import { createStore, produce, reconcile } from '@luna_ui/luna';
 
 const [state, setState] = createStore({
   count: 0,
@@ -348,7 +348,7 @@ setState("items", reconcile(newItems));
 Merge multiple props objects.
 
 ```typescript
-import { mergeProps } from '@mizchi/luna';
+import { mergeProps } from '@luna_ui/luna';
 
 const defaults = { color: 'blue', size: 'medium' };
 const props = { color: 'red' };
@@ -371,7 +371,7 @@ mergeProps({ class: 'foo' }, { class: 'bar' });
 Split props into groups.
 
 ```typescript
-import { splitProps } from '@mizchi/luna';
+import { splitProps } from '@luna_ui/luna';
 
 const props = { a: 1, b: 2, c: 3, d: 4 };
 

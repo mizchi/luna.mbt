@@ -12,7 +12,7 @@ A reactive UI library written in [MoonBit](https://www.moonbitlang.com/) with **
 
 - **Client-side**: Compiles to JavaScript for browser DOM rendering and hydration
 - **Server-side**: Runs on native backend for high-performance SSR
-- **JavaScript API**: Use from JavaScript/TypeScript via `@mizchi/luna` npm package
+- **JavaScript API**: Use from JavaScript/TypeScript via `@luna_ui/luna` npm package
 
 
 ## Features
@@ -21,7 +21,7 @@ A reactive UI library written in [MoonBit](https://www.moonbitlang.com/) with **
 - **Island Architecture** - Partial hydration with selective component loading
 - **SSR (Server-Side Rendering)** - Render to HTML string with streaming support
 - **Hydration** - Restore interactivity on SSR-rendered content with multiple trigger strategies (load, idle, visible, media)
-- **JSX/TSX Support** - Use familiar JSX syntax via `@mizchi/luna` npm package
+- **JSX/TSX Support** - Use familiar JSX syntax via `@luna_ui/luna` npm package
 - **Multi-target Support** - Core signals work on js, native, wasm, wasm-gc
 
 ## Installation
@@ -40,7 +40,7 @@ A reactive UI library written in [MoonBit](https://www.moonbitlang.com/) with **
 ### npm (for JSX/TSX)
 
 ```bash
-npm install @mizchi/luna
+npm install @luna_ui/luna
 ```
 
 ## Target Support
@@ -204,7 +204,7 @@ src/
 │   │   ├── element/           # Low-level DOM operations (render, diff, reconcile)
 │   │   └── router/            # Client-side router
 │   ├── js/                    # JS-specific
-│   │   └── api/               # Public API for JS (@mizchi/luna)
+│   │   └── api/               # Public API for JS (@luna_ui/luna)
 │   └── server_dom/            # Server-side SSR helpers
 ├── stella/                    # Shard/Island embedding
 ├── sol/                       # SSR framework (CLI + runtime)
@@ -212,8 +212,8 @@ src/
 └── tests/                     # Test fixtures
 
 js/
-├── luna/                      # npm package (@mizchi/luna)
-└── loader/                    # Island hydration loader (@mizchi/luna-loader)
+├── luna/                      # npm package (@luna_ui/luna)
+└── loader/                    # Island hydration loader (@luna_ui/luna-loader)
 
 e2e/                           # Playwright E2E tests
 ```

@@ -1,5 +1,5 @@
 {
-  "name": "@mizchi/luna",
+  "name": "@luna_ui/luna",
   "version": "0.1.5",
   "description": "Fine-grained reactive UI library for Moonbit/JS",
   "type": "module",

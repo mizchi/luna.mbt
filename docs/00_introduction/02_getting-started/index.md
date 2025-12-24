@@ -13,7 +13,7 @@ Get up and running with Luna in minutes.
 1. Install the package:
 
 ```bash
-npm install @mizchi/luna
+npm install @luna_ui/luna
 ```
 
 2. Start with the [JavaScript Tutorial](/luna/tutorial/js/)
@@ -37,7 +37,7 @@ npm install @mizchi/luna
 ### JavaScript
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 createEffect(() => console.log(count()));

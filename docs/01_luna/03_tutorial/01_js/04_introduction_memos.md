@@ -9,7 +9,7 @@ Memos are derived values that cache their result and only recompute when depende
 ## Creating Memos
 
 ```typescript
-import { createSignal, createMemo } from '@mizchi/luna';
+import { createSignal, createMemo } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(2);
 

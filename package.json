@@ -8,8 +8,8 @@
     "build": "just build"
   },
   "devDependencies": {
-    "@hono/node-server": "^1.14.0",
     "0x": "^6.0.0",
+    "@hono/node-server": "^1.14.0",
     "@playwright/test": "^1.57.0",
     "@preact/signals": "^2.5.1",
     "@preact/signals-core": "^1.12.1",
@@ -22,6 +22,7 @@
     "@vitest/browser": "^4.0.15",
     "@vitest/browser-playwright": "^4.0.15",
     "@vitest/coverage-v8": "^4.0.15",
+    "colorette": "^2.0.20",
     "execa": "^9.6.1",
     "github-markdown-css": "^5.8.1",
     "global-jsdom": "^27.0.0",

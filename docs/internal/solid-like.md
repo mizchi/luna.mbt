@@ -177,7 +177,7 @@ import {
   text,
   textDyn,
   render,
-} from "@mizchi/luna";
+} from "@luna_ui/luna";
 
 function TodoApp() {
   const [todos, setTodos] = createSignal([

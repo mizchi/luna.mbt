@@ -123,7 +123,7 @@ Development utilities and experimental features:
 ### JavaScript
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 createEffect(() => console.log(count()));

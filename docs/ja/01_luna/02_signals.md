@@ -9,7 +9,7 @@ SignalはLunaのリアクティビティシステムの基盤です。値を保�
 ## Signalの作成
 
 ```typescript
-import { createSignal } from '@mizchi/luna';
+import { createSignal } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -30,7 +30,7 @@ console.log(count());  // 6
 Effectは依存関係が変更されると自動的に実行されます:
 
 ```typescript
-import { createSignal, createEffect } from '@mizchi/luna';
+import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [name, setName] = createSignal("Luna");
 
@@ -48,7 +48,7 @@ setName("World");
 Memoは算出値をキャッシュします:
 
 ```typescript
-import { createSignal, createMemo } from '@mizchi/luna';
+import { createSignal, createMemo } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(2);
 const squared = createMemo(() => count() ** 2);
@@ -64,7 +64,7 @@ console.log(squared());  // 9
 複数の更新をバッチ処理して、冗長なeffect実行を避けます:
 
 ```typescript
-import { createSignal, batch } from '@mizchi/luna';
+import { createSignal, batch } from '@luna_ui/luna';
 
 const [a, setA] = createSignal(0);
 const [b, setB] = createSignal(0);
@@ -81,7 +81,7 @@ batch(() => {
 Effect内でクリーンアップ関数を登録:
 
 ```typescript
-import { createSignal, createEffect, onCleanup } from '@mizchi/luna';
+import { createSignal, createEffect, onCleanup } from '@luna_ui/luna';
 
 const [active, setActive] = createSignal(true);
 

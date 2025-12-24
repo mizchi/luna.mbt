@@ -99,7 +99,7 @@ fn comments_section(props : CommentsProps) -> @luna.Node {
 
 ```typescript
 // comments.ts
-import { createSignal, hydrate, onMount } from '@mizchi/luna';
+import { createSignal, hydrate, onMount } from '@luna_ui/luna';
 
 interface CommentsProps {
   postId: string;

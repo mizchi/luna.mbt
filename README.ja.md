@@ -8,7 +8,7 @@
 
 - **クライアントサイド**: ブラウザ DOM レンダリングとハイドレーション用に JavaScript にコンパイル
 - **サーバーサイド**: 高性能 SSR のためにネイティブバックエンドで実行
-- **JavaScript API**: `@mizchi/luna` npm パッケージ経由で JavaScript/TypeScript から使用可能
+- **JavaScript API**: `@luna_ui/luna` npm パッケージ経由で JavaScript/TypeScript から使用可能
 
 ## 機能
 
@@ -16,7 +16,7 @@
 - **Island Architecture** - 選択的なコンポーネントローディングによる部分的ハイドレーション
 - **SSR (Server-Side Rendering)** - ストリーミング対応の HTML 文字列レンダリング
 - **Hydration** - SSR コンテンツへのインタラクティビティ復元（複数のトリガー戦略: load, idle, visible, media）
-- **JSX/TSX サポート** - `@mizchi/luna` npm パッケージ経由で JSX 構文を使用可能
+- **JSX/TSX サポート** - `@luna_ui/luna` npm パッケージ経由で JSX 構文を使用可能
 - **マルチターゲット対応** - コアの Signal は js, native, wasm, wasm-gc で動作
 
 ## インストール
@@ -35,7 +35,7 @@
 ### npm (JSX/TSX 用)
 
 ```bash
-npm install @mizchi/luna
+npm install @luna_ui/luna
 ```
 
 ## ターゲットサポート
@@ -119,14 +119,14 @@ fn main {
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@mizchi/luna"
+    "jsxImportSource": "@luna_ui/luna"
   }
 }
 ```
 
 ```tsx
-import { createSignal, get, set } from "@mizchi/luna";
-import { render } from "@mizchi/luna";
+import { createSignal, get, set } from "@luna_ui/luna";
+import { render } from "@luna_ui/luna";
 
 function Counter() {
   const count = createSignal(0);
@@ -198,7 +198,7 @@ src/
 │   │   ├── element/           # 低レベル DOM 操作 (render, diff, reconcile)
 │   │   └── router/            # クライアントサイドルーター
 │   ├── js/                    # JS 固有
-│   │   └── api/               # JS 向け公開 API (@mizchi/luna)
+│   │   └── api/               # JS 向け公開 API (@luna_ui/luna)
 │   └── server_dom/            # サーバーサイド SSR ヘルパー
 ├── stella/                    # Shard/Island 埋め込み
 ├── sol/                       # SSR フレームワーク (CLI + ランタイム)
@@ -206,8 +206,8 @@ src/
 └── tests/                     # テストフィクスチャ
 
 js/
-├── luna/                      # npm パッケージ (@mizchi/luna)
-└── loader/                    # Island ハイドレーションローダー (@mizchi/luna-loader)
+├── luna/                      # npm パッケージ (@luna_ui/luna)
+└── loader/                    # Island ハイドレーションローダー (@luna_ui/luna-loader)
 
 e2e/                           # Playwright E2E テスト
 ```

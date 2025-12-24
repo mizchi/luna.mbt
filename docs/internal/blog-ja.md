@@ -8,42 +8,57 @@ published: false
 
 いつかやろうと思っていたUIライブラリ自作に手をつけました。
 
-軽量(7.5kb)、高速(solidと同等)、WebComponents SSR + Hydration という構成です。
+- 軽量
+- 高速
+- WebComponents SSR + Hydration に対応(おそらく世界で最初)
 
-この記事では Luna の紹介と、その発展系である Astra SSG, Sol Framework の紹介をします。ただ、記事公開時点では Astra と Sol はプロトタイプとしてリポジトリ内をチェックアウトすると動くんですが、まだ公開されてない点に注意してください。
+という高背性になっています。
+
+この記事では Luna の紹介
 
 ## 成果物
 
-🌕 **Luna UI** - MoonBit で書かれたシグナルベースの宣言的UIライブラリです。単体で使えるように、preactと同じ方針でとにかく小さく設計しています。
+🌕 **Luna UI** - MoonBit で書かれたシグナルベースの宣言的UIライブラリです。単体で使えるように、preactと同じ方針で、コアをとにかく小さく設計しています。
 
 - ドキュメント: https://luna.mizchi.workers.dev/
-- npm: `@mizchi/luna`
+- npm: `@luna_ui/luna`
 
-最小ランタイムは 7.5KBです。これは preact 11kb より小さいんですが、試した感じで treeshake で何の機能を使うかで差が出るので、ここの比較にあまり意味はなさそうでした。
+後述するサンプルコードで luna と preact で同じ実装をして比較したところ、preact が 20kb なのに対して、 luna が 6.7kb でした。
 
 ## サンプルコード
 
 Moobit 製ですが、 APIを luna/jsx-runtime でラップしたので, JSXがそのまま使えます。
 
-APIはSolid風です。
+APIは Solid 風に合わせています。
 
 ```js
 // TODO: Counter に合わせる。
-function Card(props: { title: string; children?: JSX.Element }): JSX.Element {
+import { createSignal, createMemo, render, For, Show } from '@luna_ui/luna';
+
+function Counter() {
+  const [count, setCount] = createSignal(0);
+  const doubled = createMemo(() => count() * 2);
+  const isEven = createMemo(() => count() % 2 === 0);
+
   return (
-    <div className="card">
-      <h2>{props.title}</h2>
-      <div className="content">{props.children}</div>
+    <div>
+      <h1>Luna Counter Example</h1>
+      <p>Count: {count}</p>
+      <p>Doubled: {doubled}</p>
+      <p>{() => isEven() ? 'Even' : 'Odd'}</p>
+      <div class="buttons">
+        <button onClick={() => setCount(c => c - 1)}>-</button>
+        <button onClick={() => setCount(c => c + 1)}>+</button>
+        <button onClick={() => setCount(0)}>Reset</button>
+      </div>
     </div>
   );
 }
-
-const node = (
-  <Card title="My Card">
-    <p>Card content here</p>
-  </Card>
-);
-render(document.querySelector("#app"), <Card title="hello" />);
+//...
+const app = document.getElementById('app');
+if (app) {
+  render(app, <App />);
+}
 ```
 
 Moonbit 側ではこうなります。
@@ -51,22 +66,35 @@ Moonbit 側ではこうなります。
 ```rust
 fn main {
   let doc = @js_dom.document()
-  match doc.getElementById("app") {
-    Some(el) => {
-      let count = @signal.signal(0)
-      let app = @dom.div([
-        p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
-        button(
-          on=@events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
-          [text("Click me")],
-        ),
-      ])
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
-    }
-    None => ()
-  }
+  guard doc.getElementById("app") is Some(el)
+
+  let count = @signal.signal(0)
+  let app = @dom.div([
+    p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
+    button(
+      on=@events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
+      [text("Click me")],
+    ),
+  ])
+  @dom.render(el |> @dom.DomElement::from_jsdom, app)
 }
 ```
+
+Moonbit にはまだ JSX がないので、。まだ、というのは今まさにそのプロポーサルが動いていて、実装中だからです。
+
+https://github.com/moonbitlang/moonbit-evolution/issues/19
+
+現状は関数によるDSLになっていますが、書き味は悪くありせん。ラベル引数で id や class を表現しています。
+
+## デモ
+
+常々思ってたんですが、ウェブアプリケーションフレームワークやUIライブラリのドキュメントが、他の言語で書かれているのがダサいな、と思っていました。
+
+なので、**Lunaによる静的サイトジェネレータを自作しました**
+
+名前は astra です。astro と紛らわしい？
+
+https://luna.mizchi.workers.dev/
 
 動いてるデモ
 
@@ -260,10 +288,13 @@ Next.js の Static Export みたいなもので、Sol とコードを共有し�
 
 | 指標 | Luna | 備考 |
 |------|------|------|
-| バンドルサイズ | 9.4 KB (gzip) | React の 1/6 |
+| バンドルサイズ | 6 KB~ (minified) | React の 1/6 |
 | SSR 性能 | 12,800 pages/sec | 1000アイテムリスト (78µs) |
 | Signal 更新 | 11M ops/sec | Fine-Grained Reactivity |
 | 部分 DOM 更新 | 4.5M ops/sec | VDOM diff なしで直接更新 |
+
+その発展系である Astra SSG, Sol Framework の紹介をします。ただ、記事公開時点では Astra と Sol はプロトタイプとしてリポジトリ内をチェックアウトすると動くんですが、まだ公開されてない点に注意してください。
+
 
 ### Luna の弱み (jsdom ベンチマーク、正直に)
 
