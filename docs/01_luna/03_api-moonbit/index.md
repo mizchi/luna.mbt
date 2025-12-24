@@ -1,5 +1,5 @@
 ---
-title: MoonBit
+title: "API: MoonBit"
 ---
 
 # MoonBit API Reference

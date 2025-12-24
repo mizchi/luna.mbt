@@ -38,7 +38,7 @@ Luna serializes state as JSON in the HTML:
 
 ### Server Side
 
-The server serializes state as JSON in the `luna:state` attribute. For server-side rendering with MoonBit, see the [MoonBit Tutorial](/moonbit/tutorial/).
+The server serializes state as JSON in the `luna:state` attribute. For server-side rendering with MoonBit, see the [MoonBit Tutorial](/luna/tutorial-moonbit/).
 
 ### Client Side (TypeScript)
 

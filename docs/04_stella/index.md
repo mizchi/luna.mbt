@@ -21,6 +21,6 @@ Documentation will be added when Stella reaches preview release.
 
 ## See Also
 
-- [Luna UI Guide](/guide/) - Core reactivity concepts
+- [Luna UI Guide](/luna/) - Core reactivity concepts
 - [Astra SSG](/astra/) - Static site generation
 - [Sol Framework](/sol/) - Full-stack SSR framework

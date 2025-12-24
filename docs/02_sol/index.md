@@ -81,5 +81,5 @@ Sol is experimental and not ready for production use. We recommend:
 
 ## See Also
 
-- [Luna UI Guide](/guide/) - Core reactivity concepts
+- [Luna UI Guide](/luna/) - Core reactivity concepts
 - [Astra SSG](/astra/) - Static site generation

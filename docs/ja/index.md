@@ -137,10 +137,10 @@ count.set(5)  // 出力: Count: 5, Doubled: 10
 
 ## さらに詳しく
 
-- [はじめに](/ja/getting-started/) - インストールと最初のステップ
-- [Signalsガイド](/ja/guide/signals) - リアクティブプリミティブの詳細
-- [Island Architecture](/ja/guide/islands) - 部分的ハイドレーションのパターン
-- [パフォーマンス](/ja/performance/) - ベンチマークと最適化
+- [はじめに](/introduction/getting-started/) - インストールと最初のステップ
+- [Signalsガイド](/ja/luna/signals/) - リアクティブプリミティブの詳細
+- [Island Architecture](/ja/luna/islands/) - 部分的ハイドレーションのパターン
+- [Luna ドキュメント](/ja/luna/) - 完全なドキュメント
 
 ---
 

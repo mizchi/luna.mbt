@@ -116,8 +116,9 @@ pub fn lint_docs(config : @astra.SsgConfig, cwd : String) -> LintResult {
     // Check frontmatter
     check_frontmatter(page.source_path, frontmatter, issues)
 
-    // Check links
-    check_links(page.source_path, page.url_path, nodes, valid_urls, issues)
+    // Check links - pass source_path to determine if it's an index page
+    let is_index = page.source_path.has_suffix("index.md")
+    check_links(page.source_path, page.url_path, is_index, nodes, valid_urls, issues)
 
     // Check images
     check_images(page.source_path, nodes, issues)
@@ -177,11 +178,12 @@ fn check_frontmatter(
 fn check_links(
   file : String,
   current_url : String,
+  is_index : Bool,
   nodes : Array[@astra.MdNode],
   valid_urls : Map[String, Bool],
   issues : Array[LintIssue],
 ) -> Unit {
-  check_links_recursive(file, current_url, nodes, valid_urls, issues)
+  check_links_recursive(file, current_url, is_index, nodes, valid_urls, issues)
 }
 
 ///|
@@ -189,6 +191,7 @@ fn check_links(
 fn check_links_recursive(
   file : String,
   current_url : String,
+  is_index : Bool,
   nodes : Array[@astra.MdNode],
   valid_urls : Map[String, Bool],
   issues : Array[LintIssue],
@@ -198,7 +201,7 @@ fn check_links_recursive(
       @astra.MdNode::Link(href~, children~, ..) => {
         // Check if internal link
         if is_internal_link(href) {
-          let resolved = resolve_link(current_url, href)
+          let resolved = resolve_link(current_url, href, is_index)
           if not(is_valid_internal_link(resolved, valid_urls)) {
             issues.push(LintIssue::{
               severity: Error,
@@ -210,21 +213,35 @@ fn check_links_recursive(
           }
         }
         // Check children
-        check_links_recursive(file, current_url, children, valid_urls, issues)
+        check_links_recursive(
+          file, current_url, is_index, children, valid_urls, issues,
+        )
       }
       @astra.MdNode::Paragraph(children~) =>
-        check_links_recursive(file, current_url, children, valid_urls, issues)
+        check_links_recursive(
+          file, current_url, is_index, children, valid_urls, issues,
+        )
       @astra.MdNode::Heading(children~, ..) =>
-        check_links_recursive(file, current_url, children, valid_urls, issues)
+        check_links_recursive(
+          file, current_url, is_index, children, valid_urls, issues,
+        )
       @astra.MdNode::Bold(children~) =>
-        check_links_recursive(file, current_url, children, valid_urls, issues)
+        check_links_recursive(
+          file, current_url, is_index, children, valid_urls, issues,
+        )
       @astra.MdNode::Italic(children~) =>
-        check_links_recursive(file, current_url, children, valid_urls, issues)
+        check_links_recursive(
+          file, current_url, is_index, children, valid_urls, issues,
+        )
       @astra.MdNode::Blockquote(children~) =>
-        check_links_recursive(file, current_url, children, valid_urls, issues)
+        check_links_recursive(
+          file, current_url, is_index, children, valid_urls, issues,
+        )
       @astra.MdNode::List(items~, ..) =>
         for item in items {
-          check_links_recursive(file, current_url, item, valid_urls, issues)
+          check_links_recursive(
+            file, current_url, is_index, item, valid_urls, issues,
+          )
         }
       _ => ()
     }
@@ -255,32 +272,67 @@ fn is_internal_link(href : String) -> Bool {
 
 ///|
 /// Resolve relative link to absolute path
-fn resolve_link(current_url : String, href : String) -> String {
+/// - For index pages: use standard browser behavior (./foo = child)
+/// - For content pages: use sibling behavior (./foo = sibling in parent dir)
+fn resolve_link(
+  current_url : String,
+  href : String,
+  is_index : Bool,
+) -> String {
   // Already absolute
   if href.has_prefix("/") {
     return normalize_url(href)
   }
 
-  // Relative link - resolve from current URL
-  let base = if current_url.has_suffix("/") {
+  // Handle ./ prefix
+  let clean_href = if href.has_prefix("./") {
+    let slice_result : String = (href[2:]).to_string() catch { _ => href }
+    slice_result
+  } else {
+    href
+  }
+
+  // For index pages, use the current URL as base (standard browser behavior)
+  // For content pages, use parent directory (sibling behavior)
+  let base = if is_index {
+    // Index page: /luna/api-js/ + signals = /luna/api-js/signals/
     current_url
   } else {
-    // Get directory part
-    let parts = current_url.to_array()
-    let mut last_slash = 0
-    for i = 0; i < parts.length(); i = i + 1 {
-      if parts[i] == '/' {
-        last_slash = i
-      }
+    // Content page: /luna/tutorial-js/introduction_basics/ -> parent /luna/tutorial-js/
+    get_parent_directory(current_url)
+  }
+
+  normalize_url(base + clean_href)
+}
+
+///|
+/// Get parent directory of a URL path
+/// /luna/tutorial-js/introduction_basics/ -> /luna/tutorial-js/
+fn get_parent_directory(url_path : String) -> String {
+  // Remove trailing slash if present
+  let trimmed = if url_path.has_suffix("/") {
+    let slice_result : String = (url_path[:url_path.length() - 1]).to_string() catch {
+      _ => url_path
     }
-    if last_slash > 0 {
-      String::from_array(parts[:last_slash + 1].to_array())
-    } else {
-      "/"
+    slice_result
+  } else {
+    url_path
+  }
+
+  // Find last slash
+  let chars = trimmed.to_array()
+  let mut last_slash = 0
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '/' {
+      last_slash = i
     }
   }
 
-  normalize_url(base + href)
+  if last_slash > 0 {
+    String::from_array(chars[:last_slash + 1].to_array())
+  } else {
+    "/"
+  }
 }
 
 ///|

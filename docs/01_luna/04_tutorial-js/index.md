@@ -1,5 +1,5 @@
 ---
-title: JavaScript
+title: "Tutorial: JavaScript"
 ---
 
 # JavaScript Tutorial
@@ -45,6 +45,6 @@ npm install @luna_ui/luna
 
 ## See Also
 
-- [JavaScript API Reference](/luna/api/js/) - API Reference
-- [MoonBit Tutorial](/luna/tutorial/moonbit/) - MoonBit version
+- [JavaScript API Reference](/luna/api-js/) - API Reference
+- [MoonBit Tutorial](/luna/tutorial-moonbit/) - MoonBit version
 - [Astra SSG](/astra/) - Static site generation

@@ -175,8 +175,15 @@ fn generate_page_with_highlight(
     None => "/static/"
   }
 
-  // Convert to VNode
-  let content_vnode = @markdown.md_nodes_to_vnode(nodes, islands_base_path~)
+  // Convert to VNode with link resolution
+  // Index pages use standard browser behavior, content pages use sibling behavior
+  let is_index = page.source_path.has_suffix("index.md")
+  let content_vnode = @markdown.md_nodes_to_vnode(
+    nodes,
+    islands_base_path~,
+    current_url_path=page.url_path,
+    is_index~,
+  )
 
   // Extract TOC
   let toc = @markdown.extract_toc(nodes)

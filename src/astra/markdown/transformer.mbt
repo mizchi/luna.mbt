@@ -21,6 +21,123 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 }
 
 // =============================================================================
+// Link Resolution
+// =============================================================================
+
+///|
+/// Resolve a relative link to an absolute path
+/// - Absolute links (starting with /) are returned as-is
+/// - External links (http://, https://, etc.) are returned as-is
+/// - For index pages: use standard browser behavior (./foo = child)
+/// - For content pages: use sibling behavior (./foo = sibling in parent dir)
+fn resolve_href(
+  href : String,
+  current_url_path : String,
+  is_index : Bool,
+) -> String {
+  // External links - return as-is
+  if href.has_prefix("http://") ||
+    href.has_prefix("https://") ||
+    href.has_prefix("mailto:") ||
+    href.has_prefix("javascript:") {
+    return href
+  }
+
+  // Hash-only links - return as-is
+  if href.has_prefix("#") {
+    return href
+  }
+
+  // Already absolute - just normalize
+  if href.has_prefix("/") {
+    return normalize_href(href)
+  }
+
+  // Handle ./ prefix
+  let clean_href = if href.has_prefix("./") {
+    let slice_result : String = (href[2:]).to_string() catch { _ => href }
+    slice_result
+  } else {
+    href
+  }
+
+  // For index pages, use the current URL as base (standard browser behavior)
+  // For content pages, use parent directory (sibling behavior)
+  let base = if is_index {
+    // Index page: /luna/api-js/ + signals = /luna/api-js/signals/
+    current_url_path
+  } else {
+    // Content page: /luna/tutorial-js/introduction_basics/ -> parent /luna/tutorial-js/
+    get_parent_directory(current_url_path)
+  }
+
+  normalize_href(base + clean_href)
+}
+
+///|
+/// Get parent directory of a URL path
+/// /luna/tutorial-js/introduction_basics/ -> /luna/tutorial-js/
+fn get_parent_directory(url_path : String) -> String {
+  // Remove trailing slash if present
+  let trimmed = if url_path.has_suffix("/") {
+    let slice_result : String = (url_path[:url_path.length() - 1]).to_string() catch {
+      _ => url_path
+    }
+    slice_result
+  } else {
+    url_path
+  }
+
+  // Find last slash
+  let chars = trimmed.to_array()
+  let mut last_slash = 0
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '/' {
+      last_slash = i
+    }
+  }
+
+  if last_slash > 0 {
+    String::from_array(chars[:last_slash + 1].to_array())
+  } else {
+    "/"
+  }
+}
+
+///|
+/// Normalize a URL path (ensure trailing slash for directory-like paths)
+fn normalize_href(href : String) -> String {
+  // If it looks like a file (has extension), don't add trailing slash
+  if has_file_extension(href) {
+    return href
+  }
+
+  // Add trailing slash if not present
+  if href.has_suffix("/") {
+    href
+  } else {
+    href + "/"
+  }
+}
+
+///|
+/// Check if path has a file extension
+fn has_file_extension(path : String) -> Bool {
+  let chars = path.to_array()
+  let mut last_dot = -1
+  let mut last_slash = -1
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '.' {
+      last_dot = i
+    }
+    if chars[i] == '/' {
+      last_slash = i
+    }
+  }
+  last_dot > last_slash && last_dot > 0
+}
+
+// =============================================================================
 // Main Transformer
 // =============================================================================
 
@@ -29,8 +146,12 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 pub fn md_nodes_to_vnode(
   nodes : Array[@astra.MdNode],
   islands_base_path? : String = "/static/",
+  current_url_path? : String = "/",
+  is_index? : Bool = true,
 ) -> @luna.Node[Unit] {
-  let children = nodes.map(fn(n) { md_node_to_vnode(n, islands_base_path~) })
+  let children = nodes.map(fn(n) {
+    md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+  })
   @luna.fragment(children)
 }
 
@@ -39,11 +160,13 @@ pub fn md_nodes_to_vnode(
 pub fn md_node_to_vnode(
   node : @astra.MdNode,
   islands_base_path? : String = "/static/",
+  current_url_path? : String = "/",
+  is_index? : Bool = true,
 ) -> @luna.Node[Unit] {
   match node {
     @astra.MdNode::Heading(level~, children~, id~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~)
+        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
       })
       let attrs = [attr("id", id), attr("class", "heading heading-\{level}")]
       let tag = "h\{level}"
@@ -51,20 +174,20 @@ pub fn md_node_to_vnode(
     }
     @astra.MdNode::Paragraph(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~)
+        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
       })
       h("p", [], child_vnodes)
     }
     @astra.MdNode::Text(text) => @luna.text(text)
     @astra.MdNode::Bold(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~)
+        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
       })
       h("strong", [], child_vnodes)
     }
     @astra.MdNode::Italic(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~)
+        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
       })
       h("em", [], child_vnodes)
     }
@@ -97,9 +220,13 @@ pub fn md_node_to_vnode(
     }
     @astra.MdNode::Link(href~, title~, children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~)
+        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
       })
-      let attrs : Array[(String, @luna.Attr[Unit])] = [attr("href", href)]
+      // Resolve relative links to absolute paths
+      let resolved_href = resolve_href(href, current_url_path, is_index)
+      let attrs : Array[(String, @luna.Attr[Unit])] = [
+        attr("href", resolved_href),
+      ]
       if not(title.is_empty()) {
         attrs.push(attr("title", title))
       }
@@ -123,7 +250,7 @@ pub fn md_node_to_vnode(
     @astra.MdNode::List(ordered~, items~) => {
       let item_vnodes = items.map(fn(item_nodes) {
         let children = item_nodes.map(fn(n) {
-          md_node_to_vnode(n, islands_base_path~)
+          md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
         })
         h("li", [], children)
       })
@@ -135,14 +262,14 @@ pub fn md_node_to_vnode(
     }
     @astra.MdNode::Blockquote(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~)
+        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
       })
       h("blockquote", [], child_vnodes)
     }
     @astra.MdNode::Table(headers~, rows~) => {
       // Build header row
       let header_cells = headers.map(fn(h_node) {
-        h("th", [], [md_node_to_vnode(h_node, islands_base_path~)])
+        h("th", [], [md_node_to_vnode(h_node, islands_base_path~, current_url_path~, is_index~)])
       })
       let header_row = h("tr", [], header_cells)
       let thead = h("thead", [], [header_row])
@@ -150,7 +277,7 @@ pub fn md_node_to_vnode(
       // Build body rows
       let body_rows = rows.map(fn(row) {
         let cells = row.map(fn(cell) {
-          h("td", [], [md_node_to_vnode(cell, islands_base_path~)])
+          h("td", [], [md_node_to_vnode(cell, islands_base_path~, current_url_path~, is_index~)])
         })
         h("tr", [], cells)
       })

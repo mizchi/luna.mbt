@@ -23,7 +23,7 @@ Web Components provide:
 
 The server renders an island with Web Component attributes:
 
-> For server-side rendering with MoonBit, see the [MoonBit Tutorial](/moonbit/tutorial/).
+> For server-side rendering with MoonBit, see the [MoonBit Tutorial](/luna/tutorial-moonbit/).
 
 ```html
 <wc-counter
@@ -372,6 +372,6 @@ You've completed the Luna tutorial! You now know:
 
 ## Next Steps
 
-- Read the [JavaScript API Reference](/js/api/)
-- Read the [MoonBit Tutorial](/moonbit/tutorial/) for server-side rendering
+- Read the [JavaScript API Reference](/luna/api-js/)
+- Read the [MoonBit Tutorial](/luna/tutorial-moonbit/) for server-side rendering
 - Explore the [Examples](https://github.com/example/luna/examples)

@@ -282,6 +282,6 @@ You've completed the Luna MoonBit tutorial! You now know:
 
 ## Next Steps
 
-- Read the [MoonBit API Reference](/moonbit/api/)
-- Read the [JavaScript Tutorial](/js/tutorial/) for client-side hydration
+- Read the [MoonBit API Reference](/luna/api-moonbit/)
+- Read the [JavaScript Tutorial](/luna/tutorial-js/) for client-side hydration
 - Explore [Sol](/sol/) for full SSR framework

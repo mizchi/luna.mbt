@@ -1,3 +1,7 @@
+---
+title: Benchmark Report
+---
+
 # Luna Benchmark Report
 
 Luna vs React vs Preact の比較ベンチマーク結果。

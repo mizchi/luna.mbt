@@ -1,5 +1,5 @@
 ---
-title: JavaScript
+title: "API: JavaScript"
 ---
 
 # JavaScript API Reference

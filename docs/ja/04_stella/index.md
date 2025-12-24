@@ -21,6 +21,6 @@ Stella がプレビューリリースに達したら、ドキュメントが追�
 
 ## 関連項目
 
-- [Luna UI ガイド](/ja/guide/) - コアリアクティビティの概念
+- [Luna UI ガイド](/ja/luna/) - コアリアクティビティの概念
 - [Astra SSG](/ja/astra/) - 静的サイト生成
 - [Sol Framework](/ja/sol/) - フルスタック SSR フレームワーク

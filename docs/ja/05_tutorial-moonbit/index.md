@@ -4,7 +4,7 @@ title: チュートリアル (MoonBit)
 
 # チュートリアル (MoonBit)
 
-> TypeScript と MoonBit の両方の例を含む完全なチュートリアルは、[メインチュートリアル](/tutorial-js/)を参照してください。
+> TypeScript と MoonBit の両方の例を含む完全なチュートリアルは、[メインチュートリアル](/luna/tutorial-js/)を参照してください。
 
 ## MoonBit クイックスタート
 
@@ -53,6 +53,6 @@ fn counter() -> DomNode {
 
 ## 関連
 
-- [チュートリアル](/tutorial-js/) - 全トピックの完全なチュートリアル
+- [チュートリアル](/luna/tutorial-js/) - 全トピックの完全なチュートリアル
 - [Luna コア](/ja/luna/) - コア概念
 - [Luna API](/ja/luna/signals/) - Signals API リファレンス

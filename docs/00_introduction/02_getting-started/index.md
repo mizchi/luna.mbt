@@ -16,7 +16,7 @@ Get up and running with Luna in minutes.
 npm install @luna_ui/luna
 ```
 
-2. Start with the [JavaScript Tutorial](/luna/tutorial/js/)
+2. Start with the [JavaScript Tutorial](/luna/tutorial-js/)
 
 ### MoonBit Developers
 
@@ -30,7 +30,7 @@ npm install @luna_ui/luna
 }
 ```
 
-2. Start with the [MoonBit Tutorial](/luna/tutorial/moonbit/)
+2. Start with the [MoonBit Tutorial](/luna/tutorial-moonbit/)
 
 ## Quick Examples
 

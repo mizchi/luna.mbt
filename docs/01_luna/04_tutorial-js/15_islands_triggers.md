@@ -149,7 +149,7 @@ A typical page might use all triggers:
 </div>
 ```
 
-> For server-side rendering with MoonBit, see the [MoonBit Tutorial](/moonbit/tutorial/).
+> For server-side rendering with MoonBit, see the [MoonBit Tutorial](/luna/tutorial-moonbit/).
 
 ## Manual Trigger (None)
 

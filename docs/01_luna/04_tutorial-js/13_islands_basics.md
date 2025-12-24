@@ -61,7 +61,7 @@ The server renders an island with hydration attributes:
 </div>
 ```
 
-> For server-side rendering with MoonBit, see the [MoonBit Tutorial](/moonbit/tutorial/).
+> For server-side rendering with MoonBit, see the [MoonBit Tutorial](/luna/tutorial-moonbit/).
 
 ### 2. Client Side (TypeScript)
 

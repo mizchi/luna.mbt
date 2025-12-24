@@ -108,14 +108,14 @@ Development utilities and experimental features:
 
 ### For JavaScript/TypeScript Developers
 
-1. Start with [JavaScript Tutorial](/js/tutorial/)
-2. Learn [Signals](/js/api/signals) and [Islands](/js/api/islands)
+1. Start with [JavaScript Tutorial](/luna/tutorial-js/)
+2. Learn [Signals](/luna/api-js/signals) and [Islands](/luna/api-js/islands)
 3. Build a site with [Astra](/astra/) or app with [Sol](/sol/)
 
 ### For MoonBit Developers
 
-1. Start with [MoonBit Tutorial](/moonbit/tutorial/)
-2. Explore [MoonBit API Reference](/moonbit/api/)
+1. Start with [MoonBit Tutorial](/luna/tutorial-moonbit/)
+2. Explore [MoonBit API Reference](/luna/api-moonbit/)
 3. Build server-side components with Sol
 
 ## Quick Start
@@ -154,7 +154,7 @@ count.set(1)  // Prints: 1
 
 Choose based on your needs:
 
-- **Learning Luna?** → [JavaScript Tutorial](/js/tutorial/) or [MoonBit Tutorial](/moonbit/tutorial/)
+- **Learning Luna?** → [JavaScript Tutorial](/luna/tutorial-js/) or [MoonBit Tutorial](/luna/tutorial-moonbit/)
 - **Building docs?** → [Astra Quick Start](/astra/)
 - **Building an app?** → [Sol Quick Start](/sol/)
 
