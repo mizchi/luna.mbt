@@ -1,0 +1,49 @@
+{
+  "name": "@mizchi/astra",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "MoonBit Island Architecture SSG Framework",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "astra": "./bin/astra.mjs"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm build",
+    "build": "tsdown"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "assets"
+  ],
+  "keywords": [
+    "luna",
+    "moonbit",
+    "island",
+    "ssg",
+    "astra"
+  ],
+  "author": "mizchi",
+  "license": "MIT",
+  "repository": {
+    "directory": "js/astra",
+    "url": "https://github.com/mizchi/luna.mbt"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "colorette": "^2.0.20",
+    "gray-matter": "^4.0.3",
+    "hono": "^4.7.0",
+    "marked": "^15.0.0"
+  },
+  "devDependencies": {
+    "tsdown": "^0.18.2"
+  }
+}

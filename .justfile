@@ -45,8 +45,16 @@ build-debug:
 build-loader:
     pnpm exec rolldown -c rolldown.config.mjs
 
+# js/luna ビルド
+build-luna:
+    cd js/luna && pnpm build
+
+# js/astra ビルド
+build-astra:
+    cd js/astra && pnpm build
+
 # フルビルド
-build: build-moon build-loader
+build: build-moon build-loader build-luna build-astra
     pnpm vite build
 
 # =============================================================================

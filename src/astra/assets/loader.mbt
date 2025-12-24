@@ -2,6 +2,11 @@
 /// Asset loader for Astra SSG
 /// Loads CSS and JavaScript files from external files at build time
 
+///|
+/// Get assets directory from globalThis.__astra_assets_dir (set by JS wrapper)
+extern "js" fn ffi_get_astra_assets_dir() -> String? =
+  #| () => globalThis.__astra_assets_dir
+
 // Cache for loaded assets
 let main_css_cache : Ref[String?] = { val: None }
 
@@ -28,11 +33,20 @@ let loader_js_cache : Ref[String?] = { val: None }
 /// Note: Uses simple string concatenation instead of @path.join to avoid
 /// async issues with the MoonBit coroutine scheduler
 fn load_asset(relative_path : String) -> String {
-  // Try relative to current working directory first
-  let paths = [
-    "src/astra/assets/" + relative_path,
-    "node_modules/mizchi/luna/src/astra/assets/" + relative_path,
-  ]
+  // Build list of paths to try
+  let paths : Array[String] = []
+
+  // First priority: globalThis.__astra_assets_dir (set by JS wrapper)
+  match ffi_get_astra_assets_dir() {
+    Some(dir) => paths.push(dir + "/" + relative_path)
+    None => ()
+  }
+
+  // Development: running from luna.mbt repo root
+  paths.push("src/astra/assets/" + relative_path)
+  // npm package: @mizchi/astra installed via npm (relative to cwd)
+  paths.push("node_modules/@mizchi/astra/assets/" + relative_path)
+
   for p in paths {
     try {
       return @fs.read_file_as_string(p)

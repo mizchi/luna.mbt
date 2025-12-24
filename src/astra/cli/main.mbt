@@ -9,6 +9,7 @@ fn show_help() -> Unit {
     #|Usage: astra <command> [options]
     #|
     #|Commands:
+    #|  new <name>     Create a new Astra project
     #|  build          Build static site from docs/
     #|  dev            Start development server with HMR
     #|
@@ -17,9 +18,9 @@ fn show_help() -> Unit {
     #|  -v, --version  Show version
     #|
     #|Examples:
-    #|  astra build                    Build with default config
-    #|  astra build -o public          Build to public/ directory
-    #|  astra build -c astra.json      Use custom config file
+    #|  astra new my-docs              Create a new project
+    #|  astra dev                      Start dev server
+    #|  astra build                    Build static site
   println(help)
 }
 
@@ -56,6 +57,7 @@ async fn main {
   let command = first_arg
   let command_args = if args.length() > 1 { args[1:].to_array() } else { [] }
   match command {
+    "new" => run_new_command(command_args)
     "build" => run_build_command(command_args)
     "dev" => run_dev_command(command_args)
     _ => {

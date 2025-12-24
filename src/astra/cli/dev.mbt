@@ -91,7 +91,7 @@ fn show_dev_help() -> Unit {
     #|Start development server with file watching
     #|
     #|Options:
-    #|  -p, --port <port>    Port to listen on (default: 3000)
+    #|  -p, --port <port>    Port to listen on (default: 3355)
     #|  -c, --config <path>  Config file path
     #|  -h, --help           Show help
   println(help)
@@ -104,7 +104,7 @@ async fn run_dev_command(args : Array[String]) -> Unit {
   let result = @util.parseArgs(
     args~,
     options=[
-      @util.String(key="port", short="p", multiple=false, default=Some("3000")),
+      @util.String(key="port", short="p", multiple=false, default=Some("3355")),
       @util.String(key="config", short="c", multiple=false, default=None),
       @util.Boolean(key="help", short="h"),
     ],
@@ -117,10 +117,10 @@ async fn run_dev_command(args : Array[String]) -> Unit {
   let port : Int = if result.values.contains("port") {
     let port_str : String = result.values["port"].cast()
     @strconv.parse_int(port_str) catch {
-      _ => 3000
+      _ => 3355
     }
   } else {
-    3000
+    3355
   }
   let config_path_override : String? = if result.values.contains("config") {
     Some(result.values["config"].cast())

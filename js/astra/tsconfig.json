@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@mizchi/astra": ["./src/index.ts"]
+    }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

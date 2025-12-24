@@ -1,60 +1,11 @@
 {
-  "name": "@mizchi/luna",
-  "version": "0.0.1",
+  "name": "luna.mbt",
+  "private": true,
   "type": "module",
-  "description": "MoonBit Island Architecture UI Framework",
+  "description": "MoonBit Island Architecture UI Framework - Workspace Root",
   "scripts": {
     "test": "just test",
     "build": "just build"
-  },
-  "bin": {
-    "sol": "./bin/sol.mjs",
-    "astra": "./bin/astra.mjs"
-  },
-  "exports": {
-    ".": {
-      "import": "./js/luna/index.js",
-      "types": "./js/luna/index.d.ts"
-    },
-    "./jsx-runtime": {
-      "import": "./js/luna/jsx-runtime.js",
-      "types": "./js/luna/jsx-runtime.d.ts"
-    },
-    "./jsx-dev-runtime": {
-      "import": "./js/luna/jsx-dev-runtime.js",
-      "types": "./js/luna/jsx-dev-runtime.d.ts"
-    },
-    "./loader": {
-      "import": "./js/luna/loader.js",
-      "types": "./js/luna/loader.d.ts"
-    },
-    "./dom": {
-      "import": "./js/luna/dom.js",
-      "types": "./js/luna/dom.d.ts"
-    },
-    "./js/*": "./js/*"
-  },
-  "files": [
-    "bin",
-    "js",
-    "target/js/release/build"
-  ],
-  "keywords": [
-    "luna",
-    "moonbit",
-    "island",
-    "signals",
-    "ssr",
-    "hydration"
-  ],
-  "author": "mizchi",
-  "license": "MIT",
-  "dependencies": {
-    "@hono/node-server": "^1.14.0",
-    "colorette": "^2.0.20",
-    "gray-matter": "^4.0.3",
-    "hono": "^4.7.0",
-    "marked": "^15.0.0"
   },
   "devDependencies": {
     "0x": "^6.0.0",
