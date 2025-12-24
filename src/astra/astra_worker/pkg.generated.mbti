@@ -1,14 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/astra/cli"
+package "mizchi/luna/astra/astra_worker"
 
 // Values
 
 // Errors
 
 // Types and methods
-type AstraTemplate
-
-type HmrServer
 
 // Type aliases
 

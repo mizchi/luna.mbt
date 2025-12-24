@@ -4,9 +4,16 @@ package "mizchi/luna/astra/generator"
 import(
   "mizchi/luna/astra"
   "mizchi/luna/astra/shiki"
+  "mizchi/luna/core/ssg"
 )
 
 // Values
+pub fn copy_static_assets(@astra.BuildContext) -> Unit
+
+pub fn generate_404_page(@astra.BuildContext) -> Unit
+
+pub fn generate_meta_files(@astra.BuildContext, @ssg.DocumentTree) -> Unit
+
 pub fn generate_single_page(@astra.BuildContext, @astra.PageMeta, @shiki.Highlighter) -> Result[Unit, String]
 
 pub fn generate_site(@astra.SsgConfig, String) -> Result[Unit, String]

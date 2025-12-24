@@ -48,6 +48,6 @@ test "generate_shiki_css: contains expected rules" {
   let css = generate_shiki_css()
   inspect(css.contains("--shiki-light"), content="true")
   inspect(css.contains("--shiki-dark"), content="true")
-  inspect(css.contains("prefers-color-scheme: dark"), content="true")
+  inspect(css.contains("html.dark"), content="true")
   inspect(css.contains(".code-block-wrapper"), content="true")
 }

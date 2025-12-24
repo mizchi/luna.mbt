@@ -1,0 +1,93 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/astra/builder_pool"
+
+import(
+  "mizchi/js/core"
+  "mizchi/luna/astra"
+)
+
+// Values
+pub fn pages_from_json(String) -> Array[@astra.PageMeta]
+
+pub fn pages_to_json(Array[@astra.PageMeta]) -> String
+
+pub async fn run_parallel_build(@astra.SsgConfig, Array[@astra.PageMeta], Array[@astra.SidebarGroup], String, String, num_workers? : Int) -> Array[JobResult]
+
+pub fn sidebar_from_json(String) -> Array[@astra.SidebarGroup]
+
+pub fn sidebar_to_json(Array[@astra.SidebarGroup]) -> String
+
+pub fn ssg_config_from_json(String) -> @astra.SsgConfig?
+
+pub fn ssg_config_to_json(@astra.SsgConfig) -> String
+
+pub fn start_worker() -> Unit
+
+// Errors
+
+// Types and methods
+pub struct BuilderPool {
+  config : PoolConfig
+  workers : Array[WorkerHandle]
+  mut pending_jobs : Array[Int]
+  mut results : Array[JobResult]
+  mut completed_count : Int
+  mut total_jobs : Int
+  mut on_complete : (() -> Unit)?
+  init_data : WorkerInitData
+}
+pub fn BuilderPool::new(PoolConfig, WorkerInitData) -> Self
+pub fn BuilderPool::shutdown(Self) -> Unit
+pub fn BuilderPool::submit_jobs(Self, Array[Int]) -> Unit
+pub async fn BuilderPool::wait_all(Self) -> Array[JobResult]
+
+pub(all) struct JobResult {
+  page_index : Int
+  url_path : String
+  success : Bool
+  error : String?
+}
+pub fn JobResult::to_json(Self) -> @core.Any
+
+pub enum ParentMessage {
+  Init(WorkerInitData)
+  Job(Int)
+  Shutdown
+}
+pub fn ParentMessage::to_json(Self) -> @core.Any
+
+pub(all) struct PoolConfig {
+  num_workers : Int
+  worker_script : String
+  cwd : String
+  timeout_ms : Int
+}
+pub fn PoolConfig::default(String, String) -> Self
+
+type WorkerHandle
+
+pub(all) struct WorkerInitData {
+  config_json : String
+  pages_json : String
+  sidebar_json : String
+  cwd : String
+}
+
+pub enum WorkerMessage {
+  Ready
+  Done(JobResult)
+  Error(String)
+}
+pub fn WorkerMessage::from_json(@core.Any) -> Self?
+
+pub enum WorkerState {
+  Initializing
+  Idle
+  Busy(Int)
+  Terminated
+}
+
+// Type aliases
+
+// Traits
+
