@@ -1,6 +1,6 @@
 {
   "docs": "docs",
-  "output": "dist",
+  "output": "dist-docs",
   "title": "🌓 Luna UI",
   "base": "/",
   "trailingSlash": true,
