@@ -105,7 +105,7 @@ pub fn parse_struct_defs(
   let lines = content.split("\n").to_array()
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].to_string().trim().to_string()
+    let line = lines[i].to_string().trim(chars=" \t\n\r").to_string()
     // Look for struct definitions: pub(all) struct Name { or pub struct Name {
     if line.has_prefix("pub(all) struct ") || line.has_prefix("pub struct ") {
       let visibility = if line.has_prefix("pub(all)") {
@@ -206,5 +206,5 @@ fn extract_struct_raw(
       }
     }
   }
-  buf.to_string().trim().to_string()
+  buf.to_string().trim(chars=" \t\n\r").to_string()
 }

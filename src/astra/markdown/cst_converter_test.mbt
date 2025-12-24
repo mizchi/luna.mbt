@@ -49,7 +49,7 @@ test "parse_markdown_native: code block" {
   match nodes[0] {
     @astra.MdNode::CodeBlock(lang~, code~) => {
       inspect(lang, content="javascript")
-      inspect(code.trim().to_string(), content="const x = 1;")
+      inspect(code.trim(chars=" \t\n\r").to_string(), content="const x = 1;")
     }
     _ => fail("Expected CodeBlock node")
   }

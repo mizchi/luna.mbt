@@ -59,7 +59,7 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
         // Parse comma-separated islands
         let parts = value.split(",")
         for part in parts {
-          let trimmed = part.to_string().trim().to_string()
+          let trimmed = part.to_string().trim(chars=" \t\n\r").to_string()
           if not(trimmed.is_empty()) {
             islands.push(trimmed)
           }
@@ -325,7 +325,7 @@ pub(all) struct CodeBlockInfo {
 ///|
 /// Parse code block info string into components
 pub fn parse_code_block_info(info : String) -> CodeBlockInfo {
-  let trimmed = info.trim().to_string()
+  let trimmed = info.trim(chars=" \t\n\r").to_string()
   if trimmed.is_empty() {
     return { lang: "", filename: "", meta: "" }
   }
@@ -336,7 +336,7 @@ pub fn parse_code_block_info(info : String) -> CodeBlockInfo {
       let main = trimmed.unsafe_substring(start=0, end=idx)
       let meta_str = trimmed
         .unsafe_substring(start=idx + 1, end=trimmed.length())
-        .trim()
+        .trim(chars=" \t\n\r")
         .to_string()
       (main, meta_str)
     }
