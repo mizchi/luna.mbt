@@ -21,6 +21,43 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 }
 
 ///|
+/// Extract component name from source path
+/// e.g., "counter" from "counter/" or "my-component" from "my-component/"
+fn get_component_name_from_path(source_path : String) -> String {
+  // Remove trailing slash if present
+  let path = if source_path.has_suffix("/") {
+    let len = source_path.length()
+    let buf = StringBuilder::new()
+    let mut idx = 0
+    for c in source_path {
+      if idx < len - 1 {
+        buf.write_char(c)
+      }
+      idx = idx + 1
+    }
+    buf.to_string()
+  } else {
+    source_path
+  }
+
+  // Get last segment of path
+  let mut last_slash = -1
+  let mut idx = 0
+  for c in path {
+    if c == '/' {
+      last_slash = idx
+    }
+    idx = idx + 1
+  }
+
+  if last_slash >= 0 && last_slash < path.length() - 1 {
+    path.substring(start=last_slash + 1)
+  } else {
+    path
+  }
+}
+
+///|
 /// Simple CSS minification - removes excessive whitespace
 fn minify_css(css : String) -> String {
   // Simple whitespace normalization using string operations
@@ -214,6 +251,14 @@ fn generate_page_with_highlight(
       let vnode = @luna.raw_html(html_content)
       // Use page frontmatter (from file_router, which is default for HTML)
       // No TOC for HTML files
+      (page.frontmatter, vnode, [])
+    }
+    @astra.Component => {
+      // Component pages - generate placeholder for now
+      // TODO: Implement actual SSR rendering
+      let component_name = get_component_name_from_path(page.source_path)
+      let placeholder_html = "<div data-component=\"\{component_name}\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR rendering not yet implemented for this component.</p></div>"
+      let vnode = @luna.raw_html(placeholder_html)
       (page.frontmatter, vnode, [])
     }
   }

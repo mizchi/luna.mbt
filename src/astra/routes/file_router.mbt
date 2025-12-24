@@ -203,6 +203,23 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       if is_excluded(entry, entry_relative, exclude) {
         continue
       }
+
+      // Check if this is a component directory (contains moon.pkg.json)
+      let moon_pkg_path = join_path_simple(entry_path, "moon.pkg.json")
+      if @env.FileSystem::exists_sync(filesystem, moon_pkg_path) {
+        // This is a component directory - treat as a single page
+        let page = scan_component_dir_with_fs(
+          filesystem,
+          entry_path,
+          entry_relative,
+          i18n,
+          trailing_slash,
+        )
+        pages.push(page)
+        // Don't recurse into component directories
+        continue
+      }
+
       // Recurse into subdirectory
       scan_recursive_with_fs(
         filesystem, entry_path, entry_relative, docs_dir, cwd, i18n, exclude, pages,
@@ -239,7 +256,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
           let (fm, _) = @markdown.parse_markdown(content)
           fm
         }
-        @astra.Html => @astra.Frontmatter::default()
+        @astra.Html | @astra.Component => @astra.Frontmatter::default()
       }
       let page = @astra.PageMeta::{
         source_path,
@@ -253,6 +270,104 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       }
       pages.push(page)
     }
+  }
+}
+
+///|
+/// Scan a component directory and create PageMeta
+fn[FS : @env.FileSystem] scan_component_dir_with_fs(
+  filesystem : FS,
+  dir_path : String,
+  relative_path : String,
+  i18n : @astra.I18nConfig,
+  trailing_slash : Bool,
+) -> @astra.PageMeta {
+  // Try to read page.json for metadata
+  let page_json_path = join_path_simple(dir_path, "page.json")
+  let frontmatter = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
+    let content : String = @env.FileSystem::read_file_sync(
+      filesystem, page_json_path,
+    ) catch {
+      _ => ""
+    }
+    parse_page_json_to_frontmatter(content)
+  } else {
+    @astra.Frontmatter::default()
+  }
+
+  // Build URL path from directory name
+  let (locale, canonical_path) = detect_locale_from_path(
+    relative_path,
+    i18n,
+    trailing_slash~,
+  )
+  let url_path = build_localized_url(canonical_path, locale, i18n)
+
+  // Ensure trailing slash for component directories
+  let url_path_normalized = if trailing_slash && not(url_path.has_suffix("/")) {
+    url_path + "/"
+  } else {
+    url_path
+  }
+
+  @astra.PageMeta::{
+    source_path: relative_path,
+    url_path: url_path_normalized,
+    content_type: @astra.Component,
+    frontmatter,
+    last_modified: None,
+    locale,
+    canonical_path,
+    sort_key: relative_path,
+  }
+}
+
+///|
+/// Parse page.json content to Frontmatter
+fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
+  if content.is_empty() {
+    return @astra.Frontmatter::default()
+  }
+  // Parse JSON and extract relevant fields
+  let json : Json = @json.parse(content.view()) catch {
+    _ => return @astra.Frontmatter::default()
+  }
+
+  guard json is Object(obj) else {
+    return @astra.Frontmatter::default()
+  }
+
+  let title = @json_utils.extract_string_opt(obj, "title")
+  let description = @json_utils.extract_string_opt(obj, "description")
+  let layout = @json_utils.extract_string_opt(obj, "layout")
+
+  // Parse islands array
+  let islands : Array[String] = match obj.get("islands") {
+    Some(Array(arr)) => {
+      let result : Array[String] = []
+      for item in arr {
+        match item {
+          String(s) => result.push(s)
+          _ => ()
+        }
+      }
+      result
+    }
+    _ => []
+  }
+
+  @astra.Frontmatter::{
+    title,
+    description,
+    layout,
+    sidebar: true,
+    outline: None,
+    islands,
+    prev: None,
+    next: None,
+    image: None,
+    og_type: None,
+    twitter_card: None,
   }
 }
 

@@ -300,6 +300,8 @@ pub(all) enum ContentType {
   Markdown
   /// HTML fragment file (.html)
   Html
+  /// Component directory (moon.pkg.json)
+  Component
 } derive(Eq, Show)
 
 ///|
