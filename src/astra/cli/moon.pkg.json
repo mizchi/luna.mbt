@@ -42,10 +42,6 @@
       "alias": "http"
     },
     {
-      "path": "mizchi/js/node",
-      "alias": "node"
-    },
-    {
       "path": "mizchi/npm_typed/colorette",
       "alias": "colorette"
     },

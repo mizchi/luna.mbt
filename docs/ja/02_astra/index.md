@@ -14,11 +14,63 @@ AstraはLunaの静的サイトジェネレーターです。ドキュメント�
 - **シンタックスハイライト** - Shikiによるコードブロックのハイライト
 - **i18nサポート** - 多言語ドキュメント対応
 - **自動サイドバー** - ディレクトリ構造からナビゲーション自動生成
-- **Islands対応** - インタラクティブなLunaコンポーネントを埋め込み可能
+- **Islands対応** - インタラクティブなWeb Componentsを埋め込み可能
+- **HMR** - Hot Module Replacementによる高速開発
 
 ## クイックスタート
 
-### 1. 設定ファイルを作成
+### 1. 新規プロジェクト作成
+
+```bash
+npx @mizchi/astra new my-docs
+cd my-docs
+npm install
+```
+
+### 2. 開発サーバー起動
+
+```bash
+npm run dev
+```
+
+http://localhost:3355 でHMR付きプレビューが開きます。
+
+### 3. 本番ビルド
+
+```bash
+npm run build
+```
+
+`dist-docs/` に静的ファイルが生成されます。
+
+## CLIリファレンス
+
+```bash
+# 新規プロジェクト作成
+astra new <name> [options]
+  -t, --title <text>  サイトタイトル (デフォルト: プロジェクト名)
+  -h, --help          ヘルプ表示
+
+# HMR付き開発サーバー起動
+astra dev [options]
+  -p, --port <port>    ポート番号 (デフォルト: 3355)
+  -c, --config <path>  設定ファイルパス
+  -h, --help           ヘルプ表示
+
+# 静的サイトをビルド
+astra build [options]
+  -c, --config <path>  設定ファイルパス (デフォルト: astra.json)
+  -o, --output <dir>   出力ディレクトリ (設定を上書き)
+  -h, --help           ヘルプ表示
+
+# ヘルプ表示
+astra --help
+
+# バージョン表示
+astra --version
+```
+
+## 設定
 
 プロジェクトルートに `astra.json` を作成:
 
@@ -32,28 +84,6 @@ AstraはLunaの静的サイトジェネレーターです。ドキュメント�
 }
 ```
 
-### 2. コンテンツを作成
-
-```
-docs/
-├── index.md           # ホームページ
-├── getting-started/
-│   └── index.md       # /getting-started/
-└── guide/
-    ├── basics.md      # /guide/basics
-    └── advanced.md    # /guide/advanced
-```
-
-### 3. ビルド
-
-```bash
-astra build
-```
-
-`dist/` に出力されます。
-
-## 設定オプション
-
 ### 基本オプション
 
 | オプション | 型 | デフォルト | 説明 |
@@ -62,6 +92,8 @@ astra build
 | `output` | string | `"dist"` | 出力ディレクトリ |
 | `title` | string | `"Documentation"` | サイトタイトル |
 | `base` | string | `"/"` | ベースURLパス |
+| `trailingSlash` | boolean | `true` | URLに末尾スラッシュを使用 |
+| `exclude` | string[] | `[]` | 除外ディレクトリ |
 
 ### ナビゲーション
 
@@ -71,42 +103,6 @@ astra build
     { "text": "ガイド", "link": "/guide/" },
     { "text": "API", "link": "/api/" },
     { "text": "GitHub", "link": "https://github.com/..." }
-  ]
-}
-```
-
-### サイドバー
-
-#### 自動モード
-
-```json
-{
-  "sidebar": "auto"
-}
-```
-
-ディレクトリ構造からサイドバーを自動生成します。
-
-#### 手動モード
-
-```json
-{
-  "sidebar": [
-    {
-      "text": "はじめに",
-      "items": [
-        { "text": "スタートガイド", "link": "/getting-started/" },
-        { "text": "インストール", "link": "/installation/" }
-      ]
-    },
-    {
-      "text": "ガイド",
-      "collapsed": true,
-      "items": [
-        { "text": "基本", "link": "/guide/basics" },
-        { "text": "応用", "link": "/guide/advanced" }
-      ]
-    }
   ]
 }
 ```
@@ -138,14 +134,6 @@ docs/
         └── basics.md
 ```
 
-### 除外ディレクトリ
-
-```json
-{
-  "exclude": ["internal", "drafts"]
-}
-```
-
 ### テーマ
 
 ```json
@@ -156,10 +144,43 @@ docs/
     "footer": {
       "message": "MITライセンスでリリース",
       "copyright": "Copyright 2024 Your Name"
-    }
+    },
+    "socialLinks": [
+      { "icon": "github", "link": "https://github.com/..." }
+    ]
   }
 }
 ```
+
+### OGP (Open Graph Protocol)
+
+```json
+{
+  "ogp": {
+    "siteUrl": "https://example.com",
+    "image": "/og-image.png",
+    "twitterHandle": "@yourhandle",
+    "twitterCard": "summary_large_image"
+  }
+}
+```
+
+## コンテンツ構造
+
+```
+docs/
+├── index.md              # ホームページ (/)
+├── 00_introduction/      # /introduction/
+│   └── index.md
+├── 01_guide/             # /guide/
+│   ├── index.md
+│   ├── 01_basics.md      # /guide/basics/
+│   └── 02_advanced.md    # /guide/advanced/
+└── components/           # Web Components
+    └── my-counter.js
+```
+
+数字プレフィックス（`00_`、`01_`）は順序制御用で、URLからは除去されます。
 
 ## Markdown機能
 
@@ -169,10 +190,22 @@ docs/
 ---
 title: ページタイトル
 description: SEO用の説明文
+layout: doc
+sidebar: true
 ---
 
 # ここにコンテンツ
 ```
+
+#### フロントマターオプション
+
+| オプション | 型 | デフォルト | 説明 |
+|-----------|-----|----------|------|
+| `title` | string | - | ページタイトル |
+| `description` | string | - | SEO用説明文 |
+| `layout` | string | `"doc"` | レイアウト: `doc`, `home` |
+| `sidebar` | boolean | `true` | サイドバー表示 |
+| `image` | string | - | OGP画像（サイト設定を上書き） |
 
 ### コードブロック
 
@@ -188,30 +221,46 @@ fn main {
 ```
 ````
 
-### テーブル
+## Web Components
 
-```markdown
-| 機能 | 状態 |
-|-----|------|
-| Markdown | ✅ |
-| シンタックスハイライト | ✅ |
+静的ページにインタラクティブなWeb Componentsを埋め込めます。
+
+### コンポーネント作成
+
+`docs/components/` にコンポーネントを配置:
+
+```javascript
+// docs/components/my-counter.js
+export function hydrate(element, state, name) {
+  let count = parseInt(element.getAttribute('initial') || '0', 10);
+
+  const render = () => {
+    element.innerHTML = `<button>${count}</button>`;
+    element.querySelector("button").onclick = () => {
+      count++;
+      render();
+    };
+  };
+
+  render();
+}
 ```
 
-## CLIリファレンス
+### Markdownでの使用
 
-```bash
-# 静的サイトをビルド
-astra build
-
-# カスタム出力先でビルド
-astra build -o public
-
-# カスタム設定でビルド
-astra build -c custom.json
-
-# ヘルプを表示
-astra --help
+```html
+<my-counter initial="5" luna:trigger="load"></my-counter>
 ```
+
+### トリガータイプ
+
+| トリガー | 説明 |
+|---------|------|
+| `load` | ページ読み込み時に即座にハイドレート（デフォルト） |
+| `idle` | ブラウザがアイドル時にハイドレート |
+| `visible` | 要素がビューポートに入った時にハイドレート |
+| `media` | メディアクエリにマッチした時にハイドレート |
+| `none` | 手動ハイドレーションのみ |
 
 ## 完全な設定例
 
@@ -219,9 +268,10 @@ astra --help
 {
   "docs": "docs",
   "output": "dist",
-  "title": "Luna Documentation",
+  "title": "My Documentation",
   "base": "/",
-  "exclude": ["internal"],
+  "trailingSlash": true,
+  "exclude": ["internal", "drafts"],
   "i18n": {
     "defaultLocale": "en",
     "locales": [
@@ -231,16 +281,23 @@ astra --help
   },
   "nav": [
     { "text": "ガイド", "link": "/guide/" },
-    { "text": "チュートリアル", "link": "/tutorial/" },
     { "text": "API", "link": "/api/" }
   ],
   "sidebar": "auto",
   "theme": {
     "primaryColor": "#6366f1",
+    "logo": "/logo.svg",
     "footer": {
       "message": "MITライセンスでリリース",
       "copyright": "Copyright 2024"
-    }
+    },
+    "socialLinks": [
+      { "icon": "github", "link": "https://github.com/..." }
+    ]
+  },
+  "ogp": {
+    "siteUrl": "https://example.com",
+    "image": "/og-image.png"
   }
 }
 ```

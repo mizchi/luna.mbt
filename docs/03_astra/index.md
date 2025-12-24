@@ -13,12 +13,64 @@ Astra is Luna's static site generator for documentation and content sites.
 - **Markdown-based** - Write content in Markdown with frontmatter
 - **Syntax Highlighting** - Code blocks highlighted with Shiki
 - **i18n Support** - Multi-language documentation
-- **Auto Sidebar** - Automatic navigation generation
-- **Islands Ready** - Embed interactive Luna components
+- **Auto Sidebar** - Automatic navigation generation from directory structure
+- **Islands Ready** - Embed interactive Web Components
+- **HMR** - Fast development with Hot Module Replacement
 
 ## Quick Start
 
-### 1. Create Configuration
+### 1. Create a New Project
+
+```bash
+npx @mizchi/astra new my-docs
+cd my-docs
+npm install
+```
+
+### 2. Start Development Server
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3355 to preview your documentation with HMR.
+
+### 3. Build for Production
+
+```bash
+npm run build
+```
+
+Static files are generated in `dist-docs/`.
+
+## CLI Reference
+
+```bash
+# Create a new project
+astra new <name> [options]
+  -t, --title <text>  Site title (default: project name)
+  -h, --help          Show help
+
+# Start development server with HMR
+astra dev [options]
+  -p, --port <port>    Port to listen on (default: 3355)
+  -c, --config <path>  Config file path
+  -h, --help           Show help
+
+# Build static site
+astra build [options]
+  -c, --config <path>  Config file path (default: astra.json)
+  -o, --output <dir>   Output directory (overrides config)
+  -h, --help           Show help
+
+# Show help
+astra --help
+
+# Show version
+astra --version
+```
+
+## Configuration
 
 Create `astra.json` in your project root:
 
@@ -32,28 +84,6 @@ Create `astra.json` in your project root:
 }
 ```
 
-### 2. Create Content
-
-```
-docs/
-├── index.md           # Home page
-├── getting-started/
-│   └── index.md       # /getting-started/
-└── guide/
-    ├── basics.md      # /guide/basics
-    └── advanced.md    # /guide/advanced
-```
-
-### 3. Build
-
-```bash
-astra build
-```
-
-Output is generated in `dist/`.
-
-## Configuration
-
 ### Basic Options
 
 | Option | Type | Default | Description |
@@ -62,6 +92,8 @@ Output is generated in `dist/`.
 | `output` | string | `"dist"` | Output directory |
 | `title` | string | `"Documentation"` | Site title |
 | `base` | string | `"/"` | Base URL path |
+| `trailingSlash` | boolean | `true` | Use trailing slashes in URLs |
+| `exclude` | string[] | `[]` | Directories to exclude |
 
 ### Navigation
 
@@ -119,7 +151,7 @@ Generates sidebar from directory structure automatically.
     "defaultLocale": "en",
     "locales": [
       { "code": "en", "label": "English", "path": "" },
-      { "code": "ja", "label": "日本語", "path": "ja" }
+      { "code": "ja", "label": "Japanese", "path": "ja" }
     ]
   }
 }
@@ -138,14 +170,6 @@ docs/
         └── basics.md
 ```
 
-### Exclude Directories
-
-```json
-{
-  "exclude": ["internal", "drafts"]
-}
-```
-
 ### Theme
 
 ```json
@@ -156,32 +180,90 @@ docs/
     "footer": {
       "message": "Released under the MIT License.",
       "copyright": "Copyright 2024 Your Name"
-    }
+    },
+    "socialLinks": [
+      { "icon": "github", "link": "https://github.com/..." }
+    ]
   }
 }
 ```
 
-## Web Components (Interactive Components)
+### OGP (Open Graph Protocol)
 
-Astra supports embedding interactive Web Components in your static pages using a convention-based approach.
+```json
+{
+  "ogp": {
+    "siteUrl": "https://example.com",
+    "image": "/og-image.png",
+    "twitterHandle": "@yourhandle",
+    "twitterCard": "summary_large_image"
+  }
+}
+```
 
-### Convention
-
-Place your Web Component files in `docs/components/`:
+## Content Structure
 
 ```
 docs/
-├── components/
-│   ├── my-counter.js     # <my-counter> element
-│   └── my-widget.js      # <my-widget> element
-└── index.md
+├── index.md              # Home page (/)
+├── 00_introduction/      # /introduction/
+│   └── index.md
+├── 01_guide/             # /guide/
+│   ├── index.md
+│   ├── 01_basics.md      # /guide/basics/
+│   └── 02_advanced.md    # /guide/advanced/
+└── components/           # Web Components
+    └── my-counter.js
 ```
 
-Component filenames must use kebab-case (contain a hyphen) to comply with Custom Elements naming requirements.
+Numeric prefixes (`00_`, `01_`) control ordering but are stripped from URLs.
 
-### Creating a Web Component
+## Markdown Features
 
-Create a JavaScript module with a `hydrate` function:
+### Frontmatter
+
+```markdown
+---
+title: Page Title
+description: Page description for SEO
+layout: doc
+sidebar: true
+---
+
+# Content here
+```
+
+#### Frontmatter Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `title` | string | - | Page title |
+| `description` | string | - | SEO description |
+| `layout` | string | `"doc"` | Layout type: `doc`, `home` |
+| `sidebar` | boolean | `true` | Show sidebar |
+| `image` | string | - | OGP image (overrides site default) |
+
+### Code Blocks
+
+````markdown
+```typescript
+const greeting = "Hello, World!";
+```
+
+```moonbit
+fn main {
+  println("Hello, World!")
+}
+```
+````
+
+## Web Components
+
+Embed interactive Web Components in your static pages.
+
+### Creating a Component
+
+Place components in `docs/components/`:
 
 ```javascript
 // docs/components/my-counter.js
@@ -200,98 +282,21 @@ export function hydrate(element, state, name) {
 }
 ```
 
-### Embedding in Markdown
-
-Use the custom element tag directly in your markdown:
+### Using in Markdown
 
 ```html
 <my-counter initial="5" luna:trigger="load"></my-counter>
 ```
-
-#### Attributes
-
-| Attribute | Description |
-|-----------|-------------|
-| `luna:trigger` | When to hydrate: `load`, `idle`, `visible`, `media`, `none` |
-| (other attrs) | Passed as element attributes, accessible via `element.getAttribute()` |
-
-### Live Demo
-
-Try clicking the buttons:
-
-<my-counter initial="0"></my-counter>
 
 ### Trigger Types
 
 | Trigger | Description |
 |---------|-------------|
 | `load` | Hydrate immediately on page load (default) |
-| `idle` | Hydrate when browser is idle (requestIdleCallback) |
-| `visible` | Hydrate when element enters viewport (IntersectionObserver) |
+| `idle` | Hydrate when browser is idle |
+| `visible` | Hydrate when element enters viewport |
 | `media` | Hydrate when media query matches |
 | `none` | Manual hydration only |
-
-### How It Works
-
-When Astra processes markdown, custom element tags are converted to HTML with hydration attributes:
-
-```html
-<my-counter initial="0" luna:wc-url="/components/my-counter.js" luna:wc-trigger="load"></my-counter>
-```
-
-The built-in wc-loader script automatically hydrates components when their trigger conditions are met.
-
-## Markdown Features
-
-### Frontmatter
-
-```markdown
----
-title: Page Title
-description: Page description for SEO
----
-
-# Content here
-```
-
-### Code Blocks
-
-````markdown
-```typescript
-const greeting = "Hello, World!";
-```
-
-```moonbit
-fn main {
-  println("Hello, World!")
-}
-```
-````
-
-### Tables
-
-```markdown
-| Feature | Status |
-|---------|--------|
-| Markdown | ✅ |
-| Syntax Highlighting | ✅ |
-```
-
-## CLI Reference
-
-```bash
-# Build static site
-astra build
-
-# Build with custom output
-astra build -o public
-
-# Build with custom config
-astra build -c custom.json
-
-# Show help
-astra --help
-```
 
 ## Full Configuration Example
 
@@ -299,28 +304,36 @@ astra --help
 {
   "docs": "docs",
   "output": "dist",
-  "title": "Luna Documentation",
+  "title": "My Documentation",
   "base": "/",
-  "exclude": ["internal"],
+  "trailingSlash": true,
+  "exclude": ["internal", "drafts"],
   "i18n": {
     "defaultLocale": "en",
     "locales": [
       { "code": "en", "label": "English", "path": "" },
-      { "code": "ja", "label": "日本語", "path": "ja" }
+      { "code": "ja", "label": "Japanese", "path": "ja" }
     ]
   },
   "nav": [
     { "text": "Guide", "link": "/guide/" },
-    { "text": "Tutorial", "link": "/tutorial/" },
     { "text": "API", "link": "/api/" }
   ],
   "sidebar": "auto",
   "theme": {
     "primaryColor": "#6366f1",
+    "logo": "/logo.svg",
     "footer": {
       "message": "Released under the MIT License.",
       "copyright": "Copyright 2024"
-    }
+    },
+    "socialLinks": [
+      { "icon": "github", "link": "https://github.com/..." }
+    ]
+  },
+  "ogp": {
+    "siteUrl": "https://example.com",
+    "image": "/og-image.png"
   }
 }
 ```

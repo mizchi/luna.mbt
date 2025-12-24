@@ -13,9 +13,11 @@ struct HmrServer {
 }
 
 ///|
-fn HmrServer::start(port : Int) -> HmrServer {
-  let ws = @node.require("ws")
-  let wss_class = ws["WebSocketServer"]
+extern "js" fn import_ws() -> @js.Promise[@js.Any] =
+  #| () => import("ws")
+
+///|
+fn HmrServer::start(wss_class : @js.Any, port : Int) -> HmrServer {
   let inner = create_wss_instance(wss_class, port)
   let server = HmrServer::{ inner, }
   inner._call("on", [
@@ -166,7 +168,9 @@ async fn run_dev_command(args : Array[String]) -> Unit {
   run_initial_build(config, cwd, highlighter)
 
   // Start HMR WebSocket server
-  let hmr_server = HmrServer::start(hmr_port)
+  let ws_module = import_ws().wait()
+  let wss_class = ws_module["WebSocketServer"]
+  let hmr_server = HmrServer::start(wss_class, hmr_port)
 
   // Start HTTP server
   let output_dir = @path.join2(cwd, config.output_dir)
