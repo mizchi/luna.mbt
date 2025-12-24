@@ -142,6 +142,9 @@ pub struct StaticDirEntry {
   trailing_slash : Bool
   theme : @astra.ThemeConfig
   ogp : @astra.OgpConfig
+  ogp_text : String?
+  head_snippets : Array[String]
+  body_snippets : Array[String]
 }
 pub fn StaticDirEntry::default(String, String, String) -> Self
 

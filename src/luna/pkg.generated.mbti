@@ -46,6 +46,8 @@ pub fn[E] island(String, String, String, Array[Node[E]], trigger? : TriggerType)
 
 pub fn[E] match_case(when~ : () -> Bool, render~ : () -> Node[E]) -> MatchCase[E]
 
+pub fn[E] raw_html(String) -> Node[E]
+
 pub fn[E] show(() -> Bool, () -> Node[E]) -> Node[E]
 
 pub fn[E] switch_(cases~ : Array[MatchCase[E]], fallback? : (() -> Node[E])?) -> Node[E]
@@ -101,6 +103,7 @@ pub enum Node[E] {
   ErrorBoundary(VErrorBoundary[E])
   Switch(VSwitch[E])
   InternalRef(VInternalRef[E])
+  RawHtml(String)
 }
 
 #alias(Trigger)

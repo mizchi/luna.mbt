@@ -9,11 +9,13 @@ import(
 // Values
 pub fn convert_cst_document(@mizchi/markdown.Document) -> (@astra.Frontmatter, Array[@astra.MdNode])
 
+pub fn extract_description(Array[@astra.MdNode], max_length? : Int) -> String?
+
 pub fn extract_toc(Array[@astra.MdNode]) -> Array[TocItem]
 
-pub fn md_node_to_vnode(@astra.MdNode, islands_base_path? : String) -> @luna.Node[Unit]
+pub fn md_node_to_vnode(@astra.MdNode, islands_base_path? : String, current_url_path? : String, is_index? : Bool) -> @luna.Node[Unit]
 
-pub fn md_nodes_to_vnode(Array[@astra.MdNode], islands_base_path? : String) -> @luna.Node[Unit]
+pub fn md_nodes_to_vnode(Array[@astra.MdNode], islands_base_path? : String, current_url_path? : String, is_index? : Bool) -> @luna.Node[Unit]
 
 pub fn parse_code_block_info(String) -> CodeBlockInfo
 

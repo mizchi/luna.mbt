@@ -31,6 +31,13 @@ pub(all) struct ComponentEmbed {
 }
 pub fn ComponentEmbed::new(String) -> Self
 
+pub(all) enum ContentType {
+  Markdown
+  Html
+}
+pub impl Eq for ContentType
+pub impl Show for ContentType
+
 pub(all) struct FooterColumn {
   title : String
   items : Array[FooterLink]
@@ -136,13 +143,14 @@ pub impl @json.FromJson for OutlineConfig
 pub(all) struct PageMeta {
   source_path : String
   url_path : String
+  content_type : ContentType
   frontmatter : Frontmatter
   last_modified : String?
   locale : String
   canonical_path : String
   sort_key : String
 }
-pub fn PageMeta::new(String, String, locale? : String, canonical_path? : String, sort_key? : String) -> Self
+pub fn PageMeta::new(String, String, content_type? : ContentType, locale? : String, canonical_path? : String, sort_key? : String) -> Self
 pub fn PageMeta::with_frontmatter(Self, Frontmatter) -> Self
 
 pub(all) enum SidebarConfig {
@@ -187,6 +195,10 @@ pub(all) struct SsgConfig {
   exclude : Array[String]
   trailing_slash : Bool
   ogp : OgpConfig
+  ogp_text : String?
+  head_snippets : Array[String]
+  body_snippets : Array[String]
+  sanitize_html : Bool
 }
 pub fn SsgConfig::default() -> Self
 

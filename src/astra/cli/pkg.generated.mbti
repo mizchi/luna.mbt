@@ -1,7 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/astra/cli"
 
+import(
+  "mizchi/luna/astra"
+)
+
 // Values
+pub fn lint_docs(@astra.SsgConfig, String) -> LintResult
+
+pub fn run_lint_command(Array[String]) -> Unit
 
 // Errors
 
@@ -9,6 +16,27 @@ package "mizchi/luna/astra/cli"
 type AstraTemplate
 
 type HmrServer
+
+pub(all) struct LintIssue {
+  severity : LintSeverity
+  file : String
+  line : Int?
+  message : String
+  rule : String
+}
+
+pub(all) struct LintResult {
+  issues : Array[LintIssue]
+  files_checked : Int
+  errors : Int
+  warnings : Int
+}
+
+pub(all) enum LintSeverity {
+  Error
+  Warning
+  Info
+}
 
 // Type aliases
 
