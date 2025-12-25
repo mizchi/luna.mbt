@@ -56,6 +56,17 @@
       "description": "Enable SPA fallback for this route segment",
       "default": false
     },
+    "spa": {
+      "type": "boolean",
+      "description": "Mark this segment as a SPA zone (enables client-side routing within)",
+      "default": false
+    },
+    "fallbackBehavior": {
+      "type": "string",
+      "enum": ["spa", "404"],
+      "description": "Behavior for unmatched routes in this segment: 'spa' (client router) or '404' (not found page)",
+      "default": "404"
+    },
     "extends": {
       "type": "string",
       "description": "Path to parent page.json to inherit configuration from"

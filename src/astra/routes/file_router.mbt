@@ -203,13 +203,20 @@ pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(
 
 ///|
 /// Extract parameter name from directory name (for dynamic routes)
-/// _slug_ -> Some("slug")
-/// _id_ -> Some("id")
+/// _slug_ -> Some(ParamInfo { name: "slug", catch_all: false })
+/// _...slug_ -> Some(ParamInfo { name: "slug", catch_all: true })
 /// regular -> None
-fn extract_param_name(dir_name : String) -> String? {
+fn extract_param_name(dir_name : String) -> @core_routes.ParamInfo? {
   let len = dir_name.length()
   if dir_name.has_prefix("_") && dir_name.has_suffix("_") && len > 2 {
-    Some(@ssg.extract_substring(dir_name, 1, len - 1))
+    let inner = @ssg.extract_substring(dir_name, 1, len - 1)
+    // Check for catch-all pattern _...name_
+    if inner.has_prefix("...") && inner.length() > 3 {
+      let name = @ssg.extract_substring(inner, 3, inner.length())
+      Some(@core_routes.ParamInfo::{ name, catch_all: true })
+    } else {
+      Some(@core_routes.ParamInfo::{ name: inner, catch_all: false })
+    }
   } else {
     None
   }
@@ -246,12 +253,12 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         continue
       }
 
-      // Check if this is a dynamic parameter directory (_slug_, _id_, etc.)
+      // Check if this is a dynamic parameter directory (_slug_, _id_, _...slug_, etc.)
       match extract_param_name(entry) {
-        Some(param_name) => {
+        Some(param_info) => {
           // This is a dynamic route directory
           scan_dynamic_dir_with_fs(
-            filesystem, entry_path, entry_relative, param_name, i18n, pages, trailing_slash,
+            filesystem, entry_path, entry_relative, param_info, i18n, pages, trailing_slash,
           )
           continue
         }
@@ -342,17 +349,19 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
 }
 
 ///|
-/// Scan a dynamic parameter directory (_slug_, _id_, etc.)
+/// Scan a dynamic parameter directory (_slug_, _id_, _...slug_, etc.)
 /// Reads page.json for staticParams and generates pages for each param value
 fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   filesystem : FS,
   dir_path : String,
   relative_path : String,
-  param_name : String,
+  param_info : @core_routes.ParamInfo,
   i18n : @astra.I18nConfig,
   pages : Array[@astra.PageMeta],
   trailing_slash : Bool,
 ) -> Unit {
+  let param_name = param_info.name
+  let _is_catch_all = param_info.catch_all // TODO: Handle catch-all routes
   // Read page.json for static params configuration
   let page_json_path = join_path_simple(dir_path, "page.json")
   let page_config = if @env.FileSystem::exists_sync(filesystem, page_json_path) {

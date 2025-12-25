@@ -329,3 +329,101 @@ pub fn RouteEntry::is_component(self : RouteEntry) -> Bool {
     _ => false
   }
 }
+
+// =============================================================================
+// Hierarchical Manifest Types (v2)
+// =============================================================================
+
+///|
+/// Hierarchical manifest for lazy loading route definitions by segment
+pub(all) struct HierarchicalManifest {
+  /// Manifest version (2 for hierarchical)
+  version : Int
+  /// Base path for chunk loading (e.g., "/_luna/")
+  base : String
+  /// Segment references for lazy loading
+  segments : Map[String, SegmentRef]
+  /// Global chunk mappings
+  chunks : Map[String, String]
+  /// Inline routes for root-level pages
+  routes : Map[String, Array[String]]
+}
+
+///|
+/// Reference to a segment manifest for lazy loading
+pub(all) struct SegmentRef {
+  /// Path to the segment manifest file (e.g., "routes/docs.json")
+  path : String
+  /// URL pattern for matching (e.g., "/docs/*")
+  pattern : String
+  /// Whether this segment enables SPA mode
+  spa : Bool
+  /// Whether to preload this segment
+  preload : Bool
+}
+
+///|
+/// Segment manifest containing routes for a specific path prefix
+pub(all) struct SegmentManifest {
+  /// Base path for this segment (e.g., "/docs")
+  base : String
+  /// Routes within this segment
+  routes : Map[String, Array[String]]
+  /// Dynamic route patterns
+  dynamic : Array[DynamicPattern]
+  /// Fallback behavior ("spa" or "404")
+  fallback : String
+}
+
+///|
+/// Dynamic route pattern for client-side matching
+pub(all) struct DynamicPattern {
+  /// Path pattern (e.g., "/:slug")
+  pattern : String
+  /// Regex for matching (e.g., "^/blog/([^/]+)$")
+  regex : String
+  /// Parameter names extracted from pattern
+  params : Array[String]
+  /// Whether this is a catch-all pattern
+  catch_all : Bool
+}
+
+///|
+/// Create an empty hierarchical manifest
+pub fn HierarchicalManifest::empty() -> HierarchicalManifest {
+  { version: 2, base: "/_luna/", segments: {}, chunks: {}, routes: {} }
+}
+
+///|
+/// Create a new hierarchical manifest
+pub fn HierarchicalManifest::new(base? : String = "/_luna/") -> HierarchicalManifest {
+  { version: 2, base, segments: {}, chunks: {}, routes: {} }
+}
+
+///|
+/// Create a segment reference
+pub fn SegmentRef::new(
+  path~ : String,
+  pattern~ : String,
+  spa? : Bool = false,
+  preload? : Bool = false,
+) -> SegmentRef {
+  { path, pattern, spa, preload }
+}
+
+///|
+/// Create an empty segment manifest
+pub fn SegmentManifest::empty(base : String) -> SegmentManifest {
+  { base, routes: {}, dynamic: [], fallback: "404" }
+}
+
+///|
+/// Create a dynamic pattern
+pub fn DynamicPattern::new(
+  pattern~ : String,
+  regex~ : String,
+  params~ : Array[String],
+  catch_all? : Bool = false,
+) -> DynamicPattern {
+  { pattern, regex, params, catch_all }
+}

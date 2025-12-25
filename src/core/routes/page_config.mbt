@@ -27,6 +27,10 @@ pub(all) struct PageConfig {
   static_params : Array[Map[String, String]]
   /// Enable SPA fallback for this route
   fallback : Bool
+  /// Enable SPA mode for this segment (client-side routing within)
+  spa : Bool
+  /// Fallback behavior for unmatched routes: "spa" or "404"
+  fallback_behavior : String?
   /// Parent config to extend
   extends : String?
   /// File type specific handlers
@@ -76,6 +80,8 @@ pub fn PageConfig::default() -> PageConfig {
     generate_params: false,
     static_params: [],
     fallback: false,
+    spa: false,
+    fallback_behavior: None,
     extends: None,
     handlers: {},
     component: None,
@@ -122,6 +128,8 @@ fn parse_page_config_object(obj : Map[String, Json]) -> PageConfig? {
   let generate_params = @json_utils.extract_bool(obj, "generateParams", false)
   let static_params = parse_static_params(obj)
   let fallback = @json_utils.extract_bool(obj, "fallback", false)
+  let spa = @json_utils.extract_bool(obj, "spa", false)
+  let fallback_behavior = @json_utils.extract_string_opt(obj, "fallbackBehavior")
   let extends = @json_utils.extract_string_opt(obj, "extends")
   let handlers = parse_handlers(obj)
   let component = parse_component_config(obj)
@@ -135,6 +143,8 @@ fn parse_page_config_object(obj : Map[String, Json]) -> PageConfig? {
     generate_params,
     static_params,
     fallback,
+    spa,
+    fallback_behavior,
     extends,
     handlers,
     component,
@@ -249,6 +259,13 @@ pub fn PageConfig::merge(base : PageConfig, child : PageConfig) -> PageConfig {
   // Booleans: child values if true, otherwise base
   let generate_params = child.generate_params || base.generate_params
   let fallback = child.fallback || base.fallback
+  let spa = child.spa || base.spa
+
+  // fallback_behavior: child overrides
+  let fallback_behavior = match child.fallback_behavior {
+    Some(_) => child.fallback_behavior
+    None => base.fallback_behavior
+  }
 
   // extends is not inherited
   let extends = child.extends
@@ -277,6 +294,8 @@ pub fn PageConfig::merge(base : PageConfig, child : PageConfig) -> PageConfig {
     generate_params,
     static_params,
     fallback,
+    spa,
+    fallback_behavior,
     extends,
     handlers,
     component,

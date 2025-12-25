@@ -252,6 +252,181 @@ fn json_string(s : String) -> String {
 }
 
 // =============================================================================
+// Hierarchical Manifest Serialization (v2)
+// =============================================================================
+
+///|
+/// Serialize HierarchicalManifest to JSON string
+pub fn HierarchicalManifest::to_json(self : HierarchicalManifest) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("{\n")
+
+  // version
+  buf.write_string("  \"version\": ")
+  buf.write_string(self.version.to_string())
+  buf.write_string(",\n")
+
+  // base
+  buf.write_string("  \"base\": ")
+  buf.write_string(json_string(self.base))
+  buf.write_string(",\n")
+
+  // segments
+  buf.write_string("  \"segments\": {\n")
+  let segment_entries = self.segments.iter().collect()
+  for i, entry in segment_entries {
+    let (name, seg_ref) = entry
+    buf.write_string("    ")
+    buf.write_string(json_string(name))
+    buf.write_string(": ")
+    buf.write_string(seg_ref.to_json())
+    if i < segment_entries.length() - 1 {
+      buf.write_string(",")
+    }
+    buf.write_string("\n")
+  }
+  buf.write_string("  },\n")
+
+  // chunks
+  buf.write_string("  \"chunks\": {\n")
+  let chunk_entries = self.chunks.iter().collect()
+  for i, entry in chunk_entries {
+    let (name, path) = entry
+    buf.write_string("    ")
+    buf.write_string(json_string(name))
+    buf.write_string(": ")
+    buf.write_string(json_string(path))
+    if i < chunk_entries.length() - 1 {
+      buf.write_string(",")
+    }
+    buf.write_string("\n")
+  }
+  buf.write_string("  },\n")
+
+  // routes (inline)
+  buf.write_string("  \"routes\": {\n")
+  let route_entries = self.routes.iter().collect()
+  for i, entry in route_entries {
+    let (path, chunks) = entry
+    buf.write_string("    ")
+    buf.write_string(json_string(path))
+    buf.write_string(": [")
+    for j, chunk in chunks {
+      buf.write_string(json_string(chunk))
+      if j < chunks.length() - 1 {
+        buf.write_string(", ")
+      }
+    }
+    buf.write_string("]")
+    if i < route_entries.length() - 1 {
+      buf.write_string(",")
+    }
+    buf.write_string("\n")
+  }
+  buf.write_string("  }\n")
+
+  buf.write_string("}")
+  buf.to_string()
+}
+
+///|
+/// Serialize SegmentRef to JSON string
+pub fn SegmentRef::to_json(self : SegmentRef) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("{")
+  buf.write_string("\"path\": ")
+  buf.write_string(json_string(self.path))
+  buf.write_string(", \"pattern\": ")
+  buf.write_string(json_string(self.pattern))
+  if self.spa {
+    buf.write_string(", \"spa\": true")
+  }
+  if self.preload {
+    buf.write_string(", \"preload\": true")
+  }
+  buf.write_string("}")
+  buf.to_string()
+}
+
+///|
+/// Serialize SegmentManifest to JSON string
+pub fn SegmentManifest::to_json(self : SegmentManifest) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("{\n")
+
+  // base
+  buf.write_string("  \"base\": ")
+  buf.write_string(json_string(self.base))
+  buf.write_string(",\n")
+
+  // routes
+  buf.write_string("  \"routes\": {\n")
+  let route_entries = self.routes.iter().collect()
+  for i, entry in route_entries {
+    let (path, chunks) = entry
+    buf.write_string("    ")
+    buf.write_string(json_string(path))
+    buf.write_string(": [")
+    for j, chunk in chunks {
+      buf.write_string(json_string(chunk))
+      if j < chunks.length() - 1 {
+        buf.write_string(", ")
+      }
+    }
+    buf.write_string("]")
+    if i < route_entries.length() - 1 {
+      buf.write_string(",")
+    }
+    buf.write_string("\n")
+  }
+  buf.write_string("  },\n")
+
+  // dynamic
+  buf.write_string("  \"dynamic\": [\n")
+  for i, pattern in self.dynamic {
+    buf.write_string("    ")
+    buf.write_string(pattern.to_json())
+    if i < self.dynamic.length() - 1 {
+      buf.write_string(",")
+    }
+    buf.write_string("\n")
+  }
+  buf.write_string("  ],\n")
+
+  // fallback
+  buf.write_string("  \"fallback\": ")
+  buf.write_string(json_string(self.fallback))
+  buf.write_string("\n")
+
+  buf.write_string("}")
+  buf.to_string()
+}
+
+///|
+/// Serialize DynamicPattern to JSON string
+pub fn DynamicPattern::to_json(self : DynamicPattern) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("{")
+  buf.write_string("\"pattern\": ")
+  buf.write_string(json_string(self.pattern))
+  buf.write_string(", \"regex\": ")
+  buf.write_string(json_string(self.regex))
+  buf.write_string(", \"params\": [")
+  for i, param in self.params {
+    buf.write_string(json_string(param))
+    if i < self.params.length() - 1 {
+      buf.write_string(", ")
+    }
+  }
+  buf.write_string("]")
+  if self.catch_all {
+    buf.write_string(", \"catchAll\": true")
+  }
+  buf.write_string("}")
+  buf.to_string()
+}
+
+// =============================================================================
 // Helper for Building Manifest
 // =============================================================================
 

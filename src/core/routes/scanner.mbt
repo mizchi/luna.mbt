@@ -71,10 +71,10 @@ fn[FS : @env.FileSystem] scan_recursive(
       } else {
         // Check if it's a dynamic segment
         match extract_param_name(entry) {
-          Some(param) =>
+          Some(param_info) =>
             // Dynamic or catch-all route
             scan_dynamic_dir(
-              fs, entry_path, pages_dir, entry_rel, param, config, routes,
+              fs, entry_path, pages_dir, entry_rel, param_info, config, routes,
             )
           None =>
             // Regular directory
@@ -232,17 +232,18 @@ fn sort_strings(arr : Array[String]) -> Array[String] {
 }
 
 ///|
-/// Scan dynamic directory (_name_/ or _catchall_/)
+/// Scan dynamic directory (_name_/ or _...name_/)
 fn[FS : @env.FileSystem] scan_dynamic_dir(
   fs : FS,
   abs_path : String,
   _pages_dir : String,
   rel_path : String,
-  param_name : String,
+  param_info : ParamInfo,
   config : PageConfig,
   routes : Array[RouteEntry],
 ) -> Unit {
-  let is_catch_all = param_name == "catchall"
+  let param_name = param_info.name
+  let is_catch_all = param_info.catch_all
 
   // Read directory entries
   let entries : Array[String] = fs.readdir_sync(abs_path) catch { _ => [] }
@@ -373,16 +374,31 @@ fn[FS : @env.FileSystem] process_page_file(
 // =============================================================================
 
 ///|
+/// Parameter extraction result
+pub(all) struct ParamInfo {
+  /// Parameter name
+  name : String
+  /// Whether this is a catch-all pattern
+  catch_all : Bool
+}
+
+///|
 /// Extract parameter name from directory name
-/// _slug_ -> Some("slug")
-/// _catchall_ -> Some("catchall")
+/// _slug_ -> Some(ParamInfo { name: "slug", catch_all: false })
+/// _...slug_ -> Some(ParamInfo { name: "slug", catch_all: true })
 /// regular -> None
-fn extract_param_name(dir_name : String) -> String? {
+fn extract_param_name(dir_name : String) -> ParamInfo? {
   let len = dir_name.length()
   if dir_name.has_prefix("_") && dir_name.has_suffix("_") && len > 2 {
-    // Extract name between underscores
-    let name = @ssg.extract_substring(dir_name, 1, len - 1)
-    Some(name)
+    // Extract content between underscores
+    let inner = @ssg.extract_substring(dir_name, 1, len - 1)
+    // Check for catch-all pattern _...name_
+    if inner.has_prefix("...") && inner.length() > 3 {
+      let name = @ssg.extract_substring(inner, 3, inner.length())
+      Some(ParamInfo::{ name, catch_all: true })
+    } else {
+      Some(ParamInfo::{ name: inner, catch_all: false })
+    }
   } else {
     None
   }
