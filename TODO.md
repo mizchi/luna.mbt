@@ -4,21 +4,10 @@
 
 ## TODO
 
-### Sol (フルスタック)
-
-**中優先**
-- [ ] ISR (Incremental Static Regeneration) → Astra統合
-- [ ] データキャッシング (メモ化、SWR)
-- [ ] リクエスト検証 (スキーマバリデーション)
-
-**低優先**
-- [ ] WebSocket (リアルタイム通信)
-- [ ] ルートグループ `(group)`
-
 ### Astra (SSG)
 
 **高優先**
-- [ ] 動的ルート (`[id].md`, `[...slug].md`)
+- [ ] 動的ルート (`_id_.md`, `_...slug_.md`) - MoonBitモジュールパス互換
 - [ ] 画像最適化 (リサイズ、WebP変換)
 - [ ] MDX サポート (Markdown内コンポーネント)
 - [ ] プラグインシステム (mermaid, math等)
@@ -34,10 +23,20 @@
 - [ ] アセットハッシング (キャッシュバスティング)
 - [ ] デプロイアダプタ (Vercel/Netlify/GitHub Pages)
 
+### Sol (フルスタック)
+
+**中優先**
+- [ ] ISR (Incremental Static Regeneration) → Astra統合
+- [ ] データキャッシング (メモ化、SWR)
+- [ ] リクエスト検証 (スキーマバリデーション)
+
+**低優先**
+- [ ] WebSocket (リアルタイム通信)
+
 ### Sol/Astra 共通化
 
 **共有可能なパーツ**
-- [ ] 動的ルート解析 (`[id]`, `[...slug]` パターンマッチ)
+- [ ] 動的ルート解析 (`_id_`, `_...slug_` パターンマッチ)
 - [ ] 画像最適化パイプライン
 - [ ] sitemap/RSS/llms.txt 生成
 - [ ] ディスクキャッシュ層 (ビルド成果物)
