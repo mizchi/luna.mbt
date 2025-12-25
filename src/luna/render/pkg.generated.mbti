@@ -38,6 +38,8 @@ pub fn[E] render_to_string(@luna.Node[E], preload? : Bool) -> SSRResult
 
 pub fn[E] render_to_string_with_hydration(@luna.Node[E]) -> String
 
+pub fn[E] to_abstract(@luna.Node[E]) -> @mizchi/luna/core/render.AbstractNode
+
 // Errors
 
 // Types and methods
