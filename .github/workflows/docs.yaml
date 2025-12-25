@@ -47,6 +47,24 @@ jobs:
       - name: Apply syntax highlighting
         run: npx tsx scripts/shiki-highlight.ts dist-docs
 
+      - name: Install Playwright
+        run: npx playwright install chromium
+
+      - name: Check links with Chaos Crawler
+        run: |
+          # Start server in background
+          npx serve dist-docs -p 3355 &
+          sleep 2
+
+          # Run chaos crawler
+          cd js/playwright-chaos
+          npx tsx src/cli.ts http://localhost:3355 \
+            --max-pages 100 \
+            --max-actions 0 \
+            --ignore-analytics \
+            --exclude "/public/demo/" \
+            --compact
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

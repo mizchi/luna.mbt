@@ -334,6 +334,69 @@ bench-server: build-moon
     echo "✓ Benchmark completed"
 
 # =============================================================================
+# リンクチェック（Chaos Crawler）
+# =============================================================================
+
+# ドキュメントのリンクチェック（ローカルサーバー起動 → クロール → 終了）
+test-docs-links: build-doc
+    #!/usr/bin/env bash
+    set -e
+    echo "Starting docs server..."
+    npx serve dist-docs -p 3355 &
+    SERVER_PID=$!
+    sleep 2
+
+    echo "Running chaos crawler..."
+    cd js/playwright-chaos
+    npx tsx src/cli.ts http://localhost:3355 \
+        --max-pages 100 \
+        --max-actions 0 \
+        --ignore-analytics \
+        --exclude "/public/demo/" \
+        --compact \
+        --output chaos-report.json \
+        || EXIT_CODE=$?
+
+    kill $SERVER_PID 2>/dev/null || true
+
+    if [ "${EXIT_CODE:-0}" -ne 0 ]; then
+        echo ""
+        echo "❌ Dead links found. See chaos-report.json for details."
+        exit 1
+    fi
+    echo "✓ All links OK"
+
+# ドキュメントのリンクチェック（strictモード - コンソールエラーも検出）
+test-docs-links-strict: build-doc
+    #!/usr/bin/env bash
+    set -e
+    echo "Starting docs server..."
+    npx serve dist-docs -p 3355 &
+    SERVER_PID=$!
+    sleep 2
+
+    echo "Running chaos crawler (strict mode)..."
+    cd js/playwright-chaos
+    npx tsx src/cli.ts http://localhost:3355 \
+        --max-pages 100 \
+        --max-actions 0 \
+        --ignore-analytics \
+        --exclude "/public/demo/" \
+        --strict \
+        --compact \
+        --output chaos-report.json \
+        || EXIT_CODE=$?
+
+    kill $SERVER_PID 2>/dev/null || true
+
+    if [ "${EXIT_CODE:-0}" -ne 0 ]; then
+        echo ""
+        echo "❌ Issues found. See chaos-report.json for details."
+        exit 1
+    fi
+    echo "✓ All checks passed"
+
+# =============================================================================
 # メトリクス
 # =============================================================================
 
