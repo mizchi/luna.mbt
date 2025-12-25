@@ -1,5 +1,5 @@
 {
-  "$schema": "../../schemas/luna.config.schema.json",
+  "$schema": "../../schemas/astra.schema.json",
   "title": "Astra Demo",
   "description": "Demo site for Unified Progressive Architecture",
   "docs_dir": "docs",

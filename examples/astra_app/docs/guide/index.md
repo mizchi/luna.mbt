@@ -36,7 +36,7 @@ Create `astra.json`:
 
 ```json
 {
-  "$schema": "../../schemas/luna.config.schema.json",
+  "$schema": "../../schemas/astra.schema.json",
   "title": "My Site",
   "docs_dir": "docs",
   "out_dir": "dist",

@@ -122,7 +122,7 @@ vitest 4.x 環境では Worker ランタイムなしでルーティングロジ�
 | missing-props 警告 | `src/astra/cli/lint.mbt` | ✅ |
 | empty-static-params 警告 | `src/astra/cli/lint.mbt` | ✅ |
 | page.json JSON Schema | `schemas/page.schema.json` | ✅ |
-| luna.config.json Schema | `schemas/luna.config.schema.json` | ✅ |
+| astra.json Schema | `schemas/astra.schema.json` | ✅ |
 
 **Lintルール:**
 - `orphan-client`: client/ のみで server/ がない (Warning)
