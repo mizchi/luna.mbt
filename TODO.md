@@ -18,7 +18,6 @@
 ### Astra (SSG)
 
 **高優先**
-- [ ] preload
 - [ ] 動的ルート (`[id].md`, `[...slug].md`)
 - [ ] 画像最適化 (リサイズ、WebP変換)
 - [ ] MDX サポート (Markdown内コンポーネント)
