@@ -82,6 +82,7 @@ pub(all) struct Frontmatter {
   image : String?
   og_type : String?
   twitter_card : String?
+  ssr : Bool
 }
 pub fn Frontmatter::default() -> Self
 

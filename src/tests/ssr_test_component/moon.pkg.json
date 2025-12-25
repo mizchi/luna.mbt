@@ -1,0 +1,11 @@
+{
+  "import": [
+    { "path": "mizchi/luna/luna", "alias": "luna" }
+  ],
+  "link": {
+    "js": {
+      "exports": ["render"],
+      "format": "esm"
+    }
+  }
+}

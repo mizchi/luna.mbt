@@ -21,25 +21,237 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 }
 
 ///|
-/// Try to render a component from its compiled module
+/// Try to render a component from its compiled module (async)
 /// Returns Some(vnode) if successful, None if component cannot be loaded
+async fn render_component_ssr_async(
+  cwd : String,
+  source_path : String,
+) -> @luna.Node[Unit]? {
+  let component_name = get_component_name_from_path(source_path)
+
+  // Get parent project root (for examples that are subdirectories)
+  let parent_root = @path.dirname(@path.dirname(cwd))
+
+  // Try multiple possible locations for the compiled component
+  let possible_paths = [
+    // 1. Direct component name (most common for standalone projects)
+    @path.join2(
+      @path.join2(cwd, "target/js/release/build"),
+      component_name + "/" + component_name + ".js",
+    ),
+    // 2. Standard docs directory convention
+    @path.join2(
+      @path.join2(cwd, "target/js/release/build/docs"),
+      source_path + "/" + component_name + ".js",
+    ),
+    // 3. Flat structure (component directly in docs build)
+    @path.join2(
+      @path.join2(cwd, "target/js/release/build/docs"),
+      component_name + "/" + component_name + ".js",
+    ),
+    // 4. Tests directory (for testing SSR)
+    @path.join2(
+      @path.join2(cwd, "target/js/release/build/tests"),
+      component_name + "/" + component_name + ".js",
+    ),
+    // 5. Source-relative build
+    @path.join2(
+      @path.join2(cwd, "target/js/release/build"),
+      source_path + "/" + component_name + ".js",
+    ),
+    // 6. Parent project's tests directory (for examples in subdirectories)
+    @path.join2(
+      @path.join2(parent_root, "target/js/release/build/tests"),
+      component_name + "/" + component_name + ".js",
+    ),
+    // 7. Parent project's source build
+    @path.join2(
+      @path.join2(parent_root, "target/js/release/build"),
+      source_path + "/" + component_name + ".js",
+    ),
+  ]
+
+  // Find first existing module
+  let mut module_path : String? = None
+  for path in possible_paths {
+    if @fs.existsSync(path) {
+      module_path = Some(path)
+      break
+    }
+  }
+
+  // Check if any module was found
+  guard module_path is Some(path) else {
+    println(
+      "  Warning: Component '\{component_name}' not compiled. Tried paths:",
+    )
+    for p in possible_paths {
+      println("    - \{p}")
+    }
+    return None
+  }
+
+  // Load the module and call render()
+  match load_component_module(path) {
+    Some(vnode) => {
+      println("  SSR: Component '\{component_name}' rendered successfully")
+      Some(vnode)
+    }
+    None => {
+      println(
+        "  Warning: Component '\{component_name}' has no render() function",
+      )
+      None
+    }
+  }
+}
+
+///|
+/// Load a component module and call its render() function
+/// Uses dynamic import and expects the module to export a render() function
+async fn load_component_module(module_path : String) -> @luna.Node[Unit]? {
+  ffi_load_component_render(module_path).wait()
+}
+
+///|
+/// FFI to dynamically import a component module and call render()
+/// Returns a Promise that resolves to the VNode or undefined
+extern "js" fn ffi_load_component_render(
+  module_path : String,
+) -> @js.Promise[@luna.Node[Unit]?] =
+  #| async (modulePath) => {
+  #|   try {
+  #|     // Use file:// URL for Node.js dynamic import
+  #|     const fileUrl = 'file://' + modulePath;
+  #|     const mod = await import(fileUrl);
+  #|     if (typeof mod.render === 'function') {
+  #|       return mod.render();
+  #|     }
+  #|     return undefined;
+  #|   } catch (e) {
+  #|     console.error('  Error loading component:', e.message);
+  #|     return undefined;
+  #|   }
+  #| }
+
+///|
+/// Synchronous wrapper for component SSR (for backwards compatibility)
+/// Falls back to placeholder if async loading is not available
 fn render_component_ssr(_cwd : String, source_path : String) -> @luna.Node[Unit]? {
-  // NOTE: Synchronous SSR component loading is not implemented yet.
-  // ES modules require async loading which is not compatible with the
-  // synchronous SSG pipeline. For now, all SSR components fall back to
-  // the placeholder which is hydrated on the client.
-  //
-  // TODO: Implement async component loading pipeline:
-  // 1. Pre-compile components with `moon build --target js`
-  // 2. Load compiled modules asynchronously
-  // 3. Call the render() function to get VNode
   let component_name = get_component_name_from_path(source_path)
   println(
-    "  Info: Component '\{component_name}' will be rendered client-side (SSR not yet implemented)",
+    "  Info: Component '\{component_name}' - use async build for SSR",
   )
   None
 }
 
+// =============================================================================
+// TSX Component SSR
+// =============================================================================
+
+///|
+/// Render a TSX component via Node.js (async)
+/// Looks for <dirname>.tsx or index.tsx and calls its default export
+async fn render_tsx_component_ssr_async(
+  cwd : String,
+  docs_dir : String,
+  source_path : String,
+) -> @luna.Node[Unit]? {
+  let component_name = get_component_name_from_path(source_path)
+
+  // Build the TSX file path
+  // Try <component_name>.tsx first, then index.tsx
+  let tsx_path = @path.join2(
+    @path.join2(@path.join2(cwd, docs_dir), source_path),
+    component_name + ".tsx",
+  )
+  let tsx_index_path = @path.join2(
+    @path.join2(@path.join2(cwd, docs_dir), source_path),
+    "index.tsx",
+  )
+
+  let actual_path = if @fs.existsSync(tsx_path) {
+    tsx_path
+  } else if @fs.existsSync(tsx_index_path) {
+    tsx_index_path
+  } else {
+    println("  Warning: TSX component '\{component_name}' not found at \{tsx_path}")
+    return None
+  }
+
+  // Call Node.js to render the TSX component
+  match load_tsx_component(actual_path) {
+    Some(html) => {
+      println("  SSR: TSX component '\{component_name}' rendered successfully")
+      Some(@luna.raw_html(html))
+    }
+    None => {
+      println("  Warning: TSX component '\{component_name}' SSR failed")
+      None
+    }
+  }
+}
+
+///|
+/// Load and render a TSX component via FFI
+async fn load_tsx_component(tsx_path : String) -> String? {
+  ffi_render_tsx_component(tsx_path).wait()
+}
+
+///|
+/// FFI to render a TSX component using Node.js
+/// Uses esbuild to transform TSX and React to render
+extern "js" fn ffi_render_tsx_component(tsx_path : String) -> @js.Promise[String?] =
+  #| async (tsxPath) => {
+  #|   try {
+  #|     const fs = await import('fs');
+  #|     const path = await import('path');
+  #|     const { createRequire } = await import('module');
+  #|
+  #|     // Create require function relative to the TSX file
+  #|     const localRequire = createRequire(tsxPath);
+  #|
+  #|     // Load dependencies from local node_modules
+  #|     const esbuild = localRequire('esbuild');
+  #|     const React = localRequire('react');
+  #|     const ReactDOMServer = localRequire('react-dom/server');
+  #|
+  #|     // Read TSX source
+  #|     const source = fs.readFileSync(tsxPath, 'utf-8');
+  #|
+  #|     // Transform TSX to JS using esbuild
+  #|     const result = await esbuild.transform(source, {
+  #|       loader: 'tsx',
+  #|       jsx: 'automatic',
+  #|       format: 'esm',
+  #|       target: 'node18',
+  #|     });
+  #|
+  #|     // Write to temp file and import
+  #|     const tempDir = path.dirname(tsxPath);
+  #|     const tempFile = path.join(tempDir, '.tsx_temp_' + Date.now() + '.mjs');
+  #|     fs.writeFileSync(tempFile, result.code);
+  #|
+  #|     try {
+  #|       const mod = await import('file://' + tempFile);
+  #|       const Component = mod.default;
+  #|       if (!Component) {
+  #|         console.error('  TSX: No default export found');
+  #|         return undefined;
+  #|       }
+  #|
+  #|       const element = React.createElement(Component);
+  #|       const html = ReactDOMServer.renderToString(element);
+  #|       return html;
+  #|     } finally {
+  #|       // Cleanup temp file
+  #|       try { fs.unlinkSync(tempFile); } catch {}
+  #|     }
+  #|   } catch (e) {
+  #|     console.error('  TSX SSR error:', e.message);
+  #|     return undefined;
+  #|   }
+  #| }
 
 ///|
 /// Extract component name from source path
@@ -113,13 +325,14 @@ pub fn generate_site(
 
 ///|
 /// Generate entire static site with Shiki syntax highlighting (async)
+/// Supports async component SSR loading
 pub async fn generate_site_async(
   config : @astra.SsgConfig,
   cwd : String,
 ) -> Result[Unit, String] {
   // Create Shiki highlighter
   let highlighter = @shiki.create_default_highlighter().wait()
-  generate_site_internal(config, cwd, Some(highlighter))
+  generate_site_internal_async(config, cwd, Some(highlighter))
 }
 
 ///|
@@ -211,6 +424,74 @@ fn generate_site_internal(
 }
 
 ///|
+/// Internal site generation (async version with SSR component support)
+async fn generate_site_internal_async(
+  config : @astra.SsgConfig,
+  cwd : String,
+  highlighter : @shiki.Highlighter?,
+) -> Result[Unit, String] {
+  println("Scanning docs directory: \{config.docs_dir}")
+
+  // Step 1: Scan docs directory with i18n and exclude support
+  let pages = @routes.scan_docs_dir(
+    config.docs_dir,
+    cwd,
+    i18n=config.i18n,
+    exclude=config.exclude,
+    trailing_slash=config.trailing_slash,
+  )
+  if pages.is_empty() {
+    return Err("No markdown files found in \{config.docs_dir}")
+  }
+  println("Found \{pages.length()} pages")
+
+  // Step 1.5: Check for duplicate pages (e.g., index.md and index.html)
+  let duplicates = @routes.check_duplicate_pages(pages)
+  if not(duplicates.is_empty()) {
+    let errors = duplicates.map(@routes.format_duplicate_error)
+    return Err("Duplicate pages detected:\n" + errors.join("\n"))
+  }
+
+  // Step 2: Generate sidebar
+  let sidebar = match config.sidebar {
+    @astra.SidebarConfig::Auto => @routes.generate_auto_sidebar(pages)
+    @astra.SidebarConfig::Manual(groups) => groups
+  }
+
+  // Step 3: Create build context
+  let ctx = @astra.BuildContext::{ config, pages, sidebar, cwd }
+
+  // Step 4: Create output directory
+  let output_dir = @path.join2(cwd, config.output_dir)
+  ensure_dir(output_dir)
+
+  // Step 5: Generate each page (async for component SSR)
+  for page in pages {
+    match generate_page_with_highlight_async(ctx, page, highlighter) {
+      Ok(_) => println("  Generated: \{page.url_path}")
+      Err(e) => println("  Error generating \{page.url_path}: \{e}")
+    }
+  }
+
+  // Step 6: Copy static assets (if any)
+  copy_static_assets(ctx)
+
+  // Step 7: Build DocumentTree and generate meta files (sitemap, RSS, llms.txt)
+  let doc_tree = @tree.build_document_tree(config, pages, cwd)
+  generate_meta_files(ctx, doc_tree)
+
+  // Step 8: Generate 404 page
+  generate_404_page(ctx)
+
+  // Step 9: Generate client manifest for chunk loading
+  generate_client_manifest(ctx)
+
+  // Step 10: Generate Cloudflare _routes.json (if deploy target is Cloudflare)
+  write_routes_json(ctx)
+  Ok(())
+}
+
+///|
 /// Generate single page with optional syntax highlighting
 fn generate_page_with_highlight(
   ctx : @astra.BuildContext,
@@ -246,6 +527,12 @@ fn generate_page_with_highlight(
         @luna.raw_html(placeholder_html)
       }
       (page.frontmatter, vnode, [])
+    }
+    @astra.TsxComponent => {
+      // TSX component pages - sync version shows placeholder
+      let component_name = get_component_name_from_path(page.source_path)
+      let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"pending\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>Use async build for TSX SSR</p></div>"
+      (page.frontmatter, @luna.raw_html(placeholder_html), [])
     }
     @astra.Markdown => {
       // Read source file
@@ -301,6 +588,145 @@ fn generate_page_with_highlight(
       let vnode = @luna.raw_html(html_content)
       // Use page frontmatter (from file_router, which is default for HTML)
       // No TOC for HTML files
+      (page.frontmatter, vnode, [])
+    }
+  }
+
+  // Build page HTML
+  let html = build_page_html(ctx, page, frontmatter, content_vnode, toc)
+
+  // Apply syntax highlighting if highlighter is available
+  let final_html = match highlighter {
+    Some(h) => apply_syntax_highlighting(html, h)
+    None => html
+  }
+
+  // Write to output
+  let output_path = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.output_dir),
+    @routes.url_to_output_path(page.url_path),
+  )
+
+  // Ensure parent directory exists
+  let parent_dir = @path.dirname(output_path)
+  ensure_dir(parent_dir)
+  try {
+    @fs.writeFileSync(output_path, @js.any(final_html))
+    Ok(())
+  } catch {
+    e => Err("Failed to write \{output_path}: \{e}")
+  }
+}
+
+///|
+/// Generate single page with async SSR component support
+async fn generate_page_with_highlight_async(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  highlighter : @shiki.Highlighter?,
+) -> Result[Unit, String] {
+  // Build full source path
+  let source_path = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.docs_dir),
+    page.source_path,
+  )
+
+  // Process based on content type
+  // Component type uses async loading for SSR
+  let (frontmatter, content_vnode, toc) = match page.content_type {
+    @astra.Component => {
+      // Component pages - check if SSR is enabled
+      let component_name = get_component_name_from_path(page.source_path)
+      let vnode = if page.frontmatter.ssr {
+        // SSR enabled - try to load and render the component (async)
+        match render_component_ssr_async(ctx.cwd, page.source_path) {
+          Some(node) => node
+          None => {
+            // Fallback to placeholder if component rendering fails
+            let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
+            @luna.raw_html(placeholder_html)
+          }
+        }
+      } else {
+        // Client-only component - render placeholder that will be hydrated
+        let placeholder_html = "<div data-component=\"\{component_name}\" data-hydrate=\"true\" class=\"component-loading\"><p>Loading \{component_name}...</p></div>"
+        @luna.raw_html(placeholder_html)
+      }
+      (page.frontmatter, vnode, [])
+    }
+    @astra.TsxComponent => {
+      // TSX component pages - async SSR via Node.js
+      let component_name = get_component_name_from_path(page.source_path)
+      // Check if React SSR is enabled (ssr: true AND renderer: "react")
+      let use_react_ssr = page.frontmatter.ssr &&
+        page.frontmatter.renderer == Some("react")
+      let vnode = if use_react_ssr {
+        // SSR enabled with React renderer - render TSX component via React
+        match render_tsx_component_ssr_async(ctx.cwd, ctx.config.docs_dir, page.source_path) {
+          Some(node) => node
+          None => {
+            // Fallback to placeholder if SSR fails
+            let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"failed\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>SSR failed - check console for errors</p></div>"
+            @luna.raw_html(placeholder_html)
+          }
+        }
+      } else {
+        // Default: Luna renderer (client-only placeholder)
+        // TODO: Implement Luna-based TSX SSR when @dom.element DSL becomes available
+        let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-hydrate=\"true\" class=\"tsx-component-loading\"><p>Loading \{component_name}...</p></div>"
+        @luna.raw_html(placeholder_html)
+      }
+      (page.frontmatter, vnode, [])
+    }
+    @astra.Markdown => {
+      // Read source file
+      let content : String = @fs.readFileSync(source_path).to_string() catch {
+        e => return Err("Failed to read \{source_path}: \{e}")
+      }
+      // Parse markdown
+      let (parsed_frontmatter, nodes) = @markdown.parse_markdown(content)
+
+      // Auto-generate description from first paragraph if not provided
+      let fm = if parsed_frontmatter.description is None {
+        match @markdown.extract_description(nodes) {
+          Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
+          None => parsed_frontmatter
+        }
+      } else {
+        parsed_frontmatter
+      }
+
+      // Get islands base path from config
+      let islands_base_path = match ctx.config.islands {
+        Some(islands_config) => islands_config.base_path
+        None => "/static/"
+      }
+
+      // Convert to VNode with link resolution
+      let is_index = page.source_path.has_suffix("index.md")
+      let vnode = @markdown.md_nodes_to_vnode(
+        nodes,
+        islands_base_path~,
+        current_url_path=page.url_path,
+        is_index~,
+      )
+
+      // Extract TOC
+      let extracted_toc = @markdown.extract_toc(nodes)
+      (fm, vnode, extracted_toc)
+    }
+    @astra.Html => {
+      // Read source file
+      let content : String = @fs.readFileSync(source_path).to_string() catch {
+        e => return Err("Failed to read \{source_path}: \{e}")
+      }
+      // For HTML files, use the content as raw HTML
+      let html_content = if ctx.config.sanitize_html {
+        sanitize_html(content)
+      } else {
+        content
+      }
+      let vnode = @luna.raw_html(html_content)
       (page.frontmatter, vnode, [])
     }
   }

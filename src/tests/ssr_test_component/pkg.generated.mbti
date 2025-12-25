@@ -1,0 +1,18 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/tests/ssr_test_component"
+
+import(
+  "mizchi/luna/luna"
+)
+
+// Values
+pub fn render() -> @luna.Node[Unit]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

@@ -216,6 +216,21 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         continue
       }
 
+      // Check if this is a TSX component directory (contains <dirname>.tsx or index.tsx)
+      let dir_name = get_basename(entry)
+      let tsx_file_path = join_path_simple(entry_path, dir_name + ".tsx")
+      let tsx_index_path = join_path_simple(entry_path, "index.tsx")
+      if @env.FileSystem::exists_sync(filesystem, tsx_file_path) ||
+        @env.FileSystem::exists_sync(filesystem, tsx_index_path) {
+        // This is a TSX component directory
+        let page = scan_tsx_component_dir_with_fs(
+          filesystem, entry_path, entry_relative, i18n, trailing_slash,
+        )
+        pages.push(page)
+        // Don't recurse into TSX component directories
+        continue
+      }
+
       // Recurse into subdirectory
       scan_recursive_with_fs(
         filesystem, entry_path, entry_relative, docs_dir, cwd, i18n, exclude, pages,
@@ -252,7 +267,8 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
           let (fm, _) = @markdown.parse_markdown(content)
           fm
         }
-        @astra.Html | @astra.Component => @astra.Frontmatter::default()
+        @astra.Html | @astra.Component | @astra.TsxComponent =>
+          @astra.Frontmatter::default()
       }
       let page = @astra.PageMeta::{
         source_path,
@@ -318,6 +334,75 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
 }
 
 ///|
+/// Get the basename (last segment) of a path
+fn get_basename(path : String) -> String {
+  let chars = path.to_array()
+  let mut last_slash = -1
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '/' {
+      last_slash = i
+    }
+  }
+  if last_slash >= 0 && last_slash < chars.length() - 1 {
+    let result : Array[Char] = []
+    for i = last_slash + 1; i < chars.length(); i = i + 1 {
+      result.push(chars[i])
+    }
+    String::from_array(result)
+  } else {
+    path
+  }
+}
+
+///|
+/// Scan a TSX component directory and return PageMeta
+fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
+  filesystem : FS,
+  dir_path : String,
+  relative_path : String,
+  i18n : @astra.I18nConfig,
+  trailing_slash : Bool,
+) -> @astra.PageMeta {
+  // Try to read page.json for metadata
+  let page_json_path = join_path_simple(dir_path, "page.json")
+  let frontmatter = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
+    let content : String = @env.FileSystem::read_file_sync(
+      filesystem, page_json_path,
+    ) catch {
+      _ => ""
+    }
+    parse_page_json_to_frontmatter(content)
+  } else {
+    @astra.Frontmatter::default()
+  }
+
+  // Build URL path from directory name
+  let (locale, canonical_path) = detect_locale_from_path(
+    relative_path,
+    i18n,
+    trailing_slash~,
+  )
+  let url_path = build_localized_url(canonical_path, locale, i18n)
+
+  // Ensure trailing slash for component directories
+  let url_path_normalized = if trailing_slash && not(url_path.has_suffix("/")) {
+    url_path + "/"
+  } else {
+    url_path
+  }
+  @astra.PageMeta::{
+    source_path: relative_path,
+    url_path: url_path_normalized,
+    content_type: @astra.TsxComponent,
+    frontmatter,
+    last_modified: None,
+    locale,
+    canonical_path,
+    sort_key: relative_path,
+  }
+}
+
+///|
 /// Parse page.json content to Frontmatter
 fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
   if content.is_empty() {
@@ -350,6 +435,9 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
   // Parse ssr flag
   let ssr = @json_utils.extract_bool(obj, "ssr", false)
 
+  // Parse renderer option ("luna" or "react")
+  let renderer = @json_utils.extract_string_opt(obj, "renderer")
+
   @astra.Frontmatter::{
     title,
     description,
@@ -363,6 +451,7 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
     og_type: None,
     twitter_card: None,
     ssr,
+    renderer,
   }
 }
 

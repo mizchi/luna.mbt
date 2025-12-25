@@ -61,6 +61,7 @@ pub fn ChunkManifest::new(base? : String) -> Self
 pub fn ChunkManifest::to_json(Self) -> String
 
 pub(all) struct ComponentConfig {
+  ssr : Bool
   props_type : String?
   client_export : String?
   server_export : String?

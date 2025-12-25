@@ -57,6 +57,7 @@ fn create_page_meta(
       og_type: None,
       twitter_card: None,
       ssr: false,
+      renderer: None,
     },
   }
 }

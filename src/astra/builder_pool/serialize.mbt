@@ -974,6 +974,10 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
     Some(True) => true
     _ => false
   }
+  let renderer : String? = match obj.get("renderer") {
+    Some(String(r)) => Some(r)
+    _ => None
+  }
   @astra.Frontmatter::{
     title,
     description,
@@ -987,6 +991,7 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
     og_type,
     twitter_card,
     ssr,
+    renderer,
   }
 }
 

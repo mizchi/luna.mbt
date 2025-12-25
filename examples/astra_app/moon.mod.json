@@ -1,0 +1,11 @@
+{
+  "name": "example/astra-app",
+  "version": "0.1.0",
+  "deps": {
+    "mizchi/luna": {
+      "path": "../.."
+    }
+  },
+  "source": "docs",
+  "preferred-target": "js"
+}

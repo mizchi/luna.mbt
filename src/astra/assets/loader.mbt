@@ -48,6 +48,8 @@ fn load_asset(relative_path : String) -> String {
   paths.push("src/astra/assets/" + relative_path)
   // npm package: @mizchi/astra installed via npm (relative to cwd)
   paths.push("node_modules/@mizchi/astra/assets/" + relative_path)
+  // Examples/subprojects: path dependency to parent luna.mbt
+  paths.push("../../src/astra/assets/" + relative_path)
   for p in paths {
     try {
       return @fs.read_file_as_string(p)

@@ -1,6 +1,0 @@
-{
-  "is-main": false,
-  "import": [
-    { "path": "mizchi/luna/platform/dom/element", "alias": "element" }
-  ]
-}

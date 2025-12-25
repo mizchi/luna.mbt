@@ -87,6 +87,7 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
     og_type,
     twitter_card,
     ssr,
+    renderer: None,
   }
 }
 

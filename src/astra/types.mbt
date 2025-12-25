@@ -277,6 +277,8 @@ pub(all) struct Frontmatter {
   twitter_card : String?
   /// Enable server-side rendering for component pages
   ssr : Bool
+  /// Renderer for TSX components: "luna" (default) or "react"
+  renderer : String?
 }
 
 ///|
@@ -295,6 +297,7 @@ pub fn Frontmatter::default() -> Frontmatter {
     og_type: None,
     twitter_card: None,
     ssr: false,
+    renderer: None,
   }
 }
 
@@ -329,6 +332,8 @@ pub(all) enum ContentType {
   Html
   /// Component directory (moon.pkg.json)
   Component
+  /// TSX component file (.tsx)
+  TsxComponent
 } derive(Eq, Show)
 
 ///|
