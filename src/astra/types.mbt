@@ -345,6 +345,8 @@ pub(all) struct PageMeta {
   url_path : String
   /// Content type (Markdown or Html)
   content_type : ContentType
+  /// Renderer type for this page
+  renderer_type : @ssg.RendererType
   /// Parsed frontmatter
   frontmatter : Frontmatter
   /// Last modified timestamp (ISO 8601)
@@ -363,6 +365,7 @@ pub fn PageMeta::new(
   source_path : String,
   url_path : String,
   content_type? : ContentType = Markdown,
+  renderer_type? : @ssg.RendererType = @ssg.MarkdownRenderer,
   locale? : String = "en",
   canonical_path? : String = "",
   sort_key? : String = "",
@@ -377,6 +380,7 @@ pub fn PageMeta::new(
     source_path,
     url_path,
     content_type,
+    renderer_type,
     frontmatter: Frontmatter::default(),
     last_modified: None,
     locale,

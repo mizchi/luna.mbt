@@ -11,6 +11,8 @@ import(
 // Values
 pub fn check_duplicate_pages(Array[@astra.PageMeta]) -> Array[DuplicatePage]
 
+pub fn determine_renderer_type(@astra.ContentType, @astra.Frontmatter) -> @ssg.RendererType
+
 pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
 
 pub fn find_fallback_page(Array[@astra.PageMeta], String, @ssg.I18nConfig) -> @astra.PageMeta?

@@ -40,6 +40,7 @@ fn create_page_meta(
     source_path,
     url_path,
     content_type: @astra.Markdown,
+    renderer_type: @ssg.MarkdownRenderer,
     canonical_path: url_path,
     locale: "en",
     sort_key: source_path,

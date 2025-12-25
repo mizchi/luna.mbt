@@ -35,6 +35,7 @@ pub(all) enum ContentType {
   Markdown
   Html
   Component
+  TsxComponent
 }
 pub impl Eq for ContentType
 pub impl Show for ContentType
@@ -83,6 +84,7 @@ pub(all) struct Frontmatter {
   og_type : String?
   twitter_card : String?
   ssr : Bool
+  renderer : String?
 }
 pub fn Frontmatter::default() -> Self
 
@@ -155,13 +157,14 @@ pub(all) struct PageMeta {
   source_path : String
   url_path : String
   content_type : ContentType
+  renderer_type : @ssg.RendererType
   frontmatter : Frontmatter
   last_modified : String?
   locale : String
   canonical_path : String
   sort_key : String
 }
-pub fn PageMeta::new(String, String, content_type? : ContentType, locale? : String, canonical_path? : String, sort_key? : String) -> Self
+pub fn PageMeta::new(String, String, content_type? : ContentType, renderer_type? : @ssg.RendererType, locale? : String, canonical_path? : String, sort_key? : String) -> Self
 pub fn PageMeta::with_frontmatter(Self, Frontmatter) -> Self
 
 pub(all) enum SidebarConfig {

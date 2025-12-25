@@ -3,7 +3,7 @@
 ///|
 test "parse empty config returns defaults" {
   let config = parse_luna_config("{}")
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.output, OutputMode::Static)
   assert_eq(c.routing.mode, RoutingMode::FileBased)
@@ -49,7 +49,7 @@ test "parse full config" {
     #|  }
     #|}
   let config = parse_luna_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
 
   // Output

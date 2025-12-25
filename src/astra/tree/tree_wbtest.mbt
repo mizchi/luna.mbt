@@ -54,10 +54,10 @@ fn create_test_tree() -> @ssg.DocumentTree {
     ),
   ]
   let root = @ssg.TreeNode::Section(name="", path="/", children=[
-    @ssg.TreeNode::Page(page_id="index"),
+    @ssg.TreeNode::Page(page_id="index", renderer=@ssg.MarkdownRenderer),
     @ssg.TreeNode::Section(name="guide", path="/guide/", children=[
-      @ssg.TreeNode::Page(page_id="guide-intro"),
-      @ssg.TreeNode::Page(page_id="guide-advanced"),
+      @ssg.TreeNode::Page(page_id="guide-intro", renderer=@ssg.MarkdownRenderer),
+      @ssg.TreeNode::Page(page_id="guide-advanced", renderer=@ssg.MarkdownRenderer),
     ]),
   ])
   @ssg.DocumentTree::new(site~, pages~, root~)

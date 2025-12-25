@@ -516,37 +516,9 @@ fn generate_page_with_highlight(
     page.source_path,
   )
 
-  // Process based on content type
-  // Component type doesn't need file reading (it's a directory)
-  let (frontmatter, content_vnode, toc) = match page.content_type {
-    @astra.Component => {
-      // Component pages - check if SSR is enabled
-      let component_name = get_component_name_from_path(page.source_path)
-      let vnode = if page.frontmatter.ssr {
-        // SSR enabled - try to load and render the component
-        match render_component_ssr(ctx.cwd, page.source_path) {
-          Some(node) => node
-          None => {
-            // Fallback to placeholder if component rendering fails
-            // SSR requires pre-compiling the component with moon build
-            let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
-            @luna.raw_html(placeholder_html)
-          }
-        }
-      } else {
-        // Client-only component - render placeholder that will be hydrated
-        let placeholder_html = "<div data-component=\"\{component_name}\" data-hydrate=\"true\" class=\"component-loading\"><p>Loading \{component_name}...</p></div>"
-        @luna.raw_html(placeholder_html)
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.TsxComponent => {
-      // TSX component pages - sync version shows placeholder
-      let component_name = get_component_name_from_path(page.source_path)
-      let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"pending\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>Use async build for TSX SSR</p></div>"
-      (page.frontmatter, @luna.raw_html(placeholder_html), [])
-    }
-    @astra.Markdown => {
+  // Process based on renderer type
+  let (frontmatter, content_vnode, toc) = match page.renderer_type {
+    @ssg.MarkdownRenderer => {
       // Read source file
       let content : String = @fs.readFileSync(source_path).to_string() catch {
         e => return Err("Failed to read \{source_path}: \{e}")
@@ -584,7 +556,7 @@ fn generate_page_with_highlight(
       let extracted_toc = @markdown.extract_toc(nodes)
       (fm, vnode, extracted_toc)
     }
-    @astra.Html => {
+    @ssg.HtmlRenderer => {
       // Read source file
       let content : String = @fs.readFileSync(source_path).to_string() catch {
         e => return Err("Failed to read \{source_path}: \{e}")
@@ -600,6 +572,44 @@ fn generate_page_with_highlight(
       let vnode = @luna.raw_html(html_content)
       // Use page frontmatter (from file_router, which is default for HTML)
       // No TOC for HTML files
+      (page.frontmatter, vnode, [])
+    }
+    @ssg.LunaRenderer => {
+      // Luna component SSR - try to load and render the component
+      let component_name = get_component_name_from_path(page.source_path)
+      let vnode = match render_component_ssr(ctx.cwd, page.source_path) {
+        Some(node) => node
+        None => {
+          // Fallback to placeholder if component rendering fails
+          let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+      }
+      (page.frontmatter, vnode, [])
+    }
+    @ssg.ReactRenderer => {
+      // TSX component pages - sync version shows placeholder (use async for SSR)
+      let component_name = get_component_name_from_path(page.source_path)
+      let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"pending\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>Use async build for TSX SSR</p></div>"
+      (page.frontmatter, @luna.raw_html(placeholder_html), [])
+    }
+    @ssg.ClientOnlyRenderer => {
+      // Client-only components - render placeholder that will be hydrated
+      let component_name = get_component_name_from_path(page.source_path)
+      let vnode = match page.content_type {
+        @astra.ContentType::Component => {
+          let placeholder_html = "<div data-component=\"\{component_name}\" data-hydrate=\"true\" class=\"component-loading\"><p>Loading \{component_name}...</p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+        @astra.ContentType::TsxComponent => {
+          let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-hydrate=\"true\" class=\"tsx-component-loading\"><p>Loading \{component_name}...</p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+        _ => {
+          // Unexpected: should not reach here
+          @luna.raw_html("<div>Unexpected content type for ClientOnlyRenderer</div>")
+        }
+      }
       (page.frontmatter, vnode, [])
     }
   }
@@ -643,54 +653,9 @@ async fn generate_page_with_highlight_async(
     page.source_path,
   )
 
-  // Process based on content type
-  // Component type uses async loading for SSR
-  let (frontmatter, content_vnode, toc) = match page.content_type {
-    @astra.Component => {
-      // Component pages - check if SSR is enabled
-      let component_name = get_component_name_from_path(page.source_path)
-      let vnode = if page.frontmatter.ssr {
-        // SSR enabled - try to load and render the component (async)
-        match render_component_ssr_async(ctx.cwd, page.source_path) {
-          Some(node) => node
-          None => {
-            // Fallback to placeholder if component rendering fails
-            let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
-            @luna.raw_html(placeholder_html)
-          }
-        }
-      } else {
-        // Client-only component - render placeholder that will be hydrated
-        let placeholder_html = "<div data-component=\"\{component_name}\" data-hydrate=\"true\" class=\"component-loading\"><p>Loading \{component_name}...</p></div>"
-        @luna.raw_html(placeholder_html)
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.TsxComponent => {
-      // TSX component pages - async SSR via Node.js
-      let component_name = get_component_name_from_path(page.source_path)
-      // Check if React SSR is enabled (ssr: true AND renderer: "react")
-      let use_react_ssr = page.frontmatter.ssr &&
-        page.frontmatter.renderer == Some("react")
-      let vnode = if use_react_ssr {
-        // SSR enabled with React renderer - render TSX component via React
-        match render_tsx_component_ssr_async(ctx.cwd, ctx.config.docs_dir, page.source_path) {
-          Some(node) => node
-          None => {
-            // Fallback to placeholder if SSR fails
-            let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"failed\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>SSR failed - check console for errors</p></div>"
-            @luna.raw_html(placeholder_html)
-          }
-        }
-      } else {
-        // Default: Luna renderer (client-only placeholder)
-        // TODO: Implement Luna-based TSX SSR when @dom.element DSL becomes available
-        let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-hydrate=\"true\" class=\"tsx-component-loading\"><p>Loading \{component_name}...</p></div>"
-        @luna.raw_html(placeholder_html)
-      }
-      (page.frontmatter, vnode, [])
-    }
-    @astra.Markdown => {
+  // Process based on renderer type
+  let (frontmatter, content_vnode, toc) = match page.renderer_type {
+    @ssg.MarkdownRenderer => {
       // Read source file
       let content : String = @fs.readFileSync(source_path).to_string() catch {
         e => return Err("Failed to read \{source_path}: \{e}")
@@ -727,7 +692,7 @@ async fn generate_page_with_highlight_async(
       let extracted_toc = @markdown.extract_toc(nodes)
       (fm, vnode, extracted_toc)
     }
-    @astra.Html => {
+    @ssg.HtmlRenderer => {
       // Read source file
       let content : String = @fs.readFileSync(source_path).to_string() catch {
         e => return Err("Failed to read \{source_path}: \{e}")
@@ -739,6 +704,51 @@ async fn generate_page_with_highlight_async(
         content
       }
       let vnode = @luna.raw_html(html_content)
+      (page.frontmatter, vnode, [])
+    }
+    @ssg.LunaRenderer => {
+      // Luna component SSR (async)
+      let component_name = get_component_name_from_path(page.source_path)
+      let vnode = match render_component_ssr_async(ctx.cwd, page.source_path) {
+        Some(node) => node
+        None => {
+          // Fallback to placeholder if component rendering fails
+          let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+      }
+      (page.frontmatter, vnode, [])
+    }
+    @ssg.ReactRenderer => {
+      // TSX component SSR via React
+      let component_name = get_component_name_from_path(page.source_path)
+      let vnode = match render_tsx_component_ssr_async(ctx.cwd, ctx.config.docs_dir, page.source_path) {
+        Some(node) => node
+        None => {
+          // Fallback to placeholder if SSR fails
+          let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"failed\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>SSR failed - check console for errors</p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+      }
+      (page.frontmatter, vnode, [])
+    }
+    @ssg.ClientOnlyRenderer => {
+      // Client-only components - render placeholder that will be hydrated
+      let component_name = get_component_name_from_path(page.source_path)
+      let vnode = match page.content_type {
+        @astra.ContentType::Component => {
+          let placeholder_html = "<div data-component=\"\{component_name}\" data-hydrate=\"true\" class=\"component-loading\"><p>Loading \{component_name}...</p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+        @astra.ContentType::TsxComponent => {
+          let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-hydrate=\"true\" class=\"tsx-component-loading\"><p>Loading \{component_name}...</p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+        _ => {
+          // Unexpected: should not reach here
+          @luna.raw_html("<div>Unexpected content type for ClientOnlyRenderer</div>")
+        }
+      }
       (page.frontmatter, vnode, [])
     }
   }

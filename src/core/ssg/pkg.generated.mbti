@@ -107,13 +107,25 @@ pub(all) struct PageInfo {
   title : String
   description : String
   locale : String
+  renderer_type : RendererType
   updated_at : String
   content_md : String
   headings : Array[Heading]
   sort_key : String
 }
 pub fn PageInfo::canonical_url(Self, String) -> String
-pub fn PageInfo::new(id~ : String, url_path~ : String, source_path? : String, title? : String, description? : String, locale? : String, updated_at? : String, content_md? : String, headings? : Array[Heading], sort_key? : String) -> Self
+pub fn PageInfo::new(id~ : String, url_path~ : String, source_path? : String, title? : String, description? : String, locale? : String, renderer_type? : RendererType, updated_at? : String, content_md? : String, headings? : Array[Heading], sort_key? : String) -> Self
+
+pub(all) enum RendererType {
+  MarkdownRenderer
+  HtmlRenderer
+  LunaRenderer
+  ReactRenderer
+  ClientOnlyRenderer
+}
+pub fn RendererType::default() -> Self
+pub impl Eq for RendererType
+pub impl Show for RendererType
 
 pub(all) struct SiteInfo {
   title : String
@@ -126,7 +138,7 @@ pub fn SiteInfo::new(title~ : String, description? : String, base_url? : String,
 
 pub(all) enum TreeNode {
   Section(name~ : String, path~ : String, children~ : Array[TreeNode])
-  Page(page_id~ : String)
+  Page(page_id~ : String, renderer~ : RendererType)
 }
 pub fn TreeNode::flatten(Self) -> Array[String]
 

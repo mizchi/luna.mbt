@@ -74,10 +74,13 @@ pub fn manifest_to_page_metas(
           ssr: false,
           renderer: None,
         }
+        let content_type = @astra.ContentType::Markdown
+        let renderer_type = determine_renderer_type(content_type, frontmatter)
         let page = @astra.PageMeta::{
           source_path: static_route.source,
           url_path: static_route.path,
-          content_type: @astra.Markdown,
+          content_type,
+          renderer_type,
           frontmatter,
           last_modified: None, // Assume Markdown for manifest-imported routes
           locale: static_route.locale,
@@ -134,10 +137,13 @@ pub fn static_route_to_page_meta(
     ssr: false,
     renderer: None,
   }
+  let content_type = @astra.ContentType::Markdown
+  let renderer_type = determine_renderer_type(content_type, frontmatter)
   @astra.PageMeta::{
     source_path: route.source,
     url_path: route.path,
-    content_type: @astra.Markdown,
+    content_type,
+    renderer_type,
     frontmatter,
     last_modified: None, // Assume Markdown for manifest-imported routes
     locale: route.locale,

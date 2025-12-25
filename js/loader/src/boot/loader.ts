@@ -33,7 +33,7 @@ export class ChunkLoader {
     } else {
       this.manifest = manifestOrUrl;
     }
-    if (this.manifest.base) {
+    if (this.manifest?.base) {
       this.base = this.manifest.base;
     }
   }

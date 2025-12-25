@@ -39,7 +39,7 @@ fn generate_toc_node(
 ) -> String {
   let indent = "  ".repeat(depth)
   match node {
-    @ssg.TreeNode::Page(page_id~) =>
+    @ssg.TreeNode::Page(page_id~, ..) =>
       match tree.get_page(page_id) {
         Some(page) => indent + "- [" + page.title + "](" + page.url_path + ")\n"
         None => ""

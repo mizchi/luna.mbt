@@ -916,10 +916,14 @@ fn parse_page_meta(json : Json) -> @astra.PageMeta? {
     Some(String(sk)) => sk
     _ => source_path
   }
+  // Determine renderer type from content_type and frontmatter
+  let content_type = @astra.ContentType::Markdown
+  let renderer_type = @ssg.MarkdownRenderer // Default for deserialized data
   Some(@astra.PageMeta::{
     source_path,
     url_path,
-    content_type: @astra.Markdown,
+    content_type,
+    renderer_type,
     frontmatter,
     last_modified,
     locale,

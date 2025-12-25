@@ -4,6 +4,34 @@
 // Uses @ssg for common path operations
 
 // =============================================================================
+// Renderer Type Determination
+// =============================================================================
+
+///|
+/// Determine renderer type from content type and frontmatter
+pub fn determine_renderer_type(
+  content_type : @astra.ContentType,
+  frontmatter : @astra.Frontmatter,
+) -> @ssg.RendererType {
+  match content_type {
+    @astra.Markdown => @ssg.MarkdownRenderer
+    @astra.Html => @ssg.HtmlRenderer
+    @astra.Component =>
+      if frontmatter.ssr {
+        @ssg.LunaRenderer
+      } else {
+        @ssg.ClientOnlyRenderer
+      }
+    @astra.TsxComponent =>
+      if frontmatter.ssr && frontmatter.renderer == Some("react") {
+        @ssg.ReactRenderer
+      } else {
+        @ssg.ClientOnlyRenderer
+      }
+  }
+}
+
+// =============================================================================
 // Directory Scanning
 // =============================================================================
 
@@ -270,10 +298,12 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         @astra.Html | @astra.Component | @astra.TsxComponent =>
           @astra.Frontmatter::default()
       }
+      let renderer_type = determine_renderer_type(content_type, frontmatter)
       let page = @astra.PageMeta::{
         source_path,
         url_path,
         content_type,
+        renderer_type,
         frontmatter,
         last_modified: None, // memfs doesn't provide consistent mtime
         locale,
@@ -321,10 +351,13 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
   } else {
     url_path
   }
+  let content_type = @astra.ContentType::Component
+  let renderer_type = determine_renderer_type(content_type, frontmatter)
   @astra.PageMeta::{
     source_path: relative_path,
     url_path: url_path_normalized,
-    content_type: @astra.Component,
+    content_type,
+    renderer_type,
     frontmatter,
     last_modified: None,
     locale,
@@ -390,10 +423,13 @@ fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
   } else {
     url_path
   }
+  let content_type = @astra.ContentType::TsxComponent
+  let renderer_type = determine_renderer_type(content_type, frontmatter)
   @astra.PageMeta::{
     source_path: relative_path,
     url_path: url_path_normalized,
-    content_type: @astra.TsxComponent,
+    content_type,
+    renderer_type,
     frontmatter,
     last_modified: None,
     locale,

@@ -2,7 +2,9 @@
   "import": [
     "mizchi/luna/internal/json_utils",
     "mizchi/luna/core/env",
-    "mizchi/luna/core/ssg",
+    "mizchi/luna/core/ssg"
+  ],
+  "test-import": [
     { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" }
   ],
   "supported-targets": ["js"]

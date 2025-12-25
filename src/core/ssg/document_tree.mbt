@@ -39,6 +39,8 @@ pub(all) struct PageInfo {
   title : String
   description : String
   locale : String
+  // Renderer
+  renderer_type : RendererType
   // Timestamp (ISO 8601)
   updated_at : String
   // Content
@@ -54,8 +56,8 @@ pub(all) struct PageInfo {
 pub(all) enum TreeNode {
   /// Section (corresponds to a directory)
   Section(name~ : String, path~ : String, children~ : Array[TreeNode])
-  /// Reference to a page
-  Page(page_id~ : String)
+  /// Reference to a page with renderer info
+  Page(page_id~ : String, renderer~ : RendererType)
 }
 
 ///|
@@ -89,6 +91,7 @@ pub fn PageInfo::new(
   title? : String = "",
   description? : String = "",
   locale? : String = "en",
+  renderer_type? : RendererType = MarkdownRenderer,
   updated_at? : String = "",
   content_md? : String = "",
   headings? : Array[Heading] = [],
@@ -101,6 +104,7 @@ pub fn PageInfo::new(
     title,
     description,
     locale,
+    renderer_type,
     updated_at,
     content_md,
     headings,
@@ -218,7 +222,7 @@ pub fn TreeNode::flatten(self : TreeNode) -> Array[String] {
 ///|
 fn TreeNode::flatten_into(self : TreeNode, result : Array[String]) -> Unit {
   match self {
-    Page(page_id~) => result.push(page_id)
+    Page(page_id~, ..) => result.push(page_id)
     Section(children~, ..) =>
       for child in children {
         child.flatten_into(result)

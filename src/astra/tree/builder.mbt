@@ -156,10 +156,10 @@ fn build_tree_children(
     }
     if rel_path == "" {
       // 親ディレクトリの index
-      children.push(@ssg.TreeNode::Page(page_id=page.id))
+      children.push(@ssg.TreeNode::Page(page_id=page.id, renderer=page.renderer_type))
     } else if not(rel_path.contains("/")) {
       // 直接の子ページ
-      children.push(@ssg.TreeNode::Page(page_id=page.id))
+      children.push(@ssg.TreeNode::Page(page_id=page.id, renderer=page.renderer_type))
     } else {
       // サブディレクトリ
       let segments = rel_path.split("/").collect()

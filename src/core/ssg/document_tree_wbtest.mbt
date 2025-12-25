@@ -111,9 +111,9 @@ test "Heading::new with id" {
 
 ///|
 test "TreeNode::Page construction" {
-  let node = TreeNode::Page(page_id="index")
+  let node = TreeNode::Page(page_id="index", renderer=MarkdownRenderer)
   match node {
-    TreeNode::Page(page_id~) => inspect(page_id, content="index")
+    TreeNode::Page(page_id~, ..) => inspect(page_id, content="index")
     _ => fail("Expected Page variant")
   }
 }
@@ -121,7 +121,7 @@ test "TreeNode::Page construction" {
 ///|
 test "TreeNode::Section construction" {
   let node = TreeNode::Section(name="guide", path="/guide/", children=[
-    TreeNode::Page(page_id="intro"),
+    TreeNode::Page(page_id="intro", renderer=MarkdownRenderer),
   ])
   match node {
     TreeNode::Section(name~, path~, children~) => {
@@ -135,7 +135,7 @@ test "TreeNode::Section construction" {
 
 ///|
 test "TreeNode::flatten - single page" {
-  let node = TreeNode::Page(page_id="index")
+  let node = TreeNode::Page(page_id="index", renderer=MarkdownRenderer)
   let ids = node.flatten()
   inspect(ids.length(), content="1")
   inspect(ids[0], content="index")
@@ -144,10 +144,10 @@ test "TreeNode::flatten - single page" {
 ///|
 test "TreeNode::flatten - section with pages" {
   let node = TreeNode::Section(name="", path="/", children=[
-    TreeNode::Page(page_id="index"),
+    TreeNode::Page(page_id="index", renderer=MarkdownRenderer),
     TreeNode::Section(name="guide", path="/guide/", children=[
-      TreeNode::Page(page_id="guide-intro"),
-      TreeNode::Page(page_id="guide-advanced"),
+      TreeNode::Page(page_id="guide-intro", renderer=MarkdownRenderer),
+      TreeNode::Page(page_id="guide-advanced", renderer=MarkdownRenderer),
     ]),
   ])
   let ids = node.flatten()
@@ -206,10 +206,10 @@ fn create_test_document_tree() -> DocumentTree {
     ),
   ]
   let root = TreeNode::Section(name="", path="/", children=[
-    TreeNode::Page(page_id="index"),
+    TreeNode::Page(page_id="index", renderer=MarkdownRenderer),
     TreeNode::Section(name="guide", path="/guide/", children=[
-      TreeNode::Page(page_id="guide-intro"),
-      TreeNode::Page(page_id="guide-advanced"),
+      TreeNode::Page(page_id="guide-intro", renderer=MarkdownRenderer),
+      TreeNode::Page(page_id="guide-advanced", renderer=MarkdownRenderer),
     ]),
   ])
   DocumentTree::new(site~, pages~, root~)
