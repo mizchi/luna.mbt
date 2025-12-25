@@ -377,23 +377,23 @@ fn generate_site_internal(
   println("Scanning docs directory: \{config.docs_dir}")
 
   // Step 1: Scan docs directory with i18n and exclude support
-  let pages = @routes.scan_docs_dir(
+  let scanned_pages = @routes.scan_docs_dir(
     config.docs_dir,
     cwd,
     i18n=config.i18n,
     exclude=config.exclude,
     trailing_slash=config.trailing_slash,
   )
-  if pages.is_empty() {
+  if scanned_pages.is_empty() {
     return Err("No markdown files found in \{config.docs_dir}")
   }
-  println("Found \{pages.length()} pages")
+  println("Found \{scanned_pages.length()} pages")
 
-  // Step 1.5: Check for duplicate pages (e.g., index.md and index.html)
-  let duplicates = @routes.check_duplicate_pages(pages)
-  if not(duplicates.is_empty()) {
-    let errors = duplicates.map(@routes.format_duplicate_error)
-    return Err("Duplicate pages detected:\n" + errors.join("\n"))
+  // Step 1.5: Resolve duplicate pages (static paths take priority over dynamic)
+  let (pages, unresolved) = @routes.resolve_duplicate_pages(scanned_pages)
+  if not(unresolved.is_empty()) {
+    let errors = unresolved.map(@routes.format_duplicate_error)
+    return Err("Unresolvable duplicate pages:\n" + errors.join("\n"))
   }
 
   // Step 2: Generate sidebar
@@ -445,23 +445,23 @@ async fn generate_site_internal_async(
   println("Scanning docs directory: \{config.docs_dir}")
 
   // Step 1: Scan docs directory with i18n and exclude support
-  let pages = @routes.scan_docs_dir(
+  let scanned_pages = @routes.scan_docs_dir(
     config.docs_dir,
     cwd,
     i18n=config.i18n,
     exclude=config.exclude,
     trailing_slash=config.trailing_slash,
   )
-  if pages.is_empty() {
+  if scanned_pages.is_empty() {
     return Err("No markdown files found in \{config.docs_dir}")
   }
-  println("Found \{pages.length()} pages")
+  println("Found \{scanned_pages.length()} pages")
 
-  // Step 1.5: Check for duplicate pages (e.g., index.md and index.html)
-  let duplicates = @routes.check_duplicate_pages(pages)
-  if not(duplicates.is_empty()) {
-    let errors = duplicates.map(@routes.format_duplicate_error)
-    return Err("Duplicate pages detected:\n" + errors.join("\n"))
+  // Step 1.5: Resolve duplicate pages (static paths take priority over dynamic)
+  let (pages, unresolved) = @routes.resolve_duplicate_pages(scanned_pages)
+  if not(unresolved.is_empty()) {
+    let errors = unresolved.map(@routes.format_duplicate_error)
+    return Err("Unresolvable duplicate pages:\n" + errors.join("\n"))
   }
 
   // Step 2: Generate sidebar

@@ -90,9 +90,9 @@ pub fn lint_docs(config : @astra.SsgConfig, cwd : String) -> LintResult {
   let pages_dir = @path.join2(cwd, config.docs_dir)
   check_components(pages_dir, issues)
 
-  // Check for duplicate pages (e.g., index.md and index.html)
-  let duplicates = @routes.check_duplicate_pages(pages)
-  for dup in duplicates {
+  // Check for duplicate pages (static paths take priority over dynamic)
+  let (_, unresolved) = @routes.resolve_duplicate_pages(pages)
+  for dup in unresolved {
     issues.push(LintIssue::{
       severity: Error,
       file: dup.sources[0],

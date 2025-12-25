@@ -766,6 +766,78 @@ pub fn format_duplicate_error(dup : DuplicatePage) -> String {
   "Duplicate content for URL '\{dup.url_path}': [\{sources}]"
 }
 
+///|
+/// Check if a source path is from a dynamic route (contains ? for params)
+fn is_dynamic_source(source_path : String) -> Bool {
+  source_path.find("?") is Some(_)
+}
+
+///|
+/// Resolve duplicate pages by giving priority to static paths over dynamic ones
+/// Returns the deduplicated array and any unresolvable conflicts
+pub fn resolve_duplicate_pages(
+  pages : Array[@astra.PageMeta],
+) -> (Array[@astra.PageMeta], Array[DuplicatePage]) {
+  let url_to_pages : Map[String, Array[@astra.PageMeta]] = {}
+
+  // Group pages by URL path
+  for page in pages {
+    match url_to_pages.get(page.url_path) {
+      Some(arr) => arr.push(page)
+      None => url_to_pages[page.url_path] = [page]
+    }
+  }
+
+  let result : Array[@astra.PageMeta] = []
+  let unresolved : Array[DuplicatePage] = []
+
+  // Resolve each URL
+  for url in url_to_pages.keys() {
+    let page_list = url_to_pages.get(url).unwrap()
+    if page_list.length() == 1 {
+      // No conflict
+      result.push(page_list[0])
+    } else {
+      // Conflict - try to resolve by priority
+      // Static paths (no ?) take priority over dynamic paths (with ?)
+      let static_pages : Array[@astra.PageMeta] = []
+      let dynamic_pages : Array[@astra.PageMeta] = []
+
+      for p in page_list {
+        if is_dynamic_source(p.source_path) {
+          dynamic_pages.push(p)
+        } else {
+          static_pages.push(p)
+        }
+      }
+
+      if static_pages.length() == 1 {
+        // Exactly one static page - use it (priority over dynamic)
+        result.push(static_pages[0])
+      } else if static_pages.length() == 0 && dynamic_pages.length() > 0 {
+        // Only dynamic pages - this shouldn't happen normally, use first
+        result.push(dynamic_pages[0])
+        if dynamic_pages.length() > 1 {
+          let sources = dynamic_pages.map(fn(p) { p.source_path })
+          unresolved.push(DuplicatePage::{ url_path: url, sources })
+        }
+      } else {
+        // Multiple static pages or other conflict - can't auto-resolve
+        let sources = page_list.map(fn(p) { p.source_path })
+        unresolved.push(DuplicatePage::{ url_path: url, sources })
+        // Use first static page as fallback
+        if static_pages.length() > 0 {
+          result.push(static_pages[0])
+        } else {
+          result.push(page_list[0])
+        }
+      }
+    }
+  }
+
+  (result, unresolved)
+}
+
 // =============================================================================
 // Navigation Generation
 // =============================================================================
