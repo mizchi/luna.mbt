@@ -137,11 +137,12 @@ extern "js" fn ffi_load_component_render(
 ///|
 /// Synchronous wrapper for component SSR (for backwards compatibility)
 /// Falls back to placeholder if async loading is not available
-fn render_component_ssr(_cwd : String, source_path : String) -> @luna.Node[Unit]? {
+fn render_component_ssr(
+  _cwd : String,
+  source_path : String,
+) -> @luna.Node[Unit]? {
   let component_name = get_component_name_from_path(source_path)
-  println(
-    "  Info: Component '\{component_name}' - use async build for SSR",
-  )
+  println("  Info: Component '\{component_name}' - use async build for SSR")
   None
 }
 
@@ -169,13 +170,14 @@ async fn render_tsx_component_ssr_async(
     @path.join2(@path.join2(cwd, docs_dir), source_path),
     "index.tsx",
   )
-
   let actual_path = if @fs.existsSync(tsx_path) {
     tsx_path
   } else if @fs.existsSync(tsx_index_path) {
     tsx_index_path
   } else {
-    println("  Warning: TSX component '\{component_name}' not found at \{tsx_path}")
+    println(
+      "  Warning: TSX component '\{component_name}' not found at \{tsx_path}",
+    )
     return None
   }
 
@@ -201,7 +203,9 @@ async fn load_tsx_component(tsx_path : String) -> String? {
 ///|
 /// FFI to render a TSX component using Node.js
 /// Uses esbuild to transform TSX and React to render
-extern "js" fn ffi_render_tsx_component(tsx_path : String) -> @js.Promise[String?] =
+extern "js" fn ffi_render_tsx_component(
+  tsx_path : String,
+) -> @js.Promise[String?] =
   #| async (tsxPath) => {
   #|   try {
   #|     const fs = await import('fs');
@@ -517,7 +521,9 @@ fn parse_dynamic_source_path(
       // Split path and query string
       let file_path = @ssg.extract_substring(source_path, 0, idx)
       let query = @ssg.extract_substring(
-        source_path, idx + 1, source_path.length(),
+        source_path,
+        idx + 1,
+        source_path.length(),
       )
 
       // Parse query params (simple key=value format)
@@ -639,10 +645,11 @@ fn generate_page_with_highlight(
           let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-hydrate=\"true\" class=\"tsx-component-loading\"><p>Loading \{component_name}...</p></div>"
           @luna.raw_html(placeholder_html)
         }
-        _ => {
+        _ =>
           // Unexpected: should not reach here
-          @luna.raw_html("<div>Unexpected content type for ClientOnlyRenderer</div>")
-        }
+          @luna.raw_html(
+            "<div>Unexpected content type for ClientOnlyRenderer</div>",
+          )
       }
       (page.frontmatter, vnode, [])
     }
@@ -759,7 +766,12 @@ async fn generate_page_with_highlight_async(
     @ssg.ReactRenderer => {
       // TSX component SSR via React
       let component_name = get_component_name_from_path(page.source_path)
-      let vnode = match render_tsx_component_ssr_async(ctx.cwd, ctx.config.docs_dir, page.source_path) {
+      let vnode = match
+        render_tsx_component_ssr_async(
+          ctx.cwd,
+          ctx.config.docs_dir,
+          page.source_path,
+        ) {
         Some(node) => node
         None => {
           // Fallback to placeholder if SSR fails
@@ -781,10 +793,11 @@ async fn generate_page_with_highlight_async(
           let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-hydrate=\"true\" class=\"tsx-component-loading\"><p>Loading \{component_name}...</p></div>"
           @luna.raw_html(placeholder_html)
         }
-        _ => {
+        _ =>
           // Unexpected: should not reach here
-          @luna.raw_html("<div>Unexpected content type for ClientOnlyRenderer</div>")
-        }
+          @luna.raw_html(
+            "<div>Unexpected content type for ClientOnlyRenderer</div>",
+          )
       }
       (page.frontmatter, vnode, [])
     }

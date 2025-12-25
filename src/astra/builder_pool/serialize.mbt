@@ -918,18 +918,20 @@ fn parse_page_meta(json : Json) -> @astra.PageMeta? {
   }
   // Determine renderer type from content_type and frontmatter
   let content_type = @astra.ContentType::Markdown
-  let renderer_type = @ssg.MarkdownRenderer // Default for deserialized data
-  Some(@astra.PageMeta::{
-    source_path,
-    url_path,
-    content_type,
-    renderer_type,
-    frontmatter,
-    last_modified,
-    locale,
-    canonical_path,
-    sort_key,
-  })
+  let renderer_type = @ssg.MarkdownRenderer
+  Some( // Default for deserialized data
+    @astra.PageMeta::{
+      source_path,
+      url_path,
+      content_type,
+      renderer_type,
+      frontmatter,
+      last_modified,
+      locale,
+      canonical_path,
+      sort_key,
+    },
+  )
 }
 
 ///|

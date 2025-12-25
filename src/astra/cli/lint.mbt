@@ -63,7 +63,8 @@ pub fn run_lint_command(args : Array[String]) -> Unit {
   print_lint_results(result)
 
   // Exit with error if any errors found
-  let total_errors = result.errors + config_issues.filter(fn(i) { i.severity is Error }).length()
+  let total_errors = result.errors +
+    config_issues.filter(fn(i) { i.severity is Error }).length()
   if total_errors > 0 {
     @process.exit(1)
   }
@@ -106,9 +107,7 @@ fn validate_config_file(cwd : String) -> Array[LintIssue] {
   }
 
   // Parse config as JSON
-  let config_json = try {
-    @json.parse(config_content.view())
-  } catch {
+  let config_json = @json.parse(config_content.view()) catch {
     _ => {
       issues.push(LintIssue::{
         severity: Error,
@@ -126,14 +125,11 @@ fn validate_config_file(cwd : String) -> Array[LintIssue] {
   match schema_path {
     Some(path) => {
       let schema_content : String = @fs.readFileSync(path).to_string() catch {
-        _ => {
+        _ =>
           // Schema file not found - skip validation
           return issues
-        }
       }
-      let schema_json = try {
-        @json.parse(schema_content.view())
-      } catch {
+      let schema_json = @json.parse(schema_content.view()) catch {
         _ => {
           issues.push(LintIssue::{
             severity: Warning,

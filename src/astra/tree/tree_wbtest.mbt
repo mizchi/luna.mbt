@@ -57,7 +57,10 @@ fn create_test_tree() -> @ssg.DocumentTree {
     @ssg.TreeNode::Page(page_id="index", renderer=@ssg.MarkdownRenderer),
     @ssg.TreeNode::Section(name="guide", path="/guide/", children=[
       @ssg.TreeNode::Page(page_id="guide-intro", renderer=@ssg.MarkdownRenderer),
-      @ssg.TreeNode::Page(page_id="guide-advanced", renderer=@ssg.MarkdownRenderer),
+      @ssg.TreeNode::Page(
+        page_id="guide-advanced",
+        renderer=@ssg.MarkdownRenderer,
+      ),
     ]),
   ])
   @ssg.DocumentTree::new(site~, pages~, root~)

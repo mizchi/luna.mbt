@@ -251,13 +251,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         Some(param_name) => {
           // This is a dynamic route directory
           scan_dynamic_dir_with_fs(
-            filesystem,
-            entry_path,
-            entry_relative,
-            param_name,
-            i18n,
-            pages,
-            trailing_slash,
+            filesystem, entry_path, entry_relative, param_name, i18n, pages, trailing_slash,
           )
           continue
         }
@@ -414,7 +408,9 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
 
     // Detect locale and build URL
     let (locale, canonical_path) = detect_locale_from_path(
-      page_relative, i18n, trailing_slash~,
+      page_relative,
+      i18n,
+      trailing_slash~,
     )
     let url_path = build_localized_url(canonical_path, locale, i18n)
 
@@ -431,8 +427,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
       Some(t) => Some(t)
       None => Some(@ssg.capitalize_first(param_value.replace(old="-", new=" ")))
     }
-    let frontmatter = @astra.Frontmatter::{ ..base_frontmatter, title }
-
+    let frontmatter = @astra.Frontmatter::{ ..base_frontmatter, title, }
     let content_type = @astra.ContentType::Markdown
     let renderer_type = determine_renderer_type(content_type, frontmatter)
 
@@ -443,7 +438,6 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
       param_name +
       "=" +
       param_value
-
     let page = @astra.PageMeta::{
       source_path: source_with_param,
       url_path: url_path_normalized,
@@ -465,13 +459,12 @@ fn parse_page_json(content : String) -> DynamicPageConfig? {
   if content.is_empty() {
     return None
   }
-  let json : Json = @json.parse(content.view()) catch {
-    _ => return None
-  }
+  let json : Json = @json.parse(content.view()) catch { _ => return None }
   guard json is Object(obj) else { return None }
 
   // Extract staticParams array
-  let static_params : Array[Map[String, String]] = match obj.get("staticParams") {
+  let static_params : Array[Map[String, String]] = match
+    obj.get("staticParams") {
     Some(Array(arr)) => {
       let result : Array[Map[String, String]] = []
       for item in arr {
@@ -493,8 +486,7 @@ fn parse_page_json(content : String) -> DynamicPageConfig? {
     }
     _ => []
   }
-
-  Some(DynamicPageConfig::{ static_params })
+  Some(DynamicPageConfig::{ static_params, })
 }
 
 ///|
@@ -678,7 +670,6 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
 
   // Parse renderer option ("luna" or "react")
   let renderer = @json_utils.extract_string_opt(obj, "renderer")
-
   @astra.Frontmatter::{
     title,
     description,
@@ -787,7 +778,6 @@ pub fn resolve_duplicate_pages(
       None => url_to_pages[page.url_path] = [page]
     }
   }
-
   let result : Array[@astra.PageMeta] = []
   let unresolved : Array[DuplicatePage] = []
 
@@ -802,7 +792,6 @@ pub fn resolve_duplicate_pages(
       // Static paths (no ?) take priority over dynamic paths (with ?)
       let static_pages : Array[@astra.PageMeta] = []
       let dynamic_pages : Array[@astra.PageMeta] = []
-
       for p in page_list {
         if is_dynamic_source(p.source_path) {
           dynamic_pages.push(p)
@@ -810,7 +799,6 @@ pub fn resolve_duplicate_pages(
           static_pages.push(p)
         }
       }
-
       if static_pages.length() == 1 {
         // Exactly one static page - use it (priority over dynamic)
         result.push(static_pages[0])
@@ -834,7 +822,6 @@ pub fn resolve_duplicate_pages(
       }
     }
   }
-
   (result, unresolved)
 }
 
