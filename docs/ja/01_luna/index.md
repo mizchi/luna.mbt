@@ -34,7 +34,7 @@ Island Architecture は部分的なハイドレーションを可能にし、必
 
 ## クイックリンク
 
-- [チュートリアル (MoonBit)](/ja/tutorial-moonbit/) - MoonBit で Luna を学ぶ
-- [チュートリアル (JavaScript)](/ja/tutorial-js/) - JavaScript で Luna を学ぶ
+- [チュートリアル (MoonBit)](/ja/luna/tutorial-moonbit/) - MoonBit で Luna を学ぶ
+- [チュートリアル (JavaScript)](/ja/luna/tutorial-js/) - JavaScript で Luna を学ぶ
 - [Astra SSG](/ja/astra/) - 静的サイトジェネレーター
 - [Sol Framework](/ja/sol/) - フルスタック SSR フレームワーク

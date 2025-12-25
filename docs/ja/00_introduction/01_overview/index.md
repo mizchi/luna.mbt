@@ -67,13 +67,13 @@ Hono 統合による SSR フレームワーク。
 
 ### JavaScript 開発者向け
 
-1. [チュートリアル (JavaScript)](/ja/tutorial-js/) から始める
+1. [チュートリアル (JavaScript)](/ja/luna/tutorial-js/) から始める
 2. [Signals](/ja/luna/signals/) と [Islands](/ja/luna/islands/) を学ぶ
 3. [Astra](/ja/astra/) でサイトを、または [Sol](/ja/sol/) でアプリを構築
 
 ### MoonBit 開発者向け
 
-1. [チュートリアル (MoonBit)](/ja/tutorial-moonbit/) から始める
+1. [チュートリアル (MoonBit)](/ja/luna/tutorial-moonbit/) から始める
 2. MoonBit でのコア Luna API を探索
 3. サーバーサイドコンポーネントを構築
 
