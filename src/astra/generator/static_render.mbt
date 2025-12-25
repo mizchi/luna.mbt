@@ -208,13 +208,25 @@ extern "js" fn ffi_render_tsx_component(tsx_path : String) -> @js.Promise[String
   #|     const path = await import('path');
   #|     const { createRequire } = await import('module');
   #|
-  #|     // Create require function relative to the TSX file
-  #|     const localRequire = createRequire(tsxPath);
+  #|     // Find workspace root by looking for pnpm-workspace.yaml or package.json
+  #|     const findWorkspaceRoot = (startDir) => {
+  #|       let dir = startDir;
+  #|       while (dir !== path.dirname(dir)) {
+  #|         if (fs.existsSync(path.join(dir, 'pnpm-workspace.yaml'))) return dir;
+  #|         if (fs.existsSync(path.join(dir, 'pnpm-lock.yaml'))) return dir;
+  #|         dir = path.dirname(dir);
+  #|       }
+  #|       return startDir; // fallback to start dir
+  #|     };
   #|
-  #|     // Load dependencies from local node_modules
-  #|     const esbuild = localRequire('esbuild');
-  #|     const React = localRequire('react');
-  #|     const ReactDOMServer = localRequire('react-dom/server');
+  #|     // Create require function relative to workspace root (for pnpm hoisted deps)
+  #|     const workspaceRoot = findWorkspaceRoot(path.dirname(tsxPath));
+  #|     const rootRequire = createRequire(path.join(workspaceRoot, 'package.json'));
+  #|
+  #|     // Load dependencies from workspace root node_modules
+  #|     const esbuild = rootRequire('esbuild');
+  #|     const React = rootRequire('react');
+  #|     const ReactDOMServer = rootRequire('react-dom/server');
   #|
   #|     // Read TSX source
   #|     const source = fs.readFileSync(tsxPath, 'utf-8');
