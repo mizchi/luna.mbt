@@ -16,6 +16,7 @@ import {
   createSignal,
   createEffect,
 } from "../src/index";
+import { jsx as jsxRuntime } from "../src/jsx-runtime";
 
 // MoonBit tuple representation for attrs: [name, value] -> { _0: name, _1: value }
 // AttrValue constructors: $tag: 0 = Static, 1 = Dynamic, 2 = Handler
@@ -430,6 +431,128 @@ describe("DOM API", () => {
 
       setValue("hello");
       expect(container.querySelector("span")?.textContent).toBe("hello");
+    });
+  });
+
+  describe("ref callback (JSX style)", () => {
+    test("ref callback is called with element (low-level __ref)", () => {
+      let capturedElement: HTMLElement | null = null;
+
+      const node = createElement(
+        "div",
+        [attr("__ref", AttrValue.Handler((el: unknown) => {
+          capturedElement = el as HTMLElement;
+        }))],
+        [text("content")]
+      );
+
+      render(container, node);
+
+      expect(capturedElement).not.toBeNull();
+      expect(capturedElement?.tagName).toBe("DIV");
+      expect(capturedElement?.textContent).toBe("content");
+    });
+
+    test("jsx-runtime converts ref prop to __ref", () => {
+      let capturedElement: HTMLElement | null = null;
+
+      // Simulates: <div ref={(el) => capturedElement = el}>content</div>
+      const node = jsxRuntime("div", {
+        ref: (el: HTMLElement) => { capturedElement = el; },
+        children: "content",
+      });
+
+      render(container, node);
+
+      expect(capturedElement).not.toBeNull();
+      expect(capturedElement?.tagName).toBe("DIV");
+      expect(capturedElement?.textContent).toBe("content");
+    });
+
+    test("jsx-runtime ref works with input elements", () => {
+      let inputRef: HTMLInputElement | null = null;
+
+      // Simulates: <input type="text" ref={(el) => inputRef = el} />
+      const node = jsxRuntime("input", {
+        type: "text",
+        ref: (el: HTMLInputElement) => { inputRef = el; },
+      });
+
+      render(container, node);
+
+      expect(inputRef).not.toBeNull();
+      expect(inputRef?.tagName).toBe("INPUT");
+      expect(inputRef?.type).toBe("text");
+
+      // Test that we can use the ref to focus the input
+      inputRef?.focus();
+      expect(document.activeElement).toBe(inputRef);
+    });
+
+    test("ref callback provides access to DOM properties", () => {
+      let capturedId: string | null = null;
+
+      const node = createElement(
+        "input",
+        [
+          attr("id", AttrValue.Static("test-input")),
+          attr("type", AttrValue.Static("text")),
+          attr("__ref", AttrValue.Handler((el: unknown) => {
+            capturedId = (el as HTMLInputElement).id;
+          })),
+        ],
+        []
+      );
+
+      render(container, node);
+
+      expect(capturedId).toBe("test-input");
+    });
+
+    test("ref callback can call DOM methods", () => {
+      let inputElement: HTMLInputElement | null = null;
+
+      const node = createElement(
+        "input",
+        [
+          attr("type", AttrValue.Static("text")),
+          attr("__ref", AttrValue.Handler((el: unknown) => {
+            inputElement = el as HTMLInputElement;
+          })),
+        ],
+        []
+      );
+
+      render(container, node);
+
+      expect(inputElement).not.toBeNull();
+      // Call focus() via ref
+      inputElement?.focus();
+      expect(document.activeElement).toBe(inputElement);
+    });
+
+    test("ref callback with nested elements", () => {
+      const refs: HTMLElement[] = [];
+
+      const node = createElement(
+        "div",
+        [attr("__ref", AttrValue.Handler((el: unknown) => refs.push(el as HTMLElement)))],
+        [
+          createElement(
+            "span",
+            [attr("__ref", AttrValue.Handler((el: unknown) => refs.push(el as HTMLElement)))],
+            [text("nested")]
+          ),
+        ]
+      );
+
+      render(container, node);
+
+      // Both refs should be captured
+      expect(refs.length).toBe(2);
+      // Note: Children are processed before parent attributes, so span comes first
+      const tagNames = refs.map(el => el.tagName).sort();
+      expect(tagNames).toEqual(["DIV", "SPAN"]);
     });
   });
 });

@@ -131,6 +131,14 @@ function convertProps(props: Record<string, unknown> | null | undefined): Attr[]
       continue;
     }
 
+    // Handle ref callback
+    if (key === "ref" && typeof value === "function") {
+      attrName = "__ref";
+      attrValue = { $tag: 2, _0: value }; // AttrValue.Handler
+      attrs.push({ _0: attrName, _1: attrValue });
+      continue;
+    }
+
     // Handle event handlers (onClick -> click for addEventListener)
     if (key.startsWith("on") && typeof value === "function") {
       // Remove "on" prefix and lowercase first char: onClick -> click
