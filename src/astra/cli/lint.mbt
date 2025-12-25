@@ -243,6 +243,11 @@ pub fn lint_docs(config : @astra.SsgConfig, cwd : String) -> LintResult {
 
   // Check each page
   for page in pages {
+    // Skip HTML files - they don't have markdown structure to lint
+    if page.content_type is @astra.Html {
+      continue
+    }
+
     let source_path = @path.join2(
       @path.join2(cwd, config.docs_dir),
       page.source_path,
@@ -272,6 +277,11 @@ pub fn lint_docs(config : @astra.SsgConfig, cwd : String) -> LintResult {
 
     // Check images
     check_images(page.source_path, nodes, issues)
+  }
+
+  // Check for missing translations (only if i18n is configured with multiple locales)
+  if config.i18n.locales.length() > 1 {
+    check_missing_translations(pages, config.i18n, issues)
   }
 
   // Count by severity
@@ -753,6 +763,66 @@ fn check_component_dir(
 fn is_dir(path : String) -> Bool {
   @fs.statSync(path).isDirectory() catch {
     _ => false
+  }
+}
+
+// =============================================================================
+// i18n Translation Checking
+// =============================================================================
+
+///|
+/// Check for pages missing translations in other locales
+fn check_missing_translations(
+  pages : Array[@astra.PageMeta],
+  i18n : @astra.I18nConfig,
+  issues : Array[LintIssue],
+) -> Unit {
+  // Group pages by canonical_path (skip HTML files and public/ directory)
+  let by_canonical : Map[String, Array[@astra.PageMeta]] = {}
+  for page in pages {
+    // Skip HTML files (demos, etc.)
+    if page.content_type is @astra.Html {
+      continue
+    }
+    // Skip public/ directory (static assets, demos)
+    if page.source_path.has_prefix("public/") {
+      continue
+    }
+    match by_canonical.get(page.canonical_path) {
+      Some(arr) => arr.push(page)
+      None => by_canonical[page.canonical_path] = [page]
+    }
+  }
+
+  // Check each canonical path for missing translations
+  for canonical_path in by_canonical.keys() {
+    let page_list = by_canonical.get(canonical_path).unwrap()
+
+    // Find which locales are present
+    let present_locales : Map[String, @astra.PageMeta] = {}
+    for page in page_list {
+      present_locales[page.locale] = page
+    }
+
+    // Check for missing locales
+    for locale in i18n.locales {
+      if not(present_locales.contains(locale.code)) {
+        // Find a representative page from another locale to report the issue
+        let representative = page_list[0]
+        let missing_path = if locale.path.is_empty() {
+          canonical_path
+        } else {
+          locale.path + canonical_path
+        }
+        issues.push(LintIssue::{
+          severity: Warning,
+          file: representative.source_path,
+          line: None,
+          message: "Missing \{locale.label} (\{locale.code}) translation: expected at '\{missing_path}'",
+          rule: "missing-translation",
+        })
+      }
+    }
   }
 }
 
