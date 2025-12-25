@@ -21,6 +21,27 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 }
 
 ///|
+/// Try to render a component from its compiled module
+/// Returns Some(vnode) if successful, None if component cannot be loaded
+fn render_component_ssr(_cwd : String, source_path : String) -> @luna.Node[Unit]? {
+  // NOTE: Synchronous SSR component loading is not implemented yet.
+  // ES modules require async loading which is not compatible with the
+  // synchronous SSG pipeline. For now, all SSR components fall back to
+  // the placeholder which is hydrated on the client.
+  //
+  // TODO: Implement async component loading pipeline:
+  // 1. Pre-compile components with `moon build --target js`
+  // 2. Load compiled modules asynchronously
+  // 3. Call the render() function to get VNode
+  let component_name = get_component_name_from_path(source_path)
+  println(
+    "  Info: Component '\{component_name}' will be rendered client-side (SSR not yet implemented)",
+  )
+  None
+}
+
+
+///|
 /// Extract component name from source path
 /// e.g., "counter" from "counter/" or "my-component" from "my-component/"
 fn get_component_name_from_path(source_path : String) -> String {
@@ -50,7 +71,7 @@ fn get_component_name_from_path(source_path : String) -> String {
     idx = idx + 1
   }
   if last_slash >= 0 && last_slash < path.length() - 1 {
-    path.substring(start=last_slash + 1)
+    @ssg.slice_view_from(path, last_slash + 1)
   } else {
     path
   }
@@ -206,11 +227,24 @@ fn generate_page_with_highlight(
   // Component type doesn't need file reading (it's a directory)
   let (frontmatter, content_vnode, toc) = match page.content_type {
     @astra.Component => {
-      // Component pages - generate placeholder for now
-      // TODO: Implement actual SSR rendering
+      // Component pages - check if SSR is enabled
       let component_name = get_component_name_from_path(page.source_path)
-      let placeholder_html = "<div data-component=\"\{component_name}\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR rendering not yet implemented for this component.</p></div>"
-      let vnode = @luna.raw_html(placeholder_html)
+      let vnode = if page.frontmatter.ssr {
+        // SSR enabled - try to load and render the component
+        match render_component_ssr(ctx.cwd, page.source_path) {
+          Some(node) => node
+          None => {
+            // Fallback to placeholder if component rendering fails
+            // SSR requires pre-compiling the component with moon build
+            let placeholder_html = "<div data-component=\"\{component_name}\" data-ssr=\"pending\" class=\"component-placeholder\"><p>Component: \{component_name}</p><p>SSR pending - compile component with <code>moon build</code></p></div>"
+            @luna.raw_html(placeholder_html)
+          }
+        }
+      } else {
+        // Client-only component - render placeholder that will be hydrated
+        let placeholder_html = "<div data-component=\"\{component_name}\" data-hydrate=\"true\" class=\"component-loading\"><p>Loading \{component_name}...</p></div>"
+        @luna.raw_html(placeholder_html)
+      }
       (page.frontmatter, vnode, [])
     }
     @astra.Markdown => {

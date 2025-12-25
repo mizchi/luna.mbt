@@ -1,4 +1,5 @@
 {
   "title": "Bar Component",
-  "description": "Demo component page"
+  "description": "Demo component page with SSR",
+  "ssr": true
 }

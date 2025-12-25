@@ -1,4 +1,6 @@
 {
   "is-main": false,
-  "import": []
+  "import": [
+    { "path": "mizchi/luna/luna", "alias": "luna" }
+  ]
 }

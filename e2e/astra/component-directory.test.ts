@@ -159,7 +159,9 @@ pub fn my_component() -> String {
     expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain("<title>My Component</title>");
     expect(html).toContain('data-component="my-component"');
-    expect(html).toContain("class=\"component-placeholder\"");
+    // Client-only components have data-hydrate and component-loading class
+    expect(html).toContain('data-hydrate="true"');
+    expect(html).toContain("class=\"component-loading\"");
   });
 
   test("component page is included in _routes.json for cloudflare", async () => {
@@ -317,10 +319,10 @@ title: Home
       // Check page loaded correctly
       await expect(page).toHaveTitle("Demo Component");
 
-      // Check component placeholder is rendered
+      // Check component placeholder is rendered (client-only shows loading message)
       const placeholder = page.locator('[data-component="demo"]');
       await expect(placeholder).toBeVisible();
-      await expect(placeholder).toContainText("Component: demo");
+      await expect(placeholder).toContainText("Loading demo...");
 
       // Check sidebar shows the component (use first() to avoid strict mode violation from mobile/desktop duplicates)
       const sidebarLink = page.locator('.sidebar-link[href="/demo/"]').first();

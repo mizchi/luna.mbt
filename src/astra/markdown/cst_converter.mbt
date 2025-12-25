@@ -48,6 +48,7 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
   let mut image : String? = None
   let mut og_type : String? = None
   let mut twitter_card : String? = None
+  let mut ssr = false
   for entry in fm.entries {
     let (key, value) = entry
     match key {
@@ -55,6 +56,7 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
       "description" => description = Some(value)
       "layout" => layout = Some(value)
       "sidebar" => sidebar = value == "true"
+      "ssr" => ssr = value == "true"
       "islands" => {
         // Parse comma-separated islands
         let parts = value.split(",")
@@ -84,6 +86,7 @@ fn convert_frontmatter(fm : @md_parser.Frontmatter) -> @astra.Frontmatter {
     image,
     og_type,
     twitter_card,
+    ssr,
   }
 }
 

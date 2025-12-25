@@ -71,6 +71,7 @@ pub fn manifest_to_page_metas(
           image: None,
           og_type: None,
           twitter_card: None,
+          ssr: false,
         }
         let page = @astra.PageMeta::{
           source_path: static_route.source,
@@ -129,6 +130,7 @@ pub fn static_route_to_page_meta(
     image: None,
     og_type: None,
     twitter_card: None,
+    ssr: false,
   }
   @astra.PageMeta::{
     source_path: route.source,

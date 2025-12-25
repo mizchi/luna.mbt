@@ -346,6 +346,10 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
     }
     _ => []
   }
+
+  // Parse ssr flag
+  let ssr = @json_utils.extract_bool(obj, "ssr", false)
+
   @astra.Frontmatter::{
     title,
     description,
@@ -358,6 +362,7 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
     image: None,
     og_type: None,
     twitter_card: None,
+    ssr,
   }
 }
 

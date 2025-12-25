@@ -867,6 +867,9 @@ fn write_frontmatter(fm : @astra.Frontmatter, buf : StringBuilder) -> Unit {
     }
     None => ()
   }
+  if fm.ssr {
+    buf.write_string(",\"ssr\":true")
+  }
   buf.write_string("}")
 }
 
@@ -967,6 +970,10 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
     Some(String(c)) => Some(c)
     _ => None
   }
+  let ssr : Bool = match obj.get("ssr") {
+    Some(True) => true
+    _ => false
+  }
   @astra.Frontmatter::{
     title,
     description,
@@ -979,6 +986,7 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
     image,
     og_type,
     twitter_card,
+    ssr,
   }
 }
 

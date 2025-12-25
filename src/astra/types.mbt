@@ -275,6 +275,8 @@ pub(all) struct Frontmatter {
   og_type : String?
   /// Twitter card type (summary, summary_large_image)
   twitter_card : String?
+  /// Enable server-side rendering for component pages
+  ssr : Bool
 }
 
 ///|
@@ -292,6 +294,7 @@ pub fn Frontmatter::default() -> Frontmatter {
     image: None,
     og_type: None,
     twitter_card: None,
+    ssr: false,
   }
 }
 

@@ -38,6 +38,8 @@ pub(all) struct PageConfig {
 ///|
 /// Component directory configuration (for moon.pkg.json directories)
 pub(all) struct ComponentConfig {
+  /// Enable server-side rendering for this component
+  ssr : Bool
   /// Props struct name (e.g., "CounterProps")
   props_type : String?
   /// Client export function name (e.g., "counter")
@@ -89,7 +91,7 @@ pub fn FileHandlerConfig::default() -> FileHandlerConfig {
 ///|
 /// Default component config
 pub fn ComponentConfig::default() -> ComponentConfig {
-  { props_type: None, client_export: None, server_export: None }
+  { ssr: false, props_type: None, client_export: None, server_export: None }
 }
 
 // =============================================================================
@@ -169,6 +171,7 @@ fn parse_component_config(obj : Map[String, Json]) -> ComponentConfig? {
   match obj.get("component") {
     Some(Object(comp_obj)) =>
       Some(ComponentConfig::{
+        ssr: @json_utils.extract_bool(comp_obj, "ssr", false),
         props_type: @json_utils.extract_string_opt(comp_obj, "propsType"),
         client_export: @json_utils.extract_string_opt(comp_obj, "clientExport"),
         server_export: @json_utils.extract_string_opt(comp_obj, "serverExport"),
