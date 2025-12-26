@@ -35,12 +35,23 @@ pub fn DomElement::to_node(self : DomElement) -> DomNode {
 
 ///|
 /// DomNode represents any DOM node for client-side rendering
+///
+/// Variants:
+/// - `El(DomElement)`: Element managed by Luna (reconciled, hydrated)
+/// - `Txt(@js_dom.Text)`: Text node managed by Luna (reconciled)
+/// - `Raw(@js_dom.Node)`: External node included in reconciliation
+///   Use for external DOM that may change (e.g., third-party widgets)
+/// - `Static(@js_dom.Node)`: Pre-rendered node skipped during reconciliation/hydration
+///   Use for content that never changes (e.g., SSR output, static SVG)
 pub enum DomNode {
+  /// Element managed by Luna
   El(DomElement)
+  /// Text node managed by Luna
   Txt(@js_dom.Text)
+  /// External node - included in reconciliation
   Raw(@js_dom.Node)
-  /// Static node - content is pre-rendered and skipped during reconciliation/hydration
-  /// Use static_content() to create static nodes from VNode trees
+  /// Static node - skipped during reconciliation/hydration
+  /// Use for pre-rendered content that never changes
   Static(@js_dom.Node)
 }
 
@@ -99,7 +110,44 @@ pub impl ToDomNode for DomNode with to_dom_node(self) {
 }
 
 ///|
-/// Helper to convert any ToDomNode to DomNode
+/// Convert any ToDomNode value to DomNode
+///
+/// Supported types:
+/// - `@js_dom.Node` -> Raw node (included in reconciliation)
+/// - `@js_dom.Element` -> Element node (wrapped as El)
+/// - `@js_dom.Text` -> Text node
+/// - `String` -> Text node (creates new text node)
+/// - `DomNode` -> Identity (returns as-is)
+///
+/// Use this function to integrate external DOM nodes (e.g., SVG created
+/// with `createElementNS`) into Luna's DOM tree.
+///
+/// Example - integrating SVG created with createElementNS:
+/// ```moonbit
+/// // Create SVG with namespace
+/// let svg = create_element_ns(svg_ns, "svg", [
+///   ("width", Static("200")),
+///   ("height", Static("200")),
+/// ], [
+///   create_element_ns(svg_ns, "circle", [
+///     ("cx", Static("100")),
+///     ("cy", Static("100")),
+///     ("r", Static("50")),
+///     ("fill", Static("blue")),
+///   ], [])
+/// ])
+///
+/// // Use in a div
+/// div(children=[svg])
+/// ```
+///
+/// Example - integrating raw @js_dom.Node:
+/// ```moonbit
+/// // Get external node from JS
+/// let external_node : @js_dom.Node = ...
+/// // Wrap and use in Luna tree
+/// div(children=[dom_node(external_node)])
+/// ```
 pub fn[T : ToDomNode] dom_node(value : T) -> DomNode {
   ToDomNode::to_dom_node(value)
 }

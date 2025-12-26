@@ -3,6 +3,9 @@ import {
   text,
   textDyn,
   createElement,
+  createElementNs,
+  svgNs,
+  mathmlNs,
   render,
   mount,
   show,
@@ -553,6 +556,134 @@ describe("DOM API", () => {
       // Note: Children are processed before parent attributes, so span comes first
       const tagNames = refs.map(el => el.tagName).sort();
       expect(tagNames).toEqual(["DIV", "SPAN"]);
+    });
+  });
+
+  describe("createElementNs (SVG support)", () => {
+    test("svgNs returns correct namespace", () => {
+      expect(svgNs()).toBe("http://www.w3.org/2000/svg");
+    });
+
+    test("mathmlNs returns correct namespace", () => {
+      expect(mathmlNs()).toBe("http://www.w3.org/1998/Math/MathML");
+    });
+
+    test("createElementNs creates SVG element with correct namespace", () => {
+      const node = createElementNs(svgNs(), "svg", [], []);
+      render(container, node);
+      const svg = container.querySelector("svg");
+      expect(svg).not.toBeNull();
+      expect(svg?.namespaceURI).toBe("http://www.w3.org/2000/svg");
+    });
+
+    test("createElementNs creates SVG child elements", () => {
+      const rect = createElementNs(
+        svgNs(),
+        "rect",
+        [
+          attr("x", AttrValue.Static("10")),
+          attr("y", AttrValue.Static("10")),
+          attr("width", AttrValue.Static("100")),
+          attr("height", AttrValue.Static("50")),
+          attr("fill", AttrValue.Static("blue")),
+        ],
+        []
+      );
+      const svg = createElementNs(
+        svgNs(),
+        "svg",
+        [
+          attr("width", AttrValue.Static("200")),
+          attr("height", AttrValue.Static("200")),
+        ],
+        [rect]
+      );
+      render(container, svg);
+
+      const svgEl = container.querySelector("svg");
+      const rectEl = container.querySelector("rect");
+      expect(svgEl).not.toBeNull();
+      expect(rectEl).not.toBeNull();
+      expect(rectEl?.namespaceURI).toBe("http://www.w3.org/2000/svg");
+      expect(rectEl?.getAttribute("fill")).toBe("blue");
+    });
+
+    test("createElementNs works with circle and path", () => {
+      const circle = createElementNs(
+        svgNs(),
+        "circle",
+        [
+          attr("cx", AttrValue.Static("50")),
+          attr("cy", AttrValue.Static("50")),
+          attr("r", AttrValue.Static("25")),
+        ],
+        []
+      );
+      const path = createElementNs(
+        svgNs(),
+        "path",
+        [attr("d", AttrValue.Static("M 10 10 L 50 50"))],
+        []
+      );
+      const g = createElementNs(svgNs(), "g", [], [circle, path]);
+      const svg = createElementNs(svgNs(), "svg", [], [g]);
+      render(container, svg);
+
+      expect(container.querySelector("circle")).not.toBeNull();
+      expect(container.querySelector("path")).not.toBeNull();
+      expect(container.querySelector("g")).not.toBeNull();
+    });
+
+    test("createElementNs with dynamic attribute", () => {
+      const [fill, setFill] = createSignal("red");
+      const rect = createElementNs(
+        svgNs(),
+        "rect",
+        [
+          attr("width", AttrValue.Static("100")),
+          attr("height", AttrValue.Static("100")),
+          attr("fill", AttrValue.Dynamic(fill)),
+        ],
+        []
+      );
+      const svg = createElementNs(svgNs(), "svg", [], [rect]);
+      render(container, svg);
+
+      const rectEl = container.querySelector("rect");
+      expect(rectEl?.getAttribute("fill")).toBe("red");
+
+      setFill("green");
+      expect(rectEl?.getAttribute("fill")).toBe("green");
+    });
+
+    test("SVG can be nested inside regular HTML elements", () => {
+      const circle = createElementNs(
+        svgNs(),
+        "circle",
+        [
+          attr("cx", AttrValue.Static("50")),
+          attr("cy", AttrValue.Static("50")),
+          attr("r", AttrValue.Static("25")),
+        ],
+        []
+      );
+      const svg = createElementNs(
+        svgNs(),
+        "svg",
+        [
+          attr("width", AttrValue.Static("100")),
+          attr("height", AttrValue.Static("100")),
+        ],
+        [circle]
+      );
+      const div = createElement("div", [], [svg]);
+      render(container, div);
+
+      const divEl = container.querySelector("div");
+      const svgEl = container.querySelector("svg");
+      expect(divEl).not.toBeNull();
+      expect(svgEl?.parentElement).toBe(divEl);
+      expect(svgEl?.namespaceURI).toBe("http://www.w3.org/2000/svg");
     });
   });
 });

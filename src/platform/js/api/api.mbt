@@ -226,6 +226,29 @@ pub fn create_element(
 }
 
 ///|
+/// Create an element with namespace (for SVG, MathML, etc.)
+pub fn create_element_ns(
+  ns : String,
+  tag : String,
+  attrs : Array[(String, @element.AttrValue)],
+  children : Array[@element.DomNode],
+) -> @element.DomNode {
+  @element.create_element_ns(ns, tag, attrs, children)
+}
+
+///|
+/// SVG namespace constant
+pub fn svg_ns() -> String {
+  @element.svg_ns
+}
+
+///|
+/// MathML namespace constant
+pub fn mathml_ns() -> String {
+  @element.mathml_ns
+}
+
+///|
 pub fn events() -> @element.HandlerMap {
   @element.events()
 }

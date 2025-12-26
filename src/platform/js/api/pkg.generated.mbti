@@ -26,6 +26,8 @@ pub fn create_deferred() -> (JsResource, (Any) -> Unit, (String) -> Unit)
 
 pub fn create_element(String, Array[(String, @element.AttrValue)], Array[@element.DomNode]) -> @element.DomNode
 
+pub fn create_element_ns(String, String, Array[(String, @element.AttrValue)], Array[@element.DomNode]) -> @element.DomNode
+
 pub fn create_memo(() -> Any) -> () -> Any
 
 pub fn create_resource(((Any) -> Unit, (String) -> Unit) -> Unit) -> JsResource
@@ -57,6 +59,8 @@ pub fn jsx(String, Array[(String, @element.AttrValue)], Array[@element.DomNode])
 pub fn jsxs(String, Array[(String, @element.AttrValue)], Array[@element.DomNode]) -> @element.DomNode
 
 pub fn map(@signal.Signal[Any], (Any) -> Any) -> () -> Any
+
+pub fn mathml_ns() -> String
 
 pub fn mount_to(@dom.Element, @element.DomNode) -> Unit
 
@@ -135,6 +139,8 @@ pub fn state_is_success(JsAsyncState) -> Bool
 pub fn state_value(JsAsyncState) -> Any
 
 pub fn subscribe(@signal.Signal[Any], (Any) -> Unit) -> () -> Unit
+
+pub fn svg_ns() -> String
 
 pub fn text(String) -> @element.DomNode
 

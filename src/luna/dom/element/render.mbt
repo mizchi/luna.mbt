@@ -31,6 +31,63 @@ pub(all) enum AttrValue {
 }
 
 ///|
+/// SVG namespace constant
+pub let svg_ns : String = "http://www.w3.org/2000/svg"
+
+///|
+/// MathML namespace constant
+pub let mathml_ns : String = "http://www.w3.org/1998/Math/MathML"
+
+///|
+/// FFI for createElementNS
+extern "js" fn create_element_ns_ffi(
+  ns : String,
+  tag : String,
+) -> @js_dom.Element =
+  #| (ns, tag) => document.createElementNS(ns, tag)
+
+///|
+/// Create an element with namespace (for SVG, MathML, etc.)
+/// Use this for SVG elements since they require the SVG namespace.
+///
+/// Example:
+/// ```moonbit
+/// // Create an SVG rectangle
+/// let rect = create_element_ns(
+///   svg_ns,
+///   "rect",
+///   [
+///     ("x", Static("10")),
+///     ("y", Static("10")),
+///     ("width", Static("100")),
+///     ("height", Static("50")),
+///     ("fill", Static("blue")),
+///   ],
+///   [],
+/// )
+/// ```
+pub fn create_element_ns(
+  ns : String,
+  tag : String,
+  attrs : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let elem = create_element_ns_ffi(ns, tag)
+
+  // Apply attributes
+  for attr in attrs {
+    let (name, value) = attr
+    apply_attribute(elem, name, value)
+  }
+
+  // Append children
+  for child in children {
+    elem.as_node().appendChild(child.to_dom()) |> ignore
+  }
+  El(DomElement::from_dom(elem))
+}
+
+///|
 /// Create an element with reactive attributes (returns Node for easy composition)
 pub fn create_element(
   tag : String,

@@ -95,6 +95,9 @@ import {
   jsxs,
   Fragment,
   createElement,
+  createElementNs,
+  svgNs,
+  mathmlNs,
   events,
   forEach,
   // Timer utilities
@@ -737,6 +740,9 @@ export {
   jsxs,
   Fragment,
   createElement,
+  createElementNs,
+  svgNs,
+  mathmlNs,
   events,
   forEach,
   // Route definitions

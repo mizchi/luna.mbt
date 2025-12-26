@@ -36,6 +36,8 @@ pub fn code(id? : String, class? : String, style? : String, dyn_class? : () -> S
 
 pub fn create_element(String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub fn create_element_ns(String, String, Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub fn div(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn[T : ToDomNode] dom_children(Array[T]) -> Array[DomNode]
@@ -88,6 +90,8 @@ pub fn li(id? : String, class? : String, style? : String, dyn_class? : () -> Str
 
 pub fn main_(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub let mathml_ns : String
+
 pub fn mount(DomElement, DomNode) -> Unit
 
 pub fn mount_to(@dom.Element, DomNode) -> Unit
@@ -129,6 +133,8 @@ pub fn span(id? : String, class? : String, style? : String, dyn_class? : () -> S
 pub fn static_node(@dom.Node) -> DomNode
 
 pub fn strong(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub let svg_ns : String
 
 pub fn text(String) -> DomNode
 
