@@ -49,11 +49,11 @@ npm install @luna_ui/luna
 |---------|:--:|:------:|:----:|:-------:|
 | `mizchi/luna` (core) | ✅ | ✅ | ✅ | ✅ |
 | `mizchi/luna/core/render` | ✅ | ✅ | ✅ | ✅ |
-| `mizchi/luna/platform/dom` | ✅ | - | - | - |
+| `mizchi/luna/luna/dom` | ✅ | - | - | - |
 
 - **Core (`mizchi/luna`)**: Signals, VNode, reactive primitives - works on all targets
 - **Render (`mizchi/luna/core/render`)**: HTML string rendering - works on all targets
-- **DOM (`mizchi/luna/platform/dom`)**: Browser DOM rendering and hydration - JavaScript only
+- **DOM (`mizchi/luna/luna/dom`)**: Browser DOM rendering and hydration - JavaScript only
 
 ## Usage
 
@@ -80,38 +80,38 @@ count.update(fn(n) { n + 1 })  // prints: Count: 2
 ### DOM Rendering (JavaScript target)
 
 ```moonbit
-fn counter_component() -> @dom.DomNode {
+fn counter_component() -> @luna_dom.DomNode {
   let count = @signal.signal(0)
   let doubled = @signal.memo(fn() { count.get() * 2 })
 
-  @dom.div(class="counter", [
-    @dom.h2([@dom.text("Counter")]),
+  @luna_dom.div(class="counter", [
+    @luna_dom.h2([@luna_dom.text("Counter")]),
     // Dynamic text updates automatically
-    @dom.p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
-    @dom.div(class="buttons", [
-      @dom.button(
-        on=@dom.events().click(fn(_) { count.update(fn(n) { n - 1 }) }),
-        [@dom.text("-")],
+    @luna_dom.p([@luna_dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
+    @luna_dom.p([@luna_dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
+    @luna_dom.div(class="buttons", [
+      @luna_dom.button(
+        on=@luna_dom.events().click(fn(_) { count.update(fn(n) { n - 1 }) }),
+        [@luna_dom.text("-")],
       ),
-      @dom.button(
-        on=@dom.events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
-        [@dom.text("+")],
+      @luna_dom.button(
+        on=@luna_dom.events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
+        [@luna_dom.text("+")],
       ),
-      @dom.button(
-        on=@dom.events().click(fn(_) { count.set(0) }),
-        [@dom.text("Reset")],
+      @luna_dom.button(
+        on=@luna_dom.events().click(fn(_) { count.set(0) }),
+        [@luna_dom.text("Reset")],
       ),
     ]),
   ])
 }
 
 fn main {
-  let doc = @js_dom.document()
+  let doc = @dom.document()
   match doc.getElementById("app") {
     Some(el) => {
       let app = counter_component()
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+      @luna_dom.render(el |> @luna_dom.DomElement::from_dom, app)
     }
     None => ()
   }
@@ -121,16 +121,16 @@ fn main {
 ### Conditional Rendering
 
 ```moonbit
-fn conditional_example() -> @dom.DomNode {
+fn conditional_example() -> @luna_dom.DomNode {
   let show = @signal.signal(true)
 
-  @dom.div([
-    @dom.button(
-      on=@dom.events().click(fn(_) { show.update(fn(b) { not(b) }) }),
-      [@dom.text_dyn(fn() { if show.get() { "Hide" } else { "Show" } })],
+  @luna_dom.div([
+    @luna_dom.button(
+      on=@luna_dom.events().click(fn(_) { show.update(fn(b) { not(b) }) }),
+      [@luna_dom.text_dyn(fn() { if show.get() { "Hide" } else { "Show" } })],
     ),
-    @dom.show(fn() { show.get() }, fn() {
-      @dom.div([@dom.text("Conditionally rendered content")])
+    @luna_dom.show(fn() { show.get() }, fn() {
+      @luna_dom.div([@luna_dom.text("Conditionally rendered content")])
     }),
   ])
 }
@@ -139,12 +139,12 @@ fn conditional_example() -> @dom.DomNode {
 ### List Rendering
 
 ```moonbit
-fn list_example() -> @dom.DomNode {
+fn list_example() -> @luna_dom.DomNode {
   let items : @signal.Signal[Array[String]] = @signal.signal(["A", "B", "C"])
 
-  @dom.ul([
-    @dom.for_each(fn() { items.get() }, fn(item, index) {
-      @dom.li([@dom.text(item)])
+  @luna_dom.ul([
+    @luna_dom.for_each(fn() { items.get() }, fn(item, index) {
+      @luna_dom.li([@luna_dom.text(item)])
     }),
   ])
 }

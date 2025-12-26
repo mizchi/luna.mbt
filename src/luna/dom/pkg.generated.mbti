@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/platform/dom"
+package "mizchi/luna/luna/dom"
 
 import(
   "mizchi/js/core"
   "mizchi/luna/luna"
+  "mizchi/luna/luna/dom/element"
   "mizchi/luna/luna/signal"
-  "mizchi/luna/platform/dom/element"
 )
 
 // Values
@@ -36,8 +36,8 @@ pub type AnyValue
 pub struct Element {
   // private fields
 }
-pub fn Element::from_jsdom(@mizchi/js/browser/dom.Element) -> Self
-pub fn Element::to_jsdom(Self) -> @mizchi/js/browser/dom.Element
+pub fn Element::from_dom(@mizchi/js/browser/dom.Element) -> Self
+pub fn Element::to_dom(Self) -> @mizchi/js/browser/dom.Element
 pub fn Element::to_node(Self) -> Node
 pub impl ToNode for Element
 
@@ -59,7 +59,7 @@ pub enum Node {
   Txt(@mizchi/js/browser/dom.Text)
   Raw(@mizchi/js/browser/dom.Node)
 }
-pub fn Node::to_jsdom(Self) -> @mizchi/js/browser/dom.Node
+pub fn Node::to_dom(Self) -> @mizchi/js/browser/dom.Node
 pub impl ToNode for Node
 
 pub struct WcIslandContext {

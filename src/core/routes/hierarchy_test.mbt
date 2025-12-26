@@ -72,11 +72,37 @@ test "path_matches_segment - partial name no match" {
 test "get_all_segments - mixed routes" {
   let manifest = RouteManifest::{
     routes: [
-      Static(StaticRouteEntry::new(path="/", source="index.mbt", output="index.html")),
-      Static(StaticRouteEntry::new(path="/about", source="about.mbt", output="about/index.html")),
-      Static(StaticRouteEntry::new(path="/docs/intro", source="docs/intro.mbt", output="docs/intro/index.html")),
-      Static(StaticRouteEntry::new(path="/docs/guide", source="docs/guide.mbt", output="docs/guide/index.html")),
-      Static(StaticRouteEntry::new(path="/blog/post1", source="blog/post1.mbt", output="blog/post1/index.html")),
+      Static(
+        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.mbt",
+          output="about/index.html",
+        ),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/docs/intro",
+          source="docs/intro.mbt",
+          output="docs/intro/index.html",
+        ),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/docs/guide",
+          source="docs/guide.mbt",
+          output="docs/guide/index.html",
+        ),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/blog/post1",
+          source="blog/post1.mbt",
+          output="blog/post1/index.html",
+        ),
+      ),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
@@ -91,7 +117,11 @@ test "get_all_segments - mixed routes" {
 ///|
 test "get_all_segments - only root routes" {
   let manifest = RouteManifest::{
-    routes: [Static(StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"))],
+    routes: [
+      Static(
+        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+      ),
+    ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
   let segments = get_all_segments(manifest)
@@ -128,7 +158,10 @@ test "resolve_chunks_inline - with trailing slash" {
     routes: { "/about/": ["boot"] },
   }
   // Should match with or without trailing slash
-  inspect(resolve_chunks_inline(manifest, "/about/"), content="Some([\"boot\"])")
+  inspect(
+    resolve_chunks_inline(manifest, "/about/"),
+    content="Some([\"boot\"])",
+  )
   inspect(resolve_chunks_inline(manifest, "/about"), content="Some([\"boot\"])")
 }
 
@@ -164,9 +197,7 @@ test "find_segment_ref - found" {
     routes: {},
   }
   let result = find_segment_ref(manifest, "/docs/guide")
-  guard result is Some((name, seg_ref)) else {
-    fail("Expected Some")
-  }
+  guard result is Some((name, seg_ref)) else { fail("Expected Some") }
   inspect(name, content="docs")
   inspect(seg_ref.path, content="routes/docs.json")
 }
@@ -209,10 +240,30 @@ test "find_segment_ref - root path returns None" {
 test "split_manifest - separates root and segment routes" {
   let manifest = RouteManifest::{
     routes: [
-      Static(StaticRouteEntry::new(path="/", source="index.mbt", output="index.html")),
-      Static(StaticRouteEntry::new(path="/about", source="about.mbt", output="about/index.html")),
-      Static(StaticRouteEntry::new(path="/docs/intro", source="docs/intro.mbt", output="docs/intro/index.html")),
-      Static(StaticRouteEntry::new(path="/docs/guide", source="docs/guide.mbt", output="docs/guide/index.html")),
+      Static(
+        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.mbt",
+          output="about/index.html",
+        ),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/docs/intro",
+          source="docs/intro.mbt",
+          output="docs/intro/index.html",
+        ),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/docs/guide",
+          source="docs/guide.mbt",
+          output="docs/guide/index.html",
+        ),
+      ),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
@@ -239,13 +290,25 @@ test "split_manifest - separates root and segment routes" {
 test "split_manifest - spa config applied" {
   let manifest = RouteManifest::{
     routes: [
-      Static(StaticRouteEntry::new(path="/", source="index.mbt", output="index.html")),
-      Static(StaticRouteEntry::new(path="/wiki/page1", source="wiki/page1.mbt", output="wiki/page1/index.html")),
+      Static(
+        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+      ),
+      Static(
+        StaticRouteEntry::new(
+          path="/wiki/page1",
+          source="wiki/page1.mbt",
+          output="wiki/page1/index.html",
+        ),
+      ),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
   let wiki_config = PageConfig::default()
-  let wiki_config_with_spa = PageConfig::{ ..wiki_config, spa: true, fallback_behavior: Some("spa") }
+  let wiki_config_with_spa = PageConfig::{
+    ..wiki_config,
+    spa: true,
+    fallback_behavior: Some("spa"),
+  }
   let configs : Map[String, PageConfig] = { "wiki": wiki_config_with_spa }
   let (hierarchical, segment_manifests) = split_manifest(manifest, configs)
 
@@ -266,20 +329,23 @@ test "split_manifest - spa config applied" {
 test "split_manifest - dynamic routes included in segment" {
   let manifest = RouteManifest::{
     routes: [
-      Static(StaticRouteEntry::new(path="/", source="index.mbt", output="index.html")),
-      Dynamic(DynamicRouteEntry::new(
-        path="/blog/:slug",
-        pattern="^/blog/([^/]+)$",
-        param_names=["slug"],
-        source="blog/_slug_.mbt",
-        mode=RenderMode::Ssr,
-      )),
+      Static(
+        StaticRouteEntry::new(path="/", source="index.mbt", output="index.html"),
+      ),
+      Dynamic(
+        DynamicRouteEntry::new(
+          path="/blog/:slug",
+          pattern="^/blog/([^/]+)$",
+          param_names=["slug"],
+          source="blog/_slug_.mbt",
+          mode=RenderMode::Ssr,
+        ),
+      ),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
   let configs : Map[String, PageConfig] = {}
   let (_, segment_manifests) = split_manifest(manifest, configs)
-
   guard segment_manifests.get("blog") is Some(blog_manifest) else {
     fail("Expected blog manifest")
   }
@@ -311,9 +377,7 @@ test "match_dynamic_pattern - simple param" {
     fallback: "404",
   }
   let result = match_dynamic_pattern(manifest, "/blog/hello-world")
-  guard result is Some((pattern, params)) else {
-    fail("Expected match")
-  }
+  guard result is Some((pattern, params)) else { fail("Expected match") }
   inspect(pattern.pattern, content="/:slug")
   inspect(params.get("slug"), content="Some(\"hello-world\")")
 }
@@ -354,9 +418,7 @@ test "match_dynamic_pattern - catch-all" {
     fallback: "404",
   }
   let result = match_dynamic_pattern(manifest, "/docs/guide/getting-started")
-  guard result is Some((pattern, params)) else {
-    fail("Expected match")
-  }
+  guard result is Some((pattern, params)) else { fail("Expected match") }
   inspect(pattern.catch_all, content="true")
   inspect(params.get("path"), content="Some(\"guide/getting-started\")")
 }

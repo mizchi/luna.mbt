@@ -3,7 +3,7 @@
   "supported-targets": ["js"],
   "import": [
     { "path": "mizchi/luna", "alias": "luna" },
-    { "path": "mizchi/luna/platform/dom/element", "alias": "element" },
+    { "path": "mizchi/luna/luna/dom/element", "alias": "element" },
     { "path": "mizchi/js/browser/dom", "alias": "dom" },
     { "path": "mizchi/js/browser/storage", "alias": "storage" },
     { "path": "mizchi/js/browser/location", "alias": "location" }

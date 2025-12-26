@@ -415,7 +415,7 @@ fn make_indices() -> Array[Int] {
 // Store cell elements and previous state for dirty tracking
 
 ///|
-let cell_elements : Array[@js_dom.Element] = []
+let cell_elements : Array[@dom.Element] = []
 
 ///|
 let prev_cell_types : Array[Int] = []
@@ -428,7 +428,7 @@ fn init_prev_cell_types() -> Unit {
 }
 
 ///|
-fn render_grid(state_sig : @signal.Signal[GameState]) -> @dom.DomNode {
+fn render_grid(state_sig : @signal.Signal[GameState]) -> @luna_dom.DomNode {
   let indices = make_indices()
   init_prev_cell_types()
   // Single effect with dirty tracking - only update changed cells
@@ -445,29 +445,29 @@ fn render_grid(state_sig : @signal.Signal[GameState]) -> @dom.DomNode {
       }
     }
   })
-  @dom.div(class="grid", [
-    @dom.for_each(fn() { indices }, fn(_, _) {
-      @dom.div(class="cell c0", ref_=el => cell_elements.push(el), [])
+  @luna_dom.div(class="grid", [
+    @luna_dom.for_each(fn() { indices }, fn(_, _) {
+      @luna_dom.div(class="cell c0", ref_=el => cell_elements.push(el), [])
     }),
   ])
 }
 
 ///|
-fn render_stats(state_sig : @signal.Signal[GameState]) -> @dom.DomNode {
-  @dom.div(class="stats", [
-    @dom.span([
-      @dom.text_dyn(fn() { "FPS: " + state_sig.get().fps.to_string() }),
+fn render_stats(state_sig : @signal.Signal[GameState]) -> @luna_dom.DomNode {
+  @luna_dom.div(class="stats", [
+    @luna_dom.span([
+      @luna_dom.text_dyn(fn() { "FPS: " + state_sig.get().fps.to_string() }),
     ]),
-    @dom.span([
-      @dom.text_dyn(fn() { "Score: " + state_sig.get().score.to_string() }),
+    @luna_dom.span([
+      @luna_dom.text_dyn(fn() { "Score: " + state_sig.get().score.to_string() }),
     ]),
-    @dom.span([
-      @dom.text_dyn(fn() {
+    @luna_dom.span([
+      @luna_dom.text_dyn(fn() {
         "Enemies: " + state_sig.get().enemies.length().to_string()
       }),
     ]),
-    @dom.span([
-      @dom.text_dyn(fn() {
+    @luna_dom.span([
+      @luna_dom.text_dyn(fn() {
         "Bullets: " + state_sig.get().bullets.length().to_string()
       }),
     ]),
@@ -478,12 +478,23 @@ fn render_stats(state_sig : @signal.Signal[GameState]) -> @dom.DomNode {
 fn render_controls(
   running_sig : @signal.Signal[Bool],
   on_reset : () -> Unit,
-) -> @dom.DomNode {
-  @dom.div(class="controls", [
-    @dom.button(on=@dom.events().click(_ => running_sig.update(r => not(r))), [
-      @dom.text_dyn(fn() { if running_sig.get() { "Pause" } else { "Run" } }),
+) -> @luna_dom.DomNode {
+  @luna_dom.div(class="controls", [
+    @luna_dom.button(
+      on=@luna_dom.events().click(_ => running_sig.update(r => not(r))),
+      [
+        @luna_dom.text_dyn(fn() {
+          if running_sig.get() {
+            "Pause"
+          } else {
+            "Run"
+          }
+        }),
+      ],
+    ),
+    @luna_dom.button(on=@luna_dom.events().click(_ => on_reset()), [
+      @luna_dom.text("Reset"),
     ]),
-    @dom.button(on=@dom.events().click(_ => on_reset()), [@dom.text("Reset")]),
   ])
 }
 
@@ -504,7 +515,7 @@ let key_state : KeyState = { up: false, down: false, left: false, right: false }
 
 ///|
 fn setup_keyboard(state_sig : @signal.Signal[GameState]) -> Unit {
-  let win = @js_dom.window()
+  let win = @dom.window()
   win
   .as_event_target()
   .addEventListener("keydown", fn(e : @js.Any) {
@@ -574,7 +585,7 @@ fn apply_input(state : GameState) -> GameState {
 ///|
 fn main {
   console_log("Luna Benchmark Game Starting...")
-  let doc = @js_dom.document()
+  let doc = @dom.document()
   match doc.getElementById("app") {
     Some(el) => {
       let state_sig = @signal.signal(create_initial_state())
@@ -584,20 +595,20 @@ fn main {
         fn() { if running_sig.get() { state_sig.update(game_tick) } },
         1000 / TARGET_FPS,
       )
-      let app = @dom.div(class="container", [
-        @dom.h1([@dom.text("Luna Benchmark Game")]),
+      let app = @luna_dom.div(class="container", [
+        @luna_dom.h1([@luna_dom.text("Luna Benchmark Game")]),
         render_stats(state_sig),
         render_controls(running_sig, fn() {
           state_sig.set(create_initial_state())
         }),
-        @dom.div(class="grid-wrapper", [render_grid(state_sig)]),
-        @dom.div(class="legend", [
-          @dom.text(
+        @luna_dom.div(class="grid-wrapper", [render_grid(state_sig)]),
+        @luna_dom.div(class="legend", [
+          @luna_dom.text(
             "Arrow keys to move | White=Player | Green=Player Bullets | Yellow=Enemy Bullets | Red=Enemies",
           ),
         ]),
       ])
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+      @luna_dom.render(el |> @luna_dom.DomElement::from_dom, app)
       console_log("Game initialized!")
     }
     None => console_log("ERROR: Could not find #app")

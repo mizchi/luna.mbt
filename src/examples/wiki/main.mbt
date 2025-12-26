@@ -10,7 +10,7 @@
 // - Signal-based reactive updates
 
 ///|
-using @dom {
+using @luna_dom {
   a,
   events,
   div,
@@ -99,10 +99,10 @@ fn create_routes() -> Array[@routes.Routes] {
 // =============================================================================
 
 ///|
-fn sidebar_component(router : @router.BrowserRouter) -> @dom.DomNode {
+fn sidebar_component(router : @router.BrowserRouter) -> @luna_dom.DomNode {
   let base = router.get_base()
   let pages = get_wiki_pages()
-  fn nav_link(href : String, label : String) -> @dom.DomNode {
+  fn nav_link(href : String, label : String) -> @luna_dom.DomNode {
     a(
       href~,
       class="wiki-link",
@@ -136,7 +136,7 @@ fn sidebar_component(router : @router.BrowserRouter) -> @dom.DomNode {
 }
 
 ///|
-fn wiki_index_component(_router : @router.BrowserRouter) -> @dom.DomNode {
+fn wiki_index_component(_router : @router.BrowserRouter) -> @luna_dom.DomNode {
   let pages = get_wiki_pages()
   article(class="wiki-page", [
     h1([text("Wiki Home")]),
@@ -160,7 +160,7 @@ fn wiki_index_component(_router : @router.BrowserRouter) -> @dom.DomNode {
 fn wiki_page_component(
   _router : @router.BrowserRouter,
   m : @routes.RoutesMatch,
-) -> @dom.DomNode {
+) -> @luna_dom.DomNode {
   let slug = m.get_param("slug").unwrap_or("index")
   match find_page(slug) {
     Some(page) =>
@@ -177,7 +177,7 @@ fn wiki_page_component(
 }
 
 ///|
-fn not_found_component(router : @router.BrowserRouter) -> @dom.DomNode {
+fn not_found_component(router : @router.BrowserRouter) -> @luna_dom.DomNode {
   let base = router.get_base()
   article(class="wiki-page wiki-not-found", [
     h1([text("404 - Not Found")]),
@@ -203,7 +203,7 @@ fn not_found_component(router : @router.BrowserRouter) -> @dom.DomNode {
 fn resolve_component(
   router : @router.BrowserRouter,
   m : @routes.RoutesMatch,
-) -> @dom.DomNode {
+) -> @luna_dom.DomNode {
   let component_id = m.component()
   match component_id {
     "wiki_index" => wiki_index_component(router)
@@ -219,13 +219,13 @@ fn resolve_component(
 ///|
 fn render_wiki(
   router : @router.BrowserRouter,
-  container : @dom.DomElement,
+  container : @luna_dom.DomElement,
 ) -> Unit {
   let _ = @signal.effect(fn() {
     let match_result = router.match_signal().get()
 
     // Clear container
-    @dom.clear(container)
+    @luna_dom.clear(container)
 
     // Create components untracked
     let (sidebar, content) = @signal.untracked(fn() {
@@ -245,7 +245,7 @@ fn render_wiki(
         [sidebar, main_(class="wiki-content", style="flex: 1;", [content])],
       )
     })
-    @dom.mount(container, app)
+    @luna_dom.mount(container, app)
   })
 
 }
@@ -257,14 +257,14 @@ fn render_wiki(
 ///|
 /// Hydrate function - called by Luna loader
 /// Element is the island container, state is parsed from luna:state
-pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
+pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
   // Router with base path /wiki
   let base = "/wiki"
   let routes = create_routes()
   let router = @router.BrowserRouter::new(routes, base~)
 
   // Start rendering
-  let dom_container = el |> @dom.DomElement::from_jsdom
+  let dom_container = el |> @luna_dom.DomElement::from_dom
   render_wiki(router, dom_container)
 }
 
@@ -274,7 +274,7 @@ pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
 
 ///|
 fn main {
-  let doc = @js_dom.document()
+  let doc = @dom.document()
   // Try wiki-app first (for island), fallback to app
   let container = match doc.getElementById("wiki-app") {
     Some(el) => Some(el)
@@ -288,7 +288,7 @@ fn main {
       let router = @router.BrowserRouter::new(routes, base~)
 
       // Start rendering
-      let dom_container = el |> @dom.DomElement::from_jsdom
+      let dom_container = el |> @luna_dom.DomElement::from_dom
       render_wiki(router, dom_container)
     }
     None => ()

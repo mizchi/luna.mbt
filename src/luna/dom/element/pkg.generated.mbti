@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/platform/dom/element"
+package "mizchi/luna/luna/dom/element"
 
 import(
   "mizchi/js/browser/dom"
@@ -126,6 +126,8 @@ pub fn show(() -> Bool, () -> DomNode) -> DomNode
 
 pub fn span(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub fn static_node(@dom.Node) -> DomNode
+
 pub fn strong(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub fn text(String) -> DomNode
@@ -166,8 +168,8 @@ pub(all) enum AttrValue {
 pub struct DomElement {
   // private fields
 }
-pub fn DomElement::from_jsdom(@dom.Element) -> Self
-pub fn DomElement::to_jsdom(Self) -> @dom.Element
+pub fn DomElement::from_dom(@dom.Element) -> Self
+pub fn DomElement::to_dom(Self) -> @dom.Element
 pub fn DomElement::to_node(Self) -> DomNode
 pub impl ToDomNode for DomElement
 
@@ -175,8 +177,9 @@ pub enum DomNode {
   El(DomElement)
   Txt(@dom.Text)
   Raw(@dom.Node)
+  Static(@dom.Node)
 }
-pub fn DomNode::to_jsdom(Self) -> @dom.Node
+pub fn DomNode::to_dom(Self) -> @dom.Node
 pub impl ToDomNode for DomNode
 
 pub type HandlerMap

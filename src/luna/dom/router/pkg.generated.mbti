@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/platform/dom/router"
+package "mizchi/luna/luna/dom/router"
 
 import(
   "mizchi/luna/luna/routes"

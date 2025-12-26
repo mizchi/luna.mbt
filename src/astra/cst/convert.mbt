@@ -111,7 +111,9 @@ fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
           if children.length() == 1 {
             children[0]
           } else {
-            @astra.MdNode::Text(@md_toc.extract_text_from_inlines(cell.children))
+            @astra.MdNode::Text(
+              @md_toc.extract_text_from_inlines(cell.children),
+            )
           }
         })
       })
@@ -194,4 +196,3 @@ fn convert_inline(inline : @md_parser.Inline) -> @astra.MdNode? {
       Some(@astra.MdNode::Text("[^\{label}]"))
   }
 }
-

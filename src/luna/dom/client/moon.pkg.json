@@ -8,6 +8,8 @@
       "alias": "luna"
     },
     "mizchi/luna/luna/signal",
+    { "path": "mizchi/luna/luna/render", "alias": "render" },
+    { "path": "mizchi/luna/luna/dom/element", "alias": "element" },
     { "path": "mizchi/luna/internal/utils", "alias": "utils" },
     { "path": "mizchi/js/core", "alias": "js" },
     {
@@ -18,8 +20,6 @@
     "mizchi/js/builtins/global"
   ],
   "test-import": [
-    "mizchi/npm_typed/global_jsdom",
-    { "path": "mizchi/luna/luna/render", "alias": "render" },
-    { "path": "mizchi/luna/platform/dom/element", "alias": "element" }
+    "mizchi/npm_typed/global_jsdom"
   ]
 }

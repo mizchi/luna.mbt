@@ -6,18 +6,20 @@
 /// - One button with click handler
 /// - Text that updates reactively
 fn main {
-  let doc = @js_dom.document()
+  let doc = @dom.document()
   match doc.getElementById("app") {
     Some(el) => {
       let count = @signal.signal(0)
-      let app = @dom.div([
-        @dom.p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
-        @dom.button(
-          on=@dom.events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
-          [@dom.text("Click me")],
+      let app = @luna_dom.div([
+        @luna_dom.p([
+          @luna_dom.text_dyn(fn() { "Count: " + count.get().to_string() }),
+        ]),
+        @luna_dom.button(
+          on=@luna_dom.events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
+          [@luna_dom.text("Click me")],
         ),
       ])
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+      @luna_dom.render(el |> @luna_dom.DomElement::from_dom, app)
     }
     None => ()
   }

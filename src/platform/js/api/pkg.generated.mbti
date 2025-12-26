@@ -5,10 +5,10 @@ import(
   "mizchi/js/browser/dom"
   "mizchi/js/core"
   "mizchi/luna/luna"
+  "mizchi/luna/luna/dom/element"
+  "mizchi/luna/luna/dom/router"
   "mizchi/luna/luna/routes"
   "mizchi/luna/luna/signal"
-  "mizchi/luna/platform/dom/element"
-  "mizchi/luna/platform/dom/router"
 )
 
 // Values

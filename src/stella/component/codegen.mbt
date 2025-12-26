@@ -1,6 +1,7 @@
 // Web Component Code Generation
 // Generates JavaScript code for Web Components
 
+///|
 /// Generate the full Web Component JavaScript code
 pub fn generate_component_js(
   meta : ComponentMeta,
@@ -65,25 +66,29 @@ pub fn generate_component_js(
   // Shadow DOM setup
   match meta.shadow {
     Open => {
-      sb.write_string("    const shadow = this.shadowRoot ?? this.attachShadow({ mode: 'open' });\n")
+      sb.write_string(
+        "    const shadow = this.shadowRoot ?? this.attachShadow({ mode: 'open' });\n",
+      )
       if meta.styles.length() > 0 {
         sb.write_string("    shadow.adoptedStyleSheets = [sheet];\n")
       }
     }
     Closed => {
-      sb.write_string("    const shadow = this.attachShadow({ mode: 'closed' });\n")
+      sb.write_string(
+        "    const shadow = this.attachShadow({ mode: 'closed' });\n",
+      )
       if meta.styles.length() > 0 {
         sb.write_string("    shadow.adoptedStyleSheets = [sheet];\n")
       }
     }
-    None => {
-      sb.write_string("    const shadow = this;\n")
-    }
+    None => sb.write_string("    const shadow = this;\n")
   }
 
   // Template rendering for empty elements
   sb.write_string("\n    if (!this.shadowRoot && mod.template) {\n")
-  sb.write_string("      shadow.innerHTML = mod.template(this.#getSnapshot());\n")
+  sb.write_string(
+    "      shadow.innerHTML = mod.template(this.#getSnapshot());\n",
+  )
   sb.write_string("    }\n\n")
 
   // Setup call
@@ -145,7 +150,6 @@ pub fn generate_component_js(
   }
   sb.write_string("\n    };\n")
   sb.write_string("  }\n")
-
   sb.write_string("}\n\n")
 
   // Register
@@ -154,7 +158,6 @@ pub fn generate_component_js(
   sb.write_string("', ")
   sb.write_string(tag_to_class_name(meta.tag))
   sb.write_string(");\n")
-
   sb.to_string()
 }
 
@@ -162,6 +165,7 @@ pub fn generate_component_js(
 // Helper Functions
 // =============================================================================
 
+///|
 /// Convert kebab-case tag to PascalCase class name
 fn tag_to_class_name(tag : String) -> String {
   let sb = StringBuilder::new()
@@ -179,6 +183,7 @@ fn tag_to_class_name(tag : String) -> String {
   sb.to_string()
 }
 
+///|
 /// Convert kebab-case to camelCase
 fn attr_to_js_key(name : String) -> String {
   let sb = StringBuilder::new()
@@ -196,6 +201,7 @@ fn attr_to_js_key(name : String) -> String {
   sb.to_string()
 }
 
+///|
 /// Convert lowercase char to uppercase
 fn char_to_upper(c : Char) -> Char {
   let code = c.to_int()
@@ -207,6 +213,7 @@ fn char_to_upper(c : Char) -> Char {
   }
 }
 
+///|
 /// Get default value as JS expression
 fn attr_default_to_js(attr_type : AttrType) -> String {
   match attr_type {
@@ -217,6 +224,7 @@ fn attr_default_to_js(attr_type : AttrType) -> String {
   }
 }
 
+///|
 /// Generate parse expression for attributeChangedCallback
 fn attr_parse_expr(attr : AttrDef) -> String {
   match attr.attr_type {
@@ -227,16 +235,33 @@ fn attr_parse_expr(attr : AttrDef) -> String {
   }
 }
 
+///|
 /// Generate sync expression for initial attribute read
 fn attr_sync_expr(attr : AttrDef) -> String {
   match attr.attr_type {
-    String(default~) => "this.getAttribute('" + attr.name + "') ?? '" + escape_js_string(default) + "'"
-    Int(default~) => "parseInt(this.getAttribute('" + attr.name + "') ?? '" + default.to_string() + "', 10)"
-    Float(default~) => "parseFloat(this.getAttribute('" + attr.name + "') ?? '" + default.to_string() + "')"
+    String(default~) =>
+      "this.getAttribute('" +
+      attr.name +
+      "') ?? '" +
+      escape_js_string(default) +
+      "'"
+    Int(default~) =>
+      "parseInt(this.getAttribute('" +
+      attr.name +
+      "') ?? '" +
+      default.to_string() +
+      "', 10)"
+    Float(default~) =>
+      "parseFloat(this.getAttribute('" +
+      attr.name +
+      "') ?? '" +
+      default.to_string() +
+      "')"
     Bool(_) => "this.hasAttribute('" + attr.name + "')"
   }
 }
 
+///|
 /// Escape string for JS string literal
 fn escape_js_string(s : String) -> String {
   let sb = StringBuilder::new()
@@ -253,6 +278,7 @@ fn escape_js_string(s : String) -> String {
   sb.to_string()
 }
 
+///|
 /// Escape string for template literal
 fn escape_template_literal(s : String) -> String {
   let sb = StringBuilder::new()

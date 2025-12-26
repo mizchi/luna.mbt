@@ -386,9 +386,108 @@ fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
 
 ///|
 /// Parse HTML string to DOM Node using template element
+/// Used for RawHtml VNode - when you need a detached DOM node from HTML
 extern "js" fn parse_html_to_node(html : String) -> @js_dom.Node =
   #| (html) => {
   #|   const template = document.createElement('template');
   #|   template.innerHTML = html;
   #|   return template.content.cloneNode(true);
   #| }
+
+///|
+/// Set innerHTML directly on an element (fast for bulk insertion)
+extern "js" fn set_inner_html(el : @js_dom.Element, html : String) -> Unit =
+  #| (el, html) => { el.innerHTML = html; }
+
+// =============================================================================
+// Static Content - innerHTML-based fast rendering for static content
+// =============================================================================
+//
+// Static content uses innerHTML for maximum performance:
+// - Browser's native HTML parser is highly optimized
+// - 2-3x faster than createElement for 100+ elements
+// - No hydration or reconciliation needed
+//
+// SSR Integration:
+// - Server renders static HTML (no special markers)
+// - Client receives pre-rendered content - nothing to do
+// - For CSR, use inject_static() or static_block()
+//
+
+///|
+/// Inject static content directly into a container using innerHTML
+///
+/// This is the fastest way to render static content:
+/// - Uses innerHTML for one-time bulk insertion (2-3x faster than createElement)
+/// - Container becomes the static content holder
+/// - Content is never updated after initial render
+///
+/// Works seamlessly with SSR:
+/// - Server: @render.render_to_string(node) → HTML in response
+/// - Client: inject_static(container, node) for CSR parts
+///
+/// Example:
+/// ```moonbit
+/// let container = doc.getElementById("static-header")
+/// inject_static(container, header_vnode())
+/// ```
+pub fn inject_static(
+  container : @js_dom.Element,
+  node : @luna.Node[Unit],
+) -> Unit {
+  let html = @render.render_to_string(node).html
+  set_inner_html(container, html)
+}
+
+///|
+/// Inject pre-rendered HTML directly into a container
+///
+/// Use when HTML is already available (e.g., from SSR cache or fetch).
+/// This is the fastest path - no VNode rendering needed.
+///
+/// Security: Ensure HTML is trusted/sanitized before injection.
+pub fn inject_static_html(container : @js_dom.Element, html : String) -> Unit {
+  set_inner_html(container, html)
+}
+
+///|
+/// Create a static block that can be composed with dynamic content
+///
+/// Returns a wrapper element with static content injected via innerHTML.
+/// Use when you need to compose static content within a dynamic component.
+///
+/// Example:
+/// ```moonbit
+/// fn my_page() -> DomNode {
+///   let header = static_block("header", header_vnode())
+///   let footer = static_block("footer", footer_vnode())
+///   div([
+///       header, // Static - never updates
+///       dynamic_content(), // Dynamic - updates on signal change
+///       footer,
+///     ], // Static - never updates
+///   )
+/// }
+/// ```
+///
+/// Note: Creates a wrapper element. Use inject_static() if you want
+/// to avoid the wrapper and have a dedicated container.
+pub fn static_block(tag : String, node : @luna.Node[Unit]) -> @element.DomNode {
+  let doc = @js_dom.document()
+  let wrapper = doc.createElement(tag)
+  let html = @render.render_to_string(node).html
+  set_inner_html(wrapper, html)
+  @element.static_node(wrapper.as_node())
+}
+
+///|
+/// Create a static div block (convenience wrapper for static_block)
+pub fn static_div(node : @luna.Node[Unit]) -> @element.DomNode {
+  static_block("div", node)
+}
+
+///|
+/// Create a static span block (convenience wrapper for static_block)
+pub fn static_span(node : @luna.Node[Unit]) -> @element.DomNode {
+  static_block("span", node)
+}

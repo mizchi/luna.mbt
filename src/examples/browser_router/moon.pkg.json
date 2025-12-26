@@ -4,10 +4,10 @@
   "import": [
     "mizchi/luna/luna/signal",
     { "path": "mizchi/luna/luna/routes", "alias": "routes" },
-    { "path": "mizchi/luna/platform/dom/router", "alias": "router" },
-    { "path": "mizchi/luna/platform/dom/element", "alias": "dom" },
+    { "path": "mizchi/luna/luna/dom/router", "alias": "router" },
+    { "path": "mizchi/luna/luna/dom/element", "alias": "luna_dom" },
     { "path": "mizchi/js/core", "alias": "js" },
-    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    { "path": "mizchi/js/browser/dom", "alias": "dom" },
     "mizchi/js/builtins/global"
   ],
   "link": {

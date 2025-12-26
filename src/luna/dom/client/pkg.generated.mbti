@@ -1,10 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/platform/dom/client"
+package "mizchi/luna/luna/dom/client"
 
 import(
   "mizchi/js/browser/dom"
   "mizchi/js/core"
   "mizchi/luna/luna"
+  "mizchi/luna/luna/dom/element"
 )
 
 // Values
@@ -20,9 +21,19 @@ pub fn hydration_result_recovered(String) -> HydrationResult
 
 pub fn hydration_result_success() -> HydrationResult
 
+pub fn inject_static(@dom.Element, @luna.Node[Unit]) -> Unit
+
+pub fn inject_static_html(@dom.Element, String) -> Unit
+
 pub fn render_vnode(@dom.Element, @luna.Node[@core.Any]) -> Unit
 
 pub fn render_vnode_to_dom(@luna.Node[@core.Any]) -> @dom.Node
+
+pub fn static_block(String, @luna.Node[Unit]) -> @element.DomNode
+
+pub fn static_div(@luna.Node[Unit]) -> @element.DomNode
+
+pub fn static_span(@luna.Node[Unit]) -> @element.DomNode
 
 // Errors
 

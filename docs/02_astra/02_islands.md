@@ -42,9 +42,9 @@ Create a MoonBit component with a `hydrate` export:
 
 ```moonbit
 // src/examples/wiki/main.mbt
-pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
+pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
   // Initialize your component
-  let container = el |> @dom.DomElement::from_jsdom
+  let container = el |> @luna_dom.DomElement::from_dom
   // ... render logic
 }
 ```
@@ -57,7 +57,7 @@ Package configuration (`moon.pkg.json`):
   "supported-targets": ["js"],
   "import": [
     "mizchi/luna/luna/signal",
-    { "path": "mizchi/luna/platform/dom/element", "alias": "dom" },
+    { "path": "mizchi/luna/luna/dom/element", "alias": "dom" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     { "path": "mizchi/js/core", "alias": "js" }
   ],
@@ -128,12 +128,12 @@ fn create_routes() -> Array[@routes.Routes] {
   ]
 }
 
-pub fn hydrate(el : @js_dom.Element, _state : @js.Any) -> Unit {
+pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
   let base = "/wiki"
   let routes = create_routes()
   let router = @router.BrowserRouter::new(routes, base~)
 
-  let container = el |> @dom.DomElement::from_jsdom
+  let container = el |> @luna_dom.DomElement::from_dom
   render_app(router, container)
 }
 ```

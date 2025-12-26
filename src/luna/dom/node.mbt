@@ -2,20 +2,20 @@
 //
 
 ///|
-/// Element wraps a DOM element (internal jsdom.Element)
+/// Element wraps a DOM element (internal @js_dom.Element)
 pub struct Element {
   priv inner : @js_dom.Element
 }
 
 ///|
-/// Create Element from jsdom.Element (internal use)
-pub fn Element::from_jsdom(elem : @js_dom.Element) -> Element {
+/// Create Element from @js_dom.Element
+pub fn Element::from_dom(elem : @js_dom.Element) -> Element {
   { inner: elem }
 }
 
 ///|
-/// Get the inner jsdom.Element (internal use)
-pub fn Element::to_jsdom(self : Element) -> @js_dom.Element {
+/// Get the inner @js_dom.Element
+pub fn Element::to_dom(self : Element) -> @js_dom.Element {
   self.inner
 }
 
@@ -39,8 +39,8 @@ pub enum Node {
 }
 
 ///|
-/// Get the inner jsdom.Node
-pub fn Node::to_jsdom(self : Node) -> @js_dom.Node {
+/// Get the inner @js_dom.Node
+pub fn Node::to_dom(self : Node) -> @js_dom.Node {
   match self {
     El(elem) => elem.inner.as_node()
     Txt(text) => text.as_node()
@@ -76,7 +76,7 @@ pub impl ToNode for @js_dom.Node with to_node(self) {
 ///|
 /// @js_dom.Element -> Node
 pub impl ToNode for @js_dom.Element with to_node(self) {
-  El(Element::from_jsdom(self))
+  El(Element::from_dom(self))
 }
 
 ///|

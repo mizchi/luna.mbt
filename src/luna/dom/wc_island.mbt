@@ -329,7 +329,7 @@ pub fn hydrate_auto(
     }
   } else {
     // Luna mode - render new DOM (always re-renders for DomNode)
-    let el = @element.DomElement::from_jsdom(element)
+    let el = @element.DomElement::from_dom(element)
     let js_node = @client.render_vnode_to_dom(node)
     let dom_node = @element.dom_node(js_node)
     @element.render(el, dom_node)
@@ -358,7 +358,7 @@ pub fn hydrate_auto_dom(
     )
 
     // Prepare new content first (before clearing)
-    let new_content = node.to_jsdom()
+    let new_content = node.to_dom()
 
     // Create a document fragment for atomic replacement
     let doc = @js_dom.document()
@@ -378,7 +378,7 @@ pub fn hydrate_auto_dom(
     shadow_root.as_node().appendChild(fragment.as_node()) |> ignore
   } else {
     // Luna mode - render new DOM
-    let el = @element.DomElement::from_jsdom(element)
+    let el = @element.DomElement::from_dom(element)
     @element.render(el, node)
   }
 }

@@ -23,24 +23,32 @@ fn console_log(msg : String) -> Unit {
 // =============================================================================
 
 ///|
-fn counter_example() -> @dom.DomNode {
+fn counter_example() -> @luna_dom.DomNode {
   let count = @signal.signal(0)
   let doubled = @signal.memo(fn() { count.get() * 2 })
   let is_even = @signal.memo(fn() { count.get() % 2 == 0 })
-  @dom.div(class="counter-example", [
-    @dom.h2([@dom.text("Counter Example")]),
-    @dom.p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } })]),
-    @dom.div(class="buttons", [
-      @dom.button(on=@dom.events().click(_ => count.update(n => n - 1)), [
-        @dom.text("-"),
-      ]),
-      @dom.button(on=@dom.events().click(_ => count.update(n => n + 1)), [
-        @dom.text("+"),
-      ]),
-      @dom.button(on=@dom.events().click(_ => count.set(0)), [
-        @dom.text("Reset"),
+  @luna_dom.div(class="counter-example", [
+    @luna_dom.h2([@luna_dom.text("Counter Example")]),
+    @luna_dom.p([
+      @luna_dom.text_dyn(fn() { "Count: " + count.get().to_string() }),
+    ]),
+    @luna_dom.p([
+      @luna_dom.text_dyn(fn() { "Doubled: " + doubled().to_string() }),
+    ]),
+    @luna_dom.p([
+      @luna_dom.text_dyn(fn() { if is_even() { "Even" } else { "Odd" } }),
+    ]),
+    @luna_dom.div(class="buttons", [
+      @luna_dom.button(
+        on=@luna_dom.events().click(_ => count.update(n => n - 1)),
+        [@luna_dom.text("-")],
+      ),
+      @luna_dom.button(
+        on=@luna_dom.events().click(_ => count.update(n => n + 1)),
+        [@luna_dom.text("+")],
+      ),
+      @luna_dom.button(on=@luna_dom.events().click(_ => count.set(0)), [
+        @luna_dom.text("Reset"),
       ]),
     ]),
   ])
@@ -51,22 +59,24 @@ fn counter_example() -> @dom.DomNode {
 // =============================================================================
 
 ///|
-fn input_example() -> @dom.DomNode {
+fn input_example() -> @luna_dom.DomNode {
   let text = @signal.signal("")
   let char_count = @signal.memo(fn() { text.get().length() })
-  @dom.div(class="input-example", [
-    @dom.h2([@dom.text("Input Example")]),
-    @dom.input(
+  @luna_dom.div(class="input-example", [
+    @luna_dom.h2([@luna_dom.text("Input Example")]),
+    @luna_dom.input(
       type_="text",
       placeholder="Type something...",
-      on=@dom.events().input(fn(e) {
+      on=@luna_dom.events().input(fn(e) {
         let target : @js.Any = e.target() |> @js.identity
         let value : String = target._get("value").cast()
         text.set(value)
       }),
     ),
-    @dom.p([@dom.text_dyn(fn() { "Characters: " + char_count().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { "You typed: " + text.get() })]),
+    @luna_dom.p([
+      @luna_dom.text_dyn(fn() { "Characters: " + char_count().to_string() }),
+    ]),
+    @luna_dom.p([@luna_dom.text_dyn(fn() { "You typed: " + text.get() })]),
   ])
 }
 
@@ -75,7 +85,7 @@ fn input_example() -> @dom.DomNode {
 // =============================================================================
 
 ///|
-fn effect_example() -> @dom.DomNode {
+fn effect_example() -> @luna_dom.DomNode {
   let active = @signal.signal(false)
   let ticks = @signal.signal(0)
   let _ = @signal.effect(fn() {
@@ -83,21 +93,25 @@ fn effect_example() -> @dom.DomNode {
     console_log("Active state changed: " + is_active.to_string())
     @signal.on_cleanup(fn() { console_log("Cleaning up effect") })
   })
-  @dom.div(class="effect-example", [
-    @dom.h2([@dom.text("Effect Example")]),
-    @dom.p([
-      @dom.text_dyn(fn() {
+  @luna_dom.div(class="effect-example", [
+    @luna_dom.h2([@luna_dom.text("Effect Example")]),
+    @luna_dom.p([
+      @luna_dom.text_dyn(fn() {
         let status = if active.get() { "Active" } else { "Inactive" }
         "Status: " + status
       }),
     ]),
-    @dom.p([@dom.text_dyn(fn() { "Ticks: " + ticks.get().to_string() })]),
-    @dom.button(on=@dom.events().click(_ => active.update(b => not(b))), [
-      @dom.text_dyn(fn() { if active.get() { "Stop" } else { "Start" } }),
+    @luna_dom.p([
+      @luna_dom.text_dyn(fn() { "Ticks: " + ticks.get().to_string() }),
     ]),
-    @dom.button(on=@dom.events().click(_ => ticks.update(n => n + 1)), [
-      @dom.text("Tick"),
-    ]),
+    @luna_dom.button(
+      on=@luna_dom.events().click(_ => active.update(b => not(b))),
+      [@luna_dom.text_dyn(fn() { if active.get() { "Stop" } else { "Start" } })],
+    ),
+    @luna_dom.button(
+      on=@luna_dom.events().click(_ => ticks.update(n => n + 1)),
+      [@luna_dom.text("Tick")],
+    ),
   ])
 }
 
@@ -106,24 +120,27 @@ fn effect_example() -> @dom.DomNode {
 // =============================================================================
 
 ///|
-fn conditional_example() -> @dom.DomNode {
+fn conditional_example() -> @luna_dom.DomNode {
   let show_message = @signal.signal(true)
-  @dom.div(class="conditional-example", [
-    @dom.h2([@dom.text("Conditional Example")]),
-    @dom.button(on=@dom.events().click(_ => show_message.update(b => not(b))), [
-      @dom.text_dyn(fn() {
-        if show_message.get() {
-          "Hide Message"
-        } else {
-          "Show Message"
-        }
-      }),
-    ]),
-    @dom.show(fn() { show_message.get() }, fn() {
-      @dom.div(
+  @luna_dom.div(class="conditional-example", [
+    @luna_dom.h2([@luna_dom.text("Conditional Example")]),
+    @luna_dom.button(
+      on=@luna_dom.events().click(_ => show_message.update(b => not(b))),
+      [
+        @luna_dom.text_dyn(fn() {
+          if show_message.get() {
+            "Hide Message"
+          } else {
+            "Show Message"
+          }
+        }),
+      ],
+    ),
+    @luna_dom.show(fn() { show_message.get() }, fn() {
+      @luna_dom.div(
         class="message",
         style="padding: 10px; background-color: #e0f7fa;",
-        [@dom.text("Hello! This message is conditionally rendered.")],
+        [@luna_dom.text("Hello! This message is conditionally rendered.")],
       )
     }),
   ])
@@ -134,17 +151,17 @@ fn conditional_example() -> @dom.DomNode {
 // =============================================================================
 
 ///|
-fn style_example() -> @dom.DomNode {
+fn style_example() -> @luna_dom.DomNode {
   let hue = @signal.signal(180)
   let size = @signal.signal(100)
-  @dom.div(class="style-example", [
-    @dom.h2([@dom.text("Style Example")]),
-    @dom.create_element(
+  @luna_dom.div(class="style-example", [
+    @luna_dom.h2([@luna_dom.text("Style Example")]),
+    @luna_dom.create_element(
       "div",
       [
         (
           "style",
-          @dom.attr_dynamic(fn() {
+          @luna_dom.attr_dynamic(fn() {
             "width: " +
             size.get().to_string() +
             "px; height: " +
@@ -157,13 +174,16 @@ fn style_example() -> @dom.DomNode {
       ],
       [],
     ),
-    @dom.div([
-      @dom.label([@dom.text("Hue: ")]),
-      @dom.input(
+    @luna_dom.div([
+      @luna_dom.label([@luna_dom.text("Hue: ")]),
+      @luna_dom.input(
         type_="range",
         value="180",
-        attrs=[("min", @dom.Attr::AttrInt(0)), ("max", @dom.Attr::AttrInt(360))],
-        on=@dom.events().input(fn(e) {
+        attrs=[
+          ("min", @luna_dom.Attr::AttrInt(0)),
+          ("max", @luna_dom.Attr::AttrInt(360)),
+        ],
+        on=@luna_dom.events().input(fn(e) {
           let target : @js.Any = e.target() |> @js.identity
           let value : String = target._get("value").cast()
           match @global.parseInt(value) {
@@ -173,16 +193,16 @@ fn style_example() -> @dom.DomNode {
         }),
       ),
     ]),
-    @dom.div([
-      @dom.label([@dom.text("Size: ")]),
-      @dom.input(
+    @luna_dom.div([
+      @luna_dom.label([@luna_dom.text("Size: ")]),
+      @luna_dom.input(
         type_="range",
         value="100",
         attrs=[
-          ("min", @dom.Attr::AttrInt(50)),
-          ("max", @dom.Attr::AttrInt(200)),
+          ("min", @luna_dom.Attr::AttrInt(50)),
+          ("max", @luna_dom.Attr::AttrInt(200)),
         ],
-        on=@dom.events().input(fn(e) {
+        on=@luna_dom.events().input(fn(e) {
           let target : @js.Any = e.target() |> @js.identity
           let value : String = target._get("value").cast()
           match @global.parseInt(value) {
@@ -207,7 +227,7 @@ priv struct TodoItem {
 }
 
 ///|
-fn todo_example() -> @dom.DomNode {
+fn todo_example() -> @luna_dom.DomNode {
   let todos : @signal.Signal[Array[TodoItem]] = @signal.signal([])
   let input_text = @signal.signal("")
   let next_id = @signal.signal(1)
@@ -245,41 +265,43 @@ fn todo_example() -> @dom.DomNode {
     todos.update(fn(items) { items.filter(fn(item) { item.id != id }) })
   }
 
-  @dom.div(class="todo-example", [
-    @dom.h2([@dom.text("Todo List Example")]),
-    @dom.form(
-      on=@dom.events().submit(fn(e) {
+  @luna_dom.div(class="todo-example", [
+    @luna_dom.h2([@luna_dom.text("Todo List Example")]),
+    @luna_dom.form(
+      on=@luna_dom.events().submit(fn(e) {
         e.preventDefault()
         add_todo()
       }),
       [
-        @dom.input(
+        @luna_dom.input(
           type_="text",
           placeholder="Add a todo...",
-          on=@dom.events().input(fn(e) {
+          on=@luna_dom.events().input(fn(e) {
             let target : @js.Any = e.target() |> @js.identity
             input_text.set(target._get("value").cast())
           }),
         ),
-        @dom.create_element("button", [("type", @dom.attr_static("submit"))], [
-          @dom.text("Add"),
-        ]),
+        @luna_dom.create_element(
+          "button",
+          [("type", @luna_dom.attr_static("submit"))],
+          [@luna_dom.text("Add")],
+        ),
       ],
     ),
-    @dom.p([
-      @dom.text_dyn(fn() {
+    @luna_dom.p([
+      @luna_dom.text_dyn(fn() {
         completed_count().to_string() + "/" + total().to_string() + " completed"
       }),
     ]),
-    @dom.ul([
-      @dom.for_each(fn() { todos.get() }, fn(todo, _index) {
+    @luna_dom.ul([
+      @luna_dom.for_each(fn() { todos.get() }, fn(todo, _index) {
         let todo_id = todo.id
-        @dom.create_element(
+        @luna_dom.create_element(
           "li",
           [
             (
               "style",
-              @dom.attr_dynamic(fn() {
+              @luna_dom.attr_dynamic(fn() {
                 let is_completed = todos
                   .get()
                   .iter()
@@ -293,15 +315,15 @@ fn todo_example() -> @dom.DomNode {
             ),
           ],
           [
-            @dom.span(
+            @luna_dom.span(
               style="cursor: pointer;",
-              on=@dom.events().click(_ => toggle_todo(todo_id)),
-              [@dom.text(todo.text)],
+              on=@luna_dom.events().click(_ => toggle_todo(todo_id)),
+              [@luna_dom.text(todo.text)],
             ),
-            @dom.button(
+            @luna_dom.button(
               style="margin-left: 10px;",
-              on=@dom.events().click(_ => remove_todo(todo_id)),
-              [@dom.text("x")],
+              on=@luna_dom.events().click(_ => remove_todo(todo_id)),
+              [@luna_dom.text("x")],
             ),
           ],
         )
@@ -316,34 +338,36 @@ fn todo_example() -> @dom.DomNode {
 
 ///|
 /// Convert DomNode from element to portal
-fn to_portal_node(n : @dom.DomNode) -> @portal.DomNode {
-  @portal.DomNode::Raw(n.to_jsdom())
+fn to_portal_node(n : @luna_dom.DomNode) -> @portal.DomNode {
+  @portal.DomNode::Raw(n.to_dom())
 }
 
 ///|
 /// Convert DomNode from portal to element
-fn from_portal_node(n : @portal.DomNode) -> @dom.DomNode {
-  @dom.dom_node(n.to_jsdom())
+fn from_portal_node(n : @portal.DomNode) -> @luna_dom.DomNode {
+  @luna_dom.dom_node(n.to_dom())
 }
 
 ///|
-fn modal_example() -> @dom.DomNode {
+fn modal_example() -> @luna_dom.DomNode {
   let is_open = @signal.signal(false)
-  @dom.div(class="modal-example", [
-    @dom.h2([@dom.text("Modal Example (Portal)")]),
-    @dom.p([@dom.text("Modal renders outside the component tree using Portal.")]),
-    @dom.button(
-      on=@dom.events().click(_ => is_open.set(true)),
+  @luna_dom.div(class="modal-example", [
+    @luna_dom.h2([@luna_dom.text("Modal Example (Portal)")]),
+    @luna_dom.p([
+      @luna_dom.text("Modal renders outside the component tree using Portal."),
+    ]),
+    @luna_dom.button(
+      on=@luna_dom.events().click(_ => is_open.set(true)),
       id="open-modal-btn",
-      [@dom.text("Open Modal")],
+      [@luna_dom.text("Open Modal")],
     ),
-    @dom.show(fn() { is_open.get() }, fn() {
+    @luna_dom.show(fn() { is_open.get() }, fn() {
       // The modal content will be rendered to document.body via Portal
-      let modal_content = @dom.div(
+      let modal_content = @luna_dom.div(
         class="modal-overlay",
         style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;",
         id="modal-overlay",
-        on=@dom.events().click(fn(e) {
+        on=@luna_dom.events().click(fn(e) {
           // Close when clicking the overlay (not the modal content)
           let target : @js.Any = e.target() |> @js.identity
           let target_id : String = target._get("id").cast()
@@ -352,21 +376,21 @@ fn modal_example() -> @dom.DomNode {
           }
         }),
         [
-          @dom.div(
+          @luna_dom.div(
             class="modal-content",
             style="background: white; padding: 20px; border-radius: 8px; min-width: 300px; max-width: 500px;",
             id="modal-content",
             [
-              @dom.h3([@dom.text("Modal Title")]),
-              @dom.p([
-                @dom.text(
+              @luna_dom.h3([@luna_dom.text("Modal Title")]),
+              @luna_dom.p([
+                @luna_dom.text(
                   "This modal is rendered using Portal, which teleports the content to document.body. This helps avoid z-index and overflow issues.",
                 ),
               ]),
-              @dom.button(
-                on=@dom.events().click(_ => is_open.set(false)),
+              @luna_dom.button(
+                on=@luna_dom.events().click(_ => is_open.set(false)),
                 id="close-modal-btn",
-                [@dom.text("Close")],
+                [@luna_dom.text("Close")],
               ),
             ],
           ),
@@ -386,37 +410,37 @@ fn modal_example() -> @dom.DomNode {
 fn main {
   console_log("Luna SPA Sample Application")
   console_log("==============================")
-  let doc = @js_dom.document()
+  let doc = @dom.document()
   let container = doc.getElementById("app")
   match container {
     Some(el) => {
-      let app = @dom.div(
+      let app = @luna_dom.div(
         class="app",
         style="padding: 20px; max-width: 800px; margin: 0 auto;",
         [
-          @dom.h1([@dom.text("Luna Examples")]),
-          @dom.p([
-            @dom.text(
+          @luna_dom.h1([@luna_dom.text("Luna Examples")]),
+          @luna_dom.p([
+            @luna_dom.text(
               "A collection of examples demonstrating the reactive UI library.",
             ),
           ]),
-          @dom.hr(),
+          @luna_dom.hr(),
           counter_example(),
-          @dom.hr(),
+          @luna_dom.hr(),
           input_example(),
-          @dom.hr(),
+          @luna_dom.hr(),
           effect_example(),
-          @dom.hr(),
+          @luna_dom.hr(),
           conditional_example(),
-          @dom.hr(),
+          @luna_dom.hr(),
           style_example(),
-          @dom.hr(),
+          @luna_dom.hr(),
           todo_example(),
-          @dom.hr(),
+          @luna_dom.hr(),
           modal_example(),
         ],
       )
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+      @luna_dom.render(el |> @luna_dom.DomElement::from_dom, app)
       console_log("App rendered successfully!")
     }
     None => console_log("ERROR: Could not find #app container")

@@ -3,10 +3,10 @@
   "import": [
     { "path": "mizchi/luna/luna", "alias": "luna" },
     { "path": "mizchi/luna/luna/render", "alias": "render" },
-    { "path": "mizchi/luna/platform/server_dom/element", "alias": "element" }
+    { "path": "mizchi/luna/luna/static_dom/element", "alias": "element" }
   ],
   "test-import": [
-    { "path": "mizchi/luna/platform/server_dom/element", "alias": "element" }
+    { "path": "mizchi/luna/luna/static_dom/element", "alias": "element" }
   ],
   "link": {
     "js": {

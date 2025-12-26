@@ -44,11 +44,11 @@ npm install @luna_ui/luna
 |-----------|:--:|:------:|:----:|:-------:|
 | `mizchi/luna` (コア) | ✅ | ✅ | ✅ | ✅ |
 | `mizchi/luna/core/render` | ✅ | ✅ | ✅ | ✅ |
-| `mizchi/luna/platform/dom` | ✅ | - | - | - |
+| `mizchi/luna/luna/dom` | ✅ | - | - | - |
 
 - **コア (`mizchi/luna`)**: Signal, VNode, リアクティブプリミティブ - 全ターゲット対応
 - **Render (`mizchi/luna/core/render`)**: HTML 文字列レンダリング - 全ターゲット対応
-- **DOM (`mizchi/luna/platform/dom`)**: ブラウザ DOM レンダリングと Hydration - JavaScript のみ
+- **DOM (`mizchi/luna/luna/dom`)**: ブラウザ DOM レンダリングと Hydration - JavaScript のみ
 
 ## 使い方
 
@@ -75,37 +75,37 @@ count.update(fn(n) { n + 1 })  // 出力: Count: 2
 ### MoonBit - DOM レンダリング
 
 ```moonbit
-fn counter_component() -> @dom.DomNode {
+fn counter_component() -> @luna_dom.DomNode {
   let count = @signal.signal(0)
   let doubled = @signal.memo(fn() { count.get() * 2 })
 
-  @dom.div(class="counter", [
-    @dom.h2([@dom.text("Counter")]),
-    @dom.p([@dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
-    @dom.p([@dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
-    @dom.div(class="buttons", [
-      @dom.button(
-        on=@dom.events().click(fn(_) { count.update(fn(n) { n - 1 }) }),
-        [@dom.text("-")],
+  @luna_dom.div(class="counter", [
+    @luna_dom.h2([@luna_dom.text("Counter")]),
+    @luna_dom.p([@luna_dom.text_dyn(fn() { "Count: " + count.get().to_string() })]),
+    @luna_dom.p([@luna_dom.text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
+    @luna_dom.div(class="buttons", [
+      @luna_dom.button(
+        on=@luna_dom.events().click(fn(_) { count.update(fn(n) { n - 1 }) }),
+        [@luna_dom.text("-")],
       ),
-      @dom.button(
-        on=@dom.events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
-        [@dom.text("+")],
+      @luna_dom.button(
+        on=@luna_dom.events().click(fn(_) { count.update(fn(n) { n + 1 }) }),
+        [@luna_dom.text("+")],
       ),
-      @dom.button(
-        on=@dom.events().click(fn(_) { count.set(0) }),
-        [@dom.text("Reset")],
+      @luna_dom.button(
+        on=@luna_dom.events().click(fn(_) { count.set(0) }),
+        [@luna_dom.text("Reset")],
       ),
     ]),
   ])
 }
 
 fn main {
-  let doc = @js_dom.document()
+  let doc = @dom.document()
   match doc.getElementById("app") {
     Some(el) => {
       let app = counter_component()
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+      @luna_dom.render(el |> @luna_dom.DomElement::from_dom, app)
     }
     None => ()
   }

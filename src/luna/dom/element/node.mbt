@@ -10,20 +10,20 @@
 //
 
 ///|
-/// DomElement wraps a DOM element (internal jsdom.Element)
+/// DomElement wraps a DOM element (internal @js_dom.Element)
 pub struct DomElement {
   priv inner : @js_dom.Element
 }
 
 ///|
-/// Create DomElement from jsdom.Element (internal use)
-pub fn DomElement::from_jsdom(elem : @js_dom.Element) -> DomElement {
+/// Create DomElement from @js_dom.Element
+pub fn DomElement::from_dom(elem : @js_dom.Element) -> DomElement {
   { inner: elem }
 }
 
 ///|
-/// Get the inner jsdom.Element (internal use)
-pub fn DomElement::to_jsdom(self : DomElement) -> @js_dom.Element {
+/// Get the inner @js_dom.Element
+pub fn DomElement::to_dom(self : DomElement) -> @js_dom.Element {
   self.inner
 }
 
@@ -39,15 +39,19 @@ pub enum DomNode {
   El(DomElement)
   Txt(@js_dom.Text)
   Raw(@js_dom.Node)
+  /// Static node - content is pre-rendered and skipped during reconciliation/hydration
+  /// Use static_content() to create static nodes from VNode trees
+  Static(@js_dom.Node)
 }
 
 ///|
-/// Get the inner jsdom.Node
-pub fn DomNode::to_jsdom(self : DomNode) -> @js_dom.Node {
+/// Get the inner @js_dom.Node
+pub fn DomNode::to_dom(self : DomNode) -> @js_dom.Node {
   match self {
     El(elem) => elem.inner.as_node()
     Txt(text) => text.as_node()
     Raw(node) => node
+    Static(node) => node
   }
 }
 
@@ -79,7 +83,7 @@ pub impl ToDomNode for @js_dom.Node with to_dom_node(self) {
 ///|
 /// @js_dom.Element -> DomNode
 pub impl ToDomNode for @js_dom.Element with to_dom_node(self) {
-  El(DomElement::from_jsdom(self))
+  El(DomElement::from_dom(self))
 }
 
 ///|
@@ -104,4 +108,11 @@ pub fn[T : ToDomNode] dom_node(value : T) -> DomNode {
 /// Collect children with ToDomNode conversion
 pub fn[T : ToDomNode] dom_children(items : Array[T]) -> Array[DomNode] {
   items.map(ToDomNode::to_dom_node)
+}
+
+///|
+/// Create a Static DomNode from a @js_dom.Node
+/// Static nodes are skipped during reconciliation and hydration
+pub fn static_node(node : @js_dom.Node) -> DomNode {
+  Static(node)
 }

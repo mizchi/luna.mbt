@@ -1,6 +1,7 @@
 // Web Component Types
 // Type definitions for Web Components generation
 
+///|
 /// Attribute type for Web Components
 pub enum AttrType {
   /// String attribute: foo="bar"
@@ -13,6 +14,7 @@ pub enum AttrType {
   Bool(default~ : Bool)
 }
 
+///|
 /// Attribute definition
 pub struct AttrDef {
   /// Attribute name (kebab-case in HTML)
@@ -23,6 +25,7 @@ pub struct AttrDef {
   reflect : Bool
 }
 
+///|
 /// Shadow DOM mode
 pub enum ShadowMode {
   /// Open shadow root (default)
@@ -33,6 +36,7 @@ pub enum ShadowMode {
   None
 } derive(Eq)
 
+///|
 /// Component metadata for code generation
 pub struct ComponentMeta {
   /// Custom element tag name (e.g., "x-counter")
@@ -49,26 +53,31 @@ pub struct ComponentMeta {
 // Attribute Definition Helpers
 // =============================================================================
 
+///|
 /// Create a string attribute definition
-pub fn attr_string(name : String, default~ : String = "") -> AttrDef {
-  { name, attr_type: String(default=default), reflect: false }
+pub fn attr_string(name : String, default? : String = "") -> AttrDef {
+  { name, attr_type: String(default~), reflect: false }
 }
 
+///|
 /// Create an integer attribute definition
-pub fn attr_int(name : String, default~ : Int = 0) -> AttrDef {
-  { name, attr_type: Int(default=default), reflect: false }
+pub fn attr_int(name : String, default? : Int = 0) -> AttrDef {
+  { name, attr_type: Int(default~), reflect: false }
 }
 
+///|
 /// Create a float attribute definition
-pub fn attr_float(name : String, default~ : Double = 0.0) -> AttrDef {
-  { name, attr_type: Float(default=default), reflect: false }
+pub fn attr_float(name : String, default? : Double = 0.0) -> AttrDef {
+  { name, attr_type: Float(default~), reflect: false }
 }
 
+///|
 /// Create a boolean attribute definition
-pub fn attr_bool(name : String, default~ : Bool = false) -> AttrDef {
-  { name, attr_type: Bool(default=default), reflect: false }
+pub fn attr_bool(name : String, default? : Bool = false) -> AttrDef {
+  { name, attr_type: Bool(default~), reflect: false }
 }
 
+///|
 /// Set reflect option on attribute
 pub fn AttrDef::with_reflect(self : AttrDef) -> AttrDef {
   { ..self, reflect: true }
@@ -78,24 +87,44 @@ pub fn AttrDef::with_reflect(self : AttrDef) -> AttrDef {
 // ComponentMeta Builder
 // =============================================================================
 
+///|
 /// Create a new component metadata
 pub fn ComponentMeta::new(tag : String) -> ComponentMeta {
   { tag, attributes: [], shadow: Open, styles: "" }
 }
 
+///|
 /// Add an attribute definition
-pub fn ComponentMeta::with_attr(self : ComponentMeta, attr : AttrDef) -> ComponentMeta {
+pub fn ComponentMeta::with_attr(
+  self : ComponentMeta,
+  attr : AttrDef,
+) -> ComponentMeta {
   let attrs = self.attributes.copy()
   attrs.push(attr)
   { ..self, attributes: attrs }
 }
 
+///|
 /// Set shadow DOM mode
-pub fn ComponentMeta::with_shadow(self : ComponentMeta, mode : ShadowMode) -> ComponentMeta {
+pub fn ComponentMeta::with_shadow(
+  self : ComponentMeta,
+  mode : ShadowMode,
+) -> ComponentMeta {
   { ..self, shadow: mode }
 }
 
+///|
+/// Set closed shadow DOM mode
+/// Closed shadow root cannot be accessed from outside the component
+pub fn ComponentMeta::with_closed_shadow(self : ComponentMeta) -> ComponentMeta {
+  { ..self, shadow: Closed }
+}
+
+///|
 /// Set CSS styles
-pub fn ComponentMeta::with_styles(self : ComponentMeta, css : String) -> ComponentMeta {
+pub fn ComponentMeta::with_styles(
+  self : ComponentMeta,
+  css : String,
+) -> ComponentMeta {
   { ..self, styles: css }
 }

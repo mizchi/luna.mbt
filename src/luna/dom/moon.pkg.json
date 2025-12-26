@@ -9,11 +9,11 @@
       "alias": "luna"
     },
     {
-      "path": "mizchi/luna/platform/dom/client",
+      "path": "mizchi/luna/luna/dom/client",
       "alias": "client"
     },
     {
-      "path": "mizchi/luna/platform/dom/element",
+      "path": "mizchi/luna/luna/dom/element",
       "alias": "element"
     },
     { "path": "mizchi/js/core", "alias": "js" },

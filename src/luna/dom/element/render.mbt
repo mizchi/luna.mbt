@@ -48,9 +48,9 @@ pub fn create_element(
 
   // Append children
   for child in children {
-    elem.as_node().appendChild(child.to_jsdom()) |> ignore
+    elem.as_node().appendChild(child.to_dom()) |> ignore
   }
-  El(DomElement::from_jsdom(elem))
+  El(DomElement::from_dom(elem))
 }
 
 ///|
@@ -133,19 +133,19 @@ fn apply_style_string(elem : @js_dom.Element, style : String) -> Unit {
 ///|
 /// Mount a node to a container
 pub fn mount(container : DomElement, n : DomNode) -> Unit {
-  container.to_jsdom().as_node().appendChild(n.to_jsdom()) |> ignore
+  container.to_dom().as_node().appendChild(n.to_dom()) |> ignore
 }
 
 ///|
 /// Mount to a jsdom container (for tests)
 pub fn mount_to(container : @js_dom.Element, n : DomNode) -> Unit {
-  container.as_node().appendChild(n.to_jsdom()) |> ignore
+  container.as_node().appendChild(n.to_dom()) |> ignore
 }
 
 ///|
 /// Clear a container
 pub fn clear(container : DomElement) -> Unit {
-  container.to_jsdom().as_node().setTextContent("")
+  container.to_dom().as_node().setTextContent("")
 }
 
 ///|
@@ -183,7 +183,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
       Some(owner) => @signal.run_with_owner(owner, render_fn)
       None => render_fn()
     }
-    Some(n.to_jsdom())
+    Some(n.to_dom())
   } else {
     None
   }
@@ -200,8 +200,8 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
             Some(owner) => @signal.run_with_owner(owner, render_fn)
             None => render_fn()
           }
-          parent.insertBefore(n.to_jsdom(), Some(placeholder)) |> ignore
-          current_node.val = Some(n.to_jsdom())
+          parent.insertBefore(n.to_dom(), Some(placeholder)) |> ignore
+          current_node.val = Some(n.to_dom())
         }
       (false, Some(n)) =>
         // Need to hide - remove node
@@ -240,8 +240,8 @@ pub fn[T] for_each(
   fn render_with_owner(item : T, i : Int) -> @js_dom.Node {
     match captured_owner {
       Some(owner) =>
-        @signal.run_with_owner(owner, fn() { render_item(item, i) }).to_jsdom()
-      None => render_item(item, i).to_jsdom()
+        @signal.run_with_owner(owner, fn() { render_item(item, i) }).to_dom()
+      None => render_item(item, i).to_dom()
     }
   }
 
@@ -361,7 +361,7 @@ pub fn[T] index_each(
         None => render_item(item_getter, index)
       }
     })
-    IndexEntry::new(dom.to_jsdom(), dispose, disposed)
+    IndexEntry::new(dom.to_dom(), dispose, disposed)
   }
 
   // Initial render
@@ -445,7 +445,7 @@ pub fn[T] index_each(
 pub fn portal(target~ : @js_dom.Element, children~ : Array[DomNode]) -> DomNode {
   // Render children into the target container instead of where the portal is placed
   for child in children {
-    target.as_node().appendChild(child.to_jsdom()) |> ignore
+    target.as_node().appendChild(child.to_dom()) |> ignore
   }
 
   // Return a comment placeholder at the original location
@@ -464,7 +464,7 @@ pub fn portal_to_body(children : Array[DomNode]) -> DomNode {
       // Fallback: render inline if body not available
       let fragment = doc.createDocumentFragment()
       for child in children {
-        fragment.as_node().appendChild(child.to_jsdom()) |> ignore
+        fragment.as_node().appendChild(child.to_dom()) |> ignore
       }
       Raw(fragment.as_node())
     }
@@ -481,7 +481,7 @@ pub fn portal_to(selector : String, children : Array[DomNode]) -> DomNode {
       // Fallback: render inline if target not found
       let fragment = doc.createDocumentFragment()
       for child in children {
-        fragment.as_node().appendChild(child.to_jsdom()) |> ignore
+        fragment.as_node().appendChild(child.to_dom()) |> ignore
       }
       Raw(fragment.as_node())
     }

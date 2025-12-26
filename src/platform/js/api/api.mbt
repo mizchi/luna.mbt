@@ -483,13 +483,13 @@ pub fn state_error(state : JsAsyncState) -> String {
 ///|
 /// Convert element DomNode to portal DomNode
 fn to_portal_node(n : @element.DomNode) -> @portal.DomNode {
-  @portal.DomNode::Raw(n.to_jsdom())
+  @portal.DomNode::Raw(n.to_dom())
 }
 
 ///|
 /// Convert portal DomNode to element DomNode (as Raw)
 fn from_portal_node(n : @portal.DomNode) -> @element.DomNode {
-  @element.dom_node(n.to_jsdom())
+  @element.dom_node(n.to_dom())
 }
 
 ///|

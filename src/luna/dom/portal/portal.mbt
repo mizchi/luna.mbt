@@ -13,8 +13,8 @@ pub(all) enum DomNode {
 }
 
 ///|
-/// Convert DomNode to jsdom Node
-pub fn DomNode::to_jsdom(self : DomNode) -> @js_dom.Node {
+/// Convert DomNode to @js_dom.Node
+pub fn DomNode::to_dom(self : DomNode) -> @js_dom.Node {
   match self {
     El(elem) => elem.as_node()
     Txt(text) => text.as_node()
@@ -109,7 +109,7 @@ pub fn portal(options : PortalOptions, children : Array[DomNode]) -> DomNode {
   // Render children into the portal container
   let child_nodes : Array[@js_dom.Node] = []
   for child in children {
-    let node = child.to_jsdom()
+    let node = child.to_dom()
     render_target.appendChild(node) |> ignore
     child_nodes.push(node)
   }

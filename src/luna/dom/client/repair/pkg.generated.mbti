@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/platform/dom/client/repair"
+package "mizchi/luna/luna/dom/client/repair"
 
 import(
   "mizchi/js/browser/dom"
   "mizchi/js/core"
   "mizchi/luna/luna"
-  "mizchi/luna/platform/dom/client"
+  "mizchi/luna/luna/dom/client"
 )
 
 // Values

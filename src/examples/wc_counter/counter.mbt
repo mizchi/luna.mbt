@@ -9,18 +9,15 @@
 // Props Type (matches the attributes defined in counter.wc.json)
 // =============================================================================
 
-/// Props structure matching the WC config
-/// These are passed as Signals from the JS wrapper
-struct Props {
-  initial : Int
-  label : String
-  disabled : Bool
-}
+// Props structure matching the WC config (for documentation)
+// These are passed as Signals from the JS wrapper
+// Fields: initial: Int, label: String, disabled: Bool
 
 // =============================================================================
 // Template Function
 // =============================================================================
 
+///|
 /// Generate initial HTML template
 /// Called when the element has no pre-rendered content (no SSR)
 ///
@@ -49,6 +46,7 @@ pub fn template(props_js : @js.Any) -> String {
 // Setup Function
 // =============================================================================
 
+///|
 /// Setup reactivity and event handlers
 /// Called after the component is connected to the DOM
 ///
@@ -92,7 +90,6 @@ pub fn setup(ctx_js : @js.Any) -> @js.Any {
     // This is a limitation of the current design
     trigger_update(ctx_js, ".value", count.val.to_string())
   })
-
   let unbind_inc = ctx.on(".inc", "click", fn() {
     count.val = count.val + 1
     trigger_update(ctx_js, ".value", count.val.to_string())
@@ -108,7 +105,6 @@ pub fn setup(ctx_js : @js.Any) -> @js.Any {
     unbind_dec()
     unbind_inc()
   }
-
   wrap_cleanup(cleanup)
 }
 
@@ -116,15 +112,19 @@ pub fn setup(ctx_js : @js.Any) -> @js.Any {
 // FFI Helpers
 // =============================================================================
 
+///|
 extern "js" fn get_prop_int(props : @js.Any, name : String) -> Int =
   #| (props, name) => props[name] ?? 0
 
+///|
 extern "js" fn get_prop_string(props : @js.Any, name : String) -> String =
   #| (props, name) => props[name] ?? ''
 
+///|
 extern "js" fn wrap_cleanup(cleanup : () -> Unit) -> @js.Any =
   #| (cleanup) => cleanup
 
+///|
 extern "js" fn trigger_update(
   ctx : @js.Any,
   selector : String,

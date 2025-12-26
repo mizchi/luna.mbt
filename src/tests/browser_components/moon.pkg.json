@@ -4,8 +4,8 @@
     { "path": "mizchi/luna/luna", "alias": "luna" },
     "mizchi/luna/luna/signal",
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
-    { "path": "mizchi/luna/platform/dom/element", "alias": "dom" },
-    { "path": "mizchi/luna/platform/dom/client", "alias": "client" },
+    { "path": "mizchi/luna/luna/dom/element", "alias": "dom" },
+    { "path": "mizchi/luna/luna/dom/client", "alias": "client" },
     { "path": "mizchi/js/core", "alias": "js" }
   ],
   "link": {

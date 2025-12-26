@@ -13,11 +13,11 @@
       "alias": "ssr"
     },
     {
-      "path": "mizchi/luna/platform/dom/client",
+      "path": "mizchi/luna/luna/dom/client",
       "alias": "client"
     },
     {
-      "path": "mizchi/luna/platform/dom/client/repair",
+      "path": "mizchi/luna/luna/dom/client/repair",
       "alias": "fixable"
     },
     {

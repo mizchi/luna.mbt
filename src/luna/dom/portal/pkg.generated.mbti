@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/platform/dom/portal"
+package "mizchi/luna/luna/dom/portal"
 
 import(
   "mizchi/js/browser/dom"
@@ -24,7 +24,7 @@ pub(all) enum DomNode {
   Txt(@dom.Text)
   Raw(@dom.Node)
 }
-pub fn DomNode::to_jsdom(Self) -> @dom.Node
+pub fn DomNode::to_dom(Self) -> @dom.Node
 
 pub struct PortalOptions {
   mount : @dom.Element?

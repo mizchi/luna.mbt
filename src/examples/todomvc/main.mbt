@@ -376,7 +376,7 @@ fn app() -> DomNode {
 fn main {
   let doc = @dom.document()
   match doc.getElementById("app") {
-    Some(el) => render(el |> DomElement::from_jsdom, app())
+    Some(el) => render(el |> DomElement::from_dom, app())
     None => ()
   }
 }

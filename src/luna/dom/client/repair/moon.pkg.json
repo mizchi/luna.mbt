@@ -16,7 +16,7 @@
     "mizchi/js/web/event",
     "mizchi/js/builtins/global",
     {
-      "path": "mizchi/luna/platform/dom/client",
+      "path": "mizchi/luna/luna/dom/client",
       "alias": "client"
     }
   ],

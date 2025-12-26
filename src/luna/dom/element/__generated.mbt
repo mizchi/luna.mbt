@@ -985,7 +985,7 @@ pub fn fragment(children : Array[DomNode]) -> DomNode {
       let doc = @js_dom.document()
       let frag = doc.createDocumentFragment()
       for child in children {
-        frag.as_node().appendChild(child.to_jsdom()) |> ignore
+        frag.as_node().appendChild(child.to_dom()) |> ignore
       }
       Raw(frag.as_node())
     }
