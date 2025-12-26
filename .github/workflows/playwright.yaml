@@ -30,7 +30,18 @@ jobs:
           moon update
           moon install
       - name: Build MoonBit
-        run: moon build --target js
+        run: |
+          # Skip astra which depends on mooncakes markdown (API incompatibility)
+          moon build --target js src/luna
+          moon build --target js src/core/parser
+          moon build --target js src/core/routes
+          moon build --target js src/core/ssg
+          moon build --target js src/platform/js/api
+          moon build --target js src/platform/js/cache
+          moon build --target js src/platform/js/fs_adapter
+          moon build --target js src/platform/js/stream_renderer
+          moon build --target js src/sol
+          moon build --target js src/stella
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: Vitest browser tests
@@ -58,7 +69,18 @@ jobs:
           moon update
           moon install
       - name: Build MoonBit
-        run: moon build --target js
+        run: |
+          # Skip astra which depends on mooncakes markdown (API incompatibility)
+          moon build --target js src/luna
+          moon build --target js src/core/parser
+          moon build --target js src/core/routes
+          moon build --target js src/core/ssg
+          moon build --target js src/platform/js/api
+          moon build --target js src/platform/js/cache
+          moon build --target js src/platform/js/fs_adapter
+          moon build --target js src/platform/js/stream_renderer
+          moon build --target js src/sol
+          moon build --target js src/stella
       - name: Build Loader
         run: pnpm exec rolldown -c rolldown.config.mjs
       - name: Install Playwright Chromium
