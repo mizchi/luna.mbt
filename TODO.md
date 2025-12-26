@@ -4,13 +4,12 @@
 
 ## TODO
 
-### Luna
+### Luna UI
 
 - webcomponents 生成パターンを埋め込み
-- Scaffold CLI を提供する
-  - [ ] `npx @luna_ui/luna new myapp --tsx`
-  - [ ] `npx @luna_ui/luna new myapp --mbt`
-  - [ ] `npx @luna_ui/luna new myapp --tsx --standalone`
+- [x] Scaffold CLI を提供する
+  - [x] `npx @luna_ui/luna new myapp` (TSX)
+  - [x] `npx @luna_ui/luna new myapp --mbt` (MoonBit)
 - AI に読ませるための luna skills(js/mbt)を作成する
 
 ### Astra (SSG)
@@ -63,7 +62,7 @@
 2. [ ] FileSystem trait で静的生成出力を抽象化
 3. [ ] Astra の DocumentTree を Sol でも利用可能に
 
-### Luna Core / DX
+### Luna UI / DX
 
 - [ ] todomvc サンプルで JSON を使わない
   - JSON/strconv 依存で +200KB 以上のバンドルサイズ増加
