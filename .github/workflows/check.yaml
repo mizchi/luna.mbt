@@ -33,7 +33,9 @@ jobs:
         run: |
           # Skip astra which depends on mooncakes markdown (API incompatibility)
           moon check --target js src/luna
-          moon check --target js src/core
+          moon check --target js src/core/parser
+          moon check --target js src/core/routes
+          moon check --target js src/core/ssg
           moon check --target js src/platform
           moon check --target js src/sol
           moon check --target js src/stella
