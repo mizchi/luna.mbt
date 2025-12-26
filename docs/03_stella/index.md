@@ -433,6 +433,6 @@ npm test       # Run Playwright tests
 
 ## See Also
 
-- [Luna Core](/luna/) - Reactivity system
+- [Luna UI](/luna/) - Reactivity system
 - [Sol Framework](/sol/) - Full-stack SSR
 - [Astra SSG](/astra/) - Static site generation

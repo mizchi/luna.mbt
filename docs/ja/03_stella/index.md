@@ -433,6 +433,6 @@ npm test       # Playwright テストを実行
 
 ## 関連項目
 
-- [Luna Core](/ja/luna/) - リアクティビティシステム
+- [Luna UI](/ja/luna/) - リアクティビティシステム
 - [Sol Framework](/ja/sol/) - フルスタック SSR
 - [Astra SSG](/ja/astra/) - 静的サイト生成

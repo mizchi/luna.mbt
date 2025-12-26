@@ -10,7 +10,7 @@ title: FAQ
 
 Luna is a suite of tools for building modern web applications with MoonBit and JavaScript. It provides:
 
-- **Luna Core** - Signals, Islands, and fine-grained reactivity
+- **Luna UI** - Signals, Islands, and fine-grained reactivity
 - **Astra** - Static Site Generator for documentation
 - **Sol** - Full-stack SSR framework
 - **Stella** - Development tools
