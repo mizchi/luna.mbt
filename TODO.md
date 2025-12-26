@@ -15,11 +15,12 @@
 ### Astra (SSG)
 
 **高優先**
-- [ ] 動的ルート (`_id_.md`, `___all___.tsx`) - MoonBitモジュールパス互換
-- [ ] Robots/Noindex (ページ単位制御)
+- [x] 動的ルート (`_id_.md`, `___all___.md`) - MoonBitモジュールパス互換
+- [x] Robots/Noindex (ページ単位制御)
 
 **中優先**
-- [ ] MDX サポート (Markdown内コンポーネント)
+- [ ] static_render.mbt リファクタ (インラインスクリプト分離)
+- [ ] MDX サポート (mizchi/markdown の mdx 機能を利用)
 - [ ] 画像最適化 (リサイズ、WebP変換)
 - [ ] 検索インデックス生成 (クライアント側全文検索)
 - [ ] JSON-LD (Schema.org 構造化データ)
