@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna WCR - Counter Example</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    h1 { margin-bottom: 2rem; }
+    section {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    h2 { margin-top: 0; }
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Luna WCR - Web Components Runtime</h1>
+
+  <section>
+    <h2>Pattern A: Empty Element (Client Render)</h2>
+    <x-counter initial="5" label="Score"></x-counter>
+    <div class="controls">
+      <button onclick="document.querySelector('x-counter').setAttribute('initial', '100')">
+        Set initial=100
+      </button>
+      <button onclick="document.querySelector('x-counter').setAttribute('disabled', '')">
+        Disable
+      </button>
+      <button onclick="document.querySelector('x-counter').removeAttribute('disabled')">
+        Enable
+      </button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pattern B: SSR + Hydrate (Declarative Shadow DOM)</h2>
+    <x-counter initial="10" label="Items">
+      <template shadowrootmode="open">
+        <style>
+          :host { display: block; font-family: system-ui, sans-serif; }
+          .counter { display: flex; align-items: center; gap: 8px; }
+          .label { font-weight: 500; }
+          .value { font-size: 1.5em; min-width: 2em; text-align: center; }
+          button { padding: 4px 12px; font-size: 1em; cursor: pointer; }
+          button:disabled { opacity: 0.5; cursor: not-allowed; }
+        </style>
+        <div class="counter">
+          <span class="label">Items:</span>
+          <button class="dec">-</button>
+          <span class="value">10</span>
+          <button class="inc">+</button>
+        </div>
+      </template>
+    </x-counter>
+  </section>
+
+  <section>
+    <h2>Multiple Instances</h2>
+    <x-counter initial="0" label="A"></x-counter>
+    <x-counter initial="50" label="B"></x-counter>
+    <x-counter initial="100" label="C" disabled></x-counter>
+  </section>
+
+  <script type="module" src="./counter.ts"></script>
+</body>
+</html>

@@ -7,6 +7,11 @@
 ### Luna
 
 - webcomponents 生成パターンを埋め込み
+- Scaffold CLI を提供する
+  - [ ] `npx @luna_ui/luna new myapp --tsx`
+  - [ ] `npx @luna_ui/luna new myapp --mbt`
+  - [ ] `npx @luna_ui/luna new myapp --tsx --standalone`
+- AI に読ませるための luna skills(js/mbt)を作成する
 
 ### Astra (SSG)
 

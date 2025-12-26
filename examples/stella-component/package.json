@@ -1,0 +1,22 @@
+{
+  "name": "stella-component-example",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:mbt": "moon build --target js src",
+    "build:wc": "node ../../js/stella/dist/cli.js build src/counter.wc.json -o dist/.tmp/x-counter-wrapper.js",
+    "build:bundle": "node scripts/bundle.js",
+    "build": "npm run clean && npm run build:mbt && npm run build:wc && npm run build:bundle",
+    "dev": "npx serve dist -p 3600",
+    "clean": "rm -rf dist",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "esbuild": "^0.24.2",
+    "playwright": "^1.57.0"
+  }
+}

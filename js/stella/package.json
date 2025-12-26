@@ -1,0 +1,38 @@
+{
+  "name": "@mizchi/stella",
+  "version": "0.0.1",
+  "description": "Stella CLI - Web Components generator for Luna",
+  "type": "module",
+  "bin": {
+    "stella": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@mizchi/luna-wcr": "workspace:*"
+  },
+  "devDependencies": {
+    "happy-dom": "^17.4.4",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
+  },
+  "keywords": [
+    "web-components",
+    "cli",
+    "luna",
+    "moonbit"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,11 @@
+{
+  "tag": "x-counter",
+  "module": "./counter.mbt.js",
+  "attributes": [
+    { "name": "initial", "type": "int", "default": 0 },
+    { "name": "label", "type": "string", "default": "Count" },
+    { "name": "disabled", "type": "bool", "default": false }
+  ],
+  "shadow": "open",
+  "styles": ":host { display: block; font-family: system-ui, sans-serif; } .counter { display: flex; align-items: center; gap: 8px; padding: 8px; } .label { font-weight: 500; min-width: 60px; } .value { font-size: 1.5em; min-width: 2em; text-align: center; } button { padding: 4px 12px; font-size: 1em; cursor: pointer; } button:disabled { opacity: 0.5; cursor: not-allowed; }"
+}

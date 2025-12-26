@@ -1,0 +1,11 @@
+{
+  "import": [
+    { "path": "mizchi/js", "alias": "js" }
+  ],
+  "link": {
+    "js": {
+      "exports": ["setup", "template"],
+      "format": "esm"
+    }
+  }
+}

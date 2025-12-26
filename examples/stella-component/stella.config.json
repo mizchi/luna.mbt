@@ -1,0 +1,32 @@
+{
+  "tag": "x-counter",
+  "module": "./src/counter.wc.json",
+  "publicPath": "https://example.com/components",
+  "attributes": [
+    { "name": "initial", "type": "int", "default": 0 },
+    { "name": "label", "type": "string", "default": "Count" },
+    { "name": "disabled", "type": "bool", "default": false }
+  ],
+  "events": [
+    { "name": "change", "detail": { "value": "number" } }
+  ],
+  "slot": false,
+  "ssr": {
+    "enabled": false
+  },
+  "loader": {
+    "enabled": true
+  },
+  "iframe": {
+    "enabled": true,
+    "resizable": true
+  },
+  "demo": {
+    "enabled": true,
+    "title": "x-counter Web Component",
+    "description": "A counter component built with MoonBit + Stella"
+  },
+  "cors": {
+    "allowedOrigins": ["*"]
+  }
+}

@@ -1,0 +1,133 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/stella/component"
+
+import(
+  "mizchi/js/core"
+)
+
+// Values
+pub fn attr_bool(String, default? : Bool) -> AttrDef
+
+pub fn attr_float(String, default? : Double) -> AttrDef
+
+pub fn attr_int(String, default? : Int) -> AttrDef
+
+pub fn attr_string(String, default? : String) -> AttrDef
+
+pub fn ctx_bind(@core.Any, String, () -> String) -> () -> Unit
+
+pub fn ctx_bind_attr(@core.Any, String, String, @core.Any) -> () -> Unit
+
+pub fn ctx_get_element(@core.Any) -> @core.Any
+
+pub fn ctx_get_props(@core.Any) -> @core.Any
+
+pub fn ctx_get_shadow(@core.Any) -> @core.Any
+
+pub fn ctx_on(@core.Any, String, String, () -> Unit) -> () -> Unit
+
+pub fn ctx_on_cleanup(@core.Any, () -> Unit) -> Unit
+
+pub fn ctx_prop_bool(@core.Any, String) -> @core.Any
+
+pub fn ctx_prop_int(@core.Any, String) -> @core.Any
+
+pub fn ctx_prop_string(@core.Any, String) -> @core.Any
+
+pub fn generate_component_js(ComponentMeta, String) -> String
+
+pub fn js_signal_get_bool(@core.Any) -> Bool
+
+pub fn js_signal_get_int(@core.Any) -> Int
+
+pub fn js_signal_get_string(@core.Any) -> String
+
+pub fn js_signal_set_bool(@core.Any, Bool) -> Unit
+
+pub fn js_signal_set_int(@core.Any, Int) -> Unit
+
+pub fn js_signal_set_string(@core.Any, String) -> Unit
+
+pub fn js_signal_subscribe(@core.Any, () -> Unit) -> () -> Unit
+
+// Errors
+
+// Types and methods
+pub struct AttrDef {
+  name : String
+  attr_type : AttrType
+  reflect : Bool
+}
+pub fn AttrDef::with_reflect(Self) -> Self
+
+pub enum AttrType {
+  String(default~ : String)
+  Int(default~ : Int)
+  Float(default~ : Double)
+  Bool(default~ : Bool)
+}
+
+pub struct ComponentMeta {
+  tag : String
+  attributes : Array[AttrDef]
+  shadow : ShadowMode
+  styles : String
+}
+pub fn ComponentMeta::new(String) -> Self
+pub fn ComponentMeta::with_attr(Self, AttrDef) -> Self
+pub fn ComponentMeta::with_shadow(Self, ShadowMode) -> Self
+pub fn ComponentMeta::with_styles(Self, String) -> Self
+
+pub struct JsSignalBool {
+  raw : @core.Any
+}
+pub fn JsSignalBool::get(Self) -> Bool
+pub fn JsSignalBool::new(@core.Any) -> Self
+pub fn JsSignalBool::raw(Self) -> @core.Any
+pub fn JsSignalBool::set(Self, Bool) -> Unit
+pub fn JsSignalBool::subscribe(Self, () -> Unit) -> () -> Unit
+
+pub struct JsSignalInt {
+  raw : @core.Any
+}
+pub fn JsSignalInt::get(Self) -> Int
+pub fn JsSignalInt::new(@core.Any) -> Self
+pub fn JsSignalInt::raw(Self) -> @core.Any
+pub fn JsSignalInt::set(Self, Int) -> Unit
+pub fn JsSignalInt::subscribe(Self, () -> Unit) -> () -> Unit
+pub fn JsSignalInt::update(Self, (Int) -> Int) -> Unit
+
+pub struct JsSignalString {
+  raw : @core.Any
+}
+pub fn JsSignalString::get(Self) -> String
+pub fn JsSignalString::new(@core.Any) -> Self
+pub fn JsSignalString::raw(Self) -> @core.Any
+pub fn JsSignalString::set(Self, String) -> Unit
+pub fn JsSignalString::subscribe(Self, () -> Unit) -> () -> Unit
+
+pub enum ShadowMode {
+  Open
+  Closed
+  None
+}
+pub impl Eq for ShadowMode
+
+pub struct WcContext {
+  raw : @core.Any
+}
+pub fn WcContext::bind(Self, String, () -> String) -> () -> Unit
+pub fn WcContext::bind_attr(Self, String, String, @core.Any) -> () -> Unit
+pub fn WcContext::element(Self) -> @core.Any
+pub fn WcContext::from_js(@core.Any) -> Self
+pub fn WcContext::on(Self, String, String, () -> Unit) -> () -> Unit
+pub fn WcContext::on_cleanup(Self, () -> Unit) -> Unit
+pub fn WcContext::prop_bool(Self, String) -> JsSignalBool
+pub fn WcContext::prop_int(Self, String) -> JsSignalInt
+pub fn WcContext::prop_string(Self, String) -> JsSignalString
+pub fn WcContext::shadow(Self) -> @core.Any
+
+// Type aliases
+
+// Traits
+

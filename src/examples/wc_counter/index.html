@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoonBit Web Component - Counter Example</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    h1 { margin-bottom: 2rem; }
+    section {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    h2 { margin-top: 0; color: #333; }
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.9em;
+    }
+    code {
+      font-family: 'SF Mono', Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>MoonBit Web Component Example</h1>
+
+  <section>
+    <h2>Basic Usage</h2>
+    <x-counter></x-counter>
+    <pre><code>&lt;x-counter&gt;&lt;/x-counter&gt;</code></pre>
+  </section>
+
+  <section>
+    <h2>With Attributes</h2>
+    <x-counter initial="42" label="Score"></x-counter>
+    <pre><code>&lt;x-counter initial="42" label="Score"&gt;&lt;/x-counter&gt;</code></pre>
+  </section>
+
+  <section>
+    <h2>Disabled State</h2>
+    <x-counter initial="10" label="Fixed" disabled></x-counter>
+    <pre><code>&lt;x-counter initial="10" label="Fixed" disabled&gt;&lt;/x-counter&gt;</code></pre>
+  </section>
+
+  <section>
+    <h2>Dynamic Attribute Changes</h2>
+    <x-counter id="dynamic" initial="0" label="Dynamic"></x-counter>
+    <div class="controls">
+      <button onclick="document.getElementById('dynamic').setAttribute('initial', '100')">
+        Set initial=100
+      </button>
+      <button onclick="document.getElementById('dynamic').setAttribute('label', 'Updated')">
+        Set label="Updated"
+      </button>
+      <button onclick="document.getElementById('dynamic').toggleAttribute('disabled')">
+        Toggle disabled
+      </button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Implementation</h2>
+    <p>This counter is implemented in <strong>MoonBit</strong> and compiled to JavaScript.</p>
+    <p>The component uses:</p>
+    <ul>
+      <li><code>@mizchi/luna-wcr</code> - JavaScript runtime for Web Components</li>
+      <li><code>@mizchi/stella</code> - CLI for generating Web Component wrappers</li>
+      <li><code>stella/component</code> - MoonBit context API</li>
+    </ul>
+  </section>
+
+  <script type="module" src="./dist/x-counter.js"></script>
+</body>
+</html>
