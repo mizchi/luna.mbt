@@ -6,6 +6,20 @@ title: "Introduction: Basics"
 
 Let's build a simple counter to understand Luna's core concepts.
 
+## Quick Start
+
+The fastest way to get started is using the CLI:
+
+```bash
+npx @luna_ui/luna new myapp --mbt
+cd myapp
+moon update
+npm install
+npm run dev
+```
+
+This creates a new MoonBit project with Vite and vite-plugin-moonbit configured.
+
 ## A Counter in MoonBit
 
 ```moonbit

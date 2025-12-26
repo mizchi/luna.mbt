@@ -6,6 +6,19 @@ title: "Introduction: Basics"
 
 Welcome to Luna! Let's build your first reactive component.
 
+## Quick Start
+
+The fastest way to get started is using the CLI:
+
+```bash
+npx @luna_ui/luna new myapp
+cd myapp
+npm install
+npm run dev
+```
+
+This creates a new project with Vite and TypeScript configured for Luna.
+
 ## What is Luna?
 
 Luna is a fine-grained reactive UI framework. Unlike Virtual DOM frameworks that re-render entire component trees, Luna updates only the exact DOM nodes that need to change.
