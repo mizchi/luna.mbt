@@ -213,10 +213,10 @@ pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(
 fn extract_param_name(dir_name : String) -> @core_routes.ParamInfo? {
   let len = dir_name.length()
   if dir_name.has_prefix("_") && dir_name.has_suffix("_") && len > 2 {
-    let inner = @ssg.extract_substring(dir_name, 1, len - 1)
+    let inner = @utils.extract_substring(dir_name, 1, len - 1)
     // Check for catch-all pattern _...name_
     if inner.has_prefix("...") && inner.length() > 3 {
-      let name = @ssg.extract_substring(inner, 3, inner.length())
+      let name = @utils.extract_substring(inner, 3, inner.length())
       Some(@core_routes.ParamInfo::{ name, catch_all: true })
     } else {
       Some(@core_routes.ParamInfo::{ name: inner, catch_all: false })
@@ -882,7 +882,7 @@ fn url_to_name(url_path : String) -> String {
   let trimmed = url_path.trim_end(chars="/")
   match trimmed.rev_find("/") {
     Some(idx) => {
-      let name = @ssg.slice_view_from(trimmed, idx + 1)
+      let name = @utils.slice_view_from(trimmed, idx + 1)
       if name.is_empty() {
         "Home"
       } else {

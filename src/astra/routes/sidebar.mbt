@@ -133,7 +133,7 @@ fn get_path_segments(
   }
   // Last segment
   if start < chars.length() {
-    segments.push(@ssg.slice_from(trimmed, start))
+    segments.push(@utils.slice_from(trimmed, start))
   }
 
   // For index pages, return all segments (they're all directory names)
@@ -168,7 +168,7 @@ fn get_segment_sort_key(full_sort_key : String, depth : Int) -> String {
     }
   }
   if start < chars.length() {
-    parts.push(@ssg.slice_from(full_sort_key, start))
+    parts.push(@utils.slice_from(full_sort_key, start))
   }
   if depth < parts.length() {
     parts[depth]
@@ -335,12 +335,12 @@ fn find_sidebar_for_path(
 /// Get directory from URL path
 fn get_url_directory(url_path : String) -> String {
   let trimmed = if url_path.has_prefix("/") {
-    @ssg.slice_from(url_path, 1)
+    @utils.slice_from(url_path, 1)
   } else {
     url_path
   }
   match trimmed.find("/") {
-    Some(idx) => "/" + @ssg.slice_to(trimmed, idx)
+    Some(idx) => "/" + @utils.slice_to(trimmed, idx)
     None => "/"
   }
 }
@@ -351,7 +351,7 @@ fn get_page_name(url_path : String) -> String {
   let trimmed = url_path.trim_end(chars="/")
   match trimmed.rev_find("/") {
     Some(idx) => {
-      let name = @ssg.slice_view_from(trimmed, idx + 1)
+      let name = @utils.slice_view_from(trimmed, idx + 1)
       if name.is_empty() {
         "Introduction"
       } else {

@@ -14,7 +14,8 @@
     { "path": "mizchi/npm_typed/hono", "alias": "hono" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/web/http", "alias": "http" },
-    { "path": "mizchi/js/web/url", "alias": "url" }
+    { "path": "mizchi/js/web/url", "alias": "url" },
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" }
   ],
   "warn-list": "-24-67-29"
 }

@@ -391,10 +391,10 @@ fn extract_param_name(dir_name : String) -> ParamInfo? {
   let len = dir_name.length()
   if dir_name.has_prefix("_") && dir_name.has_suffix("_") && len > 2 {
     // Extract content between underscores
-    let inner = @ssg.extract_substring(dir_name, 1, len - 1)
+    let inner = @utils.extract_substring(dir_name, 1, len - 1)
     // Check for catch-all pattern _...name_
     if inner.has_prefix("...") && inner.length() > 3 {
-      let name = @ssg.extract_substring(inner, 3, inner.length())
+      let name = @utils.extract_substring(inner, 3, inner.length())
       Some(ParamInfo::{ name, catch_all: true })
     } else {
       Some(ParamInfo::{ name: inner, catch_all: false })
@@ -455,7 +455,7 @@ fn file_to_url_path(rel_path : String) -> String {
 fn get_extension(filename : String) -> String {
   let dot_idx = find_last_char(filename, '.')
   if dot_idx >= 0 {
-    @ssg.extract_substring(filename, dot_idx, filename.length())
+    @utils.extract_substring(filename, dot_idx, filename.length())
   } else {
     ""
   }
@@ -466,7 +466,7 @@ fn get_extension(filename : String) -> String {
 pub fn get_parent_path(path : String) -> String {
   let slash_idx = find_last_char(path, '/')
   if slash_idx >= 0 {
-    @ssg.extract_substring(path, 0, slash_idx)
+    @utils.extract_substring(path, 0, slash_idx)
   } else {
     ""
   }

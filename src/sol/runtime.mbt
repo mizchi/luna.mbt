@@ -699,6 +699,15 @@ extern "js" fn ffi_create_js_response(
   #| (body, contentType) => new Response(body, { headers: { 'Content-Type': contentType } })
 
 ///|
+/// Create a response for static files with security headers
+extern "js" fn ffi_create_static_response(
+  body : String,
+  content_type : String,
+  cache_control : String,
+) -> @http.Response =
+  #| (body, contentType, cacheControl) => new Response(body, { headers: { 'Content-Type': contentType, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': cacheControl } })
+
+///|
 extern "js" fn ffi_read_file_sync(path : String) -> String? =
   #| (path) => {
   #|   try {
@@ -725,6 +734,17 @@ pub fn text_response(body : String, content_type : String) -> @http.Response {
 /// Create a JavaScript response
 pub fn js_response(body : String) -> @http.Response {
   ffi_create_js_response(body, "application/javascript")
+}
+
+///|
+/// Create a static file response with security headers
+pub fn static_response(
+  body : String,
+  content_type : String,
+  cache_control? : String,
+) -> @http.Response {
+  let cache = cache_control.unwrap_or("max-age=3600")
+  ffi_create_static_response(body, content_type, cache)
 }
 
 ///|
@@ -895,10 +915,10 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
             } else {
               "text/plain"
             }
-            return text_response(content, content_type)
+            return static_response(content, content_type)
           }
           None =>
-            return text_response(
+            return static_response(
               "// " + url_file + " not found",
               "application/javascript",
             )
@@ -930,9 +950,9 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
         } else {
           "text/plain"
         }
-        text_response(c, content_type)
+        static_response(c, content_type)
       }
-      None => text_response("Not found: " + filename, "text/plain")
+      None => static_response("Not found: " + filename, "text/plain")
     }
   })
 }

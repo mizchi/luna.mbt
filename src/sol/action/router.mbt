@@ -102,6 +102,8 @@ fn send_action_mw_response(
   c : Ctx,
   resp : @middleware.MwResponse,
 ) -> @http.Response {
+  // Set security header
+  ffi_set_header(c.as_any(), "X-Content-Type-Options", "nosniff")
   // Set headers
   for header in resp.headers {
     ffi_set_header(c.as_any(), header.0, header.1)
@@ -115,6 +117,8 @@ fn send_action_mw_response(
 ///|
 /// Convert action result to HTTP response
 fn action_result_to_response(c : Ctx, result : ActionResult) -> @http.Response {
+  // Always set security header for action responses
+  ffi_set_header(c.as_any(), "X-Content-Type-Options", "nosniff")
   match result {
     Success(data) => c.json(data)
     Redirect(url) =>

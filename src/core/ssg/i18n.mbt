@@ -23,7 +23,7 @@ pub fn detect_locale_from_path(
     }
     let prefix = locale.path + "/"
     if path.has_prefix(prefix) {
-      let canonical = slice_from(path, prefix.length())
+      let canonical = @utils.slice_from(path, prefix.length())
       return (locale.code, file_to_url_path(canonical, trailing_slash~))
     }
   }
@@ -113,7 +113,7 @@ pub fn strip_locale_from_url(
     }
     let prefix = "/" + locale.path + "/"
     if url_path.has_prefix(prefix) {
-      let canonical = "/" + slice_from(url_path, prefix.length())
+      let canonical = "/" + @utils.slice_from(url_path, prefix.length())
       return (locale.code, canonical)
     }
     // Handle exact match (e.g., "/ja/")

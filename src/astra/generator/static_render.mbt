@@ -299,7 +299,7 @@ fn get_component_name_from_path(source_path : String) -> String {
     idx = idx + 1
   }
   if last_slash >= 0 && last_slash < path.length() - 1 {
-    @ssg.slice_view_from(path, last_slash + 1)
+    @utils.slice_view_from(path, last_slash + 1)
   } else {
     path
   }
@@ -519,8 +519,8 @@ fn parse_dynamic_source_path(
   match source_path.find("?") {
     Some(idx) => {
       // Split path and query string
-      let file_path = @ssg.extract_substring(source_path, 0, idx)
-      let query = @ssg.extract_substring(
+      let file_path = @utils.extract_substring(source_path, 0, idx)
+      let query = @utils.extract_substring(
         source_path,
         idx + 1,
         source_path.length(),

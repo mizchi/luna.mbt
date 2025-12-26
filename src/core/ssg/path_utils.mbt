@@ -2,58 +2,8 @@
 //
 // Path manipulation and string operations for static site generation.
 // Handles numeric prefix parsing, URL conversion, and path transformations.
-
-// =============================================================================
-// String Slice Helpers
-// =============================================================================
-
-///|
-/// Safely slice string from start index
-pub fn slice_from(s : String, start : Int) -> String {
-  if start >= s.length() || start < 0 {
-    ""
-  } else {
-    s[start:].to_string() catch {
-      _ => ""
-    }
-  }
-}
-
-///|
-/// Safely slice string to end index
-pub fn slice_to(s : String, end : Int) -> String {
-  if end <= 0 || end > s.length() {
-    s
-  } else {
-    s[:end].to_string() catch {
-      _ => s
-    }
-  }
-}
-
-///|
-/// Safely slice StringView from start index
-pub fn slice_view_from(s : StringView, start : Int) -> String {
-  if start >= s.length() || start < 0 {
-    ""
-  } else {
-    s[start:].to_string() catch {
-      _ => ""
-    }
-  }
-}
-
-///|
-/// Safely slice StringView to end index
-pub fn slice_view_to(s : StringView, end : Int) -> String {
-  if end <= 0 || end > s.length() {
-    s.to_string()
-  } else {
-    s[:end].to_string() catch {
-      _ => s.to_string()
-    }
-  }
-}
+//
+// String utilities (slice_from, slice_to, etc.) are imported from @utils.
 
 // =============================================================================
 // Numeric Prefix Handling
@@ -81,8 +31,8 @@ pub fn parse_numeric_prefix(name : String) -> (Int, String) {
     i = i + 1
   }
   if i > 0 && i < chars.length() && chars[i] == '_' {
-    let num_str = slice_to(name, i)
-    let stripped = slice_from(name, i + 1)
+    let num_str = @utils.slice_to(name, i)
+    let stripped = @utils.slice_from(name, i + 1)
     let num = parse_int_simple(num_str)
     (num, stripped)
   } else {
@@ -152,7 +102,7 @@ pub fn file_to_url_path(
     .replace(old=".html", new="")
     .replace(old="\\", new="/")
   if path.has_suffix("/index") {
-    let trimmed = slice_to(path, path.length() - 6)
+    let trimmed = @utils.slice_to(path, path.length() - 6)
     if trimmed.is_empty() {
       "/"
     } else if trailing_slash {
@@ -178,7 +128,7 @@ pub fn url_to_output_path(url_path : String) -> String {
     "index.html"
   } else {
     let trimmed = if url_path.has_prefix("/") {
-      slice_from(url_path, 1)
+      @utils.slice_from(url_path, 1)
     } else {
       url_path
     }
@@ -254,86 +204,12 @@ pub fn get_dir_name(path : String) -> String {
 /// Get directory part of URL path
 pub fn get_url_dir(url_path : String) -> String {
   let trimmed = if url_path.has_prefix("/") {
-    slice_from(url_path, 1)
+    @utils.slice_from(url_path, 1)
   } else {
     url_path
   }
   match trimmed.rev_find("/") {
-    Some(idx) => "/" + slice_to(trimmed, idx)
+    Some(idx) => "/" + @utils.slice_to(trimmed, idx)
     None => "/"
   }
-}
-
-// =============================================================================
-// String Split and Extract
-// =============================================================================
-
-///|
-/// Split string by a single separator character
-pub fn split_by(s : String, sep : Char) -> Array[String] {
-  let result : Array[String] = []
-  let chars = s.to_array()
-  let current : Array[Char] = []
-  for c in chars {
-    if c == sep {
-      result.push(String::from_array(current))
-      current.clear()
-    } else {
-      current.push(c)
-    }
-  }
-  result.push(String::from_array(current))
-  result
-}
-
-///|
-/// Extract string until one of the delimiter characters
-pub fn extract_until(s : String, delimiters : Array[Char]) -> String {
-  let buf = StringBuilder::new()
-  for c in s {
-    if delimiters.contains(c) {
-      break
-    }
-    buf.write_char(c)
-  }
-  buf.to_string()
-}
-
-///|
-/// Extract substring from start to end position
-pub fn extract_substring(s : String, start : Int, end : Int) -> String {
-  let buf = StringBuilder::new()
-  let mut idx = 0
-  for c in s {
-    if idx >= start && idx < end {
-      buf.write_char(c)
-    }
-    idx = idx + 1
-    if idx >= end {
-      break
-    }
-  }
-  buf.to_string()
-}
-
-///|
-/// Extract Web Component name from URL (e.g., /static/wc_counter.js -> wc-counter)
-pub fn extract_wc_name_from_url(url : String) -> String {
-  // Extract filename without extension
-  let parts = url.split("/").collect()
-  let filename_view = if parts.length() > 0 {
-    parts[parts.length() - 1]
-  } else {
-    "".view()
-  }
-  let filename = filename_view.to_string()
-  let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    filename[:filename.length() - 3].to_string() catch {
-      _ => filename
-    }
-  } else {
-    filename
-  }
-  // Convert underscores to hyphens for custom element name
-  name.replace(old="_", new="-")
 }

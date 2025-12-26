@@ -70,9 +70,7 @@ test.describe('Security Headers', () => {
   }
 
   test.describe('Static assets', () => {
-    test.skip('static JS files should have X-Content-Type-Options', async ({ request }) => {
-      // TODO: Static files are served by Hono's static middleware, not our custom middleware
-      // This requires configuring static file serving with security headers
+    test('static JS files should have X-Content-Type-Options', async ({ request }) => {
       const response = await request.get('/static/loader.js');
       const header = response.headers()['x-content-type-options'];
 
@@ -88,9 +86,7 @@ test.describe('Security Headers', () => {
       expect(headers['x-content-type-options']?.toLowerCase()).toBe('nosniff');
     });
 
-    test.skip('Server Action should have security headers', async ({ request }) => {
-      // TODO: Server Actions use their own route registration with CSRF middleware
-      // Need to add security headers to action routes separately
+    test('Server Action should have security headers', async ({ request }) => {
       const response = await request.post('/_action/submit-contact', {
         headers: {
           'Content-Type': 'application/json',
@@ -120,8 +116,7 @@ test.describe('Security Headers', () => {
       ).toBeTruthy();
     });
 
-    test.skip('static assets can be cached', async ({ request }) => {
-      // TODO: Static files served by Hono's static middleware
+    test('static assets can be cached', async ({ request }) => {
       const response = await request.get('/static/loader.js');
       const cacheControl = response.headers()['cache-control'];
 

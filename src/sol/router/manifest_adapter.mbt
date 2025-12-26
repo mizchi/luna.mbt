@@ -252,5 +252,5 @@ fn char_at(s : String, idx : Int) -> Char {
 ///|
 /// Extract substring
 fn substring(s : String, start : Int, end : Int) -> String {
-  @ssg.extract_substring(s, start, end)
+  @utils.extract_substring(s, start, end)
 }

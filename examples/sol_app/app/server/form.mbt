@@ -3,6 +3,7 @@
 ///|
 
 ///| Uses client() to embed the contact_form client component.
+
 ///| Demonstrates Server Action integration.
 
 ///|
@@ -51,7 +52,11 @@ async fn form_page(props : @router.PageProps) -> @server_dom.ServerNode {
         div(class="form-actions", [
           button(attrs=[("type", @luna.attr_static("submit"))], [text("Submit")]),
         ]),
-        div(class="form-result", attrs=[("data-testid", @luna.attr_static("form-result"))], [text("")]),
+        div(
+          class="form-result",
+          attrs=[("data-testid", @luna.attr_static("form-result"))],
+          [text("")],
+        ),
       ]),
     ]),
   ]

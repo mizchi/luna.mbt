@@ -75,6 +75,7 @@ pub struct ComponentMeta {
 }
 pub fn ComponentMeta::new(String) -> Self
 pub fn ComponentMeta::with_attr(Self, AttrDef) -> Self
+pub fn ComponentMeta::with_closed_shadow(Self) -> Self
 pub fn ComponentMeta::with_shadow(Self, ShadowMode) -> Self
 pub fn ComponentMeta::with_styles(Self, String) -> Self
 

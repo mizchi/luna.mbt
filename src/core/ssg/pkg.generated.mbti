@@ -16,12 +16,6 @@ pub fn compare_strings_lex(String, String) -> Int
 
 pub fn detect_locale_from_path(String, I18nConfig, trailing_slash? : Bool) -> (String, String)
 
-pub fn extract_substring(String, Int, Int) -> String
-
-pub fn extract_until(String, Array[Char]) -> String
-
-pub fn extract_wc_name_from_url(String) -> String
-
 pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
 
 pub fn get_dir_name(String) -> String
@@ -39,16 +33,6 @@ pub fn pad_number(Int, Int) -> String
 pub fn parse_int_simple(String) -> Int
 
 pub fn parse_numeric_prefix(String) -> (Int, String)
-
-pub fn slice_from(String, Int) -> String
-
-pub fn slice_to(String, Int) -> String
-
-pub fn slice_view_from(StringView, Int) -> String
-
-pub fn slice_view_to(StringView, Int) -> String
-
-pub fn split_by(String, Char) -> Array[String]
 
 pub fn strip_locale_from_url(String, I18nConfig) -> (String, String)
 

@@ -11,6 +11,7 @@
     { "path": "mizchi/luna/astra/tree", "alias": "tree" },
     { "path": "mizchi/luna/core/ssg", "alias": "ssg" },
     { "path": "mizchi/luna/core/routes", "alias": "core_routes" },
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },
     { "path": "mizchi/js/node/path", "alias": "path" }

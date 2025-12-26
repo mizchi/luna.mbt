@@ -134,7 +134,7 @@ pub fn extract_first_segment(path : String) -> String {
   }
   // Extract segment (excluding trailing slash if any)
   if end > start {
-    @ssg.extract_substring(path, start, end)
+    @utils.extract_substring(path, start, end)
   } else {
     ""
   }
@@ -146,7 +146,7 @@ pub fn extract_first_segment(path : String) -> String {
 fn extract_relative_path(path : String, segment : String) -> String {
   let prefix = "/" + segment
   if path.has_prefix(prefix) {
-    let rest = @ssg.extract_substring(path, prefix.length(), path.length())
+    let rest = @utils.extract_substring(path, prefix.length(), path.length())
     if rest.is_empty() {
       "/"
     } else {
@@ -235,7 +235,7 @@ pub fn match_dynamic_pattern(
 ) -> (DynamicPattern, Map[String, String])? {
   // Convert full path to relative
   let relative = if path.has_prefix(manifest.base) {
-    @ssg.extract_substring(path, manifest.base.length(), path.length())
+    @utils.extract_substring(path, manifest.base.length(), path.length())
   } else {
     path
   }

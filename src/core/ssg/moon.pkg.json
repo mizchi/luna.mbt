@@ -1,3 +1,5 @@
 {
-  "import": []
+  "import": [
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" }
+  ]
 }
