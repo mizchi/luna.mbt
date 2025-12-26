@@ -36,7 +36,10 @@ jobs:
           moon check --target js src/core/parser
           moon check --target js src/core/routes
           moon check --target js src/core/ssg
-          moon check --target js src/platform/js
+          moon check --target js src/platform/js/api
+          moon check --target js src/platform/js/cache
+          moon check --target js src/platform/js/fs_adapter
+          moon check --target js src/platform/js/stream_renderer
           moon check --target js src/sol
           moon check --target js src/stella
       - name: Build workspace packages
