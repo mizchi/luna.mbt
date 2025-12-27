@@ -66,7 +66,9 @@
 
 **未完了**
 - [ ] 画像最適化パイプライン
-- [ ] ディスクキャッシュ層 (ビルド成果物)
+- [x] ディスクキャッシュ層 → `src/core/cache/`
+  - `DiskCache[F]` - FileSystem trait を使った汎用キャッシュ
+  - `hash.mbt` - FNV-1a ハッシュ関数
 - [ ] アセットハッシング
 
 ### Luna UI / DX
