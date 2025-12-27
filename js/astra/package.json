@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/astra",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "type": "module",
   "description": "MoonBit Island Architecture SSG Framework",
   "main": "./dist/index.js",
