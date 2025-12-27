@@ -449,6 +449,7 @@ export function Provider<T>(props: ProviderProps<T>): any {
 
 /**
  * Switch component for conditional rendering with multiple branches (SolidJS-style)
+ * Reactively updates when conditions change.
  */
 export function Switch(props: SwitchProps): any {
   const { fallback, children } = props;
@@ -460,14 +461,40 @@ export function Switch(props: SwitchProps): any {
     return fallback ?? null;
   }
 
-  // Find first truthy match
-  for (const child of children) {
-    if (child && child.__isMatch && child.when()) {
-      return typeof child.children === "function" ? child.children() : child.children;
+  // Track which Match index is currently active (-1 = none, show fallback)
+  const matchIndex = createMemo(() => {
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      if (child && child.__isMatch && child.when()) {
+        return i;
+      }
     }
+    return -1;
+  });
+
+  // Create a show for each Match (only the active one will render)
+  const nodes: any[] = [];
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    nodes.push(
+      show(
+        () => matchIndex() === i,
+        () => typeof child.children === "function" ? child.children() : child.children
+      )
+    );
   }
 
-  return fallback ?? null;
+  // Add fallback (renders when no match)
+  if (fallback) {
+    nodes.push(
+      show(
+        () => matchIndex() === -1,
+        () => fallback
+      )
+    );
+  }
+
+  return Fragment(nodes);
 }
 
 /**

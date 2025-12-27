@@ -296,6 +296,17 @@ describe("Index component", () => {
 });
 
 describe("Switch/Match components", () => {
+  let container: HTMLElement;
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    container.remove();
+  });
+
   test("Switch renders first truthy Match", () => {
     const [value, setValue] = createSignal("a");
 
@@ -321,6 +332,40 @@ describe("Switch/Match components", () => {
     });
 
     expect(rendered).toBe("has-result");
+  });
+
+  test("Switch updates DOM when signal changes", () => {
+    const [value, setValue] = createSignal("a");
+
+    createRoot((dispose) => {
+      const node = Switch({
+        fallback: text("fallback"),
+        children: [
+          Match({
+            when: () => value() === "a",
+            children: text("A"),
+          }),
+          Match({
+            when: () => value() === "b",
+            children: text("B"),
+          }),
+        ],
+      });
+
+      mount(container, node);
+      expect(container.textContent).toBe("A");
+
+      setValue("b");
+      expect(container.textContent).toBe("B");
+
+      setValue("c");
+      expect(container.textContent).toBe("fallback");
+
+      setValue("a");
+      expect(container.textContent).toBe("A");
+
+      dispose();
+    });
   });
 
   test("Switch returns fallback when no match", () => {
