@@ -905,7 +905,6 @@ fn print_component_discovery(discovery : @components.DiscoveryResult) -> Unit {
   println(@colorette.cyan("Component Registry:"))
   println("  Directory: \{discovery.scanned_dir}")
   println("")
-
   if discovery.found.length() > 0 {
     println(@colorette.bold("  Custom components:"))
     for ct in discovery.found {
@@ -914,7 +913,6 @@ fn print_component_discovery(discovery : @components.DiscoveryResult) -> Unit {
       println("    \{marker} \{filename}")
     }
   }
-
   if discovery.missing.length() > 0 {
     println(@colorette.bold("  Default components:"))
     for ct in discovery.missing {

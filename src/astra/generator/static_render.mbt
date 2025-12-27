@@ -1077,7 +1077,6 @@ fn build_blog_layout(
   } else {
     @luna.fragment([])
   }
-
   let main = h("main", [attr("class", "blog-content")], [
     h("div", [attr("class", "blog-container")], [
       h("div", [attr("class", "blog-main")], [intro, post_list]),
@@ -1118,7 +1117,6 @@ fn build_blog_post_layout(
   let title = frontmatter.title.unwrap_or("Untitled")
   let date = frontmatter.date.unwrap_or("")
   let author = frontmatter.author.unwrap_or("")
-
   let header_children : Array[@luna.Node[Unit]] = []
 
   // Cover image
@@ -1144,7 +1142,6 @@ fn build_blog_post_layout(
   if not(frontmatter.tags.is_empty()) {
     header_children.push(@components.build_tag_list(frontmatter.tags))
   }
-
   let header = h("header", [attr("class", "post-header")], header_children)
 
   // Article content
@@ -1154,12 +1151,9 @@ fn build_blog_post_layout(
 
   // Prev/Next navigation
   let prev_next = @components.build_prev_next(ctx, page)
-
   let main = h("main", [attr("class", "blog-post-main")], [
     h("div", [attr("class", "blog-post-container")], [
-      header,
-      article,
-      prev_next,
+      header, article, prev_next,
     ]),
   ])
   let footer = @components.build_footer(ctx)

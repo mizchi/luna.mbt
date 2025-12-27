@@ -236,7 +236,13 @@ async fn run_parallel_build_internal(
   let doc_tree = @tree.build_document_tree(config, pages, cwd)
 
   // Step 8: Copy static assets
-  let ctx = @astra.BuildContext::{ config, pages, sidebar, cwd, doc_tree: Some(doc_tree) }
+  let ctx = @astra.BuildContext::{
+    config,
+    pages,
+    sidebar,
+    cwd,
+    doc_tree: Some(doc_tree),
+  }
   @astra_gen.copy_static_assets(ctx)
 
   // Step 9: Generate meta files

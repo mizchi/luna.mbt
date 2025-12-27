@@ -93,7 +93,6 @@ pub fn discover_components(
       result.missing.push(ct)
     }
   }
-
   result
 }
 
@@ -103,14 +102,12 @@ pub fn DiscoveryResult::to_string(self : DiscoveryResult) -> String {
   let lines : Array[String] = []
   lines.push("Components directory: " + self.scanned_dir)
   lines.push("")
-
   if self.found.length() > 0 {
     lines.push("Found components:")
     for ct in self.found {
       lines.push("  + " + ct.filename())
     }
   }
-
   if self.missing.length() > 0 {
     if self.found.length() > 0 {
       lines.push("")
@@ -120,6 +117,5 @@ pub fn DiscoveryResult::to_string(self : DiscoveryResult) -> String {
       lines.push("  - " + ct.filename() + " (default)")
     }
   }
-
   lines.join("\n")
 }

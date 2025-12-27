@@ -120,7 +120,6 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
 
   // Parse custom components directory
   let components_dir = @json_utils.extract_string_opt(ssg_obj, "componentsDir")
-
   Some(SsgConfig::{
     docs_dir,
     output_dir,

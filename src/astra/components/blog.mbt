@@ -21,7 +21,11 @@ pub fn build_blog_post_card(page : @astra.PageMeta) -> @luna.Node[Unit] {
   if fm.cover_image is Some(src) {
     children.push(
       h("div", [attr("class", "blog-card-image")], [
-        h("img", [attr("src", src), attr("alt", title), attr("loading", "lazy")], []),
+        h(
+          "img",
+          [attr("src", src), attr("alt", title), attr("loading", "lazy")],
+          [],
+        ),
       ]),
     )
   }
@@ -52,7 +56,6 @@ pub fn build_blog_post_card(page : @astra.PageMeta) -> @luna.Node[Unit] {
   if not(fm.tags.is_empty()) {
     body_children.push(build_tag_list(fm.tags))
   }
-
   children.push(h("div", [attr("class", "blog-card-body")], body_children))
 
   // Featured badge
@@ -89,7 +92,9 @@ pub fn build_post_meta(
   // Author
   if not(author.is_empty()) {
     if not(items.is_empty()) {
-      items.push(h("span", [attr("class", "post-meta-separator")], [@luna.text(" · ")]))
+      items.push(
+        h("span", [attr("class", "post-meta-separator")], [@luna.text(" · ")]),
+      )
     }
     items.push(
       h("span", [attr("class", "post-meta-author")], [@luna.text(author)]),
@@ -99,7 +104,9 @@ pub fn build_post_meta(
   // Reading time
   if reading_time is Some(minutes) {
     if not(items.is_empty()) {
-      items.push(h("span", [attr("class", "post-meta-separator")], [@luna.text(" · ")]))
+      items.push(
+        h("span", [attr("class", "post-meta-separator")], [@luna.text(" · ")]),
+      )
     }
     items.push(
       h("span", [attr("class", "post-meta-reading-time")], [
@@ -107,7 +114,6 @@ pub fn build_post_meta(
       ]),
     )
   }
-
   h("div", [attr("class", "post-meta")], items)
 }
 
@@ -174,11 +180,8 @@ pub fn build_blog_post_list(
       }
     None => posts
   }
-
   if display_posts.is_empty() {
-    return h("p", [attr("class", "blog-empty")], [
-      @luna.text("No posts yet."),
-    ])
+    return h("p", [attr("class", "blog-empty")], [@luna.text("No posts yet.")])
   }
 
   // Build post cards
@@ -191,7 +194,7 @@ pub fn build_blog_post_list(
 /// Returns pages that have a date and are not drafts, sorted by date descending
 fn filter_blog_posts(
   pages : Array[@astra.PageMeta],
-  featured_only~ : Bool = false,
+  featured_only? : Bool = false,
 ) -> Array[@astra.PageMeta] {
   // Filter: has date, not draft, optionally featured only
   let filtered : Array[@astra.PageMeta] = []
@@ -264,9 +267,7 @@ pub fn build_blog_hero(
 
   // Subtitle
   if subtitle is Some(sub) {
-    children.push(
-      h("p", [attr("class", "hero-subtitle")], [@luna.text(sub)]),
-    )
+    children.push(h("p", [attr("class", "hero-subtitle")], [@luna.text(sub)]))
   }
 
   // CTA button
@@ -279,7 +280,6 @@ pub fn build_blog_hero(
       )
     _ => ()
   }
-
   h("section", [attr("class", "hero")], [
     h("div", [attr("class", "hero-content")], children),
   ])
@@ -310,7 +310,6 @@ pub fn build_featured_posts(
     // Fall back to latest posts if no featured posts
     return build_blog_post_list(ctx, Some(limit), false)
   }
-
   let display_posts : Array[@astra.PageMeta] = if posts.length() > limit {
     posts.iter().take(limit).collect()
   } else {
@@ -318,7 +317,9 @@ pub fn build_featured_posts(
   }
   let cards = display_posts.map(fn(page) { build_blog_post_card(page) })
   h("section", [attr("class", "featured-posts")], [
-    h("h2", [attr("class", "featured-posts-title")], [@luna.text("Featured Posts")]),
+    h("h2", [attr("class", "featured-posts-title")], [
+      @luna.text("Featured Posts"),
+    ]),
     h("div", [attr("class", "blog-post-list")], cards),
   ])
 }

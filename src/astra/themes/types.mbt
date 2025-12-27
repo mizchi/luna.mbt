@@ -151,7 +151,6 @@ pub fn colors_to_css_vars(colors : ThemeColors) -> String {
 pub fn theme_to_css(theme : Theme) -> String {
   let light_vars = colors_to_css_vars(theme.light_colors)
   let dark_vars = colors_to_css_vars(theme.dark_colors)
-
   let mut css = ":root {\n\{light_vars}\n}\n\n" +
     "html.dark {\n\{dark_vars}\n}\n\n" +
     "@media (prefers-color-scheme: dark) {\n" +

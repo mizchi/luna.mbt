@@ -44,9 +44,7 @@ pub fn build_nav(
   }
   h("header", [attr("class", header_class)], [
     h("div", [attr("class", "nav-container")], [
-      left_elements,
-      center_elements,
-      right_elements,
+      left_elements, center_elements, right_elements,
     ]),
   ])
 }
@@ -105,11 +103,7 @@ fn build_logo(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
     None =>
       h("span", [attr("class", "nav-title")], [@luna.text(ctx.config.title)])
   }
-  h(
-    "a",
-    [attr("href", ctx.config.base_url), attr("class", "nav-home")],
-    [logo],
-  )
+  h("a", [attr("href", ctx.config.base_url), attr("class", "nav-home")], [logo])
 }
 
 ///|

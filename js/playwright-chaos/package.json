@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/playwright-chaos",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Playwright-based chaos testing tool for web applications",
   "type": "module",
   "main": "./dist/index.js",

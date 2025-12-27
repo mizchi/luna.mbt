@@ -9,7 +9,8 @@ pub fn build_footer(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
       let children : Array[@luna.Node[Unit]] = []
 
       // If top/bottom elements are configured, use element-based rendering
-      if not(footer_config.top.is_empty()) || not(footer_config.bottom.is_empty()) {
+      if not(footer_config.top.is_empty()) ||
+        not(footer_config.bottom.is_empty()) {
         // Top section
         if not(footer_config.top.is_empty()) {
           let top_elements = render_footer_elements(
@@ -51,7 +52,9 @@ pub fn build_footer(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
           )
         }
         if not(bottom_items.is_empty()) {
-          children.push(h("div", [attr("class", "footer-bottom")], bottom_items))
+          children.push(
+            h("div", [attr("class", "footer-bottom")], bottom_items),
+          )
         }
       }
       h("footer", [attr("class", "site-footer")], children)

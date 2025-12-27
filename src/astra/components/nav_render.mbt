@@ -19,7 +19,6 @@ fn render_sidebar_nodes(nodes : Array[SidebarNode]) -> @luna.Node[Unit] {
   if nodes.is_empty() {
     return empty()
   }
-
   let items = nodes.map(fn(node) { render_sidebar_node(node) })
   h("ul", [attr("class", "sidebar-list")], items)
 }
@@ -29,9 +28,15 @@ fn render_sidebar_nodes(nodes : Array[SidebarNode]) -> @luna.Node[Unit] {
 fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit] {
   match node {
     Link(text~, url~, active~) => {
-      let class_name = if active { "sidebar-link active" } else { "sidebar-link" }
+      let class_name = if active {
+        "sidebar-link active"
+      } else {
+        "sidebar-link"
+      }
       h("li", [attr("class", "sidebar-item")], [
-        h("a", [attr("href", url), attr("class", class_name)], [@luna.text(text)]),
+        h("a", [attr("href", url), attr("class", class_name)], [
+          @luna.text(text),
+        ]),
       ])
     }
     Section(text~, url~, collapsed~, active~, children~) => {
@@ -45,13 +50,14 @@ fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit] {
       let header_content : Array[@luna.Node[Unit]] = match url {
         Some(link) =>
           [
-            h("a", [attr("href", link), attr("class", "sidebar-section-link")], [
-              @luna.text(text),
-            ]),
+            h(
+              "a",
+              [attr("href", link), attr("class", "sidebar-section-link")],
+              [@luna.text(text)],
+            ),
           ]
         None => [@luna.text(text)]
       }
-
       let header = h(
         "div",
         [attr("class", "sidebar-section-header")],
@@ -86,10 +92,8 @@ pub fn render_breadcrumb(ctx : NavContext) -> @luna.Node[Unit] {
   if ctx.breadcrumb_path.is_empty() {
     return empty()
   }
-
   let items : Array[@luna.Node[Unit]] = []
   let last_idx = ctx.breadcrumb_path.length() - 1
-
   for i = 0; i < ctx.breadcrumb_path.length(); i = i + 1 {
     let (title, url) = ctx.breadcrumb_path[i]
 
@@ -113,7 +117,6 @@ pub fn render_breadcrumb(ctx : NavContext) -> @luna.Node[Unit] {
       )
     }
   }
-
   h("nav", [attr("class", "breadcrumb")], items)
 }
 
@@ -125,7 +128,6 @@ pub fn render_breadcrumb(ctx : NavContext) -> @luna.Node[Unit] {
 /// Render prev/next navigation from NavContext
 pub fn render_prev_next(ctx : NavContext) -> @luna.Node[Unit] {
   let children : Array[@luna.Node[Unit]] = []
-
   match ctx.prev_page {
     Some(page) =>
       children.push(
@@ -136,7 +138,6 @@ pub fn render_prev_next(ctx : NavContext) -> @luna.Node[Unit] {
       )
     None => ()
   }
-
   match ctx.next_page {
     Some(page) =>
       children.push(
@@ -147,7 +148,6 @@ pub fn render_prev_next(ctx : NavContext) -> @luna.Node[Unit] {
       )
     None => ()
   }
-
   h("nav", [attr("class", "prev-next")], children)
 }
 

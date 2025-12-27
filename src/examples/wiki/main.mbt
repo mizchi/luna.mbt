@@ -117,13 +117,13 @@ fn header_nav_component(router : @router.BrowserRouter) -> @luna_dom.DomNode {
     class="wiki-header-nav",
     style="display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color, #e5e7eb); margin-bottom: 1.5rem;",
     pages
-      .iter()
-      .filter(fn(page) { page.slug != "index" })
-      .map(fn(page) {
-        let href = base + "/" + page.slug
-        nav_link(href, page.title)
-      })
-      .collect(),
+    .iter()
+    .filter(fn(page) { page.slug != "index" })
+    .map(fn(page) {
+      let href = base + "/" + page.slug
+      nav_link(href, page.title)
+    })
+    .collect(),
   )
 }
 
@@ -132,11 +132,7 @@ fn wiki_index_component(_router : @router.BrowserRouter) -> @luna_dom.DomNode {
   let pages = get_wiki_pages()
   article(class="wiki-page", [
     h1([text("Wiki Home")]),
-    p([
-      text(
-        "Welcome to the wiki! Select a page from the navigation above.",
-      ),
-    ]),
+    p([text("Welcome to the wiki! Select a page from the navigation above.")]),
     h2([text("Available Pages")]),
     ul(
       pages

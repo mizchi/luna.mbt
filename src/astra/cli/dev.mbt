@@ -208,7 +208,13 @@ async fn run_dev_command(args : Array[String]) -> Unit {
     @astra.SidebarConfig::Auto => @routes.generate_auto_sidebar(pages)
     @astra.SidebarConfig::Manual(groups) => groups
   }
-  let build_ctx : @astra.BuildContext = { config, pages, sidebar, cwd, doc_tree: None }
+  let build_ctx : @astra.BuildContext = {
+    config,
+    pages,
+    sidebar,
+    cwd,
+    doc_tree: None,
+  }
   let _ = @fs.watch(docs_dir, recursive=true, listener=fn(
     event_type,
     filename,

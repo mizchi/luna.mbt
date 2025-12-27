@@ -19,13 +19,7 @@ pub struct ComponentRegistry {
 ///|
 /// Create empty registry (all defaults)
 pub fn ComponentRegistry::new() -> ComponentRegistry {
-  {
-    header: None,
-    footer: None,
-    toc: None,
-    breadcrumb: None,
-    prev_next: None,
-  }
+  { header: None, footer: None, toc: None, breadcrumb: None, prev_next: None }
 }
 
 ///|

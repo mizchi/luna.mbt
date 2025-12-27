@@ -625,7 +625,13 @@ fn parse_header_config(obj : Map[String, Json]) -> @astra.HeaderConfig {
   }
   let right = match obj.get("right") {
     Some(Array(arr)) => parse_header_elements(arr)
-    _ => [@astra.NavLinks, @astra.LangSwitcher, @astra.SocialLinks, @astra.ThemeToggle]
+    _ =>
+      [
+        @astra.NavLinks,
+        @astra.LangSwitcher,
+        @astra.SocialLinks,
+        @astra.ThemeToggle,
+      ]
   }
   let sticky = match obj.get("sticky") {
     Some(True) => true
@@ -692,7 +698,10 @@ fn parse_footer_elements(arr : Array[Json]) -> Array[@astra.FooterElement] {
           "message" => result.push(@astra.FooterElement::Message)
           "copyright" => result.push(@astra.FooterElement::Copyright)
           "social-links" => result.push(@astra.FooterElement::SocialLinks)
-          _ => if s.contains("-") { result.push(@astra.FooterElement::Custom(s)) }
+          _ =>
+            if s.contains("-") {
+              result.push(@astra.FooterElement::Custom(s))
+            }
         }
       _ => ()
     }

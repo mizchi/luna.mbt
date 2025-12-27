@@ -60,15 +60,7 @@ pub fn NavContext::build(
 
   // Find prev/next pages
   let (prev_page, next_page) = find_siblings(tree, current_url, locale)
-
-  {
-    tree,
-    current_page,
-    breadcrumb_path,
-    prev_page,
-    next_page,
-    locale,
-  }
+  { tree, current_page, breadcrumb_path, prev_page, next_page, locale }
 }
 
 ///|
@@ -84,10 +76,8 @@ fn build_breadcrumb_path(
   if url.is_empty() {
     return path
   }
-
   let segments = split_path(url)
   let mut accumulated = ""
-
   for segment in segments {
     accumulated = accumulated + "/" + segment
     let url_with_slash = accumulated + "/"
@@ -102,10 +92,8 @@ fn build_breadcrumb_path(
         }
       None => format_segment(segment)
     }
-
     path.push((title, url_with_slash))
   }
-
   path
 }
 
@@ -123,10 +111,7 @@ fn find_siblings(
   let ordered_pages : Array[@ssg.PageInfo] = []
   for id in page_ids {
     match tree.get_page(id) {
-      Some(page) =>
-        if page.locale == locale {
-          ordered_pages.push(page)
-        }
+      Some(page) => if page.locale == locale { ordered_pages.push(page) }
       None => ()
     }
   }
@@ -139,23 +124,19 @@ fn find_siblings(
       break
     }
   }
-
   if current_idx < 0 {
     return (None, None)
   }
-
   let prev = if current_idx > 0 {
     Some(ordered_pages[current_idx - 1])
   } else {
     None
   }
-
   let next = if current_idx < ordered_pages.length() - 1 {
     Some(ordered_pages[current_idx + 1])
   } else {
     None
   }
-
   (prev, next)
 }
 
@@ -192,7 +173,11 @@ fn build_sidebar_from_node(
                 if page.locale == locale {
                   let active = page.url_path == current_url
                   result.push(
-                    SidebarNode::Link(text=page.title, url=page.url_path, active~),
+                    SidebarNode::Link(
+                      text=page.title,
+                      url=page.url_path,
+                      active~,
+                    ),
                   )
                 }
               None => ()
@@ -202,7 +187,9 @@ fn build_sidebar_from_node(
             let active = is_path_active(current_url, path)
 
             // Find section index page
-            let section_url : String? = find_section_index(tree, sub_children, locale)
+            let section_url : String? = find_section_index(
+              tree, sub_children, locale,
+            )
 
             // Build children
             let child_nodes = build_sidebar_from_node(
@@ -211,7 +198,6 @@ fn build_sidebar_from_node(
 
             // Format section name
             let text = format_segment(name)
-
             result.push(
               SidebarNode::Section(
                 text~,
@@ -280,7 +266,6 @@ fn split_path(path : String) -> Array[String] {
   let segments : Array[String] = []
   let chars = path.to_array()
   let mut start = 0
-
   for i = 0; i < chars.length(); i = i + 1 {
     if chars[i] == '/' {
       if i > start {
@@ -289,11 +274,9 @@ fn split_path(path : String) -> Array[String] {
       start = i + 1
     }
   }
-
   if start < chars.length() {
     segments.push(slice_string_from(path, start))
   }
-
   segments
 }
 
@@ -326,7 +309,6 @@ fn format_segment(segment : String) -> String {
   let mut s = segment
   let chars = s.to_array()
   let mut skip = 0
-
   for i = 0; i < chars.length(); i = i + 1 {
     if chars[i] >= '0' && chars[i] <= '9' {
       skip = i + 1
@@ -337,7 +319,6 @@ fn format_segment(segment : String) -> String {
       break
     }
   }
-
   if skip > 0 && skip < chars.length() {
     s = slice_string_from(s, skip)
   }
