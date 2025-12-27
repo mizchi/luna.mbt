@@ -194,7 +194,15 @@ pub fn HandlerMap::change(Self, (@dom.ChangeEvent) -> Unit) -> Self
 pub fn HandlerMap::click(Self, (@dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::compositionend(Self, (@core.Any) -> Unit) -> Self
 pub fn HandlerMap::compositionstart(Self, (@core.Any) -> Unit) -> Self
+pub fn HandlerMap::contextmenu(Self, (@dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::dblclick(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::drag(Self, (@dom.DragEvent) -> Unit) -> Self
+pub fn HandlerMap::dragend(Self, (@dom.DragEvent) -> Unit) -> Self
+pub fn HandlerMap::dragenter(Self, (@dom.DragEvent) -> Unit) -> Self
+pub fn HandlerMap::dragleave(Self, (@dom.DragEvent) -> Unit) -> Self
+pub fn HandlerMap::dragover(Self, (@dom.DragEvent) -> Unit) -> Self
+pub fn HandlerMap::dragstart(Self, (@dom.DragEvent) -> Unit) -> Self
+pub fn HandlerMap::drop(Self, (@dom.DragEvent) -> Unit) -> Self
 pub fn HandlerMap::focus(Self, (@dom.FocusEvent) -> Unit) -> Self
 pub fn HandlerMap::input(Self, (@dom.InputEvent) -> Unit) -> Self
 pub fn HandlerMap::keydown(Self, (@dom.KeyboardEvent) -> Unit) -> Self
@@ -203,10 +211,24 @@ pub fn HandlerMap::keyup(Self, (@dom.KeyboardEvent) -> Unit) -> Self
 pub fn HandlerMap::mousedown(Self, (@dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::mouseenter(Self, (@dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::mouseleave(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::mousemove(Self, (@dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::mouseout(Self, (@dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::mouseover(Self, (@dom.MouseEvent) -> Unit) -> Self
 pub fn HandlerMap::mouseup(Self, (@dom.MouseEvent) -> Unit) -> Self
+pub fn HandlerMap::pointercancel(Self, (@dom.PointerEvent) -> Unit) -> Self
+pub fn HandlerMap::pointerdown(Self, (@dom.PointerEvent) -> Unit) -> Self
+pub fn HandlerMap::pointerenter(Self, (@dom.PointerEvent) -> Unit) -> Self
+pub fn HandlerMap::pointerleave(Self, (@dom.PointerEvent) -> Unit) -> Self
+pub fn HandlerMap::pointermove(Self, (@dom.PointerEvent) -> Unit) -> Self
+pub fn HandlerMap::pointerup(Self, (@dom.PointerEvent) -> Unit) -> Self
+pub fn HandlerMap::resize(Self, (@core.Any) -> Unit) -> Self
+pub fn HandlerMap::scroll(Self, (@core.Any) -> Unit) -> Self
 pub fn HandlerMap::submit(Self, (@dom.FormEvent) -> Unit) -> Self
+pub fn HandlerMap::touchcancel(Self, (@dom.TouchEvent) -> Unit) -> Self
+pub fn HandlerMap::touchend(Self, (@dom.TouchEvent) -> Unit) -> Self
+pub fn HandlerMap::touchmove(Self, (@dom.TouchEvent) -> Unit) -> Self
+pub fn HandlerMap::touchstart(Self, (@dom.TouchEvent) -> Unit) -> Self
+pub fn HandlerMap::wheel(Self, (@dom.WheelEvent) -> Unit) -> Self
 
 pub(all) struct ItemEntry[T] {
   item : T
@@ -224,6 +246,8 @@ pub type ChangeHandler = (@dom.ChangeEvent) -> Unit
 pub type ClipboardEventHandler[T] = (@dom.ClipboardEvent) -> Unit
 
 pub type DragEventHandler[T] = (@dom.DragEvent) -> Unit
+
+pub type DragHandler = (@dom.DragEvent) -> Unit
 
 pub type ElementRef = (@dom.Element) -> Unit
 
@@ -253,15 +277,21 @@ pub type MouseHandler = (@dom.MouseEvent) -> Unit
 
 pub type PointerEventHandler[T] = (@dom.PointerEvent) -> Unit
 
+pub type PointerHandler = (@dom.PointerEvent) -> Unit
+
 pub type RefCallback[T] = (T) -> Unit
 
 pub type ScrollEventHandler[T] = (@dom.ScrollEvent) -> Unit
 
 pub type TouchEventHandler[T] = (@dom.TouchEvent) -> Unit
 
+pub type TouchHandler = (@dom.TouchEvent) -> Unit
+
 pub type TransitionEventHandler[T] = (@dom.TransitionEvent) -> Unit
 
 pub type WheelEventHandler[T] = (@dom.WheelEvent) -> Unit
+
+pub type WheelHandler = (@dom.WheelEvent) -> Unit
 
 // Traits
 pub trait ToDomNode {

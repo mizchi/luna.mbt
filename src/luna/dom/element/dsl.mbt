@@ -221,6 +221,182 @@ pub extern "js" fn HandlerMap::compositionend(
   #|(m, handler) => { m.compositionend = handler; return m; }
 
 ///|
+/// Mouse move event (for drag, hover tracking)
+pub extern "js" fn HandlerMap::mousemove(
+  self : Self,
+  handler : MouseHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.mousemove = handler; return m; }
+
+///|
+/// Wheel event (for scroll/zoom)
+pub extern "js" fn HandlerMap::wheel(
+  self : Self,
+  handler : WheelHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.wheel = handler; return m; }
+
+///|
+/// Context menu event (right-click)
+pub extern "js" fn HandlerMap::contextmenu(
+  self : Self,
+  handler : MouseHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.contextmenu = handler; return m; }
+
+///|
+/// Drag start event
+pub extern "js" fn HandlerMap::dragstart(
+  self : Self,
+  handler : DragHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.dragstart = handler; return m; }
+
+///|
+/// Drag event (during drag)
+pub extern "js" fn HandlerMap::drag(
+  self : Self,
+  handler : DragHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.drag = handler; return m; }
+
+///|
+/// Drag end event
+pub extern "js" fn HandlerMap::dragend(
+  self : Self,
+  handler : DragHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.dragend = handler; return m; }
+
+///|
+/// Drag enter event (enters drop zone)
+pub extern "js" fn HandlerMap::dragenter(
+  self : Self,
+  handler : DragHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.dragenter = handler; return m; }
+
+///|
+/// Drag leave event (leaves drop zone)
+pub extern "js" fn HandlerMap::dragleave(
+  self : Self,
+  handler : DragHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.dragleave = handler; return m; }
+
+///|
+/// Drag over event (over drop zone)
+pub extern "js" fn HandlerMap::dragover(
+  self : Self,
+  handler : DragHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.dragover = handler; return m; }
+
+///|
+/// Drop event
+pub extern "js" fn HandlerMap::drop(
+  self : Self,
+  handler : DragHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.drop = handler; return m; }
+
+///|
+/// Touch start event
+pub extern "js" fn HandlerMap::touchstart(
+  self : Self,
+  handler : TouchHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.touchstart = handler; return m; }
+
+///|
+/// Touch move event
+pub extern "js" fn HandlerMap::touchmove(
+  self : Self,
+  handler : TouchHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.touchmove = handler; return m; }
+
+///|
+/// Touch end event
+pub extern "js" fn HandlerMap::touchend(
+  self : Self,
+  handler : TouchHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.touchend = handler; return m; }
+
+///|
+/// Touch cancel event
+pub extern "js" fn HandlerMap::touchcancel(
+  self : Self,
+  handler : TouchHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.touchcancel = handler; return m; }
+
+///|
+/// Pointer down event (unified mouse/touch/pen)
+pub extern "js" fn HandlerMap::pointerdown(
+  self : Self,
+  handler : PointerHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.pointerdown = handler; return m; }
+
+///|
+/// Pointer move event
+pub extern "js" fn HandlerMap::pointermove(
+  self : Self,
+  handler : PointerHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.pointermove = handler; return m; }
+
+///|
+/// Pointer up event
+pub extern "js" fn HandlerMap::pointerup(
+  self : Self,
+  handler : PointerHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.pointerup = handler; return m; }
+
+///|
+/// Pointer cancel event
+pub extern "js" fn HandlerMap::pointercancel(
+  self : Self,
+  handler : PointerHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.pointercancel = handler; return m; }
+
+///|
+/// Pointer enter event
+pub extern "js" fn HandlerMap::pointerenter(
+  self : Self,
+  handler : PointerHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.pointerenter = handler; return m; }
+
+///|
+/// Pointer leave event
+pub extern "js" fn HandlerMap::pointerleave(
+  self : Self,
+  handler : PointerHandler,
+) -> HandlerMap =
+  #|(m, handler) => { m.pointerleave = handler; return m; }
+
+///|
+/// Scroll event
+pub extern "js" fn HandlerMap::scroll(
+  self : Self,
+  handler : Handler,
+) -> HandlerMap =
+  #|(m, handler) => { m.scroll = handler; return m; }
+
+///|
+/// Resize event (for window/element resize)
+pub extern "js" fn HandlerMap::resize(
+  self : Self,
+  handler : Handler,
+) -> HandlerMap =
+  #|(m, handler) => { m.resize = handler; return m; }
+
+///|
 /// Convert HandlerMap to Array of attribute tuples using JS Object.entries
 /// Keys are already lowercase event names, tag 2 = Handler variant
 extern "js" fn HandlerMap::to_attrs(

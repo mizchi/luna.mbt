@@ -156,3 +156,19 @@ pub type FocusHandler = (@js_dom.FocusEvent) -> Unit
 ///|
 /// Convenience alias: FormHandler = FormEventHandler[@js_dom.Element]
 pub type FormHandler = (@js_dom.FormEvent) -> Unit
+
+///|
+/// Convenience alias: WheelHandler = WheelEventHandler[@js_dom.Element]
+pub type WheelHandler = (@js_dom.WheelEvent) -> Unit
+
+///|
+/// Convenience alias: DragHandler = DragEventHandler[@js_dom.Element]
+pub type DragHandler = (@js_dom.DragEvent) -> Unit
+
+///|
+/// Convenience alias: TouchHandler = TouchEventHandler[@js_dom.Element]
+pub type TouchHandler = (@js_dom.TouchEvent) -> Unit
+
+///|
+/// Convenience alias: PointerHandler = PointerEventHandler[@js_dom.Element]
+pub type PointerHandler = (@js_dom.PointerEvent) -> Unit
