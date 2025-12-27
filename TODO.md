@@ -30,8 +30,8 @@
 - [ ] プラグインシステム (mermaid, math等)
 
 **低優先**
-- [ ] ディスクキャッシュ (永続ビルドキャッシュ)
-- [ ] アセットハッシング (キャッシュバスティング)
+- [x] ディスクキャッシュ (永続ビルドキャッシュ) → `src/core/cache/`, `.astra-cache/`
+- [x] アセットハッシング (キャッシュバスティング) → rolldown対応済み
 - [x] デプロイアダプタ → [設計書](docs/internal/deploy-adapters-design.md)
   - [x] Cloudflare Pages (`_routes.json`)
   - [x] GitHub Pages (`.nojekyll`, `CNAME`)
@@ -66,10 +66,16 @@
 
 **未完了**
 - [ ] 画像最適化パイプライン
+
+**完了（追加）**
 - [x] ディスクキャッシュ層 → `src/core/cache/`
   - `DiskCache[F]` - FileSystem trait を使った汎用キャッシュ
   - `hash.mbt` - FNV-1a ハッシュ関数
-- [ ] アセットハッシング
+  - Astra CacheManager が core/cache を使用
+- [x] アセットハッシング（部分的）
+  - ローダーは `hashedPath` 対応済み
+  - rolldown で `[hash]` 指定可能
+  - 現状はハッシュなし設定（必要時に有効化）
 
 ### Luna UI / DX
 
