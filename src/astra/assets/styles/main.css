@@ -631,3 +631,44 @@ a { color: var(--primary-color); }
   .social-links { gap: 0.25rem; }
   .theme-toggle { width: 32px; height: 32px; }
 }
+
+/* Skeleton loading for Web Components before definition */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+luna-counter:not(:defined) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  min-width: 120px;
+  min-height: 40px;
+  background: linear-gradient(
+    90deg,
+    var(--sidebar-bg) 25%,
+    var(--border-color) 50%,
+    var(--sidebar-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Generic skeleton for any undefined luna-* components */
+[luna\\:wc-url]:not(:defined) {
+  display: inline-block;
+  min-height: 2em;
+  background: linear-gradient(
+    90deg,
+    var(--sidebar-bg) 25%,
+    var(--border-color) 50%,
+    var(--sidebar-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}

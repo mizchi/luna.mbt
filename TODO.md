@@ -2,6 +2,9 @@
 
 完了したタスクは `docs/internal/done/` に移動済み。
 
+全体的にサブカラーを使い分けるようにする。
+
+
 ## TODO
 
 ### Luna UI
@@ -17,10 +20,15 @@
 **高優先**
 - [x] 動的ルート (`_id_.md`, `___all___.md`) - MoonBitモジュールパス互換
 - [x] Robots/Noindex (ページ単位制御)
+- [ ] astra/components - Luna再利用可能コンポーネント集
+  - 現在のドキュメントサイト前提から、ブログ・LP等の複数レイアウト対応へ
+  - Header, Footer, Sidebar, Card, Hero, CTA 等の汎用コンポーネント
+  - テーマ切り替え可能な設計 (CSS変数ベース)
 
 **中優先**
 - [ ] static_render.mbt リファクタ (インラインスクリプト分離)
-- [ ] MDX サポート (mizchi/markdown の mdx 機能を利用)
+- [x] MDX サポート (mizchi/markdown の mdx 機能を利用)
+- [ ] スケルトン生成ヘルパ (一回レンダリングして width/height を抽出、CLS対策)
 - [ ] 画像最適化 (リサイズ、WebP変換)
 - [ ] 検索インデックス生成 (クライアント側全文検索)
 - [ ] JSON-LD (Schema.org 構造化データ)
