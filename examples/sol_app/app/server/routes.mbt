@@ -238,7 +238,7 @@ extern "js" fn get_field(obj : @core.Any, field : String) -> String =
 /// Create action registry for the application
 pub fn action_registry() -> @action.ActionRegistry {
   @action.ActionRegistry::new(allowed_origins=[
-    "http://localhost:3000", "http://localhost:3457",
+    "http://localhost:3000", "http://localhost:3457", "http://localhost:9123",
   ]).register(
     @action.ActionDef::new("submit-contact", submit_contact_handler).with_require_json(
       false,

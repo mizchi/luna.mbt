@@ -5,6 +5,9 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const solAppDir = join(__dirname, "../examples/sol_app");
 
+// Use a non-standard port to avoid conflicts with dev servers
+const TEST_PORT = 9124;
+
 export default defineConfig({
   testDir: __dirname,
   testMatch: ["**/wc_counter*.test.ts", "**/sol_*.test.ts", "**/wc-css-isolation.test.ts", "**/wc-ssr-css.test.ts"],
@@ -14,7 +17,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "list",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: `http://localhost:${TEST_PORT}`,
     trace: "on-first-retry",
   },
   projects: [
@@ -24,8 +27,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `cd ${solAppDir} && pnpm build && node .sol/prod/server/main.js`,
-    url: "http://127.0.0.1:3000",
+    command: `cd ${solAppDir} && pnpm build && PORT=${TEST_PORT} node .sol/prod/server/main.js`,
+    url: `http://127.0.0.1:${TEST_PORT}`,
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     timeout: 60000, // Longer timeout for build + server startup

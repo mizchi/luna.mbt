@@ -10,8 +10,8 @@ test.describe('Server Action Security', () => {
   const actionUrl = '/_action/submit-contact';
   const validPayload = { name: 'Test', email: 'test@example.com' };
 
-  // Valid origins that should be allowed
-  const validOrigin = 'http://localhost:3457';
+  // Valid origins that should be allowed (use test server port)
+  const validOrigin = 'http://localhost:9123';
 
   test.describe('CSRF Protection', () => {
 
@@ -329,7 +329,7 @@ test.describe('Server Action Security', () => {
       const body = await response.text();
 
       // Should not reveal allowed origins or configuration details
-      expect(body).not.toContain('localhost:3457');
+      expect(body).not.toContain('localhost:9123');
       expect(body).not.toContain('allowed_origins');
     });
   });

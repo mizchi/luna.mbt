@@ -18,7 +18,7 @@ test.describe('Sol App E2E', () => {
       const response = await request.post('/_action/submit-contact', {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Referer': 'http://localhost:3000/form',
+          'Referer': 'http://localhost:9123/form',
         },
         data: 'name=Test&email=test@example.com',
       });
@@ -123,7 +123,7 @@ test.describe('Sol App E2E', () => {
     const response = await request.post('/_action/submit-contact', {
       headers: {
         'Content-Type': 'application/json',
-        'Origin': 'http://localhost:3457',
+        'Origin': 'http://localhost:9123',
       },
       data: { name: 'Test', email: 'test@example.com' }
     });

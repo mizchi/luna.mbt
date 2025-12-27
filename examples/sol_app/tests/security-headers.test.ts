@@ -90,7 +90,7 @@ test.describe('Security Headers', () => {
       const response = await request.post('/_action/submit-contact', {
         headers: {
           'Content-Type': 'application/json',
-          'Origin': 'http://localhost:3000',
+          'Origin': 'http://localhost:9123',
         },
         data: { name: 'Test', email: 'test@example.com' },
       });

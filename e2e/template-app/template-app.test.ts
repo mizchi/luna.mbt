@@ -2,6 +2,9 @@ import { test, expect } from "@playwright/test";
 
 const DEBUG = process.env.DEBUG === "1";
 
+// Use a non-standard port to avoid conflicts with dev servers (must match playwright.config.mts)
+const BASE_URL = "http://localhost:9125";
+
 /**
  * E2E tests for CLI-generated template app
  * Tests the separated component architecture:
@@ -9,8 +12,6 @@ const DEBUG = process.env.DEBUG === "1";
  * - hydrate.mbt: Hydration boilerplate
  */
 test.describe("Template App E2E Tests", () => {
-  // Use port 3000 where the template app is running
-  const BASE_URL = "http://localhost:3000";
 
   test.describe("SSR Rendering", () => {
     test("renders home page with counter island", async ({ page }) => {
