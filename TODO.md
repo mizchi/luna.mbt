@@ -2,6 +2,8 @@
 
 完了したタスクは `docs/internal/done/` に移動済み。
 
+ブログサイトとしテンプレートがホしい
+
 ## TODO
 
 ### Luna UI
@@ -30,7 +32,12 @@
 **低優先**
 - [ ] ディスクキャッシュ (永続ビルドキャッシュ)
 - [ ] アセットハッシング (キャッシュバスティング)
-- [ ] デプロイアダプタ (Vercel/Netlify/GitHub Pages)
+- [x] デプロイアダプタ → [設計書](docs/internal/deploy-adapters-design.md)
+  - [x] Cloudflare Pages (`_routes.json`)
+  - [x] GitHub Pages (`.nojekyll`, `CNAME`)
+  - [x] Vercel (`vercel.json`)
+  - [x] Netlify (`_headers`, `_redirects`)
+  - [x] Deno Deploy (静的サイトは設定不要)
 
 ### Sol (フルスタック)
 
@@ -46,7 +53,7 @@
 
 **共有可能なパーツ**
 
-- [ ] 動的ルート解析 (`_id_`, `_...slug_` パターンマッチ)
+- [ ] 動的ルート解析 (`_id_`, `___all___` パターンマッチ)
 - [ ] 画像最適化パイプライン
 - [ ] sitemap/RSS/llms.txt 生成
 - [ ] ディスクキャッシュ層 (ビルド成果物)
