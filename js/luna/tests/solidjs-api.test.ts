@@ -552,3 +552,112 @@ describe("Portal component", () => {
     rendered?.remove();
   });
 });
+
+describe("Switch/Match component", () => {
+  let container: HTMLElement;
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    container.remove();
+  });
+
+  test("Switch with single Match renders correctly", () => {
+    createRoot((dispose) => {
+      const [value, setValue] = createSignal(true);
+
+      const node = Switch({
+        children: Match({
+          when: value,
+          children: createElement("div", [], [text("Match 1")]),
+        }),
+      });
+
+      mount(container, node);
+      expect(container.textContent).toContain("Match 1");
+      dispose();
+    });
+  });
+
+  test("Switch with single Match and fallback", () => {
+    createRoot((dispose) => {
+      const [value, setValue] = createSignal(false);
+
+      const node = Switch({
+        fallback: createElement("div", [], [text("Fallback")]),
+        children: Match({
+          when: value,
+          children: createElement("div", [], [text("Match 1")]),
+        }),
+      });
+
+      mount(container, node);
+      expect(container.textContent).toContain("Fallback");
+
+      // Trigger update
+      setValue(true);
+      expect(container.textContent).toContain("Match 1");
+      dispose();
+    });
+  });
+
+  test("Switch with multiple Match components", () => {
+    createRoot((dispose) => {
+      const [value, setValue] = createSignal(1);
+
+      const node = Switch({
+        fallback: createElement("div", [], [text("Fallback")]),
+        children: [
+          Match({
+            when: () => value() === 1,
+            children: createElement("div", [], [text("First")]),
+          }),
+          Match({
+            when: () => value() === 2,
+            children: createElement("div", [], [text("Second")]),
+          }),
+        ],
+      });
+
+      mount(container, node);
+      expect(container.textContent).toContain("First");
+
+      setValue(2);
+      expect(container.textContent).toContain("Second");
+
+      setValue(3);
+      expect(container.textContent).toContain("Fallback");
+      dispose();
+    });
+  });
+
+  test("Switch with accessor condition in Match", () => {
+    createRoot((dispose) => {
+      const [count, setCount] = createSignal(0);
+
+      const node = Switch({
+        fallback: createElement("div", [], [text("Default")]),
+        children: Match({
+          when: () => count() % 3 === 0 && count() > 0,
+          children: createElement("div", [], [text("Bang!")]),
+        }),
+      });
+
+      mount(container, node);
+      expect(container.textContent).toContain("Default");
+
+      setCount(3);
+      expect(container.textContent).toContain("Bang!");
+
+      setCount(4);
+      expect(container.textContent).toContain("Default");
+
+      setCount(6);
+      expect(container.textContent).toContain("Bang!");
+      dispose();
+    });
+  });
+});

@@ -457,15 +457,29 @@ export function Switch(props: SwitchProps): any {
   // children should be Match components, each with { when, children }
   // Since we don't have compile-time JSX, children is an array of Match results
 
-  if (!Array.isArray(children)) {
+  // Normalize children to a flat array
+  let childArray: any[];
+  if (!children) {
+    childArray = [];
+  } else if (!Array.isArray(children)) {
+    childArray = [children];
+  } else {
+    // Flatten nested arrays (JSX can nest them)
+    childArray = children.flat();
+  }
+
+  // Filter to only Match components
+  const matches = childArray.filter((child) => child && child.__isMatch);
+
+  if (matches.length === 0) {
     return fallback ?? null;
   }
 
   // Track which Match index is currently active (-1 = none, show fallback)
   const matchIndex = createMemo(() => {
-    for (let i = 0; i < children.length; i++) {
-      const child = children[i];
-      if (child && child.__isMatch && child.when()) {
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i];
+      if (match.when()) {
         return i;
       }
     }
@@ -474,12 +488,13 @@ export function Switch(props: SwitchProps): any {
 
   // Create a show for each Match (only the active one will render)
   const nodes: any[] = [];
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i];
+  for (let i = 0; i < matches.length; i++) {
+    const match = matches[i];
+    const idx = i; // Capture index for closure
     nodes.push(
       show(
-        () => matchIndex() === i,
-        () => typeof child.children === "function" ? child.children() : child.children
+        () => matchIndex() === idx,
+        () => typeof match.children === "function" ? match.children() : match.children
       )
     );
   }

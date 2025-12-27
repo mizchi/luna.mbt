@@ -69,13 +69,15 @@ describe("TSX Syntax with jsxImportSource", () => {
   });
 
   test("fragment", () => {
-    const nodes = (
+    const node = (
       <>
         <div>First</div>
         <div>Second</div>
       </>
     );
-    expect(Array.isArray(nodes)).toBe(true);
+    // Fragment should return a DomNode (not an array)
+    expect(node).toBeDefined();
+    expect(Array.isArray(node)).toBe(false);
   });
 
   test("render TSX to DOM", () => {

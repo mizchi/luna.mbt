@@ -26,15 +26,16 @@ describe("JSX Runtime", () => {
     expect(node).toBeDefined();
   });
 
-  test("Fragment returns children array", () => {
-    const nodes = Fragment({
+  test("Fragment returns DomNode", () => {
+    const node = Fragment({
       children: [
         jsx("div", { children: "a" }),
         jsx("div", { children: "b" }),
       ],
     });
-    expect(Array.isArray(nodes)).toBe(true);
-    expect(nodes.length).toBe(2);
+    // Fragment should return a DomNode (not an array)
+    expect(node).toBeDefined();
+    expect(Array.isArray(node)).toBe(false);
   });
 
   test("function component", () => {

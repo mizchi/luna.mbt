@@ -3,7 +3,7 @@
 //   "jsx": "react-jsx",
 //   "jsxImportSource": "@luna_ui/luna"
 
-import { text, textDyn, createElement } from "./index";
+import { text, textDyn, createElement, Fragment as fragment } from "./index";
 
 // Types for reactive attributes (can be static value or accessor function)
 type MaybeAccessor<T> = T | (() => T);
@@ -215,9 +215,11 @@ export function jsx(type: string | Component, props: Record<string, unknown> | n
 // jsxs is the same as jsx for our implementation
 export const jsxs = jsx;
 
-// Fragment just returns children as-is (flattened)
-export function Fragment({ children }: { children?: unknown }): unknown[] {
-  return convertChildren(children);
+// Fragment wraps children in a DomNode fragment
+export function Fragment({ children }: { children?: unknown }): unknown {
+  const childNodes = convertChildren(children);
+  // Use MoonBit's fragment function to create a proper DomNode fragment
+  return fragment(childNodes);
 }
 
 // Export jsxDEV for development mode
