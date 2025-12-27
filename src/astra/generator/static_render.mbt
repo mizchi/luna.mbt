@@ -1010,6 +1010,8 @@ fn build_page_html(
   let page_vnode = match layout {
     "home" => build_home_layout(ctx, page, frontmatter, content)
     "default" => build_default_layout(ctx, page, frontmatter, content)
+    "blog" => build_blog_layout(ctx, page, frontmatter, content)
+    "blog-post" => build_blog_post_layout(ctx, page, frontmatter, content)
     _ => build_doc_layout(ctx, page, frontmatter, content, toc)
   }
 
@@ -1046,6 +1048,122 @@ fn build_default_layout(
   let main = h("main", [attr("class", "main-content")], [content])
   let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-default")], [nav, main, footer])
+}
+
+///|
+/// Build blog layout (nav + post list)
+/// Used for blog index pages that list all posts
+fn build_blog_layout(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  _frontmatter : @astra.Frontmatter,
+  content : @luna.Node[Unit],
+) -> @luna.Node[Unit] {
+  let nav = @components.build_nav(ctx, page)
+
+  // Page content (from markdown)
+  let intro = h("div", [attr("class", "blog-intro")], [content])
+
+  // Blog post list
+  let post_list = @components.build_blog_post_list(ctx, None, false)
+
+  // Tags cloud (collect all tags)
+  let all_tags = collect_all_tags(ctx.pages)
+  let tags_section = if not(all_tags.is_empty()) {
+    h("aside", [attr("class", "blog-tags-section")], [
+      h("h3", [], [@luna.text("Tags")]),
+      @components.build_tag_list(all_tags),
+    ])
+  } else {
+    @luna.fragment([])
+  }
+
+  let main = h("main", [attr("class", "blog-content")], [
+    h("div", [attr("class", "blog-container")], [
+      h("div", [attr("class", "blog-main")], [intro, post_list]),
+      tags_section,
+    ]),
+  ])
+  let footer = @components.build_footer(ctx)
+  h("div", [attr("class", "layout layout-blog")], [nav, main, footer])
+}
+
+///|
+/// Collect all unique tags from blog posts
+fn collect_all_tags(pages : Array[@astra.PageMeta]) -> Array[String] {
+  let tags_set : Map[String, Bool] = {}
+  for page in pages {
+    let fm = page.frontmatter
+    if fm.date is Some(_) && not(fm.draft) {
+      for tag in fm.tags {
+        tags_set[tag] = true
+      }
+    }
+  }
+  tags_set.keys().collect()
+}
+
+///|
+/// Build blog post layout (nav + article with meta)
+/// Used for individual blog posts
+fn build_blog_post_layout(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  frontmatter : @astra.Frontmatter,
+  content : @luna.Node[Unit],
+) -> @luna.Node[Unit] {
+  let nav = @components.build_nav(ctx, page)
+
+  // Post header with meta
+  let title = frontmatter.title.unwrap_or("Untitled")
+  let date = frontmatter.date.unwrap_or("")
+  let author = frontmatter.author.unwrap_or("")
+
+  let header_children : Array[@luna.Node[Unit]] = []
+
+  // Cover image
+  if frontmatter.cover_image is Some(src) {
+    header_children.push(
+      h("div", [attr("class", "post-cover")], [
+        h("img", [attr("src", src), attr("alt", title)], []),
+      ]),
+    )
+  }
+
+  // Title
+  header_children.push(
+    h("h1", [attr("class", "post-title")], [@luna.text(title)]),
+  )
+
+  // Meta (date, author)
+  if not(date.is_empty()) || not(author.is_empty()) {
+    header_children.push(@components.build_post_meta(date, author, None))
+  }
+
+  // Tags
+  if not(frontmatter.tags.is_empty()) {
+    header_children.push(@components.build_tag_list(frontmatter.tags))
+  }
+
+  let header = h("header", [attr("class", "post-header")], header_children)
+
+  // Article content
+  let article = h("article", [attr("class", "post-content markdown-body")], [
+    content,
+  ])
+
+  // Prev/Next navigation
+  let prev_next = @components.build_prev_next(ctx, page)
+
+  let main = h("main", [attr("class", "blog-post-main")], [
+    h("div", [attr("class", "blog-post-container")], [
+      header,
+      article,
+      prev_next,
+    ]),
+  ])
+  let footer = @components.build_footer(ctx)
+  h("div", [attr("class", "layout layout-blog-post")], [nav, main, footer])
 }
 
 ///|

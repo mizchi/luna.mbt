@@ -47,6 +47,10 @@ pub(all) struct Frontmatter {
   tags : Array[String]
   /// Draft flag (hide from listings)
   draft : Bool
+  /// Featured post (shown in featured sections)
+  featured : Bool
+  /// Cover image URL for blog cards
+  cover_image : String?
 }
 
 ///|
@@ -72,6 +76,8 @@ pub fn Frontmatter::default() -> Frontmatter {
     author: None,
     tags: [],
     draft: false,
+    featured: false,
+    cover_image: None,
   }
 }
 

@@ -7,6 +7,8 @@ tags:
   - tutorial
   - beginner
   - astra
+layout: blog-post
+featured: true
 ---
 
 # Getting Started with Astra

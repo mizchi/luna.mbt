@@ -41,5 +41,10 @@ pub fn from_cst(fm : @md_parser.Frontmatter) -> Frontmatter {
     author: @md_fm.get_string(fm, "author"),
     tags: @md_fm.get_list(fm, "tags"),
     draft: @md_fm.get_bool(fm, "draft").unwrap_or(false),
+    featured: @md_fm.get_bool(fm, "featured").unwrap_or(false),
+    cover_image: match @md_fm.get_string(fm, "cover_image") {
+      Some(v) => Some(v)
+      None => @md_fm.get_string(fm, "coverImage")
+    },
   }
 }

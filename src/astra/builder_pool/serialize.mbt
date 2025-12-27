@@ -1117,6 +1117,18 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
     Some(True) => true
     _ => false
   }
+  let featured : Bool = match obj.get("featured") {
+    Some(True) => true
+    _ => false
+  }
+  let cover_image : String? = match obj.get("cover_image") {
+    Some(String(s)) => Some(s)
+    _ =>
+      match obj.get("coverImage") {
+        Some(String(s)) => Some(s)
+        _ => None
+      }
+  }
   @astra.Frontmatter::{
     title,
     description,
@@ -1137,6 +1149,8 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
     author,
     tags,
     draft,
+    featured,
+    cover_image,
   }
 }
 

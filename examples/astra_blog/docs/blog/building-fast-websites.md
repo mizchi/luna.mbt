@@ -7,6 +7,7 @@ tags:
   - performance
   - optimization
   - web
+layout: blog-post
 ---
 
 # Building Fast Websites

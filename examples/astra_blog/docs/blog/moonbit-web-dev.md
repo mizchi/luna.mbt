@@ -7,6 +7,7 @@ tags:
   - moonbit
   - webdev
   - programming
+layout: blog-post
 ---
 
 # MoonBit for Web Development
