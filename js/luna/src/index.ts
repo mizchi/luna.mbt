@@ -819,3 +819,6 @@ export {
   _effect as effect,
   runUntracked,
 };
+
+// Event utilities (tree-shakeable, also available via "@luna_ui/luna/event-utils")
+export * from "./event-utils";

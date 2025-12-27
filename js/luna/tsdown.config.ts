@@ -4,6 +4,7 @@ export default defineConfig([
   {
     entry: [
       "src/index.ts",
+      "src/event-utils.ts",
       "src/jsx-runtime.ts",
       "src/jsx-dev-runtime.ts",
     ],
