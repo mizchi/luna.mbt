@@ -21,6 +21,74 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 }
 
 ///|
+/// Transform internal links in HTML content
+/// Converts numeric prefix paths like /00_introduction/ to /introduction/
+fn transform_internal_links(html : String, trailing_slash : Bool) -> String {
+  // Simple regex-like replacement for href="/NN_name/" patterns
+  // We need to find href="..." attributes and transform the paths
+  let buf = StringBuilder::new()
+  let chars = html.to_array()
+  let len = chars.length()
+  let mut i = 0
+  while i < len {
+    // Look for href=" or src="
+    if i + 6 < len &&
+      chars[i] == 'h' &&
+      chars[i + 1] == 'r' &&
+      chars[i + 2] == 'e' &&
+      chars[i + 3] == 'f' &&
+      chars[i + 4] == '=' &&
+      chars[i + 5] == '"' {
+      // Found href="
+      buf.write_string("href=\"")
+      i = i + 6
+      // Read the URL until closing quote
+      let url_start = i
+      while i < len && chars[i] != '"' {
+        i = i + 1
+      }
+      let url = String::from_array(chars[url_start:i])
+      // Transform the URL if it's an internal link
+      let transformed = transform_url_path(url, trailing_slash)
+      buf.write_string(transformed)
+    } else {
+      buf.write_char(chars[i])
+      i = i + 1
+    }
+  }
+  buf.to_string()
+}
+
+///|
+/// Transform a URL path by removing numeric prefixes from path segments
+/// e.g., /00_introduction/01_overview/ -> /introduction/overview/
+fn transform_url_path(url : String, trailing_slash : Bool) -> String {
+  // Only transform internal absolute paths starting with /
+  if not(url.has_prefix("/")) || url.has_prefix("//") {
+    return url
+  }
+  // Split by / and process each segment
+  let segments = url.split("/").collect()
+  let result : Array[String] = []
+  for segment in segments {
+    if segment.is_empty() {
+      result.push("")
+    } else {
+      // Remove numeric prefix (e.g., "00_intro" -> "intro", "01_getting-started" -> "getting-started")
+      let (_, name) = @ssg.parse_numeric_prefix(segment.to_string())
+      result.push(name)
+    }
+  }
+  let path = result.join("/")
+  // Ensure trailing slash consistency
+  if trailing_slash && not(path.has_suffix("/")) && not(path.contains(".")) {
+    path + "/"
+  } else {
+    path
+  }
+}
+
+///|
 /// Try to render a component from its compiled module (async)
 /// Returns Some(vnode) if successful, None if component cannot be loaded
 async fn render_component_ssr_async(
@@ -655,11 +723,13 @@ fn generate_page_with_highlight(
       }
       // For HTML files, use the content as raw HTML
       // Optionally sanitize if configured
-      let html_content = if ctx.config.sanitize_html {
+      let sanitized = if ctx.config.sanitize_html {
         sanitize_html(content)
       } else {
         content
       }
+      // Transform internal links (remove numeric prefixes like /00_intro/ -> /intro/)
+      let html_content = transform_internal_links(sanitized, ctx.config.trailing_slash)
       // Wrap raw HTML in a fragment
       let vnode = @luna.raw_html(html_content)
       // Use page frontmatter (from file_router, which is default for HTML)
@@ -866,11 +936,13 @@ async fn generate_page_with_highlight_async(
         e => return Err("Failed to read \{source_path}: \{e}")
       }
       // For HTML files, use the content as raw HTML
-      let html_content = if ctx.config.sanitize_html {
+      let sanitized = if ctx.config.sanitize_html {
         sanitize_html(content)
       } else {
         content
       }
+      // Transform internal links (remove numeric prefixes like /00_intro/ -> /intro/)
+      let html_content = transform_internal_links(sanitized, ctx.config.trailing_slash)
       let vnode = @luna.raw_html(html_content)
       (page.frontmatter, vnode, [])
     }

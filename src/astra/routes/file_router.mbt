@@ -339,7 +339,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       // Build sort key for ordering (preserves numeric prefixes)
       let sort_key = @ssg.build_sort_key(source_path)
 
-      // Parse frontmatter for markdown/mdx, use default for HTML
+      // Parse frontmatter for markdown/mdx, use page.json for HTML
       let frontmatter = match content_type {
         @astra.Markdown | @astra.Mdx => {
           let content : String = @env.FileSystem::read_file_sync(
@@ -350,7 +350,21 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
           let (fm, _) = @markdown.parse_markdown(content)
           fm
         }
-        @astra.Html | @astra.Component | @astra.TsxComponent =>
+        @astra.Html => {
+          // Try to read page.json from same directory
+          let page_json_path = join_path_simple(dir_path, "page.json")
+          if @env.FileSystem::exists_sync(filesystem, page_json_path) {
+            let content : String = @env.FileSystem::read_file_sync(
+              filesystem, page_json_path,
+            ) catch {
+              _ => ""
+            }
+            parse_page_json_to_frontmatter(content)
+          } else {
+            @astra.Frontmatter::default()
+          }
+        }
+        @astra.Component | @astra.TsxComponent =>
           @astra.Frontmatter::default()
       }
       let renderer_type = determine_renderer_type(content_type, frontmatter)

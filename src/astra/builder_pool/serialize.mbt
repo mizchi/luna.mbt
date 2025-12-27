@@ -865,6 +865,10 @@ fn write_page_meta(page : @astra.PageMeta, buf : StringBuilder) -> Unit {
   write_escaped_string(page.source_path, buf)
   buf.write_string("\",\"urlPath\":\"")
   write_escaped_string(page.url_path, buf)
+  buf.write_string("\",\"contentType\":\"")
+  write_escaped_string(content_type_to_string(page.content_type), buf)
+  buf.write_string("\",\"rendererType\":\"")
+  write_escaped_string(renderer_type_to_string(page.renderer_type), buf)
   buf.write_string("\",\"frontmatter\":")
   write_frontmatter(page.frontmatter, buf)
   match page.last_modified {
@@ -882,6 +886,29 @@ fn write_page_meta(page : @astra.PageMeta, buf : StringBuilder) -> Unit {
   buf.write_string("\",\"sortKey\":\"")
   write_escaped_string(page.sort_key, buf)
   buf.write_string("\"}")
+}
+
+///|
+fn content_type_to_string(ct : @astra.ContentType) -> String {
+  match ct {
+    @astra.Markdown => "markdown"
+    @astra.Mdx => "mdx"
+    @astra.Html => "html"
+    @astra.Component => "component"
+    @astra.TsxComponent => "tsx"
+  }
+}
+
+///|
+fn renderer_type_to_string(rt : @ssg.RendererType) -> String {
+  match rt {
+    @ssg.MarkdownRenderer => "markdown"
+    @ssg.MdxRenderer => "mdx"
+    @ssg.HtmlRenderer => "html"
+    @ssg.LunaRenderer => "luna"
+    @ssg.ReactRenderer => "react"
+    @ssg.ClientOnlyRenderer => "client"
+  }
 }
 
 ///|
@@ -1025,10 +1052,16 @@ fn parse_page_meta(json : Json) -> @astra.PageMeta? {
     Some(String(sk)) => sk
     _ => source_path
   }
-  // Determine renderer type from content_type and frontmatter
-  let content_type = @astra.ContentType::Markdown
-  let renderer_type = @ssg.MarkdownRenderer
-  Some( // Default for deserialized data
+  // Parse content_type and renderer_type from JSON
+  let content_type = match obj.get("contentType") {
+    Some(String(ct)) => string_to_content_type(ct)
+    _ => @astra.ContentType::Markdown
+  }
+  let renderer_type = match obj.get("rendererType") {
+    Some(String(rt)) => string_to_renderer_type(rt)
+    _ => @ssg.MarkdownRenderer
+  }
+  Some(
     @astra.PageMeta::{
       source_path,
       url_path,
@@ -1041,6 +1074,29 @@ fn parse_page_meta(json : Json) -> @astra.PageMeta? {
       sort_key,
     },
   )
+}
+
+///|
+fn string_to_content_type(s : String) -> @astra.ContentType {
+  match s {
+    "html" => @astra.Html
+    "mdx" => @astra.Mdx
+    "component" => @astra.Component
+    "tsx" => @astra.TsxComponent
+    _ => @astra.Markdown
+  }
+}
+
+///|
+fn string_to_renderer_type(s : String) -> @ssg.RendererType {
+  match s {
+    "html" => @ssg.HtmlRenderer
+    "mdx" => @ssg.MdxRenderer
+    "luna" => @ssg.LunaRenderer
+    "react" => @ssg.ReactRenderer
+    "client" => @ssg.ClientOnlyRenderer
+    _ => @ssg.MarkdownRenderer
+  }
 }
 
 ///|
