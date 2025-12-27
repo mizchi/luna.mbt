@@ -290,6 +290,9 @@ fn run_build_sync(
 ) -> Unit {
   match @astra_gen.generate_site_with_highlighter(config, cwd, highlighter) {
     Ok(_) => {
+      // Update build manifest
+      let cache_dir = @path.join2(cwd, ".astra-cache")
+      @astra_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("✓ Rebuild complete"))
       println("")
     }
@@ -370,9 +373,25 @@ fn run_initial_build(
   cwd : String,
   highlighter : @shiki.Highlighter,
 ) -> Unit {
+  // Check for incremental build skip using provider pattern
+  let cache_dir = @path.join2(cwd, ".astra-cache")
+  match @astra_cache.check_local_build_state(config, cwd, cache_dir) {
+    @core_cache.BuildStateCheck::UpToDate(built_at) => {
+      println(
+        @colorette.green("✓ Build skipped (no changes since \{built_at})"),
+      )
+      return
+    }
+    _ => ()
+  }
+
+  // Run build
   match @astra_gen.generate_site_with_highlighter(config, cwd, highlighter) {
-    Ok(_) =>
+    Ok(_) => {
+      // Save build manifest on success
+      @astra_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("✓ Build complete: \{config.output_dir}"))
+    }
     Err(e) => console_error(@colorette.red("Build failed: \{e}"))
     // Don't exit in dev mode, just report the error
   }

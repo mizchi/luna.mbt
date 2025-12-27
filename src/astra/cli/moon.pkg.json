@@ -92,6 +92,14 @@
     {
       "path": "mizchi/luna/astra/components",
       "alias": "components"
+    },
+    {
+      "path": "mizchi/luna/astra/cache",
+      "alias": "astra_cache"
+    },
+    {
+      "path": "mizchi/luna/core/cache",
+      "alias": "core_cache"
     }
   ],
   "warn-list": "-27-20",

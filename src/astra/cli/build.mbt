@@ -19,6 +19,7 @@ fn show_build_help() -> Unit {
     #|  -o, --output <dir>   Output directory (overrides config)
     #|  -p, --parallel       Enable parallel build with worker processes
     #|  -j, --jobs <n>       Number of worker processes (default: 4, implies --parallel)
+    #|  -f, --force          Force rebuild (ignore cache)
     #|  -h, --help           Show help
     #|
     #|Configuration file format:
@@ -57,6 +58,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       @util.String(key="output", short="o", multiple=false, default=None),
       @util.Boolean(key="parallel", short="p"),
       @util.String(key="jobs", short="j", multiple=false, default=None),
+      @util.Boolean(key="force", short="f"),
       @util.Boolean(key="help", short="h"),
     ],
     allow_positionals=false,
@@ -85,6 +87,11 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     Some(@ssg.parse_int_simple(jobs_str))
   } else {
     None
+  }
+  let force_build = if result.values.contains("force") {
+    result.values["force"].cast()
+  } else {
+    false
   }
   let cwd = @process.cwd()
 
@@ -123,6 +130,23 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     Some(output) => @astra.SsgConfig::{ ..config, output_dir: output }
     None => config
   }
+
+  // Check for incremental build skip using provider pattern
+  let cache_dir = @path.join2(cwd, ".astra-cache")
+  if not(force_build) {
+    match @astra_cache.check_local_build_state(final_config, cwd, cache_dir) {
+      @core_cache.BuildStateCheck::UpToDate(built_at) => {
+        println(
+          @colorette.green(
+            "✓ Build skipped (no changes detected since \{built_at})",
+          ),
+        )
+        println(@colorette.gray("  Use --force to rebuild anyway"))
+        return
+      }
+      _ => ()
+    }
+  }
   println(@colorette.cyan("Building static site..."))
   println(@colorette.gray("  Docs: \{final_config.docs_dir}"))
   println(@colorette.gray("  Output: \{final_config.output_dir}"))
@@ -134,10 +158,13 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     let workers = num_workers.unwrap_or(4)
     println(@colorette.gray("  Mode: parallel (\{workers} workers)"))
     match run_parallel_build_internal(final_config, cwd, workers) {
-      Ok(_) =>
+      Ok(_) => {
+        // Save build manifest on success
+        @astra_cache.save_manifest(cache_dir, final_config, cwd)
         println(
           @colorette.green("✓ Build complete: \{final_config.output_dir}"),
         )
+      }
       Err(e) => {
         console_error(@colorette.red("Build failed: \{e}"))
         @process.exit(1)
@@ -146,10 +173,13 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   } else {
     // Sequential build (default)
     match @astra_gen.generate_site_async(final_config, cwd) {
-      Ok(_) =>
+      Ok(_) => {
+        // Save build manifest on success
+        @astra_cache.save_manifest(cache_dir, final_config, cwd)
         println(
           @colorette.green("✓ Build complete: \{final_config.output_dir}"),
         )
+      }
       Err(e) => {
         console_error(@colorette.red("Build failed: \{e}"))
         @process.exit(1)
