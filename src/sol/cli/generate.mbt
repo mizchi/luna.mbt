@@ -400,9 +400,10 @@ fn parse_theme_config(obj : Map[String, Json]) -> @astra.ThemeConfig {
         theme_obj, "primary_color",
       )
       let logo = @json_utils.extract_string_opt(theme_obj, "logo")
+      let header : @astra.HeaderConfig? = None // TODO: parse header
       let footer : @astra.FooterConfig? = None // TODO: parse footer
       let social_links : Array[@astra.SocialLink] = [] // TODO: parse social links
-      @astra.ThemeConfig::{ primary_color, logo, footer, social_links }
+      @astra.ThemeConfig::{ primary_color, logo, header, footer, social_links }
     }
     _ => @astra.ThemeConfig::default()
   }

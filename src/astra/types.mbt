@@ -177,6 +177,8 @@ pub(all) struct ThemeConfig {
   primary_color : String?
   /// Logo URL
   logo : String?
+  /// Header configuration
+  header : HeaderConfig?
   /// Footer configuration
   footer : FooterConfig?
   /// Social links (GitHub, Twitter, etc.)
@@ -196,7 +198,13 @@ pub(all) struct SocialLink {
 /// Default theme configuration
 /// Luna theme: Moon-inspired gold color
 pub fn ThemeConfig::default() -> ThemeConfig {
-  { primary_color: Some("#fbbf24"), logo: None, footer: None, social_links: [] }
+  {
+    primary_color: Some("#fbbf24"),
+    logo: None,
+    header: None,
+    footer: None,
+    social_links: [],
+  }
 }
 
 ///|
@@ -226,7 +234,75 @@ pub(all) struct FooterConfig {
   copyright : String?
   /// Footer link columns (Docusaurus-style)
   links : Array[FooterColumn]
+  /// Top section elements
+  top : Array[FooterElement]
+  /// Bottom section elements
+  bottom : Array[FooterElement]
 } derive(ToJson, FromJson)
+
+// =============================================================================
+// Header/Footer Element System
+// =============================================================================
+
+///|
+/// Header element types for compositional header layout
+pub(all) enum HeaderElement {
+  /// Site logo or title
+  Logo
+  /// Navigation links from config.nav
+  NavLinks
+  /// Search box
+  Search
+  /// Theme toggle button (dark/light)
+  ThemeToggle
+  /// Social links (GitHub, Twitter, etc.)
+  SocialLinks
+  /// Language switcher dropdown
+  LangSwitcher
+  /// Flexible spacer
+  Spacer
+  /// Custom component by tag name
+  Custom(String)
+} derive(Eq, Show, ToJson, FromJson)
+
+///|
+/// Footer element types
+pub(all) enum FooterElement {
+  /// Link columns
+  Columns
+  /// Footer message
+  Message
+  /// Copyright text
+  Copyright
+  /// Social links
+  SocialLinks
+  /// Custom component by tag name
+  Custom(String)
+} derive(Eq, Show, ToJson, FromJson)
+
+///|
+/// Header configuration with element slots
+pub(all) struct HeaderConfig {
+  /// Elements in left section
+  left : Array[HeaderElement]
+  /// Elements in center section
+  center : Array[HeaderElement]
+  /// Elements in right section
+  right : Array[HeaderElement]
+  /// Sticky header (fixed on scroll)
+  sticky : Bool
+} derive(ToJson, FromJson)
+
+///|
+/// Default header configuration
+pub fn HeaderConfig::default() -> HeaderConfig {
+  {
+    left: [Logo],
+    center: [],
+    right: [NavLinks, LangSwitcher, SocialLinks, ThemeToggle],
+    sticky: false,
+  }
+}
 
 ///|
 /// OGP (Open Graph Protocol) configuration

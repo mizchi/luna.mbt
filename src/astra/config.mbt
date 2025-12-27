@@ -313,6 +313,10 @@ fn parse_theme_config(obj : Map[String, Json]) -> ThemeConfig {
     @json_utils.extract_string(theme_obj, "primaryColor", "#3451b2"),
   )
   let logo = @json_utils.extract_string_opt(theme_obj, "logo")
+  let header = match @json_utils.extract_object(theme_obj, "header") {
+    Some(header_obj) => Some(parse_header_config(header_obj))
+    None => None
+  }
   let footer = match @json_utils.extract_object(theme_obj, "footer") {
     Some(footer_obj) => {
       let message = @json_utils.extract_string_opt(footer_obj, "message")
@@ -321,7 +325,15 @@ fn parse_theme_config(obj : Map[String, Json]) -> ThemeConfig {
         Some(Array(arr)) => parse_footer_columns(arr)
         _ => []
       }
-      Some(FooterConfig::{ message, copyright, links })
+      let top = match footer_obj.get("top") {
+        Some(Array(arr)) => parse_footer_elements(arr)
+        _ => []
+      }
+      let bottom = match footer_obj.get("bottom") {
+        Some(Array(arr)) => parse_footer_elements(arr)
+        _ => []
+      }
+      Some(FooterConfig::{ message, copyright, links, top, bottom })
     }
     None => None
   }
@@ -329,7 +341,80 @@ fn parse_theme_config(obj : Map[String, Json]) -> ThemeConfig {
     Some(Array(arr)) => parse_social_links(arr)
     _ => []
   }
-  ThemeConfig::{ primary_color, logo, footer, social_links }
+  ThemeConfig::{ primary_color, logo, header, footer, social_links }
+}
+
+///|
+/// Parse header configuration
+fn parse_header_config(obj : Map[String, Json]) -> HeaderConfig {
+  let left = match obj.get("left") {
+    Some(Array(arr)) => parse_header_elements(arr)
+    _ => [Logo]
+  }
+  let center = match obj.get("center") {
+    Some(Array(arr)) => parse_header_elements(arr)
+    _ => []
+  }
+  let right = match obj.get("right") {
+    Some(Array(arr)) => parse_header_elements(arr)
+    _ => [NavLinks, LangSwitcher, SocialLinks, ThemeToggle]
+  }
+  let sticky = match obj.get("sticky") {
+    Some(True) => true
+    _ => false
+  }
+  HeaderConfig::{ left, center, right, sticky }
+}
+
+///|
+/// Parse header elements array
+fn parse_header_elements(arr : Array[Json]) -> Array[HeaderElement] {
+  let result : Array[HeaderElement] = []
+  for item in arr {
+    match item {
+      String(s) =>
+        match s {
+          "logo" => result.push(Logo)
+          "nav-links" => result.push(NavLinks)
+          "search" => result.push(Search)
+          "theme-toggle" => result.push(ThemeToggle)
+          "social-links" => result.push(SocialLinks)
+          "lang-switcher" => result.push(LangSwitcher)
+          "spacer" => result.push(Spacer)
+          _ =>
+            // Treat unknown strings as custom component tags
+            if s.contains("-") {
+              result.push(Custom(s))
+            }
+        }
+      _ => ()
+    }
+  }
+  result
+}
+
+///|
+/// Parse footer elements array
+fn parse_footer_elements(arr : Array[Json]) -> Array[FooterElement] {
+  let result : Array[FooterElement] = []
+  for item in arr {
+    match item {
+      String(s) =>
+        match s {
+          "columns" => result.push(FooterElement::Columns)
+          "message" => result.push(FooterElement::Message)
+          "copyright" => result.push(FooterElement::Copyright)
+          "social-links" => result.push(FooterElement::SocialLinks)
+          _ =>
+            // Treat unknown strings as custom component tags
+            if s.contains("-") {
+              result.push(FooterElement::Custom(s))
+            }
+        }
+      _ => ()
+    }
+  }
+  result
 }
 
 ///|

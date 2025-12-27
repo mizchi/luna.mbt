@@ -598,6 +598,10 @@ fn parse_theme_config(obj : Map[String, Json]) -> @astra.ThemeConfig {
     Some(String(s)) => Some(s)
     _ => None
   }
+  let header : @astra.HeaderConfig? = match obj.get("header") {
+    Some(Object(header_obj)) => Some(parse_header_config(header_obj))
+    _ => None
+  }
   let footer : @astra.FooterConfig? = match obj.get("footer") {
     Some(Object(footer_obj)) => parse_footer_config(footer_obj)
     _ => None
@@ -606,7 +610,50 @@ fn parse_theme_config(obj : Map[String, Json]) -> @astra.ThemeConfig {
     Some(Array(arr)) => parse_social_links(arr)
     _ => []
   }
-  @astra.ThemeConfig::{ primary_color, logo, footer, social_links }
+  @astra.ThemeConfig::{ primary_color, logo, header, footer, social_links }
+}
+
+///|
+fn parse_header_config(obj : Map[String, Json]) -> @astra.HeaderConfig {
+  let left = match obj.get("left") {
+    Some(Array(arr)) => parse_header_elements(arr)
+    _ => [@astra.Logo]
+  }
+  let center = match obj.get("center") {
+    Some(Array(arr)) => parse_header_elements(arr)
+    _ => []
+  }
+  let right = match obj.get("right") {
+    Some(Array(arr)) => parse_header_elements(arr)
+    _ => [@astra.NavLinks, @astra.LangSwitcher, @astra.SocialLinks, @astra.ThemeToggle]
+  }
+  let sticky = match obj.get("sticky") {
+    Some(True) => true
+    _ => false
+  }
+  @astra.HeaderConfig::{ left, center, right, sticky }
+}
+
+///|
+fn parse_header_elements(arr : Array[Json]) -> Array[@astra.HeaderElement] {
+  let result : Array[@astra.HeaderElement] = []
+  for item in arr {
+    match item {
+      String(s) =>
+        match s {
+          "logo" => result.push(@astra.Logo)
+          "nav-links" => result.push(@astra.NavLinks)
+          "search" => result.push(@astra.Search)
+          "theme-toggle" => result.push(@astra.ThemeToggle)
+          "social-links" => result.push(@astra.SocialLinks)
+          "lang-switcher" => result.push(@astra.LangSwitcher)
+          "spacer" => result.push(@astra.Spacer)
+          _ => if s.contains("-") { result.push(@astra.Custom(s)) }
+        }
+      _ => ()
+    }
+  }
+  result
 }
 
 ///|
@@ -623,7 +670,34 @@ fn parse_footer_config(obj : Map[String, Json]) -> @astra.FooterConfig? {
     Some(Array(arr)) => parse_footer_columns(arr)
     _ => []
   }
-  Some(@astra.FooterConfig::{ message, copyright, links })
+  let top = match obj.get("top") {
+    Some(Array(arr)) => parse_footer_elements(arr)
+    _ => []
+  }
+  let bottom = match obj.get("bottom") {
+    Some(Array(arr)) => parse_footer_elements(arr)
+    _ => []
+  }
+  Some(@astra.FooterConfig::{ message, copyright, links, top, bottom })
+}
+
+///|
+fn parse_footer_elements(arr : Array[Json]) -> Array[@astra.FooterElement] {
+  let result : Array[@astra.FooterElement] = []
+  for item in arr {
+    match item {
+      String(s) =>
+        match s {
+          "columns" => result.push(@astra.FooterElement::Columns)
+          "message" => result.push(@astra.FooterElement::Message)
+          "copyright" => result.push(@astra.FooterElement::Copyright)
+          "social-links" => result.push(@astra.FooterElement::SocialLinks)
+          _ => if s.contains("-") { result.push(@astra.FooterElement::Custom(s)) }
+        }
+      _ => ()
+    }
+  }
+  result
 }
 
 ///|

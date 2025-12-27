@@ -1,13 +1,96 @@
 // Astra Components - Header / Navigation Bar
-// Includes: NavBar, NavItem, ThemeToggle, SocialLinks, LanguageSwitcher
+// Element-based compositional header system
 
 ///|
-/// Build the main navigation header
+/// Build the main navigation header using element configuration
 pub fn build_nav(
   ctx : @astra.BuildContext,
   page : @astra.PageMeta,
 ) -> @luna.Node[Unit] {
-  // Logo/Title
+  // Get header config or use default
+  let header_config = ctx.config.theme.header.unwrap_or(
+    @astra.HeaderConfig::default(),
+  )
+
+  // Build left section
+  let left_elements = render_header_elements(
+    header_config.left,
+    ctx,
+    page,
+    "nav-left",
+  )
+
+  // Build center section
+  let center_elements = render_header_elements(
+    header_config.center,
+    ctx,
+    page,
+    "nav-center",
+  )
+
+  // Build right section
+  let right_elements = render_header_elements(
+    header_config.right,
+    ctx,
+    page,
+    "nav-right",
+  )
+
+  // Build header with sticky class if configured
+  let header_class = if header_config.sticky {
+    "nav-bar nav-bar-sticky"
+  } else {
+    "nav-bar"
+  }
+  h("header", [attr("class", header_class)], [
+    h("div", [attr("class", "nav-container")], [
+      left_elements,
+      center_elements,
+      right_elements,
+    ]),
+  ])
+}
+
+///|
+/// Render an array of header elements into a container
+fn render_header_elements(
+  elements : Array[@astra.HeaderElement],
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  class_name : String,
+) -> @luna.Node[Unit] {
+  if elements.is_empty() {
+    return empty()
+  }
+  let children : Array[@luna.Node[Unit]] = []
+  for element in elements {
+    children.push(render_header_element(element, ctx, page))
+  }
+  h("div", [attr("class", class_name)], children)
+}
+
+///|
+/// Render a single header element
+fn render_header_element(
+  element : @astra.HeaderElement,
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+) -> @luna.Node[Unit] {
+  match element {
+    @astra.Logo => build_logo(ctx)
+    @astra.NavLinks => build_nav_links(ctx)
+    @astra.Search => build_search()
+    @astra.ThemeToggle => build_theme_toggle()
+    @astra.SocialLinks => build_social_links(ctx.config.theme.social_links)
+    @astra.LangSwitcher => build_language_switcher(ctx, page)
+    @astra.Spacer => h("div", [attr("class", "nav-spacer")], [])
+    @astra.Custom(tag) => h(tag, [], [])
+  }
+}
+
+///|
+/// Build logo/title element
+fn build_logo(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
   let logo = match ctx.config.theme.logo {
     Some(src) =>
       h(
@@ -22,33 +105,21 @@ pub fn build_nav(
     None =>
       h("span", [attr("class", "nav-title")], [@luna.text(ctx.config.title)])
   }
-  let home_link = h(
+  h(
     "a",
     [attr("href", ctx.config.base_url), attr("class", "nav-home")],
     [logo],
   )
+}
 
-  // Nav items
+///|
+/// Build navigation links from config.nav
+fn build_nav_links(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
+  if ctx.config.nav.is_empty() {
+    return empty()
+  }
   let nav_items = ctx.config.nav.map(item => build_nav_item(item))
-
-  // Language switcher
-  let lang_switcher = build_language_switcher(ctx, page)
-
-  // Theme toggle button
-  let theme_toggle = build_theme_toggle()
-
-  // Social links (GitHub, etc.)
-  let social_links = build_social_links(ctx.config.theme.social_links)
-
-  // Combine nav links, language switcher, social links, and theme toggle
-  let nav_children : Array[@luna.Node[Unit]] = nav_items.copy()
-  nav_children.push(lang_switcher)
-  nav_children.push(social_links)
-  nav_children.push(theme_toggle)
-  let nav_links = h("div", [attr("class", "nav-links")], nav_children)
-  h("header", [attr("class", "nav-bar")], [
-    h("div", [attr("class", "nav-container")], [home_link, nav_links]),
-  ])
+  h("nav", [attr("class", "nav-links")], nav_items)
 }
 
 ///|
@@ -71,6 +142,22 @@ pub fn build_nav_item(item : @astra.NavItem) -> @luna.Node[Unit] {
       h("div", [attr("class", "nav-dropdown-menu")], dropdown_items),
     ])
   }
+}
+
+///|
+/// Build search box (placeholder for now)
+fn build_search() -> @luna.Node[Unit] {
+  h("div", [attr("class", "nav-search")], [
+    h(
+      "input",
+      [
+        attr("type", "search"),
+        attr("placeholder", "Search..."),
+        attr("class", "search-input"),
+      ],
+      [],
+    ),
+  ])
 }
 
 ///|
