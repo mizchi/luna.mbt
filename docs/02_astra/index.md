@@ -23,7 +23,9 @@ Astra is Luna's static site generator for documentation and content sites.
 
 - [Dynamic Routes](/astra/dynamic-routes/) - Generate static pages from parameters
 - [Islands](/astra/islands/) - Embed interactive components in static pages
+- [Deploy](/astra/deploy/) - Deploy to various platforms
 - [ISR](/astra/isr/) - Incremental Static Regeneration for dynamic content
+- [Components](/astra/components/) - Reusable UI components (Header, Footer, Blog, Themes)
 
 ## Quick Start
 
