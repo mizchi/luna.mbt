@@ -42,7 +42,10 @@
 ### Sol (フルスタック)
 
 **中優先**
-- [ ] ISR (Incremental Static Regeneration) → Astra統合
+- [x] ISR (Incremental Static Regeneration) → Astra統合
+  - [x] ISRManifest / ISRPageEntry を core/isr に共有化
+  - [x] SWRキャッシュ実装 (stale-while-revalidate)
+  - [x] SQLite例: `examples/sol_sqlite/`
 - [ ] データキャッシング (メモ化、SWR)
 - [ ] リクエスト検証 (スキーマバリデーション)
 
@@ -51,24 +54,20 @@
 
 ### Sol/Astra 共通化
 
-**共有可能なパーツ**
+**完了**
+- [x] ISR型共有 (`src/core/isr/` - ISRManifest, ISRPageEntry, CacheEntry)
+- [x] ルートパターンユーティリティ (`src/core/routes/pattern_utils.mbt`)
+  - extract_url_pattern, parse_bracket_param, normalize_url_path
+- [x] 動的ルート解析 (`_id_`, `___all___` パターンマッチ) → core/routes
+- [x] sitemap/RSS/llms.txt 生成 → `src/core/ssg/generators.mbt`
+- [x] DocumentTree を Sol でも利用可能に
+  - `src/core/ssg/tree_builder.mbt` - 汎用ビルダー
+  - `@ssg.build_tree_from_entries()` で Sol から構築可能
 
-- [ ] 動的ルート解析 (`_id_`, `___all___` パターンマッチ)
+**未完了**
 - [ ] 画像最適化パイプライン
-- [ ] sitemap/RSS/llms.txt 生成
 - [ ] ディスクキャッシュ層 (ビルド成果物)
 - [ ] アセットハッシング
-
-**ISR 実装案**
-- Astra の静的生成 + Sol のランタイム再生成を統合
-- `revalidate: number` でページ単位の TTL 設定
-- ビルド時: Astra で静的生成
-- ランタイム: Sol で期限切れ時に再生成
-
-**統合のステップ**
-1. [ ] src/core/ssg を sol/astra 両方から使う共通層に
-2. [ ] FileSystem trait で静的生成出力を抽象化
-3. [ ] Astra の DocumentTree を Sol でも利用可能に
 
 ### Luna UI / DX
 

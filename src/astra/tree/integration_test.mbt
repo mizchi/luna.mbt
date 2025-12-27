@@ -60,6 +60,7 @@ fn create_page_meta(
       ssr: false,
       renderer: None,
       noindex: false,
+      revalidate: None,
     },
   }
 }
