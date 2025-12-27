@@ -48,12 +48,6 @@ pub fn check_status(entry : CacheEntry?, now : Int64) -> CacheStatus {
 // Time Utilities
 // =============================================================================
 
-///|
-/// Get current timestamp in milliseconds
-pub fn now_ms() -> Int64 {
-  ffi_now_ms()
-}
-
-///|
-extern "js" fn ffi_now_ms() -> Int64 =
-  #| () => BigInt(Date.now())
+// NOTE: now_ms() moved to sol/isr/cache.mbt
+// Core module should be environment-agnostic.
+// Use check_status(entry, now) with caller-provided timestamp.
