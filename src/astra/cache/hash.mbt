@@ -1,14 +1,7 @@
 ///|
-/// FNV-1a Hash Implementation for Cache Keys
+/// Astra-specific Hash Utilities
 ///
-/// NOTE: Hash utilities moved to core/cache/hash.mbt for sharing with Sol.
-/// This file re-exports for backward compatibility.
-
-///|
-/// FNV-1a 32-bit hash
-pub fn fnv1a(data : String) -> String {
-  @core_cache.fnv1a(data)
-}
+/// Uses core/cache/hash.mbt for underlying hash functions.
 
 ///|
 /// Compute hash for a page's cache key
@@ -34,7 +27,7 @@ pub fn compute_config_hash(config : @astra.SsgConfig) -> String {
     },
     config.theme.primary_color.unwrap_or(""),
   ]
-  fnv1a(parts.join("\u0000"))
+  @core_cache.fnv1a(parts.join("\u0000"))
 }
 
 ///|

@@ -92,12 +92,12 @@ test "CacheManager::with_fs - clear removes all" {
 
 ///|
 test "fnv1a - consistent hashing" {
-  let hash1 = fnv1a("test content")
-  let hash2 = fnv1a("test content")
+  let hash1 = @core_cache.fnv1a("test content")
+  let hash2 = @core_cache.fnv1a("test content")
   assert_eq(hash1, hash2)
 
   // Different content produces different hash
-  let hash3 = fnv1a("different content")
+  let hash3 = @core_cache.fnv1a("different content")
   assert_true(hash1 != hash3)
 }
 
