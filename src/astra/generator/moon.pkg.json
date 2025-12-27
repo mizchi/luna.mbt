@@ -13,6 +13,7 @@
     { "path": "mizchi/luna/astra/adapters", "alias": "adapters" },
     { "path": "mizchi/luna/astra/cache", "alias": "cache" },
     { "path": "mizchi/luna/astra/isr", "alias": "isr" },
+    { "path": "mizchi/luna/astra/components", "alias": "components" },
     { "path": "mizchi/luna/core/ssg", "alias": "ssg" },
     { "path": "mizchi/luna/core/routes", "alias": "core_routes" },
     { "path": "mizchi/luna/internal/utils", "alias": "utils" },

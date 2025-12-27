@@ -1022,9 +1022,9 @@ fn build_home_layout(
   _frontmatter : @astra.Frontmatter,
   content : @luna.Node[Unit],
 ) -> @luna.Node[Unit] {
-  let nav = build_nav(ctx, page)
+  let nav = @components.build_nav(ctx, page)
   let main = h("main", [attr("class", "home-content")], [content])
-  let footer = build_footer(ctx)
+  let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-home")], [nav, main, footer])
 }
 
@@ -1036,9 +1036,9 @@ fn build_default_layout(
   _frontmatter : @astra.Frontmatter,
   content : @luna.Node[Unit],
 ) -> @luna.Node[Unit] {
-  let nav = build_nav(ctx, page)
+  let nav = @components.build_nav(ctx, page)
   let main = h("main", [attr("class", "main-content")], [content])
-  let footer = build_footer(ctx)
+  let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-default")], [nav, main, footer])
 }
 
@@ -1051,7 +1051,7 @@ fn build_doc_layout(
   content : @luna.Node[Unit],
   toc : Array[@markdown.TocItem],
 ) -> @luna.Node[Unit] {
-  let nav = build_nav(ctx, page)
+  let nav = @components.build_nav(ctx, page)
 
   // Sidebar (filtered by current locale)
   let sidebar_groups = @routes.get_sidebar_for_path(
@@ -1074,7 +1074,7 @@ fn build_doc_layout(
   }
 
   // Breadcrumb
-  let breadcrumb = build_breadcrumb(ctx, page)
+  let breadcrumb = @components.build_breadcrumb(ctx, page)
 
   // Main content
   let article = h("article", [attr("class", "doc-content markdown-body")], [
@@ -1083,519 +1083,21 @@ fn build_doc_layout(
 
   // TOC (outline)
   let toc_vnode = if not(toc.is_empty()) {
-    build_toc(toc)
+    @components.build_toc(toc)
   } else {
     @luna.fragment([])
   }
 
   // Prev/Next navigation
-  let prev_next = build_prev_next(ctx, page)
+  let prev_next = @components.build_prev_next(ctx, page)
   let main = h("main", [attr("class", "doc-main")], [
     mobile_sidebar, breadcrumb, article, prev_next,
   ])
   let content_wrapper = h("div", [attr("class", "doc-container")], [
     sidebar, main, toc_vnode,
   ])
-  let footer = build_footer(ctx)
+  let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-doc")], [nav, content_wrapper, footer])
-}
-
-// =============================================================================
-// Component Building
-// =============================================================================
-
-///|
-/// Build navigation bar with language switcher
-fn build_nav(
-  ctx : @astra.BuildContext,
-  page : @astra.PageMeta,
-) -> @luna.Node[Unit] {
-  // Logo/Title
-  let logo = match ctx.config.theme.logo {
-    Some(src) =>
-      h(
-        "img",
-        [
-          attr("src", src),
-          attr("alt", ctx.config.title),
-          attr("class", "nav-logo"),
-        ],
-        [],
-      )
-    None =>
-      h("span", [attr("class", "nav-title")], [@luna.text(ctx.config.title)])
-  }
-  let home_link = h(
-    "a",
-    [attr("href", ctx.config.base_url), attr("class", "nav-home")],
-    [logo],
-  )
-
-  // Nav items
-  let nav_items = ctx.config.nav.map(item => build_nav_item(item))
-
-  // Language switcher
-  let lang_switcher = build_language_switcher(ctx, page)
-
-  // Theme toggle button
-  let theme_toggle = build_theme_toggle()
-
-  // Social links (GitHub, etc.)
-  let social_links = build_social_links(ctx.config.theme.social_links)
-
-  // Combine nav links, language switcher, social links, and theme toggle
-  let nav_children : Array[@luna.Node[Unit]] = nav_items.copy()
-  nav_children.push(lang_switcher)
-  nav_children.push(social_links)
-  nav_children.push(theme_toggle)
-  let nav_links = h("div", [attr("class", "nav-links")], nav_children)
-  h("header", [attr("class", "nav-bar")], [
-    h("div", [attr("class", "nav-container")], [home_link, nav_links]),
-  ])
-}
-
-///|
-/// Build social links (GitHub, Twitter, etc.)
-fn build_social_links(links : Array[@astra.SocialLink]) -> @luna.Node[Unit] {
-  if links.is_empty() {
-    return @luna.fragment([])
-  }
-  let link_nodes = links.map(link => {
-    let icon = build_social_icon(link.icon)
-    h(
-      "a",
-      [
-        attr("href", link.link),
-        attr("class", "social-link"),
-        attr("target", "_blank"),
-        attr("rel", "noopener noreferrer"),
-        attr("aria-label", link.icon),
-      ],
-      [icon],
-    )
-  })
-  h("div", [attr("class", "social-links")], link_nodes)
-}
-
-///|
-/// Build SVG icon element for social platform
-fn build_social_icon(icon : String) -> @luna.Node[Unit] {
-  let path_d = match icon {
-    "github" =>
-      "M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-    "twitter" | "x" =>
-      "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-    _ => ""
-  }
-  if path_d.is_empty() {
-    return @luna.fragment([])
-  }
-  h(
-    "svg",
-    [
-      attr("viewBox", "0 0 24 24"),
-      attr("width", "20"),
-      attr("height", "20"),
-      attr("fill", "currentColor"),
-    ],
-    [h("path", [attr("d", path_d)], [])],
-  )
-}
-
-///|
-/// Build language switcher dropdown
-fn build_language_switcher(
-  ctx : @astra.BuildContext,
-  page : @astra.PageMeta,
-) -> @luna.Node[Unit] {
-  let i18n = ctx.config.i18n
-
-  // Only show if more than one locale
-  if i18n.locales.length() <= 1 {
-    return @luna.fragment([])
-  }
-
-  // Get available translations
-  let translations = @routes.get_available_translations(
-    ctx.pages,
-    page.canonical_path,
-    i18n,
-  )
-
-  // Find current locale label
-  let current_label = i18n.locales
-    .iter()
-    .find_first(l => l.code == page.locale)
-    .map(l => l.label)
-    .unwrap_or(page.locale)
-
-  // Build dropdown items
-  let items : Array[@luna.Node[Unit]] = []
-  for item in translations {
-    let (locale, translation) = item
-    let target_url = match translation {
-      Some(p) => p.url_path
-      None =>
-        // Fallback to default locale version
-        match @routes.find_fallback_page(ctx.pages, page.canonical_path, i18n) {
-          Some(fallback) => fallback.url_path
-          None => page.canonical_path // Just use canonical if no fallback
-        }
-    }
-    let is_current = locale.code == page.locale
-    let class_name = if is_current {
-      "lang-item lang-item-active"
-    } else {
-      "lang-item"
-    }
-    items.push(
-      h("a", [attr("href", target_url), attr("class", class_name)], [
-        @luna.text(locale.label),
-      ]),
-    )
-  }
-
-  // Build dropdown with details/summary
-  let summary = h("summary", [attr("class", "lang-trigger")], [
-    @luna.text("🌐 " + current_label),
-  ])
-  let menu = h("div", [attr("class", "lang-menu")], items)
-  h("details", [attr("class", "lang-switcher")], [summary, menu])
-}
-
-///|
-/// Build theme toggle button (dark/light mode)
-fn build_theme_toggle() -> @luna.Node[Unit] {
-  // Sun icon (for dark mode - click to switch to light)
-  let sun_icon = h(
-    "svg",
-    [
-      attr("class", "theme-icon theme-icon-light"),
-      attr("viewBox", "0 0 24 24"),
-      attr("width", "18"),
-      attr("height", "18"),
-      attr("fill", "none"),
-      attr("stroke", "currentColor"),
-      attr("stroke-width", "2"),
-    ],
-    [
-      h("circle", [attr("cx", "12"), attr("cy", "12"), attr("r", "5")], []),
-      h(
-        "path",
-        [
-          attr(
-            "d", "M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42",
-          ),
-        ],
-        [],
-      ),
-    ],
-  )
-
-  // Moon icon (for light mode - click to switch to dark)
-  let moon_icon = h(
-    "svg",
-    [
-      attr("class", "theme-icon theme-icon-dark"),
-      attr("viewBox", "0 0 24 24"),
-      attr("width", "18"),
-      attr("height", "18"),
-      attr("fill", "none"),
-      attr("stroke", "currentColor"),
-      attr("stroke-width", "2"),
-    ],
-    [
-      h(
-        "path",
-        [attr("d", "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z")],
-        [],
-      ),
-    ],
-  )
-  h(
-    "button",
-    [
-      attr("class", "theme-toggle"),
-      attr("type", "button"),
-      attr("aria-label", "Toggle dark mode"),
-      attr("onclick", "toggleTheme()"),
-    ],
-    [sun_icon, moon_icon],
-  )
-}
-
-///|
-/// Build single nav item
-fn build_nav_item(item : @astra.NavItem) -> @luna.Node[Unit] {
-  if item.items.is_empty() {
-    // Simple link
-    h("a", [attr("href", item.link), attr("class", "nav-link")], [
-      @luna.text(item.text),
-    ])
-  } else {
-    // Dropdown (simplified - actual dropdown needs JS)
-    let dropdown_items = item.items.map(fn(sub) {
-      h("a", [attr("href", sub.link), attr("class", "nav-dropdown-item")], [
-        @luna.text(sub.text),
-      ])
-    })
-    h("div", [attr("class", "nav-dropdown")], [
-      h("span", [attr("class", "nav-dropdown-trigger")], [@luna.text(item.text)]),
-      h("div", [attr("class", "nav-dropdown-menu")], dropdown_items),
-    ])
-  }
-}
-
-///|
-/// Build table of contents
-fn build_toc(toc : Array[@markdown.TocItem]) -> @luna.Node[Unit] {
-  let items = toc.map(fn(item) {
-    let indent_class = "toc-item toc-level-\{item.level}"
-    h("li", [attr("class", indent_class)], [
-      h("a", [attr("href", "#" + item.id)], [@luna.text(item.text)]),
-    ])
-  })
-
-  // Collapse button at bottom
-  let collapse_btn = h(
-    "button",
-    [
-      attr("class", "toc-collapse-btn"),
-      attr("type", "button"),
-      attr("onclick", "document.body.classList.toggle('toc-collapsed')"),
-      attr("aria-label", "Toggle table of contents"),
-    ],
-    [h("span", [attr("class", "toc-collapse-icon")], [])],
-  )
-  let title = h("div", [attr("class", "toc-title")], [
-    @luna.text("On this page"),
-  ])
-  let content = h("div", [attr("class", "toc-content")], [
-    title,
-    h("ul", [attr("class", "toc-list")], items),
-  ])
-  h("aside", [attr("class", "toc")], [content, collapse_btn])
-}
-
-///|
-/// Slice string from start to end (for breadcrumb)
-fn bc_slice(s : String, start : Int, end : Int) -> String {
-  let arr = s.to_array()
-  let chars : Array[Char] = []
-  for i = start; i < end && i < arr.length(); i = i + 1 {
-    chars.push(arr[i])
-  }
-  String::from_array(chars)
-}
-
-///|
-/// Slice string from start to end (for breadcrumb)
-fn bc_slice_from(s : String, start : Int) -> String {
-  let arr = s.to_array()
-  let chars : Array[Char] = []
-  for i = start; i < arr.length(); i = i + 1 {
-    chars.push(arr[i])
-  }
-  String::from_array(chars)
-}
-
-///|
-/// Build breadcrumb navigation
-fn build_breadcrumb(
-  ctx : @astra.BuildContext,
-  page : @astra.PageMeta,
-) -> @luna.Node[Unit] {
-  // Parse URL path into segments
-  let path = page.url_path.trim_start(chars="/").trim_end(chars="/").to_string()
-  if path.is_empty() {
-    return @luna.fragment([])
-  }
-
-  // Split path into segments
-  let segments : Array[String] = []
-  let chars = path.to_array()
-  let mut start = 0
-  for i = 0; i < chars.length(); i = i + 1 {
-    if chars[i] == '/' {
-      if i > start {
-        segments.push(bc_slice(path, start, i))
-      }
-      start = i + 1
-    }
-  }
-  if start < chars.length() {
-    segments.push(bc_slice_from(path, start))
-  }
-  if segments.is_empty() {
-    return @luna.fragment([])
-  }
-
-  // Build breadcrumb items
-  let items : Array[@luna.Node[Unit]] = []
-  let mut current_path = ""
-  for i = 0; i < segments.length(); i = i + 1 {
-    let segment = segments[i]
-    current_path = current_path + "/" + segment
-
-    // Find page title for this path
-    let title = find_page_title(ctx.pages, current_path + "/", page.locale).unwrap_or(
-      capitalize_segment(segment),
-    )
-
-    // Add separator (except for first item)
-    if i > 0 {
-      items.push(
-        h("span", [attr("class", "breadcrumb-separator")], [@luna.text("/")]),
-      )
-    }
-
-    // Last item is current page (no link)
-    if i == segments.length() - 1 {
-      items.push(
-        h("span", [attr("class", "breadcrumb-current")], [@luna.text(title)]),
-      )
-    } else {
-      items.push(
-        h(
-          "a",
-          [attr("href", current_path + "/"), attr("class", "breadcrumb-link")],
-          [@luna.text(title)],
-        ),
-      )
-    }
-  }
-  h("nav", [attr("class", "breadcrumb")], items)
-}
-
-///|
-/// Find page title by URL path
-fn find_page_title(
-  pages : Array[@astra.PageMeta],
-  url_path : String,
-  locale : String,
-) -> String? {
-  for page in pages {
-    if page.url_path == url_path && page.locale == locale {
-      return page.frontmatter.title
-    }
-  }
-  None
-}
-
-///|
-/// Capitalize first letter
-fn capitalize(s : String) -> String {
-  if s.is_empty() {
-    return s
-  }
-  let chars = s.to_array()
-  let first = chars[0]
-  if first >= 'a' && first <= 'z' {
-    chars[0] = Int::unsafe_to_char(first.to_int() - 32)
-  }
-  String::from_array(chars)
-}
-
-///|
-/// Capitalize segment for display (remove numbers prefix, replace dashes)
-fn capitalize_segment(segment : String) -> String {
-  // Remove leading number prefix (e.g., "01_" or "01-")
-  let mut s = segment
-  let chars = s.to_array()
-  let mut skip = 0
-  for i = 0; i < chars.length(); i = i + 1 {
-    if chars[i] >= '0' && chars[i] <= '9' {
-      skip = i + 1
-    } else if (chars[i] == '_' || chars[i] == '-') && skip == i {
-      skip = i + 1
-      break
-    } else {
-      break
-    }
-  }
-  if skip > 0 && skip < chars.length() {
-    s = bc_slice_from(s, skip)
-  }
-
-  // Replace dashes/underscores with spaces and capitalize
-  let result = s.replace(old="-", new=" ").replace(old="_", new=" ")
-  capitalize(result)
-}
-
-///|
-/// Build prev/next navigation
-fn build_prev_next(
-  ctx : @astra.BuildContext,
-  page : @astra.PageMeta,
-) -> @luna.Node[Unit] {
-  let prev = @routes.find_prev_page(ctx.pages, page.url_path)
-  let next = @routes.find_next_page(ctx.pages, page.url_path)
-  let children : Array[@luna.Node[Unit]] = []
-  if prev is Some(link) {
-    children.push(
-      h("a", [attr("href", link.link), attr("class", "prev-link")], [
-        h("span", [attr("class", "label")], [@luna.text("Previous")]),
-        h("span", [attr("class", "title")], [@luna.text(link.text)]),
-      ]),
-    )
-  }
-  if next is Some(link) {
-    children.push(
-      h("a", [attr("href", link.link), attr("class", "next-link")], [
-        h("span", [attr("class", "label")], [@luna.text("Next")]),
-        h("span", [attr("class", "title")], [@luna.text(link.text)]),
-      ]),
-    )
-  }
-  h("nav", [attr("class", "prev-next")], children)
-}
-
-///|
-/// Build footer
-fn build_footer(ctx : @astra.BuildContext) -> @luna.Node[Unit] {
-  match ctx.config.theme.footer {
-    Some(footer_config) => {
-      let children : Array[@luna.Node[Unit]] = []
-
-      // Render link columns if present
-      if not(footer_config.links.is_empty()) {
-        let columns = footer_config.links.map(fn(col) {
-          let links = col.items.map(fn(link) {
-            h("li", [], [
-              h("a", [attr("href", link.href), attr("class", "footer-link")], [
-                @luna.text(link.label),
-              ]),
-            ])
-          })
-          h("div", [attr("class", "footer-column")], [
-            h("h3", [attr("class", "footer-column-title")], [
-              @luna.text(col.title),
-            ]),
-            h("ul", [attr("class", "footer-links")], links),
-          ])
-        })
-        children.push(h("div", [attr("class", "footer-columns")], columns))
-      }
-
-      // Bottom section with message and copyright
-      let bottom_items : Array[@luna.Node[Unit]] = []
-      if footer_config.message is Some(msg) {
-        bottom_items.push(
-          h("p", [attr("class", "footer-message")], [@luna.text(msg)]),
-        )
-      }
-      if footer_config.copyright is Some(copyright) {
-        bottom_items.push(
-          h("p", [attr("class", "footer-copyright")], [@luna.text(copyright)]),
-        )
-      }
-      if not(bottom_items.is_empty()) {
-        children.push(h("div", [attr("class", "footer-bottom")], bottom_items))
-      }
-      h("footer", [attr("class", "site-footer")], children)
-    }
-    None => @luna.fragment([])
-  }
 }
 
 // =============================================================================
