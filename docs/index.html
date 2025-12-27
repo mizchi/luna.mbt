@@ -128,12 +128,9 @@
     <p class="code-section-subtitle">Get up and running in seconds</p>
   </div>
 
-```bash
-npm install @luna_ui/luna
-```
+<pre><code class="language-bash">npm install @luna_ui/luna</code></pre>
 
-```typescript
-import { createSignal, createEffect } from '@luna_ui/luna';
+<pre><code class="language-typescript">import { createSignal, createEffect } from '@luna_ui/luna';
 
 const [count, setCount] = createSignal(0);
 
@@ -141,8 +138,7 @@ const [count, setCount] = createSignal(0);
 createEffect(() => console.log(count()));
 
 setCount(1);  // Logs: 1
-setCount(c => c + 1);  // Logs: 2
-```
+setCount(c => c + 1);  // Logs: 2</code></pre>
 </section>
 
 <!-- CTA Section -->

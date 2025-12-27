@@ -4,6 +4,7 @@
   "type": "module",
   "description": "MoonBit Island Architecture UI Framework - Workspace Root",
   "scripts": {
+    "doc:dev": "just dev-doc",
     "test": "just test",
     "build": "just build"
   },
