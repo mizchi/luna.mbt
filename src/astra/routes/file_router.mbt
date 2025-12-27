@@ -364,8 +364,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
             @astra.Frontmatter::default()
           }
         }
-        @astra.Component | @astra.TsxComponent =>
-          @astra.Frontmatter::default()
+        @astra.Component | @astra.TsxComponent => @astra.Frontmatter::default()
       }
       let renderer_type = determine_renderer_type(content_type, frontmatter)
       let page = @astra.PageMeta::{

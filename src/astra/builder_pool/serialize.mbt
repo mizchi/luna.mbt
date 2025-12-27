@@ -1061,19 +1061,17 @@ fn parse_page_meta(json : Json) -> @astra.PageMeta? {
     Some(String(rt)) => string_to_renderer_type(rt)
     _ => @ssg.MarkdownRenderer
   }
-  Some(
-    @astra.PageMeta::{
-      source_path,
-      url_path,
-      content_type,
-      renderer_type,
-      frontmatter,
-      last_modified,
-      locale,
-      canonical_path,
-      sort_key,
-    },
-  )
+  Some(@astra.PageMeta::{
+    source_path,
+    url_path,
+    content_type,
+    renderer_type,
+    frontmatter,
+    last_modified,
+    locale,
+    canonical_path,
+    sort_key,
+  })
 }
 
 ///|

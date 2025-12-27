@@ -729,7 +729,10 @@ fn generate_page_with_highlight(
         content
       }
       // Transform internal links (remove numeric prefixes like /00_intro/ -> /intro/)
-      let html_content = transform_internal_links(sanitized, ctx.config.trailing_slash)
+      let html_content = transform_internal_links(
+        sanitized,
+        ctx.config.trailing_slash,
+      )
       // Wrap raw HTML in a fragment
       let vnode = @luna.raw_html(html_content)
       // Use page frontmatter (from file_router, which is default for HTML)
@@ -942,7 +945,10 @@ async fn generate_page_with_highlight_async(
         content
       }
       // Transform internal links (remove numeric prefixes like /00_intro/ -> /intro/)
-      let html_content = transform_internal_links(sanitized, ctx.config.trailing_slash)
+      let html_content = transform_internal_links(
+        sanitized,
+        ctx.config.trailing_slash,
+      )
       let vnode = @luna.raw_html(html_content)
       (page.frontmatter, vnode, [])
     }
