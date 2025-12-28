@@ -166,11 +166,13 @@ astra *args:
 # docs 開発サーバー
 dev-doc:
     @just build-moon
+    cd js/astra && pnpm build
     node target/js/release/build/astra/cli/cli.js dev
 
 # docs ビルド
 build-doc *args:
     @just build-moon
+    cd js/astra && pnpm build
     @echo "Building demo..."
     pnpm vite build
     mv website/public/demo/demo-src/* website/public/demo/ && rm -rf website/public/demo/demo-src
