@@ -49,7 +49,7 @@ export default defineConfig({
   root: '.',
   base: '/demo/',
   build: {
-    outDir: 'docs/public/demo',
+    outDir: 'website/public/demo',
     emptyOutDir: true,
     rollupOptions: {
       input: {
