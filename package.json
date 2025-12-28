@@ -6,14 +6,11 @@
   "scripts": {
     "build:moon": "just build-moon",
     "build:loader": "just build-loader",
-    "build": "turbo run build",
-    "test": "turbo run test",
     "test:moonbit": "just test-moonbit",
     "test:ts": "just test-ts",
     "test:vitest": "just test-vitest",
     "test:browser": "just test-browser",
-    "test:e2e": "just test-e2e",
-    "doc:dev": "just dev-doc"
+    "test:e2e": "just test-e2e"
   },
   "devDependencies": {
     "0x": "^6.0.0",
