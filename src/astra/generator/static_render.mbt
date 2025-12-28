@@ -605,8 +605,8 @@ async fn generate_site_internal_async(
   cache_manager.save()
   println("  Cache: \{cache_hits} hits, \{cache_misses} misses")
 
-  // Step 6: Copy static assets (if any)
-  copy_static_assets(ctx)
+  // Step 6: Copy static assets with CSS extraction (async)
+  copy_static_assets_async(ctx)
 
   // Step 7: Build DocumentTree and generate meta files (sitemap, RSS, llms.txt)
   let doc_tree = @tree.build_document_tree(config, pages, cwd)
@@ -1067,6 +1067,92 @@ async fn generate_page_with_highlight_async(
     e => Err("Failed to write \{output_path}: \{e}")
   }
 }
+
+// =============================================================================
+// CSS Utilities Extraction
+// =============================================================================
+
+///|
+/// Extract CSS utilities from source files using static analysis
+/// Returns the extracted CSS string or empty string on failure
+async fn extract_css_utilities(
+  cwd : String,
+  source_dirs : Array[String],
+) -> String {
+  ffi_extract_css_utilities(cwd, source_dirs).wait()
+}
+
+///|
+/// FFI to run CSS extraction script (async version for ESM)
+/// Uses child_process.execSync to run node src/luna/css/extract.js
+extern "js" fn ffi_extract_css_utilities(
+  cwd : String,
+  source_dirs : Array[String],
+) -> @js.Promise[String] =
+  #| async (cwd, sourceDirs) => {
+  #|   try {
+  #|     const cp = await import('child_process');
+  #|     const path = await import('path');
+  #|     const fs = await import('fs');
+  #|
+  #|     // Find extract.js script - try multiple locations
+  #|     const possiblePaths = [
+  #|       // Development: direct path in monorepo
+  #|       path.join(cwd, 'src/luna/css/extract.js'),
+  #|       // NPM package: bundled with astra
+  #|       path.join(cwd, 'node_modules/@luna_ui/astra/css/extract.js'),
+  #|       // Parent project (when running from examples/)
+  #|       path.join(cwd, '../src/luna/css/extract.js'),
+  #|       path.join(cwd, '../../src/luna/css/extract.js'),
+  #|     ];
+  #|
+  #|     let extractScript = null;
+  #|     for (const p of possiblePaths) {
+  #|       if (fs.existsSync(p)) {
+  #|         extractScript = p;
+  #|         break;
+  #|       }
+  #|     }
+  #|
+  #|     if (!extractScript) {
+  #|       // Script not found - silently return empty
+  #|       return '';
+  #|     }
+  #|
+  #|     // Build command with all source directories
+  #|     const dirs = sourceDirs.filter(d => {
+  #|       const fullPath = path.join(cwd, d);
+  #|       return fs.existsSync(fullPath);
+  #|     });
+  #|
+  #|     if (dirs.length === 0) {
+  #|       return '';
+  #|     }
+  #|
+  #|     // Run extraction for each directory and combine results
+  #|     let allCss = '';
+  #|     for (const dir of dirs) {
+  #|       try {
+  #|         const fullDir = path.join(cwd, dir);
+  #|         const result = cp.execSync(`node "${extractScript}" "${fullDir}" --no-warn`, {
+  #|           cwd: cwd,
+  #|           encoding: 'utf-8',
+  #|           stdio: ['pipe', 'pipe', 'pipe'],
+  #|         });
+  #|         if (result && result.trim()) {
+  #|           allCss += result.trim() + '\n';
+  #|         }
+  #|       } catch (e) {
+  #|         // Ignore errors for individual directories
+  #|       }
+  #|     }
+  #|
+  #|     return allCss.trim();
+  #|   } catch (e) {
+  #|     console.error('CSS extraction failed:', e.message);
+  #|     return '';
+  #|   }
+  #| }
 
 // =============================================================================
 // HTML Building
@@ -1642,8 +1728,28 @@ fn ensure_dir(path : String) -> Unit {
 }
 
 ///|
-/// Copy static assets to output directory
+/// Copy static assets to output directory (sync version, no CSS extraction)
 pub fn copy_static_assets(ctx : @astra.BuildContext) -> Unit {
+  copy_static_assets_internal(ctx, "")
+}
+
+///|
+/// Copy static assets to output directory (async version with CSS extraction)
+pub async fn copy_static_assets_async(ctx : @astra.BuildContext) -> Unit {
+  // Extract CSS utilities from source files
+  let utility_css = extract_css_utilities(
+    ctx.cwd,
+    ["src/astra", "src/luna", ctx.config.docs_dir],
+  )
+  copy_static_assets_internal(ctx, utility_css)
+}
+
+///|
+/// Internal implementation of copy_static_assets
+fn copy_static_assets_internal(
+  ctx : @astra.BuildContext,
+  utility_css : String,
+) -> Unit {
   let output_assets = @path.join2(
     @path.join2(ctx.cwd, ctx.config.output_dir),
     "assets",
@@ -1652,8 +1758,17 @@ pub fn copy_static_assets(ctx : @astra.BuildContext) -> Unit {
 
   // Write default CSS
   let css = @assets.get_default_css(ctx.config)
+
+  // Combine with utility CSS if provided
+  let full_css = if utility_css.is_empty() {
+    css
+  } else {
+    println("  Extracted CSS utilities from source files")
+    css + "\n/* === CSS Utilities (auto-extracted) === */\n" + utility_css
+  }
+
   let css_path = @path.join2(output_assets, "style.css")
-  @fs.writeFileSync(css_path, @js.any(css)) catch {
+  @fs.writeFileSync(css_path, @js.any(full_css)) catch {
     _ => ()
   }
 

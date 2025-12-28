@@ -6,7 +6,8 @@
     { "path": "mizchi/luna/luna/static_dom/element", "alias": "element" }
   ],
   "test-import": [
-    { "path": "mizchi/luna/luna/static_dom/element", "alias": "element" }
+    { "path": "mizchi/luna/luna/static_dom/element", "alias": "element" },
+    { "path": "mizchi/luna/luna/css", "alias": "css" }
   ],
   "link": {
     "js": {

@@ -102,6 +102,19 @@ inject-utility-css:
         echo "No utility CSS to inject"
     fi
 
+# CSS ミニファイ（クラス名維持）
+minify-css input output="":
+    #!/usr/bin/env bash
+    if [ -z "{{output}}" ]; then
+        node src/luna/css/minify.js {{input}}
+    else
+        node src/luna/css/minify.js {{input}} --output {{output}}
+    fi
+
+# Astra CSS をミニファイ
+minify-astra-css:
+    node src/luna/css/minify.js src/astra/assets/styles/main.css --output dist-docs/assets/style.min.css
+
 # =============================================================================
 # テスト（ピラミッド構造）
 # =============================================================================

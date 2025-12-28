@@ -273,7 +273,7 @@ async fn run_parallel_build_internal(
     cwd,
     doc_tree: Some(doc_tree),
   }
-  @astra_gen.copy_static_assets(ctx)
+  @astra_gen.copy_static_assets_async(ctx)
 
   // Step 9: Generate meta files
   @astra_gen.generate_meta_files(ctx, doc_tree)

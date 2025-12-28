@@ -192,3 +192,123 @@ fn page() -> @luna.Node[Unit] {
 | `generate_css()` | Base styles only |
 | `generate_full_css()` | All styles (base + pseudo + media) |
 | `reset_all()` | Clear all registries (testing) |
+
+## Build Tools
+
+### CSS Minification
+
+Minify CSS without changing class names (safe for existing templates):
+
+```bash
+# Minify a CSS file
+just minify-css input.css output=output.min.css
+
+# Minify Astra CSS
+just minify-astra-css
+```
+
+Typical reduction: ~24%
+
+### CSS Extraction
+
+Extract CSS utilities from source code (static analysis):
+
+```bash
+# Extract from directory
+just extract-css src
+
+# With file output
+just extract-css src output=utilities.css
+```
+
+### CSS Injection
+
+Append extracted CSS to existing stylesheet:
+
+```bash
+just inject-utility-css
+```
+
+## Architecture Considerations
+
+### Single-Process SSR (Recommended)
+
+CSS utilities work best with single-process SSR:
+
+```moonbit
+fn render_page() -> String {
+  // 1. Render components (populates CSS registry)
+  let html = render_to_string(app())
+
+  // 2. Generate CSS from registry
+  let css = @css.generate_full_css()
+
+  // 3. Inject CSS into HTML
+  "<style>" + css + "</style>" + html
+}
+```
+
+### Multi-Process Builds (e.g., Astra)
+
+For worker-based parallel builds, use **static extraction** instead of runtime generation:
+
+```bash
+# Before build: extract CSS from source
+just extract-css src output=utilities.css
+
+# Build includes the pre-extracted CSS
+```
+
+This is because each worker has its own CSS registry that cannot be merged.
+
+## Best Practices
+
+### Use String Literals
+
+Always use string literals for static extraction compatibility:
+
+```moonbit
+// ✓ Good - can be statically extracted
+css("display", "flex")
+hover("background", "#2563eb")
+
+// ✗ Bad - cannot be extracted, only works at runtime
+let prop = "display"
+css(prop, "flex")
+```
+
+### CSS Variables for Theming
+
+Use CSS variables for theme-dependent values:
+
+```moonbit
+// Works with light/dark themes
+css("color", "var(--text-color)")
+css("background", "var(--bg-color)")
+dark("background", "var(--dark-bg)")
+```
+
+### Combine with Semantic Classes
+
+Hybrid approach - utilities for layout, semantic for complex styles:
+
+```moonbit
+// Utilities for common patterns
+let layout = styles([
+  ("display", "flex"),
+  ("gap", "1rem"),
+])
+
+// Semantic class for complex/themed styles
+h("div", [
+  attr("class", layout + " card-component"),
+], [...])
+```
+
+## Comparison with Alternatives
+
+| Approach | Compression | Code Changes | Runtime |
+|----------|-------------|--------------|---------|
+| CSS Utilities | Auto-dedup | New code style | SSR |
+| CSS Minify | ~24% | None | Build |
+| CSS Factorize | ~52% | Template rewrite | Build |
