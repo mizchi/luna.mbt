@@ -11,11 +11,11 @@
 pub fn page_metas_to_manifest(
   pages : Array[@astra.PageMeta],
   config : @astra.SsgConfig,
-) -> @core_routes.RouteManifest {
-  let routes : Array[@core_routes.RouteEntry] = []
+) -> @sol_routes.RouteManifest {
+  let routes : Array[@sol_routes.RouteEntry] = []
   for page in pages {
     let output = @ssg.url_to_output_path(page.url_path)
-    let entry = @core_routes.RouteEntry::Static(@core_routes.StaticRouteEntry::{
+    let entry = @sol_routes.RouteEntry::Static(@sol_routes.StaticRouteEntry::{
       path: page.url_path,
       source: page.source_path,
       output,
@@ -30,18 +30,18 @@ pub fn page_metas_to_manifest(
   }
 
   // Determine fallback based on config
-  let fallback = @core_routes.FallbackConfig::NotFound(
+  let fallback = @sol_routes.FallbackConfig::NotFound(
     path=@ssg.url_to_output_path("/404/"),
   )
-  @core_routes.RouteManifest::{ routes, fallback } |> ignore
+  @sol_routes.RouteManifest::{ routes, fallback } |> ignore
   // Use config for potential SPA fallback
   if config.navigation.spa {
-    @core_routes.RouteManifest::{
+    @sol_routes.RouteManifest::{
       routes,
-      fallback: @core_routes.FallbackConfig::Spa(entry="/index.html"),
+      fallback: @sol_routes.FallbackConfig::Spa(entry="/index.html"),
     }
   } else {
-    @core_routes.RouteManifest::{ routes, fallback }
+    @sol_routes.RouteManifest::{ routes, fallback }
   }
 }
 
@@ -53,12 +53,12 @@ pub fn page_metas_to_manifest(
 /// Convert RouteManifest back to PageMeta array
 /// Only static routes can be converted
 pub fn manifest_to_page_metas(
-  manifest : @core_routes.RouteManifest,
+  manifest : @sol_routes.RouteManifest,
 ) -> Array[@astra.PageMeta] {
   let pages : Array[@astra.PageMeta] = []
   for route in manifest.routes {
     match route {
-      @core_routes.RouteEntry::Static(static_route) => {
+      @sol_routes.RouteEntry::Static(static_route) => {
         let frontmatter = @astra.Frontmatter::{
           title: static_route.title,
           description: static_route.description,
@@ -111,8 +111,8 @@ pub fn manifest_to_page_metas(
 /// Convert a single PageMeta to StaticRouteEntry
 pub fn page_meta_to_static_route(
   page : @astra.PageMeta,
-) -> @core_routes.StaticRouteEntry {
-  @core_routes.StaticRouteEntry::{
+) -> @sol_routes.StaticRouteEntry {
+  @sol_routes.StaticRouteEntry::{
     path: page.url_path,
     source: page.source_path,
     output: @ssg.url_to_output_path(page.url_path),
@@ -128,7 +128,7 @@ pub fn page_meta_to_static_route(
 ///|
 /// Convert StaticRouteEntry back to PageMeta
 pub fn static_route_to_page_meta(
-  route : @core_routes.StaticRouteEntry,
+  route : @sol_routes.StaticRouteEntry,
 ) -> @astra.PageMeta {
   let frontmatter = @astra.Frontmatter::{
     title: route.title,

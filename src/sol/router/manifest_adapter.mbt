@@ -15,12 +15,12 @@
 pub fn sol_routes_to_manifest(
   routes : Array[SolRoutes],
   base? : String = "",
-) -> @core_routes.RouteManifest {
-  let manifest_routes : Array[@core_routes.RouteEntry] = []
+) -> @sol_routes.RouteManifest {
+  let manifest_routes : Array[@sol_routes.RouteEntry] = []
   collect_routes(routes, base, manifest_routes)
-  @core_routes.RouteManifest::{
+  @sol_routes.RouteManifest::{
     routes: manifest_routes,
-    fallback: @core_routes.FallbackConfig::NotFound(path="/404.html"),
+    fallback: @sol_routes.FallbackConfig::NotFound(path="/404.html"),
   }
 }
 
@@ -29,7 +29,7 @@ pub fn sol_routes_to_manifest(
 fn collect_routes(
   routes : Array[SolRoutes],
   base : String,
-  result : Array[@core_routes.RouteEntry],
+  result : Array[@sol_routes.RouteEntry],
 ) -> Unit {
   for route in routes {
     match route {
@@ -40,12 +40,12 @@ fn collect_routes(
 
         // Determine render mode from revalidate
         let mode = match revalidate {
-          Some(seconds) => @core_routes.RenderMode::Isr(revalidate=seconds)
-          None => @core_routes.RenderMode::Ssr
+          Some(seconds) => @sol_routes.RenderMode::Isr(revalidate=seconds)
+          None => @sol_routes.RenderMode::Ssr
         }
 
         // Create dynamic route entry
-        let entry = @core_routes.RouteEntry::Dynamic(@core_routes.DynamicRouteEntry::{
+        let entry = @sol_routes.RouteEntry::Dynamic(@sol_routes.DynamicRouteEntry::{
           path: full_path,
           pattern,
           param_names,
@@ -74,11 +74,11 @@ fn collect_routes(
       Get(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
         let (pattern, param_names) = extract_route_pattern(full_path)
-        let entry = @core_routes.RouteEntry::Api(@core_routes.ApiRouteEntry::{
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
           path: full_path,
           pattern,
           param_names,
-          http_method: @core_routes.HttpMethod::Get,
+          http_method: @sol_routes.HttpMethod::Get,
           source: full_path,
         })
         result.push(entry)
@@ -88,11 +88,11 @@ fn collect_routes(
       Post(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
         let (pattern, param_names) = extract_route_pattern(full_path)
-        let entry = @core_routes.RouteEntry::Api(@core_routes.ApiRouteEntry::{
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
           path: full_path,
           pattern,
           param_names,
-          http_method: @core_routes.HttpMethod::Post,
+          http_method: @sol_routes.HttpMethod::Post,
           source: full_path,
         })
         result.push(entry)
@@ -116,19 +116,19 @@ fn collect_routes(
 ///|
 /// Normalize path for manifest (remove double slashes, ensure leading slash)
 fn manifest_normalize_path(path : String) -> String {
-  @core_routes.normalize_url_path(path)
+  @sol_routes.normalize_url_path(path)
 }
 
 ///|
 /// Extract regex pattern and parameter names from path
 fn extract_route_pattern(path : String) -> (String, Array[String]) {
-  @core_routes.extract_url_pattern(path)
+  @sol_routes.extract_url_pattern(path)
 }
 
 ///|
 /// Extract catch-all info from path
-fn extract_catch_all_info(path : String) -> @core_routes.CatchAllInfo? {
-  @core_routes.extract_catch_all(path)
+fn extract_catch_all_info(path : String) -> @sol_routes.CatchAllInfo? {
+  @sol_routes.extract_catch_all(path)
 }
 
 // =============================================================================
@@ -138,12 +138,12 @@ fn extract_catch_all_info(path : String) -> @core_routes.CatchAllInfo? {
 ///|
 /// Handler factory type - creates a PageHandler from a route entry
 /// Returns None if this factory cannot handle the entry
-pub(all) struct PageHandlerFactory((@core_routes.RouteEntry) -> PageHandler?)
+pub(all) struct PageHandlerFactory((@sol_routes.RouteEntry) -> PageHandler?)
 
 ///|
 /// Handler factory type - creates an ApiHandler from a route entry
 /// Returns None if this factory cannot handle the entry
-pub(all) struct ApiHandlerFactory((@core_routes.RouteEntry) -> ApiHandler?)
+pub(all) struct ApiHandlerFactory((@sol_routes.RouteEntry) -> ApiHandler?)
 
 ///|
 /// Convert RouteManifest to SolRoutes with handler injection
@@ -158,7 +158,7 @@ pub(all) struct ApiHandlerFactory((@core_routes.RouteEntry) -> ApiHandler?)
 /// register_sol_routes(app, routes, config)
 /// ```
 pub fn manifest_to_sol_routes(
-  manifest : @core_routes.RouteManifest,
+  manifest : @sol_routes.RouteManifest,
   page_factory : PageHandlerFactory,
   api_factory : ApiHandlerFactory,
 ) -> Array[SolRoutes] {
@@ -175,25 +175,25 @@ pub fn manifest_to_sol_routes(
 ///|
 /// Convert a single RouteEntry to SolRoutes
 fn convert_entry_to_sol_route(
-  entry : @core_routes.RouteEntry,
+  entry : @sol_routes.RouteEntry,
   page_factory : PageHandlerFactory,
   api_factory : ApiHandlerFactory,
 ) -> SolRoutes? {
   match entry {
-    @core_routes.Static(e) => convert_static_entry(e, page_factory)
-    @core_routes.Dynamic(e) => convert_dynamic_entry(e, page_factory)
-    @core_routes.Api(e) => convert_api_entry(e, api_factory)
-    @core_routes.Component(e) => convert_component_entry(e, page_factory)
+    @sol_routes.Static(e) => convert_static_entry(e, page_factory)
+    @sol_routes.Dynamic(e) => convert_dynamic_entry(e, page_factory)
+    @sol_routes.Api(e) => convert_api_entry(e, api_factory)
+    @sol_routes.Component(e) => convert_component_entry(e, page_factory)
   }
 }
 
 ///|
 /// Convert Static route entry to SolRoutes::Page
 fn convert_static_entry(
-  entry : @core_routes.StaticRouteEntry,
+  entry : @sol_routes.StaticRouteEntry,
   page_factory : PageHandlerFactory,
 ) -> SolRoutes? {
-  let route_entry = @core_routes.RouteEntry::Static(entry)
+  let route_entry = @sol_routes.RouteEntry::Static(entry)
   match (page_factory.0)(route_entry) {
     Some(handler) =>
       Some(
@@ -213,15 +213,15 @@ fn convert_static_entry(
 ///|
 /// Convert Dynamic route entry to SolRoutes::Page
 fn convert_dynamic_entry(
-  entry : @core_routes.DynamicRouteEntry,
+  entry : @sol_routes.DynamicRouteEntry,
   page_factory : PageHandlerFactory,
 ) -> SolRoutes? {
-  let route_entry = @core_routes.RouteEntry::Dynamic(entry)
+  let route_entry = @sol_routes.RouteEntry::Dynamic(entry)
   match (page_factory.0)(route_entry) {
     Some(handler) => {
       // Extract revalidate from render mode
       let revalidate = match entry.mode {
-        @core_routes.RenderMode::Isr(revalidate~) => Some(revalidate)
+        @sol_routes.RenderMode::Isr(revalidate~) => Some(revalidate)
         _ => None
       }
       Some(
@@ -242,24 +242,24 @@ fn convert_dynamic_entry(
 ///|
 /// Convert API route entry to SolRoutes::Get or SolRoutes::Post
 fn convert_api_entry(
-  entry : @core_routes.ApiRouteEntry,
+  entry : @sol_routes.ApiRouteEntry,
   api_factory : ApiHandlerFactory,
 ) -> SolRoutes? {
-  let route_entry = @core_routes.RouteEntry::Api(entry)
+  let route_entry = @sol_routes.RouteEntry::Api(entry)
   match (api_factory.0)(route_entry) {
     Some(handler) =>
       match entry.http_method {
-        @core_routes.HttpMethod::Get =>
+        @sol_routes.HttpMethod::Get =>
           Some(SolRoutes::Get(path=entry.path, handler~))
-        @core_routes.HttpMethod::Post =>
+        @sol_routes.HttpMethod::Post =>
           Some(SolRoutes::Post(path=entry.path, handler~))
-        @core_routes.HttpMethod::Put =>
+        @sol_routes.HttpMethod::Put =>
           Some(SolRoutes::Post(path=entry.path, handler~)) // Use POST for PUT
-        @core_routes.HttpMethod::Delete =>
+        @sol_routes.HttpMethod::Delete =>
           Some(SolRoutes::Post(path=entry.path, handler~)) // Use POST for DELETE
-        @core_routes.HttpMethod::Patch =>
+        @sol_routes.HttpMethod::Patch =>
           Some(SolRoutes::Post(path=entry.path, handler~)) // Use POST for PATCH
-        @core_routes.HttpMethod::All =>
+        @sol_routes.HttpMethod::All =>
           Some(SolRoutes::Get(path=entry.path, handler~)) // Use GET for ALL
       }
     None => None
@@ -269,15 +269,15 @@ fn convert_api_entry(
 ///|
 /// Convert Component route entry to SolRoutes::Page
 fn convert_component_entry(
-  entry : @core_routes.ComponentRouteEntry,
+  entry : @sol_routes.ComponentRouteEntry,
   page_factory : PageHandlerFactory,
 ) -> SolRoutes? {
-  let route_entry = @core_routes.RouteEntry::Component(entry)
+  let route_entry = @sol_routes.RouteEntry::Component(entry)
   match (page_factory.0)(route_entry) {
     Some(handler) => {
       // Extract revalidate from render mode
       let revalidate = match entry.mode {
-        @core_routes.RenderMode::Isr(revalidate~) => Some(revalidate)
+        @sol_routes.RenderMode::Isr(revalidate~) => Some(revalidate)
         _ => None
       }
       Some(

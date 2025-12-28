@@ -2077,7 +2077,7 @@ pub fn generate_client_manifest(ctx : @astra.BuildContext) -> Unit {
 ///|
 /// Generate v1 flat manifest (backward compatible)
 fn generate_flat_manifest(
-  route_manifest : @core_routes.RouteManifest,
+  route_manifest : @sol_routes.RouteManifest,
   luna_dir : String,
 ) -> Unit {
   // Define chunk file mappings
@@ -2089,7 +2089,7 @@ fn generate_flat_manifest(
   ]
 
   // Convert RouteManifest to ChunkManifest with chunk mappings
-  let chunk_manifest = @core_routes.build_chunk_manifest(
+  let chunk_manifest = @sol_routes.build_chunk_manifest(
     route_manifest,
     chunk_files~,
     base="/_luna/",
@@ -2108,17 +2108,17 @@ fn generate_flat_manifest(
 /// Generate v2 hierarchical manifest with segment splitting
 fn generate_hierarchical_manifest(
   _ctx : @astra.BuildContext,
-  route_manifest : @core_routes.RouteManifest,
-  page_configs : Map[String, @core_routes.PageConfig],
+  route_manifest : @sol_routes.RouteManifest,
+  page_configs : Map[String, @sol_routes.PageConfig],
   luna_dir : String,
 ) -> Unit {
   // Split manifest by segments
-  let (hierarchical, segment_manifests) = @core_routes.split_manifest(
+  let (hierarchical, segment_manifests) = @sol_routes.split_manifest(
     route_manifest, page_configs,
   )
 
   // Add chunk file mappings
-  let hierarchical_with_chunks = @core_routes.HierarchicalManifest::{
+  let hierarchical_with_chunks = @sol_routes.HierarchicalManifest::{
     ..hierarchical,
     chunks: {
       "boot": "boot.js",
@@ -2153,8 +2153,8 @@ fn generate_hierarchical_manifest(
 /// Collect page configs from pages directory
 fn collect_page_configs(
   ctx : @astra.BuildContext,
-) -> Map[String, @core_routes.PageConfig] {
-  let configs : Map[String, @core_routes.PageConfig] = {}
+) -> Map[String, @sol_routes.PageConfig] {
+  let configs : Map[String, @sol_routes.PageConfig] = {}
   let pages_dir = @path.join2(ctx.cwd, ctx.config.docs_dir)
 
   // Scan for page.json files in first-level directories
@@ -2170,7 +2170,7 @@ fn collect_page_configs(
         let content : String = @fs.readFileSync(page_json_path).to_string() catch {
           _ => continue
         }
-        match @core_routes.parse_page_config(content) {
+        match @sol_routes.parse_page_config(content) {
           Some(cfg) => configs[entry] = cfg
           None => ()
         }
@@ -2182,7 +2182,7 @@ fn collect_page_configs(
 
 ///|
 /// Check if any segment has SPA config
-fn has_spa_config(configs : Map[String, @core_routes.PageConfig]) -> Bool {
+fn has_spa_config(configs : Map[String, @sol_routes.PageConfig]) -> Bool {
   for _, cfg in configs {
     if cfg.spa {
       return true

@@ -91,9 +91,10 @@ astra/isr の変更:
   - 詳細は `spec/internal/route-handler-injection.md` 参照
 
 ### 優先度: 中
-- `core/routes` の整理
-  - sol/routes へのマージを検討
-  - SSG メタデータ型の配置を決定
+- ~~`core/routes` の整理~~ ✅ 完了
+  - `core/routes` を `sol/routes` にマージ
+  - `file_scanner.mbt` (汎用スキャン) + `scanner.mbt` (ページスキャン) の構成
+  - 全ての `@core_routes` 参照を `@sol_routes` に更新
 
 ### 優先度: 低
 - `sol/cli` と `astra/cli` の統合検討

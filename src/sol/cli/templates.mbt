@@ -419,7 +419,7 @@ pub fn template_routes_moon_pkg_json(package_name : String) -> String {
     #|{
     #|  "supported-targets": ["js"],
     #|  "import": [
-    #|    { "path": "mizchi/luna/core/routes", "alias": "routes" },
+    #|    { "path": "mizchi/luna/sol/routes", "alias": "routes" },
     #|    { "path": "mizchi/luna/core", "alias": "luna" },
     #|    { "path": "mizchi/luna/core/signal", "alias": "signal" },
     #|    { "path": "mizchi/luna/sol", "alias": "sol" },

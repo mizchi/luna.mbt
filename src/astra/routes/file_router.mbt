@@ -180,7 +180,7 @@ pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(
   pages
 }
 
-// extract_param_name is provided by @core_routes
+// extract_param_name is provided by @sol_routes
 
 ///|
 /// Recursively scan directory with FileSystem trait
@@ -214,7 +214,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       }
 
       // Check if this is a dynamic parameter directory (_slug_, _id_, _...slug_, etc.)
-      match @core_routes.extract_param_name(entry) {
+      match @sol_routes.extract_param_name(entry) {
         Some(param_info) => {
           // This is a dynamic route directory
           scan_dynamic_dir_with_fs(
@@ -261,7 +261,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       entry.has_suffix(".mdx") ||
       entry.has_suffix(".html") {
       // Check if this is a dynamic file pattern (_id_.md, ___all___.md)
-      match @core_routes.extract_param_from_filename(entry) {
+      match @sol_routes.extract_param_from_filename(entry) {
         Some(param_info) => {
           // This is a dynamic file - process with static params
           scan_dynamic_file_with_fs(
@@ -358,7 +358,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   file_path : String,
   relative_path : String,
   filename : String,
-  param_info : @core_routes.ParamInfo,
+  param_info : @sol_routes.ParamInfo,
   i18n : @astra.I18nConfig,
   pages : Array[@astra.PageMeta],
   trailing_slash : Bool,
@@ -480,7 +480,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   filesystem : FS,
   dir_path : String,
   relative_path : String,
-  param_info : @core_routes.ParamInfo,
+  param_info : @sol_routes.ParamInfo,
   i18n : @astra.I18nConfig,
   pages : Array[@astra.PageMeta],
   trailing_slash : Bool,

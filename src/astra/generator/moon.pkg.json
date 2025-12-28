@@ -15,7 +15,7 @@
     { "path": "mizchi/luna/astra/isr", "alias": "isr" },
     { "path": "mizchi/luna/astra/components", "alias": "components" },
     { "path": "mizchi/luna/core/ssg", "alias": "ssg" },
-    { "path": "mizchi/luna/core/routes", "alias": "core_routes" },
+    { "path": "mizchi/luna/sol/routes", "alias": "sol_routes" },
     { "path": "mizchi/luna/internal/utils", "alias": "utils" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },
