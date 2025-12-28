@@ -2,5 +2,9 @@
   "import": [],
   "test-import": [
     { "path": "mizchi/luna/luna", "alias": "luna" }
-  ]
+  ],
+  "targets": {
+    "effect_js.mbt": ["js"],
+    "effect_non_js.mbt": ["not", "js"]
+  }
 }

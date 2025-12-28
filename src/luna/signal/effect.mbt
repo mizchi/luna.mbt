@@ -89,11 +89,6 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
 }
 
 ///|
-/// Queue a microtask (runs after current synchronous execution)
-extern "js" fn queue_microtask(f : () -> Unit) -> Unit =
-  #| (f) => queueMicrotask(f)
-
-///|
 /// Create an effect that only runs when condition is true
 /// Uses render_effect for synchronous execution
 pub fn effect_when(condition : () -> Bool, fn_ : () -> Unit) -> () -> Unit {
