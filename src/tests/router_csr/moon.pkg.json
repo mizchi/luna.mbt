@@ -2,7 +2,7 @@
   "supported-targets": ["js"],
   "import": [
     { "path": "mizchi/luna/luna/routes", "alias": "routes" },
-    { "path": "mizchi/luna/luna/dom/router", "alias": "browser_router" },
+    { "path": "mizchi/luna/sol/browser_router", "alias": "browser_router" },
     { "path": "mizchi/luna/luna/dom/element", "alias": "dom" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     { "path": "mizchi/js/core", "alias": "js" }

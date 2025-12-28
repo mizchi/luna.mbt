@@ -258,9 +258,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   // Helper to render with a new child owner scope
   fn render_with_scope() -> Array[@js_dom.Node] {
     @signal.with_parent_owner(captured_owner, fn() {
-      let (dom, dispose) = @signal.create_root_with_dispose(fn() {
-        render_fn()
-      })
+      let (dom, dispose) = @signal.create_root_with_dispose(fn() { render_fn() })
       current_dispose.val = Some(dispose)
       collect_child_nodes(dom.to_dom())
     })
