@@ -170,13 +170,20 @@ dev-doc:
 
 # docs ビルド
 build-doc *args:
-    pnpm turbo run build:moon build:astra
+    pnpm turbo run build:doc -- {{args}}
+
+# docs ビルド（内部用 - turbo から呼ばれる）
+_build-doc-inner *args:
     @echo "Building demo..."
     pnpm vite build
     mv website/public/demo/demo-src/* website/public/demo/ && rm -rf website/public/demo/demo-src
     @echo "Building docs..."
     node target/js/release/build/astra/cli/cli.js build --parallel {{args}}
     @echo "✓ Documentation built"
+
+# docs デプロイ（Cloudflare Pages）
+release-doc:
+    pnpm turbo run deploy:doc
 
 # docs lint
 lint-doc:

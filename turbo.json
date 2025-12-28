@@ -30,6 +30,21 @@
         "js/astra/dist/**"
       ]
     },
+    "//#build:doc": {
+      "dependsOn": ["//#build:moon", "//#build:astra"],
+      "inputs": [
+        "website/**",
+        "demo-src/**"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "cache": false
+    },
+    "//#deploy:doc": {
+      "dependsOn": ["//#build:doc"],
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build", "//#build:moon", "//#build:loader"],
       "outputs": ["dist/**"]
