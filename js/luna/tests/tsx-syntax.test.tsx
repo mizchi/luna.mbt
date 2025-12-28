@@ -1,7 +1,7 @@
 // Test actual TSX syntax with jsxImportSource
 import { describe, test, expect } from "vitest";
 import "global-jsdom/register";
-import { createSignal, render } from "../src/index";
+import { createSignal, createRoot, render, Fragment, Show, Switch, Match } from "../src/index";
 import type { JSX } from "../src/jsx-runtime";
 
 describe("TSX Syntax with jsxImportSource", () => {
@@ -68,7 +68,7 @@ describe("TSX Syntax with jsxImportSource", () => {
     expect(node).toBeDefined();
   });
 
-  test("fragment", () => {
+  test("fragment with shorthand syntax", () => {
     const node = (
       <>
         <div>First</div>
@@ -78,6 +78,58 @@ describe("TSX Syntax with jsxImportSource", () => {
     // Fragment should return a DomNode (not an array)
     expect(node).toBeDefined();
     expect(Array.isArray(node)).toBe(false);
+  });
+
+  test("Fragment component with explicit JSX tag", () => {
+    // This is the bug fix test: <Fragment> should work like <>
+    const node = (
+      <Fragment>
+        <div>First</div>
+        <div>Second</div>
+      </Fragment>
+    );
+    expect(node).toBeDefined();
+    expect(Array.isArray(node)).toBe(false);
+  });
+
+  test("Fragment renders correctly to DOM", () => {
+    const container = document.createElement("div");
+
+    const node = (
+      <div id="wrapper">
+        <Fragment>
+          <span>A</span>
+          <span>B</span>
+        </Fragment>
+      </div>
+    );
+
+    render(container, node);
+
+    expect(container.innerHTML).toContain("A");
+    expect(container.innerHTML).toContain("B");
+    // Both spans should be direct children of wrapper
+    const wrapper = container.querySelector("#wrapper");
+    expect(wrapper?.querySelectorAll("span").length).toBe(2);
+  });
+
+  test("component returning Fragment works", () => {
+    function MultipleElements(): JSX.Element {
+      return (
+        <Fragment>
+          <div>One</div>
+          <div>Two</div>
+          <div>Three</div>
+        </Fragment>
+      );
+    }
+
+    const container = document.createElement("div");
+    render(container, <MultipleElements />);
+
+    expect(container.textContent).toContain("One");
+    expect(container.textContent).toContain("Two");
+    expect(container.textContent).toContain("Three");
   });
 
   test("render TSX to DOM", () => {
@@ -134,5 +186,68 @@ describe("TSX Syntax with jsxImportSource", () => {
 
     expect(visible).toBeDefined();
     expect(hidden).toBeDefined();
+  });
+
+  test("Show with function children returning array", () => {
+    const container = document.createElement("div");
+
+    createRoot((dispose) => {
+      const [show, setShow] = createSignal(true);
+
+      // Function children that returns multiple elements (array)
+      const node = (
+        <div id="show-test">
+          <Show when={show}>
+            {(value) => [
+              <span>Shown: {String(value)}</span>,
+              <span>Also shown</span>
+            ]}
+          </Show>
+        </div>
+      );
+
+      render(container, node);
+
+      expect(container.textContent).toContain("Shown");
+      expect(container.textContent).toContain("Also shown");
+
+      dispose();
+    });
+  });
+
+  test("Switch/Match with function children", () => {
+    const container = document.createElement("div");
+
+    createRoot((dispose) => {
+      const [value, setValue] = createSignal("a");
+
+      const node = (
+        <div id="switch-test">
+          <Switch fallback={<span>No match</span>}>
+            <Match when={() => value() === "a"}>
+              {() => <span>Match A</span>}
+            </Match>
+            <Match when={() => value() === "b"}>
+              {() => [
+                <span>Match B1</span>,
+                <span>Match B2</span>
+              ]}
+            </Match>
+          </Switch>
+        </div>
+      );
+
+      render(container, node);
+      expect(container.textContent).toContain("Match A");
+
+      setValue("b");
+      expect(container.textContent).toContain("Match B1");
+      expect(container.textContent).toContain("Match B2");
+
+      setValue("c");
+      expect(container.textContent).toContain("No match");
+
+      dispose();
+    });
   });
 });

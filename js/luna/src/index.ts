@@ -93,7 +93,7 @@ import {
   show,
   jsx,
   jsxs,
-  Fragment,
+  Fragment as fragment,  // MoonBit's fragment function (Array -> DomNode)
   createElement,
   createElementNs,
   svgNs,
@@ -374,6 +374,37 @@ export function debounced<T>(signal: Signal<T>, delayMs: number): Signal<T> {
 // ============================================================================
 
 /**
+ * Resolves child content: if it's a function, calls it with args.
+ * If the result is an array, wraps it in a fragment.
+ */
+function resolveChild(value: any, ...args: any[]): any {
+  if (typeof value === "function") {
+    const result = value(...args);
+    return Array.isArray(result) ? fragment(result) : result;
+  }
+  return Array.isArray(value) ? fragment(value) : value;
+}
+
+/**
+ * JSX-compatible Fragment component.
+ * Wraps children in a DomNode fragment for use in JSX.
+ * Also supports direct array call for backwards compatibility: Fragment([...])
+ */
+export function Fragment(propsOrChildren: { children?: any } | any[]): any {
+  // Support direct array call: Fragment([child1, child2])
+  if (Array.isArray(propsOrChildren)) {
+    return fragment(propsOrChildren);
+  }
+  // JSX style: Fragment({ children })
+  const { children } = propsOrChildren || {};
+  if (!children) return fragment([]);
+  if (Array.isArray(children)) {
+    return fragment(children);
+  }
+  return fragment([children]);
+}
+
+/**
  * For component for list rendering (SolidJS-style)
  */
 export function For<T>(props: ForProps<T>): any {
@@ -403,11 +434,10 @@ export function Show<T>(props: ShowProps<T>): any {
   // Convert when to a getter if it's not already
   const condition = typeof when === "function" ? when : () => when;
 
-  // If children is a function, we need to call it with the truthy value
-  const renderChildren =
-    typeof children === "function" ? () => children(condition()) : () => children;
-
-  return show(() => Boolean(condition()), renderChildren);
+  return show(
+    () => Boolean(condition()),
+    () => resolveChild(children, condition())
+  );
 }
 
 /**
@@ -494,7 +524,7 @@ export function Switch(props: SwitchProps): any {
     nodes.push(
       show(
         () => matchIndex() === idx,
-        () => typeof match.children === "function" ? match.children() : match.children
+        match.children  // Match.children is already a resolved function
       )
     );
   }
@@ -504,28 +534,27 @@ export function Switch(props: SwitchProps): any {
     nodes.push(
       show(
         () => matchIndex() === -1,
-        () => fallback
+        () => resolveChild(fallback)
       )
     );
   }
 
-  return Fragment(nodes);
+  return fragment(nodes);
 }
 
 /**
  * Match component for use inside Switch (SolidJS-style)
  */
-export function Match<T>(props: MatchProps<T>): { __isMatch: true; when: () => boolean; children: any } {
+export function Match<T>(props: MatchProps<T>): { __isMatch: true; when: () => boolean; condition: () => T; children: () => any } {
   const { when, children } = props;
   const condition = typeof when === "function" ? when : () => when;
 
   return {
     __isMatch: true,
     when: () => Boolean(condition()),
-    children:
-      typeof children === "function"
-        ? () => children(condition())
-        : children,
+    condition,
+    // Wrap children in a function that resolves with condition value
+    children: () => resolveChild(children, condition()),
   };
 }
 
@@ -780,7 +809,7 @@ export {
   show,
   jsx,
   jsxs,
-  Fragment,
+  fragment,  // Low-level MoonBit fragment function
   createElement,
   createElementNs,
   svgNs,
