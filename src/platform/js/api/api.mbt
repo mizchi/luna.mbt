@@ -70,9 +70,15 @@ pub fn combine(
 }
 
 ///|
-/// Create an effect
+/// Create an effect (deferred execution via microtask, like Solid.js createEffect)
 pub fn effect(fn_ : () -> Unit) -> () -> Unit {
   @signal.effect(fn_)
+}
+
+///|
+/// Create a render effect (immediate execution, like Solid.js createRenderEffect)
+pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
+  @signal.render_effect(fn_)
 }
 
 ///|
@@ -142,9 +148,42 @@ pub fn has_owner() -> Bool {
 }
 
 ///|
+/// Queue a microtask (runs after current synchronous execution)
+extern "js" fn queue_microtask(f : () -> Unit) -> Unit =
+  #| (f) => queueMicrotask(f)
+
+///|
 /// Run a function once (Solid.js style onMount)
+/// The callback is deferred via microtask to run after DOM is created and refs are bound.
+/// onCleanup registered inside will run when the owner is disposed (component unmounts).
 pub fn on_mount(fn_ : () -> Unit) -> Unit {
-  @signal.on_mount(fn_)
+  // Capture current owner for later use
+  let captured_owner = @signal.get_owner()
+
+  // Queue microtask to run after current synchronous execution.
+  // This ensures refs are bound before onMount runs.
+  queue_microtask(fn() {
+    match captured_owner {
+      Some(owner) => {
+        // Run with owner context so cleanup registration works
+        @signal.run_with_owner(owner, fn() {
+          // Run untracked (no dependency tracking)
+          @signal.untracked(fn() {
+            // Set up cleanup tracking
+            let mount_cleanups : Array[() -> Unit] = []
+            @signal.run_with_cleanup_tracking(mount_cleanups, fn_)
+            // Transfer cleanups to owner so they run on unmount
+            for cleanup in mount_cleanups {
+              owner.cleanups.push(cleanup)
+            }
+          })
+        })
+      }
+      None =>
+        // No owner - just run untracked
+        @signal.untracked(fn_)
+    }
+  })
 }
 
 // ============================================================================

@@ -112,9 +112,9 @@ test "deferred - manual reject" {
 test "Resource::get tracks signal" {
   let (res, resolve, _reject) : (Resource[Int], (Int) -> Unit, (String) -> Unit) = deferred()
 
-  // Track changes via effect
+  // Track changes via render_effect (synchronous)
   let log : Array[String] = []
-  let dispose = effect(fn() {
+  let dispose = render_effect(fn() {
     match res.get() {
       Pending => log.push("pending")
       Success(v) => log.push("success:" + v.to_string())
@@ -127,7 +127,7 @@ test "Resource::get tracks signal" {
   assert_eq(log.length(), 1)
   assert_eq(log[0], "pending")
 
-  // Resolve triggers effect (effect runs synchronously on signal change)
+  // Resolve triggers effect (render_effect runs synchronously on signal change)
   resolve(42)
   assert_eq(log.length(), 2)
   assert_eq(log[1], "success:42")

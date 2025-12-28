@@ -86,6 +86,8 @@ pub fn register_shadow(String, mode? : String, (@dom.Element) -> @luna.Node[@cor
 
 pub fn register_with_attrs(String, Array[String], (@dom.Element, Map[String, @signal.Signal[String]]) -> @luna.Node[@core.Any]) -> Unit
 
+pub fn render_effect(() -> Unit) -> () -> Unit
+
 pub fn render_to(@dom.Element, @element.DomNode) -> Unit
 
 pub fn resource_error(JsResource) -> String

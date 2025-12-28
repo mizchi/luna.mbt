@@ -75,6 +75,7 @@ import {
   createMemo as _createMemo,
   combine as _combine,
   effect as _effect,
+  renderEffect as _renderEffect,
   batchStart,
   batchEnd,
   runUntracked,
@@ -163,10 +164,19 @@ export function createSignal<T>(initialValue: T): Signal<T> {
 }
 
 /**
- * Creates a reactive effect (SolidJS-style alias)
+ * Creates a reactive effect (SolidJS-style)
+ * Deferred execution via microtask - runs after rendering completes
  */
 export function createEffect(fn: () => void): () => void {
   return _effect(fn);
+}
+
+/**
+ * Creates a render effect (SolidJS-style)
+ * Immediate/synchronous execution - runs during rendering
+ */
+export function createRenderEffect(fn: () => void): () => void {
+  return _renderEffect(fn);
 }
 
 /**
@@ -861,6 +871,7 @@ export {
   _map as map,
   _combine as combine,
   _effect as effect,
+  _renderEffect as renderEffect,
   runUntracked,
 };
 

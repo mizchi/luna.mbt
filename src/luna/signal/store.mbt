@@ -69,6 +69,7 @@ pub fn[T] LensStore::new(initial : T) -> LensStore[T] {
 ///|
 /// Focus on a field using a lens, returns getter and setter functions
 /// The getter is memoized and only recomputes when the focused value changes
+/// Uses render_effect for synchronous updates
 pub fn[T, A : Eq] LensStore::focus(
   self : LensStore[T],
   lens : Lens[T, A],
@@ -77,7 +78,7 @@ pub fn[T, A : Eq] LensStore::focus(
   let field_signal : Signal[A] = signal((lens.get)(self.source.peek()))
 
   // Subscribe to source changes and update field signal only if value changed
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let new_value = (lens.get)(self.source.get())
     if new_value != field_signal.peek() {
       field_signal.set(new_value)

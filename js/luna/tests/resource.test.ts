@@ -2,7 +2,7 @@ import { describe, test, expect, vi } from "vitest";
 import {
   createResource,
   createDeferred,
-  createEffect,
+  createRenderEffect,
   createRoot,
 } from "../src/index";
 
@@ -107,7 +107,7 @@ describe("Resource API (SolidJS-style)", () => {
       let effectRunCount = 0;
 
       createRoot((dispose) => {
-        createEffect(() => {
+        createRenderEffect(() => {
           resource(); // Access value to track
           effectRunCount++;
         });

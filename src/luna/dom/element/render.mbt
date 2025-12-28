@@ -8,8 +8,8 @@ pub fn text_node(content : () -> String) -> DomNode {
   let initial = content()
   let node = doc.createTextNode(initial)
 
-  // Set up effect to update text when content changes
-  let _ = @signal.effect(fn() {
+  // RenderEffect for DOM updates (synchronous)
+  let _ = @signal.render_effect(fn() {
     let new_content = content()
     node.as_node().setTextContent(new_content)
   })
@@ -125,8 +125,8 @@ fn apply_attribute(
         apply_static_attr(elem, name, s)
       }
     Dynamic(getter) => {
-      // Set up effect to update attribute when value changes
-      let _ = @signal.effect(fn() {
+      // RenderEffect for DOM updates (synchronous)
+      let _ = @signal.render_effect(fn() {
         let new_value = getter()
         if name == "style" {
           apply_style_string(elem, new_value)
@@ -245,46 +245,71 @@ fn collect_child_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
 
 ///|
 /// Conditional rendering - shows content when condition is true
+/// Creates a child owner for proper cleanup when content is hidden
 pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("show")
   // Capture current owner for context inheritance
   let captured_owner = @signal.get_owner()
 
+  // Track current dispose function (for cleanup when hiding)
+  let current_dispose : Ref[(() -> Unit)?] = { val: None }
+
+  // Helper to render with a new child owner scope
+  fn render_with_scope() -> Array[@js_dom.Node] {
+    // Set parent owner context first so the new root becomes its child
+    // Then create a child root that owns the rendered content
+    let result : Ref[Array[@js_dom.Node]] = { val: [] }
+    fn do_render() {
+      let (dom, dispose) = @signal.create_root_with_dispose(fn() {
+        // render_fn runs with the new root as current owner
+        // so onMount/onCleanup are registered on this root
+        render_fn()
+      })
+      current_dispose.val = Some(dispose)
+      result.val = collect_child_nodes(dom.to_dom())
+    }
+    match captured_owner {
+      Some(parent) => @signal.run_with_owner(parent, do_render)
+      None => do_render()
+    }
+    result.val
+  }
+
   // Evaluate initial state immediately
   let initial_show = when()
   let initial_nodes : Array[@js_dom.Node] = if initial_show {
-    let n = match captured_owner {
-      Some(owner) => @signal.run_with_owner(owner, render_fn)
-      None => render_fn()
-    }
-    collect_child_nodes(n.to_dom())
+    render_with_scope()
   } else {
     []
   }
   // Track all child nodes (may be multiple if fragment was used)
   let current_nodes : Ref[Array[@js_dom.Node]] = { val: initial_nodes }
 
-  // Effect handles subsequent updates only
-  let _ = @signal.effect(fn() {
+  // RenderEffect handles subsequent updates only (synchronous DOM updates)
+  let _ = @signal.render_effect(fn() {
     let should_show = when()
     let has_nodes = current_nodes.val.length() > 0
     match (should_show, has_nodes) {
       (true, false) =>
         // Need to show - create and insert nodes
         if placeholder.parentNode() is Some(parent) {
-          let n = match captured_owner {
-            Some(owner) => @signal.run_with_owner(owner, render_fn)
-            None => render_fn()
-          }
-          let nodes = collect_child_nodes(n.to_dom())
+          let nodes = render_with_scope()
           for node in nodes {
             parent.insertBefore(node, Some(placeholder)) |> ignore
           }
           current_nodes.val = nodes
         }
       (false, true) => {
-        // Need to hide - remove all nodes
+        // Need to hide - dispose child owner first (runs cleanups)
+        match current_dispose.val {
+          Some(dispose) => {
+            dispose()
+            current_dispose.val = None
+          }
+          None => ()
+        }
+        // Then remove all nodes
         for node in current_nodes.val {
           if node.parentNode() is Some(parent) {
             parent.removeChild(node) |> ignore
@@ -314,6 +339,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
 ///
 /// Items are tracked by reference equality (JavaScript ===).
 /// When items are reordered, their DOM nodes are moved rather than recreated.
+/// Each item gets its own owner scope for proper cleanup when removed.
 pub fn[T] for_each(
   items : () -> Array[T],
   render_item : (T, Int) -> DomNode,
@@ -325,33 +351,39 @@ pub fn[T] for_each(
   // Capture current owner for context inheritance
   let captured_owner = @signal.get_owner()
 
-  // Helper to run render with captured owner
-  fn render_with_owner(item : T, i : Int) -> @js_dom.Node {
+  // Helper to render with a new child owner scope
+  // Returns both the DOM node and a dispose function
+  fn render_with_scope(item : T, i : Int) -> (@js_dom.Node, () -> Unit) {
+    fn do_render() -> (@js_dom.Node, () -> Unit) {
+      let (dom, dispose) = @signal.create_root_with_dispose(fn() {
+        render_item(item, i)
+      })
+      (dom.to_dom(), dispose)
+    }
     match captured_owner {
-      Some(owner) =>
-        @signal.run_with_owner(owner, fn() { render_item(item, i) }).to_dom()
-      None => render_item(item, i).to_dom()
+      Some(parent) => @signal.run_with_owner(parent, fn() { do_render() })
+      None => do_render()
     }
   }
 
-  // Initial render
+  // Initial render - create entries with proper dispose functions
   let fragment = doc.createDocumentFragment()
   let initial_items = items()
   for i, item in initial_items {
-    let dom = render_with_owner(item, i)
-    entries.val.push(ItemEntry::new(item, dom))
+    let (dom, dispose) = render_with_scope(item, i)
+    entries.val.push(ItemEntry::new_with_dispose(item, dom, dispose))
     fragment.as_node().appendChild(dom) |> ignore
   }
   fragment.as_node().appendChild(placeholder) |> ignore
 
-  // Update effect using reconciliation
-  let _ = @signal.effect(fn() {
+  // RenderEffect for DOM updates (synchronous)
+  let _ = @signal.render_effect(fn() {
     let new_items = items()
     if is_first.val {
       is_first.val = false
       return
     }
-    reconcile_for_each(entries, placeholder, new_items, render_with_owner)
+    reconcile_for_each_with_dispose(entries, placeholder, new_items, render_with_scope)
   })
   Raw(fragment.as_node())
 }
@@ -463,8 +495,8 @@ pub fn[T] index_each(
   }
   fragment.as_node().appendChild(placeholder) |> ignore
 
-  // Update effect
-  let _ = @signal.effect(fn() {
+  // RenderEffect for DOM updates (synchronous)
+  let _ = @signal.render_effect(fn() {
     let new_items = items()
     if is_first.val {
       is_first.val = false

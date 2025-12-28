@@ -6,6 +6,8 @@ title: "導入: Effects"
 
 Effect は依存関係が変更されたときに自動的に実行される関数です。
 
+> **注意:** Luna の `createEffect` は即座に（同期的に）実行されます。これは Solid.js の `createRenderEffect` に近い動作です。Solid.js の `createEffect` はレンダリングフェーズ完了後に遅延実行されます。
+
 ## Effect の作成
 
 ```typescript

@@ -36,7 +36,7 @@ test "Signal::peek does not track dependency" {
   let count = { val: 0 }
 
   // Create effect that uses peek (should not track)
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let _ = sig.peek()
     count.val = count.val + 1
   })
@@ -56,7 +56,7 @@ test "Signal::peek does not track dependency" {
 ///|
 test "effect runs immediately" {
   let count = { val: 0 }
-  let _ = effect(fn() { count.val = count.val + 1 })
+  let _ = render_effect(fn() { count.val = count.val + 1 })
   assert_eq(count.val, 1)
 }
 
@@ -64,7 +64,7 @@ test "effect runs immediately" {
 test "effect re-runs when signal changes" {
   let sig = Signal::new(0)
   let observed = { val: 0 }
-  let _ = effect(fn() { observed.val = sig.get() })
+  let _ = render_effect(fn() { observed.val = sig.get() })
   assert_eq(observed.val, 0)
   sig.set(42)
   assert_eq(observed.val, 42)
@@ -74,7 +74,7 @@ test "effect re-runs when signal changes" {
 test "effect dispose stops re-running" {
   let sig = Signal::new(0)
   let count = { val: 0 }
-  let dispose = effect(fn() {
+  let dispose = render_effect(fn() {
     let _ = sig.get()
     count.val = count.val + 1
   })
@@ -94,7 +94,7 @@ test "effect tracks multiple signals" {
   let a = Signal::new(1)
   let b = Signal::new(2)
   let sum = { val: 0 }
-  let _ = effect(fn() { sum.val = a.get() + b.get() })
+  let _ = render_effect(fn() { sum.val = a.get() + b.get() })
   assert_eq(sum.val, 3)
   a.set(10)
   assert_eq(sum.val, 12)
@@ -137,7 +137,7 @@ test "memo updates when dependency changes" {
 test "batch delays effect execution" {
   let sig = Signal::new(0)
   let history : Array[Int] = []
-  let _ = effect(fn() { history.push(sig.get()) })
+  let _ = render_effect(fn() { history.push(sig.get()) })
 
   // Initial effect run
   assert_eq(history.length(), 1)
@@ -156,7 +156,7 @@ test "batch delays effect execution" {
 test "untracked prevents dependency tracking" {
   let sig = Signal::new(0)
   let count = { val: 0 }
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     untracked(fn() {
       let _ = sig.get()
 
@@ -179,7 +179,7 @@ test "nested signals work correctly" {
   let outer = Signal::new(1)
   let inner = Signal::new(10)
   let result = { val: 0 }
-  let _ = effect(fn() { result.val = outer.get() * inner.get() })
+  let _ = render_effect(fn() { result.val = outer.get() * inner.get() })
   assert_eq(result.val, 10)
   outer.set(2)
   assert_eq(result.val, 20)
@@ -231,7 +231,7 @@ test "on_immediate runs with initial value" {
 test "on_cleanup runs before effect re-runs" {
   let sig = Signal::new(0)
   let cleanup_count = { val: 0 }
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let _ = sig.get()
     on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
   })
@@ -250,7 +250,7 @@ test "on_cleanup runs before effect re-runs" {
 ///|
 test "on_cleanup runs on dispose" {
   let cleanup_count = { val: 0 }
-  let dispose = effect(fn() {
+  let dispose = render_effect(fn() {
     on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
   })
   assert_eq(cleanup_count.val, 0)
@@ -386,12 +386,12 @@ test "create_root disposes all effects" {
     dispose_ref.val = Some(dispose)
 
     // Create multiple effects inside root
-    let _ = effect(fn() {
+    let _ = render_effect(fn() {
       let _ = sig.get()
       effect_count.val = effect_count.val + 1
       on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
     })
-    let _ = effect(fn() {
+    let _ = render_effect(fn() {
       let _ = sig.get()
       effect_count.val = effect_count.val + 1
       on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
@@ -429,11 +429,11 @@ test "nested create_root disposes correctly" {
   let dispose_ref : Ref[(() -> Unit)?] = { val: None }
   create_root(fn(dispose_outer) {
     dispose_ref.val = Some(dispose_outer)
-    let _ = effect(fn() {
+    let _ = render_effect(fn() {
       on_cleanup(fn() { outer_cleanup.val = outer_cleanup.val + 1 })
     })
     create_root(fn(_dispose_inner) {
-      let _ = effect(fn() {
+      let _ = render_effect(fn() {
         on_cleanup(fn() { inner_cleanup.val = inner_cleanup.val + 1 })
       })
 
@@ -503,7 +503,7 @@ test "on_mount runs without tracking" {
 test "Signal::clear_subscribers clears all subscribers" {
   let sig = Signal::new(0)
   let count = { val: 0 }
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let _ = sig.get()
     count.val = count.val + 1
   })
@@ -522,12 +522,12 @@ test "Signal::clear_subscribers clears all subscribers" {
 test "Signal::subscriber_count returns correct count" {
   let sig = Signal::new(0)
   assert_eq(sig.subscriber_count(), 0)
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let _ = sig.get()
 
   })
   assert_eq(sig.subscriber_count(), 1)
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let _ = sig.get()
 
   })
@@ -729,7 +729,7 @@ test "Owner::dispose early return when already disposed" {
   let dispose_ref : Ref[(() -> Unit)?] = { val: None }
   create_root(fn(dispose) {
     dispose_ref.val = Some(dispose)
-    let _ = effect(fn() {
+    let _ = render_effect(fn() {
       on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
     })
 

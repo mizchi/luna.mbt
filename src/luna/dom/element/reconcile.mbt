@@ -28,15 +28,28 @@ extern "js" fn next_sibling_is(
 ///|
 /// Item-DOM mapping entry
 /// Stores the association between an item reference and its DOM node
+/// Also stores a dispose function for cleanup when item is removed
 pub(all) struct ItemEntry[T] {
   item : T
   dom : @js_dom.Node
+  dispose : () -> Unit
 }
 
 ///|
 /// Create a new ItemEntry
 pub fn[T] ItemEntry::new(item : T, dom : @js_dom.Node) -> ItemEntry[T] {
-  { item, dom }
+  // Default dispose is no-op for backwards compatibility
+  { item, dom, dispose: fn() { } }
+}
+
+///|
+/// Create a new ItemEntry with dispose function
+pub fn[T] ItemEntry::new_with_dispose(
+  item : T,
+  dom : @js_dom.Node,
+  dispose : () -> Unit,
+) -> ItemEntry[T] {
+  { item, dom, dispose }
 }
 
 ///|
@@ -79,16 +92,18 @@ pub fn[T] reconcile_items(
 ) -> Array[ItemEntry[T]] {
   let n = new_items.length()
 
-  // Handle empty case - just remove all old entries
+  // Handle empty case - dispose and remove all old entries
   if n == 0 {
     for entry in old_entries {
+      // Dispose first to run cleanups, then remove DOM
+      (entry.dispose)()
       safe_remove_child(parent, entry.dom)
     }
     return []
   }
   let new_entries : Array[ItemEntry[T]] = []
   for j = 0; j < n; j = j + 1 {
-    new_entries.push({ item: new_items[0], dom: end_marker })
+    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() { } })
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
 
@@ -118,13 +133,16 @@ pub fn[T] reconcile_items(
       let dom = render_item(item, i)
       parent.insertBefore(dom, Some(cursor.val)) |> ignore
       cursor.val = dom
-      new_entries[i] = { item, dom }
+      // New items get no-op dispose - actual dispose is set by for_each
+      new_entries[i] = { item, dom, dispose: fn() { } }
     }
   }
 
-  // Remove unused DOM nodes
+  // Remove unused DOM nodes and dispose their owner scopes
   for i, entry in old_entries {
     if not(used_indices[i]) {
+      // Dispose first to run cleanups, then remove DOM
+      (entry.dispose)()
       safe_remove_child(parent, entry.dom)
     }
   }
@@ -168,4 +186,85 @@ pub fn[T] reconcile_for_each(
       placeholder,
     )
   }
+}
+
+///|
+/// Reconciliation with dispose function support
+/// render_item returns both the DOM node and a dispose function for cleanup
+pub fn[T] reconcile_for_each_with_dispose(
+  entries_ref : Ref[Array[ItemEntry[T]]],
+  placeholder : @js_dom.Node,
+  new_items : Array[T],
+  render_item : (T, Int) -> (@js_dom.Node, () -> Unit),
+) -> Unit {
+  if placeholder.parentNode() is Some(parent) {
+    entries_ref.val = reconcile_items_with_dispose(
+      parent,
+      entries_ref.val,
+      new_items,
+      render_item,
+      placeholder,
+    )
+  }
+}
+
+///|
+/// Reconcile items with dispose support
+/// Similar to reconcile_items but render_item returns (Node, dispose)
+pub fn[T] reconcile_items_with_dispose(
+  parent : @js_dom.Node,
+  old_entries : Array[ItemEntry[T]],
+  new_items : Array[T],
+  render_item : (T, Int) -> (@js_dom.Node, () -> Unit),
+  end_marker : @js_dom.Node,
+) -> Array[ItemEntry[T]] {
+  let n = new_items.length()
+
+  // Handle empty case - dispose and remove all old entries
+  if n == 0 {
+    for entry in old_entries {
+      (entry.dispose)()
+      safe_remove_child(parent, entry.dom)
+    }
+    return []
+  }
+
+  let new_entries : Array[ItemEntry[T]] = []
+  for j = 0; j < n; j = j + 1 {
+    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() { } })
+  }
+  let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
+
+  let cursor : Ref[@js_dom.Node] = { val: end_marker }
+
+  // Process from last to first
+  for i = n - 1; i >= 0; i = i - 1 {
+    let item = new_items[i]
+    let old_index = find_entry_index(old_entries, item)
+    if old_index >= 0 {
+      // Reuse existing entry (including its dispose function)
+      let entry = old_entries[old_index]
+      used_indices[old_index] = true
+      if not(next_sibling_is(entry.dom, cursor.val)) {
+        move_before(parent, entry.dom, Some(cursor.val)) |> ignore
+      }
+      cursor.val = entry.dom
+      new_entries[i] = entry
+    } else {
+      // Create new DOM node with dispose
+      let (dom, dispose) = render_item(item, i)
+      parent.insertBefore(dom, Some(cursor.val)) |> ignore
+      cursor.val = dom
+      new_entries[i] = { item, dom, dispose }
+    }
+  }
+
+  // Remove unused DOM nodes and dispose their owner scopes
+  for i, entry in old_entries {
+    if not(used_indices[i]) {
+      (entry.dispose)()
+      safe_remove_child(parent, entry.dom)
+    }
+  }
+  new_entries
 }

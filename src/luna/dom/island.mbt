@@ -96,7 +96,7 @@ pub fn IslandContext::on_update(
   update_fn : () -> String,
 ) -> Unit {
   let elem = self.element
-  let _ = @signal.effect(fn() {
+  let _ = @signal.render_effect(fn() {
     let text = update_fn()
     update_element_text(elem, selector, text)
   })

@@ -13,7 +13,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
     @luna.DynamicText(getter) => {
       let text_node = doc.createTextNode(getter())
       let node_ref = text_node.as_node()
-      let _ = @signal.effect(fn() {
+      let _ = @signal.render_effect(fn() {
         let new_text = getter()
         node_ref.setTextContent(new_text)
       })
@@ -44,7 +44,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
     @luna.Show(condition=cond, child=child_fn) => {
       let placeholder = doc.createComment("show")
       let mut current_node : @js_dom.Node? = None
-      let _ = @signal.effect(fn() {
+      let _ = @signal.render_effect(fn() {
         let should_show = cond()
         match (should_show, current_node) {
           (true, None) =>
@@ -84,7 +84,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       fragment_node.appendChild(placeholder) |> ignore
 
       // Set up effect for updates (skip first run since we already rendered)
-      let _ = @signal.effect(fn() {
+      let _ = @signal.render_effect(fn() {
         let new_items = render_fn()
         if is_first_render.val {
           is_first_render.val = false
@@ -196,7 +196,7 @@ fn apply_vattr(
         }
       }
     @luna.VDynamic(getter) => {
-      let _ = @signal.effect(fn() {
+      let _ = @signal.render_effect(fn() {
         let new_value = getter()
         if new_value == "__remove__" {
           elem.removeAttribute(name)
@@ -336,7 +336,7 @@ fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
 
   // Set up effect for reactive updates
   let is_first_render : Ref[Bool] = { val: true }
-  let _ = @signal.effect(fn() {
+  let _ = @signal.render_effect(fn() {
     let new_case = find_matching_case()
 
     // Skip first render

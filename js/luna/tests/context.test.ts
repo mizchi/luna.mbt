@@ -4,7 +4,7 @@ import {
   provide,
   useContext,
   createRoot,
-  effect,
+  createRenderEffect,
 } from "../src/index";
 
 describe("Context API", () => {
@@ -105,7 +105,7 @@ describe("Context API", () => {
 
       createRoot((dispose) => {
         provide(ctx, "effect-value", () => {
-          effect(() => {
+          createRenderEffect(() => {
             effectValue = useContext(ctx);
           });
         });

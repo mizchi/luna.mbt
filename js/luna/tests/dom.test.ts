@@ -17,7 +17,7 @@ import {
   For,
   Show,
   createSignal,
-  createEffect,
+  createRenderEffect,
 } from "../src/index";
 import { jsx as jsxRuntime } from "../src/jsx-runtime";
 
@@ -332,7 +332,7 @@ describe("DOM API", () => {
       const [count, setCount] = createSignal(0);
       const log: number[] = [];
 
-      createEffect(() => {
+      createRenderEffect(() => {
         log.push(count());
       });
 

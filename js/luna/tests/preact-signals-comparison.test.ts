@@ -21,7 +21,7 @@ import {
   text,
   textDyn,
   createSignal,
-  createEffect,
+  createRenderEffect,
   createMemo,
   batch,
   For,
@@ -112,7 +112,7 @@ describe("Signal Behavior Comparison", () => {
     // Luna
     const [lunaCount, setLunaCount] = createSignal(0);
     const lunaValues: number[] = [];
-    createEffect(() => {
+    createRenderEffect(() => {
       lunaValues.push(lunaCount());
     });
     setLunaCount(1);
@@ -157,7 +157,7 @@ describe("Signal Behavior Comparison", () => {
     const [lunaB, setLunaB] = createSignal(0);
     const lunaUpdates: number[] = [];
 
-    createEffect(() => {
+    createRenderEffect(() => {
       lunaUpdates.push(lunaA() + lunaB());
     });
 
@@ -1169,7 +1169,7 @@ describe("Effect Cleanup Comparison", () => {
     const cleanupCalls: number[] = [];
     const [count, setCount] = createSignal(0);
 
-    createEffect(() => {
+    createRenderEffect(() => {
       const currentCount = count();
       onCleanup(() => {
         cleanupCalls.push(currentCount);
@@ -1192,7 +1192,7 @@ describe("Effect Cleanup Comparison", () => {
     const resources: string[] = [];
     const [resourceId, setResourceId] = createSignal("A");
 
-    createEffect(() => {
+    createRenderEffect(() => {
       const id = resourceId();
       resources.push(`open:${id}`);
 
@@ -1214,7 +1214,7 @@ describe("Effect Cleanup Comparison", () => {
     const log: string[] = [];
     const [inner, setInner] = createSignal(0);
 
-    createEffect(() => {
+    createRenderEffect(() => {
       // Capture value at effect run time for cleanup
       const currentValue = inner();
       log.push(`run:${currentValue}`);
@@ -1243,7 +1243,7 @@ describe("Untrack and Peek Behavior", () => {
     const [b, setB] = createSignal(10);
     const effectRuns: number[] = [];
 
-    createEffect(() => {
+    createRenderEffect(() => {
       const aVal = a();
       const bVal = untrack(() => b());
       effectRuns.push(aVal + bVal);
@@ -1272,7 +1272,7 @@ describe("Untrack and Peek Behavior", () => {
     // Note: Luna's peek works on the raw signal, not the getter
     // For this test, we use untrack as the equivalent
 
-    createEffect(() => {
+    createRenderEffect(() => {
       // Track nothing, just peek
       const val = untrack(() => count());
       effectRuns.push(val);
@@ -1294,7 +1294,7 @@ describe("Untrack and Peek Behavior", () => {
     const [untracked2, setUntracked2] = createSignal("Y");
     const results: string[] = [];
 
-    createEffect(() => {
+    createRenderEffect(() => {
       const t = tracked();
       const u1 = untrack(() => untracked1());
       const u2 = untrack(() => untracked2());
@@ -1377,7 +1377,7 @@ describe("Memo Dependency Chain", () => {
     const result = createMemo(() => condition() ? a() : b());
     const effectRuns: number[] = [];
 
-    createEffect(() => {
+    createRenderEffect(() => {
       effectRuns.push(result());
     });
 
@@ -1541,7 +1541,7 @@ describe("Bulk Updates", () => {
     const [count, setCount] = createSignal(0);
     const updates: number[] = [];
 
-    createEffect(() => {
+    createRenderEffect(() => {
       updates.push(count());
     });
 
@@ -1561,7 +1561,7 @@ describe("Bulk Updates", () => {
     const [c, setC] = createSignal(0);
     const effectRuns: string[] = [];
 
-    createEffect(() => {
+    createRenderEffect(() => {
       effectRuns.push(`${a()}-${b()}-${c()}`);
     });
 

@@ -4,9 +4,10 @@
 
 ///|
 /// Returns a dispose function
+/// Uses render_effect for synchronous execution
 pub fn[T : Eq] watch(source : () -> T, callback : (T, T) -> Unit) -> () -> Unit {
   let prev_value : Ref[T?] = { val: None }
-  effect(fn() {
+  render_effect(fn() {
     let new_value = source()
     match prev_value.val {
       Some(old) =>
@@ -21,12 +22,13 @@ pub fn[T : Eq] watch(source : () -> T, callback : (T, T) -> Unit) -> () -> Unit 
 
 ///|
 /// Watch with immediate execution (runs callback on first value too)
+/// Uses render_effect for synchronous execution
 pub fn[T : Eq] watch_immediate(
   source : () -> T,
   callback : (T, T?) -> Unit,
 ) -> () -> Unit {
   let prev_value : Ref[T?] = { val: None }
-  effect(fn() {
+  render_effect(fn() {
     let new_value = source()
     match prev_value.val {
       Some(old) =>
@@ -45,10 +47,11 @@ pub fn[T : Eq] watch_immediate(
 ///|
 /// Create a signal that holds the previous value of another signal
 /// Returns a getter function for the previous value
+/// Uses render_effect for synchronous execution
 pub fn[T] previous(sig : Signal[T]) -> () -> T? {
   let prev : Ref[T?] = { val: None }
   let current : Ref[T?] = { val: None }
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let new_val = sig.get()
     prev.val = current.val
     current.val = Some(new_val)
@@ -58,10 +61,11 @@ pub fn[T] previous(sig : Signal[T]) -> () -> T? {
 
 ///|
 /// Create a signal that holds the previous value with initial value
+/// Uses render_effect for synchronous execution
 pub fn[T] previous_with_initial(sig : Signal[T], initial : T) -> () -> T {
   let prev : Ref[T] = { val: initial }
   let current : Ref[T?] = { val: None }
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let new_val = sig.get()
     match current.val {
       Some(curr) => prev.val = curr

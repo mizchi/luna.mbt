@@ -11,12 +11,13 @@ pub fn[T, U] Signal::map(self : Signal[T], f : (T) -> U) -> () -> U {
 ///|
 /// Filter signal updates - only updates when predicate is true
 /// Returns a signal that only updates when predicate passes
+/// Uses render_effect for synchronous execution
 pub fn[T] Signal::filter(
   self : Signal[T],
   predicate : (T) -> Bool,
 ) -> Signal[T?] {
   let result : Signal[T?] = Signal::new(None)
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let value = self.get()
     if predicate(value) {
       result.set(Some(value))
@@ -27,9 +28,10 @@ pub fn[T] Signal::filter(
 
 ///|
 /// Filter and map signal updates
+/// Uses render_effect for synchronous execution
 pub fn[T, U] Signal::filter_map(self : Signal[T], f : (T) -> U?) -> Signal[U?] {
   let result : Signal[U?] = Signal::new(None)
-  let _ = effect(fn() {
+  let _ = render_effect(fn() {
     let value = self.get()
     match f(value) {
       Some(mapped) => result.set(Some(mapped))

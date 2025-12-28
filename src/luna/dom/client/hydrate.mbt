@@ -322,7 +322,7 @@ fn hydrate_dynamic_text(
         // Found start marker, next sibling should be the text node
         if child.nextSibling() is Some(text_node) && text_node.nodeType() == 3 {
           // Set up effect to update text
-          let _ = @signal.effect(fn() {
+          let _ = @signal.render_effect(fn() {
             let new_text = getter()
             text_node.setTextContent(new_text)
           })
@@ -358,7 +358,7 @@ fn hydrate_element_with_dispatch(
         ()
       @luna.VDynamic(getter) => {
         // Set up effect to update attribute
-        let _ = @signal.effect(fn() {
+        let _ = @signal.render_effect(fn() {
           let new_value = getter()
           if new_value == "__remove__" {
             elem.removeAttribute(name)
@@ -485,7 +485,7 @@ fn hydrate_show(
   }
 
   // Set up effect for show/hide
-  let _ = @signal.effect(fn() {
+  let _ = @signal.render_effect(fn() {
     let should_show = cond()
     if should_show && current_nodes.is_empty() {
       // Need to show - render and insert
@@ -642,7 +642,7 @@ fn hydrate_for(
       }
 
       // Set up effect for list updates
-      let _ = @signal.effect(fn() {
+      let _ = @signal.render_effect(fn() {
         let new_items = render_fn()
 
         // Simple strategy: clear and re-render
@@ -800,7 +800,7 @@ pub fn[State] hydrate_with_actions(
 
   // Set up effect to re-render when state changes
   let is_first_render : Ref[Bool] = { val: true }
-  let _ = @signal.effect(fn() {
+  let _ = @signal.render_effect(fn() {
     let current_state = state_signal.get()
 
     // Skip first render as DOM already contains SSR content

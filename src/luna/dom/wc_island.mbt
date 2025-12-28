@@ -182,7 +182,7 @@ pub fn[T : Show] WcIslandContext::bind_signal(
   signal : @signal.Signal[T],
 ) -> Unit {
   let parts = self.parts
-  let _ = @signal.effect(fn() {
+  let _ = @signal.render_effect(fn() {
     let value = signal.get().to_string()
     set_part_value(parts, part_name, value)
     commit_part(parts, part_name)

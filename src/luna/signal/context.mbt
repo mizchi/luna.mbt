@@ -196,12 +196,21 @@ pub fn is_batching() -> Bool {
 }
 
 ///|
-/// Register a cleanup function to run when the current effect re-runs or disposes
-/// Must be called inside an effect
+/// Register a cleanup function to run when the current scope disposes
+/// Works in:
+/// - Effects: cleanup runs before effect re-runs or when effect disposes
+/// - Components: cleanup runs when component unmounts
+/// (Solid.js style - can be called directly in component body)
 pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
+  // First priority: effect-level cleanup tracking
   match reactive_context.current_cleanups {
     Some(cleanups) => cleanups.push(cleanup)
-    None => () // Not inside an effect with cleanup tracking, ignore
+    None =>
+      // Second priority: owner-level cleanup (for component body)
+      match reactive_context.current_owner {
+        Some(owner) => owner.cleanups.push(cleanup)
+        None => () // No tracking scope, ignore
+      }
   }
 }
 

@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from "vitest";
 import {
   createStore,
-  createEffect,
+  createRenderEffect,
   createRoot,
   produce,
   reconcile,
@@ -77,7 +77,7 @@ describe("createStore", () => {
         const [state, setState] = createStore({ count: 0 });
         const values: number[] = [];
 
-        createEffect(() => {
+        createRenderEffect(() => {
           values.push(state.count);
         });
 
@@ -98,7 +98,7 @@ describe("createStore", () => {
         });
         const names: string[] = [];
 
-        createEffect(() => {
+        createRenderEffect(() => {
           names.push(state.user.name);
         });
 
@@ -117,7 +117,7 @@ describe("createStore", () => {
         });
         const aValues: number[] = [];
 
-        createEffect(() => {
+        createRenderEffect(() => {
           aValues.push(state.a);
         });
 
@@ -140,7 +140,7 @@ describe("createStore", () => {
         });
         const names: string[] = [];
 
-        createEffect(() => {
+        createRenderEffect(() => {
           names.push(state.user.name);
         });
 

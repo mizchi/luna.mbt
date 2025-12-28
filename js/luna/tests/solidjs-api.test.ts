@@ -4,7 +4,7 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 import {
   createSignal,
-  createEffect,
+  createRenderEffect,
   createMemo,
   createRoot,
   on,
@@ -42,7 +42,7 @@ describe("on() utility", () => {
     createRoot((dispose) => {
       const [count, setCount] = createSignal(0);
 
-      createEffect(
+      createRenderEffect(
         on(count, (value, prev) => {
           results.push([value, prev]);
         })
@@ -67,7 +67,7 @@ describe("on() utility", () => {
       const [a, setA] = createSignal(1);
       const [b, setB] = createSignal("x");
 
-      createEffect(
+      createRenderEffect(
         on([a, b], (values, prev) => {
           results.push([values as [number, string], prev as [number, string] | undefined]);
         })
@@ -91,7 +91,7 @@ describe("on() utility", () => {
     createRoot((dispose) => {
       const [count, setCount] = createSignal(0);
 
-      createEffect(
+      createRenderEffect(
         on(
           count,
           (value) => {
@@ -445,13 +445,13 @@ describe("SolidJS API compatibility", () => {
     expect(doubled()).toBe(10);
   });
 
-  test("createEffect tracks dependencies automatically", () => {
+  test("createRenderEffect tracks dependencies automatically", () => {
     const values: number[] = [];
 
     createRoot((dispose) => {
       const [count, setCount] = createSignal(0);
 
-      createEffect(() => {
+      createRenderEffect(() => {
         values.push(count());
       });
 

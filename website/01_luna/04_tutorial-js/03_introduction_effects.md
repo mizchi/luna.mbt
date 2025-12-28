@@ -6,6 +6,8 @@ title: "Introduction: Effects"
 
 Effects are functions that run automatically when their dependencies change.
 
+> **Note:** Luna's `createEffect` runs immediately (synchronously), similar to Solid.js's `createRenderEffect`. Solid.js's `createEffect` is deferred until after the render phase completes.
+
 ## Creating Effects
 
 ```typescript

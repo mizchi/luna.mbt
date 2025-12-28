@@ -30,6 +30,7 @@
         "create_memo:createMemo",
         "combine",
         "effect",
+        "render_effect:renderEffect",
         "batch_start:batchStart",
         "batch_end:batchEnd",
         "run_untracked:runUntracked",

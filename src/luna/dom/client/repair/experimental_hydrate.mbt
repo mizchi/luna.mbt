@@ -538,7 +538,7 @@ fn apply_vattr(
         }
       }
     @luna.VDynamic(getter) => {
-      let _ = @signal.effect(fn() {
+      let _ = @signal.render_effect(fn() {
         let new_value = getter()
         if new_value == "__remove__" {
           elem.removeAttribute(name)
@@ -854,7 +854,7 @@ fn experimental_hydrate_dynamic_text(
           Some(text_node) =>
             if text_node.nodeType() == 3 {
               // Set up effect
-              let _ = @signal.effect(fn() {
+              let _ = @signal.render_effect(fn() {
                 let new_text = getter()
                 text_node.setTextContent(new_text)
               })
@@ -879,7 +879,7 @@ fn experimental_hydrate_dynamic_text(
           None => parent.appendChild(new_text.as_node()) |> ignore
         }
         let text_ref = new_text.as_node()
-        let _ = @signal.effect(fn() { text_ref.setTextContent(getter()) })
+        let _ = @signal.render_effect(fn() { text_ref.setTextContent(getter()) })
         let _ = ctx.path_stack.pop()
         return
       }
@@ -902,7 +902,7 @@ fn experimental_hydrate_dynamic_text(
   parent.appendChild(text_node.as_node()) |> ignore
   parent.appendChild(end_comment) |> ignore
   let text_ref = text_node.as_node()
-  let _ = @signal.effect(fn() { text_ref.setTextContent(getter()) })
+  let _ = @signal.render_effect(fn() { text_ref.setTextContent(getter()) })
   let _ = ctx.path_stack.pop()
 
 }
@@ -1069,7 +1069,7 @@ fn repair_attributes(
       }
       @luna.VDynamic(getter) => {
         // Set up effect for dynamic attribute
-        let _ = @signal.effect(fn() {
+        let _ = @signal.render_effect(fn() {
           let new_value = getter()
           if new_value == "__remove__" {
             elem.removeAttribute(name)
@@ -1190,7 +1190,7 @@ fn experimental_hydrate_show(
   }
 
   // Set up effect for updates
-  let _ = @signal.effect(fn() {
+  let _ = @signal.render_effect(fn() {
     let should_show = cond()
     if should_show && current_nodes.is_empty() {
       let child_node = @client.render_vnode_to_dom(child_fn())
@@ -1308,7 +1308,7 @@ fn experimental_hydrate_for(
         @luna.DynamicText(getter) => {
           current_node.setTextContent(getter())
           let node_ref = current_node
-          let _ = @signal.effect(fn() { node_ref.setTextContent(getter()) })
+          let _ = @signal.render_effect(fn() { node_ref.setTextContent(getter()) })
 
         }
         _ => {
@@ -1346,7 +1346,7 @@ fn experimental_hydrate_for(
   }
 
   // Set up effect for future updates
-  let _ = @signal.effect(fn() {
+  let _ = @signal.render_effect(fn() {
     let new_items = render_fn()
 
     // Simple reconciliation: clear and re-render
