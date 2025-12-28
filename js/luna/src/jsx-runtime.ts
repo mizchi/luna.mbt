@@ -225,10 +225,12 @@ export function Fragment({ children }: { children?: unknown }): unknown {
 // Export jsxDEV for development mode
 export const jsxDEV = jsx;
 
+// Import LunaNode type from index
+import type { LunaNode } from "./index";
+
 // JSX namespace for TypeScript
 export namespace JSX {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  export type Element = any;
+  export type Element = LunaNode;
   export interface IntrinsicElements {
     // All HTML elements use HTMLAttributes with reactive support
     a: HTMLAttributes;

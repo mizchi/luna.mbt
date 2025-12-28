@@ -3,54 +3,65 @@
 // This file wraps MoonBit APIs to provide SolidJS-compatible interface
 
 // Type definitions for SolidJS-compatible API
+
+/**
+ * Represents a node created by Luna's reactive system.
+ * This is an opaque type - the actual structure is managed by MoonBit.
+ */
+export type LunaNode = unknown;
+
 export type Accessor<T> = () => T;
 export type Setter<T> = (value: T | ((prev: T) => T)) => void;
 export type Signal<T> = [Accessor<T>, Setter<T>];
 
 export interface ForProps<T> {
   each: Accessor<T[]> | T[];
-  fallback?: any;
-  children: (item: T, index: Accessor<number>) => any;
+  fallback?: LunaNode;
+  children: (item: T, index: Accessor<number>) => LunaNode;
 }
 
 export interface ShowProps<T> {
   when: T | Accessor<T>;
-  fallback?: any;
-  children: any | ((item: T) => any);
+  fallback?: LunaNode;
+  /** Must be a function to ensure proper lifecycle (onCleanup/onMount) support */
+  children: (() => LunaNode) | ((item: NonNullable<T>) => LunaNode);
 }
 
 export interface IndexProps<T> {
   each: Accessor<T[]> | T[];
-  fallback?: any;
-  children: (item: Accessor<T>, index: number) => any;
+  fallback?: LunaNode;
+  children: (item: Accessor<T>, index: number) => LunaNode;
 }
 
 export interface Context<T> {
   id: number;
   default_value: () => T;
-  providers: any[];
+  providers: unknown[];
 }
 
 export interface ProviderProps<T> {
   context: Context<T>;
   value: T;
-  children: any | (() => any);
+  /** Must be a function to ensure proper context access and lifecycle (onCleanup/onMount) support */
+  children: () => LunaNode;
 }
 
 export interface MatchProps<T> {
   when: T | Accessor<T>;
-  children: any | ((item: T) => any);
+  /** Must be a function to ensure proper lifecycle (onCleanup/onMount) support */
+  children: (() => LunaNode) | ((item: NonNullable<T>) => LunaNode);
 }
 
 export interface SwitchProps {
-  fallback?: any;
-  children: any[];
+  fallback?: LunaNode;
+  children: LunaNode[];
 }
 
 export interface PortalProps {
   mount?: Element | string;
   useShadow?: boolean;
-  children: any | (() => any);
+  /** Must be a function to ensure proper lifecycle (onCleanup/onMount) support */
+  children: () => LunaNode;
 }
 
 export interface ResourceAccessor<T> {
@@ -94,7 +105,7 @@ import {
   show,
   jsx,
   jsxs,
-  Fragment as fragment,  // MoonBit's fragment function (Array -> DomNode)
+  Fragment as fragment,  // MoonBit's fragment function (Array -> LunaNode)
   createElement,
   createElementNs,
   svgNs,
@@ -397,7 +408,7 @@ function resolveChild(value: any, ...args: any[]): any {
 
 /**
  * JSX-compatible Fragment component.
- * Wraps children in a DomNode fragment for use in JSX.
+ * Wraps children in a LunaNode fragment for use in JSX.
  * Also supports direct array call for backwards compatibility: Fragment([...])
  */
 export function Fragment(propsOrChildren: { children?: any } | any[]): any {
@@ -478,13 +489,12 @@ export function Index<T>(props: IndexProps<T>): any {
 
 /**
  * Provider component for Context (SolidJS-style)
+ * Children must be a function: {() => <Child />}
  */
 export function Provider<T>(props: ProviderProps<T>): any {
   const { context, value, children } = props;
 
-  return provide(context, value, () => {
-    return typeof children === "function" ? children() : children;
-  });
+  return provide(context, value, children);
 }
 
 /**
@@ -570,12 +580,13 @@ export function Match<T>(props: MatchProps<T>): { __isMatch: true; when: () => b
 
 /**
  * Portal component for rendering outside the component tree (SolidJS-style)
+ * Children must be a function: {() => <Child />}
  */
 export function Portal(props: PortalProps): any {
   const { mount, useShadow = false, children } = props;
 
-  // Resolve children
-  const resolvedChildren = typeof children === "function" ? [children()] : Array.isArray(children) ? children : [children];
+  // Resolve children (must be a function)
+  const resolvedChildren = [children()];
 
   // Handle different mount targets
   if (useShadow) {

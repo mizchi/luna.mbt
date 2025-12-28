@@ -484,10 +484,8 @@ describe("Portal component", () => {
   });
 
   test("Portal renders children to body by default", () => {
-    const content = createElement("div", [attr("id", AttrValue.Static("portal-content"))], [text("Portal content")]);
-
     const placeholder = Portal({
-      children: content,
+      children: () => createElement("div", [attr("id", AttrValue.Static("portal-content"))], [text("Portal content")]),
     });
 
     // Placeholder should be returned
@@ -503,11 +501,9 @@ describe("Portal component", () => {
   });
 
   test("Portal renders to selector mount target", () => {
-    const content = createElement("div", [attr("id", AttrValue.Static("selector-portal"))], [text("Selector portal")]);
-
     Portal({
       mount: "#portal-target",
-      children: content,
+      children: () => createElement("div", [attr("id", AttrValue.Static("selector-portal"))], [text("Selector portal")]),
     });
 
     // Content should be in the portal target

@@ -105,7 +105,7 @@ createEffect(() => {
 ### Components
 
 ```tsx
-import { For, Show } from '@luna_ui/luna';
+import { For, Show, Switch, Match } from '@luna_ui/luna';
 
 // For: list rendering
 <For each={items}>
@@ -113,8 +113,48 @@ import { For, Show } from '@luna_ui/luna';
 </For>
 
 // Show: conditional rendering
+// ⚠️ Children must be a function for proper lifecycle support
 <Show when={() => isVisible()}>
-  <div>Visible content</div>
+  {() => <MyComponent />}
+</Show>
+
+// Switch/Match: multiple conditions
+<Switch fallback={<p>Default</p>}>
+  <Match when={() => value() === 'a'}>{() => <ComponentA />}</Match>
+  <Match when={() => value() === 'b'}>{() => <ComponentB />}</Match>
+</Switch>
+```
+
+### Lifecycle Hooks
+
+```tsx
+import { onMount, onCleanup } from '@luna_ui/luna';
+
+function Timer() {
+  const [count, setCount] = createSignal(0);
+
+  // Run after component mounts
+  onMount(() => {
+    console.log('Timer mounted');
+  });
+
+  // Cleanup when component unmounts
+  onCleanup(() => {
+    console.log('Timer cleanup');
+  });
+
+  return <p>Count: {count()}</p>;
+}
+
+// ⚠️ Important: For onCleanup to work inside Show/For/Switch,
+// children must be passed as a function:
+<Show when={isVisible}>
+  {() => <Timer />}  {/* ✅ Correct */}
+</Show>
+
+// This won't trigger cleanup properly:
+<Show when={isVisible}>
+  <Timer />  {/* ❌ Wrong - Timer runs outside owner scope */}
 </Show>
 ```
 
@@ -138,6 +178,48 @@ import { For, Show } from '@luna_ui/luna';
 <button onClick={() => console.log('clicked')}>Click</button>
 <input onInput={(e) => setValue(e.target.value)} />
 <form onSubmit={(e) => { e.preventDefault(); submit(); }}>
+```
+
+### Context (Provider)
+
+```tsx
+import { createContext, useContext, Provider } from '@luna_ui/luna';
+
+// Create a context with default value
+const ThemeContext = createContext('light');
+
+function App() {
+  return (
+    // ⚠️ Children must be a function for proper context access
+    <Provider context={ThemeContext} value="dark">
+      {() => <ThemedComponent />}
+    </Provider>
+  );
+}
+
+function ThemedComponent() {
+  const theme = useContext(ThemeContext);
+  return <div>Current theme: {theme}</div>;
+}
+```
+
+### Portal
+
+```tsx
+import { Portal } from '@luna_ui/luna';
+
+function Modal() {
+  return (
+    // ⚠️ Children must be a function for proper lifecycle support
+    <Portal mount="#modal-root">
+      {() => (
+        <div class="modal">
+          <h2>Modal Content</h2>
+        </div>
+      )}
+    </Portal>
+  );
+}
 ```
 
 ## License
