@@ -1,6 +1,6 @@
 {
   "name": "sol-sqlite-example",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "module",
   "engines": {
     "node": ">=22.5.0"
