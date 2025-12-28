@@ -39,7 +39,7 @@ pub(all) struct ItemEntry[T] {
 /// Create a new ItemEntry
 pub fn[T] ItemEntry::new(item : T, dom : @js_dom.Node) -> ItemEntry[T] {
   // Default dispose is no-op for backwards compatibility
-  { item, dom, dispose: fn() { } }
+  { item, dom, dispose: fn() {  } }
 }
 
 ///|
@@ -103,7 +103,7 @@ pub fn[T] reconcile_items(
   }
   let new_entries : Array[ItemEntry[T]] = []
   for j = 0; j < n; j = j + 1 {
-    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() { } })
+    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() {  } })
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
 
@@ -134,7 +134,7 @@ pub fn[T] reconcile_items(
       parent.insertBefore(dom, Some(cursor.val)) |> ignore
       cursor.val = dom
       // New items get no-op dispose - actual dispose is set by for_each
-      new_entries[i] = { item, dom, dispose: fn() { } }
+      new_entries[i] = { item, dom, dispose: fn() {  } }
     }
   }
 
@@ -228,13 +228,11 @@ pub fn[T] reconcile_items_with_dispose(
     }
     return []
   }
-
   let new_entries : Array[ItemEntry[T]] = []
   for j = 0; j < n; j = j + 1 {
-    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() { } })
+    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() {  } })
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
-
   let cursor : Ref[@js_dom.Node] = { val: end_marker }
 
   // Process from last to first

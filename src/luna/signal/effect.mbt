@@ -27,7 +27,6 @@ fn create_effect_runner(
 ) -> (EffectRunner, () -> Unit) {
   let id = new_effect_id()
   let runner_ref : Ref[EffectRunner?] = { val: None }
-
   fn run_effect() -> Unit {
     if not(state.active) {
       return
@@ -46,12 +45,10 @@ fn create_effect_runner(
 
   let runner : EffectRunner = { id, run: run_effect }
   runner_ref.val = Some(runner)
-
   let dispose = fn() {
     state.active = false
     run_cleanups(state.cleanups)
   }
-
   (runner, dispose)
 }
 
@@ -84,11 +81,7 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
   let (runner, dispose) = create_effect_runner(fn_, state)
 
   // Defer initial run via microtask (like Solid.js createEffect)
-  queue_microtask(fn() {
-    if state.active {
-      (runner.run)()
-    }
-  })
+  queue_microtask(fn() { if state.active { (runner.run)() } })
 
   // Register with current owner if present
   register_disposer(dispose)

@@ -1308,7 +1308,9 @@ fn experimental_hydrate_for(
         @luna.DynamicText(getter) => {
           current_node.setTextContent(getter())
           let node_ref = current_node
-          let _ = @signal.render_effect(fn() { node_ref.setTextContent(getter()) })
+          let _ = @signal.render_effect(fn() {
+            node_ref.setTextContent(getter())
+          })
 
         }
         _ => {

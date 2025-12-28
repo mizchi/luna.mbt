@@ -116,7 +116,11 @@ pub fn pre(id? : String, class? : String, style? : String, dyn_class? : () -> St
 
 pub fn[T] reconcile_for_each(Ref[Array[ItemEntry[T]]], @dom.Node, Array[T], (T, Int) -> @dom.Node) -> Unit
 
+pub fn[T] reconcile_for_each_with_dispose(Ref[Array[ItemEntry[T]]], @dom.Node, Array[T], (T, Int) -> (@dom.Node, () -> Unit)) -> Unit
+
 pub fn[T] reconcile_items(@dom.Node, Array[ItemEntry[T]], Array[T], (T, Int) -> @dom.Node, @dom.Node) -> Array[ItemEntry[T]]
+
+pub fn[T] reconcile_items_with_dispose(@dom.Node, Array[ItemEntry[T]], Array[T], (T, Int) -> (@dom.Node, () -> Unit), @dom.Node) -> Array[ItemEntry[T]]
 
 pub fn[T] ref_equal(T, T) -> Bool
 
@@ -233,8 +237,10 @@ pub fn HandlerMap::wheel(Self, (@dom.WheelEvent) -> Unit) -> Self
 pub(all) struct ItemEntry[T] {
   item : T
   dom : @dom.Node
+  dispose : () -> Unit
 }
 pub fn[T] ItemEntry::new(T, @dom.Node) -> Self[T]
+pub fn[T] ItemEntry::new_with_dispose(T, @dom.Node, () -> Unit) -> Self[T]
 
 // Type aliases
 pub type AnimationEventHandler[T] = (@dom.AnimationEvent) -> Unit

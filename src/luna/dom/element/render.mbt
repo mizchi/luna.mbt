@@ -269,6 +269,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
       current_dispose.val = Some(dispose)
       result.val = collect_child_nodes(dom.to_dom())
     }
+
     match captured_owner {
       Some(parent) => @signal.run_with_owner(parent, do_render)
       None => do_render()
@@ -360,6 +361,7 @@ pub fn[T] for_each(
       })
       (dom.to_dom(), dispose)
     }
+
     match captured_owner {
       Some(parent) => @signal.run_with_owner(parent, fn() { do_render() })
       None => do_render()
@@ -383,7 +385,9 @@ pub fn[T] for_each(
       is_first.val = false
       return
     }
-    reconcile_for_each_with_dispose(entries, placeholder, new_items, render_with_scope)
+    reconcile_for_each_with_dispose(
+      entries, placeholder, new_items, render_with_scope,
+    )
   })
   Raw(fragment.as_node())
 }

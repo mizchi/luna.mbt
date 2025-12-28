@@ -164,7 +164,7 @@ pub fn on_mount(fn_ : () -> Unit) -> Unit {
   // This ensures refs are bound before onMount runs.
   queue_microtask(fn() {
     match captured_owner {
-      Some(owner) => {
+      Some(owner) =>
         // Run with owner context so cleanup registration works
         @signal.run_with_owner(owner, fn() {
           // Run untracked (no dependency tracking)
@@ -178,7 +178,6 @@ pub fn on_mount(fn_ : () -> Unit) -> Unit {
             }
           })
         })
-      }
       None =>
         // No owner - just run untracked
         @signal.untracked(fn_)

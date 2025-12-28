@@ -2,6 +2,7 @@
 // Tests for locale detection from file paths
 
 // Helper to create i18n config for tests
+
 ///|
 fn test_i18n_config() -> I18nConfig {
   I18nConfig::{

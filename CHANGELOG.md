@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Documentation
+
+- Translate code comments and READMEs to English
+
+### Features
+
+- **luna**: Align effect semantics with Solid.js
+
+### Miscellaneous
+
+- Doc
+
+## [Unreleased]
+
 ### Bug Fixes
 
 - **luna**: Handle DocumentFragment with multiple children in show
