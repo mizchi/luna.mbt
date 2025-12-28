@@ -34,8 +34,10 @@ pub fn generate_auto_sidebar(
   pages : Array[@astra.PageMeta],
   locale? : String = "en",
 ) -> Array[@astra.SidebarGroup] {
-  // Filter pages by locale first
-  let locale_pages = pages.filter(p => p.locale == locale)
+  // Filter pages by locale and exclude pages with sidebar: false
+  let locale_pages = pages.filter(
+    p => p.locale == locale && p.frontmatter.sidebar,
+  )
 
   // Build hierarchical tree structure
   let tree = build_page_tree(locale_pages)

@@ -8,9 +8,10 @@
 // =============================================================================
 
 ///|
-/// Detect locale from file path using filename suffix
-/// e.g., "guide/intro.ja.md" -> ("ja", "/guide/intro/")
-///       "guide/intro.md" -> ("en", "/guide/intro/")
+/// Detect locale from file path using directory prefix or filename suffix
+/// e.g., "ja/guide/intro.md" -> ("ja", "/guide/intro/")  // directory-based
+///       "guide/intro.ja.md" -> ("ja", "/guide/intro/")  // suffix-based
+///       "guide/intro.md" -> ("en", "/guide/intro/")     // default locale
 pub fn detect_locale_from_path(
   path : String,
   i18n : I18nConfig,
@@ -21,7 +22,22 @@ pub fn detect_locale_from_path(
   for locale in i18n.locales {
     locale_codes.push(locale.code)
   }
-  // Extract filename and check for locale suffix
+
+  // 1. Check for directory-based locale prefix (e.g., "ja/guide/intro.md")
+  for locale in i18n.locales {
+    if locale.path.is_empty() {
+      continue
+    }
+    let prefix = locale.path + "/"
+    if path.has_prefix(prefix) {
+      // Strip the locale directory prefix to get canonical path
+      let path_without_locale = @utils.slice_from(path, prefix.length())
+      let canonical = file_to_url_path(path_without_locale, trailing_slash~)
+      return (locale.code, canonical)
+    }
+  }
+
+  // 2. Check for filename suffix-based locale (e.g., "guide/intro.ja.md")
   let filename = get_filename(path)
   match extract_locale_suffix(filename, locale_codes) {
     Some((locale_code, clean_filename)) => {
@@ -31,7 +47,7 @@ pub fn detect_locale_from_path(
       (locale_code, canonical)
     }
     None =>
-      // No locale suffix found, use default locale
+      // No locale found, use default locale
       (i18n.default_locale, file_to_url_path(path, trailing_slash~))
   }
 }

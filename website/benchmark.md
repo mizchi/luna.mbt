@@ -1,5 +1,6 @@
 ---
 title: Benchmark Report
+sidebar: false
 ---
 
 # Luna Benchmark Report

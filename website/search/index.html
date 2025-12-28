@@ -1,0 +1,161 @@
+<section class="search-page">
+  <h1 class="search-title">Search Documentation</h1>
+
+  <div id="search">
+    <p id="search-loading" class="search-loading">Loading search...</p>
+  </div>
+
+  <noscript>
+    <p class="search-noscript">JavaScript is required for search functionality.</p>
+  </noscript>
+</section>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" onerror="document.getElementById('search-loading').textContent = 'Search is only available in production build. Run: just build-doc'">
+<script src="/pagefind/pagefind-ui.js" onerror="document.getElementById('search-loading').textContent = 'Search is only available in production build. Run: just build-doc'"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    // Check if PagefindUI is available
+    if (typeof PagefindUI === 'undefined') {
+      document.getElementById('search-loading').textContent =
+        'Search is only available in production build. Run: just build-doc';
+      return;
+    }
+
+    // Hide loading message
+    const loading = document.getElementById('search-loading');
+    if (loading) loading.style.display = 'none';
+
+    // Detect current language from URL
+    const isJapanese = window.location.pathname.startsWith('/ja/');
+
+    try {
+      new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showImages: false,
+        translations: isJapanese ? {
+          placeholder: "ドキュメントを検索...",
+          zero_results: "「[SEARCH_TERM]」の検索結果はありません",
+          many_results: "[COUNT] 件の結果",
+          one_result: "1 件の結果",
+          searching: "検索中..."
+        } : {
+          placeholder: "Search docs...",
+          zero_results: "No results for [SEARCH_TERM]",
+          many_results: "[COUNT] results",
+          one_result: "1 result",
+          searching: "Searching..."
+        },
+        // Filter results by current language
+        processResult: (result) => {
+          const isJaPage = result.url.startsWith('/ja/');
+          if (isJapanese && !isJaPage) return null;
+          if (!isJapanese && isJaPage) return null;
+          return result;
+        }
+      });
+
+      // Hide search icon on focus/input
+      const input = document.querySelector('.pagefind-ui__search-input');
+      const icon = document.querySelector('.pagefind-ui__search-icon');
+      if (input && icon) {
+        input.addEventListener('focus', () => icon.style.display = 'none');
+        input.addEventListener('blur', () => {
+          if (!input.value) icon.style.display = '';
+        });
+        input.addEventListener('input', () => {
+          icon.style.display = input.value ? 'none' : '';
+        });
+      }
+
+      // Get search query from URL params
+      const params = new URLSearchParams(window.location.search);
+      const query = params.get('q');
+      if (query && input) {
+        input.value = query;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    } catch (e) {
+      console.error('Failed to initialize Pagefind:', e);
+      document.getElementById('search-loading').textContent =
+        'Search initialization failed. Please try refreshing.';
+      document.getElementById('search-loading').style.display = 'block';
+    }
+  });
+</script>
+
+<style>
+.search-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 60vh;
+}
+
+.search-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.search-loading,
+.search-noscript {
+  padding: 1rem;
+  background: var(--bg-secondary, #f5f5f5);
+  border-radius: 8px;
+  color: var(--text-secondary, #666);
+}
+
+/* Pagefind UI Overrides */
+.pagefind-ui {
+  --pagefind-ui-scale: 1;
+  --pagefind-ui-primary: var(--color-primary, #fbbf24);
+  --pagefind-ui-text: var(--text-primary, #1a1a1a);
+  --pagefind-ui-background: var(--bg-primary, #ffffff);
+  --pagefind-ui-border: var(--border-color, #e5e5e5);
+  --pagefind-ui-tag: var(--bg-secondary, #f5f5f5);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 8px;
+  --pagefind-ui-font: inherit;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .pagefind-ui {
+    --pagefind-ui-text: #f5f5f5;
+    --pagefind-ui-background: #1a1a1a;
+    --pagefind-ui-border: #333;
+    --pagefind-ui-tag: #2a2a2a;
+  }
+
+  .search-loading {
+    background: #2a2a2a;
+    color: #aaa;
+  }
+}
+
+.pagefind-ui__search-input {
+  font-size: 1rem !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.pagefind-ui__result {
+  padding: 1rem !important;
+  border-radius: 8px !important;
+}
+
+.pagefind-ui__result-link {
+  color: var(--color-primary, #fbbf24) !important;
+  font-weight: 600 !important;
+}
+
+.pagefind-ui__result-excerpt {
+  margin-top: 0.5rem !important;
+  line-height: 1.6 !important;
+}
+
+mark.pagefind-ui__result-highlight {
+  background: rgba(251, 191, 36, 0.3) !important;
+  color: inherit !important;
+}
+</style>

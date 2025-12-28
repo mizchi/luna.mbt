@@ -15,7 +15,8 @@
   "nav": [
     { "text": "Luna", "link": "/luna/", "icon": "luna" },
     { "text": "Sol", "link": "/sol/", "icon": "sol" },
-    { "text": "Astra", "link": "/astra/", "icon": "astra" }
+    { "text": "Astra", "link": "/astra/", "icon": "astra" },
+    { "text": "Search", "link": "/search/", "icon": "search" }
   ],
   "sidebar": "auto",
   "navigation": {

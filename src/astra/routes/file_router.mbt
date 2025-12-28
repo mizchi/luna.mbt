@@ -351,8 +351,19 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
           fm
         }
         @astra.Html => {
-          // Try to read page.json from same directory
-          let page_json_path = join_path_simple(dir_path, "page.json")
+          // Try to read page.{locale}.json for localized pages, fallback to page.json
+          let localized_page_json = if locale != i18n.default_locale {
+            join_path_simple(dir_path, "page." + locale + ".json")
+          } else {
+            join_path_simple(dir_path, "page.json")
+          }
+          let page_json_path = if @env.FileSystem::exists_sync(
+            filesystem, localized_page_json,
+          ) {
+            localized_page_json
+          } else {
+            join_path_simple(dir_path, "page.json")
+          }
           if @env.FileSystem::exists_sync(filesystem, page_json_path) {
             let content : String = @env.FileSystem::read_file_sync(
               filesystem, page_json_path,
@@ -842,13 +853,16 @@ fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
   // Parse noindex flag
   let noindex = @json_utils.extract_bool(obj, "noindex", false)
 
+  // Parse sidebar flag (default true)
+  let sidebar = @json_utils.extract_bool(obj, "sidebar", true)
+
   // Parse revalidate (ISR TTL in seconds)
   let revalidate = @json_utils.extract_int_opt(obj, "revalidate")
   @astra.Frontmatter::{
     title,
     description,
     layout,
-    sidebar: true,
+    sidebar,
     outline: None,
     islands,
     prev: None,

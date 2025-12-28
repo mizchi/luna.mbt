@@ -540,6 +540,10 @@ fn get_content_type(file_path : String) -> String {
     "application/xml"
   } else if file_path.ends_with(".txt") {
     "text/plain; charset=utf-8"
+  } else if file_path.ends_with(".wasm") {
+    "application/wasm"
+  } else if file_path.ends_with(".pf_meta") || file_path.ends_with(".pf_index") {
+    "application/octet-stream"
   } else {
     "application/octet-stream"
   }

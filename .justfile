@@ -179,6 +179,12 @@ _build-doc-inner *args:
     mv website/public/demo/demo-src/* website/public/demo/ && rm -rf website/public/demo/demo-src
     @echo "Building docs..."
     node target/js/release/build/astra/cli/cli.js build --parallel {{args}}
+    @echo "Building search index..."
+    @if [ -d dist-docs ] && [ -n "$(find dist-docs -name '*.html' -type f 2>/dev/null | head -1)" ]; then \
+        pnpm pagefind --site dist-docs; \
+    else \
+        echo "⚠ Skipping pagefind: no HTML files in dist-docs"; \
+    fi
     @echo "✓ Documentation built"
 
 # docs デプロイ（Cloudflare Pages）
