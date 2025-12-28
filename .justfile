@@ -88,6 +88,20 @@ extract-css-quiet dir="src" output="":
 extract-css-strict dir="src":
     node src/luna/css/extract.js {{dir}} --strict --pretty
 
+# CSS ユーティリティを main.css に追加（ビルド統合用）
+inject-utility-css:
+    #!/usr/bin/env bash
+    set -e
+    UTILITY_CSS=$(node src/luna/css/extract.js src --no-warn 2>/dev/null)
+    if [ -n "$UTILITY_CSS" ]; then
+        echo "" >> src/astra/assets/styles/main.css
+        echo "/* === CSS Utilities (auto-generated) === */" >> src/astra/assets/styles/main.css
+        echo "$UTILITY_CSS" >> src/astra/assets/styles/main.css
+        echo "✓ Injected utility CSS into main.css"
+    else
+        echo "No utility CSS to inject"
+    fi
+
 # =============================================================================
 # テスト（ピラミッド構造）
 # =============================================================================
