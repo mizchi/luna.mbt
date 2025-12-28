@@ -21,6 +21,15 @@
         "js/loader/dist/**"
       ]
     },
+    "//#build:astra": {
+      "dependsOn": ["//#build:moon"],
+      "inputs": [
+        "js/astra/src/**"
+      ],
+      "outputs": [
+        "js/astra/dist/**"
+      ]
+    },
     "build": {
       "dependsOn": ["^build", "//#build:moon", "//#build:loader"],
       "outputs": ["dist/**"]

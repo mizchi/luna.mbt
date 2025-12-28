@@ -6,6 +6,7 @@
   "scripts": {
     "build:moon": "just build-moon",
     "build:loader": "just build-loader",
+    "build:astra": "cd js/astra && pnpm build",
     "test:moonbit": "just test-moonbit",
     "test:ts": "just test-ts",
     "test:vitest": "just test-vitest",
