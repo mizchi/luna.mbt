@@ -109,6 +109,36 @@ Utilities: 167
 Selectors factored: 274/329
 ```
 
+### Bootstrap 5.3 (232KB)
+
+```
+Original: 232,911 bytes
+Optimized: 108,382 bytes
+Reduction: 53.5%
+Utilities: 519
+Selectors factored: 2,120/2,455
+```
+
+### Bulma 0.9 (207KB)
+
+```
+Original: 207,302 bytes
+Optimized: 43,124 bytes
+Reduction: 79.2%  ← Best case!
+Utilities: 444
+Selectors factored: 1,774/2,102
+```
+
+### Tailwind Preflight (8KB)
+
+```
+Original: 7,695 bytes
+Optimized: 6,556 bytes
+Reduction: 14.8%  ← Already utility-first, minimal gain
+```
+
+**Observation**: Component-based CSS (BEM, Bulma) benefits most. Utility-first CSS (Tailwind) already optimized.
+
 ## Runtime Compression (Experimental)
 
 For even smaller payloads, the runtime format further compresses:
