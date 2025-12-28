@@ -4,31 +4,36 @@
 // Shared between Sol (SSR framework) and Astra (SSG).
 
 // =============================================================================
-// Locale Detection from Path
+// Locale Detection from Filename
 // =============================================================================
 
 ///|
-/// Detect locale from file path
-/// e.g., "ja/guide/intro.md" -> ("ja", "/guide/intro/")
+/// Detect locale from file path using filename suffix
+/// e.g., "guide/intro.ja.md" -> ("ja", "/guide/intro/")
 ///       "guide/intro.md" -> ("en", "/guide/intro/")
 pub fn detect_locale_from_path(
   path : String,
   i18n : I18nConfig,
   trailing_slash? : Bool = true,
 ) -> (String, String) {
-  // Check if path starts with a locale directory
+  // Get locale codes from config
+  let locale_codes : Array[String] = []
   for locale in i18n.locales {
-    if locale.path.is_empty() {
-      continue
-    }
-    let prefix = locale.path + "/"
-    if path.has_prefix(prefix) {
-      let canonical = @utils.slice_from(path, prefix.length())
-      return (locale.code, file_to_url_path(canonical, trailing_slash~))
-    }
+    locale_codes.push(locale.code)
   }
-  // No locale prefix found, use default locale
-  (i18n.default_locale, file_to_url_path(path, trailing_slash~))
+  // Extract filename and check for locale suffix
+  let filename = get_filename(path)
+  match extract_locale_suffix(filename, locale_codes) {
+    Some((locale_code, clean_filename)) => {
+      // Replace filename in path with clean filename
+      let clean_path = replace_filename(path, clean_filename)
+      let canonical = file_to_url_path(clean_path, trailing_slash~)
+      (locale_code, canonical)
+    }
+    None =>
+      // No locale suffix found, use default locale
+      (i18n.default_locale, file_to_url_path(path, trailing_slash~))
+  }
 }
 
 // =============================================================================

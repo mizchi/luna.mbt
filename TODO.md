@@ -11,6 +11,7 @@
   - Next font みたいなやつ
 - 最小限の CSS Reset 導入
 - PageFind https://pagefind.app/
+- loader のレビュー・軽量化
 
 ## TODO
 

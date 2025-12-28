@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/luna-loader",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Island loader for Luna SSR hydration",
   "type": "module",
   "main": "./dist/loader.js",
@@ -32,8 +32,7 @@
     "dist",
     "src"
   ],
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [
     "luna",
     "moonbit",

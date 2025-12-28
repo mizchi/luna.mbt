@@ -30,10 +30,14 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
 /// - External links (http://, https://, etc.) are returned as-is
 /// - For index pages: use standard browser behavior (./foo = child)
 /// - For content pages: use sibling behavior (./foo = sibling in parent dir)
+/// - locale_prefix: prepended to relative links for i18n (e.g., "/ja" for Japanese)
+/// - available_urls: list of available page URLs for fallback (if empty, no fallback check)
 fn resolve_href(
   href : String,
   current_url_path : String,
   is_index : Bool,
+  locale_prefix : String,
+  available_urls : Array[String],
 ) -> String {
   // External links - return as-is
   if href.has_prefix("http://") ||
@@ -48,7 +52,7 @@ fn resolve_href(
     return href
   }
 
-  // Already absolute - just normalize
+  // Already absolute - just normalize (don't add locale prefix for explicit absolute paths)
   if href.has_prefix("/") {
     return normalize_href(href)
   }
@@ -63,14 +67,69 @@ fn resolve_href(
 
   // For index pages, use the current URL as base (standard browser behavior)
   // For content pages, use parent directory (sibling behavior)
+  // Note: current_url_path already includes locale prefix (e.g., /ja/intro/)
+  // We need to use the canonical path (without locale) and add locale prefix
+  let canonical_base = strip_locale_prefix(current_url_path, locale_prefix)
   let base = if is_index {
-    // Index page: /luna/api-js/ + signals = /luna/api-js/signals/
-    current_url_path
+    canonical_base
   } else {
-    // Content page: /luna/tutorial-js/introduction_basics/ -> parent /luna/tutorial-js/
-    get_parent_directory(current_url_path)
+    get_parent_directory(canonical_base)
   }
-  normalize_href(base + clean_href)
+
+  // Resolve the canonical path (without locale)
+  let canonical_resolved = normalize_href(base + clean_href)
+
+  // If no locale prefix, just return the resolved path
+  if locale_prefix.is_empty() {
+    return canonical_resolved
+  }
+
+  // Try localized URL first
+  let localized_url = locale_prefix + canonical_resolved
+
+  // If available_urls is provided and not empty, check if localized URL exists
+  if available_urls.length() > 0 {
+    // Check if localized version exists
+    if url_exists(localized_url, available_urls) {
+      return localized_url
+    }
+    // Fallback to default locale (canonical path without prefix)
+    return canonical_resolved
+  }
+
+  // No URL list provided - assume localized URL exists
+  localized_url
+}
+
+///|
+/// Check if a URL exists in the available URLs list
+fn url_exists(url : String, available_urls : Array[String]) -> Bool {
+  for u in available_urls {
+    if u == url {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Strip locale prefix from URL path
+/// "/ja/intro/" with prefix "/ja" -> "/intro/"
+fn strip_locale_prefix(url_path : String, locale_prefix : String) -> String {
+  if locale_prefix.is_empty() {
+    return url_path
+  }
+  let prefix_with_slash = locale_prefix + "/"
+  if url_path.has_prefix(prefix_with_slash) {
+    let rest : String = url_path[prefix_with_slash.length():].to_string() catch {
+      _ => return url_path
+    }
+    "/" + rest
+  } else if url_path == locale_prefix + "/" {
+    "/"
+  } else {
+    url_path
+  }
 }
 
 ///|
@@ -146,9 +205,18 @@ pub fn md_nodes_to_vnode(
   islands_base_path? : String = "/static/",
   current_url_path? : String = "/",
   is_index? : Bool = true,
+  locale_prefix? : String = "",
+  available_urls? : Array[String] = [],
 ) -> @luna.Node[Unit] {
   let children = nodes.map(fn(n) {
-    md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+    md_node_to_vnode(
+      n,
+      islands_base_path~,
+      current_url_path~,
+      is_index~,
+      locale_prefix~,
+      available_urls~,
+    )
   })
   @luna.fragment(children)
 }
@@ -160,11 +228,20 @@ pub fn md_node_to_vnode(
   islands_base_path? : String = "/static/",
   current_url_path? : String = "/",
   is_index? : Bool = true,
+  locale_prefix? : String = "",
+  available_urls? : Array[String] = [],
 ) -> @luna.Node[Unit] {
   match node {
     @astra.MdNode::Heading(level~, children~, id~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+        md_node_to_vnode(
+          n,
+          islands_base_path~,
+          current_url_path~,
+          is_index~,
+          locale_prefix~,
+          available_urls~,
+        )
       })
       let attrs = [attr("id", id), attr("class", "heading heading-\{level}")]
       let tag = "h\{level}"
@@ -172,20 +249,41 @@ pub fn md_node_to_vnode(
     }
     @astra.MdNode::Paragraph(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+        md_node_to_vnode(
+          n,
+          islands_base_path~,
+          current_url_path~,
+          is_index~,
+          locale_prefix~,
+          available_urls~,
+        )
       })
       h("p", [], child_vnodes)
     }
     @astra.MdNode::Text(text) => @luna.text(text)
     @astra.MdNode::Bold(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+        md_node_to_vnode(
+          n,
+          islands_base_path~,
+          current_url_path~,
+          is_index~,
+          locale_prefix~,
+          available_urls~,
+        )
       })
       h("strong", [], child_vnodes)
     }
     @astra.MdNode::Italic(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+        md_node_to_vnode(
+          n,
+          islands_base_path~,
+          current_url_path~,
+          is_index~,
+          locale_prefix~,
+          available_urls~,
+        )
       })
       h("em", [], child_vnodes)
     }
@@ -218,10 +316,19 @@ pub fn md_node_to_vnode(
     }
     @astra.MdNode::Link(href~, title~, children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+        md_node_to_vnode(
+          n,
+          islands_base_path~,
+          current_url_path~,
+          is_index~,
+          locale_prefix~,
+          available_urls~,
+        )
       })
-      // Resolve relative links to absolute paths
-      let resolved_href = resolve_href(href, current_url_path, is_index)
+      // Resolve relative links to absolute paths with locale prefix and fallback
+      let resolved_href = resolve_href(
+        href, current_url_path, is_index, locale_prefix, available_urls,
+      )
       let attrs : Array[(String, @luna.Attr[Unit])] = [
         attr("href", resolved_href),
       ]
@@ -248,7 +355,14 @@ pub fn md_node_to_vnode(
     @astra.MdNode::List(ordered~, items~) => {
       let item_vnodes = items.map(fn(item_nodes) {
         let children = item_nodes.map(fn(n) {
-          md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+          md_node_to_vnode(
+            n,
+            islands_base_path~,
+            current_url_path~,
+            is_index~,
+            locale_prefix~,
+            available_urls~,
+          )
         })
         h("li", [], children)
       })
@@ -260,7 +374,14 @@ pub fn md_node_to_vnode(
     }
     @astra.MdNode::Blockquote(children~) => {
       let child_vnodes = children.map(fn(n) {
-        md_node_to_vnode(n, islands_base_path~, current_url_path~, is_index~)
+        md_node_to_vnode(
+          n,
+          islands_base_path~,
+          current_url_path~,
+          is_index~,
+          locale_prefix~,
+          available_urls~,
+        )
       })
       h("blockquote", [], child_vnodes)
     }
@@ -273,6 +394,8 @@ pub fn md_node_to_vnode(
             islands_base_path~,
             current_url_path~,
             is_index~,
+            locale_prefix~,
+            available_urls~,
           ),
         ])
       })
@@ -288,6 +411,8 @@ pub fn md_node_to_vnode(
               islands_base_path~,
               current_url_path~,
               is_index~,
+              locale_prefix~,
+              available_urls~,
             ),
           ])
         })

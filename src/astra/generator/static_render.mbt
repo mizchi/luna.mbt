@@ -667,6 +667,9 @@ fn generate_page_with_highlight(
   page : @astra.PageMeta,
   highlighter : @shiki.Highlighter?,
 ) -> Result[Unit, String] {
+  // Build available URLs list for link fallback checking
+  let available_urls : Array[String] = ctx.pages.map(fn(p) { p.url_path })
+
   // Parse dynamic source path to get actual file path and params
   let (actual_source, _params) = parse_dynamic_source_path(page.source_path)
 
@@ -705,11 +708,18 @@ fn generate_page_with_highlight(
       // Convert to VNode with link resolution
       // Index pages use standard browser behavior, content pages use sibling behavior
       let is_index = page.source_path.has_suffix("index.md")
+      // Get locale prefix for i18n link resolution
+      let locale_prefix = @ssg.get_locale_url_prefix(
+        ctx.config.i18n,
+        page.locale,
+      )
       let vnode = @markdown.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
         is_index~,
+        locale_prefix~,
+        available_urls~,
       )
 
       // Extract TOC
@@ -804,11 +814,18 @@ fn generate_page_with_highlight(
 
       // Convert to VNode (JsxComponent nodes are handled in transformer)
       let is_index = page.source_path.has_suffix("index.mdx")
+      // Get locale prefix for i18n link resolution
+      let locale_prefix = @ssg.get_locale_url_prefix(
+        ctx.config.i18n,
+        page.locale,
+      )
       let vnode = @markdown.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
         is_index~,
+        locale_prefix~,
+        available_urls~,
       )
 
       // Extract TOC
@@ -885,6 +902,9 @@ async fn generate_page_with_highlight_async(
   page : @astra.PageMeta,
   highlighter : @shiki.Highlighter?,
 ) -> Result[String, String] {
+  // Build available URLs list for link fallback checking
+  let available_urls : Array[String] = ctx.pages.map(fn(p) { p.url_path })
+
   // Parse dynamic source path to get actual file path and params
   let (actual_source, _params) = parse_dynamic_source_path(page.source_path)
 
@@ -922,11 +942,18 @@ async fn generate_page_with_highlight_async(
 
       // Convert to VNode with link resolution
       let is_index = page.source_path.has_suffix("index.md")
+      // Get locale prefix for i18n link resolution
+      let locale_prefix = @ssg.get_locale_url_prefix(
+        ctx.config.i18n,
+        page.locale,
+      )
       let vnode = @markdown.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
         is_index~,
+        locale_prefix~,
+        available_urls~,
       )
 
       // Extract TOC
@@ -1029,11 +1056,18 @@ async fn generate_page_with_highlight_async(
 
       // Convert to VNode (JsxComponent nodes are handled in transformer)
       let is_index = page.source_path.has_suffix("index.mdx")
+      // Get locale prefix for i18n link resolution
+      let locale_prefix = @ssg.get_locale_url_prefix(
+        ctx.config.i18n,
+        page.locale,
+      )
       let vnode = @markdown.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
         is_index~,
+        locale_prefix~,
+        available_urls~,
       )
 
       // Extract TOC

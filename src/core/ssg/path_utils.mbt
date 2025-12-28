@@ -214,3 +214,65 @@ pub fn get_url_dir(url_path : String) -> String {
     None => "/"
   }
 }
+
+// =============================================================================
+// Locale Suffix Extraction
+// =============================================================================
+
+///|
+/// Extract locale suffix from filename
+/// "intro.ja.md" → Some(("ja", "intro.md"))
+/// "intro.md" → None
+pub fn extract_locale_suffix(
+  filename : String,
+  locale_codes : Array[String],
+) -> (String, String)? {
+  // Find extension: .md, .mdx, .html
+  let ext = if filename.has_suffix(".mdx") {
+    ".mdx"
+  } else if filename.has_suffix(".md") {
+    ".md"
+  } else if filename.has_suffix(".html") {
+    ".html"
+  } else {
+    return None
+  }
+  // Strip extension: "intro.ja.md" → "intro.ja"
+  let without_ext = @utils.slice_to(filename, filename.length() - ext.length())
+  // Find last dot for locale: "intro.ja" → "ja"
+  match without_ext.rev_find(".") {
+    Some(dot_idx) => {
+      let potential_locale = @utils.slice_from(without_ext, dot_idx + 1)
+      // Check if it's a valid locale code
+      for code in locale_codes {
+        if code == potential_locale {
+          let base_name = @utils.slice_to(without_ext, dot_idx)
+          let clean_filename = base_name + ext
+          return Some((code, clean_filename))
+        }
+      }
+      None
+    }
+    None => None
+  }
+}
+
+///|
+/// Get filename from path
+/// "guide/intro.ja.md" → "intro.ja.md"
+pub fn get_filename(path : String) -> String {
+  match path.rev_find("/") {
+    Some(idx) => @utils.slice_from(path, idx + 1)
+    None => path
+  }
+}
+
+///|
+/// Replace filename in path
+/// ("guide/intro.ja.md", "intro.md") → "guide/intro.md"
+pub fn replace_filename(path : String, new_filename : String) -> String {
+  match path.rev_find("/") {
+    Some(idx) => @utils.slice_to(path, idx + 1) + new_filename
+    None => new_filename
+  }
+}

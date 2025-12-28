@@ -48,10 +48,9 @@ test "scan_docs_dir_with_fs - nested directories" {
 }
 
 ///|
-test "scan_docs_dir_with_fs - i18n with locale directories" {
+test "scan_docs_dir_with_fs - i18n with filename suffix" {
   let fs = @fs_adapter.MemFSAdapter::new()
   fs.memfs().mkdirSync("/project/docs", recursive=true)
-  fs.memfs().mkdirSync("/project/docs/ja", recursive=true)
   // English (default locale)
   let en_content =
     #|---
@@ -59,7 +58,7 @@ test "scan_docs_dir_with_fs - i18n with locale directories" {
     #|---
     #|English content
     #|
-  // Japanese translation
+  // Japanese translation (filename suffix based)
   let ja_content =
     #|---
     #|title: はじめに
@@ -67,7 +66,7 @@ test "scan_docs_dir_with_fs - i18n with locale directories" {
     #|日本語コンテンツ
     #|
   fs.memfs().writeFileSync("/project/docs/intro.md", en_content)
-  fs.memfs().writeFileSync("/project/docs/ja/intro.md", ja_content)
+  fs.memfs().writeFileSync("/project/docs/intro.ja.md", ja_content)
   // I18n config with en as default and ja as additional locale
   let i18n = @astra.I18nConfig::{
     default_locale: "en",

@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/wcssr",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Web Components SSR runtime with functional API",
   "type": "module",
   "main": "./dist/index.js",

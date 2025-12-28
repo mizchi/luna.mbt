@@ -16,9 +16,9 @@ pub fn extract_toc(Array[@astra.MdNode]) -> Array[@toc.TocItem]
 
 pub fn generate_heading_id(String) -> String
 
-pub fn md_node_to_vnode(@astra.MdNode, islands_base_path? : String, current_url_path? : String, is_index? : Bool) -> @luna.Node[Unit]
+pub fn md_node_to_vnode(@astra.MdNode, islands_base_path? : String, current_url_path? : String, is_index? : Bool, locale_prefix? : String, available_urls? : Array[String]) -> @luna.Node[Unit]
 
-pub fn md_nodes_to_vnode(Array[@astra.MdNode], islands_base_path? : String, current_url_path? : String, is_index? : Bool) -> @luna.Node[Unit]
+pub fn md_nodes_to_vnode(Array[@astra.MdNode], islands_base_path? : String, current_url_path? : String, is_index? : Bool, locale_prefix? : String, available_urls? : Array[String]) -> @luna.Node[Unit]
 
 pub fn parse_code_block_info(String) -> @info_string.CodeBlockInfo
 

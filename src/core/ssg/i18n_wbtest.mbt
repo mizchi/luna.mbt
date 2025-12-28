@@ -24,11 +24,11 @@ fn create_single_locale_config() -> I18nConfig {
 }
 
 // =============================================================================
-// detect_locale_from_path Tests
+// detect_locale_from_path Tests (Filename-based i18n)
 // =============================================================================
 
 ///|
-test "detect_locale_from_path - default locale (no prefix)" {
+test "detect_locale_from_path - default locale (no suffix)" {
   let config = create_multi_locale_config()
   let (locale, url) = detect_locale_from_path("guide/intro.md", config)
   inspect(locale, content="en")
@@ -36,17 +36,17 @@ test "detect_locale_from_path - default locale (no prefix)" {
 }
 
 ///|
-test "detect_locale_from_path - ja locale" {
+test "detect_locale_from_path - ja locale via filename suffix" {
   let config = create_multi_locale_config()
-  let (locale, url) = detect_locale_from_path("ja/guide/intro.md", config)
+  let (locale, url) = detect_locale_from_path("guide/intro.ja.md", config)
   inspect(locale, content="ja")
   inspect(url, content="/guide/intro/")
 }
 
 ///|
-test "detect_locale_from_path - fr locale" {
+test "detect_locale_from_path - fr locale via filename suffix" {
   let config = create_multi_locale_config()
-  let (locale, url) = detect_locale_from_path("fr/guide/intro.md", config)
+  let (locale, url) = detect_locale_from_path("guide/intro.fr.md", config)
   inspect(locale, content="fr")
   inspect(url, content="/guide/intro/")
 }
@@ -60,9 +60,9 @@ test "detect_locale_from_path - index file" {
 }
 
 ///|
-test "detect_locale_from_path - ja index file" {
+test "detect_locale_from_path - ja index file via filename suffix" {
   let config = create_multi_locale_config()
-  let (locale, url) = detect_locale_from_path("ja/index.md", config)
+  let (locale, url) = detect_locale_from_path("index.ja.md", config)
   inspect(locale, content="ja")
   inspect(url, content="/")
 }
@@ -85,6 +85,16 @@ test "detect_locale_from_path - single locale config" {
   let (locale, url) = detect_locale_from_path("guide/intro.md", config)
   inspect(locale, content="en")
   inspect(url, content="/guide/intro/")
+}
+
+///|
+test "detect_locale_from_path - nested path with locale suffix" {
+  let config = create_multi_locale_config()
+  let (locale, url) = detect_locale_from_path(
+    "docs/api/reference.ja.md", config,
+  )
+  inspect(locale, content="ja")
+  inspect(url, content="/docs/api/reference/")
 }
 
 // =============================================================================

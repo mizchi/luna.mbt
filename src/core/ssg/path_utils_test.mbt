@@ -120,3 +120,74 @@ test "get_url_dir - root" {
 }
 
 // Note: String split/extract helpers are tested in internal/utils
+
+// =============================================================================
+// Locale Suffix Extraction
+// =============================================================================
+
+///|
+test "extract_locale_suffix - with locale" {
+  let locales = ["en", "ja", "fr"]
+  inspect(
+    extract_locale_suffix("intro.ja.md", locales),
+    content="Some((\"ja\", \"intro.md\"))",
+  )
+  inspect(
+    extract_locale_suffix("intro.fr.md", locales),
+    content="Some((\"fr\", \"intro.md\"))",
+  )
+}
+
+///|
+test "extract_locale_suffix - without locale" {
+  let locales = ["en", "ja", "fr"]
+  inspect(extract_locale_suffix("intro.md", locales), content="None")
+}
+
+///|
+test "extract_locale_suffix - invalid locale" {
+  let locales = ["en", "ja"]
+  inspect(extract_locale_suffix("intro.de.md", locales), content="None")
+}
+
+///|
+test "extract_locale_suffix - different extensions" {
+  let locales = ["en", "ja"]
+  inspect(
+    extract_locale_suffix("page.ja.mdx", locales),
+    content="Some((\"ja\", \"page.mdx\"))",
+  )
+  inspect(
+    extract_locale_suffix("page.ja.html", locales),
+    content="Some((\"ja\", \"page.html\"))",
+  )
+}
+
+///|
+test "extract_locale_suffix - index files" {
+  let locales = ["en", "ja"]
+  inspect(
+    extract_locale_suffix("index.ja.md", locales),
+    content="Some((\"ja\", \"index.md\"))",
+  )
+}
+
+///|
+test "get_filename - basic" {
+  inspect(get_filename("guide/intro.ja.md"), content="intro.ja.md")
+  inspect(get_filename("intro.md"), content="intro.md")
+  inspect(get_filename("a/b/c/file.md"), content="file.md")
+}
+
+///|
+test "replace_filename - basic" {
+  inspect(
+    replace_filename("guide/intro.ja.md", "intro.md"),
+    content="guide/intro.md",
+  )
+  inspect(replace_filename("intro.ja.md", "intro.md"), content="intro.md")
+  inspect(
+    replace_filename("a/b/c/file.ja.md", "file.md"),
+    content="a/b/c/file.md",
+  )
+}
