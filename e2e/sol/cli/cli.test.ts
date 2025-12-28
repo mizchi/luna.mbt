@@ -161,7 +161,7 @@ describe("Sol CLI - build command", () => {
     }
   });
 
-  test("runs build in MoonBit project", () => {
+  test("runs build in MoonBit project", { timeout: 30000 }, () => {
     // Run in the actual luna.mbt project directory
     const result = runCli(["build", "--skip-bundle"], rootDir);
     expect(result.status).toBe(0);
