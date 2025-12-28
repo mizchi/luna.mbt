@@ -10,7 +10,7 @@
 - WebFont最適化パイプライン
   - Next font みたいなやつ
 - 最小限の CSS Reset 導入
-- PageFind https://pagefind.app/
+- [x] PageFind https://pagefind.app/
 - loader のレビュー・軽量化
 - ドキュメントサイト
   - Favicon
