@@ -98,6 +98,8 @@ pub fn[T : Eq] watch(() -> T, (T, T) -> Unit) -> () -> Unit
 
 pub fn[T : Eq] watch_immediate(() -> T, (T, T?) -> Unit) -> () -> Unit
 
+pub fn[T] with_parent_owner(Owner?, () -> T) -> T
+
 // Errors
 
 // Types and methods

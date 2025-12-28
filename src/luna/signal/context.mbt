@@ -299,3 +299,15 @@ pub fn register_owner_cleanup(cleanup : () -> Unit) -> Unit {
 pub fn has_owner() -> Bool {
   reactive_context.current_owner is Some(_)
 }
+
+///|
+/// Run a function with a captured parent owner context (if any)
+/// This is useful for rendering child components that need to inherit the parent's owner.
+/// If captured_owner is Some, runs with that owner as context.
+/// If captured_owner is None, runs directly without owner context.
+pub fn[T] with_parent_owner(captured_owner : Owner?, f : () -> T) -> T {
+  match captured_owner {
+    Some(parent) => run_with_owner(parent, f)
+    None => f()
+  }
+}

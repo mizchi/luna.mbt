@@ -257,24 +257,13 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
 
   // Helper to render with a new child owner scope
   fn render_with_scope() -> Array[@js_dom.Node] {
-    // Set parent owner context first so the new root becomes its child
-    // Then create a child root that owns the rendered content
-    let result : Ref[Array[@js_dom.Node]] = { val: [] }
-    fn do_render() {
+    @signal.with_parent_owner(captured_owner, fn() {
       let (dom, dispose) = @signal.create_root_with_dispose(fn() {
-        // render_fn runs with the new root as current owner
-        // so onMount/onCleanup are registered on this root
         render_fn()
       })
       current_dispose.val = Some(dispose)
-      result.val = collect_child_nodes(dom.to_dom())
-    }
-
-    match captured_owner {
-      Some(parent) => @signal.run_with_owner(parent, do_render)
-      None => do_render()
-    }
-    result.val
+      collect_child_nodes(dom.to_dom())
+    })
   }
 
   // Evaluate initial state immediately
@@ -355,17 +344,12 @@ pub fn[T] for_each(
   // Helper to render with a new child owner scope
   // Returns both the DOM node and a dispose function
   fn render_with_scope(item : T, i : Int) -> (@js_dom.Node, () -> Unit) {
-    fn do_render() -> (@js_dom.Node, () -> Unit) {
+    @signal.with_parent_owner(captured_owner, fn() {
       let (dom, dispose) = @signal.create_root_with_dispose(fn() {
         render_item(item, i)
       })
       (dom.to_dom(), dispose)
-    }
-
-    match captured_owner {
-      Some(parent) => @signal.run_with_owner(parent, fn() { do_render() })
-      None => do_render()
-    }
+    })
   }
 
   // Initial render - create entries with proper dispose functions
@@ -480,11 +464,9 @@ pub fn[T] index_each(
       }
     }
     let (dom, dispose) = @signal.create_root_with_dispose(fn() {
-      match captured_owner {
-        Some(owner) =>
-          @signal.run_with_owner(owner, fn() { render_item(item_getter, index) })
-        None => render_item(item_getter, index)
-      }
+      @signal.with_parent_owner(captured_owner, fn() {
+        render_item(item_getter, index)
+      })
     })
     IndexEntry::new(dom.to_dom(), dispose, disposed)
   }
