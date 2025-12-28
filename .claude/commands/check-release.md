@@ -85,11 +85,12 @@ git log --oneline -5
 
 2. **NPM パッケージ**
    ```bash
-   cd js/luna && npm publish --access public
+   (cd js/luna && npm publish --access public)
+   (cd js/astra && npm publish --access public)
    ```
 
 3. **Git タグ**
    ```bash
    git tag vX.Y.Z
-   git push origin vX.Y.Z
+   git push origin --tags
    ```
