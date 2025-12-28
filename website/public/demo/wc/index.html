@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna WC Examples (Web Components)</title>
+  <style>
+    /* Page layout only - components have their own CSS in Shadow DOM */
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fafafa;
+    }
+    h1 { color: #333; }
+    h2 { color: #555; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+    hr { border: none; border-top: 1px solid #eee; margin: 24px 0; }
+    .app { padding: 20px; max-width: 800px; margin: 0 auto; }
+  </style>
+  <script type="module" crossorigin src="/demo/assets/wc-CURRzytz.js"></script>
+  <link rel="modulepreload" crossorigin href="/demo/assets/modulepreload-polyfill-CXK8biUa.js">
+</head>
+<body>
+  <div class="app">
+    <h1>Luna WC Examples</h1>
+    <p>A collection of examples demonstrating Web Components with MoonBit.</p>
+    <hr>
+
+    <!-- Counter Example -->
+    <wc-counter></wc-counter>
+    <hr>
+
+    <!-- Input Example -->
+    <wc-input></wc-input>
+    <hr>
+
+    <!-- Effect Example -->
+    <wc-effect></wc-effect>
+    <hr>
+
+    <!-- Conditional Example -->
+    <wc-conditional></wc-conditional>
+    <hr>
+
+    <!-- Style Example -->
+    <wc-style></wc-style>
+    <hr>
+
+    <!-- Todo Example -->
+    <wc-todo></wc-todo>
+    <hr>
+
+    <!-- Nested Components Example -->
+    <h2>Nested Components</h2>
+    <p>Child components dispatch custom events that bubble through Shadow DOM to parent.</p>
+    <wc-nested-parent></wc-nested-parent>
+  </div>
+</body>
+</html>

@@ -25,12 +25,12 @@ src/
 └── _bench/         # ベンチマーク
 js/                 # NPMパッケージ (@luna_ui/luna)
 e2e/                # Playwrightテスト
-docs/               # 公開ドキュメント（Astraで生成）
+website/            # 公開ドキュメント（Astraで生成）
 spec/               # 仕様・設計ドキュメント
 examples/           # サンプルプロジェクト
 ```
 
-- `docs/` は Astra でビルドされる公開ドキュメント
+- `website/` は Astra でビルドされる公開ドキュメント
 - `spec/` は内部仕様・設計書（開発者向け）
 
 ## 開発コマンド

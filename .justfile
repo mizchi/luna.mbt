@@ -336,8 +336,8 @@ build-doc *args: build-moon
     @echo "Building demo..."
     pnpm vite build
     # Move demo-src contents up one level (vite outputs with demo-src/ prefix)
-    mv docs/public/demo/demo-src/* docs/public/demo/
-    rm -rf docs/public/demo/demo-src
+    mv website/public/demo/demo-src/* website/public/demo/
+    rm -rf website/public/demo/demo-src
     @echo "Building docs..."
     node target/js/release/build/astra/cli/cli.js build --parallel {{args}}
     @echo "✓ Documentation built in dist/"
