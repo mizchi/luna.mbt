@@ -1,6 +1,7 @@
 target/
 node_modules/
 .mooncakes/
+.turbo/
 .DS_Store
 *.log
 pnpm-lock.yaml

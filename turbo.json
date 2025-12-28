@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "//#build:moon": {
+      "inputs": [
+        "src/**/*.mbt",
+        "moon.mod.json",
+        "**/moon.pkg.json"
+      ],
+      "outputs": [
+        "target/js/release/build/**"
+      ]
+    },
+    "//#build:loader": {
+      "dependsOn": ["//#build:moon"],
+      "inputs": [
+        "js/loader/src/**",
+        "rolldown.config.mjs"
+      ],
+      "outputs": [
+        "js/loader/dist/**"
+      ]
+    },
+    "build": {
+      "dependsOn": ["^build", "//#build:moon", "//#build:loader"],
+      "outputs": ["dist/**"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "check": {
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

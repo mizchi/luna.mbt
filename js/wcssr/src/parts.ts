@@ -343,7 +343,6 @@ export function parseTemplate(html: string): {
   parts: ParsedPart[];
 } {
   const parts: ParsedPart[] = [];
-  const partPattern = /\{\{(\w+)(?:\s+[^}]*)?\}\}/g;
 
   // 属性内の {{}} を検出
   const attrPattern = /(\w+(?:-\w+)*)="([^"]*\{\{(\w+)(?:\s+[^}]*)?\}\}[^"]*)"/g;

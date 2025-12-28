@@ -53,8 +53,9 @@ build-luna:
 build-astra:
     cd js/astra && pnpm build
 
-# フルビルド
-build: build-moon build-loader build-luna build-astra
+# フルビルド（turbo経由でキャッシュ有効）
+build:
+    pnpm turbo run build
     pnpm vite build
 
 # CSS 静的抽出（全.mbtファイルからCSS宣言を抽出）

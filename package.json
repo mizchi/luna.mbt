@@ -4,14 +4,15 @@
   "type": "module",
   "description": "MoonBit Island Architecture UI Framework - Workspace Root",
   "scripts": {
-    "doc:dev": "just dev-doc",
-    "test": "just test",
-    "build": "just build"
+    "build:moon": "moon build --target js && rm -f target/js/release/build/package.json",
+    "build:loader": "rolldown -c rolldown.config.mjs",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "doc:dev": "just dev-doc"
   },
   "devDependencies": {
-    "@anthropic-ai/claude-code": "^1.0.33",
-    "esbuild": "^0.25.0",
     "0x": "^6.0.0",
+    "@anthropic-ai/claude-code": "^1.0.33",
     "@cloudflare/vitest-pool-workers": "^0.11.1",
     "@hono/node-server": "^1.14.0",
     "@playwright/test": "^1.57.0",
@@ -27,6 +28,7 @@
     "@vitest/browser-playwright": "^4.0.15",
     "@vitest/coverage-v8": "^4.0.15",
     "colorette": "^2.0.20",
+    "esbuild": "^0.25.0",
     "execa": "^9.6.1",
     "github-markdown-css": "^5.8.1",
     "global-jsdom": "^27.0.0",
@@ -44,6 +46,7 @@
     "shiki": "^3.20.0",
     "source-map": "^0.7.6",
     "terser": "^5.44.1",
+    "turbo": "^2.7.2",
     "typescript": "^5.9.3",
     "vite": "8.0.0-beta.1",
     "vite-plugin-moonbit": "^0.1.0",

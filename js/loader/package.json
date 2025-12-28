@@ -33,7 +33,6 @@
     "src"
   ],
   "scripts": {
-    "build": "rolldown -c rolldown.config.mjs"
   },
   "keywords": [
     "luna",
