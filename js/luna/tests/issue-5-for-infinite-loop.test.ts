@@ -6,7 +6,7 @@
  * causes "Maximum call stack size exceeded" when a signal is updated
  * in a ref callback.
  */
-import { describe, test, expect, beforeEach, vi } from "vitest";
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   text,
   createElement,
@@ -17,6 +17,8 @@ import {
   createSignal,
   createMemo,
   createRenderEffect,
+  onMount,
+  createRoot,
 } from "../src/index";
 
 function attr(name: string, value: unknown) {
@@ -35,6 +37,213 @@ describe("Issue #5: For infinite loop in nested Show", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    container.remove();
+  });
+
+  /**
+   * EXACT reproduction from GitHub issue comment:
+   * https://github.com/mizchi/luna.mbt/issues/5#issuecomment-3696194021
+   *
+   * This is the "CASE 2: Infinite Loop" scenario:
+   * - Double nested Show
+   * - Signal updated synchronously in ref callback
+   * - Outer Show starts hidden (isReady = false)
+   * - onMount sets isReady = true
+   */
+  test("EXACT REPRODUCTION: Double nested Show with ref callback signal update", async () => {
+    const [lineCount, setLineCount] = createSignal(1);
+    const [isReady, setIsReady] = createSignal(false);
+
+    const lines = createMemo(() =>
+      Array.from({ length: lineCount() }, (_, i) => i + 1)
+    );
+
+    // This ref callback updates lineCount signal - should NOT cause infinite loop
+    const setupInput = (el: HTMLTextAreaElement) => {
+      const count = el.value.split("\n").length;
+      setLineCount(count);
+    };
+
+    const node = Show({
+      when: isReady,
+      children: () =>
+        Show({
+          when: () => true,
+          children: () =>
+            createElement("div", [], [
+              For({
+                each: lines,
+                children: (num: number) =>
+                  createElement("div", [attr("class", AttrValue.Static("line"))], [text(`${num}`)]),
+              }),
+              createElement(
+                "textarea",
+                [
+                  attr("value", AttrValue.Static("line1\nline2\nline3")),
+                  attr("__ref", AttrValue.Handler(setupInput)),
+                ],
+                []
+              ),
+            ]),
+        }),
+    });
+
+    mount(container, node);
+
+    // Initially hidden
+    expect(container.querySelectorAll(".line").length).toBe(0);
+
+    // Simulate onMount behavior - set isReady to true
+    // This is where the infinite loop would occur
+    setIsReady(true);
+
+    // Wait for any async effects
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    // Should render correctly without infinite loop
+    expect(container.querySelectorAll(".line").length).toBe(3);
+  });
+
+  /**
+   * EXACT reproduction with onMount - matches the issue exactly
+   */
+  test("EXACT REPRODUCTION WITH ONMOUNT: Double nested Show with ref callback signal update", async () => {
+    const [lineCount, setLineCount] = createSignal(1);
+    const [isReady, setIsReady] = createSignal(false);
+
+    const lines = createMemo(() =>
+      Array.from({ length: lineCount() }, (_, i) => i + 1)
+    );
+
+    const setupInput = (el: HTMLTextAreaElement) => {
+      const count = el.value.split("\n").length;
+      setLineCount(count);
+    };
+
+    // Use createRoot to establish owner context for onMount
+    createRoot(() => {
+      // This simulates onMount(() => setIsReady(true)) from the issue
+      onMount(() => {
+        setIsReady(true);
+      });
+
+      const node = Show({
+        when: isReady,
+        children: () =>
+          Show({
+            when: () => true,
+            children: () =>
+              createElement("div", [], [
+                For({
+                  each: lines,
+                  children: (num: number) =>
+                    createElement("div", [attr("class", AttrValue.Static("line2"))], [text(`${num}`)]),
+                }),
+                createElement(
+                  "textarea",
+                  [
+                    attr("value", AttrValue.Static("line1\nline2\nline3")),
+                    attr("__ref", AttrValue.Handler(setupInput)),
+                  ],
+                  []
+                ),
+              ]),
+          }),
+      });
+
+      mount(container, node);
+    });
+
+    // Wait for onMount to fire and effects to settle
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // Should render correctly without infinite loop
+    expect(container.querySelectorAll(".line2").length).toBe(3);
+  });
+
+  /**
+   * Test with logging to trace execution flow
+   */
+  test("DEBUG: Trace execution flow in nested Show + For", async () => {
+    const log: string[] = [];
+    const refCallCount = { value: 0 };
+    const memoCallCount = { value: 0 };
+
+    const [lineCount, setLineCount] = createSignal(1);
+    const [isReady, setIsReady] = createSignal(false);
+
+    const lines = createMemo(() => {
+      memoCallCount.value++;
+      const count = lineCount();
+      log.push(`memo: lineCount=${count}, call #${memoCallCount.value}`);
+      if (memoCallCount.value > 20) {
+        throw new Error("Infinite loop detected in memo");
+      }
+      return Array.from({ length: count }, (_, i) => i + 1);
+    });
+
+    const setupInput = (el: HTMLTextAreaElement) => {
+      refCallCount.value++;
+      const count = el.value.split("\n").length;
+      log.push(`ref callback: value has ${count} lines, call #${refCallCount.value}`);
+      if (refCallCount.value > 20) {
+        throw new Error("Infinite loop detected in ref callback");
+      }
+      setLineCount(count);
+    };
+
+    createRoot(() => {
+      onMount(() => {
+        log.push("onMount: setIsReady(true)");
+        setIsReady(true);
+      });
+
+      const node = Show({
+        when: isReady,
+        children: () => {
+          log.push("outer Show children called");
+          return Show({
+            when: () => true,
+            children: () => {
+              log.push("inner Show children called");
+              return createElement("div", [], [
+                For({
+                  each: lines,
+                  children: (num: number) => {
+                    log.push(`For render item: ${num}`);
+                    return createElement("div", [attr("class", AttrValue.Static("line3"))], [text(`${num}`)]);
+                  },
+                }),
+                createElement(
+                  "textarea",
+                  [
+                    attr("value", AttrValue.Static("line1\nline2\nline3")),
+                    attr("__ref", AttrValue.Handler(setupInput)),
+                  ],
+                  []
+                ),
+              ]);
+            },
+          });
+        },
+      });
+
+      mount(container, node);
+      log.push("mount completed");
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Log the execution trace for debugging
+    console.log("Execution trace:", log);
+
+    // Verify no infinite loop
+    expect(refCallCount.value).toBeLessThan(5);
+    expect(memoCallCount.value).toBeLessThan(10);
+    expect(container.querySelectorAll(".line3").length).toBe(3);
   });
 
   test("WORKING: simple For usage", () => {
