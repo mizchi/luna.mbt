@@ -15,4 +15,5 @@ export default defineConfig({
     return { js: ".js", dts: ".d.ts" };
   },
   noExternal: [/\.\.\/\.\.\/\.\.\/target/],
+  external: ["shiki"],
 });

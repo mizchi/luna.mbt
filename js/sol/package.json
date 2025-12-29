@@ -44,6 +44,9 @@
     "hono": "^4.7.0",
     "marked": "^15.0.0"
   },
+  "peerDependencies": {
+    "shiki": "^3.0.0"
+  },
   "devDependencies": {
     "tsdown": "^0.18.2"
   }
