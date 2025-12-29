@@ -264,10 +264,12 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
     })
   }
 
-  // Evaluate initial state immediately
-  let initial_show = when()
+  // Evaluate initial state immediately (untracked to avoid dependency issues)
+  let initial_show = @signal.untracked(fn() { when() })
   let initial_nodes : Array[@js_dom.Node] = if initial_show {
-    render_with_scope()
+    // Use untracked to prevent child signals from being registered
+    // as dependencies during initial render
+    @signal.untracked(fn() { render_with_scope() })
   } else {
     []
   }
@@ -354,10 +356,11 @@ pub fn[T] for_each(
   }
 
   // Initial render - create entries with proper dispose functions
+  // Use untracked to prevent dependency tracking during initial render
   let fragment = doc.createDocumentFragment()
-  let initial_items = items()
+  let initial_items = @signal.untracked(fn() { items() })
   for i, item in initial_items {
-    let (dom, dispose) = render_with_scope(item, i)
+    let (dom, dispose) = @signal.untracked(fn() { render_with_scope(item, i) })
     entries.val.push(ItemEntry::new_with_dispose(item, dom, dispose))
     fragment.as_node().appendChild(dom) |> ignore
   }
@@ -477,11 +480,11 @@ pub fn[T] index_each(
     IndexEntry::new(dom.to_dom(), dispose, disposed)
   }
 
-  // Initial render
+  // Initial render - use untracked to prevent dependency tracking
   let fragment = doc.createDocumentFragment()
-  let initial_items = items()
+  let initial_items = @signal.untracked(fn() { items() })
   for i, _ in initial_items {
-    let entry = render_with_scope(i)
+    let entry = @signal.untracked(fn() { render_with_scope(i) })
     entries.push(entry)
     fragment.as_node().appendChild(entry.node) |> ignore
   }

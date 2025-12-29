@@ -24,6 +24,7 @@
 - [ ] Moonbit 用にDocTestのサンプルを用意する。
 - [ ] Moonbit 
 - [ ] JSX 用のドキュメントを整理する。
+- [ ] Shiki の bundle を除外する
 
 
 ## TODO

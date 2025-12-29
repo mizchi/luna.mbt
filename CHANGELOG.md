@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- **luna**: Wrap initial render in untracked to prevent dependency tracking
+
+### Documentation
+
+- Update CHANGELOG for v0.3.2
+
+### Miscellaneous
+
+- V0.3.2
+
+### Testing
+
+- **luna**: Add exact reproduction tests for issue #5
+
+## [Unreleased]
+
 ### Miscellaneous
 
 - V0.3.2

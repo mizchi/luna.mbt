@@ -78,10 +78,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       let fragment = doc.createDocumentFragment()
       let fragment_node = fragment.as_node()
 
-      // Initial render
-      let initial_items = render_fn()
+      // Initial render - use untracked to prevent dependency tracking
+      let initial_items = @signal.untracked(fn() { render_fn() })
       for item in initial_items {
-        let rendered = render_vnode_to_dom(item)
+        let rendered = @signal.untracked(fn() { render_vnode_to_dom(item) })
         current_nodes.push(rendered)
         fragment_node.appendChild(rendered) |> ignore
       }
