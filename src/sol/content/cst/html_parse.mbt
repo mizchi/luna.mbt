@@ -8,7 +8,7 @@
 ///|
 /// Parse Island directive from HTML string
 /// Format: <Island name="counter" :props='{"initial": 0}' trigger="visible" />
-pub fn parse_island_directive(html : String) -> @astra.IslandEmbed? {
+pub fn parse_island_directive(html : String) -> @markdown.IslandEmbed? {
   let trimmed = html.trim(chars=" \t\n\r").to_string()
   if not(trimmed.has_prefix("<Island")) && not(trimmed.has_prefix("<island")) {
     return None
@@ -37,7 +37,7 @@ pub fn parse_island_directive(html : String) -> @astra.IslandEmbed? {
     Some("media") => @luna.Media("")
     _ => @luna.Load
   }
-  Some(@astra.IslandEmbed::{ name, props, trigger, ssr: false })
+  Some(@markdown.IslandEmbed::{ name, props, trigger, ssr: false })
 }
 
 // =============================================================================
@@ -48,7 +48,7 @@ pub fn parse_island_directive(html : String) -> @astra.IslandEmbed? {
 /// Parse custom element tag from HTML string
 /// Custom elements must have a hyphen in their name (e.g., <my-counter>, <foo-bar>)
 /// Supports luna:trigger attribute for hydration timing
-pub fn parse_custom_element(html : String) -> @astra.ComponentEmbed? {
+pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
   let trimmed = html.trim(chars=" \t\n\r").to_string()
   if not(trimmed.has_prefix("<")) {
     return None
@@ -79,7 +79,7 @@ pub fn parse_custom_element(html : String) -> @astra.ComponentEmbed? {
 
   // Extract inner content (if not self-closing)
   let content = extract_inner_content(trimmed, tag)
-  Some(@astra.ComponentEmbed::{ tag, attrs, content, trigger })
+  Some(@markdown.ComponentEmbed::{ tag, attrs, content, trigger })
 }
 
 ///|

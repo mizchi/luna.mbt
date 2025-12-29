@@ -1,5 +1,5 @@
 // CST to MdNode Converter
-// Converts @md_parser CST types to @astra.MdNode for VNode transformation
+// Converts @md_parser CST types to @markdown.MdNode for VNode transformation
 
 // =============================================================================
 // Native Parser Entry Point
@@ -9,7 +9,7 @@
 /// Parse markdown using the native MoonBit parser (no FFI)
 pub fn parse_markdown_native(
   content : String,
-) -> (@frontmatter.Frontmatter, Array[@astra.MdNode]) {
+) -> (@frontmatter.Frontmatter, Array[@markdown.MdNode]) {
   let result = @md_parser.parse(content)
   convert_document(result.document)
 }
@@ -22,7 +22,7 @@ pub fn parse_markdown_native(
 /// Convert CST Document to Frontmatter and MdNode array
 pub fn convert_document(
   doc : @md_parser.Document,
-) -> (@frontmatter.Frontmatter, Array[@astra.MdNode]) {
+) -> (@frontmatter.Frontmatter, Array[@markdown.MdNode]) {
   let fm = match doc.frontmatter {
     Some(cst_fm) => @frontmatter.from_cst(cst_fm)
     None => @frontmatter.Frontmatter::default()
@@ -37,8 +37,8 @@ pub fn convert_document(
 
 ///|
 /// Convert array of CST Blocks to MdNode array
-fn convert_blocks(blocks : Array[@md_parser.Block]) -> Array[@astra.MdNode] {
-  let nodes : Array[@astra.MdNode] = []
+fn convert_blocks(blocks : Array[@md_parser.Block]) -> Array[@markdown.MdNode] {
+  let nodes : Array[@markdown.MdNode] = []
   for block in blocks {
     match convert_block(block) {
       Some(node) => nodes.push(node)
@@ -50,49 +50,49 @@ fn convert_blocks(blocks : Array[@md_parser.Block]) -> Array[@astra.MdNode] {
 
 ///|
 /// Convert single CST Block to MdNode
-fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
+fn convert_block(block : @md_parser.Block) -> @markdown.MdNode? {
   match block {
-    @md_parser.Block::ThematicBreak(..) => Some(@astra.MdNode::ThematicBreak)
+    @md_parser.Block::ThematicBreak(..) => Some(@markdown.MdNode::ThematicBreak)
     @md_parser.Block::Heading(level~, children~, ..) => {
       let md_children = convert_inlines(children)
       let text = @md_toc.extract_text_from_inlines(children)
       let id = @slug.generate_heading_id(text)
-      Some(@astra.MdNode::Heading(level~, children=md_children, id~))
+      Some(@markdown.MdNode::Heading(level~, children=md_children, id~))
     }
     @md_parser.Block::Paragraph(children~, ..) => {
       let md_children = convert_inlines(children)
       // Check for Island directive in raw text
       let raw_text = @md_toc.extract_text_from_inlines(children)
       match parse_island_directive(raw_text) {
-        Some(island) => Some(@astra.MdNode::Island(island))
-        None => Some(@astra.MdNode::Paragraph(children=md_children))
+        Some(island) => Some(@markdown.MdNode::Island(island))
+        None => Some(@markdown.MdNode::Paragraph(children=md_children))
       }
     }
     @md_parser.Block::FencedCode(info~, code~, ..) =>
-      Some(@astra.MdNode::CodeBlock(lang=info, code~))
+      Some(@markdown.MdNode::CodeBlock(lang=info, code~))
     @md_parser.Block::IndentedCode(code~, ..) =>
-      Some(@astra.MdNode::CodeBlock(lang="", code~))
+      Some(@markdown.MdNode::CodeBlock(lang="", code~))
     @md_parser.Block::Blockquote(children~, ..) => {
       let md_children = convert_blocks(children)
-      Some(@astra.MdNode::Blockquote(children=md_children))
+      Some(@markdown.MdNode::Blockquote(children=md_children))
     }
     @md_parser.Block::BulletList(items~, ..) => {
       let md_items = convert_list_items(items)
-      Some(@astra.MdNode::List(ordered=false, items=md_items))
+      Some(@markdown.MdNode::List(ordered=false, items=md_items))
     }
     @md_parser.Block::OrderedList(items~, ..) => {
       let md_items = convert_list_items(items)
-      Some(@astra.MdNode::List(ordered=true, items=md_items))
+      Some(@markdown.MdNode::List(ordered=true, items=md_items))
     }
     @md_parser.Block::HtmlBlock(html~, ..) =>
       // Check for custom element (Web Component) first
       match parse_custom_element(html) {
-        Some(component) => Some(@astra.MdNode::Component(component))
+        Some(component) => Some(@markdown.MdNode::Component(component))
         None =>
           // Check for legacy Island directive
           match parse_island_directive(html) {
-            Some(island) => Some(@astra.MdNode::Island(island))
-            None => Some(@astra.MdNode::Html(html))
+            Some(island) => Some(@markdown.MdNode::Island(island))
+            None => Some(@markdown.MdNode::Html(html))
           }
       }
     @md_parser.Block::Table(header~, rows~, ..) => {
@@ -102,7 +102,7 @@ fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
         if children.length() == 1 {
           children[0]
         } else {
-          @astra.MdNode::Text(@md_toc.extract_text_from_inlines(cell.children))
+          @markdown.MdNode::Text(@md_toc.extract_text_from_inlines(cell.children))
         }
       })
       let md_rows = rows.map(fn(row) {
@@ -111,13 +111,13 @@ fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
           if children.length() == 1 {
             children[0]
           } else {
-            @astra.MdNode::Text(
+            @markdown.MdNode::Text(
               @md_toc.extract_text_from_inlines(cell.children),
             )
           }
         })
       })
-      Some(@astra.MdNode::Table(headers=md_headers, rows=md_rows))
+      Some(@markdown.MdNode::Table(headers=md_headers, rows=md_rows))
     }
     @md_parser.Block::BlankLines(..) => None // Skip blank lines
     @md_parser.Block::FootnoteDefinition(..) => None // Skip footnotes
@@ -128,7 +128,7 @@ fn convert_block(block : @md_parser.Block) -> @astra.MdNode? {
 /// Convert list items
 fn convert_list_items(
   items : Array[@md_parser.ListItem],
-) -> Array[Array[@astra.MdNode]] {
+) -> Array[Array[@markdown.MdNode]] {
   items.map(fn(item) { convert_blocks(item.children) })
 }
 
@@ -138,8 +138,8 @@ fn convert_list_items(
 
 ///|
 /// Convert array of CST Inlines to MdNode array
-fn convert_inlines(inlines : Array[@md_parser.Inline]) -> Array[@astra.MdNode] {
-  let nodes : Array[@astra.MdNode] = []
+fn convert_inlines(inlines : Array[@md_parser.Inline]) -> Array[@markdown.MdNode] {
+  let nodes : Array[@markdown.MdNode] = []
   for inline in inlines {
     match convert_inline(inline) {
       Some(node) => nodes.push(node)
@@ -151,48 +151,48 @@ fn convert_inlines(inlines : Array[@md_parser.Inline]) -> Array[@astra.MdNode] {
 
 ///|
 /// Convert single CST Inline to MdNode
-fn convert_inline(inline : @md_parser.Inline) -> @astra.MdNode? {
+fn convert_inline(inline : @md_parser.Inline) -> @markdown.MdNode? {
   match inline {
-    @md_parser.Inline::Text(content~, ..) => Some(@astra.MdNode::Text(content))
-    @md_parser.Inline::SoftBreak(..) => Some(@astra.MdNode::Text(" "))
-    @md_parser.Inline::HardBreak(..) => Some(@astra.MdNode::LineBreak)
+    @md_parser.Inline::Text(content~, ..) => Some(@markdown.MdNode::Text(content))
+    @md_parser.Inline::SoftBreak(..) => Some(@markdown.MdNode::Text(" "))
+    @md_parser.Inline::HardBreak(..) => Some(@markdown.MdNode::LineBreak)
     @md_parser.Inline::Emphasis(children~, ..) => {
       let md_children = convert_inlines(children)
-      Some(@astra.MdNode::Italic(children=md_children))
+      Some(@markdown.MdNode::Italic(children=md_children))
     }
     @md_parser.Inline::Strong(children~, ..) => {
       let md_children = convert_inlines(children)
-      Some(@astra.MdNode::Bold(children=md_children))
+      Some(@markdown.MdNode::Bold(children=md_children))
     }
     @md_parser.Inline::Strikethrough(children~, ..) => {
       // MdNode doesn't have strikethrough, convert to plain text with ~~
       let text = "~~" + @md_toc.extract_text_from_inlines(children) + "~~"
-      Some(@astra.MdNode::Text(text))
+      Some(@markdown.MdNode::Text(text))
     }
-    @md_parser.Inline::Code(content~, ..) => Some(@astra.MdNode::Code(content))
+    @md_parser.Inline::Code(content~, ..) => Some(@markdown.MdNode::Code(content))
     @md_parser.Inline::Link(children~, url~, title~, ..) => {
       let md_children = convert_inlines(children)
-      Some(@astra.MdNode::Link(href=url, title~, children=md_children))
+      Some(@markdown.MdNode::Link(href=url, title~, children=md_children))
     }
     @md_parser.Inline::RefLink(children~, label~, ..) => {
       // Reference links need resolution - for now, use label as href
       let md_children = convert_inlines(children)
       Some(
-        @astra.MdNode::Link(href="#" + label, title="", children=md_children),
+        @markdown.MdNode::Link(href="#" + label, title="", children=md_children),
       )
     }
     @md_parser.Inline::Autolink(url~, ..) => {
-      let children = [@astra.MdNode::Text(url)]
-      Some(@astra.MdNode::Link(href=url, title="", children~))
+      let children = [@markdown.MdNode::Text(url)]
+      Some(@markdown.MdNode::Link(href=url, title="", children~))
     }
     @md_parser.Inline::Image(alt~, url~, title~, ..) =>
-      Some(@astra.MdNode::Image(src=url, alt~, title~))
+      Some(@markdown.MdNode::Image(src=url, alt~, title~))
     @md_parser.Inline::RefImage(alt~, label~, ..) =>
       // Reference images need resolution - for now, use label as src
-      Some(@astra.MdNode::Image(src="#" + label, alt~, title=""))
-    @md_parser.Inline::HtmlInline(html~, ..) => Some(@astra.MdNode::Html(html))
+      Some(@markdown.MdNode::Image(src="#" + label, alt~, title=""))
+    @md_parser.Inline::HtmlInline(html~, ..) => Some(@markdown.MdNode::Html(html))
     @md_parser.Inline::FootnoteReference(label~, ..) =>
       // Convert footnote reference to superscript link
-      Some(@astra.MdNode::Text("[^\{label}]"))
+      Some(@markdown.MdNode::Text("[^\{label}]"))
   }
 }

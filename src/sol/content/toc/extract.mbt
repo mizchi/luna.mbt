@@ -7,7 +7,7 @@
 
 ///|
 /// Extract table of contents from MdNode array
-pub fn extract_toc(nodes : Array[@astra.MdNode]) -> Array[TocItem] {
+pub fn extract_toc(nodes : Array[@markdown.MdNode]) -> Array[TocItem] {
   let toc : Array[TocItem] = []
   extract_toc_recursive(nodes, toc)
   toc
@@ -16,20 +16,20 @@ pub fn extract_toc(nodes : Array[@astra.MdNode]) -> Array[TocItem] {
 ///|
 /// Extract headings recursively
 fn extract_toc_recursive(
-  nodes : Array[@astra.MdNode],
+  nodes : Array[@markdown.MdNode],
   toc : Array[TocItem],
 ) -> Unit {
   for node in nodes {
     match node {
-      @astra.MdNode::Heading(level~, children~, id~) =>
+      @markdown.MdNode::Heading(level~, children~, id~) =>
         // Only include h2-h4 in TOC
         if level >= 2 && level <= 4 {
           let text = extract_text_from_nodes(children)
           toc.push(TocItem::{ level, text, id })
         }
-      @astra.MdNode::Blockquote(children~) =>
+      @markdown.MdNode::Blockquote(children~) =>
         extract_toc_recursive(children, toc)
-      @astra.MdNode::List(items~, ..) =>
+      @markdown.MdNode::List(items~, ..) =>
         for item in items {
           extract_toc_recursive(item, toc)
         }
@@ -46,13 +46,13 @@ fn extract_toc_recursive(
 /// Extract description from markdown nodes
 /// Returns the first paragraph's text, truncated to max_length
 pub fn extract_description(
-  nodes : Array[@astra.MdNode],
+  nodes : Array[@markdown.MdNode],
   max_length? : Int = 160,
 ) -> String? {
   // Find the first paragraph
   for node in nodes {
     match node {
-      @astra.MdNode::Paragraph(children~) => {
+      @markdown.MdNode::Paragraph(children~) => {
         let text = extract_text_from_nodes(children)
         if not(text.is_empty()) {
           return Some(truncate_text(text, max_length))
@@ -93,7 +93,7 @@ fn truncate_text(text : String, max_length : Int) -> String {
 
 ///|
 /// Extract plain text from MdNode array
-pub fn extract_text_from_nodes(nodes : Array[@astra.MdNode]) -> String {
+pub fn extract_text_from_nodes(nodes : Array[@markdown.MdNode]) -> String {
   let buf = StringBuilder::new()
   for node in nodes {
     extract_text_recursive(node, buf)
@@ -103,15 +103,15 @@ pub fn extract_text_from_nodes(nodes : Array[@astra.MdNode]) -> String {
 
 ///|
 /// Extract text recursively
-fn extract_text_recursive(node : @astra.MdNode, buf : StringBuilder) -> Unit {
+fn extract_text_recursive(node : @markdown.MdNode, buf : StringBuilder) -> Unit {
   match node {
-    @astra.MdNode::Text(text) => buf.write_string(text)
-    @astra.MdNode::Bold(children~) | @astra.MdNode::Italic(children~) =>
+    @markdown.MdNode::Text(text) => buf.write_string(text)
+    @markdown.MdNode::Bold(children~) | @markdown.MdNode::Italic(children~) =>
       for child in children {
         extract_text_recursive(child, buf)
       }
-    @astra.MdNode::Code(code) => buf.write_string(code)
-    @astra.MdNode::Link(children~, ..) =>
+    @markdown.MdNode::Code(code) => buf.write_string(code)
+    @markdown.MdNode::Link(children~, ..) =>
       for child in children {
         extract_text_recursive(child, buf)
       }

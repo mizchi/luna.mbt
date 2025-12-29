@@ -3,8 +3,8 @@
     { "path": "mizchi/luna/luna", "alias": "luna" },
     { "path": "mizchi/luna/astra", "alias": "astra" },
     { "path": "mizchi/luna/sol/content/frontmatter", "alias": "frontmatter" },
-    { "path": "mizchi/luna/astra/cst", "alias": "cst" },
-    { "path": "mizchi/luna/astra/toc", "alias": "toc" },
+    { "path": "mizchi/luna/sol/content/cst", "alias": "cst" },
+    { "path": "mizchi/luna/sol/content/toc", "alias": "toc" },
     { "path": "mizchi/markdown/slug", "alias": "slug" },
     { "path": "mizchi/markdown/info_string", "alias": "info_string" }
   ]
