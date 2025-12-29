@@ -4,7 +4,7 @@
     "mizchi/luna",
     "mizchi/luna/astra",
     "mizchi/luna/astra/routes",
-    "mizchi/luna/astra/markdown",
+    { "path": "mizchi/luna/sol/content/md_render", "alias": "markdown" },
     { "path": "mizchi/luna/core/ssg", "alias": "ssg" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },
     { "path": "mizchi/js/node/path", "alias": "path" }

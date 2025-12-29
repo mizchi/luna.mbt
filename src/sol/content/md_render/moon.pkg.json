@@ -1,7 +1,7 @@
 {
   "import": [
     { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/astra", "alias": "astra" },
+    { "path": "mizchi/luna/sol/content/markdown", "alias": "markdown" },
     { "path": "mizchi/luna/sol/content/frontmatter", "alias": "frontmatter" },
     { "path": "mizchi/luna/sol/content/cst", "alias": "cst" },
     { "path": "mizchi/luna/sol/content/toc", "alias": "toc" },

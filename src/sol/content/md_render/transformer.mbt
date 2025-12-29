@@ -201,7 +201,7 @@ fn has_file_extension(path : String) -> Bool {
 ///|
 /// Convert MdNode array to VNode
 pub fn md_nodes_to_vnode(
-  nodes : Array[@astra.MdNode],
+  nodes : Array[@markdown.MdNode],
   islands_base_path? : String = "/static/",
   current_url_path? : String = "/",
   is_index? : Bool = true,
@@ -224,7 +224,7 @@ pub fn md_nodes_to_vnode(
 ///|
 /// Convert single MdNode to VNode
 pub fn md_node_to_vnode(
-  node : @astra.MdNode,
+  node : @markdown.MdNode,
   islands_base_path? : String = "/static/",
   current_url_path? : String = "/",
   is_index? : Bool = true,
@@ -232,7 +232,7 @@ pub fn md_node_to_vnode(
   available_urls? : Array[String] = [],
 ) -> @luna.Node[Unit] {
   match node {
-    @astra.MdNode::Heading(level~, children~, id~) => {
+    @markdown.MdNode::Heading(level~, children~, id~) => {
       let child_vnodes = children.map(fn(n) {
         md_node_to_vnode(
           n,
@@ -247,7 +247,7 @@ pub fn md_node_to_vnode(
       let tag = "h\{level}"
       h(tag, attrs, child_vnodes)
     }
-    @astra.MdNode::Paragraph(children~) => {
+    @markdown.MdNode::Paragraph(children~) => {
       let child_vnodes = children.map(fn(n) {
         md_node_to_vnode(
           n,
@@ -260,8 +260,8 @@ pub fn md_node_to_vnode(
       })
       h("p", [], child_vnodes)
     }
-    @astra.MdNode::Text(text) => @luna.text(text)
-    @astra.MdNode::Bold(children~) => {
+    @markdown.MdNode::Text(text) => @luna.text(text)
+    @markdown.MdNode::Bold(children~) => {
       let child_vnodes = children.map(fn(n) {
         md_node_to_vnode(
           n,
@@ -274,7 +274,7 @@ pub fn md_node_to_vnode(
       })
       h("strong", [], child_vnodes)
     }
-    @astra.MdNode::Italic(children~) => {
+    @markdown.MdNode::Italic(children~) => {
       let child_vnodes = children.map(fn(n) {
         md_node_to_vnode(
           n,
@@ -287,8 +287,8 @@ pub fn md_node_to_vnode(
       })
       h("em", [], child_vnodes)
     }
-    @astra.MdNode::Code(code) => h("code", [], [@luna.text(code)])
-    @astra.MdNode::CodeBlock(lang~, code~) => {
+    @markdown.MdNode::Code(code) => h("code", [], [@luna.text(code)])
+    @markdown.MdNode::CodeBlock(lang~, code~) => {
       // Parse info string to extract lang, filename, and meta
       let info = parse_code_block_info(lang)
 
@@ -314,7 +314,7 @@ pub fn md_node_to_vnode(
       }
       h("pre", pre_attrs, [code_el])
     }
-    @astra.MdNode::Link(href~, title~, children~) => {
+    @markdown.MdNode::Link(href~, title~, children~) => {
       let child_vnodes = children.map(fn(n) {
         md_node_to_vnode(
           n,
@@ -342,7 +342,7 @@ pub fn md_node_to_vnode(
       }
       h("a", attrs, child_vnodes)
     }
-    @astra.MdNode::Image(src~, alt~, title~) => {
+    @markdown.MdNode::Image(src~, alt~, title~) => {
       let attrs : Array[(String, @luna.Attr[Unit])] = [
         attr("src", src),
         attr("alt", alt),
@@ -352,7 +352,7 @@ pub fn md_node_to_vnode(
       }
       h("img", attrs, [])
     }
-    @astra.MdNode::List(ordered~, items~) => {
+    @markdown.MdNode::List(ordered~, items~) => {
       let item_vnodes = items.map(fn(item_nodes) {
         let children = item_nodes.map(fn(n) {
           md_node_to_vnode(
@@ -372,7 +372,7 @@ pub fn md_node_to_vnode(
         h("ul", [], item_vnodes)
       }
     }
-    @astra.MdNode::Blockquote(children~) => {
+    @markdown.MdNode::Blockquote(children~) => {
       let child_vnodes = children.map(fn(n) {
         md_node_to_vnode(
           n,
@@ -385,7 +385,7 @@ pub fn md_node_to_vnode(
       })
       h("blockquote", [], child_vnodes)
     }
-    @astra.MdNode::Table(headers~, rows~) => {
+    @markdown.MdNode::Table(headers~, rows~) => {
       // Build header row
       let header_cells = headers.map(fn(h_node) {
         h("th", [], [
@@ -421,30 +421,30 @@ pub fn md_node_to_vnode(
       let tbody = h("tbody", [], body_rows)
       h("table", [attr("class", "md-table")], [thead, tbody])
     }
-    @astra.MdNode::Html(_html) =>
+    @markdown.MdNode::Html(_html) =>
       // Raw HTML - TODO: implement raw HTML support
       // For now, skip raw HTML blocks
       @luna.fragment([])
-    @astra.MdNode::Island(embed) =>
+    @markdown.MdNode::Island(embed) =>
       // Convert to VIsland for hydration (legacy)
       create_island_vnode(embed, islands_base_path)
-    @astra.MdNode::Component(embed) =>
+    @markdown.MdNode::Component(embed) =>
       // Convert to Web Component with luna:wc-* attributes
       create_component_vnode(embed, islands_base_path)
-    @astra.MdNode::JsxComponent(embed) => {
+    @markdown.MdNode::JsxComponent(embed) => {
       // Convert JSX component to Web Component
       let component = jsx_to_component_embed(embed, islands_base_path)
       create_component_vnode(component, islands_base_path)
     }
-    @astra.MdNode::ThematicBreak => h("hr", [], [])
-    @astra.MdNode::LineBreak => h("br", [], [])
+    @markdown.MdNode::ThematicBreak => h("hr", [], [])
+    @markdown.MdNode::LineBreak => h("br", [], [])
   }
 }
 
 ///|
 /// Create island VNode from IslandEmbed (legacy)
 fn create_island_vnode(
-  embed : @astra.IslandEmbed,
+  embed : @markdown.IslandEmbed,
   base_path : String,
 ) -> @luna.Node[Unit] {
   let url = "\{base_path}\{embed.name}.js"
@@ -455,7 +455,7 @@ fn create_island_vnode(
 /// Create Web Component VNode from ComponentEmbed
 /// Generates custom element with luna:wc-url and luna:wc-trigger attributes
 fn create_component_vnode(
-  embed : @astra.ComponentEmbed,
+  embed : @markdown.ComponentEmbed,
   base_path : String,
 ) -> @luna.Node[Unit] {
   // Build URL from tag name (e.g., "my-counter" -> "/components/my-counter.js")
@@ -529,20 +529,20 @@ fn camel_to_kebab(s : String) -> String {
 
 ///|
 /// Convert MdxAttrValue to string
-fn mdx_attr_to_string(value : @astra.MdxAttrValue) -> String {
+fn mdx_attr_to_string(value : @markdown.MdxAttrValue) -> String {
   match value {
-    @astra.MdxAttrValue::StringLiteral(s) => s
-    @astra.MdxAttrValue::Expression(expr) => expr
-    @astra.MdxAttrValue::Boolean => "true"
+    @markdown.MdxAttrValue::StringLiteral(s) => s
+    @markdown.MdxAttrValue::Expression(expr) => expr
+    @markdown.MdxAttrValue::Boolean => "true"
   }
 }
 
 ///|
 /// Convert JsxComponentEmbed to ComponentEmbed (WebComponent)
 fn jsx_to_component_embed(
-  jsx : @astra.JsxComponentEmbed,
+  jsx : @markdown.JsxComponentEmbed,
   _base_path : String,
-) -> @astra.ComponentEmbed {
+) -> @markdown.ComponentEmbed {
   // Convert JSX tag to WebComponent tag
   let tag = jsx_to_wc_tag(jsx.tag)
 
@@ -576,7 +576,7 @@ fn jsx_to_component_embed(
     }
     None => ()
   }
-  @astra.ComponentEmbed::{
+  @markdown.ComponentEmbed::{
     tag,
     attrs,
     content: jsx.children,
@@ -594,7 +594,7 @@ pub type TocItem = @toc.TocItem
 ///|
 /// Extract table of contents from MdNode array
 /// Re-exported from @toc
-pub fn extract_toc(nodes : Array[@astra.MdNode]) -> Array[@toc.TocItem] {
+pub fn extract_toc(nodes : Array[@markdown.MdNode]) -> Array[@toc.TocItem] {
   @toc.extract_toc(nodes)
 }
 
@@ -602,7 +602,7 @@ pub fn extract_toc(nodes : Array[@astra.MdNode]) -> Array[@toc.TocItem] {
 /// Extract description from markdown nodes
 /// Re-exported from @toc
 pub fn extract_description(
-  nodes : Array[@astra.MdNode],
+  nodes : Array[@markdown.MdNode],
   max_length? : Int = 160,
 ) -> String? {
   @toc.extract_description(nodes, max_length~)

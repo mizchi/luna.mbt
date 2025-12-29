@@ -3,7 +3,7 @@
   "import": [
     { "path": "mizchi/luna/sol/routes", "alias": "sol_routes" },
     { "path": "mizchi/luna/astra", "alias": "astra" },
-    { "path": "mizchi/luna/astra/markdown", "alias": "markdown" },
+    { "path": "mizchi/luna/sol/content/md_render", "alias": "markdown" },
     { "path": "mizchi/luna/luna", "alias": "luna" },
     { "path": "mizchi/luna/core/ssg", "alias": "ssg" },
     { "path": "mizchi/luna/core/env", "alias": "env" },

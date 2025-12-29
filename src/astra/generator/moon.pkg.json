@@ -4,7 +4,7 @@
     { "path": "mizchi/luna/luna", "alias": "luna" },
     { "path": "mizchi/luna/luna/render", "alias": "render" },
     { "path": "mizchi/luna/astra", "alias": "astra" },
-    { "path": "mizchi/luna/astra/markdown", "alias": "markdown" },
+    { "path": "mizchi/luna/sol/content/md_render", "alias": "markdown" },
     { "path": "mizchi/luna/astra/mdx", "alias": "mdx" },
     { "path": "mizchi/luna/astra/routes", "alias": "routes" },
     { "path": "mizchi/luna/sol/content/shiki", "alias": "shiki" },

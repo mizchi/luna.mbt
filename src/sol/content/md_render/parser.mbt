@@ -10,7 +10,7 @@
 /// This uses the native MoonBit parser (no external dependencies)
 pub fn parse_markdown(
   content : String,
-) -> (@frontmatter.Frontmatter, Array[@astra.MdNode]) {
+) -> (@frontmatter.Frontmatter, Array[@markdown.MdNode]) {
   @cst.parse_markdown_native(content)
 }
 
@@ -23,21 +23,21 @@ pub fn parse_markdown(
 /// Alias for @cst.parse_markdown_native
 pub fn parse_markdown_native(
   content : String,
-) -> (@frontmatter.Frontmatter, Array[@astra.MdNode]) {
+) -> (@frontmatter.Frontmatter, Array[@markdown.MdNode]) {
   @cst.parse_markdown_native(content)
 }
 
 ///|
 /// Parse Island directive from HTML string
 /// Re-exported from @cst
-pub fn parse_island_directive(html : String) -> @astra.IslandEmbed? {
+pub fn parse_island_directive(html : String) -> @markdown.IslandEmbed? {
   @cst.parse_island_directive(html)
 }
 
 ///|
 /// Parse custom element tag from HTML string
 /// Re-exported from @cst
-pub fn parse_custom_element(html : String) -> @astra.ComponentEmbed? {
+pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
   @cst.parse_custom_element(html)
 }
 
