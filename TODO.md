@@ -20,6 +20,11 @@
   - AI用にluna doc コマンドを提供する
 - playground の作成
 - mermaid
+- [ ] Sol SSGの動作対応
+- [ ] Moonbit 用にDocTestのサンプルを用意する。
+- [ ] Moonbit 
+- [ ] JSX 用のドキュメントを整理する。
+
 
 ## TODO
 

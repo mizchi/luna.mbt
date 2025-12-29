@@ -16,7 +16,7 @@
   ],
   "exclude": [
     "js/wcssr/**",
-    "js/astra/src/cli.ts",
+    "js/sol/src/cli.ts",
     "js/luna/tests/**",
     "js/luna/examples/**",
     "js/luna/examples_preact/**"

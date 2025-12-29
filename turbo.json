@@ -21,17 +21,17 @@
         "js/loader/dist/**"
       ]
     },
-    "//#build:astra": {
+    "//#build:sol": {
       "dependsOn": ["//#build:moon"],
       "inputs": [
-        "js/astra/src/**"
+        "js/sol/src/**"
       ],
       "outputs": [
-        "js/astra/dist/**"
+        "js/sol/dist/**"
       ]
     },
     "//#lint:doc": {
-      "dependsOn": ["//#build:moon", "//#build:astra"],
+      "dependsOn": ["//#build:moon", "//#build:sol"],
       "inputs": [
         "website/**"
       ],
@@ -39,7 +39,7 @@
       "cache": false
     },
     "//#build:doc": {
-      "dependsOn": ["//#build:moon", "//#build:astra", "//#lint:doc"],
+      "dependsOn": ["//#build:moon", "//#build:sol", "//#lint:doc"],
       "inputs": [
         "website/**",
         "demo-src/**"

@@ -157,7 +157,7 @@ sol *args:
 # Astra CLI
 astra *args:
     @just build-moon
-    node target/js/release/build/astra/cli/cli.js {{args}}
+    node target/js/release/build/sol/cli/cli.js {{args}}
 
 # =============================================================================
 # ドキュメント
@@ -165,8 +165,8 @@ astra *args:
 
 # docs 開発サーバー
 dev-doc:
-    pnpm turbo run build:moon build:astra
-    node target/js/release/build/astra/cli/cli.js dev
+    pnpm turbo run build:moon build:sol
+    node target/js/release/build/sol/cli/cli.js dev
 
 # docs ビルド
 build-doc *args:
@@ -178,7 +178,7 @@ _build-doc-inner *args:
     pnpm vite build
     mv website/public/demo/demo-src/* website/public/demo/ && rm -rf website/public/demo/demo-src
     @echo "Building docs..."
-    node target/js/release/build/astra/cli/cli.js build --parallel {{args}}
+    node target/js/release/build/sol/cli/cli.js build --parallel {{args}}
     @echo "Building search index..."
     @if [ -d dist-docs ] && [ -n "$(find dist-docs -name '*.html' -type f 2>/dev/null | head -1)" ]; then \
         pnpm pagefind --site dist-docs; \
@@ -193,8 +193,8 @@ release-doc:
 
 # docs lint
 lint-doc:
-    pnpm turbo run build:moon build:astra
-    node target/js/release/build/astra/cli/cli.js lint
+    pnpm turbo run build:moon build:sol
+    node target/js/release/build/sol/cli/cli.js lint
 
 # docs プレビュー
 preview-doc:

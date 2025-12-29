@@ -86,7 +86,7 @@ git log --oneline -5
 2. **NPM パッケージ**
    ```bash
    (cd js/luna && npm publish --access public)
-   (cd js/astra && npm publish --access public)
+   (cd js/sol && npm publish --access public)
    ```
 
 3. **Git タグ**

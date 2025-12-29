@@ -6,8 +6,8 @@
   "scripts": {
     "build:moon": "just build-moon",
     "build:loader": "just build-loader",
-    "build:astra": "cd js/astra && pnpm build",
-    "lint:doc": "node target/js/release/build/astra/cli/cli.js lint || true",
+    "build:sol": "cd js/sol && pnpm build",
+    "lint:doc": "node target/js/release/build/sol/cli/cli.js lint || true",
     "build:doc": "just _build-doc-inner",
     "deploy:doc": "npx wrangler deploy",
     "test:moonbit": "just test-moonbit",

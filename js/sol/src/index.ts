@@ -1,2 +1,2 @@
-// @luna_ui/astra - MoonBit Island Architecture SSG Framework
+// @luna_ui/sol - MoonBit Island Architecture SSR/SSG Framework
 export {};
