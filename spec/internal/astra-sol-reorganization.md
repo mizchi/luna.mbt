@@ -244,6 +244,47 @@ send_error(message)
 exit(code)
 ```
 
+## 分析結果（抽出不適切と判断）
+
+### astra_worker
+
+**結論: 現状維持**
+
+`astra_worker` は `is-main: true` のエントリポイント（child_process.fork で別プロセスとして起動）。
+`builder_pool` はライブラリ。役割が異なるため分離が必要。
+
+```
+astra_worker/main.mbt (10行)
+fn main {
+  @builder_pool.start_worker()
+}
+```
+
+### astra/generator
+
+**結論: astra 固有のため抽出不適切**
+
+依存関係: luna, render, astra, markdown, mdx, routes, shiki, assets, tree, adapters, cache, isr, components, ssg (14モジュール)
+
+すべてが `@astra.BuildContext`, `@astra.PageMeta`, `@astra.SsgConfig` に依存。
+Markdown処理、レイアウト適用、テンプレート展開は SSG/ドキュメント固有。
+
+```
+sol (SSR ランタイム)          astra (SSG ドキュメント)
+├── リクエスト処理              ├── Markdown → HTML
+├── 動的レンダリング            ├── レイアウト適用
+└── サーバー実行                └── 静的ファイル生成
+```
+
+### JSON エスケープの重複
+
+`escape_json_string` が複数モジュールで重複:
+- `luna/serialize/json.mbt` - public (正規版)
+- sol/hmr, sol/isr, astra/cache, astra/builder_pool, astra/generator, astra/adapters - private 重複
+
+統一可能だが、依存関係変更のコストに対してメリットが小さい。
+
 ### 優先度: 低（将来検討）
 - `sol/cli` と `astra/cli` のさらなる統合 (共通コマンドパーサー等)
 - SSR 用 sol/adapters (Node.js, Deno, Cloudflare Workers ランタイム)
+- JSON エスケープユーティリティの統一 (`luna/serialize` を使用)
