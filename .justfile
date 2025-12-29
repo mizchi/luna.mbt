@@ -289,13 +289,30 @@ minify-css input *flags:
 # リリース
 # =============================================================================
 
-# CHANGELOG 更新
-changelog:
-    git-cliff --unreleased --prepend CHANGELOG.md 2>/dev/null
+# CHANGELOG 再生成（全履歴、リリース時に使用）
+changelog tag:
+    git cliff --tag {{tag}} -o CHANGELOG.md
 
-# CHANGELOG プレビュー
+# CHANGELOG プレビュー（未リリース分のみ）
 changelog-preview:
-    git-cliff --unreleased 2>/dev/null
+    git cliff --unreleased
+
+# バージョンアップ (patch/minor/major または具体的なバージョン)
+# 使用例: just vup patch, just vup 0.4.0, just vup minor --dry-run
+vup version *args:
+    #!/usr/bin/env bash
+    set -e
+    # バージョン更新
+    node scripts/vup.mjs {{version}} {{args}}
+    # dry-run でなければ changelog 更新
+    if [[ ! " {{args}} " =~ " --dry-run " ]]; then
+        # 更新後のバージョンを取得
+        NEW_VERSION=$(node -p "require('./moon.mod.json').version")
+        echo ""
+        echo "Updating CHANGELOG.md..."
+        git cliff --tag "v${NEW_VERSION}" -o CHANGELOG.md 2>/dev/null
+        echo "  CHANGELOG.md updated for v${NEW_VERSION}"
+    fi
 
 # メトリクス
 metrics *args:

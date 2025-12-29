@@ -280,4 +280,125 @@ describe("TSX Syntax with jsxImportSource", () => {
       dispose();
     });
   });
+
+  // Issue #7: Reactive props (class, innerHTML)
+  describe("Reactive props (Issue #7)", () => {
+    test("reactive class with accessor function", () => {
+      const container = document.createElement("div");
+
+      createRoot((dispose) => {
+        const [active, setActive] = createSignal(false);
+
+        // Pass accessor function directly (not called): class={className}
+        const className = () => `btn ${active() ? "active" : "inactive"}`;
+
+        const node = (
+          <button class={className}>
+            Toggle
+          </button>
+        );
+
+        render(container, node);
+        const button = container.querySelector("button")!;
+
+        // Initial state
+        expect(button.className).toBe("btn inactive");
+
+        // After update
+        setActive(true);
+        expect(button.className).toBe("btn active");
+
+        // Toggle back
+        setActive(false);
+        expect(button.className).toBe("btn inactive");
+
+        dispose();
+      });
+    });
+
+    test("reactive className with accessor function", () => {
+      const container = document.createElement("div");
+
+      createRoot((dispose) => {
+        const [color, setColor] = createSignal("red");
+
+        const node = (
+          <div className={() => `text-${color()}`}>
+            Colored text
+          </div>
+        );
+
+        render(container, node);
+        const div = container.querySelector("div")!;
+
+        expect(div.className).toBe("text-red");
+
+        setColor("blue");
+        expect(div.className).toBe("text-blue");
+
+        dispose();
+      });
+    });
+
+    test("dangerouslySetInnerHTML static", () => {
+      const container = document.createElement("div");
+
+      const node = (
+        <span dangerouslySetInnerHTML={{ __html: "<b>bold</b>" }} />
+      );
+
+      render(container, node);
+      const span = container.querySelector("span")!;
+
+      expect(span.innerHTML).toBe("<b>bold</b>");
+      expect(span.querySelector("b")?.textContent).toBe("bold");
+    });
+
+    test("dangerouslySetInnerHTML dynamic", () => {
+      const container = document.createElement("div");
+
+      createRoot((dispose) => {
+        const [html, setHtml] = createSignal("<i>italic</i>");
+
+        const node = (
+          <span dangerouslySetInnerHTML={() => ({ __html: html() })} />
+        );
+
+        render(container, node);
+        const span = container.querySelector("span")!;
+
+        expect(span.innerHTML).toBe("<i>italic</i>");
+
+        setHtml("<strong>strong</strong>");
+        expect(span.innerHTML).toBe("<strong>strong</strong>");
+
+        dispose();
+      });
+    });
+
+    test("reactive style object", () => {
+      const container = document.createElement("div");
+
+      createRoot((dispose) => {
+        const [color, setColor] = createSignal("red");
+
+        const node = (
+          <div style={() => ({ color: color(), fontWeight: "bold" })}>
+            Styled text
+          </div>
+        );
+
+        render(container, node);
+        const div = container.querySelector("div")!;
+
+        expect(div.getAttribute("style")).toContain("color: red");
+        expect(div.getAttribute("style")).toContain("font-weight: bold");
+
+        setColor("blue");
+        expect(div.getAttribute("style")).toContain("color: blue");
+
+        dispose();
+      });
+    });
+  });
 });

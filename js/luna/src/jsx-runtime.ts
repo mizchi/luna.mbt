@@ -19,6 +19,11 @@ interface HTMLAttributes {
   tabIndex?: MaybeAccessor<number>;
   hidden?: MaybeAccessor<boolean>;
 
+  // React-compatible innerHTML (use with caution)
+  // Static: dangerouslySetInnerHTML={{ __html: "<b>html</b>" }}
+  // Dynamic: dangerouslySetInnerHTML={() => ({ __html: htmlSignal() })}
+  dangerouslySetInnerHTML?: { __html: string } | (() => { __html: string });
+
   // Form attributes
   type?: MaybeAccessor<string>;
   name?: MaybeAccessor<string>;
@@ -123,10 +128,31 @@ function convertProps(props: Record<string, unknown> | null | undefined): Attr[]
       attrName = "class";
     }
 
+    // Handle dangerouslySetInnerHTML (React-compatible)
+    if (key === "dangerouslySetInnerHTML") {
+      if (typeof value === "function") {
+        // Dynamic innerHTML
+        const getter = value as () => { __html: string };
+        attrValue = { $tag: 1, _0: () => getter().__html }; // AttrValue.Dynamic
+      } else if (value && typeof value === "object" && "__html" in value) {
+        // Static innerHTML
+        attrValue = { $tag: 0, _0: (value as { __html: string }).__html }; // AttrValue.Static
+      } else {
+        continue; // Invalid format, skip
+      }
+      attrs.push({ _0: "__innerHTML", _1: attrValue });
+      continue;
+    }
+
     // Handle style object -> CSS string
     if (key === "style") {
-      const cssString = styleToString(value);
-      attrValue = { $tag: 0, _0: cssString }; // AttrValue.Static
+      if (typeof value === "function") {
+        // Dynamic style
+        const getter = value as () => unknown;
+        attrValue = { $tag: 1, _0: () => styleToString(getter()) }; // AttrValue.Dynamic
+      } else {
+        attrValue = { $tag: 0, _0: styleToString(value) }; // AttrValue.Static
+      }
       attrs.push({ _0: attrName, _1: attrValue });
       continue;
     }
@@ -149,6 +175,7 @@ function convertProps(props: Record<string, unknown> | null | undefined): Attr[]
     }
 
     // Handle dynamic values (functions)
+    // For reactive props, pass the accessor function directly: class={className}
     if (typeof value === "function") {
       attrValue = { $tag: 1, _0: value }; // AttrValue.Dynamic
     } else {

@@ -153,8 +153,11 @@ fn apply_static_attr(
   name : String,
   value : String,
 ) -> Unit {
-  if name == "className" {
+  if name == "className" || name == "class" {
     elem.setClassName(value)
+  } else if name == "__innerHTML" {
+    // dangerouslySetInnerHTML - set innerHTML as property
+    elem.as_any()._set("innerHTML", @js.any(value)) |> ignore
   } else if name == "value" {
     // Special handling for input value
     elem.as_any()._set("value", @js.any(value)) |> ignore
