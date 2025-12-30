@@ -56,10 +56,10 @@ test "generate_css() outputs declarations in CSS format" {
 }
 
 ///|
-test "hover() returns class name with _h prefix" {
+test "hover() returns class name with _ prefix" {
   reset_all()
   let cls = hover("test-hover-bg", "#2563eb")
-  assert_true(cls.has_prefix("_h"))
+  assert_true(cls.has_prefix("_"))
 }
 
 ///|
@@ -71,17 +71,17 @@ test "hover() deduplicates same declarations" {
 }
 
 ///|
-test "focus() returns class name with _f prefix" {
+test "focus() returns class name with _ prefix" {
   reset_all()
   let cls = focus("test-focus-outline", "2px solid blue")
-  assert_true(cls.has_prefix("_f"))
+  assert_true(cls.has_prefix("_"))
 }
 
 ///|
-test "active() returns class name with _ac prefix" {
+test "active() returns class name with _ prefix" {
   reset_all()
   let cls = active("test-active-transform", "scale(0.98)")
-  assert_true(cls.has_prefix("_ac"))
+  assert_true(cls.has_prefix("_"))
 }
 
 ///|

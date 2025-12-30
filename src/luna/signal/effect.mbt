@@ -57,19 +57,24 @@ fn create_effect_runner(
 /// (Solid.js style createRenderEffect - synchronous execution)
 /// Returns a dispose function to stop the effect.
 /// Supports `on_cleanup()` calls inside the effect.
-/// ```mbt test
-/// let count = @signal.signal(0)
-/// let log : Array[String] = []
-/// let dispose = @signal.render_effect(fn() {
-///   log.push("count=" + count.get().to_string())
-/// })
-/// log.push("after-effect")
-/// count.set(1)
-/// dispose()
-/// count.set(2) // Won't trigger effect
-/// inspect(log, content=(
-///   #|["count=0", "after-effect", "count=1"]
-/// ))
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(0)
+///   let log : Array[String] = []
+///   let dispose = @signal.render_effect(fn() {
+///     log.push("count=" + count.get().to_string())
+///   })
+///   log.push("after-effect")
+///   count.set(1)
+///   dispose()
+///   count.set(2) // Won't trigger effect
+///   inspect(
+///     log,
+///     content=(
+///       #|["count=0", "after-effect", "count=1"]
+///     ),
+///   )
+/// }
 /// ```
 pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
   let state : EffectState = { active: true, cleanups: [] }
@@ -111,18 +116,19 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
 ///|
 /// Create an effect that only runs when condition is true.
 /// Uses `render_effect` for synchronous execution.
-/// ```mbt test
-/// let enabled = @signal.signal(false)
-/// let count = @signal.signal(0)
-/// let log : Array[Int] = []
-/// let _ = @signal.effect_when(
-///   fn() { enabled.get() },
-///   fn() { log.push(count.get()) }
-/// )
-/// count.set(1) // Won't run, enabled is false
-/// enabled.set(true)
-/// count.set(2)
-/// inspect(log, content="[1, 2]")
+/// ```mbt check
+/// test {
+///   let enabled = @signal.signal(false)
+///   let count = @signal.signal(0)
+///   let log : Array[Int] = []
+///   let _ = @signal.effect_when(fn() { enabled.get() }, fn() {
+///     log.push(count.get())
+///   })
+///   count.set(1) // Won't run, enabled is false
+///   enabled.set(true)
+///   count.set(2)
+///   inspect(log, content="[1, 2]")
+/// }
 /// ```
 pub fn effect_when(condition : () -> Bool, fn_ : () -> Unit) -> () -> Unit {
   render_effect(fn() { if condition() { fn_() } })
@@ -131,16 +137,18 @@ pub fn effect_when(condition : () -> Bool, fn_ : () -> Unit) -> () -> Unit {
 ///|
 /// Create a one-time effect that disposes itself after first run.
 /// Useful for initialization logic that should only run once.
-/// ```mbt test
-/// let count = @signal.signal(0)
-/// let runs : Ref[Int] = { val: 0 }
-/// @signal.effect_once(fn() {
-///   let _ = count.get()
-///   runs.val = runs.val + 1
-/// })
-/// count.set(1)
-/// count.set(2)
-/// inspect(runs.val, content="2")
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(0)
+///   let runs : Ref[Int] = { val: 0 }
+///   @signal.effect_once(fn() {
+///     let _ = count.get()
+///     runs.val = runs.val + 1
+///   })
+///   count.set(1)
+///   count.set(2)
+///   inspect(runs.val, content="2")
+/// }
 /// ```
 pub fn effect_once(fn_ : () -> Unit) -> Unit {
   let dispose : Ref[(() -> Unit)?] = { val: None }
@@ -160,17 +168,19 @@ pub fn effect_once(fn_ : () -> Unit) -> Unit {
 /// Run a function once after mount (Solid.js style onMount).
 /// The function runs without tracking dependencies.
 /// Cleanup registered via `on_cleanup` inside will run when owner is disposed.
-/// ```mbt test
-/// let count = @signal.signal(0)
-/// let runs : Ref[Int] = { val: 0 }
-/// @signal.on_mount(fn() {
-///   let _ = count.get() // This read won't create subscription
-///   runs.val = runs.val + 1
-/// })
-/// count.set(1)
-/// count.set(2)
-/// // on_mount only ran once, signal changes don't trigger re-run
-/// inspect(runs.val, content="1")
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(0)
+///   let runs : Ref[Int] = { val: 0 }
+///   @signal.on_mount(fn() {
+///     let _ = count.get() // This read won't create subscription
+///     runs.val = runs.val + 1
+///   })
+///   count.set(1)
+///   count.set(2)
+///   // on_mount only ran once, signal changes don't trigger re-run
+///   inspect(runs.val, content="1")
+/// }
 /// ```
 pub fn on_mount(fn_ : () -> Unit) -> Unit {
   // Run untracked so we don't create any subscriptions

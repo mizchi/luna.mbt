@@ -14,9 +14,14 @@ pub struct EventHandler[E] {
 
 ///|
 /// Create an event handler from a callback.
-/// ```mbt test
-/// let h : @luna.EventHandler[Int] = @luna.handler(fn(x) { let _ = x * 2 })
-/// inspect(h.get_callback()(5), content="()")
+/// ```mbt check
+/// test {
+///   let h : @luna.EventHandler[Int] = @luna.handler(fn(x) {
+///     let _ = x * 2
+///
+///   })
+///   inspect(h.get_callback()(5), content="()")
+/// }
 /// ```
 pub fn[E] handler(f : (E) -> Unit) -> EventHandler[E] {
   { callback: f }
@@ -173,14 +178,16 @@ pub struct VElement[E] {
 ///|
 /// Create a VNode element.
 /// The main building block for creating virtual DOM elements.
-/// ```mbt test
-/// let node : @luna.Node[Unit] = @luna.h(
-///   "div",
-///   [("class", @luna.attr_static("container"))],
-///   [@luna.text("Hello")]
-/// )
-/// guard node is @luna.Element(el) else { fail("expected Element") }
-/// inspect(el.tag, content="div")
+/// ```mbt check
+/// test {
+///   let node : @luna.Node[Unit] = @luna.h(
+///     "div",
+///     [("class", @luna.attr_static("container"))],
+///     [@luna.text("Hello")],
+///   )
+///   guard node is @luna.Element(el) else { fail("expected Element") }
+///   inspect(el.tag, content="div")
+/// }
 /// ```
 pub fn[E] h(
   tag : String,
@@ -192,10 +199,12 @@ pub fn[E] h(
 
 ///|
 /// Create a text VNode.
-/// ```mbt test
-/// let node : @luna.Node[Unit] = @luna.text("Hello World")
-/// guard node is @luna.Text(s) else { fail("expected Text") }
-/// inspect(s, content="Hello World")
+/// ```mbt check
+/// test {
+///   let node : @luna.Node[Unit] = @luna.text("Hello World")
+///   guard node is @luna.Text(s) else { fail("expected Text") }
+///   inspect(s, content="Hello World")
+/// }
 /// ```
 pub fn[E] text(content : String) -> Node[E] {
   Text(content)
@@ -204,13 +213,15 @@ pub fn[E] text(content : String) -> Node[E] {
 ///|
 /// Create a dynamic text VNode.
 /// The content is computed lazily on each render.
-/// ```mbt test
-/// let count = @signal.signal(5)
-/// let node : @luna.Node[Unit] = @luna.text_dyn(fn() { count.get().to_string() })
-/// guard node is @luna.DynamicText(getter) else { fail("expected DynamicText") }
-/// inspect(getter(), content="5")
-/// count.set(10)
-/// inspect(getter(), content="10")
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(5)
+///   let node : @luna.Node[Unit] = @luna.text_dyn(fn() { count.get().to_string() })
+///   guard node is @luna.DynamicText(getter) else { fail("expected DynamicText") }
+///   inspect(getter(), content="5")
+///   count.set(10)
+///   inspect(getter(), content="10")
+/// }
 /// ```
 pub fn[E] text_dyn(content : () -> String) -> Node[E] {
   DynamicText(content)
@@ -219,13 +230,15 @@ pub fn[E] text_dyn(content : () -> String) -> Node[E] {
 ///|
 /// Create a text VNode from a signal.
 /// Shorthand for `text_dyn(fn() { sig.get().to_string() })`.
-/// ```mbt test
-/// let name = @signal.signal("Alice")
-/// let node : @luna.Node[Unit] = @luna.text_of(name)
-/// guard node is @luna.DynamicText(getter) else { fail("expected DynamicText") }
-/// inspect(getter(), content="Alice")
-/// name.set("Bob")
-/// inspect(getter(), content="Bob")
+/// ```mbt check
+/// test {
+///   let name = @signal.signal("Alice")
+///   let node : @luna.Node[Unit] = @luna.text_of(name)
+///   guard node is @luna.DynamicText(getter) else { fail("expected DynamicText") }
+///   inspect(getter(), content="Alice")
+///   name.set("Bob")
+///   inspect(getter(), content="Bob")
+/// }
 /// ```
 pub fn[E, T : Show] text_of(sig : @signal.Signal[T]) -> Node[E] {
   DynamicText(fn() { sig.get().to_string() })
@@ -234,14 +247,16 @@ pub fn[E, T : Show] text_of(sig : @signal.Signal[T]) -> Node[E] {
 ///|
 /// Create a fragment VNode.
 /// Groups multiple nodes without a wrapper element.
-/// ```mbt test
-/// let node : @luna.Node[Unit] = @luna.fragment([
-///   @luna.text("Hello"),
-///   @luna.text(" "),
-///   @luna.text("World")
-/// ])
-/// guard node is @luna.Fragment(children) else { fail("expected Fragment") }
-/// inspect(children.length(), content="3")
+/// ```mbt check
+/// test {
+///   let node : @luna.Node[Unit] = @luna.fragment([
+///     @luna.text("Hello"),
+///     @luna.text(" "),
+///     @luna.text("World"),
+///   ])
+///   guard node is @luna.Fragment(children) else { fail("expected Fragment") }
+///   inspect(children.length(), content="3")
+/// }
 /// ```
 pub fn[E] fragment(children : Array[Node[E]]) -> Node[E] {
   Fragment(children)
@@ -250,10 +265,12 @@ pub fn[E] fragment(children : Array[Node[E]]) -> Node[E] {
 ///|
 /// Create a raw HTML VNode (content is not escaped).
 /// Use with caution: content should be trusted or sanitized.
-/// ```mbt test
-/// let node : @luna.Node[Unit] = @luna.raw_html("<strong>Bold</strong>")
-/// guard node is @luna.RawHtml(html) else { fail("expected RawHtml") }
-/// inspect(html, content="<strong>Bold</strong>")
+/// ```mbt check
+/// test {
+///   let node : @luna.Node[Unit] = @luna.raw_html("<strong>Bold</strong>")
+///   guard node is @luna.RawHtml(html) else { fail("expected RawHtml") }
+///   inspect(html, content="<strong>Bold</strong>")
+/// }
 /// ```
 pub fn[E] raw_html(content : String) -> Node[E] {
   RawHtml(content)
@@ -262,14 +279,15 @@ pub fn[E] raw_html(content : String) -> Node[E] {
 ///|
 /// Create a conditional VNode.
 /// Only renders the child when the condition is true.
-/// ```mbt test
-/// let visible = @signal.signal(true)
-/// let node : @luna.Node[Unit] = @luna.show(
-///   fn() { visible.get() },
-///   fn() { @luna.text("Visible!") }
-/// )
-/// guard node is @luna.Show(condition~, ..) else { fail("expected Show") }
-/// inspect(condition(), content="true")
+/// ```mbt check
+/// test {
+///   let visible = @signal.signal(true)
+///   let node : @luna.Node[Unit] = @luna.show(fn() { visible.get() }, fn() {
+///     @luna.text("Visible!")
+///   })
+///   guard node is @luna.Show(condition~, ..) else { fail("expected Show") }
+///   inspect(condition(), content="true")
+/// }
 /// ```
 pub fn[E] show(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
   Show(condition=when, child~)
@@ -278,13 +296,15 @@ pub fn[E] show(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
 ///|
 /// Create a list VNode.
 /// Renders a dynamic list of nodes.
-/// ```mbt test
-/// let items = @signal.signal(["a", "b", "c"])
-/// let node : @luna.Node[Unit] = @luna.for_each(fn() {
-///   items.get().map(fn(s) { @luna.text(s) })
-/// })
-/// guard node is @luna.For(render~) else { fail("expected For") }
-/// inspect(render().length(), content="3")
+/// ```mbt check
+/// test {
+///   let items = @signal.signal(["a", "b", "c"])
+///   let node : @luna.Node[Unit] = @luna.for_each(fn() {
+///     items.get().map(fn(s) { @luna.text(s) })
+///   })
+///   guard node is @luna.For(render~) else { fail("expected For") }
+///   inspect(render().length(), content="3")
+/// }
 /// ```
 pub fn[E] for_each(items : () -> Array[Node[E]]) -> Node[E] {
   For(render=items)
@@ -293,13 +313,15 @@ pub fn[E] for_each(items : () -> Array[Node[E]]) -> Node[E] {
 ///|
 /// Create a component VNode.
 /// Wraps a render function as a component boundary.
-/// ```mbt test
-/// let node : @luna.Node[Unit] = @luna.component(fn() {
-///   @luna.h("div", [], [@luna.text("Component")])
-/// })
-/// guard node is @luna.Component(render~) else { fail("expected Component") }
-/// guard render() is @luna.Element(el) else { fail("expected Element") }
-/// inspect(el.tag, content="div")
+/// ```mbt check
+/// test {
+///   let node : @luna.Node[Unit] = @luna.component(fn() {
+///     @luna.h("div", [], [@luna.text("Component")])
+///   })
+///   guard node is @luna.Component(render~) else { fail("expected Component") }
+///   guard render() is @luna.Element(el) else { fail("expected Element") }
+///   inspect(el.tag, content="div")
+/// }
 /// ```
 pub fn[E] component(render : () -> Node[E]) -> Node[E] {
   Component(render~)
@@ -418,12 +440,17 @@ pub fn[E] internal_ref(
 
 ///|
 /// Convert TriggerType to attribute value.
-/// ```mbt test
-/// inspect(@luna.Load.to_string(), content="load")
-/// inspect(@luna.Idle.to_string(), content="idle")
-/// inspect(@luna.Visible.to_string(), content="visible")
-/// inspect(@luna.Media("(max-width: 768px)").to_string(), content="media:(max-width: 768px)")
-/// inspect(@luna.None.to_string(), content="none")
+/// ```mbt check
+/// test {
+///   inspect(@luna.Load.to_string(), content="load")
+///   inspect(@luna.Idle.to_string(), content="idle")
+///   inspect(@luna.Visible.to_string(), content="visible")
+///   inspect(
+///     @luna.Media("(max-width: 768px)").to_string(),
+///     content="media:(max-width: 768px)",
+///   )
+///   inspect(@luna.None.to_string(), content="none")
+/// }
 /// ```
 pub fn TriggerType::to_string(self : TriggerType) -> String {
   match self {
@@ -437,13 +464,18 @@ pub fn TriggerType::to_string(self : TriggerType) -> String {
 
 ///|
 /// Parse TriggerType from string.
-/// ```mbt test
-/// // Round-trip test: parse then to_string
-/// inspect(@luna.TriggerType::parse("load").to_string(), content="load")
-/// inspect(@luna.TriggerType::parse("idle").to_string(), content="idle")
-/// inspect(@luna.TriggerType::parse("visible").to_string(), content="visible")
-/// inspect(@luna.TriggerType::parse("none").to_string(), content="none")
-/// inspect(@luna.TriggerType::parse("media:(min-width: 1024px)").to_string(), content="media:(min-width: 1024px)")
+/// ```mbt check
+/// test {
+///   // Round-trip test: parse then to_string
+///   inspect(@luna.TriggerType::parse("load").to_string(), content="load")
+///   inspect(@luna.TriggerType::parse("idle").to_string(), content="idle")
+///   inspect(@luna.TriggerType::parse("visible").to_string(), content="visible")
+///   inspect(@luna.TriggerType::parse("none").to_string(), content="none")
+///   inspect(
+///     @luna.TriggerType::parse("media:(min-width: 1024px)").to_string(),
+///     content="media:(min-width: 1024px)",
+///   )
+/// }
 /// ```
 pub fn TriggerType::parse(s : String) -> TriggerType {
   match s {
@@ -481,10 +513,12 @@ pub fn[E] has_dynamic_content(attrs : Array[(String, Attr[E])]) -> Bool {
 
 ///|
 /// Create a static attribute value.
-/// ```mbt test
-/// let attr : @luna.Attr[Unit] = @luna.attr_static("my-class")
-/// guard attr is @luna.VStatic(v) else { fail("expected VStatic") }
-/// inspect(v, content="my-class")
+/// ```mbt check
+/// test {
+///   let attr : @luna.Attr[Unit] = @luna.attr_static("my-class")
+///   guard attr is @luna.VStatic(v) else { fail("expected VStatic") }
+///   inspect(v, content="my-class")
+/// }
 /// ```
 pub fn[E] attr_static(value : String) -> Attr[E] {
   VStatic(value)
@@ -493,13 +527,17 @@ pub fn[E] attr_static(value : String) -> Attr[E] {
 ///|
 /// Create a dynamic attribute value.
 /// The value is computed lazily on each render.
-/// ```mbt test
-/// let count = @signal.signal(0)
-/// let attr : @luna.Attr[Unit] = @luna.attr_dynamic(fn() { "count-" + count.get().to_string() })
-/// guard attr is @luna.VDynamic(getter) else { fail("expected VDynamic") }
-/// inspect(getter(), content="count-0")
-/// count.set(5)
-/// inspect(getter(), content="count-5")
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(0)
+///   let attr : @luna.Attr[Unit] = @luna.attr_dynamic(fn() {
+///     "count-" + count.get().to_string()
+///   })
+///   guard attr is @luna.VDynamic(getter) else { fail("expected VDynamic") }
+///   inspect(getter(), content="count-0")
+///   count.set(5)
+///   inspect(getter(), content="count-5")
+/// }
 /// ```
 pub fn[E] attr_dynamic(getter : () -> String) -> Attr[E] {
   VDynamic(getter)

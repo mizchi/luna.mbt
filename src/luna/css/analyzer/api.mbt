@@ -2,17 +2,20 @@
 ///
 /// Entry points for JavaScript integration.
 
+///|
 /// Main entry point (required for is-main package)
 fn main {
   // No-op: functions are exported via link.exports
 }
 
+///|
 /// Analyze a single source file and return JSON result
 pub fn analyze_file_json(source : String, file : String) -> String {
   let result = analyze_source(source, file)
   result_to_json(result)
 }
 
+///|
 /// Convert FileAnalysisResult to JSON
 fn result_to_json(result : FileAnalysisResult) -> String {
   let mut json = "{\n"
@@ -40,7 +43,10 @@ fn result_to_json(result : FileAnalysisResult) -> String {
   json = json + "  \"warnings\": [\n"
   for i, w in result.warnings {
     json = json + "    {\n"
-    json = json + "      \"kind\": \"" + warning_kind_to_string(w.kind) + "\",\n"
+    json = json +
+      "      \"kind\": \"" +
+      warning_kind_to_string(w.kind) +
+      "\",\n"
     json = json + "      \"file\": \"" + escape_json(w.file) + "\",\n"
     json = json + "      \"line\": " + w.line.to_string() + ",\n"
     json = json + "      \"message\": \"" + escape_json(w.message) + "\"\n"
@@ -51,11 +57,11 @@ fn result_to_json(result : FileAnalysisResult) -> String {
     json = json + "\n"
   }
   json = json + "  ]\n"
-
   json = json + "}"
   json
 }
 
+///|
 fn warning_kind_to_string(kind : WarningKind) -> String {
   match kind {
     DynamicConditional => "dynamic_conditional"
@@ -65,6 +71,7 @@ fn warning_kind_to_string(kind : WarningKind) -> String {
   }
 }
 
+///|
 fn array_to_json(arr : Array[String]) -> String {
   let mut json = "["
   for i, s in arr {
@@ -76,6 +83,7 @@ fn array_to_json(arr : Array[String]) -> String {
   json + "]"
 }
 
+///|
 fn escape_json(s : String) -> String {
   let mut result = ""
   for c in s {

@@ -235,7 +235,7 @@ export class MultiTransformer implements ClassTransformer {
   private transformers: Map<string, ClassTransformer>;
 
   constructor() {
-    this.transformers = new Map([
+    this.transformers = new Map<string, ClassTransformer>([
       ["html", new HtmlTransformer()],
       ["jsx", new JsxTransformer()],
       ["tsx", new JsxTransformer()],

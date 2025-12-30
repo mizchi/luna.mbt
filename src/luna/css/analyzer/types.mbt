@@ -3,6 +3,7 @@
 /// Types for static analysis of MoonBit source code to detect
 /// CSS class co-occurrences.
 
+///|
 /// A CSS class usage detected in source code
 pub(all) struct ClassCooccurrence {
   /// Class names that appear together on the same element
@@ -15,6 +16,7 @@ pub(all) struct ClassCooccurrence {
   is_static : Bool
 }
 
+///|
 /// A warning about non-analyzable patterns
 pub(all) struct AnalyzerWarning {
   /// Warning type
@@ -27,6 +29,7 @@ pub(all) struct AnalyzerWarning {
   message : String
 }
 
+///|
 /// Types of analyzer warnings
 pub(all) enum WarningKind {
   /// Conditional class assignment
@@ -39,6 +42,7 @@ pub(all) enum WarningKind {
   DynamicArrayConstruction
 }
 
+///|
 /// Result of analyzing a source file
 pub(all) struct FileAnalysisResult {
   /// Detected class co-occurrences
@@ -47,6 +51,7 @@ pub(all) struct FileAnalysisResult {
   warnings : Array[AnalyzerWarning]
 }
 
+///|
 /// Result of analyzing a project
 pub(all) struct ProjectAnalysisResult {
   /// All co-occurrences from all files
@@ -57,6 +62,7 @@ pub(all) struct ProjectAnalysisResult {
   files_analyzed : Int
 }
 
+///|
 /// Known CSS function patterns
 pub(all) enum CssFunctionPattern {
   /// css(prop, value) -> single class

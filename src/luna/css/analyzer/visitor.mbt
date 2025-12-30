@@ -2,6 +2,7 @@
 ///
 /// Traverses MoonBit AST to find class_= arguments and extract CSS classes.
 
+///|
 /// Context for tracking variable bindings
 priv struct AnalyzerContext {
   /// Map from variable name to its css() result (if known)
@@ -14,15 +15,12 @@ priv struct AnalyzerContext {
   warnings : Array[AnalyzerWarning]
 }
 
+///|
 fn AnalyzerContext::new(file : String) -> AnalyzerContext {
-  {
-    bindings: {},
-    file,
-    cooccurrences: [],
-    warnings: [],
-  }
+  { bindings: {}, file, cooccurrences: [], warnings: [] }
 }
 
+///|
 /// Get name from LongIdent
 fn get_ident_name(id : @syntax.LongIdent) -> String {
   match id {
@@ -31,6 +29,7 @@ fn get_ident_name(id : @syntax.LongIdent) -> String {
   }
 }
 
+///|
 /// Check if an expression is a css() call and extract the declaration
 fn extract_css_call(expr : @syntax.Expr) -> String? {
   match expr {
@@ -60,6 +59,7 @@ fn extract_css_call(expr : @syntax.Expr) -> String? {
   }
 }
 
+///|
 /// Extract string literal from expression
 fn extract_string_literal(expr : @syntax.Expr) -> String? {
   match expr {
@@ -72,6 +72,7 @@ fn extract_string_literal(expr : @syntax.Expr) -> String? {
   }
 }
 
+///|
 /// Check if an expression is a styles() call and extract declarations
 fn extract_styles_call(expr : @syntax.Expr) -> Array[String]? {
   match expr {
@@ -92,6 +93,7 @@ fn extract_styles_call(expr : @syntax.Expr) -> Array[String]? {
   }
 }
 
+///|
 /// Extract declarations from styles([(...), ...]) array
 fn extract_styles_array(expr : @syntax.Expr) -> Array[String]? {
   match expr {
@@ -109,6 +111,7 @@ fn extract_styles_array(expr : @syntax.Expr) -> Array[String]? {
   }
 }
 
+///|
 /// Extract (prop, value) from a tuple expression
 fn extract_tuple_pair(expr : @syntax.Expr) -> (String, String)? {
   match expr {
@@ -127,20 +130,21 @@ fn extract_tuple_pair(expr : @syntax.Expr) -> (String, String)? {
   }
 }
 
+///|
 /// Get location line number from AST
 fn get_line(loc : @basic.Location) -> Int {
   loc.start.lnum
 }
 
+///|
 /// Analyze a class_= argument array
 fn analyze_class_array(
   ctx : AnalyzerContext,
   exprs : @list.List[@syntax.Expr],
-  loc : @basic.Location
+  loc : @basic.Location,
 ) -> Unit {
   let classes : Array[String] = []
   let mut is_static = true
-
   for expr in exprs {
     match extract_css_call(expr) {
       Some(decl) => classes.push(decl)
@@ -160,29 +164,25 @@ fn analyze_class_array(
                     }
                   None => {
                     is_static = false
-                    ctx.warnings.push(
-                      {
-                        kind: UntraceableVariable,
-                        file: ctx.file,
-                        line: get_line(loc),
-                        message: "Cannot trace variable: " +
-                          get_ident_name(id.name),
-                      },
-                    )
+                    ctx.warnings.push({
+                      kind: UntraceableVariable,
+                      file: ctx.file,
+                      line: get_line(loc),
+                      message: "Cannot trace variable: " +
+                      get_ident_name(id.name),
+                    })
                   }
                 }
               If(..) | Match(..) => {
                 is_static = false
-                ctx.warnings.push(
-                  {
-                    kind: DynamicConditional,
-                    file: ctx.file,
-                    line: get_line(loc),
-                    message: "Conditional expression in class array",
-                  },
-                )
+                ctx.warnings.push({
+                  kind: DynamicConditional,
+                  file: ctx.file,
+                  line: get_line(loc),
+                  message: "Conditional expression in class array",
+                })
               }
-              Apply(..) => {
+              Apply(..) =>
                 match extract_css_call(expr) {
                   Some(_) => ()
                   None =>
@@ -190,31 +190,31 @@ fn analyze_class_array(
                       Some(_) => ()
                       None => {
                         is_static = false
-                        ctx.warnings.push(
-                          {
-                            kind: DynamicFunctionCall,
-                            file: ctx.file,
-                            line: get_line(loc),
-                            message: "Function call result in class array",
-                          },
-                        )
+                        ctx.warnings.push({
+                          kind: DynamicFunctionCall,
+                          file: ctx.file,
+                          line: get_line(loc),
+                          message: "Function call result in class array",
+                        })
                       }
                     }
                 }
-              }
               _ => is_static = false
             }
         }
     }
   }
-
   if classes.length() >= 2 {
-    ctx.cooccurrences.push(
-      { classes, file: ctx.file, line: get_line(loc), is_static },
-    )
+    ctx.cooccurrences.push({
+      classes,
+      file: ctx.file,
+      line: get_line(loc),
+      is_static,
+    })
   }
 }
 
+///|
 /// Find class_= in function arguments
 fn find_class_arg(args : @list.List[@syntax.Argument]) -> @syntax.Expr? {
   for arg in args {
@@ -229,6 +229,7 @@ fn find_class_arg(args : @list.List[@syntax.Argument]) -> @syntax.Expr? {
   None
 }
 
+///|
 /// Visit an expression and collect class co-occurrences
 fn visit_expr(ctx : AnalyzerContext, expr : @syntax.Expr) -> Unit {
   match expr {
@@ -238,14 +239,12 @@ fn visit_expr(ctx : AnalyzerContext, expr : @syntax.Expr) -> Unit {
           match class_expr {
             Array(exprs~, ..) => analyze_class_array(ctx, exprs, loc)
             ArraySpread(..) =>
-              ctx.warnings.push(
-                {
-                  kind: DynamicArrayConstruction,
-                  file: ctx.file,
-                  line: get_line(loc),
-                  message: "Spread operator in class array",
-                },
-              )
+              ctx.warnings.push({
+                kind: DynamicArrayConstruction,
+                file: ctx.file,
+                line: get_line(loc),
+                message: "Spread operator in class array",
+              })
             _ => ()
           }
         None => ()
@@ -270,6 +269,7 @@ fn visit_expr(ctx : AnalyzerContext, expr : @syntax.Expr) -> Unit {
   visit_expr_children(ctx, expr)
 }
 
+///|
 /// Visit children of an expression
 fn visit_expr_children(ctx : AnalyzerContext, expr : @syntax.Expr) -> Unit {
   match expr {
@@ -328,18 +328,18 @@ fn visit_expr_children(ctx : AnalyzerContext, expr : @syntax.Expr) -> Unit {
   }
 }
 
+///|
 /// Analyze a source file
 pub fn analyze_source(source : String, file : String) -> FileAnalysisResult {
   let (impls, _errors) = @parser.parse_string(source, name=file)
   let ctx = AnalyzerContext::new(file)
-
   for impl_ in impls {
     visit_impl(ctx, impl_)
   }
-
   { cooccurrences: ctx.cooccurrences, warnings: ctx.warnings }
 }
 
+///|
 /// Visit a top-level implementation
 fn visit_impl(ctx : AnalyzerContext, impl_ : @syntax.Impl) -> Unit {
   match impl_ {
@@ -349,6 +349,7 @@ fn visit_impl(ctx : AnalyzerContext, impl_ : @syntax.Impl) -> Unit {
   }
 }
 
+///|
 /// Visit function body
 fn visit_decl_body(ctx : AnalyzerContext, body : @syntax.DeclBody) -> Unit {
   match body {

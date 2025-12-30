@@ -122,19 +122,21 @@ pub fn[T] run_with_subscriber(subscriber : EffectRunner, f : () -> T) -> T {
 ///|
 /// Run a function without tracking (useful for avoiding circular deps).
 /// Signal reads inside this function won't create subscriptions.
-/// ```mbt test
-/// let count = @signal.signal(0)
-/// let runs : Ref[Int] = { val: 0 }
-/// let _ = @signal.render_effect(fn() {
-///   @signal.untracked(fn() {
-///     let _ = count.get() // Won't create dependency
-///     runs.val = runs.val + 1
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(0)
+///   let runs : Ref[Int] = { val: 0 }
+///   let _ = @signal.render_effect(fn() {
+///     @signal.untracked(fn() {
+///       let _ = count.get() // Won't create dependency
+///       runs.val = runs.val + 1
+///     })
 ///   })
-/// })
-/// count.set(1)
-/// count.set(2)
-/// // Effect only ran once (initial), not on updates
-/// inspect(runs.val, content="1")
+///   count.set(1)
+///   count.set(2)
+///   // Effect only ran once (initial), not on updates
+///   inspect(runs.val, content="1")
+/// }
 /// ```
 pub fn[T] untracked(f : () -> T) -> T {
   let prev = reactive_context.current_subscriber
@@ -162,21 +164,23 @@ pub fn batch_end() -> Unit {
 ///|
 /// Run a function in a batch - all signal updates are batched.
 /// Effects only run once after all updates complete.
-/// ```mbt test
-/// let a = @signal.signal(0)
-/// let b = @signal.signal(0)
-/// let runs : Ref[Int] = { val: 0 }
-/// let _ = @signal.render_effect(fn() {
-///   let _ = a.get() + b.get()
-///   runs.val = runs.val + 1
-/// })
-/// inspect(runs.val, content="1") // Initial run
-/// @signal.batch(fn() {
-///   a.set(1)
-///   b.set(2)
-/// })
-/// // Only one additional run, not two
-/// inspect(runs.val, content="2")
+/// ```mbt check
+/// test {
+///   let a = @signal.signal(0)
+///   let b = @signal.signal(0)
+///   let runs : Ref[Int] = { val: 0 }
+///   let _ = @signal.render_effect(fn() {
+///     let _ = a.get() + b.get()
+///     runs.val = runs.val + 1
+///   })
+///   inspect(runs.val, content="1") // Initial run
+///   @signal.batch(fn() {
+///     a.set(1)
+///     b.set(2)
+///   })
+///   // Only one additional run, not two
+///   inspect(runs.val, content="2")
+/// }
 /// ```
 pub fn[T] batch(f : () -> T) -> T {
   batch_start()
@@ -233,21 +237,24 @@ pub fn is_batching() -> Bool {
 /// - Effects: cleanup runs before effect re-runs or when effect disposes
 /// - Components: cleanup runs when component unmounts
 /// (Solid.js style - can be called directly in component body)
-/// ```mbt test
-/// let count = @signal.signal(0)
-/// let log : Array[String] = []
-/// let dispose = @signal.render_effect(fn() {
-///   let v = count.get()
-///   log.push("run:" + v.to_string())
-///   @signal.on_cleanup(fn() {
-///     log.push("cleanup:" + v.to_string())
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(0)
+///   let log : Array[String] = []
+///   let dispose = @signal.render_effect(fn() {
+///     let v = count.get()
+///     log.push("run:" + v.to_string())
+///     @signal.on_cleanup(fn() { log.push("cleanup:" + v.to_string()) })
 ///   })
-/// })
-/// count.set(1)
-/// dispose()
-/// inspect(log, content=(
-///   #|["run:0", "cleanup:0", "run:1", "cleanup:1"]
-/// ))
+///   count.set(1)
+///   dispose()
+///   inspect(
+///     log,
+///     content=(
+///       #|["run:0", "cleanup:0", "run:1", "cleanup:1"]
+///     ),
+///   )
+/// }
 /// ```
 pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
   // First priority: effect-level cleanup tracking
@@ -308,19 +315,19 @@ pub fn[T] run_with_owner(owner : Owner, f : () -> T) -> T {
 /// Create a new reactive root scope.
 /// The function receives a dispose callback that cleans up all effects.
 /// Returns the result of the function.
-/// ```mbt test
-/// let count = @signal.signal(0)
-/// let log : Array[Int] = []
-/// let result = @signal.create_root(fn(dispose) {
-///   let _ = @signal.render_effect(fn() {
-///     log.push(count.get())
+/// ```mbt check
+/// test {
+///   let count = @signal.signal(0)
+///   let log : Array[Int] = []
+///   let result = @signal.create_root(fn(dispose) {
+///     let _ = @signal.render_effect(fn() { log.push(count.get()) })
+///     dispose // Return dispose function
 ///   })
-///   dispose // Return dispose function
-/// })
-/// count.set(1)
-/// result() // Dispose the root
-/// count.set(2) // Won't trigger effect
-/// inspect(log, content="[0, 1]")
+///   count.set(1)
+///   result() // Dispose the root
+///   count.set(2) // Won't trigger effect
+///   inspect(log, content="[0, 1]")
+/// }
 /// ```
 pub fn[T] create_root(f : (() -> Unit) -> T) -> T {
   let owner = Owner::new(reactive_context.current_owner)

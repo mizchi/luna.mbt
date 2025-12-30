@@ -293,7 +293,6 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
       is_first_run.val = false
       return
     }
-
     match (should_show, has_nodes) {
       (true, false) =>
         // Need to show - create and insert nodes

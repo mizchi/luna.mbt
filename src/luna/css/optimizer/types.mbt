@@ -1,18 +1,21 @@
 // CSS Optimizer Types
 // For analyzing co-occurrence patterns and suggesting CSS compression
 
+///|
 /// A single CSS declaration (property: value)
 pub struct Declaration {
   property : String
   value : String
 } derive(Eq, Compare, Hash, Show)
 
+///|
 /// A CSS rule: selector -> declarations
 pub struct Rule {
   selector : String
   declarations : Array[Declaration]
 } derive(Show)
 
+///|
 /// A class usage instance (which classes appear together on an element)
 pub struct ClassUsage {
   /// Classes used on this element
@@ -21,6 +24,7 @@ pub struct ClassUsage {
   source : String
 } derive(Show)
 
+///|
 /// Co-occurrence pair with frequency
 pub struct CoOccurrence {
   class_a : String
@@ -28,6 +32,7 @@ pub struct CoOccurrence {
   frequency : Int
 } derive(Show)
 
+///|
 /// A frequent pattern: set of classes that often appear together
 pub struct FrequentPattern {
   classes : Array[String]
@@ -36,6 +41,7 @@ pub struct FrequentPattern {
   potential_savings : Int
 } derive(Show)
 
+///|
 /// Merge suggestion
 pub struct MergeSuggestion {
   /// Original classes to merge
@@ -50,6 +56,7 @@ pub struct MergeSuggestion {
   bytes_saved : Int
 } derive(Show)
 
+///|
 /// Analysis result
 pub struct AnalysisResult {
   /// All class usages found
@@ -62,16 +69,19 @@ pub struct AnalysisResult {
   suggestions : Array[MergeSuggestion]
 } derive(Show)
 
+///|
 /// Create a declaration
 pub fn Declaration::new(property : String, value : String) -> Declaration {
   { property, value }
 }
 
+///|
 /// Create declaration key for hashing
 pub fn Declaration::key(self : Declaration) -> String {
   self.property + ":" + self.value
 }
 
+///|
 /// Create a class usage
 pub fn ClassUsage::new(classes : Array[String], source : String) -> ClassUsage {
   { classes, source }

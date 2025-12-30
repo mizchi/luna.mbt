@@ -1,13 +1,14 @@
 // Frequent Pattern Mining for CSS Classes
 // Finds sets of classes that frequently appear together
 
+///|
 /// Find frequent patterns using a greedy approach
 /// 1. Start with most frequent pairs
 /// 2. Try to extend patterns by adding more classes
 /// 3. Keep patterns that appear >= min_support times
 pub fn find_frequent_patterns(
   usages : Array[ClassUsage],
-  min_support : Int
+  min_support : Int,
 ) -> Array[FrequentPattern] {
   // Build frequency map for each class set
   let pattern_counts : Map[String, Int] = {}
@@ -45,7 +46,6 @@ pub fn find_frequent_patterns(
 
   // Filter by min_support and convert to patterns
   let patterns : Array[FrequentPattern] = []
-
   pattern_counts.each(fn(key, frequency) {
     if frequency >= min_support {
       let views = key.split("|").collect()
@@ -56,7 +56,6 @@ pub fn find_frequent_patterns(
       // Estimate savings: each class is ~20 bytes, merged saves (n-1)*usage bytes
       let class_count = classes.length()
       let potential_savings = (class_count - 1) * frequency * 8 // rough estimate
-
       patterns.push({ classes, frequency, potential_savings })
     }
   })
@@ -68,12 +67,12 @@ pub fn find_frequent_patterns(
   remove_subsumed_patterns(patterns)
 }
 
+///|
 /// Remove patterns that are subsets of larger patterns with similar frequency
 fn remove_subsumed_patterns(
-  patterns : Array[FrequentPattern]
+  patterns : Array[FrequentPattern],
 ) -> Array[FrequentPattern] {
   let result : Array[FrequentPattern] = []
-
   for i = 0, len = patterns.length(); i < len; i = i + 1 {
     let pattern = patterns[i]
     let dominated = is_dominated(pattern, patterns, i)
@@ -81,24 +80,23 @@ fn remove_subsumed_patterns(
       result.push(pattern)
     }
   }
-
   result
 }
 
+///|
 /// Check if pattern is dominated by a larger pattern
 fn is_dominated(
   pattern : FrequentPattern,
   all_patterns : Array[FrequentPattern],
-  self_index : Int
+  self_index : Int,
 ) -> Bool {
   let pattern_set = set_from_array(pattern.classes)
-
   for i = 0, len = all_patterns.length(); i < len; i = i + 1 {
     if i != self_index {
       let other = all_patterns[i]
       // Check if other is a superset with similar or higher frequency
       if other.classes.length() > pattern.classes.length() &&
-         other.frequency >= pattern.frequency * 8 / 10 {
+        other.frequency >= pattern.frequency * 8 / 10 {
         // 80% threshold
         let other_set = set_from_array(other.classes)
         if is_subset(pattern_set, other_set) {
@@ -107,10 +105,10 @@ fn is_dominated(
       }
     }
   }
-
   false
 }
 
+///|
 /// Convert array to set (using Map as set)
 fn set_from_array(arr : Array[String]) -> Map[String, Bool] {
   let set : Map[String, Bool] = {}
@@ -120,31 +118,26 @@ fn set_from_array(arr : Array[String]) -> Map[String, Bool] {
   set
 }
 
+///|
 /// Check if a is subset of b
 fn is_subset(a : Map[String, Bool], b : Map[String, Bool]) -> Bool {
   let mut all_in = true
-  a.each(fn(item, _) {
-    if not(b.contains(item)) {
-      all_in = false
-    }
-  })
+  a.each(fn(item, _) { if not(b.contains(item)) { all_in = false } })
   all_in
 }
 
+///|
 /// Group usages by exact class set
 pub fn group_by_class_set(
-  usages : Array[ClassUsage]
+  usages : Array[ClassUsage],
 ) -> Map[String, Array[ClassUsage]] {
   let groups : Map[String, Array[ClassUsage]] = {}
-
   for usage in usages {
     let classes = usage.classes.copy()
     classes.sort_by(fn(a, b) { a.compare(b) })
-    let key = classes.iter().fold(
-      init="",
-      fn(acc, c) { if acc == "" { c } else { acc + "|" + c } },
-    )
-
+    let key = classes
+      .iter()
+      .fold(init="", fn(acc, c) { if acc == "" { c } else { acc + "|" + c } })
     match groups.get(key) {
       Some(arr) => arr.push(usage)
       None => {
@@ -154,6 +147,5 @@ pub fn group_by_class_set(
       }
     }
   }
-
   groups
 }

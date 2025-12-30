@@ -1,11 +1,12 @@
 // CSS Optimizer Analyzer
 // Main entry point for CSS co-occurrence analysis
 
+///|
 /// Analyze class usages and generate optimization suggestions
 pub fn analyze(
   usages : Array[ClassUsage],
   class_declarations : Map[String, Declaration],
-  min_support : Int
+  min_support : Int,
 ) -> AnalysisResult {
   // Step 1: Build co-occurrence matrix
   let matrix = build_cooccurrence_matrix(usages)
@@ -16,10 +17,10 @@ pub fn analyze(
 
   // Step 3: Generate merge suggestions
   let suggestions = generate_suggestions(patterns, class_declarations)
-
   { usages, cooccurrences, patterns, suggestions }
 }
 
+///|
 /// Generate a full report from analysis result
 pub fn generate_report(result : AnalysisResult) -> String {
   let mut report = "# CSS Optimization Report\n\n"
@@ -67,16 +68,9 @@ pub fn generate_report(result : AnalysisResult) -> String {
   }
   for i = 0; i < limit; i = i + 1 {
     let pattern = result.patterns[i]
-    let classes_str = pattern.classes.iter().fold(
-      init="",
-      fn(acc, c) {
-        if acc == "" {
-          c
-        } else {
-          acc + ", " + c
-        }
-      },
-    )
+    let classes_str = pattern.classes
+      .iter()
+      .fold(init="", fn(acc, c) { if acc == "" { c } else { acc + ", " + c } })
     report = report +
       "- [" +
       classes_str +
@@ -106,14 +100,14 @@ pub fn generate_report(result : AnalysisResult) -> String {
   }
   report = report + "## Total Potential Savings\n\n"
   report = report + "~" + total_savings.to_string() + " bytes\n"
-
   report
 }
 
+///|
 /// Generate optimized CSS from suggestions
 pub fn generate_optimized_css(
   suggestions : Array[MergeSuggestion],
-  original_css : Map[String, String]
+  original_css : Map[String, String],
 ) -> String {
   let mut css = ""
 
@@ -129,12 +123,10 @@ pub fn generate_optimized_css(
       merged_classes[c] = true
     }
   }
-
   original_css.each(fn(class_name, rule) {
     if not(merged_classes.contains(class_name)) {
       css = css + rule + "\n"
     }
   })
-
   css
 }

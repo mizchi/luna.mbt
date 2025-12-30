@@ -27,6 +27,8 @@ export default defineConfig({
       "js/luna/**/*.test.tsx",
       // Benchmarks should only run with `vitest bench`
       "js/luna/**/*.bench.ts",
+      // CSS optimizer tests use Node.js APIs (node:url, node:fs)
+      "js/luna/tests/css-optimizer*.test.ts",
     ],
   },
 });

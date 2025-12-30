@@ -272,7 +272,7 @@ describe("Nested Show + For Performance (Issue #5 scenario)", () => {
         Array.from({ length: lineCount() }, (_, i) => i + 1)
       );
 
-      const setupInput = (_el: HTMLElement) => {
+      const setupInput = (_el: unknown) => {
         // Simulate ref callback that updates signal
         setLineCount(10);
       };
@@ -319,7 +319,7 @@ describe("Nested Show + For Performance (Issue #5 scenario)", () => {
         Array.from({ length: lineCount() }, (_, i) => i + 1)
       );
 
-      const setupInput = (_el: HTMLElement) => {
+      const setupInput = (_el: unknown) => {
         setLineCount(50);
       };
 

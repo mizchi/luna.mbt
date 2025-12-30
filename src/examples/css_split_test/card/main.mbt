@@ -14,6 +14,7 @@ using @luna {
 }
 
 // Card-specific styles
+
 ///|
 fn card_container() -> String {
   @css.styles([
@@ -34,14 +35,11 @@ fn card_title() -> String {
 
 ///|
 fn card_content() -> String {
-  @css.styles([
-    ("font-size", "14px"),
-    ("color", "#666"),
-    ("line-height", "1.5"),
-  ])
+  @css.styles([("font-size", "14px"), ("color", "#666"), ("line-height", "1.5")])
 }
 
 // Card uses shared styles + card-specific styles
+
 ///|
 pub fn register_card_component() -> Unit {
   @luna_api.register("luna-card", fn(_host) {
@@ -50,15 +48,12 @@ pub fn register_card_component() -> Unit {
     // Combine shared + component-specific classes
     let container_class = @css.combine([
       card_container(),
-      @css.css("border-radius", "8px"),  // shared: rounded
-      @css.css("box-shadow", "0 2px 4px rgba(0,0,0,0.1)"),  // shared: shadow
+      @css.css("border-radius", "8px"), // shared: rounded
+      @css.css("box-shadow", "0 2px 4px rgba(0,0,0,0.1)"), // shared: shadow
     ])
-
     fragment([
       h("div", [("class", attr_static(container_class))], [
-        h("div", [("class", attr_static(card_title()))], [
-          text("Card Title"),
-        ]),
+        h("div", [("class", attr_static(card_title()))], [text("Card Title")]),
         h("div", [("class", attr_static(card_content()))], [
           text_dyn(fn() {
             if expanded.get() {
@@ -68,18 +63,28 @@ pub fn register_card_component() -> Unit {
             }
           }),
         ]),
-        h("button", [
-          ("class", attr_static(@css.styles([
-            ("margin-top", "8px"),
-            ("padding", "4px 8px"),
-            ("cursor", "pointer"),
-          ]))),
-          ("onclick", attr_handler(handler(fn(_) {
-            expanded.update(fn(v) { not(v) })
-          }))),
-        ], [
-          text_dyn(fn() { if expanded.get() { "Collapse" } else { "Expand" } }),
-        ]),
+        h(
+          "button",
+          [
+            (
+              "class",
+              attr_static(
+                @css.styles([
+                  ("margin-top", "8px"),
+                  ("padding", "4px 8px"),
+                  ("cursor", "pointer"),
+                ]),
+              ),
+            ),
+            (
+              "onclick",
+              attr_handler(handler(fn(_) { expanded.update(fn(v) { not(v) }) })),
+            ),
+          ],
+          [
+            text_dyn(fn() { if expanded.get() { "Collapse" } else { "Expand" } }),
+          ],
+        ),
       ]),
     ])
   })

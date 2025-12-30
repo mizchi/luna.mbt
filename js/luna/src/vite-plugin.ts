@@ -8,7 +8,7 @@ import type { Plugin, ResolvedConfig, HtmlTagDescriptor } from "vite";
 import fs from "fs";
 import path from "path";
 import { extract, extractSplit, type SplitExtractResult } from "./css/extract.js";
-import { optimize as optimizeCss, optimizeHtml, type OptimizeOptions } from "./css/optimizer.js";
+import { optimizeCss, optimizeHtml, type OptimizeOptions } from "./css/optimizer.js";
 
 export type OutputMode = "inline" | "external" | "auto";
 

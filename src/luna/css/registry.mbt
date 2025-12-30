@@ -14,10 +14,7 @@ priv struct StyleRegistry {
 
 ///|
 /// Global style registry (singleton)
-let registry : StyleRegistry = {
-  decl_to_class: Map::new(),
-  declarations: [],
-}
+let registry : StyleRegistry = { decl_to_class: Map::new(), declarations: [] }
 
 ///|
 /// DJB2 hash function - must match extract.ts implementation
@@ -26,7 +23,7 @@ fn djb2_hash(s : String) -> UInt {
   for i = 0; i < s.length(); i = i + 1 {
     let c = s[i].to_uint()
     // hash * 33 + c
-    hash = ((hash << 5) + hash) + c
+    hash = (hash << 5) + hash + c
   }
   hash
 }

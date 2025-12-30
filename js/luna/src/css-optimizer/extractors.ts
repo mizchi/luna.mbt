@@ -177,7 +177,7 @@ export class MultiExtractor implements ClassExtractor {
   private extractors: Map<string, ClassExtractor>;
 
   constructor() {
-    this.extractors = new Map([
+    this.extractors = new Map<string, ClassExtractor>([
       ["html", new HtmlExtractor()],
       ["jsx", new JsxExtractor()],
       ["tsx", new JsxExtractor()],
