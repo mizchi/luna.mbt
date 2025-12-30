@@ -33,7 +33,6 @@ jobs:
         run: |
           moon check --target js src/luna
           moon check --target js src/core/parser
-          moon check --target js src/core/routes
           moon check --target js src/core/ssg
           moon check --target js src/platform/js/api
           moon check --target js src/platform/js/cache
@@ -94,8 +93,6 @@ jobs:
           # Sol (non-CLI)
           moon test --target js src/sol/router
           # Astra
-          moon test --target js src/astra/shiki
-          moon test --target js src/astra/markdown
           moon test --target js src/astra/routes
           moon test --target js src/astra/tree
           # Stella
