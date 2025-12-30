@@ -387,3 +387,231 @@ test "radix_input - disabled" {
     })
   inspect(has_disabled, content="true")
 }
+
+// ============================================================================
+// Textarea Tests
+// ============================================================================
+
+///|
+test "radix_textarea - basic" {
+  let node = radix_textarea(
+    label="Description",
+    placeholder="Enter description",
+  )
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  inspect(el.tag, content="radix-textarea")
+}
+
+///|
+test "radix_textarea - with value" {
+  let node = radix_textarea(value="Hello World")
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  guard el.children[0] is @luna.Element(template) else {
+    fail("expected template")
+  }
+
+  // Find textarea and check for text content
+  fn has_textarea(nodes : Array[@luna.Node[Unit]]) -> Bool {
+    for node in nodes {
+      match node {
+        @luna.Element(e) => {
+          if e.tag == "textarea" {
+            return true
+          }
+          if has_textarea(e.children) {
+            return true
+          }
+        }
+        _ => ()
+      }
+    }
+    false
+  }
+
+  inspect(has_textarea(template.children), content="true")
+}
+
+// ============================================================================
+// Select Tests
+// ============================================================================
+
+///|
+test "radix_select - basic" {
+  let options = [select_option("a", "Option A"), select_option("b", "Option B")]
+  let node = radix_select(options, label="Choose")
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  inspect(el.tag, content="radix-select")
+}
+
+///|
+test "radix_select - with placeholder" {
+  let options = [select_option("x", "X")]
+  let node = radix_select(options, placeholder="Select one...")
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  guard el.children[0] is @luna.Element(template) else {
+    fail("expected template")
+  }
+
+  // Find select element
+  fn has_select(nodes : Array[@luna.Node[Unit]]) -> Bool {
+    for node in nodes {
+      match node {
+        @luna.Element(e) => {
+          if e.tag == "select" {
+            return true
+          }
+          if has_select(e.children) {
+            return true
+          }
+        }
+        _ => ()
+      }
+    }
+    false
+  }
+
+  inspect(has_select(template.children), content="true")
+}
+
+// ============================================================================
+// Radio Group Tests
+// ============================================================================
+
+///|
+test "radix_radio_group - basic" {
+  let options = [radio_option("yes", "Yes"), radio_option("no", "No")]
+  let node = radix_radio_group("answer", options, label="Answer")
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  inspect(el.tag, content="radix-radio-group")
+}
+
+///|
+test "radix_radio_group - horizontal orientation" {
+  let options = [radio_option("a", "A")]
+  let node = radix_radio_group("test", options, orientation=Horizontal)
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  let has_horizontal = el.attrs
+    .iter()
+    .any(fn(attr) {
+      let (name, value) = attr
+      name == "data-orientation" && value is @luna.VStatic("horizontal")
+    })
+  inspect(has_horizontal, content="true")
+}
+
+// ============================================================================
+// Toggle Tests
+// ============================================================================
+
+///|
+test "radix_toggle - basic" {
+  let node = radix_toggle([@luna.text("B")])
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  inspect(el.tag, content="radix-toggle")
+}
+
+///|
+test "radix_toggle - pressed state" {
+  let node = radix_toggle(pressed=true, [])
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  let has_on = el.attrs
+    .iter()
+    .any(fn(attr) {
+      let (name, value) = attr
+      name == "data-state" && value is @luna.VStatic("on")
+    })
+  inspect(has_on, content="true")
+}
+
+///|
+test "radix_toggle - unpressed state" {
+  let node = radix_toggle(pressed=false, [])
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  let has_off = el.attrs
+    .iter()
+    .any(fn(attr) {
+      let (name, value) = attr
+      name == "data-state" && value is @luna.VStatic("off")
+    })
+  inspect(has_off, content="true")
+}
+
+// ============================================================================
+// Badge Tests
+// ============================================================================
+
+///|
+test "radix_badge - basic" {
+  let node = radix_badge([@luna.text("New")])
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  inspect(el.tag, content="radix-badge")
+}
+
+///|
+test "radix_badge - destructive variant" {
+  let node = radix_badge(variant=Destructive, [])
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  guard el.children[0] is @luna.Element(template) else {
+    fail("expected template")
+  }
+
+  // Find span with data-variant
+  fn find_variant(nodes : Array[@luna.Node[Unit]]) -> String {
+    for node in nodes {
+      match node {
+        @luna.Element(e) => {
+          if e.tag == "span" {
+            for attr in e.attrs {
+              let (name, value) = attr
+              if name == "data-variant" {
+                match value {
+                  @luna.VStatic(v) => return v
+                  _ => ()
+                }
+              }
+            }
+          }
+          let result = find_variant(e.children)
+          if result != "" {
+            return result
+          }
+        }
+        _ => ()
+      }
+    }
+    ""
+  }
+
+  inspect(find_variant(template.children), content="destructive")
+}
+
+// ============================================================================
+// Separator Tests
+// ============================================================================
+
+///|
+test "radix_separator - horizontal" {
+  let node = radix_separator()
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  inspect(el.tag, content="radix-separator")
+  let has_horizontal = el.attrs
+    .iter()
+    .any(fn(attr) {
+      let (name, value) = attr
+      name == "data-orientation" && value is @luna.VStatic("horizontal")
+    })
+  inspect(has_horizontal, content="true")
+}
+
+///|
+test "radix_separator - vertical" {
+  let node = radix_separator(orientation=Vertical)
+  guard node is @luna.Element(el) else { fail("expected Element") }
+  let has_vertical = el.attrs
+    .iter()
+    .any(fn(attr) {
+      let (name, value) = attr
+      name == "data-orientation" && value is @luna.VStatic("vertical")
+    })
+  inspect(has_vertical, content="true")
+}
