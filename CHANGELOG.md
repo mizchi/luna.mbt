@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
+- Update CHANGELOG for v0.3.4
 - Move deep-dive section to 90_deep-dive
 - **luna**: Add doctest examples to signal and vnode modules
 - **luna**: Add missing CSS detection usage guide

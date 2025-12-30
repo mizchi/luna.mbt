@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/sol",
-  "version": "0.3.3",
+  "version": "0.3.5",
   "type": "module",
   "description": "MoonBit SSR/SSG Framework CLI",
   "main": "./dist/index.js",
