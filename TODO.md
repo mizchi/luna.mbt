@@ -2,10 +2,17 @@
 
 完了したタスクは `docs/internal/done/` に移動済み。
 
+- [ ] SVG builder が title, desc 対応するように、children を取れるようにする
+- [ ] Accessibility ファーストなUIライブラリの設計
+- [ ] https://shoelace.style/
 - SSR 対応のコンポーネントライブラリ、という概念を作りたい。qwik を参照する。
+  - [ ] cloudflare worker の microfrontend service binding
 - [ ] CSS DCE in WC
 - [x] CSS Mangling をどう実装するか考える
 - [ ] CSS Mangling の実行テスト
+- [ ] CSS Static Analyzer (`src/luna/css/analyzer`) を別リポジトリに切り出す検討
+  - 現状: moonbitlang/parser に依存した MoonBit AST 解析
+  - 依存が深くなりすぎないよう、API境界を明確に保つ
 - ブラウザで動く playground を作る
 - 画像最適化パイプライン
   - NextImage みたいなやつ
@@ -22,10 +29,12 @@
 - mermaid
 - [ ] Sol SSGの動作対応
 - [ ] Moonbit 用にDocTestのサンプルを用意する。
-- [ ] Moonbit 
 - [ ] JSX 用のドキュメントを整理する。
-- [ ] Shiki の bundle を除外する
-
+- [x] Shiki の bundle を除外する
+- [ ] Sol を TSX でも動くようにする。
+- [ ] Playwright Chaos を外に切り出す
+- [ ] Luna のバンドルサイズを見直す
+- [ ] Luna/Sol. のリポジトリを分割するか検討
 
 ## TODO
 
@@ -123,10 +132,6 @@
 - [ ] SSR Stream が機能しているかテスト (意図的に遅延を入れて体験を確認)
 - [ ] sol: キャッシュレイヤーの設計
 
-### ドキュメント
-
-- [ ] v0.1.0 ドキュメントの英語化
-
 ### Stella
 
 - [ ] editor
@@ -146,7 +151,7 @@
 - [ ] headless ui library
 - [ ] shadcn
 - [ ] Vite Environment API対応 (やらない可能性高)
-- [ ] Inline Editor: dev の時、Monaco を利用
+- [ ] Inline Editor: dev の時、Monaco を利用?
 - [ ] react-hook-form 相当のものを試作 (valibot, standard schema)
 - [ ] marimo notebook
 - [ ] ink ui

@@ -1,0 +1,53 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/luna/css/analyzer"
+
+// Values
+pub fn analyze_file_json(String, String) -> String
+
+pub fn analyze_source(String, String) -> FileAnalysisResult
+
+// Errors
+
+// Types and methods
+pub(all) struct AnalyzerWarning {
+  kind : WarningKind
+  file : String
+  line : Int
+  message : String
+}
+
+pub(all) struct ClassCooccurrence {
+  classes : Array[String]
+  file : String
+  line : Int
+  is_static : Bool
+}
+
+pub(all) enum CssFunctionPattern {
+  CssSingle
+  StylesArray
+  PseudoClass(String)
+}
+
+pub(all) struct FileAnalysisResult {
+  cooccurrences : Array[ClassCooccurrence]
+  warnings : Array[AnalyzerWarning]
+}
+
+pub(all) struct ProjectAnalysisResult {
+  cooccurrences : Array[ClassCooccurrence]
+  warnings : Array[AnalyzerWarning]
+  files_analyzed : Int
+}
+
+pub(all) enum WarningKind {
+  DynamicConditional
+  DynamicFunctionCall
+  UntraceableVariable
+  DynamicArrayConstruction
+}
+
+// Type aliases
+
+// Traits
+

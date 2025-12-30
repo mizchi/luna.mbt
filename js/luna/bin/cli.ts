@@ -12,6 +12,7 @@ import {
   removeRegistryCode,
   injectAndWrite,
 } from "../src/css/index.js";
+import { analyzeDirectory } from "../src/css-optimizer/moonbit-analyzer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -75,6 +76,7 @@ Subcommands:
   minify <file>     Minify CSS file
   inline <file>     Inline CSS class names into compiled JS
   inject <html>     Inject extracted CSS into HTML file
+  analyze-mbt <dir> Analyze MoonBit source for CSS co-occurrences
 
 Extract Options:
   -o, --output <file>   Output file (default: stdout)
@@ -108,6 +110,11 @@ Inject Options:
   --css-file <name>     CSS filename for external mode (default: luna.css)
   -v, --verbose         Show injection details
 
+Analyze-mbt Options:
+  -o, --output <file>   Output file (default: stdout)
+  --no-recursive        Don't search recursively
+  -v, --verbose         Show analysis details
+
 Examples:
   luna css extract src -o dist/styles.css
   luna css extract src --json -o mapping.json
@@ -118,6 +125,7 @@ Examples:
   luna css inject index.html --src src
   luna css inject index.html --src src --mode external --css-file styles.css
   luna css inject index.html --src src --mode auto --threshold 2048
+  luna css analyze-mbt src/luna -o cooccurrences.json
 `);
 }
 
@@ -919,7 +927,59 @@ function handleCssInject(args: string[]) {
   }
 }
 
-function handleCss(args: string[]) {
+async function handleCssAnalyzeMbt(args: string[]) {
+  let dir = ".";
+  let outputFile: string | null = null;
+  let recursive = true;
+  let verbose = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--output" || arg === "-o") {
+      outputFile = args[++i];
+    } else if (arg === "--no-recursive") {
+      recursive = false;
+    } else if (arg === "--verbose" || arg === "-v") {
+      verbose = true;
+    } else if (!arg.startsWith("-")) {
+      dir = arg;
+    }
+  }
+
+  try {
+    if (verbose) {
+      console.error(`Analyzing MoonBit files in: ${dir}`);
+    }
+
+    const result = await analyzeDirectory(dir, { recursive });
+
+    const output = JSON.stringify(result, null, 2);
+
+    if (outputFile) {
+      fs.writeFileSync(outputFile, output);
+      if (verbose) {
+        console.error(`Written to ${outputFile}`);
+      }
+    } else {
+      console.log(output);
+    }
+
+    if (verbose) {
+      console.error(`\nFound ${result.cooccurrences.length} class co-occurrences`);
+      if (result.warnings.length > 0) {
+        console.error(`Warnings: ${result.warnings.length}`);
+        for (const w of result.warnings) {
+          console.error(`  ${w.file}:${w.line} - ${w.kind}: ${w.message}`);
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`Error: ${(err as Error).message}`);
+    process.exit(1);
+  }
+}
+
+async function handleCss(args: string[]) {
   if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
     printCssHelp();
     process.exit(0);
@@ -941,6 +1001,9 @@ function handleCss(args: string[]) {
     case "inject":
       handleCssInject(subArgs);
       break;
+    case "analyze-mbt":
+      await handleCssAnalyzeMbt(subArgs);
+      break;
     default:
       console.error(`Unknown css subcommand: ${subcommand}`);
       printCssHelp();
@@ -952,7 +1015,7 @@ function handleCss(args: string[]) {
 // Main
 // =============================================================================
 
-function main() {
+async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
@@ -975,7 +1038,7 @@ function main() {
       handleNew(commandArgs);
       break;
     case "css":
-      handleCss(commandArgs);
+      await handleCss(commandArgs);
       break;
     default:
       console.error(`Unknown command: ${command}`);
@@ -984,4 +1047,7 @@ function main() {
   }
 }
 
-main();
+main().catch((err) => {
+  console.error(`Error: ${err.message}`);
+  process.exit(1);
+});

@@ -318,3 +318,53 @@ Example output difference:
 ._1i41w:hover{border-color:#DB7676}
 @media(min-width:768px){._abc{padding:2rem}}
 ```
+
+## Static Analyzer (`analyzer/`)
+
+MoonBit AST-based static analyzer for detecting CSS class co-occurrences.
+
+### Usage
+
+```bash
+# Analyze MoonBit source files
+luna css analyze-mbt src/luna --verbose
+```
+
+### Output
+
+```json
+{
+  "cooccurrences": [
+    {
+      "classes": ["display:flex", "gap:8px"],
+      "file": "src/components/card.mbt",
+      "line": 42,
+      "isStatic": true
+    }
+  ],
+  "warnings": [
+    {
+      "kind": "dynamic_conditional",
+      "file": "src/components/button.mbt",
+      "line": 15,
+      "message": "Conditional expression in class array"
+    }
+  ]
+}
+```
+
+### Warning Types
+
+| Kind | Description |
+|------|-------------|
+| `dynamic_conditional` | `if`/`match` in `class_=` array |
+| `untraceable_variable` | Variable not traceable to `css()`/`styles()` |
+| `dynamic_function_call` | Unknown function call result |
+| `dynamic_array_construction` | Spread operator in array |
+
+### Design Notes
+
+- Uses `moonbitlang/parser` for MoonBit AST traversal
+- Tracks `let x = css(...)` bindings across function scope
+- API boundary: `analyze_file_json(source, file) -> String` (JSON)
+- **Future**: May be extracted to a separate repository to minimize dependencies
