@@ -1325,3 +1325,316 @@ test "diamond: nested memos maintain order" {
   assert_eq(order[2], "level2")
   assert_eq(order[3], "level1")
 }
+
+// =============================================================================
+// Glitch-Free Update Tests (ported from SolidJS)
+// =============================================================================
+// Glitch-free means that intermediate/inconsistent states are never observed.
+// When multiple signals are updated, dependents should see a consistent view
+// of all values, not partial updates.
+//
+// Key properties:
+// 1. No intermediate states exposed to computations
+// 2. Batch updates result in single recomputation
+// 3. Diamond dependencies don't cause multiple evaluations
+// 4. Stale computations are properly invalidated before use
+
+///|
+/// Glitch-free: batch prevents intermediate states
+///
+/// When updating multiple signals in a batch, effects should only see
+/// the final consistent state, not intermediate states.
+test "glitch-free: batch prevents intermediate states" {
+  let a = Signal::new(1)
+  let b = Signal::new(2)
+  let observations : Array[Int] = []
+
+  let _ = render_effect(fn() {
+    observations.push(a.get() + b.get())
+  })
+
+  // Initial observation
+  assert_eq(observations.length(), 1)
+  assert_eq(observations[0], 3)
+
+  // Batch update - should only observe final state
+  batch(fn() {
+    a.set(10)
+    b.set(20)
+  })
+
+  // Should have exactly 2 observations: initial (3) and final (30)
+  // No intermediate state (11 or 12) should be observed
+  assert_eq(observations.length(), 2)
+  assert_eq(observations[1], 30)
+}
+
+///|
+/// Glitch-free: multiple sets in batch only trigger once
+///
+/// Setting the same signal multiple times in a batch should only
+/// trigger one recomputation with the final value.
+test "glitch-free: multiple sets in batch trigger once" {
+  let sig = Signal::new(0)
+  let compute_count = { val: 0 }
+  let observed_values : Array[Int] = []
+
+  let _ = render_effect(fn() {
+    compute_count.val = compute_count.val + 1
+    observed_values.push(sig.get())
+  })
+
+  // Initial run
+  assert_eq(compute_count.val, 1)
+  assert_eq(observed_values[0], 0)
+
+  // Batch with multiple sets
+  batch(fn() {
+    sig.set(1)
+    sig.set(2)
+    sig.set(3)
+  })
+
+  // Effect should only run once more with final value
+  assert_eq(compute_count.val, 2)
+  assert_eq(observed_values[1], 3)
+}
+
+///|
+/// Glitch-free: derived values are consistent
+///
+/// When reading multiple derived values, they should all reflect
+/// updates from the same "generation" of the source.
+test "glitch-free: derived values are consistent" {
+  let source = Signal::new(0)
+
+  // Two memos derived from the same source
+  let doubled = memo(fn() { source.get() * 2 })
+  let tripled = memo(fn() { source.get() * 3 })
+
+  // A memo that combines both
+  let observations : Array[(Int, Int)] = []
+  let combined = memo(fn() {
+    let d = doubled()
+    let t = tripled()
+    observations.push((d, t))
+    d + t
+  })
+
+  // Initial: source=0, doubled=0, tripled=0
+  assert_eq(combined(), 0)
+  assert_eq(observations.length(), 1)
+  assert_eq(observations[0], (0, 0))
+
+  // Update source
+  source.set(5)
+  assert_eq(combined(), 25) // 10 + 15
+
+  // Should never observe inconsistent state like (10, 0) or (0, 15)
+  assert_eq(observations.length(), 2)
+  assert_eq(observations[1], (10, 15))
+}
+
+///|
+/// Glitch-free: no stale reads in diamond
+///
+/// In a diamond dependency, the bottom node should never see
+/// stale values from one branch while seeing updated values from another.
+test "glitch-free: no stale reads in diamond" {
+  let source = Signal::new(1)
+
+  // Diamond shape: source -> left, right -> bottom
+  let left = memo(fn() { source.get() * 2 })
+  let right = memo(fn() { source.get() * 3 })
+
+  let inconsistent_reads = { val: 0 }
+  let bottom = memo(fn() {
+    let l = left()
+    let r = right()
+    // Check consistency: l/2 should equal r/3 (both equal source)
+    if l / 2 != r / 3 {
+      inconsistent_reads.val = inconsistent_reads.val + 1
+    }
+    l + r
+  })
+
+  // Initial
+  assert_eq(bottom(), 5) // 2 + 3
+  assert_eq(inconsistent_reads.val, 0)
+
+  // Update source multiple times
+  source.set(2)
+  assert_eq(bottom(), 10) // 4 + 6
+  assert_eq(inconsistent_reads.val, 0)
+
+  source.set(10)
+  assert_eq(bottom(), 50) // 20 + 30
+  assert_eq(inconsistent_reads.val, 0)
+
+  // No inconsistent reads should have occurred
+  assert_eq(inconsistent_reads.val, 0)
+}
+
+///|
+/// Glitch-free: effect sees consistent snapshot
+///
+/// An effect that reads multiple signals should see a consistent
+/// snapshot of all values.
+test "glitch-free: effect sees consistent snapshot" {
+  let x = Signal::new(0)
+  let y = Signal::new(0)
+  let z = Signal::new(0)
+
+  let snapshots : Array[(Int, Int, Int)] = []
+
+  let _ = render_effect(fn() {
+    snapshots.push((x.get(), y.get(), z.get()))
+  })
+
+  // Initial snapshot
+  assert_eq(snapshots.length(), 1)
+  assert_eq(snapshots[0], (0, 0, 0))
+
+  // Batch update all three
+  batch(fn() {
+    x.set(1)
+    y.set(2)
+    z.set(3)
+  })
+
+  // Should see only complete update, not partial
+  assert_eq(snapshots.length(), 2)
+  assert_eq(snapshots[1], (1, 2, 3))
+}
+
+///|
+/// Glitch-free: nested batches work correctly
+///
+/// Nested batches should defer updates until the outermost batch completes.
+test "glitch-free: nested batches" {
+  let sig = Signal::new(0)
+  let observations : Array[Int] = []
+
+  let _ = render_effect(fn() {
+    observations.push(sig.get())
+  })
+
+  assert_eq(observations.length(), 1)
+
+  // Nested batches
+  batch(fn() {
+    sig.set(1)
+    batch(fn() {
+      sig.set(2)
+      batch(fn() {
+        sig.set(3)
+      })
+      sig.set(4)
+    })
+    sig.set(5)
+  })
+
+  // Only observe initial and final values
+  assert_eq(observations.length(), 2)
+  assert_eq(observations[1], 5)
+}
+
+///|
+/// Glitch-free: memo caching prevents redundant computation
+///
+/// When a memo's dependencies haven't changed, it should return
+/// the cached value without recomputing.
+test "glitch-free: memo caching" {
+  let a = Signal::new(1)
+  let b = Signal::new(2)
+
+  let a_compute_count = { val: 0 }
+  let a_doubled = memo(fn() {
+    a_compute_count.val = a_compute_count.val + 1
+    a.get() * 2
+  })
+
+  let combined = memo(fn() {
+    a_doubled() + b.get()
+  })
+
+  // Initial computation
+  assert_eq(combined(), 4) // 2 + 2
+  assert_eq(a_compute_count.val, 1)
+
+  // Changing only b should not recompute a_doubled
+  b.set(10)
+  assert_eq(combined(), 12) // 2 + 10
+  // a_doubled should use cached value
+  // Note: in pull-based systems, it may still be called but return cached
+  let count_after_b = a_compute_count.val
+
+  // Changing a should recompute a_doubled
+  a.set(5)
+  assert_eq(combined(), 20) // 10 + 10
+  assert_true(a_compute_count.val > count_after_b)
+}
+
+///|
+/// Glitch-free: conditional dependencies don't cause glitches
+///
+/// When dependencies change based on conditions, the system should
+/// handle transitions correctly without glitches.
+test "glitch-free: conditional dependency transitions" {
+  let use_a = Signal::new(true)
+  let a = Signal::new(10)
+  let b = Signal::new(20)
+
+  let observations : Array[Int] = []
+  let result = memo(fn() {
+    let val = if use_a.get() { a.get() } else { b.get() }
+    observations.push(val)
+    val
+  })
+
+  // Initial: use_a=true, so observe a
+  assert_eq(result(), 10)
+  assert_eq(observations.length(), 1)
+
+  // Switch to b
+  use_a.set(false)
+  assert_eq(result(), 20)
+
+  // Update a (now inactive) - should not trigger
+  a.set(100)
+  let _ = result() // force if needed
+
+  // Update b (now active)
+  b.set(30)
+  assert_eq(result(), 30)
+}
+
+///|
+/// Glitch-free: cross-dependency updates are atomic
+///
+/// When an effect updates a signal that other effects depend on,
+/// the updates should be properly ordered.
+test "glitch-free: cross-dependency updates" {
+  let source = Signal::new(0)
+  let derived = Signal::new(0)
+
+  // Effect that derives value from source
+  let _ = render_effect(fn() {
+    derived.set(source.get() * 2)
+  })
+
+  let observations : Array[Int] = []
+  let _ = render_effect(fn() {
+    observations.push(derived.get())
+  })
+
+  // Initial: source=0, derived=0
+  assert_eq(observations.length(), 1)
+  assert_eq(observations[0], 0)
+
+  // Update source
+  source.set(5)
+
+  // derived should be updated to 10
+  assert_eq(derived.get(), 10)
+}
