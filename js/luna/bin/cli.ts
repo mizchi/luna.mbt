@@ -2,6 +2,15 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  extract,
+  minify,
+  formatSize,
+  inlineCSS,
+  inlineFromSource,
+  removeRegistryCode,
+  injectAndWrite,
+} from "../src/css/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -10,22 +19,104 @@ interface Template {
   content: string;
 }
 
-function printHelp() {
+// =============================================================================
+// Help Messages
+// =============================================================================
+
+function printMainHelp() {
   console.log(`
 @luna_ui/luna CLI
 
 Usage:
-  npx @luna_ui/luna new <project-name> [options]
+  luna <command> [options]
+
+Commands:
+  new <name>      Create a new Luna project
+  css             CSS utilities (extract, minify, inline)
+
+Options:
+  --help, -h      Show this help message
+
+Examples:
+  luna new myapp              # Create TSX project
+  luna new myapp --mbt        # Create MoonBit project
+  luna css extract src        # Extract CSS from source
+  luna css minify style.css   # Minify CSS file
+`);
+}
+
+function printNewHelp() {
+  console.log(`
+luna new - Create a new Luna project
+
+Usage:
+  luna new <project-name> [options]
 
 Options:
   --mbt       Generate MoonBit template (default: TSX)
   --help, -h  Show this help message
 
 Examples:
-  npx @luna_ui/luna new myapp         # TSX template
-  npx @luna_ui/luna new myapp --mbt   # MoonBit template
+  luna new myapp         # TSX template
+  luna new myapp --mbt   # MoonBit template
 `);
 }
+
+function printCssHelp() {
+  console.log(`
+luna css - CSS utilities
+
+Usage:
+  luna css <subcommand> [options]
+
+Subcommands:
+  extract <dir>     Extract CSS from .mbt files
+  minify <file>     Minify CSS file
+  inline <file>     Inline CSS class names into compiled JS
+  inject <html>     Inject extracted CSS into HTML file
+
+Extract Options:
+  -o, --output <file>   Output file (default: stdout)
+  --pretty              Pretty print output
+  --json                Output as JSON with mapping
+  -v, --verbose         Show extraction details
+  --no-warn             Disable non-literal argument warnings
+  --strict              Exit with error if warnings found
+
+Minify Options:
+  -o, --output <file>   Output file (default: stdout)
+  -v, --verbose         Show minification stats
+
+Inline Options:
+  -m, --mapping <file>  JSON file with css -> classname mapping
+  --extract-from <dir>  Extract mapping from source directory
+  -o, --output <file>   Output file (default: stdout)
+  --remove-registry     Remove CSS registry code after inlining
+  -v, --verbose         Show replacement details
+  --dry-run             Show what would be replaced
+
+Inject Options:
+  --src <dir>           Source directory for CSS extraction (required)
+  -o, --output <file>   Output file (default: modify in-place)
+  -m, --mode <mode>     Output mode: inline, external, or auto (default: inline)
+  -t, --threshold <n>   Size threshold for auto mode in bytes (default: 4096)
+  --css-file <name>     CSS filename for external mode (default: luna.css)
+  -v, --verbose         Show injection details
+
+Examples:
+  luna css extract src -o dist/styles.css
+  luna css extract src --json -o mapping.json
+  luna css minify input.css -o output.min.css
+  luna css inline bundle.js --extract-from src -o bundle.inlined.js
+  luna css inject index.html --src src
+  luna css inject index.html --src src --mode external --css-file styles.css
+  luna css inject index.html --src src --mode auto --threshold 2048
+`);
+}
+
+// =============================================================================
+// Project Templates
+// =============================================================================
 
 function getTsxTemplates(projectName: string): Template[] {
   return [
@@ -367,30 +458,23 @@ function createProject(
   }
 }
 
-function main() {
-  const args = process.argv.slice(2);
+// =============================================================================
+// Command Handlers
+// =============================================================================
 
-  if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
-    printHelp();
+function handleNew(args: string[]) {
+  if (args.includes("--help") || args.includes("-h")) {
+    printNewHelp();
     process.exit(0);
   }
 
-  const command = args[0];
-
-  if (command !== "new") {
-    console.error(`Unknown command: ${command}`);
-    printHelp();
-    process.exit(1);
-  }
-
-  const projectName = args[1];
+  const projectName = args.find((a) => !a.startsWith("-"));
   if (!projectName) {
     console.error("Error: Project name is required.");
-    printHelp();
+    printNewHelp();
     process.exit(1);
   }
 
-  // Validate project name
   if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
     console.error(
       "Error: Project name can only contain letters, numbers, hyphens, and underscores."
@@ -401,7 +485,9 @@ function main() {
   const useMbt = args.includes("--mbt");
   const targetDir = path.resolve(process.cwd(), projectName);
 
-  console.log(`\nCreating ${useMbt ? "MoonBit" : "TSX"} project: ${projectName}\n`);
+  console.log(
+    `\nCreating ${useMbt ? "MoonBit" : "TSX"} project: ${projectName}\n`
+  );
 
   const templates = useMbt
     ? getMbtTemplates(projectName)
@@ -423,6 +509,364 @@ function main() {
   }
 
   console.log();
+}
+
+function handleCssExtract(args: string[]) {
+  let dir = ".";
+  let outputFile: string | null = null;
+  let pretty = false;
+  let jsonOutput = false;
+  let verbose = false;
+  let warn = true;
+  let strict = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--output" || arg === "-o") {
+      outputFile = args[++i];
+    } else if (arg === "--pretty") {
+      pretty = true;
+    } else if (arg === "--json") {
+      jsonOutput = true;
+    } else if (arg === "--verbose" || arg === "-v") {
+      verbose = true;
+    } else if (arg === "--no-warn") {
+      warn = false;
+    } else if (arg === "--strict") {
+      strict = true;
+      warn = true;
+    } else if (!arg.startsWith("-")) {
+      dir = arg;
+    }
+  }
+
+  try {
+    const result = extract(dir, { pretty, warn, strict, verbose });
+
+    let output: string;
+    if (jsonOutput) {
+      output = JSON.stringify(
+        {
+          css: result.css,
+          mapping: result.mapping,
+          stats: result.stats,
+          warnings: result.warnings,
+        },
+        null,
+        pretty ? 2 : 0
+      );
+    } else {
+      output = result.css;
+    }
+
+    if (outputFile) {
+      fs.writeFileSync(outputFile, output);
+      if (verbose) {
+        console.error(`Written to ${outputFile}`);
+      }
+    } else {
+      console.log(output);
+    }
+
+    // Print warnings
+    if (warn && result.warnings && result.warnings.length > 0) {
+      console.error(
+        `\n⚠️  ${result.warnings.length} warning(s): non-literal CSS arguments detected\n`
+      );
+      for (const w of result.warnings) {
+        console.error(`  ${w.file}:${w.line}`);
+        console.error(`    ${w.func}(...) - ${w.reason}`);
+        console.error(`    Code: ${w.code}`);
+        console.error("");
+      }
+
+      if (strict) {
+        console.error("❌ Strict mode: exiting with error due to warnings.");
+        process.exit(1);
+      }
+    }
+  } catch (err) {
+    console.error(`Error: ${(err as Error).message}`);
+    process.exit(1);
+  }
+}
+
+function handleCssMinify(args: string[]) {
+  let inputFile: string | null = null;
+  let outputFile: string | null = null;
+  let verbose = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--output" || arg === "-o") {
+      outputFile = args[++i];
+    } else if (arg === "--verbose" || arg === "-v") {
+      verbose = true;
+    } else if (!arg.startsWith("-")) {
+      inputFile = arg;
+    }
+  }
+
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    printCssHelp();
+    process.exit(1);
+  }
+
+  try {
+    const css = fs.readFileSync(inputFile, "utf-8");
+    const result = minify(css, { verbose });
+
+    if (outputFile) {
+      fs.writeFileSync(outputFile, result.minified);
+      console.error(
+        `Minified: ${formatSize(result.originalSize)} → ${formatSize(result.minifiedSize)} (${result.reduction.toFixed(1)}% reduction)`
+      );
+      console.error(`Written to: ${outputFile}`);
+    } else {
+      console.log(result.minified);
+    }
+  } catch (err) {
+    console.error(`Error: ${(err as Error).message}`);
+    process.exit(1);
+  }
+}
+
+function handleCssInline(args: string[]) {
+  let inputFile: string | null = null;
+  let outputFile: string | null = null;
+  let mappingFile: string | null = null;
+  let extractFrom: string | null = null;
+  let verbose = false;
+  let dryRun = false;
+  let removeRegistry = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--mapping" || arg === "-m") {
+      mappingFile = args[++i];
+    } else if (arg === "--extract-from") {
+      extractFrom = args[++i];
+    } else if (arg === "--output" || arg === "-o") {
+      outputFile = args[++i];
+    } else if (arg === "--verbose" || arg === "-v") {
+      verbose = true;
+    } else if (arg === "--dry-run") {
+      dryRun = true;
+      verbose = true;
+    } else if (arg === "--remove-registry") {
+      removeRegistry = true;
+    } else if (!arg.startsWith("-")) {
+      inputFile = arg;
+    }
+  }
+
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    printCssHelp();
+    process.exit(1);
+  }
+
+  if (!mappingFile && !extractFrom) {
+    console.error("Error: Must specify --mapping or --extract-from");
+    printCssHelp();
+    process.exit(1);
+  }
+
+  try {
+    const code = fs.readFileSync(inputFile, "utf-8");
+    let result;
+
+    if (extractFrom) {
+      result = inlineFromSource(code, extractFrom, {
+        verbose,
+        dryRun,
+        removeRegistry,
+      });
+    } else {
+      const mappingContent = fs.readFileSync(mappingFile!, "utf-8");
+      const mappingData = JSON.parse(mappingContent);
+      const mapping = mappingData.mapping || mappingData;
+      result = inlineCSS(code, mapping, { verbose, dryRun });
+
+      if (removeRegistry) {
+        result = {
+          ...result,
+          code: removeRegistryCode(result.code),
+          finalSize: Buffer.byteLength(removeRegistryCode(result.code), "utf-8"),
+        };
+      }
+    }
+
+    if (verbose) {
+      console.error(`Loaded mapping, found ${result.replacements.length} replacements`);
+      for (const r of result.replacements) {
+        console.error(`  [${r.type}] ${r.key || r.decl} → ${r.to}`);
+      }
+      console.error(
+        `\nSize: ${result.originalSize} → ${result.finalSize} (${((1 - result.finalSize / result.originalSize) * 100).toFixed(1)}% reduction)`
+      );
+    }
+
+    if (dryRun) {
+      console.error("\n[Dry run - no files modified]");
+    } else if (outputFile) {
+      fs.writeFileSync(outputFile, result.code);
+      if (verbose) {
+        console.error(`Written to ${outputFile}`);
+      }
+    } else {
+      console.log(result.code);
+    }
+  } catch (err) {
+    console.error(`Error: ${(err as Error).message}`);
+    process.exit(1);
+  }
+}
+
+function handleCssInject(args: string[]) {
+  let htmlFile: string | null = null;
+  let srcDir: string | null = null;
+  let outputFile: string | null = null;
+  let mode: "inline" | "external" | "auto" = "inline";
+  let threshold = 4096;
+  let cssFileName = "luna.css";
+  let verbose = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--src") {
+      srcDir = args[++i];
+    } else if (arg === "--output" || arg === "-o") {
+      outputFile = args[++i];
+    } else if (arg === "--mode" || arg === "-m") {
+      const m = args[++i];
+      if (m === "inline" || m === "external" || m === "auto") {
+        mode = m;
+      } else {
+        console.error(`Error: Invalid mode "${m}". Use inline, external, or auto.`);
+        process.exit(1);
+      }
+    } else if (arg === "--threshold" || arg === "-t") {
+      threshold = parseInt(args[++i], 10);
+      if (isNaN(threshold)) {
+        console.error("Error: --threshold must be a number");
+        process.exit(1);
+      }
+    } else if (arg === "--css-file") {
+      cssFileName = args[++i];
+    } else if (arg === "--verbose" || arg === "-v") {
+      verbose = true;
+    } else if (!arg.startsWith("-")) {
+      htmlFile = arg;
+    }
+  }
+
+  if (!htmlFile) {
+    console.error("Error: No HTML file specified");
+    printCssHelp();
+    process.exit(1);
+  }
+
+  if (!srcDir) {
+    console.error("Error: --src <dir> is required");
+    printCssHelp();
+    process.exit(1);
+  }
+
+  try {
+    const result = injectAndWrite({
+      srcDir,
+      htmlFile,
+      outputFile: outputFile || undefined,
+      mode,
+      threshold,
+      cssFileName,
+      verbose,
+    });
+
+    if (!result.replaced) {
+      console.error(
+        "Warning: CSS markers not found. Add /* LUNA_CSS_START */ and /* LUNA_CSS_END */ to your HTML."
+      );
+      process.exit(1);
+    }
+
+    if (verbose) {
+      console.error(`Mode: ${result.mode}, injected ${result.css.length} bytes of CSS`);
+      if (result.cssFile) {
+        console.error(`External CSS file: ${result.cssFile}`);
+      }
+    }
+  } catch (err) {
+    console.error(`Error: ${(err as Error).message}`);
+    process.exit(1);
+  }
+}
+
+function handleCss(args: string[]) {
+  if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
+    printCssHelp();
+    process.exit(0);
+  }
+
+  const subcommand = args[0];
+  const subArgs = args.slice(1);
+
+  switch (subcommand) {
+    case "extract":
+      handleCssExtract(subArgs);
+      break;
+    case "minify":
+      handleCssMinify(subArgs);
+      break;
+    case "inline":
+      handleCssInline(subArgs);
+      break;
+    case "inject":
+      handleCssInject(subArgs);
+      break;
+    default:
+      console.error(`Unknown css subcommand: ${subcommand}`);
+      printCssHelp();
+      process.exit(1);
+  }
+}
+
+// =============================================================================
+// Main
+// =============================================================================
+
+function main() {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    printMainHelp();
+    process.exit(0);
+  }
+
+  const command = args[0];
+
+  // Show main help only if --help is the first arg
+  if (command === "--help" || command === "-h") {
+    printMainHelp();
+    process.exit(0);
+  }
+
+  const commandArgs = args.slice(1);
+
+  switch (command) {
+    case "new":
+      handleNew(commandArgs);
+      break;
+    case "css":
+      handleCss(commandArgs);
+      break;
+    default:
+      console.error(`Unknown command: ${command}`);
+      printMainHelp();
+      process.exit(1);
+  }
 }
 
 main();

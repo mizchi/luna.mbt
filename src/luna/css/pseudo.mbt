@@ -1,16 +1,13 @@
 // Pseudo-class and Pseudo-element Support
 //
 // Provides functions for :hover, :focus, :active, ::before, etc.
+// Uses DJB2 hash for deterministic class names that match extract.ts output.
 
 ///|
 /// Pseudo-class/element registry
 priv struct PseudoRegistry {
-  // ":hover:background:#2563eb" → "_h0"
+  // ":hover:background:#2563eb" → "_abc123"
   pseudo_to_class : Map[String, String]
-  mut hover_counter : Int
-  mut focus_counter : Int
-  mut active_counter : Int
-  mut other_counter : Int
   // Store for CSS generation: class_name → (pseudo, property, value)
   entries : Array[(String, String, String, String)]
 }
@@ -19,38 +16,16 @@ priv struct PseudoRegistry {
 /// Global pseudo registry
 let pseudo_registry : PseudoRegistry = {
   pseudo_to_class: Map::new(),
-  hover_counter: 0,
-  focus_counter: 0,
-  active_counter: 0,
-  other_counter: 0,
   entries: [],
 }
 
 ///|
-/// Generate pseudo-class specific class name
-fn next_pseudo_class_name(pseudo : String) -> String {
-  match pseudo {
-    ":hover" => {
-      let n = pseudo_registry.hover_counter
-      pseudo_registry.hover_counter += 1
-      "_h" + n.to_string()
-    }
-    ":focus" => {
-      let n = pseudo_registry.focus_counter
-      pseudo_registry.focus_counter += 1
-      "_f" + n.to_string()
-    }
-    ":active" => {
-      let n = pseudo_registry.active_counter
-      pseudo_registry.active_counter += 1
-      "_ac" + n.to_string()
-    }
-    _ => {
-      let n = pseudo_registry.other_counter
-      pseudo_registry.other_counter += 1
-      "_p" + n.to_string()
-    }
-  }
+/// Generate hash-based class name for pseudo declarations
+/// Key format: ":hover:property:value" (same as extract.ts)
+fn hash_pseudo_class_name(key : String) -> String {
+  let hash = djb2_hash(key)
+  let base36 = to_base36(hash)
+  "_" + base36
 }
 
 ///|
@@ -64,7 +39,7 @@ fn register_pseudo(
   match pseudo_registry.pseudo_to_class.get(key) {
     Some(cls) => cls
     None => {
-      let cls = next_pseudo_class_name(pseudo)
+      let cls = hash_pseudo_class_name(key)
       pseudo_registry.pseudo_to_class.set(key, cls)
       pseudo_registry.entries.push((cls, pseudo, property, value))
       cls
@@ -79,7 +54,7 @@ fn register_pseudo(
 /// test {
 ///   reset_pseudo_registry()
 ///   let cls = on(":hover", "background", "#2563eb")
-///   inspect(cls.has_prefix("_h"), content="true")
+///   inspect(cls.has_prefix("_"), content="true")
 /// }
 /// ```
 pub fn on(pseudo : String, property : String, value : String) -> String {
@@ -109,10 +84,6 @@ pub fn active(property : String, value : String) -> String {
 pub fn reset_pseudo_registry() -> Unit {
   pseudo_registry.pseudo_to_class.clear()
   pseudo_registry.entries.clear()
-  pseudo_registry.hover_counter = 0
-  pseudo_registry.focus_counter = 0
-  pseudo_registry.active_counter = 0
-  pseudo_registry.other_counter = 0
 }
 
 ///|

@@ -231,6 +231,23 @@ just inject-utility-css
 
 ## Architecture Considerations
 
+### Zero-Runtime Design (Default)
+
+Luna's CSS utilities are designed for **zero client-side runtime**:
+
+1. **SSR time**: CSS functions execute, registry populates, class names are generated
+2. **Client time**: Only pre-computed class names are used, no CSS generation code
+
+```
+SSR Bundle (static_dom)          Client Bundle (Island)
+───────────────────────          ─────────────────────────
+@css.css() → "_a"                class="_a" (string only)
+@css.hover() → "_h0"             No CSS code included
+generate_full_css()
+```
+
+**Verification**: Island client bundles contain 0 CSS-related code.
+
 ### Single-Process SSR (Recommended)
 
 CSS utilities work best with single-process SSR:
@@ -260,6 +277,32 @@ just extract-css src output=utilities.css
 ```
 
 This is because each worker has its own CSS registry that cannot be merged.
+
+### Keeping Zero-Runtime
+
+To maintain zero client-side runtime, follow these rules:
+
+```moonbit
+// ✓ GOOD: Use CSS in static_dom (SSR only)
+fn my_component() -> @static_dom.Node {
+  div(class=ucss("display", "flex"), [...])
+}
+
+// ✗ BAD: Don't use CSS in Island client code
+// This would include CSS generation in client bundle
+fn my_island() -> @luna.Node[Unit] {
+  // Don't do this:
+  div(class=@css.css("display", "flex"), [...])
+
+  // Instead, use pre-computed class strings:
+  div(class="_a _b", [...])
+}
+```
+
+For dynamic styling in Islands, use:
+- Pre-computed class name switching
+- CSS custom properties (variables)
+- Inline styles for truly dynamic values
 
 ## Best Practices
 

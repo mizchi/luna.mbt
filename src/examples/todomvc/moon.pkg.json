@@ -4,6 +4,7 @@
   "import": [
     "mizchi/luna/luna/signal",
     "mizchi/luna/luna/dom/element",
+    "mizchi/luna/luna/css",
     { "path": "mizchi/js/browser/dom", "alias": "dom" },
     { "path": "mizchi/js/browser/storage", "alias": "storage" },
     { "path": "mizchi/js/browser/location", "alias": "location" }

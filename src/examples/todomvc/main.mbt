@@ -78,27 +78,34 @@ fn next_frame(callback : () -> Unit) -> Unit {
 }
 
 // =============================================================================
+// CSS Utilities (imported from styles.mbt)
+// =============================================================================
+// All Luna CSS utilities are defined in styles.mbt for zero-runtime extraction
+
+// =============================================================================
 // UI Helpers
 // =============================================================================
 
 ///|
 /// Conditionally show/hide element based on condition
 fn visible_when(condition : () -> Bool) -> () -> String {
-  fn() { if condition() { "" } else { "display: none" } }
+  fn() { if condition() { "" } else { display_none } }
 }
 
 ///|
-/// Create a filter link with selected state
+/// Create a filter link with selected state (using Luna CSS utilities)
 fn filter_link(
   href : String,
   label_ : String,
   current_filter : Signal[Filter],
   target_filter : Filter,
 ) -> DomNode {
+  // Base classes for all filter links (hover, transition)
+  let base_classes = classes([hover_border_color, transition_border])
   let class_getter = () => if current_filter.get() == target_filter {
-    "selected"
+    classes([base_classes, "selected", border_color_selected])
   } else {
-    ""
+    classes([base_classes, border_color_transparent])
   }
   li([a(href~, [span(dyn_class=class_getter, [text(label_)])])])
 }
@@ -227,16 +234,17 @@ fn app() -> DomNode {
       }
     })
 
-    // Build class name dynamically
+    // Build class name dynamically (combining TodoMVC classes with Luna CSS utilities)
     let class_name = () => {
       let todo = get_todo()
       let is_editing = editing_id.get() == Some(todo.id)
-      match (todo.completed, is_editing) {
-        (true, true) => "completed editing"
-        (true, false) => "completed"
-        (false, true) => "editing"
-        (false, false) => ""
+      let completed_styles = if todo.completed {
+        classes(["completed", text_decoration_line_through, color_muted])
+      } else {
+        ""
       }
+      let editing_class = if is_editing { "editing" } else { "" }
+      classes([completed_styles, editing_class])
     }
     li(dyn_class=class_name, [
       // View mode
@@ -352,9 +360,9 @@ fn app() -> DomNode {
         filter_link("#/active", "Active", filter, Active),
         filter_link("#/completed", "Completed", filter, Completed),
       ]),
-      // Clear completed button
+      // Clear completed button (with Luna CSS hover effect)
       button(
-        class="clear-completed",
+        class=classes(["clear-completed", hover_underline]),
         on=events().click(_ => clear_completed()),
         dyn_style=visible_when(fn() { completed_count() > 0 }),
         [text("Clear completed")],
@@ -373,10 +381,33 @@ fn app() -> DomNode {
 // =============================================================================
 
 ///|
+/// Check if Luna utility CSS is already embedded in HTML
+/// (via static build with `luna css inject`)
+extern "js" fn has_static_css() -> Bool =
+  #| () => {
+  #|   const styles = document.querySelectorAll('style');
+  #|   for (const s of styles) {
+  #|     if (s.textContent && s.textContent.includes('LUNA_CSS_START')) {
+  #|       return true;
+  #|     }
+  #|   }
+  #|   return false;
+  #| }
+
+///|
 fn main {
   let doc = @dom.document()
   match doc.getElementById("app") {
-    Some(el) => render(el |> DomElement::from_dom, app())
+    Some(el) => {
+      render(el |> DomElement::from_dom, app())
+      // Inject utility CSS only if not pre-embedded (zero-runtime for production)
+      if not(has_static_css()) {
+        let css = @css.generate_full_css()
+        if css.length() > 0 {
+          @element.use_style(css, el)
+        }
+      }
+    }
     None => ()
   }
 }

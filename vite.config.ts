@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { moonbitPlugin } from 'vite-plugin-moonbit';
+import { lunaCss } from './js/luna/dist/vite-plugin.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -10,7 +11,15 @@ export default defineConfig(({ command }) => {
 
   return {
     appType: 'mpa',
-    plugins: [moonbitPlugin({})],
+    plugins: [
+      moonbitPlugin({}),
+      lunaCss({
+        src: ['src/examples/todomvc'],
+        mode: 'external',
+        cssFileName: 'luna.css',
+        verbose: isDev,
+      }),
+    ],
     // Use demo-src as root for both dev and build
     root: 'demo-src',
     base: isDev ? '/' : '/demo/',

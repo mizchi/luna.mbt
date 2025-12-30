@@ -21,10 +21,34 @@ export default defineConfig([
     noExternal: [/\.\.\/\.\.\/\.\.\/target/],
   },
   {
+    entry: ["src/css/index.ts"],
+    format: ["esm"],
+    dts: true,
+    outDir: "dist/css",
+    minify: false,
+    outExtensions() {
+      return { js: ".js", dts: ".d.ts" };
+    },
+  },
+  {
+    entry: ["src/vite-plugin.ts"],
+    format: ["esm"],
+    dts: true,
+    outDir: "dist",
+    minify: false,
+    // Bundle CSS module into plugin
+    noExternal: [/\.\/css/],
+    outExtensions() {
+      return { js: ".js", dts: ".d.ts" };
+    },
+  },
+  {
     entry: ["bin/cli.ts"],
     format: ["esm"],
     outDir: "dist",
     dts: false,
     minify: false,
+    // CLI needs CSS module bundled
+    noExternal: [/\.\.\/src\/css/],
   },
 ]);
