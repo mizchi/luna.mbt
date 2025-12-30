@@ -27,3 +27,4 @@ dist-docs
 .astra-cache/
 *.db
 website/public/demo/
+tmp

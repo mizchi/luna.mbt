@@ -2,7 +2,11 @@
 
 完了したタスクは `docs/internal/done/` に移動済み。
 
-- [ ] SVG builder が title, desc 対応するように、children を取れるようにする
+- [ ] lit-html 互換の Tagged Template Literal Mode
+- [x] SVG builder が title, desc 対応するように、children を取れるようにする
+  - 27個のSVGビルダー関数を追加 (`__generated_svg.mbt`)
+  - `svg_title()`, `svg_desc()` でアクセシビリティ対応
+  - `svg()` に `aria-label`, `aria-labelledby`, `aria-describedby` 属性追加
 - [ ] Accessibility ファーストなUIライブラリの設計
 - [ ] https://shoelace.style/
 - SSR 対応のコンポーネントライブラリ、という概念を作りたい。qwik を参照する。
@@ -28,7 +32,7 @@
 - playground の作成
 - mermaid
 - [ ] Sol SSGの動作対応
-- [ ] Moonbit 用にDocTestのサンプルを用意する。
+- [x] Moonbit 用にDocTestのサンプルを用意する。
 - [ ] JSX 用のドキュメントを整理する。
 - [x] Shiki の bundle を除外する
 - [ ] Sol を TSX でも動くようにする。
