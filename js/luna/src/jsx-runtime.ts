@@ -224,16 +224,18 @@ type Component = (props: any) => JSX.Element;
 // JSX factory function
 export function jsx(type: string | Component, props: Record<string, unknown> | null): JSX.Element {
   const { children, ...rest } = props || {};
-  const attrs = convertProps(rest);
-  const childNodes = convertChildren(children);
 
-  if (typeof type === "string") {
-    return createElement(type, attrs, childNodes) as JSX.Element;
-  }
-
-  // Function component
+  // Function component - pass children as-is, don't convert
+  // This preserves functions like () => <Child /> for control flow components (Show, For, etc.)
   if (typeof type === "function") {
     return type({ ...rest, children });
+  }
+
+  // Element - convert children to DomNodes
+  if (typeof type === "string") {
+    const attrs = convertProps(rest);
+    const childNodes = convertChildren(children);
+    return createElement(type, attrs, childNodes) as JSX.Element;
   }
 
   throw new Error(`Invalid JSX type: ${type}`);

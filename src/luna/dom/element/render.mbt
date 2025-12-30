@@ -279,10 +279,21 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   // Track all child nodes (may be multiple if fragment was used)
   let current_nodes : Ref[Array[@js_dom.Node]] = { val: initial_nodes }
 
+  // Track whether we are in initial render to skip DOM operations
+  let is_first_run : Ref[Bool] = { val: true }
+
   // RenderEffect handles subsequent updates only (synchronous DOM updates)
   let _ = @signal.render_effect(fn() {
     let should_show = when()
     let has_nodes = current_nodes.val.length() > 0
+
+    // Skip DOM operations on first run since we already rendered initial state above
+    // But still call when() to register dependency
+    if is_first_run.val {
+      is_first_run.val = false
+      return
+    }
+
     match (should_show, has_nodes) {
       (true, false) =>
         // Need to show - create and insert nodes
