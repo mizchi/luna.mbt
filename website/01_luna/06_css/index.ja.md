@@ -188,18 +188,59 @@ div(style="transform: translateX(" + x.get().to_string() + "px)", [...])
 
 ## 開発モード
 
-開発中のインスタントフィードバック用：
+### 欠落 CSS 検出
+
+開発用ランタイムは欠落した CSS ルールを自動検出し、ランタイムで生成しつつコンソールに警告を出力します：
 
 ```typescript
-import { css, hover } from "@luna_ui/luna/css/runtime";
+import {
+  initCssRuntime,
+  css,
+  hover,
+  hasClass,
+  getGeneratedCount
+} from "@luna_ui/luna/css/runtime";
 
-// 動的に CSS を生成し、コンソールに警告を出力
+// オプションで初期化
+initCssRuntime({
+  warnOnGenerate: true,  // 警告を表示（デフォルト: true）
+  verbose: false,        // 全生成をログ出力
+});
+
+// CSS が事前抽出済みなら既存クラスを返す
+// 欠落していればランタイムで生成して警告
 const cls = css("display", "flex");
-// Console: [luna-css] Generated at runtime: ._z5et{display:flex}
-//          → Run 'luna css extract' to pre-generate
+// Console: [luna-css] Generated at runtime: ._z5et { display: flex }
+//          → Consider running 'luna css extract' to pre-generate CSS
+
+// クラスがスタイルシートに存在するか確認
+if (!hasClass("_z5et")) {
+  console.log("CSS ルールが欠落しています！");
+}
+
+// ランタイム生成されたルール数を取得
+console.log(`${getGeneratedCount()} 件のルールがランタイムで生成されました`);
 ```
 
-> **注意**: 開発用ランタイムは開発中のみ使用し、本番環境では使用しないでください。
+### ユースケース
+
+1. **開発時ホットリロード**: MoonBit コード編集時に欠落 CSS を検出
+2. **本番問題のデバッグ**: 静的抽出で捕捉できなかった CSS ルールを特定
+3. **動的 CSS フォールバック**: 抽出漏れがあってもスタイルが動作することを保証
+
+### ランタイム API
+
+| 関数 | 説明 |
+|-----|------|
+| `initCssRuntime(opts)` | オプションで初期化 |
+| `css(prop, val)` | ベーススタイルを生成/確認 |
+| `hover(prop, val)` | hover スタイルを生成/確認 |
+| `hasClass(className)` | クラスがスタイルシートに存在するか |
+| `getGeneratedCss()` | ランタイム生成 CSS を文字列で取得 |
+| `getGeneratedCount()` | ランタイム生成ルール数 |
+| `resetRuntime()` | ランタイム状態をクリア（テスト用） |
+
+> **警告**: 開発用ランタイムはバンドルに約 5KB 追加されます。本番ビルドではインポートしないでください。
 
 ## API リファレンス
 

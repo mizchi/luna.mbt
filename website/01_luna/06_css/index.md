@@ -188,18 +188,59 @@ div(style="transform: translateX(" + x.get().to_string() + "px)", [...])
 
 ## Development Mode
 
-For instant feedback during development:
+### Missing CSS Detection
+
+The dev runtime automatically detects missing CSS rules and generates them at runtime with console warnings:
 
 ```typescript
-import { css, hover } from "@luna_ui/luna/css/runtime";
+import {
+  initCssRuntime,
+  css,
+  hover,
+  hasClass,
+  getGeneratedCount
+} from "@luna_ui/luna/css/runtime";
 
-// Generates CSS dynamically with console warnings
+// Initialize with options
+initCssRuntime({
+  warnOnGenerate: true,  // Show warnings (default: true)
+  verbose: false,        // Log all generations
+});
+
+// If CSS was pre-extracted, this returns existing class
+// If missing, generates at runtime and warns
 const cls = css("display", "flex");
-// Console: [luna-css] Generated at runtime: ._z5et{display:flex}
-//          → Run 'luna css extract' to pre-generate
+// Console: [luna-css] Generated at runtime: ._z5et { display: flex }
+//          → Consider running 'luna css extract' to pre-generate CSS
+
+// Check if a class exists in stylesheets
+if (!hasClass("_z5et")) {
+  console.log("CSS rule missing!");
+}
+
+// Get count of runtime-generated rules
+console.log(`Generated ${getGeneratedCount()} rules at runtime`);
 ```
 
-> **Note**: Only use dev runtime during development, not in production.
+### Use Cases
+
+1. **Development Hot-Reload**: Catch missing CSS when editing MoonBit code
+2. **Debug Production Issues**: Identify CSS rules not captured by static extraction
+3. **Dynamic CSS Fallback**: Ensure styles work even if extraction misses edge cases
+
+### Runtime API
+
+| Function | Description |
+|----------|-------------|
+| `initCssRuntime(opts)` | Initialize with options |
+| `css(prop, val)` | Generate/check base style |
+| `hover(prop, val)` | Generate/check hover style |
+| `hasClass(className)` | Check if class exists in any stylesheet |
+| `getGeneratedCss()` | Get all runtime-generated CSS as string |
+| `getGeneratedCount()` | Count of runtime-generated rules |
+| `resetRuntime()` | Clear runtime state (testing) |
+
+> **Warning**: The dev runtime adds ~5KB to your bundle. Only import it during development, not in production builds.
 
 ## API Reference
 
