@@ -87,9 +87,9 @@ fn next_frame(callback : () -> Unit) -> Unit {
 // =============================================================================
 
 ///|
-/// Conditionally show/hide element based on condition
+/// Conditionally show/hide element based on condition (returns inline style)
 fn visible_when(condition : () -> Bool) -> () -> String {
-  fn() { if condition() { "" } else { display_none } }
+  fn() { if condition() { "" } else { "display: none;" } }
 }
 
 ///|
