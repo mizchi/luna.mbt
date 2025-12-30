@@ -61,16 +61,14 @@ fn[T] find_valid_provider(
 
 ///|
 /// Provide a context value for the current Owner and its descendants
-///
 /// The value is associated with the current Owner and will be available
 /// to all effects and components created within this scope.
-///
 /// Example:
 /// ```
 /// let theme_ctx = create_context("light")
 /// provide(theme_ctx, "dark", fn() {
-///   // All components here will see "dark"
-///   my_component()
+/// // All components here will see "dark"
+/// my_component()
 /// })
 /// ```
 pub fn[T, R] provide(ctx : Context[T], value : T, f : () -> R) -> R {
@@ -109,9 +107,7 @@ fn[T, R] provide_inner(ctx : Context[T], value : T, f : () -> R) -> R {
 ///|
 /// Use a context value - returns the current provided value or default
 /// Walks up the Owner chain to find the nearest provided value.
-///
 /// Similar to Solid.js useContext
-///
 /// Example:
 /// ```
 /// let theme = use_context(theme_ctx) // Returns "dark" or default

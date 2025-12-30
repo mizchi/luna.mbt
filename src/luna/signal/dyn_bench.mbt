@@ -1,6 +1,5 @@
 ///|
 /// Benchmarks for comparing () -> T vs Signal[T] for DSL design
-///
 /// Question: Should dyn_class accept () -> String or Signal[String]?
 
 // =============================================================================

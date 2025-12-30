@@ -121,11 +121,8 @@ pub trait Snapshot {
 /// ```
 /// struct State { count: Int, name: String }
 /// struct ReactiveState { count: Signal[Int], name: Signal[String] }
-///
 /// fn ReactiveState::from(s: State) -> ReactiveState {
-///   { count: signal(s.count), name: signal(s.name) }
-/// }
+/// { count: signal(s.count), name: signal(s.name) }
 /// fn ReactiveState::snapshot(self) -> State {
-///   { count: self.count.peek(), name: self.name.peek() }
-/// }
+/// { count: self.count.peek(), name: self.name.peek() }
 /// ```

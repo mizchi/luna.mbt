@@ -3,15 +3,32 @@
 //
 
 ///|
-/// Returns a getter function (like memo)
+/// Map a signal's value through a function.
+/// Returns a getter function (like memo) that recomputes when the signal changes.
+/// ```mbt test
+/// let count = @signal.signal(5)
+/// let doubled = count.map(fn(n) { n * 2 })
+/// inspect(doubled(), content="10")
+/// count.set(7)
+/// inspect(doubled(), content="14")
+/// ```
 pub fn[T, U] Signal::map(self : Signal[T], f : (T) -> U) -> () -> U {
   memo(fn() { f(self.get()) })
 }
 
 ///|
-/// Filter signal updates - only updates when predicate is true
-/// Returns a signal that only updates when predicate passes
-/// Uses render_effect for synchronous execution
+/// Filter signal updates - only updates when predicate is true.
+/// Returns a signal that only updates when predicate passes.
+/// ```mbt test
+/// let num = @signal.signal(0)
+/// let even_only = num.filter(fn(n) { n % 2 == 0 })
+/// inspect(even_only.get(), content="Some(0)") // 0 hasn't passed through filter yet
+/// num.set(1) // Odd, filtered out
+/// num.set(2) // Even, passes
+/// inspect(even_only.get(), content="Some(2)")
+/// num.set(3) // Odd, filtered out
+/// inspect(even_only.get(), content="Some(2)") // Still 2
+/// ```
 pub fn[T] Signal::filter(
   self : Signal[T],
   predicate : (T) -> Bool,
@@ -42,7 +59,16 @@ pub fn[T, U] Signal::filter_map(self : Signal[T], f : (T) -> U?) -> Signal[U?] {
 }
 
 ///|
-/// Combine two signals into one
+/// Combine two signals into one.
+/// The getter recomputes when either signal changes.
+/// ```mbt test
+/// let first = @signal.signal("Hello")
+/// let last = @signal.signal("World")
+/// let full = @signal.combine2(first, last, fn(f, l) { f + " " + l })
+/// inspect(full(), content="Hello World")
+/// first.set("Hi")
+/// inspect(full(), content="Hi World")
+/// ```
 pub fn[A, B, R] combine2(
   a : Signal[A],
   b : Signal[B],
@@ -75,7 +101,18 @@ pub fn[A, B, C, D, R] combine4(
 }
 
 ///|
-/// Create a signal that is true when all input signals are true
+/// Create a signal that is true when all input signals are true.
+/// ```mbt test
+/// let a = @signal.signal(true)
+/// let b = @signal.signal(true)
+/// let c = @signal.signal(false)
+/// let all_true = @signal.all([a, b, c])
+/// inspect(all_true(), content="false")
+/// c.set(true)
+/// inspect(all_true(), content="true")
+/// a.set(false)
+/// inspect(all_true(), content="false")
+/// ```
 pub fn all(signals : Array[Signal[Bool]]) -> () -> Bool {
   memo(fn() {
     for sig in signals {
@@ -89,7 +126,15 @@ pub fn all(signals : Array[Signal[Bool]]) -> () -> Bool {
 }
 
 ///|
-/// Create a signal that is true when any input signal is true
+/// Create a signal that is true when any input signal is true.
+/// ```mbt test
+/// let a = @signal.signal(false)
+/// let b = @signal.signal(false)
+/// let any_true = @signal.any([a, b])
+/// inspect(any_true(), content="false")
+/// a.set(true)
+/// inspect(any_true(), content="true")
+/// ```
 pub fn any(signals : Array[Signal[Bool]]) -> () -> Bool {
   memo(fn() {
     for sig in signals {
@@ -103,7 +148,22 @@ pub fn any(signals : Array[Signal[Bool]]) -> () -> Bool {
 }
 
 ///|
-/// Select from an array signal by index signal
+/// Select from an array signal by index signal.
+/// Returns None if index is out of bounds.
+/// ```mbt test
+/// let items = @signal.signal(["a", "b", "c"])
+/// let idx = @signal.signal(1)
+/// let selected = @signal.select(items, idx)
+/// inspect(selected(), content=(
+///   #|Some("b")
+/// ))
+/// idx.set(0)
+/// inspect(selected(), content=(
+///   #|Some("a")
+/// ))
+/// idx.set(10) // Out of bounds
+/// inspect(selected(), content="None")
+/// ```
 pub fn[T] select(items : Signal[Array[T]], index : Signal[Int]) -> () -> T? {
   memo(fn() {
     let arr = items.get()
@@ -123,13 +183,37 @@ pub fn[T] Signal::to_getter(self : Signal[T]) -> () -> T {
 }
 
 ///|
-/// Flatten a signal of signals
+/// Flatten a signal of signals.
+/// Unwraps nested Signal[Signal[T]] to a getter for T.
+/// ```mbt test
+/// let inner1 = @signal.signal(10)
+/// let inner2 = @signal.signal(20)
+/// let outer = @signal.signal(inner1)
+/// let flat = @signal.flatten(outer)
+/// inspect(flat(), content="10")
+/// outer.set(inner2)
+/// inspect(flat(), content="20")
+/// inner2.set(30)
+/// inspect(flat(), content="30")
+/// ```
 pub fn[T] flatten(outer : Signal[Signal[T]]) -> () -> T {
   memo(fn() { outer.get().get() })
 }
 
 ///|
-/// Switch between signals based on a boolean signal
+/// Switch between signals based on a boolean signal.
+/// Returns value from on_true when condition is true, otherwise on_false.
+/// ```mbt test
+/// let flag = @signal.signal(true)
+/// let yes = @signal.signal("YES")
+/// let no = @signal.signal("NO")
+/// let result = @signal.switch_(flag, yes, no)
+/// inspect(result(), content="YES")
+/// flag.set(false)
+/// inspect(result(), content="NO")
+/// no.set("NOPE")
+/// inspect(result(), content="NOPE")
+/// ```
 pub fn[T] switch_(
   condition : Signal[Bool],
   on_true : Signal[T],
