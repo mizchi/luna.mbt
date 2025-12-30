@@ -1,0 +1,16 @@
+{
+  "import": [
+    { "path": "mizchi/luna/luna", "alias": "luna" }
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "sl_button",
+        "sl_input",
+        "sl_checkbox",
+        "sl_switch"
+      ],
+      "format": "esm"
+    }
+  }
+}
