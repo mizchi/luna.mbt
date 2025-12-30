@@ -192,6 +192,20 @@ export interface ExtractResult {
   warnings?: Warning[];
 }
 
+export interface SplitExtractResult {
+  /** Per-file or per-dir CSS */
+  chunks: Map<string, { css: string; styles: ExtractedStyles }>;
+  /** Shared CSS (declarations used in 3+ files/dirs) */
+  shared: { css: string; styles: ExtractedStyles };
+  /** All CSS combined (for comparison) */
+  combined: string;
+  /** Class name mapping */
+  mapping: Record<string, string>;
+  /** Statistics per chunk */
+  stats: Map<string, { base: number; pseudo: number; media: number }>;
+  warnings?: Warning[];
+}
+
 // =============================================================================
 // Warning Detection
 // =============================================================================
@@ -559,6 +573,226 @@ export function extract(dir: string, options: ExtractOptions = {}): ExtractResul
       pseudo: combined.pseudo.length,
       media: combined.media.length,
     },
+    warnings: warn ? allWarnings : undefined,
+  };
+}
+
+// =============================================================================
+// Split Extraction (per-file or per-directory)
+// =============================================================================
+
+interface SplitExtractOptions extends ExtractOptions {
+  /** Minimum usage count to be considered "shared" (default: 3) */
+  sharedThreshold?: number;
+}
+
+/**
+ * Extract CSS with split output by file or directory.
+ * Shared CSS (used in 3+ files/dirs) is separated into a shared chunk.
+ */
+export function extractSplit(
+  dir: string,
+  mode: "file" | "dir",
+  options: SplitExtractOptions = {}
+): SplitExtractResult {
+  const {
+    pretty = false,
+    warn = true,
+    strict = false,
+    verbose = false,
+    sharedThreshold = 3,
+  } = options;
+
+  const files = findMbtFiles(dir);
+  if (verbose) {
+    console.error(`Found ${files.length} .mbt files`);
+  }
+
+  // Track declarations per file/dir
+  const declUsage = new Map<string, Set<string>>(); // decl -> Set<chunk_key>
+  const pseudoUsage = new Map<string, Set<string>>(); // key -> Set<chunk_key>
+  const mediaUsage = new Map<string, Set<string>>(); // key -> Set<chunk_key>
+
+  // Per-chunk extracted styles
+  const perChunk = new Map<string, ExtractedStyles>();
+  const allWarnings: Warning[] = [];
+
+  for (const file of files) {
+    const content = fs.readFileSync(file, "utf-8");
+    const extracted = extractFromContent(content);
+
+    // Determine chunk key based on mode
+    const relPath = path.relative(dir, file);
+    const chunkKey = mode === "file" ? relPath : path.dirname(relPath) || ".";
+
+    // Initialize chunk if needed
+    if (!perChunk.has(chunkKey)) {
+      perChunk.set(chunkKey, { base: new Set(), pseudo: [], media: [] });
+    }
+    const chunk = perChunk.get(chunkKey)!;
+
+    // Track base declarations
+    for (const decl of extracted.base) {
+      chunk.base.add(decl);
+      if (!declUsage.has(decl)) {
+        declUsage.set(decl, new Set());
+      }
+      declUsage.get(decl)!.add(chunkKey);
+    }
+
+    // Track pseudo declarations
+    for (const p of extracted.pseudo) {
+      const key = `${p.pseudo}:${p.property}:${p.value}`;
+      chunk.pseudo.push(p);
+      if (!pseudoUsage.has(key)) {
+        pseudoUsage.set(key, new Set());
+      }
+      pseudoUsage.get(key)!.add(chunkKey);
+    }
+
+    // Track media declarations
+    for (const m of extracted.media) {
+      const key = `@media(${m.condition}):${m.property}:${m.value}`;
+      chunk.media.push(m);
+      if (!mediaUsage.has(key)) {
+        mediaUsage.set(key, new Set());
+      }
+      mediaUsage.get(key)!.add(chunkKey);
+    }
+
+    if (warn) {
+      const warnings = detectWarnings(content, file);
+      allWarnings.push(...warnings);
+    }
+  }
+
+  // Separate shared vs chunk-specific declarations
+  const sharedBase = new Set<string>();
+  const sharedPseudo: ExtractedStyles["pseudo"] = [];
+  const sharedMedia: ExtractedStyles["media"] = [];
+
+  // Find shared base declarations
+  for (const [decl, chunks] of declUsage) {
+    if (chunks.size >= sharedThreshold) {
+      sharedBase.add(decl);
+    }
+  }
+
+  // Find shared pseudo declarations
+  const seenPseudo = new Set<string>();
+  for (const [key, chunks] of pseudoUsage) {
+    if (chunks.size >= sharedThreshold && !seenPseudo.has(key)) {
+      seenPseudo.add(key);
+      const [pseudo, property, value] = key.split(":");
+      sharedPseudo.push({ pseudo, property, value });
+    }
+  }
+
+  // Find shared media declarations
+  const seenMedia = new Set<string>();
+  for (const [key, chunks] of mediaUsage) {
+    if (chunks.size >= sharedThreshold && !seenMedia.has(key)) {
+      seenMedia.add(key);
+      // Parse @media(condition):property:value
+      const match = key.match(/^@media\(([^)]+)\):([^:]+):(.+)$/);
+      if (match) {
+        sharedMedia.push({
+          condition: match[1],
+          property: match[2],
+          value: match[3],
+        });
+      }
+    }
+  }
+
+  // Remove shared declarations from individual chunks
+  const finalChunks = new Map<string, { css: string; styles: ExtractedStyles }>();
+  const chunkStats = new Map<string, { base: number; pseudo: number; media: number }>();
+
+  for (const [chunkKey, chunk] of perChunk) {
+    // Filter out shared base declarations
+    const chunkOnlyBase = new Set<string>();
+    for (const decl of chunk.base) {
+      if (!sharedBase.has(decl)) {
+        chunkOnlyBase.add(decl);
+      }
+    }
+
+    // Filter out shared pseudo declarations
+    const chunkOnlyPseudo = chunk.pseudo.filter((p) => {
+      const key = `${p.pseudo}:${p.property}:${p.value}`;
+      return !seenPseudo.has(key);
+    });
+
+    // Filter out shared media declarations
+    const chunkOnlyMedia = chunk.media.filter((m) => {
+      const key = `@media(${m.condition}):${m.property}:${m.value}`;
+      return !seenMedia.has(key);
+    });
+
+    const chunkStyles: ExtractedStyles = {
+      base: chunkOnlyBase,
+      pseudo: chunkOnlyPseudo,
+      media: chunkOnlyMedia,
+    };
+
+    const { css } = generateCSS(chunkStyles, { pretty });
+    finalChunks.set(chunkKey, { css, styles: chunkStyles });
+    chunkStats.set(chunkKey, {
+      base: chunkOnlyBase.size,
+      pseudo: chunkOnlyPseudo.length,
+      media: chunkOnlyMedia.length,
+    });
+  }
+
+  // Generate shared CSS
+  const sharedStyles: ExtractedStyles = {
+    base: sharedBase,
+    pseudo: sharedPseudo,
+    media: sharedMedia,
+  };
+  const { css: sharedCss, mapping } = generateCSS(sharedStyles, { pretty });
+
+  // Generate combined CSS for all chunks + shared
+  const combinedStyles: ExtractedStyles = {
+    base: new Set<string>(),
+    pseudo: [],
+    media: [],
+  };
+  for (const decl of sharedBase) combinedStyles.base.add(decl);
+  for (const [, chunk] of finalChunks) {
+    for (const decl of chunk.styles.base) combinedStyles.base.add(decl);
+    combinedStyles.pseudo.push(...chunk.styles.pseudo);
+    combinedStyles.media.push(...chunk.styles.media);
+  }
+  combinedStyles.pseudo.push(...sharedPseudo);
+  combinedStyles.media.push(...sharedMedia);
+
+  const { css: combinedCss, mapping: fullMapping } = generateCSS(combinedStyles, { pretty });
+
+  if (verbose) {
+    console.error(`Split mode: ${mode}`);
+    console.error(`Chunks: ${finalChunks.size}`);
+    console.error(`Shared declarations (≥${sharedThreshold} usages):`);
+    console.error(`  - ${sharedBase.size} base`);
+    console.error(`  - ${sharedPseudo.length} pseudo`);
+    console.error(`  - ${sharedMedia.length} media`);
+  }
+
+  if (warn && allWarnings.length > 0 && verbose) {
+    console.error(`\n⚠️  ${allWarnings.length} warning(s)\n`);
+  }
+
+  if (strict && allWarnings.length > 0) {
+    throw new Error("Strict mode: non-literal CSS arguments detected");
+  }
+
+  return {
+    chunks: finalChunks,
+    shared: { css: sharedCss, styles: sharedStyles },
+    combined: combinedCss,
+    mapping: fullMapping,
+    stats: chunkStats,
     warnings: warn ? allWarnings : undefined,
   };
 }

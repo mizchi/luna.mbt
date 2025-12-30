@@ -1,0 +1,13 @@
+{
+  "is-main": true,
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/luna/examples/css_split_test/card", "alias": "card" },
+    { "path": "mizchi/luna/examples/css_split_test/button", "alias": "button" }
+  ],
+  "link": {
+    "js": {
+      "format": "esm"
+    }
+  }
+}

@@ -4,6 +4,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   extract,
+  extractSplit,
   minify,
   formatSize,
   inlineCSS,
@@ -82,6 +83,10 @@ Extract Options:
   -v, --verbose         Show extraction details
   --no-warn             Disable non-literal argument warnings
   --strict              Exit with error if warnings found
+  --split               Split CSS by file (outputs to --output-dir)
+  --split-dir           Split CSS by directory (outputs to --output-dir)
+  --output-dir <dir>    Output directory for split mode
+  --shared-threshold <n>  Min usages to be "shared" (default: 3)
 
 Minify Options:
   -o, --output <file>   Output file (default: stdout)
@@ -106,6 +111,8 @@ Inject Options:
 Examples:
   luna css extract src -o dist/styles.css
   luna css extract src --json -o mapping.json
+  luna css extract src --split --output-dir dist/css
+  luna css extract src --split-dir --output-dir dist/css --shared-threshold 2
   luna css minify input.css -o output.min.css
   luna css inline bundle.js --extract-from src -o bundle.inlined.js
   luna css inject index.html --src src
@@ -514,16 +521,21 @@ function handleNew(args: string[]) {
 function handleCssExtract(args: string[]) {
   let dir = ".";
   let outputFile: string | null = null;
+  let outputDir: string | null = null;
   let pretty = false;
   let jsonOutput = false;
   let verbose = false;
   let warn = true;
   let strict = false;
+  let splitMode: "file" | "dir" | null = null;
+  let sharedThreshold = 3;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === "--output" || arg === "-o") {
       outputFile = args[++i];
+    } else if (arg === "--output-dir") {
+      outputDir = args[++i];
     } else if (arg === "--pretty") {
       pretty = true;
     } else if (arg === "--json") {
@@ -535,12 +547,108 @@ function handleCssExtract(args: string[]) {
     } else if (arg === "--strict") {
       strict = true;
       warn = true;
+    } else if (arg === "--split") {
+      splitMode = "file";
+    } else if (arg === "--split-dir") {
+      splitMode = "dir";
+    } else if (arg === "--shared-threshold") {
+      sharedThreshold = parseInt(args[++i], 10);
+      if (isNaN(sharedThreshold) || sharedThreshold < 1) {
+        console.error("Error: --shared-threshold must be a positive number");
+        process.exit(1);
+      }
     } else if (!arg.startsWith("-")) {
       dir = arg;
     }
   }
 
   try {
+    // Split mode
+    if (splitMode) {
+      if (!outputDir) {
+        console.error("Error: --output-dir is required for split mode");
+        process.exit(1);
+      }
+
+      const result = extractSplit(dir, splitMode, {
+        pretty,
+        warn,
+        strict,
+        verbose,
+        sharedThreshold,
+      });
+
+      // Ensure output directory exists
+      fs.mkdirSync(outputDir, { recursive: true });
+
+      // Write shared CSS
+      const sharedPath = path.join(outputDir, "_shared.css");
+      fs.writeFileSync(sharedPath, result.shared.css);
+      if (verbose) {
+        console.error(`Written shared CSS to ${sharedPath}`);
+      }
+
+      // Write per-chunk CSS
+      for (const [chunkKey, chunk] of result.chunks) {
+        if (!chunk.css) continue; // Skip empty chunks
+
+        let chunkPath: string;
+        if (splitMode === "file") {
+          // Replace .mbt with .css
+          chunkPath = path.join(outputDir, chunkKey.replace(/\.mbt$/, ".css"));
+        } else {
+          // Use directory name
+          const dirName = chunkKey === "." ? "root" : chunkKey.replace(/\//g, "_");
+          chunkPath = path.join(outputDir, `${dirName}.css`);
+        }
+
+        // Ensure parent directory exists
+        fs.mkdirSync(path.dirname(chunkPath), { recursive: true });
+        fs.writeFileSync(chunkPath, chunk.css);
+        if (verbose) {
+          console.error(`Written chunk CSS to ${chunkPath}`);
+        }
+      }
+
+      // Write mapping JSON if requested
+      if (jsonOutput) {
+        const mappingPath = path.join(outputDir, "mapping.json");
+        const mappingData = {
+          mapping: result.mapping,
+          chunks: Object.fromEntries(
+            Array.from(result.chunks.entries()).map(([k, v]) => [
+              k,
+              { size: v.css.length },
+            ])
+          ),
+          shared: { size: result.shared.css.length },
+          warnings: result.warnings,
+        };
+        fs.writeFileSync(mappingPath, JSON.stringify(mappingData, null, pretty ? 2 : 0));
+        if (verbose) {
+          console.error(`Written mapping to ${mappingPath}`);
+        }
+      }
+
+      // Print summary
+      if (verbose) {
+        console.error("\nSplit extraction summary:");
+        console.error(`  Shared: ${result.shared.css.length} bytes`);
+        for (const [chunkKey, chunk] of result.chunks) {
+          console.error(`  ${chunkKey}: ${chunk.css.length} bytes`);
+        }
+        console.error(`  Combined: ${result.combined.length} bytes`);
+      }
+
+      // Print warnings
+      if (warn && result.warnings && result.warnings.length > 0) {
+        printWarnings(result.warnings, strict);
+      }
+
+      return;
+    }
+
+    // Normal (non-split) mode
     const result = extract(dir, { pretty, warn, strict, verbose });
 
     let output: string;
@@ -570,23 +678,30 @@ function handleCssExtract(args: string[]) {
 
     // Print warnings
     if (warn && result.warnings && result.warnings.length > 0) {
-      console.error(
-        `\n⚠️  ${result.warnings.length} warning(s): non-literal CSS arguments detected\n`
-      );
-      for (const w of result.warnings) {
-        console.error(`  ${w.file}:${w.line}`);
-        console.error(`    ${w.func}(...) - ${w.reason}`);
-        console.error(`    Code: ${w.code}`);
-        console.error("");
-      }
-
-      if (strict) {
-        console.error("❌ Strict mode: exiting with error due to warnings.");
-        process.exit(1);
-      }
+      printWarnings(result.warnings, strict);
     }
   } catch (err) {
     console.error(`Error: ${(err as Error).message}`);
+    process.exit(1);
+  }
+}
+
+function printWarnings(
+  warnings: { file: string; line: number; func: string; code: string; reason: string }[],
+  strict: boolean
+) {
+  console.error(
+    `\n⚠️  ${warnings.length} warning(s): non-literal CSS arguments detected\n`
+  );
+  for (const w of warnings) {
+    console.error(`  ${w.file}:${w.line}`);
+    console.error(`    ${w.func}(...) - ${w.reason}`);
+    console.error(`    Code: ${w.code}`);
+    console.error("");
+  }
+
+  if (strict) {
+    console.error("❌ Strict mode: exiting with error due to warnings.");
     process.exit(1);
   }
 }

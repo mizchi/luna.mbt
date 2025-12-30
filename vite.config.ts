@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { moonbitPlugin } from 'vite-plugin-moonbit';
+import { moonbit } from 'vite-plugin-moonbit';
 import { lunaCss } from './js/luna/dist/vite-plugin.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -12,9 +12,9 @@ export default defineConfig(({ command }) => {
   return {
     appType: 'mpa',
     plugins: [
-      moonbitPlugin({}),
+      moonbit({}),
       lunaCss({
-        src: ['src/examples/todomvc'],
+        src: ['src/examples/todomvc', 'src/examples/css_split_test'],
         mode: 'external',
         cssFileName: 'luna.css',
         verbose: isDev,
@@ -48,6 +48,7 @@ export default defineConfig(({ command }) => {
           "game": resolve(__dirname, './demo-src/game/index.html'),
           "wc": resolve(__dirname, './demo-src/wc/index.html'),
           "todomvc": resolve(__dirname, './demo-src/todomvc/index.html'),
+          "css_split": resolve(__dirname, './demo-src/css_split/index.html'),
         },
       },
     },

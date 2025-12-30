@@ -277,13 +277,21 @@ bench-css scale="all":
 # CSS ユーティリティ
 # =============================================================================
 
-# CSS 抽出 (--json, --strict, --no-warn オプション対応)
+# Luna CLI (CSS utilities, project scaffolding)
+luna *args:
+    node js/luna/dist/cli.mjs {{args}}
+
+# CSS 抽出
 extract-css dir="src" *flags:
-    node src/luna/css/extract.js {{dir}} --pretty {{flags}}
+    just luna css extract {{dir}} --pretty {{flags}}
 
 # CSS ミニファイ
 minify-css input *flags:
-    node src/luna/css/minify.js {{input}} {{flags}}
+    just luna css minify {{input}} {{flags}}
+
+# CSS を HTML に注入
+inject-css html src *flags:
+    just luna css inject {{html}} --src {{src}} {{flags}}
 
 # =============================================================================
 # リリース

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna CSS Split Test - Light DOM WebComponents</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #f5f5f5;
+    }
+    h1 { color: #333; }
+    h2 { color: #555; margin-top: 24px; }
+    .section {
+      background: #fff;
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+    .note {
+      background: #e3f2fd;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>CSS Split Test - Light DOM WebComponents</h1>
+  <p>Testing directory-based CSS splitting with Light DOM WebComponents.</p>
+
+  <div class="note">
+    <strong>Goal:</strong> Verify that <code>luna css extract --split-dir</code> can detect component boundaries and extract per-directory CSS chunks.
+  </div>
+
+  <h2>Components</h2>
+
+  <div class="section">
+    <h3>Card Component (<code>card/</code>)</h3>
+    <luna-card></luna-card>
+  </div>
+
+  <div class="section">
+    <h3>Button Component (<code>button/</code>)</h3>
+    <luna-button></luna-button>
+  </div>
+
+  <h2>CSS Extraction Results</h2>
+  <div class="section">
+    <p>Run the following command to see split results:</p>
+    <pre>luna css extract src/examples/css_split_test --split-dir -v</pre>
+    <div id="css-output"></div>
+  </div>
+
+  <script type="module">
+    import "virtual:luna.css";
+  </script>
+  <script type="module" src="/target/js/release/build/examples/css_split_test/css_split_test.js"></script>
+</body>
+</html>
