@@ -1,14 +1,14 @@
 # Luna CSS Utility Module
 
-Atomic CSS generation for Luna. Automatically deduplicates and compresses CSS declarations.
+Atomic CSS generation for Luna. Automatically deduplicates and compresses CSS declarations using deterministic hash-based class names.
 
 ## Features
 
 - **Direct CSS API**: Use CSS property names directly (`css("display", "flex")`)
 - **Automatic deduplication**: Same declarations share class names
-- **Minimal output**: Short class names (`_a`, `_b`, `_c`...)
+- **Hash-based output**: Deterministic class names (`_z5et`, `_3pgqo`...)
 - **Collision-free**: `_` prefix avoids conflicts with external CSS
-- **SSR-only**: CSS rules determined at SSR time
+- **Opt-in**: Only included in bundle when `@css` is imported
 
 ## Basic Usage
 
@@ -16,18 +16,15 @@ Atomic CSS generation for Luna. Automatically deduplicates and compresses CSS de
 // Import from luna/css
 import { css, styles, combine } from "@luna/css"
 
-// Or use re-exports from static_dom/element
-import { ucss, ustyles } from "@luna/static_dom/element"
-
 // Single property
-let flex = css("display", "flex")  // "_a"
+let flex = css("display", "flex")  // "_z5et"
 
 // Multiple properties
 let card_class = styles([
   ("display", "flex"),
   ("align-items", "center"),
   ("padding", "1rem"),
-])  // "_a _b _c"
+])  // "_z5et _3m33u _8ktnx"
 
 // Use with elements
 div(class=card_class, [
@@ -41,12 +38,12 @@ div(class=card_class, [
 import { hover, focus, active, on } from "@luna/css"
 
 // Convenience wrappers
-let h = hover("background", "#2563eb")   // "_h0"
-let f = focus("outline", "2px solid blue")  // "_f0"
-let a = active("transform", "scale(0.98)")  // "_ac0"
+let h = hover("background", "#2563eb")
+let f = focus("outline", "2px solid blue")
+let a = active("transform", "scale(0.98)")
 
 // Generic pseudo-class
-let before = on("::before", "content", "\"→\"")  // "_p0"
+let before = on("::before", "content", "\"→\"")
 ```
 
 ## Media Queries
@@ -55,105 +52,73 @@ let before = on("::before", "content", "\"→\"")  // "_p0"
 import { at_md, at_lg, dark, media } from "@luna/css"
 
 // Breakpoint wrappers
-let m = at_md("padding", "2rem")  // "_m0"
-let l = at_lg("font-size", "1.25rem")  // "_m1"
+let m = at_md("padding", "2rem")
+let l = at_lg("font-size", "1.25rem")
 
 // Dark mode
-let d = dark("background", "#1a1a1a")  // "_m2"
+let d = dark("background", "#1a1a1a")
 
 // Generic media query
 let custom = media("min-width: 1440px", "max-width", "1200px")
 ```
 
-## CSS Generation (SSR)
+## Build Tools
 
-```moonbit
-import { generate_css, generate_full_css } from "@luna/css"
-
-// After rendering components, generate CSS
-let base_css = generate_css()
-// ._a{display:flex}._b{align-items:center}._c{padding:1rem}
-
-let full_css = generate_full_css()
-// Includes base + pseudo-classes + media queries
-// ._a{display:flex}...
-// ._h0:hover{background:#2563eb}...
-// @media(min-width:768px){._m0{padding:2rem}}
-```
-
-## Static CSS Extraction (Build-time)
-
-For complete CSS coverage including unexecuted code paths, use static extraction:
+### CLI Commands
 
 ```bash
-# Extract CSS from all .mbt files
-just extract-css src
+# Extract CSS from .mbt files
+npx luna css extract src/examples/todomvc
 
-# Output to file
-just extract-css src output=dist/styles.css
+# Minify CSS
+npx luna css minify input.css -o output.min.css
 
-# JSON format with mapping
-just extract-css-json src
+# Inline CSS into JavaScript
+npx luna css inline input.css -o output.js
 
-# Quiet mode (no warnings)
-just extract-css-quiet src
-
-# Strict mode (error if non-literal arguments found)
-just extract-css-strict src
+# Inject CSS into HTML
+npx luna css inject index.html --src src/myapp
 ```
 
-This parses source files to find all `css()`, `hover()`, `media()` etc. calls.
+### Vite Plugin
 
-### Non-literal Argument Warnings
+```typescript
+import { lunaCss } from "@luna_ui/luna/vite-plugin";
 
-The extractor warns when CSS function arguments are not string literals:
-
-```moonbit
-let prop = "display"
-
-// ⚠ Warning: cannot be statically extracted
-css(prop, "flex")
-
-// ✓ OK: string literals can be extracted
-css("display", "flex")
+export default defineConfig({
+  plugins: [
+    lunaCss({
+      src: ["src/examples/todomvc"],
+      mode: "auto",
+      threshold: 4096,
+      verbose: true,
+    }),
+  ],
+});
 ```
 
-Use `--no-warn` to suppress warnings, or `--strict` to fail the build.
+## Zero-Runtime Architecture
 
-## Full Example
+Luna's CSS utilities are designed for **zero client-side runtime**:
 
-```moonbit
-fn card(title: String, content: String) -> @luna.Node[Unit] {
-  div(
-    class=styles([
-      ("display", "flex"),
-      ("flex-direction", "column"),
-      ("padding", "1.5rem"),
-      ("border-radius", "0.5rem"),
-      ("background", "white"),
-      ("box-shadow", "0 1px 3px rgba(0,0,0,0.1)"),
-    ]) + " " + hover("box-shadow", "0 4px 12px rgba(0,0,0,0.15)")
-       + " " + dark("background", "#1e1e1e")
-       + " " + at_md("padding", "2rem"),
-    [
-      h2(class=css("font-size", "1.25rem"), [text(title)]),
-      p(class=css("color", "#666"), [text(content)]),
-    ]
-  )
-}
-
-// In your page render:
-fn page() -> @luna.Node[Unit] {
-  html(lang="en", [
-    head([
-      style_(generate_full_css()),  // Inject generated CSS
-    ]),
-    body([
-      card("Hello", "World"),
-    ])
-  ])
-}
 ```
+SSR Bundle (static_dom)          Client Bundle (Island)
+───────────────────────          ─────────────────────────
+@css.css() → "_z5et"             class="_z5et" (string only)
+@css.hover() → "_1i41w"          No CSS code included
+generate_full_css()
+```
+
+**Verification**: Island client bundles contain 0 CSS-related code.
+
+## Opt-in Design
+
+CSS utilities are only included in your bundle when you import `@css`:
+
+| Example | Imports @css | Bundle Size | CSS Code |
+|---------|-------------|-------------|----------|
+| hello_luna | No | 44KB | Not included |
+| todomvc | Yes | 424KB | Included |
 
 ## API Reference
 
@@ -192,166 +157,3 @@ fn page() -> @luna.Node[Unit] {
 | `generate_css()` | Base styles only |
 | `generate_full_css()` | All styles (base + pseudo + media) |
 | `reset_all()` | Clear all registries (testing) |
-
-## Build Tools
-
-### CSS Minification
-
-Minify CSS without changing class names (safe for existing templates):
-
-```bash
-# Minify a CSS file
-just minify-css input.css output=output.min.css
-
-# Minify Astra CSS
-just minify-astra-css
-```
-
-Typical reduction: ~24%
-
-### CSS Extraction
-
-Extract CSS utilities from source code (static analysis):
-
-```bash
-# Extract from directory
-just extract-css src
-
-# With file output
-just extract-css src output=utilities.css
-```
-
-### CSS Injection
-
-Append extracted CSS to existing stylesheet:
-
-```bash
-just inject-utility-css
-```
-
-## Architecture Considerations
-
-### Zero-Runtime Design (Default)
-
-Luna's CSS utilities are designed for **zero client-side runtime**:
-
-1. **SSR time**: CSS functions execute, registry populates, class names are generated
-2. **Client time**: Only pre-computed class names are used, no CSS generation code
-
-```
-SSR Bundle (static_dom)          Client Bundle (Island)
-───────────────────────          ─────────────────────────
-@css.css() → "_a"                class="_a" (string only)
-@css.hover() → "_h0"             No CSS code included
-generate_full_css()
-```
-
-**Verification**: Island client bundles contain 0 CSS-related code.
-
-### Single-Process SSR (Recommended)
-
-CSS utilities work best with single-process SSR:
-
-```moonbit
-fn render_page() -> String {
-  // 1. Render components (populates CSS registry)
-  let html = render_to_string(app())
-
-  // 2. Generate CSS from registry
-  let css = @css.generate_full_css()
-
-  // 3. Inject CSS into HTML
-  "<style>" + css + "</style>" + html
-}
-```
-
-### Multi-Process Builds (e.g., Astra)
-
-For worker-based parallel builds, use **static extraction** instead of runtime generation:
-
-```bash
-# Before build: extract CSS from source
-just extract-css src output=utilities.css
-
-# Build includes the pre-extracted CSS
-```
-
-This is because each worker has its own CSS registry that cannot be merged.
-
-### Keeping Zero-Runtime
-
-To maintain zero client-side runtime, follow these rules:
-
-```moonbit
-// ✓ GOOD: Use CSS in static_dom (SSR only)
-fn my_component() -> @static_dom.Node {
-  div(class=ucss("display", "flex"), [...])
-}
-
-// ✗ BAD: Don't use CSS in Island client code
-// This would include CSS generation in client bundle
-fn my_island() -> @luna.Node[Unit] {
-  // Don't do this:
-  div(class=@css.css("display", "flex"), [...])
-
-  // Instead, use pre-computed class strings:
-  div(class="_a _b", [...])
-}
-```
-
-For dynamic styling in Islands, use:
-- Pre-computed class name switching
-- CSS custom properties (variables)
-- Inline styles for truly dynamic values
-
-## Best Practices
-
-### Use String Literals
-
-Always use string literals for static extraction compatibility:
-
-```moonbit
-// ✓ Good - can be statically extracted
-css("display", "flex")
-hover("background", "#2563eb")
-
-// ✗ Bad - cannot be extracted, only works at runtime
-let prop = "display"
-css(prop, "flex")
-```
-
-### CSS Variables for Theming
-
-Use CSS variables for theme-dependent values:
-
-```moonbit
-// Works with light/dark themes
-css("color", "var(--text-color)")
-css("background", "var(--bg-color)")
-dark("background", "var(--dark-bg)")
-```
-
-### Combine with Semantic Classes
-
-Hybrid approach - utilities for layout, semantic for complex styles:
-
-```moonbit
-// Utilities for common patterns
-let layout = styles([
-  ("display", "flex"),
-  ("gap", "1rem"),
-])
-
-// Semantic class for complex/themed styles
-h("div", [
-  attr("class", layout + " card-component"),
-], [...])
-```
-
-## Comparison with Alternatives
-
-| Approach | Compression | Code Changes | Runtime |
-|----------|-------------|--------------|---------|
-| CSS Utilities | Auto-dedup | New code style | SSR |
-| CSS Minify | ~24% | None | Build |
-| CSS Factorize | ~52% | Template rewrite | Build |
