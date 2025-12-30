@@ -1,0 +1,16 @@
+{
+  "import": [
+    { "path": "mizchi/luna/luna", "alias": "luna" }
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "radix_button",
+        "radix_input",
+        "radix_checkbox",
+        "radix_switch"
+      ],
+      "format": "esm"
+    }
+  }
+}

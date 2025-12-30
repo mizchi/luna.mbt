@@ -76,22 +76,18 @@ pub fn sl_button(
     Some(true) => attrs.push(("disabled", @luna.attr_static("")))
     _ => ()
   }
-
   match loading {
     Some(true) => attrs.push(("loading", @luna.attr_static("")))
     _ => ()
   }
-
   match outline {
     Some(true) => attrs.push(("outline", @luna.attr_static("")))
     _ => ()
   }
-
   match pill {
     Some(true) => attrs.push(("pill", @luna.attr_static("")))
     _ => ()
   }
-
   match circle {
     Some(true) => attrs.push(("circle", @luna.attr_static("")))
     _ => ()
@@ -102,11 +98,9 @@ pub fn sl_button(
     Some(h) => attrs.push(("href", @luna.attr_static(h)))
     None => ()
   }
-
   match target {
     Some(t) => attrs.push(("target", @luna.attr_static(t)))
     None => ()
   }
-
   @luna.h("sl-button", attrs, children)
 }

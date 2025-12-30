@@ -16,10 +16,12 @@ test "sl_button - with variant" {
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="sl-button")
   // Check variant attribute
-  let has_variant = el.attrs.iter().any(fn(attr) {
-    let (name, value) = attr
-    name == "variant" && value is @luna.VStatic("primary")
-  })
+  let has_variant = el.attrs
+    .iter()
+    .any(fn(attr) {
+      let (name, value) = attr
+      name == "variant" && value is @luna.VStatic("primary")
+    })
   inspect(has_variant, content="true")
 }
 
@@ -48,9 +50,12 @@ test "sl_button - with all options" {
 
 ///|
 test "sl_button - href renders as link" {
-  let node : @luna.Node[Unit] = sl_button(href="https://example.com", target="_blank", [])
+  let node : @luna.Node[Unit] = sl_button(
+    href="https://example.com",
+    target="_blank",
+    [],
+  )
   guard node is @luna.Element(el) else { fail("expected Element") }
-
   let attr_names : Array[String] = el.attrs.map(fn(attr) { attr.0 })
   inspect(attr_names.contains("href"), content="true")
   inspect(attr_names.contains("target"), content="true")
@@ -61,7 +66,6 @@ test "sl_input - basic" {
   let node = sl_input(label="Username", placeholder="Enter username")
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="sl-input")
-
   let attr_names : Array[String] = el.attrs.map(fn(attr) { attr.0 })
   inspect(attr_names.contains("type"), content="true")
   inspect(attr_names.contains("label"), content="true")
@@ -72,7 +76,6 @@ test "sl_input - basic" {
 test "sl_input - password with toggle" {
   let node = sl_input(type_=Password, password_toggle=true)
   guard node is @luna.Element(el) else { fail("expected Element") }
-
   let attr_names : Array[String] = el.attrs.map(fn(attr) { attr.0 })
   inspect(attr_names.contains("password-toggle"), content="true")
 
@@ -86,9 +89,13 @@ test "sl_input - password with toggle" {
 
 ///|
 test "sl_input - with validation" {
-  let node = sl_input(required=true, minlength=3, maxlength=20, pattern="[A-Za-z]+")
+  let node = sl_input(
+    required=true,
+    minlength=3,
+    maxlength=20,
+    pattern="[A-Za-z]+",
+  )
   guard node is @luna.Element(el) else { fail("expected Element") }
-
   let attr_names : Array[String] = el.attrs.map(fn(attr) { attr.0 })
   inspect(attr_names.contains("required"), content="true")
   inspect(attr_names.contains("minlength"), content="true")
@@ -108,7 +115,6 @@ test "sl_checkbox - basic" {
 test "sl_checkbox - checked" {
   let node : @luna.Node[Unit] = sl_checkbox(checked=true, [])
   guard node is @luna.Element(el) else { fail("expected Element") }
-
   let attr_names : Array[String] = el.attrs.map(fn(attr) { attr.0 })
   inspect(attr_names.contains("checked"), content="true")
 }
@@ -117,7 +123,6 @@ test "sl_checkbox - checked" {
 test "sl_checkbox - indeterminate" {
   let node : @luna.Node[Unit] = sl_checkbox(indeterminate=true, [])
   guard node is @luna.Element(el) else { fail("expected Element") }
-
   let attr_names : Array[String] = el.attrs.map(fn(attr) { attr.0 })
   inspect(attr_names.contains("indeterminate"), content="true")
 }
@@ -134,7 +139,6 @@ test "sl_switch - basic" {
 test "sl_switch - checked" {
   let node : @luna.Node[Unit] = sl_switch(checked=true, [])
   guard node is @luna.Element(el) else { fail("expected Element") }
-
   let attr_names : Array[String] = el.attrs.map(fn(attr) { attr.0 })
   inspect(attr_names.contains("checked"), content="true")
 }
@@ -143,7 +147,6 @@ test "sl_switch - checked" {
 test "sl_switch - with size" {
   let node : @luna.Node[Unit] = sl_switch(size=Small, [])
   guard node is @luna.Element(el) else { fail("expected Element") }
-
   let size_attr = el.attrs.iter().find_first(fn(attr) { attr.0 == "size" })
   guard size_attr is Some((_, @luna.VStatic(v))) else {
     fail("expected size attribute")

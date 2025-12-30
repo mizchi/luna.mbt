@@ -1128,7 +1128,6 @@ test "diamond: only propagates once with linear convergence" {
   let f3 = memo(fn() { d.get() })
   let f4 = memo(fn() { d.get() })
   let f5 = memo(fn() { d.get() })
-
   let g_count = { val: 0 }
   let g = memo(fn() {
     g_count.val = g_count.val + 1
@@ -1169,15 +1168,12 @@ test "diamond: only propagates once with linear convergence" {
 /// When d changes, h should only compute once despite exponential paths
 test "diamond: only propagates once with exponential convergence" {
   let d = Signal::new(0)
-
   let f1 = memo(fn() { d.get() })
   let f2 = memo(fn() { d.get() })
   let f3 = memo(fn() { d.get() })
-
   let g1 = memo(fn() { f1() + f2() + f3() })
   let g2 = memo(fn() { f1() + f2() + f3() })
   let g3 = memo(fn() { f1() + f2() + f3() })
-
   let h_count = { val: 0 }
   let h = memo(fn() {
     h_count.val = h_count.val + 1
@@ -1205,12 +1201,10 @@ test "diamond: only propagates once with exponential convergence" {
 test "diamond: does not trigger downstream unless value changed" {
   let s1 = Signal::new(1)
   let order : Array[String] = []
-
   let t1 = memo(fn() {
     order.push("t1")
     s1.get()
   })
-
   let c1 = memo(fn() {
     order.push("c1")
     t1()
@@ -1226,7 +1220,6 @@ test "diamond: does not trigger downstream unless value changed" {
   let _ = c1()
   // The key is that the final value is correct
   assert_eq(c1(), 1)
-
   order.clear()
 
   // Set different value - both should run
@@ -1244,7 +1237,6 @@ test "diamond: changing dependencies" {
   let condition = Signal::new(true)
   let true_branch = Signal::new(1)
   let false_branch = Signal::new(2)
-
   let eval_count = { val: 0 }
   let result = memo(fn() {
     eval_count.val = eval_count.val + 1
@@ -1288,22 +1280,18 @@ test "diamond: changing dependencies" {
 test "diamond: nested memos maintain order" {
   let source = Signal::new(0)
   let order : Array[String] = []
-
   let level1 = memo(fn() {
     order.push("level1")
     source.get()
   })
-
   let level2 = memo(fn() {
     order.push("level2")
     level1()
   })
-
   let level3 = memo(fn() {
     order.push("level3")
     level2()
   })
-
   let level4 = memo(fn() {
     order.push("level4")
     level3()
@@ -1348,10 +1336,7 @@ test "glitch-free: batch prevents intermediate states" {
   let a = Signal::new(1)
   let b = Signal::new(2)
   let observations : Array[Int] = []
-
-  let _ = render_effect(fn() {
-    observations.push(a.get() + b.get())
-  })
+  let _ = render_effect(fn() { observations.push(a.get() + b.get()) })
 
   // Initial observation
   assert_eq(observations.length(), 1)
@@ -1378,7 +1363,6 @@ test "glitch-free: multiple sets in batch trigger once" {
   let sig = Signal::new(0)
   let compute_count = { val: 0 }
   let observed_values : Array[Int] = []
-
   let _ = render_effect(fn() {
     compute_count.val = compute_count.val + 1
     observed_values.push(sig.get())
@@ -1446,7 +1430,6 @@ test "glitch-free: no stale reads in diamond" {
   // Diamond shape: source -> left, right -> bottom
   let left = memo(fn() { source.get() * 2 })
   let right = memo(fn() { source.get() * 3 })
-
   let inconsistent_reads = { val: 0 }
   let bottom = memo(fn() {
     let l = left()
@@ -1466,7 +1449,6 @@ test "glitch-free: no stale reads in diamond" {
   source.set(2)
   assert_eq(bottom(), 10) // 4 + 6
   assert_eq(inconsistent_reads.val, 0)
-
   source.set(10)
   assert_eq(bottom(), 50) // 20 + 30
   assert_eq(inconsistent_reads.val, 0)
@@ -1484,12 +1466,8 @@ test "glitch-free: effect sees consistent snapshot" {
   let x = Signal::new(0)
   let y = Signal::new(0)
   let z = Signal::new(0)
-
   let snapshots : Array[(Int, Int, Int)] = []
-
-  let _ = render_effect(fn() {
-    snapshots.push((x.get(), y.get(), z.get()))
-  })
+  let _ = render_effect(fn() { snapshots.push((x.get(), y.get(), z.get())) })
 
   // Initial snapshot
   assert_eq(snapshots.length(), 1)
@@ -1514,11 +1492,7 @@ test "glitch-free: effect sees consistent snapshot" {
 test "glitch-free: nested batches" {
   let sig = Signal::new(0)
   let observations : Array[Int] = []
-
-  let _ = render_effect(fn() {
-    observations.push(sig.get())
-  })
-
+  let _ = render_effect(fn() { observations.push(sig.get()) })
   assert_eq(observations.length(), 1)
 
   // Nested batches
@@ -1526,9 +1500,7 @@ test "glitch-free: nested batches" {
     sig.set(1)
     batch(fn() {
       sig.set(2)
-      batch(fn() {
-        sig.set(3)
-      })
+      batch(fn() { sig.set(3) })
       sig.set(4)
     })
     sig.set(5)
@@ -1547,16 +1519,12 @@ test "glitch-free: nested batches" {
 test "glitch-free: memo caching" {
   let a = Signal::new(1)
   let b = Signal::new(2)
-
   let a_compute_count = { val: 0 }
   let a_doubled = memo(fn() {
     a_compute_count.val = a_compute_count.val + 1
     a.get() * 2
   })
-
-  let combined = memo(fn() {
-    a_doubled() + b.get()
-  })
+  let combined = memo(fn() { a_doubled() + b.get() })
 
   // Initial computation
   assert_eq(combined(), 4) // 2 + 2
@@ -1584,7 +1552,6 @@ test "glitch-free: conditional dependency transitions" {
   let use_a = Signal::new(true)
   let a = Signal::new(10)
   let b = Signal::new(20)
-
   let observations : Array[Int] = []
   let result = memo(fn() {
     let val = if use_a.get() { a.get() } else { b.get() }
@@ -1619,14 +1586,9 @@ test "glitch-free: cross-dependency updates" {
   let derived = Signal::new(0)
 
   // Effect that derives value from source
-  let _ = render_effect(fn() {
-    derived.set(source.get() * 2)
-  })
-
+  let _ = render_effect(fn() { derived.set(source.get() * 2) })
   let observations : Array[Int] = []
-  let _ = render_effect(fn() {
-    observations.push(derived.get())
-  })
+  let _ = render_effect(fn() { observations.push(derived.get()) })
 
   // Initial: source=0, derived=0
   assert_eq(observations.length(), 1)

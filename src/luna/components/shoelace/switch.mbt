@@ -20,12 +20,10 @@ pub fn sl_switch(
     Some(true) => attrs.push(("checked", @luna.attr_static("")))
     _ => ()
   }
-
   match disabled {
     Some(true) => attrs.push(("disabled", @luna.attr_static("")))
     _ => ()
   }
-
   match required {
     Some(true) => attrs.push(("required", @luna.attr_static("")))
     _ => ()
@@ -42,6 +40,5 @@ pub fn sl_switch(
     Some(h) => attrs.push(("help-text", @luna.attr_static(h)))
     None => ()
   }
-
   @luna.h("sl-switch", attrs, children)
 }

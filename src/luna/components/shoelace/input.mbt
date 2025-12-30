@@ -61,27 +61,22 @@ pub fn sl_input(
     Some(l) => attrs.push(("label", @luna.attr_static(l)))
     None => ()
   }
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
   }
-
   match value {
     Some(v) => attrs.push(("value", @luna.attr_static(v)))
     None => ()
   }
-
   match size {
     Some(s) => attrs.push(("size", @luna.attr_static(s.to_string())))
     None => ()
   }
-
   match help_text {
     Some(h) => attrs.push(("help-text", @luna.attr_static(h)))
     None => ()
   }
-
   match pattern {
     Some(p) => attrs.push(("pattern", @luna.attr_static(p)))
     None => ()
@@ -92,22 +87,18 @@ pub fn sl_input(
     Some(true) => attrs.push(("disabled", @luna.attr_static("")))
     _ => ()
   }
-
   match readonly_ {
     Some(true) => attrs.push(("readonly", @luna.attr_static("")))
     _ => ()
   }
-
   match required {
     Some(true) => attrs.push(("required", @luna.attr_static("")))
     _ => ()
   }
-
   match clearable {
     Some(true) => attrs.push(("clearable", @luna.attr_static("")))
     _ => ()
   }
-
   match password_toggle {
     Some(true) => attrs.push(("password-toggle", @luna.attr_static("")))
     _ => ()
@@ -118,11 +109,9 @@ pub fn sl_input(
     Some(n) => attrs.push(("minlength", @luna.attr_static(n.to_string())))
     None => ()
   }
-
   match maxlength {
     Some(n) => attrs.push(("maxlength", @luna.attr_static(n.to_string())))
     None => ()
   }
-
   @luna.h("sl-input", attrs, [])
 }
