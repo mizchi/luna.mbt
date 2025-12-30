@@ -881,6 +881,1150 @@ pub fn pre(
   create_element("pre", props, children)
 }
 
+///|
+/// Create an SVG element
+pub fn svg(
+  width? : String,
+  height? : String,
+  viewBox? : String,
+  xmlns? : String,
+  fill? : String,
+  stroke? : String,
+  role? : String,
+  aria_label? : String,
+  aria_labelledby? : String,
+  aria_describedby? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if viewBox is Some(v) {
+    props.push(("viewBox", Static(v)))
+  }
+  if xmlns is Some(v) {
+    props.push(("xmlns", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if role is Some(v) {
+    props.push(("role", Static(v)))
+  }
+  if aria_label is Some(v) {
+    props.push(("aria-label", Static(v)))
+  }
+  if aria_labelledby is Some(v) {
+    props.push(("aria-labelledby", Static(v)))
+  }
+  if aria_describedby is Some(v) {
+    props.push(("aria-describedby", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "svg", props, children)
+}
+
+///|
+/// Create an SVG title element for accessibility
+pub fn svg_title(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "title", props, children)
+}
+
+///|
+/// Create an SVG desc element for accessibility
+pub fn svg_desc(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "desc", props, children)
+}
+
+///|
+/// Create an SVG group element
+pub fn svg_g(
+  transform? : String,
+  fill? : String,
+  stroke? : String,
+  opacity? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if transform is Some(v) {
+    props.push(("transform", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if opacity is Some(v) {
+    props.push(("opacity", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "g", props, children)
+}
+
+///|
+/// Create an SVG defs element
+pub fn svg_defs(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "defs", props, children)
+}
+
+///|
+/// Create an SVG symbol element
+pub fn svg_symbol(
+  viewBox? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if viewBox is Some(v) {
+    props.push(("viewBox", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "symbol", props, children)
+}
+
+///|
+/// Create an SVG use element
+pub fn svg_use(
+  href? : String,
+  x? : String,
+  y? : String,
+  width? : String,
+  height? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if href is Some(v) {
+    props.push(("href", Static(v)))
+  }
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "use", props, [])
+}
+
+///|
+/// Create an SVG rect element
+pub fn svg_rect(
+  x? : String,
+  y? : String,
+  width? : String,
+  height? : String,
+  rx? : String,
+  ry? : String,
+  fill? : String,
+  stroke? : String,
+  stroke_width? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if rx is Some(v) {
+    props.push(("rx", Static(v)))
+  }
+  if ry is Some(v) {
+    props.push(("ry", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if stroke_width is Some(v) {
+    props.push(("stroke-width", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "rect", props, [])
+}
+
+///|
+/// Create an SVG circle element
+pub fn svg_circle(
+  cx? : String,
+  cy? : String,
+  r? : String,
+  fill? : String,
+  stroke? : String,
+  stroke_width? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if cx is Some(v) {
+    props.push(("cx", Static(v)))
+  }
+  if cy is Some(v) {
+    props.push(("cy", Static(v)))
+  }
+  if r is Some(v) {
+    props.push(("r", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if stroke_width is Some(v) {
+    props.push(("stroke-width", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "circle", props, [])
+}
+
+///|
+/// Create an SVG ellipse element
+pub fn svg_ellipse(
+  cx? : String,
+  cy? : String,
+  rx? : String,
+  ry? : String,
+  fill? : String,
+  stroke? : String,
+  stroke_width? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if cx is Some(v) {
+    props.push(("cx", Static(v)))
+  }
+  if cy is Some(v) {
+    props.push(("cy", Static(v)))
+  }
+  if rx is Some(v) {
+    props.push(("rx", Static(v)))
+  }
+  if ry is Some(v) {
+    props.push(("ry", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if stroke_width is Some(v) {
+    props.push(("stroke-width", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "ellipse", props, [])
+}
+
+///|
+/// Create an SVG line element
+pub fn svg_line(
+  x1? : String,
+  y1? : String,
+  x2? : String,
+  y2? : String,
+  stroke? : String,
+  stroke_width? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x1 is Some(v) {
+    props.push(("x1", Static(v)))
+  }
+  if y1 is Some(v) {
+    props.push(("y1", Static(v)))
+  }
+  if x2 is Some(v) {
+    props.push(("x2", Static(v)))
+  }
+  if y2 is Some(v) {
+    props.push(("y2", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if stroke_width is Some(v) {
+    props.push(("stroke-width", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "line", props, [])
+}
+
+///|
+/// Create an SVG polyline element
+pub fn svg_polyline(
+  points? : String,
+  fill? : String,
+  stroke? : String,
+  stroke_width? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if points is Some(v) {
+    props.push(("points", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if stroke_width is Some(v) {
+    props.push(("stroke-width", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "polyline", props, [])
+}
+
+///|
+/// Create an SVG polygon element
+pub fn svg_polygon(
+  points? : String,
+  fill? : String,
+  stroke? : String,
+  stroke_width? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if points is Some(v) {
+    props.push(("points", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if stroke_width is Some(v) {
+    props.push(("stroke-width", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "polygon", props, [])
+}
+
+///|
+/// Create an SVG path element
+pub fn svg_path(
+  d? : String,
+  fill? : String,
+  stroke? : String,
+  stroke_width? : String,
+  stroke_linecap? : String,
+  stroke_linejoin? : String,
+  fill_rule? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if d is Some(v) {
+    props.push(("d", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if stroke is Some(v) {
+    props.push(("stroke", Static(v)))
+  }
+  if stroke_width is Some(v) {
+    props.push(("stroke-width", Static(v)))
+  }
+  if stroke_linecap is Some(v) {
+    props.push(("stroke-linecap", Static(v)))
+  }
+  if stroke_linejoin is Some(v) {
+    props.push(("stroke-linejoin", Static(v)))
+  }
+  if fill_rule is Some(v) {
+    props.push(("fill-rule", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "path", props, [])
+}
+
+///|
+/// Create an SVG text element
+pub fn svg_text(
+  x? : String,
+  y? : String,
+  dx? : String,
+  dy? : String,
+  text_anchor? : String,
+  dominant_baseline? : String,
+  fill? : String,
+  font_size? : String,
+  font_family? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if dx is Some(v) {
+    props.push(("dx", Static(v)))
+  }
+  if dy is Some(v) {
+    props.push(("dy", Static(v)))
+  }
+  if text_anchor is Some(v) {
+    props.push(("text-anchor", Static(v)))
+  }
+  if dominant_baseline is Some(v) {
+    props.push(("dominant-baseline", Static(v)))
+  }
+  if fill is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if font_size is Some(v) {
+    props.push(("font-size", Static(v)))
+  }
+  if font_family is Some(v) {
+    props.push(("font-family", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "text", props, children)
+}
+
+///|
+/// Create an SVG tspan element
+pub fn svg_tspan(
+  x? : String,
+  y? : String,
+  dx? : String,
+  dy? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if dx is Some(v) {
+    props.push(("dx", Static(v)))
+  }
+  if dy is Some(v) {
+    props.push(("dy", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "tspan", props, children)
+}
+
+///|
+/// Create an SVG image element
+pub fn svg_image(
+  href? : String,
+  x? : String,
+  y? : String,
+  width? : String,
+  height? : String,
+  preserveAspectRatio? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if href is Some(v) {
+    props.push(("href", Static(v)))
+  }
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if preserveAspectRatio is Some(v) {
+    props.push(("preserveAspectRatio", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "image", props, [])
+}
+
+///|
+/// Create an SVG clipPath element
+pub fn svg_clip_path(
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "clipPath", props, children)
+}
+
+///|
+/// Create an SVG mask element
+pub fn svg_mask(
+  x? : String,
+  y? : String,
+  width? : String,
+  height? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "mask", props, children)
+}
+
+///|
+/// Create an SVG linearGradient element
+pub fn svg_linear_gradient(
+  x1? : String,
+  y1? : String,
+  x2? : String,
+  y2? : String,
+  gradientUnits? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x1 is Some(v) {
+    props.push(("x1", Static(v)))
+  }
+  if y1 is Some(v) {
+    props.push(("y1", Static(v)))
+  }
+  if x2 is Some(v) {
+    props.push(("x2", Static(v)))
+  }
+  if y2 is Some(v) {
+    props.push(("y2", Static(v)))
+  }
+  if gradientUnits is Some(v) {
+    props.push(("gradientUnits", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "linearGradient", props, children)
+}
+
+///|
+/// Create an SVG radialGradient element
+pub fn svg_radial_gradient(
+  cx? : String,
+  cy? : String,
+  r? : String,
+  fx? : String,
+  fy? : String,
+  gradientUnits? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if cx is Some(v) {
+    props.push(("cx", Static(v)))
+  }
+  if cy is Some(v) {
+    props.push(("cy", Static(v)))
+  }
+  if r is Some(v) {
+    props.push(("r", Static(v)))
+  }
+  if fx is Some(v) {
+    props.push(("fx", Static(v)))
+  }
+  if fy is Some(v) {
+    props.push(("fy", Static(v)))
+  }
+  if gradientUnits is Some(v) {
+    props.push(("gradientUnits", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "radialGradient", props, children)
+}
+
+///|
+/// Create an SVG stop element for gradients
+pub fn svg_stop(
+  offset? : String,
+  stop_color? : String,
+  stop_opacity? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if offset is Some(v) {
+    props.push(("offset", Static(v)))
+  }
+  if stop_color is Some(v) {
+    props.push(("stop-color", Static(v)))
+  }
+  if stop_opacity is Some(v) {
+    props.push(("stop-opacity", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "stop", props, [])
+}
+
+///|
+/// Create an SVG pattern element
+pub fn svg_pattern(
+  x? : String,
+  y? : String,
+  width? : String,
+  height? : String,
+  patternUnits? : String,
+  patternContentUnits? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if patternUnits is Some(v) {
+    props.push(("patternUnits", Static(v)))
+  }
+  if patternContentUnits is Some(v) {
+    props.push(("patternContentUnits", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "pattern", props, children)
+}
+
+///|
+/// Create an SVG filter element
+pub fn svg_filter(
+  x? : String,
+  y? : String,
+  width? : String,
+  height? : String,
+  filterUnits? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if filterUnits is Some(v) {
+    props.push(("filterUnits", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "filter", props, children)
+}
+
+///|
+/// Create an SVG animate element
+pub fn svg_animate(
+  attributeName? : String,
+  from? : String,
+  to? : String,
+  dur? : String,
+  repeatCount? : String,
+  fill_anim? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if attributeName is Some(v) {
+    props.push(("attributeName", Static(v)))
+  }
+  if from is Some(v) {
+    props.push(("from", Static(v)))
+  }
+  if to is Some(v) {
+    props.push(("to", Static(v)))
+  }
+  if dur is Some(v) {
+    props.push(("dur", Static(v)))
+  }
+  if repeatCount is Some(v) {
+    props.push(("repeatCount", Static(v)))
+  }
+  if fill_anim is Some(v) {
+    props.push(("fill", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "animate", props, [])
+}
+
+///|
+/// Create an SVG animateTransform element
+pub fn svg_animate_transform(
+  attributeName? : String,
+  type_? : String,
+  from? : String,
+  to? : String,
+  dur? : String,
+  repeatCount? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if attributeName is Some(v) {
+    props.push(("attributeName", Static(v)))
+  }
+  if type_ is Some(v) {
+    props.push(("type", Static(v)))
+  }
+  if from is Some(v) {
+    props.push(("from", Static(v)))
+  }
+  if to is Some(v) {
+    props.push(("to", Static(v)))
+  }
+  if dur is Some(v) {
+    props.push(("dur", Static(v)))
+  }
+  if repeatCount is Some(v) {
+    props.push(("repeatCount", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "animateTransform", props, [])
+}
+
+///|
+/// Create an SVG foreignObject element for embedding HTML
+pub fn svg_foreign_object(
+  x? : String,
+  y? : String,
+  width? : String,
+  height? : String,
+  id? : String,
+  class? : String,
+  style? : String,
+  dyn_class? : () -> String,
+  dyn_style? : () -> String,
+  on? : HandlerMap,
+  ref_? : ElementRef,
+  attrs? : Array[(String, Attr)],
+  dyn_attrs? : Array[(String, AttrValue)],
+  children : Array[DomNode],
+) -> DomNode {
+  let props = build_props(id, class, style, on, ref_, attrs, dyn_attrs~)
+  if x is Some(v) {
+    props.push(("x", Static(v)))
+  }
+  if y is Some(v) {
+    props.push(("y", Static(v)))
+  }
+  if width is Some(v) {
+    props.push(("width", Static(v)))
+  }
+  if height is Some(v) {
+    props.push(("height", Static(v)))
+  }
+  if dyn_class is Some(getter) {
+    props.push(("className", Dynamic(getter)))
+  }
+  if dyn_style is Some(getter) {
+    props.push(("style", Dynamic(getter)))
+  }
+  create_element_ns(svg_ns, "foreignObject", props, children)
+}
+
 // =============================================================================
 // Text helpers
 // =============================================================================

@@ -11,7 +11,11 @@
 
 import { execSync } from "child_process";
 import { writeFileSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // =============================================================================
 // Type Definitions
@@ -26,6 +30,8 @@ interface ElementAttr {
   hasDynamic?: boolean; // Generate dyn_ prefix version for this attr (DOM only)
 }
 
+type ElementNamespace = "html" | "svg";
+
 interface ElementDef {
   tag: string;
   fnName?: string; // Function name if different from tag (e.g., main_ for main)
@@ -33,6 +39,7 @@ interface ElementDef {
   attrs?: ElementAttr[];
   hasChildren?: boolean; // default: true
   isVoid?: boolean; // self-closing element (img, br, hr, input, meta, link)
+  namespace?: ElementNamespace; // default: "html"
 }
 
 // Attributes that should have dyn_ versions in all elements
@@ -210,6 +217,378 @@ const elements: ElementDef[] = [
   { tag: "em", description: "Create em element" },
   { tag: "code", description: "Create code element" },
   { tag: "pre", description: "Create pre element" },
+
+  // =============================================================================
+  // SVG Elements (namespace: svg)
+  // =============================================================================
+
+  // SVG container
+  {
+    tag: "svg",
+    description: "Create an SVG element",
+    attrs: [
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+      { name: "viewBox", type: "string" },
+      { name: "xmlns", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "role", type: "string" },
+      { name: "aria_label", type: "string", htmlAttr: "aria-label" },
+      { name: "aria_labelledby", type: "string", htmlAttr: "aria-labelledby" },
+      { name: "aria_describedby", type: "string", htmlAttr: "aria-describedby" },
+    ],
+    namespace: "svg",
+  },
+
+  // SVG accessibility elements
+  {
+    tag: "title",
+    fnName: "svg_title",
+    description: "Create an SVG title element for accessibility",
+    namespace: "svg",
+  },
+  {
+    tag: "desc",
+    fnName: "svg_desc",
+    description: "Create an SVG desc element for accessibility",
+    namespace: "svg",
+  },
+
+  // SVG grouping
+  {
+    tag: "g",
+    fnName: "svg_g",
+    description: "Create an SVG group element",
+    attrs: [
+      { name: "transform", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "opacity", type: "string" },
+    ],
+    namespace: "svg",
+  },
+  {
+    tag: "defs",
+    fnName: "svg_defs",
+    description: "Create an SVG defs element",
+    namespace: "svg",
+  },
+  {
+    tag: "symbol",
+    fnName: "svg_symbol",
+    description: "Create an SVG symbol element",
+    attrs: [
+      { name: "viewBox", type: "string" },
+    ],
+    namespace: "svg",
+  },
+  {
+    tag: "use",
+    fnName: "svg_use",
+    description: "Create an SVG use element",
+    attrs: [
+      { name: "href", type: "string" },
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+
+  // SVG shapes
+  {
+    tag: "rect",
+    fnName: "svg_rect",
+    description: "Create an SVG rect element",
+    attrs: [
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+      { name: "rx", type: "string" },
+      { name: "ry", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "stroke_width", type: "string", htmlAttr: "stroke-width" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "circle",
+    fnName: "svg_circle",
+    description: "Create an SVG circle element",
+    attrs: [
+      { name: "cx", type: "string" },
+      { name: "cy", type: "string" },
+      { name: "r", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "stroke_width", type: "string", htmlAttr: "stroke-width" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "ellipse",
+    fnName: "svg_ellipse",
+    description: "Create an SVG ellipse element",
+    attrs: [
+      { name: "cx", type: "string" },
+      { name: "cy", type: "string" },
+      { name: "rx", type: "string" },
+      { name: "ry", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "stroke_width", type: "string", htmlAttr: "stroke-width" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "line",
+    fnName: "svg_line",
+    description: "Create an SVG line element",
+    attrs: [
+      { name: "x1", type: "string" },
+      { name: "y1", type: "string" },
+      { name: "x2", type: "string" },
+      { name: "y2", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "stroke_width", type: "string", htmlAttr: "stroke-width" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "polyline",
+    fnName: "svg_polyline",
+    description: "Create an SVG polyline element",
+    attrs: [
+      { name: "points", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "stroke_width", type: "string", htmlAttr: "stroke-width" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "polygon",
+    fnName: "svg_polygon",
+    description: "Create an SVG polygon element",
+    attrs: [
+      { name: "points", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "stroke_width", type: "string", htmlAttr: "stroke-width" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "path",
+    fnName: "svg_path",
+    description: "Create an SVG path element",
+    attrs: [
+      { name: "d", type: "string" },
+      { name: "fill", type: "string" },
+      { name: "stroke", type: "string" },
+      { name: "stroke_width", type: "string", htmlAttr: "stroke-width" },
+      { name: "stroke_linecap", type: "string", htmlAttr: "stroke-linecap" },
+      { name: "stroke_linejoin", type: "string", htmlAttr: "stroke-linejoin" },
+      { name: "fill_rule", type: "string", htmlAttr: "fill-rule" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+
+  // SVG text
+  {
+    tag: "text",
+    fnName: "svg_text",
+    description: "Create an SVG text element",
+    attrs: [
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "dx", type: "string" },
+      { name: "dy", type: "string" },
+      { name: "text_anchor", type: "string", htmlAttr: "text-anchor" },
+      { name: "dominant_baseline", type: "string", htmlAttr: "dominant-baseline" },
+      { name: "fill", type: "string" },
+      { name: "font_size", type: "string", htmlAttr: "font-size" },
+      { name: "font_family", type: "string", htmlAttr: "font-family" },
+    ],
+    namespace: "svg",
+  },
+  {
+    tag: "tspan",
+    fnName: "svg_tspan",
+    description: "Create an SVG tspan element",
+    attrs: [
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "dx", type: "string" },
+      { name: "dy", type: "string" },
+    ],
+    namespace: "svg",
+  },
+
+  // SVG image
+  {
+    tag: "image",
+    fnName: "svg_image",
+    description: "Create an SVG image element",
+    attrs: [
+      { name: "href", type: "string" },
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+      { name: "preserveAspectRatio", type: "string" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+
+  // SVG clip and mask
+  {
+    tag: "clipPath",
+    fnName: "svg_clip_path",
+    description: "Create an SVG clipPath element",
+    namespace: "svg",
+  },
+  {
+    tag: "mask",
+    fnName: "svg_mask",
+    description: "Create an SVG mask element",
+    attrs: [
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+    ],
+    namespace: "svg",
+  },
+
+  // SVG gradients and patterns
+  {
+    tag: "linearGradient",
+    fnName: "svg_linear_gradient",
+    description: "Create an SVG linearGradient element",
+    attrs: [
+      { name: "x1", type: "string" },
+      { name: "y1", type: "string" },
+      { name: "x2", type: "string" },
+      { name: "y2", type: "string" },
+      { name: "gradientUnits", type: "string" },
+    ],
+    namespace: "svg",
+  },
+  {
+    tag: "radialGradient",
+    fnName: "svg_radial_gradient",
+    description: "Create an SVG radialGradient element",
+    attrs: [
+      { name: "cx", type: "string" },
+      { name: "cy", type: "string" },
+      { name: "r", type: "string" },
+      { name: "fx", type: "string" },
+      { name: "fy", type: "string" },
+      { name: "gradientUnits", type: "string" },
+    ],
+    namespace: "svg",
+  },
+  {
+    tag: "stop",
+    fnName: "svg_stop",
+    description: "Create an SVG stop element for gradients",
+    attrs: [
+      { name: "offset", type: "string" },
+      { name: "stop_color", type: "string", htmlAttr: "stop-color" },
+      { name: "stop_opacity", type: "string", htmlAttr: "stop-opacity" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "pattern",
+    fnName: "svg_pattern",
+    description: "Create an SVG pattern element",
+    attrs: [
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+      { name: "patternUnits", type: "string" },
+      { name: "patternContentUnits", type: "string" },
+    ],
+    namespace: "svg",
+  },
+
+  // SVG filters
+  {
+    tag: "filter",
+    fnName: "svg_filter",
+    description: "Create an SVG filter element",
+    attrs: [
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+      { name: "filterUnits", type: "string" },
+    ],
+    namespace: "svg",
+  },
+
+  // SVG animation
+  {
+    tag: "animate",
+    fnName: "svg_animate",
+    description: "Create an SVG animate element",
+    attrs: [
+      { name: "attributeName", type: "string" },
+      { name: "from", type: "string" },
+      { name: "to", type: "string" },
+      { name: "dur", type: "string" },
+      { name: "repeatCount", type: "string" },
+      { name: "fill_anim", type: "string", htmlAttr: "fill" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+  {
+    tag: "animateTransform",
+    fnName: "svg_animate_transform",
+    description: "Create an SVG animateTransform element",
+    attrs: [
+      { name: "attributeName", type: "string" },
+      { name: "type_", type: "string", htmlAttr: "type" },
+      { name: "from", type: "string" },
+      { name: "to", type: "string" },
+      { name: "dur", type: "string" },
+      { name: "repeatCount", type: "string" },
+    ],
+    namespace: "svg",
+    hasChildren: false,
+  },
+
+  // SVG foreign object
+  {
+    tag: "foreignObject",
+    fnName: "svg_foreign_object",
+    description: "Create an SVG foreignObject element for embedding HTML",
+    attrs: [
+      { name: "x", type: "string" },
+      { name: "y", type: "string" },
+      { name: "width", type: "string" },
+      { name: "height", type: "string" },
+    ],
+    namespace: "svg",
+  },
 ];
 
 // Elements only for browser DOM (not server_dom)
@@ -368,10 +747,16 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
   // Handle special content attr for script/style/title (content becomes text child, not HTML attr)
   const hasContentAttr = elem.attrs?.some((a) => a.name === "content");
 
+  // Determine which create function to use
+  const isSvg = elem.namespace === "svg";
+  const createFn = isSvg
+    ? (opts.target === "dom" ? `create_element_ns(svg_ns, "${elem.tag}"` : `create_svg_element("${elem.tag}"`)
+    : `create_element("${elem.tag}"`;
+
   if (hasContentAttr && contentAsTextChild && opts.target === "server_dom") {
     if (elem.tag === "style" || elem.tag === "title") {
       // style/title: content is required (positional param)
-      bodyLines.push("create_element(\"" + elem.tag + '", props, [text(content)])');
+      bodyLines.push(`${createFn}, props, [text(content)])`);
     } else if (elem.tag === "script") {
       // script: content is optional, no children param
       bodyLines.push("let script_children : Array[@luna.Node[Unit]] = if content is Some(c) {");
@@ -379,12 +764,12 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
       bodyLines.push("} else {");
       bodyLines.push("  []");
       bodyLines.push("}");
-      bodyLines.push(`create_element("${elem.tag}", props, script_children)`);
+      bodyLines.push(`${createFn}, props, script_children)`);
     }
   } else {
     // Normal element creation - void elements don't have children
     const childrenArg = hasChildren ? "children" : "[]";
-    bodyLines.push(`create_element("${elem.tag}", props, ${childrenArg})`);
+    bodyLines.push(`${createFn}, props, ${childrenArg})`);
   }
 
   // Join body with proper indentation
@@ -440,6 +825,17 @@ function generateHelpers(opts: GeneratorOptions): string {
 ///|
 /// Create a server-side element
 fn create_element(
+  tag : String,
+  attrs : Array[(String, @luna.Attr[Unit])],
+  children : Array[@luna.Node[Unit]]
+) -> @luna.Node[Unit] {
+  @luna.h(tag, attrs, children)
+}
+
+///|
+/// Create an SVG element (same as create_element but marked for clarity)
+/// Note: SVG namespace is handled during rendering, VNode is namespace-agnostic
+fn create_svg_element(
   tag : String,
   attrs : Array[(String, @luna.Attr[Unit])],
   children : Array[@luna.Node[Unit]]
@@ -515,6 +911,10 @@ pub fn attr(value : String) -> @luna.Attr[Unit] {
 function generateFile(opts: GeneratorOptions): string {
   const relevantElements = elements.filter((e) => {
     const fnName = e.fnName ?? e.tag;
+    // SVG elements are available in both DOM and server_dom
+    if (e.namespace === "svg") {
+      return true;
+    }
     if (opts.target === "dom") {
       return !serverOnlyElements.has(fnName) && !serverOnlyElements.has(e.tag);
     } else {
@@ -646,7 +1046,7 @@ pub fn fragment(children : Array[DomNode]) -> DomNode {
       let doc = @js_dom.document()
       let frag = doc.createDocumentFragment()
       for child in children {
-        frag.as_node().appendChild(child.to_jsdom()) |> ignore
+        frag.as_node().appendChild(child.to_dom()) |> ignore
       }
       Raw(frag.as_node())
     }
@@ -658,14 +1058,14 @@ pub fn fragment(children : Array[DomNode]) -> DomNode {
 function main() {
   const rootDir = join(__dirname, "..");
 
-  // Generate server_dom/element elements
-  const serverDomPath = join(rootDir, "src/platform/server_dom/element/__generated.mbt");
+  // Generate static_dom/element elements (server-side SSR)
+  const serverDomPath = join(rootDir, "src/luna/static_dom/element/__generated.mbt");
   const serverDomContent = generateFile({ target: "server_dom" });
   writeFileSync(serverDomPath, serverDomContent);
   console.log(`Generated: ${serverDomPath}`);
 
-  // Generate dom/element elements
-  const domPath = join(rootDir, "src/platform/dom/element/__generated.mbt");
+  // Generate dom/element elements (browser-side)
+  const domPath = join(rootDir, "src/luna/dom/element/__generated.mbt");
   const domContent = generateFile({ target: "dom" }) + generateDomTextHelpers();
   writeFileSync(domPath, domContent);
   console.log(`Generated: ${domPath}`);
