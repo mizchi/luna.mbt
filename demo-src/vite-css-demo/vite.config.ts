@@ -8,6 +8,11 @@ export default defineConfig({
       // Absolute paths work
       src: [path.resolve(__dirname, "../../src/examples/todomvc")],
       verbose: true,
+      // Enable experimental CSS co-occurrence optimization
+      experimental: {
+        optimize: true,
+        optimizeMinFrequency: 2,
+      },
     }),
   ],
 });

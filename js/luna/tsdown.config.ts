@@ -31,6 +31,16 @@ export default defineConfig([
     },
   },
   {
+    entry: ["src/css/runtime.ts"],
+    format: ["esm"],
+    dts: true,
+    outDir: "dist/css",
+    minify: false,
+    outExtensions() {
+      return { js: ".js", dts: ".d.ts" };
+    },
+  },
+  {
     entry: ["src/vite-plugin.ts"],
     format: ["esm"],
     dts: true,

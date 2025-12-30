@@ -8,6 +8,7 @@ import type { Plugin, ResolvedConfig, HtmlTagDescriptor } from "vite";
 import fs from "fs";
 import path from "path";
 import { extract, extractSplit, type SplitExtractResult } from "./css/extract.js";
+import { optimize as optimizeCss, optimizeHtml, type OptimizeOptions } from "./css/optimizer.js";
 
 export type OutputMode = "inline" | "external" | "auto";
 
@@ -70,6 +71,30 @@ export interface LunaCssPluginOptions {
    * @default true
    */
   injectRuntime?: boolean;
+
+  /**
+   * Experimental features
+   */
+  experimental?: {
+    /**
+     * Enable CSS co-occurrence optimization
+     * Merges frequently co-occurring classes into single combined classes
+     * @default false
+     */
+    optimize?: boolean;
+
+    /**
+     * Minimum frequency for a pattern to be merged
+     * @default 2
+     */
+    optimizeMinFrequency?: number;
+
+    /**
+     * Maximum pattern size to consider for merging
+     * @default 5
+     */
+    optimizeMaxPatternSize?: number;
+  };
 }
 
 // Markers for CSS injection (legacy mode)
@@ -244,18 +269,31 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
     sharedThreshold = 3,
     devRuntime,
     injectRuntime = true,
+    experimental = {},
   } = options;
+
+  const {
+    optimize: enableOptimize = false,
+    optimizeMinFrequency = 2,
+    optimizeMaxPatternSize = 5,
+  } = experimental;
 
   const srcDirs = Array.isArray(src) ? src : [src];
   let config: ResolvedConfig;
   let cachedCss: string | null = null;
   let cachedSplitResult: SplitExtractResult | null = null;
+  let cachedMapping: Record<string, string> = {};
+  let cachedMergeMap: Map<string, string> | null = null;
+  let cachedOptimizedCss: string | null = null;
   let lastExtractTime = 0;
   // Capture cwd at plugin creation time (before Vite changes it)
   const pluginCwd = process.cwd();
 
+  // Store HTML files for optimization analysis
+  let htmlFiles: string[] = [];
+
   const log = (msg: string) => {
-    if (verbose) {
+    if (verbose || enableOptimize) {
       console.log(`[luna-css] ${msg}`);
     }
   };
@@ -275,20 +313,23 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
   };
 
   // Extract CSS (combined mode)
-  const extractCss = (): string => {
+  const extractCss = (): { css: string; mapping: Record<string, string> } => {
     const now = Date.now();
     // Cache for 1 second in dev mode
     if (cachedCss && now - lastExtractTime < 1000) {
-      return cachedCss;
+      return { css: cachedCss, mapping: cachedMapping };
     }
 
     let allCss = "";
     const seenRules = new Set<string>();
+    const combinedMapping: Record<string, string> = {};
 
     for (const dir of srcDirs) {
       const fullPath = resolveSrcDir(dir);
       if (fs.existsSync(fullPath)) {
-        const { css } = extract(fullPath, { warn: false });
+        const { css, mapping } = extract(fullPath, { warn: false });
+        // Merge mapping
+        Object.assign(combinedMapping, mapping);
         // Deduplicate rules
         for (const rule of css.split("}")) {
           const trimmed = rule.trim();
@@ -303,9 +344,114 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
     }
 
     cachedCss = allCss;
+    cachedMapping = combinedMapping;
     lastExtractTime = now;
     log(`Extracted ${allCss.length} bytes of CSS from ${srcDirs.join(", ")}`);
-    return allCss;
+    return { css: allCss, mapping: combinedMapping };
+  };
+
+  // Find all HTML files in a directory
+  const findHtmlFiles = (dir: string): string[] => {
+    const files: string[] = [];
+    const walk = (currentDir: string) => {
+      if (!fs.existsSync(currentDir)) return;
+      const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(currentDir, entry.name);
+        if (entry.isDirectory() && !["node_modules", ".git", "dist", "target"].includes(entry.name)) {
+          walk(fullPath);
+        } else if (entry.isFile() && entry.name.endsWith(".html")) {
+          files.push(fullPath);
+        }
+      }
+    };
+    walk(dir);
+    return files;
+  };
+
+  // Run CSS optimization based on HTML class usage
+  const runOptimization = (): { css: string; mergeMap: Map<string, string> } | null => {
+    if (!enableOptimize) {
+      return null;
+    }
+
+    // Get CSS and mapping
+    const { css, mapping } = extractCss();
+    if (!css) {
+      return null;
+    }
+
+    // Collect all HTML content from project
+    const configDir = config.configFile ? path.dirname(config.configFile) : pluginCwd;
+    const htmlFilePaths = findHtmlFiles(configDir);
+
+    if (htmlFilePaths.length === 0) {
+      log("[experimental] No HTML files found for optimization");
+      return null;
+    }
+
+    // Read all HTML content
+    let combinedHtml = "";
+    for (const htmlPath of htmlFilePaths) {
+      try {
+        combinedHtml += fs.readFileSync(htmlPath, "utf-8");
+      } catch (e) {
+        // Ignore read errors
+      }
+    }
+
+    if (!combinedHtml) {
+      return null;
+    }
+
+    log(`[experimental] Running CSS co-occurrence optimization on ${htmlFilePaths.length} HTML file(s)...`);
+
+    const optimizeResult = optimizeCss(css, combinedHtml, mapping, {
+      minFrequency: optimizeMinFrequency,
+      maxPatternSize: optimizeMaxPatternSize,
+      verbose,
+    });
+
+    if (optimizeResult.patterns.length > 0) {
+      log(`[experimental] Merged ${optimizeResult.stats.mergedPatterns} patterns`);
+      log(`[experimental] Estimated savings: ${optimizeResult.stats.estimatedBytesSaved} bytes`);
+
+      for (const pattern of optimizeResult.patterns) {
+        log(`[experimental]   ${pattern.originalClasses.join(" ")} -> ${pattern.mergedClass} (${pattern.frequency}x)`);
+      }
+
+      return {
+        css: optimizeResult.css,
+        mergeMap: optimizeResult.mergeMap,
+      };
+    }
+
+    log("[experimental] No patterns found for optimization");
+    return null;
+  };
+
+  // Get optimized CSS (cached)
+  const getOptimizedCss = (): string => {
+    // If optimization is disabled, return raw CSS
+    if (!enableOptimize) {
+      return extractCss().css;
+    }
+
+    // If already computed, return cached
+    if (cachedOptimizedCss !== null && cachedMergeMap !== null) {
+      return cachedOptimizedCss;
+    }
+
+    // Run optimization
+    const result = runOptimization();
+    if (result) {
+      cachedOptimizedCss = result.css;
+      cachedMergeMap = result.mergeMap;
+      return result.css;
+    }
+
+    // Fallback to raw CSS
+    return extractCss().css;
   };
 
   // Extract CSS with splitting
@@ -421,7 +567,12 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
           const result = extractSplitCss();
           return result.combined;
         }
-        return extractCss();
+        // Use optimized CSS in build mode
+        const isBuild = config.command === "build";
+        if (isBuild && enableOptimize) {
+          return getOptimizedCss();
+        }
+        return extractCss().css;
       }
 
       // Shared CSS only (for split mode)
@@ -479,7 +630,7 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
         }
 
         // Normal mode
-        const css = extractCss();
+        const { css } = extractCss();
         if (!css) {
           // If no CSS and dev runtime enabled, inject runtime loader
           if (shouldInjectRuntime) {
@@ -488,10 +639,24 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
           return html;
         }
 
-        const actualMode = determineMode(css);
-        log(`Mode: ${actualMode}, Build: ${isBuild} (${css.length} bytes)`);
+        let finalCss = css;
+        let finalHtml = html;
 
-        let result = injectInline(html, css);
+        // Apply experimental optimization if enabled
+        if (enableOptimize && isBuild) {
+          // Get optimized CSS (this will run optimization and cache it)
+          finalCss = getOptimizedCss();
+
+          // Apply HTML transformation using cached merge map
+          if (cachedMergeMap && cachedMergeMap.size > 0) {
+            finalHtml = optimizeHtml(html, cachedMergeMap);
+          }
+        }
+
+        const actualMode = determineMode(finalCss);
+        log(`Mode: ${actualMode}, Build: ${isBuild} (${finalCss.length} bytes)`);
+
+        let result = injectInline(finalHtml, finalCss);
 
         // Inject dev runtime script in development mode
         if (shouldInjectRuntime) {
@@ -506,7 +671,7 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.url === `/${cssFileName}.css`) {
-          const css = extractCss();
+          const { css } = extractCss();
           res.setHeader("Content-Type", "text/css");
           res.setHeader("Cache-Control", "no-cache");
           res.end(css);
@@ -526,9 +691,11 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
       server.watcher.on("change", (file) => {
         if (file.endsWith(".mbt")) {
           log(`File changed: ${file}`);
-          // Invalidate both caches
+          // Invalidate all caches
           cachedCss = null;
           cachedSplitResult = null;
+          cachedMergeMap = null;
+          cachedOptimizedCss = null;
 
           // Invalidate virtual modules
           const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_CSS_ID);
