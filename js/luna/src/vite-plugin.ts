@@ -59,9 +59,17 @@ export interface LunaCssPluginOptions {
   /**
    * Include runtime CSS fallback in dev mode
    * Generates CSS dynamically for missing rules with console warnings
+   * The runtime uses import.meta.env.DEV for tree-shaking in production
    * @default true in dev, false in build
    */
   devRuntime?: boolean;
+
+  /**
+   * Inject dev runtime script into HTML automatically
+   * When false, users must manually import "virtual:luna-css-runtime"
+   * @default true
+   */
+  injectRuntime?: boolean;
 }
 
 // Markers for CSS injection (legacy mode)
@@ -78,13 +86,14 @@ const RESOLVED_VIRTUAL_RUNTIME_ID = "\0" + VIRTUAL_RUNTIME_ID;
 
 /**
  * Generate inline dev runtime code
- * This is a minimal version that warns on missing CSS and generates rules dynamically
+ * Uses import.meta.env.DEV for tree-shaking in production builds
  */
 function generateRuntimeCode(): string {
   return `
 // Luna CSS Dev Runtime - Auto-generated
-const state = { rules: new Map(), styleEl: null, initialized: false };
+// Production: DCE removes dev-only code via import.meta.env.DEV
 
+// Hash functions (shared between dev and prod for class name generation)
 function djb2Hash(s) {
   let hash = 5381;
   for (let i = 0; i < s.length; i++) {
@@ -104,40 +113,69 @@ function toBase36(n) {
 
 function hashClassName(decl) { return "_" + toBase36(djb2Hash(decl)); }
 
-function init() {
-  if (state.initialized || typeof document === "undefined") return;
-  state.styleEl = document.createElement("style");
-  state.styleEl.id = "luna-dev-css";
-  document.head.appendChild(state.styleEl);
-  state.initialized = true;
-}
+// Dev-only: runtime CSS injection
+let devState;
+let devInject;
 
-function inject(className, rule) {
-  init();
-  if (state.rules.has(className)) return;
-  state.rules.set(className, rule);
-  if (state.styleEl) state.styleEl.textContent += rule;
-  console.warn("[luna-css] Generated at runtime:", rule, "\\n  → Run 'luna css extract' to pre-generate");
+if (import.meta.env.DEV) {
+  devState = { rules: new Map(), styleEl: null, initialized: false };
+
+  const init = () => {
+    if (devState.initialized || typeof document === "undefined") return;
+    devState.styleEl = document.createElement("style");
+    devState.styleEl.id = "luna-dev-css";
+    document.head.appendChild(devState.styleEl);
+    devState.initialized = true;
+  };
+
+  devInject = (className, rule) => {
+    init();
+    if (devState.rules.has(className)) return;
+    devState.rules.set(className, rule);
+    if (devState.styleEl) devState.styleEl.textContent += rule;
+    console.warn("[luna-css] Generated at runtime:", rule, "\\n  → Run 'luna css extract' to pre-generate");
+  };
 }
 
 export function css(prop, val) {
   const decl = prop + ":" + val;
   const cls = hashClassName(decl);
-  inject(cls, "." + cls + "{" + decl + "}");
+  if (import.meta.env.DEV && devInject) {
+    devInject(cls, "." + cls + "{" + decl + "}");
+  }
   return cls;
 }
 
 export function styles(pairs) { return pairs.map(([p, v]) => css(p, v)).join(" "); }
+
 export function on(pseudo, prop, val) {
   const key = pseudo + ":" + prop + ":" + val;
   const cls = hashClassName(key);
-  inject(cls, "." + cls + pseudo + "{" + prop + ":" + val + "}");
+  if (import.meta.env.DEV && devInject) {
+    devInject(cls, "." + cls + pseudo + "{" + prop + ":" + val + "}");
+  }
   return cls;
 }
+
 export function hover(p, v) { return on(":hover", p, v); }
 export function focus(p, v) { return on(":focus", p, v); }
 export function active(p, v) { return on(":active", p, v); }
 export function combine(classes) { return classes.filter(Boolean).join(" "); }
+
+// Dev-only utilities
+export function getGeneratedCount() {
+  if (import.meta.env.DEV && devState) {
+    return devState.rules.size;
+  }
+  return 0;
+}
+
+export function getGeneratedCss() {
+  if (import.meta.env.DEV && devState) {
+    return Array.from(devState.rules.values()).join("");
+  }
+  return "";
+}
 `;
 }
 
@@ -205,6 +243,7 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
     split = false,
     sharedThreshold = 3,
     devRuntime,
+    injectRuntime = true,
   } = options;
 
   const srcDirs = Array.isArray(src) ? src : [src];
@@ -424,6 +463,7 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
         const isBuild = config.command === "build";
         const isDev = !isBuild;
         const useDevRuntime = devRuntime ?? isDev;
+        const shouldInjectRuntime = injectRuntime && useDevRuntime && isDev;
 
         // In split mode during build, we'll handle CSS differently
         if (split && isBuild) {
@@ -442,7 +482,7 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
         const css = extractCss();
         if (!css) {
           // If no CSS and dev runtime enabled, inject runtime loader
-          if (useDevRuntime && isDev) {
+          if (shouldInjectRuntime) {
             return injectDevRuntime(html);
           }
           return html;
@@ -454,7 +494,7 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
         let result = injectInline(html, css);
 
         // Inject dev runtime script in development mode
-        if (useDevRuntime && isDev) {
+        if (shouldInjectRuntime) {
           result = injectDevRuntime(result);
         }
 
