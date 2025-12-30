@@ -73,7 +73,7 @@ fn remove_subsumed_patterns(
   patterns : Array[FrequentPattern],
 ) -> Array[FrequentPattern] {
   let result : Array[FrequentPattern] = []
-  for i = 0, len = patterns.length(); i < len; i = i + 1 {
+  for i = 0; i < patterns.length(); i = i + 1 {
     let pattern = patterns[i]
     let dominated = is_dominated(pattern, patterns, i)
     if not(dominated) {
@@ -91,7 +91,7 @@ fn is_dominated(
   self_index : Int,
 ) -> Bool {
   let pattern_set = set_from_array(pattern.classes)
-  for i = 0, len = all_patterns.length(); i < len; i = i + 1 {
+  for i = 0; i < all_patterns.length(); i = i + 1 {
     if i != self_index {
       let other = all_patterns[i]
       // Check if other is a superset with similar or higher frequency

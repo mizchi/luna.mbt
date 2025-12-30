@@ -23,15 +23,6 @@ fn get_box_shorthand_def(shorthand : String) -> ShorthandDef {
 }
 
 ///|
-/// Get border shorthand definition
-fn get_border_shorthand_def() -> ShorthandDef {
-  {
-    shorthand: "border",
-    longhands: ["border-width", "border-style", "border-color"],
-  }
-}
-
-///|
 /// Get border-radius shorthand definition
 fn get_border_radius_shorthand_def() -> ShorthandDef {
   {
@@ -82,10 +73,10 @@ fn split_css_value(value : String) -> Array[String] {
     let c = value[i]
     if c == paren_open {
       in_parens = in_parens + 1
-      current.write_char(Char::from_int(c.to_int()))
+      current.write_char(c.to_int().unsafe_to_char())
     } else if c == paren_close {
       in_parens = in_parens - 1
-      current.write_char(Char::from_int(c.to_int()))
+      current.write_char(c.to_int().unsafe_to_char())
     } else if c == space && in_parens == 0 {
       let token = current.to_string()
       if token.length() > 0 {
@@ -93,7 +84,7 @@ fn split_css_value(value : String) -> Array[String] {
       }
       current.reset()
     } else {
-      current.write_char(Char::from_int(c.to_int()))
+      current.write_char(c.to_int().unsafe_to_char())
     }
   }
   let final_token = current.to_string()

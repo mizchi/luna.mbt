@@ -11,7 +11,6 @@ using @luna {
   attr_dynamic,
   attr_handler,
   handler,
-  type Node,
 }
 
 // Button-specific styles

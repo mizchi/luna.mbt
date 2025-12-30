@@ -2,16 +2,7 @@
 // Uses @css for styling
 
 ///|
-using @luna {
-  fragment,
-  h,
-  text,
-  text_dyn,
-  attr_static,
-  attr_handler,
-  handler,
-  type Node,
-}
+using @luna {fragment, h, text, text_dyn, attr_static, attr_handler, handler}
 
 // Card-specific styles
 

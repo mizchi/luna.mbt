@@ -42,14 +42,14 @@ fn to_base36(n : UInt) -> String {
   let buf = StringBuilder::new()
   while num > 0 {
     let idx = (num % 36).reinterpret_as_int()
-    buf.write_string(base36_chars.substring(start=idx, end=idx + 1))
+    buf.write_char(base36_chars[idx].to_int().unsafe_to_char())
     num = num / 36
   }
   // Reverse the string
   let s = buf.to_string()
   let result = StringBuilder::new()
   for i = s.length() - 1; i >= 0; i = i - 1 {
-    result.write_string(s.substring(start=i, end=i + 1))
+    result.write_char(s[i].to_int().unsafe_to_char())
   }
   result.to_string()
 }
