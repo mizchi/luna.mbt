@@ -2,7 +2,7 @@
 
 完了したタスクは `docs/internal/done/` に移動済み。
 
-- [ ] lit-html 互換の Tagged Template Literal Mode
+- [ ] js/luna: lit-html 互換の Tagged Template Literal Mode
 - [x] SVG builder が title, desc 対応するように、children を取れるようにする
   - 27個のSVGビルダー関数を追加 (`__generated_svg.mbt`)
   - `svg_title()`, `svg_desc()` でアクセシビリティ対応

@@ -1,0 +1,118 @@
+/**
+ * Luna Input CSS
+ *
+ * Light DOM styling for input component.
+ * Zero CLS - all sizes are pre-determined.
+ */
+
+/* Base input wrapper */
+.luna-input {
+  display: block;
+  font-family: var(--luna-font-sans, system-ui, sans-serif);
+}
+
+/* Label */
+.luna-input__label {
+  display: block;
+  margin-bottom: var(--luna-spacing-xs, 0.25rem);
+  font-size: var(--luna-font-size-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--luna-color-neutral-700, #334155);
+}
+
+.luna-input__required {
+  color: var(--luna-color-danger-600, #dc2626);
+}
+
+/* Input container */
+.luna-input__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Input control */
+.luna-input__control {
+  flex: 1;
+  width: 100%;
+  font-family: inherit;
+  border: 1px solid var(--luna-color-neutral-300, #cbd5e1);
+  background: white;
+  color: var(--luna-color-neutral-900, #0f172a);
+  transition: all var(--luna-transition-fast, 150ms ease);
+}
+
+.luna-input__control::placeholder {
+  color: var(--luna-color-neutral-400, #94a3b8);
+}
+
+.luna-input__control:focus {
+  outline: none;
+  border-color: var(--luna-color-primary-500, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.luna-input__control:hover:not(:focus):not(:disabled) {
+  border-color: var(--luna-color-neutral-400, #94a3b8);
+}
+
+/* Size variants */
+.luna-input--small .luna-input__control {
+  height: 32px;
+  padding: 0 var(--luna-spacing-sm, 0.5rem);
+  font-size: var(--luna-font-size-sm, 0.875rem);
+  border-radius: var(--luna-border-radius-sm, 0.25rem);
+}
+
+.luna-input--medium .luna-input__control {
+  height: 40px;
+  padding: 0 var(--luna-spacing-md, 1rem);
+  font-size: var(--luna-font-size-md, 1rem);
+  border-radius: var(--luna-border-radius-md, 0.375rem);
+}
+
+.luna-input--large .luna-input__control {
+  height: 48px;
+  padding: 0 var(--luna-spacing-md, 1rem);
+  font-size: var(--luna-font-size-lg, 1.125rem);
+  border-radius: var(--luna-border-radius-lg, 0.5rem);
+}
+
+/* Help text */
+.luna-input__help {
+  margin-top: var(--luna-spacing-xs, 0.25rem);
+  font-size: 0.75rem;
+  color: var(--luna-color-neutral-500, #64748b);
+}
+
+/* Error state */
+.luna-input--error .luna-input__control {
+  border-color: var(--luna-color-danger-500, #ef4444);
+}
+
+.luna-input--error .luna-input__control:focus {
+  border-color: var(--luna-color-danger-500, #ef4444);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.luna-input__error {
+  margin-top: var(--luna-spacing-xs, 0.25rem);
+  font-size: 0.75rem;
+  color: var(--luna-color-danger-600, #dc2626);
+}
+
+/* Disabled state */
+.luna-input--disabled .luna-input__label {
+  color: var(--luna-color-neutral-400, #94a3b8);
+}
+
+.luna-input--disabled .luna-input__control {
+  background: var(--luna-color-neutral-100, #f1f5f9);
+  color: var(--luna-color-neutral-400, #94a3b8);
+  cursor: not-allowed;
+}
+
+/* Read-only state */
+.luna-input__control[readonly] {
+  background: var(--luna-color-neutral-50, #f8fafc);
+}

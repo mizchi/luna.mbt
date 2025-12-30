@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoelace vs Luna Components - CLS Comparison</title>
+
+  <!-- Luna Component CSS (no external dependencies, zero CLS) -->
+  <link rel="stylesheet" href="src/ui/button.css">
+  <link rel="stylesheet" href="src/ui/input.css">
+
+  <!-- Shoelace CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+
+  <style>
+    body {
+      font-family: var(--luna-font-sans, system-ui, sans-serif);
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .panel {
+      padding: 1.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid;
+    }
+
+    .panel--shoelace h2 {
+      border-color: #0ea5e9;
+      color: #0ea5e9;
+    }
+
+    .panel--luna h2 {
+      border-color: #8b5cf6;
+      color: #8b5cf6;
+    }
+
+    .demo-row {
+      margin-bottom: 1rem;
+    }
+
+    .demo-row h3 {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* CLS indicator */
+    .cls-indicator {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 0.75rem 1rem;
+      background: #1e293b;
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 1000;
+      font-family: monospace;
+    }
+
+    .cls-indicator .label {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .cls-indicator .value {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .cls-indicator .good { color: #22c55e; }
+    .cls-indicator .warning { color: #f59e0b; }
+    .cls-indicator .bad { color: #ef4444; }
+
+    /* Placeholder for undefined Shoelace elements */
+    sl-button:not(:defined) {
+      display: inline-block;
+      min-height: 40px;
+      min-width: 80px;
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+
+    sl-input:not(:defined) {
+      display: block;
+      min-height: 56px;
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 2rem 0;
+    }
+
+    .timing-info {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    #signal-demo {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="cls-indicator">
+    <div class="label">CLS Score</div>
+    <div class="value" id="cls-value">0.0000</div>
+  </div>
+
+  <h1>Shoelace vs Luna Components - CLS Comparison</h1>
+  <p>左: Shoelace (Web Components, Shadow DOM)、右: Luna Native (Light DOM, zero CLS)</p>
+
+  <div class="comparison-grid">
+    <!-- Shoelace Panel -->
+    <div class="panel panel--shoelace">
+      <h2>Shoelace Buttons</h2>
+
+      <div class="demo-row">
+        <h3>Variants</h3>
+        <div class="button-group">
+          <sl-button>Default</sl-button>
+          <sl-button variant="primary">Primary</sl-button>
+          <sl-button variant="success">Success</sl-button>
+          <sl-button variant="warning">Warning</sl-button>
+          <sl-button variant="danger">Danger</sl-button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Sizes</h3>
+        <div class="button-group">
+          <sl-button size="small">Small</sl-button>
+          <sl-button size="medium">Medium</sl-button>
+          <sl-button size="large">Large</sl-button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Outline</h3>
+        <div class="button-group">
+          <sl-button variant="primary" outline>Primary</sl-button>
+          <sl-button variant="success" outline>Success</sl-button>
+          <sl-button variant="danger" outline>Danger</sl-button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Pill</h3>
+        <div class="button-group">
+          <sl-button variant="primary" pill>Pill</sl-button>
+          <sl-button variant="success" pill>Pill</sl-button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>States</h3>
+        <div class="button-group">
+          <sl-button variant="primary" disabled>Disabled</sl-button>
+          <sl-button variant="primary" loading>Loading</sl-button>
+        </div>
+      </div>
+
+      <div class="timing-info" id="shoelace-timing">
+        Shoelace load time: measuring...
+      </div>
+    </div>
+
+    <!-- Luna Panel -->
+    <div class="panel panel--luna">
+      <h2>Luna Native Buttons</h2>
+
+      <div class="demo-row">
+        <h3>Variants</h3>
+        <div class="button-group">
+          <button class="luna-btn luna-btn--default luna-btn--medium">Default</button>
+          <button class="luna-btn luna-btn--primary luna-btn--medium">Primary</button>
+          <button class="luna-btn luna-btn--success luna-btn--medium">Success</button>
+          <button class="luna-btn luna-btn--warning luna-btn--medium">Warning</button>
+          <button class="luna-btn luna-btn--danger luna-btn--medium">Danger</button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Sizes</h3>
+        <div class="button-group">
+          <button class="luna-btn luna-btn--primary luna-btn--small">Small</button>
+          <button class="luna-btn luna-btn--primary luna-btn--medium">Medium</button>
+          <button class="luna-btn luna-btn--primary luna-btn--large">Large</button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Outline</h3>
+        <div class="button-group">
+          <button class="luna-btn luna-btn--primary luna-btn--outline luna-btn--medium">Primary</button>
+          <button class="luna-btn luna-btn--success luna-btn--outline luna-btn--medium">Success</button>
+          <button class="luna-btn luna-btn--danger luna-btn--outline luna-btn--medium">Danger</button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Pill</h3>
+        <div class="button-group">
+          <button class="luna-btn luna-btn--primary luna-btn--pill luna-btn--medium">Pill</button>
+          <button class="luna-btn luna-btn--success luna-btn--pill luna-btn--medium">Pill</button>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>States</h3>
+        <div class="button-group">
+          <button class="luna-btn luna-btn--primary luna-btn--disabled luna-btn--medium" disabled>Disabled</button>
+          <button class="luna-btn luna-btn--primary luna-btn--loading luna-btn--medium">
+            <span class="luna-btn__spinner" aria-hidden="true"></span>
+            <span class="luna-btn__content">Loading</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="timing-info" id="luna-timing">
+        Luna load time: immediate (CSS only)
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>Input Comparison</h2>
+  <div class="comparison-grid">
+    <!-- Shoelace Input Panel -->
+    <div class="panel panel--shoelace">
+      <h2>Shoelace Inputs</h2>
+
+      <div class="demo-row">
+        <h3>Basic</h3>
+        <sl-input label="Username" placeholder="Enter username"></sl-input>
+      </div>
+
+      <div class="demo-row">
+        <h3>Password</h3>
+        <sl-input type="password" label="Password" password-toggle></sl-input>
+      </div>
+
+      <div class="demo-row">
+        <h3>With Help Text</h3>
+        <sl-input label="Email" type="email" help-text="We'll never share your email"></sl-input>
+      </div>
+
+      <div class="demo-row">
+        <h3>Sizes</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <sl-input size="small" placeholder="Small"></sl-input>
+          <sl-input size="medium" placeholder="Medium"></sl-input>
+          <sl-input size="large" placeholder="Large"></sl-input>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>States</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <sl-input label="Disabled" disabled value="Can't edit"></sl-input>
+          <sl-input label="Readonly" readonly value="Read only"></sl-input>
+        </div>
+      </div>
+    </div>
+
+    <!-- Luna Input Panel -->
+    <div class="panel panel--luna">
+      <h2>Luna Native Inputs</h2>
+
+      <div class="demo-row">
+        <h3>Basic</h3>
+        <div class="luna-input luna-input--medium">
+          <label class="luna-input__label" for="luna-user">Username</label>
+          <div class="luna-input__container">
+            <input id="luna-user" class="luna-input__control" type="text" placeholder="Enter username">
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Password</h3>
+        <div class="luna-input luna-input--medium">
+          <label class="luna-input__label" for="luna-pass">Password</label>
+          <div class="luna-input__container">
+            <input id="luna-pass" class="luna-input__control" type="password" placeholder="Enter password">
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>With Help Text</h3>
+        <div class="luna-input luna-input--medium">
+          <label class="luna-input__label" for="luna-email">Email</label>
+          <div class="luna-input__container">
+            <input id="luna-email" class="luna-input__control" type="email" placeholder="you@example.com">
+          </div>
+          <div class="luna-input__help">We'll never share your email</div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>Sizes</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div class="luna-input luna-input--small">
+            <div class="luna-input__container">
+              <input class="luna-input__control" type="text" placeholder="Small">
+            </div>
+          </div>
+          <div class="luna-input luna-input--medium">
+            <div class="luna-input__container">
+              <input class="luna-input__control" type="text" placeholder="Medium">
+            </div>
+          </div>
+          <div class="luna-input luna-input--large">
+            <div class="luna-input__container">
+              <input class="luna-input__control" type="text" placeholder="Large">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <h3>States</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div class="luna-input luna-input--medium luna-input--disabled">
+            <label class="luna-input__label">Disabled</label>
+            <div class="luna-input__container">
+              <input class="luna-input__control" type="text" value="Can't edit" disabled>
+            </div>
+          </div>
+          <div class="luna-input luna-input--medium">
+            <label class="luna-input__label">Readonly</label>
+            <div class="luna-input__container">
+              <input class="luna-input__control" type="text" value="Read only" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>Signal Integration Demo</h2>
+  <div class="comparison-grid">
+    <div class="panel panel--shoelace">
+      <h3>Shoelace + Signal</h3>
+      <div id="shoelace-signal-demo"></div>
+    </div>
+    <div class="panel panel--luna">
+      <h3>Luna + Signal</h3>
+      <div id="luna-signal-demo"></div>
+    </div>
+  </div>
+
+  <!-- CLS Measurement -->
+  <script>
+    let clsValue = 0;
+    const clsDisplay = document.getElementById('cls-value');
+
+    if ('PerformanceObserver' in window) {
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (!entry.hadRecentInput) {
+            clsValue += entry.value;
+            clsDisplay.textContent = clsValue.toFixed(4);
+
+            if (clsValue > 0.1) {
+              clsDisplay.className = 'value bad';
+            } else if (clsValue > 0.05) {
+              clsDisplay.className = 'value warning';
+            } else {
+              clsDisplay.className = 'value good';
+            }
+          }
+        }
+      });
+
+      observer.observe({ type: 'layout-shift', buffered: true });
+    }
+  </script>
+
+  <!-- Shoelace JS -->
+  <script type="module">
+    const startTime = performance.now();
+
+    import 'https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js';
+
+    await customElements.whenDefined('sl-button');
+
+    const loadTime = performance.now() - startTime;
+    document.getElementById('shoelace-timing').textContent =
+      `Shoelace load time: ${loadTime.toFixed(2)}ms`;
+  </script>
+
+  <!-- Signal Demo -->
+  <script type="module">
+    import { slButton, slButtonReactive } from './src/shoelace/button.js';
+    import { lunaButton, lunaButtonReactive } from './src/ui/button.js';
+
+    // Simple Signal class
+    class Signal {
+      constructor(value) {
+        this._value = value;
+        this._subscribers = [];
+      }
+      get() { return this._value; }
+      set(value) {
+        if (this._value !== value) {
+          this._value = value;
+          this._subscribers.forEach(fn => fn(value));
+        }
+      }
+      update(fn) { this.set(fn(this._value)); }
+      subscribe(fn) {
+        this._subscribers.push(fn);
+        fn(this._value); // Initial call
+        return () => {
+          this._subscribers = this._subscribers.filter(s => s !== fn);
+        };
+      }
+    }
+
+    // Wait for Shoelace
+    await customElements.whenDefined('sl-button');
+
+    // Shoelace Signal Demo
+    {
+      const container = document.getElementById('shoelace-signal-demo');
+      const count = new Signal(0);
+      const loading = new Signal(false);
+
+      const btn = slButtonReactive({
+        variant: 'primary',
+        loadingSignal: loading,
+        textSignal: count.map ? undefined : undefined,
+        onClick: () => {
+          loading.set(true);
+          setTimeout(() => {
+            count.update(n => n + 1);
+            loading.set(false);
+          }, 500);
+        }
+      }, ['Click me']);
+
+      // Manual text update
+      count.subscribe(n => {
+        btn.textContent = `Clicked: ${n}`;
+      });
+
+      container.appendChild(btn);
+    }
+
+    // Helper for Signal.map
+    Signal.prototype.map = function(fn) {
+      const derived = new Signal(fn(this._value));
+      this.subscribe(v => derived.set(fn(v)));
+      return derived;
+    };
+
+    // Luna Signal Demo
+    {
+      const container = document.getElementById('luna-signal-demo');
+      const count = new Signal(0);
+      const loading = new Signal(false);
+
+      const btn = lunaButtonReactive({
+        variant: 'primary',
+        loadingSignal: loading,
+        onClick: () => {
+          loading.set(true);
+          setTimeout(() => {
+            count.update(n => n + 1);
+            loading.set(false);
+          }, 500);
+        }
+      }, ['Click me']);
+
+      // Manual text update
+      count.subscribe(n => {
+        const content = btn.querySelector('.luna-btn__content');
+        if (content) content.textContent = `Clicked: ${n}`;
+      });
+
+      container.appendChild(btn);
+    }
+  </script>
+</body>
+</html>
