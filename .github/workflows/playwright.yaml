@@ -34,7 +34,6 @@ jobs:
           # Core libraries
           moon build --target js src/luna
           moon build --target js src/core/parser
-          moon build --target js src/core/routes
           moon build --target js src/core/ssg
           moon build --target js src/platform/js/api
           moon build --target js src/platform/js/cache
@@ -84,7 +83,6 @@ jobs:
           # Core libraries
           moon build --target js src/luna
           moon build --target js src/core/parser
-          moon build --target js src/core/routes
           moon build --target js src/core/ssg
           moon build --target js src/platform/js/api
           moon build --target js src/platform/js/cache
