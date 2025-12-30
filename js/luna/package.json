@@ -18,6 +18,10 @@
       "types": "./dist/css/index.d.ts",
       "import": "./dist/css/index.js"
     },
+    "./css/runtime": {
+      "types": "./dist/css/runtime.d.ts",
+      "import": "./dist/css/runtime.js"
+    },
     "./vite-plugin": {
       "types": "./dist/vite-plugin.d.ts",
       "import": "./dist/vite-plugin.js"

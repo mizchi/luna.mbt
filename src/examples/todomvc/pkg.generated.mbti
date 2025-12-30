@@ -6,6 +6,205 @@ import(
 )
 
 // Values
+pub let align_items_center : String
+
+pub let bg_body : String
+
+pub let bg_none : String
+
+pub let bg_transparent : String
+
+pub let bg_white : String
+
+pub let border_0 : String
+
+pub let border_1_solid_999 : String
+
+pub let border_1_transparent : String
+
+pub let border_bottom_1_ed : String
+
+pub let border_bottom_none : String
+
+pub let border_color_hover : String
+
+pub let border_color_selected : String
+
+pub let border_color_transparent : String
+
+pub let border_none : String
+
+pub let border_radius_3 : String
+
+pub let border_top_1_e6 : String
+
+pub let bottom_0 : String
+
+pub let box_shadow_app : String
+
+pub let box_shadow_input : String
+
+pub let box_shadow_new_todo : String
+
+pub let box_sizing_border : String
+
+pub fn classes(Array[String]) -> String
+
+pub let color_danger : String
+
+pub let color_dark : String
+
+pub let color_info : String
+
+pub let color_inherit : String
+
+pub let color_muted : String
+
+pub let color_text : String
+
+pub let color_title : String
+
+pub let cursor_pointer : String
+
+pub let display_block : String
+
+pub let display_flex : String
+
+pub let display_inline : String
+
+pub let display_inline_block : String
+
+pub let display_none : String
+
+pub let float_left : String
+
+pub let float_right : String
+
+pub let focus_color_danger : String
+
+pub let focus_outline_none : String
+
+pub let font_size_0 : String
+
+pub let font_size_11 : String
+
+pub let font_size_14 : String
+
+pub let font_size_15 : String
+
+pub let font_size_22 : String
+
+pub let font_size_24 : String
+
+pub let font_size_30 : String
+
+pub let font_size_80 : String
+
+pub let font_weight_200 : String
+
+pub let font_weight_300 : String
+
+pub let font_weight_400 : String
+
+pub let height_40 : String
+
+pub let height_65 : String
+
+pub let height_auto : String
+
+pub let height_full : String
+
+pub let hover_border_color : String
+
+pub let hover_color_danger : String
+
+pub let hover_display_block : String
+
+pub let hover_underline : String
+
+pub let justify_content_center : String
+
+pub let left_0 : String
+
+pub let line_height_1 : String
+
+pub let line_height_19 : String
+
+pub let line_height_1_1 : String
+
+pub let line_height_1_2 : String
+
+pub let line_height_1_4 : String
+
+pub let list_style_none : String
+
+pub let margin_0 : String
+
+pub let margin_auto : String
+
+pub let margin_bottom_40 : String
+
+pub let margin_bottom_neg1 : String
+
+pub let margin_top_130 : String
+
+pub let opacity_0 : String
+
+pub let padding_0 : String
+
+pub let padding_10_15 : String
+
+pub let padding_12_16 : String
+
+pub let padding_15_60 : String
+
+pub let padding_16_60 : String
+
+pub let padding_3_7 : String
+
+pub let padding_6 : String
+
+pub let position_absolute : String
+
+pub let position_relative : String
+
+pub let right_0 : String
+
+pub let right_10 : String
+
+pub let text_align_center : String
+
+pub let text_align_left : String
+
+pub let text_decoration_line_through : String
+
+pub let text_decoration_none : String
+
+pub let text_decoration_underline : String
+
+pub let top_0 : String
+
+pub let top_neg_140 : String
+
+pub let top_neg_65 : String
+
+pub let transition_border : String
+
+pub let transition_color : String
+
+pub let transition_color_fast : String
+
+pub fn when(Bool, String) -> String
+
+pub let width_40 : String
+
+pub let width_45 : String
+
+pub let width_full : String
+
+pub let word_break_all : String
+
+pub let z_index_2 : String
 
 // Errors
 

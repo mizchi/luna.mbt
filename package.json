@@ -56,7 +56,7 @@
     "turbo": "^2.7.2",
     "typescript": "^5.9.3",
     "vite": "8.0.0-beta.1",
-    "vite-plugin-moonbit": "^0.1.0",
+    "vite-plugin-moonbit": "^0.1.2",
     "vitest": "^4.0.15",
     "wrangler": "^4.54.0",
     "ws": "^8.18.3"
