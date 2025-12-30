@@ -2,22 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.4] - 2025-12-29
+## [0.3.4] - 2025-12-30
 
 ### Bug Fixes
 
+- **examples**: Use inline style for visible_when in TodoMVC
+- **ci**: Remove src/core/routes from playwright workflow
+- **ci**: Remove non-existent directory references
+- Resolve TypeScript and test errors for CI
+- **luna**: Prevent duplicate child rendering in Show component
+- **luna**: Prevent duplicate child rendering in Show component
+- **sol**: Externalize shiki to reduce bundle size
 - **luna**: Wrap initial render in untracked to prevent dependency tracking
 
 ### Documentation
 
+- Move deep-dive section to 90_deep-dive
+- **luna**: Add doctest examples to signal and vnode modules
+- **luna**: Add missing CSS detection usage guide
+- **luna**: Update CSS utilities documentation
 - Update CHANGELOG for v0.3.2
+
+### Features
+
+- **luna**: Add experimental CSS optimization to vite-plugin
+- **luna**: Add CSS static analyzer and co-occurrence optimizer
+- **luna**: Add import.meta.env.DEV for runtime DCE
+- **luna**: Add CSS splitting and vite plugin virtual modules
+- **luna**: Add CSS utilities with zero-runtime extraction
+- **luna**: Add dangerouslySetInnerHTML and reactive props support
 
 ### Miscellaneous
 
+- Update package exports and generated files
+- Remove unused files
 - V0.3.2
 
 ### Testing
 
+- **luna**: Add tests for Show + render initial mount duplication
+- **luna**: Add tests for Show + render initial mount duplication
+- **luna**: Add CSS runtime benchmarks and optimizer module
+- **luna**: Add CSS runtime missing detection tests
 - **luna**: Add exact reproduction tests for issue #5
 
 ## [0.3.1] - 2025-12-29
