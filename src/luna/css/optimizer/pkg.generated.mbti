@@ -1,0 +1,140 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/luna/css/optimizer"
+
+// Values
+pub fn analyze(Array[ClassUsage], Map[String, Declaration], Int) -> AnalysisResult
+
+pub fn build_adjacency_list(Array[CoOccurrence], Int) -> Map[String, Array[Edge]]
+
+pub fn build_cooccurrence_matrix(Array[ClassUsage]) -> Map[String, Map[String, Int]]
+
+pub fn compress_to_shorthands(Array[Declaration]) -> Array[Declaration]
+
+pub fn expand_shorthand(Declaration) -> Array[Declaration]
+
+pub fn find_frequent_patterns(Array[ClassUsage], Int) -> Array[FrequentPattern]
+
+pub fn generate_optimized_css(Array[MergeSuggestion], Map[String, String]) -> String
+
+pub fn generate_report(AnalysisResult) -> String
+
+pub fn generate_suggestions(Array[FrequentPattern], Map[String, Declaration]) -> Array[MergeSuggestion]
+
+pub fn get_property_category(String) -> PropertyCategory
+
+pub fn get_property_sort_key(String) -> Int
+
+pub fn group_by_class_set(Array[ClassUsage]) -> Map[String, Array[ClassUsage]]
+
+pub fn matrix_to_cooccurrences(Map[String, Map[String, Int]]) -> Array[CoOccurrence]
+
+pub fn normalize_declarations(Array[Declaration]) -> Array[Declaration]
+
+pub fn normalize_rule_order(Rule) -> Rule
+
+pub fn sort_declarations(Array[Declaration]) -> Array[Declaration]
+
+pub fn suggestion_to_css(MergeSuggestion) -> String
+
+pub fn suggestion_to_report(MergeSuggestion) -> String
+
+pub fn top_cooccurrences(Array[CoOccurrence], Int) -> Array[CoOccurrence]
+
+// Errors
+
+// Types and methods
+pub struct AnalysisResult {
+  usages : Array[ClassUsage]
+  cooccurrences : Array[CoOccurrence]
+  patterns : Array[FrequentPattern]
+  suggestions : Array[MergeSuggestion]
+}
+pub impl Show for AnalysisResult
+
+pub struct ClassUsage {
+  classes : Array[String]
+  source : String
+}
+pub fn ClassUsage::new(Array[String], String) -> Self
+pub impl Show for ClassUsage
+
+pub struct CoOccurrence {
+  class_a : String
+  class_b : String
+  frequency : Int
+}
+pub impl Show for CoOccurrence
+
+pub struct Declaration {
+  property : String
+  value : String
+}
+pub fn Declaration::key(Self) -> String
+pub fn Declaration::new(String, String) -> Self
+pub impl Compare for Declaration
+pub impl Eq for Declaration
+pub impl Hash for Declaration
+pub impl Show for Declaration
+
+pub struct Edge {
+  target : String
+  weight : Int
+}
+pub impl Show for Edge
+
+pub struct FrequentPattern {
+  classes : Array[String]
+  frequency : Int
+  potential_savings : Int
+}
+pub impl Show for FrequentPattern
+
+pub struct MergeSuggestion {
+  original_classes : Array[String]
+  new_class : String
+  declarations : Array[Declaration]
+  usage_count : Int
+  bytes_saved : Int
+}
+pub impl Show for MergeSuggestion
+
+pub enum PropertyCategory {
+  Position
+  Display
+  BoxSizing
+  Margin
+  Border
+  Padding
+  Dimension
+  Overflow
+  Flex
+  Grid
+  Font
+  Text
+  Color
+  Transform
+  Transition
+  Animation
+  Cursor
+  Other
+}
+pub impl Compare for PropertyCategory
+pub impl Eq for PropertyCategory
+pub impl Show for PropertyCategory
+
+pub struct Rule {
+  selector : String
+  declarations : Array[Declaration]
+}
+pub impl Show for Rule
+
+pub struct ShorthandDef {
+  shorthand : String
+  longhands : Array[String]
+}
+pub impl Show for ShorthandDef
+
+// Type aliases
+
+// Traits
+
