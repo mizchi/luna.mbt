@@ -2538,3 +2538,201 @@ pub fn combobox_item_styles() -> String {
     ("cursor", "pointer"),
   ])
 }
+
+// =============================================================================
+// Drawer Styles
+// =============================================================================
+
+///|
+/// Drawer overlay styles
+pub fn drawer_overlay_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("inset", "0"),
+    ("z-index", "50"),
+    ("background", "rgba(0, 0, 0, 0.8)"),
+  ])
+}
+
+///|
+/// Drawer content styles
+pub fn drawer_content_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("z-index", "50"),
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("background", "white"),
+    ("max-height", "96vh"),
+  ])
+}
+
+///|
+/// Drawer handle styles
+pub fn drawer_handle_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("justify-content", "center"),
+    ("padding", "0.5rem 0"),
+  ])
+}
+
+///|
+/// Drawer handle bar styles
+pub fn drawer_handle_bar_styles() -> String {
+  @css.styles([
+    ("width", "3rem"),
+    ("height", "0.25rem"),
+    ("background", "#d4d4d8"),
+    ("border-radius", "9999px"),
+  ])
+}
+
+///|
+/// Drawer header styles
+pub fn drawer_header_styles() -> String {
+  @css.styles([("padding", "1rem"), ("text-align", "center")])
+}
+
+///|
+/// Drawer title styles
+pub fn drawer_title_styles() -> String {
+  @css.styles([
+    ("font-size", "1.125rem"),
+    ("font-weight", "600"),
+    ("line-height", "1"),
+    ("margin", "0"),
+  ])
+}
+
+///|
+/// Drawer footer styles
+pub fn drawer_footer_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("gap", "0.5rem"),
+    ("padding", "1rem"),
+    ("margin-top", "auto"),
+  ])
+}
+
+// =============================================================================
+// Input OTP Styles
+// =============================================================================
+
+///|
+/// Input OTP base styles
+pub fn input_otp_base_styles() -> String {
+  @css.styles([("display", "flex"), ("align-items", "center"), ("gap", "0.5rem")])
+}
+
+///|
+/// Input OTP group styles
+pub fn input_otp_group_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+  ])
+}
+
+///|
+/// Input OTP slot styles
+pub fn input_otp_slot_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("width", "2.5rem"),
+    ("height", "2.5rem"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("font-size", "1.125rem"),
+    ("font-weight", "500"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("background", "white"),
+  ])
+}
+
+///|
+/// Input OTP separator styles
+pub fn input_otp_separator_styles() -> String {
+  @css.styles([("color", "#a1a1aa"), ("font-size", "1.25rem")])
+}
+
+// =============================================================================
+// Sidebar Styles
+// =============================================================================
+
+///|
+/// Sidebar provider styles
+pub fn sidebar_provider_styles() -> String {
+  @css.styles([("display", "flex"), ("min-height", "100vh"), ("width", "100%")])
+}
+
+///|
+/// Sidebar base styles
+pub fn sidebar_base_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("width", "16rem"),
+    ("background", "white"),
+    ("border-right", "1px solid #e4e4e7"),
+  ])
+}
+
+///|
+/// Sidebar header styles
+pub fn sidebar_header_styles() -> String {
+  @css.styles([("padding", "1rem"), ("border-bottom", "1px solid #e4e4e7")])
+}
+
+///|
+/// Sidebar content styles
+pub fn sidebar_content_styles() -> String {
+  @css.styles([("flex", "1"), ("overflow", "auto"), ("padding", "0.5rem")])
+}
+
+///|
+/// Sidebar footer styles
+pub fn sidebar_footer_styles() -> String {
+  @css.styles([
+    ("padding", "1rem"),
+    ("border-top", "1px solid #e4e4e7"),
+    ("margin-top", "auto"),
+  ])
+}
+
+///|
+/// Sidebar group label styles
+pub fn sidebar_group_label_styles() -> String {
+  @css.styles([
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.75rem"),
+    ("font-weight", "500"),
+    ("color", "#71717a"),
+    ("text-transform", "uppercase"),
+    ("letter-spacing", "0.05em"),
+  ])
+}
+
+///|
+/// Sidebar menu button styles
+pub fn sidebar_menu_button_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("width", "100%"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+    ("text-align", "left"),
+    ("color", "#18181b"),
+  ])
+}
