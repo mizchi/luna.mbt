@@ -2736,3 +2736,325 @@ pub fn sidebar_menu_button_styles() -> String {
     ("color", "#18181b"),
   ])
 }
+
+// =============================================================================
+// Spinner Styles
+// =============================================================================
+
+///|
+/// Spinner base styles
+pub fn spinner_base_styles(size : SpinnerSize?) -> String {
+  let (width, height, border_width) = match size {
+    Some(Sm) => ("1rem", "1rem", "2px")
+    Some(Lg) => ("2rem", "2rem", "3px")
+    Some(Xl) => ("3rem", "3rem", "4px")
+    _ => ("1.5rem", "1.5rem", "2px")
+  }
+
+  @css.styles([
+    ("display", "inline-block"),
+    ("width", width),
+    ("height", height),
+    ("border-radius", "50%"),
+    ("border", border_width + " solid #e4e4e7"),
+    ("border-top-color", "#18181b"),
+    ("animation", "spin 0.6s linear infinite"),
+  ])
+}
+
+///|
+/// Loading wrapper styles
+pub fn loading_wrapper_styles() -> String {
+  @css.styles([("position", "relative")])
+}
+
+///|
+/// Loading overlay styles
+pub fn loading_overlay_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("inset", "0"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("background", "rgba(255, 255, 255, 0.8)"),
+    ("z-index", "10"),
+  ])
+}
+
+// =============================================================================
+// Empty Styles
+// =============================================================================
+
+///|
+/// Empty base styles
+pub fn empty_base_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "2rem"),
+    ("text-align", "center"),
+  ])
+}
+
+///|
+/// Empty icon styles
+pub fn empty_icon_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "4rem"),
+    ("height", "4rem"),
+    ("margin-bottom", "1rem"),
+    ("color", "#a1a1aa"),
+  ])
+}
+
+///|
+/// Empty title styles
+pub fn empty_title_styles() -> String {
+  @css.styles([
+    ("font-size", "1rem"),
+    ("font-weight", "600"),
+    ("color", "#18181b"),
+    ("margin", "0 0 0.5rem 0"),
+  ])
+}
+
+///|
+/// Empty description styles
+pub fn empty_description_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+    ("margin", "0 0 1rem 0"),
+    ("max-width", "24rem"),
+  ])
+}
+
+///|
+/// Empty action styles
+pub fn empty_action_styles() -> String {
+  @css.styles([("display", "flex"), ("gap", "0.5rem")])
+}
+
+// =============================================================================
+// Kbd Styles
+// =============================================================================
+
+///|
+/// Kbd base styles
+pub fn kbd_base_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("min-width", "1.5rem"),
+    ("height", "1.5rem"),
+    ("padding", "0 0.375rem"),
+    (
+      "font-family",
+      "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
+    ),
+    ("font-size", "0.75rem"),
+    ("font-weight", "500"),
+    ("background", "linear-gradient(180deg, #fafafa 0%, #e4e4e7 100%)"),
+    ("border", "1px solid #d4d4d8"),
+    ("border-radius", "4px"),
+    ("box-shadow", "0 1px 0 1px rgba(0,0,0,0.05)"),
+    ("color", "#3f3f46"),
+  ])
+}
+
+///|
+/// Kbd group styles
+pub fn kbd_group_styles() -> String {
+  @css.styles([("display", "inline-flex"), ("align-items", "center"), ("gap", "0.25rem")])
+}
+
+// =============================================================================
+// Code Styles
+// =============================================================================
+
+///|
+/// Code inline styles
+pub fn code_inline_styles() -> String {
+  @css.styles([
+    ("display", "inline"),
+    ("padding", "0.125rem 0.375rem"),
+    (
+      "font-family",
+      "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
+    ),
+    ("font-size", "0.875em"),
+    ("background", "#f4f4f5"),
+    ("border-radius", "4px"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// Code block styles
+pub fn code_block_styles() -> String {
+  @css.styles([
+    ("display", "block"),
+    ("padding", "1rem"),
+    (
+      "font-family",
+      "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
+    ),
+    ("font-size", "0.875rem"),
+    ("line-height", "1.5"),
+    ("background", "#18181b"),
+    ("border-radius", "8px"),
+    ("color", "#fafafa"),
+    ("overflow-x", "auto"),
+    ("margin", "0"),
+  ])
+}
+
+///|
+/// Code header styles
+pub fn code_header_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "space-between"),
+    ("padding", "0.5rem 1rem"),
+    ("background", "#27272a"),
+    ("border-top-left-radius", "8px"),
+    ("border-top-right-radius", "8px"),
+    ("font-size", "0.75rem"),
+    ("color", "#a1a1aa"),
+  ])
+}
+
+// =============================================================================
+// Blockquote Styles
+// =============================================================================
+
+///|
+/// Blockquote base styles
+pub fn blockquote_base_styles() -> String {
+  @css.styles([
+    ("margin", "0"),
+    ("padding", "0 0 0 1rem"),
+    ("border-left", "4px solid #e4e4e7"),
+  ])
+}
+
+///|
+/// Blockquote content styles
+pub fn blockquote_content_styles() -> String {
+  @css.styles([
+    ("margin", "0"),
+    ("font-size", "1rem"),
+    ("font-style", "italic"),
+    ("color", "#3f3f46"),
+    ("line-height", "1.6"),
+  ])
+}
+
+///|
+/// Blockquote footer styles
+pub fn blockquote_footer_styles() -> String {
+  @css.styles([
+    ("margin-top", "0.75rem"),
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// List Styles
+// =============================================================================
+
+///|
+/// List base styles
+pub fn list_base_styles() -> String {
+  @css.styles([("margin", "0"), ("padding", "0 0 0 1.5rem")])
+}
+
+///|
+/// List item styles
+pub fn list_item_styles() -> String {
+  @css.styles([("margin", "0.25rem 0"), ("line-height", "1.5")])
+}
+
+///|
+/// List item with icon styles
+pub fn list_item_icon_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "flex-start"),
+    ("gap", "0.5rem"),
+    ("list-style", "none"),
+    ("margin-left", "-1.5rem"),
+  ])
+}
+
+///|
+/// List item icon slot styles
+pub fn list_item_icon_slot_styles() -> String {
+  @css.styles([
+    ("flex-shrink", "0"),
+    ("width", "1.25rem"),
+    ("height", "1.25rem"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("margin-top", "0.125rem"),
+    ("color", "#71717a"),
+  ])
+}
+
+///|
+/// List item content styles
+pub fn list_item_content_styles() -> String {
+  @css.styles([("flex", "1")])
+}
+
+// =============================================================================
+// Description List Styles
+// =============================================================================
+
+///|
+/// Description list base styles
+pub fn description_list_base_styles() -> String {
+  @css.styles([("margin", "0")])
+}
+
+///|
+/// Description item styles
+pub fn description_item_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("padding", "0.75rem 0"),
+    ("border-bottom", "1px solid #e4e4e7"),
+  ])
+}
+
+///|
+/// Description term styles
+pub fn description_term_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("color", "#71717a"),
+    ("margin", "0"),
+  ])
+}
+
+///|
+/// Description details styles
+pub fn description_details_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("color", "#18181b"),
+    ("margin", "0.25rem 0 0 0"),
+  ])
+}
