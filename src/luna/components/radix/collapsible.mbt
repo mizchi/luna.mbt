@@ -15,17 +15,14 @@ pub fn radix_collapsible(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-collapsible")),
     ("data-state", @luna.attr_static(state)),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -131,16 +128,13 @@ pub fn radix_collapsible_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => collapsible_styles()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("data-state", @luna.attr_static(state)),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
@@ -160,11 +154,9 @@ pub fn radix_collapsible_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-collapsible", attrs, all_children)
 }
 
@@ -184,9 +176,7 @@ pub fn radix_collapsible_ucss(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let mut class_names = collapsible_base_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -194,17 +184,14 @@ pub fn radix_collapsible_ucss(
         @css.styles([("opacity", "0.5"), ("pointer-events", "none")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("data-state", @luna.attr_static(state)),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 

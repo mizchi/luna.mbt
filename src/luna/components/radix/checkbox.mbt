@@ -32,7 +32,6 @@ pub fn radix_checkbox(
     Some(s) => s
     None => Unchecked
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-checkbox")),
     ("role", @luna.attr_static("checkbox")),
@@ -46,7 +45,6 @@ pub fn radix_checkbox(
     Indeterminate => "mixed"
   }
   attrs.push(("aria-checked", @luna.attr_static(aria_checked)))
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -55,7 +53,6 @@ pub fn radix_checkbox(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -161,7 +158,6 @@ pub fn radix_checkbox_styled(
     Some(s) => s
     None => Unchecked
   }
-
   let css = match styles {
     Some(s) => s
     None => checkbox_styles()
@@ -299,7 +295,6 @@ pub fn radix_checkbox_ucss(
     Indeterminate => "mixed"
   }
   attrs.push(("aria-checked", @luna.attr_static(aria_checked)))
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -307,6 +302,5 @@ pub fn radix_checkbox_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

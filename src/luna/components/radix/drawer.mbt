@@ -14,7 +14,6 @@ pub fn radix_drawer(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -80,7 +79,6 @@ pub fn radix_drawer_content(
     Some(Left) => "left"
     _ => "bottom"
   }
-
   @luna.h(
     "div",
     [
@@ -95,17 +93,9 @@ pub fn radix_drawer_content(
 /// Create a headless drawer handle (drag indicator)
 /// Outputs: <div class="radix-drawer-handle"><div class="radix-drawer-handle-bar"></div></div>
 pub fn radix_drawer_handle() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-drawer-handle"))],
-    [
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("radix-drawer-handle-bar"))],
-        [],
-      ),
-    ],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-drawer-handle"))], [
+    @luna.h("div", [("class", @luna.attr_static("radix-drawer-handle-bar"))], []),
+  ])
 }
 
 ///|
@@ -296,7 +286,6 @@ pub fn radix_drawer_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => drawer_styles()
@@ -316,12 +305,14 @@ pub fn radix_drawer_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
-  @luna.h("radix-drawer", [("data-state", @luna.attr_static(state))], all_children)
+  @luna.h(
+    "radix-drawer",
+    [("data-state", @luna.attr_static(state))],
+    all_children,
+  )
 }
 
 // =============================================================================
@@ -339,12 +330,7 @@ pub fn radix_drawer_ucss(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
-  @luna.h(
-    "div",
-    [("data-state", @luna.attr_static(state))],
-    children,
-  )
+  @luna.h("div", [("data-state", @luna.attr_static(state))], children)
 }
 
 ///|
@@ -366,7 +352,6 @@ pub fn radix_drawer_content_ucss(
     Some(Left) => "left"
     _ => "bottom"
   }
-
   let class_names = drawer_content_styles()
   @luna.h(
     "div",
@@ -383,11 +368,9 @@ pub fn radix_drawer_content_ucss(
 pub fn radix_drawer_handle_ucss() -> @luna.Node[Unit] {
   let handle_class = drawer_handle_styles()
   let bar_class = drawer_handle_bar_styles()
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static(handle_class))],
-    [@luna.h("div", [("class", @luna.attr_static(bar_class))], [])],
-  )
+  @luna.h("div", [("class", @luna.attr_static(handle_class))], [
+    @luna.h("div", [("class", @luna.attr_static(bar_class))], []),
+  ])
 }
 
 ///|

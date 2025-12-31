@@ -60,13 +60,11 @@ pub fn radix_button(
     Some(s) => s
     None => Medium
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-button")),
     ("data-variant", @luna.attr_static(variant_val.to_string())),
     ("data-size", @luna.attr_static(size_val.to_string())),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -74,7 +72,6 @@ pub fn radix_button(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -193,7 +190,6 @@ pub fn radix_button_styled(
     Some(s) => s
     None => Medium
   }
-
   let css = match styles {
     Some(s) => s
     None => button_default_styles()
@@ -205,7 +201,6 @@ pub fn radix_button_styled(
     ("data-variant", @luna.attr_static(variant_val.to_string())),
     ("data-size", @luna.attr_static(size_val.to_string())),
   ]
-
   match disabled {
     Some(true) => {
       button_attrs.push(("data-disabled", @luna.attr_static("")))
@@ -233,7 +228,6 @@ pub fn radix_button_styled(
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-button", [], all_children)
 }
 
@@ -279,7 +273,6 @@ pub fn radix_button_ucss(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -287,6 +280,5 @@ pub fn radix_button_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

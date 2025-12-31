@@ -22,17 +22,14 @@ pub fn radix_date_picker_trigger(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-date-picker-trigger")),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("data-placeholder", @luna.attr_static(p)))
     None => ()
   }
-
   match value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v)))
     None => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -119,11 +116,9 @@ pub fn radix_date_picker_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-date-picker", [], all_children)
 }
 

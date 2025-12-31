@@ -38,10 +38,12 @@ test "radix_button - disabled has data-disabled (headless)" {
   guard node is @luna.Element(el) else { fail("expected Element") }
 
   // Headless button has data-disabled directly
-  let has_disabled = el.attrs.iter().any(fn(attr) {
-    let (name, _) = attr
-    name == "data-disabled"
-  })
+  let has_disabled = el.attrs
+    .iter()
+    .any(fn(attr) {
+      let (name, _) = attr
+      name == "data-disabled"
+    })
   inspect(has_disabled, content="true")
 }
 
@@ -271,9 +273,7 @@ test "radix_textarea - with value (headless)" {
   inspect(el.tag, content="textarea")
 
   // Check if textarea has text content
-  let has_text = el.children
-    .iter()
-    .any(fn(child) { child is @luna.Text(_) })
+  let has_text = el.children.iter().any(fn(child) { child is @luna.Text(_) })
   inspect(has_text, content="true")
 }
 
@@ -565,7 +565,6 @@ test "demo: SSR with radix_ucss components" {
   guard primary_btn is @luna.Element(el1) else { fail("expected Element") }
   guard danger_btn is @luna.Element(el2) else { fail("expected Element") }
   guard badge is @luna.Element(el3) else { fail("expected Element") }
-
   inspect(el1.tag, content="button")
   inspect(el2.tag, content="button")
   inspect(el3.tag, content="span")

@@ -14,7 +14,6 @@ pub fn radix_alert_dialog(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -42,11 +41,7 @@ pub fn radix_alert_dialog_trigger(
 /// Create a headless alert dialog overlay
 /// Outputs: <div class="radix-alert-dialog-overlay"></div>
 pub fn radix_alert_dialog_overlay() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-alert-dialog-overlay"))],
-    [],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-alert-dialog-overlay"))], [])
 }
 
 ///|
@@ -249,7 +244,6 @@ pub fn radix_alert_dialog_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => alert_dialog_styles()
@@ -269,11 +263,9 @@ pub fn radix_alert_dialog_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-alert-dialog",
     [("data-state", @luna.attr_static(state))],

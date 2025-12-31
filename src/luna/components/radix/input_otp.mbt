@@ -13,7 +13,6 @@ pub fn radix_input_otp(
     Some(l) => l
     None => 6
   }
-
   @luna.h(
     "div",
     [
@@ -50,21 +49,17 @@ pub fn radix_input_otp_slot(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-input-otp-slot")),
     ("data-index", @luna.attr_static(index.to_string())),
   ]
-
   if is_active {
     attrs.push(("data-active", @luna.attr_static("")))
   }
-
   match value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v)))
     None => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -72,11 +67,9 @@ pub fn radix_input_otp_slot(
 /// Create a headless input OTP separator
 /// Outputs: <div class="radix-input-otp-separator">-</div>
 pub fn radix_input_otp_separator() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-input-otp-separator"))],
-    [@luna.text("-")],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-input-otp-separator"))], [
+    @luna.text("-"),
+  ])
 }
 
 ///|
@@ -89,17 +82,14 @@ pub fn radix_input_otp_hidden(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("type", @luna.attr_static("hidden")),
   ]
-
   match name {
     Some(n) => attrs.push(("name", @luna.attr_static(n)))
     None => ()
   }
-
   match value {
     Some(v) => attrs.push(("value", @luna.attr_static(v)))
     None => ()
   }
-
   @luna.h("input", attrs, [])
 }
 
@@ -192,7 +182,6 @@ pub fn radix_input_otp_styled(
     Some(l) => l
     None => 6
   }
-
   let css = match styles {
     Some(s) => s
     None => input_otp_styles()
@@ -212,11 +201,9 @@ pub fn radix_input_otp_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-input-otp",
     [("data-length", @luna.attr_static(len.to_string()))],
@@ -238,7 +225,6 @@ pub fn radix_input_otp_ucss(
     Some(l) => l
     None => 6
   }
-
   let class_names = input_otp_base_styles()
   @luna.h(
     "div",
@@ -271,29 +257,26 @@ pub fn radix_input_otp_slot_ucss(
     Some(true) => true
     _ => false
   }
-
   let mut class_names = input_otp_slot_styles()
-
   if is_active {
     class_names = class_names +
       " " +
-      @css.styles([("border-color", "#18181b"), ("box-shadow", "0 0 0 1px #18181b")])
+      @css.styles([
+        ("border-color", "#18181b"),
+        ("box-shadow", "0 0 0 1px #18181b"),
+      ])
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("data-index", @luna.attr_static(index.to_string())),
   ]
-
   if is_active {
     attrs.push(("data-active", @luna.attr_static("")))
   }
-
   match value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v)))
     None => ()
   }
-
   @luna.h("div", attrs, children)
 }
 

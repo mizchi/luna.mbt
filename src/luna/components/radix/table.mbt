@@ -6,11 +6,9 @@
 /// Create a headless table root
 /// Outputs: <div class="radix-table-wrapper"><table class="radix-table">children</table></div>
 pub fn radix_table(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-table-wrapper"))],
-    [@luna.h("table", [("class", @luna.attr_static("radix-table"))], children)],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-table-wrapper"))], [
+    @luna.h("table", [("class", @luna.attr_static("radix-table"))], children),
+  ])
 }
 
 ///|
@@ -29,14 +27,8 @@ pub fn radix_table_header(
 ///|
 /// Create a headless table body
 /// Outputs: <tbody class="radix-table-body">children</tbody>
-pub fn radix_table_body(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
-  @luna.h(
-    "tbody",
-    [("class", @luna.attr_static("radix-table-body"))],
-    children,
-  )
+pub fn radix_table_body(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
+  @luna.h("tbody", [("class", @luna.attr_static("radix-table-body"))], children)
 }
 
 ///|
@@ -55,27 +47,21 @@ pub fn radix_table_footer(
 ///|
 /// Create a headless table row
 /// Outputs: <tr class="radix-table-row">children</tr>
-pub fn radix_table_row(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_table_row(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h("tr", [("class", @luna.attr_static("radix-table-row"))], children)
 }
 
 ///|
 /// Create a headless table head cell
 /// Outputs: <th class="radix-table-head">children</th>
-pub fn radix_table_head(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_table_head(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h("th", [("class", @luna.attr_static("radix-table-head"))], children)
 }
 
 ///|
 /// Create a headless table cell
 /// Outputs: <td class="radix-table-cell">children</td>
-pub fn radix_table_cell(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_table_cell(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h("td", [("class", @luna.attr_static("radix-table-cell"))], children)
 }
 
@@ -186,11 +172,9 @@ pub fn radix_table_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-table", [], all_children)
 }
 
@@ -200,16 +184,12 @@ pub fn radix_table_styled(
 
 ///|
 /// Create a table with luna/css atomic styles
-pub fn radix_table_ucss(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_table_ucss(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   let wrapper_class = table_wrapper_styles()
   let table_class = table_base_styles()
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static(wrapper_class))],
-    [@luna.h("table", [("class", @luna.attr_static(table_class))], children)],
-  )
+  @luna.h("div", [("class", @luna.attr_static(wrapper_class))], [
+    @luna.h("table", [("class", @luna.attr_static(table_class))], children),
+  ])
 }
 
 ///|

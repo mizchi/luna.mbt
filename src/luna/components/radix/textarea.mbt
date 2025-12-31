@@ -21,7 +21,6 @@ pub fn radix_textarea(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-textarea")),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
@@ -57,12 +56,10 @@ pub fn radix_textarea(
   // For headless, we just output textarea. Label/help_text are ignored.
   let _ = label
   let _ = help_text
-
   let content : Array[@luna.Node[Unit]] = match value {
     Some(v) => [@luna.text(v)]
     None => []
   }
-
   @luna.h("textarea", attrs, content)
 }
 
@@ -282,7 +279,6 @@ pub fn radix_textarea_ucss(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
@@ -303,11 +299,9 @@ pub fn radix_textarea_ucss(
     Some(true) => attrs.push(("required", @luna.attr_static("")))
     _ => ()
   }
-
   let content : Array[@luna.Node[Unit]] = match value {
     Some(v) => [@luna.text(v)]
     None => []
   }
-
   @luna.h("textarea", attrs, content)
 }

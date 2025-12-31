@@ -14,7 +14,6 @@ pub fn radix_popover(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -49,7 +48,6 @@ pub fn radix_popover_content(
     Some(s) => s
     None => Bottom
   }
-
   @luna.h(
     "div",
     [
@@ -132,7 +130,6 @@ pub fn radix_popover_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => popover_styles()
@@ -152,11 +149,9 @@ pub fn radix_popover_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-popover",
     [("data-state", @luna.attr_static(state))],
@@ -196,10 +191,8 @@ pub fn radix_popover_content_ucss(
     Some(s) => s
     None => Bottom
   }
-
   let class_names = popover_content_styles() +
     " " +
     popover_side_styles(side_val)
-
   @luna.h("div", [("class", @luna.attr_static(class_names))], children)
 }

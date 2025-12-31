@@ -14,7 +14,6 @@ pub fn radix_aspect_ratio(
     None => 1.0
   }
   let padding_bottom = 100.0 / ratio_val
-
   @luna.h(
     "div",
     [
@@ -84,7 +83,6 @@ pub fn radix_aspect_ratio_styled(
     None => 1.0
   }
   let padding_bottom = 100.0 / ratio_val
-
   let css = match styles {
     Some(s) => s
     None => aspect_ratio_styles()
@@ -99,15 +97,15 @@ pub fn radix_aspect_ratio_styled(
         ("class", @luna.attr_static("aspect-ratio")),
         (
           "style",
-          @luna.attr_static("padding-bottom: " + padding_bottom.to_string() + "%"),
+          @luna.attr_static(
+            "padding-bottom: " + padding_bottom.to_string() + "%",
+          ),
         ),
       ],
       [
-        @luna.h(
-          "div",
-          [("class", @luna.attr_static("aspect-ratio-inner"))],
-          [@luna.h("slot", [], [])],
-        ),
+        @luna.h("div", [("class", @luna.attr_static("aspect-ratio-inner"))], [
+          @luna.h("slot", [], []),
+        ]),
       ],
     ),
   ]
@@ -120,11 +118,9 @@ pub fn radix_aspect_ratio_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-aspect-ratio", [], all_children)
 }
 
@@ -143,10 +139,8 @@ pub fn radix_aspect_ratio_ucss(
     None => 1.0
   }
   let padding_bottom = 100.0 / ratio_val
-
   let outer_class = aspect_ratio_outer_styles()
   let inner_class = aspect_ratio_inner_styles()
-
   @luna.h(
     "div",
     [

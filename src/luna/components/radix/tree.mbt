@@ -28,7 +28,6 @@ pub fn radix_tree_item(
     ("class", @luna.attr_static("radix-tree-item")),
     ("role", @luna.attr_static("treeitem")),
   ]
-
   match expanded {
     Some(true) => {
       attrs.push(("data-expanded", @luna.attr_static("")))
@@ -37,7 +36,6 @@ pub fn radix_tree_item(
     Some(false) => attrs.push(("aria-expanded", @luna.attr_static("false")))
     None => ()
   }
-
   match selected {
     Some(true) => {
       attrs.push(("data-selected", @luna.attr_static("")))
@@ -45,7 +43,6 @@ pub fn radix_tree_item(
     }
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -59,12 +56,10 @@ pub fn radix_tree_item_content(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-tree-item-content")),
   ]
-
   match level {
     Some(l) => attrs.push(("data-level", @luna.attr_static(l.to_string())))
     None => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -213,12 +208,10 @@ pub fn radix_tree_styled(
     Some(s) => s
     None => tree_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -226,11 +219,9 @@ pub fn radix_tree_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-tree", [("role", @luna.attr_static("tree"))], all_children)
 }
 
@@ -260,22 +251,18 @@ pub fn radix_tree_item_content_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = tree_item_content_styles()
-
   match selected {
     Some(true) =>
       class_names = class_names + " " + @css.styles([("background", "#e4e4e7")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match level {
     Some(l) => attrs.push(("data-level", @luna.attr_static(l.to_string())))
     None => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -286,13 +273,13 @@ pub fn radix_tree_toggle_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = tree_toggle_styles()
-
   match expanded {
     Some(true) =>
-      class_names = class_names + " " + @css.styles([("transform", "rotate(90deg)")])
+      class_names = class_names +
+        " " +
+        @css.styles([("transform", "rotate(90deg)")])
     _ => ()
   }
-
   @luna.h(
     "button",
     [

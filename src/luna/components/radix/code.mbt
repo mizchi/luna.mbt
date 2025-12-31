@@ -19,17 +19,17 @@ pub fn radix_code_block(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-code-block")),
   ]
-
   match language {
     Some(lang) => attrs.push(("data-language", @luna.attr_static(lang)))
     None => ()
   }
-
-  @luna.h(
-    "pre",
-    attrs,
-    [@luna.h("code", [("class", @luna.attr_static("radix-code-content"))], children)],
-  )
+  @luna.h("pre", attrs, [
+    @luna.h(
+      "code",
+      [("class", @luna.attr_static("radix-code-content"))],
+      children,
+    ),
+  ])
 }
 
 ///|
@@ -155,12 +155,10 @@ pub fn radix_code_styled(
     Some(s) => s
     None => code_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -168,11 +166,9 @@ pub fn radix_code_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-code", [], all_children)
 }
 
@@ -194,16 +190,13 @@ pub fn radix_code_block_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let class_names = code_block_styles()
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match language {
     Some(lang) => attrs.push(("data-language", @luna.attr_static(lang)))
     None => ()
   }
-
   @luna.h("pre", attrs, [@luna.h("code", [], children)])
 }
 

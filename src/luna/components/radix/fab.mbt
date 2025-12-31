@@ -35,7 +35,6 @@ pub fn radix_fab(
     Some(Lg) => "lg"
     _ => "md"
   }
-
   let position_str = match position {
     Some(BottomLeft) => "bottom-left"
     Some(BottomCenter) => "bottom-center"
@@ -43,19 +42,16 @@ pub fn radix_fab(
     Some(TopLeft) => "top-left"
     _ => "bottom-right"
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-fab")),
     ("type", @luna.attr_static("button")),
     ("data-size", @luna.attr_static(size_str)),
     ("data-position", @luna.attr_static(position_str)),
   ]
-
   match extended {
     Some(true) => attrs.push(("data-extended", @luna.attr_static("")))
     _ => ()
   }
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -63,7 +59,6 @@ pub fn radix_fab(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -228,17 +223,14 @@ pub fn radix_fab_styled(
     Some(Lg) => "lg"
     _ => "md"
   }
-
   let css = match styles {
     Some(s) => s
     None => fab_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -246,20 +238,16 @@ pub fn radix_fab_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("data-size", @luna.attr_static(size_str)),
   ]
-
   match extended {
     Some(true) => attrs.push(("data-extended", @luna.attr_static("")))
     _ => ()
   }
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -267,7 +255,6 @@ pub fn radix_fab_styled(
     }
     _ => ()
   }
-
   @luna.h("radix-fab", attrs, all_children)
 }
 
@@ -284,24 +271,20 @@ pub fn radix_fab_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let class_names = fab_base_styles(size, extended)
-
   let size_str = match size {
     Some(Sm) => "sm"
     Some(Lg) => "lg"
     _ => "md"
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("type", @luna.attr_static("button")),
     ("data-size", @luna.attr_static(size_str)),
   ]
-
   match extended {
     Some(true) => attrs.push(("data-extended", @luna.attr_static("")))
     _ => ()
   }
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -309,7 +292,6 @@ pub fn radix_fab_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -320,7 +302,6 @@ pub fn radix_fab_container_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let class_names = fab_container_styles(position)
-
   let position_str = match position {
     Some(BottomLeft) => "bottom-left"
     Some(BottomCenter) => "bottom-center"
@@ -328,7 +309,6 @@ pub fn radix_fab_container_ucss(
     Some(TopLeft) => "top-left"
     _ => "bottom-right"
   }
-
   @luna.h(
     "div",
     [

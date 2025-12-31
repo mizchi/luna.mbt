@@ -14,7 +14,6 @@ pub fn radix_combobox(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -55,17 +54,14 @@ pub fn radix_combobox_input(
     ("role", @luna.attr_static("combobox")),
     ("aria-autocomplete", @luna.attr_static("list")),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
   }
-
   match value {
     Some(v) => attrs.push(("value", @luna.attr_static(v)))
     None => ()
   }
-
   @luna.h("input", attrs, [])
 }
 
@@ -98,7 +94,6 @@ pub fn radix_combobox_item(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-combobox-item")),
     ("role", @luna.attr_static("option")),
@@ -108,16 +103,13 @@ pub fn radix_combobox_item(
       @luna.attr_static(if is_selected { "true" } else { "false" }),
     ),
   ]
-
   if is_selected {
     attrs.push(("data-selected", @luna.attr_static("")))
   }
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -278,7 +270,6 @@ pub fn radix_combobox_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => combobox_styles()
@@ -298,11 +289,9 @@ pub fn radix_combobox_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-combobox",
     [("data-state", @luna.attr_static(state))],
@@ -325,7 +314,6 @@ pub fn radix_combobox_ucss(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let class_names = combobox_base_styles()
   @luna.h(
     "div",
@@ -355,21 +343,16 @@ pub fn radix_combobox_trigger_ucss(
 
 ///|
 /// Create a combobox input with luna/css atomic styles
-pub fn radix_combobox_input_ucss(
-  placeholder? : String,
-) -> @luna.Node[Unit] {
+pub fn radix_combobox_input_ucss(placeholder? : String) -> @luna.Node[Unit] {
   let class_names = combobox_input_styles()
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("type", @luna.attr_static("text")),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
   }
-
   @luna.h("input", attrs, [])
 }
 
@@ -401,15 +384,12 @@ pub fn radix_combobox_item_ucss(
     Some(true) => true
     _ => false
   }
-
   let mut class_names = combobox_item_styles()
-
   if is_selected {
     class_names = class_names +
       " " +
       @css.styles([("background", "#f4f4f5"), ("font-weight", "500")])
   }
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -417,21 +397,17 @@ pub fn radix_combobox_item_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("option")),
     ("data-value", @luna.attr_static(value)),
   ]
-
   if is_selected {
     attrs.push(("data-selected", @luna.attr_static("")))
   }
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }

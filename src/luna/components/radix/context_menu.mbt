@@ -8,11 +8,7 @@
 pub fn radix_context_menu(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-context-menu"))],
-    children,
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-context-menu"))], children)
 }
 
 ///|
@@ -55,12 +51,10 @@ pub fn radix_context_menu_item(
     ("class", @luna.attr_static("radix-context-menu-item")),
     ("role", @luna.attr_static("menuitem")),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -76,7 +70,6 @@ pub fn radix_context_menu_checkbox_item(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-context-menu-checkbox-item")),
     ("role", @luna.attr_static("menuitemcheckbox")),
@@ -85,16 +78,13 @@ pub fn radix_context_menu_checkbox_item(
       @luna.attr_static(if is_checked { "true" } else { "false" }),
     ),
   ]
-
   if is_checked {
     attrs.push(("data-state", @luna.attr_static("checked")))
   }
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -126,7 +116,6 @@ pub fn radix_context_menu_radio_item(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-context-menu-radio-item")),
     ("role", @luna.attr_static("menuitemradio")),
@@ -135,16 +124,13 @@ pub fn radix_context_menu_radio_item(
       @luna.attr_static(if is_checked { "true" } else { "false" }),
     ),
   ]
-
   if is_checked {
     attrs.push(("data-state", @luna.attr_static("checked")))
   }
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -316,11 +302,9 @@ pub fn radix_context_menu_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-context-menu", [], all_children)
 }
 
@@ -351,7 +335,6 @@ pub fn radix_context_menu_item_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = context_menu_item_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -359,17 +342,14 @@ pub fn radix_context_menu_item_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("menuitem")),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 

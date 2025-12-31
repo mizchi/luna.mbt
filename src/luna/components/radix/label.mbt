@@ -13,17 +13,14 @@ pub fn radix_label(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-label")),
   ]
-
   match for_ {
     Some(f) => attrs.push(("for", @luna.attr_static(f)))
     None => ()
   }
-
   match required {
     Some(true) => attrs.push(("data-required", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("label", attrs, children)
 }
 
@@ -77,17 +74,14 @@ pub fn radix_label_styled(
   let label_attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("label")),
   ]
-
   match for_ {
     Some(f) => label_attrs.push(("for", @luna.attr_static(f)))
     None => ()
   }
-
   match required {
     Some(true) => label_attrs.push(("data-required", @luna.attr_static("")))
     _ => ()
   }
-
   match disabled {
     Some(true) => label_attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
@@ -107,7 +101,6 @@ pub fn radix_label_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
@@ -118,7 +111,6 @@ pub fn radix_label_styled(
     Some(true) => host_attrs.push(("data-required", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("radix-label", host_attrs, all_children)
 }
 
@@ -135,25 +127,20 @@ pub fn radix_label_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = label_base_styles()
-
   match disabled {
     Some(true) => class_names = class_names + " " + label_disabled_styles()
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match for_ {
     Some(f) => attrs.push(("for", @luna.attr_static(f)))
     None => ()
   }
-
   match required {
     Some(true) => attrs.push(("data-required", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("label", attrs, children)
 }

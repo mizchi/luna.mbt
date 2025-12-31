@@ -25,11 +25,7 @@ pub fn ScrollOrientation::to_string(self : ScrollOrientation) -> String {
 pub fn radix_scroll_area(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-scroll-area"))],
-    children,
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-scroll-area"))], children)
 }
 
 ///|
@@ -56,7 +52,6 @@ pub fn radix_scroll_area_scrollbar(
     Some(o) => o
     None => Vertical
   }
-
   @luna.h(
     "div",
     [
@@ -78,11 +73,7 @@ pub fn radix_scroll_area_thumb() -> @luna.Node[Unit] {
 /// Create a headless scroll area corner
 /// Outputs: <div class="radix-scroll-area-corner"></div>
 pub fn radix_scroll_area_corner() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-scroll-area-corner"))],
-    [],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-scroll-area-corner"))], [])
 }
 
 // =============================================================================
@@ -181,11 +172,9 @@ pub fn radix_scroll_area_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-scroll-area", [], all_children)
 }
 
@@ -221,7 +210,6 @@ pub fn radix_scroll_area_scrollbar_ucss(
     Some(o) => o
     None => Vertical
   }
-
   let class_names = scroll_area_scrollbar_styles(orient)
   @luna.h(
     "div",

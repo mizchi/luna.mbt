@@ -14,7 +14,6 @@ pub fn radix_dialog(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -215,7 +214,6 @@ pub fn radix_dialog_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => dialog_styles()
@@ -235,11 +233,9 @@ pub fn radix_dialog_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-dialog",
     [("data-state", @luna.attr_static(state))],

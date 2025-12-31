@@ -28,7 +28,6 @@ pub fn radix_toggle_group(
     Some(t) => t
     None => Single
   }
-
   @luna.h(
     "div",
     [
@@ -54,7 +53,6 @@ pub fn radix_toggle_group_item(
     _ => false
   }
   let state = if is_pressed { "on" } else { "off" }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-toggle-group-item")),
     ("data-state", @luna.attr_static(state)),
@@ -64,7 +62,6 @@ pub fn radix_toggle_group_item(
       @luna.attr_static(if is_pressed { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -72,7 +69,6 @@ pub fn radix_toggle_group_item(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -141,7 +137,6 @@ pub fn radix_toggle_group_styled(
     Some(t) => t
     None => Single
   }
-
   let css = match styles {
     Some(s) => s
     None => toggle_group_styles()
@@ -161,11 +156,9 @@ pub fn radix_toggle_group_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-toggle-group",
     [("data-type", @luna.attr_static(type_val.to_string()))],
@@ -187,7 +180,6 @@ pub fn radix_toggle_group_ucss(
     Some(t) => t
     None => Single
   }
-
   let class_names = toggle_group_base_styles()
   @luna.h(
     "div",
@@ -213,13 +205,10 @@ pub fn radix_toggle_group_item_ucss(
     _ => false
   }
   let state = if is_pressed { "on" } else { "off" }
-
   let mut class_names = toggle_group_item_styles()
-
   if is_pressed {
     class_names = class_names + " " + toggle_group_item_active_styles()
   }
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -227,7 +216,6 @@ pub fn radix_toggle_group_item_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("data-state", @luna.attr_static(state)),
@@ -237,7 +225,6 @@ pub fn radix_toggle_group_item_ucss(
       @luna.attr_static(if is_pressed { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -245,6 +232,5 @@ pub fn radix_toggle_group_item_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

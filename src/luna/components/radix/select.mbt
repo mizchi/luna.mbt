@@ -38,7 +38,6 @@ pub fn radix_select(
     Some(s) => s
     None => Medium
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-select")),
     ("data-size", @luna.attr_static(size_val.to_string())),
@@ -96,7 +95,6 @@ pub fn radix_select(
   // For headless, we just output select. Label/help_text are ignored.
   let _ = label
   let _ = help_text
-
   @luna.h("select", attrs, option_nodes)
 }
 
@@ -188,7 +186,6 @@ pub fn radix_select_styled(
     Some(s) => s
     None => Medium
   }
-
   let css = match styles {
     Some(s) => s
     None => select_styles()
@@ -387,6 +384,5 @@ pub fn radix_select_ucss(
     }
     option_nodes.push(@luna.h("option", opt_attrs, [@luna.text(opt.label)]))
   }
-
   @luna.h("select", attrs, option_nodes)
 }

@@ -18,7 +18,6 @@ pub fn radix_progress(
     Some(v) => v
     None => 0
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-progress")),
     ("role", @luna.attr_static("progressbar")),
@@ -28,7 +27,6 @@ pub fn radix_progress(
     ("data-value", @luna.attr_static(value_val.to_string())),
     ("data-max", @luna.attr_static(max_val.to_string())),
   ]
-
   @luna.h("div", attrs, children)
 }
 
@@ -48,15 +46,15 @@ pub fn radix_progress_indicator(value? : Int, max? : Int) -> @luna.Node[Unit] {
   // Calculate percentage
   let percentage = if max_val > 0 { value_val * 100 / max_val } else { 0 }
   let translate = 100 - percentage
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-progress-indicator")),
     (
       "style",
-      @luna.attr_static("transform: translateX(-" + translate.to_string() + "%)"),
+      @luna.attr_static(
+        "transform: translateX(-" + translate.to_string() + "%)",
+      ),
     ),
   ]
-
   @luna.h("div", attrs, [])
 }
 
@@ -105,7 +103,6 @@ pub fn radix_progress_styled(
     Some(v) => v
     None => 0
   }
-
   let css = match styles {
     Some(s) => s
     None => progress_styles()
@@ -180,9 +177,7 @@ pub fn radix_progress_ucss(
     Some(v) => v
     None => 0
   }
-
   let class_names = progress_base_styles()
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("progressbar")),
@@ -190,7 +185,6 @@ pub fn radix_progress_ucss(
     ("aria-valuemin", @luna.attr_static("0")),
     ("aria-valuemax", @luna.attr_static(max_val.to_string())),
   ]
-
   @luna.h("div", attrs, children)
 }
 
@@ -212,16 +206,15 @@ pub fn radix_progress_indicator_ucss(
   // Calculate percentage
   let percentage = if max_val > 0 { value_val * 100 / max_val } else { 0 }
   let translate = 100 - percentage
-
   let class_names = progress_indicator_styles()
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     (
       "style",
-      @luna.attr_static("transform: translateX(-" + translate.to_string() + "%)"),
+      @luna.attr_static(
+        "transform: translateX(-" + translate.to_string() + "%)",
+      ),
     ),
   ]
-
   @luna.h("div", attrs, [])
 }

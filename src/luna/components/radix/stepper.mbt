@@ -28,7 +28,6 @@ pub fn radix_stepper(
     Some(Vertical) => "vertical"
     _ => "horizontal"
   }
-
   @luna.h(
     "div",
     [
@@ -51,7 +50,6 @@ pub fn radix_stepper_item(
     Some(Current) => "current"
     _ => "upcoming"
   }
-
   @luna.h(
     "div",
     [
@@ -72,7 +70,6 @@ pub fn radix_stepper_trigger(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-stepper-trigger")),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -80,7 +77,6 @@ pub fn radix_stepper_trigger(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -127,11 +123,7 @@ pub fn radix_stepper_description(
 /// Create a headless stepper separator
 /// Outputs: <div class="radix-stepper-separator"></div>
 pub fn radix_stepper_separator() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-stepper-separator"))],
-    [],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-stepper-separator"))], [])
 }
 
 ///|
@@ -271,17 +263,14 @@ pub fn radix_stepper_styled(
     Some(Vertical) => "vertical"
     _ => "horizontal"
   }
-
   let css = match styles {
     Some(s) => s
     None => stepper_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -289,11 +278,9 @@ pub fn radix_stepper_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-stepper",
     [("data-orientation", @luna.attr_static(orient))],
@@ -315,7 +302,6 @@ pub fn radix_stepper_ucss(
     Some(Vertical) => "vertical"
     _ => "horizontal"
   }
-
   let class_names = stepper_base_styles(orientation)
   @luna.h(
     "div",
@@ -338,7 +324,6 @@ pub fn radix_stepper_item_ucss(
     Some(Current) => "current"
     _ => "upcoming"
   }
-
   let class_names = stepper_item_styles()
   @luna.h(
     "div",

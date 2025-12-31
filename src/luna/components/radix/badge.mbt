@@ -33,12 +33,10 @@ pub fn radix_badge(
     Some(v) => v
     None => Default
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-badge")),
     ("data-variant", @luna.attr_static(variant_val.to_string())),
   ]
-
   @luna.h("span", attrs, children)
 }
 
@@ -138,7 +136,6 @@ pub fn radix_badge_styled(
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-badge", [], all_children)
 }
 
@@ -160,7 +157,8 @@ pub fn radix_badge_ucss(
   }
 
   // Build class names using luna/css
-  let class_names = badge_base_styles() + " " + badge_variant_styles(variant_val)
-
+  let class_names = badge_base_styles() +
+    " " +
+    badge_variant_styles(variant_val)
   @luna.h("span", [("class", @luna.attr_static(class_names))], children)
 }

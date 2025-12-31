@@ -14,26 +14,21 @@ pub fn radix_tabs(
     Some(o) => o
     None => Horizontal
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-tabs")),
     ("data-orientation", @luna.attr_static(orient.to_string())),
   ]
-
   match default_value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v)))
     None => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
 ///|
 /// Create a headless tabs list (container for triggers)
 /// Outputs: <div class="radix-tabs-list" role="tablist">children</div>
-pub fn radix_tabs_list(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_tabs_list(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h(
     "div",
     [
@@ -57,7 +52,6 @@ pub fn radix_tabs_trigger(
     ("role", @luna.attr_static("tab")),
     ("data-value", @luna.attr_static(value)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -65,7 +59,6 @@ pub fn radix_tabs_trigger(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -174,7 +167,6 @@ pub fn radix_tabs_styled(
     Some(o) => o
     None => Horizontal
   }
-
   let css = match styles {
     Some(s) => s
     None => tabs_styles()
@@ -185,7 +177,6 @@ pub fn radix_tabs_styled(
     ("class", @luna.attr_static("tabs")),
     ("data-orientation", @luna.attr_static(orient.to_string())),
   ]
-
   match default_value {
     Some(v) => tabs_attrs.push(("data-value", @luna.attr_static(v)))
     None => ()
@@ -205,7 +196,6 @@ pub fn radix_tabs_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
@@ -214,7 +204,6 @@ pub fn radix_tabs_styled(
   let host_attrs : Array[(String, @luna.Attr[Unit])] = [
     ("data-orientation", @luna.attr_static(orient.to_string())),
   ]
-
   @luna.h("radix-tabs", host_attrs, all_children)
 }
 
@@ -232,7 +221,6 @@ pub fn radix_tabs_ucss(
     Some(o) => o
     None => Horizontal
   }
-
   let class_names = tabs_base_styles() + " " + tabs_orientation_styles(orient)
   @luna.h("div", [("class", @luna.attr_static(class_names))], children)
 }
@@ -245,7 +233,10 @@ pub fn radix_tabs_list_ucss(
   let class_names = tabs_list_styles()
   @luna.h(
     "div",
-    [("class", @luna.attr_static(class_names)), ("role", @luna.attr_static("tablist"))],
+    [
+      ("class", @luna.attr_static(class_names)),
+      ("role", @luna.attr_static("tablist")),
+    ],
     children,
   )
 }
@@ -262,23 +253,21 @@ pub fn radix_tabs_trigger_ucss(
     Some(true) => true
     _ => false
   }
-
-  let mut class_names = tabs_trigger_styles() + " " + tabs_trigger_focus_styles()
+  let mut class_names = tabs_trigger_styles() +
+    " " +
+    tabs_trigger_focus_styles()
   if is_active {
     class_names = class_names + " " + tabs_trigger_active_styles()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("tab")),
     ("data-value", @luna.attr_static(value)),
   ]
-
   match disabled {
     Some(true) => attrs.push(("disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 

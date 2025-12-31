@@ -26,11 +26,7 @@ pub fn radix_timeline_item(
 /// Create a headless timeline connector (the line between items)
 /// Outputs: <div class="radix-timeline-connector"></div>
 pub fn radix_timeline_connector() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-timeline-connector"))],
-    [],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-timeline-connector"))], [])
 }
 
 ///|
@@ -65,12 +61,10 @@ pub fn radix_timeline_time(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-timeline-time")),
   ]
-
   match datetime {
     Some(dt) => attrs.push(("datetime", @luna.attr_static(dt)))
     None => ()
   }
-
   @luna.h("time", attrs, children)
 }
 
@@ -195,12 +189,10 @@ pub fn radix_timeline_styled(
     Some(s) => s
     None => timeline_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -208,11 +200,9 @@ pub fn radix_timeline_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-timeline", [], all_children)
 }
 

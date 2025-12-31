@@ -20,7 +20,6 @@ pub fn radix_list(
     Some(Ordered) => "ol"
     _ => "ul"
   }
-
   @luna.h(tag, [("class", @luna.attr_static("radix-list"))], children)
 }
 
@@ -122,12 +121,10 @@ pub fn radix_list_styled(
     Some(s) => s
     None => list_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -135,16 +132,13 @@ pub fn radix_list_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   let tag = match list_type {
     Some(Ordered) => "radix-list-ol"
     _ => "radix-list-ul"
   }
-
   @luna.h(tag, [], all_children)
 }
 
@@ -162,7 +156,6 @@ pub fn radix_list_ucss(
     Some(Ordered) => "ol"
     _ => "ul"
   }
-
   let class_names = list_base_styles()
   @luna.h(tag, [("class", @luna.attr_static(class_names))], children)
 }
@@ -185,13 +178,8 @@ pub fn radix_list_item_icon_ucss(
   let item_class = list_item_icon_styles()
   let icon_class = list_item_icon_slot_styles()
   let content_class = list_item_content_styles()
-
-  @luna.h(
-    "li",
-    [("class", @luna.attr_static(item_class))],
-    [
-      @luna.h("span", [("class", @luna.attr_static(icon_class))], icon),
-      @luna.h("span", [("class", @luna.attr_static(content_class))], children),
-    ],
-  )
+  @luna.h("li", [("class", @luna.attr_static(item_class))], [
+    @luna.h("span", [("class", @luna.attr_static(icon_class))], icon),
+    @luna.h("span", [("class", @luna.attr_static(content_class))], children),
+  ])
 }

@@ -18,7 +18,6 @@ pub fn radix_separator(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-separator")),
     ("data-orientation", @luna.attr_static(orient.to_string())),
@@ -36,7 +35,6 @@ pub fn radix_separator(
       Horizontal => ()
     }
   }
-
   @luna.h("div", attrs, [])
 }
 
@@ -90,7 +88,6 @@ pub fn radix_separator_styled(
     Some(true) => true
     _ => false
   }
-
   let css = match styles {
     Some(s) => s
     None => separator_styles()
@@ -173,10 +170,10 @@ pub fn radix_separator_ucss(
   } else {
     attrs.push(("role", @luna.attr_static("separator")))
     match orient {
-      Vertical => attrs.push(("aria-orientation", @luna.attr_static("vertical")))
+      Vertical =>
+        attrs.push(("aria-orientation", @luna.attr_static("vertical")))
       Horizontal => ()
     }
   }
-
   @luna.h("div", attrs, [])
 }

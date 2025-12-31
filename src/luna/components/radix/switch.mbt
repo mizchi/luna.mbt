@@ -21,7 +21,6 @@ pub fn radix_switch(
     Some(s) => s
     None => Medium
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-switch")),
     ("role", @luna.attr_static("switch")),
@@ -32,7 +31,6 @@ pub fn radix_switch(
       @luna.attr_static(if is_checked { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -41,7 +39,6 @@ pub fn radix_switch(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -168,7 +165,6 @@ pub fn radix_switch_styled(
     Some(s) => s
     None => Medium
   }
-
   let css = match styles {
     Some(s) => s
     None => switch_styles()
@@ -292,7 +288,6 @@ pub fn radix_switch_ucss(
       @luna.attr_static(if is_checked { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -300,6 +295,5 @@ pub fn radix_switch_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

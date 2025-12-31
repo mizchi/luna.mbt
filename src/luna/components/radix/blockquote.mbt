@@ -5,9 +5,7 @@
 ///|
 /// Create a headless blockquote
 /// Outputs: <blockquote class="radix-blockquote">children</blockquote>
-pub fn radix_blockquote(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_blockquote(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h(
     "blockquote",
     [("class", @luna.attr_static("radix-blockquote"))],
@@ -106,12 +104,10 @@ pub fn radix_blockquote_styled(
     Some(s) => s
     None => blockquote_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -119,11 +115,9 @@ pub fn radix_blockquote_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-blockquote", [], all_children)
 }
 

@@ -5,9 +5,7 @@
 ///|
 /// Create a headless calendar root
 /// Outputs: <div class="radix-calendar">children</div>
-pub fn radix_calendar(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_calendar(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h("div", [("class", @luna.attr_static("radix-calendar"))], children)
 }
 
@@ -56,7 +54,6 @@ pub fn radix_calendar_nav_button(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-calendar-nav-button")),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -64,7 +61,6 @@ pub fn radix_calendar_nav_button(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -158,11 +154,9 @@ pub fn radix_calendar_cell(
     Some(true) => true
     _ => false
   }
-
   let button_attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-calendar-day")),
   ]
-
   if is_selected {
     button_attrs.push(("data-selected", @luna.attr_static("")))
   }
@@ -172,7 +166,6 @@ pub fn radix_calendar_cell(
   if is_outside {
     button_attrs.push(("data-outside-month", @luna.attr_static("")))
   }
-
   match disabled {
     Some(true) => {
       button_attrs.push(("data-disabled", @luna.attr_static("")))
@@ -180,12 +173,9 @@ pub fn radix_calendar_cell(
     }
     _ => ()
   }
-
-  @luna.h(
-    "td",
-    [("class", @luna.attr_static("radix-calendar-cell"))],
-    [@luna.h("button", button_attrs, [@luna.text(day.to_string())])],
-  )
+  @luna.h("td", [("class", @luna.attr_static("radix-calendar-cell"))], [
+    @luna.h("button", button_attrs, [@luna.text(day.to_string())]),
+  ])
 }
 
 // =============================================================================
@@ -327,11 +317,9 @@ pub fn radix_calendar_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-calendar", [], all_children)
 }
 
@@ -364,7 +352,6 @@ pub fn radix_calendar_nav_button_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = calendar_nav_button_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -372,11 +359,9 @@ pub fn radix_calendar_nav_button_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -384,7 +369,6 @@ pub fn radix_calendar_nav_button_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -409,9 +393,7 @@ pub fn radix_calendar_day_ucss(
     Some(true) => true
     _ => false
   }
-
   let mut class_names = calendar_day_styles()
-
   if is_selected {
     class_names = class_names +
       " " +
@@ -421,11 +403,9 @@ pub fn radix_calendar_day_ucss(
       " " +
       @css.styles([("background", "#f4f4f5"), ("font-weight", "600")])
   }
-
   if is_outside {
     class_names = class_names + " " + @css.styles([("color", "#a1a1aa")])
   }
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -433,11 +413,9 @@ pub fn radix_calendar_day_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -445,6 +423,5 @@ pub fn radix_calendar_day_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, [@luna.text(day.to_string())])
 }

@@ -5,9 +5,7 @@
 ///|
 /// Create a headless breadcrumb root
 /// Outputs: <nav class="radix-breadcrumb" aria-label="Breadcrumb"><ol>children</ol></nav>
-pub fn radix_breadcrumb(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_breadcrumb(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h(
     "nav",
     [
@@ -90,11 +88,9 @@ pub fn radix_breadcrumb_separator(
 /// Create a headless breadcrumb ellipsis (for collapsed items)
 /// Outputs: <span class="radix-breadcrumb-ellipsis">...</span>
 pub fn radix_breadcrumb_ellipsis() -> @luna.Node[Unit] {
-  @luna.h(
-    "span",
-    [("class", @luna.attr_static("radix-breadcrumb-ellipsis"))],
-    [@luna.text("...")],
-  )
+  @luna.h("span", [("class", @luna.attr_static("radix-breadcrumb-ellipsis"))], [
+    @luna.text("..."),
+  ])
 }
 
 // =============================================================================
@@ -179,11 +175,9 @@ pub fn radix_breadcrumb_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-breadcrumb", [], all_children)
 }
 
@@ -197,11 +191,9 @@ pub fn radix_breadcrumb_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let list_class = breadcrumb_list_styles()
-  @luna.h(
-    "nav",
-    [("aria-label", @luna.attr_static("Breadcrumb"))],
-    [@luna.h("ol", [("class", @luna.attr_static(list_class))], children)],
-  )
+  @luna.h("nav", [("aria-label", @luna.attr_static("Breadcrumb"))], [
+    @luna.h("ol", [("class", @luna.attr_static(list_class))], children),
+  ])
 }
 
 ///|

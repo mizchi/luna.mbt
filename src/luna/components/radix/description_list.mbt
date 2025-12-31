@@ -127,12 +127,10 @@ pub fn radix_description_list_styled(
     Some(s) => s
     None => description_list_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -140,11 +138,9 @@ pub fn radix_description_list_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-description-list", [], all_children)
 }
 

@@ -17,12 +17,10 @@ pub fn radix_command_input(placeholder? : String) -> @luna.Node[Unit] {
     ("class", @luna.attr_static("radix-command-input")),
     ("type", @luna.attr_static("text")),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
   }
-
   @luna.h("input", attrs, [])
 }
 
@@ -66,12 +64,10 @@ pub fn radix_command_group(
     ("class", @luna.attr_static("radix-command-group")),
     ("role", @luna.attr_static("group")),
   ]
-
   match heading {
     Some(h) => attrs.push(("data-heading", @luna.attr_static(h)))
     None => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -100,17 +96,14 @@ pub fn radix_command_item(
     ("class", @luna.attr_static("radix-command-item")),
     ("role", @luna.attr_static("option")),
   ]
-
   match value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v)))
     None => ()
   }
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -118,11 +111,7 @@ pub fn radix_command_item(
 /// Create a headless command separator
 /// Outputs: <div class="radix-command-separator"></div>
 pub fn radix_command_separator() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-command-separator"))],
-    [],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-command-separator"))], [])
 }
 
 ///|
@@ -256,11 +245,9 @@ pub fn radix_command_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-command", [], all_children)
 }
 
@@ -281,17 +268,14 @@ pub fn radix_command_ucss(
 /// Create a command input with luna/css atomic styles
 pub fn radix_command_input_ucss(placeholder? : String) -> @luna.Node[Unit] {
   let class_names = command_input_styles()
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("type", @luna.attr_static("text")),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
   }
-
   @luna.h("input", attrs, [])
 }
 
@@ -318,7 +302,6 @@ pub fn radix_command_item_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = command_item_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -326,17 +309,14 @@ pub fn radix_command_item_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("option")),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 

@@ -6,9 +6,7 @@
 /// Create a headless card container
 /// Outputs: <div class="radix-card" data-variant="...">children</div>
 /// Style with external CSS
-pub fn radix_card(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_card(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h("div", [("class", @luna.attr_static("radix-card"))], children)
 }
 
@@ -24,9 +22,7 @@ pub fn radix_card_header(
 ///|
 /// Create a headless card title
 /// Outputs: <h3 class="radix-card-title">children</h3>
-pub fn radix_card_title(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_card_title(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h("h3", [("class", @luna.attr_static("radix-card-title"))], children)
 }
 
@@ -144,11 +140,9 @@ pub fn radix_card_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-card", [], all_children)
 }
 
@@ -158,9 +152,7 @@ pub fn radix_card_styled(
 
 ///|
 /// Create a card with luna/css atomic styles
-pub fn radix_card_ucss(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_card_ucss(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   let class_names = card_base_styles()
   @luna.h("div", [("class", @luna.attr_static(class_names))], children)
 }

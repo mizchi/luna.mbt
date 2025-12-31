@@ -5,9 +5,7 @@
 ///|
 /// Create a headless segmented control root
 /// Outputs: <div class="radix-segmented" role="radiogroup">children</div>
-pub fn radix_segmented(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_segmented(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h(
     "div",
     [
@@ -31,7 +29,6 @@ pub fn radix_segmented_item(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-segmented-item")),
     ("role", @luna.attr_static("radio")),
@@ -41,11 +38,9 @@ pub fn radix_segmented_item(
       @luna.attr_static(if is_selected { "true" } else { "false" }),
     ),
   ]
-
   if is_selected {
     attrs.push(("data-selected", @luna.attr_static("")))
   }
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -53,7 +48,6 @@ pub fn radix_segmented_item(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -119,12 +113,10 @@ pub fn radix_segmented_styled(
     Some(s) => s
     None => segmented_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -132,11 +124,9 @@ pub fn radix_segmented_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-segmented",
     [("role", @luna.attr_static("radiogroup"))],
@@ -176,9 +166,7 @@ pub fn radix_segmented_item_ucss(
     Some(true) => true
     _ => false
   }
-
   let class_names = segmented_item_styles(selected)
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("radio")),
@@ -188,11 +176,9 @@ pub fn radix_segmented_item_ucss(
       @luna.attr_static(if is_selected { "true" } else { "false" }),
     ),
   ]
-
   if is_selected {
     attrs.push(("data-selected", @luna.attr_static("")))
   }
-
   match disabled {
     Some(true) => {
       attrs.push(("disabled", @luna.attr_static("")))
@@ -200,6 +186,5 @@ pub fn radix_segmented_item_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

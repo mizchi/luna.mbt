@@ -24,9 +24,7 @@ pub fn TooltipSide::to_string(self : TooltipSide) -> String {
 ///|
 /// Create a headless tooltip root
 /// Outputs: <div class="radix-tooltip">children</div>
-pub fn radix_tooltip(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_tooltip(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h("div", [("class", @luna.attr_static("radix-tooltip"))], children)
 }
 
@@ -54,7 +52,6 @@ pub fn radix_tooltip_content(
     Some(s) => s
     None => Top
   }
-
   @luna.h(
     "div",
     [
@@ -152,11 +149,9 @@ pub fn radix_tooltip_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-tooltip", [], all_children)
 }
 
@@ -192,11 +187,9 @@ pub fn radix_tooltip_content_ucss(
     Some(s) => s
     None => Top
   }
-
   let class_names = tooltip_content_styles() +
     " " +
     tooltip_side_styles(side_val)
-
   @luna.h(
     "div",
     [

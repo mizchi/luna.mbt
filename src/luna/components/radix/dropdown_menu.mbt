@@ -14,7 +14,6 @@ pub fn radix_dropdown_menu(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -68,12 +67,10 @@ pub fn radix_dropdown_menu_item(
     ("class", @luna.attr_static("radix-dropdown-menu-item")),
     ("role", @luna.attr_static("menuitem")),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -202,7 +199,6 @@ pub fn radix_dropdown_menu_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => dropdown_menu_styles()
@@ -222,11 +218,9 @@ pub fn radix_dropdown_menu_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-dropdown-menu",
     [("data-state", @luna.attr_static(state))],
@@ -249,7 +243,6 @@ pub fn radix_dropdown_menu_ucss(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let class_names = dropdown_menu_base_styles()
   @luna.h(
     "div",
@@ -300,7 +293,6 @@ pub fn radix_dropdown_menu_item_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = dropdown_menu_item_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -308,17 +300,14 @@ pub fn radix_dropdown_menu_item_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("menuitem")),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 

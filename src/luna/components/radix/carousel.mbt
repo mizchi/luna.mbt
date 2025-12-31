@@ -13,7 +13,6 @@ pub fn radix_carousel(
     Some(o) => o
     None => Horizontal
   }
-
   @luna.h(
     "div",
     [
@@ -60,7 +59,6 @@ pub fn radix_carousel_previous(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-carousel-previous")),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -68,7 +66,6 @@ pub fn radix_carousel_previous(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -82,7 +79,6 @@ pub fn radix_carousel_next(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-carousel-next")),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -90,7 +86,6 @@ pub fn radix_carousel_next(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -116,7 +111,6 @@ pub fn radix_carousel_dot(active? : Bool) -> @luna.Node[Unit] {
     _ => false
   }
   let state = if is_active { "active" } else { "inactive" }
-
   @luna.h(
     "button",
     [
@@ -235,7 +229,6 @@ pub fn radix_carousel_styled(
     Some(o) => o
     None => Horizontal
   }
-
   let css = match styles {
     Some(s) => s
     None => carousel_styles()
@@ -255,11 +248,9 @@ pub fn radix_carousel_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-carousel",
     [("data-orientation", @luna.attr_static(orient.to_string()))],
@@ -281,7 +272,6 @@ pub fn radix_carousel_ucss(
     Some(o) => o
     None => Horizontal
   }
-
   let class_names = carousel_base_styles()
   @luna.h(
     "div",
@@ -318,7 +308,6 @@ pub fn radix_carousel_nav_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = carousel_nav_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -326,11 +315,9 @@ pub fn radix_carousel_nav_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -338,7 +325,6 @@ pub fn radix_carousel_nav_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -350,12 +336,10 @@ pub fn radix_carousel_dot_ucss(active? : Bool) -> @luna.Node[Unit] {
     _ => false
   }
   let state = if is_active { "active" } else { "inactive" }
-
   let mut class_names = carousel_dot_styles()
   if is_active {
     class_names = class_names + " " + @css.styles([("background", "#18181b")])
   }
-
   @luna.h(
     "button",
     [

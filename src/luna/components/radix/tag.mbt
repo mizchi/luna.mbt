@@ -37,13 +37,11 @@ pub fn radix_tag(
     Some(Error) => "error"
     _ => "default"
   }
-
   let size_str = match size {
     Some(Sm) => "sm"
     Some(Lg) => "lg"
     _ => "md"
   }
-
   @luna.h(
     "span",
     [
@@ -206,23 +204,19 @@ pub fn radix_tag_styled(
     Some(Error) => "error"
     _ => "default"
   }
-
   let size_str = match size {
     Some(Sm) => "sm"
     Some(Lg) => "lg"
     _ => "md"
   }
-
   let css = match styles {
     Some(s) => s
     None => tag_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -230,11 +224,9 @@ pub fn radix_tag_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-tag",
     [
@@ -257,7 +249,6 @@ pub fn radix_tag_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let class_names = tag_base_styles(variant, size)
-
   let variant_str = match variant {
     Some(Primary) => "primary"
     Some(Secondary) => "secondary"
@@ -266,13 +257,11 @@ pub fn radix_tag_ucss(
     Some(Error) => "error"
     _ => "default"
   }
-
   let size_str = match size {
     Some(Sm) => "sm"
     Some(Lg) => "lg"
     _ => "md"
   }
-
   @luna.h(
     "span",
     [

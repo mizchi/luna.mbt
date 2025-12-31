@@ -15,23 +15,19 @@ pub fn radix_rating(
     Some(m) => m
     None => 5
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-rating")),
     ("role", @luna.attr_static("radiogroup")),
     ("data-max", @luna.attr_static(max_val.to_string())),
   ]
-
   match value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v.to_string())))
     None => ()
   }
-
   match read_only {
     Some(true) => attrs.push(("data-readonly", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -52,21 +48,21 @@ pub fn radix_rating_item(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-rating-item")),
     ("role", @luna.attr_static("radio")),
     ("data-value", @luna.attr_static(value.to_string())),
-    ("aria-checked", @luna.attr_static(if is_filled { "true" } else { "false" })),
+    (
+      "aria-checked",
+      @luna.attr_static(if is_filled { "true" } else { "false" }),
+    ),
   ]
-
   if is_filled {
     attrs.push(("data-filled", @luna.attr_static("")))
   }
   if is_half {
     attrs.push(("data-half", @luna.attr_static("")))
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -167,17 +163,14 @@ pub fn radix_rating_styled(
     Some(m) => m
     None => 5
   }
-
   let css = match styles {
     Some(s) => s
     None => rating_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -185,26 +178,21 @@ pub fn radix_rating_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("role", @luna.attr_static("radiogroup")),
     ("data-max", @luna.attr_static(max_val.to_string())),
   ]
-
   match value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v.to_string())))
     None => ()
   }
-
   match read_only {
     Some(true) => attrs.push(("data-readonly", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("radix-rating", attrs, all_children)
 }
 
@@ -224,25 +212,20 @@ pub fn radix_rating_ucss(
     Some(m) => m
     None => 5
   }
-
   let class_names = rating_base_styles()
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("radiogroup")),
     ("data-max", @luna.attr_static(max_val.to_string())),
   ]
-
   match value {
     Some(v) => attrs.push(("data-value", @luna.attr_static(v.to_string())))
     None => ()
   }
-
   match read_only {
     Some(true) => attrs.push(("data-readonly", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -257,19 +240,18 @@ pub fn radix_rating_item_ucss(
     Some(true) => true
     _ => false
   }
-
   let class_names = rating_item_styles(filled)
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("radio")),
     ("data-value", @luna.attr_static(value.to_string())),
-    ("aria-checked", @luna.attr_static(if is_filled { "true" } else { "false" })),
+    (
+      "aria-checked",
+      @luna.attr_static(if is_filled { "true" } else { "false" }),
+    ),
   ]
-
   if is_filled {
     attrs.push(("data-filled", @luna.attr_static("")))
   }
-
   @luna.h("button", attrs, children)
 }

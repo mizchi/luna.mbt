@@ -5,9 +5,7 @@
 ///|
 /// Create a headless pagination root
 /// Outputs: <nav class="radix-pagination" role="navigation" aria-label="pagination">children</nav>
-pub fn radix_pagination(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+pub fn radix_pagination(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
   @luna.h(
     "nav",
     [
@@ -57,17 +55,14 @@ pub fn radix_pagination_link(
     Some(true) => true
     _ => false
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-pagination-link")),
     ("href", @luna.attr_static(href)),
   ]
-
   if is_active {
     attrs.push(("data-active", @luna.attr_static("")))
     attrs.push(("aria-current", @luna.attr_static("page")))
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -83,7 +78,6 @@ pub fn radix_pagination_previous(
     ("class", @luna.attr_static("radix-pagination-previous")),
     ("href", @luna.attr_static(href)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -91,7 +85,6 @@ pub fn radix_pagination_previous(
     }
     _ => ()
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -107,7 +100,6 @@ pub fn radix_pagination_next(
     ("class", @luna.attr_static("radix-pagination-next")),
     ("href", @luna.attr_static(href)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -115,7 +107,6 @@ pub fn radix_pagination_next(
     }
     _ => ()
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -123,11 +114,9 @@ pub fn radix_pagination_next(
 /// Create a headless pagination ellipsis
 /// Outputs: <span class="radix-pagination-ellipsis">...</span>
 pub fn radix_pagination_ellipsis() -> @luna.Node[Unit] {
-  @luna.h(
-    "span",
-    [("class", @luna.attr_static("radix-pagination-ellipsis"))],
-    [@luna.text("...")],
-  )
+  @luna.h("span", [("class", @luna.attr_static("radix-pagination-ellipsis"))], [
+    @luna.text("..."),
+  ])
 }
 
 // =============================================================================
@@ -228,11 +217,9 @@ pub fn radix_pagination_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-pagination", [], all_children)
 }
 
@@ -277,21 +264,17 @@ pub fn radix_pagination_link_ucss(
     Some(true) => true
     _ => false
   }
-
   let mut class_names = pagination_link_styles()
   if is_active {
     class_names = class_names + " " + pagination_link_active_styles()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("href", @luna.attr_static(href)),
   ]
-
   if is_active {
     attrs.push(("aria-current", @luna.attr_static("page")))
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -303,7 +286,6 @@ pub fn radix_pagination_previous_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = pagination_nav_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -311,17 +293,14 @@ pub fn radix_pagination_previous_ucss(
         @css.styles([("opacity", "0.5"), ("pointer-events", "none")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("href", @luna.attr_static(href)),
   ]
-
   match disabled {
     Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
     _ => ()
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -333,7 +312,6 @@ pub fn radix_pagination_next_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = pagination_nav_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -341,17 +319,14 @@ pub fn radix_pagination_next_ucss(
         @css.styles([("opacity", "0.5"), ("pointer-events", "none")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("href", @luna.attr_static(href)),
   ]
-
   match disabled {
     Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
     _ => ()
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -359,9 +334,7 @@ pub fn radix_pagination_next_ucss(
 /// Create a pagination ellipsis with luna/css atomic styles
 pub fn radix_pagination_ellipsis_ucss() -> @luna.Node[Unit] {
   let class_names = pagination_ellipsis_styles()
-  @luna.h(
-    "span",
-    [("class", @luna.attr_static(class_names))],
-    [@luna.text("...")],
-  )
+  @luna.h("span", [("class", @luna.attr_static(class_names))], [
+    @luna.text("..."),
+  ])
 }

@@ -66,7 +66,6 @@ pub fn radix_toast(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -241,7 +240,6 @@ pub fn radix_toast_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => toast_styles()
@@ -261,11 +259,9 @@ pub fn radix_toast_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-toast",
     [
@@ -313,11 +309,9 @@ pub fn radix_toast_ucss(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let class_names = toast_base_styles() +
     " " +
     toast_variant_styles(variant_val)
-
   @luna.h(
     "div",
     [

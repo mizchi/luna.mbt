@@ -31,7 +31,6 @@ pub fn radix_skeleton(
     Some(s) => s
     None => Rectangle
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-skeleton")),
     ("data-shape", @luna.attr_static(shape_val.to_string())),
@@ -48,11 +47,9 @@ pub fn radix_skeleton(
     Some(h) => style_parts.push("height: " + h)
     None => ()
   }
-
   if style_parts.length() > 0 {
     attrs.push(("style", @luna.attr_static(style_parts.iter().join(";"))))
   }
-
   @luna.h("div", attrs, [])
 }
 
@@ -110,7 +107,6 @@ pub fn radix_skeleton_styled(
     Some(s) => s
     None => Rectangle
   }
-
   let css = match styles {
     Some(s) => s
     None => skeleton_styles()
@@ -133,12 +129,10 @@ pub fn radix_skeleton_styled(
     Some(h) => style_parts.push("height: " + h)
     None => ()
   }
-
   if style_parts.length() > 0 {
-    skeleton_attrs.push((
-      "style",
-      @luna.attr_static(style_parts.iter().join(";")),
-    ))
+    skeleton_attrs.push(
+      ("style", @luna.attr_static(style_parts.iter().join(";"))),
+    )
   }
 
   // Build template content
@@ -177,9 +171,9 @@ pub fn radix_skeleton_ucss(
     Some(s) => s
     None => Rectangle
   }
-
-  let class_names = skeleton_base_styles() + " " + skeleton_shape_styles(shape_val)
-
+  let class_names = skeleton_base_styles() +
+    " " +
+    skeleton_shape_styles(shape_val)
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("aria-hidden", @luna.attr_static("true")),
@@ -195,10 +189,8 @@ pub fn radix_skeleton_ucss(
     Some(h) => style_parts.push("height: " + h)
     None => ()
   }
-
   if style_parts.length() > 0 {
     attrs.push(("style", @luna.attr_static(style_parts.iter().join(";"))))
   }
-
   @luna.h("div", attrs, [])
 }

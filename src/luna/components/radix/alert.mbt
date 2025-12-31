@@ -32,13 +32,11 @@ pub fn radix_alert(
     Some(v) => v
     None => Default
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-alert")),
     ("role", @luna.attr_static("alert")),
     ("data-variant", @luna.attr_static(variant_val.to_string())),
   ]
-
   @luna.h("div", attrs, children)
 }
 
@@ -133,7 +131,6 @@ pub fn radix_alert_styled(
     Some(v) => v
     None => Default
   }
-
   let css = match styles {
     Some(s) => s
     None => alert_styles()
@@ -160,7 +157,6 @@ pub fn radix_alert_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
@@ -169,7 +165,6 @@ pub fn radix_alert_styled(
   let host_attrs : Array[(String, @luna.Attr[Unit])] = [
     ("data-variant", @luna.attr_static(variant_val.to_string())),
   ]
-
   @luna.h("radix-alert", host_attrs, all_children)
 }
 
@@ -187,14 +182,13 @@ pub fn radix_alert_ucss(
     Some(v) => v
     None => Default
   }
-
-  let class_names = alert_base_styles() + " " + alert_variant_styles(variant_val)
-
+  let class_names = alert_base_styles() +
+    " " +
+    alert_variant_styles(variant_val)
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("alert")),
   ]
-
   @luna.h("div", attrs, children)
 }
 

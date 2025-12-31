@@ -19,7 +19,9 @@ pub fn radix_empty_icon(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] 
 ///|
 /// Create a headless empty title
 /// Outputs: <h3 class="radix-empty-title">children</h3>
-pub fn radix_empty_title(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
+pub fn radix_empty_title(
+  children : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
   @luna.h("h3", [("class", @luna.attr_static("radix-empty-title"))], children)
 }
 
@@ -112,12 +114,10 @@ pub fn radix_empty_styled(
     Some(s) => s
     None => empty_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -125,11 +125,9 @@ pub fn radix_empty_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-empty", [], all_children)
 }
 

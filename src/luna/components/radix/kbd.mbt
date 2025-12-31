@@ -20,11 +20,9 @@ pub fn radix_kbd_group(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
 /// Create a headless kbd separator
 /// Outputs: <span class="radix-kbd-separator">+</span>
 pub fn radix_kbd_separator() -> @luna.Node[Unit] {
-  @luna.h(
-    "span",
-    [("class", @luna.attr_static("radix-kbd-separator"))],
-    [@luna.text("+")],
-  )
+  @luna.h("span", [("class", @luna.attr_static("radix-kbd-separator"))], [
+    @luna.text("+"),
+  ])
 }
 
 // =============================================================================
@@ -79,12 +77,10 @@ pub fn radix_kbd_styled(
     Some(s) => s
     None => kbd_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -92,11 +88,9 @@ pub fn radix_kbd_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-kbd", [], all_children)
 }
 

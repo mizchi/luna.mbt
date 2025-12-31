@@ -55,13 +55,11 @@ pub fn radix_input(
     Some(s) => s
     None => Medium
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-input")),
     ("type", @luna.attr_static(type_val.to_string())),
     ("data-size", @luna.attr_static(size_val.to_string())),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
@@ -102,7 +100,6 @@ pub fn radix_input(
   // Users should wrap with their own label structure.
   let _ = label
   let _ = help_text
-
   @luna.h("input", attrs, [])
 }
 
@@ -201,7 +198,6 @@ pub fn radix_input_styled(
     Some(s) => s
     None => Medium
   }
-
   let css = match styles {
     Some(s) => s
     None => input_styles()
@@ -347,7 +343,6 @@ pub fn radix_input_ucss(
     ("class", @luna.attr_static(class_names)),
     ("type", @luna.attr_static(type_val.to_string())),
   ]
-
   match placeholder {
     Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
     None => ()
@@ -368,6 +363,5 @@ pub fn radix_input_ucss(
     Some(true) => attrs.push(("required", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("input", attrs, [])
 }

@@ -24,7 +24,6 @@ pub fn radix_spinner(
     Some(Xl) => "xl"
     _ => "md"
   }
-
   @luna.h(
     "div",
     [
@@ -48,7 +47,6 @@ pub fn radix_loading(
     Some(true) => true
     _ => false
   }
-
   @luna.h(
     "div",
     [
@@ -156,17 +154,14 @@ pub fn radix_spinner_styled(
     Some(Xl) => "xl"
     _ => "md"
   }
-
   let css = match styles {
     Some(s) => s
     None => spinner_styles()
   }
-
   let template_children : Array[@luna.Node[Unit]] = [
     @luna.h("style", [], [@luna.text(css)]),
     @luna.h("slot", [], []),
   ]
-
   let all_children : Array[@luna.Node[Unit]] = [
     @luna.h(
       "template",
@@ -174,11 +169,9 @@ pub fn radix_spinner_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-spinner",
     [
@@ -202,7 +195,6 @@ pub fn radix_spinner_ucss(size? : SpinnerSize) -> @luna.Node[Unit] {
     Some(Xl) => "xl"
     _ => "md"
   }
-
   let class_names = spinner_base_styles(size)
   @luna.h(
     "div",
@@ -226,7 +218,6 @@ pub fn radix_loading_ucss(
     Some(true) => true
     _ => false
   }
-
   let class_names = loading_wrapper_styles()
   @luna.h(
     "div",

@@ -49,7 +49,6 @@ pub fn radix_slider(
     Some(o) => o
     None => Horizontal
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-slider")),
     ("role", @luna.attr_static("slider")),
@@ -59,12 +58,10 @@ pub fn radix_slider(
     ("data-orientation", @luna.attr_static(orient.to_string())),
     ("data-step", @luna.attr_static(step_val.to_string())),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -74,11 +71,7 @@ pub fn radix_slider(
 pub fn radix_slider_track(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-slider-track"))],
-    children,
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-slider-track"))], children)
 }
 
 ///|
@@ -94,7 +87,6 @@ pub fn radix_slider_range(value? : Int, max? : Int) -> @luna.Node[Unit] {
     None => 0
   }
   let percentage = if max_val > 0 { val * 100 / max_val } else { 0 }
-
   @luna.h(
     "div",
     [
@@ -118,7 +110,6 @@ pub fn radix_slider_thumb(value? : Int, max? : Int) -> @luna.Node[Unit] {
     None => 0
   }
   let percentage = if max_val > 0 { val * 100 / max_val } else { 0 }
-
   @luna.h(
     "div",
     [
@@ -239,19 +230,16 @@ pub fn radix_slider_styled(
     Some(o) => o
     None => Horizontal
   }
-
   let css = match styles {
     Some(s) => s
     None => slider_styles()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
     ("aria-valuemax", @luna.attr_static(max_val.to_string())),
     ("aria-valuenow", @luna.attr_static(val.to_string())),
     ("data-orientation", @luna.attr_static(orient.to_string())),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
@@ -271,11 +259,9 @@ pub fn radix_slider_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-slider", attrs, all_children)
 }
 
@@ -309,10 +295,8 @@ pub fn radix_slider_ucss(
     Some(o) => o
     None => Horizontal
   }
-
   let mut class_names = slider_base_styles()
   class_names = class_names + " " + slider_orientation_styles(orient)
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -320,7 +304,6 @@ pub fn radix_slider_ucss(
         @css.styles([("opacity", "0.5"), ("pointer-events", "none")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("slider")),
@@ -329,12 +312,10 @@ pub fn radix_slider_ucss(
     ("aria-valuenow", @luna.attr_static(val.to_string())),
     ("data-orientation", @luna.attr_static(orient.to_string())),
   ]
-
   match disabled {
     Some(true) => attrs.push(("data-disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -359,7 +340,6 @@ pub fn radix_slider_range_ucss(value? : Int, max? : Int) -> @luna.Node[Unit] {
     None => 0
   }
   let percentage = if max_val > 0 { val * 100 / max_val } else { 0 }
-
   let class_names = slider_range_styles()
   @luna.h(
     "div",
@@ -383,7 +363,6 @@ pub fn radix_slider_thumb_ucss(value? : Int, max? : Int) -> @luna.Node[Unit] {
     None => 0
   }
   let percentage = if max_val > 0 { val * 100 / max_val } else { 0 }
-
   let class_names = slider_thumb_styles()
   @luna.h(
     "div",

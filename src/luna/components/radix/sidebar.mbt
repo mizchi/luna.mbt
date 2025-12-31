@@ -29,7 +29,6 @@ pub fn radix_sidebar_provider(
     None => true
   }
   let state = if is_open { "expanded" } else { "collapsed" }
-
   @luna.h(
     "div",
     [
@@ -53,24 +52,20 @@ pub fn radix_sidebar(
     Some(Right) => "right"
     _ => "left"
   }
-
   let variant_str = match variant {
     Some(Floating) => "floating"
     Some(Inset) => "inset"
     _ => "sidebar"
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-sidebar")),
     ("data-side", @luna.attr_static(side_str)),
     ("data-variant", @luna.attr_static(variant_str)),
   ]
-
   match collapsible {
     Some(true) => attrs.push(("data-collapsible", @luna.attr_static("true")))
     _ => ()
   }
-
   @luna.h("aside", attrs, children)
 }
 
@@ -218,12 +213,10 @@ pub fn radix_sidebar_menu_button(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-sidebar-menu-button")),
   ]
-
   match active {
     Some(true) => attrs.push(("data-active", @luna.attr_static("")))
     _ => ()
   }
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -231,7 +224,6 @@ pub fn radix_sidebar_menu_button(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -272,17 +264,14 @@ pub fn radix_sidebar_menu_sub_button(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-sidebar-menu-sub-button")),
   ]
-
   match href {
     Some(h) => attrs.push(("href", @luna.attr_static(h)))
     None => ()
   }
-
   match active {
     Some(true) => attrs.push(("data-active", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -290,11 +279,7 @@ pub fn radix_sidebar_menu_sub_button(
 /// Create a headless sidebar separator
 /// Outputs: <div class="radix-sidebar-separator"></div>
 pub fn radix_sidebar_separator() -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-sidebar-separator"))],
-    [],
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-sidebar-separator"))], [])
 }
 
 // =============================================================================
@@ -506,13 +491,11 @@ pub fn radix_sidebar_styled(
     Some(Right) => "right"
     _ => "left"
   }
-
   let variant_str = match variant {
     Some(Floating) => "floating"
     Some(Inset) => "inset"
     _ => "sidebar"
   }
-
   let css = match styles {
     Some(s) => s
     None => sidebar_styles()
@@ -532,11 +515,9 @@ pub fn radix_sidebar_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-sidebar",
     [
@@ -562,7 +543,6 @@ pub fn radix_sidebar_provider_ucss(
     None => true
   }
   let state = if is_open { "expanded" } else { "collapsed" }
-
   let class_names = sidebar_provider_styles()
   @luna.h(
     "div",
@@ -584,7 +564,6 @@ pub fn radix_sidebar_ucss(
     Some(Right) => "right"
     _ => "left"
   }
-
   let class_names = sidebar_base_styles()
   @luna.h(
     "aside",
@@ -640,7 +619,6 @@ pub fn radix_sidebar_menu_button_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = sidebar_menu_button_styles()
-
   match active {
     Some(true) =>
       class_names = class_names +
@@ -648,7 +626,6 @@ pub fn radix_sidebar_menu_button_ucss(
         @css.styles([("background", "#f4f4f5"), ("font-weight", "500")])
     _ => ()
   }
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -656,16 +633,13 @@ pub fn radix_sidebar_menu_button_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match active {
     Some(true) => attrs.push(("data-active", @luna.attr_static("")))
     _ => ()
   }
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -673,6 +647,5 @@ pub fn radix_sidebar_menu_button_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

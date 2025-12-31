@@ -13,7 +13,6 @@ pub fn radix_toolbar(
     Some(o) => o
     None => Horizontal
   }
-
   @luna.h(
     "div",
     [
@@ -35,7 +34,6 @@ pub fn radix_toolbar_button(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-toolbar-button")),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -43,7 +41,6 @@ pub fn radix_toolbar_button(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -89,7 +86,6 @@ pub fn radix_toolbar_toggle_group(
     Some(t) => t
     None => Single
   }
-
   @luna.h(
     "div",
     [
@@ -115,7 +111,6 @@ pub fn radix_toolbar_toggle_item(
     _ => false
   }
   let state = if is_pressed { "on" } else { "off" }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-toolbar-toggle-item")),
     ("data-state", @luna.attr_static(state)),
@@ -125,7 +120,6 @@ pub fn radix_toolbar_toggle_item(
       @luna.attr_static(if is_pressed { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -133,7 +127,6 @@ pub fn radix_toolbar_toggle_item(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -257,7 +250,6 @@ pub fn radix_toolbar_styled(
     Some(o) => o
     None => Horizontal
   }
-
   let css = match styles {
     Some(s) => s
     None => toolbar_styles()
@@ -277,11 +269,9 @@ pub fn radix_toolbar_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-toolbar",
     [("data-orientation", @luna.attr_static(orient.to_string()))],
@@ -303,9 +293,9 @@ pub fn radix_toolbar_ucss(
     Some(o) => o
     None => Horizontal
   }
-
-  let class_names = toolbar_base_styles() + " " + toolbar_orientation_styles(orient)
-
+  let class_names = toolbar_base_styles() +
+    " " +
+    toolbar_orientation_styles(orient)
   @luna.h(
     "div",
     [
@@ -324,7 +314,6 @@ pub fn radix_toolbar_button_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = toolbar_button_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -332,11 +321,9 @@ pub fn radix_toolbar_button_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -344,7 +331,6 @@ pub fn radix_toolbar_button_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -375,15 +361,12 @@ pub fn radix_toolbar_toggle_item_ucss(
     _ => false
   }
   let state = if is_pressed { "on" } else { "off" }
-
   let mut class_names = toolbar_toggle_item_styles()
-
   if is_pressed {
     class_names = class_names +
       " " +
       @css.styles([("background", "#18181b"), ("color", "white")])
   }
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -391,7 +374,6 @@ pub fn radix_toolbar_toggle_item_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("data-state", @luna.attr_static(state)),
@@ -401,7 +383,6 @@ pub fn radix_toolbar_toggle_item_ucss(
       @luna.attr_static(if is_pressed { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -409,6 +390,5 @@ pub fn radix_toolbar_toggle_item_ucss(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

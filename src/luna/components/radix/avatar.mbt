@@ -32,32 +32,25 @@ pub fn radix_avatar(
     Some(s) => s
     None => Medium
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-avatar")),
     ("data-size", @luna.attr_static(size_val.to_string())),
   ]
-
   @luna.h("span", attrs, children)
 }
 
 ///|
 /// Create a headless avatar image
 /// Outputs: <img class="radix-avatar-image" src="..." alt="..."/>
-pub fn radix_avatar_image(
-  src : String,
-  alt? : String,
-) -> @luna.Node[Unit] {
+pub fn radix_avatar_image(src : String, alt? : String) -> @luna.Node[Unit] {
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-avatar-image")),
     ("src", @luna.attr_static(src)),
   ]
-
   match alt {
     Some(a) => attrs.push(("alt", @luna.attr_static(a)))
     None => ()
   }
-
   @luna.h("img", attrs, [])
 }
 
@@ -133,7 +126,6 @@ pub fn radix_avatar_styled(
     Some(s) => s
     None => Medium
   }
-
   let css = match styles {
     Some(s) => s
     None => avatar_styles()
@@ -159,11 +151,9 @@ pub fn radix_avatar_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-avatar",
     [("data-size", @luna.attr_static(size_val.to_string()))],
@@ -185,7 +175,6 @@ pub fn radix_avatar_ucss(
     Some(s) => s
     None => Medium
   }
-
   let class_names = avatar_base_styles() + " " + avatar_size_styles(size_val)
   @luna.h("span", [("class", @luna.attr_static(class_names))], children)
 }
@@ -194,17 +183,14 @@ pub fn radix_avatar_ucss(
 /// Create an avatar image with luna/css atomic styles
 pub fn radix_avatar_image_ucss(src : String, alt? : String) -> @luna.Node[Unit] {
   let class_names = avatar_image_styles()
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
     ("src", @luna.attr_static(src)),
   ]
-
   match alt {
     Some(a) => attrs.push(("alt", @luna.attr_static(a)))
     None => ()
   }
-
   @luna.h("img", attrs, [])
 }
 

@@ -5,14 +5,8 @@
 ///|
 /// Create a headless hover card root
 /// Outputs: <div class="radix-hover-card">children</div>
-pub fn radix_hover_card(
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-hover-card"))],
-    children,
-  )
+pub fn radix_hover_card(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
+  @luna.h("div", [("class", @luna.attr_static("radix-hover-card"))], children)
 }
 
 ///|
@@ -39,7 +33,6 @@ pub fn radix_hover_card_content(
     Some(s) => s
     None => Bottom
   }
-
   @luna.h(
     "div",
     [
@@ -133,11 +126,9 @@ pub fn radix_hover_card_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-hover-card", [], all_children)
 }
 
@@ -173,7 +164,6 @@ pub fn radix_hover_card_content_ucss(
     Some(s) => s
     None => Bottom
   }
-
   let class_names = hover_card_content_styles() +
     " " +
     hover_card_side_styles(side_val)

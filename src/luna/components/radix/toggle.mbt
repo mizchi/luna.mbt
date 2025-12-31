@@ -21,7 +21,6 @@ pub fn radix_toggle(
     Some(s) => s
     None => Medium
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-toggle")),
     ("type", @luna.attr_static("button")),
@@ -32,7 +31,6 @@ pub fn radix_toggle(
       @luna.attr_static(if is_pressed { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -40,7 +38,6 @@ pub fn radix_toggle(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -124,7 +121,6 @@ pub fn radix_toggle_styled(
     Some(s) => s
     None => Medium
   }
-
   let css = match styles {
     Some(s) => s
     None => toggle_styles()
@@ -229,11 +225,9 @@ pub fn radix_toggle_ucss(
       @luna.attr_static(if is_pressed { "true" } else { "false" }),
     ),
   ]
-
   match disabled {
     Some(true) => attrs.push(("disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }

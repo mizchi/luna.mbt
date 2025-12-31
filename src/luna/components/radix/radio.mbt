@@ -67,7 +67,6 @@ fn build_radio_item_headless(
   if group_required {
     input_attrs.push(("required", @luna.attr_static("")))
   }
-
   @luna.h("label", [("class", @luna.attr_static("radix-radio-item"))], [
     @luna.h("input", input_attrs, []),
     @luna.h("span", [("class", @luna.attr_static("radix-radio-label"))], [
@@ -113,14 +112,12 @@ pub fn radix_radio_group(
     ("role", @luna.attr_static("radiogroup")),
     ("data-orientation", @luna.attr_static(orient.to_string())),
   ]
-
   if group_disabled {
     attrs.push(("data-disabled", @luna.attr_static("")))
   }
 
   // For headless, label is ignored
   let _ = label
-
   @luna.h("div", attrs, items)
 }
 
@@ -275,7 +272,6 @@ pub fn radix_radio_group_styled(
     Some(true) => true
     _ => false
   }
-
   let css = match styles {
     Some(s) => s
     None => radio_styles()
@@ -349,7 +345,6 @@ fn build_radio_item_ucss(
 ) -> @luna.Node[Unit] {
   // Build input class names
   let input_class = radio_control_styles() + " " + radio_control_focus_styles()
-
   let input_attrs : Array[(String, @luna.Attr[Unit])] = [
     ("type", @luna.attr_static("radio")),
     ("class", @luna.attr_static(input_class)),
@@ -373,9 +368,7 @@ fn build_radio_item_ucss(
   if group_required {
     input_attrs.push(("required", @luna.attr_static("")))
   }
-
   let label_class = radio_label_styles()
-
   @luna.h("label", [("class", @luna.attr_static(radio_item_styles()))], [
     @luna.h("input", input_attrs, []),
     @luna.h("span", [("class", @luna.attr_static(label_class))], [
@@ -426,6 +419,5 @@ pub fn radix_radio_group_ucss(
     ("class", @luna.attr_static(class_names)),
     ("role", @luna.attr_static("radiogroup")),
   ]
-
   @luna.h("div", attrs, items)
 }

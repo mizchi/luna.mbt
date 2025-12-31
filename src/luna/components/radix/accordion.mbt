@@ -28,7 +28,6 @@ pub fn radix_accordion(
     Some(t) => t
     None => Single
   }
-
   @luna.h(
     "div",
     [
@@ -66,7 +65,6 @@ pub fn radix_accordion_trigger(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-accordion-trigger")),
   ]
-
   match disabled {
     Some(true) => {
       attrs.push(("data-disabled", @luna.attr_static("")))
@@ -74,7 +72,6 @@ pub fn radix_accordion_trigger(
     }
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 
@@ -166,7 +163,6 @@ pub fn radix_accordion_styled(
     Some(t) => t
     None => Single
   }
-
   let css = match styles {
     Some(s) => s
     None => accordion_styles()
@@ -193,11 +189,9 @@ pub fn radix_accordion_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-accordion", [], all_children)
 }
 
@@ -223,7 +217,10 @@ pub fn radix_accordion_item_ucss(
   let class_names = accordion_item_styles()
   @luna.h(
     "div",
-    [("class", @luna.attr_static(class_names)), ("data-value", @luna.attr_static(value))],
+    [
+      ("class", @luna.attr_static(class_names)),
+      ("data-value", @luna.attr_static(value)),
+    ],
     children,
   )
 }
@@ -237,7 +234,6 @@ pub fn radix_accordion_trigger_ucss(
   let mut class_names = accordion_trigger_styles() +
     " " +
     accordion_trigger_focus_styles()
-
   match disabled {
     Some(true) =>
       class_names = class_names +
@@ -245,16 +241,13 @@ pub fn radix_accordion_trigger_ucss(
         @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
     _ => ()
   }
-
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static(class_names)),
   ]
-
   match disabled {
     Some(true) => attrs.push(("disabled", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("button", attrs, children)
 }
 

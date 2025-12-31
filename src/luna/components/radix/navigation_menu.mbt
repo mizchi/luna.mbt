@@ -79,12 +79,10 @@ pub fn radix_navigation_menu_link(
     ("class", @luna.attr_static("radix-navigation-menu-link")),
     ("href", @luna.attr_static(href)),
   ]
-
   match active {
     Some(true) => attrs.push(("data-active", @luna.attr_static("")))
     _ => ()
   }
-
   @luna.h("a", attrs, children)
 }
 
@@ -234,11 +232,9 @@ pub fn radix_navigation_menu_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h("radix-navigation-menu", [], all_children)
 }
 
@@ -290,7 +286,6 @@ pub fn radix_navigation_menu_link_ucss(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let mut class_names = navigation_menu_link_styles()
-
   match active {
     Some(true) =>
       class_names = class_names +
@@ -298,7 +293,6 @@ pub fn radix_navigation_menu_link_ucss(
         @css.styles([("background", "#f4f4f5"), ("font-weight", "500")])
     _ => ()
   }
-
   @luna.h(
     "a",
     [

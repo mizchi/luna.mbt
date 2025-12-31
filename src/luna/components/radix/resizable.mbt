@@ -28,7 +28,6 @@ pub fn radix_resizable_panel_group(
     Some(d) => d
     None => Horizontal
   }
-
   @luna.h(
     "div",
     [
@@ -51,22 +50,19 @@ pub fn radix_resizable_panel(
   let attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radix-resizable-panel")),
   ]
-
   match default_size {
-    Some(s) => attrs.push(("data-default-size", @luna.attr_static(s.to_string())))
+    Some(s) =>
+      attrs.push(("data-default-size", @luna.attr_static(s.to_string())))
     None => ()
   }
-
   match min_size {
     Some(s) => attrs.push(("data-min-size", @luna.attr_static(s.to_string())))
     None => ()
   }
-
   match max_size {
     Some(s) => attrs.push(("data-max-size", @luna.attr_static(s.to_string())))
     None => ()
   }
-
   @luna.h("div", attrs, children)
 }
 
@@ -80,7 +76,6 @@ pub fn radix_resizable_handle(
     Some(d) => d
     None => Horizontal
   }
-
   @luna.h(
     "div",
     [
@@ -158,7 +153,6 @@ pub fn radix_resizable_panel_group_styled(
     Some(d) => d
     None => Horizontal
   }
-
   let css = match styles {
     Some(s) => s
     None => resizable_styles()
@@ -178,11 +172,9 @@ pub fn radix_resizable_panel_group_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-resizable-panel-group",
     [("data-direction", @luna.attr_static(dir.to_string()))],
@@ -204,7 +196,6 @@ pub fn radix_resizable_panel_group_ucss(
     Some(d) => d
     None => Horizontal
   }
-
   let class_names = resizable_panel_group_styles(dir)
   @luna.h(
     "div",
@@ -234,7 +225,6 @@ pub fn radix_resizable_handle_ucss(
     Some(d) => d
     None => Horizontal
   }
-
   let class_names = resizable_handle_styles(dir)
   @luna.h(
     "div",

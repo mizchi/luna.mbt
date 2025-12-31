@@ -33,7 +33,6 @@ pub fn radix_sheet(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   @luna.h(
     "div",
     [
@@ -75,7 +74,6 @@ pub fn radix_sheet_content(
     Some(s) => s
     None => Right
   }
-
   @luna.h(
     "div",
     [
@@ -94,11 +92,7 @@ pub fn radix_sheet_content(
 pub fn radix_sheet_header(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-sheet-header"))],
-    children,
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-sheet-header"))], children)
 }
 
 ///|
@@ -129,11 +123,7 @@ pub fn radix_sheet_description(
 pub fn radix_sheet_footer(
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("radix-sheet-footer"))],
-    children,
-  )
+  @luna.h("div", [("class", @luna.attr_static("radix-sheet-footer"))], children)
 }
 
 ///|
@@ -266,7 +256,6 @@ pub fn radix_sheet_styled(
     _ => false
   }
   let state = if is_open { "open" } else { "closed" }
-
   let css = match styles {
     Some(s) => s
     None => sheet_styles()
@@ -286,11 +275,9 @@ pub fn radix_sheet_styled(
       template_children,
     ),
   ]
-
   for child in children {
     all_children.push(child)
   }
-
   @luna.h(
     "radix-sheet",
     [("data-state", @luna.attr_static(state))],
@@ -319,7 +306,6 @@ pub fn radix_sheet_content_ucss(
     Some(s) => s
     None => Right
   }
-
   let class_names = sheet_content_styles() + " " + sheet_side_styles(side_val)
   @luna.h(
     "div",
