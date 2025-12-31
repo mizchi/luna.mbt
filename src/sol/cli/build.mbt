@@ -214,11 +214,13 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
     match parse_ssg_config(config_content, config_path) {
       Some(ssg_config) => {
+        // Use config directory as SSG working directory
+        let ssg_cwd = @path.dirname(full_config_path)
+        let cache_dir = @path.join2(ssg_cwd, ".astra-cache")
         // Check cache unless force build
-        let cache_dir = @path.join2(cwd, ".astra-cache")
         if not(force_build) {
           match
-            @astra_cache.check_local_build_state(ssg_config, cwd, cache_dir) {
+            @astra_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
             @astra_cache.BuildStateCheck::UpToDate(built_at) => {
               println(
                 @colorette.green("SSG skipped (no changes since \{built_at})"),
@@ -227,12 +229,12 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
             }
             _ =>
               execute_ssg_build(
-                ssg_config, cwd, cache_dir, use_parallel, num_workers,
+                ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
               )
           }
         } else {
           execute_ssg_build(
-            ssg_config, cwd, cache_dir, use_parallel, num_workers,
+            ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
           )
         }
       }

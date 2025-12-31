@@ -15,17 +15,22 @@ pub fn has_ssg_config(cwd : String) -> Bool {
 
 ///|
 fn[FS : @env.FileSystem] has_ssg_config_with_fs(fs : FS, cwd : String) -> Bool {
-  // Check for astra.json
-  let astra_path = @path.join2(cwd, "astra.json")
-  if fs.exists_sync(astra_path) {
-    return true
-  }
-  // Check for sol.config.json with ssg section
-  let sol_path = @path.join2(cwd, "sol.config.json")
-  if fs.exists_sync(sol_path) {
-    let content = fs.read_file_sync(sol_path) catch { _ => return false }
-    // Quick check for ssg key
-    return content.contains("\"ssg\"")
+  // Check all astra config candidates
+  for candidate in @cli_common.astra_config_candidates {
+    let config_path = @path.join2(cwd, candidate)
+    if fs.exists_sync(config_path) {
+      // astra.json is always SSG config
+      if candidate.ends_with("astra.json") {
+        return true
+      }
+      // sol.config.json needs ssg section
+      if candidate == "sol.config.json" {
+        let content = fs.read_file_sync(config_path) catch { _ => continue }
+        if content.contains("\"ssg\"") {
+          return true
+        }
+      }
+    }
   }
   false
 }
