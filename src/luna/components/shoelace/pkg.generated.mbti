@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/luna/components/shoelace"
+
+import(
+  "mizchi/luna/luna"
+)
+
+// Values
+pub fn sl_button(variant? : SlButtonVariant, size? : SlSize, disabled? : Bool, loading? : Bool, outline? : Bool, pill? : Bool, circle? : Bool, href? : String, target? : String, Array[@luna.Node[Unit]]) -> @luna.Node[Unit]
+
+pub fn sl_checkbox(checked? : Bool, indeterminate? : Bool, disabled? : Bool, required? : Bool, size? : SlSize, help_text? : String, Array[@luna.Node[Unit]]) -> @luna.Node[Unit]
+
+pub fn sl_input(type_? : SlInputType, label? : String, placeholder? : String, value? : String, size? : SlSize, disabled? : Bool, readonly_? : Bool, required? : Bool, clearable? : Bool, password_toggle? : Bool, help_text? : String, minlength? : Int, maxlength? : Int, pattern? : String) -> @luna.Node[Unit]
+
+pub fn sl_switch(checked? : Bool, disabled? : Bool, required? : Bool, size? : SlSize, help_text? : String, Array[@luna.Node[Unit]]) -> @luna.Node[Unit]
+
+// Errors
+
+// Types and methods
+pub(all) enum SlButtonVariant {
+  Default
+  Primary
+  Success
+  Neutral
+  Warning
+  Danger
+}
+pub fn SlButtonVariant::to_string(Self) -> String
+
+pub(all) enum SlInputType {
+  Text
+  Email
+  Password
+  Number
+  Tel
+  Url
+  Search
+  Date
+}
+pub fn SlInputType::to_string(Self) -> String
+
+pub(all) enum SlSize {
+  Small
+  Medium
+  Large
+}
+pub fn SlSize::to_string(Self) -> String
+
+// Type aliases
+
+// Traits
+

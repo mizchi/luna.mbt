@@ -176,7 +176,6 @@ build-doc *args:
 _build-doc-inner *args:
     @echo "Building demo..."
     pnpm vite build
-    mv website/public/demo/demo-src/* website/public/demo/ && rm -rf website/public/demo/demo-src
     @echo "Building docs..."
     node target/js/release/build/sol/cli/cli.js build --parallel {{args}}
     @echo "Building search index..."

@@ -138,7 +138,61 @@ pub fn static_node(@dom.Node) -> DomNode
 
 pub fn strong(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub fn svg(width? : String, height? : String, viewBox? : String, xmlns? : String, fill? : String, stroke? : String, role? : String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_animate(attributeName? : String, from? : String, to? : String, dur? : String, repeatCount? : String, fill_anim? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_animate_transform(attributeName? : String, type_? : String, from? : String, to? : String, dur? : String, repeatCount? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_circle(cx? : String, cy? : String, r? : String, fill? : String, stroke? : String, stroke_width? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_clip_path(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_defs(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_desc(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_ellipse(cx? : String, cy? : String, rx? : String, ry? : String, fill? : String, stroke? : String, stroke_width? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_filter(x? : String, y? : String, width? : String, height? : String, filterUnits? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_foreign_object(x? : String, y? : String, width? : String, height? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_g(transform? : String, fill? : String, stroke? : String, opacity? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_image(href? : String, x? : String, y? : String, width? : String, height? : String, preserveAspectRatio? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_line(x1? : String, y1? : String, x2? : String, y2? : String, stroke? : String, stroke_width? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_linear_gradient(x1? : String, y1? : String, x2? : String, y2? : String, gradientUnits? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_mask(x? : String, y? : String, width? : String, height? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
 pub let svg_ns : String
+
+pub fn svg_path(d? : String, fill? : String, stroke? : String, stroke_width? : String, stroke_linecap? : String, stroke_linejoin? : String, fill_rule? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_pattern(x? : String, y? : String, width? : String, height? : String, patternUnits? : String, patternContentUnits? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_polygon(points? : String, fill? : String, stroke? : String, stroke_width? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_polyline(points? : String, fill? : String, stroke? : String, stroke_width? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_radial_gradient(cx? : String, cy? : String, r? : String, fx? : String, fy? : String, gradientUnits? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_rect(x? : String, y? : String, width? : String, height? : String, rx? : String, ry? : String, fill? : String, stroke? : String, stroke_width? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_stop(offset? : String, stop_color? : String, stop_opacity? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
+
+pub fn svg_symbol(viewBox? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_text(x? : String, y? : String, dx? : String, dy? : String, text_anchor? : String, dominant_baseline? : String, fill? : String, font_size? : String, font_family? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_title(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_tspan(x? : String, y? : String, dx? : String, dy? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
+
+pub fn svg_use(href? : String, x? : String, y? : String, width? : String, height? : String, id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)]) -> DomNode
 
 pub fn text(String) -> DomNode
 

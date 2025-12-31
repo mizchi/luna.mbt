@@ -1,0 +1,144 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/luna/testing"
+
+import(
+  "mizchi/luna/luna"
+  "mizchi/luna/luna/signal"
+)
+
+// Values
+pub fn[E] assert_attr(@luna.Node[E], String, String) -> Unit
+
+pub fn[E] assert_child_count(@luna.Node[E], Int) -> Unit
+
+pub fn[E] assert_dynamic_attr(@luna.Node[E], String, String) -> Unit
+
+pub fn assert_effect_count(EffectCounter, Int) -> Unit
+
+pub fn[E] assert_element_count(@luna.Node[E], String, Int) -> Unit
+
+pub fn[E] assert_for_count(@luna.Node[E], Int) -> Unit
+
+pub fn[E] assert_has_attr(@luna.Node[E], String) -> Unit
+
+pub fn[E] assert_has_element(@luna.Node[E], String) -> Unit
+
+pub fn[E] assert_has_handler(@luna.Node[E], String) -> Unit
+
+pub fn[E] assert_is_element(@luna.Node[E]) -> Unit
+
+pub fn[E] assert_is_text(@luna.Node[E]) -> Unit
+
+pub fn[E] assert_no_element(@luna.Node[E], String) -> Unit
+
+pub fn[E] assert_show_hidden(@luna.Node[E]) -> Unit
+
+pub fn[E] assert_show_visible(@luna.Node[E]) -> Unit
+
+pub fn[T : Eq + Show] assert_signal_value(@signal.Signal[T], T) -> Unit
+
+pub fn[E] assert_static_attr(@luna.Node[E], String, String) -> Unit
+
+pub fn[E] assert_tag(@luna.Node[E], String) -> Unit
+
+pub fn[E] assert_text(@luna.Node[E], String) -> Unit
+
+pub fn[E] assert_text_contains(@luna.Node[E], String) -> Unit
+
+pub fn[E] assert_text_not_contains(@luna.Node[E], String) -> Unit
+
+pub fn[T : Eq + Show] assert_tracked_values(SignalTracker[T], Array[T]) -> Unit
+
+pub fn[E] child_count(@luna.Node[E]) -> Int
+
+pub fn[E] contains_text(@luna.Node[E], String) -> Bool
+
+pub fn count_effect(() -> Unit) -> EffectCounter
+
+pub fn effect_get_count(EffectCounter) -> Int
+
+pub fn effect_reset(EffectCounter) -> Unit
+
+pub fn effect_stop(EffectCounter) -> Unit
+
+pub fn[E] find_all_by(@luna.Node[E], (@luna.Node[E]) -> Bool) -> Array[@luna.Node[E]]
+
+pub fn[E] find_all_by_tag(@luna.Node[E], String) -> Array[@luna.Node[E]]
+
+pub fn[E] find_by(@luna.Node[E], (@luna.Node[E]) -> Bool) -> @luna.Node[E]?
+
+pub fn[E] find_by_attr(@luna.Node[E], String, String) -> @luna.Node[E]?
+
+pub fn[E] find_by_tag(@luna.Node[E], String) -> @luna.Node[E]?
+
+pub fn[E] get_all_text(@luna.Node[E]) -> String
+
+pub fn[E] get_attr(@luna.Node[E], String) -> @luna.Attr[E]?
+
+pub fn[E] get_attr_names(@luna.Node[E]) -> Array[String]
+
+pub fn[E] get_attr_value(@luna.Node[E], String) -> String?
+
+pub fn[E] get_children(@luna.Node[E]) -> Array[@luna.Node[E]]
+
+pub fn[E] get_dynamic_attr(@luna.Node[E], String) -> String?
+
+pub fn[E] get_dynamic_text(@luna.Node[E]) -> String?
+
+pub fn[E] get_element(@luna.Node[E]) -> @luna.VElement[E]?
+
+pub fn[E] get_handler(@luna.Node[E], String) -> @luna.EventHandler[E]?
+
+pub fn[E] get_static_attr(@luna.Node[E], String) -> String?
+
+pub fn[E] get_tag(@luna.Node[E]) -> String?
+
+pub fn[E] get_text(@luna.Node[E]) -> String?
+
+pub fn[E] has_handler(@luna.Node[E], String) -> Bool
+
+pub fn[E] is_component(@luna.Node[E]) -> Bool
+
+pub fn[E] is_dynamic_text(@luna.Node[E]) -> Bool
+
+pub fn[E] is_element(@luna.Node[E]) -> Bool
+
+pub fn[E] is_for(@luna.Node[E]) -> Bool
+
+pub fn[E] is_fragment(@luna.Node[E]) -> Bool
+
+pub fn[E] is_show(@luna.Node[E]) -> Bool
+
+pub fn[E] is_text(@luna.Node[E]) -> Bool
+
+pub fn[E] node_type_name(@luna.Node[E]) -> String
+
+pub fn test_batch(() -> Unit, () -> Unit, () -> Unit) -> Unit
+
+pub fn[T : Eq] track_signal(@signal.Signal[T]) -> SignalTracker[T]
+
+pub fn[T] tracker_count(SignalTracker[T]) -> Int
+
+pub fn[T] tracker_last(SignalTracker[T]) -> T?
+
+pub fn[T] tracker_stop(SignalTracker[T]) -> Unit
+
+pub fn[T] tracker_values(SignalTracker[T]) -> Array[T]
+
+// Errors
+
+// Types and methods
+pub struct EffectCounter {
+  mut count : Int
+  cleanup : () -> Unit
+}
+
+pub struct SignalTracker[T] {
+  values : Array[T]
+  cleanup : () -> Unit
+}
+
+// Type aliases
+
+// Traits
+

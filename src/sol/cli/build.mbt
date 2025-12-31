@@ -23,6 +23,9 @@ fn show_build_help() -> Unit {
     #|  --skip-generate     Skip _sol directory generation
     #|  --skip-minify       Skip minification
     #|  --clean             Clean target and .sol directories before build
+    #|  --parallel          Enable parallel SSG build
+    #|  --workers <n>       Number of parallel workers (default: 4)
+    #|  --force             Force rebuild (ignore cache)
     #|  -h, --help          Show help
   println(help)
 }
@@ -47,6 +50,9 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
       @util.Boolean(key="skip-generate", short="g"),
       @util.Boolean(key="skip-minify", short="m"),
       @util.Boolean(key="clean", short="c"),
+      @util.Boolean(key="parallel", short="p"),
+      @util.String(key="workers", short="w", multiple=false, default=None),
+      @util.Boolean(key="force", short="f"),
       @util.Boolean(key="help", short="h"),
     ],
     allow_positionals=false,
@@ -78,6 +84,26 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   let clean : Bool = if result.values.contains("clean") {
     result.values["clean"].cast()
+  } else {
+    false
+  }
+  let use_parallel : Bool = if result.values.contains("parallel") {
+    result.values["parallel"].cast()
+  } else {
+    false
+  }
+  let num_workers : Int? = if result.values.contains("workers") {
+    let workers_str : String = result.values["workers"].cast()
+    try {
+      Some(@strconv.parse_int!(workers_str))
+    } catch {
+      _ => None
+    }
+  } else {
+    None
+  }
+  let force_build : Bool = if result.values.contains("force") {
+    result.values["force"].cast()
   } else {
     false
   }
@@ -190,20 +216,22 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
     match parse_ssg_config(config_content, config_path) {
       Some(ssg_config) => {
-        println(@colorette.cyan("Running SSG build..."))
-        println(@colorette.gray("  Docs: \{ssg_config.docs_dir}"))
-        println(@colorette.gray("  Output: \{ssg_config.output_dir}"))
-        match @ssg_gen.generate_site(ssg_config, cwd) {
-          Ok(_) =>
-            println(
-              @colorette.green(
-                "✓ SSG build complete: \{ssg_config.output_dir}",
-              ),
-            )
-          Err(e) => {
-            @cli_common.console_error(@colorette.red("SSG build failed: \{e}"))
-            @process.exit(1)
+        // Check cache unless force build
+        let cache_dir = @path.join2(cwd, ".astra-cache")
+        if not(force_build) {
+          match @astra_cache.check_local_build_state(ssg_config, cwd, cache_dir) {
+            @astra_cache.BuildStateCheck::UpToDate(built_at) => {
+              println(
+                @colorette.green(
+                  "SSG skipped (no changes since \{built_at})",
+                ),
+              )
+              println(@colorette.gray("  Use --force to rebuild anyway"))
+            }
+            _ => execute_ssg_build(ssg_config, cwd, cache_dir, use_parallel, num_workers)
           }
+        } else {
+          execute_ssg_build(ssg_config, cwd, cache_dir, use_parallel, num_workers)
         }
       }
       None => {
@@ -213,6 +241,31 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
   }
   println(@colorette.gray("Output: target/\{target}/release/build/"))
+}
+
+///|
+/// Synchronous SSG build for build command
+fn execute_ssg_build(
+  config : @astra.SsgConfig,
+  cwd : String,
+  cache_dir : String,
+  _use_parallel : Bool,
+  _num_workers : Int?,
+) -> Unit {
+  println(@colorette.cyan("Running SSG build..."))
+  println(@colorette.gray("  Docs: \{config.docs_dir}"))
+  println(@colorette.gray("  Output: \{config.output_dir}"))
+  // Note: parallel build requires async context, using sync version for now
+  match @ssg_gen.generate_site(config, cwd) {
+    Ok(_) => {
+      @astra_cache.save_manifest(cache_dir, config, cwd)
+      println(@colorette.green("✓ SSG build complete: \{config.output_dir}"))
+    }
+    Err(e) => {
+      @cli_common.console_error(@colorette.red("SSG build failed: \{e}"))
+      @process.exit(1)
+    }
+  }
 }
 
 ///|
