@@ -1,0 +1,68 @@
+---
+title: Radio
+---
+
+# Radio
+
+Radio button group for single selection from multiple options.
+
+## Demo
+
+<radio-demo luna:trigger="visible"><div style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem; border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; background: var(--sidebar-bg, #1f2937);"><div style="font-size: 0.875rem; font-weight: 500; color: var(--text-color, #e5e7eb); margin-bottom: 0.5rem;">Select a plan</div><div role="radiogroup" style="display: flex; flex-direction: column; gap: 0.5rem;"><label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;"><span style="position: relative; width: 18px; height: 18px; border: 1px solid var(--border-color, #4b5563); border-radius: 50%; background: transparent;"><input type="radio" name="plan" value="free" checked style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;"/><span data-radio-indicator style="display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: var(--primary-color, #6366f1); border-radius: 50%;"></span></span><span style="color: var(--text-color, #e5e7eb); font-size: 0.875rem;">Free Plan</span></label><label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;"><span style="position: relative; width: 18px; height: 18px; border: 1px solid var(--border-color, #4b5563); border-radius: 50%; background: transparent;"><input type="radio" name="plan" value="pro" style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;"/><span data-radio-indicator style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: var(--primary-color, #6366f1); border-radius: 50%;"></span></span><span style="color: var(--text-color, #e5e7eb); font-size: 0.875rem;">Pro Plan - $9/month</span></label><label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;"><span style="position: relative; width: 18px; height: 18px; border: 1px solid var(--border-color, #4b5563); border-radius: 50%; background: transparent;"><input type="radio" name="plan" value="enterprise" style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;"/><span data-radio-indicator style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: var(--primary-color, #6366f1); border-radius: 50%;"></span></span><span style="color: var(--text-color, #e5e7eb); font-size: 0.875rem;">Enterprise Plan - Contact us</span></label></div></div></radio-demo>
+
+## Usage
+
+```moonbit
+let selected = @signal.create("free")
+
+radix_radio_group(
+  name="plan",
+  value=selected.get(),
+  options=[
+    radio_option("free", "Free Plan"),
+    radio_option("pro", "Pro Plan"),
+    radio_option("enterprise", "Enterprise"),
+  ],
+)
+```
+
+## Horizontal Layout
+
+```moonbit
+radix_radio_group(
+  name="size",
+  orientation=Horizontal,
+  options=[
+    radio_option("sm", "Small"),
+    radio_option("md", "Medium"),
+    radio_option("lg", "Large"),
+  ],
+)
+```
+
+## Props
+
+### RadioGroup
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| name | String | - | Group name for form submission |
+| value | String? | None | Currently selected value |
+| orientation | Orientation | Vertical | Layout direction |
+| disabled | Bool | false | Disable all options |
+| required | Bool | false | Require selection |
+
+### RadioOption
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | String | - | Option value |
+| label | String | - | Display label |
+| disabled | Bool | false | Disable this option |
+
+## Accessibility
+
+- Uses `role="radiogroup"` for the container
+- Arrow keys navigate between options
+- Space selects the focused option
+- Proper ARIA attributes for screen readers

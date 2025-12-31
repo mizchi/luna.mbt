@@ -1,0 +1,53 @@
+---
+title: Checkbox
+---
+
+# Checkbox
+
+Interactive checkbox for binary or tri-state selections.
+
+## Demo
+
+<checkbox-demo luna:trigger="visible"><div style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem; border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; background: var(--sidebar-bg, #1f2937);"><label data-checkbox-item="terms" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;"><button data-checkbox data-state="checked" role="checkbox" aria-checked="true" style="width: 20px; height: 20px; border-radius: 4px; border: 1px solid var(--primary-color, #6366f1); cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--primary-color, #6366f1); transition: all 0.15s;"><span data-checkbox-indicator style="display: flex; color: white;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-6"/></svg></span></button><span style="color: var(--text-color, #e5e7eb); font-size: 0.875rem;">Accept terms and conditions</span></label><label data-checkbox-item="marketing" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;"><button data-checkbox data-state="unchecked" role="checkbox" aria-checked="false" style="width: 20px; height: 20px; border-radius: 4px; border: 1px solid var(--border-color, #4b5563); cursor: pointer; display: flex; align-items: center; justify-content: center; background: transparent; transition: all 0.15s;"><span data-checkbox-indicator style="display: none; color: white;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-6"/></svg></span></button><span style="color: var(--text-color, #e5e7eb); font-size: 0.875rem;">Receive marketing emails</span></label><label data-checkbox-item="disabled" style="display: flex; align-items: center; gap: 0.75rem; cursor: not-allowed; opacity: 0.5;"><button data-checkbox data-state="checked" data-disabled role="checkbox" aria-checked="true" aria-disabled="true" style="width: 20px; height: 20px; border-radius: 4px; border: 1px solid var(--primary-color, #6366f1); cursor: not-allowed; display: flex; align-items: center; justify-content: center; background: var(--primary-color, #6366f1); transition: all 0.15s;"><span data-checkbox-indicator style="display: flex; color: white;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-6"/></svg></span></button><span style="color: var(--text-color, #e5e7eb); font-size: 0.875rem;">Disabled option (checked)</span></label></div></checkbox-demo>
+
+## Usage
+
+```moonbit
+let accepted = @signal.create(false)
+
+radix_checkbox(
+  checked=if accepted.get() { Checked } else { Unchecked },
+  on_change=fn(v) { accepted.set(v == Checked) },
+  children=[@luna.text("Accept terms")],
+)
+```
+
+## With Label
+
+```moonbit
+@luna.div([class_("flex items-center gap-2")], [
+  radix_checkbox(id="terms", checked=Checked),
+  radix_label(for_id="terms", children=[@luna.text("Accept terms and conditions")]),
+])
+```
+
+## States
+
+- **Checked** - The checkbox is selected
+- **Unchecked** - The checkbox is not selected
+- **Indeterminate** - Partial selection (e.g., "select all" with some items selected)
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| checked | CheckboxState | Unchecked | Current state |
+| disabled | Bool | false | Disable interaction |
+| on_change | (CheckboxState) -> Unit | - | Change handler |
+
+## Accessibility
+
+- Uses `role="checkbox"` for screen readers
+- Supports `aria-checked` with "true", "false", or "mixed"
+- Keyboard accessible (Space to toggle)
+- Focus visible indicator

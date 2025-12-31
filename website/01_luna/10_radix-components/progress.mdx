@@ -1,0 +1,51 @@
+---
+title: Progress
+---
+
+# Progress
+
+Progress bar for showing completion status.
+
+## Demo
+
+<progress-demo luna:trigger="visible"><div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem; border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; background: var(--sidebar-bg, #1f2937);"><div><div style="font-size: 0.75rem; color: var(--text-muted, #9ca3af); margin-bottom: 0.5rem;">Upload Progress</div><div data-progress data-value="0" data-target="75" data-max="100" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="position: relative; height: 8px; width: 100%; background: var(--bg-color, #374151); border-radius: 9999px; overflow: hidden;"><div data-progress-indicator style="height: 100%; width: 100%; background: var(--primary-color, #6366f1); border-radius: 9999px; transition: transform 0.1s ease; transform: translateX(-100%);"></div></div></div><div><div style="font-size: 0.75rem; color: var(--text-muted, #9ca3af); margin-bottom: 0.5rem;">Download Complete</div><div data-progress data-value="0" data-target="100" data-max="100" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="position: relative; height: 8px; width: 100%; background: var(--bg-color, #374151); border-radius: 9999px; overflow: hidden;"><div data-progress-indicator style="height: 100%; width: 100%; background: #22c55e; border-radius: 9999px; transition: transform 0.1s ease; transform: translateX(-100%);"></div></div></div><div><div style="font-size: 0.75rem; color: var(--text-muted, #9ca3af); margin-bottom: 0.5rem;">Processing...</div><div data-progress data-value="0" data-target="33" data-max="100" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="position: relative; height: 8px; width: 100%; background: var(--bg-color, #374151); border-radius: 9999px; overflow: hidden;"><div data-progress-indicator style="height: 100%; width: 100%; background: #f59e0b; border-radius: 9999px; transition: transform 0.1s ease; transform: translateX(-100%);"></div></div></div></div></progress-demo>
+
+## Usage
+
+```moonbit
+radix_progress(
+  value=75,
+  max=100,
+  children=[radix_progress_indicator(value=75, max=100)],
+)
+```
+
+## With Styled Version
+
+```moonbit
+// Uses Declarative Shadow DOM with inline styles
+radix_progress_styled(value=50, max=100)
+```
+
+## Custom Styling
+
+```moonbit
+radix_progress_ucss(
+  value=75,
+  children=[radix_progress_indicator_ucss(value=75)],
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | Int | 0 | Current progress value |
+| max | Int | 100 | Maximum progress value |
+
+## Accessibility
+
+- Uses `role="progressbar"` for screen readers
+- `aria-valuenow` reflects current value
+- `aria-valuemin` and `aria-valuemax` define range
+- Smooth transitions for visual feedback

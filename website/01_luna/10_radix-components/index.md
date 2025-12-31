@@ -15,11 +15,15 @@ Each component comes in three variants:
 
 | Component | Description |
 |-----------|-------------|
-| [Counter](./counter/) | Simple counter with +/- buttons |
+| [Accordion](./accordion/) | Expandable sections |
 | [Button](./button/) | Button variants (Primary, Secondary, etc.) |
+| [Checkbox](./checkbox/) | Checkbox with multiple states |
+| [Counter](./counter/) | Simple counter with +/- buttons |
+| [Dialog](./dialog/) | Modal dialog with overlay |
+| [Progress](./progress/) | Animated progress bar |
+| [Radio](./radio/) | Radio button group |
+| [Slider](./slider/) | Draggable range slider |
 | [Switch](./switch/) | Toggle switches |
-| [Accordion](./accordion/) | Expandable sections (CSR) |
-| [Accordion SSR](./accordion-ssr/) | **SSR+Hydration pattern** |
 | [Tabs](./tabs/) | Tabbed interface |
 
 ## All Components
