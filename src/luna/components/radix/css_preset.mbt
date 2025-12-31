@@ -1096,3 +1096,795 @@ pub fn popover_side_styles(side : TooltipSide) -> String {
       ])
   }
 }
+
+// =============================================================================
+// DropdownMenu Styles
+// =============================================================================
+
+///|
+/// DropdownMenu base styles
+pub fn dropdown_menu_base_styles() -> String {
+  @css.styles([("display", "inline-block"), ("position", "relative")])
+}
+
+///|
+/// DropdownMenu trigger styles
+pub fn dropdown_menu_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// DropdownMenu content styles
+pub fn dropdown_menu_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("z-index", "50"),
+    ("min-width", "8rem"),
+    ("padding", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// DropdownMenu item styles
+pub fn dropdown_menu_item_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// DropdownMenu separator styles
+pub fn dropdown_menu_separator_styles() -> String {
+  @css.styles([
+    ("height", "1px"),
+    ("margin", "0.25rem -0.25rem"),
+    ("background", "#e4e4e7"),
+  ])
+}
+
+///|
+/// DropdownMenu label styles
+pub fn dropdown_menu_label_styles() -> String {
+  @css.styles([
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.75rem"),
+    ("font-weight", "600"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// Slider Styles
+// =============================================================================
+
+///|
+/// Slider base styles
+pub fn slider_base_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("width", "100%"),
+    ("touch-action", "none"),
+    ("user-select", "none"),
+  ])
+}
+
+///|
+/// Slider orientation styles
+pub fn slider_orientation_styles(orientation : SliderOrientation) -> String {
+  match orientation {
+    Horizontal => @css.styles([("flex-direction", "row")])
+    Vertical =>
+      @css.styles([
+        ("flex-direction", "column"),
+        ("width", "auto"),
+        ("height", "100%"),
+      ])
+  }
+}
+
+///|
+/// Slider track styles
+pub fn slider_track_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("flex-grow", "1"),
+    ("height", "8px"),
+    ("background", "#e4e4e7"),
+    ("border-radius", "9999px"),
+    ("overflow", "hidden"),
+  ])
+}
+
+///|
+/// Slider range styles
+pub fn slider_range_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("height", "100%"),
+    ("background", "#18181b"),
+    ("border-radius", "9999px"),
+  ])
+}
+
+///|
+/// Slider thumb styles
+pub fn slider_thumb_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "50%"),
+    ("width", "20px"),
+    ("height", "20px"),
+    ("background", "white"),
+    ("border", "2px solid #18181b"),
+    ("border-radius", "50%"),
+    ("transform", "translate(-50%, -50%)"),
+    ("cursor", "grab"),
+  ])
+}
+
+// =============================================================================
+// Sheet Styles
+// =============================================================================
+
+///|
+/// Sheet overlay styles
+pub fn sheet_overlay_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("inset", "0"),
+    ("background", "rgba(0,0,0,0.5)"),
+    ("z-index", "50"),
+  ])
+}
+
+///|
+/// Sheet content styles
+pub fn sheet_content_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("z-index", "51"),
+    ("background", "white"),
+    ("box-shadow", "-4px 0 6px -1px rgba(0,0,0,0.1)"),
+    ("padding", "1.5rem"),
+    ("overflow", "auto"),
+  ])
+}
+
+///|
+/// Sheet side styles
+pub fn sheet_side_styles(side : SheetSide) -> String {
+  match side {
+    Top =>
+      @css.styles([
+        ("top", "0"),
+        ("left", "0"),
+        ("right", "0"),
+        ("height", "auto"),
+        ("max-height", "75%"),
+      ])
+    Right =>
+      @css.styles([
+        ("top", "0"),
+        ("right", "0"),
+        ("height", "100%"),
+        ("width", "75%"),
+        ("max-width", "400px"),
+      ])
+    Bottom =>
+      @css.styles([
+        ("bottom", "0"),
+        ("left", "0"),
+        ("right", "0"),
+        ("height", "auto"),
+        ("max-height", "75%"),
+      ])
+    Left =>
+      @css.styles([
+        ("top", "0"),
+        ("left", "0"),
+        ("height", "100%"),
+        ("width", "75%"),
+        ("max-width", "400px"),
+      ])
+  }
+}
+
+///|
+/// Sheet header styles
+pub fn sheet_header_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("gap", "0.25rem"),
+    ("margin-bottom", "1rem"),
+  ])
+}
+
+///|
+/// Sheet title styles
+pub fn sheet_title_styles() -> String {
+  @css.styles([
+    ("margin", "0"),
+    ("font-size", "1.125rem"),
+    ("font-weight", "600"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// Sheet description styles
+pub fn sheet_description_styles() -> String {
+  @css.styles([("margin", "0"), ("font-size", "0.875rem"), ("color", "#71717a")])
+}
+
+///|
+/// Sheet footer styles
+pub fn sheet_footer_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("justify-content", "flex-end"),
+    ("gap", "0.5rem"),
+    ("margin-top", "1.5rem"),
+  ])
+}
+
+// =============================================================================
+// Toast Styles
+// =============================================================================
+
+///|
+/// Toast viewport styles
+pub fn toast_viewport_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("bottom", "0"),
+    ("right", "0"),
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("gap", "0.5rem"),
+    ("padding", "1rem"),
+    ("max-height", "100vh"),
+    ("width", "100%"),
+    ("max-width", "420px"),
+    ("z-index", "100"),
+  ])
+}
+
+///|
+/// Toast base styles
+pub fn toast_base_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "flex-start"),
+    ("gap", "0.75rem"),
+    ("padding", "1rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Toast variant styles
+pub fn toast_variant_styles(variant : ToastVariant) -> String {
+  match variant {
+    Default => ""
+    Destructive =>
+      @css.styles([
+        ("background", "#fef2f2"),
+        ("border-color", "#fecaca"),
+        ("color", "#991b1b"),
+      ])
+    Success =>
+      @css.styles([
+        ("background", "#f0fdf4"),
+        ("border-color", "#bbf7d0"),
+        ("color", "#166534"),
+      ])
+  }
+}
+
+///|
+/// Toast title styles
+pub fn toast_title_styles() -> String {
+  @css.styles([("font-weight", "600"), ("font-size", "0.875rem")])
+}
+
+///|
+/// Toast description styles
+pub fn toast_description_styles() -> String {
+  @css.styles([("font-size", "0.875rem"), ("color", "#71717a")])
+}
+
+///|
+/// Toast action styles
+pub fn toast_action_styles() -> String {
+  @css.styles([
+    ("padding", "0.25rem 0.75rem"),
+    ("font-size", "0.75rem"),
+    ("font-weight", "500"),
+    ("background", "transparent"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+// =============================================================================
+// AlertDialog Styles
+// =============================================================================
+
+///|
+/// AlertDialog overlay styles
+pub fn alert_dialog_overlay_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("inset", "0"),
+    ("background", "rgba(0,0,0,0.5)"),
+    ("z-index", "50"),
+  ])
+}
+
+///|
+/// AlertDialog content styles
+pub fn alert_dialog_content_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("left", "50%"),
+    ("top", "50%"),
+    ("transform", "translate(-50%, -50%)"),
+    ("max-width", "32rem"),
+    ("width", "100%"),
+    ("background", "white"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 25px 50px -12px rgba(0,0,0,0.25)"),
+    ("z-index", "51"),
+    ("padding", "1.5rem"),
+  ])
+}
+
+///|
+/// AlertDialog header styles
+pub fn alert_dialog_header_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("gap", "0.5rem"),
+    ("text-align", "center"),
+  ])
+}
+
+///|
+/// AlertDialog title styles
+pub fn alert_dialog_title_styles() -> String {
+  @css.styles([
+    ("margin", "0"),
+    ("font-size", "1.125rem"),
+    ("font-weight", "600"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// AlertDialog description styles
+pub fn alert_dialog_description_styles() -> String {
+  @css.styles([("margin", "0"), ("font-size", "0.875rem"), ("color", "#71717a")])
+}
+
+///|
+/// AlertDialog footer styles
+pub fn alert_dialog_footer_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("justify-content", "center"),
+    ("gap", "0.5rem"),
+    ("margin-top", "1.5rem"),
+  ])
+}
+
+///|
+/// AlertDialog cancel button styles
+pub fn alert_dialog_cancel_styles() -> String {
+  @css.styles([
+    ("padding", "0.5rem 1rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// AlertDialog action button styles
+pub fn alert_dialog_action_styles() -> String {
+  @css.styles([
+    ("padding", "0.5rem 1rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("color", "white"),
+    ("background", "#dc2626"),
+    ("border", "none"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+// =============================================================================
+// ScrollArea Styles
+// =============================================================================
+
+///|
+/// ScrollArea base styles
+pub fn scroll_area_base_styles() -> String {
+  @css.styles([("position", "relative"), ("overflow", "hidden")])
+}
+
+///|
+/// ScrollArea viewport styles
+pub fn scroll_area_viewport_styles() -> String {
+  @css.styles([
+    ("width", "100%"),
+    ("height", "100%"),
+    ("overflow", "auto"),
+    ("scrollbar-width", "none"),
+  ])
+}
+
+///|
+/// ScrollArea scrollbar styles
+pub fn scroll_area_scrollbar_styles(orientation : ScrollOrientation) -> String {
+  let base = @css.styles([
+    ("display", "flex"),
+    ("touch-action", "none"),
+    ("user-select", "none"),
+    ("padding", "2px"),
+  ])
+  let position = match orientation {
+    Vertical =>
+      @css.styles([
+        ("position", "absolute"),
+        ("top", "0"),
+        ("right", "0"),
+        ("height", "100%"),
+        ("width", "10px"),
+        ("flex-direction", "column"),
+      ])
+    Horizontal =>
+      @css.styles([
+        ("position", "absolute"),
+        ("bottom", "0"),
+        ("left", "0"),
+        ("width", "100%"),
+        ("height", "10px"),
+        ("flex-direction", "row"),
+      ])
+    Both => ""
+  }
+  base + " " + position
+}
+
+///|
+/// ScrollArea thumb styles
+pub fn scroll_area_thumb_styles() -> String {
+  @css.styles([
+    ("flex", "1"),
+    ("background", "rgba(0,0,0,0.3)"),
+    ("border-radius", "9999px"),
+  ])
+}
+
+// =============================================================================
+// Collapsible Styles
+// =============================================================================
+
+///|
+/// Collapsible base styles
+pub fn collapsible_base_styles() -> String {
+  @css.styles([("width", "100%")])
+}
+
+///|
+/// Collapsible trigger styles
+pub fn collapsible_trigger_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("width", "100%"),
+    ("align-items", "center"),
+    ("justify-content", "space-between"),
+    ("padding", "0.75rem 1rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", "transparent"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Collapsible content styles
+pub fn collapsible_content_styles() -> String {
+  @css.styles([
+    ("overflow", "hidden"),
+    ("margin-top", "0.5rem"),
+    ("padding", "0.75rem 1rem"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("font-size", "0.875rem"),
+  ])
+}
+
+// =============================================================================
+// HoverCard Styles
+// =============================================================================
+
+///|
+/// HoverCard base styles
+pub fn hover_card_base_styles() -> String {
+  @css.styles([("display", "inline-block"), ("position", "relative")])
+}
+
+///|
+/// HoverCard trigger styles
+pub fn hover_card_trigger_styles() -> String {
+  @css.styles([("cursor", "pointer")])
+}
+
+///|
+/// HoverCard content styles
+pub fn hover_card_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("z-index", "50"),
+    ("min-width", "16rem"),
+    ("padding", "1rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 10px 15px -3px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// HoverCard side styles
+pub fn hover_card_side_styles(side : TooltipSide) -> String {
+  tooltip_side_styles(side)
+}
+
+// =============================================================================
+// Table Styles
+// =============================================================================
+
+///|
+/// Table wrapper styles
+pub fn table_wrapper_styles() -> String {
+  @css.styles([("width", "100%"), ("overflow", "auto")])
+}
+
+///|
+/// Table base styles
+pub fn table_base_styles() -> String {
+  @css.styles([
+    ("width", "100%"),
+    ("border-collapse", "collapse"),
+    ("font-size", "0.875rem"),
+  ])
+}
+
+///|
+/// Table header styles
+pub fn table_header_styles() -> String {
+  @css.styles([("border-bottom", "1px solid #e4e4e7")])
+}
+
+///|
+/// Table row styles
+pub fn table_row_styles() -> String {
+  @css.styles([("border-bottom", "1px solid #e4e4e7")])
+}
+
+///|
+/// Table head cell styles
+pub fn table_head_styles() -> String {
+  @css.styles([
+    ("padding", "0.75rem 1rem"),
+    ("text-align", "left"),
+    ("font-weight", "500"),
+    ("color", "#71717a"),
+  ])
+}
+
+///|
+/// Table cell styles
+pub fn table_cell_styles() -> String {
+  @css.styles([("padding", "0.75rem 1rem"), ("vertical-align", "middle")])
+}
+
+///|
+/// Table caption styles
+pub fn table_caption_styles() -> String {
+  @css.styles([
+    ("margin-top", "0.5rem"),
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// Breadcrumb Styles
+// =============================================================================
+
+///|
+/// Breadcrumb list styles
+pub fn breadcrumb_list_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-wrap", "wrap"),
+    ("align-items", "center"),
+    ("gap", "0.375rem"),
+    ("list-style", "none"),
+    ("margin", "0"),
+    ("padding", "0"),
+  ])
+}
+
+///|
+/// Breadcrumb item styles
+pub fn breadcrumb_item_styles() -> String {
+  @css.styles([("display", "flex"), ("align-items", "center"), ("gap", "0.375rem")])
+}
+
+///|
+/// Breadcrumb link styles
+pub fn breadcrumb_link_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+    ("text-decoration", "none"),
+  ])
+}
+
+///|
+/// Breadcrumb page styles
+pub fn breadcrumb_page_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// Breadcrumb separator styles
+pub fn breadcrumb_separator_styles() -> String {
+  @css.styles([("font-size", "0.875rem"), ("color", "#a1a1aa")])
+}
+
+// =============================================================================
+// Pagination Styles
+// =============================================================================
+
+///|
+/// Pagination base styles
+pub fn pagination_base_styles() -> String {
+  @css.styles([("display", "flex"), ("justify-content", "center")])
+}
+
+///|
+/// Pagination content styles
+pub fn pagination_content_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("list-style", "none"),
+    ("margin", "0"),
+    ("padding", "0"),
+  ])
+}
+
+///|
+/// Pagination link styles
+pub fn pagination_link_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("min-width", "2.25rem"),
+    ("height", "2.25rem"),
+    ("padding", "0 0.5rem"),
+    ("font-size", "0.875rem"),
+    ("text-decoration", "none"),
+    ("color", "#18181b"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+  ])
+}
+
+///|
+/// Pagination link active styles
+pub fn pagination_link_active_styles() -> String {
+  @css.styles([
+    ("background", "#18181b"),
+    ("color", "white"),
+    ("border-color", "#18181b"),
+  ])
+}
+
+///|
+/// Pagination nav button styles
+pub fn pagination_nav_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("min-width", "2.25rem"),
+    ("height", "2.25rem"),
+    ("padding", "0 0.5rem"),
+    ("font-size", "0.875rem"),
+    ("text-decoration", "none"),
+    ("color", "#18181b"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+  ])
+}
+
+///|
+/// Pagination ellipsis styles
+pub fn pagination_ellipsis_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("min-width", "2.25rem"),
+    ("height", "2.25rem"),
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// AspectRatio Styles
+// =============================================================================
+
+///|
+/// AspectRatio outer styles
+pub fn aspect_ratio_outer_styles() -> String {
+  @css.styles([("position", "relative"), ("width", "100%")])
+}
+
+///|
+/// AspectRatio inner styles
+pub fn aspect_ratio_inner_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "0"),
+    ("right", "0"),
+    ("bottom", "0"),
+    ("left", "0"),
+  ])
+}
