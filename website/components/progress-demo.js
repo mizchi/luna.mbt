@@ -1,12 +1,19 @@
 // Progress Demo - Animated progress bars
 // SSR-compatible: adopts existing DOM, adds animation
+// Uses CSS custom property --progress for dynamic values
 //
 // SSR HTML Convention:
 //   <progress-demo luna:trigger="visible">
-//     <div data-progress data-value="0" data-target="75" data-max="100">
-//       <div data-progress-indicator style="transform:translateX(-100%)"></div>
+//     <div data-progress data-value="0" data-target="75" data-max="100" aria-valuenow="0">
+//       <div data-progress-indicator></div>
 //     </div>
 //   </progress-demo>
+//
+// Required CSS:
+//   [data-progress-indicator] {
+//     transform: translateX(calc(-100% + var(--progress, 0) * 1%));
+//     transition: transform 0.1s ease;
+//   }
 
 export function hydrate(element, state, name) {
   if (element.dataset.hydrated) return;
@@ -23,9 +30,9 @@ export function hydrate(element, state, name) {
       if (current < target) {
         current = Math.min(current + 2, target);
         const pct = max > 0 ? (current * 100 / max) : 0;
-        indicator.style.transform = `translateX(-${100 - pct}%)`;
-        bar.setAttribute('aria-valuenow', current);
-        bar.dataset.value = current;
+        bar.style.setProperty('--progress', String(pct));
+        bar.setAttribute('aria-valuenow', String(current));
+        bar.dataset.value = String(current);
         requestAnimationFrame(animate);
       }
     };

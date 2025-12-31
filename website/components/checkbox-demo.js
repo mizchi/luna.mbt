@@ -1,5 +1,6 @@
 // Checkbox Demo - Interactive checkboxes
 // SSR-compatible: adopts existing DOM, adds event handlers
+// CSS handles visual changes via [data-state] and [aria-checked] selectors
 //
 // SSR HTML Convention:
 //   <checkbox-demo luna:trigger="visible">
@@ -7,29 +8,23 @@
 //       <span data-checkbox-indicator>✓</span>
 //     </button>
 //   </checkbox-demo>
+//
+// Required CSS:
+//   [data-checkbox][data-state="checked"] { background: var(--primary); border-color: var(--primary); }
+//   [data-checkbox][data-state="unchecked"] { background: transparent; border-color: var(--border); }
+//   [data-state="checked"] [data-checkbox-indicator] { display: flex; }
+//   [data-state="unchecked"] [data-checkbox-indicator] { display: none; }
 
-export function hydrate(element, state, name) {
-  if (element.dataset.hydrated) return;
+import { createHydrator, toggle } from '../../../js/luna/src/hydration/index.ts';
 
-  // Toggle checkbox
-  const toggle = (btn) => {
-    const checked = btn.dataset.state !== 'checked';
-    btn.dataset.state = checked ? 'checked' : 'unchecked';
-    btn.setAttribute('aria-checked', checked);
-
-    btn.style.background = checked ? 'var(--primary-color, #6366f1)' : 'transparent';
-    btn.style.borderColor = checked ? 'var(--primary-color, #6366f1)' : 'var(--border-color, #4b5563)';
-
-    const indicator = btn.querySelector('[data-checkbox-indicator]');
-    if (indicator) indicator.style.display = checked ? 'flex' : 'none';
-  };
-
-  // Attach handlers (skip disabled)
-  element.querySelectorAll('[data-checkbox]:not([data-disabled])').forEach(btn => {
-    btn.onclick = () => toggle(btn);
+export const hydrate = createHydrator((el) => {
+  // Toggle data-state and aria-checked together
+  return toggle(el, '[data-checkbox]:not([data-disabled])', {
+    states: ['checked', 'unchecked'],
+    onChange: (state, target) => {
+      target.setAttribute('aria-checked', state === 'checked' ? 'true' : 'false');
+    }
   });
-
-  element.dataset.hydrated = 'true';
-}
+});
 
 export default hydrate;

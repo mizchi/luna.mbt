@@ -1,25 +1,29 @@
 // Slider Demo - Draggable range slider
 // SSR-compatible: adopts existing DOM, adds drag handlers
+// Uses CSS custom property --slider-percent for dynamic positioning
 //
 // SSR HTML Convention:
 //   <slider-demo luna:trigger="visible">
-//     <div data-slider data-value="50" data-min="0" data-max="100">
+//     <div data-slider data-value="50" data-min="0" data-max="100" aria-valuenow="50">
 //       <div data-slider-track>
-//         <div data-slider-range style="width:50%"></div>
+//         <div data-slider-range></div>
 //       </div>
-//       <div data-slider-thumb style="left:50%"></div>
+//       <div data-slider-thumb tabindex="0"></div>
 //     </div>
 //     <span data-slider-value>50</span>
 //   </slider-demo>
+//
+// Required CSS:
+//   [data-slider-range] { width: calc(var(--slider-percent, 50) * 1%); }
+//   [data-slider-thumb] { left: calc(var(--slider-percent, 50) * 1%); }
 
 export function hydrate(element, state, name) {
   if (element.dataset.hydrated) return;
 
   element.querySelectorAll('[data-slider]').forEach(slider => {
     const track = slider.querySelector('[data-slider-track]');
-    const range = slider.querySelector('[data-slider-range]');
     const thumb = slider.querySelector('[data-slider-thumb]');
-    const display = slider.querySelector('[data-slider-value]');
+    const display = element.querySelector('[data-slider-value]');
 
     if (!track || !thumb) return;
 
@@ -31,12 +35,15 @@ export function hydrate(element, state, name) {
       value = Math.max(min, Math.min(max, val));
       const pct = ((value - min) / (max - min)) * 100;
 
-      slider.dataset.value = value;
-      slider.setAttribute('aria-valuenow', value);
-      if (range) range.style.width = `${pct}%`;
-      thumb.style.left = `${pct}%`;
-      if (display) display.textContent = value;
+      slider.dataset.value = String(value);
+      slider.setAttribute('aria-valuenow', String(value));
+      slider.style.setProperty('--slider-percent', String(pct));
+      if (display) display.textContent = String(value);
     };
+
+    // Set initial CSS variable
+    const initialPct = ((value - min) / (max - min)) * 100;
+    slider.style.setProperty('--slider-percent', String(initialPct));
 
     const drag = (e) => {
       const rect = track.getBoundingClientRect();

@@ -1,5 +1,6 @@
 // Radio Demo - Radio button group
-// SSR-compatible: adopts existing DOM, adds event handlers
+// SSR-compatible: adopts existing DOM
+// CSS handles visual changes via :checked pseudo-class
 //
 // SSR HTML Convention:
 //   <radio-demo luna:trigger="visible">
@@ -11,27 +12,15 @@
 //       </label>
 //     </div>
 //   </radio-demo>
+//
+// Required CSS:
+//   input[type="radio"]:checked + [data-radio-indicator] { display: block; }
+//   input[type="radio"]:not(:checked) + [data-radio-indicator] { display: none; }
 
 export function hydrate(element, state, name) {
   if (element.dataset.hydrated) return;
-
-  // Update indicator visibility based on checked state
-  const updateIndicators = (name) => {
-    element.querySelectorAll(`input[name="${name}"]`).forEach(input => {
-      const indicator = input.parentElement?.querySelector('[data-radio-indicator]');
-      if (indicator) {
-        indicator.style.display = input.checked ? 'block' : 'none';
-      }
-    });
-  };
-
-  // Attach handlers
-  element.querySelectorAll('input[type="radio"]').forEach(input => {
-    if (!input.disabled) {
-      input.onchange = () => updateIndicators(input.name);
-    }
-  });
-
+  // Native radio buttons handle state automatically
+  // CSS handles indicator visibility via :checked pseudo-class
   element.dataset.hydrated = 'true';
 }
 

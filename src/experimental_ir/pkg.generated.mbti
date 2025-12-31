@@ -1,0 +1,225 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/experimental_ir"
+
+// Values
+pub fn parse_moonbit(String) -> ParseResult
+
+pub fn parse_moonbit_with_options(String, file~ : String) -> ParseResult
+
+pub fn parse_ts_type_ref(String) -> TypeRef
+
+pub fn parse_type_ref(String) -> TypeRef
+
+pub fn parse_typescript(String) -> ParseResult
+
+pub fn parse_typescript_with_options(String, file~ : String) -> ParseResult
+
+// Errors
+
+// Types and methods
+pub struct AliasDef {
+  name : String
+  doc : String?
+  type_params : Array[TypeParam]
+  target : TypeRef
+}
+pub fn AliasDef::to_moonbit(Self) -> String
+pub fn AliasDef::to_typescript(Self) -> String
+pub impl Eq for AliasDef
+pub impl Show for AliasDef
+
+pub struct Annotation {
+  name : String
+  args : Map[String, Json]
+}
+pub impl Eq for Annotation
+pub impl Show for Annotation
+pub impl ToJson for Annotation
+
+pub struct EnumDef {
+  name : String
+  doc : String?
+  type_params : Array[TypeParam]
+  variants : Array[EnumVariant]
+  derives : Array[String]
+}
+pub fn EnumDef::to_moonbit(Self) -> String
+pub fn EnumDef::to_typescript(Self) -> String
+pub impl Eq for EnumDef
+pub impl Show for EnumDef
+
+pub struct EnumVariant {
+  name : String
+  doc : String?
+  payload : TypeRef?
+}
+pub fn EnumVariant::to_moonbit(Self) -> String
+pub impl Eq for EnumVariant
+pub impl Show for EnumVariant
+pub impl ToJson for EnumVariant
+
+pub struct Field {
+  name : String
+  doc : String?
+  type_ : TypeRef
+  optional : Bool
+  default : Json?
+  attrs : Map[String, String]
+}
+pub fn Field::new(String, TypeRef) -> Self
+pub fn Field::optional(String, TypeRef) -> Self
+pub fn Field::to_moonbit(Self) -> String
+pub fn Field::to_typescript(Self) -> String
+pub impl Eq for Field
+pub impl Show for Field
+pub impl ToJson for Field
+
+pub struct FunctionType {
+  params : Array[TypeRef]
+  return_ : TypeRef
+}
+pub impl Eq for FunctionType
+pub impl Show for FunctionType
+
+pub enum LiteralType {
+  BoolLit(Bool)
+  IntLit(Int)
+  StringLit(String)
+}
+pub fn LiteralType::to_typescript(Self) -> String
+pub impl Eq for LiteralType
+pub impl Show for LiteralType
+pub impl ToJson for LiteralType
+
+pub struct ParseError {
+  line : Int
+  message : String
+}
+pub impl Eq for ParseError
+pub impl Show for ParseError
+
+pub struct ParseResult {
+  schema : Schema
+  errors : Array[ParseError]
+}
+pub impl Show for ParseResult
+
+pub enum PrimitiveType {
+  Bool
+  Int
+  Int64
+  Float
+  Float64
+  String
+  Unit
+  Never
+}
+pub fn PrimitiveType::to_moonbit(Self) -> String
+pub fn PrimitiveType::to_typescript(Self) -> String
+pub impl Eq for PrimitiveType
+pub impl Show for PrimitiveType
+pub impl ToJson for PrimitiveType
+
+pub struct Schema {
+  version : String
+  definitions : Map[String, TypeDef]
+  source : SourceInfo?
+}
+pub fn Schema::empty() -> Self
+pub fn Schema::new(String) -> Self
+pub fn Schema::to_moonbit(Self) -> String
+pub fn Schema::to_typescript(Self) -> String
+pub impl Eq for Schema
+pub impl Show for Schema
+pub impl ToJson for Schema
+
+pub struct SourceInfo {
+  file : String
+  lang : SourceLang
+}
+pub impl Eq for SourceInfo
+pub impl Show for SourceInfo
+pub impl ToJson for SourceInfo
+
+pub enum SourceLang {
+  MoonBit
+  TypeScript
+  Rust
+  Go
+  Unknown(String)
+}
+pub impl Eq for SourceLang
+pub impl Show for SourceLang
+pub impl ToJson for SourceLang
+
+pub struct StructDef {
+  name : String
+  doc : String?
+  type_params : Array[TypeParam]
+  fields : Array[Field]
+  derives : Array[String]
+}
+pub fn StructDef::new(String) -> Self
+pub fn StructDef::to_moonbit(Self) -> String
+pub fn StructDef::to_typescript(Self) -> String
+pub impl Eq for StructDef
+pub impl Show for StructDef
+
+pub enum TypeDef {
+  Struct(StructDef)
+  Enum(EnumDef)
+  Alias(AliasDef)
+}
+pub fn TypeDef::to_moonbit(Self) -> String
+pub fn TypeDef::to_typescript(Self) -> String
+pub impl Eq for TypeDef
+pub impl Show for TypeDef
+pub impl ToJson for TypeDef
+
+pub struct TypeParam {
+  name : String
+  constraint : TypeRef?
+  default : TypeRef?
+}
+pub fn TypeParam::to_moonbit(Self) -> String
+pub fn TypeParam::to_typescript(Self) -> String
+pub impl Eq for TypeParam
+pub impl Show for TypeParam
+pub impl ToJson for TypeParam
+
+pub enum TypeRef {
+  Primitive(PrimitiveType)
+  Array(TypeRef)
+  Map(TypeRef, TypeRef)
+  Tuple(Array[TypeRef])
+  Option(TypeRef)
+  Named(String)
+  Applied(String, Array[TypeRef])
+  Param(String)
+  Literal(LiteralType)
+  Union(Array[TypeRef])
+  Function(FunctionType)
+  Unknown
+}
+pub fn TypeRef::array(Self) -> Self
+pub fn TypeRef::bool_() -> Self
+pub fn TypeRef::float() -> Self
+pub fn TypeRef::int() -> Self
+pub fn TypeRef::map(Self, Self) -> Self
+pub fn TypeRef::named(String) -> Self
+pub fn TypeRef::option(Self) -> Self
+pub fn TypeRef::param(String) -> Self
+pub fn TypeRef::string() -> Self
+pub fn TypeRef::string_lit(String) -> Self
+pub fn TypeRef::to_moonbit(Self) -> String
+pub fn TypeRef::to_typescript(Self) -> String
+pub fn TypeRef::union(Array[Self]) -> Self
+pub fn TypeRef::unit() -> Self
+pub impl Eq for TypeRef
+pub impl Show for TypeRef
+pub impl ToJson for TypeRef
+
+// Type aliases
+
+// Traits
+

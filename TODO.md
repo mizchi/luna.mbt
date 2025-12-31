@@ -156,6 +156,41 @@
 - [ ] editor
 - [ ] inline ssr
 
+### Type IR (experimental_ir)
+
+`src/experimental_ir/` - 言語間型同期のための中間表現（実験的）
+
+**目的**
+- MoonBit と TypeScript 間で Island コンポーネントの Props 型を同期
+- ソースコード → IR → 両言語のコード生成による型安全な Islands
+
+**実装済み**
+- [x] コアIR型定義 (`Schema`, `TypeDef`, `TypeRef`, `Field`)
+- [x] JSON シリアライズ (`schema.to_json()`)
+- [x] MoonBit コード生成 (`schema.to_moonbit()`)
+- [x] TypeScript コード生成 (`schema.to_typescript()`)
+- [x] MoonBit パーサー (`parse_moonbit()` - `/// @island` アノテーション)
+- [x] TypeScript パーサー (`parse_typescript()` - `/** @island */` JSDoc)
+
+**未実装・検討中**
+- [ ] Sol/Astra ビルドパイプラインへの統合
+- [ ] CLI コマンド (`sol types:sync` 等)
+- [ ] Watch モードでの自動型生成
+- [ ] 型変更時の互換性チェック
+- [ ] Generic 型パラメータの完全サポート
+- [ ] 将来的に別リポジトリへ分離
+
+**使用例**
+```moonbit
+// TypeScript → IR → MoonBit
+let result = parse_typescript("/** @island */ export interface Props { ... }")
+let moonbit_code = result.schema.to_moonbit()
+
+// MoonBit → IR → TypeScript
+let result = parse_moonbit("/// @island\npub struct Props { ... }")
+let ts_code = result.schema.to_typescript()
+```
+
 ---
 
 ## Icebox

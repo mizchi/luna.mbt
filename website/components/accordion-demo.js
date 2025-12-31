@@ -1,5 +1,6 @@
 // Accordion Demo - Expandable sections
 // SSR-compatible: adopts existing DOM, adds event handlers
+// CSS handles visual changes via [data-state] selector
 //
 // SSR HTML Convention:
 //   <accordion-demo luna:trigger="visible">
@@ -10,57 +11,22 @@
 //       <div data-accordion-content>Content</div>
 //     </div>
 //   </accordion-demo>
+//
+// Required CSS:
+//   [data-state="open"] [data-accordion-content] { max-height: 200px; }
+//   [data-state="closed"] [data-accordion-content] { max-height: 0; }
+//   [data-state="open"] [data-chevron] { transform: rotate(180deg); }
+//   [data-state="closed"] [data-chevron] { transform: rotate(0deg); }
+//   [data-accordion-content] { transition: max-height 0.3s ease; }
+//   [data-chevron] { transition: transform 0.2s ease; }
 
-export function hydrate(element, state, name) {
-  if (element.dataset.hydrated) return;
+import { createHydrator, toggle } from '../../../js/luna/src/hydration/index.ts';
 
-  // Read initial open states from SSR
-  const openItems = new Set();
-  element.querySelectorAll('[data-accordion-item][data-state="open"]').forEach(item => {
-    openItems.add(item.dataset.accordionItem);
+export const hydrate = createHydrator((el) => {
+  return toggle(el, '[data-accordion-trigger]', {
+    target: '[data-accordion-item]',
+    states: ['open', 'closed']
   });
-
-  // Enable transitions after hydration (prevent initial flash)
-  requestAnimationFrame(() => {
-    element.querySelectorAll('[data-accordion-content]').forEach(el => {
-      el.style.transition = 'max-height 0.3s ease';
-    });
-    element.querySelectorAll('[data-chevron]').forEach(el => {
-      el.style.transition = 'transform 0.2s ease';
-    });
-  });
-
-  // Toggle handler
-  const toggle = (itemId) => {
-    const item = element.querySelector(`[data-accordion-item="${itemId}"]`);
-    if (!item) return;
-
-    const isOpen = openItems.has(itemId);
-    const content = item.querySelector('[data-accordion-content]');
-    const chevron = item.querySelector('[data-chevron]');
-
-    if (isOpen) {
-      openItems.delete(itemId);
-      item.dataset.state = 'closed';
-      if (content) content.style.maxHeight = '0';
-      if (chevron) chevron.style.transform = 'rotate(0deg)';
-    } else {
-      openItems.add(itemId);
-      item.dataset.state = 'open';
-      if (content) content.style.maxHeight = '200px';
-      if (chevron) chevron.style.transform = 'rotate(180deg)';
-    }
-  };
-
-  // Attach handlers via event delegation
-  element.querySelectorAll('[data-accordion-trigger]').forEach(trigger => {
-    const item = trigger.closest('[data-accordion-item]');
-    if (item) {
-      trigger.onclick = () => toggle(item.dataset.accordionItem);
-    }
-  });
-
-  element.dataset.hydrated = 'true';
-}
+});
 
 export default hydrate;
