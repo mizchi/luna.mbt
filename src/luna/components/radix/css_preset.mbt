@@ -489,3 +489,610 @@ pub fn radio_label_styles() -> String {
     ("user-select", "none"),
   ])
 }
+
+// =============================================================================
+// Card Styles
+// =============================================================================
+
+///|
+/// Card base styles
+pub fn card_base_styles() -> String {
+  @css.styles([
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 1px 3px rgba(0,0,0,0.1)"),
+    ("overflow", "hidden"),
+  ])
+}
+
+///|
+/// Card header styles
+pub fn card_header_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("gap", "0.375rem"),
+    ("padding", "1.5rem"),
+  ])
+}
+
+///|
+/// Card title styles
+pub fn card_title_styles() -> String {
+  @css.styles([
+    ("margin", "0"),
+    ("font-size", "1.25rem"),
+    ("font-weight", "600"),
+    ("line-height", "1.2"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// Card description styles
+pub fn card_description_styles() -> String {
+  @css.styles([
+    ("margin", "0"),
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+    ("line-height", "1.5"),
+  ])
+}
+
+///|
+/// Card content styles
+pub fn card_content_styles() -> String {
+  @css.styles([("padding", "0 1.5rem 1.5rem")])
+}
+
+///|
+/// Card footer styles
+pub fn card_footer_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "1.5rem"),
+    ("border-top", "1px solid #e4e4e7"),
+  ])
+}
+
+// =============================================================================
+// Avatar Styles
+// =============================================================================
+
+///|
+/// Avatar base styles
+pub fn avatar_base_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("border-radius", "50%"),
+    ("overflow", "hidden"),
+    ("background", "#e4e4e7"),
+    ("vertical-align", "middle"),
+    ("user-select", "none"),
+  ])
+}
+
+///|
+/// Avatar size styles
+pub fn avatar_size_styles(size : AvatarSize) -> String {
+  match size {
+    Small =>
+      @css.styles([("width", "2rem"), ("height", "2rem"), ("font-size", "0.75rem")])
+    Medium =>
+      @css.styles([
+        ("width", "2.5rem"),
+        ("height", "2.5rem"),
+        ("font-size", "0.875rem"),
+      ])
+    Large =>
+      @css.styles([("width", "3rem"), ("height", "3rem"), ("font-size", "1rem")])
+    XLarge =>
+      @css.styles([("width", "4rem"), ("height", "4rem"), ("font-size", "1.25rem")])
+  }
+}
+
+///|
+/// Avatar image styles
+pub fn avatar_image_styles() -> String {
+  @css.styles([("width", "100%"), ("height", "100%"), ("object-fit", "cover")])
+}
+
+///|
+/// Avatar fallback styles
+pub fn avatar_fallback_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "100%"),
+    ("height", "100%"),
+    ("font-weight", "500"),
+    ("color", "#71717a"),
+    ("text-transform", "uppercase"),
+  ])
+}
+
+// =============================================================================
+// Label Styles
+// =============================================================================
+
+///|
+/// Label base styles
+pub fn label_base_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("color", "#18181b"),
+    ("line-height", "1"),
+    ("cursor", "default"),
+  ])
+}
+
+///|
+/// Label disabled styles
+pub fn label_disabled_styles() -> String {
+  @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
+}
+
+// =============================================================================
+// Progress Styles
+// =============================================================================
+
+///|
+/// Progress base styles
+pub fn progress_base_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("height", "0.5rem"),
+    ("width", "100%"),
+    ("background", "#e4e4e7"),
+    ("border-radius", "9999px"),
+    ("overflow", "hidden"),
+  ])
+}
+
+///|
+/// Progress indicator styles
+pub fn progress_indicator_styles() -> String {
+  @css.styles([
+    ("height", "100%"),
+    ("width", "100%"),
+    ("background", "#18181b"),
+    ("transition", "transform 0.3s ease"),
+  ])
+}
+
+// =============================================================================
+// Skeleton Styles
+// =============================================================================
+
+///|
+/// Skeleton base styles
+pub fn skeleton_base_styles() -> String {
+  @css.styles([
+    ("background", "linear-gradient(90deg, #e4e4e7 25%, #f4f4f5 50%, #e4e4e7 75%)"),
+    ("background-size", "200% 100%"),
+  ])
+}
+
+///|
+/// Skeleton shape styles
+pub fn skeleton_shape_styles(shape : SkeletonShape) -> String {
+  match shape {
+    Rectangle =>
+      @css.styles([("border-radius", "4px"), ("min-height", "1rem")])
+    Circle =>
+      @css.styles([
+        ("border-radius", "50%"),
+        ("width", "2.5rem"),
+        ("height", "2.5rem"),
+      ])
+    Text => @css.styles([("border-radius", "2px"), ("height", "1em"), ("width", "100%")])
+  }
+}
+
+// =============================================================================
+// Alert Styles
+// =============================================================================
+
+///|
+/// Alert base styles
+pub fn alert_base_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("padding", "1rem"),
+    ("border-radius", "8px"),
+    ("border", "1px solid"),
+  ])
+}
+
+///|
+/// Alert variant styles
+pub fn alert_variant_styles(variant : AlertVariant) -> String {
+  match variant {
+    Default =>
+      @css.styles([
+        ("background", "#fafafa"),
+        ("border-color", "#e4e4e7"),
+        ("color", "#18181b"),
+      ])
+    Destructive =>
+      @css.styles([
+        ("background", "#fef2f2"),
+        ("border-color", "#fecaca"),
+        ("color", "#991b1b"),
+      ])
+    Warning =>
+      @css.styles([
+        ("background", "#fffbeb"),
+        ("border-color", "#fde68a"),
+        ("color", "#92400e"),
+      ])
+    Success =>
+      @css.styles([
+        ("background", "#f0fdf4"),
+        ("border-color", "#bbf7d0"),
+        ("color", "#166534"),
+      ])
+  }
+}
+
+///|
+/// Alert title styles
+pub fn alert_title_styles() -> String {
+  @css.styles([
+    ("margin", "0 0 0.25rem 0"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("line-height", "1.4"),
+  ])
+}
+
+///|
+/// Alert description styles
+pub fn alert_description_styles() -> String {
+  @css.styles([("font-size", "0.875rem"), ("line-height", "1.5"), ("opacity", "0.9")])
+}
+
+// =============================================================================
+// Tabs Styles
+// =============================================================================
+
+///|
+/// Tabs base styles
+pub fn tabs_base_styles() -> String {
+  @css.styles([("display", "flex")])
+}
+
+///|
+/// Tabs orientation styles
+pub fn tabs_orientation_styles(orientation : Orientation) -> String {
+  match orientation {
+    Horizontal => @css.styles([("flex-direction", "column")])
+    Vertical => @css.styles([("flex-direction", "row")])
+  }
+}
+
+///|
+/// Tabs list styles
+pub fn tabs_list_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("gap", "0.25rem"),
+    ("background", "#f4f4f5"),
+    ("padding", "0.25rem"),
+    ("border-radius", "6px"),
+  ])
+}
+
+///|
+/// Tabs trigger styles
+pub fn tabs_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "4px"),
+    ("color", "#71717a"),
+    ("cursor", "pointer"),
+    ("transition", "all 0.15s ease"),
+  ])
+}
+
+///|
+/// Tabs trigger focus styles
+pub fn tabs_trigger_focus_styles() -> String {
+  @css.on(":focus-visible", "outline", "2px solid #2563eb") +
+  " " +
+  @css.on(":focus-visible", "outline-offset", "2px")
+}
+
+///|
+/// Tabs trigger active styles
+pub fn tabs_trigger_active_styles() -> String {
+  @css.styles([
+    ("background", "white"),
+    ("color", "#18181b"),
+    ("box-shadow", "0 1px 2px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Tabs content styles
+pub fn tabs_content_styles() -> String {
+  @css.styles([("padding", "1rem 0")])
+}
+
+// =============================================================================
+// Accordion Styles
+// =============================================================================
+
+///|
+/// Accordion base styles
+pub fn accordion_base_styles() -> String {
+  @css.styles([
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("overflow", "hidden"),
+  ])
+}
+
+///|
+/// Accordion item styles
+pub fn accordion_item_styles() -> String {
+  @css.styles([("border-bottom", "1px solid #e4e4e7")])
+}
+
+///|
+/// Accordion trigger styles
+pub fn accordion_trigger_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("width", "100%"),
+    ("align-items", "center"),
+    ("justify-content", "space-between"),
+    ("padding", "1rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("text-align", "left"),
+    ("cursor", "pointer"),
+    ("transition", "background 0.15s ease"),
+  ])
+}
+
+///|
+/// Accordion trigger focus styles
+pub fn accordion_trigger_focus_styles() -> String {
+  @css.on(":focus-visible", "outline", "2px solid #2563eb") +
+  " " +
+  @css.on(":focus-visible", "outline-offset", "-2px")
+}
+
+///|
+/// Accordion content styles
+pub fn accordion_content_styles() -> String {
+  @css.styles([
+    ("padding", "0 1rem 1rem"),
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// Dialog Styles
+// =============================================================================
+
+///|
+/// Dialog overlay styles
+pub fn dialog_overlay_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("inset", "0"),
+    ("background", "rgba(0,0,0,0.5)"),
+    ("z-index", "50"),
+  ])
+}
+
+///|
+/// Dialog content styles
+pub fn dialog_content_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("left", "50%"),
+    ("top", "50%"),
+    ("transform", "translate(-50%, -50%)"),
+    ("max-width", "32rem"),
+    ("width", "100%"),
+    ("max-height", "85vh"),
+    ("background", "white"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 25px 50px -12px rgba(0,0,0,0.25)"),
+    ("z-index", "51"),
+    ("padding", "1.5rem"),
+    ("overflow", "auto"),
+  ])
+}
+
+///|
+/// Dialog header styles
+pub fn dialog_header_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("gap", "0.25rem"),
+    ("margin-bottom", "1rem"),
+  ])
+}
+
+///|
+/// Dialog title styles
+pub fn dialog_title_styles() -> String {
+  @css.styles([
+    ("margin", "0"),
+    ("font-size", "1.125rem"),
+    ("font-weight", "600"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// Dialog description styles
+pub fn dialog_description_styles() -> String {
+  @css.styles([("margin", "0"), ("font-size", "0.875rem"), ("color", "#71717a")])
+}
+
+///|
+/// Dialog footer styles
+pub fn dialog_footer_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("justify-content", "flex-end"),
+    ("gap", "0.5rem"),
+    ("margin-top", "1.5rem"),
+  ])
+}
+
+// =============================================================================
+// Tooltip Styles
+// =============================================================================
+
+///|
+/// Tooltip base styles
+pub fn tooltip_base_styles() -> String {
+  @css.styles([("display", "inline-block"), ("position", "relative")])
+}
+
+///|
+/// Tooltip trigger styles
+pub fn tooltip_trigger_styles() -> String {
+  @css.styles([("background", "transparent"), ("border", "none"), ("cursor", "pointer")])
+}
+
+///|
+/// Tooltip content styles
+pub fn tooltip_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("z-index", "50"),
+    ("padding", "0.375rem 0.75rem"),
+    ("font-size", "0.75rem"),
+    ("background", "#18181b"),
+    ("color", "white"),
+    ("border-radius", "4px"),
+    ("white-space", "nowrap"),
+    ("pointer-events", "none"),
+  ])
+}
+
+///|
+/// Tooltip side styles
+pub fn tooltip_side_styles(side : TooltipSide) -> String {
+  match side {
+    Top =>
+      @css.styles([
+        ("bottom", "100%"),
+        ("left", "50%"),
+        ("transform", "translateX(-50%)"),
+        ("margin-bottom", "0.5rem"),
+      ])
+    Bottom =>
+      @css.styles([
+        ("top", "100%"),
+        ("left", "50%"),
+        ("transform", "translateX(-50%)"),
+        ("margin-top", "0.5rem"),
+      ])
+    Left =>
+      @css.styles([
+        ("right", "100%"),
+        ("top", "50%"),
+        ("transform", "translateY(-50%)"),
+        ("margin-right", "0.5rem"),
+      ])
+    Right =>
+      @css.styles([
+        ("left", "100%"),
+        ("top", "50%"),
+        ("transform", "translateY(-50%)"),
+        ("margin-left", "0.5rem"),
+      ])
+  }
+}
+
+// =============================================================================
+// Popover Styles
+// =============================================================================
+
+///|
+/// Popover base styles
+pub fn popover_base_styles() -> String {
+  @css.styles([("display", "inline-block"), ("position", "relative")])
+}
+
+///|
+/// Popover trigger styles
+pub fn popover_trigger_styles() -> String {
+  @css.styles([("background", "transparent"), ("border", "none"), ("cursor", "pointer")])
+}
+
+///|
+/// Popover content styles
+pub fn popover_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("z-index", "50"),
+    ("min-width", "12rem"),
+    ("padding", "1rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Popover side styles
+pub fn popover_side_styles(side : TooltipSide) -> String {
+  match side {
+    Top =>
+      @css.styles([
+        ("bottom", "100%"),
+        ("left", "50%"),
+        ("transform", "translateX(-50%)"),
+        ("margin-bottom", "0.5rem"),
+      ])
+    Bottom =>
+      @css.styles([
+        ("top", "100%"),
+        ("left", "50%"),
+        ("transform", "translateX(-50%)"),
+        ("margin-top", "0.5rem"),
+      ])
+    Left =>
+      @css.styles([
+        ("right", "100%"),
+        ("top", "50%"),
+        ("transform", "translateY(-50%)"),
+        ("margin-right", "0.5rem"),
+      ])
+    Right =>
+      @css.styles([
+        ("left", "100%"),
+        ("top", "50%"),
+        ("transform", "translateY(-50%)"),
+        ("margin-left", "0.5rem"),
+      ])
+  }
+}
