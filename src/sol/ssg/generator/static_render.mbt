@@ -2036,7 +2036,7 @@ pub fn generate_meta_files(
 
   // Generate sitemap.xml (enabled by default)
   if meta_config.sitemap {
-    let sitemap_content = @tree.generate_sitemap(doc_tree)
+    let sitemap_content = @ssg_core.generate_sitemap(doc_tree)
     let sitemap_path = @path.join2(output_dir, "sitemap.xml")
     @fs.writeFileSync(sitemap_path, @js.any(sitemap_content)) catch {
       e => println("  Warning: Failed to generate sitemap.xml: \{e}")
@@ -2046,7 +2046,7 @@ pub fn generate_meta_files(
 
   // Generate feed.xml (RSS) - disabled by default
   if meta_config.feed {
-    let rss_content = @tree.generate_rss(doc_tree)
+    let rss_content = @ssg_core.generate_rss(doc_tree)
     let rss_path = @path.join2(output_dir, "feed.xml")
     @fs.writeFileSync(rss_path, @js.any(rss_content)) catch {
       e => println("  Warning: Failed to generate feed.xml: \{e}")
@@ -2056,7 +2056,7 @@ pub fn generate_meta_files(
 
   // Generate llms.txt - disabled by default
   if meta_config.llms_txt {
-    let llms_content = @tree.generate_llms_txt(doc_tree)
+    let llms_content = @ssg_core.generate_llms_txt(doc_tree)
     let llms_path = @path.join2(output_dir, "llms.txt")
     @fs.writeFileSync(llms_path, @js.any(llms_content)) catch {
       e => println("  Warning: Failed to generate llms.txt: \{e}")

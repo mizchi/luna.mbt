@@ -73,7 +73,7 @@ fn create_test_tree() -> @ssg_core.DocumentTree {
 ///|
 test "generate_sitemap - basic structure" {
   let tree = create_test_tree()
-  let sitemap = generate_sitemap(tree)
+  let sitemap = @ssg_core.generate_sitemap(tree)
   // Check XML declaration
   inspect(sitemap.contains("<?xml version=\"1.0\""), content="true")
   // Check urlset element
@@ -89,7 +89,7 @@ test "generate_sitemap - basic structure" {
 ///|
 test "generate_sitemap - contains all pages" {
   let tree = create_test_tree()
-  let sitemap = generate_sitemap(tree)
+  let sitemap = @ssg_core.generate_sitemap(tree)
   // Check all URLs are present
   inspect(sitemap.contains("<loc>https://example.com/</loc>"), content="true")
   inspect(
@@ -105,7 +105,7 @@ test "generate_sitemap - contains all pages" {
 ///|
 test "generate_sitemap - includes lastmod" {
   let tree = create_test_tree()
-  let sitemap = generate_sitemap(tree)
+  let sitemap = @ssg_core.generate_sitemap(tree)
   // Check lastmod dates (ISO date only, not full timestamp)
   inspect(sitemap.contains("<lastmod>2024-12-22</lastmod>"), content="true")
   inspect(sitemap.contains("<lastmod>2024-12-21</lastmod>"), content="true")
@@ -118,7 +118,7 @@ test "generate_sitemap - includes lastmod" {
 ///|
 test "generate_rss - basic structure" {
   let tree = create_test_tree()
-  let rss = generate_rss(tree)
+  let rss = @ssg_core.generate_rss(tree)
   // Check XML declaration
   inspect(rss.contains("<?xml version=\"1.0\""), content="true")
   // Check RSS root element
@@ -132,7 +132,7 @@ test "generate_rss - basic structure" {
 ///|
 test "generate_rss - channel metadata" {
   let tree = create_test_tree()
-  let rss = generate_rss(tree)
+  let rss = @ssg_core.generate_rss(tree)
   // Check channel metadata
   inspect(rss.contains("<title>Test Site</title>"), content="true")
   inspect(rss.contains("<link>https://example.com</link>"), content="true")
@@ -146,7 +146,7 @@ test "generate_rss - channel metadata" {
 ///|
 test "generate_rss - contains items" {
   let tree = create_test_tree()
-  let rss = generate_rss(tree)
+  let rss = @ssg_core.generate_rss(tree)
   // Check items are present
   inspect(rss.contains("<item>"), content="true")
   inspect(rss.contains("</item>"), content="true")
@@ -158,7 +158,7 @@ test "generate_rss - contains items" {
 ///|
 test "generate_rss - items sorted by date" {
   let tree = create_test_tree()
-  let rss = generate_rss(tree)
+  let rss = @ssg_core.generate_rss(tree)
   // Home (2024-12-22) should appear before Introduction (2024-12-21)
   let home_pos = find_position(rss, "<title>Home</title>")
   let intro_pos = find_position(rss, "<title>Introduction</title>")
@@ -168,7 +168,7 @@ test "generate_rss - items sorted by date" {
 ///|
 test "generate_rss - respects limit" {
   let tree = create_test_tree()
-  let rss = generate_rss(tree, limit=1)
+  let rss = @ssg_core.generate_rss(tree, limit=1)
   // Should only have 1 item (the most recent one)
   let item_count = count_occurrences(rss, "<item>")
   inspect(item_count, content="1")
@@ -181,7 +181,7 @@ test "generate_rss - respects limit" {
 ///|
 test "generate_llms_txt - header" {
   let tree = create_test_tree()
-  let llms = generate_llms_txt(tree)
+  let llms = @ssg_core.generate_llms_txt(tree)
   // Check site title as header
   inspect(llms.has_prefix("# Test Site"), content="true")
   // Check description as blockquote
@@ -191,7 +191,7 @@ test "generate_llms_txt - header" {
 ///|
 test "generate_llms_txt - table of contents" {
   let tree = create_test_tree()
-  let llms = generate_llms_txt(tree)
+  let llms = @ssg_core.generate_llms_txt(tree)
   // Check TOC header
   inspect(llms.contains("## Table of Contents"), content="true")
   // Check TOC links
@@ -202,7 +202,7 @@ test "generate_llms_txt - table of contents" {
 ///|
 test "generate_llms_txt - page content" {
   let tree = create_test_tree()
-  let llms = generate_llms_txt(tree)
+  let llms = @ssg_core.generate_llms_txt(tree)
   // Check page sections
   inspect(llms.contains("# Home"), content="true")
   inspect(llms.contains("URL: /"), content="true")
@@ -214,7 +214,7 @@ test "generate_llms_txt - page content" {
 ///|
 test "generate_llms_txt - page outline" {
   let tree = create_test_tree()
-  let llms = generate_llms_txt(tree)
+  let llms = @ssg_core.generate_llms_txt(tree)
   // Check outline section for pages with headings
   inspect(llms.contains("## Outline"), content="true")
   // Check heading is listed

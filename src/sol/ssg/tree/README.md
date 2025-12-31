@@ -1,7 +1,7 @@
-# Sol DocumentTree
+# Sol SSG - Document Tree Builder
 
-Sol SSG の中間表現。ファイルシステムからスキャンしたドキュメント構造を表現し、
-複数の出力形式（HTML, RSS, sitemap.xml, llms.txt）に変換できる。
+Sol SSG の中間表現を構築するモジュール。PageMeta からドキュメント構造を表現する
+DocumentTree を生成する。出力生成（RSS, sitemap.xml, llms.txt）は `core/ssg/generators.mbt` で提供される。
 
 ## 設計思想
 
@@ -215,13 +215,13 @@ LLM向けのプレーンテキスト形式。
 ## ファイル構成
 
 ```
-src/astra/tree/
+src/sol/ssg/tree/
 ├── README.md           # このファイル
 ├── moon.pkg.json
-├── types.mbt           # DocumentTree, PageInfo, TreeNode など
-├── builder.mbt         # scan_to_document_tree
-├── rss.mbt             # generate_rss
-├── sitemap.mbt         # generate_sitemap
-├── llms_txt.mbt        # generate_llms_txt
-└── tree_test.mbt       # テスト
+├── builder.mbt         # build_document_tree
+└── *_test.mbt          # テスト
+
+core/ssg/
+├── document_tree.mbt   # DocumentTree, PageInfo, TreeNode 型定義
+└── generators.mbt      # generate_rss, generate_sitemap, generate_llms_txt
 ```
