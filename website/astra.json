@@ -4,7 +4,11 @@
   "title": "🌓 Luna UI",
   "base": "/",
   "trailingSlash": true,
-  "exclude": ["internal"],
+  "exclude": ["internal", "dist-docs"],
+  "islands": {
+    "dir": "components",
+    "basePath": "/components/"
+  },
   "i18n": {
     "defaultLocale": "en",
     "locales": [
