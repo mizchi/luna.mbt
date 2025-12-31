@@ -559,7 +559,7 @@ pub(all) struct SsgLintResult {
 }
 
 ///|
-/// Run SSG lint command
+/// Run SSG lint command (optimized: single-pass file reading)
 pub fn run_ssg_lint(args : Array[String]) -> Unit {
   let cwd = @process.cwd()
   let fs = @fs_adapter.NodeFsAdapter::new()
@@ -622,8 +622,11 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
     @astra.SsgConfig::default()
   }
 
-  // Check docs directory exists
-  let docs_dir = @path.join2(cwd, config.docs_dir)
+  // Get config directory for resolving relative paths
+  let config_dir = @path.dirname(full_config_path)
+
+  // Check docs directory exists (relative to config file location)
+  let docs_dir = @path.join2(config_dir, config.docs_dir)
   if not(fs.exists_sync(docs_dir)) {
     issues.push(SsgLintIssue::{
       severity: Error,
@@ -634,35 +637,53 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
     })
   }
 
-  // Scan docs and check markdown files
+  // Optimized: single-pass scanning and linting
   let mut files_checked = 0
   if fs.exists_sync(docs_dir) {
-    let pages = @ssg_routes.scan_docs_dir(
-      config.docs_dir,
-      cwd,
-      i18n=config.i18n,
-      exclude=config.exclude,
-      trailing_slash=config.trailing_slash,
-    )
-    files_checked = pages.length()
+    // Use lightweight scan that only collects file paths (no content reading)
+    let file_paths = lint_scan_files(fs, docs_dir, config.exclude)
+    files_checked = file_paths.length()
 
-    // Check for duplicates
-    let (_, unresolved) = @ssg_routes.resolve_duplicate_pages(pages)
-    for dup in unresolved {
-      issues.push(SsgLintIssue::{
-        severity: Error,
-        file: dup.sources[0],
-        line: None,
-        message: @ssg_routes.format_duplicate_error(dup),
-        rule: "duplicate-page",
-      })
+    // Track URL paths for duplicate detection
+    let url_to_sources : Map[String, Array[String]] = {}
+
+    // Single pass: read file, detect URL, lint content
+    for file_path in file_paths {
+      let relative_path = file_path.substring(start=docs_dir.length() + 1)
+      let full_path = file_path
+
+      // Read file once
+      let content = fs.read_file_sync(full_path) catch { _ => continue }
+
+      // Compute URL path for duplicate detection
+      let url_path = @ssg.file_to_url_path(
+        relative_path,
+        trailing_slash=config.trailing_slash,
+      )
+
+      // Track for duplicates
+      match url_to_sources.get(url_path) {
+        Some(sources) => sources.push(relative_path)
+        None => url_to_sources[url_path] = [relative_path]
+      }
+
+      // Lint content in same pass
+      lint_markdown_content(relative_path, content, issues)
     }
 
-    // Check each page
-    for page in pages {
-      let source_path = @path.join2(cwd, page.source_path)
-      let content = fs.read_file_sync(source_path) catch { _ => continue }
-      lint_markdown_content(page.source_path, content, issues)
+    // Check for duplicates
+    for url in url_to_sources.keys() {
+      let sources = url_to_sources.get(url).unwrap()
+      if sources.length() > 1 {
+        let sources_str = sources.join(", ")
+        issues.push(SsgLintIssue::{
+          severity: Error,
+          file: sources[0],
+          line: None,
+          message: "Duplicate content for URL '\{url}': [\{sources_str}]",
+          rule: "duplicate-page",
+        })
+      }
     }
   }
 
@@ -673,6 +694,84 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
   let error_count = issues.filter(fn(i) { i.severity is Error }).length()
   if error_count > 0 {
     @process.exit(1)
+  }
+}
+
+///|
+/// Simple exclusion check for lint (inline to avoid dependency)
+fn lint_is_excluded(
+  entry : String,
+  relative_path : String,
+  exclude : Array[String],
+) -> Bool {
+  // Always exclude hidden files/directories
+  if entry.starts_with(".") {
+    return true
+  }
+  // Check against exclude patterns
+  for pattern in exclude {
+    if entry == pattern || relative_path == pattern {
+      return true
+    }
+    // Simple glob support: pattern/* matches anything in that directory
+    if pattern.ends_with("/*") {
+      let prefix = pattern.substring(end=pattern.length() - 2)
+      if relative_path.starts_with(prefix + "/") || entry == prefix {
+        return true
+      }
+    }
+  }
+  false
+}
+
+///|
+/// Lightweight file scan - only collects file paths without reading content
+fn[FS : @env.FileSystem] lint_scan_files(
+  fs : FS,
+  dir_path : String,
+  exclude : Array[String],
+) -> Array[String] {
+  let files : Array[String] = []
+  lint_scan_recursive(fs, dir_path, dir_path, exclude, files)
+  files
+}
+
+///|
+/// Recursive directory scan for lint (lightweight, no content reading)
+fn[FS : @env.FileSystem] lint_scan_recursive(
+  fs : FS,
+  base_dir : String,
+  dir_path : String,
+  exclude : Array[String],
+  files : Array[String],
+) -> Unit {
+  let entries : Array[String] = @env.FileSystem::readdir_sync(fs, dir_path) catch {
+    _ => return
+  }
+  for entry in entries {
+    let entry_path = @path.join2(dir_path, entry)
+    let relative = entry_path.substring(start=base_dir.length() + 1)
+
+    // Check exclusion (simple pattern check)
+    if lint_is_excluded(entry, relative, exclude) {
+      continue
+    }
+
+    // Check if directory
+    let is_dir = @env.FileSystem::is_directory_sync(fs, entry_path) catch {
+      _ => false
+    }
+    if is_dir {
+      // Skip component directories (moon.pkg.json or tsx files)
+      let moon_pkg = @path.join2(entry_path, "moon.pkg.json")
+      if @env.FileSystem::exists_sync(fs, moon_pkg) {
+        continue
+      }
+      // Recurse
+      lint_scan_recursive(fs, base_dir, entry_path, exclude, files)
+    } else if entry.has_suffix(".md") || entry.has_suffix(".mdx") {
+      files.push(entry_path)
+    }
   }
 }
 
