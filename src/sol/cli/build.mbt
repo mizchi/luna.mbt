@@ -94,9 +94,7 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   let num_workers : Int? = if result.values.contains("workers") {
     let workers_str : String = result.values["workers"].cast()
-    try {
-      Some(@strconv.parse_int!(workers_str))
-    } catch {
+    Some(@strconv.parse_int(workers_str)) catch {
       _ => None
     }
   } else {
@@ -219,19 +217,23 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
         // Check cache unless force build
         let cache_dir = @path.join2(cwd, ".astra-cache")
         if not(force_build) {
-          match @astra_cache.check_local_build_state(ssg_config, cwd, cache_dir) {
+          match
+            @astra_cache.check_local_build_state(ssg_config, cwd, cache_dir) {
             @astra_cache.BuildStateCheck::UpToDate(built_at) => {
               println(
-                @colorette.green(
-                  "SSG skipped (no changes since \{built_at})",
-                ),
+                @colorette.green("SSG skipped (no changes since \{built_at})"),
               )
               println(@colorette.gray("  Use --force to rebuild anyway"))
             }
-            _ => execute_ssg_build(ssg_config, cwd, cache_dir, use_parallel, num_workers)
+            _ =>
+              execute_ssg_build(
+                ssg_config, cwd, cache_dir, use_parallel, num_workers,
+              )
           }
         } else {
-          execute_ssg_build(ssg_config, cwd, cache_dir, use_parallel, num_workers)
+          execute_ssg_build(
+            ssg_config, cwd, cache_dir, use_parallel, num_workers,
+          )
         }
       }
       None => {

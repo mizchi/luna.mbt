@@ -14,9 +14,11 @@ pub struct SignalTracker[T] {
 
 ///|
 /// Signal の変更を追跡開始
+/// Note: render_effect を使用して同期的に追跡（テスト用途に適切）
 pub fn[T : Eq] track_signal(sig : @signal.Signal[T]) -> SignalTracker[T] {
-  let values : Array[T] = [sig.get()]
-  let cleanup = @signal.effect(fn() {
+  let values : Array[T] = []
+  // render_effect は同期的に実行される（effect は microtask で非同期）
+  let cleanup = @signal.render_effect(fn() {
     let v = sig.get()
     // 重複を避けて追加
     if values.length() == 0 || values[values.length() - 1] != v {
