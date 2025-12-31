@@ -1,24 +1,36 @@
 // my-counter Web Component
-// A simple counter component that demonstrates Web Component hydration
+// SSR-compatible: adopts existing DOM, adds event handlers only
 
 export function hydrate(element, _state, name) {
-  let count = parseInt(element.getAttribute('initial') || '0', 10);
+  // Get initial count from SSR state or attribute
+  const valueEl = element.querySelector('[data-counter-value]');
+  let count = parseInt(valueEl?.textContent || element.getAttribute('initial') || '0', 10);
 
-  const render = () => {
-    element.innerHTML = `
-      <div style="display: inline-flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; border: 2px solid var(--primary-color, #fbbf24); border-radius: 0.75rem; background: var(--sidebar-bg, #1f2937);">
-        <button style="width: 2.5rem; height: 2.5rem; border: none; border-radius: 0.5rem; background: var(--primary-color, #fbbf24); color: #000; cursor: pointer; font-size: 1.5rem; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">-</button>
-        <span style="min-width: 3rem; text-align: center; font-weight: 700; font-size: 1.5rem; color: var(--text-color, #e5e7eb);">${count}</span>
-        <button style="width: 2.5rem; height: 2.5rem; border: none; border-radius: 0.5rem; background: var(--primary-color, #fbbf24); color: #000; cursor: pointer; font-size: 1.5rem; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">+</button>
-      </div>
-    `;
-
-    const [decBtn, incBtn] = element.querySelectorAll("button");
-    decBtn.onclick = () => { count--; render(); };
-    incBtn.onclick = () => { count++; render(); };
+  // Update display
+  const updateValue = () => {
+    if (valueEl) {
+      valueEl.textContent = count;
+    }
   };
 
-  render();
+  // Attach event handlers to existing buttons (SSR-rendered)
+  const decBtn = element.querySelector('[data-counter-dec]');
+  const incBtn = element.querySelector('[data-counter-inc]');
+
+  if (decBtn) {
+    decBtn.onmouseover = () => decBtn.style.opacity = '0.8';
+    decBtn.onmouseout = () => decBtn.style.opacity = '1';
+    decBtn.onclick = () => { count--; updateValue(); };
+  }
+
+  if (incBtn) {
+    incBtn.onmouseover = () => incBtn.style.opacity = '0.8';
+    incBtn.onmouseout = () => incBtn.style.opacity = '1';
+    incBtn.onclick = () => { count++; updateValue(); };
+  }
+
+  // Mark as hydrated
+  element.dataset.hydrated = 'true';
 }
 
 export default hydrate;

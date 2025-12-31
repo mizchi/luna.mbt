@@ -1,45 +1,42 @@
 // Tabs Demo - Tabbed interface
+// SSR-compatible: adopts existing DOM, adds event handlers only
 export function hydrate(element, state, name) {
-  let activeTab = 'account';
-  const tabs = [
-    { id: 'account', label: 'Account', content: 'Manage your account settings, update profile information, and configure preferences.' },
-    { id: 'password', label: 'Password', content: 'Change your password, enable two-factor authentication, and manage security keys.' },
-    { id: 'notifications', label: 'Notifications', content: 'Configure email notifications, push alerts, and digest preferences.' },
-  ];
+  // Get initial active tab from SSR state
+  let activeTab = null;
+  element.querySelectorAll('[data-tab-trigger]').forEach(trigger => {
+    if (trigger.getAttribute('aria-selected') === 'true') {
+      activeTab = trigger.dataset.tabTrigger;
+    }
+  });
 
-  const render = () => {
-    element.innerHTML = `
-      <div style="border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; overflow: hidden; background: var(--sidebar-bg, #1f2937);">
-        <div style="display: flex; border-bottom: 1px solid var(--border-color, #374151); background: var(--bg-color, #111827);">
-          ${tabs.map(tab => `
-            <button data-tab="${tab.id}" style="
-              flex: 1; padding: 0.75rem 1rem; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 500;
-              background: ${activeTab === tab.id ? 'var(--sidebar-bg, #1f2937)' : 'transparent'};
-              color: ${activeTab === tab.id ? 'var(--primary-color, #6366f1)' : 'var(--text-muted, #9ca3af)'};
-              border-bottom: 2px solid ${activeTab === tab.id ? 'var(--primary-color, #6366f1)' : 'transparent'};
-              transition: all 0.2s;
-            ">${tab.label}</button>
-          `).join('')}
-        </div>
-        <div style="padding: 1rem;">
-          ${tabs.map(tab => `
-            <div data-content="${tab.id}" style="display: ${activeTab === tab.id ? 'block' : 'none'};">
-              <p style="color: var(--text-color, #e5e7eb); font-size: 0.875rem; line-height: 1.6; margin: 0;">${tab.content}</p>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
+  // Switch to a tab
+  const switchTab = (tabId) => {
+    if (tabId === activeTab) return;
+    activeTab = tabId;
 
-    element.querySelectorAll('button[data-tab]').forEach(btn => {
-      btn.onclick = () => {
-        activeTab = btn.dataset.tab;
-        render();
-      };
+    // Update triggers
+    element.querySelectorAll('[data-tab-trigger]').forEach(trigger => {
+      const isActive = trigger.dataset.tabTrigger === tabId;
+      trigger.setAttribute('aria-selected', isActive);
+      trigger.style.background = isActive ? 'var(--sidebar-bg, #1f2937)' : 'transparent';
+      trigger.style.color = isActive ? 'var(--primary-color, #6366f1)' : 'var(--text-muted, #9ca3af)';
+      trigger.style.borderBottomColor = isActive ? 'var(--primary-color, #6366f1)' : 'transparent';
+    });
+
+    // Update panels
+    element.querySelectorAll('[data-tab-panel]').forEach(panel => {
+      const isActive = panel.dataset.tabPanel === tabId;
+      panel.style.display = isActive ? 'block' : 'none';
     });
   };
 
-  render();
+  // Attach event handlers to existing triggers (SSR-rendered)
+  element.querySelectorAll('[data-tab-trigger]').forEach(trigger => {
+    trigger.onclick = () => switchTab(trigger.dataset.tabTrigger);
+  });
+
+  // Mark as hydrated
+  element.dataset.hydrated = 'true';
 }
 
 export default hydrate;

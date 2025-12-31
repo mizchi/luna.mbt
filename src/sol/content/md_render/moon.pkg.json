@@ -7,5 +7,8 @@
     { "path": "mizchi/luna/sol/content/toc", "alias": "toc" },
     { "path": "mizchi/markdown/slug", "alias": "slug" },
     { "path": "mizchi/markdown/info_string", "alias": "info_string" }
+  ],
+  "test-import": [
+    { "path": "mizchi/luna/luna/render", "alias": "render" }
   ]
 }

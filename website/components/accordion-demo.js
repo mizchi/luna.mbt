@@ -1,52 +1,44 @@
 // Accordion Demo - Expandable sections
+// SSR-compatible: adopts existing DOM, adds event handlers only
 export function hydrate(element, state, name) {
-  let openItems = new Set(['item-1']);
-  const items = [
-    { id: 'item-1', title: 'What is Luna?', content: 'Luna is a blazing-fast reactive UI framework written in MoonBit, featuring Island Architecture for optimal performance.' },
-    { id: 'item-2', title: 'How does hydration work?', content: 'Luna uses progressive hydration with triggers like "visible", "idle", or "load" to control when components become interactive.' },
-    { id: 'item-3', title: 'What are Islands?', content: 'Islands are isolated interactive components within static HTML. Only the islands receive JavaScript, keeping the page lightweight.' },
-  ];
+  // Track open items based on SSR state
+  const openItems = new Set();
+  element.querySelectorAll('[data-accordion-item][data-state="open"]').forEach(item => {
+    openItems.add(item.dataset.accordionItem);
+  });
 
-  const render = () => {
-    element.innerHTML = `
-      <div class="accordion-container" style="display: flex; flex-direction: column; border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; overflow: hidden; position: relative; background: var(--sidebar-bg, #1f2937); margin-top: 0.75rem;">
-        ${items.map(item => `
-          <div data-state="${openItems.has(item.id) ? 'open' : 'closed'}">
-            <button data-id="${item.id}" style="
-              width: 100%; padding: 1rem; display: flex; justify-content: space-between; align-items: center;
-              background: transparent; border: none; border-bottom: 1px solid var(--border-color, #374151);
-              color: var(--text-color, #e5e7eb); cursor: pointer; font-size: 0.875rem; font-weight: 500; text-align: left;
-            ">
-              ${item.title}
-              <span style="transform: rotate(${openItems.has(item.id) ? '180deg' : '0deg'}); transition: transform 0.2s;">▼</span>
-            </button>
-            <div style="
-              max-height: ${openItems.has(item.id) ? '200px' : '0'}; overflow: hidden; transition: max-height 0.3s ease;
-              background: var(--bg-color, #111827);
-            ">
-              <div style="padding: 1rem; color: var(--text-muted, #9ca3af); font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">
-                ${item.content}
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
+  // Toggle item state
+  const toggleItem = (itemId) => {
+    const item = element.querySelector(`[data-accordion-item="${itemId}"]`);
+    if (!item) return;
 
-    element.querySelectorAll('button[data-id]').forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.dataset.id;
-        if (openItems.has(id)) {
-          openItems.delete(id);
-        } else {
-          openItems.add(id);
-        }
-        render();
-      };
-    });
+    const isOpen = openItems.has(itemId);
+    const content = item.querySelector('[data-accordion-content]');
+    const chevron = item.querySelector('[data-chevron]');
+
+    if (isOpen) {
+      openItems.delete(itemId);
+      item.dataset.state = 'closed';
+      if (content) content.style.maxHeight = '0';
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    } else {
+      openItems.add(itemId);
+      item.dataset.state = 'open';
+      if (content) content.style.maxHeight = '200px';
+      if (chevron) chevron.style.transform = 'rotate(180deg)';
+    }
   };
 
-  render();
+  // Attach event handlers to existing triggers (SSR-rendered)
+  element.querySelectorAll('[data-accordion-trigger]').forEach(trigger => {
+    const item = trigger.closest('[data-accordion-item]');
+    if (item) {
+      trigger.onclick = () => toggleItem(item.dataset.accordionItem);
+    }
+  });
+
+  // Mark as hydrated
+  element.dataset.hydrated = 'true';
 }
 
 export default hydrate;
