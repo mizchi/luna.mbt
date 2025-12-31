@@ -271,11 +271,16 @@ pub async fn run_ssg_dev(
     doc_tree: None,
   }
 
-  // Watch for file changes
+  // Watch for file changes (ignore output directory)
+  let output_prefix = config.output_dir + "/"
   let _ = @fs.watch(docs_dir, recursive=true, listener=fn(
     event_type,
     filename,
   ) {
+    // Ignore changes in output directory to prevent infinite loops
+    if filename.has_prefix(output_prefix) || filename.has_prefix(config.output_dir) {
+      return
+    }
     if filename.ends_with(".md") || filename.ends_with(".mdx") {
       let source_path = filename
       let full_path = @path.join2(docs_dir, filename)
