@@ -20,6 +20,6 @@
   ],
   "description": "Fine-grained reactive UI library for Moonbit/JS",
   "source": "src",
-  "warn-list": "-unused_trait_bound",
+  "warn-list": "-6-unused_trait_bound",
   "preferred-target": "js"
 }
