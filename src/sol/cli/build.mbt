@@ -31,13 +31,13 @@ fn show_build_help() -> Unit {
 }
 
 ///|
-fn run_build_command(args : Array[String]) -> Unit {
+async fn run_build_command(args : Array[String]) -> Unit {
   let fs = @fs_adapter.NodeFsAdapter::new()
   run_build_command_with_fs(fs, args)
 }
 
 ///|
-fn[FS : @env.FileSystem] run_build_command_with_fs(
+async fn[FS : @env.FileSystem] run_build_command_with_fs(
   fs : FS,
   args : Array[String],
 ) -> Unit {
@@ -248,8 +248,8 @@ fn[FS : @env.FileSystem] run_build_command_with_fs(
 }
 
 ///|
-/// Synchronous SSG build for build command
-fn execute_ssg_build(
+/// Async SSG build for build command with syntax highlighting
+async fn execute_ssg_build(
   config : @astra.SsgConfig,
   cwd : String,
   cache_dir : String,
@@ -259,8 +259,10 @@ fn execute_ssg_build(
   println(@colorette.cyan("Running SSG build..."))
   println(@colorette.gray("  Docs: \{config.docs_dir}"))
   println(@colorette.gray("  Output: \{config.output_dir}"))
-  // Note: parallel build requires async context, using sync version for now
-  match @ssg_gen.generate_site(config, cwd) {
+  // Create highlighter for syntax highlighting
+  let highlighter = @shiki.create_default_highlighter().wait()
+  // Use sync version with pre-created highlighter
+  match @ssg_gen.generate_site_with_highlighter(config, cwd, highlighter) {
     Ok(_) => {
       @astra_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("✓ SSG build complete: \{config.output_dir}"))
@@ -302,6 +304,7 @@ fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit 
       ogp_text: entry.ogp_text,
       head_snippets: entry.head_snippets,
       body_snippets: entry.body_snippets,
+      prod_body_snippets: entry.prod_body_snippets,
       sanitize_html: false,
       deploy_target: @astra.DeployTarget::default(),
       spa_routes: [],

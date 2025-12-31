@@ -57,7 +57,9 @@ pub fn check_local_build_state(
   cache_dir : String,
 ) -> BuildStateCheck {
   let provider = LocalFileProvider::new(config.docs_dir, cwd, config.exclude)
-  let config_hash = compute_config_hash(config)
+  // Include assets hash in config hash to detect CSS/JS changes
+  let assets_hash = compute_assets_hash(cwd)
+  let config_hash = compute_config_hash(config) + ":" + assets_hash
   check_build_state(provider, config_hash, cache_dir, load_manifest)
 }
 
@@ -80,9 +82,12 @@ pub fn save_manifest(
   cwd : String,
 ) -> Unit {
   let provider = LocalFileProvider::new(config.docs_dir, cwd, config.exclude)
+  // Include assets hash in config hash to detect CSS/JS changes
+  let assets_hash = compute_assets_hash(cwd)
+  let config_hash = compute_config_hash(config) + ":" + assets_hash
   let manifest = BuildManifest::new(
     tool_version=astra_version,
-    config_hash=compute_config_hash(config),
+    config_hash~,
     content_state=provider.get_content_state(),
     built_at=get_current_timestamp(),
   )

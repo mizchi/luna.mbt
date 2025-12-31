@@ -99,6 +99,7 @@ fn handle_job(job_id : Int) -> Unit {
     sidebar: ctx.sidebar,
     cwd: ctx.cwd,
     doc_tree: None, // Built lazily if needed
+    is_dev: false, // Workers are for production builds
   }
 
   // Generate the page

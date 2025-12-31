@@ -22,6 +22,7 @@ pub(all) struct BuildContext {
   sidebar : Array[SidebarGroup]
   cwd : String
   doc_tree : @ssg.DocumentTree?
+  is_dev : Bool
 }
 pub fn BuildContext::new(SsgConfig, String) -> Self
 
@@ -207,6 +208,7 @@ pub(all) struct SsgConfig {
   ogp_text : String?
   head_snippets : Array[String]
   body_snippets : Array[String]
+  prod_body_snippets : Array[String]
   sanitize_html : Bool
   deploy_target : DeployTarget
   spa_routes : Array[String]

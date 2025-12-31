@@ -179,10 +179,10 @@ _build-doc-inner *args:
     @echo "Building docs..."
     node target/js/release/build/sol/cli/cli.js build --parallel {{args}}
     @echo "Building search index..."
-    @if [ -d dist-docs ] && [ -n "$(find dist-docs -name '*.html' -type f 2>/dev/null | head -1)" ]; then \
-        pnpm pagefind --site dist-docs; \
+    @if [ -d website/dist-docs ] && [ -n "$(find website/dist-docs -name '*.html' -type f 2>/dev/null | head -1)" ]; then \
+        pnpm pagefind --site website/dist-docs; \
     else \
-        echo "⚠ Skipping pagefind: no HTML files in dist-docs"; \
+        echo "⚠ Skipping pagefind: no HTML files in website/dist-docs"; \
     fi
     @echo "✓ Documentation built"
 

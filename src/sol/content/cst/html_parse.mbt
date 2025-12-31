@@ -65,11 +65,23 @@ pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
     return None
   }
 
-  // Extract all attributes
-  let attrs = extract_all_attributes(trimmed)
+  // Extract all attributes and filter out trigger
+  let all_attrs = extract_all_attributes(trimmed)
+  let attrs : Array[(String, String)] = []
+  for pair in all_attrs {
+    let (key, _) = pair
+    // Skip trigger attributes - they're handled separately
+    if key != "trigger" && key != "luna:trigger" {
+      attrs.push(pair)
+    }
+  }
 
-  // Extract trigger (luna:trigger attribute)
-  let trigger = match extract_attribute(trimmed, "luna:trigger") {
+  // Extract trigger (luna:trigger or trigger attribute)
+  let trigger_str = match extract_attribute(trimmed, "luna:trigger") {
+    Some(t) => Some(t)
+    None => extract_attribute(trimmed, "trigger")
+  }
+  let trigger = match trigger_str {
     Some("visible") => @luna.Visible
     Some("idle") => @luna.Idle
     Some("media") => @luna.Media("")

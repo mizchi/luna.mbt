@@ -108,6 +108,9 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
   // Parse custom snippets
   let head_snippets = @json_utils.extract_string_array(ssg_obj, "headSnippets")
   let body_snippets = @json_utils.extract_string_array(ssg_obj, "bodySnippets")
+  let prod_body_snippets = @json_utils.extract_string_array(
+    ssg_obj, "prodBodySnippets",
+  )
 
   // Parse sanitize HTML option (default: false)
   let sanitize_html = @json_utils.extract_bool(ssg_obj, "sanitizeHtml", false)
@@ -143,6 +146,7 @@ fn parse_ssg_object(ssg_obj : Map[String, Json]) -> SsgConfig? {
     ogp_text,
     head_snippets,
     body_snippets,
+    prod_body_snippets,
     sanitize_html,
     deploy_target,
     spa_routes,

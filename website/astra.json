@@ -73,7 +73,7 @@
     "twitterHandle": "@mizchi",
     "twitterCard": "summary_large_image"
   },
-  "bodySnippets": [
+  "prodBodySnippets": [
     "<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{\"token\": \"2ac00309f77043b58a0399e6bee8b730\"}'></script><!-- End Cloudflare Web Analytics -->"
   ]
 }

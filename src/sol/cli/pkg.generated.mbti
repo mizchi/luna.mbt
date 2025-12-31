@@ -164,6 +164,7 @@ pub struct StaticDirEntry {
   ogp_text : String?
   head_snippets : Array[String]
   body_snippets : Array[String]
+  prod_body_snippets : Array[String]
 }
 pub fn StaticDirEntry::default(String, String, String) -> Self
 

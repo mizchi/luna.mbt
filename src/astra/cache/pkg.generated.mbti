@@ -16,6 +16,8 @@ pub fn[P : BuildStateProvider] check_build_state(P, String, String, (String) -> 
 
 pub fn check_local_build_state(@astra.SsgConfig, String, String) -> BuildStateCheck
 
+pub fn compute_assets_hash(String) -> String
+
 pub fn compute_config_hash(@astra.SsgConfig) -> String
 
 pub fn compute_content_hash(String, String, Array[String]) -> String

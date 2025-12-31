@@ -1778,8 +1778,8 @@ luna-counter:not(:defined) {
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
-/* Generic skeleton for any undefined luna-* components */
-[luna\:wc-url]:not(:defined) {
+/* Generic skeleton for any undefined luna-* components (only when empty, not for SSR) */
+[luna\:wc-url]:not(:defined):empty {
   display: inline-block;
   min-height: 2em;
   background: linear-gradient(
@@ -1948,3 +1948,4 @@ html.dark .tweet-card {
   height: 16px;
   opacity: 0.6;
 }
+

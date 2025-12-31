@@ -15,7 +15,8 @@
       "dependsOn": ["//#build:moon"],
       "inputs": [
         "js/loader/src/**",
-        "rolldown.config.mjs"
+        "rolldown.config.mjs",
+        "target/js/release/build/**"
       ],
       "outputs": [
         "js/loader/dist/**"
@@ -24,7 +25,8 @@
     "//#build:sol": {
       "dependsOn": ["//#build:moon"],
       "inputs": [
-        "js/sol/src/**"
+        "js/sol/src/**",
+        "target/js/release/build/**"
       ],
       "outputs": [
         "js/sol/dist/**"
@@ -33,7 +35,8 @@
     "//#lint:doc": {
       "dependsOn": ["//#build:moon", "//#build:sol"],
       "inputs": [
-        "website/**"
+        "website/**",
+        "target/js/release/build/**"
       ],
       "outputs": [],
       "cache": false
@@ -42,10 +45,11 @@
       "dependsOn": ["//#build:moon", "//#build:sol", "//#lint:doc"],
       "inputs": [
         "website/**",
-        "demo-src/**"
+        "demo-src/**",
+        "target/js/release/build/**"
       ],
       "outputs": [
-        "dist/**"
+        "website/dist-docs/**"
       ],
       "cache": false
     },

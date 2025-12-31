@@ -82,6 +82,7 @@
   - [x] Netlify (`_headers`, `_redirects`)
   - [x] Deno Deploy (静的サイトは設定不要)
 - [x] Astra で全体的にサブカラーを使い分けるようにする。
+- [ ] preact / react
 
 ### Sol (フルスタック)
 

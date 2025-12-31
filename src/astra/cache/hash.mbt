@@ -77,3 +77,55 @@ fn collect_file_hashes(
     }
   }
 }
+
+///|
+/// Compute hash for asset files (CSS, JS) in a directory
+/// Used to detect changes in src/astra/assets that should invalidate cache
+/// Searches multiple paths similar to load_asset in loader.mbt
+pub fn compute_assets_hash(cwd : String) -> String {
+  // Try multiple paths to find assets directory
+  let paths = [
+    @path.join2(cwd, "src/astra/assets"),
+    "src/astra/assets",
+    @path.join2(cwd, "../src/astra/assets"),
+    @path.join2(cwd, "../../src/astra/assets"),
+    @path.join2(cwd, "node_modules/@luna_ui/sol/assets"),
+  ]
+  for assets_dir in paths {
+    if @fs.existsSync(assets_dir) {
+      let hashes : Array[String] = []
+      collect_asset_hashes(assets_dir, assets_dir, hashes)
+      hashes.sort_by(fn(a, b) { a.compare(b) })
+      return fnv1a_64(hashes.join("\u0000"))
+    }
+  }
+  fnv1a_64("")
+}
+
+///|
+/// Recursively collect asset file hashes
+fn collect_asset_hashes(
+  dir : String,
+  base_dir : String,
+  hashes : Array[String],
+) -> Unit {
+  guard @fs.existsSync(dir) else { return }
+  let entries = @fs.readdirSync(dir) catch { _ => return }
+  for entry in entries {
+    let full_path = @path.join2(dir, entry)
+    let is_dir = @fs.statSync(full_path).isDirectory() catch { _ => continue }
+    if is_dir {
+      collect_asset_hashes(full_path, base_dir, hashes)
+    } else if entry.has_suffix(".css") ||
+      entry.has_suffix(".js") ||
+      entry.has_suffix(".json") {
+      let base_len = base_dir.length()
+      let rel_path = full_path[base_len:].to_string() catch { _ => continue }
+      let content : String = @fs.readFileSync(full_path).to_string() catch {
+        _ => continue
+      }
+      let file_hash = hash_content(content, rel_path)
+      hashes.push(file_hash)
+    }
+  }
+}

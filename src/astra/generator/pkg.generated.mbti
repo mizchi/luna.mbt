@@ -29,7 +29,7 @@ pub fn generate_site(@astra.SsgConfig, String) -> Result[Unit, String]
 
 pub async fn generate_site_async(@astra.SsgConfig, String) -> Result[Unit, String]
 
-pub fn generate_site_with_highlighter(@astra.SsgConfig, String, @shiki.Highlighter) -> Result[Unit, String]
+pub fn generate_site_with_highlighter(@astra.SsgConfig, String, @shiki.Highlighter, is_dev? : Bool) -> Result[Unit, String]
 
 pub fn write_routes_json(@astra.BuildContext) -> Unit
 

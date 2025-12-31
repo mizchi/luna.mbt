@@ -1,5 +1,5 @@
 /*! wc-loader v1 - Web Components Hydration Loader for Luna */
-import { setupTrigger, onReady, observeAdditions, createLoadedTracker } from './lib';
+import { setupTrigger, onReady, observeAdditions } from './lib';
 
 // Luna hydrate function signature
 type HydrateFn = (el: Element, state: unknown, id: string) => void;
@@ -21,7 +21,11 @@ interface WCWindow extends Window {
 const d = document;
 const w = window as unknown as WCWindow;
 const S: Record<string, unknown> = {};
-const { loaded, unload, clear } = createLoadedTracker();
+
+// Cache loaded hydrate functions by component name
+const hydrateFns = new Map<string, HydrateFn>();
+// Track pending imports to avoid duplicate loads
+const pending = new Map<string, Promise<HydrateFn | undefined>>();
 
 const parseState = async (el: Element): Promise<unknown> => {
   const s = el.getAttribute('luna:wc-state');
@@ -46,30 +50,47 @@ const parseState = async (el: Element): Promise<unknown> => {
   }
 };
 
+// Load hydrate function for a component (cached, deduped)
+const loadHydrateFn = async (name: string, url: string): Promise<HydrateFn | undefined> => {
+  // Return cached function
+  if (hydrateFns.has(name)) return hydrateFns.get(name);
+
+  // Return pending promise if already loading
+  if (pending.has(name)) return pending.get(name);
+
+  // Start loading
+  const promise = import(url).then((mod: WCModule) => {
+    const fn = mod.hydrate ?? mod.default;
+    if (typeof fn === 'function') {
+      hydrateFns.set(name, fn);
+      return fn;
+    }
+    console.warn(`[wc-loader] No hydrate function found in ${url}`);
+    return undefined;
+  }).catch(err => {
+    console.error(`[wc-loader] Failed to load ${name}:`, err);
+    return undefined;
+  }).finally(() => {
+    pending.delete(name);
+  });
+
+  pending.set(name, promise);
+  return promise;
+};
+
 const hydrate = async (el: Element): Promise<void> => {
   const name = el.tagName.toLowerCase();
-  if (loaded.has(name)) return;
-
   const url = el.getAttribute('luna:wc-url');
   if (!url) return;
-  loaded.add(name);
 
-  // Parse state and store
-  S[name] = await parseState(el);
+  // Parse state for this element
+  const state = await parseState(el);
+  S[name] = state;
 
-  try {
-    const mod = await import(url) as WCModule;
-    // Get hydrate function (same pattern as Luna loader)
-    const hydrateFn = mod.hydrate ?? mod.default;
-
-    if (typeof hydrateFn === 'function') {
-      // Call Luna-style hydrate: (element, state, id)
-      hydrateFn(el, S[name], name);
-    } else {
-      console.warn(`[wc-loader] No hydrate function found in ${url}`);
-    }
-  } catch (err) {
-    console.error(`[wc-loader] Failed to hydrate ${name}:`, err);
+  // Load and call hydrate function
+  const fn = await loadHydrateFn(name, url);
+  if (fn) {
+    fn(el, state, name);
   }
 };
 
@@ -89,6 +110,10 @@ observeAdditions(
   el => el.hasAttribute('luna:wc-url'),
   setup
 );
+
+// Utility functions for HMR/dev mode
+const unload = (name: string): boolean => hydrateFns.delete(name);
+const clear = (): void => hydrateFns.clear();
 
 w.__LUNA_WC_STATE__ = S;
 w.__LUNA_WC_SCAN__ = scan;

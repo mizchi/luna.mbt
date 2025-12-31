@@ -461,6 +461,16 @@ fn create_component_vnode(
   // Build URL from tag name (e.g., "my-counter" -> "/components/my-counter.js")
   let url = "\{base_path}\{embed.tag}.js"
 
+  // Check if trigger is specified in attrs (overrides embed.trigger)
+  let mut effective_trigger = embed.trigger
+  for pair in embed.attrs {
+    let (key, value) = pair
+    if key == "trigger" || key == "luna:trigger" {
+      effective_trigger = parse_trigger(value)
+      break
+    }
+  }
+
   // Build attributes array
   let attrs : Array[(String, @luna.Attr[Unit])] = []
 
@@ -468,7 +478,7 @@ fn create_component_vnode(
   attrs.push(attr("luna:wc-url", url))
 
   // Add luna:wc-trigger
-  let trigger_str = match embed.trigger {
+  let trigger_str = match effective_trigger {
     @luna.Load => "load"
     @luna.Idle => "idle"
     @luna.Visible => "visible"
@@ -477,10 +487,12 @@ fn create_component_vnode(
   }
   attrs.push(attr("luna:wc-trigger", trigger_str))
 
-  // Add user-provided attributes
+  // Add user-provided attributes (skip trigger attrs)
   for pair in embed.attrs {
     let (key, value) = pair
-    attrs.push(attr(key, value))
+    if key != "trigger" && key != "luna:trigger" {
+      attrs.push(attr(key, value))
+    }
   }
 
   // Build children (inner content as raw HTML for SSR)
@@ -546,13 +558,20 @@ fn jsx_to_component_embed(
   // Convert JSX tag to WebComponent tag
   let tag = jsx_to_wc_tag(jsx.tag)
 
-  // Convert attributes
+  // Convert attributes and extract trigger
   let attrs : Array[(String, String)] = []
+  let mut trigger : @luna.Trigger = @luna.Load
   for pair in jsx.attrs {
     let (key, value) = pair
     // Handle CLS hints as style
     if key == "cls:width" || key == "cls:height" {
       // Skip CLS hints - they're handled separately
+      continue
+    }
+    // Handle trigger attribute (both "trigger" and "luna:trigger")
+    if key == "trigger" || key == "luna:trigger" {
+      let trigger_str = mdx_attr_to_string(value)
+      trigger = parse_trigger(trigger_str)
       continue
     }
     attrs.push((key, mdx_attr_to_string(value)))
@@ -576,11 +595,24 @@ fn jsx_to_component_embed(
     }
     None => ()
   }
-  @markdown.ComponentEmbed::{
-    tag,
-    attrs,
-    content: jsx.children,
-    trigger: @luna.Load,
+  @markdown.ComponentEmbed::{ tag, attrs, content: jsx.children, trigger }
+}
+
+///|
+/// Parse trigger string to TriggerType
+fn parse_trigger(s : String) -> @luna.Trigger {
+  match s {
+    "load" => @luna.Load
+    "idle" => @luna.Idle
+    "visible" => @luna.Visible
+    "none" => @luna.None
+    _ =>
+      if s.has_prefix("media:") {
+        let query : String = s[6:].to_string() catch { _ => "" }
+        @luna.Media(query)
+      } else {
+        @luna.Load
+      }
   }
 }
 

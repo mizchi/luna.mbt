@@ -399,7 +399,8 @@ fn minify_css(css : String) -> String {
 // =============================================================================
 
 ///|
-/// Generate entire static site (sync version without syntax highlighting)
+/// Generate entire static site (sync version, requires pre-created highlighter for syntax highlighting)
+/// Use generate_site_async or generate_site_with_highlighter for syntax highlighting
 pub fn generate_site(
   config : @astra.SsgConfig,
   cwd : String,
@@ -425,8 +426,9 @@ pub fn generate_site_with_highlighter(
   config : @astra.SsgConfig,
   cwd : String,
   highlighter : @shiki.Highlighter,
+  is_dev? : Bool = false,
 ) -> Result[Unit, String] {
-  generate_site_internal(config, cwd, Some(highlighter))
+  generate_site_internal(config, cwd, Some(highlighter), is_dev~)
 }
 
 ///|
@@ -445,6 +447,7 @@ fn generate_site_internal(
   config : @astra.SsgConfig,
   cwd : String,
   highlighter : @shiki.Highlighter?,
+  is_dev? : Bool = false,
 ) -> Result[Unit, String] {
   println("Scanning docs directory: \{config.docs_dir}")
 
@@ -478,7 +481,14 @@ fn generate_site_internal(
   let doc_tree = Some(@tree.build_document_tree(config, pages, cwd))
 
   // Step 4: Create build context
-  let ctx = @astra.BuildContext::{ config, pages, sidebar, cwd, doc_tree }
+  let ctx = @astra.BuildContext::{
+    config,
+    pages,
+    sidebar,
+    cwd,
+    doc_tree,
+    is_dev,
+  }
 
   // Step 5: Create output directory
   let output_dir = @path.join2(cwd, config.output_dir)
@@ -520,6 +530,7 @@ async fn generate_site_internal_async(
   config : @astra.SsgConfig,
   cwd : String,
   highlighter : @shiki.Highlighter?,
+  is_dev? : Bool = false,
 ) -> Result[Unit, String] {
   println("Scanning docs directory: \{config.docs_dir}")
 
@@ -553,7 +564,14 @@ async fn generate_site_internal_async(
   let doc_tree = Some(@tree.build_document_tree(config, pages, cwd))
 
   // Step 4: Create build context
-  let ctx = @astra.BuildContext::{ config, pages, sidebar, cwd, doc_tree }
+  let ctx = @astra.BuildContext::{
+    config,
+    pages,
+    sidebar,
+    cwd,
+    doc_tree,
+    is_dev,
+  }
 
   // Step 5: Create output directory
   let output_dir = @path.join2(cwd, config.output_dir)
@@ -1485,9 +1503,8 @@ fn build_html_document(
   let main_css = @assets.get_default_css(ctx.config)
   let markdown_css = @assets.get_github_markdown_css()
   let shiki_css = @shiki.generate_shiki_css()
-  let combined_css = minify_css(
-    main_css + "\n" + markdown_css + "\n" + shiki_css,
-  )
+  let all_css = main_css + "\n" + markdown_css + "\n" + shiki_css
+  let combined_css = minify_css(all_css)
 
   // Get page order for current locale
   let page_order = get_page_order(ctx.pages, page.locale)
@@ -1525,8 +1542,19 @@ fn build_html_document(
   } else {
     ""
   }
-  let body_snippets = if ctx.config.body_snippets.length() > 0 {
-    "\n  " + ctx.config.body_snippets.join("\n  ")
+  // body_snippets: always included
+  // prod_body_snippets: only included in production (not dev mode)
+  let all_body_snippets : Array[String] = []
+  for s in ctx.config.body_snippets {
+    all_body_snippets.push(s)
+  }
+  if not(ctx.is_dev) {
+    for s in ctx.config.prod_body_snippets {
+      all_body_snippets.push(s)
+    }
+  }
+  let body_snippets = if all_body_snippets.length() > 0 {
+    "\n  " + all_body_snippets.join("\n  ")
   } else {
     ""
   }

@@ -18,18 +18,16 @@ export function hydrate(element, state, name) {
 
       if (!trigger || !content) return;
 
-      // Update visual state based on current openItems
+      // Update visual state based on current openItems (no transition yet)
       const isOpen = openItems.has(itemId);
       item.dataset.state = isOpen ? 'open' : 'closed';
       content.style.maxHeight = isOpen ? content.scrollHeight + 'px' : '0';
       content.style.overflow = 'hidden';
-      content.style.transition = 'max-height 0.3s ease';
 
-      // Find arrow and rotate
+      // Find arrow and rotate (no transition yet)
       const arrow = trigger.querySelector('[data-arrow]');
       if (arrow) {
         arrow.style.transform = `rotate(${isOpen ? '180deg' : '0deg'})`;
-        arrow.style.transition = 'transform 0.2s';
       }
 
       // Attach click handler
@@ -53,8 +51,18 @@ export function hydrate(element, state, name) {
 
   attachHandlers();
 
-  // Mark as hydrated for debugging
+  // Mark as hydrated - CSS will enable transitions via [data-hydrated] selector
   element.dataset.hydrated = 'true';
+
+  // Enable transitions after hydration to prevent initial animation
+  requestAnimationFrame(() => {
+    items.forEach(item => {
+      const content = item.querySelector('[data-accordion-content]');
+      const arrow = item.querySelector('[data-arrow]');
+      if (content) content.style.transition = 'max-height 0.3s ease';
+      if (arrow) arrow.style.transition = 'transform 0.2s';
+    });
+  });
 }
 
 export default hydrate;

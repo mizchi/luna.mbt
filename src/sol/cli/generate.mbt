@@ -75,6 +75,8 @@ pub struct StaticDirEntry {
   head_snippets : Array[String]
   /// Custom HTML snippets to inject before </body>
   body_snippets : Array[String]
+  /// Custom HTML snippets to inject before </body> (production only)
+  prod_body_snippets : Array[String]
 }
 
 ///|
@@ -99,6 +101,7 @@ pub fn StaticDirEntry::default(
     ogp_text: None,
     head_snippets: [],
     body_snippets: [],
+    prod_body_snippets: [],
   }
 }
 
@@ -290,6 +293,9 @@ fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
   let ogp_text = @json_utils.extract_string_opt(obj, "ogpText")
   let head_snippets = @json_utils.extract_string_array(obj, "headSnippets")
   let body_snippets = @json_utils.extract_string_array(obj, "bodySnippets")
+  let prod_body_snippets = @json_utils.extract_string_array(
+    obj, "prodBodySnippets",
+  )
   Some(StaticDirEntry::{
     path_prefix,
     source_dir,
@@ -305,6 +311,7 @@ fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
     ogp_text,
     head_snippets,
     body_snippets,
+    prod_body_snippets,
   })
 }
 

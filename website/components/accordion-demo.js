@@ -7,6 +7,16 @@ export function hydrate(element, state, name) {
     openItems.add(item.dataset.accordionItem);
   });
 
+  // Enable transitions after hydration (prevent initial animation)
+  requestAnimationFrame(() => {
+    element.querySelectorAll('[data-accordion-content]').forEach(content => {
+      content.style.transition = 'max-height 0.3s ease';
+    });
+    element.querySelectorAll('[data-chevron]').forEach(chevron => {
+      chevron.style.transition = 'transform 0.2s';
+    });
+  });
+
   // Toggle item state
   const toggleItem = (itemId) => {
     const item = element.querySelector(`[data-accordion-item="${itemId}"]`);

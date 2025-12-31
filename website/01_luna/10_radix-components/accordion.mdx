@@ -1,0 +1,62 @@
+---
+title: Accordion
+---
+
+# Accordion
+
+Expandable content sections with header triggers.
+
+## Demo
+
+<accordion-demo luna:trigger="visible"><div class="accordion-container" style="display: flex; flex-direction: column; border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; overflow: hidden; position: relative; background: var(--sidebar-bg, #1f2937); margin-top: 0.75rem;"><div data-accordion-item="item-1" data-state="open"><button data-accordion-trigger style="width: 100%; padding: 1rem; display: flex; justify-content: space-between; align-items: center; background: transparent; border: none; border-bottom: 1px solid var(--border-color, #374151); color: var(--text-color, #e5e7eb); cursor: pointer; font-size: 0.875rem; font-weight: 500; text-align: left;">What is Luna?<span data-chevron style="transform: rotate(180deg);">▼</span></button><div data-accordion-content style="max-height: 200px; overflow: hidden; background: var(--bg-color, #111827);"><div style="padding: 1rem; color: var(--text-muted, #9ca3af); font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">Luna is a blazing-fast reactive UI framework written in MoonBit, featuring Island Architecture for optimal performance.</div></div></div><div data-accordion-item="item-2" data-state="closed"><button data-accordion-trigger style="width: 100%; padding: 1rem; display: flex; justify-content: space-between; align-items: center; background: transparent; border: none; border-bottom: 1px solid var(--border-color, #374151); color: var(--text-color, #e5e7eb); cursor: pointer; font-size: 0.875rem; font-weight: 500; text-align: left;">How does hydration work?<span data-chevron style="transform: rotate(0deg);">▼</span></button><div data-accordion-content style="max-height: 0; overflow: hidden; background: var(--bg-color, #111827);"><div style="padding: 1rem; color: var(--text-muted, #9ca3af); font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">Luna uses progressive hydration with triggers like "visible", "idle", or "load" to control when components become interactive.</div></div></div><div data-accordion-item="item-3" data-state="closed"><button data-accordion-trigger style="width: 100%; padding: 1rem; display: flex; justify-content: space-between; align-items: center; background: transparent; border: none; border-bottom: 1px solid var(--border-color, #374151); color: var(--text-color, #e5e7eb); cursor: pointer; font-size: 0.875rem; font-weight: 500; text-align: left;">What are Islands?<span data-chevron style="transform: rotate(0deg);">▼</span></button><div data-accordion-content style="max-height: 0; overflow: hidden; background: var(--bg-color, #111827);"><div style="padding: 1rem; color: var(--text-muted, #9ca3af); font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">Islands are isolated interactive components within static HTML. Only the islands receive JavaScript, keeping the page lightweight.</div></div></div></div></accordion-demo>
+
+## Usage
+
+```moonbit
+radix_accordion(
+  accordion_type=Single,
+  collapsible=true,
+  children=[
+    radix_accordion_item(value="item-1", children=[
+      radix_accordion_trigger(children=[@luna.text("What is Luna?")]),
+      radix_accordion_content(children=[
+        @luna.text("Luna is a blazing-fast reactive UI framework."),
+      ]),
+    ]),
+    radix_accordion_item(value="item-2", children=[
+      radix_accordion_trigger(children=[@luna.text("How does it work?")]),
+      radix_accordion_content(children=[
+        @luna.text("Luna uses signals for reactive state management."),
+      ]),
+    ]),
+  ],
+)
+```
+
+## Types
+
+- **Single** - Only one item can be open at a time
+- **Multiple** - Multiple items can be open simultaneously
+
+## Props
+
+### Accordion
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| accordion_type | AccordionType | Single | Single or Multiple |
+| collapsible | Bool | false | Allow closing all items |
+| default_value | String? | None | Initially open item |
+
+### AccordionItem
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | String | - | Unique identifier |
+| disabled | Bool | false | Disable this item |
+
+## Accessibility
+
+- Arrow keys navigate between items
+- Enter/Space toggles current item
+- Proper ARIA attributes for screen readers

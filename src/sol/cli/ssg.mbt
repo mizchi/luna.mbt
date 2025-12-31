@@ -188,6 +188,7 @@ async fn run_parallel_ssg_build(
     sidebar,
     cwd,
     doc_tree: Some(doc_tree),
+    is_dev: false, // Production: include prod_body_snippets
   }
   @ssg_gen.copy_static_assets_async(ctx)
 
@@ -269,18 +270,40 @@ pub async fn run_ssg_dev(
     sidebar,
     cwd,
     doc_tree: None,
+    is_dev: true, // Dev mode: skip prod_body_snippets
   }
 
   // Watch for file changes (ignore output directory)
+  // Use a flag to prevent concurrent builds and infinite loops
+  let is_building : Ref[Bool] = { val: false }
+  let last_build_time : Ref[Double] = { val: 0.0 }
+  let debounce_ms = 100.0 // Minimum time between builds
+
   let output_prefix = config.output_dir + "/"
+  let cache_prefix = ".astra-cache"
   let _ = @fs.watch(docs_dir, recursive=true, listener=fn(
     event_type,
     filename,
   ) {
     // Ignore changes in output directory to prevent infinite loops
-    if filename.has_prefix(output_prefix) || filename.has_prefix(config.output_dir) {
+    if filename.has_prefix(output_prefix) ||
+      filename.has_prefix(config.output_dir) ||
+      filename.has_prefix(cache_prefix) ||
+      filename.has_prefix(".astra-cache") {
       return
     }
+
+    // Prevent concurrent builds
+    if is_building.val {
+      return
+    }
+
+    // Debounce rapid changes
+    let now = @cli_common.date_now()
+    if now - last_build_time.val < debounce_ms {
+      return
+    }
+
     if filename.ends_with(".md") || filename.ends_with(".mdx") {
       let source_path = filename
       let full_path = @path.join2(docs_dir, filename)
@@ -293,7 +316,10 @@ pub async fn run_ssg_dev(
           ),
         )
         known_pages[source_path] = true
+        is_building.val = true
+        last_build_time.val = @cli_common.date_now()
         run_ssg_build_sync(config, cwd, highlighter)
+        is_building.val = false
         hmr_server.notify_reload()
       } else if not(file_exists) && is_known {
         println(
@@ -302,7 +328,10 @@ pub async fn run_ssg_dev(
           ),
         )
         let _ = known_pages.remove(source_path)
+        is_building.val = true
+        last_build_time.val = @cli_common.date_now()
         run_ssg_build_sync(config, cwd, highlighter)
+        is_building.val = false
         hmr_server.notify_reload()
       } else if file_exists && is_known {
         println(
@@ -310,7 +339,10 @@ pub async fn run_ssg_dev(
             "[\{event_type}] \{filename} - incremental rebuild...",
           ),
         )
+        is_building.val = true
+        last_build_time.val = @cli_common.date_now()
         rebuild_ssg_single_page(build_ctx, source_path, highlighter)
+        is_building.val = false
         hmr_server.notify_reload()
       }
     } else if filename.ends_with(".json") {
@@ -319,13 +351,19 @@ pub async fn run_ssg_dev(
           "[\{event_type}] \{filename} - config change, full rebuild...",
         ),
       )
+      is_building.val = true
+      last_build_time.val = @cli_common.date_now()
       run_ssg_build_sync(config, cwd, highlighter)
+      is_building.val = false
       hmr_server.notify_reload()
     } else if filename.ends_with(".js") {
       println(
         @colorette.yellow("[\{event_type}] \{filename} - copying components..."),
       )
+      is_building.val = true
+      last_build_time.val = @cli_common.date_now()
       copy_ssg_components(config, cwd)
+      is_building.val = false
       hmr_server.notify_reload()
     }
   })
@@ -346,7 +384,13 @@ fn run_ssg_initial_build(
     }
     _ => ()
   }
-  match @ssg_gen.generate_site_with_highlighter(config, cwd, highlighter) {
+  match
+    @ssg_gen.generate_site_with_highlighter(
+      config,
+      cwd,
+      highlighter,
+      is_dev=true,
+    ) {
     Ok(_) => {
       @astra_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("Build complete: \{config.output_dir}"))
@@ -361,7 +405,13 @@ fn run_ssg_build_sync(
   cwd : String,
   highlighter : @shiki.Highlighter,
 ) -> Unit {
-  match @ssg_gen.generate_site_with_highlighter(config, cwd, highlighter) {
+  match
+    @ssg_gen.generate_site_with_highlighter(
+      config,
+      cwd,
+      highlighter,
+      is_dev=true,
+    ) {
     Ok(_) => {
       let cache_dir = @path.join2(cwd, ".astra-cache")
       @astra_cache.save_manifest(cache_dir, config, cwd)

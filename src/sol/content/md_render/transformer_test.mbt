@@ -45,7 +45,10 @@ test "Component with nested HTML children" {
   inspect(result.html.contains("<button>Click me</button>"), content="true")
   inspect(result.html.contains("<p>Nested paragraph</p>"), content="true")
   // Verify luna:wc-url attribute is set
-  inspect(result.html.contains("luna:wc-url=\"/static/accordion-demo.js\""), content="true")
+  inspect(
+    result.html.contains("luna:wc-url=\"/static/accordion-demo.js\""),
+    content="true",
+  )
   // Verify trigger attribute
   inspect(result.html.contains("luna:wc-trigger=\"visible\""), content="true")
 }
@@ -65,9 +68,8 @@ test "Component with empty content" {
 
   // Should produce self-closing or empty element
   inspect(
-    result.html.contains("<empty-component") && result.html.contains(
-      "</empty-component>",
-    ),
+    result.html.contains("<empty-component") &&
+    result.html.contains("</empty-component>"),
     content="true",
   )
 }
@@ -99,8 +101,14 @@ test "Radix accordion SSR structure" {
   let result = @render.render_to_string(vnode)
 
   // Verify data attributes are preserved (critical for hydration)
-  inspect(result.html.contains("data-accordion-item=\"item-1\""), content="true")
-  inspect(result.html.contains("data-accordion-item=\"item-2\""), content="true")
+  inspect(
+    result.html.contains("data-accordion-item=\"item-1\""),
+    content="true",
+  )
+  inspect(
+    result.html.contains("data-accordion-item=\"item-2\""),
+    content="true",
+  )
   inspect(result.html.contains("data-accordion-trigger"), content="true")
   inspect(result.html.contains("data-accordion-content"), content="true")
   inspect(result.html.contains("data-state=\"open\""), content="true")

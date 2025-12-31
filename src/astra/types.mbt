@@ -68,6 +68,8 @@ pub(all) struct SsgConfig {
   head_snippets : Array[String]
   /// Custom HTML snippets to inject before </body>
   body_snippets : Array[String]
+  /// Custom HTML snippets to inject before </body> (production only)
+  prod_body_snippets : Array[String]
   /// Sanitize HTML content from .html files (default: false)
   /// When true, removes potentially dangerous tags like <script>
   sanitize_html : Bool
@@ -114,6 +116,7 @@ pub fn SsgConfig::default() -> SsgConfig {
     ogp_text: None,
     head_snippets: [],
     body_snippets: [],
+    prod_body_snippets: [],
     sanitize_html: false,
     deploy_target: DeployTarget::default(),
     spa_routes: [],
@@ -521,10 +524,12 @@ pub(all) struct BuildContext {
   cwd : String
   /// Document tree for navigation (built lazily)
   doc_tree : @ssg.DocumentTree?
+  /// Is development mode (skips prod_body_snippets)
+  is_dev : Bool
 }
 
 ///|
 /// Create new build context
 pub fn BuildContext::new(config : SsgConfig, cwd : String) -> BuildContext {
-  { config, pages: [], sidebar: [], cwd, doc_tree: None }
+  { config, pages: [], sidebar: [], cwd, doc_tree: None, is_dev: false }
 }
