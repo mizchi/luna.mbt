@@ -1888,3 +1888,653 @@ pub fn aspect_ratio_inner_styles() -> String {
     ("left", "0"),
   ])
 }
+
+// =============================================================================
+// ContextMenu Styles
+// =============================================================================
+
+///|
+/// ContextMenu content styles
+pub fn context_menu_content_styles() -> String {
+  @css.styles([
+    ("position", "fixed"),
+    ("z-index", "50"),
+    ("min-width", "8rem"),
+    ("padding", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// ContextMenu item styles
+pub fn context_menu_item_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// ContextMenu separator styles
+pub fn context_menu_separator_styles() -> String {
+  @css.styles([
+    ("height", "1px"),
+    ("margin", "0.25rem -0.25rem"),
+    ("background", "#e4e4e7"),
+  ])
+}
+
+///|
+/// ContextMenu label styles
+pub fn context_menu_label_styles() -> String {
+  @css.styles([
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.75rem"),
+    ("font-weight", "600"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// NavigationMenu Styles
+// =============================================================================
+
+///|
+/// NavigationMenu base styles
+pub fn navigation_menu_base_styles() -> String {
+  @css.styles([("position", "relative"), ("z-index", "10")])
+}
+
+///|
+/// NavigationMenu list styles
+pub fn navigation_menu_list_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("list-style", "none"),
+    ("margin", "0"),
+    ("padding", "0"),
+  ])
+}
+
+///|
+/// NavigationMenu trigger styles
+pub fn navigation_menu_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// NavigationMenu content styles
+pub fn navigation_menu_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("min-width", "12rem"),
+    ("padding", "0.5rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// NavigationMenu link styles
+pub fn navigation_menu_link_styles() -> String {
+  @css.styles([
+    ("display", "block"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("text-decoration", "none"),
+    ("color", "#18181b"),
+    ("border-radius", "4px"),
+  ])
+}
+
+// =============================================================================
+// Menubar Styles
+// =============================================================================
+
+///|
+/// Menubar base styles
+pub fn menubar_base_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("padding", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+  ])
+}
+
+///|
+/// Menubar trigger styles
+pub fn menubar_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Menubar content styles
+pub fn menubar_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("z-index", "50"),
+    ("min-width", "12rem"),
+    ("padding", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Menubar item styles
+pub fn menubar_item_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "space-between"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Menubar separator styles
+pub fn menubar_separator_styles() -> String {
+  @css.styles([
+    ("height", "1px"),
+    ("margin", "0.25rem -0.25rem"),
+    ("background", "#e4e4e7"),
+  ])
+}
+
+///|
+/// Menubar shortcut styles
+pub fn menubar_shortcut_styles() -> String {
+  @css.styles([
+    ("margin-left", "auto"),
+    ("font-size", "0.75rem"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// ToggleGroup Styles
+// =============================================================================
+
+///|
+/// ToggleGroup base styles
+pub fn toggle_group_base_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("overflow", "hidden"),
+  ])
+}
+
+///|
+/// ToggleGroup item styles
+pub fn toggle_group_item_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-right", "1px solid #e4e4e7"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// ToggleGroup item active styles
+pub fn toggle_group_item_active_styles() -> String {
+  @css.styles([("background", "#18181b"), ("color", "white")])
+}
+
+// =============================================================================
+// Toolbar Styles
+// =============================================================================
+
+///|
+/// Toolbar base styles
+pub fn toolbar_base_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("padding", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+  ])
+}
+
+///|
+/// Toolbar orientation styles
+pub fn toolbar_orientation_styles(orientation : Orientation) -> String {
+  match orientation {
+    Horizontal => ""
+    Vertical => @css.styles([("flex-direction", "column")])
+  }
+}
+
+///|
+/// Toolbar button styles
+pub fn toolbar_button_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "0.5rem"),
+    ("font-size", "0.875rem"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Toolbar separator styles
+pub fn toolbar_separator_styles() -> String {
+  @css.styles([
+    ("width", "1px"),
+    ("height", "1rem"),
+    ("background", "#e4e4e7"),
+    ("margin", "0 0.25rem"),
+  ])
+}
+
+///|
+/// Toolbar toggle item styles
+pub fn toolbar_toggle_item_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "0.5rem"),
+    ("font-size", "0.875rem"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+// =============================================================================
+// Carousel Styles
+// =============================================================================
+
+///|
+/// Carousel base styles
+pub fn carousel_base_styles() -> String {
+  @css.styles([("position", "relative"), ("width", "100%")])
+}
+
+///|
+/// Carousel content styles
+pub fn carousel_content_styles() -> String {
+  @css.styles([("display", "flex"), ("overflow", "hidden")])
+}
+
+///|
+/// Carousel item styles
+pub fn carousel_item_styles() -> String {
+  @css.styles([("flex", "0 0 100%"), ("min-width", "0")])
+}
+
+///|
+/// Carousel nav button styles
+pub fn carousel_nav_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "2.5rem"),
+    ("height", "2.5rem"),
+    ("padding", "0"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "50%"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Carousel dot styles
+pub fn carousel_dot_styles() -> String {
+  @css.styles([
+    ("width", "0.5rem"),
+    ("height", "0.5rem"),
+    ("padding", "0"),
+    ("background", "#d4d4d8"),
+    ("border", "none"),
+    ("border-radius", "50%"),
+    ("cursor", "pointer"),
+  ])
+}
+
+// =============================================================================
+// Resizable Styles
+// =============================================================================
+
+///|
+/// Resizable panel group styles
+pub fn resizable_panel_group_styles(direction : ResizableDirection) -> String {
+  let base = @css.styles([
+    ("display", "flex"),
+    ("width", "100%"),
+    ("height", "100%"),
+  ])
+  let dir = match direction {
+    Horizontal => @css.styles([("flex-direction", "row")])
+    Vertical => @css.styles([("flex-direction", "column")])
+  }
+  base + " " + dir
+}
+
+///|
+/// Resizable panel styles
+pub fn resizable_panel_styles() -> String {
+  @css.styles([("flex", "1"), ("overflow", "auto")])
+}
+
+///|
+/// Resizable handle styles
+pub fn resizable_handle_styles(direction : ResizableDirection) -> String {
+  let base = @css.styles([
+    ("flex", "0 0 auto"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("background", "#e4e4e7"),
+  ])
+  let dir = match direction {
+    Horizontal => @css.styles([("width", "4px"), ("cursor", "col-resize")])
+    Vertical => @css.styles([("height", "4px"), ("cursor", "row-resize")])
+  }
+  base + " " + dir
+}
+
+// =============================================================================
+// Command Styles
+// =============================================================================
+
+///|
+/// Command base styles
+pub fn command_base_styles() -> String {
+  @css.styles([
+    ("width", "100%"),
+    ("max-width", "32rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("overflow", "hidden"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Command input styles
+pub fn command_input_styles() -> String {
+  @css.styles([
+    ("width", "100%"),
+    ("padding", "0.75rem 1rem"),
+    ("font-size", "0.875rem"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-bottom", "1px solid #e4e4e7"),
+    ("outline", "none"),
+  ])
+}
+
+///|
+/// Command list styles
+pub fn command_list_styles() -> String {
+  @css.styles([
+    ("max-height", "300px"),
+    ("overflow", "auto"),
+    ("padding", "0.25rem"),
+  ])
+}
+
+///|
+/// Command item styles
+pub fn command_item_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "space-between"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Command group heading styles
+pub fn command_group_heading_styles() -> String {
+  @css.styles([
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.75rem"),
+    ("font-weight", "500"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// Calendar Styles
+// =============================================================================
+
+///|
+/// Calendar base styles
+pub fn calendar_base_styles() -> String {
+  @css.styles([
+    ("padding", "0.75rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+  ])
+}
+
+///|
+/// Calendar header styles
+pub fn calendar_header_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "space-between"),
+    ("margin-bottom", "0.5rem"),
+  ])
+}
+
+///|
+/// Calendar nav button styles
+pub fn calendar_nav_button_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "1.75rem"),
+    ("height", "1.75rem"),
+    ("padding", "0"),
+    ("background", "transparent"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Calendar day styles
+pub fn calendar_day_styles() -> String {
+  @css.styles([
+    ("width", "2rem"),
+    ("height", "2rem"),
+    ("padding", "0"),
+    ("font-size", "0.875rem"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+// =============================================================================
+// DatePicker Styles
+// =============================================================================
+
+///|
+/// DatePicker base styles
+pub fn date_picker_base_styles() -> String {
+  @css.styles([("display", "inline-block"), ("position", "relative")])
+}
+
+///|
+/// DatePicker trigger styles
+pub fn date_picker_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// DatePicker content styles
+pub fn date_picker_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("z-index", "50"),
+    ("margin-top", "0.25rem"),
+  ])
+}
+
+// =============================================================================
+// Combobox Styles
+// =============================================================================
+
+///|
+/// Combobox base styles
+pub fn combobox_base_styles() -> String {
+  @css.styles([("display", "inline-block"), ("position", "relative")])
+}
+
+///|
+/// Combobox trigger styles
+pub fn combobox_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "space-between"),
+    ("min-width", "12rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Combobox input styles
+pub fn combobox_input_styles() -> String {
+  @css.styles([
+    ("width", "100%"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("outline", "none"),
+  ])
+}
+
+///|
+/// Combobox content styles
+pub fn combobox_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("z-index", "50"),
+    ("width", "100%"),
+    ("min-width", "12rem"),
+    ("max-height", "300px"),
+    ("overflow", "auto"),
+    ("padding", "0.25rem"),
+    ("margin-top", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Combobox item styles
+pub fn combobox_item_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
