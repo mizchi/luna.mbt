@@ -6,15 +6,31 @@ title: Component Catalog
 
 Luna provides 77 headless UI components inspired by [Radix UI](https://radix-ui.com/) and [shadcn/ui](https://ui.shadcn.com/).
 
-## Live Demo - Hydration on Visible
+## Live Demos
 
-The components below demonstrate Luna's Island hydration with `trigger="visible"` - JavaScript only loads when scrolled into view:
+All components below use `trigger="visible"` - JavaScript only loads when scrolled into view.
+
+### Counter
 
 <Island name="counter-1" :props='{"initial": 0}' trigger="visible" />
 
-<Island name="counter-2" :props='{"initial": 10}' trigger="visible" />
+### Button Variants
 
-> 💡 **Note**: These counters use `trigger="visible"` (Intersection Observer). Scroll down to see them hydrate!
+<Island name="button-demo" :props='{}' trigger="visible" />
+
+### Switch / Toggle
+
+<Island name="switch-demo" :props='{}' trigger="visible" />
+
+### Accordion
+
+<Island name="accordion-demo" :props='{}' trigger="visible" />
+
+### Tabs
+
+<Island name="tabs-demo" :props='{}' trigger="visible" />
+
+> 💡 **Note**: Components use `trigger="visible"` (Intersection Observer) for lazy hydration.
 
 Each component comes in three variants:
 - **Headless** (`radix_xxx`) - Unstyled with semantic HTML and data attributes
