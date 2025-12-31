@@ -220,8 +220,8 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
         // Check cache unless force build
         if not(force_build) {
           match
-            @astra_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
-            @astra_cache.BuildStateCheck::UpToDate(built_at) => {
+            @ssg_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
+            @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
               println(
                 @colorette.green("SSG skipped (no changes since \{built_at})"),
               )
@@ -250,7 +250,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
 ///|
 /// Async SSG build for build command with syntax highlighting
 async fn execute_ssg_build(
-  config : @astra.SsgConfig,
+  config : @ssg.SsgConfig,
   cwd : String,
   cache_dir : String,
   _use_parallel : Bool,
@@ -264,7 +264,7 @@ async fn execute_ssg_build(
   // Use sync version with pre-created highlighter
   match @ssg_gen.generate_site_with_highlighter(config, cwd, highlighter) {
     Ok(_) => {
-      @astra_cache.save_manifest(cache_dir, config, cwd)
+      @ssg_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("✓ SSG build complete: \{config.output_dir}"))
     }
     Err(e) => {
@@ -287,7 +287,7 @@ fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit 
     // Convert StaticDirEntry to SsgConfig
     let output_dir = ".sol/prod/static" +
       entry.path_prefix.trim_end(chars="/").to_string()
-    let ssg_config = @astra.SsgConfig::{
+    let ssg_config = @ssg.SsgConfig::{
       docs_dir: entry.source_dir,
       output_dir,
       title: entry.title,
@@ -306,11 +306,11 @@ fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit 
       body_snippets: entry.body_snippets,
       prod_body_snippets: entry.prod_body_snippets,
       sanitize_html: false,
-      deploy_target: @astra.DeployTarget::default(),
+      deploy_target: @ssg.DeployTarget::default(),
       spa_routes: [],
       components_dir: None,
       css_utilities: None,
-      meta_files: @astra.MetaFilesConfig::default(),
+      meta_files: @ssg.MetaFilesConfig::default(),
     }
 
     // Generate static site

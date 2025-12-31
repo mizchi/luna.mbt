@@ -1,7 +1,0 @@
-{
-  "supported-targets": ["js"],
-  "import": [
-    { "path": "mizchi/luna/astra", "alias": "astra" },
-    { "path": "mizchi/js/node/fs", "alias": "fs" }
-  ]
-}

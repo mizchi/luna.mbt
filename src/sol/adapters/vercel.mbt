@@ -9,7 +9,7 @@
 
 ///|
 /// Write Vercel configuration
-pub fn write_vercel_config(ctx : @astra.BuildContext) -> Unit {
+pub fn write_vercel_config(ctx : @ssg.BuildContext) -> Unit {
   let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
   let config = build_vercel_json(ctx)
   let path = @path.join2(output_dir, "vercel.json")
@@ -21,7 +21,7 @@ pub fn write_vercel_config(ctx : @astra.BuildContext) -> Unit {
 
 ///|
 /// Build vercel.json content
-fn build_vercel_json(ctx : @astra.BuildContext) -> String {
+fn build_vercel_json(ctx : @ssg.BuildContext) -> String {
   let parts : Array[String] = []
 
   // Trailing slash setting

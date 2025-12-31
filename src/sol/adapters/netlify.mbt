@@ -7,7 +7,7 @@
 
 ///|
 /// Write Netlify configuration files
-pub fn write_netlify_config(ctx : @astra.BuildContext) -> Unit {
+pub fn write_netlify_config(ctx : @ssg.BuildContext) -> Unit {
   let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
 
   // Write _headers

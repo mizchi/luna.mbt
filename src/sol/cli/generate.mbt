@@ -54,9 +54,9 @@ pub struct StaticDirEntry {
   /// Section title
   title : String
   /// Navigation items for this section
-  nav : Array[@astra.NavItem]
+  nav : Array[@ssg.NavItem]
   /// Sidebar configuration ("auto" or manual)
-  sidebar : @astra.SidebarConfig
+  sidebar : @ssg.SidebarConfig
   /// Internationalization configuration
   i18n : @ssg.I18nConfig
   /// Navigation config (SPA, View Transitions)
@@ -66,9 +66,9 @@ pub struct StaticDirEntry {
   /// Use trailing slash
   trailing_slash : Bool
   /// Theme configuration
-  theme : @astra.ThemeConfig
+  theme : @ssg.ThemeConfig
   /// OGP configuration
-  ogp : @astra.OgpConfig
+  ogp : @ssg.OgpConfig
   /// Raw OGP meta tags text (optional)
   ogp_text : String?
   /// Custom HTML snippets to inject at end of <head>
@@ -91,13 +91,13 @@ pub fn StaticDirEntry::default(
     source_dir,
     title,
     nav: [],
-    sidebar: @astra.SidebarConfig::Auto,
+    sidebar: @ssg.SidebarConfig::Auto,
     i18n: @ssg.I18nConfig::default(),
     navigation: @ssg.NavigationConfig::default(),
     exclude: [],
     trailing_slash: true,
-    theme: @astra.ThemeConfig::default(),
-    ogp: @astra.OgpConfig::default(),
+    theme: @ssg.ThemeConfig::default(),
+    ogp: @ssg.OgpConfig::default(),
     ogp_text: None,
     head_snippets: [],
     body_snippets: [],
@@ -317,8 +317,8 @@ fn parse_static_dir_entry(obj : Map[String, Json]) -> StaticDirEntry? {
 
 ///|
 /// Parse navigation items array
-fn parse_nav_items(obj : Map[String, Json]) -> Array[@astra.NavItem] {
-  let result : Array[@astra.NavItem] = []
+fn parse_nav_items(obj : Map[String, Json]) -> Array[@ssg.NavItem] {
+  let result : Array[@ssg.NavItem] = []
   match obj.get("nav") {
     Some(Array(arr)) =>
       for item in arr {
@@ -326,7 +326,7 @@ fn parse_nav_items(obj : Map[String, Json]) -> Array[@astra.NavItem] {
           let text = @json_utils.extract_string(item_obj, "text", "")
           let link = @json_utils.extract_string(item_obj, "link", "")
           if not(text.is_empty()) && not(link.is_empty()) {
-            result.push(@astra.NavItem::new(text, link))
+            result.push(@ssg.NavItem::new(text, link))
           }
         }
       }
@@ -337,14 +337,14 @@ fn parse_nav_items(obj : Map[String, Json]) -> Array[@astra.NavItem] {
 
 ///|
 /// Parse sidebar configuration
-fn parse_sidebar_config(obj : Map[String, Json]) -> @astra.SidebarConfig {
+fn parse_sidebar_config(obj : Map[String, Json]) -> @ssg.SidebarConfig {
   match obj.get("sidebar") {
-    Some(String("auto")) => @astra.SidebarConfig::Auto
-    Some(String("Auto")) => @astra.SidebarConfig::Auto
+    Some(String("auto")) => @ssg.SidebarConfig::Auto
+    Some(String("Auto")) => @ssg.SidebarConfig::Auto
     Some(Array(_)) =>
       // TODO: Parse manual sidebar groups
-      @astra.SidebarConfig::Auto
-    _ => @astra.SidebarConfig::Auto
+      @ssg.SidebarConfig::Auto
+    _ => @ssg.SidebarConfig::Auto
   }
 }
 
@@ -400,25 +400,25 @@ fn parse_navigation_config(obj : Map[String, Json]) -> @ssg.NavigationConfig {
 
 ///|
 /// Parse theme configuration
-fn parse_theme_config(obj : Map[String, Json]) -> @astra.ThemeConfig {
+fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
   match obj.get("theme") {
     Some(Object(theme_obj)) => {
       let primary_color = @json_utils.extract_string_opt(
         theme_obj, "primary_color",
       )
       let logo = @json_utils.extract_string_opt(theme_obj, "logo")
-      let header : @astra.HeaderConfig? = None // TODO: parse header
-      let footer : @astra.FooterConfig? = None // TODO: parse footer
-      let social_links : Array[@astra.SocialLink] = [] // TODO: parse social links
-      @astra.ThemeConfig::{ primary_color, logo, header, footer, social_links }
+      let header : @ssg.HeaderConfig? = None // TODO: parse header
+      let footer : @ssg.FooterConfig? = None // TODO: parse footer
+      let social_links : Array[@ssg.SocialLink] = [] // TODO: parse social links
+      @ssg.ThemeConfig::{ primary_color, logo, header, footer, social_links }
     }
-    _ => @astra.ThemeConfig::default()
+    _ => @ssg.ThemeConfig::default()
   }
 }
 
 ///|
 /// Parse OGP configuration
-fn parse_ogp_config(obj : Map[String, Json]) -> @astra.OgpConfig {
+fn parse_ogp_config(obj : Map[String, Json]) -> @ssg.OgpConfig {
   match obj.get("ogp") {
     Some(Object(ogp_obj)) => {
       let site_url = @json_utils.extract_string_opt(ogp_obj, "site_url")
@@ -427,9 +427,9 @@ fn parse_ogp_config(obj : Map[String, Json]) -> @astra.OgpConfig {
         ogp_obj, "twitter_handle",
       )
       let twitter_card = @json_utils.extract_string_opt(ogp_obj, "twitter_card")
-      @astra.OgpConfig::{ site_url, image, twitter_handle, twitter_card }
+      @ssg.OgpConfig::{ site_url, image, twitter_handle, twitter_card }
     }
-    _ => @astra.OgpConfig::default()
+    _ => @ssg.OgpConfig::default()
   }
 }
 

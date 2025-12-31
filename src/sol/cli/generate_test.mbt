@@ -594,7 +594,7 @@ test "parse_sol_config: staticDirs with sidebar auto" {
   let config = parse_sol_config(json)
   assert_true(config.is_some())
   let c = config.unwrap()
-  assert_true(c.static_dirs[0].sidebar is @astra.SidebarConfig::Auto)
+  assert_true(c.static_dirs[0].sidebar is @ssg.SidebarConfig::Auto)
 }
 
 ///|
@@ -619,7 +619,7 @@ test "parse_sol_config: staticDirs defaults" {
   // Default trailing_slash
   assert_true(entry.trailing_slash)
   // Default sidebar
-  assert_true(entry.sidebar is @astra.SidebarConfig::Auto)
+  assert_true(entry.sidebar is @ssg.SidebarConfig::Auto)
   // Default i18n
   assert_eq(entry.i18n.default_locale, "en")
 }

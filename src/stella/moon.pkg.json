@@ -12,7 +12,6 @@
         "generate_standalone_shard",
         "generate_lazy_shard",
         "generate_shard_group",
-        "escape_json_for_html",
         "generate_state_script"
       ],
       "format": "esm"

@@ -424,22 +424,6 @@ pub fn generate_state_script(id : String, json : String) -> String {
   @stella.generate_state_script(id, json)
 }
 
-///|
-/// Escape JSON for safe embedding in HTML attributes
-/// @deprecated Use `@render.escape_json_for_attr` instead
-#deprecated("Use @render.escape_json_for_attr instead")
-pub fn escape_json_for_attr(json : String) -> String {
-  @render.escape_json_for_attr(json)
-}
-
-///|
-/// Escape JSON for safe embedding in script tags
-/// @deprecated Use `@render.escape_json_for_script` instead
-#deprecated("Use @render.escape_json_for_script instead")
-pub fn escape_json_for_html(json : String) -> String {
-  @render.escape_json_for_script(json)
-}
-
 // ============================================================================
 // Island VNode Support (using @luna.island)
 // ============================================================================

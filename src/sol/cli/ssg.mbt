@@ -49,19 +49,19 @@ pub fn find_ssg_config_file(cwd : String) -> String {
 pub fn parse_ssg_config(
   content : String,
   config_path : String,
-) -> @astra.SsgConfig? {
+) -> @ssg.SsgConfig? {
   if config_path.ends_with("astra.json") {
-    @astra.parse_ssg_config(content)
+    @ssg.parse_ssg_config(content)
   } else {
     // sol.config.json format - extract ssg section
-    @astra.parse_ssg_from_sol_config(content)
+    @ssg.parse_ssg_from_sol_config(content)
   }
 }
 
 ///|
 /// Run SSG build (static site generation)
 pub async fn run_ssg_build(
-  config : @astra.SsgConfig,
+  config : @ssg.SsgConfig,
   cwd : String,
   use_parallel : Bool,
   num_workers : Int?,
@@ -70,8 +70,8 @@ pub async fn run_ssg_build(
   // Check for incremental build skip
   let cache_dir = @path.join2(cwd, ".astra-cache")
   if not(force_build) {
-    match @astra_cache.check_local_build_state(config, cwd, cache_dir) {
-      @astra_cache.BuildStateCheck::UpToDate(built_at) => {
+    match @ssg_cache.check_local_build_state(config, cwd, cache_dir) {
+      @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
         println(
           @colorette.green(
             "  SSG skipped (no changes detected since \{built_at})",
@@ -94,7 +94,7 @@ pub async fn run_ssg_build(
     println(@colorette.gray("  Mode: parallel (\{workers} workers)"))
     match run_parallel_ssg_build(config, cwd, workers) {
       Ok(_) => {
-        @astra_cache.save_manifest(cache_dir, config, cwd)
+        @ssg_cache.save_manifest(cache_dir, config, cwd)
         println(@colorette.green("  SSG complete: \{config.output_dir}"))
         Ok(())
       }
@@ -103,7 +103,7 @@ pub async fn run_ssg_build(
   } else {
     match @ssg_gen.generate_site_async(config, cwd) {
       Ok(_) => {
-        @astra_cache.save_manifest(cache_dir, config, cwd)
+        @ssg_cache.save_manifest(cache_dir, config, cwd)
         println(@colorette.green("  SSG complete: \{config.output_dir}"))
         Ok(())
       }
@@ -115,7 +115,7 @@ pub async fn run_ssg_build(
 ///|
 /// Internal parallel SSG build implementation
 async fn run_parallel_ssg_build(
-  config : @astra.SsgConfig,
+  config : @ssg.SsgConfig,
   cwd : String,
   num_workers : Int,
 ) -> Result[Unit, String] {
@@ -134,8 +134,8 @@ async fn run_parallel_ssg_build(
 
   // Step 2: Generate sidebar
   let sidebar = match config.sidebar {
-    @astra.SidebarConfig::Auto => @ssg_routes.generate_auto_sidebar(pages)
-    @astra.SidebarConfig::Manual(groups) => groups
+    @ssg.SidebarConfig::Auto => @ssg_routes.generate_auto_sidebar(pages)
+    @ssg.SidebarConfig::Manual(groups) => groups
   }
 
   // Step 3: Create output directory
@@ -182,7 +182,7 @@ async fn run_parallel_ssg_build(
   let doc_tree = @tree.build_document_tree(config, pages, cwd)
 
   // Step 8: Copy static assets
-  let ctx = @astra.BuildContext::{
+  let ctx = @ssg.BuildContext::{
     config,
     pages,
     sidebar,
@@ -209,7 +209,7 @@ async fn run_parallel_ssg_build(
 ///|
 /// Run SSG dev server with HMR
 pub async fn run_ssg_dev(
-  config : @astra.SsgConfig,
+  config : @ssg.SsgConfig,
   cwd : String,
   port : Int,
 ) -> Unit {
@@ -261,10 +261,10 @@ pub async fn run_ssg_dev(
 
   // Build context for incremental builds
   let sidebar = match config.sidebar {
-    @astra.SidebarConfig::Auto => @ssg_routes.generate_auto_sidebar(pages)
-    @astra.SidebarConfig::Manual(groups) => groups
+    @ssg.SidebarConfig::Auto => @ssg_routes.generate_auto_sidebar(pages)
+    @ssg.SidebarConfig::Manual(groups) => groups
   }
-  let build_ctx : @astra.BuildContext = {
+  let build_ctx : @ssg.BuildContext = {
     config,
     pages,
     sidebar,
@@ -372,13 +372,13 @@ pub async fn run_ssg_dev(
 
 ///|
 fn run_ssg_initial_build(
-  config : @astra.SsgConfig,
+  config : @ssg.SsgConfig,
   cwd : String,
   highlighter : @shiki.Highlighter,
 ) -> Unit {
   let cache_dir = @path.join2(cwd, ".astra-cache")
-  match @astra_cache.check_local_build_state(config, cwd, cache_dir) {
-    @astra_cache.BuildStateCheck::UpToDate(built_at) => {
+  match @ssg_cache.check_local_build_state(config, cwd, cache_dir) {
+    @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
       println(@colorette.green("Build skipped (no changes since \{built_at})"))
       return
     }
@@ -392,7 +392,7 @@ fn run_ssg_initial_build(
       is_dev=true,
     ) {
     Ok(_) => {
-      @astra_cache.save_manifest(cache_dir, config, cwd)
+      @ssg_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("Build complete: \{config.output_dir}"))
     }
     Err(e) => @cli_common.console_error(@colorette.red("Build failed: \{e}"))
@@ -401,7 +401,7 @@ fn run_ssg_initial_build(
 
 ///|
 fn run_ssg_build_sync(
-  config : @astra.SsgConfig,
+  config : @ssg.SsgConfig,
   cwd : String,
   highlighter : @shiki.Highlighter,
 ) -> Unit {
@@ -414,7 +414,7 @@ fn run_ssg_build_sync(
     ) {
     Ok(_) => {
       let cache_dir = @path.join2(cwd, ".astra-cache")
-      @astra_cache.save_manifest(cache_dir, config, cwd)
+      @ssg_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("Rebuild complete"))
       println("")
     }
@@ -424,11 +424,11 @@ fn run_ssg_build_sync(
 
 ///|
 fn rebuild_ssg_single_page(
-  ctx : @astra.BuildContext,
+  ctx : @ssg.BuildContext,
   source_path : String,
   highlighter : @shiki.Highlighter,
 ) -> Unit {
-  let page : @astra.PageMeta? = ctx.pages
+  let page : @ssg.PageMeta? = ctx.pages
     .iter()
     .find_first(fn(p) { p.source_path == source_path })
   guard page is Some(page_meta) else {
@@ -445,7 +445,7 @@ fn rebuild_ssg_single_page(
 }
 
 ///|
-fn copy_ssg_components(config : @astra.SsgConfig, cwd : String) -> Unit {
+fn copy_ssg_components(config : @ssg.SsgConfig, cwd : String) -> Unit {
   let (src_dir, base_path) = match config.islands {
     Some(islands_config) => (islands_config.dir, islands_config.base_path)
     None => {
@@ -662,7 +662,7 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
       }
     }
     if content.is_empty() {
-      @astra.SsgConfig::default()
+      @ssg.SsgConfig::default()
     } else {
       match parse_ssg_config(content, config_path) {
         Some(c) => c
@@ -674,12 +674,12 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
             message: "Invalid config file format",
             rule: "invalid-config",
           })
-          @astra.SsgConfig::default()
+          @ssg.SsgConfig::default()
         }
       }
     }
   } else {
-    @astra.SsgConfig::default()
+    @ssg.SsgConfig::default()
   }
 
   // Get config directory for resolving relative paths
@@ -716,7 +716,7 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
       let content = fs.read_file_sync(full_path) catch { _ => continue }
 
       // Compute URL path for duplicate detection
-      let url_path = @ssg.file_to_url_path(
+      let url_path = @ssg_core.file_to_url_path(
         relative_path,
         trailing_slash=config.trailing_slash,
       )

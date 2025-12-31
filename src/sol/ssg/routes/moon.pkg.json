@@ -1,0 +1,14 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/luna/sol/routes", "alias": "sol_routes" },
+    { "path": "mizchi/luna/sol/ssg", "alias": "ssg" },
+    { "path": "mizchi/luna/sol/content/md_render", "alias": "markdown" },
+    { "path": "mizchi/luna/luna", "alias": "luna" },
+    { "path": "mizchi/luna/core/ssg", "alias": "ssg_core" },
+    { "path": "mizchi/luna/core/env", "alias": "env" },
+    { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" },
+    { "path": "mizchi/luna/internal/json_utils", "alias": "json_utils" },
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" }
+  ]
+}

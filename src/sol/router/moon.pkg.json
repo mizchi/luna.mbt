@@ -6,7 +6,7 @@
     { "path": "mizchi/luna/luna", "alias": "luna" },
     { "path": "mizchi/luna/luna/routes", "alias": "routes" },
     { "path": "mizchi/luna/luna/render", "alias": "render" },
-    { "path": "mizchi/luna/core/ssg", "alias": "ssg" },
+    { "path": "mizchi/luna/core/ssg", "alias": "ssg_core" },
     { "path": "mizchi/luna/sol/routes", "alias": "sol_routes" },
     { "path": "mizchi/luna/luna/static_dom", "alias": "server_dom" },
     { "path": "mizchi/luna/sol/middleware", "alias": "middleware" },

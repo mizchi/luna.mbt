@@ -1,0 +1,24 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/luna/luna", "alias": "luna" },
+    { "path": "mizchi/luna/luna/render", "alias": "render" },
+    { "path": "mizchi/luna/sol/ssg", "alias": "ssg" },
+    { "path": "mizchi/luna/sol/content/md_render", "alias": "markdown" },
+    { "path": "mizchi/luna/sol/ssg/mdx", "alias": "mdx" },
+    { "path": "mizchi/luna/sol/ssg/routes", "alias": "routes" },
+    { "path": "mizchi/luna/sol/content/shiki", "alias": "shiki" },
+    { "path": "mizchi/luna/sol/ssg/assets", "alias": "assets" },
+    { "path": "mizchi/luna/sol/ssg/tree", "alias": "tree" },
+    { "path": "mizchi/luna/sol/adapters", "alias": "adapters" },
+    { "path": "mizchi/luna/sol/ssg/cache", "alias": "cache" },
+    { "path": "mizchi/luna/sol/ssg/isr", "alias": "isr" },
+    { "path": "mizchi/luna/sol/ssg/components", "alias": "components" },
+    { "path": "mizchi/luna/core/ssg", "alias": "ssg_core" },
+    { "path": "mizchi/luna/sol/routes", "alias": "sol_routes" },
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" },
+    { "path": "mizchi/js/core", "alias": "js" },
+    { "path": "mizchi/js/node/fs", "alias": "fs" },
+    { "path": "mizchi/js/node/path", "alias": "path" }
+  ]
+}

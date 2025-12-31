@@ -7,7 +7,7 @@
 
 ///|
 /// Write GitHub Pages specific files
-pub fn write_github_pages_config(ctx : @astra.BuildContext) -> Unit {
+pub fn write_github_pages_config(ctx : @ssg.BuildContext) -> Unit {
   let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
 
   // Always write .nojekyll to disable Jekyll processing

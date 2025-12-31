@@ -1,0 +1,9 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/luna/internal/json_utils", "alias": "json_utils" },
+    { "path": "mizchi/luna/core/ssg", "alias": "ssg_core" },
+    { "path": "mizchi/luna/sol/content/frontmatter", "alias": "frontmatter" },
+    { "path": "mizchi/luna/sol/content/markdown", "alias": "markdown" }
+  ]
+}

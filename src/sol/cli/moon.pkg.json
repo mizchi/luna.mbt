@@ -10,15 +10,15 @@
       "alias": "json_utils"
     },
     {
-      "path": "mizchi/luna/astra",
-      "alias": "astra"
+      "path": "mizchi/luna/sol/ssg",
+      "alias": "ssg"
     },
     {
-      "path": "mizchi/luna/astra/generator",
+      "path": "mizchi/luna/sol/ssg/generator",
       "alias": "ssg_gen"
     },
     {
-      "path": "mizchi/luna/astra/routes",
+      "path": "mizchi/luna/sol/ssg/routes",
       "alias": "ssg_routes"
     },
     {
@@ -26,11 +26,11 @@
       "alias": "builder_pool"
     },
     {
-      "path": "mizchi/luna/astra/cache",
-      "alias": "astra_cache"
+      "path": "mizchi/luna/sol/ssg/cache",
+      "alias": "ssg_cache"
     },
     {
-      "path": "mizchi/luna/astra/tree",
+      "path": "mizchi/luna/sol/ssg/tree",
       "alias": "tree"
     },
     {
@@ -43,7 +43,7 @@
     },
     {
       "path": "mizchi/luna/core/ssg",
-      "alias": "ssg"
+      "alias": "ssg_core"
     },
     {
       "path": "mizchi/luna/core/env",

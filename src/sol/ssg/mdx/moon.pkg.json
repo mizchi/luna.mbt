@@ -1,0 +1,10 @@
+{
+  "import": [
+    { "path": "mizchi/luna/sol/ssg", "alias": "ssg" },
+    { "path": "mizchi/luna/sol/content/frontmatter", "alias": "frontmatter" },
+    { "path": "mizchi/markdown", "alias": "md_parser" },
+    { "path": "mizchi/markdown/mdx", "alias": "md_mdx" },
+    { "path": "mizchi/markdown/slug", "alias": "slug" },
+    { "path": "mizchi/markdown/toc", "alias": "md_toc" }
+  ]
+}

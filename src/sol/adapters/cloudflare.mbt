@@ -6,7 +6,7 @@
 
 ///|
 /// Write Cloudflare Pages configuration
-pub fn write_cloudflare_config(ctx : @astra.BuildContext) -> Unit {
+pub fn write_cloudflare_config(ctx : @ssg.BuildContext) -> Unit {
   let content = generate_routes_json(ctx.pages)
   let output_path = @path.join2(
     @path.join2(ctx.cwd, ctx.config.output_dir),
@@ -20,7 +20,7 @@ pub fn write_cloudflare_config(ctx : @astra.BuildContext) -> Unit {
 
 ///|
 /// Generate _routes.json content for Cloudflare Pages
-fn generate_routes_json(pages : Array[@astra.PageMeta]) -> String {
+fn generate_routes_json(pages : Array[@ssg.PageMeta]) -> String {
   let exclude : Array[String] = []
 
   // Add static asset patterns
@@ -67,7 +67,7 @@ fn generate_routes_json(pages : Array[@astra.PageMeta]) -> String {
 ///|
 /// Extract dynamic route patterns from pages
 fn extract_dynamic_route_patterns(
-  pages : Array[@astra.PageMeta],
+  pages : Array[@ssg.PageMeta],
 ) -> Array[String] {
   let patterns : Map[String, Bool] = {}
   for page in pages {

@@ -3,7 +3,7 @@
     "mizchi/luna/internal/json_utils",
     { "path": "mizchi/luna/internal/utils", "alias": "utils" },
     { "path": "mizchi/luna/core/env", "alias": "env" },
-    "mizchi/luna/core/ssg"
+    { "path": "mizchi/luna/core/ssg", "alias": "ssg_core" }
   ],
   "test-import": [
     { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" }

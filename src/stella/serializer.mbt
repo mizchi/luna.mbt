@@ -7,22 +7,6 @@
 // The functions here are kept for backward compatibility.
 
 ///|
-/// Escape JSON for safe embedding in HTML <script> tags
-/// @deprecated Use `@render.escape_json_for_script` instead
-#deprecated("Use @render.escape_json_for_script instead")
-pub fn escape_json_for_html(json : String) -> String {
-  @render.escape_json_for_script(json)
-}
-
-///|
-/// Escape JSON for safe embedding in HTML attribute values
-/// @deprecated Use `@render.escape_json_for_attr` instead
-#deprecated("Use @render.escape_json_for_attr instead")
-pub fn escape_json_for_attr(json : String) -> String {
-  @render.escape_json_for_attr(json)
-}
-
-///|
 /// Format state for luna:state attribute
 /// Returns the attribute value based on StateConfig
 pub fn format_state_attr(state : StateConfig) -> String? {

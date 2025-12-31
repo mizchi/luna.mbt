@@ -765,9 +765,9 @@ fn escape_html_title(s : String) -> String {
 /// Configuration for static directory generation (minimal, backend-independent)
 pub(all) struct StaticDirConfig {
   /// Internationalization configuration
-  i18n : @ssg.I18nConfig
+  i18n : @ssg_core.I18nConfig
   /// Navigation configuration (SPA, View Transitions, Keyboard)
-  navigation : @ssg.NavigationConfig
+  navigation : @ssg_core.NavigationConfig
   /// Directories to exclude from scanning
   exclude : Array[String]
   /// Use trailing slash in URLs
@@ -778,8 +778,8 @@ pub(all) struct StaticDirConfig {
 /// Default static directory configuration
 pub fn StaticDirConfig::default() -> StaticDirConfig {
   {
-    i18n: @ssg.I18nConfig::default(),
-    navigation: @ssg.NavigationConfig::default(),
+    i18n: @ssg_core.I18nConfig::default(),
+    navigation: @ssg_core.NavigationConfig::default(),
     exclude: [],
     trailing_slash: true,
   }
