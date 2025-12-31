@@ -3755,3 +3755,491 @@ pub fn copy_button_icon_styles() -> String {
     ("height", "1rem"),
   ])
 }
+
+// =============================================================================
+// NumberInput Styles
+// =============================================================================
+
+///|
+/// Number input base styles
+pub fn number_input_base_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("overflow", "hidden"),
+  ])
+}
+
+///|
+/// Number input field styles
+pub fn number_input_field_styles() -> String {
+  @css.styles([
+    ("width", "4rem"),
+    ("padding", "0.5rem"),
+    ("border", "none"),
+    ("text-align", "center"),
+    ("font-size", "0.875rem"),
+    ("background", "transparent"),
+  ])
+}
+
+///|
+/// Number input button styles
+pub fn number_input_button_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "2rem"),
+    ("height", "2.25rem"),
+    ("padding", "0"),
+    ("background", "#f4f4f5"),
+    ("border", "none"),
+    ("cursor", "pointer"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// RangeSlider Styles
+// =============================================================================
+
+///|
+/// Range slider base styles
+pub fn range_slider_base_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("width", "100%"),
+    ("height", "1.25rem"),
+  ])
+}
+
+///|
+/// Range slider track styles
+pub fn range_slider_track_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("flex", "1"),
+    ("height", "0.25rem"),
+    ("background", "#e4e4e7"),
+    ("border-radius", "9999px"),
+  ])
+}
+
+///|
+/// Range slider thumb styles
+pub fn range_slider_thumb_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "50%"),
+    ("width", "1.25rem"),
+    ("height", "1.25rem"),
+    ("background", "white"),
+    ("border", "2px solid #18181b"),
+    ("border-radius", "50%"),
+    ("transform", "translate(-50%, -50%)"),
+    ("cursor", "grab"),
+  ])
+}
+
+// =============================================================================
+// AutoComplete Styles
+// =============================================================================
+
+///|
+/// Autocomplete base styles
+pub fn autocomplete_base_styles() -> String {
+  @css.styles([("position", "relative")])
+}
+
+///|
+/// Autocomplete input styles
+pub fn autocomplete_input_styles() -> String {
+  @css.styles([
+    ("width", "100%"),
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("background", "white"),
+  ])
+}
+
+///|
+/// Autocomplete content styles
+pub fn autocomplete_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("right", "0"),
+    ("z-index", "50"),
+    ("margin-top", "0.25rem"),
+    ("padding", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Autocomplete item styles
+pub fn autocomplete_item_styles(
+  selected : Bool?,
+  highlighted : Bool?,
+) -> String {
+  let bg = match (selected, highlighted) {
+    (Some(true), _) => "#18181b"
+    (_, Some(true)) => "#f4f4f5"
+    _ => "transparent"
+  }
+  let color = match selected {
+    Some(true) => "white"
+    _ => "#18181b"
+  }
+  @css.styles([
+    ("padding", "0.5rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+    ("background", bg),
+    ("color", color),
+  ])
+}
+
+// =============================================================================
+// TimePicker Styles
+// =============================================================================
+
+///|
+/// Time picker base styles
+pub fn time_picker_base_styles() -> String {
+  @css.styles([("position", "relative")])
+}
+
+///|
+/// Time picker trigger styles
+pub fn time_picker_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("font-size", "0.875rem"),
+    ("cursor", "pointer"),
+    ("min-width", "8rem"),
+  ])
+}
+
+///|
+/// Time picker content styles
+pub fn time_picker_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("z-index", "50"),
+    ("display", "flex"),
+    ("gap", "0.25rem"),
+    ("margin-top", "0.25rem"),
+    ("padding", "0.5rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Time picker option styles
+pub fn time_picker_option_styles(selected : Bool?) -> String {
+  let (bg, color) = match selected {
+    Some(true) => ("#18181b", "white")
+    _ => ("transparent", "#18181b")
+  }
+  @css.styles([
+    ("padding", "0.375rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+    ("text-align", "center"),
+    ("background", bg),
+    ("color", color),
+  ])
+}
+
+// =============================================================================
+// DateRangePicker Styles
+// =============================================================================
+
+///|
+/// Date range picker base styles
+pub fn date_range_picker_base_styles() -> String {
+  @css.styles([("position", "relative")])
+}
+
+///|
+/// Date range picker trigger styles
+pub fn date_range_picker_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("font-size", "0.875rem"),
+    ("cursor", "pointer"),
+    ("min-width", "16rem"),
+  ])
+}
+
+///|
+/// Date range picker content styles
+pub fn date_range_picker_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("z-index", "50"),
+    ("display", "flex"),
+    ("gap", "1rem"),
+    ("margin-top", "0.25rem"),
+    ("padding", "1rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+// =============================================================================
+// Mentions Styles
+// =============================================================================
+
+///|
+/// Mentions base styles
+pub fn mentions_base_styles() -> String {
+  @css.styles([("position", "relative")])
+}
+
+///|
+/// Mentions textarea styles
+pub fn mentions_textarea_styles() -> String {
+  @css.styles([
+    ("width", "100%"),
+    ("min-height", "5rem"),
+    ("padding", "0.75rem"),
+    ("font-size", "0.875rem"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("resize", "vertical"),
+  ])
+}
+
+///|
+/// Mentions dropdown styles
+pub fn mentions_dropdown_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("z-index", "50"),
+    ("min-width", "12rem"),
+    ("padding", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Mentions item styles
+pub fn mentions_item_styles(highlighted : Bool?) -> String {
+  let bg = match highlighted {
+    Some(true) => "#f4f4f5"
+    _ => "transparent"
+  }
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+    ("background", bg),
+  ])
+}
+
+// =============================================================================
+// Image Styles
+// =============================================================================
+
+///|
+/// Image base styles
+pub fn image_base_styles() -> String {
+  @css.styles([("position", "relative"), ("overflow", "hidden")])
+}
+
+///|
+/// Image img styles
+pub fn image_img_styles() -> String {
+  @css.styles([
+    ("display", "block"),
+    ("width", "100%"),
+    ("height", "auto"),
+    ("object-fit", "cover"),
+  ])
+}
+
+///|
+/// Image fallback styles
+pub fn image_fallback_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("inset", "0"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("background", "#f4f4f5"),
+    ("color", "#71717a"),
+  ])
+}
+
+// =============================================================================
+// Result Styles
+// =============================================================================
+
+///|
+/// Result base styles
+pub fn result_base_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("align-items", "center"),
+    ("padding", "3rem 1.5rem"),
+    ("text-align", "center"),
+  ])
+}
+
+///|
+/// Result icon styles
+pub fn result_icon_styles(status : ResultStatus) -> String {
+  let (bg, color) = match status {
+    Success => ("#dcfce7", "#22c55e")
+    Error => ("#fee2e2", "#ef4444")
+    Info => ("#dbeafe", "#3b82f6")
+    Warning => ("#fef3c7", "#f59e0b")
+    NotFound => ("#f4f4f5", "#71717a")
+  }
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "4rem"),
+    ("height", "4rem"),
+    ("margin-bottom", "1.5rem"),
+    ("border-radius", "50%"),
+    ("background", bg),
+    ("color", color),
+  ])
+}
+
+///|
+/// Result title styles
+pub fn result_title_styles() -> String {
+  @css.styles([
+    ("margin", "0 0 0.5rem"),
+    ("font-size", "1.5rem"),
+    ("font-weight", "600"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// Result subtitle styles
+pub fn result_subtitle_styles() -> String {
+  @css.styles([
+    ("margin", "0 0 1.5rem"),
+    ("font-size", "0.875rem"),
+    ("color", "#71717a"),
+    ("max-width", "24rem"),
+  ])
+}
+
+///|
+/// Result extra styles
+pub fn result_extra_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("gap", "0.75rem"),
+    ("margin-bottom", "1.5rem"),
+  ])
+}
+
+// =============================================================================
+// Countdown Styles
+// =============================================================================
+
+///|
+/// Countdown base styles
+pub fn countdown_base_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+  ])
+}
+
+///|
+/// Countdown segment styles
+pub fn countdown_segment_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("align-items", "center"),
+    ("min-width", "3rem"),
+  ])
+}
+
+///|
+/// Countdown value styles
+pub fn countdown_value_styles() -> String {
+  @css.styles([
+    ("font-size", "2rem"),
+    ("font-weight", "700"),
+    ("line-height", "1"),
+    ("color", "#18181b"),
+  ])
+}
+
+///|
+/// Countdown label styles
+pub fn countdown_label_styles() -> String {
+  @css.styles([
+    ("font-size", "0.75rem"),
+    ("color", "#71717a"),
+    ("text-transform", "uppercase"),
+    ("letter-spacing", "0.05em"),
+    ("margin-top", "0.25rem"),
+  ])
+}
+
+///|
+/// Countdown separator styles
+pub fn countdown_separator_styles() -> String {
+  @css.styles([
+    ("font-size", "2rem"),
+    ("font-weight", "700"),
+    ("color", "#71717a"),
+    ("line-height", "1"),
+  ])
+}
