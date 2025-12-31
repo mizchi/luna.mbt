@@ -3058,3 +3058,320 @@ pub fn description_details_styles() -> String {
     ("margin", "0.25rem 0 0 0"),
   ])
 }
+
+// =============================================================================
+// Stepper Styles
+// =============================================================================
+
+///|
+/// Stepper base styles
+pub fn stepper_base_styles(orientation : StepperOrientation?) -> String {
+  let direction = match orientation {
+    Some(Vertical) => "column"
+    _ => "row"
+  }
+  @css.styles([("display", "flex"), ("flex-direction", direction), ("align-items", "flex-start")])
+}
+
+///|
+/// Stepper item styles
+pub fn stepper_item_styles() -> String {
+  @css.styles([("display", "flex"), ("align-items", "center"), ("gap", "0.5rem")])
+}
+
+///|
+/// Stepper indicator styles
+pub fn stepper_indicator_styles(status : StepStatus?) -> String {
+  let (bg, color) = match status {
+    Some(Current) => ("#18181b", "white")
+    Some(Completed) => ("#22c55e", "white")
+    _ => ("#e4e4e7", "#71717a")
+  }
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "2rem"),
+    ("height", "2rem"),
+    ("border-radius", "50%"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", bg),
+    ("color", color),
+    ("flex-shrink", "0"),
+  ])
+}
+
+///|
+/// Stepper separator styles
+pub fn stepper_separator_styles(completed : Bool?) -> String {
+  let bg = match completed {
+    Some(true) => "#22c55e"
+    _ => "#e4e4e7"
+  }
+  @css.styles([
+    ("flex", "1"),
+    ("height", "2px"),
+    ("min-width", "2rem"),
+    ("background", bg),
+    ("margin", "0 0.5rem"),
+  ])
+}
+
+// =============================================================================
+// Timeline Styles
+// =============================================================================
+
+///|
+/// Timeline base styles
+pub fn timeline_base_styles() -> String {
+  @css.styles([("position", "relative"), ("padding-left", "2rem")])
+}
+
+///|
+/// Timeline item styles
+pub fn timeline_item_styles() -> String {
+  @css.styles([("position", "relative"), ("padding-bottom", "1.5rem")])
+}
+
+///|
+/// Timeline dot styles
+pub fn timeline_dot_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("left", "-2rem"),
+    ("top", "0"),
+    ("width", "1rem"),
+    ("height", "1rem"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("background", "white"),
+    ("border", "2px solid #e4e4e7"),
+    ("border-radius", "50%"),
+  ])
+}
+
+///|
+/// Timeline content styles
+pub fn timeline_content_styles() -> String {
+  @css.styles([("padding-left", "0.5rem")])
+}
+
+// =============================================================================
+// Tree Styles
+// =============================================================================
+
+///|
+/// Tree base styles
+pub fn tree_base_styles() -> String {
+  @css.styles([("font-size", "0.875rem")])
+}
+
+///|
+/// Tree item content styles
+pub fn tree_item_content_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("padding", "0.25rem 0.5rem"),
+    ("border-radius", "4px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Tree toggle styles
+pub fn tree_toggle_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "1.25rem"),
+    ("height", "1.25rem"),
+    ("padding", "0"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("cursor", "pointer"),
+    ("color", "#71717a"),
+    ("flex-shrink", "0"),
+  ])
+}
+
+// =============================================================================
+// Rating Styles
+// =============================================================================
+
+///|
+/// Rating base styles
+pub fn rating_base_styles() -> String {
+  @css.styles([("display", "inline-flex"), ("gap", "0.125rem")])
+}
+
+///|
+/// Rating item styles
+pub fn rating_item_styles(filled : Bool?) -> String {
+  let color = match filled {
+    Some(true) => "#fbbf24"
+    _ => "#d4d4d8"
+  }
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "0"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("cursor", "pointer"),
+    ("color", color),
+  ])
+}
+
+// =============================================================================
+// Tag Styles
+// =============================================================================
+
+///|
+/// Tag base styles
+pub fn tag_base_styles(variant : TagVariant?, size : TagSize?) -> String {
+  let (padding, font_size) = match size {
+    Some(Sm) => ("0.125rem 0.5rem", "0.75rem")
+    Some(Lg) => ("0.375rem 0.75rem", "0.875rem")
+    _ => ("0.25rem 0.625rem", "0.75rem")
+  }
+  let (bg, color) = match variant {
+    Some(Primary) => ("#18181b", "white")
+    Some(Secondary) => ("#e4e4e7", "#3f3f46")
+    Some(Success) => ("#dcfce7", "#166534")
+    Some(Warning) => ("#fef3c7", "#92400e")
+    Some(Error) => ("#fee2e2", "#991b1b")
+    _ => ("#f4f4f5", "#3f3f46")
+  }
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("padding", padding),
+    ("font-size", font_size),
+    ("font-weight", "500"),
+    ("border-radius", "9999px"),
+    ("white-space", "nowrap"),
+    ("background", bg),
+    ("color", color),
+  ])
+}
+
+///|
+/// Tag close button styles
+pub fn tag_close_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "1rem"),
+    ("height", "1rem"),
+    ("padding", "0"),
+    ("margin-left", "0.125rem"),
+    ("background", "transparent"),
+    ("border", "none"),
+    ("border-radius", "50%"),
+    ("cursor", "pointer"),
+    ("opacity", "0.7"),
+  ])
+}
+
+///|
+/// Tag group styles
+pub fn tag_group_styles() -> String {
+  @css.styles([("display", "flex"), ("flex-wrap", "wrap"), ("gap", "0.5rem")])
+}
+
+// =============================================================================
+// Segmented Control Styles
+// =============================================================================
+
+///|
+/// Segmented base styles
+pub fn segmented_base_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("padding", "0.25rem"),
+    ("background", "#f4f4f5"),
+    ("border-radius", "8px"),
+    ("gap", "0.125rem"),
+  ])
+}
+
+///|
+/// Segmented item styles
+pub fn segmented_item_styles(selected : Bool?) -> String {
+  let (bg, color, shadow) = match selected {
+    Some(true) => ("white", "#18181b", "0 1px 3px rgba(0,0,0,0.1)")
+    _ => ("transparent", "#71717a", "none")
+  }
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "0.375rem 0.75rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("background", bg),
+    ("border", "none"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+    ("color", color),
+    ("box-shadow", shadow),
+  ])
+}
+
+// =============================================================================
+// FAB Styles
+// =============================================================================
+
+///|
+/// FAB base styles
+pub fn fab_base_styles(size : FabSize?, extended : Bool?) -> String {
+  let (width, height) = match size {
+    Some(Sm) => ("2.5rem", "2.5rem")
+    Some(Lg) => ("4rem", "4rem")
+    _ => ("3.5rem", "3.5rem")
+  }
+  let final_width = match extended {
+    Some(true) => "auto"
+    _ => width
+  }
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", final_width),
+    ("height", height),
+    ("background", "#18181b"),
+    ("color", "white"),
+    ("border", "none"),
+    ("border-radius", "9999px"),
+    ("cursor", "pointer"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// FAB container styles
+pub fn fab_container_styles(position : FabPosition?) -> String {
+  let (top, right, bottom, left) = match position {
+    Some(BottomLeft) => ("auto", "auto", "1.5rem", "1.5rem")
+    Some(TopRight) => ("1.5rem", "1.5rem", "auto", "auto")
+    Some(TopLeft) => ("1.5rem", "auto", "auto", "1.5rem")
+    _ => ("auto", "1.5rem", "1.5rem", "auto")
+  }
+  @css.styles([
+    ("position", "fixed"),
+    ("z-index", "50"),
+    ("top", top),
+    ("right", right),
+    ("bottom", bottom),
+    ("left", left),
+  ])
+}
