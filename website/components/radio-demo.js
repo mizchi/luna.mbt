@@ -1,31 +1,37 @@
 // Radio Demo - Radio button group
-// SSR-compatible: adopts existing DOM, adds event handlers only
-export function hydrate(element, state, name) {
-  // Handle radio selection
-  const selectRadio = (input) => {
-    const groupName = input.name;
+// SSR-compatible: adopts existing DOM, adds event handlers
+//
+// SSR HTML Convention:
+//   <radio-demo luna:trigger="visible">
+//     <div role="radiogroup">
+//       <label>
+//         <input type="radio" name="group" value="opt1" checked>
+//         <span data-radio-indicator></span>
+//         Option 1
+//       </label>
+//     </div>
+//   </radio-demo>
 
-    // Update all radios in the same group
-    element.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => {
-      const indicator = radio.parentElement.querySelector('[data-radio-indicator]');
-      if (radio === input) {
-        radio.checked = true;
-        if (indicator) indicator.style.display = 'block';
-      } else {
-        radio.checked = false;
-        if (indicator) indicator.style.display = 'none';
+export function hydrate(element, state, name) {
+  if (element.dataset.hydrated) return;
+
+  // Update indicator visibility based on checked state
+  const updateIndicators = (name) => {
+    element.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+      const indicator = input.parentElement?.querySelector('[data-radio-indicator]');
+      if (indicator) {
+        indicator.style.display = input.checked ? 'block' : 'none';
       }
     });
   };
 
-  // Attach event handlers to existing radios (SSR-rendered)
+  // Attach handlers
   element.querySelectorAll('input[type="radio"]').forEach(input => {
     if (!input.disabled) {
-      input.onchange = () => selectRadio(input);
+      input.onchange = () => updateIndicators(input.name);
     }
   });
 
-  // Mark as hydrated
   element.dataset.hydrated = 'true';
 }
 

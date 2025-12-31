@@ -16,6 +16,7 @@
     "./wc": "./dist/wc-loader.js",
     "./sol-nav": "./dist/sol-nav.js",
     "./lib": "./dist/lib.js",
+    "./hydration": "./dist/hydration.js",
     "./src/loader": "./src/loader.ts",
     "./src/boot": "./src/boot/index.ts",
     "./src/boot/loader": "./src/boot/loader.ts",
@@ -26,7 +27,8 @@
     "./src/router/scroll": "./src/router/scroll.ts",
     "./src/wc-loader": "./src/wc-loader.ts",
     "./src/sol-nav": "./src/sol-nav.ts",
-    "./src/lib": "./src/lib.ts"
+    "./src/lib": "./src/lib.ts",
+    "./src/hydration": "./src/hydration.ts"
   },
   "files": [
     "dist",

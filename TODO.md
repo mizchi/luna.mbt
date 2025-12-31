@@ -100,6 +100,20 @@
 
 ### Sol/Astra 共通化
 
+**高優先**
+- [ ] SSR + Hydration + CSS パターンの汎用モジュール設計
+  - 現状: radix component demos で個別実装 (accordion-demo.js, checkbox-demo.js 等)
+  - 目標: `@sol/hydration` として再利用可能な API を提供
+  - 設計方針:
+    - `hydrate(element, state, name)` の共通インターフェース
+    - SSR HTML に `data-*` 属性で状態を埋め込む規約
+    - `luna:trigger` による遅延 hydration (visible, idle, load)
+    - CSS は inline styles / CSS variables / atomic CSS から選択可能
+  - 参考実装: `website/components/*.js`
+- [ ] Radix Component Demos 追加 (残り 60+ コンポーネント)
+  - 現在: accordion, button, checkbox, counter, dialog, progress, radio, slider, switch, tabs
+  - 次候補: tooltip, popover, dropdown-menu, select, combobox, alert-dialog
+
 **完了**
 - [x] ISR型共有 (`src/core/isr/` - ISRManifest, ISRPageEntry, CacheEntry)
 - [x] ルートパターンユーティリティ (`src/core/routes/pattern_utils.mbt`)

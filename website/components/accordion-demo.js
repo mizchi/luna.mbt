@@ -1,24 +1,37 @@
 // Accordion Demo - Expandable sections
-// SSR-compatible: adopts existing DOM, adds event handlers only
+// SSR-compatible: adopts existing DOM, adds event handlers
+//
+// SSR HTML Convention:
+//   <accordion-demo luna:trigger="visible">
+//     <div data-accordion-item="id" data-state="open|closed">
+//       <button data-accordion-trigger>
+//         Title <span data-chevron>▼</span>
+//       </button>
+//       <div data-accordion-content>Content</div>
+//     </div>
+//   </accordion-demo>
+
 export function hydrate(element, state, name) {
-  // Track open items based on SSR state
+  if (element.dataset.hydrated) return;
+
+  // Read initial open states from SSR
   const openItems = new Set();
   element.querySelectorAll('[data-accordion-item][data-state="open"]').forEach(item => {
     openItems.add(item.dataset.accordionItem);
   });
 
-  // Enable transitions after hydration (prevent initial animation)
+  // Enable transitions after hydration (prevent initial flash)
   requestAnimationFrame(() => {
-    element.querySelectorAll('[data-accordion-content]').forEach(content => {
-      content.style.transition = 'max-height 0.3s ease';
+    element.querySelectorAll('[data-accordion-content]').forEach(el => {
+      el.style.transition = 'max-height 0.3s ease';
     });
-    element.querySelectorAll('[data-chevron]').forEach(chevron => {
-      chevron.style.transition = 'transform 0.2s';
+    element.querySelectorAll('[data-chevron]').forEach(el => {
+      el.style.transition = 'transform 0.2s ease';
     });
   });
 
-  // Toggle item state
-  const toggleItem = (itemId) => {
+  // Toggle handler
+  const toggle = (itemId) => {
     const item = element.querySelector(`[data-accordion-item="${itemId}"]`);
     if (!item) return;
 
@@ -39,15 +52,14 @@ export function hydrate(element, state, name) {
     }
   };
 
-  // Attach event handlers to existing triggers (SSR-rendered)
+  // Attach handlers via event delegation
   element.querySelectorAll('[data-accordion-trigger]').forEach(trigger => {
     const item = trigger.closest('[data-accordion-item]');
     if (item) {
-      trigger.onclick = () => toggleItem(item.dataset.accordionItem);
+      trigger.onclick = () => toggle(item.dataset.accordionItem);
     }
   });
 
-  // Mark as hydrated
   element.dataset.hydrated = 'true';
 }
 

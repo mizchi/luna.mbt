@@ -1,68 +1,76 @@
-// Slider Demo - Draggable slider control
+// Slider Demo - Draggable range slider
 // SSR-compatible: adopts existing DOM, adds drag handlers
+//
+// SSR HTML Convention:
+//   <slider-demo luna:trigger="visible">
+//     <div data-slider data-value="50" data-min="0" data-max="100">
+//       <div data-slider-track>
+//         <div data-slider-range style="width:50%"></div>
+//       </div>
+//       <div data-slider-thumb style="left:50%"></div>
+//     </div>
+//     <span data-slider-value>50</span>
+//   </slider-demo>
+
 export function hydrate(element, state, name) {
+  if (element.dataset.hydrated) return;
+
   element.querySelectorAll('[data-slider]').forEach(slider => {
     const track = slider.querySelector('[data-slider-track]');
     const range = slider.querySelector('[data-slider-range]');
     const thumb = slider.querySelector('[data-slider-thumb]');
-    const valueDisplay = slider.querySelector('[data-slider-value]');
+    const display = slider.querySelector('[data-slider-value]');
 
     if (!track || !thumb) return;
 
     const min = parseInt(slider.dataset.min || '0', 10);
     const max = parseInt(slider.dataset.max || '100', 10);
-    let currentValue = parseInt(slider.dataset.value || '50', 10);
+    let value = parseInt(slider.dataset.value || '50', 10);
 
-    const updateSlider = (value) => {
-      currentValue = Math.max(min, Math.min(max, value));
-      const percentage = ((currentValue - min) / (max - min)) * 100;
+    const update = (val) => {
+      value = Math.max(min, Math.min(max, val));
+      const pct = ((value - min) / (max - min)) * 100;
 
-      if (range) range.style.width = `${percentage}%`;
-      thumb.style.left = `${percentage}%`;
-      slider.setAttribute('aria-valuenow', currentValue);
-      slider.dataset.value = currentValue;
-      if (valueDisplay) valueDisplay.textContent = currentValue;
+      slider.dataset.value = value;
+      slider.setAttribute('aria-valuenow', value);
+      if (range) range.style.width = `${pct}%`;
+      thumb.style.left = `${pct}%`;
+      if (display) display.textContent = value;
     };
 
-    const handleDrag = (e) => {
+    const drag = (e) => {
       const rect = track.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-      const value = Math.round(min + percentage * (max - min));
-      updateSlider(value);
+      const x = e.touches ? e.touches[0].clientX : e.clientX;
+      const pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+      update(Math.round(min + pct * (max - min)));
     };
 
-    const startDrag = (e) => {
+    const start = (e) => {
       e.preventDefault();
-      handleDrag(e);
-
-      const moveHandler = (e) => handleDrag(e);
-      const upHandler = () => {
-        document.removeEventListener('mousemove', moveHandler);
-        document.removeEventListener('mouseup', upHandler);
-        document.removeEventListener('touchmove', moveHandler);
-        document.removeEventListener('touchend', upHandler);
+      drag(e);
+      const move = (e) => drag(e);
+      const end = () => {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', end);
+        document.removeEventListener('touchmove', move);
+        document.removeEventListener('touchend', end);
       };
-
-      document.addEventListener('mousemove', moveHandler);
-      document.addEventListener('mouseup', upHandler);
-      document.addEventListener('touchmove', moveHandler);
-      document.addEventListener('touchend', upHandler);
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', end);
+      document.addEventListener('touchmove', move);
+      document.addEventListener('touchend', end);
     };
 
-    track.addEventListener('mousedown', startDrag);
-    track.addEventListener('touchstart', startDrag);
-    thumb.addEventListener('mousedown', startDrag);
-    thumb.addEventListener('touchstart', startDrag);
+    track.addEventListener('mousedown', start);
+    track.addEventListener('touchstart', start);
+    thumb.addEventListener('mousedown', start);
+    thumb.addEventListener('touchstart', start);
 
-    // Keyboard support
+    // Keyboard
     thumb.addEventListener('keydown', (e) => {
       const step = parseInt(slider.dataset.step || '1', 10);
-      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
-        updateSlider(currentValue + step);
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
-        updateSlider(currentValue - step);
-      }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') update(value + step);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') update(value - step);
     });
   });
 

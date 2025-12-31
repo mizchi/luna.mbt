@@ -1,33 +1,38 @@
-// Progress Demo - Progress bar with animation
+// Progress Demo - Animated progress bars
 // SSR-compatible: adopts existing DOM, adds animation
+//
+// SSR HTML Convention:
+//   <progress-demo luna:trigger="visible">
+//     <div data-progress data-value="0" data-target="75" data-max="100">
+//       <div data-progress-indicator style="transform:translateX(-100%)"></div>
+//     </div>
+//   </progress-demo>
+
 export function hydrate(element, state, name) {
-  // Find progress bars and animate them
+  if (element.dataset.hydrated) return;
+
   element.querySelectorAll('[data-progress]').forEach(bar => {
     const indicator = bar.querySelector('[data-progress-indicator]');
-    const targetValue = parseInt(bar.dataset.target || bar.dataset.value || '0', 10);
-    const maxValue = parseInt(bar.dataset.max || '100', 10);
+    const target = parseInt(bar.dataset.target || bar.dataset.value || '0', 10);
+    const max = parseInt(bar.dataset.max || '100', 10);
 
     if (!indicator) return;
 
-    // Animate to target value
-    let currentValue = 0;
+    let current = 0;
     const animate = () => {
-      if (currentValue < targetValue) {
-        currentValue = Math.min(currentValue + 2, targetValue);
-        const percentage = maxValue > 0 ? (currentValue * 100 / maxValue) : 0;
-        const translate = 100 - percentage;
-        indicator.style.transform = `translateX(-${translate}%)`;
-        bar.setAttribute('aria-valuenow', currentValue);
-        bar.dataset.value = currentValue;
+      if (current < target) {
+        current = Math.min(current + 2, target);
+        const pct = max > 0 ? (current * 100 / max) : 0;
+        indicator.style.transform = `translateX(-${100 - pct}%)`;
+        bar.setAttribute('aria-valuenow', current);
+        bar.dataset.value = current;
         requestAnimationFrame(animate);
       }
     };
 
-    // Start animation after a short delay
     setTimeout(animate, 100);
   });
 
-  // Mark as hydrated
   element.dataset.hydrated = 'true';
 }
 
