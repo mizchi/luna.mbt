@@ -9,6 +9,10 @@
     "dir": "components",
     "basePath": "/components/"
   },
+  "cssUtilities": {
+    "enabled": true,
+    "split": true
+  },
   "i18n": {
     "defaultLocale": "en",
     "locales": [

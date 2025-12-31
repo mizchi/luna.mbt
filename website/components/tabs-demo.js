@@ -9,8 +9,7 @@ export function hydrate(element, state, name) {
 
   const render = () => {
     element.innerHTML = `
-      <div style="border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; overflow: hidden; position: relative; background: var(--sidebar-bg, #1f2937);">
-        <span style="font-size: 0.7rem; color: var(--text-muted, #9ca3af); position: absolute; top: -0.5rem; left: 1rem; background: var(--bg-color, #111827); padding: 0 0.5rem; z-index: 1;">${name}</span>
+      <div style="border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; overflow: hidden; background: var(--sidebar-bg, #1f2937);">
         <div style="display: flex; border-bottom: 1px solid var(--border-color, #374151); background: var(--bg-color, #111827);">
           ${tabs.map(tab => `
             <button data-tab="${tab.id}" style="

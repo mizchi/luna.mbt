@@ -483,11 +483,11 @@ fn create_component_vnode(
     attrs.push(attr(key, value))
   }
 
-  // Build children (inner content as text)
+  // Build children (inner content as raw HTML for SSR)
   let children : Array[@luna.Node[Unit]] = if embed.content.is_empty() {
     []
   } else {
-    [@luna.text(embed.content)]
+    [@luna.raw_html(embed.content)]
   }
   h(embed.tag, attrs, children)
 }

@@ -9,8 +9,7 @@ export function hydrate(element, state, name) {
 
   const render = () => {
     element.innerHTML = `
-      <div style="display: flex; flex-direction: column; border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; overflow: hidden; position: relative; background: var(--sidebar-bg, #1f2937);">
-        <span style="font-size: 0.7rem; color: var(--text-muted, #9ca3af); position: absolute; top: -0.5rem; left: 1rem; background: var(--bg-color, #111827); padding: 0 0.5rem; z-index: 1;">${name}</span>
+      <div class="accordion-container" style="display: flex; flex-direction: column; border: 1px solid var(--border-color, #374151); border-radius: 0.75rem; overflow: hidden; position: relative; background: var(--sidebar-bg, #1f2937); margin-top: 0.75rem;">
         ${items.map(item => `
           <div data-state="${openItems.has(item.id) ? 'open' : 'closed'}">
             <button data-id="${item.id}" style="
@@ -25,7 +24,7 @@ export function hydrate(element, state, name) {
               max-height: ${openItems.has(item.id) ? '200px' : '0'}; overflow: hidden; transition: max-height 0.3s ease;
               background: var(--bg-color, #111827);
             ">
-              <div style="padding: 1rem; color: var(--text-muted, #9ca3af); font-size: 0.875rem; line-height: 1.5;">
+              <div style="padding: 1rem; color: var(--text-muted, #9ca3af); font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">
                 ${item.content}
               </div>
             </div>

@@ -18,7 +18,8 @@ Each component comes in three variants:
 | [Counter](./counter/) | Simple counter with +/- buttons |
 | [Button](./button/) | Button variants (Primary, Secondary, etc.) |
 | [Switch](./switch/) | Toggle switches |
-| [Accordion](./accordion/) | Expandable sections |
+| [Accordion](./accordion/) | Expandable sections (CSR) |
+| [Accordion SSR](./accordion-ssr/) | **SSR+Hydration pattern** |
 | [Tabs](./tabs/) | Tabbed interface |
 
 ## All Components
