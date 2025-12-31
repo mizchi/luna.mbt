@@ -27,10 +27,10 @@ pub fn button_base_styles() -> String {
 /// Button size styles
 pub fn button_size_styles(size : RadixSize) -> String {
   match size {
-    Small => @css.styles([("padding", "0.25em 0.5em"), ("font-size", "0.75rem")])
+    Small =>
+      @css.styles([("padding", "0.25em 0.5em"), ("font-size", "0.75rem")])
     Medium => @css.styles([("padding", "0.5em 1em"), ("font-size", "0.875rem")])
-    Large =>
-      @css.styles([("padding", "0.75em 1.5em"), ("font-size", "1rem")])
+    Large => @css.styles([("padding", "0.75em 1.5em"), ("font-size", "1rem")])
   }
 }
 
@@ -66,14 +66,17 @@ pub fn button_variant_styles(variant : RadixButtonVariant) -> String {
     Ghost => @css.hover("background", "#f4f4f5")
     Link => @css.hover("color", "#1d4ed8")
   }
-
   @css.combine([base, hover])
 }
 
 ///|
 /// Button disabled styles
 pub fn button_disabled_styles() -> String {
-  @css.styles([("opacity", "0.5"), ("pointer-events", "none"), ("cursor", "not-allowed")])
+  @css.styles([
+    ("opacity", "0.5"),
+    ("pointer-events", "none"),
+    ("cursor", "not-allowed"),
+  ])
 }
 
 ///|
@@ -106,8 +109,7 @@ pub fn badge_base_styles() -> String {
 /// Badge variant styles
 pub fn badge_variant_styles(variant : BadgeVariant) -> String {
   match variant {
-    Default =>
-      @css.styles([("background", "#18181b"), ("color", "#fafafa")])
+    Default => @css.styles([("background", "#18181b"), ("color", "#fafafa")])
     Secondary => @css.styles([("background", "#f4f4f5"), ("color", "#18181b")])
     Destructive => @css.styles([("background", "#dc2626"), ("color", "white")])
     Outline =>
@@ -230,10 +232,18 @@ pub fn input_base_styles() -> String {
 pub fn input_size_styles(size : RadixSize) -> String {
   match size {
     Small =>
-      @css.styles([("height", "2rem"), ("font-size", "0.75rem"), ("padding", "0 0.5rem")])
+      @css.styles([
+        ("height", "2rem"),
+        ("font-size", "0.75rem"),
+        ("padding", "0 0.5rem"),
+      ])
     Medium => @css.styles([("height", "2.5rem"), ("font-size", "0.875rem")])
     Large =>
-      @css.styles([("height", "3rem"), ("font-size", "1rem"), ("padding", "0 1rem")])
+      @css.styles([
+        ("height", "3rem"),
+        ("font-size", "1rem"),
+        ("padding", "0 1rem"),
+      ])
   }
 }
 
@@ -250,7 +260,12 @@ pub fn input_focus_styles() -> String {
 ///|
 /// Input disabled styles
 pub fn input_disabled_styles() -> String {
-  @css.styles([("background", "#f4f4f5"), ("color", "#a1a1aa"), ("cursor", "not-allowed"), ("opacity", "0.5")])
+  @css.styles([
+    ("background", "#f4f4f5"),
+    ("color", "#a1a1aa"),
+    ("cursor", "not-allowed"),
+    ("opacity", "0.5"),
+  ])
 }
 
 // =============================================================================
@@ -260,21 +275,13 @@ pub fn input_disabled_styles() -> String {
 ///|
 /// Separator horizontal styles
 pub fn separator_horizontal_styles() -> String {
-  @css.styles([
-    ("width", "100%"),
-    ("height", "1px"),
-    ("background", "#e4e4e7"),
-  ])
+  @css.styles([("width", "100%"), ("height", "1px"), ("background", "#e4e4e7")])
 }
 
 ///|
 /// Separator vertical styles
 pub fn separator_vertical_styles() -> String {
-  @css.styles([
-    ("width", "1px"),
-    ("height", "100%"),
-    ("background", "#e4e4e7"),
-  ])
+  @css.styles([("width", "1px"), ("height", "100%"), ("background", "#e4e4e7")])
 }
 
 // =============================================================================
@@ -393,10 +400,18 @@ pub fn select_base_styles() -> String {
 pub fn select_size_styles(size : RadixSize) -> String {
   match size {
     Small =>
-      @css.styles([("height", "2rem"), ("font-size", "0.75rem"), ("padding", "0 0.5rem")])
+      @css.styles([
+        ("height", "2rem"),
+        ("font-size", "0.75rem"),
+        ("padding", "0 0.5rem"),
+      ])
     Medium => @css.styles([("height", "2.5rem"), ("font-size", "0.875rem")])
     Large =>
-      @css.styles([("height", "3rem"), ("font-size", "1rem"), ("padding", "0 1rem")])
+      @css.styles([
+        ("height", "3rem"),
+        ("font-size", "1rem"),
+        ("padding", "0 1rem"),
+      ])
   }
 }
 
@@ -582,7 +597,11 @@ pub fn avatar_base_styles() -> String {
 pub fn avatar_size_styles(size : AvatarSize) -> String {
   match size {
     Small =>
-      @css.styles([("width", "2rem"), ("height", "2rem"), ("font-size", "0.75rem")])
+      @css.styles([
+        ("width", "2rem"),
+        ("height", "2rem"),
+        ("font-size", "0.75rem"),
+      ])
     Medium =>
       @css.styles([
         ("width", "2.5rem"),
@@ -592,7 +611,11 @@ pub fn avatar_size_styles(size : AvatarSize) -> String {
     Large =>
       @css.styles([("width", "3rem"), ("height", "3rem"), ("font-size", "1rem")])
     XLarge =>
-      @css.styles([("width", "4rem"), ("height", "4rem"), ("font-size", "1.25rem")])
+      @css.styles([
+        ("width", "4rem"),
+        ("height", "4rem"),
+        ("font-size", "1.25rem"),
+      ])
   }
 }
 
@@ -675,7 +698,9 @@ pub fn progress_indicator_styles() -> String {
 /// Skeleton base styles
 pub fn skeleton_base_styles() -> String {
   @css.styles([
-    ("background", "linear-gradient(90deg, #e4e4e7 25%, #f4f4f5 50%, #e4e4e7 75%)"),
+    (
+      "background", "linear-gradient(90deg, #e4e4e7 25%, #f4f4f5 50%, #e4e4e7 75%)",
+    ),
     ("background-size", "200% 100%"),
   ])
 }
@@ -684,15 +709,19 @@ pub fn skeleton_base_styles() -> String {
 /// Skeleton shape styles
 pub fn skeleton_shape_styles(shape : SkeletonShape) -> String {
   match shape {
-    Rectangle =>
-      @css.styles([("border-radius", "4px"), ("min-height", "1rem")])
+    Rectangle => @css.styles([("border-radius", "4px"), ("min-height", "1rem")])
     Circle =>
       @css.styles([
         ("border-radius", "50%"),
         ("width", "2.5rem"),
         ("height", "2.5rem"),
       ])
-    Text => @css.styles([("border-radius", "2px"), ("height", "1em"), ("width", "100%")])
+    Text =>
+      @css.styles([
+        ("border-radius", "2px"),
+        ("height", "1em"),
+        ("width", "100%"),
+      ])
   }
 }
 
@@ -756,7 +785,11 @@ pub fn alert_title_styles() -> String {
 ///|
 /// Alert description styles
 pub fn alert_description_styles() -> String {
-  @css.styles([("font-size", "0.875rem"), ("line-height", "1.5"), ("opacity", "0.9")])
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("line-height", "1.5"),
+    ("opacity", "0.9"),
+  ])
 }
 
 // =============================================================================
@@ -977,7 +1010,11 @@ pub fn tooltip_base_styles() -> String {
 ///|
 /// Tooltip trigger styles
 pub fn tooltip_trigger_styles() -> String {
-  @css.styles([("background", "transparent"), ("border", "none"), ("cursor", "pointer")])
+  @css.styles([
+    ("background", "transparent"),
+    ("border", "none"),
+    ("cursor", "pointer"),
+  ])
 }
 
 ///|
@@ -1044,7 +1081,11 @@ pub fn popover_base_styles() -> String {
 ///|
 /// Popover trigger styles
 pub fn popover_trigger_styles() -> String {
-  @css.styles([("background", "transparent"), ("border", "none"), ("cursor", "pointer")])
+  @css.styles([
+    ("background", "transparent"),
+    ("border", "none"),
+    ("cursor", "pointer"),
+  ])
 }
 
 ///|
@@ -1755,7 +1796,11 @@ pub fn breadcrumb_list_styles() -> String {
 ///|
 /// Breadcrumb item styles
 pub fn breadcrumb_item_styles() -> String {
-  @css.styles([("display", "flex"), ("align-items", "center"), ("gap", "0.375rem")])
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.375rem"),
+  ])
 }
 
 ///|
@@ -2624,7 +2669,11 @@ pub fn drawer_footer_styles() -> String {
 ///|
 /// Input OTP base styles
 pub fn input_otp_base_styles() -> String {
-  @css.styles([("display", "flex"), ("align-items", "center"), ("gap", "0.5rem")])
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+  ])
 }
 
 ///|
@@ -2750,7 +2799,6 @@ pub fn spinner_base_styles(size : SpinnerSize?) -> String {
     Some(Xl) => ("3rem", "3rem", "4px")
     _ => ("1.5rem", "1.5rem", "2px")
   }
-
   @css.styles([
     ("display", "inline-block"),
     ("width", width),
@@ -2856,8 +2904,7 @@ pub fn kbd_base_styles() -> String {
     ("height", "1.5rem"),
     ("padding", "0 0.375rem"),
     (
-      "font-family",
-      "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
+      "font-family", "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
     ),
     ("font-size", "0.75rem"),
     ("font-weight", "500"),
@@ -2872,7 +2919,11 @@ pub fn kbd_base_styles() -> String {
 ///|
 /// Kbd group styles
 pub fn kbd_group_styles() -> String {
-  @css.styles([("display", "inline-flex"), ("align-items", "center"), ("gap", "0.25rem")])
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+  ])
 }
 
 // =============================================================================
@@ -2886,8 +2937,7 @@ pub fn code_inline_styles() -> String {
     ("display", "inline"),
     ("padding", "0.125rem 0.375rem"),
     (
-      "font-family",
-      "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
+      "font-family", "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
     ),
     ("font-size", "0.875em"),
     ("background", "#f4f4f5"),
@@ -2903,8 +2953,7 @@ pub fn code_block_styles() -> String {
     ("display", "block"),
     ("padding", "1rem"),
     (
-      "font-family",
-      "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
+      "font-family", "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace",
     ),
     ("font-size", "0.875rem"),
     ("line-height", "1.5"),
@@ -3070,13 +3119,21 @@ pub fn stepper_base_styles(orientation : StepperOrientation?) -> String {
     Some(Vertical) => "column"
     _ => "row"
   }
-  @css.styles([("display", "flex"), ("flex-direction", direction), ("align-items", "flex-start")])
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", direction),
+    ("align-items", "flex-start"),
+  ])
 }
 
 ///|
 /// Stepper item styles
 pub fn stepper_item_styles() -> String {
-  @css.styles([("display", "flex"), ("align-items", "center"), ("gap", "0.5rem")])
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+  ])
 }
 
 ///|
@@ -3373,5 +3430,328 @@ pub fn fab_container_styles(position : FabPosition?) -> String {
     ("right", right),
     ("bottom", bottom),
     ("left", left),
+  ])
+}
+
+// =============================================================================
+// ColorPicker Styles
+// =============================================================================
+
+///|
+/// Color picker trigger styles
+pub fn color_picker_trigger_styles() -> String {
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.5rem"),
+    ("padding", "0.5rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// Color picker swatch styles
+pub fn color_picker_swatch_styles() -> String {
+  @css.styles([
+    ("width", "1.5rem"),
+    ("height", "1.5rem"),
+    ("border-radius", "4px"),
+    ("border", "1px solid rgba(0,0,0,0.1)"),
+  ])
+}
+
+///|
+/// Color picker content styles
+pub fn color_picker_content_styles() -> String {
+  @css.styles([
+    ("position", "absolute"),
+    ("top", "100%"),
+    ("left", "0"),
+    ("z-index", "50"),
+    ("width", "14rem"),
+    ("padding", "0.75rem"),
+    ("margin-top", "0.25rem"),
+    ("background", "white"),
+    ("border", "1px solid #e4e4e7"),
+    ("border-radius", "8px"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+  ])
+}
+
+// =============================================================================
+// FileUpload Styles
+// =============================================================================
+
+///|
+/// File upload dropzone styles
+pub fn file_upload_dropzone_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("padding", "2rem"),
+    ("border", "2px dashed #e4e4e7"),
+    ("border-radius", "8px"),
+    ("background", "#fafafa"),
+    ("cursor", "pointer"),
+  ])
+}
+
+///|
+/// File upload item styles
+pub fn file_upload_item_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("gap", "0.75rem"),
+    ("padding", "0.5rem 0.75rem"),
+    ("background", "#f4f4f5"),
+    ("border-radius", "6px"),
+  ])
+}
+
+// =============================================================================
+// BackTop Styles
+// =============================================================================
+
+///|
+/// Back top button styles
+pub fn back_top_styles_ucss(visible : Bool?) -> String {
+  let (opacity, visibility, transform) = match visible {
+    Some(true) => ("1", "visible", "translateY(0)")
+    _ => ("0", "hidden", "translateY(1rem)")
+  }
+  @css.styles([
+    ("position", "fixed"),
+    ("bottom", "2rem"),
+    ("right", "2rem"),
+    ("z-index", "50"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "2.5rem"),
+    ("height", "2.5rem"),
+    ("background", "#18181b"),
+    ("color", "white"),
+    ("border", "none"),
+    ("border-radius", "50%"),
+    ("cursor", "pointer"),
+    ("box-shadow", "0 4px 6px -1px rgba(0,0,0,0.1)"),
+    ("opacity", opacity),
+    ("visibility", visibility),
+    ("transform", transform),
+  ])
+}
+
+// =============================================================================
+// AvatarGroup Styles
+// =============================================================================
+
+///|
+/// Avatar group base styles
+pub fn avatar_group_base_styles() -> String {
+  @css.styles([("display", "inline-flex"), ("flex-direction", "row-reverse")])
+}
+
+///|
+/// Avatar group item styles
+pub fn avatar_group_item_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "2.5rem"),
+    ("height", "2.5rem"),
+    ("border-radius", "50%"),
+    ("border", "2px solid white"),
+    ("background", "#e4e4e7"),
+    ("overflow", "hidden"),
+    ("margin-left", "-0.75rem"),
+  ])
+}
+
+///|
+/// Avatar group overflow styles
+pub fn avatar_group_overflow_styles() -> String {
+  @css.styles([
+    ("position", "relative"),
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "2.5rem"),
+    ("height", "2.5rem"),
+    ("border-radius", "50%"),
+    ("border", "2px solid white"),
+    ("background", "#18181b"),
+    ("color", "white"),
+    ("font-size", "0.75rem"),
+    ("font-weight", "500"),
+    ("margin-left", "-0.75rem"),
+  ])
+}
+
+// =============================================================================
+// Statistic Styles
+// =============================================================================
+
+///|
+/// Statistic base styles
+pub fn statistic_base_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("flex-direction", "column"),
+    ("gap", "0.25rem"),
+  ])
+}
+
+///|
+/// Statistic label styles
+pub fn statistic_label_styles() -> String {
+  @css.styles([("font-size", "0.875rem"), ("color", "#71717a")])
+}
+
+///|
+/// Statistic value styles
+pub fn statistic_value_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "baseline"),
+    ("gap", "0.25rem"),
+    ("font-size", "2rem"),
+    ("font-weight", "600"),
+    ("color", "#18181b"),
+    ("line-height", "1"),
+  ])
+}
+
+///|
+/// Statistic trend styles
+pub fn statistic_trend_styles(trend : StatisticTrend) -> String {
+  let color = match trend {
+    Up => "#22c55e"
+    Down => "#ef4444"
+    Neutral => "#71717a"
+  }
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("gap", "0.25rem"),
+    ("font-size", "0.875rem"),
+    ("font-weight", "500"),
+    ("color", color),
+  ])
+}
+
+// =============================================================================
+// Callout Styles
+// =============================================================================
+
+///|
+/// Callout base styles
+pub fn callout_base_styles(variant : CalloutVariant?) -> String {
+  let (bg, border_color) = match variant {
+    Some(Info) => ("#eff6ff", "#bfdbfe")
+    Some(Success) => ("#f0fdf4", "#bbf7d0")
+    Some(Warning) => ("#fffbeb", "#fde68a")
+    Some(Error) => ("#fef2f2", "#fecaca")
+    _ => ("#f4f4f5", "#e4e4e7")
+  }
+  @css.styles([
+    ("display", "flex"),
+    ("gap", "0.75rem"),
+    ("padding", "1rem"),
+    ("border-radius", "8px"),
+    ("border", "1px solid " + border_color),
+    ("background", bg),
+  ])
+}
+
+///|
+/// Callout icon styles
+pub fn callout_icon_styles(variant : CalloutVariant?) -> String {
+  let color = match variant {
+    Some(Info) => "#3b82f6"
+    Some(Success) => "#22c55e"
+    Some(Warning) => "#f59e0b"
+    Some(Error) => "#ef4444"
+    _ => "#71717a"
+  }
+  @css.styles([
+    ("flex-shrink", "0"),
+    ("width", "1.25rem"),
+    ("height", "1.25rem"),
+    ("margin-top", "0.125rem"),
+    ("color", color),
+  ])
+}
+
+///|
+/// Callout content styles
+pub fn callout_content_styles() -> String {
+  @css.styles([("flex", "1"), ("min-width", "0")])
+}
+
+///|
+/// Callout title styles
+pub fn callout_title_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("font-weight", "600"),
+    ("color", "#18181b"),
+    ("margin-bottom", "0.25rem"),
+  ])
+}
+
+///|
+/// Callout description styles
+pub fn callout_description_styles() -> String {
+  @css.styles([
+    ("font-size", "0.875rem"),
+    ("color", "#52525b"),
+    ("line-height", "1.5"),
+  ])
+}
+
+// =============================================================================
+// CopyButton Styles
+// =============================================================================
+
+///|
+/// Copy button base styles
+pub fn copy_button_base_styles(state : CopyButtonState?) -> String {
+  let (color, border_color) = match state {
+    Some(Copied) => ("#22c55e", "#22c55e")
+    Some(Error) => ("#ef4444", "#ef4444")
+    _ => ("#71717a", "#e4e4e7")
+  }
+  @css.styles([
+    ("display", "inline-flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "2rem"),
+    ("height", "2rem"),
+    ("padding", "0"),
+    ("background", "transparent"),
+    ("border", "1px solid " + border_color),
+    ("border-radius", "6px"),
+    ("cursor", "pointer"),
+    ("color", color),
+  ])
+}
+
+///|
+/// Copy button icon styles
+pub fn copy_button_icon_styles() -> String {
+  @css.styles([
+    ("display", "flex"),
+    ("align-items", "center"),
+    ("justify-content", "center"),
+    ("width", "1rem"),
+    ("height", "1rem"),
   ])
 }
