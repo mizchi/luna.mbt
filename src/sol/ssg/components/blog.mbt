@@ -1,4 +1,4 @@
-// Astra Components - Blog
+// Sol SSG Components - Blog
 // Blog-specific components: PostCard, PostList, Hero, TagList
 
 // =============================================================================

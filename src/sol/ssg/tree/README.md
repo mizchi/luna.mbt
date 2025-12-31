@@ -1,6 +1,6 @@
-# Astra DocumentTree
+# Sol DocumentTree
 
-Astra の中間表現。ファイルシステムからスキャンしたドキュメント構造を表現し、
+Sol SSG の中間表現。ファイルシステムからスキャンしたドキュメント構造を表現し、
 複数の出力形式（HTML, RSS, sitemap.xml, llms.txt）に変換できる。
 
 ## 設計思想

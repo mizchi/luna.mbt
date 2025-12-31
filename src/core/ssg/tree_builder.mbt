@@ -1,7 +1,7 @@
 // DocumentTree Builder
 //
 // Generic builder for creating DocumentTree from various sources.
-// Used by both Astra (from PageMeta) and Sol (from SolRoutes).
+// Used by both SSG (from PageMeta) and Sol (from SolRoutes).
 
 // =============================================================================
 // Simple Builder

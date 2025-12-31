@@ -1,4 +1,4 @@
-// Astra Builder Pool - JSON Serialization for IPC
+// Sol Builder Pool - JSON Serialization for IPC
 //
 // Serializes SsgConfig, PageMeta, SidebarGroup for worker communication
 

@@ -1,7 +1,7 @@
 // Route Pattern Utilities
 //
 // Shared utilities for extracting and building route patterns.
-// Used by both Astra (SSG) and Sol (SSR) for route matching.
+// Used by both Sol SSG and Sol (SSR) for route matching.
 
 // =============================================================================
 // Pattern Extraction

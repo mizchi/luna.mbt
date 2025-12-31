@@ -1,4 +1,4 @@
-// Manifest Adapter for Astra
+// Manifest Adapter for SSG
 //
 // Converts between PageMeta and RouteManifest
 

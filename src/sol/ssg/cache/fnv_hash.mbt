@@ -1,7 +1,7 @@
 // Hash Utilities for Cache Keys
 //
 // Fast, simple hash functions with good distribution for cache keys.
-// Shared between Astra and Sol.
+// Shared between Sol SSG and Sol.
 
 // =============================================================================
 // FNV-1a Hash

@@ -1,4 +1,4 @@
-// Astra Components - Footer
+// Sol SSG Components - Footer
 // Element-based compositional footer system
 
 ///|

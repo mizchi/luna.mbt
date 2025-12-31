@@ -2,7 +2,7 @@
 /// FileCache - Disk cache layer for build artifacts
 ///
 /// Provides mtime-based caching to avoid re-reading unchanged files.
-/// Used by both Sol and Astra build systems.
+/// Used by both Sol and Sol SSG build systems.
 
 ///|
 /// Cache entry metadata

@@ -1,5 +1,5 @@
 ///|
-/// Navigation scripts for Astra SSG
+/// Navigation scripts for Sol SSG
 /// SPA navigation, View Transitions, and Keyboard navigation
 
 ///|

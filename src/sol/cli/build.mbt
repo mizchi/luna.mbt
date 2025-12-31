@@ -275,7 +275,7 @@ async fn execute_ssg_build(
 }
 
 ///|
-/// Build static directories using Astra SSG
+/// Build static directories using Sol SSG
 fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit {
   for entry in static_dirs {
     println(

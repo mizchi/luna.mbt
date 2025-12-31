@@ -1,4 +1,4 @@
-// Astra Components - Navigation (Breadcrumb, Prev/Next)
+// Sol SSG Components - Navigation (Breadcrumb, Prev/Next)
 // Tree-driven navigation components using NavContext
 
 ///|

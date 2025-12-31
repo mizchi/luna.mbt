@@ -3,7 +3,7 @@
 /// Determined during file scanning based on content type and configuration
 
 ///|
-/// Renderer types supported by Astra SSG
+/// Renderer types supported by Sol SSG
 pub(all) enum RendererType {
   /// Markdown renderer - converts .md to HTML via markdown parser
   MarkdownRenderer

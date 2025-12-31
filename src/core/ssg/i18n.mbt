@@ -1,7 +1,7 @@
 // SSG i18n Path Utilities
 //
 // Path manipulation for internationalized (i18n) routes.
-// Shared between Sol (SSR framework) and Astra (SSG).
+// Shared between Sol (SSR framework) and Sol SSG.
 
 // =============================================================================
 // Locale Detection from Filename

@@ -1,5 +1,5 @@
 ///|
-/// Asset embedding helpers for Astra SSG
+/// Asset embedding helpers for Sol SSG
 /// Functions to embed CSS and JavaScript into HTML
 
 ///|

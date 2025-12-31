@@ -232,7 +232,7 @@ fn convert_jsx_to_embed(
 }
 
 ///|
-/// Convert MDX attribute value to Astra MdxAttrValue
+/// Convert MDX attribute value to Sol SSG MdxAttrValue
 fn convert_attr_value(value : @md_mdx.MdxAttrValue) -> @ssg.MdxAttrValue {
   match value {
     @md_mdx.MdxAttrValue::StringValue(s) =>

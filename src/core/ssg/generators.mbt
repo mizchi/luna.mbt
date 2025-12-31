@@ -1,7 +1,7 @@
 // SSG Generators
 //
 // Pure functions to generate sitemap.xml, RSS feed, and llms.txt from DocumentTree.
-// These generators are shared between Astra (SSG) and Sol (SSR).
+// These generators are shared between Sol SSG and Sol (SSR).
 
 // =============================================================================
 // Sitemap Generator

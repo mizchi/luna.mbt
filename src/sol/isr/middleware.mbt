@@ -65,10 +65,10 @@ pub fn schedule_revalidation(path : String) -> Unit {
   match get_isr_handler() {
     Some(handler) =>
       handler.cache.schedule_revalidation(async fn() {
-        // In a real implementation, this would call Astra to regenerate
+        // In a real implementation, this would call SSG to regenerate
         // For now, just log
         println("ISR: Revalidating \{path}")
-        // Read fresh content from disk (assumes Astra has regenerated)
+        // Read fresh content from disk (assumes SSG has regenerated)
         let fresh_html = read_static_page(handler.dist_dir, path)
         match fresh_html {
           Some(html) => handler.update_cache(path, html)

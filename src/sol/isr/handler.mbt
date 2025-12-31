@@ -4,7 +4,7 @@
 // Loads ISR manifest and applies cache logic for marked pages.
 
 // =============================================================================
-// ISR Manifest Types (matching Astra output)
+// ISR Manifest Types (matching Sol SSG output)
 // =============================================================================
 
 ///|

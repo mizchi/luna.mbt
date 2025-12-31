@@ -1,5 +1,5 @@
 ///|
-/// Astra-specific Hash Utilities
+/// SSG-specific Hash Utilities
 ///
 /// Uses fnv_hash.mbt for underlying hash functions.
 

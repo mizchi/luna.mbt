@@ -1,4 +1,4 @@
-// Astra ISR Metadata Generator
+// Sol SSG ISR Metadata Generator
 //
 // Generates ISR manifest at build time.
 // Uses shared types from sol/isr.

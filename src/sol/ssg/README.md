@@ -1,4 +1,4 @@
-# Astra
+# Sol SSG
 
 Static Site Generator (SSG). Markdown → HTML conversion.
 

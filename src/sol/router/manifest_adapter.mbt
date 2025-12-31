@@ -148,7 +148,7 @@ pub(all) struct ApiHandlerFactory((@sol_routes.RouteEntry) -> ApiHandler?)
 ///|
 /// Convert RouteManifest to SolRoutes with handler injection
 ///
-/// This allows external modules (like Astra) to inject content processing
+/// This allows external modules (like Sol SSG) to inject content processing
 /// by providing factory functions that create handlers from route metadata.
 ///
 /// Example usage:

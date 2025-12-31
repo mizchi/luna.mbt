@@ -304,7 +304,7 @@ test "sol_pattern: pre-cached SSR fragment injection" {
 }
 
 // =============================================================================
-// Astra Integration Tests
+// Sol SSG Integration Tests
 // =============================================================================
 
 ///|
@@ -312,7 +312,7 @@ test "astra_pattern: markdown document structure" {
   @global_jsdom.register()
   let doc = @js_dom.document()
 
-  // Astra renders Markdown as VNode then to HTML
+  // Sol SSG renders Markdown as VNode then to HTML
   // Simulating a typical documentation page structure
   // Note: Avoid single quotes in text content as SSR escapes them differently
   let doc_page : @luna.Node[Unit] = @luna.h(
@@ -353,7 +353,7 @@ test "astra_pattern: navigation sidebar" {
   @global_jsdom.register()
   let doc = @js_dom.document()
 
-  // Astra auto-generates sidebar navigation
+  // Sol SSG auto-generates sidebar navigation
   let sidebar : @luna.Node[Unit] = @luna.h(
     "aside",
     [("class", @luna.attr_static("sidebar"))],
@@ -401,7 +401,7 @@ test "astra_pattern: i18n language switcher" {
   @global_jsdom.register()
   let doc = @js_dom.document()
 
-  // Astra i18n language selector
+  // Sol SSG i18n language selector
   let lang_switcher : @luna.Node[Unit] = @luna.h(
     "div",
     [("class", @luna.attr_static("lang-switcher"))],

@@ -1,5 +1,5 @@
 ///|
-/// Asset loader for Astra SSG
+/// Asset loader for Sol SSG
 /// Loads CSS and JavaScript files from external files at build time
 
 ///|

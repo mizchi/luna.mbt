@@ -1,7 +1,7 @@
 // Route Manifest - Implementation-independent route representation
 //
 // This module provides a unified intermediate representation for routes
-// that can be used by both Astra (SSG) and Sol (SSR).
+// that can be used by both Sol SSG and Sol (SSR).
 
 // =============================================================================
 // Core Types

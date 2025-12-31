@@ -1,4 +1,4 @@
-// Astra Components - Header / Navigation Bar
+// Sol SSG Components - Header / Navigation Bar
 // Element-based compositional header system
 
 ///|

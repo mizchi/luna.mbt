@@ -1,6 +1,6 @@
-// Astra Builder Pool - Astra-specific Types
+// Sol Builder Pool - SSG-specific Types
 //
-// Extends sol/builder with Astra-specific data structures.
+// Extends sol/builder with SSG-specific data structures.
 // Generic pool infrastructure is provided by sol/builder.
 
 // =============================================================================
@@ -10,11 +10,11 @@
 // Note: Use @builder.PoolConfig, @builder.WorkerPool, @builder.JobResult directly
 
 // =============================================================================
-// Astra-specific Init Data
+// SSG-specific Init Data
 // =============================================================================
 
 ///|
-/// Data sent to worker during initialization (Astra-specific)
+/// Data sent to worker during initialization (SSG-specific)
 pub(all) struct WorkerInitData {
   /// SsgConfig serialized as JSON
   config_json : String
@@ -85,11 +85,11 @@ fn escape_json(s : String) -> String {
 }
 
 // =============================================================================
-// Astra Job Result (wrapper around generic JobResult)
+// SSG Job Result (wrapper around generic JobResult)
 // =============================================================================
 
 ///|
-/// Astra-specific job result with page metadata
+/// SSG-specific job result with page metadata
 pub(all) struct PageJobResult {
   /// Index of the page in the pages array
   page_index : Int

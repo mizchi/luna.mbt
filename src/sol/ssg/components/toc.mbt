@@ -1,4 +1,4 @@
-// Astra Components - Table of Contents
+// Sol SSG Components - Table of Contents
 // Right-side navigation for document pages
 
 ///|

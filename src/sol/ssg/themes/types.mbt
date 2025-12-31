@@ -1,4 +1,4 @@
-// Astra Themes - Type Definitions
+// Sol SSG Themes - Type Definitions
 // Defines the structure for customizable themes
 
 ///|

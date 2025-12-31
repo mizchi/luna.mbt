@@ -1,6 +1,6 @@
 ///|
 /// SSG Simulation Test - Verifies FileSystem trait works for SSG-like operations
-/// Simulate reading markdown and writing HTML (like Astra does)
+/// Simulate reading markdown and writing HTML (like SSG does)
 test "SSG simulation: read markdown and write HTML" {
   let fs = MemFSAdapter::new()
   let mem = fs.memfs()

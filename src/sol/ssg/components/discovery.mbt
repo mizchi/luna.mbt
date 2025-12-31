@@ -1,4 +1,4 @@
-// Component Discovery for Astra SSG
+// Component Discovery for Sol SSG
 // Convention-based component file detection
 
 // =============================================================================

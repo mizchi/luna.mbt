@@ -51,7 +51,7 @@ pub fn[FS : @env.FileSystem] find_config(
 }
 
 ///|
-/// Astra config file candidates in search order
+/// SSG config file candidates in search order
 pub let astra_config_candidates : Array[String] = [
   "astra.json", "website/astra.json", "docs/astra.json", "sol.config.json",
 ]

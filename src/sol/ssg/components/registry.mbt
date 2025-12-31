@@ -1,4 +1,4 @@
-// Astra Components - Pluggable Component Registry
+// Sol SSG Components - Pluggable Component Registry
 // Allows custom components to override defaults via convention
 
 // =============================================================================

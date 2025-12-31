@@ -1,4 +1,4 @@
-// Astra Components - Common Helpers
+// Sol SSG Components - Common Helpers
 // These helpers provide a consistent API for building SSR components
 
 ///|

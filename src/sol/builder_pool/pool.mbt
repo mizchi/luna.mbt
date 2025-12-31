@@ -1,10 +1,10 @@
-// Astra Builder Pool - Pool Implementation
+// Sol Builder Pool - Pool Implementation
 //
 // Uses sol/builder for generic worker pool infrastructure.
-// Provides Astra-specific convenience functions.
+// Provides SSG-specific convenience functions.
 
 // =============================================================================
-// Convenience Functions for Astra SSG
+// Convenience Functions for Sol SSG
 // =============================================================================
 
 ///|
@@ -53,7 +53,7 @@ pub async fn run_parallel_build(
   // Shutdown workers
   pool.shutdown()
 
-  // Convert to Astra-specific results
+  // Convert to SSG-specific results
   let page_results : Array[PageJobResult] = []
   let mut success_count = 0
   for r in results {

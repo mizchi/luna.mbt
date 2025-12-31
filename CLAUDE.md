@@ -7,8 +7,7 @@ MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
 | モジュール | 責務 | ドキュメント |
 |-----------|------|-------------|
 | **Luna** | コアUIライブラリ。Signal、VNode、DOM操作、CSS Utilities、Hydration | [src/luna/](src/luna/README.md), [src/platform/](src/platform/README.md) |
-| **Sol** | SSRフレームワーク。Hono統合、Middleware、Server Actions | [src/sol/](src/sol/README.md) |
-| **Astra** | SSG（静的サイトジェネレーター）。Markdown/MDX → HTML、Web Components | [src/astra/](src/astra/README.md) |
+| **Sol** | SSR/SSGフレームワーク。Hono統合、Middleware、Server Actions、SSG | [src/sol/](src/sol/README.md) |
 | **Stella** | Island埋め込み用Shard生成 | [src/stella/](src/stella/README.md) |
 
 ## ディレクトリ構成
@@ -19,18 +18,21 @@ src/
 ├── core/           # 共有型定義: Routes, Serialize, SSG Types
 ├── platform/       # DOM, JS API, Server DOM（プラットフォーム固有）
 ├── stella/         # Island埋め込み用Shard生成
-├── sol/            # SSRフレームワーク (Middleware, Server Actions)
-├── astra/          # SSG
+├── sol/            # SSR/SSGフレームワーク
+│   ├── ssg/        # SSG (静的サイト生成)
+│   ├── isr/        # ISR (Incremental Static Regeneration)
+│   ├── router/     # ルーティング
+│   └── cli/        # CLIツール
 ├── internal/       # 内部ユーティリティ
 └── _bench/         # ベンチマーク
 js/                 # NPMパッケージ (@luna_ui/luna)
 e2e/                # Playwrightテスト
-website/            # 公開ドキュメント（Astraで生成）
+website/            # 公開ドキュメント（Sol SSGで生成）
 spec/               # 仕様・設計ドキュメント
 examples/           # サンプルプロジェクト
 ```
 
-- `website/` は Astra でビルドされる公開ドキュメント
+- `website/` は Sol SSG でビルドされる公開ドキュメント
 - `spec/` は内部仕様・設計書（開発者向け）
 
 ## 開発コマンド
@@ -49,8 +51,7 @@ just test-integration         # Integration tests (Vitest, Browser)
 just test-e2e                 # E2E tests (Playwright)
 
 # テスト（プロダクト軸）
-just test-astra               # Astra 全テスト
-just test-sol                 # Sol 全テスト
+just test-sol                 # Sol 全テスト (SSG含む)
 just test-luna                # Luna 全テスト
 
 # ドキュメント
@@ -64,8 +65,7 @@ just build-doc                # docs ビルド
 - `moon fmt` でフォーマット統一
 - ローダーサイズは5KB以下を維持
 - luna(core): バンドルサイズが最優先
-- sol: --target native でサーバーで動くことを目指す。速度 > サイズ。
-- astra: next.js の static build みたいなもので、 sol と可能な限りコードを統合する
+- sol: --target native でサーバーで動くことを目指す。速度 > サイズ。SSG機能も含む
 - stella: 実験的なコードは含むが、コア部分はクローズドにする
 
 ## コミットメッセージ
@@ -87,11 +87,11 @@ just build-doc                # docs ビルド
 | `chore` | ビルド・CI など |
 | `deps` | 依存関係の更新 |
 
-scope は `luna`, `sol`, `astra`, `stella`, `ci`, `docs` など。
+scope は `luna`, `sol`, `stella`, `ci`, `docs` など。
 
 ```bash
 # 例
-feat(astra): add dynamic route support
+feat(sol): add dynamic route support
 fix(luna): resolve hydration mismatch
 docs: update README
 ```
@@ -106,9 +106,9 @@ docs: update README
 | Browser | `js/luna/tests/*.test.ts` | DOM操作、Hydration |
 | E2E | `e2e/**/*.test.ts` | SSR統合 |
 
-## Astra 設定オプション
+## SSG 設定オプション
 
-`astra.json` または `sol.config.json` の `ssg` セクションで設定可能。
+`sol.config.json` の `ssg` セクションで設定可能。
 
 ### メタファイル生成 (`metaFiles`)
 

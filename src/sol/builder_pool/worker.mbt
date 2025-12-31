@@ -1,4 +1,4 @@
-// Astra Builder Pool - Worker Entry Point
+// Sol Builder Pool - Worker Entry Point
 //
 // This module is the entry point for worker processes spawned by the WorkerPool.
 // Uses sol/builder for IPC infrastructure.

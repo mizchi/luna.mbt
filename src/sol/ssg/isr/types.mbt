@@ -1,6 +1,6 @@
-// Astra ISR Types
+// Sol SSG ISR Types
 //
-// Types are now defined in sol/isr for sharing between Astra and Sol.
+// Types are now defined in sol/isr for sharing between Sol SSG and Sol.
 // This file is kept for backwards compatibility but delegates to sol types.
 
 // Re-export sol manifest with additional builder function

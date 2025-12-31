@@ -1,7 +1,7 @@
 // JSON parsing utility functions
 //
 // Shared helpers for extracting values from JSON objects.
-// Used by both Astra (config.mbt) and Sol (cli/generate.mbt).
+// Used by both Sol SSG (config.mbt) and Sol (cli/generate.mbt).
 
 ///|
 /// Extract a string value from a JSON object with a default fallback

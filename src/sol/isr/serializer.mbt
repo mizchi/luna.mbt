@@ -1,6 +1,6 @@
 // ISR Manifest Serialization
 //
-// JSON serialization for ISR manifest (used by Astra at build time).
+// JSON serialization for ISR manifest (used by SSG at build time).
 
 // =============================================================================
 // JSON Serialization

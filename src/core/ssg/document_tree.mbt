@@ -4,7 +4,7 @@
 // Scanned from filesystem and can be converted to multiple output formats
 // (HTML, RSS, sitemap, llms.txt).
 //
-// These types are shared between Sol (SSR framework) and Astra (SSG).
+// These types are shared between Sol (SSR framework) and Sol SSG.
 
 // =============================================================================
 // Core Types

@@ -1,6 +1,6 @@
 // SSG Core Types - Backend-independent type definitions
 //
-// These types are shared between Sol (SSR framework) and Astra (SSG).
+// These types are shared between Sol (SSR framework) and Sol SSG.
 // They contain no runtime dependencies and can be used in any target.
 
 // =============================================================================

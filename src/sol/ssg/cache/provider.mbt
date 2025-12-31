@@ -1,9 +1,9 @@
-// Local File System Provider for Astra SSG
+// Local File System Provider for Sol SSG
 //
 // Implements BuildStateProvider using local file system hashes.
 
 ///|
-/// Astra version for cache invalidation
+/// Sol SSG version for cache invalidation
 pub let astra_version : String = "0.1.0"
 
 ///|
