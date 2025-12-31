@@ -1,6 +1,52 @@
 ///|
-/// Radix-style Toggle component for Luna
-/// Uses Declarative Shadow DOM with data-state attribute for styling
+/// Radix-style Toggle component for Luna (Headless)
+/// Outputs semantic HTML with data-* attributes for external CSS styling
+
+///|
+/// Create a headless toggle element
+/// Outputs: <button class="radix-toggle" type="button" data-state="..." data-size="..." aria-pressed="...">children</button>
+/// Style with external CSS using [data-state="..."] selectors
+pub fn radix_toggle(
+  pressed? : Bool,
+  disabled? : Bool,
+  size? : RadixSize,
+  children : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
+  let is_pressed = match pressed {
+    Some(true) => true
+    _ => false
+  }
+  let state = if is_pressed { "on" } else { "off" }
+  let size_val = match size {
+    Some(s) => s
+    None => Medium
+  }
+
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static("radix-toggle")),
+    ("type", @luna.attr_static("button")),
+    ("data-state", @luna.attr_static(state)),
+    ("data-size", @luna.attr_static(size_val.to_string())),
+    (
+      "aria-pressed",
+      @luna.attr_static(if is_pressed { "true" } else { "false" }),
+    ),
+  ]
+
+  match disabled {
+    Some(true) => {
+      attrs.push(("data-disabled", @luna.attr_static("")))
+      attrs.push(("disabled", @luna.attr_static("")))
+    }
+    _ => ()
+  }
+
+  @luna.h("button", attrs, children)
+}
+
+// =============================================================================
+// Styled version with DSD (Declarative Shadow DOM)
+// =============================================================================
 
 ///|
 /// CSS styles for the toggle component
@@ -60,12 +106,13 @@ fn toggle_styles() -> String {
 }
 
 ///|
-/// Create a radix-toggle element with Declarative Shadow DOM
-/// Toggle is like a button that can be pressed/unpressed
-pub fn radix_toggle(
+/// Create a styled toggle with Declarative Shadow DOM
+/// Uses inline CSS for zero CLS (Cumulative Layout Shift)
+pub fn radix_toggle_styled(
   pressed? : Bool,
   disabled? : Bool,
   size? : RadixSize,
+  styles? : String,
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let is_pressed = match pressed {
@@ -76,6 +123,11 @@ pub fn radix_toggle(
   let size_val = match size {
     Some(s) => s
     None => Medium
+  }
+
+  let css = match styles {
+    Some(s) => s
+    None => toggle_styles()
   }
 
   // Build toggle attributes
@@ -99,7 +151,7 @@ pub fn radix_toggle(
 
   // Build template content
   let template_children : Array[@luna.Node[Unit]] = [
-    @luna.h("style", [], [@luna.text(toggle_styles())]),
+    @luna.h("style", [], [@luna.text(css)]),
     @luna.h("button", toggle_attrs, [@luna.h("slot", [], [])]),
   ]
 
@@ -126,4 +178,62 @@ pub fn radix_toggle(
     _ => ()
   }
   @luna.h("radix-toggle", host_attrs, all_children)
+}
+
+// =============================================================================
+// Utility CSS version (luna/css integration)
+// =============================================================================
+
+///|
+/// Create a toggle with luna/css atomic styles
+/// Uses CSS utilities for SSR static extraction
+pub fn radix_toggle_ucss(
+  pressed? : Bool,
+  disabled? : Bool,
+  children : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
+  let is_pressed = match pressed {
+    Some(true) => true
+    _ => false
+  }
+  let state = if is_pressed { "on" } else { "off" }
+
+  // Build class names using luna/css
+  let mut class_names = toggle_base_styles() +
+    " " +
+    toggle_focus_styles() +
+    " " +
+    toggle_hover_styles()
+
+  // Add pressed styles
+  if is_pressed {
+    class_names = class_names + " " + toggle_pressed_styles()
+  }
+
+  // Add disabled styles if needed
+  match disabled {
+    Some(true) =>
+      class_names = class_names +
+        " " +
+        @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
+    _ => ()
+  }
+
+  // Build attributes
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static(class_names)),
+    ("type", @luna.attr_static("button")),
+    ("data-state", @luna.attr_static(state)),
+    (
+      "aria-pressed",
+      @luna.attr_static(if is_pressed { "true" } else { "false" }),
+    ),
+  ]
+
+  match disabled {
+    Some(true) => attrs.push(("disabled", @luna.attr_static("")))
+    _ => ()
+  }
+
+  @luna.h("button", attrs, children)
 }

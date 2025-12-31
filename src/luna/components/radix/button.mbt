@@ -1,11 +1,90 @@
 ///|
-/// Radix-style Button component for Luna
-/// Uses Declarative Shadow DOM with data-* attributes for styling
+/// Radix-style Button component for Luna (Headless)
+/// Outputs semantic HTML with data-* attributes for external CSS styling
 
 ///|
-/// CSS styles for the Radix button component
-/// Uses data-* attribute selectors like Radix UI
-fn button_styles() -> String {
+/// Button variant types (Radix/shadcn style)
+pub(all) enum RadixButtonVariant {
+  Default
+  Destructive
+  Outline
+  Secondary
+  Ghost
+  Link
+}
+
+///|
+pub fn RadixButtonVariant::to_string(self : RadixButtonVariant) -> String {
+  match self {
+    Default => "default"
+    Destructive => "destructive"
+    Outline => "outline"
+    Secondary => "secondary"
+    Ghost => "ghost"
+    Link => "link"
+  }
+}
+
+///|
+/// Size types
+pub(all) enum RadixSize {
+  Small
+  Medium
+  Large
+}
+
+///|
+pub fn RadixSize::to_string(self : RadixSize) -> String {
+  match self {
+    Small => "small"
+    Medium => "medium"
+    Large => "large"
+  }
+}
+
+///|
+/// Create a headless button element
+/// Outputs: <button class="radix-button" data-variant="..." data-size="...">children</button>
+/// Style with external CSS using [data-variant="..."] selectors
+pub fn radix_button(
+  variant? : RadixButtonVariant,
+  size? : RadixSize,
+  disabled? : Bool,
+  children : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
+  let variant_val = match variant {
+    Some(v) => v
+    None => Default
+  }
+  let size_val = match size {
+    Some(s) => s
+    None => Medium
+  }
+
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static("radix-button")),
+    ("data-variant", @luna.attr_static(variant_val.to_string())),
+    ("data-size", @luna.attr_static(size_val.to_string())),
+  ]
+
+  match disabled {
+    Some(true) => {
+      attrs.push(("data-disabled", @luna.attr_static("")))
+      attrs.push(("disabled", @luna.attr_static("")))
+    }
+    _ => ()
+  }
+
+  @luna.h("button", attrs, children)
+}
+
+// =============================================================================
+// Styled version with DSD (Declarative Shadow DOM)
+// =============================================================================
+
+///|
+/// Default CSS styles for the button component
+fn button_default_styles() -> String {
   let css =
     #|:host {
     #|  display: inline-block;
@@ -21,11 +100,7 @@ fn button_styles() -> String {
     #|  cursor: pointer;
     #|  font-family: inherit;
     #|  font-weight: 500;
-    #|  padding: 0.5em 1em;
-    #|  font-size: 0.875rem;
     #|  transition: all 0.15s ease;
-    #|  background: #18181b;
-    #|  color: white;
     #|}
     #|
     #|/* Size variants via data-size */
@@ -101,52 +176,13 @@ fn button_styles() -> String {
 }
 
 ///|
-/// Button variant types (Radix/shadcn style)
-pub(all) enum RadixButtonVariant {
-  Default
-  Destructive
-  Outline
-  Secondary
-  Ghost
-  Link
-}
-
-///|
-pub fn RadixButtonVariant::to_string(self : RadixButtonVariant) -> String {
-  match self {
-    Default => "default"
-    Destructive => "destructive"
-    Outline => "outline"
-    Secondary => "secondary"
-    Ghost => "ghost"
-    Link => "link"
-  }
-}
-
-///|
-/// Size types
-pub(all) enum RadixSize {
-  Small
-  Medium
-  Large
-}
-
-///|
-pub fn RadixSize::to_string(self : RadixSize) -> String {
-  match self {
-    Small => "small"
-    Medium => "medium"
-    Large => "large"
-  }
-}
-
-///|
-/// Create a radix-button element with Declarative Shadow DOM
-/// Uses data-* attributes for styling (Radix UI pattern)
-pub fn radix_button(
+/// Create a styled button with Declarative Shadow DOM
+/// Uses inline CSS for zero CLS (Cumulative Layout Shift)
+pub fn radix_button_styled(
   variant? : RadixButtonVariant,
   size? : RadixSize,
   disabled? : Bool,
+  styles? : String,
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let variant_val = match variant {
@@ -158,20 +194,29 @@ pub fn radix_button(
     None => Medium
   }
 
+  let css = match styles {
+    Some(s) => s
+    None => button_default_styles()
+  }
+
   // Build button attributes with data-* for styling
   let button_attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("button")),
     ("data-variant", @luna.attr_static(variant_val.to_string())),
     ("data-size", @luna.attr_static(size_val.to_string())),
   ]
+
   match disabled {
-    Some(true) => button_attrs.push(("data-disabled", @luna.attr_static("")))
+    Some(true) => {
+      button_attrs.push(("data-disabled", @luna.attr_static("")))
+      button_attrs.push(("disabled", @luna.attr_static("")))
+    }
     _ => ()
   }
 
   // Build the shadow DOM template content
   let template_children : Array[@luna.Node[Unit]] = [
-    @luna.h("style", [], [@luna.text(button_styles())]),
+    @luna.h("style", [], [@luna.text(css)]),
     @luna.h("button", button_attrs, [@luna.h("slot", [], [])]),
   ]
 
@@ -188,5 +233,60 @@ pub fn radix_button(
   for child in children {
     all_children.push(child)
   }
+
   @luna.h("radix-button", [], all_children)
+}
+
+// =============================================================================
+// Utility CSS version (luna/css integration)
+// =============================================================================
+
+///|
+/// Create a button with luna/css atomic styles
+/// Uses CSS utilities for SSR static extraction
+/// Call @css.generate_full_css() to get all collected CSS
+pub fn radix_button_ucss(
+  variant? : RadixButtonVariant,
+  size? : RadixSize,
+  disabled? : Bool,
+  children : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
+  let variant_val = match variant {
+    Some(v) => v
+    None => Default
+  }
+  let size_val = match size {
+    Some(s) => s
+    None => Medium
+  }
+
+  // Build class names using luna/css
+  let mut class_names = button_base_styles() +
+    " " +
+    button_size_styles(size_val) +
+    " " +
+    button_variant_styles(variant_val) +
+    " " +
+    button_focus_styles()
+
+  // Add disabled styles if needed
+  match disabled {
+    Some(true) => class_names = class_names + " " + button_disabled_styles()
+    _ => ()
+  }
+
+  // Build attributes
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static(class_names)),
+  ]
+
+  match disabled {
+    Some(true) => {
+      attrs.push(("disabled", @luna.attr_static("")))
+      attrs.push(("aria-disabled", @luna.attr_static("true")))
+    }
+    _ => ()
+  }
+
+  @luna.h("button", attrs, children)
 }

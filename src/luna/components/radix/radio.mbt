@@ -1,6 +1,6 @@
 ///|
-/// Radix-style Radio Group component for Luna
-/// Uses Declarative Shadow DOM with data-* attributes for styling
+/// Radix-style Radio Group component for Luna (Headless)
+/// Outputs semantic HTML with data-* attributes for external CSS styling
 
 ///|
 /// Radio option
@@ -19,6 +19,114 @@ pub fn radio_option(
 ) -> RadioOption {
   { value, label, disabled: disabled.unwrap_or(false) }
 }
+
+///|
+/// Orientation for radio group
+pub(all) enum Orientation {
+  Vertical
+  Horizontal
+}
+
+///|
+pub fn Orientation::to_string(self : Orientation) -> String {
+  match self {
+    Vertical => "vertical"
+    Horizontal => "horizontal"
+  }
+}
+
+///|
+/// Build a single headless radio item
+fn build_radio_item_headless(
+  name : String,
+  opt : RadioOption,
+  selected_value : String?,
+  group_disabled : Bool,
+  group_required : Bool,
+) -> @luna.Node[Unit] {
+  let input_attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("type", @luna.attr_static("radio")),
+    ("class", @luna.attr_static("radix-radio")),
+    ("name", @luna.attr_static(name)),
+    ("value", @luna.attr_static(opt.value)),
+  ]
+
+  // Check if this option is selected
+  match selected_value {
+    Some(v) =>
+      if v == opt.value {
+        input_attrs.push(("checked", @luna.attr_static("")))
+      }
+    None => ()
+  }
+
+  // Handle disabled state
+  if opt.disabled || group_disabled {
+    input_attrs.push(("disabled", @luna.attr_static("")))
+  }
+  if group_required {
+    input_attrs.push(("required", @luna.attr_static("")))
+  }
+
+  @luna.h("label", [("class", @luna.attr_static("radix-radio-item"))], [
+    @luna.h("input", input_attrs, []),
+    @luna.h("span", [("class", @luna.attr_static("radix-radio-label"))], [
+      @luna.text(opt.label),
+    ]),
+  ])
+}
+
+///|
+/// Create a headless radio group
+/// Outputs: <div class="radix-radio-group" role="radiogroup" data-orientation="...">items</div>
+/// Style with external CSS
+pub fn radix_radio_group(
+  name : String,
+  options : Array[RadioOption],
+  label? : String,
+  value? : String,
+  orientation? : Orientation,
+  disabled? : Bool,
+  required? : Bool,
+) -> @luna.Node[Unit] {
+  let orient = match orientation {
+    Some(o) => o
+    None => Vertical
+  }
+  let group_disabled = match disabled {
+    Some(true) => true
+    _ => false
+  }
+  let group_required = match required {
+    Some(true) => true
+    _ => false
+  }
+
+  // Build radio items using map
+  let items : Array[@luna.Node[Unit]] = options.map(fn(opt) {
+    build_radio_item_headless(name, opt, value, group_disabled, group_required)
+  })
+
+  // Build attrs
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static("radix-radio-group")),
+    ("role", @luna.attr_static("radiogroup")),
+    ("data-orientation", @luna.attr_static(orient.to_string())),
+  ]
+
+  if group_disabled {
+    attrs.push(("data-disabled", @luna.attr_static("")))
+  }
+
+  // For headless, label is ignored
+  let _ = label
+
+  @luna.h("div", attrs, items)
+}
+
+// =============================================================================
+// Styled version with DSD (Declarative Shadow DOM)
+// =============================================================================
 
 ///|
 /// CSS styles for the radio group component
@@ -103,23 +211,8 @@ fn radio_styles() -> String {
 }
 
 ///|
-/// Orientation for radio group
-pub(all) enum Orientation {
-  Vertical
-  Horizontal
-}
-
-///|
-pub fn Orientation::to_string(self : Orientation) -> String {
-  match self {
-    Vertical => "vertical"
-    Horizontal => "horizontal"
-  }
-}
-
-///|
-/// Build a single radio item
-fn build_radio_item(
+/// Build a single styled radio item
+fn build_radio_item_styled(
   name : String,
   opt : RadioOption,
   selected_value : String?,
@@ -158,8 +251,9 @@ fn build_radio_item(
 }
 
 ///|
-/// Create a radix-radio-group element with Declarative Shadow DOM
-pub fn radix_radio_group(
+/// Create a styled radio group with Declarative Shadow DOM
+/// Uses inline CSS for zero CLS (Cumulative Layout Shift)
+pub fn radix_radio_group_styled(
   name : String,
   options : Array[RadioOption],
   label? : String,
@@ -167,6 +261,7 @@ pub fn radix_radio_group(
   orientation? : Orientation,
   disabled? : Bool,
   required? : Bool,
+  styles? : String,
 ) -> @luna.Node[Unit] {
   let orient = match orientation {
     Some(o) => o
@@ -181,6 +276,11 @@ pub fn radix_radio_group(
     _ => false
   }
 
+  let css = match styles {
+    Some(s) => s
+    None => radio_styles()
+  }
+
   // Build radio group attributes
   let group_attrs : Array[(String, @luna.Attr[Unit])] = [
     ("class", @luna.attr_static("radio-group")),
@@ -190,7 +290,7 @@ pub fn radix_radio_group(
 
   // Build radio items using map
   let items : Array[@luna.Node[Unit]] = options.map(fn(opt) {
-    build_radio_item(name, opt, value, group_disabled, group_required)
+    build_radio_item_styled(name, opt, value, group_disabled, group_required)
   })
 
   // Build wrapper content
@@ -212,7 +312,7 @@ pub fn radix_radio_group(
 
   // Build template content
   let template_children : Array[@luna.Node[Unit]] = [
-    @luna.h("style", [], [@luna.text(radio_styles())]),
+    @luna.h("style", [], [@luna.text(css)]),
     @luna.fragment(wrapper_children),
   ]
 
@@ -232,4 +332,100 @@ pub fn radix_radio_group(
       template_children,
     ),
   ])
+}
+
+// =============================================================================
+// Utility CSS version (luna/css integration)
+// =============================================================================
+
+///|
+/// Build a single radio item with luna/css styles
+fn build_radio_item_ucss(
+  name : String,
+  opt : RadioOption,
+  selected_value : String?,
+  group_disabled : Bool,
+  group_required : Bool,
+) -> @luna.Node[Unit] {
+  // Build input class names
+  let input_class = radio_control_styles() + " " + radio_control_focus_styles()
+
+  let input_attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("type", @luna.attr_static("radio")),
+    ("class", @luna.attr_static(input_class)),
+    ("name", @luna.attr_static(name)),
+    ("value", @luna.attr_static(opt.value)),
+  ]
+
+  // Check if this option is selected
+  match selected_value {
+    Some(v) =>
+      if v == opt.value {
+        input_attrs.push(("checked", @luna.attr_static("")))
+      }
+    None => ()
+  }
+
+  // Handle disabled state
+  if opt.disabled || group_disabled {
+    input_attrs.push(("disabled", @luna.attr_static("")))
+  }
+  if group_required {
+    input_attrs.push(("required", @luna.attr_static("")))
+  }
+
+  let label_class = radio_label_styles()
+
+  @luna.h("label", [("class", @luna.attr_static(radio_item_styles()))], [
+    @luna.h("input", input_attrs, []),
+    @luna.h("span", [("class", @luna.attr_static(label_class))], [
+      @luna.text(opt.label),
+    ]),
+  ])
+}
+
+///|
+/// Create a radio group with luna/css atomic styles
+/// Uses CSS utilities for SSR static extraction
+pub fn radix_radio_group_ucss(
+  name : String,
+  options : Array[RadioOption],
+  value? : String,
+  orientation? : Orientation,
+  disabled? : Bool,
+  required? : Bool,
+) -> @luna.Node[Unit] {
+  let orient = match orientation {
+    Some(o) => o
+    None => Vertical
+  }
+  let group_disabled = match disabled {
+    Some(true) => true
+    _ => false
+  }
+  let group_required = match required {
+    Some(true) => true
+    _ => false
+  }
+
+  // Build class names using luna/css
+  let mut class_names = radio_group_base_styles()
+  match orient {
+    Horizontal =>
+      class_names = class_names + " " + radio_group_horizontal_styles()
+    Vertical => ()
+  }
+
+  // Build radio items using map
+  let items : Array[@luna.Node[Unit]] = options.map(fn(opt) {
+    build_radio_item_ucss(name, opt, value, group_disabled, group_required)
+  })
+
+  // Build attrs
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static(class_names)),
+    ("role", @luna.attr_static("radiogroup")),
+  ]
+
+  @luna.h("div", attrs, items)
 }

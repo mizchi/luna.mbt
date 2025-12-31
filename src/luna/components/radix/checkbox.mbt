@@ -1,6 +1,67 @@
 ///|
-/// Radix-style Checkbox component for Luna
-/// Uses Declarative Shadow DOM with data-state attribute for styling
+/// Radix-style Checkbox component for Luna (Headless)
+/// Outputs semantic HTML with data-* attributes for external CSS styling
+
+///|
+/// Checkbox state
+pub(all) enum CheckboxState {
+  Checked
+  Unchecked
+  Indeterminate
+}
+
+///|
+pub fn CheckboxState::to_string(self : CheckboxState) -> String {
+  match self {
+    Checked => "checked"
+    Unchecked => "unchecked"
+    Indeterminate => "indeterminate"
+  }
+}
+
+///|
+/// Create a headless checkbox element
+/// Outputs: <button class="radix-checkbox" role="checkbox" data-state="..." aria-checked="...">children</button>
+/// Style with external CSS using [data-state="..."] selectors
+pub fn radix_checkbox(
+  checked? : CheckboxState,
+  disabled? : Bool,
+  children : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
+  let state = match checked {
+    Some(s) => s
+    None => Unchecked
+  }
+
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static("radix-checkbox")),
+    ("role", @luna.attr_static("checkbox")),
+    ("data-state", @luna.attr_static(state.to_string())),
+  ]
+
+  // Add aria-checked based on state
+  let aria_checked = match state {
+    Checked => "true"
+    Unchecked => "false"
+    Indeterminate => "mixed"
+  }
+  attrs.push(("aria-checked", @luna.attr_static(aria_checked)))
+
+  match disabled {
+    Some(true) => {
+      attrs.push(("data-disabled", @luna.attr_static("")))
+      attrs.push(("disabled", @luna.attr_static("")))
+      attrs.push(("aria-disabled", @luna.attr_static("true")))
+    }
+    _ => ()
+  }
+
+  @luna.h("button", attrs, children)
+}
+
+// =============================================================================
+// Styled version with DSD (Declarative Shadow DOM)
+// =============================================================================
 
 ///|
 /// CSS styles for the Radix checkbox component
@@ -88,33 +149,22 @@ fn checkbox_styles() -> String {
 }
 
 ///|
-/// Checkbox state
-pub(all) enum CheckboxState {
-  Checked
-  Unchecked
-  Indeterminate
-}
-
-///|
-pub fn CheckboxState::to_string(self : CheckboxState) -> String {
-  match self {
-    Checked => "checked"
-    Unchecked => "unchecked"
-    Indeterminate => "indeterminate"
-  }
-}
-
-///|
-/// Create a radix-checkbox element with Declarative Shadow DOM
-/// Uses data-state attribute for styling (Radix UI pattern)
-pub fn radix_checkbox(
+/// Create a styled checkbox with Declarative Shadow DOM
+/// Uses inline CSS for zero CLS (Cumulative Layout Shift)
+pub fn radix_checkbox_styled(
   checked? : CheckboxState,
   disabled? : Bool,
+  styles? : String,
   children : Array[@luna.Node[Unit]],
 ) -> @luna.Node[Unit] {
   let state = match checked {
     Some(s) => s
     None => Unchecked
+  }
+
+  let css = match styles {
+    Some(s) => s
+    None => checkbox_styles()
   }
 
   // Build checkbox button attributes
@@ -166,7 +216,7 @@ pub fn radix_checkbox(
 
   // Build template content
   let template_children : Array[@luna.Node[Unit]] = [
-    @luna.h("style", [], [@luna.text(checkbox_styles())]),
+    @luna.h("style", [], [@luna.text(css)]),
     @luna.h(
       "span",
       [("class", @luna.attr_static("checkbox-wrapper"))],
@@ -197,4 +247,66 @@ pub fn radix_checkbox(
     _ => ()
   }
   @luna.h("radix-checkbox", host_attrs, all_children)
+}
+
+// =============================================================================
+// Utility CSS version (luna/css integration)
+// =============================================================================
+
+///|
+/// Create a checkbox with luna/css atomic styles
+/// Uses CSS utilities for SSR static extraction
+pub fn radix_checkbox_ucss(
+  checked? : CheckboxState,
+  disabled? : Bool,
+  children : Array[@luna.Node[Unit]],
+) -> @luna.Node[Unit] {
+  let state = match checked {
+    Some(s) => s
+    None => Unchecked
+  }
+
+  // Build class names using luna/css
+  let mut class_names = checkbox_root_styles() + " " + checkbox_focus_styles()
+
+  // Add checked styles
+  match state {
+    Checked | Indeterminate =>
+      class_names = class_names + " " + checkbox_checked_styles()
+    Unchecked => ()
+  }
+
+  // Add disabled styles if needed
+  match disabled {
+    Some(true) =>
+      class_names = class_names +
+        " " +
+        @css.styles([("opacity", "0.5"), ("cursor", "not-allowed")])
+    _ => ()
+  }
+
+  // Build attributes
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static(class_names)),
+    ("role", @luna.attr_static("checkbox")),
+    ("data-state", @luna.attr_static(state.to_string())),
+  ]
+
+  // Add aria-checked based on state
+  let aria_checked = match state {
+    Checked => "true"
+    Unchecked => "false"
+    Indeterminate => "mixed"
+  }
+  attrs.push(("aria-checked", @luna.attr_static(aria_checked)))
+
+  match disabled {
+    Some(true) => {
+      attrs.push(("disabled", @luna.attr_static("")))
+      attrs.push(("aria-disabled", @luna.attr_static("true")))
+    }
+    _ => ()
+  }
+
+  @luna.h("button", attrs, children)
 }

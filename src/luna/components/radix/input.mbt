@@ -1,6 +1,6 @@
 ///|
-/// Radix-style Input component for Luna
-/// Uses Declarative Shadow DOM with data-* attributes for styling
+/// Radix-style Input component for Luna (Headless)
+/// Outputs semantic HTML with data-* attributes for external CSS styling
 
 ///|
 /// Input type variants
@@ -28,6 +28,87 @@ pub fn InputType::to_string(self : InputType) -> String {
     Date => "date"
   }
 }
+
+///|
+/// Create a headless input element
+/// Outputs: <input class="radix-input" type="..." data-size="..." .../>
+/// Style with external CSS using [data-size="..."] selectors
+pub fn radix_input(
+  type_? : InputType,
+  label? : String,
+  placeholder? : String,
+  value? : String,
+  size? : RadixSize,
+  disabled? : Bool,
+  readonly_? : Bool,
+  required? : Bool,
+  help_text? : String,
+  minlength? : Int,
+  maxlength? : Int,
+  pattern? : String,
+) -> @luna.Node[Unit] {
+  let type_val = match type_ {
+    Some(t) => t
+    None => Text
+  }
+  let size_val = match size {
+    Some(s) => s
+    None => Medium
+  }
+
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static("radix-input")),
+    ("type", @luna.attr_static(type_val.to_string())),
+    ("data-size", @luna.attr_static(size_val.to_string())),
+  ]
+
+  match placeholder {
+    Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
+    None => ()
+  }
+  match value {
+    Some(v) => attrs.push(("value", @luna.attr_static(v)))
+    None => ()
+  }
+  match disabled {
+    Some(true) => {
+      attrs.push(("data-disabled", @luna.attr_static("")))
+      attrs.push(("disabled", @luna.attr_static("")))
+    }
+    _ => ()
+  }
+  match readonly_ {
+    Some(true) => attrs.push(("readonly", @luna.attr_static("")))
+    _ => ()
+  }
+  match required {
+    Some(true) => attrs.push(("required", @luna.attr_static("")))
+    _ => ()
+  }
+  match minlength {
+    Some(n) => attrs.push(("minlength", @luna.attr_static(n.to_string())))
+    None => ()
+  }
+  match maxlength {
+    Some(n) => attrs.push(("maxlength", @luna.attr_static(n.to_string())))
+    None => ()
+  }
+  match pattern {
+    Some(p) => attrs.push(("pattern", @luna.attr_static(p)))
+    None => ()
+  }
+
+  // For headless, we just output input. Label/help_text are ignored in headless mode.
+  // Users should wrap with their own label structure.
+  let _ = label
+  let _ = help_text
+
+  @luna.h("input", attrs, [])
+}
+
+// =============================================================================
+// Styled version with DSD (Declarative Shadow DOM)
+// =============================================================================
 
 ///|
 /// CSS styles for the input component
@@ -95,9 +176,9 @@ fn input_styles() -> String {
 }
 
 ///|
-/// Create a radix-input element with Declarative Shadow DOM
-/// Uses data-* attributes for styling (Radix UI pattern)
-pub fn radix_input(
+/// Create a styled input with Declarative Shadow DOM
+/// Uses inline CSS for zero CLS (Cumulative Layout Shift)
+pub fn radix_input_styled(
   type_? : InputType,
   label? : String,
   placeholder? : String,
@@ -110,6 +191,7 @@ pub fn radix_input(
   minlength? : Int,
   maxlength? : Int,
   pattern? : String,
+  styles? : String,
 ) -> @luna.Node[Unit] {
   let type_val = match type_ {
     Some(t) => t
@@ -118,6 +200,11 @@ pub fn radix_input(
   let size_val = match size {
     Some(s) => s
     None => Medium
+  }
+
+  let css = match styles {
+    Some(s) => s
+    None => input_styles()
   }
 
   // Build input attributes with data-* for styling
@@ -192,7 +279,7 @@ pub fn radix_input(
 
   // Build template content
   let template_children : Array[@luna.Node[Unit]] = [
-    @luna.h("style", [], [@luna.text(input_styles())]),
+    @luna.h("style", [], [@luna.text(css)]),
     @luna.h(
       "div",
       [("class", @luna.attr_static("input-wrapper"))],
@@ -215,4 +302,72 @@ pub fn radix_input(
       template_children,
     ),
   ])
+}
+
+// =============================================================================
+// Utility CSS version (luna/css integration)
+// =============================================================================
+
+///|
+/// Create an input with luna/css atomic styles
+/// Uses CSS utilities for SSR static extraction
+pub fn radix_input_ucss(
+  type_? : InputType,
+  placeholder? : String,
+  value? : String,
+  size? : RadixSize,
+  disabled? : Bool,
+  readonly_? : Bool,
+  required? : Bool,
+) -> @luna.Node[Unit] {
+  let type_val = match type_ {
+    Some(t) => t
+    None => Text
+  }
+  let size_val = match size {
+    Some(s) => s
+    None => Medium
+  }
+
+  // Build class names using luna/css
+  let mut class_names = input_base_styles() +
+    " " +
+    input_size_styles(size_val) +
+    " " +
+    input_focus_styles()
+
+  // Add disabled styles if needed
+  match disabled {
+    Some(true) => class_names = class_names + " " + input_disabled_styles()
+    _ => ()
+  }
+
+  // Build attributes
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static(class_names)),
+    ("type", @luna.attr_static(type_val.to_string())),
+  ]
+
+  match placeholder {
+    Some(p) => attrs.push(("placeholder", @luna.attr_static(p)))
+    None => ()
+  }
+  match value {
+    Some(v) => attrs.push(("value", @luna.attr_static(v)))
+    None => ()
+  }
+  match disabled {
+    Some(true) => attrs.push(("disabled", @luna.attr_static("")))
+    _ => ()
+  }
+  match readonly_ {
+    Some(true) => attrs.push(("readonly", @luna.attr_static("")))
+    _ => ()
+  }
+  match required {
+    Some(true) => attrs.push(("required", @luna.attr_static("")))
+    _ => ()
+  }
+
+  @luna.h("input", attrs, [])
 }

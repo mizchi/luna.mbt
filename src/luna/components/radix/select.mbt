@@ -1,6 +1,6 @@
 ///|
-/// Radix-style Select component for Luna
-/// Uses Declarative Shadow DOM with data-* attributes for styling
+/// Radix-style Select component for Luna (Headless)
+/// Outputs semantic HTML with data-* attributes for external CSS styling
 
 ///|
 /// Select option
@@ -19,6 +19,90 @@ pub fn select_option(
 ) -> SelectOption {
   { value, label, disabled: disabled.unwrap_or(false) }
 }
+
+///|
+/// Create a headless select element
+/// Outputs: <select class="radix-select" data-size="...">options</select>
+/// Style with external CSS
+pub fn radix_select(
+  options : Array[SelectOption],
+  label? : String,
+  placeholder? : String,
+  value? : String,
+  size? : RadixSize,
+  disabled? : Bool,
+  required? : Bool,
+  help_text? : String,
+) -> @luna.Node[Unit] {
+  let size_val = match size {
+    Some(s) => s
+    None => Medium
+  }
+
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static("radix-select")),
+    ("data-size", @luna.attr_static(size_val.to_string())),
+  ]
+  match disabled {
+    Some(true) => {
+      attrs.push(("data-disabled", @luna.attr_static("")))
+      attrs.push(("disabled", @luna.attr_static("")))
+    }
+    _ => ()
+  }
+  match required {
+    Some(true) => attrs.push(("required", @luna.attr_static("")))
+    _ => ()
+  }
+
+  // Build options
+  let option_nodes : Array[@luna.Node[Unit]] = []
+
+  // Add placeholder option if provided
+  match placeholder {
+    Some(p) =>
+      option_nodes.push(
+        @luna.h(
+          "option",
+          [
+            ("value", @luna.attr_static("")),
+            ("disabled", @luna.attr_static("")),
+            ("selected", @luna.attr_static("")),
+          ],
+          [@luna.text(p)],
+        ),
+      )
+    None => ()
+  }
+
+  // Add options
+  for opt in options {
+    let opt_attrs : Array[(String, @luna.Attr[Unit])] = [
+      ("value", @luna.attr_static(opt.value)),
+    ]
+    if opt.disabled {
+      opt_attrs.push(("disabled", @luna.attr_static("")))
+    }
+    match value {
+      Some(v) =>
+        if v == opt.value {
+          opt_attrs.push(("selected", @luna.attr_static("")))
+        }
+      None => ()
+    }
+    option_nodes.push(@luna.h("option", opt_attrs, [@luna.text(opt.label)]))
+  }
+
+  // For headless, we just output select. Label/help_text are ignored.
+  let _ = label
+  let _ = help_text
+
+  @luna.h("select", attrs, option_nodes)
+}
+
+// =============================================================================
+// Styled version with DSD (Declarative Shadow DOM)
+// =============================================================================
 
 ///|
 /// CSS styles for the select component
@@ -87,8 +171,9 @@ fn select_styles() -> String {
 }
 
 ///|
-/// Create a radix-select element with Declarative Shadow DOM
-pub fn radix_select(
+/// Create a styled select with Declarative Shadow DOM
+/// Uses inline CSS for zero CLS (Cumulative Layout Shift)
+pub fn radix_select_styled(
   options : Array[SelectOption],
   label? : String,
   placeholder? : String,
@@ -97,10 +182,16 @@ pub fn radix_select(
   disabled? : Bool,
   required? : Bool,
   help_text? : String,
+  styles? : String,
 ) -> @luna.Node[Unit] {
   let size_val = match size {
     Some(s) => s
     None => Medium
+  }
+
+  let css = match styles {
+    Some(s) => s
+    None => select_styles()
   }
 
   // Build select attributes
@@ -188,7 +279,7 @@ pub fn radix_select(
 
   // Build template content
   let template_children : Array[@luna.Node[Unit]] = [
-    @luna.h("style", [], [@luna.text(select_styles())]),
+    @luna.h("style", [], [@luna.text(css)]),
     @luna.h(
       "div",
       [("class", @luna.attr_static("select-wrapper"))],
@@ -211,4 +302,91 @@ pub fn radix_select(
       template_children,
     ),
   ])
+}
+
+// =============================================================================
+// Utility CSS version (luna/css integration)
+// =============================================================================
+
+///|
+/// Create a select with luna/css atomic styles
+/// Uses CSS utilities for SSR static extraction
+pub fn radix_select_ucss(
+  options : Array[SelectOption],
+  placeholder? : String,
+  value? : String,
+  size? : RadixSize,
+  disabled? : Bool,
+  required? : Bool,
+) -> @luna.Node[Unit] {
+  let size_val = match size {
+    Some(s) => s
+    None => Medium
+  }
+
+  // Build class names using luna/css
+  let mut class_names = select_base_styles() +
+    " " +
+    select_size_styles(size_val) +
+    " " +
+    select_focus_styles()
+
+  // Add disabled styles if needed
+  match disabled {
+    Some(true) => class_names = class_names + " " + select_disabled_styles()
+    _ => ()
+  }
+
+  // Build attributes
+  let attrs : Array[(String, @luna.Attr[Unit])] = [
+    ("class", @luna.attr_static(class_names)),
+  ]
+  match disabled {
+    Some(true) => attrs.push(("disabled", @luna.attr_static("")))
+    _ => ()
+  }
+  match required {
+    Some(true) => attrs.push(("required", @luna.attr_static("")))
+    _ => ()
+  }
+
+  // Build options
+  let option_nodes : Array[@luna.Node[Unit]] = []
+
+  // Add placeholder option if provided
+  match placeholder {
+    Some(p) =>
+      option_nodes.push(
+        @luna.h(
+          "option",
+          [
+            ("value", @luna.attr_static("")),
+            ("disabled", @luna.attr_static("")),
+            ("selected", @luna.attr_static("")),
+          ],
+          [@luna.text(p)],
+        ),
+      )
+    None => ()
+  }
+
+  // Add options
+  for opt in options {
+    let opt_attrs : Array[(String, @luna.Attr[Unit])] = [
+      ("value", @luna.attr_static(opt.value)),
+    ]
+    if opt.disabled {
+      opt_attrs.push(("disabled", @luna.attr_static("")))
+    }
+    match value {
+      Some(v) =>
+        if v == opt.value {
+          opt_attrs.push(("selected", @luna.attr_static("")))
+        }
+      None => ()
+    }
+    option_nodes.push(@luna.h("option", opt_attrs, [@luna.text(opt.label)]))
+  }
+
+  @luna.h("select", attrs, option_nodes)
 }
