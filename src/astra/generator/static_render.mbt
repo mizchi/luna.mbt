@@ -1461,223 +1461,214 @@ fn build_html_document(
   frontmatter : @astra.Frontmatter,
   render_result : @render.SSRResult,
 ) -> String {
+  let html = StringBuilder::new()
   let page_title = frontmatter.title.unwrap_or(ctx.config.title)
   let desc = frontmatter.description.unwrap_or("")
-  let desc_tag = if desc.is_empty() {
-    ""
-  } else {
-    "\n  <meta name=\"description\" content=\"\{desc}\">"
-  }
-  let robots_tag = if frontmatter.noindex {
-    "\n  <meta name=\"robots\" content=\"noindex\">"
-  } else {
-    ""
-  }
   let base = ctx.config.base_url
-
-  // Generate preload tags for islands
-  let preloads = if render_result.preload_urls.length() > 0 {
-    @render.generate_preload_tags(render_result.preload_urls)
-  } else {
-    ""
-  }
-
-  // Generate prefetch tags for prev/next pages
-  let prefetch_tags = {
-    let tags = StringBuilder::new()
-    let prev = @routes.find_prev_page(ctx.pages, page.url_path)
-    let next = @routes.find_next_page(ctx.pages, page.url_path)
-    if prev is Some(link) {
-      tags.write_string("\n  <link rel=\"prefetch\" href=\"\{link.link}\">")
-    }
-    if next is Some(link) {
-      tags.write_string("\n  <link rel=\"prefetch\" href=\"\{link.link}\">")
-    }
-    tags.to_string()
-  }
-
-  // Primary color CSS variable
   let primary = ctx.config.theme.primary_color.unwrap_or("#3451b2")
 
-  // Combine all CSS into inline style (eliminates render-blocking external CSS)
-  let main_css = @assets.get_default_css(ctx.config)
-  let markdown_css = @assets.get_github_markdown_css()
-  let shiki_css = @shiki.generate_shiki_css()
-  let all_css = main_css + "\n" + markdown_css + "\n" + shiki_css
-  let combined_css = minify_css(all_css)
+  // === HEAD: Document metadata ===
+  html.write_string("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n")
+  html.write_string("  <meta charset=\"UTF-8\">\n")
+  html.write_string("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
+  html.write_string("  <title>\{page_title}</title>\n")
 
-  // Get page order for current locale
-  let page_order = get_page_order(ctx.pages, page.locale)
+  // Description meta tag
+  if not(desc.is_empty()) {
+    html.write_string("  <meta name=\"description\" content=\"\{desc}\">\n")
+  }
 
-  // Navigation script for SPA/View Transitions
-  let nav_script = @assets.build_navigation_script(
-    page_order,
-    ctx.config.navigation,
-  )
+  // Robots meta tag
+  if frontmatter.noindex {
+    html.write_string("  <meta name=\"robots\" content=\"noindex\">\n")
+  }
 
-  // Theme initialization script (runs early to prevent flash)
+  // OGP meta tags
+  write_ogp_meta_tags(html, ctx, page, frontmatter)
+
+  // Custom OGP text
+  if ctx.config.ogp_text is Some(text) {
+    html.write_string("  \{text}\n")
+  }
+
+  // === HEAD: Preload and prefetch ===
+  html.write_string("  <link rel=\"modulepreload\" href=\"\{base}assets/loader.js\">\n")
+
+  // Preload tags for islands
+  if render_result.preload_urls.length() > 0 {
+    html.write_string(@render.generate_preload_tags(render_result.preload_urls))
+  }
+
+  // Prefetch prev/next pages
+  write_prefetch_tags(html, ctx.pages, page.url_path)
+
+  // === HEAD: Critical inline scripts ===
+  // Theme script (runs early to prevent flash of unstyled content)
   let theme_script = @assets.get_theme_script()
+  html.write_string("  <script>\{theme_script}</script>\n")
 
-  // Sidebar state script
-  let sidebar_script = @assets.get_sidebar_script()
+  // === HEAD: Inline critical CSS ===
+  let combined_css = build_combined_css(ctx.config, primary)
+  html.write_string("  <style>\{combined_css}</style>\n")
 
-  // TOC scroll spy script
-  let toc_script = @assets.get_toc_script()
-
-  // Web Components loader script
-  let wc_loader_script = @assets.get_wc_loader_script()
-
-  // Generate OGP meta tags
-  let ogp_tags = build_ogp_meta_tags(ctx, page, frontmatter)
-
-  // Custom OGP text (added after generated OGP tags)
-  let ogp_text = match ctx.config.ogp_text {
-    Some(text) => "\n  " + text
-    None => ""
+  // Custom head snippets
+  for snippet in ctx.config.head_snippets {
+    html.write_string("  \{snippet}\n")
   }
 
-  // Custom HTML snippets
-  let head_snippets = if ctx.config.head_snippets.length() > 0 {
-    "\n  " + ctx.config.head_snippets.join("\n  ")
-  } else {
-    ""
+  html.write_string("</head>\n")
+
+  // === BODY: Content ===
+  html.write_string("<body>\n")
+  html.write_string("  <div id=\"app\">\{render_result.html}</div>\n")
+
+  // === BODY: Deferred scripts ===
+  // Island loader (module, async)
+  html.write_string("  <script type=\"module\" async src=\"\{base}assets/loader.js\"></script>\n")
+
+  // Web Components loader
+  html.write_string(@assets.get_wc_loader_script())
+  html.write_string("\n")
+
+  // Navigation script (keyboard shortcuts, View Transitions)
+  let page_order = get_page_order(ctx.pages, page.locale)
+  html.write_string(@assets.build_navigation_script(page_order, ctx.config.navigation))
+  html.write_string("\n")
+
+  // Sidebar state persistence
+  html.write_string(@assets.get_sidebar_script())
+  html.write_string("\n")
+
+  // TOC scroll spy
+  html.write_string(@assets.get_toc_script())
+  html.write_string("\n")
+
+  // Custom body snippets
+  for snippet in ctx.config.body_snippets {
+    html.write_string("  \{snippet}\n")
   }
-  // body_snippets: always included
-  // prod_body_snippets: only included in production (not dev mode)
-  let all_body_snippets : Array[String] = []
-  for s in ctx.config.body_snippets {
-    all_body_snippets.push(s)
-  }
+
+  // Production-only body snippets (analytics, etc.)
   if not(ctx.is_dev) {
-    for s in ctx.config.prod_body_snippets {
-      all_body_snippets.push(s)
+    for snippet in ctx.config.prod_body_snippets {
+      html.write_string("  \{snippet}\n")
     }
   }
-  let body_snippets = if all_body_snippets.length() > 0 {
-    "\n  " + all_body_snippets.join("\n  ")
-  } else {
-    ""
-  }
-  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>\{page_title}</title>\{desc_tag}\{robots_tag}\{ogp_tags}\{ogp_text}\n  <link rel=\"modulepreload\" href=\"\{base}assets/loader.js\">\n  <script>\{theme_script}</script>\n  <style>\{combined_css}:root{--primary-color:\{primary};}</style>\n  \{preloads}\{prefetch_tags}\{head_snippets}\n</head>\n<body>\n  <div id=\"app\">\{render_result.html}</div>\n  <script type=\"module\" async src=\"\{base}assets/loader.js\"></script>\n  \{wc_loader_script}\n  \{nav_script}\n  \{sidebar_script}\n  \{toc_script}\{body_snippets}\n</body>\n</html>"
+
+  html.write_string("</body>\n</html>")
+  html.to_string()
 }
 
 ///|
-/// Build OGP (Open Graph Protocol) meta tags
-fn build_ogp_meta_tags(
+/// Build combined CSS with minification
+fn build_combined_css(config : @astra.SsgConfig, primary : String) -> String {
+  let main_css = @assets.get_default_css(config)
+  let markdown_css = @assets.get_github_markdown_css()
+  let shiki_css = @shiki.generate_shiki_css()
+  let all_css = main_css + "\n" + markdown_css + "\n" + shiki_css
+  let minified = minify_css(all_css)
+  "\{minified}:root{--primary-color:\{primary};}"
+}
+
+///|
+/// Write prefetch tags for prev/next pages
+fn write_prefetch_tags(
+  html : StringBuilder,
+  pages : Array[@astra.PageMeta],
+  current_path : String,
+) -> Unit {
+  if @routes.find_prev_page(pages, current_path) is Some(link) {
+    html.write_string("  <link rel=\"prefetch\" href=\"\{link.link}\">\n")
+  }
+  if @routes.find_next_page(pages, current_path) is Some(link) {
+    html.write_string("  <link rel=\"prefetch\" href=\"\{link.link}\">\n")
+  }
+}
+
+///|
+/// Write OGP meta tags to StringBuilder
+fn write_ogp_meta_tags(
+  html : StringBuilder,
   ctx : @astra.BuildContext,
   page : @astra.PageMeta,
   frontmatter : @astra.Frontmatter,
-) -> String {
+) -> Unit {
   let ogp = ctx.config.ogp
-  let tags = StringBuilder::new()
-
-  // Get title and description
   let title = frontmatter.title.unwrap_or(ctx.config.title)
   let desc = frontmatter.description.unwrap_or("")
 
   // og:title (always include)
-  tags.write_string("\n  <meta property=\"og:title\" content=\"\{title}\">")
+  html.write_string("  <meta property=\"og:title\" content=\"\{title}\">\n")
 
   // og:description
   if not(desc.is_empty()) {
-    tags.write_string(
-      "\n  <meta property=\"og:description\" content=\"\{desc}\">",
-    )
+    html.write_string("  <meta property=\"og:description\" content=\"\{desc}\">\n")
   }
 
-  // og:type (article for docs, website for home)
+  // og:type
   let og_type = frontmatter.og_type.unwrap_or("article")
-  tags.write_string("\n  <meta property=\"og:type\" content=\"\{og_type}\">")
+  html.write_string("  <meta property=\"og:type\" content=\"\{og_type}\">\n")
 
-  // og:url (requires site_url config)
-  match ogp.site_url {
-    Some(site_url) => {
-      let url = "\{site_url}\{page.url_path}"
-      tags.write_string("\n  <meta property=\"og:url\" content=\"\{url}\">")
-    }
-    None => ()
+  // og:url
+  if ogp.site_url is Some(site_url) {
+    html.write_string("  <meta property=\"og:url\" content=\"\{site_url}\{page.url_path}\">\n")
   }
 
-  // og:image (frontmatter overrides config default)
+  // og:image
   let image : String? = match frontmatter.image {
     Some(img) => Some(img)
     None => ogp.image
   }
-  match image {
-    Some(img) => {
-      // Make absolute URL if site_url is configured
-      let img_url = match ogp.site_url {
-        Some(site_url) =>
-          if img.has_prefix("http://") || img.has_prefix("https://") {
-            img
-          } else if img.has_prefix("/") {
-            "\{site_url}\{img}"
-          } else {
-            "\{site_url}/\{img}"
-          }
-        None => img
-      }
-      tags.write_string(
-        "\n  <meta property=\"og:image\" content=\"\{img_url}\">",
-      )
+  if image is Some(img) {
+    let img_url = match ogp.site_url {
+      Some(site_url) =>
+        if img.has_prefix("http://") || img.has_prefix("https://") {
+          img
+        } else if img.has_prefix("/") {
+          "\{site_url}\{img}"
+        } else {
+          "\{site_url}/\{img}"
+        }
+      None => img
     }
-    None => ()
+    html.write_string("  <meta property=\"og:image\" content=\"\{img_url}\">\n")
   }
 
   // og:site_name
-  tags.write_string(
-    "\n  <meta property=\"og:site_name\" content=\"\{ctx.config.title}\">",
-  )
+  html.write_string("  <meta property=\"og:site_name\" content=\"\{ctx.config.title}\">\n")
 
-  // Twitter Card meta tags
+  // Twitter Card
   let twitter_card = match frontmatter.twitter_card {
     Some(tc) => tc
-    None =>
-      match ogp.twitter_card {
-        Some(tc) => tc
-        None => "summary"
-      }
+    None => ogp.twitter_card.unwrap_or("summary")
   }
-  tags.write_string(
-    "\n  <meta name=\"twitter:card\" content=\"\{twitter_card}\">",
-  )
-  tags.write_string("\n  <meta name=\"twitter:title\" content=\"\{title}\">")
+  html.write_string("  <meta name=\"twitter:card\" content=\"\{twitter_card}\">\n")
+  html.write_string("  <meta name=\"twitter:title\" content=\"\{title}\">\n")
+
   if not(desc.is_empty()) {
-    tags.write_string(
-      "\n  <meta name=\"twitter:description\" content=\"\{desc}\">",
-    )
+    html.write_string("  <meta name=\"twitter:description\" content=\"\{desc}\">\n")
   }
 
-  // Twitter image (same as og:image)
-  match image {
-    Some(img) => {
-      let img_url = match ogp.site_url {
-        Some(site_url) =>
-          if img.has_prefix("http://") || img.has_prefix("https://") {
-            img
-          } else if img.has_prefix("/") {
-            "\{site_url}\{img}"
-          } else {
-            "\{site_url}/\{img}"
-          }
-        None => img
-      }
-      tags.write_string(
-        "\n  <meta name=\"twitter:image\" content=\"\{img_url}\">",
-      )
+  // Twitter image
+  if image is Some(img) {
+    let img_url = match ogp.site_url {
+      Some(site_url) =>
+        if img.has_prefix("http://") || img.has_prefix("https://") {
+          img
+        } else if img.has_prefix("/") {
+          "\{site_url}\{img}"
+        } else {
+          "\{site_url}/\{img}"
+        }
+      None => img
     }
-    None => ()
+    html.write_string("  <meta name=\"twitter:image\" content=\"\{img_url}\">\n")
   }
 
   // Twitter site handle
-  match ogp.twitter_handle {
-    Some(handle) =>
-      tags.write_string(
-        "\n  <meta name=\"twitter:site\" content=\"\{handle}\">",
-      )
-    None => ()
+  if ogp.twitter_handle is Some(handle) {
+    html.write_string("  <meta name=\"twitter:site\" content=\"\{handle}\">\n")
   }
-  tags.to_string()
 }
 
 // =============================================================================
