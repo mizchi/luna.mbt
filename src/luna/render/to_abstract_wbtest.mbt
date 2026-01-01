@@ -11,7 +11,7 @@ test "convert simple element" {
 
   // Verify structure
   match abstract_node {
-    @abstract.Element(tag~, attrs~, children~) => {
+    Element(tag~, attrs~, children~) => {
       assert_eq(tag, "div")
       assert_eq(attrs.length(), 1)
       assert_eq(children.length(), 1)
@@ -37,7 +37,7 @@ test "convert dynamic text" {
   let luna_node : @luna.Node[Unit] = @luna.text_dyn(fn() { "Dynamic" })
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
-    @abstract.Text(content) => assert_eq(content, "Dynamic")
+    Text(content) => assert_eq(content, "Dynamic")
     _ => fail("Expected Text")
   }
 }
@@ -51,7 +51,7 @@ test "convert fragment" {
   ])
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
-    @abstract.Fragment(children) => assert_eq(children.length(), 3)
+    Fragment(children) => assert_eq(children.length(), 3)
     _ => fail("Expected Fragment")
   }
 }
@@ -63,7 +63,7 @@ test "convert Show node - true condition" {
   })
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
-    @abstract.Text(content) => assert_eq(content, "Visible")
+    Text(content) => assert_eq(content, "Visible")
     _ => fail("Expected Text")
   }
 }
@@ -75,7 +75,7 @@ test "convert Show node - false condition" {
   })
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
-    @abstract.Fragment(children) => assert_eq(children.length(), 0)
+    Fragment(children) => assert_eq(children.length(), 0)
     _ => fail("Expected empty Fragment")
   }
 }
@@ -87,7 +87,7 @@ test "convert For node" {
   })
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
-    @abstract.Fragment(children) => assert_eq(children.length(), 2)
+    Fragment(children) => assert_eq(children.length(), 2)
     _ => fail("Expected Fragment")
   }
 }
@@ -99,7 +99,7 @@ test "convert RawHtml" {
   )
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
-    @abstract.RawHtml(html) =>
+    RawHtml(html) =>
       assert_eq(html, "<custom-element>Content</custom-element>")
     _ => fail("Expected RawHtml")
   }

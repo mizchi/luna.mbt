@@ -75,7 +75,7 @@ fn transform_url_path(url : String, trailing_slash : Bool) -> String {
       result.push("")
     } else {
       // Remove numeric prefix (e.g., "00_intro" -> "intro", "01_getting-started" -> "getting-started")
-      let (_, name) = @ssg_core.parse_numeric_prefix(segment.to_string())
+      let (_, name) = @ssg.parse_numeric_prefix(segment.to_string())
       result.push(name)
     }
   }
@@ -516,8 +516,8 @@ fn generate_site_internal(
   generate_client_manifest(ctx)
 
   // Step 10: Generate ISR manifest (if any pages have revalidate)
-  let isr_manifest = @isr.build_manifest(pages)
-  @isr.write_manifest(isr_manifest, @path.join2(cwd, config.output_dir))
+  let isr_manifest = build_isr_manifest(pages)
+  write_isr_manifest(isr_manifest, @path.join2(cwd, config.output_dir))
 
   // Step 11: Run deploy adapter (generates platform-specific files)
   @adapters.run_adapter(ctx)
@@ -637,8 +637,8 @@ async fn generate_site_internal_async(
   generate_client_manifest(ctx)
 
   // Step 10: Generate ISR manifest (if any pages have revalidate)
-  let isr_manifest = @isr.build_manifest(pages)
-  @isr.write_manifest(isr_manifest, @path.join2(cwd, config.output_dir))
+  let isr_manifest = build_isr_manifest(pages)
+  write_isr_manifest(isr_manifest, @path.join2(cwd, config.output_dir))
 
   // Step 11: Run deploy adapter (generates platform-specific files)
   @adapters.run_adapter(ctx)
@@ -727,7 +727,7 @@ fn generate_page_with_highlight(
       // Index pages use standard browser behavior, content pages use sibling behavior
       let is_index = page.source_path.has_suffix("index.md")
       // Get locale prefix for i18n link resolution
-      let locale_prefix = @ssg_core.get_locale_url_prefix(
+      let locale_prefix = @ssg.get_locale_url_prefix(
         ctx.config.i18n,
         page.locale,
       )
@@ -833,7 +833,7 @@ fn generate_page_with_highlight(
       // Convert to VNode (JsxComponent nodes are handled in transformer)
       let is_index = page.source_path.has_suffix("index.mdx")
       // Get locale prefix for i18n link resolution
-      let locale_prefix = @ssg_core.get_locale_url_prefix(
+      let locale_prefix = @ssg.get_locale_url_prefix(
         ctx.config.i18n,
         page.locale,
       )
@@ -961,7 +961,7 @@ async fn generate_page_with_highlight_async(
       // Convert to VNode with link resolution
       let is_index = page.source_path.has_suffix("index.md")
       // Get locale prefix for i18n link resolution
-      let locale_prefix = @ssg_core.get_locale_url_prefix(
+      let locale_prefix = @ssg.get_locale_url_prefix(
         ctx.config.i18n,
         page.locale,
       )
@@ -1075,7 +1075,7 @@ async fn generate_page_with_highlight_async(
       // Convert to VNode (JsxComponent nodes are handled in transformer)
       let is_index = page.source_path.has_suffix("index.mdx")
       // Get locale prefix for i18n link resolution
-      let locale_prefix = @ssg_core.get_locale_url_prefix(
+      let locale_prefix = @ssg.get_locale_url_prefix(
         ctx.config.i18n,
         page.locale,
       )
@@ -2029,14 +2029,14 @@ fn copy_public_dir(ctx : @ssg.BuildContext) -> Unit {
 /// Respects MetaFilesConfig settings - only generates enabled files
 pub fn generate_meta_files(
   ctx : @ssg.BuildContext,
-  doc_tree : @ssg_core.DocumentTree,
+  doc_tree : @ssg.DocumentTree,
 ) -> Unit {
   let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
   let meta_config = ctx.config.meta_files
 
   // Generate sitemap.xml (enabled by default)
   if meta_config.sitemap {
-    let sitemap_content = @ssg_core.generate_sitemap(doc_tree)
+    let sitemap_content = @ssg.generate_sitemap(doc_tree)
     let sitemap_path = @path.join2(output_dir, "sitemap.xml")
     @fs.writeFileSync(sitemap_path, @js.any(sitemap_content)) catch {
       e => println("  Warning: Failed to generate sitemap.xml: \{e}")
@@ -2046,7 +2046,7 @@ pub fn generate_meta_files(
 
   // Generate feed.xml (RSS) - disabled by default
   if meta_config.feed {
-    let rss_content = @ssg_core.generate_rss(doc_tree)
+    let rss_content = @ssg.generate_rss(doc_tree)
     let rss_path = @path.join2(output_dir, "feed.xml")
     @fs.writeFileSync(rss_path, @js.any(rss_content)) catch {
       e => println("  Warning: Failed to generate feed.xml: \{e}")
@@ -2056,7 +2056,7 @@ pub fn generate_meta_files(
 
   // Generate llms.txt - disabled by default
   if meta_config.llms_txt {
-    let llms_content = @ssg_core.generate_llms_txt(doc_tree)
+    let llms_content = @ssg.generate_llms_txt(doc_tree)
     let llms_path = @path.join2(output_dir, "llms.txt")
     @fs.writeFileSync(llms_path, @js.any(llms_content)) catch {
       e => println("  Warning: Failed to generate llms.txt: \{e}")
@@ -2096,7 +2096,7 @@ pub fn generate_client_manifest(ctx : @ssg.BuildContext) -> Unit {
 ///|
 /// Generate v1 flat manifest (backward compatible)
 fn generate_flat_manifest(
-  route_manifest : @sol_routes.RouteManifest,
+  route_manifest : @routes.RouteManifest,
   luna_dir : String,
 ) -> Unit {
   // Define chunk file mappings
@@ -2108,7 +2108,7 @@ fn generate_flat_manifest(
   ]
 
   // Convert RouteManifest to ChunkManifest with chunk mappings
-  let chunk_manifest = @sol_routes.build_chunk_manifest(
+  let chunk_manifest = @routes.build_chunk_manifest(
     route_manifest,
     chunk_files~,
     base="/_luna/",
@@ -2127,17 +2127,17 @@ fn generate_flat_manifest(
 /// Generate v2 hierarchical manifest with segment splitting
 fn generate_hierarchical_manifest(
   _ctx : @ssg.BuildContext,
-  route_manifest : @sol_routes.RouteManifest,
-  page_configs : Map[String, @sol_routes.PageConfig],
+  route_manifest : @routes.RouteManifest,
+  page_configs : Map[String, @routes.PageConfig],
   luna_dir : String,
 ) -> Unit {
   // Split manifest by segments
-  let (hierarchical, segment_manifests) = @sol_routes.split_manifest(
+  let (hierarchical, segment_manifests) = @routes.split_manifest(
     route_manifest, page_configs,
   )
 
   // Add chunk file mappings
-  let hierarchical_with_chunks = @sol_routes.HierarchicalManifest::{
+  let hierarchical_with_chunks = @routes.HierarchicalManifest::{
     ..hierarchical,
     chunks: {
       "boot": "boot.js",
@@ -2172,8 +2172,8 @@ fn generate_hierarchical_manifest(
 /// Collect page configs from pages directory
 fn collect_page_configs(
   ctx : @ssg.BuildContext,
-) -> Map[String, @sol_routes.PageConfig] {
-  let configs : Map[String, @sol_routes.PageConfig] = {}
+) -> Map[String, @routes.PageConfig] {
+  let configs : Map[String, @routes.PageConfig] = {}
   let pages_dir = @path.join2(ctx.cwd, ctx.config.docs_dir)
 
   // Scan for page.json files in first-level directories
@@ -2189,7 +2189,7 @@ fn collect_page_configs(
         let content : String = @fs.readFileSync(page_json_path).to_string() catch {
           _ => continue
         }
-        match @sol_routes.parse_page_config(content) {
+        match @routes.parse_page_config(content) {
           Some(cfg) => configs[entry] = cfg
           None => ()
         }
@@ -2201,7 +2201,7 @@ fn collect_page_configs(
 
 ///|
 /// Check if any segment has SPA config
-fn has_spa_config(configs : Map[String, @sol_routes.PageConfig]) -> Bool {
+fn has_spa_config(configs : Map[String, @routes.PageConfig]) -> Bool {
   for _, cfg in configs {
     if cfg.spa {
       return true

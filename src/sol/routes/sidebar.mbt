@@ -216,7 +216,7 @@ fn sort_tree_nodes(
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
       let (_, existing) = result[i]
-      if @ssg_core.compare_strings_lex(node.sort_key, existing.sort_key) < 0 {
+      if @ssg.compare_strings_lex(node.sort_key, existing.sort_key) < 0 {
         pos = i
         break
       }

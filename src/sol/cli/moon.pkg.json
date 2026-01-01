@@ -18,7 +18,7 @@
       "alias": "ssg_gen"
     },
     {
-      "path": "mizchi/luna/sol/ssg/routes",
+      "path": "mizchi/luna/sol/routes",
       "alias": "ssg_routes"
     },
     {
@@ -40,10 +40,6 @@
     {
       "path": "mizchi/luna/sol/content/shiki",
       "alias": "shiki"
-    },
-    {
-      "path": "mizchi/luna/core/ssg",
-      "alias": "ssg_core"
     },
     {
       "path": "mizchi/luna/core/env",
@@ -86,7 +82,7 @@
       "alias": "colorette"
     },
     {
-      "path": "mizchi/luna/core/parser",
+      "path": "mizchi/luna/sol/parser",
       "alias": "parser"
     },
     {

@@ -118,7 +118,7 @@ test "build_document_tree_with_fs - generates valid sitemap" {
   let config = create_test_config()
   let tree = build_document_tree_with_fs(fs, config, pages, "/project")
   // Generate sitemap
-  let sitemap = @ssg_core.generate_sitemap(tree)
+  let sitemap = @ssg.generate_sitemap(tree)
   // Verify sitemap content
   inspect(sitemap.contains("<?xml version=\"1.0\""), content="true")
   inspect(sitemap.contains("<urlset"), content="true")
@@ -141,7 +141,7 @@ test "build_document_tree_with_fs - generates valid rss" {
   let config = create_test_config()
   let tree = build_document_tree_with_fs(fs, config, pages, "/project")
   // Generate RSS
-  let rss = @ssg_core.generate_rss(tree)
+  let rss = @ssg.generate_rss(tree)
   // Verify RSS content
   inspect(rss.contains("<?xml version=\"1.0\""), content="true")
   inspect(rss.contains("<rss version=\"2.0\""), content="true")
@@ -159,7 +159,7 @@ test "build_document_tree_with_fs - generates valid llms.txt" {
   let config = create_test_config()
   let tree = build_document_tree_with_fs(fs, config, pages, "/project")
   // Generate llms.txt
-  let llms = @ssg_core.generate_llms_txt(tree)
+  let llms = @ssg.generate_llms_txt(tree)
   // Verify llms.txt content (content_md is empty since files are not read)
   inspect(llms.has_prefix("# Test Documentation"), content="true")
   inspect(llms.contains("## Table of Contents"), content="true")
@@ -221,7 +221,7 @@ test "build_document_tree_with_fs - multiple pages with nested structure" {
   inspect(page_ids.contains("guide-intro"), content="true")
   inspect(page_ids.contains("guide-advanced"), content="true")
   // Generate outputs and verify they include all pages
-  let sitemap = @ssg_core.generate_sitemap(tree)
+  let sitemap = @ssg.generate_sitemap(tree)
   inspect(sitemap.contains("<loc>https://example.com/</loc>"), content="true")
   inspect(
     sitemap.contains("<loc>https://example.com/guide/intro/</loc>"),

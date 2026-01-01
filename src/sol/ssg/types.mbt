@@ -53,9 +53,9 @@ pub(all) struct SsgConfig {
   /// Theme configuration
   theme : ThemeConfig
   /// Navigation configuration
-  navigation : @ssg_core.NavigationConfig
+  navigation : NavigationConfig
   /// Internationalization configuration
-  i18n : @ssg_core.I18nConfig
+  i18n : I18nConfig
   /// Directories to exclude from scanning (e.g., ["internal", "drafts"])
   exclude : Array[String]
   /// Use trailing slashes in URLs (default: true for SSG compatibility)
@@ -87,17 +87,59 @@ pub(all) struct SsgConfig {
   meta_files : MetaFilesConfig
 }
 
-// I18nConfig, LocaleConfig are defined in core/ssg
-// Re-exported for backward compatibility
+// =============================================================================
+// Internationalization (i18n)
+// =============================================================================
 
 ///|
-pub type I18nConfig = @ssg_core.I18nConfig
+/// Internationalization configuration
+pub(all) struct I18nConfig {
+  /// Default locale code (e.g., "en")
+  default_locale : String
+  /// Available locales
+  locales : Array[LocaleConfig]
+}
 
 ///|
-pub type LocaleConfig = @ssg_core.LocaleConfig
+/// Default i18n configuration (English only)
+pub fn I18nConfig::default() -> I18nConfig {
+  {
+    default_locale: "en",
+    locales: [LocaleConfig::{ code: "en", label: "English", path: "" }],
+  }
+}
 
 ///|
-pub type RendererType = @ssg_core.RendererType
+/// Locale configuration
+pub(all) struct LocaleConfig {
+  /// Locale code (e.g., "en", "ja", "fr")
+  code : String
+  /// Display label (e.g., "English", "日本語")
+  label : String
+  /// URL path prefix (empty for default locale)
+  path : String
+} derive(ToJson, FromJson)
+
+// =============================================================================
+// Navigation Configuration
+// =============================================================================
+
+///|
+/// Navigation configuration for SPA-like behavior
+pub(all) struct NavigationConfig {
+  /// Enable SPA-style navigation (fetch + content swap)
+  spa : Bool
+  /// Enable View Transitions API
+  view_transitions : Bool
+  /// Enable keyboard navigation (arrow keys)
+  keyboard : Bool
+} derive(ToJson, FromJson)
+
+///|
+/// Default navigation configuration
+pub fn NavigationConfig::default() -> NavigationConfig {
+  { spa: false, view_transitions: true, keyboard: true }
+}
 
 ///|
 /// Default SSG configuration
@@ -111,8 +153,8 @@ pub fn SsgConfig::default() -> SsgConfig {
     sidebar: SidebarConfig::Auto,
     islands: None,
     theme: ThemeConfig::default(),
-    navigation: @ssg_core.NavigationConfig::default(),
-    i18n: @ssg_core.I18nConfig::default(),
+    navigation: NavigationConfig::default(),
+    i18n: I18nConfig::default(),
     exclude: [],
     trailing_slash: true,
     ogp: OgpConfig::default(),
@@ -178,11 +220,6 @@ pub(all) enum SidebarItem {
   /// Nested group
   Group(SidebarGroup)
 } derive(ToJson, FromJson)
-
-// NavigationConfig is defined in core/ssg
-
-///|
-pub type NavigationConfig = @ssg_core.NavigationConfig
 
 ///|
 /// Theme configuration
@@ -436,7 +473,7 @@ pub(all) struct PageMeta {
   /// Content type (Markdown or Html)
   content_type : ContentType
   /// Renderer type for this page
-  renderer_type : @ssg_core.RendererType
+  renderer_type : RendererType
   /// Parsed frontmatter
   frontmatter : Frontmatter
   /// Last modified timestamp (ISO 8601)
@@ -455,7 +492,7 @@ pub fn PageMeta::new(
   source_path : String,
   url_path : String,
   content_type? : ContentType = Markdown,
-  renderer_type? : @ssg_core.RendererType = @ssg_core.MarkdownRenderer,
+  renderer_type? : RendererType = MarkdownRenderer,
   locale? : String = "en",
   canonical_path? : String = "",
   sort_key? : String = "",
@@ -526,7 +563,7 @@ pub(all) struct BuildContext {
   /// Current working directory
   cwd : String
   /// Document tree for navigation (built lazily)
-  doc_tree : @ssg_core.DocumentTree?
+  doc_tree : DocumentTree?
   /// Is development mode (skips prod_body_snippets)
   is_dev : Bool
 }

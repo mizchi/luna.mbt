@@ -87,7 +87,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     }
     match parse_ssg_config(config_content, config_path) {
       Some(ssg_config) => {
-        let port_int = @ssg_core.parse_int_simple(port)
+        let port_int = @ssg.parse_int_simple(port)
         // Use config directory as SSG working directory
         let ssg_cwd = @path.dirname(full_config_path)
         run_ssg_dev(ssg_config, ssg_cwd, port_int)

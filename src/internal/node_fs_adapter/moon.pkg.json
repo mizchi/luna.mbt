@@ -1,8 +1,0 @@
-{
-  "supported-targets": ["js"],
-  "import": [
-    { "path": "mizchi/luna/core/env", "alias": "env" },
-    { "path": "mizchi/js/core", "alias": "js" },
-    { "path": "mizchi/js/node/fs", "alias": "fs" }
-  ]
-}

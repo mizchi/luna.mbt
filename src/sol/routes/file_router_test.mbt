@@ -3,21 +3,21 @@
 ///|
 /// Tests for path utilities (moved to @ssg)
 test "parse_numeric_prefix with valid prefix" {
-  let (order, name) = @ssg_core.parse_numeric_prefix("00_guide")
+  let (order, name) = @ssg.parse_numeric_prefix("00_guide")
   assert_eq(order, 0)
   assert_eq(name, "guide")
 }
 
 ///|
 test "parse_numeric_prefix with multi-digit prefix" {
-  let (order, name) = @ssg_core.parse_numeric_prefix("123_section")
+  let (order, name) = @ssg.parse_numeric_prefix("123_section")
   assert_eq(order, 123)
   assert_eq(name, "section")
 }
 
 ///|
 test "parse_numeric_prefix without prefix" {
-  let (order, name) = @ssg_core.parse_numeric_prefix("guide")
+  let (order, name) = @ssg.parse_numeric_prefix("guide")
   assert_eq(order, 2147483647) // Max int for unprefixed
   assert_eq(name, "guide")
 }
@@ -25,45 +25,45 @@ test "parse_numeric_prefix without prefix" {
 ///|
 test "parse_numeric_prefix with only digits" {
   // "123" without underscore should not be treated as prefix
-  let (order, name) = @ssg_core.parse_numeric_prefix("123")
+  let (order, name) = @ssg.parse_numeric_prefix("123")
   assert_eq(order, 2147483647)
   assert_eq(name, "123")
 }
 
 ///|
 test "strip_numeric_prefixes single segment" {
-  let result = @ssg_core.strip_numeric_prefixes("00_guide")
+  let result = @ssg.strip_numeric_prefixes("00_guide")
   assert_eq(result, "guide")
 }
 
 ///|
 test "strip_numeric_prefixes multiple segments" {
-  let result = @ssg_core.strip_numeric_prefixes("00_guide/01_getting-started.md")
+  let result = @ssg.strip_numeric_prefixes("00_guide/01_getting-started.md")
   assert_eq(result, "guide/getting-started.md")
 }
 
 ///|
 test "strip_numeric_prefixes mixed segments" {
-  let result = @ssg_core.strip_numeric_prefixes("00_guide/intro.md")
+  let result = @ssg.strip_numeric_prefixes("00_guide/intro.md")
   assert_eq(result, "guide/intro.md")
 }
 
 ///|
 test "build_sort_key single segment" {
-  let key = @ssg_core.build_sort_key("00_guide")
+  let key = @ssg.build_sort_key("00_guide")
   assert_eq(key, "00000000_guide")
 }
 
 ///|
 test "build_sort_key multiple segments" {
-  let key = @ssg_core.build_sort_key("00_guide/01_intro.md")
+  let key = @ssg.build_sort_key("00_guide/01_intro.md")
   assert_eq(key, "00000000_guide/00000001_intro.md")
 }
 
 ///|
 test "build_sort_key unprefixed comes last" {
-  let key1 = @ssg_core.build_sort_key("00_guide")
-  let key2 = @ssg_core.build_sort_key("guide") // No prefix
+  let key1 = @ssg.build_sort_key("00_guide")
+  let key2 = @ssg.build_sort_key("guide") // No prefix
   // Unprefixed should have max int padded, so it sorts after prefixed
   assert_true(key1 < key2)
 }
@@ -103,10 +103,10 @@ test "file_to_url_path index without trailing slash" {
 
 ///|
 test "pad_number basic" {
-  assert_eq(@ssg_core.pad_number(5, 4), "0005")
-  assert_eq(@ssg_core.pad_number(123, 6), "000123")
-  assert_eq(@ssg_core.pad_number(12345678, 8), "12345678")
-  assert_eq(@ssg_core.pad_number(123456789, 8), "123456789") // Longer than width
+  assert_eq(@ssg.pad_number(5, 4), "0005")
+  assert_eq(@ssg.pad_number(123, 6), "000123")
+  assert_eq(@ssg.pad_number(12345678, 8), "12345678")
+  assert_eq(@ssg.pad_number(123456789, 8), "123456789") // Longer than width
 }
 
 ///|

@@ -59,7 +59,7 @@ fn detect_locale_from_path(
   i18n : @ssg.I18nConfig,
   trailing_slash? : Bool = true,
 ) -> (String, String) {
-  @ssg_core.detect_locale_from_path(path, i18n, trailing_slash~)
+  @ssg.detect_locale_from_path(path, i18n, trailing_slash~)
 }
 
 ///|
@@ -71,10 +71,10 @@ fn build_localized_url(
   locale : String,
   i18n : @ssg.I18nConfig,
 ) -> String {
-  @ssg_core.build_localized_url(canonical_path, locale, i18n)
+  @ssg.build_localized_url(canonical_path, locale, i18n)
 }
 
-// is_excluded is now provided by @sol_routes.is_excluded
+// is_excluded is now provided by is_excluded
 
 // =============================================================================
 // Path Conversion (re-exports from @ssg)
@@ -82,19 +82,19 @@ fn build_localized_url(
 
 ///|
 /// Convert file path to URL path (strips numeric prefixes)
-/// Delegates to @ssg_core.file_to_url_path
+/// Delegates to @ssg.file_to_url_path
 pub fn file_to_url_path(
   file_path : String,
   trailing_slash? : Bool = true,
 ) -> String {
-  @ssg_core.file_to_url_path(file_path, trailing_slash~)
+  @ssg.file_to_url_path(file_path, trailing_slash~)
 }
 
 ///|
 /// Convert URL path to output file path
-/// Delegates to @ssg_core.url_to_output_path
+/// Delegates to @ssg.url_to_output_path
 pub fn url_to_output_path(url_path : String) -> String {
-  @ssg_core.url_to_output_path(url_path)
+  @ssg.url_to_output_path(url_path)
 }
 
 // =============================================================================
@@ -113,7 +113,7 @@ pub fn sort_pages(pages : Array[@ssg.PageMeta]) -> Array[@ssg.PageMeta] {
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
       let existing_key = result[i].sort_key
-      if @ssg_core.compare_strings_lex(key, existing_key) < 0 {
+      if @ssg.compare_strings_lex(key, existing_key) < 0 {
         pos = i
         break
       }
@@ -152,7 +152,7 @@ pub fn group_pages_by_dir(
 ///|
 /// Get directory part of URL path (local helper)
 fn get_url_dir(url_path : String) -> String {
-  @ssg_core.get_url_dir(url_path)
+  @ssg.get_url_dir(url_path)
 }
 
 // =============================================================================
@@ -170,7 +170,7 @@ pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(
   trailing_slash? : Bool = true,
 ) -> Array[@ssg.PageMeta] {
   let pages : Array[@ssg.PageMeta] = []
-  let full_path = @sol_routes.join_path(cwd, docs_dir)
+  let full_path = join_path(cwd, docs_dir)
   if not(@env.FileSystem::exists_sync(filesystem, full_path)) {
     return pages
   }
@@ -201,7 +201,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
     _ => return
   }
   for entry in entries {
-    let entry_path = @sol_routes.join_path(dir_path, entry)
+    let entry_path = join_path(dir_path, entry)
     let entry_relative = if relative_path.is_empty() {
       entry
     } else {
@@ -209,12 +209,12 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
     }
     if is_directory_with_fs(filesystem, entry_path) {
       // Skip excluded directories
-      if @sol_routes.is_excluded(entry, entry_relative, exclude) {
+      if is_excluded(entry, entry_relative, exclude) {
         continue
       }
 
       // Check if this is a dynamic parameter directory (_slug_, _id_, _...slug_, etc.)
-      match @sol_routes.extract_param_name(entry) {
+      match extract_param_name(entry) {
         Some(param_info) => {
           // This is a dynamic route directory
           scan_dynamic_dir_with_fs(
@@ -226,7 +226,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       }
 
       // Check if this is a component directory (contains moon.pkg.json)
-      let moon_pkg_path = @sol_routes.join_path(entry_path, "moon.pkg.json")
+      let moon_pkg_path = join_path(entry_path, "moon.pkg.json")
       if @env.FileSystem::exists_sync(filesystem, moon_pkg_path) {
         // This is a component directory - treat as a single page
         let page = scan_component_dir_with_fs(
@@ -238,9 +238,9 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       }
 
       // Check if this is a TSX component directory (contains <dirname>.tsx or index.tsx)
-      let dir_name = @sol_routes.get_basename(entry)
-      let tsx_file_path = @sol_routes.join_path(entry_path, dir_name + ".tsx")
-      let tsx_index_path = @sol_routes.join_path(entry_path, "index.tsx")
+      let dir_name = get_basename(entry)
+      let tsx_file_path = join_path(entry_path, dir_name + ".tsx")
+      let tsx_index_path = join_path(entry_path, "index.tsx")
       if @env.FileSystem::exists_sync(filesystem, tsx_file_path) ||
         @env.FileSystem::exists_sync(filesystem, tsx_index_path) {
         // This is a TSX component directory
@@ -261,7 +261,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       entry.has_suffix(".mdx") ||
       entry.has_suffix(".html") {
       // Check if this is a dynamic file pattern (_id_.md, ___all___.md)
-      match @sol_routes.extract_param_from_filename(entry) {
+      match extract_param_from_filename(entry) {
         Some(param_info) => {
           // This is a dynamic file - process with static params
           scan_dynamic_file_with_fs(
@@ -292,7 +292,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       let url_path = build_localized_url(canonical_path, locale, i18n)
 
       // Build sort key for ordering (preserves numeric prefixes)
-      let sort_key = @ssg_core.build_sort_key(source_path)
+      let sort_key = @ssg.build_sort_key(source_path)
 
       // Parse frontmatter for markdown/mdx, use page.json for HTML
       let frontmatter = match content_type {
@@ -308,16 +308,16 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         @ssg.ContentType::Html => {
           // Try to read page.{locale}.json for localized pages, fallback to page.json
           let localized_page_json = if locale != i18n.default_locale {
-            @sol_routes.join_path(dir_path, "page." + locale + ".json")
+            join_path(dir_path, "page." + locale + ".json")
           } else {
-            @sol_routes.join_path(dir_path, "page.json")
+            join_path(dir_path, "page.json")
           }
           let page_json_path = if @env.FileSystem::exists_sync(
               filesystem, localized_page_json,
             ) {
             localized_page_json
           } else {
-            @sol_routes.join_path(dir_path, "page.json")
+            join_path(dir_path, "page.json")
           }
           if @env.FileSystem::exists_sync(filesystem, page_json_path) {
             let content : String = @env.FileSystem::read_file_sync(
@@ -358,7 +358,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   file_path : String,
   relative_path : String,
   filename : String,
-  param_info : @sol_routes.ParamInfo,
+  param_info : ParamInfo,
   i18n : @ssg.I18nConfig,
   pages : Array[@ssg.PageMeta],
   trailing_slash : Bool,
@@ -367,7 +367,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   let _is_catch_all = param_info.catch_all // TODO: Handle catch-all routes
 
   // Read page.json from the same directory for static params configuration
-  let page_json_path = @sol_routes.join_path(dir_path, "page.json")
+  let page_json_path = join_path(dir_path, "page.json")
   let page_config = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
     let content : String = @env.FileSystem::read_file_sync(
       filesystem, page_json_path,
@@ -414,7 +414,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   }
 
   // Get parent path (directory containing the dynamic file)
-  let parent_path = @sol_routes.get_parent_dir(relative_path)
+  let parent_path = get_parent_dir(relative_path)
 
   // Generate a page for each static param
   for param_set in static_params {
@@ -450,7 +450,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
     // Title can use the param value if not specified
     let title = match base_frontmatter.title {
       Some(t) => Some(t)
-      None => Some(@ssg_core.capitalize_first(param_value.replace(old="-", new=" ")))
+      None => Some(@ssg.capitalize_first(param_value.replace(old="-", new=" ")))
     }
     let frontmatter = @ssg.Frontmatter::{ ..base_frontmatter, title, }
     let renderer_type = determine_renderer_type(content_type, frontmatter)
@@ -480,7 +480,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   filesystem : FS,
   dir_path : String,
   relative_path : String,
-  param_info : @sol_routes.ParamInfo,
+  param_info : ParamInfo,
   i18n : @ssg.I18nConfig,
   pages : Array[@ssg.PageMeta],
   trailing_slash : Bool,
@@ -488,7 +488,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   let param_name = param_info.name
   let _is_catch_all = param_info.catch_all // TODO: Handle catch-all routes
   // Read page.json for static params configuration
-  let page_json_path = @sol_routes.join_path(dir_path, "page.json")
+  let page_json_path = join_path(dir_path, "page.json")
   let page_config = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
     let content : String = @env.FileSystem::read_file_sync(
       filesystem, page_json_path,
@@ -507,7 +507,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   }
 
   // Find index.md as template
-  let index_md_path = @sol_routes.join_path(dir_path, "index.md")
+  let index_md_path = join_path(dir_path, "index.md")
   if not(@env.FileSystem::exists_sync(filesystem, index_md_path)) {
     return // No template file
   }
@@ -523,7 +523,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   let (base_frontmatter, _) = @markdown.parse_markdown(template_content)
 
   // Get parent path (without the _slug_ part)
-  let parent_path = @sol_routes.get_parent_dir(relative_path)
+  let parent_path = get_parent_dir(relative_path)
 
   // Generate a page for each static param
   for param_set in static_params {
@@ -559,7 +559,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
     // Title can use the param value if not specified
     let title = match base_frontmatter.title {
       Some(t) => Some(t)
-      None => Some(@ssg_core.capitalize_first(param_value.replace(old="-", new=" ")))
+      None => Some(@ssg.capitalize_first(param_value.replace(old="-", new=" ")))
     }
     let frontmatter = @ssg.Frontmatter::{ ..base_frontmatter, title, }
     let content_type = @ssg.ContentType::Markdown
@@ -641,7 +641,7 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
   trailing_slash : Bool,
 ) -> @ssg.PageMeta {
   // Try to read page.json for metadata
-  let page_json_path = @sol_routes.join_path(dir_path, "page.json")
+  let page_json_path = join_path(dir_path, "page.json")
   let frontmatter = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
     let content : String = @env.FileSystem::read_file_sync(
       filesystem, page_json_path,
@@ -694,7 +694,7 @@ fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
   trailing_slash : Bool,
 ) -> @ssg.PageMeta {
   // Try to read page.json for metadata
-  let page_json_path = @sol_routes.join_path(dir_path, "page.json")
+  let page_json_path = join_path(dir_path, "page.json")
   let frontmatter = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
     let content : String = @env.FileSystem::read_file_sync(
       filesystem, page_json_path,
@@ -980,14 +980,14 @@ fn url_to_name(url_path : String) -> String {
       if name.is_empty() {
         "Home"
       } else {
-        @ssg_core.capitalize_first(name.replace(old="-", new=" "))
+        @ssg.capitalize_first(name.replace(old="-", new=" "))
       }
     }
     None =>
       if trimmed == "/" || trimmed.is_empty() {
         "Home"
       } else {
-        @ssg_core.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
+        @ssg.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
       }
   }
 }

@@ -12,16 +12,16 @@
 /// Pre-computes all navigation-related data for a specific page
 pub(all) struct NavContext {
   /// The document tree
-  tree : @ssg_core.DocumentTree
+  tree : @ssg.DocumentTree
   /// Current page info (None for non-existent pages)
-  current_page : @ssg_core.PageInfo?
+  current_page : @ssg.PageInfo?
   /// Path from root to current page (for breadcrumb)
   /// Each item is (name, url_path) tuple
   breadcrumb_path : Array[(String, String)]
   /// Previous page in document order
-  prev_page : @ssg_core.PageInfo?
+  prev_page : @ssg.PageInfo?
   /// Next page in document order
-  next_page : @ssg_core.PageInfo?
+  next_page : @ssg.PageInfo?
   /// Current locale
   locale : String
 }
@@ -48,7 +48,7 @@ pub(all) enum SidebarNode {
 ///|
 /// Build NavContext for a specific page URL
 pub fn NavContext::build(
-  tree : @ssg_core.DocumentTree,
+  tree : @ssg.DocumentTree,
   current_url : String,
   locale? : String = "en",
 ) -> NavContext {
@@ -66,7 +66,7 @@ pub fn NavContext::build(
 ///|
 /// Build breadcrumb path from root to current URL
 fn build_breadcrumb_path(
-  tree : @ssg_core.DocumentTree,
+  tree : @ssg.DocumentTree,
   current_url : String,
 ) -> Array[(String, String)] {
   let path : Array[(String, String)] = []
@@ -100,15 +100,15 @@ fn build_breadcrumb_path(
 ///|
 /// Find previous and next pages in document order
 fn find_siblings(
-  tree : @ssg_core.DocumentTree,
+  tree : @ssg.DocumentTree,
   current_url : String,
   locale : String,
-) -> (@ssg_core.PageInfo?, @ssg_core.PageInfo?) {
+) -> (@ssg.PageInfo?, @ssg.PageInfo?) {
   // Get all pages in tree order (flattened)
   let page_ids = tree.root.flatten()
 
   // Build ordered list of pages for the locale
-  let ordered_pages : Array[@ssg_core.PageInfo] = []
+  let ordered_pages : Array[@ssg.PageInfo] = []
   for id in page_ids {
     match tree.get_page(id) {
       Some(page) => if page.locale == locale { ordered_pages.push(page) }
@@ -147,7 +147,7 @@ fn find_siblings(
 ///|
 /// Build sidebar tree from DocumentTree
 pub fn build_sidebar_tree(
-  tree : @ssg_core.DocumentTree,
+  tree : @ssg.DocumentTree,
   current_url : String,
   locale : String,
 ) -> Array[SidebarNode] {
@@ -157,17 +157,17 @@ pub fn build_sidebar_tree(
 ///|
 /// Recursively build sidebar from TreeNode
 fn build_sidebar_from_node(
-  tree : @ssg_core.DocumentTree,
-  node : @ssg_core.TreeNode,
+  tree : @ssg.DocumentTree,
+  node : @ssg.TreeNode,
   current_url : String,
   locale : String,
 ) -> Array[SidebarNode] {
   match node {
-    @ssg_core.TreeNode::Section(children~, ..) => {
+    @ssg.TreeNode::Section(children~, ..) => {
       let result : Array[SidebarNode] = []
       for child in children {
         match child {
-          @ssg_core.TreeNode::Page(page_id~, ..) =>
+          @ssg.TreeNode::Page(page_id~, ..) =>
             match tree.get_page(page_id) {
               Some(page) =>
                 if page.locale == locale {
@@ -182,7 +182,7 @@ fn build_sidebar_from_node(
                 }
               None => ()
             }
-          @ssg_core.TreeNode::Section(name~, path~, children=sub_children) => {
+          @ssg.TreeNode::Section(name~, path~, children=sub_children) => {
             // Check if this section or any child is active
             let active = is_path_active(current_url, path)
 
@@ -212,7 +212,7 @@ fn build_sidebar_from_node(
       }
       result
     }
-    @ssg_core.TreeNode::Page(page_id~, ..) =>
+    @ssg.TreeNode::Page(page_id~, ..) =>
       match tree.get_page(page_id) {
         Some(page) =>
           if page.locale == locale {
@@ -235,13 +235,13 @@ fn is_path_active(current_url : String, section_path : String) -> Bool {
 ///|
 /// Find index page for a section
 fn find_section_index(
-  tree : @ssg_core.DocumentTree,
-  children : Array[@ssg_core.TreeNode],
+  tree : @ssg.DocumentTree,
+  children : Array[@ssg.TreeNode],
   locale : String,
 ) -> String? {
   for child in children {
     match child {
-      @ssg_core.TreeNode::Page(page_id~, ..) =>
+      @ssg.TreeNode::Page(page_id~, ..) =>
         match tree.get_page(page_id) {
           Some(page) =>
             if page.locale == locale && page.url_path.has_suffix("/") {

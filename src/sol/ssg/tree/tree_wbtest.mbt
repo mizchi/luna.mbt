@@ -2,16 +2,16 @@
 
 ///|
 /// Helper to create a minimal DocumentTree for testing
-fn create_test_tree() -> @ssg_core.DocumentTree {
-  let site = @ssg_core.SiteInfo::new(
+fn create_test_tree() -> @ssg.DocumentTree {
+  let site = @ssg.SiteInfo::new(
     title="Test Site",
     description="A test documentation site",
     base_url="https://example.com",
     language="en",
     updated_at="2024-12-22T12:00:00.000Z",
   )
-  let pages : Array[@ssg_core.PageInfo] = [
-    @ssg_core.PageInfo::new(
+  let pages : Array[@ssg.PageInfo] = [
+    @ssg.PageInfo::new(
       id="index",
       url_path="/",
       source_path="index.md",
@@ -20,10 +20,10 @@ fn create_test_tree() -> @ssg_core.DocumentTree {
       locale="en",
       updated_at="2024-12-22T12:00:00.000Z",
       content_md="# Welcome\n\nThis is the home page.",
-      headings=[@ssg_core.Heading::new(level=1, text="Welcome", id="welcome")],
+      headings=[@ssg.Heading::new(level=1, text="Welcome", id="welcome")],
       sort_key="000_index",
     ),
-    @ssg_core.PageInfo::new(
+    @ssg.PageInfo::new(
       id="guide-intro",
       url_path="/guide/intro/",
       source_path="guide/intro.md",
@@ -33,12 +33,12 @@ fn create_test_tree() -> @ssg_core.DocumentTree {
       updated_at="2024-12-21T10:00:00.000Z",
       content_md="# Introduction\n\n## Overview\n\nThis is the intro.",
       headings=[
-        @ssg_core.Heading::new(level=1, text="Introduction", id="introduction"),
-        @ssg_core.Heading::new(level=2, text="Overview", id="overview"),
+        @ssg.Heading::new(level=1, text="Introduction", id="introduction"),
+        @ssg.Heading::new(level=2, text="Overview", id="overview"),
       ],
       sort_key="001_guide/001_intro",
     ),
-    @ssg_core.PageInfo::new(
+    @ssg.PageInfo::new(
       id="guide-advanced",
       url_path="/guide/advanced/",
       source_path="guide/advanced.md",
@@ -48,22 +48,22 @@ fn create_test_tree() -> @ssg_core.DocumentTree {
       updated_at="2024-12-20T08:00:00.000Z",
       content_md="# Advanced Topics\n\nAdvanced content here.",
       headings=[
-        @ssg_core.Heading::new(level=1, text="Advanced Topics", id="advanced-topics"),
+        @ssg.Heading::new(level=1, text="Advanced Topics", id="advanced-topics"),
       ],
       sort_key="001_guide/002_advanced",
     ),
   ]
-  let root = @ssg_core.TreeNode::Section(name="", path="/", children=[
-    @ssg_core.TreeNode::Page(page_id="index", renderer=@ssg.RendererType::MarkdownRenderer),
-    @ssg_core.TreeNode::Section(name="guide", path="/guide/", children=[
-      @ssg_core.TreeNode::Page(page_id="guide-intro", renderer=@ssg.RendererType::MarkdownRenderer),
-      @ssg_core.TreeNode::Page(
+  let root = @ssg.TreeNode::Section(name="", path="/", children=[
+    @ssg.TreeNode::Page(page_id="index", renderer=@ssg.RendererType::MarkdownRenderer),
+    @ssg.TreeNode::Section(name="guide", path="/guide/", children=[
+      @ssg.TreeNode::Page(page_id="guide-intro", renderer=@ssg.RendererType::MarkdownRenderer),
+      @ssg.TreeNode::Page(
         page_id="guide-advanced",
         renderer=@ssg.RendererType::MarkdownRenderer,
       ),
     ]),
   ])
-  @ssg_core.DocumentTree::new(site~, pages~, root~)
+  @ssg.DocumentTree::new(site~, pages~, root~)
 }
 
 // =============================================================================
@@ -73,7 +73,7 @@ fn create_test_tree() -> @ssg_core.DocumentTree {
 ///|
 test "generate_sitemap - basic structure" {
   let tree = create_test_tree()
-  let sitemap = @ssg_core.generate_sitemap(tree)
+  let sitemap = @ssg.generate_sitemap(tree)
   // Check XML declaration
   inspect(sitemap.contains("<?xml version=\"1.0\""), content="true")
   // Check urlset element
@@ -89,7 +89,7 @@ test "generate_sitemap - basic structure" {
 ///|
 test "generate_sitemap - contains all pages" {
   let tree = create_test_tree()
-  let sitemap = @ssg_core.generate_sitemap(tree)
+  let sitemap = @ssg.generate_sitemap(tree)
   // Check all URLs are present
   inspect(sitemap.contains("<loc>https://example.com/</loc>"), content="true")
   inspect(
@@ -105,7 +105,7 @@ test "generate_sitemap - contains all pages" {
 ///|
 test "generate_sitemap - includes lastmod" {
   let tree = create_test_tree()
-  let sitemap = @ssg_core.generate_sitemap(tree)
+  let sitemap = @ssg.generate_sitemap(tree)
   // Check lastmod dates (ISO date only, not full timestamp)
   inspect(sitemap.contains("<lastmod>2024-12-22</lastmod>"), content="true")
   inspect(sitemap.contains("<lastmod>2024-12-21</lastmod>"), content="true")
@@ -118,7 +118,7 @@ test "generate_sitemap - includes lastmod" {
 ///|
 test "generate_rss - basic structure" {
   let tree = create_test_tree()
-  let rss = @ssg_core.generate_rss(tree)
+  let rss = @ssg.generate_rss(tree)
   // Check XML declaration
   inspect(rss.contains("<?xml version=\"1.0\""), content="true")
   // Check RSS root element
@@ -132,7 +132,7 @@ test "generate_rss - basic structure" {
 ///|
 test "generate_rss - channel metadata" {
   let tree = create_test_tree()
-  let rss = @ssg_core.generate_rss(tree)
+  let rss = @ssg.generate_rss(tree)
   // Check channel metadata
   inspect(rss.contains("<title>Test Site</title>"), content="true")
   inspect(rss.contains("<link>https://example.com</link>"), content="true")
@@ -146,7 +146,7 @@ test "generate_rss - channel metadata" {
 ///|
 test "generate_rss - contains items" {
   let tree = create_test_tree()
-  let rss = @ssg_core.generate_rss(tree)
+  let rss = @ssg.generate_rss(tree)
   // Check items are present
   inspect(rss.contains("<item>"), content="true")
   inspect(rss.contains("</item>"), content="true")
@@ -158,7 +158,7 @@ test "generate_rss - contains items" {
 ///|
 test "generate_rss - items sorted by date" {
   let tree = create_test_tree()
-  let rss = @ssg_core.generate_rss(tree)
+  let rss = @ssg.generate_rss(tree)
   // Home (2024-12-22) should appear before Introduction (2024-12-21)
   let home_pos = find_position(rss, "<title>Home</title>")
   let intro_pos = find_position(rss, "<title>Introduction</title>")
@@ -168,7 +168,7 @@ test "generate_rss - items sorted by date" {
 ///|
 test "generate_rss - respects limit" {
   let tree = create_test_tree()
-  let rss = @ssg_core.generate_rss(tree, limit=1)
+  let rss = @ssg.generate_rss(tree, limit=1)
   // Should only have 1 item (the most recent one)
   let item_count = count_occurrences(rss, "<item>")
   inspect(item_count, content="1")
@@ -181,7 +181,7 @@ test "generate_rss - respects limit" {
 ///|
 test "generate_llms_txt - header" {
   let tree = create_test_tree()
-  let llms = @ssg_core.generate_llms_txt(tree)
+  let llms = @ssg.generate_llms_txt(tree)
   // Check site title as header
   inspect(llms.has_prefix("# Test Site"), content="true")
   // Check description as blockquote
@@ -191,7 +191,7 @@ test "generate_llms_txt - header" {
 ///|
 test "generate_llms_txt - table of contents" {
   let tree = create_test_tree()
-  let llms = @ssg_core.generate_llms_txt(tree)
+  let llms = @ssg.generate_llms_txt(tree)
   // Check TOC header
   inspect(llms.contains("## Table of Contents"), content="true")
   // Check TOC links
@@ -202,7 +202,7 @@ test "generate_llms_txt - table of contents" {
 ///|
 test "generate_llms_txt - page content" {
   let tree = create_test_tree()
-  let llms = @ssg_core.generate_llms_txt(tree)
+  let llms = @ssg.generate_llms_txt(tree)
   // Check page sections
   inspect(llms.contains("# Home"), content="true")
   inspect(llms.contains("URL: /"), content="true")
@@ -214,7 +214,7 @@ test "generate_llms_txt - page content" {
 ///|
 test "generate_llms_txt - page outline" {
   let tree = create_test_tree()
-  let llms = @ssg_core.generate_llms_txt(tree)
+  let llms = @ssg.generate_llms_txt(tree)
   // Check outline section for pages with headings
   inspect(llms.contains("## Outline"), content="true")
   // Check heading is listed
@@ -271,7 +271,7 @@ test "DocumentTree::get_pages_sorted_by_date - with limit" {
 
 ///|
 test "PageInfo::canonical_url" {
-  let page = @ssg_core.PageInfo::new(
+  let page = @ssg.PageInfo::new(
     id="test",
     url_path="/guide/intro/",
     title="Test",

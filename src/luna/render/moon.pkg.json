@@ -1,8 +1,7 @@
 {
   "import": [
     { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/internal/utils", "alias": "utils" },
-    { "path": "mizchi/luna/core/render", "alias": "abstract" }
+    { "path": "mizchi/luna/internal/utils", "alias": "utils" }
   ],
   "supported-targets": [
     "js",

@@ -2,7 +2,6 @@
   "import": [
     { "path": "mizchi/luna/sol/ssg", "alias": "ssg" },
     { "path": "mizchi/luna/core/env", "alias": "env" },
-    { "path": "mizchi/luna/core/ssg", "alias": "ssg_core" },
     { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" }
   ]
 }

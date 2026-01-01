@@ -716,7 +716,7 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
       let content = fs.read_file_sync(full_path) catch { _ => continue }
 
       // Compute URL path for duplicate detection
-      let url_path = @ssg_core.file_to_url_path(
+      let url_path = @ssg.file_to_url_path(
         relative_path,
         trailing_slash=config.trailing_slash,
       )

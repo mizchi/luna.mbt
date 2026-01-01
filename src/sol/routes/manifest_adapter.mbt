@@ -11,11 +11,11 @@
 pub fn page_metas_to_manifest(
   pages : Array[@ssg.PageMeta],
   config : @ssg.SsgConfig,
-) -> @sol_routes.RouteManifest {
-  let routes : Array[@sol_routes.RouteEntry] = []
+) -> RouteManifest {
+  let routes : Array[RouteEntry] = []
   for page in pages {
-    let output = @ssg_core.url_to_output_path(page.url_path)
-    let entry = @sol_routes.RouteEntry::Static(@sol_routes.StaticRouteEntry::{
+    let output = @ssg.url_to_output_path(page.url_path)
+    let entry = RouteEntry::Static(StaticRouteEntry::{
       path: page.url_path,
       source: page.source_path,
       output,
@@ -30,18 +30,18 @@ pub fn page_metas_to_manifest(
   }
 
   // Determine fallback based on config
-  let fallback = @sol_routes.FallbackConfig::NotFound(
-    path=@ssg_core.url_to_output_path("/404/"),
+  let fallback = FallbackConfig::NotFound(
+    path=@ssg.url_to_output_path("/404/"),
   )
-  @sol_routes.RouteManifest::{ routes, fallback } |> ignore
+  RouteManifest::{ routes, fallback } |> ignore
   // Use config for potential SPA fallback
   if config.navigation.spa {
-    @sol_routes.RouteManifest::{
+    RouteManifest::{
       routes,
-      fallback: @sol_routes.FallbackConfig::Spa(entry="/index.html"),
+      fallback: FallbackConfig::Spa(entry="/index.html"),
     }
   } else {
-    @sol_routes.RouteManifest::{ routes, fallback }
+    RouteManifest::{ routes, fallback }
   }
 }
 
@@ -53,12 +53,12 @@ pub fn page_metas_to_manifest(
 /// Convert RouteManifest back to PageMeta array
 /// Only static routes can be converted
 pub fn manifest_to_page_metas(
-  manifest : @sol_routes.RouteManifest,
+  manifest : RouteManifest,
 ) -> Array[@ssg.PageMeta] {
   let pages : Array[@ssg.PageMeta] = []
   for route in manifest.routes {
     match route {
-      @sol_routes.RouteEntry::Static(static_route) => {
+      RouteEntry::Static(static_route) => {
         let frontmatter = @ssg.Frontmatter::{
           title: static_route.title,
           description: static_route.description,
@@ -111,11 +111,11 @@ pub fn manifest_to_page_metas(
 /// Convert a single PageMeta to StaticRouteEntry
 pub fn page_meta_to_static_route(
   page : @ssg.PageMeta,
-) -> @sol_routes.StaticRouteEntry {
-  @sol_routes.StaticRouteEntry::{
+) -> StaticRouteEntry {
+  StaticRouteEntry::{
     path: page.url_path,
     source: page.source_path,
-    output: @ssg_core.url_to_output_path(page.url_path),
+    output: @ssg.url_to_output_path(page.url_path),
     layout: page.frontmatter.layout,
     title: page.frontmatter.title,
     description: page.frontmatter.description,
@@ -128,7 +128,7 @@ pub fn page_meta_to_static_route(
 ///|
 /// Convert StaticRouteEntry back to PageMeta
 pub fn static_route_to_page_meta(
-  route : @sol_routes.StaticRouteEntry,
+  route : StaticRouteEntry,
 ) -> @ssg.PageMeta {
   let frontmatter = @ssg.Frontmatter::{
     title: route.title,

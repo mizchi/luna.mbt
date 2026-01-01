@@ -510,24 +510,24 @@ fn parse_footer_links(arr : Array[Json]) -> Array[FooterLink] {
 
 ///|
 /// Parse i18n configuration
-fn parse_i18n_config(obj : Map[String, Json]) -> @ssg_core.I18nConfig {
+fn parse_i18n_config(obj : Map[String, Json]) -> I18nConfig {
   guard @json_utils.extract_object(obj, "i18n") is Some(i18n_obj) else {
-    return @ssg_core.I18nConfig::default()
+    return I18nConfig::default()
   }
   let default_locale = @json_utils.extract_string(
     i18n_obj, "defaultLocale", "en",
   )
   let locales = match i18n_obj.get("locales") {
     Some(Array(arr)) => parse_locale_configs(arr)
-    _ => [@ssg_core.LocaleConfig::{ code: "en", label: "English", path: "" }]
+    _ => [LocaleConfig::{ code: "en", label: "English", path: "" }]
   }
-  @ssg_core.I18nConfig::{ default_locale, locales }
+  I18nConfig::{ default_locale, locales }
 }
 
 ///|
 /// Parse locale configurations
-fn parse_locale_configs(arr : Array[Json]) -> Array[@ssg_core.LocaleConfig] {
-  let result : Array[@ssg_core.LocaleConfig] = []
+fn parse_locale_configs(arr : Array[Json]) -> Array[LocaleConfig] {
+  let result : Array[LocaleConfig] = []
   for item in arr {
     if parse_locale_config(item) is Some(locale) {
       result.push(locale)
@@ -538,7 +538,7 @@ fn parse_locale_configs(arr : Array[Json]) -> Array[@ssg_core.LocaleConfig] {
 
 ///|
 /// Parse single locale configuration
-fn parse_locale_config(json : Json) -> @ssg_core.LocaleConfig? {
+fn parse_locale_config(json : Json) -> LocaleConfig? {
   guard json is Object(obj) else { return None }
   guard @json_utils.extract_string_opt(obj, "code") is Some(code) else {
     return None
@@ -548,21 +548,21 @@ fn parse_locale_config(json : Json) -> @ssg_core.LocaleConfig? {
     Some(p) => p
     None => if code == "en" { "" } else { code }
   }
-  Some(@ssg_core.LocaleConfig::{ code, label, path })
+  Some(LocaleConfig::{ code, label, path })
 }
 
 ///|
 /// Parse navigation configuration
-fn parse_navigation_config(obj : Map[String, Json]) -> @ssg_core.NavigationConfig {
+fn parse_navigation_config(obj : Map[String, Json]) -> NavigationConfig {
   guard @json_utils.extract_object(obj, "navigation") is Some(nav_obj) else {
-    return @ssg_core.NavigationConfig::default()
+    return NavigationConfig::default()
   }
   let spa = @json_utils.extract_bool(nav_obj, "spa", false)
   let view_transitions = @json_utils.extract_bool(
     nav_obj, "viewTransitions", true,
   )
   let keyboard = @json_utils.extract_bool(nav_obj, "keyboard", true)
-  @ssg_core.NavigationConfig::{ spa, view_transitions, keyboard }
+  NavigationConfig::{ spa, view_transitions, keyboard }
 }
 
 ///|

@@ -18,7 +18,7 @@ fn AbstractNode::render_html_to(
   sb : StringBuilder,
 ) -> Unit {
   match self {
-    Text(content) => escape_html_to(sb, content)
+    Text(content) => abstract_escape_html_to(sb, content)
     RawHtml(html) => sb.write_string(html)
     Fragment(children) =>
       for child in children {
@@ -27,8 +27,8 @@ fn AbstractNode::render_html_to(
     Element(tag~, attrs~, children~) => {
       sb.write_char('<')
       sb.write_string(tag)
-      render_attrs_to(sb, attrs)
-      if is_void_element(tag) {
+      abstract_render_attrs_to(sb, attrs)
+      if abstract_is_void_element(tag) {
         sb.write_string(" />")
       } else {
         sb.write_char('>')
@@ -74,7 +74,7 @@ fn render_component_to(
       sb.write_string("\" data-trigger=\"")
       sb.write_string(trigger.to_attr_string())
       sb.write_string("\" data-props=\"")
-      escape_attr_to(sb, config.props.to_string())
+      abstract_escape_attr_to(sb, config.props.to_string())
       sb.write_string("\">")
       for child in children {
         child.render_html_to(sb)
@@ -86,7 +86,7 @@ fn render_component_to(
       sb.write_string("<div data-client-only=\"")
       sb.write_string(config.name)
       sb.write_string("\" data-props=\"")
-      escape_attr_to(sb, config.props.to_string())
+      abstract_escape_attr_to(sb, config.props.to_string())
       sb.write_string("\">")
       // Show loading placeholder or nothing
       sb.write_string("<!--loading-->")
@@ -97,7 +97,7 @@ fn render_component_to(
       sb.write_string("<div data-server-island=\"")
       sb.write_string(config.name)
       sb.write_string("\" data-props=\"")
-      escape_attr_to(sb, config.props.to_string())
+      abstract_escape_attr_to(sb, config.props.to_string())
       sb.write_string("\">")
       // Show fallback content
       for child in children {
@@ -110,14 +110,14 @@ fn render_component_to(
 
 ///|
 /// Render attributes to StringBuilder
-fn render_attrs_to(
+fn abstract_render_attrs_to(
   sb : StringBuilder,
   attrs : Array[(String, AttrValue)],
 ) -> Unit {
   for attr in attrs {
     let (name, value) = attr
     match value {
-      Str(s) => render_attr_value(sb, name, s)
+      Str(s) => abstract_render_attr_value(sb, name, s)
       Bool(b) =>
         if b {
           // Boolean attribute - just add the name
@@ -135,7 +135,7 @@ fn render_attrs_to(
         sb.write_char(' ')
         sb.write_string(name)
         sb.write_string("=\"")
-        escape_attr_to(sb, j.to_string())
+        abstract_escape_attr_to(sb, j.to_string())
         sb.write_char('"')
       }
     }
@@ -144,7 +144,11 @@ fn render_attrs_to(
 
 ///|
 /// Render a single attribute value
-fn render_attr_value(sb : StringBuilder, name : String, s : String) -> Unit {
+fn abstract_render_attr_value(
+  sb : StringBuilder,
+  name : String,
+  s : String,
+) -> Unit {
   if s.is_empty() {
     // Boolean attribute (like disabled, checked)
     sb.write_char(' ')
@@ -153,14 +157,14 @@ fn render_attr_value(sb : StringBuilder, name : String, s : String) -> Unit {
     sb.write_char(' ')
     sb.write_string(name)
     sb.write_string("=\"")
-    escape_attr_to(sb, s)
+    abstract_escape_attr_to(sb, s)
     sb.write_char('"')
   }
 }
 
 ///|
-/// Escape HTML content
-fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
+/// Escape HTML content (for AbstractNode rendering)
+fn abstract_escape_html_to(sb : StringBuilder, s : String) -> Unit {
   for c in s {
     match c {
       '&' => sb.write_string("&amp;")
@@ -174,8 +178,8 @@ fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
 }
 
 ///|
-/// Escape attribute value
-fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
+/// Escape attribute value (for AbstractNode rendering)
+fn abstract_escape_attr_to(sb : StringBuilder, s : String) -> Unit {
   for c in s {
     match c {
       '&' => sb.write_string("&amp;")
@@ -188,8 +192,8 @@ fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
 }
 
 ///|
-/// Check if tag is a void element (self-closing)
-fn is_void_element(tag : String) -> Bool {
+/// Check if tag is a void element (for AbstractNode rendering)
+fn abstract_is_void_element(tag : String) -> Bool {
   match tag {
     "area"
     | "base"

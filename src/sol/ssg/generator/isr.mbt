@@ -1,4 +1,4 @@
-// Sol SSG ISR Metadata Generator
+// Sol SSG ISR Manifest Generator
 //
 // Generates ISR manifest at build time.
 // Uses shared types from sol/isr.
@@ -9,7 +9,7 @@
 
 ///|
 /// Build ISR manifest from pages
-pub fn build_manifest(pages : Array[@ssg.PageMeta]) -> @sol_isr.ISRManifest {
+pub fn build_isr_manifest(pages : Array[@ssg.PageMeta]) -> @sol_isr.ISRManifest {
   let manifest = @sol_isr.ISRManifest::new()
   for page in pages {
     // Only include pages with revalidate set
@@ -39,7 +39,7 @@ pub fn build_manifest(pages : Array[@ssg.PageMeta]) -> @sol_isr.ISRManifest {
 
 ///|
 /// Write ISR manifest to file
-pub fn write_manifest(
+pub fn write_isr_manifest(
   manifest : @sol_isr.ISRManifest,
   output_dir : String,
 ) -> Unit {
