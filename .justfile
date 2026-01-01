@@ -166,7 +166,7 @@ astra *args:
 # docs 開発サーバー
 dev-doc:
     pnpm turbo run build:moon build:sol
-    node target/js/release/build/sol/cli/cli.js dev
+    cd website && node ../target/js/release/build/sol/cli/cli.js dev
 
 # docs ビルド
 build-doc *args:

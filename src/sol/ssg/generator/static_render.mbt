@@ -374,24 +374,51 @@ fn get_component_name_from_path(source_path : String) -> String {
 }
 
 ///|
-/// Simple CSS minification - removes excessive whitespace
+/// Simple CSS minification - removes comments and excessive whitespace
 fn minify_css(css : String) -> String {
+  // Remove CSS comments /* ... */
+  let no_comments = remove_css_comments(css)
   // Simple whitespace normalization using string operations
-  css
-  .replace(old="\n", new=" ")
-  .replace(old="\r", new="")
-  .replace(old="\t", new=" ")
-  .replace(old="  ", new=" ")
-  .replace(old="  ", new=" ")
-  .replace(old="  ", new=" ")
-  .replace(old=" {", new="{")
-  .replace(old="{ ", new="{")
-  .replace(old=" }", new="}")
-  .replace(old="} ", new="}")
-  .replace(old=" :", new=":")
-  .replace(old=": ", new=":")
-  .replace(old=" ;", new=";")
-  .replace(old="; ", new=";")
+  // Use replace_all to replace ALL occurrences, not just the first one
+  no_comments
+  .replace_all(old="\n", new=" ")
+  .replace_all(old="\r", new="")
+  .replace_all(old="\t", new=" ")
+  .replace_all(old="  ", new=" ")
+  .replace_all(old="  ", new=" ")
+  .replace_all(old="  ", new=" ")
+  .replace_all(old="  ", new=" ")
+  .replace_all(old=" {", new="{")
+  .replace_all(old="{ ", new="{")
+  .replace_all(old=" }", new="}")
+  .replace_all(old="} ", new="}")
+  .replace_all(old=" :", new=":")
+  .replace_all(old=": ", new=":")
+  .replace_all(old=" ;", new=";")
+  .replace_all(old="; ", new=";")
+}
+
+///|
+/// Remove CSS comments /* ... */
+fn remove_css_comments(css : String) -> String {
+  let result = StringBuilder::new()
+  let chars = css.to_array()
+  let len = chars.length()
+  let mut i = 0
+  while i < len {
+    if i + 1 < len && chars[i] == '/' && chars[i + 1] == '*' {
+      // Skip until */
+      i = i + 2
+      while i + 1 < len && not(chars[i] == '*' && chars[i + 1] == '/') {
+        i = i + 1
+      }
+      i = i + 2 // Skip */
+    } else {
+      result.write_char(chars[i])
+      i = i + 1
+    }
+  }
+  result.to_string()
 }
 
 // =============================================================================
@@ -1592,7 +1619,7 @@ fn build_html_document(
   let page_title = frontmatter.title.unwrap_or(ctx.config.title)
   let desc = frontmatter.description.unwrap_or("")
   let base = ctx.config.base_url
-  let primary = ctx.config.theme.primary_color.unwrap_or("#3451b2")
+  let primary = ctx.config.theme.primary_color.unwrap_or("#6366f1") // Indigo 500
 
   // === HEAD: Document metadata ===
   html.write_string("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n")
@@ -1639,7 +1666,7 @@ fn build_html_document(
   html.write_string("  <script>\{theme_script}</script>\n")
 
   // === HEAD: Inline critical CSS ===
-  let combined_css = build_combined_css(ctx.config, primary)
+  let combined_css = build_combined_css(ctx.config, primary, is_dev=ctx.is_dev)
   html.write_string("  <style>\{combined_css}</style>\n")
 
   // Custom head snippets
@@ -1693,14 +1720,18 @@ fn build_html_document(
 }
 
 ///|
-/// Build combined CSS with minification
-fn build_combined_css(config : @ssg.SsgConfig, primary : String) -> String {
+/// Build combined CSS with optional minification (skip in dev mode)
+fn build_combined_css(
+  config : @ssg.SsgConfig,
+  primary : String,
+  is_dev~ : Bool = false,
+) -> String {
   let main_css = @assets.get_default_css(config)
   let markdown_css = @assets.get_github_markdown_css()
   let shiki_css = @shiki.generate_shiki_css()
   let all_css = main_css + "\n" + markdown_css + "\n" + shiki_css
-  let minified = minify_css(all_css)
-  "\{minified}:root{--primary-color:\{primary};}"
+  let output_css = if is_dev { all_css } else { minify_css(all_css) }
+  "\{output_css}:root{--primary-color:\{primary};}"
 }
 
 ///|
@@ -2010,20 +2041,24 @@ fn copy_static_assets_internal(
     println("  Extracted CSS utilities from source files")
     css + "\n/* === CSS Utilities (auto-extracted) === */\n" + utility_css
   }
+  // Minify CSS only for production builds (skip in dev mode for readability)
+  let output_css = if ctx.is_dev { full_css } else { minify_css(full_css) }
   let css_path = @path.join2(output_assets, "style.css")
-  @fs.writeFileSync(css_path, @js.any(full_css)) catch {
+  @fs.writeFileSync(css_path, @js.any(output_css)) catch {
     _ => ()
   }
 
-  // Write shiki CSS
-  let shiki_css = @shiki.generate_shiki_css()
+  // Write shiki CSS (minified only in production)
+  let shiki_raw = @shiki.generate_shiki_css()
+  let shiki_css = if ctx.is_dev { shiki_raw } else { minify_css(shiki_raw) }
   let shiki_css_path = @path.join2(output_assets, "shiki.css")
   @fs.writeFileSync(shiki_css_path, @js.any(shiki_css)) catch {
     _ => ()
   }
 
-  // Write github-markdown CSS
-  let github_md_css = @assets.get_github_markdown_css()
+  // Write github-markdown CSS (minified only in production)
+  let github_md_raw = @assets.get_github_markdown_css()
+  let github_md_css = if ctx.is_dev { github_md_raw } else { minify_css(github_md_raw) }
   let github_md_css_path = @path.join2(output_assets, "github-markdown.css")
   @fs.writeFileSync(github_md_css_path, @js.any(github_md_css)) catch {
     _ => ()
@@ -2101,7 +2136,7 @@ fn copy_boot_runtime(ctx : @ssg.BuildContext) -> Unit {
 }
 
 ///|
-/// Copy components directory to output (convention: docs/components -> /components/)
+/// Bundle components directory to output using rolldown (convention: docs/components -> /components/)
 fn copy_islands_dir(ctx : @ssg.BuildContext) -> Unit {
   // Use config if provided, otherwise use convention (docs/components)
   let (src_dir, base_path) = match ctx.config.islands {
@@ -2140,10 +2175,103 @@ fn copy_islands_dir(ctx : @ssg.BuildContext) -> Unit {
   // Ensure destination directory exists
   ensure_dir(islands_dest)
 
-  // Copy components directory
-  println("  Copying components from \{src_dir}...")
-  @fs.cpSync(islands_src, islands_dest, recursive=true) catch {
-    e => println("  Warning: Failed to copy components directory: \{e}")
+  // Bundle components using rolldown
+  bundle_components(islands_src, islands_dest, ctx.cwd)
+}
+
+///|
+/// Find js/luna/src path by checking current and parent directories
+fn find_luna_path(start_dir : String) -> String {
+  // Check current directory and up to 3 parent levels
+  let mut dir = start_dir
+  for _ in 0..<4 {
+    let luna_src = @path.join2(dir, "js/luna/src")
+    if @fs.existsSync(luna_src) {
+      return luna_src
+    }
+    // Go up one level
+    let parent = @path.dirname(dir)
+    if parent == dir {
+      // Reached root
+      break
+    }
+    dir = parent
+  }
+  // Fallback - assume it's in the current directory structure
+  @path.join2(start_dir, "js/luna/src")
+}
+
+///|
+/// Bundle components using rolldown
+fn bundle_components(src_dir : String, dest_dir : String, cwd : String) -> Unit {
+  // Scan for JS/TS files in source directory
+  let entries : Array[String] = @fs.readdirSync(src_dir) catch { _ => [] }
+
+  // Filter for bundleable files
+  let js_files : Array[String] = []
+  for entry in entries {
+    if entry.ends_with(".js") || entry.ends_with(".ts") {
+      js_files.push(entry)
+    }
+  }
+
+  if js_files.is_empty() {
+    return
+  }
+
+  // Create rolldown input object
+  let input_entries : Array[String] = []
+  for file in js_files {
+    let name = if file.ends_with(".js") {
+      file.substring(end=file.length() - 3)
+    } else {
+      file.substring(end=file.length() - 3) // .ts
+    }
+    let entry_path = @path.join2(src_dir, file)
+    input_entries.push("\"\{name}\": \"\{entry_path}\"")
+  }
+  let input_obj = "{ " + input_entries.join(", ") + " }"
+
+  // Generate rolldown build script
+  // Find js/luna path by checking current dir and parent dirs
+  let luna_path = find_luna_path(cwd)
+  let build_script =
+    #|import { build } from 'rolldown';
+    #|import path from 'node:path';
+    #|await build({
+    #|  input: __INPUT__,
+    #|  output: {
+    #|    dir: '__OUTPUT__',
+    #|    format: 'esm',
+    #|    entryFileNames: '[name].js',
+    #|    chunkFileNames: '_shared/[name]-[hash].js'
+    #|  },
+    #|  resolve: {
+    #|    extensions: ['.ts', '.js', '.mjs'],
+    #|    alias: {
+    #|      '@luna': '__LUNA_PATH__'
+    #|    }
+    #|  }
+    #|});
+  let script = build_script
+    .replace(old="__INPUT__", new=input_obj)
+    .replace(old="__OUTPUT__", new=dest_dir)
+    .replace(old="__LUNA_PATH__", new=luna_path)
+
+  // Run rolldown
+  println("  Bundling components from \{src_dir}...")
+  try {
+    let result = @child_process.spawnSync(
+      "node",
+      args=["--input-type=module", "-e", script],
+      stdio="inherit",
+      cwd~,
+    )
+    if result.status() != Some(0) {
+      println("  Warning: Failed to bundle components")
+    }
+  } catch {
+    e => println("  Warning: Bundle error: \{e}")
   }
 }
 
@@ -2360,7 +2488,7 @@ pub fn generate_404_page(ctx : @ssg.BuildContext) -> Unit {
   let base = ctx.config.base_url
   let title = "Page Not Found"
   let site_title = ctx.config.title
-  let primary = ctx.config.theme.primary_color.unwrap_or("#3451b2")
+  let primary = ctx.config.theme.primary_color.unwrap_or("#6366f1") // Indigo 500
   let theme_script = @assets.get_theme_script()
 
   // Build 404 page content

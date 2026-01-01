@@ -1949,3 +1949,72 @@ html.dark .tweet-card {
   opacity: 0.6;
 }
 
+/* ===================================
+   Radix-style Component States
+   CSS-only state management for hydration
+   =================================== */
+
+/* Accordion - state controls max-height */
+[data-accordion-content] {
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  overflow: hidden;
+}
+
+[data-state="open"] > [data-accordion-content] {
+  max-height: 500px;
+  opacity: 1;
+}
+
+[data-state="closed"] > [data-accordion-content] {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Accordion chevron rotation */
+[data-chevron] {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+[data-state="open"] [data-chevron] {
+  transform: rotate(180deg);
+}
+
+[data-state="closed"] [data-chevron] {
+  transform: rotate(0deg);
+}
+
+/* Checkbox - aria-checked controls visibility */
+[data-checkbox][aria-checked="true"]::before {
+  opacity: 1;
+}
+
+[data-checkbox][aria-checked="false"]::before {
+  opacity: 0;
+}
+
+/* Switch - aria-checked controls background and thumb position */
+[data-switch-toggle] {
+  transition: background 0.2s ease;
+}
+
+[data-switch-toggle][aria-checked="true"] {
+  background: var(--primary-color, #6366f1);
+}
+
+[data-switch-toggle][aria-checked="false"] {
+  background: #4b5563;
+}
+
+[data-switch-thumb] {
+  transition: left 0.2s ease;
+}
+
+[data-switch-toggle][aria-checked="true"] [data-switch-thumb] {
+  left: 22px;
+}
+
+[data-switch-toggle][aria-checked="false"] [data-switch-thumb] {
+  left: 2px;
+}
+
