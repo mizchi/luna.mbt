@@ -64,15 +64,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     false
   }
   let cwd = @process.cwd()
-  // Check if this is a MoonBit project
-  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  if not(fs.exists_sync(moon_mod_path)) {
-    @cli_common.console_error(
-      @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
-    )
-    @process.exit(1)
-  }
-  // Check if this is an SSG project
+  // Check if this is an SSG project first (SSG mode doesn't require moon.mod.json)
   if has_ssg_config(cwd) {
     // SSG dev mode
     println(@colorette.cyan("SSG config detected, running SSG dev server..."))
@@ -99,6 +91,14 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
       }
     }
     return
+  }
+  // Check if this is a MoonBit project (required for non-SSG mode)
+  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
+  if not(fs.exists_sync(moon_mod_path)) {
+    @cli_common.console_error(
+      @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
+    )
+    @process.exit(1)
   }
   println(@colorette.cyan("Starting Sol development server..."))
   // Step 1: Clean generated files if requested

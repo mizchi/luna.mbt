@@ -5,8 +5,9 @@ import { join } from "node:path";
 import WebSocket from "ws";
 
 const PROJECT_ROOT = join(import.meta.dirname, "../..");
-const DOCS_DIR = join(PROJECT_ROOT, "docs");
-const TEST_FILE = join(DOCS_DIR, "_hmr_test_temp.md");
+const WEBSITE_DIR = join(PROJECT_ROOT, "website");
+const TEST_FILE = join(WEBSITE_DIR, "_hmr_test_temp.md");
+// Use same ports as dark-theme.test.ts - these tests must run serially
 const DEV_SERVER_PORT = 3355;
 const HMR_PORT = 24679;
 
@@ -30,8 +31,8 @@ async function startDevServer(): Promise<void> {
       "target/js/release/build/sol/cli/cli.js"
     );
 
-    devServer = spawn("node", [cliPath, "dev"], {
-      cwd: PROJECT_ROOT,
+    devServer = spawn("node", [cliPath, "dev", "-p", String(DEV_SERVER_PORT)], {
+      cwd: WEBSITE_DIR,
       stdio: ["pipe", "pipe", "pipe"],
     });
 
@@ -41,7 +42,7 @@ async function startDevServer(): Promise<void> {
     devServer.stdout?.on("data", (data: Buffer) => {
       output += data.toString();
       // Wait for server to be ready
-      if (output.includes("Dev server running at") && !started) {
+      if (output.includes("server running at") && !started) {
         started = true;
         // Give it a moment to fully initialize
         setTimeout(resolve, 1000);
@@ -125,9 +126,7 @@ function cleanupTestFile(): void {
   }
 }
 
-// TODO: Fix dev server SSG config - docs directory has no markdown files
-// The dev server expects SSG content in docs/ but the actual content is in website/
-test.describe.skip("Astra HMR", () => {
+test.describe("Astra HMR", () => {
   test.beforeAll(async () => {
     // Kill any existing processes
     killExistingProcesses();
