@@ -17,7 +17,7 @@
 //   [data-slider-range] { width: calc(var(--slider-percent, 50) * 1%); }
 //   [data-slider-thumb] { left: calc(var(--slider-percent, 50) * 1%); }
 
-import { createHydrator, drag } from '../../../js/luna/src/hydration/index.ts';
+import { createHydrator, drag } from '@luna/hydration';
 
 export const hydrate = createHydrator((el) => {
   // Get slider config from data attributes

@@ -464,14 +464,109 @@ fn copy_ssg_components(config : @ssg.SsgConfig, cwd : String) -> Unit {
     @path.join2(cwd, config.output_dir),
     output_subdir_clean,
   )
-  @fs.cpSync(src, dest, recursive=true) catch {
-    e => {
-      println(@colorette.red("  Failed to copy components: \{e}"))
-      return
+
+  // Bundle components with rolldown instead of just copying
+  bundle_ssg_components(src, dest, cwd)
+}
+
+///|
+/// Find js/luna/src path by checking current and parent directories
+fn find_luna_path(start_dir : String) -> String {
+  // Check current directory and up to 3 parent levels
+  let mut dir = start_dir
+  for _ in 0..<4 {
+    let luna_src = @path.join2(dir, "js/luna/src")
+    if @fs.existsSync(luna_src) {
+      return luna_src
+    }
+    // Go up one level
+    let parent = @path.dirname(dir)
+    if parent == dir {
+      // Reached root
+      break
+    }
+    dir = parent
+  }
+  // Fallback - assume it's in the current directory structure
+  @path.join2(start_dir, "js/luna/src")
+}
+
+///|
+/// Bundle SSG components using rolldown
+fn bundle_ssg_components(src_dir : String, dest_dir : String, cwd : String) -> Unit {
+  // Scan for JS/TS files in source directory
+  let entries : Array[String] = @fs.readdirSync(src_dir) catch { _ => [] }
+
+  // Filter for bundleable files
+  let js_files : Array[String] = []
+  for entry in entries {
+    if entry.ends_with(".js") || entry.ends_with(".ts") {
+      js_files.push(entry)
     }
   }
-  println(@colorette.green("Components copied"))
-  println("")
+
+  if js_files.is_empty() {
+    println(@colorette.gray("  No components to bundle"))
+    return
+  }
+
+  // Create rolldown input object
+  let input_entries : Array[String] = []
+  for file in js_files {
+    let name = if file.ends_with(".js") {
+      file.substring(end=file.length() - 3)
+    } else {
+      file.substring(end=file.length() - 3) // .ts
+    }
+    let entry_path = @path.join2(src_dir, file)
+    input_entries.push("\"\{name}\": \"\{entry_path}\"")
+  }
+  let input_obj = "{ " + input_entries.join(", ") + " }"
+
+  // Generate rolldown build script
+  // Find js/luna path by checking current and parent directories
+  let luna_path = find_luna_path(cwd)
+  let build_script =
+    #|import { build } from 'rolldown';
+    #|await build({
+    #|  input: __INPUT__,
+    #|  output: {
+    #|    dir: '__OUTPUT__',
+    #|    format: 'esm',
+    #|    entryFileNames: '[name].js',
+    #|    chunkFileNames: '_shared/[name]-[hash].js'
+    #|  },
+    #|  resolve: {
+    #|    extensions: ['.ts', '.js', '.mjs'],
+    #|    alias: {
+    #|      '@luna': '__LUNA_PATH__'
+    #|    }
+    #|  }
+    #|});
+  let script = build_script
+    .replace(old="__INPUT__", new=input_obj)
+    .replace(old="__OUTPUT__", new=dest_dir)
+    .replace(old="__LUNA_PATH__", new=luna_path)
+
+  // Run rolldown
+  try {
+    let result = @child_process.spawnSync(
+      "node",
+      args=["--input-type=module", "-e", script],
+      stdio="inherit",
+      cwd~,
+    )
+    if result.status() != Some(0) {
+      println(@colorette.red("  Failed to bundle components"))
+      return
+    }
+    println(@colorette.green("Components bundled (\{js_files.length()} files)"))
+    println("")
+  } catch {
+    e => {
+      println(@colorette.red("  Bundle error: \{e}"))
+    }
+  }
 }
 
 ///|

@@ -15,7 +15,7 @@
 //   [data-state="checked"] [data-checkbox-indicator] { display: flex; }
 //   [data-state="unchecked"] [data-checkbox-indicator] { display: none; }
 
-import { createHydrator, toggle } from '../../../js/luna/src/hydration/index.ts';
+import { createHydrator, toggle } from '@luna/hydration';
 
 export const hydrate = createHydrator((el) => {
   // Toggle data-state and aria-checked together

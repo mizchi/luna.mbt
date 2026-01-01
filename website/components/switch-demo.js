@@ -15,7 +15,7 @@
 //   [aria-checked="true"] [data-switch-thumb] { transform: translateX(20px); }
 //   [aria-checked="false"] [data-switch-thumb] { transform: translateX(0); }
 
-import { createHydrator, toggle } from '../../../js/luna/src/hydration/index.ts';
+import { createHydrator, toggle } from '@luna/hydration';
 
 export const hydrate = createHydrator((el) => {
   return toggle(el, '[data-switch-toggle]', {

@@ -5,27 +5,29 @@
 ///|
 /// Get combined CSS with theme customization
 pub fn get_default_css(config : @ssg.SsgConfig) -> String {
-  // Luna theme: Moon-inspired black and gold colors
-  // Primary color from config is used for dark mode (bright gold)
-  // Light mode uses a darker amber for better readability on white background
-  let primary_dark = config.theme.primary_color.unwrap_or("#fbbf24") // amber-400
-  let primary_light = "#b45309" // amber-700
+  // Use main.css default Indigo colors, allow override via config
   let base_css = get_main_css()
-  // Apply custom primary colors if configured
   if base_css.is_empty() {
     // Fallback to inline CSS if file not found
+    let primary_light = config.theme.primary_color.unwrap_or("#6366f1") // Indigo 500
+    let primary_dark = config.theme.primary_color.unwrap_or("#818cf8") // Indigo 400
     get_fallback_css(primary_light, primary_dark)
   } else {
-    // Replace default primary colors with configured ones
-    base_css
-    .replace(
-      old="--primary-color: #b45309",
-      new="--primary-color: \{primary_light}",
-    )
-    .replace(
-      old="--primary-color: #fbbf24",
-      new="--primary-color: \{primary_dark}",
-    )
+    // If config has custom primary color, replace default Indigo with custom
+    match config.theme.primary_color {
+      Some(custom_color) => {
+        base_css
+        .replace(
+          old="--primary-color: #6366f1",
+          new="--primary-color: \{custom_color}",
+        )
+        .replace(
+          old="--primary-color: #818cf8",
+          new="--primary-color: \{custom_color}",
+        )
+      }
+      None => base_css // Use default Indigo colors from main.css
+    }
   }
 }
 

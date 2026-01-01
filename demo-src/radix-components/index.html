@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna Radix Components (SSR + Hydration)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #1a1a2e;
+      color: #e5e7eb;
+    }
+    h1 { color: #f3f4f6; }
+    h2 { color: #d1d5db; border-bottom: 1px solid #374151; padding-bottom: 8px; }
+    hr { border: none; border-top: 1px solid #374151; margin: 24px 0; }
+    .app { padding: 20px; max-width: 800px; margin: 0 auto; }
+    .demo-section {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    /* Accordion styles */
+    [data-accordion-item] {
+      border: 1px solid #374151;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      overflow: hidden;
+    }
+    [data-accordion-trigger] {
+      width: 100%;
+      padding: 12px 16px;
+      background: #374151;
+      border: none;
+      color: #e5e7eb;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    [data-accordion-trigger]:hover { background: #4b5563; }
+    [data-accordion-content] {
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    [data-state="open"] [data-accordion-content] { max-height: 200px; padding: 12px 16px; }
+    [data-state="closed"] [data-accordion-content] { max-height: 0; padding: 0 16px; }
+    [data-chevron] { transition: transform 0.2s ease; }
+    [data-state="open"] [data-chevron] { transform: rotate(180deg); }
+    [data-state="closed"] [data-chevron] { transform: rotate(0deg); }
+
+    /* Switch styles */
+    [data-switch-toggle] {
+      width: 44px;
+      height: 24px;
+      padding: 2px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      position: relative;
+    }
+    [data-switch-toggle][aria-checked="true"] { background: #6366f1; }
+    [data-switch-toggle][aria-checked="false"] { background: #4b5563; }
+    [data-switch-thumb] {
+      display: block;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+    [aria-checked="true"] [data-switch-thumb] { transform: translateX(20px); }
+    [aria-checked="false"] [data-switch-thumb] { transform: translateX(0); }
+    [data-switch-label] {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    /* Checkbox styles */
+    [data-checkbox] {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border: 2px solid #6366f1;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      transition: background 0.2s ease;
+    }
+    [data-checkbox][aria-checked="true"] { background: #6366f1; }
+    [data-checkbox][aria-checked="false"] [data-checkbox-indicator] { opacity: 0; }
+    [data-checkbox][aria-checked="true"] [data-checkbox-indicator] { opacity: 1; }
+    [data-checkbox-label] {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+  </style>
+  <!-- Luna loader for hydration (inlined for demo) -->
+  <script>
+  (function() {
+    function setupTrigger(el, trigger, hydrate) {
+      if (trigger === "load") document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => hydrate(), { once: true }) : hydrate();
+      else if (trigger === "idle") requestIdleCallback(() => hydrate());
+      else if (trigger[0] === "v") new IntersectionObserver((entries, obs) => {
+        if (entries.some((e) => e.isIntersecting)) { obs.disconnect(); hydrate(); }
+      }, { rootMargin: "50px" }).observe(el);
+      else if (trigger[0] === "m") {
+        const mq = matchMedia(trigger.slice(6));
+        const handler = () => { if (mq.matches) { mq.removeEventListener("change", handler); hydrate(); } };
+        mq.matches ? hydrate() : mq.addEventListener("change", handler);
+      }
+    }
+    function onReady(fn) {
+      document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", fn, { once: true }) : fn();
+    }
+    function observeAdditions(match, setup) {
+      new MutationObserver((mutations) => mutations.forEach((m) => m.addedNodes.forEach((n) => {
+        if (n.nodeType === 1 && match(n)) setup(n);
+      }))).observe(document.body ?? document.documentElement, { childList: true, subtree: true });
+    }
+    const d = document;
+    const S = {};
+    const loaded = new Set();
+    const parseState = async (el) => {
+      const a = el.getAttribute("luna:state");
+      if (!a) return;
+      if (a[0] === "#") return JSON.parse(d.getElementById(a.slice(1))?.textContent ?? "null");
+      try { return JSON.parse(a); } catch {}
+    };
+    const hydrate = async (el) => {
+      const id = el.getAttribute("luna:id") ?? el.tagName.toLowerCase();
+      if (loaded.has(id)) return;
+      loaded.add(id);
+      S[id] = await parseState(el);
+      const url = el.getAttribute("luna:url");
+      if (!url) return;
+      try {
+        const mod = await import(url);
+        const ex = el.getAttribute("luna:export");
+        (ex ? mod[ex] : mod.hydrate ?? mod.default)?.(el, S[id], id);
+      } catch (e) { console.warn(`[luna] Failed to load ${url}:`, e); }
+    };
+    const setup = (el) => { setupTrigger(el, el.getAttribute("luna:trigger") ?? "load", () => hydrate(el)); };
+    const scan = () => { d.querySelectorAll("[luna\\:url]").forEach(setup); };
+    d.querySelectorAll('script[type="luna/json"]').forEach((s) => { if (s.id) S[s.id] = JSON.parse(s.textContent ?? "{}"); });
+    onReady(scan);
+    observeAdditions((el) => el.hasAttribute("luna:url"), setup);
+    window.__LUNA_STATE__ = S;
+    window.__LUNA_HYDRATE__ = hydrate;
+    window.__LUNA_SCAN__ = scan;
+  })();
+  </script>
+</head>
+<body>
+  <div class="app">
+    <h1>Luna Radix Components</h1>
+    <p>SSR-rendered components with client-side hydration using Luna loader.</p>
+    <p><strong>Note:</strong> This demo shows server-rendered HTML with hydration. Components become interactive after hydration.</p>
+    <hr>
+
+    <!-- Accordion Example (SSR simulated) -->
+    <h2>Accordion</h2>
+    <div class="demo-section">
+      <div luna:id="accordion-demo" luna:url="./components/accordion-demo.js" luna:trigger="visible">
+        <div>
+          <div data-accordion-item="item-1" data-state="open">
+            <button data-accordion-trigger>
+              What is Luna?
+              <span data-chevron>▼</span>
+            </button>
+            <div data-accordion-content>
+              Luna is a UI library for MoonBit that enables building interactive web applications with server-side rendering and partial hydration.
+            </div>
+          </div>
+          <div data-accordion-item="item-2" data-state="closed">
+            <button data-accordion-trigger>
+              How does hydration work?
+              <span data-chevron>▼</span>
+            </button>
+            <div data-accordion-content>
+              The Luna loader scans for elements with luna:url attributes and loads the corresponding JavaScript modules. These modules receive the element and add event handlers.
+            </div>
+          </div>
+          <div data-accordion-item="item-3" data-state="closed">
+            <button data-accordion-trigger>
+              What is Island Architecture?
+              <span data-chevron>▼</span>
+            </button>
+            <div data-accordion-content>
+              Island Architecture allows you to have static HTML with interactive "islands" of JavaScript. This improves performance by only loading JS for interactive parts.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+
+    <!-- Switch Example (SSR simulated) -->
+    <h2>Switch</h2>
+    <div class="demo-section">
+      <div luna:id="switch-demo" luna:url="./components/switch-demo.js" luna:trigger="visible">
+        <label data-switch-label>
+          Enable notifications
+          <button data-switch-toggle role="switch" aria-checked="true">
+            <span data-switch-thumb></span>
+          </button>
+        </label>
+      </div>
+      <br>
+      <div luna:id="switch-demo-2" luna:url="./components/switch-demo.js" luna:trigger="visible">
+        <label data-switch-label>
+          Dark mode
+          <button data-switch-toggle role="switch" aria-checked="false">
+            <span data-switch-thumb></span>
+          </button>
+        </label>
+      </div>
+    </div>
+    <hr>
+
+    <!-- Checkbox Example (SSR simulated) -->
+    <h2>Checkbox</h2>
+    <div class="demo-section">
+      <div luna:id="checkbox-demo" luna:url="./components/checkbox-demo.js" luna:trigger="visible">
+        <label data-checkbox-label>
+          <button data-checkbox role="checkbox" aria-checked="true" data-state="checked">
+            <span data-checkbox-indicator>✓</span>
+          </button>
+          I agree to the terms and conditions
+        </label>
+      </div>
+      <br>
+      <div luna:id="checkbox-demo-2" luna:url="./components/checkbox-demo.js" luna:trigger="visible">
+        <label data-checkbox-label>
+          <button data-checkbox role="checkbox" aria-checked="false" data-state="unchecked">
+            <span data-checkbox-indicator>✓</span>
+          </button>
+          Subscribe to newsletter
+        </label>
+      </div>
+    </div>
+    <hr>
+
+    <h2>MoonBit Component Code</h2>
+    <p>These components are defined in <code>src/examples/radix-components/</code>:</p>
+    <pre style="background: #0f172a; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 12px;">
+// accordion.mbt
+pub fn accordion(props : AccordionProps) -> @luna.Node[Unit] {
+  let items = props.items.map(fn(item) { accordion_item(item) })
+  @luna.island(
+    "accordion",
+    props.hydration_url,
+    "{}",
+    [@element.div(items)],
+    trigger=@luna.Visible,
+  )
+}
+
+// switch.mbt
+pub fn switch(props : SwitchProps) -> @luna.Node[Unit] {
+  let button = switch_button(props.default_checked)
+  @luna.island(props.id, props.hydration_url, "{}", [button], trigger=@luna.Load)
+}
+
+// checkbox.mbt
+pub fn checkbox(props : CheckboxProps) -> @luna.Node[Unit] {
+  let button = checkbox_button(props.default_state)
+  @luna.island(props.id, props.hydration_url, "{}", [button], trigger=@luna.Load)
+}
+    </pre>
+  </div>
+</body>
+</html>

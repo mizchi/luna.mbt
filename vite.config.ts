@@ -27,6 +27,8 @@ export default defineConfig(({ command }) => {
       alias: {
         // Map /target to project root's target directory
         '/target': resolve(__dirname, 'target'),
+        // Map @luna/loader to js/loader/dist
+        '@luna/loader': resolve(__dirname, 'js/loader/dist'),
       },
     },
     server: {
@@ -49,6 +51,7 @@ export default defineConfig(({ command }) => {
           "wc": resolve(__dirname, './demo-src/wc/index.html'),
           "todomvc": resolve(__dirname, './demo-src/todomvc/index.html'),
           "css_split": resolve(__dirname, './demo-src/css_split/index.html'),
+          "radix-components": resolve(__dirname, './demo-src/radix-components/index.html'),
         },
       },
     },

@@ -348,9 +348,7 @@ fn parse_theme_config(obj : Map[String, Json]) -> ThemeConfig {
   guard @json_utils.extract_object(obj, "theme") is Some(theme_obj) else {
     return ThemeConfig::default()
   }
-  let primary_color = Some(
-    @json_utils.extract_string(theme_obj, "primaryColor", "#3451b2"),
-  )
+  let primary_color = @json_utils.extract_string_opt(theme_obj, "primaryColor")
   let logo = @json_utils.extract_string_opt(theme_obj, "logo")
   let header = match @json_utils.extract_object(theme_obj, "header") {
     Some(header_obj) => Some(parse_header_config(header_obj))

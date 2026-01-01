@@ -454,30 +454,40 @@ fn create_island_vnode(
 ///|
 /// Create Web Component VNode from ComponentEmbed
 /// Generates custom element with luna:wc-url and luna:wc-trigger attributes
+/// If luna:behavior is specified, uses built-in behavior instead of loading external JS
 fn create_component_vnode(
   embed : @markdown.ComponentEmbed,
   base_path : String,
 ) -> @luna.Node[Unit] {
-  // Build URL from tag name (e.g., "my-counter" -> "/components/my-counter.js")
-  let url = "\{base_path}\{embed.tag}.js"
-
   // Check if trigger is specified in attrs (overrides embed.trigger)
   let mut effective_trigger = embed.trigger
+  let mut behavior : String? = None
   for pair in embed.attrs {
     let (key, value) = pair
     if key == "trigger" || key == "luna:trigger" {
       effective_trigger = parse_trigger(value)
-      break
+    }
+    if key == "luna:behavior" {
+      behavior = Some(value)
     }
   }
 
   // Build attributes array
   let attrs : Array[(String, @luna.Attr[Unit])] = []
 
-  // Add luna:wc-url for hydration
-  attrs.push(attr("luna:wc-url", url))
+  // If behavior is specified, use luna:behavior instead of luna:wc-url
+  match behavior {
+    Some(b) => {
+      attrs.push(attr("luna:behavior", b))
+    }
+    None => {
+      // Build URL from tag name (e.g., "my-counter" -> "/components/my-counter.js")
+      let url = "\{base_path}\{embed.tag}.js"
+      attrs.push(attr("luna:wc-url", url))
+    }
+  }
 
-  // Add luna:wc-trigger
+  // Add luna:wc-trigger (or luna:trigger for behavior-based)
   let trigger_str = match effective_trigger {
     @luna.Load => "load"
     @luna.Idle => "idle"
@@ -487,10 +497,10 @@ fn create_component_vnode(
   }
   attrs.push(attr("luna:wc-trigger", trigger_str))
 
-  // Add user-provided attributes (skip trigger attrs)
+  // Add user-provided attributes (skip trigger and behavior attrs)
   for pair in embed.attrs {
     let (key, value) = pair
-    if key != "trigger" && key != "luna:trigger" {
+    if key != "trigger" && key != "luna:trigger" && key != "luna:behavior" {
       attrs.push(attr(key, value))
     }
   }

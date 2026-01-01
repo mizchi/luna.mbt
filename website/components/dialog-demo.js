@@ -21,7 +21,7 @@
 //   [data-dialog][data-state="open"] [data-dialog-content] { display: block; }
 //   body:has([data-dialog][data-state="open"]) { overflow: hidden; }
 
-import { createHydrator, onClick, onEscape } from '../../../js/luna/src/hydration/index.ts';
+import { createHydrator, onClick, onEscape } from '@luna/hydration';
 
 export const hydrate = createHydrator((el) => {
   const dialog = el.querySelector('[data-dialog]');

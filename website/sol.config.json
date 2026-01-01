@@ -33,7 +33,6 @@
     "keyboard": true
   },
   "theme": {
-    "primaryColor": "#fbbf24",
     "socialLinks": [
       { "icon": "github", "link": "https://github.com/mizchi/luna.mbt" }
     ],

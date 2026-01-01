@@ -20,7 +20,7 @@
 //   [data-accordion-content] { transition: max-height 0.3s ease; }
 //   [data-chevron] { transition: transform 0.2s ease; }
 
-import { createHydrator, toggle } from '../../../js/luna/src/hydration/index.ts';
+import { createHydrator, toggle } from '@luna/hydration';
 
 export const hydrate = createHydrator((el) => {
   return toggle(el, '[data-accordion-trigger]', {
