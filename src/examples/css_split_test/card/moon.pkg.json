@@ -3,7 +3,7 @@
   "import": [
     "mizchi/luna/luna/signal",
     { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/platform/js/api", "alias": "luna_api" },
+    { "path": "mizchi/luna/luna/js/api", "alias": "luna_api" },
     "mizchi/luna/luna/css"
   ]
 }

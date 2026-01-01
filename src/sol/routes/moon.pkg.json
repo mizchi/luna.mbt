@@ -7,6 +7,6 @@
     { "path": "mizchi/luna/sol/ssg", "alias": "ssg" },
     { "path": "mizchi/luna/sol/content/md_render", "alias": "markdown" },
     { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/platform/js/fs_adapter", "alias": "fs_adapter" }
+    { "path": "mizchi/luna/luna/js/fs_adapter", "alias": "fs_adapter" }
   ]
 }
