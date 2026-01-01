@@ -102,7 +102,7 @@ count.set(5)  // 出力: Count: 5, Doubled: 10
 | プロジェクト | 説明 |
 |------------|------|
 | [Luna UI](/ja/luna/) | コアUIライブラリ - Signals、Islands、Hydration |
-| [Astra](/ja/astra/) | 静的サイトジェネレーター (SSG) |
+| [Sol SSG](/ja/ssg/) | 静的サイトジェネレーター (SSG) |
 | [Stella](/ja/stella/) | Web Componentsビルドシステム |
 | [Sol](/ja/sol/) | フルスタックSSRフレームワーク |
 

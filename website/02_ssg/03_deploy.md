@@ -5,7 +5,7 @@ description: Configure deployment for various hosting platforms
 
 # Deploy Adapters
 
-Astra automatically generates platform-specific configuration files based on your deploy target. This ensures optimal performance and compatibility with each hosting provider.
+Sol SSG automatically generates platform-specific configuration files based on your deploy target. This ensures optimal performance and compatibility with each hosting provider.
 
 ## Configuration
 
@@ -96,7 +96,7 @@ Generates `vercel.json` with optimized settings for static sites.
 ```
 
 Features:
-- `trailingSlash` - Matches Astra's URL convention
+- `trailingSlash` - Matches Sol SSG's URL convention
 - `cleanUrls` - Removes `.html` extension
 - Cache headers for assets and `_luna/` directory
 - SPA fallback rewrite (when `navigation.spa: true`)

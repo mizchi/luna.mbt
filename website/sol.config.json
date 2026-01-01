@@ -23,7 +23,7 @@
   "nav": [
     { "text": "Luna", "link": "/luna/", "icon": "luna" },
     { "text": "Sol", "link": "/sol/", "icon": "sol" },
-    { "text": "Astra", "link": "/astra/", "icon": "astra" },
+    { "text": "SSG", "link": "/ssg/", "icon": "ssg" },
     { "text": "Search", "link": "/search/", "icon": "search" }
   ],
   "sidebar": "auto",
@@ -46,7 +46,7 @@
           "items": [
             { "label": "Overview", "href": "/introduction/overview/" },
             { "label": "Tutorial", "href": "/luna/tutorial-js/" },
-            { "label": "Astra SSG", "href": "/astra/" },
+            { "label": "Sol SSG", "href": "/ssg/" },
             { "label": "Sol Framework", "href": "/sol/" }
           ]
         },

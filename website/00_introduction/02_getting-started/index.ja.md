@@ -31,7 +31,7 @@ npm run dev
 
 ブラウザで http://localhost:5173 を開きます。
 
-### Astra (ドキュメントサイト)
+### Sol SSG (ドキュメントサイト)
 
 ```bash
 npx @luna_ui/sol new my-docs --ssg

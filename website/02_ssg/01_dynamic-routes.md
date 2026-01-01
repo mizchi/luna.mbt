@@ -5,7 +5,7 @@ description: Generate static pages from dynamic parameters
 
 # Dynamic Routes
 
-Astra supports dynamic route generation using the `_param_` directory naming pattern. This allows you to generate multiple static pages from a single template.
+Sol SSG supports dynamic route generation using the `_param_` directory naming pattern. This allows you to generate multiple static pages from a single template.
 
 ## Basic Usage
 
@@ -50,7 +50,7 @@ This content is shared across all generated pages.
 
 ### Generated Output
 
-With the above configuration, Astra generates:
+With the above configuration, Sol SSG generates:
 
 - `/posts/hello-world/index.html`
 - `/posts/getting-started/index.html`
@@ -68,7 +68,7 @@ The parameter name is extracted from the directory name:
 
 ## Auto-Generated Titles
 
-If no `title` is specified in frontmatter, Astra generates one from the parameter value:
+If no `title` is specified in frontmatter, Sol SSG generates one from the parameter value:
 
 - `hello-world` → "Hello World"
 - `getting-started` → "Getting Started"
@@ -105,4 +105,4 @@ docs/
 | Navigation | Full page reload | SPA-like instant |
 | Use case | Blog posts, docs | Interactive apps |
 
-For client-side dynamic routing (SPA), see [Islands](/astra/islands/).
+For client-side dynamic routing (SPA), see [Islands](/ssg/islands/).

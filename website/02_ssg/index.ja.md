@@ -1,12 +1,12 @@
 ---
-title: Astra SSG
+title: Sol SSG
 ---
 
-# Astra SSG
+# Sol SSG
 
-> **実験的**: Astraは開発中です。APIは変更される可能性があります。
+> **実験的**: Sol SSGは開発中です。APIは変更される可能性があります。
 
-AstraはLunaの静的サイトジェネレーターです。Markdownからドキュメントサイトやブログを構築します。
+Sol SSGはLunaの静的サイトジェネレーターです。Markdownからドキュメントサイトやブログを構築します。
 
 ## 特徴
 
@@ -21,9 +21,9 @@ AstraはLunaの静的サイトジェネレーターです。Markdownからドキ
 
 ## ガイド
 
-- [動的ルート](/ja/astra/dynamic-routes/) - パラメータから静的ページを生成
-- [Islands](/ja/astra/islands/) - 静的ページにインタラクティブコンポーネントを埋め込む
-- [ISR](/ja/astra/isr/) - 動的コンテンツのためのIncremental Static Regeneration
+- [動的ルート](/ja/ssg/dynamic-routes/) - パラメータから静的ページを生成
+- [Islands](/ja/ssg/islands/) - 静的ページにインタラクティブコンポーネントを埋め込む
+- [ISR](/ja/ssg/isr/) - 動的コンテンツのためのIncremental Static Regeneration
 
 ## クイックスタート
 
@@ -41,7 +41,7 @@ http://localhost:3355 でHMR付きプレビューが開きます。
 
 ## CLIリファレンス
 
-Astraは統合された`sol`CLIの一部になりました。プロジェクトに`astra.json`または`ssg`セクションを持つ`sol.config.json`がある場合、SolはSSGモードで自動的に実行されます。
+Sol SSGは統合された`sol`CLIの一部になりました。プロジェクトに`sol.config.json`または`ssg`セクションを持つ`sol.config.json`がある場合、SolはSSGモードで自動的に実行されます。
 
 ```bash
 # 新規SSGプロジェクト作成
@@ -55,7 +55,7 @@ sol dev [options]
 
 # 静的サイトをビルド
 sol build [options]
-  -c, --config <path>  設定ファイルパス (デフォルト: astra.json または sol.config.json)
+  -c, --config <path>  設定ファイルパス (デフォルト: sol.config.json または sol.config.json)
   -o, --output <dir>   出力ディレクトリ
 
 # SSGコンテンツをリント
@@ -63,7 +63,7 @@ sol lint [options]
   -c, --config <path>  設定ファイルパス
 ```
 
-## 設定 (astra.json)
+## 設定 (sol.config.json)
 
 ```json
 {

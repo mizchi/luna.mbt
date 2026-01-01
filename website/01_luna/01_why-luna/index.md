@@ -79,7 +79,7 @@ Luna combines Islands Architecture with fine-grained reactivity:
 ┌─────────────────────────────────────────────────────────────┐
 │                     Your Application                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Astra (SSG)          │  Sol (SSR Framework)                 │
+│  Sol SSG (SSG)          │  Sol (SSR Framework)                 │
 │  Static docs sites    │  Full-stack apps with islands        │
 ├─────────────────────────────────────────────────────────────┤
 │                       Luna (Core)                            │

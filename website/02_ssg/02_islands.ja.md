@@ -23,7 +23,7 @@ Islands を使用すると、静的ページ内にインタラクティブな Lu
 
 ## 設定
 
-### 1. astra.json
+### 1. sol.config.json
 
 Islands ディレクトリを設定します：
 

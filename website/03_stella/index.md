@@ -394,4 +394,4 @@ npx vite --config vite.config.ts
 
 - [Luna UI](/luna/) - Reactivity system
 - [Sol Framework](/sol/) - Full-stack SSR
-- [Astra SSG](/astra/) - Static site generation
+- [Sol SSG](/ssg/) - Static site generation

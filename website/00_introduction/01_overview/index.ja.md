@@ -10,7 +10,7 @@ Lunaは、MoonBitとJavaScriptでモダンなWebアプリケーションを構�
 
 | やりたいこと | 使うもの | 言語 |
 |-------------|---------|------|
-| ドキュメントサイトを作りたい | **Astra** | Markdown + Islands |
+| ドキュメントサイトを作りたい | **Sol SSG** | Markdown + Islands |
 | フルスタックWebアプリを作りたい | **Sol** | MoonBit |
 | 配布可能なWeb Componentsを作りたい | **Stella** | MoonBit |
 | 既存ページにリアクティビティを追加したい | **Luna UI** | JavaScript/TypeScript |
@@ -20,7 +20,7 @@ Lunaは、MoonBitとJavaScriptでモダンなWebアプリケーションを構�
 
 ```
 Webサイトが必要？
-├── 静的コンテンツ (ドキュメント, ブログ) → Astra
+├── 静的コンテンツ (ドキュメント, ブログ) → Sol SSG
 └── 動的アプリ (認証, API) → Sol
 
 コンポーネントが必要？
@@ -76,7 +76,7 @@ Fine-grained reactivityにより、実際のシナリオで **5倍のパフォ�
 ┌─────────────────────────────────────────────────────────────┐
 │                     あなたのアプリケーション                   │
 ├─────────────────────────────────────────────────────────────┤
-│  Astra (SSG)          │  Sol (SSR Framework)                 │
+│  Sol SSG (SSG)          │  Sol (SSR Framework)                 │
 │  静的ドキュメントサイト  │  フルスタックアプリ                   │
 ├─────────────────────────────────────────────────────────────┤
 │                       Luna UI                                 │
@@ -100,7 +100,7 @@ Fine-grained reactivityにより、実際のシナリオで **5倍のパフォ�
 - **Components** - 宣言的構文によるWeb Components
 - **Hydration** - スマートなローディング戦略（load, idle, visible, media）
 
-### [Astra](/ja/astra/) - 静的サイトジェネレーター
+### [Sol SSG](/ja/ssg/) - 静的サイトジェネレーター
 
 Markdownからドキュメントサイトやブログを構築：
 
@@ -110,7 +110,7 @@ Markdownからドキュメントサイトやブログを構築：
 - Shikiによるシンタックスハイライト
 - View TransitionsによるSPAナビゲーション
 
-このドキュメントサイトもAstraで構築されています。
+このドキュメントサイトもSol SSGで構築されています。
 
 ### [Sol](/ja/sol/) - フルスタックフレームワーク
 
@@ -137,7 +137,7 @@ MoonBitからスタンドアロンで配布可能なWeb Componentsを構築：
 | パッケージ | 説明 |
 |-----------|------|
 | `@luna_ui/luna` | コアUIライブラリ + CLI |
-| `@luna_ui/sol` | SSR/SSGフレームワークCLI（Astra SSG含む） |
+| `@luna_ui/sol` | SSR/SSGフレームワークCLI（Sol SSG含む） |
 | `@luna_ui/stella` | Web ComponentsジェネレーターCLI |
 | `@luna_ui/wcr` | Web Componentsランタイム（Stella用） |
 
@@ -157,7 +157,7 @@ npx @luna_ui/luna new myapp --mbt
 cd myapp && moon update && npm install && npm run dev
 ```
 
-### Astra (ドキュメントサイト)
+### Sol SSG (ドキュメントサイト)
 
 ```bash
 npx @luna_ui/sol new my-docs --ssg
@@ -170,7 +170,7 @@ cd my-docs && npm install && npm run dev
 
 1. [JavaScript チュートリアル](/luna/tutorial-js/)から始める
 2. [Signals](/luna/api-js/signals)と[Islands](/luna/api-js/islands)を学ぶ
-3. [Astra](/ja/astra/)でサイトを、[Sol](/ja/sol/)でアプリを構築
+3. [Sol SSG](/ja/ssg/)でサイトを、[Sol](/ja/sol/)でアプリを構築
 
 ### MoonBit 開発者向け
 
@@ -180,7 +180,7 @@ cd my-docs && npm install && npm run dev
 
 ## 機能比較
 
-| 機能 | Luna UI | Astra | Sol | Stella |
+| 機能 | Luna UI | Sol SSG | Sol | Stella |
 |------|---------|-------|-----|--------|
 | Signals | ✅ | ✅ | ✅ | ✅ |
 | Islands | ✅ | ✅ | ✅ | ✅ |

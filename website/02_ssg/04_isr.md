@@ -66,7 +66,7 @@ The `revalidate` value is in **seconds**.
 
 ## Build Output
 
-When pages have `revalidate` set, Astra generates an ISR manifest:
+When pages have `revalidate` set, Sol SSG generates an ISR manifest:
 
 ```
 dist/

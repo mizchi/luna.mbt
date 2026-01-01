@@ -65,7 +65,7 @@ revalidate: 60
 
 ## ビルド出力
 
-`revalidate`が設定されたページがある場合、AstraはISRマニフェストを生成:
+`revalidate`が設定されたページがある場合、Sol SSGはISRマニフェストを生成:
 
 ```
 dist/

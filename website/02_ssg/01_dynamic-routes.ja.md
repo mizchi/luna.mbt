@@ -5,7 +5,7 @@ description: 動的パラメータから静的ページを生成
 
 # ダイナミックルート
 
-Astra は `_param_` ディレクトリ命名パターンを使用した動的ルート生成をサポートしています。これにより、単一のテンプレートから複数の静的ページを生成できます。
+Sol SSG は `_param_` ディレクトリ命名パターンを使用した動的ルート生成をサポートしています。これにより、単一のテンプレートから複数の静的ページを生成できます。
 
 ## 基本的な使い方
 
@@ -50,7 +50,7 @@ description: ブログ投稿
 
 ### 生成される出力
 
-上記の設定で、Astra は以下を生成します：
+上記の設定で、Sol SSG は以下を生成します：
 
 - `/posts/hello-world/index.html`
 - `/posts/getting-started/index.html`
@@ -68,7 +68,7 @@ description: ブログ投稿
 
 ## 自動生成タイトル
 
-frontmatter で `title` が指定されていない場合、Astra はパラメータ値からタイトルを生成します：
+frontmatter で `title` が指定されていない場合、Sol SSG はパラメータ値からタイトルを生成します：
 
 - `hello-world` → "Hello World"
 - `getting-started` → "Getting Started"
@@ -105,4 +105,4 @@ docs/
 | ナビゲーション | フルページリロード | SPA のような即時遷移 |
 | ユースケース | ブログ投稿、ドキュメント | インタラクティブアプリ |
 
-クライアントサイドの動的ルーティング（SPA）については、[Islands](/ja/astra/islands/) を参照してください。
+クライアントサイドの動的ルーティング（SPA）については、[Islands](/ja/ssg/islands/) を参照してください。

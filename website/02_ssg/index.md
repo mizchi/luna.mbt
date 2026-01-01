@@ -1,12 +1,12 @@
 ---
-title: Astra SSG
+title: Sol SSG
 ---
 
-# Astra SSG
+# Sol SSG
 
-> **Experimental**: Astra is under active development. APIs may change.
+> **Experimental**: Sol SSG is under active development. APIs may change.
 
-Astra is Luna's static site generator for documentation and content sites.
+Sol SSG is Luna's static site generator for documentation and content sites.
 
 ## Features
 
@@ -21,11 +21,11 @@ Astra is Luna's static site generator for documentation and content sites.
 
 ## Guides
 
-- [Dynamic Routes](/astra/dynamic-routes/) - Generate static pages from parameters
-- [Islands](/astra/islands/) - Embed interactive components in static pages
-- [Deploy](/astra/deploy/) - Deploy to various platforms
-- [ISR](/astra/isr/) - Incremental Static Regeneration for dynamic content
-- [Components](/astra/components/) - Reusable UI components (Header, Footer, Blog, Themes)
+- [Dynamic Routes](/ssg/dynamic-routes/) - Generate static pages from parameters
+- [Islands](/ssg/islands/) - Embed interactive components in static pages
+- [Deploy](/ssg/deploy/) - Deploy to various platforms
+- [ISR](/ssg/isr/) - Incremental Static Regeneration for dynamic content
+- [Components](/ssg/components/) - Reusable UI components (Header, Footer, Blog, Themes)
 
 ## Quick Start
 
@@ -55,7 +55,7 @@ Static files are generated in `dist-docs/`.
 
 ## CLI Reference
 
-Astra is now part of the unified `sol` CLI. When your project has an `astra.json` or `sol.config.json` with `ssg` section, Sol automatically runs in SSG mode.
+Sol SSG is now part of the unified `sol` CLI. When your project has an `sol.config.json` or `sol.config.json` with `ssg` section, Sol automatically runs in SSG mode.
 
 ```bash
 # Create a new SSG project
@@ -71,7 +71,7 @@ sol dev [options]
 
 # Build static site
 sol build [options]
-  -c, --config <path>  Config file path (default: astra.json or sol.config.json)
+  -c, --config <path>  Config file path (default: sol.config.json or sol.config.json)
   -o, --output <dir>   Output directory (overrides config)
   -h, --help           Show help
 
@@ -88,7 +88,7 @@ sol --version
 
 ## Configuration
 
-Create `astra.json` in your project root:
+Create `sol.config.json` in your project root:
 
 ```json
 {
@@ -258,7 +258,7 @@ sidebar: true
 | `layout` | string | `"doc"` | Layout type: `doc`, `home` |
 | `sidebar` | boolean | `true` | Show sidebar |
 | `image` | string | - | OGP image (overrides site default) |
-| `revalidate` | int | - | ISR TTL in seconds ([details](/astra/isr/)) |
+| `revalidate` | int | - | ISR TTL in seconds ([details](/ssg/isr/)) |
 
 ### Code Blocks
 

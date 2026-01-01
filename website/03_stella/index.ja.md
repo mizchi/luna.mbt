@@ -146,4 +146,4 @@ Declarative Shadow DOMによるSSRをサポート：
 
 - [Luna UI](/ja/luna/) - リアクティビティシステム
 - [Sol Framework](/ja/sol/) - フルスタックSSR
-- [Astra SSG](/ja/astra/) - 静的サイト生成
+- [Sol SSG](/ja/ssg/) - 静的サイト生成

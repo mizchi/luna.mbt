@@ -47,4 +47,4 @@ npm install @luna_ui/luna
 
 - [JavaScript API リファレンス](/ja/luna/api-js/) - API リファレンス
 - [MoonBit チュートリアル](/ja/luna/tutorial-moonbit/) - MoonBit 版
-- [Astra SSG](/ja/astra/) - 静的サイト生成
+- [Sol SSG](/ja/ssg/) - 静的サイト生成

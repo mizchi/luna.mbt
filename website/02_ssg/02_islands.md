@@ -23,7 +23,7 @@ Islands allow you to embed interactive Luna (MoonBit) components within static p
 
 ## Configuration
 
-### 1. astra.json
+### 1. sol.config.json
 
 Configure the islands directory:
 

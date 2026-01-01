@@ -47,4 +47,4 @@ npm install @luna_ui/luna
 
 - [JavaScript API Reference](/luna/api-js/) - API Reference
 - [MoonBit Tutorial](/luna/tutorial-moonbit/) - MoonBit version
-- [Astra SSG](/astra/) - Static site generation
+- [Sol SSG](/ssg/) - Static site generation
