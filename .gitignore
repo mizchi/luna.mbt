@@ -28,3 +28,4 @@ dist-docs
 *.db
 website/public/demo/
 tmp.sol-cache/
+tmp/
