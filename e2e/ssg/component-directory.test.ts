@@ -25,6 +25,18 @@ function createTestProject(name: string, config: object): string {
 
   // Create test project structure
   mkdirSync(join(testDir, "docs"), { recursive: true });
+  mkdirSync(join(testDir, "src"), { recursive: true });
+
+  // Write moon.mod.json (required for Sol CLI)
+  writeFileSync(join(testDir, "moon.mod.json"), JSON.stringify({
+    name: "test/project",
+    version: "0.0.1",
+    source: "src"
+  }, null, 2));
+
+  // Write minimal MoonBit source (required for moon build)
+  writeFileSync(join(testDir, "src/moon.pkg.json"), "{}");
+  writeFileSync(join(testDir, "src/main.mbt"), "// Empty\n");
 
   // Write config
   writeFileSync(join(testDir, "sol.config.json"), JSON.stringify(config, null, 2));
@@ -34,7 +46,8 @@ function createTestProject(name: string, config: object): string {
 
 function runBuild(testDir: string): { success: boolean; output: string } {
   try {
-    const output = execSync(`node ${CLI_PATH} build`, {
+    // Use --skip-generate to skip MoonBit code generation (pure SSG mode)
+    const output = execSync(`node ${CLI_PATH} build --skip-generate`, {
       cwd: testDir,
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "pipe"],
