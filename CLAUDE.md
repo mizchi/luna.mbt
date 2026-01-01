@@ -14,14 +14,16 @@ MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
 
 ```
 src/
-├── luna/           # Luna Core: Signal, Virtual Node, Render（ターゲット非依存）
-├── core/           # 共有型定義: Routes, Serialize, SSG Types
+├── luna/           # Luna Core: Signal, Virtual Node, Render, SSR（ターゲット非依存）
+├── core/           # 共有型定義: env (FileSystem trait)
 ├── platform/       # DOM, JS API, Server DOM（プラットフォーム固有）
 ├── stella/         # Island埋め込み用Shard生成
 ├── sol/            # SSR/SSGフレームワーク
-│   ├── ssg/        # SSG (静的サイト生成)
+│   ├── ssg/        # SSG (静的サイト生成、コンポーネント、キャッシュ)
 │   ├── isr/        # ISR (Incremental Static Regeneration)
 │   ├── router/     # ルーティング
+│   ├── routes/     # ファイルベースルーティング、マニフェスト
+│   ├── parser/     # MoonBit解析機
 │   └── cli/        # CLIツール
 ├── internal/       # 内部ユーティリティ
 └── _bench/         # ベンチマーク

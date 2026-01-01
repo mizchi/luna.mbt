@@ -1,15 +1,15 @@
 ---
 title: Components
-description: Reusable UI components for Astra SSG
+description: Reusable UI components for Sol SSG
 ---
 
 # Components
 
-Astra provides a set of reusable, customizable components for building documentation sites, blogs, and landing pages.
+Sol SSG provides a set of reusable, customizable components for building documentation sites, blogs, and landing pages.
 
 ## Overview
 
-Components are located in `src/astra/components/` and cover common UI patterns:
+Components are located in `src/sol/ssg/components/` and cover common UI patterns:
 
 | Component | File | Description |
 |-----------|------|-------------|
@@ -277,7 +277,7 @@ fn my_theme() -> Theme {
 
 ## Component Discovery
 
-Astra automatically discovers custom components in your project.
+Sol SSG automatically discovers custom components in your project.
 
 ### Convention
 

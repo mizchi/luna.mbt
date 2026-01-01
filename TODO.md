@@ -73,7 +73,7 @@
 **低優先**
 - [x] ブログテンプレート → `examples/astra_blog/`
   - Frontmatterにブログ用フィールド追加 (date, author, tags, draft)
-- [x] ディスクキャッシュ (永続ビルドキャッシュ) → `src/core/cache/`, `.astra-cache/`
+- [x] ディスクキャッシュ (永続ビルドキャッシュ) → `src/sol/ssg/cache/`, `.sol-cache/`
 - [x] アセットハッシング (キャッシュバスティング) → rolldown対応済み
 - [x] デプロイアダプタ → [設計書](docs/internal/deploy-adapters-design.md)
   - [x] Cloudflare Pages (`_routes.json`)
@@ -115,23 +115,23 @@
   - 次候補: tooltip, popover, dropdown-menu, select, combobox, alert-dialog
 
 **完了**
-- [x] ISR型共有 (`src/core/isr/` - ISRManifest, ISRPageEntry, CacheEntry)
-- [x] ルートパターンユーティリティ (`src/core/routes/pattern_utils.mbt`)
+- [x] ISR型共有 (`src/sol/isr/` - ISRManifest, ISRPageEntry, CacheEntry)
+- [x] ルートパターンユーティリティ (`src/sol/routes/pattern_utils.mbt`)
   - extract_url_pattern, parse_bracket_param, normalize_url_path
-- [x] 動的ルート解析 (`_id_`, `___all___` パターンマッチ) → core/routes
-- [x] sitemap/RSS/llms.txt 生成 → `src/core/ssg/generators.mbt`
+- [x] 動的ルート解析 (`_id_`, `___all___` パターンマッチ) → sol/routes
+- [x] sitemap/RSS/llms.txt 生成 → `src/sol/ssg/generators.mbt`
 - [x] DocumentTree を Sol でも利用可能に
-  - `src/core/ssg/tree_builder.mbt` - 汎用ビルダー
+  - `src/sol/ssg/tree_builder.mbt` - 汎用ビルダー
   - `@ssg.build_tree_from_entries()` で Sol から構築可能
 
 **未完了**
 - [ ] 画像最適化パイプライン
 
 **完了（追加）**
-- [x] ディスクキャッシュ層 → `src/core/cache/`
+- [x] ディスクキャッシュ層 → `src/sol/ssg/cache/`
   - `DiskCache[F]` - FileSystem trait を使った汎用キャッシュ
   - `hash.mbt` - FNV-1a ハッシュ関数
-  - Astra CacheManager が core/cache を使用
+  - Sol SSG CacheManager が sol/ssg/cache を使用
 - [x] アセットハッシング（部分的）
   - ローダーは `hashedPath` 対応済み
   - rolldown で `[hash]` 指定可能
@@ -200,7 +200,7 @@ let ts_code = result.schema.to_typescript()
 - [ ] BuildStateProvider拡張 (DB `updated_at` サポート)
   - 現在: `LocalFileProvider` がファイルハッシュで変更検出
   - 目標: Sol が DB の `MAX(updated_at)` で再生成判定可能に
-  - 参照: `src/core/cache/provider.mbt`, `src/astra/cache/provider.mbt`
+  - 参照: `src/sol/ssg/cache/provider.mbt`
 - [ ] shiki設定のカスタマイズ (theme, langs 選択)
 - [ ] headless ui library
 - [ ] shadcn

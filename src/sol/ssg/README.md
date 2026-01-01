@@ -11,15 +11,26 @@ Generates multi-language static sites from Markdown files.
 
 | Submodule | Responsibility |
 |-----------|----------------|
-| `cli/` | CLI entry point |
+| `assets/` | Asset loading (CSS, JS) |
+| `cache/` | Disk cache, hash utilities |
+| `components/` | Reusable UI components (Header, Footer, TOC, Blog) |
 | `generator/` | HTML generation logic |
-| `markdown/` | Markdown parsing |
-| `routes/` | Route generation |
-| `shiki/` | Syntax highlighting (Shiki integration) |
-| `config.mbt` | Config parser |
-| `types.mbt` | Type definitions |
+| `mdx/` | MDX parsing |
+| `themes/` | Theme system |
+| `tree/` | Document tree building |
+| `types.mbt` | Core type definitions |
 
-## Config File (astra.json)
+## Related Modules
+
+| Module | Responsibility |
+|--------|----------------|
+| `sol/cli/` | CLI entry point |
+| `sol/routes/` | Route generation, file-based routing |
+| `sol/parser/` | MoonBit source parsing |
+| `sol/isr/` | ISR (Incremental Static Regeneration) |
+| `sol/content/` | Markdown, frontmatter, Shiki integration |
+
+## Config File (sol.config.json)
 
 ```json
 {
@@ -64,15 +75,17 @@ pub struct SsgConfig {
 - Auto sidebar generation
 - Syntax highlighting (Shiki)
 - OGP support
+- Disk cache for incremental builds
+- Component customization
 
 ## Usage
 
 ```bash
 # Run from CLI
-moon run src/astra/cli -- build
+moon run src/sol/cli -- build
 ```
 
 ## References
 
-- [Luna Core](../core/README.md) - VNode generation
-- [Sol](../sol/README.md) - SSR framework
+- [Luna Core](../../luna/README.md) - VNode generation
+- [Sol](../README.md) - SSR framework
