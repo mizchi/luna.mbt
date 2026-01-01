@@ -1230,6 +1230,121 @@ extern "js" fn ffi_extract_css_utilities(
   #|   }
   #| }
 
+// =============================================================================
+// Parallel CSS Extraction using Process Pool
+// =============================================================================
+
+///|
+/// Configuration for parallel CSS extraction
+pub struct ParallelCssConfig {
+  /// Maximum number of concurrent processes
+  max_workers : Int
+  /// Timeout per job in milliseconds
+  timeout_ms : Int
+}
+
+///|
+pub fn ParallelCssConfig::default() -> ParallelCssConfig {
+  { max_workers: 4, timeout_ms: 30000 }
+}
+
+///|
+/// Find the extract.js script path
+fn find_extract_script(cwd : String) -> String? {
+  let possible_paths = [
+    @path.join2(cwd, "src/luna/css/extract.js"),
+    @path.join2(cwd, "node_modules/@luna_ui/sol/css/extract.js"),
+    @path.join2(cwd, "../src/luna/css/extract.js"),
+    @path.join2(cwd, "../../src/luna/css/extract.js"),
+  ]
+  for p in possible_paths {
+    if ffi_exists_sync(p) {
+      return Some(p)
+    }
+  }
+  None
+}
+
+///|
+extern "js" fn ffi_exists_sync(path : String) -> Bool =
+  #| (path) => {
+  #|   try {
+  #|     const fs = require('fs');
+  #|     return fs.existsSync(path);
+  #|   } catch {
+  #|     return false;
+  #|   }
+  #| }
+
+///|
+/// Extract CSS utilities from source files in parallel
+/// Uses process_pool for concurrent execution
+pub async fn extract_css_utilities_parallel(
+  cwd : String,
+  source_dirs : Array[String],
+  config : ParallelCssConfig,
+) -> String {
+  // Find extract script
+  guard find_extract_script(cwd) is Some(extract_script) else { return "" }
+
+  // Filter to existing directories
+  let valid_dirs : Array[String] = []
+  for dir in source_dirs {
+    let full_path = @path.join2(cwd, dir)
+    if ffi_exists_sync(full_path) {
+      valid_dirs.push(full_path)
+    }
+  }
+
+  if valid_dirs.is_empty() {
+    return ""
+  }
+
+  // Create process pool
+  let pool = @process_pool.ProcessPool::new(max_workers=config.max_workers)
+
+  // Create jobs for each directory
+  let jobs = valid_dirs.map(fn(dir) {
+    @process_pool.job(
+      "node",
+      [extract_script, dir, "--no-warn"],
+      cwd=cwd,
+      timeout=config.timeout_ms,
+    )
+  })
+
+  // Run all jobs in parallel
+  let results = pool.run_all(jobs)
+
+  // Combine results
+  let css_parts : Array[String] = []
+  for result in results {
+    if result.exit_code == 0 && not(result.stdout.is_empty()) {
+      let trimmed = result.stdout.trim().to_string()
+      if not(trimmed.is_empty()) {
+        css_parts.push(trimmed)
+      }
+    }
+  }
+
+  css_parts.join("\n")
+}
+
+///|
+/// Extract CSS with automatic parallelization based on directory count
+pub async fn extract_css_utilities_auto(
+  cwd : String,
+  source_dirs : Array[String],
+) -> String {
+  // Use parallel extraction if multiple directories
+  if source_dirs.length() > 1 {
+    extract_css_utilities_parallel(cwd, source_dirs, ParallelCssConfig::default())
+  } else {
+    // Fall back to sequential for single directory
+    ffi_extract_css_utilities(cwd, source_dirs).wait()
+  }
+}
+
 ///|
 /// CSS manifest entry from split extraction
 pub(all) struct CssManifestEntry {

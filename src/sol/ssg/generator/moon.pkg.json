@@ -17,6 +17,7 @@
     { "path": "mizchi/luna/internal/utils", "alias": "utils" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/node/fs", "alias": "fs" },
-    { "path": "mizchi/js/node/path", "alias": "path" }
+    { "path": "mizchi/js/node/path", "alias": "path" },
+    "mizchi/process_pool"
   ]
 }
