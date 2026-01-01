@@ -17,7 +17,7 @@ fn create_docs_manifest() -> ISRManifest {
 
   // Main pages - hot (TTL: 300s)
   let main_pages = [
-    "/", "/introduction/", "/luna/", "/astra/", "/stella/", "/sol/",
+    "/", "/introduction/", "/luna/", "/ssg/", "/stella/", "/sol/",
   ]
   for path in main_pages {
     pages[path] = ISRPageMeta::{
@@ -88,7 +88,7 @@ fn create_docs_manifest() -> ISRManifest {
   }
 
   // i18n pages (Japanese) - moderate (TTL: 180s)
-  let ja_pages = ["/ja/", "/ja/introduction/", "/ja/luna/", "/ja/astra/"]
+  let ja_pages = ["/ja/", "/ja/introduction/", "/ja/luna/", "/ja/ssg/"]
   for path in ja_pages {
     pages[path] = ISRPageMeta::{
       revalidate: 180,

@@ -76,7 +76,7 @@ pub fn get_spa_script() -> String {
     #|    if (window.__LUNA_WC_CLEAR_LOADED__) window.__LUNA_WC_CLEAR_LOADED__();
     #|    if (window.__LUNA_WC_SCAN__) window.__LUNA_WC_SCAN__();
     #|    // Re-init TOC scroll spy
-    #|    if (window.__ASTRA_INIT_TOC_SPY__) window.__ASTRA_INIT_TOC_SPY__();
+    #|    if (window.__SOL_INIT_TOC_SPY__) window.__SOL_INIT_TOC_SPY__();
     #|  } catch (e) {
     #|    if (e.name !== 'AbortError') location.href = url;
     #|  }

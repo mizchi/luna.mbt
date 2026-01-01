@@ -1,7 +1,7 @@
 // Sol Builder - Worker IPC Helpers
 //
 // FFI functions and helpers for worker process communication.
-// Used by domain-specific workers (e.g., astra/builder_pool/worker.mbt).
+// Used by domain-specific workers (e.g., sol/builder_pool/worker.mbt).
 
 // =============================================================================
 // FFI for IPC Communication

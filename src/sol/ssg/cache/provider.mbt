@@ -4,7 +4,7 @@
 
 ///|
 /// Sol SSG version for cache invalidation
-pub let astra_version : String = "0.1.0"
+pub let sol_version : String = "0.1.0"
 
 ///|
 /// Local file system provider for build state
@@ -86,7 +86,7 @@ pub fn save_manifest(
   let assets_hash = compute_assets_hash(cwd)
   let config_hash = compute_config_hash(config) + ":" + assets_hash
   let manifest = BuildManifest::new(
-    tool_version=astra_version,
+    tool_version=sol_version,
     config_hash~,
     content_state=provider.get_content_state(),
     built_at=get_current_timestamp(),

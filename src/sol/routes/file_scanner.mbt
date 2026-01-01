@@ -1,7 +1,7 @@
 // File-based Router Scanner
 //
 // Provides generic file scanning infrastructure for route generation.
-// astra/routes uses this for SSG file-based routing.
+// sol/ssg uses this for SSG file-based routing.
 
 // =============================================================================
 // Scan Options

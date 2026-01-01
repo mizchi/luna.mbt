@@ -22,7 +22,7 @@ fn show_help() -> Unit {
     #|  -v, --version  Show version
     #|
     #|SSG Mode:
-    #|  If astra.json or sol.config.json with "ssg" section exists,
+    #|  If sol.config.json with "ssg" section exists,
     #|  dev and build commands will include static site generation.
   println(help)
 }
@@ -72,7 +72,7 @@ async fn main {
       // Redirect to sol build with ssg
       println(@colorette.yellow("Note: 'sol ssg' is now part of 'sol build'."))
       println("")
-      println("SSG is automatically detected via astra.json or sol.config.json")
+      println("SSG is automatically detected via sol.config.json")
       @process.exit(0)
     }
     _ => {

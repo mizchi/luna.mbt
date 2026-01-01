@@ -1,6 +1,6 @@
 // Shared CLI Utilities
 //
-// Common utilities used by both sol/cli and astra/cli.
+// Common utilities used by Sol CLI.
 
 ///|
 /// Log error message to console.error
@@ -52,8 +52,8 @@ pub fn[FS : @env.FileSystem] find_config(
 
 ///|
 /// SSG config file candidates in search order
-pub let astra_config_candidates : Array[String] = [
-  "astra.json", "website/astra.json", "docs/astra.json", "sol.config.json",
+pub let ssg_config_candidates : Array[String] = [
+  "sol.config.json", "website/sol.config.json", "docs/sol.config.json",
 ]
 
 ///|

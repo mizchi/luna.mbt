@@ -2,7 +2,7 @@
 //
 
 ///|
-/// Parse SSG config directly (astra.json format)
+/// Parse SSG config directly (sol.config.json format)
 pub fn parse_ssg_config(json_str : String) -> SsgConfig? {
   try {
     let json = @json.parse(json_str.view())

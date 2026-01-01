@@ -221,7 +221,7 @@ src/sol/ssg/tree/
 ├── builder.mbt         # build_document_tree
 └── *_test.mbt          # テスト
 
-core/ssg/
+sol/ssg/
 ├── document_tree.mbt   # DocumentTree, PageInfo, TreeNode 型定義
 └── generators.mbt      # generate_rss, generate_sitemap, generate_llms_txt
 ```

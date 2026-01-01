@@ -201,7 +201,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       }
     }
   }
-  // Full SSG build if ssg section exists in config or astra.json
+  // Full SSG build if ssg section exists in sol.config.json
   if has_ssg_config(cwd) {
     let config_path = find_ssg_config_file(cwd)
     let full_config_path = @path.join2(cwd, config_path)
@@ -216,7 +216,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       Some(ssg_config) => {
         // Use config directory as SSG working directory
         let ssg_cwd = @path.dirname(full_config_path)
-        let cache_dir = @path.join2(ssg_cwd, ".astra-cache")
+        let cache_dir = @path.join2(ssg_cwd, ".sol-cache")
         // Check cache unless force build
         if not(force_build) {
           match

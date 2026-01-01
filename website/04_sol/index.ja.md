@@ -234,7 +234,7 @@ a(href="/about", attrs=[("sol-link", @luna.attr_static(""))], [text("About")])
 
 ## SSGモード
 
-プロジェクトに`astra.json`または`ssg`セクションを持つ`sol.config.json`がある場合、SolはSSGモードを自動検出します。
+プロジェクトに`ssg`または`docs`セクションを持つ`sol.config.json`がある場合、SolはSSGモードを自動検出します。
 
 ```bash
 # SSGプロジェクトを作成

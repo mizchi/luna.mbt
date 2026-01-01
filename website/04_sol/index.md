@@ -377,7 +377,7 @@ Async content streaming:
 
 ## SSG Mode
 
-Sol automatically detects SSG mode when your project has `astra.json` or `sol.config.json` with `ssg` section.
+Sol automatically detects SSG mode when your project has `sol.config.json` with `ssg` or `docs` section.
 
 ```bash
 # Create SSG project

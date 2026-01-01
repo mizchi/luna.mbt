@@ -1,7 +1,7 @@
 // HMR WebSocket Server
 //
 // Shared module for Hot Module Replacement WebSocket functionality.
-// Used by both sol/cli and astra/cli for development servers.
+// Used by Sol CLI for development servers.
 
 ///|
 /// WebSocket server handle (opaque type wrapping Node.js WebSocketServer)
@@ -77,7 +77,7 @@ pub fn HmrServer::notify_update(
 }
 
 ///|
-/// Send full reload request (used by both sol and astra)
+/// Send full reload request
 pub fn HmrServer::notify_reload(self : HmrServer) -> Unit {
   self.broadcast("{\"type\":\"reload\"}")
   println(@colorette.green("[HMR] Sent reload"))

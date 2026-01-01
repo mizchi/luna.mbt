@@ -15,20 +15,14 @@ pub fn has_ssg_config(cwd : String) -> Bool {
 
 ///|
 fn[FS : @env.FileSystem] has_ssg_config_with_fs(fs : FS, cwd : String) -> Bool {
-  // Check all astra config candidates
-  for candidate in @cli_common.astra_config_candidates {
+  // Check all SSG config candidates
+  for candidate in @cli_common.ssg_config_candidates {
     let config_path = @path.join2(cwd, candidate)
     if fs.exists_sync(config_path) {
-      // astra.json is always SSG config
-      if candidate.ends_with("astra.json") {
+      // sol.config.json with ssg section
+      let content = fs.read_file_sync(config_path) catch { _ => continue }
+      if content.contains("\"ssg\"") || content.contains("\"docs\"") {
         return true
-      }
-      // sol.config.json needs ssg section
-      if candidate == "sol.config.json" {
-        let content = fs.read_file_sync(config_path) catch { _ => continue }
-        if content.contains("\"ssg\"") {
-          return true
-        }
       }
     }
   }
@@ -40,7 +34,7 @@ fn[FS : @env.FileSystem] has_ssg_config_with_fs(fs : FS, cwd : String) -> Bool {
 pub fn find_ssg_config_file(cwd : String) -> String {
   let fs = @fs_adapter.NodeFsAdapter::new()
   @cli_common.find_config(
-    fs, cwd, @cli_common.astra_config_candidates, "astra.json",
+    fs, cwd, @cli_common.ssg_config_candidates, "sol.config.json",
   )
 }
 
@@ -50,11 +44,12 @@ pub fn parse_ssg_config(
   content : String,
   config_path : String,
 ) -> @ssg.SsgConfig? {
-  if config_path.ends_with("astra.json") {
+  // All configs are now sol.config.json format
+  if config_path.ends_with("sol.config.json") {
     @ssg.parse_ssg_config(content)
   } else {
-    // sol.config.json format - extract ssg section
-    @ssg.parse_ssg_from_sol_config(content)
+    // Fallback to trying direct parse
+    @ssg.parse_ssg_config(content)
   }
 }
 
@@ -68,7 +63,7 @@ pub async fn run_ssg_build(
   force_build : Bool,
 ) -> Result[Unit, String] {
   // Check for incremental build skip
-  let cache_dir = @path.join2(cwd, ".astra-cache")
+  let cache_dir = @path.join2(cwd, ".sol-cache")
   if not(force_build) {
     match @ssg_cache.check_local_build_state(config, cwd, cache_dir) {
       @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
@@ -280,7 +275,7 @@ pub async fn run_ssg_dev(
   let debounce_ms = 100.0 // Minimum time between builds
 
   let output_prefix = config.output_dir + "/"
-  let cache_prefix = ".astra-cache"
+  let cache_prefix = ".sol-cache"
   let _ = @fs.watch(docs_dir, recursive=true, listener=fn(
     event_type,
     filename,
@@ -289,7 +284,7 @@ pub async fn run_ssg_dev(
     if filename.has_prefix(output_prefix) ||
       filename.has_prefix(config.output_dir) ||
       filename.has_prefix(cache_prefix) ||
-      filename.has_prefix(".astra-cache") {
+      filename.has_prefix(".sol-cache") {
       return
     }
 
@@ -376,7 +371,7 @@ fn run_ssg_initial_build(
   cwd : String,
   highlighter : @shiki.Highlighter,
 ) -> Unit {
-  let cache_dir = @path.join2(cwd, ".astra-cache")
+  let cache_dir = @path.join2(cwd, ".sol-cache")
   match @ssg_cache.check_local_build_state(config, cwd, cache_dir) {
     @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
       println(@colorette.green("Build skipped (no changes since \{built_at})"))
@@ -413,7 +408,7 @@ fn run_ssg_build_sync(
       is_dev=true,
     ) {
     Ok(_) => {
-      let cache_dir = @path.join2(cwd, ".astra-cache")
+      let cache_dir = @path.join2(cwd, ".sol-cache")
       @ssg_cache.save_manifest(cache_dir, config, cwd)
       println(@colorette.green("Rebuild complete"))
       println("")

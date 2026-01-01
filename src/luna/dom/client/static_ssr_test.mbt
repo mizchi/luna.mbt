@@ -308,7 +308,7 @@ test "sol_pattern: pre-cached SSR fragment injection" {
 // =============================================================================
 
 ///|
-test "astra_pattern: markdown document structure" {
+test "ssg_pattern: markdown document structure" {
   @global_jsdom.register()
   let doc = @js_dom.document()
 
@@ -349,7 +349,7 @@ test "astra_pattern: markdown document structure" {
 }
 
 ///|
-test "astra_pattern: navigation sidebar" {
+test "ssg_pattern: navigation sidebar" {
   @global_jsdom.register()
   let doc = @js_dom.document()
 
@@ -397,7 +397,7 @@ test "astra_pattern: navigation sidebar" {
 }
 
 ///|
-test "astra_pattern: i18n language switcher" {
+test "ssg_pattern: i18n language switcher" {
   @global_jsdom.register()
   let doc = @js_dom.document()
 

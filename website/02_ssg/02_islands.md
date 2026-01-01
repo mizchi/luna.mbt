@@ -161,7 +161,7 @@ The Luna loader automatically discovers and hydrates these elements.
 
 ## Example: Wiki with Dynamic Routing
 
-See `examples/astra_app/docs/wiki/` for a complete example:
+See `examples/sol_docs/docs/wiki/` for a complete example:
 
 1. **Static entry**: `/wiki/` - Single HTML page with island placeholder
 2. **Client routing**: BrowserRouter handles `/wiki/:slug` patterns

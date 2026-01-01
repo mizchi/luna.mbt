@@ -127,12 +127,12 @@ fn get_fallback_theme_script() -> String {
 
 ///|
 fn get_fallback_sidebar_script() -> String {
-  "<script>(function(){ window.__ASTRA_INIT_SIDEBAR__ = function(){}; })();</script>"
+  "<script>(function(){ window.__SOL_INIT_SIDEBAR__ = function(){}; })();</script>"
 }
 
 ///|
 fn get_fallback_toc_script() -> String {
-  "<script>(function(){ window.__ASTRA_INIT_TOC_SPY__ = function(){}; })();</script>"
+  "<script>(function(){ window.__SOL_INIT_TOC_SPY__ = function(){}; })();</script>"
 }
 
 ///|

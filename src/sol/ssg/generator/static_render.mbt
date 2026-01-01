@@ -1151,8 +1151,8 @@ extern "js" fn ffi_extract_css_utilities(
   #|     const possiblePaths = [
   #|       // Development: direct path in monorepo
   #|       path.join(cwd, 'src/luna/css/extract.js'),
-  #|       // NPM package: bundled with astra
-  #|       path.join(cwd, 'node_modules/@luna_ui/astra/css/extract.js'),
+  #|       // NPM package: bundled with sol
+  #|       path.join(cwd, 'node_modules/@luna_ui/sol/css/extract.js'),
   #|       // Parent project (when running from examples/)
   #|       path.join(cwd, '../src/luna/css/extract.js'),
   #|       path.join(cwd, '../../src/luna/css/extract.js'),

@@ -178,7 +178,7 @@ pub(all) struct NavItem {
   text : String
   /// Link URL
   link : String
-  /// Icon name (luna, sol, astra, etc.)
+  /// Icon name (luna, sol, ssg, etc.)
   icon : String?
   /// Dropdown items (optional)
   items : Array[NavItem]

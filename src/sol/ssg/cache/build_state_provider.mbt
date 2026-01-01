@@ -70,7 +70,7 @@ pub fn[P : BuildStateProvider] check_build_state(
 }
 
 // =============================================================================
-// Build Manifest (moved from astra/cache for sharing)
+// Build Manifest
 // =============================================================================
 
 ///|

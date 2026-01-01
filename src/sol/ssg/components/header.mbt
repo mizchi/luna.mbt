@@ -171,8 +171,8 @@ fn build_nav_icon(icon : String) -> @luna.Node[Unit] {
           ),
         ],
       )
-    "astra" =>
-      // Stars/sparkles icon
+    "ssg" =>
+      // Stars/sparkles icon (SSG)
       h(
         "svg",
         [

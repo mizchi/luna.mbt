@@ -37,5 +37,5 @@
   } else {
     initTocSpy();
   }
-  window.__ASTRA_INIT_TOC_SPY__ = initTocSpy;
+  window.__SOL_INIT_TOC_SPY__ = initTocSpy;
 })();

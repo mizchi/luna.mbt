@@ -161,7 +161,7 @@ Luna ローダーは自動的にこれらの要素を検出してハイドレー
 
 ## 例：動的ルーティングを持つ Wiki
 
-完全な例は `examples/astra_app/docs/wiki/` を参照してください：
+完全な例は `examples/sol_docs/docs/wiki/` を参照してください：
 
 1. **静的エントリー**: `/wiki/` - Island プレースホルダーを持つ単一の HTML ページ
 2. **クライアントルーティング**: BrowserRouter が `/wiki/:slug` パターンを処理

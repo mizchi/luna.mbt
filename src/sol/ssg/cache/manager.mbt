@@ -6,7 +6,7 @@
 
 ///|
 /// Default cache directory name
-let default_cache_dir : String = ".astra-cache"
+let default_cache_dir : String = ".sol-cache"
 
 ///|
 /// Cache manager wrapping core DiskCache

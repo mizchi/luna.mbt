@@ -1,5 +1,5 @@
 (function(){
-  var STORAGE_KEY = 'astra-sidebar-state';
+  var STORAGE_KEY = 'sol-sidebar-state';
   function loadState() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
   }
@@ -25,5 +25,5 @@
   } else {
     initSidebar();
   }
-  window.__ASTRA_INIT_SIDEBAR__ = initSidebar;
+  window.__SOL_INIT_SIDEBAR__ = initSidebar;
 })();

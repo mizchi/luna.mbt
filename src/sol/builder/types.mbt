@@ -1,7 +1,7 @@
 // Sol Builder - Generic Worker Pool Types
 //
 // Provides generic types for parallel build infrastructure.
-// Used by astra/builder_pool for SSG and potentially other build tasks.
+// Used by sol/builder_pool for SSG and other parallel build tasks.
 
 // =============================================================================
 // Pool Configuration
