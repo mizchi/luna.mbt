@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/astra/cache"
+package "mizchi/luna/sol/ssg/cache"
 
 import(
-  "mizchi/luna/astra"
   "mizchi/luna/core/env"
   "mizchi/luna/platform/js/fs_adapter"
+  "mizchi/luna/sol/ssg"
 )
 
 // Values
@@ -14,11 +14,11 @@ pub let cache_format_version : Int
 
 pub fn[P : BuildStateProvider] check_build_state(P, String, String, (String) -> BuildManifest?) -> BuildStateCheck
 
-pub fn check_local_build_state(@astra.SsgConfig, String, String) -> BuildStateCheck
+pub fn check_local_build_state(@ssg.SsgConfig, String, String) -> BuildStateCheck
 
 pub fn compute_assets_hash(String) -> String
 
-pub fn compute_config_hash(@astra.SsgConfig) -> String
+pub fn compute_config_hash(@ssg.SsgConfig) -> String
 
 pub fn compute_content_hash(String, String, Array[String]) -> String
 
@@ -34,7 +34,7 @@ pub fn hash_content(String, String) -> String
 
 pub fn hash_strings(Array[String]) -> String
 
-pub fn save_manifest(String, @astra.SsgConfig, String) -> Unit
+pub fn save_manifest(String, @ssg.SsgConfig, String) -> Unit
 
 // Errors
 
@@ -71,7 +71,7 @@ pub(all) struct CacheManager {
 }
 pub fn CacheManager::clear(Self) -> Unit
 pub fn CacheManager::get(Self, String, String) -> String?
-pub fn CacheManager::new(String, @astra.SsgConfig, enabled? : Bool) -> Self
+pub fn CacheManager::new(String, @ssg.SsgConfig, enabled? : Bool) -> Self
 pub fn CacheManager::save(Self) -> Unit
 pub fn CacheManager::set(Self, String, String, String) -> Unit
 pub fn CacheManager::stats(Self) -> (Int, Int)

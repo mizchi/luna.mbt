@@ -10,12 +10,6 @@ pub fn auto_select_state_format(String, ShardConfig) -> ShardConfig
 
 pub let default_loader_url : String
 
-#deprecated
-pub fn escape_json_for_attr(String) -> String
-
-#deprecated
-pub fn escape_json_for_html(String) -> String
-
 pub fn format_state_attr(StateConfig) -> String?
 
 pub fn generate_lazy_shard(String, String, String, String) -> String

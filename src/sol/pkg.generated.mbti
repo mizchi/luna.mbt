@@ -35,12 +35,6 @@ pub let default_loader_url : String
 
 pub let default_wc_loader_url : String
 
-#deprecated
-pub fn escape_json_for_attr(String) -> String
-
-#deprecated
-pub fn escape_json_for_html(String) -> String
-
 pub fn generate_island_manifest(Array[(String, String)], String) -> String
 
 pub fn generate_state_script(String, String) -> String

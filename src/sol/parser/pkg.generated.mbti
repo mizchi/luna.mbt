@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/sol/parser"
+
+// Values
+pub fn get_methods_for_type(Array[PubFunc], String) -> Array[String]
+
+pub fn get_props_structs(Array[StructDef]) -> Array[StructDef]
+
+pub fn get_standalone_funcs(Array[PubFunc]) -> Array[String]
+
+pub fn parse_pub_funcs(String, String) -> Array[PubFunc] raise
+
+pub fn parse_struct_defs(String, String) -> Array[StructDef]
+
+// Errors
+
+// Types and methods
+pub(all) struct PubFunc {
+  name : String
+  type_name : String?
+}
+
+pub(all) struct StructDef {
+  name : String
+  visibility : String
+  raw_definition : String
+}
+
+// Type aliases
+
+// Traits
+

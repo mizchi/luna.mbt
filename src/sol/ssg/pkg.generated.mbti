@@ -1,0 +1,400 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/sol/ssg"
+
+import(
+  "mizchi/luna/sol/content/frontmatter"
+  "mizchi/luna/sol/content/markdown"
+  "moonbitlang/core/json"
+)
+
+// Values
+pub fn build_localized_url(String, String, I18nConfig) -> String
+
+pub fn build_sort_key(String) -> String
+
+pub fn build_tree_from_entries(SiteConfig, Array[PageEntry]) -> DocumentTree
+
+pub fn capitalize_first(String) -> String
+
+pub fn compare_strings_lex(String, String) -> Int
+
+pub fn detect_locale_from_path(String, I18nConfig, trailing_slash? : Bool) -> (String, String)
+
+pub fn extract_locale_suffix(String, Array[String]) -> (String, String)?
+
+pub fn file_to_url_path(String, trailing_slash? : Bool) -> String
+
+pub fn generate_llms_txt(DocumentTree) -> String
+
+pub fn generate_rss(DocumentTree, limit? : Int) -> String
+
+pub fn generate_sitemap(DocumentTree) -> String
+
+pub fn get_dir_name(String) -> String
+
+pub fn get_filename(String) -> String
+
+pub fn get_locale_config(I18nConfig, String) -> LocaleConfig?
+
+pub fn get_locale_url_prefix(I18nConfig, String) -> String
+
+pub fn get_url_dir(String) -> String
+
+pub fn is_default_locale(I18nConfig, String) -> Bool
+
+pub fn pad_number(Int, Int) -> String
+
+pub fn parse_int_simple(String) -> Int
+
+pub fn parse_numeric_prefix(String) -> (Int, String)
+
+pub fn parse_ssg_config(String) -> SsgConfig?
+
+pub fn parse_ssg_from_sol_config(String) -> SsgConfig?
+
+pub fn replace_filename(String, String) -> String
+
+pub fn strip_locale_from_url(String, I18nConfig) -> (String, String)
+
+pub fn strip_numeric_prefixes(String) -> String
+
+pub fn url_to_output_path(String) -> String
+
+pub fn url_to_page_id(String) -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct BuildContext {
+  config : SsgConfig
+  pages : Array[PageMeta]
+  sidebar : Array[SidebarGroup]
+  cwd : String
+  doc_tree : DocumentTree?
+  is_dev : Bool
+}
+pub fn BuildContext::new(SsgConfig, String) -> Self
+
+pub(all) enum ContentType {
+  Markdown
+  Html
+  Component
+  TsxComponent
+  Mdx
+}
+pub impl Eq for ContentType
+pub impl Show for ContentType
+
+pub(all) struct CssUtilitiesConfig {
+  enabled : Bool
+  split : Bool
+  inline_threshold : Int
+  source_dirs : Array[String]
+}
+pub fn CssUtilitiesConfig::default() -> Self
+
+pub(all) enum DeployTarget {
+  Static
+  Cloudflare
+  GithubPages
+  Vercel
+  Netlify
+  Deno
+  Node
+}
+pub fn DeployTarget::default() -> Self
+pub impl Eq for DeployTarget
+pub impl Show for DeployTarget
+
+pub(all) struct DocumentTree {
+  site : SiteInfo
+  pages : Array[PageInfo]
+  root : TreeNode
+}
+pub fn DocumentTree::get_page(Self, String) -> PageInfo?
+pub fn DocumentTree::get_page_by_url(Self, String) -> PageInfo?
+pub fn DocumentTree::get_pages_by_locale(Self, String) -> Array[PageInfo]
+pub fn DocumentTree::get_pages_sorted_by_date(Self, limit? : Int) -> Array[PageInfo]
+pub fn DocumentTree::new(site~ : SiteInfo, pages? : Array[PageInfo], root? : TreeNode) -> Self
+
+pub(all) struct FooterColumn {
+  title : String
+  items : Array[FooterLink]
+}
+pub impl ToJson for FooterColumn
+pub impl @json.FromJson for FooterColumn
+
+pub(all) struct FooterConfig {
+  message : String?
+  copyright : String?
+  links : Array[FooterColumn]
+  top : Array[FooterElement]
+  bottom : Array[FooterElement]
+}
+pub impl ToJson for FooterConfig
+pub impl @json.FromJson for FooterConfig
+
+pub(all) enum FooterElement {
+  Columns
+  Message
+  Copyright
+  SocialLinks
+  Custom(String)
+}
+pub impl Eq for FooterElement
+pub impl Show for FooterElement
+pub impl ToJson for FooterElement
+pub impl @json.FromJson for FooterElement
+
+pub(all) struct FooterLink {
+  label : String
+  href : String
+}
+pub impl ToJson for FooterLink
+pub impl @json.FromJson for FooterLink
+
+pub(all) struct HeaderConfig {
+  left : Array[HeaderElement]
+  center : Array[HeaderElement]
+  right : Array[HeaderElement]
+  sticky : Bool
+}
+pub fn HeaderConfig::default() -> Self
+pub impl ToJson for HeaderConfig
+pub impl @json.FromJson for HeaderConfig
+
+pub(all) enum HeaderElement {
+  Logo
+  NavLinks
+  Search
+  ThemeToggle
+  SocialLinks
+  LangSwitcher
+  Spacer
+  Custom(String)
+}
+pub impl Eq for HeaderElement
+pub impl Show for HeaderElement
+pub impl ToJson for HeaderElement
+pub impl @json.FromJson for HeaderElement
+
+pub(all) struct Heading {
+  level : Int
+  text : String
+  id : String
+}
+pub fn Heading::new(level~ : Int, text~ : String, id? : String) -> Self
+
+pub(all) struct I18nConfig {
+  default_locale : String
+  locales : Array[LocaleConfig]
+}
+pub fn I18nConfig::default() -> Self
+
+pub(all) struct IslandsConfig {
+  dir : String
+  base_path : String
+}
+pub fn IslandsConfig::default() -> Self
+
+pub(all) struct LocaleConfig {
+  code : String
+  label : String
+  path : String
+}
+pub impl ToJson for LocaleConfig
+pub impl @json.FromJson for LocaleConfig
+
+pub(all) struct MetaFilesConfig {
+  sitemap : Bool
+  feed : Bool
+  llms_txt : Bool
+}
+pub fn MetaFilesConfig::default() -> Self
+
+pub(all) struct NavItem {
+  text : String
+  link : String
+  icon : String?
+  items : Array[NavItem]
+}
+pub fn NavItem::new(String, String) -> Self
+pub impl ToJson for NavItem
+pub impl @json.FromJson for NavItem
+
+pub(all) struct NavigationConfig {
+  spa : Bool
+  view_transitions : Bool
+  keyboard : Bool
+}
+pub fn NavigationConfig::default() -> Self
+pub impl ToJson for NavigationConfig
+pub impl @json.FromJson for NavigationConfig
+
+pub(all) struct OgpConfig {
+  site_url : String?
+  image : String?
+  twitter_handle : String?
+  twitter_card : String?
+}
+pub fn OgpConfig::default() -> Self
+
+pub(all) struct PageEntry {
+  id : String
+  url_path : String
+  title : String
+  description : String
+  locale : String
+  updated_at : String
+  sort_key : String
+}
+
+pub(all) struct PageInfo {
+  id : String
+  url_path : String
+  source_path : String
+  title : String
+  description : String
+  locale : String
+  renderer_type : RendererType
+  updated_at : String
+  content_md : String
+  headings : Array[Heading]
+  sort_key : String
+}
+pub fn PageInfo::canonical_url(Self, String) -> String
+pub fn PageInfo::new(id~ : String, url_path~ : String, source_path? : String, title? : String, description? : String, locale? : String, renderer_type? : RendererType, updated_at? : String, content_md? : String, headings? : Array[Heading], sort_key? : String) -> Self
+
+pub(all) struct PageMeta {
+  source_path : String
+  url_path : String
+  content_type : ContentType
+  renderer_type : RendererType
+  frontmatter : @frontmatter.Frontmatter
+  last_modified : String?
+  locale : String
+  canonical_path : String
+  sort_key : String
+}
+pub fn PageMeta::new(String, String, content_type? : ContentType, renderer_type? : RendererType, locale? : String, canonical_path? : String, sort_key? : String) -> Self
+pub fn PageMeta::with_frontmatter(Self, @frontmatter.Frontmatter) -> Self
+
+pub(all) enum RendererType {
+  MarkdownRenderer
+  HtmlRenderer
+  LunaRenderer
+  ReactRenderer
+  ClientOnlyRenderer
+  MdxRenderer
+}
+pub fn RendererType::default() -> Self
+pub impl Eq for RendererType
+pub impl Show for RendererType
+
+pub(all) enum SidebarConfig {
+  Auto
+  Manual(Array[SidebarGroup])
+}
+
+pub(all) struct SidebarGroup {
+  text : String
+  link : String?
+  collapsed : Bool
+  items : Array[SidebarItem]
+}
+pub impl ToJson for SidebarGroup
+pub impl @json.FromJson for SidebarGroup
+
+pub(all) enum SidebarItem {
+  Link(text~ : String, link~ : String)
+  Group(SidebarGroup)
+}
+pub impl ToJson for SidebarItem
+pub impl @json.FromJson for SidebarItem
+
+pub(all) struct SiteConfig {
+  title : String
+  description : String
+  base_url : String
+  language : String
+}
+
+pub(all) struct SiteInfo {
+  title : String
+  description : String
+  base_url : String
+  language : String
+  updated_at : String
+}
+pub fn SiteInfo::new(title~ : String, description? : String, base_url? : String, language? : String, updated_at? : String) -> Self
+
+pub(all) struct SocialLink {
+  icon : String
+  link : String
+}
+pub impl ToJson for SocialLink
+pub impl @json.FromJson for SocialLink
+
+pub(all) struct SsgConfig {
+  docs_dir : String
+  output_dir : String
+  title : String
+  base_url : String
+  nav : Array[NavItem]
+  sidebar : SidebarConfig
+  islands : IslandsConfig?
+  theme : ThemeConfig
+  navigation : NavigationConfig
+  i18n : I18nConfig
+  exclude : Array[String]
+  trailing_slash : Bool
+  ogp : OgpConfig
+  ogp_text : String?
+  head_snippets : Array[String]
+  body_snippets : Array[String]
+  prod_body_snippets : Array[String]
+  sanitize_html : Bool
+  deploy_target : DeployTarget
+  spa_routes : Array[String]
+  components_dir : String?
+  css_utilities : CssUtilitiesConfig?
+  meta_files : MetaFilesConfig
+}
+pub fn SsgConfig::default() -> Self
+
+pub(all) struct ThemeConfig {
+  primary_color : String?
+  logo : String?
+  header : HeaderConfig?
+  footer : FooterConfig?
+  social_links : Array[SocialLink]
+}
+pub fn ThemeConfig::default() -> Self
+
+pub(all) enum TreeNode {
+  Section(name~ : String, path~ : String, children~ : Array[TreeNode])
+  Page(page_id~ : String, renderer~ : RendererType)
+}
+pub fn TreeNode::flatten(Self) -> Array[String]
+
+// Type aliases
+pub using @markdown {type ClsHints}
+
+pub using @markdown {type ComponentEmbed}
+
+pub using @frontmatter {type Frontmatter}
+
+pub using @markdown {type IslandEmbed}
+
+pub using @markdown {type JsxComponentEmbed}
+
+pub using @markdown {type MdNode}
+
+pub using @markdown {type MdxAttrValue}
+
+pub using @frontmatter {type NavLink}
+
+pub using @frontmatter {type OutlineConfig}
+
+// Traits
+

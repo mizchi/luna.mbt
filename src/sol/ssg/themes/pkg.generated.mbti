@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/astra/themes"
+package "mizchi/luna/sol/ssg/themes"
 
 // Values
 pub fn blog_theme() -> Theme

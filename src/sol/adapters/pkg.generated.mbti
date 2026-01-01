@@ -2,21 +2,21 @@
 package "mizchi/luna/sol/adapters"
 
 import(
-  "mizchi/luna/astra"
+  "mizchi/luna/sol/ssg"
 )
 
 // Values
-pub fn run_adapter(@astra.BuildContext) -> Unit
+pub fn run_adapter(@ssg.BuildContext) -> Unit
 
-pub fn write_cloudflare_config(@astra.BuildContext) -> Unit
+pub fn write_cloudflare_config(@ssg.BuildContext) -> Unit
 
-pub fn write_deno_config(@astra.BuildContext) -> Unit
+pub fn write_deno_config(@ssg.BuildContext) -> Unit
 
-pub fn write_github_pages_config(@astra.BuildContext) -> Unit
+pub fn write_github_pages_config(@ssg.BuildContext) -> Unit
 
-pub fn write_netlify_config(@astra.BuildContext) -> Unit
+pub fn write_netlify_config(@ssg.BuildContext) -> Unit
 
-pub fn write_vercel_config(@astra.BuildContext) -> Unit
+pub fn write_vercel_config(@ssg.BuildContext) -> Unit
 
 // Errors
 

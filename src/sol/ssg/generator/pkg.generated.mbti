@@ -1,37 +1,41 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/astra/generator"
+package "mizchi/luna/sol/ssg/generator"
 
 import(
-  "mizchi/luna/astra"
-  "mizchi/luna/core/ssg"
   "mizchi/luna/sol/content/shiki"
+  "mizchi/luna/sol/isr"
+  "mizchi/luna/sol/ssg"
   "moonbitlang/core/json"
 )
 
 // Values
-pub fn copy_static_assets(@astra.BuildContext) -> Unit
+pub fn build_isr_manifest(Array[@ssg.PageMeta]) -> @isr.ISRManifest
 
-pub async fn copy_static_assets_async(@astra.BuildContext) -> Unit
+pub fn copy_static_assets(@ssg.BuildContext) -> Unit
 
-pub fn extract_dynamic_route_patterns(Array[@astra.PageMeta]) -> Array[String]
+pub async fn copy_static_assets_async(@ssg.BuildContext) -> Unit
 
-pub fn generate_404_page(@astra.BuildContext) -> Unit
+pub fn extract_dynamic_route_patterns(Array[@ssg.PageMeta]) -> Array[String]
 
-pub fn generate_client_manifest(@astra.BuildContext) -> Unit
+pub fn generate_404_page(@ssg.BuildContext) -> Unit
 
-pub fn generate_meta_files(@astra.BuildContext, @ssg.DocumentTree) -> Unit
+pub fn generate_client_manifest(@ssg.BuildContext) -> Unit
 
-pub fn generate_routes_json(Array[@astra.PageMeta]) -> String
+pub fn generate_meta_files(@ssg.BuildContext, @ssg.DocumentTree) -> Unit
 
-pub fn generate_single_page(@astra.BuildContext, @astra.PageMeta, @shiki.Highlighter) -> Result[Unit, String]
+pub fn generate_routes_json(Array[@ssg.PageMeta]) -> String
 
-pub fn generate_site(@astra.SsgConfig, String) -> Result[Unit, String]
+pub fn generate_single_page(@ssg.BuildContext, @ssg.PageMeta, @shiki.Highlighter) -> Result[Unit, String]
 
-pub async fn generate_site_async(@astra.SsgConfig, String) -> Result[Unit, String]
+pub fn generate_site(@ssg.SsgConfig, String) -> Result[Unit, String]
 
-pub fn generate_site_with_highlighter(@astra.SsgConfig, String, @shiki.Highlighter, is_dev? : Bool) -> Result[Unit, String]
+pub async fn generate_site_async(@ssg.SsgConfig, String) -> Result[Unit, String]
 
-pub fn write_routes_json(@astra.BuildContext) -> Unit
+pub fn generate_site_with_highlighter(@ssg.SsgConfig, String, @shiki.Highlighter, is_dev? : Bool) -> Result[Unit, String]
+
+pub fn write_isr_manifest(@isr.ISRManifest, String) -> Unit
+
+pub fn write_routes_json(@ssg.BuildContext) -> Unit
 
 // Errors
 

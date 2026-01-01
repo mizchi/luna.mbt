@@ -1811,7 +1811,7 @@ pub async fn copy_static_assets_async(ctx : @ssg.BuildContext) -> Unit {
 
   // Get source directories to scan
   let source_dirs = if css_config.source_dirs.is_empty() {
-    ["src/astra", "src/luna", ctx.config.docs_dir]
+    ["src/sol/ssg", "src/luna", ctx.config.docs_dir]
   } else {
     css_config.source_dirs
   }

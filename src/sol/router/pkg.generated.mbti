@@ -5,11 +5,11 @@ import(
   "mizchi/js/core"
   "mizchi/js/web/http"
   "mizchi/js/web/url"
-  "mizchi/luna/core/ssg"
   "mizchi/luna/luna"
   "mizchi/luna/luna/static_dom"
   "mizchi/luna/sol/isr"
   "mizchi/luna/sol/middleware"
+  "mizchi/luna/sol/ssg"
   "mizchi/npm_typed/hono"
 )
 

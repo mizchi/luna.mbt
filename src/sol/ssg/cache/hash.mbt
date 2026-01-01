@@ -80,15 +80,15 @@ fn collect_file_hashes(
 
 ///|
 /// Compute hash for asset files (CSS, JS) in a directory
-/// Used to detect changes in src/astra/assets that should invalidate cache
+/// Used to detect changes in src/sol/ssg/assets that should invalidate cache
 /// Searches multiple paths similar to load_asset in loader.mbt
 pub fn compute_assets_hash(cwd : String) -> String {
   // Try multiple paths to find assets directory
   let paths = [
-    @path.join2(cwd, "src/astra/assets"),
-    "src/astra/assets",
-    @path.join2(cwd, "../src/astra/assets"),
-    @path.join2(cwd, "../../src/astra/assets"),
+    @path.join2(cwd, "src/sol/ssg/assets"),
+    "src/sol/ssg/assets",
+    @path.join2(cwd, "../src/sol/ssg/assets"),
+    @path.join2(cwd, "../../src/sol/ssg/assets"),
     @path.join2(cwd, "node_modules/@luna_ui/sol/assets"),
   ]
   for assets_dir in paths {

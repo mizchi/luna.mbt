@@ -90,7 +90,7 @@ test-xplat:
     moon test --target all src/luna/routes
     moon test --target all src/luna/render
     moon test --target all src/luna/serialize
-    moon test --target all src/core/parser
+    moon test --target all src/sol/parser
 
 # moon test 用 CommonJS 環境セットアップ
 _setup-test-env:
@@ -101,9 +101,9 @@ _setup-test-env:
 # テスト（プロダクト別）
 # =============================================================================
 
-# Astra テスト
+# Astra テスト (sol/ssg に統合済み)
 test-astra: _setup-test-env
-    moon test --target js src/astra/shiki src/astra/markdown src/astra/routes src/astra/tree
+    moon test --target js src/sol/ssg
     pnpm playwright test --config e2e/astra/playwright.config.ts
 
 # Sol テスト

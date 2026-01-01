@@ -1,22 +1,15 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/astra/tree"
+package "mizchi/luna/sol/ssg/tree"
 
 import(
-  "mizchi/luna/astra"
   "mizchi/luna/core/env"
-  "mizchi/luna/core/ssg"
+  "mizchi/luna/sol/ssg"
 )
 
 // Values
-pub fn build_document_tree(@astra.SsgConfig, Array[@astra.PageMeta], String) -> @ssg.DocumentTree
+pub fn build_document_tree(@ssg.SsgConfig, Array[@ssg.PageMeta], String) -> @ssg.DocumentTree
 
-pub fn[F : @env.FileSystem] build_document_tree_with_fs(F, @astra.SsgConfig, Array[@astra.PageMeta], String) -> @ssg.DocumentTree
-
-pub fn generate_llms_txt(@ssg.DocumentTree) -> String
-
-pub fn generate_rss(@ssg.DocumentTree, limit? : Int) -> String
-
-pub fn generate_sitemap(@ssg.DocumentTree) -> String
+pub fn[F : @env.FileSystem] build_document_tree_with_fs(F, @ssg.SsgConfig, Array[@ssg.PageMeta], String) -> @ssg.DocumentTree
 
 // Errors
 

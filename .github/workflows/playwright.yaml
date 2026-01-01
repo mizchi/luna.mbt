@@ -33,10 +33,8 @@ jobs:
         run: |
           # Core libraries
           moon build --target js src/luna
-          moon build --target js src/core/parser
-          moon build --target js src/core/ssg
+          moon build --target js src/sol/parser
           moon build --target js src/platform/js/api
-          moon build --target js src/platform/js/cache
           moon build --target js src/platform/js/fs_adapter
           moon build --target js src/platform/js/stream_renderer
           moon build --target js src/sol
@@ -82,10 +80,8 @@ jobs:
         run: |
           # Core libraries
           moon build --target js src/luna
-          moon build --target js src/core/parser
-          moon build --target js src/core/ssg
+          moon build --target js src/sol/parser
           moon build --target js src/platform/js/api
-          moon build --target js src/platform/js/cache
           moon build --target js src/platform/js/fs_adapter
           moon build --target js src/platform/js/stream_renderer
           moon build --target js src/sol

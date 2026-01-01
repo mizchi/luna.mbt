@@ -3,24 +3,24 @@ package "mizchi/luna/sol/builder_pool"
 
 import(
   "mizchi/js/core"
-  "mizchi/luna/astra"
   "mizchi/luna/sol/builder"
+  "mizchi/luna/sol/ssg"
 )
 
 // Values
-pub fn pages_from_json(String) -> Array[@astra.PageMeta]
+pub fn pages_from_json(String) -> Array[@ssg.PageMeta]
 
-pub fn pages_to_json(Array[@astra.PageMeta]) -> String
+pub fn pages_to_json(Array[@ssg.PageMeta]) -> String
 
-pub async fn run_parallel_build(@astra.SsgConfig, Array[@astra.PageMeta], Array[@astra.SidebarGroup], String, String, num_workers? : Int) -> Array[PageJobResult]
+pub async fn run_parallel_build(@ssg.SsgConfig, Array[@ssg.PageMeta], Array[@ssg.SidebarGroup], String, String, num_workers? : Int) -> Array[PageJobResult]
 
-pub fn sidebar_from_json(String) -> Array[@astra.SidebarGroup]
+pub fn sidebar_from_json(String) -> Array[@ssg.SidebarGroup]
 
-pub fn sidebar_to_json(Array[@astra.SidebarGroup]) -> String
+pub fn sidebar_to_json(Array[@ssg.SidebarGroup]) -> String
 
-pub fn ssg_config_from_json(String) -> @astra.SsgConfig?
+pub fn ssg_config_from_json(String) -> @ssg.SsgConfig?
 
-pub fn ssg_config_to_json(@astra.SsgConfig) -> String
+pub fn ssg_config_to_json(@ssg.SsgConfig) -> String
 
 pub fn start_worker() -> Unit
 

@@ -2,8 +2,7 @@
 package "mizchi/luna/sol/cli"
 
 import(
-  "mizchi/luna/astra"
-  "mizchi/luna/core/ssg"
+  "mizchi/luna/sol/ssg"
 )
 
 // Values
@@ -39,13 +38,13 @@ pub fn parse_runtime(String) -> ServerRuntime
 
 pub fn parse_sol_config(String) -> SolConfig?
 
-pub fn parse_ssg_config(String, String) -> @astra.SsgConfig?
+pub fn parse_ssg_config(String, String) -> @ssg.SsgConfig?
 
 pub fn rewrite_type_refs(String, Map[String, String]) -> String
 
-pub async fn run_ssg_build(@astra.SsgConfig, String, Bool, Int?, Bool) -> Result[Unit, String]
+pub async fn run_ssg_build(@ssg.SsgConfig, String, Bool, Int?, Bool) -> Result[Unit, String]
 
-pub async fn run_ssg_dev(@astra.SsgConfig, String, Int) -> Unit
+pub async fn run_ssg_dev(@ssg.SsgConfig, String, Int) -> Unit
 
 pub fn run_ssg_lint(Array[String]) -> Unit
 
@@ -153,14 +152,14 @@ pub struct StaticDirEntry {
   path_prefix : String
   source_dir : String
   title : String
-  nav : Array[@astra.NavItem]
-  sidebar : @astra.SidebarConfig
+  nav : Array[@ssg.NavItem]
+  sidebar : @ssg.SidebarConfig
   i18n : @ssg.I18nConfig
   navigation : @ssg.NavigationConfig
   exclude : Array[String]
   trailing_slash : Bool
-  theme : @astra.ThemeConfig
-  ogp : @astra.OgpConfig
+  theme : @ssg.ThemeConfig
+  ogp : @ssg.OgpConfig
   ogp_text : String?
   head_snippets : Array[String]
   body_snippets : Array[String]

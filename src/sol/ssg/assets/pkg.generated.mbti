@@ -1,9 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/astra/assets"
+package "mizchi/luna/sol/ssg/assets"
 
 import(
-  "mizchi/luna/astra"
-  "mizchi/luna/core/ssg"
+  "mizchi/luna/sol/ssg"
 )
 
 // Values
@@ -11,7 +10,7 @@ pub fn build_navigation_script(Array[String], @ssg.NavigationConfig) -> String
 
 pub fn clear_cache() -> Unit
 
-pub fn get_default_css(@astra.SsgConfig) -> String
+pub fn get_default_css(@ssg.SsgConfig) -> String
 
 pub fn get_github_markdown_css() -> String
 
