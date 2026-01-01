@@ -12,7 +12,7 @@ import {
 const PROJECT_ROOT = join(import.meta.dirname, "../..");
 const CLI_PATH = join(
   PROJECT_ROOT,
-  "target/js/release/build/astra/cli/cli.js"
+  "target/js/release/build/sol/cli/cli.js"
 );
 
 function createTestProject(name: string, config: object): string {

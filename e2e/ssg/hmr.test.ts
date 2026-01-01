@@ -27,7 +27,7 @@ async function startDevServer(): Promise<void> {
   return new Promise((resolve, reject) => {
     const cliPath = join(
       PROJECT_ROOT,
-      "target/js/release/build/astra/cli/cli.js"
+      "target/js/release/build/sol/cli/cli.js"
     );
 
     devServer = spawn("node", [cliPath, "dev"], {

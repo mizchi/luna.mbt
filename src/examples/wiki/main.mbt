@@ -16,12 +16,14 @@ using @element {
   div,
   h1,
   h2,
+  h3,
   text,
   p,
   ul,
   li,
   article,
   nav,
+  aside,
   text_dyn,
   clear,
   mount,
@@ -101,14 +103,14 @@ fn create_routes() -> Array[@routes.Routes] {
 // =============================================================================
 
 ///|
-fn header_nav_component(router : @router.BrowserRouter) -> DomNode {
+fn sidebar_component(router : @router.BrowserRouter) -> DomNode {
   let base = router.get_base()
   let pages = get_wiki_pages()
   fn nav_link(href : String, label : String) -> DomNode {
     a(
       href~,
       class="wiki-nav-link",
-      style="padding: 0.5rem 1rem; text-decoration: none; color: var(--text-color, #333); border-radius: 4px; transition: background 0.2s;",
+      style="display: block; padding: 0.5rem 1rem; text-decoration: none; color: var(--text-color, #333); border-radius: 4px; transition: background 0.2s;",
       on=events().click(fn(e) {
         e.preventDefault()
         router.navigate(href)
@@ -117,17 +119,23 @@ fn header_nav_component(router : @router.BrowserRouter) -> DomNode {
     )
   }
 
-  nav(
-    class="wiki-header-nav",
-    style="display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color, #e5e7eb); margin-bottom: 1.5rem;",
-    pages
-    .iter()
-    .filter(fn(page) { page.slug != "index" })
-    .map(fn(page) {
-      let href = base + "/" + page.slug
-      nav_link(href, page.title)
-    })
-    .collect(),
+  aside(
+    class="wiki-sidebar",
+    style="width: 200px; padding: 1rem; border-right: 1px solid var(--border-color, #e5e7eb);",
+    [
+      h3(style="margin: 0 0 1rem 0; font-size: 1rem;", [text("Wiki Pages")]),
+      nav(
+        class="wiki-sidebar-nav",
+        style="display: flex; flex-direction: column; gap: 0.25rem;",
+        pages
+        .iter()
+        .map(fn(page) {
+          let href = if page.slug == "index" { base } else { base + "/" + page.slug }
+          nav_link(href, page.title)
+        })
+        .collect(),
+      ),
+    ],
   )
 }
 
@@ -136,7 +144,7 @@ fn wiki_index_component(_router : @router.BrowserRouter) -> DomNode {
   let pages = get_wiki_pages()
   article(class="wiki-page", [
     h1([text("Wiki Home")]),
-    p([text("Welcome to the wiki! Select a page from the navigation above.")]),
+    p([text("Welcome to the wiki! Select a page from the sidebar.")]),
     h2([text("Available Pages")]),
     ul(
       pages
@@ -217,26 +225,32 @@ fn render_wiki(router : @router.BrowserRouter, container : DomElement) -> Unit {
     clear(container)
 
     // Create components untracked
-    let (header, content) = @signal.untracked(fn() {
-      let header = header_nav_component(router)
+    let (sidebar, content) = @signal.untracked(fn() {
+      let sidebar = sidebar_component(router)
       let content = match match_result {
         Some(m) => resolve_component(router, m)
         None => not_found_component(router)
       }
-      (header, content)
+      (sidebar, content)
     })
 
-    // Build wiki layout with header nav
+    // Build wiki layout with sidebar
     let app = @signal.untracked(fn() {
       div(
         class="wiki-container",
-        style="min-height: 300px; max-width: 100%; overflow: hidden;",
-        [header, content],
+        style="display: flex; min-height: 300px; max-width: 100%; overflow: hidden;",
+        [
+          sidebar,
+          div(
+            class="wiki-content",
+            style="flex: 1; padding: 1rem;",
+            [content],
+          ),
+        ],
       )
     })
     mount(container, app)
   })
-
 }
 
 // =============================================================================
