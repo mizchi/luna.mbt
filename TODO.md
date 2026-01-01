@@ -71,7 +71,7 @@
 - [ ] プラグインシステム (mermaid, math等)
 
 **低優先**
-- [x] ブログテンプレート → `examples/astra_blog/`
+- [x] ブログテンプレート → `examples/sol_blog/`
   - Frontmatterにブログ用フィールド追加 (date, author, tags, draft)
 - [x] ディスクキャッシュ (永続ビルドキャッシュ) → `src/sol/ssg/cache/`, `.sol-cache/`
 - [x] アセットハッシング (キャッシュバスティング) → rolldown対応済み

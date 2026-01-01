@@ -72,7 +72,7 @@ Phase 2（将来）:
 
 ### 設定
 
-`astra.json` に検索設定を追加：
+`sol.config.json` に検索設定を追加：
 
 ```json
 {

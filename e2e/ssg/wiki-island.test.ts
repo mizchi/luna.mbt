@@ -3,8 +3,8 @@ import { execSync, spawn, ChildProcess } from "node:child_process";
 import { join } from "node:path";
 
 const PROJECT_ROOT = join(import.meta.dirname, "../..");
-const ASTRA_APP_DIR = join(PROJECT_ROOT, "examples/astra_app");
-const CLI_PATH = join(PROJECT_ROOT, "target/js/release/build/astra/cli/cli.js");
+const SOL_DOCS_DIR = join(PROJECT_ROOT, "examples/sol_docs");
+const CLI_PATH = join(PROJECT_ROOT, "target/js/release/build/sol/cli/cli.js");
 
 function startStaticServer(distDir: string): Promise<{ url: string; process: ChildProcess }> {
   return new Promise((resolve, reject) => {
@@ -59,20 +59,20 @@ test.describe("Wiki Island - BrowserRouter Dynamic Routing", () => {
       stdio: "inherit",
     });
 
-    // Copy wiki.js to astra_app islands
+    // Copy wiki.js to sol_docs islands
     execSync(
-      `cp ${join(PROJECT_ROOT, "target/js/release/build/examples/wiki/wiki.js")} ${join(ASTRA_APP_DIR, "docs/public/islands/wiki.js")}`,
+      `cp ${join(PROJECT_ROOT, "target/js/release/build/examples/wiki/wiki.js")} ${join(SOL_DOCS_DIR, "docs/public/islands/wiki.js")}`,
       { stdio: "inherit" }
     );
 
-    // Build astra_app
+    // Build sol_docs
     execSync(`node ${CLI_PATH} build`, {
-      cwd: ASTRA_APP_DIR,
+      cwd: SOL_DOCS_DIR,
       stdio: "inherit",
     });
 
     // Start static server
-    server = await startStaticServer(join(ASTRA_APP_DIR, "dist"));
+    server = await startStaticServer(join(SOL_DOCS_DIR, "dist"));
   });
 
   test.afterAll(() => {

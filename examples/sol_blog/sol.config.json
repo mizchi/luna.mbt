@@ -1,7 +1,7 @@
 {
-  "$schema": "../../schemas/astra.schema.json",
+  "$schema": "../../schemas/sol.config.schema.json",
   "title": "My Blog",
-  "description": "A sample blog built with Astra",
+  "description": "A sample blog built with Sol SSG",
   "docs_dir": "docs",
   "out_dir": "dist",
   "base_url": "/",
@@ -16,7 +16,7 @@
   ],
   "theme": {
     "footer": {
-      "message": "Built with Astra",
+      "message": "Built with Sol SSG",
       "copyright": "2024 My Blog"
     }
   }

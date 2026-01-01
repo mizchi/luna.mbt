@@ -101,10 +101,10 @@ _setup-test-env:
 # テスト（プロダクト別）
 # =============================================================================
 
-# Astra テスト (sol/ssg に統合済み)
-test-astra: _setup-test-env
+# SSG テスト (sol/ssg)
+test-ssg: _setup-test-env
     moon test --target js src/sol/ssg
-    pnpm playwright test --config e2e/astra/playwright.config.ts
+    pnpm playwright test --config e2e/ssg/playwright.config.ts
 
 # Sol テスト
 test-sol: _setup-test-env

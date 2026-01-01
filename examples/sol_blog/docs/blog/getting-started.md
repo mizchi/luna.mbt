@@ -26,7 +26,7 @@ cd mysite
 
 ## Configuration
 
-Create an `astra.json` file:
+Create a `sol.config.json` file:
 
 ```json
 {

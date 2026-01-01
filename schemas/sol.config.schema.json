@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://luna.dev/schemas/astra.json",
-  "title": "Astra SSG Configuration",
-  "description": "Configuration for astra.json static site generator",
+  "$id": "https://luna.dev/schemas/sol.config.json",
+  "title": "Sol SSG Configuration",
+  "description": "Configuration for sol.config.json static site generator",
   "type": "object",
   "properties": {
     "$schema": {

@@ -22,7 +22,7 @@ cd my-site
 
 ```
 my-site/
-├── astra.json        # Configuration
+├── sol.config.json   # Configuration
 ├── docs/             # Content directory
 │   ├── index.md      # Home page
 │   └── guide/
@@ -32,11 +32,11 @@ my-site/
 
 ## Configuration
 
-Create `astra.json`:
+Create `sol.config.json`:
 
 ```json
 {
-  "$schema": "../../schemas/astra.schema.json",
+  "$schema": "../../schemas/sol.config.schema.json",
   "title": "My Site",
   "docs_dir": "docs",
   "out_dir": "dist",

@@ -24,7 +24,7 @@ website/
 │   └── accordion.css
 ├── 01_section/           # コンテンツ
 │   └── page.mdx
-└── astra.json            # 設定
+└── sol.config.json       # 設定
 ```
 
 ## コンポーネント定義

@@ -19,7 +19,7 @@ function createTestProject(name: string, config: object): string {
 
   // Write config
   writeFileSync(
-    join(testDir, "astra.json"),
+    join(testDir, "sol.config.json"),
     JSON.stringify(config, null, 2)
   );
 

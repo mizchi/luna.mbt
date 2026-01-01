@@ -27,7 +27,7 @@ function createTestProject(name: string, config: object): string {
   mkdirSync(join(testDir, "docs"), { recursive: true });
 
   // Write config
-  writeFileSync(join(testDir, "astra.json"), JSON.stringify(config, null, 2));
+  writeFileSync(join(testDir, "sol.config.json"), JSON.stringify(config, null, 2));
 
   return testDir;
 }

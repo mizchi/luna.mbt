@@ -1,7 +1,7 @@
 {
-  "$schema": "../../schemas/astra.schema.json",
-  "title": "Astra Demo",
-  "description": "Demo site for Unified Progressive Architecture",
+  "$schema": "../../schemas/sol.config.schema.json",
+  "title": "Sol SSG Demo",
+  "description": "Demo site for Sol SSG",
   "docs_dir": "docs",
   "out_dir": "dist",
   "base_url": "/",

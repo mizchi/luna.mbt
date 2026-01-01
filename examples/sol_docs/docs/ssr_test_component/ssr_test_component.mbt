@@ -17,7 +17,7 @@ pub fn render() -> Node[Unit] {
     h("p", [], [text("This component is defined in docs/ssr_test_component/")]),
     h("ul", [], [
       h("li", [], [text("Built from local .mbt file")]),
-      h("li", [], [text("Part of astra_app example")]),
+      h("li", [], [text("Part of sol_docs example")]),
       h("li", [], [text("SSR rendered on server")]),
     ]),
   ])

@@ -4,8 +4,8 @@ import { join } from "node:path";
 import { readFileSync, existsSync } from "node:fs";
 
 const PROJECT_ROOT = join(import.meta.dirname, "../..");
-const ASTRA_APP_DIR = join(PROJECT_ROOT, "examples/astra_app");
-const CLI_PATH = join(PROJECT_ROOT, "target/js/release/build/astra/cli/cli.js");
+const SOL_DOCS_DIR = join(PROJECT_ROOT, "examples/sol_docs");
+const CLI_PATH = join(PROJECT_ROOT, "target/js/release/build/sol/cli/cli.js");
 
 function startStaticServer(distDir: string): Promise<{ url: string; process: ChildProcess }> {
   return new Promise((resolve, reject) => {
@@ -54,14 +54,14 @@ test.describe("Hierarchical Manifest - SPA Segments", () => {
   let server: { url: string; process: ChildProcess };
 
   test.beforeAll(async () => {
-    // Build astra_app
+    // Build sol_docs
     execSync(`node ${CLI_PATH} build`, {
-      cwd: ASTRA_APP_DIR,
+      cwd: SOL_DOCS_DIR,
       stdio: "inherit",
     });
 
     // Start static server
-    server = await startStaticServer(join(ASTRA_APP_DIR, "dist"));
+    server = await startStaticServer(join(SOL_DOCS_DIR, "dist"));
   });
 
   test.afterAll(() => {
@@ -69,7 +69,7 @@ test.describe("Hierarchical Manifest - SPA Segments", () => {
   });
 
   test("v2 manifest is generated when SPA segment exists", async () => {
-    const manifestPath = join(ASTRA_APP_DIR, "dist/_luna/manifest.json");
+    const manifestPath = join(SOL_DOCS_DIR, "dist/_luna/manifest.json");
     expect(existsSync(manifestPath)).toBe(true);
 
     const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
@@ -84,7 +84,7 @@ test.describe("Hierarchical Manifest - SPA Segments", () => {
   });
 
   test("segment manifest file is generated", async () => {
-    const wikiManifestPath = join(ASTRA_APP_DIR, "dist/_luna/routes/wiki.json");
+    const wikiManifestPath = join(SOL_DOCS_DIR, "dist/_luna/routes/wiki.json");
     expect(existsSync(wikiManifestPath)).toBe(true);
 
     const manifest = JSON.parse(readFileSync(wikiManifestPath, "utf-8"));
@@ -133,7 +133,7 @@ test.describe("Hierarchical Manifest - SPA Segments", () => {
   });
 
   test("chunks are defined in manifest", async () => {
-    const manifestPath = join(ASTRA_APP_DIR, "dist/_luna/manifest.json");
+    const manifestPath = join(SOL_DOCS_DIR, "dist/_luna/manifest.json");
     const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
 
     expect(manifest.chunks).toBeDefined();
