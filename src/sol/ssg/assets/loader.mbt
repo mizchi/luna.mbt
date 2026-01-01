@@ -46,6 +46,8 @@ fn load_asset(relative_path : String) -> String {
 
   // Development: running from luna.mbt repo root
   paths.push("src/sol/ssg/assets/" + relative_path)
+  // Development: running from website/ or examples/ subdirectory
+  paths.push("../src/sol/ssg/assets/" + relative_path)
   // npm package: @luna_ui/sol installed via npm (relative to cwd)
   paths.push("node_modules/@luna_ui/sol/assets/" + relative_path)
   // Examples/subprojects: path dependency to parent luna.mbt

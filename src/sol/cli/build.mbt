@@ -106,7 +106,54 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     false
   }
   let cwd = @process.cwd()
-  // Check if this is a MoonBit project
+  // Check if this is a pure SSG project (no moon.mod.json needed)
+  let is_ssg_only = has_ssg_config(cwd) && not(@fs.exists_sync(
+      @path.join2(cwd, "moon.mod.json"),
+    ))
+  if is_ssg_only {
+    // Pure SSG mode - skip MoonBit checks and go directly to SSG build
+    let config_path = find_ssg_config_file(cwd)
+    let full_config_path = @path.join2(cwd, config_path)
+    let config_content = fs.read_file_sync(full_config_path) catch {
+      _ => {
+        @cli_common.console_error(@colorette.red("Failed to read SSG config"))
+        @process.exit(1)
+        ""
+      }
+    }
+    match parse_ssg_config(config_content, config_path) {
+      Some(ssg_config) => {
+        let ssg_cwd = @path.dirname(full_config_path)
+        let cache_dir = @path.join2(ssg_cwd, ".sol-cache")
+        if not(force_build) {
+          match
+            @ssg_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
+            @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
+              println(
+                @colorette.green("SSG skipped (no changes since \{built_at})"),
+              )
+              println(@colorette.gray("  Use --force to rebuild anyway"))
+            }
+            _ =>
+              execute_ssg_build(
+                ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
+              )
+          }
+        } else {
+          execute_ssg_build(
+            ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
+          )
+        }
+        println(@colorette.gray("Output: \{ssg_config.output_dir}"))
+        return
+      }
+      None => {
+        @cli_common.console_error(@colorette.red("Failed to parse SSG config"))
+        @process.exit(1)
+      }
+    }
+  }
+  // Check if this is a MoonBit project (required for non-SSG-only mode)
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
   if not(fs.exists_sync(moon_mod_path)) {
     @cli_common.console_error(
