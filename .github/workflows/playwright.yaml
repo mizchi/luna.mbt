@@ -34,9 +34,9 @@ jobs:
           # Core libraries
           moon build --target js src/luna
           moon build --target js src/sol/parser
-          moon build --target js src/platform/js/api
-          moon build --target js src/platform/js/fs_adapter
-          moon build --target js src/platform/js/stream_renderer
+          moon build --target js src/luna/js/api
+          moon build --target js src/luna/js/fs_adapter
+          moon build --target js src/luna/js/stream_renderer
           moon build --target js src/sol
           moon build --target js src/stella
           # Test packages for browser tests
@@ -81,9 +81,9 @@ jobs:
           # Core libraries
           moon build --target js src/luna
           moon build --target js src/sol/parser
-          moon build --target js src/platform/js/api
-          moon build --target js src/platform/js/fs_adapter
-          moon build --target js src/platform/js/stream_renderer
+          moon build --target js src/luna/js/api
+          moon build --target js src/luna/js/fs_adapter
+          moon build --target js src/luna/js/stream_renderer
           moon build --target js src/sol
           moon build --target js src/stella
           # Test packages for e2e tests

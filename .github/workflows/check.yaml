@@ -33,9 +33,9 @@ jobs:
         run: |
           moon check --target js src/luna
           moon check --target js src/sol/parser
-          moon check --target js src/platform/js/api
-          moon check --target js src/platform/js/fs_adapter
-          moon check --target js src/platform/js/stream_renderer
+          moon check --target js src/luna/js/api
+          moon check --target js src/luna/js/fs_adapter
+          moon check --target js src/luna/js/stream_renderer
           moon check --target js src/sol
           moon check --target js src/stella
       - name: Build workspace packages
@@ -83,10 +83,10 @@ jobs:
           # Sol
           moon test --target js src/sol/parser
           moon test --target js src/sol/router
-          # Platform (specific packages with tests)
-          moon test --target js src/platform/js/fs_adapter
-          moon test --target js src/platform/js/stream_renderer
-          moon test --target js src/platform/js/api
+          # Luna JS (specific packages with tests)
+          moon test --target js src/luna/js/fs_adapter
+          moon test --target js src/luna/js/stream_renderer
+          moon test --target js src/luna/js/api
           # Stella
           moon test --target js src/stella
 
