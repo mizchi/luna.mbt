@@ -25,6 +25,7 @@ luna-ts-example
 dist-docs
 .test-output
 .astra-cache/
+.sol-cache/
 *.db
 website/public/demo/
 tmp.sol-cache/
