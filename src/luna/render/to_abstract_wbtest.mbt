@@ -99,8 +99,7 @@ test "convert RawHtml" {
   )
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
-    RawHtml(html) =>
-      assert_eq(html, "<custom-element>Content</custom-element>")
+    RawHtml(html) => assert_eq(html, "<custom-element>Content</custom-element>")
     _ => fail("Expected RawHtml")
   }
 }

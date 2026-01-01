@@ -60,9 +60,7 @@ fn[E] convert_element(elem : @luna.VElement[E]) -> AbstractNode {
 
 ///|
 /// Convert Luna Attr to AbstractNode AttrValue
-fn[E] convert_attr(
-  attr : (String, @luna.Attr[E]),
-) -> (String, AttrValue) {
+fn[E] convert_attr(attr : (String, @luna.Attr[E])) -> (String, AttrValue) {
   let (name, value) = attr
   match value {
     VStatic(s) => (name, Str(s))
@@ -110,9 +108,7 @@ fn[E] convert_wc_island(island : @luna.VWcIsland[E]) -> AbstractNode {
 
 ///|
 /// Convert Luna InternalRef to AbstractNode Component
-fn[E] convert_internal_ref(
-  iref : @luna.VInternalRef[E],
-) -> AbstractNode {
+fn[E] convert_internal_ref(iref : @luna.VInternalRef[E]) -> AbstractNode {
   let trigger = convert_trigger(iref.trigger)
   let mode = Hydration(trigger)
   let children = iref.children.map(to_abstract)

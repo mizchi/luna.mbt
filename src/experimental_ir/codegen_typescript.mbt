@@ -6,6 +6,7 @@
 // Main Generator
 // =============================================================================
 
+///|
 /// Generate TypeScript source code from a schema
 pub fn Schema::to_typescript(self : Schema) -> String {
   let buf = StringBuilder::new()
@@ -14,7 +15,6 @@ pub fn Schema::to_typescript(self : Schema) -> String {
   buf.write_string("// Generated from IR Schema v")
   buf.write_string(self.version)
   buf.write_string("\n")
-
   match self.source {
     Some(src) => {
       buf.write_string("// Source: ")
@@ -33,8 +33,8 @@ pub fn Schema::to_typescript(self : Schema) -> String {
     buf.write_string(code)
     buf.write_string("\n")
     let _ = name
-  }
 
+  }
   buf.to_string()
 }
 
@@ -42,6 +42,7 @@ pub fn Schema::to_typescript(self : Schema) -> String {
 // TypeDef Generator
 // =============================================================================
 
+///|
 /// Generate TypeScript code for a type definition
 pub fn TypeDef::to_typescript(self : TypeDef) -> String {
   match self {
@@ -51,6 +52,7 @@ pub fn TypeDef::to_typescript(self : TypeDef) -> String {
   }
 }
 
+///|
 /// Generate TypeScript code for a struct definition (as interface)
 pub fn StructDef::to_typescript(self : StructDef) -> String {
   let buf = StringBuilder::new()
@@ -80,7 +82,6 @@ pub fn StructDef::to_typescript(self : StructDef) -> String {
     }
     buf.write_string(">")
   }
-
   buf.write_string(" {\n")
 
   // Fields
@@ -89,11 +90,11 @@ pub fn StructDef::to_typescript(self : StructDef) -> String {
     buf.write_string(field.to_typescript())
     buf.write_string(";\n")
   }
-
   buf.write_string("}\n")
   buf.to_string()
 }
 
+///|
 /// Generate TypeScript code for an enum definition
 pub fn EnumDef::to_typescript(self : EnumDef) -> String {
   let buf = StringBuilder::new()
@@ -110,12 +111,10 @@ pub fn EnumDef::to_typescript(self : EnumDef) -> String {
 
   // Check if it's a simple enum (no payloads) or a discriminated union
   let has_payloads = self.variants.iter().any(fn(v) { v.payload is Some(_) })
-
   if has_payloads {
     // Generate discriminated union
     buf.write_string("export type ")
     buf.write_string(self.name)
-
     if self.type_params.length() > 0 {
       buf.write_string("<")
       for i, param in self.type_params {
@@ -126,9 +125,7 @@ pub fn EnumDef::to_typescript(self : EnumDef) -> String {
       }
       buf.write_string(">")
     }
-
     buf.write_string(" =\n")
-
     for i, variant in self.variants {
       if i > 0 {
         buf.write_string("\n")
@@ -151,7 +148,6 @@ pub fn EnumDef::to_typescript(self : EnumDef) -> String {
     buf.write_string("export type ")
     buf.write_string(self.name)
     buf.write_string(" =\n")
-
     for i, variant in self.variants {
       if i > 0 {
         buf.write_string("\n")
@@ -162,10 +158,10 @@ pub fn EnumDef::to_typescript(self : EnumDef) -> String {
     }
     buf.write_string(";\n")
   }
-
   buf.to_string()
 }
 
+///|
 /// Generate TypeScript code for a type alias
 pub fn AliasDef::to_typescript(self : AliasDef) -> String {
   let buf = StringBuilder::new()
@@ -195,11 +191,9 @@ pub fn AliasDef::to_typescript(self : AliasDef) -> String {
     }
     buf.write_string(">")
   }
-
   buf.write_string(" = ")
   buf.write_string(self.target.to_typescript())
   buf.write_string(";\n")
-
   buf.to_string()
 }
 
@@ -207,6 +201,7 @@ pub fn AliasDef::to_typescript(self : AliasDef) -> String {
 // Field Generator
 // =============================================================================
 
+///|
 /// Generate TypeScript code for a field
 pub fn Field::to_typescript(self : Field) -> String {
   let buf = StringBuilder::new()
@@ -220,7 +215,6 @@ pub fn Field::to_typescript(self : Field) -> String {
 
   // Field type
   buf.write_string(self.type_.to_typescript())
-
   buf.to_string()
 }
 
@@ -228,12 +222,14 @@ pub fn Field::to_typescript(self : Field) -> String {
 // TypeRef Generator
 // =============================================================================
 
+///|
 /// Generate TypeScript code for a type reference
 pub fn TypeRef::to_typescript(self : TypeRef) -> String {
   match self {
     Primitive(p) => p.to_typescript()
     Array(elem) => elem.to_typescript() + "[]"
-    Map(key, value) => "Record<" + key.to_typescript() + ", " + value.to_typescript() + ">"
+    Map(key, value) =>
+      "Record<" + key.to_typescript() + ", " + value.to_typescript() + ">"
     Tuple(elems) => {
       let parts : Array[String] = []
       for elem in elems {
@@ -270,6 +266,7 @@ pub fn TypeRef::to_typescript(self : TypeRef) -> String {
   }
 }
 
+///|
 /// Generate TypeScript code for a primitive type
 pub fn PrimitiveType::to_typescript(self : PrimitiveType) -> String {
   match self {
@@ -284,6 +281,7 @@ pub fn PrimitiveType::to_typescript(self : PrimitiveType) -> String {
   }
 }
 
+///|
 /// Generate TypeScript code for a literal type
 pub fn LiteralType::to_typescript(self : LiteralType) -> String {
   match self {
@@ -297,11 +295,11 @@ pub fn LiteralType::to_typescript(self : LiteralType) -> String {
 // TypeParam Generator
 // =============================================================================
 
+///|
 /// Generate TypeScript code for a type parameter
 pub fn TypeParam::to_typescript(self : TypeParam) -> String {
   let buf = StringBuilder::new()
   buf.write_string(self.name)
-
   match self.constraint {
     Some(constraint) => {
       buf.write_string(" extends ")
@@ -309,7 +307,6 @@ pub fn TypeParam::to_typescript(self : TypeParam) -> String {
     }
     None => ()
   }
-
   match self.default {
     Some(default_type) => {
       buf.write_string(" = ")
@@ -317,6 +314,5 @@ pub fn TypeParam::to_typescript(self : TypeParam) -> String {
     }
     None => ()
   }
-
   buf.to_string()
 }

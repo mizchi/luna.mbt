@@ -15,6 +15,10 @@ pub fn copy_static_assets(@ssg.BuildContext) -> Unit
 
 pub async fn copy_static_assets_async(@ssg.BuildContext) -> Unit
 
+pub async fn extract_css_utilities_auto(String, Array[String]) -> String
+
+pub async fn extract_css_utilities_parallel(String, Array[String], ParallelCssConfig) -> String
+
 pub fn extract_dynamic_route_patterns(Array[@ssg.PageMeta]) -> Array[String]
 
 pub fn generate_404_page(@ssg.BuildContext) -> Unit
@@ -54,6 +58,12 @@ pub(all) struct CssSplitManifest {
 }
 pub impl ToJson for CssSplitManifest
 pub impl @json.FromJson for CssSplitManifest
+
+pub struct ParallelCssConfig {
+  max_workers : Int
+  timeout_ms : Int
+}
+pub fn ParallelCssConfig::default() -> Self
 
 // Type aliases
 

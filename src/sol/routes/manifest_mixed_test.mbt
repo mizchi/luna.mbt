@@ -265,9 +265,9 @@ test "Mixed manifest - e-commerce scenario with catch-all" {
   inspect(catch_all_routes.length(), content="1")
 
   // Verify ISR revalidation time
-  let product_route = manifest.routes.iter().find_first(fn(r) {
-    r.path() == "/products/:id"
-  })
+  let product_route = manifest.routes
+    .iter()
+    .find_first(fn(r) { r.path() == "/products/:id" })
   guard product_route is Some(Dynamic(entry)) else {
     fail("Expected Dynamic route for /products/:id")
   }
@@ -420,28 +420,34 @@ test "Multiple RenderModes in same manifest" {
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
   // Count by render mode
-  let ssr_count = manifest.routes.filter(fn(r) {
-    match r {
-      Dynamic(e) => e.mode == RenderMode::Ssr
-      _ => false
-    }
-  }).length()
-  let isr_count = manifest.routes.filter(fn(r) {
-    match r {
-      Dynamic(e) =>
-        match e.mode {
-          Isr(_) => true
-          _ => false
-        }
-      _ => false
-    }
-  }).length()
-  let spa_count = manifest.routes.filter(fn(r) {
-    match r {
-      Dynamic(e) => e.mode == RenderMode::Spa
-      _ => false
-    }
-  }).length()
+  let ssr_count = manifest.routes
+    .filter(fn(r) {
+      match r {
+        Dynamic(e) => e.mode == RenderMode::Ssr
+        _ => false
+      }
+    })
+    .length()
+  let isr_count = manifest.routes
+    .filter(fn(r) {
+      match r {
+        Dynamic(e) =>
+          match e.mode {
+            Isr(_) => true
+            _ => false
+          }
+        _ => false
+      }
+    })
+    .length()
+  let spa_count = manifest.routes
+    .filter(fn(r) {
+      match r {
+        Dynamic(e) => e.mode == RenderMode::Spa
+        _ => false
+      }
+    })
+    .length()
   inspect(ssr_count, content="1")
   inspect(isr_count, content="1")
   inspect(spa_count, content="1")

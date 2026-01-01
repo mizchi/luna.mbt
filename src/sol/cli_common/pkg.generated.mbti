@@ -6,8 +6,6 @@ import(
 )
 
 // Values
-pub let astra_config_candidates : Array[String]
-
 pub fn console_error(String) -> Unit
 
 pub fn date_now() -> Double
@@ -21,6 +19,8 @@ pub fn keep_alive() -> Unit
 pub fn[FS : @env.FileSystem] rm_rf_sync(FS, String) -> Unit
 
 pub let sol_config_candidates : Array[String]
+
+pub let ssg_config_candidates : Array[String]
 
 // Errors
 

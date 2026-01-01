@@ -15,20 +15,50 @@ test "RendererType::default - returns RendererType::MarkdownRenderer" {
 
 ///|
 test "RendererType - equality comparison" {
-  inspect(RendererType::MarkdownRenderer == RendererType::MarkdownRenderer, content="true")
-  inspect(RendererType::HtmlRenderer == RendererType::HtmlRenderer, content="true")
-  inspect(RendererType::LunaRenderer == RendererType::LunaRenderer, content="true")
-  inspect(RendererType::ReactRenderer == RendererType::ReactRenderer, content="true")
-  inspect(RendererType::PreactRenderer == RendererType::PreactRenderer, content="true")
-  inspect(RendererType::ClientOnlyRenderer == RendererType::ClientOnlyRenderer, content="true")
-  inspect(RendererType::MdxRenderer == RendererType::MdxRenderer, content="true")
+  inspect(
+    RendererType::MarkdownRenderer == RendererType::MarkdownRenderer,
+    content="true",
+  )
+  inspect(
+    RendererType::HtmlRenderer == RendererType::HtmlRenderer,
+    content="true",
+  )
+  inspect(
+    RendererType::LunaRenderer == RendererType::LunaRenderer,
+    content="true",
+  )
+  inspect(
+    RendererType::ReactRenderer == RendererType::ReactRenderer,
+    content="true",
+  )
+  inspect(
+    RendererType::PreactRenderer == RendererType::PreactRenderer,
+    content="true",
+  )
+  inspect(
+    RendererType::ClientOnlyRenderer == RendererType::ClientOnlyRenderer,
+    content="true",
+  )
+  inspect(
+    RendererType::MdxRenderer == RendererType::MdxRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "RendererType - inequality comparison" {
-  inspect(RendererType::MarkdownRenderer == RendererType::HtmlRenderer, content="false")
-  inspect(RendererType::LunaRenderer == RendererType::ReactRenderer, content="false")
-  inspect(RendererType::MdxRenderer == RendererType::ClientOnlyRenderer, content="false")
+  inspect(
+    RendererType::MarkdownRenderer == RendererType::HtmlRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::LunaRenderer == RendererType::ReactRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::MdxRenderer == RendererType::ClientOnlyRenderer,
+    content="false",
+  )
 }
 
 // =============================================================================
@@ -94,6 +124,7 @@ test "RendererType - pattern matching all variants" {
       RendererType::MdxRenderer => "mdx"
     }
   }
+
   inspect(check_variant(RendererType::MarkdownRenderer), content="markdown")
   inspect(check_variant(RendererType::HtmlRenderer), content="html")
   inspect(check_variant(RendererType::LunaRenderer), content="luna")
@@ -112,7 +143,10 @@ test "ContentType - equality comparison" {
   inspect(ContentType::Markdown == ContentType::Markdown, content="true")
   inspect(ContentType::Html == ContentType::Html, content="true")
   inspect(ContentType::Component == ContentType::Component, content="true")
-  inspect(ContentType::TsxComponent == ContentType::TsxComponent, content="true")
+  inspect(
+    ContentType::TsxComponent == ContentType::TsxComponent,
+    content="true",
+  )
   inspect(ContentType::Mdx == ContentType::Mdx, content="true")
 }
 
@@ -124,9 +158,15 @@ test "ContentType - inequality comparison" {
 
 ///|
 test "ContentType - Show implementation" {
-  inspect(ContentType::Markdown.to_string().contains("Markdown"), content="true")
+  inspect(
+    ContentType::Markdown.to_string().contains("Markdown"),
+    content="true",
+  )
   inspect(ContentType::Html.to_string().contains("Html"), content="true")
-  inspect(ContentType::Component.to_string().contains("Component"), content="true")
+  inspect(
+    ContentType::Component.to_string().contains("Component"),
+    content="true",
+  )
   inspect(ContentType::Mdx.to_string().contains("Mdx"), content="true")
 }
 
@@ -302,7 +342,10 @@ test "DeployTarget - all variants" {
 ///|
 test "DeployTarget - Show implementation" {
   inspect(DeployTarget::Static.to_string().contains("Static"), content="true")
-  inspect(DeployTarget::Cloudflare.to_string().contains("Cloudflare"), content="true")
+  inspect(
+    DeployTarget::Cloudflare.to_string().contains("Cloudflare"),
+    content="true",
+  )
   inspect(DeployTarget::Node.to_string().contains("Node"), content="true")
 }
 
@@ -429,7 +472,10 @@ test "RendererType - can represent React integration" {
     renderer_type=RendererType::ReactRenderer,
   )
   // React components can be integrated as islands
-  inspect(react_page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    react_page.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
   inspect(react_page.content_type == ContentType::TsxComponent, content="true")
 }
 
@@ -455,7 +501,10 @@ test "RendererType - RendererType::ClientOnlyRenderer for no SSR" {
     renderer_type=RendererType::ClientOnlyRenderer,
   )
   // Some components only render on client (e.g., canvas-based charts)
-  inspect(client_page.renderer_type == RendererType::ClientOnlyRenderer, content="true")
+  inspect(
+    client_page.renderer_type == RendererType::ClientOnlyRenderer,
+    content="true",
+  )
 }
 
 ///|
@@ -470,4 +519,3 @@ test "RendererType - RendererType::MdxRenderer for interactive docs" {
   inspect(mdx_page.renderer_type == RendererType::MdxRenderer, content="true")
   inspect(mdx_page.content_type == ContentType::Mdx, content="true")
 }
-

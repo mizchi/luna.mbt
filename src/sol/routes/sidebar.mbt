@@ -519,8 +519,7 @@ fn find_title_in_item(
       } else {
         None
       }
-    @ssg.SidebarItem::Group(nested) =>
-      find_title_in_group(nested, current_path)
+    @ssg.SidebarItem::Group(nested) => find_title_in_group(nested, current_path)
   }
 }
 

@@ -235,10 +235,8 @@ fn convert_jsx_to_embed(
 /// Convert MDX attribute value to Sol SSG MdxAttrValue
 fn convert_attr_value(value : @md_mdx.MdxAttrValue) -> @ssg.MdxAttrValue {
   match value {
-    @md_mdx.MdxAttrValue::StringValue(s) =>
-      @ssg.MdxAttrValue::StringLiteral(s)
-    @md_mdx.MdxAttrValue::ExpressionValue(e) =>
-      @ssg.MdxAttrValue::Expression(e)
+    @md_mdx.MdxAttrValue::StringValue(s) => @ssg.MdxAttrValue::StringLiteral(s)
+    @md_mdx.MdxAttrValue::ExpressionValue(e) => @ssg.MdxAttrValue::Expression(e)
     @md_mdx.MdxAttrValue::BooleanValue => @ssg.MdxAttrValue::Boolean
   }
 }
@@ -305,9 +303,7 @@ fn convert_cst_block(block : @md_parser.Block) -> @ssg.MdNode? {
           if children.length() == 1 {
             children[0]
           } else {
-            @ssg.MdNode::Text(
-              @md_toc.extract_text_from_inlines(cell.children),
-            )
+            @ssg.MdNode::Text(@md_toc.extract_text_from_inlines(cell.children))
           }
         })
       })
@@ -374,9 +370,7 @@ fn convert_inline(inline : @md_parser.Inline) -> @ssg.MdNode? {
     }
     @md_parser.Inline::RefLink(children~, label~, ..) => {
       let md_children = convert_inlines(children)
-      Some(
-        @ssg.MdNode::Link(href="#" + label, title="", children=md_children),
-      )
+      Some(@ssg.MdNode::Link(href="#" + label, title="", children=md_children))
     }
     @md_parser.Inline::Autolink(url~, ..) => {
       let children = [@ssg.MdNode::Text(url)]

@@ -180,7 +180,10 @@ test "page_metas_to_manifest - default fallback" {
 test "page_metas_to_manifest - SPA fallback when config.navigation.spa" {
   let config = @ssg.SsgConfig::{
     ..@ssg.SsgConfig::default(),
-    navigation: @ssg.NavigationConfig::{ ..@ssg.NavigationConfig::default(), spa: true },
+    navigation: @ssg.NavigationConfig::{
+      ..@ssg.NavigationConfig::default(),
+      spa: true,
+    },
   }
   let pages : Array[@ssg.PageMeta] = []
   let manifest = page_metas_to_manifest(pages, config)

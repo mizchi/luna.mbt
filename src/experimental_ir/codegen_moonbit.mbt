@@ -6,6 +6,7 @@
 // Main Generator
 // =============================================================================
 
+///|
 /// Generate MoonBit source code from a schema
 pub fn Schema::to_moonbit(self : Schema) -> String {
   let buf = StringBuilder::new()
@@ -14,7 +15,6 @@ pub fn Schema::to_moonbit(self : Schema) -> String {
   buf.write_string("// Generated from IR Schema v")
   buf.write_string(self.version)
   buf.write_string("\n")
-
   match self.source {
     Some(src) => {
       buf.write_string("// Source: ")
@@ -33,8 +33,8 @@ pub fn Schema::to_moonbit(self : Schema) -> String {
     buf.write_string(code)
     buf.write_string("\n")
     let _ = name
-  }
 
+  }
   buf.to_string()
 }
 
@@ -42,6 +42,7 @@ pub fn Schema::to_moonbit(self : Schema) -> String {
 // TypeDef Generator
 // =============================================================================
 
+///|
 /// Generate MoonBit code for a type definition
 pub fn TypeDef::to_moonbit(self : TypeDef) -> String {
   match self {
@@ -51,6 +52,7 @@ pub fn TypeDef::to_moonbit(self : TypeDef) -> String {
   }
 }
 
+///|
 /// Generate MoonBit code for a struct definition
 pub fn StructDef::to_moonbit(self : StructDef) -> String {
   let buf = StringBuilder::new()
@@ -80,7 +82,6 @@ pub fn StructDef::to_moonbit(self : StructDef) -> String {
     }
     buf.write_string("]")
   }
-
   buf.write_string(" {\n")
 
   // Fields
@@ -89,7 +90,6 @@ pub fn StructDef::to_moonbit(self : StructDef) -> String {
     buf.write_string(field.to_moonbit())
     buf.write_string("\n")
   }
-
   buf.write_string("}")
 
   // Derive clause
@@ -103,11 +103,11 @@ pub fn StructDef::to_moonbit(self : StructDef) -> String {
     }
     buf.write_string(")")
   }
-
   buf.write_string("\n")
   buf.to_string()
 }
 
+///|
 /// Generate MoonBit code for an enum definition
 pub fn EnumDef::to_moonbit(self : EnumDef) -> String {
   let buf = StringBuilder::new()
@@ -137,7 +137,6 @@ pub fn EnumDef::to_moonbit(self : EnumDef) -> String {
     }
     buf.write_string("]")
   }
-
   buf.write_string(" {\n")
 
   // Variants
@@ -146,7 +145,6 @@ pub fn EnumDef::to_moonbit(self : EnumDef) -> String {
     buf.write_string(variant.to_moonbit())
     buf.write_string("\n")
   }
-
   buf.write_string("}")
 
   // Derive clause
@@ -160,11 +158,11 @@ pub fn EnumDef::to_moonbit(self : EnumDef) -> String {
     }
     buf.write_string(")")
   }
-
   buf.write_string("\n")
   buf.to_string()
 }
 
+///|
 /// Generate MoonBit code for a type alias
 pub fn AliasDef::to_moonbit(self : AliasDef) -> String {
   let buf = StringBuilder::new()
@@ -194,11 +192,9 @@ pub fn AliasDef::to_moonbit(self : AliasDef) -> String {
     }
     buf.write_string("]")
   }
-
   buf.write_string(" = ")
   buf.write_string(self.target.to_moonbit())
   buf.write_string("\n")
-
   buf.to_string()
 }
 
@@ -206,6 +202,7 @@ pub fn AliasDef::to_moonbit(self : AliasDef) -> String {
 // Field & Variant Generator
 // =============================================================================
 
+///|
 /// Generate MoonBit code for a field
 pub fn Field::to_moonbit(self : Field) -> String {
   let buf = StringBuilder::new()
@@ -221,16 +218,14 @@ pub fn Field::to_moonbit(self : Field) -> String {
   } else {
     buf.write_string(self.type_.to_moonbit())
   }
-
   buf.to_string()
 }
 
+///|
 /// Generate MoonBit code for an enum variant
 pub fn EnumVariant::to_moonbit(self : EnumVariant) -> String {
   let buf = StringBuilder::new()
-
   buf.write_string(self.name)
-
   match self.payload {
     Some(payload) => {
       buf.write_string("(")
@@ -239,7 +234,6 @@ pub fn EnumVariant::to_moonbit(self : EnumVariant) -> String {
     }
     None => ()
   }
-
   buf.to_string()
 }
 
@@ -247,12 +241,14 @@ pub fn EnumVariant::to_moonbit(self : EnumVariant) -> String {
 // TypeRef Generator
 // =============================================================================
 
+///|
 /// Generate MoonBit code for a type reference
 pub fn TypeRef::to_moonbit(self : TypeRef) -> String {
   match self {
     Primitive(p) => p.to_moonbit()
     Array(elem) => "Array[" + elem.to_moonbit() + "]"
-    Map(key, value) => "Map[" + key.to_moonbit() + ", " + value.to_moonbit() + "]"
+    Map(key, value) =>
+      "Map[" + key.to_moonbit() + ", " + value.to_moonbit() + "]"
     Tuple(elems) => {
       let parts : Array[String] = []
       for elem in elems {
@@ -283,6 +279,7 @@ pub fn TypeRef::to_moonbit(self : TypeRef) -> String {
   }
 }
 
+///|
 /// Generate MoonBit code for a primitive type
 pub fn PrimitiveType::to_moonbit(self : PrimitiveType) -> String {
   match self {
@@ -301,11 +298,11 @@ pub fn PrimitiveType::to_moonbit(self : PrimitiveType) -> String {
 // TypeParam Generator
 // =============================================================================
 
+///|
 /// Generate MoonBit code for a type parameter
 pub fn TypeParam::to_moonbit(self : TypeParam) -> String {
   let buf = StringBuilder::new()
   buf.write_string(self.name)
-
   match self.constraint {
     Some(constraint) => {
       buf.write_string(" : ")
@@ -313,7 +310,6 @@ pub fn TypeParam::to_moonbit(self : TypeParam) -> String {
     }
     None => ()
   }
-
   buf.to_string()
 }
 
@@ -321,6 +317,7 @@ pub fn TypeParam::to_moonbit(self : TypeParam) -> String {
 // SourceLang Helper
 // =============================================================================
 
+///|
 fn SourceLang::to_string(self : SourceLang) -> String {
   match self {
     MoonBit => "moonbit"

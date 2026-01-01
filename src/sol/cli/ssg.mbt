@@ -273,7 +273,6 @@ pub async fn run_ssg_dev(
   let is_building : Ref[Bool] = { val: false }
   let last_build_time : Ref[Double] = { val: 0.0 }
   let debounce_ms = 100.0 // Minimum time between builds
-
   let output_prefix = config.output_dir + "/"
   let cache_prefix = ".sol-cache"
   let _ = @fs.watch(docs_dir, recursive=true, listener=fn(
@@ -298,7 +297,6 @@ pub async fn run_ssg_dev(
     if now - last_build_time.val < debounce_ms {
       return
     }
-
     if filename.ends_with(".md") || filename.ends_with(".mdx") {
       let source_path = filename
       let full_path = @path.join2(docs_dir, filename)

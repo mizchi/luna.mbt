@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/platform/js/fs_adapter"
+package "mizchi/luna/luna/js/fs_adapter"
 
 import(
   "mizchi/luna/core/env"

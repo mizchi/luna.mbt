@@ -96,7 +96,10 @@ test "sol_routes_to_manifest - API routes" {
   guard manifest.routes[1] is @sol_routes.Api(post_entry) else {
     fail("Expected Api route for POST")
   }
-  inspect(post_entry.http_method == @sol_routes.HttpMethod::Post, content="true")
+  inspect(
+    post_entry.http_method == @sol_routes.HttpMethod::Post,
+    content="true",
+  )
 }
 
 ///|
@@ -202,7 +205,9 @@ test "manifest_to_sol_routes - with null factories" {
   }
   let page_factory = @router.null_page_factory()
   let api_factory = @router.null_api_factory()
-  let routes = @router.manifest_to_sol_routes(manifest, page_factory, api_factory)
+  let routes = @router.manifest_to_sol_routes(
+    manifest, page_factory, api_factory,
+  )
   // Null factory returns None for all entries
   inspect(routes.length(), content="0")
 }
@@ -236,7 +241,9 @@ test "manifest_to_sol_routes - with custom page factory" {
     Some(make_test_handler())
   })
   let api_factory = @router.null_api_factory()
-  let routes = @router.manifest_to_sol_routes(manifest, page_factory, api_factory)
+  let routes = @router.manifest_to_sol_routes(
+    manifest, page_factory, api_factory,
+  )
   inspect(routes.length(), content="2")
 }
 

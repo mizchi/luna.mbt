@@ -130,10 +130,7 @@ fn write_sidebar_config(
 }
 
 ///|
-fn write_sidebar_group(
-  group : @ssg.SidebarGroup,
-  buf : StringBuilder,
-) -> Unit {
+fn write_sidebar_group(group : @ssg.SidebarGroup, buf : StringBuilder) -> Unit {
   buf.write_string("{\"text\":\"")
   write_escaped_string(group.text, buf)
   buf.write_string("\"")
@@ -246,10 +243,7 @@ fn write_theme_config(config : @ssg.ThemeConfig, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_footer_config(
-  config : @ssg.FooterConfig,
-  buf : StringBuilder,
-) -> Unit {
+fn write_footer_config(config : @ssg.FooterConfig, buf : StringBuilder) -> Unit {
   buf.write_string("{")
   let mut first = true
   match config.message {
@@ -632,13 +626,7 @@ fn parse_header_config(obj : Map[String, Json]) -> @ssg.HeaderConfig {
   }
   let right = match obj.get("right") {
     Some(Array(arr)) => parse_header_elements(arr)
-    _ =>
-      [
-        @ssg.NavLinks,
-        @ssg.LangSwitcher,
-        @ssg.SocialLinks,
-        @ssg.ThemeToggle,
-      ]
+    _ => [@ssg.NavLinks, @ssg.LangSwitcher, @ssg.SocialLinks, @ssg.ThemeToggle]
   }
   let sticky = match obj.get("sticky") {
     Some(True) => true
@@ -705,10 +693,7 @@ fn parse_footer_elements(arr : Array[Json]) -> Array[@ssg.FooterElement] {
           "message" => result.push(@ssg.FooterElement::Message)
           "copyright" => result.push(@ssg.FooterElement::Copyright)
           "social-links" => result.push(@ssg.FooterElement::SocialLinks)
-          _ =>
-            if s.contains("-") {
-              result.push(@ssg.FooterElement::Custom(s))
-            }
+          _ => if s.contains("-") { result.push(@ssg.FooterElement::Custom(s)) }
         }
       _ => ()
     }

@@ -17,7 +17,11 @@ test "merge_manifests - only explicit routes" {
   let explicit = RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.md",
+          output="about.html",
+        ),
       ),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
@@ -132,7 +136,13 @@ test "merge_all_manifests - single manifest" {
   let manifests = [
     RouteManifest::{
       routes: [
-        Static(StaticRouteEntry::new(path="/", source="index.md", output="index.html")),
+        Static(
+          StaticRouteEntry::new(
+            path="/",
+            source="index.md",
+            output="index.html",
+          ),
+        ),
       ],
       fallback: FallbackConfig::default(),
     },
@@ -197,7 +207,11 @@ test "filter_by_mode - static routes in SPA mode" {
   let manifest = RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.md",
+          output="about.html",
+        ),
       ),
     ],
     fallback: FallbackConfig::default(),
@@ -375,7 +389,11 @@ test "find_route - finds existing route" {
   let manifest = RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.md",
+          output="about.html",
+        ),
       ),
       Static(
         StaticRouteEntry::new(
@@ -398,7 +416,11 @@ test "find_route - returns None for non-existent route" {
   let manifest = RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.md",
+          output="about.html",
+        ),
       ),
     ],
     fallback: FallbackConfig::default(),
@@ -412,7 +434,11 @@ test "find_route - works with different route types" {
   let manifest = RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.md",
+          output="about.html",
+        ),
       ),
       Dynamic(
         DynamicRouteEntry::new(
@@ -451,7 +477,11 @@ test "find_static_route - finds static route" {
   let manifest = RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.md",
+          output="about.html",
+        ),
       ),
       Dynamic(
         DynamicRouteEntry::new(

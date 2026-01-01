@@ -93,7 +93,10 @@ test "render Island - state with quotes is escaped" {
   // State should be present in output
   inspect(result.html.contains("luna:state=\""), content="true")
   // Quotes in JSON should be properly escaped for HTML attribute
-  inspect(result.html.contains("&quot;") || result.html.contains("\\\""), content="true")
+  inspect(
+    result.html.contains("&quot;") || result.html.contains("\\\""),
+    content="true",
+  )
 }
 
 ///|
@@ -153,7 +156,10 @@ test "render WcIsland - basic structure" {
   inspect(html.contains("<wc-counter"), content="true")
   inspect(html.contains("</wc-counter>"), content="true")
   // Should have luna:wc-url attribute
-  inspect(html.contains("luna:wc-url=\"/static/wc-counter.js\""), content="true")
+  inspect(
+    html.contains("luna:wc-url=\"/static/wc-counter.js\""),
+    content="true",
+  )
   // Should have luna:wc-state attribute
   inspect(html.contains("luna:wc-state=\""), content="true")
   // Should have Declarative Shadow DOM template
@@ -247,7 +253,10 @@ test "render InternalRef - as Web Component" {
   // Should render as Web Component with Declarative Shadow DOM
   inspect(html.contains("<wc-modal"), content="true")
   inspect(html.contains("<template shadowrootmode=\"open\">"), content="true")
-  inspect(html.contains("luna:wc-url=\"/components/wc-modal.js\""), content="true")
+  inspect(
+    html.contains("luna:wc-url=\"/components/wc-modal.js\""),
+    content="true",
+  )
 }
 
 ///|
@@ -310,8 +319,14 @@ test "render with preload - includes WcIsland URLs" {
 test "generate_preload_tags - creates modulepreload links" {
   let urls = ["/static/a.js", "/static/b.js"]
   let tags = generate_preload_tags(urls)
-  inspect(tags.contains("<link rel=\"modulepreload\" href=\"/static/a.js\">"), content="true")
-  inspect(tags.contains("<link rel=\"modulepreload\" href=\"/static/b.js\">"), content="true")
+  inspect(
+    tags.contains("<link rel=\"modulepreload\" href=\"/static/a.js\">"),
+    content="true",
+  )
+  inspect(
+    tags.contains("<link rel=\"modulepreload\" href=\"/static/b.js\">"),
+    content="true",
+  )
 }
 
 ///|
@@ -372,7 +387,9 @@ test "render Island - empty state" {
 test "render multiple islands - in fragment" {
   let node : @luna.Node[Unit] = @luna.fragment([
     @luna.island("first", "/static/first.js", "{\"n\":1}", [@luna.text("First")]),
-    @luna.island("second", "/static/second.js", "{\"n\":2}", [@luna.text("Second")]),
+    @luna.island("second", "/static/second.js", "{\"n\":2}", [
+      @luna.text("Second"),
+    ]),
   ])
   let result = render_to_string(node)
   inspect(result.html.contains("luna:id=\"first\""), content="true")
@@ -406,7 +423,9 @@ test "render multiple islands - in element" {
 test "render mixed - VIsland and VWcIsland" {
   let node : @luna.Node[Unit] = @luna.fragment([
     @luna.island("regular", "/static/regular.js", "{}", [@luna.text("Regular")]),
-    @luna.wc_island("wc-special", "/static/wc.js", ".s{}", "{}", [@luna.text("WC")]),
+    @luna.wc_island("wc-special", "/static/wc.js", ".s{}", "{}", [
+      @luna.text("WC"),
+    ]),
   ])
   let result = render_to_string(node)
   // Regular island with luna:* attributes
@@ -518,7 +537,9 @@ test "render Island - absolute URL" {
   )
   let result = render_to_string(node)
   inspect(
-    result.html.contains("luna:url=\"https://cdn.example.com/components/counter.js\""),
+    result.html.contains(
+      "luna:url=\"https://cdn.example.com/components/counter.js\"",
+    ),
     content="true",
   )
 }
@@ -532,7 +553,10 @@ test "render Island - relative URL without leading slash" {
     [],
   )
   let result = render_to_string(node)
-  inspect(result.html.contains("luna:url=\"components/counter.js\""), content="true")
+  inspect(
+    result.html.contains("luna:url=\"components/counter.js\""),
+    content="true",
+  )
 }
 
 ///|
@@ -544,7 +568,10 @@ test "render Island - URL with query params" {
     [],
   )
   let result = render_to_string(node)
-  inspect(result.html.contains("luna:url=\"/static/counter.js?v=1.0.0\""), content="true")
+  inspect(
+    result.html.contains("luna:url=\"/static/counter.js?v=1.0.0\""),
+    content="true",
+  )
 }
 
 // =============================================================================
@@ -585,7 +612,12 @@ test "render Island - empty children renders empty content" {
   )
   let result = render_to_string(node)
   // Should have opening and closing comments with nothing between except wrapper
-  inspect(result.html.contains("<!--luna:island:empty-children"), content="true")
-  inspect(result.html.contains("<!--/luna:island:empty-children-->"), content="true")
+  inspect(
+    result.html.contains("<!--luna:island:empty-children"),
+    content="true",
+  )
+  inspect(
+    result.html.contains("<!--/luna:island:empty-children-->"),
+    content="true",
+  )
 }
-

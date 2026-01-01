@@ -7,6 +7,7 @@
 // ChunkInfo Type for Testing
 // =============================================================================
 
+///|
 /// Represents a bundled chunk with metadata for cache optimization
 struct ChunkInfo {
   name : String
@@ -17,6 +18,7 @@ struct ChunkInfo {
   dependencies : Array[String]
 }
 
+///|
 /// Chunk splitting strategy
 enum ChunkStrategy {
   /// Separate vendor chunks for each framework
@@ -27,6 +29,7 @@ enum ChunkStrategy {
   Granular
 }
 
+///|
 /// Bundle manifest for cache optimization
 struct BundleManifest {
   chunks : Array[ChunkInfo]
@@ -123,10 +126,7 @@ test "BundleManifest - mixed React and Preact islands" {
         dependencies: ["preact-vendor"],
       },
     ],
-    entry_points: {
-      "/dashboard/": "dashboard",
-      "/counter/": "counter",
-    },
+    entry_points: { "/dashboard/": "dashboard", "/counter/": "counter" },
     framework_chunks: {
       "react": ["react-vendor", "dashboard"],
       "preact": ["preact-vendor", "counter"],
@@ -227,8 +227,12 @@ test "Cache key - mixed frameworks have different keys" {
     renderer_type=RendererType::PreactRenderer,
   )
   // Same source, different renderer = different cache key
-  let react_key = react_page.source_path + ":" + react_page.renderer_type.to_string()
-  let preact_key = preact_page.source_path + ":" + preact_page.renderer_type.to_string()
+  let react_key = react_page.source_path +
+    ":" +
+    react_page.renderer_type.to_string()
+  let preact_key = preact_page.source_path +
+    ":" +
+    preact_page.renderer_type.to_string()
   inspect(react_key == preact_key, content="false")
 }
 
@@ -313,7 +317,10 @@ test "Cache invalidation - config change invalidates all" {
 ///|
 test "Cache invalidation - theme change invalidates CSS" {
   let theme1 = ThemeConfig::default()
-  let theme2 = ThemeConfig::{ ..ThemeConfig::default(), primary_color: Some("#ff0000") }
+  let theme2 = ThemeConfig::{
+    ..ThemeConfig::default(),
+    primary_color: Some("#ff0000"),
+  }
   guard theme1.primary_color is Some(c1) else { fail("Expected Some") }
   guard theme2.primary_color is Some(c2) else { fail("Expected Some") }
   inspect(c1 == c2, content="false")
@@ -352,7 +359,10 @@ test "Dynamic import - lazy loaded React island" {
     renderer_type=RendererType::ReactRenderer,
   )
   // Lazy islands are loaded on demand
-  inspect(lazy_island.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    lazy_island.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 ///|
@@ -507,7 +517,6 @@ test "ISR cache - mixed framework pages" {
     revalidate: Some(60),
   }
   ctx.pages.push(preact_page.with_frontmatter(preact_fm))
-
   inspect(ctx.pages.length(), content="2")
 }
 
@@ -558,12 +567,12 @@ test "Chunk dependencies - no cross-framework deps" {
     dependencies: ["preact-vendor"], // No react-vendor!
   }
   // Preact island should not depend on React vendor
-  let has_react_dep = preact_island.dependencies.iter().any(
-    fn(dep) { dep == "react-vendor" },
-  )
-  let has_preact_dep = preact_island.dependencies.iter().any(
-    fn(dep) { dep == "preact-vendor" },
-  )
+  let has_react_dep = preact_island.dependencies
+    .iter()
+    .any(fn(dep) { dep == "react-vendor" })
+  let has_preact_dep = preact_island.dependencies
+    .iter()
+    .any(fn(dep) { dep == "preact-vendor" })
   inspect(has_react_dep, content="false")
   inspect(has_preact_dep, content="true")
 }
@@ -583,9 +592,9 @@ test "Loading strategy - page with only Preact islands" {
   )
   // Should not load React vendor
   let needed_frameworks = [page.renderer_type]
-  let has_react = needed_frameworks.iter().any(
-    fn(f) { f == RendererType::ReactRenderer },
-  )
+  let has_react = needed_frameworks
+    .iter()
+    .any(fn(f) { f == RendererType::ReactRenderer })
   inspect(has_react, content="false")
 }
 
@@ -594,7 +603,6 @@ test "Loading strategy - page with mixed islands" {
   // Page with both React and Preact islands
   let config = SsgConfig::default()
   let ctx = BuildContext::new(config, "/project")
-
   ctx.pages.push(
     PageMeta::new(
       "islands/Dashboard.tsx",
@@ -828,12 +836,12 @@ test "Coexistence - Luna WASM can coexist with JS frameworks" {
     dependencies: [],
   }
   // Luna and React are independent
-  let luna_deps_on_react = luna_runtime.dependencies.iter().any(
-    fn(d) { d == "react-vendor" },
-  )
-  let react_deps_on_luna = react_vendor.dependencies.iter().any(
-    fn(d) { d == "luna-runtime" },
-  )
+  let luna_deps_on_react = luna_runtime.dependencies
+    .iter()
+    .any(fn(d) { d == "react-vendor" })
+  let react_deps_on_luna = react_vendor.dependencies
+    .iter()
+    .any(fn(d) { d == "luna-runtime" })
   inspect(luna_deps_on_react, content="false")
   inspect(react_deps_on_luna, content="false")
 }

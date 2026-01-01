@@ -3,13 +3,11 @@ package "mizchi/luna/sol/ssg/cache"
 
 import(
   "mizchi/luna/core/env"
-  "mizchi/luna/platform/js/fs_adapter"
+  "mizchi/luna/luna/js/fs_adapter"
   "mizchi/luna/sol/ssg"
 )
 
 // Values
-pub let astra_version : String
-
 pub let cache_format_version : Int
 
 pub fn[P : BuildStateProvider] check_build_state(P, String, String, (String) -> BuildManifest?) -> BuildStateCheck
@@ -35,6 +33,8 @@ pub fn hash_content(String, String) -> String
 pub fn hash_strings(Array[String]) -> String
 
 pub fn save_manifest(String, @ssg.SsgConfig, String) -> Unit
+
+pub let sol_version : String
 
 // Errors
 

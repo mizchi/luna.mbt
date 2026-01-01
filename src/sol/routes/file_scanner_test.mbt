@@ -236,10 +236,7 @@ test "is_excluded - by exact relative path" {
 ///|
 test "is_excluded - by path prefix" {
   let exclude = ["internal"]
-  inspect(
-    is_excluded("wip", "internal/wip", exclude),
-    content="true",
-  ) // internal/wip has prefix internal/
+  inspect(is_excluded("wip", "internal/wip", exclude), content="true") // internal/wip has prefix internal/
   inspect(is_excluded("external", "external", exclude), content="false")
 }
 

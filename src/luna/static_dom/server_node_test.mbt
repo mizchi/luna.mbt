@@ -16,7 +16,9 @@ test "ServerNode::sync - creates synchronous node" {
 
 ///|
 test "ServerNode::async_ - creates asynchronous node" {
-  let server_node = ServerNode::async_(async fn() { @luna.text("Async content") })
+  let server_node = ServerNode::async_(async fn() {
+    @luna.text("Async content")
+  })
   inspect(server_node.is_async(), content="true")
 }
 
@@ -26,14 +28,10 @@ test "ServerNode::async_ - creates asynchronous node" {
 
 ///|
 test "ServerNode - sync with element tree" {
-  let node = @luna.h(
-    "div",
-    [("class", @luna.attr_static("container"))],
-    [
-      @luna.h("h1", [], [@luna.text("Title")]),
-      @luna.h("p", [], [@luna.text("Content")]),
-    ],
-  )
+  let node = @luna.h("div", [("class", @luna.attr_static("container"))], [
+    @luna.h("h1", [], [@luna.text("Title")]),
+    @luna.h("p", [], [@luna.text("Content")]),
+  ])
   let server_node = ServerNode::sync(node)
   // Verify it's synchronous
   inspect(server_node.is_async(), content="false")
@@ -125,25 +123,18 @@ test "ServerNode - sync with internal_ref" {
 
 ///|
 test "ServerNode - nested islands in sync" {
-  let node = @luna.h(
-    "main",
-    [],
-    [
-      @luna.island(
-        "header-nav",
-        "/static/nav.js",
-        "{}",
-        [@luna.text("Navigation")],
-      ),
-      @luna.h("article", [], [@luna.text("Main content")]),
-      @luna.island(
-        "footer-contact",
-        "/static/contact.js",
-        "{\"email\":\"test@example.com\"}",
-        [@luna.text("Contact")],
-      ),
-    ],
-  )
+  let node = @luna.h("main", [], [
+    @luna.island("header-nav", "/static/nav.js", "{}", [
+      @luna.text("Navigation"),
+    ]),
+    @luna.h("article", [], [@luna.text("Main content")]),
+    @luna.island(
+      "footer-contact",
+      "/static/contact.js",
+      "{\"email\":\"test@example.com\"}",
+      [@luna.text("Contact")],
+    ),
+  ])
   let server_node = ServerNode::sync(node)
   inspect(server_node.is_async(), content="false")
   guard server_node is Sync(inner) else { fail("Expected Sync") }
@@ -161,7 +152,10 @@ test "TriggerType - to_string for all types" {
   inspect(@luna.Load.to_string(), content="load")
   inspect(@luna.Idle.to_string(), content="idle")
   inspect(@luna.Visible.to_string(), content="visible")
-  inspect(@luna.Media("(max-width: 768px)").to_string(), content="media:(max-width: 768px)")
+  inspect(
+    @luna.Media("(max-width: 768px)").to_string(),
+    content="media:(max-width: 768px)",
+  )
   inspect(@luna.TriggerType::None.to_string(), content="none")
 }
 
@@ -342,21 +336,16 @@ test "island - empty children" {
 
 ///|
 test "island - deeply nested children" {
-  let node : @luna.Node[Unit] = @luna.island(
-    "nested",
-    "/n.js",
-    "{}",
-    [
-      @luna.h("div", [], [
-        @luna.h("div", [], [
-          @luna.h("div", [], [@luna.text("Deep")]),
-        ]),
-      ]),
-    ],
-  )
+  let node : @luna.Node[Unit] = @luna.island("nested", "/n.js", "{}", [
+    @luna.h("div", [], [
+      @luna.h("div", [], [@luna.h("div", [], [@luna.text("Deep")])]),
+    ]),
+  ])
   guard node is @luna.Island(island) else { fail("Expected Island") }
   inspect(island.children.length(), content="1")
-  guard island.children[0] is @luna.Element(el) else { fail("Expected Element") }
+  guard island.children[0] is @luna.Element(el) else {
+    fail("Expected Element")
+  }
   inspect(el.tag, content="div")
 }
 
@@ -371,20 +360,20 @@ test "island - special characters in state" {
 
 ///|
 test "wc_island - empty styles" {
-  let node : @luna.Node[Unit] = @luna.wc_island("wc-empty", "/wc.js", "", "{}", [])
+  let node : @luna.Node[Unit] = @luna.wc_island(
+    "wc-empty",
+    "/wc.js",
+    "",
+    "{}",
+    [],
+  )
   guard node is @luna.WcIsland(wc) else { fail("Expected WcIsland") }
   inspect(wc.styles, content="")
 }
 
 ///|
 test "internal_ref - styles is empty string by default" {
-  let node : @luna.Node[Unit] = @luna.internal_ref(
-    "/c.js",
-    "{}",
-    wc=false,
-    children=[],
-  )
+  let node : @luna.Node[Unit] = @luna.internal_ref("/c.js", "{}", wc=false, children=[])
   guard node is @luna.InternalRef(iref) else { fail("Expected InternalRef") }
   inspect(iref.styles, content="")
 }
-

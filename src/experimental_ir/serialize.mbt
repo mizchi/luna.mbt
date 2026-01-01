@@ -1,3 +1,4 @@
+///|
 /// JSON serialization for IR types
 ///
 /// The JSON format is designed for cross-language compatibility.
@@ -10,28 +11,24 @@
 pub impl ToJson for Schema with to_json(self) {
   let obj : Map[String, Json] = {}
   obj["version"] = self.version.to_json()
-
   let defs : Map[String, Json] = {}
   for name, def in self.definitions {
     defs[name] = def.to_json()
   }
   obj["definitions"] = defs.to_json()
-
   match self.source {
     Some(s) => obj["source"] = s.to_json()
     None => ()
   }
-
   obj.to_json()
 }
 
+///|
 pub impl ToJson for SourceInfo with to_json(self) {
-  {
-    "file": self.file.to_json(),
-    "lang": self.lang.to_json(),
-  }.to_json()
+  { "file": self.file.to_json(), "lang": self.lang.to_json() }.to_json()
 }
 
+///|
 pub impl ToJson for SourceLang with to_json(self) {
   match self {
     MoonBit => "moonbit".to_json()
@@ -46,6 +43,7 @@ pub impl ToJson for SourceLang with to_json(self) {
 // TypeDef Serialization
 // =============================================================================
 
+///|
 pub impl ToJson for TypeDef with to_json(self) {
   match self {
     Struct(s) => {
@@ -66,6 +64,7 @@ pub impl ToJson for TypeDef with to_json(self) {
   }
 }
 
+///|
 fn StructDef::to_json_obj(self : StructDef) -> Map[String, Json] {
   let obj : Map[String, Json] = {}
   obj["name"] = self.name.to_json()
@@ -83,6 +82,7 @@ fn StructDef::to_json_obj(self : StructDef) -> Map[String, Json] {
   obj
 }
 
+///|
 fn EnumDef::to_json_obj(self : EnumDef) -> Map[String, Json] {
   let obj : Map[String, Json] = {}
   obj["name"] = self.name.to_json()
@@ -100,6 +100,7 @@ fn EnumDef::to_json_obj(self : EnumDef) -> Map[String, Json] {
   obj
 }
 
+///|
 fn AliasDef::to_json_obj(self : AliasDef) -> Map[String, Json] {
   let obj : Map[String, Json] = {}
   obj["name"] = self.name.to_json()
@@ -118,6 +119,7 @@ fn AliasDef::to_json_obj(self : AliasDef) -> Map[String, Json] {
 // Field & Variant Serialization
 // =============================================================================
 
+///|
 pub impl ToJson for Field with to_json(self) {
   let obj : Map[String, Json] = {}
   obj["name"] = self.name.to_json()
@@ -139,6 +141,7 @@ pub impl ToJson for Field with to_json(self) {
   obj.to_json()
 }
 
+///|
 pub impl ToJson for EnumVariant with to_json(self) {
   let obj : Map[String, Json] = {}
   obj["name"] = self.name.to_json()
@@ -157,47 +160,48 @@ pub impl ToJson for EnumVariant with to_json(self) {
 // TypeRef Serialization
 // =============================================================================
 
+///|
 pub impl ToJson for TypeRef with to_json(self) {
   match self {
-    Primitive(p) => {
+    Primitive(p) =>
       { "kind": "primitive".to_json(), "type": p.to_json() }.to_json()
-    }
-    Array(elem) => {
+    Array(elem) =>
       { "kind": "array".to_json(), "element": elem.to_json() }.to_json()
-    }
-    Map(key, value) => {
-      { "kind": "map".to_json(), "key": key.to_json(), "value": value.to_json() }.to_json()
-    }
-    Tuple(elems) => {
+    Map(key, value) =>
+      {
+        "kind": "map".to_json(),
+        "key": key.to_json(),
+        "value": value.to_json(),
+      }.to_json()
+    Tuple(elems) =>
       { "kind": "tuple".to_json(), "elements": elems.to_json() }.to_json()
-    }
-    Option(inner) => {
+    Option(inner) =>
       { "kind": "option".to_json(), "inner": inner.to_json() }.to_json()
-    }
-    Named(name) => {
+    Named(name) =>
       { "kind": "named".to_json(), "name": name.to_json() }.to_json()
-    }
-    Applied(name, args) => {
-      { "kind": "applied".to_json(), "name": name.to_json(), "args": args.to_json() }.to_json()
-    }
-    Param(name) => {
+    Applied(name, args) =>
+      {
+        "kind": "applied".to_json(),
+        "name": name.to_json(),
+        "args": args.to_json(),
+      }.to_json()
+    Param(name) =>
       { "kind": "param".to_json(), "name": name.to_json() }.to_json()
-    }
-    Literal(lit) => {
+    Literal(lit) =>
       { "kind": "literal".to_json(), "value": lit.to_json() }.to_json()
-    }
-    Union(types) => {
+    Union(types) =>
       { "kind": "union".to_json(), "types": types.to_json() }.to_json()
-    }
-    Function(f) => {
-      { "kind": "function".to_json(), "params": f.params.to_json(), "return": f.return_.to_json() }.to_json()
-    }
-    Unknown => {
-      { "kind": "unknown".to_json() }.to_json()
-    }
+    Function(f) =>
+      {
+        "kind": "function".to_json(),
+        "params": f.params.to_json(),
+        "return": f.return_.to_json(),
+      }.to_json()
+    Unknown => { "kind": "unknown".to_json() }.to_json()
   }
 }
 
+///|
 pub impl ToJson for PrimitiveType with to_json(self) {
   match self {
     Bool => "bool".to_json()
@@ -211,11 +215,13 @@ pub impl ToJson for PrimitiveType with to_json(self) {
   }
 }
 
+///|
 pub impl ToJson for LiteralType with to_json(self) {
   match self {
     BoolLit(b) => { "type": "bool".to_json(), "value": b.to_json() }.to_json()
     IntLit(i) => { "type": "int".to_json(), "value": i.to_json() }.to_json()
-    StringLit(s) => { "type": "string".to_json(), "value": s.to_json() }.to_json()
+    StringLit(s) =>
+      { "type": "string".to_json(), "value": s.to_json() }.to_json()
   }
 }
 
@@ -223,6 +229,7 @@ pub impl ToJson for LiteralType with to_json(self) {
 // TypeParam Serialization
 // =============================================================================
 
+///|
 pub impl ToJson for TypeParam with to_json(self) {
   let obj : Map[String, Json] = {}
   obj["name"] = self.name.to_json()
@@ -241,9 +248,7 @@ pub impl ToJson for TypeParam with to_json(self) {
 // Annotation Serialization
 // =============================================================================
 
+///|
 pub impl ToJson for Annotation with to_json(self) {
-  {
-    "name": self.name.to_json(),
-    "args": self.args.to_json(),
-  }.to_json()
+  { "name": self.name.to_json(), "args": self.args.to_json() }.to_json()
 }

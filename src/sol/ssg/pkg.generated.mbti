@@ -284,6 +284,7 @@ pub(all) enum RendererType {
   HtmlRenderer
   LunaRenderer
   ReactRenderer
+  PreactRenderer
   ClientOnlyRenderer
   MdxRenderer
 }

@@ -116,7 +116,6 @@ test "CssUtilitiesConfig - zero inline threshold (always external)" {
 test "CSS strategy - inline for small CSS" {
   let config = CssUtilitiesConfig::default()
   let css_size = 2048 // 2KB, below 4KB threshold
-
   let should_inline = css_size <= config.inline_threshold
   inspect(should_inline, content="true")
 }
@@ -125,7 +124,6 @@ test "CSS strategy - inline for small CSS" {
 test "CSS strategy - external for large CSS" {
   let config = CssUtilitiesConfig::default()
   let css_size = 8192 // 8KB, above 4KB threshold
-
   let should_inline = css_size <= config.inline_threshold
   inspect(should_inline, content="false")
 }
@@ -134,7 +132,6 @@ test "CSS strategy - external for large CSS" {
 test "CSS strategy - exact threshold boundary" {
   let config = CssUtilitiesConfig::default()
   let css_size = 4096 // Exactly at threshold
-
   let should_inline = css_size <= config.inline_threshold
   inspect(should_inline, content="true")
 }
@@ -148,7 +145,6 @@ test "CSS strategy - custom threshold" {
     source_dirs: ["src"],
   }
   let css_size = 2048
-
   let should_inline = css_size <= config.inline_threshold
   inspect(should_inline, content="false")
 }
@@ -277,7 +273,7 @@ test "CSS class hash - DJB2 deterministic" {
     let mut hash : UInt = 5381
     for i = 0; i < s.length(); i = i + 1 {
       let c = s[i]
-      hash = ((hash << 5) + hash) + c.to_uint()
+      hash = (hash << 5) + hash + c.to_uint()
     }
     // Take first 5 characters of hash
     let hash_str = hash.to_string()
@@ -301,7 +297,6 @@ test "CSS class hash - DJB2 deterministic" {
 test "CSS class deduplication" {
   // Simulate class registry deduplication
   let registry : Map[String, String] = {}
-
   fn get_or_create_class(decl : String) -> String {
     match registry.get(decl) {
       Some(cls) => cls
@@ -316,7 +311,6 @@ test "CSS class deduplication" {
   let cls1 = get_or_create_class("display:flex")
   let cls2 = get_or_create_class("display:flex")
   let cls3 = get_or_create_class("color:red")
-
   inspect(cls1 == cls2, content="true")
   inspect(cls1 == cls3, content="false")
   inspect(registry.length(), content="2")
@@ -361,7 +355,6 @@ test "Co-occurrence - merge suggestion threshold" {
     { class_a: "_flex", class_b: "_center", frequency: 12 },
     { class_a: "_p4", class_b: "_m4", frequency: 3 },
   ]
-
   let merge_threshold = 5
   let mut merge_candidates = 0
   for co in cooccurrences {
@@ -390,7 +383,14 @@ test "CSS optimization - size calculation" {
   let mut size = 0
   for decl in declarations {
     // ._class{property:value}
-    size = size + 2 + 5 + 1 + decl.property.length() + 1 + decl.value.length() + 1
+    size = size +
+      2 +
+      5 +
+      1 +
+      decl.property.length() +
+      1 +
+      decl.value.length() +
+      1
   }
 
   // Each declaration: ._xxxx{prop:val} = 2 + 5 + 1 + prop + 1 + val + 1
@@ -404,7 +404,6 @@ test "CSS optimization - merge savings" {
 
   // After merge: 1 combined class
   let after_size = 25 // ~25 bytes
-
   let savings = before_size - after_size
   inspect(savings, content="50")
 }
@@ -422,8 +421,10 @@ test "CSS optimization - split vs combined size comparison" {
   let page1_unique = 700
   let page2_unique = 900
   let page3_unique = 500
-  let total_with_common = common_css + page1_unique + page2_unique + page3_unique // 2700
-
+  let total_with_common = common_css +
+    page1_unique +
+    page2_unique +
+    page3_unique // 2700
   inspect(total_with_common < total_split, content="true")
   let savings = total_split - total_with_common
   inspect(savings, content="300")
@@ -437,17 +438,14 @@ test "CSS optimization - split vs combined size comparison" {
 test "BuildContext - with CSS config" {
   let config = SsgConfig::{
     ..SsgConfig::default(),
-    css_utilities: Some(
-      CssUtilitiesConfig::{
-        enabled: true,
-        split: false,
-        inline_threshold: 4096,
-        source_dirs: ["src"],
-      },
-    ),
+    css_utilities: Some(CssUtilitiesConfig::{
+      enabled: true,
+      split: false,
+      inline_threshold: 4096,
+      source_dirs: ["src"],
+    }),
   }
   let ctx = BuildContext::new(config, "/project")
-
   guard ctx.config.css_utilities is Some(css_config) else {
     fail("Expected Some css_utilities")
   }
@@ -467,17 +465,14 @@ test "BuildContext - without CSS config (default)" {
 test "BuildContext - CSS config with split enabled" {
   let config = SsgConfig::{
     ..SsgConfig::default(),
-    css_utilities: Some(
-      CssUtilitiesConfig::{
-        enabled: true,
-        split: true,
-        inline_threshold: 2048,
-        source_dirs: ["src/luna", "src/sol"],
-      },
-    ),
+    css_utilities: Some(CssUtilitiesConfig::{
+      enabled: true,
+      split: true,
+      inline_threshold: 2048,
+      source_dirs: ["src/luna", "src/sol"],
+    }),
   }
   let ctx = BuildContext::new(config, "/project")
-
   guard ctx.config.css_utilities is Some(css_config) else {
     fail("Expected Some css_utilities")
   }
@@ -496,7 +491,6 @@ test "CSS extraction - css() call pattern" {
   let property = "display"
   let value = "flex"
   let decl = property + ":" + value
-
   inspect(decl, content="display:flex")
 }
 
@@ -508,7 +502,6 @@ test "CSS extraction - styles() call pattern" {
   for prop in props {
     decls.push(prop.0 + ":" + prop.1)
   }
-
   inspect(decls.length(), content="2")
   inspect(decls[0], content="display:flex")
   inspect(decls[1], content="gap:1rem")
@@ -521,7 +514,6 @@ test "CSS extraction - pseudo class pattern" {
   let property = "color"
   let value = "#fff"
   let key = ":" + pseudo + ":" + property + ":" + value
-
   inspect(key, content=":hover:color:#fff")
 }
 
@@ -532,7 +524,6 @@ test "CSS extraction - media query pattern" {
   let property = "display"
   let value = "flex"
   let key = "@media(" + breakpoint + "):" + property + ":" + value
-
   inspect(key, content="@media(min-width:768px):display:flex")
 }
 
@@ -547,12 +538,10 @@ test "CSS generation - base rules" {
     ("_c3d4", "color", "#333"),
     ("_e5f6", "margin", "0"),
   ]
-
   let mut css = ""
   for rule in rules {
     css = css + "." + rule.0 + "{" + rule.1 + ":" + rule.2 + "}"
   }
-
   inspect(css.contains("._a1b2{display:flex}"), content="true")
   inspect(css.contains("._c3d4{color:#333}"), content="true")
   inspect(css.contains("._e5f6{margin:0}"), content="true")
@@ -564,12 +553,10 @@ test "CSS generation - pseudo rules" {
     ("_h1", "hover", "color", "#fff"),
     ("_f1", "focus", "outline", "2px solid blue"),
   ]
-
   let mut css = ""
   for rule in pseudo_rules {
     css = css + "." + rule.0 + ":" + rule.1 + "{" + rule.2 + ":" + rule.3 + "}"
   }
-
   inspect(css.contains("._h1:hover{color:#fff}"), content="true")
   inspect(css.contains("._f1:focus{outline:2px solid blue}"), content="true")
 }
@@ -580,13 +567,23 @@ test "CSS generation - media query rules" {
     ("_m1", "min-width:768px", "display", "flex"),
     ("_m2", "prefers-color-scheme:dark", "background", "#1a1a1a"),
   ]
-
   let mut css = ""
   for rule in media_rules {
-    css = css + "@media(" + rule.1 + "){." + rule.0 + "{" + rule.2 + ":" + rule.3 + "}}"
+    css = css +
+      "@media(" +
+      rule.1 +
+      "){." +
+      rule.0 +
+      "{" +
+      rule.2 +
+      ":" +
+      rule.3 +
+      "}}"
   }
-
-  inspect(css.contains("@media(min-width:768px){._m1{display:flex}}"), content="true")
+  inspect(
+    css.contains("@media(min-width:768px){._m1{display:flex}}"),
+    content="true",
+  )
   inspect(
     css.contains("@media(prefers-color-scheme:dark){._m2{background:#1a1a1a}}"),
     content="true",
@@ -617,7 +614,6 @@ test "CSS minification - whitespace removal simulation" {
 test "CSS minification - size reduction" {
   let pretty_css = ".class {\n  display: flex;\n  gap: 1rem;\n}"
   let minified = ".class{display:flex;gap:1rem}"
-
   let size_reduction = pretty_css.length() - minified.length()
   inspect(size_reduction > 0, content="true")
 }
@@ -630,7 +626,6 @@ test "CSS minification - size reduction" {
 test "CSS variables - primary color injection" {
   let primary_color = "#fbbf24"
   let css_var = ":root{--primary-color:" + primary_color + ";}"
-
   inspect(css_var, content=":root{--primary-color:#fbbf24;}")
 }
 
@@ -658,7 +653,6 @@ test "Split manifest - structure" {
     total_size: 92,
     common_size: 50,
   }
-
   inspect(manifest.page_bundles.length(), content="2")
   inspect(manifest.common_size, content="50")
   // Common represents ~54% of total
@@ -669,14 +663,23 @@ test "Split manifest - structure" {
 ///|
 test "Split manifest - page bundle isolation" {
   let bundles : Array[TestPageCssBundle] = [
-    { page_id: "index", classes: ["_a", "_b"], css: "._a{...}._b{...}", size: 40 },
-    { page_id: "about", classes: ["_c", "_d"], css: "._c{...}._d{...}", size: 42 },
+    {
+      page_id: "index",
+      classes: ["_a", "_b"],
+      css: "._a{...}._b{...}",
+      size: 40,
+    },
+    {
+      page_id: "about",
+      classes: ["_c", "_d"],
+      css: "._c{...}._d{...}",
+      size: 42,
+    },
   ]
 
   // Verify no class overlap between bundles
   let index_classes = bundles[0].classes
   let about_classes = bundles[1].classes
-
   let mut has_overlap = false
   for cls in index_classes {
     for other in about_classes {
@@ -742,7 +745,6 @@ test "Edge case - empty CSS result" {
 test "Edge case - very large CSS exceeds threshold" {
   let config = CssUtilitiesConfig::default()
   let large_css_size = 100000 // 100KB
-
   let should_inline = large_css_size <= config.inline_threshold
   inspect(should_inline, content="false")
 }
@@ -750,13 +752,9 @@ test "Edge case - very large CSS exceeds threshold" {
 ///|
 test "Edge case - special characters in CSS values" {
   let special_values = [
-    "rgba(0, 0, 0, 0.5)",
-    "linear-gradient(to right, #fff, #000)",
-    "translateX(-50%)",
-    "url('image.png')",
-    "calc(100% - 2rem)",
+    "rgba(0, 0, 0, 0.5)", "linear-gradient(to right, #fff, #000)", "translateX(-50%)",
+    "url('image.png')", "calc(100% - 2rem)",
   ]
-
   for val in special_values {
     // All values should be valid
     inspect(val.length() > 0, content="true")
@@ -770,15 +768,8 @@ test "Edge case - many source directories" {
     split: false,
     inline_threshold: 4096,
     source_dirs: [
-      "src/luna",
-      "src/sol",
-      "src/platform",
-      "src/core",
-      "components",
-      "pages",
-      "docs",
+      "src/luna", "src/sol", "src/platform", "src/core", "components", "pages", "docs",
     ],
   }
   inspect(config.source_dirs.length(), content="7")
 }
-

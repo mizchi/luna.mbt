@@ -159,7 +159,9 @@ test "parse_page_config - component config" {
     #|{"component": {"ssr": true, "propsType": "CounterProps", "clientExport": "counter", "serverExport": "render_ssr"}}
   let result = parse_page_config(json_str)
   guard result is Some(config) else { fail("Expected Some") }
-  guard config.component is Some(comp) else { fail("Expected component config") }
+  guard config.component is Some(comp) else {
+    fail("Expected component config")
+  }
   inspect(comp.ssr, content="true")
   inspect(comp.props_type, content="Some(\"CounterProps\")")
   inspect(comp.client_export, content="Some(\"counter\")")
@@ -263,17 +265,20 @@ test "PageConfig::merge - boolean OR" {
 ///|
 test "PageConfig::merge - handlers merge with child override" {
   let base_handlers : Map[String, FileHandlerConfig] = {}
-  base_handlers[".md"] = FileHandlerConfig::{ ..FileHandlerConfig::default(), layout: Some(
-      "docs",
-    ) }
+  base_handlers[".md"] = FileHandlerConfig::{
+    ..FileHandlerConfig::default(),
+    layout: Some("docs"),
+  }
   let base = PageConfig::{ ..PageConfig::default(), handlers: base_handlers }
   let child_handlers : Map[String, FileHandlerConfig] = {}
-  child_handlers[".md"] = FileHandlerConfig::{ ..FileHandlerConfig::default(), layout: Some(
-      "blog",
-    ) }
-  child_handlers[".mdx"] = FileHandlerConfig::{ ..FileHandlerConfig::default(), layout: Some(
-      "mdx",
-    ) }
+  child_handlers[".md"] = FileHandlerConfig::{
+    ..FileHandlerConfig::default(),
+    layout: Some("blog"),
+  }
+  child_handlers[".mdx"] = FileHandlerConfig::{
+    ..FileHandlerConfig::default(),
+    layout: Some("mdx"),
+  }
   let child = PageConfig::{ ..PageConfig::default(), handlers: child_handlers }
   let merged = PageConfig::merge(base, child)
   inspect(merged.handlers.length(), content="2")
@@ -365,7 +370,10 @@ test "PageConfig::is_dynamic - ssr and isr" {
 
 ///|
 test "PageConfig::is_dynamic - other modes" {
-  let static_config = PageConfig::{ ..PageConfig::default(), mode: Some("static") }
+  let static_config = PageConfig::{
+    ..PageConfig::default(),
+    mode: Some("static"),
+  }
   inspect(static_config.is_dynamic(), content="false")
   let spa_config = PageConfig::{ ..PageConfig::default(), mode: Some("spa") }
   inspect(spa_config.is_dynamic(), content="false")
@@ -399,10 +407,7 @@ test "PageConfig::is_isr - other modes" {
 test "PageConfig::has_static_params - with params" {
   let params : Map[String, String] = {}
   params["slug"] = "hello"
-  let config = PageConfig::{
-    ..PageConfig::default(),
-    static_params: [params],
-  }
+  let config = PageConfig::{ ..PageConfig::default(), static_params: [params] }
   inspect(config.has_static_params(), content="true")
 }
 

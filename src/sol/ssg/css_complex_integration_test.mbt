@@ -84,7 +84,6 @@ test "Locale CSS - RTL language direction" {
     classes: [],
     font_family: "Inter, sans-serif",
   }
-
   inspect(ar_bundle.direction, content="rtl")
   inspect(en_bundle.direction, content="ltr")
   // RTL bundle has additional CSS
@@ -104,7 +103,6 @@ test "Locale CSS - cache key differentiation" {
   let en_key = locale_cache_key("/guide/", "en")
   let ja_key = locale_cache_key("/guide/", "ja")
   let ar_key = locale_cache_key("/guide/", "ar")
-
   inspect(en_key, content="/guide/")
   inspect(ja_key, content="/ja/guide/")
   inspect(ar_key, content="/ar/guide/")
@@ -121,7 +119,6 @@ test "Locale CSS - logical properties for RTL" {
     ("_ps2", "padding-inline-start", "2rem"),
     ("_pe2", "padding-inline-end", "2rem"),
   ]
-
   for cls in logical_classes {
     // Logical properties don't need RTL override
     inspect(cls.1.contains("inline"), content="true")
@@ -192,7 +189,6 @@ test "Locale CSS - split bundle per locale" {
   locale_bundles.set("en", 5000)
   locale_bundles.set("ja", 5200) // Slightly larger (font declarations)
   locale_bundles.set("ar", 5500) // Larger (RTL overrides)
-
   inspect(config.split, content="true")
   inspect(locale_bundles.length(), content="3")
 }
@@ -211,7 +207,6 @@ test "ISR CSS - cache entry structure" {
     revalidate_at: 1704070800,
     css_size: 2048,
   }
-
   inspect(entry.page_path, content="/blog/hello-world/")
   inspect(entry.css_hash.length() > 0, content="true")
   // Revalidate time is after last modified
@@ -239,7 +234,6 @@ test "ISR CSS - stale while revalidate scenario" {
       css_size: 1200,
     },
   ]
-
   let mut stale_count = 0
   let mut fresh_count = 0
   for entry in entries {
@@ -249,7 +243,6 @@ test "ISR CSS - stale while revalidate scenario" {
       fresh_count = fresh_count + 1
     }
   }
-
   inspect(stale_count, content="1")
   inspect(fresh_count, content="1")
 }
@@ -264,14 +257,12 @@ test "ISR CSS - hash change triggers regeneration" {
     revalidate_at: 1704003600,
     css_size: 1500,
   }
-
   let new_content_hash = "new_html"
   let new_css_hash = "new_css"
 
   // Content changed → need regeneration
   let html_changed = old_entry.html_hash != new_content_hash
   let css_changed = old_entry.css_hash != new_css_hash
-
   inspect(html_changed, content="true")
   inspect(css_changed, content="true")
 }
@@ -299,7 +290,6 @@ test "ISR CSS - config hash invalidates all" {
     inline_threshold: 4096,
     source_dirs: ["src"],
   }
-
   let hash1 = compute_config_hash(config1)
   let hash2 = compute_config_hash(config2)
 
@@ -310,11 +300,10 @@ test "ISR CSS - config hash invalidates all" {
 ///|
 test "ISR CSS - TTL based revalidation" {
   let revalidate_seconds = 300 // 5 minutes
-
   fn should_revalidate(
     last_modified : Int,
     revalidate_interval : Int,
-    now : Int
+    now : Int,
   ) -> Bool {
     now >= last_modified + revalidate_interval
   }
@@ -322,7 +311,6 @@ test "ISR CSS - TTL based revalidation" {
   let last_modified = 1704067200
   let now_fresh = 1704067400 // 200 seconds later
   let now_stale = 1704067600 // 400 seconds later
-
   inspect(
     should_revalidate(last_modified, revalidate_seconds, now_fresh),
     content="false",
@@ -395,7 +383,6 @@ test "Island CSS - class collision detection" {
       }
     }
   }
-
   inspect(collisions.length(), content="1")
   inspect(collisions[0], content="_a1b2")
 }
@@ -431,7 +418,6 @@ test "Island CSS - mixed framework page" {
       all_classes.push(cls)
     }
   }
-
   inspect(all_classes.length(), content="6")
 
   // Count frameworks
@@ -496,12 +482,18 @@ test "Theme CSS - variable cascade" {
   inspect(light_theme.variables[2].1, content="#fbbf24")
   inspect(dark_theme.variables[2].1, content="#fbbf24")
   // Background differs
-  inspect(light_theme.variables[0].1 == dark_theme.variables[0].1, content="false")
+  inspect(
+    light_theme.variables[0].1 == dark_theme.variables[0].1,
+    content="false",
+  )
 }
 
 ///|
 test "Theme CSS - media query vs class toggle" {
-  fn generate_theme_css(mode : String, variables : Array[(String, String)]) -> String {
+  fn generate_theme_css(
+    mode : String,
+    variables : Array[(String, String)],
+  ) -> String {
     let mut css = ""
     match mode {
       "light" => {
@@ -528,10 +520,7 @@ test "Theme CSS - media query vs class toggle" {
     css
   }
 
-  let dark_css = generate_theme_css(
-    "dark",
-    [("--bg", "#000"), ("--fg", "#fff")],
-  )
+  let dark_css = generate_theme_css("dark", [("--bg", "#000"), ("--fg", "#fff")])
 
   // Both class and media query selectors present
   inspect(dark_css.contains("html.dark"), content="true")
@@ -546,9 +535,9 @@ test "Theme CSS - specificity resolution" {
   // 3. :root (type selector) - default
 
   let selectors = [
-    ("html.dark", 10),  // Class specificity
-    (":root", 1),       // Type specificity
-  ]
+    ("html.dark", 10), // Class specificity
+    (":root", 1),
+  ] // Type specificity
 
   // html.dark wins over :root
   inspect(selectors[0].1 > selectors[1].1, content="true")
@@ -594,7 +583,7 @@ test "Registry - deterministic hash for same input" {
     let mut hash : UInt = 5381
     for i = 0; i < s.length(); i = i + 1 {
       let c = s[i]
-      hash = ((hash << 5) + hash) + c.to_uint()
+      hash = (hash << 5) + hash + c.to_uint()
     }
     hash
   }
@@ -604,7 +593,6 @@ test "Registry - deterministic hash for same input" {
   let hash1 = djb2_hash(input)
   let hash2 = djb2_hash(input)
   let hash3 = djb2_hash(input)
-
   inspect(hash1 == hash2, content="true")
   inspect(hash2 == hash3, content="true")
 }
@@ -652,7 +640,6 @@ test "Registry - class ordering stability" {
       }
     }
   }
-
   inspect(sorted[0].0, content="_a")
   inspect(sorted[1].0, content="_m")
   inspect(sorted[2].0, content="_z")
@@ -665,7 +652,6 @@ test "Registry - incremental build consistency" {
   registry1.set("display:flex", "_a")
   registry1.set("color:#333", "_b")
   registry1.set("margin:0", "_c")
-
   let registry2 : Map[String, String] = {}
   registry2.set("margin:0", "_c")
   registry2.set("display:flex", "_a")
@@ -742,7 +728,6 @@ test "Component CSS - total class collection" {
   for cls in logo_deps.own_classes {
     all_classes.set(cls, true)
   }
-
   inspect(all_classes.length(), content="5")
 }
 
@@ -751,7 +736,6 @@ test "Component CSS - conditional rendering impact" {
   // Component rendered conditionally
   let base_classes = ["_layout", "_container"]
   let conditional_classes = ["_sidebar", "_sidebar_open"]
-
   fn get_required_classes(has_sidebar : Bool) -> Array[String] {
     let result : Array[String] = []
     for cls in base_classes {
@@ -767,7 +751,6 @@ test "Component CSS - conditional rendering impact" {
 
   let with_sidebar = get_required_classes(true)
   let without_sidebar = get_required_classes(false)
-
   inspect(with_sidebar.length(), content="4")
   inspect(without_sidebar.length(), content="2")
 }
@@ -777,11 +760,7 @@ test "Component CSS - override detection" {
   // Child component overrides parent style
   let parent_style = ("padding", "1rem")
   let child_style = ("padding", "2rem") // Override
-
-  fn detect_override(
-    parent_prop : String,
-    child_prop : String
-  ) -> Bool {
+  fn detect_override(parent_prop : String, child_prop : String) -> Bool {
     parent_prop == child_prop
   }
 
@@ -796,22 +775,21 @@ test "Component CSS - override detection" {
 test "Critical CSS - layout classes priority" {
   // Classes needed for initial render (above-the-fold)
   let critical_classes = [
-    "_layout",      // Page layout
-    "_header",      // Header visible
-    "_nav",         // Navigation
-    "_hero",        // Hero section
-  ]
+    "_layout", // Page layout
+     "_header", // Header visible
+     "_nav", // Navigation
+     "_hero",
+  ] // Hero section
   // Classes for below-the-fold content
   let deferred_classes = [
-    "_footer",      // Footer (below fold)
-    "_comments",    // Comments section
-    "_related",     // Related posts
-  ]
+    "_footer", // Footer (below fold)
+     "_comments", // Comments section
+     "_related",
+  ] // Related posts
 
   // Critical CSS should be inlined
   let critical_size = critical_classes.length() * 25 // Estimate
   let deferred_size = deferred_classes.length() * 25
-
   inspect(critical_size, content="100")
   inspect(deferred_size, content="75")
   // Critical CSS smaller, good for inlining
@@ -830,7 +808,6 @@ test "Critical CSS - inline threshold with minification" {
   // Pretty would be external, minified can be inline
   let pretty_inline = pretty_size <= config.inline_threshold
   let minified_inline = minified_size <= config.inline_threshold
-
   inspect(pretty_inline, content="false")
   inspect(minified_inline, content="true")
 }
@@ -872,7 +849,6 @@ test "Hydration CSS - dynamic class addition" {
     css_registry.set(cls, true)
   }
   css_registry.set(dynamic_class, true)
-
   inspect(css_registry.length(), content="3")
   inspect(css_registry.get(dynamic_class) is Some(_), content="true")
 }
@@ -883,11 +859,10 @@ test "Hydration CSS - FOUC prevention" {
   // CSS must be available before HTML renders
 
   let css_injection_points = [
-    ("head_inline", true),   // Best: inline in <head>
-    ("head_link", true),     // Good: <link> in <head>
-    ("body_end", false),     // Bad: CSS after content
+    ("head_inline", true), // Best: inline in <head>
+    ("head_link", true), // Good: <link> in <head>
+    ("body_end", false), // Bad: CSS after content
   ]
-
   for point in css_injection_points {
     if point.0 == "head_inline" || point.0 == "head_link" {
       inspect(point.1, content="true")
@@ -935,7 +910,6 @@ test "Edge case - deeply nested component hierarchy" {
   let depth = 5
   let mut total_inherited = 0
   let mut current_inherited = 0
-
   for i = 0; i < depth; i = i + 1 {
     let own_classes = 2 // Each component adds 2 classes
     current_inherited = current_inherited + own_classes
@@ -953,13 +927,11 @@ test "Edge case - theme with many variables" {
   for i = 0; i < 50; i = i + 1 {
     many_variables.push(("--color-" + i.to_string(), "#" + i.to_string()))
   }
-
   let theme = ThemeCssState::{
     mode: "light",
     variables: many_variables,
     media_queries: [],
   }
-
   inspect(theme.variables.length(), content="50")
 }
 
@@ -971,7 +943,5 @@ test "Edge case - island with no CSS classes" {
     classes: [], // No CSS needed
     scoped_prefix: "luna_",
   }
-
   inspect(no_css_island.classes.is_empty(), content="true")
 }
-

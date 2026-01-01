@@ -41,7 +41,11 @@ test "route_manifest_to_chunk_manifest - static route without islands" {
   let route_manifest = RouteManifest::{
     routes: [
       Static(
-        StaticRouteEntry::new(path="/about", source="about.md", output="about.html"),
+        StaticRouteEntry::new(
+          path="/about",
+          source="about.md",
+          output="about.html",
+        ),
       ),
     ],
     fallback: FallbackConfig::default(),
@@ -158,7 +162,8 @@ test "route_manifest_to_chunk_manifest - with chunk hashes" {
   chunk_hashes["boot"] = "boot.abc123.js"
   chunk_hashes["hydrate"] = "hydrate.def456.js"
   let chunk_manifest = route_manifest_to_chunk_manifest(
-    route_manifest, chunk_hashes~,
+    route_manifest,
+    chunk_hashes~,
   )
   inspect(chunk_manifest.chunks.get("boot"), content="Some(\"boot.abc123.js\")")
   inspect(
@@ -184,11 +189,7 @@ test "ChunkManifest::to_json - empty manifest" {
 
 ///|
 test "ChunkManifest::to_json - with routes" {
-  let manifest = ChunkManifest::{
-    routes: {},
-    chunks: {},
-    base: "/_luna/",
-  }
+  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/" }
   manifest.routes["/about"] = ["boot", "hydrate"]
   let json = manifest.to_json()
   inspect(json.contains("\"/about\""), content="true")
@@ -198,11 +199,7 @@ test "ChunkManifest::to_json - with routes" {
 
 ///|
 test "ChunkManifest::to_json - escapes special characters" {
-  let manifest = ChunkManifest::{
-    routes: {},
-    chunks: {},
-    base: "/_luna/",
-  }
+  let manifest = ChunkManifest::{ routes: {}, chunks: {}, base: "/_luna/" }
   manifest.routes["/path/with\"quote"] = ["boot"]
   let json = manifest.to_json()
   // Should escape the quote
@@ -221,14 +218,8 @@ test "build_chunk_manifest - with chunk files" {
     ("hydrate", "hydrate.d4e5f6.js"),
   ]
   let manifest = build_chunk_manifest(route_manifest, chunk_files~)
-  inspect(
-    manifest.chunks.get("boot"),
-    content="Some(\"boot.a1b2c3.js\")",
-  )
-  inspect(
-    manifest.chunks.get("hydrate"),
-    content="Some(\"hydrate.d4e5f6.js\")",
-  )
+  inspect(manifest.chunks.get("boot"), content="Some(\"boot.a1b2c3.js\")")
+  inspect(manifest.chunks.get("hydrate"), content="Some(\"hydrate.d4e5f6.js\")")
 }
 
 ///|

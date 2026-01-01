@@ -163,11 +163,7 @@ test "sort_pages function" {
       sort_key="2147483647_flow_for.md",
     ),
     @ssg.PageMeta::new("00_index.md", "/", sort_key="00000000_index.md"),
-    @ssg.PageMeta::new(
-      "01_basics.md",
-      "/basics",
-      sort_key="00000001_basics.md",
-    ),
+    @ssg.PageMeta::new("01_basics.md", "/basics", sort_key="00000001_basics.md"),
   ]
   let sorted = @routes.sort_pages(pages)
   // Should be: index, basics, flow_for

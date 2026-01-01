@@ -22,7 +22,9 @@ test "render_fragment_response - basic content" {
 ///|
 test "render_fragment_response - escapes HTML in title" {
   let node = @luna.h("div", [], [@luna.text("Content")])
-  let html = @router.render_fragment_response(node, "<script>alert('xss')</script>", false)
+  let html = @router.render_fragment_response(
+    node, "<script>alert('xss')</script>", false,
+  )
   // Title should be escaped
   inspect(html.contains("&lt;script&gt;"), content="true")
   inspect(html.contains("<script>") && html.contains("alert"), content="false")
@@ -31,7 +33,9 @@ test "render_fragment_response - escapes HTML in title" {
 ///|
 test "render_fragment_response - special characters in title" {
   let node = @luna.h("div", [], [])
-  let html = @router.render_fragment_response(node, "Tom & Jerry's \"Adventure\"", false)
+  let html = @router.render_fragment_response(
+    node, "Tom & Jerry's \"Adventure\"", false,
+  )
   // Should escape &, ', "
   inspect(html.contains("&amp;"), content="true")
   inspect(html.contains("&#39;"), content="true")
@@ -57,15 +61,11 @@ test "render_fragment_response - with hydration" {
 
 ///|
 test "render_fragment_response - nested elements" {
-  let node = @luna.h(
-    "article",
-    [],
-    [
-      @luna.h("h1", [], [@luna.text("Heading")]),
-      @luna.h("p", [], [@luna.text("Paragraph 1")]),
-      @luna.h("p", [], [@luna.text("Paragraph 2")]),
-    ],
-  )
+  let node = @luna.h("article", [], [
+    @luna.h("h1", [], [@luna.text("Heading")]),
+    @luna.h("p", [], [@luna.text("Paragraph 1")]),
+    @luna.h("p", [], [@luna.text("Paragraph 2")]),
+  ])
   let html = @router.render_fragment_response(node, "Article", false)
   inspect(html.contains("<article>"), content="true")
   inspect(html.contains("<h1>"), content="true")
@@ -78,7 +78,10 @@ test "render_fragment_response - nested elements" {
 test "render_fragment_response - with attributes" {
   let node = @luna.h(
     "div",
-    [("class", @luna.attr_static("container")), ("id", @luna.attr_static("main"))],
+    [
+      ("class", @luna.attr_static("container")),
+      ("id", @luna.attr_static("main")),
+    ],
     [@luna.text("Content")],
   )
   let html = @router.render_fragment_response(node, "Title", false)
@@ -97,7 +100,9 @@ test "render_fragment_response - empty title" {
 ///|
 test "render_fragment_response - unicode title" {
   let node = @luna.h("div", [], [])
-  let html = @router.render_fragment_response(node, "日本語タイトル", false)
+  let html = @router.render_fragment_response(
+    node, "日本語タイトル", false,
+  )
   inspect(html.contains("日本語タイトル"), content="true")
 }
 

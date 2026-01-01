@@ -64,7 +64,9 @@ test "generate_auto_sidebar - empty pages" {
 
 ///|
 test "generate_auto_sidebar - single page in directory" {
-  let pages = [make_page("guide/intro.md", "/guide/intro/", title=Some("Introduction"))]
+  let pages = [
+    make_page("guide/intro.md", "/guide/intro/", title=Some("Introduction")),
+  ]
   let groups = generate_auto_sidebar(pages)
   // Should have one group for "guide"
   inspect(groups.length(), content="1")
@@ -138,17 +140,13 @@ test "get_sidebar_for_path - manual sidebar" {
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [
-        @ssg.SidebarItem::Link(text="Intro", link="/guide/intro/"),
-      ],
+      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
     @ssg.SidebarGroup::{
       text: "API",
       link: None,
       collapsed: false,
-      items: [
-        @ssg.SidebarItem::Link(text="Reference", link="/api/reference/"),
-      ],
+      items: [@ssg.SidebarItem::Link(text="Reference", link="/api/reference/")],
     },
   ]
   let config = @ssg.SsgConfig::{
@@ -226,17 +224,13 @@ test "get_sidebar_page_order - multiple groups" {
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [
-        @ssg.SidebarItem::Link(text="Intro", link="/guide/intro/"),
-      ],
+      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
     @ssg.SidebarGroup::{
       text: "API",
       link: None,
       collapsed: false,
-      items: [
-        @ssg.SidebarItem::Link(text="Reference", link="/api/reference/"),
-      ],
+      items: [@ssg.SidebarItem::Link(text="Reference", link="/api/reference/")],
     },
   ]
   let order = get_sidebar_page_order(groups)
@@ -256,9 +250,7 @@ test "render_sidebar - returns valid node" {
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [
-        @ssg.SidebarItem::Link(text="Intro", link="/guide/intro/"),
-      ],
+      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
   ]
   let node = render_sidebar(groups, "/")
@@ -273,9 +265,7 @@ test "render_mobile_sidebar - returns valid node" {
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [
-        @ssg.SidebarItem::Link(text="Intro", link="/guide/intro/"),
-      ],
+      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
   ]
   let node = render_mobile_sidebar(groups, "/")

@@ -7,6 +7,7 @@
 // Schema: Top-level container
 // =============================================================================
 
+///|
 /// A schema is a collection of type definitions
 pub struct Schema {
   /// Schema version for compatibility
@@ -17,12 +18,14 @@ pub struct Schema {
   source : SourceInfo?
 } derive(Eq, Show)
 
+///|
 /// Source file metadata
 pub struct SourceInfo {
   file : String
   lang : SourceLang
 } derive(Eq, Show)
 
+///|
 /// Supported source languages
 pub enum SourceLang {
   MoonBit
@@ -36,6 +39,7 @@ pub enum SourceLang {
 // Type Definitions
 // =============================================================================
 
+///|
 /// A named type definition
 pub enum TypeDef {
   /// Struct/Record type
@@ -46,6 +50,7 @@ pub enum TypeDef {
   Alias(AliasDef)
 } derive(Eq, Show)
 
+///|
 /// Struct definition
 pub struct StructDef {
   /// Type name
@@ -60,6 +65,7 @@ pub struct StructDef {
   derives : Array[String]
 } derive(Eq, Show)
 
+///|
 /// Enum definition
 pub struct EnumDef {
   /// Type name
@@ -74,6 +80,7 @@ pub struct EnumDef {
   derives : Array[String]
 } derive(Eq, Show)
 
+///|
 /// Enum variant
 pub struct EnumVariant {
   /// Variant name
@@ -84,6 +91,7 @@ pub struct EnumVariant {
   payload : TypeRef?
 } derive(Eq, Show)
 
+///|
 /// Type alias definition
 pub struct AliasDef {
   /// Alias name
@@ -100,6 +108,7 @@ pub struct AliasDef {
 // Fields
 // =============================================================================
 
+///|
 /// A struct field
 pub struct Field {
   /// Field name
@@ -120,6 +129,7 @@ pub struct Field {
 // Type References
 // =============================================================================
 
+///|
 /// A reference to a type
 pub enum TypeRef {
   /// Primitive types
@@ -127,7 +137,7 @@ pub enum TypeRef {
   /// Array/List type
   Array(TypeRef)
   /// Map/Dictionary type
-  Map(TypeRef, TypeRef)  // key, value
+  Map(TypeRef, TypeRef) // key, value
   /// Tuple type
   Tuple(Array[TypeRef])
   /// Option/Nullable type
@@ -135,7 +145,7 @@ pub enum TypeRef {
   /// Reference to a named type
   Named(String)
   /// Generic type application
-  Applied(String, Array[TypeRef])  // name, type args
+  Applied(String, Array[TypeRef]) // name, type args
   /// Type parameter reference
   Param(String)
   /// Literal type (for union literals)
@@ -148,6 +158,7 @@ pub enum TypeRef {
   Unknown
 } derive(Eq, Show)
 
+///|
 /// Primitive types
 pub enum PrimitiveType {
   Bool
@@ -160,6 +171,7 @@ pub enum PrimitiveType {
   Never
 } derive(Eq, Show)
 
+///|
 /// Literal type values
 pub enum LiteralType {
   BoolLit(Bool)
@@ -167,6 +179,7 @@ pub enum LiteralType {
   StringLit(String)
 } derive(Eq, Show)
 
+///|
 /// Function type
 pub struct FunctionType {
   params : Array[TypeRef]
@@ -177,6 +190,7 @@ pub struct FunctionType {
 // Generics
 // =============================================================================
 
+///|
 /// Generic type parameter
 pub struct TypeParam {
   /// Parameter name (e.g., "T", "K", "V")
@@ -191,6 +205,7 @@ pub struct TypeParam {
 // Annotations/Attributes
 // =============================================================================
 
+///|
 /// Annotation on a type or field
 pub struct Annotation {
   /// Annotation name
@@ -203,110 +218,107 @@ pub struct Annotation {
 // Constructors
 // =============================================================================
 
+///|
 /// Create an empty schema
 pub fn Schema::empty() -> Schema {
   { version: "1.0", definitions: {}, source: None }
 }
 
+///|
 /// Create a new schema
 pub fn Schema::new(version : String) -> Schema {
   { version, definitions: {}, source: None }
 }
 
+///|
 /// Create a struct definition
 pub fn StructDef::new(name : String) -> StructDef {
-  {
-    name,
-    doc: None,
-    type_params: [],
-    fields: [],
-    derives: [],
-  }
+  { name, doc: None, type_params: [], fields: [], derives: [] }
 }
 
+///|
 /// Create a field
 pub fn Field::new(name : String, type_ : TypeRef) -> Field {
-  {
-    name,
-    doc: None,
-    type_,
-    optional: false,
-    default: None,
-    attrs: {},
-  }
+  { name, doc: None, type_, optional: false, default: None, attrs: {} }
 }
 
+///|
 /// Create an optional field
 pub fn Field::optional(name : String, type_ : TypeRef) -> Field {
-  {
-    name,
-    doc: None,
-    type_,
-    optional: true,
-    default: None,
-    attrs: {},
-  }
+  { name, doc: None, type_, optional: true, default: None, attrs: {} }
 }
 
 // =============================================================================
 // Type Reference Helpers
 // =============================================================================
 
+///|
 /// Create a Bool type reference
 pub fn TypeRef::bool_() -> TypeRef {
   Primitive(PrimitiveType::Bool)
 }
 
+///|
 /// Create an Int type reference
 pub fn TypeRef::int() -> TypeRef {
   Primitive(PrimitiveType::Int)
 }
 
+///|
 /// Create a Float type reference
 pub fn TypeRef::float() -> TypeRef {
   Primitive(PrimitiveType::Float)
 }
 
+///|
 /// Create a String type reference
 pub fn TypeRef::string() -> TypeRef {
   Primitive(PrimitiveType::String)
 }
 
+///|
 /// Create a Unit type reference
 pub fn TypeRef::unit() -> TypeRef {
   Primitive(PrimitiveType::Unit)
 }
 
+///|
 /// Create an Array type reference
 pub fn TypeRef::array(element : TypeRef) -> TypeRef {
   Array(element)
 }
 
+///|
 /// Create a Map type reference
 pub fn TypeRef::map(key : TypeRef, value : TypeRef) -> TypeRef {
   Map(key, value)
 }
 
+///|
 /// Create an Option type reference
 pub fn TypeRef::option(inner : TypeRef) -> TypeRef {
   Option(inner)
 }
 
+///|
 /// Create a named type reference
 pub fn TypeRef::named(name : String) -> TypeRef {
   Named(name)
 }
 
+///|
 /// Create a type parameter reference
 pub fn TypeRef::param(name : String) -> TypeRef {
   Param(name)
 }
 
+///|
 /// Create a string literal type
 pub fn TypeRef::string_lit(value : String) -> TypeRef {
   Literal(LiteralType::StringLit(value))
 }
 
+///|
 /// Create a union type
 pub fn TypeRef::union(types : Array[TypeRef]) -> TypeRef {
   Union(types)

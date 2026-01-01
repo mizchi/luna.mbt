@@ -10,7 +10,10 @@
 
 ///|
 /// Create a job for extracting CSS from a single file
-fn css_extract_job(file : String, extract_js_path : String) -> @process_pool.Job {
+fn css_extract_job(
+  file : String,
+  extract_js_path : String,
+) -> @process_pool.Job {
   @process_pool.job(
     "node",
     [extract_js_path, file, "--json"],
@@ -268,7 +271,11 @@ pub enum ExtractionStrategy {
 }
 
 ///|
-fn determine_batch_size(strategy : ExtractionStrategy, file_count : Int, max_workers : Int) -> Int {
+fn determine_batch_size(
+  strategy : ExtractionStrategy,
+  file_count : Int,
+  max_workers : Int,
+) -> Int {
   match strategy {
     PerFile => 1
     Batched(size) => size
@@ -307,11 +314,9 @@ fn parse_css_count_from_json(json_output : String) -> Int {
   let pattern = "\"key\":"
   let pattern_chars = pattern.to_array()
   let pattern_len = pattern_chars.length()
-
   if chars.length() < pattern_len {
     return 0
   }
-
   for i = 0; i <= chars.length() - pattern_len; i = i + 1 {
     let mut matched = true
     for j = 0; j < pattern_len; j = j + 1 {
@@ -334,12 +339,14 @@ test "parse css count: empty" {
 
 ///|
 test "parse css count: single" {
-  let json = #|{"base":[{"key":"display:flex"}]}
+  let json =
+    #|{"base":[{"key":"display:flex"}]}
   inspect(parse_css_count_from_json(json), content="1")
 }
 
 ///|
 test "parse css count: multiple" {
-  let json = #|{"base":[{"key":"a"},{"key":"b"},{"key":"c"}]}
+  let json =
+    #|{"base":[{"key":"a"},{"key":"b"},{"key":"c"}]}
   inspect(parse_css_count_from_json(json), content="3")
 }

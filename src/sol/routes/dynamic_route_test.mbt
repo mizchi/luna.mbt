@@ -35,9 +35,15 @@ test "RenderMode::Isr - with revalidation" {
 test "RenderMode - equality comparison" {
   inspect(RenderMode::Ssr == RenderMode::Ssr, content="true")
   inspect(RenderMode::Spa == RenderMode::Spa, content="true")
-  inspect(RenderMode::Isr(revalidate=60) == RenderMode::Isr(revalidate=60), content="true")
+  inspect(
+    RenderMode::Isr(revalidate=60) == RenderMode::Isr(revalidate=60),
+    content="true",
+  )
   inspect(RenderMode::Ssr == RenderMode::Spa, content="false")
-  inspect(RenderMode::Isr(revalidate=60) == RenderMode::Isr(revalidate=120), content="false")
+  inspect(
+    RenderMode::Isr(revalidate=60) == RenderMode::Isr(revalidate=120),
+    content="false",
+  )
 }
 
 ///|
@@ -65,19 +71,18 @@ test "FallbackConfig::NotFound - 404 page" {
 test "FallbackConfig::Spa - full SPA mode" {
   let fallback = FallbackConfig::Spa(entry="/index.html")
   inspect(fallback.is_spa(), content="true")
-  guard fallback.spa_entry() is Some(entry) else {
-    fail("Expected Some entry")
-  }
+  guard fallback.spa_entry() is Some(entry) else { fail("Expected Some entry") }
   inspect(entry, content="/index.html")
 }
 
 ///|
 test "FallbackConfig::SpaPrefix - prefix-limited SPA" {
-  let fallback = FallbackConfig::SpaPrefix(prefix="/app/", entry="/app/index.html")
+  let fallback = FallbackConfig::SpaPrefix(
+    prefix="/app/",
+    entry="/app/index.html",
+  )
   inspect(fallback.is_spa(), content="true")
-  guard fallback.spa_entry() is Some(entry) else {
-    fail("Expected Some entry")
-  }
+  guard fallback.spa_entry() is Some(entry) else { fail("Expected Some entry") }
   inspect(entry, content="/app/index.html")
 }
 
@@ -154,9 +159,7 @@ test "DynamicRouteEntry - catch-all route" {
     title: Some("Documentation"),
     islands: ["toc", "code-block"],
   }
-  guard route.catch_all is Some(info) else {
-    fail("Expected catch-all info")
-  }
+  guard route.catch_all is Some(info) else { fail("Expected catch-all info") }
   inspect(info.name, content="slug")
   inspect(info.optional, content="false")
 }
@@ -174,9 +177,7 @@ test "DynamicRouteEntry - optional catch-all route" {
     title: None,
     islands: [],
   }
-  guard route.catch_all is Some(info) else {
-    fail("Expected catch-all info")
-  }
+  guard route.catch_all is Some(info) else { fail("Expected catch-all info") }
   inspect(info.optional, content="true")
 }
 
@@ -188,19 +189,17 @@ test "DynamicRouteEntry - optional catch-all route" {
 test "Complete SPA - all routes as SPA" {
   let manifest = RouteManifest::{
     routes: [
-      RouteEntry::Dynamic(
-        DynamicRouteEntry::{
-          path: "/app/:page",
-          pattern: "^/app/([^/]+)$",
-          param_names: ["page"],
-          source: "app/[page]/page.tsx",
-          mode: RenderMode::Spa,
-          layout: None,
-          catch_all: None,
-          title: None,
-          islands: [],
-        },
-      ),
+      RouteEntry::Dynamic(DynamicRouteEntry::{
+        path: "/app/:page",
+        pattern: "^/app/([^/]+)$",
+        param_names: ["page"],
+        source: "app/[page]/page.tsx",
+        mode: RenderMode::Spa,
+        layout: None,
+        catch_all: None,
+        title: None,
+        islands: [],
+      }),
     ],
     fallback: FallbackConfig::Spa(entry="/app/index.html"),
   }
@@ -231,9 +230,7 @@ test "Complete SPA - no server rendering" {
 test "Complete SPA - fallback entry configuration" {
   // In SPA mode, fallback serves the SPA shell
   let fallback = FallbackConfig::Spa(entry="/index.html")
-  guard fallback.spa_entry() is Some(entry) else {
-    fail("Expected SPA entry")
-  }
+  guard fallback.spa_entry() is Some(entry) else { fail("Expected SPA entry") }
   inspect(entry, content="/index.html")
 }
 
@@ -245,19 +242,17 @@ test "Complete SPA - fallback entry configuration" {
 test "SSR-only - all routes server-rendered" {
   let manifest = RouteManifest::{
     routes: [
-      RouteEntry::Dynamic(
-        DynamicRouteEntry::{
-          path: "/blog/:slug",
-          pattern: "^/blog/([^/]+)$",
-          param_names: ["slug"],
-          source: "blog/[slug]/page.tsx",
-          mode: RenderMode::Ssr,
-          layout: None,
-          catch_all: None,
-          title: Some("Blog"),
-          islands: [], // No client-side islands
-        },
-      ),
+      RouteEntry::Dynamic(DynamicRouteEntry::{
+        path: "/blog/:slug",
+        pattern: "^/blog/([^/]+)$",
+        param_names: ["slug"],
+        source: "blog/[slug]/page.tsx",
+        mode: RenderMode::Ssr,
+        layout: None,
+        catch_all: None,
+        title: Some("Blog"),
+        islands: [], // No client-side islands
+      }),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
@@ -335,33 +330,29 @@ test "Hybrid - SPA for some routes, SSR for others" {
   let manifest = RouteManifest::{
     routes: [
       // SSR route for SEO-important content
-      RouteEntry::Dynamic(
-        DynamicRouteEntry::{
-          path: "/blog/:slug",
-          pattern: "^/blog/([^/]+)$",
-          param_names: ["slug"],
-          source: "blog/[slug]/page.tsx",
-          mode: RenderMode::Ssr,
-          layout: None,
-          catch_all: None,
-          title: Some("Blog"),
-          islands: ["comments"],
-        },
-      ),
+      RouteEntry::Dynamic(DynamicRouteEntry::{
+        path: "/blog/:slug",
+        pattern: "^/blog/([^/]+)$",
+        param_names: ["slug"],
+        source: "blog/[slug]/page.tsx",
+        mode: RenderMode::Ssr,
+        layout: None,
+        catch_all: None,
+        title: Some("Blog"),
+        islands: ["comments"],
+      }),
       // SPA route for app section
-      RouteEntry::Dynamic(
-        DynamicRouteEntry::{
-          path: "/app/:section",
-          pattern: "^/app/([^/]+)$",
-          param_names: ["section"],
-          source: "app/[section]/page.tsx",
-          mode: RenderMode::Spa,
-          layout: None,
-          catch_all: None,
-          title: None,
-          islands: [],
-        },
-      ),
+      RouteEntry::Dynamic(DynamicRouteEntry::{
+        path: "/app/:section",
+        pattern: "^/app/([^/]+)$",
+        param_names: ["section"],
+        source: "app/[section]/page.tsx",
+        mode: RenderMode::Spa,
+        layout: None,
+        catch_all: None,
+        title: None,
+        islands: [],
+      }),
     ],
     fallback: FallbackConfig::SpaPrefix(prefix="/app/", entry="/app/index.html"),
   }
@@ -478,7 +469,10 @@ test "ComponentRouteEntry - client-only React component" {
     static_paths: [],
     islands: [],
   }
-  inspect(route.component_type is ComponentType::ClientOnlyComponent, content="true")
+  inspect(
+    route.component_type is ComponentType::ClientOnlyComponent,
+    content="true",
+  )
   inspect(route.server_export is None, content="true")
 }
 
@@ -496,7 +490,10 @@ test "ComponentRouteEntry - server-only (no hydration)" {
     static_paths: [],
     islands: [], // No islands needed
   }
-  inspect(route.component_type is ComponentType::ServerOnlyComponent, content="true")
+  inspect(
+    route.component_type is ComponentType::ServerOnlyComponent,
+    content="true",
+  )
   inspect(route.client_export is None, content="true")
   inspect(route.islands.length(), content="0")
 }
@@ -517,14 +514,26 @@ test "ComponentRouteEntry - static paths for ISG" {
     client_export: Some("BlogPost"),
     server_export: Some("render_ssr"),
     static_paths: [
-      StaticPathEntry::{ params: { "slug": "hello-world" }, output: "blog/hello-world/index.html" },
-      StaticPathEntry::{ params: { "slug": "getting-started" }, output: "blog/getting-started/index.html" },
-      StaticPathEntry::{ params: { "slug": "advanced-topics" }, output: "blog/advanced-topics/index.html" },
+      StaticPathEntry::{
+        params: { "slug": "hello-world" },
+        output: "blog/hello-world/index.html",
+      },
+      StaticPathEntry::{
+        params: { "slug": "getting-started" },
+        output: "blog/getting-started/index.html",
+      },
+      StaticPathEntry::{
+        params: { "slug": "advanced-topics" },
+        output: "blog/advanced-topics/index.html",
+      },
     ],
     islands: ["comments", "share-buttons"],
   }
   inspect(route.static_paths.length(), content="3")
-  inspect(route.static_paths[0].params.get("slug"), content="Some(\"hello-world\")")
+  inspect(
+    route.static_paths[0].params.get("slug"),
+    content="Some(\"hello-world\")",
+  )
 }
 
 // =============================================================================
@@ -533,11 +542,12 @@ test "ComponentRouteEntry - static paths for ISG" {
 
 ///|
 test "FallbackConfig - SPA entry with prefix" {
-  let fallback = FallbackConfig::SpaPrefix(prefix="/app/", entry="/app/shell.html")
+  let fallback = FallbackConfig::SpaPrefix(
+    prefix="/app/",
+    entry="/app/shell.html",
+  )
   inspect(fallback.is_spa(), content="true")
-  guard fallback.spa_entry() is Some(entry) else {
-    fail("Expected SPA entry")
-  }
+  guard fallback.spa_entry() is Some(entry) else { fail("Expected SPA entry") }
   inspect(entry, content="/app/shell.html")
 }
 
@@ -551,23 +561,19 @@ test "FallbackConfig - NotFound with custom path" {
 test "FallbackConfig - SPA for entire app" {
   let fallback = FallbackConfig::Spa(entry="/index.html")
   inspect(fallback.is_spa(), content="true")
-  guard fallback.spa_entry() is Some(entry) else {
-    fail("Expected SPA entry")
-  }
+  guard fallback.spa_entry() is Some(entry) else { fail("Expected SPA entry") }
   inspect(entry, content="/index.html")
 }
 
 ///|
 test "RenderMode - ISR revalidation times" {
   // Various revalidation times for different use cases
-  let short = RenderMode::Isr(revalidate=60)   // 1 minute
-  let medium = RenderMode::Isr(revalidate=300)  // 5 minutes
-  let long = RenderMode::Isr(revalidate=3600)   // 1 hour
-
+  let short = RenderMode::Isr(revalidate=60) // 1 minute
+  let medium = RenderMode::Isr(revalidate=300) // 5 minutes
+  let long = RenderMode::Isr(revalidate=3600) // 1 hour
   guard short.revalidate_seconds() is Some(s1) else { fail("Expected Some") }
   guard medium.revalidate_seconds() is Some(s2) else { fail("Expected Some") }
   guard long.revalidate_seconds() is Some(s3) else { fail("Expected Some") }
-
   inspect(s1, content="60")
   inspect(s2, content="300")
   inspect(s3, content="3600")
@@ -581,32 +587,28 @@ test "RenderMode - ISR revalidation times" {
 test "RouteManifest - static and dynamic routes" {
   let manifest = RouteManifest::{
     routes: [
-      RouteEntry::Static(
-        StaticRouteEntry::{
-          path: "/",
-          source: "index.md",
-          output: "index.html",
-          layout: None,
-          title: Some("Home"),
-          description: None,
-          islands: [],
-          locale: "en",
-          generated_params: [],
-        },
-      ),
-      RouteEntry::Dynamic(
-        DynamicRouteEntry::{
-          path: "/blog/:slug",
-          pattern: "^/blog/([^/]+)$",
-          param_names: ["slug"],
-          source: "blog/[slug]/page.tsx",
-          mode: RenderMode::Isr(revalidate=60),
-          layout: None,
-          catch_all: None,
-          title: Some("Blog"),
-          islands: [],
-        },
-      ),
+      RouteEntry::Static(StaticRouteEntry::{
+        path: "/",
+        source: "index.md",
+        output: "index.html",
+        layout: None,
+        title: Some("Home"),
+        description: None,
+        islands: [],
+        locale: "en",
+        generated_params: [],
+      }),
+      RouteEntry::Dynamic(DynamicRouteEntry::{
+        path: "/blog/:slug",
+        pattern: "^/blog/([^/]+)$",
+        param_names: ["slug"],
+        source: "blog/[slug]/page.tsx",
+        mode: RenderMode::Isr(revalidate=60),
+        layout: None,
+        catch_all: None,
+        title: Some("Blog"),
+        islands: [],
+      }),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
@@ -617,15 +619,13 @@ test "RouteManifest - static and dynamic routes" {
 test "RouteManifest - API routes with dynamic paths" {
   let manifest = RouteManifest::{
     routes: [
-      RouteEntry::Api(
-        ApiRouteEntry::{
-          path: "/api/users/:id",
-          pattern: "^/api/users/([^/]+)$",
-          param_names: ["id"],
-          http_method: HttpMethod::Get,
-          source: "api/users/[id].ts",
-        },
-      ),
+      RouteEntry::Api(ApiRouteEntry::{
+        path: "/api/users/:id",
+        pattern: "^/api/users/([^/]+)$",
+        param_names: ["id"],
+        http_method: HttpMethod::Get,
+        source: "api/users/[id].ts",
+      }),
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
@@ -788,9 +788,7 @@ test "Edge case - empty islands array" {
 test "Edge case - ISR with 0 revalidation" {
   let mode = RenderMode::Isr(revalidate=0)
   // 0 means cache forever (no revalidation)
-  guard mode.revalidate_seconds() is Some(sec) else {
-    fail("Expected Some")
-  }
+  guard mode.revalidate_seconds() is Some(sec) else { fail("Expected Some") }
   inspect(sec, content="0")
 }
 

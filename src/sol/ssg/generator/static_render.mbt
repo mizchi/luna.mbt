@@ -481,14 +481,7 @@ fn generate_site_internal(
   let doc_tree = Some(@tree.build_document_tree(config, pages, cwd))
 
   // Step 4: Create build context
-  let ctx = @ssg.BuildContext::{
-    config,
-    pages,
-    sidebar,
-    cwd,
-    doc_tree,
-    is_dev,
-  }
+  let ctx = @ssg.BuildContext::{ config, pages, sidebar, cwd, doc_tree, is_dev }
 
   // Step 5: Create output directory
   let output_dir = @path.join2(cwd, config.output_dir)
@@ -564,14 +557,7 @@ async fn generate_site_internal_async(
   let doc_tree = Some(@tree.build_document_tree(config, pages, cwd))
 
   // Step 4: Create build context
-  let ctx = @ssg.BuildContext::{
-    config,
-    pages,
-    sidebar,
-    cwd,
-    doc_tree,
-    is_dev,
-  }
+  let ctx = @ssg.BuildContext::{ config, pages, sidebar, cwd, doc_tree, is_dev }
 
   // Step 5: Create output directory
   let output_dir = @path.join2(cwd, config.output_dir)
@@ -1295,7 +1281,6 @@ pub async fn extract_css_utilities_parallel(
       valid_dirs.push(full_path)
     }
   }
-
   if valid_dirs.is_empty() {
     return ""
   }
@@ -1308,7 +1293,7 @@ pub async fn extract_css_utilities_parallel(
     @process_pool.job(
       "node",
       [extract_script, dir, "--no-warn"],
-      cwd=cwd,
+      cwd~,
       timeout=config.timeout_ms,
     )
   })
@@ -1326,7 +1311,6 @@ pub async fn extract_css_utilities_parallel(
       }
     }
   }
-
   css_parts.join("\n")
 }
 
@@ -1338,7 +1322,11 @@ pub async fn extract_css_utilities_auto(
 ) -> String {
   // Use parallel extraction if multiple directories
   if source_dirs.length() > 1 {
-    extract_css_utilities_parallel(cwd, source_dirs, ParallelCssConfig::default())
+    extract_css_utilities_parallel(
+      cwd,
+      source_dirs,
+      ParallelCssConfig::default(),
+    )
   } else {
     // Fall back to sequential for single directory
     ffi_extract_css_utilities(cwd, source_dirs).wait()
@@ -1609,7 +1597,9 @@ fn build_html_document(
   // === HEAD: Document metadata ===
   html.write_string("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n")
   html.write_string("  <meta charset=\"UTF-8\">\n")
-  html.write_string("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
+  html.write_string(
+    "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n",
+  )
   html.write_string("  <title>\{page_title}</title>\n")
 
   // Description meta tag
@@ -1631,7 +1621,9 @@ fn build_html_document(
   }
 
   // === HEAD: Preload and prefetch ===
-  html.write_string("  <link rel=\"modulepreload\" href=\"\{base}assets/loader.js\">\n")
+  html.write_string(
+    "  <link rel=\"modulepreload\" href=\"\{base}assets/loader.js\">\n",
+  )
 
   // Preload tags for islands
   if render_result.preload_urls.length() > 0 {
@@ -1654,7 +1646,6 @@ fn build_html_document(
   for snippet in ctx.config.head_snippets {
     html.write_string("  \{snippet}\n")
   }
-
   html.write_string("</head>\n")
 
   // === BODY: Content ===
@@ -1663,7 +1654,9 @@ fn build_html_document(
 
   // === BODY: Deferred scripts ===
   // Island loader (module, async)
-  html.write_string("  <script type=\"module\" async src=\"\{base}assets/loader.js\"></script>\n")
+  html.write_string(
+    "  <script type=\"module\" async src=\"\{base}assets/loader.js\"></script>\n",
+  )
 
   // Web Components loader
   html.write_string(@assets.get_wc_loader_script())
@@ -1671,7 +1664,9 @@ fn build_html_document(
 
   // Navigation script (keyboard shortcuts, View Transitions)
   let page_order = get_page_order(ctx.pages, page.locale)
-  html.write_string(@assets.build_navigation_script(page_order, ctx.config.navigation))
+  html.write_string(
+    @assets.build_navigation_script(page_order, ctx.config.navigation),
+  )
   html.write_string("\n")
 
   // Sidebar state persistence
@@ -1693,7 +1688,6 @@ fn build_html_document(
       html.write_string("  \{snippet}\n")
     }
   }
-
   html.write_string("</body>\n</html>")
   html.to_string()
 }
@@ -1741,7 +1735,9 @@ fn write_ogp_meta_tags(
 
   // og:description
   if not(desc.is_empty()) {
-    html.write_string("  <meta property=\"og:description\" content=\"\{desc}\">\n")
+    html.write_string(
+      "  <meta property=\"og:description\" content=\"\{desc}\">\n",
+    )
   }
 
   // og:type
@@ -1750,7 +1746,9 @@ fn write_ogp_meta_tags(
 
   // og:url
   if ogp.site_url is Some(site_url) {
-    html.write_string("  <meta property=\"og:url\" content=\"\{site_url}\{page.url_path}\">\n")
+    html.write_string(
+      "  <meta property=\"og:url\" content=\"\{site_url}\{page.url_path}\">\n",
+    )
   }
 
   // og:image
@@ -1774,18 +1772,23 @@ fn write_ogp_meta_tags(
   }
 
   // og:site_name
-  html.write_string("  <meta property=\"og:site_name\" content=\"\{ctx.config.title}\">\n")
+  html.write_string(
+    "  <meta property=\"og:site_name\" content=\"\{ctx.config.title}\">\n",
+  )
 
   // Twitter Card
   let twitter_card = match frontmatter.twitter_card {
     Some(tc) => tc
     None => ogp.twitter_card.unwrap_or("summary")
   }
-  html.write_string("  <meta name=\"twitter:card\" content=\"\{twitter_card}\">\n")
+  html.write_string(
+    "  <meta name=\"twitter:card\" content=\"\{twitter_card}\">\n",
+  )
   html.write_string("  <meta name=\"twitter:title\" content=\"\{title}\">\n")
-
   if not(desc.is_empty()) {
-    html.write_string("  <meta name=\"twitter:description\" content=\"\{desc}\">\n")
+    html.write_string(
+      "  <meta name=\"twitter:description\" content=\"\{desc}\">\n",
+    )
   }
 
   // Twitter image
@@ -1801,7 +1804,9 @@ fn write_ogp_meta_tags(
         }
       None => img
     }
-    html.write_string("  <meta name=\"twitter:image\" content=\"\{img_url}\">\n")
+    html.write_string(
+      "  <meta name=\"twitter:image\" content=\"\{img_url}\">\n",
+    )
   }
 
   // Twitter site handle

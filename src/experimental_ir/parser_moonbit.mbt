@@ -7,6 +7,7 @@
 // Parser Types
 // =============================================================================
 
+///|
 /// Result of parsing MoonBit source
 pub struct ParseResult {
   /// Extracted schema
@@ -15,6 +16,7 @@ pub struct ParseResult {
   errors : Array[ParseError]
 } derive(Show)
 
+///|
 /// Parse error
 pub struct ParseError {
   /// Line number (1-based)
@@ -27,15 +29,17 @@ pub struct ParseError {
 // Main Parser
 // =============================================================================
 
+///|
 /// Parse MoonBit source code and extract IR schema
 pub fn parse_moonbit(source : String) -> ParseResult {
   parse_moonbit_with_options(source, file="<input>")
 }
 
+///|
 /// Parse MoonBit source code with options
 pub fn parse_moonbit_with_options(
   source : String,
-  file~ : String
+  file~ : String,
 ) -> ParseResult {
   let schema : Schema = {
     version: "1.0",
@@ -43,12 +47,10 @@ pub fn parse_moonbit_with_options(
     source: Some({ file, lang: MoonBit }),
   }
   let errors : Array[ParseError] = []
-
   let lines = source.split("\n").to_array()
   let mut i = 0
   let mut pending_doc : String? = None
   let mut pending_annotations : Array[String] = []
-
   while i < lines.length() {
     let line_view = lines[i]
     let line = line_view.to_string().trim(chars=" \t").to_string()
@@ -118,12 +120,8 @@ pub fn parse_moonbit_with_options(
     if line.has_prefix("pub typealias ") || line.has_prefix("typealias ") {
       if pending_annotations.iter().any(fn(a) { a == "island" }) {
         match parse_alias_def(line, pending_doc) {
-          Ok(alias_def) => {
-            schema.definitions[alias_def.name] = Alias(alias_def)
-          }
-          Err(err) => {
-            errors.push({ line: i + 1, message: err })
-          }
+          Ok(alias_def) => schema.definitions[alias_def.name] = Alias(alias_def)
+          Err(err) => errors.push({ line: i + 1, message: err })
         }
       }
       pending_doc = None
@@ -133,14 +131,14 @@ pub fn parse_moonbit_with_options(
     }
 
     // Reset pending state for other non-empty lines
-    if line.length() > 0 && not(line.has_prefix("//")) && not(line.has_prefix("/*")) {
+    if line.length() > 0 &&
+      not(line.has_prefix("//")) &&
+      not(line.has_prefix("/*")) {
       pending_doc = None
       pending_annotations = []
     }
-
     i = i + 1
   }
-
   { schema, errors }
 }
 
@@ -148,11 +146,12 @@ pub fn parse_moonbit_with_options(
 // Struct Parser
 // =============================================================================
 
+///|
 /// Parse a struct definition starting at the given line
 fn parse_struct_def(
   lines : Array[StringView],
   start : Int,
-  doc : String?
+  doc : String?,
 ) -> Result[(StructDef, Int), String] {
   let line = lines[start].to_string().trim(chars=" \t").to_string()
 
@@ -187,7 +186,6 @@ fn parse_struct_def(
   let fields : Array[Field] = []
   let mut i = start + 1
   let mut found_close = false
-
   while i < lines.length() {
     let l = lines[i].to_string().trim(chars=" \t").to_string()
 
@@ -209,10 +207,8 @@ fn parse_struct_def(
       Ok(field) => fields.push(field)
       Err(_) => () // Skip unparseable lines
     }
-
     i = i + 1
   }
-
   if not(found_close) {
     return Err("Unclosed struct definition")
   }
@@ -229,7 +225,9 @@ fn parse_struct_def(
           let end_idx = find_char(derive_str, ')')
           match end_idx {
             Some(end) => {
-              let derives_content = derive_str[0:end].to_string() catch { _ => "" }
+              let derives_content = derive_str[0:end].to_string() catch {
+                _ => ""
+              }
               for d in derives_content.split(",") {
                 let trimmed = d.to_string().trim(chars=" \t").to_string()
                 if trimmed.length() > 0 {
@@ -244,15 +242,7 @@ fn parse_struct_def(
       }
     }
   }
-
-  let struct_def : StructDef = {
-    name,
-    doc,
-    type_params: [],
-    fields,
-    derives,
-  }
-
+  let struct_def : StructDef = { name, doc, type_params: [], fields, derives }
   Ok((struct_def, i))
 }
 
@@ -260,6 +250,7 @@ fn parse_struct_def(
 // Field Parser
 // =============================================================================
 
+///|
 /// Parse a single field definition
 fn parse_field(line : String) -> Result[Field, String] {
   // Skip lines that don't look like fields
@@ -272,18 +263,23 @@ fn parse_field(line : String) -> Result[Field, String] {
   match colon_idx {
     None => Err("No colon in field definition")
     Some(idx) => {
-      let name = (line[0:idx].to_string() catch { _ => "" }).trim(chars=" \t").to_string()
+      let name = (line[0:idx].to_string() catch { _ => "" })
+        .trim(chars=" \t")
+        .to_string()
       let type_str = safe_substring(line, idx + 1).trim(chars=" \t").to_string()
 
       // Check for optional marker
       let (actual_type, optional) = if type_str.has_suffix("?") {
-        (type_str[0:type_str.length() - 1].to_string() catch { _ => type_str }, true)
+        (
+          type_str[0:type_str.length() - 1].to_string() catch {
+            _ => type_str
+          },
+          true,
+        )
       } else {
         (type_str, false)
       }
-
       let type_ref = parse_type_ref(actual_type)
-
       Ok({
         name,
         doc: None,
@@ -300,6 +296,7 @@ fn parse_field(line : String) -> Result[Field, String] {
 // Type Reference Parser
 // =============================================================================
 
+///|
 /// Parse a type reference from a string
 pub fn parse_type_ref(type_str : String) -> TypeRef {
   let s = type_str.trim(chars=" \t").to_string()
@@ -322,7 +319,9 @@ pub fn parse_type_ref(type_str : String) -> TypeRef {
     // Find comma separator (simple case, no nested generics)
     match find_char(inner, ',') {
       Some(idx) => {
-        let key = (inner[0:idx].to_string() catch { _ => "" }).trim(chars=" \t").to_string()
+        let key = (inner[0:idx].to_string() catch { _ => "" })
+          .trim(chars=" \t")
+          .to_string()
         let value = safe_substring(inner, idx + 1).trim(chars=" \t").to_string()
         return Map(parse_type_ref(key), parse_type_ref(value))
       }
@@ -334,20 +333,27 @@ pub fn parse_type_ref(type_str : String) -> TypeRef {
   if s.contains("->") {
     match find_substring(s, "->") {
       Some(arrow_idx) => {
-        let params_part = (s[0:arrow_idx].to_string() catch { _ => "" }).trim(chars=" \t").to_string()
-        let return_part = safe_substring(s, arrow_idx + 2).trim(chars=" \t").to_string()
+        let params_part = (s[0:arrow_idx].to_string() catch { _ => "" })
+          .trim(chars=" \t")
+          .to_string()
+        let return_part = safe_substring(s, arrow_idx + 2)
+          .trim(chars=" \t")
+          .to_string()
 
         // Parse parameters
         let params : Array[TypeRef] = []
         if params_part.has_prefix("(") && params_part.has_suffix(")") {
-          let inner = params_part[1:params_part.length() - 1].to_string() catch { _ => "" }
+          let inner = params_part[1:params_part.length() - 1].to_string() catch {
+            _ => ""
+          }
           if inner.length() > 0 {
             for p in inner.split(",") {
-              params.push(parse_type_ref(p.to_string().trim(chars=" \t").to_string()))
+              params.push(
+                parse_type_ref(p.to_string().trim(chars=" \t").to_string()),
+              )
             }
           }
         }
-
         return Function({ params, return_: parse_type_ref(return_part) })
       }
       None => ()
@@ -372,11 +378,12 @@ pub fn parse_type_ref(type_str : String) -> TypeRef {
 // Enum Parser
 // =============================================================================
 
+///|
 /// Parse an enum definition
 fn parse_enum_def(
   lines : Array[StringView],
   start : Int,
-  doc : String?
+  doc : String?,
 ) -> Result[(EnumDef, Int), String] {
   let line = lines[start].to_string().trim(chars=" \t").to_string()
 
@@ -384,7 +391,6 @@ fn parse_enum_def(
   let prefix_len = if line.has_prefix("pub enum ") { 9 } else { 5 }
   let rest = safe_substring(line, prefix_len)
   let name = extract_identifier(rest)
-
   if name.length() == 0 {
     return Err("Expected enum name")
   }
@@ -393,15 +399,12 @@ fn parse_enum_def(
   let variants : Array[EnumVariant] = []
   let mut i = start + 1
   let mut found_close = false
-
   while i < lines.length() {
     let l = lines[i].to_string().trim(chars=" \t").to_string()
-
     if l.length() == 0 || l.has_prefix("//") {
       i = i + 1
       continue
     }
-
     if l.has_prefix("}") {
       found_close = true
       i = i + 1
@@ -413,39 +416,34 @@ fn parse_enum_def(
       Ok(variant) => variants.push(variant)
       Err(_) => ()
     }
-
     i = i + 1
   }
-
   if not(found_close) {
     return Err("Unclosed enum definition")
   }
-
-  let enum_def : EnumDef = {
-    name,
-    doc,
-    type_params: [],
-    variants,
-    derives: [],
-  }
-
+  let enum_def : EnumDef = { name, doc, type_params: [], variants, derives: [] }
   Ok((enum_def, i))
 }
 
+///|
 /// Parse a single enum variant
 fn parse_variant(line : String) -> Result[EnumVariant, String] {
   // Check for payload
   let paren_idx = find_char(line, '(')
   match paren_idx {
     Some(idx) => {
-      let name = (line[0:idx].to_string() catch { _ => "" }).trim(chars=" \t").to_string()
+      let name = (line[0:idx].to_string() catch { _ => "" })
+        .trim(chars=" \t")
+        .to_string()
       let payload_str = safe_substring(line, idx + 1)
       let close_idx = find_char(payload_str, ')')
       match close_idx {
         Some(end_idx) => {
           let payload_type = (payload_str[0:end_idx].to_string() catch {
-            _ => ""
-          }).trim(chars=" \t").to_string()
+              _ => ""
+            })
+            .trim(chars=" \t")
+            .to_string()
           Ok({ name, doc: None, payload: Some(parse_type_ref(payload_type)) })
         }
         None => Err("Unclosed variant payload")
@@ -454,7 +452,9 @@ fn parse_variant(line : String) -> Result[EnumVariant, String] {
     None => {
       // No payload - remove trailing comma if present
       let name = if line.has_suffix(",") {
-        line[0:line.length() - 1].to_string() catch { _ => line }
+        line[0:line.length() - 1].to_string() catch {
+          _ => line
+        }
       } else {
         line
       }
@@ -467,6 +467,7 @@ fn parse_variant(line : String) -> Result[EnumVariant, String] {
 // Alias Parser
 // =============================================================================
 
+///|
 /// Parse a type alias definition
 fn parse_alias_def(line : String, doc : String?) -> Result[AliasDef, String] {
   let prefix_len = if line.has_prefix("pub typealias ") { 14 } else { 10 }
@@ -476,15 +477,13 @@ fn parse_alias_def(line : String, doc : String?) -> Result[AliasDef, String] {
   match find_char(rest, '=') {
     None => Err("Expected '=' in type alias")
     Some(idx) => {
-      let name = (rest[0:idx].to_string() catch { _ => "" }).trim(chars=" \t").to_string()
-      let target_str = safe_substring(rest, idx + 1).trim(chars=" \t").to_string()
-
-      Ok({
-        name,
-        doc,
-        type_params: [],
-        target: parse_type_ref(target_str),
-      })
+      let name = (rest[0:idx].to_string() catch { _ => "" })
+        .trim(chars=" \t")
+        .to_string()
+      let target_str = safe_substring(rest, idx + 1)
+        .trim(chars=" \t")
+        .to_string()
+      Ok({ name, doc, type_params: [], target: parse_type_ref(target_str) })
     }
   }
 }
@@ -493,6 +492,7 @@ fn parse_alias_def(line : String, doc : String?) -> Result[AliasDef, String] {
 // Helper Functions
 // =============================================================================
 
+///|
 /// Extract an identifier from the start of a string
 fn extract_identifier(s : String) -> String {
   let buf = StringBuilder::new()
@@ -506,22 +506,27 @@ fn extract_identifier(s : String) -> String {
   buf.to_string()
 }
 
+///|
 /// Check if a character is valid in an identifier
 fn is_ident_char(c : Char) -> Bool {
   (c >= 'a' && c <= 'z') ||
-    (c >= 'A' && c <= 'Z') ||
-    (c >= '0' && c <= '9') ||
-    c == '_'
+  (c >= 'A' && c <= 'Z') ||
+  (c >= '0' && c <= '9') ||
+  c == '_'
 }
 
+///|
 /// Safe substring from start index
 fn safe_substring(s : String, start : Int) -> String {
   if start >= s.length() {
     return ""
   }
-  s[start:].to_string() catch { _ => "" }
+  s[start:].to_string() catch {
+    _ => ""
+  }
 }
 
+///|
 /// Find first occurrence of a character
 fn find_char(s : String, c : Char) -> Int? {
   let mut i = 0
@@ -534,6 +539,7 @@ fn find_char(s : String, c : Char) -> Int? {
   None
 }
 
+///|
 /// Find first occurrence of a substring
 fn find_substring(s : String, pattern : String) -> Int? {
   if pattern.length() == 0 {
@@ -542,7 +548,6 @@ fn find_substring(s : String, pattern : String) -> Int? {
   if pattern.length() > s.length() {
     return None
   }
-
   let max_start = s.length() - pattern.length()
   for i = 0; i <= max_start; i = i + 1 {
     let sub = s[i:i + pattern.length()].to_string() catch { _ => continue }

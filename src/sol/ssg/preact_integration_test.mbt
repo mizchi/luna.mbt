@@ -9,21 +9,42 @@
 
 ///|
 test "PreactRenderer - basic equality" {
-  inspect(RendererType::PreactRenderer == RendererType::PreactRenderer, content="true")
+  inspect(
+    RendererType::PreactRenderer == RendererType::PreactRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "PreactRenderer - inequality with React" {
-  inspect(RendererType::PreactRenderer == RendererType::ReactRenderer, content="false")
+  inspect(
+    RendererType::PreactRenderer == RendererType::ReactRenderer,
+    content="false",
+  )
 }
 
 ///|
 test "PreactRenderer - inequality with other renderers" {
-  inspect(RendererType::PreactRenderer == RendererType::MarkdownRenderer, content="false")
-  inspect(RendererType::PreactRenderer == RendererType::LunaRenderer, content="false")
-  inspect(RendererType::PreactRenderer == RendererType::ClientOnlyRenderer, content="false")
-  inspect(RendererType::PreactRenderer == RendererType::HtmlRenderer, content="false")
-  inspect(RendererType::PreactRenderer == RendererType::MdxRenderer, content="false")
+  inspect(
+    RendererType::PreactRenderer == RendererType::MarkdownRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::PreactRenderer == RendererType::LunaRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::PreactRenderer == RendererType::ClientOnlyRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::PreactRenderer == RendererType::HtmlRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::PreactRenderer == RendererType::MdxRenderer,
+    content="false",
+  )
 }
 
 ///|
@@ -66,7 +87,10 @@ test "PageMeta - Preact vs React differentiation" {
   )
   // Same source can be rendered with different runtimes
   inspect(preact_page.source_path == react_page.source_path, content="true")
-  inspect(preact_page.renderer_type == react_page.renderer_type, content="false")
+  inspect(
+    preact_page.renderer_type == react_page.renderer_type,
+    content="false",
+  )
 }
 
 ///|
@@ -111,6 +135,7 @@ test "RendererType pattern matching - includes PreactRenderer" {
       RendererType::MdxRenderer => "mdx"
     }
   }
+
   inspect(check_variant(RendererType::PreactRenderer), content="preact")
   inspect(check_variant(RendererType::ReactRenderer), content="react")
   inspect(check_variant(RendererType::LunaRenderer), content="luna")
@@ -151,8 +176,14 @@ test "Preact and React - can coexist in same project" {
     renderer_type=RendererType::ReactRenderer,
   )
   // Different renderers for different use cases
-  inspect(preact_page.renderer_type == RendererType::PreactRenderer, content="true")
-  inspect(react_page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    preact_page.renderer_type == RendererType::PreactRenderer,
+    content="true",
+  )
+  inspect(
+    react_page.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
   // Same content type (TSX)
   inspect(preact_page.content_type == react_page.content_type, content="true")
 }
@@ -206,7 +237,10 @@ test "PageInfo - Preact vs React" {
     url_path="/react/counter/",
     renderer_type=RendererType::ReactRenderer,
   )
-  inspect(preact_info.renderer_type == react_info.renderer_type, content="false")
+  inspect(
+    preact_info.renderer_type == react_info.renderer_type,
+    content="false",
+  )
 }
 
 // =============================================================================
@@ -226,7 +260,10 @@ test "BuildContext - Preact pages" {
   )
   ctx.pages.push(preact_page)
   inspect(ctx.pages.length(), content="1")
-  inspect(ctx.pages[0].renderer_type == RendererType::PreactRenderer, content="true")
+  inspect(
+    ctx.pages[0].renderer_type == RendererType::PreactRenderer,
+    content="true",
+  )
 }
 
 ///|
@@ -255,10 +292,7 @@ test "BuildContext - mixed Preact and React pages" {
   )
 
   // Add Markdown page
-  ctx.pages.push(
-    PageMeta::new("docs/intro.md", "/docs/intro/"),
-  )
-
+  ctx.pages.push(PageMeta::new("docs/intro.md", "/docs/intro/"))
   inspect(ctx.pages.length(), content="3")
 
   // Count renderers
@@ -284,7 +318,10 @@ test "BuildContext - mixed Preact and React pages" {
 
 ///|
 test "TreeNode::Page - Preact renderer" {
-  let node = TreeNode::Page(page_id="counter", renderer=RendererType::PreactRenderer)
+  let node = TreeNode::Page(
+    page_id="counter",
+    renderer=RendererType::PreactRenderer,
+  )
   guard node is TreeNode::Page(page_id~, renderer~) else {
     fail("Expected Page node")
   }
@@ -297,14 +334,16 @@ test "TreeNode - Preact in document tree" {
   // Simulating a document tree with Preact islands
   let tree = [
     TreeNode::Page(page_id="index", renderer=RendererType::MarkdownRenderer),
-    TreeNode::Section(
-      name="islands",
-      path="/islands/",
-      children=[
-        TreeNode::Page(page_id="preact-counter", renderer=RendererType::PreactRenderer),
-        TreeNode::Page(page_id="react-dashboard", renderer=RendererType::ReactRenderer),
-      ],
-    ),
+    TreeNode::Section(name="islands", path="/islands/", children=[
+      TreeNode::Page(
+        page_id="preact-counter",
+        renderer=RendererType::PreactRenderer,
+      ),
+      TreeNode::Page(
+        page_id="react-dashboard",
+        renderer=RendererType::ReactRenderer,
+      ),
+    ]),
   ]
   inspect(tree.length(), content="2")
   guard tree[1] is TreeNode::Section(children~, ..) else {
@@ -329,16 +368,20 @@ test "Preact - lightweight alternative to React" {
     content_type=ContentType::TsxComponent,
     renderer_type=RendererType::PreactRenderer, // Preact for small widgets
   )
-
   let complex_component = PageMeta::new(
     "widgets/ComplexDashboard.tsx",
     "/widgets/dashboard/",
     content_type=ContentType::TsxComponent,
     renderer_type=RendererType::ReactRenderer, // React for complex apps
   )
-
-  inspect(small_component.renderer_type == RendererType::PreactRenderer, content="true")
-  inspect(complex_component.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    small_component.renderer_type == RendererType::PreactRenderer,
+    content="true",
+  )
+  inspect(
+    complex_component.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 // =============================================================================
@@ -382,7 +425,10 @@ test "Preact - SSR with client hydration" {
     renderer_type=RendererType::PreactRenderer,
   )
   // SSR is enabled by default for PreactRenderer
-  inspect(ssr_page.renderer_type == RendererType::PreactRenderer, content="true")
+  inspect(
+    ssr_page.renderer_type == RendererType::PreactRenderer,
+    content="true",
+  )
 
   // Client-only mode uses ClientOnlyRenderer
   let client_only_page = PageMeta::new(
@@ -391,7 +437,10 @@ test "Preact - SSR with client hydration" {
     content_type=ContentType::TsxComponent,
     renderer_type=RendererType::ClientOnlyRenderer,
   )
-  inspect(client_only_page.renderer_type == RendererType::ClientOnlyRenderer, content="true")
+  inspect(
+    client_only_page.renderer_type == RendererType::ClientOnlyRenderer,
+    content="true",
+  )
 }
 
 ///|

@@ -30,9 +30,7 @@ pub fn page_metas_to_manifest(
   }
 
   // Determine fallback based on config
-  let fallback = FallbackConfig::NotFound(
-    path=@ssg.url_to_output_path("/404/"),
-  )
+  let fallback = FallbackConfig::NotFound(path=@ssg.url_to_output_path("/404/"))
   RouteManifest::{ routes, fallback } |> ignore
   // Use config for potential SPA fallback
   if config.navigation.spa {
@@ -52,9 +50,7 @@ pub fn page_metas_to_manifest(
 ///|
 /// Convert RouteManifest back to PageMeta array
 /// Only static routes can be converted
-pub fn manifest_to_page_metas(
-  manifest : RouteManifest,
-) -> Array[@ssg.PageMeta] {
+pub fn manifest_to_page_metas(manifest : RouteManifest) -> Array[@ssg.PageMeta] {
   let pages : Array[@ssg.PageMeta] = []
   for route in manifest.routes {
     match route {
@@ -109,9 +105,7 @@ pub fn manifest_to_page_metas(
 
 ///|
 /// Convert a single PageMeta to StaticRouteEntry
-pub fn page_meta_to_static_route(
-  page : @ssg.PageMeta,
-) -> StaticRouteEntry {
+pub fn page_meta_to_static_route(page : @ssg.PageMeta) -> StaticRouteEntry {
   StaticRouteEntry::{
     path: page.url_path,
     source: page.source_path,
@@ -127,9 +121,7 @@ pub fn page_meta_to_static_route(
 
 ///|
 /// Convert StaticRouteEntry back to PageMeta
-pub fn static_route_to_page_meta(
-  route : StaticRouteEntry,
-) -> @ssg.PageMeta {
+pub fn static_route_to_page_meta(route : StaticRouteEntry) -> @ssg.PageMeta {
   let frontmatter = @ssg.Frontmatter::{
     title: route.title,
     description: route.description,

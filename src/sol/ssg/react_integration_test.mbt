@@ -9,21 +9,42 @@
 
 ///|
 test "ReactRenderer - basic equality" {
-  inspect(RendererType::ReactRenderer == RendererType::ReactRenderer, content="true")
+  inspect(
+    RendererType::ReactRenderer == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 ///|
 test "ReactRenderer - inequality with Preact" {
-  inspect(RendererType::ReactRenderer == RendererType::PreactRenderer, content="false")
+  inspect(
+    RendererType::ReactRenderer == RendererType::PreactRenderer,
+    content="false",
+  )
 }
 
 ///|
 test "ReactRenderer - inequality with other renderers" {
-  inspect(RendererType::ReactRenderer == RendererType::MarkdownRenderer, content="false")
-  inspect(RendererType::ReactRenderer == RendererType::LunaRenderer, content="false")
-  inspect(RendererType::ReactRenderer == RendererType::ClientOnlyRenderer, content="false")
-  inspect(RendererType::ReactRenderer == RendererType::HtmlRenderer, content="false")
-  inspect(RendererType::ReactRenderer == RendererType::MdxRenderer, content="false")
+  inspect(
+    RendererType::ReactRenderer == RendererType::MarkdownRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::ReactRenderer == RendererType::LunaRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::ReactRenderer == RendererType::ClientOnlyRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::ReactRenderer == RendererType::HtmlRenderer,
+    content="false",
+  )
+  inspect(
+    RendererType::ReactRenderer == RendererType::MdxRenderer,
+    content="false",
+  )
 }
 
 ///|
@@ -112,7 +133,10 @@ test "React - client-only mode uses ClientOnlyRenderer" {
     content_type=ContentType::TsxComponent,
     renderer_type=RendererType::ClientOnlyRenderer,
   )
-  inspect(client_only_page.renderer_type == RendererType::ClientOnlyRenderer, content="true")
+  inspect(
+    client_only_page.renderer_type == RendererType::ClientOnlyRenderer,
+    content="true",
+  )
 }
 
 ///|
@@ -187,7 +211,10 @@ test "BuildContext - React pages" {
   )
   ctx.pages.push(react_page)
   inspect(ctx.pages.length(), content="1")
-  inspect(ctx.pages[0].renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    ctx.pages[0].renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 ///|
@@ -220,7 +247,6 @@ test "BuildContext - React app with multiple pages" {
       renderer_type=RendererType::ReactRenderer,
     ),
   )
-
   inspect(ctx.pages.length(), content="3")
 
   // All pages use ReactRenderer
@@ -259,10 +285,7 @@ test "BuildContext - mixed React and content pages" {
   )
 
   // Markdown blog
-  ctx.pages.push(
-    PageMeta::new("blog/post.md", "/blog/post/"),
-  )
-
+  ctx.pages.push(PageMeta::new("blog/post.md", "/blog/post/"))
   inspect(ctx.pages.length(), content="3")
 
   // Count by renderer type
@@ -288,7 +311,10 @@ test "BuildContext - mixed React and content pages" {
 
 ///|
 test "TreeNode::Page - React renderer" {
-  let node = TreeNode::Page(page_id="dashboard", renderer=RendererType::ReactRenderer)
+  let node = TreeNode::Page(
+    page_id="dashboard",
+    renderer=RendererType::ReactRenderer,
+  )
   guard node is TreeNode::Page(page_id~, renderer~) else {
     fail("Expected Page node")
   }
@@ -301,20 +327,15 @@ test "TreeNode - React app structure" {
   // Simulating a React app document tree
   let tree = [
     TreeNode::Page(page_id="layout", renderer=RendererType::ReactRenderer),
-    TreeNode::Section(
-      name="app",
-      path="/app/",
-      children=[
-        TreeNode::Page(page_id="app-page", renderer=RendererType::ReactRenderer),
-        TreeNode::Section(
-          name="dashboard",
-          path="/app/dashboard/",
-          children=[
-            TreeNode::Page(page_id="dashboard-page", renderer=RendererType::ReactRenderer),
-          ],
+    TreeNode::Section(name="app", path="/app/", children=[
+      TreeNode::Page(page_id="app-page", renderer=RendererType::ReactRenderer),
+      TreeNode::Section(name="dashboard", path="/app/dashboard/", children=[
+        TreeNode::Page(
+          page_id="dashboard-page",
+          renderer=RendererType::ReactRenderer,
         ),
-      ],
-    ),
+      ]),
+    ]),
   ]
   inspect(tree.length(), content="2")
   guard tree[1] is TreeNode::Section(children~, ..) else {
@@ -388,7 +409,10 @@ test "React and Luna - hybrid rendering" {
     content_type=ContentType::Component,
     renderer_type=RendererType::LunaRenderer,
   )
-  inspect(react_page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    react_page.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
   inspect(luna_page.renderer_type == RendererType::LunaRenderer, content="true")
 }
 
@@ -409,7 +433,10 @@ test "React + Preact - framework coexistence" {
   )
   // Same content type but different renderers
   inspect(react_page.content_type == preact_page.content_type, content="true")
-  inspect(react_page.renderer_type == preact_page.renderer_type, content="false")
+  inspect(
+    react_page.renderer_type == preact_page.renderer_type,
+    content="false",
+  )
 }
 
 // =============================================================================
@@ -445,7 +472,10 @@ test "React - redux/zustand pattern" {
     content_type=ContentType::TsxComponent,
     renderer_type=RendererType::ReactRenderer,
   )
-  inspect(store_page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    store_page.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 // =============================================================================
@@ -462,7 +492,10 @@ test "React - island with SSR" {
     renderer_type=RendererType::ReactRenderer,
   )
   // SSR renders initial HTML, hydration adds interactivity
-  inspect(island_page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    island_page.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 ///|
@@ -475,7 +508,10 @@ test "React - island without SSR (client-only)" {
     renderer_type=RendererType::ClientOnlyRenderer,
   )
   // ClientOnlyRenderer skips SSR, renders placeholder
-  inspect(client_island.renderer_type == RendererType::ClientOnlyRenderer, content="true")
+  inspect(
+    client_island.renderer_type == RendererType::ClientOnlyRenderer,
+    content="true",
+  )
 }
 
 // =============================================================================
@@ -535,7 +571,10 @@ test "React - lazy loading with Suspense" {
     renderer_type=RendererType::ReactRenderer,
   )
   // Lazy-loaded components use React.lazy() with Suspense
-  inspect(lazy_page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    lazy_page.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 // =============================================================================
@@ -618,7 +657,10 @@ test "React 18 - useTransition pattern" {
     renderer_type=RendererType::ReactRenderer,
   )
   // useTransition allows non-blocking UI updates
-  inspect(transition_page.renderer_type == RendererType::ReactRenderer, content="true")
+  inspect(
+    transition_page.renderer_type == RendererType::ReactRenderer,
+    content="true",
+  )
 }
 
 // =============================================================================
