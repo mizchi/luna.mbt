@@ -786,6 +786,12 @@ fn generate_page_with_highlight(
       let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"pending\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>Use async build for TSX SSR</p></div>"
       (page.frontmatter, @luna.raw_html(placeholder_html), [])
     }
+    @ssg.RendererType::PreactRenderer => {
+      // Preact component pages - similar to React but with Preact runtime
+      let component_name = get_component_name_from_path(page.source_path)
+      let placeholder_html = "<div data-preact-component=\"\{component_name}\" data-ssr=\"pending\" class=\"preact-component-placeholder\"><p>Preact Component: \{component_name}</p><p>Use async build for Preact SSR</p></div>"
+      (page.frontmatter, @luna.raw_html(placeholder_html), [])
+    }
     @ssg.RendererType::ClientOnlyRenderer => {
       // Client-only components - render placeholder that will be hydrated
       let component_name = get_component_name_from_path(page.source_path)
@@ -1023,6 +1029,24 @@ async fn generate_page_with_highlight_async(
         None => {
           // Fallback to placeholder if SSR fails
           let placeholder_html = "<div data-tsx-component=\"\{component_name}\" data-ssr=\"failed\" class=\"tsx-component-placeholder\"><p>TSX Component: \{component_name}</p><p>SSR failed - check console for errors</p></div>"
+          @luna.raw_html(placeholder_html)
+        }
+      }
+      (page.frontmatter, vnode, [])
+    }
+    @ssg.RendererType::PreactRenderer => {
+      // Preact component SSR - similar to React but with Preact runtime
+      let component_name = get_component_name_from_path(page.source_path)
+      // Preact SSR uses the same infrastructure as React (preact-render-to-string)
+      let vnode = match
+        render_tsx_component_ssr_async(
+          ctx.cwd,
+          ctx.config.docs_dir,
+          page.source_path,
+        ) {
+        Some(node) => node
+        None => {
+          let placeholder_html = "<div data-preact-component=\"\{component_name}\" data-ssr=\"failed\" class=\"preact-component-placeholder\"><p>Preact Component: \{component_name}</p><p>SSR failed - check console for errors</p></div>"
           @luna.raw_html(placeholder_html)
         }
       }

@@ -914,6 +914,7 @@ fn renderer_type_to_string(rt : @ssg.RendererType) -> String {
     @ssg.RendererType::HtmlRenderer => "html"
     @ssg.RendererType::LunaRenderer => "luna"
     @ssg.RendererType::ReactRenderer => "react"
+    @ssg.RendererType::PreactRenderer => "preact"
     @ssg.RendererType::ClientOnlyRenderer => "client"
   }
 }
@@ -1099,6 +1100,7 @@ fn string_to_renderer_type(s : String) -> @ssg.RendererType {
     "mdx" => @ssg.RendererType::MdxRenderer
     "luna" => @ssg.RendererType::LunaRenderer
     "react" => @ssg.RendererType::ReactRenderer
+    "preact" => @ssg.RendererType::PreactRenderer
     "client" => @ssg.RendererType::ClientOnlyRenderer
     _ => @ssg.RendererType::MarkdownRenderer
   }

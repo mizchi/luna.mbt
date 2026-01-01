@@ -21,6 +21,7 @@ pub fn build_isr_manifest(pages : Array[@ssg.PageMeta]) -> @sol_isr.ISRManifest 
             @ssg.RendererType::HtmlRenderer => "html"
             @ssg.RendererType::LunaRenderer => "luna"
             @ssg.RendererType::ReactRenderer => "react"
+            @ssg.RendererType::PreactRenderer => "preact"
             @ssg.RendererType::ClientOnlyRenderer => "client"
             @ssg.RendererType::MdxRenderer => "mdx"
           }

@@ -13,6 +13,8 @@ pub(all) enum RendererType {
   LunaRenderer
   /// React renderer - TSX components with React SSR
   ReactRenderer
+  /// Preact renderer - TSX components with Preact SSR (lightweight React alternative)
+  PreactRenderer
   /// Client-only renderer - placeholder for client-side hydration
   ClientOnlyRenderer
   /// MDX renderer - Markdown with JSX components
