@@ -2018,3 +2018,14 @@ html.dark .tweet-card {
   left: 2px;
 }
 
+/* Slider - uses --slider-percent CSS custom property */
+[data-slider-range] {
+  width: calc(var(--slider-percent, 50) * 1%);
+  transition: width 0.1s ease;
+}
+
+[data-slider-thumb] {
+  left: calc(var(--slider-percent, 50) * 1%);
+  transition: left 0.1s ease;
+}
+
