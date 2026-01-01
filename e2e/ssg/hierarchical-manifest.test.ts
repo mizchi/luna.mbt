@@ -113,8 +113,8 @@ test.describe("Hierarchical Manifest - SPA Segments", () => {
   test("wiki page loads correctly with SPA segment", async ({ page }) => {
     await page.goto(`${server.url}/wiki/`);
 
-    // Check page loads
-    await expect(page.locator("h1")).toBeVisible();
+    // Check page loads (use first() since wiki component renders its own h1)
+    await expect(page.locator("h1").first()).toBeVisible();
     await expect(page).toHaveTitle(/Wiki|Luna/);
   });
 
