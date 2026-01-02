@@ -564,6 +564,7 @@ examples/stella-component/  # Stella サンプル
   "deps": {
     "moonbitlang/async": "0.15.0",
     "moonbitlang/x": "0.4.38",
+    "moonbitlang/parser": "0.1.12",
     "mizchi/js": "0.10.7"
   }
 }
@@ -571,10 +572,11 @@ examples/stella-component/  # Stella サンプル
 
 削除される依存:
 - `mizchi/npm_typed` (hono など)
-- `moonbitlang/parser`
 - `mizchi/markdown`
 - `mizchi/jsonschema`
 - `mizchi/process_pool`
+
+**注意**: `moonbitlang/parser` は `luna/css/analyzer` で使用しているため残す
 
 **Sol (新規):**
 ```json
