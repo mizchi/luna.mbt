@@ -2,6 +2,117 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-01-02
+
+### Bug Fixes
+
+- **sol**: Support snake_case in theme config parser and update tests
+- **ci**: Update fs_adapter path in playwright.yaml
+- **ci**: Update paths after fs_adapter move
+- **sol**: Slider hydration using CSS custom property
+- **sol**: Support pure SSG builds without moon.mod.json
+- **sol**: Allow SSG dev mode without moon.mod.json
+- Update luna/js import path in js/luna/src/index.ts
+- **e2e**: Fix h1 selector and skip dev server tests
+- **e2e**: Update SSG tests for Sol CLI integration
+- **e2e**: Update tests for Sol CLI path and wiki sidebar layout
+- **ci**: Update paths after platform/js to luna/js move
+- **ci**: Update paths after core module consolidation
+- **astra**: SSG cache invalidation and syntax highlighting
+- **sol**: Prevent HMR infinite loop by ignoring output directory
+- **sol**: Resolve SSG config path for subdirectory astra.json
+- **luna**: Use render_effect for synchronous signal tracking in tests
+- **sol**: Add --parallel option to build command and fix justfile
+- **luna**: Suppress unused_constructor warnings for radix enums
+- **luna**: Resolve all moon check warnings
+
+### Documentation
+
+- Update repo-split-design with completed preparations
+- Add repository split design document
+- **spec**: Add internal design notes
+- **spec**: Add Cloudflare microfrontend design notes
+- **website**: Rename Astra to Sol SSG
+- Update paths after core module consolidation
+- **sol**: Rename Astra references to Sol SSG
+- **radix**: Add interactive demos for checkbox, radio, progress, slider, dialog
+- Reorganize component demos into individual pages
+- Add interactive component demos to catalog
+- Add live Island demo to component catalog
+- Add component catalog page
+- Update TODO.md and demo index
+
+### Features
+
+- **sol**: Add route analyzer for Cloudflare hybrid routing
+- **sol**: Add router helper functions for simplified API
+- **sol**: Extend theme colors with Tailwind/shadcn-inspired variables
+- **components**: Add @luna_ui/components headless UI library
+- **sol**: Add parallel CSS extraction using process_pool
+- **sol**: Add Preact renderer support and comprehensive SSG tests
+- **luna**: Add composable hydration helpers and refactor demos
+- **loader**: Add framework-agnostic SSR + Hydration utilities
+- **docs**: Convert component demos to SSR+Hydration pattern
+- **sol**: Use raw_html for MDX component children in SSR
+- **radix**: Add 9 input and display components
+- **radix**: Add 7 special purpose UI components
+- **radix**: Add 7 advanced UI components
+- **radix**: Add 7 utility UI components
+- **radix**: Add Drawer, InputOTP, and Sidebar components
+- **radix**: Add 11 more UI components
+- **radix**: Add 12 additional UI components
+- **radix**: Add 11 new UI components
+- **radix**: Add ucss versions and CSS mangling tests for all components
+- **radix**: Add textarea, select, radio, toggle, badge, separator components
+- **luna**: Add Shoelace component bindings in MoonBit
+- **shoelace**: Add @luna_ui/shoelace package with Shoelace bindings
+- **luna**: Add SVG element builders with accessibility support
+
+### Miscellaneous
+
+- Apply moon fmt
+- Add .sol-cache/ to .gitignore
+- Add tmp/ to .gitignore
+- V0.3.5
+
+### Performance
+
+- **sol**: Optimize SSG lint to single-pass file reading
+
+### Refactor
+
+- Complete Luna/Sol dependency separation
+- Prepare for repository split
+- **sol**: Simplify loaders and bundle components with rolldown
+- **sol**: CSS-only state management for hydration
+- **luna**: Move platform/js to luna/js
+- Rename astra directories and files to sol/ssg
+- **sol**: Rename astra references to sol/ssg
+- Consolidate core modules into sol/luna
+- **sol**: Remove tree re-exports, use core/ssg directly
+- **sol**: Integrate astra into sol/ssg
+- **luna,astra**: Add drag helper and refactor static_render
+- **loader**: Update hydration utilities and examples
+- **luna**: Separate SVG elements into dedicated files
+
+### Styling
+
+- **radix**: Apply moon fmt formatting
+
+### Testing
+
+- **sol**: Add parallel CSS extraction verification tests
+- **sol**: Add routes module tests
+- **sol**: Add router tests
+- **luna**: Add render and static_dom tests
+- **sol**: Add comprehensive CSS extraction integration tests
+- **luna**: Add glitch-free update tests from SolidJS
+- **luna**: Add diamond dependency tests from SolidJS
+
+### Wip
+
+- **luna**: Add Radix-style DSD components
+
 ## [0.3.4] - 2025-12-30
 
 ### Bug Fixes
