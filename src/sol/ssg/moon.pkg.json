@@ -8,5 +8,6 @@
   ],
   "test-import": [
     "mizchi/process_pool"
-  ]
+  ],
+  "warn-list": "-7-unused_field"
 }
