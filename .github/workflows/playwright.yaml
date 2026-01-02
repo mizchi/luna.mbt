@@ -35,7 +35,7 @@ jobs:
           moon build --target js src/luna
           moon build --target js src/sol/parser
           moon build --target js src/luna/js/api
-          moon build --target js src/luna/js/fs_adapter
+          moon build --target js src/sol/adapters/fs
           moon build --target js src/luna/js/stream_renderer
           moon build --target js src/sol
           moon build --target js src/stella
@@ -82,7 +82,7 @@ jobs:
           moon build --target js src/luna
           moon build --target js src/sol/parser
           moon build --target js src/luna/js/api
-          moon build --target js src/luna/js/fs_adapter
+          moon build --target js src/sol/adapters/fs
           moon build --target js src/luna/js/stream_renderer
           moon build --target js src/sol
           moon build --target js src/stella
