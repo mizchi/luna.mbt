@@ -30,16 +30,15 @@ pub(all) struct DialogProps {
 fn dialog_inner(
   title : String?,
   content : @luna.Node[Unit],
-  open : Bool
+  open : Bool,
 ) -> @luna.Node[Unit] {
   let aria_hidden = if open { "false" } else { "true" }
   let state = if open { "open" } else { "closed" }
   let title_node : @luna.Node[Unit] = match title {
     Some(t) =>
-      @element.h2(
-        attrs=[("data-dialog-title", @luna.attr_static(""))],
-        [@element.text(t)],
-      )
+      @element.h2(attrs=[("data-dialog-title", @luna.attr_static(""))], [
+        @element.text(t),
+      ])
     None => @element.fragment([])
   }
   @element.div(
@@ -52,17 +51,13 @@ fn dialog_inner(
     ],
     [
       @element.div(attrs=[("data-dialog-overlay", @luna.attr_static(""))], []),
-      @element.div(
-        attrs=[("data-dialog-content", @luna.attr_static(""))],
-        [
-          @element.button(
-            attrs=[("data-dialog-close", @luna.attr_static(""))],
-            [@element.text("×")],
-          ),
-          title_node,
-          content,
-        ],
-      ),
+      @element.div(attrs=[("data-dialog-content", @luna.attr_static(""))], [
+        @element.button(attrs=[("data-dialog-close", @luna.attr_static(""))], [
+          @element.text("×"),
+        ]),
+        title_node,
+        content,
+      ]),
     ],
   )
 }
@@ -84,7 +79,7 @@ pub fn dialog(props : DialogProps) -> @luna.Node[Unit] {
 pub fn dialog_static(
   title : String?,
   content : @luna.Node[Unit],
-  open : Bool
+  open : Bool,
 ) -> @luna.Node[Unit] {
   dialog_inner(title, content, open)
 }

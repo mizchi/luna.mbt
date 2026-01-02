@@ -48,16 +48,14 @@ fn accordion_item(props : AccordionItemProps) -> @luna.Node[Unit] {
         attrs=[("data-accordion-trigger", @luna.attr_static(""))],
         [
           @element.text(props.title),
-          @element.span(
-            attrs=[("data-chevron", @luna.attr_static(""))],
-            [@element.text(" ▼")],
-          ),
+          @element.span(attrs=[("data-chevron", @luna.attr_static(""))], [
+            @element.text(" ▼"),
+          ]),
         ],
       ),
-      @element.div(
-        attrs=[("data-accordion-content", @luna.attr_static(""))],
-        [props.content],
-      ),
+      @element.div(attrs=[("data-accordion-content", @luna.attr_static(""))], [
+        props.content,
+      ]),
     ],
   )
 }

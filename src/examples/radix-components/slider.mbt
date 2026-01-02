@@ -29,7 +29,12 @@ pub(all) struct SliderProps {
 
 ///|
 /// Create a slider component
-fn slider_inner(value : Int, min : Int, max : Int, step : Int) -> @luna.Node[Unit] {
+fn slider_inner(
+  value : Int,
+  min : Int,
+  max : Int,
+  step : Int,
+) -> @luna.Node[Unit] {
   let percent = (value - min) * 100 / (max - min)
   @element.div(
     attrs=[
@@ -45,10 +50,9 @@ fn slider_inner(value : Int, min : Int, max : Int, step : Int) -> @luna.Node[Uni
       ("style", @luna.attr_static("--slider-percent: " + percent.to_string())),
     ],
     [
-      @element.div(
-        attrs=[("data-slider-track", @luna.attr_static(""))],
-        [@element.div(attrs=[("data-slider-range", @luna.attr_static(""))], [])],
-      ),
+      @element.div(attrs=[("data-slider-track", @luna.attr_static(""))], [
+        @element.div(attrs=[("data-slider-range", @luna.attr_static(""))], []),
+      ]),
       @element.div(
         attrs=[
           ("data-slider-thumb", @luna.attr_static("")),
@@ -78,7 +82,7 @@ pub fn slider_static(
   value : Int,
   min : Int,
   max : Int,
-  step : Int
+  step : Int,
 ) -> @luna.Node[Unit] {
   slider_inner(value, min, max, step)
 }

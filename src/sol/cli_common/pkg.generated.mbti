@@ -2,7 +2,7 @@
 package "mizchi/luna/sol/cli_common"
 
 import(
-  "mizchi/luna/core/env"
+  "mizchi/luna/sol/core/env"
 )
 
 // Values

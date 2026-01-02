@@ -316,14 +316,17 @@ test "Cache invalidation - config change invalidates all" {
 
 ///|
 test "Cache invalidation - theme change invalidates CSS" {
+  // theme1 has no primary color (default)
   let theme1 = ThemeConfig::default()
+  // theme2 has explicit primary color
   let theme2 = ThemeConfig::{
     ..ThemeConfig::default(),
     primary_color: Some("#ff0000"),
   }
-  guard theme1.primary_color is Some(c1) else { fail("Expected Some") }
-  guard theme2.primary_color is Some(c2) else { fail("Expected Some") }
-  inspect(c1 == c2, content="false")
+  // Verify they are different
+  inspect(theme1.primary_color, content="None")
+  inspect(theme2.primary_color, content="Some(\"#ff0000\")")
+  inspect(theme1.primary_color == theme2.primary_color, content="false")
 }
 
 ///|

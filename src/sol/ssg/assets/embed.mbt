@@ -15,7 +15,7 @@ pub fn get_default_css(config : @ssg.SsgConfig) -> String {
   } else {
     // If config has custom primary color, replace default Indigo with custom
     match config.theme.primary_color {
-      Some(custom_color) => {
+      Some(custom_color) =>
         base_css
         .replace(
           old="--primary-color: #6366f1",
@@ -25,7 +25,6 @@ pub fn get_default_css(config : @ssg.SsgConfig) -> String {
           old="--primary-color: #818cf8",
           new="--primary-color: \{custom_color}",
         )
-      }
       None => base_css // Use default Indigo colors from main.css
     }
   }

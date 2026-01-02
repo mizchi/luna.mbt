@@ -2,7 +2,7 @@
 package "mizchi/luna/sol/ssg/tree"
 
 import(
-  "mizchi/luna/core/env"
+  "mizchi/luna/sol/core/env"
   "mizchi/luna/sol/ssg"
 )
 

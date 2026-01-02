@@ -29,12 +29,23 @@ pub(all) struct Theme {
 
 pub(all) struct ThemeColors {
   primary : String
+  secondary : String
+  accent : String
+  success : String
+  warning : String
+  error : String
   text : String
   text_muted : String
+  heading : String
+  link : String
+  link_hover : String
   background : String
+  surface : String
   sidebar_bg : String
-  border : String
+  input_bg : String
   code_bg : String
+  border : String
+  focus_ring : String
 }
 
 pub(all) enum ThemeLayout {

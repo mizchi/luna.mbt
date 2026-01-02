@@ -71,9 +71,7 @@ test "accordion with island wrapper includes luna attributes" {
       default_open: false,
     },
   ]
-  let node = accordion(
-    { items, hydration_url: "/components/accordion.js" },
-  )
+  let node = accordion({ items, hydration_url: "/components/accordion.js" })
   let html = @static_dom.render(node)
   assert_true(html.contains("luna:id=\"accordion\""))
   assert_true(html.contains("luna:url=\"/components/accordion.js\""))
@@ -82,14 +80,12 @@ test "accordion with island wrapper includes luna attributes" {
 
 ///|
 test "switch with island wrapper includes luna attributes" {
-  let node = switch(
-    {
-      id: "switch-1",
-      default_checked: true,
-      label: Some("Test"),
-      hydration_url: "/components/switch.js",
-    },
-  )
+  let node = switch({
+    id: "switch-1",
+    default_checked: true,
+    label: Some("Test"),
+    hydration_url: "/components/switch.js",
+  })
   let html = @static_dom.render(node)
   assert_true(html.contains("luna:id=\"switch-1\""))
   assert_true(html.contains("luna:url=\"/components/switch.js\""))
@@ -97,14 +93,12 @@ test "switch with island wrapper includes luna attributes" {
 
 ///|
 test "checkbox with island wrapper includes luna attributes" {
-  let node = checkbox(
-    {
-      id: "checkbox-1",
-      default_state: Checked,
-      label: Some("Test"),
-      hydration_url: "/components/checkbox.js",
-    },
-  )
+  let node = checkbox({
+    id: "checkbox-1",
+    default_state: Checked,
+    label: Some("Test"),
+    hydration_url: "/components/checkbox.js",
+  })
   let html = @static_dom.render(node)
   assert_true(html.contains("luna:id=\"checkbox-1\""))
   assert_true(html.contains("luna:url=\"/components/checkbox.js\""))

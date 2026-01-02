@@ -130,7 +130,11 @@ fn sidebar_component(router : @router.BrowserRouter) -> DomNode {
         pages
         .iter()
         .map(fn(page) {
-          let href = if page.slug == "index" { base } else { base + "/" + page.slug }
+          let href = if page.slug == "index" {
+            base
+          } else {
+            base + "/" + page.slug
+          }
           nav_link(href, page.title)
         })
         .collect(),
@@ -241,16 +245,13 @@ fn render_wiki(router : @router.BrowserRouter, container : DomElement) -> Unit {
         style="display: flex; min-height: 300px; max-width: 100%; overflow: hidden;",
         [
           sidebar,
-          div(
-            class="wiki-content",
-            style="flex: 1; padding: 1rem;",
-            [content],
-          ),
+          div(class="wiki-content", style="flex: 1; padding: 1rem;", [content]),
         ],
       )
     })
     mount(container, app)
   })
+
 }
 
 // =============================================================================

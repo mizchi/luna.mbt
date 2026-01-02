@@ -399,68 +399,79 @@ fn parse_navigation_config(obj : Map[String, Json]) -> @ssg.NavigationConfig {
 }
 
 ///|
+/// Extract color option with both camelCase and snake_case support
+fn extract_color_opt(
+  obj : Map[String, Json],
+  camel_key : String,
+  snake_key : String,
+) -> String? {
+  match @json_utils.extract_string_opt(obj, camel_key) {
+    Some(v) => Some(v)
+    None => @json_utils.extract_string_opt(obj, snake_key)
+  }
+}
+
+///|
 /// Parse theme configuration
 fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
   match obj.get("theme") {
     Some(Object(theme_obj)) => {
-      // Core colors
-      let primary_color = @json_utils.extract_string_opt(
-        theme_obj, "primaryColor",
+      // Core colors (support both camelCase and snake_case)
+      let primary_color = extract_color_opt(
+        theme_obj, "primaryColor", "primary_color",
       )
-      let secondary_color = @json_utils.extract_string_opt(
-        theme_obj, "secondaryColor",
+      let secondary_color = extract_color_opt(
+        theme_obj, "secondaryColor", "secondary_color",
       )
-      let accent_color = @json_utils.extract_string_opt(
-        theme_obj, "accentColor",
+      let accent_color = extract_color_opt(
+        theme_obj, "accentColor", "accent_color",
       )
 
       // Semantic colors
-      let success_color = @json_utils.extract_string_opt(
-        theme_obj, "successColor",
+      let success_color = extract_color_opt(
+        theme_obj, "successColor", "success_color",
       )
-      let warning_color = @json_utils.extract_string_opt(
-        theme_obj, "warningColor",
+      let warning_color = extract_color_opt(
+        theme_obj, "warningColor", "warning_color",
       )
-      let error_color = @json_utils.extract_string_opt(
-        theme_obj, "errorColor",
-      )
+      let error_color = extract_color_opt(theme_obj, "errorColor", "error_color")
 
       // Text colors
-      let text_color = @json_utils.extract_string_opt(theme_obj, "textColor")
-      let text_muted_color = @json_utils.extract_string_opt(
-        theme_obj, "textMutedColor",
+      let text_color = extract_color_opt(theme_obj, "textColor", "text_color")
+      let text_muted_color = extract_color_opt(
+        theme_obj, "textMutedColor", "text_muted_color",
       )
-      let heading_color = @json_utils.extract_string_opt(
-        theme_obj, "headingColor",
+      let heading_color = extract_color_opt(
+        theme_obj, "headingColor", "heading_color",
       )
-      let link_color = @json_utils.extract_string_opt(theme_obj, "linkColor")
-      let link_hover_color = @json_utils.extract_string_opt(
-        theme_obj, "linkHoverColor",
+      let link_color = extract_color_opt(theme_obj, "linkColor", "link_color")
+      let link_hover_color = extract_color_opt(
+        theme_obj, "linkHoverColor", "link_hover_color",
       )
 
       // Background colors
-      let background_color = @json_utils.extract_string_opt(
-        theme_obj, "backgroundColor",
+      let background_color = extract_color_opt(
+        theme_obj, "backgroundColor", "background_color",
       )
-      let surface_color = @json_utils.extract_string_opt(
-        theme_obj, "surfaceColor",
+      let surface_color = extract_color_opt(
+        theme_obj, "surfaceColor", "surface_color",
       )
-      let sidebar_bg_color = @json_utils.extract_string_opt(
-        theme_obj, "sidebarBgColor",
+      let sidebar_bg_color = extract_color_opt(
+        theme_obj, "sidebarBgColor", "sidebar_bg_color",
       )
-      let input_bg_color = @json_utils.extract_string_opt(
-        theme_obj, "inputBgColor",
+      let input_bg_color = extract_color_opt(
+        theme_obj, "inputBgColor", "input_bg_color",
       )
-      let code_bg_color = @json_utils.extract_string_opt(
-        theme_obj, "codeBgColor",
+      let code_bg_color = extract_color_opt(
+        theme_obj, "codeBgColor", "code_bg_color",
       )
 
       // UI colors
-      let border_color = @json_utils.extract_string_opt(
-        theme_obj, "borderColor",
+      let border_color = extract_color_opt(
+        theme_obj, "borderColor", "border_color",
       )
-      let focus_ring_color = @json_utils.extract_string_opt(
-        theme_obj, "focusRingColor",
+      let focus_ring_color = extract_color_opt(
+        theme_obj, "focusRingColor", "focus_ring_color",
       )
 
       // Non-color settings

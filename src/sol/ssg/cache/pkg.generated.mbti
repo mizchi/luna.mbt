@@ -2,8 +2,8 @@
 package "mizchi/luna/sol/ssg/cache"
 
 import(
-  "mizchi/luna/core/env"
-  "mizchi/luna/luna/js/fs_adapter"
+  "mizchi/luna/sol/adapters/fs"
+  "mizchi/luna/sol/core/env"
   "mizchi/luna/sol/ssg"
 )
 
@@ -66,7 +66,7 @@ pub(all) struct CacheEntry {
 pub fn CacheEntry::new(key~ : String, value~ : String, cached_at? : String, ttl? : Int) -> Self
 
 pub(all) struct CacheManager {
-  cache : DiskCache[@fs_adapter.NodeFsAdapter]
+  cache : DiskCache[@fs.NodeFsAdapter]
   enabled : Bool
 }
 pub fn CacheManager::clear(Self) -> Unit

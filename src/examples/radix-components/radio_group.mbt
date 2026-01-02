@@ -32,11 +32,18 @@ pub(all) struct RadioGroupProps {
 
 ///|
 /// Create a radio item
-fn radio_item_node(item : RadioItem, selected_value : String) -> @luna.Node[Unit] {
+fn radio_item_node(
+  item : RadioItem,
+  selected_value : String,
+) -> @luna.Node[Unit] {
   let is_selected = item.value == selected_value
   let aria_checked = if is_selected { "true" } else { "false" }
   let tabindex = if is_selected { "0" } else { "-1" }
-  let indicator_style = if is_selected { "display: block" } else { "display: none" }
+  let indicator_style = if is_selected {
+    "display: block"
+  } else {
+    "display: none"
+  }
   @element.div(
     attrs=[
       ("data-radio-item", @luna.attr_static("")),
@@ -62,7 +69,7 @@ fn radio_item_node(item : RadioItem, selected_value : String) -> @luna.Node[Unit
 /// Create a radio group component
 fn radio_group_inner(
   default_value : String,
-  items : Array[RadioItem]
+  items : Array[RadioItem],
 ) -> @luna.Node[Unit] {
   @element.div(
     attrs=[
@@ -89,7 +96,7 @@ pub fn radio_group(props : RadioGroupProps) -> @luna.Node[Unit] {
 /// Create a radio group without island wrapper
 pub fn radio_group_static(
   default_value : String,
-  items : Array[RadioItem]
+  items : Array[RadioItem],
 ) -> @luna.Node[Unit] {
   radio_group_inner(default_value, items)
 }

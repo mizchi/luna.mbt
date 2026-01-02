@@ -1786,7 +1786,6 @@ fn build_theme_overrides(theme : @ssg.ThemeConfig) -> String {
   if theme.focus_ring_color is Some(v) {
     vars.write_string("--focus-ring-color:\{v};")
   }
-
   vars.to_string()
 }
 
@@ -1794,7 +1793,7 @@ fn build_theme_overrides(theme : @ssg.ThemeConfig) -> String {
 /// Build combined CSS with optional minification (skip in dev mode)
 fn build_combined_css(
   config : @ssg.SsgConfig,
-  is_dev~ : Bool = false,
+  is_dev? : Bool = false,
 ) -> String {
   let main_css = @assets.get_default_css(config)
   let markdown_css = @assets.get_github_markdown_css()
@@ -2133,7 +2132,11 @@ fn copy_static_assets_internal(
 
   // Write github-markdown CSS (minified only in production)
   let github_md_raw = @assets.get_github_markdown_css()
-  let github_md_css = if ctx.is_dev { github_md_raw } else { minify_css(github_md_raw) }
+  let github_md_css = if ctx.is_dev {
+    github_md_raw
+  } else {
+    minify_css(github_md_raw)
+  }
   let github_md_css_path = @path.join2(output_assets, "github-markdown.css")
   @fs.writeFileSync(github_md_css_path, @js.any(github_md_css)) catch {
     _ => ()
@@ -2289,7 +2292,6 @@ fn bundle_components(src_dir : String, dest_dir : String, cwd : String) -> Unit 
       js_files.push(entry)
     }
   }
-
   if js_files.is_empty() {
     return
   }

@@ -422,12 +422,12 @@ test "NavigationConfig::default - has expected values" {
 // =============================================================================
 
 ///|
-test "ThemeConfig::default - has Luna gold color" {
+test "ThemeConfig::default - colors are None by default" {
   let theme = ThemeConfig::default()
-  guard theme.primary_color is Some(color) else {
-    fail("Expected Some primary_color")
-  }
-  inspect(color, content="#fbbf24")
+  // Default theme has no explicit colors (uses CSS theme defaults)
+  inspect(theme.primary_color, content="None")
+  inspect(theme.secondary_color, content="None")
+  inspect(theme.accent_color, content="None")
 }
 
 // =============================================================================

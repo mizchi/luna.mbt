@@ -631,7 +631,11 @@ test "CSS variables - primary color injection" {
 
 ///|
 test "CSS variables - theme colors" {
-  let theme = ThemeConfig::default()
+  // Test with explicit primary color (default is None)
+  let theme = ThemeConfig::{
+    ..ThemeConfig::default(),
+    primary_color: Some("#fbbf24"),
+  }
   guard theme.primary_color is Some(color) else {
     fail("Expected Some primary_color")
   }

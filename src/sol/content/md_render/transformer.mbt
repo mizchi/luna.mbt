@@ -477,9 +477,7 @@ fn create_component_vnode(
 
   // If behavior is specified, use luna:behavior instead of luna:wc-url
   match behavior {
-    Some(b) => {
-      attrs.push(attr("luna:behavior", b))
-    }
+    Some(b) => attrs.push(attr("luna:behavior", b))
     None => {
       // Build URL from tag name (e.g., "my-counter" -> "/components/my-counter.js")
       let url = "\{base_path}\{embed.tag}.js"

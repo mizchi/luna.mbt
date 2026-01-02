@@ -493,7 +493,11 @@ fn find_luna_path(start_dir : String) -> String {
 
 ///|
 /// Bundle SSG components using rolldown
-fn bundle_ssg_components(src_dir : String, dest_dir : String, cwd : String) -> Unit {
+fn bundle_ssg_components(
+  src_dir : String,
+  dest_dir : String,
+  cwd : String,
+) -> Unit {
   // Scan for JS/TS files in source directory
   let entries : Array[String] = @fs.readdirSync(src_dir) catch { _ => [] }
 
@@ -504,7 +508,6 @@ fn bundle_ssg_components(src_dir : String, dest_dir : String, cwd : String) -> U
       js_files.push(entry)
     }
   }
-
   if js_files.is_empty() {
     println(@colorette.gray("  No components to bundle"))
     return
@@ -563,9 +566,7 @@ fn bundle_ssg_components(src_dir : String, dest_dir : String, cwd : String) -> U
     println(@colorette.green("Components bundled (\{js_files.length()} files)"))
     println("")
   } catch {
-    e => {
-      println(@colorette.red("  Bundle error: \{e}"))
-    }
+    e => println(@colorette.red("  Bundle error: \{e}"))
   }
 }
 

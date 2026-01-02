@@ -201,10 +201,7 @@ pub fn forbidden(message? : String = "Forbidden") -> ApiResponse {
 ///   Err(err) => err.to_json()
 /// }
 /// ```
-pub fn require(
-  props : PageProps,
-  name : String,
-) -> Result[String, ApiResponse] {
+pub fn require(props : PageProps, name : String) -> Result[String, ApiResponse] {
   match props.get_param(name) {
     Some(v) => Ok(v)
     None => Err(bad_request("Missing required parameter: " + name))
@@ -213,11 +210,7 @@ pub fn require(
 
 ///|
 /// Extract an optional path parameter with default value
-pub fn optional(
-  props : PageProps,
-  name : String,
-  default : String,
-) -> String {
+pub fn optional(props : PageProps, name : String, default : String) -> String {
   props.get_param(name).unwrap_or(default)
 }
 

@@ -67,7 +67,10 @@ fn tab_panel(item : TabItem, active_value : String) -> @luna.Node[Unit] {
 
 ///|
 /// Create a tabs component
-fn tabs_inner(default_value : String, items : Array[TabItem]) -> @luna.Node[Unit] {
+fn tabs_inner(
+  default_value : String,
+  items : Array[TabItem],
+) -> @luna.Node[Unit] {
   let triggers = items.map(fn(item) { tab_trigger(item, default_value) })
   let panels = items.map(fn(item) { tab_panel(item, default_value) })
   @element.div(
@@ -77,7 +80,10 @@ fn tabs_inner(default_value : String, items : Array[TabItem]) -> @luna.Node[Unit
     ],
     [
       @element.div(
-        attrs=[("data-tablist", @luna.attr_static("")), ("role", @luna.attr_static("tablist"))],
+        attrs=[
+          ("data-tablist", @luna.attr_static("")),
+          ("role", @luna.attr_static("tablist")),
+        ],
         triggers,
       ),
       @element.fragment(panels),
@@ -101,7 +107,7 @@ pub fn tabs(props : TabsProps) -> @luna.Node[Unit] {
 /// Create tabs without island wrapper
 pub fn tabs_static(
   default_value : String,
-  items : Array[TabItem]
+  items : Array[TabItem],
 ) -> @luna.Node[Unit] {
   tabs_inner(default_value, items)
 }

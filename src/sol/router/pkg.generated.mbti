@@ -14,6 +14,14 @@ import(
 )
 
 // Values
+pub fn analyze_routes(Array[SolRoutes]) -> Array[AnalyzedRoute]
+
+pub fn api_get(String, async (PageProps) -> @core.Any) -> SolRoutes
+
+pub fn api_post(String, async (PageProps) -> @core.Any) -> SolRoutes
+
+pub fn bad_request(String) -> ApiResponse
+
 pub fn combine_api_factories(Array[ApiHandlerFactory]) -> ApiHandlerFactory
 
 pub fn combine_page_factories(Array[PageHandlerFactory]) -> PageHandlerFactory
@@ -22,13 +30,37 @@ pub fn compile_sol_routes(Array[SolRoutes], base? : String) -> Array[CompiledSol
 
 pub fn default_root_template() -> String
 
+pub fn error_response(String, status? : Int) -> ApiResponse
+
+pub fn extract_dynamic_patterns(Array[SolRoutes]) -> Array[String]
+
+pub fn forbidden(message? : String) -> ApiResponse
+
+pub fn generate_wrangler_assets_config(Array[SolRoutes], String) -> String
+
 pub fn has_fragment_header(@hono.Context[Unit, Unit]) -> Bool
 
 pub fn manifest_to_sol_routes(@mizchi/luna/sol/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 
+pub fn nodes(Array[@luna.Node[Unit]]) -> @static_dom.ServerNode
+
+pub fn not_found_response(message? : String) -> ApiResponse
+
 pub fn null_api_factory() -> ApiHandlerFactory
 
 pub fn null_page_factory() -> PageHandlerFactory
+
+pub fn ok(Array[(String, @core.Any)]) -> ApiResponse
+
+pub fn optional(PageProps, String, String) -> String
+
+pub fn optional_query(PageProps, String, String) -> String
+
+pub fn page(String, async (PageProps) -> @static_dom.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : CacheStrategy?) -> SolRoutes
+
+pub fn redirect_permanent_to(String) -> ApiResponse
+
+pub fn redirect_to(String, status? : Int) -> ApiResponse
 
 pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @luna.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
 
@@ -38,13 +70,31 @@ pub fn register_sol_routes(@hono.Hono[Unit, Unit], Array[SolRoutes], config? : R
 
 pub fn[E] render_fragment_response(@luna.Node[E], String, Bool) -> String
 
+pub fn require(PageProps, String) -> Result[String, ApiResponse]
+
+pub fn require_int(PageProps, String) -> Result[Int, ApiResponse]
+
+pub fn require_query(PageProps, String) -> Result[String, ApiResponse]
+
 pub fn send_fragment_response(@hono.Context[Unit, Unit], String) -> @http.Response
 
 pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/luna/sol/routes.RouteManifest
 
+pub fn unauthorized(message? : String) -> ApiResponse
+
+pub fn with_mw(Array[@middleware.Middleware], Array[SolRoutes]) -> SolRoutes
+
+pub fn wrap(String, (PageProps, @static_dom.ServerNode) -> @static_dom.ServerNode raise, Array[SolRoutes]) -> SolRoutes
+
 // Errors
 
 // Types and methods
+pub(all) struct AnalyzedRoute {
+  pattern : String
+  kind : RouteKind
+  reason : String
+}
+
 pub(all) struct ApiHandler(async (PageProps) -> @core.Any)
 #deprecated
 pub fn ApiHandler::inner(Self) -> async (PageProps) -> @core.Any
@@ -52,6 +102,14 @@ pub fn ApiHandler::inner(Self) -> async (PageProps) -> @core.Any
 pub(all) struct ApiHandlerFactory((@mizchi/luna/sol/routes.RouteEntry) -> ApiHandler?)
 #deprecated
 pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/luna/sol/routes.RouteEntry) -> ApiHandler?
+
+pub(all) enum ApiResponse {
+  Json(@core.Any)
+  Redirect(String, Int)
+  NotFound(String)
+  Error(String, Int)
+}
+pub fn ApiResponse::to_json(Self) -> @core.Any
 
 pub(all) enum CacheStrategy {
   AlwaysFetch
@@ -118,6 +176,11 @@ pub fn PageProps::get_pathname_group(Self, String) -> String?
 pub fn PageProps::get_query(Self, String) -> String?
 pub fn PageProps::get_search_group(Self, String) -> String?
 pub fn PageProps::path(Self) -> String
+
+pub(all) enum RouteKind {
+  Static
+  Dynamic
+}
 
 pub struct RouteParams {
   params : Array[(String, String)]

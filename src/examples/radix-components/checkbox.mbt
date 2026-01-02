@@ -75,10 +75,10 @@ pub fn checkbox(props : CheckboxProps) -> @luna.Node[Unit] {
   let button = checkbox_button(props.default_state)
   let content = match props.label {
     Some(label_text) =>
-      @element.label(
-        attrs=[("data-checkbox-label", @luna.attr_static(""))],
-        [button, @element.text(" " + label_text)],
-      )
+      @element.label(attrs=[("data-checkbox-label", @luna.attr_static(""))], [
+        button,
+        @element.text(" " + label_text),
+      ])
     None => button
   }
   @luna.island(
@@ -94,15 +94,15 @@ pub fn checkbox(props : CheckboxProps) -> @luna.Node[Unit] {
 /// Create a checkbox without island wrapper (for testing SSR output)
 pub fn checkbox_static(
   state : CheckboxState,
-  label : String?
+  label : String?,
 ) -> @luna.Node[Unit] {
   let button = checkbox_button(state)
   match label {
     Some(label_text) =>
-      @element.label(
-        attrs=[("data-checkbox-label", @luna.attr_static(""))],
-        [button, @element.text(" " + label_text)],
-      )
+      @element.label(attrs=[("data-checkbox-label", @luna.attr_static(""))], [
+        button,
+        @element.text(" " + label_text),
+      ])
     None => button
   }
 }

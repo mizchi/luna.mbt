@@ -140,7 +140,6 @@ fn has_catch_all(path : String) -> Bool {
 pub fn extract_dynamic_patterns(routes : Array[SolRoutes]) -> Array[String] {
   let analyzed = analyze_routes(routes)
   let patterns : Array[String] = []
-
   for route in analyzed {
     if route.kind is Dynamic {
       // Convert to glob pattern for Cloudflare
@@ -162,7 +161,6 @@ fn to_cloudflare_pattern(path : String) -> String {
   let result = StringBuilder::new()
   let segments = path.split("/")
   let mut first = true
-
   for segment in segments {
     if segment.is_empty() {
       continue
@@ -171,7 +169,6 @@ fn to_cloudflare_pattern(path : String) -> String {
       result.write_string("/")
     }
     first = false
-
     if segment.has_prefix(":") {
       // :id -> * (single segment wildcard)
       result.write_string("*")
@@ -188,7 +185,6 @@ fn to_cloudflare_pattern(path : String) -> String {
       result.write_string(segment.to_string())
     }
   }
-
   "/" + result.to_string()
 }
 
@@ -199,7 +195,6 @@ pub fn generate_wrangler_assets_config(
   output_dir : String,
 ) -> String {
   let patterns = extract_dynamic_patterns(routes)
-
   if patterns.is_empty() {
     // Pure static site
     return "{\n  \"directory\": \"\{output_dir}\",\n  \"html_handling\": \"auto-trailing-slash\",\n  \"not_found_handling\": \"404-page\"\n}"
@@ -217,6 +212,5 @@ pub fn generate_wrangler_assets_config(
     patterns_json.write_string("\"")
   }
   patterns_json.write_string("]")
-
   "{\n  \"directory\": \"\{output_dir}\",\n  \"html_handling\": \"auto-trailing-slash\",\n  \"not_found_handling\": \"single-page-application\",\n  \"run_worker_first\": \{patterns_json.to_string()}\n}"
 }

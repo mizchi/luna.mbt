@@ -562,7 +562,11 @@ test "Theme CSS - ISR with theme state" {
 
 ///|
 test "Theme CSS - custom CSS injection" {
-  let theme_config = ThemeConfig::default()
+  // Create theme with explicit primary color (default is None)
+  let theme_config = ThemeConfig::{
+    ..ThemeConfig::default(),
+    primary_color: Some("#fbbf24"),
+  }
   guard theme_config.primary_color is Some(primary) else {
     fail("Expected primary color")
   }

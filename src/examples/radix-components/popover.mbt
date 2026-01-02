@@ -26,35 +26,31 @@ pub(all) struct PopoverProps {
 /// Create a popover component
 fn popover_inner(
   trigger_label : String,
-  content : @luna.Node[Unit]
+  content : @luna.Node[Unit],
 ) -> @luna.Node[Unit] {
-  @element.div(
-    attrs=[("data-popover", @luna.attr_static(""))],
-    [
-      @element.button(
-        attrs=[
-          ("data-popover-trigger", @luna.attr_static("")),
-          ("aria-haspopup", @luna.attr_static("dialog")),
-          ("aria-expanded", @luna.attr_static("false")),
-        ],
-        [@element.text(trigger_label)],
-      ),
-      @element.div(
-        attrs=[
-          ("data-popover-content", @luna.attr_static("")),
-          ("role", @luna.attr_static("dialog")),
-          ("aria-hidden", @luna.attr_static("true")),
-        ],
-        [
-          @element.button(
-            attrs=[("data-popover-close", @luna.attr_static(""))],
-            [@element.text("×")],
-          ),
-          content,
-        ],
-      ),
-    ],
-  )
+  @element.div(attrs=[("data-popover", @luna.attr_static(""))], [
+    @element.button(
+      attrs=[
+        ("data-popover-trigger", @luna.attr_static("")),
+        ("aria-haspopup", @luna.attr_static("dialog")),
+        ("aria-expanded", @luna.attr_static("false")),
+      ],
+      [@element.text(trigger_label)],
+    ),
+    @element.div(
+      attrs=[
+        ("data-popover-content", @luna.attr_static("")),
+        ("role", @luna.attr_static("dialog")),
+        ("aria-hidden", @luna.attr_static("true")),
+      ],
+      [
+        @element.button(attrs=[("data-popover-close", @luna.attr_static(""))], [
+          @element.text("×"),
+        ]),
+        content,
+      ],
+    ),
+  ])
 }
 
 ///|
@@ -73,7 +69,7 @@ pub fn popover(props : PopoverProps) -> @luna.Node[Unit] {
 /// Create a popover without island wrapper
 pub fn popover_static(
   trigger_label : String,
-  content : @luna.Node[Unit]
+  content : @luna.Node[Unit],
 ) -> @luna.Node[Unit] {
   popover_inner(trigger_label, content)
 }

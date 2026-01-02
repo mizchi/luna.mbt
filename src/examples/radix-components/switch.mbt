@@ -35,12 +35,7 @@ fn switch_button(checked : Bool) -> @luna.Node[Unit] {
       ("aria-checked", @luna.attr_static(checked_str)),
       ("role", @luna.attr_static("switch")),
     ],
-    [
-      @element.span(
-        attrs=[("data-switch-thumb", @luna.attr_static(""))],
-        [],
-      ),
-    ],
+    [@element.span(attrs=[("data-switch-thumb", @luna.attr_static(""))], [])],
   )
 }
 
@@ -50,13 +45,19 @@ pub fn switch(props : SwitchProps) -> @luna.Node[Unit] {
   let button = switch_button(props.default_checked)
   let content = match props.label {
     Some(label_text) =>
-      @element.label(
-        attrs=[("data-switch-label", @luna.attr_static(""))],
-        [@element.text(label_text), button],
-      )
+      @element.label(attrs=[("data-switch-label", @luna.attr_static(""))], [
+        @element.text(label_text),
+        button,
+      ])
     None => button
   }
-  @luna.island(props.id, props.hydration_url, "{}", [content], trigger=@luna.Load)
+  @luna.island(
+    props.id,
+    props.hydration_url,
+    "{}",
+    [content],
+    trigger=@luna.Load,
+  )
 }
 
 ///|
@@ -65,10 +66,10 @@ pub fn switch_static(checked : Bool, label : String?) -> @luna.Node[Unit] {
   let button = switch_button(checked)
   match label {
     Some(label_text) =>
-      @element.label(
-        attrs=[("data-switch-label", @luna.attr_static(""))],
-        [@element.text(label_text), button],
-      )
+      @element.label(attrs=[("data-switch-label", @luna.attr_static(""))], [
+        @element.text(label_text),
+        button,
+      ])
     None => button
   }
 }

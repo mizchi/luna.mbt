@@ -107,9 +107,8 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   let cwd = @process.cwd()
   // Check if this is a pure SSG project (no moon.mod.json needed)
-  let is_ssg_only = has_ssg_config(cwd) && not(@fs.exists_sync(
-      @path.join2(cwd, "moon.mod.json"),
-    ))
+  let is_ssg_only = has_ssg_config(cwd) &&
+    not(@fs.exists_sync(@path.join2(cwd, "moon.mod.json")))
   if is_ssg_only {
     // Pure SSG mode - skip MoonBit checks and go directly to SSG build
     let config_path = find_ssg_config_file(cwd)

@@ -56,28 +56,28 @@ fn menu_item_node(item : MenuItem) -> @luna.Node[Unit] {
 
 ///|
 /// Create a menu component
-fn menu_inner(trigger_label : String, items : Array[MenuItem]) -> @luna.Node[Unit] {
-  @element.div(
-    attrs=[("data-menu", @luna.attr_static(""))],
-    [
-      @element.button(
-        attrs=[
-          ("data-menu-trigger", @luna.attr_static("")),
-          ("aria-haspopup", @luna.attr_static("menu")),
-          ("aria-expanded", @luna.attr_static("false")),
-        ],
-        [@element.text(trigger_label)],
-      ),
-      @element.div(
-        attrs=[
-          ("data-menu-content", @luna.attr_static("")),
-          ("role", @luna.attr_static("menu")),
-          ("aria-hidden", @luna.attr_static("true")),
-        ],
-        items.map(fn(item) { menu_item_node(item) }),
-      ),
-    ],
-  )
+fn menu_inner(
+  trigger_label : String,
+  items : Array[MenuItem],
+) -> @luna.Node[Unit] {
+  @element.div(attrs=[("data-menu", @luna.attr_static(""))], [
+    @element.button(
+      attrs=[
+        ("data-menu-trigger", @luna.attr_static("")),
+        ("aria-haspopup", @luna.attr_static("menu")),
+        ("aria-expanded", @luna.attr_static("false")),
+      ],
+      [@element.text(trigger_label)],
+    ),
+    @element.div(
+      attrs=[
+        ("data-menu-content", @luna.attr_static("")),
+        ("role", @luna.attr_static("menu")),
+        ("aria-hidden", @luna.attr_static("true")),
+      ],
+      items.map(fn(item) { menu_item_node(item) }),
+    ),
+  ])
 }
 
 ///|
@@ -96,7 +96,7 @@ pub fn menu(props : MenuProps) -> @luna.Node[Unit] {
 /// Create a menu without island wrapper
 pub fn menu_static(
   trigger_label : String,
-  items : Array[MenuItem]
+  items : Array[MenuItem],
 ) -> @luna.Node[Unit] {
   menu_inner(trigger_label, items)
 }

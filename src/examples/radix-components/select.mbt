@@ -54,39 +54,35 @@ fn select_item_node(item : SelectItem) -> @luna.Node[Unit] {
 /// Create a select component
 fn select_inner(
   placeholder : String,
-  items : Array[SelectItem]
+  items : Array[SelectItem],
 ) -> @luna.Node[Unit] {
   let selected = items.iter().find_first(fn(i) { i.selected })
   let display_text = match selected {
     Some(item) => item.label
     None => placeholder
   }
-  @element.div(
-    attrs=[("data-select", @luna.attr_static(""))],
-    [
-      @element.button(
-        attrs=[
-          ("data-select-trigger", @luna.attr_static("")),
-          ("aria-haspopup", @luna.attr_static("listbox")),
-          ("aria-expanded", @luna.attr_static("false")),
-        ],
-        [
-          @element.span(
-            attrs=[("data-select-value", @luna.attr_static(""))],
-            [@element.text(display_text)],
-          ),
-        ],
-      ),
-      @element.div(
-        attrs=[
-          ("data-select-content", @luna.attr_static("")),
-          ("role", @luna.attr_static("listbox")),
-          ("aria-hidden", @luna.attr_static("true")),
-        ],
-        items.map(fn(item) { select_item_node(item) }),
-      ),
-    ],
-  )
+  @element.div(attrs=[("data-select", @luna.attr_static(""))], [
+    @element.button(
+      attrs=[
+        ("data-select-trigger", @luna.attr_static("")),
+        ("aria-haspopup", @luna.attr_static("listbox")),
+        ("aria-expanded", @luna.attr_static("false")),
+      ],
+      [
+        @element.span(attrs=[("data-select-value", @luna.attr_static(""))], [
+          @element.text(display_text),
+        ]),
+      ],
+    ),
+    @element.div(
+      attrs=[
+        ("data-select-content", @luna.attr_static("")),
+        ("role", @luna.attr_static("listbox")),
+        ("aria-hidden", @luna.attr_static("true")),
+      ],
+      items.map(fn(item) { select_item_node(item) }),
+    ),
+  ])
 }
 
 ///|
@@ -105,7 +101,7 @@ pub fn select(props : SelectProps) -> @luna.Node[Unit] {
 /// Create a select without island wrapper
 pub fn select_static(
   placeholder : String,
-  items : Array[SelectItem]
+  items : Array[SelectItem],
 ) -> @luna.Node[Unit] {
   select_inner(placeholder, items)
 }

@@ -365,6 +365,23 @@ pub fn SsgConfig::default() -> Self
 
 pub(all) struct ThemeConfig {
   primary_color : String?
+  secondary_color : String?
+  accent_color : String?
+  success_color : String?
+  warning_color : String?
+  error_color : String?
+  text_color : String?
+  text_muted_color : String?
+  heading_color : String?
+  link_color : String?
+  link_hover_color : String?
+  background_color : String?
+  surface_color : String?
+  sidebar_bg_color : String?
+  input_bg_color : String?
+  code_bg_color : String?
+  border_color : String?
+  focus_ring_color : String?
   logo : String?
   header : HeaderConfig?
   footer : FooterConfig?
