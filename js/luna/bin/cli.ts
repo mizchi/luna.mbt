@@ -336,11 +336,11 @@ function getMbtTemplates(projectName: string): Template[] {
     {
       path: "vite.config.ts",
       content: `import { defineConfig } from "vite";
-import { moonbitPlugin } from "vite-plugin-moonbit";
+import { moonbit } from "vite-plugin-moonbit";
 
 export default defineConfig({
   plugins: [
-    moonbitPlugin({
+    moonbit({
       watch: true,
       showLogs: true,
     }),
