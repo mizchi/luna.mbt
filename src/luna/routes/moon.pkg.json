@@ -1,7 +1,5 @@
 {
-  "import": [
-    { "path": "mizchi/luna/internal/utils", "alias": "utils" }
-  ],
+  "import": [],
   "supported-targets": [
     "js",
     "wasm-gc",

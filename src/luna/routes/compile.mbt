@@ -36,7 +36,7 @@ fn normalize_path(path : String) -> String {
 /// Does not include catch-all parameters ([...slug], [[...slug]])
 fn extract_param_names(path : String) -> Array[String] {
   let result : Array[String] = []
-  let segments = @utils.split_by(path, '/')
+  let segments = split_by(path, '/')
   for segment in segments {
     if segment.has_prefix(":") && segment.length() > 1 {
       // ":id" -> "id"
@@ -63,7 +63,7 @@ fn extract_param_names(path : String) -> Array[String] {
 /// Example: "/docs/[...slug]" -> Some({ name: "slug", optional: false })
 ///          "/docs/[[...slug]]" -> Some({ name: "slug", optional: true })
 fn extract_catch_all(path : String) -> CatchAllInfo? {
-  let segments = @utils.split_by(path, '/')
+  let segments = split_by(path, '/')
   if segments.is_empty() {
     return None
   }

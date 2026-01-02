@@ -75,7 +75,7 @@ pub fn extract_state_from_html(html : String) -> String? {
   for i = start; i <= html_len - end_len; i = i + 1 {
     if substring_matches(html, i, end_marker) {
       // Extract the JSON content
-      let json = @utils.extract_substring(html, start, i)
+      let json = extract_substring(html, start, i)
       return Some(unescape_html_content(json))
     }
   }

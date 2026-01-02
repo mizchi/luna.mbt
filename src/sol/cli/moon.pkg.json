@@ -42,11 +42,11 @@
       "alias": "shiki"
     },
     {
-      "path": "mizchi/luna/core/env",
+      "path": "mizchi/luna/sol/core/env",
       "alias": "env"
     },
     {
-      "path": "mizchi/luna/luna/js/fs_adapter",
+      "path": "mizchi/luna/sol/adapters/fs",
       "alias": "fs_adapter"
     },
     {

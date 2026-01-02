@@ -147,7 +147,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       // For client-side rendering, create appropriate element based on wc flag
       if iref.wc {
         // Web Components island - extract name from URL
-        let name = @utils.extract_wc_name_from_url(iref.url)
+        let name = extract_wc_name_from_url(iref.url)
         let wrapper = doc.createElement(name)
         wrapper.setAttribute("luna:wc-url", iref.url)
         wrapper.setAttribute("luna:wc-state", iref.state)

@@ -410,7 +410,7 @@ fn[E] render_internal_ref_wc_to(
   sb : StringBuilder,
   iref : @luna.VInternalRef[E],
 ) -> Unit {
-  let name = @utils.extract_wc_name_from_url(iref.url)
+  let name = extract_wc_name_from_url(iref.url)
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
   for child in iref.children {
     render_to_sb(sb, child)
@@ -476,7 +476,7 @@ fn[E] render_internal_ref_wc_and_collect_urls(
   iref : @luna.VInternalRef[E],
   urls : Array[String],
 ) -> Unit {
-  let name = @utils.extract_wc_name_from_url(iref.url)
+  let name = extract_wc_name_from_url(iref.url)
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
   for child in iref.children {
     render_and_collect_urls(sb, child, urls)
@@ -546,7 +546,7 @@ fn[E] render_internal_ref_wc_with_id_to(
 ) -> Unit {
   let id = id_counter.val
   id_counter.val = id + 1
-  let name = @utils.extract_wc_name_from_url(iref.url)
+  let name = extract_wc_name_from_url(iref.url)
   sb.write_string("<!--wc:")
   sb.write_object(id)
   sb.write_string("-->")

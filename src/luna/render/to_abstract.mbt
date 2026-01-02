@@ -114,6 +114,6 @@ fn[E] convert_internal_ref(iref : @luna.VInternalRef[E]) -> AbstractNode {
   let children = iref.children.map(to_abstract)
   let props : Json = @json.parse(iref.state) catch { _ => Json::null() }
   // Extract component name from URL
-  let name = @utils.extract_wc_name_from_url(iref.url)
+  let name = extract_wc_name_from_url(iref.url)
   component(name, props, mode, children)
 }

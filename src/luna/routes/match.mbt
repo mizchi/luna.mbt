@@ -36,8 +36,8 @@ fn parse_url_parts(url : String) -> (String, Array[(String, String)]) {
 fn parse_query(query : String) -> Array[(String, String)] {
   guard query != "" else { return [] }
   let result : Array[(String, String)] = []
-  for pair in @utils.split_by(query, '&') {
-    let kv = @utils.split_by(pair, '=')
+  for pair in split_by(query, '&') {
+    let kv = split_by(pair, '=')
     if kv.length() == 2 {
       result.push((kv[0], kv[1]))
     } else if kv.length() == 1 && kv[0] != "" {
@@ -157,5 +157,5 @@ fn join_segments(segments : Array[String]) -> String {
 
 ///|
 fn split_path_segments(path : String) -> Array[String] {
-  @utils.split_by(path, '/').filter(fn(s) { s != "" })
+  split_by(path, '/').filter(fn(s) { s != "" })
 }

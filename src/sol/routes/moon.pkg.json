@@ -3,10 +3,10 @@
   "import": [
     "mizchi/luna/internal/json_utils",
     { "path": "mizchi/luna/internal/utils", "alias": "utils" },
-    { "path": "mizchi/luna/core/env", "alias": "env" },
+    { "path": "mizchi/luna/sol/core/env", "alias": "env" },
     { "path": "mizchi/luna/sol/ssg", "alias": "ssg" },
     { "path": "mizchi/luna/sol/content/md_render", "alias": "markdown" },
     { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/luna/js/fs_adapter", "alias": "fs_adapter" }
+    { "path": "mizchi/luna/sol/adapters/fs", "alias": "fs_adapter" }
   ]
 }
