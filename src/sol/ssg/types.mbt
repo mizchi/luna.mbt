@@ -224,8 +224,53 @@ pub(all) enum SidebarItem {
 ///|
 /// Theme configuration
 pub(all) struct ThemeConfig {
+  // === Core Colors ===
   /// Primary color (hex)
   primary_color : String?
+  /// Secondary color (hex)
+  secondary_color : String?
+  /// Accent color (hex)
+  accent_color : String?
+
+  // === Semantic Colors ===
+  /// Success state color (hex)
+  success_color : String?
+  /// Warning state color (hex)
+  warning_color : String?
+  /// Error state color (hex)
+  error_color : String?
+
+  // === Text Colors ===
+  /// Main text color (hex)
+  text_color : String?
+  /// Muted text color (hex)
+  text_muted_color : String?
+  /// Heading color (hex)
+  heading_color : String?
+  /// Link color (hex)
+  link_color : String?
+  /// Link hover color (hex)
+  link_hover_color : String?
+
+  // === Background Colors ===
+  /// Background color (hex)
+  background_color : String?
+  /// Surface/card color (hex)
+  surface_color : String?
+  /// Sidebar background color (hex)
+  sidebar_bg_color : String?
+  /// Input field background color (hex)
+  input_bg_color : String?
+  /// Code block background color (hex)
+  code_bg_color : String?
+
+  // === UI Colors ===
+  /// Border color (hex)
+  border_color : String?
+  /// Focus ring color (hex)
+  focus_ring_color : String?
+
+  // === Non-color Settings ===
   /// Logo URL
   logo : String?
   /// Header configuration
@@ -250,7 +295,30 @@ pub(all) struct SocialLink {
 /// Luna theme: Moon-inspired gold color
 pub fn ThemeConfig::default() -> ThemeConfig {
   {
-    primary_color: Some("#fbbf24"),
+    // Core colors (None = use theme defaults)
+    primary_color: None,
+    secondary_color: None,
+    accent_color: None,
+    // Semantic colors
+    success_color: None,
+    warning_color: None,
+    error_color: None,
+    // Text colors
+    text_color: None,
+    text_muted_color: None,
+    heading_color: None,
+    link_color: None,
+    link_hover_color: None,
+    // Background colors
+    background_color: None,
+    surface_color: None,
+    sidebar_bg_color: None,
+    input_bg_color: None,
+    code_bg_color: None,
+    // UI colors
+    border_color: None,
+    focus_ring_color: None,
+    // Non-color settings
     logo: None,
     header: None,
     footer: None,

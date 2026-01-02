@@ -403,14 +403,95 @@ fn parse_navigation_config(obj : Map[String, Json]) -> @ssg.NavigationConfig {
 fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
   match obj.get("theme") {
     Some(Object(theme_obj)) => {
+      // Core colors
       let primary_color = @json_utils.extract_string_opt(
-        theme_obj, "primary_color",
+        theme_obj, "primaryColor",
       )
+      let secondary_color = @json_utils.extract_string_opt(
+        theme_obj, "secondaryColor",
+      )
+      let accent_color = @json_utils.extract_string_opt(
+        theme_obj, "accentColor",
+      )
+
+      // Semantic colors
+      let success_color = @json_utils.extract_string_opt(
+        theme_obj, "successColor",
+      )
+      let warning_color = @json_utils.extract_string_opt(
+        theme_obj, "warningColor",
+      )
+      let error_color = @json_utils.extract_string_opt(
+        theme_obj, "errorColor",
+      )
+
+      // Text colors
+      let text_color = @json_utils.extract_string_opt(theme_obj, "textColor")
+      let text_muted_color = @json_utils.extract_string_opt(
+        theme_obj, "textMutedColor",
+      )
+      let heading_color = @json_utils.extract_string_opt(
+        theme_obj, "headingColor",
+      )
+      let link_color = @json_utils.extract_string_opt(theme_obj, "linkColor")
+      let link_hover_color = @json_utils.extract_string_opt(
+        theme_obj, "linkHoverColor",
+      )
+
+      // Background colors
+      let background_color = @json_utils.extract_string_opt(
+        theme_obj, "backgroundColor",
+      )
+      let surface_color = @json_utils.extract_string_opt(
+        theme_obj, "surfaceColor",
+      )
+      let sidebar_bg_color = @json_utils.extract_string_opt(
+        theme_obj, "sidebarBgColor",
+      )
+      let input_bg_color = @json_utils.extract_string_opt(
+        theme_obj, "inputBgColor",
+      )
+      let code_bg_color = @json_utils.extract_string_opt(
+        theme_obj, "codeBgColor",
+      )
+
+      // UI colors
+      let border_color = @json_utils.extract_string_opt(
+        theme_obj, "borderColor",
+      )
+      let focus_ring_color = @json_utils.extract_string_opt(
+        theme_obj, "focusRingColor",
+      )
+
+      // Non-color settings
       let logo = @json_utils.extract_string_opt(theme_obj, "logo")
       let header : @ssg.HeaderConfig? = None // TODO: parse header
       let footer : @ssg.FooterConfig? = None // TODO: parse footer
       let social_links : Array[@ssg.SocialLink] = [] // TODO: parse social links
-      @ssg.ThemeConfig::{ primary_color, logo, header, footer, social_links }
+      @ssg.ThemeConfig::{
+        primary_color,
+        secondary_color,
+        accent_color,
+        success_color,
+        warning_color,
+        error_color,
+        text_color,
+        text_muted_color,
+        heading_color,
+        link_color,
+        link_hover_color,
+        background_color,
+        surface_color,
+        sidebar_bg_color,
+        input_bg_color,
+        code_bg_color,
+        border_color,
+        focus_ring_color,
+        logo,
+        header,
+        footer,
+        social_links,
+      }
     }
     _ => @ssg.ThemeConfig::default()
   }

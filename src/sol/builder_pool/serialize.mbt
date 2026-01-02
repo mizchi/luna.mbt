@@ -590,15 +590,45 @@ fn parse_islands_config(obj : Map[String, Json]) -> @ssg.IslandsConfig? {
 }
 
 ///|
+fn extract_opt_string(obj : Map[String, Json], key : String) -> String? {
+  match obj.get(key) {
+    Some(String(s)) => Some(s)
+    _ => None
+  }
+}
+
+///|
 fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
-  let primary_color : String? = match obj.get("primaryColor") {
-    Some(String(s)) => Some(s)
-    _ => None
-  }
-  let logo : String? = match obj.get("logo") {
-    Some(String(s)) => Some(s)
-    _ => None
-  }
+  // Core colors
+  let primary_color = extract_opt_string(obj, "primaryColor")
+  let secondary_color = extract_opt_string(obj, "secondaryColor")
+  let accent_color = extract_opt_string(obj, "accentColor")
+
+  // Semantic colors
+  let success_color = extract_opt_string(obj, "successColor")
+  let warning_color = extract_opt_string(obj, "warningColor")
+  let error_color = extract_opt_string(obj, "errorColor")
+
+  // Text colors
+  let text_color = extract_opt_string(obj, "textColor")
+  let text_muted_color = extract_opt_string(obj, "textMutedColor")
+  let heading_color = extract_opt_string(obj, "headingColor")
+  let link_color = extract_opt_string(obj, "linkColor")
+  let link_hover_color = extract_opt_string(obj, "linkHoverColor")
+
+  // Background colors
+  let background_color = extract_opt_string(obj, "backgroundColor")
+  let surface_color = extract_opt_string(obj, "surfaceColor")
+  let sidebar_bg_color = extract_opt_string(obj, "sidebarBgColor")
+  let input_bg_color = extract_opt_string(obj, "inputBgColor")
+  let code_bg_color = extract_opt_string(obj, "codeBgColor")
+
+  // UI colors
+  let border_color = extract_opt_string(obj, "borderColor")
+  let focus_ring_color = extract_opt_string(obj, "focusRingColor")
+
+  // Non-color settings
+  let logo = extract_opt_string(obj, "logo")
   let header : @ssg.HeaderConfig? = match obj.get("header") {
     Some(Object(header_obj)) => Some(parse_header_config(header_obj))
     _ => None
@@ -611,7 +641,30 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
     Some(Array(arr)) => parse_social_links(arr)
     _ => []
   }
-  @ssg.ThemeConfig::{ primary_color, logo, header, footer, social_links }
+  @ssg.ThemeConfig::{
+    primary_color,
+    secondary_color,
+    accent_color,
+    success_color,
+    warning_color,
+    error_color,
+    text_color,
+    text_muted_color,
+    heading_color,
+    link_color,
+    link_hover_color,
+    background_color,
+    surface_color,
+    sidebar_bg_color,
+    input_bg_color,
+    code_bg_color,
+    border_color,
+    focus_ring_color,
+    logo,
+    header,
+    footer,
+    social_links,
+  }
 }
 
 ///|

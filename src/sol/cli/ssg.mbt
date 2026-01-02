@@ -44,11 +44,11 @@ pub fn parse_ssg_config(
   content : String,
   config_path : String,
 ) -> @ssg.SsgConfig? {
-  // All configs are now sol.config.json format
+  // sol.config.json has "ssg" section, parse it properly
   if config_path.ends_with("sol.config.json") {
-    @ssg.parse_ssg_config(content)
+    @ssg.parse_ssg_from_sol_config(content)
   } else {
-    // Fallback to trying direct parse
+    // Direct SSG config format (no wrapper)
     @ssg.parse_ssg_config(content)
   }
 }

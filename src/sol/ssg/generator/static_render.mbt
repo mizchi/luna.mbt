@@ -1619,7 +1619,6 @@ fn build_html_document(
   let page_title = frontmatter.title.unwrap_or(ctx.config.title)
   let desc = frontmatter.description.unwrap_or("")
   let base = ctx.config.base_url
-  let primary = ctx.config.theme.primary_color.unwrap_or("#6366f1") // Indigo 500
 
   // === HEAD: Document metadata ===
   html.write_string("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n")
@@ -1666,7 +1665,7 @@ fn build_html_document(
   html.write_string("  <script>\{theme_script}</script>\n")
 
   // === HEAD: Inline critical CSS ===
-  let combined_css = build_combined_css(ctx.config, primary, is_dev=ctx.is_dev)
+  let combined_css = build_combined_css(ctx.config, is_dev=ctx.is_dev)
   html.write_string("  <style>\{combined_css}</style>\n")
 
   // Custom head snippets
@@ -1720,10 +1719,81 @@ fn build_html_document(
 }
 
 ///|
+/// Build CSS variable overrides from ThemeConfig
+fn build_theme_overrides(theme : @ssg.ThemeConfig) -> String {
+  let vars = StringBuilder::new()
+
+  // Core colors
+  if theme.primary_color is Some(v) {
+    vars.write_string("--primary-color:\{v};")
+  }
+  if theme.secondary_color is Some(v) {
+    vars.write_string("--secondary-color:\{v};")
+  }
+  if theme.accent_color is Some(v) {
+    vars.write_string("--accent-color:\{v};")
+  }
+
+  // Semantic colors
+  if theme.success_color is Some(v) {
+    vars.write_string("--success-color:\{v};")
+  }
+  if theme.warning_color is Some(v) {
+    vars.write_string("--warning-color:\{v};")
+  }
+  if theme.error_color is Some(v) {
+    vars.write_string("--error-color:\{v};")
+  }
+
+  // Text colors
+  if theme.text_color is Some(v) {
+    vars.write_string("--text-color:\{v};")
+  }
+  if theme.text_muted_color is Some(v) {
+    vars.write_string("--text-muted:\{v};")
+  }
+  if theme.heading_color is Some(v) {
+    vars.write_string("--heading-color:\{v};")
+  }
+  if theme.link_color is Some(v) {
+    vars.write_string("--link-color:\{v};")
+  }
+  if theme.link_hover_color is Some(v) {
+    vars.write_string("--link-hover-color:\{v};")
+  }
+
+  // Background colors
+  if theme.background_color is Some(v) {
+    vars.write_string("--bg-color:\{v};")
+  }
+  if theme.surface_color is Some(v) {
+    vars.write_string("--surface-color:\{v};")
+  }
+  if theme.sidebar_bg_color is Some(v) {
+    vars.write_string("--sidebar-bg:\{v};")
+  }
+  if theme.input_bg_color is Some(v) {
+    vars.write_string("--input-bg:\{v};")
+  }
+  if theme.code_bg_color is Some(v) {
+    vars.write_string("--code-bg:\{v};")
+  }
+
+  // UI colors
+  if theme.border_color is Some(v) {
+    vars.write_string("--border-color:\{v};")
+  }
+  if theme.focus_ring_color is Some(v) {
+    vars.write_string("--focus-ring-color:\{v};")
+  }
+
+  vars.to_string()
+}
+
+///|
 /// Build combined CSS with optional minification (skip in dev mode)
 fn build_combined_css(
   config : @ssg.SsgConfig,
-  primary : String,
   is_dev~ : Bool = false,
 ) -> String {
   let main_css = @assets.get_default_css(config)
@@ -1731,7 +1801,12 @@ fn build_combined_css(
   let shiki_css = @shiki.generate_shiki_css()
   let all_css = main_css + "\n" + markdown_css + "\n" + shiki_css
   let output_css = if is_dev { all_css } else { minify_css(all_css) }
-  "\{output_css}:root{--primary-color:\{primary};}"
+  let theme_vars = build_theme_overrides(config.theme)
+  if theme_vars.is_empty() {
+    output_css
+  } else {
+    "\{output_css}:root{\{theme_vars}}"
+  }
 }
 
 ///|
@@ -2488,7 +2563,7 @@ pub fn generate_404_page(ctx : @ssg.BuildContext) -> Unit {
   let base = ctx.config.base_url
   let title = "Page Not Found"
   let site_title = ctx.config.title
-  let primary = ctx.config.theme.primary_color.unwrap_or("#6366f1") // Indigo 500
+  let theme_vars = build_theme_overrides(ctx.config.theme)
   let theme_script = @assets.get_theme_script()
 
   // Build 404 page content
@@ -2499,6 +2574,11 @@ pub fn generate_404_page(ctx : @ssg.BuildContext) -> Unit {
     #|  <p style="color: var(--text-muted); margin-bottom: 2rem;">The page you're looking for doesn't exist or has been moved.</p>
     #|  <a href="/" style="color: var(--primary-color); text-decoration: none; padding: 0.75rem 1.5rem; border: 1px solid var(--primary-color); border-radius: 0.5rem;">Go to Home</a>
     #|</div>
+  let theme_style = if theme_vars.is_empty() {
+    ""
+  } else {
+    "  <style>:root{\{theme_vars}}</style>\n"
+  }
   let html =
     #|<!DOCTYPE html>
     #|<html lang="en">
@@ -2515,9 +2595,7 @@ pub fn generate_404_page(ctx : @ssg.BuildContext) -> Unit {
     #|  <link rel="stylesheet" href="
   let html4 =
     #|assets/style.css">
-    #|  <style>:root { --primary-color:
   let html5 =
-    #|; }</style>
     #|</head>
     #|<body>
     #|  <div id="app">
@@ -2534,7 +2612,7 @@ pub fn generate_404_page(ctx : @ssg.BuildContext) -> Unit {
     html3 +
     base +
     html4 +
-    primary +
+    theme_style +
     html5 +
     content +
     html6
