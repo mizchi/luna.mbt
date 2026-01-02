@@ -499,23 +499,25 @@ mv src/luna/js/fs_adapter src/sol/adapters/fs/
 | Git 履歴 | **新規リポジトリ** | シンプルに開始 |
 | NPM スコープ | **@luna_ui を維持** | `@luna_ui/luna`, `@luna_ui/sol` |
 
-### stream_renderer の依存問題
+### 事前準備 (完了)
 
-**発見**: `luna/js/stream_renderer` が `internal/utils` に依存
+以下の作業は既に完了:
 
-```
-stream_renderer → internal/utils (extract_wc_name_from_url)
-```
+1. **browser_router を Luna に移動** ✅
+   - `src/sol/browser_router` → `src/luna/browser_router`
 
-**解決策**: `stream_renderer` 内に必要な関数をインライン化
+2. **Luna の internal/utils 依存をインライン化** ✅
+   - `stream_renderer`: extract_wc_name_from_url
+   - `render`: extract_wc_name_from_url
+   - `serialize`: extract_substring
+   - `dom/client`: extract_wc_name_from_url
+   - `routes`: split_by
 
-```bash
-# 移行時の対応
-# 1. extract_wc_name_from_url を stream_renderer 内にコピー
-# 2. internal/utils への依存を削除
-```
+3. **core/env + fs_adapter を Sol に移動** ✅
+   - `src/core/env` → `src/sol/core/env`
+   - `src/luna/js/fs_adapter` → `src/sol/adapters/fs`
 
-これにより `internal/` を完全に Sol 側に移動でき、Luna はクリーンになる。
+Luna パッケージから `internal/` と `core/` への依存が完全に解消された。
 
 ---
 
