@@ -12,7 +12,7 @@ pub fn NodeFsAdapter::new() -> NodeFsAdapter {
 ///|
 pub impl @env.FileSystem for NodeFsAdapter with read_file_sync(self, path) {
   let _ = self
-  @fs.read_file_as_string(path, encoding="utf8")
+  @node_fs.read_file_as_string(path, encoding="utf8")
 }
 
 ///|
@@ -22,13 +22,13 @@ pub impl @env.FileSystem for NodeFsAdapter with write_file_sync(
   content,
 ) {
   let _ = self
-  @fs.writeFileSync(path, @js.any(content))
+  @node_fs.writeFileSync(path, @js.any(content))
 }
 
 ///|
 pub impl @env.FileSystem for NodeFsAdapter with exists_sync(self, path) {
   let _ = self
-  @fs.existsSync(path)
+  @node_fs.existsSync(path)
 }
 
 ///|
@@ -38,25 +38,25 @@ pub impl @env.FileSystem for NodeFsAdapter with mkdir_sync(
   recursive,
 ) {
   let _ = self
-  @fs.mkdirSync(path, recursive~)
+  @node_fs.mkdirSync(path, recursive~)
 }
 
 ///|
 pub impl @env.FileSystem for NodeFsAdapter with readdir_sync(self, path) {
   let _ = self
-  @fs.readdirSync(path)
+  @node_fs.readdirSync(path)
 }
 
 ///|
 pub impl @env.FileSystem for NodeFsAdapter with is_file_sync(self, path) {
   let _ = self
-  @fs.statSync(path).isFile()
+  @node_fs.statSync(path).isFile()
 }
 
 ///|
 pub impl @env.FileSystem for NodeFsAdapter with is_directory_sync(self, path) {
   let _ = self
-  @fs.statSync(path).isDirectory()
+  @node_fs.statSync(path).isDirectory()
 }
 
 ///|
@@ -67,13 +67,13 @@ pub impl @env.FileSystem for NodeFsAdapter with cp_sync(
   recursive,
 ) {
   let _ = self
-  @fs.cpSync(src, dest, recursive~)
+  @node_fs.cpSync(src, dest, recursive~)
 }
 
 ///|
 pub impl @env.FileSystem for NodeFsAdapter with unlink_sync(self, path) {
   let _ = self
-  @fs.unlinkSync(path)
+  @node_fs.unlinkSync(path)
 }
 
 ///|
@@ -83,13 +83,13 @@ pub impl @env.FileSystem for NodeFsAdapter with rmdir_sync(
   recursive,
 ) {
   let _ = self
-  @fs.rmdirSync(path, recursive~)
+  @node_fs.rmdirSync(path, recursive~)
 }
 
 ///|
 pub impl @env.FileSystem for NodeFsAdapter with stat_sync(self, path) {
   let _ = self
-  let stat = @fs.statSync(path)
+  let stat = @node_fs.statSync(path)
   @env.StatInfo::{
     is_file: stat.isFile(),
     is_directory: stat.isDirectory(),

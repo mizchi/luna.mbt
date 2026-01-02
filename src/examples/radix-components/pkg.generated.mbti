@@ -1,0 +1,181 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/examples/radix-components"
+
+import(
+  "mizchi/luna/luna"
+)
+
+// Values
+pub fn accordion(AccordionProps) -> @luna.Node[Unit]
+
+pub fn accordion_static(Array[AccordionItemProps]) -> @luna.Node[Unit]
+
+pub fn checkbox(CheckboxProps) -> @luna.Node[Unit]
+
+pub fn checkbox_static(CheckboxState, String?) -> @luna.Node[Unit]
+
+pub fn demo_accordion() -> String
+
+pub fn demo_accordion_with_island() -> String
+
+pub fn demo_checkbox() -> String
+
+pub fn demo_switch() -> String
+
+pub fn dialog(DialogProps) -> @luna.Node[Unit]
+
+pub fn dialog_static(String?, @luna.Node[Unit], Bool) -> @luna.Node[Unit]
+
+pub fn menu(MenuProps) -> @luna.Node[Unit]
+
+pub fn menu_static(String, Array[MenuItem]) -> @luna.Node[Unit]
+
+pub fn popover(PopoverProps) -> @luna.Node[Unit]
+
+pub fn popover_static(String, @luna.Node[Unit]) -> @luna.Node[Unit]
+
+pub fn progress(ProgressProps) -> @luna.Node[Unit]
+
+pub fn progress_static(Int, Int) -> @luna.Node[Unit]
+
+pub fn radio_group(RadioGroupProps) -> @luna.Node[Unit]
+
+pub fn radio_group_static(String, Array[RadioItem]) -> @luna.Node[Unit]
+
+pub fn select(SelectProps) -> @luna.Node[Unit]
+
+pub fn select_static(String, Array[SelectItem]) -> @luna.Node[Unit]
+
+pub fn slider(SliderProps) -> @luna.Node[Unit]
+
+pub fn slider_static(Int, Int, Int, Int) -> @luna.Node[Unit]
+
+pub fn switch(SwitchProps) -> @luna.Node[Unit]
+
+pub fn switch_static(Bool, String?) -> @luna.Node[Unit]
+
+pub fn tabs(TabsProps) -> @luna.Node[Unit]
+
+pub fn tabs_static(String, Array[TabItem]) -> @luna.Node[Unit]
+
+// Errors
+
+// Types and methods
+pub(all) struct AccordionItemProps {
+  id : String
+  title : String
+  content : @luna.Node[Unit]
+  default_open : Bool
+}
+
+pub(all) struct AccordionProps {
+  items : Array[AccordionItemProps]
+  hydration_url : String
+}
+
+pub(all) struct CheckboxProps {
+  id : String
+  default_state : CheckboxState
+  label : String?
+  hydration_url : String
+}
+
+pub(all) enum CheckboxState {
+  Checked
+  Unchecked
+  Indeterminate
+}
+pub impl Show for CheckboxState
+
+pub(all) struct DialogProps {
+  id : String
+  title : String?
+  content : @luna.Node[Unit]
+  hydration_url : String
+  open : Bool
+}
+
+pub(all) enum MenuItem {
+  Item(String, String)
+  Separator
+}
+
+pub(all) struct MenuProps {
+  id : String
+  trigger_label : String
+  items : Array[MenuItem]
+  hydration_url : String
+}
+
+pub(all) struct PopoverProps {
+  id : String
+  trigger_label : String
+  content : @luna.Node[Unit]
+  hydration_url : String
+}
+
+pub(all) struct ProgressProps {
+  id : String
+  value : Int
+  max : Int
+  hydration_url : String
+}
+
+pub(all) struct RadioGroupProps {
+  id : String
+  default_value : String
+  items : Array[RadioItem]
+  hydration_url : String
+}
+
+pub(all) struct RadioItem {
+  value : String
+  label : String
+}
+
+pub(all) struct SelectItem {
+  value : String
+  label : String
+  selected : Bool
+}
+
+pub(all) struct SelectProps {
+  id : String
+  placeholder : String
+  items : Array[SelectItem]
+  hydration_url : String
+}
+
+pub(all) struct SliderProps {
+  id : String
+  value : Int
+  min : Int
+  max : Int
+  step : Int
+  hydration_url : String
+}
+
+pub(all) struct SwitchProps {
+  id : String
+  default_checked : Bool
+  label : String?
+  hydration_url : String
+}
+
+pub(all) struct TabItem {
+  value : String
+  label : String
+  content : @luna.Node[Unit]
+}
+
+pub(all) struct TabsProps {
+  id : String
+  default_value : String
+  items : Array[TabItem]
+  hydration_url : String
+}
+
+// Type aliases
+
+// Traits
+
