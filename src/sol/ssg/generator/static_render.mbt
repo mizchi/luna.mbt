@@ -2288,7 +2288,7 @@ fn bundle_components(src_dir : String, dest_dir : String, cwd : String) -> Unit 
   // Filter for bundleable files
   let js_files : Array[String] = []
   for entry in entries {
-    if entry.ends_with(".js") || entry.ends_with(".ts") {
+    if entry.has_suffix(".js") || entry.has_suffix(".ts") {
       js_files.push(entry)
     }
   }
@@ -2299,10 +2299,12 @@ fn bundle_components(src_dir : String, dest_dir : String, cwd : String) -> Unit 
   // Create rolldown input object
   let input_entries : Array[String] = []
   for file in js_files {
-    let name = if file.ends_with(".js") {
-      file.substring(end=file.length() - 3)
-    } else {
-      file.substring(end=file.length() - 3) // .ts
+    // Remove .js or .ts extension (3 chars)
+    let end_idx = file.length() - 3
+    let name = try {
+      file[:end_idx].to_string()
+    } catch {
+      _ => file // fallback to original filename
     }
     let entry_path = @path.join2(src_dir, file)
     input_entries.push("\"\{name}\": \"\{entry_path}\"")
