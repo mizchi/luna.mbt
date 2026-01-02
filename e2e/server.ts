@@ -1224,7 +1224,7 @@ app.get("/sol-test/trigger-visible", (c) => {
     <div luna:id="visible-trigger"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":0}'
-         luna:client-trigger="visible">
+         luna:trigger="visible">
       <span class="count-display">0</span>
     </div>
   `);
@@ -1236,7 +1236,7 @@ app.get("/sol-test/trigger-media", (c) => {
     <div luna:id="media-trigger"
          luna:url="/sol-components/counter.js"
          luna:state='{"count":0}'
-         luna:client-trigger="media:(max-width: 600px)">
+         luna:trigger="media:(max-width: 600px)">
       <span class="count-display">0</span>
     </div>
   `);

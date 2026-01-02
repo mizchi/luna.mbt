@@ -79,6 +79,7 @@ test-browser:
 # E2E テスト
 test-e2e:
     pnpm playwright test --config e2e/playwright.config.mts
+    pnpm playwright test --config e2e/ssg/playwright.config.ts
 
 # E2E テスト（UI モード）
 test-e2e-ui:

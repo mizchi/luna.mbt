@@ -11,7 +11,23 @@
         "demo_accordion",
         "demo_switch",
         "demo_checkbox",
-        "demo_accordion_with_island"
+        "demo_accordion_with_island",
+        "select",
+        "select_static",
+        "dialog",
+        "dialog_static",
+        "menu",
+        "menu_static",
+        "popover",
+        "popover_static",
+        "tabs",
+        "tabs_static",
+        "slider",
+        "slider_static",
+        "radio_group",
+        "radio_group_static",
+        "progress",
+        "progress_static"
       ],
       "format": "esm"
     }

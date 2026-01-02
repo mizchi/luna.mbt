@@ -15,6 +15,7 @@ export default defineConfig({
     "**/wc_counter*.test.ts",
     "**/wc-css-isolation.test.ts",
     "**/wc-ssr-css.test.ts",
+    "**/ssg/**", // SSG tests run with their own config (serial)
     // Visual snapshot tests are skipped in CI due to cross-platform rendering differences
     ...(process.env.CI ? ["**/visual-snapshots.test.ts"] : []),
   ],
