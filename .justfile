@@ -79,7 +79,6 @@ test-browser:
 # E2E テスト
 test-e2e:
     pnpm playwright test --config e2e/playwright.config.mts
-    pnpm playwright test --config e2e/ssg/playwright.config.ts
 
 # E2E テスト（UI モード）
 test-e2e-ui:
@@ -91,35 +90,11 @@ test-xplat:
     moon test --target all src/luna/routes
     moon test --target all src/luna/render
     moon test --target all src/luna/serialize
-    moon test --target all src/sol/parser
 
 # moon test 用 CommonJS 環境セットアップ
 _setup-test-env:
     @mkdir -p target/js/debug/test
     @echo '{"type": "commonjs"}' > target/js/debug/test/package.json
-
-# =============================================================================
-# テスト（プロダクト別）
-# =============================================================================
-
-# SSG テスト (sol/ssg)
-test-ssg: _setup-test-env
-    moon test --target js src/sol/ssg
-    pnpm playwright test --config e2e/ssg/playwright.config.ts
-
-# Sol テスト
-test-sol: _setup-test-env
-    moon test --target js src/sol
-    cd examples/sol_app && pnpm test:e2e
-
-# セキュリティテスト
-test-security:
-    cd examples/sol_app && pnpm vitest run tests/security.test.ts tests/security-headers.test.ts
-
-# サンプルプロジェクトビルド確認
-test-examples:
-    moon info
-    moon build -C examples/sol_app
 
 # =============================================================================
 # CI
@@ -147,76 +122,6 @@ size:
     @find target/js/release/build -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 ": " $5}' | head -20
 
 # =============================================================================
-# CLI
-# =============================================================================
-
-# Sol CLI
-sol *args:
-    @just build-moon
-    node target/js/release/build/sol/cli/cli.js {{args}}
-
-# Astra CLI
-astra *args:
-    @just build-moon
-    node target/js/release/build/sol/cli/cli.js {{args}}
-
-# =============================================================================
-# ドキュメント
-# =============================================================================
-
-# docs 開発サーバー
-dev-doc:
-    pnpm turbo run build:moon build:sol
-    cd website && node ../target/js/release/build/sol/cli/cli.js dev
-
-# docs ビルド
-build-doc *args:
-    pnpm turbo run build:doc -- {{args}}
-
-# docs ビルド（内部用 - turbo から呼ばれる）
-_build-doc-inner *args:
-    @echo "Building demo..."
-    pnpm vite build
-    @echo "Building docs..."
-    node target/js/release/build/sol/cli/cli.js build --parallel {{args}}
-    @echo "Building search index..."
-    @if [ -d website/dist-docs ] && [ -n "$(find website/dist-docs -name '*.html' -type f 2>/dev/null | head -1)" ]; then \
-        pnpm pagefind --site website/dist-docs; \
-    else \
-        echo "⚠ Skipping pagefind: no HTML files in website/dist-docs"; \
-    fi
-    @echo "✓ Documentation built"
-
-# docs デプロイ（Cloudflare Pages）
-release-doc:
-    pnpm turbo run deploy:doc
-
-# docs lint
-lint-doc:
-    pnpm turbo run build:moon build:sol
-    node target/js/release/build/sol/cli/cli.js lint
-
-# docs プレビュー
-preview-doc:
-    npx serve dist
-
-# docs リンクチェック (--strict でコンソールエラーも検出)
-test-docs-links *flags:
-    #!/usr/bin/env bash
-    set -e
-    just build-doc
-    echo "Starting server..."
-    npx serve dist-docs -p 3355 &
-    SERVER_PID=$!
-    trap "kill $SERVER_PID 2>/dev/null || true" EXIT
-    sleep 2
-    cd js/playwright-chaos
-    npx tsx src/cli.ts http://localhost:3355 \
-        --max-pages 100 --max-actions 0 --ignore-analytics \
-        --exclude "/public/demo/" --compact --output chaos-report.json {{flags}}
-    echo "✓ All links OK"
-
-# =============================================================================
 # カバレッジ
 # =============================================================================
 
@@ -241,37 +146,12 @@ coverage-vitest:
 coverage-e2e:
     @just build-debug
     rm -rf coverage/e2e-v8
-    pnpm playwright test --config e2e/playwright.config.mts e2e/browser-app/coverage.test.mts
+    pnpm playwright test --config e2e/playwright.config.mts e2e/browser/coverage.test.mts
 
 # カバレッジクリーン
 coverage-clean:
     rm -rf coverage/
     moon coverage clean
-
-# =============================================================================
-# ベンチマーク
-# =============================================================================
-
-# サーバーベンチマーク
-bench-server:
-    #!/usr/bin/env bash
-    set -e
-    just build-moon
-    cd examples/sol_app
-    pnpm serve &
-    SERVER_PID=$!
-    trap "kill $SERVER_PID 2>/dev/null || true" EXIT
-    sleep 3
-    for path in "/" "/form" "/api/health"; do
-        echo "=== Benchmark: $path ==="
-        npx autocannon -c 100 -d 10 "http://localhost:3000$path"
-        echo ""
-    done
-    echo "✓ Benchmark completed"
-
-# CSS ベンチマーク
-bench-css scale="all":
-    node src/luna/css/benchmark.js --scale {{scale}}
 
 # =============================================================================
 # CSS ユーティリティ
@@ -292,6 +172,10 @@ minify-css input *flags:
 # CSS を HTML に注入
 inject-css html src *flags:
     just luna css inject {{html}} --src {{src}} {{flags}}
+
+# CSS ベンチマーク
+bench-css scale="all":
+    node src/luna/css/benchmark.js --scale {{scale}}
 
 # =============================================================================
 # リリース
