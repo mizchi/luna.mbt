@@ -1,5 +1,0 @@
-{
-  "import": [
-    { "path": "mizchi/luna/sol/content/markdown", "alias": "markdown" }
-  ]
-}

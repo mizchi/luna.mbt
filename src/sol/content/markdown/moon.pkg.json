@@ -1,5 +1,0 @@
-{
-  "import": [
-    { "path": "mizchi/luna/luna", "alias": "luna" }
-  ]
-}

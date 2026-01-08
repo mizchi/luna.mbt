@@ -1,20 +1,13 @@
 {
   "name": "luna.mbt",
   "private": true,
-  "type": "module",
-  "description": "MoonBit Island Architecture UI Framework - Workspace Root",
+  "description": "MoonBit Island Architecture UI Framework",
   "scripts": {
-    "build:moon": "just build-moon",
-    "build:loader": "just build-loader",
-    "build:sol": "cd js/sol && pnpm build",
-    "lint:doc": "node target/js/release/build/sol/cli/cli.js lint || true",
-    "build:doc": "just _build-doc-inner",
-    "deploy:doc": "npx wrangler deploy",
-    "test:moonbit": "just test-moonbit",
-    "test:ts": "just test-ts",
-    "test:vitest": "just test-vitest",
-    "test:browser": "just test-browser",
-    "test:e2e": "just test-e2e"
+    "build:moon": "moon build --target js",
+    "build:loader": "pnpm exec rolldown -c rolldown.config.mjs",
+    "test:moonbit": "moon test --target js",
+    "test:vitest": "pnpm vitest run",
+    "test:browser": "pnpm vitest run --config vitest.browser.config.ts"
   },
   "devDependencies": {
     "0x": "^6.0.0",

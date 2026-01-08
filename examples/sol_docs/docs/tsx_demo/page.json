@@ -1,6 +1,0 @@
-{
-  "title": "TSX Demo",
-  "description": "Demo of TSX component SSR",
-  "ssr": true,
-  "renderer": "react"
-}

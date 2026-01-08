@@ -1,7 +1,0 @@
-{
-  "supported-targets": ["js"],
-  "import": [
-    { "path": "mizchi/js/core", "alias": "core" },
-    { "path": "mizchi/js/node/child_process", "alias": "child_process" }
-  ]
-}

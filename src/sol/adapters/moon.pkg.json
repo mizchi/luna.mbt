@@ -1,9 +1,0 @@
-{
-  "supported-targets": ["js"],
-  "import": [
-    { "path": "mizchi/luna/sol/ssg", "alias": "ssg" },
-    { "path": "mizchi/js/core", "alias": "js" },
-    { "path": "mizchi/js/node/fs", "alias": "fs" },
-    { "path": "mizchi/js/node/path", "alias": "path" }
-  ]
-}

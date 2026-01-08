@@ -1,7 +1,0 @@
-{
-  "supported-targets": [
-    "js",
-    "wasm-gc",
-    "native"
-  ]
-}

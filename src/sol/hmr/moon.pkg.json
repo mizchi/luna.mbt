@@ -1,9 +1,0 @@
-{
-  "supported-targets": ["js"],
-  "import": [
-    { "path": "mizchi/js/core", "alias": "js" },
-    { "path": "mizchi/js/web/console", "alias": "console" },
-    { "path": "mizchi/npm_typed/colorette", "alias": "colorette" },
-    { "path": "mizchi/luna/sol/cli_common", "alias": "cli_common" }
-  ]
-}
