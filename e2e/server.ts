@@ -1363,14 +1363,19 @@ app.get("/sol-test/mismatch-extra-server", (c) => {
   return c.html(html);
 });
 
-// Mount MoonBit Hono app
+// Mount MoonBit Hono app (optional - may not exist after Sol split)
 async function setupMoonBitRoutes() {
-  const e2eServer = await import(e2eServerPath);
-  const moonbitApp = await promisifyMoonBit<any>(e2eServer.create_app);
+  try {
+    const e2eServer = await import(e2eServerPath);
+    const moonbitApp = await promisifyMoonBit<any>(e2eServer.create_app);
 
-  // Mount loader routes at /loader/*
-  // Mount shard routes at /shard/*
-  app.route("/", moonbitApp);
+    // Mount loader routes at /loader/*
+    // Mount shard routes at /shard/*
+    app.route("/", moonbitApp);
+  } catch {
+    // e2e_server not available - skip MoonBit routes
+    console.log("[e2e server] MoonBit e2e_server not available, skipping routes");
+  }
 }
 
 // Start server

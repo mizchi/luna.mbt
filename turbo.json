@@ -22,41 +22,6 @@
         "js/loader/dist/**"
       ]
     },
-    "//#build:sol": {
-      "dependsOn": ["//#build:moon"],
-      "inputs": [
-        "js/sol/src/**",
-        "target/js/release/build/**"
-      ],
-      "outputs": [
-        "js/sol/dist/**"
-      ]
-    },
-    "//#lint:doc": {
-      "dependsOn": ["//#build:moon", "//#build:sol"],
-      "inputs": [
-        "website/**",
-        "target/js/release/build/**"
-      ],
-      "outputs": [],
-      "cache": false
-    },
-    "//#build:doc": {
-      "dependsOn": ["//#build:moon", "//#build:sol", "//#lint:doc"],
-      "inputs": [
-        "website/**",
-        "demo-src/**",
-        "target/js/release/build/**"
-      ],
-      "outputs": [
-        "website/dist-docs/**"
-      ],
-      "cache": false
-    },
-    "//#deploy:doc": {
-      "dependsOn": ["//#build:doc"],
-      "cache": false
-    },
     "build": {
       "dependsOn": ["^build", "//#build:moon", "//#build:loader"],
       "outputs": ["dist/**"]
