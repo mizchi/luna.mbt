@@ -32,11 +32,8 @@ jobs:
       - name: moon check
         run: |
           moon check --target js src/luna
-          moon check --target js src/sol/parser
           moon check --target js src/luna/js/api
-          moon check --target js src/sol/adapters/fs
           moon check --target js src/luna/js/stream_renderer
-          moon check --target js src/sol
           moon check --target js src/stella
       - name: Build workspace packages
         run: |
@@ -80,11 +77,7 @@ jobs:
           # Luna DOM
           moon test --target js src/luna/dom/client
           moon test --target js src/luna/static_dom
-          # Sol
-          moon test --target js src/sol/parser
-          moon test --target js src/sol/router
-          # Sol adapters (specific packages with tests)
-          moon test --target js src/sol/adapters/fs
+          # Luna JS
           moon test --target js src/luna/js/stream_renderer
           moon test --target js src/luna/js/api
           # Stella
@@ -123,26 +116,3 @@ jobs:
           moon test --target wasm src/luna/serialize
           moon test --target wasm-gc src/luna/serialize
           moon test --target native src/luna/serialize
-      - name: Test sol/parser (wasm, wasm-gc, native)
-        run: |
-          moon test --target wasm src/sol/parser
-          moon test --target wasm-gc src/sol/parser
-          moon test --target native src/sol/parser
-
-  # Example projects
-  test-examples:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - uses: illusory0x0/setup-moonbit@v0.1.0
-        with:
-          version: stable
-      - run: |
-          moon update
-          moon install
-      - name: Build examples
-        run: |
-          moon info
-          moon build --target js -C examples/sol_app
