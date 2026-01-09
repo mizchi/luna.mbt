@@ -212,126 +212,140 @@ export function render(element: HTMLElement, state: unknown): void {
 ## File Structure
 
 ```
-src/embedding/
-├── ARCHITECTURE.md    # This file
-├── moon.pkg.json      # Package config
-├── types.mbt          # EmbedConfig, TriggerType, StateConfig, EmbedOutput
-├── serializer.mbt     # JSON serialization with XSS escaping
-├── html_builder.mbt   # HTML snippet generation
-└── embedding_test.mbt # Tests
+src/stella/
+├── ARCHITECTURE.md      # This file
+├── moon.pkg.json        # Package config
+├── types.mbt            # ShardConfig, StateConfig, ShardOutput
+├── serializer.mbt       # JSON serialization with XSS escaping
+├── html_builder.mbt     # HTML snippet generation
+├── shard_test.mbt       # Tests
+└── component/           # Component codegen
+    ├── codegen.mbt      # Code generation for hydration modules
+    ├── context.mbt      # Component context
+    └── types.mbt        # Component types
+
+src/luna/render/
+├── render_to_string.mbt # VNode → HTML SSR rendering
+└── ssr_test.mbt         # SSR tests (1400+ lines)
+
+src/luna/dom/client/
+├── hydrate.mbt          # VNode hydration (864 lines)
+├── hydrate_test.mbt     # Hydration tests (1400+ lines)
+└── repair/              # Experimental hydration repair
 
 js/loader/
-├── luna-loader-v1.js    # Loader script (renamed from loader.js)
+├── luna-loader-v1.js    # Loader script
 ├── luna-loader-v1.min.js
-└── loader.test.ts     # Tests
+└── loader.test.ts       # Tests
 ```
 
-## Current Status (WIP)
+## Current Status
 
-This module is currently a **proof of concept**. The current implementation:
+### ✅ Implemented
 
-### What Works
-- ✅ HTML snippet generation with `luna:*` attributes
-- ✅ XSS escaping for inline JSON state (`escape_json_for_html`)
-- ✅ Various trigger modes (load, visible, idle, none)
-- ✅ Script reference state (`#id` format)
-- ✅ Basic E2E tests with mock hydration components
+| Feature | Location | Description |
+|---------|----------|-------------|
+| **SSR Rendering** | `src/luna/render/render_to_string.mbt` | VNode → HTML with `render_to_string` and `render_to_string_with_hydration` |
+| **Hydration** | `src/luna/dom/client/hydrate.mbt` | Full hydration with mismatch detection and recovery |
+| **Hydration Markers** | SSR output | `sol:hk="N"` attributes for dynamic elements |
+| **Dynamic Text** | Hydration | `<!--t:N-->...<!--/t-->` comment markers |
+| **Show/For** | Hydration | `<!--s:N-->...<!--/s-->`, `<!--f:N-->...<!--/f-->` markers |
+| **Event Handlers** | Hydration | Automatic attachment during hydration |
+| **Dynamic Attributes** | Hydration | Effect-based attribute updates |
+| **Shard Generation** | `src/stella/` | HTML snippet generation with `luna:*` attributes |
+| **XSS Escaping** | `serializer.mbt` | Safe JSON embedding in HTML |
+| **Trigger Modes** | Loader | load, visible, idle, media, none |
+| **Unit Tests** | `hydrate_test.mbt` | 1400+ lines covering all hydration scenarios |
 
-### What's Missing (TODO)
+### ⚠️ Partial / Needs Improvement
 
-#### 1. SSR Integration (High Priority)
-The current E2E tests use **static HTML strings**, not actual SSR output:
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **E2E Browser Tests** | Partial | Unit tests run in jsdom; need Playwright tests for real browser verification |
+| **Hydration Mode** | Recovery-based | On mismatch, re-renders entire tree instead of surgical fixes |
+| **Component Export** | Undocumented | Pattern for MoonBit → JS module exports needs documentation |
+
+### ❌ Not Yet Implemented
+
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **State Serialization** | Medium | Serialize/restore hooks state for resumability |
+| **Pure Hydration Mode** | Low | Attach handlers only, never mutate DOM |
+
+## Hydration Flow
+
+```
+SSR (Server):
+  VNode → render_to_string_with_hydration() → HTML with sol:hk markers
+
+Client:
+  1. Loader detects luna:id elements
+  2. Trigger fires (load/visible/idle)
+  3. Dynamic import component module
+  4. Call hydrate(container, vnode)
+     - Walk DOM tree matching VNode structure
+     - Attach event handlers to elements with sol:hk
+     - Set up effects for dynamic attributes
+     - On mismatch: warn + re-render (recoverable)
+```
+
+## Usage Example
 
 ```moonbit
-// Current: Manual HTML string
-let html = "<span data-count>5</span><button>+</button>"
+// Server-side rendering
+let vnode = div([
+  button(onClick=handler, [text("Click me")]),
+  span([text_dyn(count_signal)]),
+])
+let html = @render.render_to_string_with_hydration(vnode)
+// Output: <div><button sol:hk="0">Click me</button><span><!--t:1-->0<!--/t--></span></div>
 
-// Goal: Generate from VNode via SSR
-let vnode = Counter::render(state)
-let html = @ssr.render_to_string(vnode)
+// Client-side hydration
+@client.hydrate(container, vnode)
+// - Finds button with sol:hk="0", attaches onClick handler
+// - Finds text marker t:1, sets up effect for count_signal
 ```
 
-**Task**: Create `src/js/ssr/` module that renders VNodes to HTML strings.
+## Remaining Work
 
-#### 2. Idempotent Hydration Test (High Priority)
-Need to verify SSR → Hydration produces identical DOM (like Next.js/Remix/Qwik):
+### 1. E2E Browser Tests (High Priority)
+
+Add Playwright tests to verify hydration in real browsers:
 
 ```typescript
-// E2E test pseudocode
-test("hydration is idempotent", async ({ page }) => {
-  await page.goto("/ssr-test");
+test("hydration attaches handlers correctly", async ({ page }) => {
+  await page.goto("/counter");
 
-  // Get initial SSR HTML
-  const ssrHtml = await page.locator("#app").innerHTML();
+  // Verify SSR content is present
+  await expect(page.locator("button")).toHaveText("0");
 
-  // Wait for hydration
-  await expect(page.locator("#app")).toHaveAttribute("data-hydrated", "true");
-
-  // HTML should be identical (or semantically equivalent)
-  const hydratedHtml = await page.locator("#app").innerHTML();
-  expect(hydratedHtml).toBe(ssrHtml);
+  // Click should work after hydration
+  await page.locator("button").click();
+  await expect(page.locator("button")).toHaveText("1");
 });
 ```
 
-**Task**: Implement in `e2e/embedding/` with real MoonBit SSR output.
+### 2. State Serialization (Medium Priority)
 
-#### 3. Component Hydration Module (Medium Priority)
-Current loader expects JS modules with `hydrate(el, state)` function.
-Need MoonBit-generated component modules:
-
-```moonbit
-// src/js/component/counter.mbt
-pub fn hydrate(el: @dom.Element, state: Json) -> Unit {
-  // Attach event handlers, setup reactivity
-}
-```
-
-**Task**: Create component export pattern for JS backend.
-
-#### 4. State Serialization from Hooks (Medium Priority)
-Hooks state needs to be serializable for resumability:
+For full resumability, serialize signal state during SSR:
 
 ```moonbit
 // During SSR
-let serialized = @hooks.serialize_state(context)
-// Output: {"useState:0": 5, "useEffect:1": {...}}
+let state_json = @signal.serialize_tracked_state()
+// Embed in HTML: <script type="luna/state">{"signals":[...]}</script>
 
 // During hydration
-@hooks.restore_state(context, serialized)
+@signal.restore_state(parsed_json)
 ```
 
-**Task**: Implement in `src/js/vdom/hooks_serialization.mbt`.
+### 3. Documentation (Low Priority)
 
-#### 5. Reconcile + Hydration Mode (Medium Priority)
-Current reconcile module does full diff. Need hydration mode that:
-- Walks existing DOM (from SSR)
-- Attaches event handlers without re-rendering
-- Only updates if state differs
-
-```moonbit
-pub fn hydrate(el: @dom.Element, vnode: VNode) -> Unit {
-  // Don't mutate DOM, just attach handlers
-}
-```
-
-**Task**: Add `experimental_hydrate` to reconcile module.
-
-### Architecture Evolution
-
-```
-Phase 1 (Current):
-  embedding → static HTML strings → loader → mock JS hydrate()
-
-Phase 2 (Next):
-  embedding → VNode SSR → loader → MoonBit hydrate()
-
-Phase 3 (Goal):
-  Component → SSR HTML + serialized state → loader → resumable hydration
-```
+- Document component export pattern for loader compatibility
+- Add examples for custom hydration scenarios
 
 ## Future Considerations
 
-- WebComponents output (`<kg-counter>` custom elements)
+- WebComponents output (`<luna-counter>` custom elements)
 - Streaming SSR support
 - State compression (gzip in base64)
 - Preload hints (`<link rel="modulepreload">`)
