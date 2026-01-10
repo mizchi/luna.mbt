@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Refactor
+
+- **luna**: Flatten src/luna/* to src/* [**BREAKING**]
+- **luna**: Migrate to Ref::new syntax and disable css/analyzer
+- **luna**: Migrate to Ref::new syntax and remove css/analyzer
+
 ## [0.5.0] - 2026-01-10
 
 ### Bug Fixes

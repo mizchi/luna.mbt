@@ -2,40 +2,44 @@
 
 MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
 
+## 関連リポジトリ
+
+- **Sol** (SSR/SSGフレームワーク): [mizchi/sol.mbt](https://github.com/mizchi/sol.mbt)
+
 ## モジュール構成
 
 | モジュール | 責務 | ドキュメント |
 |-----------|------|-------------|
-| **Luna** | コアUIライブラリ。Signal、VNode、DOM操作、CSS Utilities、Hydration | [src/luna/](src/luna/README.md), [src/platform/](src/platform/README.md) |
-| **Sol** | SSR/SSGフレームワーク。Hono統合、Middleware、Server Actions、SSG | [src/sol/](src/sol/README.md) |
+| **Luna** | コアUIライブラリ。Signal、VNode、DOM操作、CSS Utilities、Hydration | [src/](src/README.md) |
 | **Stella** | Island埋め込み用Shard生成 | [src/stella/](src/stella/README.md) |
 
 ## ディレクトリ構成
 
 ```
 src/
-├── luna/           # Luna Core: Signal, Virtual Node, Render, SSR（ターゲット非依存）
-├── core/           # 共有型定義: env (FileSystem trait)
-├── platform/       # DOM, JS API, Server DOM（プラットフォーム固有）
-├── stella/         # Island埋め込み用Shard生成
-├── sol/            # SSR/SSGフレームワーク
-│   ├── ssg/        # SSG (静的サイト生成、コンポーネント、キャッシュ)
-│   ├── isr/        # ISR (Incremental Static Regeneration)
-│   ├── router/     # ルーティング
-│   ├── routes/     # ファイルベースルーティング、マニフェスト
-│   ├── parser/     # MoonBit解析機
-│   └── cli/        # CLIツール
-├── internal/       # 内部ユーティリティ
-└── _bench/         # ベンチマーク
-js/                 # NPMパッケージ (@luna_ui/luna)
-e2e/                # Playwrightテスト
-website/            # 公開ドキュメント（Sol SSGで生成）
-spec/               # 仕様・設計ドキュメント
-examples/           # サンプルプロジェクト
+├── signal/           # リアクティブシグナル (mizchi/luna/signal)
+├── dom/              # DOM操作、Hydration (mizchi/luna/dom)
+├── render/           # VNode → HTML レンダリング (mizchi/luna/render)
+├── js/api/           # JavaScript API エクスポート (mizchi/luna/js/api)
+├── css/              # CSS Utilities (mizchi/luna/css)
+├── routes/           # クライアントサイドルーティング (mizchi/luna/routes)
+├── browser_router/   # ブラウザルーター (mizchi/luna/browser_router)
+├── static_dom/       # サーバーサイドDOM (mizchi/luna/static_dom)
+├── serialize/        # シリアライズ (mizchi/luna/serialize)
+├── testing/          # テストユーティリティ (mizchi/luna/testing)
+├── components/       # UIコンポーネント (mizchi/luna/components)
+├── stella/           # Island埋め込み用Shard生成
+├── examples/         # サンプルコード
+├── tests/            # 統合テスト
+├── _bench/           # ベンチマーク
+├── vnode.mbt         # VNode型定義
+├── top.mbt           # トップレベル再エクスポート
+└── moon.pkg.json
+js/                   # NPMパッケージ (@luna_ui/luna)
+e2e/                  # Playwrightテスト
+spec/                 # 仕様・設計ドキュメント
+examples/             # サンプルプロジェクト
 ```
-
-- `website/` は Sol SSG でビルドされる公開ドキュメント
-- `spec/` は内部仕様・設計書（開発者向け）
 
 ## 開発コマンド
 
@@ -53,12 +57,7 @@ just test-integration         # Integration tests (Vitest, Browser)
 just test-e2e                 # E2E tests (Playwright)
 
 # テスト（プロダクト軸）
-just test-sol                 # Sol 全テスト (SSG含む)
 just test-luna                # Luna 全テスト
-
-# ドキュメント
-just dev-doc                  # docs 開発サーバー (HMR対応)
-just build-doc                # docs ビルド
 ```
 
 ## 開発ポリシー
@@ -67,7 +66,6 @@ just build-doc                # docs ビルド
 - `moon fmt` でフォーマット統一
 - ローダーサイズは5KB以下を維持
 - luna(core): バンドルサイズが最優先
-- sol: --target native でサーバーで動くことを目指す。速度 > サイズ。SSG機能も含む
 - stella: 実験的なコードは含むが、コア部分はクローズドにする
 
 ## コミットメッセージ
@@ -89,11 +87,11 @@ just build-doc                # docs ビルド
 | `chore` | ビルド・CI など |
 | `deps` | 依存関係の更新 |
 
-scope は `luna`, `sol`, `stella`, `ci`, `docs` など。
+scope は `luna`, `stella`, `ci`, `docs` など。
 
 ```bash
 # 例
-feat(sol): add dynamic route support
+feat(luna): add new signal API
 fix(luna): resolve hydration mismatch
 docs: update README
 ```
@@ -106,35 +104,7 @@ docs: update README
 |---------|-------------|------|
 | MoonBit Unit | `src/**/*_test.mbt` | 純粋ロジック（DOM非依存） |
 | Browser | `js/luna/tests/*.test.ts` | DOM操作、Hydration |
-| E2E | `e2e/**/*.test.ts` | SSR統合 |
-
-## SSG 設定オプション
-
-`sol.config.json` の `ssg` セクションで設定可能。
-
-### メタファイル生成 (`metaFiles`)
-
-```json
-{
-  "metaFiles": {
-    "sitemap": true,   // sitemap.xml (デフォルト: true)
-    "feed": false,     // feed.xml RSS 2.0 (デフォルト: false)
-    "llmsTxt": false   // llms.txt (デフォルト: false)
-  }
-}
-```
-
-### CSS Utilities (`cssUtilities`)
-
-```json
-{
-  "cssUtilities": {
-    "enabled": true,        // CSS utility 抽出 (デフォルト: true)
-    "split": false,         // ページ別CSS分割 (デフォルト: false)
-    "inlineThreshold": 4096 // インライン化閾値 (バイト)
-  }
-}
-```
+| E2E | `e2e/**/*.test.ts` | 統合テスト |
 
 ## 仕様ドキュメント
 
