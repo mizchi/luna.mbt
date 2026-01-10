@@ -30,3 +30,5 @@ dist-docs
 website/public/demo/
 tmp.sol-cache/
 tmp/
+target
+_build

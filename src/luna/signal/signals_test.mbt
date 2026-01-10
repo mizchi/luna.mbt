@@ -33,7 +33,7 @@ test "Signal::update transforms value" {
 ///|
 test "Signal::peek does not track dependency" {
   let sig = Signal::new(1)
-  let count = { val: 0 }
+  let count = Ref::new(0)
 
   // Create effect that uses peek (should not track)
   let _ = render_effect(fn() {
@@ -55,7 +55,7 @@ test "Signal::peek does not track dependency" {
 
 ///|
 test "effect runs immediately" {
-  let count = { val: 0 }
+  let count = Ref::new(0)
   let _ = render_effect(fn() { count.val = count.val + 1 })
   assert_eq(count.val, 1)
 }
@@ -63,7 +63,7 @@ test "effect runs immediately" {
 ///|
 test "effect re-runs when signal changes" {
   let sig = Signal::new(0)
-  let observed = { val: 0 }
+  let observed = Ref::new(0)
   let _ = render_effect(fn() { observed.val = sig.get() })
   assert_eq(observed.val, 0)
   sig.set(42)
@@ -73,7 +73,7 @@ test "effect re-runs when signal changes" {
 ///|
 test "effect dispose stops re-running" {
   let sig = Signal::new(0)
-  let count = { val: 0 }
+  let count = Ref::new(0)
   let dispose = render_effect(fn() {
     let _ = sig.get()
     count.val = count.val + 1
@@ -93,7 +93,7 @@ test "effect dispose stops re-running" {
 test "effect tracks multiple signals" {
   let a = Signal::new(1)
   let b = Signal::new(2)
-  let sum = { val: 0 }
+  let sum = Ref::new(0)
   let _ = render_effect(fn() { sum.val = a.get() + b.get() })
   assert_eq(sum.val, 3)
   a.set(10)
@@ -107,7 +107,7 @@ test "effect tracks multiple signals" {
 ///|
 test "memo caches computed value" {
   let sig = Signal::new(5)
-  let compute_count = { val: 0 }
+  let compute_count = Ref::new(0)
   let doubled = memo(fn() {
     compute_count.val = compute_count.val + 1
     sig.get() * 2
@@ -155,7 +155,7 @@ test "batch delays effect execution" {
 ///|
 test "untracked prevents dependency tracking" {
   let sig = Signal::new(0)
-  let count = { val: 0 }
+  let count = Ref::new(0)
   let _ = render_effect(fn() {
     untracked(fn() {
       let _ = sig.get()
@@ -178,7 +178,7 @@ test "untracked prevents dependency tracking" {
 test "nested signals work correctly" {
   let outer = Signal::new(1)
   let inner = Signal::new(10)
-  let result = { val: 0 }
+  let result = Ref::new(0)
   let _ = render_effect(fn() { result.val = outer.get() * inner.get() })
   assert_eq(result.val, 10)
   outer.set(2)
@@ -230,7 +230,7 @@ test "on_immediate runs with initial value" {
 ///|
 test "on_cleanup runs before effect re-runs" {
   let sig = Signal::new(0)
-  let cleanup_count = { val: 0 }
+  let cleanup_count = Ref::new(0)
   let _ = render_effect(fn() {
     let _ = sig.get()
     on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
@@ -249,7 +249,7 @@ test "on_cleanup runs before effect re-runs" {
 
 ///|
 test "on_cleanup runs on dispose" {
-  let cleanup_count = { val: 0 }
+  let cleanup_count = Ref::new(0)
   let dispose = render_effect(fn() {
     on_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
   })
@@ -283,7 +283,7 @@ test "watch calls callback on change" {
 ///|
 test "watch does not call for same value" {
   let sig = Signal::new(5)
-  let call_count = { val: 0 }
+  let call_count = Ref::new(0)
   let _ = watch(fn() { sig.get() }, fn(_new, _old) {
     call_count.val = call_count.val + 1
   })
@@ -379,9 +379,9 @@ test "switch_ selects based on condition" {
 ///|
 test "create_root disposes all effects" {
   let sig = Signal::new(0)
-  let effect_count = { val: 0 }
-  let cleanup_count = { val: 0 }
-  let dispose_ref : Ref[(() -> Unit)?] = { val: None }
+  let effect_count = Ref::new(0)
+  let cleanup_count = Ref::new(0)
+  let dispose_ref : Ref[(() -> Unit)?] = Ref::new(None)
   create_root(fn(dispose) {
     dispose_ref.val = Some(dispose)
 
@@ -424,9 +424,9 @@ test "create_root disposes all effects" {
 
 ///|
 test "nested create_root disposes correctly" {
-  let outer_cleanup = { val: 0 }
-  let inner_cleanup = { val: 0 }
-  let dispose_ref : Ref[(() -> Unit)?] = { val: None }
+  let outer_cleanup = Ref::new(0)
+  let inner_cleanup = Ref::new(0)
+  let dispose_ref : Ref[(() -> Unit)?] = Ref::new(None)
   create_root(fn(dispose_outer) {
     dispose_ref.val = Some(dispose_outer)
     let _ = render_effect(fn() {
@@ -452,7 +452,7 @@ test "nested create_root disposes correctly" {
 ///|
 test "get_owner returns owner inside create_root" {
   assert_true(get_owner() is None)
-  let has_owner_inside = { val: false }
+  let has_owner_inside = Ref::new(false)
   create_root(fn(_) { has_owner_inside.val = get_owner() is Some(_) })
   assert_true(has_owner_inside.val)
   assert_true(get_owner() is None)
@@ -460,14 +460,14 @@ test "get_owner returns owner inside create_root" {
 
 ///|
 test "run_with_owner preserves owner context" {
-  let owner_ref : Ref[Owner?] = { val: None }
+  let owner_ref : Ref[Owner?] = Ref::new(None)
   create_root(fn(_) { owner_ref.val = get_owner() })
 
   // Outside root, no owner
   assert_true(get_owner() is None)
 
   // Run with saved owner
-  let has_owner_inside = { val: false }
+  let has_owner_inside = Ref::new(false)
   match owner_ref.val {
     Some(owner) =>
       run_with_owner(owner, fn() {
@@ -481,7 +481,7 @@ test "run_with_owner preserves owner context" {
 ///|
 test "on_mount runs without tracking" {
   let sig = Signal::new(0)
-  let mount_count = { val: 0 }
+  let mount_count = Ref::new(0)
   create_root(fn(_) {
     on_mount(fn() {
       let _ = sig.get() // Should not create dependency
@@ -502,7 +502,7 @@ test "on_mount runs without tracking" {
 ///|
 test "Signal::clear_subscribers clears all subscribers" {
   let sig = Signal::new(0)
-  let count = { val: 0 }
+  let count = Ref::new(0)
   let _ = render_effect(fn() {
     let _ = sig.get()
     count.val = count.val + 1
@@ -537,8 +537,8 @@ test "Signal::subscriber_count returns correct count" {
 ///|
 test "Signal::remove_subscriber removes specific subscriber" {
   let sig = Signal::new(0)
-  let count1 = { val: 0 }
-  let count2 = { val: 0 }
+  let count1 = Ref::new(0)
+  let count2 = Ref::new(0)
 
   // Create two effects
   let _ = on(sig, fn(_) { count1.val = count1.val + 1 })
@@ -621,7 +621,7 @@ test "combine4 combines four signals" {
 ///|
 test "effect_when only runs when condition is true" {
   let condition = Signal::new(false)
-  let count = { val: 0 }
+  let count = Ref::new(0)
   let _ = effect_when(fn() { condition.get() }, fn() {
     count.val = count.val + 1
   })
@@ -636,7 +636,7 @@ test "effect_when only runs when condition is true" {
 
 ///|
 test "effect_once runs only once and disposes" {
-  let count = { val: 0 }
+  let count = Ref::new(0)
   effect_once(fn() { count.val = count.val + 1 })
 
   // Effect ran once
@@ -670,7 +670,7 @@ test "watch_immediate calls callback with initial value" {
 ///|
 test "watch_immediate does not call for same value" {
   let sig = Signal::new(5)
-  let call_count = { val: 0 }
+  let call_count = Ref::new(0)
   let _ = watch_immediate(fn() { sig.get() }, fn(_new, _old) {
     call_count.val = call_count.val + 1
   })
@@ -725,8 +725,8 @@ test "text_sig creates dynamic text from signal" {
 
 ///|
 test "Owner::dispose early return when already disposed" {
-  let cleanup_count = { val: 0 }
-  let dispose_ref : Ref[(() -> Unit)?] = { val: None }
+  let cleanup_count = Ref::new(0)
+  let dispose_ref : Ref[(() -> Unit)?] = Ref::new(None)
   create_root(fn(dispose) {
     dispose_ref.val = Some(dispose)
     let _ = render_effect(fn() {
@@ -884,7 +884,7 @@ test "is_batching returns correct state" {
 test "has_owner returns correct state" {
   // Outside create_root, no owner
   assert_false(has_owner())
-  let inside_result = { val: false }
+  let inside_result = Ref::new(false)
   create_root(fn(_) {
     // Inside create_root, has owner
     inside_result.val = has_owner()
@@ -897,7 +897,7 @@ test "has_owner returns correct state" {
 
 ///|
 test "create_root_with_dispose returns result and dispose function" {
-  let cleanup_ran = { val: false }
+  let cleanup_ran = Ref::new(false)
   let (result, dispose) = create_root_with_dispose(fn() {
     register_owner_cleanup(fn() { cleanup_ran.val = true })
     42
@@ -912,7 +912,7 @@ test "create_root_with_dispose returns result and dispose function" {
 
 ///|
 test "register_owner_cleanup runs on dispose" {
-  let cleanup_count = { val: 0 }
+  let cleanup_count = Ref::new(0)
   create_root(fn(dispose) {
     register_owner_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
     register_owner_cleanup(fn() { cleanup_count.val = cleanup_count.val + 1 })
@@ -981,7 +981,7 @@ test "deferred reject works" {
 
 ///|
 test "effect_once runs only once" {
-  let count = { val: 0 }
+  let count = Ref::new(0)
   let sig = Signal::new(0)
   effect_once(fn() {
     let _ = sig.get()
@@ -1128,7 +1128,7 @@ test "diamond: only propagates once with linear convergence" {
   let f3 = memo(fn() { d.get() })
   let f4 = memo(fn() { d.get() })
   let f5 = memo(fn() { d.get() })
-  let g_count = { val: 0 }
+  let g_count = Ref::new(0)
   let g = memo(fn() {
     g_count.val = g_count.val + 1
     f1() + f2() + f3() + f4() + f5()
@@ -1174,7 +1174,7 @@ test "diamond: only propagates once with exponential convergence" {
   let g1 = memo(fn() { f1() + f2() + f3() })
   let g2 = memo(fn() { f1() + f2() + f3() })
   let g3 = memo(fn() { f1() + f2() + f3() })
-  let h_count = { val: 0 }
+  let h_count = Ref::new(0)
   let h = memo(fn() {
     h_count.val = h_count.val + 1
     g1() + g2() + g3()
@@ -1237,7 +1237,7 @@ test "diamond: changing dependencies" {
   let condition = Signal::new(true)
   let true_branch = Signal::new(1)
   let false_branch = Signal::new(2)
-  let eval_count = { val: 0 }
+  let eval_count = Ref::new(0)
   let result = memo(fn() {
     eval_count.val = eval_count.val + 1
     if condition.get() {
@@ -1361,7 +1361,7 @@ test "glitch-free: batch prevents intermediate states" {
 /// trigger one recomputation with the final value.
 test "glitch-free: multiple sets in batch trigger once" {
   let sig = Signal::new(0)
-  let compute_count = { val: 0 }
+  let compute_count = Ref::new(0)
   let observed_values : Array[Int] = []
   let _ = render_effect(fn() {
     compute_count.val = compute_count.val + 1
@@ -1430,7 +1430,7 @@ test "glitch-free: no stale reads in diamond" {
   // Diamond shape: source -> left, right -> bottom
   let left = memo(fn() { source.get() * 2 })
   let right = memo(fn() { source.get() * 3 })
-  let inconsistent_reads = { val: 0 }
+  let inconsistent_reads = Ref::new(0)
   let bottom = memo(fn() {
     let l = left()
     let r = right()
@@ -1519,7 +1519,7 @@ test "glitch-free: nested batches" {
 test "glitch-free: memo caching" {
   let a = Signal::new(1)
   let b = Signal::new(2)
-  let a_compute_count = { val: 0 }
+  let a_compute_count = Ref::new(0)
   let a_doubled = memo(fn() {
     a_compute_count.val = a_compute_count.val + 1
     a.get() * 2

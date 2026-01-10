@@ -10,7 +10,7 @@
 // =============================================================================
 
 // Global container reused across benchmarks to prevent memory leak
-let hydrate_bench_container : Ref[@js_dom.Element?] = { val: None }
+let hydrate_bench_container : Ref[@js_dom.Element?] = Ref::new(None)
 
 ///|
 fn get_or_create_hydrate_container() -> @js_dom.Element {

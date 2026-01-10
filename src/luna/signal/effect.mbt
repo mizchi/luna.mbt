@@ -26,7 +26,7 @@ fn create_effect_runner(
   state : EffectState,
 ) -> (EffectRunner, () -> Unit) {
   let id = new_effect_id()
-  let runner_ref : Ref[EffectRunner?] = { val: None }
+  let runner_ref : Ref[EffectRunner?] = Ref::new(None)
   fn run_effect() -> Unit {
     if not(state.active) {
       return
@@ -140,7 +140,7 @@ pub fn effect_when(condition : () -> Bool, fn_ : () -> Unit) -> () -> Unit {
 /// ```mbt check
 /// test {
 ///   let count = @signal.signal(0)
-///   let runs : Ref[Int] = { val: 0 }
+///   let runs : Ref[Int] = Ref::new(0)
 ///   @signal.effect_once(fn() {
 ///     let _ = count.get()
 ///     runs.val = runs.val + 1
@@ -151,7 +151,7 @@ pub fn effect_when(condition : () -> Bool, fn_ : () -> Unit) -> () -> Unit {
 /// }
 /// ```
 pub fn effect_once(fn_ : () -> Unit) -> Unit {
-  let dispose : Ref[(() -> Unit)?] = { val: None }
+  let dispose : Ref[(() -> Unit)?] = Ref::new(None)
   dispose.val = Some(
     render_effect(fn() {
       fn_()
@@ -171,7 +171,7 @@ pub fn effect_once(fn_ : () -> Unit) -> Unit {
 /// ```mbt check
 /// test {
 ///   let count = @signal.signal(0)
-///   let runs : Ref[Int] = { val: 0 }
+///   let runs : Ref[Int] = Ref::new(0)
 ///   @signal.on_mount(fn() {
 ///     let _ = count.get() // This read won't create subscription
 ///     runs.val = runs.val + 1

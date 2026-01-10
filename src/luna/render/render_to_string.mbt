@@ -696,7 +696,7 @@ fn[E] render_island_to(sb : StringBuilder, island : @luna.VIsland[E]) -> Unit {
 /// Render with data-ssr-id markers for hydration
 pub fn[E] render_to_string_with_hydration(node : @luna.Node[E]) -> String {
   let sb = StringBuilder::new(size_hint=256)
-  let id_counter = { val: 0 }
+  let id_counter = Ref::new(0)
   render_with_id_to(sb, node, id_counter)
   sb.to_string()
 }

@@ -799,7 +799,7 @@ pub fn[State] hydrate_with_actions(
   bind_actions_from_dom(container, dispatch)
 
   // Set up effect to re-render when state changes
-  let is_first_render : Ref[Bool] = { val: true }
+  let is_first_render : Ref[Bool] = Ref::new(true)
   let _ = @signal.render_effect(fn() {
     let current_state = state_signal.get()
 

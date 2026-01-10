@@ -8,7 +8,7 @@ pub fn[T] debounced(
   delay_ms : Int,
 ) -> @signal.Signal[T] {
   let result = @signal.Signal::new(sig.peek())
-  let timer_id : Ref[@global.Timer?] = { val: None }
+  let timer_id : Ref[@global.Timer?] = Ref::new(None)
   let _ = @signal.on(sig, fn(value) {
     // Cancel previous timer
     match timer_id.val {

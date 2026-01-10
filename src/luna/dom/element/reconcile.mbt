@@ -110,7 +110,7 @@ pub fn[T] reconcile_items(
   // Process items in REVERSE order (last to first)
   // This allows us to efficiently check if nodes are already in correct position
   // cursor tracks "what should be the next sibling of the current item"
-  let cursor : Ref[@js_dom.Node] = { val: end_marker }
+  let cursor : Ref[@js_dom.Node] = Ref::new(end_marker)
 
   // Process from last to first
   for i = n - 1; i >= 0; i = i - 1 {
@@ -233,7 +233,7 @@ pub fn[T] reconcile_items_with_dispose(
     new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() {  } })
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
-  let cursor : Ref[@js_dom.Node] = { val: end_marker }
+  let cursor : Ref[@js_dom.Node] = Ref::new(end_marker)
 
   // Process from last to first
   for i = n - 1; i >= 0; i = i - 1 {

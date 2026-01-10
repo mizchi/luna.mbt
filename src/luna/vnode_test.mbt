@@ -6,7 +6,7 @@
 
 ///|
 test "EventHandler::get_callback" {
-  let called : Ref[Bool] = { val: false }
+  let called : Ref[Bool] = Ref::new(false)
   let h = handler(fn(_e : Unit) { called.val = true })
   let cb = h.get_callback()
   cb(())
@@ -37,7 +37,7 @@ test "attr_dynamic" {
 
 ///|
 test "attr_handler" {
-  let called : Ref[Bool] = { val: false }
+  let called : Ref[Bool] = Ref::new(false)
   let h = handler(fn(_e : Unit) { called.val = true })
   let attr : Attr[Unit] = attr_handler(h)
   match attr {
@@ -348,7 +348,7 @@ test "event_handler creates noop handler" {
 
 ///|
 test "handler_from_callback creates handler from callback" {
-  let called : Ref[Bool] = { val: false }
+  let called : Ref[Bool] = Ref::new(false)
   let h = handler_from_callback(fn() { called.val = true })
   h.get_callback()(())
   assert_true(called.val)

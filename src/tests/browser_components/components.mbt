@@ -214,7 +214,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
 pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
   let items = @signal.signal(js_getArray(state, "items"))
   // Store the pending input value separately since we need to capture it at add time
-  let pending_input : Ref[String] = { val: "" }
+  let pending_input : Ref[String] = Ref::new("")
   let vnode = @luna.h("div", [], [
     @luna.h("div", [("class", @luna.attr_static("input-row"))], [
       @luna.h(
@@ -527,7 +527,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// Tests: ref_ callback for direct DOM element access
 pub fn hydrate_element_ref(el : @js_dom.Element, _state : @js.Any) -> Unit {
   // Store ref to the input element
-  let input_ref : Ref[@js_dom.Element?] = { val: None }
+  let input_ref : Ref[@js_dom.Element?] = Ref::new(None)
   let focus_count = @signal.signal(0)
 
   // Build UI using @dom DSL with ref_ support
