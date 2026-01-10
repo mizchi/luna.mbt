@@ -1,11 +1,11 @@
 {
   "import": [
     {
-      "path": "mizchi/luna/luna",
+      "path": "mizchi/luna",
       "alias": "luna"
     },
-    "mizchi/luna/luna/signal",
-    { "path": "mizchi/luna/luna/render", "alias": "render" }
+    "mizchi/luna/signal",
+    { "path": "mizchi/luna/render", "alias": "render" }
   ],
   "link": {
     "js": {

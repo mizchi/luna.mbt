@@ -209,13 +209,13 @@ sol/
 ### Sol が依存する Luna パッケージ一覧
 
 ```
-mizchi/luna/luna                  # core VNode, Node types
-mizchi/luna/luna/render           # VNode → string rendering
-mizchi/luna/luna/static_dom       # ServerNode for SSR
-mizchi/luna/luna/routes           # client-side routing
-mizchi/luna/luna/signal           # (browser_router経由)
-mizchi/luna/luna/js/stream_renderer   # streaming SSR
-mizchi/luna/luna/js/fs_adapter    # FileSystem implementation
+mizchi/luna                  # core VNode, Node types
+mizchi/luna/render           # VNode → string rendering
+mizchi/luna/static_dom       # ServerNode for SSR
+mizchi/luna/routes           # client-side routing
+mizchi/luna/signal           # (browser_router経由)
+mizchi/luna/js/stream_renderer   # streaming SSR
+mizchi/luna/js/fs_adapter    # FileSystem implementation
 mizchi/luna/stella                # Island shard generation
 mizchi/luna/internal/json_utils   # JSON utilities
 mizchi/luna/internal/utils        # string utilities
@@ -485,7 +485,7 @@ Luna 側に残すと「ファイルシステム」という SSR/SSG 関心が Lu
 mv src/luna/js/fs_adapter src/sol/adapters/fs/
 
 # 参照を更新
-# Before: mizchi/luna/luna/js/fs_adapter
+# Before: mizchi/luna/js/fs_adapter
 # After:  mizchi/sol/adapters/fs
 ```
 

@@ -1,0 +1,12 @@
+{
+  "import": [
+    {
+      "path": "mizchi/luna",
+      "alias": "luna"
+    },
+    {
+      "path": "mizchi/luna/signal",
+      "alias": "signal"
+    }
+  ]
+}

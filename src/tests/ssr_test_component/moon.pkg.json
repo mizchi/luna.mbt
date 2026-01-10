@@ -1,6 +1,6 @@
 {
   "import": [
-    { "path": "mizchi/luna/luna", "alias": "luna" }
+    { "path": "mizchi/luna", "alias": "luna" }
   ],
   "link": {
     "js": {

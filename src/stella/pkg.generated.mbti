@@ -2,7 +2,7 @@
 package "mizchi/luna/stella"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
 )
 
 // Values

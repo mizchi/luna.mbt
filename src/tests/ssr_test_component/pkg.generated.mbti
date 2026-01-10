@@ -2,7 +2,7 @@
 package "mizchi/luna/tests/ssr_test_component"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
 )
 
 // Values

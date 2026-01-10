@@ -1,0 +1,10 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    "mizchi/luna/signal",
+    {
+      "path": "mizchi/js/browser/dom",
+      "alias": "js_dom"
+    }
+  ]
+}

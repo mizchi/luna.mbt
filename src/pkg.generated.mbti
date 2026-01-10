@@ -2,27 +2,27 @@
 package "mizchi/luna"
 
 import(
-  "mizchi/luna/luna/signal"
+  "mizchi/luna/signal"
 )
 
 // Values
-pub fn[E, A : Show] action(A) -> @mizchi/luna/luna.Attr[E]
+pub fn[E, A : Show] action(A) -> @mizchi/luna.Attr[E]
 
 pub fn all(Array[@signal.Signal[Bool]]) -> () -> Bool
 
 pub fn any(Array[@signal.Signal[Bool]]) -> () -> Bool
 
-pub fn[E] async_(render~ : async () -> @mizchi/luna/luna.Node[E], fallback~ : () -> @mizchi/luna/luna.Node[E], on_error? : ((Error) -> @mizchi/luna/luna.Node[E])?) -> @mizchi/luna/luna.Node[E]
+pub fn[E] async_(render~ : async () -> @mizchi/luna.Node[E], fallback~ : () -> @mizchi/luna.Node[E], on_error? : ((Error) -> @mizchi/luna.Node[E])?) -> @mizchi/luna.Node[E]
 
-pub fn[E] attr_dynamic(() -> String) -> @mizchi/luna/luna.Attr[E]
+pub fn[E] attr_dynamic(() -> String) -> @mizchi/luna.Attr[E]
 
-pub fn[E] attr_dynamic_style(() -> String) -> @mizchi/luna/luna.Attr[E]
+pub fn[E] attr_dynamic_style(() -> String) -> @mizchi/luna.Attr[E]
 
-pub fn[E] attr_handler(@mizchi/luna/luna.EventHandler[E]) -> @mizchi/luna/luna.Attr[E]
+pub fn[E] attr_handler(@mizchi/luna.EventHandler[E]) -> @mizchi/luna.Attr[E]
 
-pub fn[E] attr_static(String) -> @mizchi/luna/luna.Attr[E]
+pub fn[E] attr_static(String) -> @mizchi/luna.Attr[E]
 
-pub fn[E] attr_style(String) -> @mizchi/luna/luna.Attr[E]
+pub fn[E] attr_style(String) -> @mizchi/luna.Attr[E]
 
 pub fn[T] batch(() -> T) -> T
 
@@ -36,9 +36,9 @@ pub fn[A, B, C, R] combine3(@signal.Signal[A], @signal.Signal[B], @signal.Signal
 
 pub fn[A, B, C, D, R] combine4(@signal.Signal[A], @signal.Signal[B], @signal.Signal[C], @signal.Signal[D], (A, B, C, D) -> R) -> () -> R
 
-pub fn[E] component(() -> @mizchi/luna/luna.Node[E]) -> @mizchi/luna/luna.Node[E]
+pub fn[E] component(() -> @mizchi/luna.Node[E]) -> @mizchi/luna.Node[E]
 
-pub fn[T] component_ref(String, T, trigger? : @mizchi/luna/luna.TriggerType) -> @mizchi/luna/luna.ComponentRef[T]
+pub fn[T] component_ref(String, T, trigger? : @mizchi/luna.TriggerType) -> @mizchi/luna.ComponentRef[T]
 
 pub fn[T] computed(() -> T) -> () -> T
 
@@ -56,33 +56,33 @@ pub fn effect_once(() -> Unit) -> Unit
 
 pub fn effect_when(() -> Bool, () -> Unit) -> () -> Unit
 
-pub fn[E] error_boundary(children~ : () -> @mizchi/luna/luna.Node[E] raise, fallback~ : (Error, () -> Unit) -> @mizchi/luna/luna.Node[E] raise) -> @mizchi/luna/luna.Node[E]
+pub fn[E] error_boundary(children~ : () -> @mizchi/luna.Node[E] raise, fallback~ : (Error, () -> Unit) -> @mizchi/luna.Node[E] raise) -> @mizchi/luna.Node[E]
 
-pub fn event_handler() -> @mizchi/luna/luna.EventHandler[Unit]
+pub fn event_handler() -> @mizchi/luna.EventHandler[Unit]
 
 pub fn[T] flatten(@signal.Signal[@signal.Signal[T]]) -> () -> T
 
-pub fn[E] for_each(() -> Array[@mizchi/luna/luna.Node[E]]) -> @mizchi/luna/luna.Node[E]
+pub fn[E] for_each(() -> Array[@mizchi/luna.Node[E]]) -> @mizchi/luna.Node[E]
 
-pub fn[E] fragment(Array[@mizchi/luna/luna.Node[E]]) -> @mizchi/luna/luna.Node[E]
+pub fn[E] fragment(Array[@mizchi/luna.Node[E]]) -> @mizchi/luna.Node[E]
 
 pub fn get_owner() -> @signal.Owner?
 
-pub fn[E] h(String, Array[(String, @mizchi/luna/luna.Attr[E])], Array[@mizchi/luna/luna.Node[E]]) -> @mizchi/luna/luna.Node[E]
+pub fn[E] h(String, Array[(String, @mizchi/luna.Attr[E])], Array[@mizchi/luna.Node[E]]) -> @mizchi/luna.Node[E]
 
-pub fn[E] handler((E) -> Unit) -> @mizchi/luna/luna.EventHandler[E]
+pub fn[E] handler((E) -> Unit) -> @mizchi/luna.EventHandler[E]
 
-pub fn handler_from_callback(() -> Unit) -> @mizchi/luna/luna.EventHandler[Unit]
+pub fn handler_from_callback(() -> Unit) -> @mizchi/luna.EventHandler[Unit]
 
-pub fn[E] has_dynamic_content(Array[(String, @mizchi/luna/luna.Attr[E])]) -> Bool
+pub fn[E] has_dynamic_content(Array[(String, @mizchi/luna.Attr[E])]) -> Bool
 
 pub fn has_owner() -> Bool
 
-pub fn[E] internal_ref(String, String, trigger? : @mizchi/luna/luna.TriggerType, wc? : Bool, styles? : String, children? : Array[@mizchi/luna/luna.Node[E]]) -> @mizchi/luna/luna.Node[E]
+pub fn[E] internal_ref(String, String, trigger? : @mizchi/luna.TriggerType, wc? : Bool, styles? : String, children? : Array[@mizchi/luna.Node[E]]) -> @mizchi/luna.Node[E]
 
-pub fn[E] island(String, String, String, Array[@mizchi/luna/luna.Node[E]], trigger? : @mizchi/luna/luna.TriggerType) -> @mizchi/luna/luna.Node[E]
+pub fn[E] island(String, String, String, Array[@mizchi/luna.Node[E]], trigger? : @mizchi/luna.TriggerType) -> @mizchi/luna.Node[E]
 
-pub fn[E] match_case(when~ : () -> Bool, render~ : () -> @mizchi/luna/luna.Node[E]) -> @mizchi/luna/luna.MatchCase[E]
+pub fn[E] match_case(when~ : () -> Bool, render~ : () -> @mizchi/luna.Node[E]) -> @mizchi/luna.MatchCase[E]
 
 pub fn[T] memo(() -> T) -> () -> T
 
@@ -114,17 +114,17 @@ pub fn[T] run_with_owner(@signal.Owner, () -> T) -> T
 
 pub fn[T] select(@signal.Signal[Array[T]], @signal.Signal[Int]) -> () -> T?
 
-pub fn[E] show(() -> Bool, () -> @mizchi/luna/luna.Node[E]) -> @mizchi/luna/luna.Node[E]
+pub fn[E] show(() -> Bool, () -> @mizchi/luna.Node[E]) -> @mizchi/luna.Node[E]
 
 pub fn[T] signal(T) -> @signal.Signal[T]
 
-pub fn[E] switch_(cases~ : Array[@mizchi/luna/luna.MatchCase[E]], fallback? : (() -> @mizchi/luna/luna.Node[E])?) -> @mizchi/luna/luna.Node[E]
+pub fn[E] switch_(cases~ : Array[@mizchi/luna.MatchCase[E]], fallback? : (() -> @mizchi/luna.Node[E])?) -> @mizchi/luna.Node[E]
 
-pub fn[E] text(String) -> @mizchi/luna/luna.Node[E]
+pub fn[E] text(String) -> @mizchi/luna.Node[E]
 
-pub fn[E] text_dyn(() -> String) -> @mizchi/luna/luna.Node[E]
+pub fn[E] text_dyn(() -> String) -> @mizchi/luna.Node[E]
 
-pub fn[E, T : Show] text_of(@signal.Signal[T]) -> @mizchi/luna/luna.Node[E]
+pub fn[E, T : Show] text_of(@signal.Signal[T]) -> @mizchi/luna.Node[E]
 
 pub fn[T] untracked(() -> T) -> T
 
@@ -134,9 +134,9 @@ pub fn[T : Eq] watch(() -> T, (T, T) -> Unit) -> () -> Unit
 
 pub fn[T : Eq] watch_immediate(() -> T, (T, T?) -> Unit) -> () -> Unit
 
-pub fn[T] wc_component_ref(String, T, trigger? : @mizchi/luna/luna.TriggerType) -> @mizchi/luna/luna.ComponentRef[T]
+pub fn[T] wc_component_ref(String, T, trigger? : @mizchi/luna.TriggerType) -> @mizchi/luna.ComponentRef[T]
 
-pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna/luna.Node[E]], trigger? : @mizchi/luna/luna.TriggerType) -> @mizchi/luna/luna.Node[E]
+pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna.Node[E]], trigger? : @mizchi/luna.TriggerType) -> @mizchi/luna.Node[E]
 
 // Errors
 
@@ -145,19 +145,19 @@ pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna/luna.Node
 // Type aliases
 pub using @signal {type AsyncState}
 
-pub using @mizchi/luna/luna {type Attr}
+pub using @mizchi/luna {type Attr}
 
-pub using @mizchi/luna/luna {type ComponentRef}
+pub using @mizchi/luna {type ComponentRef}
 
 pub using @signal {type Context}
 
 pub using @signal {type EffectRunner}
 
-pub using @mizchi/luna/luna {type EventHandler}
+pub using @mizchi/luna {type EventHandler}
 
-pub using @mizchi/luna/luna {type MatchCase}
+pub using @mizchi/luna {type MatchCase}
 
-pub using @mizchi/luna/luna {type Node}
+pub using @mizchi/luna {type Node}
 
 pub using @signal {type Owner}
 
@@ -165,23 +165,23 @@ pub using @signal {type Resource}
 
 pub using @signal {type Signal}
 
-pub using @mizchi/luna/luna {type TriggerType as Trigger}
+pub using @mizchi/luna {type TriggerType as Trigger}
 
-pub using @mizchi/luna/luna {type TriggerType}
+pub using @mizchi/luna {type TriggerType}
 
-pub using @mizchi/luna/luna {type VAsync}
+pub using @mizchi/luna {type VAsync}
 
-pub using @mizchi/luna/luna {type VElement}
+pub using @mizchi/luna {type VElement}
 
-pub using @mizchi/luna/luna {type VErrorBoundary}
+pub using @mizchi/luna {type VErrorBoundary}
 
-pub using @mizchi/luna/luna {type VInternalRef}
+pub using @mizchi/luna {type VInternalRef}
 
-pub using @mizchi/luna/luna {type VIsland}
+pub using @mizchi/luna {type VIsland}
 
-pub using @mizchi/luna/luna {type VSwitch}
+pub using @mizchi/luna {type VSwitch}
 
-pub using @mizchi/luna/luna {type VWcIsland}
+pub using @mizchi/luna {type VWcIsland}
 
 // Traits
 

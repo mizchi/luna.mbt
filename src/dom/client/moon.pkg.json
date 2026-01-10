@@ -1,0 +1,24 @@
+{
+  "supported-targets": [
+    "js"
+  ],
+  "import": [
+    {
+      "path": "mizchi/luna",
+      "alias": "luna"
+    },
+    "mizchi/luna/signal",
+    { "path": "mizchi/luna/render", "alias": "render" },
+    { "path": "mizchi/luna/dom/element", "alias": "element" },
+    { "path": "mizchi/js/core", "alias": "js" },
+    {
+      "path": "mizchi/js/browser/dom",
+      "alias": "js_dom"
+    },
+    "mizchi/js/web/event",
+    "mizchi/js/builtins/global"
+  ],
+  "test-import": [
+    "mizchi/npm_typed/global_jsdom"
+  ]
+}

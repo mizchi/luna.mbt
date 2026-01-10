@@ -2,10 +2,10 @@
   "is-main": true,
   "supported-targets": ["js"],
   "import": [
-    "mizchi/luna/luna/signal",
-    "mizchi/luna/luna/routes",
-    { "path": "mizchi/luna/luna/browser_router", "alias": "router" },
-    "mizchi/luna/luna/dom/element",
+    "mizchi/luna/signal",
+    "mizchi/luna/routes",
+    { "path": "mizchi/luna/browser_router", "alias": "router" },
+    "mizchi/luna/dom/element",
     { "path": "mizchi/js/browser/dom", "alias": "dom" },
     { "path": "mizchi/js/core", "alias": "js" }
   ],

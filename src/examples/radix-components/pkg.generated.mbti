@@ -2,7 +2,7 @@
 package "mizchi/luna/examples/radix-components"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
 )
 
 // Values

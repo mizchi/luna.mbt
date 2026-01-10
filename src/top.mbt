@@ -3,54 +3,7 @@
 // This module re-exports commonly used types and functions from core modules
 // so that users can import from `mizchi/luna` instead of `mizchi/luna/core`, etc.
 
-// =============================================================================
-// Core VNode types and functions
-// =============================================================================
-
-///|
-pub using @core {
-  type EventHandler,
-  type Attr,
-  type TriggerType,
-  type Node,
-  type VElement,
-  type VIsland,
-  type VWcIsland,
-  type VInternalRef,
-  type VAsync,
-  type VErrorBoundary,
-  type MatchCase,
-  type VSwitch,
-  type ComponentRef,
-  type Trigger,
-  handler,
-  h,
-  text,
-  text_dyn,
-  text_of,
-  fragment,
-  show,
-  for_each,
-  component,
-  island,
-  wc_island,
-  async_,
-  error_boundary,
-  match_case,
-  switch_,
-  internal_ref,
-  has_dynamic_content,
-  attr_static,
-  attr_dynamic,
-  attr_handler,
-  attr_style,
-  attr_dynamic_style,
-  action,
-  component_ref,
-  wc_component_ref,
-  event_handler,
-  handler_from_callback,
-}
+// Note: Core VNode types (Node, Attr, etc.) are now defined directly in this package (vnode.mbt)
 
 // =============================================================================
 // Signal types and functions

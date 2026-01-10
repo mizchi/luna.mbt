@@ -4,20 +4,20 @@
   ],
   "import": [
     {
-      "path": "mizchi/luna/luna",
+      "path": "mizchi/luna",
       "alias": "luna"
     },
-    "mizchi/luna/luna/signal",
+    "mizchi/luna/signal",
     {
-      "path": "mizchi/luna/luna/render",
+      "path": "mizchi/luna/render",
       "alias": "ssr"
     },
     {
-      "path": "mizchi/luna/luna/dom/client",
+      "path": "mizchi/luna/dom/client",
       "alias": "client"
     },
     {
-      "path": "mizchi/luna/luna/dom/client/repair",
+      "path": "mizchi/luna/dom/client/repair",
       "alias": "fixable"
     },
     {

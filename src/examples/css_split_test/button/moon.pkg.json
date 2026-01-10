@@ -1,9 +1,9 @@
 {
   "supported-targets": ["js"],
   "import": [
-    "mizchi/luna/luna/signal",
-    { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/luna/js/api", "alias": "luna_api" },
-    "mizchi/luna/luna/css"
+    "mizchi/luna/signal",
+    { "path": "mizchi/luna", "alias": "luna" },
+    { "path": "mizchi/luna/js/api", "alias": "luna_api" },
+    "mizchi/luna/css"
   ]
 }

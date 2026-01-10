@@ -46,11 +46,11 @@ npm install @luna_ui/luna
 |-----------|:--:|:------:|:----:|:-------:|
 | `mizchi/luna` (コア) | ✅ | ✅ | ✅ | ✅ |
 | `mizchi/luna/core/render` | ✅ | ✅ | ✅ | ✅ |
-| `mizchi/luna/luna/dom` | ✅ | - | - | - |
+| `mizchi/luna/dom` | ✅ | - | - | - |
 
 - **コア (`mizchi/luna`)**: Signal, VNode, リアクティブプリミティブ - 全ターゲット対応
 - **Render (`mizchi/luna/core/render`)**: HTML 文字列レンダリング - 全ターゲット対応
-- **DOM (`mizchi/luna/luna/dom`)**: ブラウザ DOM レンダリングと Hydration - JavaScript のみ
+- **DOM (`mizchi/luna/dom`)**: ブラウザ DOM レンダリングと Hydration - JavaScript のみ
 
 ## 使い方
 

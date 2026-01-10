@@ -1,0 +1,123 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/render"
+
+import(
+  "mizchi/luna"
+)
+
+// Values
+pub fn component(String, Json, RenderMode, Array[AbstractNode], client_url? : String?, use_web_component? : Bool) -> AbstractNode
+
+pub fn element(String, Array[(String, AttrValue)], Array[AbstractNode]) -> AbstractNode
+
+pub fn escape_attr(String) -> String
+
+pub fn escape_attr_to(StringBuilder, String) -> Unit
+
+pub fn escape_html(String) -> String
+
+pub fn escape_html_to(StringBuilder, String) -> Unit
+
+pub fn escape_js_string(String) -> String
+
+pub fn escape_js_string_to(StringBuilder, String) -> Unit
+
+pub fn escape_json_for_attr(String) -> String
+
+pub fn escape_json_for_script(String) -> String
+
+pub fn fragment(Array[AbstractNode]) -> AbstractNode
+
+pub fn generate_preload_tags(Array[String]) -> String
+
+pub fn is_void_element(String) -> Bool
+
+pub fn needs_attr_escape(String) -> Bool
+
+pub fn needs_html_escape(String) -> Bool
+
+pub fn raw_html(String) -> AbstractNode
+
+pub fn render_attr_value(StringBuilder, String, String) -> Unit
+
+pub fn[E] render_attrs_to(StringBuilder, Array[(String, @luna.Attr[E])]) -> Unit
+
+pub fn[E] render_to_string(@luna.Node[E], preload? : Bool) -> SSRResult
+
+pub fn[E] render_to_string_with_hydration(@luna.Node[E]) -> String
+
+pub fn text(String) -> AbstractNode
+
+pub fn[E] to_abstract(@luna.Node[E]) -> AbstractNode
+
+// Errors
+
+// Types and methods
+pub(all) enum AbstractNode {
+  Element(tag~ : String, attrs~ : Array[(String, AttrValue)], children~ : Array[AbstractNode])
+  Text(String)
+  Fragment(Array[AbstractNode])
+  Component(config~ : ComponentConfig, children~ : Array[AbstractNode])
+  RawHtml(String)
+  Slot(name~ : String, fallback~ : Array[AbstractNode])
+}
+pub fn AbstractNode::count_nodes(Self) -> Int
+pub fn AbstractNode::get_components(Self) -> Array[ComponentConfig]
+pub fn AbstractNode::get_render_modes(Self) -> Array[RenderMode]
+pub fn AbstractNode::has_client_js(Self) -> Bool
+pub fn AbstractNode::map(Self, (Self) -> Self) -> Self
+pub fn AbstractNode::render_html(Self) -> String
+pub impl Eq for AbstractNode
+pub impl Show for AbstractNode
+
+pub(all) enum AttrValue {
+  Str(String)
+  Bool(Bool)
+  Num(Double)
+  Json(Json)
+}
+pub impl Eq for AttrValue
+pub impl Show for AttrValue
+
+pub(all) struct ComponentConfig {
+  name : String
+  props : Json
+  mode : RenderMode
+  client_url : String?
+  use_web_component : Bool
+}
+pub impl Eq for ComponentConfig
+pub impl Show for ComponentConfig
+
+pub(all) enum HydrationTrigger {
+  Load
+  Idle
+  Visible
+  Media(String)
+}
+pub fn HydrationTrigger::parse(String) -> Self
+pub fn HydrationTrigger::to_attr_string(Self) -> String
+pub impl Eq for HydrationTrigger
+pub impl Show for HydrationTrigger
+
+pub(all) enum RenderMode {
+  SSROnly
+  Hydration(HydrationTrigger)
+  ClientOnly
+  ServerDefer
+}
+pub fn RenderMode::get_trigger(Self) -> HydrationTrigger?
+pub fn RenderMode::requires_client_js(Self) -> Bool
+pub fn RenderMode::requires_ssr(Self) -> Bool
+pub impl Eq for RenderMode
+pub impl Show for RenderMode
+
+pub struct SSRResult {
+  html : String
+  preload_urls : Array[String]
+}
+
+// Type aliases
+
+// Traits
+

@@ -47,11 +47,11 @@ npm install @luna_ui/luna
 |---------|:--:|:------:|:----:|:-------:|
 | `mizchi/luna` (core) | ✅ | ✅ | ✅ | ✅ |
 | `mizchi/luna/core/render` | ✅ | ✅ | ✅ | ✅ |
-| `mizchi/luna/luna/dom` | ✅ | - | - | - |
+| `mizchi/luna/dom` | ✅ | - | - | - |
 
 - **Core (`mizchi/luna`)**: Signals, VNode, reactive primitives - works on all targets
 - **Render (`mizchi/luna/core/render`)**: HTML string rendering - works on all targets
-- **DOM (`mizchi/luna/luna/dom`)**: Browser DOM rendering and hydration - JavaScript only
+- **DOM (`mizchi/luna/dom`)**: Browser DOM rendering and hydration - JavaScript only
 
 ## Usage
 

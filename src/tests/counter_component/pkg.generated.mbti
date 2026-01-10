@@ -2,8 +2,8 @@
 package "mizchi/luna/tests/counter_component"
 
 import(
-  "mizchi/luna/luna"
-  "mizchi/luna/luna/signal"
+  "mizchi/luna"
+  "mizchi/luna/signal"
 )
 
 // Values

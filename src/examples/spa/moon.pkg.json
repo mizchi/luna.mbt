@@ -2,9 +2,9 @@
   "is-main": true,
   "supported-targets": ["js"],
   "import": [
-    "mizchi/luna/luna/signal",
-    "mizchi/luna/luna/dom/element",
-    "mizchi/luna/luna/dom/portal",
+    "mizchi/luna/signal",
+    "mizchi/luna/dom/element",
+    "mizchi/luna/dom/portal",
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/browser/dom", "alias": "dom" },
     "mizchi/js/builtins/global"

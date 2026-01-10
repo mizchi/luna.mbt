@@ -1,6 +1,6 @@
 {
   "supported-targets": ["js"],
   "import": [
-    "mizchi/luna/luna/css"
+    "mizchi/luna/css"
   ]
 }

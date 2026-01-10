@@ -1,9 +1,9 @@
 {
   "supported-targets": ["js"],
   "import": [
-    { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/luna/static_dom", "alias": "static_dom" },
-    { "path": "mizchi/luna/luna/static_dom/element", "alias": "element" }
+    { "path": "mizchi/luna", "alias": "luna" },
+    { "path": "mizchi/luna/static_dom", "alias": "static_dom" },
+    { "path": "mizchi/luna/static_dom/element", "alias": "element" }
   ],
   "link": {
     "js": {

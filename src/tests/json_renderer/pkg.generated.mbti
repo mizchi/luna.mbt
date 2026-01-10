@@ -2,7 +2,7 @@
 package "mizchi/luna/tests/json_renderer"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
 )
 
 // Values

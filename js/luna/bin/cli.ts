@@ -378,7 +378,7 @@ import "mbt:internal/${projectName}";
           "is-main": true,
           "supported-targets": ["js"],
           import: [
-            "mizchi/luna/luna/signal",
+            "mizchi/luna/signal",
             {
               path: "mizchi/luna/platform/dom/element",
               alias: "dom",

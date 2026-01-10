@@ -1,0 +1,31 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/luna", "alias": "luna" },
+    { "path": "mizchi/luna/render", "alias": "render" },
+    { "path": "mizchi/luna/static_dom/element", "alias": "element" }
+  ],
+  "test-import": [
+    { "path": "mizchi/luna/static_dom/element", "alias": "element" },
+    { "path": "mizchi/luna/css", "alias": "css" }
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "render",
+        "render_with_preloads",
+        "render_document",
+        "render_document_with_preloads",
+        "generate_preload_tags",
+        "document",
+        "client",
+        "wc_island",
+        "wc_island_load",
+        "wc_island_idle",
+        "wc_island_visible",
+        "wc_island_media"
+      ],
+      "format": "esm"
+    }
+  }
+}
