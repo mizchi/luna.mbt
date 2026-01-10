@@ -70,7 +70,7 @@ pub struct EffectCounter {
 ///|
 /// Effect の実行をカウント開始
 pub fn count_effect(effect_fn : () -> Unit) -> EffectCounter {
-  let counter : Ref[Int] = { val: 0 }
+  let counter : Ref[Int] = Ref::new(0)
   let cleanup = @signal.effect(fn() {
     effect_fn()
     counter.val = counter.val + 1

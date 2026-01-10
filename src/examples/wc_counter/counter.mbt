@@ -67,7 +67,7 @@ pub fn setup(ctx_js : @js.Any) -> @js.Any {
 
   // Internal state: count starts at initial value
   // We use a simple mutable ref since MoonBit's Signal is separate from JS Signal
-  let count = { val: initial.get() }
+  let count = Ref::new(initial.get())
 
   // Sync with external initial changes
   let unsub_initial = initial.subscribe(fn() { count.val = initial.get() })

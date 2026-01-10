@@ -332,6 +332,33 @@ fn todo_example() -> DomNode {
 }
 
 // =============================================================================
+// Delayed Show Example - Show with initially false signal that updates async
+// =============================================================================
+
+///|
+fn delayed_show_example() -> DomNode {
+  let loaded = signal(false)
+  // Simulate async loading (e.g., API call)
+  let _ = @global.setTimeout(fn() {
+    console_log("Setting loaded to true")
+    loaded.set(true)
+  }, 100)
+  div(class="delayed-show-example", id="delayed-show-example", [
+    h2([text("Delayed Show Example")]),
+    p([text("Content should appear after 100ms delay:")]),
+    show(fn() { loaded.get() }, fn() {
+      div(class="delayed-content", id="delayed-content", [
+        text("This content was loaded asynchronously!"),
+      ])
+    }),
+    // Fallback text when not loaded
+    show(fn() { not(loaded.get()) }, fn() {
+      p(id="loading-text", [text("Loading...")])
+    }),
+  ])
+}
+
+// =============================================================================
 // Modal Example - Portal for rendering outside component tree
 // =============================================================================
 
@@ -425,6 +452,8 @@ fn main {
           style_example(),
           hr(),
           todo_example(),
+          hr(),
+          delayed_show_example(),
           hr(),
           modal_example(),
         ],

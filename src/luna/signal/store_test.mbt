@@ -15,8 +15,8 @@ test "SplitStore2 creates store with two fields" {
 ///|
 test "SplitStore2 fields are independent" {
   let store = SplitStore2::new(0, "hello")
-  let field1_runs = { val: 0 }
-  let field2_runs = { val: 0 }
+  let field1_runs = Ref::new(0)
+  let field2_runs = Ref::new(0)
   let _ = render_effect(fn() {
     let _ = store.field1.get()
     field1_runs.val = field1_runs.val + 1
@@ -100,7 +100,7 @@ test "LensStore focused field only updates when value changes" {
   })
   let (count_sig, _) = store.focus(count_lens)
   let (_, set_name) = store.focus(name_lens)
-  let count_runs = { val: 0 }
+  let count_runs = Ref::new(0)
   let _ = render_effect(fn() {
     let _ = count_sig.get()
     count_runs.val = count_runs.val + 1
@@ -154,8 +154,8 @@ fn ReactiveAppState::snapshot(self : ReactiveAppState) -> AppState {
 ///|
 test "ReactiveRecord pattern provides fine-grained updates" {
   let state = ReactiveAppState::new({ count: 0, name: "User", active: true })
-  let count_runs = { val: 0 }
-  let name_runs = { val: 0 }
+  let count_runs = Ref::new(0)
+  let name_runs = Ref::new(0)
   let _ = render_effect(fn() {
     let _ = state.count.get()
     count_runs.val = count_runs.val + 1

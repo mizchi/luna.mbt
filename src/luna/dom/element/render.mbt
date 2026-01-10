@@ -256,7 +256,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let captured_owner = @signal.get_owner()
 
   // Track current dispose function (for cleanup when hiding)
-  let current_dispose : Ref[(() -> Unit)?] = { val: None }
+  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
 
   // Helper to render with a new child owner scope
   fn render_with_scope() -> Array[@js_dom.Node] {
@@ -277,10 +277,10 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
     []
   }
   // Track all child nodes (may be multiple if fragment was used)
-  let current_nodes : Ref[Array[@js_dom.Node]] = { val: initial_nodes }
+  let current_nodes : Ref[Array[@js_dom.Node]] = Ref::new(initial_nodes)
 
   // Track whether we are in initial render to skip DOM operations
-  let is_first_run : Ref[Bool] = { val: true }
+  let is_first_run : Ref[Bool] = Ref::new(true)
 
   // RenderEffect handles subsequent updates only (synchronous DOM updates)
   let _ = @signal.render_effect(fn() {
@@ -352,8 +352,8 @@ pub fn[T] for_each(
 ) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("for")
-  let entries : Ref[Array[ItemEntry[T]]] = { val: [] }
-  let is_first = { val: true }
+  let entries : Ref[Array[ItemEntry[T]]] = Ref::new([])
+  let is_first = Ref::new(true)
   // Capture current owner for context inheritance
   let captured_owner = @signal.get_owner()
 
@@ -448,15 +448,15 @@ pub fn[T] index_each(
   let doc = @js_dom.document()
   let placeholder = doc.createComment("index")
   let entries : Array[IndexEntry] = []
-  let is_first = { val: true }
+  let is_first = Ref::new(true)
   // Capture current owner for context inheritance
   let captured_owner = @signal.get_owner()
 
   // Helper to render item with owner scope for proper cleanup
   fn render_with_scope(index : Int) -> IndexEntry {
-    let disposed : Ref[Bool] = { val: false }
+    let disposed : Ref[Bool] = Ref::new(false)
     // Cache last valid value for when array shrinks and effect hasn't been disposed yet
-    let cached_value : Ref[T?] = { val: None }
+    let cached_value : Ref[T?] = Ref::new(None)
     // Guard against out-of-bounds access during effect cleanup transition.
     // When items are deleted, effects may still run briefly before disposal.
     // Use cached value when index is out of bounds.

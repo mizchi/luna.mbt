@@ -42,7 +42,7 @@ test "split: 2 fields - effect on field1, update field2 (100 ops)" (
   b : @bench.T,
 ) {
   let store = SplitStore2::new(0, "test")
-  let effect_runs = { val: 0 }
+  let effect_runs = Ref::new(0)
   let _ = effect(fn() {
     let _ = store.field1.get()
     effect_runs.val = effect_runs.val + 1
