@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.5.1] - 2026-01-10
+
+### Documentation
+
+- Update CLAUDE.md and regenerate CHANGELOG
 
 ### Refactor
 
