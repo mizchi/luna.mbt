@@ -2,10 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.0] - 2026-01-02
+## [0.5.0] - 2026-01-10
 
 ### Bug Fixes
 
+- **luna**: Show/Match children receive accessor function (SolidJS-compatible) [**BREAKING**]
+- **sol**: Resolve moon check warnings
+- **sol**: Replace deprecated ends_with/substring with has_suffix/slice
 - **sol**: Support snake_case in theme config parser and update tests
 - **ci**: Update fs_adapter path in playwright.yaml
 - **ci**: Update paths after fs_adapter move
@@ -28,6 +31,8 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
+- **spec**: Mark MDX multi-line children issue as resolved
+- **stella**: Update ARCHITECTURE.md to reflect current implementation
 - Update repo-split-design with completed preparations
 - Add repository split design document
 - **spec**: Add internal design notes
@@ -70,6 +75,12 @@ All notable changes to this project will be documented in this file.
 
 ### Miscellaneous
 
+- Move Sol-dependent E2E tests to sol.mbt
+- Remove js/sol and make e2e_server optional
+- **ci**: Remove Sol references from CI workflows
+- Remove remaining Sol-related test files and update justfile
+- Remove Sol SSR/SSG framework (split to mizchi/sol)
+- Release v0.4.0
 - Apply moon fmt
 - Add .sol-cache/ to .gitignore
 - Add tmp/ to .gitignore
@@ -101,6 +112,8 @@ All notable changes to this project will be documented in this file.
 
 ### Testing
 
+- **e2e**: Add comprehensive Playwright hydration tests
+- **luna**: Add tests for reconcile ref_equal and debounced signal
 - **sol**: Add parallel CSS extraction verification tests
 - **sol**: Add routes module tests
 - **sol**: Add router tests

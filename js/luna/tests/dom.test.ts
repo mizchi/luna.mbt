@@ -421,12 +421,13 @@ describe("DOM API", () => {
       expect(container.querySelector("span")).toBeNull();
     });
 
-    test("Show accepts children as function", () => {
+    test("Show accepts children as function with accessor (SolidJS-style)", () => {
       const [value, setValue] = createSignal<string | null>(null);
 
       const node = Show({
         when: value,
-        children: (v: string) => createElement("span", [], [text(v)]),
+        // SolidJS-style: children receives accessor function, call it with ()
+        children: (v: () => string) => createElement("span", [], [text(v())]),
       });
 
       mount(container, node);

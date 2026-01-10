@@ -389,16 +389,17 @@ describe("Switch/Match components", () => {
     expect(result).toBeDefined();
   });
 
-  test("Match with function children receives value", () => {
+  test("Match with function children receives accessor (SolidJS-style)", () => {
     const [user, setUser] = createSignal<{ name: string } | null>(null);
     let receivedName = "";
 
     createRoot((dispose) => {
       const match = Match({
         when: user,
-        children: (u: { name: string }) => {
-          receivedName = u.name;
-          return text(u.name);
+        // SolidJS-style: children receives accessor function, call with ()
+        children: (userAccessor: () => { name: string }) => {
+          receivedName = userAccessor().name;
+          return text(userAccessor().name);
         },
       });
 

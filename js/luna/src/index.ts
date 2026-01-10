@@ -23,8 +23,11 @@ export interface ForProps<T> {
 export interface ShowProps<T> {
   when: T | Accessor<T>;
   fallback?: LunaNode;
-  /** Must be a function to ensure proper lifecycle (onCleanup/onMount) support */
-  children: (() => LunaNode) | ((item: NonNullable<T>) => LunaNode);
+  /**
+   * Children receives an accessor function (SolidJS-style).
+   * Use: {(item) => <p>{item()}</p>}
+   */
+  children: (() => LunaNode) | ((item: Accessor<NonNullable<T>>) => LunaNode);
 }
 
 export interface IndexProps<T> {
@@ -48,8 +51,11 @@ export interface ProviderProps<T> {
 
 export interface MatchProps<T> {
   when: T | Accessor<T>;
-  /** Must be a function to ensure proper lifecycle (onCleanup/onMount) support */
-  children: (() => LunaNode) | ((item: NonNullable<T>) => LunaNode);
+  /**
+   * Children receives an accessor function (SolidJS-style).
+   * Use: {(item) => <p>{item()}</p>}
+   */
+  children: (() => LunaNode) | ((item: Accessor<NonNullable<T>>) => LunaNode);
 }
 
 export interface SwitchProps {
@@ -447,6 +453,9 @@ export function For<T>(props: ForProps<T>): any {
 
 /**
  * Show component for conditional rendering (SolidJS-style)
+ *
+ * The children function receives an accessor (getter function), not the raw value.
+ * This matches SolidJS behavior where you use: {(item) => <p>{item()}</p>}
  */
 export function Show<T>(props: ShowProps<T>): any {
   const { when, children } = props;
@@ -455,9 +464,13 @@ export function Show<T>(props: ShowProps<T>): any {
   // Convert when to a getter if it's not already
   const condition = typeof when === "function" ? when : () => when;
 
+  // Create a stable accessor for the condition value
+  // This matches SolidJS behavior where children receives an accessor
+  const valueAccessor = () => condition() as NonNullable<T>;
+
   return show(
     () => Boolean(condition()),
-    () => resolveChild(children, condition())
+    () => resolveChild(children, valueAccessor)
   );
 }
 
@@ -564,17 +577,22 @@ export function Switch(props: SwitchProps): any {
 
 /**
  * Match component for use inside Switch (SolidJS-style)
+ *
+ * The children function receives an accessor (getter function), matching SolidJS.
  */
 export function Match<T>(props: MatchProps<T>): { __isMatch: true; when: () => boolean; condition: () => T; children: () => any } {
   const { when, children } = props;
   const condition = typeof when === "function" ? when : () => when;
 
+  // Create a stable accessor for the condition value (SolidJS-style)
+  const valueAccessor = () => condition() as NonNullable<T>;
+
   return {
     __isMatch: true,
     when: () => Boolean(condition()),
     condition,
-    // Wrap children in a function that resolves with condition value
-    children: () => resolveChild(children, condition()),
+    // Pass accessor instead of raw value to match SolidJS behavior
+    children: () => resolveChild(children, valueAccessor),
   };
 }
 
