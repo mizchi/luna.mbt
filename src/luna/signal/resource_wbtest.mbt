@@ -135,7 +135,7 @@ test "Resource::get tracks signal" {
 
 ///|
 test "Resource::refetch" {
-  let call_count = Ref::new(0)
+  let call_count = { val: 0 }
   let res = resource(fn(resolve, _reject) {
     call_count.val = call_count.val + 1
     resolve(call_count.val)

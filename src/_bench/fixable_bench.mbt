@@ -10,7 +10,7 @@
 // =============================================================================
 
 // Global container reused across benchmarks to prevent memory leak
-let fixable_bench_container : Ref[@js_dom.Element?] = Ref::new(None)
+let fixable_bench_container : Ref[@js_dom.Element?] = { val: None }
 
 ///|
 fn get_or_create_fixable_container() -> @js_dom.Element {

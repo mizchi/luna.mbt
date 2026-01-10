@@ -72,7 +72,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       // Use a comment as a placeholder/marker for where to insert items
       let placeholder = doc.createComment("for")
       let current_nodes : Array[@js_dom.Node] = []
-      let is_first_render : Ref[Bool] = Ref::new(true)
+      let is_first_render : Ref[Bool] = { val: true }
 
       // Create a fragment for initial render
       let fragment = doc.createDocumentFragment()
@@ -254,7 +254,7 @@ fn render_error_boundary_to_dom(
   let container_node = container.as_node()
 
   // State for error handling
-  let error_state : Ref[Error?] = Ref::new(None)
+  let error_state : Ref[Error?] = { val: None }
   let content_nodes : Array[@js_dom.Node] = []
 
   // Reset function clears error and re-renders children
@@ -342,7 +342,7 @@ fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
   fragment_node.appendChild(placeholder) |> ignore
 
   // Set up effect for reactive updates
-  let is_first_render : Ref[Bool] = Ref::new(true)
+  let is_first_render : Ref[Bool] = { val: true }
   let _ = @signal.render_effect(fn() {
     let new_case = find_matching_case()
 

@@ -16,7 +16,7 @@ priv struct MemoState[T] {
 /// test {
 ///   let a = @signal.signal(2)
 ///   let b = @signal.signal(3)
-///   let compute_count : Ref[Int] = Ref::new(0)
+///   let compute_count : Ref[Int] = { val: 0 }
 ///   let sum = @signal.memo(fn() {
 ///     compute_count.val = compute_count.val + 1
 ///     a.get() + b.get()
@@ -34,7 +34,7 @@ pub fn[T] memo(compute : () -> T) -> () -> T {
   let state : MemoState[T] = { value: None, dirty: true, subscribers: [] }
 
   // Create EffectRunner reference for self-registration
-  let runner_ref : Ref[EffectRunner?] = Ref::new(None)
+  let runner_ref : Ref[EffectRunner?] = { val: None }
 
   // The subscriber function for this memo
   fn mark_dirty() -> Unit {

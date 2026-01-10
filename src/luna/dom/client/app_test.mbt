@@ -18,7 +18,7 @@ fn create_todo_app() -> (
 ) {
   let todos : @signal.Signal[Array[Todo]] = @signal.signal([])
   let input_text : @signal.Signal[String] = @signal.signal("")
-  let next_id = Ref::new(1)
+  let next_id = { val: 1 }
 
   // Add todo handler
   fn add_todo() {
@@ -306,7 +306,7 @@ test "Todo app reactive class updates" {
 test "Todo app batch updates" {
   @global_jsdom.register()
   let todos : @signal.Signal[Array[Todo]] = @signal.signal([])
-  let update_count = Ref::new(0)
+  let update_count = { val: 0 }
   let _ = @signal.render_effect(fn() {
     let _ = todos.get()
     update_count.val = update_count.val + 1
@@ -526,12 +526,12 @@ test "Fine-grained: tree structure with independent branches" {
   let leaf_b1 = @signal.signal("Leaf B1")
 
   // Counters
-  let root_count = Ref::new(0)
-  let branch_a_count = Ref::new(0)
-  let branch_b_count = Ref::new(0)
-  let leaf_a1_count = Ref::new(0)
-  let leaf_a2_count = Ref::new(0)
-  let leaf_b1_count = Ref::new(0)
+  let root_count = { val: 0 }
+  let branch_a_count = { val: 0 }
+  let branch_b_count = { val: 0 }
+  let leaf_a1_count = { val: 0 }
+  let leaf_a2_count = { val: 0 }
+  let leaf_b1_count = { val: 0 }
 
   // Root effect
   let _ = @signal.render_effect(fn() {
@@ -613,9 +613,9 @@ test "Fine-grained: DOM text nodes update independently" {
   let city = @signal.signal("Tokyo")
 
   // Counters to track text node updates
-  let name_updates = Ref::new(0)
-  let age_updates = Ref::new(0)
-  let city_updates = Ref::new(0)
+  let name_updates = { val: 0 }
+  let age_updates = { val: 0 }
+  let city_updates = { val: 0 }
 
   // Create reactive text nodes with tracking
   let name_text = {
@@ -676,10 +676,10 @@ test "Fine-grained: DOM text nodes update independently" {
 test "Fine-grained: shared signal triggers multiple dependents" {
   @global_jsdom.register()
   let shared = @signal.signal(100)
-  let consumer_a_count = Ref::new(0)
-  let consumer_b_count = Ref::new(0)
-  let consumer_c_count = Ref::new(0)
-  let unrelated_count = Ref::new(0)
+  let consumer_a_count = { val: 0 }
+  let consumer_b_count = { val: 0 }
+  let consumer_c_count = { val: 0 }
+  let unrelated_count = { val: 0 }
 
   // Three effects depend on same signal
   let _ = @signal.render_effect(fn() {
@@ -728,7 +728,7 @@ test "Fine-grained: shared signal triggers multiple dependents" {
 test "Fine-grained: memo prevents unnecessary recomputation" {
   @global_jsdom.register()
   let base = @signal.signal(10)
-  let compute_count = Ref::new(0)
+  let compute_count = { val: 0 }
 
   // Expensive computation with tracking
   let doubled = @signal.memo(fn() {
@@ -737,8 +737,8 @@ test "Fine-grained: memo prevents unnecessary recomputation" {
   })
 
   // Multiple consumers of the memo
-  let consumer1_count = Ref::new(0)
-  let consumer2_count = Ref::new(0)
+  let consumer1_count = { val: 0 }
+  let consumer2_count = { val: 0 }
   let _ = @signal.render_effect(fn() {
     let _ = doubled()
     consumer1_count.val = consumer1_count.val + 1

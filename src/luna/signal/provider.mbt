@@ -17,7 +17,7 @@ pub struct Context[T] {
 
 ///|
 /// Global context ID counter
-let context_id_counter : Ref[Int] = Ref::new(0)
+let context_id_counter : Ref[Int] = { val: 0 }
 
 ///|
 /// Create a new context with a default value

@@ -219,8 +219,8 @@ fn app() -> DomNode {
 
   /// Render a single todo item
   fn render_todo_item(get_todo : () -> Todo, _index : Int) -> DomNode {
-    let edit_ref : Ref[@dom.HTMLInputElement?] = Ref::new(None)
-    let edit_composing : Ref[Bool] = Ref::new(false)
+    let edit_ref : Ref[@dom.HTMLInputElement?] = { val: None }
+    let edit_composing : Ref[Bool] = { val: false }
 
     // Focus edit input when entering edit mode
     let _ = effect(() => {

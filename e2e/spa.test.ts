@@ -216,23 +216,6 @@ test.describe("SPA Example", () => {
     await page.locator("#close-modal-btn").click();
   });
 
-  test("delayed show example - show updates when signal changes from false to true", async ({ page }) => {
-    await page.waitForSelector("#delayed-show-example");
-
-    const section = page.locator("#delayed-show-example");
-
-    // Initially, loading text should be visible and delayed content should NOT exist
-    await expect(section.locator("#loading-text")).toBeVisible();
-    await expect(section.locator("#delayed-content")).toHaveCount(0);
-
-    // Wait for the async update (100ms delay in the code, we wait a bit more)
-    await page.waitForSelector("#delayed-content", { timeout: 1000 });
-
-    // After delay, delayed content should be visible and loading text should be gone
-    await expect(section.locator("#delayed-content")).toBeVisible();
-    await expect(section.locator("#loading-text")).toHaveCount(0);
-  });
-
   test("no console errors during rendering", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (msg) => {

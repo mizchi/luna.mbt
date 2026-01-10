@@ -10,7 +10,7 @@ pub struct EffectRunner {
 
 ///|
 /// Global effect ID counter
-let effect_id_counter : Ref[Int] = Ref::new(0)
+let effect_id_counter : Ref[Int] = { val: 0 }
 
 ///|
 /// Generate a new unique effect ID
@@ -125,7 +125,7 @@ pub fn[T] run_with_subscriber(subscriber : EffectRunner, f : () -> T) -> T {
 /// ```mbt check
 /// test {
 ///   let count = @signal.signal(0)
-///   let runs : Ref[Int] = Ref::new(0)
+///   let runs : Ref[Int] = { val: 0 }
 ///   let _ = @signal.render_effect(fn() {
 ///     @signal.untracked(fn() {
 ///       let _ = count.get() // Won't create dependency
@@ -168,7 +168,7 @@ pub fn batch_end() -> Unit {
 /// test {
 ///   let a = @signal.signal(0)
 ///   let b = @signal.signal(0)
-///   let runs : Ref[Int] = Ref::new(0)
+///   let runs : Ref[Int] = { val: 0 }
 ///   let _ = @signal.render_effect(fn() {
 ///     let _ = a.get() + b.get()
 ///     runs.val = runs.val + 1

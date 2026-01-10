@@ -96,7 +96,7 @@ pub fn[T] Signal::update(self : Signal[T], f : (T) -> T) -> Unit {
 /// ```mbt check
 /// test {
 ///   let count = @signal.signal(0)
-///   let runs : Ref[Int] = Ref::new(0)
+///   let runs : Ref[Int] = { val: 0 }
 ///   let _ = @signal.render_effect(fn() {
 ///     // peek() won't create dependency
 ///     let _ = count.peek()
@@ -172,7 +172,7 @@ pub fn[T] signal(initial : T) -> Signal[T] {
 /// ```
 pub fn[T] on(sig : Signal[T], callback : (T) -> Unit) -> () -> Unit {
   let id = new_effect_id()
-  let active = Ref::new(true)
+  let active = { val: true }
   let runner : EffectRunner = {
     id,
     run: fn() {
