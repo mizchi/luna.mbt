@@ -93,8 +93,8 @@ pub fn ReactiveNode::new(flags : Int) -> ReactiveNode {
   }
 }
 
-/// Signal - reactive value container
-pub(all) struct Signal[T] {
+/// CoreSignal - internal reactive value container (use Signal for public API)
+pub(all) struct CoreSignal[T] {
   node : ReactiveNode
   mut current_value : T
   mut pending_value : T

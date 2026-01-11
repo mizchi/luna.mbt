@@ -1,25 +1,13 @@
 // Computed / Memo - derived reactive values
 // Compatible with signal module API
 
-/// Create a memoized computed value
-/// ```
-/// let count = signal(2)
-/// let doubled = memo(fn() { count.get() * 2 })
-/// println(doubled.get())  // 4
-/// count.set(5)
-/// println(doubled.get())  // 10
-/// ```
-pub fn[T] memo(getter : () -> T) -> Computed[T] {
+/// Create a memoized computed value (internal)
+fn[T] create_computed(getter : () -> T) -> Computed[T] {
   {
     node: ReactiveNode::new(ReactiveFlags::None.to_int()),
     value: None,
     getter,
   }
-}
-
-/// Alias for memo (Solid.js style)
-pub fn[T] computed(getter : () -> T) -> Computed[T] {
-  memo(getter)
 }
 
 /// Get the computed value

@@ -1,5 +1,4 @@
 // Memo - Cached computed value that updates when dependencies change
-// Now backed by experimental_signals for improved performance
 
 ///|
 /// Create a memoized computation.
@@ -22,7 +21,7 @@
 /// }
 /// ```
 pub fn[T] memo(compute : () -> T) -> () -> T {
-  let inner = @esig.memo(compute)
+  let inner = create_computed(compute)
   fn() { inner.get() }
 }
 

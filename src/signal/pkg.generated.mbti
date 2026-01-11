@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/signal"
 
+import(
+  "mizchi/luna/experimental_signals"
+)
+
 // Values
 pub fn all(Array[Signal[Bool]]) -> () -> Bool
 
@@ -164,8 +168,8 @@ pub fn[T] Resource::refetch(Self[T]) -> Unit
 pub fn[T] Resource::value(Self[T]) -> T?
 
 pub struct Signal[T] {
-  mut value : T
-  subscribers : Array[EffectRunner]
+  inner : @experimental_signals.Signal[T]
+  legacy_subscribers : Array[EffectRunner]
 }
 pub fn[T] Signal::clear_subscribers(Self[T]) -> Unit
 pub fn[T] Signal::filter(Self[T], (T) -> Bool) -> Self[T?]

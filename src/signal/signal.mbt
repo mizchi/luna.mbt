@@ -1,5 +1,4 @@
 // Signal - Reactive value container with automatic dependency tracking
-// Now backed by experimental_signals for improved performance
 
 ///|
 /// Signal type - holds a value and notifies subscribers on change.
@@ -13,9 +12,9 @@
 /// }
 /// ```
 pub struct Signal[T] {
-  inner : @esig.Signal[T]
+  inner : CoreSignal[T]
   // Explicit subscribers for `on`/`on_immediate` API (non-tracking subscriptions)
-  // Note: Effect auto-tracking uses esig's subscriber system, not this
+  // Note: Effect auto-tracking uses the core reactive system, not this
   legacy_subscribers : Array[EffectRunner]
 }
 
@@ -28,7 +27,7 @@ pub struct Signal[T] {
 /// }
 /// ```
 pub fn[T] Signal::new(initial : T) -> Signal[T] {
-  { inner: @esig.signal(initial), legacy_subscribers: [] }
+  { inner: core_signal(initial), legacy_subscribers: [] }
 }
 
 ///|
@@ -57,7 +56,7 @@ pub fn[T] Signal::get(self : Signal[T]) -> T {
     }
     None => ()
   }
-  // Also track with experimental_signals system
+  // Also track with core reactive system
   self.inner.get()
 }
 
@@ -139,10 +138,10 @@ pub fn[T] Signal::remove_subscriber(self : Signal[T], id : Int) -> Unit {
 ///|
 /// Get number of subscribers (for debugging)
 pub fn[T] Signal::subscriber_count(self : Signal[T]) -> Int {
-  // Count esig subscribers
-  let esig_count = self.inner.subscriber_count()
+  // Count core subscribers
+  let core_count = self.inner.subscriber_count()
   // Add legacy subscribers
-  esig_count + self.legacy_subscribers.length()
+  core_count + self.legacy_subscribers.length()
 }
 
 ///|

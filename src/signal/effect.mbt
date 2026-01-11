@@ -1,5 +1,4 @@
 // Effect - Reactive side effect that auto-tracks signal dependencies
-// Now backed by experimental_signals for improved performance
 
 ///|
 /// Create an effect that runs immediately and re-runs when dependencies change.
@@ -39,7 +38,7 @@ pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
     run_with_cleanup_tracking(cleanups, fn_)
   }
 
-  let dispose = @esig.render_effect(wrapped_fn)
+  let dispose = core_render_effect(wrapped_fn)
 
   // Create dispose function that also runs cleanups
   let full_dispose = fn() {
@@ -88,7 +87,7 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
   // Defer initial run via microtask (like Solid.js createEffect)
   queue_microtask(fn() {
     if active.val {
-      dispose_ref.val = Some(@esig.render_effect(wrapped_fn))
+      dispose_ref.val = Some(core_render_effect(wrapped_fn))
     }
   })
 
