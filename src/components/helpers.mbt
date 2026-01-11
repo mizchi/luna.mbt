@@ -11,8 +11,8 @@ let id_counter : Ref[Int] = Ref::new(0)
 /// Useful for automatically creating IDs for tabs, panels, etc.
 /// ```mbt check
 /// test {
-///   let id1 = @apg.auto_id("tab")
-///   let id2 = @apg.auto_id("tab")
+///   let id1 = @components.auto_id("tab")
+///   let id2 = @components.auto_id("tab")
 ///   assert_true(id1 != id2)
 /// }
 /// ```

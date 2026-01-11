@@ -1,6 +1,6 @@
 ///|
 test "button: basic attributes" {
-  let node : @luna.Node[Unit] = @apg.button([@luna.text("Click me")])
+  let node : @luna.Node[Unit] = button([@luna.text("Click me")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="button")
   guard el.attrs[0] is ("type", @luna.VStatic("button")) else {
@@ -10,7 +10,7 @@ test "button: basic attributes" {
 
 ///|
 test "button: submit type" {
-  let node : @luna.Node[Unit] = @apg.button(type_=Submit, [@luna.text("Submit")])
+  let node : @luna.Node[Unit] = button(type_=Submit, [@luna.text("Submit")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("type", @luna.VStatic("submit")) else {
     fail("expected type=submit")
@@ -19,7 +19,7 @@ test "button: submit type" {
 
 ///|
 test "button: disabled state" {
-  let node : @luna.Node[Unit] = @apg.button(
+  let node : @luna.Node[Unit] = button(
     disabled=true,
     [@luna.text("Disabled")],
   )
@@ -43,7 +43,7 @@ test "button: disabled state" {
 
 ///|
 test "button: aria-label for icon button" {
-  let node : @luna.Node[Unit] = @apg.button(
+  let node : @luna.Node[Unit] = button(
     aria_label="Close dialog",
     [@luna.text("×")],
   )
@@ -62,7 +62,7 @@ test "button: aria-label for icon button" {
 
 ///|
 test "toggle_button: pressed state" {
-  let node : @luna.Node[Unit] = @apg.toggle_button(
+  let node : @luna.Node[Unit] = toggle_button(
     Pressed,
     [@luna.text("Mute")],
   )
@@ -81,7 +81,7 @@ test "toggle_button: pressed state" {
 
 ///|
 test "toggle_button: not pressed state" {
-  let node : @luna.Node[Unit] = @apg.toggle_button(
+  let node : @luna.Node[Unit] = toggle_button(
     NotPressed,
     [@luna.text("Mute")],
   )
@@ -101,7 +101,7 @@ test "toggle_button: not pressed state" {
 ///|
 test "toggle_button_dyn: dynamic pressed state" {
   let pressed = @signal.signal(false)
-  let node : @luna.Node[Unit] = @apg.toggle_button_dyn(
+  let node : @luna.Node[Unit] = toggle_button_dyn(
     pressed,
     [@luna.text("Bold")],
   )
@@ -123,7 +123,7 @@ test "toggle_button_dyn: dynamic pressed state" {
 
 ///|
 test "menu_button: popup attributes" {
-  let node : @luna.Node[Unit] = @apg.menu_button(
+  let node : @luna.Node[Unit] = menu_button(
     Menu,
     false,
     controls="dropdown",
@@ -161,7 +161,7 @@ test "menu_button: popup attributes" {
 ///|
 test "menu_button_dyn: dynamic expanded state" {
   let expanded = @signal.signal(false)
-  let node : @luna.Node[Unit] = @apg.menu_button_dyn(
+  let node : @luna.Node[Unit] = menu_button_dyn(
     Dialog,
     expanded,
     [@luna.text("Open")],

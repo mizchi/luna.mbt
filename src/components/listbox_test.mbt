@@ -1,6 +1,6 @@
 ///|
 test "listbox: role and tabindex" {
-  let node : @luna.Node[Unit] = @apg.listbox(aria_label="Colors", [])
+  let node : @luna.Node[Unit] = listbox(aria_label="Colors", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_role = false
   let mut has_tabindex = false
@@ -20,7 +20,7 @@ test "listbox: role and tabindex" {
 
 ///|
 test "listbox: multiselectable" {
-  let node : @luna.Node[Unit] = @apg.listbox(
+  let node : @luna.Node[Unit] = listbox(
     aria_label="Items",
     multiselectable=true,
     [],
@@ -38,7 +38,7 @@ test "listbox: multiselectable" {
 
 ///|
 test "option: selected state" {
-  let node : @luna.Node[Unit] = @apg.option(
+  let node : @luna.Node[Unit] = option(
     "red",
     true,
     [@luna.text("Red")],
@@ -63,10 +63,10 @@ test "option: selected state" {
 ///|
 test "listbox_from_options: builds structure" {
   let options = [
-    @apg.listbox_option("a", "Option A"),
-    @apg.listbox_option("b", "Option B"),
+    listbox_option("a", "Option A"),
+    listbox_option("b", "Option B"),
   ]
-  let node : @luna.Node[Unit] = @apg.listbox_from_options(
+  let node : @luna.Node[Unit] = listbox_from_options(
     options,
     "a",
     aria_label="Choose",
@@ -77,7 +77,7 @@ test "listbox_from_options: builds structure" {
 
 ///|
 test "optgroup: creates group" {
-  let node : @luna.Node[Unit] = @apg.optgroup("Colors", [])
+  let node : @luna.Node[Unit] = optgroup("Colors", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_role = false
   for attr in el.attrs {

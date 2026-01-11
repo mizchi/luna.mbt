@@ -1,6 +1,6 @@
 ///|
 test "disclosure_button: expanded state" {
-  let node : @luna.Node[Unit] = @apg.disclosure_button(
+  let node : @luna.Node[Unit] = disclosure_button(
     true,
     "content-1",
     [@luna.text("Show more")],
@@ -25,7 +25,7 @@ test "disclosure_button: expanded state" {
 
 ///|
 test "disclosure_button: collapsed state" {
-  let node : @luna.Node[Unit] = @apg.disclosure_button(
+  let node : @luna.Node[Unit] = disclosure_button(
     false,
     "content-2",
     [@luna.text("Show")],
@@ -43,7 +43,7 @@ test "disclosure_button: collapsed state" {
 
 ///|
 test "disclosure_content: hidden when collapsed" {
-  let node : @luna.Node[Unit] = @apg.disclosure_content(
+  let node : @luna.Node[Unit] = disclosure_content(
     "panel",
     true,
     [@luna.text("Hidden content")],
@@ -60,7 +60,7 @@ test "disclosure_content: hidden when collapsed" {
 
 ///|
 test "disclosure: creates complete structure" {
-  let node : @luna.Node[Unit] = @apg.disclosure(
+  let node : @luna.Node[Unit] = disclosure(
     "faq-1",
     true,
     [@luna.text("Question?")],
@@ -73,7 +73,7 @@ test "disclosure: creates complete structure" {
 ///|
 test "disclosure_button_dyn: dynamic expanded" {
   let expanded = @signal.signal(false)
-  let node : @luna.Node[Unit] = @apg.disclosure_button_dyn(
+  let node : @luna.Node[Unit] = disclosure_button_dyn(
     expanded,
     "panel",
     [@luna.text("Toggle")],

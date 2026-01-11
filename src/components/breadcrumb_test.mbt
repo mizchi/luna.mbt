@@ -1,11 +1,11 @@
 ///|
 test "breadcrumb: creates nav with aria-label" {
   let items = [
-    @apg.breadcrumb_item("/", "Home"),
-    @apg.breadcrumb_item("/docs", "Docs"),
-    @apg.breadcrumb_item("/docs/guide", "Guide", current=true),
+    breadcrumb_item("/", "Home"),
+    breadcrumb_item("/docs", "Docs"),
+    breadcrumb_item("/docs/guide", "Guide", current=true),
   ]
-  let node : @luna.Node[Unit] = @apg.breadcrumb(items)
+  let node : @luna.Node[Unit] = breadcrumb(items)
   guard node is @luna.Element(nav) else { fail("expected Element") }
   inspect(nav.tag, content="nav")
   let mut has_label = false
@@ -21,10 +21,10 @@ test "breadcrumb: creates nav with aria-label" {
 ///|
 test "breadcrumb: custom separator" {
   let items = [
-    @apg.breadcrumb_item("/", "Home"),
-    @apg.breadcrumb_item("/about", "About", current=true),
+    breadcrumb_item("/", "Home"),
+    breadcrumb_item("/about", "About", current=true),
   ]
-  let node : @luna.Node[Unit] = @apg.breadcrumb(separator=">", items)
+  let node : @luna.Node[Unit] = breadcrumb(separator=">", items)
   guard node is @luna.Element(nav) else { fail("expected Element") }
   guard nav.children[0] is @luna.Element(ol) else { fail("expected ol") }
   inspect(ol.tag, content="ol")
@@ -33,10 +33,10 @@ test "breadcrumb: custom separator" {
 ///|
 test "breadcrumb: current page has aria-current" {
   let items = [
-    @apg.breadcrumb_item("/", "Home"),
-    @apg.breadcrumb_item("/page", "Current", current=true),
+    breadcrumb_item("/", "Home"),
+    breadcrumb_item("/page", "Current", current=true),
   ]
-  let node : @luna.Node[Unit] = @apg.breadcrumb(items)
+  let node : @luna.Node[Unit] = breadcrumb(items)
   guard node is @luna.Element(nav) else { fail("expected nav") }
   guard nav.children[0] is @luna.Element(ol) else { fail("expected ol") }
   guard ol.children[1] is @luna.Element(li) else { fail("expected li") }
@@ -53,7 +53,7 @@ test "breadcrumb: current page has aria-current" {
 
 ///|
 test "breadcrumb_from_path: builds from segments" {
-  let node : @luna.Node[Unit] = @apg.breadcrumb_from_path(
+  let node : @luna.Node[Unit] = breadcrumb_from_path(
     "/docs",
     [("guide", "Guide"), ("install", "Installation")],
     "Current Page",

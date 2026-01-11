@@ -1,6 +1,6 @@
 ///|
 test "link: basic attributes" {
-  let node : @luna.Node[Unit] = @apg.link(
+  let node : @luna.Node[Unit] = link(
     "https://example.com",
     [@luna.text("Example")],
   )
@@ -13,7 +13,7 @@ test "link: basic attributes" {
 
 ///|
 test "link: with target blank" {
-  let node : @luna.Node[Unit] = @apg.link(
+  let node : @luna.Node[Unit] = link(
     "/page",
     target=Blank,
     [@luna.text("New Tab")],
@@ -33,7 +33,7 @@ test "link: with target blank" {
 
 ///|
 test "link: with aria-label for icon-only" {
-  let node : @luna.Node[Unit] = @apg.link(
+  let node : @luna.Node[Unit] = link(
     "/home",
     aria_label="Go to home page",
     [@luna.text("🏠")],
@@ -53,7 +53,7 @@ test "link: with aria-label for icon-only" {
 
 ///|
 test "link: disabled state" {
-  let node : @luna.Node[Unit] = @apg.link(
+  let node : @luna.Node[Unit] = link(
     "/action",
     disabled=true,
     [@luna.text("Disabled")],
@@ -80,7 +80,7 @@ test "link: disabled state" {
 ///|
 test "link_button: role and tabindex" {
   let handler = @luna.handler(fn(_x : Unit) { () })
-  let node : @luna.Node[Unit] = @apg.link_button(
+  let node : @luna.Node[Unit] = link_button(
     handler,
     [@luna.text("Click")],
   )

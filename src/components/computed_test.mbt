@@ -33,7 +33,7 @@ test "tabpanel_computed creates panel with computed visibility" {
 
 ///|
 test "checkbox_computed creates checkbox with computed state" {
-  let checked = @signal.signal(@apg.Checked)
+  let checked = @signal.signal(@components.Checked)
   let node : @luna.Node[@js.Any] = checkbox_computed(
     fn() { checked.get() },
     aria_label="Test checkbox",

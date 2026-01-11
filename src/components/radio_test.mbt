@@ -1,6 +1,6 @@
 ///|
 test "radiogroup: role" {
-  let node : @luna.Node[Unit] = @apg.radiogroup(aria_label="Options", [])
+  let node : @luna.Node[Unit] = radiogroup(aria_label="Options", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("role", @luna.VStatic("radiogroup")) else {
     fail("expected role=radiogroup")
@@ -9,7 +9,7 @@ test "radiogroup: role" {
 
 ///|
 test "radio: checked state" {
-  let node : @luna.Node[Unit] = @apg.radio(
+  let node : @luna.Node[Unit] = radio(
     "option1",
     true,
     [@luna.text("Option 1")],
@@ -33,7 +33,7 @@ test "radio: checked state" {
 
 ///|
 test "radio: unchecked state" {
-  let node : @luna.Node[Unit] = @apg.radio(
+  let node : @luna.Node[Unit] = radio(
     "option2",
     false,
     [@luna.text("Option 2")],
@@ -58,7 +58,7 @@ test "radio: unchecked state" {
 ///|
 test "radio_dyn: dynamic checked" {
   let selected = @signal.signal("opt1")
-  let node : @luna.Node[Unit] = @apg.radio_dyn(
+  let node : @luna.Node[Unit] = radio_dyn(
     "opt1",
     selected,
     [@luna.text("Opt 1")],
@@ -79,11 +79,11 @@ test "radio_dyn: dynamic checked" {
 
 ///|
 test "radio_group: builds structure" {
-  let options : Array[@apg.RadioOption[Unit]] = [
-    @apg.radio_option("a", [@luna.text("A")]),
-    @apg.radio_option("b", [@luna.text("B")]),
+  let options : Array[RadioOption[Unit]] = [
+    radio_option("a", [@luna.text("A")]),
+    radio_option("b", [@luna.text("B")]),
   ]
-  let node : @luna.Node[Unit] = @apg.radio_group(
+  let node : @luna.Node[Unit] = radio_group(
     "choice",
     options,
     "a",
@@ -95,7 +95,7 @@ test "radio_group: builds structure" {
 
 ///|
 test "radio_native: creates input and label" {
-  let node : @luna.Node[Unit] = @apg.radio_native(
+  let node : @luna.Node[Unit] = radio_native(
     "color",
     "red",
     true,

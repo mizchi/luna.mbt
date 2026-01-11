@@ -1,6 +1,6 @@
 ///|
 test "slider: role and value attributes" {
-  let node : @luna.Node[Unit] = @apg.slider(
+  let node : @luna.Node[Unit] = slider(
     50.0,
     aria_label="Volume",
     [],
@@ -36,7 +36,7 @@ test "slider: role and value attributes" {
 
 ///|
 test "slider: custom range" {
-  let node : @luna.Node[Unit] = @apg.slider(
+  let node : @luna.Node[Unit] = slider(
     5.0,
     min=0.0,
     max=10.0,
@@ -62,7 +62,7 @@ test "slider: custom range" {
 
 ///|
 test "slider: vertical orientation" {
-  let node : @luna.Node[Unit] = @apg.slider(
+  let node : @luna.Node[Unit] = slider(
     50.0,
     orientation=Vertical,
     aria_label="Height",
@@ -81,7 +81,7 @@ test "slider: vertical orientation" {
 
 ///|
 test "slider_native: creates range input" {
-  let node : @luna.Node[Unit] = @apg.slider_native(
+  let node : @luna.Node[Unit] = slider_native(
     "volume",
     50.0,
     aria_label="Volume",

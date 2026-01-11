@@ -1,6 +1,6 @@
 ///|
 test "tablist: role and aria-label" {
-  let node : @luna.Node[Unit] = @apg.tablist(
+  let node : @luna.Node[Unit] = tablist(
     aria_label="Content tabs",
     [],
   )
@@ -12,7 +12,7 @@ test "tablist: role and aria-label" {
 
 ///|
 test "tablist: vertical orientation" {
-  let node : @luna.Node[Unit] = @apg.tablist(orientation=Vertical, [])
+  let node : @luna.Node[Unit] = tablist(orientation=Vertical, [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_orientation = false
   for attr in el.attrs {
@@ -26,7 +26,7 @@ test "tablist: vertical orientation" {
 
 ///|
 test "tab: selected state" {
-  let node : @luna.Node[Unit] = @apg.tab(
+  let node : @luna.Node[Unit] = tab(
     "tab-1",
     true,
     "panel-1",
@@ -52,7 +52,7 @@ test "tab: selected state" {
 
 ///|
 test "tab: unselected state" {
-  let node : @luna.Node[Unit] = @apg.tab(
+  let node : @luna.Node[Unit] = tab(
     "tab-2",
     false,
     "panel-2",
@@ -77,7 +77,7 @@ test "tab: unselected state" {
 
 ///|
 test "tabpanel: role and labelledby" {
-  let node : @luna.Node[Unit] = @apg.tabpanel(
+  let node : @luna.Node[Unit] = tabpanel(
     "panel-1",
     "tab-1",
     false,
@@ -103,11 +103,11 @@ test "tabpanel: role and labelledby" {
 
 ///|
 test "tabs: builds complete structure" {
-  let items : Array[@apg.TabItem[Unit]] = [
-    @apg.tab_item("first", "First", [@luna.text("Panel 1")]),
-    @apg.tab_item("second", "Second", [@luna.text("Panel 2")]),
+  let items : Array[TabItem[Unit]] = [
+    tab_item("first", "First", [@luna.text("Panel 1")]),
+    tab_item("second", "Second", [@luna.text("Panel 2")]),
   ]
-  let node : @luna.Node[Unit] = @apg.tabs(items, 0, aria_label="Demo")
+  let node : @luna.Node[Unit] = tabs(items, 0, aria_label="Demo")
   guard node is @luna.Fragment(children) else { fail("expected Fragment") }
   // First child is tablist, rest are panels
   inspect(children.length(), content="3")

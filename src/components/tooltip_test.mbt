@@ -1,6 +1,6 @@
 ///|
 test "tooltip: role and id" {
-  let node : @luna.Node[Unit] = @apg.tooltip(
+  let node : @luna.Node[Unit] = tooltip(
     "tip-1",
     [@luna.text("Help text")],
   )
@@ -23,7 +23,7 @@ test "tooltip: role and id" {
 
 ///|
 test "tooltip_popup: hidden when not visible" {
-  let node : @luna.Node[Unit] = @apg.tooltip_popup(
+  let node : @luna.Node[Unit] = tooltip_popup(
     "tip-2",
     false,
     [@luna.text("Hidden")],
@@ -40,7 +40,7 @@ test "tooltip_popup: hidden when not visible" {
 
 ///|
 test "tooltip_trigger: aria-describedby" {
-  let node : @luna.Node[Unit] = @apg.tooltip_trigger(
+  let node : @luna.Node[Unit] = tooltip_trigger(
     "my-tooltip",
     [@luna.text("?")],
   )
@@ -58,7 +58,7 @@ test "tooltip_trigger: aria-describedby" {
 
 ///|
 test "tooltip_with_trigger: creates both elements" {
-  let node : @luna.Node[Unit] = @apg.tooltip_with_trigger(
+  let node : @luna.Node[Unit] = tooltip_with_trigger(
     "info",
     [@luna.text("?")],
     [@luna.text("More info")],

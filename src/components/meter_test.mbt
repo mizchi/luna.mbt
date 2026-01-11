@@ -1,6 +1,6 @@
 ///|
 test "meter: basic attributes" {
-  let node : @luna.Node[Unit] = @apg.meter(
+  let node : @luna.Node[Unit] = meter(
     75.0,
     aria_label="Battery level",
     [],
@@ -37,7 +37,7 @@ test "meter: basic attributes" {
 
 ///|
 test "meter: custom range" {
-  let node : @luna.Node[Unit] = @apg.meter(
+  let node : @luna.Node[Unit] = meter(
     5.0,
     min=0.0,
     max=10.0,
@@ -63,7 +63,7 @@ test "meter: custom range" {
 
 ///|
 test "meter: with aria-valuetext" {
-  let node : @luna.Node[Unit] = @apg.meter(
+  let node : @luna.Node[Unit] = meter(
     50.0,
     aria_label="Battery",
     aria_valuetext="50% (6 hours) remaining",
@@ -85,7 +85,7 @@ test "meter: with aria-valuetext" {
 ///|
 test "meter_dyn: dynamic value" {
   let value = @signal.signal(25.0)
-  let node : @luna.Node[Unit] = @apg.meter_dyn(
+  let node : @luna.Node[Unit] = meter_dyn(
     value,
     aria_label="Progress",
     [],
@@ -106,7 +106,7 @@ test "meter_dyn: dynamic value" {
 
 ///|
 test "meter_native: native meter element" {
-  let node : @luna.Node[Unit] = @apg.meter_native(
+  let node : @luna.Node[Unit] = meter_native(
     75.0,
     aria_label="Disk usage",
     [],
@@ -125,7 +125,7 @@ test "meter_native: native meter element" {
 
 ///|
 test "meter_native: with thresholds" {
-  let node : @luna.Node[Unit] = @apg.meter_native(
+  let node : @luna.Node[Unit] = meter_native(
     50.0,
     low=25.0,
     high=75.0,

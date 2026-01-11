@@ -1,6 +1,6 @@
 ///|
 test "checkbox: checked state" {
-  let node : @luna.Node[Unit] = @apg.checkbox(
+  let node : @luna.Node[Unit] = checkbox(
     Checked,
     [@luna.text("Accept")],
   )
@@ -23,7 +23,7 @@ test "checkbox: checked state" {
 
 ///|
 test "checkbox: unchecked state" {
-  let node : @luna.Node[Unit] = @apg.checkbox(
+  let node : @luna.Node[Unit] = checkbox(
     Unchecked,
     [@luna.text("Terms")],
   )
@@ -40,7 +40,7 @@ test "checkbox: unchecked state" {
 
 ///|
 test "checkbox: mixed state (tri-state)" {
-  let node : @luna.Node[Unit] = @apg.checkbox(Mixed, [@luna.text("All")])
+  let node : @luna.Node[Unit] = checkbox(Mixed, [@luna.text("All")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut checked_val = ""
   for attr in el.attrs {
@@ -54,7 +54,7 @@ test "checkbox: mixed state (tri-state)" {
 
 ///|
 test "checkbox_native: creates input and label" {
-  let node : @luna.Node[Unit] = @apg.checkbox_native(
+  let node : @luna.Node[Unit] = checkbox_native(
     "agree",
     true,
     [@luna.text("I agree")],
@@ -65,7 +65,7 @@ test "checkbox_native: creates input and label" {
 
 ///|
 test "checkbox_group: role group" {
-  let node : @luna.Node[Unit] = @apg.checkbox_group(
+  let node : @luna.Node[Unit] = checkbox_group(
     aria_label="Options",
     [],
   )
