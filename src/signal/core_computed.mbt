@@ -1,18 +1,16 @@
 // Computed / Memo - derived reactive values
 // Compatible with signal module API
 
+///|
 /// Create a memoized computed value (internal)
 fn[T] create_computed(getter : () -> T) -> Computed[T] {
-  {
-    node: ReactiveNode::new(ReactiveFlags::None.to_int()),
-    value: None,
-    getter,
-  }
+  { node: ReactiveNode::new(ReactiveFlags::None.to_int()), value: None, getter }
 }
 
+///|
 /// Get the computed value
 /// Automatically tracks dependency if called inside an effect/computed
-pub fn Computed::get[T](self : Computed[T]) -> T {
+pub fn[T] Computed::get(self : Computed[T]) -> T {
   let flags = self.node.flags.get_value()
   let dirty_flag = ReactiveFlags::Dirty.to_int()
   let pending_flag = ReactiveFlags::Pending.to_int()
@@ -29,7 +27,6 @@ pub fn Computed::get[T](self : Computed[T]) -> T {
   } else {
     false
   }
-
   if is_dirty || deps_changed {
     // Recompute
     if update_computed(self) {
@@ -40,7 +37,7 @@ pub fn Computed::get[T](self : Computed[T]) -> T {
     }
   } else if is_pending {
     // Clear pending flag if deps not dirty
-    self.node.flags.set_value(flags & (pending_flag ^ (-1)))
+    self.node.flags.set_value(flags & (pending_flag ^ -1))
   } else if flags == ReactiveFlags::None.to_int() {
     // First computation
     self.node.flags.set_value(mutable_flag | recursed_check_flag)
@@ -48,7 +45,7 @@ pub fn Computed::get[T](self : Computed[T]) -> T {
     self.value = Some((self.getter)())
     let _ = set_active_sub(prev_sub)
     let current_flags = self.node.flags.get_value()
-    self.node.flags.set_value(current_flags & (recursed_check_flag ^ (-1)))
+    self.node.flags.set_value(current_flags & (recursed_check_flag ^ -1))
   }
 
   // Track dependency
@@ -56,19 +53,19 @@ pub fn Computed::get[T](self : Computed[T]) -> T {
     Some(sub) => link(self.node, sub, get_cycle())
     None => ()
   }
-
   match self.value {
     Some(v) => v
     None => abort("Computed value not initialized")
   }
 }
 
+///|
 /// Update computed value, returns true if changed
-fn update_computed[T](c : Computed[T]) -> Bool {
+fn[T] update_computed(c : Computed[T]) -> Bool {
   inc_cycle()
   c.node.deps_tail = None
   c.node.flags.set_value(
-    ReactiveFlags::Mutable.to_int() | ReactiveFlags::RecursedCheck.to_int()
+    ReactiveFlags::Mutable.to_int() | ReactiveFlags::RecursedCheck.to_int(),
   )
   let prev_sub = set_active_sub(Some(c.node))
   let old_value = c.value
@@ -76,15 +73,17 @@ fn update_computed[T](c : Computed[T]) -> Bool {
   c.value = Some(new_value)
   let _ = set_active_sub(prev_sub)
   let current_flags = c.node.flags.get_value()
-  c.node.flags.set_value(current_flags & (ReactiveFlags::RecursedCheck.to_int() ^ (-1)))
+  c.node.flags.set_value(
+    current_flags & (ReactiveFlags::RecursedCheck.to_int() ^ -1),
+  )
   purge_deps(c.node)
-
   match old_value {
     Some(old) => not(physical_equal(old, new_value))
     None => true
   }
 }
 
+///|
 /// Check if any dependency has changed since last computation
 /// Uses last_modified_cycle to handle diamond dependencies correctly
 fn check_deps_dirty(node : ReactiveNode) -> Bool {
@@ -92,8 +91,7 @@ fn check_deps_dirty(node : ReactiveNode) -> Bool {
   let pending_flag = ReactiveFlags::Pending.to_int()
   let mutable_flag = ReactiveFlags::Mutable.to_int()
   let link_ref : Ref[Link?] = Ref::new(node.deps)
-
-  while not(link_ref.val.is_empty()) {
+  while not(link_ref.val is None) {
     match link_ref.val {
       Some(lnk) => {
         let dep = lnk.dep
@@ -117,7 +115,8 @@ fn check_deps_dirty(node : ReactiveNode) -> Bool {
   false
 }
 
+///|
 /// Peek at current value without tracking
-pub fn Computed::peek[T](self : Computed[T]) -> T? {
+pub fn[T] Computed::peek(self : Computed[T]) -> T? {
   self.value
 }

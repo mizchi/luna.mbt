@@ -1,6 +1,7 @@
 // CoreSignal - internal reactive value primitive
 // alien-signals style API
 
+///|
 /// Create a new core signal with initial value
 pub fn[T] core_signal(initial : T) -> CoreSignal[T] {
   {
@@ -10,6 +11,7 @@ pub fn[T] core_signal(initial : T) -> CoreSignal[T] {
   }
 }
 
+///|
 /// Get the current value of a core signal
 /// Automatically tracks dependency if called inside an effect/computed
 pub fn[T] CoreSignal::get(self : CoreSignal[T]) -> T {
@@ -49,10 +51,10 @@ pub fn[T] CoreSignal::get(self : CoreSignal[T]) -> T {
       None => ()
     }
   }
-
   self.current_value
 }
 
+///|
 /// Set a new value for the core signal
 /// Notifies all subscribers if value changed
 pub fn[T] CoreSignal::set(self : CoreSignal[T], value : T) -> Unit {
@@ -76,11 +78,13 @@ pub fn[T] CoreSignal::set(self : CoreSignal[T], value : T) -> Unit {
   }
 }
 
+///|
 /// Update core signal value using a function
 pub fn[T] CoreSignal::update(self : CoreSignal[T], f : (T) -> T) -> Unit {
   self.set(f(self.get()))
 }
 
+///|
 /// Get value without tracking (peek)
 /// Returns the latest value (pending if dirty, otherwise current)
 pub fn[T] CoreSignal::peek(self : CoreSignal[T]) -> T {
@@ -93,6 +97,7 @@ pub fn[T] CoreSignal::peek(self : CoreSignal[T]) -> T {
   }
 }
 
+///|
 /// Get number of subscribers (for debugging)
 pub fn[T] CoreSignal::subscriber_count(self : CoreSignal[T]) -> Int {
   let mut count = 0
@@ -109,6 +114,7 @@ pub fn[T] CoreSignal::subscriber_count(self : CoreSignal[T]) -> Int {
   count
 }
 
+///|
 /// Clear all subscribers
 pub fn[T] CoreSignal::clear_subscribers(self : CoreSignal[T]) -> Unit {
   // Unlink all subs
@@ -128,6 +134,8 @@ pub fn[T] CoreSignal::clear_subscribers(self : CoreSignal[T]) -> Unit {
 }
 
 // Helper for value comparison
+
+///|
 fn[T] physical_equal_value(a : T, b : T) -> Bool {
   // Use physical equality for reference types
   physical_equal(a, b)

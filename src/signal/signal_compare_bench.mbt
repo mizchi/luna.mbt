@@ -5,24 +5,29 @@
 // Basic Signal Operations
 // =============================================================================
 
+///|
 test "sig: signal.get (1000 reads)" (b : @bench.T) {
   let sig = signal(42)
   b.bench(fn() {
     for i = 0; i < 1000; i = i + 1 {
       let _ = sig.get()
+
     }
   })
 }
 
+///|
 test "sig: signal.peek (1000 reads)" (b : @bench.T) {
   let sig = signal(42)
   b.bench(fn() {
     for i = 0; i < 1000; i = i + 1 {
       let _ = sig.peek()
+
     }
   })
 }
 
+///|
 test "sig: signal.set (1000 writes, no subs)" (b : @bench.T) {
   let sig = signal(0)
   b.bench(fn() {
@@ -36,6 +41,7 @@ test "sig: signal.set (1000 writes, no subs)" (b : @bench.T) {
 // Computed (memo) Operations
 // =============================================================================
 
+///|
 test "sig: memo.get (1000 reads, cached)" (b : @bench.T) {
   let a = signal(1)
   let b_sig = signal(2)
@@ -45,10 +51,12 @@ test "sig: memo.get (1000 reads, cached)" (b : @bench.T) {
   b.bench(fn() {
     for i = 0; i < 1000; i = i + 1 {
       let _ = sum()
+
     }
   })
 }
 
+///|
 test "sig: memo chain (depth 3, 1000 reads)" (b : @bench.T) {
   let a = signal(1)
   let b_memo = memo(fn() { a.get() + 1 })
@@ -59,10 +67,12 @@ test "sig: memo chain (depth 3, 1000 reads)" (b : @bench.T) {
   b.bench(fn() {
     for i = 0; i < 1000; i = i + 1 {
       let _ = d_memo()
+
     }
   })
 }
 
+///|
 test "sig: memo after update (1000 cycles)" (b : @bench.T) {
   let a = signal(0)
   let doubled = memo(fn() { a.get() * 2 })
@@ -70,6 +80,7 @@ test "sig: memo after update (1000 cycles)" (b : @bench.T) {
     for i = 0; i < 1000; i = i + 1 {
       a.set(i)
       let _ = doubled()
+
     }
   })
 }
@@ -78,18 +89,21 @@ test "sig: memo after update (1000 cycles)" (b : @bench.T) {
 // Effect Operations
 // =============================================================================
 
+///|
 test "sig: render_effect creation and dispose (100 cycles)" (b : @bench.T) {
   b.bench(fn() {
     for i = 0; i < 100; i = i + 1 {
       let count = signal(0)
       let dispose = render_effect(fn() {
         let _ = count.get()
+
       })
       dispose()
     }
   })
 }
 
+///|
 test "sig: render_effect with signal update (100 cycles)" (b : @bench.T) {
   let count = signal(0)
   let effect_runs = Ref::new(0)
@@ -108,6 +122,7 @@ test "sig: render_effect with signal update (100 cycles)" (b : @bench.T) {
 // Batch Operations (using untracked for signal module)
 // =============================================================================
 
+///|
 test "sig: untracked batch-like (100 updates)" (b : @bench.T) {
   let a = signal(0)
   let b_sig = signal(0)
@@ -126,6 +141,7 @@ test "sig: untracked batch-like (100 updates)" (b : @bench.T) {
 // Dependency Fan-out (1 signal -> N memos)
 // =============================================================================
 
+///|
 test "sig: fan-out 10 memos (1000 reads each)" (b : @bench.T) {
   let source = signal(1)
   let memos : Array[() -> Int] = []
@@ -135,16 +151,19 @@ test "sig: fan-out 10 memos (1000 reads each)" (b : @bench.T) {
   // Initialize all
   for m in memos {
     let _ = m()
+
   }
   b.bench(fn() {
     for j = 0; j < 1000; j = j + 1 {
       for m in memos {
         let _ = m()
+
       }
     }
   })
 }
 
+///|
 test "sig: fan-out 10 memos, source update (100 cycles)" (b : @bench.T) {
   let source = signal(0)
   let memos : Array[() -> Int] = []
@@ -154,12 +173,14 @@ test "sig: fan-out 10 memos, source update (100 cycles)" (b : @bench.T) {
   // Initialize all
   for m in memos {
     let _ = m()
+
   }
   b.bench(fn() {
     for i = 0; i < 100; i = i + 1 {
       source.set(i)
       for m in memos {
         let _ = m()
+
       }
     }
   })
@@ -169,6 +190,7 @@ test "sig: fan-out 10 memos, source update (100 cycles)" (b : @bench.T) {
 // Dependency Fan-in (N signals -> 1 memo)
 // =============================================================================
 
+///|
 test "sig: fan-in 10 signals (1000 reads)" (b : @bench.T) {
   let signals : Array[Signal[Int]] = []
   for i = 0; i < 10; i = i + 1 {
@@ -186,10 +208,12 @@ test "sig: fan-in 10 signals (1000 reads)" (b : @bench.T) {
   b.bench(fn() {
     for j = 0; j < 1000; j = j + 1 {
       let _ = sum()
+
     }
   })
 }
 
+///|
 test "sig: fan-in 10 signals, 1 update (100 cycles)" (b : @bench.T) {
   let signals : Array[Signal[Int]] = []
   for i = 0; i < 10; i = i + 1 {
@@ -208,6 +232,7 @@ test "sig: fan-in 10 signals, 1 update (100 cycles)" (b : @bench.T) {
     for i = 0; i < 100; i = i + 1 {
       signals[0].set(i)
       let _ = sum()
+
     }
   })
 }
@@ -216,12 +241,14 @@ test "sig: fan-in 10 signals, 1 update (100 cycles)" (b : @bench.T) {
 // Memory / Subscribe/Unsubscribe test
 // =============================================================================
 
+///|
 test "sig: repeated effect create/dispose (100 cycles)" (b : @bench.T) {
   let source = signal(1)
   b.bench(fn() {
     for i = 0; i < 100; i = i + 1 {
       let dispose = render_effect(fn() {
         let _ = source.get()
+
       })
       dispose()
     }

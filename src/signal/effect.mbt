@@ -37,7 +37,6 @@ pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
     // Run with cleanup tracking enabled
     run_with_cleanup_tracking(cleanups, fn_)
   }
-
   let dispose = core_render_effect(wrapped_fn)
 
   // Create dispose function that also runs cleanups
