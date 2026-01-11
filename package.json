@@ -1,6 +1,7 @@
 {
   "name": "luna.mbt",
   "private": true,
+  "type": "module",
   "description": "MoonBit Island Architecture UI Framework",
   "scripts": {
     "build:moon": "moon build --target js",

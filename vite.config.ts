@@ -52,6 +52,7 @@ export default defineConfig(({ command }) => {
           "todomvc": resolve(__dirname, './demo-src/todomvc/index.html'),
           "css_split": resolve(__dirname, './demo-src/css_split/index.html'),
           "radix-components": resolve(__dirname, './demo-src/radix-components/index.html'),
+          "components": resolve(__dirname, './demo-src/components/index.html'),
         },
       },
     },
