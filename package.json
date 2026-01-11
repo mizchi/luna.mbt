@@ -12,6 +12,7 @@
   "devDependencies": {
     "0x": "^6.0.0",
     "@anthropic-ai/claude-code": "^1.0.33",
+    "@axe-core/playwright": "^4.11.0",
     "@cloudflare/vitest-pool-workers": "^0.11.1",
     "@hono/node-server": "^1.14.0",
     "@playwright/test": "^1.57.0",
@@ -26,6 +27,7 @@
     "@vitest/browser": "^4.0.15",
     "@vitest/browser-playwright": "^4.0.15",
     "@vitest/coverage-v8": "^4.0.15",
+    "axe-core": "^4.11.1",
     "colorette": "^2.0.20",
     "esbuild": "^0.25.0",
     "execa": "^9.6.1",

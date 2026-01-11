@@ -7,8 +7,53 @@
   - 27個のSVGビルダー関数を追加 (`__generated_svg.mbt`)
   - `svg_title()`, `svg_desc()` でアクセシビリティ対応
   - `svg()` に `aria-label`, `aria-labelledby`, `aria-describedby` 属性追加
-- [ ] Accessibility ファーストなUIライブラリの設計
+- [x] Accessibility ファーストなUIライブラリの設計 → `src/apg/`
 - [ ] https://shoelace.style/
+
+### APG Components (`src/apg/`)
+
+WAI-ARIA APG準拠のアクセシブルUIコンポーネント集。
+
+**実装済み (9パターン, 63テスト)**
+- [x] Link - `link()`, `link_button()`
+- [x] Button - `button()`, `toggle_button()`, `menu_button()` + _dyn版
+- [x] Meter - `meter()`, `meter_dyn()`, `meter_native()`
+- [x] Landmarks - `banner()`, `nav()`, `main_content()`, `aside()`, `search()`, `region()`, `page_layout()`
+- [x] Alert - `alert()`, `alert_live()`, `status()`
+- [x] Tabs - `tablist()`, `tab()`, `tabpanel()`, `tabs()` + _dyn版
+- [x] Radio Group - `radiogroup()`, `radio()`, `radio_group()`, `radio_native()` + _dyn版
+- [x] Dialog - `dialog()`, `alert_dialog()`, `dialog_native()`, `modal()` + _dyn版
+- [x] Accordion - `accordion_header()`, `accordion_panel()`, `accordion()`, `accordion_multi()` + _dyn版
+
+**次フェーズ (フォーム系)**
+- [ ] Checkbox - チェックボックス (tri-state対応)
+- [ ] Switch - オン/オフスイッチ
+- [ ] Slider - 範囲スライダー
+- [ ] Spinbutton - 数値入力
+
+**次フェーズ (選択系)**
+- [ ] Listbox - 単一/複数選択リスト
+- [ ] Combobox - オートコンプリート付き入力
+- [ ] Menu / Menubar - ドロップダウンメニュー
+- [ ] Select (native) - ネイティブセレクト
+
+**次フェーズ (ナビゲーション系)**
+- [ ] Tree View - ツリー構造
+- [ ] Breadcrumb - パンくずリスト (簡易版は landmarks に含む)
+- [ ] Disclosure - 開閉パネル (Accordion の単体版)
+- [ ] Carousel - スライドショー
+
+**将来 (高複雑度)**
+- [ ] Grid - インタラクティブテーブル
+- [ ] Treegrid - ツリー+グリッド
+- [ ] Feed - 無限スクロール
+- [ ] Window Splitter - リサイズ可能パネル
+
+**テスト基盤**
+- [x] MoonBit Unit Tests (63テスト)
+- [x] Browser Integration Tests (axe-core, 25テスト)
+- [ ] E2E Tests (Playwright) - キーボードナビゲーション検証
+- [ ] VoiceOver/NVDA 実機テスト
 - SSR 対応のコンポーネントライブラリ、という概念を作りたい。qwik を参照する。
   - [ ] cloudflare worker の microfrontend service binding
 - [ ] CSS DCE in WC
