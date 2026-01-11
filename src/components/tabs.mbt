@@ -58,14 +58,11 @@ pub fn[E] tablist(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("tablist")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match orientation {
-    Some(Vertical) =>
-      attrs.push(("aria-orientation", @luna.attr_static("vertical")))
-    _ => ()
+  if orientation is Some(Vertical) {
+    attrs.push(("aria-orientation", @luna.attr_static("vertical")))
   }
   @luna.h("div", attrs, children)
 }
@@ -98,13 +95,11 @@ pub fn[E] tab(
     ("aria-controls", @luna.attr_static(controls)),
     ("tabindex", @luna.attr_static(if selected { "0" } else { "-1" })),
   ]
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -132,13 +127,11 @@ pub fn[E] tab_dyn(
       @luna.attr_dynamic(fn() { if selected.get() { "0" } else { "-1" } }),
     ),
   ]
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -208,13 +201,11 @@ pub fn[E] tab_computed(
       @luna.attr_dynamic(fn() { if selected() { "0" } else { "-1" } }),
     ),
   ]
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }

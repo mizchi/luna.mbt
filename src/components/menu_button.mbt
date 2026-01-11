@@ -36,11 +36,7 @@ pub(all) struct MenuItem {
 ///|
 /// Create a menu item
 pub fn menu_item(id : String, label : String, disabled? : Bool) -> MenuItem {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
-  { id, label, disabled: is_disabled }
+  { id, label, disabled: disabled.unwrap_or(false) }
 }
 
 ///|
@@ -74,17 +70,14 @@ pub fn[E] menu_trigger(
     ),
     ("aria-controls", @luna.attr_static(menu_id)),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -110,17 +103,14 @@ pub fn[E] menu_trigger_dyn(
     ),
     ("aria-controls", @luna.attr_static(menu_id)),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -184,10 +174,7 @@ pub fn[E] menuitem(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
+  let is_disabled = disabled.unwrap_or(false)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("menuitem")),
     (
@@ -195,23 +182,19 @@ pub fn[E] menuitem(
       @luna.attr_static(if selected { "0" } else { "-1" }),
     ),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
   if is_disabled {
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) =>
-      if not(is_disabled) {
-        attrs.push(("click", @luna.attr_handler(handler)))
-      }
-    None => ()
+  if on_click is Some(handler) {
+    if not(is_disabled) {
+      attrs.push(("click", @luna.attr_handler(handler)))
+    }
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("li", attrs, children)
 }
@@ -227,10 +210,7 @@ pub fn[E] menuitem_dyn(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
+  let is_disabled = disabled.unwrap_or(false)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("menuitem")),
     (
@@ -244,23 +224,19 @@ pub fn[E] menuitem_dyn(
       }),
     ),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
   if is_disabled {
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) =>
-      if not(is_disabled) {
-        attrs.push(("click", @luna.attr_handler(handler)))
-      }
-    None => ()
+  if on_click is Some(handler) {
+    if not(is_disabled) {
+      attrs.push(("click", @luna.attr_handler(handler)))
+    }
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("li", attrs, children)
 }

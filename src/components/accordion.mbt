@@ -34,11 +34,7 @@ pub fn[E] accordion_item(
   level? : Int,
   content : Array[@luna.Node[E]],
 ) -> AccordionItem[E] {
-  let lvl = match level {
-    Some(l) => l
-    None => 3
-  }
-  { id, heading, level: lvl, content }
+  { id, heading, level: level.unwrap_or(3), content }
 }
 
 ///|
@@ -61,11 +57,7 @@ pub fn[E] accordion_header(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let lvl = match level {
-    Some(l) => l
-    None => 3
-  }
-  let heading_tag = "h" + lvl.to_string()
+  let heading_tag = "h" + level.unwrap_or(3).to_string()
   let button_attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
@@ -75,13 +67,11 @@ pub fn[E] accordion_header(
     ),
     ("aria-controls", @luna.attr_static(controls)),
   ]
-  match on_click {
-    Some(handler) => button_attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    button_attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => button_attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    button_attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   let button = @luna.h("button", button_attrs, children)
   @luna.h(heading_tag, [], [button])
@@ -98,11 +88,7 @@ pub fn[E] accordion_header_dyn(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let lvl = match level {
-    Some(l) => l
-    None => 3
-  }
-  let heading_tag = "h" + lvl.to_string()
+  let heading_tag = "h" + level.unwrap_or(3).to_string()
   let button_attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
@@ -112,13 +98,11 @@ pub fn[E] accordion_header_dyn(
     ),
     ("aria-controls", @luna.attr_static(controls)),
   ]
-  match on_click {
-    Some(handler) => button_attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    button_attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => button_attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    button_attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   let button = @luna.h("button", button_attrs, children)
   @luna.h(heading_tag, [], [button])
@@ -136,24 +120,18 @@ pub fn[E] accordion_header_computed(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let lvl = match level {
-    Some(l) => l
-    None => 3
-  }
-  let heading_tag = "h" + lvl.to_string()
+  let heading_tag = "h" + level.unwrap_or(3).to_string()
   let button_attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
     ("aria-expanded", @luna.attr_dynamic(fn() { bool_to_aria(expanded()) })),
     ("aria-controls", @luna.attr_static(controls)),
   ]
-  match on_click {
-    Some(handler) => button_attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    button_attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => button_attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    button_attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   let button = @luna.h("button", button_attrs, children)
   @luna.h(heading_tag, [], [button])
@@ -179,9 +157,8 @@ pub fn[E] accordion_panel(
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
   ]
-  match use_region {
-    Some(true) => attrs.push(("role", @luna.attr_static("region")))
-    _ => ()
+  if use_region is Some(true) {
+    attrs.push(("role", @luna.attr_static("region")))
   }
   if hidden {
     attrs.push(("hidden", @luna.attr_static("")))
@@ -202,9 +179,8 @@ pub fn[E] accordion_panel_dyn(
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
   ]
-  match use_region {
-    Some(true) => attrs.push(("role", @luna.attr_static("region")))
-    _ => ()
+  if use_region is Some(true) {
+    attrs.push(("role", @luna.attr_static("region")))
   }
   @luna.show(fn() { visible.get() }, fn() { @luna.h("div", attrs, children) })
 }
@@ -222,9 +198,8 @@ pub fn[E] accordion_panel_computed(
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
   ]
-  match use_region {
-    Some(true) => attrs.push(("role", @luna.attr_static("region")))
-    _ => ()
+  if use_region is Some(true) {
+    attrs.push(("role", @luna.attr_static("region")))
   }
   @luna.show(visible, fn() { @luna.h("div", attrs, children) })
 }
@@ -242,10 +217,7 @@ pub fn[E] accordion(
   expanded_index : Int,
   use_regions? : Bool,
 ) -> @luna.Node[E] {
-  let use_reg = match use_regions {
-    Some(r) => r
-    None => items.length() <= 6
-  }
+  let use_reg = use_regions.unwrap_or(items.length() <= 6)
   let children : Array[@luna.Node[E]] = []
   for i, item in items {
     let is_expanded = i == expanded_index
@@ -281,10 +253,7 @@ pub fn[E] accordion_multi(
   expanded_ids : Array[String],
   use_regions? : Bool,
 ) -> @luna.Node[E] {
-  let use_reg = match use_regions {
-    Some(r) => r
-    None => items.length() <= 6
-  }
+  let use_reg = use_regions.unwrap_or(items.length() <= 6)
   let children : Array[@luna.Node[E]] = []
   for item in items {
     let is_expanded = expanded_ids.contains(item.id)
@@ -321,10 +290,7 @@ pub fn[E] accordion_dyn(
   expanded_index : @signal.Signal[Int],
   use_regions? : Bool,
 ) -> @luna.Node[E] {
-  let use_reg = match use_regions {
-    Some(r) => r
-    None => items.length() <= 6
-  }
+  let use_reg = use_regions.unwrap_or(items.length() <= 6)
   let children : Array[@luna.Node[E]] = []
   for i, item in items {
     let index = i // capture index

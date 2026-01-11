@@ -34,9 +34,8 @@ pub fn[E] banner(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("header", attrs, children)
 }
@@ -59,9 +58,8 @@ pub fn[E] nav(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("nav", attrs, children)
 }
@@ -91,9 +89,8 @@ pub fn[E] aside(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("aside", attrs, children)
 }
@@ -111,9 +108,8 @@ pub fn[E] contentinfo(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("footer", attrs, children)
 }
@@ -131,9 +127,8 @@ pub fn[E] search(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("search", attrs, children)
 }
@@ -151,9 +146,8 @@ pub fn[E] search_role(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("search")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("form", attrs, children)
 }
@@ -172,13 +166,11 @@ pub fn[E] form_landmark(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
   @luna.h("form", attrs, children)
 }
@@ -203,13 +195,11 @@ pub fn[E] region(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
   @luna.h("section", attrs, children)
 }
@@ -242,22 +232,18 @@ pub fn[E] page_layout(
   footer_content? : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let children : Array[@luna.Node[E]] = []
-  match header {
-    Some(h) => children.push(banner(h))
-    None => ()
+  if header is Some(h) {
+    children.push(banner(h))
   }
-  match nav_content {
-    Some(n) => children.push(nav(n))
-    None => ()
+  if nav_content is Some(n) {
+    children.push(nav(n))
   }
   children.push(main_content(main_children))
-  match aside_content {
-    Some(a) => children.push(aside(a))
-    None => ()
+  if aside_content is Some(a) {
+    children.push(aside(a))
   }
-  match footer_content {
-    Some(f) => children.push(contentinfo(f))
-    None => ()
+  if footer_content is Some(f) {
+    children.push(contentinfo(f))
   }
   @luna.fragment(children)
 }

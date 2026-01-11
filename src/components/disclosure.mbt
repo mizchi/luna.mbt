@@ -39,17 +39,14 @@ pub fn[E] disclosure_button(
     ),
     ("aria-controls", @luna.attr_static(controls)),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -72,17 +69,14 @@ pub fn[E] disclosure_button_dyn(
     ),
     ("aria-controls", @luna.attr_static(controls)),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -103,17 +97,14 @@ pub fn[E] disclosure_button_computed(
     ("aria-expanded", @luna.attr_dynamic(fn() { bool_to_aria(expanded()) })),
     ("aria-controls", @luna.attr_static(controls)),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }

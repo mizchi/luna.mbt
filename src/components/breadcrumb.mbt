@@ -23,11 +23,7 @@ pub fn breadcrumb_item(
   label : String,
   current? : Bool,
 ) -> BreadcrumbItem {
-  let cur = match current {
-    Some(c) => c
-    None => false
-  }
-  { href, label, current: cur }
+  { href, label, current: current.unwrap_or(false) }
 }
 
 ///|
@@ -42,14 +38,8 @@ pub fn[E] breadcrumb(
   separator? : String,
   items : Array[BreadcrumbItem],
 ) -> @luna.Node[E] {
-  let label = match aria_label {
-    Some(l) => l
-    None => "Breadcrumb"
-  }
-  let sep = match separator {
-    Some(s) => s
-    None => "/"
-  }
+  let label = aria_label.unwrap_or("Breadcrumb")
+  let sep = separator.unwrap_or("/")
   let list_items : Array[@luna.Node[E]] = []
   for i, item in items {
     let link_attrs : Array[(String, @luna.Attr[E])] = [

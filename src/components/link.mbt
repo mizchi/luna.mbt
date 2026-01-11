@@ -60,24 +60,18 @@ pub fn[E] link(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("href", @luna.attr_static(href)),
   ]
-  match target {
-    Some(t) => attrs.push(("target", @luna.attr_static(t.to_string())))
-    None => ()
+  if target is Some(t) {
+    attrs.push(("target", @luna.attr_static(t.to_string())))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_describedby {
-    Some(id) => attrs.push(("aria-describedby", @luna.attr_static(id)))
-    None => ()
+  if aria_describedby is Some(id) {
+    attrs.push(("aria-describedby", @luna.attr_static(id)))
   }
-  match disabled {
-    Some(true) => {
-      attrs.push(("aria-disabled", @luna.attr_static("true")))
-      attrs.push(("tabindex", @luna.attr_static("-1")))
-    }
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
+    attrs.push(("tabindex", @luna.attr_static("-1")))
   }
   @luna.h("a", attrs, children)
 }
@@ -105,9 +99,8 @@ pub fn[E] link_button(
     ("tabindex", @luna.attr_static("0")),
     ("click", @luna.attr_handler(on_click)),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("span", attrs, children)
 }

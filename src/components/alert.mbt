@@ -56,13 +56,11 @@ pub fn[E] alert(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("alert")),
   ]
-  match type_ {
-    Some(t) => attrs.push(("data-type", @luna.attr_static(t.to_string())))
-    None => ()
+  if type_ is Some(t) {
+    attrs.push(("data-type", @luna.attr_static(t.to_string())))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("div", attrs, children)
 }
@@ -80,18 +78,13 @@ pub fn[E] alert_live(
   aria_live? : String,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let live = match aria_live {
-    Some(v) => v
-    None => "assertive"
-  }
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("alert")),
-    ("aria-live", @luna.attr_static(live)),
+    ("aria-live", @luna.attr_static(aria_live.unwrap_or("assertive"))),
     ("aria-atomic", @luna.attr_static("true")),
   ]
-  match type_ {
-    Some(t) => attrs.push(("data-type", @luna.attr_static(t.to_string())))
-    None => ()
+  if type_ is Some(t) {
+    attrs.push(("data-type", @luna.attr_static(t.to_string())))
   }
   @luna.h("div", attrs, children)
 }
@@ -111,9 +104,8 @@ pub fn[E] status(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("status")),
   ]
-  match type_ {
-    Some(t) => attrs.push(("data-type", @luna.attr_static(t.to_string())))
-    None => ()
+  if type_ is Some(t) {
+    attrs.push(("data-type", @luna.attr_static(t.to_string())))
   }
   @luna.h("div", attrs, children)
 }

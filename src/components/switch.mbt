@@ -40,25 +40,20 @@ pub fn[E] switch(
     ("aria-checked", @luna.attr_static(if on { "true" } else { "false" })),
     ("tabindex", @luna.attr_static("0")),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -81,21 +76,17 @@ pub fn[E] switch_dyn(
     ),
     ("tabindex", @luna.attr_static("0")),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -116,21 +107,17 @@ pub fn[E] switch_computed(
     ("aria-checked", @luna.attr_dynamic(fn() { bool_to_aria(on()) })),
     ("tabindex", @luna.attr_static("0")),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -144,10 +131,7 @@ pub fn[E] switch_native(
   id? : String,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let input_id = match id {
-    Some(i) => i
-    None => "switch-" + name
-  }
+  let input_id = id.unwrap_or("switch-" + name)
   let input_attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("checkbox")),
     ("role", @luna.attr_static("switch")),
@@ -157,9 +141,8 @@ pub fn[E] switch_native(
   if on {
     input_attrs.push(("checked", @luna.attr_static("")))
   }
-  match disabled {
-    Some(true) => input_attrs.push(("disabled", @luna.attr_static("")))
-    _ => ()
+  if disabled is Some(true) {
+    input_attrs.push(("disabled", @luna.attr_static("")))
   }
   let label_attrs : Array[(String, @luna.Attr[E])] = [
     ("for", @luna.attr_static(input_id)),
@@ -179,9 +162,8 @@ pub fn[E] switch_group(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("group")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("div", attrs, children)
 }

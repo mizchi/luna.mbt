@@ -51,11 +51,7 @@ pub fn table_column(
   label : String,
   sortable? : Bool,
 ) -> TableColumn {
-  let is_sortable = match sortable {
-    Some(s) => s
-    None => false
-  }
-  { id, label, sortable: is_sortable, header_scope: "col" }
+  { id, label, sortable: sortable.unwrap_or(false), header_scope: "col" }
 }
 
 ///|
@@ -73,11 +69,7 @@ pub fn table_row(
   cells : Array[String],
   disabled? : Bool,
 ) -> TableRow {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
-  { id, cells, disabled: is_disabled }
+  { id, cells, disabled: disabled.unwrap_or(false) }
 }
 
 ///|
@@ -97,21 +89,17 @@ pub fn[E] table(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(lid) => attrs.push(("aria-labelledby", @luna.attr_static(lid)))
-    None => ()
+  if aria_labelledby is Some(lid) {
+    attrs.push(("aria-labelledby", @luna.attr_static(lid)))
   }
-  match aria_describedby {
-    Some(did) => attrs.push(("aria-describedby", @luna.attr_static(did)))
-    None => ()
+  if aria_describedby is Some(did) {
+    attrs.push(("aria-describedby", @luna.attr_static(did)))
   }
   @luna.h("table", attrs, children)
 }
@@ -151,22 +139,19 @@ pub fn[E] tr(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match selected {
-    Some(true) => attrs.push(("aria-selected", @luna.attr_static("true")))
-    Some(false) => attrs.push(("aria-selected", @luna.attr_static("false")))
-    None => ()
+  if selected is Some(true) {
+    attrs.push(("aria-selected", @luna.attr_static("true")))
+  } else if selected is Some(false) {
+    attrs.push(("aria-selected", @luna.attr_static("false")))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("tr", attrs, children)
 }
@@ -193,13 +178,11 @@ pub fn[E] tr_dyn(
       }),
     ),
   ]
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("tr", attrs, children)
 }
@@ -221,24 +204,21 @@ pub fn[E] th(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match scope {
-    Some(s) => attrs.push(("scope", @luna.attr_static(s)))
-    None => ()
+  if scope is Some(s) {
+    attrs.push(("scope", @luna.attr_static(s)))
   }
-  match sort {
-    Some(Ascending) => attrs.push(("aria-sort", @luna.attr_static("ascending")))
-    Some(Descending) =>
-      attrs.push(("aria-sort", @luna.attr_static("descending")))
-    Some(None) => attrs.push(("aria-sort", @luna.attr_static("none")))
-    _ => ()
+  if sort is Some(Ascending) {
+    attrs.push(("aria-sort", @luna.attr_static("ascending")))
+  } else if sort is Some(Descending) {
+    attrs.push(("aria-sort", @luna.attr_static("descending")))
+  } else if sort is Some(None) {
+    attrs.push(("aria-sort", @luna.attr_static("none")))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
   @luna.h("th", attrs, children)
 }
@@ -271,9 +251,8 @@ pub fn[E] th_dyn(
       }),
     ),
   ]
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
   @luna.h("th", attrs, children)
 }
@@ -291,13 +270,11 @@ pub fn[E] td(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match headers {
-    Some(h) => attrs.push(("headers", @luna.attr_static(h)))
-    None => ()
+  if headers is Some(h) {
+    attrs.push(("headers", @luna.attr_static(h)))
   }
   @luna.h("td", attrs, children)
 }
@@ -309,9 +286,8 @@ pub fn[E] caption(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
   @luna.h("caption", attrs, children)
 }
@@ -328,10 +304,7 @@ pub fn make_table_handler(
   focus_cell : (Int, Int) -> Unit,
   page_size? : Int,
 ) -> @luna.EventHandler[@js.Any] {
-  let pg_size = match page_size {
-    Some(s) => s
-    None => 10
-  }
+  let pg_size = page_size.unwrap_or(10)
   @luna.handler(fn(e : @js.Any) {
     let key : String = e._get("key").cast()
     let ctrl : Bool = e._get("ctrlKey").cast()
@@ -388,14 +361,12 @@ pub fn make_table_handler(
       }
       _ => None
     }
-    match new_pos {
-      Some((new_row, new_col)) =>
-        if new_row != row || new_col != col {
-          let _ = e._call("preventDefault", [])
-          on_change(new_row, new_col)
-          focus_cell(new_row, new_col)
-        }
-      None => ()
+    if new_pos is Some((new_row, new_col)) {
+      if new_row != row || new_col != col {
+        let _ = e._call("preventDefault", [])
+        on_change(new_row, new_col)
+        focus_cell(new_row, new_col)
+      }
     }
   })
 }
@@ -446,10 +417,7 @@ pub fn table_interactive(
   on_row_select? : (String) -> Unit,
   on_sort? : (String, SortDirection) -> Unit,
 ) -> @luna.Node[@js.Any] {
-  let is_selectable = match selectable {
-    Some(s) => s
-    None => false
-  }
+  let is_selectable = selectable.unwrap_or(false)
   let selected_row = @signal.signal("")
   let sort_column = @signal.signal("")
   let sort_direction : @signal.Signal[SortDirection] = @signal.signal(None)
@@ -516,9 +484,8 @@ pub fn table_interactive(
           }
           sort_column.set(col_id)
           sort_direction.set(new_dir)
-          match on_sort {
-            Some(handler) => handler(col_id, new_dir)
-            None => ()
+          if on_sort is Some(handler) {
+            handler(col_id, new_dir)
           }
         })),
       ))
@@ -552,9 +519,8 @@ pub fn table_interactive(
         "click",
         @luna.attr_handler(@luna.handler(fn(_ : @js.Any) {
           selected_row.set(row_id)
-          match on_row_select {
-            Some(handler) => handler(row_id)
-            None => ()
+          if on_row_select is Some(handler) {
+            handler(row_id)
           }
         })),
       ))
@@ -590,9 +556,8 @@ pub fn table_interactive(
   let table_attrs : Array[(String, @luna.Attr[@js.Any])] = [
     ("id", @luna.attr_static(id)),
   ]
-  match aria_label {
-    Some(label) => table_attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    table_attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h(
     "table",
@@ -634,9 +599,8 @@ pub fn[E] simple_table(
   }
   // Build table
   let table_content : Array[@luna.Node[E]] = []
-  match caption_text {
-    Some(cap) => table_content.push(caption([@luna.text(cap)]))
-    None => ()
+  if caption_text is Some(cap) {
+    table_content.push(caption([@luna.text(cap)]))
   }
   table_content.push(thead([tr(header_cells)]))
   table_content.push(tbody(data_rows))

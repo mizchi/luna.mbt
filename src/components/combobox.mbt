@@ -38,11 +38,7 @@ pub fn combobox_option(
   label : String,
   disabled? : Bool,
 ) -> ComboboxOption {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
-  { id, label, disabled: is_disabled }
+  { id, label, disabled: disabled.unwrap_or(false) }
 }
 
 ///|
@@ -105,33 +101,26 @@ pub fn[E] combobox_input(
     ("value", @luna.attr_static(value)),
     ("autocomplete", @luna.attr_static("off")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(lid) => attrs.push(("aria-labelledby", @luna.attr_static(lid)))
-    None => ()
+  if aria_labelledby is Some(lid) {
+    attrs.push(("aria-labelledby", @luna.attr_static(lid)))
   }
-  match active_descendant {
-    Some(aid) => attrs.push(("aria-activedescendant", @luna.attr_static(aid)))
-    None => ()
+  if active_descendant is Some(aid) {
+    attrs.push(("aria-activedescendant", @luna.attr_static(aid)))
   }
-  match on_input {
-    Some(handler) => attrs.push(("input", @luna.attr_handler(handler)))
-    None => ()
+  if on_input is Some(handler) {
+    attrs.push(("input", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  match on_focus {
-    Some(handler) => attrs.push(("focus", @luna.attr_handler(handler)))
-    None => ()
+  if on_focus is Some(handler) {
+    attrs.push(("focus", @luna.attr_handler(handler)))
   }
-  match on_blur {
-    Some(handler) => attrs.push(("blur", @luna.attr_handler(handler)))
-    None => ()
+  if on_blur is Some(handler) {
+    attrs.push(("blur", @luna.attr_handler(handler)))
   }
   @luna.h("input", attrs, [])
 }
@@ -176,25 +165,20 @@ pub fn[E] combobox_input_dyn(
       @luna.attr_dynamic(fn() { active_descendant.get() }),
     ),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_input {
-    Some(handler) => attrs.push(("input", @luna.attr_handler(handler)))
-    None => ()
+  if on_input is Some(handler) {
+    attrs.push(("input", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  match on_focus {
-    Some(handler) => attrs.push(("focus", @luna.attr_handler(handler)))
-    None => ()
+  if on_focus is Some(handler) {
+    attrs.push(("focus", @luna.attr_handler(handler)))
   }
-  match on_blur {
-    Some(handler) => attrs.push(("blur", @luna.attr_handler(handler)))
-    None => ()
+  if on_blur is Some(handler) {
+    attrs.push(("blur", @luna.attr_handler(handler)))
   }
   @luna.h("input", attrs, [])
 }
@@ -256,10 +240,7 @@ pub fn[E] combobox_option_el(
   on_click? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
+  let is_disabled = disabled.unwrap_or(false)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("option")),
     ("id", @luna.attr_static(id)),
@@ -271,12 +252,8 @@ pub fn[E] combobox_option_el(
   if is_disabled {
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) =>
-      if not(is_disabled) {
-        attrs.push(("click", @luna.attr_handler(handler)))
-      }
-    None => ()
+  if on_click is Some(handler) && not(is_disabled) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
   @luna.h("li", attrs, children)
 }
@@ -291,10 +268,7 @@ pub fn[E] combobox_option_dyn(
   on_click? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
+  let is_disabled = disabled.unwrap_or(false)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("option")),
     ("id", @luna.attr_static(id)),
@@ -312,12 +286,8 @@ pub fn[E] combobox_option_dyn(
   if is_disabled {
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) =>
-      if not(is_disabled) {
-        attrs.push(("click", @luna.attr_handler(handler)))
-      }
-    None => ()
+  if on_click is Some(handler) && not(is_disabled) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
   @luna.h("li", attrs, children)
 }
@@ -523,13 +493,11 @@ pub fn combobox_interactive(
     ("focus", @luna.attr_handler(focus_handler)),
     ("blur", @luna.attr_handler(blur_handler)),
   ]
-  match placeholder {
-    Some(p) => input_attrs.push(("placeholder", @luna.attr_static(p)))
-    None => ()
+  if placeholder is Some(p) {
+    input_attrs.push(("placeholder", @luna.attr_static(p)))
   }
-  match aria_label {
-    Some(label) => input_attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    input_attrs.push(("aria-label", @luna.attr_static(label)))
   }
   // Build listbox with dynamic content
   let build_listbox = fn() -> @luna.Node[@js.Any] {
@@ -565,11 +533,24 @@ pub fn combobox_interactive(
       option_nodes,
     )
   }
+  // Caret icon (CSS-based, since Luna doesn't support SVG namespace yet)
+  let caret_icon = @luna.h(
+    "span",
+    [
+      ("class", @luna.attr_static("combobox-caret")),
+      ("aria-hidden", @luna.attr_static("true")),
+    ],
+    [],
+  )
   @luna.h(
     "div",
     [(("class", @luna.attr_static("combobox-container")))],
     [
-      @luna.h("input", input_attrs, []),
+      @luna.h(
+        "div",
+        [("class", @luna.attr_static("combobox-input-wrapper"))],
+        [@luna.h("input", input_attrs, []), caret_icon],
+      ),
       @luna.show(fn() { is_open.get() }, build_listbox),
     ],
   )
@@ -585,10 +566,9 @@ pub fn combobox_select_only(
   aria_label? : String,
   on_select : (ComboboxOption) -> Unit,
 ) -> @luna.Node[@js.Any] {
-  let init_label = match initial_value {
-    Some(v) => v
-    None => if options.length() > 0 { options[0].label } else { "" }
-  }
+  let init_label = initial_value.unwrap_or_else(fn() {
+    if options.length() > 0 { options[0].label } else { "" }
+  })
   let selected_label = @signal.signal(init_label)
   let is_open = @signal.signal(false)
   let active_index = @signal.signal(0)
@@ -715,9 +695,8 @@ pub fn combobox_select_only(
       })),
     ),
   ]
-  match aria_label {
-    Some(label) => button_attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    button_attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h(
     "div",

@@ -29,11 +29,7 @@ pub fn[E] radio_option(
   label : Array[@luna.Node[E]],
   disabled? : Bool,
 ) -> RadioOption[E] {
-  let dis = match disabled {
-    Some(d) => d
-    None => false
-  }
-  { value, label, disabled: dis }
+  { value, label, disabled: disabled.unwrap_or(false) }
 }
 
 ///|
@@ -51,13 +47,11 @@ pub fn[E] radiogroup(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("radiogroup")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
   @luna.h("div", attrs, children)
 }
@@ -86,17 +80,14 @@ pub fn[E] radio(
     ("tabindex", @luna.attr_static(if checked { "0" } else { "-1" })),
     ("data-value", @luna.attr_static(value)),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("div", attrs, children)
 }
@@ -135,17 +126,14 @@ pub fn[E] radio_dyn(
     ),
     ("data-value", @luna.attr_static(value)),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("div", attrs, children)
 }
@@ -170,17 +158,14 @@ pub fn[E] radio_computed(
     ),
     ("data-value", @luna.attr_static(value)),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("div", attrs, children)
 }
@@ -210,9 +195,8 @@ pub fn[E] radio_group(
     ("role", @luna.attr_static("radiogroup")),
     ("data-name", @luna.attr_static(name)),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("div", attrs, radios)
 }
@@ -228,10 +212,7 @@ pub fn[E] radio_native(
   id? : String,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let input_id = match id {
-    Some(i) => i
-    None => name + "-" + value
-  }
+  let input_id = id.unwrap_or(name + "-" + value)
   let input_attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("radio")),
     ("name", @luna.attr_static(name)),
@@ -241,9 +222,8 @@ pub fn[E] radio_native(
   if checked {
     input_attrs.push(("checked", @luna.attr_static("")))
   }
-  match disabled {
-    Some(true) => input_attrs.push(("disabled", @luna.attr_static("")))
-    _ => ()
+  if disabled is Some(true) {
+    input_attrs.push(("disabled", @luna.attr_static("")))
   }
   let label_attrs : Array[(String, @luna.Attr[E])] = [
     ("for", @luna.attr_static(input_id)),

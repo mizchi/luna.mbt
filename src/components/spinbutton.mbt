@@ -55,45 +55,35 @@ pub fn[E] spinbutton(
     ("aria-valuenow", @luna.attr_static(value.to_string())),
     ("inputmode", @luna.attr_static("numeric")),
   ]
-  match min {
-    Some(m) => attrs.push(("aria-valuemin", @luna.attr_static(m.to_string())))
-    None => ()
+  if min is Some(m) {
+    attrs.push(("aria-valuemin", @luna.attr_static(m.to_string())))
   }
-  match max {
-    Some(m) => attrs.push(("aria-valuemax", @luna.attr_static(m.to_string())))
-    None => ()
+  if max is Some(m) {
+    attrs.push(("aria-valuemax", @luna.attr_static(m.to_string())))
   }
-  match step {
-    Some(s) => attrs.push(("data-step", @luna.attr_static(s.to_string())))
-    None => ()
+  if step is Some(s) {
+    attrs.push(("data-step", @luna.attr_static(s.to_string())))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match aria_valuetext {
-    Some(text) => attrs.push(("aria-valuetext", @luna.attr_static(text)))
-    None => ()
+  if aria_valuetext is Some(text) {
+    attrs.push(("aria-valuetext", @luna.attr_static(text)))
   }
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match is_readonly {
-    Some(true) => attrs.push(("aria-readonly", @luna.attr_static("true")))
-    _ => ()
+  if is_readonly is Some(true) {
+    attrs.push(("aria-readonly", @luna.attr_static("true")))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  match on_input {
-    Some(handler) => attrs.push(("input", @luna.attr_handler(handler)))
-    None => ()
+  if on_input is Some(handler) {
+    attrs.push(("input", @luna.attr_handler(handler)))
   }
   // Using input element for text editing support
   @luna.h("input", attrs, [])
@@ -117,32 +107,25 @@ pub fn[E] spinbutton_dyn(
     ("inputmode", @luna.attr_static("numeric")),
     ("value", @luna.attr_dynamic(fn() { value.get().to_string() })),
   ]
-  match min {
-    Some(m) => attrs.push(("aria-valuemin", @luna.attr_static(m.to_string())))
-    None => ()
+  if min is Some(m) {
+    attrs.push(("aria-valuemin", @luna.attr_static(m.to_string())))
   }
-  match max {
-    Some(m) => attrs.push(("aria-valuemax", @luna.attr_static(m.to_string())))
-    None => ()
+  if max is Some(m) {
+    attrs.push(("aria-valuemax", @luna.attr_static(m.to_string())))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_valuetext_fn {
-    Some(fn_) =>
-      attrs.push(
-        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
-      )
-    None => ()
+  if aria_valuetext_fn is Some(fn_) {
+    attrs.push(
+      ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+    )
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  match on_input {
-    Some(handler) => attrs.push(("input", @luna.attr_handler(handler)))
-    None => ()
+  if on_input is Some(handler) {
+    attrs.push(("input", @luna.attr_handler(handler)))
   }
   @luna.h("input", attrs, [])
 }
@@ -158,10 +141,7 @@ pub fn make_spinbutton_handler(
   on_change : (Double) -> Unit,
   large_step? : Double,
 ) -> @luna.EventHandler[@js.Any] {
-  let big_step = match large_step {
-    Some(s) => s
-    None => step * 10.0
-  }
+  let big_step = large_step.unwrap_or(step * 10.0)
   @luna.handler(fn(e : @js.Any) {
     let key : String = e._get("key").cast()
     let curr = current_value()
@@ -206,13 +186,11 @@ pub fn make_spinbutton_handler(
         }
       _ => None
     }
-    match new_val {
-      Some(v) =>
-        if v != curr {
-          let _ = e._call("preventDefault", [])
-          on_change(v)
-        }
-      None => ()
+    if new_val is Some(v) {
+      if v != curr {
+        let _ = e._call("preventDefault", [])
+        on_change(v)
+      }
     }
   })
 }
@@ -280,10 +258,7 @@ pub fn spinbutton_interactive(
   aria_label? : String,
   aria_valuetext_fn? : (Double) -> String,
 ) -> @luna.Node[@js.Any] {
-  let step_val = match step {
-    Some(s) => s
-    None => 1.0
-  }
+  let step_val = step.unwrap_or(1.0)
   let clamp = fn(v : Double) -> Double {
     let v1 = match min {
       Some(m) => if v < m { m } else { v }
@@ -326,26 +301,19 @@ pub fn spinbutton_interactive(
     ("keydown", @luna.attr_handler(keydown_handler)),
     ("change", @luna.attr_handler(input_handler)),
   ]
-  match min {
-    Some(m) =>
-      input_attrs.push(("aria-valuemin", @luna.attr_static(m.to_string())))
-    None => ()
+  if min is Some(m) {
+    input_attrs.push(("aria-valuemin", @luna.attr_static(m.to_string())))
   }
-  match max {
-    Some(m) =>
-      input_attrs.push(("aria-valuemax", @luna.attr_static(m.to_string())))
-    None => ()
+  if max is Some(m) {
+    input_attrs.push(("aria-valuemax", @luna.attr_static(m.to_string())))
   }
-  match aria_label {
-    Some(label) => input_attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    input_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_valuetext_fn {
-    Some(fn_) =>
-      input_attrs.push(
-        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
-      )
-    None => ()
+  if aria_valuetext_fn is Some(fn_) {
+    input_attrs.push(
+      ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+    )
   }
   @luna.h(
     "div",
@@ -390,31 +358,24 @@ pub fn[E] spinbutton_native(
   aria_label? : String,
   id? : String,
 ) -> @luna.Node[E] {
-  let input_id = match id {
-    Some(i) => i
-    None => "spinbutton-" + name
-  }
+  let input_id = id.unwrap_or("spinbutton-" + name)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("number")),
     ("name", @luna.attr_static(name)),
     ("id", @luna.attr_static(input_id)),
     ("value", @luna.attr_static(value.to_string())),
   ]
-  match min {
-    Some(m) => attrs.push(("min", @luna.attr_static(m.to_string())))
-    None => ()
+  if min is Some(m) {
+    attrs.push(("min", @luna.attr_static(m.to_string())))
   }
-  match max {
-    Some(m) => attrs.push(("max", @luna.attr_static(m.to_string())))
-    None => ()
+  if max is Some(m) {
+    attrs.push(("max", @luna.attr_static(m.to_string())))
   }
-  match step {
-    Some(s) => attrs.push(("step", @luna.attr_static(s.to_string())))
-    None => ()
+  if step is Some(s) {
+    attrs.push(("step", @luna.attr_static(s.to_string())))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("input", attrs, [])
 }

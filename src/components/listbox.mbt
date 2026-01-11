@@ -31,11 +31,7 @@ pub fn listbox_option(
   label : String,
   disabled? : Bool,
 ) -> ListboxOption {
-  let dis = match disabled {
-    Some(d) => d
-    None => false
-  }
-  { value, label, disabled: dis }
+  { value, label, disabled: disabled.unwrap_or(false) }
 }
 
 ///|
@@ -58,22 +54,17 @@ pub fn[E] listbox(
     ("role", @luna.attr_static("listbox")),
     ("tabindex", @luna.attr_static("0")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match multiselectable {
-    Some(true) =>
-      attrs.push(("aria-multiselectable", @luna.attr_static("true")))
-    _ => ()
+  if multiselectable is Some(true) {
+    attrs.push(("aria-multiselectable", @luna.attr_static("true")))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("div", attrs, children)
 }
@@ -100,9 +91,8 @@ pub fn[E] option(
     ),
     ("data-value", @luna.attr_static(value)),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   @luna.h("div", attrs, children)
 }
@@ -129,9 +119,8 @@ pub fn[E] option_dyn(
     ),
     ("data-value", @luna.attr_static(value)),
   ]
-  match disabled {
-    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   @luna.h("div", attrs, children)
 }

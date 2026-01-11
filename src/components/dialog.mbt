@@ -51,21 +51,17 @@ pub fn[E] dialog(
     ("role", @luna.attr_static("dialog")),
     ("aria-modal", @luna.attr_static("true")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match aria_describedby {
-    Some(id) => attrs.push(("aria-describedby", @luna.attr_static(id)))
-    None => ()
+  if aria_describedby is Some(id) {
+    attrs.push(("aria-describedby", @luna.attr_static(id)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   if not(open) {
     attrs.push(("hidden", @luna.attr_static("")))
@@ -87,21 +83,17 @@ pub fn[E] dialog_dyn(
     ("role", @luna.attr_static("dialog")),
     ("aria-modal", @luna.attr_static("true")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match aria_describedby {
-    Some(id) => attrs.push(("aria-describedby", @luna.attr_static(id)))
-    None => ()
+  if aria_describedby is Some(id) {
+    attrs.push(("aria-describedby", @luna.attr_static(id)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.show(fn() { open.get() }, fn() { @luna.h("div", attrs, children) })
 }
@@ -116,13 +108,11 @@ pub fn[E] dialog_native(
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
   let attrs : Array[(String, @luna.Attr[E])] = []
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match aria_labelledby {
-    Some(lid) => attrs.push(("aria-labelledby", @luna.attr_static(lid)))
-    None => ()
+  if aria_labelledby is Some(lid) {
+    attrs.push(("aria-labelledby", @luna.attr_static(lid)))
   }
   if open {
     attrs.push(("open", @luna.attr_static("")))
@@ -153,21 +143,17 @@ pub fn[E] alert_dialog(
     ("role", @luna.attr_static("alertdialog")),
     ("aria-modal", @luna.attr_static("true")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match aria_describedby {
-    Some(id) => attrs.push(("aria-describedby", @luna.attr_static(id)))
-    None => ()
+  if aria_describedby is Some(id) {
+    attrs.push(("aria-describedby", @luna.attr_static(id)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   if not(open) {
     attrs.push(("hidden", @luna.attr_static("")))
@@ -189,21 +175,17 @@ pub fn[E] alert_dialog_dyn(
     ("role", @luna.attr_static("alertdialog")),
     ("aria-modal", @luna.attr_static("true")),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match aria_describedby {
-    Some(id) => attrs.push(("aria-describedby", @luna.attr_static(id)))
-    None => ()
+  if aria_describedby is Some(id) {
+    attrs.push(("aria-describedby", @luna.attr_static(id)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.show(fn() { open.get() }, fn() { @luna.h("div", attrs, children) })
 }
@@ -231,14 +213,8 @@ pub fn confirm_dialog(
   on_confirm : () -> Unit,
   on_cancel : () -> Unit,
 ) -> @luna.Node[@js.Any] {
-  let confirm_text = match confirm_label {
-    Some(l) => l
-    None => "OK"
-  }
-  let cancel_text = match cancel_label {
-    Some(l) => l
-    None => "Cancel"
-  }
+  let confirm_text = confirm_label.unwrap_or("OK")
+  let cancel_text = cancel_label.unwrap_or("Cancel")
   let title_id = id + "-title"
   let message_id = id + "-message"
   let close = fn() { open.set(false) }
@@ -332,9 +308,8 @@ pub fn[E] dialog_backdrop(
     ("data-dialog-backdrop", @luna.attr_static("")),
     ("aria-hidden", @luna.attr_static("true")),
   ]
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
   @luna.h("div", attrs, children)
 }

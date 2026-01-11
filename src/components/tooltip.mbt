@@ -83,10 +83,7 @@ pub fn[E] tooltip_trigger(
   tag? : String,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let element_tag = match tag {
-    Some(t) => t
-    None => "button"
-  }
+  let element_tag = tag.unwrap_or("button")
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("aria-describedby", @luna.attr_static(tooltip_id)),
   ]

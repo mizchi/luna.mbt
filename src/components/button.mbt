@@ -60,35 +60,24 @@ pub fn[E] button(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let btn_type = match type_ {
-    Some(t) => t
-    None => Button
-  }
   let attrs : Array[(String, @luna.Attr[E])] = [
-    ("type", @luna.attr_static(btn_type.to_string())),
+    ("type", @luna.attr_static(type_.unwrap_or(Button).to_string())),
   ]
-  match disabled {
-    Some(true) => {
-      attrs.push(("disabled", @luna.attr_static("")))
-      attrs.push(("aria-disabled", @luna.attr_static("true")))
-    }
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("disabled", @luna.attr_static("")))
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_describedby {
-    Some(id) => attrs.push(("aria-describedby", @luna.attr_static(id)))
-    None => ()
+  if aria_describedby is Some(id) {
+    attrs.push(("aria-describedby", @luna.attr_static(id)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -138,24 +127,18 @@ pub fn[E] toggle_button(
     ("type", @luna.attr_static("button")),
     ("aria-pressed", @luna.attr_static(pressed.to_aria())),
   ]
-  match disabled {
-    Some(true) => {
-      attrs.push(("disabled", @luna.attr_static("")))
-      attrs.push(("aria-disabled", @luna.attr_static("true")))
-    }
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("disabled", @luna.attr_static("")))
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -178,24 +161,18 @@ pub fn[E] toggle_button_dyn(
       @luna.attr_dynamic(fn() { if pressed.get() { "true" } else { "false" } }),
     ),
   ]
-  match disabled {
-    Some(true) => {
-      attrs.push(("disabled", @luna.attr_static("")))
-      attrs.push(("aria-disabled", @luna.attr_static("true")))
-    }
-    _ => ()
+  if disabled is Some(true) {
+    attrs.push(("disabled", @luna.attr_static("")))
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -254,21 +231,17 @@ pub fn[E] menu_button(
       @luna.attr_static(if expanded { "true" } else { "false" }),
     ),
   ]
-  match controls {
-    Some(id) => attrs.push(("aria-controls", @luna.attr_static(id)))
-    None => ()
+  if controls is Some(id) {
+    attrs.push(("aria-controls", @luna.attr_static(id)))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }
@@ -292,21 +265,17 @@ pub fn[E] menu_button_dyn(
       @luna.attr_dynamic(fn() { if expanded.get() { "true" } else { "false" } }),
     ),
   ]
-  match controls {
-    Some(id) => attrs.push(("aria-controls", @luna.attr_static(id)))
-    None => ()
+  if controls is Some(id) {
+    attrs.push(("aria-controls", @luna.attr_static(id)))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match on_click {
-    Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
-    None => ()
+  if on_click is Some(handler) {
+    attrs.push(("click", @luna.attr_handler(handler)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("button", attrs, children)
 }

@@ -43,31 +43,22 @@ pub fn[E] meter(
   aria_valuetext? : String,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let min_val = match min {
-    Some(v) => v
-    None => 0.0
-  }
-  let max_val = match max {
-    Some(v) => v
-    None => 100.0
-  }
+  let min_val = min.unwrap_or(0.0)
+  let max_val = max.unwrap_or(100.0)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("meter")),
     ("aria-valuenow", @luna.attr_static(value.to_string())),
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
     ("aria-valuemax", @luna.attr_static(max_val.to_string())),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match aria_valuetext {
-    Some(text) => attrs.push(("aria-valuetext", @luna.attr_static(text)))
-    None => ()
+  if aria_valuetext is Some(text) {
+    attrs.push(("aria-valuetext", @luna.attr_static(text)))
   }
   @luna.h("div", attrs, children)
 }
@@ -91,30 +82,21 @@ pub fn[E] meter_dyn(
   aria_valuetext_fn? : (Double) -> String,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let min_val = match min {
-    Some(v) => v
-    None => 0.0
-  }
-  let max_val = match max {
-    Some(v) => v
-    None => 100.0
-  }
+  let min_val = min.unwrap_or(0.0)
+  let max_val = max.unwrap_or(100.0)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("meter")),
     ("aria-valuenow", @luna.attr_dynamic(fn() { value.get().to_string() })),
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
     ("aria-valuemax", @luna.attr_static(max_val.to_string())),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_valuetext_fn {
-    Some(fn_) =>
-      attrs.push(
-        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
-      )
-    None => ()
+  if aria_valuetext_fn is Some(fn_) {
+    attrs.push(
+      ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+    )
   }
   @luna.h("div", attrs, children)
 }
@@ -142,34 +124,24 @@ pub fn[E] meter_native(
   aria_label? : String,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let min_val = match min {
-    Some(v) => v
-    None => 0.0
-  }
-  let max_val = match max {
-    Some(v) => v
-    None => 100.0
-  }
+  let min_val = min.unwrap_or(0.0)
+  let max_val = max.unwrap_or(100.0)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("value", @luna.attr_static(value.to_string())),
     ("min", @luna.attr_static(min_val.to_string())),
     ("max", @luna.attr_static(max_val.to_string())),
   ]
-  match low {
-    Some(v) => attrs.push(("low", @luna.attr_static(v.to_string())))
-    None => ()
+  if low is Some(v) {
+    attrs.push(("low", @luna.attr_static(v.to_string())))
   }
-  match high {
-    Some(v) => attrs.push(("high", @luna.attr_static(v.to_string())))
-    None => ()
+  if high is Some(v) {
+    attrs.push(("high", @luna.attr_static(v.to_string())))
   }
-  match optimum {
-    Some(v) => attrs.push(("optimum", @luna.attr_static(v.to_string())))
-    None => ()
+  if optimum is Some(v) {
+    attrs.push(("optimum", @luna.attr_static(v.to_string())))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("meter", attrs, children)
 }

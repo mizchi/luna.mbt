@@ -51,14 +51,8 @@ pub fn[E] slider(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let min_val = match min {
-    Some(v) => v
-    None => 0.0
-  }
-  let max_val = match max {
-    Some(v) => v
-    None => 100.0
-  }
+  let min_val = min.unwrap_or(0.0)
+  let max_val = max.unwrap_or(100.0)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("slider")),
     ("tabindex", @luna.attr_static("0")),
@@ -66,30 +60,23 @@ pub fn[E] slider(
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
     ("aria-valuemax", @luna.attr_static(max_val.to_string())),
   ]
-  match step {
-    Some(s) => attrs.push(("data-step", @luna.attr_static(s.to_string())))
-    None => ()
+  if step is Some(s) {
+    attrs.push(("data-step", @luna.attr_static(s.to_string())))
   }
-  match orientation {
-    Some(Vertical) =>
-      attrs.push(("aria-orientation", @luna.attr_static("vertical")))
-    _ => ()
+  if orientation is Some(Vertical) {
+    attrs.push(("aria-orientation", @luna.attr_static("vertical")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
-    None => ()
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  match aria_valuetext {
-    Some(text) => attrs.push(("aria-valuetext", @luna.attr_static(text)))
-    None => ()
+  if aria_valuetext is Some(text) {
+    attrs.push(("aria-valuetext", @luna.attr_static(text)))
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("div", attrs, children)
 }
@@ -106,14 +93,8 @@ pub fn[E] slider_dyn(
   on_keydown? : @luna.EventHandler[E],
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let min_val = match min {
-    Some(v) => v
-    None => 0.0
-  }
-  let max_val = match max {
-    Some(v) => v
-    None => 100.0
-  }
+  let min_val = min.unwrap_or(0.0)
+  let max_val = max.unwrap_or(100.0)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("slider")),
     ("tabindex", @luna.attr_static("0")),
@@ -121,25 +102,19 @@ pub fn[E] slider_dyn(
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
     ("aria-valuemax", @luna.attr_static(max_val.to_string())),
   ]
-  match orientation {
-    Some(Vertical) =>
-      attrs.push(("aria-orientation", @luna.attr_static("vertical")))
-    _ => ()
+  if orientation is Some(Vertical) {
+    attrs.push(("aria-orientation", @luna.attr_static("vertical")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_valuetext_fn {
-    Some(fn_) =>
-      attrs.push(
-        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
-      )
-    None => ()
+  if aria_valuetext_fn is Some(fn_) {
+    attrs.push(
+      ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+    )
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   @luna.h("div", attrs, children)
 }
@@ -155,18 +130,9 @@ pub fn[E] slider_native(
   aria_label? : String,
   id? : String,
 ) -> @luna.Node[E] {
-  let min_val = match min {
-    Some(v) => v
-    None => 0.0
-  }
-  let max_val = match max {
-    Some(v) => v
-    None => 100.0
-  }
-  let input_id = match id {
-    Some(i) => i
-    None => "slider-" + name
-  }
+  let min_val = min.unwrap_or(0.0)
+  let max_val = max.unwrap_or(100.0)
+  let input_id = id.unwrap_or("slider-" + name)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("range")),
     ("name", @luna.attr_static(name)),
@@ -175,13 +141,11 @@ pub fn[E] slider_native(
     ("min", @luna.attr_static(min_val.to_string())),
     ("max", @luna.attr_static(max_val.to_string())),
   ]
-  match step {
-    Some(s) => attrs.push(("step", @luna.attr_static(s.to_string())))
-    None => ()
+  if step is Some(s) {
+    attrs.push(("step", @luna.attr_static(s.to_string())))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("input", attrs, [])
 }
@@ -212,18 +176,9 @@ pub fn slider_interactive(
   aria_valuetext_fn? : (Double) -> String,
   children : Array[@luna.Node[@js.Any]],
 ) -> @luna.Node[@js.Any] {
-  let min_val = match min {
-    Some(v) => v
-    None => 0.0
-  }
-  let max_val = match max {
-    Some(v) => v
-    None => 100.0
-  }
-  let step_val = match step {
-    Some(v) => v
-    None => 1.0
-  }
+  let min_val = min.unwrap_or(0.0)
+  let max_val = max.unwrap_or(100.0)
+  let step_val = step.unwrap_or(1.0)
   let keydown_handler = make_slider_handler(
     fn() { value.get() },
     min_val,
@@ -253,21 +208,16 @@ pub fn slider_interactive(
       }),
     ),
   ]
-  match orientation {
-    Some(Vertical) =>
-      attrs.push(("aria-orientation", @luna.attr_static("vertical")))
-    _ => ()
+  if orientation is Some(Vertical) {
+    attrs.push(("aria-orientation", @luna.attr_static("vertical")))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_valuetext_fn {
-    Some(fn_) =>
-      attrs.push(
-        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
-      )
-    None => ()
+  if aria_valuetext_fn is Some(fn_) {
+    attrs.push(
+      ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+    )
   }
   @luna.h("div", attrs, children)
 }

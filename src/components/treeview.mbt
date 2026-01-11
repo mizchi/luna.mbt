@@ -38,15 +38,7 @@ pub fn tree_node(
   children? : Array[TreeNode],
   disabled? : Bool,
 ) -> TreeNode {
-  let kids = match children {
-    Some(c) => c
-    None => []
-  }
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
-  { id, label, children: kids, disabled: is_disabled }
+  { id, label, children: children.unwrap_or([]), disabled: disabled.unwrap_or(false) }
 }
 
 ///|
@@ -74,22 +66,17 @@ pub fn[E] tree(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("tree")),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  match aria_labelledby {
-    Some(lid) => attrs.push(("aria-labelledby", @luna.attr_static(lid)))
-    None => ()
+  if aria_labelledby is Some(lid) {
+    attrs.push(("aria-labelledby", @luna.attr_static(lid)))
   }
-  match multiselectable {
-    Some(true) =>
-      attrs.push(("aria-multiselectable", @luna.attr_static("true")))
-    _ => ()
+  if multiselectable is Some(true) {
+    attrs.push(("aria-multiselectable", @luna.attr_static("true")))
   }
   @luna.h("ul", attrs, children)
 }
@@ -120,10 +107,7 @@ pub fn[E] treeitem(
   label_content : Array[@luna.Node[E]],
   children? : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
+  let is_disabled = disabled.unwrap_or(false)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("treeitem")),
     (
@@ -132,42 +116,34 @@ pub fn[E] treeitem(
     ),
     ("tabindex", @luna.attr_static(if focused { "0" } else { "-1" })),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
   if has_children {
-    match expanded {
-      Some(exp) =>
-        attrs.push((
-          "aria-expanded",
-          @luna.attr_static(if exp { "true" } else { "false" }),
-        ))
-      None => ()
+    if expanded is Some(exp) {
+      attrs.push((
+        "aria-expanded",
+        @luna.attr_static(if exp { "true" } else { "false" }),
+      ))
     }
   }
   if is_disabled {
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) =>
-      if not(is_disabled) {
-        attrs.push(("click", @luna.attr_handler(handler)))
-      }
-    None => ()
+  if on_click is Some(handler) {
+    if not(is_disabled) {
+      attrs.push(("click", @luna.attr_handler(handler)))
+    }
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build content
   let content : Array[@luna.Node[E]] = label_content.copy()
   // Add child group if expanded
   if has_children {
-    match (expanded, children) {
-      (Some(true), Some(kids)) =>
-        content.push(@luna.h("ul", [("role", @luna.attr_static("group"))], kids))
-      _ => ()
+    if expanded is Some(true) && children is Some(kids) {
+      content.push(@luna.h("ul", [("role", @luna.attr_static("group"))], kids))
     }
   }
   @luna.h("li", attrs, content)
@@ -188,10 +164,7 @@ pub fn[E] treeitem_dyn(
   label_content : Array[@luna.Node[E]],
   children? : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let is_disabled = match disabled {
-    Some(d) => d
-    None => false
-  }
+  let is_disabled = disabled.unwrap_or(false)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("treeitem")),
     (
@@ -215,52 +188,44 @@ pub fn[E] treeitem_dyn(
       }),
     ),
   ]
-  match id {
-    Some(i) => attrs.push(("id", @luna.attr_static(i)))
-    None => ()
+  if id is Some(i) {
+    attrs.push(("id", @luna.attr_static(i)))
   }
   if has_children {
-    match expanded {
-      Some(exp_map) =>
-        attrs.push((
-          "aria-expanded",
-          @luna.attr_dynamic(fn() {
-            if exp_map.get().get(item_id).unwrap_or(false) {
-              "true"
-            } else {
-              "false"
-            }
-          }),
-        ))
-      None => ()
+    if expanded is Some(exp_map) {
+      attrs.push((
+        "aria-expanded",
+        @luna.attr_dynamic(fn() {
+          if exp_map.get().get(item_id).unwrap_or(false) {
+            "true"
+          } else {
+            "false"
+          }
+        }),
+      ))
     }
   }
   if is_disabled {
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-  match on_click {
-    Some(handler) =>
-      if not(is_disabled) {
-        attrs.push(("click", @luna.attr_handler(handler)))
-      }
-    None => ()
+  if on_click is Some(handler) {
+    if not(is_disabled) {
+      attrs.push(("click", @luna.attr_handler(handler)))
+    }
   }
-  match on_keydown {
-    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
-    None => ()
+  if on_keydown is Some(handler) {
+    attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build content - children need to be rendered conditionally
   let content : Array[@luna.Node[E]] = label_content.copy()
   if has_children {
-    match (expanded, children) {
-      (Some(exp_map), Some(kids)) =>
-        content.push(
-          @luna.show(
-            fn() { exp_map.get().get(item_id).unwrap_or(false) },
-            fn() { @luna.h("ul", [("role", @luna.attr_static("group"))], kids) },
-          ),
-        )
-      _ => ()
+    if expanded is Some(exp_map) && children is Some(kids) {
+      content.push(
+        @luna.show(
+          fn() { exp_map.get().get(item_id).unwrap_or(false) },
+          fn() { @luna.h("ul", [("role", @luna.attr_static("group"))], kids) },
+        ),
+      )
     }
   }
   @luna.h("li", attrs, content)
@@ -299,9 +264,8 @@ fn find_parent_id(
     }
     if has_children(node) {
       let found = find_parent_id(node.children, target_id, Some(node.id))
-      match found {
-        Some(_) => return found
-        None => ()
+      if found is Some(_) {
+        return found
       }
     }
   }
@@ -317,9 +281,8 @@ fn find_node(nodes : Array[TreeNode], target_id : String) -> TreeNode? {
     }
     if has_children(node) {
       let found = find_node(node.children, target_id)
-      match found {
-        Some(_) => return found
-        None => ()
+      if found is Some(_) {
+        return found
       }
     }
   }
@@ -369,45 +332,38 @@ pub fn make_tree_handler(
       }
       "ArrowRight" => {
         let _ = e._call("preventDefault", [])
-        match find_node(nodes, current_id) {
-          Some(node) =>
-            if has_children(node) {
-              let is_expanded = exp_map.get(current_id).unwrap_or(false)
-              if not(is_expanded) {
-                // Expand
-                let new_map = exp_map.copy()
-                new_map.set(current_id, true)
-                expanded.set(new_map)
-              } else if node.children.length() > 0 {
-                // Move to first child
-                let first_child = node.children[0]
-                focused_id.set(first_child.id)
-                focus_tree_item(first_child.id)
-              }
+        if find_node(nodes, current_id) is Some(node) {
+          if has_children(node) {
+            let is_expanded = exp_map.get(current_id).unwrap_or(false)
+            if not(is_expanded) {
+              // Expand
+              let new_map = exp_map.copy()
+              new_map.set(current_id, true)
+              expanded.set(new_map)
+            } else if node.children.length() > 0 {
+              // Move to first child
+              let first_child = node.children[0]
+              focused_id.set(first_child.id)
+              focus_tree_item(first_child.id)
             }
-          None => ()
+          }
         }
       }
       "ArrowLeft" => {
         let _ = e._call("preventDefault", [])
-        match find_node(nodes, current_id) {
-          Some(node) =>
-            if has_children(node) && exp_map.get(current_id).unwrap_or(false) {
-              // Collapse
-              let new_map = exp_map.copy()
-              new_map.set(current_id, false)
-              expanded.set(new_map)
-            } else {
-              // Move to parent
-              match find_parent_id(nodes, current_id, None) {
-                Some(parent_id) => {
-                  focused_id.set(parent_id)
-                  focus_tree_item(parent_id)
-                }
-                None => ()
-              }
+        if find_node(nodes, current_id) is Some(node) {
+          if has_children(node) && exp_map.get(current_id).unwrap_or(false) {
+            // Collapse
+            let new_map = exp_map.copy()
+            new_map.set(current_id, false)
+            expanded.set(new_map)
+          } else {
+            // Move to parent
+            if find_parent_id(nodes, current_id, None) is Some(parent_id) {
+              focused_id.set(parent_id)
+              focus_tree_item(parent_id)
             }
-          None => ()
+          }
         }
       }
       "Home" => {
@@ -535,9 +491,8 @@ pub fn tree_interactive(
     ("role", @luna.attr_static("tree")),
     ("id", @luna.attr_static(id)),
   ]
-  match aria_label {
-    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
-    None => ()
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   @luna.h("ul", attrs, tree_items)
 }
