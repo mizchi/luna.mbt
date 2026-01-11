@@ -1,0 +1,38 @@
+{
+  "name": "@luna_ui/testing",
+  "version": "0.1.0",
+  "description": "Testing utilities for Luna UI components",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm --dts --clean",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "jsdom": "^27.4.0",
+    "tsdown": "^0.9.3",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.2"
+  },
+  "peerDependencies": {
+    "@luna_ui/luna": "workspace:*"
+  },
+  "keywords": [
+    "testing",
+    "luna",
+    "accessibility",
+    "a11y"
+  ],
+  "license": "MIT"
+}

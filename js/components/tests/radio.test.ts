@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { setupRadio, getValue, setValue } from '../src/radio-group';
+import { setupRadio, getValue, setValue } from '../src/radio';
 
 describe('RadioGroup', () => {
   let el: HTMLDivElement;
