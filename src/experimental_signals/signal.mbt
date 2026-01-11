@@ -8,7 +8,7 @@
 /// count.set(5)
 /// println(count.get())  // 5
 /// ```
-pub fn signal[T](initial : T) -> SignalNode[T] {
+pub fn signal[T](initial : T) -> Signal[T] {
   {
     node: ReactiveNode::new(ReactiveFlags::Mutable.to_int()),
     current_value: initial,
@@ -18,7 +18,7 @@ pub fn signal[T](initial : T) -> SignalNode[T] {
 
 /// Get the current value of a signal
 /// Automatically tracks dependency if called inside an effect/computed
-pub fn SignalNode::get[T](self : SignalNode[T]) -> T {
+pub fn Signal::get[T](self : Signal[T]) -> T {
   let flags = self.node.flags.get_value()
   let dirty_flag = ReactiveFlags::Dirty.to_int()
 
@@ -61,7 +61,7 @@ pub fn SignalNode::get[T](self : SignalNode[T]) -> T {
 
 /// Set a new value for the signal
 /// Notifies all subscribers if value changed
-pub fn SignalNode::set[T](self : SignalNode[T], value : T) -> Unit {
+pub fn Signal::set[T](self : Signal[T], value : T) -> Unit {
   if not(physical_equal_value(self.pending_value, value)) {
     self.pending_value = value
     self.node.flags.set_value(
@@ -80,13 +80,13 @@ pub fn SignalNode::set[T](self : SignalNode[T], value : T) -> Unit {
 }
 
 /// Update signal value using a function
-pub fn SignalNode::update[T](self : SignalNode[T], f : (T) -> T) -> Unit {
+pub fn Signal::update[T](self : Signal[T], f : (T) -> T) -> Unit {
   self.set(f(self.get()))
 }
 
 /// Get value without tracking (peek)
 /// Returns the latest value (pending if dirty, otherwise current)
-pub fn SignalNode::peek[T](self : SignalNode[T]) -> T {
+pub fn Signal::peek[T](self : Signal[T]) -> T {
   let flags = self.node.flags.get_value()
   let dirty_flag = ReactiveFlags::Dirty.to_int()
   if (flags & dirty_flag) != 0 {

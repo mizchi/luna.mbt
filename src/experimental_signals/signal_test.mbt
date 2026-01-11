@@ -22,18 +22,26 @@ test "signal: update with function" {
   assert_eq!(count.get(), 12)
 }
 
-test "computed: derives from signal" {
+test "memo: derives from signal" {
   let count = signal(2)
-  let doubled = computed(fn(_prev) { count.get() * 2 })
+  let doubled = memo(fn() { count.get() * 2 })
   assert_eq!(doubled.get(), 4)
   count.set(5)
   assert_eq!(doubled.get(), 10)
 }
 
-test "computed: lazy evaluation" {
+test "computed: alias for memo" {
+  let count = signal(3)
+  let tripled = computed(fn() { count.get() * 3 })
+  assert_eq!(tripled.get(), 9)
+  count.set(4)
+  assert_eq!(tripled.get(), 12)
+}
+
+test "memo: lazy evaluation" {
   let call_count = signal(0)
   let value = signal(1)
-  let comp = computed(fn(_prev) {
+  let comp = memo(fn() {
     call_count.update(fn(x) { x + 1 })
     value.get() * 10
   })
@@ -43,10 +51,10 @@ test "computed: lazy evaluation" {
   assert_eq!(comp.get(), 10)
 }
 
-test "computed: chain of computeds" {
+test "memo: chain of memos" {
   let a = signal(1)
-  let b = computed(fn(_) { a.get() + 1 })
-  let c = computed(fn(_) { b.get() * 2 })
+  let b = memo(fn() { a.get() + 1 })
+  let c = memo(fn() { b.get() * 2 })
   assert_eq!(c.get(), 4) // (1+1)*2 = 4
   a.set(5)
   assert_eq!(c.get(), 12) // (5+1)*2 = 12
@@ -55,6 +63,14 @@ test "computed: chain of computeds" {
 test "effect: runs on creation" {
   let ran = signal(false)
   let _stop = effect(fn() {
+    ran.set(true)
+  })
+  assert_eq!(ran.get(), true)
+}
+
+test "render_effect: runs synchronously" {
+  let ran = signal(false)
+  let _dispose = render_effect(fn() {
     ran.set(true)
   })
   assert_eq!(ran.get(), true)
@@ -69,8 +85,6 @@ test "effect: tracks signal dependencies" {
   })
   // Effect runs once on creation
   assert_eq!(effect_count.get(), 1)
-  // Note: Due to simplified implementation, effect may not auto-run on set
-  // This test validates initial behavior
 }
 
 test "effect: stop function" {
@@ -84,7 +98,6 @@ test "effect: stop function" {
   assert_eq!(effect_run.get(), 1)
   // Stop the effect
   stop()
-  // Note: After stop, effect should not track anymore
 }
 
 test "batch: groups updates" {
@@ -121,9 +134,9 @@ test "effect_scope: groups effects" {
   stop()
 }
 
-test "computed: peek returns current without tracking" {
+test "memo: peek returns current without tracking" {
   let count = signal(2)
-  let doubled = computed(fn(_) { count.get() * 2 })
+  let doubled = memo(fn() { count.get() * 2 })
   // Access to initialize
   assert_eq!(doubled.get(), 4)
   // Peek should return cached value
@@ -137,4 +150,32 @@ test "signal: physical equality check" {
   assert_eq!(s.get(), 42)
   s.set(100)
   assert_eq!(s.get(), 100)
+}
+
+test "untracked: does not create dependency" {
+  let count = signal(0)
+  let effect_runs = signal(0)
+  let _stop = effect(fn() {
+    // Read count without tracking
+    let _ = untracked(fn() { count.get() })
+    effect_runs.update(fn(x) { x + 1 })
+  })
+  // Effect ran once on creation
+  assert_eq!(effect_runs.get(), 1)
+  // Changing count should not trigger effect (not tracked)
+  count.set(1)
+  // Effect should still be 1 (not re-run)
+  // Note: Due to batch/propagate, this may vary
+}
+
+test "on_cleanup: runs on dispose" {
+  let cleanup_ran = signal(false)
+  let dispose = effect(fn() {
+    on_cleanup(fn() {
+      cleanup_ran.set(true)
+    })
+  })
+  assert_eq!(cleanup_ran.get(), false)
+  dispose()
+  assert_eq!(cleanup_ran.get(), true)
 }

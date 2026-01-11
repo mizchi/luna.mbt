@@ -89,18 +89,18 @@ pub fn ReactiveNode::new(flags : Int) -> ReactiveNode {
   }
 }
 
-/// Signal node - holds a value
-pub(all) struct SignalNode[T] {
+/// Signal - reactive value container
+pub(all) struct Signal[T] {
   node : ReactiveNode
   mut current_value : T
   mut pending_value : T
 }
 
-/// Computed node - derives value from dependencies
-pub(all) struct ComputedNode[T] {
+/// Computed node - derives value from dependencies (internal)
+pub(all) struct Computed[T] {
   node : ReactiveNode
   mut value : T?
-  getter : (T?) -> T
+  getter : () -> T
 }
 
 /// Effect node - runs side effects

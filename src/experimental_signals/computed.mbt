@@ -1,15 +1,15 @@
-// Computed - derived reactive values
-// alien-signals style API
+// Computed / Memo - derived reactive values
+// Compatible with signal module API
 
-/// Create a computed value that derives from other signals
+/// Create a memoized computed value
 /// ```
 /// let count = signal(2)
-/// let doubled = computed(fn(_) { count.get() * 2 })
+/// let doubled = memo(fn() { count.get() * 2 })
 /// println(doubled.get())  // 4
 /// count.set(5)
 /// println(doubled.get())  // 10
 /// ```
-pub fn computed[T](getter : (T?) -> T) -> ComputedNode[T] {
+pub fn[T] memo(getter : () -> T) -> Computed[T] {
   {
     node: ReactiveNode::new(ReactiveFlags::None.to_int()),
     value: None,
@@ -17,9 +17,14 @@ pub fn computed[T](getter : (T?) -> T) -> ComputedNode[T] {
   }
 }
 
+/// Alias for memo (Solid.js style)
+pub fn[T] computed(getter : () -> T) -> Computed[T] {
+  memo(getter)
+}
+
 /// Get the computed value
 /// Automatically tracks dependency if called inside an effect/computed
-pub fn ComputedNode::get[T](self : ComputedNode[T]) -> T {
+pub fn Computed::get[T](self : Computed[T]) -> T {
   let flags = self.node.flags.get_value()
   let dirty_flag = ReactiveFlags::Dirty.to_int()
   let pending_flag = ReactiveFlags::Pending.to_int()
@@ -32,7 +37,6 @@ pub fn ComputedNode::get[T](self : ComputedNode[T]) -> T {
 
   // Check if dependencies have changed
   let deps_changed = if is_pending {
-    // Check if any dependency is dirty
     check_deps_dirty(self.node)
   } else {
     false
@@ -53,7 +57,7 @@ pub fn ComputedNode::get[T](self : ComputedNode[T]) -> T {
     // First computation
     self.node.flags.set_value(mutable_flag | recursed_check_flag)
     let prev_sub = set_active_sub(Some(self.node))
-    self.value = Some((self.getter)(None))
+    self.value = Some((self.getter)())
     let _ = set_active_sub(prev_sub)
     let current_flags = self.node.flags.get_value()
     self.node.flags.set_value(current_flags & (recursed_check_flag ^ (-1)))
@@ -72,7 +76,7 @@ pub fn ComputedNode::get[T](self : ComputedNode[T]) -> T {
 }
 
 /// Update computed value, returns true if changed
-fn update_computed[T](c : ComputedNode[T]) -> Bool {
+fn update_computed[T](c : Computed[T]) -> Bool {
   inc_cycle()
   c.node.deps_tail = None
   c.node.flags.set_value(
@@ -80,7 +84,7 @@ fn update_computed[T](c : ComputedNode[T]) -> Bool {
   )
   let prev_sub = set_active_sub(Some(c.node))
   let old_value = c.value
-  let new_value = (c.getter)(old_value)
+  let new_value = (c.getter)()
   c.value = Some(new_value)
   let _ = set_active_sub(prev_sub)
   let current_flags = c.node.flags.get_value()
@@ -91,14 +95,6 @@ fn update_computed[T](c : ComputedNode[T]) -> Bool {
     Some(old) => not(physical_equal(old, new_value))
     None => true
   }
-}
-
-/// Generic update function for check_dirty
-fn update_computed_any(node : ReactiveNode) -> Bool {
-  // This is a simplified version
-  // In a full implementation, we'd need to store the computed node reference
-  ignore(node)
-  false
 }
 
 /// Check if any dependency has dirty or pending flag set
@@ -113,7 +109,6 @@ fn check_deps_dirty(node : ReactiveNode) -> Bool {
       Some(lnk) => {
         let dep = lnk.dep
         let dep_flags = dep.flags.get_value()
-        // Check if dependency is dirty (signal) or pending (computed that may need update)
         if (dep_flags & mutable_flag) != 0 {
           if (dep_flags & (dirty_flag | pending_flag)) != 0 {
             return true
@@ -128,6 +123,6 @@ fn check_deps_dirty(node : ReactiveNode) -> Bool {
 }
 
 /// Peek at current value without tracking
-pub fn ComputedNode::peek[T](self : ComputedNode[T]) -> T? {
+pub fn Computed::peek[T](self : Computed[T]) -> T? {
   self.value
 }

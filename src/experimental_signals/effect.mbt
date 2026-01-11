@@ -1,21 +1,49 @@
 // Effect - reactive side effects
-// alien-signals style API
+// Compatible with signal module API
 
-/// Create an effect that runs when its dependencies change
-/// Returns a cleanup function
+// Cleanup tracking
+let current_cleanups : Ref[Array[() -> Unit]?] = Ref::new(None)
+
+/// Register a cleanup function to run before the effect re-runs or is disposed
+pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
+  match current_cleanups.val {
+    Some(arr) => arr.push(cleanup)
+    None => () // Not inside an effect, ignore
+  }
+}
+
+/// Run a function without tracking dependencies
+pub fn[T] untracked(f : () -> T) -> T {
+  let prev = set_active_sub(None)
+  let result = f()
+  let _ = set_active_sub(prev)
+  result
+}
+
+/// Create a synchronous effect (runs immediately)
+/// Returns a dispose function
 /// ```
 /// let count = signal(0)
-/// let stop = effect(fn() { println(count.get()) })  // prints 0
+/// let dispose = render_effect(fn() { println(count.get()) })  // prints 0
 /// count.set(1)  // prints 1
-/// stop()  // stop watching
+/// dispose()  // stop watching
 /// count.set(2)  // no output
 /// ```
-pub fn effect(fn_ : () -> Unit) -> () -> Unit {
+pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
+  let cleanups : Array[() -> Unit] = []
   let e : EffectNode = {
     node: ReactiveNode::new(
       ReactiveFlags::Watching.to_int() | ReactiveFlags::RecursedCheck.to_int()
     ),
-    run_fn: fn_,
+    run_fn: fn() {
+      // Run cleanups before re-running
+      run_cleanups(cleanups)
+      // Track cleanups during execution
+      let prev_cleanups = current_cleanups.val
+      current_cleanups.val = Some(cleanups)
+      fn_()
+      current_cleanups.val = prev_cleanups
+    },
   }
 
   let prev_sub = set_active_sub(Some(e.node))
@@ -26,8 +54,11 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
     None => ()
   }
 
-  // Run the effect
-  (e.run_fn)()
+  // Track cleanups during initial run
+  let prev_cleanups = current_cleanups.val
+  current_cleanups.val = Some(cleanups)
+  fn_()
+  current_cleanups.val = prev_cleanups
 
   // Restore previous subscriber
   let _ = set_active_sub(prev_sub)
@@ -35,7 +66,24 @@ pub fn effect(fn_ : () -> Unit) -> () -> Unit {
   e.node.flags.set_value(flags & (ReactiveFlags::RecursedCheck.to_int() ^ (-1)))
 
   // Return cleanup function
-  fn() { stop_effect(e) }
+  fn() {
+    run_cleanups(cleanups)
+    stop_effect(e)
+  }
+}
+
+/// Alias for render_effect (synchronous effect)
+pub fn effect(fn_ : () -> Unit) -> () -> Unit {
+  render_effect(fn_)
+}
+
+/// Run cleanup functions
+fn run_cleanups(cleanups : Array[() -> Unit]) -> Unit {
+  // Run in reverse order (LIFO)
+  for i = cleanups.length() - 1; i >= 0; i = i - 1 {
+    cleanups[i]()
+  }
+  cleanups.clear()
 }
 
 /// Stop an effect from running
@@ -110,12 +158,12 @@ pub fn batch(fn_ : () -> Unit) -> Unit {
 /// Manually trigger updates for a signal after direct mutation
 /// ```
 /// let arr = signal([])
-/// let len = computed(fn(_) { arr.get().length() })
+/// let len = memo(fn() { arr.get().length() })
 /// arr.peek().push(1)  // Direct mutation
 /// trigger_signal(arr)  // Manually trigger
 /// println(len.get())  // 1
 /// ```
-pub fn trigger_signal[T](sig : SignalNode[T]) -> Unit {
+pub fn trigger_signal[T](sig : Signal[T]) -> Unit {
   let sub : ReactiveNode = ReactiveNode::new(ReactiveFlags::Watching.to_int())
 
   let prev_sub = set_active_sub(Some(sub))

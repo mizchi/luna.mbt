@@ -39,7 +39,7 @@ test "exp: signal.set (1000 writes, no subs)" (b : @bench.T) {
 test "exp: computed.get (1000 reads, cached)" (b : @bench.T) {
   let a = signal(1)
   let b_sig = signal(2)
-  let sum = computed(fn(_) { a.get() + b_sig.get() })
+  let sum = memo(fn() { a.get() + b_sig.get() })
   // Initialize
   let _ = sum.get()
   b.bench(fn() {
@@ -51,9 +51,9 @@ test "exp: computed.get (1000 reads, cached)" (b : @bench.T) {
 
 test "exp: computed chain (depth 3, 1000 reads)" (b : @bench.T) {
   let a = signal(1)
-  let b_comp = computed(fn(_) { a.get() + 1 })
-  let c_comp = computed(fn(_) { b_comp.get() * 2 })
-  let d_comp = computed(fn(_) { c_comp.get() + 10 })
+  let b_comp = memo(fn() { a.get() + 1 })
+  let c_comp = memo(fn() { b_comp.get() * 2 })
+  let d_comp = memo(fn() { c_comp.get() + 10 })
   // Initialize
   let _ = d_comp.get()
   b.bench(fn() {
@@ -65,7 +65,7 @@ test "exp: computed chain (depth 3, 1000 reads)" (b : @bench.T) {
 
 test "exp: computed after update (1000 cycles)" (b : @bench.T) {
   let a = signal(0)
-  let doubled = computed(fn(_) { a.get() * 2 })
+  let doubled = memo(fn() { a.get() * 2 })
   b.bench(fn() {
     for i = 0; i < 1000; i = i + 1 {
       a.set(i)
@@ -129,9 +129,9 @@ test "exp: batch (100 updates)" (b : @bench.T) {
 
 test "exp: fan-out 10 computeds (1000 reads each)" (b : @bench.T) {
   let source = signal(1)
-  let computeds : Array[ComputedNode[Int]] = []
+  let computeds : Array[Computed[Int]] = []
   for i = 0; i < 10; i = i + 1 {
-    computeds.push(computed(fn(_) { source.get() + 1 }))
+    computeds.push(memo(fn() { source.get() + 1 }))
   }
   // Initialize all
   for c in computeds {
@@ -148,9 +148,9 @@ test "exp: fan-out 10 computeds (1000 reads each)" (b : @bench.T) {
 
 test "exp: fan-out 10 computeds, source update (100 cycles)" (b : @bench.T) {
   let source = signal(0)
-  let computeds : Array[ComputedNode[Int]] = []
+  let computeds : Array[Computed[Int]] = []
   for i = 0; i < 10; i = i + 1 {
-    computeds.push(computed(fn(_) { source.get() + 1 }))
+    computeds.push(memo(fn() { source.get() + 1 }))
   }
   // Initialize all
   for c in computeds {
@@ -171,11 +171,11 @@ test "exp: fan-out 10 computeds, source update (100 cycles)" (b : @bench.T) {
 // =============================================================================
 
 test "exp: fan-in 10 signals (1000 reads)" (b : @bench.T) {
-  let signals : Array[SignalNode[Int]] = []
+  let signals : Array[Signal[Int]] = []
   for i = 0; i < 10; i = i + 1 {
     signals.push(signal(i))
   }
-  let sum = computed(fn(_) {
+  let sum = memo(fn() {
     let mut total = 0
     for s in signals {
       total = total + s.get()
@@ -192,11 +192,11 @@ test "exp: fan-in 10 signals (1000 reads)" (b : @bench.T) {
 }
 
 test "exp: fan-in 10 signals, 1 update (100 cycles)" (b : @bench.T) {
-  let signals : Array[SignalNode[Int]] = []
+  let signals : Array[Signal[Int]] = []
   for i = 0; i < 10; i = i + 1 {
     signals.push(signal(i))
   }
-  let sum = computed(fn(_) {
+  let sum = memo(fn() {
     let mut total = 0
     for s in signals {
       total = total + s.get()
