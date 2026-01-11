@@ -77,6 +77,7 @@ pub(all) struct ReactiveNode {
   mut subs : Link?       // First subscriber link
   mut subs_tail : Link?  // Last subscriber link
   flags : Flags
+  mut last_modified_cycle : Int  // Track when value was last modified
 }
 
 pub fn ReactiveNode::new(flags : Int) -> ReactiveNode {
@@ -86,6 +87,7 @@ pub fn ReactiveNode::new(flags : Int) -> ReactiveNode {
     subs: None,
     subs_tail: None,
     flags: Flags::new(flags),
+    last_modified_cycle: 0,
   }
 }
 

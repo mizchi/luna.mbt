@@ -230,9 +230,13 @@ pub fn propagate(start_link : Link) -> Unit {
         // Try to pop from stack
         if stack.length() > 0 {
           match stack.pop() {
-            Some((l, n)) => {
+            Some((l, _)) => {
               link_ref.val = l
-              next_ref.val = n
+              // Restore next_ref from the popped link's next_sub
+              next_ref.val = match l {
+                Some(lnk) => lnk.next_sub
+                None => None
+              }
             }
             None => running = false
           }

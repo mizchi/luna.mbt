@@ -64,6 +64,9 @@ pub fn Signal::get[T](self : Signal[T]) -> T {
 pub fn Signal::set[T](self : Signal[T], value : T) -> Unit {
   if not(physical_equal_value(self.pending_value, value)) {
     self.pending_value = value
+    // Track when this signal was modified for diamond dependency resolution
+    inc_cycle()
+    self.node.last_modified_cycle = get_cycle()
     self.node.flags.set_value(
       ReactiveFlags::Mutable.to_int() | ReactiveFlags::Dirty.to_int()
     )

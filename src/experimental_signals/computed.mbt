@@ -97,7 +97,8 @@ fn update_computed[T](c : Computed[T]) -> Bool {
   }
 }
 
-/// Check if any dependency has dirty or pending flag set
+/// Check if any dependency has changed since last computation
+/// Uses last_modified_cycle to handle diamond dependencies correctly
 fn check_deps_dirty(node : ReactiveNode) -> Bool {
   let dirty_flag = ReactiveFlags::Dirty.to_int()
   let pending_flag = ReactiveFlags::Pending.to_int()
@@ -110,6 +111,12 @@ fn check_deps_dirty(node : ReactiveNode) -> Bool {
         let dep = lnk.dep
         let dep_flags = dep.flags.get_value()
         if (dep_flags & mutable_flag) != 0 {
+          // Check if dep was modified after this link was created
+          // This handles diamond dependencies where dirty flag may be cleared
+          if dep.last_modified_cycle > lnk.version {
+            return true
+          }
+          // Also check traditional dirty/pending flags
           if (dep_flags & (dirty_flag | pending_flag)) != 0 {
             return true
           }
