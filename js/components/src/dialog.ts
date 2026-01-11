@@ -1,8 +1,5 @@
-import type { CleanupFn } from '../core/types';
-import { combine } from '../core/types';
-import { on, attr, query } from '../core/dom';
-import { onEscape } from '../core/keyboard';
-import { trapFocus, focusFirst, saveFocus } from '../core/focus';
+import type { CleanupFn } from './core';
+import { combine, on, attr, query, onEscape, trapFocus, focusFirst, saveFocus } from './core';
 
 export interface DialogOptions {
   /**

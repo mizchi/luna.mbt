@@ -5,15 +5,15 @@
  * Matches src/components APG patterns
  */
 
-import { setupTabs } from '../tabs';
-import { setupAccordion } from '../accordion';
-import { setupCheckbox } from '../checkbox';
-import { setupSwitch } from '../switch';
-import { setupDialog } from '../dialog';
-import { setupSlider } from '../slider';
-import { setupRadio } from '../radio';
-import { setupTooltip } from '../tooltip';
-import type { CleanupFn } from '../core/types';
+import { setupTabs } from './tabs';
+import { setupAccordion } from './accordion';
+import { setupCheckbox } from './checkbox';
+import { setupSwitch } from './switch';
+import { setupDialog } from './dialog';
+import { setupSlider } from './slider';
+import { setupRadio } from './radio';
+import { setupTooltip } from './tooltip';
+import type { CleanupFn } from './core';
 
 type HydrateFn = (el: Element, state?: unknown, id?: string) => CleanupFn | void;
 

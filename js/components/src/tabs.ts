@@ -1,7 +1,5 @@
-import type { CleanupFn } from '../core/types';
-import { combine } from '../core/types';
-import { on, attr, query, queryAll } from '../core/dom';
-import { onArrowNav } from '../core/keyboard';
+import type { CleanupFn } from './core';
+import { combine, on, attr, query, queryAll, onArrowNav } from './core';
 
 export interface TabsOptions {
   /**

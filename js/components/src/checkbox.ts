@@ -1,7 +1,5 @@
-import type { CleanupFn, CheckboxState } from '../core/types';
-import { combine } from '../core/types';
-import { on, attr } from '../core/dom';
-import { onActivate } from '../core/keyboard';
+import type { CleanupFn, CheckboxState } from './core';
+import { combine, on, attr, onActivate } from './core';
 
 export interface CheckboxOptions {
   /**

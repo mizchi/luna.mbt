@@ -1,6 +1,5 @@
-import type { CleanupFn } from '../core/types';
-import { combine } from '../core/types';
-import { on, attr, query } from '../core/dom';
+import type { CleanupFn } from './core';
+import { combine, on, attr, query } from './core';
 
 export interface TooltipOptions {
   /**

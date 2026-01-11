@@ -1,7 +1,5 @@
-import type { CleanupFn } from '../core/types';
-import { combine } from '../core/types';
-import { on, attr, query, queryAll } from '../core/dom';
-import { onActivate, onArrowNav } from '../core/keyboard';
+import type { CleanupFn } from './core';
+import { combine, on, attr, query, queryAll, onActivate, onArrowNav } from './core';
 
 export interface AccordionOptions {
   /**

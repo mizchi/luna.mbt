@@ -1,6 +1,5 @@
-import type { CleanupFn } from '../core/types';
-import { combine } from '../core/types';
-import { on, attr, query } from '../core/dom';
+import type { CleanupFn } from './core';
+import { combine, on, attr, query } from './core';
 
 export interface SliderOptions {
   /**
@@ -59,7 +58,7 @@ export function setupSlider(el: Element, options: SliderOptions = {}): CleanupFn
     return parseFloat(attr(slider, 'data-value') ?? attr(slider, 'aria-valuenow') ?? '0');
   };
 
-  const setValue = (value: number): void => {
+  const setValueInternal = (value: number): void => {
     const { min, max, step } = getConfig();
 
     // Clamp and snap to step
@@ -105,14 +104,14 @@ export function setupSlider(el: Element, options: SliderOptions = {}): CleanupFn
     onDragStart?.();
 
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    setValue(getValueFromPosition(clientX));
+    setValueInternal(getValueFromPosition(clientX));
   };
 
   const moveDrag = (e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
     e.preventDefault();
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    setValue(getValueFromPosition(clientX));
+    setValueInternal(getValueFromPosition(clientX));
   };
 
   const endDrag = () => {
@@ -159,7 +158,7 @@ export function setupSlider(el: Element, options: SliderOptions = {}): CleanupFn
         return;
     }
 
-    setValue(newValue);
+    setValueInternal(newValue);
   };
 
   const cleanups: CleanupFn[] = [];
