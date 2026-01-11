@@ -20,10 +20,10 @@
 ///|
 /// Accordion item data
 pub(all) struct AccordionItem[E] {
-  id : String              // Unique item ID
-  heading : String         // Header text
-  level : Int              // Heading level (1-6)
-  content : Array[@luna.Node[E]]  // Panel content
+  id : String // Unique item ID
+  heading : String // Header text
+  level : Int // Heading level (1-6)
+  content : Array[@luna.Node[E]] // Panel content
 }
 
 ///|
@@ -252,13 +252,9 @@ pub fn[E] accordion(
     let header_id = "accordion-header-" + item.id
     let panel_id = "accordion-panel-" + item.id
     children.push(
-      accordion_header(
-        header_id,
-        is_expanded,
-        panel_id,
-        level=item.level,
-        [@luna.text(item.heading)],
-      ),
+      accordion_header(header_id, is_expanded, panel_id, level=item.level, [
+        @luna.text(item.heading),
+      ]),
     )
     children.push(
       accordion_panel(
@@ -295,13 +291,9 @@ pub fn[E] accordion_multi(
     let header_id = "accordion-header-" + item.id
     let panel_id = "accordion-panel-" + item.id
     children.push(
-      accordion_header(
-        header_id,
-        is_expanded,
-        panel_id,
-        level=item.level,
-        [@luna.text(item.heading)],
-      ),
+      accordion_header(header_id, is_expanded, panel_id, level=item.level, [
+        @luna.text(item.heading),
+      ]),
     )
     children.push(
       accordion_panel(
@@ -313,11 +305,7 @@ pub fn[E] accordion_multi(
       ),
     )
   }
-  @luna.h(
-    "div",
-    [("data-accordion", @luna.attr_static("multi"))],
-    children,
-  )
+  @luna.h("div", [("data-accordion", @luna.attr_static("multi"))], children)
 }
 
 ///|

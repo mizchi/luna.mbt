@@ -111,10 +111,9 @@ pub fn[E] meter_dyn(
   }
   match aria_valuetext_fn {
     Some(fn_) =>
-      attrs.push((
-        "aria-valuetext",
-        @luna.attr_dynamic(fn() { fn_(value.get()) }),
-      ))
+      attrs.push(
+        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+      )
     None => ()
   }
   @luna.h("div", attrs, children)

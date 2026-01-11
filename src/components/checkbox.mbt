@@ -16,9 +16,9 @@
 ///|
 /// Checkbox state
 pub(all) enum CheckboxState {
-  Checked       // aria-checked="true"
-  Unchecked     // aria-checked="false"
-  Mixed         // aria-checked="mixed" (tri-state)
+  Checked // aria-checked="true"
+  Unchecked // aria-checked="false"
+  Mixed // aria-checked="mixed" (tri-state)
 }
 
 ///|
@@ -175,9 +175,10 @@ pub fn[E] checkbox_native(
   let label_attrs : Array[(String, @luna.Attr[E])] = [
     ("for", @luna.attr_static(input_id)),
   ]
-  @luna.fragment(
-    [@luna.h("input", input_attrs, []), @luna.h("label", label_attrs, children)],
-  )
+  @luna.fragment([
+    @luna.h("input", input_attrs, []),
+    @luna.h("label", label_attrs, children),
+  ])
 }
 
 ///|

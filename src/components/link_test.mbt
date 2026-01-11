@@ -1,9 +1,8 @@
 ///|
 test "link: basic attributes" {
-  let node : @luna.Node[Unit] = link(
-    "https://example.com",
-    [@luna.text("Example")],
-  )
+  let node : @luna.Node[Unit] = link("https://example.com", [
+    @luna.text("Example"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="a")
   guard el.attrs[0] is ("href", @luna.VStatic("https://example.com")) else {
@@ -13,11 +12,9 @@ test "link: basic attributes" {
 
 ///|
 test "link: with target blank" {
-  let node : @luna.Node[Unit] = link(
-    "/page",
-    target=Blank,
-    [@luna.text("New Tab")],
-  )
+  let node : @luna.Node[Unit] = link("/page", target=Blank, [
+    @luna.text("New Tab"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_target = false
   for attr in el.attrs {
@@ -33,11 +30,9 @@ test "link: with target blank" {
 
 ///|
 test "link: with aria-label for icon-only" {
-  let node : @luna.Node[Unit] = link(
-    "/home",
-    aria_label="Go to home page",
-    [@luna.text("🏠")],
-  )
+  let node : @luna.Node[Unit] = link("/home", aria_label="Go to home page", [
+    @luna.text("🏠"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_aria_label = false
   for attr in el.attrs {
@@ -53,11 +48,9 @@ test "link: with aria-label for icon-only" {
 
 ///|
 test "link: disabled state" {
-  let node : @luna.Node[Unit] = link(
-    "/action",
-    disabled=true,
-    [@luna.text("Disabled")],
-  )
+  let node : @luna.Node[Unit] = link("/action", disabled=true, [
+    @luna.text("Disabled"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_aria_disabled = false
   let mut has_tabindex = false
@@ -80,10 +73,7 @@ test "link: disabled state" {
 ///|
 test "link_button: role and tabindex" {
   let handler = @luna.handler(fn(_x : Unit) { () })
-  let node : @luna.Node[Unit] = link_button(
-    handler,
-    [@luna.text("Click")],
-  )
+  let node : @luna.Node[Unit] = link_button(handler, [@luna.text("Click")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="span")
   let mut has_role = false

@@ -53,11 +53,7 @@ test "switch_dyn: dynamic state" {
 
 ///|
 test "switch_native: creates checkbox with role=switch" {
-  let node : @luna.Node[Unit] = switch_native(
-    "wifi",
-    true,
-    [@luna.text("WiFi")],
-  )
+  let node : @luna.Node[Unit] = switch_native("wifi", true, [@luna.text("WiFi")])
   guard node is @luna.Fragment(children) else { fail("expected Fragment") }
   guard children[0] is @luna.Element(input) else { fail("expected input") }
   let mut has_role = false

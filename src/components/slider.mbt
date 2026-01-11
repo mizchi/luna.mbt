@@ -132,10 +132,9 @@ pub fn[E] slider_dyn(
   }
   match aria_valuetext_fn {
     Some(fn_) =>
-      attrs.push((
-        "aria-valuetext",
-        @luna.attr_dynamic(fn() { fn_(value.get()) }),
-      ))
+      attrs.push(
+        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+      )
     None => ()
   }
   match on_keydown {
@@ -188,8 +187,9 @@ pub fn[E] slider_native(
 }
 
 ///|
-/// Create a slider with full keyboard support.
+/// Create a slider with full keyboard and mouse support.
 /// Includes arrow key navigation, Home/End for min/max, PageUp/PageDown for large steps.
+/// Also supports click-to-position for mouse interaction.
 ///
 /// Parameters:
 /// - value: Signal containing the current value
@@ -232,6 +232,9 @@ pub fn slider_interactive(
     fn(v) { value.set(v) },
     large_step?,
   )
+  let drag_handler = make_slider_drag_handler(min_val, max_val, step_val, fn(v) {
+    value.set(v)
+  })
   let attrs : Array[(String, @luna.Attr[@js.Any])] = [
     ("role", @luna.attr_static("slider")),
     ("tabindex", @luna.attr_static("0")),
@@ -239,6 +242,16 @@ pub fn slider_interactive(
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
     ("aria-valuemax", @luna.attr_static(max_val.to_string())),
     ("keydown", @luna.attr_handler(keydown_handler)),
+    ("mousedown", @luna.attr_handler(drag_handler)),
+    (
+      "style",
+      @luna.attr_dynamic(fn() {
+        let v = value.get()
+        let range = max_val - min_val
+        let percent = if range > 0.0 { (v - min_val) / range * 100.0 } else { 0.0 }
+        "--slider-percent:" + percent.to_string()
+      }),
+    ),
   ]
   match orientation {
     Some(Vertical) =>
@@ -251,10 +264,9 @@ pub fn slider_interactive(
   }
   match aria_valuetext_fn {
     Some(fn_) =>
-      attrs.push((
-        "aria-valuetext",
-        @luna.attr_dynamic(fn() { fn_(value.get()) }),
-      ))
+      attrs.push(
+        ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+      )
     None => ()
   }
   @luna.h("div", attrs, children)

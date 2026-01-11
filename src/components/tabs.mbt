@@ -21,24 +21,16 @@
 ///|
 /// Tabs orientation
 pub(all) enum TabsOrientation {
-  Horizontal  // Default, use Left/Right arrows
-  Vertical    // Use Up/Down arrows
-}
-
-///|
-fn TabsOrientation::to_aria(self : TabsOrientation) -> String {
-  match self {
-    Horizontal => "horizontal"
-    Vertical => "vertical"
-  }
+  Horizontal // Default, use Left/Right arrows
+  Vertical // Use Up/Down arrows
 }
 
 ///|
 /// Tab item data for building tabs
 pub(all) struct TabItem[E] {
-  id : String          // Unique tab ID
-  label : String       // Tab label text
-  panel : Array[@luna.Node[E]]  // Panel content
+  id : String // Unique tab ID
+  label : String // Tab label text
+  panel : Array[@luna.Node[E]] // Panel content
 }
 
 ///|
@@ -99,7 +91,10 @@ pub fn[E] tab(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("tab")),
     ("id", @luna.attr_static(id)),
-    ("aria-selected", @luna.attr_static(if selected { "true" } else { "false" })),
+    (
+      "aria-selected",
+      @luna.attr_static(if selected { "true" } else { "false" }),
+    ),
     ("aria-controls", @luna.attr_static(controls)),
     ("tabindex", @luna.attr_static(if selected { "0" } else { "-1" })),
   ]
@@ -208,7 +203,10 @@ pub fn[E] tab_computed(
     ("id", @luna.attr_static(id)),
     ("aria-selected", @luna.attr_dynamic(fn() { bool_to_aria(selected()) })),
     ("aria-controls", @luna.attr_static(controls)),
-    ("tabindex", @luna.attr_dynamic(fn() { if selected() { "0" } else { "-1" } })),
+    (
+      "tabindex",
+      @luna.attr_dynamic(fn() { if selected() { "0" } else { "-1" } }),
+    ),
   ]
   match on_click {
     Some(handler) => attrs.push(("click", @luna.attr_handler(handler)))
@@ -223,6 +221,7 @@ pub fn[E] tab_computed(
 
 ///|
 /// Create a tabpanel with computed visibility (accepts getter function).
+/// Uses style display instead of hidden attribute for proper visibility control.
 pub fn[E] tabpanel_computed(
   id : String,
   labelledby : String,
@@ -234,8 +233,9 @@ pub fn[E] tabpanel_computed(
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
     ("tabindex", @luna.attr_static("0")),
+    ("style", @luna.attr_dynamic(fn() { if visible() { "" } else { "display:none" } })),
   ]
-  @luna.show(visible, fn() { @luna.h("div", attrs, children) })
+  @luna.h("div", attrs, children)
 }
 
 ///|
@@ -340,17 +340,13 @@ pub fn tabs_interactive(
   }
   let length = items.length()
   let keydown_handler = if is_vertical {
-    make_vertical_nav_handler(
-      fn() { selected_index.get() },
-      length,
-      fn(i) { selected_index.set(i) },
-    )
+    make_vertical_nav_handler(fn() { selected_index.get() }, length, fn(i) {
+      selected_index.set(i)
+    })
   } else {
-    make_horizontal_nav_handler(
-      fn() { selected_index.get() },
-      length,
-      fn(i) { selected_index.set(i) },
-    )
+    make_horizontal_nav_handler(fn() { selected_index.get() }, length, fn(i) {
+      selected_index.set(i)
+    })
   }
   let tab_buttons : Array[@luna.Node[@js.Any]] = []
   let panels : Array[@luna.Node[@js.Any]] = []

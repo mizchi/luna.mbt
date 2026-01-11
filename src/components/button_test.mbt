@@ -19,10 +19,7 @@ test "button: submit type" {
 
 ///|
 test "button: disabled state" {
-  let node : @luna.Node[Unit] = button(
-    disabled=true,
-    [@luna.text("Disabled")],
-  )
+  let node : @luna.Node[Unit] = button(disabled=true, [@luna.text("Disabled")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_disabled = false
   let mut has_aria_disabled = false
@@ -43,10 +40,9 @@ test "button: disabled state" {
 
 ///|
 test "button: aria-label for icon button" {
-  let node : @luna.Node[Unit] = button(
-    aria_label="Close dialog",
-    [@luna.text("×")],
-  )
+  let node : @luna.Node[Unit] = button(aria_label="Close dialog", [
+    @luna.text("×"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_aria_label = false
   for attr in el.attrs {
@@ -62,10 +58,7 @@ test "button: aria-label for icon button" {
 
 ///|
 test "toggle_button: pressed state" {
-  let node : @luna.Node[Unit] = toggle_button(
-    Pressed,
-    [@luna.text("Mute")],
-  )
+  let node : @luna.Node[Unit] = toggle_button(Pressed, [@luna.text("Mute")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_aria_pressed = false
   for attr in el.attrs {
@@ -81,10 +74,7 @@ test "toggle_button: pressed state" {
 
 ///|
 test "toggle_button: not pressed state" {
-  let node : @luna.Node[Unit] = toggle_button(
-    NotPressed,
-    [@luna.text("Mute")],
-  )
+  let node : @luna.Node[Unit] = toggle_button(NotPressed, [@luna.text("Mute")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_aria_pressed = false
   for attr in el.attrs {
@@ -101,10 +91,7 @@ test "toggle_button: not pressed state" {
 ///|
 test "toggle_button_dyn: dynamic pressed state" {
   let pressed = @signal.signal(false)
-  let node : @luna.Node[Unit] = toggle_button_dyn(
-    pressed,
-    [@luna.text("Bold")],
-  )
+  let node : @luna.Node[Unit] = toggle_button_dyn(pressed, [@luna.text("Bold")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut dynamic_attr : (() -> String)? = None
   for attr in el.attrs {
@@ -123,12 +110,9 @@ test "toggle_button_dyn: dynamic pressed state" {
 
 ///|
 test "menu_button: popup attributes" {
-  let node : @luna.Node[Unit] = menu_button(
-    Menu,
-    false,
-    controls="dropdown",
-    [@luna.text("Options")],
-  )
+  let node : @luna.Node[Unit] = menu_button(Menu, false, controls="dropdown", [
+    @luna.text("Options"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_haspopup = false
   let mut has_expanded = false
@@ -161,11 +145,9 @@ test "menu_button: popup attributes" {
 ///|
 test "menu_button_dyn: dynamic expanded state" {
   let expanded = @signal.signal(false)
-  let node : @luna.Node[Unit] = menu_button_dyn(
-    Dialog,
-    expanded,
-    [@luna.text("Open")],
-  )
+  let node : @luna.Node[Unit] = menu_button_dyn(Dialog, expanded, [
+    @luna.text("Open"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut dynamic_attr : (() -> String)? = None
   for attr in el.attrs {

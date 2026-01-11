@@ -164,9 +164,10 @@ pub fn[E] switch_native(
   let label_attrs : Array[(String, @luna.Attr[E])] = [
     ("for", @luna.attr_static(input_id)),
   ]
-  @luna.fragment(
-    [@luna.h("input", input_attrs, []), @luna.h("label", label_attrs, children)],
-  )
+  @luna.fragment([
+    @luna.h("input", input_attrs, []),
+    @luna.h("label", label_attrs, children),
+  ])
 }
 
 ///|

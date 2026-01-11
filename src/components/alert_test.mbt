@@ -10,10 +10,7 @@ test "alert: basic role" {
 
 ///|
 test "alert: with type" {
-  let node : @luna.Node[Unit] = alert(
-    type_=Error,
-    [@luna.text("Error!")],
-  )
+  let node : @luna.Node[Unit] = alert(type_=Error, [@luna.text("Error!")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_type = false
   for attr in el.attrs {

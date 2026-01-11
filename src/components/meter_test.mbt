@@ -1,10 +1,6 @@
 ///|
 test "meter: basic attributes" {
-  let node : @luna.Node[Unit] = meter(
-    75.0,
-    aria_label="Battery level",
-    [],
-  )
+  let node : @luna.Node[Unit] = meter(75.0, aria_label="Battery level", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="div")
   let mut has_role = false
@@ -13,7 +9,9 @@ test "meter: basic attributes" {
   let mut has_valuemax = false
   for attr in el.attrs {
     if attr.0 == "role" {
-      guard attr.1 is @luna.VStatic("meter") else { fail("expected role meter") }
+      guard attr.1 is @luna.VStatic("meter") else {
+        fail("expected role meter")
+      }
       has_role = true
     }
     if attr.0 == "aria-valuenow" {
@@ -25,7 +23,9 @@ test "meter: basic attributes" {
       has_valuemin = true
     }
     if attr.0 == "aria-valuemax" {
-      guard attr.1 is @luna.VStatic("100") else { fail("expected valuemax 100") }
+      guard attr.1 is @luna.VStatic("100") else {
+        fail("expected valuemax 100")
+      }
       has_valuemax = true
     }
   }
@@ -85,11 +85,7 @@ test "meter: with aria-valuetext" {
 ///|
 test "meter_dyn: dynamic value" {
   let value = @signal.signal(25.0)
-  let node : @luna.Node[Unit] = meter_dyn(
-    value,
-    aria_label="Progress",
-    [],
-  )
+  let node : @luna.Node[Unit] = meter_dyn(value, aria_label="Progress", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut dynamic_attr : (() -> String)? = None
   for attr in el.attrs {
@@ -106,11 +102,7 @@ test "meter_dyn: dynamic value" {
 
 ///|
 test "meter_native: native meter element" {
-  let node : @luna.Node[Unit] = meter_native(
-    75.0,
-    aria_label="Disk usage",
-    [],
-  )
+  let node : @luna.Node[Unit] = meter_native(75.0, aria_label="Disk usage", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="meter")
   let mut has_value = false

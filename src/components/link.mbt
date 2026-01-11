@@ -16,10 +16,10 @@
 ///|
 /// Link target behavior
 pub(all) enum LinkTarget {
-  Self_      // Same window/tab (_self)
-  Blank      // New window/tab (_blank)
-  Parent     // Parent frame (_parent)
-  Top        // Top frame (_top)
+  Self_ // Same window/tab (_self)
+  Blank // New window/tab (_blank)
+  Parent // Parent frame (_parent)
+  Top // Top frame (_top)
 }
 
 ///|

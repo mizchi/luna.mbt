@@ -1,10 +1,8 @@
 ///|
 test "disclosure_button: expanded state" {
-  let node : @luna.Node[Unit] = disclosure_button(
-    true,
-    "content-1",
-    [@luna.text("Show more")],
-  )
+  let node : @luna.Node[Unit] = disclosure_button(true, "content-1", [
+    @luna.text("Show more"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="button")
   let mut has_expanded = false
@@ -25,11 +23,9 @@ test "disclosure_button: expanded state" {
 
 ///|
 test "disclosure_button: collapsed state" {
-  let node : @luna.Node[Unit] = disclosure_button(
-    false,
-    "content-2",
-    [@luna.text("Show")],
-  )
+  let node : @luna.Node[Unit] = disclosure_button(false, "content-2", [
+    @luna.text("Show"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut expanded_val = ""
   for attr in el.attrs {
@@ -43,11 +39,9 @@ test "disclosure_button: collapsed state" {
 
 ///|
 test "disclosure_content: hidden when collapsed" {
-  let node : @luna.Node[Unit] = disclosure_content(
-    "panel",
-    true,
-    [@luna.text("Hidden content")],
-  )
+  let node : @luna.Node[Unit] = disclosure_content("panel", true, [
+    @luna.text("Hidden content"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_hidden = false
   for attr in el.attrs {
@@ -73,11 +67,9 @@ test "disclosure: creates complete structure" {
 ///|
 test "disclosure_button_dyn: dynamic expanded" {
   let expanded = @signal.signal(false)
-  let node : @luna.Node[Unit] = disclosure_button_dyn(
-    expanded,
-    "panel",
-    [@luna.text("Toggle")],
-  )
+  let node : @luna.Node[Unit] = disclosure_button_dyn(expanded, "panel", [
+    @luna.text("Toggle"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut dynamic_attr : (() -> String)? = None
   for attr in el.attrs {

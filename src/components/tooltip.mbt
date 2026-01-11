@@ -23,13 +23,13 @@
 /// Parameters:
 /// - id: Tooltip ID (required, used for aria-describedby on trigger)
 /// - children: Tooltip content
-pub fn[E] tooltip(id : String, children : Array[@luna.Node[E]]) -> @luna.Node[E] {
+pub fn[E] tooltip(
+  id : String,
+  children : Array[@luna.Node[E]],
+) -> @luna.Node[E] {
   @luna.h(
     "div",
-    [
-      ("role", @luna.attr_static("tooltip")),
-      ("id", @luna.attr_static(id)),
-    ],
+    [("role", @luna.attr_static("tooltip")), ("id", @luna.attr_static(id))],
     children,
   )
 }
@@ -111,10 +111,8 @@ pub fn[E] tooltip_with_trigger(
   visible : Bool,
 ) -> @luna.Node[E] {
   let tooltip_id = id + "-tooltip"
-  @luna.fragment(
-    [
-      tooltip_trigger(tooltip_id, trigger_content),
-      tooltip_popup(tooltip_id, visible, tooltip_content),
-    ],
-  )
+  @luna.fragment([
+    tooltip_trigger(tooltip_id, trigger_content),
+    tooltip_popup(tooltip_id, visible, tooltip_content),
+  ])
 }

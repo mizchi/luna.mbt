@@ -9,11 +9,7 @@ test "radiogroup: role" {
 
 ///|
 test "radio: checked state" {
-  let node : @luna.Node[Unit] = radio(
-    "option1",
-    true,
-    [@luna.text("Option 1")],
-  )
+  let node : @luna.Node[Unit] = radio("option1", true, [@luna.text("Option 1")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_checked = false
   let mut has_tabindex = false
@@ -33,11 +29,7 @@ test "radio: checked state" {
 
 ///|
 test "radio: unchecked state" {
-  let node : @luna.Node[Unit] = radio(
-    "option2",
-    false,
-    [@luna.text("Option 2")],
-  )
+  let node : @luna.Node[Unit] = radio("option2", false, [@luna.text("Option 2")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut checked_val = ""
   let mut tabindex_val = ""
@@ -58,11 +50,9 @@ test "radio: unchecked state" {
 ///|
 test "radio_dyn: dynamic checked" {
   let selected = @signal.signal("opt1")
-  let node : @luna.Node[Unit] = radio_dyn(
-    "opt1",
-    selected,
-    [@luna.text("Opt 1")],
-  )
+  let node : @luna.Node[Unit] = radio_dyn("opt1", selected, [
+    @luna.text("Opt 1"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut dynamic_checked : (() -> String)? = None
   for attr in el.attrs {
@@ -95,12 +85,9 @@ test "radio_group: builds structure" {
 
 ///|
 test "radio_native: creates input and label" {
-  let node : @luna.Node[Unit] = radio_native(
-    "color",
-    "red",
-    true,
-    [@luna.text("Red")],
-  )
+  let node : @luna.Node[Unit] = radio_native("color", "red", true, [
+    @luna.text("Red"),
+  ])
   guard node is @luna.Fragment(children) else { fail("expected Fragment") }
   inspect(children.length(), content="2")
   guard children[0] is @luna.Element(input) && input.tag == "input" else {

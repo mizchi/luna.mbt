@@ -20,9 +20,9 @@
 ///|
 /// Button type variants
 pub(all) enum ButtonType {
-  Button    // Default button
-  Submit    // Form submit button
-  Reset     // Form reset button
+  Button // Default button
+  Submit // Form submit button
+  Reset // Form reset button
 }
 
 ///|
@@ -96,8 +96,8 @@ pub fn[E] button(
 ///|
 /// Toggle button state
 pub(all) enum ToggleState {
-  Pressed     // aria-pressed="true"
-  NotPressed  // aria-pressed="false"
+  Pressed // aria-pressed="true"
+  NotPressed // aria-pressed="false"
 }
 
 ///|
@@ -203,11 +203,11 @@ pub fn[E] toggle_button_dyn(
 ///|
 /// Menu button popup type
 pub(all) enum PopupType {
-  Menu      // aria-haspopup="menu"
-  Listbox   // aria-haspopup="listbox"
-  Tree      // aria-haspopup="tree"
-  Grid      // aria-haspopup="grid"
-  Dialog    // aria-haspopup="dialog"
+  Menu // aria-haspopup="menu"
+  Listbox // aria-haspopup="listbox"
+  Tree // aria-haspopup="tree"
+  Grid // aria-haspopup="grid"
+  Dialog // aria-haspopup="dialog"
 }
 
 ///|
@@ -249,7 +249,10 @@ pub fn[E] menu_button(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("type", @luna.attr_static("button")),
     ("aria-haspopup", @luna.attr_static(popup_type.to_aria())),
-    ("aria-expanded", @luna.attr_static(if expanded { "true" } else { "false" })),
+    (
+      "aria-expanded",
+      @luna.attr_static(if expanded { "true" } else { "false" }),
+    ),
   ]
   match controls {
     Some(id) => attrs.push(("aria-controls", @luna.attr_static(id)))

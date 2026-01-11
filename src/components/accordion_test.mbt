@@ -1,11 +1,8 @@
 ///|
 test "accordion_header: expanded state" {
-  let node : @luna.Node[Unit] = accordion_header(
-    "header-1",
-    true,
-    "panel-1",
-    [@luna.text("Section 1")],
-  )
+  let node : @luna.Node[Unit] = accordion_header("header-1", true, "panel-1", [
+    @luna.text("Section 1"),
+  ])
   guard node is @luna.Element(heading) else { fail("expected Element") }
   inspect(heading.tag, content="h3")
   guard heading.children[0] is @luna.Element(btn) else {
@@ -63,7 +60,9 @@ test "accordion_panel: with region role" {
       has_role = true
     }
     if attr.0 == "aria-labelledby" {
-      guard attr.1 is @luna.VStatic("header-1") else { fail("wrong labelledby") }
+      guard attr.1 is @luna.VStatic("header-1") else {
+        fail("wrong labelledby")
+      }
       has_labelledby = true
     }
   }
@@ -73,12 +72,7 @@ test "accordion_panel: with region role" {
 
 ///|
 test "accordion_panel: hidden when collapsed" {
-  let node : @luna.Node[Unit] = accordion_panel(
-    "panel-x",
-    "header-x",
-    true,
-    [],
-  )
+  let node : @luna.Node[Unit] = accordion_panel("panel-x", "header-x", true, [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_hidden = false
   for attr in el.attrs {
@@ -117,12 +111,9 @@ test "accordion_multi: multiple expanded" {
 ///|
 test "accordion_header_dyn: dynamic expanded" {
   let expanded = @signal.signal(false)
-  let node : @luna.Node[Unit] = accordion_header_dyn(
-    "h1",
-    expanded,
-    "p1",
-    [@luna.text("Title")],
-  )
+  let node : @luna.Node[Unit] = accordion_header_dyn("h1", expanded, "p1", [
+    @luna.text("Title"),
+  ])
   guard node is @luna.Element(heading) else { fail("expected Element") }
   guard heading.children[0] is @luna.Element(btn) else {
     fail("expected button")

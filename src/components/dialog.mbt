@@ -176,6 +176,152 @@ pub fn[E] alert_dialog(
 }
 
 ///|
+/// Create a dynamic alert dialog with signal-based open state.
+pub fn[E] alert_dialog_dyn(
+  aria_label? : String,
+  aria_labelledby? : String,
+  aria_describedby? : String,
+  open : @signal.Signal[Bool],
+  on_keydown? : @luna.EventHandler[E],
+  children : Array[@luna.Node[E]],
+) -> @luna.Node[E] {
+  let attrs : Array[(String, @luna.Attr[E])] = [
+    ("role", @luna.attr_static("alertdialog")),
+    ("aria-modal", @luna.attr_static("true")),
+  ]
+  match aria_label {
+    Some(label) => attrs.push(("aria-label", @luna.attr_static(label)))
+    None => ()
+  }
+  match aria_labelledby {
+    Some(id) => attrs.push(("aria-labelledby", @luna.attr_static(id)))
+    None => ()
+  }
+  match aria_describedby {
+    Some(id) => attrs.push(("aria-describedby", @luna.attr_static(id)))
+    None => ()
+  }
+  match on_keydown {
+    Some(handler) => attrs.push(("keydown", @luna.attr_handler(handler)))
+    None => ()
+  }
+  @luna.show(fn() { open.get() }, fn() { @luna.h("div", attrs, children) })
+}
+
+///|
+/// Create a confirmation dialog (common Alert Dialog use case).
+/// Returns a fragment with backdrop and dialog.
+///
+/// Parameters:
+/// - id: Base ID for the dialog
+/// - title: Dialog title
+/// - message: Confirmation message
+/// - confirm_label: Label for confirm button (default: "OK")
+/// - cancel_label: Label for cancel button (default: "Cancel")
+/// - open: Signal controlling visibility
+/// - on_confirm: Called when user confirms
+/// - on_cancel: Called when user cancels
+pub fn confirm_dialog(
+  id : String,
+  title : String,
+  message : String,
+  confirm_label? : String,
+  cancel_label? : String,
+  open : @signal.Signal[Bool],
+  on_confirm : () -> Unit,
+  on_cancel : () -> Unit,
+) -> @luna.Node[@js.Any] {
+  let confirm_text = match confirm_label {
+    Some(l) => l
+    None => "OK"
+  }
+  let cancel_text = match cancel_label {
+    Some(l) => l
+    None => "Cancel"
+  }
+  let title_id = id + "-title"
+  let message_id = id + "-message"
+  let close = fn() { open.set(false) }
+  @luna.show(
+    fn() { open.get() },
+    fn() {
+      @luna.fragment([
+        // Backdrop - does not close on click for alert dialogs
+        @luna.h(
+          "div",
+          [
+            ("class", @luna.attr_static("dialog-backdrop")),
+            ("aria-hidden", @luna.attr_static("true")),
+          ],
+          [],
+        ),
+        // Alert Dialog
+        @luna.h(
+          "div",
+          [
+            ("role", @luna.attr_static("alertdialog")),
+            ("aria-modal", @luna.attr_static("true")),
+            ("aria-labelledby", @luna.attr_static(title_id)),
+            ("aria-describedby", @luna.attr_static(message_id)),
+            ("class", @luna.attr_static("alert-dialog")),
+          ],
+          [
+            @luna.h(
+              "h2",
+              [("id", @luna.attr_static(title_id))],
+              [@luna.text(title)],
+            ),
+            @luna.h(
+              "p",
+              [("id", @luna.attr_static(message_id))],
+              [@luna.text(message)],
+            ),
+            @luna.h(
+              "div",
+              [("class", @luna.attr_static("dialog-actions"))],
+              [
+                // Cancel button (should be focused first for safety)
+                @luna.h(
+                  "button",
+                  [
+                    ("type", @luna.attr_static("button")),
+                    ("class", @luna.attr_static("dialog-cancel")),
+                    (
+                      "click",
+                      @luna.attr_handler(@luna.handler(fn(_) {
+                        close()
+                        on_cancel()
+                      })),
+                    ),
+                  ],
+                  [@luna.text(cancel_text)],
+                ),
+                // Confirm button
+                @luna.h(
+                  "button",
+                  [
+                    ("type", @luna.attr_static("button")),
+                    ("class", @luna.attr_static("dialog-confirm")),
+                    (
+                      "click",
+                      @luna.attr_handler(@luna.handler(fn(_) {
+                        close()
+                        on_confirm()
+                      })),
+                    ),
+                  ],
+                  [@luna.text(confirm_text)],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ])
+    },
+  )
+}
+
+///|
 /// Create a dialog backdrop/overlay.
 /// Used to visually obscure content behind the dialog.
 pub fn[E] dialog_backdrop(

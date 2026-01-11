@@ -7,10 +7,9 @@ test "banner: creates header element" {
 
 ///|
 test "banner: with aria-label" {
-  let node : @luna.Node[Unit] = banner(
-    aria_label="Main header",
-    [@luna.text("Logo")],
-  )
+  let node : @luna.Node[Unit] = banner(aria_label="Main header", [
+    @luna.text("Logo"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_label = false
   for attr in el.attrs {
@@ -31,10 +30,9 @@ test "nav: creates nav element" {
 
 ///|
 test "nav: with aria-label" {
-  let node : @luna.Node[Unit] = nav(
-    aria_label="Main navigation",
-    [@luna.text("Menu")],
-  )
+  let node : @luna.Node[Unit] = nav(aria_label="Main navigation", [
+    @luna.text("Menu"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_label = false
   for attr in el.attrs {
@@ -93,10 +91,9 @@ test "search_role: creates form with role=search" {
 
 ///|
 test "form_landmark: creates form with aria-label" {
-  let node : @luna.Node[Unit] = form_landmark(
-    aria_label="Contact form",
-    [@luna.text("Form")],
-  )
+  let node : @luna.Node[Unit] = form_landmark(aria_label="Contact form", [
+    @luna.text("Form"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="form")
   let mut has_label = false
@@ -111,10 +108,9 @@ test "form_landmark: creates form with aria-label" {
 
 ///|
 test "region: creates section with aria-label" {
-  let node : @luna.Node[Unit] = region(
-    aria_label="Quick Stats",
-    [@luna.text("Stats")],
-  )
+  let node : @luna.Node[Unit] = region(aria_label="Quick Stats", [
+    @luna.text("Stats"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="section")
   let mut has_label = false

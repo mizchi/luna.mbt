@@ -1,10 +1,6 @@
 ///|
 test "slider: role and value attributes" {
-  let node : @luna.Node[Unit] = slider(
-    50.0,
-    aria_label="Volume",
-    [],
-  )
+  let node : @luna.Node[Unit] = slider(50.0, aria_label="Volume", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_role = false
   let mut has_valuenow = false

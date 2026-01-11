@@ -130,9 +130,7 @@ pub fn[E] disclosure_content(
   hidden : Bool,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
-    ("id", @luna.attr_static(id)),
-  ]
+  let attrs : Array[(String, @luna.Attr[E])] = [("id", @luna.attr_static(id))]
   if hidden {
     attrs.push(("hidden", @luna.attr_static("")))
   }
@@ -177,12 +175,10 @@ pub fn[E] disclosure(
 ) -> @luna.Node[E] {
   let button_id = id + "-button"
   let content_id = id + "-content"
-  @luna.fragment(
-    [
-      disclosure_button(id=button_id, expanded, content_id, button_content),
-      disclosure_content(content_id, not(expanded), panel_content),
-    ],
-  )
+  @luna.fragment([
+    disclosure_button(id=button_id, expanded, content_id, button_content),
+    disclosure_content(content_id, not(expanded), panel_content),
+  ])
 }
 
 ///|
@@ -202,20 +198,18 @@ pub fn[E] disclosure_dyn(
 ) -> @luna.Node[E] {
   let button_id = id + "-button"
   let content_id = id + "-content"
-  @luna.fragment(
-    [
-      disclosure_button_computed(
-        id=button_id,
-        fn() { expanded.get() },
-        content_id,
-        on_click=@luna.handler(fn(_) { expanded.set(not(expanded.get())) }),
-        button_content,
-      ),
-      disclosure_content_computed(
-        content_id,
-        fn() { expanded.get() },
-        panel_content,
-      ),
-    ],
-  )
+  @luna.fragment([
+    disclosure_button_computed(
+      id=button_id,
+      fn() { expanded.get() },
+      content_id,
+      on_click=@luna.handler(fn(_) { expanded.set(not(expanded.get())) }),
+      button_content,
+    ),
+    disclosure_content_computed(
+      content_id,
+      fn() { expanded.get() },
+      panel_content,
+    ),
+  ])
 }

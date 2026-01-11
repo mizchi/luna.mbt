@@ -18,10 +18,10 @@
 ///|
 /// Alert severity levels
 pub(all) enum AlertType {
-  Info        // Informational message
-  Success     // Success/confirmation message
-  Warning     // Warning message
-  Error       // Error message
+  Info // Informational message
+  Success // Success/confirmation message
+  Warning // Warning message
+  Error // Error message
 }
 
 ///|

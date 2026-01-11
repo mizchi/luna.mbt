@@ -120,7 +120,11 @@ pub fn[E] option_dyn(
     (
       "aria-selected",
       @luna.attr_dynamic(fn() {
-        if selected_values.get().contains(value) { "true" } else { "false" }
+        if selected_values.get().contains(value) {
+          "true"
+        } else {
+          "false"
+        }
       }),
     ),
     ("data-value", @luna.attr_static(value)),
@@ -159,7 +163,9 @@ pub fn[E] listbox_from_options(
   for opt in options {
     let is_selected = opt.value == selected_value
     option_nodes.push(
-      option(opt.value, is_selected, disabled=opt.disabled, [@luna.text(opt.label)]),
+      option(opt.value, is_selected, disabled=opt.disabled, [
+        @luna.text(opt.label),
+      ]),
     )
   }
   listbox(aria_label?, option_nodes)
@@ -176,7 +182,9 @@ pub fn[E] listbox_multi(
   for opt in options {
     let is_selected = selected_values.contains(opt.value)
     option_nodes.push(
-      option(opt.value, is_selected, disabled=opt.disabled, [@luna.text(opt.label)]),
+      option(opt.value, is_selected, disabled=opt.disabled, [
+        @luna.text(opt.label),
+      ]),
     )
   }
   listbox(aria_label?, multiselectable=true, option_nodes)

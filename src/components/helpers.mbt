@@ -62,7 +62,11 @@ pub fn KeyCode::from_string(key : String) -> KeyCode? {
 ///|
 /// Boolean to ARIA string conversion
 pub fn bool_to_aria(value : Bool) -> String {
-  if value { "true" } else { "false" }
+  if value {
+    "true"
+  } else {
+    "false"
+  }
 }
 
 // =============================================================================
@@ -95,7 +99,9 @@ pub fn is_toggle_key(key : String) -> Bool {
 ///|
 /// Check if a key is an arrow key
 pub fn is_arrow_key(key : String) -> Bool {
-  key == "ArrowUp" || key == "ArrowDown" || key == "ArrowLeft" ||
+  key == "ArrowUp" ||
+  key == "ArrowDown" ||
+  key == "ArrowLeft" ||
   key == "ArrowRight"
 }
 
@@ -161,7 +167,9 @@ fn get_event_key(e : @js.Any) -> String {
 
 ///|
 /// Create a toggle handler that responds to Space and Enter keys
-pub fn make_toggle_handler(on_toggle : () -> Unit) -> @luna.EventHandler[@js.Any] {
+pub fn make_toggle_handler(
+  on_toggle : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(e : @js.Any) {
     let key = get_event_key(e)
     if is_toggle_key(key) {
@@ -181,7 +189,7 @@ pub fn make_horizontal_nav_handler(
   length : Int,
   on_change : (Int) -> Unit,
   wrap? : Bool,
-  support_home_end? : Bool
+  support_home_end? : Bool,
 ) -> @luna.EventHandler[@js.Any] {
   let do_wrap = match wrap {
     Some(w) => w
@@ -223,7 +231,7 @@ pub fn make_vertical_nav_handler(
   length : Int,
   on_change : (Int) -> Unit,
   wrap? : Bool,
-  support_home_end? : Bool
+  support_home_end? : Bool,
 ) -> @luna.EventHandler[@js.Any] {
   let do_wrap = match wrap {
     Some(w) => w
@@ -268,7 +276,7 @@ pub fn make_slider_handler(
   max : Double,
   step : Double,
   on_change : (Double) -> Unit,
-  large_step? : Double
+  large_step? : Double,
 ) -> @luna.EventHandler[@js.Any] {
   let big_step = match large_step {
     Some(s) => s
@@ -280,19 +288,35 @@ pub fn make_slider_handler(
     let new_val = match key {
       "ArrowUp" | "ArrowRight" => {
         let v = curr + step
-        if v > max { max } else { v }
+        if v > max {
+          max
+        } else {
+          v
+        }
       }
       "ArrowDown" | "ArrowLeft" => {
         let v = curr - step
-        if v < min { min } else { v }
+        if v < min {
+          min
+        } else {
+          v
+        }
       }
       "PageUp" => {
         let v = curr + big_step
-        if v > max { max } else { v }
+        if v > max {
+          max
+        } else {
+          v
+        }
       }
       "PageDown" => {
         let v = curr - big_step
-        if v < min { min } else { v }
+        if v < min {
+          min
+        } else {
+          v
+        }
       }
       "Home" => min
       "End" => max
@@ -306,11 +330,89 @@ pub fn make_slider_handler(
 
 ///|
 /// Create an escape key handler
-pub fn make_escape_handler(on_escape : () -> Unit) -> @luna.EventHandler[@js.Any] {
+pub fn make_escape_handler(
+  on_escape : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(e : @js.Any) {
     let key = get_event_key(e)
     if key == "Escape" {
       on_escape()
     }
+  })
+}
+
+///|
+/// Calculate slider value from mouse position
+fn calc_slider_value(
+  client_x : Double,
+  rect_left : Double,
+  rect_width : Double,
+  min : Double,
+  max : Double,
+  step : Double,
+) -> Double {
+  let offset_x = client_x - rect_left
+  let ratio = if rect_width > 0.0 { offset_x / rect_width } else { 0.0 }
+  let clamped_ratio = if ratio < 0.0 {
+    0.0
+  } else if ratio > 1.0 {
+    1.0
+  } else {
+    ratio
+  }
+  let range = max - min
+  let raw_value = min + clamped_ratio * range
+  // Round to nearest step
+  let steps = ((raw_value - min) / step).round()
+  let stepped_value = min + steps * step
+  // Clamp to range
+  if stepped_value < min {
+    min
+  } else if stepped_value > max {
+    max
+  } else {
+    stepped_value
+  }
+}
+
+///|
+/// Create a slider mousedown handler that enables drag tracking
+/// Sets up document-level mousemove/mouseup listeners for smooth dragging
+pub fn make_slider_drag_handler(
+  min : Double,
+  max : Double,
+  step : Double,
+  on_change : (Double) -> Unit,
+) -> @luna.EventHandler[@js.Any] {
+  @luna.handler(fn(e : @js.Any) {
+    let target = e._get("currentTarget")
+    let rect = target._call("getBoundingClientRect", [])
+    let rect_left : Double = rect._get("left").cast()
+    let rect_width : Double = rect._get("width").cast()
+    let client_x : Double = e._get("clientX").cast()
+    // Update value immediately on mousedown
+    let value = calc_slider_value(client_x, rect_left, rect_width, min, max, step)
+    on_change(value)
+    // Set up document-level listeners for drag
+    let doc = @js.global_this()._get("document")
+    // Create mousemove handler
+    let move_handler = @js.from_fn1(fn(move_e : @js.Any) {
+      let move_x : Double = move_e._get("clientX").cast()
+      let v = calc_slider_value(move_x, rect_left, rect_width, min, max, step)
+      on_change(v)
+    })
+    // Create mouseup handler that removes listeners
+    let up_handler_ref : Ref[@js.Any] = Ref::new(@js.undefined())
+    let up_handler = @js.from_fn1(fn(_up_e : @js.Any) {
+      let _ = doc._call("removeEventListener", [@js.any("mousemove"), move_handler])
+      let _ = doc._call(
+        "removeEventListener",
+        [@js.any("mouseup"), up_handler_ref.val],
+      )
+    })
+    up_handler_ref.val = up_handler
+    // Add listeners
+    let _ = doc._call("addEventListener", [@js.any("mousemove"), move_handler])
+    let _ = doc._call("addEventListener", [@js.any("mouseup"), up_handler])
   })
 }

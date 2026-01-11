@@ -1,9 +1,6 @@
 ///|
 test "tablist: role and aria-label" {
-  let node : @luna.Node[Unit] = tablist(
-    aria_label="Content tabs",
-    [],
-  )
+  let node : @luna.Node[Unit] = tablist(aria_label="Content tabs", [])
   guard node is @luna.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("role", @luna.VStatic("tablist")) else {
     fail("expected role=tablist")
@@ -26,12 +23,9 @@ test "tablist: vertical orientation" {
 
 ///|
 test "tab: selected state" {
-  let node : @luna.Node[Unit] = tab(
-    "tab-1",
-    true,
-    "panel-1",
-    [@luna.text("Tab 1")],
-  )
+  let node : @luna.Node[Unit] = tab("tab-1", true, "panel-1", [
+    @luna.text("Tab 1"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="button")
   let mut has_selected = false
@@ -52,12 +46,9 @@ test "tab: selected state" {
 
 ///|
 test "tab: unselected state" {
-  let node : @luna.Node[Unit] = tab(
-    "tab-2",
-    false,
-    "panel-2",
-    [@luna.text("Tab 2")],
-  )
+  let node : @luna.Node[Unit] = tab("tab-2", false, "panel-2", [
+    @luna.text("Tab 2"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut selected_val = ""
   let mut tabindex_val = ""
@@ -77,12 +68,9 @@ test "tab: unselected state" {
 
 ///|
 test "tabpanel: role and labelledby" {
-  let node : @luna.Node[Unit] = tabpanel(
-    "panel-1",
-    "tab-1",
-    false,
-    [@luna.text("Content")],
-  )
+  let node : @luna.Node[Unit] = tabpanel("panel-1", "tab-1", false, [
+    @luna.text("Content"),
+  ])
   guard node is @luna.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="div")
   let mut has_role = false

@@ -38,11 +38,7 @@ test "listbox: multiselectable" {
 
 ///|
 test "option: selected state" {
-  let node : @luna.Node[Unit] = option(
-    "red",
-    true,
-    [@luna.text("Red")],
-  )
+  let node : @luna.Node[Unit] = option("red", true, [@luna.text("Red")])
   guard node is @luna.Element(el) else { fail("expected Element") }
   let mut has_role = false
   let mut has_selected = false

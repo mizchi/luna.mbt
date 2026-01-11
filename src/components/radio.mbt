@@ -17,9 +17,9 @@
 ///|
 /// Radio option data
 pub(all) struct RadioOption[E] {
-  value : String       // Option value
-  label : Array[@luna.Node[E]]  // Label content
-  disabled : Bool      // Whether disabled
+  value : String // Option value
+  label : Array[@luna.Node[E]] // Label content
+  disabled : Bool // Whether disabled
 }
 
 ///|
@@ -87,9 +87,7 @@ pub fn[E] radio(
     ("data-value", @luna.attr_static(value)),
   ]
   match disabled {
-    Some(true) => {
-      attrs.push(("aria-disabled", @luna.attr_static("true")))
-    }
+    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
     _ => ()
   }
   match on_click {
@@ -118,21 +116,27 @@ pub fn[E] radio_dyn(
     (
       "aria-checked",
       @luna.attr_dynamic(fn() {
-        if selected_value.get() == value { "true" } else { "false" }
+        if selected_value.get() == value {
+          "true"
+        } else {
+          "false"
+        }
       }),
     ),
     (
       "tabindex",
       @luna.attr_dynamic(fn() {
-        if selected_value.get() == value { "0" } else { "-1" }
+        if selected_value.get() == value {
+          "0"
+        } else {
+          "-1"
+        }
       }),
     ),
     ("data-value", @luna.attr_static(value)),
   ]
   match disabled {
-    Some(true) => {
-      attrs.push(("aria-disabled", @luna.attr_static("true")))
-    }
+    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
     _ => ()
   }
   match on_click {
@@ -167,9 +171,7 @@ pub fn[E] radio_computed(
     ("data-value", @luna.attr_static(value)),
   ]
   match disabled {
-    Some(true) => {
-      attrs.push(("aria-disabled", @luna.attr_static("true")))
-    }
+    Some(true) => attrs.push(("aria-disabled", @luna.attr_static("true")))
     _ => ()
   }
   match on_click {
@@ -201,12 +203,7 @@ pub fn[E] radio_group(
   for option in options {
     let is_checked = option.value == selected_value
     radios.push(
-      radio(
-        option.value,
-        is_checked,
-        disabled=option.disabled,
-        option.label,
-      ),
+      radio(option.value, is_checked, disabled=option.disabled, option.label),
     )
   }
   let attrs : Array[(String, @luna.Attr[E])] = [
@@ -251,10 +248,8 @@ pub fn[E] radio_native(
   let label_attrs : Array[(String, @luna.Attr[E])] = [
     ("for", @luna.attr_static(input_id)),
   ]
-  @luna.fragment(
-    [
-      @luna.h("input", input_attrs, []),
-      @luna.h("label", label_attrs, children),
-    ],
-  )
+  @luna.fragment([
+    @luna.h("input", input_attrs, []),
+    @luna.h("label", label_attrs, children),
+  ])
 }

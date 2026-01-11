@@ -13,7 +13,7 @@
 pub(all) struct BreadcrumbItem {
   href : String
   label : String
-  current : Bool  // If true, this is the current page
+  current : Bool // If true, this is the current page
 }
 
 ///|
@@ -62,21 +62,15 @@ pub fn[E] breadcrumb(
     let li_children : Array[@luna.Node[E]] = [link_node]
     if i < items.length() - 1 {
       li_children.push(
-        @luna.h(
-          "span",
-          [("aria-hidden", @luna.attr_static("true"))],
-          [@luna.text(" " + sep + " ")],
-        ),
+        @luna.h("span", [("aria-hidden", @luna.attr_static("true"))], [
+          @luna.text(" " + sep + " "),
+        ]),
       )
     }
     list_items.push(@luna.h("li", [], li_children))
   }
   let ol = @luna.h("ol", [], list_items)
-  @luna.h(
-    "nav",
-    [("aria-label", @luna.attr_static(label))],
-    [ol],
-  )
+  @luna.h("nav", [("aria-label", @luna.attr_static(label))], [ol])
 }
 
 ///|
@@ -88,7 +82,7 @@ pub fn[E] breadcrumb(
 /// - current_label: Label for current page
 pub fn[E] breadcrumb_from_path(
   base_path : String,
-  segments : Array[(String, String)],  // (path_segment, label)
+  segments : Array[(String, String)], // (path_segment, label)
   current_label : String,
 ) -> @luna.Node[E] {
   let items : Array[BreadcrumbItem] = []

@@ -26,7 +26,11 @@ test "tabpanel_computed creates panel with computed visibility" {
     [@luna.text("Content")],
   )
   match node {
-    @luna.Show(_) => ()
+    @luna.Element({ tag, attrs, .. }) => {
+      assert_eq(tag, "div")
+      // Should have role, id, aria-labelledby, tabindex, style attributes
+      assert_true(attrs.length() >= 5)
+    }
     _ => panic()
   }
 }
@@ -92,9 +96,7 @@ test "accordion_header_computed creates header with computed expanded" {
     [@luna.text("Section 1")],
   )
   match node {
-    @luna.Element({ tag, .. }) => {
-      assert_eq(tag, "h3")
-    }
+    @luna.Element({ tag, .. }) => assert_eq(tag, "h3")
     _ => panic()
   }
 }
@@ -139,9 +141,7 @@ test "accordion_dyn creates complete accordion with signal" {
   ]
   let node = accordion_dyn(items, expanded)
   match node {
-    @luna.Element({ tag, .. }) => {
-      assert_eq(tag, "div")
-    }
+    @luna.Element({ tag, .. }) => assert_eq(tag, "div")
     _ => panic()
   }
 }
