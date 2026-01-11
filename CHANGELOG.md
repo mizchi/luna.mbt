@@ -2,11 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Documentation
+
+- **todo**: Update APG components roadmap
+
+### Features
+
+- **experimental_signals**: Add alien-signals style reactive system
+- **testing**: Add @luna_ui/testing library
+- **apg**: Add WAI-ARIA APG compliant components, remove radix [**BREAKING**]
+
+### Miscellaneous
+
+- Remove js/components (radix-style headless UI)
+
+### Refactor
+
+- **signal**: Merge experimental_signals into signal module [**BREAKING**]
+- **signal**: Complete effect migration to esig backend
+- **signal**: Migrate memo to esig backend and fix diamond dependency bug
+- **signal**: Use experimental_signals as internal backend
+- **experimental_signals**: Align API with signal module
+- **components**: Flatten src directory structure
+- **js/components**: Align with src/components APG patterns
+- **components**: Rename apg to components
+
 ## [0.5.1] - 2026-01-10
 
 ### Documentation
 
 - Update CLAUDE.md and regenerate CHANGELOG
+
+### Miscellaneous
+
+- Release v0.5.1
 
 ### Refactor
 
