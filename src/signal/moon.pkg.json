@@ -1,5 +1,7 @@
 {
-  "import": [],
+  "import": [
+    { "path": "mizchi/luna/experimental_signals", "alias": "esig" }
+  ],
   "test-import": [
     { "path": "mizchi/luna", "alias": "luna" }
   ],

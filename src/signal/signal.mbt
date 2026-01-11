@@ -1,5 +1,5 @@
 // Signal - Reactive value container with automatic dependency tracking
-//
+// Now backed by experimental_signals for improved performance
 
 ///|
 /// Signal type - holds a value and notifies subscribers on change.
@@ -13,8 +13,9 @@
 /// }
 /// ```
 pub struct Signal[T] {
-  mut value : T
-  subscribers : Array[EffectRunner]
+  inner : @esig.Signal[T]
+  // Legacy subscriber support for `on` API
+  legacy_subscribers : Array[EffectRunner]
 }
 
 ///|
@@ -26,7 +27,7 @@ pub struct Signal[T] {
 /// }
 /// ```
 pub fn[T] Signal::new(initial : T) -> Signal[T] {
-  { value: initial, subscribers: [] }
+  { inner: @esig.signal(initial), legacy_subscribers: [] }
 }
 
 ///|
@@ -43,20 +44,20 @@ pub fn[T] Signal::new(initial : T) -> Signal[T] {
 /// }
 /// ```
 pub fn[T] Signal::get(self : Signal[T]) -> T {
-  // Auto-track: if we're inside an effect, subscribe to this signal
+  // Track with legacy system if inside a signal-module effect
   match get_current_subscriber() {
     Some(subscriber) => {
-      // Check if already subscribed (by ID)
-      let already_subscribed = self.subscribers
+      let already_subscribed = self.legacy_subscribers
         .iter()
         .any(fn(s) { s.id == subscriber.id })
       if not(already_subscribed) {
-        self.subscribers.push(subscriber)
+        self.legacy_subscribers.push(subscriber)
       }
     }
     None => ()
   }
-  self.value
+  // Also track with experimental_signals system
+  self.inner.get()
 }
 
 ///|
@@ -69,8 +70,9 @@ pub fn[T] Signal::get(self : Signal[T]) -> T {
 /// }
 /// ```
 pub fn[T] Signal::set(self : Signal[T], new_value : T) -> Unit {
-  self.value = new_value
-  self.notify()
+  self.inner.set(new_value)
+  // Notify legacy subscribers
+  self.notify_legacy()
 }
 
 ///|
@@ -86,8 +88,8 @@ pub fn[T] Signal::set(self : Signal[T], new_value : T) -> Unit {
 /// }
 /// ```
 pub fn[T] Signal::update(self : Signal[T], f : (T) -> T) -> Unit {
-  self.value = f(self.value)
-  self.notify()
+  self.inner.update(f)
+  self.notify_legacy()
 }
 
 ///|
@@ -109,16 +111,13 @@ pub fn[T] Signal::update(self : Signal[T], f : (T) -> T) -> Unit {
 /// }
 /// ```
 pub fn[T] Signal::peek(self : Signal[T]) -> T {
-  self.value
+  self.inner.peek()
 }
 
 ///|
-/// Notify all subscribers
-fn[T] Signal::notify(self : Signal[T]) -> Unit {
-  // Schedule all subscribers to run
-  // Note: We don't clear subscribers here anymore
-  // Effects will re-register via get() when they re-run
-  for subscriber in self.subscribers {
+/// Notify legacy subscribers (for `on` API compatibility)
+fn[T] Signal::notify_legacy(self : Signal[T]) -> Unit {
+  for subscriber in self.legacy_subscribers {
     schedule_effect(subscriber)
   }
 }
@@ -126,19 +125,19 @@ fn[T] Signal::notify(self : Signal[T]) -> Unit {
 ///|
 /// Clear all subscribers (for cleanup)
 pub fn[T] Signal::clear_subscribers(self : Signal[T]) -> Unit {
-  self.subscribers.clear()
+  self.legacy_subscribers.clear()
 }
 
 ///|
 /// Remove a specific subscriber by ID
 pub fn[T] Signal::remove_subscriber(self : Signal[T], id : Int) -> Unit {
-  self.subscribers.retain(fn(s) { s.id != id })
+  self.legacy_subscribers.retain(fn(s) { s.id != id })
 }
 
 ///|
 /// Get number of subscribers (for debugging)
 pub fn[T] Signal::subscriber_count(self : Signal[T]) -> Int {
-  self.subscribers.length()
+  self.legacy_subscribers.length()
 }
 
 ///|
@@ -183,7 +182,7 @@ pub fn[T] on(sig : Signal[T], callback : (T) -> Unit) -> () -> Unit {
   }
 
   // Initial subscription
-  sig.subscribers.push(runner)
+  sig.legacy_subscribers.push(runner)
 
   // Return unsubscribe function
   fn() {
