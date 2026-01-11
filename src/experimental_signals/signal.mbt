@@ -99,6 +99,40 @@ pub fn Signal::peek[T](self : Signal[T]) -> T {
   }
 }
 
+/// Get number of subscribers (for debugging)
+pub fn Signal::subscriber_count[T](self : Signal[T]) -> Int {
+  let mut count = 0
+  let mut link = self.node.subs
+  while link.is_some() {
+    match link {
+      Some(lnk) => {
+        count = count + 1
+        link = lnk.next_sub
+      }
+      None => ()
+    }
+  }
+  count
+}
+
+/// Clear all subscribers
+pub fn Signal::clear_subscribers[T](self : Signal[T]) -> Unit {
+  // Unlink all subs
+  let mut link = self.node.subs
+  while link.is_some() {
+    match link {
+      Some(lnk) => {
+        let next = lnk.next_sub
+        let _ = unlink(lnk, lnk.sub)
+        link = next
+      }
+      None => ()
+    }
+  }
+  self.node.subs = None
+  self.node.subs_tail = None
+}
+
 // Helper for value comparison
 fn physical_equal_value[T](a : T, b : T) -> Bool {
   // Use physical equality for reference types

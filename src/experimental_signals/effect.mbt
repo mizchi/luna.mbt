@@ -31,26 +31,56 @@ pub fn[T] untracked(f : () -> T) -> T {
 /// ```
 pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
   let cleanups : Array[() -> Unit] = []
-  let e : EffectNode = {
-    node: ReactiveNode::new(
-      ReactiveFlags::Watching.to_int() | ReactiveFlags::RecursedCheck.to_int()
-    ),
-    run_fn: fn() {
-      // Run cleanups before re-running
-      run_cleanups(cleanups)
-      // Track cleanups during execution
-      let prev_cleanups = current_cleanups.val
-      current_cleanups.val = Some(cleanups)
-      fn_()
-      current_cleanups.val = prev_cleanups
-    },
-  }
+  let node : ReactiveNode = ReactiveNode::new(
+    ReactiveFlags::Watching.to_int() | ReactiveFlags::RecursedCheck.to_int()
+  )
 
-  let prev_sub = set_active_sub(Some(e.node))
+  // Set up re-run callback for when dependencies change
+  node.effect_callback = Some(
+    fn() {
+      let flags = node.flags.get_value()
+      let dirty_flag = ReactiveFlags::Dirty.to_int()
+      let pending_flag = ReactiveFlags::Pending.to_int()
+
+      // Check if we should run based on dirty/pending flags
+      let should_run = (flags & dirty_flag) != 0 ||
+        (flags & pending_flag) != 0
+
+      if should_run {
+        inc_cycle()
+        node.deps_tail = None
+        node.flags.set_value(
+          ReactiveFlags::Watching.to_int() | ReactiveFlags::RecursedCheck.to_int()
+        )
+
+        // Run cleanups before re-running
+        run_cleanups(cleanups)
+
+        // Run effect with tracking
+        let prev_sub = set_active_sub(Some(node))
+        let prev_cleanups = current_cleanups.val
+        current_cleanups.val = Some(cleanups)
+        fn_()
+        current_cleanups.val = prev_cleanups
+        let _ = set_active_sub(prev_sub)
+
+        // Clear recursed check flag
+        let current_flags = node.flags.get_value()
+        node.flags.set_value(
+          current_flags & (ReactiveFlags::RecursedCheck.to_int() ^ (-1))
+        )
+        purge_deps(node)
+      } else {
+        node.flags.set_value(ReactiveFlags::Watching.to_int())
+      }
+    },
+  )
+
+  let prev_sub = set_active_sub(Some(node))
 
   // Link to parent effect if nested
   match prev_sub {
-    Some(ps) => link(e.node, ps, 0)
+    Some(ps) => link(node, ps, 0)
     None => ()
   }
 
@@ -62,13 +92,13 @@ pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
 
   // Restore previous subscriber
   let _ = set_active_sub(prev_sub)
-  let flags = e.node.flags.get_value()
-  e.node.flags.set_value(flags & (ReactiveFlags::RecursedCheck.to_int() ^ (-1)))
+  let flags = node.flags.get_value()
+  node.flags.set_value(flags & (ReactiveFlags::RecursedCheck.to_int() ^ (-1)))
 
   // Return cleanup function
   fn() {
     run_cleanups(cleanups)
-    stop_effect(e)
+    cleanup_effect_node(node)
   }
 }
 
@@ -86,15 +116,21 @@ fn run_cleanups(cleanups : Array[() -> Unit]) -> Unit {
   cleanups.clear()
 }
 
-/// Stop an effect from running
+/// Stop an effect from running (deprecated - use cleanup_effect_node directly)
 fn stop_effect(e : EffectNode) -> Unit {
   cleanup_effect_node(e.node)
+}
+
+/// Stop an effect node from running
+fn stop_effect_node(node : ReactiveNode) -> Unit {
+  cleanup_effect_node(node)
 }
 
 /// Clean up an effect node
 fn cleanup_effect_node(node : ReactiveNode) -> Unit {
   node.deps_tail = None
   node.flags.set_value(ReactiveFlags::None.to_int())
+  node.effect_callback = None // Clear callback to prevent re-runs
   purge_deps(node)
 
   // Unlink from parent if any

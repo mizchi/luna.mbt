@@ -78,6 +78,7 @@ pub(all) struct ReactiveNode {
   mut subs_tail : Link?  // Last subscriber link
   flags : Flags
   mut last_modified_cycle : Int  // Track when value was last modified
+  mut effect_callback : (() -> Unit)?  // Callback for effect re-run
 }
 
 pub fn ReactiveNode::new(flags : Int) -> ReactiveNode {
@@ -88,6 +89,7 @@ pub fn ReactiveNode::new(flags : Int) -> ReactiveNode {
     subs_tail: None,
     flags: Flags::new(flags),
     last_modified_cycle: 0,
+    effect_callback: None,
   }
 }
 

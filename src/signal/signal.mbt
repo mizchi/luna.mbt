@@ -14,7 +14,8 @@
 /// ```
 pub struct Signal[T] {
   inner : @esig.Signal[T]
-  // Legacy subscriber support for `on` API
+  // Explicit subscribers for `on`/`on_immediate` API (non-tracking subscriptions)
+  // Note: Effect auto-tracking uses esig's subscriber system, not this
   legacy_subscribers : Array[EffectRunner]
 }
 
@@ -125,6 +126,7 @@ fn[T] Signal::notify_legacy(self : Signal[T]) -> Unit {
 ///|
 /// Clear all subscribers (for cleanup)
 pub fn[T] Signal::clear_subscribers(self : Signal[T]) -> Unit {
+  self.inner.clear_subscribers()
   self.legacy_subscribers.clear()
 }
 
@@ -137,7 +139,10 @@ pub fn[T] Signal::remove_subscriber(self : Signal[T], id : Int) -> Unit {
 ///|
 /// Get number of subscribers (for debugging)
 pub fn[T] Signal::subscriber_count(self : Signal[T]) -> Int {
-  self.legacy_subscribers.length()
+  // Count esig subscribers
+  let esig_count = self.inner.subscriber_count()
+  // Add legacy subscribers
+  esig_count + self.legacy_subscribers.length()
 }
 
 ///|

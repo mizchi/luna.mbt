@@ -11,6 +11,10 @@ let active_sub : Ref[ReactiveNode?] = Ref::new(None)
 // Effect queue (fixed-size array for simplicity)
 let queued : Array[EffectNode?] = Array::make(1024, None)
 
+// Callback-based effect queue for simpler effect tracking
+let callback_queue : Array[() -> Unit] = []
+let callback_queue_nodes : Array[ReactiveNode] = [] // Track which nodes are queued
+
 /// Get current active subscriber
 pub fn get_active_sub() -> ReactiveNode? {
   active_sub.val
@@ -415,10 +419,26 @@ pub fn check_dirty(
 // Effect Queue
 // =============================================================================
 
-/// Notify an effect (simplified - just marks it)
-fn notify_effect(_node : ReactiveNode) -> Unit {
-  // In a full implementation, we'd queue the effect
-  ()
+/// Notify an effect - queue it for execution
+fn notify_effect(node : ReactiveNode) -> Unit {
+  match node.effect_callback {
+    Some(callback) => {
+      // Check if already queued (avoid duplicates)
+      let mut already_queued = false
+      for n in callback_queue_nodes {
+        if physical_equal(n, node) {
+          already_queued = true
+          break
+        }
+      }
+      if not(already_queued) {
+        callback_queue.push(callback)
+        callback_queue_nodes.push(node)
+        node.flags.unset(Watching)
+      }
+    }
+    None => ()
+  }
 }
 
 /// Queue an effect for execution
@@ -431,6 +451,7 @@ pub fn queue_effect(eff : EffectNode) -> Unit {
 
 /// Flush the effect queue
 pub fn flush() -> Unit {
+  // Run EffectNode queue (legacy)
   while notify_index.val < queued_length.val {
     match queued[notify_index.val] {
       Some(eff) => {
@@ -444,9 +465,16 @@ pub fn flush() -> Unit {
     }
   }
 
-  // Reset queue
+  // Reset legacy queue
   notify_index.val = 0
   queued_length.val = 0
+
+  // Run callback queue
+  while callback_queue.length() > 0 {
+    let callback = callback_queue.remove(0)
+    let _ = callback_queue_nodes.remove(0)
+    callback()
+  }
 }
 
 /// Run an effect

@@ -1,56 +1,5 @@
 // Effect - Reactive side effect that auto-tracks signal dependencies
-//
-
-///|
-/// Effect state
-priv struct EffectState {
-  mut active : Bool
-  cleanups : Array[() -> Unit]
-}
-
-///|
-/// Run all cleanup functions
-fn run_cleanups(cleanups : Array[() -> Unit]) -> Unit {
-  // Run in reverse order (LIFO)
-  for i = cleanups.length() - 1; i >= 0; i = i - 1 {
-    cleanups[i]()
-  }
-  cleanups.clear()
-}
-
-///|
-/// Create an effect runner with cleanup and subscription tracking
-/// Internal helper used by both effect and render_effect
-fn create_effect_runner(
-  fn_ : () -> Unit,
-  state : EffectState,
-) -> (EffectRunner, () -> Unit) {
-  let id = new_effect_id()
-  let runner_ref : Ref[EffectRunner?] = Ref::new(None)
-  fn run_effect() -> Unit {
-    if not(state.active) {
-      return
-    }
-    // Run previous cleanups before re-running
-    run_cleanups(state.cleanups)
-    // Run the effect function with cleanup tracking and subscriber
-    match runner_ref.val {
-      Some(runner) =>
-        run_with_subscriber(runner, fn() {
-          run_with_cleanup_tracking(state.cleanups, fn_)
-        })
-      None => ()
-    }
-  }
-
-  let runner : EffectRunner = { id, run: run_effect }
-  runner_ref.val = Some(runner)
-  let dispose = fn() {
-    state.active = false
-    run_cleanups(state.cleanups)
-  }
-  (runner, dispose)
-}
+// Now backed by experimental_signals for improved performance
 
 ///|
 /// Create an effect that runs immediately and re-runs when dependencies change.
@@ -77,15 +26,34 @@ fn create_effect_runner(
 /// }
 /// ```
 pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
-  let state : EffectState = { active: true, cleanups: [] }
-  let (runner, dispose) = create_effect_runner(fn_, state)
+  let cleanups : Array[() -> Unit] = []
 
-  // Run immediately (synchronous)
-  (runner.run)()
+  // Wrap function to enable signal's on_cleanup tracking
+  let wrapped_fn = fn() {
+    // Run cleanups from previous run
+    for i = cleanups.length() - 1; i >= 0; i = i - 1 {
+      cleanups[i]()
+    }
+    cleanups.clear()
+    // Run with cleanup tracking enabled
+    run_with_cleanup_tracking(cleanups, fn_)
+  }
+
+  let dispose = @esig.render_effect(wrapped_fn)
+
+  // Create dispose function that also runs cleanups
+  let full_dispose = fn() {
+    // Run final cleanups
+    for i = cleanups.length() - 1; i >= 0; i = i - 1 {
+      cleanups[i]()
+    }
+    cleanups.clear()
+    dispose()
+  }
 
   // Register with current owner if present
-  register_disposer(dispose)
-  dispose
+  register_disposer(full_dispose)
+  full_dispose
 }
 
 ///|
@@ -102,11 +70,41 @@ pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
 /// count.set(1) // Effect will run after current task completes
 /// ```
 pub fn effect(fn_ : () -> Unit) -> () -> Unit {
-  let state : EffectState = { active: true, cleanups: [] }
-  let (runner, dispose) = create_effect_runner(fn_, state)
+  let active = Ref::new(true)
+  let dispose_ref : Ref[(() -> Unit)?] = Ref::new(None)
+  let cleanups : Array[() -> Unit] = []
+
+  // Wrap function to enable signal's on_cleanup tracking
+  let wrapped_fn = fn() {
+    // Run cleanups from previous run
+    for i = cleanups.length() - 1; i >= 0; i = i - 1 {
+      cleanups[i]()
+    }
+    cleanups.clear()
+    // Run with cleanup tracking enabled
+    run_with_cleanup_tracking(cleanups, fn_)
+  }
 
   // Defer initial run via microtask (like Solid.js createEffect)
-  queue_microtask(fn() { if state.active { (runner.run)() } })
+  queue_microtask(fn() {
+    if active.val {
+      dispose_ref.val = Some(@esig.render_effect(wrapped_fn))
+    }
+  })
+
+  // Create dispose function
+  let dispose = fn() {
+    active.val = false
+    // Run final cleanups
+    for i = cleanups.length() - 1; i >= 0; i = i - 1 {
+      cleanups[i]()
+    }
+    cleanups.clear()
+    match dispose_ref.val {
+      Some(d) => d()
+      None => ()
+    }
+  }
 
   // Register with current owner if present
   register_disposer(dispose)

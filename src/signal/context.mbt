@@ -139,10 +139,11 @@ pub fn[T] run_with_subscriber(subscriber : EffectRunner, f : () -> T) -> T {
 /// }
 /// ```
 pub fn[T] untracked(f : () -> T) -> T {
-  let prev = reactive_context.current_subscriber
+  // Disable both legacy and esig tracking
+  let prev_legacy = reactive_context.current_subscriber
   reactive_context.current_subscriber = None
-  let result = f()
-  reactive_context.current_subscriber = prev
+  let result = @esig.untracked(f)
+  reactive_context.current_subscriber = prev_legacy
   result
 }
 
@@ -150,12 +151,14 @@ pub fn[T] untracked(f : () -> T) -> T {
 /// Start a batch update - effects won't run until batch ends
 pub fn batch_start() -> Unit {
   reactive_context.batch_depth = reactive_context.batch_depth + 1
+  @esig.start_batch()
 }
 
 ///|
 /// End a batch update - run all pending effects
 pub fn batch_end() -> Unit {
   reactive_context.batch_depth = reactive_context.batch_depth - 1
+  @esig.end_batch()
   if reactive_context.batch_depth == 0 {
     flush_effects()
   }
