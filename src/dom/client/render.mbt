@@ -2,6 +2,24 @@
 //
 
 ///|
+/// Collect child nodes from a DOM node.
+/// For DocumentFragment, returns its children (before they get moved).
+/// For regular nodes, returns the node itself in an array.
+fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
+  // Check if it's a DocumentFragment (nodeType 11)
+  if node.nodeType() == 11 {
+    let children : Array[@js_dom.Node] = []
+    let child_nodes = node.childNodes()
+    for i = 0; i < child_nodes.length(); i = i + 1 {
+      children.push(child_nodes[i])
+    }
+    children
+  } else {
+    [node]
+  }
+}
+
+///|
 /// Render VNode to DOM node (for client-side rendering after hydration)
 pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
   let doc = @js_dom.document()
@@ -43,11 +61,13 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
     }
     @luna.Show(condition=cond, child=child_fn) => {
       let placeholder = doc.createComment("show")
-      let mut current_node : @js_dom.Node? = None
+      // Track multiple nodes for Fragment support
+      let current_nodes : Array[@js_dom.Node] = []
       let _ = @signal.render_effect(fn() {
         let should_show = cond()
-        match (should_show, current_node) {
-          (true, None) =>
+        let has_nodes = current_nodes.length() > 0
+        match (should_show, has_nodes) {
+          (true, false) =>
             if placeholder.parentNode() is Some(par) {
               // Use untracked to prevent child signals from being registered
               // as dependencies of this Show's effect. This prevents infinite
@@ -55,14 +75,22 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
               let rendered = @signal.untracked(fn() {
                 render_vnode_to_dom(child_fn())
               })
+              // Collect actual nodes before inserting (Fragment children get moved)
+              let nodes_to_track = collect_dom_nodes(rendered)
               par.insertBefore(rendered, Some(placeholder)) |> ignore
-              current_node = Some(rendered)
+              for node in nodes_to_track {
+                current_nodes.push(node)
+              }
             }
-          (false, Some(n)) =>
-            if n.parentNode() is Some(par) {
-              par.removeChild(n) |> ignore
-              current_node = None
+          (false, true) => {
+            // Remove all tracked nodes
+            for node in current_nodes {
+              if node.parentNode() is Some(par) {
+                par.removeChild(node) |> ignore
+              }
             }
+            current_nodes.clear()
+          }
           _ => ()
         }
       })
