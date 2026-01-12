@@ -11,7 +11,7 @@ test "parse_sol_config: valid config" {
   let json =
     #|{
     #|  "islands": ["app/client/*"],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "output": "app/__gen__"
     #|}
   let config = parse_sol_config(json)
@@ -19,7 +19,7 @@ test "parse_sol_config: valid config" {
   let c = config.unwrap()
   assert_eq(c.islands.length(), 1)
   assert_eq(c.islands[0], "app/client/*")
-  assert_eq(c.routes, "app/routes")
+  assert_eq(c.routes, "app/server")
   assert_eq(c.output, "app/__gen__")
 }
 
@@ -28,7 +28,7 @@ test "parse_sol_config: default output" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes"
+    #|  "routes": "app/server"
     #|}
   let config = parse_sol_config(json)
   assert_true(config.is_some())
@@ -382,7 +382,7 @@ test "parse_sol_config: with runtime node" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "runtime": "node"
     #|}
   let config = parse_sol_config(json)
@@ -395,7 +395,7 @@ test "parse_sol_config: with runtime cloudflare" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "runtime": "cloudflare"
     #|}
   let config = parse_sol_config(json)
@@ -408,7 +408,7 @@ test "parse_sol_config: with runtime deno" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "runtime": "deno"
     #|}
   let config = parse_sol_config(json)
@@ -421,7 +421,7 @@ test "parse_sol_config: with runtime bun" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "runtime": "bun"
     #|}
   let config = parse_sol_config(json)
@@ -434,7 +434,7 @@ test "parse_sol_config: default runtime is node" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes"
+    #|  "routes": "app/server"
     #|}
   let config = parse_sol_config(json)
   assert_true(config.is_some())
@@ -447,7 +447,7 @@ test "parse_sol_config: default runtime is node" {
 
 ///|
 test "generate_sol_server_main_js: node runtime" {
-  let js = generate_sol_server_main_js("myapp/routes", parse_runtime("node"))
+  let js = generate_sol_server_main_js("myapp/server", parse_runtime("node"))
   assert_true(js.contains("Runtime: RuntimeNode"))
   assert_true(js.contains("@hono/node-server"))
   assert_true(js.contains("@sol.run()"))
@@ -457,7 +457,7 @@ test "generate_sol_server_main_js: node runtime" {
 ///|
 test "generate_sol_server_main_js: cloudflare runtime" {
   let js = generate_sol_server_main_js(
-    "myapp/routes",
+    "myapp/server",
     parse_runtime("cloudflare"),
   )
   assert_true(js.contains("Runtime: RuntimeCloudflare"))
@@ -469,7 +469,7 @@ test "generate_sol_server_main_js: cloudflare runtime" {
 
 ///|
 test "generate_sol_server_main_js: deno runtime" {
-  let js = generate_sol_server_main_js("myapp/routes", parse_runtime("deno"))
+  let js = generate_sol_server_main_js("myapp/server", parse_runtime("deno"))
   assert_true(js.contains("Runtime: RuntimeDeno"))
   assert_true(js.contains("import { Hono } from 'hono'"))
   assert_true(js.contains("import { configure_app }"))
@@ -480,7 +480,7 @@ test "generate_sol_server_main_js: deno runtime" {
 
 ///|
 test "generate_sol_server_main_js: bun runtime" {
-  let js = generate_sol_server_main_js("myapp/routes", parse_runtime("bun"))
+  let js = generate_sol_server_main_js("myapp/server", parse_runtime("bun"))
   assert_true(js.contains("Runtime: RuntimeBun"))
   assert_true(js.contains("import { Hono } from 'hono'"))
   assert_true(js.contains("import { configure_app }"))
@@ -498,7 +498,7 @@ test "parse_sol_config: with staticDirs" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",
@@ -521,7 +521,7 @@ test "parse_sol_config: staticDirs with i18n" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",
@@ -555,7 +555,7 @@ test "parse_sol_config: staticDirs with navigation config" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",
@@ -582,7 +582,7 @@ test "parse_sol_config: staticDirs with sidebar auto" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",
@@ -602,7 +602,7 @@ test "parse_sol_config: staticDirs defaults" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",
@@ -629,7 +629,7 @@ test "parse_sol_config: multiple staticDirs" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    { "path_prefix": "/docs", "source_dir": "docs", "title": "Docs" },
     #|    { "path_prefix": "/blog", "source_dir": "blog", "title": "Blog" }
@@ -649,7 +649,7 @@ test "parse_sol_config: staticDirs missing required fields" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    { "path_prefix": "/docs" }
     #|  ]
@@ -666,7 +666,7 @@ test "parse_sol_config: empty staticDirs" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": []
     #|}
   let config = parse_sol_config(json)
@@ -679,7 +679,7 @@ test "parse_sol_config: no staticDirs field" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes"
+    #|  "routes": "app/server"
     #|}
   let config = parse_sol_config(json)
   assert_true(config.is_some())
@@ -691,7 +691,7 @@ test "parse_sol_config: staticDirs with exclude" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",
@@ -713,7 +713,7 @@ test "parse_sol_config: staticDirs with theme" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",
@@ -738,7 +738,7 @@ test "parse_sol_config: staticDirs with ogp" {
   let json =
     #|{
     #|  "islands": [],
-    #|  "routes": "app/routes",
+    #|  "routes": "app/server",
     #|  "staticDirs": [
     #|    {
     #|      "path_prefix": "/docs",

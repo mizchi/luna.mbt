@@ -1,13 +1,27 @@
 ---
 title: Configuration
-description: SSG configuration reference for sol.config.json
+description: SSG configuration reference for sol.config.ts and sol.config.json
 ---
 
 # Configuration Reference
 
-Configure SSG in the `ssg` field of `sol.config.json`.
+Configure SSG in the `ssg` field of `sol.config.ts` (recommended) or `sol.config.json`.
 
 ## Basic Settings
+
+```ts
+export default {
+  ssg: {
+    docs: "docs",
+    output: "dist",
+    title: "My Documentation",
+    description: "Site description",
+    base: "/",
+  },
+}
+```
+
+JSON alternative:
 
 ```json
 {

@@ -78,8 +78,8 @@ fn template_package_json(project_name : String) -> String {
 fn template_sol_config_json() -> String {
   (
     #|{
-    #|  "islands": ["app/client/*"],
-    #|  "routes": "app/routes",
+    #|  "islands": ["app/client"],
+    #|  "routes": "app/server",
     #|  "output": "app/__gen__",
     #|  "runtime": "node"
     #|}
@@ -330,40 +330,44 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|///| Route Definitions
     #|///|
     #|///| This is the single source of truth for all routes.
-    #|///| Both server (SSR) and client (CSR) use these definitions.
     #|///|
-    #|///| IMPORTANT: This is a magic file - sol generate reads this to:
-    #|///| - Generate server entry point
-    #|///| - Generate client hydration router
-    #|///| - Setup route handlers
+    #|/// IMPORTANT: This is a magic file - sol generate reads this to:
+    #|/// - Generate server entry point
+    #|/// - Generate client hydration router
+    #|/// - Setup route handlers
     #|
-    #|///|
     #|/// Application routes - defines all pages and API endpoints
-    #|pub fn routes() -> Array[@routes.Routes] {
+    #|pub fn routes() -> Array[@router.SolRoutes] {
     #|  [
-    #|    // Home page with counter island
-    #|    @routes.Island(
-    #|      path="/",
-    #|      component="home",
-    #|      url="/static/hydrate_counter.js",
-    #|      trigger=@luna.Load,
-    #|      title="Home",
-    #|      meta=[]
-    #|    ),
-    #|    // About page (static, no hydration)
-    #|    @routes.Page(
-    #|      path="/about",
-    #|      component="about",
-    #|      title="About",
-    #|      meta=[]
-    #|    ),
+    #|    @router.SolRoutes::Layout(segment="", layout=@layout.root_layout, children=[
+    #|      // Home page with counter island
+    #|      @router.SolRoutes::Page(
+    #|        path="/",
+    #|        handler=@router.PageHandler(home),
+    #|        title="Home",
+    #|        meta=[],
+    #|        revalidate=None,
+    #|        cache=None,
+    #|      ),
+    #|      // About page (static, no hydration)
+    #|      @router.SolRoutes::Page(
+    #|        path="/about",
+    #|        handler=@router.PageHandler(about),
+    #|        title="About",
+    #|        meta=[],
+    #|        revalidate=None,
+    #|        cache=None,
+    #|      ),
+    #|    ]),
     #|    // API endpoint
-    #|    @routes.Get(path="/api/health", handler="health"),
+    #|    @router.SolRoutes::Get(
+    #|      path="/api/health",
+    #|      handler=@router.ApiHandler(api_health),
+    #|    ),
     #|  ]
     #|}
     #|
-    #|///|
-    #|/// Router configuration
+    #|///| Router configuration
     #|pub fn config() -> @router.RouterConfig {
     #|  @router.RouterConfig::default()
     #|    .with_default_head(@layout.head())
@@ -374,39 +378,38 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|// Page Definitions (inline in routes.mbt)
     #|// ============================================================================
     #|
-    #|///|
-    #|/// Home page - with counter island
-    #|pub fn page_home(props : @router.PageProps) -> @luna.Node[Unit] {
-    #|  let _ = props  // Available for dynamic pages
-    #|  let initial_count = 0
-    #|  let state_json = "{\"count\":" + initial_count.to_string() + "}"
-    #|  let count_signal = @signal.signal(initial_count)
-    #|
-    #|  @layout.layout([
-    #|    h1(children=[text("Welcome to Sol")]),
-    #|    p(children=[text("A SSR-first web framework for MoonBit")]),
-    #|    @sol.island(
-    #|      "counter",
-    #|      "/static/hydrate_counter.js",
-    #|      state_json,
-    #|      [@counter.counter(count_signal)],
-    #|    ),
-    #|  ])
+    #|///| Home page - with counter island
+    #|async fn home(_props : @router.PageProps) -> @server_dom.ServerNode {
+    #|  let counter_props : @types.CounterProps = { initial_count: 0 }
+    #|  let content = [
+    #|    h1([text("Welcome to Sol")]),
+    #|    p([text("A SSR-first web framework for MoonBit")]),
+    #|    @server_dom.client(@types.counter(counter_props), [
+    #|      div(class="counter", [
+    #|        span(class="count-display", [
+    #|          text(counter_props.initial_count.to_string()),
+    #|        ]),
+    #|        div(class="buttons", [
+    #|          button(class="dec", [text("-")]),
+    #|          button(class="inc", [text("+")]),
+    #|        ]),
+    #|      ]),
+    #|    ]),
+    #|  ]
+    #|  @server_dom.ServerNode::sync(@luna.fragment(content))
     #|}
     #|
-    #|///|
-    #|/// About page - static
-    #|pub fn page_about(props : @router.PageProps) -> @luna.Node[Unit] {
-    #|  let _ = props
-    #|  @layout.layout([
-    #|    h1(children=[text("About")]),
-    #|    p(children=[text("Built with MoonBit and Sol framework.")]),
-    #|  ])
+    #|///| About page - static
+    #|async fn about(_props : @router.PageProps) -> @server_dom.ServerNode {
+    #|  let content = [
+    #|    h1([text("About")]),
+    #|    p([text("Built with MoonBit and Sol framework.")]),
+    #|  ]
+    #|  @server_dom.ServerNode::sync(@luna.fragment(content))
     #|}
     #|
-    #|///|
-    #|/// API handler: health check
-    #|pub fn api_health(_props : @router.PageProps) -> @core.Any {
+    #|///| API handler: health check
+    #|async fn api_health(_props : @router.PageProps) -> @core.Any {
     #|  @sol.json_obj([("status", @core.any("ok"))])
     #|}
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
@@ -419,15 +422,14 @@ pub fn template_routes_moon_pkg_json(package_name : String) -> String {
     #|{
     #|  "supported-targets": ["js"],
     #|  "import": [
-    #|    { "path": "mizchi/sol/routes", "alias": "routes" },
     #|    { "path": "mizchi/luna/core", "alias": "luna" },
-    #|    { "path": "mizchi/luna/core/signal", "alias": "signal" },
     #|    { "path": "mizchi/sol", "alias": "sol" },
     #|    { "path": "mizchi/sol/router", "alias": "router" },
+    #|    { "path": "mizchi/luna/luna/static_dom", "alias": "server_dom" },
     #|    { "path": "mizchi/luna/luna/static_dom/element", "alias": "element" },
     #|    { "path": "mizchi/js/core", "alias": "core" },
     #|    { "path": "{{PACKAGE_NAME}}/layout", "alias": "layout" },
-    #|    { "path": "{{PACKAGE_NAME}}/client/counter", "alias": "counter" }
+    #|    { "path": "{{PACKAGE_NAME}}/__gen__/types", "alias": "types" }
     #|  ]
     #|}
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
@@ -644,14 +646,14 @@ pub fn generate_templates(
     { path: "app/layout/_using.mbt", content: template_server_using_mbt() },
     // Routes (single source of truth)
     {
-      path: "app/routes/moon.pkg.json",
+      path: "app/server/moon.pkg.json",
       content: template_routes_moon_pkg_json(package_name),
     },
     {
-      path: "app/routes/routes.mbt",
+      path: "app/server/routes.mbt",
       content: template_routes_mbt(package_name),
     },
-    { path: "app/routes/_using.mbt", content: template_routes_using_mbt() },
+    { path: "app/server/_using.mbt", content: template_routes_using_mbt() },
     // Client islands (render + hydrate in same file)
     {
       path: "app/client/counter/moon.pkg.json",

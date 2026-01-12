@@ -1,0 +1,238 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sol Config",
+  "type": "object",
+  "description": "Configuration for Sol app builds and Sol SSG.",
+  "properties": {
+    "islands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Glob paths to island component directories (app runtime)."
+    },
+    "routes": {
+      "type": "string",
+      "description": "Routes directory (app runtime)."
+    },
+    "output": {
+      "type": "string",
+      "description": "Generated output directory (app runtime)."
+    },
+    "runtime": {
+      "type": "string",
+      "enum": ["node", "cloudflare", "cf", "workers", "deno", "bun"],
+      "description": "Server runtime target (app runtime)."
+    },
+    "client_auto_exports": {
+      "type": "boolean",
+      "description": "Auto-export client islands using moon info (app runtime)."
+    },
+    "staticDirs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/staticDir" },
+      "description": "Additional static asset directories (app runtime)."
+    },
+    "ssg": { "$ref": "#/definitions/ssgConfig" },
+    "docs": { "type": "string" },
+    "docs_dir": { "type": "string" },
+    "out_dir": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "base": { "type": "string" },
+    "base_url": { "type": "string" },
+    "nav": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/navItem" }
+    },
+    "sidebar": {
+      "oneOf": [
+        { "type": "string", "enum": ["auto"] },
+        { "type": "array", "items": { "$ref": "#/definitions/sidebarSection" } }
+      ]
+    },
+    "theme": { "type": "object" },
+    "i18n": { "$ref": "#/definitions/i18nConfig" },
+    "exclude": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "trailingSlash": { "type": "boolean" },
+    "trailing_slash": { "type": "boolean" },
+    "deploy": { "type": "string" },
+    "ogp": { "$ref": "#/definitions/ogpConfig" },
+    "ogpText": { "type": "string" },
+    "headSnippets": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "bodySnippets": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "prodBodySnippets": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "sanitizeHtml": { "type": "boolean" },
+    "spaRoutes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "componentsDir": { "type": "string" },
+    "cssUtilities": { "$ref": "#/definitions/cssUtilities" },
+    "metaFiles": { "$ref": "#/definitions/metaFiles" },
+    "navigation": { "type": "object" }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "staticDir": {
+      "type": "object",
+      "properties": {
+        "path_prefix": { "type": "string" },
+        "source_dir": { "type": "string" },
+        "exclude": { "type": "array", "items": { "type": "string" } },
+        "include": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["path_prefix", "source_dir"],
+      "additionalProperties": true
+    },
+    "ssgConfig": {
+      "type": "object",
+      "properties": {
+        "docs": { "type": "string" },
+        "docs_dir": { "type": "string" },
+        "output": { "type": "string" },
+        "out_dir": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "base": { "type": "string" },
+        "base_url": { "type": "string" },
+        "nav": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/navItem" }
+        },
+        "sidebar": {
+          "oneOf": [
+            { "type": "string", "enum": ["auto"] },
+            { "type": "array", "items": { "$ref": "#/definitions/sidebarSection" } }
+          ]
+        },
+        "theme": { "type": "object" },
+        "i18n": { "$ref": "#/definitions/i18nConfig" },
+        "exclude": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "trailingSlash": { "type": "boolean" },
+        "trailing_slash": { "type": "boolean" },
+        "deploy": { "type": "string" },
+        "ogp": { "$ref": "#/definitions/ogpConfig" },
+        "ogpText": { "type": "string" },
+        "headSnippets": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "bodySnippets": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "prodBodySnippets": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "sanitizeHtml": { "type": "boolean" },
+        "spaRoutes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "componentsDir": { "type": "string" },
+        "cssUtilities": { "$ref": "#/definitions/cssUtilities" },
+        "metaFiles": { "$ref": "#/definitions/metaFiles" },
+        "navigation": { "type": "object" },
+        "islands": { "$ref": "#/definitions/ssgIslands" }
+      },
+      "additionalProperties": true
+    },
+    "navItem": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "link": { "type": "string" }
+      },
+      "required": ["text", "link"],
+      "additionalProperties": true
+    },
+    "sidebarSection": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/navItem" }
+        }
+      },
+      "required": ["text", "items"],
+      "additionalProperties": true
+    },
+    "i18nConfig": {
+      "type": "object",
+      "properties": {
+        "defaultLocale": { "type": "string" },
+        "locales": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/locale" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "locale": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "label": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "required": ["code", "label", "path"],
+      "additionalProperties": true
+    },
+    "ogpConfig": {
+      "type": "object",
+      "properties": {
+        "siteUrl": { "type": "string" },
+        "image": { "type": "string" },
+        "twitterHandle": { "type": "string" },
+        "twitterCard": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "cssUtilities": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "split": { "type": "boolean" },
+        "inlineThreshold": { "type": "integer" },
+        "sourceDirs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "metaFiles": {
+      "type": "object",
+      "properties": {
+        "openGraph": { "type": "string" },
+        "twitter": { "type": "string" },
+        "favicon": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "ssgIslands": {
+      "type": "object",
+      "properties": {
+        "dir": { "type": "string" },
+        "basePath": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

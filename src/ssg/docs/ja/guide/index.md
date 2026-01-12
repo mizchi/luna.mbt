@@ -19,13 +19,30 @@ project/
 │   └── index.md
 ├── docs/ja/        # 日本語
 │   └── index.md
-├── sol.config.json
+├── sol.config.ts   # 設定ファイル (推奨)
+├── sol.config.json # JSON設定 (任意)
 └── dist/           # 出力先
 ```
 
 ## 多言語対応
 
-`sol.config.json` で言語を設定します：
+`sol.config.ts` (推奨) または `sol.config.json` で言語を設定します：
+
+```ts
+export default {
+  ssg: {
+    i18n: {
+      defaultLocale: "en",
+      locales: [
+        { code: "en", label: "English", path: "" },
+        { code: "ja", label: "日本語", path: "ja" },
+      ],
+    },
+  },
+}
+```
+
+JSON 版:
 
 ```json
 {

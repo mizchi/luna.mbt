@@ -26,7 +26,17 @@ cd mysite
 
 ## Configuration
 
-Create a `sol.config.json` file:
+Create a `sol.config.ts` file (recommended) or `sol.config.json`:
+
+```ts
+export default {
+  title: "My Site",
+  docs_dir: "docs",
+  out_dir: "dist",
+}
+```
+
+JSON alternative:
 
 ```json
 {

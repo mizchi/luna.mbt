@@ -21,7 +21,8 @@ project/
 │   └── guide/
 │       ├── index.md      # Guide index (/guide/)
 │       └── config.md     # Config page (/guide/config)
-├── sol.config.json       # Configuration file
+├── sol.config.ts         # Configuration file (recommended)
+├── sol.config.json       # Optional JSON config
 └── dist/                 # Output directory (auto-generated)
 ```
 
@@ -29,7 +30,19 @@ project/
 
 ### 1. Create Configuration
 
-Add an `ssg` section to `sol.config.json`:
+Add an `ssg` section to `sol.config.ts` (recommended) or `sol.config.json`:
+
+```ts
+export default {
+  ssg: {
+    docs: "docs",
+    output: "dist",
+    title: "My Site",
+  },
+}
+```
+
+JSON alternative:
 
 ```json
 {

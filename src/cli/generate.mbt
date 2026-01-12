@@ -268,7 +268,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
     let json = @json.parse(json_str.view())
     guard json is Object(obj) else { return None }
     let islands = @json_utils.extract_string_array(obj, "islands")
-    let routes = @json_utils.extract_string(obj, "routes", "app/routes")
+    let routes = @json_utils.extract_string(obj, "routes", "app/server")
     let output = @json_utils.extract_string(obj, "output", "app/__gen__")
     let client_auto_exports = @json_utils.extract_bool(
       obj, "client_auto_exports", true,
@@ -2256,7 +2256,7 @@ fn[FS : @env.FileSystem] get_routes_package_path_with_fs(
       guard obj.get("name") is Some(String(pkg_name)) else {
         return "\{routes_dir}"
       }
-      // Convert app/routes -> myproject/routes
+      // Convert app/server -> myproject/server
       let routes_suffix = routes_dir.replace(old="app/", new="")
       return "\{pkg_name}/\{routes_suffix}"
     } catch {
