@@ -840,34 +840,6 @@ fn set_accent(color : String) -> Unit {
 }
 
 ///|
-fn theme_btn(
-  label : String,
-  icon : String,
-  is_active : () -> Bool,
-  on_click : @luna.EventHandler[@js.Any],
-) -> @luna.Node[@js.Any] {
-  @luna.h(
-    "button",
-    [
-      ("class", @luna.attr_static("theme-toggle")),
-      (
-        "aria-pressed",
-        @luna.attr_dynamic(fn() { if is_active() { "true" } else { "false" } }),
-      ),
-      ("click", @luna.attr_handler(on_click)),
-    ],
-    [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("theme-toggle-icon"))],
-        [@luna.text(icon)],
-      ),
-      @luna.text(label),
-    ],
-  )
-}
-
-///|
 fn color_swatch_btn(
   color : String,
   is_active : () -> Bool,
@@ -886,91 +858,6 @@ fn color_swatch_btn(
       ("click", @luna.attr_handler(on_click)),
     ],
     [],
-  )
-}
-
-///|
-fn theme_controls(
-  theme : @signal.Signal[ThemeMode],
-  accent : @signal.Signal[String],
-) -> @luna.Node[@js.Any] {
-  let colors = ["amber", "blue", "green", "purple", "rose", "teal"]
-  let color_swatches : Array[@luna.Node[@js.Any]] = []
-  for color in colors {
-    let c = color
-    color_swatches.push(
-      color_swatch_btn(
-        c,
-        fn() { accent.get() == c },
-        @luna.handler(fn(_) {
-          accent.set(c)
-          set_accent(c)
-        }),
-      ),
-    )
-  }
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("theme-controls"))],
-    [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("theme-controls-label"))],
-        [@luna.text("Theme")],
-      ),
-      theme_btn(
-        "Light",
-        "\u{2600}",
-        fn() {
-          match theme.get() {
-            Light => true
-            _ => false
-          }
-        },
-        @luna.handler(fn(_) {
-          theme.set(Light)
-          set_theme(Light)
-        }),
-      ),
-      theme_btn(
-        "Dark",
-        "\u{1F319}",
-        fn() {
-          match theme.get() {
-            Dark => true
-            _ => false
-          }
-        },
-        @luna.handler(fn(_) {
-          theme.set(Dark)
-          set_theme(Dark)
-        }),
-      ),
-      theme_btn(
-        "System",
-        "\u{1F4BB}",
-        fn() {
-          match theme.get() {
-            System => true
-            _ => false
-          }
-        },
-        @luna.handler(fn(_) {
-          theme.set(System)
-          set_theme(System)
-        }),
-      ),
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("theme-controls-label"))],
-        [@luna.text("Accent")],
-      ),
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("color-swatches"))],
-        color_swatches,
-      ),
-    ],
   )
 }
 
@@ -1045,9 +932,44 @@ fn sidebar_nav_item(
 }
 
 ///|
+fn accent_controls(accent : @signal.Signal[String]) -> @luna.Node[@js.Any] {
+  let colors = ["amber", "blue", "green", "purple", "rose", "teal"]
+  let color_swatches : Array[@luna.Node[@js.Any]] = []
+  for color in colors {
+    let c = color
+    color_swatches.push(
+      color_swatch_btn(
+        c,
+        fn() { accent.get() == c },
+        @luna.handler(fn(_) {
+          accent.set(c)
+          set_accent(c)
+        }),
+      ),
+    )
+  }
+  @luna.h(
+    "div",
+    [("class", @luna.attr_static("accent-controls"))],
+    [
+      @luna.h(
+        "span",
+        [("class", @luna.attr_static("theme-controls-label"))],
+        [@luna.text("Accent")],
+      ),
+      @luna.h(
+        "div",
+        [("class", @luna.attr_static("color-swatches"))],
+        color_swatches,
+      ),
+    ],
+  )
+}
+
+///|
 fn sidebar(
   current_section : @signal.Signal[Section],
-  theme : @signal.Signal[ThemeMode],
+  _is_dark : @signal.Signal[Bool],
   accent : @signal.Signal[String],
 ) -> @luna.Node[@js.Any] {
   let sections = all_sections()
@@ -1066,7 +988,7 @@ fn sidebar(
         @luna.text("WAI-ARIA APG Patterns"),
       ]),
       @luna.h("ul", [("class", @luna.attr_static("sidebar-nav"))], nav_items),
-      theme_controls(theme, accent),
+      accent_controls(accent),
       @luna.h("a", [("href", @luna.attr_static("../")), ("class", @luna.attr_static("back-link"))], [
         @luna.text("\u{2190} Back to Demos"),
       ]),
@@ -1079,14 +1001,49 @@ fn sidebar(
 // =============================================================================
 
 ///|
-fn main_content(current_section : @signal.Signal[Section]) -> @luna.Node[@js.Any] {
+fn theme_switch(is_dark : @signal.Signal[Bool]) -> @luna.Node[@js.Any] {
+  @luna.h(
+    "div",
+    [("class", @luna.attr_static("theme-switch"))],
+    [
+      @luna.h(
+        "span",
+        [("class", @luna.attr_static("theme-switch-icon"))],
+        [@luna.text("\u{2600}")], // ☀
+      ),
+      @switch.switch(
+        is_dark,
+        aria_label="Dark mode",
+        [],
+      ),
+      @luna.h(
+        "span",
+        [("class", @luna.attr_static("theme-switch-icon"))],
+        [@luna.text("\u{1F319}")], // 🌙
+      ),
+    ],
+  )
+}
+
+///|
+fn main_content(
+  current_section : @signal.Signal[Section],
+  is_dark : @signal.Signal[Bool],
+) -> @luna.Node[@js.Any] {
   let _ = current_section // Future: could filter to show only current section
   @luna.h(
     "main",
     [("class", @luna.attr_static("main-content"))],
     [
       div_class("main-header", [
-        h1([@luna.text("APG Components Playground")]),
+        @luna.h(
+          "div",
+          [("class", @luna.attr_static("main-header-top"))],
+          [
+            h1([@luna.text("APG Components Playground")]),
+            theme_switch(is_dark),
+          ],
+        ),
         p([@luna.text("Interactive demos for WAI-ARIA Authoring Practices Guide compliant components")]),
       ]),
       demo_section(
@@ -1237,12 +1194,25 @@ fn main_content(current_section : @signal.Signal[Section]) -> @luna.Node[@js.Any
 
 ///|
 fn app() -> @luna.Node[@js.Any] {
-  let theme = @signal.signal(System)
+  // Check system preference for initial dark mode
+  let window = @js.global_this()
+  let media_query = window._call("matchMedia", [@js.any("(prefers-color-scheme: dark)")])
+  let prefers_dark : Bool = media_query._get("matches").cast()
+  let is_dark = @signal.signal(prefers_dark)
   let accent = @signal.signal("amber")
   let current_section = @signal.signal(Button)
+  // Set up effect to apply theme when is_dark changes
+  let _ = @signal.render_effect(fn() {
+    let dark = is_dark.get()
+    if dark {
+      set_theme(Dark)
+    } else {
+      set_theme(Light)
+    }
+  })
   @luna.fragment([
-    sidebar(current_section, theme, accent),
-    main_content(current_section),
+    sidebar(current_section, is_dark, accent),
+    main_content(current_section, is_dark),
   ])
 }
 

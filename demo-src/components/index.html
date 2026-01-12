@@ -192,6 +192,12 @@
     .main-header {
       margin-bottom: 24px;
     }
+    .main-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
     .main-header h1 {
       margin: 0 0 4px 0;
       font-size: 28px;
@@ -199,6 +205,16 @@
     .main-header p {
       margin: 0;
       color: var(--text-muted);
+    }
+    /* Theme Switch in Header */
+    .theme-switch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .theme-switch-icon {
+      font-size: 16px;
     }
     h1 {
       color: var(--text-primary);
