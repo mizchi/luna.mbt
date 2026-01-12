@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/components/styled/accordion"
+
+import(
+  "mizchi/js/core"
+  "mizchi/luna"
+  "mizchi/luna/signal"
+)
+
+// Values
+pub fn accordion(Array[AccordionItemData], @signal.Signal[Int], class? : String) -> @luna.Node[@core.Any]
+
+pub fn accordion_css() -> String
+
+pub fn accordion_item(String, String, Array[@luna.Node[@core.Any]]) -> AccordionItemData
+
+pub fn accordion_slots() -> AccordionSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct AccordionItemData {
+  id : String
+  heading : String
+  content : Array[@luna.Node[@core.Any]]
+}
+
+pub(all) struct AccordionSlots {
+  root : String
+  item : String
+  header : String
+  icon : String
+  panel : String
+}
+
+// Type aliases
+
+// Traits
+

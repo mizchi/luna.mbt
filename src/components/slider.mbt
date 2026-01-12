@@ -187,7 +187,9 @@ pub fn slider_interactive(
     fn(v) { value.set(v) },
     large_step?,
   )
-  let drag_handler = make_slider_drag_handler(min_val, max_val, step_val, fn(v) {
+  let drag_handler = make_slider_drag_handler(min_val, max_val, step_val, fn(
+    v,
+  ) {
     value.set(v)
   })
   let attrs : Array[(String, @luna.Attr[@js.Any])] = [
@@ -203,7 +205,11 @@ pub fn slider_interactive(
       @luna.attr_dynamic(fn() {
         let v = value.get()
         let range = max_val - min_val
-        let percent = if range > 0.0 { (v - min_val) / range * 100.0 } else { 0.0 }
+        let percent = if range > 0.0 {
+          (v - min_val) / range * 100.0
+        } else {
+          0.0
+        }
         "--slider-percent:" + percent.to_string()
       }),
     ),

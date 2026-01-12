@@ -38,7 +38,12 @@ pub fn tree_node(
   children? : Array[TreeNode],
   disabled? : Bool,
 ) -> TreeNode {
-  { id, label, children: children.unwrap_or([]), disabled: disabled.unwrap_or(false) }
+  {
+    id,
+    label,
+    children: children.unwrap_or([]),
+    disabled: disabled.unwrap_or(false),
+  }
 }
 
 ///|
@@ -121,10 +126,9 @@ pub fn[E] treeitem(
   }
   if has_children {
     if expanded is Some(exp) {
-      attrs.push((
-        "aria-expanded",
-        @luna.attr_static(if exp { "true" } else { "false" }),
-      ))
+      attrs.push(
+        ("aria-expanded", @luna.attr_static(if exp { "true" } else { "false" })),
+      )
     }
   }
   if is_disabled {
@@ -193,16 +197,18 @@ pub fn[E] treeitem_dyn(
   }
   if has_children {
     if expanded is Some(exp_map) {
-      attrs.push((
-        "aria-expanded",
-        @luna.attr_dynamic(fn() {
-          if exp_map.get().get(item_id).unwrap_or(false) {
-            "true"
-          } else {
-            "false"
-          }
-        }),
-      ))
+      attrs.push(
+        (
+          "aria-expanded",
+          @luna.attr_dynamic(fn() {
+            if exp_map.get().get(item_id).unwrap_or(false) {
+              "true"
+            } else {
+              "false"
+            }
+          }),
+        ),
+      )
     }
   }
   if is_disabled {
@@ -221,10 +227,9 @@ pub fn[E] treeitem_dyn(
   if has_children {
     if expanded is Some(exp_map) && children is Some(kids) {
       content.push(
-        @luna.show(
-          fn() { exp_map.get().get(item_id).unwrap_or(false) },
-          fn() { @luna.h("ul", [("role", @luna.attr_static("group"))], kids) },
-        ),
+        @luna.show(fn() { exp_map.get().get(item_id).unwrap_or(false) }, fn() {
+          @luna.h("ul", [("role", @luna.attr_static("group"))], kids)
+        }),
       )
     }
   }
@@ -357,12 +362,10 @@ pub fn make_tree_handler(
             let new_map = exp_map.copy()
             new_map.set(current_id, false)
             expanded.set(new_map)
-          } else {
             // Move to parent
-            if find_parent_id(nodes, current_id, None) is Some(parent_id) {
-              focused_id.set(parent_id)
-              focus_tree_item(parent_id)
-            }
+          } else if find_parent_id(nodes, current_id, None) is Some(parent_id) {
+            focused_id.set(parent_id)
+            focus_tree_item(parent_id)
           }
         }
       }
@@ -398,6 +401,7 @@ fn focus_tree_item(item_id : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let el = doc._call("getElementById", [@js.any(item_id)])
   let _ = el._call("focus", [])
+
 }
 
 ///|
@@ -433,7 +437,7 @@ fn render_tree_nodes(
       id=node_id,
       selected,
       node_id,
-      expanded=expanded,
+      expanded~,
       has_kids,
       focused_id,
       disabled=node.disabled,
@@ -467,24 +471,15 @@ pub fn tree_interactive(
   // Initialize state
   let first_id = if nodes.length() > 0 { nodes[0].id } else { "" }
   let focused_id = @signal.signal(first_id)
-  let expanded : @signal.Signal[Map[String, Bool]] = @signal.signal({  })
+  let expanded : @signal.Signal[Map[String, Bool]] = @signal.signal({})
   let selected = @signal.signal("")
   // Create keydown handler
   let keydown_handler = make_tree_handler(
-    nodes,
-    focused_id,
-    expanded,
-    selected,
-    on_select,
+    nodes, focused_id, expanded, selected, on_select,
   )
   // Render tree items
   let tree_items = render_tree_nodes(
-    nodes,
-    focused_id,
-    expanded,
-    selected,
-    keydown_handler,
-    on_select,
+    nodes, focused_id, expanded, selected, keydown_handler, on_select,
   )
   // Build tree container
   let attrs : Array[(String, @luna.Attr[@js.Any])] = [

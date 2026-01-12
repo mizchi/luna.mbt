@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/components/styled/switch"
+
+import(
+  "mizchi/js/core"
+  "mizchi/luna"
+  "mizchi/luna/signal"
+)
+
+// Values
+pub fn switch(@signal.Signal[Bool], disabled? : Bool, aria_label? : String, aria_labelledby? : String, class? : String, Array[@luna.Node[@core.Any]]) -> @luna.Node[@core.Any]
+
+pub fn switch_css() -> String
+
+pub fn switch_group(aria_label? : String, class? : String, Array[@luna.Node[@core.Any]]) -> @luna.Node[@core.Any]
+
+pub fn switch_slots() -> SwitchSlots
+
+pub fn switch_static(Bool, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @luna.EventHandler[@core.Any], class? : String, Array[@luna.Node[@core.Any]]) -> @luna.Node[@core.Any]
+
+// Errors
+
+// Types and methods
+pub(all) struct SwitchSlots {
+  root : String
+  track : String
+  thumb : String
+  icon : String
+  label : String
+}
+
+// Type aliases
+
+// Traits
+

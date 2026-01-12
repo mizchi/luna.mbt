@@ -1,0 +1,33 @@
+import {
+  "mizchi/luna" as @luna,
+  "mizchi/luna/render" as @render,
+  "mizchi/luna/static_dom/element" as @element,
+}
+
+import "test" {
+  "mizchi/luna/static_dom/element" as @element,
+  "mizchi/luna/css" as @css,
+}
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "render",
+        "render_with_preloads",
+        "render_document",
+        "render_document_with_preloads",
+        "generate_preload_tags",
+        "document",
+        "client",
+        "wc_island",
+        "wc_island_load",
+        "wc_island_idle",
+        "wc_island_visible",
+        "wc_island_media",
+      ],
+      "format": "esm",
+    },
+  },
+  "supported-targets": [ "js" ],
+)

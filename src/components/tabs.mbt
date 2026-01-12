@@ -224,7 +224,10 @@ pub fn[E] tabpanel_computed(
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
     ("tabindex", @luna.attr_static("0")),
-    ("style", @luna.attr_dynamic(fn() { if visible() { "" } else { "display:none" } })),
+    (
+      "style",
+      @luna.attr_dynamic(fn() { if visible() { "" } else { "display:none" } }),
+    ),
   ]
   @luna.h("div", attrs, children)
 }

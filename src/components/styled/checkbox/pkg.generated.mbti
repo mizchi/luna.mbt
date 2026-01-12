@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/components/styled/checkbox"
+
+import(
+  "mizchi/js/core"
+  "mizchi/luna"
+  "mizchi/luna/signal"
+)
+
+// Values
+pub fn checkbox(@signal.Signal[Bool], disabled? : Bool, indeterminate? : Bool, id? : String, name? : String, class? : String, Array[@luna.Node[@core.Any]]) -> @luna.Node[@core.Any]
+
+pub fn checkbox_css() -> String
+
+pub fn checkbox_group(aria_label? : String, class? : String, Array[@luna.Node[@core.Any]]) -> @luna.Node[@core.Any]
+
+pub fn checkbox_slots() -> CheckboxSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct CheckboxSlots {
+  root : String
+  input : String
+  control : String
+  icon : String
+  label : String
+}
+
+pub(all) enum CheckboxState {
+  Checked
+  Unchecked
+  Indeterminate
+}
+
+// Type aliases
+
+// Traits
+

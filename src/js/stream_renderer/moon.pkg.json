@@ -1,8 +1,0 @@
-{
-  "supported-targets": ["js"],
-  "import": [
-    { "path": "mizchi/luna", "alias": "luna" },
-    { "path": "mizchi/luna/render", "alias": "render" },
-    { "path": "mizchi/js/web/streams", "alias": "streams" }
-  ]
-}

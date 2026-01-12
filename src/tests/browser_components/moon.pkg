@@ -1,0 +1,27 @@
+import {
+  "mizchi/luna" as @luna,
+  "mizchi/luna/signal",
+  "mizchi/js/browser/dom" as @js_dom,
+  "mizchi/luna/dom/element" as @dom,
+  "mizchi/luna/dom/client" as @client,
+  "mizchi/js/core" as @js,
+}
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "hydrate_signal_effect",
+        "hydrate_dynamic_attrs",
+        "hydrate_show_toggle",
+        "hydrate_for_each",
+        "hydrate_events",
+        "hydrate_sortable_list",
+        "hydrate_input_binding",
+        "hydrate_element_ref",
+      ],
+      "format": "esm",
+    },
+  },
+  "supported-targets": [ "js" ],
+)

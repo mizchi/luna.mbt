@@ -1,10 +1,6 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/signal"
 
-import(
-  "mizchi/luna/experimental_signals"
-)
-
 // Values
 pub fn all(Array[Signal[Bool]]) -> () -> Bool
 
@@ -16,6 +12,8 @@ pub fn batch_end() -> Unit
 
 pub fn batch_start() -> Unit
 
+pub fn check_dirty(Link, ReactiveNode, (ReactiveNode) -> Bool) -> Bool
+
 pub fn[A, B, R] combine2(Signal[A], Signal[B], (A, B) -> R) -> () -> R
 
 pub fn[A, B, C, R] combine3(Signal[A], Signal[B], Signal[C], (A, B, C) -> R) -> () -> R
@@ -23,6 +21,8 @@ pub fn[A, B, C, R] combine3(Signal[A], Signal[B], Signal[C], (A, B, C) -> R) -> 
 pub fn[A, B, C, D, R] combine4(Signal[A], Signal[B], Signal[C], Signal[D], (A, B, C, D) -> R) -> () -> R
 
 pub fn[T] computed(() -> T) -> () -> T
+
+pub fn[T] core_signal(T) -> CoreSignal[T]
 
 pub fn[T] create_context(T) -> Context[T]
 
@@ -38,15 +38,29 @@ pub fn effect_once(() -> Unit) -> Unit
 
 pub fn effect_when(() -> Bool, () -> Unit) -> () -> Unit
 
+pub fn end_batch() -> Unit
+
 pub fn[T] flatten(Signal[Signal[T]]) -> () -> T
 
+pub fn flush() -> Unit
+
+pub fn get_active_sub() -> ReactiveNode?
+
+pub fn get_batch_depth() -> Int
+
 pub fn get_current_subscriber() -> EffectRunner?
+
+pub fn get_cycle() -> Int
 
 pub fn get_owner() -> Owner?
 
 pub fn has_owner() -> Bool
 
+pub fn inc_cycle() -> Unit
+
 pub fn is_batching() -> Bool
+
+pub fn link(ReactiveNode, ReactiveNode, Int) -> Unit
 
 pub fn[T] memo(() -> T) -> () -> T
 
@@ -64,7 +78,13 @@ pub fn[T] previous(Signal[T]) -> () -> T?
 
 pub fn[T] previous_with_initial(Signal[T], T) -> () -> T
 
+pub fn propagate(Link) -> Unit
+
 pub fn[T, R] provide(Context[T], T, () -> R) -> R
+
+pub fn purge_deps(ReactiveNode) -> Unit
+
+pub fn queue_effect(EffectNode) -> Unit
 
 pub fn register_disposer(() -> Unit) -> Unit
 
@@ -88,11 +108,19 @@ pub fn schedule_effect(EffectRunner) -> Unit
 
 pub fn[T] select(Signal[Array[T]], Signal[Int]) -> () -> T?
 
+pub fn set_active_sub(ReactiveNode?) -> ReactiveNode?
+
 pub fn set_current_cleanups(Array[() -> Unit]?) -> Array[() -> Unit]?
+
+pub fn shallow_propagate(Link) -> Unit
 
 pub fn[T] signal(T) -> Signal[T]
 
+pub fn start_batch() -> Unit
+
 pub fn[T] switch_(Signal[Bool], Signal[T], Signal[T]) -> () -> T
+
+pub fn unlink(Link, ReactiveNode) -> Link?
 
 pub fn[T] untracked(() -> T) -> T
 
@@ -118,16 +146,52 @@ pub fn[T] AsyncState::is_pending(Self[T]) -> Bool
 pub fn[T] AsyncState::is_success(Self[T]) -> Bool
 pub fn[T] AsyncState::value(Self[T]) -> T?
 
+pub(all) struct Computed[T] {
+  node : ReactiveNode
+  mut value : T?
+  getter : () -> T
+}
+pub fn[T] Computed::get(Self[T]) -> T
+pub fn[T] Computed::peek(Self[T]) -> T?
+
 pub struct Context[T] {
   id : Int
   default_value : () -> T
   providers : Array[(Int, () -> T)]
 }
 
+pub(all) struct CoreSignal[T] {
+  node : ReactiveNode
+  mut current_value : T
+  mut pending_value : T
+}
+pub fn[T] CoreSignal::clear_subscribers(Self[T]) -> Unit
+pub fn[T] CoreSignal::get(Self[T]) -> T
+pub fn[T] CoreSignal::peek(Self[T]) -> T
+pub fn[T] CoreSignal::set(Self[T], T) -> Unit
+pub fn[T] CoreSignal::subscriber_count(Self[T]) -> Int
+pub fn[T] CoreSignal::update(Self[T], (T) -> T) -> Unit
+
+pub(all) struct EffectNode {
+  node : ReactiveNode
+  run_fn : () -> Unit
+}
+
 pub struct EffectRunner {
   id : Int
   run : () -> Unit
 }
+
+pub(all) struct Flags {
+  mut value : Int
+}
+pub fn Flags::get_value(Self) -> Int
+pub fn Flags::has(Self, ReactiveFlags) -> Bool
+pub fn Flags::has_any(Self, Array[ReactiveFlags]) -> Bool
+pub fn Flags::new(Int) -> Self
+pub fn Flags::set(Self, ReactiveFlags) -> Unit
+pub fn Flags::set_value(Self, Int) -> Unit
+pub fn Flags::unset(Self, ReactiveFlags) -> Unit
 
 pub struct Lens[S, A] {
   get : (S) -> A
@@ -143,6 +207,16 @@ pub fn[T] LensStore::new(T) -> Self[T]
 pub fn[T] LensStore::snapshot(Self[T]) -> T
 pub fn[T] LensStore::update(Self[T], (T) -> T) -> Unit
 
+pub(all) struct Link {
+  mut version : Int
+  dep : ReactiveNode
+  sub : ReactiveNode
+  mut prev_sub : Link?
+  mut next_sub : Link?
+  mut prev_dep : Link?
+  mut next_dep : Link?
+}
+
 pub struct Owner {
   id : Int
   parent : Owner?
@@ -153,6 +227,28 @@ pub struct Owner {
 }
 pub fn Owner::dispose(Self) -> Unit
 pub fn Owner::new(Self?) -> Self
+
+pub(all) enum ReactiveFlags {
+  None
+  Mutable
+  Watching
+  RecursedCheck
+  Recursed
+  Dirty
+  Pending
+}
+pub fn ReactiveFlags::to_int(Self) -> Int
+
+pub(all) struct ReactiveNode {
+  mut deps : Link?
+  mut deps_tail : Link?
+  mut subs : Link?
+  mut subs_tail : Link?
+  flags : Flags
+  mut last_modified_cycle : Int
+  mut effect_callback : (() -> Unit)?
+}
+pub fn ReactiveNode::new(Int) -> Self
 
 pub struct Resource[T] {
   state : Signal[AsyncState[T]]
@@ -168,7 +264,7 @@ pub fn[T] Resource::refetch(Self[T]) -> Unit
 pub fn[T] Resource::value(Self[T]) -> T?
 
 pub struct Signal[T] {
-  inner : @experimental_signals.Signal[T]
+  inner : CoreSignal[T]
   legacy_subscribers : Array[EffectRunner]
 }
 pub fn[T] Signal::clear_subscribers(Self[T]) -> Unit

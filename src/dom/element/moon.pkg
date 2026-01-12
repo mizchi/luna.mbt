@@ -1,0 +1,10 @@
+import {
+  "mizchi/luna/signal",
+  "mizchi/js/core" as @js,
+  "mizchi/js/browser/dom" as @js_dom,
+}
+
+options(
+  "supported-targets": [ "js" ],
+  "warn-list": "-5",
+)

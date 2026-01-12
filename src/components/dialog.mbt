@@ -218,83 +218,76 @@ pub fn confirm_dialog(
   let title_id = id + "-title"
   let message_id = id + "-message"
   let close = fn() { open.set(false) }
-  @luna.show(
-    fn() { open.get() },
-    fn() {
-      @luna.fragment([
-        // Backdrop - does not close on click for alert dialogs
-        @luna.h(
-          "div",
-          [
-            ("class", @luna.attr_static("dialog-backdrop")),
-            ("aria-hidden", @luna.attr_static("true")),
-          ],
-          [],
-        ),
-        // Alert Dialog
-        @luna.h(
-          "div",
-          [
-            ("role", @luna.attr_static("alertdialog")),
-            ("aria-modal", @luna.attr_static("true")),
-            ("aria-labelledby", @luna.attr_static(title_id)),
-            ("aria-describedby", @luna.attr_static(message_id)),
-            ("class", @luna.attr_static("alert-dialog")),
-          ],
-          [
+  @luna.show(fn() { open.get() }, fn() {
+    @luna.fragment([
+      // Backdrop - does not close on click for alert dialogs
+      @luna.h(
+        "div",
+        [
+          ("class", @luna.attr_static("dialog-backdrop")),
+          ("aria-hidden", @luna.attr_static("true")),
+        ],
+        [],
+      ),
+      // Alert Dialog
+      @luna.h(
+        "div",
+        [
+          ("role", @luna.attr_static("alertdialog")),
+          ("aria-modal", @luna.attr_static("true")),
+          ("aria-labelledby", @luna.attr_static(title_id)),
+          ("aria-describedby", @luna.attr_static(message_id)),
+          ("class", @luna.attr_static("alert-dialog")),
+        ],
+        [
+          @luna.h("h2", [("id", @luna.attr_static(title_id))], [
+            @luna.text(title),
+          ]),
+          @luna.h("p", [("id", @luna.attr_static(message_id))], [
+            @luna.text(message),
+          ]),
+          @luna.h("div", [("class", @luna.attr_static("dialog-actions"))], [
+            // Cancel button (should be focused first for safety)
             @luna.h(
-              "h2",
-              [("id", @luna.attr_static(title_id))],
-              [@luna.text(title)],
-            ),
-            @luna.h(
-              "p",
-              [("id", @luna.attr_static(message_id))],
-              [@luna.text(message)],
-            ),
-            @luna.h(
-              "div",
-              [("class", @luna.attr_static("dialog-actions"))],
+              "button",
               [
-                // Cancel button (should be focused first for safety)
-                @luna.h(
-                  "button",
-                  [
-                    ("type", @luna.attr_static("button")),
-                    ("class", @luna.attr_static("dialog-cancel")),
-                    (
-                      "click",
-                      @luna.attr_handler(@luna.handler(fn(_) {
-                        close()
-                        on_cancel()
-                      })),
-                    ),
-                  ],
-                  [@luna.text(cancel_text)],
-                ),
-                // Confirm button
-                @luna.h(
-                  "button",
-                  [
-                    ("type", @luna.attr_static("button")),
-                    ("class", @luna.attr_static("dialog-confirm")),
-                    (
-                      "click",
-                      @luna.attr_handler(@luna.handler(fn(_) {
-                        close()
-                        on_confirm()
-                      })),
-                    ),
-                  ],
-                  [@luna.text(confirm_text)],
+                ("type", @luna.attr_static("button")),
+                ("class", @luna.attr_static("dialog-cancel")),
+                (
+                  "click",
+                  @luna.attr_handler(
+                    @luna.handler(fn(_) {
+                      close()
+                      on_cancel()
+                    }),
+                  ),
                 ),
               ],
+              [@luna.text(cancel_text)],
             ),
-          ],
-        ),
-      ])
-    },
-  )
+            // Confirm button
+            @luna.h(
+              "button",
+              [
+                ("type", @luna.attr_static("button")),
+                ("class", @luna.attr_static("dialog-confirm")),
+                (
+                  "click",
+                  @luna.attr_handler(
+                    @luna.handler(fn(_) {
+                      close()
+                      on_confirm()
+                    }),
+                  ),
+                ),
+              ],
+              [@luna.text(confirm_text)],
+            ),
+          ]),
+        ],
+      ),
+    ])
+  })
 }
 
 ///|

@@ -1,0 +1,5 @@
+import { "mizchi/luna/routes" as @routes, "mizchi/luna/signal" }
+
+options(
+  "supported-targets": [ "js" ],
+)

@@ -208,16 +208,19 @@ pub fn make_spinbutton_input_handler(
     let target = e._get("target")
     let input_str : String = target._get("value").cast()
     // Try to parse the input using JavaScript's parseFloat
-    let v : Double = @js.global_this()._call("parseFloat", [@js.any(input_str)]).cast()
+    let v : Double = @js.global_this()
+      ._call("parseFloat", [@js.any(input_str)])
+      .cast()
     // Check if it's a valid number (not NaN)
     let is_nan : Bool = @js.global_this()._call("isNaN", [@js.any(v)]).cast()
     if is_nan {
       // Invalid input - restore previous value
       let prev = fallback_value()
-      let _ = target._call(
-        "setAttribute",
-        [@js.any("value"), @js.any(prev.to_string())],
-      )
+      let _ = target._call("setAttribute", [
+        @js.any("value"),
+        @js.any(prev.to_string()),
+      ])
+
     } else {
       // Clamp to bounds
       let clamped = match (min, max) {
@@ -315,35 +318,31 @@ pub fn spinbutton_interactive(
       ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
     )
   }
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("spinbutton-container"))],
-    [
-      @luna.h(
-        "button",
-        [
-          ("type", @luna.attr_static("button")),
-          ("class", @luna.attr_static("spinbutton-decrement")),
-          ("aria-label", @luna.attr_static("Decrease")),
-          ("tabindex", @luna.attr_static("-1")),
-          ("click", @luna.attr_handler(@luna.handler(fn(_) { decrement() }))),
-        ],
-        [@luna.text("-")],
-      ),
-      @luna.h("input", input_attrs, []),
-      @luna.h(
-        "button",
-        [
-          ("type", @luna.attr_static("button")),
-          ("class", @luna.attr_static("spinbutton-increment")),
-          ("aria-label", @luna.attr_static("Increase")),
-          ("tabindex", @luna.attr_static("-1")),
-          ("click", @luna.attr_handler(@luna.handler(fn(_) { increment() }))),
-        ],
-        [@luna.text("+")],
-      ),
-    ],
-  )
+  @luna.h("div", [("class", @luna.attr_static("spinbutton-container"))], [
+    @luna.h(
+      "button",
+      [
+        ("type", @luna.attr_static("button")),
+        ("class", @luna.attr_static("spinbutton-decrement")),
+        ("aria-label", @luna.attr_static("Decrease")),
+        ("tabindex", @luna.attr_static("-1")),
+        ("click", @luna.attr_handler(@luna.handler(fn(_) { decrement() }))),
+      ],
+      [@luna.text("-")],
+    ),
+    @luna.h("input", input_attrs, []),
+    @luna.h(
+      "button",
+      [
+        ("type", @luna.attr_static("button")),
+        ("class", @luna.attr_static("spinbutton-increment")),
+        ("aria-label", @luna.attr_static("Increase")),
+        ("tabindex", @luna.attr_static("-1")),
+        ("click", @luna.attr_handler(@luna.handler(fn(_) { increment() }))),
+      ],
+      [@luna.text("+")],
+    ),
+  ])
 }
 
 ///|

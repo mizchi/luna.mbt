@@ -47,14 +47,14 @@ pub fn switch_slots() -> SwitchSlots {
 /// ```
 pub fn switch(
   on : @signal.Signal[Bool],
-  disabled~ : Bool = false,
+  disabled? : Bool = false,
   aria_label? : String,
   aria_labelledby? : String,
   class? : String,
   children : Array[@luna.Node[@js.Any]],
 ) -> @luna.Node[@js.Any] {
   let slots = switch_slots()
-  let props = @headless.use_switch(on, disabled=disabled, aria_label?, aria_labelledby?)
+  let props = @headless.use_switch(on, disabled~, aria_label?, aria_labelledby?)
 
   // Build root class with optional extra class
   let root_class = match class {
@@ -72,24 +72,19 @@ pub fn switch(
   if disabled {
     data_attrs.push(("data-disabled", @luna.attr_static("")))
   }
-
   @luna.h(
     "button",
     props.attrs + [("class", @luna.attr_static(root_class))] + data_attrs,
     [
       // Track with icon and thumb
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static(slots.track))],
-        [
-          @luna.h(
-            "span",
-            [("class", @luna.attr_static(slots.icon))],
-            [@luna.text("\u{2713}")], // ✓
-          ),
-          @luna.h("span", [("class", @luna.attr_static(slots.thumb))], []),
-        ],
-      ),
+      @luna.h("span", [("class", @luna.attr_static(slots.track))], [
+        @luna.h(
+          "span",
+          [("class", @luna.attr_static(slots.icon))],
+          [@luna.text("\u{2713}")], // ✓
+        ),
+        @luna.h("span", [("class", @luna.attr_static(slots.thumb))], []),
+      ]),
       // Label
       @luna.h("span", [("class", @luna.attr_static(slots.label))], children),
     ],
@@ -102,7 +97,7 @@ pub fn switch(
 /// Useful for server-side rendering or when state is managed externally.
 pub fn switch_static(
   on : Bool,
-  disabled~ : Bool = false,
+  disabled? : Bool = false,
   aria_label? : String,
   aria_labelledby? : String,
   on_click? : @luna.EventHandler[@js.Any],
@@ -112,7 +107,7 @@ pub fn switch_static(
   let slots = switch_slots()
   let attrs : Array[(String, @luna.Attr[@js.Any])] = @headless.switch_attrs(
     on,
-    disabled=disabled,
+    disabled~,
     aria_label?,
     aria_labelledby?,
   )
@@ -136,23 +131,19 @@ pub fn switch_static(
     Some(handler) => [("click", @luna.attr_handler(handler))]
     None => []
   }
-
   @luna.h(
     "button",
-    attrs + [("class", @luna.attr_static(root_class))] + data_attrs + handler_attrs,
+    attrs +
+    [("class", @luna.attr_static(root_class))] +
+    data_attrs +
+    handler_attrs,
     [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static(slots.track))],
-        [
-          @luna.h(
-            "span",
-            [("class", @luna.attr_static(slots.icon))],
-            [@luna.text("\u{2713}")],
-          ),
-          @luna.h("span", [("class", @luna.attr_static(slots.thumb))], []),
-        ],
-      ),
+      @luna.h("span", [("class", @luna.attr_static(slots.track))], [
+        @luna.h("span", [("class", @luna.attr_static(slots.icon))], [
+          @luna.text("\u{2713}"),
+        ]),
+        @luna.h("span", [("class", @luna.attr_static(slots.thumb))], []),
+      ]),
       @luna.h("span", [("class", @luna.attr_static(slots.label))], children),
     ],
   )

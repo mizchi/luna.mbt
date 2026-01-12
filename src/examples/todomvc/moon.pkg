@@ -1,0 +1,14 @@
+import {
+  "mizchi/luna/signal",
+  "mizchi/luna/dom/element",
+  "mizchi/luna/css",
+  "mizchi/js/browser/dom" as @dom,
+  "mizchi/js/browser/storage" as @storage,
+  "mizchi/js/browser/location" as @location,
+}
+
+options(
+  "is-main": true,
+  link: { "js": { "format": "esm" } },
+  "supported-targets": [ "js" ],
+)

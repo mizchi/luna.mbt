@@ -45,8 +45,8 @@ pub(all) enum CheckboxState {
 /// Create a styled checkbox with signal-based state.
 pub fn checkbox(
   checked : @signal.Signal[Bool],
-  disabled~ : Bool = false,
-  indeterminate~ : Bool = false,
+  disabled? : Bool = false,
+  indeterminate? : Bool = false,
   id? : String,
   name? : String,
   class? : String,
@@ -56,18 +56,13 @@ pub fn checkbox(
   let random = @js.global_this()._get("Math")._call("random", []).to_string()
   let input_id = id.unwrap_or("checkbox-" + random)
   let input_name = name.unwrap_or(input_id)
-
   let root_class = match class {
     Some(c) => slots.root + " " + c
     None => slots.root
   }
 
   // Toggle handler
-  let toggle = fn() {
-    if not(disabled) {
-      checked.set(not(checked.get()))
-    }
-  }
+  let toggle = fn() { if not(disabled) { checked.set(not(checked.get())) } }
 
   // Root wrapper with click handler
   let root_attrs : Array[(String, @luna.Attr[@js.Any])] = [
@@ -91,7 +86,10 @@ pub fn checkbox(
     ("class", @luna.attr_static(slots.input)),
     ("id", @luna.attr_static(input_id)),
     ("name", @luna.attr_static(input_name)),
-    ("aria-checked", @luna.attr_dynamic(fn() { if checked.get() { "true" } else { "false" } })),
+    (
+      "aria-checked",
+      @luna.attr_dynamic(fn() { if checked.get() { "true" } else { "false" } }),
+    ),
   ]
   if disabled {
     input_attrs.push(("disabled", @luna.attr_static("")))
@@ -101,76 +99,72 @@ pub fn checkbox(
   }
 
   // Visual control box
-  let control = @luna.h(
-    "span",
-    [("class", @luna.attr_static(slots.control))],
-    [
-      // Check icon
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static(slots.icon + " " + slots.icon + "--check"))],
-        [
-          @luna.h(
-            "svg",
-            [
-              ("width", @luna.attr_static("12")),
-              ("height", @luna.attr_static("12")),
-              ("viewBox", @luna.attr_static("0 0 12 12")),
-              ("fill", @luna.attr_static("none")),
-              ("aria-hidden", @luna.attr_static("true")),
-            ],
-            [
-              @luna.h(
-                "path",
-                [
-                  ("d", @luna.attr_static("M10 3L4.5 8.5L2 6")),
-                  ("stroke", @luna.attr_static("currentColor")),
-                  ("stroke-width", @luna.attr_static("2")),
-                  ("stroke-linecap", @luna.attr_static("round")),
-                  ("stroke-linejoin", @luna.attr_static("round")),
-                ],
-                [],
-              ),
-            ],
-          ),
-        ],
-      ),
-      // Indeterminate icon
-      @luna.h(
-        "span",
-        [
-          (
-            "class",
-            @luna.attr_static(slots.icon + " " + slots.icon + "--indeterminate"),
-          ),
-        ],
-        [
-          @luna.h(
-            "svg",
-            [
-              ("width", @luna.attr_static("12")),
-              ("height", @luna.attr_static("12")),
-              ("viewBox", @luna.attr_static("0 0 12 12")),
-              ("fill", @luna.attr_static("none")),
-              ("aria-hidden", @luna.attr_static("true")),
-            ],
-            [
-              @luna.h(
-                "path",
-                [
-                  ("d", @luna.attr_static("M2 6H10")),
-                  ("stroke", @luna.attr_static("currentColor")),
-                  ("stroke-width", @luna.attr_static("2")),
-                  ("stroke-linecap", @luna.attr_static("round")),
-                ],
-                [],
-              ),
-            ],
-          ),
-        ],
-      ),
-    ],
-  )
+  let control = @luna.h("span", [("class", @luna.attr_static(slots.control))], [
+    // Check icon
+    @luna.h(
+      "span",
+      [("class", @luna.attr_static(slots.icon + " " + slots.icon + "--check"))],
+      [
+        @luna.h(
+          "svg",
+          [
+            ("width", @luna.attr_static("12")),
+            ("height", @luna.attr_static("12")),
+            ("viewBox", @luna.attr_static("0 0 12 12")),
+            ("fill", @luna.attr_static("none")),
+            ("aria-hidden", @luna.attr_static("true")),
+          ],
+          [
+            @luna.h(
+              "path",
+              [
+                ("d", @luna.attr_static("M10 3L4.5 8.5L2 6")),
+                ("stroke", @luna.attr_static("currentColor")),
+                ("stroke-width", @luna.attr_static("2")),
+                ("stroke-linecap", @luna.attr_static("round")),
+                ("stroke-linejoin", @luna.attr_static("round")),
+              ],
+              [],
+            ),
+          ],
+        ),
+      ],
+    ),
+    // Indeterminate icon
+    @luna.h(
+      "span",
+      [
+        (
+          "class",
+          @luna.attr_static(slots.icon + " " + slots.icon + "--indeterminate"),
+        ),
+      ],
+      [
+        @luna.h(
+          "svg",
+          [
+            ("width", @luna.attr_static("12")),
+            ("height", @luna.attr_static("12")),
+            ("viewBox", @luna.attr_static("0 0 12 12")),
+            ("fill", @luna.attr_static("none")),
+            ("aria-hidden", @luna.attr_static("true")),
+          ],
+          [
+            @luna.h(
+              "path",
+              [
+                ("d", @luna.attr_static("M2 6H10")),
+                ("stroke", @luna.attr_static("currentColor")),
+                ("stroke-width", @luna.attr_static("2")),
+                ("stroke-linecap", @luna.attr_static("round")),
+              ],
+              [],
+            ),
+          ],
+        ),
+      ],
+    ),
+  ])
 
   // Label (no 'for' attribute - root click handler handles toggle)
   let label = @luna.h(
@@ -178,12 +172,7 @@ pub fn checkbox(
     [("class", @luna.attr_static(slots.label))],
     children,
   )
-
-  @luna.h(
-    "div",
-    root_attrs,
-    [@luna.h("input", input_attrs, []), control, label],
-  )
+  @luna.h("div", root_attrs, [@luna.h("input", input_attrs, []), control, label])
 }
 
 ///|

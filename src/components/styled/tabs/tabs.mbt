@@ -20,12 +20,7 @@ pub(all) struct TabsSlots {
 
 ///|
 pub fn tabs_slots() -> TabsSlots {
-  {
-    root: "tabs",
-    list: "tabs__list",
-    tab: "tabs__tab",
-    panel: "tabs__panel",
-  }
+  { root: "tabs", list: "tabs__list", tab: "tabs__tab", panel: "tabs__panel" }
 }
 
 ///|
@@ -63,7 +58,6 @@ pub fn tabs(
     let tab_id = "tab-" + item.id
     let panel_id = "panel-" + item.id
     let props = @headless.use_tab(tab_id, panel_id, selected, i)
-
     tab_buttons.push(
       @luna.h(
         "button",
@@ -92,40 +86,29 @@ pub fn tabs(
     let tab_id = "tab-" + item.id
     let panel_id = "panel-" + item.id
     let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = @headless.tabpanel_attrs(
-      panel_id,
-      tab_id,
+      panel_id, tab_id,
     )
-
     panels.push(
-      @luna.show(
-        fn() { selected.get() == i },
-        fn() {
-          @luna.h(
-            "div",
-            panel_attrs + [("class", @luna.attr_static(slots.panel))],
-            item.content,
-          )
-        },
-      ),
+      @luna.show(fn() { selected.get() == i }, fn() {
+        @luna.h(
+          "div",
+          panel_attrs + [("class", @luna.attr_static(slots.panel))],
+          item.content,
+        )
+      }),
     )
   }
-
   let tablist_attrs : Array[(String, @luna.Attr[@js.Any])] = @headless.tablist_attrs(
     aria_label?,
   )
-
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static(root_class))],
-    [
-      @luna.h(
-        "div",
-        tablist_attrs + [("class", @luna.attr_static(slots.list))],
-        tab_buttons,
-      ),
-      @luna.fragment(panels),
-    ],
-  )
+  @luna.h("div", [("class", @luna.attr_static(root_class))], [
+    @luna.h(
+      "div",
+      tablist_attrs + [("class", @luna.attr_static(slots.list))],
+      tab_buttons,
+    ),
+    @luna.fragment(panels),
+  ])
 }
 
 ///|

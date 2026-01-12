@@ -317,30 +317,15 @@ pub fn make_table_handler(
         } else {
           None
         }
-      "ArrowLeft" =>
-        if col > 0 {
-          Some((row, col - 1))
-        } else {
-          None
-        }
+      "ArrowLeft" => if col > 0 { Some((row, col - 1)) } else { None }
       "ArrowDown" =>
         if row < row_count - 1 {
           Some((row + 1, col))
         } else {
           None
         }
-      "ArrowUp" =>
-        if row > 0 {
-          Some((row - 1, col))
-        } else {
-          None
-        }
-      "Home" =>
-        if ctrl {
-          Some((0, 0))
-        } else {
-          Some((row, 0))
-        }
+      "ArrowUp" => if row > 0 { Some((row - 1, col)) } else { None }
+      "Home" => if ctrl { Some((0, 0)) } else { Some((row, 0)) }
       "End" =>
         if ctrl {
           Some((row_count - 1, col_count - 1))
@@ -431,6 +416,7 @@ pub fn table_interactive(
     let doc = @js.global_this()._get("document")
     let el = doc._call("getElementById", [@js.any(cell_id)])
     let _ = el._call("focus", [])
+
   }
   // Keyboard handler
   let keydown_handler = make_table_handler(
@@ -454,45 +440,48 @@ pub fn table_interactive(
       ("scope", @luna.attr_static("col")),
     ]
     if column.sortable {
-      header_attrs.push((
-        "aria-sort",
-        @luna.attr_dynamic(fn() {
-          if sort_column.get() == col_id {
-            match sort_direction.get() {
-              Ascending => "ascending"
-              Descending => "descending"
-              None => "none"
+      header_attrs.push(
+        (
+          "aria-sort",
+          @luna.attr_dynamic(fn() {
+            if sort_column.get() == col_id {
+              match sort_direction.get() {
+                Ascending => "ascending"
+                Descending => "descending"
+                None => "none"
+              }
+            } else {
+              "none"
             }
-          } else {
-            "none"
-          }
-        }),
-      ))
-      header_attrs.push((
-        "click",
-        @luna.attr_handler(@luna.handler(fn(_ : @js.Any) {
-          let curr_col = sort_column.get()
-          let curr_dir = sort_direction.get()
-          let new_dir = if curr_col == col_id {
-            match curr_dir {
-              None => Ascending
-              Ascending => Descending
-              Descending => None
-            }
-          } else {
-            Ascending
-          }
-          sort_column.set(col_id)
-          sort_direction.set(new_dir)
-          if on_sort is Some(handler) {
-            handler(col_id, new_dir)
-          }
-        })),
-      ))
-      header_attrs.push((
-        "style",
-        @luna.attr_static("cursor: pointer"),
-      ))
+          }),
+        ),
+      )
+      header_attrs.push(
+        (
+          "click",
+          @luna.attr_handler(
+            @luna.handler(fn(_ : @js.Any) {
+              let curr_col = sort_column.get()
+              let curr_dir = sort_direction.get()
+              let new_dir = if curr_col == col_id {
+                match curr_dir {
+                  None => Ascending
+                  Ascending => Descending
+                  Descending => None
+                }
+              } else {
+                Ascending
+              }
+              sort_column.set(col_id)
+              sort_direction.set(new_dir)
+              if on_sort is Some(handler) {
+                handler(col_id, new_dir)
+              }
+            }),
+          ),
+        ),
+      )
+      header_attrs.push(("style", @luna.attr_static("cursor: pointer")))
     }
     header_cells.push(@luna.h("th", header_attrs, [@luna.text(column.label)]))
   }
@@ -505,30 +494,40 @@ pub fn table_interactive(
       ("id", @luna.attr_static(tr_id)),
     ]
     if is_selectable {
-      row_attrs.push((
-        "aria-selected",
-        @luna.attr_dynamic(fn() {
-          if selected_row.get() == row_id {
-            "true"
-          } else {
-            "false"
-          }
-        }),
-      ))
-      row_attrs.push((
-        "click",
-        @luna.attr_handler(@luna.handler(fn(_ : @js.Any) {
-          selected_row.set(row_id)
-          if on_row_select is Some(handler) {
-            handler(row_id)
-          }
-        })),
-      ))
+      row_attrs.push(
+        (
+          "aria-selected",
+          @luna.attr_dynamic(fn() {
+            if selected_row.get() == row_id {
+              "true"
+            } else {
+              "false"
+            }
+          }),
+        ),
+      )
+      row_attrs.push(
+        (
+          "click",
+          @luna.attr_handler(
+            @luna.handler(fn(_ : @js.Any) {
+              selected_row.set(row_id)
+              if on_row_select is Some(handler) {
+                handler(row_id)
+              }
+            }),
+          ),
+        ),
+      )
     }
     // Build cells for this row
     let cells : Array[@luna.Node[@js.Any]] = []
     for col_idx, cell in row.cells {
-      let cell_id = id + "-cell-" + row_idx.to_string() + "-" + col_idx.to_string()
+      let cell_id = id +
+        "-cell-" +
+        row_idx.to_string() +
+        "-" +
+        col_idx.to_string()
       let cell_attrs : Array[(String, @luna.Attr[@js.Any])] = [
         ("id", @luna.attr_static(cell_id)),
         (
@@ -559,14 +558,10 @@ pub fn table_interactive(
   if aria_label is Some(label) {
     table_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h(
-    "table",
-    table_attrs,
-    [
-      @luna.h("thead", [], [@luna.h("tr", [], header_cells)]),
-      @luna.h("tbody", [], data_rows),
-    ],
-  )
+  @luna.h("table", table_attrs, [
+    @luna.h("thead", [], [@luna.h("tr", [], header_cells)]),
+    @luna.h("tbody", [], data_rows),
+  ])
 }
 
 ///|
@@ -604,5 +599,5 @@ pub fn[E] simple_table(
   }
   table_content.push(thead([tr(header_cells)]))
   table_content.push(tbody(data_rows))
-  table(id=id, table_content)
+  table(id~, table_content)
 }

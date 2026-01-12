@@ -56,18 +56,12 @@ pub fn[E] switch(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build switch with track, thumb, icon structure
-  let track = @luna.h(
-    "span",
-    [("class", @luna.attr_static("switch-track"))],
-    [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("switch-icon"))],
-        [@luna.text("✓")],
-      ),
-      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
-    ],
-  )
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
+    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
+      @luna.text("✓"),
+    ]),
+    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
+  ])
   let label = @luna.h(
     "span",
     [("class", @luna.attr_static("switch-label"))],
@@ -107,18 +101,12 @@ pub fn[E] switch_dyn(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build switch with track, thumb, icon structure
-  let track = @luna.h(
-    "span",
-    [("class", @luna.attr_static("switch-track"))],
-    [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("switch-icon"))],
-        [@luna.text("✓")],
-      ),
-      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
-    ],
-  )
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
+    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
+      @luna.text("✓"),
+    ]),
+    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
+  ])
   let label = @luna.h(
     "span",
     [("class", @luna.attr_static("switch-label"))],
@@ -156,18 +144,12 @@ pub fn[E] switch_computed(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build switch with track, thumb, icon structure
-  let track = @luna.h(
-    "span",
-    [("class", @luna.attr_static("switch-track"))],
-    [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("switch-icon"))],
-        [@luna.text("✓")],
-      ),
-      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
-    ],
-  )
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
+    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
+      @luna.text("✓"),
+    ]),
+    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
+  ])
   let label = @luna.h(
     "span",
     [("class", @luna.attr_static("switch-label"))],

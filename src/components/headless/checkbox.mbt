@@ -17,13 +17,12 @@ pub(all) struct CheckboxProps {
 /// Create a headless checkbox with signal-based state.
 pub fn use_checkbox(
   checked : @signal.Signal[Bool],
-  disabled~ : Bool = false,
-  indeterminate~ : Bool = false,
+  disabled? : Bool = false,
+  indeterminate? : Bool = false,
   aria_label? : String,
 ) -> CheckboxProps {
   let is_checked = checked.get()
   let aria_attrs = checkbox_aria(is_checked, disabled, indeterminate)
-
   let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
     (pair.0, @luna.attr_static(pair.1))
   })
@@ -43,17 +42,10 @@ pub fn use_checkbox(
       }),
     ),
   )
-
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-
-  let toggle = fn() {
-    if not(disabled) {
-      checked.set(not(checked.get()))
-    }
-  }
-
+  let toggle = fn() { if not(disabled) { checked.set(not(checked.get())) } }
   attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) { toggle() }))))
   attrs.push(
     (
@@ -69,7 +61,6 @@ pub fn use_checkbox(
       ),
     ),
   )
-
   { attrs, toggle, is_checked }
 }
 
@@ -77,8 +68,8 @@ pub fn use_checkbox(
 /// Checkbox attrs only (static version).
 pub fn[E] checkbox_attrs(
   checked : Bool,
-  disabled~ : Bool = false,
-  indeterminate~ : Bool = false,
+  disabled? : Bool = false,
+  indeterminate? : Bool = false,
   aria_label? : String,
 ) -> Array[(String, @luna.Attr[E])] {
   let aria_attrs = checkbox_aria(checked, disabled, indeterminate)

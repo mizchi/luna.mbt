@@ -1,0 +1,12 @@
+import {
+  "mizchi/luna/routes" as @routes,
+  "mizchi/luna/browser_router" as @browser_router,
+  "mizchi/luna/dom/element" as @dom,
+  "mizchi/js/browser/dom" as @js_dom,
+  "mizchi/js/core" as @js,
+}
+
+options(
+  link: { "js": { "exports": [ "mount_router_app" ], "format": "esm" } },
+  "supported-targets": [ "js" ],
+)

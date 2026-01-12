@@ -39,7 +39,11 @@ pub fn[E] toolbar(
   orientation? : ToolbarOrientation,
   children : Array[@luna.Node[E]],
 ) -> @luna.Node[E] {
-  let orient = if orientation is Some(Vertical) { "vertical" } else { "horizontal" }
+  let orient = if orientation is Some(Vertical) {
+    "vertical"
+  } else {
+    "horizontal"
+  }
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("toolbar")),
     ("aria-orientation", @luna.attr_static(orient)),
@@ -77,10 +81,9 @@ pub fn[E] toolbar_item(
     ("tabindex", @luna.attr_static(if selected { "0" } else { "-1" })),
   ]
   if pressed is Some(p) {
-    attrs.push((
-      "aria-pressed",
-      @luna.attr_static(if p { "true" } else { "false" }),
-    ))
+    attrs.push(
+      ("aria-pressed", @luna.attr_static(if p { "true" } else { "false" })),
+    )
   }
   if is_disabled {
     attrs.push(("disabled", @luna.attr_static("")))
@@ -123,10 +126,9 @@ pub fn[E] toolbar_item_dyn(
     ),
   ]
   if pressed is Some(p) {
-    attrs.push((
-      "aria-pressed",
-      @luna.attr_static(if p { "true" } else { "false" }),
-    ))
+    attrs.push(
+      ("aria-pressed", @luna.attr_static(if p { "true" } else { "false" })),
+    )
   }
   if is_disabled {
     attrs.push(("disabled", @luna.attr_static("")))
@@ -146,9 +148,7 @@ pub fn[E] toolbar_item_dyn(
 ///|
 /// Create a toolbar separator.
 /// Separators are purely visual and don't receive focus.
-pub fn[E] toolbar_separator(
-  orientation? : ToolbarOrientation,
-) -> @luna.Node[E] {
+pub fn[E] toolbar_separator(orientation? : ToolbarOrientation) -> @luna.Node[E] {
   // Separator orientation is perpendicular to toolbar orientation
   let orient = match orientation {
     Some(Vertical) => "horizontal"
@@ -197,30 +197,15 @@ pub fn make_toolbar_handler(
           } else {
             None
           }
-        "ArrowLeft" =>
-          if curr > 0 {
-            Some(curr - 1)
-          } else {
-            None
-          }
+        "ArrowLeft" => if curr > 0 { Some(curr - 1) } else { None }
         "Home" => Some(0)
         "End" => Some(item_count - 1)
         _ => None
       }
     } else {
       match key {
-        "ArrowDown" =>
-          if curr < item_count - 1 {
-            Some(curr + 1)
-          } else {
-            None
-          }
-        "ArrowUp" =>
-          if curr > 0 {
-            Some(curr - 1)
-          } else {
-            None
-          }
+        "ArrowDown" => if curr < item_count - 1 { Some(curr + 1) } else { None }
+        "ArrowUp" => if curr > 0 { Some(curr - 1) } else { None }
         "Home" => Some(0)
         "End" => Some(item_count - 1)
         _ => None
@@ -253,7 +238,12 @@ pub fn toolbar_item_def(
   toggle? : Bool,
   disabled? : Bool,
 ) -> ToolbarItemDef {
-  { id, label, toggle: toggle.unwrap_or(false), disabled: disabled.unwrap_or(false) }
+  {
+    id,
+    label,
+    toggle: toggle.unwrap_or(false),
+    disabled: disabled.unwrap_or(false),
+  }
 }
 
 ///|
@@ -283,6 +273,7 @@ pub fn toolbar_interactive(
     let doc = @js.global_this()._get("document")
     let el = doc._call("getElementById", [@js.any(item_id)])
     let _ = el._call("focus", [])
+
   }
   // Keyboard handler
   let keydown_handler = make_toolbar_handler(
@@ -318,27 +309,31 @@ pub fn toolbar_interactive(
       ("keydown", @luna.attr_handler(keydown_handler)),
     ]
     if is_pressed is Some(_) {
-      attrs.push((
-        "aria-pressed",
-        @luna.attr_dynamic(fn() {
-          if pressed_states.get().get(item.id).unwrap_or(false) {
-            "true"
-          } else {
-            "false"
-          }
-        }),
-      ))
+      attrs.push(
+        (
+          "aria-pressed",
+          @luna.attr_dynamic(fn() {
+            if pressed_states.get().get(item.id).unwrap_or(false) {
+              "true"
+            } else {
+              "false"
+            }
+          }),
+        ),
+      )
     }
     if item.disabled {
       attrs.push(("disabled", @luna.attr_static("")))
       attrs.push(("aria-disabled", @luna.attr_static("true")))
     } else {
-      attrs.push((
-        "click",
-        @luna.attr_handler(@luna.handler(fn(_) {
-          on_item_click(item.id, item.toggle)
-        })),
-      ))
+      attrs.push(
+        (
+          "click",
+          @luna.attr_handler(
+            @luna.handler(fn(_) { on_item_click(item.id, item.toggle) }),
+          ),
+        ),
+      )
     }
     toolbar_items.push(@luna.h("button", attrs, [@luna.text(item.label)]))
   }

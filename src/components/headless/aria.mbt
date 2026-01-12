@@ -109,10 +109,7 @@ pub fn checkbox_aria(
 
 ///|
 /// Radio button ARIA attributes
-pub fn radio_aria(
-  checked : Bool,
-  disabled : Bool,
-) -> Array[(String, String)] {
+pub fn radio_aria(checked : Bool, disabled : Bool) -> Array[(String, String)] {
   let attrs : Array[(String, String)] = [
     ("role", "radio"),
     ("aria-checked", if checked { "true" } else { "false" }),

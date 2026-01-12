@@ -1,0 +1,5 @@
+import { "mizchi/luna/signal" }
+
+options(
+  "supported-targets": [ "js", "wasm-gc", "native" ],
+)

@@ -35,9 +35,7 @@ pub fn use_accordion_header(
       @luna.attr_dynamic(fn() { if expanded.get() { "true" } else { "false" } }),
     ),
   )
-
   let toggle = fn() { on_expand(index) }
-
   attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) { toggle() }))))
   attrs.push(
     (
@@ -53,7 +51,6 @@ pub fn use_accordion_header(
       ),
     ),
   )
-
   { attrs, toggle, is_expanded }
 }
 

@@ -6,6 +6,39 @@ package "mizchi/luna/examples/apg-playground"
 // Errors
 
 // Types and methods
+pub(all) enum Section {
+  Button
+  Checkbox
+  Switch
+  Radio
+  Slider
+  Spinbutton
+  Listbox
+  Combobox
+  Tabs
+  Accordion
+  Breadcrumb
+  TreeView
+  Toolbar
+  MenuButton
+  Dialog
+  AlertDialog
+  Disclosure
+  Tooltip
+  Alert
+  Meter
+  Link
+  Landmarks
+  Table
+}
+pub impl Eq for Section
+pub impl Show for Section
+
+pub(all) enum ThemeMode {
+  System
+  Light
+  Dark
+}
 
 // Type aliases
 

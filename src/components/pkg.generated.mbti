@@ -32,6 +32,8 @@ pub fn[E] alert(type_? : AlertType, aria_label? : String, Array[@luna.Node[E]]) 
 
 pub fn[E] alert_dialog(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Bool, on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
 
+pub fn[E] alert_dialog_dyn(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, @signal.Signal[Bool], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
 pub fn[E] alert_live(type_? : AlertType, aria_live? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn arrow_direction(String) -> Int
@@ -52,6 +54,8 @@ pub fn breadcrumb_item(String, String, current? : Bool) -> BreadcrumbItem
 
 pub fn[E] button(type_? : ButtonType, disabled? : Bool, aria_label? : String, aria_describedby? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
 
+pub fn[E] caption(id? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
+
 pub fn[E] checkbox(CheckboxState, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] checkbox_computed(() -> CheckboxState, disabled? : Bool, aria_label? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
@@ -63,6 +67,26 @@ pub fn[E] checkbox_group(aria_label? : String, aria_labelledby? : String, Array[
 pub fn[E] checkbox_native(String, Bool, disabled? : Bool, id? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn clamp_index(Int, Int, Int) -> Int
+
+pub fn[E] combobox_input(String, String, Bool, String, autocomplete? : AutocompleteType, aria_label? : String, aria_labelledby? : String, active_descendant? : String, on_input? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], on_focus? : @luna.EventHandler[E], on_blur? : @luna.EventHandler[E]) -> @luna.Node[E]
+
+pub fn[E] combobox_input_dyn(String, String, @signal.Signal[Bool], @signal.Signal[String], autocomplete? : AutocompleteType, aria_label? : String, @signal.Signal[String], on_input? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], on_focus? : @luna.EventHandler[E], on_blur? : @luna.EventHandler[E]) -> @luna.Node[E]
+
+pub fn combobox_interactive(String, Array[ComboboxOption], placeholder? : String, aria_label? : String, (ComboboxOption) -> Unit) -> @luna.Node[@core.Any]
+
+pub fn[E] combobox_listbox(String, String, Bool, Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] combobox_listbox_dyn(String, String, @signal.Signal[Bool], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn combobox_option(String, String, disabled? : Bool) -> ComboboxOption
+
+pub fn[E] combobox_option_dyn(String, String, @signal.Signal[String], disabled? : Bool, on_click? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] combobox_option_el(String, Bool, disabled? : Bool, on_click? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn combobox_select_only(String, Array[ComboboxOption], initial_value? : String, aria_label? : String, (ComboboxOption) -> Unit) -> @luna.Node[@core.Any]
+
+pub fn confirm_dialog(String, String, String, confirm_label? : String, cancel_label? : String, @signal.Signal[Bool], () -> Unit, () -> Unit) -> @luna.Node[@core.Any]
 
 pub fn[E] contentinfo(aria_label? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
@@ -92,6 +116,8 @@ pub fn[E] disclosure_dyn(String, @signal.Signal[Bool], Array[@luna.Node[E]], Arr
 
 pub fn[E] form_landmark(aria_label? : String, aria_labelledby? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
+pub fn has_children(TreeNode) -> Bool
+
 pub fn is_arrow_key(String) -> Bool
 
 pub fn is_horizontal_arrow(String) -> Bool
@@ -116,19 +142,55 @@ pub fn listbox_option(String, String, disabled? : Bool) -> ListboxOption
 
 pub fn[E] main_content(Array[@luna.Node[E]]) -> @luna.Node[E]
 
+pub fn make_combobox_handler(() -> Bool, () -> Array[ComboboxOption], () -> Int, () -> Unit, () -> Unit, (Int) -> Unit, (ComboboxOption) -> Unit) -> @luna.EventHandler[@core.Any]
+
 pub fn make_escape_handler(() -> Unit) -> @luna.EventHandler[@core.Any]
 
 pub fn make_horizontal_nav_handler(() -> Int, Int, (Int) -> Unit, wrap? : Bool, support_home_end? : Bool) -> @luna.EventHandler[@core.Any]
 
+pub fn make_menu_button_handler(() -> Bool, () -> Unit, () -> Unit, () -> Unit, () -> Unit) -> @luna.EventHandler[@core.Any]
+
+pub fn make_menu_nav_handler(() -> Int, Int, (Int) -> Unit, () -> Unit, (Int) -> Unit) -> @luna.EventHandler[@core.Any]
+
+pub fn make_slider_drag_handler(Double, Double, Double, (Double) -> Unit) -> @luna.EventHandler[@core.Any]
+
 pub fn make_slider_handler(() -> Double, Double, Double, Double, (Double) -> Unit, large_step? : Double) -> @luna.EventHandler[@core.Any]
+
+pub fn make_sort_handler(String, () -> String, () -> SortDirection, (String, SortDirection) -> Unit) -> @luna.EventHandler[@core.Any]
+
+pub fn make_spinbutton_handler(() -> Double, Double?, Double?, Double, (Double) -> Unit, large_step? : Double) -> @luna.EventHandler[@core.Any]
+
+pub fn make_spinbutton_input_handler(Double?, Double?, (Double) -> Unit, () -> Double) -> @luna.EventHandler[@core.Any]
+
+pub fn make_table_handler(Int, Int, () -> Int, () -> Int, (Int, Int) -> Unit, (Int, Int) -> Unit, page_size? : Int) -> @luna.EventHandler[@core.Any]
 
 pub fn make_toggle_handler(() -> Unit) -> @luna.EventHandler[@core.Any]
 
+pub fn make_toolbar_handler(() -> Int, Int, (Int) -> Unit, ToolbarOrientation, (Int) -> Unit) -> @luna.EventHandler[@core.Any]
+
+pub fn make_tree_handler(Array[TreeNode], @signal.Signal[String], @signal.Signal[Map[String, Bool]], @signal.Signal[String], (String) -> Unit) -> @luna.EventHandler[@core.Any]
+
 pub fn make_vertical_nav_handler(() -> Int, Int, (Int) -> Unit, wrap? : Bool, support_home_end? : Bool) -> @luna.EventHandler[@core.Any]
+
+pub fn[E] menu(String, String, Bool, Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] menu_button(PopupType, Bool, controls? : String, aria_label? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] menu_button_dyn(PopupType, @signal.Signal[Bool], controls? : String, aria_label? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn menu_button_interactive(String, Array[MenuItem], (String) -> Unit, Array[@luna.Node[@core.Any]]) -> @luna.Node[@core.Any]
+
+pub fn[E] menu_dyn(String, String, @signal.Signal[Bool], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn menu_item(String, String, disabled? : Bool) -> MenuItem
+
+pub fn[E] menu_trigger(String, Bool, String, aria_label? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] menu_trigger_dyn(String, @signal.Signal[Bool], String, aria_label? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] menuitem(id? : String, Bool, disabled? : Bool, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] menuitem_dyn(id? : String, @signal.Signal[Int], Int, disabled? : Bool, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] meter(Double, min? : Double, max? : Double, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
@@ -170,6 +232,8 @@ pub fn[E] search(aria_label? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] search_role(aria_label? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
+pub fn[E] simple_table(String, caption_text? : String, Array[String], Array[Array[String]]) -> @luna.Node[E]
+
 pub fn[E] slider(Double, min? : Double, max? : Double, step? : Double, orientation? : SliderOrientation, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] slider_dyn(@signal.Signal[Double], min? : Double, max? : Double, orientation? : SliderOrientation, aria_label? : String, aria_valuetext_fn? : (Double) -> String, on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
@@ -177,6 +241,14 @@ pub fn[E] slider_dyn(@signal.Signal[Double], min? : Double, max? : Double, orien
 pub fn slider_interactive(@signal.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, orientation? : SliderOrientation, aria_label? : String, aria_valuetext_fn? : (Double) -> String, Array[@luna.Node[@core.Any]]) -> @luna.Node[@core.Any]
 
 pub fn[E] slider_native(String, Double, min? : Double, max? : Double, step? : Double, aria_label? : String, id? : String) -> @luna.Node[E]
+
+pub fn[E] spinbutton(Double, min? : Double, max? : Double, step? : Double, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, disabled? : Bool, is_readonly? : Bool, on_keydown? : @luna.EventHandler[E], on_input? : @luna.EventHandler[E]) -> @luna.Node[E]
+
+pub fn[E] spinbutton_dyn(@signal.Signal[Double], min? : Double, max? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String, on_keydown? : @luna.EventHandler[E], on_input? : @luna.EventHandler[E]) -> @luna.Node[E]
+
+pub fn spinbutton_interactive(@signal.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String) -> @luna.Node[@core.Any]
+
+pub fn[E] spinbutton_native(String, Double, min? : Double, max? : Double, step? : Double, aria_label? : String, id? : String) -> @luna.Node[E]
 
 pub fn[E] status(type_? : AlertType, Array[@luna.Node[E]]) -> @luna.Node[E]
 
@@ -198,6 +270,14 @@ pub fn[E] tab_dyn(String, @signal.Signal[Bool], String, on_click? : @luna.EventH
 
 pub fn[E] tab_item(String, String, Array[@luna.Node[E]]) -> TabItem[E]
 
+pub fn[E] table(id? : String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn table_column(String, String, sortable? : Bool) -> TableColumn
+
+pub fn table_interactive(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, on_row_select? : (String) -> Unit, on_sort? : (String, SortDirection) -> Unit) -> @luna.Node[@core.Any]
+
+pub fn table_row(String, Array[String], disabled? : Bool) -> TableRow
+
 pub fn[E] tablist(aria_label? : String, orientation? : TabsOrientation, Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] tabpanel(String, String, Bool, Array[@luna.Node[E]]) -> @luna.Node[E]
@@ -212,9 +292,33 @@ pub fn[E] tabs_dyn(Array[TabItem[E]], @signal.Signal[Int], aria_label? : String,
 
 pub fn tabs_interactive(Array[TabItem[@core.Any]], @signal.Signal[Int], aria_label? : String, orientation? : TabsOrientation) -> @luna.Node[@core.Any]
 
+pub fn[E] tbody(Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] td(id? : String, headers? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] tfoot(Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] th(id? : String, scope? : String, sort? : SortDirection, on_click? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] th_dyn(String, String, @signal.Signal[String], @signal.Signal[SortDirection], on_click? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] thead(Array[@luna.Node[E]]) -> @luna.Node[E]
+
 pub fn[E] toggle_button(ToggleState, disabled? : Bool, aria_label? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] toggle_button_dyn(@signal.Signal[Bool], disabled? : Bool, aria_label? : String, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] toolbar(aria_label? : String, aria_labelledby? : String, orientation? : ToolbarOrientation, Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn toolbar_interactive(String, Array[ToolbarItemDef], @signal.Signal[Map[String, Bool]], orientation? : ToolbarOrientation, aria_label? : String, (String, Bool) -> Unit) -> @luna.Node[@core.Any]
+
+pub fn[E] toolbar_item(Bool, pressed? : Bool, disabled? : Bool, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn toolbar_item_def(String, String, toggle? : Bool, disabled? : Bool) -> ToolbarItemDef
+
+pub fn[E] toolbar_item_dyn(@signal.Signal[Int], Int, pressed? : Bool, disabled? : Bool, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] toolbar_separator(orientation? : ToolbarOrientation) -> @luna.Node[E]
 
 pub fn[E] tooltip(String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
@@ -225,6 +329,20 @@ pub fn[E] tooltip_popup(String, Bool, Array[@luna.Node[E]]) -> @luna.Node[E]
 pub fn[E] tooltip_trigger(String, tag? : String, Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn[E] tooltip_with_trigger(String, Array[@luna.Node[E]], Array[@luna.Node[E]], Bool) -> @luna.Node[E]
+
+pub fn[E] tr(id? : String, selected? : Bool, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] tr_dyn(String, @signal.Signal[String], on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] tree(id? : String, aria_label? : String, aria_labelledby? : String, multiselectable? : Bool, Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn tree_interactive(String, Array[TreeNode], aria_label? : String, (String) -> Unit) -> @luna.Node[@core.Any]
+
+pub fn tree_node(String, String, children? : Array[TreeNode], disabled? : Bool) -> TreeNode
+
+pub fn[E] treeitem(id? : String, Bool, expanded? : Bool, Bool, Bool, disabled? : Bool, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]], children? : Array[@luna.Node[E]]) -> @luna.Node[E]
+
+pub fn[E] treeitem_dyn(id? : String, @signal.Signal[String], String, expanded? : @signal.Signal[Map[String, Bool]], Bool, @signal.Signal[String], disabled? : Bool, on_click? : @luna.EventHandler[E], on_keydown? : @luna.EventHandler[E], Array[@luna.Node[E]], children? : Array[@luna.Node[E]]) -> @luna.Node[E]
 
 pub fn wrap_index(Int, Int, Int) -> Int
 
@@ -245,6 +363,13 @@ pub(all) enum AlertType {
   Error
 }
 
+pub(all) enum AutocompleteType {
+  None
+  List
+  Both
+  Inline
+}
+
 pub(all) struct BreadcrumbItem {
   href : String
   label : String
@@ -261,6 +386,12 @@ pub(all) enum CheckboxState {
   Checked
   Unchecked
   Mixed
+}
+
+pub(all) struct ComboboxOption {
+  id : String
+  label : String
+  disabled : Bool
 }
 
 pub(all) enum KeyCode {
@@ -292,6 +423,12 @@ pub(all) struct ListboxOption {
   disabled : Bool
 }
 
+pub(all) struct MenuItem {
+  id : String
+  label : String
+  disabled : Bool
+}
+
 pub(all) enum PopupType {
   Menu
   Listbox
@@ -311,10 +448,29 @@ pub(all) enum SliderOrientation {
   Vertical
 }
 
+pub(all) enum SortDirection {
+  None
+  Ascending
+  Descending
+}
+
 pub(all) struct TabItem[E] {
   id : String
   label : String
   panel : Array[@luna.Node[E]]
+}
+
+pub(all) struct TableColumn {
+  id : String
+  label : String
+  sortable : Bool
+  header_scope : String
+}
+
+pub(all) struct TableRow {
+  id : String
+  cells : Array[String]
+  disabled : Bool
 }
 
 pub(all) enum TabsOrientation {
@@ -325,6 +481,25 @@ pub(all) enum TabsOrientation {
 pub(all) enum ToggleState {
   Pressed
   NotPressed
+}
+
+pub(all) struct ToolbarItemDef {
+  id : String
+  label : String
+  toggle : Bool
+  disabled : Bool
+}
+
+pub(all) enum ToolbarOrientation {
+  Horizontal
+  Vertical
+}
+
+pub(all) struct TreeNode {
+  id : String
+  label : String
+  children : Array[TreeNode]
+  disabled : Bool
 }
 
 // Type aliases

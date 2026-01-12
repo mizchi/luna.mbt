@@ -1,0 +1,3 @@
+import { "mizchi/luna" as @luna }
+
+import "test" { "mizchi/luna/signal" }

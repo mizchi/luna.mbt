@@ -154,12 +154,29 @@ fn section_id(section : Section) -> String {
 ///|
 fn all_sections() -> Array[Section] {
   [
-    Button, Checkbox, Switch, Radio, Slider, Spinbutton,
-    Listbox, Combobox,
-    Tabs, Accordion, Breadcrumb, TreeView, Toolbar, MenuButton,
-    Dialog, AlertDialog, Disclosure, Tooltip,
-    Alert, Meter,
-    Link, Landmarks, Table,
+    Button,
+    Checkbox,
+    Switch,
+    Radio,
+    Slider,
+    Spinbutton,
+    Listbox,
+    Combobox,
+    Tabs,
+    Accordion,
+    Breadcrumb,
+    TreeView,
+    Toolbar,
+    MenuButton,
+    Dialog,
+    AlertDialog,
+    Disclosure,
+    Tooltip,
+    Alert,
+    Meter,
+    Link,
+    Landmarks,
+    Table,
   ]
 }
 
@@ -204,18 +221,16 @@ fn checkbox_demo() -> @luna.Node[@js.Any] {
     h2([@luna.text("Checkbox")]),
     p([@luna.text("Accessible checkbox with native input and custom styling")]),
     @checkbox.checkbox_group(aria_label="Agreement options", [
-      @checkbox.checkbox(terms, [@luna.text("I agree to the terms and conditions")]),
+      @checkbox.checkbox(terms, [
+        @luna.text("I agree to the terms and conditions"),
+      ]),
       @checkbox.checkbox(newsletter, [@luna.text("Subscribe to newsletter")]),
-      @checkbox.checkbox(
-        select_all,
-        indeterminate=true,
-        [@luna.text("Select all items")],
-      ),
-      @checkbox.checkbox(
-        @signal.signal(false),
-        disabled=true,
-        [@luna.text("Unavailable option (disabled)")],
-      ),
+      @checkbox.checkbox(select_all, indeterminate=true, [
+        @luna.text("Select all items"),
+      ]),
+      @checkbox.checkbox(@signal.signal(false), disabled=true, [
+        @luna.text("Unavailable option (disabled)"),
+      ]),
     ]),
   ])
 }
@@ -231,12 +246,9 @@ fn switch_demo() -> @luna.Node[@js.Any] {
   @switch.switch_group(aria_label="Settings", [
     @switch.switch(wifi, aria_label="Wi-Fi", [@luna.text("Wi-Fi")]),
     @switch.switch(bluetooth, aria_label="Bluetooth", [@luna.text("Bluetooth")]),
-    @switch.switch_static(
-      false,
-      disabled=true,
-      aria_label="Airplane Mode",
-      [@luna.text("Airplane Mode (disabled)")],
-    ),
+    @switch.switch_static(false, disabled=true, aria_label="Airplane Mode", [
+      @luna.text("Airplane Mode (disabled)"),
+    ]),
   ])
 }
 
@@ -256,7 +268,12 @@ fn radio_demo() -> @luna.Node[@js.Any] {
   div([
     h2([@luna.text("Radio Group")]),
     p([@luna.text("Select one option from the group")]),
-    @radio.radio_group("demo-radio", items, selected, aria_label="Choose an option"),
+    @radio.radio_group(
+      "demo-radio",
+      items,
+      selected,
+      aria_label="Choose an option",
+    ),
     p([@luna.text_dyn(fn() { "Selected: " + selected.get() })]),
   ])
 }
@@ -292,9 +309,15 @@ fn tabs_demo() -> @luna.Node[@js.Any] {
 fn accordion_demo() -> @luna.Node[@js.Any] {
   let expanded = @signal.signal(-1) // -1 = all collapsed
   let items : Array[@accordion.AccordionItemData] = [
-    @accordion.accordion_item("0", "Section 1", [@luna.text("Content for section 1")]),
-    @accordion.accordion_item("1", "Section 2", [@luna.text("Content for section 2")]),
-    @accordion.accordion_item("2", "Section 3", [@luna.text("Content for section 3")]),
+    @accordion.accordion_item("0", "Section 1", [
+      @luna.text("Content for section 1"),
+    ]),
+    @accordion.accordion_item("1", "Section 2", [
+      @luna.text("Content for section 2"),
+    ]),
+    @accordion.accordion_item("2", "Section 3", [
+      @luna.text("Content for section 3"),
+    ]),
   ]
   div([
     h2([@luna.text("Accordion")]),
@@ -472,7 +495,11 @@ fn spinbutton_demo() -> @luna.Node[@js.Any] {
   let value = @signal.signal(5.0)
   div([
     h2([@luna.text("Spinbutton")]),
-    p([@luna.text("Number input with keyboard support (↑/↓, Home/End, PageUp/PageDown)")]),
+    p([
+      @luna.text(
+        "Number input with keyboard support (↑/↓, Home/End, PageUp/PageDown)",
+      ),
+    ]),
     @spinbutton.spinbutton(
       value,
       min=0.0,
@@ -505,7 +532,11 @@ fn combobox_demo() -> @luna.Node[@js.Any] {
   ]
   div([
     h2([@luna.text("Combobox")]),
-    p([@luna.text("Text input with autocomplete dropdown (↑/↓, Enter, Escape)")]),
+    p([
+      @luna.text(
+        "Text input with autocomplete dropdown (↑/↓, Enter, Escape)",
+      ),
+    ]),
     @apg.combobox_interactive(
       "fruit-combo",
       options,
@@ -525,33 +556,31 @@ fn combobox_demo() -> @luna.Node[@js.Any] {
 fn treeview_demo() -> @luna.Node[@js.Any] {
   let selected_node = @signal.signal("")
   let nodes = [
-    @apg.tree_node(
-      "documents",
-      "Documents",
-      children=[
-        @apg.tree_node("work", "Work", children=[
-          @apg.tree_node("report", "Annual Report"),
-          @apg.tree_node("budget", "Budget 2024"),
-        ]),
-        @apg.tree_node("personal", "Personal", children=[
-          @apg.tree_node("photos", "Photos"),
-          @apg.tree_node("notes", "Notes"),
-        ]),
-      ],
-    ),
-    @apg.tree_node(
-      "downloads",
-      "Downloads",
-      children=[
-        @apg.tree_node("file1", "file1.zip"),
-        @apg.tree_node("file2", "file2.pdf"),
-      ],
-    ),
+    @apg.tree_node("documents", "Documents", children=[
+      @apg.tree_node("work", "Work", children=[
+        @apg.tree_node("report", "Annual Report"),
+        @apg.tree_node("budget", "Budget 2024"),
+      ]),
+      @apg.tree_node("personal", "Personal", children=[
+        @apg.tree_node("photos", "Photos"),
+        @apg.tree_node("notes", "Notes"),
+      ]),
+    ]),
+    @apg.tree_node("downloads", "Downloads", children=[
+      @apg.tree_node("file1", "file1.zip"),
+      @apg.tree_node("file2", "file2.pdf"),
+    ]),
   ]
   div([
     h2([@luna.text("Tree View")]),
-    p([@luna.text("Hierarchical list (↑/↓/←/→ arrows, Home/End, Enter/Space)")]),
-    @apg.tree_interactive("file-tree", nodes, aria_label="File browser", fn(id) {
+    p([
+      @luna.text(
+        "Hierarchical list (↑/↓/←/→ arrows, Home/End, Enter/Space)",
+      ),
+    ]),
+    @apg.tree_interactive("file-tree", nodes, aria_label="File browser", fn(
+      id,
+    ) {
       selected_node.set(id)
     }),
     p([@luna.text_dyn(fn() { "Selected: " + selected_node.get() })]),
@@ -564,7 +593,7 @@ fn treeview_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn toolbar_demo() -> @luna.Node[@js.Any] {
-  let pressed_states : @signal.Signal[Map[String, Bool]] = @signal.signal({  })
+  let pressed_states : @signal.Signal[Map[String, Bool]] = @signal.signal({})
   let items = [
     @apg.toolbar_item_def("bold", "Bold", toggle=true),
     @apg.toolbar_item_def("italic", "Italic", toggle=true),
@@ -610,10 +639,17 @@ fn menu_button_demo() -> @luna.Node[@js.Any] {
   ]
   div([
     h2([@luna.text("Menu Button")]),
-    p([@luna.text("Button that opens a menu dropdown (↑/↓, Enter/Space, Escape)")]),
-    @apg.menu_button_interactive("file-menu", items, fn(id) {
-      selected_action.set(id)
-    }, [@luna.text("File ▾")]),
+    p([
+      @luna.text(
+        "Button that opens a menu dropdown (↑/↓, Enter/Space, Escape)",
+      ),
+    ]),
+    @apg.menu_button_interactive(
+      "file-menu",
+      items,
+      fn(id) { selected_action.set(id) },
+      [@luna.text("File ▾")],
+    ),
     p([@luna.text_dyn(fn() { "Last action: " + selected_action.get() })]),
   ])
 }
@@ -658,10 +694,22 @@ fn tooltip_demo() -> @luna.Node[@js.Any] {
       "span",
       [
         ("class", @luna.attr_static("tooltip-wrapper")),
-        ("mouseenter", @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) }))),
-        ("mouseleave", @luna.attr_handler(@luna.handler(fn(_) { visible.set(false) }))),
-        ("focus", @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) }))),
-        ("blur", @luna.attr_handler(@luna.handler(fn(_) { visible.set(false) }))),
+        (
+          "mouseenter",
+          @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) })),
+        ),
+        (
+          "mouseleave",
+          @luna.attr_handler(@luna.handler(fn(_) { visible.set(false) })),
+        ),
+        (
+          "focus",
+          @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) })),
+        ),
+        (
+          "blur",
+          @luna.attr_handler(@luna.handler(fn(_) { visible.set(false) })),
+        ),
       ],
       [
         @apg.tooltip_trigger("demo-tooltip", [@luna.text("Hover me")]),
@@ -683,8 +731,12 @@ fn alert_demo() -> @luna.Node[@js.Any] {
     h2([@luna.text("Alert")]),
     p([@luna.text("Live region for important messages")]),
     @apg.alert(type_=@apg.Error, [@luna.text("Error: Something went wrong!")]),
-    @apg.alert(type_=@apg.Warning, [@luna.text("Warning: Please check your input.")]),
-    @apg.alert(type_=@apg.Success, [@luna.text("Success: Your changes have been saved.")]),
+    @apg.alert(type_=@apg.Warning, [
+      @luna.text("Warning: Please check your input."),
+    ]),
+    @apg.alert(type_=@apg.Success, [
+      @luna.text("Success: Your changes have been saved."),
+    ]),
     @apg.status([@luna.text("Status: Processing your request...")]),
   ])
 }
@@ -709,8 +761,12 @@ fn meter_demo() -> @luna.Node[@js.Any] {
     ),
     p([@luna.text_dyn(fn() { "Value: " + value.get().to_string() + "%" })]),
     div([
-      btn(@luna.handler(fn(_) { value.set(value.get() - 10.0) }), [@luna.text("-10")]),
-      btn(@luna.handler(fn(_) { value.set(value.get() + 10.0) }), [@luna.text("+10")]),
+      btn(@luna.handler(fn(_) { value.set(value.get() - 10.0) }), [
+        @luna.text("-10"),
+      ]),
+      btn(@luna.handler(fn(_) { value.set(value.get() + 10.0) }), [
+        @luna.text("+10"),
+      ]),
     ]),
   ])
 }
@@ -726,11 +782,9 @@ fn link_demo() -> @luna.Node[@js.Any] {
     p([@luna.text("Accessible hyperlinks")]),
     @apg.link("https://www.w3.org/WAI/ARIA/apg/", [@luna.text("WAI-ARIA APG")]),
     @luna.text(" | "),
-    @apg.link(
-      "https://moonbitlang.com",
-      target=@apg.Blank,
-      [@luna.text("MoonBit (opens in new tab)")],
-    ),
+    @apg.link("https://moonbitlang.com", target=@apg.Blank, [
+      @luna.text("MoonBit (opens in new tab)"),
+    ]),
     @luna.text(" | "),
     @apg.link("#", disabled=true, [@luna.text("Disabled Link")]),
   ])
@@ -746,15 +800,15 @@ fn landmarks_demo() -> @luna.Node[@js.Any] {
     h2([@luna.text("Landmarks")]),
     p([@luna.text("ARIA landmark roles for page structure")]),
     div_class("landmarks-example", [
-      @apg.main_content([@luna.h("p", [], [@luna.text("Main content area (role=main)")])]),
-      @apg.region(
-        aria_label="Example Section",
-        [@luna.h("p", [], [@luna.text("A named region")])],
-      ),
-      @apg.aside(
-        aria_label="Related Info",
-        [@luna.h("p", [], [@luna.text("Complementary content (aside)")])],
-      ),
+      @apg.main_content([
+        @luna.h("p", [], [@luna.text("Main content area (role=main)")]),
+      ]),
+      @apg.region(aria_label="Example Section", [
+        @luna.h("p", [], [@luna.text("A named region")]),
+      ]),
+      @apg.aside(aria_label="Related Info", [
+        @luna.h("p", [], [@luna.text("Complementary content (aside)")]),
+      ]),
     ]),
   ])
 }
@@ -819,14 +873,23 @@ fn set_theme(mode : ThemeMode) -> Unit {
     System => {
       log("Setting theme: system")
       let _ = root._call("removeAttribute", [@js.any("data-theme")])
+
     }
     Light => {
       log("Setting theme: light")
-      let _ = root._call("setAttribute", [@js.any("data-theme"), @js.any("light")])
+      let _ = root._call("setAttribute", [
+        @js.any("data-theme"),
+        @js.any("light"),
+      ])
+
     }
     Dark => {
       log("Setting theme: dark")
-      let _ = root._call("setAttribute", [@js.any("data-theme"), @js.any("dark")])
+      let _ = root._call("setAttribute", [
+        @js.any("data-theme"),
+        @js.any("dark"),
+      ])
+
     }
   }
 }
@@ -837,6 +900,7 @@ fn set_accent(color : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let root = doc._get("documentElement")
   let _ = root._call("setAttribute", [@js.any("data-accent"), @js.any(color)])
+
 }
 
 ///|
@@ -883,7 +947,10 @@ fn demo_section(
         @luna.text(title),
         @luna.h(
           "a",
-          [("href", @luna.attr_static("#" + id)), ("aria-label", @luna.attr_static("Link to " + title))],
+          [
+            ("href", @luna.attr_static("#" + id)),
+            ("aria-label", @luna.attr_static("Link to " + title)),
+          ],
           [@luna.text("#")],
         ),
       ]),
@@ -904,31 +971,39 @@ fn sidebar_nav_item(
   current : @signal.Signal[Section],
 ) -> @luna.Node[@js.Any] {
   let s = section
-  @luna.h(
-    "li",
-    [],
-    [
-      @luna.h(
-        "button",
-        [
-          (
-            "aria-current",
-            @luna.attr_dynamic(fn() {
-              if current.get() == s { "true" } else { "false" }
+  @luna.h("li", [], [
+    @luna.h(
+      "button",
+      [
+        (
+          "aria-current",
+          @luna.attr_dynamic(fn() {
+            if current.get() == s {
+              "true"
+            } else {
+              "false"
+            }
+          }),
+        ),
+        (
+          "click",
+          @luna.attr_handler(
+            @luna.handler(fn(_) {
+              current.set(s)
+              // Scroll to section
+              let doc = @js.global_this()._get("document")
+              let el = doc._call("getElementById", [@js.any(section_id(s))])
+              let _ = el._call("scrollIntoView", [
+                @js.any({ "behavior": "smooth" }),
+              ])
+
             }),
           ),
-          ("click", @luna.attr_handler(@luna.handler(fn(_) {
-            current.set(s)
-            // Scroll to section
-            let doc = @js.global_this()._get("document")
-            let el = doc._call("getElementById", [@js.any(section_id(s))])
-            let _ = el._call("scrollIntoView", [@js.any({ "behavior": "smooth" })])
-          }))),
-        ],
-        [@luna.text(section_name(s))],
-      ),
-    ],
-  )
+        ),
+      ],
+      [@luna.text(section_name(s))],
+    ),
+  ])
 }
 
 ///|
@@ -948,22 +1023,16 @@ fn accent_controls(accent : @signal.Signal[String]) -> @luna.Node[@js.Any] {
       ),
     )
   }
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("accent-controls"))],
-    [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("theme-controls-label"))],
-        [@luna.text("Accent")],
-      ),
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("color-swatches"))],
-        color_swatches,
-      ),
-    ],
-  )
+  @luna.h("div", [("class", @luna.attr_static("accent-controls"))], [
+    @luna.h("span", [("class", @luna.attr_static("theme-controls-label"))], [
+      @luna.text("Accent"),
+    ]),
+    @luna.h(
+      "div",
+      [("class", @luna.attr_static("color-swatches"))],
+      color_swatches,
+    ),
+  ])
 }
 
 ///|
@@ -977,23 +1046,24 @@ fn sidebar(
   for s in sections {
     nav_items.push(sidebar_nav_item(s, current_section))
   }
-  @luna.h(
-    "aside",
-    [("class", @luna.attr_static("sidebar"))],
-    [
-      @luna.h("h1", [("class", @luna.attr_static("sidebar-title"))], [
-        @luna.text("Component Catalog"),
-      ]),
-      @luna.h("p", [("class", @luna.attr_static("sidebar-subtitle"))], [
-        @luna.text("WAI-ARIA APG Patterns"),
-      ]),
-      @luna.h("ul", [("class", @luna.attr_static("sidebar-nav"))], nav_items),
-      accent_controls(accent),
-      @luna.h("a", [("href", @luna.attr_static("../")), ("class", @luna.attr_static("back-link"))], [
-        @luna.text("\u{2190} Back to Demos"),
-      ]),
-    ],
-  )
+  @luna.h("aside", [("class", @luna.attr_static("sidebar"))], [
+    @luna.h("h1", [("class", @luna.attr_static("sidebar-title"))], [
+      @luna.text("Component Catalog"),
+    ]),
+    @luna.h("p", [("class", @luna.attr_static("sidebar-subtitle"))], [
+      @luna.text("WAI-ARIA APG Patterns"),
+    ]),
+    @luna.h("ul", [("class", @luna.attr_static("sidebar-nav"))], nav_items),
+    accent_controls(accent),
+    @luna.h(
+      "a",
+      [
+        ("href", @luna.attr_static("../")),
+        ("class", @luna.attr_static("back-link")),
+      ],
+      [@luna.text("\u{2190} Back to Demos")],
+    ),
+  ])
 }
 
 // =============================================================================
@@ -1002,27 +1072,19 @@ fn sidebar(
 
 ///|
 fn theme_switch(is_dark : @signal.Signal[Bool]) -> @luna.Node[@js.Any] {
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("theme-switch"))],
-    [
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("theme-switch-icon"))],
-        [@luna.text("\u{2600}")], // ☀
-      ),
-      @switch.switch(
-        is_dark,
-        aria_label="Dark mode",
-        [],
-      ),
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static("theme-switch-icon"))],
-        [@luna.text("\u{1F319}")], // 🌙
-      ),
-    ],
-  )
+  @luna.h("div", [("class", @luna.attr_static("theme-switch"))], [
+    @luna.h(
+      "span",
+      [("class", @luna.attr_static("theme-switch-icon"))],
+      [@luna.text("\u{2600}")], // ☀
+    ),
+    @switch.switch(is_dark, aria_label="Dark mode", []),
+    @luna.h(
+      "span",
+      [("class", @luna.attr_static("theme-switch-icon"))],
+      [@luna.text("\u{1F319}")], // 🌙
+    ),
+  ])
 }
 
 ///|
@@ -1031,161 +1093,157 @@ fn main_content(
   is_dark : @signal.Signal[Bool],
 ) -> @luna.Node[@js.Any] {
   let _ = current_section // Future: could filter to show only current section
-  @luna.h(
-    "main",
-    [("class", @luna.attr_static("main-content"))],
-    [
-      div_class("main-header", [
-        @luna.h(
-          "div",
-          [("class", @luna.attr_static("main-header-top"))],
-          [
-            h1([@luna.text("APG Components Playground")]),
-            theme_switch(is_dark),
-          ],
-        ),
-        p([@luna.text("Interactive demos for WAI-ARIA Authoring Practices Guide compliant components")]),
+  @luna.h("main", [("class", @luna.attr_static("main-content"))], [
+    div_class("main-header", [
+      @luna.h("div", [("class", @luna.attr_static("main-header-top"))], [
+        h1([@luna.text("APG Components Playground")]),
+        theme_switch(is_dark),
       ]),
-      demo_section(
-        "button",
-        "Button",
-        "A button is a widget that enables users to trigger an action or event, such as submitting a form or opening a dialog.",
-        button_demo(),
-      ),
-      demo_section(
-        "checkbox",
-        "Checkbox",
-        "A checkbox is a widget that allows users to select one or more items from a set. Supports tri-state (mixed) for parent checkboxes.",
-        checkbox_demo(),
-      ),
-      demo_section(
-        "switch",
-        "Switch",
-        "A switch is an input widget that allows users to choose one of two binary states: on or off.",
-        switch_demo(),
-      ),
-      demo_section(
-        "radio",
-        "Radio Group",
-        "A radio group is a set of checkable buttons where only one can be checked at a time. Uses arrow keys for navigation.",
-        radio_demo(),
-      ),
-      demo_section(
-        "tabs",
-        "Tabs",
-        "Tabs organize content into separate views that users can switch between. Arrow keys navigate between tabs.",
-        tabs_demo(),
-      ),
-      demo_section(
-        "accordion",
-        "Accordion",
-        "An accordion is a vertically stacked set of interactive headings with associated content sections.",
-        accordion_demo(),
-      ),
-      demo_section(
-        "slider",
-        "Slider",
-        "A slider allows users to select a value within a given range. Supports keyboard (arrows, Home/End, PageUp/PageDown) and mouse drag.",
-        slider_demo(),
-      ),
-      demo_section(
-        "dialog",
-        "Dialog (Modal)",
-        "A dialog is a window overlaid on the primary window. Focus is trapped inside the dialog until dismissed.",
-        dialog_demo(),
-      ),
-      demo_section(
-        "disclosure",
-        "Disclosure (Show/Hide)",
-        "A disclosure widget shows and hides additional content. The button controls the visibility of a content section.",
-        disclosure_demo(),
-      ),
-      demo_section(
-        "breadcrumb",
-        "Breadcrumb",
-        "A breadcrumb trail provides a visual representation of the user's location within a website hierarchy.",
-        breadcrumb_demo(),
-      ),
-      demo_section(
-        "listbox",
-        "Listbox",
-        "A listbox presents a list of options and allows users to select one or more of them.",
-        listbox_demo(),
-      ),
-      demo_section(
-        "spinbutton",
-        "Spinbutton",
-        "A spinbutton is an input widget for numeric values with increment/decrement buttons and keyboard support.",
-        spinbutton_demo(),
-      ),
-      demo_section(
-        "combobox",
-        "Combobox",
-        "A combobox combines a text input with a listbox, allowing users to type to filter or select from options.",
-        combobox_demo(),
-      ),
-      demo_section(
-        "treeview",
-        "Tree View",
-        "A tree view presents a hierarchical list that can be expanded and collapsed.",
-        treeview_demo(),
-      ),
-      demo_section(
-        "toolbar",
-        "Toolbar",
-        "A toolbar groups a set of controls like buttons and toggle buttons with keyboard navigation.",
-        toolbar_demo(),
-      ),
-      demo_section(
-        "menu-button",
-        "Menu Button",
-        "A menu button opens a dropdown menu when activated, with keyboard navigation support.",
-        menu_button_demo(),
-      ),
-      demo_section(
-        "alert-dialog",
-        "Alert Dialog",
-        "An alert dialog interrupts the user's workflow to communicate an important message and require a response.",
-        alert_dialog_demo(),
-      ),
-      demo_section(
-        "tooltip",
-        "Tooltip",
-        "A tooltip displays brief, informational content when a user hovers over or focuses on an element.",
-        tooltip_demo(),
-      ),
-      demo_section(
-        "alert",
-        "Alert",
-        "An alert displays an important message that attracts the user's attention without interrupting their task.",
-        alert_demo(),
-      ),
-      demo_section(
-        "meter",
-        "Meter",
-        "A meter displays a scalar measurement within a known range, such as disk usage or progress.",
-        meter_demo(),
-      ),
-      demo_section(
-        "link",
-        "Link",
-        "A link provides an accessible hyperlink using native anchor elements.",
-        link_demo(),
-      ),
-      demo_section(
-        "landmarks",
-        "Landmarks",
-        "Landmarks identify major sections of a page for assistive technology navigation.",
-        landmarks_demo(),
-      ),
-      demo_section(
-        "table",
-        "Table",
-        "A data table with sortable columns, selectable rows, and keyboard navigation.",
-        table_demo(),
-      ),
-    ],
-  )
+      p([
+        @luna.text(
+          "Interactive demos for WAI-ARIA Authoring Practices Guide compliant components",
+        ),
+      ]),
+    ]),
+    demo_section(
+      "button",
+      "Button",
+      "A button is a widget that enables users to trigger an action or event, such as submitting a form or opening a dialog.",
+      button_demo(),
+    ),
+    demo_section(
+      "checkbox",
+      "Checkbox",
+      "A checkbox is a widget that allows users to select one or more items from a set. Supports tri-state (mixed) for parent checkboxes.",
+      checkbox_demo(),
+    ),
+    demo_section(
+      "switch",
+      "Switch",
+      "A switch is an input widget that allows users to choose one of two binary states: on or off.",
+      switch_demo(),
+    ),
+    demo_section(
+      "radio",
+      "Radio Group",
+      "A radio group is a set of checkable buttons where only one can be checked at a time. Uses arrow keys for navigation.",
+      radio_demo(),
+    ),
+    demo_section(
+      "tabs",
+      "Tabs",
+      "Tabs organize content into separate views that users can switch between. Arrow keys navigate between tabs.",
+      tabs_demo(),
+    ),
+    demo_section(
+      "accordion",
+      "Accordion",
+      "An accordion is a vertically stacked set of interactive headings with associated content sections.",
+      accordion_demo(),
+    ),
+    demo_section(
+      "slider",
+      "Slider",
+      "A slider allows users to select a value within a given range. Supports keyboard (arrows, Home/End, PageUp/PageDown) and mouse drag.",
+      slider_demo(),
+    ),
+    demo_section(
+      "dialog",
+      "Dialog (Modal)",
+      "A dialog is a window overlaid on the primary window. Focus is trapped inside the dialog until dismissed.",
+      dialog_demo(),
+    ),
+    demo_section(
+      "disclosure",
+      "Disclosure (Show/Hide)",
+      "A disclosure widget shows and hides additional content. The button controls the visibility of a content section.",
+      disclosure_demo(),
+    ),
+    demo_section(
+      "breadcrumb",
+      "Breadcrumb",
+      "A breadcrumb trail provides a visual representation of the user's location within a website hierarchy.",
+      breadcrumb_demo(),
+    ),
+    demo_section(
+      "listbox",
+      "Listbox",
+      "A listbox presents a list of options and allows users to select one or more of them.",
+      listbox_demo(),
+    ),
+    demo_section(
+      "spinbutton",
+      "Spinbutton",
+      "A spinbutton is an input widget for numeric values with increment/decrement buttons and keyboard support.",
+      spinbutton_demo(),
+    ),
+    demo_section(
+      "combobox",
+      "Combobox",
+      "A combobox combines a text input with a listbox, allowing users to type to filter or select from options.",
+      combobox_demo(),
+    ),
+    demo_section(
+      "treeview",
+      "Tree View",
+      "A tree view presents a hierarchical list that can be expanded and collapsed.",
+      treeview_demo(),
+    ),
+    demo_section(
+      "toolbar",
+      "Toolbar",
+      "A toolbar groups a set of controls like buttons and toggle buttons with keyboard navigation.",
+      toolbar_demo(),
+    ),
+    demo_section(
+      "menu-button",
+      "Menu Button",
+      "A menu button opens a dropdown menu when activated, with keyboard navigation support.",
+      menu_button_demo(),
+    ),
+    demo_section(
+      "alert-dialog",
+      "Alert Dialog",
+      "An alert dialog interrupts the user's workflow to communicate an important message and require a response.",
+      alert_dialog_demo(),
+    ),
+    demo_section(
+      "tooltip",
+      "Tooltip",
+      "A tooltip displays brief, informational content when a user hovers over or focuses on an element.",
+      tooltip_demo(),
+    ),
+    demo_section(
+      "alert",
+      "Alert",
+      "An alert displays an important message that attracts the user's attention without interrupting their task.",
+      alert_demo(),
+    ),
+    demo_section(
+      "meter",
+      "Meter",
+      "A meter displays a scalar measurement within a known range, such as disk usage or progress.",
+      meter_demo(),
+    ),
+    demo_section(
+      "link",
+      "Link",
+      "A link provides an accessible hyperlink using native anchor elements.",
+      link_demo(),
+    ),
+    demo_section(
+      "landmarks",
+      "Landmarks",
+      "Landmarks identify major sections of a page for assistive technology navigation.",
+      landmarks_demo(),
+    ),
+    demo_section(
+      "table",
+      "Table",
+      "A data table with sortable columns, selectable rows, and keyboard navigation.",
+      table_demo(),
+    ),
+  ])
 }
 
 // =============================================================================
@@ -1196,7 +1254,9 @@ fn main_content(
 fn app() -> @luna.Node[@js.Any] {
   // Check system preference for initial dark mode
   let window = @js.global_this()
-  let media_query = window._call("matchMedia", [@js.any("(prefers-color-scheme: dark)")])
+  let media_query = window._call("matchMedia", [
+    @js.any("(prefers-color-scheme: dark)"),
+  ])
   let prefers_dark : Bool = media_query._get("matches").cast()
   let is_dark = @signal.signal(prefers_dark)
   let accent = @signal.signal("amber")
@@ -1624,15 +1684,20 @@ fn inject_styled_css() -> Unit {
 
   // Log which CSS was injected
   let console = @js.global_this()._get("console")
-  console._call("log", [@js.any("[Luna] Injected styled CSS for all components")]) |> ignore
-  console._call("log", [@js.any("[Luna] CSS size: " + css.length().to_string() + " chars")]) |> ignore
+  console._call("log", [
+    @js.any("[Luna] Injected styled CSS for all components"),
+  ])
+  |> ignore
+  console._call("log", [
+    @js.any("[Luna] CSS size: " + css.length().to_string() + " chars"),
+  ])
+  |> ignore
 }
 
 ///|
 fn main {
   // Inject styled component CSS first
   inject_styled_css()
-
   let doc = @dom.document()
   match doc.getElementById("app") {
     Some(el) => @client.render_vnode(el, app())

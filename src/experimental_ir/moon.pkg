@@ -1,0 +1,3 @@
+options(
+  "warn-list": "-9-struct_never_constructed",
+)

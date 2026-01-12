@@ -1,0 +1,5 @@
+import { "mizchi/luna/css" }
+
+options(
+  "supported-targets": [ "js" ],
+)

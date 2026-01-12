@@ -58,11 +58,7 @@ pub fn use_switch(
   })
 
   // Toggle function
-  let toggle = fn() {
-    if not(is_disabled) {
-      on.set(not(on.get()))
-    }
-  }
+  let toggle = fn() { if not(is_disabled) { on.set(not(on.get())) } }
 
   // Add click handler
   attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) { toggle() }))))
@@ -82,7 +78,6 @@ pub fn use_switch(
       ),
     ),
   )
-
   { attrs, toggle, is_on }
 }
 
@@ -109,7 +104,6 @@ pub fn use_switch_computed(
     ),
     ("tabindex", @luna.attr_static(if is_disabled { "-1" } else { "0" })),
   ]
-
   if is_disabled {
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
@@ -121,11 +115,7 @@ pub fn use_switch_computed(
   }
 
   // Toggle function
-  let toggle = fn() {
-    if not(is_disabled) {
-      set_on(not(get_on()))
-    }
-  }
+  let toggle = fn() { if not(is_disabled) { set_on(not(get_on())) } }
 
   // Add handlers
   attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) { toggle() }))))
@@ -143,7 +133,6 @@ pub fn use_switch_computed(
       ),
     ),
   )
-
   { attrs, toggle, is_on }
 }
 

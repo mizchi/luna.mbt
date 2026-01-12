@@ -43,9 +43,9 @@ pub fn spinbutton(
   value : @signal.Signal[Double],
   min? : Double,
   max? : Double,
-  step~ : Double = 1.0,
+  step? : Double = 1.0,
   large_step? : Double,
-  disabled~ : Bool = false,
+  disabled? : Bool = false,
   aria_label? : String,
   aria_valuetext_fn? : (Double) -> String,
   label? : String,
@@ -53,12 +53,10 @@ pub fn spinbutton(
 ) -> @luna.Node[@js.Any] {
   let slots = spinbutton_slots()
   let big_step = large_step.unwrap_or(step * 10.0)
-
   let root_class = match class {
     Some(c) => slots.root + " " + c
     None => slots.root
   }
-
   let root_attrs : Array[(String, @luna.Attr[@js.Any])] = [
     ("class", @luna.attr_static(root_class)),
   ]
@@ -123,7 +121,9 @@ pub fn spinbutton(
     }
     let target = e._get("target")
     let input_str : String = target._get("value").cast()
-    let v : Double = @js.global_this()._call("parseFloat", [@js.any(input_str)]).cast()
+    let v : Double = @js.global_this()
+      ._call("parseFloat", [@js.any(input_str)])
+      .cast()
     let is_nan : Bool = @js.global_this()._call("isNaN", [@js.any(v)]).cast()
     if not(is_nan) {
       value.set(clamp(v))
@@ -151,7 +151,9 @@ pub fn spinbutton(
     input_attrs.push(("aria-label", @luna.attr_static(l)))
   }
   if aria_valuetext_fn is Some(fn_) {
-    input_attrs.push(("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })))
+    input_attrs.push(
+      ("aria-valuetext", @luna.attr_dynamic(fn() { fn_(value.get()) })),
+    )
   }
   if disabled {
     input_attrs.push(("disabled", @luna.attr_static("")))
@@ -169,7 +171,6 @@ pub fn spinbutton(
     dec_attrs.push(("disabled", @luna.attr_static("")))
   }
   let dec_btn = @luna.h("button", dec_attrs, [@luna.text("-")])
-
   let inc_attrs : Array[(String, @luna.Attr[@js.Any])] = [
     ("type", @luna.attr_static("button")),
     ("class", @luna.attr_static(slots.button + " " + slots.increment)),
@@ -192,14 +193,13 @@ pub fn spinbutton(
   // Build root
   let children : Array[@luna.Node[@js.Any]] = []
   if label is Some(l) {
-    children.push(@luna.h(
-      "label",
-      [("class", @luna.attr_static(slots.label))],
-      [@luna.text(l)],
-    ))
+    children.push(
+      @luna.h("label", [("class", @luna.attr_static(slots.label))], [
+        @luna.text(l),
+      ]),
+    )
   }
   children.push(controls)
-
   @luna.h("div", root_attrs, children)
 }
 

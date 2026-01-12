@@ -1,6 +1,5 @@
 ///|
 /// Tests for default switch component
-
 test "switch_css returns valid CSS" {
   let css = switch_css()
   // Check that CSS contains expected selectors
@@ -15,6 +14,7 @@ test "switch_css returns valid CSS" {
   assert_true(css.contains("[data-disabled]"))
 }
 
+///|
 test "switch_slots returns BEM class names" {
   let slots = switch_slots()
   assert_eq(slots.root, "switch")

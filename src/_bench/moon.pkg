@@ -1,0 +1,14 @@
+import {
+  "mizchi/luna" as @luna,
+  "mizchi/luna/signal",
+  "mizchi/luna/render" as @ssr,
+  "mizchi/luna/dom/client" as @client,
+  "mizchi/luna/dom/client/repair" as @fixable,
+  "mizchi/js/browser/dom" as @js_dom,
+  "mizchi/js/core" as @js,
+  "mizchi/npm_typed/global_jsdom",
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

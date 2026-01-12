@@ -1,0 +1,16 @@
+import {
+  "mizchi/luna" as @luna,
+  "mizchi/luna/signal",
+  "mizchi/luna/render" as @render,
+  "mizchi/luna/dom/element" as @element,
+  "mizchi/js/core" as @js,
+  "mizchi/js/browser/dom" as @js_dom,
+  "mizchi/js/web/event",
+  "mizchi/js/builtins/global",
+}
+
+import "test" { "mizchi/npm_typed/global_jsdom" }
+
+options(
+  "supported-targets": [ "js" ],
+)

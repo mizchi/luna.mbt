@@ -391,7 +391,9 @@ pub fn make_slider_drag_handler(
     let rect_width : Double = rect._get("width").cast()
     let client_x : Double = e._get("clientX").cast()
     // Update value immediately on mousedown
-    let value = calc_slider_value(client_x, rect_left, rect_width, min, max, step)
+    let value = calc_slider_value(
+      client_x, rect_left, rect_width, min, max, step,
+    )
     on_change(value)
     // Set up document-level listeners for drag
     let doc = @js.global_this()._get("document")
@@ -404,15 +406,20 @@ pub fn make_slider_drag_handler(
     // Create mouseup handler that removes listeners
     let up_handler_ref : Ref[@js.Any] = Ref::new(@js.undefined())
     let up_handler = @js.from_fn1(fn(_up_e : @js.Any) {
-      let _ = doc._call("removeEventListener", [@js.any("mousemove"), move_handler])
-      let _ = doc._call(
-        "removeEventListener",
-        [@js.any("mouseup"), up_handler_ref.val],
-      )
+      let _ = doc._call("removeEventListener", [
+        @js.any("mousemove"),
+        move_handler,
+      ])
+      let _ = doc._call("removeEventListener", [
+        @js.any("mouseup"),
+        up_handler_ref.val,
+      ])
+
     })
     up_handler_ref.val = up_handler
     // Add listeners
     let _ = doc._call("addEventListener", [@js.any("mousemove"), move_handler])
     let _ = doc._call("addEventListener", [@js.any("mouseup"), up_handler])
+
   })
 }

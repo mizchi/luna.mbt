@@ -177,10 +177,7 @@ pub fn[E] menuitem(
   let is_disabled = disabled.unwrap_or(false)
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("menuitem")),
-    (
-      "tabindex",
-      @luna.attr_static(if selected { "0" } else { "-1" }),
-    ),
+    ("tabindex", @luna.attr_static(if selected { "0" } else { "-1" })),
   ]
   if id is Some(i) {
     attrs.push(("id", @luna.attr_static(i)))
@@ -268,10 +265,7 @@ pub fn make_menu_button_handler(
           focus_last()
         }
       }
-      "Escape" =>
-        if is_open() {
-          close_menu()
-        }
+      "Escape" => if is_open() { close_menu() }
       _ => ()
     }
   })
@@ -349,11 +343,13 @@ pub fn menu_button_interactive(
     let item_id = id + "-item-" + idx.to_string()
     let el = doc._call("getElementById", [@js.any(item_id)])
     let _ = el._call("focus", [])
+
   }
   let focus_button = fn() {
     let doc = @js.global_this()._get("document")
     let el = doc._call("getElementById", [@js.any(button_id)])
     let _ = el._call("focus", [])
+
   }
   let close_and_focus_button = fn() {
     open.set(false)
@@ -402,19 +398,15 @@ pub fn menu_button_interactive(
       ),
     )
   }
-  @luna.h(
-    "div",
-    [("class", @luna.attr_static("menu-button-container"))],
-    [
-      menu_trigger_dyn(
-        button_id,
-        open,
-        menu_id,
-        on_click=@luna.handler(fn(_) { open.set(not(open.get())) }),
-        on_keydown=button_keydown,
-        button_content,
-      ),
-      menu_dyn(menu_id, button_id, open, menu_items),
-    ],
-  )
+  @luna.h("div", [("class", @luna.attr_static("menu-button-container"))], [
+    menu_trigger_dyn(
+      button_id,
+      open,
+      menu_id,
+      on_click=@luna.handler(fn(_) { open.set(not(open.get())) }),
+      on_keydown=button_keydown,
+      button_content,
+    ),
+    menu_dyn(menu_id, button_id, open, menu_items),
+  ])
 }

@@ -353,7 +353,7 @@ pub fn make_combobox_handler(
           set_index(next)
         }
       }
-      "Enter" => {
+      "Enter" =>
         if is_open() && curr >= 0 && curr < count {
           let _ = e._call("preventDefault", [])
           let opt = options[curr]
@@ -362,25 +362,21 @@ pub fn make_combobox_handler(
             close_listbox()
           }
         }
-      }
-      "Escape" => {
+      "Escape" =>
         if is_open() {
           let _ = e._call("preventDefault", [])
           close_listbox()
         }
-      }
-      "Home" => {
+      "Home" =>
         if is_open() && count > 0 {
           let _ = e._call("preventDefault", [])
           set_index(0)
         }
-      }
-      "End" => {
+      "End" =>
         if is_open() && count > 0 {
           let _ = e._call("preventDefault", [])
           set_index(count - 1)
         }
-      }
       _ => ()
     }
   })
@@ -462,13 +458,11 @@ pub fn combobox_interactive(
   let blur_handler = @luna.handler(fn(_ : @js.Any) {
     // Use setTimeout to allow click events on options to fire first
     let window = @js.global_this()
-    let _ = window._call(
-      "setTimeout",
-      [
-        @js.any(fn() { is_open.set(false) }),
-        @js.any(200),
-      ],
-    )
+    let _ = window._call("setTimeout", [
+      @js.any(fn() { is_open.set(false) }),
+      @js.any(200),
+    ])
+
   })
   // Build input
   let input_attrs : Array[(String, @luna.Attr[@js.Any])] = [
@@ -542,18 +536,13 @@ pub fn combobox_interactive(
     ],
     [],
   )
-  @luna.h(
-    "div",
-    [(("class", @luna.attr_static("combobox-container")))],
-    [
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static("combobox-input-wrapper"))],
-        [@luna.h("input", input_attrs, []), caret_icon],
-      ),
-      @luna.show(fn() { is_open.get() }, build_listbox),
-    ],
-  )
+  @luna.h("div", [("class", @luna.attr_static("combobox-container"))], [
+    @luna.h("div", [("class", @luna.attr_static("combobox-input-wrapper"))], [
+      @luna.h("input", input_attrs, []),
+      caret_icon,
+    ]),
+    @luna.show(fn() { is_open.get() }, build_listbox),
+  ])
 }
 
 ///|
@@ -567,7 +556,11 @@ pub fn combobox_select_only(
   on_select : (ComboboxOption) -> Unit,
 ) -> @luna.Node[@js.Any] {
   let init_label = initial_value.unwrap_or_else(fn() {
-    if options.length() > 0 { options[0].label } else { "" }
+    if options.length() > 0 {
+      options[0].label
+    } else {
+      ""
+    }
   })
   let selected_label = @signal.signal(init_label)
   let is_open = @signal.signal(false)
@@ -637,45 +630,49 @@ pub fn combobox_select_only(
   for i, opt in options {
     let idx = i
     let opt_id = id + "-option-" + i.to_string()
-    option_items.push(@luna.h(
-      "li",
-      [
-        ("role", @luna.attr_static("option")),
-        ("id", @luna.attr_static(opt_id)),
-        (
-          "aria-selected",
-          @luna.attr_dynamic(fn() {
-            if active_index.get() == idx {
-              "true"
-            } else {
-              "false"
-            }
-          }),
-        ),
-        (
-          "click",
-          @luna.attr_handler(@luna.handler(fn(_ : @js.Any) {
-            if not(opt.disabled) {
-              selected_label.set(opt.label)
-              on_select(opt)
-              is_open.set(false)
-            }
-          })),
-        ),
-        ("keydown", @luna.attr_handler(listbox_keydown)),
-        (
-          "tabindex",
-          @luna.attr_dynamic(fn() {
-            if active_index.get() == idx {
-              "0"
-            } else {
-              "-1"
-            }
-          }),
-        ),
-      ],
-      [@luna.text(opt.label)],
-    ))
+    option_items.push(
+      @luna.h(
+        "li",
+        [
+          ("role", @luna.attr_static("option")),
+          ("id", @luna.attr_static(opt_id)),
+          (
+            "aria-selected",
+            @luna.attr_dynamic(fn() {
+              if active_index.get() == idx {
+                "true"
+              } else {
+                "false"
+              }
+            }),
+          ),
+          (
+            "click",
+            @luna.attr_handler(
+              @luna.handler(fn(_ : @js.Any) {
+                if not(opt.disabled) {
+                  selected_label.set(opt.label)
+                  on_select(opt)
+                  is_open.set(false)
+                }
+              }),
+            ),
+          ),
+          ("keydown", @luna.attr_handler(listbox_keydown)),
+          (
+            "tabindex",
+            @luna.attr_dynamic(fn() {
+              if active_index.get() == idx {
+                "0"
+              } else {
+                "-1"
+              }
+            }),
+          ),
+        ],
+        [@luna.text(opt.label)],
+      ),
+    )
   }
   // Build button
   let button_attrs : Array[(String, @luna.Attr[@js.Any])] = [
@@ -690,38 +687,29 @@ pub fn combobox_select_only(
     ("keydown", @luna.attr_handler(button_keydown)),
     (
       "click",
-      @luna.attr_handler(@luna.handler(fn(_ : @js.Any) {
-        is_open.set(not(is_open.get()))
-      })),
+      @luna.attr_handler(
+        @luna.handler(fn(_ : @js.Any) { is_open.set(not(is_open.get())) }),
+      ),
     ),
   ]
   if aria_label is Some(label) {
     button_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h(
-    "div",
-    [(("class", @luna.attr_static("combobox-select-container")))],
-    [
+  @luna.h("div", [("class", @luna.attr_static("combobox-select-container"))], [
+    @luna.h("button", button_attrs, [
+      @luna.text_dyn(fn() { selected_label.get() }),
+    ]),
+    @luna.show(fn() { is_open.get() }, fn() {
       @luna.h(
-        "button",
-        button_attrs,
-        [@luna.text_dyn(fn() { selected_label.get() })],
-      ),
-      @luna.show(
-        fn() { is_open.get() },
-        fn() {
-          @luna.h(
-            "ul",
-            [
-              ("role", @luna.attr_static("listbox")),
-              ("id", @luna.attr_static(listbox_id)),
-              ("aria-labelledby", @luna.attr_static(button_id)),
-              ("class", @luna.attr_static("combobox-listbox")),
-            ],
-            option_items,
-          )
-        },
-      ),
-    ],
-  )
+        "ul",
+        [
+          ("role", @luna.attr_static("listbox")),
+          ("id", @luna.attr_static(listbox_id)),
+          ("aria-labelledby", @luna.attr_static(button_id)),
+          ("class", @luna.attr_static("combobox-listbox")),
+        ],
+        option_items,
+      )
+    }),
+  ])
 }

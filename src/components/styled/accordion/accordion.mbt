@@ -58,9 +58,7 @@ pub fn accordion(
     Some(c) => slots.root + " " + c
     None => slots.root
   }
-
   let children : Array[@luna.Node[@js.Any]] = []
-
   for i, item in items {
     let header_id = "accordion-header-" + item.id
     let panel_id = "accordion-panel-" + item.id
@@ -105,43 +103,30 @@ pub fn accordion(
         ),
       ),
     ]
-
-    let header = @luna.h(
-      "h3",
-      [],
-      [
+    let header = @luna.h("h3", [], [
+      @luna.h("button", header_attrs, [
+        @luna.text(item.heading),
         @luna.h(
-          "button",
-          header_attrs,
-          [
-            @luna.text(item.heading),
-            @luna.h(
-              "span",
-              [("class", @luna.attr_static(slots.icon))],
-              [@luna.text("\u{25BC}")], // ▼
-            ),
-          ],
+          "span",
+          [("class", @luna.attr_static(slots.icon))],
+          [@luna.text("\u{25BC}")], // ▼
         ),
-      ],
-    )
+      ]),
+    ])
 
     // Panel
-    let panel = @luna.show(
-      fn() { expanded.get() == index },
-      fn() {
-        @luna.h(
-          "div",
-          [
-            ("id", @luna.attr_static(panel_id)),
-            ("aria-labelledby", @luna.attr_static(header_id)),
-            ("role", @luna.attr_static("region")),
-            ("class", @luna.attr_static(slots.panel)),
-          ],
-          item.content,
-        )
-      },
-    )
-
+    let panel = @luna.show(fn() { expanded.get() == index }, fn() {
+      @luna.h(
+        "div",
+        [
+          ("id", @luna.attr_static(panel_id)),
+          ("aria-labelledby", @luna.attr_static(header_id)),
+          ("role", @luna.attr_static("region")),
+          ("class", @luna.attr_static(slots.panel)),
+        ],
+        item.content,
+      )
+    })
     children.push(
       @luna.h(
         "div",
@@ -162,7 +147,6 @@ pub fn accordion(
       ),
     )
   }
-
   @luna.h("div", [("class", @luna.attr_static(root_class))], children)
 }
 

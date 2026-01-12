@@ -1,0 +1,10 @@
+import {
+  "mizchi/luna/examples/css_split_test/card" as @card,
+  "mizchi/luna/examples/css_split_test/button" as @button,
+}
+
+options(
+  "is-main": true,
+  link: { "js": { "format": "esm" } },
+  "supported-targets": [ "js" ],
+)

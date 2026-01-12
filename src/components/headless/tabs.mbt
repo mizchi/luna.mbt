@@ -23,7 +23,6 @@ pub fn use_tab(
 ) -> TabProps {
   let is_selected = selected.get() == index
   let aria_attrs = tab_aria(id, is_selected, controls)
-
   let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
     (pair.0, @luna.attr_static(pair.1))
   })
@@ -44,14 +43,17 @@ pub fn use_tab(
   attrs.push(
     (
       "tabindex",
-      @luna.attr_dynamic(fn() { if selected.get() == index { "0" } else { "-1" } }),
+      @luna.attr_dynamic(fn() {
+        if selected.get() == index {
+          "0"
+        } else {
+          "-1"
+        }
+      }),
     ),
   )
-
   let select = fn() { selected.set(index) }
-
   attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) { select() }))))
-
   { attrs, select, is_selected }
 }
 

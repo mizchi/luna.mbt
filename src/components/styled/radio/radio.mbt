@@ -42,7 +42,11 @@ pub(all) struct RadioItem {
 }
 
 ///|
-pub fn radio_item(value : String, label : String, disabled~ : Bool = false) -> RadioItem {
+pub fn radio_item(
+  value : String,
+  label : String,
+  disabled? : Bool = false,
+) -> RadioItem {
   { value, label, disabled }
 }
 
@@ -54,7 +58,7 @@ pub fn radio_group(
   items : Array[RadioItem],
   selected : @signal.Signal[String],
   aria_label? : String,
-  orientation~ : String = "vertical",
+  orientation? : String = "vertical",
   class? : String,
 ) -> @luna.Node[@js.Any] {
   let slots = radio_slots()
@@ -62,7 +66,6 @@ pub fn radio_group(
     Some(c) => slots.group + " " + c
     None => slots.group
   }
-
   let group_attrs : Array[(String, @luna.Attr[@js.Any])] = [
     ("role", @luna.attr_static("radiogroup")),
     ("class", @luna.attr_static(group_class)),
@@ -71,68 +74,88 @@ pub fn radio_group(
   if aria_label is Some(label) {
     group_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-
   let radios : Array[@luna.Node[@js.Any]] = []
   for item in items {
     let value = item.value
     let is_disabled = item.disabled
-
     let radio_attrs : Array[(String, @luna.Attr[@js.Any])] = [
       ("class", @luna.attr_static(slots.radio)),
       ("role", @luna.attr_static("radio")),
-      ("tabindex", @luna.attr_dynamic(fn() { if selected.get() == value { "0" } else { "-1" } })),
-      ("aria-checked", @luna.attr_dynamic(fn() { if selected.get() == value { "true" } else { "false" } })),
+      (
+        "tabindex",
+        @luna.attr_dynamic(fn() {
+          if selected.get() == value {
+            "0"
+          } else {
+            "-1"
+          }
+        }),
+      ),
+      (
+        "aria-checked",
+        @luna.attr_dynamic(fn() {
+          if selected.get() == value {
+            "true"
+          } else {
+            "false"
+          }
+        }),
+      ),
       ("data-value", @luna.attr_static(value)),
     ]
 
     // Data attributes for styling
-    radio_attrs.push(("data-selected", @luna.attr_dynamic(fn() { if selected.get() == value { "" } else { "false" } })))
-
+    radio_attrs.push(
+      (
+        "data-selected",
+        @luna.attr_dynamic(fn() {
+          if selected.get() == value {
+            ""
+          } else {
+            "false"
+          }
+        }),
+      ),
+    )
     if is_disabled {
       radio_attrs.push(("data-disabled", @luna.attr_static("")))
       radio_attrs.push(("aria-disabled", @luna.attr_static("true")))
     } else {
       // Click handler
-      radio_attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) {
-        selected.set(value)
-      }))))
+      radio_attrs.push(
+        (
+          "click",
+          @luna.attr_handler(@luna.handler(fn(_) { selected.set(value) })),
+        ),
+      )
       // Keyboard handler
-      radio_attrs.push(("keydown", @luna.attr_handler(@luna.handler(fn(evt) {
-        let key = evt._get("key").to_string()
-        if key == " " || key == "Enter" {
-          let _ = evt._call("preventDefault", [])
-          selected.set(value)
-        }
-      }))))
+      radio_attrs.push(
+        (
+          "keydown",
+          @luna.attr_handler(
+            @luna.handler(fn(evt) {
+              let key = evt._get("key").to_string()
+              if key == " " || key == "Enter" {
+                let _ = evt._call("preventDefault", [])
+                selected.set(value)
+              }
+            }),
+          ),
+        ),
+      )
     }
-
-    let radio_node = @luna.h(
-      "div",
-      radio_attrs,
-      [
-        // Control circle
-        @luna.h(
-          "span",
-          [("class", @luna.attr_static(slots.control))],
-          [
-            @luna.h(
-              "span",
-              [("class", @luna.attr_static(slots.indicator))],
-              [],
-            ),
-          ],
-        ),
-        // Label
-        @luna.h(
-          "span",
-          [("class", @luna.attr_static(slots.label))],
-          [@luna.text(item.label)],
-        ),
-      ],
-    )
+    let radio_node = @luna.h("div", radio_attrs, [
+      // Control circle
+      @luna.h("span", [("class", @luna.attr_static(slots.control))], [
+        @luna.h("span", [("class", @luna.attr_static(slots.indicator))], []),
+      ]),
+      // Label
+      @luna.h("span", [("class", @luna.attr_static(slots.label))], [
+        @luna.text(item.label),
+      ]),
+    ])
     radios.push(radio_node)
   }
-
   @luna.h("div", group_attrs, radios)
 }
 

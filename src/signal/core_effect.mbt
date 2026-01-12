@@ -1,6 +1,7 @@
 // Core effect - reactive side effects (internal)
 
 // Cleanup tracking for core effects
+
 ///|
 let core_current_cleanups : Ref[Array[() -> Unit]?] = Ref::new(None)
 

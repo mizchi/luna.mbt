@@ -1,0 +1,10 @@
+import {
+  "mizchi/luna/signal",
+  "mizchi/luna" as @luna,
+  "mizchi/luna/js/api" as @luna_api,
+  "mizchi/luna/css",
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

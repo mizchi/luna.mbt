@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/components/styled/spinbutton"
+
+import(
+  "mizchi/js/core"
+  "mizchi/luna"
+  "mizchi/luna/signal"
+)
+
+// Values
+pub fn spinbutton(@signal.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, disabled? : Bool, aria_label? : String, aria_valuetext_fn? : (Double) -> String, label? : String, class? : String) -> @luna.Node[@core.Any]
+
+pub fn spinbutton_css() -> String
+
+pub fn spinbutton_slots() -> SpinbuttonSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct SpinbuttonSlots {
+  root : String
+  label : String
+  controls : String
+  button : String
+  decrement : String
+  increment : String
+  input : String
+}
+
+// Type aliases
+
+// Traits
+
