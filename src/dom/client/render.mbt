@@ -94,7 +94,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
         }
         let has_nodes = current_nodes.length() > 0
         match (should_show, has_nodes) {
-          (true, false) =>
+          (true, false) => {
             if placeholder.parentNode() is Some(par) {
               // Use untracked to prevent child signals from being registered
               // as dependencies of this Show's effect. This prevents infinite
@@ -109,6 +109,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
                 current_nodes.push(node)
               }
             }
+          }
           (false, true) => {
             // Remove all tracked nodes
             for node in current_nodes {

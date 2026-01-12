@@ -577,6 +577,46 @@
       gap: 8px;
     }
 
+    /* Menu Button */
+    .menu-button-container {
+      position: relative;
+      display: inline-block;
+    }
+    [role="menu"] {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 100;
+      min-width: 160px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px var(--shadow);
+      padding: 4px 0;
+      margin-top: 4px;
+      list-style: none;
+    }
+    [role="menuitem"] {
+      display: block;
+      padding: 8px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      list-style: none;
+      color: var(--text-primary);
+    }
+    [role="menuitem"]:hover,
+    [role="menuitem"]:focus {
+      background: var(--bg-tertiary);
+      outline: none;
+    }
+    [role="menuitem"][aria-disabled="true"] {
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+    [role="menuitem"][aria-disabled="true"]:hover {
+      background: transparent;
+    }
+
     /* Demo Section */
     .demo-section {
       margin-bottom: 32px;
