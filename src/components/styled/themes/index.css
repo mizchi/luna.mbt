@@ -1,0 +1,11 @@
+/* Luna Default Theme */
+/* Import all component styles */
+
+@import './switch.css';
+
+/* Add more component imports as they are created:
+@import './accordion.css';
+@import './checkbox.css';
+@import './dialog.css';
+@import './tabs.css';
+*/

@@ -55,7 +55,25 @@ pub fn[E] switch(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  // Build switch with track, thumb, icon structure
+  let track = @luna.h(
+    "span",
+    [("class", @luna.attr_static("switch-track"))],
+    [
+      @luna.h(
+        "span",
+        [("class", @luna.attr_static("switch-icon"))],
+        [@luna.text("✓")],
+      ),
+      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
+    ],
+  )
+  let label = @luna.h(
+    "span",
+    [("class", @luna.attr_static("switch-label"))],
+    children,
+  )
+  @luna.h("button", attrs, [track, label])
 }
 
 ///|
@@ -88,7 +106,25 @@ pub fn[E] switch_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  // Build switch with track, thumb, icon structure
+  let track = @luna.h(
+    "span",
+    [("class", @luna.attr_static("switch-track"))],
+    [
+      @luna.h(
+        "span",
+        [("class", @luna.attr_static("switch-icon"))],
+        [@luna.text("✓")],
+      ),
+      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
+    ],
+  )
+  let label = @luna.h(
+    "span",
+    [("class", @luna.attr_static("switch-label"))],
+    children,
+  )
+  @luna.h("button", attrs, [track, label])
 }
 
 ///|
@@ -119,7 +155,25 @@ pub fn[E] switch_computed(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  // Build switch with track, thumb, icon structure
+  let track = @luna.h(
+    "span",
+    [("class", @luna.attr_static("switch-track"))],
+    [
+      @luna.h(
+        "span",
+        [("class", @luna.attr_static("switch-icon"))],
+        [@luna.text("✓")],
+      ),
+      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
+    ],
+  )
+  let label = @luna.h(
+    "span",
+    [("class", @luna.attr_static("switch-label"))],
+    children,
+  )
+  @luna.h("button", attrs, [track, label])
 }
 
 ///|

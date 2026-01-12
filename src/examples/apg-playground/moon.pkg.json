@@ -5,6 +5,13 @@
     "mizchi/luna",
     "mizchi/luna/signal",
     { "path": "mizchi/luna/components", "alias": "apg" },
+    { "path": "mizchi/luna/components/styled", "alias": "styled" },
+    { "path": "mizchi/luna/components/styled/switch", "alias": "switch" },
+    { "path": "mizchi/luna/components/styled/tabs", "alias": "tabs" },
+    { "path": "mizchi/luna/components/styled/accordion", "alias": "accordion" },
+    { "path": "mizchi/luna/components/styled/checkbox", "alias": "checkbox" },
+    { "path": "mizchi/luna/components/styled/radio", "alias": "radio" },
+    { "path": "mizchi/luna/components/styled/spinbutton", "alias": "spinbutton" },
     { "path": "mizchi/js/browser/dom", "alias": "dom" },
     { "path": "mizchi/luna/dom/client", "alias": "client" },
     { "path": "mizchi/js/core", "alias": "js" }

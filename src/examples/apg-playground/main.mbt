@@ -49,16 +49,6 @@ fn span(children : Array[@luna.Node[@js.Any]]) -> @luna.Node[@js.Any] {
 }
 
 ///|
-fn pre(children : Array[@luna.Node[@js.Any]]) -> @luna.Node[@js.Any] {
-  @luna.h("pre", [], children)
-}
-
-///|
-fn code_block(text : String) -> @luna.Node[@js.Any] {
-  @luna.h("code", [], [@luna.text(text)])
-}
-
-///|
 fn btn(
   on_click : @luna.EventHandler[@js.Any],
   children : Array[@luna.Node[@js.Any]],
@@ -202,112 +192,86 @@ fn button_demo() -> @luna.Node[@js.Any] {
 }
 
 // =============================================================================
-// Checkbox Demo
+// Checkbox Demo (Styled)
 // =============================================================================
 
 ///|
 fn checkbox_demo() -> @luna.Node[@js.Any] {
-  let checked = @signal.signal(@apg.Unchecked)
+  let terms = @signal.signal(true)
+  let newsletter = @signal.signal(false)
+  let select_all = @signal.signal(false) // Will be shown as indeterminate
   div([
     h2([@luna.text("Checkbox")]),
-    p([@luna.text("Accessible checkbox with tri-state support")]),
-    @apg.checkbox_dyn(
-      checked,
-      on_click=@luna.handler(fn(_) {
-        let next = match checked.get() {
-          @apg.Unchecked => @apg.Checked
-          @apg.Checked => @apg.Unchecked
-          @apg.Mixed => @apg.Checked
-        }
-        checked.set(next)
-      }),
-      [@luna.text("I agree to the terms")],
-    ),
-    p([
-      @luna.text_dyn(fn() { "State: " + checkbox_state_string(checked.get()) }),
+    p([@luna.text("Accessible checkbox with native input and custom styling")]),
+    @checkbox.checkbox_group(aria_label="Agreement options", [
+      @checkbox.checkbox(terms, [@luna.text("I agree to the terms and conditions")]),
+      @checkbox.checkbox(newsletter, [@luna.text("Subscribe to newsletter")]),
+      @checkbox.checkbox(
+        select_all,
+        indeterminate=true,
+        [@luna.text("Select all items")],
+      ),
+      @checkbox.checkbox(
+        @signal.signal(false),
+        disabled=true,
+        [@luna.text("Unavailable option (disabled)")],
+      ),
     ]),
   ])
 }
 
-///|
-fn checkbox_state_string(state : @apg.CheckboxState) -> String {
-  match state {
-    @apg.Checked => "Checked"
-    @apg.Unchecked => "Unchecked"
-    @apg.Mixed => "Mixed"
-  }
-}
-
 // =============================================================================
-// Switch Demo
+// Switch Demo (Styled)
 // =============================================================================
 
 ///|
 fn switch_demo() -> @luna.Node[@js.Any] {
-  let on = @signal.signal(false)
-  div([
-    h2([@luna.text("Switch")]),
-    p([@luna.text("On/Off toggle switch")]),
-    @apg.switch_dyn(
-      on,
-      aria_label="Enable notifications",
-      on_click=@luna.handler(fn(_) { on.set(not(on.get())) }),
-      [@luna.text("Notifications")],
+  let wifi = @signal.signal(false)
+  let bluetooth = @signal.signal(true)
+  @switch.switch_group(aria_label="Settings", [
+    @switch.switch(wifi, aria_label="Wi-Fi", [@luna.text("Wi-Fi")]),
+    @switch.switch(bluetooth, aria_label="Bluetooth", [@luna.text("Bluetooth")]),
+    @switch.switch_static(
+      false,
+      disabled=true,
+      aria_label="Airplane Mode",
+      [@luna.text("Airplane Mode (disabled)")],
     ),
-    p([
-      @luna.text_dyn(fn() {
-        let status = if on.get() { "ON" } else { "OFF" }
-        "Status: " + status
-      }),
-    ]),
   ])
 }
 
 // =============================================================================
-// Radio Group Demo
+// Radio Group Demo (Styled)
 // =============================================================================
 
 ///|
 fn radio_demo() -> @luna.Node[@js.Any] {
   let selected = @signal.signal("option1")
+  let items = [
+    @radio.radio_item("option1", "Option 1"),
+    @radio.radio_item("option2", "Option 2"),
+    @radio.radio_item("option3", "Option 3"),
+    @radio.radio_item("option4", "Disabled Option", disabled=true),
+  ]
   div([
     h2([@luna.text("Radio Group")]),
     p([@luna.text("Select one option from the group")]),
-    @apg.radiogroup(aria_label="Choose an option", [
-      @apg.radio_dyn(
-        "option1",
-        selected,
-        on_click=@luna.handler(fn(_) { selected.set("option1") }),
-        [@luna.text("Option 1")],
-      ),
-      @apg.radio_dyn(
-        "option2",
-        selected,
-        on_click=@luna.handler(fn(_) { selected.set("option2") }),
-        [@luna.text("Option 2")],
-      ),
-      @apg.radio_dyn(
-        "option3",
-        selected,
-        on_click=@luna.handler(fn(_) { selected.set("option3") }),
-        [@luna.text("Option 3")],
-      ),
-    ]),
+    @radio.radio_group("demo-radio", items, selected, aria_label="Choose an option"),
     p([@luna.text_dyn(fn() { "Selected: " + selected.get() })]),
   ])
 }
 
 // =============================================================================
-// Tabs Demo
+// Tabs Demo (Styled)
 // =============================================================================
 
 ///|
 fn tabs_demo() -> @luna.Node[@js.Any] {
   let active_tab = @signal.signal(0)
-  let items : Array[@apg.TabItem[@js.Any]] = [
-    @apg.tab_item("0", "Tab 1", [@luna.text("Content for Tab 1")]),
-    @apg.tab_item("1", "Tab 2", [@luna.text("Content for Tab 2")]),
-    @apg.tab_item("2", "Tab 3", [@luna.text("Content for Tab 3")]),
+  let items : Array[@tabs.TabItem] = [
+    @tabs.tab_item("0", "Tab 1", [@luna.text("Content for Tab 1")]),
+    @tabs.tab_item("1", "Tab 2", [@luna.text("Content for Tab 2")]),
+    @tabs.tab_item("2", "Tab 3", [@luna.text("Content for Tab 3")]),
   ]
   div([
     h2([@luna.text("Tabs")]),
@@ -316,27 +280,26 @@ fn tabs_demo() -> @luna.Node[@js.Any] {
         "Tabbed interface with keyboard navigation (use ←/→ arrows)",
       ),
     ]),
-    // Using tabs_interactive for full keyboard support
-    @apg.tabs_interactive(items, active_tab, aria_label="Demo tabs"),
+    @tabs.tabs(items, active_tab, aria_label="Demo tabs"),
   ])
 }
 
 // =============================================================================
-// Accordion Demo
+// Accordion Demo (Styled)
 // =============================================================================
 
 ///|
 fn accordion_demo() -> @luna.Node[@js.Any] {
   let expanded = @signal.signal(-1) // -1 = all collapsed
-  let items : Array[@apg.AccordionItem[@js.Any]] = [
-    @apg.accordion_item("0", "Section 1", [@luna.text("Content for section 1")]),
-    @apg.accordion_item("1", "Section 2", [@luna.text("Content for section 2")]),
-    @apg.accordion_item("2", "Section 3", [@luna.text("Content for section 3")]),
+  let items : Array[@accordion.AccordionItemData] = [
+    @accordion.accordion_item("0", "Section 1", [@luna.text("Content for section 1")]),
+    @accordion.accordion_item("1", "Section 2", [@luna.text("Content for section 2")]),
+    @accordion.accordion_item("2", "Section 3", [@luna.text("Content for section 3")]),
   ]
   div([
     h2([@luna.text("Accordion")]),
     p([@luna.text("Expandable sections")]),
-    @apg.accordion_dyn(items, expanded),
+    @accordion.accordion(items, expanded),
   ])
 }
 
@@ -501,7 +464,7 @@ fn listbox_option(
 }
 
 // =============================================================================
-// Spinbutton Demo
+// Spinbutton Demo (Styled)
 // =============================================================================
 
 ///|
@@ -510,7 +473,7 @@ fn spinbutton_demo() -> @luna.Node[@js.Any] {
   div([
     h2([@luna.text("Spinbutton")]),
     p([@luna.text("Number input with keyboard support (↑/↓, Home/End, PageUp/PageDown)")]),
-    @apg.spinbutton_interactive(
+    @spinbutton.spinbutton(
       value,
       min=0.0,
       max=100.0,
@@ -518,6 +481,7 @@ fn spinbutton_demo() -> @luna.Node[@js.Any] {
       large_step=10.0,
       aria_label="Quantity",
       aria_valuetext_fn=fn(v) { v.to_string() + " items" },
+      label="Quantity",
     ),
     p([@luna.text_dyn(fn() { "Value: " + value.get().to_string() })]),
   ])
@@ -693,6 +657,7 @@ fn tooltip_demo() -> @luna.Node[@js.Any] {
     @luna.h(
       "span",
       [
+        ("class", @luna.attr_static("tooltip-wrapper")),
         ("mouseenter", @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) }))),
         ("mouseleave", @luna.attr_handler(@luna.handler(fn(_) { visible.set(false) }))),
         ("focus", @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) }))),
@@ -1010,7 +975,7 @@ fn theme_controls(
 }
 
 // =============================================================================
-// Demo Section with Code Display
+// Demo Section
 // =============================================================================
 
 ///|
@@ -1018,8 +983,6 @@ fn demo_section(
   id : String,
   title : String,
   description : String,
-  code : String,
-  show_code : @signal.Signal[Bool],
   preview : @luna.Node[@js.Any],
 ) -> @luna.Node[@js.Any] {
   @luna.h(
@@ -1039,31 +1002,7 @@ fn demo_section(
       ]),
       p_class("demo-description", [@luna.text(description)]),
       div_class("demo-preview", [preview]),
-      div_class("demo-code", [
-        div_class("demo-code-header", [
-          @luna.h(
-            "span",
-            [("class", @luna.attr_static("demo-code-title"))],
-            [@luna.text("MoonBit Code")],
-          ),
-          @luna.h(
-            "button",
-            [
-              ("class", @luna.attr_static("demo-code-toggle")),
-              ("click", @luna.attr_handler(@luna.handler(fn(_) {
-                show_code.set(not(show_code.get()))
-              }))),
-            ],
-            [@luna.text_dyn(fn() {
-              if show_code.get() { "Hide Code" } else { "Show Code" }
-            })],
-          ),
-        ]),
-        @luna.show(
-          fn() { show_code.get() },
-          fn() { pre([code_block(code)]) },
-        ),
-      ]),
+      // TODO: Add tabbed code display (MoonBit / TypeScript)
     ],
   )
 }
@@ -1141,30 +1080,6 @@ fn sidebar(
 
 ///|
 fn main_content(current_section : @signal.Signal[Section]) -> @luna.Node[@js.Any] {
-  // Code show/hide signals for each section
-  let show_button_code = @signal.signal(false)
-  let show_checkbox_code = @signal.signal(false)
-  let show_switch_code = @signal.signal(false)
-  let show_radio_code = @signal.signal(false)
-  let show_slider_code = @signal.signal(false)
-  let show_spinbutton_code = @signal.signal(false)
-  let show_listbox_code = @signal.signal(false)
-  let show_combobox_code = @signal.signal(false)
-  let show_tabs_code = @signal.signal(false)
-  let show_accordion_code = @signal.signal(false)
-  let show_breadcrumb_code = @signal.signal(false)
-  let show_treeview_code = @signal.signal(false)
-  let show_toolbar_code = @signal.signal(false)
-  let show_menu_button_code = @signal.signal(false)
-  let show_dialog_code = @signal.signal(false)
-  let show_alert_dialog_code = @signal.signal(false)
-  let show_disclosure_code = @signal.signal(false)
-  let show_tooltip_code = @signal.signal(false)
-  let show_alert_code = @signal.signal(false)
-  let show_meter_code = @signal.signal(false)
-  let show_link_code = @signal.signal(false)
-  let show_landmarks_code = @signal.signal(false)
-  let show_table_code = @signal.signal(false)
   let _ = current_section // Future: could filter to show only current section
   @luna.h(
     "main",
@@ -1178,338 +1093,138 @@ fn main_content(current_section : @signal.Signal[Section]) -> @luna.Node[@js.Any
         "button",
         "Button",
         "A button is a widget that enables users to trigger an action or event, such as submitting a form or opening a dialog.",
-        (
-          #|let pressed = @signal.signal(false)
-          #|@apg.button([@luna.text("Click me")])
-          #|@apg.button(disabled=true, [@luna.text("Disabled")])
-          #|@apg.toggle_button_dyn(
-          #|  pressed,
-          #|  on_click=@luna.handler(fn(_) { pressed.set(not(pressed.get())) }),
-          #|  [@luna.text("Mute")],
-          #|)
-        ),
-        show_button_code,
         button_demo(),
       ),
       demo_section(
         "checkbox",
         "Checkbox",
         "A checkbox is a widget that allows users to select one or more items from a set. Supports tri-state (mixed) for parent checkboxes.",
-        (
-          #|let checked = @signal.signal(@apg.Unchecked)
-          #|@apg.checkbox_dyn(
-          #|  checked,
-          #|  on_click=@luna.handler(fn(_) {
-          #|    let next = match checked.get() {
-          #|      @apg.Unchecked => @apg.Checked
-          #|      @apg.Checked => @apg.Unchecked
-          #|      @apg.Mixed => @apg.Checked
-          #|    }
-          #|    checked.set(next)
-          #|  }),
-          #|  [@luna.text("I agree to the terms")],
-          #|)
-        ),
-        show_checkbox_code,
         checkbox_demo(),
       ),
       demo_section(
         "switch",
         "Switch",
         "A switch is an input widget that allows users to choose one of two binary states: on or off.",
-        (
-          #|let on = @signal.signal(false)
-          #|@apg.switch_dyn(
-          #|  on,
-          #|  aria_label="Enable notifications",
-          #|  on_click=@luna.handler(fn(_) { on.set(not(on.get())) }),
-          #|  [@luna.text("Notifications")],
-          #|)
-        ),
-        show_switch_code,
         switch_demo(),
       ),
       demo_section(
         "radio",
         "Radio Group",
         "A radio group is a set of checkable buttons where only one can be checked at a time. Uses arrow keys for navigation.",
-        (
-          #|let selected = @signal.signal("option1")
-          #|@apg.radiogroup(aria_label="Choose an option", [
-          #|  @apg.radio_dyn("option1", selected,
-          #|    on_click=@luna.handler(fn(_) { selected.set("option1") }),
-          #|    [@luna.text("Option 1")]),
-          #|  @apg.radio_dyn("option2", selected,
-          #|    on_click=@luna.handler(fn(_) { selected.set("option2") }),
-          #|    [@luna.text("Option 2")]),
-          #|])
-        ),
-        show_radio_code,
         radio_demo(),
       ),
       demo_section(
         "tabs",
         "Tabs",
         "Tabs organize content into separate views that users can switch between. Arrow keys navigate between tabs.",
-        (
-          #|let active_tab = @signal.signal(0)
-          #|let items = [
-          #|  @apg.tab_item("0", "Tab 1", [@luna.text("Content for Tab 1")]),
-          #|  @apg.tab_item("1", "Tab 2", [@luna.text("Content for Tab 2")]),
-          #|  @apg.tab_item("2", "Tab 3", [@luna.text("Content for Tab 3")]),
-          #|]
-          #|@apg.tabs_interactive(items, active_tab, aria_label="Demo tabs")
-        ),
-        show_tabs_code,
         tabs_demo(),
       ),
       demo_section(
         "accordion",
         "Accordion",
         "An accordion is a vertically stacked set of interactive headings with associated content sections.",
-        (
-          #|let expanded = @signal.signal(-1)
-          #|let items = [
-          #|  @apg.accordion_item("0", "Section 1", [@luna.text("Content 1")]),
-          #|  @apg.accordion_item("1", "Section 2", [@luna.text("Content 2")]),
-          #|  @apg.accordion_item("2", "Section 3", [@luna.text("Content 3")]),
-          #|]
-          #|@apg.accordion_dyn(items, expanded)
-        ),
-        show_accordion_code,
         accordion_demo(),
       ),
       demo_section(
         "slider",
         "Slider",
         "A slider allows users to select a value within a given range. Supports keyboard (arrows, Home/End, PageUp/PageDown) and mouse drag.",
-        (
-          #|let value = @signal.signal(50.0)
-          #|@apg.slider_interactive(
-          #|  value,
-          #|  min=0.0, max=100.0, step=1.0, large_step=10.0,
-          #|  aria_label="Volume",
-          #|  aria_valuetext_fn=fn(v) { v.to_string() + "%" },
-          #|  [@luna.text_dyn(fn() { value.get().to_string() })],
-          #|)
-        ),
-        show_slider_code,
         slider_demo(),
       ),
       demo_section(
         "dialog",
         "Dialog (Modal)",
         "A dialog is a window overlaid on the primary window. Focus is trapped inside the dialog until dismissed.",
-        (
-          #|let open = @signal.signal(false)
-          #|btn(@luna.handler(fn(_) { open.set(true) }), [@luna.text("Open")])
-          #|@apg.dialog_dyn(aria_label="Example Dialog", open, [
-          #|  @luna.h("h3", [], [@luna.text("Dialog Title")]),
-          #|  @luna.h("p", [], [@luna.text("This is a modal dialog.")]),
-          #|  @apg.button(on_click=@luna.handler(fn(_) { open.set(false) }),
-          #|    [@luna.text("Close")]),
-          #|])
-        ),
-        show_dialog_code,
         dialog_demo(),
       ),
       demo_section(
         "disclosure",
         "Disclosure (Show/Hide)",
         "A disclosure widget shows and hides additional content. The button controls the visibility of a content section.",
-        (
-          #|let expanded = @signal.signal(false)
-          #|@apg.disclosure_dyn(
-          #|  "demo-disclosure",
-          #|  expanded,
-          #|  [@luna.text_dyn(fn() {
-          #|    if expanded.get() { "Hide Details" } else { "Show Details" }
-          #|  })],
-          #|  [@luna.h("p", [], [@luna.text("Hidden content here.")])],
-          #|)
-        ),
-        show_disclosure_code,
         disclosure_demo(),
       ),
       demo_section(
         "breadcrumb",
         "Breadcrumb",
         "A breadcrumb trail provides a visual representation of the user's location within a website hierarchy.",
-        (
-          #|let items = [
-          #|  @apg.breadcrumb_item("/", "Home"),
-          #|  @apg.breadcrumb_item("/products", "Products"),
-          #|  @apg.breadcrumb_item("/products/electronics", "Electronics"),
-          #|  @apg.breadcrumb_item("#", "Laptops", current=true),
-          #|]
-          #|@apg.breadcrumb(items)
-        ),
-        show_breadcrumb_code,
         breadcrumb_demo(),
       ),
       demo_section(
         "listbox",
         "Listbox",
         "A listbox presents a list of options and allows users to select one or more of them.",
-        (
-          #|let selected = @signal.signal("apple")
-          #|@apg.listbox(aria_label="Choose a fruit", [
-          #|  listbox_option(selected, "apple", "Apple"),
-          #|  listbox_option(selected, "banana", "Banana"),
-          #|  listbox_option(selected, "cherry", "Cherry"),
-          #|])
-        ),
-        show_listbox_code,
         listbox_demo(),
       ),
-      // New components
       demo_section(
         "spinbutton",
         "Spinbutton",
         "A spinbutton is an input widget for numeric values with increment/decrement buttons and keyboard support.",
-        (
-          #|let value = @signal.signal(5.0)
-          #|@apg.spinbutton_interactive(value, min=0.0, max=100.0, step=1.0)
-        ),
-        show_spinbutton_code,
         spinbutton_demo(),
       ),
       demo_section(
         "combobox",
         "Combobox",
         "A combobox combines a text input with a listbox, allowing users to type to filter or select from options.",
-        (
-          #|let options = [
-          #|  @apg.combobox_option("apple", "Apple"),
-          #|  @apg.combobox_option("banana", "Banana"),
-          #|]
-          #|@apg.combobox_interactive("combo", options, fn(opt) { ... })
-        ),
-        show_combobox_code,
         combobox_demo(),
       ),
       demo_section(
         "treeview",
         "Tree View",
         "A tree view presents a hierarchical list that can be expanded and collapsed.",
-        (
-          #|let nodes = [
-          #|  @apg.tree_node("folder", "Documents", children=[
-          #|    @apg.tree_node("file1", "Report.pdf"),
-          #|  ]),
-          #|]
-          #|@apg.tree_interactive("tree", nodes, fn(id) { ... })
-        ),
-        show_treeview_code,
         treeview_demo(),
       ),
       demo_section(
         "toolbar",
         "Toolbar",
         "A toolbar groups a set of controls like buttons and toggle buttons with keyboard navigation.",
-        (
-          #|let items = [
-          #|  @apg.toolbar_item_def("bold", "Bold", toggle=true),
-          #|  @apg.toolbar_item_def("copy", "Copy"),
-          #|]
-          #|@apg.toolbar_interactive("toolbar", items, pressed, fn(id, _) { ... })
-        ),
-        show_toolbar_code,
         toolbar_demo(),
       ),
       demo_section(
         "menu-button",
         "Menu Button",
         "A menu button opens a dropdown menu when activated, with keyboard navigation support.",
-        (
-          #|let items = [
-          #|  @apg.menu_item("new", "New File"),
-          #|  @apg.menu_item("save", "Save"),
-          #|]
-          #|@apg.menu_button_interactive("menu", items, fn(id) { ... }, [...])
-        ),
-        show_menu_button_code,
         menu_button_demo(),
       ),
       demo_section(
         "alert-dialog",
         "Alert Dialog",
         "An alert dialog interrupts the user's workflow to communicate an important message and require a response.",
-        (
-          #|let open = @signal.signal(false)
-          #|@apg.confirm_dialog("dialog", "Title", "Message?", open,
-          #|  fn() { /* confirm */ }, fn() { /* cancel */ })
-        ),
-        show_alert_dialog_code,
         alert_dialog_demo(),
       ),
       demo_section(
         "tooltip",
         "Tooltip",
         "A tooltip displays brief, informational content when a user hovers over or focuses on an element.",
-        (
-          #|let visible = @signal.signal(false)
-          #|@apg.tooltip_trigger("tip-id", [@luna.text("Hover me")])
-          #|@apg.tooltip_dyn("tip-id", visible, [@luna.text("Tip text")])
-        ),
-        show_tooltip_code,
         tooltip_demo(),
       ),
       demo_section(
         "alert",
         "Alert",
         "An alert displays an important message that attracts the user's attention without interrupting their task.",
-        (
-          #|@apg.alert(type_=@apg.Error, [@luna.text("Error message")])
-          #|@apg.status([@luna.text("Status message")])
-        ),
-        show_alert_code,
         alert_demo(),
       ),
       demo_section(
         "meter",
         "Meter",
         "A meter displays a scalar measurement within a known range, such as disk usage or progress.",
-        (
-          #|let value = @signal.signal(65.0)
-          #|@apg.meter_dyn(value, min=0.0, max=100.0, aria_label="Usage", [])
-        ),
-        show_meter_code,
         meter_demo(),
       ),
       demo_section(
         "link",
         "Link",
         "A link provides an accessible hyperlink using native anchor elements.",
-        (
-          #|@apg.link("https://example.com", [@luna.text("Example")])
-          #|@apg.link("url", target=@apg.Blank, [@luna.text("New tab")])
-        ),
-        show_link_code,
         link_demo(),
       ),
       demo_section(
         "landmarks",
         "Landmarks",
         "Landmarks identify major sections of a page for assistive technology navigation.",
-        (
-          #|@apg.main_content([...])
-          #|@apg.region(aria_label="Section", [...])
-          #|@apg.aside(aria_label="Sidebar", [...])
-        ),
-        show_landmarks_code,
         landmarks_demo(),
       ),
       demo_section(
         "table",
         "Table",
         "A data table with sortable columns, selectable rows, and keyboard navigation.",
-        (
-          #|let columns = [@apg.table_column("name", "Name", sortable=true)]
-          #|let rows = [@apg.table_row("1", ["Alice"])]
-          #|@apg.table_interactive("table", columns, rows, selectable=true)
-        ),
-        show_table_code,
         table_demo(),
       ),
     ],
@@ -1532,7 +1247,422 @@ fn app() -> @luna.Node[@js.Any] {
 }
 
 ///|
+fn apg_components_css() -> String {
+  // CSS for APG headless components that don't have styled versions yet
+  let css =
+    #|/* =============================================================================
+    #|   COMBOBOX COMPONENT STYLES
+    #|   ============================================================================= */
+    #|.combobox-container {
+    #|  position: relative;
+    #|  display: inline-block;
+    #|  width: 100%;
+    #|  max-width: 300px;
+    #|}
+    #|.combobox-input-wrapper {
+    #|  position: relative;
+    #|}
+    #|.combobox-container [role="combobox"] {
+    #|  display: block;
+    #|  width: 100%;
+    #|  padding: 0.5rem 2rem 0.5rem 0.75rem;
+    #|  font-size: 0.875rem;
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  border-radius: 0.375rem;
+    #|  background: var(--background, white);
+    #|  color: var(--foreground, inherit);
+    #|}
+    #|.combobox-container [role="combobox"]:focus {
+    #|  outline: 2px solid var(--accent, #3b82f6);
+    #|  outline-offset: 2px;
+    #|}
+    #|.combobox-container [role="combobox"][aria-expanded="true"] {
+    #|  border-bottom-left-radius: 0;
+    #|  border-bottom-right-radius: 0;
+    #|}
+    #|.combobox-caret {
+    #|  position: absolute;
+    #|  right: 0.75rem;
+    #|  top: 50%;
+    #|  transform: translateY(-50%);
+    #|  pointer-events: none;
+    #|  border-left: 4px solid transparent;
+    #|  border-right: 4px solid transparent;
+    #|  border-top: 5px solid var(--foreground, #374151);
+    #|}
+    #|.combobox-listbox {
+    #|  position: absolute;
+    #|  top: 100%;
+    #|  left: 0;
+    #|  right: 0;
+    #|  z-index: 50;
+    #|  max-height: 15rem;
+    #|  overflow-y: auto;
+    #|  margin: 0;
+    #|  padding: 0.25rem 0;
+    #|  list-style: none;
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  border-top: none;
+    #|  border-bottom-left-radius: 0.375rem;
+    #|  border-bottom-right-radius: 0.375rem;
+    #|  background: var(--background, white);
+    #|  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    #|}
+    #|.combobox-listbox [role="option"] {
+    #|  padding: 0.5rem 0.75rem;
+    #|  font-size: 0.875rem;
+    #|  cursor: pointer;
+    #|  list-style: none;
+    #|}
+    #|.combobox-listbox [role="option"]:hover {
+    #|  background: var(--muted, #f3f4f6);
+    #|}
+    #|.combobox-listbox [role="option"][aria-selected="true"] {
+    #|  background: var(--accent, #dbeafe);
+    #|}
+    #|
+    #|/* =============================================================================
+    #|   TREE VIEW COMPONENT STYLES
+    #|   ============================================================================= */
+    #|[role="tree"] {
+    #|  list-style: none;
+    #|  margin: 0;
+    #|  padding: 0;
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  border-radius: 0.375rem;
+    #|  background: var(--background, white);
+    #|  min-width: 200px;
+    #|  max-width: 400px;
+    #|}
+    #|[role="treeitem"] {
+    #|  list-style: none;
+    #|  padding: 0.5rem 0.75rem;
+    #|  cursor: pointer;
+    #|  border-bottom: 1px solid var(--border, #e5e7eb);
+    #|}
+    #|[role="treeitem"]:last-child {
+    #|  border-bottom: none;
+    #|}
+    #|[role="treeitem"]:hover {
+    #|  background: var(--muted, #f3f4f6);
+    #|}
+    #|[role="treeitem"]:focus {
+    #|  outline: none;
+    #|  box-shadow: inset 0 0 0 2px var(--accent, #3b82f6);
+    #|}
+    #|[role="treeitem"][aria-selected="true"] {
+    #|  background: var(--accent, #dbeafe);
+    #|}
+    #|[role="treeitem"][aria-expanded]::before {
+    #|  content: "▶";
+    #|  display: inline-block;
+    #|  margin-right: 0.5rem;
+    #|  font-size: 0.625rem;
+    #|  transition: transform 0.15s;
+    #|}
+    #|[role="treeitem"][aria-expanded="true"]::before {
+    #|  transform: rotate(90deg);
+    #|}
+    #|[role="group"] {
+    #|  list-style: none;
+    #|  margin: 0;
+    #|  padding: 0;
+    #|  padding-left: 1.25rem;
+    #|}
+    #|[role="group"][hidden] {
+    #|  display: none;
+    #|}
+    #|
+    #|/* =============================================================================
+    #|   MENU BUTTON COMPONENT STYLES
+    #|   ============================================================================= */
+    #|.menu-button-wrapper {
+    #|  position: relative;
+    #|  display: inline-block;
+    #|}
+    #|[role="menu"] {
+    #|  position: absolute;
+    #|  top: calc(100% + 0.25rem);
+    #|  left: 0;
+    #|  z-index: 50;
+    #|  min-width: 160px;
+    #|  max-height: 20rem;
+    #|  overflow-y: auto;
+    #|  margin: 0;
+    #|  padding: 0.25rem 0;
+    #|  list-style: none;
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  border-radius: 0.375rem;
+    #|  background: var(--background, white);
+    #|  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    #|}
+    #|[role="menuitem"] {
+    #|  padding: 0.5rem 0.75rem;
+    #|  font-size: 0.875rem;
+    #|  cursor: pointer;
+    #|}
+    #|[role="menuitem"]:hover {
+    #|  background: var(--muted, #f3f4f6);
+    #|}
+    #|[role="menuitem"]:focus {
+    #|  outline: 2px solid var(--accent, #3b82f6);
+    #|  outline-offset: -2px;
+    #|  background: var(--accent, #dbeafe);
+    #|}
+    #|[role="menuitem"][aria-disabled="true"] {
+    #|  opacity: 0.5;
+    #|  cursor: not-allowed;
+    #|}
+    #|
+    #|/* =============================================================================
+    #|   TOOLTIP COMPONENT STYLES
+    #|   ============================================================================= */
+    #|.tooltip-wrapper {
+    #|  position: relative;
+    #|  display: inline-block;
+    #|}
+    #|[role="tooltip"] {
+    #|  position: absolute;
+    #|  z-index: 1000;
+    #|  bottom: 100%;
+    #|  left: 50%;
+    #|  transform: translateX(-50%);
+    #|  margin-bottom: 0.5rem;
+    #|  padding: 0.5rem 0.75rem;
+    #|  font-size: 0.75rem;
+    #|  background: var(--foreground, #1f2937);
+    #|  color: var(--background, white);
+    #|  border-radius: 0.375rem;
+    #|  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    #|  white-space: nowrap;
+    #|  pointer-events: none;
+    #|}
+    #|[role="tooltip"]::after {
+    #|  content: "";
+    #|  position: absolute;
+    #|  top: 100%;
+    #|  left: 50%;
+    #|  transform: translateX(-50%);
+    #|  border-width: 4px;
+    #|  border-style: solid;
+    #|  border-color: var(--foreground, #1f2937) transparent transparent transparent;
+    #|}
+    #|
+    #|/* =============================================================================
+    #|   LINK COMPONENT STYLES
+    #|   ============================================================================= */
+    #|a[role="link"], a:not([role]) {
+    #|  color: var(--link-color, #2563eb);
+    #|  text-decoration: underline;
+    #|  text-underline-offset: 2px;
+    #|  cursor: pointer;
+    #|  transition: color 0.15s;
+    #|}
+    #|a[role="link"]:hover, a:not([role]):hover {
+    #|  color: var(--link-hover, #1d4ed8);
+    #|}
+    #|a[role="link"]:focus-visible, a:not([role]):focus-visible {
+    #|  outline: 2px solid var(--accent, #3b82f6);
+    #|  outline-offset: 2px;
+    #|  border-radius: 2px;
+    #|}
+    #|a[aria-disabled="true"] {
+    #|  color: var(--muted-foreground, #9ca3af);
+    #|  cursor: not-allowed;
+    #|  text-decoration: none;
+    #|  opacity: 0.6;
+    #|}
+    #|
+    #|/* =============================================================================
+    #|   TABLE COMPONENT STYLES
+    #|   ============================================================================= */
+    #|[role="table"] {
+    #|  display: table;
+    #|  width: 100%;
+    #|  border-collapse: collapse;
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  border-radius: 0.375rem;
+    #|  overflow: hidden;
+    #|}
+    #|[role="rowgroup"] {
+    #|  display: table-row-group;
+    #|}
+    #|[role="row"] {
+    #|  display: table-row;
+    #|}
+    #|[role="columnheader"], [role="rowheader"], [role="cell"] {
+    #|  display: table-cell;
+    #|  padding: 0.75rem 1rem;
+    #|  text-align: left;
+    #|  border-bottom: 1px solid var(--border, #e5e7eb);
+    #|}
+    #|[role="columnheader"] {
+    #|  font-weight: 600;
+    #|  background: var(--muted, #f3f4f6);
+    #|}
+    #|[role="rowheader"] {
+    #|  font-weight: 500;
+    #|}
+    #|[role="row"]:last-child [role="cell"],
+    #|[role="row"]:last-child [role="rowheader"] {
+    #|  border-bottom: none;
+    #|}
+    #|[role="row"]:hover [role="cell"] {
+    #|  background: var(--muted, #f9fafb);
+    #|}
+    #|[role="row"][aria-selected="true"] [role="cell"] {
+    #|  background: var(--accent, #dbeafe);
+    #|}
+    #|
+    #|/* =============================================================================
+    #|   ALERT DIALOG COMPONENT STYLES
+    #|   ============================================================================= */
+    #|[role="alertdialog"],
+    #|.alert-dialog {
+    #|  position: fixed;
+    #|  top: 50%;
+    #|  left: 50%;
+    #|  transform: translate(-50%, -50%);
+    #|  z-index: 9999;
+    #|  background: var(--background, white);
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  border-radius: 0.5rem;
+    #|  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    #|  max-width: 28rem;
+    #|  width: calc(100% - 2rem);
+    #|  padding: 1.5rem;
+    #|  text-align: center;
+    #|}
+    #|[role="alertdialog"] h2,
+    #|[role="alertdialog"] h3,
+    #|.alert-dialog h2 {
+    #|  font-size: 1.125rem;
+    #|  font-weight: 600;
+    #|  margin: 0 0 0.75rem;
+    #|  color: var(--foreground, inherit);
+    #|}
+    #|[role="alertdialog"] p,
+    #|.alert-dialog p {
+    #|  margin: 0 0 1.5rem;
+    #|  color: var(--muted-foreground, #6b7280);
+    #|  font-size: 0.875rem;
+    #|}
+    #|[role="alertdialog"] .dialog-actions,
+    #|.alert-dialog .dialog-actions {
+    #|  display: flex;
+    #|  gap: 0.75rem;
+    #|  justify-content: center;
+    #|}
+    #|.alert-dialog button {
+    #|  padding: 0.5rem 1rem;
+    #|  font-size: 0.875rem;
+    #|  font-weight: 500;
+    #|  border-radius: 0.375rem;
+    #|  cursor: pointer;
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  background: var(--background, white);
+    #|  color: var(--foreground, inherit);
+    #|}
+    #|.alert-dialog button:hover {
+    #|  background: var(--muted, #f3f4f6);
+    #|}
+    #|.alert-dialog button:focus {
+    #|  outline: 2px solid var(--accent, #3b82f6);
+    #|  outline-offset: 2px;
+    #|}
+    #|
+    #|/* Dialog backdrop */
+    #|.dialog-backdrop {
+    #|  position: fixed;
+    #|  inset: 0;
+    #|  z-index: 9998;
+    #|  background: rgba(0, 0, 0, 0.5);
+    #|}
+    #|
+    #|/* =============================================================================
+    #|   DIALOG (MODAL) COMPONENT STYLES
+    #|   ============================================================================= */
+    #|[role="dialog"] {
+    #|  position: fixed;
+    #|  top: 50%;
+    #|  left: 50%;
+    #|  transform: translate(-50%, -50%);
+    #|  z-index: 9999;
+    #|  background: var(--background, white);
+    #|  border: 1px solid var(--border, #d1d5db);
+    #|  border-radius: 0.5rem;
+    #|  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    #|  max-width: 32rem;
+    #|  width: calc(100% - 2rem);
+    #|  max-height: calc(100vh - 4rem);
+    #|  overflow: auto;
+    #|  padding: 1.5rem;
+    #|}
+    #|[role="dialog"] h3 {
+    #|  font-size: 1.125rem;
+    #|  font-weight: 600;
+    #|  margin: 0 0 1rem;
+    #|}
+    #|[role="dialog"]:focus {
+    #|  outline: none;
+    #|}
+    #|
+    #|/* Dark mode is handled by CSS variables in theme_variables() */
+    #|
+    #|/* =============================================================================
+    #|   REDUCED MOTION
+    #|   ============================================================================= */
+    #|@media (prefers-reduced-motion: reduce) {
+    #|  [role="treeitem"][aria-expanded]::before,
+    #|  [role="tooltip"],
+    #|  a[role="link"], a:not([role]) {
+    #|    transition: none;
+    #|  }
+    #|}
+  css
+}
+
+///|
+fn inject_styled_css() -> Unit {
+  // Build CSS from individually imported styled components
+  let buf = StringBuilder::new()
+  buf.write_string("/* Luna Styled Components */\n\n")
+  buf.write_string(@styled.theme_variables())
+  buf.write_string("\n\n")
+  buf.write_string(@switch.switch_css())
+  buf.write_string("\n\n")
+  buf.write_string(@tabs.tabs_css())
+  buf.write_string("\n\n")
+  buf.write_string(@accordion.accordion_css())
+  buf.write_string("\n\n")
+  buf.write_string(@checkbox.checkbox_css())
+  buf.write_string("\n\n")
+  buf.write_string(@radio.radio_css())
+  buf.write_string("\n\n")
+  buf.write_string(@spinbutton.spinbutton_css())
+  buf.write_string("\n\n")
+  buf.write_string(apg_components_css())
+  let css = buf.to_string()
+
+  // Inject CSS into head
+  let doc = @js.global_this()._get("document")
+  let style = doc._call("createElement", [@js.any("style")])
+  let _ = style._call("setAttribute", [@js.any("data-styled"), @js.any("luna")])
+  style._set("textContent", @js.any(css))
+  let head = doc._get("head")
+  let _ = head._call("appendChild", [style])
+
+  // Log which CSS was injected
+  let console = @js.global_this()._get("console")
+  console._call("log", [@js.any("[Luna] Injected styled CSS for all components")]) |> ignore
+  console._call("log", [@js.any("[Luna] CSS size: " + css.length().to_string() + " chars")]) |> ignore
+}
+
+///|
 fn main {
+  // Inject styled component CSS first
+  inject_styled_css()
+
   let doc = @dom.document()
   match doc.getElementById("app") {
     Some(el) => @client.render_vnode(el, app())

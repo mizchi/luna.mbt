@@ -1,0 +1,81 @@
+/* Switch - Default Theme */
+/* Generated from @default.switch_css() */
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--accent, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.switch[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.switch__track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 3rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background: var(--switch-track-off, #d1d5db);
+  border: 2px solid var(--switch-track-off, #d1d5db);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.switch[data-state="on"] .switch__track {
+  background: var(--switch-track-on, #3b82f6);
+  border-color: var(--switch-track-on, #3b82f6);
+}
+
+.switch__thumb {
+  position: absolute;
+  left: 2px;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.switch[data-state="on"] .switch__thumb {
+  transform: translateX(1.5rem);
+}
+
+.switch__icon {
+  position: absolute;
+  left: 4px;
+  font-size: 0.625rem;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.switch[data-state="on"] .switch__icon {
+  opacity: 1;
+}
+
+.switch__label {
+  user-select: none;
+}
+
+.switch-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

@@ -1,0 +1,8 @@
+{
+  "import": [
+    "mizchi/luna",
+    "mizchi/luna/signal",
+    { "path": "mizchi/luna/components/headless", "alias": "headless" },
+    { "path": "mizchi/js/core", "alias": "js" }
+  ]
+}

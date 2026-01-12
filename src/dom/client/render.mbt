@@ -63,8 +63,35 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       let placeholder = doc.createComment("show")
       // Track multiple nodes for Fragment support
       let current_nodes : Array[@js_dom.Node] = []
+      let is_first_render : Ref[Bool] = Ref::new(true)
+
+      // Create a fragment for initial render
+      let fragment = doc.createDocumentFragment()
+      let fragment_node = fragment.as_node()
+
+      // Initial render - check condition and render if true
+      let initial_show = @signal.untracked(fn() { cond() })
+      if initial_show {
+        let rendered = @signal.untracked(fn() {
+          render_vnode_to_dom(child_fn())
+        })
+        // Collect actual nodes before inserting (Fragment children get moved)
+        let nodes_to_track = collect_dom_nodes(rendered)
+        fragment_node.appendChild(rendered) |> ignore
+        for node in nodes_to_track {
+          current_nodes.push(node)
+        }
+      }
+      // Append placeholder at end
+      fragment_node.appendChild(placeholder) |> ignore
+
+      // Set up effect for updates (skip first run since we already rendered)
       let _ = @signal.render_effect(fn() {
         let should_show = cond()
+        if is_first_render.val {
+          is_first_render.val = false
+          return
+        }
         let has_nodes = current_nodes.length() > 0
         match (should_show, has_nodes) {
           (true, false) =>
@@ -94,7 +121,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
           _ => ()
         }
       })
-      placeholder
+      fragment_node
     }
     @luna.For(render=render_fn) => {
       // Use a comment as a placeholder/marker for where to insert items
