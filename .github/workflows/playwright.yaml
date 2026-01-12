@@ -32,9 +32,9 @@ jobs:
       - name: Build MoonBit
         run: |
           # Core libraries
-          moon build --target js src/luna
-          moon build --target js src/luna/js/api
-          moon build --target js src/luna/js/stream_renderer
+          moon build --target js src
+          moon build --target js src/js/api
+          moon build --target js src/js/stream_renderer
           moon build --target js src/stella
           # Test packages for browser tests
           moon build --target js src/tests/counter_component
@@ -75,9 +75,9 @@ jobs:
       - name: Build MoonBit
         run: |
           # Core libraries
-          moon build --target js src/luna
-          moon build --target js src/luna/js/api
-          moon build --target js src/luna/js/stream_renderer
+          moon build --target js src
+          moon build --target js src/js/api
+          moon build --target js src/js/stream_renderer
           moon build --target js src/stella
           # Test packages for e2e tests
           moon build --target js src/tests/counter_component
