@@ -172,8 +172,9 @@ pub fn accordion_css() -> String {
     #|/* Accordion - Default Theme */
     #|.accordion {
     #|  border: 1px solid var(--border);
-    #|  border-radius: 8px;
+    #|  border-radius: 0.5rem;
     #|  overflow: hidden;
+    #|  background: var(--background);
     #|}
     #|
     #|.accordion__item {
@@ -191,17 +192,17 @@ pub fn accordion_css() -> String {
     #|  width: 100%;
     #|  padding: 1rem;
     #|  border: none;
-    #|  background: var(--muted);
+    #|  background: transparent;
     #|  color: var(--foreground);
     #|  cursor: pointer;
     #|  font-size: 0.875rem;
     #|  font-weight: 500;
     #|  text-align: left;
-    #|  transition: background-color 0.2s;
+    #|  transition: background-color 0.15s;
     #|}
     #|
     #|.accordion__header:hover {
-    #|  background: var(--border);
+    #|  background: var(--muted);
     #|}
     #|
     #|.accordion__header:focus-visible {
@@ -210,8 +211,8 @@ pub fn accordion_css() -> String {
     #|}
     #|
     #|.accordion__icon {
-    #|  font-size: 0.625rem;
-    #|  transition: transform 0.2s;
+    #|  font-size: 0.75rem;
+    #|  transition: transform 0.15s;
     #|  color: var(--muted-foreground);
     #|}
     #|
@@ -223,6 +224,15 @@ pub fn accordion_css() -> String {
     #|  padding: 1rem;
     #|  background: var(--background);
     #|  color: var(--foreground);
+    #|  border-top: 1px solid var(--border);
+    #|}
+    #|
+    #|/* Reduced motion */
+    #|@media (prefers-reduced-motion: reduce) {
+    #|  .accordion__header,
+    #|  .accordion__icon {
+    #|    transition: none;
+    #|  }
     #|}
   css
 }

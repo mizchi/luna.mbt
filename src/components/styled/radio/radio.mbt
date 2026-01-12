@@ -184,7 +184,7 @@ pub fn radio_css() -> String {
     #|  width: 0.5rem;
     #|  height: 0.5rem;
     #|  border-radius: 50%;
-    #|  background: var(--background);
+    #|  background: white;
     #|  transform: scale(0);
     #|  transition: transform 0.15s;
     #|}

@@ -284,7 +284,7 @@ pub fn checkbox_css() -> String {
     #|  justify-content: center;
     #|  width: 0.75rem;
     #|  height: 0.75rem;
-    #|  color: var(--background);
+    #|  color: white;
     #|  opacity: 0;
     #|  transition: opacity 0.15s;
     #|}
