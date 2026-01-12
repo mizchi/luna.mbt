@@ -25,7 +25,7 @@ jobs:
           cache: "pnpm"
       - uses: hustcer/setup-moonbit@v1
         with:
-          version: stable
+          version: latest
       - run: |
           moon update
           moon install
@@ -59,7 +59,7 @@ jobs:
           cache: "pnpm"
       - uses: hustcer/setup-moonbit@v1
         with:
-          version: stable
+          version: latest
       - run: |
           moon update
           moon install
@@ -92,7 +92,7 @@ jobs:
           fetch-depth: 1
       - uses: hustcer/setup-moonbit@v1
         with:
-          version: stable
+          version: latest
       - run: |
           moon update
           moon install
