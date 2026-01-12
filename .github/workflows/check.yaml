@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 24
           cache: "pnpm"
-      - uses: illusory0x0/setup-moonbit@v0.1.0
+      - uses: hustcer/setup-moonbit@v1
         with:
           version: stable
       - run: |
@@ -57,7 +57,7 @@ jobs:
         with:
           node-version: 24
           cache: "pnpm"
-      - uses: illusory0x0/setup-moonbit@v0.1.0
+      - uses: hustcer/setup-moonbit@v1
         with:
           version: stable
       - run: |
@@ -90,7 +90,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: illusory0x0/setup-moonbit@v0.1.0
+      - uses: hustcer/setup-moonbit@v1
         with:
           version: stable
       - run: |
