@@ -6,13 +6,11 @@
   "main": "../sol/index.ts",
   "exports": {
     ".": "../sol/index.ts",
-    "./jsx-runtime": "../sol/jsx-runtime.ts",
-    "./jsx-dev-runtime": "../sol/jsx-dev-runtime.ts",
     "./config": "../sol/config.ts",
     "./routes": "../sol/routes.ts",
     "./html": "../sol/html.ts",
     "./server-runtime": "../sol/server-runtime.ts",
-    "./hydration": "../sol/hydration.ts"
+    "./cache": "../sol/cache.ts"
   },
   "types": "../sol/index.ts"
 }
