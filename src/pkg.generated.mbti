@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol"
+package "mizchi/sol"
 
 import(
   "mizchi/js/core"
@@ -175,8 +175,10 @@ pub struct StaticFileConfig {
   path_prefix : String
   local_dir : String
   mappings : Array[(String, String)]
+  cache_control : String
 }
 pub fn StaticFileConfig::default() -> Self
+pub fn StaticFileConfig::dev() -> Self
 pub fn StaticFileConfig::with_mapping(Self, String, String) -> Self
 
 // Type aliases

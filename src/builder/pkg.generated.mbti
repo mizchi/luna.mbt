@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/builder"
+package "mizchi/sol/builder"
 
 import(
   "mizchi/js/core"

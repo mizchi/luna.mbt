@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/internal/utils"
+package "mizchi/sol/internal/utils"
 
 // Values
 pub fn extract_substring(String, Int, Int) -> String

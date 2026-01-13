@@ -1,0 +1,11 @@
+import {
+  "mizchi/js/web/http",
+  "mizchi/npm_typed/hono",
+  "mizchi/sol" as @sol,
+  "mizchi/luna" as @luna,
+  "mizchi/luna/js/stream_renderer" as @stream_renderer,
+}
+
+options(
+  link: { "js": { "exports": [ "create_app" ], "format": "esm" } },
+)

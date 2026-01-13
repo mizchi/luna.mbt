@@ -1,0 +1,25 @@
+import {
+  "mizchi/luna" as @luna,
+  "mizchi/luna/render" as @render,
+  "mizchi/sol/ssg" as @ssg,
+  "mizchi/sol/content/md_render" as @markdown,
+  "mizchi/sol/ssg/mdx" as @mdx,
+  "mizchi/sol/content/shiki" as @shiki,
+  "mizchi/sol/ssg/assets" as @assets,
+  "mizchi/sol/ssg/tree" as @tree,
+  "mizchi/sol/adapters" as @adapters,
+  "mizchi/sol/ssg/cache" as @cache,
+  "mizchi/sol/isr" as @sol_isr,
+  "mizchi/sol/ssg/components" as @components,
+  "mizchi/sol/routes" as @routes,
+  "mizchi/sol/internal/utils" as @utils,
+  "mizchi/js/core" as @js,
+  "mizchi/js/node/fs" as @fs,
+  "mizchi/js/node/path" as @path,
+  "mizchi/js/node/child_process" as @child_process,
+  "mizchi/process_pool",
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

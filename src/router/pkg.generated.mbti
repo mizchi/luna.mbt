@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/router"
+package "mizchi/sol/router"
 
 import(
   "mizchi/js/core"
@@ -7,10 +7,10 @@ import(
   "mizchi/js/web/url"
   "mizchi/luna"
   "mizchi/luna/static_dom"
-  "mizchi/luna/sol/isr"
-  "mizchi/luna/sol/middleware"
-  "mizchi/luna/sol/ssg"
   "mizchi/npm_typed/hono"
+  "mizchi/sol/isr"
+  "mizchi/sol/middleware"
+  "mizchi/sol/ssg"
 )
 
 // Values
@@ -40,7 +40,7 @@ pub fn generate_wrangler_assets_config(Array[SolRoutes], String) -> String
 
 pub fn has_fragment_header(@hono.Context[Unit, Unit]) -> Bool
 
-pub fn manifest_to_sol_routes(@mizchi/luna/sol/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
+pub fn manifest_to_sol_routes(@mizchi/sol/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 
 pub fn nodes(Array[@luna.Node[Unit]]) -> @static_dom.ServerNode
 
@@ -78,7 +78,7 @@ pub fn require_query(PageProps, String) -> Result[String, ApiResponse]
 
 pub fn send_fragment_response(@hono.Context[Unit, Unit], String) -> @http.Response
 
-pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/luna/sol/routes.RouteManifest
+pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/sol/routes.RouteManifest
 
 pub fn unauthorized(message? : String) -> ApiResponse
 
@@ -99,9 +99,9 @@ pub(all) struct ApiHandler(async (PageProps) -> @core.Any)
 #deprecated
 pub fn ApiHandler::inner(Self) -> async (PageProps) -> @core.Any
 
-pub(all) struct ApiHandlerFactory((@mizchi/luna/sol/routes.RouteEntry) -> ApiHandler?)
+pub(all) struct ApiHandlerFactory((@mizchi/sol/routes.RouteEntry) -> ApiHandler?)
 #deprecated
-pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/luna/sol/routes.RouteEntry) -> ApiHandler?
+pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> ApiHandler?
 
 pub(all) enum ApiResponse {
   Json(@core.Any)
@@ -159,9 +159,9 @@ pub(all) struct PageHandler(async (PageProps) -> @static_dom.ServerNode)
 #deprecated
 pub fn PageHandler::inner(Self) -> async (PageProps) -> @static_dom.ServerNode
 
-pub(all) struct PageHandlerFactory((@mizchi/luna/sol/routes.RouteEntry) -> PageHandler?)
+pub(all) struct PageHandlerFactory((@mizchi/sol/routes.RouteEntry) -> PageHandler?)
 #deprecated
-pub fn PageHandlerFactory::inner(Self) -> (@mizchi/luna/sol/routes.RouteEntry) -> PageHandler?
+pub fn PageHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> PageHandler?
 
 pub struct PageProps {
   ctx : @hono.Context[Unit, Unit]

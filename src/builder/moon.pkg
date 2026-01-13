@@ -1,0 +1,8 @@
+import {
+  "mizchi/js/core" as @core,
+  "mizchi/js/node/child_process" as @child_process,
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

@@ -53,7 +53,9 @@ test "render_fragment_response - without hydration" {
 
 ///|
 test "render_fragment_response - with hydration" {
-  let node : @luna.Node[Unit] = @luna.h("p", [], [@luna.text("Hydrated content")])
+  let node : @luna.Node[Unit] = @luna.h("p", [], [
+    @luna.text("Hydrated content"),
+  ])
   let html = @router.render_fragment_response(node, "Title", true)
   // Should contain the content (hydration adds data attributes)
   inspect(html.contains("Hydrated content"), content="true")

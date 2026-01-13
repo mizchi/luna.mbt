@@ -1,0 +1,10 @@
+import {
+  "mizchi/sol/ssg" as @ssg,
+  "mizchi/js/core" as @js,
+  "mizchi/js/node/fs" as @fs,
+  "mizchi/js/node/path" as @path,
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

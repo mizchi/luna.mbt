@@ -2307,9 +2307,7 @@ fn bundle_components(src_dir : String, dest_dir : String, cwd : String) -> Unit 
   for file in js_files {
     // Remove .js or .ts extension (3 chars)
     let end_idx = file.length() - 3
-    let name = try {
-      file[:end_idx].to_string()
-    } catch {
+    let name = file[:end_idx].to_string() catch {
       _ => file // fallback to original filename
     }
     let entry_path = @path.join2(src_dir, file)

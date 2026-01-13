@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/ssg"
+package "mizchi/sol/ssg"
 
 import(
-  "mizchi/luna/sol/content/frontmatter"
-  "mizchi/luna/sol/content/markdown"
+  "mizchi/sol/content/frontmatter"
+  "mizchi/sol/content/markdown"
   "moonbitlang/core/json"
 )
 

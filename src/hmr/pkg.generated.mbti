@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/hmr"
+package "mizchi/sol/hmr"
 
 import(
   "mizchi/js/core"
@@ -23,7 +23,7 @@ pub fn HmrServer::notify_full_reload(Self) -> Unit
 pub fn HmrServer::notify_reload(Self) -> Unit
 pub fn HmrServer::notify_update(Self, Array[String]) -> Unit
 pub fn HmrServer::on_connection(Self, (@core.Any) -> Unit) -> Unit
-pub async fn HmrServer::start(Int) -> Self
+pub fn HmrServer::start(Int) -> @core.Promise[Self]
 
 // Type aliases
 

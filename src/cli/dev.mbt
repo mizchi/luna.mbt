@@ -386,52 +386,55 @@ async fn run_dev_watch_mode(
           Some(framework_root) => {
             let framework_src = @path.join2(framework_root, "src")
             println(
-              @colorette.cyan("Also watching framework source: \{framework_src}"),
+              @colorette.cyan(
+                "Also watching framework source: \{framework_src}",
+              ),
             )
-            let _fw_watcher = @fs.watch(
-              framework_src,
-              recursive=true,
-              listener=fn(event : String, filename : String) {
-                let is_generated = filename.contains("__gen__")
-                if filename.ends_with(".mbt") &&
-                  event == "change" &&
-                  not(is_generated) {
-                  let now = @cli_common.date_now()
-                  if now - last_rebuild.val > debounce_ms {
-                    last_rebuild.val = now
-                    println(
-                      @colorette.yellow(
-                        "\n[watch] Framework changed: \{filename}, rebuilding...",
-                      ),
-                    )
-                    stop_server()
-                    // First rebuild framework
-                    if rebuild_framework(framework_root) {
-                      // Then rebuild app
-                      if run_incremental_build_dev(cwd) {
-                        restart_server()
-                        set_timeout(
-                          fn() { hmr_server.notify_full_reload() },
-                          500,
-                        )
-                      } else {
-                        hmr_server.notify_error(
-                          "App build failed after framework rebuild",
-                        )
-                        println(
-                          @colorette.red("[watch] App build failed. Waiting for changes..."),
-                        )
-                      }
+            let _fw_watcher = @fs.watch(framework_src, recursive=true, listener=fn(
+              event : String,
+              filename : String,
+            ) {
+              let is_generated = filename.contains("__gen__")
+              if filename.ends_with(".mbt") &&
+                event == "change" &&
+                not(is_generated) {
+                let now = @cli_common.date_now()
+                if now - last_rebuild.val > debounce_ms {
+                  last_rebuild.val = now
+                  println(
+                    @colorette.yellow(
+                      "\n[watch] Framework changed: \{filename}, rebuilding...",
+                    ),
+                  )
+                  stop_server()
+                  // First rebuild framework
+                  if rebuild_framework(framework_root) {
+                    // Then rebuild app
+                    if run_incremental_build_dev(cwd) {
+                      restart_server()
+                      set_timeout(fn() { hmr_server.notify_full_reload() }, 500)
                     } else {
-                      hmr_server.notify_error("Framework rebuild failed")
+                      hmr_server.notify_error(
+                        "App build failed after framework rebuild",
+                      )
                       println(
-                        @colorette.red("[watch] Framework rebuild failed. Waiting for changes..."),
+                        @colorette.red(
+                          "[watch] App build failed. Waiting for changes...",
+                        ),
                       )
                     }
+                  } else {
+                    hmr_server.notify_error("Framework rebuild failed")
+                    println(
+                      @colorette.red(
+                        "[watch] Framework rebuild failed. Waiting for changes...",
+                      ),
+                    )
                   }
                 }
-              },
-            )
+              }
+            })
+
           }
           None =>
             println(

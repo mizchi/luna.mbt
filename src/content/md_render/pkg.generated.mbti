@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/content/md_render"
+package "mizchi/sol/content/md_render"
 
 import(
   "mizchi/luna"
-  "mizchi/luna/sol/content/frontmatter"
-  "mizchi/luna/sol/content/markdown"
-  "mizchi/luna/sol/content/toc"
   "mizchi/markdown/info_string"
+  "mizchi/sol/content/frontmatter"
+  "mizchi/sol/content/markdown"
+  "mizchi/sol/content/toc"
 )
 
 // Values

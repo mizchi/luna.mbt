@@ -1,7 +1,0 @@
-{
-  "import": [
-    { "path": "mizchi/sol/ssg", "alias": "ssg" },
-    { "path": "mizchi/sol/core/env", "alias": "env" },
-    { "path": "mizchi/sol/adapters/fs", "alias": "fs_adapter" }
-  ]
-}

@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/parser"
+package "mizchi/sol/parser"
 
 // Values
 pub fn get_methods_for_type(Array[PubFunc], String) -> Array[String]

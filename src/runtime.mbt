@@ -919,7 +919,11 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
             } else {
               "text/plain"
             }
-            return static_response(content, content_type, cache_control=cache_ctl)
+            return static_response(
+              content,
+              content_type,
+              cache_control=cache_ctl,
+            )
           }
           None =>
             return static_response(
@@ -957,7 +961,12 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
         }
         static_response(c, content_type, cache_control=cache_ctl)
       }
-      None => static_response("Not found: " + filename, "text/plain", cache_control=cache_ctl)
+      None =>
+        static_response(
+          "Not found: " + filename,
+          "text/plain",
+          cache_control=cache_ctl,
+        )
     }
   })
 }

@@ -1,18 +1,18 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/content/cst"
+package "mizchi/sol/content/cst"
 
 import(
-  "mizchi/luna/sol/content/frontmatter"
+  "mizchi/sol/content/frontmatter"
 )
 
 // Values
-pub fn convert_document(@mizchi/markdown.Document) -> (@frontmatter.Frontmatter, Array[@mizchi/luna/sol/content/markdown.MdNode])
+pub fn convert_document(@mizchi/markdown.Document) -> (@frontmatter.Frontmatter, Array[@mizchi/sol/content/markdown.MdNode])
 
-pub fn parse_custom_element(String) -> @mizchi/luna/sol/content/markdown.ComponentEmbed?
+pub fn parse_custom_element(String) -> @mizchi/sol/content/markdown.ComponentEmbed?
 
-pub fn parse_island_directive(String) -> @mizchi/luna/sol/content/markdown.IslandEmbed?
+pub fn parse_island_directive(String) -> @mizchi/sol/content/markdown.IslandEmbed?
 
-pub fn parse_markdown_native(String) -> (@frontmatter.Frontmatter, Array[@mizchi/luna/sol/content/markdown.MdNode])
+pub fn parse_markdown_native(String) -> (@frontmatter.Frontmatter, Array[@mizchi/sol/content/markdown.MdNode])
 
 // Errors
 

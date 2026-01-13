@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/ssg/tree"
+package "mizchi/sol/ssg/tree"
 
 import(
-  "mizchi/luna/sol/core/env"
-  "mizchi/luna/sol/ssg"
+  "mizchi/sol/core/env"
+  "mizchi/sol/ssg"
 )
 
 // Values

@@ -1,6 +1,0 @@
-{
-  "import": [
-    { "path": "mizchi/markdown", "alias": "md_parser" },
-    { "path": "mizchi/markdown/frontmatter", "alias": "md_fm" }
-  ]
-}

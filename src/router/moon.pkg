@@ -1,0 +1,20 @@
+import {
+  "mizchi/luna" as @luna,
+  "mizchi/luna/routes" as @routes,
+  "mizchi/luna/render" as @render,
+  "mizchi/sol/ssg" as @ssg,
+  "mizchi/sol/routes" as @sol_routes,
+  "mizchi/luna/static_dom" as @server_dom,
+  "mizchi/sol/middleware" as @middleware,
+  "mizchi/sol/isr" as @isr,
+  "mizchi/npm_typed/hono" as @hono,
+  "mizchi/js/core" as @js,
+  "mizchi/js/web/http" as @http,
+  "mizchi/js/web/url" as @url,
+  "mizchi/sol/internal/utils" as @utils,
+}
+
+options(
+  "supported-targets": [ "js" ],
+  "warn-list": "-24-67-29",
+)

@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/internal/json_utils"
+package "mizchi/sol/internal/json_utils"
 
 // Values
 pub fn extract_array(Map[String, Json], String) -> Array[Json]

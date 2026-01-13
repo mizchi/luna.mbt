@@ -21,9 +21,9 @@ fn show_generate_help() -> Unit {
 ///|
 /// Application mode - determines how server-side code is written
 pub enum AppMode {
-  MoonBitFull           // All MoonBit (current default)
+  MoonBitFull // All MoonBit (current default)
   MoonBitClientTsServer // MoonBit client + TypeScript server
-  TypeScriptFull        // All TypeScript (future)
+  TypeScriptFull // All TypeScript (future)
 } derive(Eq, Show)
 
 ///|
@@ -334,7 +334,10 @@ pub async fn load_config(cwd : String) -> (SolConfig?, String) {
 }
 
 ///|
-async fn[FS : @env.FileSystem] load_config_with_fs(fs : FS, cwd : String) -> (SolConfig?, String) {
+async fn[FS : @env.FileSystem] load_config_with_fs(
+  fs : FS,
+  cwd : String,
+) -> (SolConfig?, String) {
   let ts_path = @path.join2(cwd, "sol.config.ts")
   let json_path = @path.join2(cwd, "sol.config.json")
 
@@ -342,7 +345,9 @@ async fn[FS : @env.FileSystem] load_config_with_fs(fs : FS, cwd : String) -> (So
   if fs.exists_sync(ts_path) {
     (load_ts_config(ts_path), ts_path)
   } else if fs.exists_sync(json_path) {
-    let content : String = fs.read_file_sync(json_path) catch { _ => return (None, json_path) }
+    let content : String = fs.read_file_sync(json_path) catch {
+      _ => return (None, json_path)
+    }
     (parse_sol_config(content), json_path)
   } else {
     (None, "")
@@ -532,7 +537,9 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
       let warning_color = extract_color_opt(
         theme_obj, "warningColor", "warning_color",
       )
-      let error_color = extract_color_opt(theme_obj, "errorColor", "error_color")
+      let error_color = extract_color_opt(
+        theme_obj, "errorColor", "error_color",
+      )
 
       // Text colors
       let text_color = extract_color_opt(theme_obj, "textColor", "text_color")
@@ -1093,9 +1100,7 @@ fn generate_types_pkg_json(
   buf.write_string("  \"supported-targets\": [\"js\"],\n")
   // Import @luna for ComponentRef type
   buf.write_string("  \"import\": [\n")
-  buf.write_string(
-    "    { \"path\": \"mizchi/luna\", \"alias\": \"luna\" }\n",
-  )
+  buf.write_string("    { \"path\": \"mizchi/luna\", \"alias\": \"luna\" }\n")
   buf.write_string("  ],\n")
   buf.write_string("  \"link\": {\n")
   buf.write_string("    \"js\": {\n")
@@ -1553,9 +1558,7 @@ fn generate_server_pkg_json(routes_pkg : String) -> String {
   buf.write_string("  \"supported-targets\": [\"js\"],\n")
   buf.write_string("  \"is-main\": true,\n")
   buf.write_string("  \"import\": [\n")
-  buf.write_string(
-    "    { \"path\": \"mizchi/sol\", \"alias\": \"sol\" },\n",
-  )
+  buf.write_string("    { \"path\": \"mizchi/sol\", \"alias\": \"sol\" },\n")
   buf.write_string(
     "    { \"path\": \"mizchi/sol/router\", \"alias\": \"router\" },\n",
   )
@@ -1735,36 +1738,60 @@ pub fn generate_sol_server_main_js_hybrid(
   // This assumes the project is inside the sol.mbt repo (e.g., examples/sol_app)
   // TODO: Make this configurable or use npm package @sol/core
   buf.write_string("import { Hono } from 'hono';\n")
-  buf.write_string("import { registerRoutes } from '../../../../../js/sol/server-runtime.ts';\n")
-  buf.write_string("import { routes, config } from '../../../\{routes_dir}/routes.ts';\n\n")
+  buf.write_string(
+    "import { registerRoutes } from '../../../../../js/sol/server-runtime.ts';\n",
+  )
+  buf.write_string(
+    "import { routes, config } from '../../../\{routes_dir}/routes.ts';\n\n",
+  )
 
   // Generate runtime-specific entry point
   match runtime {
     RuntimeNode => {
       buf.write_string("import { serve } from '@hono/node-server';\n\n")
       buf.write_string("// Node.js runtime with TypeScript routes\n")
-      buf.write_string("const app = registerRoutes(new Hono(), routes(), config?.() || {});\n\n")
-      buf.write_string("const port = parseInt(process.env.PORT || '3000', 10);\n")
-      buf.write_string("console.log(`Server running at http://localhost:${port}`);\n")
+      buf.write_string(
+        "const app = registerRoutes(new Hono(), routes(), config?.() || {});\n\n",
+      )
+      buf.write_string(
+        "const port = parseInt(process.env.PORT || '3000', 10);\n",
+      )
+      buf.write_string(
+        "console.log(`Server running at http://localhost:${port}`);\n",
+      )
       buf.write_string("serve({ fetch: app.fetch, port });\n")
     }
     RuntimeCloudflare => {
       buf.write_string("// Cloudflare Workers runtime with TypeScript routes\n")
-      buf.write_string("const app = registerRoutes(new Hono(), routes(), config?.() || {});\n\n")
+      buf.write_string(
+        "const app = registerRoutes(new Hono(), routes(), config?.() || {});\n\n",
+      )
       buf.write_string("export default app;\n")
     }
     RuntimeDeno => {
       buf.write_string("// Deno runtime with TypeScript routes\n")
-      buf.write_string("const app = registerRoutes(new Hono(), routes(), config?.() || {});\n")
-      buf.write_string("const port = parseInt(Deno.env.get('PORT') || '3000', 10);\n")
-      buf.write_string("console.log(`Server running at http://localhost:${port}`);\n")
+      buf.write_string(
+        "const app = registerRoutes(new Hono(), routes(), config?.() || {});\n",
+      )
+      buf.write_string(
+        "const port = parseInt(Deno.env.get('PORT') || '3000', 10);\n",
+      )
+      buf.write_string(
+        "console.log(`Server running at http://localhost:${port}`);\n",
+      )
       buf.write_string("Deno.serve({ port }, app.fetch);\n")
     }
     RuntimeBun => {
       buf.write_string("// Bun runtime with TypeScript routes\n")
-      buf.write_string("const app = registerRoutes(new Hono(), routes(), config?.() || {});\n")
-      buf.write_string("const port = parseInt(process.env.PORT || '3000', 10);\n")
-      buf.write_string("console.log(`Server running at http://localhost:${port}`);\n")
+      buf.write_string(
+        "const app = registerRoutes(new Hono(), routes(), config?.() || {});\n",
+      )
+      buf.write_string(
+        "const port = parseInt(process.env.PORT || '3000', 10);\n",
+      )
+      buf.write_string(
+        "console.log(`Server running at http://localhost:${port}`);\n",
+      )
       buf.write_string("export default {\n")
       buf.write_string("  port,\n")
       buf.write_string("  fetch: app.fetch\n")
@@ -1825,7 +1852,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     } else {
       let content : String = fs.read_file_sync(full_path) catch {
         e => {
-          @cli_common.console_error(@colorette.red("Error reading config: \{e}"))
+          @cli_common.console_error(
+            @colorette.red("Error reading config: \{e}"),
+          )
           @process.exit(1)
           "" // unreachable
         }
@@ -1836,7 +1865,6 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     // Auto-detect
     load_config_with_fs(fs, cwd)
   }
-
   guard config_opt is Some(config) else {
     @cli_common.console_error(
       @colorette.red("Error: Config file not found or invalid format"),
@@ -2140,20 +2168,21 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     MoonBitClientTsServer => {
       // For hybrid mode, skip MoonBit server generation
       // The TypeScript routes.ts will be used directly
-      println(@colorette.gray("  Skipping __gen__/server/main.mbt (hybrid mode)"))
+      println(
+        @colorette.gray("  Skipping __gen__/server/main.mbt (hybrid mode)"),
+      )
       // Create a stub main.mbt to satisfy MoonBit build
       let stub_main = "///| Stub - TypeScript server mode\nfn main { () }\n"
       let stub_main_path = @path.join2(server_dir, "main.mbt")
-      try {
-        fs.write_file_sync(stub_main_path, stub_main)
-      } catch {
+      fs.write_file_sync(stub_main_path, stub_main) catch {
         _ => ()
       }
     }
-    TypeScriptFull => {
+    TypeScriptFull =>
       // Full TypeScript mode - not yet implemented
-      println(@colorette.gray("  Skipping __gen__/server/ (full TypeScript mode)"))
-    }
+      println(
+        @colorette.gray("  Skipping __gen__/server/ (full TypeScript mode)"),
+      )
   }
   // Note: server/moon.pkg.json already generated before moon info (with warn-list)
   // Generate client JS entry files in .sol/client/
@@ -2210,8 +2239,10 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Generate .sol/{mode}/server/main.js (server entry point)
   let server_main_js = match app_mode {
     MoonBitFull => generate_sol_server_main_js(routes_pkg, config.runtime)
-    MoonBitClientTsServer => generate_sol_server_main_js_hybrid(config.routes, config.runtime)
-    TypeScriptFull => generate_sol_server_main_js_hybrid(config.routes, config.runtime)
+    MoonBitClientTsServer =>
+      generate_sol_server_main_js_hybrid(config.routes, config.runtime)
+    TypeScriptFull =>
+      generate_sol_server_main_js_hybrid(config.routes, config.runtime)
   }
   let server_main_js_path = @path.join2(sol_server_dir, "main.js")
   try {
@@ -2221,7 +2252,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       MoonBitClientTsServer => "hybrid"
       TypeScriptFull => "TypeScript"
     }
-    println(@colorette.gray("  Generated .sol/\{mode}/server/main.js (\{mode_label})"))
+    println(
+      @colorette.gray("  Generated .sol/\{mode}/server/main.js (\{mode_label})"),
+    )
   } catch {
     e => {
       @cli_common.console_error(

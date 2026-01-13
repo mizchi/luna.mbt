@@ -1,0 +1,9 @@
+import {
+  "mizchi/js/core" as @js,
+  "mizchi/npm_typed/colorette" as @colorette,
+  "mizchi/sol/cli_common" as @cli_common,
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

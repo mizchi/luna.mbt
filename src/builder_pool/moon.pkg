@@ -1,0 +1,11 @@
+import {
+  "mizchi/js/core" as @core,
+  "mizchi/sol/builder" as @builder,
+  "mizchi/sol/ssg" as @ssg,
+  "mizchi/sol/ssg/generator" as @generator,
+  "mizchi/sol/content/shiki" as @shiki,
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

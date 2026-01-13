@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/adapters/fs"
+package "mizchi/sol/adapters/fs"
 
 import(
-  "mizchi/luna/sol/core/env"
   "mizchi/npm_typed/memfs"
+  "mizchi/sol/core/env"
 )
 
 // Values

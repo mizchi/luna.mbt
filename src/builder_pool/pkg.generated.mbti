@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/builder_pool"
+package "mizchi/sol/builder_pool"
 
 import(
   "mizchi/js/core"
-  "mizchi/luna/sol/builder"
-  "mizchi/luna/sol/ssg"
+  "mizchi/sol/builder"
+  "mizchi/sol/ssg"
 )
 
 // Values

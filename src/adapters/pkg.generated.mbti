@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/adapters"
+package "mizchi/sol/adapters"
 
 import(
-  "mizchi/luna/sol/ssg"
+  "mizchi/sol/ssg"
 )
 
 // Values

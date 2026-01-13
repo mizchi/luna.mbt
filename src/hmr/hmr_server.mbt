@@ -166,7 +166,6 @@ fn escape_json_string(s : String) -> String {
 // FFI Functions
 // =============================================================================
 
-
 ///|
 /// Broadcast message to all clients
 extern "js" fn broadcast_to_clients(wss : @js.Any, message : String) -> Unit =

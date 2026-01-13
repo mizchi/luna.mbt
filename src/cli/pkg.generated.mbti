@@ -1,11 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/sol/cli"
+package "mizchi/sol/cli"
 
 import(
-  "mizchi/luna/sol/ssg"
+  "mizchi/sol/ssg"
 )
 
 // Values
+pub fn detect_app_mode(String, SolConfig) -> AppMode
+
 pub fn extract_component_name_from_props(String) -> String
 
 pub fn extract_island_name(String) -> String
@@ -24,11 +26,17 @@ pub fn generate_params_with_names(String) -> (String, String)
 
 pub fn generate_sol_server_main_js(String, ServerRuntime) -> String
 
+pub fn generate_sol_server_main_js_hybrid(String, ServerRuntime) -> String
+
 pub fn generate_templates(String, String, String?) -> Array[TemplateFile]
 
 pub fn has_ssg_config(String) -> Bool
 
 pub fn is_web_component(String) -> Bool
+
+pub async fn load_config(String) -> (SolConfig?, String)
+
+pub async fn load_ts_config(String) -> SolConfig?
 
 pub fn parse_mbti(String) -> Array[(String, String)]
 
@@ -99,6 +107,14 @@ pub fn uses_signal_types(String) -> Bool
 // Errors
 
 // Types and methods
+pub enum AppMode {
+  MoonBitFull
+  MoonBitClientTsServer
+  TypeScriptFull
+}
+pub impl Eq for AppMode
+pub impl Show for AppMode
+
 pub(all) struct FuncExport {
   name : String
   signature : String

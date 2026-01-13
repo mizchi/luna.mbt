@@ -1,0 +1,11 @@
+import {
+  "mizchi/npm_typed/hono" as @hono,
+  "mizchi/js/core" as @js,
+  "mizchi/js/web/http" as @http,
+  "mizchi/sol/middleware" as @middleware,
+}
+
+options(
+  "supported-targets": [ "js" ],
+  "warn-list": "-6",
+)
