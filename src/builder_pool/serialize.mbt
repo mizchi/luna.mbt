@@ -513,27 +513,32 @@ fn parse_nav_items(arr : Array[Json]) -> Array[@ssg.NavItem] {
 }
 
 ///|
+fn parse_sidebar_group_from_obj(obj : Map[String, Json]) -> @ssg.SidebarGroup {
+  let text = match obj.get("text") {
+    Some(String(s)) => s
+    _ => ""
+  }
+  let link : String? = match obj.get("link") {
+    Some(String(s)) => Some(s)
+    _ => None
+  }
+  let collapsed = match obj.get("collapsed") {
+    Some(True) => true
+    _ => false
+  }
+  let items = match obj.get("items") {
+    Some(Array(arr)) => parse_sidebar_items(arr)
+    _ => []
+  }
+  @ssg.SidebarGroup::{ text, link, collapsed, items }
+}
+
+///|
 fn parse_sidebar_groups(arr : Array[Json]) -> Array[@ssg.SidebarGroup] {
   let result : Array[@ssg.SidebarGroup] = []
   for item in arr {
     if item is Object(obj) {
-      let text = match obj.get("text") {
-        Some(String(s)) => s
-        _ => ""
-      }
-      let link : String? = match obj.get("link") {
-        Some(String(s)) => Some(s)
-        _ => None
-      }
-      let collapsed = match obj.get("collapsed") {
-        Some(True) => true
-        _ => false
-      }
-      let items = match obj.get("items") {
-        Some(Array(arr)) => parse_sidebar_items(arr)
-        _ => []
-      }
-      result.push(@ssg.SidebarGroup::{ text, link, collapsed, items })
+      result.push(parse_sidebar_group_from_obj(obj))
     }
   }
   result
@@ -552,10 +557,8 @@ fn parse_sidebar_items(arr : Array[Json]) -> Array[@ssg.SidebarItem] {
         "group" =>
           match obj.get("group") {
             Some(Object(group_obj)) => {
-              let groups = parse_sidebar_groups([Object(group_obj)])
-              if groups.length() > 0 {
-                result.push(@ssg.SidebarItem::Group(groups[0]))
-              }
+              let group = parse_sidebar_group_from_obj(group_obj)
+              result.push(@ssg.SidebarItem::Group(group))
             }
             _ => ()
           }

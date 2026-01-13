@@ -181,7 +181,7 @@ pub fn[F : @env.FileSystem] DiskCache::save(self : DiskCache[F]) -> Unit {
 
 ///|
 /// Get cache statistics
-pub fn[F : @env.FileSystem] DiskCache::stats(self : DiskCache[F]) -> (Int, Int) {
+pub fn[F] DiskCache::stats(self : DiskCache[F]) -> (Int, Int) {
   let _ = self.fs // Suppress unused warning
   (self.meta.entries.length(), 0)
 }

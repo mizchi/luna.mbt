@@ -87,13 +87,11 @@ fn[FS : @env.FileSystem] scan_recursive(
         Some(param_info) =>
           // Dynamic file - process as dynamic route
           process_dynamic_page_file(
-            fs, entry_path, pages_dir, entry_rel, entry, param_info, config, routes,
+            entry_rel, entry, param_info, config, routes,
           )
         None =>
           // Regular file
-          process_page_file(
-            fs, entry_path, pages_dir, entry_rel, entry, config, routes,
-          )
+          process_page_file(entry_rel, entry, config, routes)
       }
     }
   }
@@ -307,10 +305,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir(
 ///|
 /// Process a dynamic page file (_id_.mbt, ___all___.mbt, etc.)
 /// Creates a dynamic route entry for runtime matching
-fn[FS : @env.FileSystem] process_dynamic_page_file(
-  _fs : FS,
-  _abs_path : String,
-  _pages_dir : String,
+fn process_dynamic_page_file(
   rel_path : String,
   filename : String,
   param_info : ParamInfo,
@@ -389,10 +384,7 @@ fn build_dynamic_url_pattern_for_file(
 
 ///|
 /// Process a regular page file
-fn[FS : @env.FileSystem] process_page_file(
-  _fs : FS,
-  _abs_path : String,
-  _pages_dir : String,
+fn process_page_file(
   rel_path : String,
   filename : String,
   config : PageConfig,

@@ -13,7 +13,7 @@ pub fn build_document_tree(
 
 ///|
 /// Build DocumentTree from SsgConfig and PageMeta array (using FileSystem trait)
-pub fn[F : @env.FileSystem] build_document_tree_with_fs(
+pub fn[F] build_document_tree_with_fs(
   fs : F,
   config : @ssg.SsgConfig,
   pages : Array[@ssg.PageMeta],

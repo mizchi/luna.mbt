@@ -22,6 +22,6 @@
   ],
   "description": "SSR/SSG Framework for Luna UI",
   "source": "src",
-  "warn-list": "-6-unused_trait_bound",
+  "warn-list": "-6",
   "preferred-target": "js"
 }
