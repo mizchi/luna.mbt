@@ -17,6 +17,8 @@ pub fn theme_variables() -> String {
     #|  --border: #e5e7eb;
     #|  --accent: #3b82f6;
     #|  --accent-foreground: #ffffff;
+    #|  --switch-track-off: #d1d5db;
+    #|  --switch-track-on: #3b82f6;
     #|
     #|  /* Link */
     #|  --link-color: #2563eb;
@@ -32,6 +34,8 @@ pub fn theme_variables() -> String {
     #|  --border: #374151;
     #|  --accent: #3b82f6;
     #|  --accent-foreground: #ffffff;
+    #|  --switch-track-off: #4b5563;
+    #|  --switch-track-on: #3b82f6;
     #|
     #|  /* Link */
     #|  --link-color: #60a5fa;
@@ -49,6 +53,8 @@ pub fn theme_variables() -> String {
     #|    --border: #374151;
     #|    --accent: #3b82f6;
     #|    --accent-foreground: #ffffff;
+    #|    --switch-track-off: #4b5563;
+    #|    --switch-track-on: #3b82f6;
     #|
     #|    /* Link */
     #|    --link-color: #60a5fa;
