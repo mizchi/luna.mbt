@@ -2,14 +2,13 @@
 package "mizchi/sol/ssg/tree"
 
 import(
-  "mizchi/sol/core/env"
   "mizchi/sol/ssg"
 )
 
 // Values
 pub fn build_document_tree(@ssg.SsgConfig, Array[@ssg.PageMeta], String) -> @ssg.DocumentTree
 
-pub fn[F : @env.FileSystem] build_document_tree_with_fs(F, @ssg.SsgConfig, Array[@ssg.PageMeta], String) -> @ssg.DocumentTree
+pub fn[F] build_document_tree_with_fs(F, @ssg.SsgConfig, Array[@ssg.PageMeta], String) -> @ssg.DocumentTree
 
 // Errors
 

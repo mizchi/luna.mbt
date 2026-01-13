@@ -106,7 +106,7 @@ pub fn[F : @env.FileSystem] DiskCache::new(F, cache_dir~ : String, config_hash? 
 pub fn[F : @env.FileSystem] DiskCache::remove(Self[F], String) -> Unit
 pub fn[F : @env.FileSystem] DiskCache::save(Self[F]) -> Unit
 pub fn[F : @env.FileSystem] DiskCache::set(Self[F], String, String, String, ttl? : Int) -> Unit
-pub fn[F : @env.FileSystem] DiskCache::stats(Self[F]) -> (Int, Int)
+pub fn[F] DiskCache::stats(Self[F]) -> (Int, Int)
 
 pub(all) struct EntryMeta {
   content_hash : String
