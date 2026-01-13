@@ -32,3 +32,4 @@ tmp.sol-cache/
 tmp/
 playwright-report/
 _build
+target
