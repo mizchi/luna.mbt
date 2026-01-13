@@ -4,7 +4,7 @@
   ],
   "import": [
     {
-      "path": "mizchi/luna/luna",
+      "path": "mizchi/luna",
       "alias": "luna"
     },
     {
@@ -24,11 +24,11 @@
       "alias": "action"
     },
     {
-      "path": "mizchi/luna/luna/static_dom",
+      "path": "mizchi/luna/static_dom",
       "alias": "server_dom"
     },
     {
-      "path": "mizchi/luna/luna/static_dom/element",
+      "path": "mizchi/luna/static_dom/element",
       "alias": "element"
     },
     {

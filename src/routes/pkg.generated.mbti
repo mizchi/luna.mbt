@@ -2,7 +2,7 @@
 package "mizchi/luna/sol/routes"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
   "mizchi/luna/sol/content/frontmatter"
   "mizchi/luna/sol/core/env"
   "mizchi/luna/sol/ssg"

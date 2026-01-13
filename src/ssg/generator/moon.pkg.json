@@ -1,8 +1,8 @@
 {
   "supported-targets": ["js"],
   "import": [
-    { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/luna/render", "alias": "render" },
+    { "path": "mizchi/luna", "alias": "luna" },
+    { "path": "mizchi/luna/render", "alias": "render" },
     { "path": "mizchi/sol/ssg", "alias": "ssg" },
     { "path": "mizchi/sol/content/md_render", "alias": "markdown" },
     { "path": "mizchi/sol/ssg/mdx", "alias": "mdx" },

@@ -4,8 +4,8 @@ package "mizchi/luna/sol"
 import(
   "mizchi/js/core"
   "mizchi/js/web/http"
-  "mizchi/luna/luna"
-  "mizchi/luna/luna/render"
+  "mizchi/luna"
+  "mizchi/luna/render"
   "mizchi/luna/stella"
   "mizchi/npm_typed/hono"
 )

@@ -2,7 +2,7 @@
 package "example/astra-app/ssr_test_component"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
 )
 
 // Values

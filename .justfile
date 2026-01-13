@@ -59,11 +59,11 @@ _setup-test-env:
 test-ssg: _setup-test-env
     moon test --target js src/ssg
 
-# クロスプラットフォームテスト (js, wasm-gc, native)
+# クロスプラットフォームテスト (wasm, wasm-gc, native)
 test-xplat:
-    moon test --target all src/parser
-    moon test --target all src/router
-    moon test --target all src/routes
+    moon test --target wasm src/parser
+    moon test --target wasm-gc src/parser
+    moon test --target native src/parser
 
 # E2E テスト
 test-e2e:
@@ -72,6 +72,12 @@ test-e2e:
 # E2E テスト (UI モード)
 test-e2e-ui:
     pnpm playwright test --config e2e/playwright.config.mts --ui
+
+# sol_app E2E テスト
+test-sol-app:
+    cd examples/sol_app && pnpm test
+
+test-all: test test-ssg test-xplat test-e2e test-sol-app
 
 # =============================================================================
 # CLI

@@ -1,6 +1,6 @@
 {
   "import": [
-    { "path": "mizchi/luna/luna", "alias": "luna" },
+    { "path": "mizchi/luna", "alias": "luna" },
     { "path": "mizchi/sol/content/markdown", "alias": "markdown" },
     { "path": "mizchi/sol/content/frontmatter", "alias": "frontmatter" },
     { "path": "mizchi/sol/content/cst", "alias": "cst" },
@@ -9,6 +9,6 @@
     { "path": "mizchi/markdown/info_string", "alias": "info_string" }
   ],
   "test-import": [
-    { "path": "mizchi/luna/luna/render", "alias": "render" }
+    { "path": "mizchi/luna/render", "alias": "render" }
   ]
 }

@@ -2,7 +2,7 @@
 package "mizchi/luna/sol/content/md_render"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
   "mizchi/luna/sol/content/frontmatter"
   "mizchi/luna/sol/content/markdown"
   "mizchi/luna/sol/content/toc"

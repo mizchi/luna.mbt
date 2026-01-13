@@ -2,7 +2,7 @@
 package "mizchi/luna/sol/ssg/components"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
   "mizchi/luna/sol/content/toc"
   "mizchi/luna/sol/ssg"
 )

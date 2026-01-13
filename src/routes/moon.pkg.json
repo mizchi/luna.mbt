@@ -6,7 +6,7 @@
     { "path": "mizchi/sol/core/env", "alias": "env" },
     { "path": "mizchi/sol/ssg", "alias": "ssg" },
     { "path": "mizchi/sol/content/md_render", "alias": "markdown" },
-    { "path": "mizchi/luna/luna", "alias": "luna" },
+    { "path": "mizchi/luna", "alias": "luna" },
     { "path": "mizchi/sol/adapters/fs", "alias": "fs_adapter" }
   ]
 }

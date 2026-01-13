@@ -5,8 +5,8 @@ import(
   "mizchi/js/core"
   "mizchi/js/web/http"
   "mizchi/js/web/url"
-  "mizchi/luna/luna"
-  "mizchi/luna/luna/static_dom"
+  "mizchi/luna"
+  "mizchi/luna/static_dom"
   "mizchi/luna/sol/isr"
   "mizchi/luna/sol/middleware"
   "mizchi/luna/sol/ssg"
@@ -62,9 +62,9 @@ pub fn redirect_permanent_to(String) -> ApiResponse
 
 pub fn redirect_to(String, status? : Int) -> ApiResponse
 
-pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @luna.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @luna.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
 
-pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @static_dom.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @static_dom.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
 
 pub fn register_sol_routes(@hono.Hono[Unit, Unit], Array[SolRoutes], config? : RouterConfig) -> @hono.Hono[Unit, Unit]
 

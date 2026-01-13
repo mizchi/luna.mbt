@@ -3,8 +3,8 @@
     "mizchi/js/web/http",
     "mizchi/npm_typed/hono",
     { "path": "mizchi/sol", "alias": "sol" },
-    { "path": "mizchi/luna/luna", "alias": "luna" },
-    { "path": "mizchi/luna/luna/js/stream_renderer", "alias": "stream_renderer" }
+    { "path": "mizchi/luna", "alias": "luna" },
+    { "path": "mizchi/luna/js/stream_renderer", "alias": "stream_renderer" }
   ],
   "link": {
     "js": {

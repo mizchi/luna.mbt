@@ -5,9 +5,9 @@
     "mizchi/sol": {
       "path": "../.."
     },
-    "mizchi/luna": "0.4.1",
-    "mizchi/js": "0.10.0",
-    "mizchi/npm_typed": "0.1.1"
+    "mizchi/luna": "0.5.2",
+    "mizchi/js": "0.10.7",
+    "mizchi/npm_typed": "0.1.6"
   },
   "source": "app",
   "preferred-target": "js"

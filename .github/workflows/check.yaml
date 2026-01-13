@@ -73,7 +73,7 @@ jobs:
       - run: |
           moon update
           moon install
-      - name: Test parser (wasm, wasm-gc, native)
+      - name: Test parser only (other modules depend on JS FFI)
         run: |
           moon test --target wasm src/parser
           moon test --target wasm-gc src/parser

@@ -2,7 +2,7 @@
 package "mizchi/luna/sol/content/markdown"
 
 import(
-  "mizchi/luna/luna"
+  "mizchi/luna"
 )
 
 // Values

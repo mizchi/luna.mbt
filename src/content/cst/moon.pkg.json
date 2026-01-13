@@ -1,6 +1,6 @@
 {
   "import": [
-    { "path": "mizchi/luna/luna", "alias": "luna" },
+    { "path": "mizchi/luna", "alias": "luna" },
     { "path": "mizchi/sol/content/markdown", "alias": "markdown" },
     { "path": "mizchi/sol/content/frontmatter", "alias": "frontmatter" },
     { "path": "mizchi/markdown", "alias": "md_parser" },
