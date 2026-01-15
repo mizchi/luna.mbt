@@ -50,7 +50,7 @@ pub fn subscribe(
 ///|
 /// Map signal to derived value
 pub fn map(sig : @signal.Signal[Any], f : (Any) -> Any) -> () -> Any {
-  sig.map(f)
+  @signal.sig_map(sig, f)
 }
 
 ///|
@@ -174,7 +174,7 @@ pub fn on_mount(fn_ : () -> Unit) -> Unit {
             @signal.run_with_cleanup_tracking(mount_cleanups, fn_)
             // Transfer cleanups to owner so they run on unmount
             for cleanup in mount_cleanups {
-              owner.cleanups.push(cleanup)
+              @signal.register_owner_cleanup(cleanup)
             }
           })
         })

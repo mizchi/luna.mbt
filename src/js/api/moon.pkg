@@ -1,6 +1,6 @@
 import {
   "mizchi/luna" as @luna,
-  "mizchi/luna/signal",
+  "mizchi/luna/signal", "mizchi/signals" as @signals,
   "mizchi/luna/dom" as @dom,
   "mizchi/luna/dom/client" as @client,
   "mizchi/luna/dom/element" as @element,

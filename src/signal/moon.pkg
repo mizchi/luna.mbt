@@ -1,5 +1,7 @@
-import "test" { "mizchi/luna" as @luna }
+import {
+  "mizchi/signals" as @signals,
+}
 
-options(
-  targets: { "effect_js.mbt": [ "js" ], "effect_non_js.mbt": [ "not", "js" ] },
-)
+import "test" {
+  "mizchi/luna" as @luna,
+}

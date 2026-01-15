@@ -1,6 +1,6 @@
 import {
   "mizchi/luna" as @luna,
-  "mizchi/luna/signal",
+  "mizchi/luna/signal", "mizchi/signals" as @signals,
   "mizchi/luna/render" as @render,
 }
 

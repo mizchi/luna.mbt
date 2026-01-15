@@ -32,3 +32,4 @@ tmp.sol-cache/
 tmp/
 target
 _build
+.claude/settings.local.json

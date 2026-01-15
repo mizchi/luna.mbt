@@ -13,12 +13,12 @@
 pub using @signal {
   type Signal,
   type Owner,
-  type EffectRunner,
   type AsyncState,
   type Resource,
   type Context,
   signal,
   effect,
+  render_effect,
   effect_when,
   effect_once,
   memo,

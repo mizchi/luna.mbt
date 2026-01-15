@@ -1,4 +1,4 @@
-import { "mizchi/luna/signal" }
+import { "mizchi/luna/signal", "mizchi/signals" as @signals }
 
 options(
   "supported-targets": [ "js", "wasm-gc", "native" ],

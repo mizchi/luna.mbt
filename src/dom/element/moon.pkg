@@ -1,5 +1,6 @@
 import {
   "mizchi/luna/signal",
+  "mizchi/signals" as @signals,
   "mizchi/js/core" as @js,
   "mizchi/js/browser/dom" as @js_dom,
 }
