@@ -154,7 +154,6 @@ WAI-ARIA APG準拠のアクセシブルUIコンポーネント集。
     - SSR HTML に `data-*` 属性で状態を埋め込む規約
     - `luna:trigger` による遅延 hydration (visible, idle, load)
     - CSS は inline styles / CSS variables / atomic CSS から選択可能
-  - 参考実装: `website/components/*.js`
 - [ ] Radix Component Demos 追加 (残り 60+ コンポーネント)
   - 現在: accordion, button, checkbox, counter, dialog, progress, radio, slider, switch, tabs
   - 次候補: tooltip, popover, dropdown-menu, select, combobox, alert-dialog

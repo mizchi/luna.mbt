@@ -27,7 +27,6 @@ dist-docs
 .astra-cache/
 .sol-cache/
 *.db
-website/public/demo/
 tmp.sol-cache/
 tmp/
 target
