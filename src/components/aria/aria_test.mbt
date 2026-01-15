@@ -62,3 +62,26 @@ test "tabpanel_aria returns correct attributes" {
   assert_true(attrs.contains(("id", "panel-1")))
   assert_true(attrs.contains(("aria-labelledby", "tab-1")))
 }
+
+///|
+test "is_toggle_key" {
+  assert_true(is_toggle_key(" "))
+  assert_true(is_toggle_key("Enter"))
+  assert_false(is_toggle_key("Tab"))
+  assert_false(is_toggle_key("Escape"))
+}
+
+///|
+test "is_arrow_key" {
+  assert_true(is_arrow_key("ArrowUp"))
+  assert_true(is_arrow_key("ArrowDown"))
+  assert_true(is_arrow_key("ArrowLeft"))
+  assert_true(is_arrow_key("ArrowRight"))
+  assert_false(is_arrow_key("Enter"))
+}
+
+///|
+test "bool_to_aria" {
+  assert_eq(bool_to_aria(true), "true")
+  assert_eq(bool_to_aria(false), "false")
+}

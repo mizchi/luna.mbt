@@ -22,7 +22,7 @@ pub fn use_tab(
   index : Int,
 ) -> TabProps {
   let is_selected = selected.get() == index
-  let aria_attrs = tab_aria(id, is_selected, controls)
+  let aria_attrs = @aria.tab_aria(id, is_selected, controls)
   let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
     (pair.0, @luna.attr_static(pair.1))
   })
@@ -60,7 +60,7 @@ pub fn use_tab(
 ///|
 /// Tablist attrs.
 pub fn[E] tablist_attrs(aria_label? : String) -> Array[(String, @luna.Attr[E])] {
-  let aria_attrs = tablist_aria(aria_label?)
+  let aria_attrs = @aria.tablist_aria(aria_label?)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
 
@@ -71,7 +71,7 @@ pub fn[E] tab_attrs(
   controls : String,
   selected : Bool,
 ) -> Array[(String, @luna.Attr[E])] {
-  let aria_attrs = tab_aria(id, selected, controls)
+  let aria_attrs = @aria.tab_aria(id, selected, controls)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
 
@@ -81,6 +81,6 @@ pub fn[E] tabpanel_attrs(
   id : String,
   labelledby : String,
 ) -> Array[(String, @luna.Attr[E])] {
-  let aria_attrs = tabpanel_aria(id, labelledby)
+  let aria_attrs = @aria.tabpanel_aria(id, labelledby)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }

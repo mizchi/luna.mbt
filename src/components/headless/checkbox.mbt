@@ -22,7 +22,7 @@ pub fn use_checkbox(
   aria_label? : String,
 ) -> CheckboxProps {
   let is_checked = checked.get()
-  let aria_attrs = checkbox_aria(is_checked, disabled, indeterminate)
+  let aria_attrs = @aria.checkbox_aria(is_checked, disabled, indeterminate)
   let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
     (pair.0, @luna.attr_static(pair.1))
   })
@@ -53,7 +53,7 @@ pub fn use_checkbox(
       @luna.attr_handler(
         @luna.handler(fn(evt) {
           let key = get_event_key(evt)
-          if is_toggle_key(key) {
+          if @aria.is_toggle_key(key) {
             prevent_default(evt)
             toggle()
           }
@@ -72,7 +72,7 @@ pub fn[E] checkbox_attrs(
   indeterminate? : Bool = false,
   aria_label? : String,
 ) -> Array[(String, @luna.Attr[E])] {
-  let aria_attrs = checkbox_aria(checked, disabled, indeterminate)
+  let aria_attrs = @aria.checkbox_aria(checked, disabled, indeterminate)
   let attrs : Array[(String, @luna.Attr[E])] = aria_attrs.map(fn(pair) {
     (pair.0, @luna.attr_static(pair.1))
   })

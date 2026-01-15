@@ -1,16 +1,22 @@
 ///|
 /// ARIA Attribute Helpers
 ///
-/// Provides ARIA attributes as key-value pairs for headless components.
-/// These are DOM-structure agnostic and can be used with any styling solution.
+/// Pure ARIA attributes as key-value pairs.
+/// No DOM dependencies - usable with any UI framework (Web, TUI, etc.)
+///
+/// APG Reference: https://www.w3.org/WAI/ARIA/apg/
+
+// =============================================================================
+// Switch
+// =============================================================================
 
 ///|
 /// Switch ARIA attributes
 ///
 /// Returns attributes for an accessible switch/toggle element.
 ///
-/// Example with Tailwind:
-/// ```
+/// Example:
+/// ```moonbit
 /// let attrs = switch_aria(true, false)
 /// // [("role", "switch"), ("aria-checked", "true"), ("tabindex", "0")]
 /// ```
@@ -43,6 +49,75 @@ pub fn switch_aria_labelled(
   }
   attrs
 }
+
+// =============================================================================
+// Checkbox
+// =============================================================================
+
+///|
+/// Checkbox ARIA attributes
+pub fn checkbox_aria(
+  checked : Bool,
+  disabled : Bool,
+  indeterminate : Bool,
+) -> Array[(String, String)] {
+  let attrs : Array[(String, String)] = [
+    ("role", "checkbox"),
+    (
+      "aria-checked",
+      if indeterminate {
+        "mixed"
+      } else if checked {
+        "true"
+      } else {
+        "false"
+      },
+    ),
+    ("tabindex", if disabled { "-1" } else { "0" }),
+  ]
+  if disabled {
+    attrs.push(("aria-disabled", "true"))
+  }
+  attrs
+}
+
+// =============================================================================
+// Radio
+// =============================================================================
+
+///|
+/// Radio button ARIA attributes
+pub fn radio_aria(checked : Bool, disabled : Bool) -> Array[(String, String)] {
+  let attrs : Array[(String, String)] = [
+    ("role", "radio"),
+    ("aria-checked", if checked { "true" } else { "false" }),
+    ("tabindex", if checked { "0" } else { "-1" }),
+  ]
+  if disabled {
+    attrs.push(("aria-disabled", "true"))
+  }
+  attrs
+}
+
+///|
+/// Radio group ARIA attributes
+pub fn radiogroup_aria(
+  aria_label? : String,
+  aria_labelledby? : String,
+) -> Array[(String, String)] {
+  let attrs : Array[(String, String)] = [("role", "radiogroup")]
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", label))
+  }
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", id))
+  }
+  attrs
+}
+
+// =============================================================================
+// Accordion / Disclosure
+// =============================================================================
 
 ///|
 /// Accordion header ARIA attributes
@@ -81,88 +156,6 @@ pub fn accordion_panel_aria(
 }
 
 ///|
-/// Checkbox ARIA attributes
-pub fn checkbox_aria(
-  checked : Bool,
-  disabled : Bool,
-  indeterminate : Bool,
-) -> Array[(String, String)] {
-  let attrs : Array[(String, String)] = [
-    ("role", "checkbox"),
-    (
-      "aria-checked",
-      if indeterminate {
-        "mixed"
-      } else if checked {
-        "true"
-      } else {
-        "false"
-      },
-    ),
-    ("tabindex", if disabled { "-1" } else { "0" }),
-  ]
-  if disabled {
-    attrs.push(("aria-disabled", "true"))
-  }
-  attrs
-}
-
-///|
-/// Radio button ARIA attributes
-pub fn radio_aria(checked : Bool, disabled : Bool) -> Array[(String, String)] {
-  let attrs : Array[(String, String)] = [
-    ("role", "radio"),
-    ("aria-checked", if checked { "true" } else { "false" }),
-    ("tabindex", if checked { "0" } else { "-1" }),
-  ]
-  if disabled {
-    attrs.push(("aria-disabled", "true"))
-  }
-  attrs
-}
-
-///|
-/// Radio group ARIA attributes
-pub fn radiogroup_aria(
-  aria_label? : String,
-  aria_labelledby? : String,
-) -> Array[(String, String)] {
-  let attrs : Array[(String, String)] = [("role", "radiogroup")]
-  if aria_label is Some(label) {
-    attrs.push(("aria-label", label))
-  }
-  if aria_labelledby is Some(id) {
-    attrs.push(("aria-labelledby", id))
-  }
-  attrs
-}
-
-///|
-/// Dialog ARIA attributes
-pub fn dialog_aria(
-  id : String,
-  aria_label? : String,
-  aria_labelledby? : String,
-  aria_describedby? : String,
-  modal : Bool,
-) -> Array[(String, String)] {
-  let attrs : Array[(String, String)] = [("role", "dialog"), ("id", id)]
-  if modal {
-    attrs.push(("aria-modal", "true"))
-  }
-  if aria_label is Some(label) {
-    attrs.push(("aria-label", label))
-  }
-  if aria_labelledby is Some(id) {
-    attrs.push(("aria-labelledby", id))
-  }
-  if aria_describedby is Some(id) {
-    attrs.push(("aria-describedby", id))
-  }
-  attrs
-}
-
-///|
 /// Disclosure button ARIA attributes
 pub fn disclosure_button_aria(
   expanded : Bool,
@@ -180,6 +173,10 @@ pub fn disclosure_button_aria(
 pub fn disclosure_content_aria(id : String) -> Array[(String, String)] {
   [("id", id)]
 }
+
+// =============================================================================
+// Tabs
+// =============================================================================
 
 ///|
 /// Tab ARIA attributes
@@ -221,6 +218,39 @@ pub fn tabpanel_aria(
   ]
 }
 
+// =============================================================================
+// Dialog
+// =============================================================================
+
+///|
+/// Dialog ARIA attributes
+pub fn dialog_aria(
+  id : String,
+  aria_label? : String,
+  aria_labelledby? : String,
+  aria_describedby? : String,
+  modal : Bool,
+) -> Array[(String, String)] {
+  let attrs : Array[(String, String)] = [("role", "dialog"), ("id", id)]
+  if modal {
+    attrs.push(("aria-modal", "true"))
+  }
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", label))
+  }
+  if aria_labelledby is Some(id) {
+    attrs.push(("aria-labelledby", id))
+  }
+  if aria_describedby is Some(id) {
+    attrs.push(("aria-describedby", id))
+  }
+  attrs
+}
+
+// =============================================================================
+// Tooltip
+// =============================================================================
+
 ///|
 /// Tooltip ARIA attributes (for the trigger element)
 pub fn tooltip_trigger_aria(describedby : String) -> Array[(String, String)] {
@@ -233,6 +263,10 @@ pub fn tooltip_aria(id : String) -> Array[(String, String)] {
   [("role", "tooltip"), ("id", id)]
 }
 
+// =============================================================================
+// Alert
+// =============================================================================
+
 ///|
 /// Alert ARIA attributes
 pub fn alert_aria(assertive : Bool) -> Array[(String, String)] {
@@ -241,6 +275,10 @@ pub fn alert_aria(assertive : Bool) -> Array[(String, String)] {
     ("aria-live", if assertive { "assertive" } else { "polite" }),
   ]
 }
+
+// =============================================================================
+// Meter / Progress
+// =============================================================================
 
 ///|
 /// Meter ARIA attributes
@@ -261,6 +299,10 @@ pub fn meter_aria(
   }
   attrs
 }
+
+// =============================================================================
+// Slider
+// =============================================================================
 
 ///|
 /// Slider ARIA attributes
@@ -286,6 +328,10 @@ pub fn slider_aria(
   }
   attrs
 }
+
+// =============================================================================
+// Listbox
+// =============================================================================
 
 ///|
 /// Listbox ARIA attributes
@@ -319,4 +365,61 @@ pub fn option_aria(
     attrs.push(("aria-disabled", "true"))
   }
   attrs
+}
+
+// =============================================================================
+// Spinbutton
+// =============================================================================
+
+///|
+/// Spinbutton ARIA attributes
+pub fn spinbutton_aria(
+  value : Int,
+  min : Int,
+  max : Int,
+  disabled : Bool,
+  aria_label? : String,
+) -> Array[(String, String)] {
+  let attrs : Array[(String, String)] = [
+    ("role", "spinbutton"),
+    ("aria-valuenow", value.to_string()),
+    ("aria-valuemin", min.to_string()),
+    ("aria-valuemax", max.to_string()),
+    ("tabindex", if disabled { "-1" } else { "0" }),
+  ]
+  if disabled {
+    attrs.push(("aria-disabled", "true"))
+  }
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", label))
+  }
+  attrs
+}
+
+// =============================================================================
+// Utilities
+// =============================================================================
+
+///|
+/// Boolean to ARIA string conversion
+pub fn bool_to_aria(value : Bool) -> String {
+  if value { "true" } else { "false" }
+}
+
+///|
+/// Check if a key is a toggle key (Space or Enter)
+pub fn is_toggle_key(key : String) -> Bool {
+  key == " " || key == "Enter"
+}
+
+///|
+/// Check if a key is an arrow key
+pub fn is_arrow_key(key : String) -> Bool {
+  key == "ArrowUp" || key == "ArrowDown" || key == "ArrowLeft" || key == "ArrowRight"
+}
+
+///|
+/// Check if a key is Home or End
+pub fn is_home_end_key(key : String) -> Bool {
+  key == "Home" || key == "End"
 }

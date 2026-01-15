@@ -23,7 +23,7 @@ pub fn use_accordion_header(
   on_expand : (Int) -> Unit,
 ) -> AccordionHeaderProps {
   let is_expanded = expanded.get()
-  let aria_attrs = accordion_header_aria(id, is_expanded, controls)
+  let aria_attrs = @aria.accordion_header_aria(id, is_expanded, controls)
   let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
     (pair.0, @luna.attr_static(pair.1))
   })
@@ -43,7 +43,7 @@ pub fn use_accordion_header(
       @luna.attr_handler(
         @luna.handler(fn(evt) {
           let key = get_event_key(evt)
-          if is_toggle_key(key) {
+          if @aria.is_toggle_key(key) {
             prevent_default(evt)
             toggle()
           }
@@ -61,7 +61,7 @@ pub fn[E] accordion_header_attrs(
   controls : String,
   expanded : Bool,
 ) -> Array[(String, @luna.Attr[E])] {
-  let aria_attrs = accordion_header_aria(id, expanded, controls)
+  let aria_attrs = @aria.accordion_header_aria(id, expanded, controls)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
 
@@ -73,6 +73,6 @@ pub fn[E] accordion_panel_attrs(
   hidden : Bool,
   use_region : Bool,
 ) -> Array[(String, @luna.Attr[E])] {
-  let aria_attrs = accordion_panel_aria(id, labelledby, hidden, use_region)
+  let aria_attrs = @aria.accordion_panel_aria(id, labelledby, hidden, use_region)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }

@@ -43,8 +43,8 @@ pub fn use_switch(
   let is_disabled = disabled.unwrap_or(false)
   let is_on = on.get()
 
-  // Build ARIA attributes
-  let aria_attrs = switch_aria(is_on, is_disabled)
+  // Build ARIA attributes using @aria package
+  let aria_attrs = @aria.switch_aria(is_on, is_disabled)
   if aria_label is Some(label) {
     aria_attrs.push(("aria-label", label))
   }
@@ -70,7 +70,7 @@ pub fn use_switch(
       @luna.attr_handler(
         @luna.handler(fn(evt) {
           let key = get_event_key(evt)
-          if is_toggle_key(key) {
+          if @aria.is_toggle_key(key) {
             prevent_default(evt)
             toggle()
           }
@@ -125,7 +125,7 @@ pub fn use_switch_computed(
       @luna.attr_handler(
         @luna.handler(fn(evt) {
           let key = get_event_key(evt)
-          if is_toggle_key(key) {
+          if @aria.is_toggle_key(key) {
             prevent_default(evt)
             toggle()
           }
@@ -148,7 +148,7 @@ pub fn[E] switch_attrs(
   aria_labelledby? : String,
 ) -> Array[(String, @luna.Attr[E])] {
   let is_disabled = disabled.unwrap_or(false)
-  let aria_attrs = switch_aria(on, is_disabled)
+  let aria_attrs = @aria.switch_aria(on, is_disabled)
   if aria_label is Some(label) {
     aria_attrs.push(("aria-label", label))
   }
@@ -196,7 +196,7 @@ pub fn make_switch_keydown_handler(
 ) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(evt) {
     let key = get_event_key(evt)
-    if is_toggle_key(key) {
+    if @aria.is_toggle_key(key) {
       prevent_default(evt)
       toggle()
     }

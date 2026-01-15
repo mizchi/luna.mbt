@@ -1,7 +1,8 @@
 ///|
-/// Headless Component Helpers
+/// Headless Component Helpers (Web-specific)
 ///
-/// Internal utilities for headless components.
+/// DOM event utilities for headless components.
+/// For pure ARIA utilities, use @aria package.
 
 ///|
 /// Get the key string from a keyboard event
@@ -17,17 +18,8 @@ pub fn prevent_default(e : @js.Any) -> Unit {
 }
 
 ///|
-/// Check if a key is a toggle key (Space or Enter)
-pub fn is_toggle_key(key : String) -> Bool {
-  key == " " || key == "Enter"
-}
+/// Stop event propagation
+pub fn stop_propagation(e : @js.Any) -> Unit {
+  let _ = e._call("stopPropagation", [])
 
-///|
-/// Boolean to ARIA string conversion
-pub fn bool_to_aria(value : Bool) -> String {
-  if value {
-    "true"
-  } else {
-    "false"
-  }
 }
