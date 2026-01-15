@@ -116,3 +116,8 @@ jobs:
           moon test --target wasm src/serialize
           moon test --target wasm-gc src/serialize
           moon test --target native src/serialize
+      - name: Test aria (wasm, wasm-gc, native)
+        run: |
+          moon test --target wasm src/components/aria
+          moon test --target wasm-gc src/components/aria
+          moon test --target native src/components/aria
