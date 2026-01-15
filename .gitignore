@@ -1,35 +1,29 @@
+# Build outputs
+**/target
 target/
+dist/
+_build/
 node_modules/
 .mooncakes/
-.turbo/
-.DS_Store
-*.log
-pnpm-lock.yaml
-dist
-*.coverage
-*.0x
-test-results/
-wrangler.json
-.metrics.db
-coverage/
-docs/private-*
-.wrangler
-__screenshots__
-dist-ssg
-app
-.sol
-docs/_hmr_test_temp.md
-docs/public/
-luna-mbt-example
-luna-ts-example
-dist-docs
-.test-output
-.astra-cache/
-.sol-cache/
-*.db
-tmp.sol-cache/
-tmp/
-target
-_build
-.claude/settings.local.json
 
+# IDE / OS
+.DS_Store
+.turbo/
+
+# Test outputs
+test-results/
+coverage/
+*.coverage
+__screenshots__
+.test-output/
+
+# Logs and databases
+*.log
+*.db
+
+# Temporary
+tmp/
+
+# Local settings
+.claude/settings.local.json
+pnpm-lock.yaml
