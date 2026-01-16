@@ -26,4 +26,3 @@ tmp/
 
 # Local settings
 .claude/settings.local.json
-pnpm-lock.yaml

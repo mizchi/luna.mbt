@@ -1,41 +1,41 @@
 # Luna
 
-MoonBit で実装された Island Architecture ベースの UI ライブラリ。
+Island Architecture-based UI library implemented in MoonBit.
 
-## 関連リポジトリ
+## Related Repositories
 
-- **Sol** (SSR/SSG フレームワーク): [mizchi/sol.mbt](https://github.com/mizchi/sol.mbt)
+- **Sol** (SSR/SSG Framework): [mizchi/sol.mbt](https://github.com/mizchi/sol.mbt)
 
-## インストール
+## Installation
 
 ```json
 // moon.mod.json
 {
   "deps": {
-    "mizchi/luna": "0.6.0"
+    "mizchi/luna": "0.7.0"
   }
 }
 ```
 
-## モジュール構成
+## Packages
 
-| パッケージ | 責務 |
-|-----------|------|
-| `mizchi/luna/signal` | リアクティブシグナル |
-| `mizchi/luna/dom` | DOM 操作、Hydration |
-| `mizchi/luna/render` | VNode → HTML レンダリング |
-| `mizchi/luna/css` | CSS Utilities |
-| `mizchi/luna/routes` | ルートマッチング |
-| `mizchi/luna/browser_router` | ブラウザルーター |
-| `mizchi/luna/components` | UI コンポーネント |
+| Package | Description |
+|---------|-------------|
+| `mizchi/luna/js/resource` | Reactive signals |
+| `mizchi/luna/dom` | DOM operations, Hydration |
+| `mizchi/luna/core/render` | VNode → HTML rendering |
+| `mizchi/luna/x/css` | CSS Utilities |
+| `mizchi/luna/core/routes` | Route matching |
+| `mizchi/luna/dom/browser_router` | Browser router |
+| `mizchi/luna/x/components` | UI components |
 
-## 開発
+## Development
 
 ```bash
-just check      # 型チェック
-just fmt        # フォーマット
-just test-unit  # MoonBit テスト
-just test-e2e   # E2E テスト
+just check      # Type check
+just fmt        # Format
+just test-unit  # MoonBit tests
+just test-e2e   # E2E tests
 ```
 
 ## License

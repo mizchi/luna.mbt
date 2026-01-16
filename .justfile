@@ -11,7 +11,7 @@ default: test-incremental
 
 # インクリメンタルテスト（キャッシュ済みはスキップ）
 test-incremental:
-    pnpm turbo run test:moonbit test:ts test:vitest test:browser
+    pnpm turbo run test:moonbit test:vitest test:browser
 
 # 型チェック
 check:
@@ -31,7 +31,7 @@ clean:
     rm -rf target coverage .turbo/cache
 
 # 強制テスト（キャッシュ無視）
-retest *tasks="test:moonbit test:ts test:vitest test:browser":
+retest *tasks="test:moonbit test:vitest test:browser":
     pnpm turbo run {{tasks}} --force
 
 # =============================================================================
@@ -64,9 +64,6 @@ build:
 test-moonbit: _setup-test-env
     moon test --target js
 
-# TypeScript 型チェック
-test-ts:
-    pnpm tsc -p .
 
 # Vitest テスト
 test-vitest:

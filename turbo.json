@@ -34,13 +34,6 @@
       ],
       "outputs": []
     },
-    "//#test:ts": {
-      "inputs": [
-        "js/**/*.ts",
-        "tsconfig.json"
-      ],
-      "outputs": []
-    },
     "//#test:vitest": {
       "dependsOn": ["//#build:moon", "@luna_ui/luna-loader#build"],
       "inputs": [
