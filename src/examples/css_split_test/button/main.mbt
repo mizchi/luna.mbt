@@ -59,8 +59,8 @@ fn btn_hover_secondary() -> String {
 ///|
 pub fn register_button_component() -> Unit {
   @luna_api.register("luna-button", fn(_host) {
-    let click_count = @signal.signal(0)
-    let variant = @signal.signal("primary")
+    let click_count = @resource.signal(0)
+    let variant = @resource.signal("primary")
     fn get_button_class() -> String {
       let base = btn_base()
       let rounded = @css.css("border-radius", "8px") // shared: rounded

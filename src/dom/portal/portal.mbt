@@ -129,7 +129,7 @@ pub fn portal(options : PortalOptions, children : Array[DomNode]) -> DomNode {
       None => ()
     }
   }
-  @signal.on_cleanup(cleanup_fn)
+  @resource.on_cleanup(cleanup_fn)
 
   // Return a comment placeholder at the original location
   let placeholder = doc.createComment("portal")

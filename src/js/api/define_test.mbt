@@ -7,7 +7,7 @@ test "register: basic custom element" {
 
   // Register a simple counter component
   register("test-counter-1", fn(_host) {
-    let count = @signal.signal(0)
+    let count = @resource.signal(0)
     @luna.h("div", [], [
       @luna.h("span", [], [@luna.text_dyn(fn() { count.get().to_string() })]),
       @luna.h("button", [("id", @luna.attr_static("inc"))], [@luna.text("+")]),
@@ -36,7 +36,7 @@ test "register_with_attrs: observed attributes become signals" {
   register_with_attrs("test-greeter-1", ["name"], fn(_host, attrs) {
     let name_sig = match attrs.get("name") {
       Some(s) => s
-      None => @signal.signal("")
+      None => @resource.signal("")
     }
     @luna.h("div", [], [
       @luna.h("span", [("id", @luna.attr_static("greeting"))], [

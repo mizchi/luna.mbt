@@ -898,13 +898,13 @@ pub fn text_dyn(content : () -> String) -> DomNode {
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_sig(sig : @signal.Signal[T]) -> DomNode {
+pub fn[T : Show] text_sig(sig : @resource.Signal[T]) -> DomNode {
   text_from_signal(sig)
 }
 
 ///|
 /// Create a reactive text node from a signal (alias for text_sig)
-pub fn[T : Show] text_of(sig : @signal.Signal[T]) -> DomNode {
+pub fn[T : Show] text_of(sig : @resource.Signal[T]) -> DomNode {
   text_from_signal(sig)
 }
 

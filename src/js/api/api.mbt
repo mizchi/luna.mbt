@@ -10,105 +10,105 @@ pub type Any
 
 ///|
 /// Create a signal with any value
-pub fn create_signal(initial : Any) -> @signal.Signal[Any] {
-  @signal.signal(initial)
+pub fn create_signal(initial : Any) -> @resource.Signal[Any] {
+  @resource.signal(initial)
 }
 
 ///|
 /// Get signal value
-pub fn get(sig : @signal.Signal[Any]) -> Any {
+pub fn get(sig : @resource.Signal[Any]) -> Any {
   sig.get()
 }
 
 ///|
 /// Set signal value
-pub fn set(sig : @signal.Signal[Any], value : Any) -> Unit {
+pub fn set(sig : @resource.Signal[Any], value : Any) -> Unit {
   sig.set(value)
 }
 
 ///|
 /// Update signal with function
-pub fn update(sig : @signal.Signal[Any], f : (Any) -> Any) -> Unit {
+pub fn update(sig : @resource.Signal[Any], f : (Any) -> Any) -> Unit {
   sig.update(f)
 }
 
 ///|
 /// Peek signal value without tracking
-pub fn peek(sig : @signal.Signal[Any]) -> Any {
+pub fn peek(sig : @resource.Signal[Any]) -> Any {
   sig.peek()
 }
 
 ///|
 /// Subscribe to signal changes
 pub fn subscribe(
-  sig : @signal.Signal[Any],
+  sig : @resource.Signal[Any],
   callback : (Any) -> Unit,
 ) -> () -> Unit {
-  @signal.on(sig, callback)
+  @resource.on(sig, callback)
 }
 
 ///|
 /// Map signal to derived value
-pub fn map(sig : @signal.Signal[Any], f : (Any) -> Any) -> () -> Any {
-  @signal.sig_map(sig, f)
+pub fn map(sig : @resource.Signal[Any], f : (Any) -> Any) -> () -> Any {
+  @resource.sig_map(sig, f)
 }
 
 ///|
 /// Create a memo (computed value)
 pub fn create_memo(compute : () -> Any) -> () -> Any {
-  @signal.memo(compute)
+  @resource.memo(compute)
 }
 
 ///|
 /// Combine two signals
 pub fn combine(
-  a : @signal.Signal[Any],
-  b : @signal.Signal[Any],
+  a : @resource.Signal[Any],
+  b : @resource.Signal[Any],
   f : (Any, Any) -> Any,
 ) -> () -> Any {
-  @signal.combine2(a, b, f)
+  @resource.combine2(a, b, f)
 }
 
 ///|
 /// Create an effect (deferred execution via microtask, like Solid.js createEffect)
 pub fn effect(fn_ : () -> Unit) -> () -> Unit {
-  @signal.effect(fn_)
+  @resource.effect(fn_)
 }
 
 ///|
 /// Create a render effect (immediate execution, like Solid.js createRenderEffect)
 pub fn render_effect(fn_ : () -> Unit) -> () -> Unit {
-  @signal.render_effect(fn_)
+  @resource.render_effect(fn_)
 }
 
 ///|
 /// Start batch updates
 pub fn batch_start() -> Unit {
-  @signal.batch_start()
+  @resource.batch_start()
 }
 
 ///|
 /// End batch updates
 pub fn batch_end() -> Unit {
-  @signal.batch_end()
+  @resource.batch_end()
 }
 
 ///|
 /// Run function without tracking dependencies
 pub fn run_untracked(f : () -> Any) -> Any {
-  @signal.untracked(f)
+  @resource.untracked(f)
 }
 
 ///|
 /// Run a function in a batch - all signal updates are batched
 pub fn batch(f : () -> Any) -> Any {
-  @signal.batch(f)
+  @resource.batch(f)
 }
 
 ///|
 /// Register a cleanup function inside an effect
 pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
-  @signal.on_cleanup(cleanup)
+  @resource.on_cleanup(cleanup)
 }
 
 // ============================================================================
@@ -117,19 +117,19 @@ pub fn on_cleanup(cleanup : () -> Unit) -> Unit {
 
 ///|
 /// Opaque Owner type for JS
-pub struct JsOwner(@signal.Owner)
+pub struct JsOwner(@resource.Owner)
 
 ///|
 /// Create a new reactive root scope
 /// The function receives a dispose callback
 pub fn create_root(f : (() -> Unit) -> Any) -> Any {
-  @signal.create_root(f)
+  @resource.create_root(f)
 }
 
 ///|
 /// Get the current owner (if any)
 pub fn get_owner() -> JsOwner? {
-  match @signal.get_owner() {
+  match @resource.get_owner() {
     Some(owner) => Some(JsOwner(owner))
     None => None
   }
@@ -138,13 +138,13 @@ pub fn get_owner() -> JsOwner? {
 ///|
 /// Run a function with a specific owner as current
 pub fn run_with_owner(owner : JsOwner, f : () -> Any) -> Any {
-  @signal.run_with_owner(owner.0, f)
+  @resource.run_with_owner(owner.0, f)
 }
 
 ///|
 /// Check if currently inside an owner scope
 pub fn has_owner() -> Bool {
-  @signal.has_owner()
+  @resource.has_owner()
 }
 
 ///|
@@ -158,7 +158,7 @@ extern "js" fn queue_microtask(f : () -> Unit) -> Unit =
 /// onCleanup registered inside will run when the owner is disposed (component unmounts).
 pub fn on_mount(fn_ : () -> Unit) -> Unit {
   // Capture current owner for later use
-  let captured_owner = @signal.get_owner()
+  let captured_owner = @resource.get_owner()
 
   // Queue microtask to run after current synchronous execution.
   // This ensures refs are bound before onMount runs.
@@ -166,21 +166,21 @@ pub fn on_mount(fn_ : () -> Unit) -> Unit {
     match captured_owner {
       Some(owner) =>
         // Run with owner context so cleanup registration works
-        @signal.run_with_owner(owner, fn() {
+        @resource.run_with_owner(owner, fn() {
           // Run untracked (no dependency tracking)
-          @signal.untracked(fn() {
+          @resource.untracked(fn() {
             // Set up cleanup tracking
             let mount_cleanups : Array[() -> Unit] = []
-            @signal.run_with_cleanup_tracking(mount_cleanups, fn_)
+            @resource.run_with_cleanup_tracking(mount_cleanups, fn_)
             // Transfer cleanups to owner so they run on unmount
             for cleanup in mount_cleanups {
-              @signal.register_owner_cleanup(cleanup)
+              @resource.register_owner_cleanup(cleanup)
             }
           })
         })
       None =>
         // No owner - just run untracked
-        @signal.untracked(fn_)
+        @resource.untracked(fn_)
     }
   })
 }
@@ -300,9 +300,9 @@ pub fn events() -> @element.HandlerMap {
 /// Returns a new signal that only updates after `delay_ms` milliseconds
 /// of no changes to the source signal
 pub fn debounced(
-  sig : @signal.Signal[Any],
+  sig : @resource.Signal[Any],
   delay_ms : Int,
-) -> @signal.Signal[Any] {
+) -> @resource.Signal[Any] {
   @element.debounced(sig, delay_ms)
 }
 
@@ -392,24 +392,24 @@ pub fn router_get_base(router : BrowserRouter) -> String {
 
 ///|
 /// Context wrapper for JS
-pub struct JsContext(@signal.Context[Any])
+pub struct JsContext(@resource.Context[Any])
 
 ///|
 /// Create a new context with a default value
 pub fn create_context(default_value : Any) -> JsContext {
-  JsContext(@signal.create_context(default_value))
+  JsContext(@resource.create_context(default_value))
 }
 
 ///|
 /// Provide a context value for the duration of a function
 pub fn provide(ctx : JsContext, value : Any, f : () -> Any) -> Any {
-  @signal.provide(ctx.0, value, f)
+  @resource.provide(ctx.0, value, f)
 }
 
 ///|
 /// Use a context value - returns the current provided value or default
 pub fn use_context(ctx : JsContext) -> Any {
-  @signal.use_context(ctx.0)
+  @resource.use_context(ctx.0)
 }
 
 // ============================================================================
@@ -418,11 +418,11 @@ pub fn use_context(ctx : JsContext) -> Any {
 
 ///|
 /// Resource wrapper for JS
-pub struct JsResource(@signal.Resource[Any])
+pub struct JsResource(@resource.Resource[Any])
 
 ///|
 /// AsyncState wrapper for JS
-pub struct JsAsyncState(@signal.AsyncState[Any])
+pub struct JsAsyncState(@core.AsyncState[Any])
 
 ///|
 /// Create a Resource from a Promise-style fetcher
@@ -430,13 +430,13 @@ pub struct JsAsyncState(@signal.AsyncState[Any])
 pub fn create_resource(
   fetcher : ((Any) -> Unit, (String) -> Unit) -> Unit,
 ) -> JsResource {
-  JsResource(@signal.resource(fetcher))
+  JsResource(@resource.resource(fetcher))
 }
 
 ///|
 /// Create a deferred Resource (starts pending, resolve/reject manually)
 pub fn create_deferred() -> (JsResource, (Any) -> Unit, (String) -> Unit) {
-  let (res, resolve, reject) = @signal.deferred()
+  let (res, resolve, reject) = @resource.deferred()
   (JsResource(res), resolve, reject)
 }
 

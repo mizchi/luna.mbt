@@ -7,17 +7,17 @@
 /// Dynamic values are evaluated at the time of rendering
 pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
   match node {
-    @luna.Text(content) => Text(content)
-    @luna.DynamicText(getter) => Text(getter())
-    @luna.RawHtml(html) => Text(html) // Treat raw HTML as text in JSON
-    @luna.Fragment(children) => {
+    @core.Text(content) => Text(content)
+    @core.DynamicText(getter) => Text(getter())
+    @core.RawHtml(html) => Text(html) // Treat raw HTML as text in JSON
+    @core.Fragment(children) => {
       let json_children : Array[JsonNode] = []
       for child in children {
         json_children.push(render_to_json(child))
       }
       Fragment(json_children)
     }
-    @luna.Element(elem) => {
+    @core.Element(elem) => {
       let attrs : Map[String, JsonAttrValue] = {}
       for pair in elem.attrs {
         let (name, value) = pair
@@ -29,13 +29,13 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       }
       Element({ tag: elem.tag, attrs, children })
     }
-    @luna.Show(condition~, child~) =>
+    @core.Show(condition~, child~) =>
       if condition() {
         render_to_json(child())
       } else {
         Fragment([])
       }
-    @luna.For(render~) => {
+    @core.For(render~) => {
       let items = render()
       let children : Array[JsonNode] = []
       for item in items {
@@ -43,8 +43,8 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       }
       Fragment(children)
     }
-    @luna.Component(render~) => render_to_json(render())
-    @luna.Island(island) => {
+    @core.Component(render~) => render_to_json(render())
+    @core.Island(island) => {
       // Render Island as an element with luna:* attributes
       let attrs : Map[String, JsonAttrValue] = {}
       attrs.set("luna:id", Static(island.id))
@@ -57,7 +57,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       }
       Element({ tag: "div", attrs, children })
     }
-    @luna.WcIsland(wc_island) => {
+    @core.WcIsland(wc_island) => {
       // Render WcIsland as a custom element with data-* attributes
       let attrs : Map[String, JsonAttrValue] = {}
       attrs.set("data-state", Static(wc_island.state))
@@ -68,7 +68,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       }
       Element({ tag: wc_island.name, attrs, children })
     }
-    @luna.InternalRef(iref) => {
+    @core.InternalRef(iref) => {
       // Render InternalRef as element with luna:* or luna:wc-* attributes
       let attrs : Map[String, JsonAttrValue] = {}
       if iref.wc {
@@ -87,10 +87,10 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
       let tag = if iref.wc { "wc-internal-ref" } else { "div" }
       Element({ tag, attrs, children })
     }
-    @luna.Async(async_node) =>
+    @core.Async(async_node) =>
       // Render fallback content for async nodes
       render_to_json((async_node.fallback)())
-    @luna.ErrorBoundary(boundary) =>
+    @core.ErrorBoundary(boundary) =>
       // For JSON rendering, try to render children, fallback on error
       render_to_json((boundary.children)()) catch {
         err => {
@@ -100,7 +100,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
           }
         }
       }
-    @luna.Switch(switch_node) => {
+    @core.Switch(switch_node) => {
       // Find first matching case and render it
       for case_ in switch_node.cases {
         if (case_.when)() {
@@ -120,10 +120,10 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
 /// Convert VNode attribute to JsonAttrValue
 fn convert_attr(attr : @luna.Attr[Unit]) -> JsonAttrValue {
   match attr {
-    @luna.VStatic(value) => Static(value)
-    @luna.VDynamic(getter) => Dynamic(getter())
-    @luna.VHandler(_) => Handler
-    @luna.VAction(name) => Dynamic("action:" + name)
+    @core.VStatic(value) => Static(value)
+    @core.VDynamic(getter) => Dynamic(getter())
+    @core.VHandler(_) => Handler
+    @core.VAction(name) => Dynamic("action:" + name)
   }
 }
 

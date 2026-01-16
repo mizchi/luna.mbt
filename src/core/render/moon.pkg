@@ -1,0 +1,10 @@
+import { "mizchi/luna" as @luna, "mizchi/luna/core" as @core }
+
+options(
+  "supported-targets": [ "js", "wasm-gc", "native" ],
+  targets: {
+    "escape_bench.mbt": [ "js" ],
+    "escape_js.mbt": [ "js" ],
+    "escape_non_js.mbt": [ "not", "js" ],
+  },
+)

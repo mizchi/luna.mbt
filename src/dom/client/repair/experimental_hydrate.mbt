@@ -294,25 +294,25 @@ let max_hydration_nodes : Int = 50
 /// Count total nodes in a VNode tree
 fn count_vnode_nodes(node : @luna.Node[@js.Any]) -> Int {
   match node {
-    @luna.Text(_) => 1
-    @luna.DynamicText(_) => 1
-    @luna.RawHtml(_) => 1
-    @luna.Fragment(children) => {
+    @core.Text(_) => 1
+    @core.DynamicText(_) => 1
+    @core.RawHtml(_) => 1
+    @core.Fragment(children) => {
       let mut count = 0
       for child in children {
         count = count + count_vnode_nodes(child)
       }
       count
     }
-    @luna.Element(elem) => {
+    @core.Element(elem) => {
       let mut count = 1
       for child in elem.children {
         count = count + count_vnode_nodes(child)
       }
       count
     }
-    @luna.Show(child=child_fn, ..) => 1 + count_vnode_nodes(child_fn())
-    @luna.For(render=render_fn) => {
+    @core.Show(child=child_fn, ..) => 1 + count_vnode_nodes(child_fn())
+    @core.For(render=render_fn) => {
       let items = render_fn()
       let mut count = 1
       for item in items {
@@ -320,34 +320,34 @@ fn count_vnode_nodes(node : @luna.Node[@js.Any]) -> Int {
       }
       count
     }
-    @luna.Component(render=render_fn) => 1 + count_vnode_nodes(render_fn())
-    @luna.Island(island) => {
+    @core.Component(render=render_fn) => 1 + count_vnode_nodes(render_fn())
+    @core.Island(island) => {
       let mut count = 1
       for child in island.children {
         count = count + count_vnode_nodes(child)
       }
       count
     }
-    @luna.WcIsland(wc_island) => {
+    @core.WcIsland(wc_island) => {
       let mut count = 1
       for child in wc_island.children {
         count = count + count_vnode_nodes(child)
       }
       count
     }
-    @luna.InternalRef(iref) => {
+    @core.InternalRef(iref) => {
       let mut count = 1
       for child in iref.children {
         count = count + count_vnode_nodes(child)
       }
       count
     }
-    @luna.Async(async_node) => 1 + count_vnode_nodes((async_node.fallback)())
-    @luna.ErrorBoundary(boundary) =>
+    @core.Async(async_node) => 1 + count_vnode_nodes((async_node.fallback)())
+    @core.ErrorBoundary(boundary) =>
       try 1 + count_vnode_nodes((boundary.children)()) catch {
         _ => 1 // Count just the boundary if children fail
       }
-    @luna.Switch(switch_node) => {
+    @core.Switch(switch_node) => {
       // Count the matching case or fallback
       for case_ in switch_node.cases {
         if (case_.when)() {
@@ -525,7 +525,7 @@ fn apply_vattr(
   value : @luna.Attr[@js.Any],
 ) -> Unit {
   match value {
-    @luna.VStatic(s) =>
+    @core.VStatic(s) =>
       if s != "__remove__" {
         if name == "class" || name == "className" {
           elem.setClassName(s)
@@ -537,8 +537,8 @@ fn apply_vattr(
           elem.setAttribute(name, s)
         }
       }
-    @luna.VDynamic(getter) => {
-      let _ = @signal.render_effect(fn() {
+    @core.VDynamic(getter) => {
+      let _ = @resource.render_effect(fn() {
         let new_value = getter()
         if new_value == "__remove__" {
           elem.removeAttribute(name)
@@ -552,7 +552,7 @@ fn apply_vattr(
       })
 
     }
-    @luna.VHandler(handler) => {
+    @core.VHandler(handler) => {
       let event_name = extract_event_name(name)
       let callback = handler.get_callback()
       // Wrap callback to ignore event argument
@@ -561,7 +561,7 @@ fn apply_vattr(
       .as_event_target()
       .addEventListener(event_name, @js.any(wrapper).cast())
     }
-    @luna.VAction(_) =>
+    @core.VAction(_) =>
       // VAction without dispatcher - skip in experimental hydrate
       ()
   }
@@ -708,51 +708,51 @@ fn experimental_hydrate_node(
   ctx : ExperimentalHydrationContext,
 ) -> Unit {
   match node {
-    @luna.Text(content) => experimental_hydrate_text(parent, content, ctx)
-    @luna.RawHtml(_) => () // Raw HTML doesn't need hydration
-    @luna.DynamicText(getter) => {
+    @core.Text(content) => experimental_hydrate_text(parent, content, ctx)
+    @core.RawHtml(_) => () // Raw HTML doesn't need hydration
+    @core.DynamicText(getter) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       experimental_hydrate_dynamic_text(parent, id, getter, ctx)
     }
-    @luna.Fragment(children) =>
+    @core.Fragment(children) =>
       for child in children {
         experimental_hydrate_node(parent, child, ctx)
       }
-    @luna.Element(elem) => experimental_hydrate_element(parent, elem, ctx)
-    @luna.Show(condition=cond, child=child_fn) => {
+    @core.Element(elem) => experimental_hydrate_element(parent, elem, ctx)
+    @core.Show(condition=cond, child=child_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       experimental_hydrate_show(parent, id, cond, child_fn, ctx)
     }
-    @luna.For(render=render_fn) => {
+    @core.For(render=render_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       experimental_hydrate_for(parent, id, render_fn, ctx)
     }
-    @luna.Component(render=render_fn) =>
+    @core.Component(render=render_fn) =>
       experimental_hydrate_node(parent, render_fn(), ctx)
-    @luna.Island(island) =>
+    @core.Island(island) =>
       // Island hydration is handled by the loader, just hydrate children
       for child in island.children {
         experimental_hydrate_node(parent, child, ctx)
       }
-    @luna.WcIsland(wc_island) =>
+    @core.WcIsland(wc_island) =>
       // WcIsland hydration is handled by wcssr client runtime, just hydrate children
       for child in wc_island.children {
         experimental_hydrate_node(parent, child, ctx)
       }
-    @luna.InternalRef(iref) =>
+    @core.InternalRef(iref) =>
       // InternalRef hydration is handled by the loader, just hydrate children
       for child in iref.children {
         experimental_hydrate_node(parent, child, ctx)
       }
-    @luna.Async(async_node) => {
+    @core.Async(async_node) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       experimental_hydrate_node(parent, (async_node.fallback)(), ctx)
     }
-    @luna.ErrorBoundary(boundary) =>
+    @core.ErrorBoundary(boundary) =>
       // ErrorBoundary: try rendering children, catch errors and render fallback
       experimental_hydrate_node(parent, (boundary.children)(), ctx) catch {
         err => {
@@ -766,7 +766,7 @@ fn experimental_hydrate_node(
           }
         }
       }
-    @luna.Switch(switch_node) => {
+    @core.Switch(switch_node) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       // Find first matching case and hydrate it
@@ -854,7 +854,7 @@ fn experimental_hydrate_dynamic_text(
           Some(text_node) =>
             if text_node.nodeType() == 3 {
               // Set up effect
-              let _ = @signal.render_effect(fn() {
+              let _ = @resource.render_effect(fn() {
                 let new_text = getter()
                 text_node.setTextContent(new_text)
               })
@@ -879,7 +879,7 @@ fn experimental_hydrate_dynamic_text(
           None => parent.appendChild(new_text.as_node()) |> ignore
         }
         let text_ref = new_text.as_node()
-        let _ = @signal.render_effect(fn() { text_ref.setTextContent(getter()) })
+        let _ = @resource.render_effect(fn() { text_ref.setTextContent(getter()) })
         let _ = ctx.path_stack.pop()
         return
       }
@@ -902,7 +902,7 @@ fn experimental_hydrate_dynamic_text(
   parent.appendChild(text_node.as_node()) |> ignore
   parent.appendChild(end_comment) |> ignore
   let text_ref = text_node.as_node()
-  let _ = @signal.render_effect(fn() { text_ref.setTextContent(getter()) })
+  let _ = @resource.render_effect(fn() { text_ref.setTextContent(getter()) })
   let _ = ctx.path_stack.pop()
 
 }
@@ -1039,7 +1039,7 @@ fn repair_attributes(
   for attr in attrs {
     let (name, value) = attr
     match value {
-      @luna.VStatic(expected) => {
+      @core.VStatic(expected) => {
         // Check if attribute matches
         let actual = elem.getAttribute(name).unwrap_or("")
         if actual != expected && expected != "__remove__" {
@@ -1067,9 +1067,9 @@ fn repair_attributes(
           }
         }
       }
-      @luna.VDynamic(getter) => {
+      @core.VDynamic(getter) => {
         // Set up effect for dynamic attribute
-        let _ = @signal.render_effect(fn() {
+        let _ = @resource.render_effect(fn() {
           let new_value = getter()
           if new_value == "__remove__" {
             elem.removeAttribute(name)
@@ -1083,7 +1083,7 @@ fn repair_attributes(
         })
 
       }
-      @luna.VHandler(handler) => {
+      @core.VHandler(handler) => {
         // Attach event handler
         let event_name = extract_event_name(name)
         let callback = handler.get_callback()
@@ -1093,7 +1093,7 @@ fn repair_attributes(
         .as_event_target()
         .addEventListener(event_name, @js.any(wrapper).cast())
       }
-      @luna.VAction(_) =>
+      @core.VAction(_) =>
         // VAction without dispatcher - skip in repair
         ()
     }
@@ -1190,7 +1190,7 @@ fn experimental_hydrate_show(
   }
 
   // Set up effect for updates
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let should_show = cond()
     if should_show && current_nodes.is_empty() {
       let child_node = @client.render_vnode_to_dom(child_fn())
@@ -1304,11 +1304,11 @@ fn experimental_hydrate_for(
     let current_node = current_nodes[i]
     if current_node.nodeType() == 3 { // Text node - just update content
       match items[i] {
-        @luna.Text(content) => current_node.setTextContent(content)
-        @luna.DynamicText(getter) => {
+        @core.Text(content) => current_node.setTextContent(content)
+        @core.DynamicText(getter) => {
           current_node.setTextContent(getter())
           let node_ref = current_node
-          let _ = @signal.render_effect(fn() {
+          let _ = @resource.render_effect(fn() {
             node_ref.setTextContent(getter())
           })
 
@@ -1348,7 +1348,7 @@ fn experimental_hydrate_for(
   }
 
   // Set up effect for future updates
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let new_items = render_fn()
 
     // Simple reconciliation: clear and re-render

@@ -164,7 +164,7 @@ test "hydrate_list_100" (b : @bench.T) {
 ///|
 test "hydrate_dynamic_text" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @signal.signal(42)
+  let count = @resource.signal(42)
   let node = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
   let html = @ssr.render_to_string_with_hydration(node)
   b.bench(name="hydrate_dynamic_text", fn() {
@@ -176,7 +176,7 @@ test "hydrate_dynamic_text" (b : @bench.T) {
 ///|
 test "hydrate_dynamic_attrs" (b : @bench.T) {
   @global_jsdom.register()
-  let active = @signal.signal(true)
+  let active = @resource.signal(true)
   let node = @luna.h(
     "button",
     [
@@ -207,7 +207,7 @@ test "hydrate_dynamic_attrs" (b : @bench.T) {
 ///|
 test "hydrate_show_visible" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let node = @luna.show(fn() { visible.get() }, fn() {
     @luna.h("div", [], [@luna.text("Visible content")])
   })
@@ -221,7 +221,7 @@ test "hydrate_show_visible" (b : @bench.T) {
 ///|
 test "hydrate_show_hidden" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @signal.signal(false)
+  let visible = @resource.signal(false)
   let node = @luna.show(fn() { visible.get() }, fn() {
     @luna.h("div", [], [@luna.text("Hidden content")])
   })
@@ -239,7 +239,7 @@ test "hydrate_show_hidden" (b : @bench.T) {
 ///|
 test "hydrate_for_5_items" (b : @bench.T) {
   @global_jsdom.register()
-  let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
+  let items_sig = @resource.signal(["a", "b", "c", "d", "e"])
   let node = @luna.for_each(fn() {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
@@ -257,7 +257,7 @@ test "hydrate_for_20_items" (b : @bench.T) {
   for i = 0; i < 20; i = i + 1 {
     items.push("item_" + i.to_string())
   }
-  let items_sig = @signal.signal(items)
+  let items_sig = @resource.signal(items)
   let node = @luna.for_each(fn() {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
@@ -337,7 +337,7 @@ test "hydrate_page_50_cards" (b : @bench.T) {
 ///|
 test "hydrate_with_click_handler" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @signal.signal(0)
+  let count = @resource.signal(0)
   let node = @luna.h(
     "button",
     [
@@ -356,7 +356,7 @@ test "hydrate_with_click_handler" (b : @bench.T) {
 ///|
 test "hydrate_form_with_handlers" (b : @bench.T) {
   @global_jsdom.register()
-  let value = @signal.signal("")
+  let value = @resource.signal("")
   let node = @luna.h(
     "form",
     [("onSubmit", @luna.attr_handler(@luna.handler(fn(_) { () })))],

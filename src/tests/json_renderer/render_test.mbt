@@ -20,7 +20,7 @@ test "render simple text" {
 
 ///|
 test "render dynamic text" {
-  let count = @signal.signal(42)
+  let count = @resource.signal(42)
   let node = @luna.text_dyn(fn() { count.get().to_string() })
   let json = render_to_json(node)
   match json {
@@ -58,7 +58,7 @@ test "render element with static attrs" {
 
 ///|
 test "render element with dynamic attr" {
-  let color = @signal.signal("red")
+  let color = @resource.signal("red")
   let node = @luna.h(
     "div",
     [("style", @luna.attr_dynamic(fn() { "color: " + color.get() }))],
@@ -117,7 +117,7 @@ test "render fragment" {
 
 ///|
 test "render show when true" {
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let node = @luna.show(fn() { visible.get() }, fn() { @luna.text("Visible") })
   let json = render_to_json(node)
   match json {
@@ -128,7 +128,7 @@ test "render show when true" {
 
 ///|
 test "render show when false" {
-  let visible = @signal.signal(false)
+  let visible = @resource.signal(false)
   let node = @luna.show(fn() { visible.get() }, fn() { @luna.text("Hidden") })
   let json = render_to_json(node)
   match json {
@@ -139,7 +139,7 @@ test "render show when false" {
 
 ///|
 test "render for loop" {
-  let items = @signal.signal(["A", "B", "C"])
+  let items = @resource.signal(["A", "B", "C"])
   let node = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.text(item) })
   })
@@ -284,7 +284,7 @@ test "json string escaping" {
 
 ///|
 test "signal reactivity captured at render time" {
-  let count = @signal.signal(10)
+  let count = @resource.signal(10)
   let node = @luna.text_dyn(fn() { count.get().to_string() })
 
   // First render
@@ -352,7 +352,7 @@ test "render island with idle trigger" {
     "/lazy.js",
     "{}",
     [],
-    trigger=@luna.Idle,
+    trigger=@core.Idle,
   )
   let json = render_to_json(node)
   match json {

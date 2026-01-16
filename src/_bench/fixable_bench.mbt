@@ -164,7 +164,7 @@ test "fixable_repair_attr_mismatch" (b : @bench.T) {
 ///|
 test "fixable_repair_dynamic_text_marker" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @signal.signal(42)
+  let count = @resource.signal(42)
   let node = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
   let html = "Count: 42"
   let logger = StringBuilder::new()
@@ -177,7 +177,7 @@ test "fixable_repair_dynamic_text_marker" (b : @bench.T) {
 ///|
 test "fixable_repair_show_marker" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let node = @luna.show(fn() { visible.get() }, fn() {
     @luna.h("div", [], [@luna.text("Visible")])
   })
@@ -192,7 +192,7 @@ test "fixable_repair_show_marker" (b : @bench.T) {
 ///|
 test "fixable_repair_for_marker" (b : @bench.T) {
   @global_jsdom.register()
-  let items_sig = @signal.signal(["a", "b", "c"])
+  let items_sig = @resource.signal(["a", "b", "c"])
   let node = @luna.for_each(fn() {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
@@ -207,7 +207,7 @@ test "fixable_repair_for_marker" (b : @bench.T) {
 ///|
 test "fixable_repair_for_item_count" (b : @bench.T) {
   @global_jsdom.register()
-  let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
+  let items_sig = @resource.signal(["a", "b", "c", "d", "e"])
   let node = @luna.for_each(fn() {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })

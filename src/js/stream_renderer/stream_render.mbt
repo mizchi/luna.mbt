@@ -282,7 +282,7 @@ fn render_internal_ref_wc_to_stream(
   sb.write_string(" luna:wc-state=\"")
   @render.escape_attr_to(sb, iref.state)
   sb.write_char('"')
-  if not(iref.trigger is @luna.Load) {
+  if not(iref.trigger is @core.Load) {
     sb.write_string(" luna:wc-trigger=\"")
     sb.write_string(iref.trigger.to_string())
     sb.write_char('"')

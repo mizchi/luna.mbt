@@ -34,7 +34,7 @@ fn card_content() -> String {
 ///|
 pub fn register_card_component() -> Unit {
   @luna_api.register("luna-card", fn(_host) {
-    let expanded = @signal.signal(false)
+    let expanded = @resource.signal(false)
 
     // Combine shared + component-specific classes
     let container_class = @css.combine([

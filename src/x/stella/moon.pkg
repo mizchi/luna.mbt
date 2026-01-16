@@ -1,0 +1,18 @@
+import { "mizchi/luna" as @luna, "mizchi/luna/core" as @core, "mizchi/luna/core/render" as @render }
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "generate_shard",
+        "generate_shard_with_state_script",
+        "generate_minimal_shard",
+        "generate_standalone_shard",
+        "generate_lazy_shard",
+        "generate_shard_group",
+        "generate_state_script",
+      ],
+      "format": "esm",
+    },
+  },
+)

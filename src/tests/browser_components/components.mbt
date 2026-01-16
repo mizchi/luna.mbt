@@ -36,11 +36,11 @@ extern "js" fn js_setAttribute(
 /// Tests: Signal get/set, Effect auto-tracking, reactive text updates
 pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
   let initial = js_getInt(state, "count")
-  let count_sig = @signal.signal(initial)
-  let double_sig = @signal.signal(initial * 2)
+  let count_sig = @resource.signal(initial)
+  let double_sig = @resource.signal(initial * 2)
 
   // Effect that updates double when count changes
-  let _ = @signal.effect(fn() { double_sig.set(count_sig.get() * 2) })
+  let _ = @resource.effect(fn() { double_sig.set(count_sig.get() * 2) })
   let vnode = @luna.h("div", [], [
     @luna.h("span", [("data-count", @luna.attr_static("true"))], [
       @luna.text_dyn(fn() { count_sig.get().to_string() }),
@@ -98,8 +98,8 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// Dynamic attributes test component
 /// Tests: Dynamic class, dynamic style, attribute updates
 pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
-  let active = @signal.signal(js_getBool(state, "active"))
-  let color = @signal.signal(js_getString(state, "color"))
+  let active = @resource.signal(js_getBool(state, "active"))
+  let color = @resource.signal(js_getString(state, "color"))
   let vnode = @luna.h("div", [], [
     @luna.h(
       "div",
@@ -176,7 +176,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// Show/hide toggle test component
 /// Tests: Conditional rendering with show()
 pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
-  let visible = @signal.signal(js_getBool(state, "visible"))
+  let visible = @resource.signal(js_getBool(state, "visible"))
   let vnode = @luna.h("div", [], [
     @luna.h(
       "button",
@@ -212,7 +212,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// For each list test component
 /// Tests: List rendering with for_each()
 pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
-  let items = @signal.signal(js_getArray(state, "items"))
+  let items = @resource.signal(js_getArray(state, "items"))
   // Store the pending input value separately since we need to capture it at add time
   let pending_input : Ref[String] = Ref::new("")
   let vnode = @luna.h("div", [], [
@@ -302,9 +302,9 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// Multiple event types test component
 /// Tests: click, dblclick handlers
 pub fn hydrate_events(el : @js_dom.Element, _state : @js.Any) -> Unit {
-  let click_count = @signal.signal(0)
-  let dblclick_count = @signal.signal(0)
-  let hover_state = @signal.signal("none")
+  let click_count = @resource.signal(0)
+  let dblclick_count = @resource.signal(0)
+  let hover_state = @resource.signal("none")
   let vnode = @luna.h("div", [], [
     @luna.h(
       "div",
@@ -383,7 +383,7 @@ pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
   // Parse initial items from state
   let initial_items = js_getArray(state, "items")
   let items = initial_items.mapi(fn(i, label) { { id: i, label } })
-  let items_sig = @signal.signal(items)
+  let items_sig = @resource.signal(items)
 
   // Build UI using @dom functions for DOM reuse support
   let controls = @dom.create_element(
@@ -448,8 +448,8 @@ pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// Input binding test component
 /// Tests: Form interaction via signals
 pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
-  let text_value = @signal.signal(js_getString(state, "text"))
-  let submitted = @signal.signal("")
+  let text_value = @resource.signal(js_getString(state, "text"))
+  let submitted = @resource.signal("")
   let vnode = @luna.h("div", [], [
     @luna.h("div", [("data-form", @luna.attr_static("true"))], [
       @luna.h(
@@ -528,7 +528,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
 pub fn hydrate_element_ref(el : @js_dom.Element, _state : @js.Any) -> Unit {
   // Store ref to the input element
   let input_ref : Ref[@js_dom.Element?] = Ref::new(None)
-  let focus_count = @signal.signal(0)
+  let focus_count = @resource.signal(0)
 
   // Build UI using @dom DSL with ref_ support
   let container = @dom.div([

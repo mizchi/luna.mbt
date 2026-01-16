@@ -3,17 +3,83 @@
 // This module re-exports commonly used types and functions from core modules
 // so that users can import from `mizchi/luna` instead of `mizchi/luna/core`, etc.
 
-// Note: Core VNode types (Node, Attr, etc.) are now defined directly in this package (vnode.mbt)
-
 // =============================================================================
-// Signal types and functions
+// Core VNode types and functions (from core/vnode.mbt)
 // =============================================================================
 
 ///|
-pub using @signal {
+pub using @core {
+  // Types
+  type EventHandler,
+  type Attr,
+  type Node,
+  type VElement,
+  type VIsland,
+  type VWcIsland,
+  type VAsync,
+  type VErrorBoundary,
+  type VSwitch,
+  type MatchCase,
+  type VInternalRef,
+  type TriggerType,
+  type Trigger,
+  type ComponentRef,
+
+  // Factory functions
+  handler,
+  h,
+  text,
+  text_dyn,
+  fragment,
+  raw_html,
+  show,
+  for_each,
+  component,
+  island,
+  wc_island,
+  async_,
+  error_boundary,
+  match_case,
+  switch_,
+  internal_ref,
+
+  // Attr factory functions
+  attr_static,
+  attr_dynamic,
+  attr_handler,
+  attr_style,
+  attr_dynamic_style,
+  action,
+
+  // ComponentRef functions
+  component_ref,
+  wc_component_ref,
+
+  // SSR functions
+  event_handler,
+  handler_from_callback,
+
+  // Utilities
+  has_dynamic_content,
+}
+
+// =============================================================================
+// Core AsyncState (from core/async_state.mbt)
+// =============================================================================
+
+///|
+pub using @core {
+  type AsyncState,
+}
+
+// =============================================================================
+// Signal types and functions (from js/resource)
+// =============================================================================
+
+///|
+pub using @resource {
   type Signal,
   type Owner,
-  type AsyncState,
   type Resource,
   type Context,
   signal,
@@ -56,4 +122,15 @@ pub using @signal {
   create_context,
   provide,
   use_context,
+}
+
+// =============================================================================
+// Signal-dependent VNode functions (defined here to avoid core -> resource dep)
+// =============================================================================
+
+///|
+/// Create a text VNode from a signal.
+/// Shorthand for `text_dyn(fn() { sig.get().to_string() })`.
+pub fn[E, T : Show] text_of(sig : @resource.Signal[T]) -> @core.Node[E] {
+  @core.DynamicText(fn() { sig.get().to_string() })
 }

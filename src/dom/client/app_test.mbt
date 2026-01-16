@@ -13,11 +13,11 @@ struct Todo {
 /// Create a Todo app component
 fn create_todo_app() -> (
   @element.DomNode,
-  @signal.Signal[Array[Todo]],
-  @signal.Signal[String],
+  @resource.Signal[Array[Todo]],
+  @resource.Signal[String],
 ) {
-  let todos : @signal.Signal[Array[Todo]] = @signal.signal([])
-  let input_text : @signal.Signal[String] = @signal.signal("")
+  let todos : @resource.Signal[Array[Todo]] = @resource.signal([])
+  let input_text : @resource.Signal[String] = @resource.signal("")
   let next_id = Ref::new(1)
 
   // Add todo handler
@@ -249,7 +249,7 @@ test "Todo app reactive text updates" {
   @global_jsdom.register()
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let count = @signal.signal(0)
+  let count = @resource.signal(0)
   let counter_div = @element.div(id="counter", [@element.text_of(count)])
   @element.render_to(container, counter_div)
 
@@ -272,7 +272,7 @@ test "Todo app reactive class updates" {
   @global_jsdom.register()
   let doc = @js_dom.document()
   let container = doc.createElement("div")
-  let is_active = @signal.signal(false)
+  let is_active = @resource.signal(false)
   let elem = @element.create_element(
     "div",
     [
@@ -305,9 +305,9 @@ test "Todo app reactive class updates" {
 ///|
 test "Todo app batch updates" {
   @global_jsdom.register()
-  let todos : @signal.Signal[Array[Todo]] = @signal.signal([])
+  let todos : @resource.Signal[Array[Todo]] = @resource.signal([])
   let update_count = Ref::new(0)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = todos.get()
     update_count.val = update_count.val + 1
   })
@@ -316,7 +316,7 @@ test "Todo app batch updates" {
   assert_eq(update_count.val, 1)
 
   // Batch multiple updates
-  @signal.batch(fn() {
+  @resource.batch(fn() {
     todos.set([{ id: 1, text: "A", completed: false }])
     todos.set([
       { id: 1, text: "A", completed: false },
@@ -336,17 +336,17 @@ test "Todo app batch updates" {
 ///|
 test "Todo app with memo for derived state" {
   @global_jsdom.register()
-  let todos : @signal.Signal[Array[Todo]] = @signal.signal([
+  let todos : @resource.Signal[Array[Todo]] = @resource.signal([
     { id: 1, text: "Task 1", completed: true },
     { id: 2, text: "Task 2", completed: false },
     { id: 3, text: "Task 3", completed: true },
   ])
 
   // Memoized computed value
-  let completed_count = @signal.memo(fn() {
+  let completed_count = @resource.memo(fn() {
     todos.get().filter(fn(item) { item.completed }).length()
   })
-  let active_count = @signal.memo(fn() {
+  let active_count = @resource.memo(fn() {
     todos.get().filter(fn(item) { not(item.completed) }).length()
   })
 
@@ -367,15 +367,15 @@ test "Todo app with memo for derived state" {
 ///|
 test "Todo app filter with combinator" {
   @global_jsdom.register()
-  let todos : @signal.Signal[Array[Todo]] = @signal.signal([
+  let todos : @resource.Signal[Array[Todo]] = @resource.signal([
     { id: 1, text: "Task 1", completed: true },
     { id: 2, text: "Task 2", completed: false },
     { id: 3, text: "Task 3", completed: true },
   ])
-  let filter_mode : @signal.Signal[String] = @signal.signal("all") // "all", "active", "completed"
+  let filter_mode : @resource.Signal[String] = @resource.signal("all") // "all", "active", "completed"
 
   // Filtered todos using combine
-  let filtered = @signal.combine2(todos, filter_mode, fn(items, mode) {
+  let filtered = @resource.combine2(todos, filter_mode, fn(items, mode) {
     if mode == "all" {
       items
     } else if mode == "active" {
@@ -400,9 +400,9 @@ test "Todo app filter with combinator" {
 ///|
 test "Signal cleanup on dispose" {
   @global_jsdom.register()
-  let sig = @signal.signal(0)
+  let sig = @resource.signal(0)
   let values : Array[Int] = []
-  let dispose = @signal.render_effect(fn() { values.push(sig.get()) })
+  let dispose = @resource.render_effect(fn() { values.push(sig.get()) })
 
   // Initial
   assert_eq(values.length(), 1)
@@ -421,12 +421,12 @@ test "Signal cleanup on dispose" {
 ///|
 test "Nested effects work correctly" {
   @global_jsdom.register()
-  let outer_sig = @signal.signal(1)
-  let inner_sig = @signal.signal(10)
+  let outer_sig = @resource.signal(1)
+  let inner_sig = @resource.signal(10)
   let results : Array[Int] = []
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let outer_val = outer_sig.get()
-    let _ = @signal.render_effect(fn() {
+    let _ = @resource.render_effect(fn() {
       let inner_val = inner_sig.get()
       results.push(outer_val * inner_val)
     })
@@ -460,9 +460,9 @@ test "Fine-grained: only dependent effects re-run" {
   @global_jsdom.register()
 
   // Three independent signals
-  let sig1 = @signal.signal("Item 1")
-  let sig2 = @signal.signal("Item 2")
-  let sig3 = @signal.signal("Item 3")
+  let sig1 = @resource.signal("Item 1")
+  let sig2 = @resource.signal("Item 2")
+  let sig3 = @resource.signal("Item 3")
 
   // Counter for each effect
   let counter : EffectCounter = {
@@ -472,19 +472,19 @@ test "Fine-grained: only dependent effects re-run" {
   }
 
   // Effect that depends on sig1
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = sig1.get()
     counter.item1_count = counter.item1_count + 1
   })
 
   // Effect that depends on sig2
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = sig2.get()
     counter.item2_count = counter.item2_count + 1
   })
 
   // Effect that depends on sig3
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = sig3.get()
     counter.item3_count = counter.item3_count + 1
   })
@@ -518,12 +518,12 @@ test "Fine-grained: tree structure with independent branches" {
   @global_jsdom.register()
 
   // Root and branch signals
-  let root_title = @signal.signal("App Title")
-  let branch_a_value = @signal.signal(10)
-  let branch_b_value = @signal.signal(20)
-  let leaf_a1 = @signal.signal("Leaf A1")
-  let leaf_a2 = @signal.signal("Leaf A2")
-  let leaf_b1 = @signal.signal("Leaf B1")
+  let root_title = @resource.signal("App Title")
+  let branch_a_value = @resource.signal(10)
+  let branch_b_value = @resource.signal(20)
+  let leaf_a1 = @resource.signal("Leaf A1")
+  let leaf_a2 = @resource.signal("Leaf A2")
+  let leaf_b1 = @resource.signal("Leaf B1")
 
   // Counters
   let root_count = Ref::new(0)
@@ -534,33 +534,33 @@ test "Fine-grained: tree structure with independent branches" {
   let leaf_b1_count = Ref::new(0)
 
   // Root effect
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = root_title.get()
     root_count.val = root_count.val + 1
   })
 
   // Branch A effect (depends on branch_a_value)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = branch_a_value.get()
     branch_a_count.val = branch_a_count.val + 1
   })
 
   // Branch B effect (depends on branch_b_value)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = branch_b_value.get()
     branch_b_count.val = branch_b_count.val + 1
   })
 
   // Leaf effects
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = leaf_a1.get()
     leaf_a1_count.val = leaf_a1_count.val + 1
   })
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = leaf_a2.get()
     leaf_a2_count.val = leaf_a2_count.val + 1
   })
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = leaf_b1.get()
     leaf_b1_count.val = leaf_b1_count.val + 1
   })
@@ -608,9 +608,9 @@ test "Fine-grained: DOM text nodes update independently" {
   let container = doc.createElement("div")
 
   // Three independent signals for text content
-  let name = @signal.signal("Alice")
-  let age = @signal.signal(25)
-  let city = @signal.signal("Tokyo")
+  let name = @resource.signal("Alice")
+  let age = @resource.signal(25)
+  let city = @resource.signal("Tokyo")
 
   // Counters to track text node updates
   let name_updates = Ref::new(0)
@@ -619,21 +619,21 @@ test "Fine-grained: DOM text nodes update independently" {
 
   // Create reactive text nodes with tracking
   let name_text = {
-    let _ = @signal.render_effect(fn() {
+    let _ = @resource.render_effect(fn() {
       let _ = name.get()
       name_updates.val = name_updates.val + 1
     })
     @element.text_of(name)
   }
   let age_text = {
-    let _ = @signal.render_effect(fn() {
+    let _ = @resource.render_effect(fn() {
       let _ = age.get()
       age_updates.val = age_updates.val + 1
     })
     @element.text_of(age)
   }
   let city_text = {
-    let _ = @signal.render_effect(fn() {
+    let _ = @resource.render_effect(fn() {
       let _ = city.get()
       city_updates.val = city_updates.val + 1
     })
@@ -675,29 +675,29 @@ test "Fine-grained: DOM text nodes update independently" {
 ///|
 test "Fine-grained: shared signal triggers multiple dependents" {
   @global_jsdom.register()
-  let shared = @signal.signal(100)
+  let shared = @resource.signal(100)
   let consumer_a_count = Ref::new(0)
   let consumer_b_count = Ref::new(0)
   let consumer_c_count = Ref::new(0)
   let unrelated_count = Ref::new(0)
 
   // Three effects depend on same signal
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = shared.get()
     consumer_a_count.val = consumer_a_count.val + 1
   })
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = shared.get()
     consumer_b_count.val = consumer_b_count.val + 1
   })
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = shared.get()
     consumer_c_count.val = consumer_c_count.val + 1
   })
 
   // Unrelated effect
-  let unrelated_sig = @signal.signal("unrelated")
-  let _ = @signal.render_effect(fn() {
+  let unrelated_sig = @resource.signal("unrelated")
+  let _ = @resource.render_effect(fn() {
     let _ = unrelated_sig.get()
     unrelated_count.val = unrelated_count.val + 1
   })
@@ -727,11 +727,11 @@ test "Fine-grained: shared signal triggers multiple dependents" {
 ///|
 test "Fine-grained: memo prevents unnecessary recomputation" {
   @global_jsdom.register()
-  let base = @signal.signal(10)
+  let base = @resource.signal(10)
   let compute_count = Ref::new(0)
 
   // Expensive computation with tracking
-  let doubled = @signal.memo(fn() {
+  let doubled = @resource.memo(fn() {
     compute_count.val = compute_count.val + 1
     base.get() * 2
   })
@@ -739,11 +739,11 @@ test "Fine-grained: memo prevents unnecessary recomputation" {
   // Multiple consumers of the memo
   let consumer1_count = Ref::new(0)
   let consumer2_count = Ref::new(0)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = doubled()
     consumer1_count.val = consumer1_count.val + 1
   })
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let _ = doubled()
     consumer2_count.val = consumer2_count.val + 1
   })

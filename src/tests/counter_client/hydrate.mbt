@@ -29,7 +29,7 @@ pub fn hydrate(el : @js_dom.Element, state : @js.Any) -> Unit {
   let initial_count = js_getCount(state)
 
   // Create reactive signal
-  let count_sig = @signal.signal(initial_count)
+  let count_sig = @resource.signal(initial_count)
 
   // Create browser event handlers that update the signal
   let on_inc = @luna.handler(fn(_event : @js.Any) {

@@ -9,7 +9,7 @@ pub fn text_node(content : () -> String) -> DomNode {
   let node = doc.createTextNode(initial)
 
   // RenderEffect for DOM updates (synchronous)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let new_content = content()
     node.as_node().setTextContent(new_content)
   })
@@ -18,7 +18,7 @@ pub fn text_node(content : () -> String) -> DomNode {
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_from_signal(sig : @signal.Signal[T]) -> DomNode {
+pub fn[T : Show] text_from_signal(sig : @resource.Signal[T]) -> DomNode {
   text_node(fn() { sig.get().to_string() })
 }
 
@@ -126,7 +126,7 @@ fn apply_attribute(
       }
     Dynamic(getter) => {
       // RenderEffect for DOM updates (synchronous)
-      let _ = @signal.render_effect(fn() {
+      let _ = @resource.render_effect(fn() {
         let new_value = getter()
         if name == "style" {
           apply_style_string(elem, new_value)
@@ -253,26 +253,26 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("show")
   // Capture current owner for context inheritance
-  let captured_owner = @signal.get_owner()
+  let captured_owner = @resource.get_owner()
 
   // Track current dispose function (for cleanup when hiding)
   let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
 
   // Helper to render with a new child owner scope
   fn render_with_scope() -> Array[@js_dom.Node] {
-    @signal.with_parent_owner(captured_owner, fn() {
-      let (dom, dispose) = @signal.create_root_with_dispose(fn() { render_fn() })
+    @resource.with_parent_owner(captured_owner, fn() {
+      let (dom, dispose) = @resource.create_root_with_dispose(fn() { render_fn() })
       current_dispose.val = Some(dispose)
       collect_child_nodes(dom.to_dom())
     })
   }
 
   // Evaluate initial state immediately (untracked to avoid dependency issues)
-  let initial_show = @signal.untracked(fn() { when() })
+  let initial_show = @resource.untracked(fn() { when() })
   let initial_nodes : Array[@js_dom.Node] = if initial_show {
     // Use untracked to prevent child signals from being registered
     // as dependencies during initial render
-    @signal.untracked(fn() { render_with_scope() })
+    @resource.untracked(fn() { render_with_scope() })
   } else {
     []
   }
@@ -283,7 +283,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let is_first_run : Ref[Bool] = Ref::new(true)
 
   // RenderEffect handles subsequent updates only (synchronous DOM updates)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let should_show = when()
     let has_nodes = current_nodes.val.length() > 0
 
@@ -300,7 +300,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
           // Use untracked to prevent child signals from being registered
           // as dependencies of this Show's effect. This prevents infinite
           // loops when nested Show components access signals.
-          let nodes = @signal.untracked(fn() { render_with_scope() })
+          let nodes = @resource.untracked(fn() { render_with_scope() })
           for node in nodes {
             parent.insertBefore(node, Some(placeholder)) |> ignore
           }
@@ -355,13 +355,13 @@ pub fn[T] for_each(
   let entries : Ref[Array[ItemEntry[T]]] = Ref::new([])
   let is_first = Ref::new(true)
   // Capture current owner for context inheritance
-  let captured_owner = @signal.get_owner()
+  let captured_owner = @resource.get_owner()
 
   // Helper to render with a new child owner scope
   // Returns both the DOM node and a dispose function
   fn render_with_scope(item : T, i : Int) -> (@js_dom.Node, () -> Unit) {
-    @signal.with_parent_owner(captured_owner, fn() {
-      let (dom, dispose) = @signal.create_root_with_dispose(fn() {
+    @resource.with_parent_owner(captured_owner, fn() {
+      let (dom, dispose) = @resource.create_root_with_dispose(fn() {
         render_item(item, i)
       })
       (dom.to_dom(), dispose)
@@ -371,16 +371,16 @@ pub fn[T] for_each(
   // Initial render - create entries with proper dispose functions
   // Use untracked to prevent dependency tracking during initial render
   let fragment = doc.createDocumentFragment()
-  let initial_items = @signal.untracked(fn() { items() })
+  let initial_items = @resource.untracked(fn() { items() })
   for i, item in initial_items {
-    let (dom, dispose) = @signal.untracked(fn() { render_with_scope(item, i) })
+    let (dom, dispose) = @resource.untracked(fn() { render_with_scope(item, i) })
     entries.val.push(ItemEntry::new_with_dispose(item, dom, dispose))
     fragment.as_node().appendChild(dom) |> ignore
   }
   fragment.as_node().appendChild(placeholder) |> ignore
 
   // RenderEffect for DOM updates (synchronous)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let new_items = items()
     if is_first.val {
       is_first.val = false
@@ -389,7 +389,7 @@ pub fn[T] for_each(
     // Use untracked to prevent child signals from being registered
     // as dependencies of this For's effect. This prevents infinite
     // loops when nested components access signals.
-    @signal.untracked(fn() {
+    @resource.untracked(fn() {
       reconcile_for_each_with_dispose(
         entries, placeholder, new_items, render_with_scope,
       )
@@ -450,7 +450,7 @@ pub fn[T] index_each(
   let entries : Array[IndexEntry] = []
   let is_first = Ref::new(true)
   // Capture current owner for context inheritance
-  let captured_owner = @signal.get_owner()
+  let captured_owner = @resource.get_owner()
 
   // Helper to render item with owner scope for proper cleanup
   fn render_with_scope(index : Int) -> IndexEntry {
@@ -485,8 +485,8 @@ pub fn[T] index_each(
         value
       }
     }
-    let (dom, dispose) = @signal.create_root_with_dispose(fn() {
-      @signal.with_parent_owner(captured_owner, fn() {
+    let (dom, dispose) = @resource.create_root_with_dispose(fn() {
+      @resource.with_parent_owner(captured_owner, fn() {
         render_item(item_getter, index)
       })
     })
@@ -495,16 +495,16 @@ pub fn[T] index_each(
 
   // Initial render - use untracked to prevent dependency tracking
   let fragment = doc.createDocumentFragment()
-  let initial_items = @signal.untracked(fn() { items() })
+  let initial_items = @resource.untracked(fn() { items() })
   for i, _ in initial_items {
-    let entry = @signal.untracked(fn() { render_with_scope(i) })
+    let entry = @resource.untracked(fn() { render_with_scope(i) })
     entries.push(entry)
     fragment.as_node().appendChild(entry.node) |> ignore
   }
   fragment.as_node().appendChild(placeholder) |> ignore
 
   // RenderEffect for DOM updates (synchronous)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let new_items = items()
     if is_first.val {
       is_first.val = false
@@ -535,7 +535,7 @@ pub fn[T] index_each(
     // as dependencies of this Index's effect
     while entries.length() < new_len {
       let i = entries.length()
-      let entry = @signal.untracked(fn() { render_with_scope(i) })
+      let entry = @resource.untracked(fn() { render_with_scope(i) })
       entries.push(entry)
       if placeholder.parentNode() is Some(par) {
         par.insertBefore(entry.node, Some(placeholder)) |> ignore

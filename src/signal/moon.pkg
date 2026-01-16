@@ -1,7 +1,0 @@
-import {
-  "mizchi/signals" as @signals,
-}
-
-import "test" {
-  "mizchi/luna" as @luna,
-}

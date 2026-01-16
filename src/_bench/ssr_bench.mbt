@@ -196,7 +196,7 @@ test "ssr_hydration_page_50_cards" (b : @bench.T) {
 
 ///|
 test "ssr_dynamic_text" (b : @bench.T) {
-  let count = @signal.signal(0)
+  let count = @resource.signal(0)
   let node : @luna.Node[Unit] = @luna.text_dyn(fn() {
     "Count: " + count.get().to_string()
   })
@@ -207,7 +207,7 @@ test "ssr_dynamic_text" (b : @bench.T) {
 
 ///|
 test "ssr_dynamic_attrs" (b : @bench.T) {
-  let active = @signal.signal(true)
+  let active = @resource.signal(true)
   let node : @luna.Node[Unit] = @luna.h(
     "button",
     [
@@ -231,7 +231,7 @@ test "ssr_dynamic_attrs" (b : @bench.T) {
 
 ///|
 test "ssr_show_conditional" (b : @bench.T) {
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let node : @luna.Node[Unit] = @luna.show(fn() { visible.get() }, fn() {
     @luna.h("div", [], [@luna.text("Visible content")])
   })
@@ -242,7 +242,7 @@ test "ssr_show_conditional" (b : @bench.T) {
 
 ///|
 test "ssr_for_loop" (b : @bench.T) {
-  let items_sig = @signal.signal(["a", "b", "c", "d", "e"])
+  let items_sig = @resource.signal(["a", "b", "c", "d", "e"])
   let node : @luna.Node[Unit] = @luna.for_each(fn() {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })

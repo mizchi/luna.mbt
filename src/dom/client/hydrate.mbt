@@ -129,23 +129,23 @@ fn hydrate_node(
   ctx : HydrationContext,
 ) -> Unit raise {
   match node {
-    @luna.Text(_) =>
+    @core.Text(_) =>
       // Static text doesn't need hydration
       ()
-    @luna.RawHtml(_) =>
+    @core.RawHtml(_) =>
       // Raw HTML doesn't need hydration
       ()
-    @luna.DynamicText(getter) => {
+    @core.DynamicText(getter) => {
       // Find the text marker comments and set up effect
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_dynamic_text(parent, id, getter)
     }
-    @luna.Fragment(children) =>
+    @core.Fragment(children) =>
       for child in children {
         hydrate_node(parent, child, ctx)
       }
-    @luna.Element(elem) => {
+    @core.Element(elem) => {
       // Check if this element needs hydration (has handlers or dynamic attrs)
       let needs_hydration = @luna.has_dynamic_content(elem.attrs)
 
@@ -198,49 +198,49 @@ fn hydrate_node(
         }
       }
     }
-    @luna.Show(condition=cond, child=child_fn) => {
+    @core.Show(condition=cond, child=child_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_show(parent, id, cond, child_fn, ctx)
     }
-    @luna.For(render=render_fn) => {
+    @core.For(render=render_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_for(parent, id, render_fn, ctx)
     }
-    @luna.Component(render=render_fn) => hydrate_node(parent, render_fn(), ctx)
-    @luna.Island(island) =>
+    @core.Component(render=render_fn) => hydrate_node(parent, render_fn(), ctx)
+    @core.Island(island) =>
       // Island hydration is handled by the loader, not this function
       // Just hydrate children normally for nested content
       for child in island.children {
         hydrate_node(parent, child, ctx)
       }
-    @luna.WcIsland(wc_island) =>
+    @core.WcIsland(wc_island) =>
       // WcIsland hydration is handled by wcssr client runtime
       // Just hydrate children normally for nested content
       for child in wc_island.children {
         hydrate_node(parent, child, ctx)
       }
-    @luna.InternalRef(iref) =>
+    @core.InternalRef(iref) =>
       // InternalRef hydration is handled by the loader (same as Island/WcIsland)
       // Just hydrate children normally for nested content
       for child in iref.children {
         hydrate_node(parent, child, ctx)
       }
-    @luna.Async(async_node) => {
+    @core.Async(async_node) => {
       // Async node hydration: hydrate the fallback content
       // Full async replacement would happen via streaming SSR
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_node(parent, (async_node.fallback)(), ctx)
     }
-    @luna.ErrorBoundary(boundary) => {
+    @core.ErrorBoundary(boundary) => {
       // ErrorBoundary hydration with error catching
       let id = ctx.current_id
       ctx.current_id = id + 1
       hydrate_error_boundary(parent, id, boundary, ctx)
     }
-    @luna.Switch(switch_node) => {
+    @core.Switch(switch_node) => {
       // Switch hydration: evaluate conditions and hydrate matching case
       let id = ctx.current_id
       ctx.current_id = id + 1
@@ -322,7 +322,7 @@ fn hydrate_dynamic_text(
         // Found start marker, next sibling should be the text node
         if child.nextSibling() is Some(text_node) && text_node.nodeType() == 3 {
           // Set up effect to update text
-          let _ = @signal.render_effect(fn() {
+          let _ = @resource.render_effect(fn() {
             let new_text = getter()
             text_node.setTextContent(new_text)
           })
@@ -353,12 +353,12 @@ fn hydrate_element_with_dispatch(
   for attr in attrs {
     let (name, value) = attr
     match value {
-      @luna.VStatic(_) =>
+      @core.VStatic(_) =>
         // Static attributes already rendered, nothing to do
         ()
-      @luna.VDynamic(getter) => {
+      @core.VDynamic(getter) => {
         // Set up effect to update attribute
-        let _ = @signal.render_effect(fn() {
+        let _ = @resource.render_effect(fn() {
           let new_value = getter()
           if new_value == "__remove__" {
             elem.removeAttribute(name)
@@ -372,7 +372,7 @@ fn hydrate_element_with_dispatch(
         })
 
       }
-      @luna.VHandler(handler) => {
+      @core.VHandler(handler) => {
         // Attach event handler
         let event_name = extract_event_name(name)
         let callback = handler.get_callback()
@@ -382,7 +382,7 @@ fn hydrate_element_with_dispatch(
         .as_event_target()
         .addEventListener(event_name, @js.any(wrapper).cast())
       }
-      @luna.VAction(action_name) =>
+      @core.VAction(action_name) =>
         // Attach action handler - dispatch action when event fires
         if dispatcher is Some(dispatch) {
           let event_name = extract_event_name(name)
@@ -485,7 +485,7 @@ fn hydrate_show(
   }
 
   // Set up effect for show/hide
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let should_show = cond()
     if should_show && current_nodes.is_empty() {
       // Need to show - render and insert
@@ -516,57 +516,57 @@ fn hydrate_child_nodes(
   // For now, just traverse the VNode and update ctx
   let _ = nodes // suppress unused warning
   match node {
-    @luna.Text(_) => ()
-    @luna.RawHtml(_) => ()
-    @luna.DynamicText(_) => ctx.current_id = ctx.current_id + 1
-    @luna.Fragment(children) =>
+    @core.Text(_) => ()
+    @core.RawHtml(_) => ()
+    @core.DynamicText(_) => ctx.current_id = ctx.current_id + 1
+    @core.Fragment(children) =>
       for child in children {
         hydrate_child_nodes(nodes, child, ctx)
       }
-    @luna.Element(elem) => {
+    @core.Element(elem) => {
       ctx.current_id = ctx.current_id + 1
       for child in elem.children {
         hydrate_child_nodes(nodes, child, ctx)
       }
     }
-    @luna.Show(condition=condition_fn, child=child_getter) => {
+    @core.Show(condition=condition_fn, child=child_getter) => {
       ctx.current_id = ctx.current_id + 1
       if condition_fn() {
         hydrate_child_nodes(nodes, child_getter(), ctx)
       }
     }
-    @luna.For(render=render_fn) => {
+    @core.For(render=render_fn) => {
       ctx.current_id = ctx.current_id + 1
       let items = render_fn()
       for item in items {
         hydrate_child_nodes(nodes, item, ctx)
       }
     }
-    @luna.Component(render=render_fn) =>
+    @core.Component(render=render_fn) =>
       hydrate_child_nodes(nodes, render_fn(), ctx)
-    @luna.Island(island) =>
+    @core.Island(island) =>
       for child in island.children {
         hydrate_child_nodes(nodes, child, ctx)
       }
-    @luna.WcIsland(wc_island) =>
+    @core.WcIsland(wc_island) =>
       for child in wc_island.children {
         hydrate_child_nodes(nodes, child, ctx)
       }
-    @luna.InternalRef(iref) =>
+    @core.InternalRef(iref) =>
       for child in iref.children {
         hydrate_child_nodes(nodes, child, ctx)
       }
-    @luna.Async(async_node) => {
+    @core.Async(async_node) => {
       ctx.current_id = ctx.current_id + 1
       hydrate_child_nodes(nodes, (async_node.fallback)(), ctx)
     }
-    @luna.ErrorBoundary(boundary) => {
+    @core.ErrorBoundary(boundary) => {
       ctx.current_id = ctx.current_id + 1
       hydrate_child_nodes(nodes, (boundary.children)(), ctx) catch {
         _ => ()
       }
     }
-    @luna.Switch(switch_node) => {
+    @core.Switch(switch_node) => {
       ctx.current_id = ctx.current_id + 1
       // Find first matching case
       for case_ in switch_node.cases {
@@ -642,7 +642,7 @@ fn hydrate_for(
       }
 
       // Set up effect for list updates
-      let _ = @signal.render_effect(fn() {
+      let _ = @resource.render_effect(fn() {
         let new_items = render_fn()
 
         // Simple strategy: clear and re-render
@@ -786,7 +786,7 @@ pub fn[State] hydrate_with_actions(
   render : (State) -> @luna.Node[@js.Any],
   update : (State, String) -> State,
 ) -> Unit {
-  let state_signal = @signal.signal(initial_state)
+  let state_signal = @resource.signal(initial_state)
 
   // Create dispatcher that updates state
   let dispatch : (String) -> Unit = fn(action : String) {
@@ -800,7 +800,7 @@ pub fn[State] hydrate_with_actions(
 
   // Set up effect to re-render when state changes
   let is_first_render : Ref[Bool] = Ref::new(true)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let current_state = state_signal.get()
 
     // Skip first render as DOM already contains SSR content

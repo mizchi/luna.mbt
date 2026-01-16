@@ -1,6 +1,7 @@
 import {
+  "mizchi/luna/core" as @core,
   "mizchi/luna" as @luna,
-  "mizchi/luna/render" as @render,
+  "mizchi/luna/core/render" as @render,
   "mizchi/js/web/streams" as @streams,
 }
 

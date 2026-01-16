@@ -1,4 +1,4 @@
-import { "mizchi/luna/signal", "mizchi/signals" as @signals, "mizchi/js/browser/dom" as @js_dom }
+import { "mizchi/luna/js/resource" as @resource, "mizchi/signals" as @signals, "mizchi/js/browser/dom" as @js_dom }
 
 options(
   "supported-targets": [ "js" ],

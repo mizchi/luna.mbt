@@ -444,11 +444,11 @@ fn init_prev_cell_types() -> Unit {
 }
 
 ///|
-fn render_grid(state_sig : @signal.Signal[GameState]) -> DomNode {
+fn render_grid(state_sig : @resource.Signal[GameState]) -> DomNode {
   let indices = make_indices()
   init_prev_cell_types()
   // Single effect with dirty tracking - only update changed cells
-  let _ = @signal.effect(fn() {
+  let _ = @resource.effect(fn() {
     let state = state_sig.get()
     for i = 0; i < cell_elements.length(); i = i + 1 {
       let x = i % GRID_SIZE
@@ -469,7 +469,7 @@ fn render_grid(state_sig : @signal.Signal[GameState]) -> DomNode {
 }
 
 ///|
-fn render_stats(state_sig : @signal.Signal[GameState]) -> DomNode {
+fn render_stats(state_sig : @resource.Signal[GameState]) -> DomNode {
   div(class="stats", [
     span([text_dyn(fn() { "FPS: " + state_sig.get().fps.to_string() })]),
     span([text_dyn(fn() { "Score: " + state_sig.get().score.to_string() })]),
@@ -488,7 +488,7 @@ fn render_stats(state_sig : @signal.Signal[GameState]) -> DomNode {
 
 ///|
 fn render_controls(
-  running_sig : @signal.Signal[Bool],
+  running_sig : @resource.Signal[Bool],
   on_reset : () -> Unit,
 ) -> DomNode {
   div(class="controls", [
@@ -515,7 +515,7 @@ priv struct KeyState {
 let key_state : KeyState = { up: false, down: false, left: false, right: false }
 
 ///|
-fn setup_keyboard(state_sig : @signal.Signal[GameState]) -> Unit {
+fn setup_keyboard(state_sig : @resource.Signal[GameState]) -> Unit {
   let win = @dom.window()
   win
   .as_event_target()
@@ -589,8 +589,8 @@ fn main {
   let doc = @dom.document()
   match doc.getElementById("app") {
     Some(el) => {
-      let state_sig = @signal.signal(create_initial_state())
-      let running_sig = @signal.signal(true)
+      let state_sig = @resource.signal(create_initial_state())
+      let running_sig = @resource.signal(true)
       setup_keyboard(state_sig)
       let _ = @global.setInterval(
         fn() { if running_sig.get() { state_sig.update(game_tick) } },

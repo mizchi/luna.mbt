@@ -120,9 +120,9 @@ fn style(css : String) -> Node[@js.Any] {
 ///|
 fn register_wc_counter() -> Unit {
   @luna_api.register_shadow("wc-counter", fn(_host) {
-    let count = @signal.signal(0)
-    let doubled = @signal.memo(fn() { count.get() * 2 })
-    let is_even = @signal.memo(fn() { count.get() % 2 == 0 })
+    let count = @resource.signal(0)
+    let doubled = @resource.memo(fn() { count.get() * 2 })
+    let is_even = @resource.memo(fn() { count.get() % 2 == 0 })
     fragment([
       style(counter_css),
       h("h2", [], [text("Counter Example")]),
@@ -178,8 +178,8 @@ fn register_wc_counter() -> Unit {
 ///|
 fn register_wc_input() -> Unit {
   @luna_api.register_shadow("wc-input", fn(_host) {
-    let text_signal = @signal.signal("")
-    let char_count = @signal.memo(fn() { text_signal.get().length() })
+    let text_signal = @resource.signal("")
+    let char_count = @resource.memo(fn() { text_signal.get().length() })
     fragment([
       style(input_css),
       h("h2", [], [text("Input Example")]),
@@ -218,8 +218,8 @@ fn register_wc_input() -> Unit {
 ///|
 fn register_wc_effect() -> Unit {
   @luna_api.register_shadow("wc-effect", fn(_host) {
-    let active = @signal.signal(false)
-    let ticks = @signal.signal(0)
+    let active = @resource.signal(false)
+    let ticks = @resource.signal(0)
     fragment([
       style(effect_css),
       h("h2", [], [text("Effect Example")]),
@@ -265,7 +265,7 @@ fn register_wc_effect() -> Unit {
 ///|
 fn register_wc_conditional() -> Unit {
   @luna_api.register_shadow("wc-conditional", fn(_host) {
-    let show_message = @signal.signal(true)
+    let show_message = @resource.signal(true)
     fragment([
       style(conditional_css),
       h("h2", [], [text("Conditional Example")]),
@@ -318,8 +318,8 @@ fn register_wc_conditional() -> Unit {
 ///|
 fn register_wc_style() -> Unit {
   @luna_api.register_shadow("wc-style", fn(_host) {
-    let hue = @signal.signal(180)
-    let size = @signal.signal(100)
+    let hue = @resource.signal(180)
+    let size = @resource.signal(100)
     fragment([
       style(style_css),
       h("h2", [], [text("Style Example")]),
@@ -408,9 +408,9 @@ priv struct TodoItem {
 ///|
 fn register_wc_todo() -> Unit {
   @luna_api.register_shadow("wc-todo", fn(_host) {
-    let todos : @signal.Signal[Array[TodoItem]] = @signal.signal([])
-    let input_text = @signal.signal("")
-    let next_id = @signal.signal(1)
+    let todos : @resource.Signal[Array[TodoItem]] = @resource.signal([])
+    let input_text = @resource.signal("")
+    let next_id = @resource.signal(1)
     fn add_todo() -> Unit {
       let t = input_text.get()
       if t != "" {
@@ -536,7 +536,7 @@ fn register_wc_todo() -> Unit {
 ///|
 fn register_wc_child_button() -> Unit {
   @luna_api.register_shadow("wc-child-button", fn(host) {
-    let click_count = @signal.signal(0)
+    let click_count = @resource.signal(0)
     fragment([
       style(child_button_css),
       h(
@@ -573,7 +573,7 @@ fn register_wc_child_button() -> Unit {
 ///|
 fn register_wc_nested_parent() -> Unit {
   @luna_api.register_shadow("wc-nested-parent", fn(host) {
-    let total_child_clicks = @signal.signal(0)
+    let total_child_clicks = @resource.signal(0)
 
     // Listen for custom events from children
     add_custom_event_listener(host, "child-clicked", fn(_detail) {

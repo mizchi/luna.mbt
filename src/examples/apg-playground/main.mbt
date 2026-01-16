@@ -186,7 +186,7 @@ fn all_sections() -> Array[Section] {
 
 ///|
 fn button_demo() -> @luna.Node[@js.Any] {
-  let pressed = @signal.signal(false)
+  let pressed = @resource.signal(false)
   div([
     h2([@luna.text("Button")]),
     p([@luna.text("Basic button and toggle button examples")]),
@@ -214,9 +214,9 @@ fn button_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn checkbox_demo() -> @luna.Node[@js.Any] {
-  let terms = @signal.signal(true)
-  let newsletter = @signal.signal(false)
-  let select_all = @signal.signal(false) // Will be shown as indeterminate
+  let terms = @resource.signal(true)
+  let newsletter = @resource.signal(false)
+  let select_all = @resource.signal(false) // Will be shown as indeterminate
   div([
     h2([@luna.text("Checkbox")]),
     p([@luna.text("Accessible checkbox with native input and custom styling")]),
@@ -228,7 +228,7 @@ fn checkbox_demo() -> @luna.Node[@js.Any] {
       @checkbox.checkbox(select_all, indeterminate=true, [
         @luna.text("Select all items"),
       ]),
-      @checkbox.checkbox(@signal.signal(false), disabled=true, [
+      @checkbox.checkbox(@resource.signal(false), disabled=true, [
         @luna.text("Unavailable option (disabled)"),
       ]),
     ]),
@@ -241,8 +241,8 @@ fn checkbox_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn switch_demo() -> @luna.Node[@js.Any] {
-  let wifi = @signal.signal(false)
-  let bluetooth = @signal.signal(true)
+  let wifi = @resource.signal(false)
+  let bluetooth = @resource.signal(true)
   @switch.switch_group(aria_label="Settings", [
     @switch.switch(wifi, aria_label="Wi-Fi", [@luna.text("Wi-Fi")]),
     @switch.switch(bluetooth, aria_label="Bluetooth", [@luna.text("Bluetooth")]),
@@ -258,7 +258,7 @@ fn switch_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn radio_demo() -> @luna.Node[@js.Any] {
-  let selected = @signal.signal("option1")
+  let selected = @resource.signal("option1")
   let items = [
     @radio.radio_item("option1", "Option 1"),
     @radio.radio_item("option2", "Option 2"),
@@ -284,7 +284,7 @@ fn radio_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn tabs_demo() -> @luna.Node[@js.Any] {
-  let active_tab = @signal.signal(0)
+  let active_tab = @resource.signal(0)
   let items : Array[@tabs.TabItem] = [
     @tabs.tab_item("0", "Tab 1", [@luna.text("Content for Tab 1")]),
     @tabs.tab_item("1", "Tab 2", [@luna.text("Content for Tab 2")]),
@@ -307,7 +307,7 @@ fn tabs_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn accordion_demo() -> @luna.Node[@js.Any] {
-  let expanded = @signal.signal(-1) // -1 = all collapsed
+  let expanded = @resource.signal(-1) // -1 = all collapsed
   let items : Array[@accordion.AccordionItemData] = [
     @accordion.accordion_item("0", "Section 1", [
       @luna.text("Content for section 1"),
@@ -332,7 +332,7 @@ fn accordion_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn slider_demo() -> @luna.Node[@js.Any] {
-  let value = @signal.signal(50.0)
+  let value = @resource.signal(50.0)
   div([
     h2([@luna.text("Slider")]),
     p([
@@ -376,7 +376,7 @@ fn slider_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn dialog_demo() -> @luna.Node[@js.Any] {
-  let open = @signal.signal(false)
+  let open = @resource.signal(false)
   div([
     h2([@luna.text("Dialog")]),
     p([@luna.text("Modal dialog example")]),
@@ -397,7 +397,7 @@ fn dialog_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn disclosure_demo() -> @luna.Node[@js.Any] {
-  let expanded = @signal.signal(false)
+  let expanded = @resource.signal(false)
   div([
     h2([@luna.text("Disclosure")]),
     p([@luna.text("Show/hide content toggle")]),
@@ -448,7 +448,7 @@ fn breadcrumb_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn listbox_demo() -> @luna.Node[@js.Any] {
-  let selected = @signal.signal("apple")
+  let selected = @resource.signal("apple")
   div([
     h2([@luna.text("Listbox")]),
     p([@luna.text("Selection list")]),
@@ -464,7 +464,7 @@ fn listbox_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn listbox_option(
-  selected : @signal.Signal[String],
+  selected : @resource.Signal[String],
   value : String,
   label : String,
 ) -> @luna.Node[@js.Any] {
@@ -492,7 +492,7 @@ fn listbox_option(
 
 ///|
 fn spinbutton_demo() -> @luna.Node[@js.Any] {
-  let value = @signal.signal(5.0)
+  let value = @resource.signal(5.0)
   div([
     h2([@luna.text("Spinbutton")]),
     p([
@@ -520,7 +520,7 @@ fn spinbutton_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn combobox_demo() -> @luna.Node[@js.Any] {
-  let selected_fruit = @signal.signal("")
+  let selected_fruit = @resource.signal("")
   let options = [
     @apg.combobox_option("apple", "Apple"),
     @apg.combobox_option("banana", "Banana"),
@@ -554,7 +554,7 @@ fn combobox_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn treeview_demo() -> @luna.Node[@js.Any] {
-  let selected_node = @signal.signal("")
+  let selected_node = @resource.signal("")
   let nodes = [
     @apg.tree_node("documents", "Documents", children=[
       @apg.tree_node("work", "Work", children=[
@@ -593,7 +593,7 @@ fn treeview_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn toolbar_demo() -> @luna.Node[@js.Any] {
-  let pressed_states : @signal.Signal[Map[String, Bool]] = @signal.signal({})
+  let pressed_states : @resource.Signal[Map[String, Bool]] = @resource.signal({})
   let items = [
     @apg.toolbar_item_def("bold", "Bold", toggle=true),
     @apg.toolbar_item_def("italic", "Italic", toggle=true),
@@ -629,7 +629,7 @@ fn toolbar_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn menu_button_demo() -> @luna.Node[@js.Any] {
-  let selected_action = @signal.signal("")
+  let selected_action = @resource.signal("")
   let items = [
     @apg.menu_item("new", "New File"),
     @apg.menu_item("open", "Open..."),
@@ -660,8 +660,8 @@ fn menu_button_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn alert_dialog_demo() -> @luna.Node[@js.Any] {
-  let open = @signal.signal(false)
-  let result = @signal.signal("")
+  let open = @resource.signal(false)
+  let result = @resource.signal("")
   div([
     h2([@luna.text("Alert Dialog")]),
     p([@luna.text("Confirmation dialog with required user action")]),
@@ -686,7 +686,7 @@ fn alert_dialog_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn tooltip_demo() -> @luna.Node[@js.Any] {
-  let visible = @signal.signal(false)
+  let visible = @resource.signal(false)
   div([
     h2([@luna.text("Tooltip")]),
     p([@luna.text("Informational popup on hover/focus")]),
@@ -747,7 +747,7 @@ fn alert_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn meter_demo() -> @luna.Node[@js.Any] {
-  let value = @signal.signal(65.0)
+  let value = @resource.signal(65.0)
   div([
     h2([@luna.text("Meter")]),
     p([@luna.text("Visual representation of a value within a known range")]),
@@ -968,7 +968,7 @@ fn demo_section(
 ///|
 fn sidebar_nav_item(
   section : Section,
-  current : @signal.Signal[Section],
+  current : @resource.Signal[Section],
 ) -> @luna.Node[@js.Any] {
   let s = section
   @luna.h("li", [], [
@@ -1007,7 +1007,7 @@ fn sidebar_nav_item(
 }
 
 ///|
-fn accent_controls(accent : @signal.Signal[String]) -> @luna.Node[@js.Any] {
+fn accent_controls(accent : @resource.Signal[String]) -> @luna.Node[@js.Any] {
   let colors = ["amber", "blue", "green", "purple", "rose", "teal"]
   let color_swatches : Array[@luna.Node[@js.Any]] = []
   for color in colors {
@@ -1037,9 +1037,9 @@ fn accent_controls(accent : @signal.Signal[String]) -> @luna.Node[@js.Any] {
 
 ///|
 fn sidebar(
-  current_section : @signal.Signal[Section],
-  _is_dark : @signal.Signal[Bool],
-  accent : @signal.Signal[String],
+  current_section : @resource.Signal[Section],
+  _is_dark : @resource.Signal[Bool],
+  accent : @resource.Signal[String],
 ) -> @luna.Node[@js.Any] {
   let sections = all_sections()
   let nav_items : Array[@luna.Node[@js.Any]] = []
@@ -1071,7 +1071,7 @@ fn sidebar(
 // =============================================================================
 
 ///|
-fn theme_switch(is_dark : @signal.Signal[Bool]) -> @luna.Node[@js.Any] {
+fn theme_switch(is_dark : @resource.Signal[Bool]) -> @luna.Node[@js.Any] {
   @luna.h("div", [("class", @luna.attr_static("theme-switch"))], [
     @luna.h(
       "span",
@@ -1089,8 +1089,8 @@ fn theme_switch(is_dark : @signal.Signal[Bool]) -> @luna.Node[@js.Any] {
 
 ///|
 fn main_content(
-  current_section : @signal.Signal[Section],
-  is_dark : @signal.Signal[Bool],
+  current_section : @resource.Signal[Section],
+  is_dark : @resource.Signal[Bool],
 ) -> @luna.Node[@js.Any] {
   let _ = current_section // Future: could filter to show only current section
   @luna.h("main", [("class", @luna.attr_static("main-content"))], [
@@ -1258,11 +1258,11 @@ fn app() -> @luna.Node[@js.Any] {
     @js.any("(prefers-color-scheme: dark)"),
   ])
   let prefers_dark : Bool = media_query._get("matches").cast()
-  let is_dark = @signal.signal(prefers_dark)
-  let accent = @signal.signal("amber")
-  let current_section = @signal.signal(Button)
+  let is_dark = @resource.signal(prefers_dark)
+  let accent = @resource.signal("amber")
+  let current_section = @resource.signal(Button)
   // Set up effect to apply theme when is_dark changes
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let dark = is_dark.get()
     if dark {
       set_theme(Dark)

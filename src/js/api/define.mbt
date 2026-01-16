@@ -13,7 +13,7 @@ pub fn register(
 ) -> Unit {
   js_define_element(name, fn(host) {
     // Create reactive root for this component instance
-    @signal.create_root(fn(_dispose) {
+    @resource.create_root(fn(_dispose) {
       let vnode = render(host)
       let dom_node = @client.render_vnode_to_dom(vnode)
       host.appendChild(dom_node) |> ignore
@@ -29,7 +29,7 @@ pub fn register_shadow(
   render : (@js_dom.Element) -> @luna.Node[@js.Any],
 ) -> Unit {
   js_define_element_shadow(name, mode, fn(host, shadow_root) {
-    @signal.create_root(fn(_dispose) {
+    @resource.create_root(fn(_dispose) {
       let vnode = render(host)
       let dom_node = @client.render_vnode_to_dom(vnode)
       shadow_root.appendChild(dom_node) |> ignore
@@ -42,7 +42,7 @@ pub fn register_shadow(
 pub fn register_with_attrs(
   name : String,
   observed_attrs : Array[String],
-  render : (@js_dom.Element, Map[String, @signal.Signal[String]]) -> @luna.Node[
+  render : (@js_dom.Element, Map[String, @resource.Signal[String]]) -> @luna.Node[
     @js.Any,
   ],
 ) -> Unit {
@@ -51,12 +51,12 @@ pub fn register_with_attrs(
     get_attr,
     on_attr_change,
   ) {
-    @signal.create_root(fn(_dispose) {
+    @resource.create_root(fn(_dispose) {
       // Create signals for each observed attribute
-      let attr_signals : Map[String, @signal.Signal[String]] = {}
+      let attr_signals : Map[String, @resource.Signal[String]] = {}
       for attr in observed_attrs {
         let initial = get_attr(attr)
-        attr_signals[attr] = @signal.signal(initial)
+        attr_signals[attr] = @resource.signal(initial)
       }
 
       // Set up attribute change callback

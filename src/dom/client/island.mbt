@@ -70,13 +70,13 @@ pub fn IslandContext::signal_int(
   self : IslandContext,
   key : String,
   default_value : Int,
-) -> @signal.Signal[Int] {
+) -> @resource.Signal[Int] {
   let value = if self.state_json == "" {
     default_value
   } else {
     parse_int_from_state(self.state_json, key)
   }
-  @signal.signal(value)
+  @resource.signal(value)
 }
 
 ///|
@@ -96,7 +96,7 @@ pub fn IslandContext::on_update(
   update_fn : () -> String,
 ) -> Unit {
   let elem = self.element
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let text = update_fn()
     update_element_text(elem, selector, text)
   })

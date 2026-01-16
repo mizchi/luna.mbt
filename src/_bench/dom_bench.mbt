@@ -108,7 +108,7 @@ test "dom_render_list_100" (b : @bench.T) {
 ///|
 test "dom_reactive_text_update" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @signal.signal(0)
+  let count = @resource.signal(0)
   let node = @luna.text_dyn(fn() { count.get().to_string() })
   let _ = @client.render_vnode_to_dom(node)
   let mut i = 0
@@ -121,7 +121,7 @@ test "dom_reactive_text_update" (b : @bench.T) {
 ///|
 test "dom_reactive_attr_update" (b : @bench.T) {
   @global_jsdom.register()
-  let active = @signal.signal(false)
+  let active = @resource.signal(false)
   let node = @luna.h(
     "button",
     [
@@ -139,7 +139,7 @@ test "dom_reactive_attr_update" (b : @bench.T) {
 ///|
 test "dom_reactive_style_update" (b : @bench.T) {
   @global_jsdom.register()
-  let width = @signal.signal(100)
+  let width = @resource.signal(100)
   let node = @luna.h(
     "div",
     [
@@ -167,7 +167,7 @@ test "dom_reactive_style_update" (b : @bench.T) {
 ///|
 test "dom_show_toggle" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let node = @luna.show(fn() { visible.get() }, fn() {
     @luna.h("div", [], [@luna.text("Content")])
   })
@@ -185,7 +185,7 @@ test "dom_show_toggle" (b : @bench.T) {
 ///|
 test "dom_for_list_update" (b : @bench.T) {
   @global_jsdom.register()
-  let items_sig = @signal.signal(["a", "b", "c"])
+  let items_sig = @resource.signal(["a", "b", "c"])
   let node = @luna.for_each(fn() {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
@@ -211,8 +211,8 @@ test "dom_for_list_update" (b : @bench.T) {
 ///|
 test "dom_component_counter" (b : @bench.T) {
   @global_jsdom.register()
-  let count = @signal.signal(0)
-  let doubled = @signal.memo(fn() { count.get() * 2 })
+  let count = @resource.signal(0)
+  let doubled = @resource.memo(fn() { count.get() * 2 })
   let node = @luna.h("div", [], [
     @luna.h("span", [("id", @luna.attr_static("count"))], [
       @luna.text_dyn(fn() { count.get().to_string() }),
@@ -232,9 +232,9 @@ test "dom_component_counter" (b : @bench.T) {
 ///|
 test "dom_batched_updates" (b : @bench.T) {
   @global_jsdom.register()
-  let a = @signal.signal(0)
-  let b_ = @signal.signal(0)
-  let c = @signal.signal(0)
+  let a = @resource.signal(0)
+  let b_ = @resource.signal(0)
+  let c = @resource.signal(0)
   let node = @luna.h("div", [], [
     @luna.text_dyn(fn() { a.get().to_string() }),
     @luna.text_dyn(fn() { b_.get().to_string() }),
@@ -244,7 +244,7 @@ test "dom_batched_updates" (b : @bench.T) {
   let mut i = 0
   b.bench(name="dom_batched_3_updates", fn() {
     i = i + 1
-    @signal.batch(fn() {
+    @resource.batch(fn() {
       a.set(i)
       b_.set(i)
       c.set(i)
@@ -260,7 +260,7 @@ test "dom_batched_updates" (b : @bench.T) {
 /// Shallow update: single signal at root level
 test "dom_shallow_update_root" (b : @bench.T) {
   @global_jsdom.register()
-  let title = @signal.signal("Title")
+  let title = @resource.signal("Title")
   let node = @luna.h("div", [], [
     @luna.h("h1", [], [@luna.text_dyn(fn() { title.get() })]),
     @luna.h("p", [], [@luna.text("Static content 1")]),
@@ -279,9 +279,9 @@ test "dom_shallow_update_root" (b : @bench.T) {
 /// Shallow update: signal in sibling elements (3 updates)
 test "dom_shallow_update_siblings" (b : @bench.T) {
   @global_jsdom.register()
-  let a = @signal.signal("A")
-  let b_sig = @signal.signal("B")
-  let c = @signal.signal("C")
+  let a = @resource.signal("A")
+  let b_sig = @resource.signal("B")
+  let c = @resource.signal("C")
   let node = @luna.h("div", [], [
     @luna.h("span", [], [@luna.text_dyn(fn() { a.get() })]),
     @luna.h("span", [], [@luna.text_dyn(fn() { b_sig.get() })]),
@@ -291,7 +291,7 @@ test "dom_shallow_update_siblings" (b : @bench.T) {
   let mut i = 0
   b.bench(name="dom_shallow_update_siblings", fn() {
     i = i + 1
-    @signal.batch(fn() {
+    @resource.batch(fn() {
       a.set("A" + i.to_string())
       b_sig.set("B" + i.to_string())
       c.set("C" + i.to_string())
@@ -303,7 +303,7 @@ test "dom_shallow_update_siblings" (b : @bench.T) {
 /// Deep update: signal nested 3 levels deep
 test "dom_deep_update_3_levels" (b : @bench.T) {
   @global_jsdom.register()
-  let deep_value = @signal.signal("Deep")
+  let deep_value = @resource.signal("Deep")
   let node = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
@@ -323,7 +323,7 @@ test "dom_deep_update_3_levels" (b : @bench.T) {
 /// Deep update: signal nested 5 levels deep
 test "dom_deep_update_5_levels" (b : @bench.T) {
   @global_jsdom.register()
-  let deep_value = @signal.signal("Very Deep")
+  let deep_value = @resource.signal("Very Deep")
   let node = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [
@@ -345,9 +345,9 @@ test "dom_deep_update_5_levels" (b : @bench.T) {
 /// Deep update: multiple signals at different depths
 test "dom_deep_update_multi_depth" (b : @bench.T) {
   @global_jsdom.register()
-  let level1 = @signal.signal("L1")
-  let level2 = @signal.signal("L2")
-  let level3 = @signal.signal("L3")
+  let level1 = @resource.signal("L1")
+  let level2 = @resource.signal("L2")
+  let level3 = @resource.signal("L3")
   let node = @luna.h("div", [], [
     @luna.text_dyn(fn() { level1.get() }),
     @luna.h("section", [], [
@@ -359,7 +359,7 @@ test "dom_deep_update_multi_depth" (b : @bench.T) {
   let mut i = 0
   b.bench(name="dom_deep_update_multi_depth", fn() {
     i = i + 1
-    @signal.batch(fn() {
+    @resource.batch(fn() {
       level1.set("L1-" + i.to_string())
       level2.set("L2-" + i.to_string())
       level3.set("L3-" + i.to_string())
@@ -371,10 +371,10 @@ test "dom_deep_update_multi_depth" (b : @bench.T) {
 /// Wide shallow update: many siblings with signals
 test "dom_wide_shallow_10" (b : @bench.T) {
   @global_jsdom.register()
-  let signals : Array[@signal.Signal[Int]] = []
+  let signals : Array[@resource.Signal[Int]] = []
   let children : Array[@luna.Node[@js.Any]] = []
   for i = 0; i < 10; i = i + 1 {
-    let sig = @signal.signal(i)
+    let sig = @resource.signal(i)
     signals.push(sig)
     children.push(
       @luna.h("span", [], [@luna.text_dyn(fn() { sig.get().to_string() })]),
@@ -385,7 +385,7 @@ test "dom_wide_shallow_10" (b : @bench.T) {
   let mut iter = 0
   b.bench(name="dom_wide_shallow_10", fn() {
     iter = iter + 1
-    @signal.batch(fn() {
+    @resource.batch(fn() {
       for i = 0; i < signals.length(); i = i + 1 {
         signals[i].set(iter + i)
       }
@@ -397,10 +397,10 @@ test "dom_wide_shallow_10" (b : @bench.T) {
 /// Wide shallow update: many siblings (50)
 test "dom_wide_shallow_50" (b : @bench.T) {
   @global_jsdom.register()
-  let signals : Array[@signal.Signal[Int]] = []
+  let signals : Array[@resource.Signal[Int]] = []
   let children : Array[@luna.Node[@js.Any]] = []
   for i = 0; i < 50; i = i + 1 {
-    let sig = @signal.signal(i)
+    let sig = @resource.signal(i)
     signals.push(sig)
     children.push(
       @luna.h("span", [], [@luna.text_dyn(fn() { sig.get().to_string() })]),
@@ -411,7 +411,7 @@ test "dom_wide_shallow_50" (b : @bench.T) {
   let mut iter = 0
   b.bench(name="dom_wide_shallow_50", fn() {
     iter = iter + 1
-    @signal.batch(fn() {
+    @resource.batch(fn() {
       for i = 0; i < signals.length(); i = i + 1 {
         signals[i].set(iter + i)
       }
@@ -423,8 +423,8 @@ test "dom_wide_shallow_50" (b : @bench.T) {
 /// Derived value chain: shallow memo dependency
 test "dom_derived_shallow" (b : @bench.T) {
   @global_jsdom.register()
-  let base = @signal.signal(0)
-  let derived = @signal.memo(fn() { base.get() * 2 })
+  let base = @resource.signal(0)
+  let derived = @resource.memo(fn() { base.get() * 2 })
   let node = @luna.h("div", [], [
     @luna.h("span", [], [@luna.text_dyn(fn() { base.get().to_string() })]),
     @luna.h("span", [], [@luna.text_dyn(fn() { derived().to_string() })]),
@@ -441,10 +441,10 @@ test "dom_derived_shallow" (b : @bench.T) {
 /// Derived value chain: deep memo chain (3 levels)
 test "dom_derived_deep_chain" (b : @bench.T) {
   @global_jsdom.register()
-  let base = @signal.signal(0)
-  let derived1 = @signal.memo(fn() { base.get() + 1 })
-  let derived2 = @signal.memo(fn() { derived1() * 2 })
-  let derived3 = @signal.memo(fn() { derived2() + 10 })
+  let base = @resource.signal(0)
+  let derived1 = @resource.memo(fn() { base.get() + 1 })
+  let derived2 = @resource.memo(fn() { derived1() * 2 })
+  let derived3 = @resource.memo(fn() { derived2() + 10 })
   let node = @luna.h("div", [], [
     @luna.h("span", [], [@luna.text_dyn(fn() { base.get().to_string() })]),
     @luna.h("span", [], [@luna.text_dyn(fn() { derived1().to_string() })]),
@@ -463,7 +463,7 @@ test "dom_derived_deep_chain" (b : @bench.T) {
 /// Conditional rendering: shallow show toggle
 test "dom_conditional_shallow" (b : @bench.T) {
   @global_jsdom.register()
-  let show_a = @signal.signal(true)
+  let show_a = @resource.signal(true)
   let node = @luna.h("div", [], [
     @luna.show(fn() { show_a.get() }, fn() { @luna.text("A") }),
     @luna.show(fn() { not(show_a.get()) }, fn() { @luna.text("B") }),
@@ -479,7 +479,7 @@ test "dom_conditional_shallow" (b : @bench.T) {
 /// Conditional rendering: deep nested show
 test "dom_conditional_deep" (b : @bench.T) {
   @global_jsdom.register()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let node = @luna.h("div", [], [
     @luna.h("section", [], [
       @luna.h("article", [], [

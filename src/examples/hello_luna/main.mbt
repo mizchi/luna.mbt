@@ -20,7 +20,7 @@ using @element {
 }
 
 ///|
-using @signal {signal, on_mount, on_cleanup}
+using @resource {signal, on_mount, on_cleanup}
 
 ///|
 fn counter() -> DomNode {

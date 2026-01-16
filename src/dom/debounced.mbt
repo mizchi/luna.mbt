@@ -4,13 +4,13 @@
 ///|
 /// Debounce signal updates using setTimeout
 pub fn[T] debounced(
-  sig : @signal.Signal[T],
+  sig : @resource.Signal[T],
   delay_ms : Int,
-) -> @signal.Signal[T] {
-  let result = @signal.Signal::new(sig.peek())
+) -> @resource.Signal[T] {
+  let result = @resource.Signal::new(sig.peek())
   let timer_id : Ref[@global.Timer?] = Ref::new(None)
   let first_run = Ref::new(true)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let value = sig.get()
     if first_run.val {
       first_run.val = false

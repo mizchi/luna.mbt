@@ -113,7 +113,7 @@ test "hydrate dynamic text with hydration markers" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let count = @signal.signal(42)
+  let count = @resource.signal(42)
   let vnode = @luna.text_dyn(fn() { count.get().to_string() })
 
   // SSR with hydration markers
@@ -157,7 +157,7 @@ test "hydrate dynamic class" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let active = @signal.signal(false)
+  let active = @resource.signal(false)
   let vnode = @luna.h(
     "div",
     [
@@ -197,7 +197,7 @@ test "hydrate show when visible" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.text("Visible content")
   })
@@ -215,7 +215,7 @@ test "hydrate show when hidden" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let visible = @signal.signal(false)
+  let visible = @resource.signal(false)
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.text("Hidden content")
   })
@@ -237,7 +237,7 @@ test "hydrate for loop" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let items = @signal.signal(["A", "B", "C"])
+  let items = @resource.signal(["A", "B", "C"])
   let vnode = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
@@ -357,8 +357,8 @@ test "hydrate complex page structure" {
   defer cleanup()
   let container = create_container()
   let logger = StringBuilder::new()
-  let count = @signal.signal(0)
-  let items = @signal.signal(["Item 1", "Item 2"])
+  let count = @resource.signal(0)
+  let items = @resource.signal(["Item 1", "Item 2"])
   let vnode = @luna.h("div", [("class", @luna.attr_static("app"))], [
     @luna.h("h1", [], [@luna.text("Title")]),
     @luna.h("p", [], [
@@ -651,7 +651,7 @@ test "hydrate dynamic attribute value" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let value_sig = @signal.signal("initial")
+  let value_sig = @resource.signal("initial")
   let vnode = @luna.h(
     "input",
     [("value", @luna.attr_dynamic(fn() { value_sig.get() }))],
@@ -672,7 +672,7 @@ test "hydrate dynamic attribute general" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let title_sig = @signal.signal("Title 1")
+  let title_sig = @resource.signal("Title 1")
   let vnode = @luna.h(
     "div",
     [("title", @luna.attr_dynamic(fn() { title_sig.get() }))],
@@ -692,7 +692,7 @@ test "hydrate dynamic attribute removal" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let show_title = @signal.signal(true)
+  let show_title = @resource.signal(true)
   let vnode = @luna.h(
     "div",
     [
@@ -723,7 +723,7 @@ test "hydrate dynamic style" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let color_sig = @signal.signal("red")
+  let color_sig = @resource.signal("red")
   let vnode = @luna.h(
     "div",
     [("style", @luna.attr_dynamic_style(fn() { "color: " + color_sig.get() }))],
@@ -779,7 +779,7 @@ test "render_vnode_to_dom with Show initially true" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Visible") })
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
@@ -793,7 +793,7 @@ test "render_vnode_to_dom with Show toggle" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let visible = @signal.signal(false)
+  let visible = @resource.signal(false)
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.text("Toggle me")
   })
@@ -814,7 +814,7 @@ test "render_vnode_to_dom with For list" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let items = @signal.signal(["X", "Y"])
+  let items = @resource.signal(["X", "Y"])
   let vnode = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.text(item) })
   })
@@ -845,7 +845,7 @@ test "render_vnode_to_dom with dynamic style" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let color = @signal.signal("green")
+  let color = @resource.signal("green")
   let vnode = @luna.h(
     "div",
     [
@@ -869,7 +869,7 @@ test "render_vnode_to_dom with VDynamic attribute" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let href = @signal.signal("/page1")
+  let href = @resource.signal("/page1")
   let vnode = @luna.h(
     "a",
     [("href", @luna.attr_dynamic(fn() { href.get() }))],
@@ -899,7 +899,7 @@ test "hydrate show toggle visibility" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.text("Toggle content")
   })
@@ -1160,7 +1160,7 @@ test "render_vnode_to_dom with Switch" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let condition = @signal.signal(true)
+  let condition = @resource.signal(true)
   let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { condition.get() }, render=fn() {
@@ -1212,7 +1212,7 @@ test "render_vnode_to_dom Switch reactive update" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let case_index = @signal.signal(0)
+  let case_index = @resource.signal(0)
   let vnode : @luna.Node[@js.Any] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { case_index.get() == 0 }, render=fn() {
@@ -1331,7 +1331,7 @@ test "apply_vattr dynamic __remove__" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let show_attr = @signal.signal(true)
+  let show_attr = @resource.signal(true)
   let vnode = @luna.h(
     "div",
     [
@@ -1383,8 +1383,8 @@ test "hydrate nested show in for" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let items = @signal.signal(["A", "B"])
-  let visible = @signal.signal(true)
+  let items = @resource.signal(["A", "B"])
+  let visible = @resource.signal(true)
   let vnode = @luna.for_each(fn() {
     items
     .get()
@@ -1404,7 +1404,7 @@ test "hydrate nested component in for" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let items = @signal.signal(["X", "Y"])
+  let items = @resource.signal(["X", "Y"])
   let vnode = @luna.for_each(fn() {
     items
     .get()
@@ -1426,7 +1426,7 @@ test "hydrate show with fragment (multiple children)" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.fragment([
       @luna.h("div", [], [@luna.text("A")]),
@@ -1447,7 +1447,7 @@ test "show with fragment toggles correctly" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
 
   // Render directly (not hydration, just client render)
   let dom_node = @element.show(fn() { visible.get() }, fn() {

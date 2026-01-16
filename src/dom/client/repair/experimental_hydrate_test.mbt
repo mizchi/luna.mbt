@@ -231,7 +231,7 @@ test "exp: repair missing dynamic text markers" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let count = @signal.signal(42)
+  let count = @resource.signal(42)
   let vnode = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
   // No markers
   exp_set_inner_html(container, "")
@@ -256,7 +256,7 @@ test "exp: repair dynamic text with existing marker but missing text node" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let name = @signal.signal("Alice")
+  let name = @resource.signal("Alice")
   let vnode = @luna.text_dyn(fn() { name.get() })
   // Has marker but no text node after it
   exp_set_inner_html(container, "<!--t:0--><!--/t-->")
@@ -281,7 +281,7 @@ test "exp: dynamic attribute setup works after repair" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let title = @signal.signal("Title 1")
+  let title = @resource.signal("Title 1")
   let vnode = @luna.h(
     "div",
     [("title", @luna.attr_dynamic(fn() { title.get() }))],
@@ -307,7 +307,7 @@ test "exp: dynamic style setup works after repair" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let bg = @signal.signal("red")
+  let bg = @resource.signal("red")
   let vnode = @luna.h(
     "div",
     [
@@ -341,7 +341,7 @@ test "exp: repair missing show markers" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.text("Visible content")
   })
@@ -371,7 +371,7 @@ test "exp: repair show with condition initially false" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let visible = @signal.signal(false)
+  let visible = @resource.signal(false)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Hidden") })
   exp_set_inner_html(container, "")
   let result = experimental_hydrate(container, vnode, logger~)
@@ -393,7 +393,7 @@ test "exp: repair missing for markers" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let items = @signal.signal(["A", "B", "C"])
+  let items = @resource.signal(["A", "B", "C"])
   let vnode = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
@@ -518,7 +518,7 @@ test "exp: repair component render" {
   let container = exp_create_container()
   let logger = StringBuilder::new()
   fn counter_component(initial : Int) -> @luna.Node[@js.Any] {
-    let count = @signal.signal(initial)
+    let count = @resource.signal(initial)
     let _ = count // suppress unused warning
     @luna.h("div", [], [
       @luna.text_dyn(fn() { "Count: " + count.get().to_string() }),
@@ -649,8 +649,8 @@ test "exp: handle multiple dynamic elements" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let a = @signal.signal("A")
-  let b = @signal.signal("B")
+  let a = @resource.signal("A")
+  let b = @resource.signal("B")
   let vnode = @luna.h("div", [], [
     @luna.text_dyn(fn() { a.get() }),
     @luna.text_dyn(fn() { b.get() }),
@@ -834,7 +834,7 @@ test "report: dynamic text marker missing has correct repair type" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let sig = @signal.signal("Dynamic")
+  let sig = @resource.signal("Dynamic")
   let vnode = @luna.text_dyn(fn() { sig.get() })
   exp_set_inner_html(container, "")
   let report = experimental_hydrate_with_report(container, vnode, logger~)
@@ -848,7 +848,7 @@ test "report: show marker missing has correct repair type" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Content") })
   exp_set_inner_html(container, "")
   let report = experimental_hydrate_with_report(container, vnode, logger~)
@@ -897,7 +897,7 @@ test "report: show content missing has correct repair type" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let visible = @signal.signal(true)
+  let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Content") })
   // Markers exist but no content
   exp_set_inner_html(container, "<!--s:0--><!--/s-->")
@@ -1233,7 +1233,7 @@ test "exp: apply_vattr dynamic value" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let value = @signal.signal("initial")
+  let value = @resource.signal("initial")
   let vnode = @luna.h(
     "input",
     [("value", @luna.attr_dynamic(fn() { value.get() }))],
@@ -1257,7 +1257,7 @@ test "exp: apply_vattr dynamic className" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let cls = @signal.signal("class-a")
+  let cls = @resource.signal("class-a")
   let vnode = @luna.h(
     "div",
     [("className", @luna.attr_dynamic(fn() { cls.get() }))],
@@ -1280,7 +1280,7 @@ test "exp: apply_vattr dynamic __remove__" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let show_attr = @signal.signal(true)
+  let show_attr = @resource.signal(true)
   let vnode = @luna.h(
     "div",
     [

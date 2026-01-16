@@ -11,7 +11,7 @@
 /// For SSR: pass noop handlers (event_handler())
 /// For client: pass actual callbacks that update the signal
 pub fn render_counter(
-  count_sig : @signal.Signal[Int],
+  count_sig : @resource.Signal[Int],
   on_inc : @luna.EventHandler[Unit],
   on_dec : @luna.EventHandler[Unit],
 ) -> @luna.Node[Unit] {
@@ -50,7 +50,7 @@ pub fn render_counter(
 /// Uses static signal value and noop handlers
 /// Uses render_to_string_with_hydration to add sol:hk markers for client hydration
 pub fn render_counter_html(count : Int) -> String {
-  let sig = @signal.signal(count)
+  let sig = @resource.signal(count)
   let noop = @luna.event_handler()
   let vnode = render_counter(sig, noop, noop)
   @render.render_to_string_with_hydration(vnode)

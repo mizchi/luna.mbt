@@ -17,24 +17,27 @@ MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
 
 ```
 src/
-├── signal/           # リアクティブシグナル (mizchi/luna/signal)
-├── dom/              # DOM操作、Hydration (mizchi/luna/dom)
-├── render/           # VNode → HTML レンダリング (mizchi/luna/render)
-├── js/api/           # JavaScript API エクスポート (mizchi/luna/js/api)
-├── css/              # CSS Utilities (mizchi/luna/css)
-├── routes/           # クライアントサイドルーティング (mizchi/luna/routes)
-├── browser_router/   # ブラウザルーター (mizchi/luna/browser_router)
-├── static_dom/       # サーバーサイドDOM (mizchi/luna/static_dom)
-├── serialize/        # シリアライズ (mizchi/luna/serialize)
-├── testing/          # テストユーティリティ (mizchi/luna/testing)
-├── components/       # UIコンポーネント (mizchi/luna/components)
-├── stella/           # Island埋め込み用Shard生成
+├── core/             # 環境非依存コア (mizchi/luna/core)
+│   ├── vnode.mbt     # VNode型定義
+│   ├── async_state.mbt # AsyncState型定義
+│   ├── routes/       # ルート定義・マッチング
+│   ├── serialize/    # シリアライズ
+│   └── render/       # VNode → HTML レンダリング
+├── js/               # ブラウザ向けJS実装
+│   ├── resource/     # リアクティブシグナル・リソース (mizchi/luna/js/resource)
+│   └── api/          # JavaScript API エクスポート (mizchi/luna/js/api)
+├── dom/              # DOM操作、Hydration、ルーター、静的DOM (mizchi/luna/dom)
+├── x/                # 実験的モジュール
+│   ├── stella/       # Island埋め込み用Shard生成
+│   ├── testing/      # テストユーティリティ
+│   ├── css/          # CSS Utilities
+│   ├── components/   # UIコンポーネント
+│   └── ir/           # 言語間型同期IR
 ├── examples/         # サンプルコード
 ├── tests/            # 統合テスト
 ├── _bench/           # ベンチマーク
-├── vnode.mbt         # VNode型定義
 ├── top.mbt           # トップレベル再エクスポート
-└── moon.pkg.json
+└── moon.pkg
 js/                   # NPMパッケージ (@luna_ui/luna)
 e2e/                  # Playwrightテスト
 spec/                 # 仕様・設計ドキュメント

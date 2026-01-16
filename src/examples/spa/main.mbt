@@ -41,7 +41,7 @@ using @element {
 }
 
 ///|
-using @signal {signal, memo, effect, on_cleanup}
+using @resource {signal, memo, effect, on_cleanup}
 
 ///|
 using @portal {portal_to_body}
@@ -229,7 +229,7 @@ priv struct TodoItem {
 
 ///|
 fn todo_example() -> DomNode {
-  let todos : @signal.Signal[Array[TodoItem]] = signal([])
+  let todos : @resource.Signal[Array[TodoItem]] = signal([])
   let input_text = signal("")
   let next_id = signal(1)
   let total = memo(fn() { todos.get().length() })

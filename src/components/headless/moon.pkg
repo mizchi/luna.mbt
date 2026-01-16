@@ -1,7 +1,0 @@
-import {
-  "mizchi/luna",
-  "mizchi/luna/signal",
-  "mizchi/luna/components/aria" as @aria,
-  "mizchi/signals" as @signals,
-  "mizchi/js/core" as @js
-}

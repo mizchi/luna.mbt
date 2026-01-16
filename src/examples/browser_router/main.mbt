@@ -109,7 +109,7 @@ fn nav_component(router : @router.BrowserRouter) -> DomNode {
 ///|
 /// Counter component (for testing dynamic elements)
 fn counter_component() -> DomNode {
-  let count = @signal.signal(0)
+  let count = @resource.signal(0)
   console_log(
     "Creating counter component, initial count: " + count.get().to_string(),
   )
@@ -366,7 +366,7 @@ fn resolve_component(
 ///|
 /// Render route
 fn render_route(router : @router.BrowserRouter, container : DomElement) -> Unit {
-  let _ = @signal.effect(fn() {
+  let _ = @resource.effect(fn() {
     // Track only the match_signal for re-rendering
     let match_result = router.match_signal().get()
     let path = router.path_signal().peek() // Use peek to avoid double subscription
@@ -377,7 +377,7 @@ fn render_route(router : @router.BrowserRouter, container : DomElement) -> Unit 
 
     // Create components untracked to avoid subscribing to their internal signals
     // This ensures counter's signal changes don't re-trigger the route effect
-    let (nav, page) = @signal.untracked(fn() {
+    let (nav, page) = @resource.untracked(fn() {
       let nav = nav_component(router)
       let page = match match_result {
         Some(m) => resolve_component(router, m)
@@ -387,7 +387,7 @@ fn render_route(router : @router.BrowserRouter, container : DomElement) -> Unit 
     })
 
     // Layout - also untracked since it creates elements
-    let app = @signal.untracked(fn() {
+    let app = @resource.untracked(fn() {
       div(
         class="app",
         style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;",

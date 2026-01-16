@@ -24,27 +24,27 @@ fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
 pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
-    @luna.Text(content) => doc.createTextNode(content).as_node()
-    @luna.RawHtml(html) =>
+    @core.Text(content) => doc.createTextNode(content).as_node()
+    @core.RawHtml(html) =>
       // Create a template element and parse the HTML using JS
       parse_html_to_node(html)
-    @luna.DynamicText(getter) => {
+    @core.DynamicText(getter) => {
       let text_node = doc.createTextNode(getter())
       let node_ref = text_node.as_node()
-      let _ = @signal.render_effect(fn() {
+      let _ = @resource.render_effect(fn() {
         let new_text = getter()
         node_ref.setTextContent(new_text)
       })
       node_ref
     }
-    @luna.Fragment(children) => {
+    @core.Fragment(children) => {
       let fragment = doc.createDocumentFragment()
       for child in children {
         fragment.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
       }
       fragment.as_node()
     }
-    @luna.Element(elem) => {
+    @core.Element(elem) => {
       let dom_elem = doc.createElement(elem.tag)
 
       // Apply attributes
@@ -59,7 +59,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       }
       dom_elem.as_node()
     }
-    @luna.Show(condition=cond, child=child_fn) => {
+    @core.Show(condition=cond, child=child_fn) => {
       let placeholder = doc.createComment("show")
       // Track multiple nodes for Fragment support
       let current_nodes : Array[@js_dom.Node] = []
@@ -70,9 +70,9 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       let fragment_node = fragment.as_node()
 
       // Initial render - check condition and render if true
-      let initial_show = @signal.untracked(fn() { cond() })
+      let initial_show = @resource.untracked(fn() { cond() })
       if initial_show {
-        let rendered = @signal.untracked(fn() {
+        let rendered = @resource.untracked(fn() {
           render_vnode_to_dom(child_fn())
         })
         // Collect actual nodes before inserting (Fragment children get moved)
@@ -86,7 +86,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       fragment_node.appendChild(placeholder) |> ignore
 
       // Set up effect for updates (skip first run since we already rendered)
-      let _ = @signal.render_effect(fn() {
+      let _ = @resource.render_effect(fn() {
         let should_show = cond()
         if is_first_render.val {
           is_first_render.val = false
@@ -99,7 +99,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
               // Use untracked to prevent child signals from being registered
               // as dependencies of this Show's effect. This prevents infinite
               // loops when nested Show components access signals.
-              let rendered = @signal.untracked(fn() {
+              let rendered = @resource.untracked(fn() {
                 render_vnode_to_dom(child_fn())
               })
               // Collect actual nodes before inserting (Fragment children get moved)
@@ -123,7 +123,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       })
       fragment_node
     }
-    @luna.For(render=render_fn) => {
+    @core.For(render=render_fn) => {
       // Use a comment as a placeholder/marker for where to insert items
       let placeholder = doc.createComment("for")
       let current_nodes : Array[@js_dom.Node] = []
@@ -134,9 +134,9 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       let fragment_node = fragment.as_node()
 
       // Initial render - use untracked to prevent dependency tracking
-      let initial_items = @signal.untracked(fn() { render_fn() })
+      let initial_items = @resource.untracked(fn() { render_fn() })
       for item in initial_items {
-        let rendered = @signal.untracked(fn() { render_vnode_to_dom(item) })
+        let rendered = @resource.untracked(fn() { render_vnode_to_dom(item) })
         current_nodes.push(rendered)
         fragment_node.appendChild(rendered) |> ignore
       }
@@ -144,7 +144,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       fragment_node.appendChild(placeholder) |> ignore
 
       // Set up effect for updates (skip first run since we already rendered)
-      let _ = @signal.render_effect(fn() {
+      let _ = @resource.render_effect(fn() {
         let new_items = render_fn()
         if is_first_render.val {
           is_first_render.val = false
@@ -164,7 +164,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
         // as dependencies of this For's effect
         if placeholder.parentNode() is Some(parent) {
           for item in new_items {
-            let rendered = @signal.untracked(fn() { render_vnode_to_dom(item) })
+            let rendered = @resource.untracked(fn() { render_vnode_to_dom(item) })
             current_nodes.push(rendered)
             parent.insertBefore(rendered, Some(placeholder)) |> ignore
           }
@@ -172,8 +172,8 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       })
       fragment_node
     }
-    @luna.Component(render=render_fn) => render_vnode_to_dom(render_fn())
-    @luna.Island(island) => {
+    @core.Component(render=render_fn) => render_vnode_to_dom(render_fn())
+    @core.Island(island) => {
       // For client-side rendering, create a wrapper div with island attributes
       // and render children inside
       let wrapper = doc.createElement("div")
@@ -186,7 +186,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       }
       wrapper.as_node()
     }
-    @luna.WcIsland(wc_island) => {
+    @core.WcIsland(wc_island) => {
       // For client-side rendering, create the custom element with shadow DOM
       let wrapper = doc.createElement(wc_island.name)
       wrapper.setAttribute("data-state", wc_island.state)
@@ -198,7 +198,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       }
       wrapper.as_node()
     }
-    @luna.InternalRef(iref) =>
+    @core.InternalRef(iref) =>
       // For client-side rendering, create appropriate element based on wc flag
       if iref.wc {
         // Web Components island - extract name from URL
@@ -224,14 +224,14 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
         }
         wrapper.as_node()
       }
-    @luna.Async(async_node) =>
+    @core.Async(async_node) =>
       // For client-side rendering, render fallback initially
       // Async replacement would be handled separately
       render_vnode_to_dom((async_node.fallback)())
-    @luna.ErrorBoundary(boundary) =>
+    @core.ErrorBoundary(boundary) =>
       // Client-side ErrorBoundary with reset support
       render_error_boundary_to_dom(boundary)
-    @luna.Switch(switch_node) =>
+    @core.Switch(switch_node) =>
       // Client-side Switch rendering
       render_switch_to_dom(switch_node)
   }
@@ -245,7 +245,7 @@ fn apply_vattr(
   value : @luna.Attr[@js.Any],
 ) -> Unit {
   match value {
-    @luna.VStatic(s) =>
+    @core.VStatic(s) =>
       if s != "__remove__" {
         if name == "class" || name == "className" {
           elem.setClassName(s)
@@ -257,8 +257,8 @@ fn apply_vattr(
           elem.setAttribute(name, s)
         }
       }
-    @luna.VDynamic(getter) => {
-      let _ = @signal.render_effect(fn() {
+    @core.VDynamic(getter) => {
+      let _ = @resource.render_effect(fn() {
         let new_value = getter()
         if new_value == "__remove__" {
           elem.removeAttribute(name)
@@ -272,7 +272,7 @@ fn apply_vattr(
       })
 
     }
-    @luna.VHandler(handler) => {
+    @core.VHandler(handler) => {
       let event_name = extract_event_name(name)
       let callback = handler.get_callback()
       // Pass event to callback
@@ -281,7 +281,7 @@ fn apply_vattr(
       .as_event_target()
       .addEventListener(event_name, @js.any(wrapper).cast())
     }
-    @luna.VAction(_) =>
+    @core.VAction(_) =>
       // VAction without dispatcher does nothing in CSR context
       // Actions are meant to be bound during action-based hydration
       ()
@@ -398,7 +398,7 @@ fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
 
   // Set up effect for reactive updates
   let is_first_render : Ref[Bool] = Ref::new(true)
-  let _ = @signal.render_effect(fn() {
+  let _ = @resource.render_effect(fn() {
     let new_case = find_matching_case()
 
     // Skip first render
@@ -426,7 +426,7 @@ fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
     // Use untracked to prevent child signals from being registered
     // as dependencies of this Switch's effect
     if new_case >= 0 {
-      let node = @signal.untracked(fn() {
+      let node = @resource.untracked(fn() {
         render_vnode_to_dom((switch_node.cases[new_case].render)())
       })
       current_node = Some(node)
@@ -436,7 +436,7 @@ fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
     } else if new_case == -1 {
       match switch_node.fallback {
         Some(fallback_fn) => {
-          let node = @signal.untracked(fn() {
+          let node = @resource.untracked(fn() {
             render_vnode_to_dom(fallback_fn())
           })
           current_node = Some(node)

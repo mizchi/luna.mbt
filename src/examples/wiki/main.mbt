@@ -222,14 +222,14 @@ fn resolve_component(
 
 ///|
 fn render_wiki(router : @router.BrowserRouter, container : DomElement) -> Unit {
-  let _ = @signal.effect(fn() {
+  let _ = @resource.effect(fn() {
     let match_result = router.match_signal().get()
 
     // Clear container
     clear(container)
 
     // Create components untracked
-    let (sidebar, content) = @signal.untracked(fn() {
+    let (sidebar, content) = @resource.untracked(fn() {
       let sidebar = sidebar_component(router)
       let content = match match_result {
         Some(m) => resolve_component(router, m)
@@ -239,7 +239,7 @@ fn render_wiki(router : @router.BrowserRouter, container : DomElement) -> Unit {
     })
 
     // Build wiki layout with sidebar
-    let app = @signal.untracked(fn() {
+    let app = @resource.untracked(fn() {
       div(
         class="wiki-container",
         style="display: flex; min-height: 300px; max-width: 100%; overflow: hidden;",
