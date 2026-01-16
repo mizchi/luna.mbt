@@ -6,42 +6,29 @@ MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
 
 - **Sol** (SSR/SSGフレームワーク): [mizchi/sol.mbt](https://github.com/mizchi/sol.mbt)
 
-## モジュール構成
-
-| モジュール | 責務 | ドキュメント |
-|-----------|------|-------------|
-| **Luna** | コアUIライブラリ。Signal、VNode、DOM操作、CSS Utilities、Hydration | [src/](src/README.md) |
-| **Stella** | Island埋め込み用Shard生成 | [src/stella/](src/stella/README.md) |
-
 ## ディレクトリ構成
 
 ```
 src/
 ├── core/             # 環境非依存コア (mizchi/luna/core)
 │   ├── vnode.mbt     # VNode型定義
-│   ├── async_state.mbt # AsyncState型定義
 │   ├── routes/       # ルート定義・マッチング
 │   ├── serialize/    # シリアライズ
 │   └── render/       # VNode → HTML レンダリング
 ├── js/               # ブラウザ向けJS実装
-│   ├── resource/     # リアクティブシグナル・リソース (mizchi/luna/js/resource)
+│   ├── resource/     # リアクティブシグナル (mizchi/luna/js/resource)
 │   └── api/          # JavaScript API エクスポート (mizchi/luna/js/api)
-├── dom/              # DOM操作、Hydration、ルーター、静的DOM (mizchi/luna/dom)
+├── dom/              # DOM操作、Hydration、ルーター (mizchi/luna/dom)
 ├── x/                # 実験的モジュール
 │   ├── stella/       # Island埋め込み用Shard生成
-│   ├── testing/      # テストユーティリティ
 │   ├── css/          # CSS Utilities
-│   ├── components/   # UIコンポーネント
-│   └── ir/           # 言語間型同期IR
+│   └── components/   # UIコンポーネント
 ├── examples/         # サンプルコード
-├── tests/            # 統合テスト
-├── _bench/           # ベンチマーク
-├── top.mbt           # トップレベル再エクスポート
-└── moon.pkg
-js/                   # NPMパッケージ (@luna_ui/luna)
+└── tests/            # 統合テスト
+js/                   # NPMパッケージ
+├── luna/             # @luna_ui/luna
+└── loader/           # @luna_ui/luna-loader
 e2e/                  # Playwrightテスト
-spec/                 # 仕様・設計ドキュメント
-examples/             # サンプルプロジェクト
 ```
 
 ## 開発コマンド
@@ -50,17 +37,26 @@ examples/             # サンプルプロジェクト
 
 ```bash
 # 基本
-just check                    # 型チェック (moon check)
-just fmt                      # フォーマット (moon fmt)
-just build-moon               # MoonBit ビルド
+just check            # 型チェック (moon check --target js)
+just fmt              # フォーマット (moon fmt)
+just build-moon       # MoonBit ビルド
+just build-loader     # Loader ビルド (turbo経由)
 
-# テスト（ピラミッド軸）
-just test-unit                # Unit tests (MoonBit)
-just test-integration         # Integration tests (Vitest, Browser)
-just test-e2e                 # E2E tests (Playwright)
+# テスト
+just test-moonbit     # MoonBit ユニットテスト
+just test-vitest      # Vitest テスト (node + browser)
+just test-e2e         # E2E テスト (Playwright)
+just test-xplat       # クロスプラットフォームテスト (js, wasm, native)
 
-# テスト（プロダクト軸）
-just test-luna                # Luna 全テスト
+# CI
+just ci               # check + test-incremental + size-check
+just size             # バンドルサイズ表示
+just size-check       # バンドルサイズチェック (loader.js < 5KB)
+
+# ユーティリティ
+just luna --help      # Luna CLI (CSS utilities)
+just metrics          # メトリクス収集
+just vup patch        # バージョンアップ
 ```
 
 ## 開発ポリシー
@@ -68,12 +64,10 @@ just test-luna                # Luna 全テスト
 - `moon check` を通過すること
 - `moon fmt` でフォーマット統一
 - ローダーサイズは5KB以下を維持
-- luna(core): バンドルサイズが最優先
-- stella: 実験的なコードは含むが、コア部分はクローズドにする
 
 ## コミットメッセージ
 
-[Conventional Commits](https://www.conventionalcommits.org/) に従う。CHANGELOG.md は `git-cliff` で自動生成される。
+[Conventional Commits](https://www.conventionalcommits.org/) に従う。
 
 ```
 <type>(<scope>): <description>
@@ -88,16 +82,6 @@ just test-luna                # Luna 全テスト
 | `perf` | パフォーマンス改善 |
 | `test` | テスト追加・修正 |
 | `chore` | ビルド・CI など |
-| `deps` | 依存関係の更新 |
-
-scope は `luna`, `stella`, `ci`, `docs` など。
-
-```bash
-# 例
-feat(luna): add new signal API
-fix(luna): resolve hydration mismatch
-docs: update README
-```
 
 ## テストポリシー
 
@@ -106,17 +90,5 @@ docs: update README
 | レイヤー | ディレクトリ | 対象 |
 |---------|-------------|------|
 | MoonBit Unit | `src/**/*_test.mbt` | 純粋ロジック（DOM非依存） |
-| Browser | `js/luna/tests/*.test.ts` | DOM操作、Hydration |
+| Vitest | `js/**/tests/*.test.ts` | DOM操作、Hydration |
 | E2E | `e2e/**/*.test.ts` | 統合テスト |
-
-## 仕様ドキュメント
-
-`spec/` に仕様・設計ドキュメントを配置。
-
-```
-spec/
-├── internal/           # 内部開発ログ・進行中の設計
-│   ├── done/          # 実装完了済みの記録
-│   └── deprecated/    # 廃止された設計
-└── (確定仕様をここに追加)
-```
