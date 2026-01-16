@@ -11,19 +11,18 @@
         "target/js/release/build/**"
       ]
     },
-    "//#build:loader": {
+    "@luna_ui/luna-loader#build": {
       "dependsOn": ["//#build:moon"],
       "inputs": [
         "js/loader/src/**",
-        "rolldown.config.mjs",
-        "target/js/release/build/**"
+        "js/loader/rolldown.config.mjs"
       ],
       "outputs": [
         "js/loader/dist/**"
       ]
     },
     "build": {
-      "dependsOn": ["^build", "//#build:moon", "//#build:loader"],
+      "dependsOn": ["^build", "//#build:moon"],
       "outputs": ["dist/**"]
     },
     "//#test:moonbit": {
@@ -43,7 +42,7 @@
       "outputs": []
     },
     "//#test:vitest": {
-      "dependsOn": ["//#build:moon", "//#build:loader"],
+      "dependsOn": ["//#build:moon", "@luna_ui/luna-loader#build"],
       "inputs": [
         "js/**/*.ts",
         "js/**/*.test.ts",
@@ -52,16 +51,16 @@
       "outputs": []
     },
     "//#test:browser": {
-      "dependsOn": ["//#build:moon", "//#build:loader"],
+      "dependsOn": ["//#build:moon", "@luna_ui/luna-loader#build"],
       "inputs": [
         "js/**/*.ts",
         "js/**/*.test.ts",
-        "vitest.browser.config.ts"
+        "vitest.config.ts"
       ],
       "outputs": []
     },
     "//#test:e2e": {
-      "dependsOn": ["//#build:moon", "//#build:loader"],
+      "dependsOn": ["//#build:moon", "@luna_ui/luna-loader#build"],
       "inputs": [
         "e2e/**/*.ts",
         "e2e/**/*.mts",

@@ -5,10 +5,12 @@
   "description": "MoonBit Island Architecture UI Framework",
   "scripts": {
     "build:moon": "moon build --target js",
-    "build:loader": "pnpm exec rolldown -c rolldown.config.mjs",
+    "build:loader": "pnpm --filter @luna_ui/luna-loader build",
     "test:moonbit": "moon test --target js",
-    "test:vitest": "pnpm vitest run",
-    "test:browser": "pnpm vitest run --config vitest.browser.config.ts"
+    "test:node": "pnpm vitest run --project node",
+    "test:browser": "pnpm vitest run --project browser",
+    "test:bench": "pnpm vitest bench --project bench",
+    "test:vitest": "pnpm vitest run --project node --project browser"
   },
   "devDependencies": {
     "0x": "^6.0.0",

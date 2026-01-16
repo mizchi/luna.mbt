@@ -20,37 +20,32 @@ export default defineConfig(({ command }) => {
         verbose: isDev,
       }),
     ],
-    // Use demo-src as root for both dev and build
-    root: 'demo-src',
     base: isDev ? '/' : '/demo/',
     resolve: {
       alias: {
-        // Map /target to project root's target directory
         '/target': resolve(__dirname, 'target'),
-        // Map @luna/loader to js/loader/dist
         '@luna/loader': resolve(__dirname, 'js/loader/dist'),
       },
     },
     server: {
       fs: {
-        // Allow access to project root (for target/ directory)
         allow: [__dirname],
       },
     },
     build: {
-      outDir: '../dist',
+      outDir: 'dist',
       emptyOutDir: true,
       rollupOptions: {
         input: {
-          "index": resolve(__dirname, './demo-src/index.html'),
-          "hello_luna": resolve(__dirname, './demo-src/hello_luna/index.html'),
-          "spa": resolve(__dirname, './demo-src/spa/index.html'),
-          "browser_router": resolve(__dirname, './demo-src/browser_router/index.html'),
-          "game": resolve(__dirname, './demo-src/game/index.html'),
-          "wc": resolve(__dirname, './demo-src/wc/index.html'),
-          "todomvc": resolve(__dirname, './demo-src/todomvc/index.html'),
-          "css_split": resolve(__dirname, './demo-src/css_split/index.html'),
-          "components": resolve(__dirname, './demo-src/components/index.html'),
+          index: resolve(__dirname, 'index.html'),
+          hello_luna: resolve(__dirname, 'src/examples/hello_luna/index.html'),
+          spa: resolve(__dirname, 'src/examples/spa/index.html'),
+          browser_router: resolve(__dirname, 'src/examples/browser_router/index.html'),
+          game: resolve(__dirname, 'src/examples/game/index.html'),
+          wc: resolve(__dirname, 'src/examples/wc/index.html'),
+          todomvc: resolve(__dirname, 'src/examples/todomvc/index.html'),
+          css_split_test: resolve(__dirname, 'src/examples/css_split_test/index.html'),
+          'apg-playground': resolve(__dirname, 'src/examples/apg-playground/index.html'),
         },
       },
     },

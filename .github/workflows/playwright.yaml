@@ -49,7 +49,7 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: Vitest browser tests
-        run: pnpm vitest run --config vitest.browser.config.ts
+        run: pnpm vitest run --project browser
 
   # E2E tests with Playwright
   e2e:
@@ -90,7 +90,7 @@ jobs:
           moon build --target js src/examples/browser_router
           moon build --target js src/examples/wc
       - name: Build Loader
-        run: pnpm exec rolldown -c rolldown.config.mjs
+        run: pnpm --filter @luna_ui/luna-loader build
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: E2E tests

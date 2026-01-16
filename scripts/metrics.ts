@@ -135,7 +135,7 @@ function collect() {
   execSync("moon build --target js", { cwd: PROJECT_ROOT, stdio: "inherit" });
 
   console.log("\n🔨 Building loader...");
-  execSync("pnpm exec rolldown -c rolldown.config.mjs", { cwd: PROJECT_ROOT, stdio: "inherit" });
+  execSync("pnpm --filter @luna_ui/luna-loader build", { cwd: PROJECT_ROOT, stdio: "inherit" });
 
   console.log("\n🔨 Building Vite...");
   execSync("pnpm vite build", { cwd: PROJECT_ROOT, stdio: "inherit" });
