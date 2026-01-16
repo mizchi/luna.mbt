@@ -9,7 +9,7 @@
  * Direct usage:
  *   node scripts/vup.mjs patch|minor|major [targets...] [--release] [--dry-run]
  *
- * Targets: moon.mod.json, js/luna, js/sol, examples
+ * Targets: moon.mod.json, js/luna, examples
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -33,13 +33,6 @@ const TARGETS = {
   },
   "js/luna": {
     getPath: () => join(rootDir, "js/luna/package.json"),
-    getVersion: (json) => json.version,
-    setVersion: (json, version) => {
-      json.version = version;
-    },
-  },
-  "js/sol": {
-    getPath: () => join(rootDir, "js/sol/package.json"),
     getVersion: (json) => json.version,
     setVersion: (json, version) => {
       json.version = version;
@@ -232,7 +225,6 @@ Options:
 Targets:
   moon.mod.json  - Root MoonBit module
   js/luna        - @luna_ui/luna package
-  js/sol         - @luna_ui/sol package
   examples       - All example projects (dependencies only)
 
 Examples:
