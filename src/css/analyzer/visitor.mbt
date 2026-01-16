@@ -316,14 +316,7 @@ fn visit_expr_children(ctx : AnalyzerContext, expr : @syntax.Expr) -> Unit {
         visit_expr(ctx, case.body)
       }
     }
-    Function(func~, ..) =>
-      match func {
-        Lambda(body~, ..) => visit_expr(ctx, body)
-        Match(cases~, ..) =>
-          for case in cases {
-            visit_expr(ctx, case.body)
-          }
-      }
+    Function(func~, ..) => visit_expr(ctx, func.body)
     _ => ()
   }
 }
