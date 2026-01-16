@@ -1379,7 +1379,7 @@ async function setupMoonBitRoutes() {
 }
 
 // Start server
-const port = parseInt(process.env.PORT || "3456");
+const port = parseInt(process.env.PORT || "4156");
 const debug = process.env.DEBUG === "1";
 
 async function main() {

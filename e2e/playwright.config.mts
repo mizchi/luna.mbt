@@ -25,7 +25,7 @@ export default defineConfig({
     },
   },
   use: {
-    baseURL: "http://localhost:3456",
+    baseURL: "http://localhost:4156",
     trace: "on-first-retry",
   },
   projects: [
@@ -36,7 +36,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `node ${join(__dirname, "server.ts")}`,
-    url: "http://127.0.0.1:3456",
+    url: "http://127.0.0.1:4156",
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     timeout: 30000,

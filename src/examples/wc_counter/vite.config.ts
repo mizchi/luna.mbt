@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   root: __dirname,
   server: {
-    port: 3500,
+    port: 4102,
   },
   resolve: {
     alias: {

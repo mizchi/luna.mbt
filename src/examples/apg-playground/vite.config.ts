@@ -13,7 +13,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3600,
+    port: 4101,
     fs: {
       allow: [projectRoot],
     },

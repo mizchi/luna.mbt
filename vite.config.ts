@@ -27,6 +27,7 @@ export default defineConfig(({ command }) => {
       },
     },
     server: {
+      port: 4100,
       fs: {
         allow: [rootDir],
       },
