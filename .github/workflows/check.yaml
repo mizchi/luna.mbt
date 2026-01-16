@@ -34,7 +34,7 @@ jobs:
           moon check --target js src
           moon check --target js src/js/api
           moon check --target js src/js/stream_renderer
-          moon check --target js src/stella
+          moon check --target js src/x/stella
       - name: Build workspace packages
         run: |
           cd js/wcr && pnpm build
@@ -70,18 +70,18 @@ jobs:
       - name: moon test
         run: |
           # Luna core
-          moon test --target js src/signal
-          moon test --target js src/routes
-          moon test --target js src/render
-          moon test --target js src/serialize
+          moon test --target js src/js/resource
+          moon test --target js src/core/routes
+          moon test --target js src/core/render
+          moon test --target js src/core/serialize
           # Luna DOM
           moon test --target js src/dom/client
-          moon test --target js src/static_dom
+          moon test --target js src/dom/static
           # Luna JS
           moon test --target js src/js/stream_renderer
           moon test --target js src/js/api
           # Stella
-          moon test --target js src/stella
+          moon test --target js src/x/stella
 
   # Cross-platform tests (non-JS targets: wasm, wasm-gc, native)
   test-xplat:
@@ -96,28 +96,23 @@ jobs:
       - run: |
           moon update
           moon install
-      - name: Test signal (wasm, wasm-gc, native)
+      - name: Test core/routes (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm src/signal
-          moon test --target wasm-gc src/signal
-          moon test --target native src/signal
-      - name: Test routes (wasm, wasm-gc, native)
+          moon test --target wasm src/core/routes
+          moon test --target wasm-gc src/core/routes
+          moon test --target native src/core/routes
+      - name: Test core/render (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm src/routes
-          moon test --target wasm-gc src/routes
-          moon test --target native src/routes
-      - name: Test render (wasm, wasm-gc, native)
+          moon test --target wasm src/core/render
+          moon test --target wasm-gc src/core/render
+          moon test --target native src/core/render
+      - name: Test core/serialize (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm src/render
-          moon test --target wasm-gc src/render
-          moon test --target native src/render
-      - name: Test serialize (wasm, wasm-gc, native)
+          moon test --target wasm src/core/serialize
+          moon test --target wasm-gc src/core/serialize
+          moon test --target native src/core/serialize
+      - name: Test x/components/aria (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm src/serialize
-          moon test --target wasm-gc src/serialize
-          moon test --target native src/serialize
-      - name: Test aria (wasm, wasm-gc, native)
-        run: |
-          moon test --target wasm src/components/aria
-          moon test --target wasm-gc src/components/aria
-          moon test --target native src/components/aria
+          moon test --target wasm src/x/components/aria
+          moon test --target wasm-gc src/x/components/aria
+          moon test --target native src/x/components/aria
