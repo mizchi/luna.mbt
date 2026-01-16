@@ -2,10 +2,20 @@ import { defineConfig } from "vitest/config";
 import { resolve } from "path";
 import { playwright } from "@vitest/browser-playwright";
 
+const commonExclude = ["**/node_modules/**", "**/.mooncakes/**"];
+
+function browserConfig() {
+  return {
+    enabled: true,
+    headless: true,
+    provider: playwright(),
+    instances: [{ browser: "chromium" as const }],
+  };
+}
+
 export default defineConfig({
   test: {
     projects: [
-      // Node.js environment tests (jsdom)
       {
         test: {
           name: "node",
@@ -19,33 +29,23 @@ export default defineConfig({
             "js/testing/tests/**/*.test.ts",
             "scripts/**/*.test.ts",
           ],
-          exclude: [
-            "**/node_modules/**",
-            "**/.mooncakes/**",
-          ],
+          exclude: commonExclude,
         },
         esbuild: {
           jsx: "automatic",
           jsxImportSource: resolve(__dirname, "js/luna/src"),
         },
       },
-      // Browser tests (Playwright)
       {
         test: {
           name: "browser",
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: playwright(),
-            instances: [{ browser: "chromium" }],
-          },
+          browser: browserConfig(),
           include: [
             "js/luna/tests/**/*.test.ts",
             "js/wcssr/tests/**/*.browser.test.ts",
           ],
           exclude: [
-            "**/node_modules/**",
-            "**/.mooncakes/**",
+            ...commonExclude,
             "js/luna/tests/**/*.test.tsx",
             "js/luna/tests/css-optimizer*.test.ts",
             "**/*.bench.ts",
@@ -57,28 +57,17 @@ export default defineConfig({
           jsxImportSource: "@luna_ui/luna",
         },
       },
-      // Benchmarks (Browser)
       {
         test: {
           name: "bench",
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: playwright(),
-            instances: [{ browser: "chromium" }],
-          },
+          browser: browserConfig(),
           include: [
             "js/luna/tests/*.bench.ts",
             "js/luna/benches/*.bench.ts",
             "js/wcssr/tests/*.bench.ts",
           ],
-          exclude: [
-            "**/node_modules/**",
-            "**/.mooncakes/**",
-          ],
-          benchmark: {
-            reporters: ["default"],
-          },
+          exclude: commonExclude,
+          benchmark: { reporters: ["default"] },
         },
         esbuild: {
           jsx: "automatic",

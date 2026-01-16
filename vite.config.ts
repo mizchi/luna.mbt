@@ -1,10 +1,9 @@
 import { defineConfig } from 'vite';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 import { moonbit } from 'vite-plugin-moonbit';
 import { lunaCss } from './js/luna/dist/vite-plugin.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = import.meta.dirname;
 
 export default defineConfig(({ command }) => {
   const isDev = command === 'serve';
@@ -23,13 +22,13 @@ export default defineConfig(({ command }) => {
     base: isDev ? '/' : '/demo/',
     resolve: {
       alias: {
-        '/target': resolve(__dirname, 'target'),
-        '@luna/loader': resolve(__dirname, 'js/loader/dist'),
+        '/target': resolve(rootDir, 'target'),
+        '@luna/loader': resolve(rootDir, 'js/loader/dist'),
       },
     },
     server: {
       fs: {
-        allow: [__dirname],
+        allow: [rootDir],
       },
     },
     build: {
@@ -37,15 +36,15 @@ export default defineConfig(({ command }) => {
       emptyOutDir: true,
       rollupOptions: {
         input: {
-          index: resolve(__dirname, 'index.html'),
-          hello_luna: resolve(__dirname, 'src/examples/hello_luna/index.html'),
-          spa: resolve(__dirname, 'src/examples/spa/index.html'),
-          browser_router: resolve(__dirname, 'src/examples/browser_router/index.html'),
-          game: resolve(__dirname, 'src/examples/game/index.html'),
-          wc: resolve(__dirname, 'src/examples/wc/index.html'),
-          todomvc: resolve(__dirname, 'src/examples/todomvc/index.html'),
-          css_split_test: resolve(__dirname, 'src/examples/css_split_test/index.html'),
-          'apg-playground': resolve(__dirname, 'src/examples/apg-playground/index.html'),
+          index: resolve(rootDir, 'index.html'),
+          hello_luna: resolve(rootDir, 'src/examples/hello_luna/index.html'),
+          spa: resolve(rootDir, 'src/examples/spa/index.html'),
+          browser_router: resolve(rootDir, 'src/examples/browser_router/index.html'),
+          game: resolve(rootDir, 'src/examples/game/index.html'),
+          wc: resolve(rootDir, 'src/examples/wc/index.html'),
+          todomvc: resolve(rootDir, 'src/examples/todomvc/index.html'),
+          css_split_test: resolve(rootDir, 'src/examples/css_split_test/index.html'),
+          'apg-playground': resolve(rootDir, 'src/examples/apg-playground/index.html'),
         },
       },
     },

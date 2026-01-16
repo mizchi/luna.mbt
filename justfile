@@ -64,7 +64,6 @@ build:
 test-moonbit: _setup-test-env
     moon test --target js
 
-
 # Vitest テスト
 test-vitest:
     pnpm vitest run --project node --project browser
