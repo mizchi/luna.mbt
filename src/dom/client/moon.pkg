@@ -2,7 +2,7 @@ import {
   "mizchi/luna" as @luna,
   "mizchi/luna/signal", "mizchi/signals" as @signals,
   "mizchi/luna/render" as @render,
-  "mizchi/luna/dom/element" as @element,
+  "mizchi/luna/dom" as @element,
   "mizchi/js/core" as @js,
   "mizchi/js/browser/dom" as @js_dom,
   "mizchi/js/web/event",

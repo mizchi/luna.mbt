@@ -3,8 +3,8 @@
  * DOM Element Generator for MoonBit
  *
  * Generates __generated.mbt files for both:
- * - src/platform/dom/element/ (browser DOM with event handlers)
- * - src/platform/server_dom/ (server-side SSR without event handlers)
+ * - src/dom/ (browser DOM with event handlers)
+ * - src/static_dom/element/ (server-side SSR without event handlers)
  *
  * Usage: npx tsx scripts/generate_dom_elements.ts
  */
@@ -1114,25 +1114,25 @@ function main() {
   const rootDir = join(__dirname, "..");
 
   // Generate static_dom/element elements (server-side SSR) - HTML only
-  const serverDomPath = join(rootDir, "src/luna/static_dom/element/__generated.mbt");
+  const serverDomPath = join(rootDir, "src/static_dom/element/__generated.mbt");
   const serverDomContent = generateFile({ target: "server_dom" });
   writeFileSync(serverDomPath, serverDomContent);
   console.log(`Generated: ${serverDomPath}`);
 
   // Generate static_dom/element SVG elements (server-side SSR)
-  const serverDomSvgPath = join(rootDir, "src/luna/static_dom/element/__generated_svg.mbt");
+  const serverDomSvgPath = join(rootDir, "src/static_dom/element/__generated_svg.mbt");
   const serverDomSvgContent = generateSvgFile({ target: "server_dom" });
   writeFileSync(serverDomSvgPath, serverDomSvgContent);
   console.log(`Generated: ${serverDomSvgPath}`);
 
-  // Generate dom/element elements (browser-side) - HTML only
-  const domPath = join(rootDir, "src/luna/dom/element/__generated.mbt");
+  // Generate dom elements (browser-side) - HTML only
+  const domPath = join(rootDir, "src/dom/__generated.mbt");
   const domContent = generateFile({ target: "dom" }) + generateDomTextHelpers();
   writeFileSync(domPath, domContent);
   console.log(`Generated: ${domPath}`);
 
-  // Generate dom/element SVG elements (browser-side)
-  const domSvgPath = join(rootDir, "src/luna/dom/element/__generated_svg.mbt");
+  // Generate dom SVG elements (browser-side)
+  const domSvgPath = join(rootDir, "src/dom/__generated_svg.mbt");
   const domSvgContent = generateSvgFile({ target: "dom" });
   writeFileSync(domSvgPath, domSvgContent);
   console.log(`Generated: ${domSvgPath}`);

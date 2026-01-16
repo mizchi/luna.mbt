@@ -303,7 +303,7 @@ pub fn debounced(
   sig : @signal.Signal[Any],
   delay_ms : Int,
 ) -> @signal.Signal[Any] {
-  @dom.debounced(sig, delay_ms)
+  @element.debounced(sig, delay_ms)
 }
 
 // ============================================================================

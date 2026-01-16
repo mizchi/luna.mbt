@@ -317,7 +317,7 @@ pub fn hydrate_auto(
         "[" + element.tagName() + "] WC mode - re-rendering shadow DOM",
       )
       // Re-render: clear and create new content
-      let js_node = @client.render_vnode_to_dom(node)
+      let js_node = render_vnode_to_dom(node)
       shadow_root.as_node().setTextContent("")
       shadow_root.as_node().appendChild(js_node) |> ignore
     } else {
@@ -325,12 +325,12 @@ pub fn hydrate_auto(
         "[" + element.tagName() + "] WC mode - hydrating shadow DOM",
       )
       // Use Luna's hydrate function on shadow root
-      @client.hydrate(shadow_root, node) |> ignore
+      hydrate(shadow_root, node) |> ignore
     }
   } else {
     // Luna mode - render new DOM (always re-renders for DomNode)
     let el = @element.DomElement::from_dom(element)
-    let js_node = @client.render_vnode_to_dom(node)
+    let js_node = render_vnode_to_dom(node)
     let dom_node = @element.dom_node(js_node)
     @element.render(el, dom_node)
   }

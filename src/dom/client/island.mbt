@@ -85,7 +85,7 @@ pub fn IslandContext::bind_actions(
   self : IslandContext,
   dispatch : (String) -> Unit,
 ) -> Unit {
-  @client.bind_actions_from_dom(self.element, dispatch)
+  bind_actions_from_dom(self.element, dispatch)
 }
 
 ///|
