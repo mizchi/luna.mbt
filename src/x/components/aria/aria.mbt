@@ -403,7 +403,11 @@ pub fn spinbutton_aria(
 ///|
 /// Boolean to ARIA string conversion
 pub fn bool_to_aria(value : Bool) -> String {
-  if value { "true" } else { "false" }
+  if value {
+    "true"
+  } else {
+    "false"
+  }
 }
 
 ///|
@@ -415,7 +419,10 @@ pub fn is_toggle_key(key : String) -> Bool {
 ///|
 /// Check if a key is an arrow key
 pub fn is_arrow_key(key : String) -> Bool {
-  key == "ArrowUp" || key == "ArrowDown" || key == "ArrowLeft" || key == "ArrowRight"
+  key == "ArrowUp" ||
+  key == "ArrowDown" ||
+  key == "ArrowLeft" ||
+  key == "ArrowRight"
 }
 
 ///|

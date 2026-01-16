@@ -73,6 +73,8 @@ pub fn[E] accordion_panel_attrs(
   hidden : Bool,
   use_region : Bool,
 ) -> Array[(String, @luna.Attr[E])] {
-  let aria_attrs = @aria.accordion_panel_aria(id, labelledby, hidden, use_region)
+  let aria_attrs = @aria.accordion_panel_aria(
+    id, labelledby, hidden, use_region,
+  )
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }

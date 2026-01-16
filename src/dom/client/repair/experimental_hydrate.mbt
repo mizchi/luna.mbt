@@ -879,7 +879,9 @@ fn experimental_hydrate_dynamic_text(
           None => parent.appendChild(new_text.as_node()) |> ignore
         }
         let text_ref = new_text.as_node()
-        let _ = @resource.render_effect(fn() { text_ref.setTextContent(getter()) })
+        let _ = @resource.render_effect(fn() {
+          text_ref.setTextContent(getter())
+        })
         let _ = ctx.path_stack.pop()
         return
       }

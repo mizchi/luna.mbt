@@ -33,9 +33,7 @@ test "demo: card component with CSS utilities" {
 
   // Build the card component
   let card = div(class=full_card_class, [
-    h2(class=@css.css("font-size", "1.25rem"), [
-      text("Hello CSS Utilities"),
-    ]),
+    h2(class=@css.css("font-size", "1.25rem"), [text("Hello CSS Utilities")]),
     p(class=@css.css("color", "#666"), [
       text("This card uses atomic CSS classes generated at SSR time."),
     ]),
@@ -49,10 +47,7 @@ test "demo: card component with CSS utilities" {
 
   // Build complete document with CSS
   let doc = html(lang="en", [
-    head([
-      title("CSS Utilities Demo"),
-      style_(generated_css),
-    ]),
+    head([title("CSS Utilities Demo"), style_(generated_css)]),
     body([card]),
   ])
   let full_html = render(doc)
@@ -186,10 +181,7 @@ test "demo: complete page generation" {
     head_children=[
       title("CSS Utilities Demo"),
       meta(charset="UTF-8"),
-      meta(
-        name="viewport",
-        content="width=device-width, initial-scale=1",
-      ),
+      meta(name="viewport", content="width=device-width, initial-scale=1"),
       style_(@css.generate_full_css()),
     ],
     body_children=[

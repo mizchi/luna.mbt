@@ -2,29 +2,22 @@
 // All core signal functionality is provided by mizchi/signals
 
 // Signal and reactive primitives
-pub using @signals {
-  type Signal,
-  signal,
-  on,
-  on_immediate,
-}
+///|
+pub using @signals {type Signal, signal, on, on_immediate}
 
 // Effects
-pub using @signals {
-  render_effect,
-  effect,
-  effect_when,
-  effect_once,
-  on_mount,
-}
+
+///|
+pub using @signals {render_effect, effect, effect_when, effect_once, on_mount}
 
 // Memo and computed
-pub using @signals {
-  memo,
-  computed,
-}
+
+///|
+pub using @signals {memo, computed}
 
 // Context and lifecycle
+
+///|
 pub using @signals {
   type Owner,
   new_effect_id,
@@ -47,6 +40,8 @@ pub using @signals {
 }
 
 // Combinators
+
+///|
 pub using @signals {
   sig_map,
   sig_filter,
@@ -63,22 +58,18 @@ pub using @signals {
 }
 
 // Watch
-pub using @signals {
-  watch,
-  watch_immediate,
-  previous,
-  previous_with_initial,
-}
+
+///|
+pub using @signals {watch, watch_immediate, previous, previous_with_initial}
 
 // Context Provider
-pub using @signals {
-  type Context,
-  create_context,
-  provide,
-  use_context,
-}
+
+///|
+pub using @signals {type Context, create_context, provide, use_context}
 
 // Store
+
+///|
 pub using @signals {
   type SplitStore2,
   type SplitStore3,

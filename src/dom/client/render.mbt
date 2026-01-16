@@ -164,7 +164,9 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
         // as dependencies of this For's effect
         if placeholder.parentNode() is Some(parent) {
           for item in new_items {
-            let rendered = @resource.untracked(fn() { render_vnode_to_dom(item) })
+            let rendered = @resource.untracked(fn() {
+              render_vnode_to_dom(item)
+            })
             current_nodes.push(rendered)
             parent.insertBefore(rendered, Some(placeholder)) |> ignore
           }

@@ -10,9 +10,7 @@ test "render simple div" {
 
 ///|
 test "render div with attributes" {
-  let node = div(id="main", class="container", [
-    text("Content"),
-  ])
+  let node = div(id="main", class="container", [text("Content")])
   let html = render(node)
   assert_true(html.contains("id=\"main\""))
   assert_true(html.contains("class=\"container\""))
@@ -21,10 +19,7 @@ test "render div with attributes" {
 
 ///|
 test "render nested elements" {
-  let node = div([
-    h1([text("Title")]),
-    p([text("Paragraph")]),
-  ])
+  let node = div([h1([text("Title")]), p([text("Paragraph")])])
   let html = render(node)
   assert_true(html.contains("<h1>Title</h1>"))
   assert_true(html.contains("<p>Paragraph</p>"))
@@ -57,11 +52,7 @@ test "render document helper" {
 
 ///|
 test "render void elements" {
-  let node = div([
-    img(src="/image.png", alt="test"),
-    br(),
-    hr(),
-  ])
+  let node = div([img(src="/image.png", alt="test"), br(), hr()])
   let html = render(node)
   assert_true(html.contains("<img"))
   assert_true(html.contains("src=\"/image.png\""))
@@ -71,10 +62,7 @@ test "render void elements" {
 
 ///|
 test "render list elements" {
-  let node = ul([
-    li([text("Item 1")]),
-    li([text("Item 2")]),
-  ])
+  let node = ul([li([text("Item 1")]), li([text("Item 2")])])
   let html = render(node)
   assert_true(html.contains("<ul>"))
   assert_true(html.contains("<li>Item 1</li>"))
@@ -83,9 +71,7 @@ test "render list elements" {
 
 ///|
 test "render anchor with href" {
-  let node = a(href="https://example.com", target="_blank", [
-    text("Link"),
-  ])
+  let node = a(href="https://example.com", target="_blank", [text("Link")])
   let html = render(node)
   assert_true(html.contains("href=\"https://example.com\""))
   assert_true(html.contains("target=\"_blank\""))
@@ -148,11 +134,7 @@ test "render_with_preloads collects island URLs" {
 
 ///|
 test "render fragment" {
-  let node = fragment([
-    text("A"),
-    text("B"),
-    text("C"),
-  ])
+  let node = fragment([text("A"), text("B"), text("C")])
   let html = render(node)
   assert_eq(html, "ABC")
 }
@@ -199,10 +181,7 @@ test "render error_boundary success" {
 test "render error_boundary with nested elements" {
   let node : @luna.Node[Unit] = @luna.error_boundary(
     children=fn() {
-      div(class="container", [
-        h1([text("Title")]),
-        p([text("Content")]),
-      ])
+      div(class="container", [h1([text("Title")]), p([text("Content")])])
     },
     fallback=fn(_err, _reset) { text("Error") },
   )
@@ -234,10 +213,12 @@ test "render nested error_boundaries" {
   let node : @luna.Node[Unit] = @luna.error_boundary(
     children=fn() {
       div([
-        @luna.error_boundary(
-          children=fn() { span([text("Inner content")]) },
-          fallback=fn(_err, _reset) { text("Inner error") },
-        ),
+        @luna.error_boundary(children=fn() { span([text("Inner content")]) }, fallback=fn(
+          _err,
+          _reset,
+        ) {
+          text("Inner error")
+        }),
       ])
     },
     fallback=fn(_err, _reset) { text("Outer error") },
@@ -250,9 +231,7 @@ test "render nested error_boundaries" {
 test "render error_boundary with show" {
   let visible = true
   let node : @luna.Node[Unit] = @luna.error_boundary(
-    children=fn() {
-      @luna.show(fn() { visible }, fn() { text("Visible!") })
-    },
+    children=fn() { @luna.show(fn() { visible }, fn() { text("Visible!") }) },
     fallback=fn(_err, _reset) { text("Error") },
   )
   let html = render(node)
@@ -262,13 +241,7 @@ test "render error_boundary with show" {
 ///|
 test "render error_boundary with fragment" {
   let node : @luna.Node[Unit] = @luna.error_boundary(
-    children=fn() {
-      fragment([
-        text("A"),
-        text("B"),
-        text("C"),
-      ])
-    },
+    children=fn() { fragment([text("A"), text("B"), text("C")]) },
     fallback=fn(_err, _reset) { text("Error") },
   )
   let html = render(node)
@@ -300,10 +273,7 @@ test "render_with_preloads error_boundary collects island URLs" {
 test "render show with fragment (multiple children) - visible" {
   let visible = true
   let node : @luna.Node[Unit] = @luna.show(fn() { visible }, fn() {
-    fragment([
-      div([text("A")]),
-      div([text("B")]),
-    ])
+    fragment([div([text("A")]), div([text("B")])])
   })
   let html = render(node)
   assert_true(html.contains("<div>A</div>"))
@@ -314,10 +284,7 @@ test "render show with fragment (multiple children) - visible" {
 test "render show with fragment (multiple children) - hidden" {
   let visible = false
   let node : @luna.Node[Unit] = @luna.show(fn() { visible }, fn() {
-    fragment([
-      div([text("A")]),
-      div([text("B")]),
-    ])
+    fragment([div([text("A")]), div([text("B")])])
   })
   let html = render(node)
   // Should not contain the content
@@ -332,10 +299,7 @@ test "render switch with match containing multiple children" {
   let node : @luna.Node[Unit] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() {
-        fragment([
-          span([text("First")]),
-          span([text("Second")]),
-        ])
+        fragment([span([text("First")]), span([text("Second")])])
       }),
     ],
     fallback=Some(fn() { text("Fallback") }),
@@ -351,10 +315,7 @@ test "render switch with match fallback" {
   let node : @luna.Node[Unit] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() {
-        fragment([
-          span([text("First")]),
-          span([text("Second")]),
-        ])
+        fragment([span([text("First")]), span([text("Second")])])
       }),
     ],
     fallback=Some(fn() { text("Fallback") }),

@@ -180,11 +180,9 @@ pub struct VElement[E] {
 /// The main building block for creating virtual DOM elements.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = h(
-///     "div",
-///     [("class", attr_static("container"))],
-///     [text("Hello")],
-///   )
+///   let node : Node[Unit] = h("div", [("class", attr_static("container"))], [
+///     text("Hello"),
+///   ])
 ///   guard node is Element(el) else { fail("expected Element") }
 ///   inspect(el.tag, content="div")
 /// }
@@ -232,11 +230,7 @@ pub fn[E] text_dyn(content : () -> String) -> Node[E] {
 /// Groups multiple nodes without a wrapper element.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = fragment([
-///     text("Hello"),
-///     text(" "),
-///     text("World"),
-///   ])
+///   let node : Node[Unit] = fragment([text("Hello"), text(" "), text("World")])
 ///   guard node is Fragment(children) else { fail("expected Fragment") }
 ///   inspect(children.length(), content="3")
 /// }
@@ -265,9 +259,7 @@ pub fn[E] raw_html(content : String) -> Node[E] {
 /// ```mbt check
 /// test {
 ///   let visible = true
-///   let node : Node[Unit] = show(fn() { visible }, fn() {
-///     text("Visible!")
-///   })
+///   let node : Node[Unit] = show(fn() { visible }, fn() { text("Visible!") })
 ///   guard node is Show(condition~, ..) else { fail("expected Show") }
 ///   inspect(condition(), content="true")
 /// }
@@ -282,9 +274,7 @@ pub fn[E] show(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
 /// ```mbt check
 /// test {
 ///   let items = ["a", "b", "c"]
-///   let node : Node[Unit] = for_each(fn() {
-///     items.map(fn(s) { text(s) })
-///   })
+///   let node : Node[Unit] = for_each(fn() { items.map(fn(s) { text(s) }) })
 ///   guard node is For(render~) else { fail("expected For") }
 ///   inspect(render().length(), content="3")
 /// }
@@ -298,9 +288,7 @@ pub fn[E] for_each(items : () -> Array[Node[E]]) -> Node[E] {
 /// Wraps a render function as a component boundary.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = component(fn() {
-///     h("div", [], [text("Component")])
-///   })
+///   let node : Node[Unit] = component(fn() { h("div", [], [text("Component")]) })
 ///   guard node is Component(render~) else { fail("expected Component") }
 ///   guard render() is Element(el) else { fail("expected Element") }
 ///   inspect(el.tag, content="div")
@@ -513,9 +501,7 @@ pub fn[E] attr_static(value : String) -> Attr[E] {
 /// ```mbt check
 /// test {
 ///   let mut count = 0
-///   let attr : Attr[Unit] = attr_dynamic(fn() {
-///     "count-" + count.to_string()
-///   })
+///   let attr : Attr[Unit] = attr_dynamic(fn() { "count-" + count.to_string() })
 ///   guard attr is VDynamic(getter) else { fail("expected VDynamic") }
 ///   inspect(getter(), content="count-0")
 ///   count = 5

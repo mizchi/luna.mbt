@@ -8,8 +8,8 @@
 // =============================================================================
 
 ///|
+// Types
 pub using @core {
-  // Types
   type EventHandler,
   type Attr,
   type Node,
@@ -68,9 +68,7 @@ pub using @core {
 // =============================================================================
 
 ///|
-pub using @core {
-  type AsyncState,
-}
+pub using @core {type AsyncState}
 
 // =============================================================================
 // Signal types and functions (from js/resource)

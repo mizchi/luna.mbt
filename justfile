@@ -11,7 +11,7 @@ default: test-incremental
 
 # インクリメンタルテスト（キャッシュ済みはスキップ）
 test-incremental:
-    pnpm turbo run test:moonbit test:vitest test:browser
+    pnpm turbo run test:moonbit test:vitest
 
 # 型チェック
 check:
@@ -31,7 +31,7 @@ clean:
     rm -rf target coverage .turbo/cache
 
 # 強制テスト（キャッシュ無視）
-retest *tasks="test:moonbit test:vitest test:browser":
+retest *tasks="test:moonbit test:vitest":
     pnpm turbo run {{tasks}} --force
 
 # =============================================================================
@@ -49,7 +49,7 @@ build-debug:
 
 # Loader ビルド
 build-loader:
-    pnpm exec rolldown -c rolldown.config.mjs
+    pnpm turbo run @luna_ui/luna-loader#build
 
 # フルビルド（turbo経由）
 build:
@@ -67,11 +67,7 @@ test-moonbit: _setup-test-env
 
 # Vitest テスト
 test-vitest:
-    pnpm vitest run
-
-# ブラウザテスト
-test-browser:
-    pnpm vitest run --config vitest.browser.config.ts
+    pnpm vitest run --project node --project browser
 
 # E2E テスト
 test-e2e:
@@ -83,10 +79,9 @@ test-e2e-ui:
 
 # クロスプラットフォームテスト (js, wasm-gc, native)
 test-xplat:
-    moon test --target all src/luna/signal
-    moon test --target all src/luna/routes
-    moon test --target all src/luna/render
-    moon test --target all src/luna/serialize
+    moon test --target all src/core/routes
+    moon test --target all src/core/render
+    moon test --target all src/core/serialize
 
 # moon test 用 CommonJS 環境セットアップ
 _setup-test-env:
@@ -172,7 +167,7 @@ inject-css html src *flags:
 
 # CSS ベンチマーク
 bench-css scale="all":
-    node src/luna/css/benchmark.js --scale {{scale}}
+    node src/x/css/benchmark.js --scale {{scale}}
 
 # =============================================================================
 # リリース
