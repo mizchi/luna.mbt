@@ -136,6 +136,7 @@ pub fn tabs_css() -> String {
     #|  color: var(--muted-foreground);
     #|  border-bottom: 2px solid transparent;
     #|  margin-bottom: -1px;
+    #|  margin: 0;
     #|  transition: color 0.2s, border-color 0.2s;
     #|}
     #|
@@ -150,12 +151,24 @@ pub fn tabs_css() -> String {
     #|
     #|.tabs__tab:focus-visible {
     #|  outline: 2px solid var(--accent);
-    #|  outline-offset: -2px;
+    #|  outline-offset: 2px;
+    #|  border-radius: 4px;
     #|}
     #|
     #|.tabs__panel {
-    #|  padding: 1rem 0;
+    #|  padding: 1rem;
     #|  color: var(--foreground);
+    #|  border: 1px solid var(--border);
+    #|  border-top: none;
+    #|  border-radius: 0 0 0.5rem 0.5rem;
+    #|  background: var(--muted);
+    #|}
+    #|
+    #|/* Reduced motion */
+    #|@media (prefers-reduced-motion: reduce) {
+    #|  .tabs__tab {
+    #|    transition: none;
+    #|  }
     #|}
   css
 }

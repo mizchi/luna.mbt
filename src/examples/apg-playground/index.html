@@ -266,9 +266,9 @@
       color: #000;
     }
 
-    /* Checkbox, Radio */
-    [role="checkbox"],
-    [role="radio"] {
+    /* Checkbox, Radio - only for non-styled (headless) components */
+    [role="checkbox"]:not(.checkbox):not(.radio),
+    [role="radio"]:not(.checkbox):not(.radio) {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -280,17 +280,17 @@
       margin: 4px;
       transition: all 0.2s;
     }
-    [role="checkbox"]:hover,
-    [role="radio"]:hover {
+    [role="checkbox"]:not(.checkbox):not(.radio):hover,
+    [role="radio"]:not(.checkbox):not(.radio):hover {
       border-color: var(--border-hover);
     }
-    [role="checkbox"]:focus-visible,
-    [role="radio"]:focus-visible {
+    [role="checkbox"]:not(.checkbox):not(.radio):focus-visible,
+    [role="radio"]:not(.checkbox):not(.radio):focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
-    [role="checkbox"][aria-checked="true"],
-    [role="radio"][aria-checked="true"] {
+    [role="checkbox"]:not(.checkbox):not(.radio)[aria-checked="true"],
+    [role="radio"]:not(.checkbox):not(.radio)[aria-checked="true"] {
       background: var(--bg-accent);
       border-color: var(--accent);
     }
@@ -380,14 +380,14 @@
       gap: 1rem;
     }
 
-    /* Tabs */
-    [role="tablist"] {
+    /* Tabs - only for non-styled (headless) components */
+    [role="tablist"]:not(.tabs__list) {
       display: flex;
       gap: 4px;
       border-bottom: 2px solid var(--border-color);
       margin-bottom: 0;
     }
-    [role="tab"] {
+    [role="tab"]:not(.tabs__tab) {
       padding: 8px 16px;
       border: none;
       background: none;
@@ -397,18 +397,18 @@
       margin-bottom: -2px;
       transition: all 0.2s;
     }
-    [role="tab"]:hover {
+    [role="tab"]:not(.tabs__tab):hover {
       color: var(--text-accent);
     }
-    [role="tab"]:focus-visible {
+    [role="tab"]:not(.tabs__tab):focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: -2px;
     }
-    [role="tab"][aria-selected="true"] {
+    [role="tab"]:not(.tabs__tab)[aria-selected="true"] {
       border-bottom-color: var(--accent);
       color: var(--text-accent);
     }
-    [role="tabpanel"] {
+    [role="tabpanel"]:not(.tabs__panel) {
       padding: 16px;
       border: 1px solid var(--border-color);
       border-top: none;
