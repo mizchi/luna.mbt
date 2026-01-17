@@ -268,6 +268,9 @@ pub fn checkbox_css() -> String {
     #|/* Icon styles */
     #|.checkbox__icon {
     #|  position: absolute;
+    #|  top: 50%;
+    #|  left: 50%;
+    #|  transform: translate(-50%, -50%);
     #|  display: flex;
     #|  align-items: center;
     #|  justify-content: center;

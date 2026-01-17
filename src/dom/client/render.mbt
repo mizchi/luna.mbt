@@ -2,6 +2,72 @@
 //
 
 ///|
+/// Check if a tag is an SVG element
+fn is_svg_element(tag : String) -> Bool {
+  match tag {
+    "svg" | "g" | "defs" | "symbol" | "use" | "rect" | "circle" | "ellipse" |
+    "line" | "polyline" | "polygon" | "path" | "text" | "tspan" | "image" |
+    "clipPath" | "mask" | "linearGradient" | "radialGradient" | "stop" |
+    "pattern" | "filter" | "animate" | "animateTransform" | "foreignObject" |
+    "title" | "desc" | "marker" | "feGaussianBlur" | "feOffset" | "feBlend" |
+    "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" |
+    "feDiffuseLighting" | "feDisplacementMap" | "feFlood" | "feFuncR" |
+    "feFuncG" | "feFuncB" | "feFuncA" | "feImage" | "feMerge" | "feMergeNode" |
+    "feMorphology" | "feSpecularLighting" | "feTile" | "feTurbulence" =>
+      true
+    _ => false
+  }
+}
+
+///|
+/// Create an SVG element with proper namespace
+extern "js" fn create_svg_element_ns(tag : String) -> @js_dom.Element =
+  #| (tag) => document.createElementNS("http://www.w3.org/2000/svg", tag)
+
+///|
+/// Render VNode to DOM within SVG context (all elements use SVG namespace)
+fn render_vnode_to_dom_svg(node : @luna.Node[@js.Any]) -> @js_dom.Node {
+  let doc = @js_dom.document()
+  match node {
+    @core.Text(content) => doc.createTextNode(content).as_node()
+    @core.DynamicText(getter) => {
+      let text_node = doc.createTextNode(getter())
+      let node_ref = text_node.as_node()
+      let _ = @resource.render_effect(fn() {
+        let new_text = getter()
+        node_ref.setTextContent(new_text)
+      })
+      node_ref
+    }
+    @core.Fragment(children) => {
+      let fragment = doc.createDocumentFragment()
+      for child in children {
+        fragment.as_node().appendChild(render_vnode_to_dom_svg(child)) |> ignore
+      }
+      fragment.as_node()
+    }
+    @core.Element(elem) => {
+      // Within SVG context, all elements use SVG namespace
+      let dom_elem = create_svg_element_ns(elem.tag)
+
+      // Apply attributes
+      for attr in elem.attrs {
+        let (name, value) = attr
+        apply_vattr(dom_elem, name, value)
+      }
+
+      // Append children (still in SVG context)
+      for child in elem.children {
+        dom_elem.as_node().appendChild(render_vnode_to_dom_svg(child)) |> ignore
+      }
+      dom_elem.as_node()
+    }
+    // For other node types, delegate to regular render
+    _ => render_vnode_to_dom(node)
+  }
+}
+
+///|
 /// Collect child nodes from a DOM node.
 /// For DocumentFragment, returns its children (before they get moved).
 /// For regular nodes, returns the node itself in an array.
@@ -45,7 +111,11 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
       fragment.as_node()
     }
     @core.Element(elem) => {
-      let dom_elem = doc.createElement(elem.tag)
+      let dom_elem = if is_svg_element(elem.tag) {
+        create_svg_element_ns(elem.tag)
+      } else {
+        doc.createElement(elem.tag)
+      }
 
       // Apply attributes
       for attr in elem.attrs {
@@ -53,9 +123,14 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
         apply_vattr(dom_elem, name, value)
       }
 
-      // Append children
+      // Append children (with SVG context for nested elements)
       for child in elem.children {
-        dom_elem.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
+        let child_dom = if is_svg_element(elem.tag) {
+          render_vnode_to_dom_svg(child)
+        } else {
+          render_vnode_to_dom(child)
+        }
+        dom_elem.as_node().appendChild(child_dom) |> ignore
       }
       dom_elem.as_node()
     }
