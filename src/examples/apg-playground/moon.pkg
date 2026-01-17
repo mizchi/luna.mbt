@@ -12,6 +12,8 @@ import {
   "mizchi/luna/x/components/styled/toolbar" as @toolbar,
   "mizchi/luna/x/components/styled/alert" as @alert,
   "mizchi/luna/x/components/styled/table" as @table,
+  "mizchi/luna/x/components/styled/meter" as @meter,
+  "mizchi/luna/x/components/styled/disclosure" as @disclosure,
   "mizchi/js/browser/dom" as @dom,
   "mizchi/luna/dom/client" as @client,
   "mizchi/js/core" as @js,

@@ -397,26 +397,19 @@ fn dialog_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn disclosure_demo() -> @luna.Node[@js.Any] {
-  let expanded = @resource.signal(false)
+  let expanded = @resource.signal(true)
   div([
     h2([@luna.text("Disclosure")]),
     p([@luna.text("Show/hide content toggle")]),
-    // Using the simplified disclosure_dyn API
-    @apg.disclosure_dyn(
+    @disclosure.disclosure(
       "demo-disclosure",
       expanded,
-      [
-        @luna.text_dyn(fn() {
-          if expanded.get() {
-            "Hide Details"
-          } else {
-            "Show Details"
-          }
-        }),
-      ],
+      "What is a Disclosure?",
       [
         @luna.h("p", [], [
-          @luna.text("This is the hidden content that appears when expanded."),
+          @luna.text(
+            "A disclosure is a button that controls the visibility of a section of content. It is commonly used for FAQ sections, additional details, or expandable navigation.",
+          ),
         ]),
       ],
     ),
@@ -763,27 +756,27 @@ fn alert_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn meter_demo() -> @luna.Node[@js.Any] {
-  let value = @resource.signal(65.0)
   div([
     h2([@luna.text("Meter")]),
     p([@luna.text("Visual representation of a value within a known range")]),
-    @apg.meter_dyn(
-      value,
+    @meter.meter("cpu-meter", 75.0, label="CPU Usage", value_text="75%"),
+    @meter.meter(
+      "rating-meter",
+      3.5,
       min=0.0,
-      max=100.0,
-      aria_label="Disk usage",
-      aria_valuetext_fn=fn(v) { v.to_string() + "% used" },
-      [],
+      max=5.0,
+      label="Rating",
+      value_text="3.5 / 5",
     ),
-    p([@luna.text_dyn(fn() { "Value: " + value.get().to_string() + "%" })]),
-    div([
-      btn(@luna.handler(fn(_) { value.set(value.get() - 10.0) }), [
-        @luna.text("-10"),
-      ]),
-      btn(@luna.handler(fn(_) { value.set(value.get() + 10.0) }), [
-        @luna.text("+10"),
-      ]),
-    ]),
+    @meter.meter(
+      "temp-meter",
+      25.0,
+      min=-30.0,
+      max=50.0,
+      label="Temperature",
+      value_text="25\u{00B0}C",
+    ),
+    @meter.meter("progress-meter", 65.0, label="Progress", value_text="65%"),
   ])
 }
 
@@ -1693,6 +1686,10 @@ fn inject_styled_css() -> Unit {
   buf.write_string(@alert.alert_css())
   buf.write_string("\n\n")
   buf.write_string(@table.table_css())
+  buf.write_string("\n\n")
+  buf.write_string(@meter.meter_css())
+  buf.write_string("\n\n")
+  buf.write_string(@disclosure.disclosure_css())
   buf.write_string("\n\n")
   buf.write_string(apg_components_css())
   let css = buf.to_string()
