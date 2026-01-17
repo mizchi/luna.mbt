@@ -836,20 +836,20 @@ fn landmarks_demo() -> @luna.Node[@js.Any] {
 ///|
 fn table_demo() -> @luna.Node[@js.Any] {
   let columns = [
-    @apg.table_column("name", "Name", sortable=true),
-    @apg.table_column("role", "Role", sortable=true),
-    @apg.table_column("email", "Email"),
+    @table.table_column("name", "Name", sortable=true),
+    @table.table_column("role", "Role", sortable=true),
+    @table.table_column("email", "Email"),
   ]
   let rows = [
-    @apg.table_row("1", ["Alice", "Developer", "alice@example.com"]),
-    @apg.table_row("2", ["Bob", "Designer", "bob@example.com"]),
-    @apg.table_row("3", ["Charlie", "Manager", "charlie@example.com"]),
-    @apg.table_row("4", ["Diana", "QA Engineer", "diana@example.com"]),
+    @table.table_row("1", ["Alice", "Developer", "alice@example.com"]),
+    @table.table_row("2", ["Bob", "Designer", "bob@example.com"]),
+    @table.table_row("3", ["Charlie", "Manager", "charlie@example.com"]),
+    @table.table_row("4", ["Diana", "QA Engineer", "diana@example.com"]),
   ]
   div([
     h2([@luna.text("Table")]),
-    p([@luna.text("Data table with sortable columns and keyboard navigation")]),
-    @apg.table_interactive(
+    p([@luna.text("Data table with sortable columns (click headers to sort)")]),
+    @table.table(
       "team-table",
       columns,
       rows,
@@ -1690,6 +1690,8 @@ fn inject_styled_css() -> Unit {
   buf.write_string(@toolbar.toolbar_css())
   buf.write_string("\n\n")
   buf.write_string(@alert.alert_css())
+  buf.write_string("\n\n")
+  buf.write_string(@table.table_css())
   buf.write_string("\n\n")
   buf.write_string(apg_components_css())
   let css = buf.to_string()

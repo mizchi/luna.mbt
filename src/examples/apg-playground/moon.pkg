@@ -11,6 +11,7 @@ import {
   "mizchi/luna/x/components/styled/spinbutton" as @spinbutton,
   "mizchi/luna/x/components/styled/toolbar" as @toolbar,
   "mizchi/luna/x/components/styled/alert" as @alert,
+  "mizchi/luna/x/components/styled/table" as @table,
   "mizchi/js/browser/dom" as @dom,
   "mizchi/luna/dom/client" as @client,
   "mizchi/js/core" as @js,
