@@ -122,37 +122,41 @@ pub fn tabs_css() -> String {
     #|
     #|.tabs__list {
     #|  display: flex;
+    #|  gap: 0.25rem;
     #|  border-bottom: 1px solid var(--border);
-    #|  gap: 0;
+    #|  position: relative;
     #|}
     #|
     #|.tabs__tab {
-    #|  padding: 0.75rem 1rem;
-    #|  border: none;
+    #|  position: relative;
+    #|  padding: 0.5rem 1rem;
+    #|  border: 1px solid transparent;
+    #|  border-bottom: none;
+    #|  border-radius: 0.375rem 0.375rem 0 0;
     #|  background: transparent;
     #|  cursor: pointer;
     #|  font-size: 0.875rem;
     #|  font-weight: 500;
     #|  color: var(--muted-foreground);
-    #|  border-bottom: 2px solid transparent;
-    #|  margin-bottom: -1px;
     #|  margin: 0;
-    #|  transition: color 0.2s, border-color 0.2s;
+    #|  margin-bottom: -1px;
+    #|  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
     #|}
     #|
     #|.tabs__tab:hover {
     #|  color: var(--foreground);
+    #|  background: var(--background);
     #|}
     #|
     #|.tabs__tab[data-state="active"] {
-    #|  color: var(--accent);
-    #|  border-bottom-color: var(--accent);
+    #|  color: var(--foreground);
+    #|  background: var(--background);
+    #|  border-color: var(--border);
     #|}
     #|
     #|.tabs__tab:focus-visible {
     #|  outline: 2px solid var(--accent);
-    #|  outline-offset: 2px;
-    #|  border-radius: 4px;
+    #|  outline-offset: -2px;
     #|}
     #|
     #|.tabs__panel {
@@ -160,8 +164,7 @@ pub fn tabs_css() -> String {
     #|  color: var(--foreground);
     #|  border: 1px solid var(--border);
     #|  border-top: none;
-    #|  border-radius: 0 0 0.5rem 0.5rem;
-    #|  background: var(--muted);
+    #|  border-radius: 0 0 0.375rem 0.375rem;
     #|}
     #|
     #|/* Reduced motion */
