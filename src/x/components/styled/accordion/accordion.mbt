@@ -114,19 +114,43 @@ pub fn accordion(
       ]),
     ])
 
-    // Panel
-    let panel = @luna.show(fn() { expanded.get() == index }, fn() {
-      @luna.h(
-        "div",
-        [
-          ("id", @luna.attr_static(panel_id)),
-          ("aria-labelledby", @luna.attr_static(header_id)),
-          ("role", @luna.attr_static("region")),
-          ("class", @luna.attr_static(slots.panel)),
-        ],
-        item.content,
-      )
-    })
+    // Panel (always rendered, animated with CSS)
+    let panel = @luna.h(
+      "div",
+      [
+        ("id", @luna.attr_static(panel_id)),
+        ("aria-labelledby", @luna.attr_static(header_id)),
+        ("role", @luna.attr_static("region")),
+        ("class", @luna.attr_static(slots.panel)),
+        (
+          "data-state",
+          @luna.attr_dynamic(fn() {
+            if expanded.get() == index {
+              "open"
+            } else {
+              "closed"
+            }
+          }),
+        ),
+        (
+          "aria-hidden",
+          @luna.attr_dynamic(fn() {
+            if expanded.get() == index {
+              "false"
+            } else {
+              "true"
+            }
+          }),
+        ),
+      ],
+      [
+        @luna.h(
+          "div",
+          [("class", @luna.attr_static(slots.panel + "-content"))],
+          item.content,
+        ),
+      ],
+    )
     children.push(
       @luna.h(
         "div",
@@ -205,16 +229,34 @@ pub fn accordion_css() -> String {
     #|}
     #|
     #|.accordion__panel {
-    #|  padding: 1rem;
+    #|  display: grid;
+    #|  grid-template-rows: 0fr;
+    #|  overflow: hidden;
+    #|  transition: grid-template-rows 0.2s ease-out;
+    #|}
+    #|
+    #|.accordion__panel[data-state="open"] {
+    #|  grid-template-rows: 1fr;
+    #|}
+    #|
+    #|.accordion__panel-content {
+    #|  min-height: 0;
+    #|  padding: 0 1rem;
     #|  background: var(--background);
     #|  color: var(--foreground);
+    #|  overflow: hidden;
+    #|}
+    #|
+    #|.accordion__panel[data-state="open"] .accordion__panel-content {
+    #|  padding: 1rem;
     #|  border-top: 1px solid var(--border);
     #|}
     #|
     #|/* Reduced motion */
     #|@media (prefers-reduced-motion: reduce) {
     #|  .accordion__header,
-    #|  .accordion__icon {
+    #|  .accordion__icon,
+    #|  .accordion__panel {
     #|    transition: none;
     #|  }
     #|}
