@@ -593,31 +593,35 @@ fn treeview_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn toolbar_demo() -> @luna.Node[@js.Any] {
-  let pressed_states : @resource.Signal[Map[String, Bool]] = @resource.signal({})
-  let items = [
-    @apg.toolbar_item_def("bold", "Bold", toggle=true),
-    @apg.toolbar_item_def("italic", "Italic", toggle=true),
-    @apg.toolbar_item_def("underline", "Underline", toggle=true),
-    @apg.toolbar_item_def("cut", "Cut"),
-    @apg.toolbar_item_def("copy", "Copy"),
-    @apg.toolbar_item_def("paste", "Paste"),
+  let pressed_states : @resource.Signal[Map[String, Bool]] = @resource.signal({
+    "bold": true,
+  })
+  let groups : Array[@toolbar.ToolbarGroup] = [
+    @toolbar.ToolbarGroup([
+      @toolbar.toolbar_item_config("bold", "Bold", pressed=true),
+      @toolbar.toolbar_item_config("italic", "Italic"),
+      @toolbar.toolbar_item_config("underline", "Underline"),
+    ]),
+    @toolbar.ToolbarGroup([
+      @toolbar.toolbar_item_config("copy", "Copy"),
+      @toolbar.toolbar_item_config("cut", "Cut"),
+      @toolbar.toolbar_item_config("paste", "Paste"),
+    ]),
   ]
   div([
     h2([@luna.text("Toolbar")]),
     p([@luna.text("Button group with keyboard navigation (←/→ arrows)")]),
-    @apg.toolbar_interactive(
+    @toolbar.toolbar_reactive(
       "editor-toolbar",
-      items,
+      groups,
       pressed_states,
       aria_label="Text formatting",
-      fn(id, is_toggle) {
-        if is_toggle {
-          let states = pressed_states.get()
-          let new_states = states.copy()
-          let current = states.get(id).unwrap_or(false)
-          new_states.set(id, not(current))
-          pressed_states.set(new_states)
-        }
+      fn(id) {
+        let states = pressed_states.get()
+        let new_states = states.copy()
+        let current = states.get(id).unwrap_or(false)
+        new_states.set(id, not(current))
+        pressed_states.set(new_states)
       },
     ),
   ])
@@ -1670,6 +1674,8 @@ fn inject_styled_css() -> Unit {
   buf.write_string(@radio.radio_css())
   buf.write_string("\n\n")
   buf.write_string(@spinbutton.spinbutton_css())
+  buf.write_string("\n\n")
+  buf.write_string(@toolbar.toolbar_css())
   buf.write_string("\n\n")
   buf.write_string(apg_components_css())
   let css = buf.to_string()

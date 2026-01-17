@@ -5,16 +5,55 @@
 /// Check if a tag is an SVG element
 fn is_svg_element(tag : String) -> Bool {
   match tag {
-    "svg" | "g" | "defs" | "symbol" | "use" | "rect" | "circle" | "ellipse" |
-    "line" | "polyline" | "polygon" | "path" | "text" | "tspan" | "image" |
-    "clipPath" | "mask" | "linearGradient" | "radialGradient" | "stop" |
-    "pattern" | "filter" | "animate" | "animateTransform" | "foreignObject" |
-    "title" | "desc" | "marker" | "feGaussianBlur" | "feOffset" | "feBlend" |
-    "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" |
-    "feDiffuseLighting" | "feDisplacementMap" | "feFlood" | "feFuncR" |
-    "feFuncG" | "feFuncB" | "feFuncA" | "feImage" | "feMerge" | "feMergeNode" |
-    "feMorphology" | "feSpecularLighting" | "feTile" | "feTurbulence" =>
-      true
+    "svg"
+    | "g"
+    | "defs"
+    | "symbol"
+    | "use"
+    | "rect"
+    | "circle"
+    | "ellipse"
+    | "line"
+    | "polyline"
+    | "polygon"
+    | "path"
+    | "text"
+    | "tspan"
+    | "image"
+    | "clipPath"
+    | "mask"
+    | "linearGradient"
+    | "radialGradient"
+    | "stop"
+    | "pattern"
+    | "filter"
+    | "animate"
+    | "animateTransform"
+    | "foreignObject"
+    | "title"
+    | "desc"
+    | "marker"
+    | "feGaussianBlur"
+    | "feOffset"
+    | "feBlend"
+    | "feColorMatrix"
+    | "feComponentTransfer"
+    | "feComposite"
+    | "feConvolveMatrix"
+    | "feDiffuseLighting"
+    | "feDisplacementMap"
+    | "feFlood"
+    | "feFuncR"
+    | "feFuncG"
+    | "feFuncB"
+    | "feFuncA"
+    | "feImage"
+    | "feMerge"
+    | "feMergeNode"
+    | "feMorphology"
+    | "feSpecularLighting"
+    | "feTile"
+    | "feTurbulence" => true
     _ => false
   }
 }

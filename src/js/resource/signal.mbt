@@ -2,6 +2,7 @@
 // All core signal functionality is provided by mizchi/signals
 
 // Signal and reactive primitives
+
 ///|
 pub using @signals {type Signal, signal, on, on_immediate}
 

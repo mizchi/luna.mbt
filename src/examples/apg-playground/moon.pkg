@@ -9,6 +9,7 @@ import {
   "mizchi/luna/x/components/styled/checkbox" as @checkbox,
   "mizchi/luna/x/components/styled/radio" as @radio,
   "mizchi/luna/x/components/styled/spinbutton" as @spinbutton,
+  "mizchi/luna/x/components/styled/toolbar" as @toolbar,
   "mizchi/js/browser/dom" as @dom,
   "mizchi/luna/dom/client" as @client,
   "mizchi/js/core" as @js,
