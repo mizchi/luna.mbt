@@ -837,14 +837,15 @@ fn landmarks_demo() -> @luna.Node[@js.Any] {
 fn table_demo() -> @luna.Node[@js.Any] {
   let columns = [
     @table.table_column("name", "Name", sortable=true),
+    @table.table_column("age", "Age", sortable=true),
     @table.table_column("role", "Role", sortable=true),
     @table.table_column("email", "Email"),
   ]
   let rows = [
-    @table.table_row("1", ["Alice", "Developer", "alice@example.com"]),
-    @table.table_row("2", ["Bob", "Designer", "bob@example.com"]),
-    @table.table_row("3", ["Charlie", "Manager", "charlie@example.com"]),
-    @table.table_row("4", ["Diana", "QA Engineer", "diana@example.com"]),
+    @table.table_row("1", ["Alice", "28", "Developer", "alice@example.com"]),
+    @table.table_row("2", ["Bob", "35", "Designer", "bob@example.com"]),
+    @table.table_row("3", ["Charlie", "42", "Manager", "charlie@example.com"]),
+    @table.table_row("4", ["Diana", "31", "QA Engineer", "diana@example.com"]),
   ]
   div([
     h2([@luna.text("Table")]),
