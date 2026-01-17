@@ -238,6 +238,175 @@ fn make_tree_handler(
 }
 
 ///|
+/// Render a single tree node with styling.
+/// This is a helper function to ensure proper closure capture of node_id.
+fn render_single_styled_tree_node(
+  node_id : String,
+  node_label : String,
+  node_children : Array[TreeNode],
+  node_disabled : Bool,
+  focused_id : @resource.Signal[String],
+  expanded : @resource.Signal[Map[String, Bool]],
+  selected : @resource.Signal[String],
+  keydown_handler : @luna.EventHandler[@js.Any],
+  on_select : (String) -> Unit,
+  depth : Int,
+) -> @luna.Node[@js.Any] {
+  let slots = treeview_slots()
+  let has_kids = node_children.length() > 0
+
+  // Icon element (only for items with children)
+  let icon_node : @luna.Node[@js.Any] = if has_kids {
+    @luna.h(
+      "span",
+      [
+        ("class", @luna.attr_static(slots.icon)),
+        ("aria-hidden", @luna.attr_static("true")),
+      ],
+      [
+        @luna.text_dyn(fn() {
+          if expanded.get().get(node_id).unwrap_or(false) {
+            "\u{25BC}" // ▼
+          } else {
+            "\u{25B6}" // ▶
+          }
+        }),
+      ],
+    )
+  } else {
+    // Placeholder for alignment
+    @luna.h(
+      "span",
+      [
+        ("class", @luna.attr_static(slots.icon + " " + slots.icon + "--empty")),
+        ("aria-hidden", @luna.attr_static("true")),
+      ],
+      [],
+    )
+  }
+
+  // Label element
+  let label_node = @luna.h(
+    "span",
+    [("class", @luna.attr_static(slots.label))],
+    [@luna.text(node_label)],
+  )
+
+  // Row element (clickable)
+  let row_node = @luna.h(
+    "div",
+    [
+      ("class", @luna.attr_static(slots.row)),
+      (
+        "data-selected",
+        @luna.attr_dynamic(fn() {
+          if selected.get() == node_id {
+            "true"
+          } else {
+            "false"
+          }
+        }),
+      ),
+      ("data-depth", @luna.attr_static(depth.to_string())),
+      (
+        "click",
+        @luna.attr_handler(@luna.handler(fn(e : @js.Any) {
+          let _ = e._call("stopPropagation", [])
+          focused_id.set(node_id)
+          selected.set(node_id)
+          on_select(node_id)
+          // Toggle expand/collapse if has children
+          if has_kids {
+            let exp_map = expanded.get()
+            let new_map = exp_map.copy()
+            let is_expanded = exp_map.get(node_id).unwrap_or(false)
+            new_map.set(node_id, not(is_expanded))
+            expanded.set(new_map)
+          }
+        })),
+      ),
+    ],
+    [icon_node, label_node],
+  )
+
+  // Build child group (always rendered, visibility controlled by CSS/show)
+  let children_content : Array[@luna.Node[@js.Any]] = [row_node]
+  if has_kids {
+    children_content.push(
+      @luna.show(
+        fn() { expanded.get().get(node_id).unwrap_or(false) },
+        fn() {
+          let child_items = render_styled_tree_nodes(
+            node_children,
+            focused_id,
+            expanded,
+            selected,
+            keydown_handler,
+            on_select,
+            depth + 1,
+          )
+          @luna.h(
+            "ul",
+            [
+              ("role", @luna.attr_static("group")),
+              ("class", @luna.attr_static(slots.group)),
+            ],
+            child_items,
+          )
+        },
+      ),
+    )
+  }
+
+  // Item element
+  let item_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("role", @luna.attr_static("treeitem")),
+    ("id", @luna.attr_static(node_id)),
+    ("class", @luna.attr_static(slots.item)),
+    (
+      "tabindex",
+      @luna.attr_dynamic(fn() {
+        if focused_id.get() == node_id {
+          "0"
+        } else {
+          "-1"
+        }
+      }),
+    ),
+    (
+      "aria-selected",
+      @luna.attr_dynamic(fn() {
+        if selected.get() == node_id {
+          "true"
+        } else {
+          "false"
+        }
+      }),
+    ),
+    ("keydown", @luna.attr_handler(keydown_handler)),
+  ]
+  if has_kids {
+    item_attrs.push(
+      (
+        "aria-expanded",
+        @luna.attr_dynamic(fn() {
+          if expanded.get().get(node_id).unwrap_or(false) {
+            "true"
+          } else {
+            "false"
+          }
+        }),
+      ),
+    )
+  }
+  if node_disabled {
+    item_attrs.push(("aria-disabled", @luna.attr_static("true")))
+  }
+
+  @luna.h("li", item_attrs, children_content)
+}
+
+///|
 /// Render tree nodes recursively with styling.
 fn render_styled_tree_nodes(
   nodes : Array[TreeNode],
@@ -248,161 +417,23 @@ fn render_styled_tree_nodes(
   on_select : (String) -> Unit,
   depth : Int,
 ) -> Array[@luna.Node[@js.Any]] {
-  let slots = treeview_slots()
   let items : Array[@luna.Node[@js.Any]] = []
   for node in nodes {
-    let node_id = node.id
-    let has_kids = has_children(node)
-
-    // Icon element (only for items with children)
-    let icon_node : @luna.Node[@js.Any] = if has_kids {
-      @luna.h(
-        "span",
-        [
-          ("class", @luna.attr_static(slots.icon)),
-          ("aria-hidden", @luna.attr_static("true")),
-        ],
-        [
-          @luna.text_dyn(fn() {
-            if expanded.get().get(node_id).unwrap_or(false) {
-              "\u{25BC}" // ▼
-            } else {
-              "\u{25B6}" // ▶
-            }
-          }),
-        ],
-      )
-    } else {
-      // Placeholder for alignment
-      @luna.h(
-        "span",
-        [
-          ("class", @luna.attr_static(slots.icon + " " + slots.icon + "--empty")),
-          ("aria-hidden", @luna.attr_static("true")),
-        ],
-        [],
-      )
-    }
-
-    // Label element
-    let label_node = @luna.h(
-      "span",
-      [("class", @luna.attr_static(slots.label))],
-      [@luna.text(node.label)],
-    )
-
-    // Row element (clickable)
-    let row_node = @luna.h(
-      "div",
-      [
-        ("class", @luna.attr_static(slots.row)),
-        (
-          "data-selected",
-          @luna.attr_dynamic(fn() {
-            if selected.get() == node_id {
-              "true"
-            } else {
-              "false"
-            }
-          }),
-        ),
-        ("data-depth", @luna.attr_static(depth.to_string())),
-        (
-          "click",
-          @luna.attr_handler(@luna.handler(fn(e : @js.Any) {
-            let _ = e._call("stopPropagation", [])
-            focused_id.set(node_id)
-            selected.set(node_id)
-            on_select(node_id)
-            // Toggle expand/collapse if has children
-            if has_kids {
-              let exp_map = expanded.get()
-              let new_map = exp_map.copy()
-              let is_expanded = exp_map.get(node_id).unwrap_or(false)
-              new_map.set(node_id, not(is_expanded))
-              expanded.set(new_map)
-            }
-          })),
-        ),
-      ],
-      [icon_node, label_node],
-    )
-
-    // Build child group (always rendered, visibility controlled by CSS/show)
-    let children_content : Array[@luna.Node[@js.Any]] = [row_node]
-    if has_kids {
-      children_content.push(
-        @luna.show(
-          fn() { expanded.get().get(node_id).unwrap_or(false) },
-          fn() {
-            let child_items = render_styled_tree_nodes(
-              node.children,
-              focused_id,
-              expanded,
-              selected,
-              keydown_handler,
-              on_select,
-              depth + 1,
-            )
-            @luna.h(
-              "ul",
-              [
-                ("role", @luna.attr_static("group")),
-                ("class", @luna.attr_static(slots.group)),
-              ],
-              child_items,
-            )
-          },
-        ),
-      )
-    }
-
-    // Item element
-    let item_attrs : Array[(String, @luna.Attr[@js.Any])] = [
-      ("role", @luna.attr_static("treeitem")),
-      ("id", @luna.attr_static(node_id)),
-      ("class", @luna.attr_static(slots.item)),
-      (
-        "tabindex",
-        @luna.attr_dynamic(fn() {
-          if focused_id.get() == node_id {
-            "0"
-          } else {
-            "-1"
-          }
-        }),
+    // Call helper function to ensure proper closure capture
+    items.push(
+      render_single_styled_tree_node(
+        node.id,
+        node.label,
+        node.children,
+        node.disabled,
+        focused_id,
+        expanded,
+        selected,
+        keydown_handler,
+        on_select,
+        depth,
       ),
-      (
-        "aria-selected",
-        @luna.attr_dynamic(fn() {
-          if selected.get() == node_id {
-            "true"
-          } else {
-            "false"
-          }
-        }),
-      ),
-      ("keydown", @luna.attr_handler(keydown_handler)),
-    ]
-    if has_kids {
-      item_attrs.push(
-        (
-          "aria-expanded",
-          @luna.attr_dynamic(fn() {
-            if expanded.get().get(node_id).unwrap_or(false) {
-              "true"
-            } else {
-              "false"
-            }
-          }),
-        ),
-      )
-    }
-    if node.disabled {
-      item_attrs.push(("aria-disabled", @luna.attr_static("true")))
-    }
-
-    items.push(@luna.h("li", item_attrs, children_content))
+    )
   }
   items
 }

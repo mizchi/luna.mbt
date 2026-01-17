@@ -405,6 +405,53 @@ fn focus_tree_item(item_id : String) -> Unit {
 }
 
 ///|
+/// Render a single tree node (helper to ensure proper closure capture).
+fn render_single_tree_node(
+  node_id : String,
+  node_label : String,
+  node_children : Array[TreeNode],
+  node_disabled : Bool,
+  focused_id : @resource.Signal[String],
+  expanded : @resource.Signal[Map[String, Bool]],
+  selected : @resource.Signal[String],
+  keydown_handler : @luna.EventHandler[@js.Any],
+  on_select : (String) -> Unit,
+) -> @luna.Node[@js.Any] {
+  let has_kids = node_children.length() > 0
+  // Build child nodes recursively
+  let child_nodes = if has_kids {
+    Some(
+      render_tree_nodes(
+        node_children,
+        focused_id,
+        expanded,
+        selected,
+        keydown_handler,
+        on_select,
+      ),
+    )
+  } else {
+    None
+  }
+  treeitem_dyn(
+    id=node_id,
+    selected,
+    node_id,
+    expanded~,
+    has_kids,
+    focused_id,
+    disabled=node_disabled,
+    on_click=@luna.handler(fn(_) {
+      focused_id.set(node_id)
+      on_select(node_id)
+    }),
+    on_keydown=keydown_handler,
+    [@luna.text(node_label)],
+    children=child_nodes.unwrap_or([]),
+  )
+}
+
+///|
 /// Render tree nodes recursively.
 fn render_tree_nodes(
   nodes : Array[TreeNode],
@@ -416,40 +463,20 @@ fn render_tree_nodes(
 ) -> Array[@luna.Node[@js.Any]] {
   let items : Array[@luna.Node[@js.Any]] = []
   for node in nodes {
-    let node_id = node.id
-    let has_kids = has_children(node)
-    // Build child nodes recursively
-    let child_nodes = if has_kids {
-      Some(
-        render_tree_nodes(
-          node.children,
-          focused_id,
-          expanded,
-          selected,
-          keydown_handler,
-          on_select,
-        ),
-      )
-    } else {
-      None
-    }
-    let item = treeitem_dyn(
-      id=node_id,
-      selected,
-      node_id,
-      expanded~,
-      has_kids,
-      focused_id,
-      disabled=node.disabled,
-      on_click=@luna.handler(fn(_) {
-        focused_id.set(node_id)
-        on_select(node_id)
-      }),
-      on_keydown=keydown_handler,
-      [@luna.text(node.label)],
-      children=child_nodes.unwrap_or([]),
+    // Call helper function to ensure proper closure capture
+    items.push(
+      render_single_tree_node(
+        node.id,
+        node.label,
+        node.children,
+        node.disabled,
+        focused_id,
+        expanded,
+        selected,
+        keydown_handler,
+        on_select,
+      ),
     )
-    items.push(item)
   }
   items
 }

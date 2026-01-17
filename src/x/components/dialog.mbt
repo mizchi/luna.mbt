@@ -50,6 +50,7 @@ pub fn[E] dialog(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("dialog")),
     ("aria-modal", @luna.attr_static("true")),
+    ("tabindex", @luna.attr_static("-1")), // Allow focus for keyboard events
   ]
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
@@ -82,6 +83,7 @@ pub fn[E] dialog_dyn(
   let attrs : Array[(String, @luna.Attr[E])] = [
     ("role", @luna.attr_static("dialog")),
     ("aria-modal", @luna.attr_static("true")),
+    ("tabindex", @luna.attr_static("-1")), // Allow focus for keyboard events
   ]
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))

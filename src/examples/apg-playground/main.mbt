@@ -377,17 +377,37 @@ fn slider_demo() -> @luna.Node[@js.Any] {
 ///|
 fn dialog_demo() -> @luna.Node[@js.Any] {
   let open = @resource.signal(false)
+  let close = fn() { open.set(false) }
+  let handle_keydown : @luna.EventHandler[@js.Any] = @luna.handler(fn(event) {
+    let key : String = event._get("key").cast()
+    if key == "Escape" {
+      close()
+    }
+  })
   div([
     h2([@luna.text("Dialog")]),
     p([@luna.text("Modal dialog example")]),
     btn(@luna.handler(fn(_) { open.set(true) }), [@luna.text("Open Dialog")]),
-    @apg.dialog_dyn(aria_label="Example Dialog", open, [
-      @luna.h("h3", [], [@luna.text("Dialog Title")]),
-      @luna.h("p", [], [@luna.text("This is a modal dialog.")]),
-      @apg.button(on_click=@luna.handler(fn(_) { open.set(false) }), [
-        @luna.text("Close"),
-      ]),
-    ]),
+    // Backdrop
+    @luna.show(fn() { open.get() }, fn() {
+      @apg.dialog_backdrop(
+        on_click=@luna.handler(fn(_) { close() }),
+        [],
+      )
+    }),
+    // Dialog
+    @apg.dialog_dyn(
+      aria_label="Example Dialog",
+      open,
+      on_keydown=handle_keydown,
+      [
+        @luna.h("h3", [], [@luna.text("Dialog Title")]),
+        @luna.h("p", [], [@luna.text("This is a modal dialog.")]),
+        @apg.button(on_click=@luna.handler(fn(_) { close() }), [
+          @luna.text("Close"),
+        ]),
+      ],
+    ),
   ])
 }
 
