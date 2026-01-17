@@ -535,12 +535,11 @@ pub fn treeview_css() -> String {
     #|}
     #|
     #|.treeview__row[data-selected="true"] {
-    #|  background: var(--foreground);
-    #|  color: var(--background);
+    #|  background: var(--accent);
     #|}
     #|
     #|.treeview__row[data-selected="true"]:hover {
-    #|  background: var(--foreground);
+    #|  background: var(--accent);
     #|}
     #|
     #|.treeview__item:focus > .treeview__row {
@@ -561,7 +560,7 @@ pub fn treeview_css() -> String {
     #|}
     #|
     #|.treeview__row[data-selected="true"] .treeview__icon {
-    #|  color: var(--background);
+    #|  color: var(--foreground);
     #|}
     #|
     #|.treeview__icon--empty {
@@ -576,7 +575,6 @@ pub fn treeview_css() -> String {
     #|}
     #|
     #|.treeview__row[data-selected="true"] .treeview__label {
-    #|  color: var(--background);
     #|  font-weight: 500;
     #|}
     #|
