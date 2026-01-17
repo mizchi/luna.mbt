@@ -14,6 +14,7 @@ import {
   "mizchi/luna/x/components/styled/table" as @table,
   "mizchi/luna/x/components/styled/meter" as @meter,
   "mizchi/luna/x/components/styled/disclosure" as @disclosure,
+  "mizchi/luna/x/components/styled/treeview" as @treeview,
   "mizchi/js/browser/dom" as @dom,
   "mizchi/luna/dom/client" as @client,
   "mizchi/js/core" as @js,

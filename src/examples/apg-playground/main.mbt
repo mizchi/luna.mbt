@@ -549,20 +549,19 @@ fn combobox_demo() -> @luna.Node[@js.Any] {
 fn treeview_demo() -> @luna.Node[@js.Any] {
   let selected_node = @resource.signal("")
   let nodes = [
-    @apg.tree_node("documents", "Documents", children=[
-      @apg.tree_node("work", "Work", children=[
-        @apg.tree_node("report", "Annual Report"),
-        @apg.tree_node("budget", "Budget 2024"),
-      ]),
-      @apg.tree_node("personal", "Personal", children=[
-        @apg.tree_node("photos", "Photos"),
-        @apg.tree_node("notes", "Notes"),
+    @treeview.tree_node("documents", "Documents", children=[
+      @treeview.tree_node("report", "report.pdf"),
+      @treeview.tree_node("notes", "notes.txt"),
+      @treeview.tree_node("projects", "Projects", children=[
+        @treeview.tree_node("project-a", "Project A"),
+        @treeview.tree_node("project-b", "Project B"),
       ]),
     ]),
-    @apg.tree_node("downloads", "Downloads", children=[
-      @apg.tree_node("file1", "file1.zip"),
-      @apg.tree_node("file2", "file2.pdf"),
+    @treeview.tree_node("images", "Images", children=[
+      @treeview.tree_node("photo1", "photo1.jpg"),
+      @treeview.tree_node("photo2", "photo2.png"),
     ]),
+    @treeview.tree_node("readme", "readme.md"),
   ]
   div([
     h2([@luna.text("Tree View")]),
@@ -571,11 +570,13 @@ fn treeview_demo() -> @luna.Node[@js.Any] {
         "Hierarchical list (↑/↓/←/→ arrows, Home/End, Enter/Space)",
       ),
     ]),
-    @apg.tree_interactive("file-tree", nodes, aria_label="File browser", fn(
-      id,
-    ) {
-      selected_node.set(id)
-    }),
+    @treeview.treeview(
+      "file-tree",
+      nodes,
+      aria_label="File browser",
+      fn(id) { selected_node.set(id) },
+      initial_expanded=["documents", "projects"],
+    ),
     p([@luna.text_dyn(fn() { "Selected: " + selected_node.get() })]),
   ])
 }
@@ -1690,6 +1691,8 @@ fn inject_styled_css() -> Unit {
   buf.write_string(@meter.meter_css())
   buf.write_string("\n\n")
   buf.write_string(@disclosure.disclosure_css())
+  buf.write_string("\n\n")
+  buf.write_string(@treeview.treeview_css())
   buf.write_string("\n\n")
   buf.write_string(apg_components_css())
   let css = buf.to_string()
