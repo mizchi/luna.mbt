@@ -493,29 +493,8 @@ pub fn combobox_interactive(
   if aria_label is Some(label) {
     input_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  // Build listbox with dynamic content
+  // Build listbox with reactive content using For node
   let build_listbox = fn() -> @luna.Node[@js.Any] {
-    let filtered = get_filtered()
-    let option_nodes : Array[@luna.Node[@js.Any]] = []
-    for opt in filtered {
-      let opt_id = id + "-option-" + opt.id
-      option_nodes.push(
-        combobox_option_dyn(
-          opt_id,
-          opt_id,
-          active_option_id,
-          disabled=opt.disabled,
-          on_click=@luna.handler(fn(_ : @js.Any) {
-            if not(opt.disabled) {
-              input_value.set(opt.label)
-              on_select(opt)
-              is_open.set(false)
-            }
-          }),
-          [@luna.text(opt.label)],
-        ),
-      )
-    }
     @luna.h(
       "ul",
       [
@@ -524,7 +503,34 @@ pub fn combobox_interactive(
         ("aria-labelledby", @luna.attr_static(input_id)),
         ("class", @luna.attr_static("combobox-listbox")),
       ],
-      option_nodes,
+      [
+        @luna.Node::For(
+          render=fn() {
+            let filtered = get_filtered()
+            let option_nodes : Array[@luna.Node[@js.Any]] = []
+            for opt in filtered {
+              let opt_id = id + "-option-" + opt.id
+              option_nodes.push(
+                combobox_option_dyn(
+                  opt_id,
+                  opt_id,
+                  active_option_id,
+                  disabled=opt.disabled,
+                  on_click=@luna.handler(fn(_ : @js.Any) {
+                    if not(opt.disabled) {
+                      input_value.set(opt.label)
+                      on_select(opt)
+                      is_open.set(false)
+                    }
+                  }),
+                  [@luna.text(opt.label)],
+                ),
+              )
+            }
+            option_nodes
+          },
+        ),
+      ],
     )
   }
   // Caret icon (CSS-based, since Luna doesn't support SVG namespace yet)
