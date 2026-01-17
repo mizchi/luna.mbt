@@ -20,6 +20,11 @@ pub fn theme_variables() -> String {
     #|  --switch-track-off: #d1d5db;
     #|  --switch-track-on: #3b82f6;
     #|
+    #|  /* Semantic colors */
+    #|  --destructive: #ef4444;
+    #|  --warning: #f59e0b;
+    #|  --success: #10b981;
+    #|
     #|  /* Link */
     #|  --link-color: #2563eb;
     #|  --link-hover: #1d4ed8;
@@ -36,6 +41,11 @@ pub fn theme_variables() -> String {
     #|  --accent-foreground: #ffffff;
     #|  --switch-track-off: #4b5563;
     #|  --switch-track-on: #3b82f6;
+    #|
+    #|  /* Semantic colors */
+    #|  --destructive: #f87171;
+    #|  --warning: #fbbf24;
+    #|  --success: #34d399;
     #|
     #|  /* Link */
     #|  --link-color: #60a5fa;
@@ -55,6 +65,11 @@ pub fn theme_variables() -> String {
     #|    --accent-foreground: #ffffff;
     #|    --switch-track-off: #4b5563;
     #|    --switch-track-on: #3b82f6;
+    #|
+    #|    /* Semantic colors */
+    #|    --destructive: #f87171;
+    #|    --warning: #fbbf24;
+    #|    --success: #34d399;
     #|
     #|    /* Link */
     #|    --link-color: #60a5fa;

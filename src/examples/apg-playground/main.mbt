@@ -734,14 +734,26 @@ fn alert_demo() -> @luna.Node[@js.Any] {
   div([
     h2([@luna.text("Alert")]),
     p([@luna.text("Live region for important messages")]),
-    @apg.alert(type_=@apg.Error, [@luna.text("Error: Something went wrong!")]),
-    @apg.alert(type_=@apg.Warning, [
-      @luna.text("Warning: Please check your input."),
-    ]),
-    @apg.alert(type_=@apg.Success, [
-      @luna.text("Success: Your changes have been saved."),
-    ]),
-    @apg.status([@luna.text("Status: Processing your request...")]),
+    @alert.alert(
+      @alert.Error,
+      title="Error",
+      description="Something went wrong!",
+    ),
+    @alert.alert(
+      @alert.Warning,
+      title="Warning",
+      description="Please check your input.",
+    ),
+    @alert.alert(
+      @alert.Success,
+      title="Success",
+      description="Your changes have been saved.",
+    ),
+    @alert.alert(
+      @alert.Status,
+      title="Status",
+      description="Processing your request...",
+    ),
   ])
 }
 
@@ -1676,6 +1688,8 @@ fn inject_styled_css() -> Unit {
   buf.write_string(@spinbutton.spinbutton_css())
   buf.write_string("\n\n")
   buf.write_string(@toolbar.toolbar_css())
+  buf.write_string("\n\n")
+  buf.write_string(@alert.alert_css())
   buf.write_string("\n\n")
   buf.write_string(apg_components_css())
   let css = buf.to_string()
