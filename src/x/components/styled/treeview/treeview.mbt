@@ -477,6 +477,23 @@ pub fn treeview(
 pub fn treeview_css() -> String {
   let css =
     #|/* TreeView - Default Theme */
+    #|
+    #|/* Override APG headless styles to prevent icon conflicts */
+    #|.treeview [role="treeitem"]::before {
+    #|  content: none !important;
+    #|  display: none !important;
+    #|}
+    #|.treeview [role="treeitem"] {
+    #|  padding: 0;
+    #|  border-bottom: none;
+    #|}
+    #|.treeview [role="treeitem"]:hover {
+    #|  background: transparent;
+    #|}
+    #|.treeview [role="treeitem"]:focus {
+    #|  box-shadow: none;
+    #|}
+    #|
     #|.treeview {
     #|  list-style: none;
     #|  margin: 0;
