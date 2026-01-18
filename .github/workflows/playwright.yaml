@@ -89,6 +89,7 @@ jobs:
           moon build --target js src/examples/todomvc
           moon build --target js src/examples/browser_router
           moon build --target js src/examples/wc
+          moon build --target js src/examples/apg-playground
       - name: Build Loader
         run: pnpm --filter @luna_ui/luna-loader build
       - name: Install Playwright Chromium
