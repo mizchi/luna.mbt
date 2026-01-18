@@ -2289,8 +2289,20 @@ fn[FS : @env.FileSystem] get_routes_package_path_with_fs(
       guard obj.get("name") is Some(String(pkg_name)) else {
         return "\{routes_dir}"
       }
-      // Convert app/server -> myproject/server
-      let routes_suffix = routes_dir.replace(old="app/", new="")
+      // Check source field to determine package path
+      let source = match obj.get("source") {
+        Some(String(s)) => s
+        _ => "src"
+      }
+      // If source is "." or empty, use the full routes_dir path
+      // If source is "app", strip "app/" prefix for backward compatibility
+      let routes_suffix = if source == "." || source == "" {
+        routes_dir
+      } else if routes_dir.starts_with(source + "/") {
+        routes_dir.substring(start=source.length() + 1)
+      } else {
+        routes_dir
+      }
       return "\{pkg_name}/\{routes_suffix}"
     } catch {
       _ => ()

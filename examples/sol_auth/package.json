@@ -1,0 +1,31 @@
+{
+  "name": "sol-auth-example",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../target/js/release/build/cli/cli.js dev",
+    "dev:auth": "tsx dev-auth.ts",
+    "dev:wrangler": "wrangler dev",
+    "build": "node ../../target/js/release/build/cli/cli.js build",
+    "serve": "node ../../target/js/release/build/cli/cli.js serve",
+    "test": "playwright test",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create sol-auth-db",
+    "db:migrate": "wrangler d1 execute sol-auth-db --file=migrations/0001_init.sql",
+    "db:migrate:local": "wrangler d1 execute sol-auth-db --local --file=migrations/0001_init.sql"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "better-auth": "^1.2.8",
+    "better-sqlite3": "^12.0.0",
+    "drizzle-orm": "^0.45.0",
+    "hono": "^4.7.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
+    "@playwright/test": "^1.57.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "tsx": "^4.0.0",
+    "wrangler": "^3.99.0"
+  }
+}
