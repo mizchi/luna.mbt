@@ -101,7 +101,7 @@ pub fn make_accordion_keydown_handler(
   header_ids : Array[String],
   index : Int,
   count : Int,
-  expanded : @resource.Signal[Int],
+  _expanded : @resource.Signal[Int],
   toggle : () -> Unit,
 ) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(evt) {

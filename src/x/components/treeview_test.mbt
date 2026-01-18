@@ -110,14 +110,14 @@ test "find_node: finds nested node" {
 test "find_node: returns None for non-existent" {
   let nodes = test_tree()
   let found = find_node(nodes, "non-existent")
-  inspect(found.is_empty(), content="true")
+  inspect(found is None, content="true")
 }
 
 ///|
 test "find_parent_id: root node has no parent" {
   let nodes = test_tree()
   let parent = find_parent_id(nodes, "documents", None)
-  inspect(parent.is_empty(), content="true")
+  inspect(parent is None, content="true")
 }
 
 ///|
