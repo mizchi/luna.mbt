@@ -427,10 +427,14 @@ fn collect_urls_from_item(
 
 ///|
 /// Render sidebar to VNode (desktop version with collapse button)
+/// Enhanced with luna hydration for keyboard navigation
 pub fn render_sidebar(
   groups : Array[@ssg.SidebarGroup],
   current_path : String,
 ) -> @luna.Node[Unit] {
+  // Reset counter at start of sidebar render for consistent IDs
+  reset_sidebar_group_counter()
+
   let group_vnodes = groups.map(fn(group) {
     render_sidebar_group(group, current_path)
   })
@@ -447,29 +451,47 @@ pub fn render_sidebar(
     ],
     [h("span", [attr("class", "collapse-icon")], [])],
   )
-  h("aside", [attr("class", "sidebar sidebar-desktop")], [content, collapse_btn])
+
+  // Add luna hydration attributes for enhanced keyboard navigation
+  h(
+    "aside",
+    [
+      attr("class", "sidebar sidebar-desktop"),
+      attr("luna:wc-url", "/components/sidebar-disclosure.js"),
+      attr("luna:trigger", "load"),
+    ],
+    [content, collapse_btn],
+  )
 }
 
 ///|
 /// Render mobile sidebar dropdown (Docusaurus-style)
+/// Enhanced with luna hydration for keyboard navigation
 pub fn render_mobile_sidebar(
   groups : Array[@ssg.SidebarGroup],
   current_path : String,
 ) -> @luna.Node[Unit] {
+  // Reset counter at start of mobile sidebar render for consistent IDs
+  reset_sidebar_group_counter()
+
   // Find current page title for the dropdown summary
   let current_title = find_current_page_title(groups, current_path)
   let summary = h("summary", [attr("class", "mobile-sidebar-trigger")], [
     h("span", [attr("class", "mobile-sidebar-label")], [
       @luna.text(current_title),
     ]),
-    h("span", [attr("class", "mobile-sidebar-arrow")], []),
+    h("span", [attr("class", "mobile-sidebar-arrow"), attr("aria-hidden", "true")], []),
   ])
   let group_vnodes = groups.map(fn(group) {
     render_sidebar_group(group, current_path)
   })
   let content = h(
     "nav",
-    [attr("class", "mobile-sidebar-content")],
+    [
+      attr("class", "mobile-sidebar-content"),
+      attr("luna:wc-url", "/components/sidebar-disclosure.js"),
+      attr("luna:trigger", "load"),
+    ],
     group_vnodes,
   )
   h("details", [attr("class", "mobile-sidebar")], [summary, content])
@@ -550,9 +572,27 @@ fn is_group_active(group : @ssg.SidebarGroup, current_path : String) -> Bool {
   group.items.iter().any(fn(item) { is_item_active(item, current_path) })
 }
 
+// Counter for generating unique IDs for sidebar groups
+let sidebar_group_counter : Ref[Int] = { val: 0 }
+
+///|
+/// Reset sidebar group counter (call at start of page render)
+pub fn reset_sidebar_group_counter() -> Unit {
+  sidebar_group_counter.val = 0
+}
+
+///|
+/// Generate unique ID for sidebar group
+fn generate_sidebar_group_id() -> String {
+  let id = sidebar_group_counter.val
+  sidebar_group_counter.val = id + 1
+  "sidebar-group-" + id.to_string()
+}
+
 ///|
 /// Render sidebar group (collapsible with details/summary)
 /// Groups with only index.md (no other items) render as simple links
+/// Enhanced with ARIA attributes for accessibility
 fn render_sidebar_group(
   group : @ssg.SidebarGroup,
   current_path : String,
@@ -576,6 +616,11 @@ fn render_sidebar_group(
     }
   }
 
+  // Generate unique IDs for ARIA attributes
+  let group_id = generate_sidebar_group_id()
+  let content_id = group_id + "-content"
+  let label_id = group_id + "-label"
+
   // Check if any item in this group or nested groups is active
   let has_active = is_group_active(group, current_path)
 
@@ -592,29 +637,41 @@ fn render_sidebar_group(
         "sidebar-group-link"
       }
       [
-        h("a", [attr("href", link), attr("class", link_class)], [
-          @luna.text(group.text),
-        ]),
-        h("span", [attr("class", "sidebar-chevron")], []),
+        h(
+          "a",
+          [attr("href", link), attr("class", link_class), attr("id", label_id)],
+          [@luna.text(group.text)],
+        ),
+        h("span", [attr("class", "sidebar-chevron"), attr("aria-hidden", "true")], []),
       ]
     }
     None =>
       [
-        @luna.text(group.text),
-        h("span", [attr("class", "sidebar-chevron")], []),
+        h("span", [attr("id", label_id)], [@luna.text(group.text)]),
+        h("span", [attr("class", "sidebar-chevron"), attr("aria-hidden", "true")], []),
       ]
   }
-  let summary = h(
-    "summary",
-    [attr("class", "sidebar-group-summary")],
-    summary_content,
-  )
+
+  // Summary with ARIA attributes
+  let summary_attrs : Array[(String, @luna.Attr[Unit])] = [
+    attr("class", "sidebar-group-summary"),
+    attr("aria-expanded", if is_open { "true" } else { "false" }),
+    attr("aria-controls", content_id),
+    attr("aria-labelledby", label_id),
+  ]
+  let summary = h("summary", summary_attrs, summary_content)
+
   let item_vnodes = group.items.map(fn(item) {
     render_sidebar_item(item, current_path)
   })
   let items_list = h("ul", [attr("class", "sidebar-items-inner")], item_vnodes)
-  // Wrapper for grid animation
-  let items_container = h("div", [attr("class", "sidebar-items")], [items_list])
+
+  // Wrapper for grid animation with ID for aria-controls
+  let items_container = h(
+    "div",
+    [attr("class", "sidebar-items"), attr("id", content_id), attr("role", "region")],
+    [items_list],
+  )
 
   // Use details element for collapsible behavior
   let attrs : Array[(String, @luna.Attr[Unit])] = [
