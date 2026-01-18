@@ -255,7 +255,7 @@ test "render_sidebar - returns valid node" {
   ]
   let node = render_sidebar(groups, "/")
   // Just verify it returns a node (detailed rendering tests would be integration tests)
-  inspect(node is @luna.Element(_), content="true")
+  inspect(node is @luna.Node::Element(_), content="true")
 }
 
 ///|
@@ -269,7 +269,7 @@ test "render_mobile_sidebar - returns valid node" {
     },
   ]
   let node = render_mobile_sidebar(groups, "/")
-  inspect(node is @luna.Element(_), content="true")
+  inspect(node is @luna.Node::Element(_), content="true")
 }
 
 // =============================================================================

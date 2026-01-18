@@ -1,10 +1,10 @@
 import {
   "mizchi/luna" as @luna,
-  "mizchi/luna/routes" as @routes,
-  "mizchi/luna/render" as @render,
+  "mizchi/luna/core/routes" as @routes,
+  "mizchi/luna/core/render" as @render,
   "mizchi/sol/ssg" as @ssg,
   "mizchi/sol/routes" as @sol_routes,
-  "mizchi/luna/static_dom" as @server_dom,
+  "mizchi/luna/dom/static" as @server_dom,
   "mizchi/sol/middleware" as @middleware,
   "mizchi/sol/isr" as @isr,
   "mizchi/npm_typed/hono" as @hono,

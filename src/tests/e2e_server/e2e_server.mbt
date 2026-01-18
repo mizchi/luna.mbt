@@ -50,7 +50,7 @@ async fn create_loader_app() -> @sol.App {
     let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
         "lazy-1", "/components/lazy.js",
       )
-      .with_trigger(@luna.Visible)
+      .with_trigger(@luna.TriggerType::Visible)
       .with_state("{\"message\":\"Hello from state!\"}")
       .with_ssr_html(
         "<div data-content class=\"lazy-component\">Not hydrated yet</div>",
@@ -69,7 +69,7 @@ async fn create_loader_app() -> @sol.App {
     let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
         "idle-1", "/components/lazy.js",
       )
-      .with_trigger(@luna.Idle)
+      .with_trigger(@luna.TriggerType::Idle)
       .with_state("{\"message\":\"Loaded on idle\"}")
       .with_ssr_html("<div data-content>Waiting for idle...</div>")
     let island : String = @sol.render_island(config)
@@ -189,7 +189,7 @@ async fn create_shard_app() -> @sol.App {
     let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
         "lazy-counter", "/components/counter.js",
       )
-      .with_trigger(@luna.Visible)
+      .with_trigger(@luna.TriggerType::Visible)
       .with_state("{\"count\":100}")
       .with_ssr_html(
         "<span data-count>100</span><button data-inc>+</button><button data-dec>-</button>",

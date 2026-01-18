@@ -436,7 +436,7 @@ pub fn[E] island(
   url : String,
   state : String,
   children : Array[@luna.Node[E]],
-  trigger? : @luna.TriggerType = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E] {
   @luna.island(id, url, state, children, trigger~)
 }
@@ -448,7 +448,7 @@ pub fn[E] island_with(
   url : String,
   state : String,
   render : () -> @luna.Node[E],
-  trigger? : @luna.TriggerType = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E] {
   @luna.island(id, url, state, [render()], trigger~)
 }
@@ -484,7 +484,7 @@ pub fn[E] wc_island(
   styles : String,
   state : String,
   children : Array[@luna.Node[E]],
-  trigger? : @luna.TriggerType = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E] {
   @luna.wc_island(name, url, styles, state, children, trigger~)
 }
@@ -497,7 +497,7 @@ pub fn[E] wc_island_with(
   styles : String,
   state : String,
   render : () -> @luna.Node[E],
-  trigger? : @luna.TriggerType = @luna.Load,
+  trigger? : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E] {
   @luna.wc_island(name, url, styles, state, [render()], trigger~)
 }

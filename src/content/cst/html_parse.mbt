@@ -32,10 +32,10 @@ pub fn parse_island_directive(html : String) -> @markdown.IslandEmbed? {
 
   // Extract trigger attribute
   let trigger = match extract_attribute(trimmed, "trigger") {
-    Some("visible") => @luna.Visible
-    Some("idle") => @luna.Idle
-    Some("media") => @luna.Media("")
-    _ => @luna.Load
+    Some("visible") => @luna.TriggerType::Visible
+    Some("idle") => @luna.TriggerType::Idle
+    Some("media") => @luna.TriggerType::Media("")
+    _ => @luna.TriggerType::Load
   }
   Some(@markdown.IslandEmbed::{ name, props, trigger, ssr: false })
 }
@@ -82,11 +82,11 @@ pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
     None => extract_attribute(trimmed, "trigger")
   }
   let trigger = match trigger_str {
-    Some("visible") => @luna.Visible
-    Some("idle") => @luna.Idle
-    Some("media") => @luna.Media("")
-    Some("none") => @luna.None
-    _ => @luna.Load
+    Some("visible") => @luna.TriggerType::Visible
+    Some("idle") => @luna.TriggerType::Idle
+    Some("media") => @luna.TriggerType::Media("")
+    Some("none") => @luna.TriggerType::None
+    _ => @luna.TriggerType::Load
   }
 
   // Extract inner content (if not self-closing)

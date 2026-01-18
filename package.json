@@ -13,8 +13,9 @@
     "build": "moon build --target js"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
     "@hono/node-server": "^1.14.0",
+    "@luna_ui/luna": "^0.7.3",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^24.10.2",
     "@types/ws": "^8.18.1",
     "colorette": "^2.0.20",
@@ -30,5 +31,10 @@
     "vitest": "^4.0.15",
     "ws": "^8.19.0"
   },
-  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
+  }
 }

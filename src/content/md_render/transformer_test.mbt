@@ -9,7 +9,7 @@ test "Component with HTML children renders as raw HTML" {
     tag: "my-accordion",
     attrs: [],
     content: "<div data-item=\"1\">Content Here</div>",
-    trigger: @luna.Load,
+    trigger: @luna.TriggerType::Load,
   }
   let node = @markdown.MdNode::Component(embed)
 
@@ -35,7 +35,7 @@ test "Component with nested HTML children" {
     tag: "accordion-demo",
     attrs: [("data-state", "open")],
     content: "<button>Click me</button><div class=\"content\"><p>Nested paragraph</p></div>",
-    trigger: @luna.Visible,
+    trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
   let vnode = md_node_to_vnode(node, islands_base_path="/static/")
@@ -60,7 +60,7 @@ test "Component with empty content" {
     tag: "empty-component",
     attrs: [],
     content: "",
-    trigger: @luna.Load,
+    trigger: @luna.TriggerType::Load,
   }
   let node = @markdown.MdNode::Component(embed)
   let vnode = md_node_to_vnode(node, islands_base_path="/components/")
@@ -94,7 +94,7 @@ test "Radix accordion SSR structure" {
     tag: "radix-accordion",
     attrs: [("collapsible", "true")],
     content: accordion_content,
-    trigger: @luna.Visible,
+    trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
   let vnode = md_node_to_vnode(node, islands_base_path="/components/")
@@ -122,7 +122,7 @@ test "Component content with special chars not double-escaped" {
     tag: "code-demo",
     attrs: [],
     content: "<pre><code>const x = 1 &amp;&amp; 2;</code></pre>",
-    trigger: @luna.Load,
+    trigger: @luna.TriggerType::Load,
   }
   let node = @markdown.MdNode::Component(embed)
   let vnode = md_node_to_vnode(node, islands_base_path="/components/")
@@ -145,7 +145,7 @@ test "Radix switch SSR structure" {
     tag: "radix-switch",
     attrs: [("id", "notifications")],
     content: switch_content,
-    trigger: @luna.Visible,
+    trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
   let vnode = md_node_to_vnode(node, islands_base_path="/components/")
@@ -172,7 +172,7 @@ test "Radix tabs SSR structure" {
     tag: "radix-tabs",
     attrs: [("default-value", "tab1")],
     content: tabs_content,
-    trigger: @luna.Visible,
+    trigger: @luna.TriggerType::Visible,
   }
   let node = @markdown.MdNode::Component(embed)
   let vnode = md_node_to_vnode(node, islands_base_path="/components/")

@@ -1,6 +1,6 @@
 import {
   "mizchi/luna" as @luna,
-  "mizchi/luna/render" as @render,
+  "mizchi/luna/core/render" as @render,
   "mizchi/sol/ssg" as @ssg,
   "mizchi/sol/content/md_render" as @markdown,
   "mizchi/sol/ssg/mdx" as @mdx,

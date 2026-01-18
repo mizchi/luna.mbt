@@ -28,10 +28,6 @@
       "alias": "server_dom"
     },
     {
-      "path": "mizchi/luna/static_dom/element",
-      "alias": "element"
-    },
-    {
       "path": "mizchi/js/core",
       "alias": "core"
     },

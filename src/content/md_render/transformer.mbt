@@ -487,11 +487,11 @@ fn create_component_vnode(
 
   // Add luna:wc-trigger (or luna:trigger for behavior-based)
   let trigger_str = match effective_trigger {
-    @luna.Load => "load"
-    @luna.Idle => "idle"
-    @luna.Visible => "visible"
-    @luna.Media(_) => "media"
-    @luna.None => "none"
+    @luna.TriggerType::Load => "load"
+    @luna.TriggerType::Idle => "idle"
+    @luna.TriggerType::Visible => "visible"
+    @luna.TriggerType::Media(_) => "media"
+    @luna.TriggerType::None => "none"
   }
   attrs.push(attr("luna:wc-trigger", trigger_str))
 
@@ -568,7 +568,7 @@ fn jsx_to_component_embed(
 
   // Convert attributes and extract trigger
   let attrs : Array[(String, String)] = []
-  let mut trigger : @luna.Trigger = @luna.Load
+  let mut trigger : @luna.Trigger = @luna.TriggerType::Load
   for pair in jsx.attrs {
     let (key, value) = pair
     // Handle CLS hints as style
@@ -610,16 +610,16 @@ fn jsx_to_component_embed(
 /// Parse trigger string to TriggerType
 fn parse_trigger(s : String) -> @luna.Trigger {
   match s {
-    "load" => @luna.Load
-    "idle" => @luna.Idle
-    "visible" => @luna.Visible
-    "none" => @luna.None
+    "load" => @luna.TriggerType::Load
+    "idle" => @luna.TriggerType::Idle
+    "visible" => @luna.TriggerType::Visible
+    "none" => @luna.TriggerType::None
     _ =>
       if s.has_prefix("media:") {
         let query : String = s[6:].to_string() catch { _ => "" }
-        @luna.Media(query)
+        @luna.TriggerType::Media(query)
       } else {
-        @luna.Load
+        @luna.TriggerType::Load
       }
   }
 }

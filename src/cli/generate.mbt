@@ -1080,7 +1080,7 @@ fn generate_types_mbt(structs : Array[StructExport]) -> String {
     )
     buf.write_string("pub fn \{component_name}(\n")
     buf.write_string("  props : \{s.name},\n")
-    buf.write_string("  trigger~ : @luna.Trigger = @luna.Load,\n")
+    buf.write_string("  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n")
     buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
     buf.write_string("  { url: \"\{url}\", props, wc: \{is_wc}, trigger }\n")
     buf.write_string("}\n\n")

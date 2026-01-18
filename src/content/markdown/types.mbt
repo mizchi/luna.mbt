@@ -63,7 +63,7 @@ pub(all) struct IslandEmbed {
 ///|
 /// Default Island embed
 pub fn IslandEmbed::new(name : String) -> IslandEmbed {
-  { name, props: "{}", trigger: @luna.Load, ssr: false }
+  { name, props: "{}", trigger: @luna.TriggerType::Load, ssr: false }
 }
 
 ///|
@@ -83,7 +83,7 @@ pub(all) struct ComponentEmbed {
 ///|
 /// Default Component embed
 pub fn ComponentEmbed::new(tag : String) -> ComponentEmbed {
-  { tag, attrs: [], content: "", trigger: @luna.Load }
+  { tag, attrs: [], content: "", trigger: @luna.TriggerType::Load }
 }
 
 // =============================================================================
