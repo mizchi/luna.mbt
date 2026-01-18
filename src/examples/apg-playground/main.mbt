@@ -796,14 +796,76 @@ fn landmarks_demo() -> @luna.Node[@js.Any] {
     h2([@luna.text("Landmarks")]),
     p([@luna.text("ARIA landmark roles for page structure")]),
     div_class("landmarks-example", [
+      // Banner landmark
+      @apg.banner(aria_label="Site Header", [
+        @luna.h("div", [("class", @luna.attr_static("landmark-header"))], [
+          @luna.h("strong", [], [@luna.text("Site Logo")]),
+          @apg.nav(aria_label="Main Navigation", [
+            @luna.h("a", [("href", @luna.attr_static("#"))], [@luna.text("Home")]),
+            @luna.text(" "),
+            @luna.h("a", [("href", @luna.attr_static("#"))], [@luna.text("About")]),
+            @luna.text(" "),
+            @luna.h("a", [("href", @luna.attr_static("#"))], [
+              @luna.text("Contact"),
+            ]),
+          ]),
+        ]),
+      ]),
+      // Main landmark
       @apg.main_content([
-        @luna.h("p", [], [@luna.text("Main content area (role=main)")]),
+        // Region landmark
+        @apg.region(aria_label="Main Content", [
+          @luna.h("h3", [], [@luna.text("Main Content")]),
+          @luna.h("p", [], [
+            @luna.text("This section demonstrates the "),
+            @luna.h("code", [], [@luna.text("region")]),
+            @luna.text(
+              " landmark. A section element only becomes a region landmark when it has an accessible name via ",
+            ),
+            @luna.h("code", [], [@luna.text("aria-labelledby")]),
+            @luna.text(" or "),
+            @luna.h("code", [], [@luna.text("aria-label")]),
+            @luna.text("."),
+          ]),
+        ]),
+        // Search landmark
+        @apg.search_role(aria_label="Site Search", [
+          @luna.h("label", [], [@luna.text("Search ")]),
+          @luna.h(
+            "input",
+            [
+              ("type", @luna.attr_static("search")),
+              ("placeholder", @luna.attr_static("Search...")),
+            ],
+            [],
+          ),
+          @luna.text(" "),
+          @luna.h("button", [("type", @luna.attr_static("submit"))], [
+            @luna.text("Search"),
+          ]),
+        ]),
+        // Form landmark
+        @apg.form_landmark(aria_label="Contact Form", [
+          @luna.h("div", [("class", @luna.attr_static("form-field"))], [
+            @luna.h("label", [], [@luna.text("Name")]),
+            @luna.h("input", [("type", @luna.attr_static("text"))], []),
+          ]),
+          @luna.h("div", [("class", @luna.attr_static("form-field"))], [
+            @luna.h("label", [], [@luna.text("Email")]),
+            @luna.h("input", [("type", @luna.attr_static("email"))], []),
+          ]),
+          @luna.h("button", [("type", @luna.attr_static("submit"))], [
+            @luna.text("Submit"),
+          ]),
+        ]),
       ]),
-      @apg.region(aria_label="Example Section", [
-        @luna.h("p", [], [@luna.text("A named region")]),
+      // Complementary landmark
+      @apg.aside(aria_label="Related Information", [
+        @luna.h("p", [], [@luna.text("Complementary sidebar content")]),
       ]),
-      @apg.aside(aria_label="Related Info", [
-        @luna.h("p", [], [@luna.text("Complementary content (aside)")]),
+      // Contentinfo landmark
+      @apg.contentinfo(aria_label="Site Footer", [
+        @luna.h("p", [], [@luna.text("© 2024 Example Site")]),
       ]),
     ]),
   ])

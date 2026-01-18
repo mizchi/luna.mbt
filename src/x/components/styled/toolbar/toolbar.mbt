@@ -153,7 +153,13 @@ pub fn toolbar(
 }
 
 ///|
-/// Create a styled toolbar with reactive pressed states.
+/// Create a styled toolbar with reactive pressed states and keyboard navigation.
+///
+/// Keyboard:
+/// - ArrowRight: Move focus to next item
+/// - ArrowLeft: Move focus to previous item
+/// - Home: Move focus to first item
+/// - End: Move focus to last item
 pub fn toolbar_reactive(
   id : String,
   groups : Array[ToolbarGroup],
@@ -167,7 +173,19 @@ pub fn toolbar_reactive(
     Some(c) => slots.root + " " + c
     None => slots.root
   }
+
+  // Collect all item IDs for keyboard navigation
+  let all_item_ids : Array[String] = []
+  for group in groups {
+    for item in group.0 {
+      if not(item.disabled) {
+        all_item_ids.push(id + "-" + item.id)
+      }
+    }
+  }
+
   let inner_children : Array[@luna.Node[@js.Any]] = []
+  let mut item_index = 0
   for gi, group in groups {
     if gi > 0 {
       inner_children.push(
@@ -185,9 +203,12 @@ pub fn toolbar_reactive(
     let group_items : Array[@luna.Node[@js.Any]] = []
     for item in group.0 {
       let item_id = item.id
+      let button_id = id + "-" + item_id
+      let current_item_index = item_index
       let is_pressed = pressed_states.get().get(item_id).unwrap_or(false)
       let attrs : Array[(String, @luna.Attr[@js.Any])] = [
         ("type", @luna.attr_static("button")),
+        ("id", @luna.attr_static(button_id)),
         (
           "class",
           @luna.attr_dynamic(fn() {
@@ -214,13 +235,33 @@ pub fn toolbar_reactive(
         attrs.push(("data-disabled", @luna.attr_static("")))
         attrs.push(("disabled", @luna.attr_static("")))
         attrs.push(("aria-disabled", @luna.attr_static("true")))
+        attrs.push(("tabindex", @luna.attr_static("-1")))
       } else {
+        // Roving tabindex: first item gets 0, others get -1
+        if current_item_index == 0 {
+          attrs.push(("tabindex", @luna.attr_static("0")))
+        } else {
+          attrs.push(("tabindex", @luna.attr_static("-1")))
+        }
         attrs.push(
           (
             "click",
             @luna.attr_handler(@luna.handler(fn(_) { on_item_click(item_id) })),
           ),
         )
+        // Add keyboard handler
+        attrs.push(
+          (
+            "keydown",
+            @luna.attr_handler(
+              @headless.make_toolbar_keydown_handler(
+                all_item_ids,
+                current_item_index,
+              ),
+            ),
+          ),
+        )
+        item_index = item_index + 1
       }
       group_items.push(@luna.h("button", attrs, [@luna.text(item.label)]))
     }

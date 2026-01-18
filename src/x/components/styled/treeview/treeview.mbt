@@ -557,20 +557,20 @@ pub fn treeview_css() -> String {
     #|.treeview__row {
     #|  display: flex;
     #|  align-items: center;
-    #|  gap: 0.25rem;
-    #|  padding: 0.625rem 0.75rem;
+    #|  gap: 0.5rem;
+    #|  padding: 0.5rem 0.75rem;
     #|  cursor: pointer;
     #|  border-bottom: 1px solid var(--border);
     #|  transition: background-color 0.15s;
     #|}
     #|
-    #|/* Depth-based indentation */
-    #|.treeview__row[data-depth="0"] { padding-left: 0.75rem; }
-    #|.treeview__row[data-depth="1"] { padding-left: 1.75rem; }
-    #|.treeview__row[data-depth="2"] { padding-left: 2.75rem; }
-    #|.treeview__row[data-depth="3"] { padding-left: 3.75rem; }
-    #|.treeview__row[data-depth="4"] { padding-left: 4.75rem; }
-    #|.treeview__row[data-depth="5"] { padding-left: 5.75rem; }
+    #|/* Depth-based indentation (compact) */
+    #|.treeview__row[data-depth="0"] { padding-left: 0.5rem; }
+    #|.treeview__row[data-depth="1"] { padding-left: 1rem; }
+    #|.treeview__row[data-depth="2"] { padding-left: 1.5rem; }
+    #|.treeview__row[data-depth="3"] { padding-left: 2rem; }
+    #|.treeview__row[data-depth="4"] { padding-left: 2.5rem; }
+    #|.treeview__row[data-depth="5"] { padding-left: 3rem; }
     #|
     #|.treeview__row:hover {
     #|  background: var(--muted);
@@ -594,12 +594,14 @@ pub fn treeview_css() -> String {
     #|}
     #|
     #|.treeview__icon {
+    #|  order: 1;
     #|  flex-shrink: 0;
-    #|  width: 1rem;
+    #|  width: 1.25rem;
     #|  font-size: 0.625rem;
     #|  color: var(--muted-foreground);
     #|  text-align: center;
     #|  cursor: pointer;
+    #|  margin-left: auto;
     #|}
     #|
     #|.treeview__row[data-selected="true"] .treeview__icon {
@@ -607,7 +609,7 @@ pub fn treeview_css() -> String {
     #|}
     #|
     #|.treeview__icon--empty {
-    #|  visibility: hidden;
+    #|  display: none;
     #|}
     #|
     #|.treeview__label {

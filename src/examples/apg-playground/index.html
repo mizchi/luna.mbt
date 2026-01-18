@@ -51,8 +51,8 @@
         --bg-primary: #1a1a1a;
         --bg-secondary: #2a2a2a;
         --bg-tertiary: #333;
-        --accent-bg: hsl(var(--accent-h), 50%, 15%);
-        --accent-bg-hover: hsl(var(--accent-h), 40%, 20%);
+        --accent-bg: hsl(var(--accent-h), var(--accent-s), 25%);
+        --accent-bg-hover: hsl(var(--accent-h), var(--accent-s), 30%);
         --bg-accent: var(--accent-bg);
         --bg-accent-hover: var(--accent-bg-hover);
         --text-primary: #f0f0f0;
@@ -92,8 +92,8 @@
       --bg-primary: #1a1a1a;
       --bg-secondary: #2a2a2a;
       --bg-tertiary: #333;
-      --accent-bg: hsl(var(--accent-h), 50%, 15%);
-      --accent-bg-hover: hsl(var(--accent-h), 40%, 20%);
+      --accent-bg: hsl(var(--accent-h), var(--accent-s), 25%);
+      --accent-bg-hover: hsl(var(--accent-h), var(--accent-s), 30%);
       --bg-accent: var(--accent-bg);
       --bg-accent-hover: var(--accent-bg-hover);
       --text-primary: #f0f0f0;
@@ -178,7 +178,7 @@
     }
     .sidebar-nav button[aria-current="true"] {
       background: var(--bg-accent);
-      color: var(--text-accent);
+      color: var(--text-primary);
       font-weight: 500;
     }
 
@@ -261,9 +261,9 @@
       cursor: not-allowed;
     }
     button[aria-pressed="true"] {
-      background: var(--accent);
-      border-color: var(--accent-dark);
-      color: #000;
+      background: var(--bg-accent);
+      border-color: var(--accent);
+      color: var(--text-primary);
     }
 
     /* Checkbox, Radio - only for non-styled (headless) components */
@@ -730,6 +730,80 @@
       transition: color 0.2s;
     }
     .back-link:hover {
+      color: var(--text-primary);
+    }
+
+    /* Landmarks Demo */
+    .landmarks-example {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .landmarks-example header,
+    .landmarks-example nav,
+    .landmarks-example main,
+    .landmarks-example section,
+    .landmarks-example aside,
+    .landmarks-example footer,
+    .landmarks-example form,
+    .landmarks-example [role="search"] {
+      position: relative;
+      padding: 1rem;
+      padding-top: 2rem;
+      border: 2px dashed var(--border-color);
+      border-radius: 0.5rem;
+    }
+    .landmarks-example header { border-color: #c0392b; }
+    .landmarks-example nav { border-color: #2980b9; }
+    .landmarks-example main { border-color: #27ae60; }
+    .landmarks-example section { border-color: #f39c12; }
+    .landmarks-example aside { border-color: #9b59b6; }
+    .landmarks-example footer { border-color: #e74c3c; }
+    .landmarks-example form:not([role="search"]) { border-color: #e91e63; }
+    .landmarks-example [role="search"] { border-color: #8e44ad; }
+    .landmarks-example header::before,
+    .landmarks-example nav::before,
+    .landmarks-example main::before,
+    .landmarks-example section::before,
+    .landmarks-example aside::before,
+    .landmarks-example footer::before,
+    .landmarks-example form::before,
+    .landmarks-example [role="search"]::before {
+      position: absolute;
+      top: 0.25rem;
+      left: 0.5rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: white;
+    }
+    .landmarks-example header::before { content: "banner"; background: #c0392b; }
+    .landmarks-example nav::before { content: "navigation"; background: #2980b9; }
+    .landmarks-example main::before { content: "main"; background: #27ae60; }
+    .landmarks-example section::before { content: "region"; background: #f39c12; }
+    .landmarks-example aside::before { content: "complementary"; background: #9b59b6; }
+    .landmarks-example footer::before { content: "contentinfo"; background: #e74c3c; }
+    .landmarks-example form:not([role="search"])::before { content: "form"; background: #e91e63; }
+    .landmarks-example [role="search"]::before { content: "search"; background: #8e44ad; }
+    .landmark-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .landmarks-example .form-field {
+      margin-bottom: 1rem;
+    }
+    .landmarks-example .form-field label {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .landmarks-example .form-field input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.25rem;
+      background: var(--bg-secondary);
       color: var(--text-primary);
     }
 
