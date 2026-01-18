@@ -377,33 +377,20 @@ fn slider_demo() -> @luna.Node[@js.Any] {
 ///|
 fn dialog_demo() -> @luna.Node[@js.Any] {
   let open = @resource.signal(false)
-  let close = fn() { open.set(false) }
-  let handle_keydown : @luna.EventHandler[@js.Any] = @luna.handler(fn(event) {
-    let key : String = event._get("key").cast()
-    if key == "Escape" {
-      close()
-    }
-  })
   div([
     h2([@luna.text("Dialog")]),
     p([@luna.text("Modal dialog example")]),
     btn(@luna.handler(fn(_) { open.set(true) }), [@luna.text("Open Dialog")]),
-    // Backdrop
-    @luna.show(fn() { open.get() }, fn() {
-      @apg.dialog_backdrop(
-        on_click=@luna.handler(fn(_) { close() }),
-        [],
-      )
-    }),
-    // Dialog
-    @apg.dialog_dyn(
+    // Use dialog_interactive which handles focus management automatically
+    @apg.dialog_interactive(
+      "demo-dialog",
       aria_label="Example Dialog",
       open,
-      on_keydown=handle_keydown,
+      fn() { }, // on_close callback
       [
         @luna.h("h3", [], [@luna.text("Dialog Title")]),
         @luna.h("p", [], [@luna.text("This is a modal dialog.")]),
-        @apg.button(on_click=@luna.handler(fn(_) { close() }), [
+        @apg.button(on_click=@luna.handler(fn(_) { open.set(false) }), [
           @luna.text("Close"),
         ]),
       ],
@@ -704,38 +691,17 @@ fn alert_dialog_demo() -> @luna.Node[@js.Any] {
 
 ///|
 fn tooltip_demo() -> @luna.Node[@js.Any] {
-  let visible = @resource.signal(false)
   div([
     h2([@luna.text("Tooltip")]),
     p([@luna.text("Informational popup on hover/focus")]),
-    @luna.h(
-      "span",
-      [
-        ("class", @luna.attr_static("tooltip-wrapper")),
-        (
-          "mouseenter",
-          @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) })),
-        ),
-        (
-          "mouseleave",
-          @luna.attr_handler(@luna.handler(fn(_) { visible.set(false) })),
-        ),
-        (
-          "focus",
-          @luna.attr_handler(@luna.handler(fn(_) { visible.set(true) })),
-        ),
-        (
-          "blur",
-          @luna.attr_handler(@luna.handler(fn(_) { visible.set(false) })),
-        ),
-      ],
-      [
-        @apg.tooltip_trigger("demo-tooltip", [@luna.text("Hover me")]),
-        @apg.tooltip_dyn("demo-tooltip", visible, [
-          @luna.text("This is helpful tooltip text"),
-        ]),
-      ],
-    ),
+    @luna.h("span", [("class", @luna.attr_static("tooltip-wrapper"))], [
+      // Use tooltip_interactive which handles focus/blur on the trigger
+      @apg.tooltip_interactive(
+        "demo-tooltip",
+        [@luna.text("Hover me")],
+        [@luna.text("This is helpful tooltip text")],
+      ),
+    ]),
   ])
 }
 

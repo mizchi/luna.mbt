@@ -6,7 +6,6 @@ test "switch_css returns valid CSS" {
   assert_true(css.contains(".switch"))
   assert_true(css.contains(".switch__track"))
   assert_true(css.contains(".switch__thumb"))
-  assert_true(css.contains(".switch__icon"))
   assert_true(css.contains(".switch__label"))
   assert_true(css.contains(".switch-group"))
   // Check data attribute selectors
@@ -20,6 +19,5 @@ test "switch_slots returns BEM class names" {
   assert_eq(slots.root, "switch")
   assert_eq(slots.track, "switch__track")
   assert_eq(slots.thumb, "switch__thumb")
-  assert_eq(slots.icon, "switch__icon")
   assert_eq(slots.label, "switch__label")
 }

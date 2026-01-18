@@ -47,7 +47,22 @@ pub fn accordion_item(
   { id, heading, content }
 }
 
+// Helper: Focus an accordion header by ID
+fn focus_accordion_header(header_id : String) -> Unit {
+  let doc = @js.global_this()._get("document")
+  let el = doc._call("getElementById", [@js.any(header_id)])
+  let _ = el._call("focus", [])
+}
+
 ///|
+/// Styled accordion with APG keyboard navigation.
+///
+/// Keyboard:
+/// - Enter/Space: Toggle panel expansion
+/// - ArrowDown: Move focus to next header (no wrap)
+/// - ArrowUp: Move focus to previous header (no wrap)
+/// - Home: Move focus to first header
+/// - End: Move focus to last header
 pub fn accordion(
   items : Array[AccordionItemData],
   expanded : @resource.Signal[Int],
@@ -58,6 +73,14 @@ pub fn accordion(
     Some(c) => slots.root + " " + c
     None => slots.root
   }
+
+  // Generate header IDs for focus management
+  let header_ids : Array[String] = []
+  for item in items {
+    header_ids.push("accordion-header-" + item.id)
+  }
+  let count = items.length()
+
   let children : Array[@luna.Node[@js.Any]] = []
   for i, item in items {
     let header_id = "accordion-header-" + item.id
@@ -98,6 +121,40 @@ pub fn accordion(
               expanded.set(-1)
             } else {
               expanded.set(index)
+            }
+          }),
+        ),
+      ),
+      // Keyboard navigation (APG required)
+      (
+        "keydown",
+        @luna.attr_handler(
+          @luna.handler(fn(evt) {
+            let key = evt._get("key").to_string()
+            match key {
+              "ArrowDown" => {
+                let _ = evt._call("preventDefault", [])
+                // Move to next header (no wrap)
+                if index < count - 1 {
+                  focus_accordion_header(header_ids[index + 1])
+                }
+              }
+              "ArrowUp" => {
+                let _ = evt._call("preventDefault", [])
+                // Move to previous header (no wrap)
+                if index > 0 {
+                  focus_accordion_header(header_ids[index - 1])
+                }
+              }
+              "Home" => {
+                let _ = evt._call("preventDefault", [])
+                focus_accordion_header(header_ids[0])
+              }
+              "End" => {
+                let _ = evt._call("preventDefault", [])
+                focus_accordion_header(header_ids[count - 1])
+              }
+              _ => ()
             }
           }),
         ),

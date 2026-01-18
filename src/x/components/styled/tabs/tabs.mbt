@@ -9,6 +9,19 @@
 ///
 /// Data attributes:
 /// - [data-state="active"|"inactive"]
+///
+/// Keyboard:
+/// - ArrowLeft: Move to previous tab (wraps)
+/// - ArrowRight: Move to next tab (wraps)
+/// - Home: Move to first tab
+/// - End: Move to last tab
+
+// Helper: Focus a tab element by ID
+fn focus_tab_element(tab_id : String) -> Unit {
+  let doc = @js.global_this()._get("document")
+  let el = doc._call("getElementById", [@js.any(tab_id)])
+  let _ = el._call("focus", [])
+}
 
 ///|
 pub(all) struct TabsSlots {
@@ -52,12 +65,58 @@ pub fn tabs(
     None => slots.root
   }
 
+  // Generate tab IDs for focus management
+  let tab_ids : Array[String] = []
+  for item in items {
+    tab_ids.push("tab-" + item.id)
+  }
+  let count = items.length()
+
   // Build tab list
   let tab_buttons : Array[@luna.Node[@js.Any]] = []
   for i, item in items {
     let tab_id = "tab-" + item.id
     let panel_id = "panel-" + item.id
+    let index = i
     let props = @headless.use_tab(tab_id, panel_id, selected, i)
+
+    // Add keyboard handler for APG navigation
+    let keyboard_handler : (String, @luna.Attr[@js.Any]) = (
+      "keydown",
+      @luna.attr_handler(
+        @luna.handler(fn(evt) {
+          let key = evt._get("key").to_string()
+          match key {
+            "ArrowLeft" => {
+              let _ = evt._call("preventDefault", [])
+              // Move to previous tab (wraps)
+              let prev_idx = if index == 0 { count - 1 } else { index - 1 }
+              selected.set(prev_idx)
+              focus_tab_element(tab_ids[prev_idx])
+            }
+            "ArrowRight" => {
+              let _ = evt._call("preventDefault", [])
+              // Move to next tab (wraps)
+              let next_idx = (index + 1) % count
+              selected.set(next_idx)
+              focus_tab_element(tab_ids[next_idx])
+            }
+            "Home" => {
+              let _ = evt._call("preventDefault", [])
+              selected.set(0)
+              focus_tab_element(tab_ids[0])
+            }
+            "End" => {
+              let _ = evt._call("preventDefault", [])
+              selected.set(count - 1)
+              focus_tab_element(tab_ids[count - 1])
+            }
+            _ => ()
+          }
+        }),
+      ),
+    )
+
     tab_buttons.push(
       @luna.h(
         "button",
@@ -74,6 +133,7 @@ pub fn tabs(
               }
             }),
           ),
+          keyboard_handler,
         ],
         [@luna.text(item.label)],
       ),

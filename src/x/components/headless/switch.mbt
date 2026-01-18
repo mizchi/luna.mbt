@@ -43,19 +43,24 @@ pub fn use_switch(
   let is_disabled = disabled.unwrap_or(false)
   let is_on = on.get()
 
-  // Build ARIA attributes using @aria package
-  let aria_attrs = @aria.switch_aria(is_on, is_disabled)
+  // Build ARIA attributes with dynamic aria-checked for reactivity
+  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("role", @luna.attr_static("switch")),
+    (
+      "aria-checked",
+      @luna.attr_dynamic(fn() { if on.get() { "true" } else { "false" } }),
+    ),
+    ("tabindex", @luna.attr_static(if is_disabled { "-1" } else { "0" })),
+  ]
+  if is_disabled {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
+  }
   if aria_label is Some(label) {
-    aria_attrs.push(("aria-label", label))
+    attrs.push(("aria-label", @luna.attr_static(label)))
   }
   if aria_labelledby is Some(id) {
-    aria_attrs.push(("aria-labelledby", id))
+    attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-
-  // Convert to luna attrs
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
-    (pair.0, @luna.attr_static(pair.1))
-  })
 
   // Toggle function
   let toggle = fn() { if not(is_disabled) { on.set(not(on.get())) } }

@@ -8,7 +8,6 @@
 /// - .switch          - Root element
 /// - .switch__track   - The track/background
 /// - .switch__thumb   - The sliding thumb
-/// - .switch__icon    - Checkmark icon inside track
 /// - .switch__label   - Label text
 ///
 /// Data attributes for styling:
@@ -21,7 +20,6 @@ pub(all) struct SwitchSlots {
   root : String
   track : String
   thumb : String
-  icon : String
   label : String
 }
 
@@ -32,7 +30,6 @@ pub fn switch_slots() -> SwitchSlots {
     root: "switch",
     track: "switch__track",
     thumb: "switch__thumb",
-    icon: "switch__icon",
     label: "switch__label",
   }
 }
@@ -76,13 +73,8 @@ pub fn switch(
     "button",
     props.attrs + [("class", @luna.attr_static(root_class))] + data_attrs,
     [
-      // Track with icon and thumb
+      // Track with thumb
       @luna.h("span", [("class", @luna.attr_static(slots.track))], [
-        @luna.h(
-          "span",
-          [("class", @luna.attr_static(slots.icon))],
-          [@luna.text("\u{2713}")], // ✓
-        ),
         @luna.h("span", [("class", @luna.attr_static(slots.thumb))], []),
       ]),
       // Label
@@ -139,9 +131,6 @@ pub fn switch_static(
     handler_attrs,
     [
       @luna.h("span", [("class", @luna.attr_static(slots.track))], [
-        @luna.h("span", [("class", @luna.attr_static(slots.icon))], [
-          @luna.text("\u{2713}"),
-        ]),
         @luna.h("span", [("class", @luna.attr_static(slots.thumb))], []),
       ]),
       @luna.h("span", [("class", @luna.attr_static(slots.label))], children),
@@ -231,19 +220,6 @@ pub fn switch_css() -> String {
     #|
     #|.switch[data-state="on"] .switch__thumb {
     #|  transform: translateX(1.5rem);
-    #|}
-    #|
-    #|.switch__icon {
-    #|  position: absolute;
-    #|  left: 4px;
-    #|  font-size: 0.625rem;
-    #|  color: var(--background);
-    #|  opacity: 0;
-    #|  transition: opacity 0.2s;
-    #|}
-    #|
-    #|.switch[data-state="on"] .switch__icon {
-    #|  opacity: 1;
     #|}
     #|
     #|.switch__label {
