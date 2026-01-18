@@ -386,7 +386,7 @@ fn dialog_demo() -> @luna.Node[@js.Any] {
       "demo-dialog",
       aria_label="Example Dialog",
       open,
-      fn() { }, // on_close callback
+      fn() {  }, // on_close callback
       [
         @luna.h("h3", [], [@luna.text("Dialog Title")]),
         @luna.h("p", [], [@luna.text("This is a modal dialog.")]),
@@ -696,11 +696,9 @@ fn tooltip_demo() -> @luna.Node[@js.Any] {
     p([@luna.text("Informational popup on hover/focus")]),
     @luna.h("span", [("class", @luna.attr_static("tooltip-wrapper"))], [
       // Use tooltip_interactive which handles focus/blur on the trigger
-      @apg.tooltip_interactive(
-        "demo-tooltip",
-        [@luna.text("Hover me")],
-        [@luna.text("This is helpful tooltip text")],
-      ),
+      @apg.tooltip_interactive("demo-tooltip", [@luna.text("Hover me")], [
+        @luna.text("This is helpful tooltip text"),
+      ]),
     ]),
   ])
 }
@@ -801,9 +799,13 @@ fn landmarks_demo() -> @luna.Node[@js.Any] {
         @luna.h("div", [("class", @luna.attr_static("landmark-header"))], [
           @luna.h("strong", [], [@luna.text("Site Logo")]),
           @apg.nav(aria_label="Main Navigation", [
-            @luna.h("a", [("href", @luna.attr_static("#"))], [@luna.text("Home")]),
+            @luna.h("a", [("href", @luna.attr_static("#"))], [
+              @luna.text("Home"),
+            ]),
             @luna.text(" "),
-            @luna.h("a", [("href", @luna.attr_static("#"))], [@luna.text("About")]),
+            @luna.h("a", [("href", @luna.attr_static("#"))], [
+              @luna.text("About"),
+            ]),
             @luna.text(" "),
             @luna.h("a", [("href", @luna.attr_static("#"))], [
               @luna.text("Contact"),

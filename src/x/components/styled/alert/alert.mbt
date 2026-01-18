@@ -77,11 +77,9 @@ pub fn alert(
   match title {
     Some(t) =>
       content.push(
-        @luna.h(
-          "div",
-          [("class", @luna.attr_static(slots.title))],
-          [@luna.text(t)],
-        ),
+        @luna.h("div", [("class", @luna.attr_static(slots.title))], [
+          @luna.text(t),
+        ]),
       )
     None => ()
   }
@@ -90,11 +88,9 @@ pub fn alert(
   match description {
     Some(d) =>
       content.push(
-        @luna.h(
-          "div",
-          [("class", @luna.attr_static(slots.description))],
-          [@luna.text(d)],
-        ),
+        @luna.h("div", [("class", @luna.attr_static(slots.description))], [
+          @luna.text(d),
+        ]),
       )
     None => ()
   }

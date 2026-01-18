@@ -47,13 +47,6 @@ pub fn accordion_item(
   { id, heading, content }
 }
 
-// Helper: Focus an accordion header by ID
-fn focus_accordion_header(header_id : String) -> Unit {
-  let doc = @js.global_this()._get("document")
-  let el = doc._call("getElementById", [@js.any(header_id)])
-  let _ = el._call("focus", [])
-}
-
 ///|
 /// Styled accordion with APG keyboard navigation.
 ///
@@ -76,32 +69,27 @@ pub fn accordion(
 
   // Generate header IDs for focus management
   let header_ids : Array[String] = []
+  let panel_ids : Array[String] = []
   for item in items {
     header_ids.push("accordion-header-" + item.id)
+    panel_ids.push("accordion-panel-" + item.id)
   }
-  let count = items.length()
-
   let children : Array[@luna.Node[@js.Any]] = []
   for i, item in items {
-    let header_id = "accordion-header-" + item.id
-    let panel_id = "accordion-panel-" + item.id
+    let header_id = header_ids[i]
+    let panel_id = panel_ids[i]
     let index = i
 
-    // Header
+    // Get headless props
+    let header_props = @headless.use_accordion_header_nav(
+      header_id, panel_id, header_ids, index, expanded,
+    )
+    let panel_props = @headless.use_accordion_panel_nav(
+      panel_id, header_id, index, expanded,
+    )
+
+    // Build header attrs from headless + styling
     let header_attrs : Array[(String, @luna.Attr[@js.Any])] = [
-      ("type", @luna.attr_static("button")),
-      ("id", @luna.attr_static(header_id)),
-      (
-        "aria-expanded",
-        @luna.attr_dynamic(fn() {
-          if expanded.get() == index {
-            "true"
-          } else {
-            "false"
-          }
-        }),
-      ),
-      ("aria-controls", @luna.attr_static(panel_id)),
       ("class", @luna.attr_static(slots.header)),
       (
         "data-state",
@@ -113,53 +101,10 @@ pub fn accordion(
           }
         }),
       ),
-      (
-        "click",
-        @luna.attr_handler(
-          @luna.handler(fn(_) {
-            if expanded.get() == index {
-              expanded.set(-1)
-            } else {
-              expanded.set(index)
-            }
-          }),
-        ),
-      ),
-      // Keyboard navigation (APG required)
-      (
-        "keydown",
-        @luna.attr_handler(
-          @luna.handler(fn(evt) {
-            let key = evt._get("key").to_string()
-            match key {
-              "ArrowDown" => {
-                let _ = evt._call("preventDefault", [])
-                // Move to next header (no wrap)
-                if index < count - 1 {
-                  focus_accordion_header(header_ids[index + 1])
-                }
-              }
-              "ArrowUp" => {
-                let _ = evt._call("preventDefault", [])
-                // Move to previous header (no wrap)
-                if index > 0 {
-                  focus_accordion_header(header_ids[index - 1])
-                }
-              }
-              "Home" => {
-                let _ = evt._call("preventDefault", [])
-                focus_accordion_header(header_ids[0])
-              }
-              "End" => {
-                let _ = evt._call("preventDefault", [])
-                focus_accordion_header(header_ids[count - 1])
-              }
-              _ => ()
-            }
-          }),
-        ),
-      ),
     ]
+    for attr in header_props.attrs {
+      header_attrs.push(attr)
+    }
     let header = @luna.h("h3", [], [
       @luna.h("button", header_attrs, [
         @luna.text(item.heading),
@@ -171,43 +116,30 @@ pub fn accordion(
       ]),
     ])
 
-    // Panel (always rendered, animated with CSS)
-    let panel = @luna.h(
-      "div",
-      [
-        ("id", @luna.attr_static(panel_id)),
-        ("aria-labelledby", @luna.attr_static(header_id)),
-        ("role", @luna.attr_static("region")),
-        ("class", @luna.attr_static(slots.panel)),
-        (
-          "data-state",
-          @luna.attr_dynamic(fn() {
-            if expanded.get() == index {
-              "open"
-            } else {
-              "closed"
-            }
-          }),
-        ),
-        (
-          "aria-hidden",
-          @luna.attr_dynamic(fn() {
-            if expanded.get() == index {
-              "false"
-            } else {
-              "true"
-            }
-          }),
-        ),
-      ],
-      [
-        @luna.h(
-          "div",
-          [("class", @luna.attr_static(slots.panel + "-content"))],
-          item.content,
-        ),
-      ],
-    )
+    // Build panel attrs from headless + styling
+    let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      ("class", @luna.attr_static(slots.panel)),
+      (
+        "data-state",
+        @luna.attr_dynamic(fn() {
+          if expanded.get() == index {
+            "open"
+          } else {
+            "closed"
+          }
+        }),
+      ),
+    ]
+    for attr in panel_props.attrs {
+      panel_attrs.push(attr)
+    }
+    let panel = @luna.h("div", panel_attrs, [
+      @luna.h(
+        "div",
+        [("class", @luna.attr_static(slots.panel + "-content"))],
+        item.content,
+      ),
+    ])
     children.push(
       @luna.h(
         "div",

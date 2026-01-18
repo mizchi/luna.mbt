@@ -1,1 +1,7 @@
-import { "mizchi/luna", "mizchi/luna/js/resource" as @resource, "mizchi/signals" as @signals, "mizchi/js/core" as @js }
+import {
+  "mizchi/luna",
+  "mizchi/luna/js/resource" as @resource,
+  "mizchi/luna/x/components/headless" as @headless,
+  "mizchi/signals" as @signals,
+  "mizchi/js/core" as @js,
+}

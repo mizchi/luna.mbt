@@ -59,24 +59,20 @@ pub fn disclosure(
   let button_id = id + "-trigger"
   let panel_id = id + "-panel"
 
-  // Trigger button
+  // Get headless props
+  let trigger_props = @headless.use_disclosure_trigger(
+    button_id, panel_id, expanded,
+  )
+  let panel_props = @headless.use_disclosure_panel(
+    panel_id, button_id, expanded,
+  )
+
+  // Trigger button with styling
   let trigger = @luna.h(
     "button",
+    trigger_props.attrs +
     [
-      ("type", @luna.attr_static("button")),
-      ("id", @luna.attr_static(button_id)),
       ("class", @luna.attr_static(slots.trigger)),
-      (
-        "aria-expanded",
-        @luna.attr_dynamic(fn() {
-          if expanded.get() {
-            "true"
-          } else {
-            "false"
-          }
-        }),
-      ),
-      ("aria-controls", @luna.attr_static(panel_id)),
       (
         "data-state",
         @luna.attr_dynamic(fn() {
@@ -86,10 +82,6 @@ pub fn disclosure(
             "closed"
           }
         }),
-      ),
-      (
-        "click",
-        @luna.attr_handler(@luna.handler(fn(_) { expanded.set(not(expanded.get())) })),
       ),
     ],
     [
@@ -105,13 +97,12 @@ pub fn disclosure(
     ],
   )
 
-  // Panel (always rendered for animation)
+  // Panel with styling
   let panel = @luna.h(
     "div",
+    panel_props.attrs +
     [
-      ("id", @luna.attr_static(panel_id)),
       ("class", @luna.attr_static(slots.panel)),
-      ("aria-labelledby", @luna.attr_static(button_id)),
       (
         "data-state",
         @luna.attr_dynamic(fn() {
@@ -122,20 +113,8 @@ pub fn disclosure(
           }
         }),
       ),
-      (
-        "aria-hidden",
-        @luna.attr_dynamic(fn() {
-          if expanded.get() {
-            "false"
-          } else {
-            "true"
-          }
-        }),
-      ),
     ],
-    [
-      @luna.h("div", [("class", @luna.attr_static(slots.content))], children),
-    ],
+    [@luna.h("div", [("class", @luna.attr_static(slots.content))], children)],
   )
   @luna.h(
     "div",

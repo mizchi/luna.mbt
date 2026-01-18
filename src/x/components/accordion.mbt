@@ -390,11 +390,7 @@ pub fn make_accordion_keydown_handler(
         let _ = e._call("preventDefault", [])
         focus_accordion_header(header_ids[count - 1])
       }
-      " " | "Enter" => {
-        if on_toggle is Some(toggle) {
-          toggle()
-        }
-      }
+      " " | "Enter" => if on_toggle is Some(toggle) { toggle() }
       _ => ()
     }
   })
@@ -441,7 +437,9 @@ pub fn accordion_interactive(
       }
     }
     let keydown_handler = make_accordion_keydown_handler(
-      header_ids, index, on_toggle=toggle,
+      header_ids,
+      index,
+      on_toggle=toggle,
     )
     let click_handler = @luna.handler(fn(_) { toggle() })
     // Build header
@@ -475,19 +473,15 @@ pub fn accordion_interactive(
       panel_attrs.push(("role", @luna.attr_static("region")))
     }
     children.push(
-      @luna.show(
-        fn() { expanded_index.get() == index },
-        fn() { @luna.h("div", panel_attrs, item.content) },
-      ),
+      @luna.show(fn() { expanded_index.get() == index }, fn() {
+        @luna.h("div", panel_attrs, item.content)
+      }),
     )
     idx = idx + 1
   }
   @luna.h(
     "div",
-    [
-      ("id", @luna.attr_static(id)),
-      ("data-accordion", @luna.attr_static("")),
-    ],
+    [("id", @luna.attr_static(id)), ("data-accordion", @luna.attr_static(""))],
     children,
   )
 }

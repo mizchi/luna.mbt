@@ -50,69 +50,17 @@ pub fn radio_item(
   { value, label, disabled }
 }
 
-// Helper: Find next enabled index (wrapping)
-fn find_next_enabled_radio(items : Array[RadioItem], current : Int) -> Int {
-  let count = items.length()
-  if count == 0 {
-    return current
-  }
-  let mut idx = (current + 1) % count
-  let mut iterations = 0
-  while iterations < count {
-    if not(items[idx].disabled) {
-      return idx
-    }
-    idx = (idx + 1) % count
-    iterations = iterations + 1
-  }
-  current
-}
+// Convert RadioItem to headless RadioItemData
 
-// Helper: Find previous enabled index (wrapping)
-fn find_prev_enabled_radio(items : Array[RadioItem], current : Int) -> Int {
-  let count = items.length()
-  if count == 0 {
-    return current
+///|
+fn to_headless_items(
+  items : Array[RadioItem],
+) -> Array[@headless.RadioItemData] {
+  let result : Array[@headless.RadioItemData] = []
+  for item in items {
+    result.push(@headless.radio_item_data(item.value, disabled=item.disabled))
   }
-  let mut idx = if current == 0 { count - 1 } else { current - 1 }
-  let mut iterations = 0
-  while iterations < count {
-    if not(items[idx].disabled) {
-      return idx
-    }
-    idx = if idx == 0 { count - 1 } else { idx - 1 }
-    iterations = iterations + 1
-  }
-  current
-}
-
-// Helper: Find first enabled index
-fn find_first_enabled_radio(items : Array[RadioItem]) -> Int {
-  for i, item in items {
-    if not(item.disabled) {
-      return i
-    }
-  }
-  0
-}
-
-// Helper: Find last enabled index
-fn find_last_enabled_radio(items : Array[RadioItem]) -> Int {
-  let mut last = items.length() - 1
-  while last >= 0 {
-    if not(items[last].disabled) {
-      return last
-    }
-    last = last - 1
-  }
-  items.length() - 1
-}
-
-// Helper: Focus a radio element by ID
-fn focus_radio_element(radio_id : String) -> Unit {
-  let doc = @js.global_this()._get("document")
-  let el = doc._call("getElementById", [@js.any(radio_id)])
-  let _ = el._call("focus", [])
+  result
 }
 
 ///|
@@ -140,12 +88,11 @@ pub fn radio_group(
     None => slots.group
   }
 
-  // Generate radio IDs for focus management
-  let radio_ids : Array[String] = []
-  for i = 0; i < items.length(); i = i + 1 {
-    radio_ids.push("radio-" + name + "-" + i.to_string())
-  }
+  // Convert to headless items and generate IDs
+  let headless_items = to_headless_items(items)
+  let radio_ids = @headless.generate_radio_ids(name, items.length())
 
+  // Build group attrs with headless attrs
   let group_attrs : Array[(String, @luna.Attr[@js.Any])] = [
     ("role", @luna.attr_static("radiogroup")),
     ("class", @luna.attr_static(group_class)),
@@ -154,40 +101,29 @@ pub fn radio_group(
   if aria_label is Some(label) {
     group_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-
   let radios : Array[@luna.Node[@js.Any]] = []
   for i, item in items {
-    let index = i
     let value = item.value
-    let is_disabled = item.disabled
     let radio_id = radio_ids[i]
 
+    // Get headless props
+    let props = @headless.use_radio(
+      radio_id,
+      value,
+      item.disabled,
+      headless_items,
+      radio_ids,
+      i,
+      selected,
+    )
+
+    // Build radio attrs from headless props + styling
     let radio_attrs : Array[(String, @luna.Attr[@js.Any])] = [
-      ("id", @luna.attr_static(radio_id)),
       ("class", @luna.attr_static(slots.radio)),
-      ("role", @luna.attr_static("radio")),
-      (
-        "tabindex",
-        @luna.attr_dynamic(fn() {
-          if selected.get() == value {
-            "0"
-          } else {
-            "-1"
-          }
-        }),
-      ),
-      (
-        "aria-checked",
-        @luna.attr_dynamic(fn() {
-          if selected.get() == value {
-            "true"
-          } else {
-            "false"
-          }
-        }),
-      ),
-      ("data-value", @luna.attr_static(value)),
     ]
+    for attr in props.attrs {
+      radio_attrs.push(attr)
+    }
 
     // Data attributes for styling
     radio_attrs.push(
@@ -202,63 +138,9 @@ pub fn radio_group(
         }),
       ),
     )
-
-    if is_disabled {
+    if props.is_disabled {
       radio_attrs.push(("data-disabled", @luna.attr_static("")))
-      radio_attrs.push(("aria-disabled", @luna.attr_static("true")))
-    } else {
-      // Click handler
-      radio_attrs.push(
-        (
-          "click",
-          @luna.attr_handler(@luna.handler(fn(_) { selected.set(value) })),
-        ),
-      )
-
-      // Keyboard handler with APG navigation
-      radio_attrs.push(
-        (
-          "keydown",
-          @luna.attr_handler(
-            @luna.handler(fn(evt) {
-              let key = evt._get("key").to_string()
-              match key {
-                " " | "Enter" => {
-                  let _ = evt._call("preventDefault", [])
-                  selected.set(value)
-                }
-                "ArrowDown" | "ArrowRight" => {
-                  let _ = evt._call("preventDefault", [])
-                  let next_idx = find_next_enabled_radio(items, index)
-                  selected.set(items[next_idx].value)
-                  focus_radio_element(radio_ids[next_idx])
-                }
-                "ArrowUp" | "ArrowLeft" => {
-                  let _ = evt._call("preventDefault", [])
-                  let prev_idx = find_prev_enabled_radio(items, index)
-                  selected.set(items[prev_idx].value)
-                  focus_radio_element(radio_ids[prev_idx])
-                }
-                "Home" => {
-                  let _ = evt._call("preventDefault", [])
-                  let first_idx = find_first_enabled_radio(items)
-                  selected.set(items[first_idx].value)
-                  focus_radio_element(radio_ids[first_idx])
-                }
-                "End" => {
-                  let _ = evt._call("preventDefault", [])
-                  let last_idx = find_last_enabled_radio(items)
-                  selected.set(items[last_idx].value)
-                  focus_radio_element(radio_ids[last_idx])
-                }
-                _ => ()
-              }
-            }),
-          ),
-        ),
-      )
     }
-
     let radio_node = @luna.h("div", radio_attrs, [
       // Control circle
       @luna.h("span", [("class", @luna.attr_static(slots.control))], [

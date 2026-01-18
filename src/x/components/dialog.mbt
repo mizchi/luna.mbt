@@ -427,13 +427,11 @@ pub fn make_dialog_keydown_handler(
             let _ = last._call("focus", [])
 
           }
-        } else {
           // Tab: wrap from last to first
-          if @js.any(active) == @js.any(last) {
-            let _ = e._call("preventDefault", [])
-            let _ = first._call("focus", [])
+        } else if @js.any(active) == @js.any(last) {
+          let _ = e._call("preventDefault", [])
+          let _ = first._call("focus", [])
 
-          }
         }
       }
       _ => ()
@@ -476,59 +474,47 @@ pub fn dialog_interactive(
     restore_focus(trigger_ref.val)
   }
   let keydown_handler = make_dialog_keydown_handler(id, close_and_restore)
-  @luna.show(
-    fn() { open.get() },
-    fn() {
-      // Store current focus before showing dialog
-      trigger_ref.val = store_active_element()
-      // Focus first element after render (use setTimeout for next tick)
-      let window = @js.global_this()
-      let _ = window._call(
-        "setTimeout",
+  @luna.show(fn() { open.get() }, fn() {
+    // Store current focus before showing dialog
+    trigger_ref.val = store_active_element()
+    // Focus first element after render (use setTimeout for next tick)
+    let window = @js.global_this()
+    let _ = window._call("setTimeout", [
+      @js.any(fn() { focus_first_in_dialog(id) }),
+      @js.any(0),
+    ])
+    @luna.fragment([
+      // Backdrop
+      @luna.h(
+        "div",
         [
-          @js.any(fn() { focus_first_in_dialog(id) }),
-          @js.any(0),
+          ("class", @luna.attr_static("dialog-backdrop")),
+          ("aria-hidden", @luna.attr_static("true")),
+          (
+            "click",
+            @luna.attr_handler(@luna.handler(fn(_) { close_and_restore() })),
+          ),
         ],
-      )
-      @luna.fragment([
-        // Backdrop
-        @luna.h(
-          "div",
-          [
-            ("class", @luna.attr_static("dialog-backdrop")),
-            ("aria-hidden", @luna.attr_static("true")),
-            (
-              "click",
-              @luna.attr_handler(@luna.handler(fn(_) { close_and_restore() })),
-            ),
-          ],
-          [],
-        ),
-        // Dialog
-        @luna.h(
-          "div",
-          [
-            ("id", @luna.attr_static(id)),
-            ("role", @luna.attr_static("dialog")),
-            ("aria-modal", @luna.attr_static("true")),
-            ("tabindex", @luna.attr_static("-1")),
-            (
-              "aria-label",
-              @luna.attr_static(aria_label.unwrap_or("")),
-            ),
-            (
-              "aria-labelledby",
-              @luna.attr_static(aria_labelledby.unwrap_or("")),
-            ),
-            (
-              "aria-describedby",
-              @luna.attr_static(aria_describedby.unwrap_or("")),
-            ),
-            ("keydown", @luna.attr_handler(keydown_handler)),
-          ],
-          children,
-        ),
-      ])
-    },
-  )
+        [],
+      ),
+      // Dialog
+      @luna.h(
+        "div",
+        [
+          ("id", @luna.attr_static(id)),
+          ("role", @luna.attr_static("dialog")),
+          ("aria-modal", @luna.attr_static("true")),
+          ("tabindex", @luna.attr_static("-1")),
+          ("aria-label", @luna.attr_static(aria_label.unwrap_or(""))),
+          ("aria-labelledby", @luna.attr_static(aria_labelledby.unwrap_or(""))),
+          (
+            "aria-describedby",
+            @luna.attr_static(aria_describedby.unwrap_or("")),
+          ),
+          ("keydown", @luna.attr_handler(keydown_handler)),
+        ],
+        children,
+      ),
+    ])
+  })
 }

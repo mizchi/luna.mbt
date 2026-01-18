@@ -266,15 +266,17 @@ fn render_single_styled_tree_node(
         ("aria-hidden", @luna.attr_static("true")),
         (
           "click",
-          @luna.attr_handler(@luna.handler(fn(e : @js.Any) {
-            let _ = e._call("stopPropagation", [])
-            // Toggle expand/collapse
-            let exp_map = expanded.get()
-            let new_map = exp_map.copy()
-            let is_expanded = exp_map.get(node_id).unwrap_or(false)
-            new_map.set(node_id, not(is_expanded))
-            expanded.set(new_map)
-          })),
+          @luna.attr_handler(
+            @luna.handler(fn(e : @js.Any) {
+              let _ = e._call("stopPropagation", [])
+              // Toggle expand/collapse
+              let exp_map = expanded.get()
+              let new_map = exp_map.copy()
+              let is_expanded = exp_map.get(node_id).unwrap_or(false)
+              new_map.set(node_id, not(is_expanded))
+              expanded.set(new_map)
+            }),
+          ),
         ),
       ],
       [
@@ -324,13 +326,15 @@ fn render_single_styled_tree_node(
       ("data-depth", @luna.attr_static(depth.to_string())),
       (
         "click",
-        @luna.attr_handler(@luna.handler(fn(e : @js.Any) {
-          let _ = e._call("stopPropagation", [])
-          focused_id.set(node_id)
-          selected.set(node_id)
-          on_select(node_id)
-          // Note: expand/collapse is handled by icon click, not row click
-        })),
+        @luna.attr_handler(
+          @luna.handler(fn(e : @js.Any) {
+            let _ = e._call("stopPropagation", [])
+            focused_id.set(node_id)
+            selected.set(node_id)
+            on_select(node_id)
+            // Note: expand/collapse is handled by icon click, not row click
+          }),
+        ),
       ),
     ],
     [icon_node, label_node],
@@ -340,28 +344,25 @@ fn render_single_styled_tree_node(
   let children_content : Array[@luna.Node[@js.Any]] = [row_node]
   if has_kids {
     children_content.push(
-      @luna.show(
-        fn() { expanded.get().get(node_id).unwrap_or(false) },
-        fn() {
-          let child_items = render_styled_tree_nodes(
-            node_children,
-            focused_id,
-            expanded,
-            selected,
-            keydown_handler,
-            on_select,
-            depth + 1,
-          )
-          @luna.h(
-            "ul",
-            [
-              ("role", @luna.attr_static("group")),
-              ("class", @luna.attr_static(slots.group)),
-            ],
-            child_items,
-          )
-        },
-      ),
+      @luna.show(fn() { expanded.get().get(node_id).unwrap_or(false) }, fn() {
+        let child_items = render_styled_tree_nodes(
+          node_children,
+          focused_id,
+          expanded,
+          selected,
+          keydown_handler,
+          on_select,
+          depth + 1,
+        )
+        @luna.h(
+          "ul",
+          [
+            ("role", @luna.attr_static("group")),
+            ("class", @luna.attr_static(slots.group)),
+          ],
+          child_items,
+        )
+      }),
     )
   }
 
@@ -409,7 +410,6 @@ fn render_single_styled_tree_node(
   if node_disabled {
     item_attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
-
   @luna.h("li", item_attrs, children_content)
 }
 

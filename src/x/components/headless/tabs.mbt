@@ -84,3 +84,143 @@ pub fn[E] tabpanel_attrs(
   let aria_attrs = @aria.tabpanel_aria(id, labelledby)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
+
+// Helper: Focus a tab element by ID
+
+///|
+fn focus_tab_element(tab_id : String) -> Unit {
+  let doc = @js.global_this()._get("document")
+  let el = doc._call("getElementById", [@js.any(tab_id)])
+  let _ = el._call("focus", [])
+
+}
+
+///|
+/// Create keyboard handler for tabs navigation.
+///
+/// Keyboard:
+/// - ArrowLeft: Move to previous tab (wraps)
+/// - ArrowRight: Move to next tab (wraps)
+/// - Home: Move to first tab
+/// - End: Move to last tab
+pub fn make_tabs_keydown_handler(
+  tab_ids : Array[String],
+  index : Int,
+  selected : @resource.Signal[Int],
+) -> @luna.EventHandler[@js.Any] {
+  let count = tab_ids.length()
+  @luna.handler(fn(evt) {
+    let key = evt._get("key").to_string()
+    match key {
+      "ArrowLeft" => {
+        let _ = evt._call("preventDefault", [])
+        // Move to previous tab (wraps)
+        let prev_idx = if index == 0 { count - 1 } else { index - 1 }
+        selected.set(prev_idx)
+        focus_tab_element(tab_ids[prev_idx])
+      }
+      "ArrowRight" => {
+        let _ = evt._call("preventDefault", [])
+        // Move to next tab (wraps)
+        let next_idx = (index + 1) % count
+        selected.set(next_idx)
+        focus_tab_element(tab_ids[next_idx])
+      }
+      "Home" => {
+        let _ = evt._call("preventDefault", [])
+        selected.set(0)
+        focus_tab_element(tab_ids[0])
+      }
+      "End" => {
+        let _ = evt._call("preventDefault", [])
+        selected.set(count - 1)
+        focus_tab_element(tab_ids[count - 1])
+      }
+      _ => ()
+    }
+  })
+}
+
+///|
+/// Generate tab and panel IDs.
+pub fn generate_tab_ids(
+  items_count : Int,
+  prefix : String,
+) -> (Array[String], Array[String]) {
+  let tab_ids : Array[String] = []
+  let panel_ids : Array[String] = []
+  for i = 0; i < items_count; i = i + 1 {
+    tab_ids.push(prefix + "-tab-" + i.to_string())
+    panel_ids.push(prefix + "-panel-" + i.to_string())
+  }
+  (tab_ids, panel_ids)
+}
+
+///|
+/// Props for tab with full APG keyboard navigation.
+pub(all) struct TabNavProps {
+  attrs : Array[(String, @luna.Attr[@js.Any])]
+  is_selected : Bool
+}
+
+///|
+/// Create tab props with keyboard navigation.
+pub fn use_tab_nav(
+  tab_id : String,
+  panel_id : String,
+  tab_ids : Array[String],
+  index : Int,
+  selected : @resource.Signal[Int],
+) -> TabNavProps {
+  let is_selected = selected.get() == index
+  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("type", @luna.attr_static("button")),
+    ("id", @luna.attr_static(tab_id)),
+    ("role", @luna.attr_static("tab")),
+    (
+      "aria-selected",
+      @luna.attr_dynamic(fn() {
+        if selected.get() == index {
+          "true"
+        } else {
+          "false"
+        }
+      }),
+    ),
+    (
+      "tabindex",
+      @luna.attr_dynamic(fn() {
+        if selected.get() == index {
+          "0"
+        } else {
+          "-1"
+        }
+      }),
+    ),
+    ("aria-controls", @luna.attr_static(panel_id)),
+    ("click", @luna.attr_handler(@luna.handler(fn(_) { selected.set(index) }))),
+    (
+      "keydown",
+      @luna.attr_handler(make_tabs_keydown_handler(tab_ids, index, selected)),
+    ),
+  ]
+  { attrs, is_selected }
+}
+
+///|
+/// Props for tabpanel.
+pub(all) struct TabPanelNavProps {
+  attrs : Array[(String, @luna.Attr[@js.Any])]
+}
+
+///|
+/// Create tabpanel props.
+pub fn use_tabpanel_nav(panel_id : String, tab_id : String) -> TabPanelNavProps {
+  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("id", @luna.attr_static(panel_id)),
+    ("role", @luna.attr_static("tabpanel")),
+    ("aria-labelledby", @luna.attr_static(tab_id)),
+    ("tabindex", @luna.attr_static("0")),
+  ]
+  { attrs, }
+}

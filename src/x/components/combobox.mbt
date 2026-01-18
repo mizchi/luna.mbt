@@ -504,32 +504,30 @@ pub fn combobox_interactive(
         ("class", @luna.attr_static("combobox-listbox")),
       ],
       [
-        @luna.Node::For(
-          render=fn() {
-            let filtered = get_filtered()
-            let option_nodes : Array[@luna.Node[@js.Any]] = []
-            for opt in filtered {
-              let opt_id = id + "-option-" + opt.id
-              option_nodes.push(
-                combobox_option_dyn(
-                  opt_id,
-                  opt_id,
-                  active_option_id,
-                  disabled=opt.disabled,
-                  on_click=@luna.handler(fn(_ : @js.Any) {
-                    if not(opt.disabled) {
-                      input_value.set(opt.label)
-                      on_select(opt)
-                      is_open.set(false)
-                    }
-                  }),
-                  [@luna.text(opt.label)],
-                ),
-              )
-            }
-            option_nodes
-          },
-        ),
+        @luna.Node::For(render=fn() {
+          let filtered = get_filtered()
+          let option_nodes : Array[@luna.Node[@js.Any]] = []
+          for opt in filtered {
+            let opt_id = id + "-option-" + opt.id
+            option_nodes.push(
+              combobox_option_dyn(
+                opt_id,
+                opt_id,
+                active_option_id,
+                disabled=opt.disabled,
+                on_click=@luna.handler(fn(_ : @js.Any) {
+                  if not(opt.disabled) {
+                    input_value.set(opt.label)
+                    on_select(opt)
+                    is_open.set(false)
+                  }
+                }),
+                [@luna.text(opt.label)],
+              ),
+            )
+          }
+          option_nodes
+        }),
       ],
     )
   }

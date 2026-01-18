@@ -16,13 +16,6 @@
 /// - Home: Move to first tab
 /// - End: Move to last tab
 
-// Helper: Focus a tab element by ID
-fn focus_tab_element(tab_id : String) -> Unit {
-  let doc = @js.global_this()._get("document")
-  let el = doc._call("getElementById", [@js.any(tab_id)])
-  let _ = el._call("focus", [])
-}
-
 ///|
 pub(all) struct TabsSlots {
   root : String
@@ -67,94 +60,60 @@ pub fn tabs(
 
   // Generate tab IDs for focus management
   let tab_ids : Array[String] = []
+  let panel_ids : Array[String] = []
   for item in items {
     tab_ids.push("tab-" + item.id)
+    panel_ids.push("panel-" + item.id)
   }
-  let count = items.length()
 
   // Build tab list
   let tab_buttons : Array[@luna.Node[@js.Any]] = []
   for i, item in items {
-    let tab_id = "tab-" + item.id
-    let panel_id = "panel-" + item.id
-    let index = i
-    let props = @headless.use_tab(tab_id, panel_id, selected, i)
+    let tab_id = tab_ids[i]
+    let panel_id = panel_ids[i]
 
-    // Add keyboard handler for APG navigation
-    let keyboard_handler : (String, @luna.Attr[@js.Any]) = (
-      "keydown",
-      @luna.attr_handler(
-        @luna.handler(fn(evt) {
-          let key = evt._get("key").to_string()
-          match key {
-            "ArrowLeft" => {
-              let _ = evt._call("preventDefault", [])
-              // Move to previous tab (wraps)
-              let prev_idx = if index == 0 { count - 1 } else { index - 1 }
-              selected.set(prev_idx)
-              focus_tab_element(tab_ids[prev_idx])
-            }
-            "ArrowRight" => {
-              let _ = evt._call("preventDefault", [])
-              // Move to next tab (wraps)
-              let next_idx = (index + 1) % count
-              selected.set(next_idx)
-              focus_tab_element(tab_ids[next_idx])
-            }
-            "Home" => {
-              let _ = evt._call("preventDefault", [])
-              selected.set(0)
-              focus_tab_element(tab_ids[0])
-            }
-            "End" => {
-              let _ = evt._call("preventDefault", [])
-              selected.set(count - 1)
-              focus_tab_element(tab_ids[count - 1])
-            }
-            _ => ()
+    // Get headless props with keyboard navigation
+    let props = @headless.use_tab_nav(tab_id, panel_id, tab_ids, i, selected)
+
+    // Build tab attrs from headless + styling
+    let tab_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      ("class", @luna.attr_static(slots.tab)),
+      (
+        "data-state",
+        @luna.attr_dynamic(fn() {
+          if selected.get() == i {
+            "active"
+          } else {
+            "inactive"
           }
         }),
       ),
-    )
-
-    tab_buttons.push(
-      @luna.h(
-        "button",
-        props.attrs +
-        [
-          ("class", @luna.attr_static(slots.tab)),
-          (
-            "data-state",
-            @luna.attr_dynamic(fn() {
-              if selected.get() == i {
-                "active"
-              } else {
-                "inactive"
-              }
-            }),
-          ),
-          keyboard_handler,
-        ],
-        [@luna.text(item.label)],
-      ),
-    )
+    ]
+    for attr in props.attrs {
+      tab_attrs.push(attr)
+    }
+    tab_buttons.push(@luna.h("button", tab_attrs, [@luna.text(item.label)]))
   }
 
   // Build panels
   let panels : Array[@luna.Node[@js.Any]] = []
   for i, item in items {
-    let tab_id = "tab-" + item.id
-    let panel_id = "panel-" + item.id
-    let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = @headless.tabpanel_attrs(
-      panel_id, tab_id,
-    )
+    let tab_id = tab_ids[i]
+    let panel_id = panel_ids[i]
+
+    // Get headless panel props
+    let panel_props = @headless.use_tabpanel_nav(panel_id, tab_id)
+
+    // Build panel attrs from headless + styling
+    let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      ("class", @luna.attr_static(slots.panel)),
+    ]
+    for attr in panel_props.attrs {
+      panel_attrs.push(attr)
+    }
     panels.push(
       @luna.show(fn() { selected.get() == i }, fn() {
-        @luna.h(
-          "div",
-          panel_attrs + [("class", @luna.attr_static(slots.panel))],
-          item.content,
-        )
+        @luna.h("div", panel_attrs, item.content)
       }),
     )
   }

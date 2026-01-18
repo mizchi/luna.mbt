@@ -102,8 +102,16 @@ fn sort_rows(
     Ascending => {
       let sorted = rows.copy()
       sorted.sort_by(fn(a, b) {
-        let a_val = if col_idx < a.cells.length() { a.cells[col_idx] } else { "" }
-        let b_val = if col_idx < b.cells.length() { b.cells[col_idx] } else { "" }
+        let a_val = if col_idx < a.cells.length() {
+          a.cells[col_idx]
+        } else {
+          ""
+        }
+        let b_val = if col_idx < b.cells.length() {
+          b.cells[col_idx]
+        } else {
+          ""
+        }
         a_val.compare(b_val)
       })
       sorted
@@ -111,8 +119,16 @@ fn sort_rows(
     Descending => {
       let sorted = rows.copy()
       sorted.sort_by(fn(a, b) {
-        let a_val = if col_idx < a.cells.length() { a.cells[col_idx] } else { "" }
-        let b_val = if col_idx < b.cells.length() { b.cells[col_idx] } else { "" }
+        let a_val = if col_idx < a.cells.length() {
+          a.cells[col_idx]
+        } else {
+          ""
+        }
+        let b_val = if col_idx < b.cells.length() {
+          b.cells[col_idx]
+        } else {
+          ""
+        }
         b_val.compare(a_val)
       })
       sorted
@@ -263,63 +279,59 @@ pub fn table(
     "tbody",
     [("class", @luna.attr_static(slots.body))],
     [
-      @luna.Node::For(
-        render=fn() {
-          let col_id = sort_column.get()
-          let dir = sort_direction.get()
-          let col_idx = find_column_index(columns, col_id)
-          let sorted_rows = sort_rows(rows, col_idx, dir)
-          let row_nodes : Array[@luna.Node[@js.Any]] = []
-          for row in sorted_rows {
-            let row_id = row.id
-            let row_attrs : Array[(String, @luna.Attr[@js.Any])] = [
-              ("class", @luna.attr_static(slots.row)),
-            ]
-            if is_selectable {
-              row_attrs.push(
-                (
-                  "data-selected",
-                  @luna.attr_dynamic(fn() {
-                    if selected_row.get() == row_id {
-                      "true"
-                    } else {
-                      "false"
+      @luna.Node::For(render=fn() {
+        let col_id = sort_column.get()
+        let dir = sort_direction.get()
+        let col_idx = find_column_index(columns, col_id)
+        let sorted_rows = sort_rows(rows, col_idx, dir)
+        let row_nodes : Array[@luna.Node[@js.Any]] = []
+        for row in sorted_rows {
+          let row_id = row.id
+          let row_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+            ("class", @luna.attr_static(slots.row)),
+          ]
+          if is_selectable {
+            row_attrs.push(
+              (
+                "data-selected",
+                @luna.attr_dynamic(fn() {
+                  if selected_row.get() == row_id {
+                    "true"
+                  } else {
+                    "false"
+                  }
+                }),
+              ),
+            )
+            row_attrs.push(
+              (
+                "click",
+                @luna.attr_handler(
+                  @luna.handler(fn(_ : @js.Any) {
+                    selected_row.set(row_id)
+                    match on_row_select {
+                      Some(handler) => handler(row_id)
+                      None => ()
                     }
                   }),
                 ),
-              )
-              row_attrs.push(
-                (
-                  "click",
-                  @luna.attr_handler(
-                    @luna.handler(fn(_ : @js.Any) {
-                      selected_row.set(row_id)
-                      match on_row_select {
-                        Some(handler) => handler(row_id)
-                        None => ()
-                      }
-                    }),
-                  ),
-                ),
-              )
-            }
-
-            // Build cells
-            let cells : Array[@luna.Node[@js.Any]] = []
-            for cell in row.cells {
-              cells.push(
-                @luna.h(
-                  "td",
-                  [("class", @luna.attr_static(slots.cell))],
-                  [@luna.text(cell)],
-                ),
-              )
-            }
-            row_nodes.push(@luna.h("tr", row_attrs, cells))
+              ),
+            )
           }
-          row_nodes
-        },
-      ),
+
+          // Build cells
+          let cells : Array[@luna.Node[@js.Any]] = []
+          for cell in row.cells {
+            cells.push(
+              @luna.h("td", [("class", @luna.attr_static(slots.cell))], [
+                @luna.text(cell),
+              ]),
+            )
+          }
+          row_nodes.push(@luna.h("tr", row_attrs, cells))
+        }
+        row_nodes
+      }),
     ],
   )
 

@@ -213,7 +213,9 @@ pub fn[E] switch_group(
 ///
 /// Parameters:
 /// - on_toggle: Called when switch should toggle
-pub fn make_switch_handler(on_toggle : () -> Unit) -> @luna.EventHandler[@js.Any] {
+pub fn make_switch_handler(
+  on_toggle : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(e : @js.Any) {
     let key : String = e._get("key").cast()
     match key {
@@ -246,11 +248,7 @@ pub fn switch_interactive(
   children : Array[@luna.Node[@js.Any]],
 ) -> @luna.Node[@js.Any] {
   let is_disabled = disabled.unwrap_or(false)
-  let toggle = fn() {
-    if not(is_disabled) {
-      on.set(not(on.get()))
-    }
-  }
+  let toggle = fn() { if not(is_disabled) { on.set(not(on.get())) } }
   let keydown_handler = make_switch_handler(toggle)
   let click_handler = @luna.handler(fn(_) { toggle() })
   let attrs : Array[(String, @luna.Attr[@js.Any])] = [

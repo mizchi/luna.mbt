@@ -168,13 +168,7 @@ pub fn tooltip_interactive(
     ("id", @luna.attr_static(id)),
     (
       "aria-describedby",
-      @luna.attr_dynamic(fn() {
-        if visible.get() {
-          tooltip_id
-        } else {
-          ""
-        }
-      }),
+      @luna.attr_dynamic(fn() { if visible.get() { tooltip_id } else { "" } }),
     ),
     ("focus", @luna.attr_handler(@luna.handler(fn(_) { show() }))),
     ("blur", @luna.attr_handler(@luna.handler(fn(_) { hide() }))),

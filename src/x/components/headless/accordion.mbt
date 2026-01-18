@@ -78,3 +78,163 @@ pub fn[E] accordion_panel_attrs(
   )
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
+
+// Helper: Focus an accordion header by ID
+
+///|
+fn focus_accordion_header(header_id : String) -> Unit {
+  let doc = @js.global_this()._get("document")
+  let el = doc._call("getElementById", [@js.any(header_id)])
+  let _ = el._call("focus", [])
+
+}
+
+///|
+/// Create keyboard handler for accordion navigation.
+///
+/// Keyboard:
+/// - ArrowDown: Move focus to next header (no wrap)
+/// - ArrowUp: Move focus to previous header (no wrap)
+/// - Home: Move focus to first header
+/// - End: Move focus to last header
+pub fn make_accordion_keydown_handler(
+  header_ids : Array[String],
+  index : Int,
+  count : Int,
+  expanded : @resource.Signal[Int],
+  toggle : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
+  @luna.handler(fn(evt) {
+    let key = evt._get("key").to_string()
+    match key {
+      " " | "Enter" => {
+        let _ = evt._call("preventDefault", [])
+        toggle()
+      }
+      "ArrowDown" => {
+        let _ = evt._call("preventDefault", [])
+        // Move to next header (no wrap)
+        if index < count - 1 {
+          focus_accordion_header(header_ids[index + 1])
+        }
+      }
+      "ArrowUp" => {
+        let _ = evt._call("preventDefault", [])
+        // Move to previous header (no wrap)
+        if index > 0 {
+          focus_accordion_header(header_ids[index - 1])
+        }
+      }
+      "Home" => {
+        let _ = evt._call("preventDefault", [])
+        focus_accordion_header(header_ids[0])
+      }
+      "End" => {
+        let _ = evt._call("preventDefault", [])
+        focus_accordion_header(header_ids[count - 1])
+      }
+      _ => ()
+    }
+  })
+}
+
+///|
+/// Generate accordion header and panel IDs.
+pub fn generate_accordion_ids(
+  items_count : Int,
+  prefix : String,
+) -> (Array[String], Array[String]) {
+  let header_ids : Array[String] = []
+  let panel_ids : Array[String] = []
+  for i = 0; i < items_count; i = i + 1 {
+    header_ids.push(prefix + "-header-" + i.to_string())
+    panel_ids.push(prefix + "-panel-" + i.to_string())
+  }
+  (header_ids, panel_ids)
+}
+
+///|
+/// Props for accordion header with full APG keyboard navigation.
+pub(all) struct AccordionHeaderNavProps {
+  attrs : Array[(String, @luna.Attr[@js.Any])]
+  is_expanded : Bool
+}
+
+///|
+/// Create accordion header props with navigation.
+pub fn use_accordion_header_nav(
+  header_id : String,
+  panel_id : String,
+  header_ids : Array[String],
+  index : Int,
+  expanded : @resource.Signal[Int],
+) -> AccordionHeaderNavProps {
+  let count = header_ids.length()
+  let is_expanded = expanded.get() == index
+  let toggle = fn() {
+    if expanded.get() == index {
+      expanded.set(-1)
+    } else {
+      expanded.set(index)
+    }
+  }
+  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("type", @luna.attr_static("button")),
+    ("id", @luna.attr_static(header_id)),
+    (
+      "aria-expanded",
+      @luna.attr_dynamic(fn() {
+        if expanded.get() == index {
+          "true"
+        } else {
+          "false"
+        }
+      }),
+    ),
+    ("aria-controls", @luna.attr_static(panel_id)),
+    ("click", @luna.attr_handler(@luna.handler(fn(_) { toggle() }))),
+    (
+      "keydown",
+      @luna.attr_handler(
+        make_accordion_keydown_handler(
+          header_ids, index, count, expanded, toggle,
+        ),
+      ),
+    ),
+  ]
+  { attrs, is_expanded }
+}
+
+///|
+/// Props for accordion panel.
+pub(all) struct AccordionPanelNavProps {
+  attrs : Array[(String, @luna.Attr[@js.Any])]
+  is_expanded : Bool
+}
+
+///|
+/// Create accordion panel props.
+pub fn use_accordion_panel_nav(
+  panel_id : String,
+  header_id : String,
+  index : Int,
+  expanded : @resource.Signal[Int],
+) -> AccordionPanelNavProps {
+  let is_expanded = expanded.get() == index
+  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("id", @luna.attr_static(panel_id)),
+    ("aria-labelledby", @luna.attr_static(header_id)),
+    ("role", @luna.attr_static("region")),
+    (
+      "aria-hidden",
+      @luna.attr_dynamic(fn() {
+        if expanded.get() == index {
+          "false"
+        } else {
+          "true"
+        }
+      }),
+    ),
+  ]
+  { attrs, is_expanded }
+}

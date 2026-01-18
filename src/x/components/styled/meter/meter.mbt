@@ -114,11 +114,9 @@ pub fn meter(
   match value_text {
     Some(vt) =>
       children.push(
-        @luna.h(
-          "span",
-          [("class", @luna.attr_static(slots.value))],
-          [@luna.text(vt)],
-        ),
+        @luna.h("span", [("class", @luna.attr_static(slots.value))], [
+          @luna.text(vt),
+        ]),
       )
     None => ()
   }

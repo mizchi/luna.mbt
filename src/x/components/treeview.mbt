@@ -424,12 +424,7 @@ fn render_single_tree_node(
   let child_nodes = if has_kids {
     Some(
       render_tree_nodes(
-        node_children,
-        focused_id,
-        expanded,
-        selected,
-        keydown_handler,
-        on_select,
+        node_children, focused_id, expanded, selected, keydown_handler, on_select,
       ),
     )
   } else {
