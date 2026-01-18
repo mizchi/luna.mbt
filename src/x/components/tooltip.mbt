@@ -113,3 +113,87 @@ pub fn[E] tooltip_with_trigger(
     tooltip_popup(tooltip_id, visible, tooltip_content),
   ])
 }
+
+// =============================================================================
+// Interactive Tooltip with Keyboard Support
+// =============================================================================
+
+///|
+/// Create a keydown handler for tooltip that supports Escape key.
+///
+/// APG keyboard support:
+/// - Escape: Close the tooltip
+///
+/// Parameters:
+/// - on_close: Called when Escape is pressed
+pub fn make_tooltip_keydown_handler(
+  on_close : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
+  @luna.handler(fn(e : @js.Any) {
+    let key : String = e._get("key").cast()
+    if key == "Escape" {
+      on_close()
+    }
+  })
+}
+
+///|
+/// Create a complete interactive tooltip with focus/hover behavior.
+///
+/// Features:
+/// - Shows on focus/mouseenter
+/// - Hides on blur/mouseleave
+/// - Escape key closes tooltip
+/// - Proper aria-describedby management
+///
+/// Parameters:
+/// - id: Base ID
+/// - trigger_tag: Tag for trigger element (default: "button")
+/// - trigger_content: Content for trigger
+/// - tooltip_content: Content for tooltip
+pub fn tooltip_interactive(
+  id : String,
+  trigger_tag? : String,
+  trigger_content : Array[@luna.Node[@js.Any]],
+  tooltip_content : Array[@luna.Node[@js.Any]],
+) -> @luna.Node[@js.Any] {
+  let visible = @resource.signal(false)
+  let tooltip_id = id + "-tooltip"
+  let element_tag = trigger_tag.unwrap_or("button")
+  let show = fn() { visible.set(true) }
+  let hide = fn() { visible.set(false) }
+  let keydown_handler = make_tooltip_keydown_handler(hide)
+  // Build trigger attrs
+  let trigger_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("id", @luna.attr_static(id)),
+    (
+      "aria-describedby",
+      @luna.attr_dynamic(fn() {
+        if visible.get() {
+          tooltip_id
+        } else {
+          ""
+        }
+      }),
+    ),
+    ("focus", @luna.attr_handler(@luna.handler(fn(_) { show() }))),
+    ("blur", @luna.attr_handler(@luna.handler(fn(_) { hide() }))),
+    ("mouseenter", @luna.attr_handler(@luna.handler(fn(_) { show() }))),
+    ("mouseleave", @luna.attr_handler(@luna.handler(fn(_) { hide() }))),
+    ("keydown", @luna.attr_handler(keydown_handler)),
+  ]
+  if element_tag == "button" {
+    trigger_attrs.push(("type", @luna.attr_static("button")))
+  }
+  // Build tooltip attrs
+  let tooltip_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("role", @luna.attr_static("tooltip")),
+    ("id", @luna.attr_static(tooltip_id)),
+  ]
+  @luna.fragment([
+    @luna.h(element_tag, trigger_attrs, trigger_content),
+    @luna.show(fn() { visible.get() }, fn() {
+      @luna.h("div", tooltip_attrs, tooltip_content)
+    }),
+  ])
+}

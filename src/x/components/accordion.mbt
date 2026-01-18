@@ -324,3 +324,170 @@ pub fn[E] accordion_dyn(
   }
   @luna.h("div", [("data-accordion", @luna.attr_static(""))], children)
 }
+
+// =============================================================================
+// Keyboard Navigation for Accordion (APG optional but recommended)
+// =============================================================================
+
+///|
+/// Focus an accordion header by ID.
+fn focus_accordion_header(header_id : String) -> Unit {
+  let doc = @js.global_this()._get("document")
+  let el = doc._call("getElementById", [@js.any(header_id)])
+  let _ = el._call("focus", [])
+
+}
+
+///|
+/// Create a keyboard handler for accordion header navigation.
+///
+/// APG keyboard support:
+/// - ArrowDown: Move focus to next header
+/// - ArrowUp: Move focus to previous header
+/// - Home: Move focus to first header
+/// - End: Move focus to last header
+/// - Enter/Space: Toggle panel (handled by browser for button)
+///
+/// Parameters:
+/// - header_ids: Array of header button IDs
+/// - current_index: Index of the current header
+/// - on_toggle: Optional callback when Enter/Space is pressed
+pub fn make_accordion_keydown_handler(
+  header_ids : Array[String],
+  current_index : Int,
+  on_toggle? : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
+  @luna.handler(fn(e : @js.Any) {
+    let key : String = e._get("key").cast()
+    let count = header_ids.length()
+    if count == 0 {
+      return
+    }
+    match key {
+      "ArrowDown" => {
+        let _ = e._call("preventDefault", [])
+        let next_index = if current_index < count - 1 {
+          current_index + 1
+        } else {
+          current_index // Don't wrap
+        }
+        focus_accordion_header(header_ids[next_index])
+      }
+      "ArrowUp" => {
+        let _ = e._call("preventDefault", [])
+        let prev_index = if current_index > 0 {
+          current_index - 1
+        } else {
+          current_index // Don't wrap
+        }
+        focus_accordion_header(header_ids[prev_index])
+      }
+      "Home" => {
+        let _ = e._call("preventDefault", [])
+        focus_accordion_header(header_ids[0])
+      }
+      "End" => {
+        let _ = e._call("preventDefault", [])
+        focus_accordion_header(header_ids[count - 1])
+      }
+      " " | "Enter" => {
+        if on_toggle is Some(toggle) {
+          toggle()
+        }
+      }
+      _ => ()
+    }
+  })
+}
+
+///|
+/// Create a complete interactive accordion with keyboard navigation.
+///
+/// Features:
+/// - Arrow key navigation between headers
+/// - Home/End navigation
+/// - Enter/Space toggles panel
+/// - Single-select mode (one panel open at a time)
+///
+/// Parameters:
+/// - id: Accordion container ID
+/// - items: Array of AccordionItem
+/// - expanded_index: Signal for currently expanded item (-1 for all collapsed)
+/// - use_regions: Whether to use role="region" on panels
+pub fn accordion_interactive(
+  id : String,
+  items : Array[AccordionItem[@js.Any]],
+  expanded_index : @resource.Signal[Int],
+  use_regions? : Bool,
+) -> @luna.Node[@js.Any] {
+  let use_reg = use_regions.unwrap_or(items.length() <= 6)
+  // Build header IDs array
+  let header_ids : Array[String] = []
+  for item in items {
+    header_ids.push("accordion-header-" + item.id)
+  }
+  let children : Array[@luna.Node[@js.Any]] = []
+  let mut idx = 0
+  while idx < items.length() {
+    let item = items[idx]
+    let index = idx
+    let header_id = "accordion-header-" + item.id
+    let panel_id = "accordion-panel-" + item.id
+    let toggle = fn() {
+      if expanded_index.get() == index {
+        expanded_index.set(-1)
+      } else {
+        expanded_index.set(index)
+      }
+    }
+    let keydown_handler = make_accordion_keydown_handler(
+      header_ids, index, on_toggle=toggle,
+    )
+    let click_handler = @luna.handler(fn(_) { toggle() })
+    // Build header
+    let heading_tag = "h" + item.level.to_string()
+    let button_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      ("type", @luna.attr_static("button")),
+      ("id", @luna.attr_static(header_id)),
+      (
+        "aria-expanded",
+        @luna.attr_dynamic(fn() {
+          if expanded_index.get() == index {
+            "true"
+          } else {
+            "false"
+          }
+        }),
+      ),
+      ("aria-controls", @luna.attr_static(panel_id)),
+      ("click", @luna.attr_handler(click_handler)),
+      ("keydown", @luna.attr_handler(keydown_handler)),
+    ]
+    let button = @luna.h("button", button_attrs, [@luna.text(item.heading)])
+    let header = @luna.h(heading_tag, [], [button])
+    children.push(header)
+    // Build panel
+    let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      ("id", @luna.attr_static(panel_id)),
+      ("aria-labelledby", @luna.attr_static(header_id)),
+    ]
+    if use_reg {
+      panel_attrs.push(("role", @luna.attr_static("region")))
+    }
+    children.push(
+      @luna.show(
+        fn() { expanded_index.get() == index },
+        fn() { @luna.h("div", panel_attrs, item.content) },
+      ),
+    )
+    idx = idx + 1
+  }
+  @luna.h(
+    "div",
+    [
+      ("id", @luna.attr_static(id)),
+      ("data-accordion", @luna.attr_static("")),
+    ],
+    children,
+  )
+}

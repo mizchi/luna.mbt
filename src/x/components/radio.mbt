@@ -233,3 +233,243 @@ pub fn[E] radio_native(
     @luna.h("label", label_attrs, children),
   ])
 }
+
+// =============================================================================
+// Keyboard Navigation for Radio Group (APG required)
+// =============================================================================
+
+///|
+/// Focus a radio element by ID.
+fn focus_radio(radio_id : String) -> Unit {
+  let doc = @js.global_this()._get("document")
+  let el = doc._call("getElementById", [@js.any(radio_id)])
+  let _ = el._call("focus", [])
+
+}
+
+///|
+/// Find next enabled index (wrapping).
+fn find_next_enabled(
+  options : Array[RadioOption[@js.Any]],
+  current_index : Int,
+) -> Int {
+  let count = options.length()
+  let mut idx = (current_index + 1) % count
+  let mut iterations = 0
+  while iterations < count {
+    if not(options[idx].disabled) {
+      return idx
+    }
+    idx = (idx + 1) % count
+    iterations = iterations + 1
+  }
+  current_index // All disabled, stay
+}
+
+///|
+/// Find previous enabled index (wrapping).
+fn find_prev_enabled(
+  options : Array[RadioOption[@js.Any]],
+  current_index : Int,
+) -> Int {
+  let count = options.length()
+  let mut idx = if current_index == 0 { count - 1 } else { current_index - 1 }
+  let mut iterations = 0
+  while iterations < count {
+    if not(options[idx].disabled) {
+      return idx
+    }
+    idx = if idx == 0 { count - 1 } else { idx - 1 }
+    iterations = iterations + 1
+  }
+  current_index // All disabled, stay
+}
+
+///|
+/// Find first enabled index.
+fn find_first_enabled(options : Array[RadioOption[@js.Any]]) -> Int {
+  let mut idx = 0
+  while idx < options.length() {
+    if not(options[idx].disabled) {
+      return idx
+    }
+    idx = idx + 1
+  }
+  0
+}
+
+///|
+/// Find last enabled index.
+fn find_last_enabled(options : Array[RadioOption[@js.Any]]) -> Int {
+  let mut idx = options.length() - 1
+  while idx >= 0 {
+    if not(options[idx].disabled) {
+      return idx
+    }
+    idx = idx - 1
+  }
+  options.length() - 1
+}
+
+///|
+/// Create a keyboard handler for radio group with arrow navigation.
+///
+/// APG keyboard support:
+/// - ArrowDown/ArrowRight: Move to next and select (wraps)
+/// - ArrowUp/ArrowLeft: Move to previous and select (wraps)
+/// - Home: Move to first and select
+/// - End: Move to last and select
+/// - Space: Select focused radio
+///
+/// Parameters:
+/// - options: Array of radio options
+/// - radio_ids: Array of radio element IDs
+/// - current_index: Index of the current radio
+/// - on_select: Callback to select a value by index
+pub fn make_radio_keydown_handler(
+  options : Array[RadioOption[@js.Any]],
+  radio_ids : Array[String],
+  current_index : Int,
+  on_select : (Int) -> Unit,
+) -> @luna.EventHandler[@js.Any] {
+  @luna.handler(fn(e : @js.Any) {
+    let key : String = e._get("key").cast()
+    match key {
+      "ArrowDown" | "ArrowRight" => {
+        let _ = e._call("preventDefault", [])
+        let next_idx = find_next_enabled(options, current_index)
+        on_select(next_idx)
+        focus_radio(radio_ids[next_idx])
+      }
+      "ArrowUp" | "ArrowLeft" => {
+        let _ = e._call("preventDefault", [])
+        let prev_idx = find_prev_enabled(options, current_index)
+        on_select(prev_idx)
+        focus_radio(radio_ids[prev_idx])
+      }
+      "Home" => {
+        let _ = e._call("preventDefault", [])
+        let first_idx = find_first_enabled(options)
+        on_select(first_idx)
+        focus_radio(radio_ids[first_idx])
+      }
+      "End" => {
+        let _ = e._call("preventDefault", [])
+        let last_idx = find_last_enabled(options)
+        on_select(last_idx)
+        focus_radio(radio_ids[last_idx])
+      }
+      " " => {
+        let _ = e._call("preventDefault", [])
+        if not(options[current_index].disabled) {
+          on_select(current_index)
+        }
+      }
+      _ => ()
+    }
+  })
+}
+
+///|
+/// Create a complete interactive radio group with keyboard navigation.
+///
+/// Features:
+/// - Arrow key navigation (wraps)
+/// - Home/End navigation
+/// - Space selects
+/// - Roving tabindex
+///
+/// Parameters:
+/// - id: Group container ID
+/// - name: Form field name
+/// - options: Array of RadioOption
+/// - selected: Signal for currently selected value
+/// - aria_label: Accessible label
+pub fn radiogroup_interactive(
+  id : String,
+  name : String,
+  options : Array[RadioOption[@js.Any]],
+  selected : @resource.Signal[String],
+  aria_label? : String,
+) -> @luna.Node[@js.Any] {
+  // Build radio IDs
+  let radio_ids : Array[String] = []
+  let mut i = 0
+  while i < options.length() {
+    radio_ids.push(id + "-" + options[i].value)
+    i = i + 1
+  }
+  // Find current index from selected value
+  fn find_selected_index() -> Int {
+    let sel = selected.get()
+    let mut idx = 0
+    while idx < options.length() {
+      if options[idx].value == sel {
+        return idx
+      }
+      idx = idx + 1
+    }
+    find_first_enabled(options) // Default to first enabled
+  }
+
+  let on_select = fn(idx : Int) { selected.set(options[idx].value) }
+  // Build radios
+  let radios : Array[@luna.Node[@js.Any]] = []
+  i = 0
+  while i < options.length() {
+    let option = options[i]
+    let index = i
+    let radio_id = radio_ids[i]
+    let keydown_handler = make_radio_keydown_handler(
+      options, radio_ids, index, on_select,
+    )
+    let click_handler = @luna.handler(fn(_) {
+      if not(option.disabled) {
+        on_select(index)
+      }
+    })
+    let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      ("role", @luna.attr_static("radio")),
+      ("id", @luna.attr_static(radio_id)),
+      (
+        "aria-checked",
+        @luna.attr_dynamic(fn() {
+          if selected.get() == option.value {
+            "true"
+          } else {
+            "false"
+          }
+        }),
+      ),
+      (
+        "tabindex",
+        @luna.attr_dynamic(fn() {
+          let sel_idx = find_selected_index()
+          if index == sel_idx {
+            "0"
+          } else {
+            "-1"
+          }
+        }),
+      ),
+      ("data-value", @luna.attr_static(option.value)),
+      ("keydown", @luna.attr_handler(keydown_handler)),
+      ("click", @luna.attr_handler(click_handler)),
+    ]
+    if option.disabled {
+      attrs.push(("aria-disabled", @luna.attr_static("true")))
+    }
+    radios.push(@luna.h("div", attrs, option.label))
+    i = i + 1
+  }
+  // Container
+  let group_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("role", @luna.attr_static("radiogroup")),
+    ("id", @luna.attr_static(id)),
+    ("data-name", @luna.attr_static(name)),
+  ]
+  if aria_label is Some(label) {
+    group_attrs.push(("aria-label", @luna.attr_static(label)))
+  }
+  @luna.h("div", group_attrs, radios)
+}

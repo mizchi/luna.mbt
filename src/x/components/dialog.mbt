@@ -329,3 +329,206 @@ pub fn[E] modal(
   }
   @luna.fragment([backdrop, dialog_node])
 }
+
+// =============================================================================
+// Focus Management Utilities
+// =============================================================================
+
+///|
+/// Selector for focusable elements within a dialog.
+let focusable_selector : String = "button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"
+
+///|
+/// Get all focusable elements within a dialog.
+/// Returns a JavaScript NodeList.
+fn get_focusable_elements(dialog_id : String) -> @js.Any {
+  let doc = @js.global_this()._get("document")
+  let dialog = doc._call("getElementById", [@js.any(dialog_id)])
+  dialog._call("querySelectorAll", [@js.any(focusable_selector)])
+}
+
+///|
+/// Focus the first focusable element inside the dialog.
+/// Call this when the dialog opens.
+pub fn focus_first_in_dialog(dialog_id : String) -> Unit {
+  let elements = get_focusable_elements(dialog_id)
+  let length : Int = elements._get("length").cast()
+  if length > 0 {
+    let first = elements._call("item", [@js.any(0)])
+    let _ = first._call("focus", [])
+
+  }
+}
+
+///|
+/// Focus the dialog container itself.
+/// Useful when there are no focusable elements inside.
+pub fn focus_dialog(dialog_id : String) -> Unit {
+  let doc = @js.global_this()._get("document")
+  let dialog = doc._call("getElementById", [@js.any(dialog_id)])
+  let _ = dialog._call("focus", [])
+
+}
+
+///|
+/// Store the currently focused element for later restoration.
+/// Call this before opening the dialog.
+pub fn store_active_element() -> @js.Any {
+  let doc = @js.global_this()._get("document")
+  doc._get("activeElement")
+}
+
+///|
+/// Restore focus to a previously stored element.
+/// Call this when the dialog closes.
+pub fn restore_focus(element : @js.Any) -> Unit {
+  let _ = element._call("focus", [])
+
+}
+
+///|
+/// Create a keydown handler for dialog with focus trap and Escape support.
+///
+/// Parameters:
+/// - dialog_id: ID of the dialog element
+/// - on_close: Callback when Escape is pressed
+///
+/// Handles:
+/// - Escape: Calls on_close
+/// - Tab: Moves focus to next element, wrapping at end
+/// - Shift+Tab: Moves focus to previous element, wrapping at start
+pub fn make_dialog_keydown_handler(
+  dialog_id : String,
+  on_close : () -> Unit,
+) -> @luna.EventHandler[@js.Any] {
+  @luna.handler(fn(e : @js.Any) {
+    let key : String = e._get("key").cast()
+    match key {
+      "Escape" => {
+        let _ = e._call("preventDefault", [])
+        on_close()
+      }
+      "Tab" => {
+        let elements = get_focusable_elements(dialog_id)
+        let length : Int = elements._get("length").cast()
+        if length == 0 {
+          let _ = e._call("preventDefault", [])
+          return
+        }
+        let shift_key : Bool = e._get("shiftKey").cast()
+        let doc = @js.global_this()._get("document")
+        let active = doc._get("activeElement")
+        let first = elements._call("item", [@js.any(0)])
+        let last = elements._call("item", [@js.any(length - 1)])
+        if shift_key {
+          // Shift+Tab: wrap from first to last
+          if @js.any(active) == @js.any(first) {
+            let _ = e._call("preventDefault", [])
+            let _ = last._call("focus", [])
+
+          }
+        } else {
+          // Tab: wrap from last to first
+          if @js.any(active) == @js.any(last) {
+            let _ = e._call("preventDefault", [])
+            let _ = first._call("focus", [])
+
+          }
+        }
+      }
+      _ => ()
+    }
+  })
+}
+
+///|
+/// Create a complete interactive modal dialog with focus management.
+///
+/// Features:
+/// - Focus trap (Tab/Shift+Tab cycles within dialog)
+/// - Escape key closes dialog
+/// - Focus moves to first element on open
+/// - Focus returns to trigger on close
+///
+/// Parameters:
+/// - id: Dialog element ID
+/// - aria_label: Accessible label
+/// - aria_labelledby: ID of title element
+/// - open: Signal controlling visibility
+/// - on_close: Called when dialog should close
+/// - trigger_ref: Reference to store trigger element for focus restoration
+/// - children: Dialog content
+pub fn dialog_interactive(
+  id : String,
+  aria_label? : String,
+  aria_labelledby? : String,
+  aria_describedby? : String,
+  open : @resource.Signal[Bool],
+  on_close : () -> Unit,
+  children : Array[@luna.Node[@js.Any]],
+) -> @luna.Node[@js.Any] {
+  // Store trigger element when showing
+  let trigger_ref : Ref[@js.Any] = { val: @js.null() }
+  let close_and_restore = fn() {
+    open.set(false)
+    on_close()
+    // Restore focus to trigger
+    restore_focus(trigger_ref.val)
+  }
+  let keydown_handler = make_dialog_keydown_handler(id, close_and_restore)
+  @luna.show(
+    fn() { open.get() },
+    fn() {
+      // Store current focus before showing dialog
+      trigger_ref.val = store_active_element()
+      // Focus first element after render (use setTimeout for next tick)
+      let window = @js.global_this()
+      let _ = window._call(
+        "setTimeout",
+        [
+          @js.any(fn() { focus_first_in_dialog(id) }),
+          @js.any(0),
+        ],
+      )
+      @luna.fragment([
+        // Backdrop
+        @luna.h(
+          "div",
+          [
+            ("class", @luna.attr_static("dialog-backdrop")),
+            ("aria-hidden", @luna.attr_static("true")),
+            (
+              "click",
+              @luna.attr_handler(@luna.handler(fn(_) { close_and_restore() })),
+            ),
+          ],
+          [],
+        ),
+        // Dialog
+        @luna.h(
+          "div",
+          [
+            ("id", @luna.attr_static(id)),
+            ("role", @luna.attr_static("dialog")),
+            ("aria-modal", @luna.attr_static("true")),
+            ("tabindex", @luna.attr_static("-1")),
+            (
+              "aria-label",
+              @luna.attr_static(aria_label.unwrap_or("")),
+            ),
+            (
+              "aria-labelledby",
+              @luna.attr_static(aria_labelledby.unwrap_or("")),
+            ),
+            (
+              "aria-describedby",
+              @luna.attr_static(aria_describedby.unwrap_or("")),
+            ),
+            ("keydown", @luna.attr_handler(keydown_handler)),
+          ],
+          children,
+        ),
+      ])
+    },
+  )
+}

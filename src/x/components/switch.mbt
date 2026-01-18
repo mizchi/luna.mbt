@@ -203,3 +203,83 @@ pub fn[E] switch_group(
   }
   @luna.h("div", attrs, children)
 }
+
+///|
+/// Create a keyboard handler for switch that supports Space and Enter.
+///
+/// APG requires:
+/// - Space: Toggle switch state
+/// - Enter: Toggle switch state
+///
+/// Parameters:
+/// - on_toggle: Called when switch should toggle
+pub fn make_switch_handler(on_toggle : () -> Unit) -> @luna.EventHandler[@js.Any] {
+  @luna.handler(fn(e : @js.Any) {
+    let key : String = e._get("key").cast()
+    match key {
+      " " | "Enter" => {
+        let _ = e._call("preventDefault", [])
+        on_toggle()
+      }
+      _ => ()
+    }
+  })
+}
+
+///|
+/// Create a complete interactive switch with built-in keyboard support.
+///
+/// Features:
+/// - Space and Enter toggle state
+/// - Click toggles state
+/// - Proper ARIA attributes
+///
+/// Parameters:
+/// - on: Signal controlling switch state
+/// - disabled: Whether disabled
+/// - aria_label: Accessible label
+/// - children: Switch label content
+pub fn switch_interactive(
+  on : @resource.Signal[Bool],
+  disabled? : Bool,
+  aria_label? : String,
+  children : Array[@luna.Node[@js.Any]],
+) -> @luna.Node[@js.Any] {
+  let is_disabled = disabled.unwrap_or(false)
+  let toggle = fn() {
+    if not(is_disabled) {
+      on.set(not(on.get()))
+    }
+  }
+  let keydown_handler = make_switch_handler(toggle)
+  let click_handler = @luna.handler(fn(_) { toggle() })
+  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    ("role", @luna.attr_static("switch")),
+    (
+      "aria-checked",
+      @luna.attr_dynamic(fn() { if on.get() { "true" } else { "false" } }),
+    ),
+    ("tabindex", @luna.attr_static("0")),
+    ("keydown", @luna.attr_handler(keydown_handler)),
+    ("click", @luna.attr_handler(click_handler)),
+  ]
+  if is_disabled {
+    attrs.push(("aria-disabled", @luna.attr_static("true")))
+  }
+  if aria_label is Some(label) {
+    attrs.push(("aria-label", @luna.attr_static(label)))
+  }
+  // Build switch with track, thumb, icon structure
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
+    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
+      @luna.text("✓"),
+    ]),
+    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
+  ])
+  let label = @luna.h(
+    "span",
+    [("class", @luna.attr_static("switch-label"))],
+    children,
+  )
+  @luna.h("button", attrs, [track, label])
+}
