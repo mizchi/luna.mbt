@@ -147,6 +147,8 @@ fn make_tree_handler(
   on_activate : (String) -> Unit,
 ) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(e : @js.Any) {
+    // Stop event propagation to prevent multiple handlers firing
+    let _ = e._call("stopPropagation", [])
     let key : String = e._get("key").cast()
     let current_id = focused_id.get()
     let exp_map = expanded.get()
@@ -255,13 +257,25 @@ fn render_single_styled_tree_node(
   let slots = treeview_slots()
   let has_kids = node_children.length() > 0
 
-  // Icon element (only for items with children)
+  // Icon element (only for items with children) - clickable to toggle expand/collapse
   let icon_node : @luna.Node[@js.Any] = if has_kids {
     @luna.h(
       "span",
       [
         ("class", @luna.attr_static(slots.icon)),
         ("aria-hidden", @luna.attr_static("true")),
+        (
+          "click",
+          @luna.attr_handler(@luna.handler(fn(e : @js.Any) {
+            let _ = e._call("stopPropagation", [])
+            // Toggle expand/collapse
+            let exp_map = expanded.get()
+            let new_map = exp_map.copy()
+            let is_expanded = exp_map.get(node_id).unwrap_or(false)
+            new_map.set(node_id, not(is_expanded))
+            expanded.set(new_map)
+          })),
+        ),
       ],
       [
         @luna.text_dyn(fn() {
@@ -315,14 +329,7 @@ fn render_single_styled_tree_node(
           focused_id.set(node_id)
           selected.set(node_id)
           on_select(node_id)
-          // Toggle expand/collapse if has children
-          if has_kids {
-            let exp_map = expanded.get()
-            let new_map = exp_map.copy()
-            let is_expanded = exp_map.get(node_id).unwrap_or(false)
-            new_map.set(node_id, not(is_expanded))
-            expanded.set(new_map)
-          }
+          // Note: expand/collapse is handled by icon click, not row click
         })),
       ),
     ],
@@ -469,10 +476,14 @@ pub fn treeview(
   // Build initial expanded map
   let init_expanded : Map[String, Bool] = {}
   match initial_expanded {
-    Some(ids) =>
-      for exp_id in ids {
-        init_expanded.set(exp_id, true)
+    Some(ids) => {
+      let mut i = 0
+      while i < ids.length() {
+        let id = ids[i]
+        init_expanded.set(id, true)
+        i = i + 1
       }
+    }
     None => ()
   }
   let expanded : @resource.Signal[Map[String, Bool]] = @resource.signal(
@@ -588,6 +599,7 @@ pub fn treeview_css() -> String {
     #|  font-size: 0.625rem;
     #|  color: var(--muted-foreground);
     #|  text-align: center;
+    #|  cursor: pointer;
     #|}
     #|
     #|.treeview__row[data-selected="true"] .treeview__icon {

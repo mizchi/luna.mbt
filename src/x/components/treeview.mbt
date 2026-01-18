@@ -239,7 +239,7 @@ pub fn[E] treeitem_dyn(
 ///|
 /// Flatten tree nodes into a list of visible node IDs for navigation.
 /// Only includes expanded nodes' children.
-fn flatten_visible_nodes(
+pub fn flatten_visible_nodes(
   nodes : Array[TreeNode],
   expanded : Map[String, Bool],
 ) -> Array[String] {
@@ -258,7 +258,7 @@ fn flatten_visible_nodes(
 
 ///|
 /// Find parent ID for a node
-fn find_parent_id(
+pub fn find_parent_id(
   nodes : Array[TreeNode],
   target_id : String,
   parent_id : String?,
@@ -279,7 +279,7 @@ fn find_parent_id(
 
 ///|
 /// Find a node by ID
-fn find_node(nodes : Array[TreeNode], target_id : String) -> TreeNode? {
+pub fn find_node(nodes : Array[TreeNode], target_id : String) -> TreeNode? {
   for node in nodes {
     if node.id == target_id {
       return Some(node)
@@ -304,6 +304,8 @@ pub fn make_tree_handler(
   on_activate : (String) -> Unit,
 ) -> @luna.EventHandler[@js.Any] {
   @luna.handler(fn(e : @js.Any) {
+    // Stop event propagation to prevent multiple handlers firing
+    let _ = e._call("stopPropagation", [])
     let key : String = e._get("key").cast()
     let current_id = focused_id.get()
     let exp_map = expanded.get()
