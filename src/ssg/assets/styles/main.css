@@ -2377,6 +2377,16 @@ html.dark {
   background: var(--background);
 }
 
+.accordion h3 {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.accordion h3::before {
+  display: none;
+}
+
 .accordion__item {
   border-bottom: 1px solid var(--border);
 }
