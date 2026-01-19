@@ -1,8 +1,8 @@
 ---
-title: APG Components
+title: Components
 ---
 
-# APG Components
+# Components
 
 Luna provides accessible UI components following [WAI-ARIA Authoring Practices Guide (APG)](https://www.w3.org/WAI/ARIA/apg/) patterns.
 
@@ -35,7 +35,7 @@ Each component includes:
 |-----------|-------------|
 | [Table](./table/) | Sortable data table |
 
-## All APG Components
+## All Components
 
 ### Implemented
 
