@@ -33,3 +33,5 @@ tmp/
 playwright-report/
 _build
 target
+
+.claude/settings.local.json
