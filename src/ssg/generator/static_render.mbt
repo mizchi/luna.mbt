@@ -1795,6 +1795,10 @@ fn build_combined_css(
   config : @ssg.SsgConfig,
   is_dev? : Bool = false,
 ) -> String {
+  // Clear cache in dev mode to always read fresh CSS files
+  if is_dev {
+    @assets.clear_cache()
+  }
   let main_css = @assets.get_default_css(config)
   let markdown_css = @assets.get_github_markdown_css()
   let shiki_css = @shiki.generate_shiki_css()

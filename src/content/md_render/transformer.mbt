@@ -421,10 +421,9 @@ pub fn md_node_to_vnode(
       let tbody = h("tbody", [], body_rows)
       h("table", [attr("class", "md-table")], [thead, tbody])
     }
-    @markdown.MdNode::Html(_html) =>
-      // Raw HTML - TODO: implement raw HTML support
-      // For now, skip raw HTML blocks
-      @luna.fragment([])
+    @markdown.MdNode::Html(html) =>
+      // Raw HTML blocks - render as-is
+      @luna.raw_html(html)
     @markdown.MdNode::Island(embed) =>
       // Convert to VIsland for hydration (legacy)
       create_island_vnode(embed, islands_base_path)

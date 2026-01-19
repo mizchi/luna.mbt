@@ -185,3 +185,42 @@ test "Radix tabs SSR structure" {
   inspect(result.html.contains("aria-selected=\"true\""), content="true")
   inspect(result.html.contains("hidden"), content="true")
 }
+
+///|
+/// Test BEM class names with double underscore are preserved
+test "Component with BEM class names (double underscore) preserved" {
+  let bem_content = "<div class=\"checkbox__control\"><span class=\"checkbox__icon checkbox__icon--check\"></span></div>"
+  let embed : @markdown.ComponentEmbed = {
+    tag: "styled-checkbox",
+    attrs: [],
+    content: bem_content,
+    trigger: @luna.TriggerType::Visible,
+  }
+  let node = @markdown.MdNode::Component(embed)
+  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let result = @render.render_to_string(vnode)
+
+  // BEM class names with __ must be preserved
+  inspect(result.html.contains("checkbox__control"), content="true")
+  inspect(result.html.contains("checkbox__icon"), content="true")
+  inspect(result.html.contains("checkbox__icon--check"), content="true")
+}
+
+///|
+/// Test JsxComponentEmbed with BEM class names
+test "JsxComponent with BEM class names preserved" {
+  let jsx_embed : @markdown.JsxComponentEmbed = {
+    tag: "styled-checkbox-demo",
+    attrs: [],
+    children: "<div class=\"checkbox__control\"><span class=\"checkbox__icon\"></span></div>",
+    self_closing: false,
+    cls_hints: None,
+  }
+  let node = @markdown.MdNode::JsxComponent(jsx_embed)
+  let vnode = md_node_to_vnode(node, islands_base_path="/components/")
+  let result = @render.render_to_string(vnode)
+
+  // BEM class names must be preserved through JSX conversion
+  inspect(result.html.contains("checkbox__control"), content="true")
+  inspect(result.html.contains("checkbox__icon"), content="true")
+}

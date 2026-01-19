@@ -1,0 +1,79 @@
+---
+title: Alert
+---
+
+# Alert
+
+Status messages for important information with different severity levels.
+
+Based on [APG Alert Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alert/).
+
+## Demo
+
+<div class="alert-demo" style="display: flex; flex-direction: column; gap: 0.75rem;">
+  <div class="alert alert--status" role="alert" aria-live="polite" data-variant="status">
+    <div class="alert__title">Information</div>
+    <div class="alert__description">This is a status alert for general information.</div>
+  </div>
+  <div class="alert alert--success" role="alert" aria-live="polite" data-variant="success">
+    <div class="alert__title">Success</div>
+    <div class="alert__description">Your changes have been saved successfully.</div>
+  </div>
+  <div class="alert alert--warning" role="alert" aria-live="polite" data-variant="warning">
+    <div class="alert__title">Warning</div>
+    <div class="alert__description">Please review your input before continuing.</div>
+  </div>
+  <div class="alert alert--error" role="alert" aria-live="polite" data-variant="error">
+    <div class="alert__title">Error</div>
+    <div class="alert__description">An error occurred while processing your request.</div>
+  </div>
+</div>
+
+## Usage
+
+```moonbit
+// Import styled alert
+@styled_alert.alert(
+  variant=Error,
+  title="Error",
+  description="An error occurred while processing your request.",
+)
+```
+
+## Variants
+
+| Variant | Use Case |
+|---------|----------|
+| `Status` | General information |
+| `Success` | Positive confirmation |
+| `Warning` | Caution or attention needed |
+| `Error` | Error or failure |
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| variant | AlertVariant | - | Status, Success, Warning, or Error |
+| title | String? | None | Alert title text |
+| description | String? | None | Alert description text |
+| class | String? | None | Additional CSS class |
+| children | Array[Node]? | None | Custom content |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.alert` | Root container |
+| `.alert__title` | Title text |
+| `.alert__description` | Description text |
+| `.alert--error` | Error variant |
+| `.alert--warning` | Warning variant |
+| `.alert--success` | Success variant |
+| `.alert--status` | Status/info variant |
+
+## Accessibility
+
+- `role="alert"` for screen reader announcement
+- `aria-live="polite"` for dynamic updates
+- Color-coded border with semantic meaning
+- High contrast text for readability

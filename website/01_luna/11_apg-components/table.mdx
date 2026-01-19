@@ -1,0 +1,80 @@
+---
+title: Table
+---
+
+# Table
+
+Sortable data table with selectable rows.
+
+Based on [APG Table Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/table/).
+
+## Demo
+
+<styled-table-demo luna:trigger="visible"><div class="table"><table class="table__table" id="demo-table" aria-label="User data"><thead class="table__header"><tr><th class="table__th table__th--sortable" scope="col" aria-sort="none" data-col="name">Name <span class="table__sort-icon" aria-hidden="true"></span></th><th class="table__th table__th--sortable" scope="col" aria-sort="none" data-col="email">Email <span class="table__sort-icon" aria-hidden="true"></span></th><th class="table__th" scope="col">Role</th></tr></thead><tbody class="table__body"><tr class="table__row" data-row-id="1" data-selected="false"><td class="table__cell">Alice Johnson</td><td class="table__cell">alice@example.com</td><td class="table__cell">Admin</td></tr><tr class="table__row" data-row-id="2" data-selected="false"><td class="table__cell">Bob Smith</td><td class="table__cell">bob@example.com</td><td class="table__cell">User</td></tr><tr class="table__row" data-row-id="3" data-selected="false"><td class="table__cell">Charlie Brown</td><td class="table__cell">charlie@example.com</td><td class="table__cell">User</td></tr><tr class="table__row" data-row-id="4" data-selected="false"><td class="table__cell">Diana Ross</td><td class="table__cell">diana@example.com</td><td class="table__cell">Editor</td></tr></tbody></table></div></styled-table-demo>
+
+## Usage
+
+```moonbit
+@styled_table.table(
+  id="users",
+  columns=[
+    table_column("name", "Name", sortable=true),
+    table_column("email", "Email", sortable=true),
+    table_column("role", "Role"),
+  ],
+  rows=[
+    table_row("1", ["Alice", "alice@example.com", "Admin"]),
+    table_row("2", ["Bob", "bob@example.com", "User"]),
+  ],
+  aria_label="User data",
+  selectable=true,
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| id | String | - | Table ID |
+| columns | Array[TableColumn] | - | Column definitions |
+| rows | Array[TableRow] | - | Row data |
+| aria_label | String? | None | Accessible label |
+| selectable | Bool | false | Enable row selection |
+| class | String? | None | Additional CSS class |
+| on_row_select | (String) -> Unit? | None | Row selection callback |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.table` | Root wrapper (overflow container) |
+| `.table__table` | The actual table element |
+| `.table__header` | Table header row |
+| `.table__th` | Header cell |
+| `.table__th--sortable` | Sortable header cell |
+| `.table__sort-icon` | Sort direction indicator |
+| `.table__body` | Table body |
+| `.table__row` | Data row |
+| `.table__cell` | Data cell |
+
+## Data Attributes
+
+| Attribute | Description |
+|-----------|-------------|
+| `aria-sort` | Sort direction (`ascending`, `descending`, `none`) |
+| `data-selected` | Row selection state (`true`, `false`) |
+| `data-row-id` | Row identifier |
+
+## Features
+
+- **Sortable columns**: Click header to toggle sort direction
+- **Row selection**: Click row to select (when enabled)
+- **Keyboard navigation**: Tab through headers, Enter to sort
+- **Responsive**: Horizontal scroll on overflow
+
+## Accessibility
+
+- `aria-sort` on sortable headers
+- `aria-label` for table description
+- Proper `scope="col"` on header cells
+- Focus management for keyboard users
