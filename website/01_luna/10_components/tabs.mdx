@@ -1,0 +1,62 @@
+---
+title: Tabs
+---
+
+# Tabs
+
+Tabbed interface for organizing content into separate views.
+
+Based on [APG Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+
+## Demo
+
+<div class="tabs"><div class="tabs__list" role="tablist" aria-label="Sample tabs"><button class="tabs__tab" data-state="active" role="tab" aria-selected="true" aria-controls="panel-account" id="tab-account" tabindex="0">Account</button><button class="tabs__tab" data-state="inactive" role="tab" aria-selected="false" aria-controls="panel-password" id="tab-password" tabindex="-1">Password</button><button class="tabs__tab" data-state="inactive" role="tab" aria-selected="false" aria-controls="panel-settings" id="tab-settings" tabindex="-1">Settings</button></div><div class="tabs__panel" role="tabpanel" id="panel-account" aria-labelledby="tab-account">Make changes to your account here. Update your name, email, and profile picture.</div></div>
+
+## Usage
+
+```moonbit
+let selected = @resource.signal(0)
+
+@styled_tabs.tabs(
+  [
+    @styled_tabs.tab_item("account", "Account", [@luna.text("Account content")]),
+    @styled_tabs.tab_item("password", "Password", [@luna.text("Password content")]),
+  ],
+  selected,
+  aria_label="Settings tabs",
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| items | Array[TabItem] | - | Tab items |
+| selected | Signal[Int] | - | Index of selected tab |
+| aria_label | String? | None | Label for tab list |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.tabs` | Root container |
+| `.tabs__list` | Tab button list |
+| `.tabs__tab` | Individual tab button |
+| `.tabs__panel` | Tab content panel |
+
+## States
+
+| State | Description |
+|-------|-------------|
+| `data-state="active"` | Currently selected tab |
+| `data-state="inactive"` | Unselected tab |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Arrow Left | Previous tab (wraps) |
+| Arrow Right | Next tab (wraps) |
+| Home | First tab |
+| End | Last tab |

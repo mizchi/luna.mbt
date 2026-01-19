@@ -21,19 +21,20 @@ Each component includes:
 
 ## Interactive Demos
 
-### Form Controls
-
 | Component | Description |
 |-----------|-------------|
+| [Accordion](./accordion/) | Expandable sections |
 | [Alert](./alert/) | Status messages with severity levels |
-| [Switch](./switch/) | Toggle switches with on/off states |
 | [Checkbox](./checkbox/) | Checkbox with check/unchecked/indeterminate |
-
-### Data Display
-
-| Component | Description |
-|-----------|-------------|
+| [Disclosure](./disclosure/) | Show/hide content toggle |
+| [Meter](./meter/) | Value display in range |
+| [Radio](./radio/) | Single selection from options |
+| [Spinbutton](./spinbutton/) | Numeric input with buttons |
+| [Switch](./switch/) | Toggle switches with on/off states |
 | [Table](./table/) | Sortable data table |
+| [Tabs](./tabs/) | Tabbed content interface |
+| [Toolbar](./toolbar/) | Action button toolbar |
+| [Tree View](./treeview/) | Hierarchical list navigation |
 
 ## All Components
 

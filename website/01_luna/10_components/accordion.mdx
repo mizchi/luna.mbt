@@ -1,0 +1,55 @@
+---
+title: Accordion
+---
+
+# Accordion
+
+Expandable sections for organizing content into collapsible panels.
+
+Based on [APG Accordion Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
+
+## Demo
+
+<div class="accordion"><div class="accordion__item" data-state="open"><h3><button class="accordion__header" data-state="open" aria-expanded="true" aria-controls="panel-1" id="header-1">What is Luna?<span class="accordion__icon">▼</span></button></h3><div class="accordion__panel" data-state="open" id="panel-1" role="region" aria-labelledby="header-1"><div class="accordion__panel-content">Luna is a reactive UI framework for MoonBit that provides accessible components following WAI-ARIA patterns.</div></div></div><div class="accordion__item" data-state="closed"><h3><button class="accordion__header" data-state="closed" aria-expanded="false" aria-controls="panel-2" id="header-2">How does it work?<span class="accordion__icon">▼</span></button></h3><div class="accordion__panel" data-state="closed" id="panel-2" role="region" aria-labelledby="header-2" hidden><div class="accordion__panel-content">Luna uses signals for reactive state management and renders to the DOM with fine-grained updates.</div></div></div><div class="accordion__item" data-state="closed"><h3><button class="accordion__header" data-state="closed" aria-expanded="false" aria-controls="panel-3" id="header-3">Is it accessible?<span class="accordion__icon">▼</span></button></h3><div class="accordion__panel" data-state="closed" id="panel-3" role="region" aria-labelledby="header-3" hidden><div class="accordion__panel-content">Yes! All components follow WAI-ARIA Authoring Practices Guide patterns with full keyboard navigation support.</div></div></div></div>
+
+## Usage
+
+```moonbit
+let expanded = @resource.signal(0)
+
+@styled_accordion.accordion(
+  [
+    @styled_accordion.accordion_item("1", "Section 1", [@luna.text("Content 1")]),
+    @styled_accordion.accordion_item("2", "Section 2", [@luna.text("Content 2")]),
+  ],
+  expanded,
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| items | Array[AccordionItemData] | - | Accordion items |
+| expanded | Signal[Int] | - | Index of expanded panel |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.accordion` | Root container |
+| `.accordion__item` | Item wrapper |
+| `.accordion__header` | Header button |
+| `.accordion__icon` | Expand/collapse icon |
+| `.accordion__panel` | Content panel |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Enter/Space | Toggle panel |
+| Arrow Down | Focus next header |
+| Arrow Up | Focus previous header |
+| Home | Focus first header |
+| End | Focus last header |

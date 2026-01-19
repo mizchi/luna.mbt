@@ -1,0 +1,72 @@
+---
+title: Toolbar
+---
+
+# Toolbar
+
+Action toolbar with grouped buttons and keyboard navigation.
+
+Based on [APG Toolbar Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/).
+
+## Demo
+
+<div class="toolbar"><div class="toolbar__inner" role="toolbar" aria-label="Text formatting"><div class="toolbar__group"><button class="toolbar__item" data-pressed aria-pressed="true">B</button><button class="toolbar__item" aria-pressed="false">I</button><button class="toolbar__item" aria-pressed="false">U</button></div><div class="toolbar__separator" role="separator"></div><div class="toolbar__group"><button class="toolbar__item" aria-pressed="false">L</button><button class="toolbar__item" aria-pressed="false">C</button><button class="toolbar__item" aria-pressed="false">R</button></div></div></div>
+
+## Usage
+
+```moonbit
+@styled_toolbar.toolbar(
+  "formatting",
+  [
+    @styled_toolbar.ToolbarGroup([
+      @styled_toolbar.toolbar_item_config("bold", "B", pressed=true),
+      @styled_toolbar.toolbar_item_config("italic", "I"),
+      @styled_toolbar.toolbar_item_config("underline", "U"),
+    ]),
+    @styled_toolbar.ToolbarGroup([
+      @styled_toolbar.toolbar_item_config("left", "L"),
+      @styled_toolbar.toolbar_item_config("center", "C"),
+      @styled_toolbar.toolbar_item_config("right", "R"),
+    ]),
+  ],
+  aria_label="Text formatting",
+  on_item_click=fn(id) { println("Clicked: " + id) },
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| id | String | - | Toolbar ID |
+| groups | Array[ToolbarGroup] | - | Button groups |
+| aria_label | String | "Toolbar" | Accessible label |
+| class | String? | None | Additional CSS class |
+| on_item_click | (String) -> Unit | - | Click handler |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.toolbar` | Root container |
+| `.toolbar__inner` | Inner wrapper with border |
+| `.toolbar__group` | Button group |
+| `.toolbar__item` | Individual button |
+| `.toolbar__separator` | Group separator |
+
+## States
+
+| State | Description |
+|-------|-------------|
+| `data-pressed` | Toggle button pressed |
+| `data-selected` | Selected item |
+| `data-disabled` | Disabled item |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Arrow Left | Previous button |
+| Arrow Right | Next button |
+| Home | First button |
+| End | Last button |

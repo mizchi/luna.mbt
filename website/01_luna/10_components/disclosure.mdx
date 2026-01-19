@@ -1,0 +1,59 @@
+---
+title: Disclosure
+---
+
+# Disclosure
+
+Show/hide content with a toggle button.
+
+Based on [APG Disclosure Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/).
+
+## Demo
+
+<div class="disclosure" data-state="open"><button class="disclosure__trigger" data-state="open" aria-expanded="true" aria-controls="disclosure-panel"><span class="disclosure__icon" aria-hidden="true">▼</span>Show details</button><div class="disclosure__panel" data-state="open" id="disclosure-panel"><div class="disclosure__content">This is the disclosed content. It can contain any HTML elements including text, images, forms, or other components. The panel smoothly animates open and closed.</div></div></div>
+
+## Usage
+
+```moonbit
+let expanded = @resource.signal(false)
+
+@styled_disclosure.disclosure(
+  "details",
+  expanded,
+  "Show details",
+  [@luna.text("Hidden content goes here...")],
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| id | String | - | Base ID for disclosure |
+| expanded | Signal[Bool] | - | Expanded state |
+| trigger_text | String | - | Button text |
+| children | Array[Node] | - | Content to show/hide |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.disclosure` | Root container |
+| `.disclosure__trigger` | Toggle button |
+| `.disclosure__icon` | Expand/collapse icon |
+| `.disclosure__panel` | Content panel |
+| `.disclosure__content` | Inner content wrapper |
+
+## States
+
+| State | Description |
+|-------|-------------|
+| `data-state="open"` | Content visible |
+| `data-state="closed"` | Content hidden |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Enter/Space | Toggle visibility |
