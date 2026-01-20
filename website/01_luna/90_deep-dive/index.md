@@ -438,4 +438,3 @@ Use browser DevTools Performance tab. Look for:
 
 - [Signals API](/luna/api-js/signals/) - JavaScript signal reference
 - [Islands API](/luna/api-js/islands/) - Island configuration
-- [Stella](/stella/) - Web Components builder

@@ -1371,7 +1371,7 @@ fn[FS : @env.FileSystem] read_mod_info_with_fs(
 let hydrate_required_imports : Array[(String, String)] = [
   ("mizchi/js/core", "js"),
   ("mizchi/js/browser/dom", "js_dom"),
-  ("mizchi/luna/dom", "wc"),
+  ("mizchi/luna/dom/client", "wc"),
 ]
 
 ///|

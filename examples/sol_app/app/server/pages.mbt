@@ -22,7 +22,7 @@ async fn wc_multiple(_props : @router.PageProps) -> @server_dom.ServerNode {
       ],
       styles=@client.wc_counter_css,
       state="{\"initial_count\":0}",
-      trigger=@luna.Load,
+      trigger=@luna.TriggerType::Load,
     ),
     @server_dom.wc_island(
       "wc-counter",
@@ -38,7 +38,7 @@ async fn wc_multiple(_props : @router.PageProps) -> @server_dom.ServerNode {
       ],
       styles=@client.wc_counter_css,
       state="{\"initial_count\":10}",
-      trigger=@luna.Load,
+      trigger=@luna.TriggerType::Load,
     ),
     @server_dom.wc_island(
       "wc-counter",
@@ -54,7 +54,7 @@ async fn wc_multiple(_props : @router.PageProps) -> @server_dom.ServerNode {
       ],
       styles=@client.wc_counter_css,
       state="{\"initial_count\":100}",
-      trigger=@luna.Load,
+      trigger=@luna.TriggerType::Load,
     ),
   ]
   @server_dom.ServerNode::sync(@luna.fragment(content))

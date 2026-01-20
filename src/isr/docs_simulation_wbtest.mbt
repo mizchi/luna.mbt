@@ -17,7 +17,7 @@ fn create_docs_manifest() -> ISRManifest {
 
   // Main pages - hot (TTL: 300s)
   let main_pages = [
-    "/", "/introduction/", "/luna/", "/ssg/", "/stella/", "/sol/",
+    "/", "/introduction/", "/luna/", "/ssg/", "/sol/",
   ]
   for path in main_pages {
     pages[path] = ISRPageMeta::{

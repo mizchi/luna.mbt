@@ -437,4 +437,3 @@ src/sol/
 
 - [Server Actions](./action/README.md) - Server Actions details
 - [Luna Core](../luna/README.md) - VNode/Signal details
-- [Stella](../stella/README.md) - Island embedding mechanism

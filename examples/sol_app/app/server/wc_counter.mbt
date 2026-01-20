@@ -49,7 +49,7 @@ async fn wc_counter(_props : @router.PageProps) -> @server_dom.ServerNode {
       ],
       styles=counter_styles,
       state=state_json,
-      trigger=@luna.Load,
+      trigger=@luna.TriggerType::Load,
     ),
     h2([text("How it works")]),
     p([

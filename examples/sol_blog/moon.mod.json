@@ -5,8 +5,12 @@
     "mizchi/sol": {
       "path": "../.."
     },
-    "mizchi/luna": "0.5.3",
-    "mizchi/js": "0.10.7"
+    "mizchi/luna": {
+      "path": "../../../luna.mbt"
+    },
+    "mizchi/signals": "0.5.0",
+    "mizchi/js": "0.10.10",
+    "mizchi/npm_typed": "0.1.8"
   },
   "source": "app",
   "preferred-target": "js"

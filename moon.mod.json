@@ -7,7 +7,9 @@
     "moonbitlang/x": "0.4.38",
     "moonbitlang/parser": "0.1.13",
     "mizchi/npm_typed": "0.1.8",
-    "mizchi/markdown": "0.4.3",
+    "mizchi/markdown": {
+      "path": "../markdown.mbt"
+    },
     "mizchi/js": "0.10.10",
     "mizchi/jsonschema": "0.6.0",
     "mizchi/process_pool": "0.1.2"

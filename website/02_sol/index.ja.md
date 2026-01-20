@@ -246,10 +246,9 @@ sol build  # 静的サイトを生成
 sol lint   # SSGコンテンツをリント
 ```
 
-SSG固有の機能と設定については、[Sol SSG](/ja/ssg/)を参照してください。
+SSG固有の機能と設定については、[Sol SSG](/ja/sol/ssg/)を参照してください。
 
 ## 関連項目
 
 - [Luna UI](/ja/luna/) - コアリアクティビティの概念
-- [Sol SSG](/ja/ssg/) - 静的サイト生成（Sol CLI経由で実行）
-- [Stella](/ja/stella/) - Web Components
+- [Sol SSG](/ja/sol/ssg/) - 静的サイト生成（Sol CLI経由で実行）

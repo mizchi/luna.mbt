@@ -105,4 +105,4 @@ docs/
 | Navigation | Full page reload | SPA-like instant |
 | Use case | Blog posts, docs | Interactive apps |
 
-For client-side dynamic routing (SPA), see [Islands](/ssg/islands/).
+For client-side dynamic routing (SPA), see [Islands](/sol/ssg/islands/).

@@ -23,7 +23,6 @@
   "nav": [
     { "text": "Luna", "link": "/luna/", "icon": "luna" },
     { "text": "Sol", "link": "/sol/", "icon": "sol" },
-    { "text": "SSG", "link": "/ssg/", "icon": "ssg" },
     { "text": "Search", "link": "/search/", "icon": "search" }
   ],
   "sidebar": "auto",
@@ -45,7 +44,7 @@
           "items": [
             { "label": "Overview", "href": "/introduction/overview/" },
             { "label": "Tutorial", "href": "/luna/tutorial-js/" },
-            { "label": "Sol SSG", "href": "/ssg/" },
+            { "label": "Sol SSG", "href": "/sol/ssg/" },
             { "label": "Sol Framework", "href": "/sol/" }
           ]
         },

@@ -12,7 +12,6 @@ Luna is a suite of tools for building modern web applications with MoonBit and J
 |--------------|-----|----------|
 | Build a documentation site | **Sol SSG** | Markdown + Islands |
 | Build a full-stack web app | **Sol** | MoonBit |
-| Create distributable Web Components | **Stella** | MoonBit |
 | Add reactivity to existing pages | **Luna UI** | JavaScript/TypeScript |
 | Learn fine-grained reactivity | **Luna UI Tutorial** | JS or MoonBit |
 
@@ -22,10 +21,6 @@ Luna is a suite of tools for building modern web applications with MoonBit and J
 Need a website?
 ├── Static content (docs, blog) → Sol SSG
 └── Dynamic app (user auth, API) → Sol
-
-Need a component?
-├── Standalone, distributable → Stella (Web Components)
-└── Within Luna app → Luna UI Islands
 
 Just learning?
 ├── Know JavaScript → JS Tutorial
@@ -110,9 +105,6 @@ Luna combines Islands Architecture with fine-grained reactivity:
 │                       Luna UI                                 │
 │           Signals, Islands, Hydration, Components            │
 ├─────────────────────────────────────────────────────────────┤
-│  Stella (Web Components)                                     │
-│  Standalone distributable components                         │
-├─────────────────────────────────────────────────────────────┤
 │                      MoonBit / JavaScript                    │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -128,7 +120,7 @@ The foundation of everything. Luna provides:
 - **Components** - Web Components with declarative syntax
 - **Hydration** - Smart loading strategies (load, idle, visible, media)
 
-### [Sol SSG](/ssg/) - Static Site Generator
+### [Sol SSG](/sol/ssg/) - Static Site Generator
 
 Build documentation sites and blogs from Markdown. Features:
 
@@ -150,24 +142,12 @@ Server-side rendering framework with Hono integration:
 - Nested layouts
 - Streaming SSR
 
-### [Stella](/stella/) - Web Components Builder
-
-Build standalone, distributable Web Components from MoonBit:
-
-- Compile MoonBit to standard Custom Elements
-- Signal-based fine-grained reactivity
-- SSR/Hydration with Declarative Shadow DOM
-- TypeScript and React type definitions
-- Loader script for auto-detection
-
 ## npm Packages
 
 | Package | Description |
 |---------|-------------|
 | `@luna_ui/luna` | Core UI library + CLI for scaffolding |
 | `@luna_ui/sol` | SSR/SSG framework CLI (includes Sol SSG) |
-| `@luna_ui/stella` | Web Components generator CLI |
-| `@luna_ui/wcr` | Web Components runtime (used by Stella) |
 
 ## Quick Start
 
@@ -191,10 +171,6 @@ cd myapp && moon update && npm install && npm run dev
 npx @luna_ui/sol new my-docs --ssg
 cd my-docs && npm install && npm run dev
 ```
-
-### Stella (Web Component)
-
-See [Stella documentation](/stella/) for Web Component development.
 
 ## Code Examples
 
@@ -227,7 +203,7 @@ count.set(1)  // Prints: 1
 
 1. Start with [JavaScript Tutorial](/luna/tutorial-js/)
 2. Learn [Signals](/luna/api-js/signals) and [Islands](/luna/api-js/islands)
-3. Build a site with [Sol SSG](/ssg/) or app with [Sol](/sol/)
+3. Build a site with [Sol SSG](/sol/ssg/) or app with [Sol](/sol/)
 
 ### For MoonBit Developers
 
@@ -237,18 +213,17 @@ count.set(1)  // Prints: 1
 
 ## Feature Comparison
 
-| Feature | Luna UI | Sol SSG | Sol | Stella |
-|---------|---------|-------|-----|--------|
-| Signals | ✅ | ✅ | ✅ | ✅ |
-| Islands | ✅ | ✅ | ✅ | ✅ |
-| SSR | - | Build-time | Runtime | Optional |
-| Routing | - | File-based | File-based + API | - |
-| Markdown | - | ✅ | - | - |
-| i18n | - | ✅ | - | - |
-| Middleware | - | - | ✅ | - |
-| Server Actions | - | - | ✅ | - |
-| Web Components | ✅ | ✅ | ✅ | ✅ (Primary) |
-| Distributable | - | - | - | ✅ |
+| Feature | Luna UI | Sol SSG | Sol |
+|---------|---------|-------|-----|
+| Signals | ✅ | ✅ | ✅ |
+| Islands | ✅ | ✅ | ✅ |
+| SSR | - | Build-time | Runtime |
+| Routing | - | File-based | File-based + API |
+| Markdown | - | ✅ | - |
+| i18n | - | ✅ | - |
+| Middleware | - | - | ✅ |
+| Server Actions | - | - | ✅ |
+| Web Components | ✅ | ✅ | ✅ |
 
 ## Status
 

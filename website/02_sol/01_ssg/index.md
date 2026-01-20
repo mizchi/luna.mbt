@@ -21,11 +21,11 @@ Sol SSG is Luna's static site generator for documentation and content sites.
 
 ## Guides
 
-- [Dynamic Routes](/ssg/dynamic-routes/) - Generate static pages from parameters
-- [Islands](/ssg/islands/) - Embed interactive components in static pages
-- [Deploy](/ssg/deploy/) - Deploy to various platforms
-- [ISR](/ssg/isr/) - Incremental Static Regeneration for dynamic content
-- [Components](/ssg/components/) - Reusable UI components (Header, Footer, Blog, Themes)
+- [Dynamic Routes](/sol/ssg/dynamic-routes/) - Generate static pages from parameters
+- [Islands](/sol/ssg/islands/) - Embed interactive components in static pages
+- [Deploy](/sol/ssg/deploy/) - Deploy to various platforms
+- [ISR](/sol/ssg/isr/) - Incremental Static Regeneration for dynamic content
+- [Components](/sol/ssg/components/) - Reusable UI components (Header, Footer, Blog, Themes)
 
 ## Quick Start
 
@@ -258,7 +258,7 @@ sidebar: true
 | `layout` | string | `"doc"` | Layout type: `doc`, `home` |
 | `sidebar` | boolean | `true` | Show sidebar |
 | `image` | string | - | OGP image (overrides site default) |
-| `revalidate` | int | - | ISR TTL in seconds ([details](/ssg/isr/)) |
+| `revalidate` | int | - | ISR TTL in seconds ([details](/sol/ssg/isr/)) |
 
 ### Code Blocks
 

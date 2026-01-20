@@ -13,7 +13,6 @@ Luna is a suite of tools for building modern web applications with MoonBit and J
 - **Luna UI** - Signals, Islands, and fine-grained reactivity
 - **Sol SSG** - Static Site Generator for documentation
 - **Sol** - Full-stack SSR framework
-- **Stella** - Development tools
 
 ### Why MoonBit?
 

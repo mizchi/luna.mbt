@@ -389,10 +389,9 @@ sol build  # Generates static site
 sol lint   # Lints SSG content
 ```
 
-For SSG-specific features and configuration, see [Sol SSG](/ssg/).
+For SSG-specific features and configuration, see [Sol SSG](/sol/ssg/).
 
 ## See Also
 
 - [Luna UI](/luna/) - Core reactivity concepts
-- [Sol SSG](/ssg/) - Static site generation
-- [Stella](/stella/) - Web Components
+- [Sol SSG](/sol/ssg/) - Static site generation

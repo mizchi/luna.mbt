@@ -97,6 +97,45 @@ dev-app:
     just build-moon
     cd examples/sol_app && node ../../target/js/release/build/cli/cli.js dev -f
 
+# examples のキャッシュクリーン
+clean-examples:
+    @rm -rf examples/sol_app/.mooncakes examples/sol_app/_build
+    @rm -rf examples/sol_auth/.mooncakes examples/sol_auth/_build
+    @rm -rf examples/sol_blog/.mooncakes examples/sol_blog/_build
+    @rm -rf examples/sol_docs/.mooncakes examples/sol_docs/_build
+    @rm -rf examples/sol_sqlite/.mooncakes examples/sol_sqlite/_build
+    @echo "✓ Examples cache cleaned"
+
+# 各 example のビルドチェック
+check-example-sol-app:
+    @echo "=== Checking sol_app ==="
+    @rm -rf examples/sol_app/.mooncakes examples/sol_app/_build
+    cd examples/sol_app && moon check --target js
+
+check-example-sol-auth:
+    @echo "=== Checking sol_auth ==="
+    @rm -rf examples/sol_auth/.mooncakes examples/sol_auth/_build
+    cd examples/sol_auth && moon check --target js
+
+check-example-sol-blog:
+    @echo "=== Checking sol_blog ==="
+    @rm -rf examples/sol_blog/.mooncakes examples/sol_blog/_build
+    cd examples/sol_blog && moon check --target js
+
+check-example-sol-docs:
+    @echo "=== Checking sol_docs ==="
+    @rm -rf examples/sol_docs/.mooncakes examples/sol_docs/_build
+    cd examples/sol_docs && moon check --target js
+
+check-example-sol-sqlite:
+    @echo "=== Checking sol_sqlite ==="
+    @rm -rf examples/sol_sqlite/.mooncakes examples/sol_sqlite/_build
+    cd examples/sol_sqlite && moon check --target js
+
+# すべての examples をチェック
+check-examples: check-example-sol-app check-example-sol-auth check-example-sol-blog check-example-sol-docs check-example-sol-sqlite
+    @echo "✓ All examples checked"
+
 # =============================================================================
 # ドキュメント
 # =============================================================================
@@ -161,7 +200,7 @@ coverage-clean:
 # =============================================================================
 
 # CI チェック
-ci: check test
+ci: check test check-examples
     @echo "✓ All CI checks passed"
 
 # =============================================================================

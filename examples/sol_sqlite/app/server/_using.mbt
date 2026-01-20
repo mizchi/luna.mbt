@@ -1,6 +1,6 @@
 ///|
 /// Server-side element DSL imports
-using @element {
+using @server_dom {
   a,
   div,
   span,
