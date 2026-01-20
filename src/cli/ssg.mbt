@@ -507,9 +507,17 @@ fn bundle_ssg_components(
   // Scan for JS/TS files in source directory
   let entries : Array[String] = @fs.readdirSync(src_dir) catch { _ => [] }
 
-  // Filter for bundleable files
+  // Filter for bundleable files (exclude .d.ts, .map, chunk files)
   let js_files : Array[String] = []
   for entry in entries {
+    // Skip declaration files and source maps
+    if entry.ends_with(".d.ts") || entry.ends_with(".map") {
+      continue
+    }
+    // Skip chunk files (hash-named files like core-CGo3L0JB.js)
+    if entry.contains("-") && (entry.ends_with(".js") || entry.ends_with(".ts")) {
+      continue
+    }
     if entry.ends_with(".js") || entry.ends_with(".ts") {
       js_files.push(entry)
     }

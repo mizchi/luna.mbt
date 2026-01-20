@@ -602,7 +602,16 @@ fn jsx_to_component_embed(
     }
     None => ()
   }
-  @markdown.ComponentEmbed::{ tag, attrs, content: jsx.children, trigger }
+
+  // Generate SSR content for demo components if children is empty
+  let content = if jsx.children.trim(chars=" \t\n\r").to_string().is_empty() &&
+    is_demo_component(tag) {
+    generate_demo_ssr(tag, attrs).unwrap_or("")
+  } else {
+    jsx.children
+  }
+
+  @markdown.ComponentEmbed::{ tag, attrs, content, trigger }
 }
 
 ///|

@@ -35,3 +35,4 @@ _build
 target
 
 .claude/settings.local.json
+wrangler.json
