@@ -2,7 +2,7 @@
 package "mizchi/sol/content/md_render"
 
 import(
-  "mizchi/luna"
+  "mizchi/luna/core"
   "mizchi/markdown/info_string"
   "mizchi/sol/content/frontmatter"
   "mizchi/sol/content/markdown"
@@ -10,15 +10,25 @@ import(
 )
 
 // Values
+pub fn accordion_demo_ssr(Array[AccordionDemoItem]) -> String
+
+pub fn accordion_demo_ssr_from_json(String) -> String
+
 pub fn extract_description(Array[@markdown.MdNode], max_length? : Int) -> String?
 
 pub fn extract_toc(Array[@markdown.MdNode]) -> Array[@toc.TocItem]
 
+pub fn generate_demo_ssr(String, Array[(String, String)]) -> String?
+
 pub fn generate_heading_id(String) -> String
 
-pub fn md_node_to_vnode(@markdown.MdNode, islands_base_path? : String, current_url_path? : String, is_index? : Bool, locale_prefix? : String, available_urls? : Array[String]) -> @luna.Node[Unit]
+pub fn is_demo_component(String) -> Bool
 
-pub fn md_nodes_to_vnode(Array[@markdown.MdNode], islands_base_path? : String, current_url_path? : String, is_index? : Bool, locale_prefix? : String, available_urls? : Array[String]) -> @luna.Node[Unit]
+pub fn md_node_to_vnode(@markdown.MdNode, islands_base_path? : String, current_url_path? : String, is_index? : Bool, locale_prefix? : String, available_urls? : Array[String]) -> @core.Node[Unit]
+
+pub fn md_nodes_to_vnode(Array[@markdown.MdNode], islands_base_path? : String, current_url_path? : String, is_index? : Bool, locale_prefix? : String, available_urls? : Array[String]) -> @core.Node[Unit]
+
+pub fn parse_accordion_items(String) -> Array[AccordionDemoItem]
 
 pub fn parse_code_block_info(String) -> @info_string.CodeBlockInfo
 
@@ -33,6 +43,13 @@ pub fn parse_markdown_native(String) -> (@frontmatter.Frontmatter, Array[@markdo
 // Errors
 
 // Types and methods
+pub struct AccordionDemoItem {
+  id : String
+  title : String
+  content : String
+  open : Bool
+}
+pub impl Eq for AccordionDemoItem
 
 // Type aliases
 pub using @toc {type TocItem}

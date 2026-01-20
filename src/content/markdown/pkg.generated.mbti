@@ -2,7 +2,7 @@
 package "mizchi/sol/content/markdown"
 
 import(
-  "mizchi/luna"
+  "mizchi/luna/core"
 )
 
 // Values
@@ -22,14 +22,14 @@ pub(all) struct ComponentEmbed {
   tag : String
   attrs : Array[(String, String)]
   content : String
-  trigger : @luna.TriggerType
+  trigger : @core.TriggerType
 }
 pub fn ComponentEmbed::new(String) -> Self
 
 pub(all) struct IslandEmbed {
   name : String
   props : String
-  trigger : @luna.TriggerType
+  trigger : @core.TriggerType
   ssr : Bool
 }
 pub fn IslandEmbed::new(String) -> Self

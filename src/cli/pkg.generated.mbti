@@ -24,6 +24,8 @@ pub fn generate_import_alias(String, String) -> String
 
 pub fn generate_params_with_names(String) -> (String, String)
 
+pub fn generate_sol_serve_js(ServerRuntime) -> String
+
 pub fn generate_sol_server_main_js(String, ServerRuntime) -> String
 
 pub fn generate_sol_server_main_js_hybrid(String, ServerRuntime) -> String
@@ -140,6 +142,7 @@ pub struct SolConfig {
   output : String
   client_auto_exports : Bool
   runtime : ServerRuntime
+  adapter : ServerRuntime
   static_dirs : Array[StaticDirEntry]
 }
 

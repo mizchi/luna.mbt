@@ -2,11 +2,9 @@
 package "mizchi/sol/router"
 
 import(
-  "mizchi/js/core"
   "mizchi/js/web/http"
   "mizchi/js/web/url"
-  "mizchi/luna"
-  "mizchi/luna/static_dom"
+  "mizchi/luna/dom/static"
   "mizchi/npm_typed/hono"
   "mizchi/sol/isr"
   "mizchi/sol/middleware"
@@ -16,9 +14,9 @@ import(
 // Values
 pub fn analyze_routes(Array[SolRoutes]) -> Array[AnalyzedRoute]
 
-pub fn api_get(String, async (PageProps) -> @core.Any) -> SolRoutes
+pub fn api_get(String, async (PageProps) -> @mizchi/js/core.Any) -> SolRoutes
 
-pub fn api_post(String, async (PageProps) -> @core.Any) -> SolRoutes
+pub fn api_post(String, async (PageProps) -> @mizchi/js/core.Any) -> SolRoutes
 
 pub fn bad_request(String) -> ApiResponse
 
@@ -42,7 +40,7 @@ pub fn has_fragment_header(@hono.Context[Unit, Unit]) -> Bool
 
 pub fn manifest_to_sol_routes(@mizchi/sol/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 
-pub fn nodes(Array[@luna.Node[Unit]]) -> @static_dom.ServerNode
+pub fn nodes(Array[@mizchi/luna/core.Node[Unit]]) -> @static.ServerNode
 
 pub fn not_found_response(message? : String) -> ApiResponse
 
@@ -50,25 +48,25 @@ pub fn null_api_factory() -> ApiHandlerFactory
 
 pub fn null_page_factory() -> PageHandlerFactory
 
-pub fn ok(Array[(String, @core.Any)]) -> ApiResponse
+pub fn ok(Array[(String, @mizchi/js/core.Any)]) -> ApiResponse
 
 pub fn optional(PageProps, String, String) -> String
 
 pub fn optional_query(PageProps, String, String) -> String
 
-pub fn page(String, async (PageProps) -> @static_dom.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : CacheStrategy?) -> SolRoutes
+pub fn page(String, async (PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : CacheStrategy?) -> SolRoutes
 
 pub fn redirect_permanent_to(String) -> ApiResponse
 
 pub fn redirect_to(String, status? : Int) -> ApiResponse
 
-pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @luna.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/core/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/luna/core.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
 
-pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @static_dom.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/core/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @static.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
 
 pub fn register_sol_routes(@hono.Hono[Unit, Unit], Array[SolRoutes], config? : RouterConfig) -> @hono.Hono[Unit, Unit]
 
-pub fn[E] render_fragment_response(@luna.Node[E], String, Bool) -> String
+pub fn[E] render_fragment_response(@mizchi/luna/core.Node[E], String, Bool) -> String
 
 pub fn require(PageProps, String) -> Result[String, ApiResponse]
 
@@ -84,7 +82,7 @@ pub fn unauthorized(message? : String) -> ApiResponse
 
 pub fn with_mw(Array[@middleware.Middleware], Array[SolRoutes]) -> SolRoutes
 
-pub fn wrap(String, (PageProps, @static_dom.ServerNode) -> @static_dom.ServerNode raise, Array[SolRoutes]) -> SolRoutes
+pub fn wrap(String, (PageProps, @static.ServerNode) -> @static.ServerNode raise, Array[SolRoutes]) -> SolRoutes
 
 // Errors
 
@@ -95,21 +93,21 @@ pub(all) struct AnalyzedRoute {
   reason : String
 }
 
-pub(all) struct ApiHandler(async (PageProps) -> @core.Any)
+pub(all) struct ApiHandler(async (PageProps) -> @mizchi/js/core.Any)
 #deprecated
-pub fn ApiHandler::inner(Self) -> async (PageProps) -> @core.Any
+pub fn ApiHandler::inner(Self) -> async (PageProps) -> @mizchi/js/core.Any
 
 pub(all) struct ApiHandlerFactory((@mizchi/sol/routes.RouteEntry) -> ApiHandler?)
 #deprecated
 pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> ApiHandler?
 
 pub(all) enum ApiResponse {
-  Json(@core.Any)
+  Json(@mizchi/js/core.Any)
   Redirect(String, Int)
   NotFound(String)
   Error(String, Int)
 }
-pub fn ApiResponse::to_json(Self) -> @core.Any
+pub fn ApiResponse::to_json(Self) -> @mizchi/js/core.Any
 
 pub(all) enum CacheStrategy {
   AlwaysFetch
@@ -145,7 +143,7 @@ pub struct CompiledSolRoute {
   param_names : Array[String]
   page_handler : PageHandler?
   api_handler : ApiHandler?
-  layouts : Array[(PageProps, @static_dom.ServerNode) -> @static_dom.ServerNode raise]
+  layouts : Array[(PageProps, @static.ServerNode) -> @static.ServerNode raise]
   middlewares : Array[@middleware.Middleware]
   kind : SolRouteKind
   title : String
@@ -155,9 +153,9 @@ pub struct CompiledSolRoute {
   cache_strategy : CacheStrategy
 }
 
-pub(all) struct PageHandler(async (PageProps) -> @static_dom.ServerNode)
+pub(all) struct PageHandler(async (PageProps) -> @static.ServerNode)
 #deprecated
-pub fn PageHandler::inner(Self) -> async (PageProps) -> @static_dom.ServerNode
+pub fn PageHandler::inner(Self) -> async (PageProps) -> @static.ServerNode
 
 pub(all) struct PageHandlerFactory((@mizchi/sol/routes.RouteEntry) -> PageHandler?)
 #deprecated
@@ -228,7 +226,7 @@ pub impl Show for SolRouteKind
 
 pub(all) enum SolRoutes {
   Page(path~ : String, handler~ : PageHandler, title~ : String, meta~ : Array[(String, String)], revalidate~ : Int?, cache~ : CacheStrategy?)
-  Layout(segment~ : String, layout~ : (PageProps, @static_dom.ServerNode) -> @static_dom.ServerNode raise, children~ : Array[SolRoutes])
+  Layout(segment~ : String, layout~ : (PageProps, @static.ServerNode) -> @static.ServerNode raise, children~ : Array[SolRoutes])
   Get(path~ : String, handler~ : ApiHandler)
   Post(path~ : String, handler~ : ApiHandler)
   WithMiddleware(middleware~ : Array[@middleware.Middleware], children~ : Array[SolRoutes])
@@ -252,7 +250,7 @@ pub fn StaticDirConfig::default() -> Self
 // Type aliases
 pub type App = @hono.Hono[Unit, Unit]
 
-pub type AsyncPageResolver = (String, @hono.Context[Unit, Unit], RouteParams) -> @static_dom.ServerNode?
+pub type AsyncPageResolver = (String, @hono.Context[Unit, Unit], RouteParams) -> @static.ServerNode?
 
 pub type Ctx = @hono.Context[Unit, Unit]
 

@@ -2,7 +2,7 @@
 package "mizchi/sol/routes"
 
 import(
-  "mizchi/luna"
+  "mizchi/luna/core"
   "mizchi/sol/content/frontmatter"
   "mizchi/sol/core/env"
   "mizchi/sol/ssg"
@@ -115,9 +115,11 @@ pub fn parse_page_config(String) -> PageConfig?
 
 pub fn path_matches_segment(String, String) -> Bool
 
-pub fn render_mobile_sidebar(Array[@ssg.SidebarGroup], String) -> @luna.Node[Unit]
+pub fn render_mobile_sidebar(Array[@ssg.SidebarGroup], String) -> @core.Node[Unit]
 
-pub fn render_sidebar(Array[@ssg.SidebarGroup], String) -> @luna.Node[Unit]
+pub fn render_sidebar(Array[@ssg.SidebarGroup], String) -> @core.Node[Unit]
+
+pub fn reset_sidebar_group_counter() -> Unit
 
 pub fn resolve_chunks_inline(HierarchicalManifest, String) -> Array[String]?
 
