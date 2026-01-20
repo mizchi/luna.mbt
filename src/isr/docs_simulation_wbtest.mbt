@@ -362,10 +362,10 @@ test "docs: count pages by TTL tier" {
   }
 
   // Verify distribution:
-  // - Hot (main + overview): 11 pages
+  // - Hot (main + overview): 5 main + 5 overview = 10 pages
   // - Warm (tutorials + API + i18n): 30 tutorials + 5 API + 4 i18n = 39 pages
   // - Cold (internal): 5 pages
-  assert_eq(hot, 11)
+  assert_eq(hot, 10)
   assert_eq(warm, 39)
   assert_eq(cold, 5)
 }

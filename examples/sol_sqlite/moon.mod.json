@@ -5,9 +5,7 @@
     "mizchi/sol": {
       "path": "../.."
     },
-    "mizchi/luna": {
-      "path": "../../../luna.mbt"
-    },
+    "mizchi/luna": "0.7.3",
     "mizchi/signals": "0.5.0",
     "mizchi/js": "0.10.10",
     "mizchi/npm_typed": "0.1.8"

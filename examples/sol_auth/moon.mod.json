@@ -10,9 +10,6 @@
     "mizchi/js": "0.10.10",
     "mizchi/npm_typed": "0.1.8"
   },
-  "overrides": {
-    "mizchi/luna": { "path": "../../../luna.mbt" }
-  },
   "source": "app",
   "preferred-target": "js"
 }
