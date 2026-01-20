@@ -731,7 +731,7 @@ async fn render_server_page_html(
   let resolved_node = node.resolve()
   let body_html = @render.render_to_string(resolved_node).html
   // Add HMR script in dev mode
-  let full_head = if is_dev_mode() { head + hmr_script } else { head }
+  let full_head = if is_dev_mode() { head + get_hmr_script() } else { head }
   // Replace placeholders in template
   template
   .replace(old="__LUNA_TITLE__", new=title)

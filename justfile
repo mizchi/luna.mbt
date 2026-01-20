@@ -159,6 +159,9 @@ lint-doc:
 preview-doc:
     npx serve website/dist-docs
 
+release-doc: build-doc
+    pnpm wrangler publish --config wrangler.json 
+
 # =============================================================================
 # ベンチマーク
 # =============================================================================
@@ -169,6 +172,7 @@ bench-server:
     set -e
     just build-moon
     cd examples/sol_app
+    pnpm build
     pnpm serve &
     SERVER_PID=$!
     trap "kill $SERVER_PID 2>/dev/null || true" EXIT

@@ -13,7 +13,7 @@ fn show_dev_help() -> Unit {
     #|Usage: sol dev [options]
     #|
     #|Options:
-    #|  -p, --port <port>   Port to listen on (default: 3000)
+    #|  -p, --port <port>   Port to listen on (default: 7777)
     #|  -n, --no-watch      Disable file watching (watch is enabled by default)
     #|  -f, --watch-framework  Watch sol framework source for hot reload
     #|  --clean             Clean target and .sol directories before build
@@ -36,7 +36,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   let result = @util.parseArgs(
     args~,
     options=[
-      @util.String(key="port", short="p", multiple=false, default=Some("3000")),
+      @util.String(key="port", short="p", multiple=false, default=Some("7777")),
       @util.Boolean(key="no-watch", short="n"),
       @util.Boolean(key="watch-framework", short="f"),
       @util.Boolean(key="clean", short="c"),
@@ -52,7 +52,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   let port : String = if result.values.contains("port") {
     result.values["port"].cast()
   } else {
-    "3000"
+    "7777"
   }
   // Watch is enabled by default, --no-watch disables it
   let watch : Bool = if result.values.contains("no-watch") {
@@ -240,8 +240,15 @@ fn[FS : @env.FileSystem] run_incremental_build_dev_with_fs(
 }
 
 ///|
-/// Default HMR WebSocket port
-let hmr_port : Int = 24678
+/// Calculate HMR WebSocket port (main port + 100)
+fn get_hmr_port(port : String) -> Int {
+  let main_port = try {
+    @strconv.parse_int!(port)
+  } catch {
+    _ => 7777
+  }
+  main_port + 100
+}
 
 ///|
 /// Run dev server with watch mode
@@ -265,6 +272,8 @@ async fn run_dev_watch_mode(
       set_env("PORT", port)
       set_env("SOL_DEV", "1") // Enable HMR script injection
       // Start HMR WebSocket server
+      let hmr_port = get_hmr_port(port)
+      set_env("HMR_PORT", hmr_port.to_string())
       let hmr_server = @hmr.HmrServer::start(hmr_port).wait()
       // Start server process (non-blocking)
       let server_proc : Ref[@child_process.ChildProcess?] = { val: None }
@@ -452,12 +461,14 @@ async fn run_dev_watch_mode(
 
 ///|
 /// Find server entry point
+/// Prefers serve.js (adapter wrapper) over main.js for local serving
 fn[FS : @env.FileSystem] find_server_entry_with_fs(
   fs : FS,
   cwd : String,
   mode : String,
 ) -> String? {
   let possible_entries = [
+    ".sol/\{mode}/server/serve.js", // adapter wrapper (preferred for local serving)
     ".sol/\{mode}/server/main.js",
     "target/js/release/build/__gen__/server/server.js",
     "target/js/release/build/server/run/run.js",
@@ -487,8 +498,9 @@ fn[FS : @env.FileSystem] run_server_with_fs(
   mode : String,
 ) -> Unit {
   // Step 5: Find and run the server entry point
-  // For dev mode, prefer .sol/dev/server/main.js; for prod, .sol/prod/server/main.js
+  // Prefer serve.js (adapter wrapper) over main.js for local serving
   let possible_entries = [
+    ".sol/\{mode}/server/serve.js", // adapter wrapper (preferred for local serving)
     ".sol/\{mode}/server/main.js",
     "target/js/release/build/__gen__/server/server.js",
     "target/js/release/build/server/run/run.js",

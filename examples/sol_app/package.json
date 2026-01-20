@@ -4,7 +4,6 @@
   "type": "module",
   "scripts": {
     "dev": "node ../../target/js/release/build/cli/cli.js dev",
-    "dev:hybrid": "npx tsx dev-hybrid.ts",
     "build": "node ../../target/js/release/build/cli/cli.js build",
     "serve": "node ../../target/js/release/build/cli/cli.js serve",
     "test": "playwright test",

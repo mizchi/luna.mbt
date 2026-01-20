@@ -10,7 +10,7 @@ fn show_serve_help() -> Unit {
     #|Run 'sol build' first to create the production build.
     #|
     #|Options:
-    #|  -p, --port <port>   Port to listen on (default: 3000)
+    #|  -p, --port <port>   Port to listen on (default: 7777)
     #|  -h, --help          Show help
   println(help)
 }
@@ -21,7 +21,7 @@ fn run_serve_command(args : Array[String]) -> Unit {
   let result = @util.parseArgs(
     args~,
     options=[
-      @util.String(key="port", short="p", multiple=false, default=Some("3000")),
+      @util.String(key="port", short="p", multiple=false, default=Some("7777")),
       @util.Boolean(key="help", short="h"),
     ],
     allow_positionals=false,
@@ -34,7 +34,7 @@ fn run_serve_command(args : Array[String]) -> Unit {
   let port : String = if result.values.contains("port") {
     result.values["port"].cast()
   } else {
-    "3000"
+    "7777"
   }
   let cwd = @process.cwd()
   // Check if this is a MoonBit project

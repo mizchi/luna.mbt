@@ -32,8 +32,18 @@ extern "js" fn is_dev_mode() -> Bool =
   #| () => process.env.SOL_DEV === "1"
 
 ///|
-/// HMR client script for dev mode
-let hmr_script : String = "<script>(function(){var ws=new WebSocket('ws://'+location.hostname+':24678');ws.onmessage=function(e){var m=JSON.parse(e.data);if(m.type==='update'){location.reload()}else if(m.type==='full-reload'){location.reload()}else if(m.type==='error'){console.error('[HMR]',m.message)}};ws.onclose=function(){console.log('[HMR] Disconnected, reconnecting...');setTimeout(function(){location.reload()},1000)}})()</script>"
+/// Check if running in adapter mode (SOL_ADAPTER env variable)
+/// When true, server startup is delegated to the adapter wrapper (serve.js)
+extern "js" fn is_adapter_mode() -> Bool =
+  #| () => process.env.SOL_ADAPTER === "1"
+
+///|
+/// HMR client script for dev mode (reads HMR_PORT from environment)
+pub fn get_hmr_script() -> String {
+  let port = get_hmr_port()
+  "<script>(function(){var ws=new WebSocket('ws://'+location.hostname+':\{port}');ws.onmessage=function(e){var m=JSON.parse(e.data);if(m.type==='update'){location.reload()}else if(m.type==='full-reload'){location.reload()}else if(m.type==='error'){console.error('[HMR]',m.message)}};ws.onclose=function(){console.log('[HMR] Disconnected, reconnecting...');setTimeout(function(){location.reload()},1000)}})()</script>"
+}
+
 
 ///|
 extern "js" fn ffi_init_fs() -> @js.Promise[Unit] =
@@ -93,12 +103,13 @@ pub fn run(configure : (App) -> App, port? : Int) -> Unit {
     sol_app_ref.val = Some(app)
     // Export app globally for entry point access
     ffi_export_sol_app(app.as_any())
-    // Only start server in Node.js environment
-    if ffi_is_node() {
+    // Only start server in Node.js environment (and not in adapter mode)
+    // In adapter mode, serve.js handles startup instead
+    if ffi_is_node() && not(is_adapter_mode()) {
       println("Server running at http://localhost:" + port.to_string())
       serve(app, port)
     }
-    // For other runtimes (Cloudflare, Deno, Bun), the entry point handles startup
+    // For other runtimes (Cloudflare, Deno, Bun) or adapter mode, the entry point handles startup
   })
 }
 
@@ -150,7 +161,7 @@ pub fn[E] page(
     let node = render_fn(c)
     let enable_hydration = hydration.unwrap_or(false)
     // Add HMR script in dev mode
-    let dev_script = if is_dev_mode() { hmr_script } else { "" }
+    let dev_script = if is_dev_mode() { get_hmr_script() } else { "" }
     if enable_hydration {
       // Hydration enabled: render with hydration markers and include loader script
       let loader = loader_url.unwrap_or(default_loader_url)
@@ -208,14 +219,24 @@ extern "js" fn ffi_serve(app : @js.Any, port : Int) -> Unit =
   #|}
 
 ///|
-/// Get port from PORT environment variable, default to 3000
+/// Get port from PORT environment variable, default to 7777
 pub fn get_port() -> Int {
   ffi_get_port()
 }
 
 ///|
 extern "js" fn ffi_get_port() -> Int =
-  #| () => parseInt(process.env.PORT || '3000', 10)
+  #| () => parseInt(process.env.PORT || '7777', 10)
+
+///|
+/// Get HMR port from HMR_PORT environment variable, default to PORT + 100
+pub fn get_hmr_port() -> Int {
+  ffi_get_hmr_port()
+}
+
+///|
+extern "js" fn ffi_get_hmr_port() -> Int =
+  #| () => parseInt(process.env.HMR_PORT || String(parseInt(process.env.PORT || '7777', 10) + 100), 10)
 
 ///|
 /// Set environment variable
@@ -520,7 +541,7 @@ pub fn[E] wc_page(
       loader +
       "\"></script>"
     // Add HMR script in dev mode
-    let dev_script = if is_dev_mode() { hmr_script } else { "" }
+    let dev_script = if is_dev_mode() { get_hmr_script() } else { "" }
     let full_head = head.unwrap_or("") + loader_script + dev_script
     let html = render_page(node, title?, head=full_head, hydration=true)
     c.html(html)
