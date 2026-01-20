@@ -1,6 +1,7 @@
 {
   "docs": ".",
   "output": "dist-docs",
+  "deploy": "cloudflare",
   "title": "🌓 Luna UI",
   "base": "/",
   "trailingSlash": true,
