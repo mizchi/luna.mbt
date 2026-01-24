@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/x/components/styled/meter"
+
+// Values
+pub fn meter(String, Double, min? : Double, max? : Double, low? : Double, high? : Double, optimum? : Double, label? : String, value_text? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+
+pub fn meter_css() -> String
+
+pub fn meter_slots() -> MeterSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct MeterSlots {
+  root : String
+  label : String
+  element : String
+  value : String
+}
+
+// Type aliases
+
+// Traits
+

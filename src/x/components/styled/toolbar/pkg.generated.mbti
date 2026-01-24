@@ -1,0 +1,44 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/x/components/styled/toolbar"
+
+import {
+  "mizchi/signals",
+}
+
+// Values
+pub fn toolbar(String, Array[ToolbarGroup], aria_label? : String, class? : String, (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+
+pub fn toolbar_css() -> String
+
+pub fn toolbar_item_config(String, String, pressed? : Bool, disabled? : Bool) -> ToolbarItemConfig
+
+pub fn toolbar_reactive(String, Array[ToolbarGroup], @signals.Signal[Map[String, Bool]], aria_label? : String, class? : String, (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+
+pub fn toolbar_slots() -> ToolbarSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct ToolbarGroup(Array[ToolbarItemConfig])
+#deprecated
+pub fn ToolbarGroup::inner(Self) -> Array[ToolbarItemConfig]
+
+pub(all) struct ToolbarItemConfig {
+  id : String
+  label : String
+  pressed : Bool
+  disabled : Bool
+}
+
+pub(all) struct ToolbarSlots {
+  root : String
+  inner : String
+  group : String
+  item : String
+  separator : String
+}
+
+// Type aliases
+
+// Traits
+

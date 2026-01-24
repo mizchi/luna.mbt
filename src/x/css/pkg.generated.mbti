@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/css"
+package "mizchi/luna/x/css"
 
 // Values
 pub fn active(String, String) -> String

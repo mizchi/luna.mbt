@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/x/components/styled/table"
+
+// Values
+pub fn table(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, class? : String, on_row_select? : (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+
+pub fn table_column(String, String, sortable? : Bool) -> TableColumn
+
+pub fn table_css() -> String
+
+pub fn table_row(String, Array[String]) -> TableRow
+
+pub fn table_slots() -> TableSlots
+
+// Errors
+
+// Types and methods
+pub(all) enum SortDirection {
+  None
+  Ascending
+  Descending
+}
+
+pub(all) struct TableColumn {
+  id : String
+  label : String
+  sortable : Bool
+}
+
+pub(all) struct TableRow {
+  id : String
+  cells : Array[String]
+}
+
+pub(all) struct TableSlots {
+  root : String
+  table : String
+  header : String
+  th : String
+  th_sortable : String
+  sort_icon : String
+  body : String
+  row : String
+  cell : String
+}
+
+// Type aliases
+
+// Traits
+

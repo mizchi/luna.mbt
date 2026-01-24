@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/components/styled/api"
+package "mizchi/luna/x/components/styled/api"
 
 // Values
 pub fn get_accordion_css() -> String

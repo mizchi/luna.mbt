@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/stella"
+package "mizchi/luna/x/stella"
 
-import(
-  "mizchi/luna"
-)
+import {
+  "mizchi/luna/core",
+}
 
 // Values
 pub fn auto_select_state_format(String, ShardConfig) -> ShardConfig
@@ -34,7 +34,7 @@ pub fn recommend_state_format(Int) -> String
 pub struct ShardConfig {
   id : String
   script_url : String
-  trigger : @luna.TriggerType
+  trigger : @core.TriggerType
   state : StateConfig
   ssr_content : String?
   include_loader : Bool
@@ -47,7 +47,7 @@ pub fn ShardConfig::with_ssr_content(Self, String) -> Self
 pub fn ShardConfig::with_state(Self, String) -> Self
 pub fn ShardConfig::with_state_ref(Self, String) -> Self
 pub fn ShardConfig::with_state_url(Self, String) -> Self
-pub fn ShardConfig::with_trigger(Self, @luna.TriggerType) -> Self
+pub fn ShardConfig::with_trigger(Self, @core.TriggerType) -> Self
 
 pub struct ShardOutput {
   html : String

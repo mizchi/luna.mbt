@@ -49,6 +49,10 @@
     "./hydrate": {
       "types": "./dist/hydrate.d.ts",
       "import": "./dist/hydrate.js"
+    },
+    "./accordion-demo": {
+      "types": "./dist/accordion-demo.d.ts",
+      "import": "./dist/accordion-demo.js"
     }
   },
   "files": [

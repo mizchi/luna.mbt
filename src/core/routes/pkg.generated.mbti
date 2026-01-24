@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/routes"
+package "mizchi/luna/core/routes"
 
 // Values
 pub fn compile(Array[Routes], base? : String) -> Array[CompiledRoutes]

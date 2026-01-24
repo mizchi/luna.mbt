@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/dom/router"
+
+import {
+  "mizchi/luna/core/routes",
+  "mizchi/signals",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct BrowserRouter {
+  routes : Array[@routes.CompiledRoutes]
+  base : String
+  current_path : @signals.Signal[String]
+  current_match : @signals.Signal[@routes.RoutesMatch?]
+}
+pub fn BrowserRouter::from_compiled(Array[@routes.CompiledRoutes], base? : String) -> Self
+pub fn BrowserRouter::get_base(Self) -> String
+pub fn BrowserRouter::get_component(Self) -> String?
+pub fn BrowserRouter::get_match(Self) -> @routes.RoutesMatch?
+pub fn BrowserRouter::get_navigate(Self) -> (String) -> Unit
+pub fn BrowserRouter::get_path(Self) -> String
+pub fn BrowserRouter::match_signal(Self) -> @signals.Signal[@routes.RoutesMatch?]
+pub fn BrowserRouter::navigate(Self, String) -> Unit
+pub fn BrowserRouter::new(Array[@routes.Routes], base? : String) -> Self
+pub fn BrowserRouter::path_signal(Self) -> @signals.Signal[String]
+pub fn BrowserRouter::replace(Self, String) -> Unit
+
+// Type aliases
+
+// Traits
+

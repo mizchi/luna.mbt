@@ -1,14 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/components/styled/spinbutton"
+package "mizchi/luna/x/components/styled/spinbutton"
 
-import(
-  "mizchi/js/core"
-  "mizchi/luna"
-  "mizchi/luna/signal"
-)
+import {
+  "mizchi/signals",
+}
 
 // Values
-pub fn spinbutton(@signal.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, disabled? : Bool, aria_label? : String, aria_valuetext_fn? : (Double) -> String, label? : String, class? : String) -> @luna.Node[@core.Any]
+pub fn spinbutton(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, disabled? : Bool, aria_label? : String, aria_valuetext_fn? : (Double) -> String, label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
 
 pub fn spinbutton_css() -> String
 

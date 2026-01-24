@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/css/analyzer"
+package "mizchi/luna/x/css/analyzer"
 
 // Values
 pub fn analyze_file_json(String, String) -> String

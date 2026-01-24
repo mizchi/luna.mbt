@@ -1,19 +1,19 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/js/stream_renderer"
 
-import(
-  "mizchi/js/web/streams"
-  "mizchi/luna"
-)
+import {
+  "mizchi/js/web/streams",
+  "mizchi/luna/core",
+}
 
 // Values
-pub fn render_to_readable_stream(@luna.Node[Unit]) -> @streams.ReadableStream
+pub fn render_to_readable_stream(@core.Node[Unit]) -> @streams.ReadableStream
 
-pub fn render_to_stream(@luna.Node[Unit], StreamWriter) -> Unit
+pub fn render_to_stream(@core.Node[Unit], StreamWriter) -> Unit
 
-pub fn render_to_stream_collecting_async(@luna.Node[Unit], StreamWriter) -> Array[AsyncBoundary]
+pub fn render_to_stream_collecting_async(@core.Node[Unit], StreamWriter) -> Array[AsyncBoundary]
 
-pub async fn render_to_stream_with_async(@luna.Node[Unit], StreamWriter) -> Unit
+pub async fn render_to_stream_with_async(@core.Node[Unit], StreamWriter) -> Unit
 
 pub fn stream_async_replacement(Int, StreamWriter, (StreamWriter) -> Unit) -> Unit
 
@@ -22,7 +22,7 @@ pub fn stream_async_replacement(Int, StreamWriter, (StreamWriter) -> Unit) -> Un
 // Types and methods
 pub(all) struct AsyncBoundary {
   id : Int
-  async_node : @luna.VAsync[Unit]
+  async_node : @core.VAsync[Unit]
 }
 
 pub struct StreamWriter((String) -> Unit)

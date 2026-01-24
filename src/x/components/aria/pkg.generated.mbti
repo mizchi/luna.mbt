@@ -1,0 +1,62 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/x/components/aria"
+
+// Values
+pub fn accordion_header_aria(String, Bool, String) -> Array[(String, String)]
+
+pub fn accordion_panel_aria(String, String, Bool, Bool) -> Array[(String, String)]
+
+pub fn alert_aria(Bool) -> Array[(String, String)]
+
+pub fn bool_to_aria(Bool) -> String
+
+pub fn checkbox_aria(Bool, Bool, Bool) -> Array[(String, String)]
+
+pub fn dialog_aria(String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Bool) -> Array[(String, String)]
+
+pub fn disclosure_button_aria(Bool, String) -> Array[(String, String)]
+
+pub fn disclosure_content_aria(String) -> Array[(String, String)]
+
+pub fn is_arrow_key(String) -> Bool
+
+pub fn is_home_end_key(String) -> Bool
+
+pub fn is_toggle_key(String) -> Bool
+
+pub fn listbox_aria(aria_label? : String, Bool) -> Array[(String, String)]
+
+pub fn meter_aria(Double, Double, Double, aria_label? : String) -> Array[(String, String)]
+
+pub fn option_aria(String, Bool, Bool) -> Array[(String, String)]
+
+pub fn radio_aria(Bool, Bool) -> Array[(String, String)]
+
+pub fn radiogroup_aria(aria_label? : String, aria_labelledby? : String) -> Array[(String, String)]
+
+pub fn slider_aria(Double, Double, Double, Bool, aria_label? : String) -> Array[(String, String)]
+
+pub fn spinbutton_aria(Int, Int, Int, Bool, aria_label? : String) -> Array[(String, String)]
+
+pub fn switch_aria(Bool, Bool) -> Array[(String, String)]
+
+pub fn switch_aria_labelled(Bool, Bool, aria_label? : String, aria_labelledby? : String) -> Array[(String, String)]
+
+pub fn tab_aria(String, Bool, String) -> Array[(String, String)]
+
+pub fn tablist_aria(aria_label? : String) -> Array[(String, String)]
+
+pub fn tabpanel_aria(String, String) -> Array[(String, String)]
+
+pub fn tooltip_aria(String) -> Array[(String, String)]
+
+pub fn tooltip_trigger_aria(String) -> Array[(String, String)]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

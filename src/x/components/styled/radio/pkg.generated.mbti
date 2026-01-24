@@ -1,16 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/components/styled/radio"
+package "mizchi/luna/x/components/styled/radio"
 
-import(
-  "mizchi/js/core"
-  "mizchi/luna"
-  "mizchi/luna/signal"
-)
+import {
+  "mizchi/signals",
+}
 
 // Values
 pub fn radio_css() -> String
 
-pub fn radio_group(String, Array[RadioItem], @signal.Signal[String], aria_label? : String, orientation? : String, class? : String) -> @luna.Node[@core.Any]
+pub fn radio_group(String, Array[RadioItem], @signals.Signal[String], aria_label? : String, orientation? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
 
 pub fn radio_item(String, String, disabled? : Bool) -> RadioItem
 

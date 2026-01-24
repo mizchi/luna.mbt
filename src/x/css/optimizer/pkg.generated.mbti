@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/css/optimizer"
+package "mizchi/luna/x/css/optimizer"
 
 // Values
 pub fn analyze(Array[ClassUsage], Map[String, Declaration], Int) -> AnalysisResult
