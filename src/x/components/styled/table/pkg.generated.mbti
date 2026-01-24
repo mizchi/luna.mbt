@@ -2,7 +2,7 @@
 package "mizchi/luna/x/components/styled/table"
 
 // Values
-pub fn table(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, class? : String, on_row_select? : (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn table(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, class? : String, on_row_select? : (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn table_column(String, String, sortable? : Bool) -> TableColumn
 

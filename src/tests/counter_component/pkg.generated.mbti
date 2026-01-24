@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub fn render_counter(@signals.Signal[Int], @core.EventHandler[Unit], @core.EventHandler[Unit]) -> @core.Node[Unit]
+pub fn render_counter(@signals.Signal[Int], @core.EventHandler[Unit], @core.EventHandler[Unit]) -> @core.Node[Unit, String]
 
 pub fn render_counter_html(Int) -> String
 

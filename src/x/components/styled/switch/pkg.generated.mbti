@@ -6,15 +6,15 @@ import {
 }
 
 // Values
-pub fn switch(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, aria_labelledby? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn switch(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, aria_labelledby? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn switch_css() -> String
 
-pub fn switch_group(aria_label? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn switch_group(aria_label? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn switch_slots() -> SwitchSlots
 
-pub fn switch_static(Bool, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @mizchi/luna/core.EventHandler[@mizchi/js/core.Any], class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn switch_static(Bool, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @mizchi/luna/core.EventHandler[@mizchi/js/core.Any], class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 // Errors
 

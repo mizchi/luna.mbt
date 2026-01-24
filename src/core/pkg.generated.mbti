@@ -2,59 +2,59 @@
 package "mizchi/luna/core"
 
 // Values
-pub fn[E, A : Show] action(A) -> Attr[E]
+pub fn[E, V, Act : Show] action(Act) -> Attr[E, V]
 
-pub fn[E] async_(render~ : async () -> Node[E], fallback~ : () -> Node[E], on_error? : ((Error) -> Node[E])?) -> Node[E]
+pub fn[E, A] async_(render~ : async () -> Node[E, A], fallback~ : () -> Node[E, A], on_error? : ((Error) -> Node[E, A])?) -> Node[E, A]
 
-pub fn[E] attr_dynamic(() -> String) -> Attr[E]
+pub fn[E, A] attr_dynamic(() -> A) -> Attr[E, A]
 
-pub fn[E] attr_dynamic_style(() -> String) -> Attr[E]
+pub fn[E] attr_dynamic_style(() -> String) -> Attr[E, String]
 
-pub fn[E] attr_handler(EventHandler[E]) -> Attr[E]
+pub fn[E, A] attr_handler(EventHandler[E]) -> Attr[E, A]
 
-pub fn[E] attr_static(String) -> Attr[E]
+pub fn[E, A] attr_static(A) -> Attr[E, A]
 
-pub fn[E] attr_style(String) -> Attr[E]
+pub fn[E] attr_style(String) -> Attr[E, String]
 
-pub fn[E] component(() -> Node[E]) -> Node[E]
+pub fn[E, A] component(() -> Node[E, A]) -> Node[E, A]
 
 pub fn[T] component_ref(String, T, trigger? : TriggerType) -> ComponentRef[T]
 
-pub fn[E] error_boundary(children~ : () -> Node[E] raise, fallback~ : (Error, () -> Unit) -> Node[E] raise) -> Node[E]
+pub fn[E, A] error_boundary(children~ : () -> Node[E, A] raise, fallback~ : (Error, () -> Unit) -> Node[E, A] raise) -> Node[E, A]
 
 pub fn event_handler() -> EventHandler[Unit]
 
-pub fn[E] for_each(() -> Array[Node[E]]) -> Node[E]
+pub fn[E, A] for_each(() -> Array[Node[E, A]]) -> Node[E, A]
 
-pub fn[E] fragment(Array[Node[E]]) -> Node[E]
+pub fn[E, A] fragment(Array[Node[E, A]]) -> Node[E, A]
 
-pub fn[E] h(String, Array[(String, Attr[E])], Array[Node[E]]) -> Node[E]
+pub fn[E, A] h(String, Array[(String, Attr[E, A])], Array[Node[E, A]]) -> Node[E, A]
 
 pub fn[E] handler((E) -> Unit) -> EventHandler[E]
 
 pub fn handler_from_callback(() -> Unit) -> EventHandler[Unit]
 
-pub fn[E] has_dynamic_content(Array[(String, Attr[E])]) -> Bool
+pub fn[E, A] has_dynamic_content(Array[(String, Attr[E, A])]) -> Bool
 
-pub fn[E] internal_ref(String, String, trigger? : TriggerType, wc? : Bool, styles? : String, children? : Array[Node[E]]) -> Node[E]
+pub fn[E, A] internal_ref(String, String, trigger? : TriggerType, wc? : Bool, styles? : String, children? : Array[Node[E, A]]) -> Node[E, A]
 
-pub fn[E] island(String, String, String, Array[Node[E]], trigger? : TriggerType) -> Node[E]
+pub fn[E, A] island(String, String, String, Array[Node[E, A]], trigger? : TriggerType) -> Node[E, A]
 
-pub fn[E] match_case(when~ : () -> Bool, render~ : () -> Node[E]) -> MatchCase[E]
+pub fn[E, A] match_case(when~ : () -> Bool, render~ : () -> Node[E, A]) -> MatchCase[E, A]
 
-pub fn[E] raw_html(String) -> Node[E]
+pub fn[E, A] raw_html(String) -> Node[E, A]
 
-pub fn[E] show(() -> Bool, () -> Node[E]) -> Node[E]
+pub fn[E, A] show(() -> Bool, () -> Node[E, A]) -> Node[E, A]
 
-pub fn[E] switch_(cases~ : Array[MatchCase[E]], fallback? : (() -> Node[E])?) -> Node[E]
+pub fn[E, A] switch_(cases~ : Array[MatchCase[E, A]], fallback? : (() -> Node[E, A])?) -> Node[E, A]
 
-pub fn[E] text(String) -> Node[E]
+pub fn[E, A] text(String) -> Node[E, A]
 
-pub fn[E] text_dyn(() -> String) -> Node[E]
+pub fn[E, A] text_dyn(() -> String) -> Node[E, A]
 
 pub fn[T] wc_component_ref(String, T, trigger? : TriggerType) -> ComponentRef[T]
 
-pub fn[E] wc_island(String, String, String, String, Array[Node[E]], trigger? : TriggerType) -> Node[E]
+pub fn[E, A] wc_island(String, String, String, String, Array[Node[E, A]], trigger? : TriggerType) -> Node[E, A]
 
 // Errors
 
@@ -70,9 +70,9 @@ pub fn[T] AsyncState::is_pending(Self[T]) -> Bool
 pub fn[T] AsyncState::is_success(Self[T]) -> Bool
 pub fn[T] AsyncState::value(Self[T]) -> T?
 
-pub(all) enum Attr[E] {
-  VStatic(String)
-  VDynamic(() -> String)
+pub(all) enum Attr[E, A] {
+  VStatic(A)
+  VDynamic(() -> A)
   VHandler(EventHandler[E])
   VAction(String)
 }
@@ -89,25 +89,25 @@ pub struct EventHandler[E] {
 }
 pub fn[E] EventHandler::get_callback(Self[E]) -> (E) -> Unit
 
-pub struct MatchCase[E] {
+pub struct MatchCase[E, A] {
   when : () -> Bool
-  render : () -> Node[E]
+  render : () -> Node[E, A]
 }
 
-pub(all) enum Node[E] {
-  Element(VElement[E])
+pub(all) enum Node[E, A] {
+  Element(VElement[E, A])
   Text(String)
   DynamicText(() -> String)
-  Fragment(Array[Node[E]])
-  Show(condition~ : () -> Bool, child~ : () -> Node[E])
-  For(render~ : () -> Array[Node[E]])
-  Component(render~ : () -> Node[E])
-  Island(VIsland[E])
-  WcIsland(VWcIsland[E])
-  Async(VAsync[E])
-  ErrorBoundary(VErrorBoundary[E])
-  Switch(VSwitch[E])
-  InternalRef(VInternalRef[E])
+  Fragment(Array[Node[E, A]])
+  Show(condition~ : () -> Bool, child~ : () -> Node[E, A])
+  For(render~ : () -> Array[Node[E, A]])
+  Component(render~ : () -> Node[E, A])
+  Island(VIsland[E, A])
+  WcIsland(VWcIsland[E, A])
+  Async(VAsync[E, A])
+  ErrorBoundary(VErrorBoundary[E, A])
+  Switch(VSwitch[E, A])
+  InternalRef(VInternalRef[E, A])
   RawHtml(String)
 }
 
@@ -122,52 +122,52 @@ pub(all) enum TriggerType {
 pub fn TriggerType::parse(String) -> Self
 pub fn TriggerType::to_string(Self) -> String
 
-pub struct VAsync[E] {
-  render : async () -> Node[E]
-  fallback : () -> Node[E]
-  on_error : ((Error) -> Node[E])?
+pub struct VAsync[E, A] {
+  render : async () -> Node[E, A]
+  fallback : () -> Node[E, A]
+  on_error : ((Error) -> Node[E, A])?
 }
 
-pub struct VElement[E] {
+pub struct VElement[E, A] {
   tag : String
-  attrs : Array[(String, Attr[E])]
-  children : Array[Node[E]]
+  attrs : Array[(String, Attr[E, A])]
+  children : Array[Node[E, A]]
 }
 
-pub struct VErrorBoundary[E] {
-  children : () -> Node[E] raise
-  fallback : (Error, () -> Unit) -> Node[E] raise
+pub struct VErrorBoundary[E, A] {
+  children : () -> Node[E, A] raise
+  fallback : (Error, () -> Unit) -> Node[E, A] raise
 }
 
-pub struct VInternalRef[E] {
+pub struct VInternalRef[E, A] {
   url : String
   state : String
   trigger : TriggerType
   wc : Bool
   styles : String
-  children : Array[Node[E]]
+  children : Array[Node[E, A]]
 }
 
-pub struct VIsland[E] {
+pub struct VIsland[E, A] {
   id : String
   url : String
   state : String
   trigger : TriggerType
-  children : Array[Node[E]]
+  children : Array[Node[E, A]]
 }
 
-pub struct VSwitch[E] {
-  cases : Array[MatchCase[E]]
-  fallback : (() -> Node[E])?
+pub struct VSwitch[E, A] {
+  cases : Array[MatchCase[E, A]]
+  fallback : (() -> Node[E, A])?
 }
 
-pub struct VWcIsland[E] {
+pub struct VWcIsland[E, A] {
   name : String
   url : String
   styles : String
   state : String
   trigger : TriggerType
-  children : Array[Node[E]]
+  children : Array[Node[E, A]]
 }
 
 // Type aliases

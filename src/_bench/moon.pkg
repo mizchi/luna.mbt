@@ -1,13 +1,14 @@
 import {
   "mizchi/luna" as @luna,
   "mizchi/luna/js/resource" as @resource,
-  "mizchi/signals" as @signals,
   "mizchi/luna/core/render" as @ssr,
   "mizchi/luna/dom/client" as @client,
   "mizchi/luna/dom/client/repair" as @fixable,
   "mizchi/js/browser/dom" as @js_dom,
   "mizchi/js/core" as @js,
   "mizchi/npm_typed/global_jsdom",
+  "mizchi/signals" as @signals,
+  "moonbitlang/core/bench",
 }
 
 options(

@@ -1,4 +1,6 @@
 import {
   "mizchi/luna/js/resource" as @resource,
   "mizchi/signals" as @signals,
+  "moonbitlang/core/bench",
+  "moonbitlang/core/json",
 }

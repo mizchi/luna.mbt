@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn spinbutton(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, disabled? : Bool, aria_label? : String, aria_valuetext_fn? : (Double) -> String, label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn spinbutton(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, disabled? : Bool, aria_label? : String, aria_valuetext_fn? : (Double) -> String, label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn spinbutton_css() -> String
 

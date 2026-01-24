@@ -6,15 +6,15 @@ import {
 }
 
 // Values
-pub fn[E] accordion_header_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] accordion_header_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] accordion_panel_attrs(String, String, Bool, Bool) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] accordion_panel_attrs(String, String, Bool, Bool) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] checkbox_attrs(Bool, disabled? : Bool, indeterminate? : Bool, aria_label? : String) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] checkbox_attrs(Bool, disabled? : Bool, indeterminate? : Bool, aria_label? : String) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] disclosure_panel_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] disclosure_panel_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] disclosure_trigger_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] disclosure_trigger_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
 pub fn generate_accordion_ids(Int, String) -> (Array[String], Array[String])
 
@@ -44,15 +44,15 @@ pub fn radio_item_data(String, disabled? : Bool) -> RadioItemData
 
 pub fn stop_propagation(@mizchi/js/core.Any) -> Unit
 
-pub fn[E] switch_attrs(Bool, disabled? : Bool, aria_label? : String, aria_labelledby? : String) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] switch_attrs(Bool, disabled? : Bool, aria_label? : String, aria_labelledby? : String) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] switch_attrs_dyn(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, aria_labelledby? : String) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] switch_attrs_dyn(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, aria_labelledby? : String) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] tab_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] tab_attrs(String, String, Bool) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] tablist_attrs(aria_label? : String) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] tablist_attrs(aria_label? : String) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
-pub fn[E] tabpanel_attrs(String, String) -> Array[(String, @mizchi/luna/core.Attr[E])]
+pub fn[E] tabpanel_attrs(String, String) -> Array[(String, @mizchi/luna/core.Attr[E, String])]
 
 pub fn toolbar_attrs(String, orientation? : String) -> Array[(String, String)]
 
@@ -90,34 +90,34 @@ pub fn use_toolbar_item_reactive(String, String, Array[String], Int, @signals.Si
 
 // Types and methods
 pub(all) struct AccordionHeaderNavProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   is_expanded : Bool
 }
 
 pub(all) struct AccordionHeaderProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   toggle : () -> Unit
   is_expanded : Bool
 }
 
 pub(all) struct AccordionPanelNavProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   is_expanded : Bool
 }
 
 pub(all) struct CheckboxProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   toggle : () -> Unit
   is_checked : Bool
 }
 
 pub(all) struct DisclosurePanelProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   is_expanded : Bool
 }
 
 pub(all) struct DisclosureTriggerProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   toggle : () -> Unit
   is_expanded : Bool
 }
@@ -128,40 +128,40 @@ pub(all) struct RadioItemData {
 }
 
 pub(all) struct RadioProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   is_selected : Bool
   is_disabled : Bool
 }
 
 pub(all) struct SwitchProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   toggle : () -> Unit
   is_on : Bool
 }
 
 pub(all) struct TabNavProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   is_selected : Bool
 }
 
 pub(all) struct TabPanelNavProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
 }
 
 pub(all) struct TabProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   select : () -> Unit
   is_selected : Bool
 }
 
 pub(all) struct ToolbarItemNavProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
   is_pressed : Bool
   is_disabled : Bool
 }
 
 pub(all) struct ToolbarItemReactiveProps {
-  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any])]
+  attrs : Array[(String, @mizchi/luna/core.Attr[@mizchi/js/core.Any, String])]
 }
 
 // Type aliases

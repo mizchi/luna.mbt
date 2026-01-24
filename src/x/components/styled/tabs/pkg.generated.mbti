@@ -6,9 +6,9 @@ import {
 }
 
 // Values
-pub fn tab_item(String, String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> TabItem
+pub fn tab_item(String, String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> TabItem
 
-pub fn tabs(Array[TabItem], @signals.Signal[Int], aria_label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn tabs(Array[TabItem], @signals.Signal[Int], aria_label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn tabs_css() -> String
 
@@ -20,7 +20,7 @@ pub fn tabs_slots() -> TabsSlots
 pub(all) struct TabItem {
   id : String
   label : String
-  content : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]
+  content : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]
 }
 
 pub(all) struct TabsSlots {

@@ -4,7 +4,7 @@ package "mizchi/luna/x/components/styled/treeview"
 // Values
 pub fn tree_node(String, String, children? : Array[TreeNode], disabled? : Bool) -> TreeNode
 
-pub fn treeview(String, Array[TreeNode], aria_label? : String, (String) -> Unit, class? : String, initial_expanded? : Array[String]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn treeview(String, Array[TreeNode], aria_label? : String, (String) -> Unit, class? : String, initial_expanded? : Array[String]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn treeview_css() -> String
 

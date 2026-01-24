@@ -2,6 +2,7 @@ import {
   "moonbitlang/parser",
   "moonbitlang/parser/syntax",
   "moonbitlang/parser/basic",
+  "moonbitlang/core/list",
 }
 
 options(

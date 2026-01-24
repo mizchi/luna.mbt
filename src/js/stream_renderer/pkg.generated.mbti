@@ -7,13 +7,13 @@ import {
 }
 
 // Values
-pub fn render_to_readable_stream(@core.Node[Unit]) -> @streams.ReadableStream
+pub fn render_to_readable_stream(@core.Node[Unit, String]) -> @streams.ReadableStream
 
-pub fn render_to_stream(@core.Node[Unit], StreamWriter) -> Unit
+pub fn render_to_stream(@core.Node[Unit, String], StreamWriter) -> Unit
 
-pub fn render_to_stream_collecting_async(@core.Node[Unit], StreamWriter) -> Array[AsyncBoundary]
+pub fn render_to_stream_collecting_async(@core.Node[Unit, String], StreamWriter) -> Array[AsyncBoundary]
 
-pub async fn render_to_stream_with_async(@core.Node[Unit], StreamWriter) -> Unit
+pub async fn render_to_stream_with_async(@core.Node[Unit, String], StreamWriter) -> Unit
 
 pub fn stream_async_replacement(Int, StreamWriter, (StreamWriter) -> Unit) -> Unit
 
@@ -22,7 +22,7 @@ pub fn stream_async_replacement(Int, StreamWriter, (StreamWriter) -> Unit) -> Un
 // Types and methods
 pub(all) struct AsyncBoundary {
   id : Int
-  async_node : @core.VAsync[Unit]
+  async_node : @core.VAsync[Unit, String]
 }
 
 pub struct StreamWriter((String) -> Unit)

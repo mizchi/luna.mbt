@@ -6,6 +6,11 @@ import {
   "mizchi/js/browser/dom" as @dom,
   "mizchi/js/browser/storage" as @storage,
   "mizchi/js/browser/location" as @location,
+  "moonbitlang/core/json",
+}
+
+import "test" {
+  "mizchi/signals" as @signals,
 }
 
 options(

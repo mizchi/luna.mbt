@@ -40,15 +40,15 @@ pub fn raw_html(String) -> AbstractNode
 
 pub fn render_attr_value(StringBuilder, String, String) -> Unit
 
-pub fn[E] render_attrs_to(StringBuilder, Array[(String, @core.Attr[E])]) -> Unit
+pub fn[E, A : Show] render_attrs_to(StringBuilder, Array[(String, @core.Attr[E, A])]) -> Unit
 
-pub fn[E] render_to_string(@core.Node[E], preload? : Bool) -> SSRResult
+pub fn[E, A : Show] render_to_string(@core.Node[E, A], preload? : Bool) -> SSRResult
 
-pub fn[E] render_to_string_with_hydration(@core.Node[E]) -> String
+pub fn[E, A : Show] render_to_string_with_hydration(@core.Node[E, A]) -> String
 
 pub fn text(String) -> AbstractNode
 
-pub fn[E] to_abstract(@core.Node[E]) -> AbstractNode
+pub fn[E, A : Show] to_abstract(@core.Node[E, A]) -> AbstractNode
 
 // Errors
 

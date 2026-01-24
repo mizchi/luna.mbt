@@ -20,9 +20,9 @@ pub fn json_node_to_string(JsonNode) -> String
 
 pub fn json_text(String) -> JsonNode
 
-pub fn render_to_json(@core.Node[Unit]) -> JsonNode
+pub fn render_to_json(@core.Node[Unit, String]) -> JsonNode
 
-pub fn render_to_json_string(@core.Node[Unit]) -> String
+pub fn render_to_json_string(@core.Node[Unit, String]) -> String
 
 // Errors
 

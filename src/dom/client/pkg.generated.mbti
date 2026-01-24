@@ -10,9 +10,9 @@ pub fn bind_actions_from_dom(@mizchi/js/browser/dom.Element, (String) -> Unit) -
 
 pub fn get_shadow_root_for_hydrate(@mizchi/js/browser/dom.Element) -> @mizchi/js/browser/dom.Element?
 
-pub fn hydrate(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> HydrationResult
+pub fn hydrate(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> HydrationResult
 
-pub fn hydrate_auto(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any], is_rerender? : Bool) -> Unit
+pub fn hydrate_auto(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], is_rerender? : Bool) -> Unit
 
 pub fn hydrate_auto_dom(@mizchi/js/browser/dom.Element, @mizchi/luna/dom.DomNode, is_rerender? : Bool) -> Unit
 
@@ -20,7 +20,7 @@ pub fn hydrate_island(@mizchi/js/core.Any, @mizchi/js/core.Any, String, (IslandC
 
 pub fn hydrate_wc_island(@mizchi/js/core.Any, (WcIslandContext) -> Unit) -> Unit
 
-pub fn[State] hydrate_with_actions(@mizchi/js/browser/dom.Element, State, (State) -> @mizchi/luna/core.Node[@mizchi/js/core.Any], (State, String) -> State) -> Unit
+pub fn[State] hydrate_with_actions(@mizchi/js/browser/dom.Element, State, (State) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String], (State, String) -> State) -> Unit
 
 pub fn hydration_result_mismatch(String) -> HydrationResult
 
@@ -28,21 +28,21 @@ pub fn hydration_result_recovered(String) -> HydrationResult
 
 pub fn hydration_result_success() -> HydrationResult
 
-pub fn inject_static(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[Unit]) -> Unit
+pub fn inject_static(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[Unit, String]) -> Unit
 
 pub fn inject_static_html(@mizchi/js/browser/dom.Element, String) -> Unit
 
 pub fn is_wc_element(@mizchi/js/browser/dom.Element) -> Bool
 
-pub fn render_vnode(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any]) -> Unit
+pub fn render_vnode(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
 
-pub fn render_vnode_to_dom(@mizchi/luna/core.Node[@mizchi/js/core.Any]) -> @mizchi/js/browser/dom.Node
+pub fn render_vnode_to_dom(@mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> @mizchi/js/browser/dom.Node
 
-pub fn static_block(String, @mizchi/luna/core.Node[Unit]) -> @mizchi/luna/dom.DomNode
+pub fn static_block(String, @mizchi/luna/core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
-pub fn static_div(@mizchi/luna/core.Node[Unit]) -> @mizchi/luna/dom.DomNode
+pub fn static_div(@mizchi/luna/core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
-pub fn static_span(@mizchi/luna/core.Node[Unit]) -> @mizchi/luna/dom.DomNode
+pub fn static_span(@mizchi/luna/core.Node[Unit, String]) -> @mizchi/luna/dom.DomNode
 
 // Errors
 

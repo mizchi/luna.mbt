@@ -77,11 +77,11 @@ pub fn portal_with_shadow(Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.D
 
 pub fn provide(JsContext, Any, () -> Any) -> Any
 
-pub fn register(String, (@mizchi/js/browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]) -> Unit
+pub fn register(String, (@mizchi/js/browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
 
-pub fn register_shadow(String, mode? : String, (@mizchi/js/browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]) -> Unit
+pub fn register_shadow(String, mode? : String, (@mizchi/js/browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
 
-pub fn register_with_attrs(String, Array[String], (@mizchi/js/browser/dom.Element, Map[String, @signals.Signal[String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]) -> Unit
+pub fn register_with_attrs(String, Array[String], (@mizchi/js/browser/dom.Element, Map[String, @signals.Signal[String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
 
 pub fn render_effect(() -> Unit) -> () -> Unit
 

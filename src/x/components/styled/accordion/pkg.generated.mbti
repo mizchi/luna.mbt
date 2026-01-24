@@ -6,11 +6,11 @@ import {
 }
 
 // Values
-pub fn accordion(Array[AccordionItemData], @signals.Signal[Int], class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn accordion(Array[AccordionItemData], @signals.Signal[Int], class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn accordion_css() -> String
 
-pub fn accordion_item(String, String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> AccordionItemData
+pub fn accordion_item(String, String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> AccordionItemData
 
 pub fn accordion_slots() -> AccordionSlots
 
@@ -20,7 +20,7 @@ pub fn accordion_slots() -> AccordionSlots
 pub(all) struct AccordionItemData {
   id : String
   heading : String
-  content : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]
+  content : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]
 }
 
 pub(all) struct AccordionSlots {

@@ -1,6 +1,8 @@
 import {
   "mizchi/luna" as @luna,
   "mizchi/luna/core" as @core,
+  "moonbitlang/core/bench",
+  "moonbitlang/core/json",
 }
 
 options(

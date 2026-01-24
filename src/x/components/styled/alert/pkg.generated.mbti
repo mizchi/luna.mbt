@@ -2,7 +2,7 @@
 package "mizchi/luna/x/components/styled/alert"
 
 // Values
-pub fn alert(AlertVariant, title? : String, description? : String, class? : String, children? : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn alert(AlertVariant, title? : String, description? : String, class? : String, children? : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn alert_css() -> String
 

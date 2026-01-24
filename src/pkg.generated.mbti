@@ -8,23 +8,23 @@ import {
 }
 
 // Values
-pub fn[E, A : Show] action(A) -> @core.Attr[E]
+pub fn[E, V, Act : Show] action(Act) -> @core.Attr[E, V]
 
 pub fn all(Array[@signals.Signal[Bool]]) -> () -> Bool
 
 pub fn any(Array[@signals.Signal[Bool]]) -> () -> Bool
 
-pub fn[E] async_(render~ : async () -> @core.Node[E], fallback~ : () -> @core.Node[E], on_error? : ((Error) -> @core.Node[E])?) -> @core.Node[E]
+pub fn[E, A] async_(render~ : async () -> @core.Node[E, A], fallback~ : () -> @core.Node[E, A], on_error? : ((Error) -> @core.Node[E, A])?) -> @core.Node[E, A]
 
-pub fn[E] attr_dynamic(() -> String) -> @core.Attr[E]
+pub fn[E, A] attr_dynamic(() -> A) -> @core.Attr[E, A]
 
-pub fn[E] attr_dynamic_style(() -> String) -> @core.Attr[E]
+pub fn[E] attr_dynamic_style(() -> String) -> @core.Attr[E, String]
 
-pub fn[E] attr_handler(@core.EventHandler[E]) -> @core.Attr[E]
+pub fn[E, A] attr_handler(@core.EventHandler[E]) -> @core.Attr[E, A]
 
-pub fn[E] attr_static(String) -> @core.Attr[E]
+pub fn[E, A] attr_static(A) -> @core.Attr[E, A]
 
-pub fn[E] attr_style(String) -> @core.Attr[E]
+pub fn[E] attr_style(String) -> @core.Attr[E, String]
 
 pub fn[T] batch(() -> T) -> T
 
@@ -38,7 +38,7 @@ pub fn[A, B, C, R] combine3(@signals.Signal[A], @signals.Signal[B], @signals.Sig
 
 pub fn[A, B, C, D, R] combine4(@signals.Signal[A], @signals.Signal[B], @signals.Signal[C], @signals.Signal[D], (A, B, C, D) -> R) -> () -> R
 
-pub fn[E] component(() -> @core.Node[E]) -> @core.Node[E]
+pub fn[E, A] component(() -> @core.Node[E, A]) -> @core.Node[E, A]
 
 pub fn[T] component_ref(String, T, trigger? : @core.TriggerType) -> @core.ComponentRef[T]
 
@@ -58,33 +58,33 @@ pub fn effect_once(() -> Unit) -> Unit
 
 pub fn effect_when(() -> Bool, () -> Unit) -> () -> Unit
 
-pub fn[E] error_boundary(children~ : () -> @core.Node[E] raise, fallback~ : (Error, () -> Unit) -> @core.Node[E] raise) -> @core.Node[E]
+pub fn[E, A] error_boundary(children~ : () -> @core.Node[E, A] raise, fallback~ : (Error, () -> Unit) -> @core.Node[E, A] raise) -> @core.Node[E, A]
 
 pub fn event_handler() -> @core.EventHandler[Unit]
 
 pub fn[T] flatten(@signals.Signal[@signals.Signal[T]]) -> () -> T
 
-pub fn[E] for_each(() -> Array[@core.Node[E]]) -> @core.Node[E]
+pub fn[E, A] for_each(() -> Array[@core.Node[E, A]]) -> @core.Node[E, A]
 
-pub fn[E] fragment(Array[@core.Node[E]]) -> @core.Node[E]
+pub fn[E, A] fragment(Array[@core.Node[E, A]]) -> @core.Node[E, A]
 
 pub fn get_owner() -> @signals.Owner?
 
-pub fn[E] h(String, Array[(String, @core.Attr[E])], Array[@core.Node[E]]) -> @core.Node[E]
+pub fn[E, A] h(String, Array[(String, @core.Attr[E, A])], Array[@core.Node[E, A]]) -> @core.Node[E, A]
 
 pub fn[E] handler((E) -> Unit) -> @core.EventHandler[E]
 
 pub fn handler_from_callback(() -> Unit) -> @core.EventHandler[Unit]
 
-pub fn[E] has_dynamic_content(Array[(String, @core.Attr[E])]) -> Bool
+pub fn[E, A] has_dynamic_content(Array[(String, @core.Attr[E, A])]) -> Bool
 
 pub fn has_owner() -> Bool
 
-pub fn[E] internal_ref(String, String, trigger? : @core.TriggerType, wc? : Bool, styles? : String, children? : Array[@core.Node[E]]) -> @core.Node[E]
+pub fn[E, A] internal_ref(String, String, trigger? : @core.TriggerType, wc? : Bool, styles? : String, children? : Array[@core.Node[E, A]]) -> @core.Node[E, A]
 
-pub fn[E] island(String, String, String, Array[@core.Node[E]], trigger? : @core.TriggerType) -> @core.Node[E]
+pub fn[E, A] island(String, String, String, Array[@core.Node[E, A]], trigger? : @core.TriggerType) -> @core.Node[E, A]
 
-pub fn[E] match_case(when~ : () -> Bool, render~ : () -> @core.Node[E]) -> @core.MatchCase[E]
+pub fn[E, A] match_case(when~ : () -> Bool, render~ : () -> @core.Node[E, A]) -> @core.MatchCase[E, A]
 
 pub fn[T] memo(() -> T) -> () -> T
 
@@ -102,7 +102,7 @@ pub fn[T] previous_with_initial(@signals.Signal[T], T) -> () -> T
 
 pub fn[T, R] provide(@signals.Context[T], T, () -> R) -> R
 
-pub fn[E] raw_html(String) -> @core.Node[E]
+pub fn[E, A] raw_html(String) -> @core.Node[E, A]
 
 pub fn register_disposer(() -> Unit) -> Unit
 
@@ -120,17 +120,17 @@ pub fn[T] run_with_owner(@signals.Owner, () -> T) -> T
 
 pub fn[T] select(@signals.Signal[Array[T]], @signals.Signal[Int]) -> () -> T?
 
-pub fn[E] show(() -> Bool, () -> @core.Node[E]) -> @core.Node[E]
+pub fn[E, A] show(() -> Bool, () -> @core.Node[E, A]) -> @core.Node[E, A]
 
 pub fn[T] signal(T) -> @signals.Signal[T]
 
-pub fn[E] switch_(cases~ : Array[@core.MatchCase[E]], fallback? : (() -> @core.Node[E])?) -> @core.Node[E]
+pub fn[E, A] switch_(cases~ : Array[@core.MatchCase[E, A]], fallback? : (() -> @core.Node[E, A])?) -> @core.Node[E, A]
 
-pub fn[E] text(String) -> @core.Node[E]
+pub fn[E, A] text(String) -> @core.Node[E, A]
 
-pub fn[E] text_dyn(() -> String) -> @core.Node[E]
+pub fn[E, A] text_dyn(() -> String) -> @core.Node[E, A]
 
-pub fn[E, T : Show] text_of(@signals.Signal[T]) -> @core.Node[E]
+pub fn[E, A, T : Show] text_of(@signals.Signal[T]) -> @core.Node[E, A]
 
 pub fn[T] untracked(() -> T) -> T
 
@@ -142,7 +142,7 @@ pub fn[T : Eq] watch_immediate(() -> T, (T, T?) -> Unit) -> () -> Unit
 
 pub fn[T] wc_component_ref(String, T, trigger? : @core.TriggerType) -> @core.ComponentRef[T]
 
-pub fn[E] wc_island(String, String, String, String, Array[@core.Node[E]], trigger? : @core.TriggerType) -> @core.Node[E]
+pub fn[E, A] wc_island(String, String, String, String, Array[@core.Node[E, A]], trigger? : @core.TriggerType) -> @core.Node[E, A]
 
 // Errors
 

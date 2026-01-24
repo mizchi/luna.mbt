@@ -2,16 +2,17 @@ import {
   "mizchi/luna/core" as @core,
   "mizchi/luna" as @luna,
   "mizchi/luna/js/resource" as @resource,
-  "mizchi/signals" as @signals,
   "mizchi/js/core" as @js,
   "mizchi/js/browser/dom" as @js_dom,
   "mizchi/js/web/event",
   "mizchi/js/builtins/global",
   "mizchi/luna/dom/client" as @client,
+  "moonbitlang/core/hashmap",
 }
 
 import "test" {
   "mizchi/npm_typed/global_jsdom",
+  "mizchi/signals" as @signals,
   "mizchi/luna/core/render" as @render,
 }
 

@@ -6,115 +6,115 @@ import {
 }
 
 // Values
-pub fn[E] accordion(Array[AccordionItem[E]], Int, use_regions? : Bool) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion(Array[AccordionItem[E]], Int, use_regions? : Bool) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] accordion_dyn(Array[AccordionItem[E]], @signals.Signal[Int], use_regions? : Bool) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_dyn(Array[AccordionItem[E]], @signals.Signal[Int], use_regions? : Bool) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] accordion_header(String, Bool, String, level? : Int, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_header(String, Bool, String, level? : Int, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] accordion_header_computed(String, () -> Bool, String, level? : Int, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_header_computed(String, () -> Bool, String, level? : Int, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] accordion_header_dyn(String, @signals.Signal[Bool], String, level? : Int, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_header_dyn(String, @signals.Signal[Bool], String, level? : Int, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn accordion_interactive(String, Array[AccordionItem[@mizchi/js/core.Any]], @signals.Signal[Int], use_regions? : Bool) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn accordion_interactive(String, Array[AccordionItem[@mizchi/js/core.Any]], @signals.Signal[Int], use_regions? : Bool) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] accordion_item(String, String, level? : Int, Array[@mizchi/luna/core.Node[E]]) -> AccordionItem[E]
+pub fn[E] accordion_item(String, String, level? : Int, Array[@mizchi/luna/core.Node[E, String]]) -> AccordionItem[E]
 
-pub fn[E] accordion_multi(Array[AccordionItem[E]], Array[String], use_regions? : Bool) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_multi(Array[AccordionItem[E]], Array[String], use_regions? : Bool) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] accordion_panel(String, String, Bool, use_region? : Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_panel(String, String, Bool, use_region? : Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] accordion_panel_computed(String, String, () -> Bool, use_region? : Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_panel_computed(String, String, () -> Bool, use_region? : Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] accordion_panel_dyn(String, String, @signals.Signal[Bool], use_region? : Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] accordion_panel_dyn(String, String, @signals.Signal[Bool], use_region? : Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] alert(type_? : AlertType, aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] alert(type_? : AlertType, aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] alert_dialog(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] alert_dialog(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] alert_dialog_dyn(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, @signals.Signal[Bool], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] alert_dialog_dyn(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, @signals.Signal[Bool], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] alert_live(type_? : AlertType, aria_live? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] alert_live(type_? : AlertType, aria_live? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn arrow_direction(String) -> Int
 
-pub fn[E] aside(aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] aside(aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn auto_id(String) -> String
 
-pub fn[E] banner(aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] banner(aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn bool_to_aria(Bool) -> String
 
-pub fn[E] breadcrumb(aria_label? : String, separator? : String, Array[BreadcrumbItem]) -> @mizchi/luna/core.Node[E]
+pub fn[E] breadcrumb(aria_label? : String, separator? : String, Array[BreadcrumbItem]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] breadcrumb_from_path(String, Array[(String, String)], String) -> @mizchi/luna/core.Node[E]
+pub fn[E] breadcrumb_from_path(String, Array[(String, String)], String) -> @mizchi/luna/core.Node[E, String]
 
 pub fn breadcrumb_item(String, String, current? : Bool) -> BreadcrumbItem
 
-pub fn[E] button(type_? : ButtonType, disabled? : Bool, aria_label? : String, aria_describedby? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] button(type_? : ButtonType, disabled? : Bool, aria_label? : String, aria_describedby? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] caption(id? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] caption(id? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] checkbox(CheckboxState, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] checkbox(CheckboxState, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] checkbox_computed(() -> CheckboxState, disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] checkbox_computed(() -> CheckboxState, disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] checkbox_dyn(@signals.Signal[CheckboxState], disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] checkbox_dyn(@signals.Signal[CheckboxState], disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] checkbox_group(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] checkbox_group(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] checkbox_native(String, Bool, disabled? : Bool, id? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] checkbox_native(String, Bool, disabled? : Bool, id? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn clamp_index(Int, Int, Int) -> Int
 
-pub fn[E] combobox_input(String, String, Bool, String, autocomplete? : AutocompleteType, aria_label? : String, aria_labelledby? : String, active_descendant? : String, on_input? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], on_focus? : @mizchi/luna/core.EventHandler[E], on_blur? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E]
+pub fn[E] combobox_input(String, String, Bool, String, autocomplete? : AutocompleteType, aria_label? : String, aria_labelledby? : String, active_descendant? : String, on_input? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], on_focus? : @mizchi/luna/core.EventHandler[E], on_blur? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] combobox_input_dyn(String, String, @signals.Signal[Bool], @signals.Signal[String], autocomplete? : AutocompleteType, aria_label? : String, @signals.Signal[String], on_input? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], on_focus? : @mizchi/luna/core.EventHandler[E], on_blur? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E]
+pub fn[E] combobox_input_dyn(String, String, @signals.Signal[Bool], @signals.Signal[String], autocomplete? : AutocompleteType, aria_label? : String, @signals.Signal[String], on_input? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], on_focus? : @mizchi/luna/core.EventHandler[E], on_blur? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn combobox_interactive(String, Array[ComboboxOption], placeholder? : String, aria_label? : String, (ComboboxOption) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn combobox_interactive(String, Array[ComboboxOption], placeholder? : String, aria_label? : String, (ComboboxOption) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] combobox_listbox(String, String, Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] combobox_listbox(String, String, Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] combobox_listbox_dyn(String, String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] combobox_listbox_dyn(String, String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn combobox_option(String, String, disabled? : Bool) -> ComboboxOption
 
-pub fn[E] combobox_option_dyn(String, String, @signals.Signal[String], disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] combobox_option_dyn(String, String, @signals.Signal[String], disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] combobox_option_el(String, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] combobox_option_el(String, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn combobox_select_only(String, Array[ComboboxOption], initial_value? : String, aria_label? : String, (ComboboxOption) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn combobox_select_only(String, Array[ComboboxOption], initial_value? : String, aria_label? : String, (ComboboxOption) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn confirm_dialog(String, String, String, confirm_label? : String, cancel_label? : String, @signals.Signal[Bool], () -> Unit, () -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn confirm_dialog(String, String, String, confirm_label? : String, cancel_label? : String, @signals.Signal[Bool], () -> Unit, () -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] contentinfo(aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] contentinfo(aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] dialog(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] dialog(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] dialog_backdrop(on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] dialog_backdrop(on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] dialog_dyn(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, @signals.Signal[Bool], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] dialog_dyn(aria_label? : String, aria_labelledby? : String, aria_describedby? : String, @signals.Signal[Bool], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn dialog_interactive(String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, @signals.Signal[Bool], () -> Unit, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn dialog_interactive(String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, @signals.Signal[Bool], () -> Unit, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] dialog_native(id? : String, aria_labelledby? : String, Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] dialog_native(id? : String, aria_labelledby? : String, Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure(String, Bool, Array[@mizchi/luna/core.Node[E]], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure(String, Bool, Array[@mizchi/luna/core.Node[E, String]], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure_button(id? : String, Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure_button(id? : String, Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure_button_computed(id? : String, () -> Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure_button_computed(id? : String, () -> Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure_button_dyn(id? : String, @signals.Signal[Bool], String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure_button_dyn(id? : String, @signals.Signal[Bool], String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure_content(String, Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure_content(String, Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure_content_computed(String, () -> Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure_content_computed(String, () -> Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure_content_dyn(String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure_content_dyn(String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] disclosure_dyn(String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E]], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] disclosure_dyn(String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E, String]], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn find_node(Array[TreeNode], String) -> TreeNode?
 
@@ -126,7 +126,7 @@ pub fn focus_dialog(String) -> Unit
 
 pub fn focus_first_in_dialog(String) -> Unit
 
-pub fn[E] form_landmark(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] form_landmark(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn has_children(TreeNode) -> Bool
 
@@ -140,19 +140,19 @@ pub fn is_vertical_arrow(String) -> Bool
 
 pub fn key_matches(String, KeyCode) -> Bool
 
-pub fn[E] link(String, target? : LinkTarget, aria_label? : String, aria_describedby? : String, disabled? : Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] link(String, target? : LinkTarget, aria_label? : String, aria_describedby? : String, disabled? : Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] link_button(@mizchi/luna/core.EventHandler[E], aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] link_button(@mizchi/luna/core.EventHandler[E], aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] listbox(aria_label? : String, aria_labelledby? : String, multiselectable? : Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] listbox(aria_label? : String, aria_labelledby? : String, multiselectable? : Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] listbox_from_options(Array[ListboxOption], String, aria_label? : String) -> @mizchi/luna/core.Node[E]
+pub fn[E] listbox_from_options(Array[ListboxOption], String, aria_label? : String) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] listbox_multi(Array[ListboxOption], Array[String], aria_label? : String) -> @mizchi/luna/core.Node[E]
+pub fn[E] listbox_multi(Array[ListboxOption], Array[String], aria_label? : String) -> @mizchi/luna/core.Node[E, String]
 
 pub fn listbox_option(String, String, disabled? : Bool) -> ListboxOption
 
-pub fn[E] main_content(Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] main_content(Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn make_accordion_keydown_handler(Array[String], Int, on_toggle? : () -> Unit) -> @mizchi/luna/core.EventHandler[@mizchi/js/core.Any]
 
@@ -194,187 +194,187 @@ pub fn make_tree_handler(Array[TreeNode], @signals.Signal[String], @signals.Sign
 
 pub fn make_vertical_nav_handler(() -> Int, Int, (Int) -> Unit, wrap? : Bool, support_home_end? : Bool) -> @mizchi/luna/core.EventHandler[@mizchi/js/core.Any]
 
-pub fn[E] menu(String, String, Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menu(String, String, Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] menu_button(PopupType, Bool, controls? : String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menu_button(PopupType, Bool, controls? : String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] menu_button_dyn(PopupType, @signals.Signal[Bool], controls? : String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menu_button_dyn(PopupType, @signals.Signal[Bool], controls? : String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn menu_button_interactive(String, Array[MenuItem], (String) -> Unit, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn menu_button_interactive(String, Array[MenuItem], (String) -> Unit, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] menu_dyn(String, String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menu_dyn(String, String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn menu_item(String, String, disabled? : Bool) -> MenuItem
 
-pub fn[E] menu_trigger(String, Bool, String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menu_trigger(String, Bool, String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] menu_trigger_dyn(String, @signals.Signal[Bool], String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menu_trigger_dyn(String, @signals.Signal[Bool], String, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] menuitem(id? : String, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menuitem(id? : String, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] menuitem_dyn(id? : String, @signals.Signal[Int], Int, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] menuitem_dyn(id? : String, @signals.Signal[Int], Int, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] meter(Double, min? : Double, max? : Double, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] meter(Double, min? : Double, max? : Double, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] meter_dyn(@signals.Signal[Double], min? : Double, max? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] meter_dyn(@signals.Signal[Double], min? : Double, max? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] meter_native(Double, min? : Double, max? : Double, low? : Double, high? : Double, optimum? : Double, aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] meter_native(Double, min? : Double, max? : Double, low? : Double, high? : Double, optimum? : Double, aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] modal(aria_label? : String, aria_labelledby? : String, Bool, on_backdrop_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] modal(aria_label? : String, aria_labelledby? : String, Bool, on_backdrop_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] nav(aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] nav(aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] optgroup(String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] optgroup(String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] option(String, Bool, disabled? : Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] option(String, Bool, disabled? : Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] option_dyn(String, @signals.Signal[Array[String]], disabled? : Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] option_dyn(String, @signals.Signal[Array[String]], disabled? : Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] page_layout(header? : Array[@mizchi/luna/core.Node[E]], nav_content? : Array[@mizchi/luna/core.Node[E]], Array[@mizchi/luna/core.Node[E]], aside_content? : Array[@mizchi/luna/core.Node[E]], footer_content? : Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] page_layout(header? : Array[@mizchi/luna/core.Node[E, String]], nav_content? : Array[@mizchi/luna/core.Node[E, String]], Array[@mizchi/luna/core.Node[E, String]], aside_content? : Array[@mizchi/luna/core.Node[E, String]], footer_content? : Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] radio(String, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] radio(String, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] radio_computed(String, () -> Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] radio_computed(String, () -> Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] radio_dyn(String, @signals.Signal[String], disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] radio_dyn(String, @signals.Signal[String], disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] radio_group(String, Array[RadioOption[E]], String, aria_label? : String) -> @mizchi/luna/core.Node[E]
+pub fn[E] radio_group(String, Array[RadioOption[E]], String, aria_label? : String) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] radio_native(String, String, Bool, disabled? : Bool, id? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] radio_native(String, String, Bool, disabled? : Bool, id? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] radio_option(String, Array[@mizchi/luna/core.Node[E]], disabled? : Bool) -> RadioOption[E]
+pub fn[E] radio_option(String, Array[@mizchi/luna/core.Node[E, String]], disabled? : Bool) -> RadioOption[E]
 
-pub fn[E] radiogroup(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] radiogroup(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn radiogroup_interactive(String, String, Array[RadioOption[@mizchi/js/core.Any]], @signals.Signal[String], aria_label? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn radiogroup_interactive(String, String, Array[RadioOption[@mizchi/js/core.Any]], @signals.Signal[String], aria_label? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] region(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] region(aria_label? : String, aria_labelledby? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn reset_id_counter() -> Unit
 
 pub fn restore_focus(@mizchi/js/core.Any) -> Unit
 
-pub fn[E] search(aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] search(aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] search_role(aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] search_role(aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] simple_table(String, caption_text? : String, Array[String], Array[Array[String]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] simple_table(String, caption_text? : String, Array[String], Array[Array[String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] slider(Double, min? : Double, max? : Double, step? : Double, orientation? : SliderOrientation, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] slider(Double, min? : Double, max? : Double, step? : Double, orientation? : SliderOrientation, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] slider_dyn(@signals.Signal[Double], min? : Double, max? : Double, orientation? : SliderOrientation, aria_label? : String, aria_valuetext_fn? : (Double) -> String, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] slider_dyn(@signals.Signal[Double], min? : Double, max? : Double, orientation? : SliderOrientation, aria_label? : String, aria_valuetext_fn? : (Double) -> String, on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn slider_interactive(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, orientation? : SliderOrientation, aria_label? : String, aria_valuetext_fn? : (Double) -> String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn slider_interactive(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, orientation? : SliderOrientation, aria_label? : String, aria_valuetext_fn? : (Double) -> String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] slider_native(String, Double, min? : Double, max? : Double, step? : Double, aria_label? : String, id? : String) -> @mizchi/luna/core.Node[E]
+pub fn[E] slider_native(String, Double, min? : Double, max? : Double, step? : Double, aria_label? : String, id? : String) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] spinbutton(Double, min? : Double, max? : Double, step? : Double, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, disabled? : Bool, is_readonly? : Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], on_input? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E]
+pub fn[E] spinbutton(Double, min? : Double, max? : Double, step? : Double, aria_label? : String, aria_labelledby? : String, aria_valuetext? : String, disabled? : Bool, is_readonly? : Bool, on_keydown? : @mizchi/luna/core.EventHandler[E], on_input? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] spinbutton_dyn(@signals.Signal[Double], min? : Double, max? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String, on_keydown? : @mizchi/luna/core.EventHandler[E], on_input? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E]
+pub fn[E] spinbutton_dyn(@signals.Signal[Double], min? : Double, max? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String, on_keydown? : @mizchi/luna/core.EventHandler[E], on_input? : @mizchi/luna/core.EventHandler[E]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn spinbutton_interactive(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn spinbutton_interactive(@signals.Signal[Double], min? : Double, max? : Double, step? : Double, large_step? : Double, aria_label? : String, aria_valuetext_fn? : (Double) -> String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] spinbutton_native(String, Double, min? : Double, max? : Double, step? : Double, aria_label? : String, id? : String) -> @mizchi/luna/core.Node[E]
+pub fn[E] spinbutton_native(String, Double, min? : Double, max? : Double, step? : Double, aria_label? : String, id? : String) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] status(type_? : AlertType, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] status(type_? : AlertType, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn store_active_element() -> @mizchi/js/core.Any
 
-pub fn[E] switch(Bool, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] switch(Bool, disabled? : Bool, aria_label? : String, aria_labelledby? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] switch_computed(() -> Bool, disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] switch_computed(() -> Bool, disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] switch_dyn(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] switch_dyn(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] switch_group(aria_label? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] switch_group(aria_label? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn switch_interactive(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn switch_interactive(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] switch_native(String, Bool, disabled? : Bool, id? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] switch_native(String, Bool, disabled? : Bool, id? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tab(String, Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tab(String, Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tab_computed(String, () -> Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tab_computed(String, () -> Bool, String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tab_dyn(String, @signals.Signal[Bool], String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tab_dyn(String, @signals.Signal[Bool], String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tab_item(String, String, Array[@mizchi/luna/core.Node[E]]) -> TabItem[E]
+pub fn[E] tab_item(String, String, Array[@mizchi/luna/core.Node[E, String]]) -> TabItem[E]
 
-pub fn[E] table(id? : String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] table(id? : String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn table_column(String, String, sortable? : Bool) -> TableColumn
 
-pub fn table_interactive(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, on_row_select? : (String) -> Unit, on_sort? : (String, SortDirection) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn table_interactive(String, Array[TableColumn], Array[TableRow], aria_label? : String, selectable? : Bool, on_row_select? : (String) -> Unit, on_sort? : (String, SortDirection) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn table_row(String, Array[String], disabled? : Bool) -> TableRow
 
-pub fn[E] tablist(aria_label? : String, orientation? : TabsOrientation, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tablist(aria_label? : String, orientation? : TabsOrientation, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tabpanel(String, String, Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tabpanel(String, String, Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tabpanel_computed(String, String, () -> Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tabpanel_computed(String, String, () -> Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tabpanel_dyn(String, String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tabpanel_dyn(String, String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tabs(Array[TabItem[E]], Int, aria_label? : String, orientation? : TabsOrientation) -> @mizchi/luna/core.Node[E]
+pub fn[E] tabs(Array[TabItem[E]], Int, aria_label? : String, orientation? : TabsOrientation) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tabs_dyn(Array[TabItem[E]], @signals.Signal[Int], aria_label? : String, orientation? : TabsOrientation) -> @mizchi/luna/core.Node[E]
+pub fn[E] tabs_dyn(Array[TabItem[E]], @signals.Signal[Int], aria_label? : String, orientation? : TabsOrientation) -> @mizchi/luna/core.Node[E, String]
 
-pub fn tabs_interactive(Array[TabItem[@mizchi/js/core.Any]], @signals.Signal[Int], aria_label? : String, orientation? : TabsOrientation) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn tabs_interactive(Array[TabItem[@mizchi/js/core.Any]], @signals.Signal[Int], aria_label? : String, orientation? : TabsOrientation) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] tbody(Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tbody(Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] td(id? : String, headers? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] td(id? : String, headers? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tfoot(Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tfoot(Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] th(id? : String, scope? : String, sort? : SortDirection, on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] th(id? : String, scope? : String, sort? : SortDirection, on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] th_dyn(String, String, @signals.Signal[String], @signals.Signal[SortDirection], on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] th_dyn(String, String, @signals.Signal[String], @signals.Signal[SortDirection], on_click? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] thead(Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] thead(Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] toggle_button(ToggleState, disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] toggle_button(ToggleState, disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] toggle_button_dyn(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] toggle_button_dyn(@signals.Signal[Bool], disabled? : Bool, aria_label? : String, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] toolbar(aria_label? : String, aria_labelledby? : String, orientation? : ToolbarOrientation, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] toolbar(aria_label? : String, aria_labelledby? : String, orientation? : ToolbarOrientation, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn toolbar_interactive(String, Array[ToolbarItemDef], @signals.Signal[Map[String, Bool]], orientation? : ToolbarOrientation, aria_label? : String, (String, Bool) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn toolbar_interactive(String, Array[ToolbarItemDef], @signals.Signal[Map[String, Bool]], orientation? : ToolbarOrientation, aria_label? : String, (String, Bool) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] toolbar_item(Bool, pressed? : Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] toolbar_item(Bool, pressed? : Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn toolbar_item_def(String, String, toggle? : Bool, disabled? : Bool) -> ToolbarItemDef
 
-pub fn[E] toolbar_item_dyn(@signals.Signal[Int], Int, pressed? : Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] toolbar_item_dyn(@signals.Signal[Int], Int, pressed? : Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] toolbar_separator(orientation? : ToolbarOrientation) -> @mizchi/luna/core.Node[E]
+pub fn[E] toolbar_separator(orientation? : ToolbarOrientation) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tooltip(String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tooltip(String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tooltip_dyn(String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tooltip_dyn(String, @signals.Signal[Bool], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn tooltip_interactive(String, trigger_tag? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]], Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn tooltip_interactive(String, trigger_tag? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]], Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
-pub fn[E] tooltip_popup(String, Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tooltip_popup(String, Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tooltip_trigger(String, tag? : String, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tooltip_trigger(String, tag? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tooltip_with_trigger(String, Array[@mizchi/luna/core.Node[E]], Array[@mizchi/luna/core.Node[E]], Bool) -> @mizchi/luna/core.Node[E]
+pub fn[E] tooltip_with_trigger(String, Array[@mizchi/luna/core.Node[E, String]], Array[@mizchi/luna/core.Node[E, String]], Bool) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tr(id? : String, selected? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tr(id? : String, selected? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tr_dyn(String, @signals.Signal[String], on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tr_dyn(String, @signals.Signal[String], on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] tree(id? : String, aria_label? : String, aria_labelledby? : String, multiselectable? : Bool, Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] tree(id? : String, aria_label? : String, aria_labelledby? : String, multiselectable? : Bool, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn tree_interactive(String, Array[TreeNode], aria_label? : String, (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn tree_interactive(String, Array[TreeNode], aria_label? : String, (String) -> Unit) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn tree_node(String, String, children? : Array[TreeNode], disabled? : Bool) -> TreeNode
 
-pub fn[E] treeitem(id? : String, Bool, expanded? : Bool, Bool, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]], children? : Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] treeitem(id? : String, Bool, expanded? : Bool, Bool, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]], children? : Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] treeitem_dyn(id? : String, @signals.Signal[String], String, expanded? : @signals.Signal[Map[String, Bool]], Bool, @signals.Signal[String], disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E]], children? : Array[@mizchi/luna/core.Node[E]]) -> @mizchi/luna/core.Node[E]
+pub fn[E] treeitem_dyn(id? : String, @signals.Signal[String], String, expanded? : @signals.Signal[Map[String, Bool]], Bool, @signals.Signal[String], disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]], children? : Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn wrap_index(Int, Int, Int) -> Int
 
@@ -385,7 +385,7 @@ pub(all) struct AccordionItem[E] {
   id : String
   heading : String
   level : Int
-  content : Array[@mizchi/luna/core.Node[E]]
+  content : Array[@mizchi/luna/core.Node[E, String]]
 }
 
 pub(all) enum AlertType {
@@ -471,7 +471,7 @@ pub(all) enum PopupType {
 
 pub(all) struct RadioOption[E] {
   value : String
-  label : Array[@mizchi/luna/core.Node[E]]
+  label : Array[@mizchi/luna/core.Node[E, String]]
   disabled : Bool
 }
 
@@ -489,7 +489,7 @@ pub(all) enum SortDirection {
 pub(all) struct TabItem[E] {
   id : String
   label : String
-  panel : Array[@mizchi/luna/core.Node[E]]
+  panel : Array[@mizchi/luna/core.Node[E, String]]
 }
 
 pub(all) struct TableColumn {

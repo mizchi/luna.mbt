@@ -6,11 +6,11 @@ import {
 }
 
 // Values
-pub fn checkbox(@signals.Signal[Bool], disabled? : Bool, indeterminate? : Bool, id? : String, name? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn checkbox(@signals.Signal[Bool], disabled? : Bool, indeterminate? : Bool, id? : String, name? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn checkbox_css() -> String
 
-pub fn checkbox_group(aria_label? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+pub fn checkbox_group(aria_label? : String, class? : String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
 
 pub fn checkbox_slots() -> CheckboxSlots
 

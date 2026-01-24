@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn render() -> @core.Node[Unit]
+pub fn render() -> @core.Node[Unit, String]
 
 // Errors
 
