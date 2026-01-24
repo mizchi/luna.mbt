@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "references": [
+    { "path": "./js/luna" },
+    { "path": "./js/stella" },
+    { "path": "./js/components" },
+    { "path": "./js/testing" },
+    { "path": "./js/wcr" },
+    { "path": "./js/wcssr" }
+  ],
+  "files": []
+}
