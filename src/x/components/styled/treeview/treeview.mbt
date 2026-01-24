@@ -253,12 +253,12 @@ fn render_single_styled_tree_node(
   keydown_handler : @luna.EventHandler[@js.Any],
   on_select : (String) -> Unit,
   depth : Int,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = treeview_slots()
   let has_kids = node_children.length() > 0
 
   // Icon element (only for items with children) - clickable to toggle expand/collapse
-  let icon_node : @luna.Node[@js.Any] = if has_kids {
+  let icon_node : @luna.Node[@js.Any, String] = if has_kids {
     @luna.h(
       "span",
       [
@@ -341,7 +341,7 @@ fn render_single_styled_tree_node(
   )
 
   // Build child group (always rendered, visibility controlled by CSS/show)
-  let children_content : Array[@luna.Node[@js.Any]] = [row_node]
+  let children_content : Array[@luna.Node[@js.Any, String]] = [row_node]
   if has_kids {
     children_content.push(
       @luna.show(fn() { expanded.get().get(node_id).unwrap_or(false) }, fn() {
@@ -367,7 +367,7 @@ fn render_single_styled_tree_node(
   }
 
   // Item element
-  let item_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let item_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("treeitem")),
     ("id", @luna.attr_static(node_id)),
     ("class", @luna.attr_static(slots.item)),
@@ -423,8 +423,8 @@ fn render_styled_tree_nodes(
   keydown_handler : @luna.EventHandler[@js.Any],
   on_select : (String) -> Unit,
   depth : Int,
-) -> Array[@luna.Node[@js.Any]] {
-  let items : Array[@luna.Node[@js.Any]] = []
+) -> Array[@luna.Node[@js.Any, String]] {
+  let items : Array[@luna.Node[@js.Any, String]] = []
   for node in nodes {
     // Call helper function to ensure proper closure capture
     items.push(
@@ -462,7 +462,7 @@ pub fn treeview(
   on_select : (String) -> Unit,
   class? : String,
   initial_expanded? : Array[String],
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = treeview_slots()
   let root_class = match class {
     Some(c) => slots.root + " " + c
@@ -502,7 +502,7 @@ pub fn treeview(
   )
 
   // Build tree container
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("tree")),
     ("id", @luna.attr_static(id)),
     ("class", @luna.attr_static(root_class)),

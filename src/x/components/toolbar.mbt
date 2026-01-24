@@ -37,14 +37,14 @@ pub fn[E] toolbar(
   aria_label? : String,
   aria_labelledby? : String,
   orientation? : ToolbarOrientation,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let orient = if orientation is Some(Vertical) {
     "vertical"
   } else {
     "horizontal"
   }
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("toolbar")),
     ("aria-orientation", @luna.attr_static(orient)),
   ]
@@ -73,10 +73,10 @@ pub fn[E] toolbar_item(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("tabindex", @luna.attr_static(if selected { "0" } else { "-1" })),
   ]
@@ -109,10 +109,10 @@ pub fn[E] toolbar_item_dyn(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     (
       "tabindex",
@@ -148,7 +148,9 @@ pub fn[E] toolbar_item_dyn(
 ///|
 /// Create a toolbar separator.
 /// Separators are purely visual and don't receive focus.
-pub fn[E] toolbar_separator(orientation? : ToolbarOrientation) -> @luna.Node[E] {
+pub fn[E] toolbar_separator(
+  orientation? : ToolbarOrientation,
+) -> @luna.Node[E, String] {
   // Separator orientation is perpendicular to toolbar orientation
   let orient = match orientation {
     Some(Vertical) => "horizontal"
@@ -263,7 +265,7 @@ pub fn toolbar_interactive(
   orientation? : ToolbarOrientation,
   aria_label? : String,
   on_item_click : (String, Bool) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let orient = orientation.unwrap_or(Horizontal)
   let focused_index = @resource.signal(0)
   let item_count = items.length()
@@ -284,7 +286,7 @@ pub fn toolbar_interactive(
     focus_item,
   )
   // Build toolbar items
-  let toolbar_items : Array[@luna.Node[@js.Any]] = []
+  let toolbar_items : Array[@luna.Node[@js.Any, String]] = []
   for i, item in items {
     let idx = i
     let item_id = id + "-item-" + i.to_string()
@@ -293,7 +295,7 @@ pub fn toolbar_interactive(
     } else {
       None
     }
-    let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("type", @luna.attr_static("button")),
       ("id", @luna.attr_static(item_id)),
       (
@@ -342,7 +344,7 @@ pub fn toolbar_interactive(
     Horizontal => "horizontal"
     Vertical => "vertical"
   }
-  let container_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let container_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("toolbar")),
     ("id", @luna.attr_static(id)),
     ("aria-orientation", @luna.attr_static(orient_str)),

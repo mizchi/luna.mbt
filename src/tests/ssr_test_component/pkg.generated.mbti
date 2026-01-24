@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/tests/ssr_test_component"
 
-import(
-  "mizchi/luna"
-)
+import {
+  "mizchi/luna/core",
+}
 
 // Values
-pub fn render() -> @luna.Node[Unit]
+pub fn render() -> @core.Node[Unit]
 
 // Errors
 

@@ -1,16 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/components/styled/tabs"
+package "mizchi/luna/x/components/styled/tabs"
 
-import(
-  "mizchi/js/core"
-  "mizchi/luna"
-  "mizchi/luna/signal"
-)
+import {
+  "mizchi/signals",
+}
 
 // Values
-pub fn tab_item(String, String, Array[@luna.Node[@core.Any]]) -> TabItem
+pub fn tab_item(String, String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> TabItem
 
-pub fn tabs(Array[TabItem], @signal.Signal[Int], aria_label? : String, class? : String) -> @luna.Node[@core.Any]
+pub fn tabs(Array[TabItem], @signals.Signal[Int], aria_label? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
 
 pub fn tabs_css() -> String
 
@@ -22,7 +20,7 @@ pub fn tabs_slots() -> TabsSlots
 pub(all) struct TabItem {
   id : String
   label : String
-  content : Array[@luna.Node[@core.Any]]
+  content : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]
 }
 
 pub(all) struct TabsSlots {

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/dom/portal"
 
-import(
-  "mizchi/js/browser/dom"
-)
+import {
+  "mizchi/js/browser/dom",
+}
 
 // Values
 pub fn portal(PortalOptions, Array[DomNode]) -> DomNode

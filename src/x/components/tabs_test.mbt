@@ -1,6 +1,6 @@
 ///|
 test "tablist: role and aria-label" {
-  let node : @luna.Node[Unit] = tablist(aria_label="Content tabs", [])
+  let node : @luna.Node[Unit, String] = tablist(aria_label="Content tabs", [])
   guard node is @core.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("role", @core.VStatic("tablist")) else {
     fail("expected role=tablist")
@@ -9,7 +9,7 @@ test "tablist: role and aria-label" {
 
 ///|
 test "tablist: vertical orientation" {
-  let node : @luna.Node[Unit] = tablist(orientation=Vertical, [])
+  let node : @luna.Node[Unit, String] = tablist(orientation=Vertical, [])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_orientation = false
   for attr in el.attrs {
@@ -23,7 +23,7 @@ test "tablist: vertical orientation" {
 
 ///|
 test "tab: selected state" {
-  let node : @luna.Node[Unit] = tab("tab-1", true, "panel-1", [
+  let node : @luna.Node[Unit, String] = tab("tab-1", true, "panel-1", [
     @luna.text("Tab 1"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -46,7 +46,7 @@ test "tab: selected state" {
 
 ///|
 test "tab: unselected state" {
-  let node : @luna.Node[Unit] = tab("tab-2", false, "panel-2", [
+  let node : @luna.Node[Unit, String] = tab("tab-2", false, "panel-2", [
     @luna.text("Tab 2"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -68,7 +68,7 @@ test "tab: unselected state" {
 
 ///|
 test "tabpanel: role and labelledby" {
-  let node : @luna.Node[Unit] = tabpanel("panel-1", "tab-1", false, [
+  let node : @luna.Node[Unit, String] = tabpanel("panel-1", "tab-1", false, [
     @luna.text("Content"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -95,7 +95,7 @@ test "tabs: builds complete structure" {
     tab_item("first", "First", [@luna.text("Panel 1")]),
     tab_item("second", "Second", [@luna.text("Panel 2")]),
   ]
-  let node : @luna.Node[Unit] = tabs(items, 0, aria_label="Demo")
+  let node : @luna.Node[Unit, String] = tabs(items, 0, aria_label="Demo")
   guard node is @core.Fragment(children) else { fail("expected Fragment") }
   // First child is tablist, rest are panels
   inspect(children.length(), content="3")

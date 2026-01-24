@@ -10,7 +10,7 @@
 /// Switch state and handlers (Web-specific, uses @js.Any for events)
 pub(all) struct SwitchProps {
   /// ARIA and accessibility attributes
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   /// Toggle the switch state
   toggle : () -> Unit
   /// Current on/off state
@@ -44,7 +44,7 @@ pub fn use_switch(
   let is_on = on.get()
 
   // Build ARIA attributes with dynamic aria-checked for reactivity
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("switch")),
     (
       "aria-checked",
@@ -101,7 +101,7 @@ pub fn use_switch_computed(
   let is_on = get_on()
 
   // Build ARIA attributes with dynamic aria-checked
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("switch")),
     (
       "aria-checked",
@@ -151,7 +151,7 @@ pub fn[E] switch_attrs(
   disabled? : Bool,
   aria_label? : String,
   aria_labelledby? : String,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   let is_disabled = disabled.unwrap_or(false)
   let aria_attrs = @aria.switch_aria(on, is_disabled)
   if aria_label is Some(label) {
@@ -171,9 +171,9 @@ pub fn[E] switch_attrs_dyn(
   disabled? : Bool,
   aria_label? : String,
   aria_labelledby? : String,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("switch")),
     (
       "aria-checked",

@@ -37,19 +37,19 @@ pub fn[E] breadcrumb(
   aria_label? : String,
   separator? : String,
   items : Array[BreadcrumbItem],
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let label = aria_label.unwrap_or("Breadcrumb")
   let sep = separator.unwrap_or("/")
-  let list_items : Array[@luna.Node[E]] = []
+  let list_items : Array[@luna.Node[E, String]] = []
   for i, item in items {
-    let link_attrs : Array[(String, @luna.Attr[E])] = [
+    let link_attrs : Array[(String, @luna.Attr[E, String])] = [
       ("href", @luna.attr_static(item.href)),
     ]
     if item.current {
       link_attrs.push(("aria-current", @luna.attr_static("page")))
     }
     let link_node = @luna.h("a", link_attrs, [@luna.text(item.label)])
-    let li_children : Array[@luna.Node[E]] = [link_node]
+    let li_children : Array[@luna.Node[E, String]] = [link_node]
     if i < items.length() - 1 {
       li_children.push(
         @luna.h("span", [("aria-hidden", @luna.attr_static("true"))], [
@@ -74,7 +74,7 @@ pub fn[E] breadcrumb_from_path(
   base_path : String,
   segments : Array[(String, String)], // (path_segment, label)
   current_label : String,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let items : Array[BreadcrumbItem] = []
   let mut path = base_path
   for seg in segments {

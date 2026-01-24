@@ -1,13 +1,13 @@
 ///|
 test "banner: creates header element" {
-  let node : @luna.Node[Unit] = banner([@luna.text("Site Title")])
+  let node : @luna.Node[Unit, String] = banner([@luna.text("Site Title")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="header")
 }
 
 ///|
 test "banner: with aria-label" {
-  let node : @luna.Node[Unit] = banner(aria_label="Main header", [
+  let node : @luna.Node[Unit, String] = banner(aria_label="Main header", [
     @luna.text("Logo"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -23,14 +23,14 @@ test "banner: with aria-label" {
 
 ///|
 test "nav: creates nav element" {
-  let node : @luna.Node[Unit] = nav([@luna.text("Links")])
+  let node : @luna.Node[Unit, String] = nav([@luna.text("Links")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="nav")
 }
 
 ///|
 test "nav: with aria-label" {
-  let node : @luna.Node[Unit] = nav(aria_label="Main navigation", [
+  let node : @luna.Node[Unit, String] = nav(aria_label="Main navigation", [
     @luna.text("Menu"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -48,35 +48,35 @@ test "nav: with aria-label" {
 
 ///|
 test "main_content: creates main element" {
-  let node : @luna.Node[Unit] = main_content([@luna.text("Content")])
+  let node : @luna.Node[Unit, String] = main_content([@luna.text("Content")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="main")
 }
 
 ///|
 test "aside: creates aside element" {
-  let node : @luna.Node[Unit] = aside([@luna.text("Sidebar")])
+  let node : @luna.Node[Unit, String] = aside([@luna.text("Sidebar")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="aside")
 }
 
 ///|
 test "contentinfo: creates footer element" {
-  let node : @luna.Node[Unit] = contentinfo([@luna.text("© 2024")])
+  let node : @luna.Node[Unit, String] = contentinfo([@luna.text("© 2024")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="footer")
 }
 
 ///|
 test "search: creates search element" {
-  let node : @luna.Node[Unit] = search([@luna.text("Search form")])
+  let node : @luna.Node[Unit, String] = search([@luna.text("Search form")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="search")
 }
 
 ///|
 test "search_role: creates form with role=search" {
-  let node : @luna.Node[Unit] = search_role([@luna.text("Search")])
+  let node : @luna.Node[Unit, String] = search_role([@luna.text("Search")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="form")
   let mut has_role = false
@@ -91,9 +91,10 @@ test "search_role: creates form with role=search" {
 
 ///|
 test "form_landmark: creates form with aria-label" {
-  let node : @luna.Node[Unit] = form_landmark(aria_label="Contact form", [
-    @luna.text("Form"),
-  ])
+  let node : @luna.Node[Unit, String] = form_landmark(
+    aria_label="Contact form",
+    [@luna.text("Form")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="form")
   let mut has_label = false
@@ -108,7 +109,7 @@ test "form_landmark: creates form with aria-label" {
 
 ///|
 test "region: creates section with aria-label" {
-  let node : @luna.Node[Unit] = region(aria_label="Quick Stats", [
+  let node : @luna.Node[Unit, String] = region(aria_label="Quick Stats", [
     @luna.text("Stats"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -125,7 +126,7 @@ test "region: creates section with aria-label" {
 
 ///|
 test "page_layout: creates full structure" {
-  let node : @luna.Node[Unit] = page_layout(
+  let node : @luna.Node[Unit, String] = page_layout(
     header=[@luna.text("Header")],
     nav_content=[@luna.text("Nav")],
     [@luna.text("Main")],
@@ -154,7 +155,7 @@ test "page_layout: creates full structure" {
 
 ///|
 test "page_layout: minimal structure" {
-  let node : @luna.Node[Unit] = page_layout([@luna.text("Content only")])
+  let node : @luna.Node[Unit, String] = page_layout([@luna.text("Content only")])
   guard node is @core.Fragment(children) else { fail("expected Fragment") }
   inspect(children.length(), content="1")
   guard children[0] is @core.Element(m) && m.tag == "main" else {

@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/experimental_ir"
+package "mizchi/luna/x/ir"
 
 // Values
 pub fn parse_moonbit(String) -> ParseResult

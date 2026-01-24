@@ -13,7 +13,7 @@ test "static_content: SSR and CSR produce identical output" {
   let doc = @js_dom.document()
 
   // Create a VNode that would be rendered on server
-  let vnode : @luna.Node[Unit] = @luna.h(
+  let vnode : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("class", @luna.attr_static("container"))],
     [
@@ -38,7 +38,7 @@ test "static_content: SSR and CSR produce identical output" {
 test "static_content: nested elements render correctly" {
   @global_jsdom.register()
   let doc = @js_dom.document()
-  let vnode : @luna.Node[Unit] = @luna.h("nav", [], [
+  let vnode : @luna.Node[Unit, String] = @luna.h("nav", [], [
     @luna.h("ul", [], [
       @luna.h("li", [], [
         @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.text("Home")]),
@@ -65,7 +65,7 @@ test "static_content: nested elements render correctly" {
 test "static_content: void elements handled correctly" {
   @global_jsdom.register()
   let doc = @js_dom.document()
-  let vnode : @luna.Node[Unit] = @luna.h("div", [], [
+  let vnode : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.h(
       "img",
       [
@@ -97,7 +97,7 @@ test "static_content: void elements handled correctly" {
 ///|
 test "static_content: special characters escaped correctly" {
   @global_jsdom.register()
-  let vnode : @luna.Node[Unit] = @luna.h("div", [], [
+  let vnode : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.text("Hello <script>alert('xss')</script>"),
     @luna.h("span", [], [@luna.text("A & B")]),
   ])
@@ -113,7 +113,7 @@ test "static_content: special characters escaped correctly" {
 test "static_block: creates wrapper with innerHTML" {
   @global_jsdom.register()
   let doc = @js_dom.document()
-  let vnode : @luna.Node[Unit] = @luna.h("ul", [], [
+  let vnode : @luna.Node[Unit, String] = @luna.h("ul", [], [
     @luna.h("li", [], [@luna.text("Item 1")]),
     @luna.h("li", [], [@luna.text("Item 2")]),
   ])
@@ -133,7 +133,7 @@ test "static_block: creates wrapper with innerHTML" {
 ///|
 test "static_div: convenience wrapper works" {
   @global_jsdom.register()
-  let vnode : @luna.Node[Unit] = @luna.text("Hello")
+  let vnode : @luna.Node[Unit, String] = @luna.text("Hello")
   let block = static_div(vnode)
   assert_eq(block.to_dom().nodeName(), "DIV")
 }
@@ -141,7 +141,7 @@ test "static_div: convenience wrapper works" {
 ///|
 test "static_span: convenience wrapper works" {
   @global_jsdom.register()
-  let vnode : @luna.Node[Unit] = @luna.text("Hello")
+  let vnode : @luna.Node[Unit, String] = @luna.text("Hello")
   let block = static_span(vnode)
   assert_eq(block.to_dom().nodeName(), "SPAN")
 }
@@ -162,7 +162,7 @@ test "inject_static_html: raw HTML injection" {
 test "static_content: Fragment renders correctly" {
   @global_jsdom.register()
   let doc = @js_dom.document()
-  let vnode : @luna.Node[Unit] = @luna.fragment([
+  let vnode : @luna.Node[Unit, String] = @luna.fragment([
     @luna.h("span", [], [@luna.text("First")]),
     @luna.h("span", [], [@luna.text("Second")]),
   ])
@@ -181,11 +181,11 @@ test "static_content: large list renders efficiently" {
   let doc = @js_dom.document()
 
   // Create a large list (simulating real-world static content)
-  let items : Array[@luna.Node[Unit]] = []
+  let items : Array[@luna.Node[Unit, String]] = []
   for i = 0; i < 100; i = i + 1 {
     items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
-  let vnode : @luna.Node[Unit] = @luna.h("ul", [], items)
+  let vnode : @luna.Node[Unit, String] = @luna.h("ul", [], items)
   let ssr_html = @render.render_to_string(vnode).html
   let container = doc.createElement("div")
   inject_static(container, vnode)
@@ -209,7 +209,7 @@ test "sol_pattern: static header with Island placeholder" {
 
   // Sol pattern: static header followed by dynamic island marker
   // The Island would be hydrated separately
-  let header : @luna.Node[Unit] = @luna.h(
+  let header : @luna.Node[Unit, String] = @luna.h(
     "header",
     [("class", @luna.attr_static("site-header"))],
     [
@@ -244,7 +244,7 @@ test "sol_pattern: sol-link navigation (static content)" {
   let doc = @js_dom.document()
 
   // Sol CSR navigation links
-  let nav : @luna.Node[Unit] = @luna.h("nav", [], [
+  let nav : @luna.Node[Unit, String] = @luna.h("nav", [], [
     @luna.h(
       "a",
       [
@@ -282,7 +282,7 @@ test "sol_pattern: pre-cached SSR fragment injection" {
 
   // Simulating Sol's fragment caching
   // Server pre-renders and caches this fragment
-  let cached_fragment : @luna.Node[Unit] = @luna.h(
+  let cached_fragment : @luna.Node[Unit, String] = @luna.h(
     "section",
     [("class", @luna.attr_static("cached-content"))],
     [
@@ -315,7 +315,7 @@ test "ssg_pattern: markdown document structure" {
   // Sol SSG renders Markdown as VNode then to HTML
   // Simulating a typical documentation page structure
   // Note: Avoid single quotes in text content as SSR escapes them differently
-  let doc_page : @luna.Node[Unit] = @luna.h(
+  let doc_page : @luna.Node[Unit, String] = @luna.h(
     "article",
     [("class", @luna.attr_static("markdown-body"))],
     [
@@ -354,7 +354,7 @@ test "ssg_pattern: navigation sidebar" {
   let doc = @js_dom.document()
 
   // Sol SSG auto-generates sidebar navigation
-  let sidebar : @luna.Node[Unit] = @luna.h(
+  let sidebar : @luna.Node[Unit, String] = @luna.h(
     "aside",
     [("class", @luna.attr_static("sidebar"))],
     [
@@ -402,7 +402,7 @@ test "ssg_pattern: i18n language switcher" {
   let doc = @js_dom.document()
 
   // Sol SSG i18n language selector
-  let lang_switcher : @luna.Node[Unit] = @luna.h(
+  let lang_switcher : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("class", @luna.attr_static("lang-switcher"))],
     [

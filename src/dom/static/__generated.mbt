@@ -19,9 +19,9 @@
 /// Create a server-side element
 fn create_element(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
@@ -30,15 +30,15 @@ fn create_element(
 /// Note: SVG namespace is handled during rendering, VNode is namespace-agnostic
 fn create_svg_element(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
 ///|
 /// Create a static attribute
-fn static_attr(value : String) -> @luna.Attr[Unit] {
+fn static_attr(value : String) -> @luna.Attr[Unit, String] {
   @luna.attr_static(value)
 }
 
@@ -48,9 +48,9 @@ fn build_attrs(
   id : String?,
   class : String?,
   style : String?,
-  attrs : Array[(String, @luna.Attr[Unit])]?,
-) -> Array[(String, @luna.Attr[Unit])] {
-  let result : Array[(String, @luna.Attr[Unit])] = []
+  attrs : Array[(String, @luna.Attr[Unit, String])]?,
+) -> Array[(String, @luna.Attr[Unit, String])] {
+  let result : Array[(String, @luna.Attr[Unit, String])] = []
   if id is Some(v) {
     result.push(("id", static_attr(v)))
   }
@@ -81,9 +81,9 @@ pub fn html(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if lang is Some(v) {
     props.push(("lang", static_attr(v)))
@@ -97,9 +97,9 @@ pub fn head(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("head", props, children)
 }
@@ -110,9 +110,9 @@ pub fn body(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("body", props, children)
 }
@@ -124,8 +124,8 @@ pub fn title(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("title", props, [text(content)])
 }
@@ -140,8 +140,8 @@ pub fn meta(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if charset is Some(v) {
     props.push(("charset", static_attr(v)))
@@ -167,8 +167,8 @@ pub fn link(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if rel is Some(v) {
     props.push(("rel", static_attr(v)))
@@ -193,8 +193,8 @@ pub fn script(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if src is Some(v) {
     props.push(("src", static_attr(v)))
@@ -208,7 +208,7 @@ pub fn script(
   if async_ is Some(true) {
     props.push(("async", static_attr("")))
   }
-  let script_children : Array[@luna.Node[Unit]] = if content is Some(c) {
+  let script_children : Array[@luna.Node[Unit, String]] = if content is Some(c) {
     [text(c)]
   } else {
     []
@@ -224,8 +224,8 @@ pub fn style_(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if type_ is Some(v) {
     props.push(("type", static_attr(v)))
@@ -239,9 +239,9 @@ pub fn main_(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("main", props, children)
 }
@@ -252,9 +252,9 @@ pub fn nav(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("nav", props, children)
 }
@@ -265,9 +265,9 @@ pub fn header_(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("header", props, children)
 }
@@ -278,9 +278,9 @@ pub fn footer_(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("footer", props, children)
 }
@@ -291,9 +291,9 @@ pub fn section(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("section", props, children)
 }
@@ -304,9 +304,9 @@ pub fn article(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("article", props, children)
 }
@@ -317,9 +317,9 @@ pub fn aside(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("aside", props, children)
 }
@@ -330,9 +330,9 @@ pub fn div(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("div", props, children)
 }
@@ -343,9 +343,9 @@ pub fn span(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("span", props, children)
 }
@@ -356,9 +356,9 @@ pub fn p(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("p", props, children)
 }
@@ -371,9 +371,9 @@ pub fn a(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if href is Some(v) {
     props.push(("href", static_attr(v)))
@@ -390,9 +390,9 @@ pub fn h1(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("h1", props, children)
 }
@@ -403,9 +403,9 @@ pub fn h2(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("h2", props, children)
 }
@@ -416,9 +416,9 @@ pub fn h3(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("h3", props, children)
 }
@@ -429,9 +429,9 @@ pub fn h4(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("h4", props, children)
 }
@@ -442,9 +442,9 @@ pub fn h5(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("h5", props, children)
 }
@@ -455,9 +455,9 @@ pub fn h6(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("h6", props, children)
 }
@@ -468,9 +468,9 @@ pub fn ul(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("ul", props, children)
 }
@@ -481,9 +481,9 @@ pub fn ol(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("ol", props, children)
 }
@@ -494,9 +494,9 @@ pub fn li(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("li", props, children)
 }
@@ -508,9 +508,9 @@ pub fn button(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if disabled is Some(true) {
     props.push(("disabled", static_attr("")))
@@ -532,8 +532,8 @@ pub fn input(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if type_ is Some(v) {
     props.push(("type", static_attr(v)))
@@ -570,9 +570,9 @@ pub fn form(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if action is Some(v) {
     props.push(("action", static_attr(v)))
@@ -590,9 +590,9 @@ pub fn label(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if for_ is Some(v) {
     props.push(("for", static_attr(v)))
@@ -610,8 +610,8 @@ pub fn img(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if src is Some(v) {
     props.push(("src", static_attr(v)))
@@ -634,8 +634,8 @@ pub fn br(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("br", props, [])
 }
@@ -646,8 +646,8 @@ pub fn hr(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("hr", props, [])
 }
@@ -658,9 +658,9 @@ pub fn strong(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("strong", props, children)
 }
@@ -671,9 +671,9 @@ pub fn em(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("em", props, children)
 }
@@ -684,9 +684,9 @@ pub fn code(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("code", props, children)
 }
@@ -697,9 +697,9 @@ pub fn pre(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_element("pre", props, children)
 }
@@ -710,18 +710,20 @@ pub fn pre(
 
 ///|
 /// Create a text node
-pub fn text(content : String) -> @luna.Node[Unit] {
+pub fn text(content : String) -> @luna.Node[Unit, String] {
   @luna.text(content)
 }
 
 ///|
 /// Create a fragment (multiple nodes without wrapper)
-pub fn fragment(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
+pub fn fragment(
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   @luna.fragment(children)
 }
 
 ///|
 /// Create static attribute
-pub fn attr(value : String) -> @luna.Attr[Unit] {
+pub fn attr(value : String) -> @luna.Attr[Unit, String] {
   @luna.attr_static(value)
 }

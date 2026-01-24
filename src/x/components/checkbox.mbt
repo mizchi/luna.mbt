@@ -48,9 +48,9 @@ pub fn[E] checkbox(
   aria_labelledby? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("checkbox")),
     ("aria-checked", @luna.attr_static(checked.to_aria())),
     ("tabindex", @luna.attr_static("0")),
@@ -81,9 +81,9 @@ pub fn[E] checkbox_dyn(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("checkbox")),
     ("aria-checked", @luna.attr_dynamic(fn() { checked.get().to_aria() })),
     ("tabindex", @luna.attr_static("0")),
@@ -112,9 +112,9 @@ pub fn[E] checkbox_computed(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("checkbox")),
     ("aria-checked", @luna.attr_dynamic(fn() { checked().to_aria() })),
     ("tabindex", @luna.attr_static("0")),
@@ -141,10 +141,10 @@ pub fn[E] checkbox_native(
   checked : Bool,
   disabled? : Bool,
   id? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let input_id = id.unwrap_or("checkbox-" + name)
-  let input_attrs : Array[(String, @luna.Attr[E])] = [
+  let input_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("checkbox")),
     ("name", @luna.attr_static(name)),
     ("id", @luna.attr_static(input_id)),
@@ -155,7 +155,7 @@ pub fn[E] checkbox_native(
   if disabled is Some(true) {
     input_attrs.push(("disabled", @luna.attr_static("")))
   }
-  let label_attrs : Array[(String, @luna.Attr[E])] = [
+  let label_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("for", @luna.attr_static(input_id)),
   ]
   @luna.fragment([
@@ -169,9 +169,9 @@ pub fn[E] checkbox_native(
 pub fn[E] checkbox_group(
   aria_label? : String,
   aria_labelledby? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("group")),
   ]
   if aria_label is Some(label) {

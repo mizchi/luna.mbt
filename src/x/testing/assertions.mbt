@@ -7,7 +7,7 @@
 
 ///|
 /// 要素が特定のタグを持つことを検証
-pub fn[E] assert_tag(node : @luna.Node[E], expected : String) -> Unit {
+pub fn[E] assert_tag(node : @luna.Node[E, String], expected : String) -> Unit {
   match get_tag(node) {
     Some(tag) =>
       if tag != expected {
@@ -22,7 +22,7 @@ pub fn[E] assert_tag(node : @luna.Node[E], expected : String) -> Unit {
 
 ///|
 /// 要素がElementであることを検証
-pub fn[E] assert_is_element(node : @luna.Node[E]) -> Unit {
+pub fn[E] assert_is_element(node : @luna.Node[E, String]) -> Unit {
   if not(is_element(node)) {
     abort("Expected Element, but got \{node_type_name(node)}")
   }
@@ -30,7 +30,7 @@ pub fn[E] assert_is_element(node : @luna.Node[E]) -> Unit {
 
 ///|
 /// 要素がTextであることを検証
-pub fn[E] assert_is_text(node : @luna.Node[E]) -> Unit {
+pub fn[E] assert_is_text(node : @luna.Node[E, String]) -> Unit {
   if not(is_text(node)) {
     abort("Expected Text, but got \{node_type_name(node)}")
   }
@@ -43,7 +43,7 @@ pub fn[E] assert_is_text(node : @luna.Node[E]) -> Unit {
 ///|
 /// 静的属性の値を検証
 pub fn[E] assert_static_attr(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   name : String,
   expected : String,
 ) -> Unit {
@@ -59,7 +59,7 @@ pub fn[E] assert_static_attr(
 ///|
 /// 動的属性の現在値を検証
 pub fn[E] assert_dynamic_attr(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   name : String,
   expected : String,
 ) -> Unit {
@@ -77,7 +77,7 @@ pub fn[E] assert_dynamic_attr(
 ///|
 /// 属性値を検証（静的・動的両対応）
 pub fn[E] assert_attr(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   name : String,
   expected : String,
 ) -> Unit {
@@ -92,7 +92,7 @@ pub fn[E] assert_attr(
 
 ///|
 /// 属性が存在することを検証
-pub fn[E] assert_has_attr(node : @luna.Node[E], name : String) -> Unit {
+pub fn[E] assert_has_attr(node : @luna.Node[E, String], name : String) -> Unit {
   if get_attr(node, name) is None {
     abort("Expected attribute '\{name}' to exist")
   }
@@ -100,7 +100,10 @@ pub fn[E] assert_has_attr(node : @luna.Node[E], name : String) -> Unit {
 
 ///|
 /// イベントハンドラが存在することを検証
-pub fn[E] assert_has_handler(node : @luna.Node[E], name : String) -> Unit {
+pub fn[E] assert_has_handler(
+  node : @luna.Node[E, String],
+  name : String,
+) -> Unit {
   if not(has_handler(node, name)) {
     abort("Expected handler '\{name}' to exist")
   }
@@ -112,7 +115,7 @@ pub fn[E] assert_has_handler(node : @luna.Node[E], name : String) -> Unit {
 
 ///|
 /// テキストコンテンツを検証
-pub fn[E] assert_text(node : @luna.Node[E], expected : String) -> Unit {
+pub fn[E] assert_text(node : @luna.Node[E, String], expected : String) -> Unit {
   let actual = get_all_text(node)
   if actual != expected {
     abort("Expected text '\{expected}', but got '\{actual}'")
@@ -121,7 +124,10 @@ pub fn[E] assert_text(node : @luna.Node[E], expected : String) -> Unit {
 
 ///|
 /// テキストが含まれることを検証
-pub fn[E] assert_text_contains(node : @luna.Node[E], expected : String) -> Unit {
+pub fn[E] assert_text_contains(
+  node : @luna.Node[E, String],
+  expected : String,
+) -> Unit {
   let actual = get_all_text(node)
   if not(actual.contains(expected)) {
     abort("Expected text to contain '\{expected}', but got '\{actual}'")
@@ -131,7 +137,7 @@ pub fn[E] assert_text_contains(node : @luna.Node[E], expected : String) -> Unit 
 ///|
 /// テキストが含まれないことを検証
 pub fn[E] assert_text_not_contains(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   unexpected : String,
 ) -> Unit {
   let actual = get_all_text(node)
@@ -146,7 +152,10 @@ pub fn[E] assert_text_not_contains(
 
 ///|
 /// 子要素数を検証
-pub fn[E] assert_child_count(node : @luna.Node[E], expected : Int) -> Unit {
+pub fn[E] assert_child_count(
+  node : @luna.Node[E, String],
+  expected : Int,
+) -> Unit {
   let actual = child_count(node)
   if actual != expected {
     abort("Expected \{expected} children, but got \{actual}")
@@ -155,7 +164,10 @@ pub fn[E] assert_child_count(node : @luna.Node[E], expected : Int) -> Unit {
 
 ///|
 /// 特定のタグを持つ要素が存在することを検証
-pub fn[E] assert_has_element(node : @luna.Node[E], tag : String) -> Unit {
+pub fn[E] assert_has_element(
+  node : @luna.Node[E, String],
+  tag : String,
+) -> Unit {
   if find_by_tag(node, tag) is None {
     abort("Expected to find element with tag '\{tag}'")
   }
@@ -163,7 +175,7 @@ pub fn[E] assert_has_element(node : @luna.Node[E], tag : String) -> Unit {
 
 ///|
 /// 特定のタグを持つ要素が存在しないことを検証
-pub fn[E] assert_no_element(node : @luna.Node[E], tag : String) -> Unit {
+pub fn[E] assert_no_element(node : @luna.Node[E, String], tag : String) -> Unit {
   if find_by_tag(node, tag) is Some(_) {
     abort("Expected no element with tag '\{tag}', but found one")
   }
@@ -172,7 +184,7 @@ pub fn[E] assert_no_element(node : @luna.Node[E], tag : String) -> Unit {
 ///|
 /// 特定のタグを持つ要素の数を検証
 pub fn[E] assert_element_count(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   tag : String,
   expected : Int,
 ) -> Unit {
@@ -188,7 +200,7 @@ pub fn[E] assert_element_count(
 
 ///|
 /// Show条件がtrueのとき子要素が存在することを検証
-pub fn[E] assert_show_visible(node : @luna.Node[E]) -> Unit {
+pub fn[E] assert_show_visible(node : @luna.Node[E, String]) -> Unit {
   match node {
     @core.Show(condition~, ..) =>
       if not(condition()) {
@@ -200,7 +212,7 @@ pub fn[E] assert_show_visible(node : @luna.Node[E]) -> Unit {
 
 ///|
 /// Show条件がfalseのとき子要素が存在しないことを検証
-pub fn[E] assert_show_hidden(node : @luna.Node[E]) -> Unit {
+pub fn[E] assert_show_hidden(node : @luna.Node[E, String]) -> Unit {
   match node {
     @core.Show(condition~, ..) =>
       if condition() {
@@ -212,7 +224,10 @@ pub fn[E] assert_show_hidden(node : @luna.Node[E]) -> Unit {
 
 ///|
 /// Forのレンダリング結果の要素数を検証
-pub fn[E] assert_for_count(node : @luna.Node[E], expected : Int) -> Unit {
+pub fn[E] assert_for_count(
+  node : @luna.Node[E, String],
+  expected : Int,
+) -> Unit {
   match node {
     @core.For(render~) => {
       let actual = render().length()

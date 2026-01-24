@@ -1,7 +1,7 @@
 ///|
 test "tab_computed creates tab with computed selected" {
   let selected_index = @resource.signal(0)
-  let node : @luna.Node[@js.Any] = tab_computed(
+  let node : @luna.Node[@js.Any, String] = tab_computed(
     "tab-0",
     fn() { selected_index.get() == 0 },
     "panel-0",
@@ -19,7 +19,7 @@ test "tab_computed creates tab with computed selected" {
 ///|
 test "tabpanel_computed creates panel with computed visibility" {
   let visible = @resource.signal(true)
-  let node : @luna.Node[@js.Any] = tabpanel_computed(
+  let node : @luna.Node[@js.Any, String] = tabpanel_computed(
     "panel-0",
     "tab-0",
     fn() { visible.get() },
@@ -38,7 +38,7 @@ test "tabpanel_computed creates panel with computed visibility" {
 ///|
 test "checkbox_computed creates checkbox with computed state" {
   let checked = @resource.signal(@components.Checked)
-  let node : @luna.Node[@js.Any] = checkbox_computed(
+  let node : @luna.Node[@js.Any, String] = checkbox_computed(
     fn() { checked.get() },
     aria_label="Test checkbox",
     [@luna.text("Check me")],
@@ -55,7 +55,7 @@ test "checkbox_computed creates checkbox with computed state" {
 ///|
 test "switch_computed creates switch with computed state" {
   let on = @resource.signal(false)
-  let node : @luna.Node[@js.Any] = switch_computed(
+  let node : @luna.Node[@js.Any, String] = switch_computed(
     fn() { on.get() },
     aria_label="Toggle",
     [@luna.text("Switch")],
@@ -72,7 +72,7 @@ test "switch_computed creates switch with computed state" {
 ///|
 test "radio_computed creates radio with computed checked" {
   let selected = @resource.signal("option1")
-  let node : @luna.Node[@js.Any] = radio_computed(
+  let node : @luna.Node[@js.Any, String] = radio_computed(
     "option1",
     fn() { selected.get() == "option1" },
     [@luna.text("Option 1")],
@@ -89,7 +89,7 @@ test "radio_computed creates radio with computed checked" {
 ///|
 test "accordion_header_computed creates header with computed expanded" {
   let expanded = @resource.signal(0)
-  let node : @luna.Node[@js.Any] = accordion_header_computed(
+  let node : @luna.Node[@js.Any, String] = accordion_header_computed(
     "header-0",
     fn() { expanded.get() == 0 },
     "panel-0",
@@ -104,7 +104,7 @@ test "accordion_header_computed creates header with computed expanded" {
 ///|
 test "disclosure_button_computed creates button with computed expanded" {
   let expanded = @resource.signal(false)
-  let node : @luna.Node[@js.Any] = disclosure_button_computed(
+  let node : @luna.Node[@js.Any, String] = disclosure_button_computed(
     fn() { expanded.get() },
     "content-0",
     [@luna.text("Show")],
@@ -149,7 +149,7 @@ test "accordion_dyn creates complete accordion with signal" {
 ///|
 test "disclosure_dyn creates complete disclosure with signal" {
   let expanded = @resource.signal(false)
-  let node : @luna.Node[@js.Any] = disclosure_dyn(
+  let node : @luna.Node[@js.Any, String] = disclosure_dyn(
     "disc",
     expanded,
     [@luna.text("Show more")],

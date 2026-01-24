@@ -674,7 +674,7 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
     params.push("attrs? : Array[(String, Attr)]");
     params.push("dyn_attrs? : Array[(String, AttrValue)]"); // escape hatch
   } else {
-    params.push("attrs? : Array[(String, @luna.Attr[Unit])]");
+    params.push("attrs? : Array[(String, @luna.Attr[Unit, String])]");
   }
 
   // Children (required, positional - same style for both DOM and server_dom)
@@ -682,12 +682,12 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
     if (opts.target === "dom") {
       params.push("children : Array[DomNode]");
     } else {
-      params.push("children : Array[@luna.Node[Unit]]");
+      params.push("children : Array[@luna.Node[Unit, String]]");
     }
   }
 
   // Build return type
-  const returnType = opts.target === "dom" ? "DomNode" : "@luna.Node[Unit]";
+  const returnType = opts.target === "dom" ? "DomNode" : "@luna.Node[Unit, String]";
 
   // Build function body
   const bodyLines: string[] = [];
@@ -759,7 +759,7 @@ function generateElement(elem: ElementDef, opts: GeneratorOptions): string {
       bodyLines.push(`${createFn}, props, [text(content)])`);
     } else if (elem.tag === "script") {
       // script: content is optional, no children param
-      bodyLines.push("let script_children : Array[@luna.Node[Unit]] = if content is Some(c) {");
+      bodyLines.push("let script_children : Array[@luna.Node[Unit, String]] = if content is Some(c) {");
       bodyLines.push("  [text(c)]");
       bodyLines.push("} else {");
       bodyLines.push("  []");
@@ -826,9 +826,9 @@ function generateHelpers(opts: GeneratorOptions): string {
 /// Create a server-side element
 fn create_element(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]]
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]]
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
@@ -837,15 +837,15 @@ fn create_element(
 /// Note: SVG namespace is handled during rendering, VNode is namespace-agnostic
 fn create_svg_element(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]]
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]]
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
 ///|
 /// Create a static attribute
-fn static_attr(value : String) -> @luna.Attr[Unit] {
+fn static_attr(value : String) -> @luna.Attr[Unit, String] {
   @luna.attr_static(value)
 }
 
@@ -855,9 +855,9 @@ fn build_attrs(
   id : String?,
   class : String?,
   style : String?,
-  attrs : Array[(String, @luna.Attr[Unit])]?
-) -> Array[(String, @luna.Attr[Unit])] {
-  let result : Array[(String, @luna.Attr[Unit])] = []
+  attrs : Array[(String, @luna.Attr[Unit, String])]?
+) -> Array[(String, @luna.Attr[Unit, String])] {
+  let result : Array[(String, @luna.Attr[Unit, String])] = []
   if id is Some(v) {
     result.push(("id", static_attr(v)))
   }
@@ -888,19 +888,19 @@ function generateTextHelpers(opts: GeneratorOptions): string {
 
 ///|
 /// Create a text node
-pub fn text(content : String) -> @luna.Node[Unit] {
+pub fn text(content : String) -> @luna.Node[Unit, String] {
   @luna.text(content)
 }
 
 ///|
 /// Create a fragment (multiple nodes without wrapper)
-pub fn fragment(children : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
+pub fn fragment(children : Array[@luna.Node[Unit, String]]) -> @luna.Node[Unit, String] {
   @luna.fragment(children)
 }
 
 ///|
 /// Create static attribute
-pub fn attr(value : String) -> @luna.Attr[Unit] {
+pub fn attr(value : String) -> @luna.Attr[Unit, String] {
   @luna.attr_static(value)
 }
 `;
@@ -972,13 +972,13 @@ pub fn text_dyn(content : () -> String) -> DomNode {
 
 ///|
 /// Create a reactive text node from a signal
-pub fn[T : Show] text_sig(sig : @signal.Signal[T]) -> DomNode {
+pub fn[T : Show] text_sig(sig : @resource.Signal[T]) -> DomNode {
   text_from_signal(sig)
 }
 
 ///|
 /// Create a reactive text node from a signal (alias for text_sig)
-pub fn[T : Show] text_of(sig : @signal.Signal[T]) -> DomNode {
+pub fn[T : Show] text_of(sig : @resource.Signal[T]) -> DomNode {
   text_from_signal(sig)
 }
 
@@ -1113,14 +1113,14 @@ function generateSvgFile(opts: GeneratorOptions): string {
 function main() {
   const rootDir = join(__dirname, "..");
 
-  // Generate static_dom/element elements (server-side SSR) - HTML only
-  const serverDomPath = join(rootDir, "src/static_dom/element/__generated.mbt");
+  // Generate dom/static elements (server-side SSR) - HTML only
+  const serverDomPath = join(rootDir, "src/dom/static/__generated.mbt");
   const serverDomContent = generateFile({ target: "server_dom" });
   writeFileSync(serverDomPath, serverDomContent);
   console.log(`Generated: ${serverDomPath}`);
 
-  // Generate static_dom/element SVG elements (server-side SSR)
-  const serverDomSvgPath = join(rootDir, "src/static_dom/element/__generated_svg.mbt");
+  // Generate dom/static SVG elements (server-side SSR)
+  const serverDomSvgPath = join(rootDir, "src/dom/static/__generated_svg.mbt");
   const serverDomSvgContent = generateSvgFile({ target: "server_dom" });
   writeFileSync(serverDomSvgPath, serverDomSvgContent);
   console.log(`Generated: ${serverDomSvgPath}`);

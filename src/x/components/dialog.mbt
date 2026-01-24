@@ -45,9 +45,9 @@ pub fn[E] dialog(
   aria_describedby? : String,
   open : Bool,
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("dialog")),
     ("aria-modal", @luna.attr_static("true")),
     ("tabindex", @luna.attr_static("-1")), // Allow focus for keyboard events
@@ -78,9 +78,9 @@ pub fn[E] dialog_dyn(
   aria_describedby? : String,
   open : @resource.Signal[Bool],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("dialog")),
     ("aria-modal", @luna.attr_static("true")),
     ("tabindex", @luna.attr_static("-1")), // Allow focus for keyboard events
@@ -107,9 +107,9 @@ pub fn[E] dialog_native(
   id? : String,
   aria_labelledby? : String,
   open : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = []
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = []
   if id is Some(i) {
     attrs.push(("id", @luna.attr_static(i)))
   }
@@ -139,9 +139,9 @@ pub fn[E] alert_dialog(
   aria_describedby? : String,
   open : Bool,
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("alertdialog")),
     ("aria-modal", @luna.attr_static("true")),
   ]
@@ -171,9 +171,9 @@ pub fn[E] alert_dialog_dyn(
   aria_describedby? : String,
   open : @resource.Signal[Bool],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("alertdialog")),
     ("aria-modal", @luna.attr_static("true")),
   ]
@@ -214,7 +214,7 @@ pub fn confirm_dialog(
   open : @resource.Signal[Bool],
   on_confirm : () -> Unit,
   on_cancel : () -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let confirm_text = confirm_label.unwrap_or("OK")
   let cancel_text = cancel_label.unwrap_or("Cancel")
   let title_id = id + "-title"
@@ -297,9 +297,9 @@ pub fn confirm_dialog(
 /// Used to visually obscure content behind the dialog.
 pub fn[E] dialog_backdrop(
   on_click? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("data-dialog-backdrop", @luna.attr_static("")),
     ("aria-hidden", @luna.attr_static("true")),
   ]
@@ -317,8 +317,8 @@ pub fn[E] modal(
   aria_labelledby? : String,
   open : Bool,
   on_backdrop_click? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   if not(open) {
     return @luna.fragment([])
   }
@@ -463,8 +463,8 @@ pub fn dialog_interactive(
   aria_describedby? : String,
   open : @resource.Signal[Bool],
   on_close : () -> Unit,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   // Store trigger element when showing
   let trigger_ref : Ref[@js.Any] = { val: @js.null() }
   let close_and_restore = fn() {

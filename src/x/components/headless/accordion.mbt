@@ -8,7 +8,7 @@
 ///|
 /// Accordion header props
 pub(all) struct AccordionHeaderProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   toggle : () -> Unit
   is_expanded : Bool
 }
@@ -24,7 +24,9 @@ pub fn use_accordion_header(
 ) -> AccordionHeaderProps {
   let is_expanded = expanded.get()
   let aria_attrs = @aria.accordion_header_aria(id, is_expanded, controls)
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = aria_attrs.map(fn(
+    pair,
+  ) {
     (pair.0, @luna.attr_static(pair.1))
   })
 
@@ -60,7 +62,7 @@ pub fn[E] accordion_header_attrs(
   id : String,
   controls : String,
   expanded : Bool,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   let aria_attrs = @aria.accordion_header_aria(id, expanded, controls)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
@@ -72,7 +74,7 @@ pub fn[E] accordion_panel_attrs(
   labelledby : String,
   hidden : Bool,
   use_region : Bool,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   let aria_attrs = @aria.accordion_panel_aria(
     id, labelledby, hidden, use_region,
   )
@@ -156,7 +158,7 @@ pub fn generate_accordion_ids(
 ///|
 /// Props for accordion header with full APG keyboard navigation.
 pub(all) struct AccordionHeaderNavProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   is_expanded : Bool
 }
 
@@ -178,7 +180,7 @@ pub fn use_accordion_header_nav(
       expanded.set(index)
     }
   }
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(header_id)),
     (
@@ -208,7 +210,7 @@ pub fn use_accordion_header_nav(
 ///|
 /// Props for accordion panel.
 pub(all) struct AccordionPanelNavProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   is_expanded : Bool
 }
 
@@ -221,7 +223,7 @@ pub fn use_accordion_panel_nav(
   expanded : @resource.Signal[Int],
 ) -> AccordionPanelNavProps {
   let is_expanded = expanded.get() == index
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(panel_id)),
     ("aria-labelledby", @luna.attr_static(header_id)),
     ("role", @luna.attr_static("region")),

@@ -1,6 +1,6 @@
 ///|
 test "alert: basic role" {
-  let node : @luna.Node[Unit] = alert([@luna.text("Message")])
+  let node : @luna.Node[Unit, String] = alert([@luna.text("Message")])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="div")
   guard el.attrs[0] is ("role", @core.VStatic("alert")) else {
@@ -10,7 +10,9 @@ test "alert: basic role" {
 
 ///|
 test "alert: with type" {
-  let node : @luna.Node[Unit] = alert(type_=Error, [@luna.text("Error!")])
+  let node : @luna.Node[Unit, String] = alert(type_=Error, [
+    @luna.text("Error!"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_type = false
   for attr in el.attrs {
@@ -24,7 +26,7 @@ test "alert: with type" {
 
 ///|
 test "alert_live: aria-live and atomic" {
-  let node : @luna.Node[Unit] = alert_live([@luna.text("Update")])
+  let node : @luna.Node[Unit, String] = alert_live([@luna.text("Update")])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_live = false
   let mut has_atomic = false
@@ -44,7 +46,7 @@ test "alert_live: aria-live and atomic" {
 
 ///|
 test "status: role status" {
-  let node : @luna.Node[Unit] = status([@luna.text("Status")])
+  let node : @luna.Node[Unit, String] = status([@luna.text("Status")])
   guard node is @core.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("role", @core.VStatic("status")) else {
     fail("expected role=status")

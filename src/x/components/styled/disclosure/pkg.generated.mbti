@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/x/components/styled/disclosure"
+
+import {
+  "mizchi/signals",
+}
+
+// Values
+pub fn disclosure(String, @signals.Signal[Bool], String, Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]], class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+
+pub fn disclosure_css() -> String
+
+pub fn disclosure_slots() -> DisclosureSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct DisclosureSlots {
+  root : String
+  trigger : String
+  icon : String
+  panel : String
+  content : String
+}
+
+// Type aliases
+
+// Traits
+

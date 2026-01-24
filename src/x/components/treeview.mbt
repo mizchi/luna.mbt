@@ -66,9 +66,9 @@ pub fn[E] tree(
   aria_label? : String,
   aria_labelledby? : String,
   multiselectable? : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tree")),
   ]
   if id is Some(i) {
@@ -109,11 +109,11 @@ pub fn[E] treeitem(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  label_content : Array[@luna.Node[E]],
-  children? : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  label_content : Array[@luna.Node[E, String]],
+  children? : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("treeitem")),
     (
       "aria-selected",
@@ -143,7 +143,7 @@ pub fn[E] treeitem(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build content
-  let content : Array[@luna.Node[E]] = label_content.copy()
+  let content : Array[@luna.Node[E, String]] = label_content.copy()
   // Add child group if expanded
   if has_children {
     if expanded is Some(true) && children is Some(kids) {
@@ -165,11 +165,11 @@ pub fn[E] treeitem_dyn(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  label_content : Array[@luna.Node[E]],
-  children? : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  label_content : Array[@luna.Node[E, String]],
+  children? : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("treeitem")),
     (
       "aria-selected",
@@ -223,7 +223,7 @@ pub fn[E] treeitem_dyn(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build content - children need to be rendered conditionally
-  let content : Array[@luna.Node[E]] = label_content.copy()
+  let content : Array[@luna.Node[E, String]] = label_content.copy()
   if has_children {
     if expanded is Some(exp_map) && children is Some(kids) {
       content.push(
@@ -418,7 +418,7 @@ fn render_single_tree_node(
   selected : @resource.Signal[String],
   keydown_handler : @luna.EventHandler[@js.Any],
   on_select : (String) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let has_kids = node_children.length() > 0
   // Build child nodes recursively
   let child_nodes = if has_kids {
@@ -457,8 +457,8 @@ fn render_tree_nodes(
   selected : @resource.Signal[String],
   keydown_handler : @luna.EventHandler[@js.Any],
   on_select : (String) -> Unit,
-) -> Array[@luna.Node[@js.Any]] {
-  let items : Array[@luna.Node[@js.Any]] = []
+) -> Array[@luna.Node[@js.Any, String]] {
+  let items : Array[@luna.Node[@js.Any, String]] = []
   for node in nodes {
     // Call helper function to ensure proper closure capture
     items.push(
@@ -491,7 +491,7 @@ pub fn tree_interactive(
   nodes : Array[TreeNode],
   aria_label? : String,
   on_select : (String) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   // Initialize state
   let first_id = if nodes.length() > 0 { nodes[0].id } else { "" }
   let focused_id = @resource.signal(first_id)
@@ -506,7 +506,7 @@ pub fn tree_interactive(
     nodes, focused_id, expanded, selected, keydown_handler, on_select,
   )
   // Build tree container
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("tree")),
     ("id", @luna.attr_static(id)),
   ]

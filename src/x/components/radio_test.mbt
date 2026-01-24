@@ -1,6 +1,6 @@
 ///|
 test "radiogroup: role" {
-  let node : @luna.Node[Unit] = radiogroup(aria_label="Options", [])
+  let node : @luna.Node[Unit, String] = radiogroup(aria_label="Options", [])
   guard node is @core.Element(el) else { fail("expected Element") }
   guard el.attrs[0] is ("role", @core.VStatic("radiogroup")) else {
     fail("expected role=radiogroup")
@@ -9,7 +9,9 @@ test "radiogroup: role" {
 
 ///|
 test "radio: checked state" {
-  let node : @luna.Node[Unit] = radio("option1", true, [@luna.text("Option 1")])
+  let node : @luna.Node[Unit, String] = radio("option1", true, [
+    @luna.text("Option 1"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_checked = false
   let mut has_tabindex = false
@@ -29,7 +31,9 @@ test "radio: checked state" {
 
 ///|
 test "radio: unchecked state" {
-  let node : @luna.Node[Unit] = radio("option2", false, [@luna.text("Option 2")])
+  let node : @luna.Node[Unit, String] = radio("option2", false, [
+    @luna.text("Option 2"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut checked_val = ""
   let mut tabindex_val = ""
@@ -50,7 +54,7 @@ test "radio: unchecked state" {
 ///|
 test "radio_dyn: dynamic checked" {
   let selected = @resource.signal("opt1")
-  let node : @luna.Node[Unit] = radio_dyn("opt1", selected, [
+  let node : @luna.Node[Unit, String] = radio_dyn("opt1", selected, [
     @luna.text("Opt 1"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -73,7 +77,7 @@ test "radio_group: builds structure" {
     radio_option("a", [@luna.text("A")]),
     radio_option("b", [@luna.text("B")]),
   ]
-  let node : @luna.Node[Unit] = radio_group(
+  let node : @luna.Node[Unit, String] = radio_group(
     "choice",
     options,
     "a",
@@ -85,7 +89,7 @@ test "radio_group: builds structure" {
 
 ///|
 test "radio_native: creates input and label" {
-  let node : @luna.Node[Unit] = radio_native("color", "red", true, [
+  let node : @luna.Node[Unit, String] = radio_native("color", "red", true, [
     @luna.text("Red"),
   ])
   guard node is @core.Fragment(children) else { fail("expected Fragment") }

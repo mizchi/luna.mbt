@@ -1,4 +1,8 @@
-import { "mizchi/luna" as @luna, "mizchi/luna/core" as @core, "mizchi/luna/core/render" as @render }
+import {
+  "mizchi/luna" as @luna,
+  "mizchi/luna/core" as @core,
+  "mizchi/luna/core/render" as @render,
+}
 
 options(
   link: {

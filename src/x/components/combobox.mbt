@@ -79,7 +79,7 @@ pub fn[E] combobox_input(
   on_keydown? : @luna.EventHandler[E],
   on_focus? : @luna.EventHandler[E],
   on_blur? : @luna.EventHandler[E],
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let ac_str = match autocomplete {
     Some(None) => "none"
     Some(List) => "list"
@@ -87,7 +87,7 @@ pub fn[E] combobox_input(
     Some(Inline) => "inline"
     _ => "list"
   }
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("text")),
     ("id", @luna.attr_static(id)),
     ("role", @luna.attr_static("combobox")),
@@ -139,7 +139,7 @@ pub fn[E] combobox_input_dyn(
   on_keydown? : @luna.EventHandler[E],
   on_focus? : @luna.EventHandler[E],
   on_blur? : @luna.EventHandler[E],
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let ac_str = match autocomplete {
     Some(None) => "none"
     Some(List) => "list"
@@ -147,7 +147,7 @@ pub fn[E] combobox_input_dyn(
     Some(Inline) => "inline"
     _ => "list"
   }
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("text")),
     ("id", @luna.attr_static(id)),
     ("role", @luna.attr_static("combobox")),
@@ -195,9 +195,9 @@ pub fn[E] combobox_listbox(
   id : String,
   labelled_by : String,
   visible : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("listbox")),
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelled_by)),
@@ -214,9 +214,9 @@ pub fn[E] combobox_listbox_dyn(
   id : String,
   labelled_by : String,
   visible : @resource.Signal[Bool],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("listbox")),
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelled_by)),
@@ -238,10 +238,10 @@ pub fn[E] combobox_option_el(
   selected : Bool,
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("option")),
     ("id", @luna.attr_static(id)),
     (
@@ -266,10 +266,10 @@ pub fn[E] combobox_option_dyn(
   active_id : @resource.Signal[String],
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("option")),
     ("id", @luna.attr_static(id)),
     (
@@ -397,7 +397,7 @@ pub fn combobox_interactive(
   placeholder? : String,
   aria_label? : String,
   on_select : (ComboboxOption) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let input_value = @resource.signal("")
   let is_open = @resource.signal(false)
   let active_index = @resource.signal(-1)
@@ -465,7 +465,7 @@ pub fn combobox_interactive(
 
   })
   // Build input
-  let input_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let input_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("text")),
     ("id", @luna.attr_static(input_id)),
     ("role", @luna.attr_static("combobox")),
@@ -494,7 +494,7 @@ pub fn combobox_interactive(
     input_attrs.push(("aria-label", @luna.attr_static(label)))
   }
   // Build listbox with reactive content using For node
-  let build_listbox = fn() -> @luna.Node[@js.Any] {
+  let build_listbox = fn() -> @luna.Node[@js.Any, String] {
     @luna.h(
       "ul",
       [
@@ -506,7 +506,7 @@ pub fn combobox_interactive(
       [
         @luna.Node::For(render=fn() {
           let filtered = get_filtered()
-          let option_nodes : Array[@luna.Node[@js.Any]] = []
+          let option_nodes : Array[@luna.Node[@js.Any, String]] = []
           for opt in filtered {
             let opt_id = id + "-option-" + opt.id
             option_nodes.push(
@@ -558,7 +558,7 @@ pub fn combobox_select_only(
   initial_value? : String,
   aria_label? : String,
   on_select : (ComboboxOption) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let init_label = initial_value.unwrap_or_else(fn() {
     if options.length() > 0 {
       options[0].label
@@ -630,7 +630,7 @@ pub fn combobox_select_only(
     }
   })
   // Build option items
-  let option_items : Array[@luna.Node[@js.Any]] = []
+  let option_items : Array[@luna.Node[@js.Any, String]] = []
   for i, opt in options {
     let idx = i
     let opt_id = id + "-option-" + i.to_string()
@@ -679,7 +679,7 @@ pub fn combobox_select_only(
     )
   }
   // Build button
-  let button_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let button_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(button_id)),
     ("aria-haspopup", @luna.attr_static("listbox")),

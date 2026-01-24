@@ -76,7 +76,7 @@ pub fn toolbar(
   aria_label? : String = "Toolbar",
   class? : String,
   on_item_click : (String) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = toolbar_slots()
   let root_class = match class {
     Some(c) => slots.root + " " + c
@@ -92,7 +92,7 @@ pub fn toolbar(
       }
     }
   }
-  let inner_children : Array[@luna.Node[@js.Any]] = []
+  let inner_children : Array[@luna.Node[@js.Any, String]] = []
   let mut item_index = 0
   for gi, group in groups {
     if gi > 0 {
@@ -108,7 +108,7 @@ pub fn toolbar(
         ),
       )
     }
-    let group_items : Array[@luna.Node[@js.Any]] = []
+    let group_items : Array[@luna.Node[@js.Any, String]] = []
     for item in group.0 {
       let button_id = id + "-" + item.id
 
@@ -124,7 +124,7 @@ pub fn toolbar(
       )
 
       // Build item attrs from headless + styling
-      let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
         ("class", @luna.attr_static(slots.item)),
       ]
       for attr in props.attrs {
@@ -185,7 +185,7 @@ pub fn toolbar_reactive(
   aria_label? : String = "Toolbar",
   class? : String,
   on_item_click : (String) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = toolbar_slots()
   let root_class = match class {
     Some(c) => slots.root + " " + c
@@ -201,7 +201,7 @@ pub fn toolbar_reactive(
       }
     }
   }
-  let inner_children : Array[@luna.Node[@js.Any]] = []
+  let inner_children : Array[@luna.Node[@js.Any, String]] = []
   let mut item_index = 0
   for gi, group in groups {
     if gi > 0 {
@@ -217,7 +217,7 @@ pub fn toolbar_reactive(
         ),
       )
     }
-    let group_items : Array[@luna.Node[@js.Any]] = []
+    let group_items : Array[@luna.Node[@js.Any, String]] = []
     for item in group.0 {
       let item_id = item.id
       let button_id = id + "-" + item_id
@@ -235,7 +235,7 @@ pub fn toolbar_reactive(
       )
 
       // Build item attrs from headless + styling
-      let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
         (
           "class",
           @luna.attr_dynamic(fn() {

@@ -33,14 +33,14 @@ pub fn tabs_slots() -> TabsSlots {
 pub(all) struct TabItem {
   id : String
   label : String
-  content : Array[@luna.Node[@js.Any]]
+  content : Array[@luna.Node[@js.Any, String]]
 }
 
 ///|
 pub fn tab_item(
   id : String,
   label : String,
-  content : Array[@luna.Node[@js.Any]],
+  content : Array[@luna.Node[@js.Any, String]],
 ) -> TabItem {
   { id, label, content }
 }
@@ -51,7 +51,7 @@ pub fn tabs(
   selected : @resource.Signal[Int],
   aria_label? : String,
   class? : String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = tabs_slots()
   let root_class = match class {
     Some(c) => slots.root + " " + c
@@ -67,7 +67,7 @@ pub fn tabs(
   }
 
   // Build tab list
-  let tab_buttons : Array[@luna.Node[@js.Any]] = []
+  let tab_buttons : Array[@luna.Node[@js.Any, String]] = []
   for i, item in items {
     let tab_id = tab_ids[i]
     let panel_id = panel_ids[i]
@@ -76,7 +76,7 @@ pub fn tabs(
     let props = @headless.use_tab_nav(tab_id, panel_id, tab_ids, i, selected)
 
     // Build tab attrs from headless + styling
-    let tab_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let tab_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("class", @luna.attr_static(slots.tab)),
       (
         "data-state",
@@ -96,7 +96,7 @@ pub fn tabs(
   }
 
   // Build panels
-  let panels : Array[@luna.Node[@js.Any]] = []
+  let panels : Array[@luna.Node[@js.Any, String]] = []
   for i, item in items {
     let tab_id = tab_ids[i]
     let panel_id = panel_ids[i]
@@ -105,7 +105,7 @@ pub fn tabs(
     let panel_props = @headless.use_tabpanel_nav(panel_id, tab_id)
 
     // Build panel attrs from headless + styling
-    let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let panel_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("class", @luna.attr_static(slots.panel)),
     ]
     for attr in panel_props.attrs {
@@ -117,7 +117,7 @@ pub fn tabs(
       }),
     )
   }
-  let tablist_attrs : Array[(String, @luna.Attr[@js.Any])] = @headless.tablist_attrs(
+  let tablist_attrs : Array[(String, @luna.Attr[@js.Any, String])] = @headless.tablist_attrs(
     aria_label?,
   )
   @luna.h("div", [("class", @luna.attr_static(root_class))], [

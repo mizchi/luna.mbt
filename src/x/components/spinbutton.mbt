@@ -48,8 +48,8 @@ pub fn[E] spinbutton(
   is_readonly? : Bool,
   on_keydown? : @luna.EventHandler[E],
   on_input? : @luna.EventHandler[E],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("spinbutton")),
     ("tabindex", @luna.attr_static("0")),
     ("aria-valuenow", @luna.attr_static(value.to_string())),
@@ -99,8 +99,8 @@ pub fn[E] spinbutton_dyn(
   aria_valuetext_fn? : (Double) -> String,
   on_keydown? : @luna.EventHandler[E],
   on_input? : @luna.EventHandler[E],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("spinbutton")),
     ("tabindex", @luna.attr_static("0")),
     ("aria-valuenow", @luna.attr_dynamic(fn() { value.get().to_string() })),
@@ -260,7 +260,7 @@ pub fn spinbutton_interactive(
   large_step? : Double,
   aria_label? : String,
   aria_valuetext_fn? : (Double) -> String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let step_val = step.unwrap_or(1.0)
   let clamp = fn(v : Double) -> Double {
     let v1 = match min {
@@ -295,7 +295,7 @@ pub fn spinbutton_interactive(
     value.set(clamp(v))
   }
   // Build the input element
-  let input_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let input_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("text")),
     ("role", @luna.attr_static("spinbutton")),
     ("inputmode", @luna.attr_static("numeric")),
@@ -356,9 +356,9 @@ pub fn[E] spinbutton_native(
   step? : Double,
   aria_label? : String,
   id? : String,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let input_id = id.unwrap_or("spinbutton-" + name)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("number")),
     ("name", @luna.attr_static(name)),
     ("id", @luna.attr_static(input_id)),

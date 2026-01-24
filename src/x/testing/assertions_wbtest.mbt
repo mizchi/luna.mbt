@@ -2,19 +2,19 @@
 
 ///|
 test "assert_tag succeeds for correct tag" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
   assert_tag(node, "div")
 }
 
 ///|
 test "assert_is_element succeeds for Element" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
   assert_is_element(node)
 }
 
 ///|
 test "assert_static_attr succeeds for correct value" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("class", @luna.attr_static("container"))],
     [],
@@ -24,7 +24,7 @@ test "assert_static_attr succeeds for correct value" {
 
 ///|
 test "assert_attr succeeds for static attr" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("class", @luna.attr_static("container"))],
     [],
@@ -35,7 +35,7 @@ test "assert_attr succeeds for static attr" {
 ///|
 test "assert_attr succeeds for dynamic attr" {
   let sig = @resource.signal("value")
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "input",
     [("value", @luna.attr_dynamic(fn() { sig.get() }))],
     [],
@@ -45,7 +45,7 @@ test "assert_attr succeeds for dynamic attr" {
 
 ///|
 test "assert_has_handler succeeds when handler exists" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "button",
     [("onclick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
     [],
@@ -55,20 +55,24 @@ test "assert_has_handler succeeds when handler exists" {
 
 ///|
 test "assert_text succeeds for correct text" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Hello World")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
+    @luna.text("Hello World"),
+  ])
   assert_text(node, "Hello World")
 }
 
 ///|
 test "assert_text_contains succeeds when text contains substring" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Hello World")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
+    @luna.text("Hello World"),
+  ])
   assert_text_contains(node, "Hello")
   assert_text_contains(node, "World")
 }
 
 ///|
 test "assert_child_count succeeds for correct count" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.text("a"),
     @luna.text("b"),
     @luna.text("c"),
@@ -78,7 +82,7 @@ test "assert_child_count succeeds for correct count" {
 
 ///|
 test "assert_has_element succeeds when element exists" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.h("button", [], [@luna.text("Click")]),
   ])
   assert_has_element(node, "button")
@@ -86,13 +90,13 @@ test "assert_has_element succeeds when element exists" {
 
 ///|
 test "assert_no_element succeeds when element does not exist" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Hello")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Hello")])
   assert_no_element(node, "button")
 }
 
 ///|
 test "assert_element_count succeeds for correct count" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.h("span", [], []),
     @luna.h("span", [], []),
     @luna.h("span", [], []),
@@ -102,7 +106,7 @@ test "assert_element_count succeeds for correct count" {
 
 ///|
 test "assert_show_visible succeeds when condition is true" {
-  let node : @luna.Node[Unit] = @luna.show(fn() { true }, fn() {
+  let node : @luna.Node[Unit, String] = @luna.show(fn() { true }, fn() {
     @luna.text("visible")
   })
   assert_show_visible(node)
@@ -110,7 +114,7 @@ test "assert_show_visible succeeds when condition is true" {
 
 ///|
 test "assert_show_hidden succeeds when condition is false" {
-  let node : @luna.Node[Unit] = @luna.show(fn() { false }, fn() {
+  let node : @luna.Node[Unit, String] = @luna.show(fn() { false }, fn() {
     @luna.text("hidden")
   })
   assert_show_hidden(node)
@@ -119,7 +123,7 @@ test "assert_show_hidden succeeds when condition is false" {
 ///|
 test "assert_for_count succeeds for correct count" {
   let items = @resource.signal(["a", "b", "c"])
-  let node : @luna.Node[Unit] = @luna.for_each(fn() {
+  let node : @luna.Node[Unit, String] = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.text(item) })
   })
   assert_for_count(node, 3)

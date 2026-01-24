@@ -1,6 +1,6 @@
 ///|
 test "dialog: role and aria-modal" {
-  let node : @luna.Node[Unit] = dialog(aria_label="Confirm", true, [
+  let node : @luna.Node[Unit, String] = dialog(aria_label="Confirm", true, [
     @luna.text("Content"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -22,7 +22,7 @@ test "dialog: role and aria-modal" {
 
 ///|
 test "dialog: hidden when closed" {
-  let node : @luna.Node[Unit] = dialog(aria_label="Test", false, [])
+  let node : @luna.Node[Unit, String] = dialog(aria_label="Test", false, [])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_hidden = false
   for attr in el.attrs {
@@ -35,7 +35,11 @@ test "dialog: hidden when closed" {
 
 ///|
 test "dialog: aria-labelledby" {
-  let node : @luna.Node[Unit] = dialog(aria_labelledby="title-id", true, [])
+  let node : @luna.Node[Unit, String] = dialog(
+    aria_labelledby="title-id",
+    true,
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_labelledby = false
   for attr in el.attrs {
@@ -49,7 +53,7 @@ test "dialog: aria-labelledby" {
 
 ///|
 test "dialog_native: uses dialog element" {
-  let node : @luna.Node[Unit] = dialog_native(id="my-dialog", true, [
+  let node : @luna.Node[Unit, String] = dialog_native(id="my-dialog", true, [
     @luna.text("Native"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -58,7 +62,11 @@ test "dialog_native: uses dialog element" {
 
 ///|
 test "alert_dialog: role alertdialog" {
-  let node : @luna.Node[Unit] = alert_dialog(aria_label="Warning", true, [])
+  let node : @luna.Node[Unit, String] = alert_dialog(
+    aria_label="Warning",
+    true,
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_role = false
   for attr in el.attrs {
@@ -72,7 +80,7 @@ test "alert_dialog: role alertdialog" {
 
 ///|
 test "modal: creates backdrop and dialog" {
-  let node : @luna.Node[Unit] = modal(aria_label="Modal", true, [
+  let node : @luna.Node[Unit, String] = modal(aria_label="Modal", true, [
     @luna.text("Body"),
   ])
   guard node is @core.Fragment(children) else { fail("expected Fragment") }
@@ -102,7 +110,7 @@ test "modal: creates backdrop and dialog" {
 
 ///|
 test "modal: empty when closed" {
-  let node : @luna.Node[Unit] = modal(aria_label="Test", false, [])
+  let node : @luna.Node[Unit, String] = modal(aria_label="Test", false, [])
   guard node is @core.Fragment(children) else { fail("expected Fragment") }
   inspect(children.length(), content="0")
 }

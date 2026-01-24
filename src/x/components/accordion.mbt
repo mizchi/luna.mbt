@@ -23,7 +23,7 @@ pub(all) struct AccordionItem[E] {
   id : String // Unique item ID
   heading : String // Header text
   level : Int // Heading level (1-6)
-  content : Array[@luna.Node[E]] // Panel content
+  content : Array[@luna.Node[E, String]] // Panel content
 }
 
 ///|
@@ -32,7 +32,7 @@ pub fn[E] accordion_item(
   id : String,
   heading : String,
   level? : Int,
-  content : Array[@luna.Node[E]],
+  content : Array[@luna.Node[E, String]],
 ) -> AccordionItem[E] {
   { id, heading, level: level.unwrap_or(3), content }
 }
@@ -55,10 +55,10 @@ pub fn[E] accordion_header(
   level? : Int,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let heading_tag = "h" + level.unwrap_or(3).to_string()
-  let button_attrs : Array[(String, @luna.Attr[E])] = [
+  let button_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
     (
@@ -86,10 +86,10 @@ pub fn[E] accordion_header_dyn(
   level? : Int,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let heading_tag = "h" + level.unwrap_or(3).to_string()
-  let button_attrs : Array[(String, @luna.Attr[E])] = [
+  let button_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
     (
@@ -118,10 +118,10 @@ pub fn[E] accordion_header_computed(
   level? : Int,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let heading_tag = "h" + level.unwrap_or(3).to_string()
-  let button_attrs : Array[(String, @luna.Attr[E])] = [
+  let button_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
     ("aria-expanded", @luna.attr_dynamic(fn() { bool_to_aria(expanded()) })),
@@ -151,9 +151,9 @@ pub fn[E] accordion_panel(
   labelledby : String,
   hidden : Bool,
   use_region? : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
   ]
@@ -173,9 +173,9 @@ pub fn[E] accordion_panel_dyn(
   labelledby : String,
   visible : @resource.Signal[Bool],
   use_region? : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
   ]
@@ -192,9 +192,9 @@ pub fn[E] accordion_panel_computed(
   labelledby : String,
   visible : () -> Bool,
   use_region? : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
   ]
@@ -216,9 +216,9 @@ pub fn[E] accordion(
   items : Array[AccordionItem[E]],
   expanded_index : Int,
   use_regions? : Bool,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let use_reg = use_regions.unwrap_or(items.length() <= 6)
-  let children : Array[@luna.Node[E]] = []
+  let children : Array[@luna.Node[E, String]] = []
   for i, item in items {
     let is_expanded = i == expanded_index
     let header_id = "accordion-header-" + item.id
@@ -252,9 +252,9 @@ pub fn[E] accordion_multi(
   items : Array[AccordionItem[E]],
   expanded_ids : Array[String],
   use_regions? : Bool,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let use_reg = use_regions.unwrap_or(items.length() <= 6)
-  let children : Array[@luna.Node[E]] = []
+  let children : Array[@luna.Node[E, String]] = []
   for item in items {
     let is_expanded = expanded_ids.contains(item.id)
     let header_id = "accordion-header-" + item.id
@@ -289,9 +289,9 @@ pub fn[E] accordion_dyn(
   items : Array[AccordionItem[E]],
   expanded_index : @resource.Signal[Int],
   use_regions? : Bool,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let use_reg = use_regions.unwrap_or(items.length() <= 6)
-  let children : Array[@luna.Node[E]] = []
+  let children : Array[@luna.Node[E, String]] = []
   for i, item in items {
     let index = i // capture index
     let header_id = "accordion-header-" + item.id
@@ -415,14 +415,14 @@ pub fn accordion_interactive(
   items : Array[AccordionItem[@js.Any]],
   expanded_index : @resource.Signal[Int],
   use_regions? : Bool,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let use_reg = use_regions.unwrap_or(items.length() <= 6)
   // Build header IDs array
   let header_ids : Array[String] = []
   for item in items {
     header_ids.push("accordion-header-" + item.id)
   }
-  let children : Array[@luna.Node[@js.Any]] = []
+  let children : Array[@luna.Node[@js.Any, String]] = []
   let mut idx = 0
   while idx < items.length() {
     let item = items[idx]
@@ -444,7 +444,7 @@ pub fn accordion_interactive(
     let click_handler = @luna.handler(fn(_) { toggle() })
     // Build header
     let heading_tag = "h" + item.level.to_string()
-    let button_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let button_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("type", @luna.attr_static("button")),
       ("id", @luna.attr_static(header_id)),
       (
@@ -465,7 +465,7 @@ pub fn accordion_interactive(
     let header = @luna.h(heading_tag, [], [button])
     children.push(header)
     // Build panel
-    let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let panel_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("id", @luna.attr_static(panel_id)),
       ("aria-labelledby", @luna.attr_static(header_id)),
     ]

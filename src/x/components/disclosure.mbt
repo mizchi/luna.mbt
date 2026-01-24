@@ -29,9 +29,9 @@ pub fn[E] disclosure_button(
   controls : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     (
       "aria-expanded",
@@ -59,9 +59,9 @@ pub fn[E] disclosure_button_dyn(
   controls : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     (
       "aria-expanded",
@@ -90,9 +90,9 @@ pub fn[E] disclosure_button_computed(
   controls : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("aria-expanded", @luna.attr_dynamic(fn() { bool_to_aria(expanded()) })),
     ("aria-controls", @luna.attr_static(controls)),
@@ -119,9 +119,11 @@ pub fn[E] disclosure_button_computed(
 pub fn[E] disclosure_content(
   id : String,
   hidden : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [("id", @luna.attr_static(id))]
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
+    ("id", @luna.attr_static(id)),
+  ]
   if hidden {
     attrs.push(("hidden", @luna.attr_static("")))
   }
@@ -133,9 +135,11 @@ pub fn[E] disclosure_content(
 pub fn[E] disclosure_content_dyn(
   id : String,
   visible : @resource.Signal[Bool],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [("id", @luna.attr_static(id))]
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
+    ("id", @luna.attr_static(id)),
+  ]
   @luna.show(fn() { visible.get() }, fn() { @luna.h("div", attrs, children) })
 }
 
@@ -144,9 +148,11 @@ pub fn[E] disclosure_content_dyn(
 pub fn[E] disclosure_content_computed(
   id : String,
   visible : () -> Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [("id", @luna.attr_static(id))]
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
+    ("id", @luna.attr_static(id)),
+  ]
   @luna.show(visible, fn() { @luna.h("div", attrs, children) })
 }
 
@@ -161,9 +167,9 @@ pub fn[E] disclosure_content_computed(
 pub fn[E] disclosure(
   id : String,
   expanded : Bool,
-  button_content : Array[@luna.Node[E]],
-  panel_content : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  button_content : Array[@luna.Node[E, String]],
+  panel_content : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let button_id = id + "-button"
   let content_id = id + "-content"
   @luna.fragment([
@@ -184,9 +190,9 @@ pub fn[E] disclosure(
 pub fn[E] disclosure_dyn(
   id : String,
   expanded : @resource.Signal[Bool],
-  button_content : Array[@luna.Node[E]],
-  panel_content : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  button_content : Array[@luna.Node[E, String]],
+  panel_content : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let button_id = id + "-button"
   let content_id = id + "-content"
   @luna.fragment([

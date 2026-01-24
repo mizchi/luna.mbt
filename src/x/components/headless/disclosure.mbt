@@ -8,7 +8,7 @@
 ///|
 /// Props returned by use_disclosure for the trigger button.
 pub(all) struct DisclosureTriggerProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   toggle : () -> Unit
   is_expanded : Bool
 }
@@ -16,7 +16,7 @@ pub(all) struct DisclosureTriggerProps {
 ///|
 /// Props returned by use_disclosure for the panel.
 pub(all) struct DisclosurePanelProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   is_expanded : Bool
 }
 
@@ -33,7 +33,7 @@ pub fn use_disclosure_trigger(
   expanded : @resource.Signal[Bool],
 ) -> DisclosureTriggerProps {
   let toggle = fn() { expanded.set(not(expanded.get())) }
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(button_id)),
     (
@@ -58,7 +58,7 @@ pub fn use_disclosure_panel(
   button_id : String,
   expanded : @resource.Signal[Bool],
 ) -> DisclosurePanelProps {
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(panel_id)),
     ("aria-labelledby", @luna.attr_static(button_id)),
     (
@@ -75,7 +75,7 @@ pub fn[E] disclosure_trigger_attrs(
   button_id : String,
   panel_id : String,
   is_expanded : Bool,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(button_id)),
@@ -93,7 +93,7 @@ pub fn[E] disclosure_panel_attrs(
   panel_id : String,
   button_id : String,
   is_expanded : Bool,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   [
     ("id", @luna.attr_static(panel_id)),
     ("aria-labelledby", @luna.attr_static(button_id)),

@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/examples/wiki"
 
-import(
-  "mizchi/js/browser/dom"
-  "mizchi/js/core"
-)
+import {
+  "mizchi/js/browser/dom",
+  "mizchi/js/core",
+}
 
 // Values
 pub fn hydrate(@dom.Element, @core.Any) -> Unit

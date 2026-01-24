@@ -85,8 +85,8 @@ test "try-catch with pattern matching on error type" {
 ///|
 /// Render a node with error handling - returns error UI on failure
 fn render_with_error_boundary(
-  fetch : () -> @luna.Node[Unit] raise FetchError,
-) -> @luna.Node[Unit] {
+  fetch : () -> @luna.Node[Unit, String] raise FetchError,
+) -> @luna.Node[Unit, String] {
   fetch() catch {
     NetworkError(msg) =>
       @luna.h("div", [("class", @luna.attr_static("error network-error"))], [
@@ -145,10 +145,10 @@ test "render_with_error_boundary timeout" {
 ///|
 /// Error boundary configuration
 pub struct ErrorBoundaryConfig {
-  on_network_error : (String) -> @luna.Node[Unit]
-  on_not_found : (String) -> @luna.Node[Unit]
-  on_timeout : () -> @luna.Node[Unit]
-  on_unknown : () -> @luna.Node[Unit]
+  on_network_error : (String) -> @luna.Node[Unit, String]
+  on_not_found : (String) -> @luna.Node[Unit, String]
+  on_timeout : () -> @luna.Node[Unit, String]
+  on_unknown : () -> @luna.Node[Unit, String]
 }
 
 ///|
@@ -182,8 +182,8 @@ pub fn ErrorBoundaryConfig::default() -> ErrorBoundaryConfig {
 /// Render with configurable error boundary
 fn render_with_config(
   config : ErrorBoundaryConfig,
-  fetch : () -> @luna.Node[Unit] raise FetchError,
-) -> @luna.Node[Unit] {
+  fetch : () -> @luna.Node[Unit, String] raise FetchError,
+) -> @luna.Node[Unit, String] {
   fetch() catch {
     NetworkError(msg) => (config.on_network_error)(msg)
     NotFound(msg) => (config.on_not_found)(msg)
@@ -221,10 +221,10 @@ test "configurable error boundary" {
 /// Render based on AsyncResult state
 fn[T] render_async_result(
   result : AsyncResult[T],
-  render_ok : (T) -> @luna.Node[Unit],
-  render_loading : () -> @luna.Node[Unit],
-  render_error : (FetchError) -> @luna.Node[Unit],
-) -> @luna.Node[Unit] {
+  render_ok : (T) -> @luna.Node[Unit, String],
+  render_loading : () -> @luna.Node[Unit, String],
+  render_error : (FetchError) -> @luna.Node[Unit, String],
+) -> @luna.Node[Unit, String] {
   match result {
     Ok(value) => render_ok(value)
     Loading => render_loading()
@@ -289,7 +289,7 @@ test "render_async_result error" {
 
 ///|
 /// Chain multiple fallible operations
-fn fetch_and_transform(id : Int) -> @luna.Node[Unit] raise FetchError {
+fn fetch_and_transform(id : Int) -> @luna.Node[Unit, String] raise FetchError {
   // Simulate fetching
   if id < 0 {
     raise NotFound("Invalid ID: " + id.to_string())
@@ -378,9 +378,9 @@ test "chained operations timeout" {
 /// - Combine both: try-catch inside VAsync.render for error handling
 test "combined pattern: try-catch for sync error handling" {
   fn create_content_with_fallback(
-    fetch : () -> @luna.Node[Unit] raise FetchError,
-    fallback : @luna.Node[Unit],
-  ) -> @luna.Node[Unit] {
+    fetch : () -> @luna.Node[Unit, String] raise FetchError,
+    fallback : @luna.Node[Unit, String],
+  ) -> @luna.Node[Unit, String] {
     fetch() catch {
       _ => fallback
     }

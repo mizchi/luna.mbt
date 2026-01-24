@@ -46,13 +46,16 @@ pub fn StreamWriter::from_callback(callback : (String) -> Unit) -> StreamWriter 
 
 ///|
 /// Render a node to a stream, calling writer for each chunk
-pub fn render_to_stream(node : @luna.Node[Unit], writer : StreamWriter) -> Unit {
+pub fn render_to_stream(
+  node : @luna.Node[Unit, String],
+  writer : StreamWriter,
+) -> Unit {
   render_node_to_stream(node, writer)
 }
 
 ///|
 fn render_node_to_stream(
-  node : @luna.Node[Unit],
+  node : @luna.Node[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
   let write = writer.0
@@ -133,7 +136,7 @@ fn render_node_to_stream(
 ///|
 /// Render Island node to stream
 fn render_island_to_stream(
-  island : @luna.VIsland[Unit],
+  island : @luna.VIsland[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
   let write = writer.0
@@ -171,7 +174,7 @@ fn render_island_to_stream(
 ///|
 /// Render WcIsland node to stream (Declarative Shadow DOM)
 fn render_wc_island_to_stream(
-  wc_island : @luna.VWcIsland[Unit],
+  wc_island : @luna.VWcIsland[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
   let write = writer.0
@@ -213,7 +216,7 @@ fn render_wc_island_to_stream(
 ///|
 /// Render InternalRef node to stream (dispatches based on wc flag)
 fn render_internal_ref_to_stream(
-  iref : @luna.VInternalRef[Unit],
+  iref : @luna.VInternalRef[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
   if iref.wc {
@@ -226,7 +229,7 @@ fn render_internal_ref_to_stream(
 ///|
 /// Render InternalRef as Island to stream
 fn render_internal_ref_island_to_stream(
-  iref : @luna.VInternalRef[Unit],
+  iref : @luna.VInternalRef[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
   let write = writer.0
@@ -266,7 +269,7 @@ fn render_internal_ref_island_to_stream(
 ///|
 /// Render InternalRef as WcIsland to stream
 fn render_internal_ref_wc_to_stream(
-  iref : @luna.VInternalRef[Unit],
+  iref : @luna.VInternalRef[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
   let write = writer.0
@@ -325,7 +328,7 @@ extern "js" fn js_create_readable_stream(
 ///|
 /// Render to a ReadableStream for streaming HTTP response
 pub fn render_to_readable_stream(
-  node : @luna.Node[Unit],
+  node : @luna.Node[Unit, String],
 ) -> @streams.ReadableStream {
   js_create_readable_stream(fn(enqueue) {
     render_to_stream(node, StreamWriter(fn(chunk) { enqueue(chunk) }))
@@ -340,7 +343,7 @@ pub fn render_to_readable_stream(
 /// Collected async node for deferred resolution
 pub(all) struct AsyncBoundary {
   id : Int
-  async_node : @luna.VAsync[Unit]
+  async_node : @luna.VAsync[Unit, String]
 }
 
 ///|
@@ -349,7 +352,7 @@ pub(all) struct AsyncBoundary {
 /// - Collects async boundaries for later resolution
 /// - Returns boundaries for streaming resolution
 pub fn render_to_stream_collecting_async(
-  node : @luna.Node[Unit],
+  node : @luna.Node[Unit, String],
   writer : StreamWriter,
 ) -> Array[AsyncBoundary] {
   let boundaries : Array[AsyncBoundary] = []
@@ -360,7 +363,7 @@ pub fn render_to_stream_collecting_async(
 
 ///|
 fn render_node_collecting_async(
-  node : @luna.Node[Unit],
+  node : @luna.Node[Unit, String],
   writer : StreamWriter,
   boundaries : Array[AsyncBoundary],
   id_counter : Ref[Int],
@@ -506,7 +509,7 @@ pub fn stream_async_replacement(
 /// 1. Render shell with fallbacks (fast TTFB)
 /// 2. Resolve each async boundary and stream replacement using <template>
 pub async fn render_to_stream_with_async(
-  node : @luna.Node[Unit],
+  node : @luna.Node[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
   // 1. Render shell collecting async boundaries

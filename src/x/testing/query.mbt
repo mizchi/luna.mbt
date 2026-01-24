@@ -7,7 +7,9 @@
 
 ///|
 /// VNode から Element を取得（Element でなければ None）
-pub fn[E] get_element(node : @luna.Node[E]) -> @luna.VElement[E]? {
+pub fn[E] get_element(
+  node : @luna.Node[E, String],
+) -> @luna.VElement[E, String]? {
   match node {
     @core.Element(elem) => Some(elem)
     _ => None
@@ -16,7 +18,7 @@ pub fn[E] get_element(node : @luna.Node[E]) -> @luna.VElement[E]? {
 
 ///|
 /// VNode から Text コンテンツを取得
-pub fn[E] get_text(node : @luna.Node[E]) -> String? {
+pub fn[E] get_text(node : @luna.Node[E, String]) -> String? {
   match node {
     @core.Text(s) => Some(s)
     _ => None
@@ -25,7 +27,7 @@ pub fn[E] get_text(node : @luna.Node[E]) -> String? {
 
 ///|
 /// VNode から DynamicText の現在値を取得
-pub fn[E] get_dynamic_text(node : @luna.Node[E]) -> String? {
+pub fn[E] get_dynamic_text(node : @luna.Node[E, String]) -> String? {
   match node {
     @core.DynamicText(getter) => Some(getter())
     _ => None
@@ -34,7 +36,7 @@ pub fn[E] get_dynamic_text(node : @luna.Node[E]) -> String? {
 
 ///|
 /// VNode のタグ名を取得（Element でなければ None）
-pub fn[E] get_tag(node : @luna.Node[E]) -> String? {
+pub fn[E] get_tag(node : @luna.Node[E, String]) -> String? {
   match node {
     @core.Element(elem) => Some(elem.tag)
     _ => None
@@ -43,7 +45,7 @@ pub fn[E] get_tag(node : @luna.Node[E]) -> String? {
 
 ///|
 /// VNode の子要素数を取得
-pub fn[E] child_count(node : @luna.Node[E]) -> Int {
+pub fn[E] child_count(node : @luna.Node[E, String]) -> Int {
   match node {
     @core.Element(elem) => elem.children.length()
     @core.Fragment(children) => children.length()
@@ -53,7 +55,9 @@ pub fn[E] child_count(node : @luna.Node[E]) -> Int {
 
 ///|
 /// VNode の子要素を取得（Show/For/Component を透過的に展開）
-pub fn[E] get_children(node : @luna.Node[E]) -> Array[@luna.Node[E]] {
+pub fn[E] get_children(
+  node : @luna.Node[E, String],
+) -> Array[@luna.Node[E, String]] {
   match node {
     @core.Element(elem) => elem.children
     @core.Fragment(children) => children
@@ -70,7 +74,10 @@ pub fn[E] get_children(node : @luna.Node[E]) -> Array[@luna.Node[E]] {
 
 ///|
 /// VNode から属性を取得
-pub fn[E] get_attr(node : @luna.Node[E], name : String) -> @luna.Attr[E]? {
+pub fn[E] get_attr(
+  node : @luna.Node[E, String],
+  name : String,
+) -> @luna.Attr[E, String]? {
   match node {
     @core.Element(elem) => {
       for attr in elem.attrs {
@@ -86,7 +93,10 @@ pub fn[E] get_attr(node : @luna.Node[E], name : String) -> @luna.Attr[E]? {
 
 ///|
 /// 静的属性の値を取得
-pub fn[E] get_static_attr(node : @luna.Node[E], name : String) -> String? {
+pub fn[E] get_static_attr(
+  node : @luna.Node[E, String],
+  name : String,
+) -> String? {
   match get_attr(node, name) {
     Some(@core.VStatic(value)) => Some(value)
     _ => None
@@ -95,7 +105,10 @@ pub fn[E] get_static_attr(node : @luna.Node[E], name : String) -> String? {
 
 ///|
 /// 動的属性の現在値を取得
-pub fn[E] get_dynamic_attr(node : @luna.Node[E], name : String) -> String? {
+pub fn[E] get_dynamic_attr(
+  node : @luna.Node[E, String],
+  name : String,
+) -> String? {
   match get_attr(node, name) {
     Some(@core.VDynamic(getter)) => Some(getter())
     _ => None
@@ -104,7 +117,10 @@ pub fn[E] get_dynamic_attr(node : @luna.Node[E], name : String) -> String? {
 
 ///|
 /// 属性値を取得（静的・動的両対応）
-pub fn[E] get_attr_value(node : @luna.Node[E], name : String) -> String? {
+pub fn[E] get_attr_value(
+  node : @luna.Node[E, String],
+  name : String,
+) -> String? {
   match get_attr(node, name) {
     Some(@core.VStatic(value)) => Some(value)
     Some(@core.VDynamic(getter)) => Some(getter())
@@ -115,7 +131,7 @@ pub fn[E] get_attr_value(node : @luna.Node[E], name : String) -> String? {
 ///|
 /// イベントハンドラを取得
 pub fn[E] get_handler(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   name : String,
 ) -> @luna.EventHandler[E]? {
   match get_attr(node, name) {
@@ -126,13 +142,13 @@ pub fn[E] get_handler(
 
 ///|
 /// VNode がハンドラを持っているか確認
-pub fn[E] has_handler(node : @luna.Node[E], name : String) -> Bool {
+pub fn[E] has_handler(node : @luna.Node[E, String], name : String) -> Bool {
   get_handler(node, name) is Some(_)
 }
 
 ///|
 /// VNode の全属性名を取得
-pub fn[E] get_attr_names(node : @luna.Node[E]) -> Array[String] {
+pub fn[E] get_attr_names(node : @luna.Node[E, String]) -> Array[String] {
   match node {
     @core.Element(elem) => elem.attrs.map(fn(attr) { attr.0 })
     _ => []
@@ -145,7 +161,10 @@ pub fn[E] get_attr_names(node : @luna.Node[E]) -> Array[String] {
 
 ///|
 /// タグ名で最初の要素を検索（深さ優先）
-pub fn[E] find_by_tag(node : @luna.Node[E], tag : String) -> @luna.Node[E]? {
+pub fn[E] find_by_tag(
+  node : @luna.Node[E, String],
+  tag : String,
+) -> @luna.Node[E, String]? {
   match node {
     @core.Element(elem) => {
       if elem.tag == tag {
@@ -188,19 +207,19 @@ pub fn[E] find_by_tag(node : @luna.Node[E], tag : String) -> @luna.Node[E]? {
 ///|
 /// タグ名で全ての要素を検索（深さ優先）
 pub fn[E] find_all_by_tag(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   tag : String,
-) -> Array[@luna.Node[E]] {
-  let results : Array[@luna.Node[E]] = []
+) -> Array[@luna.Node[E, String]] {
+  let results : Array[@luna.Node[E, String]] = []
   find_all_by_tag_impl(node, tag, results)
   results
 }
 
 ///|
 fn[E] find_all_by_tag_impl(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   tag : String,
-  results : Array[@luna.Node[E]],
+  results : Array[@luna.Node[E, String]],
 ) -> Unit {
   match node {
     @core.Element(elem) => {
@@ -231,10 +250,10 @@ fn[E] find_all_by_tag_impl(
 ///|
 /// 属性値で要素を検索
 pub fn[E] find_by_attr(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   attr_name : String,
   attr_value : String,
-) -> @luna.Node[E]? {
+) -> @luna.Node[E, String]? {
   match node {
     @core.Element(elem) => {
       for attr in elem.attrs {
@@ -286,9 +305,9 @@ pub fn[E] find_by_attr(
 ///|
 /// 述語関数で要素を検索
 pub fn[E] find_by(
-  node : @luna.Node[E],
-  predicate : (@luna.Node[E]) -> Bool,
-) -> @luna.Node[E]? {
+  node : @luna.Node[E, String],
+  predicate : (@luna.Node[E, String]) -> Bool,
+) -> @luna.Node[E, String]? {
   if predicate(node) {
     return Some(node)
   }
@@ -303,19 +322,19 @@ pub fn[E] find_by(
 ///|
 /// 述語関数で全ての要素を検索
 pub fn[E] find_all_by(
-  node : @luna.Node[E],
-  predicate : (@luna.Node[E]) -> Bool,
-) -> Array[@luna.Node[E]] {
-  let results : Array[@luna.Node[E]] = []
+  node : @luna.Node[E, String],
+  predicate : (@luna.Node[E, String]) -> Bool,
+) -> Array[@luna.Node[E, String]] {
+  let results : Array[@luna.Node[E, String]] = []
   find_all_by_impl(node, predicate, results)
   results
 }
 
 ///|
 fn[E] find_all_by_impl(
-  node : @luna.Node[E],
-  predicate : (@luna.Node[E]) -> Bool,
-  results : Array[@luna.Node[E]],
+  node : @luna.Node[E, String],
+  predicate : (@luna.Node[E, String]) -> Bool,
+  results : Array[@luna.Node[E, String]],
 ) -> Unit {
   if predicate(node) {
     results.push(node)
@@ -331,14 +350,14 @@ fn[E] find_all_by_impl(
 
 ///|
 /// VNode 以下の全テキストコンテンツを取得
-pub fn[E] get_all_text(node : @luna.Node[E]) -> String {
+pub fn[E] get_all_text(node : @luna.Node[E, String]) -> String {
   let sb = StringBuilder::new()
   collect_text(node, sb)
   sb.to_string()
 }
 
 ///|
-fn[E] collect_text(node : @luna.Node[E], sb : StringBuilder) -> Unit {
+fn[E] collect_text(node : @luna.Node[E, String], sb : StringBuilder) -> Unit {
   match node {
     @core.Text(s) => sb.write_string(s)
     @core.DynamicText(getter) => sb.write_string(getter())
@@ -365,7 +384,7 @@ fn[E] collect_text(node : @luna.Node[E], sb : StringBuilder) -> Unit {
 
 ///|
 /// VNode にテキストが含まれるか確認
-pub fn[E] contains_text(node : @luna.Node[E], text : String) -> Bool {
+pub fn[E] contains_text(node : @luna.Node[E, String], text : String) -> Bool {
   get_all_text(node).contains(text)
 }
 
@@ -375,7 +394,7 @@ pub fn[E] contains_text(node : @luna.Node[E], text : String) -> Bool {
 
 ///|
 /// VNode のタイプ名を取得（デバッグ用）
-pub fn[E] node_type_name(node : @luna.Node[E]) -> String {
+pub fn[E] node_type_name(node : @luna.Node[E, String]) -> String {
   match node {
     @core.Element(_) => "Element"
     @core.Text(_) => "Text"
@@ -395,36 +414,36 @@ pub fn[E] node_type_name(node : @luna.Node[E]) -> String {
 }
 
 ///|
-pub fn[E] is_element(node : @luna.Node[E]) -> Bool {
+pub fn[E] is_element(node : @luna.Node[E, String]) -> Bool {
   node is @core.Element(_)
 }
 
 ///|
-pub fn[E] is_text(node : @luna.Node[E]) -> Bool {
+pub fn[E] is_text(node : @luna.Node[E, String]) -> Bool {
   node is @core.Text(_)
 }
 
 ///|
-pub fn[E] is_dynamic_text(node : @luna.Node[E]) -> Bool {
+pub fn[E] is_dynamic_text(node : @luna.Node[E, String]) -> Bool {
   node is @core.DynamicText(_)
 }
 
 ///|
-pub fn[E] is_fragment(node : @luna.Node[E]) -> Bool {
+pub fn[E] is_fragment(node : @luna.Node[E, String]) -> Bool {
   node is @core.Fragment(_)
 }
 
 ///|
-pub fn[E] is_show(node : @luna.Node[E]) -> Bool {
+pub fn[E] is_show(node : @luna.Node[E, String]) -> Bool {
   node is @core.Show(..)
 }
 
 ///|
-pub fn[E] is_for(node : @luna.Node[E]) -> Bool {
+pub fn[E] is_for(node : @luna.Node[E, String]) -> Bool {
   node is @core.For(..)
 }
 
 ///|
-pub fn[E] is_component(node : @luna.Node[E]) -> Bool {
+pub fn[E] is_component(node : @luna.Node[E, String]) -> Bool {
   node is @core.Component(..)
 }

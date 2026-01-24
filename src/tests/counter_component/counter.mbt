@@ -14,7 +14,7 @@ pub fn render_counter(
   count_sig : @resource.Signal[Int],
   on_inc : @luna.EventHandler[Unit],
   on_dec : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [

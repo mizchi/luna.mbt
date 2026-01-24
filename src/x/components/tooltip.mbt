@@ -25,8 +25,8 @@
 /// - children: Tooltip content
 pub fn[E] tooltip(
   id : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   @luna.h(
     "div",
     [("role", @luna.attr_static("tooltip")), ("id", @luna.attr_static(id))],
@@ -44,9 +44,9 @@ pub fn[E] tooltip(
 pub fn[E] tooltip_popup(
   id : String,
   visible : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tooltip")),
     ("id", @luna.attr_static(id)),
   ]
@@ -61,9 +61,9 @@ pub fn[E] tooltip_popup(
 pub fn[E] tooltip_dyn(
   id : String,
   visible : @resource.Signal[Bool],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tooltip")),
     ("id", @luna.attr_static(id)),
   ]
@@ -81,10 +81,10 @@ pub fn[E] tooltip_dyn(
 pub fn[E] tooltip_trigger(
   tooltip_id : String,
   tag? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let element_tag = tag.unwrap_or("button")
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("aria-describedby", @luna.attr_static(tooltip_id)),
   ]
   if element_tag == "button" {
@@ -103,10 +103,10 @@ pub fn[E] tooltip_trigger(
 /// - visible: Whether tooltip is visible
 pub fn[E] tooltip_with_trigger(
   id : String,
-  trigger_content : Array[@luna.Node[E]],
-  tooltip_content : Array[@luna.Node[E]],
+  trigger_content : Array[@luna.Node[E, String]],
+  tooltip_content : Array[@luna.Node[E, String]],
   visible : Bool,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let tooltip_id = id + "-tooltip"
   @luna.fragment([
     tooltip_trigger(tooltip_id, trigger_content),
@@ -154,9 +154,9 @@ pub fn make_tooltip_keydown_handler(
 pub fn tooltip_interactive(
   id : String,
   trigger_tag? : String,
-  trigger_content : Array[@luna.Node[@js.Any]],
-  tooltip_content : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  trigger_content : Array[@luna.Node[@js.Any, String]],
+  tooltip_content : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let visible = @resource.signal(false)
   let tooltip_id = id + "-tooltip"
   let element_tag = trigger_tag.unwrap_or("button")
@@ -164,7 +164,7 @@ pub fn tooltip_interactive(
   let hide = fn() { visible.set(false) }
   let keydown_handler = make_tooltip_keydown_handler(hide)
   // Build trigger attrs
-  let trigger_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let trigger_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(id)),
     (
       "aria-describedby",
@@ -180,7 +180,7 @@ pub fn tooltip_interactive(
     trigger_attrs.push(("type", @luna.attr_static("button")))
   }
   // Build tooltip attrs
-  let tooltip_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let tooltip_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("tooltip")),
     ("id", @luna.attr_static(tooltip_id)),
   ]

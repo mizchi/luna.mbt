@@ -1,4 +1,6 @@
-import { "mizchi/luna" as @luna }
+import {
+  "mizchi/luna" as @luna,
+}
 
 options(
   link: { "js": { "exports": [ "render" ], "format": "esm" } },

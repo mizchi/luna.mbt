@@ -12,8 +12,8 @@ pub struct SSRResult {
 ///|
 /// Render a VNode to HTML string
 /// - preload: Whether to collect preload URLs from islands (default: false)
-pub fn[E] render_to_string(
-  node : @luna.Node[E],
+pub fn[E, A : Show] render_to_string(
+  node : @luna.Node[E, A],
   preload? : Bool = false,
 ) -> SSRResult {
   let sb = StringBuilder::new(size_hint=256)
@@ -113,9 +113,9 @@ fn write_style_tag(sb : StringBuilder, styles : String) -> Unit {
 
 ///|
 /// Render a VNode to StringBuilder and collect island URLs
-fn[E] render_and_collect_urls(
+fn[E, A : Show] render_and_collect_urls(
   sb : StringBuilder,
-  node : @luna.Node[E],
+  node : @luna.Node[E, A],
   urls : Array[String],
 ) -> Unit {
   match node {
@@ -191,9 +191,9 @@ fn[E] render_and_collect_urls(
 
 ///|
 /// Render Island node and collect its URL
-fn[E] render_island_and_collect_urls(
+fn[E, A : Show] render_island_and_collect_urls(
   sb : StringBuilder,
-  island : @luna.VIsland[E],
+  island : @luna.VIsland[E, A],
   urls : Array[String],
 ) -> Unit {
   // Collect URL if not already present
@@ -209,9 +209,9 @@ fn[E] render_island_and_collect_urls(
 
 ///|
 /// Render Island wrapper opening (comment + div with attributes)
-fn[E] render_island_open_to(
+fn[E, A : Show] render_island_open_to(
   sb : StringBuilder,
-  island : @luna.VIsland[E],
+  island : @luna.VIsland[E, A],
 ) -> Unit {
   sb.write_string("<!--luna:island:")
   sb.write_string(island.id)
@@ -233,9 +233,9 @@ fn[E] render_island_open_to(
 
 ///|
 /// Render Island wrapper closing (div + comment)
-fn[E] render_island_close_to(
+fn[E, A : Show] render_island_close_to(
   sb : StringBuilder,
-  island : @luna.VIsland[E],
+  island : @luna.VIsland[E, A],
 ) -> Unit {
   sb.write_string("</div>")
   sb.write_string("<!--/luna:island:")
@@ -285,9 +285,9 @@ fn write_wc_close_tag(sb : StringBuilder, name : String) -> Unit {
 
 ///|
 /// Render WcIsland node with Declarative Shadow DOM
-fn[E] render_wc_island_to(
+fn[E, A : Show] render_wc_island_to(
   sb : StringBuilder,
-  island : @luna.VWcIsland[E],
+  island : @luna.VWcIsland[E, A],
 ) -> Unit {
   write_wc_open_tag(
     sb,
@@ -305,9 +305,9 @@ fn[E] render_wc_island_to(
 
 ///|
 /// Render WcIsland node and collect URLs (if any)
-fn[E] render_wc_island_and_collect_urls(
+fn[E, A : Show] render_wc_island_and_collect_urls(
   sb : StringBuilder,
-  island : @luna.VWcIsland[E],
+  island : @luna.VWcIsland[E, A],
   urls : Array[String],
 ) -> Unit {
   if island.url.length() > 0 && not(urls.contains(island.url)) {
@@ -329,9 +329,9 @@ fn[E] render_wc_island_and_collect_urls(
 
 ///|
 /// Render WcIsland node with hydration markers
-fn[E] render_wc_island_with_id_to(
+fn[E, A : Show] render_wc_island_with_id_to(
   sb : StringBuilder,
-  island : @luna.VWcIsland[E],
+  island : @luna.VWcIsland[E, A],
   id_counter : Ref[Int],
 ) -> Unit {
   let id = id_counter.val
@@ -360,9 +360,9 @@ fn[E] render_wc_island_with_id_to(
 
 ///|
 /// Render InternalRef node (dispatches to Island or WcIsland based on wc flag)
-fn[E] render_internal_ref_to(
+fn[E, A : Show] render_internal_ref_to(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
 ) -> Unit {
   if iref.wc {
     render_internal_ref_wc_to(sb, iref)
@@ -373,9 +373,9 @@ fn[E] render_internal_ref_to(
 
 ///|
 /// Render InternalRef as regular Island
-fn[E] render_internal_ref_island_to(
+fn[E, A : Show] render_internal_ref_island_to(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
 ) -> Unit {
   // Generate a unique ID from URL (simplified - in real usage, generate proper ID)
   let id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
@@ -406,9 +406,9 @@ fn[E] render_internal_ref_island_to(
 
 ///|
 /// Render InternalRef as WcIsland (Web Components)
-fn[E] render_internal_ref_wc_to(
+fn[E, A : Show] render_internal_ref_wc_to(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
 ) -> Unit {
   let name = extract_wc_name_from_url(iref.url)
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
@@ -420,9 +420,9 @@ fn[E] render_internal_ref_wc_to(
 
 ///|
 /// Render InternalRef and collect URLs
-fn[E] render_internal_ref_and_collect_urls(
+fn[E, A : Show] render_internal_ref_and_collect_urls(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
   urls : Array[String],
 ) -> Unit {
   // Collect URL if not already present
@@ -438,9 +438,9 @@ fn[E] render_internal_ref_and_collect_urls(
 
 ///|
 /// Render InternalRef as Island and collect URLs
-fn[E] render_internal_ref_island_and_collect_urls(
+fn[E, A : Show] render_internal_ref_island_and_collect_urls(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
   urls : Array[String],
 ) -> Unit {
   let id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
@@ -471,9 +471,9 @@ fn[E] render_internal_ref_island_and_collect_urls(
 
 ///|
 /// Render InternalRef as WcIsland and collect URLs
-fn[E] render_internal_ref_wc_and_collect_urls(
+fn[E, A : Show] render_internal_ref_wc_and_collect_urls(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
   urls : Array[String],
 ) -> Unit {
   let name = extract_wc_name_from_url(iref.url)
@@ -486,9 +486,9 @@ fn[E] render_internal_ref_wc_and_collect_urls(
 
 ///|
 /// Render InternalRef with hydration markers
-fn[E] render_internal_ref_with_id_to(
+fn[E, A : Show] render_internal_ref_with_id_to(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
   id_counter : Ref[Int],
 ) -> Unit {
   if iref.wc {
@@ -500,9 +500,9 @@ fn[E] render_internal_ref_with_id_to(
 
 ///|
 /// Render InternalRef as Island with hydration markers
-fn[E] render_internal_ref_island_with_id_to(
+fn[E, A : Show] render_internal_ref_island_with_id_to(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
   id_counter : Ref[Int],
 ) -> Unit {
   let id = id_counter.val
@@ -539,9 +539,9 @@ fn[E] render_internal_ref_island_with_id_to(
 
 ///|
 /// Render InternalRef as WcIsland with hydration markers
-fn[E] render_internal_ref_wc_with_id_to(
+fn[E, A : Show] render_internal_ref_wc_with_id_to(
   sb : StringBuilder,
-  iref : @luna.VInternalRef[E],
+  iref : @luna.VInternalRef[E, A],
   id_counter : Ref[Int],
 ) -> Unit {
   let id = id_counter.val
@@ -560,15 +560,15 @@ fn[E] render_internal_ref_wc_with_id_to(
 
 ///|
 /// Render attributes to StringBuilder
-pub fn[E] render_attrs_to(
+pub fn[E, A : Show] render_attrs_to(
   sb : StringBuilder,
-  attrs : Array[(String, @luna.Attr[E])],
+  attrs : Array[(String, @luna.Attr[E, A])],
 ) -> Unit {
   for attr in attrs {
     let (name, value) = attr
     match value {
-      VStatic(s) => render_attr_value(sb, name, s)
-      VDynamic(getter) => render_attr_value(sb, name, getter())
+      VStatic(s) => render_attr_value(sb, name, s.to_string())
+      VDynamic(getter) => render_attr_value(sb, name, getter().to_string())
       VHandler(_) => () // Event handlers are not rendered in SSR
       VAction(action_name) => {
         // Render action as data-action attribute for hydration
@@ -612,7 +612,10 @@ pub fn render_attr_value(sb : StringBuilder, name : String, s : String) -> Unit 
 
 ///|
 /// Render a VNode to StringBuilder
-fn[E] render_to_sb(sb : StringBuilder, node : @luna.Node[E]) -> Unit {
+fn[E, A : Show] render_to_sb(
+  sb : StringBuilder,
+  node : @luna.Node[E, A],
+) -> Unit {
   match node {
     Text(content) => escape_html_to(sb, content)
     DynamicText(getter) => escape_html_to(sb, getter())
@@ -684,7 +687,10 @@ fn[E] render_to_sb(sb : StringBuilder, node : @luna.Node[E]) -> Unit {
 
 ///|
 /// Render Island node with luna:* attributes for hydration
-fn[E] render_island_to(sb : StringBuilder, island : @luna.VIsland[E]) -> Unit {
+fn[E, A : Show] render_island_to(
+  sb : StringBuilder,
+  island : @luna.VIsland[E, A],
+) -> Unit {
   render_island_open_to(sb, island)
   for child in island.children {
     render_to_sb(sb, child)
@@ -694,7 +700,9 @@ fn[E] render_island_to(sb : StringBuilder, island : @luna.VIsland[E]) -> Unit {
 
 ///|
 /// Render with data-ssr-id markers for hydration
-pub fn[E] render_to_string_with_hydration(node : @luna.Node[E]) -> String {
+pub fn[E, A : Show] render_to_string_with_hydration(
+  node : @luna.Node[E, A],
+) -> String {
   let sb = StringBuilder::new(size_hint=256)
   let id_counter = Ref::new(0)
   render_with_id_to(sb, node, id_counter)
@@ -703,9 +711,9 @@ pub fn[E] render_to_string_with_hydration(node : @luna.Node[E]) -> String {
 
 ///|
 /// Internal: Render with hydration markers to StringBuilder
-fn[E] render_with_id_to(
+fn[E, A : Show] render_with_id_to(
   sb : StringBuilder,
-  node : @luna.Node[E],
+  node : @luna.Node[E, A],
   id_counter : Ref[Int],
 ) -> Unit {
   match node {
@@ -832,9 +840,9 @@ fn[E] render_with_id_to(
 
 ///|
 /// Render Island node with luna:* attributes and hydration markers
-fn[E] render_island_with_id_to(
+fn[E, A : Show] render_island_with_id_to(
   sb : StringBuilder,
-  island : @luna.VIsland[E],
+  island : @luna.VIsland[E, A],
   id_counter : Ref[Int],
 ) -> Unit {
   render_island_open_to(sb, island)
@@ -846,7 +854,9 @@ fn[E] render_island_with_id_to(
 
 ///|
 /// Check if element has dynamic content that needs hydration
-fn[E] has_dynamic_content(attrs : Array[(String, @luna.Attr[E])]) -> Bool {
+fn[E, A : Show] has_dynamic_content(
+  attrs : Array[(String, @luna.Attr[E, A])],
+) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {

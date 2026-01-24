@@ -26,3 +26,6 @@ tmp/
 
 # Local settings
 .claude/settings.local.json
+
+# TypeScript build info
+*.tsbuildinfo

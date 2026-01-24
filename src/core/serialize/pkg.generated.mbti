@@ -1,14 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/serialize"
+package "mizchi/luna/core/serialize"
 
-import(
-  "mizchi/luna/signal"
-)
+import {
+  "mizchi/signals",
+}
 
 // Values
 pub fn bool_to_state_value(Bool) -> StateValue
 
-pub fn[T : Serializable] create_resumable_signal(ResumableState, T) -> (@signal.Signal[T], Int)
+pub fn[T : Serializable] create_resumable_signal(ResumableState, T) -> (@signals.Signal[T], Int)
 
 pub fn double_to_state_value(Double) -> StateValue
 
@@ -20,11 +20,11 @@ pub fn int_to_state_value(Int) -> StateValue
 
 pub fn parse_state_from_html(String) -> ResumableState?
 
-pub fn[T : Serializable] register_signal(ResumableState, @signal.Signal[T]) -> Int
+pub fn[T : Serializable] register_signal(ResumableState, @signals.Signal[T]) -> Int
 
-pub fn[T : Serializable] restore_signal(ResumableState, @signal.Signal[T], Int) -> Bool
+pub fn[T : Serializable] restore_signal(ResumableState, @signals.Signal[T], Int) -> Bool
 
-pub fn[T : Serializable] resume_signal(ResumableState, Int, T) -> @signal.Signal[T]
+pub fn[T : Serializable] resume_signal(ResumableState, Int, T) -> @signals.Signal[T]
 
 pub fn state_endpoint_tag(String, String, String) -> String
 

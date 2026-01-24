@@ -40,7 +40,7 @@ pub fn hydrate(el : @js_dom.Element, state : @js.Any) -> Unit {
   })
 
   // Build counter VNode for browser (with @js.Any event type)
-  let vnode : @luna.Node[@js.Any] = @luna.h(
+  let vnode : @luna.Node[@js.Any, String] = @luna.h(
     "div",
     [
       ("class", @luna.attr_static("counter")),

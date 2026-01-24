@@ -30,7 +30,7 @@ pub(all) enum TabsOrientation {
 pub(all) struct TabItem[E] {
   id : String // Unique tab ID
   label : String // Tab label text
-  panel : Array[@luna.Node[E]] // Panel content
+  panel : Array[@luna.Node[E, String]] // Panel content
 }
 
 ///|
@@ -38,7 +38,7 @@ pub(all) struct TabItem[E] {
 pub fn[E] tab_item(
   id : String,
   label : String,
-  panel : Array[@luna.Node[E]],
+  panel : Array[@luna.Node[E, String]],
 ) -> TabItem[E] {
   { id, label, panel }
 }
@@ -53,9 +53,9 @@ pub fn[E] tab_item(
 pub fn[E] tablist(
   aria_label? : String,
   orientation? : TabsOrientation,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tablist")),
   ]
   if aria_label is Some(label) {
@@ -83,9 +83,9 @@ pub fn[E] tab(
   controls : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tab")),
     ("id", @luna.attr_static(id)),
     (
@@ -112,9 +112,9 @@ pub fn[E] tab_dyn(
   controls : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tab")),
     ("id", @luna.attr_static(id)),
     (
@@ -148,9 +148,9 @@ pub fn[E] tabpanel(
   id : String,
   labelledby : String,
   hidden : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tabpanel")),
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
@@ -168,9 +168,9 @@ pub fn[E] tabpanel_dyn(
   id : String,
   labelledby : String,
   visible : @resource.Signal[Bool],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tabpanel")),
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
@@ -189,9 +189,9 @@ pub fn[E] tab_computed(
   controls : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tab")),
     ("id", @luna.attr_static(id)),
     ("aria-selected", @luna.attr_dynamic(fn() { bool_to_aria(selected()) })),
@@ -217,9 +217,9 @@ pub fn[E] tabpanel_computed(
   id : String,
   labelledby : String,
   visible : () -> Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("tabpanel")),
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelledby)),
@@ -246,9 +246,9 @@ pub fn[E] tabs(
   selected_index : Int,
   aria_label? : String,
   orientation? : TabsOrientation,
-) -> @luna.Node[E] {
-  let tab_buttons : Array[@luna.Node[E]] = []
-  let panels : Array[@luna.Node[E]] = []
+) -> @luna.Node[E, String] {
+  let tab_buttons : Array[@luna.Node[E, String]] = []
+  let panels : Array[@luna.Node[E, String]] = []
   for i, item in items {
     let is_selected = i == selected_index
     let tab_id = "tab-" + item.id
@@ -259,7 +259,7 @@ pub fn[E] tabs(
     panels.push(tabpanel(panel_id, tab_id, not(is_selected), item.panel))
   }
   let list = tablist(aria_label?, orientation?, tab_buttons)
-  let children : Array[@luna.Node[E]] = [list]
+  let children : Array[@luna.Node[E, String]] = [list]
   for p in panels {
     children.push(p)
   }
@@ -280,9 +280,9 @@ pub fn[E] tabs_dyn(
   selected_index : @resource.Signal[Int],
   aria_label? : String,
   orientation? : TabsOrientation,
-) -> @luna.Node[E] {
-  let tab_buttons : Array[@luna.Node[E]] = []
-  let panels : Array[@luna.Node[E]] = []
+) -> @luna.Node[E, String] {
+  let tab_buttons : Array[@luna.Node[E, String]] = []
+  let panels : Array[@luna.Node[E, String]] = []
   for i, item in items {
     let index = i // capture index
     let tab_id = "tab-" + item.id
@@ -306,7 +306,7 @@ pub fn[E] tabs_dyn(
     )
   }
   let list = tablist(aria_label?, orientation?, tab_buttons)
-  let children : Array[@luna.Node[E]] = [list]
+  let children : Array[@luna.Node[E, String]] = [list]
   for p in panels {
     children.push(p)
   }
@@ -327,7 +327,7 @@ pub fn tabs_interactive(
   selected_index : @resource.Signal[Int],
   aria_label? : String,
   orientation? : TabsOrientation,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let is_vertical = match orientation {
     Some(Vertical) => true
     _ => false
@@ -342,8 +342,8 @@ pub fn tabs_interactive(
       selected_index.set(i)
     })
   }
-  let tab_buttons : Array[@luna.Node[@js.Any]] = []
-  let panels : Array[@luna.Node[@js.Any]] = []
+  let tab_buttons : Array[@luna.Node[@js.Any, String]] = []
+  let panels : Array[@luna.Node[@js.Any, String]] = []
   for i, item in items {
     let index = i // capture index
     let tab_id = "tab-" + item.id
@@ -368,7 +368,7 @@ pub fn tabs_interactive(
     )
   }
   let list = tablist(aria_label?, orientation?, tab_buttons)
-  let children : Array[@luna.Node[@js.Any]] = [list]
+  let children : Array[@luna.Node[@js.Any, String]] = [list]
   for p in panels {
     children.push(p)
   }

@@ -2,37 +2,37 @@
 
 ///|
 test "get_element returns Element" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
   assert_true(get_element(node) is Some(_))
 }
 
 ///|
 test "get_element returns None for Text" {
-  let node : @luna.Node[Unit] = @luna.text("hello")
+  let node : @luna.Node[Unit, String] = @luna.text("hello")
   assert_true(get_element(node) is None)
 }
 
 ///|
 test "get_text returns text content" {
-  let node : @luna.Node[Unit] = @luna.text("hello")
+  let node : @luna.Node[Unit, String] = @luna.text("hello")
   assert_eq(get_text(node), Some("hello"))
 }
 
 ///|
 test "get_dynamic_text returns current value" {
-  let node : @luna.Node[Unit] = @luna.text_dyn(fn() { "dynamic" })
+  let node : @luna.Node[Unit, String] = @luna.text_dyn(fn() { "dynamic" })
   assert_eq(get_dynamic_text(node), Some("dynamic"))
 }
 
 ///|
 test "get_tag returns tag name" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
   assert_eq(get_tag(node), Some("div"))
 }
 
 ///|
 test "child_count returns children count" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.text("a"),
     @luna.text("b"),
     @luna.text("c"),
@@ -42,7 +42,7 @@ test "child_count returns children count" {
 
 ///|
 test "get_children returns children array" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.text("a"),
     @luna.text("b"),
   ])
@@ -51,7 +51,7 @@ test "get_children returns children array" {
 
 ///|
 test "get_static_attr returns static attribute value" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("class", @luna.attr_static("container"))],
     [],
@@ -62,7 +62,7 @@ test "get_static_attr returns static attribute value" {
 ///|
 test "get_dynamic_attr returns current value" {
   let sig = @resource.signal("initial")
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "input",
     [("value", @luna.attr_dynamic(fn() { sig.get() }))],
     [],
@@ -74,7 +74,7 @@ test "get_dynamic_attr returns current value" {
 
 ///|
 test "has_handler returns true for handler" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "button",
     [("onclick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
     [],
@@ -84,7 +84,7 @@ test "has_handler returns true for handler" {
 
 ///|
 test "find_by_tag finds element" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.h("span", [], []),
     @luna.h("button", [], [@luna.text("Click")]),
   ])
@@ -93,7 +93,7 @@ test "find_by_tag finds element" {
 
 ///|
 test "find_all_by_tag finds all elements" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.h("span", [], []),
     @luna.h("div", [], [@luna.h("span", [], [])]),
     @luna.h("span", [], []),
@@ -104,7 +104,7 @@ test "find_all_by_tag finds all elements" {
 
 ///|
 test "find_by_attr finds element with attribute" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.h("input", [("type", @luna.attr_static("text"))], []),
     @luna.h("input", [("type", @luna.attr_static("submit"))], []),
   ])
@@ -114,7 +114,7 @@ test "find_by_attr finds element with attribute" {
 
 ///|
 test "get_all_text collects all text" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.text("Hello "),
     @luna.h("span", [], [@luna.text("World")]),
   ])
@@ -123,7 +123,9 @@ test "get_all_text collects all text" {
 
 ///|
 test "contains_text returns true when text exists" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Hello World")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
+    @luna.text("Hello World"),
+  ])
   assert_true(contains_text(node, "Hello"))
   assert_true(contains_text(node, "World"))
   assert_false(contains_text(node, "Foo"))
@@ -131,10 +133,10 @@ test "contains_text returns true when text exists" {
 
 ///|
 test "node_type_name returns correct type" {
-  let div : @luna.Node[Unit] = @luna.h("div", [], [])
-  let txt : @luna.Node[Unit] = @luna.text("hello")
-  let dyn_node : @luna.Node[Unit] = @luna.text_dyn(fn() { "x" })
-  let frag : @luna.Node[Unit] = @luna.fragment([])
+  let div : @luna.Node[Unit, String] = @luna.h("div", [], [])
+  let txt : @luna.Node[Unit, String] = @luna.text("hello")
+  let dyn_node : @luna.Node[Unit, String] = @luna.text_dyn(fn() { "x" })
+  let frag : @luna.Node[Unit, String] = @luna.fragment([])
   assert_eq(node_type_name(div), "Element")
   assert_eq(node_type_name(txt), "Text")
   assert_eq(node_type_name(dyn_node), "DynamicText")
@@ -143,15 +145,15 @@ test "node_type_name returns correct type" {
 
 ///|
 test "is_element returns true for Element" {
-  let div : @luna.Node[Unit] = @luna.h("div", [], [])
-  let txt : @luna.Node[Unit] = @luna.text("hello")
+  let div : @luna.Node[Unit, String] = @luna.h("div", [], [])
+  let txt : @luna.Node[Unit, String] = @luna.text("hello")
   assert_true(is_element(div))
   assert_false(is_element(txt))
 }
 
 ///|
 test "find_by_tag searches through Show" {
-  let node : @luna.Node[Unit] = @luna.show(fn() { true }, fn() {
+  let node : @luna.Node[Unit, String] = @luna.show(fn() { true }, fn() {
     @luna.h("button", [], [@luna.text("Click")])
   })
   assert_true(find_by_tag(node, "button") is Some(_))
@@ -160,7 +162,7 @@ test "find_by_tag searches through Show" {
 ///|
 test "find_by_tag respects Show condition" {
   let visible = @resource.signal(false)
-  let node : @luna.Node[Unit] = @luna.show(fn() { visible.get() }, fn() {
+  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible.get() }, fn() {
     @luna.h("button", [], [])
   })
   assert_true(find_by_tag(node, "button") is None)
@@ -171,7 +173,7 @@ test "find_by_tag respects Show condition" {
 ///|
 test "get_all_text handles For" {
   let items = @resource.signal(["A", "B", "C"])
-  let node : @luna.Node[Unit] = @luna.for_each(fn() {
+  let node : @luna.Node[Unit, String] = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.text(item) })
   })
   assert_eq(get_all_text(node), "ABC")

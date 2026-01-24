@@ -49,11 +49,11 @@ pub fn[E] slider(
   aria_labelledby? : String,
   aria_valuetext? : String,
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("slider")),
     ("tabindex", @luna.attr_static("0")),
     ("aria-valuenow", @luna.attr_static(value.to_string())),
@@ -91,11 +91,11 @@ pub fn[E] slider_dyn(
   aria_label? : String,
   aria_valuetext_fn? : (Double) -> String,
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("slider")),
     ("tabindex", @luna.attr_static("0")),
     ("aria-valuenow", @luna.attr_dynamic(fn() { value.get().to_string() })),
@@ -129,11 +129,11 @@ pub fn[E] slider_native(
   step? : Double,
   aria_label? : String,
   id? : String,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
   let input_id = id.unwrap_or("slider-" + name)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("range")),
     ("name", @luna.attr_static(name)),
     ("id", @luna.attr_static(input_id)),
@@ -174,8 +174,8 @@ pub fn slider_interactive(
   orientation? : SliderOrientation,
   aria_label? : String,
   aria_valuetext_fn? : (Double) -> String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
   let step_val = step.unwrap_or(1.0)
@@ -192,7 +192,7 @@ pub fn slider_interactive(
   ) {
     value.set(v)
   })
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("slider")),
     ("tabindex", @luna.attr_static("0")),
     ("aria-valuenow", @luna.attr_dynamic(fn() { value.get().to_string() })),

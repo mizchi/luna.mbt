@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/x/components/styled/alert"
+
+// Values
+pub fn alert(AlertVariant, title? : String, description? : String, class? : String, children? : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any]
+
+pub fn alert_css() -> String
+
+pub fn alert_slots() -> AlertSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct AlertSlots {
+  root : String
+  title : String
+  description : String
+}
+
+pub(all) enum AlertVariant {
+  Error
+  Warning
+  Success
+  Status
+}
+
+// Type aliases
+
+// Traits
+

@@ -292,7 +292,7 @@ let max_hydration_nodes : Int = 50
 
 ///|
 /// Count total nodes in a VNode tree
-fn count_vnode_nodes(node : @luna.Node[@js.Any]) -> Int {
+fn count_vnode_nodes(node : @luna.Node[@js.Any, String]) -> Int {
   match node {
     @core.Text(_) => 1
     @core.DynamicText(_) => 1
@@ -377,7 +377,7 @@ fn count_dom_nodes(node : @js_dom.Node) -> Int {
 /// Check if heuristics suggest fallback to full render
 fn should_fallback_to_full_render(
   container : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
 ) -> Bool {
   let vnode_count = count_vnode_nodes(node)
 
@@ -522,7 +522,7 @@ fn extract_event_name(name : String) -> String {
 fn apply_vattr(
   elem : @js_dom.Element,
   name : String,
-  value : @luna.Attr[@js.Any],
+  value : @luna.Attr[@js.Any, String],
 ) -> Unit {
   match value {
     @core.VStatic(s) =>
@@ -579,7 +579,7 @@ fn apply_vattr(
 /// - Repair text content differences
 pub fn experimental_hydrate(
   container : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   logger? : StringBuilder,
 ) -> ExperimentalHydrationResult {
   // Build hk_cache once for O(1) lookups
@@ -624,7 +624,7 @@ pub enum SmartHydrateResult {
 /// Returns SmartHydrateResult indicating the strategy used.
 pub fn smart_hydrate(
   container : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   logger? : StringBuilder,
 ) -> SmartHydrateResult {
   // Check heuristics first
@@ -676,7 +676,7 @@ pub fn smart_hydrate(
 /// Returns a detailed report including repair types, node paths, and expected/actual values.
 pub fn experimental_hydrate_with_report(
   container : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   logger? : StringBuilder,
 ) -> ExperimentalHydrationReport {
   let hk_cache = build_hk_cache(container)
@@ -704,7 +704,7 @@ pub fn experimental_hydrate_with_report(
 /// Internal: Hydrate a single node with repair capability
 fn experimental_hydrate_node(
   parent : @js_dom.Node,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   ctx : ExperimentalHydrationContext,
 ) -> Unit {
   match node {
@@ -913,7 +913,7 @@ fn experimental_hydrate_dynamic_text(
 /// Hydrate an element, repairing structure if needed
 fn experimental_hydrate_element(
   parent : @js_dom.Node,
-  elem : @luna.VElement[@js.Any],
+  elem : @luna.VElement[@js.Any, String],
   ctx : ExperimentalHydrationContext,
 ) -> Unit {
   ctx.path_stack.push(elem.tag)
@@ -1006,7 +1006,7 @@ fn experimental_hydrate_element(
 ///|
 /// Create a DOM element from VElement
 fn create_element_from_velem(
-  elem : @luna.VElement[@js.Any],
+  elem : @luna.VElement[@js.Any, String],
   hk_id : Int,
 ) -> @js_dom.Element {
   let doc = @js_dom.document()
@@ -1035,7 +1035,7 @@ fn create_element_from_velem(
 /// Repair element attributes to match expected VDOM
 fn repair_attributes(
   elem : @js_dom.Element,
-  attrs : Array[(String, @luna.Attr[@js.Any])],
+  attrs : Array[(String, @luna.Attr[@js.Any, String])],
   ctx : ExperimentalHydrationContext,
 ) -> Unit {
   for attr in attrs {
@@ -1108,7 +1108,7 @@ fn experimental_hydrate_show(
   parent : @js_dom.Node,
   id : Int,
   cond : () -> Bool,
-  child_fn : () -> @luna.Node[@js.Any],
+  child_fn : () -> @luna.Node[@js.Any, String],
   ctx : ExperimentalHydrationContext,
 ) -> Unit {
   ctx.path_stack.push("#show:" + id.to_string())
@@ -1214,7 +1214,7 @@ fn experimental_hydrate_show(
 fn experimental_hydrate_for(
   parent : @js_dom.Node,
   id : Int,
-  render_fn : () -> Array[@luna.Node[@js.Any]],
+  render_fn : () -> Array[@luna.Node[@js.Any, String]],
   ctx : ExperimentalHydrationContext,
 ) -> Unit {
   ctx.path_stack.push("#for:" + id.to_string())
@@ -1379,7 +1379,7 @@ pub fn hydration_failed(message : String) -> ExperimentalHydrationResult {
 /// Convenience function: Try regular hydration first, fall back to experimental
 pub fn hydrate_with_fallback(
   container : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   logger? : StringBuilder,
 ) -> @client.HydrationResult {
   // First try regular hydration

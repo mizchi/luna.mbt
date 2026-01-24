@@ -8,7 +8,7 @@ enum TestAction {
 
 ///|
 test "render_to_stream_collecting_async collects boundaries" {
-  let node : @luna.Node[Unit] = @luna.fragment([
+  let node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.h("div", [], [@luna.text("Header")]),
     @luna.async_(
       render=async fn() { @luna.h("div", [], [@luna.text("Async 1")]) },
@@ -41,7 +41,9 @@ test "render_to_stream_collecting_async collects boundaries" {
 
 ///|
 test "render_to_stream no async returns empty boundaries" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Simple")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
+    @luna.text("Simple"),
+  ])
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
   let boundaries = render_to_stream_collecting_async(node, writer)
@@ -54,7 +56,7 @@ test "render_to_stream no async returns empty boundaries" {
 
 ///|
 test "render_to_stream nested async" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.async_(
       render=async fn() { @luna.h("span", [], [@luna.text("Loaded")]) },
       fallback=fn() { @luna.h("span", [], [@luna.text("Loading...")]) },
@@ -75,7 +77,7 @@ test "render_to_stream nested async" {
 
 ///|
 test "render error_boundary children when no error" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Success")]) },
     fallback=fn(_err, _reset) { @luna.h("div", [], [@luna.text("Error!")]) },
   )
@@ -85,7 +87,7 @@ test "render error_boundary children when no error" {
 
 ///|
 test "render error_boundary with nested content" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       @luna.h("div", [("class", @luna.attr_static("container"))], [
         @luna.h("h1", [], [@luna.text("Title")]),
@@ -102,7 +104,7 @@ test "render error_boundary with nested content" {
 ///|
 test "render error_boundary with dynamic content" {
   let count = 42
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       @luna.h("div", [], [
         @luna.text_dyn(fn() { "Count: " + count.to_string() }),
@@ -117,7 +119,7 @@ test "render error_boundary with dynamic content" {
 ///|
 test "render error_boundary with show" {
   let visible = true
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       @luna.show(fn() { visible }, fn() { @luna.text("Visible!") })
     },
@@ -130,7 +132,7 @@ test "render error_boundary with show" {
 ///|
 test "render error_boundary with for" {
   let items = ["A", "B", "C"]
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       @luna.for_each(fn() {
         items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
@@ -144,7 +146,7 @@ test "render error_boundary with for" {
 
 ///|
 test "render error_boundary with hydration markers" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Content")]) },
     fallback=fn(_err, _reset) { @luna.text("Error") },
   )
@@ -157,7 +159,7 @@ test "render error_boundary with hydration markers" {
 
 ///|
 test "render nested error_boundaries" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       @luna.h("div", [], [
         @luna.error_boundary(children=fn() { @luna.text("Inner content") }, fallback=fn(
@@ -176,7 +178,7 @@ test "render nested error_boundaries" {
 
 ///|
 test "render error_boundary in island" {
-  let node : @luna.Node[Unit] = @luna.island(
+  let node : @luna.Node[Unit, String] = @luna.island(
     "eb-island-1",
     "/components/test.js",
     "{}",
@@ -196,7 +198,7 @@ test "render error_boundary in island" {
 
 ///|
 test "stream render error_boundary children when no error" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Stream Success")]) },
     fallback=fn(_err, _reset) { @luna.text("Error") },
   )
@@ -209,7 +211,7 @@ test "stream render error_boundary children when no error" {
 
 ///|
 test "stream render error_boundary with async boundaries" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       @luna.fragment([
         @luna.h("div", [], [@luna.text("Header")]),
@@ -235,7 +237,7 @@ test "stream render error_boundary with async boundaries" {
 
 ///|
 test "render_to_string preload=false" {
-  let node : @luna.Node[Unit] = @luna.island(
+  let node : @luna.Node[Unit, String] = @luna.island(
     "island-1",
     "/components/a.js",
     "{}",
@@ -249,7 +251,7 @@ test "render_to_string preload=false" {
 
 ///|
 test "render action attribute" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "button",
     [("onclick", @luna.action(Increment))],
     [@luna.text("Click")],
@@ -261,7 +263,7 @@ test "render action attribute" {
 
 ///|
 test "render action attribute with enum" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "button",
     [("onclick", @luna.action(DoSomething))],
     [@luna.text("Click")],
@@ -273,7 +275,7 @@ test "render action attribute with enum" {
 
 ///|
 test "render __remove__ attribute" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [
       ("class", @luna.attr_static("visible")),
@@ -288,7 +290,7 @@ test "render __remove__ attribute" {
 
 ///|
 test "render switch first case matches" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
@@ -301,7 +303,7 @@ test "render switch first case matches" {
 
 ///|
 test "render switch second case matches" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
@@ -314,7 +316,7 @@ test "render switch second case matches" {
 
 ///|
 test "render switch fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Second") }),
@@ -327,7 +329,7 @@ test "render switch fallback" {
 
 ///|
 test "render switch no fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(cases=[
+  let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("First") }),
   ])
   let html = @render.render_to_string(node).html
@@ -336,7 +338,7 @@ test "render switch no fallback" {
 
 ///|
 test "render switch with preloads" {
-  let node : @luna.Node[Unit] = @luna.switch_(cases=[
+  let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { true }, render=fn() {
       @luna.island("sw-island", "/sw.js", "{}", [@luna.text("Island")])
     }),
@@ -348,7 +350,7 @@ test "render switch with preloads" {
 
 ///|
 test "render switch with hydration markers case match" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Matched") }),
     ],
@@ -362,7 +364,7 @@ test "render switch with hydration markers case match" {
 
 ///|
 test "render switch with hydration markers fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
@@ -376,7 +378,7 @@ test "render switch with hydration markers fallback" {
 
 ///|
 test "render switch with hydration markers no fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(cases=[
+  let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let html = @render.render_to_string_with_hydration(node)
@@ -387,7 +389,7 @@ test "render switch with hydration markers no fallback" {
 
 ///|
 test "stream render switch first case" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() {
         @luna.text("Stream First")
@@ -404,7 +406,7 @@ test "stream render switch first case" {
 
 ///|
 test "stream render switch fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
@@ -419,7 +421,7 @@ test "stream render switch fallback" {
 
 ///|
 test "stream render switch no fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(cases=[
+  let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let chunks : Array[String] = []
@@ -431,7 +433,7 @@ test "stream render switch no fallback" {
 
 ///|
 test "stream render collecting async switch" {
-  let node : @luna.Node[Unit] = @luna.switch_(cases=[
+  let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { true }, render=fn() {
       @luna.async_(render=async fn() { @luna.text("Loaded") }, fallback=fn() {
         @luna.text("Loading...")
@@ -449,7 +451,7 @@ test "stream render collecting async switch" {
 ///|
 test "render_to_string returns SSRResult with html field" {
   // Test that render_to_string returns SSRResult
-  let node : @luna.Node[Unit] = @luna.text("Hello")
+  let node : @luna.Node[Unit, String] = @luna.text("Hello")
   let result = @render.render_to_string(node)
   assert_eq(result.html, "Hello")
   assert_eq(result.preload_urls.length(), 0)
@@ -472,7 +474,7 @@ test "stream_async_replacement" {
 ///|
 test "escape_attr with special characters" {
   // Test less-than and greater-than in attributes (should pass through)
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("data-expr", @luna.attr_static("a < b"))],
     [],

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/stella/component"
+package "mizchi/luna/x/stella/component"
 
-import(
-  "mizchi/js/core"
-)
+import {
+  "mizchi/js/core",
+}
 
 // Values
 pub fn attr_bool(String, default? : Bool) -> AttrDef

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/render"
+package "mizchi/luna/core/render"
 
-import(
-  "mizchi/luna"
-)
+import {
+  "mizchi/luna/core",
+}
 
 // Values
 pub fn component(String, Json, RenderMode, Array[AbstractNode], client_url? : String?, use_web_component? : Bool) -> AbstractNode
@@ -40,15 +40,15 @@ pub fn raw_html(String) -> AbstractNode
 
 pub fn render_attr_value(StringBuilder, String, String) -> Unit
 
-pub fn[E] render_attrs_to(StringBuilder, Array[(String, @luna.Attr[E])]) -> Unit
+pub fn[E] render_attrs_to(StringBuilder, Array[(String, @core.Attr[E])]) -> Unit
 
-pub fn[E] render_to_string(@luna.Node[E], preload? : Bool) -> SSRResult
+pub fn[E] render_to_string(@core.Node[E], preload? : Bool) -> SSRResult
 
-pub fn[E] render_to_string_with_hydration(@luna.Node[E]) -> String
+pub fn[E] render_to_string_with_hydration(@core.Node[E]) -> String
 
 pub fn text(String) -> AbstractNode
 
-pub fn[E] to_abstract(@luna.Node[E]) -> AbstractNode
+pub fn[E] to_abstract(@core.Node[E]) -> AbstractNode
 
 // Errors
 

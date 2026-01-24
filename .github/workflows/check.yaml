@@ -40,7 +40,7 @@ jobs:
           cd js/wcr && pnpm build
           cd ../stella && pnpm build
       - name: TypeScript check
-        run: pnpm tsc -p .
+        run: pnpm tsc -b
 
   # MoonBit unit tests
   test-moonbit:

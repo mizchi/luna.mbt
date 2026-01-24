@@ -51,9 +51,9 @@ fn AlertType::to_string(self : AlertType) -> String {
 pub fn[E] alert(
   type_? : AlertType,
   aria_label? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("alert")),
   ]
   if type_ is Some(t) {
@@ -76,9 +76,9 @@ pub fn[E] alert(
 pub fn[E] alert_live(
   type_? : AlertType,
   aria_live? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("alert")),
     ("aria-live", @luna.attr_static(aria_live.unwrap_or("assertive"))),
     ("aria-atomic", @luna.attr_static("true")),
@@ -99,9 +99,9 @@ pub fn[E] alert_live(
 /// - children: Alert content
 pub fn[E] status(
   type_? : AlertType,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("status")),
   ]
   if type_ is Some(t) {

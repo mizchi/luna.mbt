@@ -54,7 +54,7 @@ pub fn meter(
   label? : String,
   value_text? : String,
   class? : String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = meter_slots()
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
@@ -64,7 +64,7 @@ pub fn meter(
   }
 
   // Build children
-  let children : Array[@luna.Node[@js.Any]] = []
+  let children : Array[@luna.Node[@js.Any, String]] = []
 
   // Label
   match label {
@@ -83,7 +83,7 @@ pub fn meter(
   }
 
   // Native meter element
-  let meter_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let meter_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(id)),
     ("class", @luna.attr_static(slots.element)),
     ("value", @luna.attr_static(value.to_string())),

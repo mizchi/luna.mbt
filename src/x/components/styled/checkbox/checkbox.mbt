@@ -50,8 +50,8 @@ pub fn checkbox(
   id? : String,
   name? : String,
   class? : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let slots = checkbox_slots()
   let random = @js.global_this()._get("Math")._call("random", []).to_string()
   let input_id = id.unwrap_or("checkbox-" + random)
@@ -65,7 +65,7 @@ pub fn checkbox(
   let toggle = fn() { if not(disabled) { checked.set(not(checked.get())) } }
 
   // Root wrapper with click handler
-  let root_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let root_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("class", @luna.attr_static(root_class)),
     (
       "data-checked",
@@ -81,7 +81,7 @@ pub fn checkbox(
   }
 
   // Hidden input (for accessibility, but we control state via data-checked)
-  let input_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let input_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("checkbox")),
     ("class", @luna.attr_static(slots.input)),
     ("id", @luna.attr_static(input_id)),
@@ -180,9 +180,9 @@ pub fn checkbox(
 pub fn checkbox_group(
   aria_label? : String,
   class? : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("group")),
   ]
   if aria_label is Some(label) {

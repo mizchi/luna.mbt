@@ -129,6 +129,6 @@ pub using @resource {
 ///|
 /// Create a text VNode from a signal.
 /// Shorthand for `text_dyn(fn() { sig.get().to_string() })`.
-pub fn[E, T : Show] text_of(sig : @resource.Signal[T]) -> @core.Node[E] {
+pub fn[E, A, T : Show] text_of(sig : @resource.Signal[T]) -> @core.Node[E, A] {
   @core.DynamicText(fn() { sig.get().to_string() })
 }
