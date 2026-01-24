@@ -1,4 +1,5 @@
-import { }
+import {
+}
 
 options(
   "supported-targets": [ "js", "wasm-gc", "native" ],

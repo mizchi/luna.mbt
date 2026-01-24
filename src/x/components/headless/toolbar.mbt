@@ -122,7 +122,7 @@ pub fn generate_toolbar_item_ids(
 ///|
 /// Props for toolbar item with keyboard navigation.
 pub(all) struct ToolbarItemNavProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   is_pressed : Bool
   is_disabled : Bool
 }
@@ -138,7 +138,7 @@ pub fn use_toolbar_item_nav(
   is_disabled : Bool,
   on_click : (String) -> Unit,
 ) -> ToolbarItemNavProps {
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(button_id)),
     (
@@ -173,7 +173,7 @@ pub fn use_toolbar_item_nav(
 ///|
 /// Props for reactive toolbar item with dynamic pressed state.
 pub(all) struct ToolbarItemReactiveProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
 }
 
 ///|
@@ -187,7 +187,7 @@ pub fn use_toolbar_item_reactive(
   is_disabled : Bool,
   on_click : (String) -> Unit,
 ) -> ToolbarItemReactiveProps {
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(button_id)),
     (

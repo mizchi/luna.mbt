@@ -27,9 +27,9 @@
 /// ```
 pub fn[T : ToJson] client(
   cref : @core.ComponentRef[T],
-  children : Array[@luna.Node[Unit]],
+  children : Array[@luna.Node[Unit, String]],
   styles? : String = "",
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   @luna.internal_ref(
     cref.url,
     cref.props.to_json().stringify(),

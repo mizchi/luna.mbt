@@ -11,12 +11,12 @@
 /// sol-nav.js to replace content during navigation.
 pub fn outlet(
   name~ : String,
-  children : Array[@luna.Node[Unit]],
+  children : Array[@luna.Node[Unit, String]],
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   props.push(("data-sol-outlet", static_attr(name)))
   create_element("div", props, children)
@@ -27,17 +27,17 @@ pub fn outlet(
 /// Used internally to wrap outlet content in fragment responses.
 pub fn template_outlet(
   name~ : String,
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
-  let props : Array[(String, @luna.Attr[Unit])] = []
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
+  let props : Array[(String, @luna.Attr[Unit, String])] = []
   props.push(("data-sol-outlet", static_attr(name)))
   create_element("template", props, children)
 }
 
 ///|
 /// Create a template element for page title in fragment response
-pub fn template_title(title : String) -> @luna.Node[Unit] {
-  let props : Array[(String, @luna.Attr[Unit])] = []
+pub fn template_title(title : String) -> @luna.Node[Unit, String] {
+  let props : Array[(String, @luna.Attr[Unit, String])] = []
   props.push(("data-sol-title", static_attr("")))
   create_element("template", props, [text(title)])
 }

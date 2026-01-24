@@ -8,7 +8,7 @@
 ///|
 /// Tab props
 pub(all) struct TabProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   select : () -> Unit
   is_selected : Bool
 }
@@ -23,7 +23,9 @@ pub fn use_tab(
 ) -> TabProps {
   let is_selected = selected.get() == index
   let aria_attrs = @aria.tab_aria(id, is_selected, controls)
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = aria_attrs.map(fn(
+    pair,
+  ) {
     (pair.0, @luna.attr_static(pair.1))
   })
 
@@ -59,7 +61,9 @@ pub fn use_tab(
 
 ///|
 /// Tablist attrs.
-pub fn[E] tablist_attrs(aria_label? : String) -> Array[(String, @luna.Attr[E])] {
+pub fn[E] tablist_attrs(
+  aria_label? : String,
+) -> Array[(String, @luna.Attr[E, String])] {
   let aria_attrs = @aria.tablist_aria(aria_label?)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
@@ -70,7 +74,7 @@ pub fn[E] tab_attrs(
   id : String,
   controls : String,
   selected : Bool,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   let aria_attrs = @aria.tab_aria(id, selected, controls)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
@@ -80,7 +84,7 @@ pub fn[E] tab_attrs(
 pub fn[E] tabpanel_attrs(
   id : String,
   labelledby : String,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   let aria_attrs = @aria.tabpanel_aria(id, labelledby)
   aria_attrs.map(fn(pair) { (pair.0, @luna.attr_static(pair.1)) })
 }
@@ -159,7 +163,7 @@ pub fn generate_tab_ids(
 ///|
 /// Props for tab with full APG keyboard navigation.
 pub(all) struct TabNavProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   is_selected : Bool
 }
 
@@ -173,7 +177,7 @@ pub fn use_tab_nav(
   selected : @resource.Signal[Int],
 ) -> TabNavProps {
   let is_selected = selected.get() == index
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(tab_id)),
     ("role", @luna.attr_static("tab")),
@@ -210,13 +214,13 @@ pub fn use_tab_nav(
 ///|
 /// Props for tabpanel.
 pub(all) struct TabPanelNavProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
 }
 
 ///|
 /// Create tabpanel props.
 pub fn use_tabpanel_nav(panel_id : String, tab_id : String) -> TabPanelNavProps {
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(panel_id)),
     ("role", @luna.attr_static("tabpanel")),
     ("aria-labelledby", @luna.attr_static(tab_id)),

@@ -31,9 +31,9 @@ pub fn svg(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if width is Some(v) {
     props.push(("width", static_attr(v)))
@@ -74,9 +74,9 @@ pub fn svg_title(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_svg_element("title", props, children)
 }
@@ -87,9 +87,9 @@ pub fn svg_desc(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_svg_element("desc", props, children)
 }
@@ -104,9 +104,9 @@ pub fn svg_g(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if transform is Some(v) {
     props.push(("transform", static_attr(v)))
@@ -129,9 +129,9 @@ pub fn svg_defs(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_svg_element("defs", props, children)
 }
@@ -143,9 +143,9 @@ pub fn svg_symbol(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if viewBox is Some(v) {
     props.push(("viewBox", static_attr(v)))
@@ -164,8 +164,8 @@ pub fn svg_use(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if href is Some(v) {
     props.push(("href", static_attr(v)))
@@ -200,8 +200,8 @@ pub fn svg_rect(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x is Some(v) {
     props.push(("x", static_attr(v)))
@@ -245,8 +245,8 @@ pub fn svg_circle(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if cx is Some(v) {
     props.push(("cx", static_attr(v)))
@@ -282,8 +282,8 @@ pub fn svg_ellipse(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if cx is Some(v) {
     props.push(("cx", static_attr(v)))
@@ -321,8 +321,8 @@ pub fn svg_line(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x1 is Some(v) {
     props.push(("x1", static_attr(v)))
@@ -355,8 +355,8 @@ pub fn svg_polyline(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if points is Some(v) {
     props.push(("points", static_attr(v)))
@@ -383,8 +383,8 @@ pub fn svg_polygon(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if points is Some(v) {
     props.push(("points", static_attr(v)))
@@ -414,8 +414,8 @@ pub fn svg_path(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if d is Some(v) {
     props.push(("d", static_attr(v)))
@@ -456,9 +456,9 @@ pub fn svg_text(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x is Some(v) {
     props.push(("x", static_attr(v)))
@@ -500,9 +500,9 @@ pub fn svg_tspan(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x is Some(v) {
     props.push(("x", static_attr(v)))
@@ -531,8 +531,8 @@ pub fn svg_image(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if href is Some(v) {
     props.push(("href", static_attr(v)))
@@ -561,9 +561,9 @@ pub fn svg_clip_path(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   create_svg_element("clipPath", props, children)
 }
@@ -578,9 +578,9 @@ pub fn svg_mask(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x is Some(v) {
     props.push(("x", static_attr(v)))
@@ -608,9 +608,9 @@ pub fn svg_linear_gradient(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x1 is Some(v) {
     props.push(("x1", static_attr(v)))
@@ -642,9 +642,9 @@ pub fn svg_radial_gradient(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if cx is Some(v) {
     props.push(("cx", static_attr(v)))
@@ -676,8 +676,8 @@ pub fn svg_stop(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if offset is Some(v) {
     props.push(("offset", static_attr(v)))
@@ -703,9 +703,9 @@ pub fn svg_pattern(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x is Some(v) {
     props.push(("x", static_attr(v)))
@@ -739,9 +739,9 @@ pub fn svg_filter(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x is Some(v) {
     props.push(("x", static_attr(v)))
@@ -773,8 +773,8 @@ pub fn svg_animate(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if attributeName is Some(v) {
     props.push(("attributeName", static_attr(v)))
@@ -809,8 +809,8 @@ pub fn svg_animate_transform(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if attributeName is Some(v) {
     props.push(("attributeName", static_attr(v)))
@@ -843,9 +843,9 @@ pub fn svg_foreign_object(
   id? : String,
   class? : String,
   style? : String,
-  attrs? : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs? : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   let props = build_attrs(id, class, style, attrs)
   if x is Some(v) {
     props.push(("x", static_attr(v)))

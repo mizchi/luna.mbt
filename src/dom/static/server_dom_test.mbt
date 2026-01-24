@@ -169,7 +169,7 @@ test "html escaping in text" {
 
 ///|
 test "render error_boundary success" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { div([text("Success!")]) },
     fallback=fn(_err, _reset) { text("Error occurred") },
   )
@@ -179,7 +179,7 @@ test "render error_boundary success" {
 
 ///|
 test "render error_boundary with nested elements" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       div(class="container", [h1([text("Title")]), p([text("Content")])])
     },
@@ -193,7 +193,7 @@ test "render error_boundary with nested elements" {
 
 ///|
 test "render error_boundary with island inside" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       div([
         @luna.island("counter", "/components/counter.js", "{\"count\":0}", [
@@ -210,7 +210,7 @@ test "render error_boundary with island inside" {
 
 ///|
 test "render nested error_boundaries" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       div([
         @luna.error_boundary(children=fn() { span([text("Inner content")]) }, fallback=fn(
@@ -230,7 +230,7 @@ test "render nested error_boundaries" {
 ///|
 test "render error_boundary with show" {
   let visible = true
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { @luna.show(fn() { visible }, fn() { text("Visible!") }) },
     fallback=fn(_err, _reset) { text("Error") },
   )
@@ -240,7 +240,7 @@ test "render error_boundary with show" {
 
 ///|
 test "render error_boundary with fragment" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { fragment([text("A"), text("B"), text("C")]) },
     fallback=fn(_err, _reset) { text("Error") },
   )
@@ -250,7 +250,7 @@ test "render error_boundary with fragment" {
 
 ///|
 test "render_with_preloads error_boundary collects island URLs" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() {
       div([
         @luna.island("a", "/a.js", "{}", [text("A")]),
@@ -272,7 +272,7 @@ test "render_with_preloads error_boundary collects island URLs" {
 ///|
 test "render show with fragment (multiple children) - visible" {
   let visible = true
-  let node : @luna.Node[Unit] = @luna.show(fn() { visible }, fn() {
+  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
     fragment([div([text("A")]), div([text("B")])])
   })
   let html = render(node)
@@ -283,7 +283,7 @@ test "render show with fragment (multiple children) - visible" {
 ///|
 test "render show with fragment (multiple children) - hidden" {
   let visible = false
-  let node : @luna.Node[Unit] = @luna.show(fn() { visible }, fn() {
+  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
     fragment([div([text("A")]), div([text("B")])])
   })
   let html = render(node)
@@ -296,7 +296,7 @@ test "render show with fragment (multiple children) - hidden" {
 
 ///|
 test "render switch with match containing multiple children" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() {
         fragment([span([text("First")]), span([text("Second")])])
@@ -312,7 +312,7 @@ test "render switch with match containing multiple children" {
 
 ///|
 test "render switch with match fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() {
         fragment([span([text("First")]), span([text("Second")])])

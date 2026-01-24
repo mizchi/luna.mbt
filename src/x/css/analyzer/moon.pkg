@@ -6,11 +6,6 @@ import {
 
 options(
   "is-main": true,
-  link: {
-    "js": {
-      "exports": ["analyze_file_json"],
-      "format": "esm",
-    },
-  },
-  "supported-targets": ["js"],
+  link: { "js": { "exports": [ "analyze_file_json" ], "format": "esm" } },
+  "supported-targets": [ "js" ],
 )

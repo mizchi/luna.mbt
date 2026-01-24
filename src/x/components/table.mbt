@@ -86,9 +86,9 @@ pub fn[E] table(
   aria_label? : String,
   aria_labelledby? : String,
   aria_describedby? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = []
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = []
   if id is Some(i) {
     attrs.push(("id", @luna.attr_static(i)))
   }
@@ -106,19 +106,25 @@ pub fn[E] table(
 
 ///|
 /// Create a table head section.
-pub fn[E] thead(children : Array[@luna.Node[E]]) -> @luna.Node[E] {
+pub fn[E] thead(
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   @luna.h("thead", [], children)
 }
 
 ///|
 /// Create a table body section.
-pub fn[E] tbody(children : Array[@luna.Node[E]]) -> @luna.Node[E] {
+pub fn[E] tbody(
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   @luna.h("tbody", [], children)
 }
 
 ///|
 /// Create a table footer section.
-pub fn[E] tfoot(children : Array[@luna.Node[E]]) -> @luna.Node[E] {
+pub fn[E] tfoot(
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   @luna.h("tfoot", [], children)
 }
 
@@ -136,9 +142,9 @@ pub fn[E] tr(
   selected? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = []
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = []
   if id is Some(i) {
     attrs.push(("id", @luna.attr_static(i)))
   }
@@ -163,9 +169,9 @@ pub fn[E] tr_dyn(
   selected_row : @resource.Signal[String],
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("id", @luna.attr_static(id)),
     (
       "aria-selected",
@@ -201,9 +207,9 @@ pub fn[E] th(
   scope? : String,
   sort? : SortDirection,
   on_click? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = []
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = []
   if id is Some(i) {
     attrs.push(("id", @luna.attr_static(i)))
   }
@@ -231,9 +237,9 @@ pub fn[E] th_dyn(
   sort_column : @resource.Signal[String],
   sort_direction : @resource.Signal[SortDirection],
   on_click? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("id", @luna.attr_static(id)),
     ("scope", @luna.attr_static(scope)),
     (
@@ -267,9 +273,9 @@ pub fn[E] th_dyn(
 pub fn[E] td(
   id? : String,
   headers? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = []
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = []
   if id is Some(i) {
     attrs.push(("id", @luna.attr_static(i)))
   }
@@ -283,9 +289,9 @@ pub fn[E] td(
 /// Create a table caption.
 pub fn[E] caption(
   id? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = []
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = []
   if id is Some(i) {
     attrs.push(("id", @luna.attr_static(i)))
   }
@@ -401,7 +407,7 @@ pub fn table_interactive(
   selectable? : Bool,
   on_row_select? : (String) -> Unit,
   on_sort? : (String, SortDirection) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let is_selectable = selectable.unwrap_or(false)
   let selected_row = @resource.signal("")
   let sort_column = @resource.signal("")
@@ -431,11 +437,11 @@ pub fn table_interactive(
     focus_cell,
   )
   // Build header row
-  let header_cells : Array[@luna.Node[@js.Any]] = []
+  let header_cells : Array[@luna.Node[@js.Any, String]] = []
   for column in columns {
     let col_id = column.id
     let header_id = id + "-header-" + column.id
-    let header_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let header_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("id", @luna.attr_static(header_id)),
       ("scope", @luna.attr_static("col")),
     ]
@@ -486,11 +492,11 @@ pub fn table_interactive(
     header_cells.push(@luna.h("th", header_attrs, [@luna.text(column.label)]))
   }
   // Build data rows
-  let data_rows : Array[@luna.Node[@js.Any]] = []
+  let data_rows : Array[@luna.Node[@js.Any, String]] = []
   for row_idx, row in rows {
     let row_id = row.id
     let tr_id = id + "-row-" + row.id
-    let row_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let row_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("id", @luna.attr_static(tr_id)),
     ]
     if is_selectable {
@@ -521,14 +527,14 @@ pub fn table_interactive(
       )
     }
     // Build cells for this row
-    let cells : Array[@luna.Node[@js.Any]] = []
+    let cells : Array[@luna.Node[@js.Any, String]] = []
     for col_idx, cell in row.cells {
       let cell_id = id +
         "-cell-" +
         row_idx.to_string() +
         "-" +
         col_idx.to_string()
-      let cell_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+      let cell_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
         ("id", @luna.attr_static(cell_id)),
         (
           "tabindex",
@@ -552,7 +558,7 @@ pub fn table_interactive(
     data_rows.push(@luna.h("tr", row_attrs, cells))
   }
   // Build table
-  let table_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let table_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(id)),
   ]
   if aria_label is Some(label) {
@@ -577,23 +583,23 @@ pub fn[E] simple_table(
   caption_text? : String,
   headers : Array[String],
   rows : Array[Array[String]],
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   // Build header cells
-  let header_cells : Array[@luna.Node[E]] = []
+  let header_cells : Array[@luna.Node[E, String]] = []
   for header in headers {
     header_cells.push(th(scope="col", [@luna.text(header)]))
   }
   // Build data rows
-  let data_rows : Array[@luna.Node[E]] = []
+  let data_rows : Array[@luna.Node[E, String]] = []
   for row in rows {
-    let cells : Array[@luna.Node[E]] = []
+    let cells : Array[@luna.Node[E, String]] = []
     for cell in row {
       cells.push(td([@luna.text(cell)]))
     }
     data_rows.push(tr(cells))
   }
   // Build table
-  let table_content : Array[@luna.Node[E]] = []
+  let table_content : Array[@luna.Node[E, String]] = []
   if caption_text is Some(cap) {
     table_content.push(caption([@luna.text(cap)]))
   }

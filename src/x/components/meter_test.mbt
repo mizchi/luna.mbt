@@ -1,6 +1,10 @@
 ///|
 test "meter: basic attributes" {
-  let node : @luna.Node[Unit] = meter(75.0, aria_label="Battery level", [])
+  let node : @luna.Node[Unit, String] = meter(
+    75.0,
+    aria_label="Battery level",
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="div")
   let mut has_role = false
@@ -37,7 +41,7 @@ test "meter: basic attributes" {
 
 ///|
 test "meter: custom range" {
-  let node : @luna.Node[Unit] = meter(
+  let node : @luna.Node[Unit, String] = meter(
     5.0,
     min=0.0,
     max=10.0,
@@ -63,7 +67,7 @@ test "meter: custom range" {
 
 ///|
 test "meter: with aria-valuetext" {
-  let node : @luna.Node[Unit] = meter(
+  let node : @luna.Node[Unit, String] = meter(
     50.0,
     aria_label="Battery",
     aria_valuetext="50% (6 hours) remaining",
@@ -85,7 +89,11 @@ test "meter: with aria-valuetext" {
 ///|
 test "meter_dyn: dynamic value" {
   let value = @resource.signal(25.0)
-  let node : @luna.Node[Unit] = meter_dyn(value, aria_label="Progress", [])
+  let node : @luna.Node[Unit, String] = meter_dyn(
+    value,
+    aria_label="Progress",
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut dynamic_attr : (() -> String)? = None
   for attr in el.attrs {
@@ -102,7 +110,11 @@ test "meter_dyn: dynamic value" {
 
 ///|
 test "meter_native: native meter element" {
-  let node : @luna.Node[Unit] = meter_native(75.0, aria_label="Disk usage", [])
+  let node : @luna.Node[Unit, String] = meter_native(
+    75.0,
+    aria_label="Disk usage",
+    [],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="meter")
   let mut has_value = false
@@ -117,7 +129,7 @@ test "meter_native: native meter element" {
 
 ///|
 test "meter_native: with thresholds" {
-  let node : @luna.Node[Unit] = meter_native(
+  let node : @luna.Node[Unit, String] = meter_native(
     50.0,
     low=25.0,
     high=75.0,

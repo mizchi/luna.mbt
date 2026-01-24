@@ -86,7 +86,7 @@ fn get_text_content(node : @js_dom.Node) -> String {
 /// The container should already have server-rendered HTML with hydration markers.
 pub fn hydrate(
   container : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   recover_on_mismatch? : Bool,
   warn_on_mismatch? : Bool,
   logger? : StringBuilder,
@@ -125,7 +125,7 @@ pub fn hydrate(
 /// Internal: Hydrate a single node
 fn hydrate_node(
   parent : @js_dom.Node,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   ctx : HydrationContext,
 ) -> Unit raise {
   match node {
@@ -338,7 +338,7 @@ fn hydrate_dynamic_text(
 /// Hydrate element attributes and handlers
 fn hydrate_element(
   elem : @js_dom.Element,
-  attrs : Array[(String, @luna.Attr[@js.Any])],
+  attrs : Array[(String, @luna.Attr[@js.Any, String])],
 ) -> Unit {
   hydrate_element_with_dispatch(elem, attrs, None)
 }
@@ -347,7 +347,7 @@ fn hydrate_element(
 /// Hydrate element attributes with optional action dispatcher
 fn hydrate_element_with_dispatch(
   elem : @js_dom.Element,
-  attrs : Array[(String, @luna.Attr[@js.Any])],
+  attrs : Array[(String, @luna.Attr[@js.Any, String])],
   dispatcher : ((String) -> Unit)?,
 ) -> Unit {
   for attr in attrs {
@@ -437,7 +437,7 @@ fn hydrate_show(
   parent : @js_dom.Node,
   id : Int,
   cond : () -> Bool,
-  child_fn : () -> @luna.Node[@js.Any],
+  child_fn : () -> @luna.Node[@js.Any, String],
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "s:" + id.to_string()
@@ -510,7 +510,7 @@ fn hydrate_show(
 /// Hydrate child nodes with VNode
 fn hydrate_child_nodes(
   nodes : Array[@js_dom.Node],
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   ctx : HydrationContext,
 ) -> Unit raise {
   // For now, just traverse the VNode and update ctx
@@ -589,7 +589,7 @@ fn hydrate_child_nodes(
 fn hydrate_for(
   parent : @js_dom.Node,
   id : Int,
-  render_fn : () -> Array[@luna.Node[@js.Any]],
+  render_fn : () -> Array[@luna.Node[@js.Any, String]],
   ctx : HydrationContext,
 ) -> Unit {
   let marker_start = "f:" + id.to_string()
@@ -667,7 +667,7 @@ fn hydrate_for(
 fn hydrate_error_boundary(
   parent : @js_dom.Node,
   id : Int,
-  boundary : @luna.VErrorBoundary[@js.Any],
+  boundary : @luna.VErrorBoundary[@js.Any, String],
   ctx : HydrationContext,
 ) -> Unit {
   // Find the error boundary markers
@@ -783,7 +783,7 @@ fn bind_action_handlers(
 pub fn[State] hydrate_with_actions(
   container : @js_dom.Element,
   initial_state : State,
-  render : (State) -> @luna.Node[@js.Any],
+  render : (State) -> @luna.Node[@js.Any, String],
   update : (State, String) -> State,
 ) -> Unit {
   let state_signal = @resource.signal(initial_state)
@@ -830,7 +830,7 @@ pub fn[State] hydrate_with_actions(
 fn hydrate_switch(
   parent : @js_dom.Node,
   id : Int,
-  switch_node : @luna.VSwitch[@js.Any],
+  switch_node : @luna.VSwitch[@js.Any, String],
   ctx : HydrationContext,
 ) -> Unit raise {
   // Find the switch markers

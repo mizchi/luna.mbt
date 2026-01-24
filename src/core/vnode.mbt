@@ -35,11 +35,14 @@ pub fn[E] EventHandler::get_callback(self : EventHandler[E]) -> (E) -> Unit {
 
 ///|
 /// Attribute value that can be static or dynamic (signal-based)
-pub(all) enum Attr[E] {
-  VStatic(String)
-  VDynamic(() -> String)
+/// Type parameter A represents the attribute value type:
+/// - Web: A = String (HTML attributes are strings)
+/// - TUI: A = TuiAttrValue (typed values like Dimension, Color)
+pub(all) enum Attr[E, A] {
+  VStatic(A)
+  VDynamic(() -> A)
   VHandler(EventHandler[E])
-  VAction(String) // Action name for declarative event handling
+  VAction(String) // Action name for declarative event handling (kept as String for SSR)
 }
 
 ///|
@@ -59,50 +62,51 @@ pub(all) enum TriggerType {
 
 ///|
 /// Virtual Island node - serializable hydration unit
-pub struct VIsland[E] {
+pub struct VIsland[E, A] {
   id : String // Unique identifier (luna:id)
   url : String // Script URL for loading implementation (luna:url)
   state : String // Serialized state JSON (luna:state)
   trigger : TriggerType // Hydration trigger (luna:client-trigger)
-  children : Array[Node[E]] // SSR-rendered content (can contain nested Islands)
+  children : Array[Node[E, A]] // SSR-rendered content (can contain nested Islands)
 }
 
 ///|
 /// Virtual Web Components Island node - Web Components based hydration unit
 /// Uses Declarative Shadow DOM for SSR and DOM Parts for partial updates
-pub struct VWcIsland[E] {
+pub struct VWcIsland[E, A] {
   name : String // Custom element name (e.g., "wc-counter")
   url : String // Hydration script URL (luna:wc-url)
   styles : String // CSS for Shadow DOM
   state : String // Serialized state JSON
   trigger : TriggerType // Hydration trigger
-  children : Array[Node[E]] // SSR content inside Shadow DOM
+  children : Array[Node[E, A]] // SSR content inside Shadow DOM
 }
 
 ///|
 /// Virtual DOM node types
-pub(all) enum Node[E] {
-  Element(VElement[E])
+/// Type parameter A represents the attribute value type (see Attr[E, A])
+pub(all) enum Node[E, A] {
+  Element(VElement[E, A])
   Text(String)
   DynamicText(() -> String)
-  Fragment(Array[Node[E]])
-  Show(condition~ : () -> Bool, child~ : () -> Node[E])
-  For(render~ : () -> Array[Node[E]])
-  Component(render~ : () -> Node[E])
-  Island(VIsland[E]) // Hydration boundary for partial hydration (luna:* style)
-  WcIsland(VWcIsland[E]) // Web Components based hydration (Declarative Shadow DOM)
+  Fragment(Array[Node[E, A]])
+  Show(condition~ : () -> Bool, child~ : () -> Node[E, A])
+  For(render~ : () -> Array[Node[E, A]])
+  Component(render~ : () -> Node[E, A])
+  Island(VIsland[E, A]) // Hydration boundary for partial hydration (luna:* style)
+  WcIsland(VWcIsland[E, A]) // Web Components based hydration (Declarative Shadow DOM)
   /// Async node - renders content asynchronously with fallback
   /// - render: async function that may raise errors
   /// - fallback: shown while loading or on error
   /// - on_error: optional error handler for custom error UI
-  Async(VAsync[E])
+  Async(VAsync[E, A])
   /// ErrorBoundary node - catches rendering errors in children
   /// - children: lazy child content (may throw)
   /// - fallback: (error, reset) -> fallback UI
-  ErrorBoundary(VErrorBoundary[E])
+  ErrorBoundary(VErrorBoundary[E, A])
   /// Switch node - renders first matching case or fallback
   /// Similar to Solid.js <Switch>/<Match>
-  Switch(VSwitch[E])
+  Switch(VSwitch[E, A])
   /// Internal reference to a client component (for type-safe Island embedding)
   /// Generated from ComponentRef[T] via server_dom.island()
   /// - url: Client script path
@@ -111,7 +115,7 @@ pub(all) enum Node[E] {
   /// - wc: Whether Web Components based
   /// - styles: CSS for Shadow DOM (WC only)
   /// - children: SSR content
-  InternalRef(VInternalRef[E])
+  InternalRef(VInternalRef[E, A])
   /// Raw HTML string - rendered without escaping
   /// Use with caution: content is not sanitized
   RawHtml(String)
@@ -119,22 +123,22 @@ pub(all) enum Node[E] {
 
 ///|
 /// Virtual Internal Reference node for type-safe Island embedding
-pub struct VInternalRef[E] {
+pub struct VInternalRef[E, A] {
   url : String
   state : String
   trigger : TriggerType
   wc : Bool
   styles : String // CSS for Shadow DOM (empty for non-WC)
-  children : Array[Node[E]]
+  children : Array[Node[E, A]]
 }
 
 ///|
 /// Virtual Async node for async rendering with error handling
 /// Note: async functions implicitly raise Error, no need for raise? annotation
-pub struct VAsync[E] {
-  render : async () -> Node[E]
-  fallback : () -> Node[E]
-  on_error : ((Error) -> Node[E])?
+pub struct VAsync[E, A] {
+  render : async () -> Node[E, A]
+  fallback : () -> Node[E, A]
+  on_error : ((Error) -> Node[E, A])?
 }
 
 ///|
@@ -145,16 +149,16 @@ pub struct VAsync[E] {
 /// Does NOT catch:
 /// - Event handler errors
 /// - Async errors outside render cycle
-pub struct VErrorBoundary[E] {
-  children : () -> Node[E] raise
-  fallback : (Error, () -> Unit) -> Node[E] raise // (error, reset) -> fallbackUI
+pub struct VErrorBoundary[E, A] {
+  children : () -> Node[E, A] raise
+  fallback : (Error, () -> Unit) -> Node[E, A] raise // (error, reset) -> fallbackUI
 }
 
 ///|
 /// Match case for Switch - pairs a condition with content
-pub struct MatchCase[E] {
+pub struct MatchCase[E, A] {
   when : () -> Bool
-  render : () -> Node[E]
+  render : () -> Node[E, A]
 }
 
 ///|
@@ -162,17 +166,17 @@ pub struct MatchCase[E] {
 /// Similar to Solid.js <Switch>/<Match>
 /// - cases: array of condition-content pairs, evaluated in order
 /// - fallback: optional content when no case matches
-pub struct VSwitch[E] {
-  cases : Array[MatchCase[E]]
-  fallback : (() -> Node[E])?
+pub struct VSwitch[E, A] {
+  cases : Array[MatchCase[E, A]]
+  fallback : (() -> Node[E, A])?
 }
 
 ///|
 /// Virtual element node
-pub struct VElement[E] {
+pub struct VElement[E, A] {
   tag : String
-  attrs : Array[(String, Attr[E])]
-  children : Array[Node[E]]
+  attrs : Array[(String, Attr[E, A])]
+  children : Array[Node[E, A]]
 }
 
 ///|
@@ -180,18 +184,20 @@ pub struct VElement[E] {
 /// The main building block for creating virtual DOM elements.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = h("div", [("class", attr_static("container"))], [
-///     text("Hello"),
-///   ])
+///   let node : Node[Unit, String] = h(
+///     "div",
+///     [("class", attr_static("container"))],
+///     [text("Hello")],
+///   )
 ///   guard node is Element(el) else { fail("expected Element") }
 ///   inspect(el.tag, content="div")
 /// }
 /// ```
-pub fn[E] h(
+pub fn[E, A] h(
   tag : String,
-  attrs : Array[(String, Attr[E])],
-  children : Array[Node[E]],
-) -> Node[E] {
+  attrs : Array[(String, Attr[E, A])],
+  children : Array[Node[E, A]],
+) -> Node[E, A] {
   Element({ tag, attrs, children })
 }
 
@@ -199,12 +205,12 @@ pub fn[E] h(
 /// Create a text VNode.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = text("Hello World")
+///   let node : Node[Unit, String] = text("Hello World")
 ///   guard node is Text(s) else { fail("expected Text") }
 ///   inspect(s, content="Hello World")
 /// }
 /// ```
-pub fn[E] text(content : String) -> Node[E] {
+pub fn[E, A] text(content : String) -> Node[E, A] {
   Text(content)
 }
 
@@ -214,14 +220,14 @@ pub fn[E] text(content : String) -> Node[E] {
 /// ```mbt check
 /// test {
 ///   let mut count = 5
-///   let node : Node[Unit] = text_dyn(fn() { count.to_string() })
+///   let node : Node[Unit, String] = text_dyn(fn() { count.to_string() })
 ///   guard node is DynamicText(getter) else { fail("expected DynamicText") }
 ///   inspect(getter(), content="5")
 ///   count = 10
 ///   inspect(getter(), content="10")
 /// }
 /// ```
-pub fn[E] text_dyn(content : () -> String) -> Node[E] {
+pub fn[E, A] text_dyn(content : () -> String) -> Node[E, A] {
   DynamicText(content)
 }
 
@@ -230,12 +236,16 @@ pub fn[E] text_dyn(content : () -> String) -> Node[E] {
 /// Groups multiple nodes without a wrapper element.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = fragment([text("Hello"), text(" "), text("World")])
+///   let node : Node[Unit, String] = fragment([
+///     text("Hello"),
+///     text(" "),
+///     text("World"),
+///   ])
 ///   guard node is Fragment(children) else { fail("expected Fragment") }
 ///   inspect(children.length(), content="3")
 /// }
 /// ```
-pub fn[E] fragment(children : Array[Node[E]]) -> Node[E] {
+pub fn[E, A] fragment(children : Array[Node[E, A]]) -> Node[E, A] {
   Fragment(children)
 }
 
@@ -244,12 +254,12 @@ pub fn[E] fragment(children : Array[Node[E]]) -> Node[E] {
 /// Use with caution: content should be trusted or sanitized.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = raw_html("<strong>Bold</strong>")
+///   let node : Node[Unit, String] = raw_html("<strong>Bold</strong>")
 ///   guard node is RawHtml(html) else { fail("expected RawHtml") }
 ///   inspect(html, content="<strong>Bold</strong>")
 /// }
 /// ```
-pub fn[E] raw_html(content : String) -> Node[E] {
+pub fn[E, A] raw_html(content : String) -> Node[E, A] {
   RawHtml(content)
 }
 
@@ -259,12 +269,14 @@ pub fn[E] raw_html(content : String) -> Node[E] {
 /// ```mbt check
 /// test {
 ///   let visible = true
-///   let node : Node[Unit] = show(fn() { visible }, fn() { text("Visible!") })
+///   let node : Node[Unit, String] = show(fn() { visible }, fn() {
+///     text("Visible!")
+///   })
 ///   guard node is Show(condition~, ..) else { fail("expected Show") }
 ///   inspect(condition(), content="true")
 /// }
 /// ```
-pub fn[E] show(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
+pub fn[E, A] show(when : () -> Bool, child : () -> Node[E, A]) -> Node[E, A] {
   Show(condition=when, child~)
 }
 
@@ -274,12 +286,12 @@ pub fn[E] show(when : () -> Bool, child : () -> Node[E]) -> Node[E] {
 /// ```mbt check
 /// test {
 ///   let items = ["a", "b", "c"]
-///   let node : Node[Unit] = for_each(fn() { items.map(fn(s) { text(s) }) })
+///   let node : Node[Unit, String] = for_each(fn() { items.map(fn(s) { text(s) }) })
 ///   guard node is For(render~) else { fail("expected For") }
 ///   inspect(render().length(), content="3")
 /// }
 /// ```
-pub fn[E] for_each(items : () -> Array[Node[E]]) -> Node[E] {
+pub fn[E, A] for_each(items : () -> Array[Node[E, A]]) -> Node[E, A] {
   For(render=items)
 }
 
@@ -288,39 +300,41 @@ pub fn[E] for_each(items : () -> Array[Node[E]]) -> Node[E] {
 /// Wraps a render function as a component boundary.
 /// ```mbt check
 /// test {
-///   let node : Node[Unit] = component(fn() { h("div", [], [text("Component")]) })
+///   let node : Node[Unit, String] = component(fn() {
+///     h("div", [], [text("Component")])
+///   })
 ///   guard node is Component(render~) else { fail("expected Component") }
 ///   guard render() is Element(el) else { fail("expected Element") }
 ///   inspect(el.tag, content="div")
 /// }
 /// ```
-pub fn[E] component(render : () -> Node[E]) -> Node[E] {
+pub fn[E, A] component(render : () -> Node[E, A]) -> Node[E, A] {
   Component(render~)
 }
 
 ///|
 /// Create an island VNode for partial hydration
-pub fn[E] island(
+pub fn[E, A] island(
   id : String,
   url : String,
   state : String,
-  children : Array[Node[E]],
+  children : Array[Node[E, A]],
   trigger? : TriggerType = Load,
-) -> Node[E] {
+) -> Node[E, A] {
   Island({ id, url, state, trigger, children })
 }
 
 ///|
 /// Create a Web Components island VNode for partial hydration
 /// Uses Declarative Shadow DOM for SSR
-pub fn[E] wc_island(
+pub fn[E, A] wc_island(
   name : String,
   url : String,
   styles : String,
   state : String,
-  children : Array[Node[E]],
+  children : Array[Node[E, A]],
   trigger? : TriggerType = Load,
-) -> Node[E] {
+) -> Node[E, A] {
   WcIsland({ name, url, styles, state, trigger, children })
 }
 
@@ -329,11 +343,11 @@ pub fn[E] wc_island(
 /// - render: async function that produces the content (may raise errors)
 /// - fallback: shown while loading or on error (if no on_error handler)
 /// - on_error: optional custom error UI handler
-pub fn[E] async_(
-  render~ : async () -> Node[E],
-  fallback~ : () -> Node[E],
-  on_error? : ((Error) -> Node[E])? = None,
-) -> Node[E] {
+pub fn[E, A] async_(
+  render~ : async () -> Node[E, A],
+  fallback~ : () -> Node[E, A],
+  on_error? : ((Error) -> Node[E, A])? = None,
+) -> Node[E, A] {
   Async({ render, fallback, on_error })
 }
 
@@ -357,10 +371,10 @@ pub fn[E] async_(
 ///   }
 /// )
 /// ```
-pub fn[E] error_boundary(
-  children~ : () -> Node[E] raise,
-  fallback~ : (Error, () -> Unit) -> Node[E] raise,
-) -> Node[E] {
+pub fn[E, A] error_boundary(
+  children~ : () -> Node[E, A] raise,
+  fallback~ : (Error, () -> Unit) -> Node[E, A] raise,
+) -> Node[E, A] {
   ErrorBoundary({ children, fallback })
 }
 
@@ -368,10 +382,10 @@ pub fn[E] error_boundary(
 /// Create a match case for Switch
 /// - when: condition function, evaluated lazily
 /// - render: content to render when condition is true
-pub fn[E] match_case(
+pub fn[E, A] match_case(
   when~ : () -> Bool,
-  render~ : () -> Node[E],
-) -> MatchCase[E] {
+  render~ : () -> Node[E, A],
+) -> MatchCase[E, A] {
   { when, render }
 }
 
@@ -389,23 +403,23 @@ pub fn[E] match_case(
 ///   fallback=Some(fn() { text("Other") })
 /// )
 /// ```
-pub fn[E] switch_(
-  cases~ : Array[MatchCase[E]],
-  fallback? : (() -> Node[E])? = None,
-) -> Node[E] {
+pub fn[E, A] switch_(
+  cases~ : Array[MatchCase[E, A]],
+  fallback? : (() -> Node[E, A])? = None,
+) -> Node[E, A] {
   Switch({ cases, fallback })
 }
 
 ///|
 /// Create an internal reference VNode (for server_dom.island())
-pub fn[E] internal_ref(
+pub fn[E, A] internal_ref(
   url : String,
   state : String,
   trigger? : TriggerType = Load,
   wc? : Bool = false,
   styles? : String = "",
-  children? : Array[Node[E]] = [],
-) -> Node[E] {
+  children? : Array[Node[E, A]] = [],
+) -> Node[E, A] {
   InternalRef({ url, state, trigger, wc, styles, children })
 }
 
@@ -469,7 +483,7 @@ pub fn TriggerType::parse(s : String) -> TriggerType {
 
 ///|
 /// Check if element has dynamic content that needs hydration
-pub fn[E] has_dynamic_content(attrs : Array[(String, Attr[E])]) -> Bool {
+pub fn[E, A] has_dynamic_content(attrs : Array[(String, Attr[E, A])]) -> Bool {
   for attr in attrs {
     let (_, value) = attr
     match value {
@@ -486,12 +500,12 @@ pub fn[E] has_dynamic_content(attrs : Array[(String, Attr[E])]) -> Bool {
 /// Create a static attribute value.
 /// ```mbt check
 /// test {
-///   let attr : Attr[Unit] = attr_static("my-class")
+///   let attr : Attr[Unit, String] = attr_static("my-class")
 ///   guard attr is VStatic(v) else { fail("expected VStatic") }
 ///   inspect(v, content="my-class")
 /// }
 /// ```
-pub fn[E] attr_static(value : String) -> Attr[E] {
+pub fn[E, A] attr_static(value : A) -> Attr[E, A] {
   VStatic(value)
 }
 
@@ -501,32 +515,36 @@ pub fn[E] attr_static(value : String) -> Attr[E] {
 /// ```mbt check
 /// test {
 ///   let mut count = 0
-///   let attr : Attr[Unit] = attr_dynamic(fn() { "count-" + count.to_string() })
+///   let attr : Attr[Unit, String] = attr_dynamic(fn() {
+///     "count-" + count.to_string()
+///   })
 ///   guard attr is VDynamic(getter) else { fail("expected VDynamic") }
 ///   inspect(getter(), content="count-0")
 ///   count = 5
 ///   inspect(getter(), content="count-5")
 /// }
 /// ```
-pub fn[E] attr_dynamic(getter : () -> String) -> Attr[E] {
+pub fn[E, A] attr_dynamic(getter : () -> A) -> Attr[E, A] {
   VDynamic(getter)
 }
 
 ///|
 /// Create a handler attribute value
-pub fn[E] attr_handler(handler : EventHandler[E]) -> Attr[E] {
+pub fn[E, A] attr_handler(handler : EventHandler[E]) -> Attr[E, A] {
   VHandler(handler)
 }
 
 ///|
 /// Create a style attribute value (string form, e.g. "color: red; margin: 10px")
-pub fn[E] attr_style(style : String) -> Attr[E] {
+/// Note: For Web (A = String), pass the style string directly
+pub fn[E] attr_style(style : String) -> Attr[E, String] {
   VStatic(style)
 }
 
 ///|
 /// Create a dynamic style attribute value
-pub fn[E] attr_dynamic_style(getter : () -> String) -> Attr[E] {
+/// Note: For Web (A = String), the getter returns a style string
+pub fn[E] attr_dynamic_style(getter : () -> String) -> Attr[E, String] {
   VDynamic(getter)
 }
 
@@ -540,7 +558,7 @@ pub fn[E] attr_dynamic_style(getter : () -> String) -> Attr[E] {
 /// pub enum MyAction { Increment; Decrement } derive(Show)
 /// h("button", [("onclick", action(Increment))], [...])
 /// ```
-pub fn[E, A : Show] action(a : A) -> Attr[E] {
+pub fn[E, V, Act : Show] action(a : Act) -> Attr[E, V] {
   VAction(a.to_string())
 }
 

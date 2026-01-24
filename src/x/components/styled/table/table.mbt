@@ -166,7 +166,7 @@ pub fn table(
   selectable? : Bool,
   class? : String,
   on_row_select? : (String) -> Unit,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = table_slots()
   let is_selectable = selectable.unwrap_or(false)
   let root_class = match class {
@@ -180,7 +180,7 @@ pub fn table(
   let sort_direction : @resource.Signal[SortDirection] = @resource.signal(None)
 
   // Build header cells
-  let header_cells : Array[@luna.Node[@js.Any]] = []
+  let header_cells : Array[@luna.Node[@js.Any, String]] = []
   for column in columns {
     let col_id = column.id
     let th_class = if column.sortable {
@@ -188,7 +188,7 @@ pub fn table(
     } else {
       slots.th
     }
-    let header_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let header_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("class", @luna.attr_static(th_class)),
       ("scope", @luna.attr_static("col")),
     ]
@@ -234,7 +234,9 @@ pub fn table(
     }
 
     // Build header content with sort icon
-    let header_content : Array[@luna.Node[@js.Any]] = [@luna.text(column.label)]
+    let header_content : Array[@luna.Node[@js.Any, String]] = [
+      @luna.text(column.label),
+    ]
     if column.sortable {
       header_content.push(
         @luna.h(
@@ -284,10 +286,10 @@ pub fn table(
         let dir = sort_direction.get()
         let col_idx = find_column_index(columns, col_id)
         let sorted_rows = sort_rows(rows, col_idx, dir)
-        let row_nodes : Array[@luna.Node[@js.Any]] = []
+        let row_nodes : Array[@luna.Node[@js.Any, String]] = []
         for row in sorted_rows {
           let row_id = row.id
-          let row_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+          let row_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
             ("class", @luna.attr_static(slots.row)),
           ]
           if is_selectable {
@@ -320,7 +322,7 @@ pub fn table(
           }
 
           // Build cells
-          let cells : Array[@luna.Node[@js.Any]] = []
+          let cells : Array[@luna.Node[@js.Any, String]] = []
           for cell in row.cells {
             cells.push(
               @luna.h("td", [("class", @luna.attr_static(slots.cell))], [
@@ -336,7 +338,7 @@ pub fn table(
   )
 
   // Build table
-  let table_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let table_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(id)),
     ("class", @luna.attr_static(slots.table)),
   ]

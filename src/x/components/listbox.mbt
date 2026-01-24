@@ -48,9 +48,9 @@ pub fn[E] listbox(
   aria_labelledby? : String,
   multiselectable? : Bool,
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("listbox")),
     ("tabindex", @luna.attr_static("0")),
   ]
@@ -81,9 +81,9 @@ pub fn[E] option(
   value : String,
   selected : Bool,
   disabled? : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("option")),
     (
       "aria-selected",
@@ -103,9 +103,9 @@ pub fn[E] option_dyn(
   value : String,
   selected_values : @resource.Signal[Array[String]],
   disabled? : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("option")),
     (
       "aria-selected",
@@ -129,8 +129,8 @@ pub fn[E] option_dyn(
 /// Create an option group.
 pub fn[E] optgroup(
   aria_label : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   @luna.h(
     "div",
     [
@@ -147,8 +147,8 @@ pub fn[E] listbox_from_options(
   options : Array[ListboxOption],
   selected_value : String,
   aria_label? : String,
-) -> @luna.Node[E] {
-  let option_nodes : Array[@luna.Node[E]] = []
+) -> @luna.Node[E, String] {
+  let option_nodes : Array[@luna.Node[E, String]] = []
   for opt in options {
     let is_selected = opt.value == selected_value
     option_nodes.push(
@@ -166,8 +166,8 @@ pub fn[E] listbox_multi(
   options : Array[ListboxOption],
   selected_values : Array[String],
   aria_label? : String,
-) -> @luna.Node[E] {
-  let option_nodes : Array[@luna.Node[E]] = []
+) -> @luna.Node[E, String] {
+  let option_nodes : Array[@luna.Node[E, String]] = []
   for opt in options {
     let is_selected = selected_values.contains(opt.value)
     option_nodes.push(

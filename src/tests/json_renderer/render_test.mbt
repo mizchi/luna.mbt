@@ -162,7 +162,7 @@ test "render for loop" {
 
 ///|
 test "render component" {
-  fn my_component() -> @luna.Node[Unit] {
+  fn my_component() -> @luna.Node[Unit, String] {
     @luna.h("div", [("class", @luna.attr_static("component"))], [
       @luna.text("Content"),
     ])
@@ -311,7 +311,7 @@ test "signal reactivity captured at render time" {
 
 ///|
 test "render island node" {
-  let node : @luna.Node[Unit] = @luna.island(
+  let node : @luna.Node[Unit, String] = @luna.island(
     "island-1",
     "/components/counter.js",
     "{\"count\":5}",
@@ -347,7 +347,7 @@ test "render island node" {
 
 ///|
 test "render island with idle trigger" {
-  let node : @luna.Node[Unit] = @luna.island(
+  let node : @luna.Node[Unit, String] = @luna.island(
     "lazy-1",
     "/lazy.js",
     "{}",
@@ -367,7 +367,7 @@ test "render island with idle trigger" {
 
 ///|
 test "render async fallback" {
-  let node : @luna.Node[Unit] = @luna.async_(
+  let node : @luna.Node[Unit, String] = @luna.async_(
     render=async fn() { @luna.text("Loaded") },
     fallback=fn() { @luna.text("Loading...") },
   )
@@ -381,7 +381,7 @@ test "render async fallback" {
 
 ///|
 test "render error_boundary success" {
-  let node : @luna.Node[Unit] = @luna.error_boundary(
+  let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Success")]) },
     fallback=fn(_err, _reset) { @luna.text("Error") },
   )
@@ -397,7 +397,7 @@ test "render error_boundary success" {
 
 ///|
 test "render switch first case match" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
@@ -413,7 +413,7 @@ test "render switch first case match" {
 
 ///|
 test "render switch second case match" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
@@ -429,7 +429,7 @@ test "render switch second case match" {
 
 ///|
 test "render switch fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(
+  let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
@@ -444,7 +444,7 @@ test "render switch fallback" {
 
 ///|
 test "render switch no fallback" {
-  let node : @luna.Node[Unit] = @luna.switch_(cases=[
+  let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let json = render_to_json(node)
@@ -457,7 +457,7 @@ test "render switch no fallback" {
 
 ///|
 test "render action attribute" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "button",
     [("onclick", @luna.action(Increment))],
     [@luna.text("Click")],

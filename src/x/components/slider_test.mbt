@@ -1,6 +1,6 @@
 ///|
 test "slider: role and value attributes" {
-  let node : @luna.Node[Unit] = slider(50.0, aria_label="Volume", [])
+  let node : @luna.Node[Unit, String] = slider(50.0, aria_label="Volume", [])
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_role = false
   let mut has_valuenow = false
@@ -32,7 +32,7 @@ test "slider: role and value attributes" {
 
 ///|
 test "slider: custom range" {
-  let node : @luna.Node[Unit] = slider(
+  let node : @luna.Node[Unit, String] = slider(
     5.0,
     min=0.0,
     max=10.0,
@@ -58,7 +58,7 @@ test "slider: custom range" {
 
 ///|
 test "slider: vertical orientation" {
-  let node : @luna.Node[Unit] = slider(
+  let node : @luna.Node[Unit, String] = slider(
     50.0,
     orientation=Vertical,
     aria_label="Height",
@@ -77,7 +77,7 @@ test "slider: vertical orientation" {
 
 ///|
 test "slider_native: creates range input" {
-  let node : @luna.Node[Unit] = slider_native(
+  let node : @luna.Node[Unit, String] = slider_native(
     "volume",
     50.0,
     aria_label="Volume",

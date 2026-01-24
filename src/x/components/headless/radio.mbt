@@ -166,7 +166,7 @@ pub fn radio_group_attrs(
 ///|
 /// Props for a single radio item.
 pub(all) struct RadioProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   is_selected : Bool
   is_disabled : Bool
 }
@@ -183,7 +183,7 @@ pub fn use_radio(
   selected : @resource.Signal[String],
 ) -> RadioProps {
   let is_selected = selected.get() == value
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("id", @luna.attr_static(radio_id)),
     ("role", @luna.attr_static("radio")),
     (

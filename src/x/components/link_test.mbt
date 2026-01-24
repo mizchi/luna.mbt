@@ -1,6 +1,6 @@
 ///|
 test "link: basic attributes" {
-  let node : @luna.Node[Unit] = link("https://example.com", [
+  let node : @luna.Node[Unit, String] = link("https://example.com", [
     @luna.text("Example"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -12,7 +12,7 @@ test "link: basic attributes" {
 
 ///|
 test "link: with target blank" {
-  let node : @luna.Node[Unit] = link("/page", target=Blank, [
+  let node : @luna.Node[Unit, String] = link("/page", target=Blank, [
     @luna.text("New Tab"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -30,9 +30,11 @@ test "link: with target blank" {
 
 ///|
 test "link: with aria-label for icon-only" {
-  let node : @luna.Node[Unit] = link("/home", aria_label="Go to home page", [
-    @luna.text("🏠"),
-  ])
+  let node : @luna.Node[Unit, String] = link(
+    "/home",
+    aria_label="Go to home page",
+    [@luna.text("🏠")],
+  )
   guard node is @core.Element(el) else { fail("expected Element") }
   let mut has_aria_label = false
   for attr in el.attrs {
@@ -48,7 +50,7 @@ test "link: with aria-label for icon-only" {
 
 ///|
 test "link: disabled state" {
-  let node : @luna.Node[Unit] = link("/action", disabled=true, [
+  let node : @luna.Node[Unit, String] = link("/action", disabled=true, [
     @luna.text("Disabled"),
   ])
   guard node is @core.Element(el) else { fail("expected Element") }
@@ -73,7 +75,9 @@ test "link: disabled state" {
 ///|
 test "link_button: role and tabindex" {
   let handler = @luna.handler(fn(_x : Unit) { () })
-  let node : @luna.Node[Unit] = link_button(handler, [@luna.text("Click")])
+  let node : @luna.Node[Unit, String] = link_button(handler, [
+    @luna.text("Click"),
+  ])
   guard node is @core.Element(el) else { fail("expected Element") }
   inspect(el.tag, content="span")
   let mut has_role = false

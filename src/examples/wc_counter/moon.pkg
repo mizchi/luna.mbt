@@ -1,4 +1,7 @@
-import { "mizchi/luna/x/stella/component" as @wc, "mizchi/js" as @js }
+import {
+  "mizchi/luna/x/stella/component" as @wc,
+  "mizchi/js" as @js,
+}
 
 options(
   link: { "js": { "exports": [ "setup", "template" ], "format": "esm" } },

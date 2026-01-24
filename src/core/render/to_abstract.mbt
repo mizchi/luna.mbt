@@ -6,7 +6,7 @@
 ///|
 /// Convert Luna Node to AbstractNode
 /// Dynamic content (DynamicText, Show, For, Component) is evaluated at conversion time.
-pub fn[E] to_abstract(node : @luna.Node[E]) -> AbstractNode {
+pub fn[E, A : Show] to_abstract(node : @luna.Node[E, A]) -> AbstractNode {
   match node {
     Text(content) => Text(content)
     DynamicText(getter) => Text(getter())
@@ -52,7 +52,7 @@ pub fn[E] to_abstract(node : @luna.Node[E]) -> AbstractNode {
 
 ///|
 /// Convert Luna Element to AbstractNode Element
-fn[E] convert_element(elem : @luna.VElement[E]) -> AbstractNode {
+fn[E, A : Show] convert_element(elem : @luna.VElement[E, A]) -> AbstractNode {
   let attrs = elem.attrs.map(convert_attr)
   let children = elem.children.map(to_abstract)
   element(elem.tag, attrs, children)
@@ -60,11 +60,13 @@ fn[E] convert_element(elem : @luna.VElement[E]) -> AbstractNode {
 
 ///|
 /// Convert Luna Attr to AbstractNode AttrValue
-fn[E] convert_attr(attr : (String, @luna.Attr[E])) -> (String, AttrValue) {
+fn[E, A : Show] convert_attr(
+  attr : (String, @luna.Attr[E, A]),
+) -> (String, AttrValue) {
   let (name, value) = attr
   match value {
-    VStatic(s) => (name, Str(s))
-    VDynamic(getter) => (name, Str(getter()))
+    VStatic(s) => (name, Str(s.to_string()))
+    VDynamic(getter) => (name, Str(getter().to_string()))
     VHandler(_) => (name, Str(""))
     VAction(action_name) =>
       ("data-action-" + name[2:].to_string(), Str(action_name)) catch {
@@ -87,7 +89,7 @@ fn convert_trigger(trigger : @luna.TriggerType) -> HydrationTrigger {
 
 ///|
 /// Convert Luna Island to AbstractNode Component
-fn[E] convert_island(island : @luna.VIsland[E]) -> AbstractNode {
+fn[E, A : Show] convert_island(island : @luna.VIsland[E, A]) -> AbstractNode {
   let trigger = convert_trigger(island.trigger)
   let mode = Hydration(trigger)
   let children = island.children.map(to_abstract)
@@ -98,7 +100,9 @@ fn[E] convert_island(island : @luna.VIsland[E]) -> AbstractNode {
 
 ///|
 /// Convert Luna WcIsland to AbstractNode Component
-fn[E] convert_wc_island(island : @luna.VWcIsland[E]) -> AbstractNode {
+fn[E, A : Show] convert_wc_island(
+  island : @luna.VWcIsland[E, A],
+) -> AbstractNode {
   let trigger = convert_trigger(island.trigger)
   let mode = Hydration(trigger)
   let children = island.children.map(to_abstract)
@@ -108,7 +112,9 @@ fn[E] convert_wc_island(island : @luna.VWcIsland[E]) -> AbstractNode {
 
 ///|
 /// Convert Luna InternalRef to AbstractNode Component
-fn[E] convert_internal_ref(iref : @luna.VInternalRef[E]) -> AbstractNode {
+fn[E, A : Show] convert_internal_ref(
+  iref : @luna.VInternalRef[E, A],
+) -> AbstractNode {
   let trigger = convert_trigger(iref.trigger)
   let mode = Hydration(trigger)
   let children = iref.children.map(to_abstract)

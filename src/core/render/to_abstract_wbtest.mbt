@@ -2,7 +2,7 @@
 
 ///|
 test "convert simple element" {
-  let luna_node : @luna.Node[Unit] = @luna.h(
+  let luna_node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("class", @luna.attr_static("container"))],
     [@luna.text("Hello")],
@@ -22,7 +22,7 @@ test "convert simple element" {
 
 ///|
 test "convert nested elements" {
-  let luna_node : @luna.Node[Unit] = @luna.h("ul", [], [
+  let luna_node : @luna.Node[Unit, String] = @luna.h("ul", [], [
     @luna.h("li", [], [@luna.text("Item 1")]),
     @luna.h("li", [], [@luna.text("Item 2")]),
   ])
@@ -34,7 +34,7 @@ test "convert nested elements" {
 
 ///|
 test "convert dynamic text" {
-  let luna_node : @luna.Node[Unit] = @luna.text_dyn(fn() { "Dynamic" })
+  let luna_node : @luna.Node[Unit, String] = @luna.text_dyn(fn() { "Dynamic" })
   let abstract_node = to_abstract(luna_node)
   match abstract_node {
     Text(content) => assert_eq(content, "Dynamic")
@@ -44,7 +44,7 @@ test "convert dynamic text" {
 
 ///|
 test "convert fragment" {
-  let luna_node : @luna.Node[Unit] = @luna.fragment([
+  let luna_node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.text("A"),
     @luna.text("B"),
     @luna.text("C"),
@@ -58,7 +58,7 @@ test "convert fragment" {
 
 ///|
 test "convert Show node - true condition" {
-  let luna_node : @luna.Node[Unit] = @luna.show(fn() { true }, fn() {
+  let luna_node : @luna.Node[Unit, String] = @luna.show(fn() { true }, fn() {
     @luna.text("Visible")
   })
   let abstract_node = to_abstract(luna_node)
@@ -70,7 +70,7 @@ test "convert Show node - true condition" {
 
 ///|
 test "convert Show node - false condition" {
-  let luna_node : @luna.Node[Unit] = @luna.show(fn() { false }, fn() {
+  let luna_node : @luna.Node[Unit, String] = @luna.show(fn() { false }, fn() {
     @luna.text("Hidden")
   })
   let abstract_node = to_abstract(luna_node)
@@ -82,7 +82,7 @@ test "convert Show node - false condition" {
 
 ///|
 test "convert For node" {
-  let luna_node : @luna.Node[Unit] = @luna.for_each(fn() {
+  let luna_node : @luna.Node[Unit, String] = @luna.for_each(fn() {
     [@luna.text("A"), @luna.text("B")]
   })
   let abstract_node = to_abstract(luna_node)
@@ -94,7 +94,7 @@ test "convert For node" {
 
 ///|
 test "convert RawHtml" {
-  let luna_node : @luna.Node[Unit] = @luna.raw_html(
+  let luna_node : @luna.Node[Unit, String] = @luna.raw_html(
     "<custom-element>Content</custom-element>",
   )
   let abstract_node = to_abstract(luna_node)
@@ -107,7 +107,7 @@ test "convert RawHtml" {
 ///|
 test "round-trip simple element html output" {
   // Create Luna node
-  let luna_node : @luna.Node[Unit] = @luna.h(
+  let luna_node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [("class", @luna.attr_static("container"))],
     [@luna.text("Hello")],
@@ -126,7 +126,7 @@ test "round-trip simple element html output" {
 
 ///|
 test "round-trip nested elements html output" {
-  let luna_node : @luna.Node[Unit] = @luna.h("ul", [], [
+  let luna_node : @luna.Node[Unit, String] = @luna.h("ul", [], [
     @luna.h("li", [], [@luna.text("Item 1")]),
     @luna.h("li", [], [@luna.text("Item 2")]),
   ])
@@ -138,7 +138,7 @@ test "round-trip nested elements html output" {
 
 ///|
 test "round-trip void elements html output" {
-  let luna_node : @luna.Node[Unit] = @luna.h("div", [], [
+  let luna_node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.h("br", [], []),
     @luna.h("img", [("src", @luna.attr_static("test.png"))], []),
   ])
@@ -150,7 +150,7 @@ test "round-trip void elements html output" {
 
 ///|
 test "round-trip fragment html output" {
-  let luna_node : @luna.Node[Unit] = @luna.fragment([
+  let luna_node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.text("Hello "),
     @luna.h("strong", [], [@luna.text("World")]),
   ])
@@ -162,7 +162,7 @@ test "round-trip fragment html output" {
 
 ///|
 test "round-trip escaped content html output" {
-  let luna_node : @luna.Node[Unit] = @luna.h("div", [], [
+  let luna_node : @luna.Node[Unit, String] = @luna.h("div", [], [
     @luna.text("<script>alert('XSS')</script>"),
   ])
   let abstract_node = to_abstract(luna_node)

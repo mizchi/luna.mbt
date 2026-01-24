@@ -58,9 +58,9 @@ pub fn[E] menu_trigger(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
     ("aria-haspopup", @luna.attr_static("menu")),
@@ -91,9 +91,9 @@ pub fn[E] menu_trigger_dyn(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(id)),
     ("aria-haspopup", @luna.attr_static("menu")),
@@ -127,9 +127,9 @@ pub fn[E] menu(
   id : String,
   labelled_by : String,
   visible : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("menu")),
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelled_by)),
@@ -146,9 +146,9 @@ pub fn[E] menu_dyn(
   id : String,
   labelled_by : String,
   visible : @resource.Signal[Bool],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("menu")),
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelled_by)),
@@ -172,10 +172,10 @@ pub fn[E] menuitem(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("menuitem")),
     ("tabindex", @luna.attr_static(if selected { "0" } else { "-1" })),
   ]
@@ -205,10 +205,10 @@ pub fn[E] menuitem_dyn(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("menuitem")),
     (
       "tabindex",
@@ -329,8 +329,8 @@ pub fn menu_button_interactive(
   id : String,
   items : Array[MenuItem],
   on_select : (String) -> Unit,
-  button_content : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  button_content : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let open = @resource.signal(false)
   let focused_index = @resource.signal(0)
   let button_id = id + "-button"
@@ -377,7 +377,7 @@ pub fn menu_button_interactive(
     },
   )
   // Build menu items
-  let menu_items : Array[@luna.Node[@js.Any]] = []
+  let menu_items : Array[@luna.Node[@js.Any, String]] = []
   for i, item in items {
     let idx = i
     let item_id = id + "-item-" + i.to_string()

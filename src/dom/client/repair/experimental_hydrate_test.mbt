@@ -517,7 +517,7 @@ test "exp: repair component render" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  fn counter_component(initial : Int) -> @luna.Node[@js.Any] {
+  fn counter_component(initial : Int) -> @luna.Node[@js.Any, String] {
     let count = @resource.signal(initial)
     let _ = count // suppress unused warning
     @luna.h("div", [], [
@@ -1075,9 +1075,12 @@ test "exp: hydrate island node" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.island("island-1", "/app.js", "{}", [
-    @luna.text("Island content"),
-  ])
+  let vnode : @luna.Node[@js.Any, String] = @luna.island(
+    "island-1",
+    "/app.js",
+    "{}",
+    [@luna.text("Island content")],
+  )
   exp_set_inner_html(container, "")
   let result = experimental_hydrate(container, vnode, logger~)
   match result {
@@ -1093,7 +1096,7 @@ test "exp: hydrate async node fallback" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.async_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.async_(
     render=async fn() { @luna.text("Loaded") },
     fallback=fn() { @luna.text("Loading...") },
   )
@@ -1114,7 +1117,7 @@ test "exp: hydrate error_boundary success" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.error_boundary(
+  let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Safe")]) },
     fallback=fn(_err, _reset) { @luna.text("Error") },
   )
@@ -1133,7 +1136,7 @@ test "exp: hydrate switch first case" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
@@ -1155,7 +1158,7 @@ test "exp: hydrate switch fallback" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
@@ -1176,7 +1179,7 @@ test "exp: hydrate switch no fallback" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(cases=[
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   exp_set_inner_html(container, "")
@@ -1314,7 +1317,7 @@ test "exp: apply_vattr VAction skipped" {
   defer exp_cleanup()
   let container = exp_create_container()
   let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any] = @luna.h(
+  let vnode : @luna.Node[@js.Any, String] = @luna.h(
     "button",
     [("onclick", @luna.action(TestAction))],
     [@luna.text("Click")],

@@ -19,7 +19,7 @@ test "EventHandler::get_callback" {
 
 ///|
 test "attr_static" {
-  let attr : Attr[Unit] = attr_static("value")
+  let attr : Attr[Unit, String] = attr_static("value")
   match attr {
     VStatic(s) => assert_eq(s, "value")
     _ => assert_true(false)
@@ -28,7 +28,7 @@ test "attr_static" {
 
 ///|
 test "attr_dynamic" {
-  let attr : Attr[Unit] = attr_dynamic(fn() { "dynamic" })
+  let attr : Attr[Unit, String] = attr_dynamic(fn() { "dynamic" })
   match attr {
     VDynamic(getter) => assert_eq(getter(), "dynamic")
     _ => assert_true(false)
@@ -39,7 +39,7 @@ test "attr_dynamic" {
 test "attr_handler" {
   let called : Ref[Bool] = Ref::new(false)
   let h = handler(fn(_e : Unit) { called.val = true })
-  let attr : Attr[Unit] = attr_handler(h)
+  let attr : Attr[Unit, String] = attr_handler(h)
   match attr {
     VHandler(handler) => {
       handler.get_callback()(())
@@ -51,7 +51,7 @@ test "attr_handler" {
 
 ///|
 test "attr_style" {
-  let attr : Attr[Unit] = attr_style("color: red")
+  let attr : Attr[Unit, String] = attr_style("color: red")
   match attr {
     VStatic(s) => assert_eq(s, "color: red")
     _ => assert_true(false)
@@ -60,7 +60,7 @@ test "attr_style" {
 
 ///|
 test "attr_dynamic_style" {
-  let attr : Attr[Unit] = attr_dynamic_style(fn() { "color: blue" })
+  let attr : Attr[Unit, String] = attr_dynamic_style(fn() { "color: blue" })
   match attr {
     VDynamic(getter) => assert_eq(getter(), "color: blue")
     _ => assert_true(false)
@@ -78,7 +78,7 @@ enum TestAction {
 
 ///|
 test "action with enum - Increment" {
-  let attr : Attr[Unit] = action(Increment)
+  let attr : Attr[Unit, String] = action(Increment)
   match attr {
     VAction(name) => assert_eq(name, "Increment")
     _ => assert_true(false)
@@ -87,7 +87,7 @@ test "action with enum - Increment" {
 
 ///|
 test "action with enum - Decrement" {
-  let attr : Attr[Unit] = action(Decrement)
+  let attr : Attr[Unit, String] = action(Decrement)
   match attr {
     VAction(name) => assert_eq(name, "Decrement")
     _ => assert_true(false)
@@ -100,7 +100,7 @@ test "action with enum - Decrement" {
 
 ///|
 test "h creates Element node" {
-  let node : Node[Unit] = h("div", [], [])
+  let node : Node[Unit, String] = h("div", [], [])
   match node {
     Element(elem) => assert_eq(elem.tag, "div")
     _ => assert_true(false)
@@ -109,7 +109,7 @@ test "h creates Element node" {
 
 ///|
 test "text creates Text node" {
-  let node : Node[Unit] = text("hello")
+  let node : Node[Unit, String] = text("hello")
   match node {
     Text(content) => assert_eq(content, "hello")
     _ => assert_true(false)
@@ -118,7 +118,7 @@ test "text creates Text node" {
 
 ///|
 test "text_dyn creates DynamicText node" {
-  let node : Node[Unit] = text_dyn(fn() { "dynamic" })
+  let node : Node[Unit, String] = text_dyn(fn() { "dynamic" })
   match node {
     DynamicText(getter) => assert_eq(getter(), "dynamic")
     _ => assert_true(false)
@@ -127,7 +127,7 @@ test "text_dyn creates DynamicText node" {
 
 ///|
 test "fragment creates Fragment node" {
-  let node : Node[Unit] = fragment([text("a"), text("b")])
+  let node : Node[Unit, String] = fragment([text("a"), text("b")])
   match node {
     Fragment(children) => assert_eq(children.length(), 2)
     _ => assert_true(false)
@@ -136,7 +136,7 @@ test "fragment creates Fragment node" {
 
 ///|
 test "show creates Show node" {
-  let node : Node[Unit] = show(fn() { true }, fn() { text("shown") })
+  let node : Node[Unit, String] = show(fn() { true }, fn() { text("shown") })
   match node {
     Show(condition~, child~) => {
       assert_true(condition())
@@ -151,7 +151,7 @@ test "show creates Show node" {
 
 ///|
 test "for_each creates For node" {
-  let node : Node[Unit] = for_each(fn() { [text("a"), text("b")] })
+  let node : Node[Unit, String] = for_each(fn() { [text("a"), text("b")] })
   match node {
     For(render~) => assert_eq(render().length(), 2)
     _ => assert_true(false)
@@ -160,7 +160,7 @@ test "for_each creates For node" {
 
 ///|
 test "component creates Component node" {
-  let node : Node[Unit] = component(fn() { text("component") })
+  let node : Node[Unit, String] = component(fn() { text("component") })
   match node {
     Component(render~) =>
       match render() {
@@ -173,7 +173,7 @@ test "component creates Component node" {
 
 ///|
 test "island creates Island node" {
-  let node : Node[Unit] = island("id1", "/app.js", "{}", [text("child")])
+  let node : Node[Unit, String] = island("id1", "/app.js", "{}", [text("child")])
   match node {
     Island(island) => {
       assert_eq(island.id, "id1")
@@ -187,7 +187,7 @@ test "island creates Island node" {
 
 ///|
 test "island with custom trigger" {
-  let node : Node[Unit] = island(
+  let node : Node[Unit, String] = island(
     "id1",
     "/app.js",
     "{}",
@@ -206,9 +206,10 @@ test "island with custom trigger" {
 
 ///|
 test "async_ creates Async node" {
-  let node : Node[Unit] = async_(render=async fn() { text("resolved") }, fallback=fn() {
-    text("loading")
-  })
+  let node : Node[Unit, String] = async_(
+    render=async fn() { text("resolved") },
+    fallback=fn() { text("loading") },
+  )
   match node {
     Async(async_node) =>
       match (async_node.fallback)() {
@@ -221,12 +222,10 @@ test "async_ creates Async node" {
 
 ///|
 test "error_boundary creates ErrorBoundary node" {
-  let node : Node[Unit] = error_boundary(children=fn() { text("content") }, fallback=fn(
-    _err,
-    _reset,
-  ) {
-    text("error")
-  })
+  let node : Node[Unit, String] = error_boundary(
+    children=fn() { text("content") },
+    fallback=fn(_err, _reset) { text("error") },
+  )
   match node {
     ErrorBoundary(boundary) =>
       match (boundary.children)() {
@@ -239,7 +238,7 @@ test "error_boundary creates ErrorBoundary node" {
 
 ///|
 test "match_case creates MatchCase" {
-  let case_ : MatchCase[Unit] = match_case(when=fn() { true }, render=fn() {
+  let case_ : MatchCase[Unit, String] = match_case(when=fn() { true }, render=fn() {
     text("matched")
   })
   assert_true((case_.when)())
@@ -251,7 +250,7 @@ test "match_case creates MatchCase" {
 
 ///|
 test "switch_ creates Switch node" {
-  let node : Node[Unit] = switch_(
+  let node : Node[Unit, String] = switch_(
     cases=[
       match_case(when=fn() { false }, render=fn() { text("first") }),
       match_case(when=fn() { true }, render=fn() { text("second") }),
@@ -289,7 +288,7 @@ test "TriggerType::to_string" {
 
 ///|
 test "has_dynamic_content returns false for static attrs" {
-  let attrs : Array[(String, Attr[Unit])] = [
+  let attrs : Array[(String, Attr[Unit, String])] = [
     ("class", attr_static("foo")),
     ("id", attr_static("bar")),
   ]
@@ -298,7 +297,7 @@ test "has_dynamic_content returns false for static attrs" {
 
 ///|
 test "has_dynamic_content returns true for VDynamic" {
-  let attrs : Array[(String, Attr[Unit])] = [
+  let attrs : Array[(String, Attr[Unit, String])] = [
     ("class", attr_static("foo")),
     ("value", attr_dynamic(fn() { "dynamic" })),
   ]
@@ -307,7 +306,7 @@ test "has_dynamic_content returns true for VDynamic" {
 
 ///|
 test "has_dynamic_content returns true for VHandler" {
-  let attrs : Array[(String, Attr[Unit])] = [
+  let attrs : Array[(String, Attr[Unit, String])] = [
     ("onclick", attr_handler(handler(fn(_) { () }))),
   ]
   assert_true(has_dynamic_content(attrs))
@@ -315,13 +314,13 @@ test "has_dynamic_content returns true for VHandler" {
 
 ///|
 test "has_dynamic_content returns true for VAction" {
-  let attrs : Array[(String, Attr[Unit])] = [("onclick", action(Click))]
+  let attrs : Array[(String, Attr[Unit, String])] = [("onclick", action(Click))]
   assert_true(has_dynamic_content(attrs))
 }
 
 ///|
 test "has_dynamic_content empty attrs" {
-  let attrs : Array[(String, Attr[Unit])] = []
+  let attrs : Array[(String, Attr[Unit, String])] = []
   assert_true(not(has_dynamic_content(attrs)))
 }
 
@@ -405,7 +404,9 @@ test "wc_component_ref with custom trigger" {
 
 ///|
 test "internal_ref creates InternalRef node" {
-  let node : Node[Unit] = internal_ref("/static/counter.js", "{\"count\":0}")
+  let node : Node[Unit, String] = internal_ref(
+    "/static/counter.js", "{\"count\":0}",
+  )
   match node {
     InternalRef(iref) => {
       assert_eq(iref.url, "/static/counter.js")
@@ -420,7 +421,7 @@ test "internal_ref creates InternalRef node" {
 
 ///|
 test "internal_ref with wc flag" {
-  let node : Node[Unit] = internal_ref(
+  let node : Node[Unit, String] = internal_ref(
     "/static/wc_counter.js",
     "{}",
     wc=true,
@@ -440,7 +441,11 @@ test "internal_ref with wc flag" {
 
 ///|
 test "internal_ref with custom trigger" {
-  let node : Node[Unit] = internal_ref("/static/counter.js", "{}", trigger=Idle)
+  let node : Node[Unit, String] = internal_ref(
+    "/static/counter.js",
+    "{}",
+    trigger=Idle,
+  )
   match node {
     InternalRef(iref) =>
       match iref.trigger {

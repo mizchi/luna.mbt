@@ -5,7 +5,7 @@ test "breadcrumb: creates nav with aria-label" {
     breadcrumb_item("/docs", "Docs"),
     breadcrumb_item("/docs/guide", "Guide", current=true),
   ]
-  let node : @luna.Node[Unit] = breadcrumb(items)
+  let node : @luna.Node[Unit, String] = breadcrumb(items)
   guard node is @core.Element(nav) else { fail("expected Element") }
   inspect(nav.tag, content="nav")
   let mut has_label = false
@@ -24,7 +24,7 @@ test "breadcrumb: custom separator" {
     breadcrumb_item("/", "Home"),
     breadcrumb_item("/about", "About", current=true),
   ]
-  let node : @luna.Node[Unit] = breadcrumb(separator=">", items)
+  let node : @luna.Node[Unit, String] = breadcrumb(separator=">", items)
   guard node is @core.Element(nav) else { fail("expected Element") }
   guard nav.children[0] is @core.Element(ol) else { fail("expected ol") }
   inspect(ol.tag, content="ol")
@@ -36,7 +36,7 @@ test "breadcrumb: current page has aria-current" {
     breadcrumb_item("/", "Home"),
     breadcrumb_item("/page", "Current", current=true),
   ]
-  let node : @luna.Node[Unit] = breadcrumb(items)
+  let node : @luna.Node[Unit, String] = breadcrumb(items)
   guard node is @core.Element(nav) else { fail("expected nav") }
   guard nav.children[0] is @core.Element(ol) else { fail("expected ol") }
   guard ol.children[1] is @core.Element(li) else { fail("expected li") }
@@ -53,7 +53,7 @@ test "breadcrumb: current page has aria-current" {
 
 ///|
 test "breadcrumb_from_path: builds from segments" {
-  let node : @luna.Node[Unit] = breadcrumb_from_path(
+  let node : @luna.Node[Unit, String] = breadcrumb_from_path(
     "/docs",
     [("guide", "Guide"), ("install", "Installation")],
     "Current Page",

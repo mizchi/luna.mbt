@@ -8,7 +8,7 @@
 ///|
 /// Checkbox props
 pub(all) struct CheckboxProps {
-  attrs : Array[(String, @luna.Attr[@js.Any])]
+  attrs : Array[(String, @luna.Attr[@js.Any, String])]
   toggle : () -> Unit
   is_checked : Bool
 }
@@ -23,7 +23,9 @@ pub fn use_checkbox(
 ) -> CheckboxProps {
   let is_checked = checked.get()
   let aria_attrs = @aria.checkbox_aria(is_checked, disabled, indeterminate)
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = aria_attrs.map(fn(pair) {
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = aria_attrs.map(fn(
+    pair,
+  ) {
     (pair.0, @luna.attr_static(pair.1))
   })
 
@@ -71,9 +73,9 @@ pub fn[E] checkbox_attrs(
   disabled? : Bool = false,
   indeterminate? : Bool = false,
   aria_label? : String,
-) -> Array[(String, @luna.Attr[E])] {
+) -> Array[(String, @luna.Attr[E, String])] {
   let aria_attrs = @aria.checkbox_aria(checked, disabled, indeterminate)
-  let attrs : Array[(String, @luna.Attr[E])] = aria_attrs.map(fn(pair) {
+  let attrs : Array[(String, @luna.Attr[E, String])] = aria_attrs.map(fn(pair) {
     (pair.0, @luna.attr_static(pair.1))
   })
   if aria_label is Some(label) {

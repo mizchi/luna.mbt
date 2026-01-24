@@ -48,9 +48,9 @@ pub fn disclosure(
   id : String,
   expanded : @resource.Signal[Bool],
   trigger_text : String,
-  children : Array[@luna.Node[@js.Any]],
+  children : Array[@luna.Node[@js.Any, String]],
   class? : String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = disclosure_slots()
   let root_class = match class {
     Some(c) => slots.root + " " + c

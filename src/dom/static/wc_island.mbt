@@ -20,11 +20,11 @@
 pub fn wc_island(
   name : String,
   url : String,
-  children : Array[@luna.Node[Unit]],
+  children : Array[@luna.Node[Unit, String]],
   styles? : String,
   state? : String,
   trigger? : @luna.TriggerType,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let styles_value = match styles {
     Some(s) => s
     None => ""

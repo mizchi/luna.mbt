@@ -58,9 +58,9 @@ pub fn[E] button(
   aria_describedby? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static(type_.unwrap_or(Button).to_string())),
   ]
   if disabled is Some(true) {
@@ -121,9 +121,9 @@ pub fn[E] toggle_button(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("aria-pressed", @luna.attr_static(pressed.to_aria())),
   ]
@@ -152,9 +152,9 @@ pub fn[E] toggle_button_dyn(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     (
       "aria-pressed",
@@ -221,9 +221,9 @@ pub fn[E] menu_button(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("aria-haspopup", @luna.attr_static(popup_type.to_aria())),
     (
@@ -255,9 +255,9 @@ pub fn[E] menu_button_dyn(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("button")),
     ("aria-haspopup", @luna.attr_static(popup_type.to_aria())),
     (

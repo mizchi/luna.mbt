@@ -5,26 +5,28 @@
 
 ///|
 /// Render a node tree to HTML string
-pub fn render(node : @luna.Node[Unit]) -> String {
+pub fn render(node : @luna.Node[Unit, String]) -> String {
   @render.render_to_string(node).html
 }
 
 ///|
 /// Render a node tree to HTML with preload URLs for islands
-pub fn render_with_preloads(node : @luna.Node[Unit]) -> RenderResult {
+pub fn render_with_preloads(node : @luna.Node[Unit, String]) -> RenderResult {
   let result = @render.render_to_string(node, preload=true)
   { html: result.html, preload_urls: result.preload_urls }
 }
 
 ///|
 /// Render a complete HTML document with DOCTYPE
-pub fn render_document(node : @luna.Node[Unit]) -> String {
+pub fn render_document(node : @luna.Node[Unit, String]) -> String {
   "<!DOCTYPE html>\n" + render(node)
 }
 
 ///|
 /// Render a complete HTML document with DOCTYPE and preloads
-pub fn render_document_with_preloads(node : @luna.Node[Unit]) -> RenderResult {
+pub fn render_document_with_preloads(
+  node : @luna.Node[Unit, String],
+) -> RenderResult {
   let result = render_with_preloads(node)
   { html: "<!DOCTYPE html>\n" + result.html, preload_urls: result.preload_urls }
 }
@@ -53,11 +55,11 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
 /// ```
 pub fn document(
   lang? : String,
-  head_children~ : Array[@luna.Node[Unit]],
-  body_children~ : Array[@luna.Node[Unit]],
+  head_children~ : Array[@luna.Node[Unit, String]],
+  body_children~ : Array[@luna.Node[Unit, String]],
   body_class? : String,
   body_id? : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let body_node = match (body_class, body_id) {
     (Some(c), Some(i)) => body(class=c, id=i, body_children)
     (Some(c), None) => body(class=c, body_children)

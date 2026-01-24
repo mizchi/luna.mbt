@@ -109,7 +109,7 @@ extern "js" fn int_to_any(n : Int) -> @js.Any =
 // =============================================================================
 
 ///|
-fn style(css : String) -> Node[@js.Any] {
+fn style(css : String) -> Node[@js.Any, String] {
   h("style", [], [text(css)])
 }
 

@@ -9,7 +9,7 @@
 /// The render function receives the host element and returns a VNode tree
 pub fn register(
   name : String,
-  render : (@js_dom.Element) -> @luna.Node[@js.Any],
+  render : (@js_dom.Element) -> @luna.Node[@js.Any, String],
 ) -> Unit {
   js_define_element(name, fn(host) {
     // Create reactive root for this component instance
@@ -26,7 +26,7 @@ pub fn register(
 pub fn register_shadow(
   name : String,
   mode? : String = "open",
-  render : (@js_dom.Element) -> @luna.Node[@js.Any],
+  render : (@js_dom.Element) -> @luna.Node[@js.Any, String],
 ) -> Unit {
   js_define_element_shadow(name, mode, fn(host, shadow_root) {
     @resource.create_root(fn(_dispose) {
@@ -44,6 +44,7 @@ pub fn register_with_attrs(
   observed_attrs : Array[String],
   render : (@js_dom.Element, Map[String, @resource.Signal[String]]) -> @luna.Node[
     @js.Any,
+    String,
   ],
 ) -> Unit {
   js_define_element_with_attrs(name, observed_attrs, fn(

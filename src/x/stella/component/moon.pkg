@@ -1,1 +1,3 @@
-import { "mizchi/js" as @js }
+import {
+  "mizchi/js" as @js,
+}

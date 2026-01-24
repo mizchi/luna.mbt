@@ -408,7 +408,7 @@ test "hydrate component" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  fn greeting(name : String) -> @luna.Node[@js.Any] {
+  fn greeting(name : String) -> @luna.Node[@js.Any, String] {
     @luna.h("div", [], [@luna.text("Hello, " + name + "!")])
   }
 
@@ -956,7 +956,7 @@ test "hydrate island node" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.island(
+  let vnode : @luna.Node[@js.Any, String] = @luna.island(
     "island-1",
     "/components/counter.js",
     "{}",
@@ -975,7 +975,7 @@ test "hydrate island with nested elements" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.island(
+  let vnode : @luna.Node[@js.Any, String] = @luna.island(
     "island-nested",
     "/components/nested.js",
     "{\"count\":0}",
@@ -997,7 +997,7 @@ test "hydrate async node renders fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.async_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.async_(
     render=async fn() { @luna.text("Loaded") },
     fallback=fn() { @luna.text("Loading...") },
   )
@@ -1019,7 +1019,7 @@ test "hydrate error_boundary success" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.error_boundary(
+  let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Safe content")]) },
     fallback=fn(_err, _reset) { @luna.text("Error occurred") },
   )
@@ -1039,7 +1039,7 @@ test "hydrate switch first case matches" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
@@ -1058,7 +1058,7 @@ test "hydrate switch second case matches" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("First") }),
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("Second") }),
@@ -1077,7 +1077,7 @@ test "hydrate switch fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
@@ -1095,7 +1095,7 @@ test "hydrate switch no fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(cases=[
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let html = @render.render_to_string_with_hydration(vnode)
@@ -1113,7 +1113,7 @@ test "render_vnode_to_dom with Island" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.island(
+  let vnode : @luna.Node[@js.Any, String] = @luna.island(
     "island-render",
     "/module.js",
     "{\"state\":1}",
@@ -1132,7 +1132,7 @@ test "render_vnode_to_dom with Async renders fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.async_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.async_(
     render=async fn() { @luna.text("Async content") },
     fallback=fn() { @luna.text("Fallback content") },
   )
@@ -1146,7 +1146,7 @@ test "render_vnode_to_dom with ErrorBoundary success" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.error_boundary(
+  let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
     children=fn() { @luna.text("Safe content") },
     fallback=fn(_err, _reset) { @luna.text("Error") },
   )
@@ -1161,7 +1161,7 @@ test "render_vnode_to_dom with Switch" {
   defer cleanup()
   let container = create_container()
   let condition = @resource.signal(true)
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { condition.get() }, render=fn() {
         @luna.text("Case 1")
@@ -1182,7 +1182,7 @@ test "render_vnode_to_dom Switch with fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
     ],
@@ -1198,7 +1198,7 @@ test "render_vnode_to_dom Switch no fallback" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(cases=[
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let dom_node = render_vnode_to_dom(vnode)
@@ -1213,7 +1213,7 @@ test "render_vnode_to_dom Switch reactive update" {
   defer cleanup()
   let container = create_container()
   let case_index = @resource.signal(0)
-  let vnode : @luna.Node[@js.Any] = @luna.switch_(
+  let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { case_index.get() == 0 }, render=fn() {
         @luna.text("Zero")
@@ -1245,7 +1245,7 @@ test "hydrate action attribute" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.h(
+  let vnode : @luna.Node[@js.Any, String] = @luna.h(
     "button",
     [("onclick", @luna.action(Increment))],
     [@luna.text("Click")],
@@ -1279,7 +1279,7 @@ test "hydrate_with_actions" {
   let container = create_container()
   // Setup initial HTML with action attribute
   set_inner_html(container, "<div data-action-click=\"Increment\">0</div>")
-  let render_fn : (Int) -> @luna.Node[@js.Any] = fn(state) {
+  let render_fn : (Int) -> @luna.Node[@js.Any, String] = fn(state) {
     @luna.h("div", [("onclick", @luna.action(Increment))], [
       @luna.text(state.to_string()),
     ])
@@ -1363,7 +1363,7 @@ test "apply_vattr VAction without dispatcher" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let vnode : @luna.Node[@js.Any] = @luna.h(
+  let vnode : @luna.Node[@js.Any, String] = @luna.h(
     "button",
     [("onclick", @luna.action(TestAction))],
     [@luna.text("Click")],

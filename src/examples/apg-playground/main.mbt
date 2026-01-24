@@ -8,51 +8,61 @@
 // =============================================================================
 
 ///|
-fn div(children : Array[@luna.Node[@js.Any]]) -> @luna.Node[@js.Any] {
+fn div(
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("div", [], children)
 }
 
 ///|
 fn div_class(
   class : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("div", [("class", @luna.attr_static(class))], children)
 }
 
 ///|
-fn h1(children : Array[@luna.Node[@js.Any]]) -> @luna.Node[@js.Any] {
+fn h1(
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("h1", [], children)
 }
 
 ///|
-fn h2(children : Array[@luna.Node[@js.Any]]) -> @luna.Node[@js.Any] {
+fn h2(
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("h2", [], children)
 }
 
 ///|
-fn p(children : Array[@luna.Node[@js.Any]]) -> @luna.Node[@js.Any] {
+fn p(
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("p", [], children)
 }
 
 ///|
 fn p_class(
   class : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("p", [("class", @luna.attr_static(class))], children)
 }
 
 ///|
-fn span(children : Array[@luna.Node[@js.Any]]) -> @luna.Node[@js.Any] {
+fn span(
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("span", [], children)
 }
 
 ///|
 fn btn(
   on_click : @luna.EventHandler[@js.Any],
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("button", [("click", @luna.attr_handler(on_click))], children)
 }
 
@@ -185,7 +195,7 @@ fn all_sections() -> Array[Section] {
 // =============================================================================
 
 ///|
-fn button_demo() -> @luna.Node[@js.Any] {
+fn button_demo() -> @luna.Node[@js.Any, String] {
   let pressed = @resource.signal(false)
   div([
     h2([@luna.text("Button")]),
@@ -213,7 +223,7 @@ fn button_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn checkbox_demo() -> @luna.Node[@js.Any] {
+fn checkbox_demo() -> @luna.Node[@js.Any, String] {
   let terms = @resource.signal(true)
   let newsletter = @resource.signal(false)
   let select_all = @resource.signal(false) // Will be shown as indeterminate
@@ -240,7 +250,7 @@ fn checkbox_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn switch_demo() -> @luna.Node[@js.Any] {
+fn switch_demo() -> @luna.Node[@js.Any, String] {
   let wifi = @resource.signal(false)
   let bluetooth = @resource.signal(true)
   @switch.switch_group(aria_label="Settings", [
@@ -257,7 +267,7 @@ fn switch_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn radio_demo() -> @luna.Node[@js.Any] {
+fn radio_demo() -> @luna.Node[@js.Any, String] {
   let selected = @resource.signal("option1")
   let items = [
     @radio.radio_item("option1", "Option 1"),
@@ -283,7 +293,7 @@ fn radio_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn tabs_demo() -> @luna.Node[@js.Any] {
+fn tabs_demo() -> @luna.Node[@js.Any, String] {
   let active_tab = @resource.signal(0)
   let items : Array[@tabs.TabItem] = [
     @tabs.tab_item("0", "Tab 1", [@luna.text("Content for Tab 1")]),
@@ -306,7 +316,7 @@ fn tabs_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn accordion_demo() -> @luna.Node[@js.Any] {
+fn accordion_demo() -> @luna.Node[@js.Any, String] {
   let expanded = @resource.signal(-1) // -1 = all collapsed
   let items : Array[@accordion.AccordionItemData] = [
     @accordion.accordion_item("0", "Section 1", [
@@ -331,7 +341,7 @@ fn accordion_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn slider_demo() -> @luna.Node[@js.Any] {
+fn slider_demo() -> @luna.Node[@js.Any, String] {
   let value = @resource.signal(50.0)
   div([
     h2([@luna.text("Slider")]),
@@ -375,7 +385,7 @@ fn slider_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn dialog_demo() -> @luna.Node[@js.Any] {
+fn dialog_demo() -> @luna.Node[@js.Any, String] {
   let open = @resource.signal(false)
   div([
     h2([@luna.text("Dialog")]),
@@ -403,7 +413,7 @@ fn dialog_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn disclosure_demo() -> @luna.Node[@js.Any] {
+fn disclosure_demo() -> @luna.Node[@js.Any, String] {
   let expanded = @resource.signal(true)
   div([
     h2([@luna.text("Disclosure")]),
@@ -428,7 +438,7 @@ fn disclosure_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn breadcrumb_demo() -> @luna.Node[@js.Any] {
+fn breadcrumb_demo() -> @luna.Node[@js.Any, String] {
   let items : Array[@apg.BreadcrumbItem] = [
     @apg.breadcrumb_item("/", "Home"),
     @apg.breadcrumb_item("/products", "Products"),
@@ -447,7 +457,7 @@ fn breadcrumb_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn listbox_demo() -> @luna.Node[@js.Any] {
+fn listbox_demo() -> @luna.Node[@js.Any, String] {
   let selected = @resource.signal("apple")
   div([
     h2([@luna.text("Listbox")]),
@@ -467,8 +477,8 @@ fn listbox_option(
   selected : @resource.Signal[String],
   value : String,
   label : String,
-) -> @luna.Node[@js.Any] {
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+) -> @luna.Node[@js.Any, String] {
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("option")),
     (
       "aria-selected",
@@ -491,7 +501,7 @@ fn listbox_option(
 // =============================================================================
 
 ///|
-fn spinbutton_demo() -> @luna.Node[@js.Any] {
+fn spinbutton_demo() -> @luna.Node[@js.Any, String] {
   let value = @resource.signal(5.0)
   div([
     h2([@luna.text("Spinbutton")]),
@@ -519,7 +529,7 @@ fn spinbutton_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn combobox_demo() -> @luna.Node[@js.Any] {
+fn combobox_demo() -> @luna.Node[@js.Any, String] {
   let selected_fruit = @resource.signal("")
   let options = [
     @apg.combobox_option("apple", "Apple"),
@@ -553,7 +563,7 @@ fn combobox_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn treeview_demo() -> @luna.Node[@js.Any] {
+fn treeview_demo() -> @luna.Node[@js.Any, String] {
   let selected_node = @resource.signal("")
   let nodes = [
     @treeview.tree_node("documents", "Documents", children=[
@@ -593,7 +603,7 @@ fn treeview_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn toolbar_demo() -> @luna.Node[@js.Any] {
+fn toolbar_demo() -> @luna.Node[@js.Any, String] {
   let pressed_states : @resource.Signal[Map[String, Bool]] = @resource.signal({
     "bold": true,
   })
@@ -633,7 +643,7 @@ fn toolbar_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn menu_button_demo() -> @luna.Node[@js.Any] {
+fn menu_button_demo() -> @luna.Node[@js.Any, String] {
   let selected_action = @resource.signal("")
   let items = [
     @apg.menu_item("new", "New File"),
@@ -664,7 +674,7 @@ fn menu_button_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn alert_dialog_demo() -> @luna.Node[@js.Any] {
+fn alert_dialog_demo() -> @luna.Node[@js.Any, String] {
   let open = @resource.signal(false)
   let result = @resource.signal("")
   div([
@@ -690,7 +700,7 @@ fn alert_dialog_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn tooltip_demo() -> @luna.Node[@js.Any] {
+fn tooltip_demo() -> @luna.Node[@js.Any, String] {
   div([
     h2([@luna.text("Tooltip")]),
     p([@luna.text("Informational popup on hover/focus")]),
@@ -708,7 +718,7 @@ fn tooltip_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn alert_demo() -> @luna.Node[@js.Any] {
+fn alert_demo() -> @luna.Node[@js.Any, String] {
   div([
     h2([@luna.text("Alert")]),
     p([@luna.text("Live region for important messages")]),
@@ -740,7 +750,7 @@ fn alert_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn meter_demo() -> @luna.Node[@js.Any] {
+fn meter_demo() -> @luna.Node[@js.Any, String] {
   div([
     h2([@luna.text("Meter")]),
     p([@luna.text("Visual representation of a value within a known range")]),
@@ -770,7 +780,7 @@ fn meter_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn link_demo() -> @luna.Node[@js.Any] {
+fn link_demo() -> @luna.Node[@js.Any, String] {
   div([
     h2([@luna.text("Link")]),
     p([@luna.text("Accessible hyperlinks")]),
@@ -789,7 +799,7 @@ fn link_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn landmarks_demo() -> @luna.Node[@js.Any] {
+fn landmarks_demo() -> @luna.Node[@js.Any, String] {
   div([
     h2([@luna.text("Landmarks")]),
     p([@luna.text("ARIA landmark roles for page structure")]),
@@ -878,7 +888,7 @@ fn landmarks_demo() -> @luna.Node[@js.Any] {
 // =============================================================================
 
 ///|
-fn table_demo() -> @luna.Node[@js.Any] {
+fn table_demo() -> @luna.Node[@js.Any, String] {
   let columns = [
     @table.table_column("name", "Name", sortable=true),
     @table.table_column("age", "Age", sortable=true),
@@ -969,7 +979,7 @@ fn color_swatch_btn(
   color : String,
   is_active : () -> Bool,
   on_click : @luna.EventHandler[@js.Any],
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   @luna.h(
     "button",
     [
@@ -995,8 +1005,8 @@ fn demo_section(
   id : String,
   title : String,
   description : String,
-  preview : @luna.Node[@js.Any],
-) -> @luna.Node[@js.Any] {
+  preview : @luna.Node[@js.Any, String],
+) -> @luna.Node[@js.Any, String] {
   @luna.h(
     "section",
     [
@@ -1030,7 +1040,7 @@ fn demo_section(
 fn sidebar_nav_item(
   section : Section,
   current : @resource.Signal[Section],
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let s = section
   @luna.h("li", [], [
     @luna.h(
@@ -1068,9 +1078,11 @@ fn sidebar_nav_item(
 }
 
 ///|
-fn accent_controls(accent : @resource.Signal[String]) -> @luna.Node[@js.Any] {
+fn accent_controls(
+  accent : @resource.Signal[String],
+) -> @luna.Node[@js.Any, String] {
   let colors = ["amber", "blue", "green", "purple", "rose", "teal"]
-  let color_swatches : Array[@luna.Node[@js.Any]] = []
+  let color_swatches : Array[@luna.Node[@js.Any, String]] = []
   for color in colors {
     let c = color
     color_swatches.push(
@@ -1101,9 +1113,9 @@ fn sidebar(
   current_section : @resource.Signal[Section],
   _is_dark : @resource.Signal[Bool],
   accent : @resource.Signal[String],
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let sections = all_sections()
-  let nav_items : Array[@luna.Node[@js.Any]] = []
+  let nav_items : Array[@luna.Node[@js.Any, String]] = []
   for s in sections {
     nav_items.push(sidebar_nav_item(s, current_section))
   }
@@ -1132,7 +1144,9 @@ fn sidebar(
 // =============================================================================
 
 ///|
-fn theme_switch(is_dark : @resource.Signal[Bool]) -> @luna.Node[@js.Any] {
+fn theme_switch(
+  is_dark : @resource.Signal[Bool],
+) -> @luna.Node[@js.Any, String] {
   @luna.h("div", [("class", @luna.attr_static("theme-switch"))], [
     @luna.h(
       "span",
@@ -1152,7 +1166,7 @@ fn theme_switch(is_dark : @resource.Signal[Bool]) -> @luna.Node[@js.Any] {
 fn main_content(
   current_section : @resource.Signal[Section],
   is_dark : @resource.Signal[Bool],
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let _ = current_section // Future: could filter to show only current section
   @luna.h("main", [("class", @luna.attr_static("main-content"))], [
     div_class("main-header", [
@@ -1312,7 +1326,7 @@ fn main_content(
 // =============================================================================
 
 ///|
-fn app() -> @luna.Node[@js.Any] {
+fn app() -> @luna.Node[@js.Any, String] {
   // Check system preference for initial dark mode
   let window = @js.global_this()
   let media_query = window._call("matchMedia", [

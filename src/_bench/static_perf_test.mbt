@@ -6,8 +6,8 @@ extern "js" fn performance_now() -> Double =
   #| () => performance.now()
 
 ///|
-fn create_list_vnode_dynamic(count : Int) -> @luna.Node[@js.Any] {
-  let items : Array[@luna.Node[@js.Any]] = []
+fn create_list_vnode_dynamic(count : Int) -> @luna.Node[@js.Any, String] {
+  let items : Array[@luna.Node[@js.Any, String]] = []
   for j = 0; j < count; j = j + 1 {
     items.push(@luna.h("li", [], [@luna.text("Item " + j.to_string())]))
   }
@@ -15,8 +15,8 @@ fn create_list_vnode_dynamic(count : Int) -> @luna.Node[@js.Any] {
 }
 
 ///|
-fn create_list_vnode_static(count : Int) -> @luna.Node[Unit] {
-  let items : Array[@luna.Node[Unit]] = []
+fn create_list_vnode_static(count : Int) -> @luna.Node[Unit, String] {
+  let items : Array[@luna.Node[Unit, String]] = []
   for j = 0; j < count; j = j + 1 {
     items.push(@luna.h("li", [], [@luna.text("Item " + j.to_string())]))
   }

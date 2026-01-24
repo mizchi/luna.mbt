@@ -81,7 +81,7 @@ pub fn radio_group(
   aria_label? : String,
   orientation? : String = "vertical",
   class? : String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = radio_slots()
   let group_class = match class {
     Some(c) => slots.group + " " + c
@@ -93,7 +93,7 @@ pub fn radio_group(
   let radio_ids = @headless.generate_radio_ids(name, items.length())
 
   // Build group attrs with headless attrs
-  let group_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let group_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("radiogroup")),
     ("class", @luna.attr_static(group_class)),
     ("data-orientation", @luna.attr_static(orientation)),
@@ -101,7 +101,7 @@ pub fn radio_group(
   if aria_label is Some(label) {
     group_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  let radios : Array[@luna.Node[@js.Any]] = []
+  let radios : Array[@luna.Node[@js.Any, String]] = []
   for i, item in items {
     let value = item.value
     let radio_id = radio_ids[i]
@@ -118,7 +118,7 @@ pub fn radio_group(
     )
 
     // Build radio attrs from headless props + styling
-    let radio_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let radio_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("class", @luna.attr_static(slots.radio)),
     ]
     for attr in props.attrs {

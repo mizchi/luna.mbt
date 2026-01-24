@@ -65,7 +65,7 @@ extern "js" fn create_svg_element_ns(tag : String) -> @js_dom.Element =
 
 ///|
 /// Render VNode to DOM within SVG context (all elements use SVG namespace)
-fn render_vnode_to_dom_svg(node : @luna.Node[@js.Any]) -> @js_dom.Node {
+fn render_vnode_to_dom_svg(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
     @core.Text(content) => doc.createTextNode(content).as_node()
@@ -126,7 +126,7 @@ fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
 
 ///|
 /// Render VNode to DOM node (for client-side rendering after hydration)
-pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
+pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
     @core.Text(content) => doc.createTextNode(content).as_node()
@@ -358,7 +358,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any]) -> @js_dom.Node {
 fn apply_vattr(
   elem : @js_dom.Element,
   name : String,
-  value : @luna.Attr[@js.Any],
+  value : @luna.Attr[@js.Any, String],
 ) -> Unit {
   match value {
     @core.VStatic(s) =>
@@ -408,7 +408,7 @@ fn apply_vattr(
 /// Convenience function: render VNode to DOM and mount
 pub fn render_vnode(
   container : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
 ) -> Unit {
   container.as_node().setTextContent("")
   let dom_node = render_vnode_to_dom(node)
@@ -418,7 +418,7 @@ pub fn render_vnode(
 ///|
 /// Render ErrorBoundary to DOM with error catching and reset support
 fn render_error_boundary_to_dom(
-  boundary : @luna.VErrorBoundary[@js.Any],
+  boundary : @luna.VErrorBoundary[@js.Any, String],
 ) -> @js_dom.Node {
   let doc = @js_dom.document()
   let container = doc.createDocumentFragment()
@@ -471,7 +471,9 @@ fn render_error_boundary_to_dom(
 
 ///|
 /// Render Switch to DOM with reactive updates
-fn render_switch_to_dom(switch_node : @luna.VSwitch[@js.Any]) -> @js_dom.Node {
+fn render_switch_to_dom(
+  switch_node : @luna.VSwitch[@js.Any, String],
+) -> @js_dom.Node {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("switch")
   let mut current_node : @js_dom.Node? = None
@@ -617,7 +619,7 @@ extern "js" fn set_inner_html(el : @js_dom.Element, html : String) -> Unit =
 /// ```
 pub fn inject_static(
   container : @js_dom.Element,
-  node : @luna.Node[Unit],
+  node : @luna.Node[Unit, String],
 ) -> Unit {
   let html = @render.render_to_string(node).html
   set_inner_html(container, html)
@@ -656,7 +658,10 @@ pub fn inject_static_html(container : @js_dom.Element, html : String) -> Unit {
 ///
 /// Note: Creates a wrapper element. Use inject_static() if you want
 /// to avoid the wrapper and have a dedicated container.
-pub fn static_block(tag : String, node : @luna.Node[Unit]) -> @element.DomNode {
+pub fn static_block(
+  tag : String,
+  node : @luna.Node[Unit, String],
+) -> @element.DomNode {
   let doc = @js_dom.document()
   let wrapper = doc.createElement(tag)
   let html = @render.render_to_string(node).html
@@ -666,12 +671,12 @@ pub fn static_block(tag : String, node : @luna.Node[Unit]) -> @element.DomNode {
 
 ///|
 /// Create a static div block (convenience wrapper for static_block)
-pub fn static_div(node : @luna.Node[Unit]) -> @element.DomNode {
+pub fn static_div(node : @luna.Node[Unit, String]) -> @element.DomNode {
   static_block("div", node)
 }
 
 ///|
 /// Create a static span block (convenience wrapper for static_block)
-pub fn static_span(node : @luna.Node[Unit]) -> @element.DomNode {
+pub fn static_span(node : @luna.Node[Unit, String]) -> @element.DomNode {
   static_block("span", node)
 }

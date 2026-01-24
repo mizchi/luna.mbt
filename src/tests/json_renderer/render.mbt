@@ -5,7 +5,7 @@
 ///|
 /// Render a VNode to JsonNode
 /// Dynamic values are evaluated at the time of rendering
-pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
+pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
   match node {
     @core.Text(content) => Text(content)
     @core.DynamicText(getter) => Text(getter())
@@ -118,7 +118,7 @@ pub fn render_to_json(node : @luna.Node[Unit]) -> JsonNode {
 
 ///|
 /// Convert VNode attribute to JsonAttrValue
-fn convert_attr(attr : @luna.Attr[Unit]) -> JsonAttrValue {
+fn convert_attr(attr : @luna.Attr[Unit, String]) -> JsonAttrValue {
   match attr {
     @core.VStatic(value) => Static(value)
     @core.VDynamic(getter) => Dynamic(getter())
@@ -129,7 +129,7 @@ fn convert_attr(attr : @luna.Attr[Unit]) -> JsonAttrValue {
 
 ///|
 /// Render to JSON string (for debugging/serialization)
-pub fn render_to_json_string(node : @luna.Node[Unit]) -> String {
+pub fn render_to_json_string(node : @luna.Node[Unit, String]) -> String {
   let json_node = render_to_json(node)
   json_node_to_string(json_node)
 }

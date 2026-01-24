@@ -41,11 +41,11 @@ pub fn[E] meter(
   aria_label? : String,
   aria_labelledby? : String,
   aria_valuetext? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("meter")),
     ("aria-valuenow", @luna.attr_static(value.to_string())),
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
@@ -80,11 +80,11 @@ pub fn[E] meter_dyn(
   max? : Double,
   aria_label? : String,
   aria_valuetext_fn? : (Double) -> String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("meter")),
     ("aria-valuenow", @luna.attr_dynamic(fn() { value.get().to_string() })),
     ("aria-valuemin", @luna.attr_static(min_val.to_string())),
@@ -122,11 +122,11 @@ pub fn[E] meter_native(
   high? : Double,
   optimum? : Double,
   aria_label? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let min_val = min.unwrap_or(0.0)
   let max_val = max.unwrap_or(100.0)
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("value", @luna.attr_static(value.to_string())),
     ("min", @luna.attr_static(min_val.to_string())),
     ("max", @luna.attr_static(max_val.to_string())),

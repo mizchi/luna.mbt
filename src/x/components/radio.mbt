@@ -18,7 +18,7 @@
 /// Radio option data
 pub(all) struct RadioOption[E] {
   value : String // Option value
-  label : Array[@luna.Node[E]] // Label content
+  label : Array[@luna.Node[E, String]] // Label content
   disabled : Bool // Whether disabled
 }
 
@@ -26,7 +26,7 @@ pub(all) struct RadioOption[E] {
 /// Create a radio option
 pub fn[E] radio_option(
   value : String,
-  label : Array[@luna.Node[E]],
+  label : Array[@luna.Node[E, String]],
   disabled? : Bool,
 ) -> RadioOption[E] {
   { value, label, disabled: disabled.unwrap_or(false) }
@@ -42,9 +42,9 @@ pub fn[E] radio_option(
 pub fn[E] radiogroup(
   aria_label? : String,
   aria_labelledby? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("radiogroup")),
   ]
   if aria_label is Some(label) {
@@ -72,9 +72,9 @@ pub fn[E] radio(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("radio")),
     ("aria-checked", @luna.attr_static(if checked { "true" } else { "false" })),
     ("tabindex", @luna.attr_static(if checked { "0" } else { "-1" })),
@@ -100,9 +100,9 @@ pub fn[E] radio_dyn(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("radio")),
     (
       "aria-checked",
@@ -147,9 +147,9 @@ pub fn[E] radio_computed(
   disabled? : Bool,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("radio")),
     ("aria-checked", @luna.attr_dynamic(fn() { bool_to_aria(checked()) })),
     (
@@ -183,15 +183,15 @@ pub fn[E] radio_group(
   options : Array[RadioOption[E]],
   selected_value : String,
   aria_label? : String,
-) -> @luna.Node[E] {
-  let radios : Array[@luna.Node[E]] = []
+) -> @luna.Node[E, String] {
+  let radios : Array[@luna.Node[E, String]] = []
   for option in options {
     let is_checked = option.value == selected_value
     radios.push(
       radio(option.value, is_checked, disabled=option.disabled, option.label),
     )
   }
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("radiogroup")),
     ("data-name", @luna.attr_static(name)),
   ]
@@ -210,10 +210,10 @@ pub fn[E] radio_native(
   checked : Bool,
   disabled? : Bool,
   id? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let input_id = id.unwrap_or(name + "-" + value)
-  let input_attrs : Array[(String, @luna.Attr[E])] = [
+  let input_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("radio")),
     ("name", @luna.attr_static(name)),
     ("value", @luna.attr_static(value)),
@@ -225,7 +225,7 @@ pub fn[E] radio_native(
   if disabled is Some(true) {
     input_attrs.push(("disabled", @luna.attr_static("")))
   }
-  let label_attrs : Array[(String, @luna.Attr[E])] = [
+  let label_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("for", @luna.attr_static(input_id)),
   ]
   @luna.fragment([
@@ -391,7 +391,7 @@ pub fn radiogroup_interactive(
   options : Array[RadioOption[@js.Any]],
   selected : @resource.Signal[String],
   aria_label? : String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   // Build radio IDs
   let radio_ids : Array[String] = []
   let mut i = 0
@@ -414,7 +414,7 @@ pub fn radiogroup_interactive(
 
   let on_select = fn(idx : Int) { selected.set(options[idx].value) }
   // Build radios
-  let radios : Array[@luna.Node[@js.Any]] = []
+  let radios : Array[@luna.Node[@js.Any, String]] = []
   i = 0
   while i < options.length() {
     let option = options[i]
@@ -428,7 +428,7 @@ pub fn radiogroup_interactive(
         on_select(index)
       }
     })
-    let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("role", @luna.attr_static("radio")),
       ("id", @luna.attr_static(radio_id)),
       (
@@ -463,7 +463,7 @@ pub fn radiogroup_interactive(
     i = i + 1
   }
   // Container
-  let group_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let group_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("radiogroup")),
     ("id", @luna.attr_static(id)),
     ("data-name", @luna.attr_static(name)),

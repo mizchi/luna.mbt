@@ -1,4 +1,6 @@
-import { "mizchi/luna/x/css" }
+import {
+  "mizchi/luna/x/css",
+}
 
 options(
   "supported-targets": [ "js" ],

@@ -48,8 +48,8 @@ pub fn switch(
   aria_label? : String,
   aria_labelledby? : String,
   class? : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let slots = switch_slots()
   let props = @headless.use_switch(on, disabled~, aria_label?, aria_labelledby?)
 
@@ -60,7 +60,7 @@ pub fn switch(
   }
 
   // Data attributes for CSS state selectors
-  let data_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let data_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     (
       "data-state",
       @luna.attr_dynamic(fn() { if on.get() { "on" } else { "off" } }),
@@ -94,10 +94,10 @@ pub fn switch_static(
   aria_labelledby? : String,
   on_click? : @luna.EventHandler[@js.Any],
   class? : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let slots = switch_slots()
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = @headless.switch_attrs(
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = @headless.switch_attrs(
     on,
     disabled~,
     aria_label?,
@@ -111,7 +111,7 @@ pub fn switch_static(
   }
 
   // Data attributes
-  let data_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let data_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("data-state", @luna.attr_static(if on { "on" } else { "off" })),
   ]
   if disabled {
@@ -119,7 +119,8 @@ pub fn switch_static(
   }
 
   // Optional click handler
-  let handler_attrs : Array[(String, @luna.Attr[@js.Any])] = match on_click {
+  let handler_attrs : Array[(String, @luna.Attr[@js.Any, String])] = match
+    on_click {
     Some(handler) => [("click", @luna.attr_handler(handler))]
     None => []
   }
@@ -143,9 +144,9 @@ pub fn switch_static(
 pub fn switch_group(
   aria_label? : String,
   class? : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("group")),
   ]
   if aria_label is Some(label) {

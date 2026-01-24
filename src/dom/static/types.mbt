@@ -23,25 +23,27 @@ pub struct RenderResult {
 /// - Sync: returns Node[Unit] directly
 /// - Async: returns async function that resolves to Node[Unit]
 pub enum ServerNode {
-  Sync(@luna.Node[Unit])
-  Async(async () -> @luna.Node[Unit])
+  Sync(@luna.Node[Unit, String])
+  Async(async () -> @luna.Node[Unit, String])
 }
 
 ///|
 /// Create a synchronous ServerNode from a Node
-pub fn ServerNode::sync(node : @luna.Node[Unit]) -> ServerNode {
+pub fn ServerNode::sync(node : @luna.Node[Unit, String]) -> ServerNode {
   Sync(node)
 }
 
 ///|
 /// Create an asynchronous ServerNode from an async function
-pub fn ServerNode::async_(render : async () -> @luna.Node[Unit]) -> ServerNode {
+pub fn ServerNode::async_(
+  render : async () -> @luna.Node[Unit, String],
+) -> ServerNode {
   Async(render)
 }
 
 ///|
 /// Resolve ServerNode to Node (awaits if async)
-pub async fn ServerNode::resolve(self : ServerNode) -> @luna.Node[Unit] {
+pub async fn ServerNode::resolve(self : ServerNode) -> @luna.Node[Unit, String] {
   match self {
     Sync(node) => node
     Async(render) => render()

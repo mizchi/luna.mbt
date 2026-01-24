@@ -4,21 +4,21 @@
 /// Create a server-side element
 fn h(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
 ///|
 /// Create a static attribute
-fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
+fn attr(key : String, value : String) -> (String, @luna.Attr[Unit, String]) {
   (key, @luna.attr_static(value))
 }
 
 ///|
 /// Render function - exported for SSR
-pub fn render() -> @luna.Node[Unit] {
+pub fn render() -> @luna.Node[Unit, String] {
   h("div", [attr("class", "ssr-test-component")], [
     h("h2", [], [@luna.text("SSR Test Component")]),
     h("p", [], [@luna.text("This component was rendered on the server!")]),

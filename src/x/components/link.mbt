@@ -55,9 +55,9 @@ pub fn[E] link(
   aria_label? : String,
   aria_describedby? : String,
   disabled? : Bool,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("href", @luna.attr_static(href)),
   ]
   if target is Some(t) {
@@ -92,9 +92,9 @@ pub fn[E] link(
 pub fn[E] link_button(
   on_click : @luna.EventHandler[E],
   aria_label? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("link")),
     ("tabindex", @luna.attr_static("0")),
     ("click", @luna.attr_handler(on_click)),

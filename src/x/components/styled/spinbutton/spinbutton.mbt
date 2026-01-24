@@ -50,14 +50,14 @@ pub fn spinbutton(
   aria_valuetext_fn? : (Double) -> String,
   label? : String,
   class? : String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = spinbutton_slots()
   let big_step = large_step.unwrap_or(step * 10.0)
   let root_class = match class {
     Some(c) => slots.root + " " + c
     None => slots.root
   }
-  let root_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let root_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("class", @luna.attr_static(root_class)),
   ]
   if disabled {
@@ -131,7 +131,7 @@ pub fn spinbutton(
   })
 
   // Input element
-  let input_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let input_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("text")),
     ("role", @luna.attr_static("spinbutton")),
     ("inputmode", @luna.attr_static("numeric")),
@@ -160,7 +160,7 @@ pub fn spinbutton(
   }
 
   // Buttons
-  let dec_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let dec_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("class", @luna.attr_static(slots.button + " " + slots.decrement)),
     ("aria-label", @luna.attr_static("Decrease")),
@@ -171,7 +171,7 @@ pub fn spinbutton(
     dec_attrs.push(("disabled", @luna.attr_static("")))
   }
   let dec_btn = @luna.h("button", dec_attrs, [@luna.text("-")])
-  let inc_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let inc_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("class", @luna.attr_static(slots.button + " " + slots.increment)),
     ("aria-label", @luna.attr_static("Increase")),
@@ -191,7 +191,7 @@ pub fn spinbutton(
   )
 
   // Build root
-  let children : Array[@luna.Node[@js.Any]] = []
+  let children : Array[@luna.Node[@js.Any, String]] = []
   if label is Some(l) {
     children.push(
       @luna.h("label", [("class", @luna.attr_static(slots.label))], [

@@ -306,7 +306,7 @@ pub fn get_shadow_root_for_hydrate(
 /// ```
 pub fn hydrate_auto(
   element : @js_dom.Element,
-  node : @luna.Node[@js.Any],
+  node : @luna.Node[@js.Any, String],
   is_rerender? : Bool = false,
 ) -> Unit {
   if has_shadow_root(element) {

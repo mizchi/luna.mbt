@@ -33,9 +33,9 @@ pub fn[E] switch(
   aria_labelledby? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("switch")),
     ("aria-checked", @luna.attr_static(if on { "true" } else { "false" })),
     ("tabindex", @luna.attr_static("0")),
@@ -78,9 +78,9 @@ pub fn[E] switch_dyn(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("switch")),
     (
       "aria-checked",
@@ -124,9 +124,9 @@ pub fn[E] switch_computed(
   aria_label? : String,
   on_click? : @luna.EventHandler[E],
   on_keydown? : @luna.EventHandler[E],
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("switch")),
     ("aria-checked", @luna.attr_dynamic(fn() { bool_to_aria(on()) })),
     ("tabindex", @luna.attr_static("0")),
@@ -165,10 +165,10 @@ pub fn[E] switch_native(
   on : Bool,
   disabled? : Bool,
   id? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let input_id = id.unwrap_or("switch-" + name)
-  let input_attrs : Array[(String, @luna.Attr[E])] = [
+  let input_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("type", @luna.attr_static("checkbox")),
     ("role", @luna.attr_static("switch")),
     ("name", @luna.attr_static(name)),
@@ -180,7 +180,7 @@ pub fn[E] switch_native(
   if disabled is Some(true) {
     input_attrs.push(("disabled", @luna.attr_static("")))
   }
-  let label_attrs : Array[(String, @luna.Attr[E])] = [
+  let label_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("for", @luna.attr_static(input_id)),
   ]
   @luna.fragment([
@@ -193,9 +193,9 @@ pub fn[E] switch_native(
 /// Create a switch group.
 pub fn[E] switch_group(
   aria_label? : String,
-  children : Array[@luna.Node[E]],
-) -> @luna.Node[E] {
-  let attrs : Array[(String, @luna.Attr[E])] = [
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
     ("role", @luna.attr_static("group")),
   ]
   if aria_label is Some(label) {
@@ -245,13 +245,13 @@ pub fn switch_interactive(
   on : @resource.Signal[Bool],
   disabled? : Bool,
   aria_label? : String,
-  children : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let is_disabled = disabled.unwrap_or(false)
   let toggle = fn() { if not(is_disabled) { on.set(not(on.get())) } }
   let keydown_handler = make_switch_handler(toggle)
   let click_handler = @luna.handler(fn(_) { toggle() })
-  let attrs : Array[(String, @luna.Attr[@js.Any])] = [
+  let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("role", @luna.attr_static("switch")),
     (
       "aria-checked",

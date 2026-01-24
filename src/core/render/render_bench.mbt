@@ -10,25 +10,25 @@
 
 ///|
 /// Simple text node
-fn vnode_text() -> @luna.Node[Unit] {
+fn vnode_text() -> @luna.Node[Unit, String] {
   @luna.text("Hello, World!")
 }
 
 ///|
 /// Text with HTML special characters (needs escaping)
-fn vnode_text_escape() -> @luna.Node[Unit] {
+fn vnode_text_escape() -> @luna.Node[Unit, String] {
   @luna.text("<script>alert('xss')</script> & \"dangerous\" content")
 }
 
 ///|
 /// Simple element with no attrs
-fn vnode_simple_element() -> @luna.Node[Unit] {
+fn vnode_simple_element() -> @luna.Node[Unit, String] {
   @luna.h("div", [], [@luna.text("content")])
 }
 
 ///|
 /// Element with multiple attributes (needs attr escaping)
-fn vnode_with_attrs() -> @luna.Node[Unit] {
+fn vnode_with_attrs() -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [
@@ -42,7 +42,7 @@ fn vnode_with_attrs() -> @luna.Node[Unit] {
 
 ///|
 /// Nested elements (typical component structure)
-fn vnode_nested() -> @luna.Node[Unit] {
+fn vnode_nested() -> @luna.Node[Unit, String] {
   @luna.h("div", [("class", @luna.attr_static("card"))], [
     @luna.h("header", [("class", @luna.attr_static("card-header"))], [
       @luna.h("h2", [], [@luna.text("Title")]),
@@ -58,8 +58,8 @@ fn vnode_nested() -> @luna.Node[Unit] {
 
 ///|
 /// List of items (common pattern)
-fn vnode_list() -> @luna.Node[Unit] {
-  let items : Array[@luna.Node[Unit]] = []
+fn vnode_list() -> @luna.Node[Unit, String] {
+  let items : Array[@luna.Node[Unit, String]] = []
   for i = 0; i < 10; i = i + 1 {
     items.push(
       @luna.h("li", [("class", @luna.attr_static("item"))], [
@@ -72,8 +72,8 @@ fn vnode_list() -> @luna.Node[Unit] {
 
 ///|
 /// Large list (stress test)
-fn vnode_large_list() -> @luna.Node[Unit] {
-  let items : Array[@luna.Node[Unit]] = []
+fn vnode_large_list() -> @luna.Node[Unit, String] {
+  let items : Array[@luna.Node[Unit, String]] = []
   for i = 0; i < 100; i = i + 1 {
     items.push(
       @luna.h("li", [("class", @luna.attr_static("item"))], [
@@ -86,7 +86,7 @@ fn vnode_large_list() -> @luna.Node[Unit] {
 
 ///|
 /// Typical page structure
-fn vnode_page() -> @luna.Node[Unit] {
+fn vnode_page() -> @luna.Node[Unit, String] {
   @luna.h("html", [], [
     @luna.h("head", [], [
       @luna.h("meta", [("charset", @luna.attr_static("utf-8"))], []),
@@ -174,7 +174,7 @@ test "render: page" (b : @bench.T) {
 /// Visitor interface for VNode traversal
 priv trait NodeVisitor {
   on_text(Self, String) -> Unit
-  on_element_open(Self, String, Array[(String, @luna.Attr[Unit])]) -> Unit
+  on_element_open(Self, String, Array[(String, @luna.Attr[Unit, String])]) -> Unit
   on_element_close(Self, String, Bool) -> Unit // (tag, is_void)
   on_fragment_start(Self) -> Unit
   on_fragment_end(Self) -> Unit
@@ -182,7 +182,10 @@ priv trait NodeVisitor {
 
 ///|
 /// Visitor-based traversal (experimental)
-fn visitor_traverse(node : @luna.Node[Unit], visitor : &NodeVisitor) -> Unit {
+fn visitor_traverse(
+  node : @luna.Node[Unit, String],
+  visitor : &NodeVisitor,
+) -> Unit {
   match node {
     Text(content) => visitor.on_text(content)
     DynamicText(getter) => visitor.on_text(getter())
@@ -258,7 +261,7 @@ impl NodeVisitor for SBVisitor with on_fragment_end(_self) {
 
 ///|
 /// Render using visitor pattern (for benchmark comparison)
-fn render_with_visitor(node : @luna.Node[Unit]) -> String {
+fn render_with_visitor(node : @luna.Node[Unit, String]) -> String {
   let visitor = SBVisitor::new()
   visitor_traverse(node, visitor)
   visitor.sb.to_string()

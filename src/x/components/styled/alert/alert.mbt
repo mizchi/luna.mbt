@@ -62,8 +62,8 @@ pub fn alert(
   title? : String,
   description? : String,
   class? : String,
-  children? : Array[@luna.Node[@js.Any]],
-) -> @luna.Node[@js.Any] {
+  children? : Array[@luna.Node[@js.Any, String]],
+) -> @luna.Node[@js.Any, String] {
   let slots = alert_slots()
   let variant_str = variant_to_string(variant)
   let root_class = slots.root + " " + slots.root + "--" + variant_str
@@ -71,7 +71,7 @@ pub fn alert(
     Some(c) => root_class + " " + c
     None => root_class
   }
-  let content : Array[@luna.Node[@js.Any]] = []
+  let content : Array[@luna.Node[@js.Any, String]] = []
 
   // Add title if provided
   match title {

@@ -35,14 +35,14 @@ pub fn accordion_slots() -> AccordionSlots {
 pub(all) struct AccordionItemData {
   id : String
   heading : String
-  content : Array[@luna.Node[@js.Any]]
+  content : Array[@luna.Node[@js.Any, String]]
 }
 
 ///|
 pub fn accordion_item(
   id : String,
   heading : String,
-  content : Array[@luna.Node[@js.Any]],
+  content : Array[@luna.Node[@js.Any, String]],
 ) -> AccordionItemData {
   { id, heading, content }
 }
@@ -60,7 +60,7 @@ pub fn accordion(
   items : Array[AccordionItemData],
   expanded : @resource.Signal[Int],
   class? : String,
-) -> @luna.Node[@js.Any] {
+) -> @luna.Node[@js.Any, String] {
   let slots = accordion_slots()
   let root_class = match class {
     Some(c) => slots.root + " " + c
@@ -74,7 +74,7 @@ pub fn accordion(
     header_ids.push("accordion-header-" + item.id)
     panel_ids.push("accordion-panel-" + item.id)
   }
-  let children : Array[@luna.Node[@js.Any]] = []
+  let children : Array[@luna.Node[@js.Any, String]] = []
   for i, item in items {
     let header_id = header_ids[i]
     let panel_id = panel_ids[i]
@@ -89,7 +89,7 @@ pub fn accordion(
     )
 
     // Build header attrs from headless + styling
-    let header_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let header_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("class", @luna.attr_static(slots.header)),
       (
         "data-state",
@@ -117,7 +117,7 @@ pub fn accordion(
     ])
 
     // Build panel attrs from headless + styling
-    let panel_attrs : Array[(String, @luna.Attr[@js.Any])] = [
+    let panel_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
       ("class", @luna.attr_static(slots.panel)),
       (
         "data-state",
