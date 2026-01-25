@@ -509,7 +509,7 @@ pub fn PageProps::path(self : PageProps) -> String {
 pub fn[E] register_routes(
   app : App,
   routes : Array[@routes.Routes],
-  page_resolver : (String, Ctx, RouteParams) -> @luna.Node[E]?,
+  page_resolver : (String, Ctx, RouteParams) -> @luna.Node[E, String]?,
   api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
   config? : RouterConfig,
   title_prefix? : String = "",
@@ -568,7 +568,7 @@ fn[E] register_routes_inner(
   app : App,
   routes : Array[@routes.Routes],
   prefix : String,
-  page_resolver : (String, Ctx, RouteParams) -> @luna.Node[E]?,
+  page_resolver : (String, Ctx, RouteParams) -> @luna.Node[E, String]?,
   api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
   title_prefix~ : String,
   default_title~ : String,
@@ -715,7 +715,7 @@ fn format_title(
 ///|
 /// Render VNode to full HTML page with template-based rendering
 fn[E] render_page_html(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   title : String,
   head : String,
   hydration : Bool,

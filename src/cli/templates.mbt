@@ -117,7 +117,7 @@ pub fn template_counter_mbt() -> String {
     #|} derive(Show)
     #|
     #|///| Counter component VNode
-    #|pub fn render(count : @signal.Signal[Int]) -> @luna.Node[Unit] {
+    #|pub fn render(count : @signal.Signal[Int]) -> @luna.Node[Unit, String] {
     #|  @luna.h("div", [("class", @luna.attr_static("counter"))], [
     #|    @luna.h("span", [("class", @luna.attr_static("count-display"))], [
     #|      @luna.text_of(count),
@@ -189,7 +189,7 @@ pub fn template_home_page_mbt() -> String {
     #|///| Home Page
     #|
     #|///| Home page with counter component
-    #|pub fn page(_ctx : @sol.Ctx) -> @luna.Node[Unit] {
+    #|pub fn page(_ctx : @sol.Ctx) -> @luna.Node[Unit, String] {
     #|  let initial_count = 0
     #|  let state_json = "{\"count\":" + initial_count.to_string() + "}"
     #|  let count_signal = @signal.signal(initial_count)
@@ -221,7 +221,7 @@ pub fn template_about_page_mbt() -> String {
     #|///| About Page
     #|
     #|///| About page
-    #|pub fn page(_ctx : @sol.Ctx) -> @luna.Node[Unit] {
+    #|pub fn page(_ctx : @sol.Ctx) -> @luna.Node[Unit, String] {
     #|  @luna.h("div", [("class", @luna.attr_static("container"))], [
     #|    @luna.h("h1", [], [@luna.text("About")]),
     #|    @luna.h("p", [], [@luna.text("Built with MoonBit and Sol framework.")]),
@@ -277,7 +277,7 @@ pub fn template_layout_mbt() -> String {
     #|}
     #|
     #|///| Basic layout wrapper - wraps content in container with navigation
-    #|pub fn layout(inner : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
+    #|pub fn layout(inner : Array[@luna.Node[Unit, String]]) -> @luna.Node[Unit, String] {
     #|  div(class="container", children=[
     #|    nav(children=[
     #|      a(href="/", children=[text("Home")]),

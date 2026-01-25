@@ -3,10 +3,10 @@
 
 ///|
 /// Build site footer using element configuration
-pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit] {
+pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
   match ctx.config.theme.footer {
     Some(footer_config) => {
-      let children : Array[@luna.Node[Unit]] = []
+      let children : Array[@luna.Node[Unit, String]] = []
 
       // If top/bottom elements are configured, use element-based rendering
       if not(footer_config.top.is_empty()) ||
@@ -40,7 +40,7 @@ pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit] {
         }
 
         // Bottom section with message and copyright
-        let bottom_items : Array[@luna.Node[Unit]] = []
+        let bottom_items : Array[@luna.Node[Unit, String]] = []
         if footer_config.message is Some(msg) {
           bottom_items.push(
             h("p", [attr("class", "footer-message")], [@luna.text(msg)]),
@@ -69,8 +69,8 @@ fn render_footer_elements(
   elements : Array[@ssg.FooterElement],
   ctx : @ssg.BuildContext,
   footer_config : @ssg.FooterConfig,
-) -> Array[@luna.Node[Unit]] {
-  let result : Array[@luna.Node[Unit]] = []
+) -> Array[@luna.Node[Unit, String]] {
+  let result : Array[@luna.Node[Unit, String]] = []
   for element in elements {
     result.push(render_footer_element(element, ctx, footer_config))
   }
@@ -83,7 +83,7 @@ fn render_footer_element(
   element : @ssg.FooterElement,
   ctx : @ssg.BuildContext,
   footer_config : @ssg.FooterConfig,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match element {
     @ssg.FooterElement::Columns => build_footer_columns(footer_config.links)
     @ssg.FooterElement::Message =>
@@ -106,7 +106,7 @@ fn render_footer_element(
 
 ///|
 /// Build footer columns (link groups)
-fn build_footer_columns(columns : Array[@ssg.FooterColumn]) -> @luna.Node[Unit] {
+fn build_footer_columns(columns : Array[@ssg.FooterColumn]) -> @luna.Node[Unit, String] {
   if columns.is_empty() {
     return empty()
   }

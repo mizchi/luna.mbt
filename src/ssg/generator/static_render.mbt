@@ -8,15 +8,15 @@
 /// Create a server-side element
 fn h(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
 ///|
 /// Create a static attribute
-fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
+fn attr(key : String, value : String) -> (String, @luna.Attr[Unit, String]) {
   (key, @luna.attr_static(value))
 }
 
@@ -94,7 +94,7 @@ fn transform_url_path(url : String, trailing_slash : Bool) -> String {
 async fn render_component_ssr_async(
   cwd : String,
   source_path : String,
-) -> @luna.Node[Unit]? {
+) -> @luna.Node[Unit, String]? {
   let component_name = get_component_name_from_path(source_path)
 
   // Get parent project root (for examples that are subdirectories)
@@ -177,7 +177,7 @@ async fn render_component_ssr_async(
 ///|
 /// Load a component module and call its render() function
 /// Uses dynamic import and expects the module to export a render() function
-async fn load_component_module(module_path : String) -> @luna.Node[Unit]? {
+async fn load_component_module(module_path : String) -> @luna.Node[Unit, String]? {
   ffi_load_component_render(module_path).wait()
 }
 
@@ -186,7 +186,7 @@ async fn load_component_module(module_path : String) -> @luna.Node[Unit]? {
 /// Returns a Promise that resolves to the VNode or undefined
 extern "js" fn ffi_load_component_render(
   module_path : String,
-) -> @js.Promise[@luna.Node[Unit]?] =
+) -> @js.Promise[@luna.Node[Unit, String]?] =
   #| async (modulePath) => {
   #|   try {
   #|     // Use file:// URL for Node.js dynamic import
@@ -208,7 +208,7 @@ extern "js" fn ffi_load_component_render(
 fn render_component_ssr(
   _cwd : String,
   source_path : String,
-) -> @luna.Node[Unit]? {
+) -> @luna.Node[Unit, String]? {
   let component_name = get_component_name_from_path(source_path)
   println("  Info: Component '\{component_name}' - use async build for SSR")
   None
@@ -225,7 +225,7 @@ async fn render_tsx_component_ssr_async(
   cwd : String,
   docs_dir : String,
   source_path : String,
-) -> @luna.Node[Unit]? {
+) -> @luna.Node[Unit, String]? {
   let component_name = get_component_name_from_path(source_path)
 
   // Build the TSX file path
@@ -1385,7 +1385,7 @@ fn build_page_html(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
   frontmatter : @ssg.Frontmatter,
-  content : @luna.Node[Unit],
+  content : @luna.Node[Unit, String],
   toc : Array[@markdown.TocItem],
 ) -> String {
   // Determine layout
@@ -1413,8 +1413,8 @@ fn build_home_layout(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
   _frontmatter : @ssg.Frontmatter,
-  content : @luna.Node[Unit],
-) -> @luna.Node[Unit] {
+  content : @luna.Node[Unit, String],
+) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
   let main = h("main", [attr("class", "home-content")], [content])
   let footer = @components.build_footer(ctx)
@@ -1427,8 +1427,8 @@ fn build_default_layout(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
   _frontmatter : @ssg.Frontmatter,
-  content : @luna.Node[Unit],
-) -> @luna.Node[Unit] {
+  content : @luna.Node[Unit, String],
+) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
   let main = h("main", [attr("class", "main-content")], [content])
   let footer = @components.build_footer(ctx)
@@ -1442,8 +1442,8 @@ fn build_blog_layout(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
   _frontmatter : @ssg.Frontmatter,
-  content : @luna.Node[Unit],
-) -> @luna.Node[Unit] {
+  content : @luna.Node[Unit, String],
+) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
 
   // Page content (from markdown)
@@ -1494,15 +1494,15 @@ fn build_blog_post_layout(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
   frontmatter : @ssg.Frontmatter,
-  content : @luna.Node[Unit],
-) -> @luna.Node[Unit] {
+  content : @luna.Node[Unit, String],
+) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
 
   // Post header with meta
   let title = frontmatter.title.unwrap_or("Untitled")
   let date = frontmatter.date.unwrap_or("")
   let author = frontmatter.author.unwrap_or("")
-  let header_children : Array[@luna.Node[Unit]] = []
+  let header_children : Array[@luna.Node[Unit, String]] = []
 
   // Cover image
   if frontmatter.cover_image is Some(src) {
@@ -1551,9 +1551,9 @@ fn build_doc_layout(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
   frontmatter : @ssg.Frontmatter,
-  content : @luna.Node[Unit],
+  content : @luna.Node[Unit, String],
   toc : Array[@markdown.TocItem],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
 
   // Sidebar (filtered by current locale)

@@ -8,15 +8,15 @@
 /// Create a server-side element
 fn h(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
 ///|
 /// Create a static attribute
-fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
+fn attr(key : String, value : String) -> (String, @luna.Attr[Unit, String]) {
   (key, @luna.attr_static(value))
 }
 
@@ -207,7 +207,7 @@ pub fn md_nodes_to_vnode(
   is_index? : Bool = true,
   locale_prefix? : String = "",
   available_urls? : Array[String] = [],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let children = nodes.map(fn(n) {
     md_node_to_vnode(
       n,
@@ -230,7 +230,7 @@ pub fn md_node_to_vnode(
   is_index? : Bool = true,
   locale_prefix? : String = "",
   available_urls? : Array[String] = [],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match node {
     @markdown.MdNode::Heading(level~, children~, id~) => {
       let child_vnodes = children.map(fn(n) {
@@ -293,14 +293,14 @@ pub fn md_node_to_vnode(
       let info = parse_code_block_info(lang)
 
       // Build code element attributes
-      let code_attrs : Array[(String, @luna.Attr[Unit])] = []
+      let code_attrs : Array[(String, @luna.Attr[Unit, String])] = []
       if not(info.lang.is_empty()) {
         code_attrs.push(attr("class", "language-\{info.lang}"))
       }
       let code_el = h("code", code_attrs, [@luna.text(code)])
 
       // Build pre element attributes with data for shiki processing
-      let pre_attrs : Array[(String, @luna.Attr[Unit])] = [
+      let pre_attrs : Array[(String, @luna.Attr[Unit, String])] = [
         attr("class", "code-block"),
       ]
       if not(info.lang.is_empty()) {
@@ -329,7 +329,7 @@ pub fn md_node_to_vnode(
       let resolved_href = resolve_href(
         href, current_url_path, is_index, locale_prefix, available_urls,
       )
-      let attrs : Array[(String, @luna.Attr[Unit])] = [
+      let attrs : Array[(String, @luna.Attr[Unit, String])] = [
         attr("href", resolved_href),
       ]
       if not(title.is_empty()) {
@@ -343,7 +343,7 @@ pub fn md_node_to_vnode(
       h("a", attrs, child_vnodes)
     }
     @markdown.MdNode::Image(src~, alt~, title~) => {
-      let attrs : Array[(String, @luna.Attr[Unit])] = [
+      let attrs : Array[(String, @luna.Attr[Unit, String])] = [
         attr("src", src),
         attr("alt", alt),
       ]
@@ -445,7 +445,7 @@ pub fn md_node_to_vnode(
 fn create_island_vnode(
   embed : @markdown.IslandEmbed,
   base_path : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let url = "\{base_path}\{embed.name}.js"
   @luna.island(embed.name, url, embed.props, [], trigger=embed.trigger)
 }
@@ -457,7 +457,7 @@ fn create_island_vnode(
 fn create_component_vnode(
   embed : @markdown.ComponentEmbed,
   base_path : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   // Check if trigger is specified in attrs (overrides embed.trigger)
   let mut effective_trigger = embed.trigger
   let mut behavior : String? = None
@@ -472,7 +472,7 @@ fn create_component_vnode(
   }
 
   // Build attributes array
-  let attrs : Array[(String, @luna.Attr[Unit])] = []
+  let attrs : Array[(String, @luna.Attr[Unit, String])] = []
 
   // If behavior is specified, use luna:behavior instead of luna:wc-url
   match behavior {
@@ -503,7 +503,7 @@ fn create_component_vnode(
   }
 
   // Build children (inner content as raw HTML for SSR)
-  let children : Array[@luna.Node[Unit]] = if embed.content.is_empty() {
+  let children : Array[@luna.Node[Unit, String]] = if embed.content.is_empty() {
     []
   } else {
     [@luna.raw_html(embed.content)]

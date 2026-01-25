@@ -299,7 +299,7 @@ pub fn config() -> @router.RouterConfig {
 /// Middleware Test Page
 /// Demonstrates middleware functionality with Logger and CORS.
 async fn middleware_test(_props : @router.PageProps) -> @server_dom.ServerNode {
-  let content : Array[@luna.Node[Unit]] = [
+  let content : Array[@luna.Node[Unit, String]] = [
     h1([text("Middleware Test")]),
     p([text("This page tests middleware functionality.")]),
     div([

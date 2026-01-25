@@ -2,12 +2,12 @@
   "name": "mizchi/sol",
   "version": "0.2.0",
   "deps": {
-    "mizchi/luna": "0.7.3",
+    "mizchi/luna": "0.8.1",
     "moonbitlang/async": "0.16.0",
     "moonbitlang/x": "0.4.38",
     "moonbitlang/parser": "0.1.13",
     "mizchi/npm_typed": "0.1.8",
-    "mizchi/markdown": "0.4.3",
+    "mizchi/markdown": "0.4.4",
     "mizchi/js": "0.10.10",
     "mizchi/jsonschema": "0.6.0",
     "mizchi/process_pool": "0.1.2"
@@ -22,11 +22,6 @@
   ],
   "description": "SSR/SSG Framework for Luna UI",
   "source": "src",
-  "overrides": {
-    "mizchi/markdown": {
-      "path": "../markdown.mbt"
-    }
-  },
   "warn-list": "-6",
   "preferred-target": "js"
 }

@@ -9,11 +9,11 @@
 /// Registry holding component renderers
 /// None = use default, Some = use custom
 pub struct ComponentRegistry {
-  header : ((@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit])?
-  footer : ((@ssg.BuildContext) -> @luna.Node[Unit])?
-  toc : ((Array[@markdown.TocItem]) -> @luna.Node[Unit])?
-  breadcrumb : ((@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit])?
-  prev_next : ((@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit])?
+  header : ((@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit, String])?
+  footer : ((@ssg.BuildContext) -> @luna.Node[Unit, String])?
+  toc : ((Array[@markdown.TocItem]) -> @luna.Node[Unit, String])?
+  breadcrumb : ((@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit, String])?
+  prev_next : ((@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit, String])?
 }
 
 ///|
@@ -42,7 +42,7 @@ pub fn ComponentRegistry::defaults() -> ComponentRegistry {
 /// Set custom header renderer
 pub fn ComponentRegistry::with_header(
   self : ComponentRegistry,
-  renderer : (@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit],
+  renderer : (@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
   { ..self, header: Some(renderer) }
 }
@@ -51,7 +51,7 @@ pub fn ComponentRegistry::with_header(
 /// Set custom footer renderer
 pub fn ComponentRegistry::with_footer(
   self : ComponentRegistry,
-  renderer : (@ssg.BuildContext) -> @luna.Node[Unit],
+  renderer : (@ssg.BuildContext) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
   { ..self, footer: Some(renderer) }
 }
@@ -60,7 +60,7 @@ pub fn ComponentRegistry::with_footer(
 /// Set custom TOC renderer
 pub fn ComponentRegistry::with_toc(
   self : ComponentRegistry,
-  renderer : (Array[@markdown.TocItem]) -> @luna.Node[Unit],
+  renderer : (Array[@markdown.TocItem]) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
   { ..self, toc: Some(renderer) }
 }
@@ -69,7 +69,7 @@ pub fn ComponentRegistry::with_toc(
 /// Set custom breadcrumb renderer
 pub fn ComponentRegistry::with_breadcrumb(
   self : ComponentRegistry,
-  renderer : (@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit],
+  renderer : (@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
   { ..self, breadcrumb: Some(renderer) }
 }
@@ -78,7 +78,7 @@ pub fn ComponentRegistry::with_breadcrumb(
 /// Set custom prev/next renderer
 pub fn ComponentRegistry::with_prev_next(
   self : ComponentRegistry,
-  renderer : (@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit],
+  renderer : (@ssg.BuildContext, @ssg.PageMeta) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
   { ..self, prev_next: Some(renderer) }
 }
@@ -93,7 +93,7 @@ pub fn ComponentRegistry::render_header(
   self : ComponentRegistry,
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match self.header {
     Some(render) => render(ctx, page)
     None => build_nav(ctx, page)
@@ -105,7 +105,7 @@ pub fn ComponentRegistry::render_header(
 pub fn ComponentRegistry::render_footer(
   self : ComponentRegistry,
   ctx : @ssg.BuildContext,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match self.footer {
     Some(render) => render(ctx)
     None => build_footer(ctx)
@@ -117,7 +117,7 @@ pub fn ComponentRegistry::render_footer(
 pub fn ComponentRegistry::render_toc(
   self : ComponentRegistry,
   toc : Array[@markdown.TocItem],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match self.toc {
     Some(render) => render(toc)
     None => build_toc(toc)
@@ -130,7 +130,7 @@ pub fn ComponentRegistry::render_breadcrumb(
   self : ComponentRegistry,
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match self.breadcrumb {
     Some(render) => render(ctx, page)
     None => build_breadcrumb(ctx, page)
@@ -143,7 +143,7 @@ pub fn ComponentRegistry::render_prev_next(
   self : ComponentRegistry,
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match self.prev_next {
     Some(render) => render(ctx, page)
     None => build_prev_next(ctx, page)

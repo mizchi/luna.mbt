@@ -8,14 +8,14 @@
 
 ///|
 /// Render sidebar from NavContext
-pub fn render_sidebar(ctx : NavContext) -> @luna.Node[Unit] {
+pub fn render_sidebar(ctx : NavContext) -> @luna.Node[Unit, String] {
   let tree = build_sidebar_tree(ctx.tree, get_current_url(ctx), ctx.locale)
   render_sidebar_nodes(tree)
 }
 
 ///|
 /// Render sidebar nodes recursively
-fn render_sidebar_nodes(nodes : Array[SidebarNode]) -> @luna.Node[Unit] {
+fn render_sidebar_nodes(nodes : Array[SidebarNode]) -> @luna.Node[Unit, String] {
   if nodes.is_empty() {
     return empty()
   }
@@ -25,7 +25,7 @@ fn render_sidebar_nodes(nodes : Array[SidebarNode]) -> @luna.Node[Unit] {
 
 ///|
 /// Render single sidebar node
-fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit] {
+fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit, String] {
   match node {
     Link(text~, url~, active~) => {
       let class_name = if active {
@@ -47,7 +47,7 @@ fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit] {
       }
 
       // Section header
-      let header_content : Array[@luna.Node[Unit]] = match url {
+      let header_content : Array[@luna.Node[Unit, String]] = match url {
         Some(link) =>
           [
             h(
@@ -88,11 +88,11 @@ fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit] {
 
 ///|
 /// Render breadcrumb from NavContext
-pub fn render_breadcrumb(ctx : NavContext) -> @luna.Node[Unit] {
+pub fn render_breadcrumb(ctx : NavContext) -> @luna.Node[Unit, String] {
   if ctx.breadcrumb_path.is_empty() {
     return empty()
   }
-  let items : Array[@luna.Node[Unit]] = []
+  let items : Array[@luna.Node[Unit, String]] = []
   let last_idx = ctx.breadcrumb_path.length() - 1
   for i = 0; i < ctx.breadcrumb_path.length(); i = i + 1 {
     let (title, url) = ctx.breadcrumb_path[i]
@@ -126,8 +126,8 @@ pub fn render_breadcrumb(ctx : NavContext) -> @luna.Node[Unit] {
 
 ///|
 /// Render prev/next navigation from NavContext
-pub fn render_prev_next(ctx : NavContext) -> @luna.Node[Unit] {
-  let children : Array[@luna.Node[Unit]] = []
+pub fn render_prev_next(ctx : NavContext) -> @luna.Node[Unit, String] {
+  let children : Array[@luna.Node[Unit, String]] = []
   match ctx.prev_page {
     Some(page) =>
       children.push(

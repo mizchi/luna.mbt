@@ -117,7 +117,7 @@ pub fn run(configure : (App) -> App, port? : Int) -> Unit {
 /// Render a VNode to HTML string with full document wrapper
 /// Use hydration=true to enable hydration markers (for pages with Islands)
 pub fn[E] render_page(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   title? : String,
   head? : String,
   hydration? : Bool,
@@ -141,7 +141,7 @@ pub fn[E] render_page(
 
 ///|
 /// Render a VNode to HTML string without document wrapper (for partial/fragment responses)
-pub fn[E] render_fragment(node : @luna.Node[E]) -> String {
+pub fn[E] render_fragment(node : @luna.Node[E, String]) -> String {
   @render.render_to_string_with_hydration(node)
 }
 
@@ -151,7 +151,7 @@ pub fn[E] render_fragment(node : @luna.Node[E]) -> String {
 pub fn[E] page(
   app : App,
   path : String,
-  render_fn : (Ctx) -> @luna.Node[E],
+  render_fn : (Ctx) -> @luna.Node[E, String],
   title? : String,
   head? : String,
   hydration? : Bool,
@@ -268,7 +268,7 @@ pub struct IslandConfig[E] {
   /// State configuration
   state : @stella.StateConfig
   /// SSR rendered content (VNode)
-  content : @luna.Node[E]?
+  content : @luna.Node[E, String]?
   /// SSR rendered HTML string (alternative to content)
   ssr_html : String?
 }
@@ -329,7 +329,7 @@ pub fn[E] IslandConfig::with_state_url(
 /// Builder: set SSR content from VNode
 pub fn[E] IslandConfig::with_content(
   self : IslandConfig[E],
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
 ) -> IslandConfig[E] {
   { ..self, content: Some(node) }
 }
@@ -456,9 +456,9 @@ pub fn[E] island(
   id : String,
   url : String,
   state : String,
-  children : Array[@luna.Node[E]],
+  children : Array[@luna.Node[E, String]],
   trigger? : @luna.TriggerType = @luna.TriggerType::Load,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   @luna.island(id, url, state, children, trigger~)
 }
 
@@ -468,9 +468,9 @@ pub fn[E] island_with(
   id : String,
   url : String,
   state : String,
-  render : () -> @luna.Node[E],
+  render : () -> @luna.Node[E, String],
   trigger? : @luna.TriggerType = @luna.TriggerType::Load,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   @luna.island(id, url, state, [render()], trigger~)
 }
 
@@ -478,7 +478,7 @@ pub fn[E] island_with(
 /// Render a VNode to HTML string
 /// Use hydration=true to enable hydration markers
 pub fn[E] render_node(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   hydration? : Bool = false,
 ) -> String {
   if hydration {
@@ -504,9 +504,9 @@ pub fn[E] wc_island(
   url : String,
   styles : String,
   state : String,
-  children : Array[@luna.Node[E]],
+  children : Array[@luna.Node[E, String]],
   trigger? : @luna.TriggerType = @luna.TriggerType::Load,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   @luna.wc_island(name, url, styles, state, children, trigger~)
 }
 
@@ -517,9 +517,9 @@ pub fn[E] wc_island_with(
   url : String,
   styles : String,
   state : String,
-  render : () -> @luna.Node[E],
+  render : () -> @luna.Node[E, String],
   trigger? : @luna.TriggerType = @luna.TriggerType::Load,
-) -> @luna.Node[E] {
+) -> @luna.Node[E, String] {
   @luna.wc_island(name, url, styles, state, [render()], trigger~)
 }
 
@@ -529,7 +529,7 @@ pub fn[E] wc_island_with(
 pub fn[E] wc_page(
   app : App,
   path : String,
-  render_fn : (Ctx) -> @luna.Node[E],
+  render_fn : (Ctx) -> @luna.Node[E, String],
   title? : String,
   head? : String,
   wc_loader_url? : String,
@@ -558,7 +558,7 @@ pub fn[E] wc_page(
 /// VAsync nodes in the tree will be rendered with fallback first,
 /// then resolved content will be streamed as replacement scripts
 pub fn render_streaming_page(
-  shell : @luna.Node[Unit],
+  shell : @luna.Node[Unit, String],
   title? : String,
   head? : String,
   loader_url? : String,
@@ -591,7 +591,7 @@ pub fn render_streaming_page(
 fn create_streaming_response_with_async(
   header : String,
   footer : String,
-  shell : @luna.Node[Unit],
+  shell : @luna.Node[Unit, String],
 ) -> @js.Any {
   ffi_create_streaming_response_async(header, footer, async fn(write) {
     // Use render_to_stream_with_async which handles VAsync nodes
@@ -629,7 +629,7 @@ extern "js" fn ffi_create_stream_response(stream : @js.Any) -> @http.Response =
 pub fn streaming_page(
   app : App,
   path : String,
-  render_fn : (Ctx) -> @luna.Node[Unit],
+  render_fn : (Ctx) -> @luna.Node[Unit, String],
   title? : String,
   head? : String,
   loader_url? : String,
@@ -658,7 +658,7 @@ pub fn streaming_page(
 /// Render a VNode to HTML with preload URLs for islands
 /// Returns SSRResult with html and preload_urls
 pub fn[E] render_with_island_preloads(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
 ) -> @render.SSRResult {
   @render.render_to_string(node, preload=true)
 }
@@ -666,7 +666,7 @@ pub fn[E] render_with_island_preloads(
 ///|
 /// Render a page with automatic modulepreload tags for islands
 pub fn[E] render_page_with_preloads(
-  node : @luna.Node[E],
+  node : @luna.Node[E, String],
   title? : String,
   head? : String,
   hydration? : Bool,

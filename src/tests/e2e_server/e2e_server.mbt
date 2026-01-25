@@ -250,7 +250,7 @@ async fn create_async_app() -> @sol.App {
   // Basic async streaming test - simulates streaming SSR with template replacement
   let _ = app.get("/basic", async fn(c : @sol.Ctx) -> @http.Response {
     // Build page with VAsync nodes
-    let node : @luna.Node[Unit] = @luna.fragment([
+    let node : @luna.Node[Unit, String] = @luna.fragment([
       @luna.h("h1", [], [@luna.text("Async Streaming Test")]),
       @luna.h("div", [("id", @luna.attr_static("static-content"))], [
         @luna.text("This is static content"),
@@ -309,7 +309,7 @@ async fn create_async_app() -> @sol.App {
 
   // Multiple async boundaries test
   let _ = app.get("/multiple", async fn(c : @sol.Ctx) -> @http.Response {
-    let node : @luna.Node[Unit] = @luna.fragment([
+    let node : @luna.Node[Unit, String] = @luna.fragment([
       @luna.h("h1", [], [@luna.text("Multiple Async Test")]),
       @luna.async_(
         render=async fn() {
@@ -384,7 +384,7 @@ async fn create_async_app() -> @sol.App {
 
   // Nested content test
   let _ = app.get("/nested", async fn(c : @sol.Ctx) -> @http.Response {
-    let node : @luna.Node[Unit] = @luna.h(
+    let node : @luna.Node[Unit, String] = @luna.h(
       "div",
       [("id", @luna.attr_static("container"))],
       [
@@ -443,7 +443,7 @@ async fn create_async_app() -> @sol.App {
 
   // Fallback only test (no replacement scripts - for testing initial state)
   let _ = app.get("/fallback-only", async fn(c : @sol.Ctx) -> @http.Response {
-    let node : @luna.Node[Unit] = @luna.fragment([
+    let node : @luna.Node[Unit, String] = @luna.fragment([
       @luna.h("h1", [], [@luna.text("Fallback Only Test")]),
       @luna.async_(
         render=async fn() {

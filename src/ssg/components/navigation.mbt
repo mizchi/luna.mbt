@@ -6,7 +6,7 @@
 pub fn build_breadcrumb(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match ctx.doc_tree {
     Some(tree) => {
       let nav_ctx = NavContext::build(tree, page.url_path, locale=page.locale)
@@ -21,7 +21,7 @@ pub fn build_breadcrumb(
 pub fn build_prev_next(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match ctx.doc_tree {
     Some(tree) => {
       let nav_ctx = NavContext::build(tree, page.url_path, locale=page.locale)

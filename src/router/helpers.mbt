@@ -279,6 +279,6 @@ pub fn optional_query(
 ///   @element.p([@element.text("World")]),
 /// ])
 /// ```
-pub fn nodes(content : Array[@luna.Node[Unit]]) -> @server_dom.ServerNode {
+pub fn nodes(content : Array[@luna.Node[Unit, String]]) -> @server_dom.ServerNode {
   @server_dom.ServerNode::sync(@luna.fragment(content))
 }

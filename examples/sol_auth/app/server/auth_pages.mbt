@@ -10,7 +10,7 @@ async fn login_page(_props : @router.PageProps) -> @server_dom.ServerNode {
   // Check if already logged in
   let session = get_session()
 
-  let content : Array[@luna.Node[Unit]] = match session {
+  let content : Array[@luna.Node[Unit, String]] = match session {
     Some(s) =>
       [
         h1([text("Already Logged In")]),
@@ -90,7 +90,7 @@ async fn login_page(_props : @router.PageProps) -> @server_dom.ServerNode {
 async fn profile_page(_props : @router.PageProps) -> @server_dom.ServerNode {
   let session = get_session()
 
-  let content : Array[@luna.Node[Unit]] = match session {
+  let content : Array[@luna.Node[Unit, String]] = match session {
     Some(s) =>
       [
         h1([text("Profile")]),

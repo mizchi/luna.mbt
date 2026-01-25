@@ -396,7 +396,7 @@ pub fn head() -> String {
 
 ///|
 /// Basic layout wrapper - wraps content in container with navigation
-pub fn layout(inner : Array[@luna.Node[Unit]]) -> @luna.Node[Unit] {
+pub fn layout(inner : Array[@luna.Node[Unit, String]]) -> @luna.Node[Unit, String] {
   div(class="container", [
     nav([
       sol_link(href="/", [text("Home")]),

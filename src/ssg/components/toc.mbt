@@ -3,7 +3,7 @@
 
 ///|
 /// Build table of contents sidebar
-pub fn build_toc(toc : Array[@markdown.TocItem]) -> @luna.Node[Unit] {
+pub fn build_toc(toc : Array[@markdown.TocItem]) -> @luna.Node[Unit, String] {
   let items = toc.map(fn(item) {
     let indent_class = "toc-item toc-level-\{item.level}"
     h("li", [attr("class", indent_class)], [

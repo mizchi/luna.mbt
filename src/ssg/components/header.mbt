@@ -6,7 +6,7 @@
 pub fn build_nav(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   // Get header config or use default
   let header_config = ctx.config.theme.header.unwrap_or(
     @ssg.HeaderConfig::default(),
@@ -56,11 +56,11 @@ fn render_header_elements(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
   class_name : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   if elements.is_empty() {
     return empty()
   }
-  let children : Array[@luna.Node[Unit]] = []
+  let children : Array[@luna.Node[Unit, String]] = []
   for element in elements {
     children.push(render_header_element(element, ctx, page))
   }
@@ -73,7 +73,7 @@ fn render_header_element(
   element : @ssg.HeaderElement,
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match element {
     @ssg.Logo => build_logo(ctx)
     @ssg.NavLinks => build_nav_links(ctx)
@@ -88,7 +88,7 @@ fn render_header_element(
 
 ///|
 /// Build logo/title element
-fn build_logo(ctx : @ssg.BuildContext) -> @luna.Node[Unit] {
+fn build_logo(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
   let logo = match ctx.config.theme.logo {
     Some(src) =>
       h(
@@ -108,7 +108,7 @@ fn build_logo(ctx : @ssg.BuildContext) -> @luna.Node[Unit] {
 
 ///|
 /// Build navigation links from config.nav
-fn build_nav_links(ctx : @ssg.BuildContext) -> @luna.Node[Unit] {
+fn build_nav_links(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
   if ctx.config.nav.is_empty() {
     return empty()
   }
@@ -118,7 +118,7 @@ fn build_nav_links(ctx : @ssg.BuildContext) -> @luna.Node[Unit] {
 
 ///|
 /// Build SVG icon for navigation item
-fn build_nav_icon(icon : String) -> @luna.Node[Unit] {
+fn build_nav_icon(icon : String) -> @luna.Node[Unit, String] {
   match icon {
     "luna" =>
       // Crescent moon icon
@@ -205,10 +205,10 @@ fn build_nav_icon(icon : String) -> @luna.Node[Unit] {
 
 ///|
 /// Build single nav item
-pub fn build_nav_item(item : @ssg.NavItem) -> @luna.Node[Unit] {
+pub fn build_nav_item(item : @ssg.NavItem) -> @luna.Node[Unit, String] {
   if item.items.is_empty() {
     // Simple link with optional icon
-    let children : Array[@luna.Node[Unit]] = []
+    let children : Array[@luna.Node[Unit, String]] = []
     match item.icon {
       Some(icon) => children.push(build_nav_icon(icon))
       None => ()
@@ -231,7 +231,7 @@ pub fn build_nav_item(item : @ssg.NavItem) -> @luna.Node[Unit] {
 
 ///|
 /// Build search box (placeholder for now)
-fn build_search() -> @luna.Node[Unit] {
+fn build_search() -> @luna.Node[Unit, String] {
   h("div", [attr("class", "nav-search")], [
     h(
       "input",
@@ -247,7 +247,7 @@ fn build_search() -> @luna.Node[Unit] {
 
 ///|
 /// Build theme toggle button (dark/light mode)
-pub fn build_theme_toggle() -> @luna.Node[Unit] {
+pub fn build_theme_toggle() -> @luna.Node[Unit, String] {
   // Sun icon (for dark mode - click to switch to light)
   let sun_icon = h(
     "svg",
@@ -308,7 +308,7 @@ pub fn build_theme_toggle() -> @luna.Node[Unit] {
 
 ///|
 /// Build social links (GitHub, Twitter, etc.)
-pub fn build_social_links(links : Array[@ssg.SocialLink]) -> @luna.Node[Unit] {
+pub fn build_social_links(links : Array[@ssg.SocialLink]) -> @luna.Node[Unit, String] {
   if links.is_empty() {
     return empty()
   }
@@ -331,7 +331,7 @@ pub fn build_social_links(links : Array[@ssg.SocialLink]) -> @luna.Node[Unit] {
 
 ///|
 /// Build SVG icon element for social platform
-pub fn build_social_icon(icon : String) -> @luna.Node[Unit] {
+pub fn build_social_icon(icon : String) -> @luna.Node[Unit, String] {
   let path_d = match icon {
     "github" =>
       "M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
@@ -359,7 +359,7 @@ pub fn build_social_icon(icon : String) -> @luna.Node[Unit] {
 pub fn build_language_switcher(
   ctx : @ssg.BuildContext,
   page : @ssg.PageMeta,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let i18n = ctx.config.i18n
 
   // Only show if more than one locale
@@ -382,7 +382,7 @@ pub fn build_language_switcher(
     .unwrap_or(page.locale)
 
   // Build dropdown items
-  let items : Array[@luna.Node[Unit]] = []
+  let items : Array[@luna.Node[Unit, String]] = []
   for item in translations {
     let (locale, translation) = item
     let target_url = match translation {

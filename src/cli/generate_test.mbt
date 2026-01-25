@@ -64,7 +64,7 @@ test "parse_mbti_imports: basic imports" {
 test "rewrite_type_refs: luna types" {
   let sig = "(@core.Node[Unit]) -> Unit"
   let result = rewrite_type_refs(sig, {})
-  assert_eq(result, "(@luna.Node[Unit]) -> Unit")
+  assert_eq(result, "(@luna.Node[Unit, String]) -> Unit")
 }
 
 ///|
@@ -238,7 +238,7 @@ test "generate_params_with_names: multiple params" {
 
 ///|
 test "uses_luna_types: true" {
-  assert_true(uses_luna_types("(ctx : @luna.Ctx) -> @luna.Node[Unit]"))
+  assert_true(uses_luna_types("(ctx : @luna.Ctx) -> @luna.Node[Unit, String]"))
 }
 
 ///|

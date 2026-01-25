@@ -7,7 +7,7 @@
 
 ///|
 /// Blog post card for listings
-pub fn build_blog_post_card(page : @ssg.PageMeta) -> @luna.Node[Unit] {
+pub fn build_blog_post_card(page : @ssg.PageMeta) -> @luna.Node[Unit, String] {
   let fm = page.frontmatter
   let title = fm.title.unwrap_or("Untitled")
   let description = fm.description.unwrap_or("")
@@ -15,7 +15,7 @@ pub fn build_blog_post_card(page : @ssg.PageMeta) -> @luna.Node[Unit] {
   let author = fm.author.unwrap_or("")
 
   // Build card content
-  let children : Array[@luna.Node[Unit]] = []
+  let children : Array[@luna.Node[Unit, String]] = []
 
   // Cover image (optional)
   if fm.cover_image is Some(src) {
@@ -31,7 +31,7 @@ pub fn build_blog_post_card(page : @ssg.PageMeta) -> @luna.Node[Unit] {
   }
 
   // Card body
-  let body_children : Array[@luna.Node[Unit]] = []
+  let body_children : Array[@luna.Node[Unit, String]] = []
 
   // Meta info (date + author)
   if not(date.is_empty()) || not(author.is_empty()) {
@@ -77,8 +77,8 @@ pub fn build_post_meta(
   date : String,
   author : String,
   reading_time : Int?,
-) -> @luna.Node[Unit] {
-  let items : Array[@luna.Node[Unit]] = []
+) -> @luna.Node[Unit, String] {
+  let items : Array[@luna.Node[Unit, String]] = []
 
   // Date
   if not(date.is_empty()) {
@@ -131,7 +131,7 @@ fn format_date(date : String) -> String {
 
 ///|
 /// Build tag list with links
-pub fn build_tag_list(tags : Array[String]) -> @luna.Node[Unit] {
+pub fn build_tag_list(tags : Array[String]) -> @luna.Node[Unit, String] {
   if tags.is_empty() {
     return empty()
   }
@@ -145,7 +145,7 @@ pub fn build_tag_list(tags : Array[String]) -> @luna.Node[Unit] {
 
 ///|
 /// Build inline tag list (no links, just display)
-pub fn build_tag_list_inline(tags : Array[String]) -> @luna.Node[Unit] {
+pub fn build_tag_list_inline(tags : Array[String]) -> @luna.Node[Unit, String] {
   if tags.is_empty() {
     return empty()
   }
@@ -166,7 +166,7 @@ pub fn build_blog_post_list(
   ctx : @ssg.BuildContext,
   limit : Int?,
   featured_only : Bool,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   // Filter to blog posts (has date, not draft)
   let posts = filter_blog_posts(ctx.pages, featured_only~)
 
@@ -259,8 +259,8 @@ pub fn build_blog_hero(
   subtitle : String?,
   cta_text : String?,
   cta_link : String?,
-) -> @luna.Node[Unit] {
-  let children : Array[@luna.Node[Unit]] = []
+) -> @luna.Node[Unit, String] {
+  let children : Array[@luna.Node[Unit, String]] = []
 
   // Title
   children.push(h("h1", [attr("class", "hero-title")], [@luna.text(title)]))
@@ -287,7 +287,7 @@ pub fn build_blog_hero(
 
 ///|
 /// Build hero from page frontmatter
-pub fn build_hero_from_page(page : @ssg.PageMeta) -> @luna.Node[Unit] {
+pub fn build_hero_from_page(page : @ssg.PageMeta) -> @luna.Node[Unit, String] {
   let fm = page.frontmatter
   let title = fm.title.unwrap_or("Welcome")
   let subtitle = fm.description
@@ -304,7 +304,7 @@ pub fn build_hero_from_page(page : @ssg.PageMeta) -> @luna.Node[Unit] {
 pub fn build_featured_posts(
   ctx : @ssg.BuildContext,
   limit : Int,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let posts = filter_blog_posts(ctx.pages, featured_only=true)
   if posts.is_empty() {
     // Fall back to latest posts if no featured posts
@@ -334,7 +334,7 @@ pub fn build_recent_posts(
   ctx : @ssg.BuildContext,
   limit : Int,
   title : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   h("section", [attr("class", "recent-posts")], [
     h("h2", [attr("class", "recent-posts-title")], [@luna.text(title)]),
     build_blog_post_list(ctx, Some(limit), false),

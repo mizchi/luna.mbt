@@ -11,15 +11,15 @@
 /// Create a server-side element
 fn h(
   tag : String,
-  attrs : Array[(String, @luna.Attr[Unit])],
-  children : Array[@luna.Node[Unit]],
-) -> @luna.Node[Unit] {
+  attrs : Array[(String, @luna.Attr[Unit, String])],
+  children : Array[@luna.Node[Unit, String]],
+) -> @luna.Node[Unit, String] {
   @luna.h(tag, attrs, children)
 }
 
 ///|
 /// Create a static attribute
-fn attr(key : String, value : String) -> (String, @luna.Attr[Unit]) {
+fn attr(key : String, value : String) -> (String, @luna.Attr[Unit, String]) {
   (key, @luna.attr_static(value))
 }
 
@@ -431,7 +431,7 @@ fn collect_urls_from_item(
 pub fn render_sidebar(
   groups : Array[@ssg.SidebarGroup],
   current_path : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   // Reset counter at start of sidebar render for consistent IDs
   reset_sidebar_group_counter()
 
@@ -470,7 +470,7 @@ pub fn render_sidebar(
 pub fn render_mobile_sidebar(
   groups : Array[@ssg.SidebarGroup],
   current_path : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   // Reset counter at start of mobile sidebar render for consistent IDs
   reset_sidebar_group_counter()
 
@@ -596,7 +596,7 @@ fn generate_sidebar_group_id() -> String {
 fn render_sidebar_group(
   group : @ssg.SidebarGroup,
   current_path : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   // If group has no items (only index.md), render as simple link
   if group.items.is_empty() {
     match group.link {
@@ -628,7 +628,7 @@ fn render_sidebar_group(
   let is_open = has_active
 
   // Build summary content - link if available, otherwise just text
-  let summary_content : Array[@luna.Node[Unit]] = match group.link {
+  let summary_content : Array[@luna.Node[Unit, String]] = match group.link {
     Some(link) => {
       let is_link_active = link == current_path
       let link_class = if is_link_active {
@@ -653,7 +653,7 @@ fn render_sidebar_group(
   }
 
   // Summary with ARIA attributes
-  let summary_attrs : Array[(String, @luna.Attr[Unit])] = [
+  let summary_attrs : Array[(String, @luna.Attr[Unit, String])] = [
     attr("class", "sidebar-group-summary"),
     attr("aria-expanded", if is_open { "true" } else { "false" }),
     attr("aria-controls", content_id),
@@ -674,7 +674,7 @@ fn render_sidebar_group(
   )
 
   // Use details element for collapsible behavior
-  let attrs : Array[(String, @luna.Attr[Unit])] = [
+  let attrs : Array[(String, @luna.Attr[Unit, String])] = [
     attr("class", "sidebar-collapse"),
   ]
   if is_open {
@@ -688,7 +688,7 @@ fn render_sidebar_group(
 fn render_sidebar_item(
   item : @ssg.SidebarItem,
   current_path : String,
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match item {
     @ssg.SidebarItem::Link(text~, link~) => {
       let is_active = link == current_path ||

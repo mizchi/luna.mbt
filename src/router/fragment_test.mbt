@@ -9,7 +9,7 @@
 
 ///|
 test "render_fragment_response - basic content" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Hello, World!")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Hello, World!")])
   let html = @router.render_fragment_response(node, "Test Page", false)
   // Should contain main outlet template
   inspect(html.contains("<template data-sol-outlet=\"main\">"), content="true")
@@ -21,7 +21,7 @@ test "render_fragment_response - basic content" {
 
 ///|
 test "render_fragment_response - escapes HTML in title" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Content")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Content")])
   let html = @router.render_fragment_response(
     node, "<script>alert('xss')</script>", false,
   )
@@ -32,7 +32,7 @@ test "render_fragment_response - escapes HTML in title" {
 
 ///|
 test "render_fragment_response - special characters in title" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
   let html = @router.render_fragment_response(
     node, "Tom & Jerry's \"Adventure\"", false,
   )
@@ -44,7 +44,7 @@ test "render_fragment_response - special characters in title" {
 
 ///|
 test "render_fragment_response - without hydration" {
-  let node : @luna.Node[Unit] = @luna.h("p", [], [@luna.text("Simple text")])
+  let node : @luna.Node[Unit, String] = @luna.h("p", [], [@luna.text("Simple text")])
   let html = @router.render_fragment_response(node, "Title", false)
   // Should contain the content
   inspect(html.contains("<p>"), content="true")
@@ -53,7 +53,7 @@ test "render_fragment_response - without hydration" {
 
 ///|
 test "render_fragment_response - with hydration" {
-  let node : @luna.Node[Unit] = @luna.h("p", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("p", [], [
     @luna.text("Hydrated content"),
   ])
   let html = @router.render_fragment_response(node, "Title", true)
@@ -63,7 +63,7 @@ test "render_fragment_response - with hydration" {
 
 ///|
 test "render_fragment_response - nested elements" {
-  let node : @luna.Node[Unit] = @luna.h("article", [], [
+  let node : @luna.Node[Unit, String] = @luna.h("article", [], [
     @luna.h("h1", [], [@luna.text("Heading")]),
     @luna.h("p", [], [@luna.text("Paragraph 1")]),
     @luna.h("p", [], [@luna.text("Paragraph 2")]),
@@ -78,7 +78,7 @@ test "render_fragment_response - nested elements" {
 
 ///|
 test "render_fragment_response - with attributes" {
-  let node : @luna.Node[Unit] = @luna.h(
+  let node : @luna.Node[Unit, String] = @luna.h(
     "div",
     [
       ("class", @luna.attr_static("container")),
@@ -93,7 +93,7 @@ test "render_fragment_response - with attributes" {
 
 ///|
 test "render_fragment_response - empty title" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
   let html = @router.render_fragment_response(node, "", false)
   inspect(html.contains("<template data-sol-title>"), content="true")
   inspect(html.contains("</template>"), content="true")
@@ -101,7 +101,7 @@ test "render_fragment_response - empty title" {
 
 ///|
 test "render_fragment_response - unicode title" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
   let html = @router.render_fragment_response(
     node, "日本語タイトル", false,
   )
@@ -110,7 +110,7 @@ test "render_fragment_response - unicode title" {
 
 ///|
 test "render_fragment_response - structure order" {
-  let node : @luna.Node[Unit] = @luna.h("div", [], [@luna.text("Content")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Content")])
   let html = @router.render_fragment_response(node, "Title", false)
   // Main outlet should come before title template
   let main_pos = html.find("<template data-sol-outlet=\"main\">")

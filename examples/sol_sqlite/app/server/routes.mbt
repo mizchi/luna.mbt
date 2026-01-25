@@ -91,7 +91,7 @@ fn root_layout(
 
 ///| Home page - explains the demo
 async fn home_page(_props : @router.PageProps) -> @server_dom.ServerNode {
-  let content : Array[@luna.Node[Unit]] = [
+  let content : Array[@luna.Node[Unit, String]] = [
     h1([text("SQLite ISR Demo")]),
     p([text("This demo shows ISR (Incremental Static Regeneration) with SQLite database.")]),
     div([
@@ -136,7 +136,7 @@ async fn blog_index(_props : @router.PageProps) -> @server_dom.ServerNode {
   let generated_at = get_timestamp()
   let len = array_len(posts)
 
-  let post_items : Array[@luna.Node[Unit]] = []
+  let post_items : Array[@luna.Node[Unit, String]] = []
   for i = 0; i < len; i = i + 1 {
     let post = array_get(posts, i)
     let slug = get_str(post, "slug")
@@ -157,7 +157,7 @@ async fn blog_index(_props : @router.PageProps) -> @server_dom.ServerNode {
     )
   }
 
-  let content : Array[@luna.Node[Unit]] = [
+  let content : Array[@luna.Node[Unit, String]] = [
     div([
       p([strong([text("Generated at: " + generated_at)])]),
       p([text("This page uses ISR with 60 second TTL. Refresh after 60s to see regeneration.")]),
@@ -220,7 +220,7 @@ async fn stats_page(_props : @router.PageProps) -> @server_dom.ServerNode {
   let max_views = get_int(stats, "max_views")
   let min_views = get_int(stats, "min_views")
 
-  let content : Array[@luna.Node[Unit]] = [
+  let content : Array[@luna.Node[Unit, String]] = [
     div([
       p([strong([text("Generated at: " + generated_at)])]),
       p([text("ISR TTL: 10 seconds (near real-time)")]),
