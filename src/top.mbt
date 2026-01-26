@@ -64,11 +64,11 @@ pub using @core {
 }
 
 // =============================================================================
-// Core AsyncState (from core/async_state.mbt)
+// AsyncState (from signals/ui)
 // =============================================================================
 
 ///|
-pub using @core {type AsyncState}
+pub using @ui {type AsyncState}
 
 // =============================================================================
 // Signal types and functions (from js/resource)

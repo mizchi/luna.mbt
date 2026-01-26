@@ -1,6 +1,6 @@
 import {
-  "mizchi/luna/core" as @core,
   "mizchi/signals" as @signals,
+  "mizchi/signals/ui" as @ui,
 }
 
 import "test" {

@@ -619,3 +619,16 @@ pub fn event_handler() -> EventHandler[Unit] {
 pub fn handler_from_callback(f : () -> Unit) -> EventHandler[Unit] {
   { callback: fn(_) { f() } }
 }
+
+// =============================================================================
+// Type aliases for static DOM (SSR/pre-rendering)
+// =============================================================================
+
+///|
+/// Static DOM node - no event handlers, string attributes
+/// Use for SSR, static site generation, or pre-rendering
+pub type StaticDomNode = Node[Unit, String]
+
+///|
+/// Static DOM attribute - no event handlers, string values
+pub type StaticDomAttr = Attr[Unit, String]

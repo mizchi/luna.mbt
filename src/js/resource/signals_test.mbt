@@ -9,15 +9,10 @@
 test "text_sig creates dynamic text from signal" {
   let sig = @signals.signal(42)
   let node : @luna.Node[Unit, String] = @luna.text_of(sig)
-  match node {
-    @core.DynamicText(getter) => assert_eq(getter(), "42")
-    _ => assert_true(false)
-  }
+  guard node is DynamicText(getter) else { fail("expected DynamicText") }
+  assert_eq(getter(), "42")
   sig.set(100)
-  match node {
-    @core.DynamicText(getter) => assert_eq(getter(), "100")
-    _ => assert_true(false)
-  }
+  assert_eq(getter(), "100")
 }
 
 // =============================================================================

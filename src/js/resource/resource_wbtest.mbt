@@ -3,7 +3,7 @@
 ///|
 /// Tests for async Resource (environment-agnostic)
 test "AsyncState::is_pending" {
-  let state : @core.AsyncState[Int] = @core.Pending
+  let state : @ui.AsyncState[Int] = @ui.Pending
   assert_true(state.is_pending())
   assert_false(state.is_success())
   assert_false(state.is_failure())
@@ -11,7 +11,7 @@ test "AsyncState::is_pending" {
 
 ///|
 test "AsyncState::is_success" {
-  let state : @core.AsyncState[Int] = @core.Success(42)
+  let state : @ui.AsyncState[Int] = @ui.Success(42)
   assert_false(state.is_pending())
   assert_true(state.is_success())
   assert_false(state.is_failure())
@@ -19,7 +19,7 @@ test "AsyncState::is_success" {
 
 ///|
 test "AsyncState::is_failure" {
-  let state : @core.AsyncState[Int] = @core.Failure("error")
+  let state : @ui.AsyncState[Int] = @ui.Failure("error")
   assert_false(state.is_pending())
   assert_false(state.is_success())
   assert_true(state.is_failure())
@@ -27,9 +27,9 @@ test "AsyncState::is_failure" {
 
 ///|
 test "AsyncState::value" {
-  let success : @core.AsyncState[Int] = @core.Success(42)
-  let pending : @core.AsyncState[Int] = @core.Pending
-  let failure : @core.AsyncState[Int] = @core.Failure("error")
+  let success : @ui.AsyncState[Int] = @ui.Success(42)
+  let pending : @ui.AsyncState[Int] = @ui.Pending
+  let failure : @ui.AsyncState[Int] = @ui.Failure("error")
   assert_eq(success.value(), Some(42))
   assert_eq(pending.value(), None)
   assert_eq(failure.value(), None)
@@ -37,9 +37,9 @@ test "AsyncState::value" {
 
 ///|
 test "AsyncState::error" {
-  let success : @core.AsyncState[Int] = @core.Success(42)
-  let pending : @core.AsyncState[Int] = @core.Pending
-  let failure : @core.AsyncState[Int] = @core.Failure("error")
+  let success : @ui.AsyncState[Int] = @ui.Success(42)
+  let pending : @ui.AsyncState[Int] = @ui.Pending
+  let failure : @ui.AsyncState[Int] = @ui.Failure("error")
   assert_eq(success.error(), None)
   assert_eq(pending.error(), None)
   assert_eq(failure.error(), Some("error"))
@@ -116,9 +116,9 @@ test "Resource::get tracks signal" {
   let log : Array[String] = []
   let dispose = render_effect(fn() {
     match res.get() {
-      @core.Pending => log.push("pending")
-      @core.Success(v) => log.push("success:" + v.to_string())
-      @core.Failure(e) => log.push("failure:" + e)
+      @ui.Pending => log.push("pending")
+      @ui.Success(v) => log.push("success:" + v.to_string())
+      @ui.Failure(e) => log.push("failure:" + e)
     }
   })
   defer dispose()

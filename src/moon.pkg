@@ -2,6 +2,7 @@ import {
   "mizchi/luna/js/resource" as @resource,
   "mizchi/luna/core" as @core,
   "mizchi/signals" as @signals,
+  "mizchi/signals/ui" as @ui,
 }
 
 options(

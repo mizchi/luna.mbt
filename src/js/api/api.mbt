@@ -422,7 +422,7 @@ pub struct JsResource(@resource.Resource[Any])
 
 ///|
 /// AsyncState wrapper for JS
-pub struct JsAsyncState(@core.AsyncState[Any])
+pub struct JsAsyncState(@ui.AsyncState[Any])
 
 ///|
 /// Create a Resource from a Promise-style fetcher
@@ -443,13 +443,13 @@ pub fn create_deferred() -> (JsResource, (Any) -> Unit, (String) -> Unit) {
 ///|
 /// Get current async state (reactive)
 pub fn resource_get(res : JsResource) -> JsAsyncState {
-  res.0.get()
+  JsAsyncState(res.0.get())
 }
 
 ///|
 /// Peek current state without tracking
 pub fn resource_peek(res : JsResource) -> JsAsyncState {
-  res.0.peek()
+  JsAsyncState(res.0.peek())
 }
 
 ///|

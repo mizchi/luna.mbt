@@ -1,26 +1,26 @@
 // Resource - Signal-based async value container
 //
-// Uses @core.@core.AsyncState for state representation
+// Uses @ui.AsyncState for state representation
 
 ///|
 /// Resource - Async value container with Signal integration
 /// Environment-agnostic: uses callbacks instead of Promise/async directly
 pub struct Resource[T] {
   /// The reactive state
-  state : Signal[@core.AsyncState[T]]
+  state : Signal[@ui.AsyncState[T]]
   /// Trigger refetch
   priv refetch_ : () -> Unit
 }
 
 ///|
 /// Get current async state (reactive)
-pub fn[T] Resource::get(self : Resource[T]) -> @core.AsyncState[T] {
+pub fn[T] Resource::get(self : Resource[T]) -> @ui.AsyncState[T] {
   self.state.get()
 }
 
 ///|
 /// Peek current state without tracking
-pub fn[T] Resource::peek(self : Resource[T]) -> @core.AsyncState[T] {
+pub fn[T] Resource::peek(self : Resource[T]) -> @ui.AsyncState[T] {
   self.state.peek()
 }
 
@@ -68,11 +68,11 @@ pub fn[T] Resource::refetch(self : Resource[T]) -> Unit {
 pub fn[T] resource(
   fetcher : ((T) -> Unit, (String) -> Unit) -> Unit,
 ) -> Resource[T] {
-  let state : Signal[@core.AsyncState[T]] = signal(@core.Pending)
-  let resolve_ = fn(value : T) { state.set(@core.Success(value)) }
-  let reject_ = fn(error : String) { state.set(@core.Failure(error)) }
+  let state : Signal[@ui.AsyncState[T]] = signal(@ui.Pending)
+  let resolve_ = fn(value : T) { state.set(@ui.Success(value)) }
+  let reject_ = fn(error : String) { state.set(@ui.Failure(error)) }
   fn do_fetch() {
-    state.set(@core.Pending)
+    state.set(@ui.Pending)
     fetcher(resolve_, reject_)
   }
 
@@ -84,23 +84,23 @@ pub fn[T] resource(
 ///|
 /// Create a Resource with initial value (already resolved)
 pub fn[T] resource_resolved(value : T) -> Resource[T] {
-  let state : Signal[@core.AsyncState[T]] = signal(@core.Success(value))
+  let state : Signal[@ui.AsyncState[T]] = signal(@ui.Success(value))
   { state, refetch_: fn() { () } } // No-op for pre-resolved
 }
 
 ///|
 /// Create a Resource with initial error (already rejected)
 pub fn[T] resource_rejected(error : String) -> Resource[T] {
-  let state : Signal[@core.AsyncState[T]] = signal(@core.Failure(error))
+  let state : Signal[@ui.AsyncState[T]] = signal(@ui.Failure(error))
   { state, refetch_: fn() { () } } // No-op for pre-rejected
 }
 
 ///|
 /// Create a deferred Resource (starts pending, resolve/reject manually)
 pub fn[T] deferred() -> (Resource[T], (T) -> Unit, (String) -> Unit) {
-  let state : Signal[@core.AsyncState[T]] = signal(@core.Pending)
-  let resolve = fn(value : T) { state.set(@core.Success(value)) }
-  let reject = fn(error : String) { state.set(@core.Failure(error)) }
-  let res : Resource[T] = { state, refetch_: fn() { state.set(@core.Pending) } }
+  let state : Signal[@ui.AsyncState[T]] = signal(@ui.Pending)
+  let resolve = fn(value : T) { state.set(@ui.Success(value)) }
+  let reject = fn(error : String) { state.set(@ui.Failure(error)) }
+  let res : Resource[T] = { state, refetch_: fn() { state.set(@ui.Pending) } }
   (res, resolve, reject)
 }
