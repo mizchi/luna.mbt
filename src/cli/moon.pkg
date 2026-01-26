@@ -1,4 +1,6 @@
 import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
   "moonbitlang/async",
   "mizchi/sol/internal/json_utils" as @json_utils,
   "mizchi/sol/ssg" as @ssg,

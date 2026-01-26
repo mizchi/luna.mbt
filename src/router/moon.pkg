@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/json",
   "mizchi/luna" as @luna,
   "mizchi/luna/core/routes" as @routes,
   "mizchi/luna/core/render" as @render,

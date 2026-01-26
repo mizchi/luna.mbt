@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/json",
   "mizchi/sol/internal/json_utils" as @json_utils,
   "mizchi/sol/internal/utils" as @utils,
   "mizchi/sol/content/frontmatter" as @frontmatter,

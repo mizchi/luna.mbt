@@ -1,4 +1,4 @@
-import { "mizchi/js/core" as @js, "mizchi/npm_typed/hono" as @hono }
+import { "moonbitlang/core/json", "mizchi/js/core" as @js, "mizchi/npm_typed/hono" as @hono }
 
 options(
   "supported-targets": [ "js" ],

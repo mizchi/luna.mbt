@@ -1,4 +1,6 @@
 import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/bench",
   "mizchi/luna" as @luna,
   "mizchi/sol/content/markdown" as @markdown,
   "mizchi/sol/content/frontmatter" as @frontmatter,

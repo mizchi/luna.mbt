@@ -75,7 +75,7 @@ test "parse actual checkbox mdx content" {
     match node {
       @ssg.MdNode::JsxComponent(embed) => {
         println("Tag: \{embed.tag}")
-        println("Children preview: \{embed.children.substring(start=0, end=200)}")
+        println("Children preview: \{embed.children[:200].to_string()}")
         // Check BEM classes are preserved
         assert_true(embed.children.contains("checkbox__input"))
         assert_true(embed.children.contains("checkbox__control"))
