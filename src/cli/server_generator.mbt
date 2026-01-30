@@ -22,23 +22,19 @@ fn generate_server_main_mbt(
   )
   buf.write_string("///| Configure the application using typed routes\n")
   buf.write_string("pub fn configure_app() -> @sol.App {\n")
-  buf.write_string("  // Create a new Mars app\n")
-  buf.write_string("  let app = @sol.create_app()\n")
+  buf.write_string("  // Create a new Server app\n")
+  buf.write_string("  let app = @sol.create_app()\n\n")
   buf.write_string("  // Get routes and config from server/routes.mbt\n")
   buf.write_string("  let routes = @app_server.routes()\n")
   buf.write_string("  let config = @app_server.config()\n\n")
   buf.write_string(
     "  // Register routes with typed handlers (no resolver needed)\n",
   )
-  buf.write_string(
-    "  let app = @router.register_sol_routes(app, routes, config=config)\n\n",
-  )
+  buf.write_string("  @router.register_sol_routes(app, routes, config=config)\n\n")
   buf.write_string(
     "  // Register Server Actions (if action_registry is defined in routes.mbt)\n",
   )
-  buf.write_string(
-    "  let app = @action.register_actions(app, @app_server.action_registry())\n\n",
-  )
+  buf.write_string("  @action.register_actions(app, @app_server.action_registry())\n\n")
 
   // Generate static directory routes
   if not(static_dirs.is_empty()) {
@@ -47,13 +43,14 @@ fn generate_server_main_mbt(
       let path_prefix = entry.path_prefix
       let source_dir = entry.source_dir
       buf.write_string(
-        "  let app = @sol.serve_static_dir(app, @sol.StaticDirServeConfig::new(\"\{path_prefix}\", \"\{source_dir}\"))\n",
+        "  @sol.serve_static_dir(app, @sol.StaticDirServeConfig::new(\"\{path_prefix}\", \"\{source_dir}\"))\n",
       )
     }
     buf.write_string("\n")
   }
   buf.write_string("  // Serve static files\n")
-  buf.write_string("  @sol.serve_static(app)\n")
+  buf.write_string("  @sol.serve_static(app)\n\n")
+  buf.write_string("  app\n")
   buf.write_string("}\n\n")
   buf.write_string("///|\n")
   buf.write_string("fn main {\n")

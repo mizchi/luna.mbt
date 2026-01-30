@@ -5,7 +5,7 @@
 
 ///|
 /// Mars App type alias
-pub type App = @mars.Mars
+pub type App = @mars.Server
 
 ///|
 /// Mars Context type alias
@@ -17,8 +17,7 @@ pub type Ctx = @mars.Context
 
 ///|
 /// Register all actions from registry to Mars app
-pub fn register_actions(app : App, registry : ActionRegistry) -> App {
-  let mut result = app
+pub fn register_actions(app : App, registry : ActionRegistry) -> Unit {
   for id in registry.action_ids() {
     let action = match registry.get(id) {
       Some(a) => a
@@ -47,7 +46,7 @@ pub fn register_actions(app : App, registry : ActionRegistry) -> App {
       middlewares.push(mw)
     }
     let handler = action.handler
-    result = result.post(
+    app.post(
       path,
       @mars.handler(async fn(c) {
         // Run middleware chain
@@ -72,7 +71,6 @@ pub fn register_actions(app : App, registry : ActionRegistry) -> App {
       }),
     )
   }
-  result
 }
 
 // ============================================================================

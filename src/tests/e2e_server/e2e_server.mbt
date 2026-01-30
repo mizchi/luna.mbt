@@ -22,23 +22,25 @@ pub fn create_app() -> @sol.App {
   let app = @sol.create_app()
 
   // Health check
-  let app = app.get("/", @mars.handler(async fn(c) { c.text("ok") }))
+  app.get("/", @mars.handler(async fn(c) { c.text("ok") }))
 
   // Mount loader test routes
-  let app = register_loader_routes(app)
+  register_loader_routes(app)
 
   // Mount shard test routes
-  let app = register_shard_routes(app)
+  register_shard_routes(app)
 
   // Mount async streaming test routes
   register_async_routes(app)
+
+  app
 }
 
 ///|
 /// Register loader test routes
-fn register_loader_routes(app : @sol.App) -> @sol.App {
+fn register_loader_routes(app : @sol.App) -> Unit {
   // Basic hydration test - trigger: load
-  let app = app.get(
+  app.get(
     "/loader/basic",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -55,7 +57,7 @@ fn register_loader_routes(app : @sol.App) -> @sol.App {
   )
 
   // Visible trigger test
-  let app = app.get(
+  app.get(
     "/loader/visible",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -77,7 +79,7 @@ fn register_loader_routes(app : @sol.App) -> @sol.App {
   )
 
   // Idle trigger test
-  let app = app.get(
+  app.get(
     "/loader/idle",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -93,7 +95,7 @@ fn register_loader_routes(app : @sol.App) -> @sol.App {
   )
 
   // Script reference state test
-  let app = app.get(
+  app.get(
     "/loader/script-ref",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -116,7 +118,7 @@ fn register_loader_routes(app : @sol.App) -> @sol.App {
   )
 
   // Multiple components test
-  let app = app.get(
+  app.get(
     "/loader/multiple",
     @mars.handler(async fn(c) {
       let config_a : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -144,7 +146,7 @@ fn register_loader_routes(app : @sol.App) -> @sol.App {
   )
 
   // Manual trigger test
-  let app = app.get(
+  app.get(
     "/loader/manual",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -181,9 +183,9 @@ fn register_loader_routes(app : @sol.App) -> @sol.App {
 
 ///|
 /// Register shard test routes using @sol module
-fn register_shard_routes(app : @sol.App) -> @sol.App {
+fn register_shard_routes(app : @sol.App) -> Unit {
   // Minimal shard test
-  let app = app.get(
+  app.get(
     "/shard/minimal",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -200,7 +202,7 @@ fn register_shard_routes(app : @sol.App) -> @sol.App {
   )
 
   // Standalone shard test (includes loader)
-  let app = app.get(
+  app.get(
     "/shard/standalone",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -215,7 +217,7 @@ fn register_shard_routes(app : @sol.App) -> @sol.App {
   )
 
   // Lazy shard test (visible trigger)
-  let app = app.get(
+  app.get(
     "/shard/lazy",
     @mars.handler(async fn(c) {
       let config : @sol.IslandConfig[Unit] = @sol.IslandConfig::new(
@@ -237,7 +239,7 @@ fn register_shard_routes(app : @sol.App) -> @sol.App {
   )
 
   // XSS safety test
-  let app = app.get(
+  app.get(
     "/shard/xss-safety",
     @mars.handler(async fn(c) {
       let dangerous_state = "{\"message\":\"<script>alert(1)</script>\",\"html\":\"</script><script>\"}"
@@ -282,9 +284,9 @@ fn register_shard_routes(app : @sol.App) -> @sol.App {
 
 ///|
 /// Register async streaming test routes
-fn register_async_routes(app : @sol.App) -> @sol.App {
+fn register_async_routes(app : @sol.App) -> Unit {
   // Basic async streaming test - simulates streaming SSR with template replacement
-  let app = app.get(
+  app.get(
     "/async/basic",
     @mars.handler(async fn(c) {
       // Build page with VAsync nodes
@@ -347,7 +349,7 @@ fn register_async_routes(app : @sol.App) -> @sol.App {
   )
 
   // Multiple async boundaries test
-  let app = app.get(
+  app.get(
     "/async/multiple",
     @mars.handler(async fn(c) {
       let node : @luna.Node[Unit, String] = @luna.fragment([
@@ -425,7 +427,7 @@ fn register_async_routes(app : @sol.App) -> @sol.App {
   )
 
   // Nested content test
-  let app = app.get(
+  app.get(
     "/async/nested",
     @mars.handler(async fn(c) {
       let node : @luna.Node[Unit, String] = @luna.h(

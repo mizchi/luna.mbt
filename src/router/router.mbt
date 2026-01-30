@@ -319,7 +319,7 @@ pub fn RouterConfig::with_root_template(
 
 ///|
 /// Mars app type alias
-pub type App = @mars.Mars
+pub type App = @mars.Server
 
 ///|
 /// Mars context type alias
@@ -509,7 +509,7 @@ pub fn[E] register_routes(
   default_head? : String = "",
   loader_url? : String = "/static/loader.js",
   wc_loader_url? : String = "/static/wc-loader.js",
-) -> App {
+) -> Unit {
   // Use config if provided, otherwise use individual parameters
   let (tp, dt, dh, lu, wlu, ep, pl, cm, rt) = match config {
     Some(c) =>
@@ -571,14 +571,13 @@ fn[E] register_routes_inner(
   preload_libs~ : Array[String],
   chunk_manifest~ : ChunkManifest?,
   root_template~ : String,
-) -> App {
-  let mut result = app
+) -> Unit {
   for route in routes {
-    result = match route {
+    match route {
       @routes.Page(path~, component~, title~, meta~) => {
         let _ = meta
         let full_path = prefix + path
-        result.get(full_path, fn(c) {
+        app.get(full_path, fn(c) {
           let is_fragment = has_fragment_header(c)
           let params = extract_route_params(c, is_fragment~)
           match page_resolver(component, c, params) {
@@ -616,7 +615,7 @@ fn[E] register_routes_inner(
         let _ = layout // TODO: Layout support
         let new_prefix = prefix + segment
         register_routes_inner(
-          result,
+          app,
           children,
           new_prefix,
           page_resolver,
@@ -634,7 +633,7 @@ fn[E] register_routes_inner(
       }
       @routes.Get(path~, handler~) => {
         let full_path = prefix + path
-        result.get(full_path, fn(c) {
+        app.get(full_path, fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
             Some(json) => ffi_send_json_any(c, json)
@@ -644,7 +643,7 @@ fn[E] register_routes_inner(
       }
       @routes.Post(path~, handler~) => {
         let full_path = prefix + path
-        result.post(full_path, fn(c) {
+        app.post(full_path, fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
             Some(json) => ffi_send_json_any(c, json)
@@ -654,7 +653,6 @@ fn[E] register_routes_inner(
       }
     }
   }
-  result
 }
 
 ///|
@@ -841,7 +839,7 @@ pub fn register_server_routes(
   default_head? : String = "",
   loader_url? : String = "/static/loader.js",
   wc_loader_url? : String = "/static/wc-loader.js",
-) -> App {
+) -> Unit {
   // Use config if provided, otherwise use individual parameters
   let (tp, dt, dh, lu, wlu, rt) = match config {
     Some(c) =>
@@ -891,14 +889,13 @@ fn register_server_routes_inner(
   loader_url~ : String,
   wc_loader_url~ : String,
   root_template~ : String,
-) -> App {
-  let mut result = app
+) -> Unit {
   for route in routes {
-    result = match route {
+    match route {
       @routes.Page(path~, component~, title~, meta~) => {
         let _ = meta
         let full_path = prefix + path
-        result.get(full_path, async fn(c) {
+        app.get(full_path, async fn(c) {
           let is_fragment = has_fragment_header(c)
           let params = extract_route_params(c, is_fragment~)
           match page_resolver(component, c, params) {
@@ -931,7 +928,7 @@ fn register_server_routes_inner(
         let _ = layout // TODO: Layout support
         let new_prefix = prefix + segment
         register_server_routes_inner(
-          result,
+          app,
           children,
           new_prefix,
           page_resolver,
@@ -946,7 +943,7 @@ fn register_server_routes_inner(
       }
       @routes.Get(path~, handler~) => {
         let full_path = prefix + path
-        result.get(full_path, async fn(c) {
+        app.get(full_path, async fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
             Some(json) => ffi_send_json_any(c, json)
@@ -956,7 +953,7 @@ fn register_server_routes_inner(
       }
       @routes.Post(path~, handler~) => {
         let full_path = prefix + path
-        result.post(full_path, async fn(c) {
+        app.post(full_path, async fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
             Some(json) => ffi_send_json_any(c, json)
@@ -966,5 +963,4 @@ fn register_server_routes_inner(
       }
     }
   }
-  result
 }

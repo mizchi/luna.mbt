@@ -2,16 +2,11 @@
 package "mizchi/sol/middleware"
 
 import {
-  "mizchi/js/core",
   "mizchi/mars",
 }
 
 // Values
 pub fn cache_control(String) -> Middleware
-
-pub fn catch_error(Middleware, (Error) -> MwResponse) -> Middleware
-
-pub fn catch_error_default(Middleware) -> Middleware
 
 pub fn cors() -> Middleware
 
@@ -25,23 +20,25 @@ pub fn csrf_for_origin(String) -> Middleware
 
 pub fn csrf_with_config(CsrfConfig) -> Middleware
 
+pub fn extract_origin_from_url(String) -> String?
+
 pub fn fetch_metadata() -> Middleware
 
 pub fn frame_options(String) -> Middleware
 
-pub fn halt(MwResponse) -> Middleware
+pub fn get_header(@mars.Context, String) -> String?
 
 pub fn identity() -> Middleware
+
+pub fn is_referer_allowed(String, Array[String]) -> Bool
+
+pub fn is_safe_method(String) -> Bool
 
 pub fn logger() -> Middleware
 
 pub fn logger_with_config(LoggerConfig) -> Middleware
 
-pub fn map_((MwContext) -> MwContext) -> Middleware
-
 pub fn nosniff() -> Middleware
-
-pub fn or_(Middleware, Middleware) -> Middleware
 
 pub fn pipeline(Array[Middleware]) -> Middleware
 
@@ -51,7 +48,7 @@ pub fn require_content_type(String) -> Middleware
 
 pub fn require_json_content_type() -> Middleware
 
-pub async fn run(Middleware, MwContext) -> Flow[MwContext]
+pub async fn run(Middleware, @mars.Context) -> Bool
 
 pub fn security_headers() -> Middleware
 
@@ -59,15 +56,13 @@ pub fn security_headers_relaxed() -> Middleware
 
 pub fn security_headers_with_config(SecurityHeadersConfig) -> Middleware
 
-pub fn tap((MwContext) -> Unit) -> Middleware
+pub fn then(Middleware, Middleware) -> Middleware
 
 pub fn then_(Middleware, Middleware) -> Middleware
 
-pub fn unless((MwContext) -> Bool, Middleware) -> Middleware
+pub fn to_handler(Middleware) -> @mars.Handler
 
 pub fn validate_origin_middleware(Array[String]) -> Middleware
-
-pub fn when((MwContext) -> Bool, Middleware) -> Middleware
 
 // Errors
 
@@ -121,17 +116,13 @@ pub enum CsrfError {
   UnsafeFetchMode
   InvalidContentType(String)
 }
+pub fn CsrfError::to_string(Self) -> String
 
 pub enum CsrfResult {
   Valid
   ValidNoOrigin
   ValidOrigin(String)
   Invalid(CsrfError)
-}
-
-pub(all) enum Flow[T] {
-  Continue(T)
-  Halt(MwResponse)
 }
 
 pub enum LogFormat {
@@ -142,7 +133,7 @@ pub enum LogFormat {
 
 pub struct LoggerConfig {
   format : LogFormat
-  skip : ((MwRequest) -> Bool)?
+  skip_paths : Array[String]
   log_fn : ((String) -> Unit)?
 }
 pub fn LoggerConfig::combined() -> Self
@@ -150,51 +141,12 @@ pub fn LoggerConfig::default() -> Self
 pub fn LoggerConfig::dev() -> Self
 pub fn LoggerConfig::json() -> Self
 pub fn LoggerConfig::with_log_fn(Self, (String) -> Unit) -> Self
-pub fn LoggerConfig::with_skip(Self, (MwRequest) -> Bool) -> Self
+pub fn LoggerConfig::with_skip_paths(Self, Array[String]) -> Self
 
-pub(all) struct Middleware(async (MwContext) -> Flow[MwContext])
+pub(all) struct Middleware(@mars.Handler)
 #deprecated
-pub fn Middleware::inner(Self) -> async (MwContext) -> Flow[MwContext]
+pub fn Middleware::inner(Self) -> @mars.Handler
 pub fn Middleware::then(Self, Self) -> Self
-
-pub struct MwContext {
-  ctx : @mars.Context
-  request : MwRequest
-  state : Map[String, @core.Any]
-  response_headers : Array[(String, String)]
-}
-pub fn MwContext::add_header(Self, String, String) -> Self
-pub fn MwContext::add_headers(Self, Array[(String, String)]) -> Self
-pub fn MwContext::from_ctx(@mars.Context) -> Self
-pub fn MwContext::get(Self, String) -> @core.Any?
-pub fn MwContext::has(Self, String) -> Bool
-pub fn MwContext::set(Self, String, @core.Any) -> Self
-
-pub struct MwRequest {
-  http_method : String
-  path : String
-  headers : Array[(String, String)]
-  query : Array[(String, String)]
-  url : String
-}
-pub fn MwRequest::get_header(Self, String) -> String?
-pub fn MwRequest::get_query(Self, String) -> String?
-
-pub struct MwResponse {
-  status : Int
-  headers : Array[(String, String)]
-  body : String
-  content_type : String
-}
-pub fn MwResponse::bad_request(message? : String) -> Self
-pub fn MwResponse::forbidden(message? : String) -> Self
-pub fn MwResponse::html(String, status? : Int) -> Self
-pub fn MwResponse::json(String, status? : Int) -> Self
-pub fn MwResponse::not_found(message? : String) -> Self
-pub fn MwResponse::redirect(String, status? : Int) -> Self
-pub fn MwResponse::text(String, status? : Int) -> Self
-pub fn MwResponse::unauthorized(message? : String) -> Self
-pub fn MwResponse::with_header(Self, String, String) -> Self
 
 pub struct SecurityHeadersConfig {
   frame_options : String

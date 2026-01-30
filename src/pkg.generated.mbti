@@ -9,9 +9,9 @@ import {
 }
 
 // Values
-pub fn api(@mars.Mars, String, (@mars.Context) -> Json) -> @mars.Mars
+pub fn api(@mars.Server, String, (@mars.Context) -> Json) -> Unit
 
-pub fn api_post(@mars.Mars, String, (@mars.Context) -> Json) -> @mars.Mars
+pub fn api_post(@mars.Server, String, (@mars.Context) -> Json) -> Unit
 
 pub async fn build(BundleConfig) -> RolldownOutput
 
@@ -25,9 +25,9 @@ pub async fn bundle_islands_prod(Array[(String, String)], String) -> RolldownOut
 
 pub async fn bundle_islands_result(Array[(String, String)], String) -> BundleResult
 
-pub fn create_app() -> @mars.Mars
+pub fn create_app() -> @mars.Server
 
-pub fn create_app_then((@mars.Mars) -> Unit) -> Unit
+pub fn create_app_then((@mars.Server) -> Unit) -> Unit
 
 pub let default_loader_url : String
 
@@ -47,15 +47,19 @@ pub fn get_request_path(@mars.Context) -> String
 
 pub fn[E] island(String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] island_page(@mars.Mars, String, (@mars.Context) -> Array[IslandConfig[E]], title? : String, head? : String, loader_url? : String) -> @mars.Mars
+pub fn[E] island_page(@mars.Server, String, (@mars.Context) -> Array[IslandConfig[E]], title? : String, head? : String, loader_url? : String) -> Unit
 
 pub fn[E] island_with(String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
 pub fn js_response(String) -> @http.Response
 
+pub fn json_array_to_any(Array[Json]) -> @mizchi/js/core.Any
+
 pub fn json_obj(Array[(String, @mizchi/js/core.Any)]) -> @mizchi/js/core.Any
 
-pub fn[E] page(@mars.Mars, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, hydration? : Bool, loader_url? : String) -> @mars.Mars
+pub fn json_to_any(Json) -> @mizchi/js/core.Any
+
+pub fn[E] page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, hydration? : Bool, loader_url? : String) -> Unit
 
 pub fn parse_island_manifest(String) -> IslandManifest?
 
@@ -79,19 +83,21 @@ pub fn render_streaming_page(@mizchi/luna/core.Node[Unit, String], title? : Stri
 
 pub fn[E] render_with_island_preloads(@mizchi/luna/core.Node[E, String]) -> @render.SSRResult
 
-pub fn run((@mars.Mars) -> @mars.Mars, port? : Int) -> Unit
+pub fn run((@mars.Server) -> Unit, port? : Int) -> Unit
 
-pub fn serve(@mars.Mars, Int) -> Unit
+pub fn run_app(() -> @mars.Server, port? : Int) -> Unit
 
-pub fn serve_static(@mars.Mars, config? : StaticFileConfig) -> @mars.Mars
+pub fn serve(@mars.Server, Int) -> Unit
 
-pub fn serve_static_dir(@mars.Mars, StaticDirServeConfig) -> @mars.Mars
+pub fn serve_static(@mars.Server, config? : StaticFileConfig) -> Unit
+
+pub fn serve_static_dir(@mars.Server, StaticDirServeConfig) -> Unit
 
 pub fn set_env(String, String) -> Unit
 
 pub fn static_response(String, String, cache_control? : String) -> @http.Response
 
-pub fn streaming_page(@mars.Mars, String, (@mars.Context) -> @mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> @mars.Mars
+pub fn streaming_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> Unit
 
 pub fn text_response(String, String) -> @http.Response
 
@@ -99,7 +105,7 @@ pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna/core.Node
 
 pub fn[E] wc_island_with(String, String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] wc_page(@mars.Mars, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, wc_loader_url? : String) -> @mars.Mars
+pub fn[E] wc_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, wc_loader_url? : String) -> Unit
 
 // Errors
 
@@ -186,7 +192,7 @@ pub fn StaticFileConfig::dev() -> Self
 pub fn StaticFileConfig::with_mapping(Self, String, String) -> Self
 
 // Type aliases
-pub using @mars {type Mars as App}
+pub using @mars {type Server as App}
 
 pub using @mars {type Context as Ctx}
 

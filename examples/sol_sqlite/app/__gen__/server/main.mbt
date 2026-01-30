@@ -4,22 +4,27 @@
 ///| DO NOT EDIT - This file is auto-generated from server/routes.mbt
 
 ///| Configure the application using typed routes
-pub fn configure_app(app : @sol.App) -> @sol.App {
+pub fn configure_app() -> @sol.App {
+  // Create a new Server app
+  let app = @sol.create_app()
+
   // Get routes and config from server/routes.mbt
   let routes = @app_server.routes()
   let config = @app_server.config()
 
   // Register routes with typed handlers (no resolver needed)
-  let app = @router.register_sol_routes(app, routes, config=config)
+  @router.register_sol_routes(app, routes, config=config)
 
   // Register Server Actions (if action_registry is defined in routes.mbt)
-  let app = @action.register_actions(app, @app_server.action_registry())
+  @action.register_actions(app, @app_server.action_registry())
 
   // Serve static files
   @sol.serve_static(app)
+
+  app
 }
 
 ///|
 fn main {
-  @sol.run(configure_app)
+  @sol.run_app(configure_app)
 }

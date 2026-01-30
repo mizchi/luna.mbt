@@ -479,7 +479,7 @@ pub fn register_sol_routes(
   app : App,
   routes : Array[SolRoutes],
   config? : RouterConfig,
-) -> App {
+) -> Unit {
   let compiled = compile_sol_routes(routes)
   let cfg = config.unwrap_or(RouterConfig::default())
   register_compiled_sol_routes(app, compiled, cfg)
@@ -550,14 +550,13 @@ fn register_compiled_sol_routes(
   app : App,
   routes : Array[CompiledSolRoute],
   config : RouterConfig,
-) -> App {
-  let mut result = app
+) -> Unit {
   for route in routes {
     // Convert catch-all pattern to Hono wildcard pattern
     let hono_pattern = convert_to_hono_pattern(route.pattern, route.catch_all)
-    result = match route.kind {
+    match route.kind {
       SolRouteKind::Page =>
-        result.get(hono_pattern, async fn(c) {
+        app.get(hono_pattern, async fn(c) {
           // Run middleware chain first
           let halted = run_middlewares(c, route.middlewares)
           if halted {
@@ -679,7 +678,7 @@ fn register_compiled_sol_routes(
           }
         })
       SolRouteKind::GetApi =>
-        result.get(hono_pattern, async fn(c) {
+        app.get(hono_pattern, async fn(c) {
           // Run middleware chain first
           let halted = run_middlewares(c, route.middlewares)
           if halted {
@@ -699,7 +698,7 @@ fn register_compiled_sol_routes(
           }
         })
       SolRouteKind::PostApi =>
-        result.post(hono_pattern, async fn(c) {
+        app.post(hono_pattern, async fn(c) {
           // Run middleware chain first
           let halted = run_middlewares(c, route.middlewares)
           if halted {
@@ -719,7 +718,7 @@ fn register_compiled_sol_routes(
           }
         })
       SolRouteKind::PutApi =>
-        result.put(hono_pattern, async fn(c) {
+        app.put(hono_pattern, async fn(c) {
           // Run middleware chain first
           let halted = run_middlewares(c, route.middlewares)
           if halted {
@@ -739,7 +738,7 @@ fn register_compiled_sol_routes(
           }
         })
       SolRouteKind::DeleteApi =>
-        result.delete(hono_pattern, async fn(c) {
+        app.delete(hono_pattern, async fn(c) {
           // Run middleware chain first
           let halted = run_middlewares(c, route.middlewares)
           if halted {
@@ -759,7 +758,7 @@ fn register_compiled_sol_routes(
           }
         })
       SolRouteKind::PatchApi =>
-        result.patch(hono_pattern, async fn(c) {
+        app.patch(hono_pattern, async fn(c) {
           // Run middleware chain first
           let halted = run_middlewares(c, route.middlewares)
           if halted {
@@ -780,7 +779,6 @@ fn register_compiled_sol_routes(
         })
     }
   }
-  result
 }
 
 ///|

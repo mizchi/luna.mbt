@@ -59,11 +59,11 @@ pub fn redirect_permanent_to(String) -> ApiResponse
 
 pub fn redirect_to(String, status? : Int) -> ApiResponse
 
-pub fn[E] register_routes(@mars.Mars, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @mizchi/luna/core.Node[E, String]?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @mars.Mars
+pub fn[E] register_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @mizchi/luna/core.Node[E, String]?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
 
-pub fn register_server_routes(@mars.Mars, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @static.ServerNode?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @mars.Mars
+pub fn register_server_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @static.ServerNode?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
 
-pub fn register_sol_routes(@mars.Mars, Array[SolRoutes], config? : RouterConfig) -> @mars.Mars
+pub fn register_sol_routes(@mars.Server, Array[SolRoutes], config? : RouterConfig) -> Unit
 
 pub fn[E] render_fragment_response(@mizchi/luna/core.Node[E, String], String, Bool) -> String
 
@@ -253,7 +253,7 @@ pub(all) struct StaticDirConfig {
 pub fn StaticDirConfig::default() -> Self
 
 // Type aliases
-pub using @mars {type Mars as App}
+pub using @mars {type Server as App}
 
 pub type AsyncPageResolver = (String, @mars.Context, RouteParams) -> @static.ServerNode?
 

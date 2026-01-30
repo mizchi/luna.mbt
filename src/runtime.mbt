@@ -6,7 +6,7 @@
 
 ///|
 /// Mars app type alias
-pub type App = @mars.Mars
+pub type App = @mars.Server
 
 ///|
 /// Mars context type alias
@@ -15,7 +15,7 @@ pub type Ctx = @mars.Context
 ///|
 /// Create a new Sol application
 pub fn create_app() -> App {
-  @mars.Mars::new()
+  @mars.Server::new()
 }
 
 ///|
@@ -45,9 +45,9 @@ extern "js" fn ffi_init_fs() -> @js.Promise[Unit] =
 /// Create a new Sol application and run callback with it
 /// This is useful for main function that cannot be async
 pub fn create_app_then(callback : (App) -> Unit) -> Unit {
-  // Initialize fs module first, then create Mars app
+  // Initialize fs module first, then create Server app
   let _ = ffi_init_fs().then(fn(_) {
-    let app = @mars.Mars::new()
+    let app = @mars.Server::new()
     callback(app)
     @js.Promise::resolve(@js.any(()))
   })
@@ -94,10 +94,10 @@ extern "js" fn ffi_is_node() -> Bool =
 ///   @sol.run(fn(app) { @sol.page(app, "/", home_page) |> @sol.serve_static() })
 /// }
 /// ```
-pub fn run(configure : (App) -> App, port? : Int) -> Unit {
+pub fn run(configure : (App) -> Unit, port? : Int) -> Unit {
   let port = port.unwrap_or_else(get_port)
   create_app_then(fn(app) {
-    let app = configure(app)
+    configure(app)
     // Store app reference for non-Node runtimes
     sol_app_ref.val = Some(app)
     // Export fetch handler globally for entry point access
@@ -195,7 +195,7 @@ pub fn[E] page(
   head? : String,
   hydration? : Bool,
   loader_url? : String,
-) -> App {
+) -> Unit {
   app.get(
     path,
     @mars.handler(async fn(c) {
@@ -224,7 +224,7 @@ pub fn[E] page(
 
 ///|
 /// Register an API route that returns JSON
-pub fn api(app : App, path : String, handler : (Ctx) -> Json) -> App {
+pub fn api(app : App, path : String, handler : (Ctx) -> Json) -> Unit {
   app.get(path, @mars.handler(async fn(c) { c.json(handler(c)) }))
 }
 
@@ -289,7 +289,7 @@ extern "js" fn ffi_array_to_any(arr : Array[@js.Any]) -> @js.Any =
 
 ///|
 /// Register a POST API route
-pub fn api_post(app : App, path : String, handler : (Ctx) -> Json) -> App {
+pub fn api_post(app : App, path : String, handler : (Ctx) -> Json) -> Unit {
   app.post(path, @mars.handler(async fn(c) { c.json(handler(c)) }))
 }
 
@@ -499,7 +499,7 @@ pub fn[E] island_page(
   title? : String,
   head? : String,
   loader_url? : String,
-) -> App {
+) -> Unit {
   app.get(
     path,
     @mars.handler(async fn(c) {
@@ -626,7 +626,7 @@ pub fn[E] wc_page(
   title? : String,
   head? : String,
   wc_loader_url? : String,
-) -> App {
+) -> Unit {
   app.get(
     path,
     @mars.handler(async fn(c) {
@@ -730,7 +730,7 @@ pub fn streaming_page(
   title? : String,
   head? : String,
   loader_url? : String,
-) -> App {
+) -> Unit {
   app.get(
     path,
     @mars.handler(async fn(c) {
@@ -940,12 +940,12 @@ pub fn StaticDirServeConfig::new(
 ///|
 /// Register a static directory for serving SSG output
 /// This serves HTML files from .sol/prod/static/{path_prefix}
-pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> App {
+pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> Unit {
   let prefix = config.path_prefix.trim_end(chars="/").to_string()
   let local_dir = config.local_dir
 
   // Serve index.html for directory roots
-  let app = app.get(
+  app.get(
     prefix,
     @mars.handler(async fn(c) {
       serve_static_html_async(c, local_dir, "index.html")
@@ -1064,7 +1064,7 @@ fn html_response(content : String) -> @http.Response {
 
 ///|
 /// Register static file serving middleware
-pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
+pub fn serve_static(app : App, config? : StaticFileConfig) -> Unit {
   let cfg = config.unwrap_or(StaticFileConfig::default())
   let prefix = cfg.path_prefix
   let mappings = cfg.mappings

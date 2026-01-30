@@ -3,14 +3,20 @@ package "mizchi/sol/tests/e2e_server"
 
 import {
   "mizchi/mars",
+  "moonbitlang/async/js_async",
 }
 
 // Values
-pub fn create_app() -> @mars.Mars
+pub fn create_app() -> @mars.Server
+
+pub fn create_fetch_handler() -> FetchHandler
 
 // Errors
 
 // Types and methods
+pub struct FetchHandler((@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse])
+#deprecated
+pub fn FetchHandler::inner(Self) -> (@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse]
 
 // Type aliases
 
