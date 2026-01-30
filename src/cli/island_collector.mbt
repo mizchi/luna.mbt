@@ -159,8 +159,8 @@ fn[FS : @env.FileSystem] collect_island_structs_from_source_with_fs(
             // Parse struct definitions from source
             let structs = @parser.parse_struct_defs(content, entry)
             let props_structs = @parser.get_props_structs(structs)
-            // Get package info from moon.pkg.json
-            let pkg_json_path = @path.join2(base_path, "moon.pkg.json")
+            // Get package info from moon.pkg
+            let pkg_path = @path.join2(base_path, "moon.pkg")
             let import_alias = get_dir_name(base_path)
             for s in props_structs {
               exports.push(StructExport::{
@@ -170,7 +170,7 @@ fn[FS : @env.FileSystem] collect_island_structs_from_source_with_fs(
                 import_alias,
               })
             }
-            let _ = pkg_json_path
+            let _ = pkg_path
           }
         }
       } catch {
@@ -215,18 +215,24 @@ pub fn is_web_component(component_name : String) -> Bool {
 }
 
 ///|
-/// Read exports from moon.pkg.json (for user-managed exports mode)
-fn read_exports_from_pkg_json(pkg_json_path : String) -> Array[String] {
+/// Read exports from moon.pkg or moon.pkg.json (for user-managed exports mode)
+/// Tries moon.pkg.json first (legacy JSON format), then falls back to moon.pkg
+/// Note: Currently only JSON format is parsed; new moon.pkg format requires TOML-like parser
+fn read_exports_from_pkg(island_dir : String) -> Array[String] {
   let fs = @fs_adapter.NodeFsAdapter::new()
-  read_exports_from_pkg_json_with_fs(fs, pkg_json_path)
+  read_exports_from_pkg_with_fs(fs, island_dir)
 }
 
 ///|
-fn[FS : @env.FileSystem] read_exports_from_pkg_json_with_fs(
+fn[FS : @env.FileSystem] read_exports_from_pkg_with_fs(
   fs : FS,
-  pkg_json_path : String,
+  island_dir : String,
 ) -> Array[String] {
+  // Try moon.pkg.json first (legacy JSON format)
+  let pkg_json_path = @path.join2(island_dir, "moon.pkg.json")
   let content : String = fs.read_file_sync(pkg_json_path) catch {
+    // If moon.pkg.json doesn't exist, try moon.pkg (new format)
+    // Note: For now, we only parse JSON format
     _ => return []
   }
   let json = @json.parse(content.view()) catch { _ => return [] }

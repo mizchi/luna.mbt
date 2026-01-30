@@ -87,45 +87,28 @@ fn extract_props_type(sig : String, _alias : String) -> String {
 }
 
 ///|
-/// Generate moon.pkg.json for __gen__/client/ directory
-fn generate_client_gen_pkg_json(
+/// Generate moon.pkg for __gen__/client/ directory
+fn generate_client_gen_pkg(
   client_pkg_path : String,
   client_alias : String,
   exports : Array[String],
 ) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("{\n")
-  buf.write_string("  \"supported-targets\": [\"js\"],\n")
-  buf.write_string("  \"import\": [\n")
+  buf.write_string("import {\n")
   // Add user's client package import
-  buf.write_string(
-    "    { \"path\": \"\{client_pkg_path}\", \"alias\": \"\{client_alias}\" },\n",
-  )
+  buf.write_string("  \"\{client_pkg_path}\" as @\{client_alias},\n")
   // Add runtime imports
-  for i, item in hydrate_required_imports {
+  for item in hydrate_required_imports {
     let (pkg_path, pkg_alias) = item
-    buf.write_string(
-      "    { \"path\": \"\{pkg_path}\", \"alias\": \"\{pkg_alias}\" }",
-    )
-    if i < hydrate_required_imports.length() - 1 {
-      buf.write_string(",")
-    }
-    buf.write_string("\n")
+    buf.write_string("  \"\{pkg_path}\" as @\{pkg_alias},\n")
   }
-  buf.write_string("  ],\n")
-  buf.write_string("  \"link\": {\n")
-  buf.write_string("    \"js\": {\n")
-  buf.write_string("      \"exports\": [")
-  for i, name in exports {
-    buf.write_string("\"\{name}\"")
-    if i < exports.length() - 1 {
-      buf.write_string(", ")
-    }
-  }
-  buf.write_string("],\n")
-  buf.write_string("      \"format\": \"esm\"\n")
-  buf.write_string("    }\n")
-  buf.write_string("  }\n")
-  buf.write_string("}\n")
+  buf.write_string("}\n\n")
+  buf.write_string("options(\n")
+  buf.write_string("  \"supported-targets\": [ \"js\" ],\n")
+  let exports_str = exports.map(fn(n) { "\"\{n}\"" }).join(", ")
+  buf.write_string(
+    "  link: { \"js\": { \"exports\": [ \{exports_str} ], \"format\": \"esm\" } },\n",
+  )
+  buf.write_string(")\n")
   buf.to_string()
 }

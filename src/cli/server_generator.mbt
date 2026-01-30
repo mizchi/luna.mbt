@@ -60,35 +60,24 @@ fn generate_server_main_mbt(
 }
 
 ///|
-/// Generate server moon.pkg.json
-fn generate_server_pkg_json(routes_pkg : String) -> String {
+/// Generate server moon.pkg
+fn generate_server_pkg(routes_pkg : String) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("{\n")
-  buf.write_string("  \"supported-targets\": [\"js\"],\n")
+  buf.write_string("import {\n")
+  buf.write_string("  \"mizchi/sol\" as @sol,\n")
+  buf.write_string("  \"mizchi/sol/router\" as @router,\n")
+  buf.write_string("  \"mizchi/sol/action\" as @action,\n")
+  buf.write_string("  \"mizchi/js/core\" as @core,\n")
+  buf.write_string("  \"\{routes_pkg}\" as @app_server,\n")
+  buf.write_string("}\n\n")
+  buf.write_string("options(\n")
   buf.write_string("  \"is-main\": true,\n")
-  buf.write_string("  \"import\": [\n")
-  buf.write_string("    { \"path\": \"mizchi/sol\", \"alias\": \"sol\" },\n")
+  buf.write_string("  \"supported-targets\": [ \"js\" ],\n")
+  buf.write_string("  \"warn-list\": \"-29\",\n")
   buf.write_string(
-    "    { \"path\": \"mizchi/sol/router\", \"alias\": \"router\" },\n",
+    "  link: { \"js\": { \"exports\": [ \"configure_app\" ], \"format\": \"esm\" } },\n",
   )
-  buf.write_string(
-    "    { \"path\": \"mizchi/sol/action\", \"alias\": \"action\" },\n",
-  )
-  buf.write_string(
-    "    { \"path\": \"mizchi/js/core\", \"alias\": \"core\" },\n",
-  )
-  buf.write_string(
-    "    { \"path\": \"\{routes_pkg}\", \"alias\": \"app_server\" }\n",
-  )
-  buf.write_string("  ],\n")
-  buf.write_string("  \"link\": {\n")
-  buf.write_string("    \"js\": {\n")
-  buf.write_string("      \"exports\": [\"configure_app\"],\n")
-  buf.write_string("      \"format\": \"esm\"\n")
-  buf.write_string("    }\n")
-  buf.write_string("  },\n")
-  buf.write_string("  \"warn-list\": \"-29\"\n")
-  buf.write_string("}\n")
+  buf.write_string(")\n")
   buf.to_string()
 }
 

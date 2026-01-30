@@ -925,9 +925,11 @@ fn[FS : @env.FileSystem] lint_scan_recursive(
       _ => false
     }
     if is_dir {
-      // Skip component directories (moon.pkg.json or tsx files)
-      let moon_pkg = @path.join2(entry_path, "moon.pkg.json")
-      if @env.FileSystem::exists_sync(fs, moon_pkg) {
+      // Skip component directories (moon.pkg or moon.pkg.json)
+      let moon_pkg = @path.join2(entry_path, "moon.pkg")
+      let moon_pkg_json = @path.join2(entry_path, "moon.pkg.json")
+      if @env.FileSystem::exists_sync(fs, moon_pkg) ||
+        @env.FileSystem::exists_sync(fs, moon_pkg_json) {
         continue
       }
       // Recurse

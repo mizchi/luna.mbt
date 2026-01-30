@@ -22,7 +22,7 @@ pub struct SolConfig {
   routes : String
   /// Output directory for generated MoonBit files
   output : String
-  /// Auto-generate exports in island moon.pkg.json (default: true)
+  /// Auto-generate exports in island moon.pkg (default: true)
   client_auto_exports : Bool
   /// Server runtime for deployment (node, cloudflare, deno, bun)
   runtime : ServerRuntime

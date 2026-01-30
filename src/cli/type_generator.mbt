@@ -53,21 +53,19 @@ fn generate_types_mbt(structs : Array[StructExport]) -> String {
 }
 
 ///|
-/// Generate types/moon.pkg.json
-fn generate_types_pkg_json(
+/// Generate types/moon.pkg
+fn generate_types_pkg(
   structs : Array[StructExport],
   project_name : String,
 ) -> String {
   let _ = project_name
   let buf = StringBuilder::new()
-  buf.write_string("{\n")
-  buf.write_string("  \"supported-targets\": [\"js\"],\n")
-  // Import @luna for ComponentRef type
-  buf.write_string("  \"import\": [\n")
-  buf.write_string("    { \"path\": \"mizchi/luna\", \"alias\": \"luna\" }\n")
-  buf.write_string("  ],\n")
-  buf.write_string("  \"link\": {\n")
-  buf.write_string("    \"js\": {\n")
+  buf.write_string("import {\n")
+  buf.write_string("  \"mizchi/luna\" as @luna,\n")
+  buf.write_string("}\n\n")
+  buf.write_string("options(\n")
+  buf.write_string("  \"supported-targets\": [ \"js\" ],\n")
+  buf.write_string("  \"warn-list\": \"-29\",\n")
   // Export all struct names and factory functions
   let exports : Array[String] = []
   for s in structs {
@@ -77,12 +75,10 @@ fn generate_types_pkg_json(
     exports.push(fn_name)
   }
   let exports_str = exports.map(fn(n) { "\"\{n}\"" }).join(", ")
-  buf.write_string("      \"exports\": [\{exports_str}],\n")
-  buf.write_string("      \"format\": \"esm\"\n")
-  buf.write_string("    }\n")
-  buf.write_string("  },\n")
-  buf.write_string("  \"warn-list\": \"-29\"\n")
-  buf.write_string("}\n")
+  buf.write_string(
+    "  link: { \"js\": { \"exports\": [ \{exports_str} ], \"format\": \"esm\" } },\n",
+  )
+  buf.write_string(")\n")
   buf.to_string()
 }
 

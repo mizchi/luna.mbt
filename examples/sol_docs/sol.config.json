@@ -2,6 +2,7 @@
   "$schema": "../../schemas/sol.config.schema.json",
   "title": "Sol SSG Demo",
   "description": "Demo site for Sol SSG",
+  "routes": "app/routes",
   "docs_dir": "docs",
   "out_dir": "dist",
   "base_url": "/",

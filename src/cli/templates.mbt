@@ -154,32 +154,34 @@ pub fn template_server_run_moon_pkg_json(package_name : String) -> String {
 }
 
 ///|
-/// Page moon.pkg.json with island support (signal + counter)
-pub fn template_page_with_island_moon_pkg_json(package_name : String) -> String {
+/// Page moon.pkg with island support (signal + counter)
+pub fn template_page_with_island_moon_pkg(package_name : String) -> String {
   let tmpl =
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "import": [
-    #|    { "path": "mizchi/luna/core", "alias": "luna" },
-    #|    { "path": "mizchi/luna/core/signal", "alias": "signal" },
-    #|    { "path": "mizchi/sol", "alias": "sol" },
-    #|    { "path": "{{PACKAGE_NAME}}/client/components", "alias": "counter" }
-    #|  ]
+    #|import {
+    #|  "mizchi/luna/core" as @luna,
+    #|  "mizchi/luna/core/signal" as @signal,
+    #|  "mizchi/sol" as @sol,
+    #|  "{{PACKAGE_NAME}}/client/components" as @counter,
     #|}
+    #|
+    #|options(
+    #|  "supported-targets": [ "js" ],
+    #|)
   tmpl.replace(old="{{PACKAGE_NAME}}", new=package_name)
 }
 
 ///|
-/// Simple page moon.pkg.json without island dependencies
-pub fn template_page_simple_moon_pkg_json() -> String {
+/// Simple page moon.pkg without island dependencies
+pub fn template_page_simple_moon_pkg() -> String {
   (
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "import": [
-    #|    { "path": "mizchi/luna/core", "alias": "luna" },
-    #|    { "path": "mizchi/sol", "alias": "sol" }
-    #|  ]
+    #|import {
+    #|  "mizchi/luna/core" as @luna,
+    #|  "mizchi/sol" as @sol,
     #|}
+    #|
+    #|options(
+    #|  "supported-targets": [ "js" ],
+    #|)
   )
 }
 
@@ -290,16 +292,17 @@ pub fn template_layout_mbt() -> String {
 }
 
 ///|
-/// Layout moon.pkg.json
-pub fn template_layout_moon_pkg_json() -> String {
+/// Layout moon.pkg
+pub fn template_layout_moon_pkg() -> String {
   (
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "import": [
-    #|    { "path": "mizchi/luna/core", "alias": "luna" },
-    #|    { "path": "mizchi/luna/static_dom/element", "alias": "element" }
-    #|  ]
+    #|import {
+    #|  "mizchi/luna/core" as @luna,
+    #|  "mizchi/luna/static_dom/element" as @element,
     #|}
+    #|
+    #|options(
+    #|  "supported-targets": [ "js" ],
+    #|)
   )
 }
 
@@ -416,22 +419,23 @@ pub fn template_routes_mbt(package_name : String) -> String {
 }
 
 ///|
-/// Routes moon.pkg.json
-pub fn template_routes_moon_pkg_json(package_name : String) -> String {
+/// Routes moon.pkg
+pub fn template_routes_moon_pkg(package_name : String) -> String {
   let tmpl =
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "import": [
-    #|    { "path": "mizchi/luna/core", "alias": "luna" },
-    #|    { "path": "mizchi/sol", "alias": "sol" },
-    #|    { "path": "mizchi/sol/router", "alias": "router" },
-    #|    { "path": "mizchi/luna/static_dom", "alias": "server_dom" },
-    #|    { "path": "mizchi/luna/static_dom/element", "alias": "element" },
-    #|    { "path": "mizchi/js/core", "alias": "core" },
-    #|    { "path": "{{PACKAGE_NAME}}/layout", "alias": "layout" },
-    #|    { "path": "{{PACKAGE_NAME}}/__gen__/types", "alias": "types" }
-    #|  ]
+    #|import {
+    #|  "mizchi/luna/core" as @luna,
+    #|  "mizchi/sol" as @sol,
+    #|  "mizchi/sol/router" as @router,
+    #|  "mizchi/luna/static_dom" as @server_dom,
+    #|  "mizchi/luna/static_dom/element" as @element,
+    #|  "mizchi/js/core" as @core,
+    #|  "{{PACKAGE_NAME}}/layout" as @layout,
+    #|  "{{PACKAGE_NAME}}/__gen__/types" as @types,
     #|}
+    #|
+    #|options(
+    #|  "supported-targets": [ "js" ],
+    #|)
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
 
@@ -491,16 +495,17 @@ pub fn template_client_counter_mbt() -> String {
 }
 
 ///|
-/// Client counter moon.pkg.json
-pub fn template_client_counter_moon_pkg_json() -> String {
+/// Client counter moon.pkg
+pub fn template_client_counter_moon_pkg() -> String {
   (
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "import": [
-    #|    { "path": "mizchi/luna/dom/element", "alias": "element" },
-    #|    { "path": "mizchi/luna/core/signal", "alias": "signal" }
-    #|  ]
+    #|import {
+    #|  "mizchi/luna/dom/element" as @element,
+    #|  "mizchi/luna/core/signal" as @signal,
     #|}
+    #|
+    #|options(
+    #|  "supported-targets": [ "js" ],
+    #|)
   )
 }
 
@@ -582,18 +587,13 @@ pub fn template_ln_loader_js() -> String {
 }
 
 ///|
-/// Template for __gen__/types/moon.pkg.json
-pub fn template_gen_types_moon_pkg_json() -> String {
+/// Template for __gen__/types/moon.pkg
+pub fn template_gen_types_moon_pkg() -> String {
   (
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "link": {
-    #|    "js": {
-    #|      "exports": ["CounterProps"],
-    #|      "format": "esm"
-    #|    }
-    #|  }
-    #|}
+    #|options(
+    #|  "supported-targets": [ "js" ],
+    #|  link: { "js": { "exports": [ "CounterProps" ], "format": "esm" } },
+    #|)
   )
 }
 
@@ -638,16 +638,13 @@ pub fn generate_templates(
     { path: "package.json", content: template_package_json(project_name) },
     { path: "sol.config.json", content: template_sol_config_json() },
     // Layout (explicit layout wrapper)
-    {
-      path: "app/layout/moon.pkg.json",
-      content: template_layout_moon_pkg_json(),
-    },
+    { path: "app/layout/moon.pkg", content: template_layout_moon_pkg() },
     { path: "app/layout/layout.mbt", content: template_layout_mbt() },
     { path: "app/layout/_using.mbt", content: template_server_using_mbt() },
     // Routes (single source of truth)
     {
-      path: "app/server/moon.pkg.json",
-      content: template_routes_moon_pkg_json(package_name),
+      path: "app/server/moon.pkg",
+      content: template_routes_moon_pkg(package_name),
     },
     {
       path: "app/server/routes.mbt",
@@ -656,8 +653,8 @@ pub fn generate_templates(
     { path: "app/server/_using.mbt", content: template_routes_using_mbt() },
     // Client islands (render + hydrate in same file)
     {
-      path: "app/client/counter/moon.pkg.json",
-      content: template_client_counter_moon_pkg_json(),
+      path: "app/client/counter/moon.pkg",
+      content: template_client_counter_moon_pkg(),
     },
     {
       path: "app/client/counter/counter.mbt",
@@ -665,8 +662,8 @@ pub fn generate_templates(
     },
     // Generated types (needed for initial build)
     {
-      path: "app/__gen__/types/moon.pkg.json",
-      content: template_gen_types_moon_pkg_json(),
+      path: "app/__gen__/types/moon.pkg",
+      content: template_gen_types_moon_pkg(),
     },
     { path: "app/__gen__/types/types.mbt", content: template_gen_types_mbt() },
     // Static assets

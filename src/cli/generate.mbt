@@ -136,11 +136,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   let project_name = get_project_name(cwd)
   if not(source_structs.is_empty()) {
     let types_mbt_content = generate_types_mbt(source_structs)
-    let types_pkg_content = generate_types_pkg_json(
-      source_structs, project_name,
-    )
+    let types_pkg_content = generate_types_pkg(source_structs, project_name)
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
-    let types_pkg_path = @path.join2(types_dir, "moon.pkg.json")
+    let types_pkg_path = @path.join2(types_dir, "moon.pkg")
     try {
       fs.write_file_sync(types_mbt_path, types_mbt_content)
       fs.write_file_sync(types_pkg_path, types_pkg_content)
@@ -156,12 +154,12 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   } else {
     // Create empty stub if no Props found
     let stub_types_mbt_path = @path.join2(types_dir, "types.mbt")
-    let stub_types_pkg_path = @path.join2(types_dir, "moon.pkg.json")
+    let stub_types_pkg_path = @path.join2(types_dir, "moon.pkg")
     if not(fs.exists_sync(stub_types_mbt_path)) {
       try {
         fs.write_file_sync(stub_types_mbt_path, "///| No Props types found\n")
         fs.write_file_sync(
-          stub_types_pkg_path, "{\n  \"supported-targets\": [\"js\"],\n  \"warn-list\": \"-29\"\n}\n",
+          stub_types_pkg_path, "options(\n  \"supported-targets\": [ \"js\" ],\n  \"warn-list\": \"-29\",\n)\n",
         )
       } catch {
         e => {
@@ -173,43 +171,46 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       }
     }
   }
-  // Step 2.5: Pre-create server moon.pkg.json with warn-list (before moon info)
+  // Step 2.5: Pre-create server moon.pkg with warn-list (before moon info)
   // This ensures warnings are suppressed during moon info
+  // Skip for hybrid mode (TypeScript server) as there's no MoonBit routes package
   let server_dir = @path.join2(output_dir, "server")
-  fs.mkdir_sync(server_dir, true) catch {
-    e => {
-      @cli_common.console_error(
-        @colorette.red("Error creating server directory: \{e}"),
-      )
-      @process.exit(1)
-    }
-  }
   let routes_pkg = get_routes_package_path(cwd, config.routes)
-  let server_pkg = generate_server_pkg_json(routes_pkg)
-  let server_pkg_path = @path.join2(server_dir, "moon.pkg.json")
-  fs.write_file_sync(server_pkg_path, server_pkg) catch {
-    e => {
-      @cli_common.console_error(
-        @colorette.red("Error writing server/moon.pkg.json: \{e}"),
-      )
-      @process.exit(1)
+  if app_mode == MoonBitFull {
+    fs.mkdir_sync(server_dir, true) catch {
+      e => {
+        @cli_common.console_error(
+          @colorette.red("Error creating server directory: \{e}"),
+        )
+        @process.exit(1)
+      }
     }
-  }
-  // Create stub main.mbt so is-main: true doesn't fail
-  let stub_main_path = @path.join2(server_dir, "main.mbt")
-  fs.write_file_sync(
-    stub_main_path, "///| Stub - will be replaced\nfn main { () }\n",
-  ) catch {
-    e => {
-      @cli_common.console_error(
-        @colorette.red("Error writing stub main.mbt: \{e}"),
-      )
-      @process.exit(1)
+    let server_pkg = generate_server_pkg(routes_pkg)
+    let server_pkg_path = @path.join2(server_dir, "moon.pkg")
+    fs.write_file_sync(server_pkg_path, server_pkg) catch {
+      e => {
+        @cli_common.console_error(
+          @colorette.red("Error writing server/moon.pkg: \{e}"),
+        )
+        @process.exit(1)
+      }
+    }
+    // Create stub main.mbt so is-main: true doesn't fail
+    let stub_main_path = @path.join2(server_dir, "main.mbt")
+    fs.write_file_sync(
+      stub_main_path, "///| Stub - will be replaced\nfn main { () }\n",
+    ) catch {
+      e => {
+        @cli_common.console_error(
+          @colorette.red("Error writing stub main.mbt: \{e}"),
+        )
+        @process.exit(1)
+      }
     }
   }
   // Step 3: Collect island exports
   // If client_auto_exports is true, run moon info and parse mbti
-  // If client_auto_exports is false, read exports from moon.pkg.json (faster)
+  // If client_auto_exports is false, read exports from moon.pkg or moon.pkg.json (faster)
   let funcs : Array[FuncExport] = if config.client_auto_exports {
     println(@colorette.gray("  Running moon info..."))
     try {
@@ -233,15 +234,14 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     // Collect all pub functions from island directories (using mbti)
     collect_island_functions(cwd, config)
   } else {
-    // User-managed exports mode: read from moon.pkg.json directly
+    // User-managed exports mode: read from moon.pkg or moon.pkg.json directly
     println(
-      @colorette.gray("  Reading exports from moon.pkg.json (user-managed)..."),
+      @colorette.gray("  Reading exports from moon.pkg (user-managed)..."),
     )
     let result : Array[FuncExport] = []
     for island_pattern in config.islands {
       let island_dir = @path.join2(cwd, island_pattern)
-      let pkg_json_path = @path.join2(island_dir, "moon.pkg.json")
-      let exports = read_exports_from_pkg_json(pkg_json_path)
+      let exports = read_exports_from_pkg(island_dir)
       for export_name in exports {
         // Skip __sol_internal__client_* exports (they are generated, not source functions)
         if not(export_name.has_prefix("__sol_internal__client_")) {
@@ -339,18 +339,18 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
           @process.exit(1)
         }
       }
-      // Generate moon.pkg.json for __gen__/client/
-      let pkg_json_content = generate_client_gen_pkg_json(
+      // Generate moon.pkg for __gen__/client/
+      let pkg_content = generate_client_gen_pkg(
         client_pkg_path, client_alias_name, export_names,
       )
-      let pkg_json_path = @path.join2(client_gen_dir, "moon.pkg.json")
+      let pkg_path = @path.join2(client_gen_dir, "moon.pkg")
       try {
-        fs.write_file_sync(pkg_json_path, pkg_json_content)
-        println(@colorette.gray("  Generated __gen__/client/moon.pkg.json"))
+        fs.write_file_sync(pkg_path, pkg_content)
+        println(@colorette.gray("  Generated __gen__/client/moon.pkg"))
       } catch {
         e => {
           @cli_common.console_error(
-            @colorette.red("Error writing __gen__/client/moon.pkg.json: \{e}"),
+            @colorette.red("Error writing __gen__/client/moon.pkg: \{e}"),
           )
           @process.exit(1)
         }
@@ -385,26 +385,19 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
         }
       }
     }
-    MoonBitClientTsServer => {
-      // For hybrid mode, skip MoonBit server generation
+    MoonBitClientTsServer =>
+      // For hybrid mode, skip MoonBit server generation entirely
       // The TypeScript routes.ts will be used directly
       println(
-        @colorette.gray("  Skipping __gen__/server/main.mbt (hybrid mode)"),
+        @colorette.gray("  Skipping __gen__/server/ (hybrid mode)"),
       )
-      // Create a stub main.mbt to satisfy MoonBit build
-      let stub_main = "///| Stub - TypeScript server mode\nfn main { () }\n"
-      let stub_main_path = @path.join2(server_dir, "main.mbt")
-      fs.write_file_sync(stub_main_path, stub_main) catch {
-        _ => ()
-      }
-    }
     TypeScriptFull =>
       // Full TypeScript mode - not yet implemented
       println(
         @colorette.gray("  Skipping __gen__/server/ (full TypeScript mode)"),
       )
   }
-  // Note: server/moon.pkg.json already generated before moon info (with warn-list)
+  // Note: server/moon.pkg already generated before moon info for MoonBitFull mode
   // Generate client JS entry files in .sol/client/
   if not(funcs.is_empty()) {
     for func in funcs {

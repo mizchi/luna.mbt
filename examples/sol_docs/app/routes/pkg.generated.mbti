@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "example/sol-docs/routes"
 
-import(
-  "mizchi/sol/action"
-  "mizchi/sol/router"
-)
+import {
+  "mizchi/sol/action",
+  "mizchi/sol/router",
+}
 
 // Values
 pub fn action_registry() -> @action.ActionRegistry
