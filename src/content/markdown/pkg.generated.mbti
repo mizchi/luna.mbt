@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/content/markdown"
 
-import(
-  "mizchi/luna/core"
-)
+import {
+  "mizchi/luna/core",
+}
 
 // Values
 

@@ -15,8 +15,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Clone markdown.mbt
-        run: git clone --depth 1 https://github.com/mizchi/markdown.mbt ../markdown.mbt
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -31,10 +29,6 @@ jobs:
       - run: |
           moon update
           moon install
-      - name: Sync markdown.mbt sources
-        run: |
-          cp ../markdown.mbt/moon.mod.json .mooncakes/mizchi/markdown/
-          cp -r ../markdown.mbt/src/* .mooncakes/mizchi/markdown/src/
       - name: Build MoonBit
         run: moon build --target js
       - name: Install Playwright Chromium

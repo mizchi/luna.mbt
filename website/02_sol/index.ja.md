@@ -15,11 +15,11 @@ SolはLuna UIとMoonBitで構築されたフルスタックSSRフレームワー
 - **ファイルベースルーティング** - ディレクトリ構造からページとAPIルートを生成
 - **型安全** - MoonBitの型がサーバーからブラウザまで流れる
 - **ストリーミングSSR** - 非同期コンテンツのストリーミング対応
-- **CSRナビゲーション** - `sol-link`によるSPAライクなページ遷移
+- **CSRナビゲーション** - `data-sol-link`によるSPAライクなページ遷移
 - **ミドルウェア** - Railway Oriented Programmingベースのミドルウェア
 - **Server Actions** - CSRF保護付きのサーバーサイド関数
 - **ネストされたレイアウト** - 階層的なレイアウト構造
-- **SSGモード** - Sol SSGによる静的サイト生成（設定から自動検出）
+- **ドキュメント/SSG** - Sol SSG単体サイト、または`staticDirs`によるハイブリッド
 
 ## プロジェクト構造
 
@@ -86,33 +86,36 @@ sol serve --port 8080  # ポート指定
 
 ## SolRoutes定義
 
-宣言的なルート定義：
+宣言的なルート定義（`@router.SolRoutes`を使用）：
 
 ```moonbit
-pub fn routes() -> Array[SolRoutes] {
+pub fn routes() -> Array[@router.SolRoutes] {
   [
     // ページルート
-    SolRoutes::Page(
+    @router.SolRoutes::Page(
       path="/",
-      handler=PageHandler(home_page),
+      handler=@router.PageHandler(home_page),
       title="Home",
       meta=[],
+      revalidate=None,
+      cache=None,
     ),
     // GET APIルート
-    SolRoutes::Get(
+    @router.SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(api_health),
+      handler=@router.ApiHandler(api_health),
     ),
     // ネストされたレイアウト
-    SolRoutes::Layout(
-      segment="admin",
+    // segment="/admin" + path="/" => /admin
+    @router.SolRoutes::Layout(
+      segment="/admin",
       layout=admin_layout,
       children=[
-        SolRoutes::Page(path="/admin", handler=PageHandler(admin_dashboard), title="Admin"),
+        @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
       ],
     ),
     // ミドルウェア適用
-    SolRoutes::WithMiddleware(
+    @router.SolRoutes::WithMiddleware(
       middleware=[@middleware.cors(), @middleware.logger()],
       children=[...],
     ),
@@ -141,7 +144,7 @@ let middleware = @middleware.logger()
   .then(@middleware.cors())
   .then(@middleware.security_headers())
 
-SolRoutes::WithMiddleware(
+@router.SolRoutes::WithMiddleware(
   middleware=[middleware],
   children=[...],
 )
@@ -163,14 +166,14 @@ SolRoutes::WithMiddleware(
 CSRF保護付きのサーバーサイド関数。
 
 ```moonbit
-let submit_handler = ActionHandler(async fn(ctx) {
+let submit_handler = @action.ActionHandler(async fn(ctx) {
   let body = ctx.body
-  ActionResult::ok(@js.any({ "success": true }))
+  @action.ActionResult::ok(@js.any({ "success": true }))
 })
 
-pub fn action_registry() -> ActionRegistry {
-  ActionRegistry::new(allowed_origins=["http://localhost:3000"])
-    .register(ActionDef::new("submit-form", submit_handler))
+pub fn action_registry() -> @action.ActionRegistry {
+  @action.ActionRegistry::new(allowed_origins=["http://localhost:3000"])
+    .register(@action.ActionDef::new("submit-form", submit_handler))
 }
 ```
 
@@ -179,7 +182,8 @@ pub fn action_registry() -> ActionRegistry {
 | タイプ | 説明 |
 |--------|------|
 | `Success(data)` | 成功、JSONデータを返す |
-| `Redirect(url)` | 成功、リダイレクト |
+| `Redirect(url)` | クライアントサイドリダイレクト（JSON形式で返す） |
+| `HttpRedirect(url)` | HTTPリダイレクト（302ステータスとLocationヘッダー） |
 | `ClientError(status, msg)` | クライアントエラー (4xx) |
 | `ServerError(msg)` | サーバーエラー (5xx) |
 
@@ -188,7 +192,7 @@ pub fn action_registry() -> ActionRegistry {
 Islandはサーバーとクライアントで共有されるコンポーネント：
 
 ```moonbit
-pub fn counter(count : Signal[Int]) -> @luna.Node[CounterAction] {
+pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[CounterAction] {
   div(class="counter", [
     span(class="count-display", [text_signal(count)]),
     button(onclick=@luna.action(Increment), [text("+")]),
@@ -208,10 +212,10 @@ pub fn counter(count : Signal[Int]) -> @luna.Node[CounterAction] {
 
 ## CSRナビゲーション
 
-`sol-link`属性を持つリンクはCSRで処理：
+`data-sol-link`属性を持つリンクはCSRで処理されます。`sol_link`ヘルパを使用：
 
 ```moonbit
-a(href="/about", attrs=[("sol-link", @luna.attr_static(""))], [text("About")])
+sol_link(href="/about", [text("About")])
 ```
 
 クリック時の動作：
@@ -223,30 +227,52 @@ a(href="/about", attrs=[("sol-link", @luna.attr_static(""))], [text("About")])
 
 ## ストリーミングSSR
 
-非同期コンテンツのストリーミング：
+`ServerNode::async_`を使用した非同期コンテンツのストリーミング：
 
 ```moonbit
-@luna.vasync(async fn() {
-  let data = fetch_data().await
+@server_dom.ServerNode::async_(async fn() {
+  let data = fetch_data()  // 非同期関数呼び出し
   div([text(data)])
 })
 ```
 
-## SSGモード
+## モード
 
-プロジェクトに`ssg`または`docs`セクションを持つ`sol.config.json`がある場合、SolはSSGモードを自動検出します。
+Solは3つの使い方を想定しています。
+
+### アプリ (デフォルト)
+
+- Islands付きSSRアプリ
+- `moon.mod.json`が必要
+- `sol dev`でアプリサーバー起動
+
+### SSGのみ（ドキュメント）
+
+`sol.config.json`に`ssg`または`docs`セクションがあり、かつ`moon.mod.json`が無い場合に検出されます。
 
 ```bash
-# SSGプロジェクトを作成
 sol new my-docs --ssg
-
-# dev/buildコマンドは同じように動作
-sol dev    # HMR付きSSG開発サーバーを起動
-sol build  # 静的サイトを生成
+sol dev    # HMR付きSSG開発サーバー
+sol build  # 静的サイト生成
 sol lint   # SSGコンテンツをリント
 ```
 
 SSG固有の機能と設定については、[Sol SSG](/ja/sol/ssg/)を参照してください。
+
+### ハイブリッド（アプリ + ドキュメント）
+
+アプリを維持したまま、`staticDirs`でドキュメントをマウントします：
+
+```json
+{
+  "staticDirs": [
+    { "path_prefix": "/docs", "source_dir": "docs", "title": "Docs" }
+  ]
+}
+```
+
+- `sol build`でアプリとドキュメントをまとめてビルド
+- `sol dev`はアプリサーバーを起動（ドキュメントのプレビューは`sol dev --mode ssg`）
 
 ## 関連項目
 

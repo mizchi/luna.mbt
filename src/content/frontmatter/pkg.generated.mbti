@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/content/frontmatter"
 
-import(
-  "mizchi/markdown"
-  "moonbitlang/core/json"
-)
+import {
+  "mizchi/markdown",
+  "moonbitlang/core/json",
+}
 
 // Values
 pub fn from_cst(@markdown.Frontmatter) -> Frontmatter

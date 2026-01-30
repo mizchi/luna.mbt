@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/ssg"
 
-import(
-  "mizchi/sol/content/frontmatter"
-  "mizchi/sol/content/markdown"
-  "moonbitlang/core/json"
-)
+import {
+  "mizchi/sol/content/frontmatter",
+  "mizchi/sol/content/markdown",
+  "moonbitlang/core/json",
+}
 
 // Values
 pub fn build_localized_url(String, String, I18nConfig) -> String

@@ -1,17 +1,17 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol"
 
-import(
-  "mizchi/js/web/http"
-  "mizchi/luna/core/render"
-  "mizchi/luna/x/stella"
-  "mizchi/npm_typed/hono"
-)
+import {
+  "mizchi/js/web/http",
+  "mizchi/luna/core/render",
+  "mizchi/luna/x/stella",
+  "mizchi/mars",
+}
 
 // Values
-pub fn api(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/js/core.Any) -> @hono.Hono[Unit, Unit]
+pub fn api(@mars.Mars, String, (@mars.Context) -> Json) -> @mars.Mars
 
-pub fn api_post(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/js/core.Any) -> @hono.Hono[Unit, Unit]
+pub fn api_post(@mars.Mars, String, (@mars.Context) -> Json) -> @mars.Mars
 
 pub async fn build(BundleConfig) -> RolldownOutput
 
@@ -25,9 +25,9 @@ pub async fn bundle_islands_prod(Array[(String, String)], String) -> RolldownOut
 
 pub async fn bundle_islands_result(Array[(String, String)], String) -> BundleResult
 
-pub async fn create_app() -> @hono.Hono[Unit, Unit]
+pub fn create_app() -> @mars.Mars
 
-pub fn create_app_then((@hono.Hono[Unit, Unit]) -> Unit) -> Unit
+pub fn create_app_then((@mars.Mars) -> Unit) -> Unit
 
 pub let default_loader_url : String
 
@@ -43,25 +43,25 @@ pub fn get_hmr_script() -> String
 
 pub fn get_port() -> Int
 
-pub fn get_request_path(@hono.Context[Unit, Unit]) -> String
+pub fn get_request_path(@mars.Context) -> String
 
-pub fn[E] island(String, String, String, Array[@mizchi/luna/core.Node[E]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+pub fn[E] island(String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] island_page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> Array[IslandConfig[E]], title? : String, head? : String, loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn[E] island_page(@mars.Mars, String, (@mars.Context) -> Array[IslandConfig[E]], title? : String, head? : String, loader_url? : String) -> @mars.Mars
 
-pub fn[E] island_with(String, String, String, () -> @mizchi/luna/core.Node[E], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+pub fn[E] island_with(String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
 pub fn js_response(String) -> @http.Response
 
 pub fn json_obj(Array[(String, @mizchi/js/core.Any)]) -> @mizchi/js/core.Any
 
-pub fn[E] page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/luna/core.Node[E], title? : String, head? : String, hydration? : Bool, loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn[E] page(@mars.Mars, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, hydration? : Bool, loader_url? : String) -> @mars.Mars
 
 pub fn parse_island_manifest(String) -> IslandManifest?
 
 pub fn read_file_sync(String) -> String?
 
-pub fn[E] render_fragment(@mizchi/luna/core.Node[E]) -> String
+pub fn[E] render_fragment(@mizchi/luna/core.Node[E, String]) -> String
 
 pub fn[E] render_island(IslandConfig[E]) -> String
 
@@ -69,37 +69,37 @@ pub fn render_island_page(Array[String], title? : String, head? : String, loader
 
 pub fn[E] render_island_with_state_script(IslandConfig[E], String) -> String
 
-pub fn[E] render_node(@mizchi/luna/core.Node[E], hydration? : Bool) -> String
+pub fn[E] render_node(@mizchi/luna/core.Node[E, String], hydration? : Bool) -> String
 
-pub fn[E] render_page(@mizchi/luna/core.Node[E], title? : String, head? : String, hydration? : Bool) -> String
+pub fn[E] render_page(@mizchi/luna/core.Node[E, String], title? : String, head? : String, hydration? : Bool) -> String
 
-pub fn[E] render_page_with_preloads(@mizchi/luna/core.Node[E], title? : String, head? : String, hydration? : Bool) -> String
+pub fn[E] render_page_with_preloads(@mizchi/luna/core.Node[E, String], title? : String, head? : String, hydration? : Bool) -> String
 
-pub fn render_streaming_page(@mizchi/luna/core.Node[Unit], title? : String, head? : String, loader_url? : String) -> @http.Response
+pub fn render_streaming_page(@mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> @http.Response
 
-pub fn[E] render_with_island_preloads(@mizchi/luna/core.Node[E]) -> @render.SSRResult
+pub fn[E] render_with_island_preloads(@mizchi/luna/core.Node[E, String]) -> @render.SSRResult
 
-pub fn run((@hono.Hono[Unit, Unit]) -> @hono.Hono[Unit, Unit], port? : Int) -> Unit
+pub fn run((@mars.Mars) -> @mars.Mars, port? : Int) -> Unit
 
-pub fn serve(@hono.Hono[Unit, Unit], Int) -> Unit
+pub fn serve(@mars.Mars, Int) -> Unit
 
-pub fn serve_static(@hono.Hono[Unit, Unit], config? : StaticFileConfig) -> @hono.Hono[Unit, Unit]
+pub fn serve_static(@mars.Mars, config? : StaticFileConfig) -> @mars.Mars
 
-pub fn serve_static_dir(@hono.Hono[Unit, Unit], StaticDirServeConfig) -> @hono.Hono[Unit, Unit]
+pub fn serve_static_dir(@mars.Mars, StaticDirServeConfig) -> @mars.Mars
 
 pub fn set_env(String, String) -> Unit
 
 pub fn static_response(String, String, cache_control? : String) -> @http.Response
 
-pub fn streaming_page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/luna/core.Node[Unit], title? : String, head? : String, loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn streaming_page(@mars.Mars, String, (@mars.Context) -> @mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> @mars.Mars
 
 pub fn text_response(String, String) -> @http.Response
 
-pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna/core.Node[E]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] wc_island_with(String, String, String, String, () -> @mizchi/luna/core.Node[E], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E]
+pub fn[E] wc_island_with(String, String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] wc_page(@hono.Hono[Unit, Unit], String, (@hono.Context[Unit, Unit]) -> @mizchi/luna/core.Node[E], title? : String, head? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn[E] wc_page(@mars.Mars, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, wc_loader_url? : String) -> @mars.Mars
 
 // Errors
 
@@ -129,11 +129,11 @@ pub struct IslandConfig[E] {
   script_url : String
   trigger : @mizchi/luna/core.TriggerType
   state : @stella.StateConfig
-  content : @mizchi/luna/core.Node[E]?
+  content : @mizchi/luna/core.Node[E, String]?
   ssr_html : String?
 }
 pub fn[E] IslandConfig::new(String, String) -> Self[E]
-pub fn[E] IslandConfig::with_content(Self[E], @mizchi/luna/core.Node[E]) -> Self[E]
+pub fn[E] IslandConfig::with_content(Self[E], @mizchi/luna/core.Node[E, String]) -> Self[E]
 pub fn[E] IslandConfig::with_ssr_html(Self[E], String) -> Self[E]
 pub fn[E] IslandConfig::with_state(Self[E], String) -> Self[E]
 pub fn[E] IslandConfig::with_state_ref(Self[E], String) -> Self[E]
@@ -149,6 +149,8 @@ pub struct IslandManifestEntry {
   name : String
   entry_path : String
 }
+
+type MarsFetchHandler
 
 pub enum OutputFormat {
   Esm
@@ -184,13 +186,9 @@ pub fn StaticFileConfig::dev() -> Self
 pub fn StaticFileConfig::with_mapping(Self, String, String) -> Self
 
 // Type aliases
-pub type App = @hono.Hono[Unit, Unit]
+pub using @mars {type Mars as App}
 
-pub type Ctx = @hono.Context[Unit, Unit]
-
-pub type Env = Unit
-
-pub type ExecutionContext = Unit
+pub using @mars {type Context as Ctx}
 
 // Traits
 

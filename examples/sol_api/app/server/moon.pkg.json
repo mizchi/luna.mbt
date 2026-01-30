@@ -1,0 +1,12 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/mars", "alias": "mars" },
+    { "path": "mizchi/sol", "alias": "sol" },
+    { "path": "mizchi/sol/router", "alias": "router" },
+    { "path": "mizchi/sol/middleware", "alias": "middleware" },
+    { "path": "mizchi/sol/action", "alias": "action" },
+    { "path": "mizchi/js/core", "alias": "core" }
+  ],
+  "warn-list": "-35"
+}

@@ -1,11 +1,11 @@
 import {
-  "mizchi/js/web/http",
-  "mizchi/npm_typed/hono",
   "mizchi/sol" as @sol,
   "mizchi/luna" as @luna,
   "mizchi/luna/js/stream_renderer" as @stream_renderer,
+  "mizchi/mars" as @mars,
+  "moonbitlang/async/js_async" as @js_async,
 }
 
 options(
-  link: { "js": { "exports": [ "create_app" ], "format": "esm" } },
+  link: { "js": { "exports": [ "create_app", "create_fetch_handler" ], "format": "esm" } },
 )

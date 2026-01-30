@@ -10,13 +10,10 @@
 
 ///|
 /// Check if request has X-Sol-Fragment header
+/// Uses raw_header to access custom headers not in Mars's common headers list
 pub fn has_fragment_header(c : Ctx) -> Bool {
-  ffi_has_fragment_header(c.as_any())
+  c.raw_header("X-Sol-Fragment") == Some("true")
 }
-
-///|
-extern "js" fn ffi_has_fragment_header(c : @js.Any) -> Bool =
-  #| (c) => c.req.header('X-Sol-Fragment') === 'true'
 
 // ============================================================================
 // Fragment Response Generation
@@ -56,18 +53,10 @@ pub fn[E] render_fragment_response(
 
 ///|
 /// Send fragment response with appropriate headers
-pub fn send_fragment_response(c : Ctx, html : String) -> @http.Response {
-  ffi_send_fragment_response(c.as_any(), html)
+pub async fn send_fragment_response(c : Ctx, html : String) -> Unit {
+  c.set_header("X-Sol-Fragment-Response", "true")
+  c.html(html)
 }
-
-///|
-extern "js" fn ffi_send_fragment_response(
-  c : @js.Any,
-  html : String,
-) -> @http.Response =
-  #| (c, html) => c.html(html, {
-  #|   headers: { 'X-Sol-Fragment-Response': 'true' }
-  #| })
 
 // ============================================================================
 // Helpers

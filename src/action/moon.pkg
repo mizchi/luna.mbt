@@ -1,5 +1,5 @@
 import {
-  "mizchi/npm_typed/hono" as @hono,
+  "mizchi/mars" as @mars,
   "mizchi/js/core" as @js,
   "mizchi/js/web/http" as @http,
   "mizchi/sol/middleware" as @middleware,

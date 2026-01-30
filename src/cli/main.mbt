@@ -21,9 +21,11 @@ fn show_help() -> Unit {
     #|  -h, --help     Show help
     #|  -v, --version  Show version
     #|
-    #|SSG Mode:
-    #|  If sol.config.json with "ssg" section exists,
-    #|  dev and build commands will include static site generation.
+    #|Modes:
+    #|  App (default): SSR app (requires moon.mod.json)
+    #|  SSG-only: docs-only project with sol.config.json containing "ssg" or "docs"
+    #|  Hybrid: app + docs via staticDirs in sol.config.json
+    #|  Use `sol dev --mode ssg` to preview docs in hybrid projects.
   println(help)
 }
 

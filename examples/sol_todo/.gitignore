@@ -1,0 +1,7 @@
+node_modules/
+_build/
+target/
+.sol/
+app/__gen__/
+test-results/
+playwright-report/

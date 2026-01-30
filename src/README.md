@@ -22,7 +22,7 @@ just sol dev
 - **Type Safety**: Safe routing with MoonBit's type system
 - **CLI Tools**: Consistent workflow from project creation to build
 - **Streaming SSR**: Streaming support for async content
-- **CSR Navigation**: SPA-like page transitions with `sol-link` attribute
+- **CSR Navigation**: SPA-like page transitions with `data-sol-link` attribute
 - **Middleware**: Railway Oriented Programming based middleware system
 - **Server Actions**: Server-side functions with CSRF protection
 - **Nested Layouts**: Support for hierarchical layout structures
@@ -157,54 +157,55 @@ sol clean  # Delete .sol/, app/__gen__/, target/
 
 ## SolRoutes Definition
 
-Declarative route definition using `SolRoutes`:
+Declarative route definition using `@router.SolRoutes`:
 
 ```moonbit
 // app/server/routes.mbt
 
-pub fn routes() -> Array[SolRoutes] {
+pub fn routes() -> Array[@router.SolRoutes] {
   [
     // Page route
-    SolRoutes::Page(
+    @router.SolRoutes::Page(
       path="/",
-      handler=PageHandler(home_page),
+      handler=@router.PageHandler(home_page),
       title="Home",
       meta=[],
+      revalidate=None,
+      cache=None,
     ),
     // API route (GET)
-    SolRoutes::Get(
+    @router.SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(api_health),
+      handler=@router.ApiHandler(api_health),
     ),
     // API route (POST)
-    SolRoutes::Post(
+    @router.SolRoutes::Post(
       path="/api/submit",
-      handler=ApiHandler(api_submit),
+      handler=@router.ApiHandler(api_submit),
     ),
     // Nested layout
-    SolRoutes::Layout(
-      segment="admin",
+    @router.SolRoutes::Layout(
+      segment="/admin",
       layout=admin_layout,
       children=[
-        SolRoutes::Page(path="/admin", handler=PageHandler(admin_dashboard), title="Admin"),
-        SolRoutes::Page(path="/admin/users", handler=PageHandler(admin_users), title="Users"),
+        @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
+        @router.SolRoutes::Page(path="/users", handler=@router.PageHandler(admin_users), title="Users", meta=[], revalidate=None, cache=None),
       ],
     ),
     // Apply middleware
-    SolRoutes::WithMiddleware(
+    @router.SolRoutes::WithMiddleware(
       middleware=[@middleware.cors(), @middleware.logger()],
       children=[
-        SolRoutes::Get(path="/api/data", handler=ApiHandler(api_data)),
+        @router.SolRoutes::Get(path="/api/data", handler=@router.ApiHandler(api_data)),
       ],
     ),
   ]
 }
 
-pub fn config() -> RouterConfig {
-  RouterConfig::default()
+pub fn config() -> @router.RouterConfig {
+  @router.RouterConfig::default()
     .with_default_head(head())
     .with_loader_url("/static/loader.min.js")
-}
 ```
 
 ### SolRoutes Variants
@@ -223,29 +224,33 @@ Support for hierarchical layout structures:
 
 ```moonbit
 // Admin section layout
+using @server_dom.{ h1, nav, div, text, sol_link }
+
 fn admin_layout(
-  props : PageProps,
-  content : ServerNode,
-) -> ServerNode raise {
-  ServerNode::sync(@luna.fragment([
+  props : @router.PageProps,
+  content : @server_dom.ServerNode,
+) -> @server_dom.ServerNode raise {
+  @server_dom.ServerNode::sync(@luna.fragment([
     h1([text("Admin Panel")]),
     nav([
-      a(href="/admin", attrs=[("sol-link", @luna.attr_static(""))], [text("Dashboard")]),
-      a(href="/admin/users", attrs=[("sol-link", @luna.attr_static(""))], [text("Users")]),
+      sol_link(href="/admin", [text("Dashboard")]),
+      sol_link(href="/admin/users", [text("Users")]),
     ]),
     div(class="admin-content", [content.to_vnode()]),
   ]))
 }
 
 // Route definition
-SolRoutes::Layout(
-  segment="admin",     // URL prefix
+// segment="/admin" + path="/" => /admin
+// segment="/admin" + path="/users" => /admin/users
+@router.SolRoutes::Layout(
+  segment="/admin",    // URL prefix
   layout=admin_layout, // Layout function
   children=[
     // /admin
-    SolRoutes::Page(path="/admin", handler=PageHandler(admin_dashboard), title="Admin"),
+    @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
     // /admin/users
-    SolRoutes::Page(path="/admin/users", handler=PageHandler(admin_users), title="Users"),
+    @router.SolRoutes::Page(path="/users", handler=@router.PageHandler(admin_users), title="Users", meta=[], revalidate=None, cache=None),
   ],
 )
 ```
@@ -263,7 +268,7 @@ let middleware = @middleware.logger()
   .then(@middleware.security_headers())
 
 // Apply to routes
-SolRoutes::WithMiddleware(
+@router.SolRoutes::WithMiddleware(
   middleware=[middleware],
   children=[...],
 )
@@ -284,7 +289,7 @@ SolRoutes::WithMiddleware(
 
 ```moonbit
 @middleware.cors_with_config(
-  CorsConfig::default()
+  @middleware.CorsConfig::default()
     .with_origin_single("https://example.com")
     .with_methods(["GET", "POST"])
     .with_credentials()
@@ -295,7 +300,7 @@ SolRoutes::WithMiddleware(
 
 ```moonbit
 @middleware.security_headers_with_config(
-  SecurityHeadersConfig::default()
+  @middleware.SecurityHeadersConfig::default()
     .with_csp("default-src 'self'")
     .with_frame_options("DENY")
 )
@@ -327,16 +332,16 @@ Server-side functions with CSRF protection. See [Server Actions README](./action
 
 ```moonbit
 // Define action handler
-let submit_handler = ActionHandler(async fn(ctx) {
+let submit_handler = @action.ActionHandler(async fn(ctx) {
   let body = ctx.body
   // ... processing
-  ActionResult::ok(@js.any({ "success": true }))
+  @action.ActionResult::ok(@js.any({ "success": true }))
 })
 
 // Register to registry
-pub fn action_registry() -> ActionRegistry {
-  ActionRegistry::new(allowed_origins=["http://localhost:3000"])
-    .register(ActionDef::new("submit-form", submit_handler))
+pub fn action_registry() -> @action.ActionRegistry {
+  @action.ActionRegistry::new(allowed_origins=["http://localhost:3000"])
+    .register(@action.ActionDef::new("submit-form", submit_handler))
 }
 ```
 
@@ -345,7 +350,8 @@ pub fn action_registry() -> ActionRegistry {
 | Type | Description |
 |------|-------------|
 | `Success(data)` | Success, returns JSON data |
-| `Redirect(url)` | Success, redirect |
+| `Redirect(url)` | Client-side redirect (returns JSON with redirect instruction) |
+| `HttpRedirect(url)` | HTTP redirect (returns 302 with Location header) |
 | `ClientError(status, msg)` | Client error (4xx) |
 | `ServerError(msg)` | Server error (5xx) |
 
@@ -358,7 +364,7 @@ Island is a component shared between SSR and client:
 ```moonbit
 // app/client/counter/counter.mbt
 
-pub fn counter(count : Signal[Int]) -> @luna.Node[CounterAction] {
+pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[CounterAction] {
   div(class="counter", [
     span(class="count-display", [text_signal(count)]),
     button(onclick=@luna.action(Increment), [text("+")]),
@@ -379,10 +385,10 @@ pub fn counter(count : Signal[Int]) -> @luna.Node[CounterAction] {
 
 ## CSR Navigation
 
-Links with `sol-link` attribute are processed as CSR:
+Links with `data-sol-link` attribute are processed as CSR. Use the `sol_link` helper:
 
 ```moonbit
-a(href="/about", attrs=[("sol-link", @luna.attr_static(""))], [text("About")])
+sol_link(href="/about", [text("About")])
 ```
 
 Behavior on click:
@@ -394,11 +400,11 @@ Behavior on click:
 
 ## Streaming SSR
 
-Streaming async content:
+Streaming async content using `ServerNode::async_`:
 
 ```moonbit
-@luna.vasync(async fn() {
-  let data = fetch_data().await
+@server_dom.ServerNode::async_(async fn() {
+  let data = fetch_data()  // async function call
   div([text(data)])
 })
 ```
@@ -437,3 +443,4 @@ src/sol/
 
 - [Server Actions](./action/README.md) - Server Actions details
 - [Luna Core](../luna/README.md) - VNode/Signal details
+- [Stella](../stella/README.md) - Island embedding mechanism

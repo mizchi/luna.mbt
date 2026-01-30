@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/tests/e2e_server"
 
-import(
-  "mizchi/npm_typed/hono"
-)
+import {
+  "mizchi/mars",
+}
 
 // Values
-pub async fn create_app() -> @hono.Hono[Unit, Unit]
+pub fn create_app() -> @mars.Mars
 
 // Errors
 

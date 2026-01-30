@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/ssg/tree"
 
-import(
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub fn build_document_tree(@ssg.SsgConfig, Array[@ssg.PageMeta], String) -> @ssg.DocumentTree

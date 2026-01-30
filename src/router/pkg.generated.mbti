@@ -1,15 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/router"
 
-import(
-  "mizchi/js/web/http"
-  "mizchi/js/web/url"
-  "mizchi/luna/dom/static"
-  "mizchi/npm_typed/hono"
-  "mizchi/sol/isr"
-  "mizchi/sol/middleware"
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/js/web/url",
+  "mizchi/luna/dom/static",
+  "mizchi/mars",
+  "mizchi/sol/isr",
+  "mizchi/sol/middleware",
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub fn analyze_routes(Array[SolRoutes]) -> Array[AnalyzedRoute]
@@ -36,11 +35,11 @@ pub fn forbidden(message? : String) -> ApiResponse
 
 pub fn generate_wrangler_assets_config(Array[SolRoutes], String) -> String
 
-pub fn has_fragment_header(@hono.Context[Unit, Unit]) -> Bool
+pub fn has_fragment_header(@mars.Context) -> Bool
 
 pub fn manifest_to_sol_routes(@mizchi/sol/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 
-pub fn nodes(Array[@mizchi/luna/core.Node[Unit]]) -> @static.ServerNode
+pub fn nodes(Array[@mizchi/luna/core.Node[Unit, String]]) -> @static.ServerNode
 
 pub fn not_found_response(message? : String) -> ApiResponse
 
@@ -60,13 +59,13 @@ pub fn redirect_permanent_to(String) -> ApiResponse
 
 pub fn redirect_to(String, status? : Int) -> ApiResponse
 
-pub fn[E] register_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/core/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/luna/core.Node[E]?, (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn[E] register_routes(@mars.Mars, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @mizchi/luna/core.Node[E, String]?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @mars.Mars
 
-pub fn register_server_routes(@hono.Hono[Unit, Unit], Array[@mizchi/luna/core/routes.Routes], (String, @hono.Context[Unit, Unit], RouteParams) -> @static.ServerNode?, (String, @hono.Context[Unit, Unit], RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @hono.Hono[Unit, Unit]
+pub fn register_server_routes(@mars.Mars, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @static.ServerNode?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> @mars.Mars
 
-pub fn register_sol_routes(@hono.Hono[Unit, Unit], Array[SolRoutes], config? : RouterConfig) -> @hono.Hono[Unit, Unit]
+pub fn register_sol_routes(@mars.Mars, Array[SolRoutes], config? : RouterConfig) -> @mars.Mars
 
-pub fn[E] render_fragment_response(@mizchi/luna/core.Node[E], String, Bool) -> String
+pub fn[E] render_fragment_response(@mizchi/luna/core.Node[E, String], String, Bool) -> String
 
 pub fn require(PageProps, String) -> Result[String, ApiResponse]
 
@@ -74,7 +73,7 @@ pub fn require_int(PageProps, String) -> Result[Int, ApiResponse]
 
 pub fn require_query(PageProps, String) -> Result[String, ApiResponse]
 
-pub fn send_fragment_response(@hono.Context[Unit, Unit], String) -> @http.Response
+pub async fn send_fragment_response(@mars.Context, String) -> Unit
 
 pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/sol/routes.RouteManifest
 
@@ -162,13 +161,13 @@ pub(all) struct PageHandlerFactory((@mizchi/sol/routes.RouteEntry) -> PageHandle
 pub fn PageHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> PageHandler?
 
 pub struct PageProps {
-  ctx : @hono.Context[Unit, Unit]
+  ctx : @mars.Context
   params : RouteParams
   is_fragment : Bool
 }
-pub fn PageProps::from_ctx(@hono.Context[Unit, Unit]) -> Self
-pub fn PageProps::from_ctx_fragment(@hono.Context[Unit, Unit]) -> Self
-pub fn PageProps::from_ctx_with_params(@hono.Context[Unit, Unit], RouteParams) -> Self
+pub fn PageProps::from_ctx(@mars.Context) -> Self
+pub fn PageProps::from_ctx_fragment(@mars.Context) -> Self
+pub fn PageProps::from_ctx_with_params(@mars.Context, RouteParams) -> Self
 pub fn PageProps::get_param(Self, String) -> String?
 pub fn PageProps::get_pathname_group(Self, String) -> String?
 pub fn PageProps::get_query(Self, String) -> String?
@@ -220,6 +219,9 @@ pub enum SolRouteKind {
   Page
   GetApi
   PostApi
+  PutApi
+  DeleteApi
+  PatchApi
 }
 pub impl Eq for SolRouteKind
 pub impl Show for SolRouteKind
@@ -229,6 +231,9 @@ pub(all) enum SolRoutes {
   Layout(segment~ : String, layout~ : (PageProps, @static.ServerNode) -> @static.ServerNode raise, children~ : Array[SolRoutes])
   Get(path~ : String, handler~ : ApiHandler)
   Post(path~ : String, handler~ : ApiHandler)
+  Put(path~ : String, handler~ : ApiHandler)
+  Delete(path~ : String, handler~ : ApiHandler)
+  Patch(path~ : String, handler~ : ApiHandler)
   WithMiddleware(middleware~ : Array[@middleware.Middleware], children~ : Array[SolRoutes])
 }
 
@@ -248,15 +253,11 @@ pub(all) struct StaticDirConfig {
 pub fn StaticDirConfig::default() -> Self
 
 // Type aliases
-pub type App = @hono.Hono[Unit, Unit]
+pub using @mars {type Mars as App}
 
-pub type AsyncPageResolver = (String, @hono.Context[Unit, Unit], RouteParams) -> @static.ServerNode?
+pub type AsyncPageResolver = (String, @mars.Context, RouteParams) -> @static.ServerNode?
 
-pub type Ctx = @hono.Context[Unit, Unit]
-
-pub type Env = Unit
-
-pub type ExecutionContext = Unit
+pub using @mars {type Context as Ctx}
 
 // Traits
 

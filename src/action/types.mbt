@@ -10,28 +10,16 @@
 ///|
 /// Action handler context - provides request info and utilities
 pub struct ActionContext {
+  /// Mars Context
+  ctx : @mars.Context
   /// Raw request body (JSON string)
   body : String
-  /// Request headers
-  headers : Array[(String, String)]
-  /// Query parameters
-  query : Array[(String, String)]
-  /// Middleware state
-  state : Map[String, @js.Any]
 }
 
 ///|
-/// Create ActionContext from middleware context
-pub fn ActionContext::from_mw_ctx(
-  mw_ctx : @middleware.MwContext,
-  body : String,
-) -> ActionContext {
-  {
-    body,
-    headers: mw_ctx.request.headers,
-    query: mw_ctx.request.query,
-    state: mw_ctx.state,
-  }
+/// Create ActionContext from Mars context
+pub fn ActionContext::from_ctx(ctx : @mars.Context, body : String) -> ActionContext {
+  { ctx, body }
 }
 
 ///|
@@ -40,30 +28,29 @@ pub fn ActionContext::get_header(
   self : ActionContext,
   name : String,
 ) -> String? {
-  let lower_name = name.to_lower()
-  for pair in self.headers {
-    if pair.0.to_lower() == lower_name {
-      return Some(pair.1)
-    }
-  }
-  None
+  self.ctx.header(name)
 }
 
 ///|
 /// Get query parameter
 pub fn ActionContext::get_query(self : ActionContext, name : String) -> String? {
-  for pair in self.query {
-    if pair.0 == name {
-      return Some(pair.1)
-    }
-  }
-  None
+  self.ctx.query(name)
 }
 
 ///|
 /// Get state value
-pub fn ActionContext::get_state(self : ActionContext, key : String) -> @js.Any? {
-  self.state.get(key)
+pub fn ActionContext::get_state(self : ActionContext, key : String) -> String? {
+  self.ctx.get(key)
+}
+
+///|
+/// Set state value
+pub fn ActionContext::set_state(
+  self : ActionContext,
+  key : String,
+  value : String,
+) -> Unit {
+  self.ctx.set(key, value)
 }
 
 // ============================================================================

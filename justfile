@@ -104,6 +104,7 @@ clean-examples:
     @rm -rf examples/sol_blog/.mooncakes examples/sol_blog/_build
     @rm -rf examples/sol_docs/.mooncakes examples/sol_docs/_build
     @rm -rf examples/sol_sqlite/.mooncakes examples/sol_sqlite/_build
+    @rm -rf examples/sol_api/.mooncakes examples/sol_api/_build
     @echo "✓ Examples cache cleaned"
 
 # 各 example のビルドチェック
@@ -132,8 +133,13 @@ check-example-sol-sqlite:
     @rm -rf examples/sol_sqlite/.mooncakes examples/sol_sqlite/_build
     cd examples/sol_sqlite && moon check --target js
 
+check-example-sol-api:
+    @echo "=== Checking sol_api ==="
+    @rm -rf examples/sol_api/.mooncakes examples/sol_api/_build
+    cd examples/sol_api && moon check --target js
+
 # すべての examples をチェック
-check-examples: check-example-sol-app check-example-sol-auth check-example-sol-blog check-example-sol-docs check-example-sol-sqlite
+check-examples: check-example-sol-app check-example-sol-auth check-example-sol-blog check-example-sol-docs check-example-sol-sqlite check-example-sol-api
     @echo "✓ All examples checked"
 
 # =============================================================================

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/content/toc"
 
-import(
-  "mizchi/sol/content/markdown"
-)
+import {
+  "mizchi/sol/content/markdown",
+}
 
 // Values
 pub fn extract_description(Array[@markdown.MdNode], max_length? : Int) -> String?

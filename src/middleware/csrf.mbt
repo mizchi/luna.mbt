@@ -142,7 +142,7 @@ pub enum CsrfError {
 }
 
 ///|
-fn CsrfError::to_string(self : CsrfError) -> String {
+pub fn CsrfError::to_string(self : CsrfError) -> String {
   match self {
     MissingOrigin => "Missing Origin header"
     InvalidOrigin(origin) => "Invalid Origin: \{origin}"
@@ -172,22 +172,22 @@ pub fn csrf_for_origin(origin : String) -> Middleware {
 ///|
 /// Create CSRF protection middleware with custom config
 pub fn csrf_with_config(config : CsrfConfig) -> Middleware {
-  Middleware(async fn(ctx) {
+  Middleware(@mars.Handler(async fn(ctx) {
     // Skip safe methods (GET, HEAD, OPTIONS)
-    if is_safe_method(ctx.request.http_method) {
-      return Continue(ctx)
+    if is_safe_method(ctx.meth().to_string()) {
+      return // Continue
     }
 
     // Validate CSRF
-    match validate_csrf(ctx.request, config) {
-      Valid | ValidNoOrigin | ValidOrigin(_) => Continue(ctx)
+    match validate_csrf(ctx, config) {
+      Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
       Invalid(error) => {
         // Log error internally (don't expose details to client)
         let _ = error.to_string()
-        Halt(MwResponse::forbidden(message=config.error_message))
+        ctx.text(config.error_message, status=403)
       }
     }
-  })
+  }))
 }
 
 // ============================================================================
@@ -195,19 +195,10 @@ pub fn csrf_with_config(config : CsrfConfig) -> Middleware {
 // ============================================================================
 
 ///|
-/// Check if HTTP method is safe (no side effects)
-fn is_safe_method(http_method : String) -> Bool {
-  match http_method {
-    "GET" | "HEAD" | "OPTIONS" => true
-    _ => false
-  }
-}
-
-///|
 /// Validate CSRF protection
-fn validate_csrf(request : MwRequest, config : CsrfConfig) -> CsrfResult {
+fn validate_csrf(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
   // Layer 1: Origin header validation (most important)
-  let origin_result = validate_origin(request, config)
+  let origin_result = validate_origin(ctx, config)
   match origin_result {
     Invalid(_) as err => return err
     _ => ()
@@ -215,7 +206,7 @@ fn validate_csrf(request : MwRequest, config : CsrfConfig) -> CsrfResult {
 
   // Layer 2: Fetch Metadata validation (if enabled)
   if config.check_fetch_metadata {
-    let fetch_result = validate_fetch_metadata(request)
+    let fetch_result = validate_fetch_metadata(ctx)
     match fetch_result {
       Invalid(_) as err => return err
       _ => ()
@@ -225,7 +216,7 @@ fn validate_csrf(request : MwRequest, config : CsrfConfig) -> CsrfResult {
   // Layer 3: Content-Type validation (if configured)
   match config.expected_content_type {
     Some(expected) => {
-      let ct_result = validate_content_type(request, expected)
+      let ct_result = validate_content_type(ctx, expected)
       match ct_result {
         Invalid(_) as err => return err
         _ => ()
@@ -238,15 +229,15 @@ fn validate_csrf(request : MwRequest, config : CsrfConfig) -> CsrfResult {
 
 ///|
 /// Validate Origin header
-fn validate_origin(request : MwRequest, config : CsrfConfig) -> CsrfResult {
-  let origin = request.get_header("Origin")
+fn validate_origin(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
+  let origin = ctx.header("Origin")
   match origin {
     None =>
       // No Origin header - could be same-origin request
       // Check Referer as fallback
       if config.allow_no_origin {
         // Optionally validate Referer
-        match request.get_header("Referer") {
+        match ctx.header("Referer") {
           Some(referer) =>
             // Referer present - validate it matches allowed origins
             if is_referer_allowed(referer, config.allowed_origins) {
@@ -282,7 +273,7 @@ fn validate_origin(request : MwRequest, config : CsrfConfig) -> CsrfResult {
 /// SECURITY: Extract origin from Referer URL and compare exactly
 /// (Previous implementation used has_prefix which was vulnerable to
 ///  attacks like http://allowed-origin.attacker.com)
-fn is_referer_allowed(
+pub fn is_referer_allowed(
   referer : String,
   allowed_origins : Array[String],
 ) -> Bool {
@@ -298,7 +289,7 @@ fn is_referer_allowed(
 ///|
 /// Extract origin (scheme://host[:port]) from a URL
 /// Returns None if URL is malformed
-fn extract_origin_from_url(url : String) -> String? {
+pub fn extract_origin_from_url(url : String) -> String? {
   // Find scheme separator
   let scheme_sep = match url.find("://") {
     Some(idx) => idx
@@ -320,9 +311,9 @@ fn extract_origin_from_url(url : String) -> String? {
 
 ///|
 /// Validate Fetch Metadata headers
-fn validate_fetch_metadata(request : MwRequest) -> CsrfResult {
+fn validate_fetch_metadata(ctx : Ctx) -> CsrfResult {
   // Sec-Fetch-Site: cross-site | same-origin | same-site | none
-  let sec_fetch_site = request.get_header("Sec-Fetch-Site")
+  let sec_fetch_site = ctx.header("Sec-Fetch-Site")
   match sec_fetch_site {
     Some("cross-site") =>
       // Cross-site requests are not allowed for mutations
@@ -343,8 +334,8 @@ fn validate_fetch_metadata(request : MwRequest) -> CsrfResult {
 
 ///|
 /// Validate Content-Type header
-fn validate_content_type(request : MwRequest, expected : String) -> CsrfResult {
-  let content_type = request.get_header("Content-Type")
+fn validate_content_type(ctx : Ctx, expected : String) -> CsrfResult {
+  let content_type = ctx.header("Content-Type")
   match content_type {
     Some(ct) =>
       // Check if Content-Type starts with expected value
@@ -371,24 +362,22 @@ fn validate_content_type(request : MwRequest, expected : String) -> CsrfResult {
 pub fn validate_origin_middleware(
   allowed_origins : Array[String],
 ) -> Middleware {
-  Middleware(async fn(ctx) {
+  Middleware(@mars.Handler(async fn(ctx) {
     // Skip safe methods
-    if is_safe_method(ctx.request.http_method) {
-      return Continue(ctx)
+    if is_safe_method(ctx.meth().to_string()) {
+      return // Continue
     }
-    let origin = ctx.request.get_header("Origin")
+    let origin = ctx.header("Origin")
     match origin {
-      None =>
-        // No Origin = same-origin, allow
-        Continue(ctx)
+      None => () // No Origin = same-origin, allow (continue)
       Some(o) =>
         if allowed_origins.contains(o) {
-          Continue(ctx)
+          () // Continue
         } else {
-          Halt(MwResponse::forbidden())
+          ctx.text("Forbidden", status=403)
         }
     }
-  })
+  }))
 }
 
 // ============================================================================
@@ -399,16 +388,16 @@ pub fn validate_origin_middleware(
 /// Fetch Metadata validation middleware
 /// Blocks requests with Sec-Fetch-Site: cross-site
 pub fn fetch_metadata() -> Middleware {
-  Middleware(async fn(ctx) {
+  Middleware(@mars.Handler(async fn(ctx) {
     // Skip safe methods
-    if is_safe_method(ctx.request.http_method) {
-      return Continue(ctx)
+    if is_safe_method(ctx.meth().to_string()) {
+      return // Continue
     }
-    match validate_fetch_metadata(ctx.request) {
-      Valid | ValidNoOrigin | ValidOrigin(_) => Continue(ctx)
-      Invalid(_) => Halt(MwResponse::forbidden())
+    match validate_fetch_metadata(ctx) {
+      Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
+      Invalid(_) => ctx.text("Forbidden", status=403)
     }
-  })
+  }))
 }
 
 // ============================================================================
@@ -418,17 +407,16 @@ pub fn fetch_metadata() -> Middleware {
 ///|
 /// Require specific Content-Type for mutations
 pub fn require_content_type(content_type : String) -> Middleware {
-  Middleware(async fn(ctx) {
+  Middleware(@mars.Handler(async fn(ctx) {
     // Skip safe methods
-    if is_safe_method(ctx.request.http_method) {
-      return Continue(ctx)
+    if is_safe_method(ctx.meth().to_string()) {
+      return // Continue
     }
-    match validate_content_type(ctx.request, content_type) {
-      Valid | ValidNoOrigin | ValidOrigin(_) => Continue(ctx)
-      Invalid(_) =>
-        Halt(MwResponse::bad_request(message="Invalid Content-Type"))
+    match validate_content_type(ctx, content_type) {
+      Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
+      Invalid(_) => ctx.text("Invalid Content-Type", status=400)
     }
-  })
+  }))
 }
 
 ///|

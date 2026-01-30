@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/ssg/assets"
 
-import(
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub fn build_navigation_script(Array[String], @ssg.NavigationConfig) -> String

@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/middleware"
 
-import(
-  "mizchi/js/core"
-  "mizchi/npm_typed/hono"
-)
+import {
+  "mizchi/js/core",
+  "mizchi/mars",
+}
 
 // Values
 pub fn cache_control(String) -> Middleware
@@ -158,14 +158,14 @@ pub fn Middleware::inner(Self) -> async (MwContext) -> Flow[MwContext]
 pub fn Middleware::then(Self, Self) -> Self
 
 pub struct MwContext {
-  ctx : @hono.Context[Unit, Unit]
+  ctx : @mars.Context
   request : MwRequest
   state : Map[String, @core.Any]
   response_headers : Array[(String, String)]
 }
 pub fn MwContext::add_header(Self, String, String) -> Self
 pub fn MwContext::add_headers(Self, Array[(String, String)]) -> Self
-pub fn MwContext::from_ctx(@hono.Context[Unit, Unit]) -> Self
+pub fn MwContext::from_ctx(@mars.Context) -> Self
 pub fn MwContext::get(Self, String) -> @core.Any?
 pub fn MwContext::has(Self, String) -> Bool
 pub fn MwContext::set(Self, String, @core.Any) -> Self
@@ -219,11 +219,7 @@ pub fn SecurityHeadersConfig::with_permissions_policy(Self, String) -> Self
 pub fn SecurityHeadersConfig::with_referrer_policy(Self, String) -> Self
 
 // Type aliases
-pub type Ctx = @hono.Context[Unit, Unit]
-
-pub type Env = Unit
-
-pub type ExecutionContext = Unit
+pub using @mars {type Context as Ctx}
 
 // Traits
 

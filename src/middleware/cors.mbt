@@ -132,31 +132,31 @@ pub fn cors() -> Middleware {
 ///|
 /// Create CORS middleware with custom config
 pub fn cors_with_config(config : CorsConfig) -> Middleware {
-  Middleware(async fn(ctx) {
-    let origin_header = ctx.request.get_header("Origin")
+  Middleware(@mars.Handler(async fn(ctx) {
+    let origin_header = ctx.header("Origin")
 
     // No Origin header = same-origin request
     let origin = match origin_header {
       Some(o) => o
-      None => return Continue(ctx)
+      None => return // Continue
     }
 
     // Validate origin
     let allowed = is_origin_allowed(origin, config.origin)
     if not(allowed) {
-      return Continue(ctx) // Just don't add CORS headers
+      return // Just don't add CORS headers (continue)
     }
 
     // Check if preflight request
-    if ctx.request.http_method == "OPTIONS" {
-      let response = build_preflight_response(origin, config)
-      return Halt(response)
+    if ctx.meth().to_string() == "OPTIONS" {
+      send_preflight_response(ctx, origin, config)
+      return // Halt after preflight response
     }
 
     // Add CORS headers for actual request
-    let ctx2 = add_cors_headers(ctx, origin, config)
-    Continue(ctx2)
-  })
+    add_cors_headers(ctx, origin, config)
+    // Continue to next handler
+  }))
 }
 
 // ============================================================================
@@ -178,71 +178,64 @@ fn is_origin_allowed(origin : String, allowed : CorsOrigin) -> Bool {
 // ============================================================================
 
 ///|
-fn build_preflight_response(origin : String, config : CorsConfig) -> MwResponse {
-  let headers : Array[(String, String)] = []
-
+fn send_preflight_response(ctx : Ctx, origin : String, config : CorsConfig) -> Unit {
   // Access-Control-Allow-Origin
   let allow_origin = match config.origin {
     All => "*"
     _ => origin
   }
-  headers.push(("Access-Control-Allow-Origin", allow_origin))
+  ctx.set_header("Access-Control-Allow-Origin", allow_origin)
 
   // Access-Control-Allow-Methods
   let methods = join_array(config.methods, ", ")
-  headers.push(("Access-Control-Allow-Methods", methods))
+  ctx.set_header("Access-Control-Allow-Methods", methods)
 
   // Access-Control-Allow-Headers
   if config.allowed_headers.length() > 0 {
     let allowed = join_array(config.allowed_headers, ", ")
-    headers.push(("Access-Control-Allow-Headers", allowed))
+    ctx.set_header("Access-Control-Allow-Headers", allowed)
   }
 
   // Access-Control-Allow-Credentials
   if config.credentials {
-    headers.push(("Access-Control-Allow-Credentials", "true"))
+    ctx.set_header("Access-Control-Allow-Credentials", "true")
   }
 
   // Access-Control-Max-Age
   match config.max_age {
-    Some(age) => headers.push(("Access-Control-Max-Age", age.to_string()))
+    Some(age) => ctx.set_header("Access-Control-Max-Age", age.to_string())
     None => ()
   }
 
   // Vary header
-  headers.push(("Vary", "Origin"))
-  { status: 204, headers, body: "", content_type: "text/plain" }
+  ctx.set_header("Vary", "Origin")
+
+  // Send 204 No Content for preflight
+  ctx.text("", status=204)
 }
 
 ///|
-fn add_cors_headers(
-  ctx : MwContext,
-  origin : String,
-  config : CorsConfig,
-) -> MwContext {
-  let mut result = ctx
-
+fn add_cors_headers(ctx : Ctx, origin : String, config : CorsConfig) -> Unit {
   // Access-Control-Allow-Origin
   let allow_origin = match config.origin {
     All => "*"
     _ => origin
   }
-  result = result.add_header("Access-Control-Allow-Origin", allow_origin)
+  ctx.set_header("Access-Control-Allow-Origin", allow_origin)
 
   // Access-Control-Allow-Credentials
   if config.credentials {
-    result = result.add_header("Access-Control-Allow-Credentials", "true")
+    ctx.set_header("Access-Control-Allow-Credentials", "true")
   }
 
   // Access-Control-Expose-Headers
   if config.exposed_headers.length() > 0 {
     let exposed = join_array(config.exposed_headers, ", ")
-    result = result.add_header("Access-Control-Expose-Headers", exposed)
+    ctx.set_header("Access-Control-Expose-Headers", exposed)
   }
 
   // Vary header
-  result = result.add_header("Vary", "Origin")
-  result
+  ctx.set_header("Vary", "Origin")
 }
 
 // ============================================================================

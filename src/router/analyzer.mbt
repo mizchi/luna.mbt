@@ -76,6 +76,33 @@ fn analyze_routes_inner(
           reason: "API POST endpoint",
         })
       }
+      Put(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "API PUT endpoint",
+        })
+      }
+      Delete(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "API DELETE endpoint",
+        })
+      }
+      Patch(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "API PATCH endpoint",
+        })
+      }
       WithMiddleware(middleware~, children~) => {
         let _ = middleware
         analyze_routes_inner(children, prefix, result)

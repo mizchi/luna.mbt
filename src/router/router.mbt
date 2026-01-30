@@ -318,20 +318,12 @@ pub fn RouterConfig::with_root_template(
 // ============================================================================
 
 ///|
-/// Environment bindings (e.g., Cloudflare Workers KV)
-pub type Env = Unit
+/// Mars app type alias
+pub type App = @mars.Mars
 
 ///|
-/// Execution context (e.g., Cloudflare Workers context)
-pub type ExecutionContext = Unit
-
-///|
-/// Hono app type alias
-pub type App = @hono.Hono[Env, ExecutionContext]
-
-///|
-/// Hono context type alias
-pub type Ctx = @hono.Context[Env, ExecutionContext]
+/// Mars context type alias
+pub type Ctx = @mars.Context
 
 // ============================================================================
 // Route Registration Helper Types
@@ -645,8 +637,8 @@ fn[E] register_routes_inner(
         result.get(full_path, fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
-            Some(json) => c.json(json)
-            None => c.json(@js.any({ "error": "Handler not found" }))
+            Some(json) => ffi_send_json_any(c, json)
+            None => ffi_send_json_error(c, "Handler not found", 404)
           }
         })
       }
@@ -655,8 +647,8 @@ fn[E] register_routes_inner(
         result.post(full_path, fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
-            Some(json) => c.json(json)
-            None => c.json(@js.any({ "error": "Handler not found" }))
+            Some(json) => ffi_send_json_any(c, json)
+            None => ffi_send_json_error(c, "Handler not found", 404)
           }
         })
       }
@@ -666,31 +658,60 @@ fn[E] register_routes_inner(
 }
 
 ///|
-/// Extract route parameters from Hono context
+/// Extract route parameters from Mars context
 fn extract_route_params(c : Ctx, is_fragment? : Bool = false) -> RouteParams {
-  let params = ffi_get_all_params(c.as_any())
-  let query = ffi_get_query_params(c.as_any())
-  let path = ffi_get_path(c.as_any())
+  // Get path params from Mars context
+  let params : Array[(String, String)] = []
+  // Mars stores params in c.params which is @router.Params (Map[String, String])
+  // Access via param() method for individual params
+  // For now, we'll extract them via FFI since Mars doesn't expose iteration
+  let params_array = ffi_get_mars_params(c)
+  for p in params_array {
+    params.push(p)
+  }
+
+  // Get query params
+  let query : Array[(String, String)] = []
+  for entry in c.queries() {
+    query.push((entry.0, entry.1))
+  }
+
+  let path = c.path()
   { params, query, path, is_fragment, url_pattern_result: None }
 }
 
 ///|
-extern "js" fn ffi_get_all_params(c : @js.Any) -> Array[(String, String)] =
+extern "js" fn ffi_get_mars_params(c : Ctx) -> Array[(String, String)] =
   #| (c) => {
-  #|   const p = c.req.param();
-  #|   return Object.entries(p || {}).map(([k, v]) => ({_0: k, _1: v}));
-  #| }
-
-///|
-extern "js" fn ffi_get_query_params(c : @js.Any) -> Array[(String, String)] =
-  #| (c) => {
-  #|   const url = new URL(c.req.url);
-  #|   return Array.from(url.searchParams.entries()).map(([k, v]) => ({_0: k, _1: v}));
+  #|   const params = c.params?.data || {};
+  #|   return Object.entries(params).map(([k, v]) => ({_0: k, _1: v}));
   #| }
 
 ///|
 extern "js" fn ffi_get_path(c : @js.Any) -> String =
   #| (c) => new URL(c.req.url).pathname
+
+///|
+/// Send @js.Any as JSON response via FFI (for api_resolver compatibility)
+extern "js" fn ffi_send_json_any(c : Ctx, data : @js.Any) -> Unit =
+  #| (c, data) => {
+  #|   const body = JSON.stringify(data);
+  #|   c.platform.response_resolve(new Response(body, {
+  #|     status: 200,
+  #|     headers: { 'Content-Type': 'application/json', 'X-Content-Type-Options': 'nosniff' }
+  #|   }));
+  #| }
+
+///|
+/// Send JSON error response via FFI
+extern "js" fn ffi_send_json_error(c : Ctx, message : String, status : Int) -> Unit =
+  #| (c, message, status) => {
+  #|   const body = JSON.stringify({ error: message });
+  #|   c.platform.response_resolve(new Response(body, {
+  #|     status,
+  #|     headers: { 'Content-Type': 'application/json', 'X-Content-Type-Options': 'nosniff' }
+  #|   }));
+  #| }
 
 ///|
 /// Format page title with prefix
@@ -928,8 +949,8 @@ fn register_server_routes_inner(
         result.get(full_path, async fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
-            Some(json) => c.json(json)
-            None => c.json(@js.any({ "error": "Handler not found" }))
+            Some(json) => ffi_send_json_any(c, json)
+            None => ffi_send_json_error(c, "Handler not found", 404)
           }
         })
       }
@@ -938,8 +959,8 @@ fn register_server_routes_inner(
         result.post(full_path, async fn(c) {
           let params = extract_route_params(c)
           match api_resolver(handler, c, params) {
-            Some(json) => c.json(json)
-            None => c.json(@js.any({ "error": "Handler not found" }))
+            Some(json) => ffi_send_json_any(c, json)
+            None => ffi_send_json_error(c, "Handler not found", 404)
           }
         })
       }

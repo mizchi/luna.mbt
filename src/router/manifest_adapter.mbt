@@ -99,6 +99,48 @@ fn collect_routes(
         let _ = handler
 
       }
+      Put(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Put,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+
+      }
+      Delete(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Delete,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+
+      }
+      Patch(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Patch,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+
+      }
       WithMiddleware(middleware~, children~) => {
         // Middleware doesn't affect manifest, just recurse
         collect_routes(children, base, result)

@@ -1,0 +1,18 @@
+{
+  "supported-targets": ["js"],
+  "is-main": true,
+  "import": [
+    { "path": "mizchi/sol", "alias": "sol" },
+    { "path": "mizchi/sol/router", "alias": "router" },
+    { "path": "mizchi/sol/action", "alias": "action" },
+    { "path": "mizchi/js/core", "alias": "core" },
+    { "path": "example/sol-api/server", "alias": "app_server" }
+  ],
+  "link": {
+    "js": {
+      "exports": ["configure_app"],
+      "format": "esm"
+    }
+  },
+  "warn-list": "-29"
+}

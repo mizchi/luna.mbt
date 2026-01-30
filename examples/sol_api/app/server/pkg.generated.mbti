@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "example/sol-api/server"
+
+import {
+  "mizchi/sol/action",
+  "mizchi/sol/router",
+}
+
+// Values
+pub fn action_registry() -> @action.ActionRegistry
+
+pub fn config() -> @router.RouterConfig
+
+pub fn routes() -> Array[@router.SolRoutes]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/cli"
 
-import(
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub fn detect_app_mode(String, SolConfig) -> AppMode

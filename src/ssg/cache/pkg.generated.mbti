@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/ssg/cache"
 
-import(
-  "mizchi/sol/adapters/fs"
-  "mizchi/sol/core/env"
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/sol/adapters/fs",
+  "mizchi/sol/core/env",
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub let cache_format_version : Int

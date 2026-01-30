@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/ssg/generator"
 
-import(
-  "mizchi/sol/content/shiki"
-  "mizchi/sol/isr"
-  "mizchi/sol/ssg"
-  "moonbitlang/core/json"
-)
+import {
+  "mizchi/sol/content/shiki",
+  "mizchi/sol/isr",
+  "mizchi/sol/ssg",
+  "moonbitlang/core/json",
+}
 
 // Values
 pub fn build_isr_manifest(Array[@ssg.PageMeta]) -> @isr.ISRManifest

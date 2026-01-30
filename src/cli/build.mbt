@@ -106,9 +106,38 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     false
   }
   let cwd = @process.cwd()
+  let sol_config_path = @path.join2(cwd, "sol.config.json")
+  let sol_config_content = if fs.exists_sync(sol_config_path) {
+    fs.read_file_sync(sol_config_path) catch { _ => "" }
+  } else {
+    ""
+  }
+  let sol_config = if not(sol_config_content.is_empty()) {
+    parse_sol_config(sol_config_content)
+  } else {
+    None
+  }
+  let has_static_dirs = match sol_config {
+    Some(config) => not(config.static_dirs.is_empty())
+    None => false
+  }
+  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
+  let has_moon_mod = fs.exists_sync(moon_mod_path)
+  let has_ssg = has_ssg_config(cwd)
   // Check if this is a pure SSG project (no moon.mod.json needed)
-  let is_ssg_only = has_ssg_config(cwd) &&
-    not(@fs.exists_sync(@path.join2(cwd, "moon.mod.json")))
+  let is_ssg_only = has_ssg && not(has_moon_mod)
+  let mode_detail = if is_ssg_only {
+    "SSG-only"
+  } else if has_moon_mod && has_ssg && has_static_dirs {
+    "Hybrid (app + ssg + staticDirs)"
+  } else if has_moon_mod && has_ssg {
+    "Hybrid (app + ssg)"
+  } else if has_moon_mod && has_static_dirs {
+    "Hybrid (app + staticDirs)"
+  } else {
+    "App"
+  }
+  println(@colorette.gray("Mode: \{mode_detail} (auto)"))
   if is_ssg_only {
     // Pure SSG mode - skip MoonBit checks and go directly to SSG build
     let config_path = find_ssg_config_file(cwd)
@@ -153,8 +182,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
   }
   // Check if this is a MoonBit project (required for non-SSG-only mode)
-  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  if not(fs.exists_sync(moon_mod_path)) {
+  if not(has_moon_mod) {
     @cli_common.console_error(
       @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
     )
@@ -178,7 +206,6 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     println(@colorette.green("✓ Clean complete"))
   }
   // Run generate if sol.config.json exists
-  let sol_config_path = @path.join2(cwd, "sol.config.json")
   if not(skip_generate) && fs.exists_sync(sol_config_path) {
     println(@colorette.cyan("Generating _sol directory..."))
     run_generate_command(["--mode", "prod"])
@@ -235,17 +262,12 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     println(@colorette.green("✓ Client bundle complete"))
   }
   // Build static directories (SSG) if configured via static_dirs
-  if fs.exists_sync(sol_config_path) {
-    let config_content = fs.read_file_sync(sol_config_path) catch { _ => "" }
-    if not(config_content.is_empty()) {
-      match parse_sol_config(config_content) {
-        Some(config) =>
-          if not(config.static_dirs.is_empty()) {
-            build_static_dirs(config.static_dirs, cwd)
-          }
-        None => ()
+  match sol_config {
+    Some(config) =>
+      if not(config.static_dirs.is_empty()) {
+        build_static_dirs(config.static_dirs, cwd)
       }
-    }
+    None => ()
   }
   // Full SSG build if ssg section exists in sol.config.json
   if has_ssg_config(cwd) {

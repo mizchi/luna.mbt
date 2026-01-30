@@ -5,7 +5,7 @@ import {
   "mizchi/luna/js/stream_renderer" as @stream_renderer,
   "mizchi/luna/x/stella",
   "mizchi/js/core" as @js,
-  "mizchi/npm_typed/hono" as @hono,
+  "mizchi/mars" as @mars,
   "mizchi/js/web/http" as @http,
 }
 

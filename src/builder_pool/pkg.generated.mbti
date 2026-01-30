@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/builder_pool"
 
-import(
-  "mizchi/js/core"
-  "mizchi/sol/builder"
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/js/core",
+  "mizchi/sol/builder",
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub fn pages_from_json(String) -> Array[@ssg.PageMeta]

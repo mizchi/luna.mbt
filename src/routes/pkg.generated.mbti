@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/routes"
 
-import(
-  "mizchi/luna/core"
-  "mizchi/sol/content/frontmatter"
-  "mizchi/sol/core/env"
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/luna/core",
+  "mizchi/sol/content/frontmatter",
+  "mizchi/sol/core/env",
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub fn build_chunk_manifest(RouteManifest, chunk_files? : Array[(String, String)], base? : String) -> ChunkManifest
@@ -115,9 +115,9 @@ pub fn parse_page_config(String) -> PageConfig?
 
 pub fn path_matches_segment(String, String) -> Bool
 
-pub fn render_mobile_sidebar(Array[@ssg.SidebarGroup], String) -> @core.Node[Unit]
+pub fn render_mobile_sidebar(Array[@ssg.SidebarGroup], String) -> @core.Node[Unit, String]
 
-pub fn render_sidebar(Array[@ssg.SidebarGroup], String) -> @core.Node[Unit]
+pub fn render_sidebar(Array[@ssg.SidebarGroup], String) -> @core.Node[Unit, String]
 
 pub fn reset_sidebar_group_counter() -> Unit
 

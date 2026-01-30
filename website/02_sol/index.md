@@ -15,11 +15,11 @@ Sol is a full-stack SSR framework built on Luna UI and MoonBit. It provides Isla
 - **File-based Routing** - Pages and API routes from directory structure
 - **Type-safe** - MoonBit types flow from server to browser
 - **Streaming SSR** - Async content streaming support
-- **CSR Navigation** - SPA-like navigation with `sol-link`
+- **CSR Navigation** - SPA-like navigation with `data-sol-link`
 - **Middleware** - Railway Oriented Programming based middleware
 - **Server Actions** - CSRF-protected server-side functions
 - **Nested Layouts** - Hierarchical layout structures
-- **SSG Mode** - Static site generation (auto-detected from config)
+- **Docs / SSG** - Docs-only sites via Sol SSG, or hybrid docs via `staticDirs`
 
 ## Quick Start
 
@@ -131,51 +131,53 @@ sol clean  # Delete .sol/, app/__gen__/, target/
 
 ## SolRoutes Definition
 
-Declarative route definition with `SolRoutes`:
+Declarative route definition with `@router.SolRoutes`:
 
 ```moonbit
 // app/server/routes.mbt
 
-pub fn routes() -> Array[SolRoutes] {
+pub fn routes() -> Array[@router.SolRoutes] {
   [
     // Page route
-    SolRoutes::Page(
+    @router.SolRoutes::Page(
       path="/",
-      handler=PageHandler(home_page),
+      handler=@router.PageHandler(home_page),
       title="Home",
       meta=[],
+      revalidate=None,
+      cache=None,
     ),
     // GET API route
-    SolRoutes::Get(
+    @router.SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(api_health),
+      handler=@router.ApiHandler(api_health),
     ),
     // POST API route
-    SolRoutes::Post(
+    @router.SolRoutes::Post(
       path="/api/submit",
-      handler=ApiHandler(api_submit),
+      handler=@router.ApiHandler(api_submit),
     ),
     // Nested layout
-    SolRoutes::Layout(
-      segment="admin",
+    @router.SolRoutes::Layout(
+      segment="/admin",
       layout=admin_layout,
       children=[
-        SolRoutes::Page(path="/admin", handler=PageHandler(admin_dashboard), title="Admin"),
-        SolRoutes::Page(path="/admin/users", handler=PageHandler(admin_users), title="Users"),
+        @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
+        @router.SolRoutes::Page(path="/users", handler=@router.PageHandler(admin_users), title="Users", meta=[], revalidate=None, cache=None),
       ],
     ),
     // With middleware
-    SolRoutes::WithMiddleware(
+    @router.SolRoutes::WithMiddleware(
       middleware=[@middleware.cors(), @middleware.logger()],
       children=[
-        SolRoutes::Get(path="/api/data", handler=ApiHandler(api_data)),
+        @router.SolRoutes::Get(path="/api/data", handler=@router.ApiHandler(api_data)),
       ],
     ),
   ]
 }
 
-pub fn config() -> RouterConfig {
-  RouterConfig::default()
+pub fn config() -> @router.RouterConfig {
+  @router.RouterConfig::default()
     .with_default_head(head())
     .with_loader_url("/static/loader.min.js")
 }
@@ -197,27 +199,31 @@ Hierarchical layout structure support:
 
 ```moonbit
 // Admin section layout
+using @server_dom.{ h1, nav, div, text, sol_link }
+
 fn admin_layout(
-  props : PageProps,
-  content : ServerNode,
-) -> ServerNode raise {
-  ServerNode::sync(@luna.fragment([
+  props : @router.PageProps,
+  content : @server_dom.ServerNode,
+) -> @server_dom.ServerNode raise {
+  @server_dom.ServerNode::sync(@luna.fragment([
     h1([text("Admin Panel")]),
     nav([
-      a(href="/admin", attrs=[("sol-link", @luna.attr_static(""))], [text("Dashboard")]),
-      a(href="/admin/users", attrs=[("sol-link", @luna.attr_static(""))], [text("Users")]),
+      sol_link(href="/admin", [text("Dashboard")]),
+      sol_link(href="/admin/users", [text("Users")]),
     ]),
     div(class="admin-content", [content.to_vnode()]),
   ]))
 }
 
 // Route definition
-SolRoutes::Layout(
-  segment="admin",     // URL prefix
+// segment="/admin" + path="/" => /admin
+// segment="/admin" + path="/users" => /admin/users
+@router.SolRoutes::Layout(
+  segment="/admin",    // URL prefix
   layout=admin_layout, // Layout function
   children=[
-    SolRoutes::Page(path="/admin", handler=PageHandler(admin_dashboard), title="Admin"),
-    SolRoutes::Page(path="/admin/users", handler=PageHandler(admin_users), title="Users"),
+    @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
+    @router.SolRoutes::Page(path="/users", handler=@router.PageHandler(admin_users), title="Users", meta=[], revalidate=None, cache=None),
   ],
 )
 ```
@@ -235,7 +241,7 @@ let middleware = @middleware.logger()
   .then(@middleware.security_headers())
 
 // Apply to routes
-SolRoutes::WithMiddleware(
+@router.SolRoutes::WithMiddleware(
   middleware=[middleware],
   children=[...],
 )
@@ -256,7 +262,7 @@ SolRoutes::WithMiddleware(
 
 ```moonbit
 @middleware.cors_with_config(
-  CorsConfig::default()
+  @middleware.CorsConfig::default()
     .with_origin_single("https://example.com")
     .with_methods(["GET", "POST"])
     .with_credentials()
@@ -267,7 +273,7 @@ SolRoutes::WithMiddleware(
 
 ```moonbit
 @middleware.security_headers_with_config(
-  SecurityHeadersConfig::default()
+  @middleware.SecurityHeadersConfig::default()
     .with_csp("default-src 'self'")
     .with_frame_options("DENY")
 )
@@ -299,16 +305,16 @@ CSRF-protected server-side functions.
 
 ```moonbit
 // Define action handler
-let submit_handler = ActionHandler(async fn(ctx) {
+let submit_handler = @action.ActionHandler(async fn(ctx) {
   let body = ctx.body
   // ... process
-  ActionResult::ok(@js.any({ "success": true }))
+  @action.ActionResult::ok(@js.any({ "success": true }))
 })
 
 // Register in registry
-pub fn action_registry() -> ActionRegistry {
-  ActionRegistry::new(allowed_origins=["http://localhost:3000"])
-    .register(ActionDef::new("submit-form", submit_handler))
+pub fn action_registry() -> @action.ActionRegistry {
+  @action.ActionRegistry::new(allowed_origins=["http://localhost:3000"])
+    .register(@action.ActionDef::new("submit-form", submit_handler))
 }
 ```
 
@@ -317,7 +323,8 @@ pub fn action_registry() -> ActionRegistry {
 | Type | Description |
 |------|-------------|
 | `Success(data)` | Success, return JSON data |
-| `Redirect(url)` | Success, redirect |
+| `Redirect(url)` | Client-side redirect (returns JSON with redirect instruction) |
+| `HttpRedirect(url)` | HTTP redirect (returns 302 with Location header) |
 | `ClientError(status, msg)` | Client error (4xx) |
 | `ServerError(msg)` | Server error (5xx) |
 
@@ -330,7 +337,7 @@ Islands are components shared between SSR and client:
 ```moonbit
 // app/client/counter/counter.mbt
 
-pub fn counter(count : Signal[Int]) -> @luna.Node[CounterAction] {
+pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[CounterAction] {
   div(class="counter", [
     span(class="count-display", [text_signal(count)]),
     button(onclick=@luna.action(Increment), [text("+")]),
@@ -351,10 +358,10 @@ pub fn counter(count : Signal[Int]) -> @luna.Node[CounterAction] {
 
 ## CSR Navigation
 
-Links with `sol-link` attribute are handled as CSR:
+Links with `data-sol-link` attribute are handled as CSR. Use the `sol_link` helper:
 
 ```moonbit
-a(href="/about", attrs=[("sol-link", @luna.attr_static(""))], [text("About")])
+sol_link(href="/about", [text("About")])
 ```
 
 Click behavior:
@@ -366,30 +373,52 @@ Click behavior:
 
 ## Streaming SSR
 
-Async content streaming:
+Async content streaming using `ServerNode::async_`:
 
 ```moonbit
-@luna.vasync(async fn() {
-  let data = fetch_data().await
+@server_dom.ServerNode::async_(async fn() {
+  let data = fetch_data()  // async function call
   div([text(data)])
 })
 ```
 
-## SSG Mode
+## Modes
 
-Sol automatically detects SSG mode when your project has `sol.config.json` with `ssg` or `docs` section.
+Sol supports three usage styles:
+
+### App (default)
+
+- SSR app with islands
+- Requires `moon.mod.json`
+- `sol dev` starts the app server
+
+### SSG-only (docs)
+
+Docs site with Sol SSG (no app). Detected when `sol.config.json` has `ssg` or `docs` section **and** no `moon.mod.json`.
 
 ```bash
-# Create SSG project
 sol new my-docs --ssg
-
-# Dev/build commands work the same
-sol dev    # Starts SSG dev server with HMR
-sol build  # Generates static site
-sol lint   # Lints SSG content
+sol dev    # SSG dev server with HMR
+sol build  # Static site build
+sol lint   # Lint SSG content
 ```
 
 For SSG-specific features and configuration, see [Sol SSG](/sol/ssg/).
+
+### Hybrid (app + docs)
+
+Keep the app and mount docs under a path using `staticDirs`:
+
+```json
+{
+  "staticDirs": [
+    { "path_prefix": "/docs", "source_dir": "docs", "title": "Docs" }
+  ]
+}
+```
+
+- `sol build` builds the app and docs
+- `sol dev` runs the app server (use `sol dev --mode ssg` to preview docs)
 
 ## See Also
 

@@ -1,0 +1,4 @@
+{
+  "supported-targets": ["js"],
+  "warn-list": "-29"
+}

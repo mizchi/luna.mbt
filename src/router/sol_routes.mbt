@@ -76,6 +76,18 @@ pub(all) enum SolRoutes {
   /// - path: URL pattern
   /// - handler: Handler that returns JSON
   Post(path~ : String, handler~ : ApiHandler)
+  /// PUT API route
+  /// - path: URL pattern
+  /// - handler: Handler that returns JSON
+  Put(path~ : String, handler~ : ApiHandler)
+  /// DELETE API route
+  /// - path: URL pattern
+  /// - handler: Handler that returns JSON
+  Delete(path~ : String, handler~ : ApiHandler)
+  /// PATCH API route
+  /// - path: URL pattern
+  /// - handler: Handler that returns JSON
+  Patch(path~ : String, handler~ : ApiHandler)
   /// Middleware wrapper for route groups
   /// - middleware: Array of middlewares to apply
   /// - children: Nested routes
@@ -135,6 +147,9 @@ pub enum SolRouteKind {
   Page
   GetApi
   PostApi
+  PutApi
+  DeleteApi
+  PatchApi
 } derive(Eq, Show)
 
 // ============================================================================
@@ -384,6 +399,63 @@ fn compile_sol_routes_inner(
           cache_strategy: CacheStrategy::AlwaysFetch,
         })
       }
+      Put(path~, handler~) => {
+        let full_path = normalize_path(prefix + path)
+        let param_names = extract_param_names(full_path)
+        let catch_all = extract_catch_all(full_path)
+        result.push({
+          pattern: full_path,
+          param_names,
+          page_handler: None,
+          api_handler: Some(handler),
+          layouts: [],
+          middlewares: inherited_middlewares.copy(),
+          kind: SolRouteKind::PutApi,
+          title: "",
+          meta: [],
+          catch_all,
+          revalidate: None,
+          cache_strategy: CacheStrategy::AlwaysFetch,
+        })
+      }
+      Delete(path~, handler~) => {
+        let full_path = normalize_path(prefix + path)
+        let param_names = extract_param_names(full_path)
+        let catch_all = extract_catch_all(full_path)
+        result.push({
+          pattern: full_path,
+          param_names,
+          page_handler: None,
+          api_handler: Some(handler),
+          layouts: [],
+          middlewares: inherited_middlewares.copy(),
+          kind: SolRouteKind::DeleteApi,
+          title: "",
+          meta: [],
+          catch_all,
+          revalidate: None,
+          cache_strategy: CacheStrategy::AlwaysFetch,
+        })
+      }
+      Patch(path~, handler~) => {
+        let full_path = normalize_path(prefix + path)
+        let param_names = extract_param_names(full_path)
+        let catch_all = extract_catch_all(full_path)
+        result.push({
+          pattern: full_path,
+          param_names,
+          page_handler: None,
+          api_handler: Some(handler),
+          layouts: [],
+          middlewares: inherited_middlewares.copy(),
+          kind: SolRouteKind::PatchApi,
+          title: "",
+          meta: [],
+          catch_all,
+          revalidate: None,
+          cache_strategy: CacheStrategy::AlwaysFetch,
+        })
+      }
       WithMiddleware(middleware~, children~) => {
         let new_middlewares = inherited_middlewares.copy()
         for mw in middleware {
@@ -414,69 +486,28 @@ pub fn register_sol_routes(
 }
 
 ///|
-/// Execute middleware chain and return halted response or continue with context
+/// Execute middleware chain
+/// Returns true if response was sent (halted), false if should continue
 async fn run_middlewares(
   c : Ctx,
   middlewares : Array[@middleware.Middleware],
-) -> @middleware.Flow[@middleware.MwContext] {
+) -> Bool {
   if middlewares.is_empty() {
-    return @middleware.Flow::Continue(@middleware.MwContext::from_ctx(c))
+    return false
   }
-  let mw_ctx = @middleware.MwContext::from_ctx(c)
-  let pipeline = @middleware.pipeline(middlewares)
-  @middleware.run(pipeline, mw_ctx) catch {
-    e =>
-      @middleware.Flow::Halt(
-        @middleware.MwResponse::text(e.to_string(), status=500),
-      )
+  for mw in middlewares {
+    if c.is_response_sent() {
+      return true
+    }
+    let @middleware.Middleware(@mars.Handler(h)) = mw
+    h(c) catch {
+      e => {
+        c.text("Internal Server Error: \{e}", status=500)
+        return true
+      }
+    }
   }
-}
-
-///|
-/// Convert MwResponse to Hono response
-fn send_mw_response(c : Ctx, resp : @middleware.MwResponse) -> @http.Response {
-  // Set headers
-  for header in resp.headers {
-    ffi_set_header(c.as_any(), header.0, header.1)
-  }
-  // Set content type
-  ffi_set_header(c.as_any(), "Content-Type", resp.content_type)
-  // Return response
-  match resp.status {
-    301 | 302 | 303 | 307 | 308 =>
-      c.redirect(
-        resp.headers
-        .iter()
-        .find_first(fn(h) { h.0 == "Location" })
-        .map(fn(h) { h.1 })
-        .unwrap_or("/"),
-      )
-    _ => ffi_create_response(c.as_any(), resp.body, resp.status)
-  }
-}
-
-///|
-extern "js" fn ffi_set_header(
-  c : @js.Any,
-  name : String,
-  value : String,
-) -> Unit =
-  #| (c, name, value) => c.header(name, value)
-
-///|
-extern "js" fn ffi_create_response(
-  c : @js.Any,
-  body : String,
-  status : Int,
-) -> @http.Response =
-  #| (c, body, status) => c.body(body, status)
-
-///|
-/// Apply response headers from middleware context
-fn apply_response_headers(c : Ctx, mw_ctx : @middleware.MwContext) -> Unit {
-  for header in mw_ctx.response_headers {
-    ffi_set_header(c.as_any(), header.0, header.1)
-  }
+  c.is_response_sent()
 }
 
 ///|
@@ -528,12 +559,10 @@ fn register_compiled_sol_routes(
       SolRouteKind::Page =>
         result.get(hono_pattern, async fn(c) {
           // Run middleware chain first
-          let mw_result = run_middlewares(c, route.middlewares)
-          let mw_ctx = match mw_result {
-            @middleware.Flow::Halt(resp) => return send_mw_response(c, resp)
-            @middleware.Flow::Continue(ctx) => ctx
+          let halted = run_middlewares(c, route.middlewares)
+          if halted {
+            return
           }
-          apply_response_headers(c, mw_ctx)
           let is_fragment = has_fragment_header(c)
           let mut params = extract_route_params(c, is_fragment~)
           // Add catch-all parameter if present
@@ -652,45 +681,101 @@ fn register_compiled_sol_routes(
       SolRouteKind::GetApi =>
         result.get(hono_pattern, async fn(c) {
           // Run middleware chain first
-          let mw_result = run_middlewares(c, route.middlewares)
-          let mw_ctx = match mw_result {
-            @middleware.Flow::Halt(resp) => return send_mw_response(c, resp)
-            @middleware.Flow::Continue(ctx) => ctx
+          let halted = run_middlewares(c, route.middlewares)
+          if halted {
+            return
           }
-          apply_response_headers(c, mw_ctx)
           let mut params = extract_route_params(c)
           params = add_catch_all_param(params, route.catch_all)
           let props = PageProps::from_ctx_with_params(c, params)
           match route.api_handler {
             Some(ApiHandler(handler)) => {
               let json : @js.Any = handler(props) catch {
-                e => return c.json(@js.any({ "error": e.to_string() }))
+                e => { ffi_send_json_error(c, e.to_string(), 500); return }
               }
-              c.json(json)
+              ffi_send_json_any(c, json)
             }
-            None => c.json(@js.any({ "error": "No handler" }))
+            None => ffi_send_json_error(c, "No handler", 404)
           }
         })
       SolRouteKind::PostApi =>
         result.post(hono_pattern, async fn(c) {
           // Run middleware chain first
-          let mw_result = run_middlewares(c, route.middlewares)
-          let mw_ctx = match mw_result {
-            @middleware.Flow::Halt(resp) => return send_mw_response(c, resp)
-            @middleware.Flow::Continue(ctx) => ctx
+          let halted = run_middlewares(c, route.middlewares)
+          if halted {
+            return
           }
-          apply_response_headers(c, mw_ctx)
           let mut params = extract_route_params(c)
           params = add_catch_all_param(params, route.catch_all)
           let props = PageProps::from_ctx_with_params(c, params)
           match route.api_handler {
             Some(ApiHandler(handler)) => {
               let json : @js.Any = handler(props) catch {
-                e => return c.json(@js.any({ "error": e.to_string() }))
+                e => { ffi_send_json_error(c, e.to_string(), 500); return }
               }
-              c.json(json)
+              ffi_send_json_any(c, json)
             }
-            None => c.json(@js.any({ "error": "No handler" }))
+            None => ffi_send_json_error(c, "No handler", 404)
+          }
+        })
+      SolRouteKind::PutApi =>
+        result.put(hono_pattern, async fn(c) {
+          // Run middleware chain first
+          let halted = run_middlewares(c, route.middlewares)
+          if halted {
+            return
+          }
+          let mut params = extract_route_params(c)
+          params = add_catch_all_param(params, route.catch_all)
+          let props = PageProps::from_ctx_with_params(c, params)
+          match route.api_handler {
+            Some(ApiHandler(handler)) => {
+              let json : @js.Any = handler(props) catch {
+                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+              }
+              ffi_send_json_any(c, json)
+            }
+            None => ffi_send_json_error(c, "No handler", 404)
+          }
+        })
+      SolRouteKind::DeleteApi =>
+        result.delete(hono_pattern, async fn(c) {
+          // Run middleware chain first
+          let halted = run_middlewares(c, route.middlewares)
+          if halted {
+            return
+          }
+          let mut params = extract_route_params(c)
+          params = add_catch_all_param(params, route.catch_all)
+          let props = PageProps::from_ctx_with_params(c, params)
+          match route.api_handler {
+            Some(ApiHandler(handler)) => {
+              let json : @js.Any = handler(props) catch {
+                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+              }
+              ffi_send_json_any(c, json)
+            }
+            None => ffi_send_json_error(c, "No handler", 404)
+          }
+        })
+      SolRouteKind::PatchApi =>
+        result.patch(hono_pattern, async fn(c) {
+          // Run middleware chain first
+          let halted = run_middlewares(c, route.middlewares)
+          if halted {
+            return
+          }
+          let mut params = extract_route_params(c)
+          params = add_catch_all_param(params, route.catch_all)
+          let props = PageProps::from_ctx_with_params(c, params)
+          match route.api_handler {
+            Some(ApiHandler(handler)) => {
+              let json : @js.Any = handler(props) catch {
+                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+              }
+              ffi_send_json_any(c, json)
+            }
+            None => ffi_send_json_error(c, "No handler", 404)
           }
         })
     }

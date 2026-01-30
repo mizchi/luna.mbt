@@ -1,18 +1,18 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/action"
 
-import(
-  "mizchi/js/core"
-  "mizchi/npm_typed/hono"
-  "mizchi/sol/middleware"
-)
+import {
+  "mizchi/js/core",
+  "mizchi/mars",
+  "mizchi/sol/middleware",
+}
 
 // Values
 pub fn create_action_invoker(String, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
 
 pub fn invoke_action(String, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
 
-pub fn register_actions(@hono.Hono[Unit, Unit], ActionRegistry) -> @hono.Hono[Unit, Unit]
+pub fn register_actions(@mars.Mars, ActionRegistry) -> @mars.Mars
 
 pub fn submit_form_as_action(@core.Any, ActionFormConfig) -> Unit
 
@@ -104,9 +104,9 @@ pub fn ActionResult::server_error(message? : String) -> Self
 pub fn ActionResult::unauthorized(message? : String) -> Self
 
 // Type aliases
-pub type App = @hono.Hono[Unit, Unit]
+pub using @mars {type Mars as App}
 
-pub type Ctx = @hono.Context[Unit, Unit]
+pub using @mars {type Context as Ctx}
 
 // Traits
 

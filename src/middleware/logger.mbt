@@ -23,8 +23,8 @@ pub enum LogFormat {
 pub struct LoggerConfig {
   /// Output format
   format : LogFormat
-  /// Skip logging for certain requests
-  skip : ((MwRequest) -> Bool)?
+  /// Skip logging for certain paths
+  skip_paths : Array[String]
   /// Log to custom function (default: console.log)
   log_fn : ((String) -> Unit)?
 }
@@ -32,34 +32,34 @@ pub struct LoggerConfig {
 ///|
 /// Default logger configuration
 pub fn LoggerConfig::default() -> LoggerConfig {
-  { format: LogFormat::Dev, skip: None, log_fn: None }
+  { format: LogFormat::Dev, skip_paths: [], log_fn: None }
 }
 
 ///|
 /// Create dev format config
 pub fn LoggerConfig::dev() -> LoggerConfig {
-  { format: LogFormat::Dev, skip: None, log_fn: None }
+  { format: LogFormat::Dev, skip_paths: [], log_fn: None }
 }
 
 ///|
 /// Create combined format config
 pub fn LoggerConfig::combined() -> LoggerConfig {
-  { format: LogFormat::Combined, skip: None, log_fn: None }
+  { format: LogFormat::Combined, skip_paths: [], log_fn: None }
 }
 
 ///|
 /// Create JSON format config
 pub fn LoggerConfig::json() -> LoggerConfig {
-  { format: LogFormat::Json, skip: None, log_fn: None }
+  { format: LogFormat::Json, skip_paths: [], log_fn: None }
 }
 
 ///|
-/// Set skip function
-pub fn LoggerConfig::with_skip(
+/// Set skip paths
+pub fn LoggerConfig::with_skip_paths(
   self : LoggerConfig,
-  skip : (MwRequest) -> Bool,
+  paths : Array[String],
 ) -> LoggerConfig {
-  { ..self, skip: Some(skip) }
+  { ..self, skip_paths: paths }
 }
 
 ///|
@@ -84,26 +84,29 @@ pub fn logger() -> Middleware {
 ///|
 /// Create logger middleware with custom config
 pub fn logger_with_config(config : LoggerConfig) -> Middleware {
-  Middleware(async fn(ctx) {
+  Middleware(@mars.Handler(async fn(ctx) {
+    let path = ctx.path()
+
     // Check skip condition
-    match config.skip {
-      Some(skip_fn) => if skip_fn(ctx.request) { return Continue(ctx) }
-      None => ()
+    for skip_path in config.skip_paths {
+      if path.has_prefix(skip_path) {
+        return // Continue without logging
+      }
     }
 
     // Get current time
     let start_time = now_ms()
 
     // Format log message
-    let message = format_log_message(ctx.request, start_time, config.format)
+    let message = format_log_message(ctx, start_time, config.format)
 
     // Output log
     match config.log_fn {
       Some(log_fn) => log_fn(message)
       None => console_log(message)
     }
-    Continue(ctx)
-  })
+    // Continue to next handler
+  }))
 }
 
 // ============================================================================
@@ -111,42 +114,38 @@ pub fn logger_with_config(config : LoggerConfig) -> Middleware {
 // ============================================================================
 
 ///|
-fn format_log_message(
-  request : MwRequest,
-  start_time : Float,
-  format : LogFormat,
-) -> String {
+fn format_log_message(ctx : Ctx, start_time : Float, format : LogFormat) -> String {
   match format {
-    Dev => format_dev(request, start_time)
-    Combined => format_combined(request, start_time)
-    Json => format_json(request, start_time)
+    Dev => format_dev(ctx, start_time)
+    Combined => format_combined(ctx, start_time)
+    Json => format_json(ctx, start_time)
   }
 }
 
 ///|
 /// Dev format: GET /path
-fn format_dev(request : MwRequest, _start_time : Float) -> String {
-  let m = request.http_method
-  let path = request.path
+fn format_dev(ctx : Ctx, _start_time : Float) -> String {
+  let m = ctx.meth().to_string()
+  let path = ctx.path()
   "\{m} \{path}"
 }
 
 ///|
 /// Combined format: IP - - [timestamp] "METHOD /path" status size "referer" "user-agent"
-fn format_combined(request : MwRequest, _start_time : Float) -> String {
-  let m = request.http_method
-  let path = request.path
-  let user_agent = request.get_header("User-Agent").unwrap_or("-")
-  let referer = request.get_header("Referer").unwrap_or("-")
+fn format_combined(ctx : Ctx, _start_time : Float) -> String {
+  let m = ctx.meth().to_string()
+  let path = ctx.path()
+  let user_agent = ctx.header("User-Agent").unwrap_or("-")
+  let referer = ctx.header("Referer").unwrap_or("-")
   let timestamp = get_timestamp()
   "- - - [\{timestamp}] \"\{m} \{path}\" - - \"\{referer}\" \"\{user_agent}\""
 }
 
 ///|
 /// JSON format: {"method": "GET", "path": "/", "timestamp": "..."}
-fn format_json(request : MwRequest, _start_time : Float) -> String {
-  let m = request.http_method
-  let path = request.path
+fn format_json(ctx : Ctx, _start_time : Float) -> String {
+  let m = ctx.meth().to_string()
+  let path = ctx.path()
   let timestamp = get_timestamp()
   "{\"method\":\"\{m}\",\"path\":\"\{path}\",\"timestamp\":\"\{timestamp}\"}"
 }

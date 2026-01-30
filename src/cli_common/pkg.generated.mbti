@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/cli_common"
 
-import(
-  "mizchi/sol/core/env"
-)
+import {
+  "mizchi/sol/core/env",
+}
 
 // Values
 pub fn console_error(String) -> Unit

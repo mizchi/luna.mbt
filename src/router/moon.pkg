@@ -8,7 +8,7 @@ import {
   "mizchi/luna/dom/static" as @server_dom,
   "mizchi/sol/middleware" as @middleware,
   "mizchi/sol/isr" as @isr,
-  "mizchi/npm_typed/hono" as @hono,
+  "mizchi/mars" as @mars,
   "mizchi/js/core" as @js,
   "mizchi/js/web/http" as @http,
   "mizchi/js/web/url" as @url,

@@ -461,9 +461,8 @@ test "generate_sol_server_main_js: cloudflare runtime" {
     parse_runtime("cloudflare"),
   )
   assert_true(js.contains("Runtime: RuntimeCloudflare"))
-  assert_true(js.contains("import { Hono } from 'hono'"))
-  assert_true(js.contains("import { configure_app }"))
-  assert_true(js.contains("const app = configure_app(new Hono())"))
+  assert_true(js.contains("import '../../../_build/js/release/build/__gen__/server/server.js'"))
+  assert_true(js.contains("globalThis.__SOL_APP__"))
   assert_true(js.contains("export default app"))
 }
 
@@ -471,8 +470,8 @@ test "generate_sol_server_main_js: cloudflare runtime" {
 test "generate_sol_server_main_js: deno runtime" {
   let js = generate_sol_server_main_js("myapp/server", parse_runtime("deno"))
   assert_true(js.contains("Runtime: RuntimeDeno"))
-  assert_true(js.contains("import { Hono } from 'hono'"))
-  assert_true(js.contains("import { configure_app }"))
+  assert_true(js.contains("import '../../../_build/js/release/build/__gen__/server/server.js'"))
+  assert_true(js.contains("globalThis.__SOL_APP__"))
   assert_true(js.contains("Deno.serve"))
   assert_true(js.contains("Deno.env.get('PORT')"))
   assert_true(js.contains("app.fetch"))
@@ -482,8 +481,8 @@ test "generate_sol_server_main_js: deno runtime" {
 test "generate_sol_server_main_js: bun runtime" {
   let js = generate_sol_server_main_js("myapp/server", parse_runtime("bun"))
   assert_true(js.contains("Runtime: RuntimeBun"))
-  assert_true(js.contains("import { Hono } from 'hono'"))
-  assert_true(js.contains("import { configure_app }"))
+  assert_true(js.contains("import '../../../_build/js/release/build/__gen__/server/server.js'"))
+  assert_true(js.contains("globalThis.__SOL_APP__"))
   assert_true(js.contains("export default {"))
   assert_true(js.contains("port,"))
   assert_true(js.contains("fetch: app.fetch"))

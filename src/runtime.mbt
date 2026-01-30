@@ -1,29 +1,21 @@
 // Sol - SSR-first Web Framework for MoonBit
 //
-// Built on top of Hono, providing SSR with Luna VNodes.
+// Built on top of Mars, providing SSR with Luna VNodes.
 // Inspired by Next.js, Solid Start, and Qwik City.
 //
 
 ///|
-/// Environment bindings (e.g., Cloudflare Workers KV)
-pub type Env = Unit
+/// Mars app type alias
+pub type App = @mars.Mars
 
 ///|
-/// Execution context (e.g., Cloudflare Workers context)
-pub type ExecutionContext = Unit
+/// Mars context type alias
+pub type Ctx = @mars.Context
 
 ///|
-/// Hono app type alias
-pub type App = @hono.Hono[Env, ExecutionContext]
-
-///|
-/// Hono context type alias
-pub type Ctx = @hono.Context[Env, ExecutionContext]
-
-///|
-/// Create a new Sol application (async)
-pub async fn create_app() -> App {
-  @hono.Hono::new()
+/// Create a new Sol application
+pub fn create_app() -> App {
+  @mars.Mars::new()
 }
 
 ///|
@@ -50,21 +42,15 @@ extern "js" fn ffi_init_fs() -> @js.Promise[Unit] =
   #| () => import('node:fs').then(fs => { globalThis.__SOL_FS__ = fs; })
 
 ///|
-extern "js" fn ffi_new_hono_async() -> @js.Promise[@js.Any] =
-  #| () => import("hono").then(m => new m.Hono())
-
-///|
 /// Create a new Sol application and run callback with it
 /// This is useful for main function that cannot be async
 pub fn create_app_then(callback : (App) -> Unit) -> Unit {
-  // Initialize fs module first, then create Hono app
+  // Initialize fs module first, then create Mars app
   let _ = ffi_init_fs().then(fn(_) {
-    ffi_new_hono_async().then(fn(app) {
-      callback(app.cast())
-      @js.Promise::resolve(@js.any(()))
-    })
+    let app = @mars.Mars::new()
+    callback(app)
+    @js.Promise::resolve(@js.any(()))
   })
-
 }
 
 // ============================================================================
@@ -77,8 +63,21 @@ pub fn create_app_then(callback : (App) -> Unit) -> Unit {
 let sol_app_ref : Ref[App?] = { val: None }
 
 ///|
-extern "js" fn ffi_export_sol_app(app : @js.Any) -> Unit =
-  #| (app) => { globalThis.__SOL_APP__ = app; }
+extern "js" fn ffi_export_sol_app(fetch_handler : MarsFetchHandler) -> Unit =
+  #| (fetchHandler) => { globalThis.__SOL_APP__ = { fetch: fetchHandler }; }
+
+///|
+/// Type alias for Mars fetch handler with js_async Promise
+type MarsFetchHandler (@mars.JsRequest) -> @js.Promise[@mars.JsResponse]
+
+///|
+/// Convert Mars Promise type to @js.Promise for FFI compatibility
+/// Mars uses moonbitlang/async/js_async.Promise, Sol uses mizchi/js/core.Promise
+/// They are the same JS Promise object at runtime
+extern "js" fn ffi_convert_fetch_handler(
+  handler : @js.Any,
+) -> MarsFetchHandler =
+  #| (handler) => handler
 
 ///|
 /// Check if running in Node.js environment
@@ -101,8 +100,9 @@ pub fn run(configure : (App) -> App, port? : Int) -> Unit {
     let app = configure(app)
     // Store app reference for non-Node runtimes
     sol_app_ref.val = Some(app)
-    // Export app globally for entry point access
-    ffi_export_sol_app(app.as_any())
+    // Export fetch handler globally for entry point access
+    let fetch_handler = app.to_fetch_handler()
+    ffi_export_sol_app(ffi_convert_fetch_handler(@js.any(fetch_handler)))
     // Only start server in Node.js environment (and not in adapter mode)
     // In adapter mode, serve.js handles startup instead
     if ffi_is_node() && not(is_adapter_mode()) {
@@ -110,6 +110,45 @@ pub fn run(configure : (App) -> App, port? : Int) -> Unit {
       serve(app, port)
     }
     // For other runtimes (Cloudflare, Deno, Bun) or adapter mode, the entry point handles startup
+  })
+}
+
+///|
+/// Run a Sol application that creates its own app instance
+/// This is used for generated configure_app() functions that take no parameters.
+///
+/// Example:
+/// ```moonbit
+/// fn main {
+///   @sol.run_app(configure_app)
+/// }
+/// ```
+pub fn run_app(create_and_configure : () -> App, port? : Int) -> Unit {
+  let port = port.unwrap_or_else(get_port)
+  // For adapter mode on non-Node runtimes (Cloudflare Workers, Deno, Bun),
+  // initialize synchronously without fs module
+  if is_adapter_mode() && not(ffi_is_node()) {
+    let app = create_and_configure()
+    sol_app_ref.val = Some(app)
+    let fetch_handler = app.to_fetch_handler()
+    ffi_export_sol_app(ffi_convert_fetch_handler(@js.any(fetch_handler)))
+    return
+  }
+  // For Node.js (both adapter and standalone mode), initialize fs module
+  // first for static file serving, then set up the app
+  let _ = ffi_init_fs().then(fn(_) {
+    let app = create_and_configure()
+    // Store app reference
+    sol_app_ref.val = Some(app)
+    // Export fetch handler globally for entry point access
+    let fetch_handler = app.to_fetch_handler()
+    ffi_export_sol_app(ffi_convert_fetch_handler(@js.any(fetch_handler)))
+    // Start server only if not in adapter mode
+    if not(is_adapter_mode()) {
+      println("Server running at http://localhost:" + port.to_string())
+      serve(app, port)
+    }
+    @js.Promise::resolve(@js.any(()))
   })
 }
 
@@ -157,33 +196,36 @@ pub fn[E] page(
   hydration? : Bool,
   loader_url? : String,
 ) -> App {
-  app.get(path, fn(c) {
-    let node = render_fn(c)
-    let enable_hydration = hydration.unwrap_or(false)
-    // Add HMR script in dev mode
-    let dev_script = if is_dev_mode() { get_hmr_script() } else { "" }
-    if enable_hydration {
-      // Hydration enabled: render with hydration markers and include loader script
-      let loader = loader_url.unwrap_or(default_loader_url)
-      let loader_script = "<script type=\"module\" src=\"" +
-        loader +
-        "\"></script>"
-      let full_head = head.unwrap_or("") + loader_script + dev_script
-      let html = render_page(node, title?, head=full_head, hydration=true)
-      c.html(html)
-    } else {
-      // Static page: render without hydration (but still add HMR in dev)
-      let full_head = head.unwrap_or("") + dev_script
-      let html = render_page(node, title?, head=full_head)
-      c.html(html)
-    }
-  })
+  app.get(
+    path,
+    @mars.handler(async fn(c) {
+      let node = render_fn(c)
+      let enable_hydration = hydration.unwrap_or(false)
+      // Add HMR script in dev mode
+      let dev_script = if is_dev_mode() { get_hmr_script() } else { "" }
+      if enable_hydration {
+        // Hydration enabled: render with hydration markers and include loader script
+        let loader = loader_url.unwrap_or(default_loader_url)
+        let loader_script = "<script type=\"module\" src=\"" +
+          loader +
+          "\"></script>"
+        let full_head = head.unwrap_or("") + loader_script + dev_script
+        let html = render_page(node, title?, head=full_head, hydration=true)
+        c.html(html)
+      } else {
+        // Static page: render without hydration (but still add HMR in dev)
+        let full_head = head.unwrap_or("") + dev_script
+        let html = render_page(node, title?, head=full_head)
+        c.html(html)
+      }
+    }),
+  )
 }
 
 ///|
 /// Register an API route that returns JSON
-pub fn api(app : App, path : String, handler : (Ctx) -> @js.Any) -> App {
-  app.get(path, fn(c) { c.json(handler(c)) })
+pub fn api(app : App, path : String, handler : (Ctx) -> Json) -> App {
+  app.get(path, @mars.handler(async fn(c) { c.json(handler(c)) }))
 }
 
 ///|
@@ -199,22 +241,70 @@ pub fn json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any {
 }
 
 ///|
+/// FFI to convert MoonBit Json to JavaScript value
+extern "js" fn ffi_json_to_any(json : Json) -> @js.Any =
+  #| (json) => {
+  #|   // Handle MoonBit Json tagged union
+  #|   if (json === null || json === undefined) return null;
+  #|   switch (json.$tag) {
+  #|     case 0: return null;                    // Null
+  #|     case 1: return json._0;                 // True -> true
+  #|     case 2: return json._0;                 // False -> false
+  #|     case 3: return json._0;                 // Number
+  #|     case 4: return json._0;                 // String
+  #|     case 5: return json._0.map(j => arguments.callee(j)); // Array
+  #|     case 6: {                               // Object
+  #|       const result = {};
+  #|       for (const [k, v] of json._0.entries()) {
+  #|         result[k] = arguments.callee(v);
+  #|       }
+  #|       return result;
+  #|     }
+  #|     default: return json;
+  #|   }
+  #| }
+
+///|
+/// Convert MoonBit Json to JavaScript Any value
+pub fn json_to_any(json : Json) -> @js.Any {
+  ffi_json_to_any(json)
+}
+
+///|
+/// FFI to convert MoonBit Json array to JavaScript array
+extern "js" fn ffi_json_array_to_any(arr : Array[Json]) -> @js.Any =
+  #| (arr) => arr.map(j => arguments.callee.ffi(j))
+
+///|
+/// Convert MoonBit Json array to JavaScript Any value
+pub fn json_array_to_any(arr : Array[Json]) -> @js.Any {
+  // Map each Json to Any and return as JS array
+  let result : Array[@js.Any] = arr.map(fn(j) { ffi_json_to_any(j) })
+  ffi_array_to_any(result)
+}
+
+///|
+extern "js" fn ffi_array_to_any(arr : Array[@js.Any]) -> @js.Any =
+  #| (arr) => arr
+
+///|
 /// Register a POST API route
-pub fn api_post(app : App, path : String, handler : (Ctx) -> @js.Any) -> App {
-  app.post(path, fn(c) { c.json(handler(c)) })
+pub fn api_post(app : App, path : String, handler : (Ctx) -> Json) -> App {
+  app.post(path, @mars.handler(async fn(c) { c.json(handler(c)) }))
 }
 
 ///|
 /// Serve the app using @hono/node-server
 pub fn serve(app : App, port : Int) -> Unit {
-  ffi_serve(app.as_any(), port)
+  let fetch_handler = app.to_fetch_handler()
+  ffi_serve(ffi_convert_fetch_handler(@js.any(fetch_handler)), port)
 }
 
 ///|
-extern "js" fn ffi_serve(app : @js.Any, port : Int) -> Unit =
-  #|(app, port) => {
+extern "js" fn ffi_serve(fetch_handler : MarsFetchHandler, port : Int) -> Unit =
+  #|(fetchHandler, port) => {
   #|  import('@hono/node-server').then(({ serve }) => {
-  #|    serve({ fetch: app.fetch, port });
+  #|    serve({ fetch: fetchHandler, port });
   #|  });
   #|}
 
@@ -410,12 +500,15 @@ pub fn[E] island_page(
   head? : String,
   loader_url? : String,
 ) -> App {
-  app.get(path, fn(c) {
-    let islands = render_fn(c)
-    let island_htmls = islands.map(fn(config) { render_island(config) })
-    let html = render_island_page(island_htmls, title?, head?, loader_url?)
-    c.html(html)
-  })
+  app.get(
+    path,
+    @mars.handler(async fn(c) {
+      let islands = render_fn(c)
+      let island_htmls = islands.map(fn(config) { render_island(config) })
+      let html = render_island_page(island_htmls, title?, head?, loader_url?)
+      c.html(html)
+    }),
+  )
 }
 
 ///|
@@ -534,18 +627,21 @@ pub fn[E] wc_page(
   head? : String,
   wc_loader_url? : String,
 ) -> App {
-  app.get(path, fn(c) {
-    let node = render_fn(c)
-    let loader = wc_loader_url.unwrap_or(default_wc_loader_url)
-    let loader_script = "<script type=\"module\" src=\"" +
-      loader +
-      "\"></script>"
-    // Add HMR script in dev mode
-    let dev_script = if is_dev_mode() { get_hmr_script() } else { "" }
-    let full_head = head.unwrap_or("") + loader_script + dev_script
-    let html = render_page(node, title?, head=full_head, hydration=true)
-    c.html(html)
-  })
+  app.get(
+    path,
+    @mars.handler(async fn(c) {
+      let node = render_fn(c)
+      let loader = wc_loader_url.unwrap_or(default_wc_loader_url)
+      let loader_script = "<script type=\"module\" src=\"" +
+        loader +
+        "\"></script>"
+      // Add HMR script in dev mode
+      let dev_script = if is_dev_mode() { get_hmr_script() } else { "" }
+      let full_head = head.unwrap_or("") + loader_script + dev_script
+      let html = render_page(node, title?, head=full_head, hydration=true)
+      c.html(html)
+    }),
+  )
 }
 
 // ============================================================================
@@ -626,6 +722,7 @@ extern "js" fn ffi_create_stream_response(stream : @js.Any) -> @http.Response =
 ///|
 /// Register a streaming page route with async support
 /// VAsync nodes in the rendered tree will be handled automatically
+/// Note: This uses ReadableStream internally for proper streaming support
 pub fn streaming_page(
   app : App,
   path : String,
@@ -634,25 +731,37 @@ pub fn streaming_page(
   head? : String,
   loader_url? : String,
 ) -> App {
-  app.get(path, fn(c) {
-    let shell = render_fn(c)
-    let title_str = title.unwrap_or("App")
-    let head_str = head.unwrap_or("")
-    let loader = loader_url.unwrap_or(default_loader_url)
-    let header_html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>" +
-      title_str +
-      "</title>" +
-      head_str +
-      "<script type=\"module\" src=\"" +
-      loader +
-      "\"></script></head><body><div id=\"app\">"
-    let footer_html = "</div></body></html>"
-    let stream = create_streaming_response_with_async(
-      header_html, footer_html, shell,
-    )
-    ffi_create_stream_response(stream)
-  })
+  app.get(
+    path,
+    @mars.handler(async fn(c) {
+      let shell = render_fn(c)
+      let title_str = title.unwrap_or("App")
+      let head_str = head.unwrap_or("")
+      let loader = loader_url.unwrap_or(default_loader_url)
+      let header_html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>" +
+        title_str +
+        "</title>" +
+        head_str +
+        "<script type=\"module\" src=\"" +
+        loader +
+        "\"></script></head><body><div id=\"app\">"
+      let footer_html = "</div></body></html>"
+      // Create streaming response and send via FFI
+      let stream = create_streaming_response_with_async(
+        header_html, footer_html, shell,
+      )
+      ffi_set_streaming_response(c, stream)
+    }),
+  )
 }
+
+///|
+/// Set streaming response via FFI (for Mars Context)
+extern "js" fn ffi_set_streaming_response(ctx : Ctx, stream : @js.Any) -> Unit =
+  #| (ctx, stream) => {
+  #|   const response = new Response(stream, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  #|   ctx.platform.response_resolve(response);
+  #| }
 
 ///|
 /// Render a VNode to HTML with preload URLs for islands
@@ -726,10 +835,6 @@ extern "js" fn ffi_read_file_sync(path : String) -> String? =
   #| }
 
 ///|
-extern "js" fn ffi_get_req_path(c : @js.Any) -> String =
-  #| (c) => new URL(c.req.url).pathname
-
-///|
 /// Create a text response with content type
 pub fn text_response(body : String, content_type : String) -> @http.Response {
   ffi_create_js_response(body, content_type)
@@ -761,7 +866,7 @@ pub fn read_file_sync(path : String) -> String? {
 ///|
 /// Get request pathname from context
 pub fn get_request_path(ctx : Ctx) -> String {
-  ffi_get_req_path(ctx.as_any())
+  ctx.path()
 }
 
 ///|
@@ -840,30 +945,36 @@ pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> App {
   let local_dir = config.local_dir
 
   // Serve index.html for directory roots
-  let app = app.get(prefix, fn(c) {
-    serve_static_html(c, local_dir, "index.html")
-  })
+  let app = app.get(
+    prefix,
+    @mars.handler(async fn(c) {
+      serve_static_html_async(c, local_dir, "index.html")
+    }),
+  )
 
   // Serve all paths under the prefix
-  app.get(prefix + "/*", fn(c) {
-    let path = get_request_path(c)
-    let start_idx = prefix.length() + 1
-    let rest = path[start_idx:].to_string().trim_end(chars="/").to_string()
+  app.get(
+    prefix + "/*",
+    @mars.handler(async fn(c) {
+      let path = c.path()
+      let start_idx = prefix.length() + 1
+      let rest = path[start_idx:].to_string().trim_end(chars="/").to_string()
 
-    // Try exact path first, then as directory index
-    if rest.is_empty() {
-      serve_static_html(c, local_dir, "index.html")
-    } else if rest.has_suffix(".html") {
-      serve_static_html(c, local_dir, rest)
-    } else if rest.has_suffix(".css") {
-      serve_static_css(c, local_dir, rest)
-    } else if rest.has_suffix(".js") {
-      serve_static_js(c, local_dir, rest)
-    } else {
-      // Try as directory with index.html
-      serve_static_html(c, local_dir, rest + "/index.html")
-    }
-  })
+      // Try exact path first, then as directory index
+      if rest.is_empty() {
+        serve_static_html_async(c, local_dir, "index.html")
+      } else if rest.has_suffix(".html") {
+        serve_static_html_async(c, local_dir, rest)
+      } else if rest.has_suffix(".css") {
+        serve_static_css_async(c, local_dir, rest)
+      } else if rest.has_suffix(".js") {
+        serve_static_js_async(c, local_dir, rest)
+      } else {
+        // Try as directory with index.html
+        serve_static_html_async(c, local_dir, rest + "/index.html")
+      }
+    }),
+  )
 }
 
 ///|
@@ -876,6 +987,19 @@ fn serve_static_html(
   match read_file_sync(path) {
     Some(content) => html_response(content)
     None => text_response("Not found: " + filename, "text/plain")
+  }
+}
+
+///|
+async fn serve_static_html_async(
+  c : Ctx,
+  local_dir : String,
+  filename : String,
+) -> Unit {
+  let path = local_dir + "/" + filename
+  match read_file_sync(path) {
+    Some(content) => c.html(content)
+    None => c.text("Not found: " + filename)
   }
 }
 
@@ -893,6 +1017,20 @@ fn serve_static_css(
 }
 
 ///|
+async fn serve_static_css_async(
+  c : Ctx,
+  local_dir : String,
+  filename : String,
+) -> Unit {
+  let path = local_dir + "/" + filename
+  c.set_header("Content-Type", "text/css")
+  match read_file_sync(path) {
+    Some(content) => c.text(content)
+    None => c.text("/* Not found: " + filename + " */")
+  }
+}
+
+///|
 fn serve_static_js(
   _c : Ctx,
   local_dir : String,
@@ -902,6 +1040,20 @@ fn serve_static_js(
   match read_file_sync(path) {
     Some(content) => text_response(content, "application/javascript")
     None => text_response("// Not found: " + filename, "application/javascript")
+  }
+}
+
+///|
+async fn serve_static_js_async(
+  c : Ctx,
+  local_dir : String,
+  filename : String,
+) -> Unit {
+  let path = local_dir + "/" + filename
+  c.set_header("Content-Type", "application/javascript")
+  match read_file_sync(path) {
+    Some(content) => c.text(content)
+    None => c.text("// Not found: " + filename)
   }
 }
 
@@ -922,72 +1074,79 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> App {
   } else {
     cfg.cache_control
   }
-  app.get(prefix + "/*", fn(c) {
-    let path = get_request_path(c)
-    let start_idx = prefix.length() + 1
-    let filename = path[start_idx:].to_string() // Remove prefix + "/"
+  app.get(
+    prefix + "/*",
+    @mars.handler(async fn(c) {
+      let path = c.path()
+      let start_idx = prefix.length() + 1
+      let filename = path[start_idx:].to_string() // Remove prefix + "/"
 
-    // Check mappings
-    for mapping in mappings {
-      let (url_file, local_path) = mapping
-      if filename == url_file {
-        match read_file_sync(local_path) {
-          Some(content) => {
-            let content_type = if url_file.has_suffix(".js") {
-              "application/javascript"
-            } else if url_file.has_suffix(".css") {
-              "text/css"
-            } else {
-              "text/plain"
+      // Check mappings
+      for mapping in mappings {
+        let (url_file, local_path) = mapping
+        if filename == url_file {
+          match read_file_sync(local_path) {
+            Some(content) => {
+              let content_type = if url_file.has_suffix(".js") {
+                "application/javascript"
+              } else if url_file.has_suffix(".css") {
+                "text/css"
+              } else {
+                "text/plain"
+              }
+              c.set_header("Content-Type", content_type)
+              c.set_header("Cache-Control", cache_ctl)
+              c.set_header("X-Content-Type-Options", "nosniff")
+              c.text(content)
+              return
             }
-            return static_response(
-              content,
-              content_type,
-              cache_control=cache_ctl,
-            )
+            None => {
+              c.set_header("Content-Type", "application/javascript")
+              c.set_header("Cache-Control", cache_ctl)
+              c.set_header("X-Content-Type-Options", "nosniff")
+              c.text("// " + url_file + " not found")
+              return
+            }
           }
-          None =>
-            return static_response(
-              "// " + url_file + " not found",
-              "application/javascript",
-              cache_control=cache_ctl,
-            )
         }
       }
-    }
 
-    // Fallback: try to read from local_dir/filename, then .sol/{dev,prod}/static/filename
-    // Dev is checked first as it's more commonly used during development
-    let local_path = cfg.local_dir + "/" + filename
-    let sol_dev_path = ".sol/dev/static/" + filename
-    let sol_prod_path = ".sol/prod/static/" + filename
-    let content = match read_file_sync(local_path) {
-      Some(c) => Some(c)
-      None =>
-        match read_file_sync(sol_dev_path) {
-          Some(c) => Some(c)
-          None => read_file_sync(sol_prod_path)
-        }
-    }
-    match content {
-      Some(c) => {
-        let content_type = if filename.has_suffix(".js") {
-          "application/javascript"
-        } else if filename.has_suffix(".css") {
-          "text/css"
-        } else if filename.has_suffix(".html") {
-          "text/html"
-        } else {
-          "text/plain"
-        }
-        static_response(c, content_type, cache_control=cache_ctl)
+      // Fallback: try to read from local_dir/filename, then .sol/{dev,prod}/static/filename
+      // Dev is checked first as it's more commonly used during development
+      let local_path = cfg.local_dir + "/" + filename
+      let sol_dev_path = ".sol/dev/static/" + filename
+      let sol_prod_path = ".sol/prod/static/" + filename
+      let content = match read_file_sync(local_path) {
+        Some(c) => Some(c)
+        None =>
+          match read_file_sync(sol_dev_path) {
+            Some(c) => Some(c)
+            None => read_file_sync(sol_prod_path)
+          }
       }
-      None =>
-        static_response(
-          "Not found: " + filename,
-          "text/plain",
-          cache_control=cache_ctl,
-        )
-    }
-  })
+      match content {
+        Some(content) => {
+          let content_type = if filename.has_suffix(".js") {
+            "application/javascript"
+          } else if filename.has_suffix(".css") {
+            "text/css"
+          } else if filename.has_suffix(".html") {
+            "text/html"
+          } else {
+            "text/plain"
+          }
+          c.set_header("Content-Type", content_type)
+          c.set_header("Cache-Control", cache_ctl)
+          c.set_header("X-Content-Type-Options", "nosniff")
+          c.text(content)
+        }
+        None => {
+          c.set_header("Content-Type", "text/plain")
+          c.set_header("Cache-Control", cache_ctl)
+          c.set_header("X-Content-Type-Options", "nosniff")
+          c.text("Not found: " + filename)
+        }
+      }
+    }),
+  )
 }

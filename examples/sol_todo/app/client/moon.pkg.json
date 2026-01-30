@@ -1,0 +1,13 @@
+{
+  "supported-targets": ["js"],
+  "import": [
+    { "path": "mizchi/luna/dom", "alias": "element" },
+    { "path": "mizchi/signals", "alias": "signal" }
+  ],
+  "link": {
+    "js": {
+      "exports": ["todo_list"],
+      "format": "esm"
+    }
+  }
+}

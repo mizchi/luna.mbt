@@ -162,26 +162,25 @@ pub fn security_headers_relaxed() -> Middleware {
 pub fn security_headers_with_config(
   config : SecurityHeadersConfig,
 ) -> Middleware {
-  Middleware(async fn(ctx) {
-    // Add security headers to context
-    let new_ctx = ctx
-      .add_header("X-Frame-Options", config.frame_options)
-      .add_header("X-Content-Type-Options", config.content_type_options)
-      .add_header("Referrer-Policy", config.referrer_policy)
-      .add_header("Cross-Origin-Opener-Policy", config.coop)
-      .add_header("Permissions-Policy", config.permissions_policy)
-      .add_header("Content-Security-Policy", config.csp)
+  Middleware(@mars.Handler(async fn(ctx) {
+    // Add security headers
+    ctx.set_header("X-Frame-Options", config.frame_options)
+    ctx.set_header("X-Content-Type-Options", config.content_type_options)
+    ctx.set_header("Referrer-Policy", config.referrer_policy)
+    ctx.set_header("Cross-Origin-Opener-Policy", config.coop)
+    ctx.set_header("Permissions-Policy", config.permissions_policy)
+    ctx.set_header("Content-Security-Policy", config.csp)
 
     // Add Cache-Control based on content type
-    let path = ctx.request.path
+    let path = ctx.path()
     let cache_control = if is_static_asset(path) {
       config.cache_control_static
     } else {
       config.cache_control_html
     }
-    let final_ctx = new_ctx.add_header("Cache-Control", cache_control)
-    Continue(final_ctx)
-  })
+    ctx.set_header("Cache-Control", cache_control)
+    // Continue to next handler
+  }))
 }
 
 ///|
@@ -204,37 +203,39 @@ fn is_static_asset(path : String) -> Bool {
 ///|
 /// Add X-Content-Type-Options: nosniff header
 pub fn nosniff() -> Middleware {
-  Middleware(async fn(ctx) {
-    Continue(ctx.add_header("X-Content-Type-Options", "nosniff"))
-  })
+  Middleware(@mars.Handler(async fn(ctx) {
+    ctx.set_header("X-Content-Type-Options", "nosniff")
+  }))
 }
 
 ///|
 /// Add X-Frame-Options header
 pub fn frame_options(value : String) -> Middleware {
-  Middleware(async fn(ctx) {
-    Continue(ctx.add_header("X-Frame-Options", value))
-  })
+  Middleware(@mars.Handler(async fn(ctx) {
+    ctx.set_header("X-Frame-Options", value)
+  }))
 }
 
 ///|
 /// Add Content-Security-Policy header
 pub fn csp(policy : String) -> Middleware {
-  Middleware(async fn(ctx) {
-    Continue(ctx.add_header("Content-Security-Policy", policy))
-  })
+  Middleware(@mars.Handler(async fn(ctx) {
+    ctx.set_header("Content-Security-Policy", policy)
+  }))
 }
 
 ///|
 /// Add Referrer-Policy header
 pub fn referrer_policy(value : String) -> Middleware {
-  Middleware(async fn(ctx) {
-    Continue(ctx.add_header("Referrer-Policy", value))
-  })
+  Middleware(@mars.Handler(async fn(ctx) {
+    ctx.set_header("Referrer-Policy", value)
+  }))
 }
 
 ///|
 /// Add Cache-Control header
 pub fn cache_control(value : String) -> Middleware {
-  Middleware(async fn(ctx) { Continue(ctx.add_header("Cache-Control", value)) })
+  Middleware(@mars.Handler(async fn(ctx) {
+    ctx.set_header("Cache-Control", value)
+  }))
 }

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/adapters"
 
-import(
-  "mizchi/sol/ssg"
-)
+import {
+  "mizchi/sol/ssg",
+}
 
 // Values
 pub fn run_adapter(@ssg.BuildContext) -> Unit

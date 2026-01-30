@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/content/cst"
 
-import(
-  "mizchi/sol/content/frontmatter"
-)
+import {
+  "mizchi/sol/content/frontmatter",
+}
 
 // Values
 pub fn convert_document(@mizchi/markdown.Document) -> (@frontmatter.Frontmatter, Array[@mizchi/sol/content/markdown.MdNode])

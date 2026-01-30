@@ -1,4 +1,4 @@
-import { "mizchi/npm_typed/hono" as @hono, "mizchi/js/core" as @js }
+import { "mizchi/mars" as @mars, "mizchi/js/core" as @js }
 
 options(
   "supported-targets": [ "js" ],
