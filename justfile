@@ -112,6 +112,18 @@ size:
     @echo "=== MoonBit Output ==="
     @find target/js/release/build -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 ": " $5}' | head -20
 
+# Treeshake 後サイズ計測
+treeshake-size:
+    node scripts/treeshake-size.mjs --build
+
+# Treeshake ベースライン更新
+treeshake-baseline:
+    node scripts/treeshake-size.mjs --build --write-baseline
+
+# Treeshake ベースライン差分チェック
+treeshake-check:
+    node scripts/treeshake-size.mjs --build --check
+
 # =============================================================================
 # カバレッジ
 # =============================================================================
