@@ -826,7 +826,13 @@ fn[E, A : Show] render_with_id_to(
       sb.write_object(id)
       sb.write_string("-->")
       for item in render() {
+        sb.write_string("<!--fi:")
+        sb.write_object(id)
+        sb.write_string("-->")
         render_with_id_to(sb, item, id_counter)
+        sb.write_string("<!--/fi:")
+        sb.write_object(id)
+        sb.write_string("-->")
       }
       sb.write_string("<!--/f-->")
     }

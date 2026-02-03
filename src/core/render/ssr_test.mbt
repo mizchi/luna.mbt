@@ -265,7 +265,9 @@ test "render with hydration markers for list" {
     [@luna.text("A"), @luna.text("B")]
   })
   let html = render_to_string_with_hydration(node)
-  assert_eq(html, "<!--f:0-->AB<!--/f-->")
+  assert_eq(
+    html, "<!--f:0--><!--fi:0-->A<!--/fi:0--><!--fi:0-->B<!--/fi:0--><!--/f-->",
+  )
 }
 
 ///|
