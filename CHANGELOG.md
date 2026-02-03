@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2026-02-03
+
+### Bug Fixes
+
+- **dom**: Dispose CSR branches and reconcile hydrated lists
+- **js-api**: Cleanup custom element lifecycle
+- **js-api**: Return undefined for resource errors
+
+### Features
+
+- **render**: Add hydration item markers for for_each
+
+### Miscellaneous
+
+- **ci**: Update treeshake baseline
+
 ## [0.10.0] - 2026-02-03
 
 ### Bug Fixes
@@ -1008,5 +1024,3 @@ All notable changes to this project will be documented in this file.
 - Misc changes
 - Add types package generation for Props structs
 - Sol generate - parse mbti with moonbitlang/parser
-
-
