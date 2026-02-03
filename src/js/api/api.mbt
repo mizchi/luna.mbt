@@ -487,10 +487,10 @@ pub fn resource_value(res : JsResource) -> Any {
 
 ///|
 /// Get error if failure, undefined otherwise
-pub fn resource_error(res : JsResource) -> String {
+pub fn resource_error(res : JsResource) -> Any {
   match res.0.error() {
-    Some(e) => e
-    None => ""
+    Some(e) => js_any_from_string(e)
+    None => undefined()
   }
 }
 
@@ -530,12 +530,17 @@ pub fn state_value(state : JsAsyncState) -> Any {
 
 ///|
 /// Get error from state if failure
-pub fn state_error(state : JsAsyncState) -> String {
+pub fn state_error(state : JsAsyncState) -> Any {
   match state.0.error() {
-    Some(e) => e
-    None => ""
+    Some(e) => js_any_from_string(e)
+    None => undefined()
   }
 }
+
+///|
+/// Convert String to JS Any
+extern "js" fn js_any_from_string(s : String) -> Any =
+  #| (s) => s
 
 // ============================================================================
 // Portal API (SolidJS-style Portal)

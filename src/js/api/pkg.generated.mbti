@@ -88,7 +88,7 @@ pub fn render_effect(() -> Unit) -> () -> Unit
 
 pub fn render_to(@mizchi/js/browser/dom.Element, @mizchi/luna/dom.DomNode) -> Unit
 
-pub fn resource_error(JsResource) -> String
+pub fn resource_error(JsResource) -> Any
 
 pub fn resource_get(JsResource) -> JsAsyncState
 
@@ -128,7 +128,7 @@ pub fn set(@signals.Signal[Any], Any) -> Unit
 
 pub fn show(() -> Bool, () -> @mizchi/luna/dom.DomNode) -> @mizchi/luna/dom.DomNode
 
-pub fn state_error(JsAsyncState) -> String
+pub fn state_error(JsAsyncState) -> Any
 
 pub fn state_is_failure(JsAsyncState) -> Bool
 
@@ -179,4 +179,3 @@ pub fn JsResource::inner(Self) -> @resource.Resource[Any]
 // Type aliases
 
 // Traits
-

@@ -25,6 +25,7 @@ describe("Resource API (SolidJS-style)", () => {
       // Resolve happens synchronously in this case
       expect(resource.state).toBe("ready");
       expect(resource()).toBe("success-data");
+      expect(resource.error).toBeUndefined();
     });
 
     test("transitions to failure on reject", () => {
@@ -34,6 +35,15 @@ describe("Resource API (SolidJS-style)", () => {
 
       expect(resource.state).toBe("errored");
       expect(resource.error).toBe("error-message");
+    });
+
+    test("error is undefined when pending", () => {
+      const [resource] = createResource<string>(() => {
+        // Never resolves
+      });
+
+      expect(resource.loading).toBe(true);
+      expect(resource.error).toBeUndefined();
     });
 
     test("async resolve works", async () => {
