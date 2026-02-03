@@ -261,6 +261,7 @@ test "edge: many declarations do not overflow" {
   // Generate 100 unique declarations
   for i in 0..<100 {
     let _ = css("prop" + i.to_string(), "val" + i.to_string())
+
   }
   let output = generate_css()
   // Should contain all 100 declarations

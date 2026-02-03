@@ -87,6 +87,7 @@ fn create_medium_state() -> ResumableState {
   let state = ResumableState::new()
   for i in 0..<10 {
     let _ = state.register_int(i)
+
   }
   state
 }
@@ -97,6 +98,7 @@ fn create_large_state() -> ResumableState {
   let state = ResumableState::new()
   for i in 0..<100 {
     let _ = state.register_int(i)
+
   }
   state
 }
