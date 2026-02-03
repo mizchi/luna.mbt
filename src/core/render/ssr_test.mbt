@@ -1164,6 +1164,23 @@ test "render wc_island basic" {
 }
 
 ///|
+test "render wc_island preserves spaces in css strings" {
+  let styles = ".foo::before { content: \"a  b\"; }"
+  let node : @luna.Node[Unit, String] = @luna.wc_island(
+    "wc-css",
+    "/static/wc-css.js",
+    styles,
+    "{}",
+    [@luna.text("ok")],
+  )
+  let html = render_to_string(node).html
+  // Minifier should keep spaces inside quoted strings
+  assert_true(html.contains("content:\"a  b\""))
+  // And still minify outside whitespace
+  assert_true(html.contains(".foo::before{content:\"a  b\";}"))
+}
+
+///|
 test "render wc_island without styles" {
   let node : @luna.Node[Unit, String] = @luna.wc_island(
     "wc-simple",

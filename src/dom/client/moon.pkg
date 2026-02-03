@@ -9,6 +9,7 @@ import {
   "mizchi/js/browser/dom" as @js_dom,
   "mizchi/js/web/event",
   "mizchi/js/builtins/global",
+  "moonbitlang/core/hashmap",
 }
 
 import "test" {

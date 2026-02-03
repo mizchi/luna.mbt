@@ -19,7 +19,8 @@ pub fn[E, A : Show] render_to_string(
   let sb = StringBuilder::new(size_hint=256)
   if preload {
     let urls : Array[String] = []
-    render_and_collect_urls(sb, node, urls)
+    let seen : Map[String, Bool] = {}
+    render_and_collect_urls(sb, node, urls, seen)
     { html: sb.to_string(), preload_urls: urls }
   } else {
     render_to_sb(sb, node)
@@ -51,35 +52,67 @@ fn minify_css(css : String) -> String {
   let sb = StringBuilder::new(size_hint=css.length())
   let mut prev_char : Char = ' '
   let mut in_space = false
+  let mut in_string : Char? = None
+  let mut escaped = false
   for c in css {
-    match c {
-      '\n' | '\r' | '\t' =>
-        // Convert to space, will be handled by space collapsing
-        if not(in_space) {
-          in_space = true
-        }
-      ' ' => if not(in_space) { in_space = true }
-      '{' | '}' | ':' | ';' | ',' => {
-        // Remove space before these characters
-        in_space = false
+    match in_string {
+      Some(quote) => {
         sb.write_char(c)
         prev_char = c
-      }
-      _ => {
-        // Add single space if we had spaces and prev char doesn't make it unnecessary
-        if in_space &&
-          prev_char != '{' &&
-          prev_char != '}' &&
-          prev_char != ':' &&
-          prev_char != ';' &&
-          prev_char != ',' &&
-          prev_char != ' ' {
-          sb.write_char(' ')
+        if escaped {
+          escaped = false
+        } else if c == '\\' {
+          escaped = true
+        } else if c == quote {
+          in_string = None
         }
-        in_space = false
-        sb.write_char(c)
-        prev_char = c
       }
+      None =>
+        match c {
+          '"' | '\'' => {
+            if in_space &&
+              prev_char != '{' &&
+              prev_char != '}' &&
+              prev_char != ':' &&
+              prev_char != ';' &&
+              prev_char != ',' &&
+              prev_char != ' ' {
+              sb.write_char(' ')
+            }
+            in_space = false
+            sb.write_char(c)
+            prev_char = c
+            in_string = Some(c)
+            escaped = false
+          }
+          '\n' | '\r' | '\t' =>
+            // Convert to space, will be handled by space collapsing
+            if not(in_space) {
+              in_space = true
+            }
+          ' ' => if not(in_space) { in_space = true }
+          '{' | '}' | ':' | ';' | ',' => {
+            // Remove space before these characters
+            in_space = false
+            sb.write_char(c)
+            prev_char = c
+          }
+          _ => {
+            // Add single space if we had spaces and prev char doesn't make it unnecessary
+            if in_space &&
+              prev_char != '{' &&
+              prev_char != '}' &&
+              prev_char != ':' &&
+              prev_char != ';' &&
+              prev_char != ',' &&
+              prev_char != ' ' {
+              sb.write_char(' ')
+            }
+            in_space = false
+            sb.write_char(c)
+            prev_char = c
+          }
+        }
     }
   }
   sb.to_string()
@@ -117,6 +150,7 @@ fn[E, A : Show] render_and_collect_urls(
   sb : StringBuilder,
   node : @luna.Node[E, A],
   urls : Array[String],
+  seen : Map[String, Bool],
 ) -> Unit {
   match node {
     Text(content) => escape_html_to(sb, content)
@@ -124,7 +158,7 @@ fn[E, A : Show] render_and_collect_urls(
     RawHtml(html) => sb.write_string(html)
     Fragment(children) =>
       for child in children {
-        render_and_collect_urls(sb, child, urls)
+        render_and_collect_urls(sb, child, urls, seen)
       }
     Element(elem) => {
       let tag = elem.tag
@@ -136,7 +170,7 @@ fn[E, A : Show] render_and_collect_urls(
       } else {
         sb.write_char('>')
         for child in elem.children {
-          render_and_collect_urls(sb, child, urls)
+          render_and_collect_urls(sb, child, urls, seen)
         }
         sb.write_string("</")
         sb.write_string(tag)
@@ -145,29 +179,35 @@ fn[E, A : Show] render_and_collect_urls(
     }
     Show(condition~, child~) =>
       if condition() {
-        render_and_collect_urls(sb, child(), urls)
+        render_and_collect_urls(sb, child(), urls, seen)
       } else {
         sb.write_string("<!--show-->")
       }
     For(render~) =>
       for item in render() {
-        render_and_collect_urls(sb, item, urls)
+        render_and_collect_urls(sb, item, urls, seen)
       }
-    Component(render~) => render_and_collect_urls(sb, render(), urls)
-    Island(island) => render_island_and_collect_urls(sb, island, urls)
+    Component(render~) => render_and_collect_urls(sb, render(), urls, seen)
+    Island(island) => render_island_and_collect_urls(sb, island, urls, seen)
     WcIsland(wc_island) =>
-      render_wc_island_and_collect_urls(sb, wc_island, urls)
-    InternalRef(iref) => render_internal_ref_and_collect_urls(sb, iref, urls)
+      render_wc_island_and_collect_urls(sb, wc_island, urls, seen)
+    InternalRef(iref) =>
+      render_internal_ref_and_collect_urls(sb, iref, urls, seen)
     Async(async_node) =>
       // In sync rendering, render fallback (async content handled by stream renderer)
-      render_and_collect_urls(sb, (async_node.fallback)(), urls)
+      render_and_collect_urls(sb, (async_node.fallback)(), urls, seen)
     ErrorBoundary(boundary) =>
       // ErrorBoundary: try rendering children, catch errors and render fallback
-      render_and_collect_urls(sb, (boundary.children)(), urls) catch {
+      render_and_collect_urls(sb, (boundary.children)(), urls, seen) catch {
         err => {
           // reset function is a no-op in SSR context
           let reset = fn() { () }
-          render_and_collect_urls(sb, (boundary.fallback)(err, reset), urls) catch {
+          render_and_collect_urls(
+            sb,
+            (boundary.fallback)(err, reset),
+            urls,
+            seen,
+          ) catch {
             _ => () // Ignore errors in fallback
           }
         }
@@ -176,13 +216,14 @@ fn[E, A : Show] render_and_collect_urls(
       // Find first matching case and render it
       for case_ in switch_node.cases {
         if (case_.when)() {
-          render_and_collect_urls(sb, (case_.render)(), urls)
+          render_and_collect_urls(sb, (case_.render)(), urls, seen)
           return
         }
       }
       // No case matched, render fallback if present
       match switch_node.fallback {
-        Some(fallback_fn) => render_and_collect_urls(sb, fallback_fn(), urls)
+        Some(fallback_fn) =>
+          render_and_collect_urls(sb, fallback_fn(), urls, seen)
         None => sb.write_string("<!--switch-->")
       }
     }
@@ -195,14 +236,16 @@ fn[E, A : Show] render_island_and_collect_urls(
   sb : StringBuilder,
   island : @luna.VIsland[E, A],
   urls : Array[String],
+  seen : Map[String, Bool],
 ) -> Unit {
   // Collect URL if not already present
-  if not(urls.contains(island.url)) {
+  if seen.get(island.url) is None {
+    seen.set(island.url, true)
     urls.push(island.url)
   }
   render_island_open_to(sb, island)
   for child in island.children {
-    render_and_collect_urls(sb, child, urls)
+    render_and_collect_urls(sb, child, urls, seen)
   }
   render_island_close_to(sb, island)
 }
@@ -309,8 +352,10 @@ fn[E, A : Show] render_wc_island_and_collect_urls(
   sb : StringBuilder,
   island : @luna.VWcIsland[E, A],
   urls : Array[String],
+  seen : Map[String, Bool],
 ) -> Unit {
-  if island.url.length() > 0 && not(urls.contains(island.url)) {
+  if island.url.length() > 0 && seen.get(island.url) is None {
+    seen.set(island.url, true)
     urls.push(island.url)
   }
   write_wc_open_tag(
@@ -322,7 +367,7 @@ fn[E, A : Show] render_wc_island_and_collect_urls(
     island.styles,
   )
   for child in island.children {
-    render_and_collect_urls(sb, child, urls)
+    render_and_collect_urls(sb, child, urls, seen)
   }
   write_wc_close_tag(sb, island.name)
 }
@@ -424,15 +469,17 @@ fn[E, A : Show] render_internal_ref_and_collect_urls(
   sb : StringBuilder,
   iref : @luna.VInternalRef[E, A],
   urls : Array[String],
+  seen : Map[String, Bool],
 ) -> Unit {
   // Collect URL if not already present
-  if iref.url.length() > 0 && not(urls.contains(iref.url)) {
+  if iref.url.length() > 0 && seen.get(iref.url) is None {
+    seen.set(iref.url, true)
     urls.push(iref.url)
   }
   if iref.wc {
-    render_internal_ref_wc_and_collect_urls(sb, iref, urls)
+    render_internal_ref_wc_and_collect_urls(sb, iref, urls, seen)
   } else {
-    render_internal_ref_island_and_collect_urls(sb, iref, urls)
+    render_internal_ref_island_and_collect_urls(sb, iref, urls, seen)
   }
 }
 
@@ -442,6 +489,7 @@ fn[E, A : Show] render_internal_ref_island_and_collect_urls(
   sb : StringBuilder,
   iref : @luna.VInternalRef[E, A],
   urls : Array[String],
+  seen : Map[String, Bool],
 ) -> Unit {
   let id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
   sb.write_string("<!--luna:island:")
@@ -461,7 +509,7 @@ fn[E, A : Show] render_internal_ref_island_and_collect_urls(
   sb.write_string(iref.trigger.to_string())
   sb.write_string("\">")
   for child in iref.children {
-    render_and_collect_urls(sb, child, urls)
+    render_and_collect_urls(sb, child, urls, seen)
   }
   sb.write_string("</div>")
   sb.write_string("<!--/luna:island:")
@@ -475,11 +523,12 @@ fn[E, A : Show] render_internal_ref_wc_and_collect_urls(
   sb : StringBuilder,
   iref : @luna.VInternalRef[E, A],
   urls : Array[String],
+  seen : Map[String, Bool],
 ) -> Unit {
   let name = extract_wc_name_from_url(iref.url)
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
   for child in iref.children {
-    render_and_collect_urls(sb, child, urls)
+    render_and_collect_urls(sb, child, urls, seen)
   }
   write_wc_close_tag(sb, name)
 }

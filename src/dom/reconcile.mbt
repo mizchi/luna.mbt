@@ -18,6 +18,26 @@ pub fn[T] ref_equal(a : T, b : T) -> Bool {
 }
 
 ///|
+/// Reference-keyed Map helpers for faster lookups (JS Map)
+extern "js" fn ref_map_new() -> @js.Any =
+  #| () => new Map()
+
+///|
+extern "js" fn ref_map_has(map : @js.Any, key : @js.Any) -> Bool =
+  #| (map, key) => map.has(key)
+
+///|
+extern "js" fn ref_map_set(map : @js.Any, key : @js.Any, value : Int) -> Unit =
+  #| (map, key, value) => { map.set(key, value); }
+
+///|
+extern "js" fn ref_map_get_or_minus1(map : @js.Any, key : @js.Any) -> Int =
+  #| (map, key) => {
+  #|   const v = map.get(key);
+  #|   return v === undefined ? -1 : v;
+  #| }
+
+///|
 /// Check if a node's next sibling matches the expected node
 extern "js" fn next_sibling_is(
   node : @js_dom.Node,
@@ -27,11 +47,13 @@ extern "js" fn next_sibling_is(
 
 ///|
 /// Item-DOM mapping entry
-/// Stores the association between an item reference and its DOM node
+/// Stores the association between an item reference and its DOM nodes
 /// Also stores a dispose function for cleanup when item is removed
 pub(all) struct ItemEntry[T] {
   item : T
   dom : @js_dom.Node
+  last : @js_dom.Node
+  nodes : Array[@js_dom.Node]
   dispose : () -> Unit
 }
 
@@ -39,7 +61,7 @@ pub(all) struct ItemEntry[T] {
 /// Create a new ItemEntry
 pub fn[T] ItemEntry::new(item : T, dom : @js_dom.Node) -> ItemEntry[T] {
   // Default dispose is no-op for backwards compatibility
-  { item, dom, dispose: fn() {  } }
+  { item, dom, last: dom, nodes: [dom], dispose: fn() {  } }
 }
 
 ///|
@@ -49,19 +71,62 @@ pub fn[T] ItemEntry::new_with_dispose(
   dom : @js_dom.Node,
   dispose : () -> Unit,
 ) -> ItemEntry[T] {
-  { item, dom, dispose }
+  { item, dom, last: dom, nodes: [dom], dispose }
 }
 
 ///|
-/// Find an entry by item reference in the entries array
-/// Returns the index if found, -1 otherwise
-fn[T] find_entry_index(entries : Array[ItemEntry[T]], item : T) -> Int {
+/// Create ItemEntry from multiple DOM nodes
+fn[T] ItemEntry::new_with_nodes_and_dispose(
+  item : T,
+  nodes : Array[@js_dom.Node],
+  dispose : () -> Unit,
+) -> ItemEntry[T] {
+  let first = nodes[0]
+  let last = nodes[nodes.length() - 1]
+  { item, dom: first, last, nodes, dispose }
+}
+
+///|
+/// Build a reference-keyed index map for old entries
+fn[T] build_entry_index_map(entries : Array[ItemEntry[T]]) -> @js.Any {
+  let map = ref_map_new()
   for i, entry in entries {
-    if ref_equal(entry.item, item) {
-      return i
+    let key = @js.any(entry.item)
+    if not(ref_map_has(map, key)) {
+      ref_map_set(map, key, i)
     }
   }
-  -1
+  map
+}
+
+///|
+/// Find an entry index by item reference using a map
+fn[T] find_entry_index(map : @js.Any, item : T) -> Int {
+  ref_map_get_or_minus1(map, @js.any(item))
+}
+
+///|
+/// Move a list of nodes before cursor, preserving order
+fn move_nodes_before(
+  parent : @js_dom.Node,
+  nodes : Array[@js_dom.Node],
+  cursor : @js_dom.Node,
+) -> Unit {
+  // Move in order to preserve node sequence
+  for node in nodes {
+    move_before(parent, node, Some(cursor)) |> ignore
+  }
+}
+
+///|
+/// Safely remove multiple nodes
+fn safe_remove_nodes(
+  parent : @js_dom.Node,
+  nodes : Array[@js_dom.Node],
+) -> Unit {
+  for node in nodes {
+    safe_remove_child(parent, node)
+  }
 }
 
 ///|
@@ -97,15 +162,16 @@ pub fn[T] reconcile_items(
     for entry in old_entries {
       // Dispose first to run cleanups, then remove DOM
       (entry.dispose)()
-      safe_remove_child(parent, entry.dom)
+      safe_remove_nodes(parent, entry.nodes)
     }
     return []
   }
   let new_entries : Array[ItemEntry[T]] = []
   for j in 0..<n {
-    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() {  } })
+    new_entries.push(ItemEntry::new(new_items[0], end_marker))
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
+  let index_map = build_entry_index_map(old_entries)
 
   // Process items in REVERSE order (last to first)
   // This allows us to efficiently check if nodes are already in correct position
@@ -116,7 +182,7 @@ pub fn[T] reconcile_items(
   let last = n - 1
   for i in last>=..0 {
     let item = new_items[i]
-    let old_index = find_entry_index(old_entries, item)
+    let old_index = find_entry_index(index_map, item)
     if old_index >= 0 {
       // Reuse existing DOM node
       let entry = old_entries[old_index]
@@ -124,18 +190,35 @@ pub fn[T] reconcile_items(
 
       // Only move if not already at correct position
       // The node is at correct position if its nextSibling equals cursor
-      if not(next_sibling_is(entry.dom, cursor.val)) {
-        move_before(parent, entry.dom, Some(cursor.val)) |> ignore
+      if entry.nodes.length() > 0 {
+        if not(next_sibling_is(entry.last, cursor.val)) {
+          move_nodes_before(parent, entry.nodes, cursor.val)
+        }
+        cursor.val = entry.dom
       }
-      cursor.val = entry.dom
       new_entries[i] = entry
     } else {
       // Create new DOM node
       let dom = render_item(item, i)
-      parent.insertBefore(dom, Some(cursor.val)) |> ignore
-      cursor.val = dom
-      // New items get no-op dispose - actual dispose is set by for_each
-      new_entries[i] = { item, dom, dispose: fn() {  } }
+      let nodes = collect_dom_nodes(dom)
+      if nodes.length() == 0 {
+        let placeholder = @js_dom.document().createComment("empty")
+        parent.insertBefore(placeholder, Some(cursor.val)) |> ignore
+        let placeholder_nodes = [placeholder]
+        cursor.val = placeholder
+        new_entries[i] = ItemEntry::new_with_nodes_and_dispose(
+          item,
+          placeholder_nodes,
+          fn() {  },
+        )
+      } else {
+        parent.insertBefore(dom, Some(cursor.val)) |> ignore
+        cursor.val = nodes[0]
+        // New items get no-op dispose - actual dispose is set by for_each
+        new_entries[i] = ItemEntry::new_with_nodes_and_dispose(item, nodes, fn() {
+
+        })
+      }
     }
   }
 
@@ -144,7 +227,7 @@ pub fn[T] reconcile_items(
     if not(used_indices[i]) {
       // Dispose first to run cleanups, then remove DOM
       (entry.dispose)()
-      safe_remove_child(parent, entry.dom)
+      safe_remove_nodes(parent, entry.nodes)
     }
   }
   new_entries
@@ -225,37 +308,53 @@ pub fn[T] reconcile_items_with_dispose(
   if n == 0 {
     for entry in old_entries {
       (entry.dispose)()
-      safe_remove_child(parent, entry.dom)
+      safe_remove_nodes(parent, entry.nodes)
     }
     return []
   }
   let new_entries : Array[ItemEntry[T]] = []
   for j in 0..<n {
-    new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() {  } })
+    new_entries.push(ItemEntry::new(new_items[0], end_marker))
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
+  let index_map = build_entry_index_map(old_entries)
   let cursor : Ref[@js_dom.Node] = Ref::new(end_marker)
 
   // Process from last to first
   let last = n - 1
   for i in last>=..0 {
     let item = new_items[i]
-    let old_index = find_entry_index(old_entries, item)
+    let old_index = find_entry_index(index_map, item)
     if old_index >= 0 {
       // Reuse existing entry (including its dispose function)
       let entry = old_entries[old_index]
       used_indices[old_index] = true
-      if not(next_sibling_is(entry.dom, cursor.val)) {
-        move_before(parent, entry.dom, Some(cursor.val)) |> ignore
+      if entry.nodes.length() > 0 {
+        if not(next_sibling_is(entry.last, cursor.val)) {
+          move_nodes_before(parent, entry.nodes, cursor.val)
+        }
+        cursor.val = entry.dom
       }
-      cursor.val = entry.dom
       new_entries[i] = entry
     } else {
       // Create new DOM node with dispose
       let (dom, dispose) = render_item(item, i)
-      parent.insertBefore(dom, Some(cursor.val)) |> ignore
-      cursor.val = dom
-      new_entries[i] = { item, dom, dispose }
+      let nodes = collect_dom_nodes(dom)
+      if nodes.length() == 0 {
+        let placeholder = @js_dom.document().createComment("empty")
+        parent.insertBefore(placeholder, Some(cursor.val)) |> ignore
+        let placeholder_nodes = [placeholder]
+        cursor.val = placeholder
+        new_entries[i] = ItemEntry::new_with_nodes_and_dispose(
+          item, placeholder_nodes, dispose,
+        )
+      } else {
+        parent.insertBefore(dom, Some(cursor.val)) |> ignore
+        cursor.val = nodes[0]
+        new_entries[i] = ItemEntry::new_with_nodes_and_dispose(
+          item, nodes, dispose,
+        )
+      }
     }
   }
 
@@ -263,7 +362,7 @@ pub fn[T] reconcile_items_with_dispose(
   for i, entry in old_entries {
     if not(used_indices[i]) {
       (entry.dispose)()
-      safe_remove_child(parent, entry.dom)
+      safe_remove_nodes(parent, entry.nodes)
     }
   }
   new_entries

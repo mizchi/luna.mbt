@@ -307,6 +307,8 @@ pub fn HandlerMap::wheel(Self, (@mizchi/js/browser/dom.WheelEvent) -> Unit) -> S
 pub(all) struct ItemEntry[T] {
   item : T
   dom : @mizchi/js/browser/dom.Node
+  last : @mizchi/js/browser/dom.Node
+  nodes : Array[@mizchi/js/browser/dom.Node]
   dispose : () -> Unit
 }
 pub fn[T] ItemEntry::new(T, @mizchi/js/browser/dom.Node) -> Self[T]

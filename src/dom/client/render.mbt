@@ -251,7 +251,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       let initial_items = @resource.untracked(fn() { render_fn() })
       for item in initial_items {
         let rendered = @resource.untracked(fn() { render_vnode_to_dom(item) })
-        current_nodes.push(rendered)
+        let nodes_to_track = collect_dom_nodes(rendered)
+        for node in nodes_to_track {
+          current_nodes.push(node)
+        }
         fragment_node.appendChild(rendered) |> ignore
       }
       // Append placeholder at end
@@ -281,7 +284,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
             let rendered = @resource.untracked(fn() {
               render_vnode_to_dom(item)
             })
-            current_nodes.push(rendered)
+            let nodes_to_track = collect_dom_nodes(rendered)
+            for node in nodes_to_track {
+              current_nodes.push(node)
+            }
             parent.insertBefore(rendered, Some(placeholder)) |> ignore
           }
         }
@@ -423,10 +429,12 @@ fn render_error_boundary_to_dom(
   let doc = @js_dom.document()
   let container = doc.createDocumentFragment()
   let container_node = container.as_node()
+  let placeholder = doc.createComment("error-boundary")
 
   // State for error handling
   let error_state : Ref[Error?] = Ref::new(None)
   let content_nodes : Array[@js_dom.Node] = []
+  let reset_ref : Ref[() -> Unit] = Ref::new(fn() { () })
 
   // Reset function clears error and re-renders children
   let reset = fn() {
@@ -441,31 +449,65 @@ fn render_error_boundary_to_dom(
     // Re-render children
     try {
       let child_node = render_vnode_to_dom((boundary.children)())
-      content_nodes.push(child_node)
-      // Need to re-append to parent - this is complex in fragment context
-      // For now, this is a best-effort implementation
+      let nodes_to_track = collect_dom_nodes(child_node)
+      if placeholder.parentNode() is Some(parent) {
+        parent.insertBefore(child_node, Some(placeholder)) |> ignore
+      } else {
+        container_node.appendChild(child_node) |> ignore
+      }
+      for node in nodes_to_track {
+        content_nodes.push(node)
+      }
     } catch {
-      err => error_state.val = Some(err)
+      err => {
+        error_state.val = Some(err)
+        try {
+          let fallback_node = render_vnode_to_dom(
+            (boundary.fallback)(err, reset_ref.val),
+          )
+          let nodes_to_track = collect_dom_nodes(fallback_node)
+          if placeholder.parentNode() is Some(parent) {
+            parent.insertBefore(fallback_node, Some(placeholder)) |> ignore
+          } else {
+            container_node.appendChild(fallback_node) |> ignore
+          }
+          for node in nodes_to_track {
+            content_nodes.push(node)
+          }
+        } catch {
+          _ => () // Ignore errors in fallback
+        }
+      }
     }
   }
+  reset_ref.val = reset
 
   // Initial render
   try {
     let child_node = render_vnode_to_dom((boundary.children)())
-    content_nodes.push(child_node)
+    let nodes_to_track = collect_dom_nodes(child_node)
     container_node.appendChild(child_node) |> ignore
+    for node in nodes_to_track {
+      content_nodes.push(node)
+    }
   } catch {
     err => {
       error_state.val = Some(err)
       try {
-        let fallback_node = render_vnode_to_dom((boundary.fallback)(err, reset))
-        content_nodes.push(fallback_node)
+        let fallback_node = render_vnode_to_dom(
+          (boundary.fallback)(err, reset_ref.val),
+        )
+        let nodes_to_track = collect_dom_nodes(fallback_node)
         container_node.appendChild(fallback_node) |> ignore
+        for node in nodes_to_track {
+          content_nodes.push(node)
+        }
       } catch {
         _ => () // Ignore errors in fallback
       }
     }
   }
+  container_node.appendChild(placeholder) |> ignore
   container_node
 }
 

@@ -2,8 +2,8 @@
 package "mizchi/luna/js/resource"
 
 import {
-  "mizchi/luna/core",
   "mizchi/signals",
+  "mizchi/signals/ui",
 }
 
 // Values
@@ -111,15 +111,15 @@ pub fn[T] with_parent_owner(@signals.Owner?, () -> T) -> T
 
 // Types and methods
 pub struct Resource[T] {
-  state : @signals.Signal[@core.AsyncState[T]]
+  state : @signals.Signal[@ui.AsyncState[T]]
   // private fields
 }
 pub fn[T] Resource::error(Self[T]) -> String?
-pub fn[T] Resource::get(Self[T]) -> @core.AsyncState[T]
+pub fn[T] Resource::get(Self[T]) -> @ui.AsyncState[T]
 pub fn[T] Resource::is_failure(Self[T]) -> Bool
 pub fn[T] Resource::is_pending(Self[T]) -> Bool
 pub fn[T] Resource::is_success(Self[T]) -> Bool
-pub fn[T] Resource::peek(Self[T]) -> @core.AsyncState[T]
+pub fn[T] Resource::peek(Self[T]) -> @ui.AsyncState[T]
 pub fn[T] Resource::refetch(Self[T]) -> Unit
 pub fn[T] Resource::value(Self[T]) -> T?
 

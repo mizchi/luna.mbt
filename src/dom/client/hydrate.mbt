@@ -58,6 +58,7 @@ priv struct HydrationContext {
   container : @js_dom.Element
   mut current_id : Int
   mismatches : Array[String]
+  mut hk_cache : @hashmap.HashMap[Int, @js_dom.Element]?
 }
 
 ///|
@@ -93,8 +94,14 @@ pub fn hydrate(
 ) -> HydrationResult {
   let recover = recover_on_mismatch.unwrap_or(true)
   let warn = warn_on_mismatch.unwrap_or(true)
-  let ctx : HydrationContext = { container, current_id: 0, mismatches: [] }
-  hydrate_node(container.as_node(), node, ctx) catch {
+  let ctx : HydrationContext = {
+    container,
+    current_id: 0,
+    mismatches: [],
+    hk_cache: None,
+  }
+  let root_cursor : Ref[@js_dom.Node?] = Ref::new(None)
+  hydrate_node(container.as_node(), node, ctx, root_cursor, None) catch {
     err =>
       // If hydration throws, treat as mismatch and recover
       ctx.mismatches.push("Hydration error: " + err.to_string())
@@ -127,6 +134,8 @@ fn hydrate_node(
   parent : @js_dom.Node,
   node : @luna.Node[@js.Any, String],
   ctx : HydrationContext,
+  cursor : Ref[@js_dom.Node?],
+  stop : @js_dom.Node?,
 ) -> Unit raise {
   match node {
     @core.Text(_) =>
@@ -143,7 +152,7 @@ fn hydrate_node(
     }
     @core.Fragment(children) =>
       for child in children {
-        hydrate_node(parent, child, ctx)
+        hydrate_node(parent, child, ctx, cursor, stop)
       }
     @core.Element(elem) => {
       // Check if this element needs hydration (has handlers or dynamic attrs)
@@ -156,7 +165,7 @@ fn hydrate_node(
       // Find the DOM element
       let dom_elem_opt : @js_dom.Element? = if needs_hydration {
         // For elements with dynamic content, find by sol:hk attribute
-        match find_element_by_hk(ctx.container, id) {
+        match find_element_by_hk(ctx, id) {
           Some(dom_elem) => {
             // Verify tag matches
             let dom_tag = dom_elem.tagName().to_lower()
@@ -188,119 +197,164 @@ fn hydrate_node(
         }
       } else {
         // For static elements, find by traversing from parent
-        find_child_element_by_tag(parent, elem.tag)
+        find_child_element_by_tag(parent, elem.tag, cursor, stop)
       }
 
       // Hydrate children
       if dom_elem_opt is Some(dom_elem) {
+        match dom_elem.as_node().parentNode() {
+          Some(par) =>
+            if node_ref_equal(par, parent) {
+              cursor.val = Some(dom_elem.as_node())
+            }
+          None => ()
+        }
+        let child_cursor : Ref[@js_dom.Node?] = Ref::new(None)
         for child in elem.children {
-          hydrate_node(dom_elem.as_node(), child, ctx)
+          hydrate_node(dom_elem.as_node(), child, ctx, child_cursor, None)
         }
       }
     }
     @core.Show(condition=cond, child=child_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
-      hydrate_show(parent, id, cond, child_fn, ctx)
+      hydrate_show(parent, id, cond, child_fn, ctx, cursor, stop)
     }
     @core.For(render=render_fn) => {
       let id = ctx.current_id
       ctx.current_id = id + 1
-      hydrate_for(parent, id, render_fn, ctx)
+      hydrate_for(parent, id, render_fn, ctx, cursor, stop)
     }
-    @core.Component(render=render_fn) => hydrate_node(parent, render_fn(), ctx)
+    @core.Component(render=render_fn) =>
+      hydrate_node(parent, render_fn(), ctx, cursor, stop)
     @core.Island(island) =>
       // Island hydration is handled by the loader, not this function
       // Just hydrate children normally for nested content
       for child in island.children {
-        hydrate_node(parent, child, ctx)
+        hydrate_node(parent, child, ctx, cursor, stop)
       }
     @core.WcIsland(wc_island) =>
       // WcIsland hydration is handled by wcssr client runtime
       // Just hydrate children normally for nested content
       for child in wc_island.children {
-        hydrate_node(parent, child, ctx)
+        hydrate_node(parent, child, ctx, cursor, stop)
       }
     @core.InternalRef(iref) =>
       // InternalRef hydration is handled by the loader (same as Island/WcIsland)
       // Just hydrate children normally for nested content
       for child in iref.children {
-        hydrate_node(parent, child, ctx)
+        hydrate_node(parent, child, ctx, cursor, stop)
       }
     @core.Async(async_node) => {
       // Async node hydration: hydrate the fallback content
       // Full async replacement would happen via streaming SSR
       let id = ctx.current_id
       ctx.current_id = id + 1
-      hydrate_node(parent, (async_node.fallback)(), ctx)
+      hydrate_node(parent, (async_node.fallback)(), ctx, cursor, stop)
     }
     @core.ErrorBoundary(boundary) => {
       // ErrorBoundary hydration with error catching
       let id = ctx.current_id
       ctx.current_id = id + 1
-      hydrate_error_boundary(parent, id, boundary, ctx)
+      hydrate_error_boundary(parent, id, boundary, ctx, cursor, stop)
     }
     @core.Switch(switch_node) => {
       // Switch hydration: evaluate conditions and hydrate matching case
       let id = ctx.current_id
       ctx.current_id = id + 1
-      hydrate_switch(parent, id, switch_node, ctx)
+      hydrate_switch(parent, id, switch_node, ctx, cursor, stop)
     }
   }
 }
 
 ///|
-/// Find element with sol:hk="id" attribute within container
-/// Uses recursive traversal since CSS selectors with colons have compatibility issues
-fn find_element_by_hk(
+/// Node reference equality helper
+extern "js" fn node_ref_equal(a : @js_dom.Node, b : @js_dom.Node) -> Bool =
+  #| (a, b) => a === b
+
+///|
+/// Build hk_cache by scanning all elements with sol:hk attribute once
+fn build_hk_cache(
   container : @js_dom.Element,
-  id : Int,
-) -> @js_dom.Element? {
-  let target = id.to_string()
-  find_element_by_attr_recursive(container.as_node(), "sol:hk", target)
+) -> @hashmap.HashMap[Int, @js_dom.Element] {
+  let cache : @hashmap.HashMap[Int, @js_dom.Element] = @hashmap.new()
+  build_hk_cache_recursive(container.as_node(), cache)
+  cache
 }
 
 ///|
-/// Recursively find element with matching attribute value
-fn find_element_by_attr_recursive(
+/// Recursively collect elements with sol:hk attribute into cache
+fn build_hk_cache_recursive(
   node : @js_dom.Node,
-  attr_name : String,
-  attr_value : String,
-) -> @js_dom.Element? {
-  // Check if this node is an element
+  cache : @hashmap.HashMap[Int, @js_dom.Element],
+) -> Unit {
   if node.nodeType() == 1 {
     let elem : @js_dom.Element = node.as_any().cast()
-    match elem.getAttribute(attr_name) {
-      Some(val) => if val == attr_value { return Some(elem) }
+    match elem.getAttribute("sol:hk") {
+      Some(id_str) => {
+        let mut id = 0
+        let mut valid = true
+        for c in id_str {
+          if c >= '0' && c <= '9' {
+            id = id * 10 + (c.to_int() - '0'.to_int())
+          } else {
+            valid = false
+            break
+          }
+        }
+        if valid && not(id_str.is_empty()) {
+          cache.set(id, elem)
+        }
+      }
       None => ()
     }
   }
-  // Recursively check children
   let children = node.childNodes()
   for child in children {
-    match find_element_by_attr_recursive(child, attr_name, attr_value) {
-      Some(found) => return Some(found)
-      None => continue
-    }
+    build_hk_cache_recursive(child, cache)
   }
-  None
 }
 
 ///|
-/// Find first child element with matching tag name
+/// Find element with sol:hk="id" attribute using cache (O(1))
+fn find_element_by_hk(ctx : HydrationContext, id : Int) -> @js_dom.Element? {
+  let cache = match ctx.hk_cache {
+    Some(cache) => cache
+    None => {
+      let built = build_hk_cache(ctx.container)
+      ctx.hk_cache = Some(built)
+      built
+    }
+  }
+  cache.get(id)
+}
+
+///|
+/// Find first child element with matching tag name, advancing cursor
 fn find_child_element_by_tag(
   parent : @js_dom.Node,
   tag : String,
+  cursor : Ref[@js_dom.Node?],
+  stop : @js_dom.Node?,
 ) -> @js_dom.Element? {
-  let children = parent.childNodes()
   let upper_tag = tag.to_upper()
-  for child in children {
-    if child.nodeType() == 1 { // Element node
-      let elem : @js_dom.Element = child.as_any().cast()
+  let mut current = match cursor.val {
+    Some(node) => node.nextSibling()
+    None => parent.firstChild()
+  }
+  while current is Some(node) {
+    match stop {
+      Some(stop_node) => if node_ref_equal(node, stop_node) { return None }
+      None => ()
+    }
+    if node.nodeType() == 1 {
+      let elem : @js_dom.Element = node.as_any().cast()
       if elem.tagName() == upper_tag {
+        cursor.val = Some(node)
         return Some(elem)
       }
     }
+    current = node.nextSibling()
   }
   None
 }
@@ -439,12 +493,15 @@ fn hydrate_show(
   cond : () -> Bool,
   child_fn : () -> @luna.Node[@js.Any, String],
   ctx : HydrationContext,
+  cursor : Ref[@js_dom.Node?],
+  stop : @js_dom.Node?,
 ) -> Unit {
   let marker_start = "s:" + id.to_string()
 
   // Find the show marker
   let children = parent.childNodes()
   let mut start_marker : @js_dom.Node? = None
+  let mut end_marker : @js_dom.Node? = None
   for child in children {
     if child.nodeType() == 8 { // Comment node
       let comment_text = get_text_content(child)
@@ -465,6 +522,7 @@ fn hydrate_show(
         if node.nodeType() == 8 { // Comment
           let text = get_text_content(node)
           if text == "/s" {
+            end_marker = Some(node)
             break
           }
         }
@@ -476,10 +534,11 @@ fn hydrate_show(
   }
 
   // If currently showing, hydrate the child
-  if cond() && not(current_nodes.is_empty()) {
+  if cond() && not(current_nodes.is_empty()) && end_marker is Some(end_node) {
     let child_vnode = child_fn()
     // We need to hydrate the existing nodes
-    hydrate_child_nodes(current_nodes, child_vnode, ctx) catch {
+    let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(marker))
+    hydrate_child_nodes(parent, region_cursor, Some(end_node), child_vnode, ctx) catch {
       _ => () // Ignore errors during hydration of show content
     }
   }
@@ -491,9 +550,12 @@ fn hydrate_show(
       // Need to show - render and insert
       let child_vnode = child_fn()
       let new_node = render_vnode_to_dom(child_vnode)
-      if marker.nextSibling() is Some(end_marker) {
-        parent.insertBefore(new_node, Some(end_marker)) |> ignore
-        current_nodes.push(new_node)
+      if end_marker is Some(end_node) {
+        let nodes_to_track = collect_dom_nodes(new_node)
+        parent.insertBefore(new_node, Some(end_node)) |> ignore
+        for node in nodes_to_track {
+          current_nodes.push(node)
+        }
       }
     } else if not(should_show) && not(current_nodes.is_empty()) {
       // Need to hide - remove nodes
@@ -504,84 +566,27 @@ fn hydrate_show(
     }
   })
 
+  // Advance cursor to end marker for sibling matching
+  if end_marker is Some(end_node) {
+    cursor.val = Some(end_node)
+  } else {
+    match stop {
+      Some(_) => ()
+      None => ()
+    }
+  }
 }
 
 ///|
-/// Hydrate child nodes with VNode
+/// Hydrate child nodes with VNode inside a bounded region
 fn hydrate_child_nodes(
-  nodes : Array[@js_dom.Node],
+  parent : @js_dom.Node,
+  cursor : Ref[@js_dom.Node?],
+  stop : @js_dom.Node?,
   node : @luna.Node[@js.Any, String],
   ctx : HydrationContext,
 ) -> Unit raise {
-  // For now, just traverse the VNode and update ctx
-  let _ = nodes // suppress unused warning
-  match node {
-    @core.Text(_) => ()
-    @core.RawHtml(_) => ()
-    @core.DynamicText(_) => ctx.current_id = ctx.current_id + 1
-    @core.Fragment(children) =>
-      for child in children {
-        hydrate_child_nodes(nodes, child, ctx)
-      }
-    @core.Element(elem) => {
-      ctx.current_id = ctx.current_id + 1
-      for child in elem.children {
-        hydrate_child_nodes(nodes, child, ctx)
-      }
-    }
-    @core.Show(condition=condition_fn, child=child_getter) => {
-      ctx.current_id = ctx.current_id + 1
-      if condition_fn() {
-        hydrate_child_nodes(nodes, child_getter(), ctx)
-      }
-    }
-    @core.For(render=render_fn) => {
-      ctx.current_id = ctx.current_id + 1
-      let items = render_fn()
-      for item in items {
-        hydrate_child_nodes(nodes, item, ctx)
-      }
-    }
-    @core.Component(render=render_fn) =>
-      hydrate_child_nodes(nodes, render_fn(), ctx)
-    @core.Island(island) =>
-      for child in island.children {
-        hydrate_child_nodes(nodes, child, ctx)
-      }
-    @core.WcIsland(wc_island) =>
-      for child in wc_island.children {
-        hydrate_child_nodes(nodes, child, ctx)
-      }
-    @core.InternalRef(iref) =>
-      for child in iref.children {
-        hydrate_child_nodes(nodes, child, ctx)
-      }
-    @core.Async(async_node) => {
-      ctx.current_id = ctx.current_id + 1
-      hydrate_child_nodes(nodes, (async_node.fallback)(), ctx)
-    }
-    @core.ErrorBoundary(boundary) => {
-      ctx.current_id = ctx.current_id + 1
-      hydrate_child_nodes(nodes, (boundary.children)(), ctx) catch {
-        _ => ()
-      }
-    }
-    @core.Switch(switch_node) => {
-      ctx.current_id = ctx.current_id + 1
-      // Find first matching case
-      for case_ in switch_node.cases {
-        if (case_.when)() {
-          hydrate_child_nodes(nodes, (case_.render)(), ctx)
-          return
-        }
-      }
-      // No match, try fallback
-      match switch_node.fallback {
-        Some(fallback_fn) => hydrate_child_nodes(nodes, fallback_fn(), ctx)
-        None => ()
-      }
-    }
-  }
+  hydrate_node(parent, node, ctx, cursor, stop)
 }
 
 ///|
@@ -591,7 +596,10 @@ fn hydrate_for(
   id : Int,
   render_fn : () -> Array[@luna.Node[@js.Any, String]],
   ctx : HydrationContext,
+  cursor : Ref[@js_dom.Node?],
+  stop : @js_dom.Node?,
 ) -> Unit {
+  let _ = stop // reserved for bounded search
   let marker_start = "f:" + id.to_string()
 
   // Find the for marker
@@ -633,11 +641,10 @@ fn hydrate_for(
 
       // Hydrate existing items
       let items = render_fn()
-      for i, item in items {
-        if i < current_nodes.length() {
-          hydrate_child_nodes([current_nodes[i]], item, ctx) catch {
-            _ => () // Ignore errors during hydration of for items
-          }
+      let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(start))
+      for item in items {
+        hydrate_child_nodes(parent, region_cursor, Some(end), item, ctx) catch {
+          _ => () // Ignore errors during hydration of for items
         }
       }
 
@@ -652,11 +659,16 @@ fn hydrate_for(
         current_nodes.clear()
         for item in new_items {
           let new_node = render_vnode_to_dom(item)
+          let nodes_to_track = collect_dom_nodes(new_node)
           parent.insertBefore(new_node, Some(end)) |> ignore
-          current_nodes.push(new_node)
+          for node in nodes_to_track {
+            current_nodes.push(node)
+          }
         }
       })
 
+      // Advance cursor to end marker for sibling matching
+      cursor.val = Some(end)
     }
     _ => ()
   }
@@ -669,7 +681,10 @@ fn hydrate_error_boundary(
   id : Int,
   boundary : @luna.VErrorBoundary[@js.Any, String],
   ctx : HydrationContext,
+  cursor : Ref[@js_dom.Node?],
+  stop : @js_dom.Node?,
 ) -> Unit {
+  let _ = stop // reserved for bounded search
   // Find the error boundary markers
   let marker_start = "eb:" + id.to_string()
   let children = parent.childNodes()
@@ -685,7 +700,7 @@ fn hydrate_error_boundary(
   }
   if found {
     // Try to hydrate children, catch errors
-    hydrate_node(parent, (boundary.children)(), ctx) catch {
+    hydrate_node(parent, (boundary.children)(), ctx, cursor, stop) catch {
       err => {
         // On error during hydration, we need to re-render with fallback
         // Find and clear the boundary content, then render fallback
@@ -694,7 +709,7 @@ fn hydrate_error_boundary(
           // This is a simplified reset - full implementation would track DOM nodes
           ()
         }
-        hydrate_node(parent, (boundary.fallback)(err, reset), ctx) catch {
+        hydrate_node(parent, (boundary.fallback)(err, reset), ctx, cursor, stop) catch {
           _ => () // Ignore errors in fallback rendering
         }
       }
@@ -832,7 +847,10 @@ fn hydrate_switch(
   id : Int,
   switch_node : @luna.VSwitch[@js.Any, String],
   ctx : HydrationContext,
+  cursor : Ref[@js_dom.Node?],
+  stop : @js_dom.Node?,
 ) -> Unit raise {
+  let _ = stop // reserved for bounded search
   // Find the switch markers
   let marker_start = "sw:" + id.to_string()
   let children = parent.childNodes()
@@ -850,13 +868,14 @@ fn hydrate_switch(
     // Find first matching case and hydrate it
     for case_ in switch_node.cases {
       if (case_.when)() {
-        hydrate_node(parent, (case_.render)(), ctx)
+        hydrate_node(parent, (case_.render)(), ctx, cursor, stop)
         return
       }
     }
     // No case matched, hydrate fallback if present
     match switch_node.fallback {
-      Some(fallback_fn) => hydrate_node(parent, fallback_fn(), ctx)
+      Some(fallback_fn) =>
+        hydrate_node(parent, fallback_fn(), ctx, cursor, stop)
       None => ()
     }
   }

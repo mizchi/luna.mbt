@@ -1,0 +1,64 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/js/api_signals"
+
+import {
+  "mizchi/signals",
+}
+
+// Values
+pub fn batch(() -> Any) -> Any
+
+pub fn batch_end() -> Unit
+
+pub fn batch_start() -> Unit
+
+pub fn combine(@signals.Signal[Any], @signals.Signal[Any], (Any, Any) -> Any) -> () -> Any
+
+pub fn create_memo(() -> Any) -> () -> Any
+
+pub fn create_root((() -> Unit) -> Any) -> Any
+
+pub fn create_signal(Any) -> @signals.Signal[Any]
+
+pub fn effect(() -> Unit) -> () -> Unit
+
+pub fn get(@signals.Signal[Any]) -> Any
+
+pub fn get_owner() -> JsOwner?
+
+pub fn has_owner() -> Bool
+
+pub fn map(@signals.Signal[Any], (Any) -> Any) -> () -> Any
+
+pub fn on_cleanup(() -> Unit) -> Unit
+
+pub fn on_mount(() -> Unit) -> Unit
+
+pub fn peek(@signals.Signal[Any]) -> Any
+
+pub fn render_effect(() -> Unit) -> () -> Unit
+
+pub fn run_untracked(() -> Any) -> Any
+
+pub fn run_with_owner(JsOwner, () -> Any) -> Any
+
+pub fn set(@signals.Signal[Any], Any) -> Unit
+
+pub fn subscribe(@signals.Signal[Any], (Any) -> Unit) -> () -> Unit
+
+pub fn update(@signals.Signal[Any], (Any) -> Any) -> Unit
+
+// Errors
+
+// Types and methods
+#external
+pub type Any
+
+pub struct JsOwner(@signals.Owner)
+#deprecated
+pub fn JsOwner::inner(Self) -> @signals.Owner
+
+// Type aliases
+
+// Traits
+

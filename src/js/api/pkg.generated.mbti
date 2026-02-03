@@ -6,6 +6,7 @@ import {
   "mizchi/luna/dom/router",
   "mizchi/luna/js/resource",
   "mizchi/signals",
+  "mizchi/signals/ui",
 }
 
 // Values
@@ -159,9 +160,9 @@ pub struct BrowserRouter(@router.BrowserRouter)
 #deprecated
 pub fn BrowserRouter::inner(Self) -> @router.BrowserRouter
 
-pub struct JsAsyncState(@mizchi/luna/core.AsyncState[Any])
+pub struct JsAsyncState(@ui.AsyncState[Any])
 #deprecated
-pub fn JsAsyncState::inner(Self) -> @mizchi/luna/core.AsyncState[Any]
+pub fn JsAsyncState::inner(Self) -> @ui.AsyncState[Any]
 
 pub struct JsContext(@signals.Context[Any])
 #deprecated

@@ -188,6 +188,27 @@ test "hydrate dynamic class" {
   assert_true(get_inner_html(container).contains("active"))
 }
 
+///|
+test "hydrate static siblings with same tag" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let first = @resource.signal("First")
+  let second = @resource.signal("Second")
+  let vnode = @luna.h("div", [], [
+    @luna.h("div", [], [@luna.text_dyn(fn() { first.get() })]),
+    @luna.h("div", [], [@luna.text_dyn(fn() { second.get() })]),
+  ])
+  let html = @render.render_to_string_with_hydration(vnode)
+  set_inner_html(container, html)
+  let _ = hydrate(container, vnode)
+
+  // Update second text; should update the second div
+  second.set("Second+")
+  let inner = get_inner_html(container)
+  assert_true(inner.contains("Second+"))
+}
+
 // =============================================================================
 // Show/Hide Hydration Tests
 // =============================================================================
@@ -228,6 +249,27 @@ test "hydrate show when hidden" {
   assert_false(get_inner_html(container).contains("Hidden content"))
 }
 
+///|
+test "hydrate show attaches dynamic attrs" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let visible = @resource.signal(true)
+  let class_sig = @resource.signal("on")
+  let vnode = @luna.show(fn() { visible.get() }, fn() {
+    @luna.h("div", [("class", @luna.attr_dynamic(fn() { class_sig.get() }))], [
+      @luna.text("Box"),
+    ])
+  })
+  let html = @render.render_to_string_with_hydration(vnode)
+  set_inner_html(container, html)
+  let _ = hydrate(container, vnode)
+
+  // Update dynamic class
+  class_sig.set("off")
+  assert_true(get_inner_html(container).contains("off"))
+}
+
 // =============================================================================
 // For Loop Hydration Tests
 // =============================================================================
@@ -255,6 +297,33 @@ test "hydrate for loop" {
   assert_true(inner.contains("A"))
   assert_true(inner.contains("B"))
   assert_true(inner.contains("C"))
+}
+
+///|
+test "hydrate for attaches dynamic attrs" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let items = @resource.signal(["A", "B"])
+  let class_sig = @resource.signal("one")
+  let vnode = @luna.for_each(fn() {
+    items
+    .get()
+    .map(fn(item) {
+      @luna.h(
+        "div",
+        [("class", @luna.attr_dynamic(fn() { class_sig.get() }))],
+        [@luna.text(item)],
+      )
+    })
+  })
+  let html = @render.render_to_string_with_hydration(vnode)
+  set_inner_html(container, html)
+  let _ = hydrate(container, vnode)
+  class_sig.set("two")
+  let inner = get_inner_html(container)
+  assert_true(inner.contains("class=\"two\""))
+  assert_false(inner.contains("class=\"one\""))
 }
 
 // =============================================================================
@@ -828,6 +897,48 @@ test "render_vnode_to_dom with For list" {
 }
 
 ///|
+test "render_vnode_to_dom For handles fragment items" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let items = @resource.signal(["A", "B"])
+  let vnode = @luna.for_each(fn() {
+    items
+    .get()
+    .map(fn(item) { @luna.fragment([@luna.text(item), @luna.text("-")]) })
+  })
+  let dom_node = render_vnode_to_dom(vnode)
+  container.as_node().appendChild(dom_node) |> ignore
+  assert_true(get_inner_html(container).contains("A-B-"))
+  items.set(["C"])
+  let inner = get_inner_html(container)
+  assert_true(inner.contains("C-"))
+  assert_false(inner.contains("A-"))
+  assert_false(inner.contains("B-"))
+}
+
+///|
+test "dom for_each handles fragment items" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let items = @resource.signal(["A", "B"])
+  let node = @element.for_each(fn() { items.get() }, fn(item, _idx) {
+    @element.fragment([@element.text(item), @element.text("-")])
+  })
+  @element.render_to(container, node)
+  assert_true(get_inner_html(container).contains("A-B-"))
+  items.set(["B", "A"])
+  let reordered = get_inner_html(container)
+  assert_true(reordered.contains("B-A-"))
+  assert_false(reordered.contains("A-B-"))
+  items.set([])
+  let cleared = get_inner_html(container)
+  assert_false(cleared.contains("A"))
+  assert_false(cleared.contains("B"))
+}
+
+///|
 test "render_vnode_to_dom with static style" {
   @global_jsdom.register()
   defer cleanup()
@@ -1153,6 +1264,39 @@ test "render_vnode_to_dom with ErrorBoundary success" {
   let dom_node = render_vnode_to_dom(vnode)
   container.as_node().appendChild(dom_node) |> ignore
   assert_true(get_inner_html(container).contains("Safe content"))
+}
+
+///|
+test "render_vnode_to_dom ErrorBoundary reset re-inserts" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let should_throw = @resource.signal(true)
+  let reset_ref : Ref[(() -> Unit)?] = Ref::new(None)
+  let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
+    children=fn() {
+      if should_throw.get() {
+        fail("boom")
+      } else {
+        @luna.text("Recovered")
+      }
+    },
+    fallback=fn(_err, reset) {
+      reset_ref.val = Some(reset)
+      @luna.text("Fallback")
+    },
+  )
+  let dom_node = render_vnode_to_dom(vnode)
+  container.as_node().appendChild(dom_node) |> ignore
+  assert_true(get_inner_html(container).contains("Fallback"))
+  should_throw.set(false)
+  match reset_ref.val {
+    Some(reset) => reset()
+    None => fail("reset not captured")
+  }
+  let inner = get_inner_html(container)
+  assert_true(inner.contains("Recovered"))
+  assert_false(inner.contains("Fallback"))
 }
 
 ///|

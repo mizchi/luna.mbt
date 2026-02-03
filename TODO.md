@@ -72,3 +72,21 @@ WAI-ARIA APG準拠のアクセシブルUIコンポーネント集。
 - [ ] Critical CSS の抽出
 - [ ] Fix moonbitlang/parser for coverage
 - [ ] SSR Stream が機能しているかテスト (意図的に遅延を入れて体験を確認)
+
+### Bugfix (Hydration/Reconcile)
+
+- [ ] Repro: for_each item が Fragment を返すと DOM が残留するケースのテスト追加
+- [ ] Fix: for_each/reconcile が Fragment を適切に扱えるように修正
+- [ ] Repro: VNode For が Fragment を返すと DOM が残留するケースのテスト追加
+- [ ] Fix: VNode For の更新で Fragment を正しく差し替える
+- [ ] Repro: Show/For の初期 hydration で子孫の dynamic attr/handler が未バインドになるケース
+- [ ] Fix: Show/For の hydrate で子孫の VDynamic/VHandler を正しくバインド
+- [ ] Repro: 同名タグ兄弟がある場合に hydration が誤った要素へ進むケース
+- [ ] Fix: hydration の要素探索を順序/カーソル方式に変更
+- [ ] Repro: ErrorBoundary の reset 後に DOM が復元されないケース
+- [ ] Fix: ErrorBoundary reset が DOM に再挿入するよう修正
+- [ ] Perf: sol:hk 探索を 캐ッシュ化 (O(1) 参照) し、テストで回帰防止
+- [ ] Perf: reconcile_items の O(n^2) を改善 (Map/Hash で参照)
+- [ ] Bug: SSR minify_css が文字列リテラルの空白を壊すケース
+- [ ] Fix: minify_css の安全性を上げる or 無効化オプション
+- [ ] Perf: preload_urls の dedup を O(n^2) から改善

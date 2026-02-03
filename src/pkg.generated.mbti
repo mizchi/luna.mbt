@@ -5,6 +5,7 @@ import {
   "mizchi/luna/core",
   "mizchi/luna/js/resource",
   "mizchi/signals",
+  "mizchi/signals/ui",
 }
 
 // Values
@@ -149,7 +150,7 @@ pub fn[E, A] wc_island(String, String, String, String, Array[@core.Node[E, A]], 
 // Types and methods
 
 // Type aliases
-pub using @core {type AsyncState}
+pub using @ui {type AsyncState}
 
 pub using @core {type Attr}
 

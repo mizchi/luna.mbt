@@ -247,6 +247,23 @@ fn collect_child_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
 }
 
 ///|
+/// Collect DOM nodes without detaching them.
+/// For DocumentFragment, returns its children (before they get moved).
+/// For regular nodes, returns the node itself in an array.
+fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
+  if node.nodeType() == 11 {
+    let children : Array[@js_dom.Node] = []
+    let child_nodes = node.childNodes()
+    for i in 0..<child_nodes.length() {
+      children.push(child_nodes[i])
+    }
+    children
+  } else {
+    [node]
+  }
+}
+
+///|
 /// Conditional rendering - shows content when condition is true
 /// Creates a child owner for proper cleanup when content is hidden
 pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
@@ -376,8 +393,19 @@ pub fn[T] for_each(
   let initial_items = @resource.untracked(fn() { items() })
   for i, item in initial_items {
     let (dom, dispose) = @resource.untracked(fn() { render_with_scope(item, i) })
-    entries.val.push(ItemEntry::new_with_dispose(item, dom, dispose))
-    fragment.as_node().appendChild(dom) |> ignore
+    let nodes = collect_dom_nodes(dom)
+    if nodes.length() == 0 {
+      let placeholder = doc.createComment("empty")
+      fragment.as_node().appendChild(placeholder) |> ignore
+      entries.val.push(
+        ItemEntry::new_with_nodes_and_dispose(item, [placeholder], dispose),
+      )
+    } else {
+      entries.val.push(
+        ItemEntry::new_with_nodes_and_dispose(item, nodes, dispose),
+      )
+      fragment.as_node().appendChild(dom) |> ignore
+    }
   }
   fragment.as_node().appendChild(placeholder) |> ignore
 

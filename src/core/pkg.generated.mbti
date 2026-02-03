@@ -59,17 +59,6 @@ pub fn[E, A] wc_island(String, String, String, String, Array[Node[E, A]], trigge
 // Errors
 
 // Types and methods
-pub(all) enum AsyncState[T] {
-  Pending
-  Success(T)
-  Failure(String)
-}
-pub fn[T] AsyncState::error(Self[T]) -> String?
-pub fn[T] AsyncState::is_failure(Self[T]) -> Bool
-pub fn[T] AsyncState::is_pending(Self[T]) -> Bool
-pub fn[T] AsyncState::is_success(Self[T]) -> Bool
-pub fn[T] AsyncState::value(Self[T]) -> T?
-
 pub(all) enum Attr[E, A] {
   VStatic(A)
   VDynamic(() -> A)
@@ -171,6 +160,9 @@ pub struct VWcIsland[E, A] {
 }
 
 // Type aliases
+pub type StaticDomAttr = Attr[Unit, String]
+
+pub type StaticDomNode = Node[Unit, String]
 
 // Traits
 
