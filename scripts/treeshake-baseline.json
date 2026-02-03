@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-02-03T08:40:29.976Z",
+  "generatedAt": "2026-02-03T08:42:06.085Z",
   "entries": [
     {
       "id": "signals-only",
-      "bytes": 14290,
+      "bytes": 14289,
       "gzip": 4057
     },
     {
