@@ -64,7 +64,7 @@ pub fn template_about_page_mbt() -> String
 
 pub fn template_client_counter_mbt() -> String
 
-pub fn template_client_counter_moon_pkg_json() -> String
+pub fn template_client_counter_moon_pkg() -> String
 
 pub fn template_components_moon_pkg_json() -> String
 
@@ -72,23 +72,23 @@ pub fn template_counter_mbt() -> String
 
 pub fn template_gen_types_mbt() -> String
 
-pub fn template_gen_types_moon_pkg_json() -> String
+pub fn template_gen_types_moon_pkg() -> String
 
 pub fn template_home_page_mbt() -> String
 
 pub fn template_layout_mbt() -> String
 
-pub fn template_layout_moon_pkg_json() -> String
+pub fn template_layout_moon_pkg() -> String
 
 pub fn template_ln_loader_js() -> String
 
-pub fn template_page_simple_moon_pkg_json() -> String
+pub fn template_page_simple_moon_pkg() -> String
 
-pub fn template_page_with_island_moon_pkg_json(String) -> String
+pub fn template_page_with_island_moon_pkg(String) -> String
 
 pub fn template_routes_mbt(String) -> String
 
-pub fn template_routes_moon_pkg_json(String) -> String
+pub fn template_routes_moon_pkg(String) -> String
 
 pub fn template_routes_using_mbt() -> String
 

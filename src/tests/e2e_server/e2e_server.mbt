@@ -5,7 +5,7 @@
 
 ///|
 /// Type alias for fetch handler
-pub type FetchHandler (@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse]
+pub struct FetchHandler((@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse])
 
 ///|
 /// Create a fetch handler from the app

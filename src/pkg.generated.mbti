@@ -156,8 +156,6 @@ pub struct IslandManifestEntry {
   entry_path : String
 }
 
-type MarsFetchHandler
-
 pub enum OutputFormat {
   Esm
 }

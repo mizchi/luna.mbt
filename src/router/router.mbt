@@ -686,10 +686,6 @@ extern "js" fn ffi_get_mars_params(c : Ctx) -> Array[(String, String)] =
   #| }
 
 ///|
-extern "js" fn ffi_get_path(c : @js.Any) -> String =
-  #| (c) => new URL(c.req.url).pathname
-
-///|
 /// Send @js.Any as JSON response via FFI (for api_resolver compatibility)
 extern "js" fn ffi_send_json_any(c : Ctx, data : @js.Any) -> Unit =
   #| (c, data) => {

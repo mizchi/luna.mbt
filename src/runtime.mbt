@@ -68,7 +68,7 @@ extern "js" fn ffi_export_sol_app(fetch_handler : MarsFetchHandler) -> Unit =
 
 ///|
 /// Type alias for Mars fetch handler with js_async Promise
-type MarsFetchHandler (@mars.JsRequest) -> @js.Promise[@mars.JsResponse]
+priv struct MarsFetchHandler((@mars.JsRequest) -> @js.Promise[@mars.JsResponse])
 
 ///|
 /// Convert Mars Promise type to @js.Promise for FFI compatibility
@@ -269,11 +269,6 @@ extern "js" fn ffi_json_to_any(json : Json) -> @js.Any =
 pub fn json_to_any(json : Json) -> @js.Any {
   ffi_json_to_any(json)
 }
-
-///|
-/// FFI to convert MoonBit Json array to JavaScript array
-extern "js" fn ffi_json_array_to_any(arr : Array[Json]) -> @js.Any =
-  #| (arr) => arr.map(j => arguments.callee.ffi(j))
 
 ///|
 /// Convert MoonBit Json array to JavaScript Any value
@@ -978,20 +973,7 @@ pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> Unit {
 }
 
 ///|
-fn serve_static_html(
-  _c : Ctx,
-  local_dir : String,
-  filename : String,
-) -> @http.Response {
-  let path = local_dir + "/" + filename
-  match read_file_sync(path) {
-    Some(content) => html_response(content)
-    None => text_response("Not found: " + filename, "text/plain")
-  }
-}
-
-///|
-async fn serve_static_html_async(
+fn serve_static_html_async(
   c : Ctx,
   local_dir : String,
   filename : String,
@@ -1004,20 +986,7 @@ async fn serve_static_html_async(
 }
 
 ///|
-fn serve_static_css(
-  _c : Ctx,
-  local_dir : String,
-  filename : String,
-) -> @http.Response {
-  let path = local_dir + "/" + filename
-  match read_file_sync(path) {
-    Some(content) => text_response(content, "text/css")
-    None => text_response("/* Not found: " + filename + " */", "text/css")
-  }
-}
-
-///|
-async fn serve_static_css_async(
+fn serve_static_css_async(
   c : Ctx,
   local_dir : String,
   filename : String,
@@ -1031,20 +1000,7 @@ async fn serve_static_css_async(
 }
 
 ///|
-fn serve_static_js(
-  _c : Ctx,
-  local_dir : String,
-  filename : String,
-) -> @http.Response {
-  let path = local_dir + "/" + filename
-  match read_file_sync(path) {
-    Some(content) => text_response(content, "application/javascript")
-    None => text_response("// Not found: " + filename, "application/javascript")
-  }
-}
-
-///|
-async fn serve_static_js_async(
+fn serve_static_js_async(
   c : Ctx,
   local_dir : String,
   filename : String,
@@ -1055,11 +1011,6 @@ async fn serve_static_js_async(
     Some(content) => c.text(content)
     None => c.text("// Not found: " + filename)
   }
-}
-
-///|
-fn html_response(content : String) -> @http.Response {
-  text_response(content, "text/html; charset=utf-8")
 }
 
 ///|
