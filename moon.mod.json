@@ -2,11 +2,11 @@
   "name": "mizchi/luna",
   "version": "0.11.0",
   "deps": {
-    "moonbitlang/async": "0.16.0",
-    "moonbitlang/x": "0.4.38",
+    "moonbitlang/async": "0.16.4",
+    "moonbitlang/x": "0.4.40",
     "mizchi/js": "0.10.10",
-    "mizchi/npm_typed": "0.1.8",
-    "moonbitlang/parser": "0.1.13",
+    "mizchi/npm_typed": "0.1.9",
+    "moonbitlang/parser": "0.1.15",
     "mizchi/signals": "0.6.1"
   },
   "readme": "README.md",

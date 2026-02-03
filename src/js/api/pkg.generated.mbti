@@ -179,3 +179,4 @@ pub fn JsResource::inner(Self) -> @resource.Resource[Any]
 // Type aliases
 
 // Traits
+

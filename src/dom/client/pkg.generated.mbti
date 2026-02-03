@@ -12,8 +12,6 @@ pub fn get_shadow_root_for_hydrate(@mizchi/js/browser/dom.Element) -> @mizchi/js
 
 pub fn hydrate(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> HydrationResult
 
-pub fn hydrate_with_dispose(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> (HydrationResult, () -> Unit)
-
 pub fn hydrate_auto(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], is_rerender? : Bool) -> Unit
 
 pub fn hydrate_auto_dom(@mizchi/js/browser/dom.Element, @mizchi/luna/dom.DomNode, is_rerender? : Bool) -> Unit
@@ -23,6 +21,8 @@ pub fn hydrate_island(@mizchi/js/core.Any, @mizchi/js/core.Any, String, (IslandC
 pub fn hydrate_wc_island(@mizchi/js/core.Any, (WcIslandContext) -> Unit) -> Unit
 
 pub fn[State] hydrate_with_actions(@mizchi/js/browser/dom.Element, State, (State) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String], (State, String) -> State) -> Unit
+
+pub fn hydrate_with_dispose(@mizchi/js/browser/dom.Element, @mizchi/luna/core.Node[@mizchi/js/core.Any, String], recover_on_mismatch? : Bool, warn_on_mismatch? : Bool, logger? : StringBuilder) -> (HydrationResult, () -> Unit)
 
 pub fn hydration_result_mismatch(String) -> HydrationResult
 
@@ -92,3 +92,4 @@ pub fn WcIslandContext::signal_int(Self, String, Int) -> @signals.Signal[Int]
 // Type aliases
 
 // Traits
+
