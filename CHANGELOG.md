@@ -2,24 +2,139 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.10.0] - 2026-02-03
+
+### Bug Fixes
+
+- **dom**: Hydrate fragments and reconcile lists
+- Add explicit core package imports to resolve moon check warnings
+
+### Features
+
+- Add treeshake baseline and signals entrypoint
+
+### Miscellaneous
+
+- Update bench/tests formatting
+- Bump version to 0.8.1
+
+### Refactor
+
+- Migrate to signals/ui for shared types and escape functions
+
+## [0.8.0] - 2026-01-24
+
+### Features
+
+- **core**: Make Attr type generic for environment-specific attributes (#14) [**BREAKING**]
+
+### Miscellaneous
+
+- Bump version to 0.8.0
+
+## [0.7.3] - 2026-01-18
+
+### Bug Fixes
+
+- Resolve moon check warnings
+
+### Miscellaneous
+
+- Bump version to 0.7.3
+
+## [0.7.2] - 2026-01-18
+
+### Bug Fixes
+
+- **ci**: Add missing apg-playground build to e2e job
+- **treeview**: Prevent keyboard event bubbling causing multiple handlers
+- **components**: Dialog keyboard support and treeview selection
+- **treeview**: Use accent color for selection instead of foreground
+- **treeview**: Override APG headless styles to prevent icon duplication
+- **demo**: Add padding to breadcrumb separator for readability
+- **combobox**: Fix reactive filtering after clearing input
+- **tabs**: Improve tab styling with unified border design
+- **styles**: Prevent global styles from overriding styled components
+- **dom**: Add SVG namespace support for VNode rendering
+- **cli**: Use correct `moonbit` import from vite-plugin-moonbit
+- **css/analyzer**: Re-enable package and fix parser API change
+- **ci**: Update paths from src/luna to src
+- **ci**: Use version latest instead of stable
+- **ci**: Use hustcer/setup-moonbit action
+- **components**: Improve styled component CSS for visibility
+- **components**: Add missing Menu Button CSS and remove debug logs
+- **components**: Fix Show initial render and add system dark mode support
+- **luna**: Support Fragment in Show component for proper cleanup
 
 ### Documentation
 
+- **apg**: Add APG pattern reference documentation
+- Update CLAUDE.md to reflect current structure
+- Simplify README based on CLAUDE.md
+- **components**: Update README with APG spec references
+- Update CHANGELOG with signal refactoring
 - **todo**: Update APG components roadmap
 
 ### Features
 
+- **components**: Improve toolbar, treeview, and landmarks
+- **components**: Add APG keyboard navigation and remove switch checkmark
+- **components**: Add APG-compliant interactive component variants
+- **components**: Add styled treeview component
+- **demo**: Integrate meter and disclosure components
+- **components**: Add styled disclosure component with animation
+- **components**: Add styled meter component using native HTML meter
+- **accordion**: Add open/close animation with CSS Grid
+- **components**: Add styled table component with sorting
+- **components**: Add styled alert component
+- **components**: Add styled toolbar component
+- **components**: Add theme switch to header
+- **examples**: Add APG Component Catalog with all demos
+- **components**: Add new APG interactive components
 - **experimental_signals**: Add alien-signals style reactive system
 - **testing**: Add @luna_ui/testing library
 - **apg**: Add WAI-ARIA APG compliant components, remove radix [**BREAKING**]
 
 ### Miscellaneous
 
+- Bump version to 0.7.2
+- **demo**: Add Age column to table demo for clearer sorting
+- Bump version to 0.7.1
+- Standardize dev server ports to 4100+ range
+- Clean up unused files and directories
+- Bump version to 0.7.0
+- Fix stella path in playwright workflow
+- Update workflow paths after module reorganization
+- Simplify .gitignore
+- Remove website directory and related config
+- Remove unused demo and schema files
+- Move playwright-chaos to mizchi/chaosbringer
+- V0.6.0
+- Add aria package to cross-platform tests
+- Ignore .claude/settings.local.json
+- V0.5.3
+- V0.5.3
+- V0.5.2
+- V0.5.2
+- Update moon.pkg
+- Add component catalog to demo index
 - Remove js/components (radix-style headless UI)
 
 ### Refactor
 
+- **components**: Move logic from styled to headless components
+- Simplify config files
+- Rename .justfile to justfile and fix commands
+- **e2e**: Remove invalid tests and clean up config
+- Consolidate vitest config with projects
+- **luna**: Reorganize module structure
+- **dom**: Consolidate element package into dom
+- **browser_router**: Simplify code structure
+- **components**: Extract aria package for TUI support
+- **signal**: Migrate signal core to mizchi/signals
+- **components**: Use modern MoonBit patterns
+- **signal**: Internal cleanup and benchmark additions
+- **components**: Improve existing APG components
 - **signal**: Merge experimental_signals into signal module [**BREAKING**]
 - **signal**: Complete effect migration to esig backend
 - **signal**: Migrate memo to esig backend and fix diamond dependency bug
