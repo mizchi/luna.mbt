@@ -313,6 +313,7 @@ pub(all) struct ItemEntry[T] {
 }
 pub fn[T] ItemEntry::new(T, @mizchi/js/browser/dom.Node) -> Self[T]
 pub fn[T] ItemEntry::new_with_dispose(T, @mizchi/js/browser/dom.Node, () -> Unit) -> Self[T]
+pub fn[T] ItemEntry::new_with_nodes_and_dispose(T, Array[@mizchi/js/browser/dom.Node], () -> Unit) -> Self[T]
 
 pub enum Node {
   El(Element)
@@ -395,4 +396,3 @@ pub impl ToNode for String
 pub impl ToNode for @mizchi/js/browser/dom.Element
 pub impl ToNode for @mizchi/js/browser/dom.Node
 pub impl ToNode for @mizchi/js/browser/dom.Text
-

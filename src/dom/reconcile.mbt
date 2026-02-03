@@ -76,7 +76,7 @@ pub fn[T] ItemEntry::new_with_dispose(
 
 ///|
 /// Create ItemEntry from multiple DOM nodes
-fn[T] ItemEntry::new_with_nodes_and_dispose(
+pub fn[T] ItemEntry::new_with_nodes_and_dispose(
   item : T,
   nodes : Array[@js_dom.Node],
   dispose : () -> Unit,
@@ -100,9 +100,39 @@ fn[T] build_entry_index_map(entries : Array[ItemEntry[T]]) -> @js.Any {
 }
 
 ///|
+/// Detect duplicate references in a list (JS ===)
+fn[T] has_duplicate_refs(items : Array[T]) -> Bool {
+  let seen = ref_map_new()
+  for item in items {
+    let key = @js.any(item)
+    if ref_map_has(seen, key) {
+      return true
+    }
+    ref_map_set(seen, key, 1)
+  }
+  false
+}
+
+///|
 /// Find an entry index by item reference using a map
-fn[T] find_entry_index(map : @js.Any, item : T) -> Int {
-  ref_map_get_or_minus1(map, @js.any(item))
+fn[T] find_entry_index(
+  map : @js.Any,
+  item : T,
+  used_indices : Array[Bool],
+  old_entries : Array[ItemEntry[T]],
+) -> Int {
+  let key = @js.any(item)
+  let first = ref_map_get_or_minus1(map, key)
+  if first >= 0 && not(used_indices[first]) {
+    return first
+  }
+  // Duplicate references: find another unused entry with the same reference
+  for i, entry in old_entries {
+    if not(used_indices[i]) && ref_equal(entry.item, item) {
+      return i
+    }
+  }
+  -1
 }
 
 ///|
@@ -166,6 +196,33 @@ pub fn[T] reconcile_items(
     }
     return []
   }
+
+  // Duplicate references are ambiguous for ref-based reconciliation.
+  // Fall back to full re-render to keep DOM consistent.
+  if has_duplicate_refs(new_items) {
+    for entry in old_entries {
+      (entry.dispose)()
+      safe_remove_nodes(parent, entry.nodes)
+    }
+    let fresh_entries : Array[ItemEntry[T]] = []
+    for i, item in new_items {
+      let dom = render_item(item, i)
+      let nodes = collect_dom_nodes(dom)
+      if nodes.length() == 0 {
+        let placeholder = @js_dom.document().createComment("empty")
+        parent.insertBefore(placeholder, Some(end_marker)) |> ignore
+        fresh_entries.push(
+          ItemEntry::new_with_nodes_and_dispose(item, [placeholder], fn() {  }),
+        )
+      } else {
+        parent.insertBefore(dom, Some(end_marker)) |> ignore
+        fresh_entries.push(
+          ItemEntry::new_with_nodes_and_dispose(item, nodes, fn() {  }),
+        )
+      }
+    }
+    return fresh_entries
+  }
   let new_entries : Array[ItemEntry[T]] = []
   for j in 0..<n {
     new_entries.push(ItemEntry::new(new_items[0], end_marker))
@@ -182,7 +239,7 @@ pub fn[T] reconcile_items(
   let last = n - 1
   for i in last>=..0 {
     let item = new_items[i]
-    let old_index = find_entry_index(index_map, item)
+    let old_index = find_entry_index(index_map, item, used_indices, old_entries)
     if old_index >= 0 {
       // Reuse existing DOM node
       let entry = old_entries[old_index]
@@ -312,6 +369,33 @@ pub fn[T] reconcile_items_with_dispose(
     }
     return []
   }
+
+  // Duplicate references are ambiguous for ref-based reconciliation.
+  // Fall back to full re-render to keep DOM consistent.
+  if has_duplicate_refs(new_items) {
+    for entry in old_entries {
+      (entry.dispose)()
+      safe_remove_nodes(parent, entry.nodes)
+    }
+    let fresh_entries : Array[ItemEntry[T]] = []
+    for i, item in new_items {
+      let (dom, dispose) = render_item(item, i)
+      let nodes = collect_dom_nodes(dom)
+      if nodes.length() == 0 {
+        let placeholder = @js_dom.document().createComment("empty")
+        parent.insertBefore(placeholder, Some(end_marker)) |> ignore
+        fresh_entries.push(
+          ItemEntry::new_with_nodes_and_dispose(item, [placeholder], dispose),
+        )
+      } else {
+        parent.insertBefore(dom, Some(end_marker)) |> ignore
+        fresh_entries.push(
+          ItemEntry::new_with_nodes_and_dispose(item, nodes, dispose),
+        )
+      }
+    }
+    return fresh_entries
+  }
   let new_entries : Array[ItemEntry[T]] = []
   for j in 0..<n {
     new_entries.push(ItemEntry::new(new_items[0], end_marker))
@@ -324,7 +408,7 @@ pub fn[T] reconcile_items_with_dispose(
   let last = n - 1
   for i in last>=..0 {
     let item = new_items[i]
-    let old_index = find_entry_index(index_map, item)
+    let old_index = find_entry_index(index_map, item, used_indices, old_entries)
     if old_index >= 0 {
       // Reuse existing entry (including its dispose function)
       let entry = old_entries[old_index]

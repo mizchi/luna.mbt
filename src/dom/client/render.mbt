@@ -59,9 +59,54 @@ fn is_svg_element(tag : String) -> Bool {
 }
 
 ///|
+/// Check if a tag is a MathML element
+fn is_mathml_element(tag : String) -> Bool {
+  match tag {
+    "math"
+    | "mrow"
+    | "mi"
+    | "mn"
+    | "mo"
+    | "mfrac"
+    | "msqrt"
+    | "mroot"
+    | "mstyle"
+    | "mtext"
+    | "menclose"
+    | "mfenced"
+    | "msup"
+    | "msub"
+    | "msubsup"
+    | "munder"
+    | "mover"
+    | "munderover"
+    | "mtable"
+    | "mtr"
+    | "mtd"
+    | "mlabeledtr"
+    | "maligngroup"
+    | "malignmark"
+    | "mspace"
+    | "mphantom"
+    | "mglyph"
+    | "merror"
+    | "mpadded"
+    | "semantics"
+    | "annotation"
+    | "annotation-xml" => true
+    _ => false
+  }
+}
+
+///|
 /// Create an SVG element with proper namespace
 extern "js" fn create_svg_element_ns(tag : String) -> @js_dom.Element =
   #| (tag) => document.createElementNS("http://www.w3.org/2000/svg", tag)
+
+///|
+/// Create a MathML element with proper namespace
+extern "js" fn create_mathml_element_ns(tag : String) -> @js_dom.Element =
+  #| (tag) => document.createElementNS("http://www.w3.org/1998/Math/MathML", tag)
 
 ///|
 /// Render VNode to DOM within SVG context (all elements use SVG namespace)
@@ -96,12 +141,60 @@ fn render_vnode_to_dom_svg(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       }
 
       // Append children (still in SVG context)
-      for child in elem.children {
-        dom_elem.as_node().appendChild(render_vnode_to_dom_svg(child)) |> ignore
+      if elem.tag == "foreignObject" {
+        for child in elem.children {
+          dom_elem.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
+        }
+      } else {
+        for child in elem.children {
+          dom_elem.as_node().appendChild(render_vnode_to_dom_svg(child))
+          |> ignore
+        }
       }
       dom_elem.as_node()
     }
     // For other node types, delegate to regular render
+    _ => render_vnode_to_dom(node)
+  }
+}
+
+///|
+/// Render VNode to DOM within MathML context (all elements use MathML namespace)
+fn render_vnode_to_dom_mathml(
+  node : @luna.Node[@js.Any, String],
+) -> @js_dom.Node {
+  let doc = @js_dom.document()
+  match node {
+    @core.Text(content) => doc.createTextNode(content).as_node()
+    @core.DynamicText(getter) => {
+      let text_node = doc.createTextNode(getter())
+      let node_ref = text_node.as_node()
+      let _ = @resource.render_effect(fn() {
+        let new_text = getter()
+        node_ref.setTextContent(new_text)
+      })
+      node_ref
+    }
+    @core.Fragment(children) => {
+      let fragment = doc.createDocumentFragment()
+      for child in children {
+        fragment.as_node().appendChild(render_vnode_to_dom_mathml(child))
+        |> ignore
+      }
+      fragment.as_node()
+    }
+    @core.Element(elem) => {
+      let dom_elem = create_mathml_element_ns(elem.tag)
+      for attr in elem.attrs {
+        let (name, value) = attr
+        apply_vattr(dom_elem, name, value)
+      }
+      for child in elem.children {
+        dom_elem.as_node().appendChild(render_vnode_to_dom_mathml(child))
+        |> ignore
+      }
+      dom_elem.as_node()
+    }
     _ => render_vnode_to_dom(node)
   }
 }
@@ -152,6 +245,8 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
     @core.Element(elem) => {
       let dom_elem = if is_svg_element(elem.tag) {
         create_svg_element_ns(elem.tag)
+      } else if is_mathml_element(elem.tag) {
+        create_mathml_element_ns(elem.tag)
       } else {
         doc.createElement(elem.tag)
       }
@@ -164,8 +259,11 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
 
       // Append children (with SVG context for nested elements)
       for child in elem.children {
-        let child_dom = if is_svg_element(elem.tag) {
+        let child_dom = if is_svg_element(elem.tag) &&
+          elem.tag != "foreignObject" {
           render_vnode_to_dom_svg(child)
+        } else if is_mathml_element(elem.tag) {
+          render_vnode_to_dom_mathml(child)
         } else {
           render_vnode_to_dom(child)
         }
@@ -177,6 +275,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       let placeholder = doc.createComment("show")
       // Track multiple nodes for Fragment support
       let current_nodes : Array[@js_dom.Node] = []
+      let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
       let is_first_render : Ref[Bool] = Ref::new(true)
 
       // Create a fragment for initial render
@@ -186,9 +285,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       // Initial render - check condition and render if true
       let initial_show = @resource.untracked(fn() { cond() })
       if initial_show {
-        let rendered = @resource.untracked(fn() {
-          render_vnode_to_dom(child_fn())
+        let (rendered, dispose) = @resource.untracked(fn() {
+          render_vnode_to_dom_with_dispose(child_fn())
         })
+        current_dispose.val = Some(dispose)
         // Collect actual nodes before inserting (Fragment children get moved)
         let nodes_to_track = collect_dom_nodes(rendered)
         fragment_node.appendChild(rendered) |> ignore
@@ -213,9 +313,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
               // Use untracked to prevent child signals from being registered
               // as dependencies of this Show's effect. This prevents infinite
               // loops when nested Show components access signals.
-              let rendered = @resource.untracked(fn() {
-                render_vnode_to_dom(child_fn())
+              let (rendered, dispose) = @resource.untracked(fn() {
+                render_vnode_to_dom_with_dispose(child_fn())
               })
+              current_dispose.val = Some(dispose)
               // Collect actual nodes before inserting (Fragment children get moved)
               let nodes_to_track = collect_dom_nodes(rendered)
               par.insertBefore(rendered, Some(placeholder)) |> ignore
@@ -224,6 +325,13 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
               }
             }
           (false, true) => {
+            match current_dispose.val {
+              Some(dispose) => {
+                dispose()
+                current_dispose.val = None
+              }
+              None => ()
+            }
             // Remove all tracked nodes
             for node in current_nodes {
               if node.parentNode() is Some(par) {
@@ -240,7 +348,8 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
     @core.For(render=render_fn) => {
       // Use a comment as a placeholder/marker for where to insert items
       let placeholder = doc.createComment("for")
-      let current_nodes : Array[@js_dom.Node] = []
+      let entries : Ref[Array[@element.ItemEntry[@luna.Node[@js.Any, String]]]] = Ref::new([],
+      )
       let is_first_render : Ref[Bool] = Ref::new(true)
 
       // Create a fragment for initial render
@@ -250,12 +359,28 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       // Initial render - use untracked to prevent dependency tracking
       let initial_items = @resource.untracked(fn() { render_fn() })
       for item in initial_items {
-        let rendered = @resource.untracked(fn() { render_vnode_to_dom(item) })
+        let (rendered, dispose) = @resource.untracked(fn() {
+          render_vnode_to_dom_with_dispose(item)
+        })
         let nodes_to_track = collect_dom_nodes(rendered)
-        for node in nodes_to_track {
-          current_nodes.push(node)
+        if nodes_to_track.length() == 0 {
+          let empty = doc.createComment("empty")
+          fragment_node.appendChild(empty) |> ignore
+          entries.val.push(
+            @element.ItemEntry::new_with_nodes_and_dispose(
+              item,
+              [empty],
+              dispose,
+            ),
+          )
+        } else {
+          entries.val.push(
+            @element.ItemEntry::new_with_nodes_and_dispose(
+              item, nodes_to_track, dispose,
+            ),
+          )
+          fragment_node.appendChild(rendered) |> ignore
         }
-        fragment_node.appendChild(rendered) |> ignore
       }
       // Append placeholder at end
       fragment_node.appendChild(placeholder) |> ignore
@@ -268,29 +393,16 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
           return
         }
 
-        // Remove old nodes
-        for node in current_nodes {
-          if node.parentNode() is Some(par) {
-            par.removeChild(node) |> ignore
-          }
-        }
-        current_nodes.clear()
-
-        // Insert new items before the placeholder
         // Use untracked to prevent child signals from being registered
         // as dependencies of this For's effect
-        if placeholder.parentNode() is Some(parent) {
-          for item in new_items {
-            let rendered = @resource.untracked(fn() {
-              render_vnode_to_dom(item)
-            })
-            let nodes_to_track = collect_dom_nodes(rendered)
-            for node in nodes_to_track {
-              current_nodes.push(node)
-            }
-            parent.insertBefore(rendered, Some(placeholder)) |> ignore
-          }
-        }
+        @resource.untracked(fn() {
+          @element.reconcile_for_each_with_dispose(
+            entries,
+            placeholder,
+            new_items,
+            fn(item, _idx) { render_vnode_to_dom_with_dispose(item) },
+          )
+        })
       })
       fragment_node
     }
@@ -360,6 +472,14 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
 }
 
 ///|
+/// Render VNode to DOM and return a disposer for cleanup
+pub fn render_vnode_to_dom_with_dispose(
+  node : @luna.Node[@js.Any, String],
+) -> (@js_dom.Node, () -> Unit) {
+  @resource.create_root_with_dispose(fn() { render_vnode_to_dom(node) })
+}
+
+///|
 /// Apply VAttr to DOM element
 fn apply_vattr(
   elem : @js_dom.Element,
@@ -371,8 +491,19 @@ fn apply_vattr(
       if s != "__remove__" {
         if name == "class" || name == "className" {
           elem.setClassName(s)
+        } else if name == "__innerHTML" {
+          elem.as_any()._set("innerHTML", @js.any(s)) |> ignore
         } else if name == "value" {
           elem.as_any()._set("value", @js.any(s)) |> ignore
+        } else if name == "checked" {
+          elem.as_any()._set("checked", @js.any(s == "true" || s == ""))
+          |> ignore
+        } else if name == "disabled" {
+          if s == "true" || s == "" {
+            elem.setAttribute("disabled", "")
+          } else {
+            elem.removeAttribute("disabled")
+          }
         } else if s == "" {
           elem.setAttribute(name, "")
         } else {
@@ -386,8 +517,21 @@ fn apply_vattr(
           elem.removeAttribute(name)
         } else if name == "class" || name == "className" {
           elem.setClassName(new_value)
+        } else if name == "__innerHTML" {
+          elem.as_any()._set("innerHTML", @js.any(new_value)) |> ignore
         } else if name == "value" {
           elem.as_any()._set("value", @js.any(new_value)) |> ignore
+        } else if name == "checked" {
+          elem
+          .as_any()
+          ._set("checked", @js.any(new_value == "true" || new_value == ""))
+          |> ignore
+        } else if name == "disabled" {
+          if new_value == "true" || new_value == "" {
+            elem.setAttribute("disabled", "")
+          } else {
+            elem.removeAttribute("disabled")
+          }
         } else {
           elem.setAttribute(name, new_value)
         }
@@ -415,10 +559,11 @@ fn apply_vattr(
 pub fn render_vnode(
   container : @js_dom.Element,
   node : @luna.Node[@js.Any, String],
-) -> Unit {
+) -> () -> Unit {
   container.as_node().setTextContent("")
-  let dom_node = render_vnode_to_dom(node)
+  let (dom_node, dispose) = render_vnode_to_dom_with_dispose(node)
   container.as_node().appendChild(dom_node) |> ignore
+  dispose
 }
 
 ///|
@@ -435,11 +580,19 @@ fn render_error_boundary_to_dom(
   let error_state : Ref[Error?] = Ref::new(None)
   let content_nodes : Array[@js_dom.Node] = []
   let reset_ref : Ref[() -> Unit] = Ref::new(fn() { () })
+  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
 
   // Reset function clears error and re-renders children
   let reset = fn() {
     error_state.val = None
     // Clear current content
+    match current_dispose.val {
+      Some(dispose) => {
+        dispose()
+        current_dispose.val = None
+      }
+      None => ()
+    }
     for node in content_nodes {
       if node.parentNode() is Some(par) {
         par.removeChild(node) |> ignore
@@ -448,7 +601,10 @@ fn render_error_boundary_to_dom(
     content_nodes.clear()
     // Re-render children
     try {
-      let child_node = render_vnode_to_dom((boundary.children)())
+      let (child_node, dispose) = render_vnode_to_dom_with_dispose(
+        (boundary.children)(),
+      )
+      current_dispose.val = Some(dispose)
       let nodes_to_track = collect_dom_nodes(child_node)
       if placeholder.parentNode() is Some(parent) {
         parent.insertBefore(child_node, Some(placeholder)) |> ignore
@@ -462,9 +618,10 @@ fn render_error_boundary_to_dom(
       err => {
         error_state.val = Some(err)
         try {
-          let fallback_node = render_vnode_to_dom(
+          let (fallback_node, dispose) = render_vnode_to_dom_with_dispose(
             (boundary.fallback)(err, reset_ref.val),
           )
+          current_dispose.val = Some(dispose)
           let nodes_to_track = collect_dom_nodes(fallback_node)
           if placeholder.parentNode() is Some(parent) {
             parent.insertBefore(fallback_node, Some(placeholder)) |> ignore
@@ -484,7 +641,10 @@ fn render_error_boundary_to_dom(
 
   // Initial render
   try {
-    let child_node = render_vnode_to_dom((boundary.children)())
+    let (child_node, dispose) = render_vnode_to_dom_with_dispose(
+      (boundary.children)(),
+    )
+    current_dispose.val = Some(dispose)
     let nodes_to_track = collect_dom_nodes(child_node)
     container_node.appendChild(child_node) |> ignore
     for node in nodes_to_track {
@@ -494,9 +654,10 @@ fn render_error_boundary_to_dom(
     err => {
       error_state.val = Some(err)
       try {
-        let fallback_node = render_vnode_to_dom(
+        let (fallback_node, dispose) = render_vnode_to_dom_with_dispose(
           (boundary.fallback)(err, reset_ref.val),
         )
+        current_dispose.val = Some(dispose)
         let nodes_to_track = collect_dom_nodes(fallback_node)
         container_node.appendChild(fallback_node) |> ignore
         for node in nodes_to_track {
@@ -518,7 +679,8 @@ fn render_switch_to_dom(
 ) -> @js_dom.Node {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("switch")
-  let mut current_node : @js_dom.Node? = None
+  let current_nodes : Array[@js_dom.Node] = []
+  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
   let mut current_case_index : Int = -1 // -1 means fallback, -2 means no match
 
   // Helper to find which case matches
@@ -541,15 +703,25 @@ fn render_switch_to_dom(
   let fragment = doc.createDocumentFragment()
   let fragment_node = fragment.as_node()
   if initial_case >= 0 {
-    let node = render_vnode_to_dom((switch_node.cases[initial_case].render)())
-    current_node = Some(node)
+    let (node, dispose) = render_vnode_to_dom_with_dispose(
+      (switch_node.cases[initial_case].render)(),
+    )
+    current_dispose.val = Some(dispose)
+    let nodes_to_track = collect_dom_nodes(node)
     fragment_node.appendChild(node) |> ignore
+    for n in nodes_to_track {
+      current_nodes.push(n)
+    }
   } else if initial_case == -1 {
     match switch_node.fallback {
       Some(fallback_fn) => {
-        let node = render_vnode_to_dom(fallback_fn())
-        current_node = Some(node)
+        let (node, dispose) = render_vnode_to_dom_with_dispose(fallback_fn())
+        current_dispose.val = Some(dispose)
+        let nodes_to_track = collect_dom_nodes(node)
         fragment_node.appendChild(node) |> ignore
+        for n in nodes_to_track {
+          current_nodes.push(n)
+        }
       }
       None => ()
     }
@@ -572,36 +744,49 @@ fn render_switch_to_dom(
       return
     }
 
-    // Remove current node
-    match current_node {
-      Some(node) =>
-        if node.parentNode() is Some(par) {
-          par.removeChild(node) |> ignore
-        }
+    // Dispose and remove current nodes
+    match current_dispose.val {
+      Some(dispose) => {
+        dispose()
+        current_dispose.val = None
+      }
       None => ()
     }
-    current_node = None
+    for node in current_nodes {
+      if node.parentNode() is Some(par) {
+        par.removeChild(node) |> ignore
+      }
+    }
+    current_nodes.clear()
 
     // Render new content
     // Use untracked to prevent child signals from being registered
     // as dependencies of this Switch's effect
     if new_case >= 0 {
-      let node = @resource.untracked(fn() {
-        render_vnode_to_dom((switch_node.cases[new_case].render)())
+      let (node, dispose) = @resource.untracked(fn() {
+        render_vnode_to_dom_with_dispose((switch_node.cases[new_case].render)())
       })
-      current_node = Some(node)
+      current_dispose.val = Some(dispose)
       if placeholder.parentNode() is Some(par) {
+        let nodes_to_track = collect_dom_nodes(node)
         par.insertBefore(node, Some(placeholder)) |> ignore
+        for n in nodes_to_track {
+          current_nodes.push(n)
+        }
       }
     } else if new_case == -1 {
       match switch_node.fallback {
         Some(fallback_fn) => {
-          let node = @resource.untracked(fn() {
-            render_vnode_to_dom(fallback_fn())
+          let (node, dispose) = @resource.untracked(fn() {
+            render_vnode_to_dom_with_dispose(fallback_fn())
           })
-          current_node = Some(node)
+          current_dispose.val = Some(dispose)
           if placeholder.parentNode() is Some(par) {
+            let nodes_to_track = collect_dom_nodes(node)
             par.insertBefore(node, Some(placeholder)) |> ignore
+            for n in nodes_to_track {
+              current_nodes.push(n)
+            }
           }
         }
         None => ()

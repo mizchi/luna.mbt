@@ -162,9 +162,10 @@ fn apply_static_attr(
     // Special handling for input value
     elem.as_any()._set("value", @js.any(value)) |> ignore
   } else if name == "checked" {
-    elem.as_any()._set("checked", @js.any(value == "true")) |> ignore
+    elem.as_any()._set("checked", @js.any(value == "true" || value == ""))
+    |> ignore
   } else if name == "disabled" {
-    if value == "true" {
+    if value == "true" || value == "" {
       elem.setAttribute("disabled", "")
     } else {
       elem.removeAttribute("disabled")

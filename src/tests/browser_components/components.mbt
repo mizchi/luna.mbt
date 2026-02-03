@@ -90,7 +90,7 @@ pub fn hydrate_signal_effect(el : @js_dom.Element, state : @js.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @client.render_vnode(el, vnode)
+  let _ = @client.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -168,7 +168,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @client.render_vnode(el, vnode)
+  let _ = @client.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -204,7 +204,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @client.render_vnode(el, vnode)
+  let _ = @client.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -293,7 +293,7 @@ pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @client.render_vnode(el, vnode)
+  let _ = @client.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
   ignore(pending_input)
 }
@@ -366,7 +366,7 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @js.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @client.render_vnode(el, vnode)
+  let _ = @client.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 
@@ -518,7 +518,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
   ])
 
   // Client-side rendering: clear container and render VNode
-  @client.render_vnode(el, vnode)
+  let _ = @client.render_vnode(el, vnode)
   js_setAttribute(el, "data-hydrated", "true")
 }
 

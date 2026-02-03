@@ -22,6 +22,11 @@ fn get_inner_html(container : @js_dom.Element) -> String {
 }
 
 ///|
+/// Reference equality for DOM nodes (===)
+extern "js" fn ref_equal_node(a : @js_dom.Node, b : @js_dom.Node) -> Bool =
+  #| (a, b) => a === b
+
+///|
 /// Cleanup document.body.innerHTML
 fn cleanup() -> Unit {
   let doc = @js_dom.document()
@@ -816,9 +821,25 @@ test "render_vnode directly" {
     @luna.text("Direct render"),
   ])
   // Use render_vnode directly (not hydrate)
-  render_vnode(container, vnode)
+  let _dispose = render_vnode(container, vnode)
   assert_true(get_inner_html(container).contains("Direct render"))
   assert_true(get_inner_html(container).contains("test"))
+}
+
+///|
+test "render_vnode returns dispose and stops effects" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let count = @resource.signal(0)
+  let vnode = @luna.text_dyn(fn() { count.get().to_string() })
+  let dispose = render_vnode(container, vnode)
+  assert_eq(get_inner_html(container), "0")
+  count.set(1)
+  assert_eq(get_inner_html(container), "1")
+  dispose()
+  count.set(2)
+  assert_eq(get_inner_html(container), "1")
 }
 
 ///|
@@ -894,6 +915,46 @@ test "render_vnode_to_dom with For list" {
   items.set(["A", "B", "C"])
   // The test verifies the render and update work without error
   assert_true(true)
+}
+
+///|
+test "render_vnode_to_dom For reuses nodes by reference" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let a = @luna.h("div", [("id", @luna.attr_static("a"))], [@luna.text("A")])
+  let b = @luna.h("div", [("id", @luna.attr_static("b"))], [@luna.text("B")])
+  let c = @luna.h("div", [("id", @luna.attr_static("c"))], [@luna.text("C")])
+  let items = @resource.signal([a, b, c])
+  let vnode = @luna.for_each(fn() { items.get() })
+  let dispose = render_vnode(container, vnode)
+  let nodes0 = container.as_node().childNodes()
+  let node_a = nodes0[0]
+  let node_b = nodes0[1]
+  let node_c = nodes0[2]
+
+  // Reorder with same VNode references
+  items.set([c, a, b])
+  let nodes1 = container.as_node().childNodes()
+  assert_true(ref_equal_node(nodes1[0], node_c))
+  assert_true(ref_equal_node(nodes1[1], node_a))
+  assert_true(ref_equal_node(nodes1[2], node_b))
+  dispose()
+}
+
+///|
+test "render_vnode_to_dom For keeps duplicate references" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let item = @luna.h("div", [], [@luna.text("X")])
+  let items = @resource.signal([item, item])
+  let vnode = @luna.for_each(fn() { items.get() })
+  let dispose = render_vnode(container, vnode)
+  assert_eq(container.querySelectorAll("div").length(), 2)
+  items.set([item, item, item])
+  assert_eq(container.querySelectorAll("div").length(), 3)
+  dispose()
 }
 
 ///|

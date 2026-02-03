@@ -1787,7 +1787,10 @@ fn main {
   inject_styled_css()
   let doc = @dom.document()
   match doc.getElementById("app") {
-    Some(el) => @client.render_vnode(el, app())
+    Some(el) => {
+      let _ = @client.render_vnode(el, app())
+
+    }
     None => println("Error: #app element not found")
   }
 }

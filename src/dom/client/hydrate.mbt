@@ -83,6 +83,95 @@ fn get_text_content(node : @js_dom.Node) -> String {
 }
 
 ///|
+/// Take and clear existing hydrate disposer on the container (raw)
+extern "js" fn take_hydrate_dispose_raw(container : @js_dom.Element) -> @js.Any =
+  #| (container) => {
+  #|   const d = container.__lunaHydrateDispose;
+  #|   container.__lunaHydrateDispose = undefined;
+  #|   return d;
+  #| }
+
+///|
+/// Store hydrate disposer on the container
+extern "js" fn store_hydrate_dispose(
+  container : @js_dom.Element,
+  dispose : () -> Unit,
+) -> Unit =
+  #| (container, dispose) => {
+  #|   container.__lunaHydrateDispose = dispose;
+  #| }
+
+///|
+/// Take and clear existing hydrate disposer on the container
+fn take_hydrate_dispose(container : @js_dom.Element) -> (() -> Unit)? {
+  let d = take_hydrate_dispose_raw(container)
+  if is_null_or_undefined(d) {
+    None
+  } else {
+    Some(d.cast())
+  }
+}
+
+///|
+/// Hydrate and return disposer for cleanup
+pub fn hydrate_with_dispose(
+  container : @js_dom.Element,
+  node : @luna.Node[@js.Any, String],
+  recover_on_mismatch? : Bool,
+  warn_on_mismatch? : Bool,
+  logger? : StringBuilder,
+) -> (HydrationResult, () -> Unit) {
+  @resource.create_root_with_dispose(fn() {
+    let recover = recover_on_mismatch.unwrap_or(true)
+    let warn = warn_on_mismatch.unwrap_or(true)
+    let ctx : HydrationContext = {
+      container,
+      current_id: 0,
+      mismatches: [],
+      hk_cache: None,
+    }
+    let hydration_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+    let root_cursor : Ref[@js_dom.Node?] = Ref::new(None)
+    let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
+      hydrate_node(container.as_node(), node, ctx, root_cursor, None) catch {
+        err =>
+          // If hydration throws, treat as mismatch and recover
+          ctx.mismatches.push("Hydration error: " + err.to_string())
+      }
+    })
+    ignore(hydrated)
+    hydration_dispose.val = Some(dispose)
+
+    // Check for mismatches
+    if not(ctx.mismatches.is_empty()) {
+      let mismatch_msg = ctx.mismatches.iter().join("; ")
+      if warn {
+        warn_hydration(logger, "Hydration mismatch detected: " + mismatch_msg)
+      }
+      if recover {
+        // Recovery: clear and re-render
+        warn_hydration(logger, "Recovering by re-rendering...")
+        match hydration_dispose.val {
+          Some(dispose) => {
+            dispose()
+            hydration_dispose.val = None
+          }
+          None => ()
+        }
+        container.as_node().setTextContent("")
+        let dom_node = render_vnode_to_dom(node)
+        container.as_node().appendChild(dom_node) |> ignore
+        Recovered(mismatch_msg)
+      } else {
+        Mismatch(mismatch_msg)
+      }
+    } else {
+      Success
+    }
+  })
+}
+
+///|
 /// Hydrate a VNode into an existing DOM container.
 /// The container should already have server-rendered HTML with hydration markers.
 pub fn hydrate(
@@ -92,39 +181,27 @@ pub fn hydrate(
   warn_on_mismatch? : Bool,
   logger? : StringBuilder,
 ) -> HydrationResult {
-  let recover = recover_on_mismatch.unwrap_or(true)
-  let warn = warn_on_mismatch.unwrap_or(true)
-  let ctx : HydrationContext = {
+  match take_hydrate_dispose(container) {
+    Some(dispose) => dispose()
+    None => ()
+  }
+  let (result, dispose) = hydrate_with_dispose(
     container,
-    current_id: 0,
-    mismatches: [],
-    hk_cache: None,
-  }
-  let root_cursor : Ref[@js_dom.Node?] = Ref::new(None)
-  hydrate_node(container.as_node(), node, ctx, root_cursor, None) catch {
-    err =>
-      // If hydration throws, treat as mismatch and recover
-      ctx.mismatches.push("Hydration error: " + err.to_string())
-  }
-
-  // Check for mismatches
-  if not(ctx.mismatches.is_empty()) {
-    let mismatch_msg = ctx.mismatches.iter().join("; ")
-    if warn {
-      warn_hydration(logger, "Hydration mismatch detected: " + mismatch_msg)
+    node,
+    recover_on_mismatch?,
+    warn_on_mismatch?,
+    logger?,
+  )
+  match result {
+    Mismatch(_) => {
+      // Do not keep effects if hydration failed and no recovery
+      dispose()
+      result
     }
-    if recover {
-      // Recovery: clear and re-render
-      warn_hydration(logger, "Recovering by re-rendering...")
-      container.as_node().setTextContent("")
-      let dom_node = render_vnode_to_dom(node)
-      container.as_node().appendChild(dom_node) |> ignore
-      Recovered(mismatch_msg)
-    } else {
-      Mismatch(mismatch_msg)
+    _ => {
+      store_hydrate_dispose(container, dispose)
+      result
     }
-  } else {
-    Success
   }
 }
 
@@ -418,8 +495,21 @@ fn hydrate_element_with_dispatch(
             elem.removeAttribute(name)
           } else if name == "class" || name == "className" {
             elem.setClassName(new_value)
+          } else if name == "__innerHTML" {
+            elem.as_any()._set("innerHTML", @js.any(new_value)) |> ignore
           } else if name == "value" {
             elem.as_any()._set("value", @js.any(new_value)) |> ignore
+          } else if name == "checked" {
+            elem
+            .as_any()
+            ._set("checked", @js.any(new_value == "true" || new_value == ""))
+            |> ignore
+          } else if name == "disabled" {
+            if new_value == "true" || new_value == "" {
+              elem.setAttribute("disabled", "")
+            } else {
+              elem.removeAttribute("disabled")
+            }
           } else {
             elem.setAttribute(name, new_value)
           }
@@ -513,6 +603,7 @@ fn hydrate_show(
   }
   guard start_marker is Some(marker) else { return }
   let current_nodes : Array[@js_dom.Node] = []
+  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
 
   // Collect nodes between markers
   let mut sibling = marker.nextSibling()
@@ -538,9 +629,19 @@ fn hydrate_show(
     let child_vnode = child_fn()
     // We need to hydrate the existing nodes
     let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(marker))
-    hydrate_child_nodes(parent, region_cursor, Some(end_node), child_vnode, ctx) catch {
-      _ => () // Ignore errors during hydration of show content
-    }
+    let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
+      hydrate_child_nodes(
+        parent,
+        region_cursor,
+        Some(end_node),
+        child_vnode,
+        ctx,
+      ) catch {
+        _ => () // Ignore errors during hydration of show content
+      }
+    })
+    ignore(hydrated)
+    current_dispose.val = Some(dispose)
   }
 
   // Set up effect for show/hide
@@ -549,7 +650,8 @@ fn hydrate_show(
     if should_show && current_nodes.is_empty() {
       // Need to show - render and insert
       let child_vnode = child_fn()
-      let new_node = render_vnode_to_dom(child_vnode)
+      let (new_node, dispose) = render_vnode_to_dom_with_dispose(child_vnode)
+      current_dispose.val = Some(dispose)
       if end_marker is Some(end_node) {
         let nodes_to_track = collect_dom_nodes(new_node)
         parent.insertBefore(new_node, Some(end_node)) |> ignore
@@ -559,6 +661,13 @@ fn hydrate_show(
       }
     } else if not(should_show) && not(current_nodes.is_empty()) {
       // Need to hide - remove nodes
+      match current_dispose.val {
+        Some(dispose) => {
+          dispose()
+          current_dispose.val = None
+        }
+        None => ()
+      }
       for node in current_nodes {
         parent.removeChild(node) |> ignore
       }
@@ -601,6 +710,8 @@ fn hydrate_for(
 ) -> Unit {
   let _ = stop // reserved for bounded search
   let marker_start = "f:" + id.to_string()
+  let item_start = "fi:" + id.to_string()
+  let item_end = "/fi:" + id.to_string()
 
   // Find the for marker
   let children = parent.childNodes()
@@ -620,6 +731,14 @@ fn hydrate_for(
   match (start_marker, end_marker) {
     (Some(start), Some(end)) => {
       let current_nodes : Array[@js_dom.Node] = []
+      let item_regions : Array[
+        (Array[@js_dom.Node], @js_dom.Node, @js_dom.Node),
+      ] = []
+      let item_marker_nodes : Array[@js_dom.Node] = []
+      let mut collecting = false
+      let mut current_item_nodes : Array[@js_dom.Node] = []
+      let mut current_item_start : @js_dom.Node? = None
+      let mut saw_item_markers = false
 
       // Collect nodes between markers
       let mut sibling = start.nextSibling()
@@ -628,11 +747,35 @@ fn hydrate_for(
           Some(node) => {
             if node.nodeType() == 8 {
               let text = get_text_content(node)
-              if text == "/f" {
+              if text == item_start {
+                saw_item_markers = true
+                collecting = true
+                current_item_nodes = []
+                current_item_start = Some(node)
+                item_marker_nodes.push(node)
+              } else if text == item_end {
+                match current_item_start {
+                  Some(start_marker) =>
+                    item_regions.push((current_item_nodes, start_marker, node))
+                  None => ()
+                }
+                collecting = false
+                current_item_start = None
+                item_marker_nodes.push(node)
+              } else if text == "/f" {
                 break
+              } else {
+                if collecting {
+                  current_item_nodes.push(node)
+                }
+                current_nodes.push(node)
               }
+            } else {
+              if collecting {
+                current_item_nodes.push(node)
+              }
+              current_nodes.push(node)
             }
-            current_nodes.push(node)
             sibling = node.nextSibling()
           }
           None => break
@@ -640,31 +783,137 @@ fn hydrate_for(
       }
 
       // Hydrate existing items
-      let items = render_fn()
-      let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(start))
-      for item in items {
-        hydrate_child_nodes(parent, region_cursor, Some(end), item, ctx) catch {
-          _ => () // Ignore errors during hydration of for items
+      let items = @resource.untracked(fn() { render_fn() })
+      if saw_item_markers {
+        if item_regions.length() == items.length() {
+          let entries : Ref[
+            Array[@element.ItemEntry[@luna.Node[@js.Any, String]]],
+          ] = Ref::new([])
+          for i, item in items {
+            let (nodes, start_marker, end_marker) = item_regions[i]
+            let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
+              let region_cursor : Ref[@js_dom.Node?] = Ref::new(
+                Some(start_marker),
+              )
+              hydrate_child_nodes(
+                parent,
+                region_cursor,
+                Some(end_marker),
+                item,
+                ctx,
+              ) catch {
+                _ => () // Ignore errors during hydration of for items
+              }
+            })
+            ignore(hydrated)
+            let tracked_nodes = if nodes.length() == 0 {
+              let placeholder = @js_dom.document().createComment("empty")
+              parent.insertBefore(placeholder, Some(end)) |> ignore
+              [placeholder]
+            } else {
+              nodes
+            }
+            entries.val.push(
+              @element.ItemEntry::new_with_nodes_and_dispose(
+                item, tracked_nodes, dispose,
+              ),
+            )
+          }
+
+          // Remove per-item markers after mapping
+          for marker in item_marker_nodes {
+            parent.removeChild(marker) |> ignore
+          }
+
+          // Set up effect for list updates with reconciliation
+          let is_first_render : Ref[Bool] = Ref::new(true)
+          let _ = @resource.render_effect(fn() {
+            let new_items = render_fn()
+            if is_first_render.val {
+              is_first_render.val = false
+              return
+            }
+            @resource.untracked(fn() {
+              @element.reconcile_for_each_with_dispose(
+                entries,
+                end,
+                new_items,
+                fn(item, _idx) { render_vnode_to_dom_with_dispose(item) },
+              )
+            })
+          })
+
+          // Advance cursor to end marker for sibling matching
+          cursor.val = Some(end)
+          return
+        } else {
+          ctx.mismatches.push(
+            "For item count mismatch at f:" +
+            id.to_string() +
+            " (expected " +
+            item_regions.length().to_string() +
+            ", got " +
+            items.length().to_string() +
+            ")",
+          )
+        }
+
+        // Remove markers even if we fall back
+        for marker in item_marker_nodes {
+          parent.removeChild(marker) |> ignore
         }
       }
 
-      // Set up effect for list updates
-      let _ = @resource.render_effect(fn() {
-        let new_items = render_fn()
-
-        // Simple strategy: clear and re-render
-        for node in current_nodes {
-          parent.removeChild(node) |> ignore
-        }
-        current_nodes.clear()
-        for item in new_items {
-          let new_node = render_vnode_to_dom(item)
-          let nodes_to_track = collect_dom_nodes(new_node)
-          parent.insertBefore(new_node, Some(end)) |> ignore
-          for node in nodes_to_track {
-            current_nodes.push(node)
+      // Fallback: hydrate in a single owner and clear/re-render on updates
+      let list_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+      let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
+        let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(start))
+        for item in items {
+          hydrate_child_nodes(parent, region_cursor, Some(end), item, ctx) catch {
+            _ => () // Ignore errors during hydration of for items
           }
         }
+      })
+      ignore(hydrated)
+      list_dispose.val = Some(dispose)
+
+      // Set up effect for list updates (clear and re-render with cleanup)
+      let is_first_render : Ref[Bool] = Ref::new(true)
+      let _ = @resource.render_effect(fn() {
+        let new_items = render_fn()
+        if is_first_render.val {
+          is_first_render.val = false
+          return
+        }
+        @resource.untracked(fn() {
+          match list_dispose.val {
+            Some(dispose) => {
+              dispose()
+              list_dispose.val = None
+            }
+            None => ()
+          }
+          for node in current_nodes {
+            parent.removeChild(node) |> ignore
+          }
+          current_nodes.clear()
+          let (new_nodes, dispose) = @resource.create_root_with_dispose(fn() {
+            let nodes : Array[@js_dom.Node] = []
+            for item in new_items {
+              let new_node = render_vnode_to_dom(item)
+              let nodes_to_track = collect_dom_nodes(new_node)
+              parent.insertBefore(new_node, Some(end)) |> ignore
+              for node in nodes_to_track {
+                nodes.push(node)
+              }
+            }
+            nodes
+          })
+          list_dispose.val = Some(dispose)
+          for node in new_nodes {
+            current_nodes.push(node)
+          }
+        })
       })
 
       // Advance cursor to end marker for sibling matching
@@ -802,6 +1051,7 @@ pub fn[State] hydrate_with_actions(
   update : (State, String) -> State,
 ) -> Unit {
   let state_signal = @resource.signal(initial_state)
+  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
 
   // Create dispatcher that updates state
   let dispatch : (String) -> Unit = fn(action : String) {
@@ -825,10 +1075,19 @@ pub fn[State] hydrate_with_actions(
     }
 
     // Re-render on state change
-    let new_vnode = render(current_state)
+    match current_dispose.val {
+      Some(dispose) => {
+        dispose()
+        current_dispose.val = None
+      }
+      None => ()
+    }
+    let (dom_node, dispose) = @resource.untracked(fn() {
+      render_vnode_to_dom_with_dispose(render(current_state))
+    })
     container.as_node().setTextContent("")
-    let dom_node = render_vnode_to_dom(new_vnode)
     container.as_node().appendChild(dom_node) |> ignore
+    current_dispose.val = Some(dispose)
 
     // Re-bind actions after re-render
     bind_actions_from_dom(container, dispatch)
