@@ -7,6 +7,11 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   # Fast: moon check + TypeScript type check
   check:
