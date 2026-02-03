@@ -69,7 +69,7 @@ fn split_css_value(value : String) -> Array[String] {
   let paren_open : UInt16 = 40 // '('
   let paren_close : UInt16 = 41 // ')'
   let space : UInt16 = 32 // ' '
-  for i = 0; i < value.length(); i = i + 1 {
+  for i in 0..<value.length() {
     let c = value[i]
     if c == paren_open {
       in_parens = in_parens + 1
@@ -105,7 +105,7 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
     let def = get_box_shorthand_def("margin")
     let values = parse_box_shorthand_value(val)
     let result : Array[Declaration] = []
-    for i = 0; i < 4; i = i + 1 {
+    for i in 0..<4 {
       result.push({ property: def.longhands[i], value: values[i] })
     }
     return result
@@ -116,7 +116,7 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
     let def = get_box_shorthand_def("padding")
     let values = parse_box_shorthand_value(val)
     let result : Array[Declaration] = []
-    for i = 0; i < 4; i = i + 1 {
+    for i in 0..<4 {
       result.push({ property: def.longhands[i], value: values[i] })
     }
     return result
@@ -127,7 +127,7 @@ pub fn expand_shorthand(decl : Declaration) -> Array[Declaration] {
     let def = get_border_radius_shorthand_def()
     let values = parse_box_shorthand_value(val)
     let result : Array[Declaration] = []
-    for i = 0; i < 4; i = i + 1 {
+    for i in 0..<4 {
       result.push({ property: def.longhands[i], value: values[i] })
     }
     return result

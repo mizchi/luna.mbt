@@ -261,7 +261,7 @@ test "Todo app reactive text updates" {
   assert_eq(count.get(), 42)
 
   // Multiple updates
-  for i = 0; i < 10; i = i + 1 {
+  for i in 0..<10 {
     count.update(n => n + 1)
   }
   assert_eq(count.get(), 52)

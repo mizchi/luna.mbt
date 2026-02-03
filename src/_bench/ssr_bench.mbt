@@ -71,7 +71,7 @@ test "ssr_nested_5_levels" (b : @bench.T) {
 ///|
 fn create_list(count : Int) -> @luna.Node[@js.Any, String] {
   let items : Array[@luna.Node[@js.Any, String]] = []
-  for i = 0; i < count; i = i + 1 {
+  for i in 0..<count {
     items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   @luna.h("ul", [], items)
@@ -123,7 +123,7 @@ fn create_card(title : String, content : String) -> @luna.Node[@js.Any, String] 
 ///|
 fn create_page(card_count : Int) -> @luna.Node[@js.Any, String] {
   let cards : Array[@luna.Node[@js.Any, String]] = []
-  for i = 0; i < card_count; i = i + 1 {
+  for i in 0..<card_count {
     cards.push(
       create_card("Card " + i.to_string(), "Content for card " + i.to_string()),
     )

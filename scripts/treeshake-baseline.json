@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-02-03T08:42:06.085Z",
+  "entries": [
+    {
+      "id": "signals-only",
+      "bytes": 14289,
+      "gzip": 4057
+    },
+    {
+      "id": "signals-effect",
+      "bytes": 15887,
+      "gzip": 4526
+    },
+    {
+      "id": "memo",
+      "bytes": 15529,
+      "gzip": 4444
+    },
+    {
+      "id": "render",
+      "bytes": 6167,
+      "gzip": 2026
+    },
+    {
+      "id": "router-resource",
+      "bytes": 26621,
+      "gzip": 7414
+    }
+  ]
+}

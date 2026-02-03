@@ -66,7 +66,7 @@ pub fn generate_report(result : AnalysisResult) -> String {
   } else {
     10
   }
-  for i = 0; i < limit; i = i + 1 {
+  for i in 0..<limit {
     let pattern = result.patterns[i]
     let classes_str = pattern.classes
       .iter()
@@ -89,7 +89,7 @@ pub fn generate_report(result : AnalysisResult) -> String {
   } else {
     5
   }
-  for i = 0; i < suggestion_limit; i = i + 1 {
+  for i in 0..<suggestion_limit {
     report = report + suggestion_to_report(result.suggestions[i]) + "\n\n"
   }
 

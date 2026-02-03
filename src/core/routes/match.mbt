@@ -76,7 +76,7 @@ fn try_match_pattern(
       // Base pattern matching
       let params : Array[(String, String)] = []
       let mut param_idx = 0
-      for i = 0; i < base_pattern_len; i = i + 1 {
+      for i in 0..<base_pattern_len {
         let pattern_seg = pattern_segments[i]
         let path_seg = path_segments[i]
         if starts_with_char(pattern_seg, ':') || is_bracket_param(pattern_seg) {
@@ -93,7 +93,7 @@ fn try_match_pattern(
 
       // Collect remaining segments as catch-all parameter
       let catch_all_segments : Array[String] = []
-      for i = base_pattern_len; i < path_len; i = i + 1 {
+      for i in base_pattern_len..<path_len {
         catch_all_segments.push(path_segments[i])
       }
       let catch_all_value = join_segments(catch_all_segments)

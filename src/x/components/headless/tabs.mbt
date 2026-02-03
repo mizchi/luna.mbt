@@ -153,7 +153,7 @@ pub fn generate_tab_ids(
 ) -> (Array[String], Array[String]) {
   let tab_ids : Array[String] = []
   let panel_ids : Array[String] = []
-  for i = 0; i < items_count; i = i + 1 {
+  for i in 0..<items_count {
     tab_ids.push(prefix + "-tab-" + i.to_string())
     panel_ids.push(prefix + "-panel-" + i.to_string())
   }

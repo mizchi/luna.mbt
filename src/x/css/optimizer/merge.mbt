@@ -66,7 +66,7 @@ fn generate_merged_class_name(declarations : Array[Declaration]) -> String {
 /// DJB2 hash function
 fn djb2_hash(s : String) -> Int {
   let mut hash = 5381
-  for i = 0; i < s.length(); i = i + 1 {
+  for i in 0..<s.length() {
     let c = s[i].to_int()
     hash = ((hash << 5) + hash + c) & 0x7FFFFFFF
   }

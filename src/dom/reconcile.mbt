@@ -102,7 +102,7 @@ pub fn[T] reconcile_items(
     return []
   }
   let new_entries : Array[ItemEntry[T]] = []
-  for j = 0; j < n; j = j + 1 {
+  for j in 0..<n {
     new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() {  } })
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
@@ -113,7 +113,8 @@ pub fn[T] reconcile_items(
   let cursor : Ref[@js_dom.Node] = Ref::new(end_marker)
 
   // Process from last to first
-  for i = n - 1; i >= 0; i = i - 1 {
+  let last = n - 1
+  for i in last>=..0 {
     let item = new_items[i]
     let old_index = find_entry_index(old_entries, item)
     if old_index >= 0 {
@@ -229,14 +230,15 @@ pub fn[T] reconcile_items_with_dispose(
     return []
   }
   let new_entries : Array[ItemEntry[T]] = []
-  for j = 0; j < n; j = j + 1 {
+  for j in 0..<n {
     new_entries.push({ item: new_items[0], dom: end_marker, dispose: fn() {  } })
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
   let cursor : Ref[@js_dom.Node] = Ref::new(end_marker)
 
   // Process from last to first
-  for i = n - 1; i >= 0; i = i - 1 {
+  let last = n - 1
+  for i in last>=..0 {
     let item = new_items[i]
     let old_index = find_entry_index(old_entries, item)
     if old_index >= 0 {

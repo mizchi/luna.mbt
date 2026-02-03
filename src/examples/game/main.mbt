@@ -422,7 +422,8 @@ fn cell_class(cell_type : Int) -> String {
 ///|
 fn make_indices() -> Array[Int] {
   let arr : Array[Int] = []
-  for i = 0; i < GRID_SIZE * GRID_SIZE; i = i + 1 {
+  let total = GRID_SIZE * GRID_SIZE
+  for i in 0..<total {
     arr.push(i)
   }
   arr
@@ -438,7 +439,8 @@ let prev_cell_types : Array[Int] = []
 
 ///|
 fn init_prev_cell_types() -> Unit {
-  for i = 0; i < GRID_SIZE * GRID_SIZE; i = i + 1 {
+  let total = GRID_SIZE * GRID_SIZE
+  for i in 0..<total {
     prev_cell_types.push(0)
   }
 }
@@ -450,7 +452,7 @@ fn render_grid(state_sig : @resource.Signal[GameState]) -> DomNode {
   // Single effect with dirty tracking - only update changed cells
   let _ = @resource.effect(fn() {
     let state = state_sig.get()
-    for i = 0; i < cell_elements.length(); i = i + 1 {
+    for i in 0..<cell_elements.length() {
       let x = i % GRID_SIZE
       let y = i / GRID_SIZE
       let cell_type = get_cell_type(x, y, state)

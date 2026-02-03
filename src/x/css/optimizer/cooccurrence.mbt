@@ -12,8 +12,9 @@ pub fn build_cooccurrence_matrix(
     let n = classes.length()
 
     // Count all pairs (i, j) where i < j
-    for i = 0; i < n; i = i + 1 {
-      for j = i + 1; j < n; j = j + 1 {
+    for i in 0..<n {
+      let start = i + 1
+      for j in start..<n {
         let a = classes[i]
         let b = classes[j]
 
@@ -68,7 +69,7 @@ pub fn top_cooccurrences(
   } else {
     cooccurrences.length()
   }
-  for i = 0; i < limit; i = i + 1 {
+  for i in 0..<limit {
     result.push(cooccurrences[i])
   }
   result

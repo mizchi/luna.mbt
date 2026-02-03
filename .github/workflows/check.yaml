@@ -7,6 +7,11 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   # Fast: moon check + TypeScript type check
   check:
@@ -41,6 +46,33 @@ jobs:
           cd ../stella && pnpm build
       - name: TypeScript check
         run: pnpm tsc -b
+      - name: Treeshake size baseline
+        id: treeshake
+        run: node scripts/treeshake-size.mjs --build --check --report /tmp/treeshake-report.txt
+        continue-on-error: true
+      - name: Comment treeshake result
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = '/tmp/treeshake-report.txt';
+            const marker = '<!-- treeshake-size -->';
+            const body = fs.existsSync(path) ? fs.readFileSync(path, 'utf8').trim() : 'Treeshake check failed.';
+            const hint = body.includes('❌') ? '\n\nUpdate baseline: `just treeshake-baseline`' : '';
+            const message = `${marker}\n**Treeshake size diff**\n\n\`\`\`\n${body}\n\`\`\`${hint}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.data.find(c => c.user?.type === 'Bot' && c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: message });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: message });
+            }
+      - name: Fail if treeshake check failed
+        if: steps.treeshake.outcome == 'failure'
+        run: exit 1
 
   # MoonBit unit tests
   test-moonbit:

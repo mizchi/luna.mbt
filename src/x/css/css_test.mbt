@@ -259,9 +259,8 @@ test "edge: combine() with empty array" {
 test "edge: many declarations do not overflow" {
   reset_all()
   // Generate 100 unique declarations
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     let _ = css("prop" + i.to_string(), "val" + i.to_string())
-
   }
   let output = generate_css()
   // Should contain all 100 declarations

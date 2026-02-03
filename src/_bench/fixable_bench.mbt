@@ -77,7 +77,7 @@ test "fixable_clean_nested" (b : @bench.T) {
 ///|
 fn create_fixable_list_node(count : Int) -> @luna.Node[@js.Any, String] {
   let items : Array[@luna.Node[@js.Any, String]] = []
-  for i = 0; i < count; i = i + 1 {
+  for i in 0..<count {
     items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   @luna.h("ul", [], items)
@@ -242,7 +242,7 @@ fn create_fixable_card(
 test "fixable_repair_multiple_cards" (b : @bench.T) {
   @global_jsdom.register()
   let cards : Array[@luna.Node[@js.Any, String]] = []
-  for i = 0; i < 5; i = i + 1 {
+  for i in 0..<5 {
     cards.push(
       create_fixable_card("Card " + i.to_string(), "Content " + i.to_string()),
     )

@@ -63,7 +63,11 @@ pub fn extract_state_from_html(html : String) -> String? {
   let mut start_pos : Int? = None
   let html_len = html.length()
   let start_len = start_marker.length()
-  for i = 0; i <= html_len - start_len; i = i + 1 {
+  let last_start = html_len - start_len
+  if last_start < 0 {
+    return None
+  }
+  for i in 0..<=last_start {
     if substring_matches(html, i, start_marker) {
       start_pos = Some(i + start_len)
       break
@@ -72,7 +76,11 @@ pub fn extract_state_from_html(html : String) -> String? {
   guard start_pos is Some(start) else { return None }
   // Find end position
   let end_len = end_marker.length()
-  for i = start; i <= html_len - end_len; i = i + 1 {
+  let last_end = html_len - end_len
+  if start > last_end {
+    return None
+  }
+  for i in start..<=last_end {
     if substring_matches(html, i, end_marker) {
       // Extract the JSON content
       let json = extract_substring(html, start, i)

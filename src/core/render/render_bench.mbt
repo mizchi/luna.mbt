@@ -60,7 +60,7 @@ fn vnode_nested() -> @luna.Node[Unit, String] {
 /// List of items (common pattern)
 fn vnode_list() -> @luna.Node[Unit, String] {
   let items : Array[@luna.Node[Unit, String]] = []
-  for i = 0; i < 10; i = i + 1 {
+  for i in 0..<10 {
     items.push(
       @luna.h("li", [("class", @luna.attr_static("item"))], [
         @luna.text("Item \{i}"),
@@ -74,7 +74,7 @@ fn vnode_list() -> @luna.Node[Unit, String] {
 /// Large list (stress test)
 fn vnode_large_list() -> @luna.Node[Unit, String] {
   let items : Array[@luna.Node[Unit, String]] = []
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     items.push(
       @luna.h("li", [("class", @luna.attr_static("item"))], [
         @luna.text("Item \{i} with some <special> & \"characters\""),
