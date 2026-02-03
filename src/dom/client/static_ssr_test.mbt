@@ -182,7 +182,7 @@ test "static_content: large list renders efficiently" {
 
   // Create a large list (simulating real-world static content)
   let items : Array[@luna.Node[Unit, String]] = []
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   let vnode : @luna.Node[Unit, String] = @luna.h("ul", [], items)

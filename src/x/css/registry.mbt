@@ -20,7 +20,7 @@ let registry : StyleRegistry = { decl_to_class: Map::new(), declarations: [] }
 /// DJB2 hash function - must match extract.ts implementation
 fn djb2_hash(s : String) -> UInt {
   let mut hash : UInt = 5381
-  for i = 0; i < s.length(); i = i + 1 {
+  for i in 0..<s.length() {
     let c = s[i].to_uint()
     // hash * 33 + c
     hash = (hash << 5) + hash + c
@@ -48,7 +48,8 @@ fn to_base36(n : UInt) -> String {
   // Reverse the string
   let s = buf.to_string()
   let result = StringBuilder::new()
-  for i = s.length() - 1; i >= 0; i = i - 1 {
+  let last = s.length() - 1
+  for i in last>=..0 {
     result.write_char(s[i].to_int().unsafe_to_char())
   }
   result.to_string()

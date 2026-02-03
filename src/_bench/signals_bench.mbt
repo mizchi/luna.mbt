@@ -186,7 +186,7 @@ test "untracked_read" (b : @bench.T) {
 test "create_100_signals" (b : @bench.T) {
   b.bench(name="create_100_signals", fn() {
     let signals : Array[@resource.Signal[Int]] = []
-    for i = 0; i < 100; i = i + 1 {
+    for i in 0..<100 {
       signals.push(@resource.signal(i))
     }
     b.keep(signals)
@@ -197,7 +197,7 @@ test "create_100_signals" (b : @bench.T) {
 test "create_1000_signals" (b : @bench.T) {
   b.bench(name="create_1000_signals", fn() {
     let signals : Array[@resource.Signal[Int]] = []
-    for i = 0; i < 1000; i = i + 1 {
+    for i in 0..<1000 {
       signals.push(@resource.signal(i))
     }
     b.keep(signals)
@@ -208,10 +208,10 @@ test "create_1000_signals" (b : @bench.T) {
 test "100_effects_1_signal" (b : @bench.T) {
   let sig = @resource.signal(0)
   let counts : Array[Int] = []
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     counts.push(0)
   }
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     let idx = i
     let _ = @resource.effect(fn() { counts[idx] = sig.get() })
 
@@ -248,14 +248,14 @@ test "derived_chain_10" (b : @bench.T) {
 test "wide_dependency_100_memos" (b : @bench.T) {
   let source = @resource.signal(1)
   let memos : Array[() -> Int] = []
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     let multiplier = i + 1
     memos.push(@resource.memo(fn() { source.get() * multiplier }))
   }
   // Sum all memos
   let sum_memo = @resource.memo(fn() {
     let mut sum = 0
-    for i = 0; i < memos.length(); i = i + 1 {
+    for i in 0..<memos.length() {
       sum = sum + memos[i]()
     }
     sum
@@ -271,14 +271,14 @@ test "wide_dependency_100_memos" (b : @bench.T) {
 ///|
 test "batch_100_updates" (b : @bench.T) {
   let signals : Array[@resource.Signal[Int]] = []
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     signals.push(@resource.signal(0))
   }
   // One effect that reads all
   let sum = Ref::new(0)
   let _ = @resource.effect(fn() {
     let mut s = 0
-    for i = 0; i < signals.length(); i = i + 1 {
+    for i in 0..<signals.length() {
       s = s + signals[i].get()
     }
     sum.val = s
@@ -287,7 +287,7 @@ test "batch_100_updates" (b : @bench.T) {
   b.bench(name="batch_100_signal_updates", fn() {
     iter = iter + 1
     @resource.batch(fn() {
-      for i = 0; i < signals.length(); i = i + 1 {
+      for i in 0..<signals.length() {
         signals[i].set(iter)
       }
     })
@@ -297,14 +297,14 @@ test "batch_100_updates" (b : @bench.T) {
 ///|
 test "unbatched_100_updates" (b : @bench.T) {
   let signals : Array[@resource.Signal[Int]] = []
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     signals.push(@resource.signal(0))
   }
   // One effect that reads all
   let sum = Ref::new(0)
   let _ = @resource.effect(fn() {
     let mut s = 0
-    for i = 0; i < signals.length(); i = i + 1 {
+    for i in 0..<signals.length() {
       s = s + signals[i].get()
     }
     sum.val = s
@@ -312,7 +312,7 @@ test "unbatched_100_updates" (b : @bench.T) {
   let mut iter = 0
   b.bench(name="unbatched_100_updates", fn() {
     iter = iter + 1
-    for i = 0; i < signals.length(); i = i + 1 {
+    for i in 0..<signals.length() {
       signals[i].set(iter)
     }
   })

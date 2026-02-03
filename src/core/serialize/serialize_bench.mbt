@@ -33,7 +33,7 @@ fn sv_small_array() -> StateValue {
 /// Medium array (10 items)
 fn sv_medium_array() -> StateValue {
   let arr : Array[StateValue] = []
-  for i = 0; i < 10; i = i + 1 {
+  for i in 0..<10 {
     arr.push(sv_int(i))
   }
   sv_arr(arr)
@@ -43,7 +43,7 @@ fn sv_medium_array() -> StateValue {
 /// Large array (100 items)
 fn sv_large_array() -> StateValue {
   let arr : Array[StateValue] = []
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     arr.push(sv_int(i))
   }
   sv_arr(arr)
@@ -85,9 +85,8 @@ fn create_small_state() -> ResumableState {
 /// Create medium state (10 values)
 fn create_medium_state() -> ResumableState {
   let state = ResumableState::new()
-  for i = 0; i < 10; i = i + 1 {
+  for i in 0..<10 {
     let _ = state.register_int(i)
-
   }
   state
 }
@@ -96,9 +95,8 @@ fn create_medium_state() -> ResumableState {
 /// Create large state (100 values)
 fn create_large_state() -> ResumableState {
   let state = ResumableState::new()
-  for i = 0; i < 100; i = i + 1 {
+  for i in 0..<100 {
     let _ = state.register_int(i)
-
   }
   state
 }

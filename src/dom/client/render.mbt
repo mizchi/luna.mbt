@@ -115,7 +115,7 @@ fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
   if node.nodeType() == 11 {
     let children : Array[@js_dom.Node] = []
     let child_nodes = node.childNodes()
-    for i = 0; i < child_nodes.length(); i = i + 1 {
+    for i in 0..<child_nodes.length() {
       children.push(child_nodes[i])
     }
     children

@@ -20,8 +20,9 @@ pub fn find_frequent_patterns(
     let n = classes.length()
 
     // Count pairs
-    for i = 0; i < n; i = i + 1 {
-      for j = i + 1; j < n; j = j + 1 {
+    for i in 0..<n {
+      let start = i + 1
+      for j in start..<n {
         let key = classes[i] + "|" + classes[j]
         match pattern_counts.get(key) {
           Some(count) => pattern_counts.set(key, count + 1)
@@ -31,9 +32,11 @@ pub fn find_frequent_patterns(
     }
 
     // Count triples (for larger patterns)
-    for i = 0; i < n; i = i + 1 {
-      for j = i + 1; j < n; j = j + 1 {
-        for k = j + 1; k < n; k = k + 1 {
+    for i in 0..<n {
+      let start_j = i + 1
+      for j in start_j..<n {
+        let start_k = j + 1
+        for k in start_k..<n {
           let key = classes[i] + "|" + classes[j] + "|" + classes[k]
           match pattern_counts.get(key) {
             Some(count) => pattern_counts.set(key, count + 1)
@@ -73,7 +76,7 @@ fn remove_subsumed_patterns(
   patterns : Array[FrequentPattern],
 ) -> Array[FrequentPattern] {
   let result : Array[FrequentPattern] = []
-  for i = 0; i < patterns.length(); i = i + 1 {
+  for i in 0..<patterns.length() {
     let pattern = patterns[i]
     let dominated = is_dominated(pattern, patterns, i)
     if not(dominated) {
@@ -91,7 +94,7 @@ fn is_dominated(
   self_index : Int,
 ) -> Bool {
   let pattern_set = set_from_array(pattern.classes)
-  for i = 0; i < all_patterns.length(); i = i + 1 {
+  for i in 0..<all_patterns.length() {
     if i != self_index {
       let other = all_patterns[i]
       // Check if other is a superset with similar or higher frequency

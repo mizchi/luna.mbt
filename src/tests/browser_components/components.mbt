@@ -411,7 +411,7 @@ pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
               let current = items_sig.get()
               if current.length() > 1 {
                 let reordered : Array[Item] = []
-                for i = 1; i < current.length(); i = i + 1 {
+                for i in 1..<current.length() {
                   reordered.push(current[i])
                 }
                 reordered.push(current[0])

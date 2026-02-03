@@ -549,7 +549,7 @@ fn find_substring(s : String, pattern : String) -> Int? {
     return None
   }
   let max_start = s.length() - pattern.length()
-  for i = 0; i <= max_start; i = i + 1 {
+  for i in 0..<=max_start {
     let sub = s[i:i + pattern.length()].to_string() catch { _ => continue }
     if sub == pattern {
       return Some(i)

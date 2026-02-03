@@ -582,7 +582,7 @@ test "render island with complex children" {
       @luna.h("ul", [], [
         @luna.for_each(fn() {
           let items : Array[@luna.Node[Unit, String]] = []
-          for i = 0; i < count; i = i + 1 {
+          for i in 0..<count {
             items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
           }
           items

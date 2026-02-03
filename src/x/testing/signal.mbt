@@ -140,7 +140,7 @@ pub fn[T : Eq + Show] assert_tracked_values(
       "Expected \{expected.length()} tracked values, but got \{actual.length()}",
     )
   }
-  for i = 0; i < actual.length(); i = i + 1 {
+  for i in 0..<actual.length() {
     if actual[i] != expected[i] {
       abort(
         "Tracked value at index \{i}: expected \{expected[i]}, but got \{actual[i]}",

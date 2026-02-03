@@ -129,7 +129,7 @@ test "demo: responsive grid layout" {
 
   // Build grid items
   let items = []
-  for i = 0; i < 6; i = i + 1 {
+  for i in 0..<6 {
     items.push(
       div(class=@css.css("padding", "1rem"), [
         text("Item " + (i + 1).to_string()),

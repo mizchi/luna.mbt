@@ -1300,7 +1300,7 @@ fn experimental_hydrate_for(
 
   // Hydrate what we can, then add/remove as needed
   let min_count = if item_count < node_count { item_count } else { node_count }
-  for i = 0; i < min_count; i = i + 1 {
+  for i in 0..<min_count {
     // For text nodes and simple nodes, we can't hydrate into them as children
     // Instead, we replace them with the new rendered vnode
     let current_node = current_nodes[i]
@@ -1333,14 +1333,14 @@ fn experimental_hydrate_for(
   }
 
   // Add missing items
-  for i = min_count; i < item_count; i = i + 1 {
+  for i in min_count..<item_count {
     let new_node = @client.render_vnode_to_dom(items[i])
     parent.insertBefore(new_node, Some(end)) |> ignore
     current_nodes.push(new_node)
   }
 
   // Remove extra nodes
-  for i = min_count; i < node_count; i = i + 1 {
+  for i in min_count..<node_count {
     parent.removeChild(current_nodes[i]) |> ignore
   }
   // Trim array to item_count

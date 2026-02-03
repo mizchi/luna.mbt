@@ -129,7 +129,7 @@ test "hydrate_nested_5" (b : @bench.T) {
 ///|
 fn create_hydrate_list_node(count : Int) -> @luna.Node[@js.Any, String] {
   let items : Array[@luna.Node[@js.Any, String]] = []
-  for i = 0; i < count; i = i + 1 {
+  for i in 0..<count {
     items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
   }
   @luna.h("ul", [], items)
@@ -254,7 +254,7 @@ test "hydrate_for_5_items" (b : @bench.T) {
 test "hydrate_for_20_items" (b : @bench.T) {
   @global_jsdom.register()
   let items : Array[String] = []
-  for i = 0; i < 20; i = i + 1 {
+  for i in 0..<20 {
     items.push("item_" + i.to_string())
   }
   let items_sig = @resource.signal(items)
@@ -293,7 +293,7 @@ fn create_hydrate_card(
 ///|
 fn create_hydrate_page(card_count : Int) -> @luna.Node[@js.Any, String] {
   let cards : Array[@luna.Node[@js.Any, String]] = []
-  for i = 0; i < card_count; i = i + 1 {
+  for i in 0..<card_count {
     cards.push(
       create_hydrate_card(
         "Card " + i.to_string(),

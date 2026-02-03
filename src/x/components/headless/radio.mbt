@@ -235,7 +235,7 @@ pub fn use_radio(
 /// Generate radio IDs for a group.
 pub fn generate_radio_ids(name : String, count : Int) -> Array[String] {
   let ids : Array[String] = []
-  for i = 0; i < count; i = i + 1 {
+  for i in 0..<count {
     ids.push("radio-" + name + "-" + i.to_string())
   }
   ids
