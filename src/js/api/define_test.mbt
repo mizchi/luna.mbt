@@ -29,6 +29,28 @@ test "register: basic custom element" {
 }
 
 ///|
+test "register: dispose on disconnect" {
+  @global_jsdom.register()
+  let disposed : Ref[Bool] = Ref::new(false)
+  register("test-dispose-1", fn(_host) {
+    @resource.on_cleanup(fn() { disposed.val = true })
+    @luna.h("div", [], [@luna.text("bye")])
+  })
+  let doc = @js_dom.document()
+  let container = doc.createElement("div")
+  match doc.body() {
+    Some(body) => body.appendChild(container.as_node()) |> ignore
+    None => ()
+  }
+  js_set_inner_html(container, "<test-dispose-1></test-dispose-1>")
+  match container.querySelector("test-dispose-1") {
+    Some(elem) => container.as_node().removeChild(elem.as_node()) |> ignore
+    None => fail("custom element not found")
+  }
+  assert_true(disposed.val)
+}
+
+///|
 test "register_with_attrs: observed attributes become signals" {
   @global_jsdom.register()
 
