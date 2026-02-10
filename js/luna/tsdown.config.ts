@@ -19,7 +19,7 @@ export default defineConfig([
       return { js: ".js", dts: ".d.ts" };
     },
     // Bundle the MoonBit output into the package
-    noExternal: [/\.\.\/\.\.\/\.\.\/target/],
+    noExternal: [/\.\.\/\.\.\/\.\.\/_build/],
   },
   {
     entry: ["src/css/index.ts"],

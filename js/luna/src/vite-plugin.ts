@@ -358,7 +358,12 @@ export function lunaCss(options: LunaCssPluginOptions = {}): Plugin {
       const entries = fs.readdirSync(currentDir, { withFileTypes: true });
       for (const entry of entries) {
         const fullPath = path.join(currentDir, entry.name);
-        if (entry.isDirectory() && !["node_modules", ".git", "dist", "target"].includes(entry.name)) {
+        if (
+          entry.isDirectory() &&
+          !["node_modules", ".git", "dist", "_build", "target"].includes(
+            entry.name
+          )
+        ) {
           walk(fullPath);
         } else if (entry.isFile() && entry.name.endsWith(".html")) {
           files.push(fullPath);

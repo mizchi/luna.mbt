@@ -22,10 +22,10 @@ function getAnalyzerPath(): string {
 
   // Try multiple possible locations
   const candidates = [
-    // Development: from dist/ to target/ (bundled cli.mjs)
-    path.resolve(__dirname, "../../../target/js/release/build/luna/css/analyzer/analyzer.js"),
-    // Development: from src/css-optimizer/ to target/
-    path.resolve(__dirname, "../../../../target/js/release/build/luna/css/analyzer/analyzer.js"),
+    // Development: from dist/ to _build/ (bundled cli.mjs)
+    path.resolve(__dirname, "../../../_build/js/release/build/luna/css/analyzer/analyzer.js"),
+    // Development: from src/css-optimizer/ to _build/
+    path.resolve(__dirname, "../../../../_build/js/release/build/luna/css/analyzer/analyzer.js"),
     // Installed package
     path.resolve(__dirname, "../moonbit/analyzer.js"),
   ];
@@ -120,6 +120,7 @@ function findMbtFiles(dir: string, recursive: boolean): string[] {
         // Skip common non-source directories
         if (
           entry.name === "node_modules" ||
+          entry.name === "_build" ||
           entry.name === "target" ||
           entry.name === ".git" ||
           entry.name === ".mooncakes"

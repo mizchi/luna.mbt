@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const BUILD_OUT = resolve(ROOT, 'dist');
-const MOONBIT_OUT = resolve(ROOT, 'target/js/release/build');
+const MOONBIT_OUT = resolve(ROOT, '_build/js/release/build');
 
 // Load configuration from stella.config.json
 function loadConfig() {

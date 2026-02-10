@@ -28,7 +28,7 @@ watch:
 # クリーン
 clean:
     moon clean
-    rm -rf target coverage .turbo/cache
+    rm -rf _build target coverage .turbo/cache
 
 # 強制テスト（キャッシュ無視）
 retest *tasks="test:moonbit test:vitest":
@@ -41,7 +41,7 @@ retest *tasks="test:moonbit test:vitest":
 # MoonBit ビルド
 build-moon:
     moon build --target js
-    @rm -f target/js/release/build/package.json
+    @rm -f _build/js/release/build/package.json
 
 # MoonBit デバッグビルド（ソースマップ付き）
 build-debug:
@@ -84,8 +84,8 @@ test-xplat:
 
 # moon test 用 CommonJS 環境セットアップ
 _setup-test-env:
-    @mkdir -p target/js/debug/test
-    @echo '{"type": "commonjs"}' > target/js/debug/test/package.json
+    @mkdir -p _build/js/debug/test
+    @echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
 
 # =============================================================================
 # CI
@@ -110,7 +110,7 @@ size:
     @ls -lh js/loader/dist/*.js 2>/dev/null | awk '{print $9 ": " $5}'
     @echo ""
     @echo "=== MoonBit Output ==="
-    @find target/js/release/build -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 ": " $5}' | head -20
+    @find _build/js/release/build -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 ": " $5}' | head -20
 
 # Treeshake 後サイズ計測
 treeshake-size:
@@ -135,7 +135,7 @@ coverage: coverage-moonbit coverage-vitest coverage-e2e
 
 # MoonBit カバレッジ
 coverage-moonbit:
-    rm -f target/moonbit_coverage_*.txt
+    rm -f _build/moonbit_coverage_*.txt
     moon test --target js --enable-coverage
     moon coverage report -f cobertura -o coverage/moonbit-coverage.xml
     moon coverage report -f summary

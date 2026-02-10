@@ -1,30 +1,30 @@
 {
-  "generatedAt": "2026-02-03T10:30:50.760Z",
+  "generatedAt": "2026-02-10T16:17:26.940Z",
   "entries": [
     {
       "id": "signals-only",
-      "bytes": 14289,
-      "gzip": 4057
+      "bytes": 11646,
+      "gzip": 3657
     },
     {
       "id": "signals-effect",
-      "bytes": 15887,
-      "gzip": 4526
+      "bytes": 13245,
+      "gzip": 4133
     },
     {
       "id": "memo",
-      "bytes": 15529,
-      "gzip": 4444
+      "bytes": 12886,
+      "gzip": 4046
     },
     {
       "id": "render",
-      "bytes": 6167,
-      "gzip": 2025
+      "bytes": 6320,
+      "gzip": 2068
     },
     {
       "id": "router-resource",
-      "bytes": 26621,
-      "gzip": 7413
+      "bytes": 23980,
+      "gzip": 6906
     }
   ]
 }

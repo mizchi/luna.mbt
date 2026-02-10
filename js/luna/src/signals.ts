@@ -29,7 +29,7 @@ import {
   runWithOwner,
   hasOwner,
   onMount,
-} from "../../../target/js/release/build/js/api_signals/api_signals.js";
+} from "../../../_build/js/release/build/js/api_signals/api_signals.js";
 
 // ============================================================================
 // SolidJS-compatible Signal API

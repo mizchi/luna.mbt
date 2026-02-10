@@ -22,7 +22,7 @@ export default defineConfig(({ command }) => {
     base: isDev ? '/' : '/demo/',
     resolve: {
       alias: {
-        '/target': resolve(rootDir, 'target'),
+        '/_build': resolve(rootDir, '_build'),
         '@luna/loader': resolve(rootDir, 'js/loader/dist'),
       },
     },

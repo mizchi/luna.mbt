@@ -379,7 +379,9 @@ export function findMbtFiles(dir: string): string[] {
       const fullPath = path.join(currentDir, entry.name);
       if (entry.isDirectory()) {
         if (
-          !["node_modules", ".git", "target", ".mooncakes"].includes(entry.name)
+          !["node_modules", ".git", "_build", "target", ".mooncakes"].includes(
+            entry.name
+          )
         ) {
           walk(fullPath);
         }

@@ -28,7 +28,7 @@ export const test = base.extend({
     const filtered = coverage.filter((entry) => {
       const url = entry.url;
       return (
-        url.includes("/target/js/") ||
+        url.includes("/_build/js/") ||
         url.includes("/js/loader/") ||
         url.includes("browser_router") ||
         url.includes("demo")

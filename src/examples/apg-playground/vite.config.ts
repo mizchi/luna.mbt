@@ -9,7 +9,7 @@ export default defineConfig({
   root: __dirname,
   resolve: {
     alias: {
-      '/target': resolve(projectRoot, 'target'),
+      '/_build': resolve(projectRoot, '_build'),
     },
   },
   server: {

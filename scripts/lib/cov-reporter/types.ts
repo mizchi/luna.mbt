@@ -61,7 +61,7 @@ export function createDefaultConfig(projectRoot: string): CoverageConfig {
   return {
     projectRoot,
     coverageDir: `${projectRoot}/coverage`,
-    sourceMapDir: `${projectRoot}/target/js/debug/build`,
+    sourceMapDir: `${projectRoot}/_build/js/debug/build`,
     include: /^src\//,
     exclude: /_test\.mbt$/,
     // Exclude benchmarks, examples, and test infrastructure

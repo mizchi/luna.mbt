@@ -97,8 +97,8 @@ jobs:
           moon install
       - name: Setup CJS test environment
         run: |
-          mkdir -p target/js/debug/test
-          echo '{"type": "commonjs"}' > target/js/debug/test/package.json
+          mkdir -p _build/js/debug/test
+          echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
       - name: moon test
         run: |
           # Luna core

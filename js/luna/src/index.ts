@@ -155,7 +155,7 @@ import {
   portalToSelector,
   portalWithShadow,
   portalToElementWithShadow,
-} from "../../../target/js/release/build/js/api/api.js";
+} from "../../../_build/js/release/build/js/api/api.js";
 
 // ============================================================================
 // SolidJS-compatible Signal API

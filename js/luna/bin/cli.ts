@@ -323,7 +323,7 @@ function getMbtTemplates(projectName: string): Template[] {
             skipLibCheck: true,
             paths: {
               [`mbt:internal/${projectName}`]: [
-                "./target/js/release/build/app/app.js",
+                "./_build/js/release/build/app/app.js",
               ],
             },
           },
@@ -443,7 +443,7 @@ fn main {
       path: ".gitignore",
       content: `node_modules
 dist
-target
+_build
 .mooncakes
 `,
     },

@@ -8,7 +8,7 @@
         "**/moon.pkg.json"
       ],
       "outputs": [
-        "target/js/release/build/**"
+        "_build/js/release/build/**"
       ]
     },
     "@luna_ui/luna-loader#build": {
