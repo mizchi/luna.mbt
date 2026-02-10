@@ -187,7 +187,6 @@ pub fn[T : Show] WcIslandContext::bind_signal(
     set_part_value(parts, part_name, value)
     commit_part(parts, part_name)
   })
-
 }
 
 ///|
@@ -221,7 +220,7 @@ pub fn WcIslandContext::on(
 /// Hydrate a Web Components island
 ///
 /// Usage in component:
-/// ```moonbit
+/// ```moonbit nocheck
 /// pub fn hydrate(element : @js.Any) -> Unit {
 ///   @dom.hydrate_wc_island(element, fn(ctx) {
 ///     let count = ctx.signal_int("count", 0)
@@ -296,7 +295,7 @@ pub fn get_shadow_root_for_hydrate(
 /// When is_rerender is true, always uses render mode (full re-render)
 ///
 /// Usage:
-/// ```moonbit
+/// ```moonbit nocheck
 /// pub fn hydrate_counter(element : @js.Any, state : @js.Any, _id : String) -> Unit {
 ///   let jsdom_el : @js_dom.Element = element.cast()
 ///   let props : CounterProps = ... // parse state

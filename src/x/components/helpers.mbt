@@ -414,12 +414,10 @@ pub fn make_slider_drag_handler(
         @js.any("mouseup"),
         up_handler_ref.val,
       ])
-
     })
     up_handler_ref.val = up_handler
     // Add listeners
     let _ = doc._call("addEventListener", [@js.any("mousemove"), move_handler])
     let _ = doc._call("addEventListener", [@js.any("mouseup"), up_handler])
-
   })
 }

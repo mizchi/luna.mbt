@@ -1,8 +1,8 @@
 import {
-  "mizchi/signals" as @signals,
-  "mizchi/signals/ui" as @ui,
+  "mizchi/signals" @signals,
+  "mizchi/signals/ui" @ui,
 }
 
-import "test" {
-  "mizchi/luna" as @luna,
-}
+import {
+  "mizchi/luna" @luna,
+} for "test"

@@ -244,7 +244,6 @@ fn focus_radio(radio_id : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let el = doc._call("getElementById", [@js.any(radio_id)])
   let _ = el._call("focus", [])
-
 }
 
 ///|

@@ -34,7 +34,6 @@ fn focus_radio_element(radio_id : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let el = doc._call("getElementById", [@js.any(radio_id)])
   let _ = el._call("focus", [])
-
 }
 
 // Helper: Find next enabled index (wrapping)

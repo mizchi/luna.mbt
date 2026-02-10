@@ -422,7 +422,6 @@ pub fn table_interactive(
     let doc = @js.global_this()._get("document")
     let el = doc._call("getElementById", [@js.any(cell_id)])
     let _ = el._call("focus", [])
-
   }
   // Keyboard handler
   let keydown_handler = make_table_handler(

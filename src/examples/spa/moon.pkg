@@ -1,10 +1,10 @@
 import {
-  "mizchi/luna/js/resource" as @resource,
-  "mizchi/signals" as @signals,
-  "mizchi/luna/dom" as @element,
+  "mizchi/luna/js/resource" @resource,
+  "mizchi/signals" @signals,
+  "mizchi/luna/dom" @element,
   "mizchi/luna/dom/portal",
-  "mizchi/js/core" as @js,
-  "mizchi/js/browser/dom" as @dom,
+  "mizchi/js/core" @js,
+  "mizchi/js/browser/dom" @dom,
   "mizchi/js/builtins/global",
 }
 

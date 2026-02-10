@@ -102,10 +102,12 @@ fn filter_link(
 ) -> DomNode {
   // Base classes for all filter links (hover, transition)
   let base_classes = classes([hover_border_color, transition_border])
-  let class_getter = () => if current_filter.get() == target_filter {
-    classes([base_classes, "selected", border_color_selected])
-  } else {
-    classes([base_classes, border_color_transparent])
+  let class_getter = () => {
+    if current_filter.get() == target_filter {
+      classes([base_classes, "selected", border_color_selected])
+    } else {
+      classes([base_classes, border_color_transparent])
+    }
   }
   li([a(href~, [span(dyn_class=class_getter, [text(label_)])])])
 }
@@ -137,16 +139,12 @@ fn app() -> DomNode {
   // ---------------------------------------------------------------------------
   // Computed Values
   // ---------------------------------------------------------------------------
-  let active_count = memo(() => todos
-    .get()
-    .iter()
-    .filter(t => not(t.completed))
-    .count())
-  let completed_count = memo(() => todos
-    .get()
-    .iter()
-    .filter(t => t.completed)
-    .count())
+  let active_count = memo(() => {
+    todos.get().iter().filter(t => not(t.completed)).count()
+  })
+  let completed_count = memo(() => {
+    todos.get().iter().filter(t => t.completed).count()
+  })
   let all_completed = memo(() => {
     let items = todos.get()
     items.length() > 0 && active_count() == 0
@@ -155,10 +153,12 @@ fn app() -> DomNode {
   let filtered_todos = () => {
     let items = todos.get()
     let f = filter.get()
-    items.filter(t => match f {
-      All => true
-      Active => not(t.completed)
-      Completed => t.completed
+    items.filter(t => {
+      match f {
+        All => true
+        Active => not(t.completed)
+        Completed => t.completed
+      }
     })
   }
 
@@ -180,11 +180,15 @@ fn app() -> DomNode {
   }
 
   fn toggle_todo(id : Int) {
-    todos.update(items => items.map(t => if t.id == id {
-      { ..t, completed: not(t.completed) }
-    } else {
-      t
-    }))
+    todos.update(items => {
+      items.map(t => {
+        if t.id == id {
+          { ..t, completed: not(t.completed) }
+        } else {
+          t
+        }
+      })
+    })
   }
 
   fn remove_todo(id : Int) {
@@ -196,11 +200,9 @@ fn app() -> DomNode {
     if trimmed == "" {
       remove_todo(id)
     } else {
-      todos.update(items => items.map(t => if t.id == id {
-        { ..t, title: trimmed }
-      } else {
-        t
-      }))
+      todos.update(items => {
+        items.map(t => if t.id == id { { ..t, title: trimmed } } else { t })
+      })
     }
   }
 
@@ -226,10 +228,12 @@ fn app() -> DomNode {
     let _ = effect(() => {
       let todo = get_todo()
       if editing_id.get() == Some(todo.id) {
-        next_frame(() => if edit_ref.val is Some(inp) {
-          inp.value = todo.title
-          inp.as_html_element().focus()
-          select_input(inp)
+        next_frame(() => {
+          if edit_ref.val is Some(inp) {
+            inp.value = todo.title
+            inp.as_html_element().focus()
+            select_input(inp)
+          }
         })
       }
     })
@@ -270,9 +274,9 @@ fn app() -> DomNode {
       // Edit mode input
       input(
         class="edit",
-        ref_=el => edit_ref.val = Some(
-          @dom.HTMLInputElement::cast_from_element(el),
-        ),
+        ref_=el => {
+          edit_ref.val = Some(@dom.HTMLInputElement::cast_from_element(el))
+        },
         dyn_value=fn() { get_todo().title },
         on=events()
           .compositionstart(_ => edit_composing.val = true)
@@ -315,9 +319,11 @@ fn app() -> DomNode {
           })
           .compositionstart(_ => is_composing.set(true))
           .compositionend(_ => is_composing.set(false))
-          .keydown(e => if e.key == "Enter" && not(is_composing.peek()) {
-            add_todo()
-            @dom.HTMLInputElement::cast_from_element(e.target()).value = ""
+          .keydown(e => {
+            if e.key == "Enter" && not(is_composing.peek()) {
+              add_todo()
+              @dom.HTMLInputElement::cast_from_element(e.target()).value = ""
+            }
           }),
       ),
     ])

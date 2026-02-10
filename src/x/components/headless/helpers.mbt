@@ -14,12 +14,10 @@ pub fn get_event_key(e : @js.Any) -> String {
 /// Prevent default event behavior
 pub fn prevent_default(e : @js.Any) -> Unit {
   let _ = e._call("preventDefault", [])
-
 }
 
 ///|
 /// Stop event propagation
 pub fn stop_propagation(e : @js.Any) -> Unit {
   let _ = e._call("stopPropagation", [])
-
 }

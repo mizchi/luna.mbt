@@ -430,7 +430,6 @@ test "Nested effects work correctly" {
       let inner_val = inner_sig.get()
       results.push(outer_val * inner_val)
     })
-
   })
 
   // Initial run

@@ -41,7 +41,7 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
 /// Create a basic HTML document structure
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// document(
 ///   lang="en",
 ///   head_[

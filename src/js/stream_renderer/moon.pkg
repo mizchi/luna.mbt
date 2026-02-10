@@ -1,8 +1,8 @@
 import {
-  "mizchi/luna/core" as @core,
-  "mizchi/luna" as @luna,
-  "mizchi/luna/core/render" as @render,
-  "mizchi/js/web/streams" as @streams,
+  "mizchi/luna/core" @core,
+  "mizchi/luna" @luna,
+  "mizchi/luna/core/render" @render,
+  "mizchi/js/web/streams" @streams,
 }
 
 options(

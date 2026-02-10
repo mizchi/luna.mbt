@@ -38,7 +38,7 @@ pub fn switch_slots() -> SwitchSlots {
 /// Create a styled switch with signal-based state.
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// let enabled = @resource.signal(true)
 /// switch(enabled, aria_label="Enable notifications", [@luna.text("Notifications")])
 /// ```

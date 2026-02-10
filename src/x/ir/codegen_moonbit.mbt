@@ -33,7 +33,6 @@ pub fn Schema::to_moonbit(self : Schema) -> String {
     buf.write_string(code)
     buf.write_string("\n")
     let _ = name
-
   }
   buf.to_string()
 }

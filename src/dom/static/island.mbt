@@ -13,7 +13,7 @@
 /// The ComponentRef contains all necessary information (url, props, trigger, wc flag).
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// // In app/__gen__/types/types.mbt (generated)
 /// pub fn counter(props: CounterProps) -> @core.ComponentRef[CounterProps] {
 ///   @luna.component_ref("/static/counter.js", props)

@@ -55,10 +55,7 @@ test "effect_create_dispose" (b : @bench.T) {
 test "effect_with_signal" (b : @bench.T) {
   let sig = @resource.signal(0)
   b.bench(name="effect_with_1_signal", fn() {
-    let dispose = @resource.effect(fn() {
-      let _ = sig.get()
-
-    })
+    let dispose = @resource.effect(fn() { let _ = sig.get() })
     dispose()
   })
 }
@@ -214,7 +211,6 @@ test "100_effects_1_signal" (b : @bench.T) {
   for i in 0..<100 {
     let idx = i
     let _ = @resource.effect(fn() { counts[idx] = sig.get() })
-
   }
   let mut i = 0
   b.bench(name="100_effects_on_1_signal", fn() {

@@ -16,7 +16,7 @@
 /// Returns attributes for an accessible switch/toggle element.
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// let attrs = switch_aria(true, false)
 /// // [("role", "switch"), ("aria-checked", "true"), ("tabindex", "0")]
 /// ```

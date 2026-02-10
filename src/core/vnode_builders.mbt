@@ -2,10 +2,7 @@
 /// Create an event handler from a callback.
 /// ```mbt check
 /// test {
-///   let h : EventHandler[Int] = handler(fn(x) {
-///     let _ = x * 2
-///
-///   })
+///   let h : EventHandler[Int] = handler(fn(x) { let _ = x * 2 })
 ///   inspect(h.get_callback()(5), content="()")
 /// }
 /// ```

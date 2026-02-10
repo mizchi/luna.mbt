@@ -251,7 +251,6 @@ fn render_wiki(router : @router.BrowserRouter, container : DomElement) -> Unit {
     })
     mount(container, app)
   })
-
 }
 
 // =============================================================================

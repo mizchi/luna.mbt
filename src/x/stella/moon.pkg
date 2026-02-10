@@ -1,7 +1,7 @@
 import {
-  "mizchi/luna" as @luna,
-  "mizchi/luna/core" as @core,
-  "mizchi/luna/core/render" as @render,
+  "mizchi/luna" @luna,
+  "mizchi/luna/core" @core,
+  "mizchi/luna/core/render" @render,
 }
 
 options(

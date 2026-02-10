@@ -1,17 +1,17 @@
 import {
-  "mizchi/luna/js/resource" as @resource,
-  "mizchi/signals" as @signals,
-  "mizchi/luna/dom" as @element,
+  "mizchi/luna/js/resource" @resource,
+  "mizchi/signals" @signals,
+  "mizchi/luna/dom" @element,
   "mizchi/luna/x/css",
-  "mizchi/js/browser/dom" as @dom,
-  "mizchi/js/browser/storage" as @storage,
-  "mizchi/js/browser/location" as @location,
+  "mizchi/js/browser/dom" @dom,
+  "mizchi/js/browser/storage" @storage,
+  "mizchi/js/browser/location" @location,
   "moonbitlang/core/json",
 }
 
-import "test" {
-  "mizchi/signals" as @signals,
-}
+import {
+  "mizchi/signals" @signals,
+} for "test"
 
 options(
   "is-main": true,

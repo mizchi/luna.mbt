@@ -220,7 +220,6 @@ pub fn make_spinbutton_input_handler(
         @js.any("value"),
         @js.any(prev.to_string()),
       ])
-
     } else {
       // Clamp to bounds
       let clamped = match (min, max) {

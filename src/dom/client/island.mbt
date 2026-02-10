@@ -100,7 +100,6 @@ pub fn IslandContext::on_update(
     let text = update_fn()
     update_element_text(elem, selector, text)
   })
-
 }
 
 ///|
@@ -123,7 +122,7 @@ extern "js" fn update_element_text(
 /// Takes the ln-loader hydrate signature and component-specific logic
 ///
 /// Usage in component:
-/// ```moonbit
+/// ```moonbit nocheck
 /// pub fn hydrate(element : @js.Any, state : @js.Any, id : String) -> Unit {
 ///   @dom.hydrate_island(element, state, id, fn(ctx) {
 ///     let count = ctx.signal_int("count", 0)

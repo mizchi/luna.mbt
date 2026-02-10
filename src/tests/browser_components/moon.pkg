@@ -1,11 +1,11 @@
 import {
-  "mizchi/luna" as @luna,
-  "mizchi/luna/js/resource" as @resource,
-  "mizchi/signals" as @signals,
-  "mizchi/js/browser/dom" as @js_dom,
-  "mizchi/luna/dom" as @dom,
-  "mizchi/luna/dom/client" as @client,
-  "mizchi/js/core" as @js,
+  "mizchi/luna" @luna,
+  "mizchi/luna/js/resource" @resource,
+  "mizchi/signals" @signals,
+  "mizchi/js/browser/dom" @js_dom,
+  "mizchi/luna/dom" @dom,
+  "mizchi/luna/dom/client" @client,
+  "mizchi/js/core" @js,
 }
 
 options(

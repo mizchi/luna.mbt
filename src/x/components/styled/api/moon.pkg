@@ -1,9 +1,9 @@
 import {
-  "mizchi/luna/x/components/styled" as @styled,
-  "mizchi/luna/x/components/styled/switch" as @switch,
-  "mizchi/luna/x/components/styled/checkbox" as @checkbox,
-  "mizchi/luna/x/components/styled/tabs" as @tabs,
-  "mizchi/luna/x/components/styled/accordion" as @accordion,
+  "mizchi/luna/x/components/styled" @styled,
+  "mizchi/luna/x/components/styled/switch" @switch,
+  "mizchi/luna/x/components/styled/checkbox" @checkbox,
+  "mizchi/luna/x/components/styled/tabs" @tabs,
+  "mizchi/luna/x/components/styled/accordion" @accordion,
 }
 
 options(

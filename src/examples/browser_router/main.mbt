@@ -396,7 +396,6 @@ fn render_route(router : @router.BrowserRouter, container : DomElement) -> Unit 
     })
     mount(container, app)
   })
-
 }
 
 // =============================================================================

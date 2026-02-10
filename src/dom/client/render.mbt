@@ -536,7 +536,6 @@ fn apply_vattr(
           elem.setAttribute(name, new_value)
         }
       })
-
     }
     @core.VHandler(handler) => {
       let event_name = extract_event_name(name)
@@ -840,7 +839,7 @@ extern "js" fn set_inner_html(el : @js_dom.Element, html : String) -> Unit =
 /// - Client: inject_static(container, node) for CSR parts
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// let container = doc.getElementById("static-header")
 /// inject_static(container, header_vnode())
 /// ```
@@ -870,7 +869,7 @@ pub fn inject_static_html(container : @js_dom.Element, html : String) -> Unit {
 /// Use when you need to compose static content within a dynamic component.
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// fn my_page() -> DomNode {
 ///   let header = static_block("header", header_vnode())
 ///   let footer = static_block("footer", footer_vnode())

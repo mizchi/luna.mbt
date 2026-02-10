@@ -1,9 +1,9 @@
 import {
-  "mizchi/luna/core/routes" as @routes,
-  "mizchi/luna/dom/router" as @browser_router,
-  "mizchi/luna/dom" as @dom,
-  "mizchi/js/browser/dom" as @js_dom,
-  "mizchi/js/core" as @js,
+  "mizchi/luna/core/routes" @routes,
+  "mizchi/luna/dom/router" @browser_router,
+  "mizchi/luna/dom" @dom,
+  "mizchi/js/browser/dom" @js_dom,
+  "mizchi/js/core" @js,
 }
 
 options(

@@ -51,7 +51,7 @@ extern "js" fn create_element_ns_ffi(
 /// Use this for SVG elements since they require the SVG namespace.
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create an SVG rectangle
 /// let rect = create_element_ns(
 ///   svg_ns,
@@ -134,7 +134,6 @@ fn apply_attribute(
           apply_static_attr(elem, name, new_value)
         }
       })
-
     }
     Handler(handler) =>
       if name == "__ref" {

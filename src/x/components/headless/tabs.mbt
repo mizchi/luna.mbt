@@ -96,7 +96,6 @@ fn focus_tab_element(tab_id : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let el = doc._call("getElementById", [@js.any(tab_id)])
   let _ = el._call("focus", [])
-
 }
 
 ///|

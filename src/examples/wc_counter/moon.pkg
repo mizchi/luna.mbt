@@ -1,6 +1,6 @@
 import {
-  "mizchi/luna/x/stella/component" as @wc,
-  "mizchi/js" as @js,
+  "mizchi/luna/x/stella/component" @wc,
+  "mizchi/js" @js,
 }
 
 options(

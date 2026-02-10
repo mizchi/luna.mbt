@@ -343,13 +343,11 @@ pub fn menu_button_interactive(
     let item_id = id + "-item-" + idx.to_string()
     let el = doc._call("getElementById", [@js.any(item_id)])
     let _ = el._call("focus", [])
-
   }
   let focus_button = fn() {
     let doc = @js.global_this()._get("document")
     let el = doc._call("getElementById", [@js.any(button_id)])
     let _ = el._call("focus", [])
-
   }
   let close_and_focus_button = fn() {
     open.set(false)

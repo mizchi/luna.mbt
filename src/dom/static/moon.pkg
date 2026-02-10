@@ -1,8 +1,8 @@
 import {
-  "mizchi/luna/core" as @core,
-  "mizchi/luna" as @luna,
-  "mizchi/luna/core/render" as @render,
-  "mizchi/luna/x/css" as @css,
+  "mizchi/luna/core" @core,
+  "mizchi/luna" @luna,
+  "mizchi/luna/core/render" @render,
+  "mizchi/luna/x/css" @css,
 }
 
 options(

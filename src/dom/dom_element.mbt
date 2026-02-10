@@ -123,7 +123,7 @@ pub impl ToDomNode for DomNode with to_dom_node(self) {
 /// with `createElementNS`) into Luna's DOM tree.
 ///
 /// Example - integrating SVG created with createElementNS:
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create SVG with namespace
 /// let svg = create_element_ns(svg_ns, "svg", [
 ///   ("width", Static("200")),
@@ -142,7 +142,7 @@ pub impl ToDomNode for DomNode with to_dom_node(self) {
 /// ```
 ///
 /// Example - integrating raw @js_dom.Node:
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Get external node from JS
 /// let external_node : @js_dom.Node = ...
 /// // Wrap and use in Luna tree

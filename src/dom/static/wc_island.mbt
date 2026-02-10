@@ -8,7 +8,7 @@
 /// Create a Web Components island for client-side hydration
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// wc_island(
 ///   "wc-counter",
 ///   "/static/wc-counter.js",

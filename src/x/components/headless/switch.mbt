@@ -23,7 +23,7 @@ pub(all) struct SwitchProps {
 /// Returns props that can be spread onto any element.
 ///
 /// Example with Tailwind:
-/// ```moonbit
+/// ```moonbit nocheck
 /// let on = @resource.signal(false)
 /// let props = use_switch(on)
 ///

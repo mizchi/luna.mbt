@@ -25,7 +25,6 @@ fn normalize_path(path : String) -> String {
   let len = result.length()
   if len > 1 && result[len - 1] == '/' {
     let _ = result.pop()
-
   }
   String::from_array(result)
 }

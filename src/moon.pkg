@@ -1,8 +1,8 @@
 import {
-  "mizchi/luna/js/resource" as @resource,
-  "mizchi/luna/core" as @core,
-  "mizchi/signals" as @signals,
-  "mizchi/signals/ui" as @ui,
+  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna/core" @core,
+  "mizchi/signals" @signals,
+  "mizchi/signals/ui" @ui,
 }
 
 options(

@@ -16,7 +16,6 @@ fn focus_toolbar_item(item_id : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let el = doc._call("getElementById", [@js.any(item_id)])
   let _ = el._call("focus", [])
-
 }
 
 ///|

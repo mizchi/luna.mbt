@@ -462,7 +462,6 @@ pub fn combobox_interactive(
       @js.any(fn() { is_open.set(false) }),
       @js.any(200),
     ])
-
   })
   // Build input
   let input_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [

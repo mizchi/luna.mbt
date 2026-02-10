@@ -944,7 +944,6 @@ fn set_theme(mode : ThemeMode) -> Unit {
     System => {
       log("Setting theme: system")
       let _ = root._call("removeAttribute", [@js.any("data-theme")])
-
     }
     Light => {
       log("Setting theme: light")
@@ -952,7 +951,6 @@ fn set_theme(mode : ThemeMode) -> Unit {
         @js.any("data-theme"),
         @js.any("light"),
       ])
-
     }
     Dark => {
       log("Setting theme: dark")
@@ -960,7 +958,6 @@ fn set_theme(mode : ThemeMode) -> Unit {
         @js.any("data-theme"),
         @js.any("dark"),
       ])
-
     }
   }
 }
@@ -971,7 +968,6 @@ fn set_accent(color : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let root = doc._get("documentElement")
   let _ = root._call("setAttribute", [@js.any("data-accent"), @js.any(color)])
-
 }
 
 ///|
@@ -1067,7 +1063,6 @@ fn sidebar_nav_item(
               let _ = el._call("scrollIntoView", [
                 @js.any({ "behavior": "smooth" }),
               ])
-
             }),
           ),
         ),
@@ -1789,7 +1784,6 @@ fn main {
   match doc.getElementById("app") {
     Some(el) => {
       let _ = @client.render_vnode(el, app())
-
     }
     None => println("Error: #app element not found")
   }

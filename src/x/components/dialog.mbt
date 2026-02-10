@@ -356,7 +356,6 @@ pub fn focus_first_in_dialog(dialog_id : String) -> Unit {
   if length > 0 {
     let first = elements._call("item", [@js.any(0)])
     let _ = first._call("focus", [])
-
   }
 }
 
@@ -367,7 +366,6 @@ pub fn focus_dialog(dialog_id : String) -> Unit {
   let doc = @js.global_this()._get("document")
   let dialog = doc._call("getElementById", [@js.any(dialog_id)])
   let _ = dialog._call("focus", [])
-
 }
 
 ///|
@@ -383,7 +381,6 @@ pub fn store_active_element() -> @js.Any {
 /// Call this when the dialog closes.
 pub fn restore_focus(element : @js.Any) -> Unit {
   let _ = element._call("focus", [])
-
 }
 
 ///|
@@ -425,13 +422,11 @@ pub fn make_dialog_keydown_handler(
           if @js.any(active) == @js.any(first) {
             let _ = e._call("preventDefault", [])
             let _ = last._call("focus", [])
-
           }
           // Tab: wrap from last to first
         } else if @js.any(active) == @js.any(last) {
           let _ = e._call("preventDefault", [])
           let _ = first._call("focus", [])
-
         }
       }
       _ => ()

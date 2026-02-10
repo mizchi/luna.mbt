@@ -1,21 +1,21 @@
 import {
-  "mizchi/luna" as @luna,
-  "mizchi/luna/core" as @core,
-  "mizchi/signals/ui" as @ui,
-  "mizchi/luna/js/resource" as @resource,
-  "mizchi/signals" as @signals,
-  "mizchi/luna/dom" as @element,
-  "mizchi/luna/dom/client" as @client,
-  "mizchi/luna/core/routes" as @routes,
-  "mizchi/luna/dom/router" as @browser_router,
-  "mizchi/js/core" as @js,
-  "mizchi/js/browser/dom" as @js_dom,
-  "mizchi/luna/dom/portal" as @portal,
+  "mizchi/luna" @luna,
+  "mizchi/luna/core" @core,
+  "mizchi/signals/ui" @ui,
+  "mizchi/luna/js/resource" @resource,
+  "mizchi/signals" @signals,
+  "mizchi/luna/dom" @element,
+  "mizchi/luna/dom/client" @client,
+  "mizchi/luna/core/routes" @routes,
+  "mizchi/luna/dom/router" @browser_router,
+  "mizchi/js/core" @js,
+  "mizchi/js/browser/dom" @js_dom,
+  "mizchi/luna/dom/portal" @portal,
 }
 
-import "test" {
+import {
   "mizchi/npm_typed/global_jsdom",
-}
+} for "test"
 
 options(
   link: {

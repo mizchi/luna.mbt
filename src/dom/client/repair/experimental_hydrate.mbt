@@ -550,7 +550,6 @@ fn apply_vattr(
           elem.setAttribute(name, new_value)
         }
       })
-
     }
     @core.VHandler(handler) => {
       let event_name = extract_event_name(name)
@@ -829,7 +828,6 @@ fn experimental_hydrate_text(
   let text_node = doc.createTextNode(expected)
   parent.appendChild(text_node.as_node()) |> ignore
   let _ = ctx.path_stack.pop()
-
 }
 
 ///|
@@ -906,7 +904,6 @@ fn experimental_hydrate_dynamic_text(
   let text_ref = text_node.as_node()
   let _ = @resource.render_effect(fn() { text_ref.setTextContent(getter()) })
   let _ = ctx.path_stack.pop()
-
 }
 
 ///|
@@ -1000,7 +997,6 @@ fn experimental_hydrate_element(
     experimental_hydrate_node(dom_elem.as_node(), child, ctx)
   }
   let _ = ctx.path_stack.pop()
-
 }
 
 ///|
@@ -1083,7 +1079,6 @@ fn repair_attributes(
             elem.setAttribute(name, new_value)
           }
         })
-
       }
       @core.VHandler(handler) => {
         // Attach event handler
@@ -1206,7 +1201,6 @@ fn experimental_hydrate_show(
     }
   })
   let _ = ctx.path_stack.pop()
-
 }
 
 ///|
@@ -1313,7 +1307,6 @@ fn experimental_hydrate_for(
           let _ = @resource.render_effect(fn() {
             node_ref.setTextContent(getter())
           })
-
         }
         _ => {
           // Replace text node with element
@@ -1346,7 +1339,6 @@ fn experimental_hydrate_for(
   // Trim array to item_count
   while current_nodes.length() > item_count {
     let _ = current_nodes.pop()
-
   }
 
   // Set up effect for future updates
@@ -1365,7 +1357,6 @@ fn experimental_hydrate_for(
     }
   })
   let _ = ctx.path_stack.pop()
-
 }
 
 ///|

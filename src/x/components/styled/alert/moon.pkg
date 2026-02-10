@@ -1,4 +1,4 @@
 import {
   "mizchi/luna",
-  "mizchi/js/core" as @js,
+  "mizchi/js/core" @js,
 }

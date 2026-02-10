@@ -64,7 +64,6 @@ test "perf_static_vs_dynamic_rendering" {
   for i in 0..<iterations {
     let node = create_list_vnode_static(item_count)
     let _ = @client.static_div(node)
-
   }
   let block_time = performance_now() - start_block
   println(

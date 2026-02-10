@@ -457,7 +457,6 @@ fn hydrate_dynamic_text(
             let new_text = getter()
             text_node.setTextContent(new_text)
           })
-
         }
         break
       }
@@ -514,7 +513,6 @@ fn hydrate_element_with_dispatch(
             elem.setAttribute(name, new_value)
           }
         })
-
       }
       @core.VHandler(handler) => {
         // Attach event handler
@@ -1092,7 +1090,6 @@ pub fn[State] hydrate_with_actions(
     // Re-bind actions after re-render
     bind_actions_from_dom(container, dispatch)
   })
-
 }
 
 // =============================================================================
