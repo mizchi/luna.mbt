@@ -76,10 +76,22 @@ function formatBytes(bytes) {
 }
 
 async function ensureBuild() {
-  await execa("moon", ["build", "--target", "js"], {
+  await execa("moon", ["build", "--target", "js", "--release", "src"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
   });
+  await execa("moon", ["build", "--target", "js", "--release", "src/js/api"], {
+    cwd: PROJECT_ROOT,
+    stdio: "inherit",
+  });
+  await execa(
+    "moon",
+    ["build", "--target", "js", "--release", "src/js/api_signals"],
+    {
+      cwd: PROJECT_ROOT,
+      stdio: "inherit",
+    }
+  );
   await execa("pnpm", ["--filter", "@luna_ui/luna", "build"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",

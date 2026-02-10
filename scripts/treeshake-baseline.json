@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-10T16:17:26.940Z",
+  "generatedAt": "2026-02-10T16:49:16.473Z",
   "entries": [
     {
       "id": "signals-only",
@@ -18,13 +18,13 @@
     },
     {
       "id": "render",
-      "bytes": 6320,
-      "gzip": 2068
+      "bytes": 6183,
+      "gzip": 2027
     },
     {
       "id": "router-resource",
-      "bytes": 23980,
-      "gzip": 6906
+      "bytes": 23842,
+      "gzip": 6886
     }
   ]
 }

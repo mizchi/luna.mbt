@@ -4,7 +4,7 @@
   "type": "module",
   "description": "MoonBit Island Architecture UI Framework",
   "scripts": {
-    "build:moon": "moon build --target js",
+    "build:moon": "moon build --target js --release src && moon build --target js --release src/js/api && moon build --target js --release src/js/api_signals",
     "build:loader": "pnpm --filter @luna_ui/luna-loader build",
     "test:moonbit": "moon test --target js",
     "test:node": "pnpm vitest run --project node",
