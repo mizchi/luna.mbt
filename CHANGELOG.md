@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2026-02-10
+
+### Bug Fixes
+
+- **css**: Handle DeclNone in analyzer
+
+### Miscellaneous
+
+- **build**: Migrate moonbit output path to _build
+- Run moon fmt
+
 ## [0.11.0] - 2026-02-03
 
 ### Bug Fixes
@@ -1024,3 +1035,5 @@ All notable changes to this project will be documented in this file.
 - Misc changes
 - Add types package generation for Props structs
 - Sol generate - parse mbti with moonbitlang/parser
+
+
