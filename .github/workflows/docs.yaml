@@ -47,7 +47,7 @@ jobs:
           cp -r ../markdown.mbt/src/* .mooncakes/mizchi/markdown/src/
 
       - name: Build MoonBit
-        run: moon build --target js
+        run: moon build --target js --release src/cli
 
       - name: Build docs with Sol SSG
         run: node _build/js/release/build/cli/cli.js build

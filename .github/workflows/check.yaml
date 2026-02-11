@@ -96,4 +96,7 @@ jobs:
       - name: Build examples
         run: |
           moon info
-          cd examples/sol_app && moon install && moon build --target js
+          moon build --target js --release src/cli
+          cd examples/sol_app
+          node ../../_build/js/release/build/cli/cli.js generate
+          moon build --target js

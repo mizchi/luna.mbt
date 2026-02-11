@@ -11,7 +11,7 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: `cd ../.. && moon build --target js && cd examples/sol_app && node ../../_build/js/release/build/cli/cli.js build && PORT=${TEST_PORT} node .sol/prod/server/main.js`,
+    command: `cd ../.. && moon build --target js --release src/cli && cd examples/sol_app && node ../../_build/js/release/build/cli/cli.js build && PORT=${TEST_PORT} node .sol/prod/server/main.js`,
     port: TEST_PORT,
     reuseExistingServer: !process.env.CI,
     timeout: 120000,

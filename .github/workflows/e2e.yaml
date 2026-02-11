@@ -30,7 +30,7 @@ jobs:
           moon update
           moon install
       - name: Build MoonBit
-        run: moon build --target js
+        run: moon build --target js --release src/cli
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: E2E tests (core)
