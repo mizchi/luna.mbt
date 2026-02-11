@@ -1,13 +1,13 @@
 {
   "name": "mizchi/luna",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "deps": {
-    "moonbitlang/async": "0.16.4",
+    "moonbitlang/async": "0.16.6",
     "moonbitlang/x": "0.4.40",
-    "mizchi/js": "0.10.10",
-    "mizchi/npm_typed": "0.1.9",
+    "mizchi/js": "0.10.13",
+    "mizchi/npm_typed": "0.1.10",
     "moonbitlang/parser": "0.1.15",
-    "mizchi/signals": "0.6.1"
+    "mizchi/signals": "0.6.3"
   },
   "readme": "README.md",
   "repository": "https://github.com/mizchi/luna",
