@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.1] - 2026-02-11
+
+### Bug Fixes
+
+- **e2e**: Read moonbit artifacts from _build
+- **ci**: Align moon release outputs for browser and treeshake
+
 ## [0.12.0] - 2026-02-10
 
 ### Bug Fixes
