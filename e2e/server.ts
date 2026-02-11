@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
+const moonBuildDir = join(rootDir, "_build", "js", "release", "build");
 
 // Load static assets (use IIFE bundled version for serving)
 const loaderPath = join(rootDir, "js", "loader", "dist", "loader.iife.js");
@@ -20,11 +21,7 @@ const loaderCode = readFileSync(loaderPath, "utf-8");
 
 // Import MoonBit counter_component module for SSR
 const counterComponentPath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "tests",
   "counter_component",
   "counter_component.js"
@@ -32,11 +29,7 @@ const counterComponentPath = join(
 
 // Import MoonBit counter_client module path for client hydration
 const counterClientPath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "tests",
   "counter_client",
   "counter_client.js"
@@ -44,11 +37,7 @@ const counterClientPath = join(
 
 // Import MoonBit e2e_server module
 const e2eServerPath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "tests",
   "e2e_server",
   "e2e_server.js"
@@ -56,11 +45,7 @@ const e2eServerPath = join(
 
 // Import MoonBit browser_components module for browser tests
 const browserComponentsPath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "tests",
   "browser_components",
   "browser_components.js"
@@ -68,11 +53,7 @@ const browserComponentsPath = join(
 
 // Import MoonBit router_csr module for CSR router tests
 const routerCsrPath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "tests",
   "router_csr",
   "router_csr.js"
@@ -80,11 +61,7 @@ const routerCsrPath = join(
 
 // Import MoonBit chunked counter server module
 const chunkedCounterServerPath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "examples",
   "chunked_counter",
   "server",
@@ -102,11 +79,7 @@ const chunkedCounterStaticDir = join(
 
 // Import MoonBit SPA example module path
 const spaModulePath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "examples",
   "spa",
   "spa.js"
@@ -114,11 +87,7 @@ const spaModulePath = join(
 
 // Import MoonBit TodoMVC example module path
 const todomvcModulePath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "examples",
   "todomvc",
   "todomvc.js"
@@ -126,11 +95,7 @@ const todomvcModulePath = join(
 
 // Import MoonBit browser_router example module path
 const browserAppModulePath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "examples",
   "browser_router",
   "browser_router.js"
@@ -138,11 +103,7 @@ const browserAppModulePath = join(
 
 // Import MoonBit WC example module path
 const wcModulePath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "examples",
   "wc",
   "wc.js"
@@ -150,11 +111,7 @@ const wcModulePath = join(
 
 // Import MoonBit APG playground module path
 const apgPlaygroundModulePath = join(
-  rootDir,
-  "target",
-  "js",
-  "release",
-  "build",
+  moonBuildDir,
   "examples",
   "apg-playground",
   "apg-playground.js"
