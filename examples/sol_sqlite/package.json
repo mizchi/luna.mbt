@@ -7,9 +7,9 @@
   },
   "scripts": {
     "dev": "npm run generate && npm run start:dev",
-    "generate": "node ../../target/js/release/build/cli/cli.js generate && moon build",
+    "generate": "node ../../_build/js/release/build/cli/cli.js generate && moon build",
     "start:dev": "node scripts/start-dev.js",
-    "build": "node ../../target/js/release/build/cli/cli.js build",
+    "build": "node ../../_build/js/release/build/cli/cli.js build",
     "serve": "node scripts/start-dev.js",
     "init-db": "node scripts/init-db.js"
   },

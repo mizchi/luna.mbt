@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node ../../target/js/release/build/cli/cli.js dev",
-    "build": "node ../../target/js/release/build/cli/cli.js build"
+    "dev": "node ../../_build/js/release/build/cli/cli.js dev",
+    "build": "node ../../_build/js/release/build/cli/cli.js build"
   }
 }

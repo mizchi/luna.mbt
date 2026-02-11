@@ -50,7 +50,7 @@ jobs:
         run: moon build --target js
 
       - name: Build docs with Sol SSG
-        run: node target/js/release/build/cli/cli.js build
+        run: node _build/js/release/build/cli/cli.js build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

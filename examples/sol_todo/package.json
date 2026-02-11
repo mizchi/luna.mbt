@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "generate": "node ../../target/js/release/build/cli/cli.js generate",
+    "generate": "node ../../_build/js/release/build/cli/cli.js generate",
     "build": "moon build --target js",
-    "dev": "node ../../target/js/release/build/cli/cli.js dev",
+    "dev": "node ../../_build/js/release/build/cli/cli.js dev",
     "serve": "node .sol/prod/server/main.js",
     "test": "playwright test",
     "test:ui": "playwright test --ui"

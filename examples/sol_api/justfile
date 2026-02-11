@@ -2,7 +2,7 @@
 
 # Generate code from sol.config.json
 gen:
-  node ../../target/js/release/build/cli/cli.js generate
+  node ../../_build/js/release/build/cli/cli.js generate
 
 # Build MoonBit to JS
 build:
