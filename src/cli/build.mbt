@@ -22,7 +22,7 @@ fn show_build_help() -> Unit {
     #|  --skip-bundle       Skip rolldown bundling
     #|  --skip-generate     Skip _sol directory generation
     #|  --skip-minify       Skip minification
-    #|  --clean             Clean target and .sol directories before build
+    #|  --clean             Clean _build/target and .sol directories before build
     #|  --parallel          Enable parallel SSG build
     #|  --workers <n>       Number of parallel workers (default: 4)
     #|  --force             Force rebuild (ignore cache)
@@ -196,6 +196,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     let sol_dir = @path.join2(cwd, ".sol")
     let gen_dir = @path.join2(cwd, "app/__gen__")
     let target_dir = @path.join2(cwd, "target")
+    let build_dir = @path.join2(cwd, "_build")
     if fs.exists_sync(sol_dir) {
       @cli_common.rm_rf_sync(fs, sol_dir)
     }
@@ -204,6 +205,9 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
     if fs.exists_sync(target_dir) {
       @cli_common.rm_rf_sync(fs, target_dir)
+    }
+    if fs.exists_sync(build_dir) {
+      @cli_common.rm_rf_sync(fs, build_dir)
     }
     println(@colorette.green("✓ Clean complete"))
   }
@@ -217,7 +221,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   try {
     let build_result = @child_process.spawnSync(
       "moon",
-      args=["build", "--target", target],
+      args=["build", "--target", target, "--release"],
       stdio="inherit",
     )
     if build_result.status() != Some(0) {
@@ -314,7 +318,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       }
     }
   }
-  println(@colorette.gray("Output: target/\{target}/release/build/"))
+  println(@colorette.gray("Output: _build/\{target}/release/build/"))
 }
 
 ///|
