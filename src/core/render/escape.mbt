@@ -1,65 +1,117 @@
 // HTML/Attribute/JS String Escaping Utilities
 //
-// Basic escape functions are re-exported from mizchi/signals/ui/render.
 // Luna-specific JSON escaping functions are defined here.
-
-// =============================================================================
-// Re-export from signals/ui/render
-// =============================================================================
 
 ///|
 /// Check if string needs HTML escaping
 pub fn needs_html_escape(s : String) -> Bool {
-  @ui_render.needs_html_escape(s)
+  s
+  .iter()
+  .any(fn(c) { c == '&' || c == '<' || c == '>' || c == '"' || c == '\'' })
 }
 
 ///|
 /// Escape HTML special characters and write to StringBuilder
 pub fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
-  @ui_render.escape_html_to(sb, s)
+  for c in s {
+    match c {
+      '&' => sb.write_string("&amp;")
+      '<' => sb.write_string("&lt;")
+      '>' => sb.write_string("&gt;")
+      '"' => sb.write_string("&quot;")
+      '\'' => sb.write_string("&#39;")
+      _ => sb.write_char(c)
+    }
+  }
 }
 
 ///|
 /// Escape HTML and return new string
 pub fn escape_html(s : String) -> String {
-  @ui_render.escape_html(s)
+  if not(needs_html_escape(s)) {
+    return s
+  }
+  let sb = StringBuilder::new(size_hint=s.length() + 16)
+  escape_html_to(sb, s)
+  sb.to_string()
 }
 
 ///|
 /// Check if string needs attribute escaping (subset of HTML)
 pub fn needs_attr_escape(s : String) -> Bool {
-  @ui_render.needs_attr_escape(s)
+  s.iter().any(fn(c) { c == '&' || c == '"' })
 }
 
 ///|
 /// Escape attribute value and write to StringBuilder
 pub fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
-  @ui_render.escape_attr_to(sb, s)
+  for c in s {
+    match c {
+      '&' => sb.write_string("&amp;")
+      '"' => sb.write_string("&quot;")
+      _ => sb.write_char(c)
+    }
+  }
 }
 
 ///|
 /// Escape attribute and return new string
 pub fn escape_attr(s : String) -> String {
-  @ui_render.escape_attr(s)
+  if not(needs_attr_escape(s)) {
+    return s
+  }
+  let sb = StringBuilder::new(size_hint=s.length() + 8)
+  escape_attr_to(sb, s)
+  sb.to_string()
 }
 
 ///|
 /// Escape JS string for embedding in script tags
 /// Handles </script> injection prevention
 pub fn escape_js_string(s : String) -> String {
-  @ui_render.escape_js_string(s)
+  let sb = StringBuilder::new(size_hint=s.length() + 16)
+  escape_js_string_to(sb, s)
+  sb.to_string()
 }
 
 ///|
 /// Escape JS string and write to StringBuilder
 pub fn escape_js_string_to(sb : StringBuilder, s : String) -> Unit {
-  @ui_render.escape_js_string_to(sb, s)
+  for c in s {
+    match c {
+      '<' => sb.write_string("\\u003c")
+      '>' => sb.write_string("\\u003e")
+      '\\' => sb.write_string("\\\\")
+      '"' => sb.write_string("\\\"")
+      '\n' => sb.write_string("\\n")
+      '\r' => sb.write_string("\\r")
+      '\t' => sb.write_string("\\t")
+      _ => sb.write_char(c)
+    }
+  }
 }
 
 ///|
 /// Check if HTML tag is a void (self-closing) element
 pub fn is_void_element(tag : String) -> Bool {
-  @ui_render.is_void_element(tag)
+  match tag {
+    "area"
+    | "base"
+    | "br"
+    | "col"
+    | "embed"
+    | "hr"
+    | "img"
+    | "input"
+    | "keygen"
+    | "link"
+    | "meta"
+    | "param"
+    | "source"
+    | "track"
+    | "wbr" => true
+    _ => false
+  }
 }
 
 // =============================================================================
