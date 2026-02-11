@@ -1,4 +1,6 @@
-import { "mizchi/sol/builder_pool" as @builder_pool }
+import {
+  "mizchi/sol/builder_pool" @builder_pool,
+}
 
 options(
   "is-main": true,

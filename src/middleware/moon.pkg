@@ -1,6 +1,10 @@
-import { "mizchi/mars" as @mars, "mizchi/js/core" as @js }
+import {
+  "mizchi/mars" @mars,
+  "mizchi/js/core" @js,
+}
+
+warnings = "-6"
 
 options(
   "supported-targets": [ "js" ],
-  "warn-list": "-6",
 )

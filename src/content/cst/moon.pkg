@@ -1,8 +1,8 @@
 import {
-  "mizchi/luna" as @luna,
-  "mizchi/sol/content/markdown" as @markdown,
-  "mizchi/sol/content/frontmatter" as @frontmatter,
-  "mizchi/markdown" as @md_parser,
-  "mizchi/markdown/slug" as @slug,
-  "mizchi/markdown/toc" as @md_toc,
+  "mizchi/luna" @luna,
+  "mizchi/sol/content/markdown" @markdown,
+  "mizchi/sol/content/frontmatter" @frontmatter,
+  "mizchi/markdown" @md_parser,
+  "mizchi/markdown/slug" @slug,
+  "mizchi/markdown/toc" @md_toc,
 }

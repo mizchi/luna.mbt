@@ -1,1 +1,3 @@
-import { "mizchi/sol/content/markdown" as @markdown }
+import {
+  "mizchi/sol/content/markdown" @markdown,
+}

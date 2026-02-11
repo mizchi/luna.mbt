@@ -1,4 +1,7 @@
-import { "mizchi/sol/ssg" as @ssg, "mizchi/js/node/fs" as @fs }
+import {
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/js/node/fs" @fs,
+}
 
 options(
   "supported-targets": [ "js" ],

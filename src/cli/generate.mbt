@@ -388,9 +388,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     MoonBitClientTsServer =>
       // For hybrid mode, skip MoonBit server generation entirely
       // The TypeScript routes.ts will be used directly
-      println(
-        @colorette.gray("  Skipping __gen__/server/ (hybrid mode)"),
-      )
+      println(@colorette.gray("  Skipping __gen__/server/ (hybrid mode)"))
     TypeScriptFull =>
       // Full TypeScript mode - not yet implemented
       println(

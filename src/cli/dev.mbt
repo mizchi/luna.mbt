@@ -82,7 +82,11 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   let has_moon_mod = fs.exists_sync(moon_mod_path)
   let has_ssg = has_ssg_config(cwd)
   let resolved_mode = if mode == "auto" {
-    if has_ssg && not(has_moon_mod) { "ssg" } else { "app" }
+    if has_ssg && not(has_moon_mod) {
+      "ssg"
+    } else {
+      "app"
+    }
   } else {
     mode
   }
@@ -278,11 +282,7 @@ fn[FS : @env.FileSystem] run_incremental_build_dev_with_fs(
 ///|
 /// Calculate HMR WebSocket port (main port + 100)
 fn get_hmr_port(port : String) -> Int {
-  let main_port = try {
-    @strconv.parse_int(port)
-  } catch {
-    _ => 7777
-  }
+  let main_port = @strconv.parse_int(port) catch { _ => 7777 }
   main_port + 100
 }
 
@@ -422,7 +422,6 @@ async fn run_dev_watch_mode(
               }
             }
           })
-
         }
       }
       // Watch framework source if --watch-framework is enabled
@@ -479,7 +478,6 @@ async fn run_dev_watch_mode(
                 }
               }
             })
-
           }
           None =>
             println(

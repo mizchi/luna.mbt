@@ -1,11 +1,11 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/sol/ssg" as @ssg,
-  "mizchi/sol/core/env" as @env,
-  "mizchi/sol/adapters/fs" as @fs_adapter,
-  "mizchi/js/node/path" as @path,
-  "mizchi/js/node/fs" as @fs,
-  "mizchi/js/core" as @js,
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/core/env" @env,
+  "mizchi/sol/adapters/fs" @fs_adapter,
+  "mizchi/js/node/path" @path,
+  "mizchi/js/node/fs" @fs,
+  "mizchi/js/core" @js,
 }
 
 options(

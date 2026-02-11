@@ -108,7 +108,9 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   let cwd = @process.cwd()
   let sol_config_path = @path.join2(cwd, "sol.config.json")
   let sol_config_content = if fs.exists_sync(sol_config_path) {
-    fs.read_file_sync(sol_config_path) catch { _ => "" }
+    fs.read_file_sync(sol_config_path) catch {
+      _ => ""
+    }
   } else {
     ""
   }

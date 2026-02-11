@@ -13,15 +13,17 @@
 /// Compose array of middlewares into single middleware
 /// Runs handlers sequentially, stops if response is sent
 pub fn pipeline(middlewares : Array[Middleware]) -> Middleware {
-  Middleware(@mars.Handler(async fn(ctx) {
-    for mw in middlewares {
-      if ctx.is_response_sent() {
-        break
+  Middleware(
+    @mars.Handler(async fn(ctx) {
+      for mw in middlewares {
+        if ctx.is_response_sent() {
+          break
+        }
+        let Middleware(@mars.Handler(h)) = mw
+        h(ctx)
       }
-      let Middleware(@mars.Handler(h)) = mw
-      h(ctx)
-    }
-  }))
+    }),
+  )
 }
 
 ///|

@@ -1,5 +1,5 @@
 import {
-  "moonbitlang/parser/lexer" as @lexer,
-  "moonbitlang/parser/mbti_parser" as @mbti_parser,
-  "moonbitlang/parser/basic" as @basic,
+  "moonbitlang/parser/lexer" @lexer,
+  "moonbitlang/parser/mbti_parser" @mbti_parser,
+  "moonbitlang/parser/basic" @basic,
 }

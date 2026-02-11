@@ -34,7 +34,6 @@ test "micro-bench: cache operations timing" {
   for i = 0; i < 10000; i = i + 1 {
     let key = "isr:/bench/" + i.to_string() + "/"
     let _ = ISRCache::get(cache, key)
-
   }
   let elapsed_get = perf_now() - start_get
 
@@ -45,7 +44,6 @@ test "micro-bench: cache operations timing" {
     let key = "isr:/bench/" + i.to_string() + "/"
     let entry = ISRCache::get(cache, key)
     let _ = check_status(entry, check_time)
-
   }
   let elapsed_status = perf_now() - start_status
   println("=== Micro-benchmark Results ===")
@@ -102,7 +100,6 @@ test "micro-bench: handler.handle() latency" {
   // Warm up
   for i = 0; i < 100; i = i + 1 {
     let _ = handler.handle("/bench/" + (i % num_pages).to_string() + "/")
-
   }
 
   // Benchmark: 10000 handle() calls
@@ -112,7 +109,6 @@ test "micro-bench: handler.handle() latency" {
     let idx = j % num_pages
     let path = "/bench/" + idx.to_string() + "/"
     let _ = handler.handle(path)
-
   }
   let elapsed = perf_now() - start
   let ops_per_sec = num_requests.to_double() / elapsed * 1000.0
@@ -152,7 +148,6 @@ test "micro-bench: 50k entries scalability" {
       let idx = j * 7919 % size // Prime number for pseudo-random spread
       let key = "isr:/scale/" + idx.to_string() + "/"
       let _ = ISRCache::get(fresh_cache, key)
-
     }
     let elapsed_get = perf_now() - start_get
     let get_latency = elapsed_get * 1000.0 / 1000.0

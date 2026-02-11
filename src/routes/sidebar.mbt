@@ -35,8 +35,9 @@ pub fn generate_auto_sidebar(
   locale? : String = "en",
 ) -> Array[@ssg.SidebarGroup] {
   // Filter pages by locale and exclude pages with sidebar: false
-  let locale_pages = pages.filter(p => p.locale == locale &&
-    p.frontmatter.sidebar)
+  let locale_pages = pages.filter(p => {
+    p.locale == locale && p.frontmatter.sidebar
+  })
 
   // Build hierarchical tree structure
   let tree = build_page_tree(locale_pages)
@@ -480,7 +481,11 @@ pub fn render_mobile_sidebar(
     h("span", [attr("class", "mobile-sidebar-label")], [
       @luna.text(current_title),
     ]),
-    h("span", [attr("class", "mobile-sidebar-arrow"), attr("aria-hidden", "true")], []),
+    h(
+      "span",
+      [attr("class", "mobile-sidebar-arrow"), attr("aria-hidden", "true")],
+      [],
+    ),
   ])
   let group_vnodes = groups.map(fn(group) {
     render_sidebar_group(group, current_path)
@@ -573,6 +578,8 @@ fn is_group_active(group : @ssg.SidebarGroup, current_path : String) -> Bool {
 }
 
 // Counter for generating unique IDs for sidebar groups
+
+///|
 let sidebar_group_counter : Ref[Int] = { val: 0 }
 
 ///|
@@ -642,13 +649,21 @@ fn render_sidebar_group(
           [attr("href", link), attr("class", link_class), attr("id", label_id)],
           [@luna.text(group.text)],
         ),
-        h("span", [attr("class", "sidebar-chevron"), attr("aria-hidden", "true")], []),
+        h(
+          "span",
+          [attr("class", "sidebar-chevron"), attr("aria-hidden", "true")],
+          [],
+        ),
       ]
     }
     None =>
       [
         h("span", [attr("id", label_id)], [@luna.text(group.text)]),
-        h("span", [attr("class", "sidebar-chevron"), attr("aria-hidden", "true")], []),
+        h(
+          "span",
+          [attr("class", "sidebar-chevron"), attr("aria-hidden", "true")],
+          [],
+        ),
       ]
   }
 
@@ -669,7 +684,11 @@ fn render_sidebar_group(
   // Wrapper for grid animation with ID for aria-controls
   let items_container = h(
     "div",
-    [attr("class", "sidebar-items"), attr("id", content_id), attr("role", "region")],
+    [
+      attr("class", "sidebar-items"),
+      attr("id", content_id),
+      attr("role", "region"),
+    ],
     [items_list],
   )
 

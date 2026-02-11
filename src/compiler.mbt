@@ -341,7 +341,6 @@ pub fn build_from_manifest_file(
   on_error : (String) -> Unit,
 ) -> Unit {
   let _ = ffi_build_from_manifest(manifest_path, cwd, on_success, on_error)
-
 }
 
 ///|

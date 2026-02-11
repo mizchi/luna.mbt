@@ -60,8 +60,14 @@ pub fn rewrite_type_refs(
   result = result.replace_all(old="@core.Attr", new="@luna.Attr")
   result = result.replace_all(old="@core.VNode", new="@luna.VNode")
   // Luna 0.8.1: Node[E] -> Node[E, String], Attr[E] -> Attr[E, String]
-  result = result.replace_all(old="@luna.Node[Unit]", new="@luna.Node[Unit, String]")
-  result = result.replace_all(old="@luna.Attr[Unit]", new="@luna.Attr[Unit, String]")
+  result = result.replace_all(
+    old="@luna.Node[Unit]",
+    new="@luna.Node[Unit, String]",
+  )
+  result = result.replace_all(
+    old="@luna.Attr[Unit]",
+    new="@luna.Attr[Unit, String]",
+  )
   // JS types - always rewrite @core.Any to @js
   result = result.replace_all(old="@core.Any", new="@js.Any")
   result

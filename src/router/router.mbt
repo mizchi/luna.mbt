@@ -698,7 +698,11 @@ extern "js" fn ffi_send_json_any(c : Ctx, data : @js.Any) -> Unit =
 
 ///|
 /// Send JSON error response via FFI
-extern "js" fn ffi_send_json_error(c : Ctx, message : String, status : Int) -> Unit =
+extern "js" fn ffi_send_json_error(
+  c : Ctx,
+  message : String,
+  status : Int,
+) -> Unit =
   #| (c, message, status) => {
   #|   const body = JSON.stringify({ error: message });
   #|   c.platform.response_resolve(new Response(body, {

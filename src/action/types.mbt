@@ -18,7 +18,10 @@ pub struct ActionContext {
 
 ///|
 /// Create ActionContext from Mars context
-pub fn ActionContext::from_ctx(ctx : @mars.Context, body : String) -> ActionContext {
+pub fn ActionContext::from_ctx(
+  ctx : @mars.Context,
+  body : String,
+) -> ActionContext {
   { ctx, body }
 }
 

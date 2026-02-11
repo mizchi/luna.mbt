@@ -1,10 +1,10 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/js/core" as @core,
-  "mizchi/sol/builder" as @builder,
-  "mizchi/sol/ssg" as @ssg,
-  "mizchi/sol/ssg/generator" as @generator,
-  "mizchi/sol/content/shiki" as @shiki,
+  "mizchi/js/core" @core,
+  "mizchi/sol/builder" @builder,
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/ssg/generator" @generator,
+  "mizchi/sol/content/shiki" @shiki,
 }
 
 options(

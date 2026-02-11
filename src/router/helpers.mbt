@@ -11,7 +11,7 @@
 /// Create a page route with minimal boilerplate
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// page("/", home, title="Home")
 /// page("/blog/:slug", blog_post, title="Blog", revalidate=Some(60))
 /// ```
@@ -37,7 +37,7 @@ pub fn page(
 /// Create a GET API route
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// api_get("/api/users/:id", get_user)
 /// ```
 pub fn api_get(
@@ -51,7 +51,7 @@ pub fn api_get(
 /// Create a POST API route
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// api_post("/api/users", create_user)
 /// ```
 pub fn api_post(
@@ -65,7 +65,7 @@ pub fn api_post(
 /// Create a layout wrapper
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// wrap("/admin", admin_layout, [
 ///   page("/", admin_dashboard),
 ///   page("/settings", admin_settings),
@@ -83,7 +83,7 @@ pub fn wrap(
 /// Apply middleware to a group of routes
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// with_mw([@mw.logger(), @mw.cors()], [
 ///   api_get("/api/data", get_data),
 /// ])
@@ -136,7 +136,7 @@ extern "js" fn ffi_json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any =
 /// Create a JSON response from key-value pairs
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// ok([("status", @js.any("success"))]).to_json()
 /// ```
 pub fn ok(pairs : Array[(String, @js.Any)]) -> ApiResponse {
@@ -195,7 +195,7 @@ pub fn forbidden(message? : String = "Forbidden") -> ApiResponse {
 /// Returns error response if parameter is missing.
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// match require(props, "id") {
 ///   Ok(id) => ok([("id", @js.any(id))]).to_json()
 ///   Err(err) => err.to_json()
@@ -273,12 +273,14 @@ pub fn optional_query(
 /// Create a sync ServerNode from an array of nodes
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// nodes([
 ///   @element.h1([@element.text("Hello")]),
 ///   @element.p([@element.text("World")]),
 /// ])
 /// ```
-pub fn nodes(content : Array[@luna.Node[Unit, String]]) -> @server_dom.ServerNode {
+pub fn nodes(
+  content : Array[@luna.Node[Unit, String]],
+) -> @server_dom.ServerNode {
   @server_dom.ServerNode::sync(@luna.fragment(content))
 }

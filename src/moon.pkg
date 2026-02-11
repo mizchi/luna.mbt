@@ -1,12 +1,12 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/luna" as @luna,
-  "mizchi/luna/core/render" as @render,
-  "mizchi/luna/js/stream_renderer" as @stream_renderer,
+  "mizchi/luna" @luna,
+  "mizchi/luna/core/render" @render,
+  "mizchi/luna/js/stream_renderer" @stream_renderer,
   "mizchi/luna/x/stella",
-  "mizchi/js/core" as @js,
-  "mizchi/mars" as @mars,
-  "mizchi/js/web/http" as @http,
+  "mizchi/js/core" @js,
+  "mizchi/mars" @mars,
+  "mizchi/js/web/http" @http,
 }
 
 options(

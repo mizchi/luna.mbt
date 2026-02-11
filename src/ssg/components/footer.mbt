@@ -106,7 +106,9 @@ fn render_footer_element(
 
 ///|
 /// Build footer columns (link groups)
-fn build_footer_columns(columns : Array[@ssg.FooterColumn]) -> @luna.Node[Unit, String] {
+fn build_footer_columns(
+  columns : Array[@ssg.FooterColumn],
+) -> @luna.Node[Unit, String] {
   if columns.is_empty() {
     return empty()
   }

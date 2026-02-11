@@ -5,7 +5,9 @@
 
 ///|
 /// Type alias for fetch handler
-pub struct FetchHandler((@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse])
+pub struct FetchHandler(
+  (@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse]
+)
 
 ///|
 /// Create a fetch handler from the app
@@ -211,7 +213,10 @@ fn register_shard_routes(app : @sol.App) -> Unit {
         .with_state("{\"name\":\"World\"}")
         .with_ssr_html("<p>Hello, <span data-name>World</span>!</p>")
       let island : String = @sol.render_island(config)
-      let html = @sol.render_island_page([island], title="Standalone Shard Test")
+      let html = @sol.render_island_page(
+        [island],
+        title="Standalone Shard Test",
+      )
       c.html(html)
     }),
   )

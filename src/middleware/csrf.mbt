@@ -172,22 +172,24 @@ pub fn csrf_for_origin(origin : String) -> Middleware {
 ///|
 /// Create CSRF protection middleware with custom config
 pub fn csrf_with_config(config : CsrfConfig) -> Middleware {
-  Middleware(@mars.Handler(async fn(ctx) {
-    // Skip safe methods (GET, HEAD, OPTIONS)
-    if is_safe_method(ctx.meth().to_string()) {
-      return // Continue
-    }
-
-    // Validate CSRF
-    match validate_csrf(ctx, config) {
-      Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
-      Invalid(error) => {
-        // Log error internally (don't expose details to client)
-        let _ = error.to_string()
-        ctx.text(config.error_message, status=403)
+  Middleware(
+    @mars.Handler(async fn(ctx) {
+      // Skip safe methods (GET, HEAD, OPTIONS)
+      if is_safe_method(ctx.meth().to_string()) {
+        return // Continue
       }
-    }
-  }))
+
+      // Validate CSRF
+      match validate_csrf(ctx, config) {
+        Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
+        Invalid(error) => {
+          // Log error internally (don't expose details to client)
+          let _ = error.to_string()
+          ctx.text(config.error_message, status=403)
+        }
+      }
+    }),
+  )
 }
 
 // ============================================================================
@@ -362,22 +364,24 @@ fn validate_content_type(ctx : Ctx, expected : String) -> CsrfResult {
 pub fn validate_origin_middleware(
   allowed_origins : Array[String],
 ) -> Middleware {
-  Middleware(@mars.Handler(async fn(ctx) {
-    // Skip safe methods
-    if is_safe_method(ctx.meth().to_string()) {
-      return // Continue
-    }
-    let origin = ctx.header("Origin")
-    match origin {
-      None => () // No Origin = same-origin, allow (continue)
-      Some(o) =>
-        if allowed_origins.contains(o) {
-          () // Continue
-        } else {
-          ctx.text("Forbidden", status=403)
-        }
-    }
-  }))
+  Middleware(
+    @mars.Handler(async fn(ctx) {
+      // Skip safe methods
+      if is_safe_method(ctx.meth().to_string()) {
+        return // Continue
+      }
+      let origin = ctx.header("Origin")
+      match origin {
+        None => () // No Origin = same-origin, allow (continue)
+        Some(o) =>
+          if allowed_origins.contains(o) {
+            () // Continue
+          } else {
+            ctx.text("Forbidden", status=403)
+          }
+      }
+    }),
+  )
 }
 
 // ============================================================================
@@ -388,16 +392,18 @@ pub fn validate_origin_middleware(
 /// Fetch Metadata validation middleware
 /// Blocks requests with Sec-Fetch-Site: cross-site
 pub fn fetch_metadata() -> Middleware {
-  Middleware(@mars.Handler(async fn(ctx) {
-    // Skip safe methods
-    if is_safe_method(ctx.meth().to_string()) {
-      return // Continue
-    }
-    match validate_fetch_metadata(ctx) {
-      Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
-      Invalid(_) => ctx.text("Forbidden", status=403)
-    }
-  }))
+  Middleware(
+    @mars.Handler(async fn(ctx) {
+      // Skip safe methods
+      if is_safe_method(ctx.meth().to_string()) {
+        return // Continue
+      }
+      match validate_fetch_metadata(ctx) {
+        Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
+        Invalid(_) => ctx.text("Forbidden", status=403)
+      }
+    }),
+  )
 }
 
 // ============================================================================
@@ -407,16 +413,18 @@ pub fn fetch_metadata() -> Middleware {
 ///|
 /// Require specific Content-Type for mutations
 pub fn require_content_type(content_type : String) -> Middleware {
-  Middleware(@mars.Handler(async fn(ctx) {
-    // Skip safe methods
-    if is_safe_method(ctx.meth().to_string()) {
-      return // Continue
-    }
-    match validate_content_type(ctx, content_type) {
-      Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
-      Invalid(_) => ctx.text("Invalid Content-Type", status=400)
-    }
-  }))
+  Middleware(
+    @mars.Handler(async fn(ctx) {
+      // Skip safe methods
+      if is_safe_method(ctx.meth().to_string()) {
+        return // Continue
+      }
+      match validate_content_type(ctx, content_type) {
+        Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
+        Invalid(_) => ctx.text("Invalid Content-Type", status=400)
+      }
+    }),
+  )
 }
 
 ///|

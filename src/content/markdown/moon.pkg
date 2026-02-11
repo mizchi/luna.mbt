@@ -1,1 +1,3 @@
-import { "mizchi/luna" as @luna }
+import {
+  "mizchi/luna" @luna,
+}

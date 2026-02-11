@@ -1,4 +1,6 @@
-import { "mizchi/js/core" as @core }
+import {
+  "mizchi/js/core" @core,
+}
 
 options(
   "supported-targets": [ "js" ],

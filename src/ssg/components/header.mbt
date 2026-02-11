@@ -308,7 +308,9 @@ pub fn build_theme_toggle() -> @luna.Node[Unit, String] {
 
 ///|
 /// Build social links (GitHub, Twitter, etc.)
-pub fn build_social_links(links : Array[@ssg.SocialLink]) -> @luna.Node[Unit, String] {
+pub fn build_social_links(
+  links : Array[@ssg.SocialLink],
+) -> @luna.Node[Unit, String] {
   if links.is_empty() {
     return empty()
   }

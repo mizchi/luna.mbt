@@ -62,14 +62,12 @@ fn collect_routes(
         let _ = handler
         let _ = meta
         let _ = cache
-
       }
       Layout(segment~, layout~, children~) => {
         // Recurse into children with updated base path
         let new_base = manifest_normalize_path(base + segment)
         collect_routes(children, new_base, result)
         let _ = layout
-
       }
       Get(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
@@ -83,7 +81,6 @@ fn collect_routes(
         })
         result.push(entry)
         let _ = handler
-
       }
       Post(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
@@ -97,7 +94,6 @@ fn collect_routes(
         })
         result.push(entry)
         let _ = handler
-
       }
       Put(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
@@ -111,7 +107,6 @@ fn collect_routes(
         })
         result.push(entry)
         let _ = handler
-
       }
       Delete(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
@@ -125,7 +120,6 @@ fn collect_routes(
         })
         result.push(entry)
         let _ = handler
-
       }
       Patch(path~, handler~) => {
         let full_path = manifest_normalize_path(base + path)
@@ -139,13 +133,11 @@ fn collect_routes(
         })
         result.push(entry)
         let _ = handler
-
       }
       WithMiddleware(middleware~, children~) => {
         // Middleware doesn't affect manifest, just recurse
         collect_routes(children, base, result)
         let _ = middleware
-
       }
     }
   }

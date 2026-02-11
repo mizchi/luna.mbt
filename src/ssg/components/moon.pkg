@@ -1,10 +1,10 @@
 import {
   "mizchi/luna",
-  "mizchi/sol/ssg" as @ssg,
-  "mizchi/sol/routes" as @routes,
-  "mizchi/sol/content/md_render" as @markdown,
-  "mizchi/js/node/fs" as @fs,
-  "mizchi/js/node/path" as @path,
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/routes" @routes,
+  "mizchi/sol/content/md_render" @markdown,
+  "mizchi/js/node/fs" @fs,
+  "mizchi/js/node/path" @path,
 }
 
 options(

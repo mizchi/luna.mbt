@@ -1,6 +1,6 @@
 import {
-  "mizchi/js/core" as @core,
-  "mizchi/js/node/child_process" as @child_process,
+  "mizchi/js/core" @core,
+  "mizchi/js/node/child_process" @child_process,
 }
 
 options(

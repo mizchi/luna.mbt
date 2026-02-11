@@ -16,9 +16,7 @@ fn create_docs_manifest() -> ISRManifest {
   let pages : Map[String, ISRPageMeta] = {}
 
   // Main pages - hot (TTL: 300s)
-  let main_pages = [
-    "/", "/introduction/", "/luna/", "/ssg/", "/sol/",
-  ]
+  let main_pages = ["/", "/introduction/", "/luna/", "/ssg/", "/sol/"]
   for path in main_pages {
     pages[path] = ISRPageMeta::{
       revalidate: 300,

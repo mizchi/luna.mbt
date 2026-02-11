@@ -360,7 +360,6 @@ pub async fn run_ssg_dev(
       hmr_server.notify_reload()
     }
   })
-
 }
 
 ///|

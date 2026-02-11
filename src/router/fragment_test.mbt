@@ -9,7 +9,9 @@
 
 ///|
 test "render_fragment_response - basic content" {
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Hello, World!")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
+    @luna.text("Hello, World!"),
+  ])
   let html = @router.render_fragment_response(node, "Test Page", false)
   // Should contain main outlet template
   inspect(html.contains("<template data-sol-outlet=\"main\">"), content="true")
@@ -21,7 +23,9 @@ test "render_fragment_response - basic content" {
 
 ///|
 test "render_fragment_response - escapes HTML in title" {
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Content")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
+    @luna.text("Content"),
+  ])
   let html = @router.render_fragment_response(
     node, "<script>alert('xss')</script>", false,
   )
@@ -44,7 +48,9 @@ test "render_fragment_response - special characters in title" {
 
 ///|
 test "render_fragment_response - without hydration" {
-  let node : @luna.Node[Unit, String] = @luna.h("p", [], [@luna.text("Simple text")])
+  let node : @luna.Node[Unit, String] = @luna.h("p", [], [
+    @luna.text("Simple text"),
+  ])
   let html = @router.render_fragment_response(node, "Title", false)
   // Should contain the content
   inspect(html.contains("<p>"), content="true")
@@ -110,7 +116,9 @@ test "render_fragment_response - unicode title" {
 
 ///|
 test "render_fragment_response - structure order" {
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Content")])
+  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
+    @luna.text("Content"),
+  ])
   let html = @router.render_fragment_response(node, "Title", false)
   // Main outlet should come before title template
   let main_pos = html.find("<template data-sol-outlet=\"main\">")

@@ -84,29 +84,31 @@ pub fn logger() -> Middleware {
 ///|
 /// Create logger middleware with custom config
 pub fn logger_with_config(config : LoggerConfig) -> Middleware {
-  Middleware(@mars.Handler(async fn(ctx) {
-    let path = ctx.path()
+  Middleware(
+    @mars.Handler(async fn(ctx) {
+      let path = ctx.path()
 
-    // Check skip condition
-    for skip_path in config.skip_paths {
-      if path.has_prefix(skip_path) {
-        return // Continue without logging
+      // Check skip condition
+      for skip_path in config.skip_paths {
+        if path.has_prefix(skip_path) {
+          return // Continue without logging
+        }
       }
-    }
 
-    // Get current time
-    let start_time = now_ms()
+      // Get current time
+      let start_time = now_ms()
 
-    // Format log message
-    let message = format_log_message(ctx, start_time, config.format)
+      // Format log message
+      let message = format_log_message(ctx, start_time, config.format)
 
-    // Output log
-    match config.log_fn {
-      Some(log_fn) => log_fn(message)
-      None => console_log(message)
-    }
-    // Continue to next handler
-  }))
+      // Output log
+      match config.log_fn {
+        Some(log_fn) => log_fn(message)
+        None => console_log(message)
+      }
+      // Continue to next handler
+    }),
+  )
 }
 
 // ============================================================================
@@ -114,7 +116,11 @@ pub fn logger_with_config(config : LoggerConfig) -> Middleware {
 // ============================================================================
 
 ///|
-fn format_log_message(ctx : Ctx, start_time : Float, format : LogFormat) -> String {
+fn format_log_message(
+  ctx : Ctx,
+  start_time : Float,
+  format : LogFormat,
+) -> String {
   match format {
     Dev => format_dev(ctx, start_time)
     Combined => format_combined(ctx, start_time)

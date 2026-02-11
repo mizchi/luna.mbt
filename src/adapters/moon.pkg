@@ -1,8 +1,8 @@
 import {
-  "mizchi/sol/ssg" as @ssg,
-  "mizchi/js/core" as @js,
-  "mizchi/js/node/fs" as @fs,
-  "mizchi/js/node/path" as @path,
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/js/core" @js,
+  "mizchi/js/node/fs" @fs,
+  "mizchi/js/node/path" @path,
 }
 
 options(

@@ -8,7 +8,6 @@
 test "identity middleware can be created" {
   let mw = identity()
   let _ = mw
-
 }
 
 ///|
@@ -17,7 +16,6 @@ test "pipeline creates combined middleware" {
   let mw2 = identity()
   let combined = pipeline([mw1, mw2])
   let _ = combined
-
 }
 
 ///|
@@ -26,7 +24,6 @@ test "then_ composes two middlewares" {
   let mw2 = identity()
   let combined = mw1 |> then_(mw2)
   let _ = combined
-
 }
 
 // ============================================================================
@@ -155,35 +152,30 @@ test "CsrfConfig::with_fetch_metadata toggles check" {
 test "csrf middleware can be created" {
   let mw = csrf_for_origin("https://example.com")
   let _ = mw
-
 }
 
 ///|
 test "csrf middleware can be composed" {
   let mw = then(csrf_for_origin("https://example.com"), identity())
   let _ = mw
-
 }
 
 ///|
 test "validate_origin_middleware can be created" {
   let mw = validate_origin_middleware(["https://example.com"])
   let _ = mw
-
 }
 
 ///|
 test "fetch_metadata middleware can be created" {
   let mw = fetch_metadata()
   let _ = mw
-
 }
 
 ///|
 test "require_json_content_type middleware can be created" {
   let mw = require_json_content_type()
   let _ = mw
-
 }
 
 // ============================================================================
@@ -284,7 +276,9 @@ test "extract_origin_from_url without path" {
 
 ///|
 test "extract_origin_from_url with long path" {
-  let origin = extract_origin_from_url("http://localhost:9123/../../attacker.com")
+  let origin = extract_origin_from_url(
+    "http://localhost:9123/../../attacker.com",
+  )
   match origin {
     Some(o) => assert_eq(o, "http://localhost:9123")
     None => fail("expected Some origin")
@@ -317,7 +311,9 @@ test "is_referer_allowed with invalid referer" {
 ///|
 test "is_referer_allowed with prefix attack" {
   let allowed = ["http://localhost:9123"]
-  let result = is_referer_allowed("http://localhost:9123.attacker.com/form", allowed)
+  let result = is_referer_allowed(
+    "http://localhost:9123.attacker.com/form", allowed,
+  )
   assert_false(result)
 }
 
@@ -343,28 +339,24 @@ test "SecurityHeadersConfig::relaxed creates relaxed config" {
 test "security_headers middleware can be created" {
   let mw = security_headers()
   let _ = mw
-
 }
 
 ///|
 test "nosniff middleware can be created" {
   let mw = nosniff()
   let _ = mw
-
 }
 
 ///|
 test "frame_options middleware can be created" {
   let mw = frame_options("DENY")
   let _ = mw
-
 }
 
 ///|
 test "csp middleware can be created" {
   let mw = csp("default-src 'self'")
   let _ = mw
-
 }
 
 // ============================================================================

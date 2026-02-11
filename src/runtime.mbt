@@ -36,7 +36,6 @@ pub fn get_hmr_script() -> String {
   "<script>(function(){var ws=new WebSocket('ws://'+location.hostname+':\{port}');ws.onmessage=function(e){var m=JSON.parse(e.data);if(m.type==='update'){location.reload()}else if(m.type==='full-reload'){location.reload()}else if(m.type==='error'){console.error('[HMR]',m.message)}};ws.onclose=function(){console.log('[HMR] Disconnected, reconnecting...');setTimeout(function(){location.reload()},1000)}})()</script>"
 }
 
-
 ///|
 extern "js" fn ffi_init_fs() -> @js.Promise[Unit] =
   #| () => import('node:fs').then(fs => { globalThis.__SOL_FS__ = fs; })
@@ -74,9 +73,7 @@ priv struct MarsFetchHandler((@mars.JsRequest) -> @js.Promise[@mars.JsResponse])
 /// Convert Mars Promise type to @js.Promise for FFI compatibility
 /// Mars uses moonbitlang/async/js_async.Promise, Sol uses mizchi/js/core.Promise
 /// They are the same JS Promise object at runtime
-extern "js" fn ffi_convert_fetch_handler(
-  handler : @js.Any,
-) -> MarsFetchHandler =
+extern "js" fn ffi_convert_fetch_handler(handler : @js.Any) -> MarsFetchHandler =
   #| (handler) => handler
 
 ///|
@@ -89,7 +86,7 @@ extern "js" fn ffi_is_node() -> Bool =
 /// This is the recommended way to start a Sol server.
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// fn main {
 ///   @sol.run(fn(app) { @sol.page(app, "/", home_page) |> @sol.serve_static() })
 /// }
@@ -118,7 +115,7 @@ pub fn run(configure : (App) -> Unit, port? : Int) -> Unit {
 /// This is used for generated configure_app() functions that take no parameters.
 ///
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// fn main {
 ///   @sol.run_app(configure_app)
 /// }

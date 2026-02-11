@@ -132,31 +132,33 @@ pub fn cors() -> Middleware {
 ///|
 /// Create CORS middleware with custom config
 pub fn cors_with_config(config : CorsConfig) -> Middleware {
-  Middleware(@mars.Handler(async fn(ctx) {
-    let origin_header = ctx.header("Origin")
+  Middleware(
+    @mars.Handler(async fn(ctx) {
+      let origin_header = ctx.header("Origin")
 
-    // No Origin header = same-origin request
-    let origin = match origin_header {
-      Some(o) => o
-      None => return // Continue
-    }
+      // No Origin header = same-origin request
+      let origin = match origin_header {
+        Some(o) => o
+        None => return // Continue
+      }
 
-    // Validate origin
-    let allowed = is_origin_allowed(origin, config.origin)
-    if not(allowed) {
-      return // Just don't add CORS headers (continue)
-    }
+      // Validate origin
+      let allowed = is_origin_allowed(origin, config.origin)
+      if not(allowed) {
+        return // Just don't add CORS headers (continue)
+      }
 
-    // Check if preflight request
-    if ctx.meth().to_string() == "OPTIONS" {
-      send_preflight_response(ctx, origin, config)
-      return // Halt after preflight response
-    }
+      // Check if preflight request
+      if ctx.meth().to_string() == "OPTIONS" {
+        send_preflight_response(ctx, origin, config)
+        return // Halt after preflight response
+      }
 
-    // Add CORS headers for actual request
-    add_cors_headers(ctx, origin, config)
-    // Continue to next handler
-  }))
+      // Add CORS headers for actual request
+      add_cors_headers(ctx, origin, config)
+      // Continue to next handler
+    }),
+  )
 }
 
 // ============================================================================
@@ -178,7 +180,11 @@ fn is_origin_allowed(origin : String, allowed : CorsOrigin) -> Bool {
 // ============================================================================
 
 ///|
-fn send_preflight_response(ctx : Ctx, origin : String, config : CorsConfig) -> Unit {
+fn send_preflight_response(
+  ctx : Ctx,
+  origin : String,
+  config : CorsConfig,
+) -> Unit {
   // Access-Control-Allow-Origin
   let allow_origin = match config.origin {
     All => "*"

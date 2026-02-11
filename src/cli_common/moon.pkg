@@ -1,8 +1,8 @@
 import {
-  "mizchi/js/core" as @js,
-  "mizchi/js/web/console" as @console,
-  "mizchi/sol/core/env" as @env,
-  "mizchi/js/node/path" as @path,
+  "mizchi/js/core" @js,
+  "mizchi/js/web/console" @console,
+  "mizchi/sol/core/env" @env,
+  "mizchi/js/node/path" @path,
 }
 
 options(

@@ -41,7 +41,6 @@ pub impl ISRCache for MemoryCache with schedule_revalidation(_self, task) {
   // In memory mode, execute task synchronously via promise
   // This is simplified - in production, use waitUntil
   let _ = ffi_run_async(task)
-
 }
 
 ///|

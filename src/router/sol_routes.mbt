@@ -306,7 +306,6 @@ fn normalize_path(path : String) -> String {
   let len = result.length()
   if len > 1 && result[len - 1] == '/' {
     let _ = result.pop()
-
   }
   String::from_array(result)
 }
@@ -690,7 +689,10 @@ fn register_compiled_sol_routes(
           match route.api_handler {
             Some(ApiHandler(handler)) => {
               let json : @js.Any = handler(props) catch {
-                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+                e => {
+                  ffi_send_json_error(c, e.to_string(), 500)
+                  return
+                }
               }
               ffi_send_json_any(c, json)
             }
@@ -710,7 +712,10 @@ fn register_compiled_sol_routes(
           match route.api_handler {
             Some(ApiHandler(handler)) => {
               let json : @js.Any = handler(props) catch {
-                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+                e => {
+                  ffi_send_json_error(c, e.to_string(), 500)
+                  return
+                }
               }
               ffi_send_json_any(c, json)
             }
@@ -730,7 +735,10 @@ fn register_compiled_sol_routes(
           match route.api_handler {
             Some(ApiHandler(handler)) => {
               let json : @js.Any = handler(props) catch {
-                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+                e => {
+                  ffi_send_json_error(c, e.to_string(), 500)
+                  return
+                }
               }
               ffi_send_json_any(c, json)
             }
@@ -750,7 +758,10 @@ fn register_compiled_sol_routes(
           match route.api_handler {
             Some(ApiHandler(handler)) => {
               let json : @js.Any = handler(props) catch {
-                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+                e => {
+                  ffi_send_json_error(c, e.to_string(), 500)
+                  return
+                }
               }
               ffi_send_json_any(c, json)
             }
@@ -770,7 +781,10 @@ fn register_compiled_sol_routes(
           match route.api_handler {
             Some(ApiHandler(handler)) => {
               let json : @js.Any = handler(props) catch {
-                e => { ffi_send_json_error(c, e.to_string(), 500); return }
+                e => {
+                  ffi_send_json_error(c, e.to_string(), 500)
+                  return
+                }
               }
               ffi_send_json_any(c, json)
             }

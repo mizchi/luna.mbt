@@ -1,11 +1,12 @@
 import {
-  "mizchi/mars" as @mars,
-  "mizchi/js/core" as @js,
-  "mizchi/js/web/http" as @http,
-  "mizchi/sol/middleware" as @middleware,
+  "mizchi/mars" @mars,
+  "mizchi/js/core" @js,
+  "mizchi/js/web/http" @http,
+  "mizchi/sol/middleware" @middleware,
 }
+
+warnings = "-6"
 
 options(
   "supported-targets": [ "js" ],
-  "warn-list": "-6",
 )

@@ -56,7 +56,8 @@ test "parse mdx with markdown content before custom element" {
     match node {
       @ssg.MdNode::JsxComponent(embed) => {
         found_jsx = true
-        children_has_bem = embed.children.contains("checkbox__control") && embed.children.contains("checkbox__icon")
+        children_has_bem = embed.children.contains("checkbox__control") &&
+          embed.children.contains("checkbox__icon")
       }
       _ => ()
     }
@@ -107,7 +108,11 @@ test "parse mdx with plain div HTML block (alert style)" {
     match node {
       @ssg.MdNode::Html(html) => {
         println("Node \{i}: Html")
-        let preview = if html.length() > 100 { html[:100].to_string() } else { html }
+        let preview = if html.length() > 100 {
+          html[:100].to_string()
+        } else {
+          html
+        }
         println("  Content: \{preview}")
         // BEM classes should be preserved
         found_html = true
@@ -152,7 +157,11 @@ test "parse actual alert.mdx content" {
     match node {
       @ssg.MdNode::Html(html) => {
         println("Node \{i}: Html (len=\{html.length()})")
-        let preview = if html.length() > 80 { html[:80].to_string() } else { html }
+        let preview = if html.length() > 80 {
+          html[:80].to_string()
+        } else {
+          html
+        }
         println("  \{preview}")
         if html.contains("alert-demo") {
           found_html_with_alert = true

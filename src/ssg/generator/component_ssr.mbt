@@ -93,7 +93,9 @@ async fn render_component_ssr_async(
 ///|
 /// Load a component module and call its render() function
 /// Uses dynamic import and expects the module to export a render() function
-async fn load_component_module(module_path : String) -> @luna.Node[Unit, String]? {
+async fn load_component_module(
+  module_path : String,
+) -> @luna.Node[Unit, String]? {
   ffi_load_component_render(module_path).wait()
 }
 

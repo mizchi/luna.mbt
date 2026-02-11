@@ -160,7 +160,6 @@ pub fn start_worker() -> Unit {
   @builder.on_message(fn(msg) {
     // Handle message - spawn async task using Promise
     let _ = @core.from_async(async fn() { handle_message_async(msg) })
-
   })
 }
 
