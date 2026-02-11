@@ -46,7 +46,7 @@ fn run_serve_command(args : Array[String]) -> Unit {
     @process.exit(1)
   }
   // Check if build exists
-  let target_dir = @path.join2(cwd, "target/js/release/build")
+  let target_dir = @path.join2(cwd, "_build/js/release/build")
   if not(@fs.existsSync(target_dir)) {
     @cli_common.console_error(
       @colorette.red("Error: No production build found. Run 'sol build' first."),

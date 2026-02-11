@@ -504,10 +504,10 @@ fn[FS : @env.FileSystem] find_server_entry_with_fs(
   let possible_entries = [
     ".sol/\{mode}/server/serve.js", // adapter wrapper (preferred for local serving)
     ".sol/\{mode}/server/main.js",
-    "target/js/release/build/__gen__/server/server.js",
-    "target/js/release/build/server/run/run.js",
-    "target/js/release/build/examples/example_app/example_app.js",
-    "target/js/release/build/main/main.js",
+    "_build/js/release/build/__gen__/server/server.js",
+    "_build/js/release/build/server/run/run.js",
+    "_build/js/release/build/examples/example_app/example_app.js",
+    "_build/js/release/build/main/main.js",
   ]
   for entry in possible_entries {
     let entry_path = @path.join2(cwd, entry)
@@ -536,10 +536,10 @@ fn[FS : @env.FileSystem] run_server_with_fs(
   let possible_entries = [
     ".sol/\{mode}/server/serve.js", // adapter wrapper (preferred for local serving)
     ".sol/\{mode}/server/main.js",
-    "target/js/release/build/__gen__/server/server.js",
-    "target/js/release/build/server/run/run.js",
-    "target/js/release/build/examples/example_app/example_app.js",
-    "target/js/release/build/main/main.js",
+    "_build/js/release/build/__gen__/server/server.js",
+    "_build/js/release/build/server/run/run.js",
+    "_build/js/release/build/examples/example_app/example_app.js",
+    "_build/js/release/build/main/main.js",
   ]
   let mut entry_point : String? = None
   for entry in possible_entries {

@@ -452,6 +452,11 @@ test "generate_sol_server_main_js: node runtime" {
   assert_true(js.contains("@hono/node-server"))
   assert_true(js.contains("@sol.run()"))
   assert_true(js.contains("export *"))
+  assert_true(
+    js.contains(
+      "import * as server from '../../../_build/js/release/build/__gen__/server/server.js'",
+    ),
+  )
 }
 
 ///|

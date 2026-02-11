@@ -91,7 +91,7 @@ fn generate_server_pkg(routes_pkg : String) -> String {
 
 ///|
 /// Generate .sol/{mode}/server/main.js entry point (MoonBit mode)
-/// Path: .sol/{mode}/server/main.js -> ../../../target/js/release/build/__gen__/server/server.js
+/// Path: .sol/{mode}/server/main.js -> ../../../_build/js/release/build/__gen__/server/server.js
 pub fn generate_sol_server_main_js(
   routes_pkg : String,
   runtime : ServerRuntime,
@@ -105,14 +105,14 @@ pub fn generate_sol_server_main_js(
   match runtime {
     RuntimeNode => {
       buf.write_string(
-        "import * as server from '../../../target/js/release/build/__gen__/server/server.js';\n\n",
+        "import * as server from '../../../_build/js/release/build/__gen__/server/server.js';\n\n",
       )
       buf.write_string("// Node.js runtime using @hono/node-server\n")
       buf.write_string(
         "// The server module already handles startup via @sol.run()\n",
       )
       buf.write_string(
-        "export * from '../../../target/js/release/build/__gen__/server/server.js';\n",
+        "export * from '../../../_build/js/release/build/__gen__/server/server.js';\n",
       )
     }
     RuntimeCloudflare => {
