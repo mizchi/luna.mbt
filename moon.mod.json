@@ -4,8 +4,8 @@
   "deps": {
     "moonbitlang/async": "0.16.6",
     "moonbitlang/x": "0.4.40",
-    "mizchi/js": "0.10.13",
-    "mizchi/npm_typed": "0.1.10",
+    "mizchi/js": "0.10.14",
+    "mizchi/npm_typed": "0.1.11",
     "moonbitlang/parser": "0.1.15",
     "mizchi/signals": "0.6.3"
   },
