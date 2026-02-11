@@ -1,6 +1,5 @@
 import {
   "mizchi/mars" @mars,
-  "mizchi/js/core" @js,
 }
 
 warnings = "-6"

@@ -577,7 +577,7 @@ fn[E] register_routes_inner(
       @routes.Page(path~, component~, title~, meta~) => {
         let _ = meta
         let full_path = prefix + path
-        app.get(full_path, fn(c) {
+        app.get(full_path, async fn(c) {
           let is_fragment = has_fragment_header(c)
           let params = extract_route_params(c, is_fragment~)
           match page_resolver(component, c, params) {

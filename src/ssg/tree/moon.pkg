@@ -1,5 +1,4 @@
 import {
   "mizchi/sol/ssg" @ssg,
-  "mizchi/sol/core/env" @env,
   "mizchi/sol/adapters/fs" @fs_adapter,
 }

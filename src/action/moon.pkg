@@ -1,7 +1,6 @@
 import {
   "mizchi/mars" @mars,
   "mizchi/js/core" @js,
-  "mizchi/js/web/http" @http,
   "mizchi/sol/middleware" @middleware,
 }
 
