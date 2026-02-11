@@ -31,6 +31,33 @@ fn show_build_help() -> Unit {
 }
 
 ///|
+/// Patch generated server JS for MoonBit 0.8 async scheduler symbol mismatch.
+/// This keeps request handling working until upstream codegen is fixed.
+fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
+  fs : FS,
+  cwd : String,
+  target : String,
+) -> Unit {
+  let server_js_path = @path.join2(
+    cwd,
+    "_build/\{target}/release/build/__gen__/server/server.js",
+  )
+  if not(fs.exists_sync(server_js_path)) {
+    return
+  }
+  let content = fs.read_file_sync(server_js_path) catch { _ => return }
+  let broken = "moonbitlang$async$internal$event_loop$$reschedule();"
+  if not(content.contains(broken)) {
+    return
+  }
+  let patched = content.replace_all(old=broken, new="void 0;")
+  fs.write_file_sync(server_js_path, patched) catch {
+    _ => return
+  }
+  println(@colorette.gray("Patched async reschedule shim in server.js"))
+}
+
+///|
 async fn run_build_command(args : Array[String]) -> Unit {
   let fs = @fs_adapter.NodeFsAdapter::new()
   run_build_command_with_fs(fs, args)
@@ -235,6 +262,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
   }
   println(@colorette.green("✓ Moon build complete"))
+  patch_mars_reschedule_shim_with_fs(fs, cwd, target)
   // Bundle client code with rolldown if manifest exists
   let manifest_path = @path.join2(cwd, ".sol/prod/manifest.json")
   if not(skip_bundle) && fs.exists_sync(manifest_path) {
