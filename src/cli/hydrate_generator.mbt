@@ -96,11 +96,11 @@ fn generate_client_gen_pkg(
   let buf = StringBuilder::new()
   buf.write_string("import {\n")
   // Add user's client package import
-  buf.write_string("  \"\{client_pkg_path}\" as @\{client_alias},\n")
+  buf.write_string("  \"\{client_pkg_path}\" @\{client_alias},\n")
   // Add runtime imports
   for item in hydrate_required_imports {
     let (pkg_path, pkg_alias) = item
-    buf.write_string("  \"\{pkg_path}\" as @\{pkg_alias},\n")
+    buf.write_string("  \"\{pkg_path}\" @\{pkg_alias},\n")
   }
   buf.write_string("}\n\n")
   buf.write_string("options(\n")

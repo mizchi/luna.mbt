@@ -2,6 +2,30 @@
 ///| These pages complete the routes defined in routes.mbt
 
 ///|
+fn docs_links_section() -> @luna.Node[Unit, String] {
+  div([
+    h2([text("Available Docs")]),
+    ul([
+      li([sol_link(href="/docs/intro", [text("Introduction")])]),
+      li([sol_link(href="/docs/getting-started", [text("Getting Started")])]),
+      li([sol_link(href="/docs/api/overview", [text("API Overview")])]),
+    ]),
+  ])
+}
+
+///|
+fn blog_recent_posts_section() -> @luna.Node[Unit, String] {
+  div([
+    h2([text("Recent Posts")]),
+    ul([
+      li([sol_link(href="/blog/hello-world", [text("Hello World")])]),
+      li([sol_link(href="/blog/moonbit-guide", [text("MoonBit Guide")])]),
+      li([sol_link(href="/blog/2024/recap", [text("2024 Recap")])]),
+    ]),
+  ])
+}
+
+///|
 /// WC Multiple page - demonstrates multiple instances of the same Web Component
 async fn wc_multiple(_props : @router.PageProps) -> @server_dom.ServerNode {
   let content = [
@@ -67,14 +91,7 @@ async fn docs_page(props : @router.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text("Documentation")]),
     p([text("Current path: /docs/" + slug)]),
-    div([
-      h2([text("Available Docs")]),
-      ul([
-        li([sol_link(href="/docs/intro", [text("Introduction")])]),
-        li([sol_link(href="/docs/getting-started", [text("Getting Started")])]),
-        li([sol_link(href="/docs/api/overview", [text("API Overview")])]),
-      ]),
-    ]),
+    docs_links_section(),
   ]
   @server_dom.ServerNode::sync(@luna.fragment(content))
 }
@@ -87,14 +104,7 @@ async fn blog_page(props : @router.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text(title)]),
     p([text(if path == "" { "Welcome to the blog!" } else { "Viewing: " + path })]),
-    div([
-      h2([text("Recent Posts")]),
-      ul([
-        li([sol_link(href="/blog/hello-world", [text("Hello World")])]),
-        li([sol_link(href="/blog/moonbit-guide", [text("MoonBit Guide")])]),
-        li([sol_link(href="/blog/2024/recap", [text("2024 Recap")])]),
-      ]),
-    ]),
+    blog_recent_posts_section(),
   ]
   @server_dom.ServerNode::sync(@luna.fragment(content))
 }

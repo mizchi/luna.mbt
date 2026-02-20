@@ -17,13 +17,13 @@
     "bench:hono": "npx tsx bench/hono-server.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.0.0",
-    "hono": "^4.0.0"
+    "@hono/node-server": "^1.19.9",
+    "hono": "^4.11.9"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "rolldown": "^1.0.0-beta.54",
-    "tsx": "^4.0.0",
-    "wrangler": "^4.54.0"
+    "@playwright/test": "^1.58.2",
+    "rolldown": "1.0.0-rc.4",
+    "tsx": "^4.21.0",
+    "wrangler": "^4.66.0"
   }
 }

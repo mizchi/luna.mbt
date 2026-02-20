@@ -9,6 +9,7 @@ dist
 *.coverage
 *.0x
 test-results/
+bench/k6/results/*.json
 wrangler.json
 .metrics.db
 coverage/

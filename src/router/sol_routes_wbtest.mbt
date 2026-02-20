@@ -77,6 +77,20 @@ test "compile sol api routes" {
 }
 
 ///|
+test "is_api_route_kind - returns true for API kinds" {
+  assert_true(is_api_route_kind(SolRouteKind::GetApi))
+  assert_true(is_api_route_kind(SolRouteKind::PostApi))
+  assert_true(is_api_route_kind(SolRouteKind::PutApi))
+  assert_true(is_api_route_kind(SolRouteKind::DeleteApi))
+  assert_true(is_api_route_kind(SolRouteKind::PatchApi))
+}
+
+///|
+test "is_api_route_kind - returns false for page kind" {
+  assert_false(is_api_route_kind(SolRouteKind::Page))
+}
+
+///|
 test "extract param names from sol routes" {
   async fn user_handler(_props : PageProps) -> @server_dom.ServerNode {
     @server_dom.ServerNode::sync(@luna.text("User"))
@@ -236,4 +250,217 @@ test "page with deeply nested layouts (3 levels)" {
   assert_eq(compiled.length(), 1)
   assert_eq(compiled[0].pattern, "/a/b/c")
   assert_eq(compiled[0].layouts.length(), 3)
+}
+
+///|
+test "render_meta_tags escapes meta values" {
+  let html = render_meta_tags([
+    ("description", "A < B & \"quoted\""),
+    ("og:title", "Tom's blog"),
+  ])
+  assert_true(html.contains("<meta name=\"description\""))
+  assert_true(html.contains("content=\"A &lt; B &amp; &quot;quoted&quot;\""))
+  assert_true(html.contains("content=\"Tom&#39;s blog\""))
+}
+
+///|
+test "build_page_head appends meta tags to default head" {
+  let head = build_page_head("<meta charset=\"utf-8\">", [
+    ("description", "Hello"),
+  ])
+  assert_true(head.contains("<meta charset=\"utf-8\">"))
+  assert_true(head.contains("<meta name=\"description\" content=\"Hello\">"))
+}
+
+///|
+test "should_use_streaming skips ISR routes with cache" {
+  let cfg = RouterConfig::default().with_streaming_ssr()
+  let cfg_isr = cfg.with_isr_cache(@isr.MemoryCache::new())
+  assert_true(should_use_streaming(cfg, false, None))
+  assert_false(should_use_streaming(cfg, true, None))
+  assert_false(should_use_streaming(cfg_isr, false, Some(60)))
+}
+
+///|
+test "cache_strategy_to_header_value uses stable wire values" {
+  assert_eq(
+    cache_strategy_to_header_value(CacheStrategy::AlwaysFetch),
+    "always-fetch",
+  )
+  assert_eq(
+    cache_strategy_to_header_value(CacheStrategy::StaleWhileRevalidate),
+    "stale-while-revalidate",
+  )
+}
+
+///|
+extern "js" fn ffi_stream_to_text(stream : @js.Any) -> @js.Promise[String] =
+  #| (stream) => new Response(stream).text()
+
+///|
+async test "create_streaming_response_with_async wraps body with header/footer" {
+  let header = "<!doctype html><html><body><header>H</header>"
+  let footer = "<footer>F</footer></body></html>"
+  let shell : @luna.Node[Unit, String] = @luna.h("main", [], [
+    @luna.text("Hello Stream"),
+  ])
+  let stream = create_streaming_response_with_async(header, footer, shell)
+  let html = ffi_stream_to_text(stream).wait()
+  assert_true(html.has_prefix(header))
+  assert_true(html.contains("<main>Hello Stream</main>"))
+  assert_true(html.has_suffix(footer))
+}
+
+///|
+struct TestHttpResponse {
+  status : Int
+  body : String
+  content_type : String?
+  fragment_response : String?
+  cache_strategy : String?
+}
+
+///|
+extern "js" fn ffi_call_app_handler(
+  handler : @mars.AppHandler,
+  meth : String,
+  url : String,
+  fragment : Bool,
+) -> @js_async.Promise[TestHttpResponse] =
+  #| async (handler, meth, url, fragment) => {
+  #|   const headers = {};
+  #|   if (fragment) headers["X-Sol-Fragment"] = "true";
+  #|   const req = new Request(url, { method: meth, headers });
+  #|   const res = await handler(req);
+  #|   return {
+  #|     status: res.status,
+  #|     body: await res.text(),
+  #|     content_type: res.headers.get("content-type") ?? undefined,
+  #|     fragment_response: res.headers.get("x-sol-fragment-response") ?? undefined,
+  #|     cache_strategy: res.headers.get("x-sol-cache-strategy") ?? undefined,
+  #|   };
+  #| }
+
+///|
+fn test_root_template(marker : String) -> String {
+  "<!DOCTYPE html><html><head><title>__LUNA_TITLE__</title>__LUNA_PRELOAD____LUNA_HEAD__</head><body><div id=\"" +
+  marker +
+  "\">__LUNA_MAIN__</div></body></html>"
+}
+
+///|
+async test "register_sol_routes uses streaming response for full page" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("main", [], [@luna.text("streaming")]))
+  }
+
+  let app = @mars.Server::new()
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/",
+        handler=PageHandler(page_handler),
+        title="Home",
+        meta=[],
+        revalidate=None,
+        cache=None,
+      ),
+    ],
+    config=RouterConfig::default()
+      .with_streaming_ssr()
+      .with_loader_url("/assets/loader.mjs")
+      .with_root_template(test_root_template("custom-root")),
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(),
+    "GET",
+    "http://localhost/",
+    false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_true(res.body.contains("custom-root"))
+  assert_false(res.body.contains("<div id=\"app\">"))
+  assert_true(
+    res.body.contains(
+      "<script type=\"module\" src=\"/assets/loader.mjs\"></script>",
+    ),
+  )
+  assert_eq(res.cache_strategy, Some("always-fetch"))
+}
+
+///|
+async test "register_sol_routes uses fragment response when X-Sol-Fragment is set" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("main", [], [@luna.text("fragment")]))
+  }
+
+  let app = @mars.Server::new()
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/",
+        handler=PageHandler(page_handler),
+        title="Home",
+        meta=[],
+        revalidate=None,
+        cache=None,
+      ),
+    ],
+    config=RouterConfig::default().with_streaming_ssr(),
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(),
+    "GET",
+    "http://localhost/",
+    true,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_true(res.body.contains("<template data-sol-outlet=\"main\">"))
+  assert_true(res.body.contains("<template data-sol-title>"))
+  assert_false(res.body.contains("<!DOCTYPE html>"))
+  assert_eq(res.fragment_response, Some("true"))
+}
+
+///|
+async test "register_sol_routes skips streaming for ISR route with cache" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("main", [], [@luna.text("isr")]))
+  }
+
+  let app = @mars.Server::new()
+  let marker = "isr-root"
+  let config = RouterConfig::default()
+    .with_streaming_ssr()
+    .with_loader_url("/assets/loader.mjs")
+    .with_root_template(test_root_template(marker))
+    .with_isr_cache(@isr.MemoryCache::new())
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/",
+        handler=PageHandler(page_handler),
+        title="Home",
+        meta=[],
+        revalidate=Some(60),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(),
+    "GET",
+    "http://localhost/",
+    false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_true(res.body.contains("id=\"\{marker}\""))
+  assert_false(res.body.contains("<div id=\"app\">"))
+  assert_eq(res.cache_strategy, Some("always-fetch"))
 }

@@ -21,8 +21,12 @@ import {
   "mizchi/js/node/util" @util,
   "mizchi/js/node/http" @http,
   "mizchi/npm_typed/colorette" @colorette,
+  "mizchi/wite/bundle" @wite_bundle,
+  "mizchi/mars" @mars,
+  "mizchi/mars/adapters" @mars_adapters,
   "mizchi/sol/parser" @parser,
   "mizchi/sol/hmr" @hmr,
+  "mizchi/sol/hot_reload" @hot_reload,
   "mizchi/sol/cli_common" @cli_common,
 }
 

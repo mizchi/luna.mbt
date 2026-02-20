@@ -8,7 +8,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { createAuth, createAuthMiddleware, type Session } from "./auth";
-import { configure_app } from "./target/js/release/build/__gen__/server/server.js";
+import { configure_app } from "./_build/js/release/build/__gen__/server/server.js";
 import type { Env } from "./sol.config";
 
 // Extend Hono's context with session and env

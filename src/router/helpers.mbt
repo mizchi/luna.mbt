@@ -120,17 +120,13 @@ pub fn ApiResponse::to_json(self : ApiResponse) -> @js.Any {
   match self {
     Json(data) => data
     Redirect(url, status) =>
-      ffi_json_obj([("redirect", @js.any(url)), ("status", @js.any(status))])
+      @js_any.json_obj([("redirect", @js.any(url)), ("status", @js.any(status))])
     NotFound(msg) =>
-      ffi_json_obj([("error", @js.any(msg)), ("status", @js.any(404))])
+      @js_any.json_obj([("error", @js.any(msg)), ("status", @js.any(404))])
     Error(msg, status) =>
-      ffi_json_obj([("error", @js.any(msg)), ("status", @js.any(status))])
+      @js_any.json_obj([("error", @js.any(msg)), ("status", @js.any(status))])
   }
 }
-
-///|
-extern "js" fn ffi_json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any =
-  #| (pairs) => Object.fromEntries(pairs.map(p => [p._0, p._1]))
 
 ///|
 /// Create a JSON response from key-value pairs
@@ -140,7 +136,7 @@ extern "js" fn ffi_json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any =
 /// ok([("status", @js.any("success"))]).to_json()
 /// ```
 pub fn ok(pairs : Array[(String, @js.Any)]) -> ApiResponse {
-  ApiResponse::Json(ffi_json_obj(pairs))
+  ApiResponse::Json(@js_any.json_obj(pairs))
 }
 
 ///|

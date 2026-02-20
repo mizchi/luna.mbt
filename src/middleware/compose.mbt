@@ -13,17 +13,12 @@
 /// Compose array of middlewares into single middleware
 /// Runs handlers sequentially, stops if response is sent
 pub fn pipeline(middlewares : Array[Middleware]) -> Middleware {
-  Middleware(
-    @mars.Handler(async fn(ctx) {
-      for mw in middlewares {
-        if ctx.is_response_sent() {
-          break
-        }
-        let Middleware(@mars.Handler(h)) = mw
-        h(ctx)
-      }
-    }),
-  )
+  let handlers : Array[@mars.Handler] = []
+  for mw in middlewares {
+    let Middleware(handler) = mw
+    handlers.push(handler)
+  }
+  Middleware(@mars.compose(handlers))
 }
 
 ///|
@@ -71,8 +66,17 @@ pub async fn run(middleware : Middleware, ctx : Ctx) -> Bool raise Error {
 }
 
 ///|
-/// Convert Middleware to Mars Handler for interoperability
-pub fn to_handler(mw : Middleware) -> @mars.Handler {
-  let Middleware(h) = mw
-  h
+/// Execute middleware and convert unexpected errors to 500 response.
+/// Returns true if middleware halted request handling.
+pub async fn run_or_500(
+  middleware : Middleware,
+  ctx : Ctx,
+  message_prefix? : String = "Internal Server Error: ",
+) -> Bool {
+  run(middleware, ctx) catch {
+    e => {
+      ctx.text(message_prefix + e.to_string(), status=500)
+      true
+    }
+  }
 }

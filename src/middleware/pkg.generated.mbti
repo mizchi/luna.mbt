@@ -50,6 +50,8 @@ pub fn require_json_content_type() -> Middleware
 
 pub async fn run(Middleware, @mars.Context) -> Bool
 
+pub async fn run_or_500(Middleware, @mars.Context, message_prefix? : String) -> Bool
+
 pub fn security_headers() -> Middleware
 
 pub fn security_headers_relaxed() -> Middleware
@@ -59,8 +61,6 @@ pub fn security_headers_with_config(SecurityHeadersConfig) -> Middleware
 pub fn then(Middleware, Middleware) -> Middleware
 
 pub fn then_(Middleware, Middleware) -> Middleware
-
-pub fn to_handler(Middleware) -> @mars.Handler
 
 pub fn validate_origin_middleware(Array[String]) -> Middleware
 

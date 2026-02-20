@@ -14,7 +14,7 @@
     "init-db": "node scripts/init-db.js"
   },
   "dependencies": {
-    "@hono/node-server": "^1.0.0",
-    "hono": "^4.0.0"
+    "@hono/node-server": "^1.19.9",
+    "hono": "^4.11.9"
   }
 }

@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/hot_reload"
+
+// Values
+pub fn app_port_from_env(app_port_env? : String, default_port? : Int) -> Int
+
+pub fn client_script_from_env(hmr_port_env? : String, app_port_env? : String, default_port? : Int, offset? : Int) -> String
+
+pub fn client_script_hostname(Int) -> String
+
+pub fn client_script_localhost(Int) -> String
+
+pub fn client_script_with_host_expr(Int, String) -> String
+
+pub let default_app_port : Int
+
+pub let default_hmr_offset : Int
+
+pub fn default_hmr_port(Int, offset? : Int) -> Int
+
+pub fn hmr_port_from_env(hmr_port_env? : String, app_port_env? : String, default_port? : Int, offset? : Int) -> Int
+
+pub fn inject_script(String, String) -> String
+
+pub fn is_dev_mode(flag_env? : String, expected? : String) -> Bool
+
+pub fn resolve_app_port(app_port~ : String?, default_port? : Int) -> Int
+
+pub fn resolve_hmr_port(hmr_port~ : String?, app_port~ : String?, default_port? : Int, offset? : Int) -> Int
+
+pub fn with_dev_head_script(String, dev_mode? : Bool) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

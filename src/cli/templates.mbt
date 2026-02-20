@@ -24,11 +24,14 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
+        #|    "mizchi/sol": "0.8.0",
+        #|    "mizchi/mars": "0.3.9",
         #|    "mizchi/luna": {
         #|      "path": "{{LUNA_PATH}}"
         #|    },
-        #|    "mizchi/js": "0.10.0",
-        #|    "mizchi/npm_typed": "0.1.1"
+        #|    "mizchi/signals": "0.6.3",
+        #|    "mizchi/js": "0.10.14",
+        #|    "mizchi/npm_typed": "0.1.11"
         #|  },
         #|  "source": "app",
         #|  "preferred-target": "js"
@@ -44,9 +47,12 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/luna": "0.0.1",
-        #|    "mizchi/js": "0.10.0",
-        #|    "mizchi/npm_typed": "0.1.1"
+        #|    "mizchi/sol": "0.8.0",
+        #|    "mizchi/mars": "0.3.9",
+        #|    "mizchi/luna": "0.13.0",
+        #|    "mizchi/signals": "0.6.3",
+        #|    "mizchi/js": "0.10.14",
+        #|    "mizchi/npm_typed": "0.1.11"
         #|  },
         #|  "source": "app",
         #|  "preferred-target": "js"
@@ -63,6 +69,12 @@ fn template_package_json(project_name : String) -> String {
     #|  "name": "{{PROJECT_NAME}}",
     #|  "version": "0.1.0",
     #|  "type": "module",
+    #|  "scripts": {
+    #|    "dev": "sol dev",
+    #|    "build": "sol build",
+    #|    "serve": "sol serve",
+    #|    "generate": "sol generate"
+    #|  },
     #|  "dependencies": {
     #|    "hono": "^4.0.0",
     #|    "@hono/node-server": "^1.0.0"
@@ -92,170 +104,6 @@ fn template_sol_config_json() -> String {
 // - "deno"       - Deno.serve
 // - "bun"        - Bun.serve
 
-///|
-pub fn template_components_moon_pkg_json() -> String {
-  (
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "import": [
-    #|    { "path": "mizchi/luna/core", "alias": "luna" },
-    #|    "mizchi/luna/core/signal"
-    #|  ]
-    #|}
-  )
-}
-
-///|
-pub fn template_counter_mbt() -> String {
-  (
-    #|///| Counter Component - Shared between SSR and client
-    #|
-    #|///| Action enum for type-safe event handling
-    #|pub enum CounterAction {
-    #|  Increment
-    #|  Decrement
-    #|} derive(Show)
-    #|
-    #|///| Counter component VNode
-    #|pub fn render(count : @signal.Signal[Int]) -> @luna.Node[Unit, String] {
-    #|  @luna.h("div", [("class", @luna.attr_static("counter"))], [
-    #|    @luna.h("span", [("class", @luna.attr_static("count-display"))], [
-    #|      @luna.text_of(count),
-    #|    ]),
-    #|    @luna.h("div", [("class", @luna.attr_static("buttons"))], [
-    #|      @luna.h("button", [
-    #|        ("class", @luna.attr_static("dec")),
-    #|        ("onclick", @luna.action(Decrement)),
-    #|      ], [@luna.text("-")]),
-    #|      @luna.h("button", [
-    #|        ("class", @luna.attr_static("inc")),
-    #|        ("onclick", @luna.action(Increment)),
-    #|      ], [@luna.text("+")]),
-    #|    ]),
-    #|  ])
-    #|}
-  )
-}
-
-///|
-pub fn template_server_run_moon_pkg_json(package_name : String) -> String {
-  let tmpl =
-    #|{
-    #|  "supported-targets": ["js"],
-    #|  "is-main": true,
-    #|  "import": [
-    #|    { "path": "mizchi/sol", "alias": "sol" },
-    #|    { "path": "mizchi/js/core", "alias": "core" },
-    #|    { "path": "{{PACKAGE_NAME}}/server/pages/home", "alias": "page_home" },
-    #|    { "path": "{{PACKAGE_NAME}}/server/pages/about", "alias": "page_about" }
-    #|  ]
-    #|}
-  tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
-}
-
-///|
-/// Page moon.pkg with island support (signal + counter)
-pub fn template_page_with_island_moon_pkg(package_name : String) -> String {
-  let tmpl =
-    #|import {
-    #|  "mizchi/luna/core" as @luna,
-    #|  "mizchi/luna/core/signal" as @signal,
-    #|  "mizchi/sol" as @sol,
-    #|  "{{PACKAGE_NAME}}/client/components" as @counter,
-    #|}
-    #|
-    #|options(
-    #|  "supported-targets": [ "js" ],
-    #|)
-  tmpl.replace(old="{{PACKAGE_NAME}}", new=package_name)
-}
-
-///|
-/// Simple page moon.pkg without island dependencies
-pub fn template_page_simple_moon_pkg() -> String {
-  (
-    #|import {
-    #|  "mizchi/luna/core" as @luna,
-    #|  "mizchi/sol" as @sol,
-    #|}
-    #|
-    #|options(
-    #|  "supported-targets": [ "js" ],
-    #|)
-  )
-}
-
-///|
-pub fn template_home_page_mbt() -> String {
-  (
-    #|///| Home Page
-    #|
-    #|///| Home page with counter component
-    #|pub fn page(_ctx : @sol.Ctx) -> @luna.Node[Unit, String] {
-    #|  let initial_count = 0
-    #|  let state_json = "{\"count\":" + initial_count.to_string() + "}"
-    #|  let count_signal = @signal.signal(initial_count)
-    #|
-    #|  @luna.fragment([
-    #|    @luna.h("div", [("class", @luna.attr_static("container"))], [
-    #|      @luna.h("h1", [], [@luna.text("Welcome to Sol")]),
-    #|      @luna.h("p", [], [@luna.text("A SSR-first web framework for MoonBit")]),
-    #|      @luna.h("nav", [], [
-    #|        @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.text("Home")]),
-    #|        @luna.text(" | "),
-    #|        @luna.h("a", [("href", @luna.attr_static("/about"))], [@luna.text("About")]),
-    #|      ]),
-    #|    ]),
-    #|    @sol.island(
-    #|      "counter",
-    #|      "/static/hydrate_counter.js",
-    #|      state_json,
-    #|      [@counter.render(count_signal)],
-    #|    ),
-    #|  ])
-    #|}
-  )
-}
-
-///|
-pub fn template_about_page_mbt() -> String {
-  (
-    #|///| About Page
-    #|
-    #|///| About page
-    #|pub fn page(_ctx : @sol.Ctx) -> @luna.Node[Unit, String] {
-    #|  @luna.h("div", [("class", @luna.attr_static("container"))], [
-    #|    @luna.h("h1", [], [@luna.text("About")]),
-    #|    @luna.h("p", [], [@luna.text("Built with MoonBit and Sol framework.")]),
-    #|    @luna.h("a", [("href", @luna.attr_static("/"))], [@luna.text("← Back")]),
-    #|  ])
-    #|}
-  )
-}
-
-///|
-pub fn template_server_main_mbt() -> String {
-  (
-    #|///| Sol App - Server Entry Point
-    #|
-    #|///| Configure the application
-    #|fn configure_app(app : @sol.App) -> @sol.App {
-    #|  let style = "<style>body { font-family: system-ui; max-width: 800px; margin: 0 auto; padding: 2rem; } .counter { margin: 2rem 0; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; } .buttons { margin-top: 1rem; } .buttons button { font-size: 1.5rem; padding: 0.5rem 1rem; margin: 0 0.5rem; cursor: pointer; }</style>"
-    #|
-    #|  let app = @sol.page(app, "/", @page_home.page, title="Home", head=style, hydration=true, loader_url="/static/loader.js")
-    #|  let app = @sol.page(app, "/about", @page_about.page, title="About", head=style)
-    #|  let app = @sol.api(app, "/api/health", fn(_c) { @sol.json_obj([("status", @core.any("ok"))]) })
-    #|  let app = @sol.serve_static(app)
-    #|  app
-    #|}
-    #|
-    #|///|
-    #|fn main {
-    #|  @sol.run(configure_app)
-    #|}
-  )
-}
-
 // ============================================================================
 // New Architecture Templates (routes-based)
 // ============================================================================
@@ -280,13 +128,24 @@ pub fn template_layout_mbt() -> String {
     #|
     #|///| Basic layout wrapper - wraps content in container with navigation
     #|pub fn layout(inner : Array[@luna.Node[Unit, String]]) -> @luna.Node[Unit, String] {
-    #|  div(class="container", children=[
-    #|    nav(children=[
-    #|      a(href="/", children=[text("Home")]),
-    #|      a(href="/about", children=[text("About")]),
+    #|  div(class="container", [
+    #|    nav([
+    #|      a(href="/", [text("Home")]),
+    #|      a(href="/about", [text("About")]),
     #|    ]),
-    #|    fragment(inner),
+    #|    outlet(name="main", inner),
     #|  ])
+    #|}
+    #|
+    #|///| Root layout function for SolRoutes::Layout
+    #|pub fn root_layout(
+    #|  _props : @router.PageProps,
+    #|  content : @server_dom.ServerNode,
+    #|) -> @server_dom.ServerNode raise Error {
+    #|  @server_dom.ServerNode::async_(async fn() {
+    #|    let inner = content.resolve()
+    #|    layout([inner])
+    #|  })
     #|}
   )
 }
@@ -296,8 +155,9 @@ pub fn template_layout_mbt() -> String {
 pub fn template_layout_moon_pkg() -> String {
   (
     #|import {
-    #|  "mizchi/luna/core" as @luna,
-    #|  "mizchi/luna/static_dom/element" as @element,
+    #|  "mizchi/luna" @luna,
+    #|  "mizchi/sol/router" @router,
+    #|  "mizchi/luna/dom/static" @server_dom,
     #|}
     #|
     #|options(
@@ -311,17 +171,12 @@ pub fn template_layout_moon_pkg() -> String {
 pub fn template_server_using_mbt() -> String {
   (
     #|///| Server-side element DSL imports
-    #|using @element {
+    #|using @server_dom {
     #|  div,
-    #|  span,
-    #|  button,
-    #|  h1,
-    #|  h2,
-    #|  p,
     #|  a,
     #|  nav,
     #|  text,
-    #|  fragment,
+    #|  outlet,
     #|}
   )
 }
@@ -377,6 +232,11 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|    .with_loader_url("/static/loader.js")
     #|}
     #|
+    #|///| Server Action registry (empty by default)
+    #|pub fn action_registry() -> @action.ActionRegistry {
+    #|  @action.ActionRegistry::new()
+    #|}
+    #|
     #|// ============================================================================
     #|// Page Definitions (inline in routes.mbt)
     #|// ============================================================================
@@ -423,14 +283,14 @@ pub fn template_routes_mbt(package_name : String) -> String {
 pub fn template_routes_moon_pkg(package_name : String) -> String {
   let tmpl =
     #|import {
-    #|  "mizchi/luna/core" as @luna,
-    #|  "mizchi/sol" as @sol,
-    #|  "mizchi/sol/router" as @router,
-    #|  "mizchi/luna/static_dom" as @server_dom,
-    #|  "mizchi/luna/static_dom/element" as @element,
-    #|  "mizchi/js/core" as @core,
-    #|  "{{PACKAGE_NAME}}/layout" as @layout,
-    #|  "{{PACKAGE_NAME}}/__gen__/types" as @types,
+    #|  "mizchi/luna" @luna,
+    #|  "mizchi/sol" @sol,
+    #|  "mizchi/sol/router" @router,
+    #|  "mizchi/sol/action" @action,
+    #|  "mizchi/luna/dom/static" @server_dom,
+    #|  "mizchi/js/core" @core,
+    #|  "{{PACKAGE_NAME}}/layout" @layout,
+    #|  "{{PACKAGE_NAME}}/__gen__/types" @types,
     #|}
     #|
     #|options(
@@ -444,16 +304,13 @@ pub fn template_routes_moon_pkg(package_name : String) -> String {
 pub fn template_routes_using_mbt() -> String {
   (
     #|///| Server-side element DSL imports
-    #|using @element {
+    #|using @server_dom {
     #|  div,
     #|  span,
     #|  button,
     #|  h1,
-    #|  h2,
     #|  p,
-    #|  a,
     #|  text,
-    #|  fragment,
     #|}
   )
 }
@@ -467,7 +324,15 @@ pub fn template_client_counter_mbt() -> String {
     #|
     #|///|
     #|/// Hydration functions are auto-generated by `sol generate`.
-    #|using @element.{type DomNode, div, span, button, text, text_sig, events}
+    #|using @element {
+    #|  type DomNode,
+    #|  div,
+    #|  span,
+    #|  button,
+    #|  text,
+    #|  text_of,
+    #|  events,
+    #|}
     #|
     #|///|
     #|/// Props passed from server
@@ -480,7 +345,7 @@ pub fn template_client_counter_mbt() -> String {
     #|pub fn counter(props : CounterProps) -> DomNode {
     #|  let count = @signal.signal(props.initial_count)
     #|  div(class="counter", [
-    #|    span(class="count-display", [text_sig(count)]),
+    #|    span(class="count-display", [text_of(count)]),
     #|    div(class="buttons", [
     #|      button(class="dec", on=events().click(_ => count.update(n => n - 1)), [
     #|        text("-"),
@@ -499,12 +364,14 @@ pub fn template_client_counter_mbt() -> String {
 pub fn template_client_counter_moon_pkg() -> String {
   (
     #|import {
-    #|  "mizchi/luna/dom/element" as @element,
-    #|  "mizchi/luna/core/signal" as @signal,
+    #|  "moonbitlang/core/json",
+    #|  "mizchi/luna/dom" @element,
+    #|  "mizchi/signals" @signal,
     #|}
     #|
     #|options(
     #|  "supported-targets": [ "js" ],
+    #|  link: { "js": { "exports": [ "counter" ], "format": "esm" } },
     #|)
   )
 }
@@ -567,7 +434,7 @@ pub fn template_ln_loader_js() -> String {
     #|    }
     #|  };
     #|
-    #|  const scan = () => { d.querySelectorAll('[ln\\:id]').forEach(setupTrigger); };
+    #|  const scan = () => { d.querySelectorAll('[luna\\:id]').forEach(setupTrigger); };
     #|
     #|  d.querySelectorAll('script[type="luna/json"]').forEach(s => { if (s.id) S[s.id] = JSON.parse(s.textContent); });
     #|
@@ -590,9 +457,14 @@ pub fn template_ln_loader_js() -> String {
 /// Template for __gen__/types/moon.pkg
 pub fn template_gen_types_moon_pkg() -> String {
   (
+    #|import {
+    #|  "moonbitlang/core/json",
+    #|  "mizchi/luna" @luna,
+    #|}
+    #|
     #|options(
     #|  "supported-targets": [ "js" ],
-    #|  link: { "js": { "exports": [ "CounterProps" ], "format": "esm" } },
+    #|  link: { "js": { "exports": [ "CounterProps", "counter" ], "format": "esm" } },
     #|)
   )
 }
@@ -604,10 +476,19 @@ pub fn template_gen_types_mbt() -> String {
     #|///| Auto-generated types for island props
     #|///| Re-exports Props structs from client packages
     #|
-    #|///| Props type from @client/counter
+    #|///| Props type from @client
     #|pub(all) struct CounterProps {
     #|  initial_count : Int
     #|} derive(ToJson, FromJson)
+    #|
+    #|///|
+    #|///| Create ComponentRef for counter component
+    #|pub fn counter(
+    #|  props : CounterProps,
+    #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
+    #|) -> @luna.ComponentRef[CounterProps] {
+    #|  { url: "/static/counter.js", props, wc: false, trigger }
+    #|}
   )
 }
 
@@ -652,14 +533,8 @@ pub fn generate_templates(
     },
     { path: "app/server/_using.mbt", content: template_routes_using_mbt() },
     // Client islands (render + hydrate in same file)
-    {
-      path: "app/client/counter/moon.pkg",
-      content: template_client_counter_moon_pkg(),
-    },
-    {
-      path: "app/client/counter/counter.mbt",
-      content: template_client_counter_mbt(),
-    },
+    { path: "app/client/moon.pkg", content: template_client_counter_moon_pkg() },
+    { path: "app/client/counter.mbt", content: template_client_counter_mbt() },
     // Generated types (needed for initial build)
     {
       path: "app/__gen__/types/moon.pkg",

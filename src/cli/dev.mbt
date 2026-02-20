@@ -17,7 +17,7 @@ fn show_dev_help() -> Unit {
     #|  --mode <mode>       Mode: auto | app | ssg (default: auto)
     #|  -n, --no-watch      Disable file watching (watch is enabled by default)
     #|  -f, --watch-framework  Watch sol framework source for hot reload
-    #|  --clean             Clean target and .sol directories before build
+    #|  --clean             Clean _build and .sol directories before build
     #|  -h, --help          Show help
   println(help)
 }
@@ -152,7 +152,8 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   if clean {
     let sol_dir = @path.join2(cwd, ".sol")
     let gen_dir = @path.join2(cwd, "app/__gen__")
-    let target_dir = @path.join2(cwd, "target")
+    let legacy_target_dir = @path.join2(cwd, "target")
+    let build_dir = @path.join2(cwd, "_build")
     println(@colorette.gray("Cleaning generated files..."))
     if fs.exists_sync(sol_dir) {
       @cli_common.rm_rf_sync(fs, sol_dir)
@@ -160,8 +161,11 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     if fs.exists_sync(gen_dir) {
       @cli_common.rm_rf_sync(fs, gen_dir)
     }
-    if fs.exists_sync(target_dir) {
-      @cli_common.rm_rf_sync(fs, target_dir)
+    if fs.exists_sync(legacy_target_dir) {
+      @cli_common.rm_rf_sync(fs, legacy_target_dir)
+    }
+    if fs.exists_sync(build_dir) {
+      @cli_common.rm_rf_sync(fs, build_dir)
     }
     println(@colorette.green("✓ Clean complete"))
   }
@@ -250,6 +254,7 @@ fn[FS : @env.FileSystem] run_incremental_build_dev_with_fs(
     }
   }
   println(@colorette.green("✓ Build complete"))
+  patch_mars_reschedule_shim_with_fs(fs, cwd, "js", "debug")
   // Bundle client code with rolldown if manifest exists
   let manifest_path = @path.join2(cwd, ".sol/dev/manifest.json")
   if fs.exists_sync(manifest_path) {
@@ -282,8 +287,7 @@ fn[FS : @env.FileSystem] run_incremental_build_dev_with_fs(
 ///|
 /// Calculate HMR WebSocket port (main port + 100)
 fn get_hmr_port(port : String) -> Int {
-  let main_port = @strconv.parse_int(port) catch { _ => 7777 }
-  main_port + 100
+  @hot_reload.resolve_hmr_port(hmr_port=None, app_port=Some(port))
 }
 
 ///|

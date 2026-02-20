@@ -84,6 +84,10 @@ pub fn logger() -> Middleware {
 ///|
 /// Create logger middleware with custom config
 pub fn logger_with_config(config : LoggerConfig) -> Middleware {
+  match delegate_logger_handler(config) {
+    Some(handler) => return Middleware(handler)
+    None => ()
+  }
   Middleware(
     @mars.Handler(async fn(ctx) {
       let path = ctx.path()
@@ -109,6 +113,36 @@ pub fn logger_with_config(config : LoggerConfig) -> Middleware {
       // Continue to next handler
     }),
   )
+}
+
+///|
+fn delegate_logger_handler(config : LoggerConfig) -> @mars.Handler? {
+  match config.log_fn {
+    Some(_) => None
+    None =>
+      match config.format {
+        LogFormat::Dev => {
+          let base_handler = @mars_mw.logger_simple()
+          if config.skip_paths.is_empty() {
+            Some(base_handler)
+          } else {
+            Some(
+              @mars.Handler(async fn(ctx) {
+                let path = ctx.path()
+                for skip_path in config.skip_paths {
+                  if path.has_prefix(skip_path) {
+                    return
+                  }
+                }
+                let @mars.Handler(h) = base_handler
+                h(ctx)
+              }),
+            )
+          }
+        }
+        LogFormat::Combined | LogFormat::Json => None
+      }
+  }
 }
 
 // ============================================================================

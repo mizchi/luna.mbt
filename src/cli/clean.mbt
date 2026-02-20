@@ -9,10 +9,10 @@ fn show_clean_help() -> Unit {
     #|Remove generated files and caches:
     #|  - .sol/          (manifest and config cache)
     #|  - app/__gen__/   (generated server/client code)
-    #|  - target/        (MoonBit build output, with --all)
+    #|  - _build/        (MoonBit build output, with --all)
     #|
     #|Options:
-    #|  -a, --all        Also remove target/ directory
+    #|  -a, --all        Also remove _build/ directory
     #|  -h, --help       Show help
   println(help)
 }
@@ -56,12 +56,19 @@ fn[FS : @env.FileSystem] run_clean_command_with_fs(
       cleaned = cleaned + 1
     }
   }
-  // Clean target/ if --all flag is set
+  // Clean build output if --all flag is set
   if clean_all {
-    let target_path = @path.join2(cwd, "target")
-    if fs.exists_sync(target_path) {
+    // Cleanup legacy symlink/directory if present
+    let legacy_target_path = @path.join2(cwd, "target")
+    if fs.exists_sync(legacy_target_path) {
       println(@colorette.gray("Removing target/..."))
-      @cli_common.rm_rf_sync(fs, target_path)
+      @cli_common.rm_rf_sync(fs, legacy_target_path)
+      cleaned = cleaned + 1
+    }
+    let build_path = @path.join2(cwd, "_build")
+    if fs.exists_sync(build_path) {
+      println(@colorette.gray("Removing _build/..."))
+      @cli_common.rm_rf_sync(fs, build_path)
       cleaned = cleaned + 1
     }
   }

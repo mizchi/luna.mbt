@@ -85,6 +85,8 @@ pub fn group_pages_by_dir(Array[@ssg.PageMeta]) -> Map[String, Array[@ssg.PageMe
 
 pub fn is_content_file(String) -> Bool
 
+pub fn[FS : @env.FileSystem] is_directory(FS, String) -> Bool
+
 pub fn is_excluded(String, String, Array[String]) -> Bool
 
 pub fn is_moonbit_component(String) -> Bool
@@ -114,6 +116,8 @@ pub fn parse_bracket_param(String, Int) -> (Int, String, Bool)
 pub fn parse_page_config(String) -> PageConfig?
 
 pub fn path_matches_segment(String, String) -> Bool
+
+pub fn[FS : @env.FileSystem] read_dir_entries(FS, String) -> Array[String]
 
 pub fn render_mobile_sidebar(Array[@ssg.SidebarGroup], String) -> @core.Node[Unit, String]
 

@@ -132,133 +132,87 @@ pub fn cors() -> Middleware {
 ///|
 /// Create CORS middleware with custom config
 pub fn cors_with_config(config : CorsConfig) -> Middleware {
-  Middleware(
-    @mars.Handler(async fn(ctx) {
-      let origin_header = ctx.header("Origin")
-
-      // No Origin header = same-origin request
-      let origin = match origin_header {
-        Some(o) => o
-        None => return // Continue
-      }
-
-      // Validate origin
-      let allowed = is_origin_allowed(origin, config.origin)
-      if not(allowed) {
-        return // Just don't add CORS headers (continue)
-      }
-
-      // Check if preflight request
-      if ctx.meth().to_string() == "OPTIONS" {
-        send_preflight_response(ctx, origin, config)
-        return // Halt after preflight response
-      }
-
-      // Add CORS headers for actual request
-      add_cors_headers(ctx, origin, config)
-      // Continue to next handler
-    }),
-  )
-}
-
-// ============================================================================
-// Origin Validation
-// ============================================================================
-
-///|
-fn is_origin_allowed(origin : String, allowed : CorsOrigin) -> Bool {
-  match allowed {
-    All => true
-    Single(allowed_origin) => origin == allowed_origin
-    List(origins) => origins.contains(origin)
-    Dynamic(check) => check(origin)
+  match static_mars_cors_handler(config) {
+    Some(base_handler) => Middleware(base_handler)
+    None =>
+      Middleware(
+        @mars.Handler(async fn(ctx) {
+          let request_origin = match ctx.header("Origin") {
+            Some(o) => o
+            None => return // Continue
+          }
+          let response_origin = match
+            resolve_response_origin(request_origin, config.origin) {
+            Some(origin) => origin
+            None => return
+          }
+          let options = to_mars_cors_options(config, response_origin)
+          let @mars.Handler(base_handler) = @mars_mw.cors(options~)
+          base_handler(ctx)
+        }),
+      )
   }
 }
 
-// ============================================================================
-// Response Building
-// ============================================================================
-
 ///|
-fn send_preflight_response(
-  ctx : Ctx,
-  origin : String,
-  config : CorsConfig,
-) -> Unit {
-  // Access-Control-Allow-Origin
-  let allow_origin = match config.origin {
-    All => "*"
-    _ => origin
+fn static_mars_cors_handler(config : CorsConfig) -> @mars.Handler? {
+  let response_origin = match config.origin {
+    All => Some("*")
+    Single(origin) => Some(origin)
+    List(_) | Dynamic(_) => None
   }
-  ctx.set_header("Access-Control-Allow-Origin", allow_origin)
-
-  // Access-Control-Allow-Methods
-  let methods = join_array(config.methods, ", ")
-  ctx.set_header("Access-Control-Allow-Methods", methods)
-
-  // Access-Control-Allow-Headers
-  if config.allowed_headers.length() > 0 {
-    let allowed = join_array(config.allowed_headers, ", ")
-    ctx.set_header("Access-Control-Allow-Headers", allowed)
-  }
-
-  // Access-Control-Allow-Credentials
-  if config.credentials {
-    ctx.set_header("Access-Control-Allow-Credentials", "true")
-  }
-
-  // Access-Control-Max-Age
-  match config.max_age {
-    Some(age) => ctx.set_header("Access-Control-Max-Age", age.to_string())
-    None => ()
-  }
-
-  // Vary header
-  ctx.set_header("Vary", "Origin")
-
-  // Send 204 No Content for preflight
-  ctx.text("", status=204)
-}
-
-///|
-fn add_cors_headers(ctx : Ctx, origin : String, config : CorsConfig) -> Unit {
-  // Access-Control-Allow-Origin
-  let allow_origin = match config.origin {
-    All => "*"
-    _ => origin
-  }
-  ctx.set_header("Access-Control-Allow-Origin", allow_origin)
-
-  // Access-Control-Allow-Credentials
-  if config.credentials {
-    ctx.set_header("Access-Control-Allow-Credentials", "true")
-  }
-
-  // Access-Control-Expose-Headers
-  if config.exposed_headers.length() > 0 {
-    let exposed = join_array(config.exposed_headers, ", ")
-    ctx.set_header("Access-Control-Expose-Headers", exposed)
-  }
-
-  // Vary header
-  ctx.set_header("Vary", "Origin")
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-///|
-fn join_array(arr : Array[String], separator : String) -> String {
-  if arr.is_empty() {
-    return ""
-  }
-  let buf = StringBuilder::new()
-  for i, item in arr {
-    if i > 0 {
-      buf.write_string(separator)
+  match response_origin {
+    Some(origin) => {
+      let options = to_mars_cors_options(config, origin)
+      Some(@mars_mw.cors(options~))
     }
-    buf.write_string(item)
+    None => None
   }
-  buf.to_string()
+}
+
+///|
+fn resolve_response_origin(
+  request_origin : String,
+  allowed : CorsOrigin,
+) -> String? {
+  match allowed {
+    All => Some("*")
+    Single(allowed_origin) =>
+      if request_origin == allowed_origin {
+        Some(allowed_origin)
+      } else {
+        None
+      }
+    List(origins) =>
+      if origins.contains(request_origin) {
+        Some(request_origin)
+      } else {
+        None
+      }
+    Dynamic(check) =>
+      if check(request_origin) {
+        Some(request_origin)
+      } else {
+        None
+      }
+  }
+}
+
+///|
+fn to_mars_cors_options(
+  config : CorsConfig,
+  response_origin : String,
+) -> @mars_mw.CorsOptions {
+  let max_age = match config.max_age {
+    Some(age) => age
+    None => 0
+  }
+  {
+    origin: response_origin,
+    methods: config.methods,
+    allowed_headers: config.allowed_headers,
+    exposed_headers: config.exposed_headers,
+    credentials: config.credentials,
+    max_age,
+  }
 }

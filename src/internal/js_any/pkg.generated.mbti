@@ -1,0 +1,20 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/internal/js_any"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub fn json_obj(Array[(String, @core.Any)]) -> @core.Any
+
+pub fn object_get_string(@core.Any, String) -> String?
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

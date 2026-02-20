@@ -247,7 +247,47 @@ async fn generate_site_internal_async(
 
 ///|
 /// Parse dynamic source path to extract actual file path and params
-/// Format: "path/to/_slug_/index.md?slug=value" -> ("path/to/_slug_/index.md", {"slug": "value"})
+/// Format: "path/to/_slug_/index.md?slug=guide%2Fintro" -> ("path/to/_slug_/index.md", {"slug": "guide/intro"})
+extern "js" fn decode_query_component(value : String) -> String =
+  #| (value) => {
+  #|   try {
+  #|     return decodeURIComponent(value);
+  #|   } catch (_e) {
+  #|     return value;
+  #|   }
+  #| }
+
+///|
+fn parse_query_params(query : String, params : Map[String, String]) -> Unit {
+  for part_view in query.split("&") {
+    let part = part_view.to_string()
+    if part.is_empty() {
+      continue
+    }
+    match part.find("=") {
+      Some(eq_idx) => {
+        let key_raw = @utils.extract_substring(part, 0, eq_idx)
+        let value_raw = @utils.extract_substring(
+          part,
+          eq_idx + 1,
+          part.length(),
+        )
+        let key = decode_query_component(key_raw)
+        if not(key.is_empty()) {
+          params[key] = decode_query_component(value_raw)
+        }
+      }
+      None => {
+        let key = decode_query_component(part)
+        if not(key.is_empty()) {
+          params[key] = ""
+        }
+      }
+    }
+  }
+}
+
+///|
 fn parse_dynamic_source_path(
   source_path : String,
 ) -> (String, Map[String, String]) {
@@ -264,14 +304,8 @@ fn parse_dynamic_source_path(
         source_path.length(),
       )
 
-      // Parse query params (simple key=value format)
-      // Collect iterator to array for indexed access
-      let parts : Array[StringView] = query.split("=").collect()
-      if parts.length() == 2 {
-        let key = parts[0].to_string()
-        let value = parts[1].to_string()
-        params[key] = value
-      }
+      // Parse query params from URL-encoded key=value pairs.
+      parse_query_params(query, params)
       (file_path, params)
     }
     None => (source_path, params)

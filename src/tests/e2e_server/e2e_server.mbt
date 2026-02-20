@@ -20,8 +20,8 @@ pub fn create_fetch_handler() -> FetchHandler {
 ///|
 /// Create the main E2E test server app
 /// Exports a Mars app that can be used from JavaScript
-pub fn create_app() -> @sol.App {
-  let app = @sol.create_app()
+pub fn create_app() -> @mars.Server {
+  let app = @mars.Server::new()
 
   // Health check
   app.get("/", @mars.handler(async fn(c) { c.text("ok") }))
@@ -40,7 +40,7 @@ pub fn create_app() -> @sol.App {
 
 ///|
 /// Register loader test routes
-fn register_loader_routes(app : @sol.App) -> Unit {
+fn register_loader_routes(app : @mars.Server) -> Unit {
   // Basic hydration test - trigger: load
   app.get(
     "/loader/basic",
@@ -185,7 +185,7 @@ fn register_loader_routes(app : @sol.App) -> Unit {
 
 ///|
 /// Register shard test routes using @sol module
-fn register_shard_routes(app : @sol.App) -> Unit {
+fn register_shard_routes(app : @mars.Server) -> Unit {
   // Minimal shard test
   app.get(
     "/shard/minimal",
@@ -289,7 +289,7 @@ fn register_shard_routes(app : @sol.App) -> Unit {
 
 ///|
 /// Register async streaming test routes
-fn register_async_routes(app : @sol.App) -> Unit {
+fn register_async_routes(app : @mars.Server) -> Unit {
   // Basic async streaming test - simulates streaming SSR with template replacement
   app.get(
     "/async/basic",

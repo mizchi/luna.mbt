@@ -585,22 +585,7 @@ fn bundle_ssg_components(
 
 ///|
 fn hmr_client_script(port : Int) -> String {
-  let script =
-    #|<script>
-    #|(function() {
-    #|  const ws = new WebSocket('ws://localhost:__HMR_PORT__');
-    #|  ws.onmessage = (e) => {
-    #|    const data = JSON.parse(e.data);
-    #|    if (data.type === 'reload') {
-    #|      console.log('[HMR] Reloading...');
-    #|      location.reload();
-    #|    }
-    #|  };
-    #|  ws.onopen = () => console.log('[HMR] Connected');
-    #|  ws.onclose = () => console.log('[HMR] Disconnected');
-    #|})();
-    #|</script>
-  script.replace(old="__HMR_PORT__", new=port.to_string())
+  @hot_reload.client_script_localhost(port)
 }
 
 ///|
@@ -682,7 +667,7 @@ fn serve_with_hmr(
   res.writeHead(200) |> ignore
   if file_path.ends_with(".html") {
     let hmr_script = hmr_client_script(hmr_port)
-    let injected = content.replace(old="</body>", new=hmr_script + "</body>")
+    let injected = @hot_reload.inject_script(content, hmr_script)
     res.end(data=injected)
   } else {
     res.end(data=content)

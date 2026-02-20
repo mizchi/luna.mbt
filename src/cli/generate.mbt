@@ -133,10 +133,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     ),
   )
   // Step 2: Generate types package from source (so moon info can resolve imports)
-  let project_name = get_project_name(cwd)
   if not(source_structs.is_empty()) {
     let types_mbt_content = generate_types_mbt(source_structs)
-    let types_pkg_content = generate_types_pkg(source_structs, project_name)
+    let types_pkg_content = generate_types_pkg(source_structs)
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
     let types_pkg_path = @path.join2(types_dir, "moon.pkg")
     try {
@@ -415,7 +414,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
         func.source_pattern
       }
       let island_entry_content = generate_island_entry_js_v2(
-        func, include_hydrate, relative_path,
+        func, include_hydrate, relative_path, mode,
       )
       let island_entry_path = @path.join2(sol_client_dir, "\{func.name}.js")
       fs.write_file_sync(island_entry_path, island_entry_content) catch {
@@ -449,7 +448,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   }
   // Generate .sol/{mode}/server/main.js (server entry point)
   let server_main_js = match app_mode {
-    MoonBitFull => generate_sol_server_main_js(routes_pkg, config.runtime)
+    MoonBitFull => generate_sol_server_main_js(routes_pkg, config.runtime, mode)
     MoonBitClientTsServer =>
       generate_sol_server_main_js_hybrid(config.routes, config.runtime)
     TypeScriptFull =>

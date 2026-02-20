@@ -7,13 +7,14 @@
 ///|
 /// Generate client entry JS file (new architecture)
 /// Path: .sol/{mode}/client/{name}.js
-/// - Component function: from _build/js/release/build/{relative_path}/pkg.js (user's client package)
-/// - Hydrate function: from _build/js/release/build/__gen__/client/client.js (generated)
-/// relative_path: path with source prefix removed (e.g., "client" not "app/client")
+/// - Component function: from _build/js/{profile}/build/{relative_path}/pkg.js
+/// - Hydrate function: from _build/js/{profile}/build/__gen__/client/client.js
+/// relative_path: path from module root (e.g., "app/client")
 fn generate_island_entry_js_v2(
   func : FuncExport,
   include_hydrate : Bool,
   relative_path : String,
+  mode : String,
 ) -> String {
   let buf = StringBuilder::new()
   buf.write_string("// Client entry for: \{func.name}\n")
@@ -22,8 +23,9 @@ fn generate_island_entry_js_v2(
   // Component: from user's client package (e.g., client - without source prefix)
   // Hydrate: from generated __gen__/client package
   let pkg_name = relative_path.split("/").last().unwrap_or(relative_path)
-  let client_path = "../../../_build/js/release/build/\{relative_path}/\{pkg_name}.js"
-  let hydrate_path = "../../../_build/js/release/build/__gen__/client/client.js"
+  let build_profile = if mode == "dev" { "debug" } else { "release" }
+  let client_path = "../../../_build/js/\{build_profile}/build/\{relative_path}/\{pkg_name}.js"
+  let hydrate_path = "../../../_build/js/\{build_profile}/build/__gen__/client/client.js"
   if include_hydrate {
     buf.write_string("import { \{func.name} } from '\{client_path}';\n")
     buf.write_string(

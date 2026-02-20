@@ -13,7 +13,7 @@ fn show_help() -> Unit {
     #|  dev            Start development server (SSR or SSG mode)
     #|  build          Build for production (SSR + SSG if configured)
     #|  serve          Serve production build
-    #|  generate       Generate _sol directory from config
+    #|  generate       Generate .sol directory from config
     #|  lint           Lint SSG documentation (requires ssg config)
     #|  clean          Remove generated files and caches
     #|
@@ -31,7 +31,7 @@ fn show_help() -> Unit {
 
 ///|
 fn show_version() -> Unit {
-  println("sol 0.1.0")
+  println("sol 0.8.0")
 }
 
 ///|

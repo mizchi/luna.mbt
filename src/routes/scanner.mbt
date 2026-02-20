@@ -38,7 +38,7 @@ fn[FS : @env.FileSystem] scan_recursive(
   routes : Array[RouteEntry],
 ) -> Unit {
   // Read directory entries
-  let entries : Array[String] = fs.readdir_sync(abs_path) catch { _ => [] }
+  let entries : Array[String] = read_dir_entries(fs, abs_path)
 
   // Load page.json if exists
   let page_json_path = join_path(abs_path, "page.json")
@@ -253,7 +253,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir(
   let is_catch_all = param_info.catch_all
 
   // Read directory entries
-  let entries : Array[String] = fs.readdir_sync(abs_path) catch { _ => [] }
+  let entries : Array[String] = read_dir_entries(fs, abs_path)
 
   // Look for index file
   for entry in entries {
@@ -571,34 +571,14 @@ fn scanner_file_to_url_path(rel_path : String) -> String {
 ///|
 /// Get parent directory path
 pub fn get_parent_path(path : String) -> String {
-  let slash_idx = find_last_char(path, '/')
-  if slash_idx >= 0 {
-    @utils.extract_substring(path, 0, slash_idx)
-  } else {
-    ""
-  }
+  get_parent_dir(path)
 }
 
 ///|
 /// Find last occurrence of character in string
 pub fn find_last_char(s : String, ch : Char) -> Int {
-  let mut idx = 0
-  let mut last_idx = -1
-  for c in s {
-    if c == ch {
-      last_idx = idx
-    }
-    idx = idx + 1
-  }
-  last_idx
-}
-
-// join_path is provided by file_scanner.mbt
-
-///|
-/// Check if path is a directory
-fn[FS : @env.FileSystem] is_directory(fs : FS, path : String) -> Bool {
-  fs.is_directory_sync(path) catch {
-    _ => false
+  match s.rev_find(String::from_array([ch])) {
+    Some(idx) => idx
+    None => -1
   }
 }

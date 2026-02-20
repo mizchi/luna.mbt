@@ -3,7 +3,6 @@
  *
  * NOTE: This is a pure TypeScript E2E server that doesn't use MoonBit Mars.
  * The Mars fetch handler has an issue with tree-shaking of async internal symbols.
- * See: https://github.com/user/mars/issues/XXX (TODO: file issue)
  *
  * This server provides:
  * - Static file serving (loader, components)

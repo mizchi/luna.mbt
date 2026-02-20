@@ -60,6 +60,19 @@ jobs:
       - name: moon test
         run: moon test --target js
 
+  # Docs consistency tests
+  test-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: docs tests
+        run: node --test docs/docs-index.test.js docs/docs-chapters.test.js docs/docs-build-paths.test.js docs/docs-ci.test.js
+
   # Cross-platform tests (non-JS targets: wasm, wasm-gc, native)
   test-xplat:
     runs-on: ubuntu-latest

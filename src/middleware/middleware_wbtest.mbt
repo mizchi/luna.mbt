@@ -57,6 +57,18 @@ test "LoggerConfig::combined creates combined format" {
   }
 }
 
+///|
+test "delegate_logger_handler supports dev format with skip paths" {
+  let config = LoggerConfig::default().with_skip_paths(["/health"])
+  assert_true(delegate_logger_handler(config) is Some(_))
+}
+
+///|
+test "delegate_logger_handler does not support json format" {
+  let config = LoggerConfig::json()
+  assert_true(delegate_logger_handler(config) is None)
+}
+
 // ============================================================================
 // CORS Config Tests
 // ============================================================================
@@ -94,6 +106,20 @@ test "CorsConfig::with_origin_single sets single origin" {
 test "CorsConfig::with_credentials enables credentials" {
   let config = CorsConfig::default().with_credentials()
   assert_true(config.credentials)
+}
+
+///|
+test "static_mars_cors_handler returns handler for wildcard origin" {
+  let config = CorsConfig::default()
+  assert_true(static_mars_cors_handler(config) is Some(_))
+}
+
+///|
+test "static_mars_cors_handler returns None for origin list" {
+  let config = CorsConfig::default().with_origin(
+    CorsOrigin::List(["https://example.com"]),
+  )
+  assert_true(static_mars_cors_handler(config) is None)
 }
 
 // ============================================================================
@@ -339,6 +365,20 @@ test "SecurityHeadersConfig::relaxed creates relaxed config" {
 test "security_headers middleware can be created" {
   let mw = security_headers()
   let _ = mw
+}
+
+///|
+test "minimal_secure_headers_options disables all optional headers" {
+  let opts = minimal_secure_headers_options()
+  assert_false(opts.hsts)
+  assert_eq(opts.hsts_max_age, 0)
+  assert_false(opts.hsts_include_subdomains)
+  assert_false(opts.no_sniff)
+  assert_eq(opts.frame_options, "")
+  assert_false(opts.xss_protection)
+  assert_eq(opts.csp, "")
+  assert_eq(opts.referrer_policy, "")
+  assert_eq(opts.permissions_policy, "")
 }
 
 ///|

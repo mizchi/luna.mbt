@@ -172,6 +172,7 @@ test "RouterConfig::default: has expected defaults" {
   assert_eq(config.default_title, "App")
   assert_eq(config.loader_url, "/static/loader.js")
   assert_eq(config.enable_preload, true)
+  assert_eq(config.enable_streaming, false)
   assert_eq(config.preload_libs.length(), 0)
   assert_true(config.chunk_manifest is None)
 }
@@ -191,4 +192,16 @@ test "RouterConfig::with_chunk_manifest: sets manifest" {
   manifest.add("counter.js", @router.ChunkManifestEntry::new("counter.js", []))
   let config = @router.RouterConfig::default().with_chunk_manifest(manifest)
   assert_true(config.chunk_manifest is Some(_))
+}
+
+///|
+test "RouterConfig::with_streaming_ssr: enables streaming SSR" {
+  let config = @router.RouterConfig::default().with_streaming_ssr()
+  assert_eq(config.enable_streaming, true)
+}
+
+///|
+test "RouterConfig::with_streaming_ssr: can disable streaming SSR" {
+  let config = @router.RouterConfig::default().with_streaming_ssr(enabled=false)
+  assert_eq(config.enable_streaming, false)
 }

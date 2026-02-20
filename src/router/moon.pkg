@@ -3,6 +3,7 @@ import {
   "mizchi/luna" @luna,
   "mizchi/luna/core/routes" @routes,
   "mizchi/luna/core/render" @render,
+  "mizchi/luna/js/stream_renderer" @stream_renderer,
   "mizchi/sol/ssg" @ssg,
   "mizchi/sol/routes" @sol_routes,
   "mizchi/luna/dom/static" @server_dom,
@@ -13,7 +14,16 @@ import {
   "mizchi/js/web/http" @http,
   "mizchi/js/web/url" @url,
   "mizchi/sol/internal/utils" @utils,
+  "mizchi/sol/internal/mars_response" @mars_response,
+  "mizchi/sol/hot_reload" @hot_reload,
+  "mizchi/sol/internal/page_shell" @page_shell,
+  "mizchi/sol/internal/js_any" @js_any,
 }
+
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/js_async" @js_async,
+} for "wbtest"
 
 warnings = "-24-67-29"
 

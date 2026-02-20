@@ -27,6 +27,35 @@ fn run_new_command(args : Array[String]) -> Unit {
 }
 
 ///|
+fn extract_project_basename(project_name : String) -> String {
+  let trimmed = if project_name.length() > 1 && project_name.has_suffix("/") {
+    project_name.substring(end=project_name.length() - 1)
+  } else {
+    project_name
+  }
+  let parts = trimmed.split("/").to_array()
+  if parts.is_empty() {
+    project_name
+  } else {
+    let base = parts[parts.length() - 1].to_string()
+    if base.is_empty() {
+      project_name
+    } else {
+      base
+    }
+  }
+}
+
+///|
+fn resolve_project_dir(cwd : String, project_name : String) -> String {
+  if project_name.has_prefix("/") {
+    project_name
+  } else {
+    @path.join2(cwd, project_name)
+  }
+}
+
+///|
 fn[FS : @env.FileSystem] run_new_command_with_fs(
   fs : FS,
   args : Array[String],
@@ -75,7 +104,8 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
   } else {
     false
   }
-  let package_name = "\{user_ns}/\{project_name}" // Full name for moon.mod.json
+  let project_base = extract_project_basename(project_name)
+  let package_name = "\{user_ns}/\{project_base}" // Full name for moon.mod.json
   // Calculate luna path for dev mode (based on project depth)
   let luna_path : String? = if dev_mode {
     // Count path depth (number of slashes + 1)
@@ -90,7 +120,7 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
   }
   // Get project directory path
   let cwd = @process.cwd()
-  let project_dir = @path.join2(cwd, project_name)
+  let project_dir = resolve_project_dir(cwd, project_name)
   // Check if project directory already exists
   if fs.exists_sync(project_dir) {
     @cli_common.console_error(
@@ -104,7 +134,7 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
     println(@colorette.gray("  Mode: development (local luna)"))
   }
   // Generate project from embedded templates
-  let templates = generate_templates(package_name, project_name, luna_path)
+  let templates = generate_templates(package_name, project_base, luna_path)
   for tmpl in templates {
     let file_path = @path.join2(project_dir, tmpl.path)
     let dir_path = @path.dirname(file_path)
@@ -124,6 +154,6 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
   println(@colorette.green("\n✓ Project created successfully!\n"))
   println("Next steps:")
   println(@colorette.cyan("  cd \{project_name}"))
-  println(@colorette.cyan("  npm install"))
-  println(@colorette.cyan("  npm run dev"))
+  println(@colorette.cyan("  pnpm install"))
+  println(@colorette.cyan("  pnpm dev"))
 }

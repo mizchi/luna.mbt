@@ -62,35 +62,6 @@ fn[FS : @env.FileSystem] detect_app_mode_with_fs(
 // =============================================================================
 
 ///|
-/// Get project name from moon.mod.json
-fn get_project_name(cwd : String) -> String {
-  let fs = @fs_adapter.NodeFsAdapter::new()
-  get_project_name_with_fs(fs, cwd)
-}
-
-///|
-fn[FS : @env.FileSystem] get_project_name_with_fs(
-  fs : FS,
-  cwd : String,
-) -> String {
-  let mod_path = @path.join2(cwd, "moon.mod.json")
-  if not(fs.exists_sync(mod_path)) {
-    return "unknown"
-  }
-  try {
-    let content = fs.read_file_sync(mod_path)
-    let json = @json.parse(content.view())
-    guard json is Object(obj) else { return "unknown" }
-    match obj.get("name") {
-      Some(String(name)) => name
-      _ => "unknown"
-    }
-  } catch {
-    _ => "unknown"
-  }
-}
-
-///|
 /// Get directory name from path
 fn get_dir_name(path : String) -> String {
   let parts = path.split("/").to_array()

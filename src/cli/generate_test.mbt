@@ -447,7 +447,11 @@ test "parse_sol_config: default runtime is node" {
 
 ///|
 test "generate_sol_server_main_js: node runtime" {
-  let js = generate_sol_server_main_js("myapp/server", parse_runtime("node"))
+  let js = generate_sol_server_main_js(
+    "myapp/server",
+    parse_runtime("node"),
+    "prod",
+  )
   assert_true(js.contains("Runtime: RuntimeNode"))
   assert_true(js.contains("@hono/node-server"))
   assert_true(js.contains("@sol.run()"))
@@ -464,6 +468,7 @@ test "generate_sol_server_main_js: cloudflare runtime" {
   let js = generate_sol_server_main_js(
     "myapp/server",
     parse_runtime("cloudflare"),
+    "prod",
   )
   assert_true(js.contains("Runtime: RuntimeCloudflare"))
   assert_true(
@@ -477,7 +482,11 @@ test "generate_sol_server_main_js: cloudflare runtime" {
 
 ///|
 test "generate_sol_server_main_js: deno runtime" {
-  let js = generate_sol_server_main_js("myapp/server", parse_runtime("deno"))
+  let js = generate_sol_server_main_js(
+    "myapp/server",
+    parse_runtime("deno"),
+    "prod",
+  )
   assert_true(js.contains("Runtime: RuntimeDeno"))
   assert_true(
     js.contains(
@@ -492,7 +501,11 @@ test "generate_sol_server_main_js: deno runtime" {
 
 ///|
 test "generate_sol_server_main_js: bun runtime" {
-  let js = generate_sol_server_main_js("myapp/server", parse_runtime("bun"))
+  let js = generate_sol_server_main_js(
+    "myapp/server",
+    parse_runtime("bun"),
+    "prod",
+  )
   assert_true(js.contains("Runtime: RuntimeBun"))
   assert_true(
     js.contains(
@@ -503,6 +516,25 @@ test "generate_sol_server_main_js: bun runtime" {
   assert_true(js.contains("export default {"))
   assert_true(js.contains("port,"))
   assert_true(js.contains("fetch: app.fetch"))
+}
+
+///|
+test "generate_sol_server_main_js: dev mode uses debug build path" {
+  let js = generate_sol_server_main_js(
+    "myapp/server",
+    parse_runtime("node"),
+    "dev",
+  )
+  assert_true(
+    js.contains(
+      "import * as server from '../../../_build/js/debug/build/__gen__/server/server.js'",
+    ),
+  )
+  assert_true(
+    js.contains(
+      "export * from '../../../_build/js/debug/build/__gen__/server/server.js'",
+    ),
+  )
 }
 
 // =============================================================================
@@ -774,4 +806,419 @@ test "parse_sol_config: staticDirs with ogp" {
   assert_eq(ogp.site_url, Some("https://example.com"))
   assert_eq(ogp.image, Some("/og-image.png"))
   assert_eq(ogp.twitter_handle, Some("@example"))
+}
+
+// =============================================================================
+// Wasm Entrypoints (mbtx + wasip2/wagi) Tests
+// =============================================================================
+
+///|
+test "parse_sol_config: with wasmEntryPoints" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/server",
+    #|  "wasmEntryPoints": [
+    #|    {
+    #|      "id": "users_show",
+    #|      "route": "/users/:id",
+    #|      "source": "app/entries/users_show.mbtx",
+    #|      "runtime": "wagi",
+    #|      "method": ["GET", "POST"]
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_eq(c.wasm_entrypoints.length(), 1)
+  let ep = c.wasm_entrypoints[0]
+  assert_eq(ep.id, "users_show")
+  assert_eq(ep.route, "/users/:id")
+  assert_eq(ep.source, "app/entries/users_show.mbtx")
+  assert_eq(ep.runtime, parse_wasm_entrypoint_runtime("wagi"))
+  assert_eq(ep.methods.length(), 2)
+  assert_eq(ep.methods[0], "GET")
+  assert_eq(ep.methods[1], "POST")
+}
+
+///|
+test "parse_sol_config: wasmEntryPoints defaults" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/server",
+    #|  "wasmEntryPoints": [
+    #|    {
+    #|      "id": "health",
+    #|      "route": "/health",
+    #|      "source": "app/entries/health.mbtx"
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_eq(c.wasm_entrypoints.length(), 1)
+  let ep = c.wasm_entrypoints[0]
+  assert_eq(ep.runtime, parse_wasm_entrypoint_runtime("wagi"))
+  assert_eq(ep.methods.length(), 1)
+  assert_eq(ep.methods[0], "GET")
+}
+
+///|
+test "parse_sol_config: wasmEntryPoints with env and wac source" {
+  let json =
+    #|{
+    #|  "islands": [],
+    #|  "routes": "app/server",
+    #|  "wasmEntryPoints": [
+    #|    {
+    #|      "id": "composed_users",
+    #|      "route": "/users/composed",
+    #|      "source": "app/entries/users_show.wac",
+    #|      "runtime": "wagi",
+    #|      "method": ["GET"],
+    #|      "env": {
+    #|        "API_ORIGIN": "https://api.example.com",
+    #|        "FEATURE_FLAG": "on"
+    #|      }
+    #|    }
+    #|  ]
+    #|}
+  let config = parse_sol_config(json)
+  assert_true(config.is_some())
+  let c = config.unwrap()
+  assert_eq(c.wasm_entrypoints.length(), 1)
+  let ep = c.wasm_entrypoints[0]
+  assert_eq(ep.source, "app/entries/users_show.wac")
+  assert_true(ep.env.contains("API_ORIGIN"))
+  assert_true(ep.env.contains("FEATURE_FLAG"))
+  assert_eq(ep.env["API_ORIGIN"], "https://api.example.com")
+  assert_eq(ep.env["FEATURE_FLAG"], "on")
+}
+
+///|
+test "generate_wasm_manifest_json: includes route runtime and wasm path" {
+  let entries : Array[WasmMountEntry] = [
+    WasmMountEntry::new(
+      "users_show",
+      "/users/:id",
+      ["GET"],
+      parse_wasm_entrypoint_runtime("wagi"),
+      ".sol/wasm/entries/users_show/module.wasm",
+    ),
+  ]
+  let manifest = generate_wasm_manifest_json(entries)
+  assert_true(manifest.contains("\"id\": \"users_show\""))
+  assert_true(manifest.contains("\"route\": \"/users/:id\""))
+  assert_true(manifest.contains("\"runtime\": \"wagi\""))
+  assert_true(
+    manifest.contains("\"wasm\": \".sol/wasm/entries/users_show/module.wasm\""),
+  )
+}
+
+///|
+test "generate_wasm_manifest_json: includes env and build metadata" {
+  let env_map : Map[String, String] = {
+    "API_ORIGIN": "https://api.example.com",
+    "FEATURE_FLAG": "on",
+  }
+  let entries : Array[WasmMountEntry] = [
+    WasmMountEntry::new(
+      "users_show",
+      "/users/:id",
+      ["GET"],
+      parse_wasm_entrypoint_runtime("wagi"),
+      ".sol/wasm/entries/users_show/module.wasm",
+      env=env_map,
+    ),
+  ]
+  let manifest = generate_wasm_manifest_json(entries)
+  assert_true(manifest.contains("\"build\": \"moon-build\""))
+  assert_true(manifest.contains("\"env\": {"))
+  assert_true(manifest.contains("\"API_ORIGIN\": \"https://api.example.com\""))
+  assert_true(manifest.contains("\"FEATURE_FLAG\": \"on\""))
+}
+
+///|
+test "generate_wasm_env_json: includes runtime and env map" {
+  let entries : Array[WasmMountEntry] = [
+    WasmMountEntry::new(
+      "users_show",
+      "/users/:id",
+      ["GET"],
+      parse_wasm_entrypoint_runtime("wagi"),
+      ".sol/wasm/entries/users_show/module.wasm",
+      env={ "API_ORIGIN": "https://api.example.com" },
+    ),
+  ]
+  let env_json = generate_wasm_env_json(entries)
+  assert_true(env_json.contains("\"id\": \"users_show\""))
+  assert_true(env_json.contains("\"runtime\": \"wagi\""))
+  assert_true(env_json.contains("\"API_ORIGIN\": \"https://api.example.com\""))
+}
+
+///|
+test "generate_spin_toml_fragment: wagi route mount" {
+  let entries : Array[WasmMountEntry] = [
+    WasmMountEntry::new(
+      "users_show",
+      "/users/:id",
+      ["GET", "POST"],
+      parse_wasm_entrypoint_runtime("wagi"),
+      ".sol/wasm/entries/users_show/module.wasm",
+    ),
+  ]
+  let fragment = generate_spin_toml_fragment(entries)
+  assert_true(fragment.contains("[[trigger.http]]"))
+  assert_true(fragment.contains("route = \"/users/:id\""))
+  assert_true(fragment.contains("component = \"users_show\""))
+  assert_true(fragment.contains("[component.users_show]"))
+  assert_true(fragment.contains("executor = \"wagi\""))
+}
+
+///|
+test "generate_spin_toml_fragment: includes environment table" {
+  let entries : Array[WasmMountEntry] = [
+    WasmMountEntry::new(
+      "users_show",
+      "/users/:id",
+      ["GET"],
+      parse_wasm_entrypoint_runtime("wagi"),
+      ".sol/wasm/entries/users_show/module.wasm",
+      env={ "API_ORIGIN": "https://api.example.com", "FEATURE_FLAG": "on" },
+    ),
+  ]
+  let fragment = generate_spin_toml_fragment(entries)
+  assert_true(fragment.contains("[component.users_show.environment]"))
+  assert_true(fragment.contains("API_ORIGIN = \"https://api.example.com\""))
+  assert_true(fragment.contains("FEATURE_FLAG = \"on\""))
+}
+
+///|
+test "generate_mars_adapter_hints: includes spin_wagi manifest hints" {
+  let entries : Array[WasmMountEntry] = [
+    WasmMountEntry::new(
+      "users_show",
+      "/users/:id",
+      ["GET"],
+      parse_wasm_entrypoint_runtime("wagi"),
+      ".sol/wasm/entries/users_show/module.wasm",
+    ),
+  ]
+  let hints = generate_mars_adapter_hints(entries)
+  assert_true(hints.contains("# spin_wagi: users_show"))
+  assert_true(
+    hints.contains(
+      "[component.users_show] route=\"/users/:id\" executor=\"wagi\"",
+    ),
+  )
+}
+
+///|
+test "generate_mars_adapter_hints: includes wasm_component binding hints" {
+  let entries : Array[WasmMountEntry] = [
+    WasmMountEntry::new(
+      "users_component",
+      "/users/component",
+      ["POST"],
+      parse_wasm_entrypoint_runtime("component"),
+      ".sol/wasm/entries/users_component/module.wasm",
+    ),
+  ]
+  let hints = generate_mars_adapter_hints(entries)
+  assert_true(hints.contains("# wasm_component: users_component"))
+  assert_true(
+    hints.contains(
+      "component=users_component world=http-component export=handle",
+    ),
+  )
+}
+
+///|
+test "WasmEntrypointBuildOptions::default has ergonomic defaults" {
+  let opts = WasmEntrypointBuildOptions::default()
+  assert_true(opts.runtime_override is None)
+  assert_eq(opts.emit_spin_fragment, false)
+  assert_eq(opts.emit_env_json, true)
+  assert_eq(opts.write_if_changed, true)
+}
+
+///|
+test "WasmEntrypointBuildOptions::for_cli maps legacy flags" {
+  let opts = WasmEntrypointBuildOptions::for_cli(
+    runtime_override=Some(parse_wasm_entrypoint_runtime("wagi")),
+    emit_spin_fragment=true,
+  )
+  assert_true(opts.runtime_override is Some(_))
+  assert_eq(opts.emit_spin_fragment, true)
+  assert_eq(opts.emit_env_json, true)
+  assert_eq(opts.write_if_changed, true)
+}
+
+///|
+fn find_template_content(
+  templates : Array[TemplateFile],
+  path : String,
+) -> String? {
+  for file in templates {
+    if file.path == path {
+      return Some(file.content)
+    }
+  }
+  None
+}
+
+///|
+test "generate_templates: moon.mod.json includes sol and mars dependencies" {
+  let templates = generate_templates("tester/myapp", "myapp", None)
+  let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
+  assert_true(content.contains("\"mizchi/sol\""))
+  assert_true(content.contains("\"mizchi/mars\""))
+  assert_true(content.contains("\"mizchi/signals\""))
+}
+
+///|
+test "template_layout_mbt: provides root_layout used by routes template" {
+  let content = template_layout_mbt()
+  assert_true(content.contains("pub fn root_layout("))
+}
+
+///|
+test "template_layout_moon_pkg: uses current static dom package path" {
+  let content = template_layout_moon_pkg()
+  assert_true(content.contains("\"mizchi/luna/dom/static\" @server_dom"))
+  assert_true(not(content.contains(" as @")))
+}
+
+///|
+test "template_gen_types_mbt: includes counter component ref factory" {
+  let content = template_gen_types_mbt()
+  assert_true(content.contains("pub fn counter("))
+}
+
+///|
+test "template_gen_types_moon_pkg: imports luna for ComponentRef types" {
+  let content = template_gen_types_moon_pkg()
+  assert_true(content.contains("\"moonbitlang/core/json\""))
+  assert_true(content.contains("\"mizchi/luna\" @luna"))
+}
+
+///|
+test "template_ln_loader_js: scans luna:id selector" {
+  let content = template_ln_loader_js()
+  assert_true(content.contains("[luna\\\\:id]"))
+  assert_true(not(content.contains("[ln\\\\:id]")))
+}
+
+///|
+test "generate_templates: package.json includes dev/build/serve scripts" {
+  let templates = generate_templates("tester/myapp", "myapp", None)
+  let content = find_template_content(templates, "package.json").unwrap_or("")
+  assert_true(content.contains("\"scripts\""))
+  assert_true(content.contains("\"dev\""))
+  assert_true(content.contains("\"build\""))
+  assert_true(content.contains("\"serve\""))
+}
+
+///|
+test "generate_templates: package.json avoids unreleased sol npm version" {
+  let templates = generate_templates("tester/myapp", "myapp", None)
+  let content = find_template_content(templates, "package.json").unwrap_or("")
+  assert_true(not(content.contains("\"@luna_ui/sol\"")))
+  assert_true(not(content.contains("^0.8.0")))
+}
+
+///|
+test "generate_templates: uses flat app/client package layout" {
+  let templates = generate_templates("tester/myapp", "myapp", None)
+  let mut has_flat_client_pkg = false
+  let mut has_nested_client_pkg = false
+  let mut has_flat_client_mbt = false
+  for file in templates {
+    if file.path == "app/client/moon.pkg" {
+      has_flat_client_pkg = true
+    }
+    if file.path == "app/client/counter.mbt" {
+      has_flat_client_mbt = true
+    }
+    if file.path == "app/client/counter/moon.pkg" {
+      has_nested_client_pkg = true
+    }
+  }
+  assert_true(has_flat_client_pkg)
+  assert_true(has_flat_client_mbt)
+  assert_true(not(has_nested_client_pkg))
+}
+
+///|
+test "template_client_counter_moon_pkg: uses current luna/signals imports" {
+  let content = template_client_counter_moon_pkg()
+  assert_true(content.contains("\"moonbitlang/core/json\""))
+  assert_true(content.contains("\"mizchi/luna/dom\" @element"))
+  assert_true(content.contains("\"mizchi/signals\" @signal"))
+  assert_true(content.contains("\"exports\": [ \"counter\" ]"))
+}
+
+///|
+test "template_client_counter_mbt: uses modern using syntax" {
+  let content = template_client_counter_mbt()
+  assert_true(content.contains("using @element {"))
+  assert_true(content.contains("text_of"))
+  assert_true(not(content.contains("using @element.{")))
+}
+
+///|
+test "template_routes_moon_pkg: uses current static dom package path" {
+  let content = template_routes_moon_pkg("tester/myapp")
+  assert_true(content.contains("\"mizchi/luna/dom/static\" @server_dom"))
+  assert_true(not(content.contains(" as @")))
+}
+
+///|
+test "template_routes_moon_pkg: imports sol action package" {
+  let content = template_routes_moon_pkg("tester/myapp")
+  assert_true(content.contains("\"mizchi/sol/action\" @action"))
+}
+
+///|
+test "template_routes_mbt: defines default action_registry" {
+  let content = template_routes_mbt("tester/myapp")
+  assert_true(content.contains("pub fn action_registry()"))
+  assert_true(content.contains("@action.ActionRegistry::new()"))
+}
+
+///|
+test "template_routes_mbt: starter handlers keep async signature" {
+  let content = template_routes_mbt("tester/myapp")
+  assert_true(content.contains("async fn home("))
+  assert_true(content.contains("async fn about("))
+  assert_true(content.contains("async fn api_health("))
+}
+
+///|
+test "template_routes_using_mbt: keeps only starter-used tags" {
+  let content = template_routes_using_mbt()
+  assert_true(content.contains("div"))
+  assert_true(content.contains("button"))
+  assert_true(content.contains("h1"))
+  assert_true(content.contains("p"))
+  assert_true(content.contains("text"))
+  assert_true(not(content.contains("h2")))
+  assert_true(not(content.contains("\n  a,\n")))
+}
+
+///|
+test "template_server_using_mbt: keeps layout-only tags" {
+  let content = template_server_using_mbt()
+  assert_true(content.contains("div"))
+  assert_true(content.contains("a"))
+  assert_true(content.contains("nav"))
+  assert_true(content.contains("text"))
+  assert_true(content.contains("outlet"))
+  assert_true(not(content.contains("\n  span,\n")))
+  assert_true(not(content.contains("\n  button,\n")))
+  assert_true(not(content.contains("\n  h1,\n")))
+  assert_true(not(content.contains("\n  p,\n")))
 }

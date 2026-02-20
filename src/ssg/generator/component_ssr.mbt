@@ -20,37 +20,37 @@ async fn render_component_ssr_async(
   let possible_paths = [
     // 1. Direct component name (most common for standalone projects)
     @path.join2(
-      @path.join2(cwd, "target/js/release/build"),
+      @path.join2(cwd, "_build/js/release/build"),
       component_name + "/" + component_name + ".js",
     ),
     // 2. Standard docs directory convention
     @path.join2(
-      @path.join2(cwd, "target/js/release/build/docs"),
+      @path.join2(cwd, "_build/js/release/build/docs"),
       source_path + "/" + component_name + ".js",
     ),
     // 3. Flat structure (component directly in docs build)
     @path.join2(
-      @path.join2(cwd, "target/js/release/build/docs"),
+      @path.join2(cwd, "_build/js/release/build/docs"),
       component_name + "/" + component_name + ".js",
     ),
     // 4. Tests directory (for testing SSR)
     @path.join2(
-      @path.join2(cwd, "target/js/release/build/tests"),
+      @path.join2(cwd, "_build/js/release/build/tests"),
       component_name + "/" + component_name + ".js",
     ),
     // 5. Source-relative build
     @path.join2(
-      @path.join2(cwd, "target/js/release/build"),
+      @path.join2(cwd, "_build/js/release/build"),
       source_path + "/" + component_name + ".js",
     ),
     // 6. Parent project's tests directory (for examples in subdirectories)
     @path.join2(
-      @path.join2(parent_root, "target/js/release/build/tests"),
+      @path.join2(parent_root, "_build/js/release/build/tests"),
       component_name + "/" + component_name + ".js",
     ),
     // 7. Parent project's source build
     @path.join2(
-      @path.join2(parent_root, "target/js/release/build"),
+      @path.join2(parent_root, "_build/js/release/build"),
       source_path + "/" + component_name + ".js",
     ),
   ]

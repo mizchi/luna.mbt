@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/internal/mars_response"
+
+import {
+  "mizchi/js/core",
+  "mizchi/mars",
+}
+
+// Values
+pub fn send_internal_error(@mars.Context, message? : String) -> Unit
+
+pub fn send_json_any(@mars.Context, @core.Any, status? : Int) -> Unit
+
+pub fn send_json_error(@mars.Context, String, status? : Int) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

@@ -56,7 +56,8 @@ pub fn generate_routes_json(pages : Array[@ssg.PageMeta]) -> String {
 
 ///|
 /// Extract dynamic route patterns from pages
-/// Pages from dynamic routes have source_path like "posts/_id_.md?id=value"
+/// Pages from dynamic routes have source_path like
+/// "posts/_id_.md?id=value" or "docs/_...slug_/index.md?slug=a%2Fb"
 /// Returns patterns like "/posts/*" for Worker fallback
 pub fn extract_dynamic_route_patterns(
   pages : Array[@ssg.PageMeta],

@@ -76,7 +76,7 @@ After building, copy the compiled JS to the islands directory:
 
 ```bash
 moon build --target js
-cp target/js/release/build/examples/wiki/wiki.js docs/public/islands/
+cp _build/js/release/build/examples/wiki/wiki.js docs/public/islands/
 ```
 
 ### 4. Use in Markdown

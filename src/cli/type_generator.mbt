@@ -54,14 +54,11 @@ fn generate_types_mbt(structs : Array[StructExport]) -> String {
 
 ///|
 /// Generate types/moon.pkg
-fn generate_types_pkg(
-  structs : Array[StructExport],
-  project_name : String,
-) -> String {
-  let _ = project_name
+fn generate_types_pkg(structs : Array[StructExport]) -> String {
   let buf = StringBuilder::new()
   buf.write_string("import {\n")
-  buf.write_string("  \"mizchi/luna\" as @luna,\n")
+  buf.write_string("  \"moonbitlang/core/json\",\n")
+  buf.write_string("  \"mizchi/luna\" @luna,\n")
   buf.write_string("}\n\n")
   buf.write_string("options(\n")
   buf.write_string("  \"supported-targets\": [ \"js\" ],\n")

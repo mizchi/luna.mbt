@@ -350,6 +350,105 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
 }
 
 ///|
+fn normalize_dynamic_param_value(raw : String, is_catch_all~ : Bool) -> String {
+  if is_catch_all {
+    raw.trim(chars="/").to_string()
+  } else {
+    raw
+  }
+}
+
+///|
+fn resolve_dynamic_param_value(
+  param_set : Map[String, String],
+  param_name : String,
+  is_catch_all~ : Bool,
+) -> String? {
+  match param_set.get(param_name) {
+    Some(v) => Some(normalize_dynamic_param_value(v, is_catch_all~))
+    None =>
+      if is_catch_all {
+        // Treat missing catch-all as root match (optional-like behavior).
+        Some("")
+      } else {
+        None
+      }
+  }
+}
+
+///|
+fn build_dynamic_page_relative(
+  parent_path : String,
+  param_value : String,
+  is_catch_all~ : Bool,
+) -> String {
+  if param_value.is_empty() {
+    parent_path
+  } else if parent_path.is_empty() {
+    param_value
+  } else if is_catch_all {
+    parent_path +
+    "/" +
+    normalize_dynamic_param_value(param_value, is_catch_all=true)
+  } else {
+    parent_path + "/" + param_value
+  }
+}
+
+///|
+fn default_dynamic_title(param_value : String, parent_path : String) -> String {
+  let source = if param_value.is_empty() { parent_path } else { param_value }
+  let mut last_segment = ""
+  for part in source.split("/") {
+    let seg = part.to_string()
+    if not(seg.is_empty()) {
+      last_segment = seg
+    }
+  }
+  let base = if last_segment.is_empty() { "index" } else { last_segment }
+  @ssg.capitalize_first(base.replace(old="-", new=" "))
+}
+
+///|
+extern "js" fn encode_query_component(value : String) -> String =
+  #| (value) => encodeURIComponent(value)
+
+///|
+fn build_source_with_dynamic_params(
+  source_path : String,
+  param_name : String,
+  param_value : String,
+  param_set : Map[String, String],
+) -> String {
+  let sb = StringBuilder::new(size_hint=source_path.length() + 64)
+  sb.write_string(source_path)
+  sb.write_char('?')
+  sb.write_string(encode_query_component(param_name))
+  sb.write_char('=')
+  sb.write_string(encode_query_component(param_value))
+
+  // Keep primary dynamic param first, then append other params in key order.
+  let extra_keys : Array[String] = []
+  for key in param_set.keys() {
+    if key != param_name {
+      extra_keys.push(key)
+    }
+  }
+  extra_keys.sort_by(fn(a, b) { @ssg.compare_strings_lex(a, b) })
+  for key in extra_keys {
+    let value = match param_set.get(key) {
+      Some(v) => v
+      None => ""
+    }
+    sb.write_char('&')
+    sb.write_string(encode_query_component(key))
+    sb.write_char('=')
+    sb.write_string(encode_query_component(value))
+  }
+  sb.to_string()
+}
+
+///|
 /// Scan a dynamic parameter file (_id_.md, ___all___.md, etc.)
 /// Reads page.json from same directory for staticParams and generates pages for each param value
 fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
@@ -364,7 +463,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   trailing_slash : Bool,
 ) -> Unit {
   let param_name = param_info.name
-  let _is_catch_all = param_info.catch_all // TODO: Handle catch-all routes
+  let is_catch_all = param_info.catch_all
 
   // Read page.json from the same directory for static params configuration
   let page_json_path = join_path(dir_path, "page.json")
@@ -419,17 +518,18 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   // Generate a page for each static param
   for param_set in static_params {
     // Get the param value (e.g., {"id": "hello-world"} -> "hello-world")
-    let param_value = match param_set.get(param_name) {
+    let param_value = match
+      resolve_dynamic_param_value(param_set, param_name, is_catch_all~) {
       Some(v) => v
       None => continue // Skip if param not found
     }
 
     // Build the output path: parent/value/
-    let page_relative = if parent_path.is_empty() {
-      param_value
-    } else {
-      parent_path + "/" + param_value
-    }
+    let page_relative = build_dynamic_page_relative(
+      parent_path,
+      param_value,
+      is_catch_all~,
+    )
 
     // Detect locale and build URL
     let (locale, canonical_path) = detect_locale_from_path(
@@ -450,14 +550,16 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
     // Title can use the param value if not specified
     let title = match base_frontmatter.title {
       Some(t) => Some(t)
-      None => Some(@ssg.capitalize_first(param_value.replace(old="-", new=" ")))
+      None => Some(default_dynamic_title(param_value, parent_path))
     }
     let frontmatter = @ssg.Frontmatter::{ ..base_frontmatter, title, }
     let renderer_type = determine_renderer_type(content_type, frontmatter)
 
     // Store param info in source_path for later template processing
-    // Format: path/to/_id_.md?id=value
-    let source_with_param = relative_path + "?" + param_name + "=" + param_value
+    // Format: path/to/_id_.md?id=<url-encoded-value>
+    let source_with_param = build_source_with_dynamic_params(
+      relative_path, param_name, param_value, param_set,
+    )
     let page = @ssg.PageMeta::{
       source_path: source_with_param,
       url_path: url_path_normalized,
@@ -486,7 +588,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   trailing_slash : Bool,
 ) -> Unit {
   let param_name = param_info.name
-  let _is_catch_all = param_info.catch_all // TODO: Handle catch-all routes
+  let is_catch_all = param_info.catch_all
   // Read page.json for static params configuration
   let page_json_path = join_path(dir_path, "page.json")
   let page_config = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
@@ -528,17 +630,18 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   // Generate a page for each static param
   for param_set in static_params {
     // Get the param value (e.g., {"slug": "hello-world"} -> "hello-world")
-    let param_value = match param_set.get(param_name) {
+    let param_value = match
+      resolve_dynamic_param_value(param_set, param_name, is_catch_all~) {
       Some(v) => v
       None => continue // Skip if param not found
     }
 
     // Build the output path: parent/value/
-    let page_relative = if parent_path.is_empty() {
-      param_value
-    } else {
-      parent_path + "/" + param_value
-    }
+    let page_relative = build_dynamic_page_relative(
+      parent_path,
+      param_value,
+      is_catch_all~,
+    )
 
     // Detect locale and build URL
     let (locale, canonical_path) = detect_locale_from_path(
@@ -559,19 +662,20 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
     // Title can use the param value if not specified
     let title = match base_frontmatter.title {
       Some(t) => Some(t)
-      None => Some(@ssg.capitalize_first(param_value.replace(old="-", new=" ")))
+      None => Some(default_dynamic_title(param_value, parent_path))
     }
     let frontmatter = @ssg.Frontmatter::{ ..base_frontmatter, title, }
     let content_type = @ssg.ContentType::Markdown
     let renderer_type = determine_renderer_type(content_type, frontmatter)
 
     // Store param info in source_path for later template processing
-    // Format: _slug_/index.md?slug=value
-    let source_with_param = relative_path +
-      "/index.md?" +
-      param_name +
-      "=" +
-      param_value
+    // Format: _slug_/index.md?slug=<url-encoded-value>
+    let source_with_param = build_source_with_dynamic_params(
+      relative_path + "/index.md",
+      param_name,
+      param_value,
+      param_set,
+    )
     let page = @ssg.PageMeta::{
       source_path: source_with_param,
       url_path: url_path_normalized,

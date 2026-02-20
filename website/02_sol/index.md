@@ -44,17 +44,16 @@ myapp/
 ├── sol.config.json         # Sol configuration
 ├── app/
 │   ├── server/             # Server components
-│   │   ├── moon.pkg.json
+│   │   ├── moon.pkg
 │   │   └── routes.mbt      # routes() + config() + pages
 │   ├── client/             # Client components (Islands)
-│   │   └── counter/
-│   │       ├── moon.pkg.json
-│   │       └── counter.mbt # render + hydrate functions
+│   │   ├── moon.pkg
+│   │   └── counter.mbt     # render + hydrate functions
 │   └── __gen__/            # Auto-generated (sol generate)
 │       ├── client/         # Client exports
 │       └── server/         # Server entry point
 └── static/
-    └── loader.min.js       # Island loader
+    └── loader.js           # Island loader
 ```
 
 ## Guides
@@ -85,7 +84,7 @@ Start development server. Automatically runs:
 4. Start server
 
 ```bash
-sol dev              # Default port 3000
+sol dev              # Default port 7777
 sol dev --port 8080  # Custom port
 sol dev --clean      # Clean cache and rebuild
 ```
@@ -107,16 +106,16 @@ sol build --clean         # Clean cache and rebuild
 Serve production build. Requires `sol build` first.
 
 ```bash
-sol serve              # Default port 3000
+sol serve              # Default port 7777
 sol serve --port 8080  # Custom port
 ```
 
 ### `sol generate`
 
-Generate code from `sol.config.json`.
+Generate code from `sol.config.ts` or `sol.config.json`.
 
 ```bash
-sol generate                    # Use sol.config.json (default: dev)
+sol generate                    # Use sol.config.ts or sol.config.json (default: prod)
 sol generate --mode dev         # Development mode (.sol/dev/)
 sol generate --mode prod        # Production mode (.sol/prod/)
 ```
@@ -126,7 +125,7 @@ sol generate --mode prod        # Production mode (.sol/prod/)
 Delete generated files and cache.
 
 ```bash
-sol clean  # Delete .sol/, app/__gen__/, target/
+sol clean  # Delete .sol/, app/__gen__/, _build/
 ```
 
 ## SolRoutes Definition
@@ -179,7 +178,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
 pub fn config() -> @router.RouterConfig {
   @router.RouterConfig::default()
     .with_default_head(head())
-    .with_loader_url("/static/loader.min.js")
+    .with_loader_url("/static/loader.js")
 }
 ```
 
@@ -199,7 +198,13 @@ Hierarchical layout structure support:
 
 ```moonbit
 // Admin section layout
-using @server_dom.{ h1, nav, div, text, sol_link }
+using @server_dom {
+  h1,
+  nav,
+  div,
+  text,
+  sol_link,
+}
 
 fn admin_layout(
   props : @router.PageProps,
@@ -289,12 +294,6 @@ let combined = m1.then(m2)
 
 // Compose from array
 let pipeline = @middleware.pipeline([m1, m2, m3])
-
-// Conditional execution
-let conditional = @middleware.when(
-  fn(ctx) { ctx.request.method == "POST" },
-  csrf_middleware,
-)
 ```
 
 ## Server Actions
@@ -313,7 +312,7 @@ let submit_handler = @action.ActionHandler(async fn(ctx) {
 
 // Register in registry
 pub fn action_registry() -> @action.ActionRegistry {
-  @action.ActionRegistry::new(allowed_origins=["http://localhost:3000"])
+  @action.ActionRegistry::new(allowed_origins=["http://localhost:7777"])
     .register(@action.ActionDef::new("submit-form", submit_handler))
 }
 ```
@@ -335,11 +334,11 @@ pub fn action_registry() -> @action.ActionRegistry {
 Islands are components shared between SSR and client:
 
 ```moonbit
-// app/client/counter/counter.mbt
+// app/client/counter.mbt
 
 pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[CounterAction] {
   div(class="counter", [
-    span(class="count-display", [text_signal(count)]),
+    span(class="count-display", [text_of(count)]),
     button(onclick=@luna.action(Increment), [text("+")]),
     button(onclick=@luna.action(Decrement), [text("-")]),
   ])
@@ -381,6 +380,19 @@ Async content streaming using `ServerNode::async_`:
   div([text(data)])
 })
 ```
+
+Enable route-level streaming responses with router config (disabled by default):
+
+```moonbit
+pub fn config() -> @router.RouterConfig {
+  @router.RouterConfig::default()
+    .with_default_head(head())
+    .with_loader_url("/static/loader.js")
+    .with_streaming_ssr()
+}
+```
+
+> Note: streaming response uses `root_template` when `__LUNA_MAIN__` exists; otherwise it falls back to built-in page shell.
 
 ## Modes
 

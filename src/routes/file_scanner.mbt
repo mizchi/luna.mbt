@@ -168,6 +168,28 @@ pub fn is_tsx_file(filename : String) -> Bool {
 // =============================================================================
 
 ///|
+/// Read a directory safely (returns [] on error)
+pub fn[FS : @env.FileSystem] read_dir_entries(
+  filesystem : FS,
+  path : String,
+) -> Array[String] {
+  @env.FileSystem::readdir_sync(filesystem, path) catch {
+    _ => []
+  }
+}
+
+///|
+/// Check whether path is a directory
+pub fn[FS : @env.FileSystem] is_directory(
+  filesystem : FS,
+  path : String,
+) -> Bool {
+  @env.FileSystem::is_directory_sync(filesystem, path) catch {
+    _ => false
+  }
+}
+
+///|
 /// Scan a directory and collect file entries
 /// This is a low-level scanner - content processing is done by the caller
 pub fn[FS : @env.FileSystem] scan_directory(
@@ -188,11 +210,7 @@ fn[FS : @env.FileSystem] scan_directory_recursive(
   options : ScanOptions,
   entries : Array[FileEntry],
 ) -> Unit {
-  let dir_entries : Array[String] = @env.FileSystem::readdir_sync(
-    filesystem, current_path,
-  ) catch {
-    _ => return
-  }
+  let dir_entries : Array[String] = read_dir_entries(filesystem, current_path)
   for entry_name in dir_entries {
     let entry_path = join_path(current_path, entry_name)
     let entry_relative = if relative_path.is_empty() {
@@ -200,11 +218,7 @@ fn[FS : @env.FileSystem] scan_directory_recursive(
     } else {
       relative_path + "/" + entry_name
     }
-    let is_dir : Bool = @env.FileSystem::is_directory_sync(
-      filesystem, entry_path,
-    ) catch {
-      _ => false
-    }
+    let is_dir : Bool = is_directory(filesystem, entry_path)
     if is_dir {
       // Skip excluded directories
       if is_excluded(entry_name, entry_relative, options.exclude) {

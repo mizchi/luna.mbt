@@ -11,10 +11,21 @@
 /// Uses Layout to wrap all pages with shared navigation
 /// Demonstrates middleware composition with Railway Oriented Programming
 pub fn routes() -> Array[@router.SolRoutes] {
+  let bench_mode = is_bench_mode()
+  let global_middleware = if bench_mode {
+    [@mw.security_headers_relaxed()]
+  } else {
+    [@mw.security_headers_relaxed(), @mw.logger()]
+  }
+  let api_middleware = if bench_mode {
+    [@mw.cors()]
+  } else {
+    [@mw.logger().then(@mw.cors())]
+  }
   [
     // Apply security headers and logger middleware to all routes
     @router.SolRoutes::WithMiddleware(
-      middleware=[@mw.security_headers_relaxed(), @mw.logger()],
+      middleware=global_middleware,
       children=[
         // Root layout - wraps all pages with navigation
         @router.SolRoutes::Layout(segment="", layout=root_layout, children=[
@@ -121,11 +132,21 @@ pub fn routes() -> Array[@router.SolRoutes] {
         // API endpoints with CORS middleware
         // Using method-style composition: logger().then(cors())
         @router.SolRoutes::WithMiddleware(
-          middleware=[@mw.logger().then(@mw.cors())],
+          middleware=api_middleware,
           children=[
             @router.SolRoutes::Get(
               path="/api/health",
               handler=@router.ApiHandler(api_health),
+            ),
+            // Benchmark API - lightweight endpoint for k6 runs
+            @router.SolRoutes::Get(
+              path="/api/bench/ping",
+              handler=@router.ApiHandler(api_bench_ping),
+            ),
+            // Benchmark API - catch-all endpoint for routing benchmarks
+            @router.SolRoutes::Get(
+              path="/api/bench/test/[...path]",
+              handler=@router.ApiHandler(api_bench_catch_all),
             ),
             // Middleware test API - returns info about current request
             @router.SolRoutes::Get(
@@ -145,6 +166,16 @@ pub fn routes() -> Array[@router.SolRoutes] {
 }
 
 ///|
+extern "js" fn is_bench_mode() -> Bool =
+  #| () => {
+  #|   try {
+  #|     return globalThis?.process?.env?.SOL_BENCH_MODE === "1"
+  #|   } catch {
+  #|     return false
+  #|   }
+  #| }
+
+///|
 /// Debug API - returns catch-all params
 async fn api_test_catch_all(props : @router.PageProps) -> @core.Any {
   let path = props.params.get_param("path").unwrap_or("(none)")
@@ -161,6 +192,19 @@ async fn api_test_catch_all(props : @router.PageProps) -> @core.Any {
 /// API handler: health check
 async fn api_health(_props : @router.PageProps) -> @core.Any {
   @sol.json_obj([("status", @core.any("ok"))])
+}
+
+///|
+/// API handler: benchmark ping (lightweight)
+async fn api_bench_ping(_props : @router.PageProps) -> @core.Any {
+  @sol.json_obj([("ok", @core.any(true))])
+}
+
+///|
+/// API handler: benchmark catch-all (lightweight)
+async fn api_bench_catch_all(props : @router.PageProps) -> @core.Any {
+  let path = props.params.get_param("path").unwrap_or("(none)")
+  @sol.json_obj([("path", @core.any(path))])
 }
 
 // ============================================================================

@@ -20,12 +20,15 @@ fn show_build_help() -> Unit {
     #|Options:
     #|  --target <target>   Build target (js, wasm) (default: js)
     #|  --skip-bundle       Skip rolldown bundling
-    #|  --skip-generate     Skip _sol directory generation
+    #|  --skip-generate     Skip .sol directory generation
     #|  --skip-minify       Skip minification
-    #|  --clean             Clean _build/target and .sol directories before build
+    #|  --clean             Clean _build and .sol directories before build
     #|  --parallel          Enable parallel SSG build
     #|  --workers <n>       Number of parallel workers (default: 4)
     #|  --force             Force rebuild (ignore cache)
+    #|  --wasm-entrypoints  Build wasm entrypoints from config.wasmEntryPoints
+    #|  --runtime <kind>    Override wasm runtime (wagi|wasi-cli|component)
+    #|  --emit-spin-fragment  Emit .sol/wasm/spin.toml.fragment
     #|  -h, --help          Show help
   println(help)
 }
@@ -37,10 +40,11 @@ fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
   fs : FS,
   cwd : String,
   target : String,
+  profile : String,
 ) -> Unit {
   let server_js_path = @path.join2(
     cwd,
-    "_build/\{target}/release/build/__gen__/server/server.js",
+    "_build/\{target}/\{profile}/build/__gen__/server/server.js",
   )
   if not(fs.exists_sync(server_js_path)) {
     return
@@ -54,7 +58,9 @@ fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
   fs.write_file_sync(server_js_path, patched) catch {
     _ => return
   }
-  println(@colorette.gray("Patched async reschedule shim in server.js"))
+  println(
+    @colorette.gray("Patched async reschedule shim in \{profile} server.js"),
+  )
 }
 
 ///|
@@ -80,6 +86,9 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       @util.Boolean(key="parallel", short="p"),
       @util.String(key="workers", short="w", multiple=false, default=None),
       @util.Boolean(key="force", short="f"),
+      @util.Boolean(key="wasm-entrypoints", short="x"),
+      @util.String(key="runtime", short="r", multiple=false, default=None),
+      @util.Boolean(key="emit-spin-fragment", short="e"),
       @util.Boolean(key="help", short="h"),
     ],
     allow_positionals=false,
@@ -132,20 +141,48 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   } else {
     false
   }
-  let cwd = @process.cwd()
-  let sol_config_path = @path.join2(cwd, "sol.config.json")
-  let sol_config_content = if fs.exists_sync(sol_config_path) {
-    fs.read_file_sync(sol_config_path) catch {
-      _ => ""
-    }
+  let build_wasm_flag : Bool = if result.values.contains("wasm-entrypoints") {
+    result.values["wasm-entrypoints"].cast()
   } else {
-    ""
+    false
   }
-  let sol_config = if not(sol_config_content.is_empty()) {
-    parse_sol_config(sol_config_content)
+  let emit_spin_fragment : Bool = if result.values.contains(
+      "emit-spin-fragment",
+    ) {
+    result.values["emit-spin-fragment"].cast()
+  } else {
+    false
+  }
+  let wasm_runtime_override_raw : String? = if result.values.contains("runtime") {
+    let value : String = result.values["runtime"].cast()
+    if value.trim_space().length() == 0 {
+      None
+    } else {
+      Some(value)
+    }
   } else {
     None
   }
+  let build_wasm = build_wasm_flag || emit_spin_fragment
+  let wasm_runtime_override = match wasm_runtime_override_raw {
+    Some(raw) =>
+      match parse_wasm_entrypoint_runtime_opt(raw) {
+        Some(rt) => Some(rt)
+        None => {
+          @cli_common.console_error(
+            @colorette.red(
+              "Invalid --runtime value for wasm entrypoints: \{raw} (use wagi|wasi-cli|component)",
+            ),
+          )
+          @process.exit(1)
+          None
+        }
+      }
+    None => None
+  }
+  let cwd = @process.cwd()
+  let (sol_config, sol_config_path) = load_config_with_fs(fs, cwd)
+  let has_sol_config = sol_config_path.length() > 0
   let has_static_dirs = match sol_config {
     Some(config) => not(config.static_dirs.is_empty())
     None => false
@@ -239,8 +276,8 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     println(@colorette.green("✓ Clean complete"))
   }
   // Run generate if sol.config.json exists
-  if not(skip_generate) && fs.exists_sync(sol_config_path) {
-    println(@colorette.cyan("Generating _sol directory..."))
+  if not(skip_generate) && has_sol_config {
+    println(@colorette.cyan("Generating .sol directory..."))
     run_generate_command(["--mode", "prod"])
   }
   println(@colorette.cyan("Building for production (target: \{target})..."))
@@ -262,7 +299,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
   }
   println(@colorette.green("✓ Moon build complete"))
-  patch_mars_reschedule_shim_with_fs(fs, cwd, target)
+  patch_mars_reschedule_shim_with_fs(fs, cwd, target, "release")
   // Bundle client code with rolldown if manifest exists
   let manifest_path = @path.join2(cwd, ".sol/prod/manifest.json")
   if not(skip_bundle) && fs.exists_sync(manifest_path) {
@@ -343,6 +380,54 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       None => {
         @cli_common.console_error(@colorette.red("Failed to parse SSG config"))
         @process.exit(1)
+      }
+    }
+  }
+  if build_wasm {
+    let wasm_entries = match sol_config {
+      Some(config) => config.wasm_entrypoints
+      None => []
+    }
+    if wasm_entries.is_empty() {
+      println(
+        @colorette.yellow(
+          "No wasmEntryPoints found in config. Skipping wasm entrypoint build.",
+        ),
+      )
+    } else {
+      println(@colorette.cyan("Building wasm entrypoints (.mbtx/.wasm)..."))
+      let wasm_build_options = WasmEntrypointBuildOptions::for_cli(
+        runtime_override=wasm_runtime_override,
+        emit_spin_fragment~,
+      )
+      match
+        build_wasm_entrypoints_with_options(
+          cwd,
+          wasm_entries,
+          options=wasm_build_options,
+        ) {
+        Ok(result) => {
+          println(
+            @colorette.green(
+              "✓ Wasm entrypoints built: \{result.mounts.length()} entries -> .sol/wasm/",
+            ),
+          )
+          if result.artifacts.env_path is Some(env_path) {
+            println(@colorette.gray("  env map: \{env_path}"))
+          }
+          if result.artifacts.spin_fragment_path is Some(spin_path) {
+            println(@colorette.gray("  spin fragment: \{spin_path}"))
+          }
+          if result.artifacts.mars_hints_path is Some(hints_path) {
+            println(@colorette.gray("  mars hints: \{hints_path}"))
+          }
+        }
+        Err(e) => {
+          @cli_common.console_error(
+            @colorette.red("Wasm entrypoint build failed: \{e}"),
+          )
+          @process.exit(1)
+        }
       }
     }
   }

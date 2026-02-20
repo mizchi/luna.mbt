@@ -473,41 +473,180 @@ fn compile_sol_routes_inner(
 // ============================================================================
 
 ///|
+extern "js" fn ffi_ensure_mars_to_handler_reschedule_symbol() -> Unit =
+  #| () => {
+  #|   if (typeof globalThis.moonbitlang$async$internal$event_loop$$reschedule !== "function") {
+  #|     globalThis.moonbitlang$async$internal$event_loop$$reschedule = () => {};
+  #|   }
+  #| }
+
+///|
+fn ensure_mars_to_handler_compat() -> Unit {
+  ffi_ensure_mars_to_handler_reschedule_symbol()
+}
+
+///|
 /// Register Sol routes to Hono app
 pub fn register_sol_routes(
   app : App,
   routes : Array[SolRoutes],
   config? : RouterConfig,
 ) -> Unit {
+  ensure_mars_to_handler_compat()
   let compiled = compile_sol_routes(routes)
   let cfg = config.unwrap_or(RouterConfig::default())
   register_compiled_sol_routes(app, compiled, cfg)
 }
 
 ///|
-/// Execute middleware chain
-/// Returns true if response was sent (halted), false if should continue
-async fn run_middlewares(
-  c : Ctx,
-  middlewares : Array[@middleware.Middleware],
-) -> Bool {
-  if middlewares.is_empty() {
-    return false
+fn render_meta_tags(meta : Array[(String, String)]) -> String {
+  if meta.is_empty() {
+    return ""
   }
-  for mw in middlewares {
-    if c.is_response_sent() {
-      return true
-    }
-    let @middleware.Middleware(@mars.Handler(h)) = mw
-    h(c) catch {
-      e => {
-        c.text("Internal Server Error: \{e}", status=500)
-        return true
-      }
-    }
+  let buf = StringBuilder::new()
+  for pair in meta {
+    let key = @page_shell.escape_html_text(pair.0)
+    let value = @page_shell.escape_html_text(pair.1)
+    buf.write_string("<meta name=\"")
+    buf.write_string(key)
+    buf.write_string("\" content=\"")
+    buf.write_string(value)
+    buf.write_string("\">")
   }
-  c.is_response_sent()
+  buf.to_string()
 }
+
+///|
+fn build_page_head(
+  default_head : String,
+  meta : Array[(String, String)],
+) -> String {
+  default_head + render_meta_tags(meta)
+}
+
+///|
+fn is_isr_with_cache(config : RouterConfig, route_revalidate : Int?) -> Bool {
+  match (route_revalidate, config.isr_cache) {
+    (Some(_), Some(_)) => true
+    _ => false
+  }
+}
+
+///|
+fn should_use_streaming(
+  config : RouterConfig,
+  is_fragment : Bool,
+  route_revalidate : Int?,
+) -> Bool {
+  config.enable_streaming &&
+  not(is_fragment) &&
+  not(is_isr_with_cache(config, route_revalidate))
+}
+
+///|
+fn cache_strategy_to_header_value(strategy : CacheStrategy) -> String {
+  match strategy {
+    CacheStrategy::AlwaysFetch => "always-fetch"
+    CacheStrategy::StaleWhileRevalidate => "stale-while-revalidate"
+  }
+}
+
+///|
+fn apply_layouts(
+  content : @server_dom.ServerNode,
+  props : PageProps,
+  layouts : Array[
+    (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise Error,
+  ],
+  is_fragment : Bool,
+) -> @server_dom.ServerNode raise Error {
+  // Apply layouts from innermost to outermost
+  // For fragments: skip root layout (index 0), apply nested layouts
+  // For full pages: apply all layouts
+  let mut node = content
+  let end_idx = if is_fragment { 1 } else { 0 }
+  let mut i = layouts.length() - 1
+  while i >= end_idx {
+    let layout_fn = layouts[i]
+    node = layout_fn(props, node)
+    i -= 1
+  }
+  node
+}
+
+///|
+fn create_streaming_response_with_async(
+  header : String,
+  footer : String,
+  shell : @luna.Node[Unit, String],
+) -> @js.Any {
+  ffi_create_streaming_response_async(header, footer, async fn(write) {
+    @stream_renderer.render_to_stream_with_async(
+      shell,
+      @stream_renderer.StreamWriter::from_callback(write),
+    )
+  })
+}
+
+///|
+async fn send_streaming_server_page(
+  c : Ctx,
+  node : @server_dom.ServerNode,
+  title : String,
+  head : String,
+  loader_url : String,
+  root_template : String,
+) -> Unit {
+  let resolved_node = node.resolve()
+  let full_head = @hot_reload.with_dev_head_script(head)
+  let (header_html, footer_html) = match
+    @page_shell.render_streaming_template_parts(
+      root_template, title, full_head, "", loader_url,
+    ) {
+    Some(parts) => parts
+    None =>
+      (
+        @page_shell.render_streaming_header(title, full_head, loader_url),
+        @page_shell.render_streaming_footer(),
+      )
+  }
+  let stream = create_streaming_response_with_async(
+    header_html, footer_html, resolved_node,
+  )
+  ffi_set_streaming_response(c, stream)
+}
+
+///|
+extern "js" fn ffi_create_streaming_response_async(
+  header : String,
+  footer : String,
+  render_with_async : async ((String) -> Unit) -> Unit,
+) -> @js.Any =
+  #| (header, footer, renderWithAsync) => new ReadableStream({
+  #|   async start(controller) {
+  #|     const encoder = new TextEncoder();
+  #|     const write = (chunk) => controller.enqueue(encoder.encode(chunk));
+  #|     write(header);
+  #|     await renderWithAsync(write);
+  #|     write(footer);
+  #|     controller.close();
+  #|   }
+  #| })
+
+///|
+extern "js" fn ffi_set_streaming_response(ctx : Ctx, stream : @js.Any) -> Unit =
+  #| (ctx, stream) => {
+  #|   const headers = { 'Content-Type': 'text/html; charset=utf-8' };
+  #|   const map = ctx.response_headers;
+  #|   let curr = map ? map.head : undefined;
+  #|   while (curr !== undefined && curr !== -1) {
+  #|     headers[curr.key] = curr.value;
+  #|     curr = curr.next;
+  #|   }
+  #|   const response = new Response(stream, { headers });
+  #|   ctx.platform.response_resolve(response);
+  #|   ctx.response_sent = true;
+  #| }
 
 ///|
 /// Render page and return HTML (helper for ISR)
@@ -520,27 +659,85 @@ async fn render_page_to_html(
   ],
   is_fragment : Bool,
   title : String,
-  default_head : String,
+  page_head : String,
   root_template : String,
+  cache_strategy : CacheStrategy,
 ) -> String raise Error {
   // Call handler and apply layouts
   let content : @server_dom.ServerNode = handler(props)
-
-  // Apply layouts from innermost to outermost
-  // For fragments: skip root layout (index 0), apply nested layouts
-  // For full pages: apply all layouts
-  let mut node = content
-  let end_idx = if is_fragment { 1 } else { 0 }
-  let mut i = layouts.length() - 1
-  while i >= end_idx {
-    let layout_fn = layouts[i]
-    node = layout_fn(props, node)
-    i -= 1
-  }
+  let node = apply_layouts(content, props, layouts, is_fragment)
   if is_fragment {
-    render_server_fragment(node, title)
+    render_server_fragment(node, title, cache_strategy)
   } else {
-    render_server_page_html(node, title, default_head, root_template)
+    render_server_page_html(node, title, page_head, root_template)
+  }
+}
+
+///|
+async fn handle_compiled_api_route(
+  c : Ctx,
+  route : CompiledSolRoute,
+  middleware_chain : @middleware.Middleware,
+) -> Unit {
+  // Run middleware chain first
+  let halted = @middleware.run_or_500(middleware_chain, c)
+  if halted {
+    return
+  }
+  let mut params = extract_route_params(
+    c,
+    is_fragment=false,
+    param_names=route.param_names,
+  )
+  params = add_catch_all_param(params, route.catch_all)
+  let props = PageProps::from_ctx_with_params(c, params)
+  match route.api_handler {
+    Some(ApiHandler(handler)) => {
+      let json : @js.Any = handler(props) catch {
+        e => {
+          @mars_response.send_internal_error(c, message=e.to_string())
+          return
+        }
+      }
+      if c.is_response_sent() {
+        return
+      }
+      @mars_response.send_json_any(c, json)
+    }
+    None => @mars_response.send_json_error(c, "No handler", status=404)
+  }
+}
+
+///|
+fn is_api_route_kind(kind : SolRouteKind) -> Bool {
+  match kind {
+    SolRouteKind::GetApi => true
+    SolRouteKind::PostApi => true
+    SolRouteKind::PutApi => true
+    SolRouteKind::DeleteApi => true
+    SolRouteKind::PatchApi => true
+    SolRouteKind::Page => false
+  }
+}
+
+///|
+fn register_compiled_api_route(
+  app : App,
+  kind : SolRouteKind,
+  hono_pattern : String,
+  route : CompiledSolRoute,
+  middleware_chain : @middleware.Middleware,
+) -> Unit {
+  let handler = async fn(c) {
+    handle_compiled_api_route(c, route, middleware_chain)
+  }
+  match kind {
+    SolRouteKind::GetApi => app.get(hono_pattern, handler)
+    SolRouteKind::PostApi => app.post(hono_pattern, handler)
+    SolRouteKind::PutApi => app.put(hono_pattern, handler)
+    SolRouteKind::DeleteApi => app.delete(hono_pattern, handler)
+    SolRouteKind::PatchApi => app.patch(hono_pattern, handler)
+    SolRouteKind::Page => ()
   }
 }
 
@@ -553,16 +750,21 @@ fn register_compiled_sol_routes(
   for route in routes {
     // Convert catch-all pattern to Hono wildcard pattern
     let hono_pattern = convert_to_hono_pattern(route.pattern, route.catch_all)
+    let middleware_chain = @middleware.pipeline(route.middlewares)
     match route.kind {
       SolRouteKind::Page =>
         app.get(hono_pattern, async fn(c) {
           // Run middleware chain first
-          let halted = run_middlewares(c, route.middlewares)
+          let halted = @middleware.run_or_500(middleware_chain, c)
           if halted {
             return
           }
           let is_fragment = has_fragment_header(c)
-          let mut params = extract_route_params(c, is_fragment~)
+          let mut params = extract_route_params(
+            c,
+            is_fragment~,
+            param_names=route.param_names,
+          )
           // Add catch-all parameter if present
           params = add_catch_all_param(params, route.catch_all)
           let props = PageProps::from_ctx_with_params(c, params)
@@ -570,6 +772,11 @@ fn register_compiled_sol_routes(
             route.title,
             title_prefix=config.title_prefix,
             default_title=config.default_title,
+          )
+          let page_head = build_page_head(config.default_head, route.meta)
+          c.set_header(
+            "X-Sol-Cache-Strategy",
+            cache_strategy_to_header_value(route.cache_strategy),
           )
           match route.page_handler {
             Some(PageHandler(handler)) =>
@@ -586,7 +793,7 @@ fn register_compiled_sol_routes(
                       // Return cached HTML directly
                       match entry {
                         Some(e) => c.html(e.html)
-                        None => c.text("Cache error")
+                        None => c.text("Cache error", status=500)
                       }
                     @isr.Stale =>
                       // Return cached HTML and schedule background revalidation
@@ -601,8 +808,9 @@ fn register_compiled_sol_routes(
                               route.layouts,
                               false,
                               page_title,
-                              config.default_head,
+                              page_head,
                               config.root_template,
+                              route.cache_strategy,
                             ) catch {
                               _ => return
                             }
@@ -615,7 +823,7 @@ fn register_compiled_sol_routes(
                           })
                           c.html(e.html)
                         }
-                        None => c.text("Cache error")
+                        None => c.text("Cache error", status=500)
                       }
                     @isr.Miss => {
                       // Render, cache, and return
@@ -626,10 +834,12 @@ fn register_compiled_sol_routes(
                         route.layouts,
                         false,
                         page_title,
-                        config.default_head,
+                        page_head,
                         config.root_template,
+                        route.cache_strategy,
                       ) catch {
-                        e => return c.text("Error: " + e.to_string())
+                        e =>
+                          return c.text("Error: " + e.to_string(), status=500)
                       }
                       let new_entry = @isr.CacheEntry::new(
                         html, now, revalidate,
@@ -642,155 +852,63 @@ fn register_compiled_sol_routes(
                 _ => {
                   // No ISR - render normally
                   let content : @server_dom.ServerNode = handler(props) catch {
-                    e => return c.text("Error: " + e.to_string())
+                    e => return c.text("Error: " + e.to_string(), status=500)
                   }
-
-                  // Apply layouts from innermost to outermost
-                  // For fragments: skip root layout (index 0), apply nested layouts
-                  // For full pages: apply all layouts
-                  let mut node = content
-                  let layouts = route.layouts
-                  let end_idx = if is_fragment { 1 } else { 0 }
-                  let mut i = layouts.length() - 1
-                  while i >= end_idx {
-                    let layout_fn = layouts[i]
-                    node = layout_fn(props, node) catch {
-                      e => return c.text("Layout error: " + e.to_string())
-                    }
-                    i -= 1
+                  if c.is_response_sent() {
+                    return
+                  }
+                  let node = apply_layouts(
+                    content,
+                    props,
+                    route.layouts,
+                    is_fragment,
+                  ) catch {
+                    e =>
+                      return c.text(
+                        "Layout error: " + e.to_string(),
+                        status=500,
+                      )
                   }
                   if is_fragment {
-                    let fragment_html = render_server_fragment(node, page_title)
+                    let fragment_html = render_server_fragment(
+                      node,
+                      page_title,
+                      route.cache_strategy,
+                    )
                     send_fragment_response(c, fragment_html)
+                  } else if should_use_streaming(
+                      config,
+                      is_fragment,
+                      route.revalidate,
+                    ) {
+                    send_streaming_server_page(
+                      c,
+                      node,
+                      page_title,
+                      page_head,
+                      config.loader_url,
+                      config.root_template,
+                    )
                   } else {
                     let html = render_server_page_html(
                       node,
                       page_title,
-                      config.default_head,
+                      page_head,
                       config.root_template,
                     )
                     c.html(html)
                   }
                 }
               }
-            None => c.text("No handler for route")
+            None => c.text("No handler for route", status=404)
           }
         })
-      SolRouteKind::GetApi =>
-        app.get(hono_pattern, async fn(c) {
-          // Run middleware chain first
-          let halted = run_middlewares(c, route.middlewares)
-          if halted {
-            return
-          }
-          let mut params = extract_route_params(c)
-          params = add_catch_all_param(params, route.catch_all)
-          let props = PageProps::from_ctx_with_params(c, params)
-          match route.api_handler {
-            Some(ApiHandler(handler)) => {
-              let json : @js.Any = handler(props) catch {
-                e => {
-                  ffi_send_json_error(c, e.to_string(), 500)
-                  return
-                }
-              }
-              ffi_send_json_any(c, json)
-            }
-            None => ffi_send_json_error(c, "No handler", 404)
-          }
-        })
-      SolRouteKind::PostApi =>
-        app.post(hono_pattern, async fn(c) {
-          // Run middleware chain first
-          let halted = run_middlewares(c, route.middlewares)
-          if halted {
-            return
-          }
-          let mut params = extract_route_params(c)
-          params = add_catch_all_param(params, route.catch_all)
-          let props = PageProps::from_ctx_with_params(c, params)
-          match route.api_handler {
-            Some(ApiHandler(handler)) => {
-              let json : @js.Any = handler(props) catch {
-                e => {
-                  ffi_send_json_error(c, e.to_string(), 500)
-                  return
-                }
-              }
-              ffi_send_json_any(c, json)
-            }
-            None => ffi_send_json_error(c, "No handler", 404)
-          }
-        })
-      SolRouteKind::PutApi =>
-        app.put(hono_pattern, async fn(c) {
-          // Run middleware chain first
-          let halted = run_middlewares(c, route.middlewares)
-          if halted {
-            return
-          }
-          let mut params = extract_route_params(c)
-          params = add_catch_all_param(params, route.catch_all)
-          let props = PageProps::from_ctx_with_params(c, params)
-          match route.api_handler {
-            Some(ApiHandler(handler)) => {
-              let json : @js.Any = handler(props) catch {
-                e => {
-                  ffi_send_json_error(c, e.to_string(), 500)
-                  return
-                }
-              }
-              ffi_send_json_any(c, json)
-            }
-            None => ffi_send_json_error(c, "No handler", 404)
-          }
-        })
-      SolRouteKind::DeleteApi =>
-        app.delete(hono_pattern, async fn(c) {
-          // Run middleware chain first
-          let halted = run_middlewares(c, route.middlewares)
-          if halted {
-            return
-          }
-          let mut params = extract_route_params(c)
-          params = add_catch_all_param(params, route.catch_all)
-          let props = PageProps::from_ctx_with_params(c, params)
-          match route.api_handler {
-            Some(ApiHandler(handler)) => {
-              let json : @js.Any = handler(props) catch {
-                e => {
-                  ffi_send_json_error(c, e.to_string(), 500)
-                  return
-                }
-              }
-              ffi_send_json_any(c, json)
-            }
-            None => ffi_send_json_error(c, "No handler", 404)
-          }
-        })
-      SolRouteKind::PatchApi =>
-        app.patch(hono_pattern, async fn(c) {
-          // Run middleware chain first
-          let halted = run_middlewares(c, route.middlewares)
-          if halted {
-            return
-          }
-          let mut params = extract_route_params(c)
-          params = add_catch_all_param(params, route.catch_all)
-          let props = PageProps::from_ctx_with_params(c, params)
-          match route.api_handler {
-            Some(ApiHandler(handler)) => {
-              let json : @js.Any = handler(props) catch {
-                e => {
-                  ffi_send_json_error(c, e.to_string(), 500)
-                  return
-                }
-              }
-              ffi_send_json_any(c, json)
-            }
-            None => ffi_send_json_error(c, "No handler", 404)
-          }
-        })
+      kind =>
+        if is_api_route_kind(kind) {
+          register_compiled_api_route(
+            app, kind, hono_pattern, route, middleware_chain,
+          )
+        }
     }
   }
 }
@@ -800,6 +918,7 @@ fn register_compiled_sol_routes(
 async fn render_server_fragment(
   node : @server_dom.ServerNode,
   title : String,
+  cache_strategy : CacheStrategy,
 ) -> String {
   // Resolve the ServerNode to get the actual Node
   let resolved_node = node.resolve()
@@ -811,7 +930,10 @@ async fn render_server_fragment(
   buf.write_string(body_html)
   buf.write_string("</template>")
   buf.write_string("<template data-sol-title>")
-  buf.write_string(escape_html_title(title))
+  buf.write_string(@page_shell.escape_html_text(title))
+  buf.write_string("</template>")
+  buf.write_string("<template data-sol-cache-strategy>")
+  buf.write_string(cache_strategy_to_header_value(cache_strategy))
   buf.write_string("</template>")
   buf.to_string()
 }
@@ -828,30 +950,8 @@ async fn render_server_page_html(
   let resolved_node = node.resolve()
   let body_html = @render.render_to_string(resolved_node).html
   // Add HMR script in dev mode
-  let full_head = if is_dev_mode() { head + get_hmr_script() } else { head }
-  // Replace placeholders in template
-  template
-  .replace(old="__LUNA_TITLE__", new=title)
-  .replace(old="__LUNA_PRELOAD__", new="")
-  .replace(old="__LUNA_HEAD__", new=full_head)
-  .replace(old="__LUNA_MAIN__", new=body_html)
-}
-
-///|
-/// Escape HTML entities in title
-fn escape_html_title(s : String) -> String {
-  let buf = StringBuilder::new()
-  for ch in s {
-    match ch {
-      '<' => buf.write_string("&lt;")
-      '>' => buf.write_string("&gt;")
-      '&' => buf.write_string("&amp;")
-      '"' => buf.write_string("&quot;")
-      '\'' => buf.write_string("&#39;")
-      _ => buf.write_char(ch)
-    }
-  }
-  buf.to_string()
+  let full_head = @hot_reload.with_dev_head_script(head)
+  @page_shell.render_template(template, title, full_head, "", body_html)
 }
 
 // ============================================================================

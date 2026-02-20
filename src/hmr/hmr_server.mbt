@@ -11,6 +11,70 @@ pub struct HmrServer {
 }
 
 ///|
+pub(all) enum HmrMessage {
+  Connected
+  Reload
+  FullReload
+  Update(islands~ : Array[String], timestamp_ms~ : Double)
+  Error(message~ : String)
+}
+
+///|
+pub fn HmrMessage::to_json(self : HmrMessage) -> String {
+  match self {
+    Connected => "{\"type\":\"connected\"}"
+    Reload => "{\"type\":\"reload\"}"
+    FullReload => "{\"type\":\"full-reload\"}"
+    Update(islands~, timestamp_ms~) => {
+      let q = "\""
+      let islands_json = islands.map(fn(s) { q + s + q }).join(",")
+      "{" +
+      q +
+      "type" +
+      q +
+      ":" +
+      q +
+      "update" +
+      q +
+      "," +
+      q +
+      "islands" +
+      q +
+      ":[" +
+      islands_json +
+      "]," +
+      q +
+      "timestamp" +
+      q +
+      ":" +
+      timestamp_ms.to_string() +
+      "}"
+    }
+    Error(message~) => {
+      let escaped = escape_json_string(message)
+      let q = "\""
+      "{" +
+      q +
+      "type" +
+      q +
+      ":" +
+      q +
+      "error" +
+      q +
+      "," +
+      q +
+      "error" +
+      q +
+      ":" +
+      q +
+      escaped +
+      q +
+      "}"
+    }
+  }
+}
+
+///|
 /// Create and start HMR WebSocket server on specified port (async version)
 /// Uses Node.js 'ws' package via dynamic import
 /// Returns a Promise that resolves when server is ready
@@ -43,30 +107,8 @@ pub fn HmrServer::notify_update(
   self : HmrServer,
   islands : Array[String],
 ) -> Unit {
-  let timestamp = @cli_common.date_now().to_int()
-  let q = "\""
-  let islands_json = islands.map(fn(s) { q + s + q }).join(",")
-  let msg = "{" +
-    q +
-    "type" +
-    q +
-    ":" +
-    q +
-    "update" +
-    q +
-    "," +
-    q +
-    "islands" +
-    q +
-    ":[" +
-    islands_json +
-    "]," +
-    q +
-    "timestamp" +
-    q +
-    ":" +
-    timestamp.to_string() +
-    "}"
+  let timestamp_ms = @cli_common.date_now()
+  let msg = HmrMessage::Update(islands~, timestamp_ms~).to_json()
   self.broadcast(msg)
   let islands_str = islands.join(", ")
   println(@colorette.green("[HMR] Sent update: \{islands_str}"))
@@ -75,39 +117,21 @@ pub fn HmrServer::notify_update(
 ///|
 /// Send full reload request
 pub fn HmrServer::notify_reload(self : HmrServer) -> Unit {
-  self.broadcast("{\"type\":\"reload\"}")
+  self.broadcast(HmrMessage::Reload.to_json())
   println(@colorette.green("[HMR] Sent reload"))
 }
 
 ///|
 /// Send full reload request (alias for notify_reload)
 pub fn HmrServer::notify_full_reload(self : HmrServer) -> Unit {
-  self.broadcast("{\"type\":\"full-reload\"}")
+  self.broadcast(HmrMessage::FullReload.to_json())
   println(@colorette.yellow("[HMR] Sent full-reload"))
 }
 
 ///|
 /// Send error notification
 pub fn HmrServer::notify_error(self : HmrServer, error : String) -> Unit {
-  let escaped = escape_json_string(error)
-  let q = "\""
-  let msg = "{" +
-    q +
-    "type" +
-    q +
-    ":" +
-    q +
-    "error" +
-    q +
-    "," +
-    q +
-    "error" +
-    q +
-    ":" +
-    q +
-    escaped +
-    q +
-    "}"
+  let msg = HmrMessage::Error(message=error).to_json()
   self.broadcast(msg)
   println(@colorette.red("[HMR] Sent error notification"))
 }
@@ -118,11 +142,12 @@ pub fn HmrServer::on_connection(
   self : HmrServer,
   handler : (@js.Any) -> Unit,
 ) -> Unit {
+  let connected_message = HmrMessage::Connected.to_json()
   self.inner._call("on", [
     @js.any("connection"),
     @js.any(fn(ws : @js.Any) {
       // Send connected message
-      ws._call("send", [@js.any("{\"type\":\"connected\"}")]) |> ignore
+      ws._call("send", [@js.any(connected_message)]) |> ignore
       handler(ws)
     }),
   ])

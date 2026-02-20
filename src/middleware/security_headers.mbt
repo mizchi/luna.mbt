@@ -162,15 +162,21 @@ pub fn security_headers_relaxed() -> Middleware {
 pub fn security_headers_with_config(
   config : SecurityHeadersConfig,
 ) -> Middleware {
+  let mars_options = to_mars_secure_headers_options(config)
+  let @mars.Handler(base_handler) = @mars_mw.secure_headers(
+    options=mars_options,
+  )
   Middleware(
     @mars.Handler(async fn(ctx) {
-      // Add security headers
-      ctx.set_header("X-Frame-Options", config.frame_options)
-      ctx.set_header("X-Content-Type-Options", config.content_type_options)
-      ctx.set_header("Referrer-Policy", config.referrer_policy)
-      ctx.set_header("Cross-Origin-Opener-Policy", config.coop)
-      ctx.set_header("Permissions-Policy", config.permissions_policy)
-      ctx.set_header("Content-Security-Policy", config.csp)
+      base_handler(ctx)
+
+      // Sol-specific headers not covered by mars secure_headers
+      if not(config.coop.is_empty()) {
+        ctx.set_header("Cross-Origin-Opener-Policy", config.coop)
+      }
+      if not(config.coep.is_empty()) {
+        ctx.set_header("Cross-Origin-Embedder-Policy", config.coep)
+      }
 
       // Add Cache-Control based on content type
       let path = ctx.path()
@@ -183,6 +189,38 @@ pub fn security_headers_with_config(
       // Continue to next handler
     }),
   )
+}
+
+///|
+fn to_mars_secure_headers_options(
+  config : SecurityHeadersConfig,
+) -> @mars_mw.SecureHeadersOptions {
+  {
+    hsts: true,
+    hsts_max_age: 31536000,
+    hsts_include_subdomains: true,
+    no_sniff: config.content_type_options == "nosniff",
+    frame_options: config.frame_options,
+    xss_protection: true,
+    csp: config.csp,
+    referrer_policy: config.referrer_policy,
+    permissions_policy: config.permissions_policy,
+  }
+}
+
+///|
+fn minimal_secure_headers_options() -> @mars_mw.SecureHeadersOptions {
+  {
+    hsts: false,
+    hsts_max_age: 0,
+    hsts_include_subdomains: false,
+    no_sniff: false,
+    frame_options: "",
+    xss_protection: false,
+    csp: "",
+    referrer_policy: "",
+    permissions_policy: "",
+  }
 }
 
 ///|
@@ -205,37 +243,29 @@ fn is_static_asset(path : String) -> Bool {
 ///|
 /// Add X-Content-Type-Options: nosniff header
 pub fn nosniff() -> Middleware {
-  Middleware(
-    @mars.Handler(async fn(ctx) {
-      ctx.set_header("X-Content-Type-Options", "nosniff")
-    }),
-  )
+  let options = { ..minimal_secure_headers_options(), no_sniff: true }
+  Middleware(@mars_mw.secure_headers(options~))
 }
 
 ///|
 /// Add X-Frame-Options header
 pub fn frame_options(value : String) -> Middleware {
-  Middleware(
-    @mars.Handler(async fn(ctx) { ctx.set_header("X-Frame-Options", value) }),
-  )
+  let options = { ..minimal_secure_headers_options(), frame_options: value }
+  Middleware(@mars_mw.secure_headers(options~))
 }
 
 ///|
 /// Add Content-Security-Policy header
 pub fn csp(policy : String) -> Middleware {
-  Middleware(
-    @mars.Handler(async fn(ctx) {
-      ctx.set_header("Content-Security-Policy", policy)
-    }),
-  )
+  let options = { ..minimal_secure_headers_options(), csp: policy }
+  Middleware(@mars_mw.secure_headers(options~))
 }
 
 ///|
 /// Add Referrer-Policy header
 pub fn referrer_policy(value : String) -> Middleware {
-  Middleware(
-    @mars.Handler(async fn(ctx) { ctx.set_header("Referrer-Policy", value) }),
-  )
+  let options = { ..minimal_secure_headers_options(), referrer_policy: value }
+  Middleware(@mars_mw.secure_headers(options~))
 }
 
 ///|

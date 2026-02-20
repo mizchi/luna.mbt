@@ -284,3 +284,25 @@ test "FileEntry - directory entry" {
   inspect(entry.is_directory, content="true")
   inspect(entry.extension, content="")
 }
+
+// =============================================================================
+// Filesystem Helper Tests
+// =============================================================================
+
+///|
+test "read_dir_entries - missing directory returns empty list" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  let entries = read_dir_entries(fs, "/missing")
+  assert_eq(entries.length(), 0)
+}
+
+///|
+test "is_directory - distinguishes file and directory" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  fs.memfs().mkdirSync("/project/docs", recursive=true)
+  fs.memfs().writeFileSync("/project/docs/intro.md", "# Intro")
+
+  assert_true(is_directory(fs, "/project/docs"))
+  assert_false(is_directory(fs, "/project/docs/intro.md"))
+  assert_false(is_directory(fs, "/project/missing"))
+}

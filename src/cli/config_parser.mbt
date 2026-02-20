@@ -30,6 +30,8 @@ pub struct SolConfig {
   adapter : ServerRuntime
   /// Static directories for SSG (markdown -> HTML)
   static_dirs : Array[StaticDirEntry]
+  /// Per-route wasm entrypoints (.mbtx/.wasm)
+  wasm_entrypoints : Array[WasmEntrypointConfig]
 }
 
 ///|
@@ -231,6 +233,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       None => runtime
     }
     let static_dirs = parse_static_dirs(obj)
+    let wasm_entrypoints = parse_wasm_entrypoints(obj)
     Some(SolConfig::{
       islands,
       routes,
@@ -239,6 +242,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       runtime,
       adapter,
       static_dirs,
+      wasm_entrypoints,
     })
   } catch {
     _ => None

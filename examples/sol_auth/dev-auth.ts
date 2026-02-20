@@ -11,7 +11,7 @@ import { cors } from "hono/cors";
 import { getDevAuth, createAuthMiddleware, type Session } from "./auth";
 
 // Import sol's configure_app function from MoonBit-compiled output
-import { configure_app } from "./target/js/release/build/__gen__/server/server.js";
+import { configure_app } from "./_build/js/release/build/__gen__/server/server.js";
 
 // Get dev auth instance (uses SQLite)
 const auth = getDevAuth();

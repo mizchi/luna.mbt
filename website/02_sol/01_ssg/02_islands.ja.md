@@ -76,7 +76,7 @@ pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
 
 ```bash
 moon build --target js
-cp target/js/release/build/examples/wiki/wiki.js docs/public/islands/
+cp _build/js/release/build/examples/wiki/wiki.js docs/public/islands/
 ```
 
 ### 4. Markdown で使用

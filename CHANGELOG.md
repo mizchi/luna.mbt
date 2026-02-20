@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-02-19
+
+### Added
+
+- Add blackbox tests for `register_sol_routes` streaming/fragment/ISR branching via `app.to_handler`
+- Add `render_streaming_template_parts` to apply `root_template` in streaming SSR path
+
+### Changed
+
+- Merge streaming SSR and route rendering behavior around `root_template`
+- Improve route/middleware/runtime cleanup and duplication reduction toward thin `mars` wrapper
+- Expand docs coverage and consistency checks (`test-docs`, benchmark docs, routing/docs references)
+
+### Fixed
+
+- Preserve `ctx.set_header` headers in streaming responses (`X-Sol-Cache-Strategy` etc.)
+- Harden cleanup order for `target -> _build` transition
+- Align generated/scaffolded project templates with latest Sol/Mars setup
+
+## [0.7.1] - 2026-02-19
+
+### Changed
+
+- Upgrade `mizchi/mars` dependency to `0.3.9`
+- Align example modules to `mizchi/mars` `0.3.9`
+
 ## [0.2.0] - 2026-01-13
 
 ### Added

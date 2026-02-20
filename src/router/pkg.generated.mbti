@@ -199,6 +199,7 @@ pub struct RouterConfig {
   loader_url : String
   wc_loader_url : String
   enable_preload : Bool
+  enable_streaming : Bool
   preload_libs : Array[String]
   chunk_manifest : ChunkManifest?
   root_template : String
@@ -212,6 +213,7 @@ pub fn RouterConfig::with_isr_cache(Self, @isr.MemoryCache) -> Self
 pub fn RouterConfig::with_loader_url(Self, String) -> Self
 pub fn RouterConfig::with_preload_libs(Self, Array[String]) -> Self
 pub fn RouterConfig::with_root_template(Self, String) -> Self
+pub fn RouterConfig::with_streaming_ssr(Self, enabled? : Bool) -> Self
 pub fn RouterConfig::with_title_prefix(Self, String) -> Self
 pub fn RouterConfig::with_wc_loader_url(Self, String) -> Self
 

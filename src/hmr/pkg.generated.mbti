@@ -10,6 +10,15 @@ import {
 // Errors
 
 // Types and methods
+pub(all) enum HmrMessage {
+  Connected
+  Reload
+  FullReload
+  Update(islands~ : Array[String], timestamp_ms~ : Double)
+  Error(message~ : String)
+}
+pub fn HmrMessage::to_json(Self) -> String
+
 pub struct HmrServer {
   port : Int
   // private fields

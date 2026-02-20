@@ -6,6 +6,10 @@ import {
 }
 
 // Values
+pub fn build_wasm_entrypoints(String, Array[WasmEntrypointConfig], runtime_override? : WasmEntrypointRuntime?, emit_spin_fragment? : Bool) -> Result[Array[WasmMountEntry], String]
+
+pub fn build_wasm_entrypoints_with_options(String, Array[WasmEntrypointConfig], options? : WasmEntrypointBuildOptions) -> Result[WasmEntrypointBuildResult, String]
+
 pub fn detect_app_mode(String, SolConfig) -> AppMode
 
 pub fn extract_component_name_from_props(String) -> String
@@ -22,15 +26,23 @@ pub fn generate_export_name(String, String, String) -> String
 
 pub fn generate_import_alias(String, String) -> String
 
+pub fn generate_mars_adapter_hints(Array[WasmMountEntry]) -> String
+
 pub fn generate_params_with_names(String) -> (String, String)
 
 pub fn generate_sol_serve_js(ServerRuntime) -> String
 
-pub fn generate_sol_server_main_js(String, ServerRuntime) -> String
+pub fn generate_sol_server_main_js(String, ServerRuntime, String) -> String
 
 pub fn generate_sol_server_main_js_hybrid(String, ServerRuntime) -> String
 
+pub fn generate_spin_toml_fragment(Array[WasmMountEntry]) -> String
+
 pub fn generate_templates(String, String, String?) -> Array[TemplateFile]
+
+pub fn generate_wasm_env_json(Array[WasmMountEntry]) -> String
+
+pub fn generate_wasm_manifest_json(Array[WasmMountEntry]) -> String
 
 pub fn has_ssg_config(String) -> Bool
 
@@ -50,6 +62,12 @@ pub fn parse_sol_config(String) -> SolConfig?
 
 pub fn parse_ssg_config(String, String) -> @ssg.SsgConfig?
 
+pub fn parse_wasm_entrypoint_runtime(String) -> WasmEntrypointRuntime
+
+pub fn parse_wasm_entrypoint_runtime_opt(String) -> WasmEntrypointRuntime?
+
+pub fn parse_wasm_entrypoints(Map[String, Json]) -> Array[WasmEntrypointConfig]
+
 pub fn rewrite_type_refs(String, Map[String, String]) -> String
 
 pub async fn run_ssg_build(@ssg.SsgConfig, String, Bool, Int?, Bool) -> Result[Unit, String]
@@ -60,21 +78,13 @@ pub fn run_ssg_lint(Array[String]) -> Unit
 
 pub fn split_params(String) -> Array[String]
 
-pub fn template_about_page_mbt() -> String
-
 pub fn template_client_counter_mbt() -> String
 
 pub fn template_client_counter_moon_pkg() -> String
 
-pub fn template_components_moon_pkg_json() -> String
-
-pub fn template_counter_mbt() -> String
-
 pub fn template_gen_types_mbt() -> String
 
 pub fn template_gen_types_moon_pkg() -> String
-
-pub fn template_home_page_mbt() -> String
 
 pub fn template_layout_mbt() -> String
 
@@ -82,19 +92,11 @@ pub fn template_layout_moon_pkg() -> String
 
 pub fn template_ln_loader_js() -> String
 
-pub fn template_page_simple_moon_pkg() -> String
-
-pub fn template_page_with_island_moon_pkg(String) -> String
-
 pub fn template_routes_mbt(String) -> String
 
 pub fn template_routes_moon_pkg(String) -> String
 
 pub fn template_routes_using_mbt() -> String
-
-pub fn template_server_main_mbt() -> String
-
-pub fn template_server_run_moon_pkg_json(String) -> String
 
 pub fn template_server_using_mbt() -> String
 
@@ -105,6 +107,10 @@ pub fn uses_js_types(String) -> Bool
 pub fn uses_luna_types(String) -> Bool
 
 pub fn uses_signal_types(String) -> Bool
+
+pub fn wasm_build_kind_to_string(WasmBuildKind) -> String
+
+pub fn wasm_entrypoint_runtime_to_string(WasmEntrypointRuntime) -> String
 
 // Errors
 
@@ -144,6 +150,7 @@ pub struct SolConfig {
   runtime : ServerRuntime
   adapter : ServerRuntime
   static_dirs : Array[StaticDirEntry]
+  wasm_entrypoints : Array[WasmEntrypointConfig]
 }
 
 pub(all) struct SsgLintIssue {
@@ -197,6 +204,71 @@ pub struct TemplateFile {
   path : String
   content : String
 }
+
+pub enum WasmBuildKind {
+  MoonBuild
+  DirectCopy
+  WiteCompose
+}
+pub impl Eq for WasmBuildKind
+pub impl Show for WasmBuildKind
+
+pub struct WasmEntrypointBuildArtifacts {
+  manifest_path : String
+  env_path : String?
+  spin_fragment_path : String?
+  mars_hints_path : String?
+}
+
+pub struct WasmEntrypointBuildOptions {
+  runtime_override : WasmEntrypointRuntime?
+  emit_spin_fragment : Bool
+  emit_env_json : Bool
+  write_if_changed : Bool
+}
+pub fn WasmEntrypointBuildOptions::default() -> Self
+pub fn WasmEntrypointBuildOptions::for_cli(runtime_override? : WasmEntrypointRuntime?, emit_spin_fragment? : Bool) -> Self
+
+pub struct WasmEntrypointBuildResult {
+  mounts : Array[WasmMountEntry]
+  artifacts : WasmEntrypointBuildArtifacts
+}
+
+pub struct WasmEntrypointConfig {
+  id : String
+  route : String
+  source : String
+  runtime : WasmEntrypointRuntime
+  methods : Array[String]
+  env : Map[String, String]
+}
+
+pub enum WasmEntrypointRuntime {
+  Wagi
+  WasiCli
+  Component
+}
+pub impl Eq for WasmEntrypointRuntime
+pub impl Show for WasmEntrypointRuntime
+
+pub enum WasmEntrypointSourceKind {
+  MoonEntrypoint
+  DirectWasm
+  WacFile
+}
+pub impl Eq for WasmEntrypointSourceKind
+pub impl Show for WasmEntrypointSourceKind
+
+pub struct WasmMountEntry {
+  id : String
+  route : String
+  methods : Array[String]
+  runtime : WasmEntrypointRuntime
+  wasm : String
+  build : WasmBuildKind
+  env : Map[String, String]
+}
+pub fn WasmMountEntry::new(String, String, Array[String], WasmEntrypointRuntime, String, build? : WasmBuildKind, env? : Map[String, String]) -> Self
 
 // Type aliases
 
