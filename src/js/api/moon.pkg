@@ -1,9 +1,8 @@
 import {
   "mizchi/luna" @luna,
-  "mizchi/luna/core" @core,
   "mizchi/signals/ui" @ui,
+  "mizchi/signals",
   "mizchi/luna/js/resource" @resource,
-  "mizchi/signals" @signals,
   "mizchi/luna/dom" @element,
   "mizchi/luna/dom/client" @client,
   "mizchi/luna/core/routes" @routes,
@@ -63,6 +62,7 @@ options(
         "create_router:createRouter",
         "router_navigate:routerNavigate",
         "router_replace:routerReplace",
+        "router_dispose:routerDispose",
         "router_get_path:routerGetPath",
         "router_get_match:routerGetMatch",
         "router_get_base:routerGetBase",

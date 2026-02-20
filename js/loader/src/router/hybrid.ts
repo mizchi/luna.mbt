@@ -1,6 +1,6 @@
 /*! luna router-hybrid v1 - Fetch + Swap Navigation */
 
-import { getRouter, NavigateEvent } from '../boot/router';
+import { getNavigationRouter, NavigateEvent } from './navigation';
 
 export interface HybridRouterOptions {
   /** Selector for the main content container (default: "#app") */
@@ -45,13 +45,13 @@ export class HybridRouter {
    * Start hybrid navigation
    */
   start(): void {
-    const router = getRouter();
-    this.unsubscribe = router.onNavigate(this.handleNavigate);
-
     // Enable manual scroll restoration
     if (this.options.scrollRestoration && 'scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
+
+    const router = getNavigationRouter();
+    this.unsubscribe = router.onNavigate(this.handleNavigate);
   }
 
   /**
@@ -130,8 +130,7 @@ export class HybridRouter {
           window.scrollTo(0, 0);
         }
       }
-    } catch (e) {
-      console.error('[HybridRouter] Navigation failed:', e);
+    } catch {
       // Fallback to full page load
       window.location.href = path;
     } finally {

@@ -110,6 +110,8 @@ pub fn route_page_full(String, String, String, Array[(String, String)]) -> @rout
 
 pub fn route_page_titled(String, String, String) -> @routes.Routes
 
+pub fn router_dispose(BrowserRouter) -> Unit
+
 pub fn router_get_base(BrowserRouter) -> String
 
 pub fn router_get_match(BrowserRouter) -> @routes.RoutesMatch?

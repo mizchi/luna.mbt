@@ -96,6 +96,45 @@ test "match_url with query" {
 }
 
 ///|
+test "match_url with query containing equals sign" {
+  let routes = [
+    Routes::Page(path="/search", component="search", title="Search", meta=[]),
+  ]
+  let compiled = compile(routes)
+  let m = match_url("/search?q=a=b=c", compiled)
+  assert_true(m is Some(_))
+  let matched = m.unwrap()
+  assert_eq(matched.get_query("q"), Some("a=b=c"))
+}
+
+///|
+test "match_url query decodes percent-encoding and plus" {
+  let routes = [
+    Routes::Page(path="/search", component="search", title="Search", meta=[]),
+  ]
+  let compiled = compile(routes)
+  let m = match_url("/search?q=hello%20world&tag=a%2Bb&space=one+two", compiled)
+  assert_true(m is Some(_))
+  let matched = m.unwrap()
+  assert_eq(matched.get_query("q"), Some("hello world"))
+  assert_eq(matched.get_query("tag"), Some("a+b"))
+  assert_eq(matched.get_query("space"), Some("one two"))
+}
+
+///|
+test "match_url query decodes utf8 percent-encoding" {
+  let routes = [
+    Routes::Page(path="/search", component="search", title="Search", meta=[]),
+  ]
+  let compiled = compile(routes)
+  let m = match_url("/search?q=%E3%81%82+%E3%81%84%E3%81%86", compiled)
+  assert_true(m is Some(_))
+  let matched = m.unwrap()
+  let expected = "あ いう"
+  assert_eq(matched.get_query("q"), Some(expected))
+}
+
+///|
 test "match_url no match" {
   let routes = [
     Routes::Page(path="/home", component="home", title="Home", meta=[]),

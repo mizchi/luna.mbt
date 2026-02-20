@@ -16,7 +16,9 @@ pub struct BrowserRouter {
   base : String
   current_path : @signals.Signal[String]
   current_match : @signals.Signal[@routes.RoutesMatch?]
+  dispose_popstate : () -> Unit
 }
+pub fn BrowserRouter::dispose(Self) -> Unit
 pub fn BrowserRouter::from_compiled(Array[@routes.CompiledRoutes], base? : String) -> Self
 pub fn BrowserRouter::get_base(Self) -> String
 pub fn BrowserRouter::get_component(Self) -> String?

@@ -1,0 +1,161 @@
+{
+  "generatedAt": "2026-02-20T03:28:00.101Z",
+  "entries": [
+    {
+      "id": "boot",
+      "exportKey": "./boot",
+      "file": "js/loader/dist/boot/index.js",
+      "files": [
+        "js/loader/dist/boot/index.js",
+        "js/loader/dist/boot/loader.js",
+        "js/loader/dist/boot/router.js",
+        "js/loader/dist/lib.js",
+        "js/loader/dist/navigation-BJ7_TViw.js"
+      ],
+      "bytes": 8839,
+      "gzip": 3673
+    },
+    {
+      "id": "boot/loader",
+      "exportKey": "./boot/loader",
+      "file": "js/loader/dist/boot/loader.js",
+      "files": [
+        "js/loader/dist/boot/loader.js"
+      ],
+      "bytes": 3798,
+      "gzip": 1343
+    },
+    {
+      "id": "boot/router",
+      "exportKey": "./boot/router",
+      "file": "js/loader/dist/boot/router.js",
+      "files": [
+        "js/loader/dist/boot/loader.js",
+        "js/loader/dist/boot/router.js",
+        "js/loader/dist/navigation-BJ7_TViw.js"
+      ],
+      "bytes": 7123,
+      "gzip": 2771
+    },
+    {
+      "id": "hydration",
+      "exportKey": "./hydration",
+      "file": "js/loader/dist/hydration.js",
+      "files": [
+        "js/loader/dist/hydration.js"
+      ],
+      "bytes": 3071,
+      "gzip": 1043
+    },
+    {
+      "id": "lib",
+      "exportKey": "./lib",
+      "file": "js/loader/dist/lib.js",
+      "files": [
+        "js/loader/dist/lib.js"
+      ],
+      "bytes": 933,
+      "gzip": 490
+    },
+    {
+      "id": "main",
+      "exportKey": ".",
+      "file": "js/loader/dist/loader.js",
+      "files": [
+        "js/loader/dist/lib.js",
+        "js/loader/dist/loader.js"
+      ],
+      "bytes": 1939,
+      "gzip": 1054
+    },
+    {
+      "id": "router",
+      "exportKey": "./router",
+      "file": "js/loader/dist/router/index.js",
+      "files": [
+        "js/loader/dist/navigation-BJ7_TViw.js",
+        "js/loader/dist/router/hybrid.js",
+        "js/loader/dist/router/index.js",
+        "js/loader/dist/router/scroll.js",
+        "js/loader/dist/router/spa.js"
+      ],
+      "bytes": 7442,
+      "gzip": 3241
+    },
+    {
+      "id": "router/hybrid",
+      "exportKey": "./router/hybrid",
+      "file": "js/loader/dist/router/hybrid.js",
+      "files": [
+        "js/loader/dist/navigation-BJ7_TViw.js",
+        "js/loader/dist/router/hybrid.js"
+      ],
+      "bytes": 2685,
+      "gzip": 1264
+    },
+    {
+      "id": "router/navigation",
+      "exportKey": "./router/navigation",
+      "file": "js/loader/dist/router/navigation.js",
+      "files": [
+        "js/loader/dist/navigation-BJ7_TViw.js",
+        "js/loader/dist/router/navigation.js"
+      ],
+      "bytes": 506,
+      "gzip": 375
+    },
+    {
+      "id": "router/navigation-fallback",
+      "exportKey": "./router/navigation-fallback",
+      "file": "js/loader/dist/router/navigation-fallback.js",
+      "files": [
+        "js/loader/dist/navigation-BJ7_TViw.js",
+        "js/loader/dist/router/navigation-fallback.js"
+      ],
+      "bytes": 1495,
+      "gzip": 865
+    },
+    {
+      "id": "router/scroll",
+      "exportKey": "./router/scroll",
+      "file": "js/loader/dist/router/scroll.js",
+      "files": [
+        "js/loader/dist/router/scroll.js"
+      ],
+      "bytes": 2045,
+      "gzip": 785
+    },
+    {
+      "id": "router/spa",
+      "exportKey": "./router/spa",
+      "file": "js/loader/dist/router/spa.js",
+      "files": [
+        "js/loader/dist/navigation-BJ7_TViw.js",
+        "js/loader/dist/router/spa.js"
+      ],
+      "bytes": 2544,
+      "gzip": 1241
+    },
+    {
+      "id": "sol-nav",
+      "exportKey": "./sol-nav",
+      "file": "js/loader/dist/sol-nav.js",
+      "files": [
+        "js/loader/dist/sol-nav.js"
+      ],
+      "bytes": 1971,
+      "gzip": 911
+    },
+    {
+      "id": "wc",
+      "exportKey": "./wc",
+      "file": "js/loader/dist/wc-loader.js",
+      "files": [
+        "js/loader/dist/lib.js",
+        "js/loader/dist/wc-loader.js"
+      ],
+      "bytes": 2036,
+      "gzip": 1093
+    }
+  ]
+}

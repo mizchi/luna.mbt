@@ -49,6 +49,7 @@ export interface RouteMatch {
 }
 
 type Manifest = ChunkManifest | HierarchicalManifest;
+type V1CompatModule = typeof import("./loader-v1");
 
 function isV2Manifest(m: Manifest): m is HierarchicalManifest {
   return (m as HierarchicalManifest).version === 2;
@@ -62,6 +63,7 @@ export class ChunkLoader {
   private loaded = new Set<string>();
   private loading = new Map<string, Promise<unknown>>();
   private manifest: Manifest | null = null;
+  private v1Compat: V1CompatModule | null = null;
   private base = '/_luna/';
   private segments = new Map<string, SegmentManifest>();
   private segmentLoading = new Map<string, Promise<SegmentManifest>>();
@@ -79,6 +81,9 @@ export class ChunkLoader {
     if (this.manifest?.base) {
       this.base = this.manifest.base;
     }
+    if (this.manifest && !isV2Manifest(this.manifest)) {
+      await this.ensureV1Compat();
+    }
   }
 
   /**
@@ -91,35 +96,9 @@ export class ChunkLoader {
     if (isV2Manifest(this.manifest)) {
       return this.matchPathV2(path, this.manifest);
     } else {
-      return this.matchPathV1(path, this.manifest);
+      const compat = await this.ensureV1Compat();
+      return compat.matchPathV1(path, this.manifest);
     }
-  }
-
-  /**
-   * V1 path matching (flat manifest)
-   */
-  private matchPathV1(path: string, manifest: ChunkManifest): RouteMatch | null {
-    // Exact match
-    if (manifest.routes[path]) {
-      return { chunks: manifest.routes[path], params: {} };
-    }
-
-    // Try wildcard match
-    for (const [pattern, chunks] of Object.entries(manifest.routes)) {
-      if (pattern.endsWith('/*')) {
-        const prefix = pattern.slice(0, -1);
-        if (path.startsWith(prefix)) {
-          return { chunks, params: {} };
-        }
-      }
-    }
-
-    // Fallback
-    if (manifest.routes['*']) {
-      return { chunks: manifest.routes['*'], params: {} };
-    }
-
-    return null;
   }
 
   /**
@@ -262,6 +241,12 @@ export class ChunkLoader {
     return path;
   }
 
+  private async ensureV1Compat(): Promise<V1CompatModule> {
+    if (this.v1Compat) return this.v1Compat;
+    this.v1Compat = await import("./loader-v1");
+    return this.v1Compat;
+  }
+
   /**
    * Get chunks for a path (backward compatible)
    */
@@ -276,21 +261,11 @@ export class ChunkLoader {
       return ['boot'];
     }
 
-    // V1 logic
-    if (this.manifest.routes[path]) {
-      return this.manifest.routes[path];
+    if (this.v1Compat) {
+      return this.v1Compat.getChunksForPathV1(path, this.manifest);
     }
 
-    for (const [pattern, chunks] of Object.entries(this.manifest.routes)) {
-      if (pattern.endsWith('/*')) {
-        const prefix = pattern.slice(0, -1);
-        if (path.startsWith(prefix)) {
-          return chunks;
-        }
-      }
-    }
-
-    return this.manifest.routes['*'] ?? [];
+    return this.manifest.routes[path] ?? this.manifest.routes['*'] ?? [];
   }
 
   /**
@@ -425,14 +400,4 @@ export async function initLoader(manifestOrUrl?: Manifest | string): Promise<Chu
   const loader = getLoader();
   await loader.init(manifestOrUrl);
   return loader;
-}
-
-declare global {
-  interface Window {
-    __LUNA_LOADER__?: ChunkLoader;
-  }
-}
-
-if (typeof window !== 'undefined') {
-  window.__LUNA_LOADER__ = getLoader();
 }

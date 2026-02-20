@@ -1,8 +1,12 @@
 import {
   "mizchi/luna/js/resource" @resource,
   "mizchi/luna/core/routes",
-  "mizchi/signals" @signals,
+  "mizchi/signals",
 }
+
+import {
+  "mizchi/npm_typed/global_jsdom",
+} for "test"
 
 options(
   "supported-targets": [ "js" ],

@@ -8,6 +8,7 @@ export default defineConfig([
       'wc-loader': './src/wc-loader.ts',
       'sol-nav': './src/sol-nav.ts',
       'lib': './src/lib.ts',
+      'hydration': './src/hydration.ts',
       // Boot runtime (chunk loader + minimal router)
       'boot/index': './src/boot/index.ts',
       'boot/loader': './src/boot/loader.ts',
@@ -17,13 +18,16 @@ export default defineConfig([
       'router/hybrid': './src/router/hybrid.ts',
       'router/spa': './src/router/spa.ts',
       'router/scroll': './src/router/scroll.ts',
+      'router/navigation': './src/router/navigation.ts',
+      'router/navigation-fallback': './src/router/navigation-fallback.ts',
     },
     output: {
       dir: './dist',
       format: 'esm',
       entryFileNames: '[name].js',
+      minify: true,
+      legalComments: 'none',
     },
-    minify: true,
   },
   // IIFE bundled builds (self-contained, for testing and static serving)
   {
@@ -31,16 +35,18 @@ export default defineConfig([
     output: {
       file: './dist/loader.iife.js',
       format: 'iife',
+      minify: true,
+      legalComments: 'none',
     },
-    minify: true,
   },
   {
     input: './src/wc-loader.ts',
     output: {
       file: './dist/wc-loader.iife.js',
       format: 'iife',
+      minify: true,
+      legalComments: 'none',
     },
-    minify: true,
   },
   // HMR client (dev-only, injected by sol dev server)
   {
@@ -48,8 +54,8 @@ export default defineConfig([
     output: {
       file: './dist/hmr-client.js',
       format: 'iife',
+      minify: false,
     },
-    minify: false, // Keep readable for debugging
   },
   // Boot runtime IIFE (self-contained, for static sites)
   {
@@ -58,7 +64,8 @@ export default defineConfig([
       file: './dist/boot.iife.js',
       format: 'iife',
       name: 'LunaBoot',
+      minify: true,
+      legalComments: 'none',
     },
-    minify: true,
   },
 ]);

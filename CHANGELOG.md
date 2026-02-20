@@ -2,12 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.12.1] - 2026-02-11
+## [0.13.0] - 2026-02-20
 
 ### Bug Fixes
 
+- **vite**: Align dev moonbit path and luna css filename
 - **e2e**: Read moonbit artifacts from _build
 - **ci**: Align moon release outputs for browser and treeshake
+
+### Miscellaneous
+
+- **js/luna**: Bump minor version to 0.13.0
+- Bump version to 0.12.3
+- Update js and npm_typed dependencies
+- Bump to 0.12.2 and remove signals ui/render dependency
 
 ## [0.12.0] - 2026-02-10
 

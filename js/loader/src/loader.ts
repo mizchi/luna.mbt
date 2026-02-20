@@ -29,9 +29,7 @@ const hydrate = async (el: Element): Promise<void> => {
     const mod = await import(url) as Record<string, HydrateFn>;
     const ex = el.getAttribute('luna:export');
     (ex ? mod[ex] : mod.hydrate ?? mod.default)?.(el, S[id], id);
-  } catch (e) {
-    console.warn(`[luna] Failed to load ${url}:`, e);
-  }
+  } catch {}
 };
 
 const setup = (el: Element): void => {

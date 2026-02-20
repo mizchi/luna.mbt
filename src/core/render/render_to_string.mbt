@@ -37,10 +37,17 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
   let sb = StringBuilder::new(size_hint=64 * urls.length())
   for url in urls {
     sb.write_string("  <link rel=\"modulepreload\" href=\"")
-    sb.write_string(url)
+    escape_attr_to(sb, url)
     sb.write_string("\">\n")
   }
   sb.to_string()
+}
+
+///|
+/// Escape dynamic content embedded in HTML comment text.
+/// Prevents premature comment close via "-->" injection.
+fn escape_comment_text(s : String) -> String {
+  s.replace(old="--", new="- -")
 }
 
 ///|
@@ -238,11 +245,7 @@ fn[E, A : Show] render_island_and_collect_urls(
   urls : Array[String],
   seen : Map[String, Bool],
 ) -> Unit {
-  // Collect URL if not already present
-  if seen.get(island.url) is None {
-    seen.set(island.url, true)
-    urls.push(island.url)
-  }
+  collect_unique_url_if_non_empty(island.url, urls, seen)
   render_island_open_to(sb, island)
   for child in island.children {
     render_and_collect_urls(sb, child, urls, seen)
@@ -251,27 +254,77 @@ fn[E, A : Show] render_island_and_collect_urls(
 }
 
 ///|
+fn island_id_from_url(url : String) -> String {
+  url.replace(old="/", new="_").replace(old=".", new="_")
+}
+
+///|
+fn collect_unique_url(
+  url : String,
+  urls : Array[String],
+  seen : Map[String, Bool],
+) -> Unit {
+  if seen.get(url) is None {
+    seen.set(url, true)
+    urls.push(url)
+  }
+}
+
+///|
+fn collect_unique_url_if_non_empty(
+  url : String,
+  urls : Array[String],
+  seen : Map[String, Bool],
+) -> Unit {
+  if url.length() > 0 {
+    collect_unique_url(url, urls, seen)
+  }
+}
+
+///|
+/// Write Island wrapper opening (comment + div with attributes)
+fn write_island_open_tag(
+  sb : StringBuilder,
+  id : String,
+  url : String,
+  state : String,
+  trigger : String,
+) -> Unit {
+  sb.write_string("<!--luna:island:")
+  sb.write_string(escape_comment_text(id))
+  sb.write_string(" url=")
+  sb.write_string(escape_comment_text(url))
+  sb.write_string(" trigger=")
+  sb.write_string(escape_comment_text(trigger))
+  sb.write_string("-->")
+  sb.write_string("<div luna:id=\"")
+  escape_attr_to(sb, id)
+  sb.write_string("\" luna:url=\"")
+  escape_attr_to(sb, url)
+  sb.write_string("\" luna:state=\"")
+  escape_attr_to(sb, state)
+  sb.write_string("\" luna:client-trigger=\"")
+  escape_attr_to(sb, trigger)
+  sb.write_string("\">")
+}
+
+///|
+/// Write Island wrapper closing (div + comment)
+fn write_island_close_tag(sb : StringBuilder, id : String) -> Unit {
+  sb.write_string("</div>")
+  sb.write_string("<!--/luna:island:")
+  sb.write_string(escape_comment_text(id))
+  sb.write_string("-->")
+}
+
+///|
 /// Render Island wrapper opening (comment + div with attributes)
 fn[E, A : Show] render_island_open_to(
   sb : StringBuilder,
   island : @luna.VIsland[E, A],
 ) -> Unit {
-  sb.write_string("<!--luna:island:")
-  sb.write_string(island.id)
-  sb.write_string(" url=")
-  sb.write_string(island.url)
-  sb.write_string(" trigger=")
-  sb.write_string(island.trigger.to_string())
-  sb.write_string("-->")
-  sb.write_string("<div luna:id=\"")
-  sb.write_string(island.id)
-  sb.write_string("\" luna:url=\"")
-  sb.write_string(island.url)
-  sb.write_string("\" luna:state=\"")
-  escape_attr_to(sb, island.state)
-  sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(island.trigger.to_string())
-  sb.write_string("\">")
+  let trigger = island.trigger.to_string()
+  write_island_open_tag(sb, island.id, island.url, island.state, trigger)
 }
 
 ///|
@@ -280,10 +333,7 @@ fn[E, A : Show] render_island_close_to(
   sb : StringBuilder,
   island : @luna.VIsland[E, A],
 ) -> Unit {
-  sb.write_string("</div>")
-  sb.write_string("<!--/luna:island:")
-  sb.write_string(island.id)
-  sb.write_string("-->")
+  write_island_close_tag(sb, island.id)
 }
 
 // ============================================================
@@ -300,6 +350,7 @@ fn write_wc_open_tag(
   trigger : @luna.TriggerType,
   styles : String,
 ) -> Unit {
+  let trigger_str = trigger.to_string()
   sb.write_char('<')
   sb.write_string(name)
   sb.write_string(" luna:wc-url=\"")
@@ -310,7 +361,7 @@ fn write_wc_open_tag(
   sb.write_char('"')
   if not(trigger is Load) {
     sb.write_string(" luna:wc-trigger=\"")
-    sb.write_string(trigger.to_string())
+    escape_attr_to(sb, trigger_str)
     sb.write_char('"')
   }
   sb.write_char('>')
@@ -354,10 +405,7 @@ fn[E, A : Show] render_wc_island_and_collect_urls(
   urls : Array[String],
   seen : Map[String, Bool],
 ) -> Unit {
-  if island.url.length() > 0 && seen.get(island.url) is None {
-    seen.set(island.url, true)
-    urls.push(island.url)
-  }
+  collect_unique_url_if_non_empty(island.url, urls, seen)
   write_wc_open_tag(
     sb,
     island.name,
@@ -422,31 +470,13 @@ fn[E, A : Show] render_internal_ref_island_to(
   sb : StringBuilder,
   iref : @luna.VInternalRef[E, A],
 ) -> Unit {
-  // Generate a unique ID from URL (simplified - in real usage, generate proper ID)
-  let id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
-  sb.write_string("<!--luna:island:")
-  sb.write_string(id)
-  sb.write_string(" url=")
-  sb.write_string(iref.url)
-  sb.write_string(" trigger=")
-  sb.write_string(iref.trigger.to_string())
-  sb.write_string("-->")
-  sb.write_string("<div luna:id=\"")
-  sb.write_string(id)
-  sb.write_string("\" luna:url=\"")
-  sb.write_string(iref.url)
-  sb.write_string("\" luna:state=\"")
-  escape_attr_to(sb, iref.state)
-  sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(iref.trigger.to_string())
-  sb.write_string("\">")
+  let id = island_id_from_url(iref.url)
+  let trigger = iref.trigger.to_string()
+  write_island_open_tag(sb, id, iref.url, iref.state, trigger)
   for child in iref.children {
     render_to_sb(sb, child)
   }
-  sb.write_string("</div>")
-  sb.write_string("<!--/luna:island:")
-  sb.write_string(id)
-  sb.write_string("-->")
+  write_island_close_tag(sb, id)
 }
 
 ///|
@@ -471,11 +501,7 @@ fn[E, A : Show] render_internal_ref_and_collect_urls(
   urls : Array[String],
   seen : Map[String, Bool],
 ) -> Unit {
-  // Collect URL if not already present
-  if iref.url.length() > 0 && seen.get(iref.url) is None {
-    seen.set(iref.url, true)
-    urls.push(iref.url)
-  }
+  collect_unique_url_if_non_empty(iref.url, urls, seen)
   if iref.wc {
     render_internal_ref_wc_and_collect_urls(sb, iref, urls, seen)
   } else {
@@ -491,30 +517,13 @@ fn[E, A : Show] render_internal_ref_island_and_collect_urls(
   urls : Array[String],
   seen : Map[String, Bool],
 ) -> Unit {
-  let id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
-  sb.write_string("<!--luna:island:")
-  sb.write_string(id)
-  sb.write_string(" url=")
-  sb.write_string(iref.url)
-  sb.write_string(" trigger=")
-  sb.write_string(iref.trigger.to_string())
-  sb.write_string("-->")
-  sb.write_string("<div luna:id=\"")
-  sb.write_string(id)
-  sb.write_string("\" luna:url=\"")
-  sb.write_string(iref.url)
-  sb.write_string("\" luna:state=\"")
-  escape_attr_to(sb, iref.state)
-  sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(iref.trigger.to_string())
-  sb.write_string("\">")
+  let id = island_id_from_url(iref.url)
+  let trigger = iref.trigger.to_string()
+  write_island_open_tag(sb, id, iref.url, iref.state, trigger)
   for child in iref.children {
     render_and_collect_urls(sb, child, urls, seen)
   }
-  sb.write_string("</div>")
-  sb.write_string("<!--/luna:island:")
-  sb.write_string(id)
-  sb.write_string("-->")
+  write_island_close_tag(sb, id)
 }
 
 ///|
@@ -556,33 +565,16 @@ fn[E, A : Show] render_internal_ref_island_with_id_to(
 ) -> Unit {
   let id = id_counter.val
   id_counter.val = id + 1
-  let island_id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
+  let island_id = island_id_from_url(iref.url)
+  let trigger = iref.trigger.to_string()
   sb.write_string("<!--i:")
   sb.write_object(id)
   sb.write_string("-->")
-  sb.write_string("<!--luna:island:")
-  sb.write_string(island_id)
-  sb.write_string(" url=")
-  sb.write_string(iref.url)
-  sb.write_string(" trigger=")
-  sb.write_string(iref.trigger.to_string())
-  sb.write_string("-->")
-  sb.write_string("<div luna:id=\"")
-  sb.write_string(island_id)
-  sb.write_string("\" luna:url=\"")
-  sb.write_string(iref.url)
-  sb.write_string("\" luna:state=\"")
-  escape_attr_to(sb, iref.state)
-  sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(iref.trigger.to_string())
-  sb.write_string("\">")
+  write_island_open_tag(sb, island_id, iref.url, iref.state, trigger)
   for child in iref.children {
     render_with_id_to(sb, child, id_counter)
   }
-  sb.write_string("</div>")
-  sb.write_string("<!--/luna:island:")
-  sb.write_string(island_id)
-  sb.write_string("-->")
+  write_island_close_tag(sb, island_id)
   sb.write_string("<!--/i-->")
 }
 

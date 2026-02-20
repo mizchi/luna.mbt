@@ -206,10 +206,9 @@ test "island with custom trigger" {
 
 ///|
 test "async_ creates Async node" {
-  let node : Node[Unit, String] = async_(
-    render=async fn() { text("resolved") },
-    fallback=fn() { text("loading") },
-  )
+  let node : Node[Unit, String] = async_(render=fn() { text("resolved") }, fallback=fn() {
+    text("loading")
+  })
   match node {
     Async(async_node) =>
       match (async_node.fallback)() {

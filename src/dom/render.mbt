@@ -485,42 +485,36 @@ pub fn[T] index_each(
   // Helper to render item with owner scope for proper cleanup
   fn render_with_scope(index : Int) -> IndexEntry {
     let disposed : Ref[Bool] = Ref::new(false)
-    // Cache last valid value for when array shrinks and effect hasn't been disposed yet
-    let cached_value : Ref[T?] = Ref::new(None)
-    // Guard against out-of-bounds access during effect cleanup transition.
-    // When items are deleted, effects may still run briefly before disposal.
-    // Use cached value when index is out of bounds.
-    let item_getter = fn() -> T {
-      let arr = items()
-      let len = arr.length()
-      if disposed.val || len == 0 || index >= len {
-        // Effect is disposed or index is out of bounds
-        // Return cached value if available
-        match cached_value.val {
-          Some(v) => v
-          None =>
-            // No cached value - this can happen if items() changed before first access
-            // Use first item as fallback if available
-            if len > 0 {
-              arr[0]
-            } else {
-              // Array is empty, no valid fallback
-              // This is a race condition during cleanup - abort with clear message
-              abort("index_each: array is empty during stale effect execution")
-            }
+    let snapshot = @resource.untracked(fn() { items() })
+    if index >= snapshot.length() {
+      // Array changed between scheduling and render. Return inert placeholder.
+      let stale = doc.createComment("index-stale")
+      IndexEntry::new(stale, fn() {  }, disposed)
+    } else {
+      // Cache initial value so stale effects can read safely after shrink.
+      let initial_value = snapshot[index]
+      let cached_value : Ref[T?] = Ref::new(Some(initial_value))
+      let item_getter = fn() -> T {
+        let arr = items()
+        let len = arr.length()
+        if disposed.val || index >= len {
+          match cached_value.val {
+            Some(v) => v
+            None => initial_value
+          }
+        } else {
+          let value = arr[index]
+          cached_value.val = Some(value)
+          value
         }
-      } else {
-        let value = arr[index]
-        cached_value.val = Some(value)
-        value
       }
-    }
-    let (dom, dispose) = @resource.create_root_with_dispose(fn() {
-      @resource.with_parent_owner(captured_owner, fn() {
-        render_item(item_getter, index)
+      let (dom, dispose) = @resource.create_root_with_dispose(fn() {
+        @resource.with_parent_owner(captured_owner, fn() {
+          render_item(item_getter, index)
+        })
       })
-    })
-    IndexEntry::new(dom.to_dom(), dispose, disposed)
+      IndexEntry::new(dom.to_dom(), dispose, disposed)
+    }
   }
 
   // Initial render - use untracked to prevent dependency tracking

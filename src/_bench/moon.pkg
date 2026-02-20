@@ -1,5 +1,6 @@
 import {
   "mizchi/luna" @luna,
+  "mizchi/signals",
   "mizchi/luna/js/resource" @resource,
   "mizchi/luna/core/render" @ssr,
   "mizchi/luna/dom/client" @client,
@@ -7,7 +8,6 @@ import {
   "mizchi/js/browser/dom" @js_dom,
   "mizchi/js/core" @js,
   "mizchi/npm_typed/global_jsdom",
-  "mizchi/signals" @signals,
   "moonbitlang/core/bench",
 }
 

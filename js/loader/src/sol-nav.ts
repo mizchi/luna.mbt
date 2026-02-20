@@ -134,8 +134,7 @@ type SetHTMLUnsafeMethod = ((html: string) => void) | undefined;
         }
         w.scrollTo(0, 0);
       }
-    } catch (e) {
-      console.error('Sol navigation failed:', e);
+    } catch {
       // Fallback to full page load
       w.location.href = url;
     } finally {

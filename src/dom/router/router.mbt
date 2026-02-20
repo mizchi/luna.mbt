@@ -19,8 +19,12 @@ extern "js" fn replace_state(path : String) -> Unit =
   #| (path) => window.history.replaceState(null, '', path)
 
 ///|
-extern "js" fn add_popstate_listener(callback : () -> Unit) -> Unit =
-  #| (callback) => window.addEventListener('popstate', () => callback())
+extern "js" fn add_popstate_listener(callback : () -> Unit) -> () -> Unit =
+  #| (callback) => {
+  #|   const handler = () => callback();
+  #|   window.addEventListener('popstate', handler);
+  #|   return () => window.removeEventListener('popstate', handler);
+  #| }
 
 ///|
 fn get_current_url() -> String {
@@ -40,6 +44,7 @@ pub struct BrowserRouter {
   base : String
   current_path : @resource.Signal[String]
   current_match : @resource.Signal[@routes.RoutesMatch?]
+  dispose_popstate : () -> Unit
 }
 
 ///|
@@ -57,27 +62,24 @@ pub fn BrowserRouter::from_compiled(
   routes : Array[@routes.CompiledRoutes],
   base? : String = "",
 ) -> BrowserRouter {
-  let router : BrowserRouter = {
-    routes,
-    base,
-    current_path: @resource.signal(""),
-    current_match: @resource.signal(None),
+  let current_path : @resource.Signal[String] = @resource.signal("")
+  let current_match : @resource.Signal[@routes.RoutesMatch?] = @resource.signal(
+    None,
+  )
+  let sync = fn() {
+    let path = get_current_url()
+    current_path.set(path)
+    current_match.set(@routes.match_url(path, routes))
   }
-  add_popstate_listener(fn() { router.sync_from_url() })
-  router.sync_from_url()
-  router
+  let dispose = add_popstate_listener(sync)
+  sync()
+  { routes, base, current_path, current_match, dispose_popstate: dispose }
 }
 
 ///|
 /// Get base path
 pub fn BrowserRouter::get_base(self : BrowserRouter) -> String {
   self.base
-}
-
-///|
-/// Sync Signal state from current URL
-fn BrowserRouter::sync_from_url(self : BrowserRouter) -> Unit {
-  self.update_state(get_current_url())
 }
 
 ///|
@@ -88,17 +90,38 @@ fn BrowserRouter::update_state(self : BrowserRouter, path : String) -> Unit {
 }
 
 ///|
+fn BrowserRouter::resolve_path(self : BrowserRouter, path : String) -> String {
+  if self.base == "" || self.base == "/" {
+    path
+  } else if path.has_prefix(self.base) {
+    path
+  } else if path.has_prefix("/") {
+    self.base + path
+  } else {
+    self.base + "/" + path
+  }
+}
+
+///|
 /// Programmatic navigation (adds to history)
 pub fn BrowserRouter::navigate(self : BrowserRouter, path : String) -> Unit {
-  push_state(path)
-  self.update_state(path)
+  let resolved = self.resolve_path(path)
+  push_state(resolved)
+  self.update_state(resolved)
 }
 
 ///|
 /// Replace navigation (not added to back button history)
 pub fn BrowserRouter::replace(self : BrowserRouter, path : String) -> Unit {
-  replace_state(path)
-  self.update_state(path)
+  let resolved = self.resolve_path(path)
+  replace_state(resolved)
+  self.update_state(resolved)
+}
+
+///|
+/// Dispose router side effects (popstate listener)
+pub fn BrowserRouter::dispose(self : BrowserRouter) -> Unit {
+  (self.dispose_popstate)()
 }
 
 ///|

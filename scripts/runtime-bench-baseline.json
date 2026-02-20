@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-02-20T07:10:19.187Z",
+  "node": "v24.12.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "warmup": 3,
+  "samples": 9,
+  "entries": [
+    {
+      "id": "control-loop",
+      "iterations": 1000000,
+      "nsPerOp": 2.3628,
+      "ratioToControl": 1
+    },
+    {
+      "id": "signal-set-get",
+      "iterations": 500000,
+      "nsPerOp": 6.2293,
+      "ratioToControl": 2.6365
+    },
+    {
+      "id": "signal-update-fn",
+      "iterations": 250000,
+      "nsPerOp": 7.2895,
+      "ratioToControl": 3.0852
+    },
+    {
+      "id": "memo-after-update",
+      "iterations": 200000,
+      "nsPerOp": 32.9773,
+      "ratioToControl": 13.9572
+    },
+    {
+      "id": "batch-10-updates",
+      "iterations": 200000,
+      "nsPerOp": 24.9229,
+      "ratioToControl": 10.5483
+    },
+    {
+      "id": "create-signal",
+      "iterations": 100000,
+      "nsPerOp": 23.3888,
+      "ratioToControl": 9.899
+    }
+  ]
+}

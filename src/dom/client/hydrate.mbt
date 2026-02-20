@@ -225,7 +225,7 @@ fn hydrate_node(
       // Find the text marker comments and set up effect
       let id = ctx.current_id
       ctx.current_id = id + 1
-      hydrate_dynamic_text(parent, id, getter)
+      hydrate_dynamic_text(parent, id, getter, ctx)
     }
     @core.Fragment(children) =>
       for child in children {
@@ -442,14 +442,17 @@ fn hydrate_dynamic_text(
   parent : @js_dom.Node,
   id : Int,
   getter : () -> String,
+  ctx : HydrationContext,
 ) -> Unit {
   // Find the text marker comments <!--t:id-->...<!--/t-->
   let marker_start = "t:" + id.to_string()
   let children = parent.childNodes()
+  let mut found_marker = false
   for child in children {
     if child.nodeType() == 8 { // Comment node
       let comment_text = get_text_content(child)
       if comment_text == marker_start {
+        found_marker = true
         // Found start marker, next sibling should be the text node
         if child.nextSibling() is Some(text_node) && text_node.nodeType() == 3 {
           // Set up effect to update text
@@ -457,10 +460,18 @@ fn hydrate_dynamic_text(
             let new_text = getter()
             text_node.setTextContent(new_text)
           })
+        } else {
+          ctx.mismatches.push(
+            "Dynamic text marker found but text node missing at t:" +
+            id.to_string(),
+          )
         }
         break
       }
     }
+  }
+  if not(found_marker) {
+    ctx.mismatches.push("Dynamic text marker not found: t:" + id.to_string())
   }
 }
 
@@ -599,7 +610,10 @@ fn hydrate_show(
       }
     }
   }
-  guard start_marker is Some(marker) else { return }
+  guard start_marker is Some(marker) else {
+    ctx.mismatches.push("Show marker not found: s:" + id.to_string())
+    return
+  }
   let current_nodes : Array[@js_dom.Node] = []
   let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
 
@@ -621,6 +635,10 @@ fn hydrate_show(
       None => break
     }
   }
+  if end_marker is None {
+    ctx.mismatches.push("Show end marker not found: /s for s:" + id.to_string())
+    return
+  }
 
   // If currently showing, hydrate the child
   if cond() && not(current_nodes.is_empty()) && end_marker is Some(end_node) {
@@ -640,6 +658,10 @@ fn hydrate_show(
     })
     ignore(hydrated)
     current_dispose.val = Some(dispose)
+  } else if cond() && current_nodes.is_empty() {
+    ctx.mismatches.push(
+      "Show content missing between markers: s:" + id.to_string(),
+    )
   }
 
   // Set up effect for show/hide
@@ -917,7 +939,7 @@ fn hydrate_for(
       // Advance cursor to end marker for sibling matching
       cursor.val = Some(end)
     }
-    _ => ()
+    _ => ctx.mismatches.push("For marker not found: f:" + id.to_string())
   }
 }
 

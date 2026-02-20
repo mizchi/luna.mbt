@@ -1,6 +1,6 @@
 /*! luna router-spa v1 - Full Client-Side Rendering Router */
 
-import { getRouter, NavigateEvent } from '../boot/router';
+import { getNavigationRouter, NavigateEvent } from './navigation';
 
 export interface SpaRouteConfig {
   /** Route path pattern (e.g., "/app", "/app/*") */
@@ -79,13 +79,13 @@ export class SpaRouter {
    * Start the SPA router
    */
   start(): void {
-    const router = getRouter();
-    this.unsubscribe = router.onNavigate(this.handleNavigate);
-
     // Enable manual scroll restoration
     if (this.options.scrollRestoration && 'scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
+
+    const router = getNavigationRouter();
+    this.unsubscribe = router.onNavigate(this.handleNavigate);
 
     // Handle initial route
     this.handleNavigate({
@@ -111,7 +111,7 @@ export class SpaRouter {
   }
 
   private handleNavigate = async (event: NavigateEvent): Promise<void> => {
-    const { path, isPopState, params: eventParams } = event;
+    const { path, isPopState } = event;
     // Save scroll position before navigation
     if (this.options.scrollRestoration && !isPopState && this.currentPath) {
       this.scrollPositions.set(this.currentPath, {
@@ -148,19 +148,16 @@ export class SpaRouter {
             window.scrollTo(0, 0);
           }
         }
-      } catch (e) {
-        console.error('[SpaRouter] Render failed:', e);
+      } catch {
         // Dispatch error event
         window.dispatchEvent(new CustomEvent('luna:navigation-error', {
-          detail: { path, error: e },
+          detail: { path },
         }));
       }
     } else if (this.options.fallbackPath) {
       // Redirect to fallback
-      const router = getRouter();
+      const router = getNavigationRouter();
       router.navigate(this.options.fallbackPath, { replace: true });
-    } else {
-      console.warn('[SpaRouter] No matching route for:', path);
     }
   };
 

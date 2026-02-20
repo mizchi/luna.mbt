@@ -369,6 +369,12 @@ pub fn router_replace(router : BrowserRouter, path : String) -> Unit {
 }
 
 ///|
+/// Dispose router listeners
+pub fn router_dispose(router : BrowserRouter) -> Unit {
+  router.0.dispose()
+}
+
+///|
 /// Get current path
 pub fn router_get_path(router : BrowserRouter) -> String {
   router.0.get_path()

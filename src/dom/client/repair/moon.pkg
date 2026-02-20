@@ -12,7 +12,7 @@ import {
 
 import {
   "mizchi/npm_typed/global_jsdom",
-  "mizchi/signals" @signals,
+  "mizchi/signals",
   "mizchi/luna/core/render" @render,
 } for "test"
 

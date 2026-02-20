@@ -1097,7 +1097,7 @@ test "exp: hydrate async node fallback" {
   let container = exp_create_container()
   let logger = StringBuilder::new()
   let vnode : @luna.Node[@js.Any, String] = @luna.async_(
-    render=async fn() { @luna.text("Loaded") },
+    render=fn() { @luna.text("Loaded") },
     fallback=fn() { @luna.text("Loading...") },
   )
   exp_set_inner_html(container, "")

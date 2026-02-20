@@ -46,6 +46,30 @@ jobs:
           cd ../stella && pnpm build
       - name: TypeScript check
         run: pnpm tsc -b
+      - name: Bundle size baseline
+        id: bundle_size
+        run: node scripts/bundle-size.mjs --build --check --report /tmp/bundle-size-report.txt
+        continue-on-error: true
+      - name: Comment bundle size result
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = '/tmp/bundle-size-report.txt';
+            const marker = '<!-- bundle-size -->';
+            const body = fs.existsSync(path) ? fs.readFileSync(path, 'utf8').trim() : 'Bundle size check failed.';
+            const hint = body.includes('ERROR') ? '\n\nUpdate baseline: `just bundle-baseline`' : '';
+            const message = `${marker}\n**Bundle size diff**\n\n\`\`\`\n${body}\n\`\`\`${hint}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.data.find(c => c.user?.type === 'Bot' && c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: message });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: message });
+            }
       - name: Treeshake size baseline
         id: treeshake
         run: node scripts/treeshake-size.mjs --build --check --report /tmp/treeshake-report.txt
@@ -70,8 +94,65 @@ jobs:
             } else {
               await github.rest.issues.createComment({ owner, repo, issue_number, body: message });
             }
+      - name: Runtime benchmark baseline
+        id: runtime_perf
+        run: node scripts/runtime-bench.mjs --build --check --report /tmp/runtime-bench-report.txt
+        continue-on-error: true
+      - name: Comment runtime benchmark result
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = '/tmp/runtime-bench-report.txt';
+            const marker = '<!-- runtime-bench -->';
+            const body = fs.existsSync(path) ? fs.readFileSync(path, 'utf8').trim() : 'Runtime benchmark check failed.';
+            const hint = body.includes('ERROR') ? '\n\nUpdate baseline: `just runtime-baseline`' : '';
+            const message = `${marker}\n**Runtime benchmark diff**\n\n\`\`\`\n${body}\n\`\`\`${hint}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.data.find(c => c.user?.type === 'Bot' && c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: message });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: message });
+            }
+      - name: Moon bench baseline
+        id: moonbench
+        run: node scripts/moonbench-check.mjs --check --report /tmp/moonbench-report.txt
+        continue-on-error: true
+      - name: Comment moon bench result
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = '/tmp/moonbench-report.txt';
+            const marker = '<!-- moonbench -->';
+            const body = fs.existsSync(path) ? fs.readFileSync(path, 'utf8').trim() : 'Moon bench check failed.';
+            const hint = body.includes('ERROR') ? '\n\nUpdate baseline: `just moonbench-baseline`' : '';
+            const message = `${marker}\n**Moon bench diff**\n\n\`\`\`\n${body}\n\`\`\`${hint}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.data.find(c => c.user?.type === 'Bot' && c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: message });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: message });
+            }
       - name: Fail if treeshake check failed
         if: steps.treeshake.outcome == 'failure'
+        run: exit 1
+      - name: Fail if bundle size check failed
+        if: steps.bundle_size.outcome == 'failure'
+        run: exit 1
+      - name: Fail if runtime benchmark check failed
+        if: steps.runtime_perf.outcome == 'failure'
+        run: exit 1
+      - name: Fail if moon bench check failed
+        if: steps.moonbench.outcome == 'failure'
         run: exit 1
 
   # MoonBit unit tests

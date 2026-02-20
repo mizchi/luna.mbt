@@ -96,11 +96,11 @@ _setup-test-env:
 # =============================================================================
 
 # CI チェック
-ci: check test-incremental size-check
+ci: check test-incremental size-check runtime-check moonbench-check
     @echo "✓ All CI checks passed"
 
 # バンドルサイズチェック
-size-check:
+size-check: bundle-check
     #!/usr/bin/env bash
     set -e
     LOADER_SIZE=$(wc -c < js/loader/dist/loader.js)
@@ -116,6 +116,18 @@ size:
     @echo "=== MoonBit Output ==="
     @find _build/js/release/build -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 ": " $5}' | head -20
 
+# Loader bundle サイズ計測
+bundle-size:
+    node scripts/bundle-size.mjs --build
+
+# Loader bundle ベースライン更新
+bundle-baseline:
+    node scripts/bundle-size.mjs --build --write-baseline
+
+# Loader bundle ベースライン差分チェック
+bundle-check:
+    node scripts/bundle-size.mjs --build --check
+
 # Treeshake 後サイズ計測
 treeshake-size:
     node scripts/treeshake-size.mjs --build
@@ -127,6 +139,26 @@ treeshake-baseline:
 # Treeshake ベースライン差分チェック
 treeshake-check:
     node scripts/treeshake-size.mjs --build --check
+
+# Runtime benchmark 計測
+runtime-bench:
+    node scripts/runtime-bench.mjs --build
+
+# Runtime benchmark ベースライン更新
+runtime-baseline:
+    node scripts/runtime-bench.mjs --build --write-baseline
+
+# Runtime benchmark ベースライン差分チェック
+runtime-check:
+    node scripts/runtime-bench.mjs --build --check
+
+# MoonBit benchmark ベースライン更新
+moonbench-baseline:
+    node scripts/moonbench-check.mjs --write-baseline
+
+# MoonBit benchmark ベースライン差分チェック
+moonbench-check:
+    node scripts/moonbench-check.mjs --check
 
 # =============================================================================
 # カバレッジ

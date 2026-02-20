@@ -336,6 +336,65 @@ test "hydrate for attaches dynamic attrs" {
 // =============================================================================
 
 ///|
+test "hydrate detects missing dynamic text marker" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let logger = StringBuilder::new()
+  let count = @resource.signal(42)
+  let vnode = @luna.text_dyn(fn() { count.get().to_string() })
+
+  // Dynamic text without hydration markers
+  set_inner_html(container, "42")
+
+  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  match result {
+    Mismatch(msg) => assert_true(msg.contains("Dynamic text marker"))
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "hydrate detects missing show marker" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let logger = StringBuilder::new()
+  let visible = @resource.signal(true)
+  let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Visible") })
+
+  // Show content without s:id marker pair
+  set_inner_html(container, "Visible")
+
+  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  match result {
+    Mismatch(msg) => assert_true(msg.contains("Show marker"))
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "hydrate detects missing for marker" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let logger = StringBuilder::new()
+  let items = @resource.signal(["A", "B"])
+  let vnode = @luna.for_each(fn() {
+    items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
+  })
+
+  // List content without f:id marker pair
+  set_inner_html(container, "<li>A</li><li>B</li>")
+
+  let result = hydrate(container, vnode, recover_on_mismatch=false, logger~)
+  match result {
+    Mismatch(msg) => assert_true(msg.contains("For marker"))
+    _ => assert_true(false)
+  }
+}
+
+///|
 test "hydrate detects missing element" {
   @global_jsdom.register()
   defer cleanup()
@@ -1170,7 +1229,7 @@ test "hydrate async node renders fallback" {
   defer cleanup()
   let container = create_container()
   let vnode : @luna.Node[@js.Any, String] = @luna.async_(
-    render=async fn() { @luna.text("Loaded") },
+    render=fn() { @luna.text("Loaded") },
     fallback=fn() { @luna.text("Loading...") },
   )
   let html = @render.render_to_string_with_hydration(vnode)
@@ -1305,7 +1364,7 @@ test "render_vnode_to_dom with Async renders fallback" {
   defer cleanup()
   let container = create_container()
   let vnode : @luna.Node[@js.Any, String] = @luna.async_(
-    render=async fn() { @luna.text("Async content") },
+    render=fn() { @luna.text("Async content") },
     fallback=fn() { @luna.text("Fallback content") },
   )
   let dom_node = render_vnode_to_dom(vnode)
@@ -1335,7 +1394,7 @@ test "render_vnode_to_dom ErrorBoundary reset re-inserts" {
   let should_throw = @resource.signal(true)
   let reset_ref : Ref[(() -> Unit)?] = Ref::new(None)
   let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
-    children=fn() {
+    children=() => {
       if should_throw.get() {
         fail("boom")
       } else {

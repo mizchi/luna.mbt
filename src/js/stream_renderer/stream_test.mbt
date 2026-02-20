@@ -10,14 +10,12 @@ enum TestAction {
 test "render_to_stream_collecting_async collects boundaries" {
   let node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.h("div", [], [@luna.text("Header")]),
-    @luna.async_(
-      render=async fn() { @luna.h("div", [], [@luna.text("Async 1")]) },
-      fallback=fn() { @luna.h("div", [], [@luna.text("Loading 1...")]) },
-    ),
-    @luna.async_(
-      render=async fn() { @luna.h("div", [], [@luna.text("Async 2")]) },
-      fallback=fn() { @luna.h("div", [], [@luna.text("Loading 2...")]) },
-    ),
+    @luna.async_(render=fn() { @luna.h("div", [], [@luna.text("Async 1")]) }, fallback=fn() {
+      @luna.h("div", [], [@luna.text("Loading 1...")])
+    }),
+    @luna.async_(render=fn() { @luna.h("div", [], [@luna.text("Async 2")]) }, fallback=fn() {
+      @luna.h("div", [], [@luna.text("Loading 2...")])
+    }),
     @luna.h("div", [], [@luna.text("Footer")]),
   ])
   let chunks : Array[String] = []
@@ -57,10 +55,9 @@ test "render_to_stream no async returns empty boundaries" {
 ///|
 test "render_to_stream nested async" {
   let node : @luna.Node[Unit, String] = @luna.h("div", [], [
-    @luna.async_(
-      render=async fn() { @luna.h("span", [], [@luna.text("Loaded")]) },
-      fallback=fn() { @luna.h("span", [], [@luna.text("Loading...")]) },
-    ),
+    @luna.async_(render=fn() { @luna.h("span", [], [@luna.text("Loaded")]) }, fallback=fn() {
+      @luna.h("span", [], [@luna.text("Loading...")])
+    }),
   ])
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
@@ -215,7 +212,7 @@ test "stream render error_boundary with async boundaries" {
     children=fn() {
       @luna.fragment([
         @luna.h("div", [], [@luna.text("Header")]),
-        @luna.async_(render=async fn() { @luna.text("Async content") }, fallback=fn() {
+        @luna.async_(render=fn() { @luna.text("Async content") }, fallback=fn() {
           @luna.text("Loading...")
         }),
       ])
@@ -435,7 +432,7 @@ test "stream render switch no fallback" {
 test "stream render collecting async switch" {
   let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { true }, render=fn() {
-      @luna.async_(render=async fn() { @luna.text("Loaded") }, fallback=fn() {
+      @luna.async_(render=fn() { @luna.text("Loaded") }, fallback=fn() {
         @luna.text("Loading...")
       })
     }),

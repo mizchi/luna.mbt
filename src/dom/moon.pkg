@@ -1,6 +1,6 @@
 import {
   "mizchi/luna/js/resource" @resource,
-  "mizchi/signals" @signals,
+  "mizchi/signals",
   "mizchi/js/core" @js,
   "mizchi/js/browser/dom" @js_dom,
   "mizchi/js/builtins/global",

@@ -16,9 +16,7 @@ test "ServerNode::sync - creates synchronous node" {
 
 ///|
 test "ServerNode::async_ - creates asynchronous node" {
-  let server_node = ServerNode::async_(async fn() {
-    @luna.text("Async content")
-  })
+  let server_node = ServerNode::async_(fn() { @luna.text("Async content") })
   inspect(server_node.is_async(), content="true")
 }
 
@@ -45,7 +43,7 @@ test "ServerNode - sync with element tree" {
 ///|
 test "ServerNode - async with dynamic data factory" {
   // Test creating async ServerNode (factory pattern)
-  let server_node = ServerNode::async_(async fn() {
+  let server_node = ServerNode::async_(fn() {
     let items = ["Item 1", "Item 2", "Item 3"]
     @luna.h(
       "ul",
@@ -326,7 +324,7 @@ test "ServerNode - pattern matching sync" {
 
 ///|
 test "ServerNode - pattern matching async" {
-  let server_node = ServerNode::async_(async fn() { @luna.text("async") })
+  let server_node = ServerNode::async_(fn() { @luna.text("async") })
   let is_async = match server_node {
     Sync(_) => false
     Async(_) => true

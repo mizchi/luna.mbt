@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/encoding/utf8" @utf8,
 }
 
 options(

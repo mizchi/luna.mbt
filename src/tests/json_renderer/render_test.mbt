@@ -368,7 +368,7 @@ test "render island with idle trigger" {
 ///|
 test "render async fallback" {
   let node : @luna.Node[Unit, String] = @luna.async_(
-    render=async fn() { @luna.text("Loaded") },
+    render=fn() { @luna.text("Loaded") },
     fallback=fn() { @luna.text("Loading...") },
   )
   let json = render_to_json(node)

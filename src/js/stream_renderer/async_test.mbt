@@ -105,7 +105,7 @@ fn render_with_error_boundary(
 
 ///|
 test "render_with_error_boundary success" {
-  let node = render_with_error_boundary(fn() {
+  let node = render_with_error_boundary(() => {
     @luna.h("div", [], [@luna.text("Success!")])
   })
   let html = @render.render_to_string(node).html
@@ -114,7 +114,7 @@ test "render_with_error_boundary success" {
 
 ///|
 test "render_with_error_boundary network error" {
-  let node = render_with_error_boundary(fn() {
+  let node = render_with_error_boundary(() => {
     raise NetworkError("connection refused")
   })
   let html = @render.render_to_string(node).html
@@ -124,7 +124,7 @@ test "render_with_error_boundary network error" {
 
 ///|
 test "render_with_error_boundary not found" {
-  let node = render_with_error_boundary(fn() { raise NotFound("/api/user/123") })
+  let node = render_with_error_boundary(() => raise NotFound("/api/user/123"))
   let html = @render.render_to_string(node).html
   assert_true(html.contains("Not Found: /api/user/123"))
   assert_true(html.contains("not-found"))
@@ -132,7 +132,7 @@ test "render_with_error_boundary not found" {
 
 ///|
 test "render_with_error_boundary timeout" {
-  let node = render_with_error_boundary(fn() { raise Timeout })
+  let node = render_with_error_boundary(() => raise Timeout)
   let html = @render.render_to_string(node).html
   assert_true(html.contains("Request timed out"))
   assert_true(html.contains("timeout"))
@@ -204,7 +204,7 @@ test "configurable error boundary" {
     on_timeout: ErrorBoundaryConfig::default().on_timeout,
     on_unknown: ErrorBoundaryConfig::default().on_unknown,
   }
-  let node = render_with_config(config, fn() {
+  let node = render_with_config(config, () => {
     raise NetworkError("server unavailable")
   })
   let html = @render.render_to_string(node).html
@@ -402,7 +402,7 @@ test "combined pattern: try-catch for sync error handling" {
 
   // Error case - shows fallback
   let error_node = create_content_with_fallback(
-    fn() { raise NetworkError("failed") },
+    () => raise NetworkError("failed"),
     fallback,
   )
   let html = @render.render_to_string(error_node).html

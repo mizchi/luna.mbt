@@ -27,10 +27,8 @@ const loadHydrateFn = async (name: string, url: string): Promise<HydrateFn | und
       hydrateFns.set(name, fn);
       return fn;
     }
-    console.warn(`[wc-loader] No hydrate in ${url}`);
     return undefined;
-  }).catch(e => {
-    console.error(`[wc-loader] Failed ${name}:`, e);
+  }).catch(() => {
     return undefined;
   }).finally(() => pending.delete(name));
 

@@ -573,6 +573,38 @@ test "render island state escaping" {
 }
 
 ///|
+test "render island escapes url and trigger attributes" {
+  let node : @luna.Node[Unit, String] = @luna.island(
+    "escape-url-1",
+    "/components/test.js\" data-x=\"1",
+    "{}",
+    [@luna.text("Safe")],
+    trigger=@core.Media("(min-width: \"768px\")"),
+  )
+  let html = render_to_string(node).html
+  assert_true(
+    html.contains("luna:url=\"/components/test.js&quot; data-x=&quot;1\""),
+  )
+  assert_true(
+    html.contains(
+      "luna:client-trigger=\"media:(min-width: &quot;768px&quot;)\"",
+    ),
+  )
+}
+
+///|
+test "render island comment escapes close token in url" {
+  let node : @luna.Node[Unit, String] = @luna.island(
+    "escape-comment-1",
+    "/components/test.js--><script>alert(1)</script>",
+    "{}",
+    [@luna.text("Safe")],
+  )
+  let html = render_to_string(node).html
+  assert_false(html.contains("url=/components/test.js--><script"))
+}
+
+///|
 test "render island with complex children" {
   let count = 3
   let node : @luna.Node[Unit, String] = @luna.island(
@@ -751,6 +783,15 @@ test "render_to_string with preload deduplicates urls" {
 }
 
 ///|
+test "render_to_string with preload skips empty island url" {
+  let node : @luna.Node[Unit, String] = @luna.fragment([
+    @luna.island("island-empty", "", "{}", [@luna.text("A")]),
+  ])
+  let result = render_to_string(node, preload=true)
+  assert_eq(result.preload_urls.length(), 0)
+}
+
+///|
 test "generate_preload_tags" {
   let urls = ["/a.js", "/b.js"]
   let tags = generate_preload_tags(urls)
@@ -763,6 +804,14 @@ test "generate_preload_tags empty" {
   let urls : Array[String] = []
   let tags = generate_preload_tags(urls)
   assert_eq(tags, "")
+}
+
+///|
+test "generate_preload_tags escapes href attribute" {
+  let urls = ["/evil.js\" onload=\"alert(1)"]
+  let tags = generate_preload_tags(urls)
+  assert_true(tags.contains("&quot;"))
+  assert_false(tags.contains("\" onload=\"alert(1)"))
 }
 
 ///|
@@ -1083,7 +1132,7 @@ test "preload with duplicate wc_island urls" {
 ///|
 test "render async fallback in sync mode" {
   let node : @luna.Node[Unit, String] = @luna.async_(
-    render=async fn() { @luna.h("div", [], [@luna.text("Loaded!")]) },
+    render=fn() { @luna.h("div", [], [@luna.text("Loaded!")]) },
     fallback=fn() { @luna.h("div", [], [@luna.text("Loading...")]) },
   )
   // In sync rendering, fallback is rendered
@@ -1094,7 +1143,7 @@ test "render async fallback in sync mode" {
 ///|
 test "render async with hydration markers" {
   let node : @luna.Node[Unit, String] = @luna.async_(
-    render=async fn() { @luna.h("div", [], [@luna.text("Loaded!")]) },
+    render=fn() { @luna.h("div", [], [@luna.text("Loaded!")]) },
     fallback=fn() { @luna.h("div", [], [@luna.text("Loading...")]) },
   )
   let html = render_to_string_with_hydration(node)
@@ -1107,7 +1156,7 @@ test "render async with hydration markers" {
 ///|
 test "render nested async fallback" {
   let inner : @luna.Node[Unit, String] = @luna.async_(
-    render=async fn() { @luna.text("Inner loaded") },
+    render=fn() { @luna.text("Inner loaded") },
     fallback=fn() { @luna.text("Inner loading...") },
   )
   let outer : @luna.Node[Unit, String] = @luna.h(
@@ -1122,7 +1171,7 @@ test "render nested async fallback" {
 ///|
 test "render async with on_error handler" {
   let node : @luna.Node[Unit, String] = @luna.async_(
-    render=async fn() { @luna.text("Success") },
+    render=fn() { @luna.text("Success") },
     fallback=fn() { @luna.text("Loading...") },
     on_error=Some(fn(_e) {
       @luna.h("div", [("class", @luna.attr_static("error"))], [
