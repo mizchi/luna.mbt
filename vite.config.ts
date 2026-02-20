@@ -7,21 +7,27 @@ const rootDir = import.meta.dirname;
 
 export default defineConfig(({ command }) => {
   const isDev = command === 'serve';
+  const moonBuildMode = isDev ? 'debug' : 'release';
 
   return {
     appType: 'mpa',
     plugins: [
-      moonbit({}),
+      moonbit({ mode: moonBuildMode }),
       lunaCss({
         src: ['src/examples/todomvc', 'src/examples/css_split_test'],
         mode: 'external',
-        cssFileName: 'luna.css',
+        // lunaCss expects basename without extension
+        cssFileName: 'luna',
         verbose: isDev,
       }),
     ],
     base: isDev ? '/' : '/demo/',
     resolve: {
       alias: {
+        // In dev, MoonBit emits to debug dir by default (moon build --watch)
+        ...(isDev
+          ? { '/_build/js/release/build': resolve(rootDir, '_build/js/debug/build') }
+          : {}),
         '/_build': resolve(rootDir, '_build'),
         '@luna/loader': resolve(rootDir, 'js/loader/dist'),
       },
