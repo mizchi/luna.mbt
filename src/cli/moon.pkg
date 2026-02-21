@@ -9,6 +9,7 @@ import {
   "mizchi/sol/builder_pool" @builder_pool,
   "mizchi/sol/ssg/cache" @ssg_cache,
   "mizchi/sol/ssg/tree" @tree,
+  "mizchi/sol/ssg/assets" @assets,
   "mizchi/sol/adapters" @adapters,
   "mizchi/sol/content/shiki" @shiki,
   "mizchi/sol/core/env" @env,

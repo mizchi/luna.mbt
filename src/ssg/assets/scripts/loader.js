@@ -49,20 +49,63 @@
 	* Create a loaded tracker with unload utilities
 	*/
 	function createLoadedTracker() {
-		const loaded$1 = /* @__PURE__ */ new Set();
+		const loadedEpoch = /* @__PURE__ */ new WeakMap();
+		let currentEpoch = 0;
+		const escapeSelector = (id) => {
+			const css = globalThis.CSS;
+			if (css && typeof css.escape === "function") return css.escape(id);
+			return id.replace(/[\\"]/g, "\\$&");
+		};
 		return {
-			loaded: loaded$1,
-			unload: (id) => loaded$1.delete(id),
-			clear: () => loaded$1.clear()
+			isLoaded: (el) => loadedEpoch.get(el) === currentEpoch,
+			markLoaded: (el) => loadedEpoch.set(el, currentEpoch),
+			unload: (id) => {
+				if (!id) return;
+				document.querySelectorAll(`[luna\\:id="${escapeSelector(id)}"]`).forEach((el) => loadedEpoch.delete(el));
+			},
+			clear: () => {
+				currentEpoch += 1;
+			}
 		};
 	}
 
 //#endregion
 //#region js/loader/src/loader.ts
-/*! luna loader v4 - minimal dispatcher */
+	/*! luna loader v4 - minimal dispatcher */
 	const d = document;
 	const S = {};
-	const { loaded, unload, clear } = createLoadedTracker();
+	const { isLoaded, markLoaded, unload, clear } = createLoadedTracker();
+	const normalizeAllowedEntries = (raw) => {
+		if (Array.isArray(raw)) return raw.map((v) => `${v}`.trim().toLowerCase()).filter(Boolean);
+		if (typeof raw === "string") return raw.split(",").map((v) => v.trim().toLowerCase()).filter(Boolean);
+		return [];
+	};
+	const getAllowedHostEntries = () => normalizeAllowedEntries(globalThis.__LUNA_ALLOWED_HOSTS__);
+	const isAllowedModuleUrl = (rawUrl) => {
+		if (!rawUrl) return;
+		let parsed;
+		try {
+			parsed = new URL(rawUrl, d.baseURI || location.href);
+		} catch {
+			console.warn(`[luna] Blocked invalid module URL: ${rawUrl}`);
+			return;
+		}
+		if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+			console.warn(`[luna] Blocked non-http(s) module URL: ${rawUrl}`);
+			return;
+		}
+		if (parsed.origin === location.origin) return parsed.href;
+		const allowed = getAllowedHostEntries();
+		const origin = parsed.origin.toLowerCase();
+		const host = parsed.hostname.toLowerCase();
+		const hostPort = parsed.host.toLowerCase();
+		if (allowed.includes(origin) || allowed.includes(host) || allowed.includes(hostPort)) return parsed.href;
+		console.warn(`[luna] Blocked cross-origin module URL: ${parsed.href}. Set window.__LUNA_ALLOWED_HOSTS__ to allow this host.`);
+	};
+	const setAllowedHosts = (hosts) => {
+		if (Array.isArray(hosts) || typeof hosts === "string") globalThis.__LUNA_ALLOWED_HOSTS__ = hosts;
+		else globalThis.__LUNA_ALLOWED_HOSTS__ = [];
+	};
 	const parseState = async (el) => {
 		const a = el.getAttribute("luna:state");
 		if (!a) return;
@@ -73,11 +116,11 @@
 	};
 	const hydrate = async (el) => {
 		const id = el.getAttribute("luna:id") ?? el.tagName.toLowerCase();
-		if (loaded.has(id)) return;
-		loaded.add(id);
-		S[id] = await parseState(el);
-		const url = el.getAttribute("luna:url");
+		const url = isAllowedModuleUrl(el.getAttribute("luna:url"));
 		if (!url) return;
+		if (isLoaded(el)) return;
+		markLoaded(el);
+		S[id] = await parseState(el);
 		try {
 			const mod = await import(url);
 			const ex = el.getAttribute("luna:export");
@@ -103,6 +146,7 @@
 	w.__LUNA_SCAN__ = scan;
 	w.__LUNA_UNLOAD__ = unload;
 	w.__LUNA_CLEAR_LOADED__ = clear;
+	w.__LUNA_SET_ALLOWED_HOSTS__ = setAllowedHosts;
 
 //#endregion
 })();

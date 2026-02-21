@@ -39,24 +39,7 @@ const loaderCode = readFileSync(loaderPath, "utf-8");
 // Create the main Hono app
 const app = new Hono();
 
-// Health check
-app.get("/", (c) => c.text("ok"));
-
-// Serve static assets (both loader.js and loader.min.js for compatibility)
-app.get("/loader.js", (c) => {
-  return c.body(loaderCode, 200, {
-    "Content-Type": "application/javascript",
-  });
-});
-app.get("/loader.min.js", (c) => {
-  return c.body(loaderCode, 200, {
-    "Content-Type": "application/javascript",
-  });
-});
-
-// Component hydration scripts
-app.get("/components/counter.js", (c) => {
-  const code = `
+const counterComponentCode = `
 export function hydrate(el, state, id) {
   const countSpan = el.querySelector('[data-count]');
   const incBtn = el.querySelector('[data-inc]');
@@ -83,8 +66,33 @@ export function hydrate(el, state, id) {
   render();
 }
 `;
-  return c.body(code, 200, {
+
+// Health check
+app.get("/", (c) => c.text("ok"));
+
+// Serve static assets (both loader.js and loader.min.js for compatibility)
+app.get("/loader.js", (c) => {
+  return c.body(loaderCode, 200, {
     "Content-Type": "application/javascript",
+  });
+});
+app.get("/loader.min.js", (c) => {
+  return c.body(loaderCode, 200, {
+    "Content-Type": "application/javascript",
+  });
+});
+
+// Component hydration scripts
+app.get("/components/counter.js", (c) => {
+  return c.body(counterComponentCode, 200, {
+    "Content-Type": "application/javascript",
+  });
+});
+
+app.get("/cors-components/counter.js", (c) => {
+  return c.body(counterComponentCode, 200, {
+    "Content-Type": "application/javascript",
+    "Access-Control-Allow-Origin": "*",
   });
 });
 
@@ -254,6 +262,78 @@ app.get("/loader/multiple", (c) => {
     ssrHtml: '<span data-count>100</span><button data-inc>+1</button><button data-dec>-1</button>',
   });
   return c.html(renderIslandPage([islandA, islandB], { title: "Multiple Components Test" }));
+});
+
+app.get("/loader/csr-replace", (c) => {
+  const initialIsland = renderIsland({
+    id: "csr-counter",
+    src: "/components/counter.js",
+    state: '{"count":1}',
+    ssrHtml:
+      '<span data-count>1</span><button id="csr-inc" data-inc>+1</button><button data-dec>-1</button>',
+  });
+  const nextIsland = renderIsland({
+    id: "csr-counter",
+    src: "/components/counter.js",
+    state: '{"count":10}',
+    ssrHtml:
+      '<span data-count>10</span><button id="csr-inc" data-inc>+1</button><button data-dec>-1</button>',
+  });
+  const controls = '<button id="replace-btn" type="button">Replace island</button>';
+  const script = `<script>
+const nextIslandHtml = ${JSON.stringify(nextIsland)};
+document.getElementById("replace-btn")?.addEventListener("click", () => {
+  const host = document.getElementById("csr-host");
+  if (!host) return;
+  host.innerHTML = nextIslandHtml;
+});
+</script>`;
+  return c.html(
+    renderIslandPage(
+      [
+        "<h1>CSR Replace Test</h1>",
+        `<div id="csr-host">${initialIsland}</div>`,
+        controls,
+        script,
+      ],
+      { title: "CSR Replace Hydration Test" }
+    )
+  );
+});
+
+app.get("/loader/security-default-deny", (c) => {
+  const requestUrl = new URL(c.req.url);
+  const crossOriginSrc = `http://127.0.0.1:${requestUrl.port || "3456"}/cors-components/counter.js`;
+  const island = renderIsland({
+    id: "secure-counter",
+    src: crossOriginSrc,
+    state: '{"count":5}',
+    ssrHtml:
+      '<span data-count>5</span><button data-inc>+1</button><button data-dec>-1</button>',
+  });
+  return c.html(
+    renderIslandPage([`<div id="secure-host">${island}</div>`], {
+      title: "Security Default Deny Test",
+    })
+  );
+});
+
+app.get("/loader/security-allow-host", (c) => {
+  const requestUrl = new URL(c.req.url);
+  const crossOriginSrc = `http://127.0.0.1:${requestUrl.port || "3456"}/cors-components/counter.js`;
+  const island = renderIsland({
+    id: "secure-counter",
+    src: crossOriginSrc,
+    state: '{"count":5}',
+    ssrHtml:
+      '<span data-count>5</span><button data-inc>+1</button><button data-dec>-1</button>',
+  });
+  return c.html(
+    renderIslandPage([`<div id="secure-host">${island}</div>`], {
+      title: "Security Allow Host Test",
+      head: '<script>window.__LUNA_ALLOWED_HOSTS__ = ["127.0.0.1"];</script>',
+    })
+  );
 });
 
 app.get("/loader/manual", (c) => {

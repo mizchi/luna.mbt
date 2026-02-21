@@ -66,7 +66,20 @@
 2. `SOL_BENCH_MODE=1` で起動した場合に `/api/bench/ping` が 200 か
 3. 別ポートで起動している場合は `BASE_URL` を合わせる
 
-## 6. まず見るべき一次資料
+## 6. Island の hydration が動かない（cross-origin URL）
+
+症状:
+
+- `luna:url` に指定した module が読み込まれず、SSR のままになる
+
+確認:
+
+1. `loader.js` は同一 origin の module URL のみ許可がデフォルトである
+2. cross-origin を使う場合、`window.__LUNA_ALLOWED_HOSTS__` に host/origin（例: `127.0.0.1:3456`）を設定する
+3. 実行中に許可を追加した場合は `window.__LUNA_SET_ALLOWED_HOSTS__(...)` の後で `window.__LUNA_SCAN__()` を呼ぶ
+4. `luna:url` の scheme が `http` / `https` であることを確認する
+
+## 7. まず見るべき一次資料
 
 - ルーティング仕様: `docs/routing.md`
 - ベンチ仕様: `docs/benchmarking.md`

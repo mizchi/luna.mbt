@@ -318,6 +318,8 @@ struct TestHttpResponse {
   content_type : String?
   fragment_response : String?
   cache_strategy : String?
+  no_sniff : String?
+  x_custom : String?
 }
 
 ///|
@@ -338,6 +340,8 @@ extern "js" fn ffi_call_app_handler(
   #|     content_type: res.headers.get("content-type") ?? undefined,
   #|     fragment_response: res.headers.get("x-sol-fragment-response") ?? undefined,
   #|     cache_strategy: res.headers.get("x-sol-cache-strategy") ?? undefined,
+  #|     no_sniff: res.headers.get("x-content-type-options") ?? undefined,
+  #|     x_custom: res.headers.get("x-custom") ?? undefined,
   #|   };
   #| }
 
@@ -463,4 +467,30 @@ async test "register_sol_routes skips streaming for ISR route with cache" {
   assert_true(res.body.contains("id=\"\{marker}\""))
   assert_false(res.body.contains("<div id=\"app\">"))
   assert_eq(res.cache_strategy, Some("always-fetch"))
+}
+
+///|
+async test "register_sol_routes keeps API resolver custom headers" {
+  async fn api_handler(props : PageProps) -> @js.Any {
+    props.ctx.set_header("X-Custom", "from-api")
+    @js_any.json_obj([("ok", @js.any(true))])
+  }
+
+  let app = @mars.Server::new()
+  register_sol_routes(
+    app,
+    [SolRoutes::Get(path="/api/custom-header", handler=ApiHandler(api_handler))],
+    config=RouterConfig::default(),
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(),
+    "GET",
+    "http://localhost/api/custom-header",
+    false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_eq(res.content_type, Some("application/json"))
+  assert_eq(res.no_sniff, Some("nosniff"))
+  assert_eq(res.x_custom, Some("from-api"))
 }

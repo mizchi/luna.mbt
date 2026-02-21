@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Add hydration module URL origin policy in `loader.js` with `window.__LUNA_ALLOWED_HOSTS__` and `window.__LUNA_SET_ALLOWED_HOSTS__`
+- Add asset sync workflows and checks: `scripts/sync-example-static-assets.mjs`, `scripts/sync-luna-loader-assets.mjs`, `just sync-*` tasks, and E2E sync tests
+
+### Changed
+
+- Unify loader runtime asset sources under `src/ssg/assets/scripts/*` and keep `examples/*/static/*` synchronized from canonical sources
+- Update example package scripts (`predev` / `prebuild` / `preserve` / `pretest`) to auto-sync runtime static assets
+
+### Fixed
+
+- Preserve API response headers set in handlers while keeping JSON `Content-Type` and `X-Content-Type-Options: nosniff` defaults
+
 ## [0.8.0] - 2026-02-19
 
 ### Added

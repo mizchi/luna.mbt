@@ -15,6 +15,22 @@ pnpm install
 just sol dev
 ```
 
+## Runtime Asset Sync (Contributors)
+
+Canonical runtime assets live under `src/ssg/assets/scripts/`.
+When you update Luna loader runtime, sync in this order:
+
+```bash
+# 1) Sync from luna.mbt dist -> Sol canonical assets -> examples/static
+just sync-luna-assets ../luna.mbt
+
+# 2) Check sync status only (CI-friendly)
+just check-luna-assets ../luna.mbt
+
+# 3) Re-sync examples/static from canonical assets
+just sync-example-assets
+```
+
 ## Features
 
 - **Hono Integration**: Server based on lightweight Hono
@@ -396,6 +412,27 @@ pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[CounterAction] {
 | `Visible` | On IntersectionObserver detection |
 | `Media(query)` | On media query match |
 | `None` | Manual trigger |
+
+### Hydration Module Origin Policy
+
+`loader.js` only allows same-origin module URLs by default.
+Cross-origin hydration modules are blocked unless host/origin is explicitly allowed.
+
+```html
+<script>
+  window.__LUNA_ALLOWED_HOSTS__ = [
+    "127.0.0.1:3456",
+    "https://cdn.example.com"
+  ];
+</script>
+```
+
+You can also update this allowlist at runtime, then re-scan islands:
+
+```js
+window.__LUNA_SET_ALLOWED_HOSTS__?.(["127.0.0.1"]);
+window.__LUNA_SCAN__?.();
+```
 
 ## CSR Navigation
 
