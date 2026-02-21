@@ -8,6 +8,12 @@ default: check
 # 日常開発
 # =============================================================================
 
+# 開発環境セットアップ
+bootstrap:
+    pnpm install
+    moon update
+    moon install
+
 # 型チェック
 check:
     moon check --target js
@@ -24,6 +30,10 @@ watch:
 clean:
     moon clean
     rm -rf _build target .turbo/cache
+
+# ローカル検証（PR 前）
+verify: check test test-docs build
+    @echo "✓ Local verification passed"
 
 # =============================================================================
 # ビルド
@@ -159,6 +169,12 @@ dev-doc:
 build-doc *args:
     just build-moon
     node _build/js/debug/build/cli/cli.js build {{args}}
+
+# docs スモークテスト
+smoke-docs:
+    test -f website/dist-docs/index.html
+    test -s website/dist-docs/index.html
+    grep -Eiq "<!doctype html|<!DOCTYPE html>" website/dist-docs/index.html
 
 # docs lint
 lint-doc:

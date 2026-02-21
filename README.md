@@ -38,7 +38,10 @@ Sol is organized around Mars as the server foundation, with these primary respon
 
 Migration guide for existing Mars users: `docs/migrate-from-mars.md`
 Documentation guide: `docs/README.md`
+Onboarding guide: `docs/onboarding.md`
 Quickstart guide: `docs/quickstart.md`
+Deploy guide: `docs/deploy.md`
+Runbook: `docs/runbook.md`
 Troubleshooting guide: `docs/troubleshooting.md`
 
 ## Quick Start

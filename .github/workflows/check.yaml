@@ -8,17 +8,17 @@ on:
   pull_request:
 
 jobs:
-  # Fast: moon check
-  check:
+  # Local golden path in CI: bootstrap -> verify
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - uses: extractions/setup-just@v3
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -26,52 +26,10 @@ jobs:
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
-      - run: |
-          moon update
-          moon install
-      - name: moon check
-        run: moon check --target js
-
-  # MoonBit unit tests
-  test-moonbit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - run: pnpm install
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: "pnpm"
-      - uses: hustcer/setup-moonbit@v1
-        with:
-          version: latest
-      - run: |
-          moon update
-          moon install
-      - name: Setup CJS test environment
-        run: |
-          mkdir -p _build/js/debug/test
-          echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
-      - name: moon test
-        run: moon test --target js
-
-  # Docs consistency tests
-  test-docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-      - name: docs tests
-        run: node --test docs/docs-index.test.js docs/docs-chapters.test.js docs/docs-build-paths.test.js docs/docs-ci.test.js
+      - name: Bootstrap
+        run: just bootstrap
+      - name: Verify
+        run: just verify
 
   # Cross-platform tests (non-JS targets: wasm, wasm-gc, native)
   test-xplat:
@@ -100,10 +58,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - uses: extractions/setup-just@v3
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
-      - run: pnpm install
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -111,9 +69,8 @@ jobs:
       - uses: hustcer/setup-moonbit@v1
         with:
           version: latest
-      - run: |
-          moon update
-          moon install
+      - name: Bootstrap
+        run: just bootstrap
       - name: Build examples
         run: |
           moon info

@@ -1,7 +1,42 @@
 name: docs
 
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: docs-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
 on:
   workflow_dispatch:
+    inputs:
+      rollback_ref:
+        description: "Rollback target ref (tag/commit/branch). Empty means normal build."
+        required: false
+        type: string
+      override_change_warning:
+        description: "Set FORCE_DEPLOY_LARGE_CHANGE to allow production deploy when warning level is high."
+        required: false
+        type: string
+      rollback_mode:
+        description: "Rollback mode. dry-run checks only, apply deploys to production."
+        required: false
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+      rollback_confirm:
+        description: "Set ROLLBACK_PRODUCTION when rollback_mode=apply."
+        required: false
+        type: string
+  pull_request:
+    paths:
+      - 'website/**'
+      - 'src/ssg/**'
+      - 'sol.config.json'
+      - '.github/workflows/docs.yaml'
   push:
     branches:
       - main
@@ -13,6 +48,7 @@ on:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.rollback_ref == ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +61,8 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
+
+      - uses: extractions/setup-just@v3
 
       - run: pnpm install
 
@@ -52,37 +90,718 @@ jobs:
       - name: Build docs with Sol SSG
         run: node _build/js/release/build/cli/cli.js build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Smoke test built docs
+        run: just smoke-docs
+
+      - name: Generate deploy metadata
+        run: |
+          mkdir -p tmp
+          DOCS_FILE_COUNT="$(find website/dist-docs -type f | wc -l | tr -d ' ')"
+          if [ "${DOCS_FILE_COUNT}" -eq 0 ]; then
+            DOCS_DIST_SHA256="(empty)"
+          else
+            DOCS_DIST_SHA256="$(
+              find website/dist-docs -type f -print0 \
+                | sort -z \
+                | xargs -0 sha256sum \
+                | sha256sum \
+                | cut -d' ' -f1
+            )"
+          fi
+          {
+            echo "ref=${GITHUB_REF}"
+            echo "sha=${GITHUB_SHA}"
+            echo "run_id=${GITHUB_RUN_ID}"
+            echo "run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "generated_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo "docs_index_count=$(find website/dist-docs -name index.html | wc -l | tr -d ' ')"
+            echo "docs_file_count=${DOCS_FILE_COUNT}"
+            echo "docs_dist_sha256=${DOCS_DIST_SHA256}"
+          } > tmp/docs-build-meta.txt
+
+      - name: Generate change summary metadata
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          mkdir -p tmp
+          HEAD_SHA="${GITHUB_SHA}"
+          BASE_SHA=""
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -n "${PR_BASE_SHA:-}" ]; then
+            BASE_SHA="${PR_BASE_SHA}"
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [ -n "${PUSH_BEFORE_SHA:-}" ] && [ "${PUSH_BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA="${PUSH_BEFORE_SHA}"
+          else
+            BASE_SHA="${HEAD_SHA}"
+          fi
+
+          if [ "${BASE_SHA}" != "${HEAD_SHA}" ]; then
+            git fetch --no-tags origin "${BASE_SHA}" --depth=1 || true
+            CHANGED_FILES="$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}" -- docs website src/ssg README.md .github/workflows/docs.yaml || true)"
+          else
+            CHANGED_FILES=""
+          fi
+
+          CHANGED_COUNT="$(printf "%s\n" "${CHANGED_FILES}" | sed '/^$/d' | wc -l | tr -d ' ')"
+          if [ -z "${CHANGED_COUNT}" ]; then
+            CHANGED_COUNT="0"
+          fi
+          CHANGED_PREVIEW="$(printf "%s\n" "${CHANGED_FILES}" | sed '/^$/d' | head -n 30)"
+          if [ -z "${CHANGED_PREVIEW}" ]; then
+            CHANGED_PREVIEW="(none in docs scope)"
+          fi
+
+          {
+            echo "compare_base=${BASE_SHA}"
+            echo "compare_head=${HEAD_SHA}"
+            echo "changed_files_count=${CHANGED_COUNT}"
+            echo "changed_files:"
+            printf "%s\n" "${CHANGED_PREVIEW}"
+          } > tmp/docs-change-meta.txt
+
+      - name: Evaluate change volume warning
+        env:
+          DOCS_CHANGE_WARN_THRESHOLD_INPUT: ${{ vars.DOCS_CHANGE_WARN_THRESHOLD }}
+        run: |
+          DEFAULT_CHANGE_WARN_THRESHOLD=200
+          CHANGE_WARN_THRESHOLD="${DOCS_CHANGE_WARN_THRESHOLD_INPUT}"
+          THRESHOLD_SOURCE="repo_var"
+          if ! printf '%s' "${CHANGE_WARN_THRESHOLD}" | grep -Eq '^[0-9]+$'; then
+            CHANGE_WARN_THRESHOLD="${DEFAULT_CHANGE_WARN_THRESHOLD}"
+            THRESHOLD_SOURCE="default"
+          fi
+          CHANGED_COUNT="$(grep '^changed_files_count=' tmp/docs-change-meta.txt | cut -d'=' -f2 || true)"
+          if [ -z "${CHANGED_COUNT}" ]; then
+            CHANGED_COUNT="0"
+          fi
+          LEVEL="ok"
+          MESSAGE="changed_files_count within threshold (${CHANGE_WARN_THRESHOLD})"
+          if [ "${CHANGED_COUNT}" -gt "${CHANGE_WARN_THRESHOLD}" ]; then
+            LEVEL="warning"
+            MESSAGE="changed_files_count exceeds threshold (${CHANGE_WARN_THRESHOLD})"
+          fi
+          {
+            echo "threshold=${CHANGE_WARN_THRESHOLD}"
+            echo "threshold_source=${THRESHOLD_SOURCE}"
+            echo "changed_files_count=${CHANGED_COUNT}"
+            echo "level=${LEVEL}"
+            echo "message=${MESSAGE}"
+          } > tmp/docs-change-warning.txt
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: docs-dist
           path: website/dist-docs
 
-      # Cloudflare Pages deploy (dry-run)
-      # To enable actual deployment:
-      # 1. Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to repository secrets
-      # 2. Remove the --dry-run flag below
-      - name: Deploy to Cloudflare Pages (dry-run)
-        run: |
-          echo "=== Cloudflare Pages Deploy (dry-run) ==="
-          echo "Would deploy website/dist-docs/ to Cloudflare Pages"
-          echo ""
-          echo "Files to deploy:"
-          find website/dist-docs -type f | head -20
-          echo "..."
-          echo ""
-          echo "Total files: $(find website/dist-docs -type f | wc -l)"
-          echo "Total size: $(du -sh website/dist-docs | cut -f1)"
-          echo ""
-          echo "To enable actual deployment, configure the following secrets:"
-          echo "  - CLOUDFLARE_API_TOKEN"
-          echo "  - CLOUDFLARE_ACCOUNT_ID"
-          echo "And uncomment the wrangler deploy step below"
+      - name: Upload deploy metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-build-meta
+          path: tmp/docs-build-meta.txt
 
-      # Uncomment to enable actual Cloudflare Pages deployment:
-      # - name: Deploy to Cloudflare Pages
-      #   if: github.ref == 'refs/heads/main'
-      #   env:
-      #     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      #     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      #   run: |
-      #     npx wrangler pages deploy website/dist-docs --project-name=sol-docs
+      - name: Upload change metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-change-meta
+          path: tmp/docs-change-meta.txt
+
+      - name: Upload change warning artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-change-warning
+          path: tmp/docs-change-warning.txt
+
+  deploy-preview:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-dist
+          path: website/dist-docs
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-build-meta
+          path: tmp
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-change-meta
+          path: tmp
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-change-warning
+          path: tmp
+      - name: Verify docs artifact integrity (preview)
+        run: |
+          EXPECTED_SHA="$(grep '^docs_dist_sha256=' tmp/docs-build-meta.txt | cut -d'=' -f2 || true)"
+          EXPECTED_COUNT="$(grep '^docs_file_count=' tmp/docs-build-meta.txt | cut -d'=' -f2 || true)"
+          ACTUAL_COUNT="$(find website/dist-docs -type f | wc -l | tr -d ' ')"
+          if [ "${ACTUAL_COUNT}" -eq 0 ]; then
+            ACTUAL_SHA="(empty)"
+          else
+            ACTUAL_SHA="$(
+              find website/dist-docs -type f -print0 \
+                | sort -z \
+                | xargs -0 sha256sum \
+                | sha256sum \
+                | cut -d' ' -f1
+            )"
+          fi
+          if [ -z "${EXPECTED_SHA}" ] || [ -z "${EXPECTED_COUNT}" ]; then
+            echo "docs artifact verification metadata is missing."
+            exit 1
+          fi
+          if [ "${EXPECTED_COUNT}" != "${ACTUAL_COUNT}" ] || [ "${EXPECTED_SHA}" != "${ACTUAL_SHA}" ]; then
+            echo "docs artifact integrity check failed."
+            echo "expected_count=${EXPECTED_COUNT}"
+            echo "actual_count=${ACTUAL_COUNT}"
+            echo "expected_sha=${EXPECTED_SHA}"
+            echo "actual_sha=${ACTUAL_SHA}"
+            exit 1
+          fi
+          {
+            echo "status=ok"
+            echo "expected_count=${EXPECTED_COUNT}"
+            echo "actual_count=${ACTUAL_COUNT}"
+            echo "sha256=${ACTUAL_SHA}"
+          } > tmp/docs-artifact-verify.txt
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - name: Deploy preview to Cloudflare Pages
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs --branch=preview-pr-${{ github.event.pull_request.number }}
+      - name: Skip preview deploy (missing secrets)
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '' }}
+        run: echo "Skipping preview deploy because Cloudflare secrets are not configured."
+      - name: Publish preview deploy summary
+        run: |
+          {
+            echo "## Docs Preview Deploy"
+            echo "- mode: preview"
+            echo "- pr: #${{ github.event.pull_request.number }}"
+            echo "- branch: preview-pr-${{ github.event.pull_request.number }}"
+            echo "- preview_url: https://preview-pr-${{ github.event.pull_request.number }}.sol-docs.pages.dev"
+            echo "- project: sol-docs"
+            echo ""
+            echo "### Build metadata"
+            cat tmp/docs-build-meta.txt
+            echo ""
+            echo "### Artifact integrity"
+            cat tmp/docs-artifact-verify.txt
+            echo ""
+            echo "### Change metadata"
+            cat tmp/docs-change-meta.txt
+            echo ""
+            echo "### Change volume warning"
+            cat tmp/docs-change-warning.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-production:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_ref == '')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-dist
+          path: website/dist-docs
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-build-meta
+          path: tmp
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-change-meta
+          path: tmp
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-change-warning
+          path: tmp
+      - name: Verify docs artifact integrity (production)
+        run: |
+          EXPECTED_SHA="$(grep '^docs_dist_sha256=' tmp/docs-build-meta.txt | cut -d'=' -f2 || true)"
+          EXPECTED_COUNT="$(grep '^docs_file_count=' tmp/docs-build-meta.txt | cut -d'=' -f2 || true)"
+          ACTUAL_COUNT="$(find website/dist-docs -type f | wc -l | tr -d ' ')"
+          if [ "${ACTUAL_COUNT}" -eq 0 ]; then
+            ACTUAL_SHA="(empty)"
+          else
+            ACTUAL_SHA="$(
+              find website/dist-docs -type f -print0 \
+                | sort -z \
+                | xargs -0 sha256sum \
+                | sha256sum \
+                | cut -d' ' -f1
+            )"
+          fi
+          if [ -z "${EXPECTED_SHA}" ] || [ -z "${EXPECTED_COUNT}" ]; then
+            echo "docs artifact verification metadata is missing."
+            exit 1
+          fi
+          if [ "${EXPECTED_COUNT}" != "${ACTUAL_COUNT}" ] || [ "${EXPECTED_SHA}" != "${ACTUAL_SHA}" ]; then
+            echo "docs artifact integrity check failed."
+            echo "expected_count=${EXPECTED_COUNT}"
+            echo "actual_count=${ACTUAL_COUNT}"
+            echo "expected_sha=${EXPECTED_SHA}"
+            echo "actual_sha=${ACTUAL_SHA}"
+            exit 1
+          fi
+          {
+            echo "status=ok"
+            echo "expected_count=${EXPECTED_COUNT}"
+            echo "actual_count=${ACTUAL_COUNT}"
+            echo "sha256=${ACTUAL_SHA}"
+          } > tmp/docs-artifact-verify.txt
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - name: Guard production deploy on large change
+        run: |
+          LEVEL="$(grep '^level=' tmp/docs-change-warning.txt | cut -d'=' -f2 || true)"
+          MESSAGE="$(grep '^message=' tmp/docs-change-warning.txt | cut -d'=' -f2- || true)"
+          EVENT_NAME="${GITHUB_EVENT_NAME}"
+          OVERRIDE_INPUT="${{ github.event.inputs.override_change_warning }}"
+          DECISION="allow"
+          REASON="change volume within threshold"
+
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            if [ "${OVERRIDE_INPUT}" = "FORCE_DEPLOY_LARGE_CHANGE" ]; then
+              DECISION="allow"
+              REASON="manual workflow_dispatch allowed by override token"
+            else
+              DECISION="block"
+              REASON="workflow_dispatch production deploy requires override token"
+            fi
+          elif [ "${LEVEL}" = "warning" ]; then
+            DECISION="block"
+            REASON="warning level requires manual workflow_dispatch with override token"
+          fi
+
+          {
+            echo "decision=${DECISION}"
+            echo "level=${LEVEL}"
+            echo "reason=${REASON}"
+            echo "message=${MESSAGE}"
+          } > tmp/docs-deploy-guard.txt
+
+          if [ "${DECISION}" = "block" ]; then
+            echo "Production deploy blocked by guard."
+            echo "Run workflow_dispatch with rollback_ref empty and override_change_warning=FORCE_DEPLOY_LARGE_CHANGE after manual review."
+            exit 1
+          fi
+      - name: Deploy production to Cloudflare Pages
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs
+      - name: Skip production deploy (missing secrets)
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '' }}
+        run: echo "Skipping production deploy because Cloudflare secrets are not configured."
+      - name: Publish production deploy summary
+        if: ${{ always() }}
+        run: |
+          {
+            echo "## Docs Production Deploy"
+            echo "- mode: production"
+            echo "- ref: ${GITHUB_REF}"
+            echo "- production_url: https://sol-docs.pages.dev"
+            echo "- project: sol-docs"
+            echo ""
+            echo "### Build metadata"
+            cat tmp/docs-build-meta.txt
+            echo ""
+            echo "### Artifact integrity"
+            cat tmp/docs-artifact-verify.txt
+            echo ""
+            echo "### Change metadata"
+            cat tmp/docs-change-meta.txt
+            echo ""
+            echo "### Change volume warning"
+            cat tmp/docs-change-warning.txt
+            echo ""
+            echo "### Deploy guard decision"
+            cat tmp/docs-deploy-guard.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Notify guard block issue
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("node:fs");
+            const guardPath = "tmp/docs-deploy-guard.txt";
+            const buildMetaPath = "tmp/docs-build-meta.txt";
+            const artifactVerifyPath = "tmp/docs-artifact-verify.txt";
+            const parseKvFile = (filepath) => {
+              const out = {};
+              if (!fs.existsSync(filepath)) {
+                return out;
+              }
+              for (const line of fs.readFileSync(filepath, "utf8").split("\n")) {
+                if (!line || !line.includes("=")) continue;
+                const idx = line.indexOf("=");
+                const key = line.slice(0, idx);
+                const value = line.slice(idx + 1);
+                out[key] = value;
+              }
+              return out;
+            };
+            if (!fs.existsSync(guardPath)) {
+              core.info("skip issue notification: guard metadata not found");
+              return;
+            }
+
+            const kv = parseKvFile(guardPath);
+            const buildKv = parseKvFile(buildMetaPath);
+            const artifactKv = parseKvFile(artifactVerifyPath);
+
+            if (kv.decision !== "block") {
+              core.info("skip issue notification: guard decision is not block");
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const shortSha = process.env.GITHUB_SHA.slice(0, 7);
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${owner}/${repo}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const label = "docs-deploy-guard";
+            const title = `Docs deploy blocked (${shortSha})`;
+            const searchKeyLines = [
+              `- docs_ref=${process.env.GITHUB_REF}`,
+              `- docs_sha=${process.env.GITHUB_SHA}`,
+            ];
+            const integrityLines = [
+              "Artifact integrity:",
+              `- integrity_status: ${artifactKv.status || "(missing)"}`,
+              `- expected_file_count: ${buildKv.docs_file_count || "(unknown)"}`,
+              `- expected_sha256: ${buildKv.docs_dist_sha256 || "(unknown)"}`,
+              `- verified_file_count: ${artifactKv.actual_count || "(unknown)"}`,
+              `- verified_sha256: ${artifactKv.sha256 || "(unknown)"}`,
+            ];
+            const body = [
+              "Production docs deploy was blocked by guard.",
+              "",
+              `- ref: ${process.env.GITHUB_REF}`,
+              `- sha: ${process.env.GITHUB_SHA}`,
+              ...searchKeyLines,
+              `- reason: ${kv.reason || "(unknown)"}`,
+              `- message: ${kv.message || "(none)"}`,
+              `- run: ${runUrl}`,
+              "",
+              ...integrityLines,
+              "",
+              "Manual override after review:",
+              "- workflow_dispatch with rollback_ref empty",
+              "- override_change_warning=FORCE_DEPLOY_LARGE_CHANGE",
+            ].join("\n");
+
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: label });
+            } catch (error) {
+              if (error.status === 404) {
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name: label,
+                  color: "B60205",
+                  description: "Docs deploy blocked by change guard",
+                });
+              } else {
+                throw error;
+              }
+            }
+
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: "open",
+              labels: label,
+              per_page: 100,
+            });
+            const matchingRefIssues = existing.filter((issue) => {
+              if (issue.pull_request || !issue.title.startsWith("Docs deploy blocked (")) {
+                return false;
+              }
+              const existingIssueBody = issue.body || "";
+              return existingIssueBody.includes(`- ref: ${process.env.GITHUB_REF}`) ||
+                existingIssueBody.includes(`- docs_ref=${process.env.GITHUB_REF}`);
+            });
+            const sortedRefIssues = matchingRefIssues.sort((a, b) => b.number - a.number);
+            const existingRefIssue = sortedRefIssues[0];
+            const duplicateRefIssues = sortedRefIssues.slice(1);
+
+            for (const duplicateIssue of duplicateRefIssues) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: duplicateIssue.number,
+                body: [
+                  "Closed automatically because a newer docs guard issue exists for the same ref.",
+                  "",
+                  `- ref: ${process.env.GITHUB_REF}`,
+                  `- sha: ${process.env.GITHUB_SHA}`,
+                  ...searchKeyLines,
+                  `- run: ${runUrl}`,
+                ].join("\n"),
+              });
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: duplicateIssue.number,
+                state: "closed",
+              });
+            }
+            if (duplicateRefIssues.length > 0) {
+              core.notice(`consolidated ${duplicateRefIssues.length} duplicate docs guard issue(s)`);
+            }
+
+            if (existingRefIssue) {
+              const existingComments = await github.paginate(github.rest.issues.listComments, {
+                owner,
+                repo,
+                issue_number: existingRefIssue.number,
+                per_page: 100,
+              });
+              const currentShaCommentExists = existingComments.some((comment) => {
+                const commentBody = comment.body || "";
+                return commentBody.includes("Another docs deploy block was detected on the same ref.") &&
+                  commentBody.includes(`- sha: ${process.env.GITHUB_SHA}`);
+              });
+              if (currentShaCommentExists) {
+                core.info("skip issue notification: existing ref issue already has current sha comment");
+                return;
+              }
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existingRefIssue.number,
+                body: [
+                  "Another docs deploy block was detected on the same ref.",
+                  "",
+                  `- ref: ${process.env.GITHUB_REF}`,
+                  `- sha: ${process.env.GITHUB_SHA}`,
+                  ...searchKeyLines,
+                  `- reason: ${kv.reason || "(unknown)"}`,
+                  `- message: ${kv.message || "(none)"}`,
+                  `- run: ${runUrl}`,
+                  "",
+                  ...integrityLines,
+                ].join("\n"),
+              });
+              core.info(`skip issue notification: reused issue #${existingRefIssue.number}`);
+              return;
+            }
+
+            const created = await github.rest.issues.create({
+              owner,
+              repo,
+              title,
+              body,
+              labels: [label],
+            });
+            core.notice(`created docs guard issue #${created.data.number}`);
+      - name: Resolve guard block issues
+        if: ${{ success() && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_ref == '')) && secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("node:fs");
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const label = "docs-deploy-guard";
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${owner}/${repo}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const appendResolveSummary = (lines) => {
+              const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+              if (!summaryPath) {
+                return;
+              }
+              fs.appendFileSync(summaryPath, `${lines.join("\n")}\n`);
+            };
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: "open",
+              labels: label,
+              per_page: 100,
+            });
+            const targets = openIssues.filter((issue) => {
+              if (issue.pull_request || !issue.title.startsWith("Docs deploy blocked (")) {
+                return false;
+              }
+              const issueBody = issue.body || "";
+              return issueBody.includes(`- ref: ${process.env.GITHUB_REF}`) ||
+                issueBody.includes(`- docs_ref=${process.env.GITHUB_REF}`);
+            });
+
+            if (targets.length === 0) {
+              core.info("skip issue close: no open docs guard issues for this ref");
+              appendResolveSummary([
+                "### Guard issue resolve",
+                "- result: skipped",
+                "- target_issue: (none)",
+                "- stale_issue_count: 0",
+                "- stale_issue_numbers: (none)",
+              ]);
+              return;
+            }
+
+            const sortedTargets = targets.sort((a, b) => b.number - a.number);
+            const targetIssue = sortedTargets[0];
+            const staleTargets = sortedTargets.slice(1);
+            const staleIssueNumbers = staleTargets.map((issue) => `#${issue.number}`).join(", ");
+
+            if (staleTargets.length > 0) {
+              core.info(`skip closing ${staleTargets.length} stale docs guard issue(s) in resolve step`);
+            }
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: targetIssue.number,
+              body: [
+                "Closed automatically after successful docs production deploy.",
+                "",
+                `- ref: ${process.env.GITHUB_REF}`,
+                `- sha: ${process.env.GITHUB_SHA}`,
+                `- docs_ref=${process.env.GITHUB_REF}`,
+                `- docs_sha=${process.env.GITHUB_SHA}`,
+                `- run: ${runUrl}`,
+              ].join("\n"),
+            });
+            await github.rest.issues.update({
+              owner,
+              repo,
+              issue_number: targetIssue.number,
+              state: "closed",
+            });
+
+            core.notice(`closed docs guard issue #${targetIssue.number}`);
+            appendResolveSummary([
+              "### Guard issue resolve",
+              "- result: closed",
+              `- target_issue: #${targetIssue.number}`,
+              `- stale_issue_count: ${staleTargets.length}`,
+              `- stale_issue_numbers: ${staleIssueNumbers || "(none)"}`,
+            ]);
+
+  rollback-production:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_ref != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.inputs.rollback_ref }}
+
+      - name: Clone markdown.mbt
+        run: git clone --depth 1 https://github.com/mizchi/markdown.mbt ../markdown.mbt
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: extractions/setup-just@v3
+
+      - run: pnpm install
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+
+      - run: |
+          moon update
+          moon install
+
+      - name: Sync markdown.mbt sources
+        run: |
+          cp ../markdown.mbt/moon.mod.json .mooncakes/mizchi/markdown/
+          cp -r ../markdown.mbt/src/* .mooncakes/mizchi/markdown/src/
+
+      - name: Build MoonBit
+        run: moon build --target js --release src/cli
+
+      - name: Build docs from rollback ref
+        run: node _build/js/release/build/cli/cli.js build
+
+      - name: Smoke test built docs
+        run: just smoke-docs
+
+      - name: Generate rollback metadata
+        run: |
+          mkdir -p tmp
+          {
+            echo "rollback_ref=${{ github.event.inputs.rollback_ref }}"
+            echo "rollback_mode=${{ github.event.inputs.rollback_mode }}"
+            echo "run_id=${GITHUB_RUN_ID}"
+            echo "run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "generated_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          } > tmp/docs-rollback-meta.txt
+
+      - name: Upload rollback metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-rollback-meta
+          path: tmp/docs-rollback-meta.txt
+
+      - name: Rollback dry run (no deploy)
+        if: ${{ github.event.inputs.rollback_mode == 'dry-run' }}
+        run: |
+          echo "Rollback dry-run completed."
+          echo "Would deploy ref: ${{ github.event.inputs.rollback_ref }}"
+          echo "Command: pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs"
+
+      - name: Guard rollback apply confirmation
+        if: ${{ github.event.inputs.rollback_mode == 'apply' && github.event.inputs.rollback_confirm != 'ROLLBACK_PRODUCTION' }}
+        run: |
+          echo "rollback_mode=apply requires rollback_confirm=ROLLBACK_PRODUCTION"
+          exit 1
+
+      - name: Deploy rollback to Cloudflare Pages production
+        if: ${{ github.event.inputs.rollback_mode == 'apply' && github.event.inputs.rollback_confirm == 'ROLLBACK_PRODUCTION' && secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs
+
+      - name: Skip rollback deploy (missing secrets)
+        if: ${{ github.event.inputs.rollback_mode == 'apply' && github.event.inputs.rollback_confirm == 'ROLLBACK_PRODUCTION' && (secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '') }}
+        run: echo "Skipping rollback deploy because Cloudflare secrets are not configured."
+
+      - name: Publish rollback deploy summary
+        run: |
+          {
+            echo "## Docs Rollback"
+            echo "- mode: rollback"
+            echo "- rollback_ref: ${{ github.event.inputs.rollback_ref }}"
+            echo "- rollback_mode: ${{ github.event.inputs.rollback_mode }}"
+            echo "- production_url: https://sol-docs.pages.dev"
+            echo "- project: sol-docs"
+            echo ""
+            echo "### Rollback metadata"
+            cat tmp/docs-rollback-meta.txt
+          } >> "$GITHUB_STEP_SUMMARY"

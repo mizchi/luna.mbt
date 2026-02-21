@@ -4,19 +4,25 @@
 
 ## 読む順
 
-1. 導入（最短起動）
+1. 開発参加の準備
+   - `docs/onboarding.md`
+2. 導入（最短起動）
    - `docs/quickstart.md`
-2. ルーティング仕様
+3. デプロイ運用
+   - `docs/deploy.md`
+4. 障害対応
+   - `docs/runbook.md`
+5. ルーティング仕様
    - `docs/routing.md`
-3. 開発運用（ベンチ）
+6. 開発運用（ベンチ）
    - `docs/benchmarking.md`
-4. トラブルシューティング
+7. トラブルシューティング
    - `docs/troubleshooting.md`
-5. 開発時体験（HMR）
+8. 開発時体験（HMR）
    - `docs/hot-reload.md`
-6. 移行
+9. 移行
    - `docs/migrate-from-mars.md`
-7. 高度な設計（Wasm entrypoint）
+10. 高度な設計（Wasm entrypoint）
    - `docs/wasm-entrypoint.md`
 
 ## 目的別リンク
@@ -25,7 +31,12 @@
   - `docs/routing.md`
   - `docs/benchmarking.md`
 - まず動かしたい
+  - `docs/onboarding.md`
   - `docs/quickstart.md`
+- デプロイを確認したい
+  - `docs/deploy.md`
+- 障害対応を確認したい
+  - `docs/runbook.md`
 - 問題を切り分けたい
   - `docs/troubleshooting.md`
 - `mars` から段階移行したい
@@ -39,7 +50,10 @@
 
 | Path | Role | Notes |
 |---|---|---|
+| `docs/onboarding.md` | ガイド | 開発参加の初日手順と `just verify` |
 | `docs/quickstart.md` | ガイド | `dev -> build -> serve` の最短手順 |
+| `docs/deploy.md` | ガイド | docs の preview / production 配信手順 |
+| `docs/runbook.md` | 運用 | docs の障害対応と rollback 手順 |
 | `docs/routing.md` | 仕様（単一ソース） | API 選択、Layout semantics、`source_path` 規約 |
 | `docs/benchmarking.md` | 仕様（単一ソース） | k6 手順、`SOL_BENCH_MODE`、高負荷時のばらつき切り分け |
 | `docs/troubleshooting.md` | 運用 | 404/HMR/ベンチぶれの切り分け |
