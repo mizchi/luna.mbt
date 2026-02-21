@@ -93,7 +93,7 @@ test-docs:
 
 # CLI ゴールデンパス E2E（new -> dev/build/deploy help）
 test-cli-golden:
-    node --test e2e/cli-golden-path.test.js e2e/example-static-assets-sync.test.js
+    node --test e2e/cli-golden-path.test.js e2e/example-static-assets-sync.test.js e2e/luna-loader-sync.test.js
 
 test-all: test test-ssg test-xplat test-docs test-cli-golden test-e2e test-sol-app
 
@@ -113,6 +113,14 @@ sol *args:
 # examples の静的ランタイム（loader/wc-loader）を正規ソースに同期
 sync-example-assets:
     node scripts/sync-example-static-assets.mjs
+
+# luna loader dist から core/runtime assets を同期（loader はセキュリティ要件を満たす場合のみ）
+sync-luna-assets luna_dir="../luna.mbt":
+    node scripts/sync-luna-loader-assets.mjs --luna-dir {{luna_dir}}
+
+# luna との同期状態を検証（更新せず確認のみ）
+check-luna-assets luna_dir="../luna.mbt":
+    node scripts/sync-luna-loader-assets.mjs --luna-dir {{luna_dir}} --check
 
 # sol_app 開発サーバー（フレームワークホットリロード付き）
 dev-app:
