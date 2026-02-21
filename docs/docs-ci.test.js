@@ -35,7 +35,8 @@ test("GitHub check workflow follows just bootstrap -> just verify", () => {
 test("justfile defines bootstrap and verify targets", () => {
   const justfile = fs.readFileSync(JUSTFILE, "utf8");
   assert.match(justfile, /^bootstrap:/m);
-  assert.match(justfile, /^verify:.*check.*test.*test-docs.*build/m);
+  assert.match(justfile, /^test-cli-golden:/m);
+  assert.match(justfile, /^verify:.*check.*test.*test-docs.*test-cli-golden.*build/m);
 });
 
 test("justfile defines smoke-docs target", () => {
@@ -50,6 +51,8 @@ test("onboarding doc defines the golden path", () => {
   assert.match(onboarding, /sol new/);
   assert.match(onboarding, /pnpm install/);
   assert.match(onboarding, /pnpm dev/);
+  assert.match(onboarding, /sol build/);
+  assert.match(onboarding, /sol deploy/);
   assert.match(onboarding, /just verify/);
 });
 
@@ -65,7 +68,11 @@ test("GitHub docs workflow defines preview and production deploy jobs", () => {
     workflow,
     /if:\s*\(github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'\)\s*\|\|\s*\(github\.event_name == 'workflow_dispatch' && github\.event\.inputs\.rollback_ref == ''\)/
   );
-  assert.match(workflow, /--branch=preview-pr-\$\{\{ github\.event\.pull_request\.number \}\}/);
+  assert.match(
+    workflow,
+    /--name=sol-docs-preview-pr-\$\{\{ github\.event\.pull_request\.number \}\}/
+  );
+  assert.match(workflow, /--name=sol-docs/);
 });
 
 test("GitHub docs workflow deploy jobs reuse built artifact", () => {
@@ -74,7 +81,11 @@ test("GitHub docs workflow deploy jobs reuse built artifact", () => {
   assert.match(workflow, /uses:\s*actions\/download-artifact@v4/);
   assert.match(
     workflow,
-    /wrangler(@\d+)? pages deploy website\/dist-docs --project-name=sol-docs/
+    /wrangler(@\d+)? deploy --config=wrangler\.json --name=sol-docs --assets=website\/dist-docs/
+  );
+  assert.match(
+    workflow,
+    /wrangler(@\d+)? deploy --config=wrangler\.json --name=sol-docs-preview-pr-\$\{\{ github\.event\.pull_request\.number \}\} --assets=website\/dist-docs/
   );
 });
 
@@ -97,8 +108,12 @@ test("GitHub docs workflow generates deploy metadata and publishes summaries", (
   assert.match(workflow, /docs-build-meta/);
   assert.match(workflow, /docs-change-meta/);
   assert.match(workflow, /docs-rollback-meta/);
-  assert.match(workflow, /preview-pr-\$\{\{ github\.event\.pull_request\.number \}\}\.sol-docs\.pages\.dev/);
-  assert.match(workflow, /sol-docs\.pages\.dev/);
+  assert.match(
+    workflow,
+    /worker_name:\s*sol-docs-preview-pr-\$\{\{ github\.event\.pull_request\.number \}\}/
+  );
+  assert.match(workflow, /worker_name:\s*sol-docs/);
+  assert.match(workflow, /workers_url_hint/);
   assert.match(workflow, /### Change metadata/);
   assert.match(workflow, /### Change volume warning/);
   assert.match(workflow, /### Deploy guard decision/);
@@ -169,6 +184,10 @@ test("GitHub docs workflow runs smoke tests and defines rollback job", () => {
   assert.match(
     workflow,
     /if:\s*\$\{\{\s*github\.event\.inputs\.rollback_mode == 'dry-run'\s*\}\}/
+  );
+  assert.match(
+    workflow,
+    /Command:\s*pnpm dlx wrangler@4 deploy --config=wrangler\.json --name=sol-docs --assets=website\/dist-docs/
   );
   assert.match(
     workflow,

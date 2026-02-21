@@ -274,13 +274,13 @@ jobs:
         with:
           node-version: 24
           cache: "pnpm"
-      - name: Deploy preview to Cloudflare Pages
+      - name: Deploy preview to Cloudflare Workers
         if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs --branch=preview-pr-${{ github.event.pull_request.number }}
+          pnpm dlx wrangler@4 deploy --config=wrangler.json --name=sol-docs-preview-pr-${{ github.event.pull_request.number }} --assets=website/dist-docs
       - name: Skip preview deploy (missing secrets)
         if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '' }}
         run: echo "Skipping preview deploy because Cloudflare secrets are not configured."
@@ -290,9 +290,8 @@ jobs:
             echo "## Docs Preview Deploy"
             echo "- mode: preview"
             echo "- pr: #${{ github.event.pull_request.number }}"
-            echo "- branch: preview-pr-${{ github.event.pull_request.number }}"
-            echo "- preview_url: https://preview-pr-${{ github.event.pull_request.number }}.sol-docs.pages.dev"
-            echo "- project: sol-docs"
+            echo "- worker_name: sol-docs-preview-pr-${{ github.event.pull_request.number }}"
+            echo "- workers_url_hint: https://sol-docs-preview-pr-${{ github.event.pull_request.number }}.<your-subdomain>.workers.dev"
             echo ""
             echo "### Build metadata"
             cat tmp/docs-build-meta.txt
@@ -403,13 +402,13 @@ jobs:
             echo "Run workflow_dispatch with rollback_ref empty and override_change_warning=FORCE_DEPLOY_LARGE_CHANGE after manual review."
             exit 1
           fi
-      - name: Deploy production to Cloudflare Pages
+      - name: Deploy production to Cloudflare Workers
         if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs
+          pnpm dlx wrangler@4 deploy --config=wrangler.json --name=sol-docs --assets=website/dist-docs
       - name: Skip production deploy (missing secrets)
         if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '' }}
         run: echo "Skipping production deploy because Cloudflare secrets are not configured."
@@ -420,8 +419,8 @@ jobs:
             echo "## Docs Production Deploy"
             echo "- mode: production"
             echo "- ref: ${GITHUB_REF}"
-            echo "- production_url: https://sol-docs.pages.dev"
-            echo "- project: sol-docs"
+            echo "- worker_name: sol-docs"
+            echo "- workers_url_hint: https://sol-docs.<your-subdomain>.workers.dev"
             echo ""
             echo "### Build metadata"
             cat tmp/docs-build-meta.txt
@@ -772,7 +771,7 @@ jobs:
         run: |
           echo "Rollback dry-run completed."
           echo "Would deploy ref: ${{ github.event.inputs.rollback_ref }}"
-          echo "Command: pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs"
+          echo "Command: pnpm dlx wrangler@4 deploy --config=wrangler.json --name=sol-docs --assets=website/dist-docs"
 
       - name: Guard rollback apply confirmation
         if: ${{ github.event.inputs.rollback_mode == 'apply' && github.event.inputs.rollback_confirm != 'ROLLBACK_PRODUCTION' }}
@@ -780,13 +779,13 @@ jobs:
           echo "rollback_mode=apply requires rollback_confirm=ROLLBACK_PRODUCTION"
           exit 1
 
-      - name: Deploy rollback to Cloudflare Pages production
+      - name: Deploy rollback to Cloudflare Workers production
         if: ${{ github.event.inputs.rollback_mode == 'apply' && github.event.inputs.rollback_confirm == 'ROLLBACK_PRODUCTION' && secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          pnpm dlx wrangler@4 pages deploy website/dist-docs --project-name=sol-docs
+          pnpm dlx wrangler@4 deploy --config=wrangler.json --name=sol-docs --assets=website/dist-docs
 
       - name: Skip rollback deploy (missing secrets)
         if: ${{ github.event.inputs.rollback_mode == 'apply' && github.event.inputs.rollback_confirm == 'ROLLBACK_PRODUCTION' && (secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '') }}
@@ -799,8 +798,8 @@ jobs:
             echo "- mode: rollback"
             echo "- rollback_ref: ${{ github.event.inputs.rollback_ref }}"
             echo "- rollback_mode: ${{ github.event.inputs.rollback_mode }}"
-            echo "- production_url: https://sol-docs.pages.dev"
-            echo "- project: sol-docs"
+            echo "- worker_name: sol-docs"
+            echo "- workers_url_hint: https://sol-docs.<your-subdomain>.workers.dev"
             echo ""
             echo "### Rollback metadata"
             cat tmp/docs-rollback-meta.txt

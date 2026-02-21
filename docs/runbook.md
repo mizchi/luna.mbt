@@ -5,14 +5,14 @@ docs 配信の障害対応と rollback 手順を定義します。
 ## 対象
 
 - workflow: `.github/workflows/docs.yaml`
-- 配信先: Cloudflare Pages (`sol-docs`)
+- 配信先: Cloudflare Workers (`sol-docs`)
 
 ## 監視ポイント
 
 1. GitHub Actions `docs` workflow の失敗有無
 2. `deploy-preview` / `deploy-production` / `rollback-production` の実行ログ
 3. `GITHUB_STEP_SUMMARY` の deploy サマリ
-4. 公開 URL の表示可否
+4. `worker_name` / `workers_url_hint` の表示と公開 URL の到達可否
 5. `### Deploy guard decision` の `decision`（allow/block）
 6. `concurrency` による自動キャンセルの有無（意図した run が残っているか）
 7. `### Artifact integrity` の `status=ok`（`sha256` と file count が一致）
@@ -67,7 +67,7 @@ just smoke-docs
 3. `rollback_ref` に復旧対象 ref を入力する
 4. まず `rollback_mode=dry-run` で実行し、`rollback-production` の dry-run 完了を確認する
 5. 本番反映が必要な場合のみ `rollback_mode=apply` にし、`rollback_confirm=ROLLBACK_PRODUCTION` を入力して実行する
-6. 本番 URL を開いて復旧を確認する
+6. summary の `worker_name=sol-docs` と `workers_url_hint` を確認し、本番 URL を開いて復旧を確認する
 
 `rollback_ref` が空の場合は通常 build フローが実行されます。
 

@@ -32,7 +32,7 @@ clean:
     rm -rf _build target .turbo/cache
 
 # ローカル検証（PR 前）
-verify: check test test-docs build
+verify: check test test-docs test-cli-golden build
     @echo "✓ Local verification passed"
 
 # =============================================================================
@@ -91,7 +91,11 @@ test-sol-app:
 test-docs:
     node --test docs/docs-index.test.js docs/docs-chapters.test.js docs/docs-build-paths.test.js docs/docs-ci.test.js
 
-test-all: test test-ssg test-xplat test-docs test-e2e test-sol-app
+# CLI ゴールデンパス E2E（new -> dev/build/deploy help）
+test-cli-golden:
+    node --test e2e/cli-golden-path.test.js
+
+test-all: test test-ssg test-xplat test-docs test-cli-golden test-e2e test-sol-app
 
 # =============================================================================
 # CLI

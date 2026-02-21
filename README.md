@@ -56,6 +56,10 @@ pnpm install
 
 # Start development server
 pnpm dev
+
+# Build and deploy preflight (Cloudflare Workers default)
+sol build
+sol deploy --dry-run
 ```
 
 ## Configuration
@@ -159,6 +163,16 @@ Serve production build. Requires prior `sol build`.
 ```bash
 sol serve              # Default port 7777
 sol serve --port 8080  # Specify port
+```
+
+### `sol deploy`
+
+Deployment preflight and command guidance (`cloudflare-workers` default).
+
+```bash
+sol deploy                                          # Dry-run guidance
+sol deploy --provider cloudflare-workers --project my-worker
+sol deploy --execute                                # Execute wrangler command
 ```
 
 ### `sol generate`

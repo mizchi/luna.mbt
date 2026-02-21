@@ -29,6 +29,8 @@ sol new myapp --user yourname
 cd myapp
 pnpm install
 pnpm dev
+sol build
+sol deploy --provider cloudflare-workers --dry-run
 ```
 
 確認ポイント:
@@ -53,6 +55,7 @@ just verify
 - `check`
 - `test`
 - `test-docs`
+- `test-cli-golden`
 - `build`
 
 ## 5. CI との整合

@@ -1,6 +1,6 @@
 # Docs Deploy Guide
 
-`website/dist-docs` を Cloudflare Pages に 2 段階で配信する運用です。
+`website/dist-docs` を Cloudflare Workers に 2 段階で配信する運用です。
 
 ## 目的
 
@@ -17,7 +17,7 @@
    - `docs-dist` artifact を作成
 2. `deploy-preview`
    - `pull_request` で実行
-   - `preview-pr-<PR番号>` ブランチに配信
+   - `sol-docs-preview-pr-<PR番号>` worker 名で preview 配信
 3. `deploy-production`
    - `push` to `main` または `workflow_dispatch`（`rollback_ref` 空）で実行
    - 本番に配信
@@ -30,6 +30,7 @@
 workflow には `concurrency` を設定しており、同じ系統の古い run は自動キャンセルされます（`workflow_dispatch` は手動オペレーション保護のためキャンセルしません）。
 
 各 deploy ジョブは `GITHUB_STEP_SUMMARY` に実行サマリを出力します。
+summary には `worker_name` と `workers_url_hint` を出力します（`<your-subdomain>` 部分は環境ごとに異なります）。
 build ジョブでは `docs-build-meta` artifact（ref/sha/件数など）を保存します。
 差分追跡用に `docs-change-meta` artifact（比較ベース/差分ファイル一覧）も保存します。
 `docs-build-meta` には `docs_file_count` と `docs_dist_sha256` を含め、`deploy-preview` / `deploy-production` で成果物整合性（sha256 + 件数）を検証してから deploy します。
@@ -90,6 +91,6 @@ just build-doc
 1. build 失敗: `build` ジョブのログを確認
 2. deploy 失敗: secrets の有無と `wrangler` 実行ログを確認
 3. 整合性チェック失敗: `Verify docs artifact integrity (preview|production)` の expected/actual（count, sha256）を確認
-4. preview 未反映: PR 番号付き branch (`preview-pr-*`) の deploy 結果を確認
+4. preview 未反映: `worker_name=sol-docs-preview-pr-<PR番号>` の deploy 結果を確認
 
 より詳細な障害対応は `docs/runbook.md` を参照してください。

@@ -13,6 +13,7 @@ fn show_help() -> Unit {
     #|  dev            Start development server (SSR or SSG mode)
     #|  build          Build for production (SSR + SSG if configured)
     #|  serve          Serve production build
+    #|  deploy         Run deploy preflight and print deploy command
     #|  generate       Generate .sol directory from config
     #|  lint           Lint SSG documentation (requires ssg config)
     #|  clean          Remove generated files and caches
@@ -67,6 +68,7 @@ async fn main {
     "dev" => run_dev_command(command_args)
     "build" => run_build_command(command_args)
     "serve" => run_serve_command(command_args)
+    "deploy" => run_deploy_command(command_args)
     "generate" => run_generate_command(command_args)
     "lint" => run_ssg_lint(command_args)
     "clean" => run_clean_command(command_args)
