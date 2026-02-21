@@ -161,6 +161,110 @@ test.describe("luna-loader-v1 E2E Tests", () => {
     });
   });
 
+  test.describe("SSR/CSR Hydration Stability", () => {
+    test("re-scan after SSR hydration does not duplicate click handlers", async ({
+      page,
+    }) => {
+      await page.goto("/loader/basic");
+
+      const component = page.locator('[luna\\:id="counter-1"]');
+      const count = page.locator("[data-count]");
+      const incBtn = page.locator("[data-inc]");
+
+      await expect(component).toHaveAttribute("data-hydrated", "true");
+      await expect(count).toHaveText("5");
+
+      // Re-scan should not cause duplicate hydration side effects.
+      await page.evaluate(() => {
+        (window as any).__LUNA_SCAN__?.();
+      });
+
+      await incBtn.click();
+      await expect(count).toHaveText("6");
+
+      await incBtn.click();
+      await expect(count).toHaveText("7");
+    });
+
+    test("rehydrates replaced island with same luna:id after CSR mutation", async ({
+      page,
+    }) => {
+      await page.goto("/loader/csr-replace");
+
+      const initialIsland = page.locator('#csr-host [luna\\:id="csr-counter"]');
+      const count = page.locator("#csr-host [data-count]");
+
+      await expect(initialIsland).toHaveAttribute("data-hydrated", "true");
+      await expect(count).toHaveText("1");
+
+      await page.locator("#csr-inc").click();
+      await expect(count).toHaveText("2");
+
+      await page.locator("#replace-btn").click();
+
+      const replacedIsland = page.locator('#csr-host [luna\\:id="csr-counter"]');
+      await expect(replacedIsland).toHaveAttribute("data-hydrated", "true");
+      await expect(count).toHaveText("10");
+
+      await page.locator("#csr-inc").click();
+      await expect(count).toHaveText("11");
+    });
+  });
+
+  test.describe("Hydration URL Security", () => {
+    test("blocks cross-origin module URL by default", async ({ page }) => {
+      await page.goto("/loader/security-default-deny");
+
+      const component = page.locator('[luna\\:id="secure-counter"]');
+      const count = page.locator("#secure-host [data-count]");
+      const incBtn = page.locator("#secure-host [data-inc]");
+
+      await page.waitForTimeout(300);
+      await expect(component).not.toHaveAttribute("data-hydrated", "true");
+      await expect(count).toHaveText("5");
+
+      await incBtn.click();
+      await expect(count).toHaveText("5");
+    });
+
+    test("allows configured host via __LUNA_ALLOWED_HOSTS__", async ({
+      page,
+    }) => {
+      await page.goto("/loader/security-allow-host");
+
+      const component = page.locator('[luna\\:id="secure-counter"]');
+      const count = page.locator("#secure-host [data-count]");
+      const incBtn = page.locator("#secure-host [data-inc]");
+
+      await expect(component).toHaveAttribute("data-hydrated", "true");
+      await expect(count).toHaveText("5");
+
+      await incBtn.click();
+      await expect(count).toHaveText("6");
+    });
+
+    test("allows host after runtime config update via __LUNA_SET_ALLOWED_HOSTS__", async ({
+      page,
+    }) => {
+      await page.goto("/loader/security-default-deny");
+
+      const component = page.locator('[luna\\:id="secure-counter"]');
+      const count = page.locator("#secure-host [data-count]");
+
+      await page.waitForTimeout(300);
+      await expect(component).not.toHaveAttribute("data-hydrated", "true");
+
+      await page.evaluate(() => {
+        (window as any).__LUNA_SET_ALLOWED_HOSTS__?.(["127.0.0.1"]);
+        (window as any).__LUNA_SCAN__?.();
+      });
+
+      await expect(component).toHaveAttribute("data-hydrated", "true");
+      await page.locator("#secure-host [data-inc]").click();
+      await expect(count).toHaveText("6");
+    });
+  });
+
   // URL State tests removed - feature removed in ab4b582 for SSRF mitigation
 
   // Skip flaky manual trigger tests in CI - timing issues with hydration
@@ -229,6 +333,16 @@ test.describe("luna-loader-v1 E2E Tests", () => {
 
       const fnExists = await page.evaluate(() => {
         return typeof (window as any).__LUNA_SCAN__ === "function";
+      });
+
+      expect(fnExists).toBe(true);
+    });
+
+    test("exposes __LUNA_SET_ALLOWED_HOSTS__ on window", async ({ page }) => {
+      await page.goto("/loader/basic");
+
+      const fnExists = await page.evaluate(() => {
+        return typeof (window as any).__LUNA_SET_ALLOWED_HOSTS__ === "function";
       });
 
       expect(fnExists).toBe(true);
