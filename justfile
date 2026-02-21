@@ -93,7 +93,7 @@ test-docs:
 
 # CLI ゴールデンパス E2E（new -> dev/build/deploy help）
 test-cli-golden:
-    node --test e2e/cli-golden-path.test.js
+    node --test e2e/cli-golden-path.test.js e2e/example-static-assets-sync.test.js
 
 test-all: test test-ssg test-xplat test-docs test-cli-golden test-e2e test-sol-app
 
@@ -109,6 +109,10 @@ sol *args:
 # =============================================================================
 # Examples
 # =============================================================================
+
+# examples の静的ランタイム（loader/wc-loader）を正規ソースに同期
+sync-example-assets:
+    node scripts/sync-example-static-assets.mjs
 
 # sol_app 開発サーバー（フレームワークホットリロード付き）
 dev-app:
