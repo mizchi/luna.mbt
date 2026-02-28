@@ -1,0 +1,24 @@
+import {
+  "mizchi/luna/core/routes" @routes,
+  "mizchi/luna/dom/router" @browser_router,
+}
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "route_page:routePage",
+        "route_page_titled:routePageTitled",
+        "route_page_full:routePageFull",
+        "create_router:createRouter",
+        "router_navigate:routerNavigate",
+        "router_replace:routerReplace",
+        "router_get_path:routerGetPath",
+        "router_get_match:routerGetMatch",
+        "router_get_base:routerGetBase",
+      ],
+      "format": "esm",
+    },
+  },
+  "supported-targets": [ "js" ],
+)

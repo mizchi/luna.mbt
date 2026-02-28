@@ -167,7 +167,23 @@ function parseArgs() {
 }
 
 async function ensureBuild() {
+  await execa("moon", ["build", "--target", "js", "--release", "src"], {
+    cwd: PROJECT_ROOT,
+    stdio: "inherit",
+  });
+  await execa("moon", ["build", "--target", "js", "--release", "src/js/api"], {
+    cwd: PROJECT_ROOT,
+    stdio: "inherit",
+  });
   await execa("moon", ["build", "--target", "js", "--release", "src/js/api_signals"], {
+    cwd: PROJECT_ROOT,
+    stdio: "inherit",
+  });
+  await execa("moon", ["build", "--target", "js", "--release", "src/js/api_resource"], {
+    cwd: PROJECT_ROOT,
+    stdio: "inherit",
+  });
+  await execa("moon", ["build", "--target", "js", "--release", "src/js/api_router"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
   });

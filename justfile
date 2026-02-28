@@ -43,6 +43,8 @@ build-moon:
     moon build --target js --release src
     moon build --target js --release src/js/api
     moon build --target js --release src/js/api_signals
+    moon build --target js --release src/js/api_resource
+    moon build --target js --release src/js/api_router
     @rm -f _build/js/release/build/package.json
 
 # MoonBit デバッグビルド（ソースマップ付き）
@@ -50,6 +52,8 @@ build-debug:
     moon build --target js -g src
     moon build --target js -g src/js/api
     moon build --target js -g src/js/api_signals
+    moon build --target js -g src/js/api_resource
+    moon build --target js -g src/js/api_router
 
 # Loader ビルド
 build-loader:

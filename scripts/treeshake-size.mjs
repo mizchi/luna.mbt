@@ -32,6 +32,34 @@ const ENTRIES = [
     id: "router-resource",
     contents: `import { createRouter, routePage, routerNavigate, createResource, createContext, useContext } from "./index.js";\nconst router = createRouter([routePage("/", () => "home")], { base: "/" });\nrouterNavigate(router, "/");\nconst ctx = createContext("default");\nuseContext(ctx);\ncreateResource(async () => 1);\n`,
   },
+  {
+    id: "resource-lite",
+    contents: `import { createResource, resourceGet, stateValue } from "./resource.js";\nconst resource = createResource((resolve) => resolve(1));\nconsole.log(stateValue(resourceGet(resource)));\n`,
+  },
+  {
+    id: "resource-index",
+    contents: `import { createResource } from "./index.js";\nconst [resource] = createResource((resolve) => resolve(1));\nconsole.log(resource());\n`,
+  },
+  {
+    id: "router-lite",
+    contents: `import { createRouter, routePage, routerNavigate } from "./router-lite.js";\nconst router = createRouter([routePage("/", "home")], { base: "/" });\nrouterNavigate(router, "/");\n`,
+  },
+  {
+    id: "router-index",
+    contents: `import { createRouter, routePage, routerNavigate } from "./index.js";\nconst router = createRouter([routePage("/", "home")], { base: "/" });\nrouterNavigate(router, "/");\n`,
+  },
+  {
+    id: "split-signals",
+    contents: `import { render, textDyn, createElement } from "./index.js";\nimport { createSignal } from "./signals.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(() => String(count()))]);\nrender(app, document.body);\nsetCount(1);\n`,
+  },
+  {
+    id: "split-signals-shared",
+    contents: `import { render, textDyn, createElement } from "./index.js";\nimport { createSignal } from "./signals-shared.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(() => String(count()))]);\nrender(app, document.body);\nsetCount(1);\n`,
+  },
+  {
+    id: "raw-signals",
+    contents: `import { createSignal, get, set } from "./raw.js";\nconst signal = createSignal(0);\nset(signal, get(signal) + 1);\n`,
+  },
 ];
 
 function parseArgs() {
@@ -92,6 +120,22 @@ async function ensureBuild() {
       stdio: "inherit",
     }
   );
+  await execa(
+    "moon",
+    ["build", "--target", "js", "--release", "src/js/api_resource"],
+    {
+      cwd: PROJECT_ROOT,
+      stdio: "inherit",
+    }
+  );
+  await execa(
+    "moon",
+    ["build", "--target", "js", "--release", "src/js/api_router"],
+    {
+      cwd: PROJECT_ROOT,
+      stdio: "inherit",
+    }
+  );
   await execa("pnpm", ["--filter", "@luna_ui/luna", "build"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
@@ -104,7 +148,7 @@ async function buildEntry(tempDir, entry) {
     stdin: {
       contents: entry.contents,
       resolveDir: DIST_DIR,
-      sourcefile: `${entry.id}.js`,
+      sourcefile: `__entry-${entry.id}.js`,
     },
     bundle: true,
     minify: true,

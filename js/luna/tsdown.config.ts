@@ -5,6 +5,10 @@ export default defineConfig([
     entry: [
       "src/index.ts",
       "src/signals.ts",
+      "src/signals-shared.ts",
+      "src/resource.ts",
+      "src/router-lite.ts",
+      "src/raw.ts",
       "src/event-utils.ts",
       "src/jsx-runtime.ts",
       "src/jsx-dev-runtime.ts",

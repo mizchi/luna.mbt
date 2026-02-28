@@ -18,6 +18,22 @@
       "types": "./dist/signals.d.ts",
       "import": "./dist/signals.js"
     },
+    "./signals-shared": {
+      "types": "./dist/signals-shared.d.ts",
+      "import": "./dist/signals-shared.js"
+    },
+    "./resource": {
+      "types": "./dist/resource.d.ts",
+      "import": "./dist/resource.js"
+    },
+    "./router-lite": {
+      "types": "./dist/router-lite.d.ts",
+      "import": "./dist/router-lite.js"
+    },
+    "./raw": {
+      "types": "./dist/raw.d.ts",
+      "import": "./dist/raw.js"
+    },
     "./css": {
       "types": "./dist/css/index.d.ts",
       "import": "./dist/css/index.js"
