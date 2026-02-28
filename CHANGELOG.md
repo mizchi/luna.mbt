@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.17.0] - 2026-02-28
+
+### Documentation
+
+- Update CHANGELOG for v0.16.0
+
 ## [0.16.0] - 2026-02-28
 
 ### Bug Fixes
