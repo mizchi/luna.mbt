@@ -4,7 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Component Catalog - Luna UI</title>
-  <script type="module" src="../../../_build/js/release/build/examples/apg-playground/apg-playground.js"></script>
+  <script>
+    const loadModule = (src) =>
+      new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.type = "module";
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load module: ${src}`));
+        document.head.appendChild(script);
+      });
+
+    const isViteDev = Boolean(document.querySelector('script[src="/@vite/client"]'));
+    const releaseModule = "../../../_build/js/release/build/examples/apg-playground/apg-playground.js";
+    const debugModule = "../../../_build/js/debug/build/examples/apg-playground/apg-playground.js";
+    const primaryModule = isViteDev ? debugModule : releaseModule;
+    const fallbackModule = isViteDev ? releaseModule : debugModule;
+    loadModule(primaryModule).catch(() => loadModule(fallbackModule));
+  </script>
   <style>
     /* CSS Custom Properties for theming */
     :root {

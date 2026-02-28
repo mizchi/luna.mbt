@@ -45,7 +45,24 @@
       line-height: 1.8;
     }
   </style>
-  <script type="module" src="../../../_build/js/release/build/examples/browser_router/browser_router.js"></script>
+  <script>
+    const loadModule = (src) =>
+      new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.type = "module";
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load module: ${src}`));
+        document.head.appendChild(script);
+      });
+
+    const isViteDev = Boolean(document.querySelector('script[src="/@vite/client"]'));
+    const releaseModule = "../../../_build/js/release/build/examples/browser_router/browser_router.js";
+    const debugModule = "../../../_build/js/debug/build/examples/browser_router/browser_router.js";
+    const primaryModule = isViteDev ? debugModule : releaseModule;
+    const fallbackModule = isViteDev ? releaseModule : debugModule;
+    loadModule(primaryModule).catch(() => loadModule(fallbackModule));
+  </script>
 </head>
 <body>
   <div id="app"></div>
