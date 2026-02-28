@@ -13,6 +13,7 @@ function untouched() {
 `;
     const out = stripAbortLocFunctions(input);
     expect(out.replaced).toBe(1);
+    expect(out.stats.abortReturnsReplaced).toBe(1);
     expect(out.output).toContain(
       "function _M0FP311moonbitlang4core7builtin5abortGRP46mizchi4luna2js12api__signals3AnyE(string, loc) {\n  return $panic();\n}"
     );
@@ -51,6 +52,7 @@ function _M0MP311moonbitlang4core5array5Array6removeGWEuE(self, index) {
     expect(out.output).not.toContain(
       "_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGiE"
     );
+    expect(out.stats.abortReturnsReplaced).toBe(1);
   });
 
   test("removes bound_check body and call sites", () => {
@@ -67,5 +69,23 @@ function read(arr, i) {
     expect(out.output).toContain("function $bound_check(arr, index) {}");
     expect(out.output).not.toContain("Index out of bounds");
     expect(out.output).toContain("function read(arr, i) {\n  return arr[i];\n}");
+    expect(out.stats.boundCheckFunctionReplaced).toBe(1);
+    expect(out.stats.boundCheckCallsRemoved).toBe(1);
+  });
+
+  test("keeps function body skipping stable with nested blocks", () => {
+    const input = `
+function $bound_check(arr, index) {
+  if (index < 0) {
+    throw new Error("negative");
+  }
+}
+function keep() {
+  return 42;
+}
+`;
+    const out = stripAbortLocFunctions(input);
+    expect(out.output).toContain("function $bound_check(arr, index) {}");
+    expect(out.output).toContain("function keep() {\n  return 42;\n}");
   });
 });
