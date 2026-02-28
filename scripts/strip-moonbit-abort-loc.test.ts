@@ -52,4 +52,20 @@ function _M0MP311moonbitlang4core5array5Array6removeGWEuE(self, index) {
       "_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGiE"
     );
   });
+
+  test("removes bound_check body and call sites", () => {
+    const input = `
+function $bound_check(arr, index) {
+  if (index < 0 || index >= arr.length) throw new Error("Index out of bounds");
+}
+function read(arr, i) {
+  $bound_check(arr, i);
+  return arr[i];
+}
+`;
+    const out = stripAbortLocFunctions(input);
+    expect(out.output).toContain("function $bound_check(arr, index) {}");
+    expect(out.output).not.toContain("Index out of bounds");
+    expect(out.output).toContain("function read(arr, i) {\n  return arr[i];\n}");
+  });
 });

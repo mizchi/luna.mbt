@@ -15,13 +15,36 @@ const ABORT_RETURN_MARKERS = [
   "return _M0FP311moonbitlang4core7builtin5abort",
   "return _M0FP311moonbitlang4core5abort5abort",
 ];
+const BOUND_CHECK_FN_PREFIX = "function $bound_check(";
 
 export function stripAbortLocFunctions(source) {
   const lines = source.split("\n");
   const out = [];
   let replaced = 0;
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; ) {
+    const line = lines[i];
+
+    if (line.startsWith(BOUND_CHECK_FN_PREFIX)) {
+      out.push("function $bound_check(arr, index) {}");
+      replaced += 1;
+      i += 1;
+      while (i < lines.length && lines[i].trim() !== "}") {
+        i += 1;
+      }
+      if (i < lines.length && lines[i].trim() === "}") {
+        i += 1;
+      }
+      continue;
+    }
+
+    const trimmed = line.trim();
+    if (trimmed.startsWith("$bound_check(") && trimmed.endsWith(");")) {
+      replaced += 1;
+      i += 1;
+      continue;
+    }
+
     if (ABORT_RETURN_MARKERS.some((marker) => line.includes(marker))) {
       const indent = line.match(/^\s*/)?.[0] ?? "";
       out.push(`${indent}return $panic();`);
@@ -29,6 +52,7 @@ export function stripAbortLocFunctions(source) {
     } else {
       out.push(line);
     }
+    i += 1;
   }
 
   return { output: out.join("\n"), replaced };
