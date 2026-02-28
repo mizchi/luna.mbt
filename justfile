@@ -132,6 +132,14 @@ bundle-check:
 treeshake-size:
     node scripts/treeshake-size.mjs --build
 
+# Luna と Preact のユースケース別サイズ比較
+preact-size:
+    node scripts/preact-size-compare.mjs --build
+
+# Luna と Preact のユースケース別サイズ比較 (JSON)
+preact-size-json:
+    node scripts/preact-size-compare.mjs --build --json
+
 # Treeshake ベースライン更新
 treeshake-baseline:
     node scripts/treeshake-size.mjs --build --write-baseline
