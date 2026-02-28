@@ -9,6 +9,8 @@ const PROJECT_ROOT = join(__dirname, "..");
 const TARGETS = [
   "_build/js/release/build/js/api/api.js",
   "_build/js/release/build/js/api_signals/api_signals.js",
+  "_build/js/release/build/js/api_resource_lite/api_resource_lite.js",
+  "_build/js/release/build/js/api_router_lite/api_router_lite.js",
 ];
 
 const ABORT_RETURN_RE =
