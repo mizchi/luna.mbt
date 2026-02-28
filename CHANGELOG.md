@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.15.0] - 2026-02-28
+## [0.16.0] - 2026-02-28
 
 ### Bug Fixes
 
@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Miscellaneous
 
+- Bump version to 0.16.0
 - **scripts**: Add luna-preact size comparison tooling
 
 ### Performance
