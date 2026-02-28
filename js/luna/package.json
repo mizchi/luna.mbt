@@ -45,7 +45,7 @@
   },
   "scripts": {
     "prepublishOnly": "pnpm build",
-    "build": "tsdown",
+    "build": "node ../../scripts/strip-moonbit-abort-loc.mjs && tsdown",
     "test": "vitest run --root ../..",
     "build:examples": "vite build examples"
   },
