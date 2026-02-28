@@ -64,10 +64,10 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "jsdom": "^27.4.0",
-    "tsdown": "^0.9.3",
-    "typescript": "^5.7.2",
-    "vitest": "^3.0.2"
+    "jsdom": "^28.1.0",
+    "tsdown": "0.21.0-beta.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "keywords": [
     "headless",

@@ -24,9 +24,9 @@
     "@luna_ui/wcr": "workspace:*"
   },
   "devDependencies": {
-    "happy-dom": "^17.4.4",
-    "typescript": "^5.7.2",
-    "vitest": "^3.2.4"
+    "happy-dom": "^20.7.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "keywords": [
     "web-components",

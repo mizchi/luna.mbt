@@ -66,10 +66,10 @@
     "build:examples": "vite build examples"
   },
   "devDependencies": {
-    "global-jsdom": "^27.0.0",
-    "jsdom": "^27.3.0",
-    "preact": "^10.28.0",
-    "tsdown": "^0.18.2"
+    "global-jsdom": "^28.0.0",
+    "jsdom": "^28.1.0",
+    "preact": "^10.28.4",
+    "tsdown": "0.21.0-beta.2"
   },
   "repository": {
     "directory": "js/luna",

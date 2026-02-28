@@ -6,9 +6,9 @@
     "moonbitlang/x": "0.4.40",
     "mizchi/js": "0.10.14",
     "mizchi/npm_typed": "0.1.11",
-    "moonbitlang/parser": "0.1.15",
+    "moonbitlang/parser": "0.1.17",
     "mizchi/signals": "0.6.3",
-    "mizchi/x": "0.1.3"
+    "mizchi/x": "0.1.4"
   },
   "readme": "README.md",
   "repository": "https://github.com/mizchi/luna",

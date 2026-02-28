@@ -11,7 +11,7 @@
     "@luna_ui/luna": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.7.2",
-    "vite": "^6.0.6"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T13:18:04.257Z",
+  "generatedAt": "2026-02-28T15:05:31.299Z",
   "entries": [
     {
       "id": "boot",
@@ -10,10 +10,10 @@
         "js/loader/dist/boot/loader.js",
         "js/loader/dist/boot/router.js",
         "js/loader/dist/lib.js",
-        "js/loader/dist/navigation-BJ7_TViw.js"
+        "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 8839,
-      "gzip": 3673
+      "bytes": 8904,
+      "gzip": 3685
     },
     {
       "id": "boot/loader",
@@ -32,10 +32,10 @@
       "files": [
         "js/loader/dist/boot/loader.js",
         "js/loader/dist/boot/router.js",
-        "js/loader/dist/navigation-BJ7_TViw.js"
+        "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 7123,
-      "gzip": 2771
+      "bytes": 7188,
+      "gzip": 2783
     },
     {
       "id": "hydration",
@@ -73,47 +73,46 @@
       "exportKey": "./router",
       "file": "js/loader/dist/router/index.js",
       "files": [
-        "js/loader/dist/navigation-BJ7_TViw.js",
         "js/loader/dist/router/hybrid.js",
         "js/loader/dist/router/index.js",
+        "js/loader/dist/router/navigation.js",
         "js/loader/dist/router/scroll.js",
         "js/loader/dist/router/spa.js"
       ],
-      "bytes": 7442,
-      "gzip": 3241
+      "bytes": 7507,
+      "gzip": 3246
     },
     {
       "id": "router/hybrid",
       "exportKey": "./router/hybrid",
       "file": "js/loader/dist/router/hybrid.js",
       "files": [
-        "js/loader/dist/navigation-BJ7_TViw.js",
-        "js/loader/dist/router/hybrid.js"
+        "js/loader/dist/router/hybrid.js",
+        "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 2685,
-      "gzip": 1264
+      "bytes": 2742,
+      "gzip": 1274
     },
     {
       "id": "router/navigation",
       "exportKey": "./router/navigation",
       "file": "js/loader/dist/router/navigation.js",
       "files": [
-        "js/loader/dist/navigation-BJ7_TViw.js",
         "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 506,
-      "gzip": 375
+      "bytes": 417,
+      "gzip": 274
     },
     {
       "id": "router/navigation-fallback",
       "exportKey": "./router/navigation-fallback",
       "file": "js/loader/dist/router/navigation-fallback.js",
       "files": [
-        "js/loader/dist/navigation-BJ7_TViw.js",
-        "js/loader/dist/router/navigation-fallback.js"
+        "js/loader/dist/router/navigation-fallback.js",
+        "js/loader/dist/router/navigation.js"
       ],
-      "bytes": 1495,
-      "gzip": 865
+      "bytes": 1570,
+      "gzip": 870
     },
     {
       "id": "router/scroll",
@@ -130,11 +129,11 @@
       "exportKey": "./router/spa",
       "file": "js/loader/dist/router/spa.js",
       "files": [
-        "js/loader/dist/navigation-BJ7_TViw.js",
+        "js/loader/dist/router/navigation.js",
         "js/loader/dist/router/spa.js"
       ],
-      "bytes": 2544,
-      "gzip": 1241
+      "bytes": 2601,
+      "gzip": 1251
     },
     {
       "id": "sol-nav",
