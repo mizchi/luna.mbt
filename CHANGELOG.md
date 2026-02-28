@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.15.0] - 2026-02-28
+
+### Bug Fixes
+
+- **examples**: Load debug moonbit output in vite dev
+- **loader**: Harden navigation and optimize state extraction
+
+### Miscellaneous
+
+- **scripts**: Add luna-preact size comparison tooling
+
+### Performance
+
+- **router-lite**: Shrink lite wrapper and bump moon to 0.14.0
+- **resource-lite**: Replace moonbit resource with tiny ts state machine
+- **router-lite**: Replace moonbit router with tiny ts implementation
+- **luna**: Add lite/raw entrypoints with split router/resource APIs
+- **luna**: Strip bound checks from generated moonbit js
+- **luna**: Strip moonbit abort location paths from js bundle
+
+### Refactor
+
+- **luna**: Bind lite router/resource from moonbit extern modules
+- **scripts**: Simplify moonbit js post-process pipeline
+
 ## [0.13.0] - 2026-02-20
 
 ### Bug Fixes
