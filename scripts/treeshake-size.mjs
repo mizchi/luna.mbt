@@ -120,14 +120,6 @@ async function ensureBuild() {
       stdio: "inherit",
     }
   );
-  await execa(
-    "moon",
-    ["build", "--target", "js", "--release", "src/js/api_resource"],
-    {
-      cwd: PROJECT_ROOT,
-      stdio: "inherit",
-    }
-  );
   await execa("pnpm", ["--filter", "@luna_ui/luna", "build"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",

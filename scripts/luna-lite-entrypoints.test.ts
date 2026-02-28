@@ -4,9 +4,12 @@ import {
   createResource,
   createDeferred,
   resourceGet,
+  resourceRefetch,
   stateValue,
+  stateError,
   resourceIsPending,
   resourceIsSuccess,
+  resourceIsFailure,
 } from "../js/luna/src/resource";
 import {
   routePage,
@@ -45,6 +48,27 @@ describe("luna lite/raw entrypoints", () => {
     expect(resourceIsPending(resource)).toBe(true);
     resolve(7);
     expect(stateValue(resourceGet(resource))).toBe(7);
+  });
+
+  test("resource refetch reruns fetcher", () => {
+    let count = 0;
+    const resource = createResource<number>((resolve) => {
+      count += 1;
+      resolve(count);
+    });
+
+    expect(stateValue(resourceGet(resource))).toBe(1);
+    resourceRefetch(resource);
+    expect(stateValue(resourceGet(resource))).toBe(2);
+  });
+
+  test("resource failure state is exposed", () => {
+    const resource = createResource<number>((_resolve, reject) => {
+      reject("boom");
+    });
+
+    expect(resourceIsFailure(resource)).toBe(true);
+    expect(stateError(resourceGet(resource))).toBe("boom");
   });
 
   test("router-lite entrypoint works", () => {

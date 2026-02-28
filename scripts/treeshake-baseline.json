@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T14:25:53.578Z",
+  "generatedAt": "2026-02-28T14:28:57.574Z",
   "entries": [
     {
       "id": "signals-only",
@@ -28,8 +28,8 @@
     },
     {
       "id": "resource-lite",
-      "bytes": 6066,
-      "gzip": 2154
+      "bytes": 360,
+      "gzip": 202
     },
     {
       "id": "resource-index",
