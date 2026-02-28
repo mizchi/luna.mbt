@@ -10,7 +10,6 @@ const TARGETS = [
   "_build/js/release/build/js/api/api.js",
   "_build/js/release/build/js/api_signals/api_signals.js",
   "_build/js/release/build/js/api_resource/api_resource.js",
-  "_build/js/release/build/js/api_router/api_router.js",
 ];
 
 const ABORT_RETURN_RE =
