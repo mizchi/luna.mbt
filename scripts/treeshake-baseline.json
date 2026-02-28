@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T14:35:29.965Z",
+  "generatedAt": "2026-02-28T14:44:33.474Z",
   "entries": [
     {
       "id": "signals-only",
@@ -38,8 +38,8 @@
     },
     {
       "id": "router-lite",
-      "bytes": 2640,
-      "gzip": 1174
+      "bytes": 2539,
+      "gzip": 1149
     },
     {
       "id": "router-index",

@@ -27,63 +27,29 @@ export interface BrowserRouterLite {
 }
 
 import {
-  routePage as _routePage,
-  routePageTitled as _routePageTitled,
-  routePageFull as _routePageFull,
+  routePage,
+  routePageTitled,
+  routePageFull,
   createRouter as _createRouter,
-  routerNavigate as _routerNavigate,
-  routerReplace as _routerReplace,
-  routerGetPath as _routerGetPath,
-  routerGetMatch as _routerGetMatch,
-  routerGetBase as _routerGetBase,
+  routerNavigate,
+  routerReplace,
+  routerGetPath,
+  routerGetMatch,
+  routerGetBase,
 } from "../../../_build/js/release/build/js/api_router_lite/api_router_lite.js";
 
-function resolveBaseArg(baseOrOptions?: string | { base?: string }): string {
-  if (typeof baseOrOptions === "string") return baseOrOptions;
-  if (baseOrOptions && typeof baseOrOptions.base === "string") return baseOrOptions.base;
-  return "";
-}
+export {
+  routePage,
+  routePageTitled,
+  routePageFull,
+  routerNavigate,
+  routerReplace,
+  routerGetPath,
+  routerGetMatch,
+  routerGetBase,
+};
 
-export function routePage(path: string, component: unknown): LiteRoute {
-  return _routePage(path, component);
-}
-
-export function routePageTitled(path: string, component: unknown, title: string): LiteRoute {
-  return _routePageTitled(path, component, title);
-}
-
-export function routePageFull(
-  path: string,
-  component: unknown,
-  title: string,
-  meta: KvTuple[],
-): LiteRoute {
-  return _routePageFull(path, component, title, meta);
-}
-
-export function createRouter(
+export const createRouter = _createRouter as (
   routes: LiteRoute[],
   baseOrOptions?: string | { base?: string },
-): BrowserRouterLite {
-  return _createRouter(routes, resolveBaseArg(baseOrOptions));
-}
-
-export function routerNavigate(router: BrowserRouterLite, path: string): void {
-  _routerNavigate(router, path);
-}
-
-export function routerReplace(router: BrowserRouterLite, path: string): void {
-  _routerReplace(router, path);
-}
-
-export function routerGetPath(router: BrowserRouterLite): string {
-  return _routerGetPath(router);
-}
-
-export function routerGetMatch(router: BrowserRouterLite): LiteRouteMatch | undefined {
-  return _routerGetMatch(router);
-}
-
-export function routerGetBase(router: BrowserRouterLite): string {
-  return _routerGetBase(router);
-}
+  ) => BrowserRouterLite;

@@ -103,6 +103,34 @@ describe("luna lite/raw entrypoints", () => {
     expect(match?.query).toEqual([{ _0: "tab", _1: "profile" }]);
   });
 
+  test("router-lite supports bracket params", () => {
+    const router = createRouter([routePage("/users/[id]", "user")]);
+
+    routerNavigate(router, "/users/42");
+    const match = routerGetMatch(router);
+    expect(match?.params).toEqual([{ _0: "id", _1: "42" }]);
+  });
+
+  test("router-lite supports required catch-all", () => {
+    const router = createRouter([routePage("/docs/[...slug]", "docs")]);
+
+    routerNavigate(router, "/docs/a/b");
+    expect(routerGetMatch(router)?.params).toEqual([{ _0: "slug", _1: "a/b" }]);
+
+    routerNavigate(router, "/docs");
+    expect(routerGetMatch(router)).toBeUndefined();
+  });
+
+  test("router-lite supports optional catch-all", () => {
+    const router = createRouter([routePage("/blog/[[...path]]", "blog")]);
+
+    routerNavigate(router, "/blog");
+    expect(routerGetMatch(router)?.params).toEqual([{ _0: "path", _1: "" }]);
+
+    routerNavigate(router, "/blog/2026/02");
+    expect(routerGetMatch(router)?.params).toEqual([{ _0: "path", _1: "2026/02" }]);
+  });
+
   test("signals-shared exports solid-style signal wrapper", () => {
     const [count, setCount] = createSharedSignal(0);
     setCount(1);

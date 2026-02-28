@@ -36,7 +36,12 @@ extern "js" fn _create_router(routes : Array[Any], base : String) -> Any =
   #|       ? withLeading.slice(0, -1)
   #|       : withLeading;
   #|   };
-  #|   const normalizeBase = (v) => (!v || v === "/" ? "" : normalizePath(v));
+  #|   const normalizeBase = (v) => {
+  #|     if (!v || v === "/") return "";
+  #|     if (typeof v === "string") return normalizePath(v);
+  #|     if (typeof v.base === "string") return normalizePath(v.base);
+  #|     return "";
+  #|   };
   #|   const splitSegments = (path) => (path === "/" ? [] : path.split("/").filter(Boolean));
   #|   const decodeSegment = (s) => {
   #|     try {
