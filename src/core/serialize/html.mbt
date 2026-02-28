@@ -11,7 +11,7 @@ let state_attr : String = "data-resumable-state"
 pub fn state_to_script_tag(state : ResumableState, id? : String) -> String {
   let json = state.to_json()
   let id_part = match id {
-    Some(i) => "=\"" + i + "\""
+    Some(i) => "=\"" + escape_html_attr(i) + "\""
     None => ""
   }
   "<script type=\"application/json\" " +
@@ -30,12 +30,29 @@ pub fn state_endpoint_tag(
   content : String,
 ) -> String {
   "<div data-state-id=\"" +
-  id +
+  escape_html_attr(id) +
   "\" data-state-src=\"" +
-  endpoint +
+  escape_html_attr(endpoint) +
   "\">" +
   content +
   "</div>"
+}
+
+///|
+/// Escape HTML attribute value
+fn escape_html_attr(s : String) -> String {
+  let buf = StringBuilder::new()
+  for char in s {
+    match char {
+      '&' => buf.write_string("&amp;")
+      '"' => buf.write_string("&quot;")
+      '<' => buf.write_string("&lt;")
+      '>' => buf.write_string("&gt;")
+      '\'' => buf.write_string("&#39;")
+      _ => buf.write_char(char)
+    }
+  }
+  buf.to_string()
 }
 
 ///|
@@ -56,71 +73,86 @@ fn escape_html_content(s : String) -> String {
 ///|
 /// Extract state JSON from HTML string
 pub fn extract_state_from_html(html : String) -> String? {
-  // Find the script tag with data-resumable-state
-  let start_marker = "<script type=\"application/json\" " + state_attr + ">"
-  let end_marker = "</script>"
-  // Find start position
-  let mut start_pos : Int? = None
-  let html_len = html.length()
-  let start_len = start_marker.length()
-  let last_start = html_len - start_len
-  if last_start < 0 {
+  let chars = html.to_array()
+  let start_marker = "<script type=\"application/json\" " + state_attr
+  let start_pattern = start_marker.to_array()
+  let end_pattern = "</script>".to_array()
+  match find_pattern(chars, start_pattern, 0) {
+    None => None
+    Some(script_start) =>
+      match find_tag_end(chars, script_start + start_pattern.length()) {
+        None => None
+        Some(content_start) =>
+          match find_pattern(chars, end_pattern, content_start) {
+            None => None
+            Some(content_end) =>
+              Some(
+                unescape_html_content(
+                  chars_range_to_string(chars, content_start, content_end),
+                ),
+              )
+          }
+      }
+  }
+}
+
+///|
+/// Find `>` for a start tag and return content start index (index after `>`)
+fn find_tag_end(chars : Array[Char], start : Int) -> Int? {
+  if start < 0 || start >= chars.length() {
     return None
   }
-  for i in 0..<=last_start {
-    if substring_matches(html, i, start_marker) {
-      start_pos = Some(i + start_len)
-      break
-    }
-  }
-  guard start_pos is Some(start) else { return None }
-  // Find end position
-  let end_len = end_marker.length()
-  let last_end = html_len - end_len
-  if start > last_end {
-    return None
-  }
-  for i in start..<=last_end {
-    if substring_matches(html, i, end_marker) {
-      // Extract the JSON content
-      let json = extract_substring(html, start, i)
-      return Some(unescape_html_content(json))
+  for i in start..<chars.length() {
+    if chars[i] == '>' {
+      return Some(i + 1)
     }
   }
   None
 }
 
 ///|
-/// Check if substring matches at position
-fn substring_matches(s : String, pos : Int, pattern : String) -> Bool {
-  let s_len = s.length()
+/// Find pattern in char array, returns start index when found
+fn find_pattern(
+  chars : Array[Char],
+  pattern : Array[Char],
+  start : Int,
+) -> Int? {
+  let c_len = chars.length()
   let p_len = pattern.length()
-  if pos + p_len > s_len {
-    return false
+  if p_len == 0 {
+    return Some(start)
   }
-  let s_iter = s.iter()
-  let p_iter = pattern.iter()
-  // Skip to position
-  let s_chars : Array[Char] = []
-  let mut idx = 0
-  for c in s_iter {
-    if idx >= pos && idx < pos + p_len {
-      s_chars.push(c)
+  let last = c_len - p_len
+  if start < 0 || start > last {
+    return None
+  }
+
+  for i in start..<=last {
+    let mut matched = true
+    for j in 0..<p_len {
+      if chars[i + j] != pattern[j] {
+        matched = false
+        break
+      }
     }
-    idx = idx + 1
-    if idx >= pos + p_len {
-      break
+    if matched {
+      return Some(i)
     }
   }
-  // Compare with pattern
-  idx = 0
-  for c in p_iter {
-    if idx >= s_chars.length() || s_chars[idx] != c {
-      return false
-    }
-    idx = idx + 1
+  None
+}
+
+///|
+/// Build String from char range [start, end)
+fn chars_range_to_string(chars : Array[Char], start : Int, end : Int) -> String {
+  if start < 0 || end < start || end > chars.length() {
+    return ""
   }
-  true
+  let buf = StringBuilder::new(size_hint=end - start)
+  for i in start..<end {
+    buf.write_char(chars[i])
+  }
+  buf.to_string()
 }
 
 ///|

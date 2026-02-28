@@ -33,6 +33,9 @@ const hydrate = async (el: Element): Promise<void> => {
 };
 
 const setup = (el: Element): void => {
+  const marker = el as Element & { __ls?: 1 };
+  if (marker.__ls) return;
+  marker.__ls = 1;
   const t = el.getAttribute('luna:trigger') ?? el.getAttribute('luna:client-trigger') ?? 'load';
   setupTrigger(el, t, () => hydrate(el));
 };

@@ -202,6 +202,15 @@ test "extract_state_from_html" {
 }
 
 ///|
+test "extract_state_from_html with state id attribute value" {
+  let html = "<div>content</div><script type=\"application/json\" data-resumable-state=\"counter\">[4,5,6]</script>"
+  match extract_state_from_html(html) {
+    Some(json) => assert_eq(json, "[4,5,6]")
+    None => assert_true(false)
+  }
+}
+
+///|
 test "extract_state_from_html not found" {
   let html = "<div>content</div>"
   match extract_state_from_html(html) {
@@ -276,6 +285,21 @@ test "state_to_script_tag with id multiple components" {
 }
 
 ///|
+test "state_to_script_tag escapes id attribute" {
+  let state = ResumableState::new()
+  let _ = state.register_int(1)
+  let tag = state_to_script_tag(state, id="counter\" onclick=\"alert(1)")
+  assert_true(
+    tag.contains(
+      "data-resumable-state=\"counter&quot; onclick=&quot;alert(1)\"",
+    ),
+  )
+  assert_true(
+    not(tag.contains("data-resumable-state=\"counter\" onclick=\"alert(1)\"")),
+  )
+}
+
+///|
 test "state_endpoint_tag" {
   let tag = state_endpoint_tag(
     "user-profile", "/api/user/123", "<div>Loading...</div>",
@@ -283,6 +307,17 @@ test "state_endpoint_tag" {
   assert_true(tag.contains("data-state-id=\"user-profile\""))
   assert_true(tag.contains("data-state-src=\"/api/user/123\""))
   assert_true(tag.contains("<div>Loading...</div>"))
+}
+
+///|
+test "state_endpoint_tag escapes id and endpoint attributes" {
+  let tag = state_endpoint_tag(
+    "user\" data-x=\"1", "/api/user\" onmouseover=\"x", "<div>Loading...</div>",
+  )
+  assert_true(tag.contains("data-state-id=\"user&quot; data-x=&quot;1\""))
+  assert_true(
+    tag.contains("data-state-src=\"/api/user&quot; onmouseover=&quot;x\""),
+  )
 }
 
 ///|

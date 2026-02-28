@@ -60,8 +60,6 @@
     "url": "https://github.com/mizchi/luna.mbt"
   },
   "files": [
-    "dist",
-    "tests",
-    "src"
+    "dist"
   ]
 }

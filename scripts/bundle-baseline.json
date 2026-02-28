@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-20T03:28:00.101Z",
+  "generatedAt": "2026-02-28T13:18:04.257Z",
   "entries": [
     {
       "id": "boot",
@@ -65,8 +65,8 @@
         "js/loader/dist/lib.js",
         "js/loader/dist/loader.js"
       ],
-      "bytes": 1939,
-      "gzip": 1054
+      "bytes": 1966,
+      "gzip": 1067
     },
     {
       "id": "router",
@@ -143,8 +143,8 @@
       "files": [
         "js/loader/dist/sol-nav.js"
       ],
-      "bytes": 1971,
-      "gzip": 911
+      "bytes": 2111,
+      "gzip": 971
     },
     {
       "id": "wc",
@@ -154,8 +154,8 @@
         "js/loader/dist/lib.js",
         "js/loader/dist/wc-loader.js"
       ],
-      "bytes": 2036,
-      "gzip": 1093
+      "bytes": 2063,
+      "gzip": 1104
     }
   ]
 }

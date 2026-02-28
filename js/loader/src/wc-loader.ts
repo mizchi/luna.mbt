@@ -49,6 +49,9 @@ const hydrate = async (el: Element): Promise<void> => {
 };
 
 const setup = (el: Element): void => {
+  const marker = el as Element & { __lw?: 1 };
+  if (marker.__lw) return;
+  marker.__lw = 1;
   const t = el.getAttribute('luna:wc-trigger') ?? el.getAttribute('luna:trigger') ?? 'load';
   setupTrigger(el, t, () => hydrate(el));
 };
