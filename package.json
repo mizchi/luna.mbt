@@ -17,7 +17,7 @@
     "@playwright/test": "^1.58.2",
     "@preact/signals": "^2.8.1",
     "@preact/signals-core": "^1.13.0",
-    "@types/node": "^25.3.2",
+    "@types/node": "^25.3.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitest/browser": "^4.0.18",
