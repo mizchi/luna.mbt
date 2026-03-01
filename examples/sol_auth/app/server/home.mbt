@@ -8,9 +8,9 @@
 
 ///|
 /// Home page - with counter client component (async server component)
-async fn home(props : @router.PageProps) -> @server_dom.ServerNode {
+async fn home(_props : @router.PageProps) -> @server_dom.ServerNode {
   // Return an async ServerNode that can perform data fetching
-  @server_dom.ServerNode::async_(async fn() {
+  @server_dom.ServerNode::async_(fn() {
     // Generate a random number on the server side
     // This demonstrates async data fetching capability
     let server_random = generate_random_int(1, 1000)

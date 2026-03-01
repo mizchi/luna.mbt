@@ -7,7 +7,7 @@
 ///|
 /// Home page - displays todo list with form-based interactions
 async fn home_page(_props : @router.PageProps) -> @server_dom.ServerNode {
-  @server_dom.ServerNode::async_(async fn() {
+  @server_dom.ServerNode::async_(fn() {
     let todos = get_todos()
     let completed_count = todos.iter().filter(fn(t) { t.completed }).count()
     let total_count = todos.length()

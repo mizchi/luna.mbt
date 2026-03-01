@@ -3,8 +3,6 @@
 using @server_dom {
   a,
   div,
-  span,
-  button,
   h1,
   h2,
   h3,

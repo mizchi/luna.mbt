@@ -6,7 +6,7 @@
 
 ///|
 /// About page - static content (sync server component)
-async fn about(props : @router.PageProps) -> @server_dom.ServerNode {
+async fn about(_props : @router.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text("About")]),
     p([text("Built with MoonBit and Sol framework.")]),

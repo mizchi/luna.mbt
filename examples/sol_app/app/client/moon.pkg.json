@@ -5,7 +5,8 @@
     { "path": "mizchi/signals", "alias": "signal" },
     { "path": "mizchi/sol/action", "alias": "action" },
     { "path": "mizchi/js/core", "alias": "js" },
-    { "path": "mizchi/js/browser/dom", "alias": "js_dom" }
+    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    "moonbitlang/core/json"
   ],
   "link": {
     "js": {

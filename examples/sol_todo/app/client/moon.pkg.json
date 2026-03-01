@@ -2,7 +2,8 @@
   "supported-targets": ["js"],
   "import": [
     { "path": "mizchi/luna/dom", "alias": "element" },
-    { "path": "mizchi/signals", "alias": "signal" }
+    { "path": "mizchi/signals", "alias": "signal" },
+    "moonbitlang/core/json"
   ],
   "link": {
     "js": {

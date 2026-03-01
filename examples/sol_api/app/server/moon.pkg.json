@@ -8,5 +8,5 @@
     { "path": "mizchi/sol/action", "alias": "action" },
     { "path": "mizchi/js/core", "alias": "core" }
   ],
-  "warn-list": "-35"
+  "warn-list": "-35-67-29"
 }

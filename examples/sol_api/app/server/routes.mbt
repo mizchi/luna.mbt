@@ -317,6 +317,3 @@ extern "js" fn ffi_get_timestamp() -> String =
 extern "js" fn parse_int(s : String) -> Int =
   #| (s) => parseInt(s, 10) || 0
 
-///|
-extern "js" fn get_string_field(obj : @core.Any, field : String) -> String =
-  #| (obj, field) => obj[field] || ""

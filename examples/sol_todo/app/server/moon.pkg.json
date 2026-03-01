@@ -10,7 +10,7 @@
     { "path": "mizchi/luna/dom/static", "alias": "server_dom" },
     { "path": "mizchi/js/core", "alias": "core" },
     { "path": "example/sol-todo/__gen__/types", "alias": "types" },
-    { "path": "example/sol-todo/client", "alias": "client" }
+    "moonbitlang/core/json"
   ],
-  "warn-list": "-35"
+  "warn-list": "-35-67-24-29"
 }

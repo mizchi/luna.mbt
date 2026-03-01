@@ -1,7 +1,6 @@
 ///|
 /// Server-side element DSL imports
 using @server_dom {
-  a,
   div,
   span,
   button,
@@ -15,7 +14,6 @@ using @server_dom {
   outlet,
   form,
   input,
-  label,
   ul,
   li,
 }
