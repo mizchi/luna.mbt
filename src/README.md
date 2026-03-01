@@ -220,15 +220,15 @@ pub fn config() -> @router.RouterConfig {
 ### Router API Selection
 
 - `@router.register_routes` / `@router.register_server_routes`
-  - 入力: `@luna/core/routes.Routes`
-  - 目的: file based routing の割り当てを薄く行う
-  - `Layout` は path prefix のグルーピングとして扱う（layout 関数合成はしない）
+  - Input: `@luna/core/routes.Routes`
+  - Purpose: Thin file-based routing assignment
+  - `Layout` is treated as path prefix grouping (no layout function composition)
 - `@router.register_sol_routes`
-  - 入力: `@router.SolRoutes`
-  - 目的: `ServerNode` ベースの SSR と layout 合成を含めて扱う
-  - `SolRoutes::Layout` を実際に適用する
+  - Input: `@router.SolRoutes`
+  - Purpose: Handles `ServerNode`-based SSR including layout composition
+  - Actually applies `SolRoutes::Layout`
 
-詳細: `docs/router-layout-support.md`
+Details: `docs/router-layout-support.md`
 
 ## Nested Layouts
 
@@ -421,7 +421,7 @@ Streaming async content using `ServerNode::async_`:
 })
 ```
 
-`register_sol_routes` でストリーミング応答を使う場合は、`RouterConfig` で有効化します（デフォルトは無効）。
+To use streaming responses with `register_sol_routes`, enable it in `RouterConfig` (disabled by default).
 
 ```moonbit
 pub fn config() -> @router.RouterConfig {

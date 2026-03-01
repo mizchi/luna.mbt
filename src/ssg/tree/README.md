@@ -1,16 +1,15 @@
 # Sol SSG - Document Tree Builder
 
-Sol SSG の中間表現を構築するモジュール。PageMeta からドキュメント構造を表現する
-DocumentTree を生成する。出力生成（RSS, sitemap.xml, llms.txt）は `core/ssg/generators.mbt` で提供される。
+Module for building the intermediate representation of Sol SSG. Generates a DocumentTree from PageMeta to represent document structure. Output generation (RSS, sitemap.xml, llms.txt) is provided in `core/ssg/generators.mbt`.
 
-## 設計思想
+## Design
 
 ```
 FileSystem (docs/)
      │
      ▼
 ┌─────────────────┐
-│  DocumentTree   │  ← 中間表現（この層を追加）
+│  DocumentTree   │  ← Intermediate representation (this layer)
 │  ├─ SiteInfo    │
 │  ├─ pages[]     │
 │  └─ tree        │
@@ -22,62 +21,62 @@ FileSystem (docs/)
  (SSG)    (feed)     (.xml)    (for LLM)
 ```
 
-## 主要な型
+## Key Types
 
 ### DocumentTree
 
-サイト全体を表現するルート構造。
+Root structure representing the entire site.
 
 ```moonbit
 pub struct DocumentTree {
-  site : SiteInfo           // サイト全体のメタ情報
-  pages : Array[PageInfo]   // 全ページのフラットリスト
-  root : TreeNode           // 階層構造のルート
+  site : SiteInfo           // Site-wide metadata
+  pages : Array[PageInfo]   // Flat list of all pages
+  root : TreeNode           // Hierarchical tree root
 }
 ```
 
 ### SiteInfo
 
-サイト全体のメタデータ。
+Site-wide metadata.
 
 ```moonbit
 pub struct SiteInfo {
   title : String
   description : String?
   base_url : String         // "https://example.com"
-  language : String         // デフォルト言語
-  updated_at : String?      // 最終更新日時（ISO 8601）
+  language : String         // Default language
+  updated_at : String?      // Last updated (ISO 8601)
 }
 ```
 
 ### PageInfo
 
-1ページの完全な情報。
+Complete information for a single page.
 
 ```moonbit
 pub struct PageInfo {
-  // 識別子
-  id : String               // ユニークID（URLパスから生成）
+  // Identifiers
+  id : String               // Unique ID (generated from URL path)
   url_path : String         // "/guide/intro/"
   canonical_url : String    // "https://example.com/guide/intro/"
 
-  // メタデータ
+  // Metadata
   title : String
   description : String?
   locale : String
 
-  // 日時
+  // Timestamps
   created_at : String?      // ISO 8601
   updated_at : String?      // ISO 8601 (last_modified)
 
-  // コンテンツ
-  content_md : String       // 生のMarkdown
-  content_html : String?    // 変換後のHTML（遅延生成可）
+  // Content
+  content_md : String       // Raw Markdown
+  content_html : String?    // Converted HTML (can be lazily generated)
 
-  // 構造
-  headings : Array[Heading] // 見出し一覧（TOC用）
+  // Structure
+  headings : Array[Heading] // Heading list (for TOC)
 
-  // 分類
+  // Classification
   tags : Array[String]?
   category : String?
 }
@@ -85,7 +84,7 @@ pub struct PageInfo {
 
 ### TreeNode
 
-階層構造を表現するノード。
+Node representing a hierarchical structure.
 
 ```moonbit
 pub enum TreeNode {
@@ -95,54 +94,54 @@ pub enum TreeNode {
     children~ : Array[TreeNode]
   )
   Page(
-    page_id~ : String       // PageInfo.id への参照
+    page_id~ : String       // Reference to PageInfo.id
   )
 }
 ```
 
 ### Heading
 
-見出し情報（TOC、llms.txt用）。
+Heading information (for TOC, llms.txt).
 
 ```moonbit
 pub struct Heading {
   level : Int               // 1-6
   text : String
-  id : String               // アンカーID
+  id : String               // Anchor ID
 }
 ```
 
-## 生成フロー
+## Generation Flow
 
-### 1. DocumentTree の構築
+### 1. Building a DocumentTree
 
 ```
 scan_to_document_tree(config, cwd) -> DocumentTree
   │
-  ├─ ファイルスキャン
-  ├─ Markdown パース（frontmatter + 見出し抽出）
-  ├─ PageInfo 生成
-  ├─ TreeNode 階層構築
-  └─ SiteInfo 設定から抽出
+  ├─ File scanning
+  ├─ Markdown parsing (frontmatter + heading extraction)
+  ├─ PageInfo generation
+  ├─ TreeNode hierarchy construction
+  └─ SiteInfo extraction from config
 ```
 
-### 2. 各形式への変換
+### 2. Conversion to Each Format
 
 ```moonbit
-// HTML生成（既存SSG）
+// HTML generation (existing SSG)
 fn generate_html(tree : DocumentTree, config : SsgConfig) -> Unit
 
-// RSS生成
+// RSS generation
 fn generate_rss(tree : DocumentTree, limit? : Int = 20) -> String
 
-// sitemap.xml生成
+// sitemap.xml generation
 fn generate_sitemap(tree : DocumentTree) -> String
 
-// llms.txt生成
+// llms.txt generation
 fn generate_llms_txt(tree : DocumentTree) -> String
 ```
 
-## 出力形式
+## Output Formats
 
 ### RSS (feed.xml)
 
@@ -182,8 +181,8 @@ fn generate_llms_txt(tree : DocumentTree) -> String
 
 ### llms.txt
 
-LLM向けのプレーンテキスト形式。
-参考: https://llmstxt.org/
+Plain text format for LLMs.
+Reference: https://llmstxt.org/
 
 ```
 # Site Title
@@ -212,16 +211,16 @@ LLM向けのプレーンテキスト形式。
 [Full content of the page in markdown...]
 ```
 
-## ファイル構成
+## File Structure
 
 ```
 src/sol/ssg/tree/
-├── README.md           # このファイル
+├── README.md           # This file
 ├── moon.pkg.json
 ├── builder.mbt         # build_document_tree
-└── *_test.mbt          # テスト
+└── *_test.mbt          # Tests
 
 sol/ssg/
-├── document_tree.mbt   # DocumentTree, PageInfo, TreeNode 型定義
+├── document_tree.mbt   # DocumentTree, PageInfo, TreeNode type definitions
 └── generators.mbt      # generate_rss, generate_sitemap, generate_llms_txt
 ```
