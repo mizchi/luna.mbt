@@ -1,41 +1,41 @@
 # Routing Specification
 
-`sol` のルーティング仕様はこのドキュメントを単一ソースとして扱います。
+This document serves as the single source of truth for the `sol` routing specification.
 
 ## 1. API Selection
 
-`sol` には用途の異なる2系統の登録 API があります。
+`sol` has two registration API families with different purposes.
 
-| API | Input | 主目的 | Layout の扱い |
+| API | Input | Primary Purpose | Layout Handling |
 |---|---|---|---|
-| `@router.register_routes` / `@router.register_server_routes` | `@luna/core/routes.Routes` | file based routing の割り当てを薄く行う | path prefix のグルーピングのみ（layout 合成しない） |
-| `@router.register_sol_routes` | `@router.SolRoutes` | `ServerNode` SSR とレイアウト合成込みで扱う | `SolRoutes::Layout` を適用する |
+| `@router.register_routes` / `@router.register_server_routes` | `@luna/core/routes.Routes` | Lightweight assignment for file-based routing | Path prefix grouping only (no layout composition) |
+| `@router.register_sol_routes` | `@router.SolRoutes` | Handles `ServerNode` SSR with layout composition | Applies `SolRoutes::Layout` |
 
 ## 2. Layout Semantics
 
 - `register_routes` / `register_server_routes`
-  - `Layout(segment, children, layout)` の `layout` は適用しない
-  - `segment` による URL prefix 付与だけを行う
+  - The `layout` in `Layout(segment, children, layout)` is not applied
+  - Only URL prefix assignment by `segment` is performed
 - `register_sol_routes`
-  - `SolRoutes::Layout` の layout 関数を内側から外側へ順に適用する
+  - Layout functions from `SolRoutes::Layout` are applied from inner to outer
 
 ## 3. Dynamic `source_path` Query Format
 
-SSG 内部表現の `source_path` で動的パラメータを保持する場合、形式は以下です。
+When retaining dynamic parameters in the SSG internal representation `source_path`, the format is as follows:
 
-- 形式: `path/to/template.md?key=value&key2=value2...`
-- 値は URL エンコードして埋め込む
-- 動的セグメントに対応する主パラメータは常に含める
-- `staticParams` に追加キーがある場合はクエリとして追記する
+- Format: `path/to/template.md?key=value&key2=value2...`
+- Values are URL-encoded before embedding
+- The primary parameter corresponding to the dynamic segment is always included
+- If `staticParams` has additional keys, they are appended as query parameters
 
-例:
+Examples:
 
 - `docs/_...slug_/index.md?slug=guide%2Fintro&lang=ja`
 - `posts/_id_.md?id=a%2Bb%3Dc%26d&preview=true`
 
-復元時 (`page_generator`) は、クエリを URL デコードして `Map[String, String]` に復元します。
+During restoration (`page_generator`), the query is URL-decoded and restored to a `Map[String, String]`.
 
 ## 4. Scope
 
-- この `source_path` 規約は SSG 用の内部表現です
-- 実行時ルーティング (`Context::param`) にはこの規約は不要です
+- This `source_path` convention is an internal representation for SSG
+- This convention is not required for runtime routing (`Context::param`)

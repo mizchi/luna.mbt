@@ -1,19 +1,19 @@
-# Hot Reload 共通設計（sol / mars）
+# Hot Reload Common Design (sol / mars)
 
-## 目的
+## Purpose
 
-- Hot Reload の「環境変数解決」「クライアント script 生成」「HTML への注入」を共通化する
-- `sol` 固有責務（ルーティング/SSR）と分離し、`mars` 単体でも同じ契約で使えるようにする
+- Unify the "environment variable resolution", "client script generation", and "HTML injection" of Hot Reload
+- Separate from `sol`-specific responsibilities (routing/SSR) so that `mars` alone can use the same contract
 
-## 契約
+## Contract
 
-- WebSocket message type は以下を受理する
+- The following WebSocket message types are accepted:
   - `update`
   - `reload`
   - `full-reload`
   - `error`
-- `update` / `reload` / `full-reload` は `location.reload()` を実行
-- `error` はコンソールへ出力
+- `update` / `reload` / `full-reload` execute `location.reload()`
+- `error` outputs to the console
 
 ## API
 
@@ -31,16 +31,16 @@
 - `client_script_from_env(...)`
 - `inject_script(html, script)`
 
-## sol 側の利用
+## Usage on the sol Side
 
 - runtime: `src/runtime_env_mount.mbt`
 - router: `src/router/route_rendering.mbt`, `src/router/sol_routes.mbt`
 - ssg dev server: `src/cli/ssg.mbt`
 
-これにより script 文字列定義と port 解決ロジックの重複を削除した。
+This eliminated duplication of script string definitions and port resolution logic.
 
-## mars 側への適用方針
+## Application Strategy for the mars Side
 
-- `mars` 側では HTML を返す箇所で `client_script_*` + `inject_script` を利用する
-- dev 判定は `is_dev_mode(flag_env="MARS_DEV")` のように env key を差し替えて使える
-- 将来的にはこの package を `mizchi/hot_reload` へ切り出し、`sol` と `mars` から同一モジュール参照に統一する
+- On the `mars` side, use `client_script_*` + `inject_script` wherever HTML is returned
+- Dev detection can use a different env key, such as `is_dev_mode(flag_env="MARS_DEV")`
+- In the future, this package will be extracted to `mizchi/hot_reload`, unifying `sol` and `mars` to reference the same module

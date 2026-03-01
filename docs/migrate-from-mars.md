@@ -1,25 +1,25 @@
-# Mars から Sol への移行ガイド
+# Migration Guide from Mars to Sol
 
-`sol` は `mars` の薄いラッパーとして設計しているため、段階的に移行できます。
+`sol` is designed as a thin wrapper around `mars`, so you can migrate incrementally.
 
-## 方針
+## Strategy
 
-- 既存の `@mars.Server::new()` / `app.get` / `app.post` はそのまま使う
-- 先にエントリポイントだけ `sol` に寄せる
-- HTML レンダリングだけ `sol.page` に置き換える
-- 最後に file based routing / `SolRoutes` を必要範囲で導入する
+- Keep existing `@mars.Server::new()` / `app.get` / `app.post` as-is
+- First, consolidate only the entrypoint to `sol`
+- Replace only the HTML rendering with `sol.page`
+- Finally, introduce file-based routing / `SolRoutes` as needed
 
-## 1. エントリポイントを `sol` に寄せる
+## 1. Consolidate the Entrypoint to sol
 
-既存のルート登録コードをほぼ変更せず、起動だけ `@sol.run_app` へ寄せます。
+Consolidate just the startup to `@sol.run_app` with almost no changes to existing route registration code.
 
 ```moonbit
-// before: mars で独自起動
-// after: sol で起動境界を統一
+// before: standalone startup with mars
+// after: unify the startup boundary with sol
 
 fn configure_app() -> @mars.Server {
   let app = @mars.Server::new()
-  register_api_routes(app) // 既存の mars handler 群をそのまま利用
+  register_api_routes(app) // reuse existing mars handler group as-is
   app
 }
 
@@ -28,9 +28,9 @@ fn main {
 }
 ```
 
-## 2. API ルートはそのまま維持する
+## 2. Keep API Routes As-Is
 
-`sol` は `App = @mars.Server` / `Ctx = @mars.Context` なので、API ルートは従来どおり書けます。
+Since `sol` uses `App = @mars.Server` / `Ctx = @mars.Context`, API routes can be written the same way as before.
 
 ```moonbit
 fn register_api_routes(app : @mars.Server) -> Unit {
@@ -43,9 +43,9 @@ fn register_api_routes(app : @mars.Server) -> Unit {
 }
 ```
 
-## 3. HTML ルートだけ `sol.page` に移行する
+## 3. Migrate Only HTML Routes to `sol.page`
 
-手書き HTML レスポンスを `sol` の SSR ヘルパへ寄せます。
+Consolidate hand-written HTML responses to `sol`'s SSR helpers.
 
 ```moonbit
 fn home(_c : @mars.Context) -> @luna.Node[Unit, String] {
@@ -57,30 +57,30 @@ fn register_pages(app : @mars.Server) -> Unit {
 }
 ```
 
-## 4. static / HMR を統一する
+## 4. Unify static / HMR
 
-- static 配信: `@sol.serve_static(app)`
-- HMR script 注入: `@sol.page` / `@router.register_sol_routes` 側で共通化済み
-- 直接使う場合: `@hot_reload.with_dev_head_script(head)`
+- Static file serving: `@sol.serve_static(app)`
+- HMR script injection: Already unified in `@sol.page` / `@router.register_sol_routes`
+- Direct usage: `@hot_reload.with_dev_head_script(head)`
 
-## 5. ルーティングを段階的に移行する
+## 5. Migrate Routing Incrementally
 
-- file based routing を薄く使うなら: `@router.register_routes`
-- layout 合成を含めて使うなら: `@router.register_sol_routes`
+- For lightweight file-based routing: `@router.register_routes`
+- For routing with layout composition: `@router.register_sol_routes`
 
-## API 対応表
+## API Correspondence Table
 
-| 既存 (mars) | 移行先 (sol) | 備考 |
+| Existing (mars) | Migration target (sol) | Notes |
 |---|---|---|
-| `@mars.Server::new()` | そのまま | `sol` でも同じ app 型を使う |
-| `app.get/post/...` | そのまま | API ルートは基本据え置き可能 |
-| `@mars.Context` | `@mars.Context` | そのまま利用 |
-| 手書き HTML 文字列 | `@sol.page` / `@sol.render_page` | SSR と HMR 注入を統一 |
-| 独自起動コード | `@sol.run` / `@sol.run_app` | 起動境界を統一 |
+| `@mars.Server::new()` | As-is | `sol` uses the same app type |
+| `app.get/post/...` | As-is | API routes can basically remain unchanged |
+| `@mars.Context` | `@mars.Context` | Use as-is |
+| Hand-written HTML strings | `@sol.page` / `@sol.render_page` | Unifies SSR and HMR injection |
+| Custom startup code | `@sol.run` / `@sol.run_app` | Unifies the startup boundary |
 
-## 注意点
+## Notes
 
-- `@sol.serve` / `@sol.create_app_then` は削除済み（`@sol.run` / `@sol.run_app` を利用）
-- `@sol.get_port` / `@sol.get_hmr_port` / `@sol.get_hmr_script` / `@sol.set_env` は削除済み（`@hot_reload.*` と CLI 側 env 設定を利用）
-- `@sol.text_response` / `@sol.js_response` / `@sol.static_response` / `@sol.read_file_sync` は削除済み（`Ctx` の `text/html/json` と static serve API を利用）
-- まず「起動境界」と「HTML ルート」だけ移行し、API は据え置くのが安全
+- `@sol.serve` / `@sol.create_app_then` have been removed (use `@sol.run` / `@sol.run_app`)
+- `@sol.get_port` / `@sol.get_hmr_port` / `@sol.get_hmr_script` / `@sol.set_env` have been removed (use `@hot_reload.*` and CLI-side env configuration)
+- `@sol.text_response` / `@sol.js_response` / `@sol.static_response` / `@sol.read_file_sync` have been removed (use `Ctx`'s `text/html/json` and the static serve API)
+- It is safest to migrate only the "startup boundary" and "HTML routes" first, leaving API routes unchanged

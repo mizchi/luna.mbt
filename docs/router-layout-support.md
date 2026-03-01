@@ -1,6 +1,6 @@
 # Router Layout Support Matrix
 
-レイアウト適用ルールは `docs/routing.md` に統合しました。
+Layout application rules have been merged into `docs/routing.md`.
 
-- API 選択: `docs/routing.md` の「1. API Selection」
-- Layout の意味: `docs/routing.md` の「2. Layout Semantics」
+- API selection: "1. API Selection" in `docs/routing.md`
+- Layout semantics: "2. Layout Semantics" in `docs/routing.md`

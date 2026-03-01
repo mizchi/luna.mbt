@@ -1,70 +1,70 @@
-# Sol ドキュメントガイド
+# Sol Documentation Guide
 
-`docs/` の入口です。目的別に読む順を固定し、仕様の単一ソースを明確にします。
+This is the entry point for `docs/`. It establishes a fixed reading order by purpose and clarifies the single source of truth for specifications.
 
-## 読む順
+## Reading Order
 
-1. 開発参加の準備
+1. Preparing to join development
    - `docs/onboarding.md`
-2. 導入（最短起動）
+2. Getting started (quickest launch)
    - `docs/quickstart.md`
-3. デプロイ運用
+3. Deploy operations
    - `docs/deploy.md`
-4. 障害対応
+4. Incident response
    - `docs/runbook.md`
-5. ルーティング仕様
+5. Routing specification
    - `docs/routing.md`
-6. 開発運用（ベンチ）
+6. Development operations (benchmarking)
    - `docs/benchmarking.md`
-7. トラブルシューティング
+7. Troubleshooting
    - `docs/troubleshooting.md`
-8. 開発時体験（HMR）
+8. Development experience (HMR)
    - `docs/hot-reload.md`
-9. 移行
+9. Migration
    - `docs/migrate-from-mars.md`
-10. 高度な設計（Wasm entrypoint）
+10. Advanced design (Wasm entrypoint)
    - `docs/wasm-entrypoint.md`
 
-## 目的別リンク
+## Links by Purpose
 
-- 仕様を確認したい
+- Want to check specifications
   - `docs/routing.md`
   - `docs/benchmarking.md`
-- まず動かしたい
+- Want to get it running first
   - `docs/onboarding.md`
   - `docs/quickstart.md`
-- デプロイを確認したい
+- Want to check deployment
   - `docs/deploy.md`
-- 障害対応を確認したい
+- Want to check incident response
   - `docs/runbook.md`
-- 問題を切り分けたい
+- Want to isolate a problem
   - `docs/troubleshooting.md`
-- `mars` から段階移行したい
+- Want to migrate incrementally from `mars`
   - `docs/migrate-from-mars.md`
-- HMR の契約を確認したい
+- Want to check the HMR contract
   - `docs/hot-reload.md`
-- `.mbtx` / WASI / WAGI の将来設計を確認したい
+- Want to check the future design of `.mbtx` / WASI / WAGI
   - `docs/wasm-entrypoint.md`
 
-## ドキュメントマップ
+## Document Map
 
 | Path | Role | Notes |
 |---|---|---|
-| `docs/onboarding.md` | ガイド | 開発参加の初日手順と `just verify` |
-| `docs/quickstart.md` | ガイド | `dev -> build -> serve` の最短手順 |
-| `docs/deploy.md` | ガイド | docs の preview / production 配信手順 |
-| `docs/runbook.md` | 運用 | docs の障害対応と rollback 手順 |
-| `docs/routing.md` | 仕様（単一ソース） | API 選択、Layout semantics、`source_path` 規約 |
-| `docs/benchmarking.md` | 仕様（単一ソース） | k6 手順、`SOL_BENCH_MODE`、高負荷時のばらつき切り分け |
-| `docs/troubleshooting.md` | 運用 | 404/HMR/ベンチぶれの切り分け |
-| `docs/hot-reload.md` | 設計 | `sol`/`mars` 共通の HMR 契約 |
-| `docs/migrate-from-mars.md` | ガイド | `mars` 既存コードからの段階移行 |
-| `docs/wasm-entrypoint.md` | 設計ドラフト | `.mbtx` ベースの wasm entrypoint 方針 |
-| `docs/router-layout-support.md` | リダイレクト | `docs/routing.md` へ統合済み |
-| `docs/catch-all-encoding.md` | リダイレクト | `docs/routing.md` へ統合済み |
+| `docs/onboarding.md` | Guide | First-day steps for joining development and `just verify` |
+| `docs/quickstart.md` | Guide | Shortest steps for `dev -> build -> serve` |
+| `docs/deploy.md` | Guide | Preview / production deployment steps for docs |
+| `docs/runbook.md` | Operations | Incident response and rollback steps for docs |
+| `docs/routing.md` | Specification (single source) | API selection, Layout semantics, `source_path` convention |
+| `docs/benchmarking.md` | Specification (single source) | k6 steps, `SOL_BENCH_MODE`, isolating variance under high load |
+| `docs/troubleshooting.md` | Operations | Isolating 404/HMR/benchmark variance issues |
+| `docs/hot-reload.md` | Design | HMR contract shared between `sol`/`mars` |
+| `docs/migrate-from-mars.md` | Guide | Incremental migration from existing `mars` code |
+| `docs/wasm-entrypoint.md` | Design draft | Wasm entrypoint direction based on `.mbtx` |
+| `docs/router-layout-support.md` | Redirect | Merged into `docs/routing.md` |
+| `docs/catch-all-encoding.md` | Redirect | Merged into `docs/routing.md` |
 
-## 更新ルール
+## Update Rules
 
-- 仕様変更は先に単一ソース（`docs/routing.md` / `docs/benchmarking.md`）を更新する
-- README や補助文書は単一ソースへのリンクを貼り、同内容を重複記述しない
-- 互換のため残した文書は、統合先リンクを先頭に明示する
+- For specification changes, update the single source (`docs/routing.md` / `docs/benchmarking.md`) first
+- README and supplementary documents should link to the single source and not duplicate the same content
+- Documents kept for compatibility should clearly indicate the merge target link at the top

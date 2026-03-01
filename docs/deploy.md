@@ -1,96 +1,96 @@
 # Docs Deploy Guide
 
-`website/dist-docs` を Cloudflare Workers に 2 段階で配信する運用です。
+This covers the two-stage deployment of `website/dist-docs` to Cloudflare Workers.
 
-## 目的
+## Purpose
 
-- PR では preview を確認する
-- `main` では production を更新する
-- build 結果を artifact で共有し、同一成果物を deploy する
+- Verify preview on PRs
+- Update production on `main`
+- Share build results as artifacts and deploy the same artifact
 
-## GitHub Actions 構成
+## GitHub Actions Configuration
 
-対象 workflow: `.github/workflows/docs.yaml`
+Target workflow: `.github/workflows/docs.yaml`
 
 1. `build`
-   - docs をビルド
-   - `docs-dist` artifact を作成
+   - Builds docs
+   - Creates `docs-dist` artifact
 2. `deploy-preview`
-   - `pull_request` で実行
-   - `sol-docs-preview-pr-<PR番号>` worker 名で preview 配信
+   - Runs on `pull_request`
+   - Deploys preview with worker name `sol-docs-preview-pr-<PR number>`
 3. `deploy-production`
-   - `push` to `main` または `workflow_dispatch`（`rollback_ref` 空）で実行
-   - 本番に配信
-   - `changed_files_count` がしきい値を超えるとガードで停止
+   - Runs on `push` to `main` or `workflow_dispatch` (with empty `rollback_ref`)
+   - Deploys to production
+   - Stops with a guard if `changed_files_count` exceeds the threshold
 4. `rollback-production`
-   - `workflow_dispatch` + `rollback_ref` 指定時に実行
-   - `rollback_mode=dry-run` がデフォルト
-   - 本番反映には `rollback_mode=apply` と `rollback_confirm=ROLLBACK_PRODUCTION` が必要
+   - Runs on `workflow_dispatch` with `rollback_ref` specified
+   - `rollback_mode=dry-run` is the default
+   - Production deployment requires `rollback_mode=apply` and `rollback_confirm=ROLLBACK_PRODUCTION`
 
-workflow には `concurrency` を設定しており、同じ系統の古い run は自動キャンセルされます（`workflow_dispatch` は手動オペレーション保護のためキャンセルしません）。
+The workflow has `concurrency` configured, so older runs of the same type are automatically cancelled (`workflow_dispatch` runs are not cancelled to protect manual operations).
 
-各 deploy ジョブは `GITHUB_STEP_SUMMARY` に実行サマリを出力します。
-summary には `worker_name` と `workers_url_hint` を出力します（`<your-subdomain>` 部分は環境ごとに異なります）。
-build ジョブでは `docs-build-meta` artifact（ref/sha/件数など）を保存します。
-差分追跡用に `docs-change-meta` artifact（比較ベース/差分ファイル一覧）も保存します。
-`docs-build-meta` には `docs_file_count` と `docs_dist_sha256` を含め、`deploy-preview` / `deploy-production` で成果物整合性（sha256 + 件数）を検証してから deploy します。
-`deploy-production` では `### Deploy guard decision` を出力します。
-`Resolve guard block issues` では `### Guard issue resolve` を追記し、`target_issue`, `stale_issue_count`, `stale_issue_numbers` を出力します。
+Each deploy job outputs an execution summary to `GITHUB_STEP_SUMMARY`.
+The summary outputs `worker_name` and `workers_url_hint` (the `<your-subdomain>` part varies by environment).
+The build job saves a `docs-build-meta` artifact (ref/sha/file count, etc.).
+For diff tracking, a `docs-change-meta` artifact (comparison base/changed file list) is also saved.
+`docs-build-meta` includes `docs_file_count` and `docs_dist_sha256`, and `deploy-preview` / `deploy-production` verify artifact integrity (sha256 + count) before deploying.
+`deploy-production` outputs `### Deploy guard decision`.
+`Resolve guard block issues` appends `### Guard issue resolve` and outputs `target_issue`, `stale_issue_count`, `stale_issue_numbers`.
 
-## 大差分ガードの解除
+## Overriding the Large Diff Guard
 
-`build` の `Evaluate change volume warning` が warning になった場合、`push` 経由の production deploy はブロックされます。反映する場合は `workflow_dispatch` で再実行し、次を指定します。
+If the `build`'s `Evaluate change volume warning` shows a warning, production deploy via `push` is blocked. To proceed, re-run via `workflow_dispatch` with the following:
 
-- `rollback_ref`: 空
+- `rollback_ref`: empty
 - `override_change_warning`: `FORCE_DEPLOY_LARGE_CHANGE`
 
-`workflow_dispatch` 経由の production deploy は解除トークン未指定だと常に停止します。
+Production deploy via `workflow_dispatch` always stops if the override token is not specified.
 
-## しきい値の設定
+## Threshold Configuration
 
-差分しきい値は repository variable `DOCS_CHANGE_WARN_THRESHOLD` で設定できます。未設定または不正値の場合はデフォルト `200` が使われます。
+The diff threshold can be set via the repository variable `DOCS_CHANGE_WARN_THRESHOLD`. If unset or invalid, the default `200` is used.
 
-`docs-change-warning` には次が出力されます。
+`docs-change-warning` outputs the following:
 
 - `threshold`
 - `threshold_source` (`repo_var` or `default`)
 
-## ガードブロック通知
+## Guard Block Notification
 
-`push` to `main` の production deploy がガードで block された場合、workflow は `docs-deploy-guard` ラベル付き Issue を自動作成します。すでに同じ ref の open Issue がある場合は再利用してコメントを追記します（同じ sha の重複コメントは作成しません）。同じ ref で open が複数ある場合は最新 1 件へ集約し、古い issue を自動 close します。
-Issue / コメントには整合性スナップショットとして次を含めます。
+When a production deploy on `push` to `main` is blocked by the guard, the workflow automatically creates an Issue with the `docs-deploy-guard` label. If an open Issue with the same ref already exists, it is reused and a comment is appended (duplicate comments for the same sha are not created). If there are multiple open Issues for the same ref, they are consolidated into the latest one and older issues are automatically closed.
+Issues/comments include the following as an integrity snapshot:
 
 - `integrity_status`
 - `expected_file_count`, `expected_sha256`
 - `verified_file_count`, `verified_sha256`
-- 検索キー: `docs_ref=<ref>`, `docs_sha=<sha>`
+- Search keys: `docs_ref=<ref>`, `docs_sha=<sha>`
 
-production deploy が成功した場合、同じ ref の open `docs-deploy-guard` Issue のうち最新 1 件が自動で close されます。
+When a production deploy succeeds, the latest open `docs-deploy-guard` Issue for the same ref is automatically closed.
 
-## 必要な Secrets
+## Required Secrets
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
-未設定時は workflow 内で deploy ステップをスキップします。
+When not configured, the deploy step is skipped within the workflow.
 
-## ローカル事前確認
+## Local Pre-verification
 
 ```bash
 just verify
 ```
 
-次に docs をローカルビルドして成果物を確認します。
+Next, build docs locally and verify the artifacts.
 
 ```bash
 just build-doc
 ```
 
-## 失敗時の切り分け
+## Failure Isolation
 
-1. build 失敗: `build` ジョブのログを確認
-2. deploy 失敗: secrets の有無と `wrangler` 実行ログを確認
-3. 整合性チェック失敗: `Verify docs artifact integrity (preview|production)` の expected/actual（count, sha256）を確認
-4. preview 未反映: `worker_name=sol-docs-preview-pr-<PR番号>` の deploy 結果を確認
+1. Build failure: Check the `build` job logs
+2. Deploy failure: Check whether secrets are set and the `wrangler` execution logs
+3. Integrity check failure: Check the expected/actual (count, sha256) in `Verify docs artifact integrity (preview|production)`
+4. Preview not reflected: Check the deploy result for `worker_name=sol-docs-preview-pr-<PR number>`
 
-より詳細な障害対応は `docs/runbook.md` を参照してください。
+For more detailed incident response, see `docs/runbook.md`.

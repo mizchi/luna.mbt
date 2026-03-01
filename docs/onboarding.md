@@ -1,28 +1,28 @@
 # Sol Onboarding
 
-新規メンバー向けに、最短で開発参加するための手順を固定します。
+This establishes the steps for new members to join development as quickly as possible.
 
-## 前提
+## Prerequisites
 
 - Node.js 24+
 - `pnpm`
-- `moon` / `sol` コマンド
+- `moon` / `sol` commands
 
-## 1. 初期セットアップ
+## 1. Initial Setup
 
-このリポジトリを clone した状態で実行します。
+Run the following after cloning this repository.
 
 ```bash
 just bootstrap
 ```
 
-`just bootstrap` が内部で実行する内容:
+What `just bootstrap` runs internally:
 
 - `pnpm install`
 - `moon update`
 - `moon install`
 
-## 2. ゴールデンパス（最短フロー）
+## 2. Golden Path (Shortest Flow)
 
 ```bash
 sol new myapp --user yourname
@@ -33,24 +33,24 @@ sol build
 sol deploy --provider cloudflare-workers --dry-run
 ```
 
-確認ポイント:
+Verification points:
 
-- `http://localhost:7777/` が表示される
-- `http://localhost:7777/api/health` が JSON を返す
+- `http://localhost:7777/` is displayed
+- `http://localhost:7777/api/health` returns JSON
 
-## 3. 最初の変更でやること
+## 3. What to Do for Your First Change
 
-1. 1ページ追加
-2. 1 API 追加
-3. ドキュメント 1 箇所更新
+1. Add 1 page
+2. Add 1 API
+3. Update 1 documentation section
 
-## 4. PR 前チェック
+## 4. Pre-PR Check
 
 ```bash
 just verify
 ```
 
-`just verify` は次を順に実行します。
+`just verify` runs the following in order:
 
 - `check`
 - `test`
@@ -58,6 +58,6 @@ just verify
 - `test-cli-golden`
 - `build`
 
-## 5. CI との整合
+## 5. CI Alignment
 
-GitHub Actions の `check` workflow も同じ `just bootstrap` と `just verify` を実行します。
+The GitHub Actions `check` workflow also runs the same `just bootstrap` and `just verify`.

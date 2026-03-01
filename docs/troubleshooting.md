@@ -1,86 +1,86 @@
-# Sol トラブルシューティング
+# Sol Troubleshooting
 
-`sol` 開発中によく起きる問題の切り分け手順をまとめます。
+This document summarizes diagnostic procedures for common issues encountered during `sol` development.
 
-## 1. ルートが 404 になる
+## 1. Route Returns 404
 
-症状:
+Symptoms:
 
-- `sol dev` は起動しているが、期待したページ/API が 404
+- `sol dev` is running, but the expected page/API returns 404
 
-確認:
+Checks:
 
-1. `app/server/routes.mbt` に対象 route が定義されているか
-2. ルーティング API の使い分けが合っているか
-   - `@router.register_routes` / `@router.register_server_routes`: path prefix 割り当て
-   - `@router.register_sol_routes`: Layout 合成込み
-3. 変更後に `sol generate --mode dev` を実行したか
+1. Is the target route defined in `app/server/routes.mbt`?
+2. Is the correct routing API being used?
+   - `@router.register_routes` / `@router.register_server_routes`: path prefix assignment
+   - `@router.register_sol_routes`: includes layout composition
+3. Did you run `sol generate --mode dev` after making changes?
 
-参照: `docs/routing.md`
+Reference: `docs/routing.md`
 
-## 2. HMR が効かない
+## 2. HMR Is Not Working
 
-症状:
+Symptoms:
 
-- ページ更新が自動反映されない
+- Page updates are not automatically reflected
 
-確認:
+Checks:
 
-1. `sol dev` で起動しているか（`sol serve` では HMR しない）
-2. コンソールに HMR WebSocket エラーがないか
-3. `head` / loader 周りのカスタムで script 注入を壊していないか
+1. Are you running with `sol dev`? (`sol serve` does not provide HMR)
+2. Are there any HMR WebSocket errors in the console?
+3. Have customizations around `head` / loader broken the script injection?
 
-参照: `docs/hot-reload.md`
+Reference: `docs/hot-reload.md`
 
-## 3. `sol build` は通るが `sol serve` で想定どおり動かない
+## 3. `sol build` Passes but `sol serve` Does Not Work as Expected
 
-確認:
+Checks:
 
-1. `sol build --clean` で生成物を再作成する
-2. 直前に `sol generate --mode prod` を実行して差分を確認する
-3. `sol.config.ts`（または `sol.config.json`）の `routes` / `output` が意図どおりか確認する
+1. Recreate build artifacts with `sol build --clean`
+2. Run `sol generate --mode prod` just before and check for differences
+3. Verify that `routes` / `output` in `sol.config.ts` (or `sol.config.json`) are configured as intended
 
-## 4. k6 ベンチ結果が安定しない
+## 4. k6 Bench Results Are Unstable
 
-症状:
+Symptoms:
 
-- 同じ条件でも `p95` が大きくぶれる
+- `p95` fluctuates significantly even under the same conditions
 
-確認:
+Checks:
 
-1. `just bench-k6-quick` でウォームアップしてから本計測する
-2. `just bench-k6 60 30s 0.05 5` で複数回実行し中央値で比較する
-3. ぶれが大きい場合は `just bench-k6-profile 10 10s` で route 別に確認する
+1. Warm up with `just bench-k6-quick` before the actual measurement
+2. Run multiple times with `just bench-k6 60 30s 0.05 5` and compare using medians
+3. If variability is large, check per-route with `just bench-k6-profile 10 10s`
 
-参照: `docs/benchmarking.md`
+Reference: `docs/benchmarking.md`
 
-## 5. ベンチ実行時に接続エラーになる
+## 5. Connection Error During Bench Execution
 
-症状:
+Symptoms:
 
-- `k6` 実行時に `connection refused` が出る
+- `connection refused` occurs when running `k6`
 
-確認:
+Checks:
 
-1. サーバーが `http://localhost:7777` で起動しているか
-2. `SOL_BENCH_MODE=1` で起動した場合に `/api/bench/ping` が 200 か
-3. 別ポートで起動している場合は `BASE_URL` を合わせる
+1. Is the server running at `http://localhost:7777`?
+2. When started with `SOL_BENCH_MODE=1`, does `/api/bench/ping` return 200?
+3. If running on a different port, ensure `BASE_URL` matches
 
-## 6. Island の hydration が動かない（cross-origin URL）
+## 6. Island Hydration Not Working (Cross-Origin URL)
 
-症状:
+Symptoms:
 
-- `luna:url` に指定した module が読み込まれず、SSR のままになる
+- The module specified in `luna:url` is not loaded, and the page remains in SSR-only state
 
-確認:
+Checks:
 
-1. `loader.js` は同一 origin の module URL のみ許可がデフォルトである
-2. cross-origin を使う場合、`window.__LUNA_ALLOWED_HOSTS__` に host/origin（例: `127.0.0.1:3456`）を設定する
-3. 実行中に許可を追加した場合は `window.__LUNA_SET_ALLOWED_HOSTS__(...)` の後で `window.__LUNA_SCAN__()` を呼ぶ
-4. `luna:url` の scheme が `http` / `https` であることを確認する
+1. By default, `loader.js` only allows module URLs from the same origin
+2. To use cross-origin, set the host/origin in `window.__LUNA_ALLOWED_HOSTS__` (e.g., `127.0.0.1:3456`)
+3. If adding permissions at runtime, call `window.__LUNA_SCAN__()` after `window.__LUNA_SET_ALLOWED_HOSTS__(...)`
+4. Verify that the scheme of `luna:url` is `http` or `https`
 
-## 7. まず見るべき一次資料
+## 7. Primary References to Check First
 
-- ルーティング仕様: `docs/routing.md`
-- ベンチ仕様: `docs/benchmarking.md`
-- HMR 契約: `docs/hot-reload.md`
+- Routing specification: `docs/routing.md`
+- Benchmarking specification: `docs/benchmarking.md`
+- HMR contract: `docs/hot-reload.md`
