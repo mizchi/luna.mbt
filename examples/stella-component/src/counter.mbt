@@ -80,11 +80,11 @@ pub fn setup(ctx : @js.Any) -> @js.Any {
 // Mutable Reference Helper
 // =============================================================================
 
-struct Ref[T] {
+priv struct Ref[T] {
   mut val : T
 }
 
-fn Ref::new[T](val : T) -> Ref[T] {
+fn[T] Ref::new(val : T) -> Ref[T] {
   { val, }
 }
 
