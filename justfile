@@ -1,97 +1,97 @@
 # Sol SSR/SSG Framework - Task Runner
 #
-# 使い方: just --list
+# Usage: just --list
 
 default: check
 
 # =============================================================================
-# 日常開発
+# Daily Development
 # =============================================================================
 
-# 開発環境セットアップ
+# Development environment setup
 bootstrap:
     pnpm install
     moon update
     moon install
 
-# 型チェック
+# Type check
 check:
     moon check --target js
 
-# フォーマット
+# Format
 fmt:
     moon fmt
 
-# 自動リビルド
+# Auto rebuild
 watch:
     moon build --target js --watch
 
-# クリーン
+# Clean
 clean:
     moon clean
     rm -rf _build target .turbo/cache
 
-# ローカル検証（PR 前）
+# Local verification (before PR)
 verify: check test test-docs test-cli-golden build
     @echo "✓ Local verification passed"
 
 # =============================================================================
-# ビルド
+# Build
 # =============================================================================
 
-# MoonBit ビルド
+# MoonBit build
 build-moon:
     moon build --target js
     @rm -f _build/js/debug/build/package.json
 
-# MoonBit デバッグビルド（ソースマップ付き）
+# MoonBit debug build (with source maps)
 build-debug:
     moon build --target js -g
 
-# フルビルド
+# Full build
 build:
     just build-moon
 
 # =============================================================================
-# テスト
+# Test
 # =============================================================================
 
-# MoonBit ユニットテスト
+# MoonBit unit test
 test: _setup-test-env
     moon test --target js
 
-# moon test 用 CommonJS 環境セットアップ
+# CommonJS environment setup for moon test
 _setup-test-env:
     @mkdir -p _build/js/debug/test
     @echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
 
-# SSG テスト
+# SSG test
 test-ssg: _setup-test-env
     moon test --target js src/ssg
 
-# クロスプラットフォームテスト (wasm, wasm-gc, native)
+# Cross-platform test (wasm, wasm-gc, native)
 test-xplat:
     moon test --target wasm src/parser
     moon test --target wasm-gc src/parser
     moon test --target native src/parser
 
-# E2E テスト
+# E2E test
 test-e2e:
     pnpm playwright test --config e2e/playwright.config.mts
 
-# E2E テスト (UI モード)
+# E2E test (UI mode)
 test-e2e-ui:
     pnpm playwright test --config e2e/playwright.config.mts --ui
 
-# sol_app E2E テスト
+# sol_app E2E test
 test-sol-app:
     cd examples/sol_app && pnpm test
 
-# docs 整合テスト
+# Docs consistency test
 test-docs:
     node --test docs/docs-index.test.js docs/docs-chapters.test.js docs/docs-build-paths.test.js docs/docs-ci.test.js
 
-# CLI ゴールデンパス E2E（new -> dev/build/deploy help）
+# CLI golden path E2E (new -> dev/build/deploy help)
 test-cli-golden:
     node --test e2e/cli-golden-path.test.js e2e/example-static-assets-sync.test.js e2e/luna-loader-sync.test.js
 
@@ -110,24 +110,24 @@ sol *args:
 # Examples
 # =============================================================================
 
-# examples の静的ランタイム（loader/wc-loader）を正規ソースに同期
+# Sync example static runtime (loader/wc-loader) to canonical source
 sync-example-assets:
     node scripts/sync-example-static-assets.mjs
 
-# luna loader dist から core/runtime assets を同期（loader はセキュリティ要件を満たす場合のみ）
+# Sync core/runtime assets from luna loader dist (loader only when security requirements are met)
 sync-luna-assets luna_dir="../luna.mbt":
     node scripts/sync-luna-loader-assets.mjs --luna-dir {{luna_dir}}
 
-# luna との同期状態を検証（更新せず確認のみ）
+# Verify luna sync state (check only, no updates)
 check-luna-assets luna_dir="../luna.mbt":
     node scripts/sync-luna-loader-assets.mjs --luna-dir {{luna_dir}} --check
 
-# sol_app 開発サーバー（フレームワークホットリロード付き）
+# sol_app dev server (with framework hot reload)
 dev-app:
     just build-moon
     cd examples/sol_app && node ../../_build/js/debug/build/cli/cli.js dev -f
 
-# examples のキャッシュクリーン
+# Clean example caches
 clean-examples:
     @rm -rf examples/sol_app/.mooncakes examples/sol_app/_build
     @rm -rf examples/sol_auth/.mooncakes examples/sol_auth/_build
@@ -137,7 +137,7 @@ clean-examples:
     @rm -rf examples/sol_api/.mooncakes examples/sol_api/_build
     @echo "✓ Examples cache cleaned"
 
-# 各 example のビルドチェック
+# Build check for each example
 check-example-sol-app:
     @echo "=== Checking sol_app ==="
     @rm -rf examples/sol_app/.mooncakes examples/sol_app/_build
@@ -168,47 +168,47 @@ check-example-sol-api:
     @rm -rf examples/sol_api/.mooncakes examples/sol_api/_build
     cd examples/sol_api && moon check --target js
 
-# すべての examples をチェック
+# Check all examples
 check-examples: check-example-sol-app check-example-sol-auth check-example-sol-blog check-example-sol-docs check-example-sol-sqlite check-example-sol-api
     @echo "✓ All examples checked"
 
 # =============================================================================
-# ドキュメント
+# Documentation
 # =============================================================================
 
-# docs 開発サーバー
+# Docs dev server
 dev-doc:
     just build-moon
     cd website && node ../_build/js/debug/build/cli/cli.js dev
 
-# docs ビルド
+# Docs build
 build-doc *args:
     just build-moon
     node _build/js/debug/build/cli/cli.js build {{args}}
 
-# docs スモークテスト
+# Docs smoke test
 smoke-docs:
     test -f website/dist-docs/index.html
     test -s website/dist-docs/index.html
     grep -Eiq "<!doctype html|<!DOCTYPE html>" website/dist-docs/index.html
 
-# docs lint
+# Docs lint
 lint-doc:
     just build-moon
     node _build/js/debug/build/cli/cli.js lint
 
-# docs プレビュー
+# Docs preview
 preview-doc:
     npx serve website/dist-docs
 
 release-doc: build-doc
-    pnpm wrangler publish --config wrangler.json 
+    pnpm wrangler publish --config wrangler.json
 
 # =============================================================================
-# ベンチマーク
+# Benchmark
 # =============================================================================
 
-# サーバーベンチマーク
+# Server benchmark
 bench-server:
     #!/usr/bin/env bash
     set -e
@@ -226,7 +226,7 @@ bench-server:
     done
     echo "✓ Benchmark completed"
 
-# k6 ベンチマーク (examples/sol_app)
+# k6 benchmark (examples/sol_app)
 bench-k6 vus="20" duration="30s" think_time="0.1" runs="1":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -278,31 +278,31 @@ bench-k6 vus="20" duration="30s" think_time="0.1" runs="1":
 
     echo "✓ k6 benchmark completed"
 
-# k6 クイックベンチマーク
+# k6 quick benchmark
 bench-k6-quick:
     @just bench-k6 5 10s 0.05
 
-# k6 ルート別プロファイル
+# k6 per-route profile
 bench-k6-profile vus="10" duration="10s":
     #!/usr/bin/env bash
     set -euo pipefail
     BASE_URL="http://localhost:7777" VUS="{{vus}}" DURATION="{{duration}}" THINK_TIME=0.02 k6 run bench/k6/sol-app-route-profile.js
 
-# k6 結果比較（mix / route / auto）
+# k6 result comparison (mix / route / auto)
 bench-k6-compare baseline candidate mode="auto":
     node bench/k6/compare.js "{{baseline}}" "{{candidate}}" "{{mode}}"
 
 # =============================================================================
-# カバレッジ
+# Coverage
 # =============================================================================
 
-# MoonBit カバレッジ
+# MoonBit coverage
 coverage:
     rm -f _build/moonbit_coverage_*.txt
     moon test --target js --enable-coverage
     moon coverage report -f summary
 
-# カバレッジクリーン
+# Coverage clean
 coverage-clean:
     rm -rf coverage/
     moon coverage clean
@@ -311,18 +311,18 @@ coverage-clean:
 # CI
 # =============================================================================
 
-# CI チェック
+# CI check
 ci: check test test-docs check-examples
     @echo "✓ All CI checks passed"
 
 # =============================================================================
-# リリース
+# Release
 # =============================================================================
 
-# CHANGELOG 再生成
+# Regenerate CHANGELOG
 changelog tag:
     git cliff --tag {{tag}} -o CHANGELOG.md
 
-# CHANGELOG プレビュー（未リリース分のみ）
+# CHANGELOG preview (unreleased only)
 changelog-preview:
     git cliff --unreleased
