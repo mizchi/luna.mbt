@@ -20,19 +20,17 @@ Luna は4つのハイドレーショントリガーを提供：
 ## トリガーの使用
 
 ```moonbit
-using @luna { Load, Idle, Visible, Media }
-
-// 即座にハイドレート
-island(id="search", trigger=Load, ...)
+// 即座にハイドレート（デフォルト）
+@sol.island(@types.search(search_props), [...])
 
 // ブラウザがアイドル時にハイドレート
-island(id="analytics", trigger=Idle, ...)
+@sol.island(@types.analytics(analytics_props, trigger=@luna.TriggerType::Idle), [...])
 
 // 表示時にハイドレート
-island(id="comments", trigger=Visible, ...)
+@sol.island(@types.comments(comments_props, trigger=@luna.TriggerType::Visible), [...])
 
 // メディアクエリマッチ時にハイドレート
-island(id="sidebar", trigger=Media("(min-width: 768px)"), ...)
+@sol.island(@types.sidebar(sidebar_props, trigger=@luna.TriggerType::Media("(min-width: 768px)")), [...])
 ```
 
 ## 適切なトリガーの選択
@@ -58,20 +56,20 @@ island(id="sidebar", trigger=Media("(min-width: 768px)"), ...)
 ```moonbit
 fn page() -> @luna.Node {
   div([
-    // 即座 - UX に重要
-    island(id="search", trigger=Load, ...),
+    // 即座 - UX に重要（Load はデフォルト）
+    @sol.island(@types.search(search_props), [...]),
 
     // Idle - あると良いが緊急ではない
-    island(id="theme-toggle", trigger=Idle, ...),
+    @sol.island(@types.theme_toggle(theme_props, trigger=@luna.TriggerType::Idle), [...]),
 
     // 静的な記事コンテンツ
     article([text("...")]),
 
     // Visible - スクロール時のみロード
-    island(id="comments", trigger=Visible, ...),
+    @sol.island(@types.comments(comments_props, trigger=@luna.TriggerType::Visible), [...]),
 
     // Media - デスクトップのみ
-    island(id="sidebar", trigger=Media("(min-width: 1024px)"), ...),
+    @sol.island(@types.sidebar(sidebar_props, trigger=@luna.TriggerType::Media("(min-width: 1024px)")), [...]),
   ])
 }
 ```

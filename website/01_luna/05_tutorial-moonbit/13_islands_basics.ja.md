@@ -32,16 +32,13 @@ Island は以下を行うコンポーネントです：
 ### サーバーサイド（MoonBit）
 
 ```moonbit
-using @server_dom { island, div, button, text }
-using @luna { Load }
+using @server_dom { div, button, text }
 
 fn counter_island(initial : Int) -> @luna.Node {
-  island(
-    id="counter",
-    url="/static/counter.js",
-    state=initial.to_string(),
-    trigger=Load,
-    children=[
+  // @types.counter() は sol generate が CounterProps から自動生成
+  @sol.island(
+    @types.counter({ initial_count: initial }),
+    [
       div([
         button([text("Count: " + initial.to_string())])
       ])
@@ -88,12 +85,12 @@ hydrate("counter", Counter);
 
 ## Island 属性
 
-| 属性 | MoonBit パラメータ | 説明 |
-|-----|-------------------|------|
-| `luna:id` | `id` | コンポーネント識別子 |
-| `luna:url` | `url` | JavaScript モジュール URL |
-| `luna:state` | `state` | シリアライズされた props（JSON） |
-| `luna:client-trigger` | `trigger` | いつハイドレートするか |
+| 属性 | ソース | 説明 |
+|-----|-------|------|
+| `luna:id` | `ComponentRef.url` から導出 | コンポーネント識別子 |
+| `luna:url` | `ComponentRef.url` | JavaScript モジュール URL |
+| `luna:state` | `ComponentRef.props`（自動シリアライズ） | シリアライズされた props（JSON） |
+| `luna:client-trigger` | `ComponentRef.trigger` | いつハイドレートするか |
 
 ## 複数の Islands
 

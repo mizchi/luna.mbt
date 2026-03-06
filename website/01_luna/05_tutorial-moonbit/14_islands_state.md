@@ -40,22 +40,20 @@ Pass data from server (MoonBit) to client (TypeScript) with type safety.
 ### MoonBit (Server)
 
 ```moonbit
-using @server_dom { island, button, text }
-using @luna { Load }
+using @server_dom { button, text }
 
-struct CounterState {
+// Props defined in app/client/counter.mbt
+pub(all) struct CounterProps {
   initial : Int
   max : Int
 } derive(ToJson, FromJson)
 
-fn counter_island(state : CounterState) -> @luna.Node {
-  island(
-    id="counter",
-    url="/static/counter.js",
-    state=state.to_json().stringify(),
-    trigger=Load,
-    children=[
-      button([text("Count: " + state.initial.to_string())])
+// Using auto-generated factory (recommended)
+fn counter_island(props : @types.CounterProps) -> @luna.Node {
+  @sol.island(
+    @types.counter(props),
+    [
+      button([text("Count: " + props.initial.to_string())])
     ],
   )
 }
@@ -242,13 +240,10 @@ struct Product {
   stock : Int
 } derive(ToJson, FromJson)
 
-fn product_island(state : ProductIslandState) -> @luna.Node {
-  island(
-    id="product",
-    url="/static/product.js",
-    state=state.to_json().stringify(),
-    trigger=Load,
-    children=[
+fn product_island(state : @types.ProductIslandProps) -> @luna.Node {
+  @sol.island(
+    @types.product_island(state),
+    [
       div([
         h2([text(state.product.name)]),
         p([text(state.user_currency + " " + state.product.price.to_string())]),

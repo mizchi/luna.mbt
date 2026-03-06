@@ -102,16 +102,13 @@ Luna の Islands アーキテクチャでは：
 ## Island を使った完全な例
 
 ```moonbit
-using @server_dom { island, div, p, button, text }
-using @luna { signal, Load }
+using @server_dom { div, p, button, text }
 
 fn counter_island(initial : Int) -> @luna.Node {
-  island(
-    id="counter",
-    url="/static/counter.js",
-    state=initial.to_string(),
-    trigger=Load,
-    children=[
+  // @types.counter() は sol generate が CounterProps から自動生成
+  @sol.island(
+    @types.counter({ initial_count: initial }),
+    [
       div([
         p([text("Count: " + initial.to_string())]),
         button([text("Increment")]),

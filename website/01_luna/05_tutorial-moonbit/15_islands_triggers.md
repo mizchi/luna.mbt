@@ -22,14 +22,10 @@ Luna provides four hydration triggers:
 Hydrate immediately when the page loads:
 
 ```moonbit
-using @server_dom { island }
-using @luna { Load }
-
-island(
-  id="search",
-  url="/static/search.js",
-  trigger=Load,
-  children=[...],
+// trigger=Load is the default for ComponentRef
+@sol.island(
+  @types.search(search_props),
+  [...],
 )
 ```
 
@@ -49,14 +45,9 @@ island(
 Hydrate when the browser is idle (using `requestIdleCallback`):
 
 ```moonbit
-using @server_dom { island }
-using @luna { Idle }
-
-island(
-  id="analytics",
-  url="/static/analytics.js",
-  trigger=Idle,
-  children=[...],
+@sol.island(
+  @types.analytics(analytics_props, trigger=@luna.TriggerType::Idle),
+  [...],
 )
 ```
 
@@ -76,14 +67,9 @@ island(
 Hydrate when the element scrolls into view (using `IntersectionObserver`):
 
 ```moonbit
-using @server_dom { island }
-using @luna { Visible }
-
-island(
-  id="comments",
-  url="/static/comments.js",
-  trigger=Visible,
-  children=[...],
+@sol.island(
+  @types.comments(comments_props, trigger=@luna.TriggerType::Visible),
+  [...],
 )
 ```
 
@@ -104,14 +90,9 @@ island(
 Hydrate when a media query matches:
 
 ```moonbit
-using @server_dom { island }
-using @luna { Media }
-
-island(
-  id="sidebar",
-  url="/static/sidebar.js",
-  trigger=Media("(min-width: 768px)"),
-  children=[...],
+@sol.island(
+  @types.sidebar(sidebar_props, trigger=@luna.TriggerType::Media("(min-width: 768px)")),
+  [...],
 )
 ```
 
@@ -194,14 +175,9 @@ fn blog_page() -> @luna.Node {
 For programmatic control:
 
 ```moonbit
-using @server_dom { island }
-using @luna { None }
-
-island(
-  id="modal",
-  url="/static/modal.js",
-  trigger=None,
-  children=[...],
+@sol.island(
+  @types.modal(modal_props, trigger=@luna.TriggerType::None),
+  [...],
 )
 ```
 

@@ -94,21 +94,17 @@ function Counter(props) {
 Serialize data for client-side mount:
 
 ```moonbit
-using @server_dom { island }
-using @luna { Load }
-
-struct InitData {
+// Props defined in app/client/user.mbt
+pub(all) struct UserProps {
   user_id : Int
   preferences : Preferences
-} derive(ToJson)
+} derive(ToJson, FromJson)
 
-fn user_component(data : InitData) -> @luna.Node {
-  island(
-    id="user",
-    url="/static/user.js",
-    state=data.to_json().stringify(),  // Client receives this on mount
-    trigger=Load,
-    children=[...],
+// Server-side usage with auto-generated factory
+fn user_component(props : @types.UserProps) -> @luna.Node {
+  @sol.island(
+    @types.user(props),  // Client receives props on mount
+    [...],
   )
 }
 ```

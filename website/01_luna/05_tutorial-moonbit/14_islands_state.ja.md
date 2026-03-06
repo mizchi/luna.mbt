@@ -27,20 +27,19 @@ Luna は状態を JSON として HTML にシリアライズ。
 ### サーバーサイド（MoonBit）
 
 ```moonbit
-struct CounterState {
+// Props はクライアント側で定義（app/client/counter.mbt）
+pub(all) struct CounterProps {
   initial : Int
   max : Int
-} derive(ToJson)
+} derive(ToJson, FromJson)
 
-fn counter_island(state : CounterState) -> @luna.Node {
-  island(
-    id="counter",
-    url="/static/counter.js",
-    state=state.to_json().stringify(),
-    trigger=Load,
-    children=[
+// 自動生成されたファクトリを使用（推奨）
+fn counter_island(props : @types.CounterProps) -> @luna.Node {
+  @sol.island(
+    @types.counter(props),
+    [
       div([
-        button([text("Count: " + state.initial.to_string())])
+        button([text("Count: " + props.initial.to_string())])
       ])
     ],
   )
