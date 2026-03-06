@@ -191,39 +191,36 @@ let preload_links = result.preload_urls.map(fn(url) {
 })
 ```
 
-## wc_island
+## Web Components Island
 
-Create a Web Component island with Shadow DOM.
-
-```moonbit
-fn counter_wc(initial : Int) -> @luna.Node {
-  @luna.wc_island(
-    name="wc-counter",
-    url="/static/wc-counter.js",
-    state=initial.to_string(),
-    trigger=@luna.Load,
-    styles=":host { display: block; }",
-    children=[
-      @element.button([@element.text("Count: \{initial}")])
-    ],
-  )
-}
-```
-
-### Signature
+For Web Components islands, use `island()` with a WC-prefixed ComponentRef (auto-generated with `wc: true`):
 
 ```moonbit
-fn wc_island(
-  name~ : String,
-  url~ : String,
-  state~ : String = "",
-  trigger~ : Trigger = Load,
-  styles~ : String = "",
-  children~ : Array[@luna.Node] = [],
-) -> @luna.Node
+// Auto-generated: WcCounterProps → wc_counter() factory with wc=true
+@sol.island(
+  @types.wc_counter(wc_counter_props),
+  [@element.button([@element.text("Count: 0")])],
+)
 ```
 
-### Parameters
+### Low-level: wc_island_raw
+
+For direct string-based Web Component islands, use `@luna.wc_island` or `@sol.wc_island_raw`:
+
+```moonbit
+@luna.wc_island(
+  name="wc-counter",
+  url="/static/wc-counter.js",
+  state=initial.to_string(),
+  trigger=@luna.Load,
+  styles=":host { display: block; }",
+  children=[
+    @element.button([@element.text("Count: \{initial}")])
+  ],
+)
+```
+
+### Parameters (`@luna.wc_island`)
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
@@ -343,7 +340,8 @@ export default function hydrate(element, state) {
 | `@sol.island_with(cref, render)` | Create island with render function |
 | `@sol.island_raw(id, url, state, children, trigger~)` | Create island from strings (low-level) |
 | `@server_dom.client(cref, children)` | Equivalent to `@sol.island` |
-| `@luna.wc_island(...)` | Create Web Component island |
+| `@luna.wc_island(...)` | Create Web Component island (low-level) |
+| `@sol.wc_island_raw(...)` | Sol wrapper for WC island (low-level) |
 | `@element.slot_(name~)` | Create slot element |
 | `render_with_preloads(node)` | Render and collect preload URLs |
 

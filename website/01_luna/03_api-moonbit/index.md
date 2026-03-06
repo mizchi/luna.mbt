@@ -20,7 +20,7 @@ title: "API: MoonBit"
 | Function | Description |
 |----------|-------------|
 | [`island`](./islands#island) | Create an island for hydration |
-| [`wc_island`](./islands#wc_island) | Create a Web Component island |
+| [`wc_island`](./islands#web-components-island) | Create a Web Component island |
 
 ## Server DOM Elements
 

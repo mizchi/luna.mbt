@@ -288,9 +288,9 @@ pub fn[E] render_node(
 pub let default_wc_loader_url : String = "/static/wc-loader.js"
 
 ///|
-/// Create a Web Components Island VNode
-/// Uses Declarative Shadow DOM for SSR and wc-loader for hydration
-pub fn[E] wc_island(
+/// Create a Web Components Island VNode from raw strings (low-level API)
+/// Prefer `island(cref, children)` with ComponentRef (wc=true) for type safety
+pub fn[E] wc_island_raw(
   name : String,
   url : String,
   styles : String,
@@ -302,8 +302,9 @@ pub fn[E] wc_island(
 }
 
 ///|
-/// Create a Web Components Island VNode with a render function for children
-pub fn[E] wc_island_with(
+/// Create a Web Components Island VNode with a render function (low-level API)
+/// Prefer `island_with(cref, render)` with ComponentRef (wc=true) for type safety
+pub fn[E] wc_island_with_raw(
   name : String,
   url : String,
   styles : String,

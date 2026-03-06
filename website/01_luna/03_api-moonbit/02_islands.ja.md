@@ -63,6 +63,20 @@ pub enum TriggerType {
 
 ## Web Components Island
 
+WC プレフィックス付き ComponentRef（`wc: true` で自動生成）を使用：
+
+```moonbit
+// 自動生成: WcCounterProps → wc_counter() ファクトリ（wc=true）
+@sol.island(
+  @types.wc_counter(wc_counter_props),
+  [@element.button([@element.text("Count: 0")])],
+)
+```
+
+### 低レベル: wc_island_raw
+
+文字列ベースの WC Island は `@luna.wc_island` または `@sol.wc_island_raw` を使用：
+
 ```moonbit
 @luna.wc_island(
   name="my-counter",

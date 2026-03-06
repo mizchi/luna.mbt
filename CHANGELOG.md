@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Unify loader runtime asset sources under `src/ssg/assets/scripts/*` and keep `examples/*/static/*` synchronized from canonical sources
 - Update example package scripts (`predev` / `prebuild` / `preserve` / `pretest`) to auto-sync runtime static assets
 - **Breaking:** Rename string-based `island()` / `island_with()` to `island_raw()` / `island_with_raw()` — use `ComponentRef`-based `island()` for type safety
+- **Breaking:** Rename `wc_island()` / `wc_island_with()` to `wc_island_raw()` / `wc_island_with_raw()` — use `island()` with WC-prefixed ComponentRef instead
 
 ### Fixed
 

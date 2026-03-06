@@ -137,5 +137,83 @@
 - [x] [P1] `mars.to_handler` の `reschedule` 参照欠落を `sol` 側互換レイヤで吸収する  
   対応: `register_routes` / `register_server_routes` / `register_sol_routes` で互換シンボルを初期化し、wbtest 側 polyfill を削除
 
-- [x] [P2] streaming SSR で `root_template` を利用する  
+- [x] [P2] streaming SSR で `root_template` を利用する
   対応: `__LUNA_MAIN__` で template を header/footer に分割して streaming へ適用、placeholder 不在時は built-in shell にフォールバック
+
+## Type-Safe API Migration (2026-03)
+
+Goal: Replace string-based APIs with type-safe alternatives via `sol generate` code generation.
+
+### A. Immediate (leverages existing `sol generate` infrastructure)
+
+#### A1. `wc_island` → ComponentRef-based (Low effort)
+
+Current: `wc_island("my-counter", "/static/my_counter.js", styles, state, children)`
+Target: `@sol.island(@types.wc_counter(props), children)` — already works via `cref.wc == true`
+
+- [x] `island()` already supports `wc: true` through ComponentRef
+- [x] Rename `wc_island` → `wc_island_raw`, `wc_island_with` → `wc_island_with_raw`
+- [x] Update docs referencing `wc_island`
+
+#### A2. Route params: `get_param("slug")` → typed accessor (Medium effort)
+
+Current: `props.get_param("slug")` — typo-prone, returns `String?`
+Target: typed param struct generated from route path patterns
+
+- [ ] Design typed params approach (per-route struct vs shared typed map)
+- [ ] Extend `sol generate` to emit typed param accessors from route patterns
+- [ ] Keep `get_param(String)` as escape hatch
+
+#### A3. Action IDs → ActionRef (Medium effort)
+
+Current: `ActionDef::new("create-user", handler)` / `registry.get("create-user")`
+Target: `ActionRef` type with generated factory functions (like ComponentRef)
+
+- [ ] Define `ActionRef` type
+- [ ] Extend `sol generate` to collect action definitions
+- [ ] Generate action factory functions and URL constants
+- [ ] Add type-safe `invoke_action` overload accepting `ActionRef`
+
+### B. Medium-term (requires design decisions)
+
+#### B1. Route paths → typed route builder
+
+Current: `page("/blog/:slug", handler)` — string path patterns
+Target: `page(@routes.blog_slug, handler)` — generated route constants
+
+- [ ] Design route path constant generation strategy
+- [ ] Decide if file-based routing should auto-generate typed routes
+- [ ] Integrate with A2 (typed params derived from route paths)
+
+#### B2. `invoke_action(url, ...)` → typed client action
+
+Current: `invoke_action("/_action/create-user", payload, callback)`
+Target: `invoke_action(@actions.create_user, payload, callback)`
+Depends on A3 (ActionRef).
+
+- [ ] Add `invoke_action` overload accepting `ActionRef`
+- [ ] Add `ActionFormConfig::from_ref(ActionRef)` constructor
+- [ ] Rename string-based versions to `_raw` suffix
+
+#### B3. Locale codes → Locale enum
+
+Current: `build_localized_url(path, "ja", i18n)` — string locale codes
+Target: `build_localized_url(path, @locale.Ja, i18n)` — generated enum
+
+- [ ] Decide: enum generation vs branded string type
+- [ ] Extend `sol generate` to emit locale types from i18n config
+- [ ] Keep String overloads as `_raw` suffix
+
+### C. Low priority (intentionally string-based)
+
+- `island_raw()` / `island_with_raw()` — low-level escape hatch
+- CORS methods/headers — standard HTTP patterns
+- File path utilities — build tool internals
+- `IslandConfig` builder — superseded by ComponentRef
+
+### Implementation Order
+
+1. A1 (wc_island rename) — minimal, consistent with island refactor
+2. A2 (typed route params) — high user impact
+3. A3 (ActionRef) — follows ComponentRef pattern
+4. B1-B3 — after A items validated
