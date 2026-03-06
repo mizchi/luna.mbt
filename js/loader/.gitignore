@@ -1,1 +1,6 @@
-dist/
+dist/*
+# Keep only files needed by sol runtime (committed for mooncakes publish)
+!dist/loader.iife.js
+!dist/wc-loader.iife.js
+!dist/sol-nav.js
+!dist/lib.js

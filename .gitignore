@@ -2,6 +2,7 @@
 **/target
 target/
 dist/
+!js/loader/dist/
 _build/
 node_modules/
 .mooncakes/
