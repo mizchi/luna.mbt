@@ -132,10 +132,34 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       "  Found \{source_structs.length()} Props types from source",
     ),
   )
+  // Step 1.5: Parse routes.mbt for route paths and action IDs (text scan, no moon info needed)
+  let routes_file_path = @path.join2(
+    @path.join2(cwd, config.routes),
+    "routes.mbt",
+  )
+  let route_info = parse_routes_file(routes_file_path)
+  let has_routes = not(route_info.route_paths.is_empty())
+  let has_actions = not(route_info.action_ids.is_empty())
+  if has_routes || has_actions {
+    let route_count = route_info.route_paths.length()
+    let action_count = route_info.action_ids.length()
+    println(
+      @colorette.gray(
+        "  Found \{route_count} route paths, \{action_count} action IDs",
+      ),
+    )
+  }
   // Step 2: Generate types package from source (so moon info can resolve imports)
-  if not(source_structs.is_empty()) {
-    let types_mbt_content = generate_types_mbt(source_structs)
-    let types_pkg_content = generate_types_pkg(source_structs)
+  if not(source_structs.is_empty()) || has_routes || has_actions {
+    let types_mbt_content = generate_types_mbt(
+      source_structs,
+      route_info~,
+      static_dirs=config.static_dirs,
+    )
+    let types_pkg_content = generate_types_pkg(
+      source_structs,
+      has_actions~,
+    )
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
     let types_pkg_path = @path.join2(types_dir, "moon.pkg")
     try {
@@ -359,12 +383,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Generate server code based on app mode
   match app_mode {
     MoonBitFull => {
-      // Parse routes.mbt to extract component/handler info
-      let routes_file_path = @path.join2(
-        @path.join2(cwd, config.routes),
-        "routes.mbt",
-      )
-      let route_info = parse_routes_file(routes_file_path)
+      // Use route_info already parsed at Step 1.5
       // Generate server main.mbt
       let server_main = generate_server_main_mbt(
         routes_pkg,

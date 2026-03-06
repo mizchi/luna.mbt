@@ -103,6 +103,10 @@ struct RouteInfo {
   _page_components : Array[String]
   /// API handler IDs (from Get, Post, etc. routes)
   _api_handlers : Array[String]
+  /// Route paths (from path="..." in route definitions)
+  route_paths : Array[String]
+  /// Action IDs (from ActionDef::new("id", ...) calls)
+  action_ids : Array[String]
 }
 
 // =============================================================================
@@ -123,77 +127,71 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
 ) -> RouteInfo {
   let page_components : Array[String] = []
   let api_handlers : Array[String] = []
+  let route_paths : Array[String] = []
+  let action_ids : Array[String] = []
+  let empty = RouteInfo::{
+    _page_components: page_components,
+    _api_handlers: api_handlers,
+    route_paths,
+    action_ids,
+  }
   if not(fs.exists_sync(routes_path)) {
-    return RouteInfo::{
-      _page_components: page_components,
-      _api_handlers: api_handlers,
-    }
+    return empty
   }
-  let content = fs.read_file_sync(routes_path) catch {
-    _ =>
-      return RouteInfo::{
-        _page_components: page_components,
-        _api_handlers: api_handlers,
-      }
-  }
+  let content = fs.read_file_sync(routes_path) catch { _ => return empty }
 
   // Find all component="..." values (for Page and Island routes)
-  // These appear on their own lines in multi-line route definitions
+  extract_quoted_values(content, "component=\"", page_components)
+  // Find all handler="..." values (for API routes)
+  extract_quoted_values(content, "handler=\"", api_handlers)
+  // Find all path="..." values (route paths for typed constants)
+  extract_quoted_values(content, "path=\"", route_paths)
+  // Find all segment="..." values (layout segments)
+  extract_quoted_values(content, "segment=\"", route_paths)
+  // Find all ActionDef::new("id", ...) patterns
+  extract_quoted_values(content, "ActionDef::new(\"", action_ids)
+  RouteInfo::{
+    _page_components: page_components,
+    _api_handlers: api_handlers,
+    route_paths,
+    action_ids,
+  }
+}
+
+///|
+/// Extract quoted string values after a prefix pattern
+fn extract_quoted_values(
+  content : String,
+  prefix : String,
+  result : Array[String],
+) -> Unit {
+  let prefix_len = prefix.length()
   let mut search_pos = 0
   while search_pos < content.length() {
     let remaining = content.unsafe_substring(
       start=search_pos,
       end=content.length(),
     )
-    match remaining.find("component=\"") {
+    match remaining.find(prefix) {
       Some(start) => {
         let after_key = remaining.unsafe_substring(
-          start=start + 11,
+          start=start + prefix_len,
           end=remaining.length(),
         )
         match after_key.find("\"") {
           Some(end_idx) => {
-            let component = after_key.unsafe_substring(start=0, end=end_idx)
-            if not(page_components.contains(component)) {
-              page_components.push(component)
+            let value = after_key.unsafe_substring(start=0, end=end_idx)
+            if not(result.contains(value)) {
+              result.push(value)
             }
-            search_pos = search_pos + start + 11 + end_idx + 1
+            search_pos = search_pos + start + prefix_len + end_idx + 1
           }
-          None => search_pos = search_pos + start + 11
+          None => search_pos = search_pos + start + prefix_len
         }
       }
       None => break
     }
   }
-
-  // Find all handler="..." values (for API routes)
-  search_pos = 0
-  while search_pos < content.length() {
-    let remaining = content.unsafe_substring(
-      start=search_pos,
-      end=content.length(),
-    )
-    match remaining.find("handler=\"") {
-      Some(start) => {
-        let after_key = remaining.unsafe_substring(
-          start=start + 9,
-          end=remaining.length(),
-        )
-        match after_key.find("\"") {
-          Some(end_idx) => {
-            let handler = after_key.unsafe_substring(start=0, end=end_idx)
-            if not(api_handlers.contains(handler)) {
-              api_handlers.push(handler)
-            }
-            search_pos = search_pos + start + 9 + end_idx + 1
-          }
-          None => search_pos = search_pos + start + 9
-        }
-      }
-      None => break
-    }
-  }
-  RouteInfo::{ _page_components: page_components, _api_handlers: api_handlers }
 }
 
 // =============================================================================

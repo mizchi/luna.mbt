@@ -5,8 +5,18 @@
 // =============================================================================
 
 ///|
-/// Generate types.mbt content with all Props struct definitions and ComponentRef factory functions
-fn generate_types_mbt(structs : Array[StructExport]) -> String {
+/// Generate types.mbt content with all Props struct definitions, ComponentRef factories,
+/// route constants, ActionRef factories, and Locale enum
+fn generate_types_mbt(
+  structs : Array[StructExport],
+  route_info? : RouteInfo = RouteInfo::{
+    _page_components: [],
+    _api_handlers: [],
+    route_paths: [],
+    action_ids: [],
+  },
+  static_dirs? : Array[StaticDirEntry] = [],
+) -> String {
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated types for island props\n")
   buf.write_string("///| Re-exports Props structs from client packages\n\n")
@@ -49,16 +59,32 @@ fn generate_types_mbt(structs : Array[StructExport]) -> String {
     buf.write_string("  { url: \"\{url}\", props, wc: \{is_wc}, trigger }\n")
     buf.write_string("}\n\n")
   }
+
+  // Generate route path constants and param name constants
+  buf.write_string(generate_route_constants(route_info.route_paths))
+
+  // Generate ActionRef factory functions
+  buf.write_string(generate_action_ref_factories(route_info.action_ids))
+
+  // Generate Locale enum
+  buf.write_string(generate_locale_enum(static_dirs))
+
   buf.to_string()
 }
 
 ///|
 /// Generate types/moon.pkg
-fn generate_types_pkg(structs : Array[StructExport]) -> String {
+fn generate_types_pkg(
+  structs : Array[StructExport],
+  has_actions? : Bool = false,
+) -> String {
   let buf = StringBuilder::new()
   buf.write_string("import {\n")
   buf.write_string("  \"moonbitlang/core/json\",\n")
   buf.write_string("  \"mizchi/luna\" @luna,\n")
+  if has_actions {
+    buf.write_string("  \"mizchi/sol/action\" @action,\n")
+  }
   buf.write_string("}\n\n")
   buf.write_string("options(\n")
   buf.write_string("  \"supported-targets\": [ \"js\" ],\n")

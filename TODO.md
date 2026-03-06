@@ -160,8 +160,9 @@ Target: `@sol.island(@types.wc_counter(props), children)` — already works via 
 Current: `props.get_param("slug")` — typo-prone, returns `String?`
 Target: typed param struct generated from route path patterns
 
+- [x] Extract param names from route path patterns (`:slug`, `[id]`, `[...path]`, `[[...slug]]`)
+- [x] Generate `pub let param_slug : String = "slug"` constants via `sol generate`
 - [ ] Design typed params approach (per-route struct vs shared typed map)
-- [ ] Extend `sol generate` to emit typed param accessors from route patterns
 - [ ] Keep `get_param(String)` as escape hatch
 
 #### A3. Action IDs → ActionRef (Medium effort)
@@ -175,7 +176,7 @@ Target: `ActionRef` type with generated factory functions (like ComponentRef)
 - [x] Add `invoke_action_ref(aref, payload, callback)`
 - [x] Add `create_action_invoker_ref(aref)`
 - [x] Add `ActionFormConfig::from_ref(aref)`
-- [ ] Extend `sol generate` to collect action definitions and generate factory functions
+- [x] Extend `sol generate` to collect action definitions and generate factory functions
 
 ### B. Medium-term (requires design decisions)
 
@@ -184,7 +185,8 @@ Target: `ActionRef` type with generated factory functions (like ComponentRef)
 Current: `page("/blog/:slug", handler)` — string path patterns
 Target: `page(@routes.blog_slug, handler)` — generated route constants
 
-- [ ] Design route path constant generation strategy
+- [x] Generate `pub let route_blog_slug : String = "/blog/:slug"` constants via `sol generate`
+- [x] Parse route paths from `routes.mbt` at Step 1.5 (early text scan)
 - [ ] Decide if file-based routing should auto-generate typed routes
 - [ ] Integrate with A2 (typed params derived from route paths)
 
@@ -196,15 +198,14 @@ Target: `invoke_action_ref(@actions.create_user(), payload, callback)`
 - [x] Add `invoke_action_ref` accepting `ActionRef`
 - [x] Add `create_action_invoker_ref(ActionRef)`
 - [x] Add `ActionFormConfig::from_ref(ActionRef)` constructor
-- [ ] Generate ActionRef factories via `sol generate`
+- [x] Generate ActionRef factories via `sol generate`
 
 #### B3. Locale codes → Locale enum
 
 Current: `build_localized_url(path, "ja", i18n)` — string locale codes
 Target: `build_localized_url(path, @locale.Ja, i18n)` — generated enum
 
-- [ ] Decide: enum generation vs branded string type
-- [ ] Extend `sol generate` to emit locale types from i18n config
+- [x] Generate `pub enum Locale { En; Ja }` with `code()` and `label()` methods via `sol generate`
 - [ ] Keep String overloads as `_raw` suffix
 
 ### C. Low priority (intentionally string-based)
