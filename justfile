@@ -202,7 +202,7 @@ preview-doc:
     npx serve website/dist-docs
 
 release-doc: build-doc
-    pnpm wrangler publish --config wrangler.json
+    pnpm wrangler deploy --config wrangler.json
 
 # =============================================================================
 # Benchmark
