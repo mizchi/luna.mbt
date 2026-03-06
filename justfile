@@ -95,7 +95,11 @@ test-docs:
 test-cli-golden:
     node --test e2e/cli-golden-path.test.js e2e/example-static-assets-sync.test.js e2e/luna-loader-sync.test.js
 
-test-all: test test-ssg test-xplat test-docs test-cli-golden test-e2e test-sol-app
+# Code generation E2E (sol generate output verification)
+test-generate:
+    node --test e2e/generate-codegen.test.js
+
+test-all: test test-ssg test-xplat test-docs test-cli-golden test-generate test-e2e test-sol-app
 
 # =============================================================================
 # CLI
