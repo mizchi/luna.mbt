@@ -62,18 +62,39 @@ fn[FS : @env.FileSystem] detect_app_mode_with_fs(
 // =============================================================================
 
 ///|
+/// Mapping from static/ filename to luna dist filename
+fn luna_dist_name(filename : String) -> String {
+  if filename == "loader.js" {
+    "loader.iife.js"
+  } else if filename == "wc-loader.js" {
+    "wc-loader.iife.js"
+  } else {
+    filename
+  }
+}
+
+///|
 /// Resolve a runtime asset file by trying multiple candidate paths.
 /// Returns the file content if found, None otherwise.
-fn resolve_runtime_asset(cwd : String, relative_path : String) -> String? {
+fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
+  let luna_name = luna_dist_name(filename)
   let candidates = [
-    // mooncakes: installed via moon update
-    @path.join2(cwd, ".mooncakes/mizchi/sol/src/ssg/assets/" + relative_path),
+    // mooncakes (luna): loader dist from luna package
+    @path.join2(
+      cwd,
+      ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
+    ),
+    // mooncakes (sol): canonical assets from sol package
+    @path.join2(
+      cwd,
+      ".mooncakes/mizchi/sol/src/ssg/assets/scripts/" + filename,
+    ),
     // Development: sol.mbt repo root (monorepo examples)
-    @path.join2(cwd, "../../src/ssg/assets/" + relative_path),
+    @path.join2(cwd, "../../src/ssg/assets/scripts/" + filename),
     // Development: direct child of sol.mbt
-    @path.join2(cwd, "../src/ssg/assets/" + relative_path),
+    @path.join2(cwd, "../src/ssg/assets/scripts/" + filename),
     // Same repo root
-    @path.join2(cwd, "src/ssg/assets/" + relative_path),
+    @path.join2(cwd, "src/ssg/assets/scripts/" + filename),
   ]
   for path in candidates {
     try {

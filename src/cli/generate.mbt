@@ -524,7 +524,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     let asset_files = ["loader.js", "wc-loader.js", "sol-nav.js", "lib.js"]
     let mut copied = 0
     for file in asset_files {
-      match resolve_runtime_asset(cwd, "scripts/\{file}") {
+      match resolve_runtime_asset(cwd, file) {
         Some(content) => {
           let target = @path.join2(static_dir, file)
           // Only write if content changed
