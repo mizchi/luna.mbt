@@ -163,6 +163,7 @@ pub fn template_layout_moon_pkg() -> String {
     #|
     #|options(
     #|  "supported-targets": [ "js" ],
+    #|  "warn-list": "-24",
     #|)
   )
 }
@@ -296,6 +297,7 @@ pub fn template_routes_moon_pkg(package_name : String) -> String {
     #|
     #|options(
     #|  "supported-targets": [ "js" ],
+    #|  "warn-list": "-67",
     #|)
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
