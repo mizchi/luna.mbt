@@ -93,7 +93,7 @@ test-docs:
 
 # CLI golden path E2E (new -> dev/build/deploy help)
 test-cli-golden:
-    node --test e2e/cli-golden-path.test.js e2e/example-static-assets-sync.test.js e2e/luna-loader-sync.test.js e2e/template-check.test.js
+    node --test e2e/cli-golden-path.test.js e2e/luna-loader-sync.test.js e2e/template-check.test.js
 
 # Code generation E2E (sol generate output verification)
 test-generate:
@@ -113,10 +113,6 @@ sol *args:
 # =============================================================================
 # Examples
 # =============================================================================
-
-# Sync example static runtime (loader/wc-loader) to canonical source
-sync-example-assets:
-    node scripts/sync-example-static-assets.mjs
 
 # Sync core/runtime assets from luna loader dist (loader only when security requirements are met)
 sync-luna-assets luna_dir="../luna.mbt":

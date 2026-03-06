@@ -12,6 +12,11 @@ fn template_gitignore() -> String {
     #|app/__gen__/client
     #|app/__gen__/server
     #|.sol
+    #|# Runtime assets (copied by sol generate from canonical source)
+    #|static/loader.js
+    #|static/wc-loader.js
+    #|static/sol-nav.js
+    #|static/lib.js
   )
 }
 

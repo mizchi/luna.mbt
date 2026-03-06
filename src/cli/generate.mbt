@@ -518,6 +518,42 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       }
     }
   }
+  // Copy runtime assets (loader, wc-loader, sol-nav, lib) to static/
+  let static_dir = @path.join2(cwd, "static")
+  if @fs.exists_sync(static_dir) {
+    let asset_files = ["loader.js", "wc-loader.js", "sol-nav.js", "lib.js"]
+    let mut copied = 0
+    for file in asset_files {
+      match resolve_runtime_asset(cwd, "scripts/\{file}") {
+        Some(content) => {
+          let target = @path.join2(static_dir, file)
+          // Only write if content changed
+          let current = try {
+            @fs.read_file_as_string(target)
+          } catch {
+            _ => ""
+          }
+          if current != content {
+            fs.write_file_sync(target, content) catch {
+              e => {
+                @cli_common.console_error(
+                  @colorette.red("Error writing static/\{file}: \{e}"),
+                )
+                continue
+              }
+            }
+            copied += 1
+          }
+        }
+        None => ()
+      }
+    }
+    if copied > 0 {
+      println(
+        @colorette.gray("  Synced \{copied} runtime assets to static/"),
+      )
+    }
+  }
   println(@colorette.green("✓ Generation complete"))
 }
 

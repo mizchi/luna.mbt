@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawnSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -10,7 +9,6 @@ function parseArgs(argv) {
   let lunaDir = process.env.LUNA_REPO_DIR ?? path.resolve(root, "..", "luna.mbt");
   let check = false;
   let strict = false;
-  let skipExamples = false;
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -31,14 +29,10 @@ function parseArgs(argv) {
       strict = true;
       continue;
     }
-    if (arg === "--skip-examples") {
-      skipExamples = true;
-      continue;
-    }
     throw new Error(`unknown option: ${arg}`);
   }
 
-  return { lunaDir, check, strict, skipExamples };
+  return { lunaDir, check, strict };
 }
 
 function readText(filePath) {
@@ -82,7 +76,7 @@ function syncOrCheck({
 }
 
 function run() {
-  const { lunaDir, check, strict, skipExamples } = parseArgs(process.argv.slice(2));
+  const { lunaDir, check, strict } = parseArgs(process.argv.slice(2));
   const lunaDist = path.join(lunaDir, "js", "loader", "dist");
   if (!fs.existsSync(lunaDist)) {
     throw new Error(`luna dist not found: ${lunaDist}`);
@@ -131,17 +125,6 @@ function run() {
       console.log(`synced ${path.relative(root, mapping.target)}`);
     } else if (result.checked) {
       console.log(`ok ${path.relative(root, mapping.target)}`);
-    }
-  }
-
-  if (!check && !skipExamples) {
-    const scriptPath = path.join(root, "scripts", "sync-example-static-assets.mjs");
-    const child = spawnSync(process.execPath, [scriptPath], {
-      cwd: root,
-      stdio: "inherit",
-    });
-    if (child.status !== 0) {
-      throw new Error("failed to sync examples static assets");
     }
   }
 

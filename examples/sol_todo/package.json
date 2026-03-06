@@ -3,15 +3,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "sync:assets": "node ../../scripts/sync-example-static-assets.mjs",
     "generate": "node ../../_build/js/release/build/cli/cli.js generate",
-    "prebuild": "node ../../scripts/sync-example-static-assets.mjs",
     "build": "moon build --target js",
-    "predev": "node ../../scripts/sync-example-static-assets.mjs",
     "dev": "node ../../_build/js/release/build/cli/cli.js dev",
-    "preserve": "node ../../scripts/sync-example-static-assets.mjs",
     "serve": "node .sol/prod/server/main.js",
-    "pretest": "node ../../scripts/sync-example-static-assets.mjs",
     "test": "playwright test",
     "test:ui": "playwright test --ui"
   },

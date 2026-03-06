@@ -58,6 +58,34 @@ fn[FS : @env.FileSystem] detect_app_mode_with_fs(
 }
 
 // =============================================================================
+// Runtime Asset Resolution
+// =============================================================================
+
+///|
+/// Resolve a runtime asset file by trying multiple candidate paths.
+/// Returns the file content if found, None otherwise.
+fn resolve_runtime_asset(cwd : String, relative_path : String) -> String? {
+  let candidates = [
+    // mooncakes: installed via moon update
+    @path.join2(cwd, ".mooncakes/mizchi/sol/src/ssg/assets/" + relative_path),
+    // Development: sol.mbt repo root (monorepo examples)
+    @path.join2(cwd, "../../src/ssg/assets/" + relative_path),
+    // Development: direct child of sol.mbt
+    @path.join2(cwd, "../src/ssg/assets/" + relative_path),
+    // Same repo root
+    @path.join2(cwd, "src/ssg/assets/" + relative_path),
+  ]
+  for path in candidates {
+    try {
+      return Some(@fs.read_file_as_string(path))
+    } catch {
+      _ => continue
+    }
+  }
+  None
+}
+
+// =============================================================================
 // Helper Functions
 // =============================================================================
 
