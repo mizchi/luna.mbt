@@ -323,13 +323,13 @@ Render and collect island module URLs for preloading.
 
 ```moonbit
 let node = @element.div([
-  @luna.island("a", "/a.js", "{}", [@element.text("A")]),
-  @luna.island("b", "/b.js", "{}", [@element.text("B")]),
+  @sol.island(@types.component_a({}), [@element.text("A")]),
+  @sol.island(@types.component_b({}), [@element.text("B")]),
 ])
 
 let result = render_with_preloads(node)
 // result.html: rendered HTML string
-// result.preload_urls: ["/a.js", "/b.js"]
+// result.preload_urls: ["/static/component_a.js", "/static/component_b.js"]
 ```
 
 ## XSS Safety
