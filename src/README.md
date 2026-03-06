@@ -385,6 +385,43 @@ pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[CounterAction] {
 }
 ```
 
+### Embedding Islands (Server-side)
+
+Use `ComponentRef`-based API for type-safe island embedding. `sol generate` auto-generates factory functions from client Props types.
+
+```moonbit
+// Auto-generated: app/__gen__/types/types.mbt
+pub struct CounterProps { initial_count : Int } derive(ToJson, FromJson)
+pub fn counter(props : CounterProps, trigger~ : @luna.Trigger) -> @luna.ComponentRef[CounterProps]
+```
+
+**Recommended: `@sol.island()` with ComponentRef**
+
+```moonbit
+// app/server/home.mbt
+let counter_props : @types.CounterProps = { initial_count: 42 }
+
+@sol.island(
+  @types.counter(counter_props),
+  [div([button([text("Count: 42")])])],  // SSR fallback children
+)
+```
+
+**Alternative: `@server_dom.client()` (equivalent)**
+
+```moonbit
+@server_dom.client(
+  @types.counter(counter_props),
+  [div([text("Loading...")])],
+)
+```
+
+**Low-level: `@sol.island_raw()` (string-based, not recommended)**
+
+```moonbit
+@sol.island_raw("counter", "/static/counter.js", props_json, children)
+```
+
 ### Hydration Triggers
 
 | Trigger | Description |

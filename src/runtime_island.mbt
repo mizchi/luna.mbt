@@ -200,13 +200,49 @@ pub fn generate_state_script(id : String, json : String) -> String {
 }
 
 // ============================================================================
-// Island VNode Support (using @luna.island)
+// Island VNode Support (ComponentRef-based, recommended)
 // ============================================================================
 
 ///|
-/// Create an Island VNode from a component render function
-/// This is the recommended way to create Islands with type-safe VNode children
-pub fn[E] island(
+/// Create an Island VNode from a ComponentRef (type-safe, recommended)
+///
+/// Example:
+/// ```moonbit nocheck
+/// @sol.island(
+///   @types.counter({ initial_count: 42 }),
+///   [div([button([text("Count: 42")])])],
+/// )
+/// ```
+pub fn[T : ToJson, E] island(
+  cref : @luna.ComponentRef[T],
+  children : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
+  @luna.internal_ref(
+    cref.url,
+    cref.props.to_json().stringify(),
+    trigger=cref.trigger,
+    wc=cref.wc,
+    children~,
+  )
+}
+
+///|
+/// Create an Island VNode from a ComponentRef with a render function for children
+pub fn[T : ToJson, E] island_with(
+  cref : @luna.ComponentRef[T],
+  render : () -> @luna.Node[E, String],
+) -> @luna.Node[E, String] {
+  island(cref, [render()])
+}
+
+// ============================================================================
+// Island VNode Support (string-based, low-level)
+// ============================================================================
+
+///|
+/// Create an Island VNode from raw strings (low-level API)
+/// Prefer `island(cref, children)` with ComponentRef for type safety
+pub fn[E] island_raw(
   id : String,
   url : String,
   state : String,
@@ -217,8 +253,9 @@ pub fn[E] island(
 }
 
 ///|
-/// Create an Island VNode with a render function for children
-pub fn[E] island_with(
+/// Create an Island VNode with a render function (low-level API)
+/// Prefer `island_with(cref, render)` with ComponentRef for type safety
+pub fn[E] island_with_raw(
   id : String,
   url : String,
   state : String,

@@ -200,6 +200,43 @@ pub fn counter(count : @signal.Signal[Int]) -> @luna.Node[CounterAction] {
 }
 ```
 
+### Islandの埋め込み（サーバーサイド）
+
+`ComponentRef`ベースのAPIで型安全にIslandを埋め込みます。`sol generate`がクライアントのProps型からファクトリ関数を自動生成します。
+
+```moonbit
+// 自動生成: app/__gen__/types/types.mbt
+pub struct CounterProps { initial_count : Int } derive(ToJson, FromJson)
+pub fn counter(props : CounterProps, trigger~ : @luna.Trigger) -> @luna.ComponentRef[CounterProps]
+```
+
+**推奨: `@sol.island()` + ComponentRef**
+
+```moonbit
+// app/server/home.mbt
+let counter_props : @types.CounterProps = { initial_count: 42 }
+
+@sol.island(
+  @types.counter(counter_props),
+  [div([button([text("Count: 42")])])],  // SSRフォールバック
+)
+```
+
+**代替: `@server_dom.client()`（同等）**
+
+```moonbit
+@server_dom.client(
+  @types.counter(counter_props),
+  [div([text("Loading...")])],
+)
+```
+
+**低レベル: `@sol.island_raw()`（文字列ベース、非推奨）**
+
+```moonbit
+@sol.island_raw("counter", "/static/counter.js", props_json, children)
+```
+
 ### Hydrationトリガー
 
 | トリガー | 説明 |

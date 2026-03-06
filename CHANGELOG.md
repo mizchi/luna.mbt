@@ -8,11 +8,13 @@ All notable changes to this project will be documented in this file.
 
 - Add hydration module URL origin policy in `loader.js` with `window.__LUNA_ALLOWED_HOSTS__` and `window.__LUNA_SET_ALLOWED_HOSTS__`
 - Add asset sync workflows and checks: `scripts/sync-example-static-assets.mjs`, `scripts/sync-luna-loader-assets.mjs`, `just sync-*` tasks, and E2E sync tests
+- Add type-safe `island(cref, children)` and `island_with(cref, render)` that accept `ComponentRef[T]` instead of raw strings
 
 ### Changed
 
 - Unify loader runtime asset sources under `src/ssg/assets/scripts/*` and keep `examples/*/static/*` synchronized from canonical sources
 - Update example package scripts (`predev` / `prebuild` / `preserve` / `pretest`) to auto-sync runtime static assets
+- **Breaking:** Rename string-based `island()` / `island_with()` to `island_raw()` / `island_with_raw()` — use `ComponentRef`-based `island()` for type safety
 
 ### Fixed
 

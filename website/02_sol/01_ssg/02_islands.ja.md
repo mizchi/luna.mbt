@@ -143,6 +143,24 @@ pub fn hydrate(el : @dom.Element, _state : @js.Any) -> Unit {
 - 動的 URL パラメータ（`:slug`）
 - ブラウザ履歴（戻る/進む）サポート
 
+## MoonBit での Island 埋め込み（サーバーサイド）
+
+SSR アプリ（SSG/Markdown 以外）では、型安全な `ComponentRef` ベースの API を使用します：
+
+```moonbit
+// sol generate で自動生成
+pub fn counter(props : CounterProps, trigger~ : @luna.Trigger) -> @luna.ComponentRef[CounterProps]
+
+// 推奨: @sol.island() + ComponentRef
+@sol.island(
+  @types.counter({ initial_count: 42 }),
+  [div([text("Loading...")])],  // SSR フォールバック
+)
+
+// 低レベル（非推奨）
+@sol.island_raw("counter", "/static/counter.js", state_json, children)
+```
+
 ## 生成される HTML
 
 Island ディレクティブは以下を生成します：
