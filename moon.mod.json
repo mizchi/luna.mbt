@@ -2,7 +2,7 @@
   "name": "mizchi/sol",
   "version": "0.12.0",
   "deps": {
-    "mizchi/luna": "0.16.0",
+    "mizchi/luna": "0.17.0",
     "moonbitlang/async": "0.16.6",
     "moonbitlang/x": "0.4.40",
     "moonbitlang/parser": "0.1.16",
