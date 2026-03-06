@@ -58,6 +58,17 @@ pub fn invoke_action(
 }
 
 ///|
+/// Invoke a server action using a type-safe ActionRef
+pub fn invoke_action_ref(
+  aref : ActionRef,
+  payload : @js.Any,
+  callback : (ActionResponse) -> Unit,
+  options? : ActionOptions,
+) -> Unit {
+  invoke_action(aref.url(), payload, callback, options?)
+}
+
+///|
 /// Create an action invoker for a specific endpoint
 /// Returns a function that takes payload and callback
 pub fn create_action_invoker(
@@ -66,6 +77,15 @@ pub fn create_action_invoker(
 ) -> (@js.Any, (ActionResponse) -> Unit) -> Unit {
   let opts = options.unwrap_or(ActionOptions::default())
   fn(payload, callback) { ffi_invoke_action_cb(url, payload, callback, opts) }
+}
+
+///|
+/// Create an action invoker from a type-safe ActionRef
+pub fn create_action_invoker_ref(
+  aref : ActionRef,
+  options? : ActionOptions,
+) -> (@js.Any, (ActionResponse) -> Unit) -> Unit {
+  create_action_invoker(aref.url(), options?)
 }
 
 // ============================================================================
@@ -97,6 +117,12 @@ pub fn ActionFormConfig::new(action : String) -> ActionFormConfig {
     on_error: None,
     on_redirect: None,
   }
+}
+
+///|
+/// Create form config from a type-safe ActionRef
+pub fn ActionFormConfig::from_ref(aref : ActionRef) -> ActionFormConfig {
+  ActionFormConfig::new(aref.url())
 }
 
 ///|

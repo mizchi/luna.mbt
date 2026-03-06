@@ -169,10 +169,13 @@ Target: typed param struct generated from route path patterns
 Current: `ActionDef::new("create-user", handler)` / `registry.get("create-user")`
 Target: `ActionRef` type with generated factory functions (like ComponentRef)
 
-- [ ] Define `ActionRef` type
-- [ ] Extend `sol generate` to collect action definitions
-- [ ] Generate action factory functions and URL constants
-- [ ] Add type-safe `invoke_action` overload accepting `ActionRef`
+- [x] Define `ActionRef` type with `id`, `base_path` fields and `url()` method
+- [x] Add `ActionRef::to_def(handler)` → `ActionDef`
+- [x] Add `ActionRegistry::register_ref(aref, handler)`
+- [x] Add `invoke_action_ref(aref, payload, callback)`
+- [x] Add `create_action_invoker_ref(aref)`
+- [x] Add `ActionFormConfig::from_ref(aref)`
+- [ ] Extend `sol generate` to collect action definitions and generate factory functions
 
 ### B. Medium-term (requires design decisions)
 
@@ -188,12 +191,12 @@ Target: `page(@routes.blog_slug, handler)` — generated route constants
 #### B2. `invoke_action(url, ...)` → typed client action
 
 Current: `invoke_action("/_action/create-user", payload, callback)`
-Target: `invoke_action(@actions.create_user, payload, callback)`
-Depends on A3 (ActionRef).
+Target: `invoke_action_ref(@actions.create_user(), payload, callback)`
 
-- [ ] Add `invoke_action` overload accepting `ActionRef`
-- [ ] Add `ActionFormConfig::from_ref(ActionRef)` constructor
-- [ ] Rename string-based versions to `_raw` suffix
+- [x] Add `invoke_action_ref` accepting `ActionRef`
+- [x] Add `create_action_invoker_ref(ActionRef)`
+- [x] Add `ActionFormConfig::from_ref(ActionRef)` constructor
+- [ ] Generate ActionRef factories via `sol generate`
 
 #### B3. Locale codes → Locale enum
 

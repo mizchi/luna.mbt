@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Add hydration module URL origin policy in `loader.js` with `window.__LUNA_ALLOWED_HOSTS__` and `window.__LUNA_SET_ALLOWED_HOSTS__`
 - Add asset sync workflows and checks: `scripts/sync-example-static-assets.mjs`, `scripts/sync-luna-loader-assets.mjs`, `just sync-*` tasks, and E2E sync tests
 - Add type-safe `island(cref, children)` and `island_with(cref, render)` that accept `ComponentRef[T]` instead of raw strings
+- Add `ActionRef` type for type-safe action references with `url()`, `to_def()`, `register_ref()`, `invoke_action_ref()`, `ActionFormConfig::from_ref()`
 
 ### Changed
 
