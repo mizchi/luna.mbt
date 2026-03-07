@@ -301,7 +301,7 @@ test "manifest: case sensitive paths" {
 // =============================================================================
 
 ///|
-test "handler: non-ISR page returns None" {
+async test "handler: non-ISR page returns None" {
   let cache = MemoryCache::new()
   let pages : Map[String, ISRPageMeta] = {}
   pages["/isr-page/"] = ISRPageMeta::{

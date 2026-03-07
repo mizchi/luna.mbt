@@ -4,21 +4,10 @@
 // ============================================================================
 
 ///|
-extern "js" fn ffi_read_file_sync(path : String) -> String? =
-  #| (path) => {
-  #|   try {
-  #|     if (!globalThis.__SOL_FS__) {
-  #|       throw new Error('fs module not initialized. Call __SOL_INIT_FS__ first.');
-  #|     }
-  #|     return globalThis.__SOL_FS__.readFileSync(path, 'utf-8');
-  #|   } catch (e) {
-  #|     return undefined;
-  #|   }
-  #| }
-
-///|
-fn read_file_text(path : String) -> String? {
-  ffi_read_file_sync(path)
+async fn read_file_text(path : String) -> String? {
+  let data = @x_fs.read_file(path) catch { _ => return None }
+  let text = data.text() catch { _ => return None }
+  Some(text)
 }
 
 ///|
@@ -177,7 +166,7 @@ pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> Unit {
 }
 
 ///|
-fn serve_static_html_async(
+async fn serve_static_html_async(
   c : Ctx,
   local_dir : String,
   filename : String,
@@ -190,7 +179,7 @@ fn serve_static_html_async(
 }
 
 ///|
-fn serve_static_text_file(
+async fn serve_static_text_file(
   c : Ctx,
   local_dir : String,
   filename : String,
@@ -208,7 +197,7 @@ fn serve_static_text_file(
 ///|
 /// Resolve a built-in runtime asset from disk by trying multiple candidate paths.
 /// Used in dev mode for live reload (reads from source each time).
-fn resolve_builtin_asset_from_disk(filename : String) -> String? {
+async fn resolve_builtin_asset_from_disk(filename : String) -> String? {
   // Map loader.js -> loader.iife.js for luna dist
   let luna_name = if filename == "loader.js" {
     "loader.iife.js"
@@ -240,13 +229,20 @@ let sol_builtin_assets : Array[String] = [
 ]
 
 ///|
-/// In-memory cache for prod mode assets (loaded once at startup)
+/// In-memory cache for prod mode assets (loaded once on first request)
 let asset_cache : Map[String, String] = {}
 
 ///|
+let assets_preloaded : Ref[Bool] = Ref::new(false)
+
+///|
 /// Load all built-in assets into memory cache.
-/// Called once at startup in prod mode to avoid per-request disk reads.
-fn preload_builtin_assets() -> Unit {
+/// Called lazily on first request in prod mode.
+async fn ensure_assets_preloaded() -> Unit {
+  if assets_preloaded.val {
+    return
+  }
+  assets_preloaded.val = true
   for filename in sol_builtin_assets {
     // Try pre-built .sol/prod/__sol__/ first, then fallback to disk resolution
     let content = match read_file_text(".sol/prod/__sol__/" + filename) {
@@ -262,7 +258,7 @@ fn preload_builtin_assets() -> Unit {
 
 ///|
 /// Register /__sol__/* route for serving built-in framework assets.
-/// In prod mode, preloads assets into memory at registration time.
+/// In prod mode, lazily preloads assets into memory on first request.
 /// In dev mode, resolves from source paths on each request.
 pub fn serve_sol_assets(app : App) -> Unit {
   let is_dev = @hot_reload.is_dev_mode()
@@ -270,10 +266,6 @@ pub fn serve_sol_assets(app : App) -> Unit {
     "no-cache, no-store, must-revalidate"
   } else {
     "public, max-age=86400"
-  }
-  // Preload assets into memory for prod mode
-  if not(is_dev) {
-    preload_builtin_assets()
   }
   app.get(
     "/__sol__/*",
@@ -286,6 +278,7 @@ pub fn serve_sol_assets(app : App) -> Unit {
       let content = if is_dev {
         resolve_builtin_asset_from_disk(filename)
       } else {
+        ensure_assets_preloaded()
         asset_cache.get(filename)
       }
       match content {

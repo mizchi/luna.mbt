@@ -2,6 +2,9 @@ import {
   "moonbitlang/core/json",
   "mizchi/js/core" @js,
   "mizchi/npm_typed/hono" @hono,
+  "mizchi/x/fs" @x_fs,
+  "moonbitlang/async/io",
+  "moonbitlang/async",
 }
 
 options(

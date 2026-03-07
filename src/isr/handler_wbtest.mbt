@@ -86,7 +86,7 @@ test "ISRManifest::get_page returns None for non-ISR page" {
 // =============================================================================
 
 ///|
-test "ISRHandler::handle returns (None, false) for non-ISR page" {
+async test "ISRHandler::handle returns (None, false) for non-ISR page" {
   let cache = MemoryCache::new()
   let manifest = ISRManifest::empty()
   let handler = create_handler(cache, manifest, "/tmp/dist")
@@ -190,7 +190,7 @@ test "ISRHandler handle flow debug" {
 }
 
 ///|
-test "ISRHandler with fresh cache returns cached content" {
+async test "ISRHandler with fresh cache returns cached content" {
   let cache = MemoryCache::new()
   let pages : Map[String, ISRPageMeta] = {}
   pages["/blog/"] = create_page_meta(60, source="blog/index.md")

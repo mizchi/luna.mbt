@@ -31,7 +31,7 @@ let isr_handler_store : Ref[ISRHandler[MemoryCache]?] = Ref::new(None)
 
 ///|
 /// Initialize ISR handler (call once at server startup)
-pub fn init_isr(dist_dir : String) -> ISRHandler[MemoryCache] {
+pub async fn init_isr(dist_dir : String) -> ISRHandler[MemoryCache] {
   let cache = MemoryCache::new()
   let manifest = load_manifest(dist_dir)
   let handler = ISRHandler::new(cache, manifest, dist_dir)
@@ -52,7 +52,7 @@ pub fn get_isr_handler() -> ISRHandler[MemoryCache]? {
 ///|
 /// Handle ISR for a request path
 /// Returns Some(html) if ISR handled, None otherwise
-pub fn handle_isr_request(path : String) -> (String?, Bool) {
+pub async fn handle_isr_request(path : String) -> (String?, Bool) {
   match get_isr_handler() {
     Some(handler) => handler.handle(path)
     None => (None, false)
@@ -86,30 +86,57 @@ pub fn schedule_revalidation(path : String) -> Unit {
 ///|
 /// Create ISR handler for Hono
 /// Returns a function that can be used as Hono middleware
-pub fn create_isr_middleware(
+pub async fn create_isr_middleware(
   dist_dir : String,
 ) -> (@hono.Context[Unit, Unit]) -> @js.Promise[Unit]? {
   // Initialize ISR handler
   let _ = init_isr(dist_dir)
 
-  // Return middleware function
+  // Return middleware function — note: the returned closure is sync
+  // because Hono expects sync middleware. ISR handle is called via
+  // handle_isr_request_sync which uses the pre-loaded cache.
   fn(ctx : @hono.Context[Unit, Unit]) -> @js.Promise[Unit]? {
     let path = ffi_get_req_path(ctx.as_any())
 
-    // Check ISR
-    let (html, needs_revalidation) = handle_isr_request(path)
+    // Check ISR from cache (sync path — cache is already populated)
+    let handler = match get_isr_handler() {
+      Some(h) => h
+      None => return None
+    }
+    let page_meta = match handler.manifest.get_page(path) {
+      Some(meta) => meta
+      None => return None
+    }
+    let key = cache_key(path, [])
+    let entry = handler.cache.get(key)
+    let now = now_ms()
+    let status = check_status(entry, now)
+    let (html, needs_revalidation) = match status {
+      Fresh =>
+        match entry {
+          Some(e) => (Some(e.html), false)
+          None => (None, false)
+        }
+      Stale =>
+        match entry {
+          Some(e) => (Some(e.html), true)
+          None => (None, true)
+        }
+      Miss => {
+        // On cache miss, we can't do async file read in sync context
+        // Return None to fall through to next handler
+        ignore(page_meta)
+        (None, false)
+      }
+    }
     match html {
       Some(content) => {
-        // Schedule revalidation if needed
         if needs_revalidation {
           schedule_revalidation(path)
         }
-        // Return HTML response
         Some(ffi_return_html(ctx.as_any(), content))
       }
-      None =>
-        // Not an ISR page, continue to next handler
-        None
+      None => None
     }
   }
 }

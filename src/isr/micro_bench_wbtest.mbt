@@ -69,7 +69,7 @@ test "micro-bench: cache operations timing" {
 }
 
 ///|
-test "micro-bench: handler.handle() latency" {
+async test "micro-bench: handler.handle() latency" {
   let cache = MemoryCache::new()
   let pages : Map[String, ISRPageMeta] = {}
   let num_pages = 1000

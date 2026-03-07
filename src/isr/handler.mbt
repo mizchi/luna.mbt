@@ -93,7 +93,7 @@ pub fn[Cache] ISRHandler::new(
 ///|
 /// Handle ISR request
 /// Returns (html, needs_revalidation)
-pub fn[Cache : ISRCache] ISRHandler::handle(
+pub async fn[Cache : ISRCache] ISRHandler::handle(
   self : ISRHandler[Cache],
   path : String,
 ) -> (String?, Bool) {
@@ -161,20 +161,17 @@ pub fn[Cache : ISRCache] ISRHandler::update_cache(
 
 ///|
 /// Read static HTML file from dist directory
-fn read_static_page(dist_dir : String, path : String) -> String? {
+async fn read_static_page(dist_dir : String, path : String) -> String? {
   // Convert URL path to file path
   let file_path = if path.has_suffix("/") {
     dist_dir + path + "index.html"
   } else {
     dist_dir + path + "/index.html"
   }
-  let content : String = ffi_read_file(file_path) catch { _ => return None }
+  let data : &@io.Data = @x_fs.read_file(file_path) catch { _ => return None }
+  let content = data.text() catch { _ => return None }
   Some(content)
 }
-
-///|
-extern "js" fn ffi_read_file(path : String) -> String raise =
-  #| (path) => { try { return require('fs').readFileSync(path, 'utf8'); } catch(e) { throw new Error(e.message); } }
 
 // =============================================================================
 // Manifest Loading
@@ -182,11 +179,12 @@ extern "js" fn ffi_read_file(path : String) -> String raise =
 
 ///|
 /// Load ISR manifest from _luna/isr.json
-pub fn load_manifest(dist_dir : String) -> ISRManifest {
+pub async fn load_manifest(dist_dir : String) -> ISRManifest {
   let manifest_path = dist_dir + "/_luna/isr.json"
-  let content : String = ffi_read_file(manifest_path) catch {
+  let data : &@io.Data = @x_fs.read_file(manifest_path) catch {
     _ => return ISRManifest::empty()
   }
+  let content = data.text() catch { _ => return ISRManifest::empty() }
   parse_manifest(content)
 }
 

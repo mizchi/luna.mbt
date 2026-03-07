@@ -154,7 +154,7 @@ test "bench: 50000 entries populate and random access" {
 }
 
 ///|
-test "bench: handler.handle() full path" {
+async test "bench: handler.handle() full path" {
   let cache = MemoryCache::new()
   let pages : Map[String, ISRPageMeta] = {}
 
@@ -254,7 +254,7 @@ test "bench: cache update (revalidation) throughput" {
 }
 
 ///|
-test "bench: mixed workload (80% read, 20% write)" {
+async test "bench: mixed workload (80% read, 20% write)" {
   let cache = MemoryCache::new()
   let pages : Map[String, ISRPageMeta] = {}
   let num_pages = 500

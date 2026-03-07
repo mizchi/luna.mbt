@@ -277,7 +277,7 @@ test "real manifest: stale entry detected by check_status" {
 }
 
 ///|
-test "real manifest: non-ISR page returns None" {
+async test "real manifest: non-ISR page returns None" {
   let cache = MemoryCache::new()
   let manifest = create_real_manifest()
   let handler = ISRHandler::{ cache, manifest, dist_dir: "/tmp/dist-docs" }

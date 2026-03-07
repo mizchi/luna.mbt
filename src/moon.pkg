@@ -10,6 +10,8 @@ import {
   "mizchi/sol/hot_reload" @hot_reload,
   "mizchi/sol/internal/page_shell" @page_shell,
   "mizchi/sol/internal/js_any" @js_any,
+  "mizchi/x/fs" @x_fs,
+  "moonbitlang/async/io",
 }
 
 options(
