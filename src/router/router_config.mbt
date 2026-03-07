@@ -174,6 +174,10 @@ pub struct RouterConfig {
   /// ISR cache for incremental static regeneration (None = disabled)
   /// Currently uses MemoryCache; can be replaced with KVCache for production
   isr_cache : @isr.MemoryCache?
+  /// Cache strategy for ISR pages (CDN SWR, Hybrid, or App-only ISR)
+  /// Controls Cache-Control headers and CDN/app layer interaction.
+  /// None = use AppIsr (default, backward compatible)
+  cache_strategy : @isr.CDNCacheStrategy?
 }
 
 ///|
@@ -197,6 +201,7 @@ pub fn RouterConfig::default() -> RouterConfig {
     chunk_manifest: None,
     root_template: default_root_template(),
     isr_cache: None,
+    cache_strategy: None,
   }
 }
 
@@ -279,6 +284,15 @@ pub fn RouterConfig::with_default_title(
   title : String,
 ) -> RouterConfig {
   { ..self, default_title: title }
+}
+
+///|
+/// Set cache strategy for ISR pages
+pub fn RouterConfig::with_cache_strategy(
+  self : RouterConfig,
+  strategy : @isr.CDNCacheStrategy,
+) -> RouterConfig {
+  { ..self, cache_strategy: Some(strategy) }
 }
 
 ///|

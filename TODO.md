@@ -234,12 +234,9 @@ Target: `build_localized_url(path, @locale.Ja, i18n)` — generated enum
 - [x] examples / templates / テストのすべての `/static/loader.js` 参照を `/__sol__/` に移行
 - [x] examples の `static/` からランタイムアセットファイルを削除
 
-### TODO: prod アセット配信のメモリキャッシュ
+### 完了: prod アセット配信のメモリキャッシュ
 
-- [ ] [P2] `serve_sol_assets` で prod モード起動時にアセットをメモリに読み込み、以降はディスクアクセスなしで配信
-  - `resolve_builtin_asset` が毎リクエストで `read_file_text` を呼んでいる
-  - 起動時に `Map[String, String]` にロードしてハンドラからはマップ参照のみにする
-  - dev モードは毎回ディスク読みを維持（ライブリロード対応）
+- [x] [P2] prod モードでアセットを lazy にメモリキャッシュ（初回リクエスト時にロード、以降はマップ参照のみ）
 
 ### TODO: 不要 API の削除検討
 
@@ -259,22 +256,10 @@ Target: `build_localized_url(path, @locale.Ja, i18n)` — generated enum
 
 #### ステップ
 
-- [ ] [P1] `isr/handler.mbt` の `ffi_read_file` を `@x_fs.read_file` に置換
-  - `read_static_page` / `load_manifest` が対象
-  - ISR handler は async 文脈で動くため `@x_fs` の async API と親和性が高い
-- [ ] [P2] `runtime_static_serving.mbt` の `ffi_read_file_sync` を `@x_fs` に置換
-  - `read_file_text` → `@x_fs.read_file` に変更
-  - ハンドラが `async fn` なので await 可能
-  - `resolve_builtin_asset` / `serve_static` / `serve_static_dir` すべてに波及
+- [x] [P1] `isr/handler.mbt` の `ffi_read_file` を `@x_fs.read_file` に置換
+- [x] [P2] `runtime_static_serving.mbt` の `ffi_read_file_sync` を `@x_fs.read_file` に置換
 - [ ] [P3] `cli/generate_utils.mbt` の `@fs.read_file_as_string` を `@x_fs` に統一するか検討
-  - CLI は `@fs` (mizchi/js の Node.js 直接バインディング) を使用中
   - CLI は js ターゲット専用のため、統一する利点は限定的
-
-#### 注意点
-
-- `mizchi/x` の FS API は **async** — 現在の sync FFI をそのまま置換できるが、呼び出し元も async にする必要がある
-- `serve_sol_assets` のハンドラは既に `async fn` なので `@x_fs.read_file` を直接 await 可能
-- `@x_fs.read_file` の戻り値は `&@io.Data` — `String` への変換に `to_string()` or `@io.Data::to_string` が必要
 
 ## ISR + Cloudflare Async Stale-While-Revalidate (2026-03)
 
@@ -295,19 +280,18 @@ Cloudflare の async SWR は **CDN エッジ層** で同等のことを行う。
 
 ### 検討事項
 
-- [ ] [P1] CDN 層 SWR とアプリ層 ISR の連携設計
-  - **案 A: CDN 層に委譲** — `Cache-Control: s-maxage=60, stale-while-revalidate=3600` をレスポンスヘッダに設定し、アプリ層 ISR を省略。Cloudflare CDN がステールキャッシュとバックグラウンドリバリデーションを担う。最もシンプル。
-  - **案 B: 二層キャッシュ** — CDN 層で短い TTL (10s) + SWR、アプリ層 ISR で長い TTL (60s) + KV。CDN ミス時にアプリ層 ISR が KV からステールを返す。レイテンシ最適化。
-  - **案 C: アプリ層 ISR のみ維持** — CDN キャッシュを `no-store` にし、全リクエストが Workers に到達。ISR ロジックを完全制御。キャッシュパージが即時反映。
+- [x] [P1] CDN 層 SWR とアプリ層 ISR の連携設計
+  - `CDNCacheStrategy` enum: `CdnSwr(grace)` / `Hybrid(cdn_ttl, cdn_grace)` / `AppIsr`
+  - 各戦略が `cache_control(revalidate)` で `Cache-Control` ヘッダ値を生成
 
-- [ ] [P2] `RouterConfig` に `cache_strategy` オプションを追加
-  - `CdnSwr` / `AppIsr` / `Hybrid` の選択
-  - `CdnSwr` 選択時はレスポンスヘッダに `Cache-Control: s-maxage={revalidate}, stale-while-revalidate={grace}` を自動付与
-  - ISR manifest の `revalidate` 値を `s-maxage` にマッピング
+- [x] [P2] `RouterConfig` に `cache_strategy` オプションを追加
+  - `RouterConfig::with_cache_strategy(@isr.CDNCacheStrategy)` ビルダー
+  - ISR ページのレスポンスに `Cache-Control` と `X-Sol-CDN-Cache` ヘッダを自動付与
+  - ルートごとの `revalidate` 値が `s-maxage` にマッピングされる
 
-- [ ] [P2] `X-Sol-Cache-Strategy` ヘッダで現在のキャッシュ状態を診断可能にする
-  - `HIT` / `STALE` / `MISS` / `BYPASS` を返す（現在 ISR 内部の `CacheStatus` と対応）
-  - CDN 層の `cf-cache-status` との対比で二層キャッシュのどこで応答したか判別可能に
+- [x] [P2] `X-Sol-ISR-Status` ヘッダで ISR キャッシュ状態を診断可能に
+  - `HIT` / `STALE` / `MISS` を返す（ISR 内部の `CacheStatus` と対応）
+  - CDN 層の `cf-cache-status` との対比で二層キャッシュのどこで応答したか判別可能
 
 - [ ] [P3] CDN 層 SWR で `revalidate` 値ごとに異なる `s-maxage` を設定する仕組み
   - ISR manifest のページごとの `revalidate` 値をレスポンスヘッダに反映

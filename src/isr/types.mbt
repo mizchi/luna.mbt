@@ -84,3 +84,50 @@ pub struct ISRConfig {
 pub fn ISRConfig::default() -> ISRConfig {
   { enabled: true, default_revalidate: 60 }
 }
+
+// ============================================================================
+// Cache Strategy (CDN + App layer)
+// ============================================================================
+
+///|
+/// CDN cache strategy for ISR pages.
+/// Controls how CDN-level caching (e.g., Cloudflare async SWR) interacts
+/// with app-level ISR caching.
+pub enum CDNCacheStrategy {
+  /// CDN handles SWR entirely via Cache-Control headers.
+  /// App-level ISR is bypassed. Simplest option.
+  /// Sets: `Cache-Control: s-maxage={revalidate}, stale-while-revalidate={grace}`
+  CdnSwr(Int) // grace period in seconds
+  /// Two-layer cache: CDN with short TTL + app-level ISR with longer TTL.
+  /// CDN miss falls through to app ISR which serves from KV/memory.
+  /// Sets: `Cache-Control: s-maxage={cdn_ttl}, stale-while-revalidate={cdn_grace}`
+  Hybrid(Int, Int) // cdn_ttl, cdn_grace
+  /// App-level ISR only. CDN caching disabled (`private, no-store`).
+  /// All requests reach the app. Full control over cache invalidation.
+  AppIsr
+}
+
+///|
+/// Generate Cache-Control header value for a given strategy and revalidate interval.
+pub fn CDNCacheStrategy::cache_control(
+  self : CDNCacheStrategy,
+  revalidate : Int,
+) -> String {
+  match self {
+    CdnSwr(grace) =>
+      "s-maxage=" + revalidate.to_string() + ", stale-while-revalidate=" + grace.to_string()
+    Hybrid(cdn_ttl, cdn_grace) =>
+      "s-maxage=" + cdn_ttl.to_string() + ", stale-while-revalidate=" + cdn_grace.to_string()
+    AppIsr => "private, no-store"
+  }
+}
+
+///|
+/// Get the X-Sol-CDN-Cache header value describing this strategy.
+pub fn CDNCacheStrategy::header_value(self : CDNCacheStrategy) -> String {
+  match self {
+    CdnSwr(_) => "cdn-swr"
+    Hybrid(_, _) => "hybrid"
+    AppIsr => "app-isr"
+  }
+}

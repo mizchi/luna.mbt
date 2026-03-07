@@ -552,6 +552,23 @@ fn cache_strategy_to_header_value(strategy : CacheStrategy) -> String {
 }
 
 ///|
+/// Apply CDN cache headers based on CDNCacheStrategy configuration.
+/// Sets Cache-Control and X-Sol-CDN-Cache headers for ISR pages.
+fn apply_cdn_cache_headers(
+  c : @mars.Context,
+  strategy : @isr.CDNCacheStrategy?,
+  revalidate : Int,
+) -> Unit {
+  match strategy {
+    Some(s) => {
+      c.set_header("Cache-Control", s.cache_control(revalidate))
+      c.set_header("X-Sol-CDN-Cache", s.header_value())
+    }
+    None => ()
+  }
+}
+
+///|
 fn apply_layouts(
   content : @server_dom.ServerNode,
   props : PageProps,
@@ -783,11 +800,20 @@ fn register_compiled_sol_routes(
               // Check if ISR is enabled for this route (only for full page requests)
               match (route.revalidate, config.isr_cache, is_fragment) {
                 (Some(revalidate), Some(cache), false) => {
+                  // Apply CDN cache headers if strategy is configured
+                  apply_cdn_cache_headers(c, config.cache_strategy, revalidate)
                   // ISR enabled - check cache
                   let cache_key = @isr.cache_key(params.path, params.query)
                   let entry = @isr.ISRCache::get(cache, cache_key)
                   let now = @isr.now_ms()
                   let status = @isr.check_status(entry, now)
+                  // Set X-Sol-ISR-Status header for diagnostics
+                  let isr_status_str = match status {
+                    @isr.Fresh => "HIT"
+                    @isr.Stale => "STALE"
+                    @isr.Miss => "MISS"
+                  }
+                  c.set_header("X-Sol-ISR-Status", isr_status_str)
                   match status {
                     @isr.Fresh =>
                       // Return cached HTML directly

@@ -159,3 +159,32 @@ test "MemoryCache multiple entries" {
     None => fail("Expected entry b")
   }
 }
+
+// ============================================================================
+// CDNCacheStrategy Tests
+// ============================================================================
+
+///|
+test "CDNCacheStrategy::CdnSwr generates correct Cache-Control" {
+  let s = CDNCacheStrategy::CdnSwr(3600)
+  assert_eq(s.cache_control(60), "s-maxage=60, stale-while-revalidate=3600")
+}
+
+///|
+test "CDNCacheStrategy::Hybrid generates correct Cache-Control" {
+  let s = CDNCacheStrategy::Hybrid(10, 60)
+  assert_eq(s.cache_control(60), "s-maxage=10, stale-while-revalidate=60")
+}
+
+///|
+test "CDNCacheStrategy::AppIsr generates no-store" {
+  let s = CDNCacheStrategy::AppIsr
+  assert_eq(s.cache_control(60), "private, no-store")
+}
+
+///|
+test "CDNCacheStrategy header values" {
+  assert_eq(CDNCacheStrategy::CdnSwr(3600).header_value(), "cdn-swr")
+  assert_eq(CDNCacheStrategy::Hybrid(10, 60).header_value(), "hybrid")
+  assert_eq(CDNCacheStrategy::AppIsr.header_value(), "app-isr")
+}
