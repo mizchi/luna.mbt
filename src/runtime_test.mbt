@@ -32,6 +32,20 @@ test "StaticFileConfig::with_mapping: multiple mappings" {
 }
 
 // =============================================================================
+// Default Asset URL Tests
+// =============================================================================
+
+///|
+test "default_loader_url: uses /__sol__/ prefix" {
+  assert_eq(default_loader_url, "/__sol__/loader.js")
+}
+
+///|
+test "default_wc_loader_url: uses /__sol__/ prefix" {
+  assert_eq(default_wc_loader_url, "/__sol__/wc-loader.js")
+}
+
+// =============================================================================
 // IslandConfig Tests
 // =============================================================================
 

@@ -231,7 +231,6 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|pub fn config() -> @router.RouterConfig {
     #|  @router.RouterConfig::default()
     #|    .with_default_head(@layout.head())
-    #|    .with_loader_url("/__sol__/loader.js")
     #|}
     #|
     #|///| Server Action registry (empty by default)

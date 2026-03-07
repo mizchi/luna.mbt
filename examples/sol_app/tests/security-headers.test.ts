@@ -71,7 +71,7 @@ test.describe('Security Headers', () => {
 
   test.describe('Static assets', () => {
     test('static JS files should have X-Content-Type-Options', async ({ request }) => {
-      const response = await request.get('/static/loader.js');
+      const response = await request.get('/__sol__/loader.js');
       const header = response.headers()['x-content-type-options'];
 
       expect(header?.toLowerCase()).toBe('nosniff');
@@ -117,7 +117,7 @@ test.describe('Security Headers', () => {
     });
 
     test('static assets can be cached', async ({ request }) => {
-      const response = await request.get('/static/loader.js');
+      const response = await request.get('/__sol__/loader.js');
       const cacheControl = response.headers()['cache-control'];
 
       // Static assets can have longer cache

@@ -6,7 +6,7 @@
 
 ///|
 /// Default loader script URL
-pub let default_loader_url : String = "/loader.js"
+pub let default_loader_url : String = "/__sol__/loader.js"
 
 ///|
 /// Island configuration

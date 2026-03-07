@@ -336,7 +336,6 @@ pub fn config() -> @router.RouterConfig {
   @router.RouterConfig::default()
   .with_root_template(ROOT)
   .with_default_head(head())
-  .with_loader_url("/__sol__/loader.js")
 }
 
 ///|

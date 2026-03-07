@@ -171,6 +171,7 @@ test "RouterConfig::default: has expected defaults" {
   assert_eq(config.title_prefix, "")
   assert_eq(config.default_title, "App")
   assert_eq(config.loader_url, "/__sol__/loader.js")
+  assert_eq(config.wc_loader_url, "/__sol__/wc-loader.js")
   assert_eq(config.enable_preload, true)
   assert_eq(config.enable_streaming, false)
   assert_eq(config.preload_libs.length(), 0)
