@@ -240,3 +240,22 @@ test("sol generate: server main.mbt includes serve_sol_assets", () => {
     "server main.mbt should call serve_sol_assets"
   );
 });
+
+test("sol generate: writes built-in assets to .sol/prod/__sol__/", () => {
+  ensureCliBuilt();
+  const result = runSolGenerate(SOL_APP);
+  assert.equal(result.status, 0);
+
+  const solAssetDir = path.join(SOL_APP, ".sol", "prod", "__sol__");
+  const assets = ["loader.js", "wc-loader.js", "sol-nav.js", "lib.js"];
+
+  for (const asset of assets) {
+    const assetPath = path.join(solAssetDir, asset);
+    assert.ok(
+      fs.existsSync(assetPath),
+      `.sol/prod/__sol__/${asset} should exist`
+    );
+    const content = fs.readFileSync(assetPath, "utf8");
+    assert.ok(content.length > 0, `${asset} should not be empty`);
+  }
+});

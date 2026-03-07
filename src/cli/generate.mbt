@@ -518,6 +518,36 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       }
     }
   }
+  // Write built-in assets to .sol/prod/__sol__/ for production serving
+  if mode == "prod" {
+    let sol_asset_dir = @path.join2(cwd, ".sol/prod/__sol__")
+    fs.mkdir_sync(sol_asset_dir, true) catch { _ => () }
+    let mut asset_count = 0
+    for file in sol_asset_files {
+      match resolve_runtime_asset(cwd, file) {
+        Some(content) => {
+          let target = @path.join2(sol_asset_dir, file)
+          fs.write_file_sync(target, content) catch {
+            e => {
+              @cli_common.console_error(
+                @colorette.red("Error writing __sol__/\{file}: \{e}"),
+              )
+              continue
+            }
+          }
+          asset_count += 1
+        }
+        None => ()
+      }
+    }
+    if asset_count > 0 {
+      println(
+        @colorette.gray(
+          "  Written \{asset_count} built-in assets to .sol/prod/__sol__/",
+        ),
+      )
+    }
+  }
   println(@colorette.green("✓ Generation complete"))
 }
 

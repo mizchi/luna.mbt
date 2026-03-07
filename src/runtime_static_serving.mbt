@@ -207,8 +207,16 @@ fn serve_static_text_file(
 
 ///|
 /// Resolve a built-in runtime asset by trying multiple candidate paths.
-/// Used at runtime to serve framework assets from /__sol__/.
+/// In dev mode, tries source paths for live reload.
+/// In prod mode, tries pre-built .sol/prod/__sol__/ first.
 fn resolve_builtin_asset(filename : String) -> String? {
+  // In prod mode, try pre-built assets first (written by sol generate)
+  if not(@hot_reload.is_dev_mode()) {
+    match read_file_text(".sol/prod/__sol__/" + filename) {
+      Some(content) => return Some(content)
+      None => ()
+    }
+  }
   // Map loader.js -> loader.iife.js for luna dist
   let luna_name = if filename == "loader.js" {
     "loader.iife.js"
@@ -228,8 +236,6 @@ fn resolve_builtin_asset(filename : String) -> String? {
     "../src/ssg/assets/scripts/" + filename,
     // Same repo root
     "src/ssg/assets/scripts/" + filename,
-    // Legacy: user's static/ directory
-    "static/" + filename,
   ]
   for path in candidates {
     match read_file_text(path) {
@@ -242,7 +248,8 @@ fn resolve_builtin_asset(filename : String) -> String? {
 
 ///|
 /// Register /__sol__/* route for serving built-in framework assets.
-/// Assets are resolved from mooncakes packages or development paths.
+/// In prod mode, serves pre-built assets from .sol/prod/__sol__/.
+/// In dev mode, resolves from mooncakes or source paths.
 pub fn serve_sol_assets(app : App) -> Unit {
   let cache_ctl = if @hot_reload.is_dev_mode() {
     "no-cache, no-store, must-revalidate"
