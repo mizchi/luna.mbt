@@ -206,17 +206,9 @@ fn serve_static_text_file(
 }
 
 ///|
-/// Resolve a built-in runtime asset by trying multiple candidate paths.
-/// In dev mode, tries source paths for live reload.
-/// In prod mode, tries pre-built .sol/prod/__sol__/ first.
-fn resolve_builtin_asset(filename : String) -> String? {
-  // In prod mode, try pre-built assets first (written by sol generate)
-  if not(@hot_reload.is_dev_mode()) {
-    match read_file_text(".sol/prod/__sol__/" + filename) {
-      Some(content) => return Some(content)
-      None => ()
-    }
-  }
+/// Resolve a built-in runtime asset from disk by trying multiple candidate paths.
+/// Used in dev mode for live reload (reads from source each time).
+fn resolve_builtin_asset_from_disk(filename : String) -> String? {
   // Map loader.js -> loader.iife.js for luna dist
   let luna_name = if filename == "loader.js" {
     "loader.iife.js"
@@ -226,15 +218,10 @@ fn resolve_builtin_asset(filename : String) -> String? {
     filename
   }
   let candidates = [
-    // mooncakes (luna): loader dist from luna package
     ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
-    // mooncakes (sol): canonical assets from sol package
     ".mooncakes/mizchi/sol/src/ssg/assets/scripts/" + filename,
-    // Development: sol.mbt repo root (monorepo examples)
     "../../src/ssg/assets/scripts/" + filename,
-    // Development: direct child of sol.mbt
     "../src/ssg/assets/scripts/" + filename,
-    // Same repo root
     "src/ssg/assets/scripts/" + filename,
   ]
   for path in candidates {
@@ -247,14 +234,46 @@ fn resolve_builtin_asset(filename : String) -> String? {
 }
 
 ///|
+/// Built-in asset filenames to preload in prod mode
+let sol_builtin_assets : Array[String] = [
+  "loader.js", "wc-loader.js", "sol-nav.js", "lib.js",
+]
+
+///|
+/// In-memory cache for prod mode assets (loaded once at startup)
+let asset_cache : Map[String, String] = {}
+
+///|
+/// Load all built-in assets into memory cache.
+/// Called once at startup in prod mode to avoid per-request disk reads.
+fn preload_builtin_assets() -> Unit {
+  for filename in sol_builtin_assets {
+    // Try pre-built .sol/prod/__sol__/ first, then fallback to disk resolution
+    let content = match read_file_text(".sol/prod/__sol__/" + filename) {
+      Some(c) => Some(c)
+      None => resolve_builtin_asset_from_disk(filename)
+    }
+    match content {
+      Some(c) => asset_cache[filename] = c
+      None => ()
+    }
+  }
+}
+
+///|
 /// Register /__sol__/* route for serving built-in framework assets.
-/// In prod mode, serves pre-built assets from .sol/prod/__sol__/.
-/// In dev mode, resolves from mooncakes or source paths.
+/// In prod mode, preloads assets into memory at registration time.
+/// In dev mode, resolves from source paths on each request.
 pub fn serve_sol_assets(app : App) -> Unit {
-  let cache_ctl = if @hot_reload.is_dev_mode() {
+  let is_dev = @hot_reload.is_dev_mode()
+  let cache_ctl = if is_dev {
     "no-cache, no-store, must-revalidate"
   } else {
     "public, max-age=86400"
+  }
+  // Preload assets into memory for prod mode
+  if not(is_dev) {
+    preload_builtin_assets()
   }
   app.get(
     "/__sol__/*",
@@ -263,8 +282,14 @@ pub fn serve_sol_assets(app : App) -> Unit {
       // "/__sol__/".length() == 8
       let filename = path[8:].to_string()
       let content_type = content_type_for_file(filename)
-      match resolve_builtin_asset(filename) {
-        Some(content) => send_static_text(c, content, content_type, cache_ctl)
+      // In prod: serve from memory cache; in dev: resolve from disk
+      let content = if is_dev {
+        resolve_builtin_asset_from_disk(filename)
+      } else {
+        asset_cache.get(filename)
+      }
+      match content {
+        Some(body) => send_static_text(c, body, content_type, cache_ctl)
         None =>
           send_static_text(
             c,
