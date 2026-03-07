@@ -189,8 +189,8 @@ pub fn RouterConfig::default() -> RouterConfig {
     title_prefix: "",
     default_title: "App",
     default_head: "",
-    loader_url: "/static/loader.js",
-    wc_loader_url: "/static/wc-loader.js",
+    loader_url: "/__sol__/loader.js",
+    wc_loader_url: "/__sol__/wc-loader.js",
     enable_preload: true,
     enable_streaming: false,
     preload_libs: [],
@@ -301,8 +301,8 @@ fn resolve_router_config(
   title_prefix? : String = "",
   default_title? : String = "App",
   default_head? : String = "",
-  loader_url? : String = "/static/loader.js",
-  wc_loader_url? : String = "/static/wc-loader.js",
+  loader_url? : String = "/__sol__/loader.js",
+  wc_loader_url? : String = "/__sol__/wc-loader.js",
 ) -> RouterConfig {
   match config {
     Some(existing) => existing

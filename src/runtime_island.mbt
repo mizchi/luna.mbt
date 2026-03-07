@@ -285,7 +285,7 @@ pub fn[E] render_node(
 
 ///|
 /// Default wc-loader script URL
-pub let default_wc_loader_url : String = "/static/wc-loader.js"
+pub let default_wc_loader_url : String = "/__sol__/wc-loader.js"
 
 ///|
 /// Create a Web Components Island VNode from raw strings (low-level API)

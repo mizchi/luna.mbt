@@ -376,15 +376,15 @@ let default_style : String = "<style>" + styled_css() + "</style>"
 
 ///|
 /// Luna loader script (for island hydration)
-let loader_script : String = "<script type=\"module\" src=\"/static/loader.js\"></script>"
+let loader_script : String = "<script type=\"module\" src=\"/__sol__/loader.js\"></script>"
 
 ///|
 /// WC loader script (for Web Components hydration)
-let wc_loader_script : String = "<script type=\"module\" src=\"/static/wc-loader.js\"></script>"
+let wc_loader_script : String = "<script type=\"module\" src=\"/__sol__/wc-loader.js\"></script>"
 
 ///|
 /// Sol navigation script
-let sol_nav_script : String = "<script type=\"module\" src=\"/static/sol-nav.js\"></script>"
+let sol_nav_script : String = "<script type=\"module\" src=\"/__sol__/sol-nav.js\"></script>"
 
 ///| Get default head HTML (styles + loader + wc-loader + sol-nav)
 

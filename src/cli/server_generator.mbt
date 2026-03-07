@@ -52,6 +52,8 @@ fn generate_server_main_mbt(
     }
     buf.write_string("\n")
   }
+  buf.write_string("  // Serve built-in framework assets (/__sol__/*)\n")
+  buf.write_string("  @sol.serve_sol_assets(app)\n")
   buf.write_string("  // Serve static files\n")
   buf.write_string("  @sol.serve_static(app)\n\n")
   buf.write_string("  app\n")

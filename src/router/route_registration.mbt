@@ -12,8 +12,8 @@ pub fn[E] register_routes(
   title_prefix? : String = "",
   default_title? : String = "App",
   default_head? : String = "",
-  loader_url? : String = "/static/loader.js",
-  wc_loader_url? : String = "/static/wc-loader.js",
+  loader_url? : String = "/__sol__/loader.js",
+  wc_loader_url? : String = "/__sol__/wc-loader.js",
 ) -> Unit {
   ensure_mars_to_handler_compat()
   let resolved = resolve_router_config(
@@ -158,8 +158,8 @@ pub fn register_server_routes(
   title_prefix? : String = "",
   default_title? : String = "App",
   default_head? : String = "",
-  loader_url? : String = "/static/loader.js",
-  wc_loader_url? : String = "/static/wc-loader.js",
+  loader_url? : String = "/__sol__/loader.js",
+  wc_loader_url? : String = "/__sol__/wc-loader.js",
 ) -> Unit {
   ensure_mars_to_handler_compat()
   let resolved = resolve_router_config(

@@ -19,10 +19,10 @@ test "render_template replaces all placeholders" {
 
 ///|
 test "render_streaming_header includes loader url" {
-  let header = render_streaming_header("App", "", "/static/loader.js")
+  let header = render_streaming_header("App", "", "/__sol__/loader.js")
   assert_true(
     header.contains(
-      "<script type=\"module\" src=\"/static/loader.js\"></script>",
+      "<script type=\"module\" src=\"/__sol__/loader.js\"></script>",
     ),
   )
 }
@@ -32,7 +32,7 @@ test "render_streaming_template_parts splits template and injects loader" {
   let tpl = "<html><head><title>__LUNA_TITLE__</title>__LUNA_PRELOAD____LUNA_HEAD__</head><body><main id=\"root\">__LUNA_MAIN__</main></body></html>"
   let result = render_streaming_template_parts(
     tpl, "App", "<meta name=\"x\" content=\"1\">", "<link rel=\"modulepreload\" href=\"/entry.js\">",
-    "/static/loader.js",
+    "/__sol__/loader.js",
   )
   guard result is Some((header, footer)) else {
     fail("expected template parts")
@@ -41,7 +41,7 @@ test "render_streaming_template_parts splits template and injects loader" {
   assert_true(header.contains("<meta name=\"x\" content=\"1\">"))
   assert_true(
     header.contains(
-      "<script type=\"module\" src=\"/static/loader.js\"></script>",
+      "<script type=\"module\" src=\"/__sol__/loader.js\"></script>",
     ),
   )
   assert_true(header.contains("<main id=\"root\">"))

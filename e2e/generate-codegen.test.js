@@ -221,35 +221,22 @@ test("sol generate: idempotent (running twice produces same output)", () => {
   assert.equal(content1, content2, "generate output should be idempotent");
 });
 
-test("sol generate: copies runtime assets to static/", () => {
+test("sol generate: server main.mbt includes serve_sol_assets", () => {
   ensureCliBuilt();
-
-  const staticDir = path.join(SOL_APP, "static");
-  const assets = ["loader.js", "wc-loader.js", "sol-nav.js", "lib.js"];
-  const canonicalDir = path.join(ROOT, "src", "ssg", "assets", "scripts");
-
-  // Remove one asset to force re-copy
-  const testAsset = path.join(staticDir, "loader.js");
-  if (fs.existsSync(testAsset)) {
-    fs.unlinkSync(testAsset);
-  }
-
   const result = runSolGenerate(SOL_APP);
-  assert.equal(
-    result.status,
-    0,
-    `sol generate failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-  );
+  assert.equal(result.status, 0);
 
-  // All assets should exist and match canonical source
-  for (const asset of assets) {
-    const staticPath = path.join(staticDir, asset);
-    assert.ok(fs.existsSync(staticPath), `static/${asset} should exist`);
-    const canonical = fs.readFileSync(
-      path.join(canonicalDir, asset),
-      "utf8"
-    );
-    const copied = fs.readFileSync(staticPath, "utf8");
-    assert.equal(copied, canonical, `static/${asset} should match canonical`);
-  }
+  const mainPath = path.join(
+    SOL_APP,
+    "app",
+    "__gen__",
+    "server",
+    "main.mbt"
+  );
+  const content = fs.readFileSync(mainPath, "utf8");
+  assert.match(
+    content,
+    /serve_sol_assets/,
+    "server main.mbt should call serve_sol_assets"
+  );
 });

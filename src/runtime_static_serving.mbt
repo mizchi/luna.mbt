@@ -75,7 +75,7 @@ pub fn StaticFileConfig::default() -> StaticFileConfig {
   {
     path_prefix: "/static",
     local_dir: "static",
-    mappings: [("loader.js", "static/loader.js")],
+    mappings: [],
     cache_control: "max-age=3600",
   }
 }
@@ -86,7 +86,7 @@ pub fn StaticFileConfig::dev() -> StaticFileConfig {
   {
     path_prefix: "/static",
     local_dir: "static",
-    mappings: [("loader.js", "static/loader.js")],
+    mappings: [],
     cache_control: "no-cache, no-store, must-revalidate",
   }
 }
@@ -203,6 +203,71 @@ fn serve_static_text_file(
     Some(content) => c.text(content)
     None => c.text(not_found_body)
   }
+}
+
+///|
+/// Resolve a built-in runtime asset by trying multiple candidate paths.
+/// Used at runtime to serve framework assets from /__sol__/.
+fn resolve_builtin_asset(filename : String) -> String? {
+  // Map loader.js -> loader.iife.js for luna dist
+  let luna_name = if filename == "loader.js" {
+    "loader.iife.js"
+  } else if filename == "wc-loader.js" {
+    "wc-loader.iife.js"
+  } else {
+    filename
+  }
+  let candidates = [
+    // mooncakes (luna): loader dist from luna package
+    ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
+    // mooncakes (sol): canonical assets from sol package
+    ".mooncakes/mizchi/sol/src/ssg/assets/scripts/" + filename,
+    // Development: sol.mbt repo root (monorepo examples)
+    "../../src/ssg/assets/scripts/" + filename,
+    // Development: direct child of sol.mbt
+    "../src/ssg/assets/scripts/" + filename,
+    // Same repo root
+    "src/ssg/assets/scripts/" + filename,
+    // Legacy: user's static/ directory
+    "static/" + filename,
+  ]
+  for path in candidates {
+    match read_file_text(path) {
+      Some(content) => return Some(content)
+      None => continue
+    }
+  }
+  None
+}
+
+///|
+/// Register /__sol__/* route for serving built-in framework assets.
+/// Assets are resolved from mooncakes packages or development paths.
+pub fn serve_sol_assets(app : App) -> Unit {
+  let cache_ctl = if @hot_reload.is_dev_mode() {
+    "no-cache, no-store, must-revalidate"
+  } else {
+    "public, max-age=86400"
+  }
+  app.get(
+    "/__sol__/*",
+    @mars.handler(async fn(c) {
+      let path = c.path()
+      // "/__sol__/".length() == 8
+      let filename = path[8:].to_string()
+      let content_type = content_type_for_file(filename)
+      match resolve_builtin_asset(filename) {
+        Some(content) => send_static_text(c, content, content_type, cache_ctl)
+        None =>
+          send_static_text(
+            c,
+            "// Not found: " + filename,
+            content_type,
+            cache_ctl,
+          )
+      }
+    }),
+  )
 }
 
 ///|

@@ -11,17 +11,15 @@ test "StaticFileConfig::default: creates default config" {
   let config = StaticFileConfig::default()
   assert_eq(config.path_prefix, "/static")
   assert_eq(config.local_dir, "static")
-  assert_eq(config.mappings.length(), 1)
-  assert_eq(config.mappings[0].0, "loader.js")
-  assert_eq(config.mappings[0].1, "static/loader.js")
+  assert_eq(config.mappings.length(), 0)
 }
 
 ///|
 test "StaticFileConfig::with_mapping: adds mapping" {
   let config = StaticFileConfig::default().with_mapping("app.js", "dist/app.js")
-  assert_eq(config.mappings.length(), 2)
-  assert_eq(config.mappings[1].0, "app.js")
-  assert_eq(config.mappings[1].1, "dist/app.js")
+  assert_eq(config.mappings.length(), 1)
+  assert_eq(config.mappings[0].0, "app.js")
+  assert_eq(config.mappings[0].1, "dist/app.js")
 }
 
 ///|
@@ -29,8 +27,8 @@ test "StaticFileConfig::with_mapping: multiple mappings" {
   let config = StaticFileConfig::default()
     .with_mapping("a.js", "dist/a.js")
     .with_mapping("b.css", "dist/b.css")
-  assert_eq(config.mappings.length(), 3)
-  assert_eq(config.mappings[2].0, "b.css")
+  assert_eq(config.mappings.length(), 2)
+  assert_eq(config.mappings[1].0, "b.css")
 }
 
 // =============================================================================

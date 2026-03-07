@@ -12,11 +12,6 @@ fn template_gitignore() -> String {
     #|app/__gen__/client
     #|app/__gen__/server
     #|.sol
-    #|# Runtime assets (copied by sol generate from canonical source)
-    #|static/loader.js
-    #|static/wc-loader.js
-    #|static/sol-nav.js
-    #|static/lib.js
   )
 }
 
@@ -236,7 +231,7 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|pub fn config() -> @router.RouterConfig {
     #|  @router.RouterConfig::default()
     #|    .with_default_head(@layout.head())
-    #|    .with_loader_url("/static/loader.js")
+    #|    .with_loader_url("/__sol__/loader.js")
     #|}
     #|
     #|///| Server Action registry (empty by default)
@@ -477,7 +472,5 @@ pub fn generate_templates(
       content: template_gen_types_moon_pkg(),
     },
     { path: "app/__gen__/types/types.mbt", content: template_gen_types_mbt() },
-    // Static assets
-    { path: "static/loader.js", content: template_ln_loader_js() },
   ]
 }

@@ -99,11 +99,11 @@ let default_style : String =
 
 ///|
 /// Loader script
-let loader_script : String = "<script type=\"module\" src=\"/static/loader.js\"></script>"
+let loader_script : String = "<script type=\"module\" src=\"/__sol__/loader.js\"></script>"
 
 ///|
 /// Sol navigation script for CSR
-let sol_nav_script : String = "<script type=\"module\" src=\"/static/sol-nav.js\"></script>"
+let sol_nav_script : String = "<script type=\"module\" src=\"/__sol__/sol-nav.js\"></script>"
 
 ///|
 /// Head HTML
