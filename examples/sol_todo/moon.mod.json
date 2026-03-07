@@ -5,7 +5,7 @@
     "mizchi/sol": {
       "path": "../.."
     },
-    "mizchi/luna": "0.16.0",
+    "mizchi/luna": "0.17.0",
     "mizchi/mars": "0.3.9",
     "mizchi/signals": "0.6.3",
     "mizchi/js": "0.10.14"
