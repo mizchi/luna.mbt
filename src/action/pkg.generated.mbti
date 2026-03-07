@@ -10,7 +10,11 @@ import {
 // Values
 pub fn create_action_invoker(String, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
 
+pub fn create_action_invoker_ref(ActionRef, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
+
 pub fn invoke_action(String, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
+
+pub fn invoke_action_ref(ActionRef, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
 
 pub fn register_actions(@mars.Server, ActionRegistry) -> Unit
 
@@ -47,6 +51,7 @@ pub struct ActionFormConfig {
   on_error : ((Int, String) -> Unit)?
   on_redirect : ((String) -> Bool)?
 }
+pub fn ActionFormConfig::from_ref(ActionRef) -> Self
 pub fn ActionFormConfig::new(String) -> Self
 
 pub(all) struct ActionHandler(async (ActionContext) -> ActionResult)
@@ -60,6 +65,13 @@ pub struct ActionOptions {
 }
 pub fn ActionOptions::default() -> Self
 
+pub(all) struct ActionRef {
+  id : String
+  base_path : String
+}
+pub fn ActionRef::to_def(Self, ActionHandler) -> ActionDef
+pub fn ActionRef::url(Self) -> String
+
 pub struct ActionRegistry {
   actions : Map[String, ActionDef]
   base_path : String
@@ -71,6 +83,7 @@ pub fn ActionRegistry::get(Self, String) -> ActionDef?
 pub fn ActionRegistry::new(allowed_origins? : Array[String]) -> Self
 pub fn ActionRegistry::register(Self, ActionDef) -> Self
 pub fn ActionRegistry::register_all(Self, Array[ActionDef]) -> Self
+pub fn ActionRegistry::register_ref(Self, ActionRef, ActionHandler) -> Self
 pub fn ActionRegistry::with_base_path(Self, String) -> Self
 
 pub enum ActionResponse {

@@ -11,23 +11,33 @@ pub fn cache_key(String, Array[(String, String)]) -> String
 
 pub fn check_status(CacheEntry?, Int64) -> CacheStatus
 
-pub fn create_isr_middleware(String) -> (@hono.Context[Unit, Unit]) -> @core.Promise[Unit]?
+pub async fn create_isr_middleware(String) -> ((@hono.Context[Unit, Unit]) -> @core.Promise[Unit]?)
 
 pub fn get_isr_handler() -> ISRHandler[MemoryCache]?
 
-pub fn handle_isr_request(String) -> (String?, Bool)
+pub async fn handle_isr_request(String) -> (String?, Bool)
 
-pub fn init_isr(String) -> ISRHandler[MemoryCache]
+pub async fn init_isr(String) -> ISRHandler[MemoryCache]
 
-pub fn load_manifest(String) -> ISRManifest
+pub async fn load_manifest(String) -> ISRManifest
 
 pub fn now_ms() -> Int64
 
 pub fn schedule_revalidation(String) -> Unit
 
+pub fn set_now_ms(Int64?) -> Unit
+
 // Errors
 
 // Types and methods
+pub(all) enum CDNCacheStrategy {
+  CdnSwr(Int)
+  Hybrid(Int, Int)
+  AppIsr
+}
+pub fn CDNCacheStrategy::cache_control(Self, Int) -> String
+pub fn CDNCacheStrategy::header_value(Self) -> String
+
 pub struct CacheEntry {
   html : String
   generated_at : Int64
@@ -52,7 +62,7 @@ pub struct ISRHandler[Cache] {
   manifest : ISRManifest
   dist_dir : String
 }
-pub fn[Cache : ISRCache] ISRHandler::handle(Self[Cache], String) -> (String?, Bool)
+pub async fn[Cache : ISRCache] ISRHandler::handle(Self[Cache], String) -> (String?, Bool)
 pub fn[Cache] ISRHandler::new(Cache, ISRManifest, String) -> Self[Cache]
 pub fn[Cache : ISRCache] ISRHandler::update_cache(Self[Cache], String, String) -> Unit
 

@@ -101,26 +101,33 @@ pub fn RouteParams::get_search_group(
 /// Props passed to page components
 pub struct PageProps {
   /// Request context (Hono Context)
+  /// WARNING: Do not read Authorization/Cookie/Host headers in ISR pages.
+  /// ISR caches rendered HTML by URL key only. Header-dependent content
+  /// will leak across users. Check `is_isr_render` before accessing ctx.
   ctx : Ctx
   /// Route parameters (path params, query params)
   params : RouteParams
   /// Whether this is a fragment request (CSR navigation)
   /// When true, page should return content without layout wrapper
   is_fragment : Bool
+  /// Whether this render is for ISR caching.
+  /// When true, the rendered HTML will be shared across all users.
+  /// Do NOT access ctx headers (Authorization, Cookie, etc.) in this mode.
+  is_isr_render : Bool
 }
 
 ///|
 /// Create PageProps from context
 pub fn PageProps::from_ctx(ctx : Ctx) -> PageProps {
   let params = extract_route_params(ctx)
-  { ctx, params, is_fragment: false }
+  { ctx, params, is_fragment: false, is_isr_render: false }
 }
 
 ///|
 /// Create PageProps for fragment request
 pub fn PageProps::from_ctx_fragment(ctx : Ctx) -> PageProps {
   let params = extract_route_params(ctx)
-  { ctx, params, is_fragment: true }
+  { ctx, params, is_fragment: true, is_isr_render: false }
 }
 
 ///|
@@ -130,7 +137,7 @@ pub fn PageProps::from_ctx_with_params(
   ctx : Ctx,
   params : RouteParams,
 ) -> PageProps {
-  { ctx, params, is_fragment: params.is_fragment }
+  { ctx, params, is_fragment: params.is_fragment, is_isr_render: false }
 }
 
 ///|
@@ -173,7 +180,7 @@ fn extract_route_params(
   is_fragment? : Bool = false,
   param_names? : Array[String] = [],
 ) -> RouteParams {
-  let path = c.path()
+  let raw_path = c.path()
   let params : Array[(String, String)] = []
   // Use Mars public API (`Context::param`) to extract known route params.
   for name in param_names {
@@ -183,15 +190,31 @@ fn extract_route_params(
     }
   }
 
-  // Get query params
+  // Get query params and strip query from path
   let query : Array[(String, String)] = []
-  if has_query_string(path) {
+  let path = if has_query_string(raw_path) {
     for entry in c.queries() {
       query.push((entry.0, entry.1))
     }
+    strip_query_string(raw_path)
+  } else {
+    raw_path
   }
 
   { params, query, path, is_fragment, url_pattern_result: None }
+}
+
+///|
+/// Remove query string from path (everything after first '?')
+fn strip_query_string(path : String) -> String {
+  let buf = StringBuilder::new()
+  for c in path {
+    if c == '?' {
+      break
+    }
+    buf.write_char(c)
+  }
+  buf.to_string()
 }
 
 ///|

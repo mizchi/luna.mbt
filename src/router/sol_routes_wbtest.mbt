@@ -803,3 +803,188 @@ async test "no CDNCacheStrategy: no Cache-Control or X-Sol-CDN-Cache for ISR" {
   assert_eq(res.isr_status, Some("MISS"))
   @isr.set_now_ms(None)
 }
+
+// ============================================================================
+// Query Normalization Tests
+// ============================================================================
+
+///|
+test "strip_query_string removes query from path" {
+  assert_eq(strip_query_string("/foo?a=1&b=2"), "/foo")
+  assert_eq(strip_query_string("/no-query"), "/no-query")
+  assert_eq(strip_query_string("/path?"), "/path")
+  assert_eq(strip_query_string("/?x=1"), "/")
+}
+
+///|
+test "cache_key normalizes query param order" {
+  // Different query param orders produce the same cache key
+  let key1 = @isr.cache_key("/search", [("b", "2"), ("a", "1")])
+  let key2 = @isr.cache_key("/search", [("a", "1"), ("b", "2")])
+  assert_eq(key1, key2)
+  assert_eq(key1, "isr:/search?a=1&b=2")
+}
+
+///|
+test "cache_key with stripped path has no query duplication" {
+  // After strip_query_string, path should not contain query
+  let path = strip_query_string("/search?b=2&a=1")
+  let key = @isr.cache_key(path, [("a", "1"), ("b", "2")])
+  assert_eq(key, "isr:/search?a=1&b=2")
+  // Without stripping, path would be "/search?b=2&a=1" causing duplication
+  let bad_key = @isr.cache_key("/search?b=2&a=1", [("a", "1"), ("b", "2")])
+  assert_eq(bad_key, "isr:/search?b=2&a=1?a=1&b=2") // double query - broken
+}
+
+// ============================================================================
+// ISR Render Flag Tests
+// ============================================================================
+
+///|
+async test "ISR render sets is_isr_render=true on PageProps" {
+  @isr.set_now_ms(Some(1000000L))
+  let isr_flag = Ref::new(false)
+  async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
+    isr_flag.val = props.is_isr_render
+    @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("isr-flag")]))
+  }
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(@isr.MemoryCache::new())
+    .with_root_template(test_root_template("flag"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/isr-flag",
+        handler=PageHandler(page_handler),
+        title="ISRFlag",
+        meta=[],
+        revalidate=Some(60),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  // ISR MISS render should have is_isr_render=true
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/isr-flag", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_eq(res.isr_status, Some("MISS"))
+  assert_true(isr_flag.val) // is_isr_render should be true
+  @isr.set_now_ms(None)
+}
+
+///|
+async test "non-ISR render has is_isr_render=false" {
+  let isr_flag = Ref::new(true) // Start true, should become false
+  async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
+    isr_flag.val = props.is_isr_render
+    @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("no-isr")]))
+  }
+
+  let app = @mars.Server::new()
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/no-isr-flag",
+        handler=PageHandler(page_handler),
+        title="NoISR",
+        meta=[],
+        revalidate=None,
+        cache=None,
+      ),
+    ],
+    config=RouterConfig::default(),
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/no-isr-flag", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_false(isr_flag.val) // is_isr_render should be false
+}
+
+// ============================================================================
+// STALE Revalidation Dedup Tests
+// ============================================================================
+
+///|
+test "isr_in_flight dedup set prevents duplicate revalidation scheduling" {
+  // Verify the in-flight tracking mechanism
+  let key = "isr:/test-dedup"
+  assert_false(isr_in_flight.val.contains(key))
+  isr_in_flight.val.add(key)
+  assert_true(isr_in_flight.val.contains(key))
+  // Second add is a no-op, set still contains it
+  isr_in_flight.val.add(key)
+  assert_true(isr_in_flight.val.contains(key))
+  // Clean up
+  isr_in_flight.val.remove(key)
+  assert_false(isr_in_flight.val.contains(key))
+}
+
+///|
+async test "ISR: STALE revalidation updates cache with fresh entry" {
+  @isr.set_now_ms(Some(1000000L))
+  let call_count = Ref::new(0)
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    call_count.val = call_count.val + 1
+    @server_dom.ServerNode::sync(
+      @luna.h("p", [], [@luna.text("dedup-" + call_count.val.to_string())]),
+    )
+  }
+
+  let cache = @isr.MemoryCache::new()
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(cache)
+    .with_root_template(test_root_template("dedup"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/isr-dedup",
+        handler=PageHandler(page_handler),
+        title="Dedup",
+        meta=[],
+        revalidate=Some(60),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let handler = app.to_handler()
+
+  // 1. MISS → render and cache
+  let res1 = ffi_call_app_handler(
+    handler, "GET", "http://localhost/isr-dedup", false,
+  ).wait()
+  assert_eq(res1.isr_status, Some("MISS"))
+  assert_eq(call_count.val, 1)
+
+  // 2. Advance past TTL → STALE triggers revalidation
+  @isr.set_now_ms(Some(1000000L + 61000L))
+  let res2 = ffi_call_app_handler(
+    handler, "GET", "http://localhost/isr-dedup", false,
+  ).wait()
+  assert_eq(res2.isr_status, Some("STALE"))
+  assert_true(res2.body.contains("dedup-1")) // Stale content returned
+  // MemoryCache runs revalidation synchronously, so cache is now updated
+  assert_eq(call_count.val, 2) // Revalidation triggered
+
+  // 3. Next request after revalidation → HIT (cache was refreshed)
+  let res3 = ffi_call_app_handler(
+    handler, "GET", "http://localhost/isr-dedup", false,
+  ).wait()
+  assert_eq(res3.isr_status, Some("HIT"))
+  assert_true(res3.body.contains("dedup-2")) // Fresh content from revalidation
+  assert_eq(call_count.val, 2) // No additional render
+  @isr.set_now_ms(None)
+  isr_in_flight.val = Set::new()
+}

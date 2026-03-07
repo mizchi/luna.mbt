@@ -29,11 +29,15 @@ pub fn generate_island_manifest(Array[(String, String)], String) -> String
 
 pub fn generate_state_script(String, String) -> String
 
-pub fn[E] island(String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
+pub fn[T : ToJson, E] island(@mizchi/luna/core.ComponentRef[T], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn[E] island_page(@mars.Server, String, (@mars.Context) -> Array[IslandConfig[E]], title? : String, head? : String, loader_url? : String) -> Unit
 
-pub fn[E] island_with(String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
+pub fn[E] island_raw(String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
+
+pub fn[T : ToJson, E] island_with(@mizchi/luna/core.ComponentRef[T], () -> @mizchi/luna/core.Node[E, String]) -> @mizchi/luna/core.Node[E, String]
+
+pub fn[E] island_with_raw(String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
 pub fn json_array_to_any(Array[Json]) -> @mizchi/js/core.Any
 
@@ -67,15 +71,17 @@ pub fn run((@mars.Server) -> Unit, port? : Int) -> Unit
 
 pub fn run_app(() -> @mars.Server, port? : Int) -> Unit
 
+pub fn serve_sol_assets(@mars.Server) -> Unit
+
 pub fn serve_static(@mars.Server, config? : StaticFileConfig) -> Unit
 
 pub fn serve_static_dir(@mars.Server, StaticDirServeConfig) -> Unit
 
 pub fn streaming_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> Unit
 
-pub fn[E] wc_island(String, String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
+pub fn[E] wc_island_raw(String, String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
-pub fn[E] wc_island_with(String, String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
+pub fn[E] wc_island_with_raw(String, String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
 pub fn[E] wc_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, wc_loader_url? : String) -> Unit
 

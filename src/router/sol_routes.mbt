@@ -4,6 +4,14 @@
 // instead of component ID strings. For server-side rendering only.
 
 // ============================================================================
+// ISR In-Flight Deduplication
+// ============================================================================
+
+///|
+/// Tracks cache keys with in-flight STALE revalidation to prevent duplicate renders.
+let isr_in_flight : Ref[Set[String]] = Ref::new(Set::new())
+
+// ============================================================================
 // Handler Types
 // ============================================================================
 
@@ -814,6 +822,8 @@ fn register_compiled_sol_routes(
                     @isr.Miss => "MISS"
                   }
                   c.set_header("X-Sol-ISR-Status", isr_status_str)
+                  // ISR render props: mark as ISR to warn against ctx header access
+                  let isr_props = { ..props, is_isr_render: true }
                   match status {
                     @isr.Fresh =>
                       // Return cached HTML directly
@@ -825,28 +835,35 @@ fn register_compiled_sol_routes(
                       // Return cached HTML and schedule background revalidation
                       match entry {
                         Some(e) => {
-                          // Schedule background revalidation
-                          @isr.ISRCache::schedule_revalidation(cache, async fn() {
-                            let html = render_page_to_html(
-                              c,
-                              props,
-                              handler,
-                              route.layouts,
-                              false,
-                              page_title,
-                              page_head,
-                              config.root_template,
-                              route.cache_strategy,
-                            ) catch {
-                              _ => return
-                            }
-                            let new_entry = @isr.CacheEntry::new(
-                              html,
-                              @isr.now_ms(),
-                              revalidate,
-                            )
-                            @isr.ISRCache::put(cache, cache_key, new_entry)
-                          })
+                          // Deduplicate in-flight revalidations for same cache key
+                          if not(isr_in_flight.val.contains(cache_key)) {
+                            isr_in_flight.val.add(cache_key)
+                            @isr.ISRCache::schedule_revalidation(cache, async fn() {
+                              let html = render_page_to_html(
+                                c,
+                                isr_props,
+                                handler,
+                                route.layouts,
+                                false,
+                                page_title,
+                                page_head,
+                                config.root_template,
+                                route.cache_strategy,
+                              ) catch {
+                                _ => {
+                                  isr_in_flight.val.remove(cache_key)
+                                  return
+                                }
+                              }
+                              let new_entry = @isr.CacheEntry::new(
+                                html,
+                                @isr.now_ms(),
+                                revalidate,
+                              )
+                              @isr.ISRCache::put(cache, cache_key, new_entry)
+                              isr_in_flight.val.remove(cache_key)
+                            })
+                          }
                           c.html(e.html)
                         }
                         None => c.text("Cache error", status=500)
@@ -855,7 +872,7 @@ fn register_compiled_sol_routes(
                       // Render, cache, and return
                       let html = render_page_to_html(
                         c,
-                        props,
+                        isr_props,
                         handler,
                         route.layouts,
                         false,

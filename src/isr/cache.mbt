@@ -80,7 +80,8 @@ pub fn check_status(entry : CacheEntry?, now_ms : Int64) -> CacheStatus {
 let now_ms_override : Ref[Int64?] = Ref::new(None)
 
 ///|
-/// Set a fixed time for testing. Call with None to restore real time.
+/// **Test-only.** Set a fixed time for testing. Call with None to restore real time.
+/// Do NOT call in production code — it overrides now_ms() process-wide.
 pub fn set_now_ms(value : Int64?) -> Unit {
   now_ms_override.val = value
 }

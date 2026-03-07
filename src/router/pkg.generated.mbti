@@ -164,6 +164,7 @@ pub struct PageProps {
   ctx : @mars.Context
   params : RouteParams
   is_fragment : Bool
+  is_isr_render : Bool
 }
 pub fn PageProps::from_ctx(@mars.Context) -> Self
 pub fn PageProps::from_ctx_fragment(@mars.Context) -> Self
@@ -204,8 +205,10 @@ pub struct RouterConfig {
   chunk_manifest : ChunkManifest?
   root_template : String
   isr_cache : @isr.MemoryCache?
+  cache_strategy : @isr.CDNCacheStrategy?
 }
 pub fn RouterConfig::default() -> Self
+pub fn RouterConfig::with_cache_strategy(Self, @isr.CDNCacheStrategy) -> Self
 pub fn RouterConfig::with_chunk_manifest(Self, ChunkManifest) -> Self
 pub fn RouterConfig::with_default_head(Self, String) -> Self
 pub fn RouterConfig::with_default_title(Self, String) -> Self
