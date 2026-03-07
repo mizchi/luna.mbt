@@ -1,39 +1,39 @@
 # sol_api - Pure REST API Example
 
-MoonBit + Sol で構築する Pure REST API サーバーの例。
+An example of a Pure REST API server built with MoonBit + Sol.
 
-## 特徴
+## Features
 
-- **HTML なし**: 純粋な JSON API サーバー
-- **REST パターン**: Items リソースの読み取り操作
-- **ミドルウェア**: CORS, Logger, Security Headers
-- **エラーハンドリング**: 構造化されたエラーレスポンス
+- **No HTML**: Pure JSON API server
+- **REST Pattern**: Read operations for Items resource
+- **Middleware**: CORS, Logger, Security Headers
+- **Error Handling**: Structured error responses
 
 ## API Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/health` | ヘルスチェック |
-| GET | `/api/items` | アイテム一覧 |
-| GET | `/api/items/:id` | 単一アイテム取得 |
-| GET | `/api/stats` | 統計情報 |
-| GET | `/api/error?type=xxx` | エラーレスポンステスト |
+| GET | `/api/health` | Health check |
+| GET | `/api/items` | List items |
+| GET | `/api/items/:id` | Get single item |
+| GET | `/api/stats` | Statistics |
+| GET | `/api/error?type=xxx` | Error response test |
 
-## 使い方
+## Usage
 
 ```bash
-# ビルド
+# Build
 just all
 
-# サーバー起動
+# Start server
 just serve
 
-# API テスト (別ターミナルで)
+# API test (in a separate terminal)
 just test-api
 just test-errors
 ```
 
-## レスポンス例
+## Response Examples
 
 ```bash
 # Health check
@@ -57,19 +57,19 @@ curl "http://localhost:7777/api/error?type=not_found"
 # => {"error":"not_found","message":"Resource not found"}
 ```
 
-## ミドルウェア構成
+## Middleware Stack
 
-1. **CORS**: 全オリジン許可、主要 HTTP メソッド対応
-2. **Logger**: リクエストログ出力
+1. **CORS**: Allows all origins, supports major HTTP methods
+2. **Logger**: Request log output
 3. **Security Headers**: X-Content-Type-Options, X-Frame-Options
 
-## vs 他の例題
+## vs Other Examples
 
-| 例題 | 特徴 |
-|------|------|
-| sol_app | フルスタック (Islands, WC, Server Actions) |
-| sol_auth | 認証・認可 (Better Auth) |
-| sol_blog | SSG ブログ |
-| sol_docs | ドキュメントサイト (SPA) |
+| Example | Features |
+|---------|----------|
+| sol_app | Full-stack (Islands, WC, Server Actions) |
+| sol_auth | Authentication & Authorization (Better Auth) |
+| sol_blog | SSG Blog |
+| sol_docs | Documentation Site (SPA) |
 | sol_sqlite | ISR + SQLite |
-| **sol_api** | **Pure REST API (この例題)** |
+| **sol_api** | **Pure REST API (this example)** |

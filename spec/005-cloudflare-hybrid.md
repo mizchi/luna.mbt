@@ -1,13 +1,13 @@
 # Cloudflare Hybrid Static/Dynamic Routing
 
-静的コンテンツはCDNから高速配信し、動的ルートのみWorkerで処理するハイブリッド設計。
+A hybrid design where static content is served at high speed from the CDN, and only dynamic routes are processed by the Worker.
 
-## 概要
+## Overview
 
 ```
 ┌─────────────────────────────────────────────┐
 │  Cloudflare CDN Edge                        │
-│  (静的ファイル: HTML, CSS, JS, images)        │
+│  (Static files: HTML, CSS, JS, images)      │
 └─────────────────────┬───────────────────────┘
                       │ run_worker_first
                       ▼
@@ -21,34 +21,34 @@
 
 ## Route Analyzer
 
-`@router.analyze_routes()` でSolRoutesから動的ルートを抽出：
+`@router.analyze_routes()` extracts dynamic routes from SolRoutes:
 
 ```moonbit
-// 動的ルートの判定基準
-// 1. API routes (Get, Post) -> 常に動的
-// 2. ISR pages (revalidate != None) -> 動的
-// 3. Dynamic path params (:id, [slug]) -> 動的
-// 4. Catch-all routes ([...slug]) -> 動的
-// 5. その他 -> 静的
+// Criteria for determining dynamic routes
+// 1. API routes (Get, Post) -> always dynamic
+// 2. ISR pages (revalidate != None) -> dynamic
+// 3. Dynamic path params (:id, [slug]) -> dynamic
+// 4. Catch-all routes ([...slug]) -> dynamic
+// 5. Everything else -> static
 ```
 
-## 使用方法
+## Usage
 
-### 1. ルート定義
+### 1. Route Definition
 
 ```moonbit
 // routes.mbt
 pub fn routes() -> Array[@router.SolRoutes] {
   [
     @router.with_mw([@mw.logger()], [
-      // 静的ページ - CDNから配信
+      // Static pages - served from CDN
       @router.page("/", home, title="Home"),
       @router.page("/about", about, title="About"),
 
-      // ISRページ - Workerで処理
+      // ISR pages - processed by Worker
       @router.page("/blog/:slug", blog_post, title="Blog", revalidate=Some(60)),
 
-      // API - Workerで処理
+      // API - processed by Worker
       @router.api_get("/api/users/:id", get_user),
       @router.api_post("/api/users", create_user),
     ]),
@@ -56,22 +56,22 @@ pub fn routes() -> Array[@router.SolRoutes] {
 }
 ```
 
-### 2. wrangler.json生成
+### 2. wrangler.json Generation
 
 ```moonbit
-// 解析してwrangler設定を生成
+// Analyze and generate wrangler configuration
 pub fn generate_deploy_config() -> String {
   @router.generate_wrangler_assets_config(routes(), "./dist")
 }
 ```
 
-### 3. ビルドスクリプト
+### 3. Build Script
 
 ```bash
 # moon build
 moon build --target js
 
-# wrangler.json生成
+# Generate wrangler.json
 node -e "
 import { generate_deploy_config } from './dist/server.js';
 import { writeFileSync } from 'node:fs';
@@ -83,7 +83,7 @@ writeFileSync('wrangler.json', JSON.stringify({
 "
 ```
 
-### 4. 生成されるwrangler.json
+### 4. Generated wrangler.json
 
 ```json
 {
@@ -105,31 +105,31 @@ writeFileSync('wrangler.json', JSON.stringify({
 
 ### analyze_routes(routes)
 
-SolRoutesを解析し、各ルートの分類を返す。
+Analyzes SolRoutes and returns the classification of each route.
 
 ```moonbit
 pub fn analyze_routes(routes : Array[SolRoutes]) -> Array[AnalyzedRoute]
 
 pub enum RouteKind {
-  Static   // 静的ルート - CDNから配信
-  Dynamic  // 動的ルート - Workerで処理
+  Static   // Static route - served from CDN
+  Dynamic  // Dynamic route - processed by Worker
 }
 
 pub struct AnalyzedRoute {
-  pattern : String    // URLパターン
-  kind : RouteKind    // 分類
-  reason : String     // 分類理由
+  pattern : String    // URL pattern
+  kind : RouteKind    // Classification
+  reason : String     // Reason for classification
 }
 ```
 
 ### extract_dynamic_patterns(routes)
 
-動的ルートのパターンをCloudflare形式で抽出。
+Extracts dynamic route patterns in Cloudflare format.
 
 ```moonbit
 pub fn extract_dynamic_patterns(routes : Array[SolRoutes]) -> Array[String]
 
-// 変換例:
+// Conversion examples:
 // /user/:id        -> /user/*
 // /docs/[...slug]  -> /docs/*
 // /api/health      -> /api/health
@@ -137,7 +137,7 @@ pub fn extract_dynamic_patterns(routes : Array[SolRoutes]) -> Array[String]
 
 ### generate_wrangler_assets_config(routes, output_dir)
 
-wrangler.jsonのassets設定を生成。
+Generates the assets configuration for wrangler.json.
 
 ```moonbit
 pub fn generate_wrangler_assets_config(
@@ -146,17 +146,17 @@ pub fn generate_wrangler_assets_config(
 ) -> String
 ```
 
-## 動的ルート判定ロジック
+## Dynamic Route Classification Logic
 
-| ルート種別 | 判定 | 理由 |
-|-----------|------|------|
-| API (Get/Post) | Dynamic | ランタイム処理が必要 |
-| ISR (revalidate設定あり) | Dynamic | バックグラウンド再検証が必要 |
-| Path params (`:id`, `[id]`) | Dynamic | 値がビルド時に不明 |
-| Catch-all (`[...slug]`) | Dynamic | パス数が不定 |
-| 静的パス | Static | ビルド時に生成可能 |
+| Route Type | Classification | Reason |
+|-----------|----------------|--------|
+| API (Get/Post) | Dynamic | Requires runtime processing |
+| ISR (revalidate configured) | Dynamic | Requires background revalidation |
+| Path params (`:id`, `[id]`) | Dynamic | Values unknown at build time |
+| Catch-all (`[...slug]`) | Dynamic | Variable number of path segments |
+| Static path | Static | Can be generated at build time |
 
-## 参考
+## References
 
 - [Cloudflare Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/)
 - [run_worker_first Configuration](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/)

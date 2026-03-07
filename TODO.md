@@ -1,144 +1,144 @@
-# mars thin wrapper 向けリファクタ TODO
+# Refactoring TODO for mars Thin Wrapper
 
-## 方針
+## Policy
 
-- `sol` は `mars` の薄いラッパーに寄せる
-- `sol` の責務は「file based routing の割り当て」「SSR」「アセットローダー」に限定する
-- `mbtx` / `wasip2` / `wagi` 前提の `.wasm` マウント統合は `mars` との境界を明確にして実装する
+- `sol` should converge toward being a thin wrapper around `mars`
+- `sol`'s responsibilities are limited to "file-based routing assignment", "SSR", and "asset loader"
+- `.wasm` mount integration assuming `mbtx` / `wasip2` / `wagi` should be implemented with a clear boundary from `mars`
 
-## 進捗
+## Progress
 
-- [x] `moon clean` 実施
-- [x] ベースライン確認（`moon test --target js src/router`, `moon test --target js src/action`）
-- [x] `router` を責務分割（`router_config` / `route_params` / `route_registration` / `route_rendering` / `router_hmr`）
-- [x] `register_routes` / `register_server_routes` の config 解決を `resolve_router_config` に統一
-- [x] `runtime` を起動境界で分割（`runtime_bootstrap` / `runtime_app_export` / `runtime_env_mount`）
-- [x] `runtime` の SSR/Island/Streaming/Static Serving をファイル分割（`runtime` / `runtime_island` / `runtime_streaming` / `runtime_static_serving`）
-- [x] `sol` / `mars` で共有しやすい Hot Reload API を `hot_reload` パッケージへ分離（port 解決・script 注入・HTML 注入）
-- [x] `sol_routes` の API method 登録を `handle_compiled_api_route` + 共通登録ヘルパに統一
-- [x] `routes/file_router.mbt` の catch-all 動的パラメータ処理を実装（値正規化/空値対応）
-- [x] `Layout` の扱いを仕様化（`register_routes` は path grouping のみ、合成は `sol_routes`）
-- [x] catch-all パラメータの URL エンコード/デコード規約を仕様化（`%2F` を含むケース）
-- [x] `register_routes` と `register_sol_routes` の使い分けを README に反映
+- [x] Run `moon clean`
+- [x] Confirm baseline (`moon test --target js src/router`, `moon test --target js src/action`)
+- [x] Split `router` by responsibility (`router_config` / `route_params` / `route_registration` / `route_rendering` / `router_hmr`)
+- [x] Unify config resolution of `register_routes` / `register_server_routes` into `resolve_router_config`
+- [x] Split `runtime` by startup boundary (`runtime_bootstrap` / `runtime_app_export` / `runtime_env_mount`)
+- [x] Split `runtime` SSR/Island/Streaming/Static Serving into separate files (`runtime` / `runtime_island` / `runtime_streaming` / `runtime_static_serving`)
+- [x] Extract Hot Reload API shared between `sol` / `mars` into a `hot_reload` package (port resolution, script injection, HTML injection)
+- [x] Unify API method registration in `sol_routes` into `handle_compiled_api_route` + common registration helpers
+- [x] Implement catch-all dynamic parameter handling in `routes/file_router.mbt` (value normalization / empty value handling)
+- [x] Formalize `Layout` handling (`register_routes` only does path grouping; composition is in `sol_routes`)
+- [x] Formalize URL encoding/decoding conventions for catch-all parameters (cases including `%2F`)
+- [x] Reflect the distinction between `register_routes` and `register_sol_routes` in README
 
-## 優先タスク
+## Priority Tasks
 
-- [x] [P1] `Context` の params 抽出を `mars` 公開 API 経由に統一する  
-  対応: `extract_route_params` を `Context::param` ベースに変更し、`c.params?.data` 依存を削除
+- [x] [P1] Unify `Context` param extraction via `mars` public API
+  Done: Changed `extract_route_params` to be `Context::param`-based and removed `c.params?.data` dependency
 
-- [x] [P2] JSON レスポンス送信を共通ファサードに寄せる（`router`/`action` 重複削減）  
-  対応: `src/internal/mars_response/mars_response.mbt` を追加し、`router`/`action` から利用
+- [x] [P2] Consolidate JSON response sending into a common facade (reduce duplication in `router`/`action`)
+  Done: Added `src/internal/mars_response/mars_response.mbt` and used it from `router`/`action`
 
-- [x] [P2] ルート登録の重複削減  
-  対応: `register_routes_inner` / `register_server_routes_inner` を廃止し、`register_route_tree` + 共通 API 登録ヘルパへ統合
+- [x] [P2] Reduce route registration duplication
+  Done: Removed `register_routes_inner` / `register_server_routes_inner` and consolidated into `register_route_tree` + common API registration helpers
 
-- [x] [P2] `runtime` の起動責務を `mars` adapter 前提へ再編成する  
-  対応: `export_runtime_app` / `maybe_start_server` / `with_initialized_fs` へ起動境界を集約
+- [x] [P2] Reorganize `runtime` startup responsibilities around the `mars` adapter
+  Done: Consolidated startup boundaries into `export_runtime_app` / `maybe_start_server` / `with_initialized_fs`
 
-- [x] [P3] wasm hint/manifest の責務整理  
-  対応: `generate_mars_adapter_hints` を追加し、`mars` adapter の `manifest_hint` / `binding_hint` を利用して `.sol/wasm/mars-adapter.hints` を出力
+- [x] [P3] Clean up wasm hint/manifest responsibilities
+  Done: Added `generate_mars_adapter_hints` to output `.sol/wasm/mars-adapter.hints` using `mars` adapter's `manifest_hint` / `binding_hint`
 
-- [x] [P2] middleware 実行を `mars.compose` ベースへ統一  
-  対応: `middleware.pipeline` を `@mars.compose` ベースへ変更し、`action` / `sol_routes` の独自 middleware ループを削除
+- [x] [P2] Unify middleware execution to `mars.compose`-based approach
+  Done: Changed `middleware.pipeline` to `@mars.compose`-based and removed custom middleware loops in `action` / `sol_routes`
 
-## 次の概念整理候補
+## Next Conceptual Cleanup Candidates
 
-- [x] [P1] `runtime` の `mars` 重複 API を縮小（`create_app` / `api` / `api_post` / `get_request_path`）  
-  対応: `src/runtime.mbt` から重複 API を削除し、CLI 生成コード/E2E 参照を `@mars.Server::new` と `app.get/post` へ移行
-- [x] [P2] `source_path` 動的パラメータ形式を `k=v&...` 前提で複数パラメータ対応するか検討  
-  対応: `file_router` の `source_path` 生成を主パラメータ + 追加パラメータの `k=v&...` 形式に拡張し、`page_generator` 側の複数クエリ復元テストを追加
-- [x] [P3] `docs/` と README のルーティング仕様記述を一本化（重複削減）  
-  対応: `docs/routing.md` を単一ソースとして追加し、`README` と既存ルーティング文書を参照ベースに統合
-- [x] [P2] middleware 実行時の 500 エラーハンドリングを共通化  
-  対応: `@middleware.run_or_500` を追加し、`action` / `sol_routes` のローカル実装を削除して統一
-- [x] [P2] 500 JSON エラーレスポンス送信を共通ヘルパへ統一  
-  対応: `@mars_response.send_internal_error` を追加し、`action` / `sol_routes` の 500 応答分岐を統一
-- [x] [P3] `middleware.to_handler` を段階的縮小（deprecated 化）  
-  対応: `to_handler` を `#deprecated` 指定し、公開 API 縮小の移行フェーズを開始
+- [x] [P1] Reduce `mars` duplicate APIs in `runtime` (`create_app` / `api` / `api_post` / `get_request_path`)
+  Done: Removed duplicate APIs from `src/runtime.mbt` and migrated CLI-generated code / E2E references to `@mars.Server::new` and `app.get/post`
+- [x] [P2] Evaluate whether `source_path` dynamic parameter format should support multiple parameters using `k=v&...` format
+  Done: Extended `file_router`'s `source_path` generation to primary parameter + additional parameters in `k=v&...` format, and added multi-query restoration tests on the `page_generator` side
+- [x] [P3] Consolidate routing specification descriptions between `docs/` and README (reduce duplication)
+  Done: Added `docs/routing.md` as a single source of truth and unified `README` and existing routing documents to reference-based approach
+- [x] [P2] Standardize 500 error handling during middleware execution
+  Done: Added `@middleware.run_or_500` and removed local implementations in `action` / `sol_routes` to unify
+- [x] [P2] Unify 500 JSON error response sending into a common helper
+  Done: Added `@mars_response.send_internal_error` and unified 500 response branching in `action` / `sol_routes`
+- [x] [P3] Gradually reduce `middleware.to_handler` (deprecation)
+  Done: Marked `to_handler` as `#deprecated` and started the migration phase for public API reduction
 
-## 追加で潰した項目（2026-02-18）
+## Additional Items Resolved (2026-02-18)
 
-- [x] [P2] SSR page shell テンプレ処理の重複削減  
-  対応: `src/internal/page_shell` を追加し、`runtime` / `router` の document/template 組み立てを統一
-- [x] [P2] JavaScript object 生成の重複削減  
-  対応: `src/internal/js_any` を追加し、`runtime` / `router` の `json_obj` 実装を統一
-- [x] [P2] `router` 側 HMR 中継層の削除  
-  対応: `src/router/router_hmr.mbt` を廃止し、`@hot_reload.with_dev_head_script` へ統一
-- [x] [P3] HMR メッセージ型の導入と timestamp overflow 修正  
-  対応: `HmrMessage` を追加し、`notify_update` の timestamp を `Double` で送信
-- [x] [P3] `just sol` の CLI エントリパス不整合を修正  
-  対応: `justfile` の参照先を `_build/js/debug/build/cli/cli.js` に統一
-- [x] [P3] deprecated warning の解消  
-  対応: `create_app_then` / `serve` の内部実装を分離し、内部呼び出しから deprecated シンボルを除去
-- [x] [P3] static css/js 配信ロジックの重複削減  
-  対応: `serve_static_text_file` へ統合
-- [x] [P2] `mars` ユーザー向け段階移行ガイドを整備  
-  対応: `docs/migrate-from-mars.md` を追加し、README から導線を追加
+- [x] [P2] Reduce SSR page shell template processing duplication
+  Done: Added `src/internal/page_shell` and unified document/template assembly in `runtime` / `router`
+- [x] [P2] Reduce JavaScript object generation duplication
+  Done: Added `src/internal/js_any` and unified `json_obj` implementations in `runtime` / `router`
+- [x] [P2] Remove `router`-side HMR relay layer
+  Done: Removed `src/router/router_hmr.mbt` and unified to `@hot_reload.with_dev_head_script`
+- [x] [P3] Introduce HMR message type and fix timestamp overflow
+  Done: Added `HmrMessage` and changed `notify_update` timestamp to send as `Double`
+- [x] [P3] Fix CLI entry path inconsistency in `just sol`
+  Done: Unified `justfile` reference to `_build/js/debug/build/cli/cli.js`
+- [x] [P3] Resolve deprecated warnings
+  Done: Separated internal implementation of `create_app_then` / `serve` and removed deprecated symbols from internal calls
+- [x] [P3] Reduce static css/js serving logic duplication
+  Done: Consolidated into `serve_static_text_file`
+- [x] [P2] Prepare a step-by-step migration guide for `mars` users
+  Done: Added `docs/migrate-from-mars.md` and added a link from README
 
-## 次の候補（未着手）
+## Next Candidates (Not Started)
 
-- [x] [P2] `runtime_env_mount` の `get_hmr_script` / `get_hmr_port` を deprecated 化し `@hot_reload` 直接利用へ寄せる  
-  対応: `get_port` を `@hot_reload.app_port_from_env` に統一し、`get_hmr_script` / `get_hmr_port` / `set_env` は互換維持のまま deprecated 化
-- [x] [P2] `runtime_static_serving` の `text_response` / `js_response` / `static_response` の使用実態を確認し、不要公開 API を縮小する  
-  対応: 3 API と `read_file_sync` を deprecated 化し、内部は `read_file_text` に移行して警告なしで互換維持
+- [x] [P2] Deprecate `get_hmr_script` / `get_hmr_port` in `runtime_env_mount` and migrate to direct `@hot_reload` usage
+  Done: Unified `get_port` to `@hot_reload.app_port_from_env` and deprecated `get_hmr_script` / `get_hmr_port` / `set_env` while maintaining backward compatibility
+- [x] [P2] Check usage of `text_response` / `js_response` / `static_response` in `runtime_static_serving` and reduce unnecessary public APIs
+  Done: Deprecated all 3 APIs and `read_file_sync`, migrated internals to `read_file_text` while maintaining backward compatibility without warnings
 
-## 物理削除（breaking）
+## Physical Deletion (breaking)
 
-- [x] [P1] deprecated 公開APIの物理削除  
-  対応: `create_app_then` / `serve` / `get_hmr_script` / `get_hmr_port` / `set_env` / `text_response` / `js_response` / `static_response` / `read_file_sync` / `middleware.to_handler` / `get_port` を削除
-- [x] [P1] `@sol.App` / `@sol.Ctx` の公開型エイリアスを削除  
-  対応: `@mars.Server` / `@mars.Context` 直接利用へ統一し、テンプレートと移行ドキュメントを更新
+- [x] [P1] Physically remove deprecated public APIs
+  Done: Removed `create_app_then` / `serve` / `get_hmr_script` / `get_hmr_port` / `set_env` / `text_response` / `js_response` / `static_response` / `read_file_sync` / `middleware.to_handler` / `get_port`
+- [x] [P1] Remove `@sol.App` / `@sol.Ctx` public type aliases
+  Done: Unified to direct usage of `@mars.Server` / `@mars.Context` and updated templates and migration documentation
 
-## 追加で潰した項目（2026-02-19）
+## Additional Items Resolved (2026-02-19)
 
-- [x] [P3] k6 benchmark mode でデバッグ API 応答を最小化して計測ノイズを削減  
-  対応: `SOL_BENCH_MODE=1` 時は `/api/middleware-test` と `/api/test/[...path]` のレスポンスを軽量化
+- [x] [P3] Minimize debug API responses in k6 benchmark mode to reduce measurement noise
+  Done: When `SOL_BENCH_MODE=1`, lighten responses from `/api/middleware-test` and `/api/test/[...path]`
 
-## 次フェーズ（未着手）
+## Next Phase (Not Started)
 
-- [x] [P1] k6 計測を「複数回実行 + median 採用」に標準化する  
-  対応: `just bench-k6` に `runs` 引数を追加し、`bench/k6/summarize-results.js` で中央値を集計
+- [x] [P1] Standardize k6 measurement with "multiple runs + median adoption"
+  Done: Added `runs` argument to `just bench-k6` and aggregate medians with `bench/k6/summarize-results.js`
 
-- [x] [P1] route profile と mix profile の差分レポートを自動生成する  
-  対応: `bench/k6/compare.js` と `just bench-k6-compare` を追加し、`p95/avg/error/rate` 差分表を出力
+- [x] [P1] Auto-generate diff reports between route profiles and mix profiles
+  Done: Added `bench/k6/compare.js` and `just bench-k6-compare` to output `p95/avg/error/rate` diff tables
 
-- [x] [P2] `SOL_BENCH_MODE` の挙動説明を docs 側にも統一して反映する  
-  対応: `docs/benchmarking.md` を単一ソースとして追加し、`README.md` / `bench/k6/README.md` から参照
+- [x] [P2] Reflect `SOL_BENCH_MODE` behavior documentation in docs as well
+  Done: Added `docs/benchmarking.md` as a single source of truth, referenced from `README.md` / `bench/k6/README.md`
 
-- [x] [P2] `examples/sol_app` のベンチ用途 API をデバッグ用途 API から分離する  
-  対応: `/api/bench/*` 系エンドポイントを追加し、k6 はベンチ専用 API を使用
+- [x] [P2] Separate bench-purpose APIs from debug-purpose APIs in `examples/sol_app`
+  Done: Added `/api/bench/*` endpoints and k6 now uses bench-dedicated APIs
 
-- [x] [P3] 高負荷時のばらつき切り分け手順を文書化する  
-  対応: CPU 固定、ウォームアップ、再計測回数（`runs=5`）とばらつき判定基準を `bench/k6/README.md` / `docs/benchmarking.md` に追加
+- [x] [P3] Document procedures for isolating variance under high load
+  Done: Added CPU pinning, warm-up, re-measurement count (`runs=5`), and variance judgment criteria to `bench/k6/README.md` / `docs/benchmarking.md`
 
-## レビュー起点の改善（2026-02-19）
+## Review-Driven Improvements (2026-02-19)
 
-- [x] [P2] docs 整合テストを `just` / `ci` に組み込む  
-  対応: `test-docs` ターゲットを追加し、`ci` / `test-all` と `.github/workflows/check.yaml` に組み込み（`docs-index` / `docs-chapters` / `docs-ci`）
+- [x] [P2] Integrate docs consistency tests into `just` / `ci`
+  Done: Added `test-docs` target and integrated into `ci` / `test-all` and `.github/workflows/check.yaml` (`docs-index` / `docs-chapters` / `docs-ci`)
 
-- [x] [P3] ルート README の Quick Start を scaffold 前提（`pnpm install` / `pnpm dev`）に統一する  
-  対応: Playground と Quick Start の依存導入/起動コマンドを `pnpm` ベースへ統一
+- [x] [P3] Unify root README Quick Start to scaffold-based approach (`pnpm install` / `pnpm dev`)
+  Done: Unified Playground and Quick Start dependency installation / startup commands to `pnpm`-based
 
-- [x] [P2] GitHub Actions の build 出力パス（`_build`）とローカル開発（`target`）の整合を確認し統一する  
-  対応: `justfile` / `check.yaml` / `README` / `src/cli` / `src/ssg` / `examples/sol_auth` の参照を `_build` 基準に統一し、`target` は互換 cleanup のみ維持
+- [x] [P2] Verify and unify consistency between GitHub Actions build output path (`_build`) and local development (`target`)
+  Done: Unified references in `justfile` / `check.yaml` / `README` / `src/cli` / `src/ssg` / `examples/sol_auth` to `_build` standard; `target` retained only for compatibility cleanup
 
-- [x] [P1] `sol clean --all` と `sol dev --clean` で `target -> _build` 環境の cleanup 順序を修正する  
-  対応: legacy `target` を先に削除してから `_build` を削除する順序に統一し、壊れ symlink 残留リスクを除去
+- [x] [P1] Fix cleanup order for `target -> _build` environment in `sol clean --all` and `sol dev --clean`
+  Done: Unified to delete legacy `target` first then `_build`, eliminating the risk of broken symlink remnants
 
-- [x] [P2] `register_sol_routes` の streaming 出力を実レスポンスとして検証する  
-  対応: `sol_routes_wbtest` に stream を `Response.text()` で読むテストを追加し、header/body/footer 連結を保証
+- [x] [P2] Verify `register_sol_routes` streaming output as an actual response
+  Done: Added a test in `sol_routes_wbtest` that reads the stream via `Response.text()`, ensuring header/body/footer concatenation
 
-- [x] [P1] streaming 応答で `set_header` 済みヘッダーが欠落する不整合を修正する  
-  対応: `ffi_set_streaming_response` で `ctx.response_headers` を引き継ぎ、`X-Sol-Cache-Strategy` などを保持
+- [x] [P1] Fix inconsistency where `set_header`-applied headers are missing in streaming responses
+  Done: `ffi_set_streaming_response` now carries over `ctx.response_headers`, preserving headers like `X-Sol-Cache-Strategy`
 
-- [x] [P2] `register_sol_routes` の streaming/fragment/ISR 分岐を黒箱で固定化する  
-  対応: `app.to_handler` 経由テストを追加し、full-page は streaming、fragment/ISR は non-streaming を検証
+- [x] [P2] Lock down streaming/fragment/ISR branching in `register_sol_routes` as a black box
+  Done: Added tests via `app.to_handler` to verify full-page uses streaming and fragment/ISR uses non-streaming
 
-- [x] [P1] `mars.to_handler` の `reschedule` 参照欠落を `sol` 側互換レイヤで吸収する  
-  対応: `register_routes` / `register_server_routes` / `register_sol_routes` で互換シンボルを初期化し、wbtest 側 polyfill を削除
+- [x] [P1] Absorb `mars.to_handler`'s `reschedule` reference absence via a `sol`-side compatibility layer
+  Done: Initialized compatibility symbols in `register_routes` / `register_server_routes` / `register_sol_routes` and removed wbtest-side polyfills
 
-- [x] [P2] streaming SSR で `root_template` を利用する
-  対応: `__LUNA_MAIN__` で template を header/footer に分割して streaming へ適用、placeholder 不在時は built-in shell にフォールバック
+- [x] [P2] Use `root_template` in streaming SSR
+  Done: Split template into header/footer at `__LUNA_MAIN__` and applied to streaming; falls back to built-in shell when placeholder is absent
 
 ## Type-Safe API Migration (2026-03)
 
@@ -146,16 +146,16 @@ Goal: Replace string-based APIs with type-safe alternatives via `sol generate` c
 
 ### A. Immediate (leverages existing `sol generate` infrastructure)
 
-#### A1. `wc_island` → ComponentRef-based (Low effort)
+#### A1. `wc_island` -> ComponentRef-based (Low effort)
 
 Current: `wc_island("my-counter", "/static/my_counter.js", styles, state, children)`
 Target: `@sol.island(@types.wc_counter(props), children)` — already works via `cref.wc == true`
 
 - [x] `island()` already supports `wc: true` through ComponentRef
-- [x] Rename `wc_island` → `wc_island_raw`, `wc_island_with` → `wc_island_with_raw`
+- [x] Rename `wc_island` -> `wc_island_raw`, `wc_island_with` -> `wc_island_with_raw`
 - [x] Update docs referencing `wc_island`
 
-#### A2. Route params: `get_param("slug")` → typed accessor (Medium effort)
+#### A2. Route params: `get_param("slug")` -> typed accessor (Medium effort)
 
 Current: `props.get_param("slug")` — typo-prone, returns `String?`
 Target: typed param struct generated from route path patterns
@@ -165,13 +165,13 @@ Target: typed param struct generated from route path patterns
 - [ ] Design typed params approach (per-route struct vs shared typed map)
 - [ ] Keep `get_param(String)` as escape hatch
 
-#### A3. Action IDs → ActionRef (Medium effort)
+#### A3. Action IDs -> ActionRef (Medium effort)
 
 Current: `ActionDef::new("create-user", handler)` / `registry.get("create-user")`
 Target: `ActionRef` type with generated factory functions (like ComponentRef)
 
 - [x] Define `ActionRef` type with `id`, `base_path` fields and `url()` method
-- [x] Add `ActionRef::to_def(handler)` → `ActionDef`
+- [x] Add `ActionRef::to_def(handler)` -> `ActionDef`
 - [x] Add `ActionRegistry::register_ref(aref, handler)`
 - [x] Add `invoke_action_ref(aref, payload, callback)`
 - [x] Add `create_action_invoker_ref(aref)`
@@ -180,7 +180,7 @@ Target: `ActionRef` type with generated factory functions (like ComponentRef)
 
 ### B. Medium-term (requires design decisions)
 
-#### B1. Route paths → typed route builder
+#### B1. Route paths -> typed route builder
 
 Current: `page("/blog/:slug", handler)` — string path patterns
 Target: `page(@routes.blog_slug, handler)` — generated route constants
@@ -190,7 +190,7 @@ Target: `page(@routes.blog_slug, handler)` — generated route constants
 - [ ] Decide if file-based routing should auto-generate typed routes
 - [ ] Integrate with A2 (typed params derived from route paths)
 
-#### B2. `invoke_action(url, ...)` → typed client action
+#### B2. `invoke_action(url, ...)` -> typed client action
 
 Current: `invoke_action("/_action/create-user", payload, callback)`
 Target: `invoke_action_ref(@actions.create_user(), payload, callback)`
@@ -200,7 +200,7 @@ Target: `invoke_action_ref(@actions.create_user(), payload, callback)`
 - [x] Add `ActionFormConfig::from_ref(ActionRef)` constructor
 - [x] Generate ActionRef factories via `sol generate`
 
-#### B3. Locale codes → Locale enum
+#### B3. Locale codes -> Locale enum
 
 Current: `build_localized_url(path, "ja", i18n)` — string locale codes
 Target: `build_localized_url(path, @locale.Ja, i18n)` — generated enum
@@ -222,83 +222,83 @@ Target: `build_localized_url(path, @locale.Ja, i18n)` — generated enum
 3. A3 (ActionRef) — follows ComponentRef pattern
 4. B1-B3 — after A items validated
 
-## `/__sol__/` Asset Serving & IO 抽象化 (2026-03)
+## `/__sol__/` Asset Serving & IO Abstraction (2026-03)
 
-### 完了
+### Completed
 
-- [x] `/__sol__/*` ルートでフレームワーク内蔵アセット (loader.js, wc-loader.js, sol-nav.js, lib.js) を配信
-- [x] `sol generate` で `.sol/prod/__sol__/` にアセットを事前書き出し
-- [x] prod モードでは `.sol/prod/__sol__/` から直接配信、dev モードでは候補パスを動的解決
-- [x] `RouterConfig::default()` のデフォルト URL を `/__sol__/loader.js` に統一
-- [x] `StaticFileConfig` からローダーマッピングを削除
-- [x] examples / templates / テストのすべての `/static/loader.js` 参照を `/__sol__/` に移行
-- [x] examples の `static/` からランタイムアセットファイルを削除
+- [x] Serve framework built-in assets (loader.js, wc-loader.js, sol-nav.js, lib.js) at `/__sol__/*` routes
+- [x] Pre-write assets to `.sol/prod/__sol__/` via `sol generate`
+- [x] In prod mode, serve directly from `.sol/prod/__sol__/`; in dev mode, dynamically resolve candidate paths
+- [x] Unify `RouterConfig::default()` default URL to `/__sol__/loader.js`
+- [x] Remove loader mappings from `StaticFileConfig`
+- [x] Migrate all `/static/loader.js` references in examples / templates / tests to `/__sol__/`
+- [x] Remove runtime asset files from examples' `static/`
 
-### 完了: prod アセット配信のメモリキャッシュ
+### Completed: Memory Cache for Prod Asset Serving
 
-- [x] [P2] prod モードでアセットを lazy にメモリキャッシュ（初回リクエスト時にロード、以降はマップ参照のみ）
+- [x] [P2] Lazily memory-cache assets in prod mode (load on first request, then map lookup only)
 
-### TODO: 不要 API の削除検討
+### TODO: Consider Removing Unnecessary APIs
 
-- [ ] [P3] `StaticFileConfig::dev()` — `serve_static` が `is_dev_mode()` で自動判定するため不要
-- [ ] [P3] `StaticFileConfig::mappings` — `/__sol__/` 導入後デフォルト空。ユーザー拡張点として残すか判断
+- [ ] [P3] `StaticFileConfig::dev()` — unnecessary since `serve_static` auto-detects via `is_dev_mode()`
+- [ ] [P3] `StaticFileConfig::mappings` — default empty after `/__sol__/` introduction. Decide whether to keep as a user extension point
 
-### TODO: IO 抽象化 — `mizchi/x` パッケージ活用
+### TODO: IO Abstraction — Leveraging `mizchi/x` Package
 
-現状 `runtime_static_serving.mbt` の `ffi_read_file_sync` と `isr/handler.mbt` の `ffi_read_file` が
-個別に `extern "js"` で Node.js API を直接呼んでおり、native ターゲットでは動作しない。
+Currently `ffi_read_file_sync` in `runtime_static_serving.mbt` and `ffi_read_file` in `isr/handler.mbt`
+each call Node.js APIs directly via `extern "js"`, which does not work on native targets.
 
-`mizchi/x` (v0.1.5) は以下の async FS API を js/native 共通で提供する:
-- `@x_fs.read_file(path)` → `&@io.Data`
-- `@x_fs.write_file(path, data)` → `Unit`
-- `@x_fs.exists(path)` → `Bool`
-- `@x_fs.mkdir(path, recursive?)` → `Unit`
+`mizchi/x` (v0.1.5) provides the following async FS APIs for both js and native:
+- `@x_fs.read_file(path)` -> `&@io.Data`
+- `@x_fs.write_file(path, data)` -> `Unit`
+- `@x_fs.exists(path)` -> `Bool`
+- `@x_fs.mkdir(path, recursive?)` -> `Unit`
 
-#### ステップ
+#### Steps
 
-- [x] [P1] `isr/handler.mbt` の `ffi_read_file` を `@x_fs.read_file` に置換
-- [x] [P2] `runtime_static_serving.mbt` の `ffi_read_file_sync` を `@x_fs.read_file` に置換
-- [ ] [P3] `cli/generate_utils.mbt` の `@fs.read_file_as_string` を `@x_fs` に統一するか検討
-  - CLI は js ターゲット専用のため、統一する利点は限定的
+- [x] [P1] Replace `ffi_read_file` in `isr/handler.mbt` with `@x_fs.read_file`
+- [x] [P2] Replace `ffi_read_file_sync` in `runtime_static_serving.mbt` with `@x_fs.read_file`
+- [ ] [P3] Consider unifying `@fs.read_file_as_string` in `cli/generate_utils.mbt` to `@x_fs`
+  - Since CLI is js-target only, the benefit of unification is limited
 
 ## ISR + Cloudflare Async Stale-While-Revalidate (2026-03)
 
-### 背景
+### Background
 
-Cloudflare が 2026-02-26 に **async stale-while-revalidate** を全ゾーンに展開。
-従来はキャッシュ期限切れ時の最初のリクエストがオリジンレスポンスをブロッキングで待っていたが、
-新挙動ではステールコンテンツを即座に返し、バックグラウンドで非同期にリバリデーションする。
+Cloudflare rolled out **async stale-while-revalidate** to all zones on 2026-02-26.
+Previously, the first request after cache expiration would block waiting for the origin response.
+With the new behavior, stale content is returned immediately and revalidation happens asynchronously in the background.
 
-### sol ISR との関係
+### Relationship with sol ISR
 
-sol の ISR (`src/isr/`) は既に SWR パターンを **アプリケーション層** で実装している:
-- `CacheStatus::Stale` → ステールコンテンツを返しつつ `needs_revalidation=true` を返す
-- `ISRCache::schedule_revalidation` → Workers `waitUntil` でバックグラウンド再生成
-- `MemoryCache` (dev/単体) / `KVCache` (Workers KV) のバックエンド切替
+sol's ISR (`src/isr/`) already implements the SWR pattern at the **application layer**:
+- `CacheStatus::Stale` -> returns stale content while setting `needs_revalidation=true`
+- `ISRCache::schedule_revalidation` -> background regeneration via Workers `waitUntil`
+- Backend switching between `MemoryCache` (dev/standalone) / `KVCache` (Workers KV)
 
-Cloudflare の async SWR は **CDN エッジ層** で同等のことを行う。二重の SWR になる。
+Cloudflare's async SWR does the equivalent at the **CDN edge layer**. This results in a double SWR.
 
-### 検討事項
+### Considerations
 
-- [x] [P1] CDN 層 SWR とアプリ層 ISR の連携設計
+- [x] [P1] Design coordination between CDN-layer SWR and app-layer ISR
   - `CDNCacheStrategy` enum: `CdnSwr(grace)` / `Hybrid(cdn_ttl, cdn_grace)` / `AppIsr`
-  - 各戦略が `cache_control(revalidate)` で `Cache-Control` ヘッダ値を生成
+  - Each strategy generates `Cache-Control` header values via `cache_control(revalidate)`
 
-- [x] [P2] `RouterConfig` に `cache_strategy` オプションを追加
-  - `RouterConfig::with_cache_strategy(@isr.CDNCacheStrategy)` ビルダー
-  - ISR ページのレスポンスに `Cache-Control` と `X-Sol-CDN-Cache` ヘッダを自動付与
-  - ルートごとの `revalidate` 値が `s-maxage` にマッピングされる
+- [x] [P2] Add `cache_strategy` option to `RouterConfig`
+  - `RouterConfig::with_cache_strategy(@isr.CDNCacheStrategy)` builder
+  - Automatically attach `Cache-Control` and `X-Sol-CDN-Cache` headers to ISR page responses
+  - Per-route `revalidate` values are mapped to `s-maxage`
 
-- [x] [P2] `X-Sol-ISR-Status` ヘッダで ISR キャッシュ状態を診断可能に
-  - `HIT` / `STALE` / `MISS` を返す（ISR 内部の `CacheStatus` と対応）
-  - CDN 層の `cf-cache-status` との対比で二層キャッシュのどこで応答したか判別可能
+- [x] [P2] Make ISR cache status diagnosable via `X-Sol-ISR-Status` header
+  - Returns `HIT` / `STALE` / `MISS` (corresponding to ISR internal `CacheStatus`)
+  - Enables identifying which layer of the two-tier cache served the response by comparing with CDN-layer `cf-cache-status`
 
-- [ ] [P3] CDN 層 SWR で `revalidate` 値ごとに異なる `s-maxage` を設定する仕組み
-  - ISR manifest のページごとの `revalidate` 値をレスポンスヘッダに反映
-  - ルートごとに `Cache-Control` を動的に設定するミドルウェア
+- [ ] [P3] Mechanism to set different `s-maxage` per `revalidate` value in CDN-layer SWR
+  - Reflect per-page `revalidate` values from the ISR manifest into response headers
+  - Middleware to dynamically set `Cache-Control` per route
 
-### 参考
+### References
 
 - Cloudflare changelog: https://developers.cloudflare.com/changelog/post/2026-02-26-async-stale-while-revalidate/
-- sol ISR 実装: `src/isr/` (types.mbt, cache.mbt, handler.mbt, middleware.mbt)
+- sol ISR implementation: `src/isr/` (types.mbt, cache.mbt, handler.mbt, middleware.mbt)
 - ISR trait: `ISRCache` (get/put/delete/schedule_revalidation)

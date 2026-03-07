@@ -1,54 +1,54 @@
 # Sol App Benchmarks
 
-k6 を使用したベンチマークスクリプト。
+Benchmark scripts using k6.
 
-## セットアップ
+## Setup
 
 ```bash
-# k6 インストール (macOS)
+# Install k6 (macOS)
 brew install k6
 ```
 
-## 使い方
+## Usage
 
-サーバーを起動した状態で実行:
+Run with the server already started:
 
 ```bash
-# ターミナル1: サーバー起動
+# Terminal 1: Start the server
 npm run dev
-# または
-npm run serve  # 本番ビルド後
+# or
+npm run serve  # after production build
 
-# ターミナル2: ベンチマーク実行
-npm run bench          # フルベンチマーク (smoke + load + stress)
-npm run bench:quick    # クイックテスト (10秒)
-npm run bench:static   # 静的ルートのみ
-npm run bench:dynamic  # 動的ルートのみ
-npm run bench:api      # API エンドポイントのみ
+# Terminal 2: Run benchmarks
+npm run bench          # Full benchmark (smoke + load + stress)
+npm run bench:quick    # Quick test (10 seconds)
+npm run bench:static   # Static routes only
+npm run bench:dynamic  # Dynamic routes only
+npm run bench:api      # API endpoints only
 ```
 
-## ベンチマークスクリプト
+## Benchmark Scripts
 
-| スクリプト | 対象ルート | VUs | 時間 |
-|-----------|-----------|-----|------|
+| Script | Target Routes | VUs | Duration |
+|--------|--------------|-----|----------|
 | `static-routes.js` | `/`, `/about`, `/form`, `/admin` | 10 | 30s |
 | `dynamic-routes.js` | `/docs/[...slug]`, `/blog/[[...path]]` | 10 | 30s |
 | `api-routes.js` | `/api/health`, `/api/middleware-test` | 10 | 30s |
-| `all.js` | 全ルート | 5→50 | smoke + load + stress |
+| `all.js` | All routes | 5→50 | smoke + load + stress |
 
-## カスタム実行
+## Custom Execution
 
 ```bash
-# VUs と時間を指定
+# Specify VUs and duration
 k6 run --vus 20 --duration 60s bench/static-routes.js
 
-# 別のホストを指定
+# Specify a different host
 k6 run -e BASE_URL=http://localhost:8080 bench/all.js
 
-# JSON 出力
+# JSON output
 k6 run --out json=results.json bench/all.js
 ```
 
-## 結果
+## Results
 
-ベンチマーク結果は `bench/results/` に JSON 形式で保存されます。
+Benchmark results are saved in JSON format under `bench/results/`.
