@@ -32,11 +32,7 @@ pub fn send_internal_error(
 }
 
 ///|
-fn send_json_text(
-  ctx : @mars.Context,
-  body : String,
-  status : Int,
-) -> Unit {
+fn send_json_text(ctx : @mars.Context, body : String, status : Int) -> Unit {
   ctx.set_header("Content-Type", "application/json")
   ctx.set_header("X-Content-Type-Options", "nosniff")
   ctx.text(body, status~)

@@ -195,7 +195,7 @@ fn get_json_string(json : Json?, field : String) -> String {
 /// Create new item (POST /api/items)
 async fn create_item_handler(props : @router.PageProps) -> @core.Any {
   ensure_items_initialized()
-  let json = props.ctx.body_json()
+  let json = props.body_json()
   let name = get_json_string(json, "name")
   if name == "" {
     return error_response("validation_error", "name is required")
@@ -222,7 +222,7 @@ async fn update_item_handler(props : @router.PageProps) -> @core.Any {
   }
   match find_item_index(id) {
     Some(i) => {
-      let json = props.ctx.body_json()
+      let json = props.body_json()
       let old_item = items_store.val[i]
       let name_field = get_json_string(json, "name")
       let name = if name_field == "" { old_item.name } else { name_field }
@@ -316,4 +316,3 @@ extern "js" fn ffi_get_timestamp() -> String =
 ///|
 extern "js" fn parse_int(s : String) -> Int =
   #| (s) => parseInt(s, 10) || 0
-

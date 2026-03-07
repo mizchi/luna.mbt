@@ -22,21 +22,24 @@ fn extract_param_names_from_path(path : String) -> Array[String] {
       if not(result.contains(name)) {
         result.push(name)
       }
-    } else if segment.has_prefix("[[...") && segment.has_suffix("]]") &&
+    } else if segment.has_prefix("[[...") &&
+      segment.has_suffix("]]") &&
       segment.length() > 7 {
       // [[...param]] optional catch-all
       let name = segment.substring(start=5, end=segment.length() - 2)
       if not(result.contains(name)) {
         result.push(name)
       }
-    } else if segment.has_prefix("[...") && segment.has_suffix("]") &&
+    } else if segment.has_prefix("[...") &&
+      segment.has_suffix("]") &&
       segment.length() > 5 {
       // [...param] catch-all
       let name = segment.substring(start=4, end=segment.length() - 1)
       if not(result.contains(name)) {
         result.push(name)
       }
-    } else if segment.has_prefix("[") && segment.has_suffix("]") &&
+    } else if segment.has_prefix("[") &&
+      segment.has_suffix("]") &&
       segment.length() > 2 {
       // [param] style
       let name = segment.substring(start=1, end=segment.length() - 1)
@@ -181,12 +184,8 @@ fn generate_action_ref_factories(action_ids : Array[String]) -> String {
     let fn_name = action_id_to_fn_name(id)
     buf.write_string("///|\n")
     buf.write_string("/// ActionRef for \"\{id}\" action\n")
-    buf.write_string(
-      "pub fn \{fn_name}() -> @action.ActionRef {\n",
-    )
-    buf.write_string(
-      "  { id: \"\{id}\", base_path: \"/_action\" }\n",
-    )
+    buf.write_string("pub fn \{fn_name}() -> @action.ActionRef {\n")
+    buf.write_string("  { id: \"\{id}\", base_path: \"/_action\" }\n")
     buf.write_string("}\n\n")
   }
   buf.to_string()

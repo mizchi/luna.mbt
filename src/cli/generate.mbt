@@ -156,10 +156,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       route_info~,
       static_dirs=config.static_dirs,
     )
-    let types_pkg_content = generate_types_pkg(
-      source_structs,
-      has_actions~,
-    )
+    let types_pkg_content = generate_types_pkg(source_structs, has_actions~)
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
     let types_pkg_path = @path.join2(types_dir, "moon.pkg")
     try {
@@ -521,7 +518,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Write built-in assets to .sol/prod/__sol__/ for production serving
   if mode == "prod" {
     let sol_asset_dir = @path.join2(cwd, ".sol/prod/__sol__")
-    fs.mkdir_sync(sol_asset_dir, true) catch { _ => () }
+    fs.mkdir_sync(sol_asset_dir, true) catch {
+      _ => ()
+    }
     let mut asset_count = 0
     for file in sol_asset_files {
       match resolve_runtime_asset(cwd, file) {

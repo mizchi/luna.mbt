@@ -88,9 +88,7 @@ fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
     // mooncakes (luna): loader dist from luna package
     @path.join2(cwd, ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name),
     // mooncakes (sol): canonical assets from sol package
-    @path.join2(
-      cwd, ".mooncakes/mizchi/sol/src/ssg/assets/scripts/" + filename,
-    ),
+    @path.join2(cwd, ".mooncakes/mizchi/sol/src/ssg/assets/scripts/" + filename),
     // Development: sol.mbt repo root (monorepo examples)
     @path.join2(cwd, "../../src/ssg/assets/scripts/" + filename),
     // Development: direct child of sol.mbt

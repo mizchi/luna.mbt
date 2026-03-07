@@ -676,7 +676,7 @@ extern "js" fn ffi_set_streaming_response(ctx : Ctx, stream : @js.Any) -> Unit =
 ///|
 /// Render page and return HTML (helper for ISR)
 async fn render_page_to_html(
-  _c : Ctx,
+  c : Ctx,
   props : PageProps,
   handler : async (PageProps) -> @server_dom.ServerNode,
   layouts : Array[
@@ -690,11 +690,62 @@ async fn render_page_to_html(
 ) -> String raise Error {
   // Call handler and apply layouts
   let content : @server_dom.ServerNode = handler(props)
+  if c.is_response_sent() {
+    fail("ISR render attempted to send a direct response")
+  }
   let node = apply_layouts(content, props, layouts, is_fragment)
+  if c.is_response_sent() {
+    fail("ISR render attempted to mutate the response")
+  }
   if is_fragment {
     render_server_fragment(node, title, cache_strategy)
   } else {
     render_server_page_html(node, title, page_head, root_template)
+  }
+}
+
+///|
+async fn send_non_isr_page_response(
+  c : Ctx,
+  props : PageProps,
+  handler : async (PageProps) -> @server_dom.ServerNode,
+  layouts : Array[
+    (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise Error,
+  ],
+  is_fragment : Bool,
+  page_title : String,
+  page_head : String,
+  root_template : String,
+  cache_strategy : CacheStrategy,
+  route_revalidate : Int?,
+  config : RouterConfig,
+) -> Unit {
+  let content : @server_dom.ServerNode = handler(props) catch {
+    e => return c.text("Error: " + e.to_string(), status=500)
+  }
+  if c.is_response_sent() {
+    return
+  }
+  let node = apply_layouts(content, props, layouts, is_fragment) catch {
+    e => return c.text("Layout error: " + e.to_string(), status=500)
+  }
+  if is_fragment {
+    let fragment_html = render_server_fragment(node, page_title, cache_strategy)
+    send_fragment_response(c, fragment_html)
+  } else if should_use_streaming(config, is_fragment, route_revalidate) {
+    send_streaming_server_page(
+      c,
+      node,
+      page_title,
+      page_head,
+      config.loader_url,
+      root_template,
+    )
+  } else {
+    let html = render_server_page_html(
+      node, page_title, page_head, root_template,
+    )
+    c.html(html)
   }
 }
 
@@ -808,6 +859,23 @@ fn register_compiled_sol_routes(
               // Check if ISR is enabled for this route (only for full page requests)
               match (route.revalidate, config.isr_cache, is_fragment) {
                 (Some(revalidate), Some(cache), false) => {
+                  if not(params.query.is_empty()) {
+                    c.set_header("Cache-Control", "private, no-store")
+                    c.set_header("X-Sol-ISR-Status", "BYPASS")
+                    return send_non_isr_page_response(
+                      c,
+                      props,
+                      handler,
+                      route.layouts,
+                      false,
+                      page_title,
+                      page_head,
+                      config.root_template,
+                      route.cache_strategy,
+                      route.revalidate,
+                      config,
+                    )
+                  }
                   // Apply CDN cache headers if strategy is configured
                   apply_cdn_cache_headers(c, config.cache_strategy, revalidate)
                   // ISR enabled - check cache
@@ -892,56 +960,20 @@ fn register_compiled_sol_routes(
                     }
                   }
                 }
-                _ => {
-                  // No ISR - render normally
-                  let content : @server_dom.ServerNode = handler(props) catch {
-                    e => return c.text("Error: " + e.to_string(), status=500)
-                  }
-                  if c.is_response_sent() {
-                    return
-                  }
-                  let node = apply_layouts(
-                    content,
+                _ =>
+                  send_non_isr_page_response(
+                    c,
                     props,
+                    handler,
                     route.layouts,
                     is_fragment,
-                  ) catch {
-                    e =>
-                      return c.text(
-                        "Layout error: " + e.to_string(),
-                        status=500,
-                      )
-                  }
-                  if is_fragment {
-                    let fragment_html = render_server_fragment(
-                      node,
-                      page_title,
-                      route.cache_strategy,
-                    )
-                    send_fragment_response(c, fragment_html)
-                  } else if should_use_streaming(
-                      config,
-                      is_fragment,
-                      route.revalidate,
-                    ) {
-                    send_streaming_server_page(
-                      c,
-                      node,
-                      page_title,
-                      page_head,
-                      config.loader_url,
-                      config.root_template,
-                    )
-                  } else {
-                    let html = render_server_page_html(
-                      node,
-                      page_title,
-                      page_head,
-                      config.root_template,
-                    )
-                    c.html(html)
-                  }
-                }
+                    page_title,
+                    page_head,
+                    config.root_template,
+                    route.cache_strategy,
+                    route.revalidate,
+                    config,
+                  )
               }
             None => c.text("No handler for route", status=404)
           }

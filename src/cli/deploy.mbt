@@ -170,7 +170,9 @@ fn run_deploy_command(args : Array[String]) -> Unit {
   println("Next command:")
   println(@colorette.cyan("  \{deploy_cmd}"))
   if provider == "cloudflare-pages" {
-    println(@colorette.yellow("  Note: cloudflare-pages mode is compatibility path."))
+    println(
+      @colorette.yellow("  Note: cloudflare-pages mode is compatibility path."),
+    )
   }
   if prod_url != "" {
     println(@colorette.gray("  expected_url: \{prod_url}"))
@@ -202,5 +204,7 @@ fn run_deploy_command(args : Array[String]) -> Unit {
   }
 
   println("")
-  println(@colorette.green("✓ Deploy preflight completed (dry-run guidance mode)"))
+  println(
+    @colorette.green("✓ Deploy preflight completed (dry-run guidance mode)"),
+  )
 }

@@ -25,8 +25,6 @@ pub fn now_ms() -> Int64
 
 pub fn schedule_revalidation(String) -> Unit
 
-pub fn set_now_ms(Int64?) -> Unit
-
 // Errors
 
 // Types and methods

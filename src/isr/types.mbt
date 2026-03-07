@@ -115,9 +115,15 @@ pub fn CDNCacheStrategy::cache_control(
 ) -> String {
   match self {
     CdnSwr(grace) =>
-      "s-maxage=" + revalidate.to_string() + ", stale-while-revalidate=" + grace.to_string()
+      "s-maxage=" +
+      revalidate.to_string() +
+      ", stale-while-revalidate=" +
+      grace.to_string()
     Hybrid(cdn_ttl, cdn_grace) =>
-      "s-maxage=" + cdn_ttl.to_string() + ", stale-while-revalidate=" + cdn_grace.to_string()
+      "s-maxage=" +
+      cdn_ttl.to_string() +
+      ", stale-while-revalidate=" +
+      cdn_grace.to_string()
     AppIsr => "private, no-store"
   }
 }

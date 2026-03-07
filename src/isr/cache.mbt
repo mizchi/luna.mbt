@@ -71,31 +71,12 @@ pub fn check_status(entry : CacheEntry?, now_ms : Int64) -> CacheStatus {
   }
 }
 
-// ============================================================================
-// Time Utilities
-// ============================================================================
-
-///|
-/// Override for now_ms in tests. When set, now_ms() returns this value.
-let now_ms_override : Ref[Int64?] = Ref::new(None)
-
-///|
-/// **Test-only.** Set a fixed time for testing. Call with None to restore real time.
-/// Do NOT call in production code — it overrides now_ms() process-wide.
-pub fn set_now_ms(value : Int64?) -> Unit {
-  now_ms_override.val = value
-}
-
 ///|
 /// Get current time in milliseconds (Unix timestamp).
-/// Returns the override value if set (for testing), otherwise calls Date.now().
 pub fn now_ms() -> Int64 {
-  match now_ms_override.val {
-    Some(v) => v
-    None => ffi_now_ms()
-  }
+  ffi_now_ms().to_int64()
 }
 
 ///|
-extern "js" fn ffi_now_ms() -> Int64 =
-  #| () => BigInt(Date.now())
+extern "js" fn ffi_now_ms() -> Double =
+  #| () => (new Date()).getTime()

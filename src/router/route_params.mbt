@@ -101,10 +101,9 @@ pub fn RouteParams::get_search_group(
 /// Props passed to page components
 pub struct PageProps {
   /// Request context (Hono Context)
-  /// WARNING: Do not read Authorization/Cookie/Host headers in ISR pages.
-  /// ISR caches rendered HTML by URL key only. Header-dependent content
-  /// will leak across users. Check `is_isr_render` before accessing ctx.
-  ctx : Ctx
+  /// Internal context storage. Use PageProps methods instead of direct access.
+  /// Request-specific accessors return None during ISR renders.
+  priv ctx : Ctx
   /// Route parameters (path params, query params)
   params : RouteParams
   /// Whether this is a fragment request (CSR navigation)
@@ -171,6 +170,103 @@ pub fn PageProps::get_search_group(self : PageProps, name : String) -> String? {
 /// Get the full path
 pub fn PageProps::path(self : PageProps) -> String {
   self.params.path
+}
+
+///|
+/// Get request header.
+/// Returns None during ISR render to avoid leaking request-specific data.
+pub fn PageProps::header(self : PageProps, name : String) -> String? {
+  if self.is_isr_render {
+    None
+  } else {
+    self.ctx.header(name)
+  }
+}
+
+///|
+/// Get raw request header.
+/// Returns None during ISR render to avoid leaking request-specific data.
+pub fn PageProps::raw_header(self : PageProps, name : String) -> String? {
+  if self.is_isr_render {
+    None
+  } else {
+    self.ctx.raw_header(name)
+  }
+}
+
+///|
+/// Get cookie value by name.
+/// Returns None during ISR render to avoid leaking request-specific data.
+pub fn PageProps::cookie(self : PageProps, name : String) -> String? {
+  if self.is_isr_render {
+    None
+  } else {
+    self.ctx.cookie(name)
+  }
+}
+
+///|
+/// Parse request body as JSON.
+/// Returns None during ISR render to avoid caching request-specific bodies.
+pub async fn PageProps::body_json(self : PageProps) -> Json? {
+  if self.is_isr_render {
+    None
+  } else {
+    self.ctx.body_json()
+  }
+}
+
+///|
+/// Set response header.
+pub fn PageProps::set_header(
+  self : PageProps,
+  name : String,
+  value : String,
+) -> Unit {
+  if self.is_isr_render {
+    ()
+  } else {
+    self.ctx.set_header(name, value)
+  }
+}
+
+///|
+/// Send a text response.
+/// No-op during ISR render to keep shared HTML generation side-effect free.
+pub fn PageProps::text(self : PageProps, body : String, status? : Int) -> Unit {
+  if self.is_isr_render {
+    ()
+  } else {
+    match status {
+      Some(code) => self.ctx.text(body, status=code)
+      None => self.ctx.text(body)
+    }
+  }
+}
+
+///|
+/// Send an HTML response.
+/// No-op during ISR render to keep shared HTML generation side-effect free.
+pub fn PageProps::html(self : PageProps, body : String, status? : Int) -> Unit {
+  if self.is_isr_render {
+    ()
+  } else {
+    match status {
+      Some(code) => self.ctx.html(body, status=code)
+      None => self.ctx.html(body)
+    }
+  }
+}
+
+///|
+/// Set response status code.
+/// No-op during ISR render to keep shared HTML generation side-effect free.
+pub fn PageProps::set_status(self : PageProps, status : Int) -> Unit {
+  if self.is_isr_render {
+    ()
+  } else {
+    self.ctx.set_status(status)
+  }
 }
 
 ///|

@@ -161,11 +161,13 @@ pub(all) struct PageHandlerFactory((@mizchi/sol/routes.RouteEntry) -> PageHandle
 pub fn PageHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> PageHandler?
 
 pub struct PageProps {
-  ctx : @mars.Context
   params : RouteParams
   is_fragment : Bool
   is_isr_render : Bool
+  // private fields
 }
+pub async fn PageProps::body_json(Self) -> Json?
+pub fn PageProps::cookie(Self, String) -> String?
 pub fn PageProps::from_ctx(@mars.Context) -> Self
 pub fn PageProps::from_ctx_fragment(@mars.Context) -> Self
 pub fn PageProps::from_ctx_with_params(@mars.Context, RouteParams) -> Self
@@ -173,7 +175,13 @@ pub fn PageProps::get_param(Self, String) -> String?
 pub fn PageProps::get_pathname_group(Self, String) -> String?
 pub fn PageProps::get_query(Self, String) -> String?
 pub fn PageProps::get_search_group(Self, String) -> String?
+pub fn PageProps::header(Self, String) -> String?
+pub fn PageProps::html(Self, String, status? : Int) -> Unit
 pub fn PageProps::path(Self) -> String
+pub fn PageProps::raw_header(Self, String) -> String?
+pub fn PageProps::set_header(Self, String, String) -> Unit
+pub fn PageProps::set_status(Self, Int) -> Unit
+pub fn PageProps::text(Self, String, status? : Int) -> Unit
 
 pub(all) enum RouteKind {
   Static

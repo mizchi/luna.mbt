@@ -171,7 +171,7 @@ fn get_json_string(json : Json?, field : String) -> String {
 ///|
 /// POST /api/todos - Add a new todo
 async fn api_add_todo(props : @router.PageProps) -> @core.Any {
-  let json = props.ctx.body_json()
+  let json = props.body_json()
   let text = get_json_string(json, "text")
   if text == "" {
     return @sol.json_obj([
