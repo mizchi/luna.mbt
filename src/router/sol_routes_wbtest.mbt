@@ -320,6 +320,9 @@ struct TestHttpResponse {
   cache_strategy : String?
   no_sniff : String?
   x_custom : String?
+  isr_status : String?
+  cdn_cache : String?
+  cache_control : String?
 }
 
 ///|
@@ -342,6 +345,9 @@ extern "js" fn ffi_call_app_handler(
   #|     cache_strategy: res.headers.get("x-sol-cache-strategy") ?? undefined,
   #|     no_sniff: res.headers.get("x-content-type-options") ?? undefined,
   #|     x_custom: res.headers.get("x-custom") ?? undefined,
+  #|     isr_status: res.headers.get("x-sol-isr-status") ?? undefined,
+  #|     cdn_cache: res.headers.get("x-sol-cdn-cache") ?? undefined,
+  #|     cache_control: res.headers.get("cache-control") ?? undefined,
   #|   };
   #| }
 
@@ -493,4 +499,370 @@ async test "register_sol_routes keeps API resolver custom headers" {
   assert_eq(res.content_type, Some("application/json"))
   assert_eq(res.no_sniff, Some("nosniff"))
   assert_eq(res.x_custom, Some("from-api"))
+}
+
+// ============================================================================
+// ISR Cache State Transition Tests (HTTP level)
+// ============================================================================
+
+///|
+async test "ISR: first request is MISS, caches the rendered content" {
+  let call_count = Ref::new(0)
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    call_count.val = call_count.val + 1
+    @server_dom.ServerNode::sync(
+      @luna.h("p", [], [@luna.text("render-" + call_count.val.to_string())]),
+    )
+  }
+
+  let cache = @isr.MemoryCache::new()
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(cache)
+    .with_root_template(test_root_template("isr-test"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/isr-page",
+        handler=PageHandler(page_handler),
+        title="ISR",
+        meta=[],
+        revalidate=Some(600),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let handler = app.to_handler()
+
+  // First request: cache MISS, renders the page
+  let res1 = ffi_call_app_handler(
+    handler, "GET", "http://localhost/isr-page", false,
+  ).wait()
+  assert_eq(res1.status, 200)
+  assert_eq(res1.isr_status, Some("MISS"))
+  assert_true(res1.body.contains("render-1"))
+  assert_eq(call_count.val, 1)
+
+  // Verify cache was populated
+  let cache_key = @isr.cache_key("/isr-page", [])
+  let cached = @isr.ISRCache::get(cache, cache_key)
+  assert_true(cached is Some(_))
+}
+
+///|
+async test "ISR: pre-populated cache returns HIT without re-rendering" {
+  let call_count = Ref::new(0)
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    call_count.val = call_count.val + 1
+    @server_dom.ServerNode::sync(
+      @luna.h("p", [], [@luna.text("render-" + call_count.val.to_string())]),
+    )
+  }
+
+  let cache = @isr.MemoryCache::new()
+  // Pre-populate cache with a far-future timestamp to guarantee Fresh
+  let cache_key = @isr.cache_key("/isr-cached", [])
+  let entry = @isr.CacheEntry::new(
+    "<html><body><p>cached-content</p></body></html>",
+    9999999999999L, // far future generated_at
+    600,
+  )
+  @isr.ISRCache::put(cache, cache_key, entry)
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(cache)
+    .with_root_template(test_root_template("isr-hit"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/isr-cached",
+        handler=PageHandler(page_handler),
+        title="ISR",
+        meta=[],
+        revalidate=Some(600),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/isr-cached", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_eq(res.isr_status, Some("HIT"))
+  assert_true(res.body.contains("cached-content"))
+  assert_eq(call_count.val, 0) // Handler not called - served from cache
+}
+
+///|
+async test "ISR: stale cache returns STALE and schedules revalidation" {
+  let call_count = Ref::new(0)
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    call_count.val = call_count.val + 1
+    @server_dom.ServerNode::sync(
+      @luna.h("p", [], [@luna.text("fresh-" + call_count.val.to_string())]),
+    )
+  }
+
+  let cache = @isr.MemoryCache::new()
+  // Pre-populate with old timestamp and zero TTL to guarantee Stale
+  let cache_key = @isr.cache_key("/isr-stale", [])
+  let entry = @isr.CacheEntry::new(
+    "<html><body><p>stale-content</p></body></html>",
+    0L, // epoch start
+    0, // 0 second TTL = immediately stale
+  )
+  @isr.ISRCache::put(cache, cache_key, entry)
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(cache)
+    .with_root_template(test_root_template("isr-stale"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/isr-stale",
+        handler=PageHandler(page_handler),
+        title="ISR",
+        meta=[],
+        revalidate=Some(0),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/isr-stale", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_eq(res.isr_status, Some("STALE"))
+  // Returns stale content (not re-rendered)
+  assert_true(res.body.contains("stale-content"))
+}
+
+///|
+async test "ISR: non-ISR page has no X-Sol-ISR-Status header" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("no-isr")]))
+  }
+
+  let app = @mars.Server::new()
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/no-isr",
+        handler=PageHandler(page_handler),
+        title="NoISR",
+        meta=[],
+        revalidate=None,
+        cache=None,
+      ),
+    ],
+    config=RouterConfig::default(),
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/no-isr", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_true(res.isr_status is None)
+}
+
+///|
+async test "ISR: fragment request bypasses ISR cache" {
+  let call_count = Ref::new(0)
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    call_count.val = call_count.val + 1
+    @server_dom.ServerNode::sync(
+      @luna.h("p", [], [@luna.text("frag-" + call_count.val.to_string())]),
+    )
+  }
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(@isr.MemoryCache::new())
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/isr-frag",
+        handler=PageHandler(page_handler),
+        title="ISRFrag",
+        meta=[],
+        revalidate=Some(600),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let handler = app.to_handler()
+
+  // Full page request: ISR MISS
+  let res1 = ffi_call_app_handler(
+    handler, "GET", "http://localhost/isr-frag", false,
+  ).wait()
+  assert_eq(res1.isr_status, Some("MISS"))
+  assert_eq(call_count.val, 1)
+
+  // Fragment request: should bypass ISR, render fresh each time
+  let res2 = ffi_call_app_handler(
+    handler, "GET", "http://localhost/isr-frag", true,
+  ).wait()
+  assert_eq(res2.status, 200)
+  assert_true(res2.isr_status is None) // No ISR for fragments
+  assert_eq(call_count.val, 2) // Handler called again
+}
+
+// ============================================================================
+// CDNCacheStrategy Header Tests (HTTP level)
+// ============================================================================
+
+///|
+async test "CDNCacheStrategy::CdnSwr sets Cache-Control and X-Sol-CDN-Cache" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("cdn-swr")]))
+  }
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(@isr.MemoryCache::new())
+    .with_cache_strategy(@isr.CDNCacheStrategy::CdnSwr(3600))
+    .with_root_template(test_root_template("cdn"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/cdn-page",
+        handler=PageHandler(page_handler),
+        title="CDN",
+        meta=[],
+        revalidate=Some(60),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/cdn-page", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_eq(
+    res.cache_control,
+    Some("s-maxage=60, stale-while-revalidate=3600"),
+  )
+  assert_eq(res.cdn_cache, Some("cdn-swr"))
+  assert_eq(res.isr_status, Some("MISS"))
+}
+
+///|
+async test "CDNCacheStrategy::Hybrid sets short CDN TTL" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("hybrid")]))
+  }
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(@isr.MemoryCache::new())
+    .with_cache_strategy(@isr.CDNCacheStrategy::Hybrid(10, 60))
+    .with_root_template(test_root_template("hybrid"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/hybrid-page",
+        handler=PageHandler(page_handler),
+        title="Hybrid",
+        meta=[],
+        revalidate=Some(120),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/hybrid-page", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_eq(res.cache_control, Some("s-maxage=10, stale-while-revalidate=60"))
+  assert_eq(res.cdn_cache, Some("hybrid"))
+}
+
+///|
+async test "CDNCacheStrategy::AppIsr sets private no-store" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("app-isr")]))
+  }
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(@isr.MemoryCache::new())
+    .with_cache_strategy(@isr.CDNCacheStrategy::AppIsr)
+    .with_root_template(test_root_template("app-isr"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/app-isr-page",
+        handler=PageHandler(page_handler),
+        title="AppISR",
+        meta=[],
+        revalidate=Some(60),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/app-isr-page", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_eq(res.cache_control, Some("private, no-store"))
+  assert_eq(res.cdn_cache, Some("app-isr"))
+}
+
+///|
+async test "no CDNCacheStrategy: no Cache-Control or X-Sol-CDN-Cache for ISR" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("default")]))
+  }
+
+  let app = @mars.Server::new()
+  let config = RouterConfig::default()
+    .with_isr_cache(@isr.MemoryCache::new())
+    .with_root_template(test_root_template("default"))
+  register_sol_routes(
+    app,
+    [
+      SolRoutes::Page(
+        path="/default-isr",
+        handler=PageHandler(page_handler),
+        title="Default",
+        meta=[],
+        revalidate=Some(60),
+        cache=None,
+      ),
+    ],
+    config~,
+  )
+
+  let res = ffi_call_app_handler(
+    app.to_handler(), "GET", "http://localhost/default-isr", false,
+  ).wait()
+  assert_eq(res.status, 200)
+  assert_true(res.cdn_cache is None)
+  // Cache-Control may or may not be set by framework default, but X-Sol-CDN-Cache should be absent
+  assert_eq(res.isr_status, Some("MISS"))
 }

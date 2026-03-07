@@ -93,7 +93,7 @@ pub fn ISRConfig::default() -> ISRConfig {
 /// CDN cache strategy for ISR pages.
 /// Controls how CDN-level caching (e.g., Cloudflare async SWR) interacts
 /// with app-level ISR caching.
-pub enum CDNCacheStrategy {
+pub(all) enum CDNCacheStrategy {
   /// CDN handles SWR entirely via Cache-Control headers.
   /// App-level ISR is bypassed. Simplest option.
   /// Sets: `Cache-Control: s-maxage={revalidate}, stale-while-revalidate={grace}`
