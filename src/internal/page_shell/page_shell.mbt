@@ -15,8 +15,9 @@ pub fn render_document(
   wrap_in_app? : Bool = true,
 ) -> String {
   let main_html = if wrap_in_app { app_container(body_html) } else { body_html }
+  let safe_title = escape_html_text(title)
   "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>" +
-  title +
+  safe_title +
   "</title>" +
   head +
   "</head><body>" +
@@ -33,8 +34,9 @@ pub fn render_template(
   preload : String,
   main : String,
 ) -> String {
+  let safe_title = escape_html_text(title)
   template
-  .replace(old="__LUNA_TITLE__", new=title)
+  .replace(old="__LUNA_TITLE__", new=safe_title)
   .replace(old="__LUNA_PRELOAD__", new=preload)
   .replace(old="__LUNA_HEAD__", new=head)
   .replace(old="__LUNA_MAIN__", new=main)
@@ -55,9 +57,10 @@ pub fn render_streaming_template_parts(
   preload : String,
   loader_url : String,
 ) -> (String, String)? {
+  let safe_title = escape_html_text(title)
   let head_with_loader = head + loader_script_tag(loader_url)
   let rendered = template
-    .replace(old="__LUNA_TITLE__", new=title)
+    .replace(old="__LUNA_TITLE__", new=safe_title)
     .replace(old="__LUNA_PRELOAD__", new=preload)
     .replace(old="__LUNA_HEAD__", new=head_with_loader)
   let marker = "__LUNA_MAIN__"
@@ -81,8 +84,9 @@ pub fn render_streaming_header(
   head : String,
   loader_url : String,
 ) -> String {
+  let safe_title = escape_html_text(title)
   "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>" +
-  title +
+  safe_title +
   "</title>" +
   head +
   loader_script_tag(loader_url) +

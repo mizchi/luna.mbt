@@ -643,13 +643,19 @@ async fn send_non_isr_page_response(
   config : RouterConfig,
 ) -> Unit {
   let content : @server_dom.ServerNode = handler(props) catch {
-    e => return c.text("Error: " + e.to_string(), status=500)
+    e => {
+      log_server_error("Page handler error", e)
+      return c.text("Internal Server Error", status=500)
+    }
   }
   if c.is_response_sent() {
     return
   }
   let node = apply_layouts(content, props, layouts, is_fragment) catch {
-    e => return c.text("Layout error: " + e.to_string(), status=500)
+    e => {
+      log_server_error("Layout error", e)
+      return c.text("Internal Server Error", status=500)
+    }
   }
   if is_fragment {
     let fragment_html = render_server_fragment(node, page_title, cache_strategy)
@@ -693,7 +699,8 @@ async fn handle_compiled_api_route(
     Some(ApiHandler(handler)) => {
       let json : Json = handler(props) catch {
         e => {
-          @mars_response.send_internal_error(c, message=e.to_string())
+          log_server_error("API handler error", e)
+          @mars_response.send_internal_error(c)
           return
         }
       }
@@ -871,8 +878,10 @@ fn register_compiled_sol_routes(
                         config.root_template,
                         route.cache_strategy,
                       ) catch {
-                        e =>
-                          return c.text("Error: " + e.to_string(), status=500)
+                        e => {
+                          log_server_error("ISR revalidation error", e)
+                          return c.text("Internal Server Error", status=500)
+                        }
                       }
                       let new_entry = @isr.CacheEntry::new(
                         html, now, revalidate,
@@ -990,4 +999,10 @@ pub(all) struct StaticDir {
   title : String
   /// SSG configuration
   config : StaticDirConfig
+}
+
+///|
+/// Log server error to stderr without exposing details to client.
+fn log_server_error(context : String, err : Error) -> Unit {
+  ffi_console_error("[sol] \{context}: \{err}")
 }

@@ -1,6 +1,10 @@
 // JS-specific FFI for sol_routes
 
 ///|
+extern "js" fn ffi_console_error(msg : String) -> Unit =
+  #| (msg) => console.error(msg)
+
+///|
 extern "js" fn ffi_ensure_mars_to_handler_reschedule_symbol() -> Unit =
   #| () => {
   #|   if (typeof globalThis.moonbitlang$async$internal$event_loop$$reschedule !== "function") {
@@ -16,8 +20,13 @@ extern "js" fn ffi_create_streaming_response(
   #|   async start(controller) {
   #|     const encoder = new TextEncoder();
   #|     const write = (chunk) => controller.enqueue(encoder.encode(chunk));
-  #|     await renderWithAsync(write);
-  #|     controller.close();
+  #|     try {
+  #|       await renderWithAsync(write);
+  #|       controller.close();
+  #|     } catch (e) {
+  #|       console.error("[sol] Streaming SSR error:", e);
+  #|       try { controller.error(e); } catch (_) {}
+  #|     }
   #|   }
   #| })
 
