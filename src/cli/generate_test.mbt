@@ -1143,25 +1143,30 @@ test "generate_sol_server_main_js_user_managed: bun runtime" {
 }
 
 ///|
-test "template_routes_main_mbt: has async fn main and run_app" {
+test "template_routes_main_mbt: has async fn main and create_app facade" {
   let content = template_routes_main_mbt()
   assert_true(content.contains("async fn main {"))
   assert_true(content.contains("@sol.run_app"))
-  assert_true(content.contains("@mars.Server::new()"))
-  assert_true(content.contains("@router.register_sol_routes"))
-  assert_true(content.contains("@action.register_actions"))
-  assert_true(content.contains("@sol.serve_sol_assets"))
-  assert_true(content.contains("@sol.serve_static"))
+  assert_true(content.contains("@sol.create_app(routes()"))
+  // Should NOT reference @mars, @router, @action directly
+  assert_true(not(content.contains("@mars.")))
+  assert_true(not(content.contains("@router.")))
+  assert_true(not(content.contains("@action.")))
 }
 
 ///|
-test "template_routes_moon_pkg: user-managed has is-main and link exports" {
+test "template_routes_moon_pkg: user-managed has is-main, minimal imports" {
   let content = template_routes_moon_pkg("tester/myapp")
   assert_true(content.contains("\"is-main\": true"))
-  assert_true(content.contains("\"mizchi/mars\" @mars"))
+  assert_true(content.contains("\"mizchi/sol\" @sol"))
   assert_true(content.contains("\"moonbitlang/async\""))
-  assert_true(content.contains("\"exports\": [ \"configure_app\" ]"))
   assert_true(content.contains("\"format\": \"esm\""))
+  // Should NOT require @mars, @router, or @action (re-exported via @sol)
+  assert_true(not(content.contains("\"mizchi/mars\"")))
+  assert_true(not(content.contains("\"mizchi/sol/router\"")))
+  assert_true(not(content.contains("\"mizchi/sol/action\"")))
+  // Should NOT export configure_app (no longer exists)
+  assert_true(not(content.contains("configure_app")))
 }
 
 ///|
@@ -1304,16 +1309,18 @@ test "template_routes_moon_pkg: uses current static dom package path" {
 }
 
 ///|
-test "template_routes_moon_pkg: imports sol action package" {
+test "template_routes_moon_pkg: imports sol (action via facade)" {
   let content = template_routes_moon_pkg("tester/myapp")
-  assert_true(content.contains("\"mizchi/sol/action\" @action"))
+  assert_true(content.contains("\"mizchi/sol\" @sol"))
+  // @action is no longer needed directly - accessed via @sol.create_app facade
+  assert_true(not(content.contains("\"mizchi/sol/action\"")))
 }
 
 ///|
-test "template_routes_mbt: defines default action_registry" {
+test "template_routes_mbt: no action_registry (optional via create_app)" {
   let content = template_routes_mbt("tester/myapp")
-  assert_true(content.contains("pub fn action_registry()"))
-  assert_true(content.contains("@action.ActionRegistry::new()"))
+  // action_registry removed from template - actions are optional in create_app
+  assert_true(not(content.contains("action_registry")))
 }
 
 ///|

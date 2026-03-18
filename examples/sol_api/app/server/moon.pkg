@@ -1,0 +1,13 @@
+import {
+  "mizchi/sol" @sol,
+  "mizchi/sol/middleware" @middleware,
+  "mizchi/js/core" @core,
+  "moonbitlang/async",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": "js",
+  "warn-list": "-35-67-29",
+  link: { "js": { "format": "esm" } },
+)

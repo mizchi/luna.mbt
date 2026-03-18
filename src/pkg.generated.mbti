@@ -4,11 +4,21 @@ package "mizchi/sol"
 import {
   "mizchi/js/web/http",
   "mizchi/luna/core/render",
+  "mizchi/luna/dom/static",
   "mizchi/luna/x/stella",
   "mizchi/mars",
+  "mizchi/sol/action",
+  "mizchi/sol/middleware",
+  "mizchi/sol/router",
 }
 
 // Values
+pub fn api_get(String, async (@router.PageProps) -> @mizchi/js/core.Any) -> @router.SolRoutes
+
+pub fn api_post(String, async (@router.PageProps) -> @mizchi/js/core.Any) -> @router.SolRoutes
+
+pub fn bad_request(String) -> @router.ApiResponse
+
 pub async fn build(BundleConfig) -> RolldownOutput
 
 pub async fn build_from_manifest(IslandManifest) -> RolldownOutput
@@ -21,9 +31,15 @@ pub async fn bundle_islands_prod(Array[(String, String)], String) -> RolldownOut
 
 pub async fn bundle_islands_result(Array[(String, String)], String) -> BundleResult
 
+pub fn create_app(Array[@router.SolRoutes], config? : @router.RouterConfig, actions? : @action.ActionRegistry) -> @mars.Server
+
 pub let default_loader_url : String
 
 pub let default_wc_loader_url : String
+
+pub fn error_response(String, status? : Int) -> @router.ApiResponse
+
+pub fn forbidden(message? : String) -> @router.ApiResponse
 
 pub fn generate_island_manifest(Array[(String, String)], String) -> String
 
@@ -45,9 +61,25 @@ pub fn json_obj(Array[(String, @mizchi/js/core.Any)]) -> @mizchi/js/core.Any
 
 pub fn json_to_any(Json) -> @mizchi/js/core.Any
 
+pub fn nodes(Array[@mizchi/luna/core.Node[Unit, String]]) -> @static.ServerNode
+
+pub fn not_found_response(message? : String) -> @router.ApiResponse
+
+pub fn ok(Array[(String, @mizchi/js/core.Any)]) -> @router.ApiResponse
+
+pub fn optional(@router.PageProps, String, String) -> String
+
+pub fn optional_query(@router.PageProps, String, String) -> String
+
 pub fn[E] page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, hydration? : Bool, loader_url? : String) -> Unit
 
 pub fn parse_island_manifest(String) -> IslandManifest?
+
+pub fn redirect_permanent_to(String) -> @router.ApiResponse
+
+pub fn redirect_to(String, status? : Int) -> @router.ApiResponse
+
+pub fn register_sol_routes(@mars.Server, Array[@router.SolRoutes], config? : @router.RouterConfig) -> Unit
 
 pub fn[E] render_fragment(@mizchi/luna/core.Node[E, String]) -> String
 
@@ -67,6 +99,14 @@ pub fn render_streaming_page(@mizchi/luna/core.Node[Unit, String], title? : Stri
 
 pub fn[E] render_with_island_preloads(@mizchi/luna/core.Node[E, String]) -> @render.SSRResult
 
+pub fn require(@router.PageProps, String) -> Result[String, @router.ApiResponse]
+
+pub fn require_int(@router.PageProps, String) -> Result[Int, @router.ApiResponse]
+
+pub fn require_query(@router.PageProps, String) -> Result[String, @router.ApiResponse]
+
+pub fn route(String, async (@router.PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : @router.CacheStrategy?) -> @router.SolRoutes
+
 pub fn run((@mars.Server) -> Unit, port? : Int) -> Unit
 
 pub fn run_app(() -> @mars.Server, port? : Int) -> Unit
@@ -79,11 +119,17 @@ pub fn serve_static_dir(@mars.Server, StaticDirServeConfig) -> Unit
 
 pub fn streaming_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> Unit
 
+pub fn unauthorized(message? : String) -> @router.ApiResponse
+
 pub fn[E] wc_island_raw(String, String, String, String, Array[@mizchi/luna/core.Node[E, String]], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
 pub fn[E] wc_island_with_raw(String, String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
 pub fn[E] wc_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, wc_loader_url? : String) -> Unit
+
+pub fn with_mw(Array[@middleware.Middleware], Array[@router.SolRoutes]) -> @router.SolRoutes
+
+pub fn wrap(String, (@router.PageProps, @static.ServerNode) -> @static.ServerNode raise, Array[@router.SolRoutes]) -> @router.SolRoutes
 
 // Errors
 
@@ -168,6 +214,21 @@ pub fn StaticFileConfig::dev() -> Self
 pub fn StaticFileConfig::with_mapping(Self, String, String) -> Self
 
 // Type aliases
+pub using @action {type ActionRegistry}
+
+pub using @router {type ApiHandler}
+
+pub using @router {type ApiResponse}
+
+pub using @router {type CacheStrategy}
+
+pub using @router {type PageHandler}
+
+pub using @router {type PageProps}
+
+pub using @router {type RouterConfig}
+
+pub using @router {type SolRoutes}
 
 // Traits
 

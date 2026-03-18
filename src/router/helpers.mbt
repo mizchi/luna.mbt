@@ -62,6 +62,33 @@ pub fn api_post(
 }
 
 ///|
+/// Create a PUT API route
+pub fn api_put(
+  path : String,
+  handler : async (PageProps) -> @js.Any,
+) -> SolRoutes {
+  SolRoutes::Put(path~, handler=ApiHandler(handler))
+}
+
+///|
+/// Create a DELETE API route
+pub fn api_delete(
+  path : String,
+  handler : async (PageProps) -> @js.Any,
+) -> SolRoutes {
+  SolRoutes::Delete(path~, handler=ApiHandler(handler))
+}
+
+///|
+/// Create a PATCH API route
+pub fn api_patch(
+  path : String,
+  handler : async (PageProps) -> @js.Any,
+) -> SolRoutes {
+  SolRoutes::Patch(path~, handler=ApiHandler(handler))
+}
+
+///|
 /// Create a layout wrapper
 ///
 /// Example:

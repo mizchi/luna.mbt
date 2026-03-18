@@ -87,7 +87,7 @@ fn generate_types_pkg(
   }
   buf.write_string("}\n\n")
   buf.write_string("options(\n")
-  buf.write_string("  \"supported-targets\": [ \"js\" ],\n")
+  buf.write_string("  \"supported-targets\": \"js\",\n")
   buf.write_string("  \"warn-list\": \"-29\",\n")
   // Export all struct names and factory functions
   let exports : Array[String] = []

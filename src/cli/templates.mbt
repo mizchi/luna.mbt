@@ -162,14 +162,14 @@ pub fn template_layout_moon_pkg() -> String {
     #|}
     #|
     #|options(
-    #|  "supported-targets": [ "js" ],
+    #|  "supported-targets": "js",
     #|  "warn-list": "-24",
     #|)
   )
 }
 
 ///|
-/// Server _using.mbt template - DSL imports for server components
+/// Server alias.mbt template - DSL imports for server components
 pub fn template_server_using_mbt() -> String {
   (
     #|///| Server-side element DSL imports
@@ -188,16 +188,10 @@ pub fn template_server_using_mbt() -> String {
 pub fn template_routes_main_mbt() -> String {
   (
     #|///| Server entry point
-    #|///| User-managed mode: you own this file.
     #|
     #|async fn main {
     #|  @sol.run_app(fn() {
-    #|    let app = @mars.Server::new()
-    #|    @router.register_sol_routes(app, routes(), config=config())
-    #|    @action.register_actions(app, action_registry())
-    #|    @sol.serve_sol_assets(app)
-    #|    @sol.serve_static(app)
-    #|    app
+    #|    @sol.create_app(routes(), config=config())
     #|  })
     #|}
   )
@@ -207,65 +201,31 @@ pub fn template_routes_main_mbt() -> String {
 /// Routes template - single source of truth for all routes
 pub fn template_routes_mbt(package_name : String) -> String {
   let tmpl =
-    #|///| Route Definitions
-    #|///|
-    #|///| This is the single source of truth for all routes.
-    #|///|
-    #|/// IMPORTANT: This is a magic file - sol generate reads this to:
-    #|/// - Generate server entry point
-    #|/// - Generate client hydration router
-    #|/// - Setup route handlers
-    #|
-    #|/// Application routes - defines all pages and API endpoints
-    #|pub fn routes() -> Array[@router.SolRoutes] {
+    #|///| Route definitions - all pages and API endpoints
+    #|pub fn routes() -> Array[@sol.SolRoutes] {
     #|  [
-    #|    @router.SolRoutes::Layout(segment="", layout=@layout.root_layout, children=[
-    #|      // Home page with counter island
-    #|      @router.SolRoutes::Page(
-    #|        path="/",
-    #|        handler=@router.PageHandler(home),
-    #|        title="Home",
-    #|        meta=[],
-    #|        revalidate=None,
-    #|        cache=None,
-    #|      ),
-    #|      // About page (static, no hydration)
-    #|      @router.SolRoutes::Page(
-    #|        path="/about",
-    #|        handler=@router.PageHandler(about),
-    #|        title="About",
-    #|        meta=[],
-    #|        revalidate=None,
-    #|        cache=None,
-    #|      ),
+    #|    @sol.wrap("", @layout.root_layout, [
+    #|      @sol.route("/", home, title="Home"),
+    #|      @sol.route("/about", about, title="About"),
     #|    ]),
-    #|    // API endpoint
-    #|    @router.SolRoutes::Get(
-    #|      path="/api/health",
-    #|      handler=@router.ApiHandler(api_health),
-    #|    ),
+    #|    @sol.api_get("/api/health", api_health),
     #|  ]
     #|}
     #|
     #|///| Router configuration
-    #|pub fn config() -> @router.RouterConfig {
-    #|  @router.RouterConfig::default()
+    #|pub fn config() -> @sol.RouterConfig {
+    #|  @sol.RouterConfig::default()
     #|    .with_default_head(@layout.head())
     #|}
     #|
-    #|///| Server Action registry (empty by default)
-    #|pub fn action_registry() -> @action.ActionRegistry {
-    #|  @action.ActionRegistry::new()
-    #|}
-    #|
     #|// ============================================================================
-    #|// Page Definitions (inline in routes.mbt)
+    #|// Page Handlers
     #|// ============================================================================
     #|
     #|///| Home page - with counter island
-    #|async fn home(_props : @router.PageProps) -> @server_dom.ServerNode {
+    #|async fn home(_props : @sol.PageProps) -> @server_dom.ServerNode {
     #|  let counter_props : @types.CounterProps = { initial_count: 0 }
-    #|  let content = [
+    #|  @sol.nodes([
     #|    h1([text("Welcome to Sol")]),
     #|    p([text("A SSR-first web framework for MoonBit")]),
     #|    @server_dom.client(@types.counter(counter_props), [
@@ -279,22 +239,20 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|        ]),
     #|      ]),
     #|    ]),
-    #|  ]
-    #|  @server_dom.ServerNode::sync(@luna.fragment(content))
+    #|  ])
     #|}
     #|
     #|///| About page - static
-    #|async fn about(_props : @router.PageProps) -> @server_dom.ServerNode {
-    #|  let content = [
+    #|async fn about(_props : @sol.PageProps) -> @server_dom.ServerNode {
+    #|  @sol.nodes([
     #|    h1([text("About")]),
     #|    p([text("Built with MoonBit and Sol framework.")]),
-    #|  ]
-    #|  @server_dom.ServerNode::sync(@luna.fragment(content))
+    #|  ])
     #|}
     #|
     #|///| API handler: health check
-    #|async fn api_health(_props : @router.PageProps) -> @core.Any {
-    #|  @sol.json_obj([("status", @core.any("ok"))])
+    #|async fn api_health(_props : @sol.PageProps) -> @core.Any {
+    #|  @sol.ok([("status", @core.any("ok"))]).to_json()
     #|}
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
@@ -304,11 +262,7 @@ pub fn template_routes_mbt(package_name : String) -> String {
 pub fn template_routes_moon_pkg(package_name : String) -> String {
   let tmpl =
     #|import {
-    #|  "mizchi/luna" @luna,
     #|  "mizchi/sol" @sol,
-    #|  "mizchi/mars" @mars,
-    #|  "mizchi/sol/router" @router,
-    #|  "mizchi/sol/action" @action,
     #|  "mizchi/luna/dom/static" @server_dom,
     #|  "mizchi/js/core" @core,
     #|  "{{PACKAGE_NAME}}/layout" @layout,
@@ -318,15 +272,15 @@ pub fn template_routes_moon_pkg(package_name : String) -> String {
     #|
     #|options(
     #|  "is-main": true,
-    #|  "supported-targets": [ "js" ],
+    #|  "supported-targets": "js",
     #|  "warn-list": "-67-29",
-    #|  link: { "js": { "exports": [ "configure_app" ], "format": "esm" } },
+    #|  link: { "js": { "format": "esm" } },
     #|)
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
 
 ///|
-/// Routes _using.mbt template - DSL imports for routes package
+/// Routes alias.mbt template - DSL imports for routes package
 pub fn template_routes_using_mbt() -> String {
   (
     #|///| Server-side element DSL imports
@@ -396,7 +350,7 @@ pub fn template_client_counter_moon_pkg() -> String {
     #|}
     #|
     #|options(
-    #|  "supported-targets": [ "js" ],
+    #|  "supported-targets": "js",
     #|  link: { "js": { "exports": [ "counter" ], "format": "esm" } },
     #|)
   )
@@ -417,7 +371,7 @@ pub fn template_gen_types_moon_pkg() -> String {
     #|}
     #|
     #|options(
-    #|  "supported-targets": [ "js" ],
+    #|  "supported-targets": "js",
     #|  link: { "js": { "exports": [ "CounterProps", "counter" ], "format": "esm" } },
     #|)
   )
@@ -475,7 +429,7 @@ pub fn generate_templates(
     // Layout (explicit layout wrapper)
     { path: "app/layout/moon.pkg", content: template_layout_moon_pkg() },
     { path: "app/layout/layout.mbt", content: template_layout_mbt() },
-    { path: "app/layout/_using.mbt", content: template_server_using_mbt() },
+    { path: "app/layout/alias.mbt", content: template_server_using_mbt() },
     // Routes (single source of truth) + user-managed server entry
     {
       path: "app/server/moon.pkg",
@@ -489,7 +443,7 @@ pub fn generate_templates(
       path: "app/server/routes.mbt",
       content: template_routes_mbt(package_name),
     },
-    { path: "app/server/_using.mbt", content: template_routes_using_mbt() },
+    { path: "app/server/alias.mbt", content: template_routes_using_mbt() },
     // Client islands (render + hydrate in same file)
     { path: "app/client/moon.pkg", content: template_client_counter_moon_pkg() },
     { path: "app/client/counter.mbt", content: template_client_counter_mbt() },

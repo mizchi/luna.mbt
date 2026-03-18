@@ -191,7 +191,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       try {
         fs.write_file_sync(stub_types_mbt_path, "///| No Props types found\n")
         fs.write_file_sync(
-          stub_types_pkg_path, "options(\n  \"supported-targets\": [ \"js\" ],\n  \"warn-list\": \"-29\",\n)\n",
+          stub_types_pkg_path, "options(\n  \"supported-targets\": \"js\",\n  \"warn-list\": \"-29\",\n)\n",
         )
       } catch {
         e => {

@@ -2,6 +2,7 @@
 package "mizchi/sol/cli"
 
 import {
+  "mizchi/sol/core/env",
   "mizchi/sol/ssg",
 }
 
@@ -36,6 +37,8 @@ pub fn generate_sol_server_main_js(String, ServerRuntime, String) -> String
 
 pub fn generate_sol_server_main_js_hybrid(String, ServerRuntime) -> String
 
+pub fn generate_sol_server_main_js_user_managed(ServerRuntime, String, String) -> String
+
 pub fn generate_spin_toml_fragment(Array[WasmMountEntry]) -> String
 
 pub fn generate_templates(String, String, String?) -> Array[TemplateFile]
@@ -45,6 +48,8 @@ pub fn generate_wasm_env_json(Array[WasmMountEntry]) -> String
 pub fn generate_wasm_manifest_json(Array[WasmMountEntry]) -> String
 
 pub fn has_ssg_config(String) -> Bool
+
+pub fn[FS : @env.FileSystem] is_user_managed_server(FS, String, SolConfig) -> Bool
 
 pub fn is_web_component(String) -> Bool
 
@@ -91,6 +96,8 @@ pub fn template_layout_mbt() -> String
 pub fn template_layout_moon_pkg() -> String
 
 pub fn template_ln_loader_js() -> String
+
+pub fn template_routes_main_mbt() -> String
 
 pub fn template_routes_mbt(String) -> String
 
