@@ -60,11 +60,8 @@ This is the entry point for `docs/`. It establishes a fixed reading order by pur
 | `docs/hot-reload.md` | Design | HMR contract shared between `sol`/`mars` |
 | `docs/migrate-from-mars.md` | Guide | Incremental migration from existing `mars` code |
 | `docs/wasm-entrypoint.md` | Design draft | Wasm entrypoint direction based on `.mbtx` |
-| `docs/router-layout-support.md` | Redirect | Merged into `docs/routing.md` |
-| `docs/catch-all-encoding.md` | Redirect | Merged into `docs/routing.md` |
 
 ## Update Rules
 
 - For specification changes, update the single source (`docs/routing.md` / `docs/benchmarking.md`) first
 - README and supplementary documents should link to the single source and not duplicate the same content
-- Documents kept for compatibility should clearly indicate the merge target link at the top

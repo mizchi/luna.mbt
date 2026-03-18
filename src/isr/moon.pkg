@@ -4,8 +4,11 @@ import {
   "mizchi/npm_typed/hono" @hono,
   "mizchi/x/fs" @x_fs,
   "moonbitlang/async/io",
-  "moonbitlang/async",
 }
+
+import {
+  "moonbitlang/async",
+} for "wbtest"
 
 options(
   "supported-targets": [ "js" ],

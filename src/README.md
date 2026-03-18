@@ -228,7 +228,7 @@ pub fn config() -> @router.RouterConfig {
   - Purpose: Handles `ServerNode`-based SSR including layout composition
   - Actually applies `SolRoutes::Layout`
 
-Details: `docs/router-layout-support.md`
+Details: `docs/routing.md`
 
 ## Nested Layouts
 

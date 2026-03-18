@@ -13,9 +13,15 @@ import {
 }
 
 // Values
+pub fn api_delete(String, async (@router.PageProps) -> @mizchi/js/core.Any) -> @router.SolRoutes
+
 pub fn api_get(String, async (@router.PageProps) -> @mizchi/js/core.Any) -> @router.SolRoutes
 
+pub fn api_patch(String, async (@router.PageProps) -> @mizchi/js/core.Any) -> @router.SolRoutes
+
 pub fn api_post(String, async (@router.PageProps) -> @mizchi/js/core.Any) -> @router.SolRoutes
+
+pub fn api_put(String, async (@router.PageProps) -> @mizchi/js/core.Any) -> @router.SolRoutes
 
 pub fn bad_request(String) -> @router.ApiResponse
 

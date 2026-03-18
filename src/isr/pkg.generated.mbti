@@ -4,6 +4,7 @@ package "mizchi/sol/isr"
 import {
   "mizchi/js/core",
   "mizchi/npm_typed/hono",
+  "moonbitlang/core/ref",
 }
 
 // Values
@@ -90,7 +91,7 @@ pub(all) struct ISRPageMeta {
 }
 
 pub struct MemoryCache {
-  store : Ref[Map[String, CacheEntry]]
+  store : @ref.Ref[Map[String, CacheEntry]]
 }
 pub fn MemoryCache::new() -> Self
 pub impl ISRCache for MemoryCache
