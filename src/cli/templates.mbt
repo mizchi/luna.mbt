@@ -184,6 +184,26 @@ pub fn template_server_using_mbt() -> String {
 }
 
 ///|
+/// Server main.mbt template - user-managed server entry point
+pub fn template_routes_main_mbt() -> String {
+  (
+    #|///| Server entry point
+    #|///| User-managed mode: you own this file.
+    #|
+    #|async fn main {
+    #|  @sol.run_app(fn() {
+    #|    let app = @mars.Server::new()
+    #|    @router.register_sol_routes(app, routes(), config=config())
+    #|    @action.register_actions(app, action_registry())
+    #|    @sol.serve_sol_assets(app)
+    #|    @sol.serve_static(app)
+    #|    app
+    #|  })
+    #|}
+  )
+}
+
+///|
 /// Routes template - single source of truth for all routes
 pub fn template_routes_mbt(package_name : String) -> String {
   let tmpl =
@@ -280,23 +300,27 @@ pub fn template_routes_mbt(package_name : String) -> String {
 }
 
 ///|
-/// Routes moon.pkg
+/// Routes moon.pkg (user-managed with is-main)
 pub fn template_routes_moon_pkg(package_name : String) -> String {
   let tmpl =
     #|import {
     #|  "mizchi/luna" @luna,
     #|  "mizchi/sol" @sol,
+    #|  "mizchi/mars" @mars,
     #|  "mizchi/sol/router" @router,
     #|  "mizchi/sol/action" @action,
     #|  "mizchi/luna/dom/static" @server_dom,
     #|  "mizchi/js/core" @core,
     #|  "{{PACKAGE_NAME}}/layout" @layout,
     #|  "{{PACKAGE_NAME}}/__gen__/types" @types,
+    #|  "moonbitlang/async",
     #|}
     #|
     #|options(
+    #|  "is-main": true,
     #|  "supported-targets": [ "js" ],
-    #|  "warn-list": "-67",
+    #|  "warn-list": "-67-29",
+    #|  link: { "js": { "exports": [ "configure_app" ], "format": "esm" } },
     #|)
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
@@ -452,10 +476,14 @@ pub fn generate_templates(
     { path: "app/layout/moon.pkg", content: template_layout_moon_pkg() },
     { path: "app/layout/layout.mbt", content: template_layout_mbt() },
     { path: "app/layout/_using.mbt", content: template_server_using_mbt() },
-    // Routes (single source of truth)
+    // Routes (single source of truth) + user-managed server entry
     {
       path: "app/server/moon.pkg",
       content: template_routes_moon_pkg(package_name),
+    },
+    {
+      path: "app/server/main.mbt",
+      content: template_routes_main_mbt(),
     },
     {
       path: "app/server/routes.mbt",

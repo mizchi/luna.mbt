@@ -1057,6 +1057,121 @@ test "WasmEntrypointBuildOptions::for_cli maps legacy flags" {
   assert_eq(opts.write_if_changed, true)
 }
 
+// =============================================================================
+// User-Managed Server Entry Point Tests
+// =============================================================================
+
+///|
+test "generate_sol_server_main_js_user_managed: node runtime uses server/server.js path" {
+  let js = generate_sol_server_main_js_user_managed(
+    parse_runtime("node"),
+    "prod",
+    "app/server",
+  )
+  assert_true(js.contains("user-managed MoonBit mode"))
+  assert_true(
+    js.contains(
+      "import * as server from '../../../_build/js/release/build/server/server.js'",
+    ),
+  )
+  assert_true(
+    js.contains(
+      "export * from '../../../_build/js/release/build/server/server.js'",
+    ),
+  )
+  // Must NOT reference __gen__/server
+  assert_true(not(js.contains("__gen__")))
+}
+
+///|
+test "generate_sol_server_main_js_user_managed: dev mode uses debug path" {
+  let js = generate_sol_server_main_js_user_managed(
+    parse_runtime("node"),
+    "dev",
+    "app/server",
+  )
+  assert_true(
+    js.contains(
+      "import * as server from '../../../_build/js/debug/build/server/server.js'",
+    ),
+  )
+  assert_true(not(js.contains("__gen__")))
+}
+
+///|
+test "generate_sol_server_main_js_user_managed: cloudflare runtime" {
+  let js = generate_sol_server_main_js_user_managed(
+    parse_runtime("cloudflare"),
+    "prod",
+    "app/server",
+  )
+  assert_true(js.contains("RuntimeCloudflare"))
+  assert_true(js.contains("globalThis.__SOL_APP__"))
+  assert_true(js.contains("export default app"))
+  assert_true(
+    js.contains(
+      "import '../../../_build/js/release/build/server/server.js'",
+    ),
+  )
+  assert_true(not(js.contains("__gen__")))
+}
+
+///|
+test "generate_sol_server_main_js_user_managed: deno runtime" {
+  let js = generate_sol_server_main_js_user_managed(
+    parse_runtime("deno"),
+    "prod",
+    "app/server",
+  )
+  assert_true(js.contains("RuntimeDeno"))
+  assert_true(js.contains("Deno.serve"))
+  assert_true(js.contains("Deno.env.get('PORT')"))
+  assert_true(not(js.contains("__gen__")))
+}
+
+///|
+test "generate_sol_server_main_js_user_managed: bun runtime" {
+  let js = generate_sol_server_main_js_user_managed(
+    parse_runtime("bun"),
+    "prod",
+    "app/server",
+  )
+  assert_true(js.contains("RuntimeBun"))
+  assert_true(js.contains("export default {"))
+  assert_true(js.contains("fetch: app.fetch"))
+  assert_true(not(js.contains("__gen__")))
+}
+
+///|
+test "template_routes_main_mbt: has async fn main and run_app" {
+  let content = template_routes_main_mbt()
+  assert_true(content.contains("async fn main {"))
+  assert_true(content.contains("@sol.run_app"))
+  assert_true(content.contains("@mars.Server::new()"))
+  assert_true(content.contains("@router.register_sol_routes"))
+  assert_true(content.contains("@action.register_actions"))
+  assert_true(content.contains("@sol.serve_sol_assets"))
+  assert_true(content.contains("@sol.serve_static"))
+}
+
+///|
+test "template_routes_moon_pkg: user-managed has is-main and link exports" {
+  let content = template_routes_moon_pkg("tester/myapp")
+  assert_true(content.contains("\"is-main\": true"))
+  assert_true(content.contains("\"mizchi/mars\" @mars"))
+  assert_true(content.contains("\"moonbitlang/async\""))
+  assert_true(content.contains("\"exports\": [ \"configure_app\" ]"))
+  assert_true(content.contains("\"format\": \"esm\""))
+}
+
+///|
+test "generate_templates: includes app/server/main.mbt" {
+  let templates = generate_templates("tester/myapp", "myapp", None)
+  let main_mbt = find_template_content(templates, "app/server/main.mbt")
+  assert_true(main_mbt.is_some())
+  assert_true(main_mbt.unwrap().contains("async fn main"))
+}
+
 ///|
 fn find_template_content(
   templates : Array[TemplateFile],

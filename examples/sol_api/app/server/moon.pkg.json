@@ -1,4 +1,5 @@
 {
+  "is-main": true,
   "supported-targets": ["js"],
   "import": [
     { "path": "mizchi/mars", "alias": "mars" },
@@ -6,7 +7,14 @@
     { "path": "mizchi/sol/router", "alias": "router" },
     { "path": "mizchi/sol/middleware", "alias": "middleware" },
     { "path": "mizchi/sol/action", "alias": "action" },
-    { "path": "mizchi/js/core", "alias": "core" }
+    { "path": "mizchi/js/core", "alias": "core" },
+    "moonbitlang/async"
   ],
-  "warn-list": "-35-67-29"
+  "warn-list": "-35-67-29",
+  "link": {
+    "js": {
+      "exports": ["configure_app"],
+      "format": "esm"
+    }
+  }
 }

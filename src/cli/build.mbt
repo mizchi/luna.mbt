@@ -42,11 +42,20 @@ fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
   target : String,
   profile : String,
 ) -> Unit {
-  let server_js_path = @path.join2(
+  // Try __gen__/server/server.js first, then server/server.js (user-managed mode)
+  let gen_path = @path.join2(
     cwd,
     "_build/\{target}/\{profile}/build/__gen__/server/server.js",
   )
-  if not(fs.exists_sync(server_js_path)) {
+  let user_path = @path.join2(
+    cwd,
+    "_build/\{target}/\{profile}/build/server/server.js",
+  )
+  let server_js_path = if fs.exists_sync(gen_path) {
+    gen_path
+  } else if fs.exists_sync(user_path) {
+    user_path
+  } else {
     return
   }
   let content = fs.read_file_sync(server_js_path) catch { _ => return }

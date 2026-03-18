@@ -107,6 +107,21 @@ fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
 }
 
 // =============================================================================
+// User-Managed Server Detection
+// =============================================================================
+
+///|
+/// Check if user has a main.mbt in the routes directory (user-managed server mode)
+pub fn is_user_managed_server[FS : @env.FileSystem](
+  fs : FS,
+  cwd : String,
+  config : SolConfig,
+) -> Bool {
+  let main_path = @path.join2(@path.join2(cwd, config.routes), "main.mbt")
+  fs.exists_sync(main_path)
+}
+
+// =============================================================================
 // Helper Functions
 // =============================================================================
 

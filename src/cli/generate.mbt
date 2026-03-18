@@ -113,6 +113,13 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   }
   println(@colorette.gray("  App mode: \{mode_name}"))
 
+  // Detect user-managed server mode
+  let user_managed = app_mode == MoonBitFull &&
+    is_user_managed_server(fs, cwd, config)
+  if user_managed {
+    println(@colorette.gray("  Server entry: user-managed (main.mbt)"))
+  }
+
   // Create output directories first (needed for types)
   let output_dir = @path.join2(cwd, config.output) // app/__gen__
   let types_dir = @path.join2(output_dir, "types")
@@ -133,11 +140,16 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     ),
   )
   // Step 1.5: Parse routes.mbt for route paths and action IDs (text scan, no moon info needed)
-  let routes_file_path = @path.join2(
-    @path.join2(cwd, config.routes),
-    "routes.mbt",
-  )
-  let route_info = parse_routes_file(routes_file_path)
+  // In user-managed mode, skip route scanning (user handles everything in main.mbt)
+  let route_info = if user_managed {
+    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] }
+  } else {
+    let routes_file_path = @path.join2(
+      @path.join2(cwd, config.routes),
+      "routes.mbt",
+    )
+    parse_routes_file(routes_file_path)
+  }
   let has_routes = not(route_info.route_paths.is_empty())
   let has_actions = not(route_info.action_ids.is_empty())
   if has_routes || has_actions {
@@ -194,9 +206,10 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Step 2.5: Pre-create server moon.pkg with warn-list (before moon info)
   // This ensures warnings are suppressed during moon info
   // Skip for hybrid mode (TypeScript server) as there's no MoonBit routes package
+  // Skip for user-managed mode (user owns server/main.mbt and moon.pkg)
   let server_dir = @path.join2(output_dir, "server")
   let routes_pkg = get_routes_package_path(cwd, config.routes)
-  if app_mode == MoonBitFull {
+  if app_mode == MoonBitFull && not(user_managed) {
     fs.mkdir_sync(server_dir, true) catch {
       e => {
         @cli_common.console_error(
@@ -379,27 +392,33 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   }
   // Generate server code based on app mode
   match app_mode {
-    MoonBitFull => {
-      // Use route_info already parsed at Step 1.5
-      // Generate server main.mbt
-      let server_main = generate_server_main_mbt(
-        routes_pkg,
-        route_info,
-        config.static_dirs,
-      )
-      let server_main_path = @path.join2(server_dir, "main.mbt")
-      try {
-        fs.write_file_sync(server_main_path, server_main)
-        println(@colorette.gray("  Generated __gen__/server/main.mbt"))
-      } catch {
-        e => {
-          @cli_common.console_error(
-            @colorette.red("Error writing server/main.mbt: \{e}"),
-          )
-          @process.exit(1)
+    MoonBitFull =>
+      if user_managed {
+        // User-managed mode: user owns server/main.mbt, skip __gen__/server/
+        println(
+          @colorette.gray("  Skipping __gen__/server/ (user-managed mode)"),
+        )
+      } else {
+        // Use route_info already parsed at Step 1.5
+        // Generate server main.mbt
+        let server_main = generate_server_main_mbt(
+          routes_pkg,
+          route_info,
+          config.static_dirs,
+        )
+        let server_main_path = @path.join2(server_dir, "main.mbt")
+        try {
+          fs.write_file_sync(server_main_path, server_main)
+          println(@colorette.gray("  Generated __gen__/server/main.mbt"))
+        } catch {
+          e => {
+            @cli_common.console_error(
+              @colorette.red("Error writing server/main.mbt: \{e}"),
+            )
+            @process.exit(1)
+          }
         }
       }
-    }
     MoonBitClientTsServer =>
       // For hybrid mode, skip MoonBit server generation entirely
       // The TypeScript routes.ts will be used directly
@@ -464,7 +483,14 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   }
   // Generate .sol/{mode}/server/main.js (server entry point)
   let server_main_js = match app_mode {
-    MoonBitFull => generate_sol_server_main_js(routes_pkg, config.runtime, mode)
+    MoonBitFull =>
+      if user_managed {
+        generate_sol_server_main_js_user_managed(
+          config.runtime, mode, config.routes,
+        )
+      } else {
+        generate_sol_server_main_js(routes_pkg, config.runtime, mode)
+      }
     MoonBitClientTsServer =>
       generate_sol_server_main_js_hybrid(config.routes, config.runtime)
     TypeScriptFull =>
