@@ -482,14 +482,6 @@ fn compile_sol_routes_inner(
 // ============================================================================
 
 ///|
-extern "js" fn ffi_ensure_mars_to_handler_reschedule_symbol() -> Unit =
-  #| () => {
-  #|   if (typeof globalThis.moonbitlang$async$internal$event_loop$$reschedule !== "function") {
-  #|     globalThis.moonbitlang$async$internal$event_loop$$reschedule = () => {};
-  #|   }
-  #| }
-
-///|
 fn ensure_mars_to_handler_compat() -> Unit {
   ffi_ensure_mars_to_handler_reschedule_symbol()
 }
@@ -642,37 +634,6 @@ async fn send_streaming_server_page(
   ffi_set_streaming_response(c, stream)
 }
 
-///|
-extern "js" fn ffi_create_streaming_response_async(
-  header : String,
-  footer : String,
-  render_with_async : async ((String) -> Unit) -> Unit,
-) -> @js.Any =
-  #| (header, footer, renderWithAsync) => new ReadableStream({
-  #|   async start(controller) {
-  #|     const encoder = new TextEncoder();
-  #|     const write = (chunk) => controller.enqueue(encoder.encode(chunk));
-  #|     write(header);
-  #|     await renderWithAsync(write);
-  #|     write(footer);
-  #|     controller.close();
-  #|   }
-  #| })
-
-///|
-extern "js" fn ffi_set_streaming_response(ctx : Ctx, stream : @js.Any) -> Unit =
-  #| (ctx, stream) => {
-  #|   const headers = { 'Content-Type': 'text/html; charset=utf-8' };
-  #|   const map = ctx.response_headers;
-  #|   let curr = map ? map.head : undefined;
-  #|   while (curr !== undefined && curr !== -1) {
-  #|     headers[curr.key] = curr.value;
-  #|     curr = curr.next;
-  #|   }
-  #|   const response = new Response(stream, { headers });
-  #|   ctx.platform.response_resolve(response);
-  #|   ctx.response_sent = true;
-  #| }
 
 ///|
 /// Render page and return HTML (helper for ISR)

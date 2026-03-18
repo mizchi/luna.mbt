@@ -29,7 +29,8 @@ pub fn send_json_error(
   message : String,
   status? : Int = 500,
 ) -> Unit {
-  send_json_text(ctx, ffi_json_stringify_error(message), status)
+  let json : Json = { "error": message.to_json() }
+  send_json_text(ctx, json.stringify(), status)
 }
 
 ///|
@@ -51,7 +52,3 @@ fn send_json_text(ctx : @mars.Context, body : String, status : Int) -> Unit {
 ///|
 extern "js" fn ffi_json_stringify(data : @js.Any) -> String =
   #| (data) => JSON.stringify(data)
-
-///|
-extern "js" fn ffi_json_stringify_error(message : String) -> String =
-  #| (message) => JSON.stringify({ error: message })

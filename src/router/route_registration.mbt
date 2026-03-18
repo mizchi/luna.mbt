@@ -288,6 +288,3 @@ fn legacy_routes_to_sol_routes(
   converted
 }
 
-///|
-extern "js" fn ffi_json_stringify_any(data : @js.Any) -> String =
-  #| (data) => JSON.stringify(data)

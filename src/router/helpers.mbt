@@ -253,25 +253,15 @@ pub fn require_int(
   name : String,
 ) -> Result[Int, ApiResponse] {
   match props.get_param(name) {
-    Some(v) => {
-      let parsed = ffi_parse_int(v)
-      if ffi_is_nan(parsed) {
-        Err(bad_request("Invalid integer parameter: " + name))
-      } else {
-        Ok(parsed)
+    Some(v) =>
+      try {
+        Ok(@strconv.parse_int!(v))
+      } catch {
+        _ => Err(bad_request("Invalid integer parameter: " + name))
       }
-    }
     None => Err(bad_request("Missing required parameter: " + name))
   }
 }
-
-///|
-extern "js" fn ffi_parse_int(s : String) -> Int =
-  #| (s) => parseInt(s, 10)
-
-///|
-extern "js" fn ffi_is_nan(n : Int) -> Bool =
-  #| (n) => isNaN(n)
 
 ///|
 /// Extract a required query parameter
