@@ -52,9 +52,9 @@ fn create_streaming_response_with_async(
   shell : @luna.Node[Unit, String],
 ) -> @js.Any {
   ffi_create_streaming_response_async(header, footer, async fn(write) {
-    @stream_renderer.render_to_stream_with_async(
+    @portable_stream.render_to_stream_with_async(
       shell,
-      @stream_renderer.StreamWriter::from_callback(write),
+      @portable_stream.StreamWriter::from_callback(write),
     )
   })
 }

@@ -2,10 +2,8 @@
   "name": "mizchi/sol",
   "version": "0.12.0",
   "deps": {
-    "moonbitlang/yacc": {
-      "path": ".repos/moonbitlang/yacc/0.7.10"
-    },
-    "mizchi/luna": "0.17.0",
+    "moonbitlang/yacc": "0.7.10",
+    "mizchi/luna": "0.18.0",
     "moonbitlang/async": "0.16.6",
     "moonbitlang/x": "0.4.40",
     "moonbitlang/parser": "0.1.16",
