@@ -4,6 +4,10 @@ import {
   "mizchi/luna/core/render" @render,
 }
 
+import {
+  "moonbitlang/async",
+} for "test"
+
 options(
   "supported-targets": [ "js", "wasm-gc", "native" ],
 )
