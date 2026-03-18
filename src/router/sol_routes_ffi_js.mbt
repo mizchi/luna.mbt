@@ -51,7 +51,6 @@ async fn send_streaming_server_page(
   loader_url : String,
   root_template : String,
 ) -> Unit {
-  let resolved_node = node.resolve()
   let full_head = @hot_reload.with_dev_head_script(head)
   let (header_html, footer_html) = match
     @page_shell.render_streaming_template_parts(
@@ -65,8 +64,11 @@ async fn send_streaming_server_page(
       )
   }
   // JS: use ReadableStream for chunked transfer encoding
+  // Header is flushed immediately (fast TTFB), then node is resolved
+  // inside the stream so async data fetching happens during streaming.
   let stream = ffi_create_streaming_response(async fn(write) {
     write(header_html)
+    let resolved_node = node.resolve()
     @portable_stream.render_to_stream_with_async(
       resolved_node,
       @portable_stream.StreamWriter::from_callback(write),
