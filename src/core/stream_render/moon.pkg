@@ -1,0 +1,9 @@
+import {
+  "mizchi/luna/core" @core,
+  "mizchi/luna" @luna,
+  "mizchi/luna/core/render" @render,
+}
+
+options(
+  "supported-targets": [ "js", "wasm-gc", "native" ],
+)
