@@ -4,6 +4,7 @@ package "mizchi/luna/dom"
 import {
   "mizchi/js/core",
   "mizchi/signals",
+  "moonbitlang/core/ref",
 }
 
 // Values
@@ -119,9 +120,9 @@ pub fn portal_to_body(Array[DomNode]) -> DomNode
 
 pub fn pre(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js/browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
-pub fn[T] reconcile_for_each(Ref[Array[ItemEntry[T]]], @mizchi/js/browser/dom.Node, Array[T], (T, Int) -> @mizchi/js/browser/dom.Node) -> Unit
+pub fn[T] reconcile_for_each(@ref.Ref[Array[ItemEntry[T]]], @mizchi/js/browser/dom.Node, Array[T], (T, Int) -> @mizchi/js/browser/dom.Node) -> Unit
 
-pub fn[T] reconcile_for_each_with_dispose(Ref[Array[ItemEntry[T]]], @mizchi/js/browser/dom.Node, Array[T], (T, Int) -> (@mizchi/js/browser/dom.Node, () -> Unit)) -> Unit
+pub fn[T] reconcile_for_each_with_dispose(@ref.Ref[Array[ItemEntry[T]]], @mizchi/js/browser/dom.Node, Array[T], (T, Int) -> (@mizchi/js/browser/dom.Node, () -> Unit)) -> Unit
 
 pub fn[T] reconcile_items(@mizchi/js/browser/dom.Node, Array[ItemEntry[T]], Array[T], (T, Int) -> @mizchi/js/browser/dom.Node, @mizchi/js/browser/dom.Node) -> Array[ItemEntry[T]]
 

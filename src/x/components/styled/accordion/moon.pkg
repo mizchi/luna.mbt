@@ -5,3 +5,7 @@ import {
   "mizchi/luna/x/components/headless" @headless,
   "mizchi/js/core" @js,
 }
+
+options(
+  "supported-targets": "js",
+)

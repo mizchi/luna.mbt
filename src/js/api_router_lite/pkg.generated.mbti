@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/js/api_router_lite"
+
+// Values
+pub fn create_router(Array[Any], String) -> Any
+
+pub fn route_page(String, Any) -> Any
+
+pub fn route_page_full(String, Any, String, Array[(String, String)]) -> Any
+
+pub fn route_page_titled(String, Any, String) -> Any
+
+pub fn router_get_base(Any) -> String
+
+pub fn router_get_match(Any) -> Any
+
+pub fn router_get_path(Any) -> String
+
+pub fn router_navigate(Any, String) -> Unit
+
+pub fn router_replace(Any, String) -> Unit
+
+// Errors
+
+// Types and methods
+#external
+pub type Any
+
+// Type aliases
+
+// Traits
+

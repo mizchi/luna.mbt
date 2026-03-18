@@ -3,5 +3,5 @@ import {
 }
 
 options(
-  "supported-targets": [ "js", "wasm-gc", "native" ],
+  "supported-targets": "all",
 )

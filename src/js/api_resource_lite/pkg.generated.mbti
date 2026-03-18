@@ -1,0 +1,44 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/js/api_resource_lite"
+
+// Values
+pub fn create_deferred() -> (Any, (Any) -> Unit, (String) -> Unit)
+
+pub fn create_resource(((Any) -> Unit, (String) -> Unit) -> Unit) -> Any
+
+pub fn resource_error(Any) -> Any
+
+pub fn resource_get(Any) -> Any
+
+pub fn resource_is_failure(Any) -> Bool
+
+pub fn resource_is_pending(Any) -> Bool
+
+pub fn resource_is_success(Any) -> Bool
+
+pub fn resource_peek(Any) -> Any
+
+pub fn resource_refetch(Any) -> Unit
+
+pub fn resource_value(Any) -> Any
+
+pub fn state_error(Any) -> Any
+
+pub fn state_is_failure(Any) -> Bool
+
+pub fn state_is_pending(Any) -> Bool
+
+pub fn state_is_success(Any) -> Bool
+
+pub fn state_value(Any) -> Any
+
+// Errors
+
+// Types and methods
+#external
+pub type Any
+
+// Type aliases
+
+// Traits
+

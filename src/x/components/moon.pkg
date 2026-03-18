@@ -8,3 +8,7 @@ import {
 import {
   "mizchi/luna/core" @core,
 } for "test"
+
+options(
+  "supported-targets": "js",
+)

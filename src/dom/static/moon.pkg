@@ -75,5 +75,5 @@ options(
       "format": "esm",
     },
   },
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

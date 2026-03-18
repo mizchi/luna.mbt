@@ -4,3 +4,7 @@ import {
   "mizchi/luna/js/resource" @resource,
   "mizchi/js/core" @js,
 }
+
+options(
+  "supported-targets": "js",
+)

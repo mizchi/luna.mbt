@@ -4,4 +4,5 @@ import {
 
 options(
   link: { "js": { "exports": [ "render" ], "format": "esm" } },
+  "supported-targets": "js",
 )

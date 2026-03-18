@@ -5,4 +5,5 @@ import {
 
 options(
   link: { "js": { "exports": [ "setup", "template" ], "format": "esm" } },
+  "supported-targets": "js",
 )

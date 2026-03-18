@@ -19,4 +19,5 @@ options(
       "format": "esm",
     },
   },
+  "supported-targets": "js",
 )

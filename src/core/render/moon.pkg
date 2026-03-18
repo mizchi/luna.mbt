@@ -9,5 +9,5 @@ import {
 } for "test"
 
 options(
-  "supported-targets": [ "js", "wasm-gc", "native" ],
+  "supported-targets": "all",
 )

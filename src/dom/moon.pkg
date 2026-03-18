@@ -10,5 +10,5 @@ import {
 } for "test"
 
 options(
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

@@ -6,3 +6,7 @@ import {
 import {
   "mizchi/luna" @luna,
 } for "test"
+
+options(
+  "supported-targets": "js",
+)

@@ -7,3 +7,7 @@ import {
   "mizchi/luna/js/resource" @resource,
   "mizchi/signals",
 } for "test"
+
+options(
+  "supported-targets": "js",
+)

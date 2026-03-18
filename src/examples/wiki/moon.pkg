@@ -11,5 +11,5 @@ import {
 options(
   "is-main": true,
   link: { "js": { "exports": [ "hydrate" ], "format": "esm" } },
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

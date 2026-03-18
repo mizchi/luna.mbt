@@ -4,3 +4,7 @@ import {
   "moonbitlang/core/bench",
   "moonbitlang/core/json",
 }
+
+options(
+  "supported-targets": "js",
+)

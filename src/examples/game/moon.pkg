@@ -10,5 +10,5 @@ import {
 options(
   "is-main": true,
   link: { "js": { "format": "esm" } },
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )
