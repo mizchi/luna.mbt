@@ -462,14 +462,21 @@ extern "js" fn ffi_call_app_handler_with_headers_and_body(
   #| }
 
 ///|
-async test "create_streaming_response_with_async wraps body with header/footer" {
+async test "ffi_create_streaming_response wraps body with header/footer" {
   run_async_test_with_cleanup(() => {
     let header = "<!doctype html><html><body><header>H</header>"
     let footer = "<footer>F</footer></body></html>"
     let shell : @luna.Node[Unit, String] = @luna.h("main", [], [
       @luna.text("Hello Stream"),
     ])
-    let stream = create_streaming_response_with_async(header, footer, shell)
+    let stream = ffi_create_streaming_response(async fn(write) {
+      write(header)
+      @portable_stream.render_to_stream(
+        shell,
+        @portable_stream.StreamWriter::from_callback(write),
+      )
+      write(footer)
+    })
     let html = ffi_stream_to_text(stream).wait()
     assert_true(html.has_prefix(header))
     assert_true(html.contains("<main>Hello Stream</main>"))

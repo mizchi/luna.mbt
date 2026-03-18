@@ -1,5 +1,4 @@
 // JS-specific FFI for sol_routes
-// These are separated to enable future native compilation of the core router.
 
 ///|
 extern "js" fn ffi_ensure_mars_to_handler_reschedule_symbol() -> Unit =
@@ -10,18 +9,14 @@ extern "js" fn ffi_ensure_mars_to_handler_reschedule_symbol() -> Unit =
   #| }
 
 ///|
-extern "js" fn ffi_create_streaming_response_async(
-  header : String,
-  footer : String,
+extern "js" fn ffi_create_streaming_response(
   render_with_async : async ((String) -> Unit) -> Unit,
 ) -> @js.Any =
-  #| (header, footer, renderWithAsync) => new ReadableStream({
+  #| (renderWithAsync) => new ReadableStream({
   #|   async start(controller) {
   #|     const encoder = new TextEncoder();
   #|     const write = (chunk) => controller.enqueue(encoder.encode(chunk));
-  #|     write(header);
   #|     await renderWithAsync(write);
-  #|     write(footer);
   #|     controller.close();
   #|   }
   #| })
@@ -46,20 +41,8 @@ extern "js" fn ffi_json_stringify_any(data : @js.Any) -> String =
   #| (data) => JSON.stringify(data)
 
 ///|
-fn create_streaming_response_with_async(
-  header : String,
-  footer : String,
-  shell : @luna.Node[Unit, String],
-) -> @js.Any {
-  ffi_create_streaming_response_async(header, footer, async fn(write) {
-    @portable_stream.render_to_stream_with_async(
-      shell,
-      @portable_stream.StreamWriter::from_callback(write),
-    )
-  })
-}
-
-///|
+/// Send streaming SSR page via JS ReadableStream.
+/// The header/footer/rendering logic is portable; only the transport is JS-specific.
 async fn send_streaming_server_page(
   c : Ctx,
   node : @server_dom.ServerNode,
@@ -81,8 +64,14 @@ async fn send_streaming_server_page(
         @page_shell.render_streaming_footer(),
       )
   }
-  let stream = create_streaming_response_with_async(
-    header_html, footer_html, resolved_node,
-  )
+  // JS: use ReadableStream for chunked transfer encoding
+  let stream = ffi_create_streaming_response(async fn(write) {
+    write(header_html)
+    @portable_stream.render_to_stream_with_async(
+      resolved_node,
+      @portable_stream.StreamWriter::from_callback(write),
+    )
+    write(footer_html)
+  })
   ffi_set_streaming_response(c, stream)
 }
