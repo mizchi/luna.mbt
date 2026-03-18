@@ -56,12 +56,12 @@ test "compile sol layout with children" {
 
 ///|
 test "compile sol api routes" {
-  async fn get_handler(_props : PageProps) -> @js.Any {
-    @js.any({ "status": "ok" })
+  async fn get_handler(_props : PageProps) -> Json {
+    { "status": "ok" }.to_json()
   }
 
-  async fn post_handler(_props : PageProps) -> @js.Any {
-    @js.any({ "created": true })
+  async fn post_handler(_props : PageProps) -> Json {
+    { "created": true }.to_json()
   }
 
   let routes = [
@@ -641,9 +641,9 @@ async test "register_sol_routes serves page, fragment, and ISR variants" {
 async test "register_sol_routes keeps API headers and non-ISR pages omit ISR status" {
   run_async_test_with_cleanup(() => {
     async fn api_header_scenario() -> Unit {
-      async fn api_handler(props : PageProps) -> @js.Any {
+      async fn api_handler(props : PageProps) -> Json {
         props.set_header("X-Custom", "from-api")
-        @js_any.json_obj([("ok", @js.any(true))])
+        { "ok": true }.to_json()
       }
 
       let app = @mars.Server::new()

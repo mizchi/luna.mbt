@@ -98,32 +98,31 @@ fn find_item_index(id : Int) -> Int? {
 // =============================================================================
 
 ///|
-async fn health_handler(_props : @sol.PageProps) -> @core.Any {
+async fn health_handler(_props : @sol.PageProps) -> Json {
   @sol.ok([
-    ("status", @core.any("ok")),
-    ("timestamp", @core.any(get_timestamp())),
+    ("status", "ok".to_json()),
+    ("timestamp", get_timestamp().to_json()),
   ]).to_json()
 }
 
 ///|
-async fn list_items_handler(_props : @sol.PageProps) -> @core.Any {
+async fn list_items_handler(_props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  let items_json = items_store.val.map(fn(item) { item.to_json() })
   @sol.ok([
-    ("items", @sol.json_array_to_any(items_json)),
-    ("total", @core.any(items_store.val.length())),
+    ("items", items_store.val.to_json()),
+    ("total", items_store.val.length().to_json()),
   ]).to_json()
 }
 
 ///|
-async fn get_item_handler(props : @sol.PageProps) -> @core.Any {
+async fn get_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
   match @sol.require_int(props, "id") {
     Err(e) => e.to_json()
     Ok(id) => {
       let found = items_store.val.iter().find_first(fn(item) { item.id == id })
       match found {
-        Some(item) => @sol.json_to_any(item.to_json())
+        Some(item) => item.to_json()
         None => @sol.not_found_response(message="Item not found").to_json()
       }
     }
@@ -143,7 +142,7 @@ fn get_json_string(json : Json?, field : String) -> String {
 }
 
 ///|
-async fn create_item_handler(props : @sol.PageProps) -> @core.Any {
+async fn create_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
   let json = props.body_json()
   let name = get_json_string(json, "name")
@@ -158,11 +157,11 @@ async fn create_item_handler(props : @sol.PageProps) -> @core.Any {
     created_at: get_timestamp(),
   }
   items_store.val.push(new_item)
-  @sol.json_to_any(new_item.to_json())
+  new_item.to_json()
 }
 
 ///|
-async fn update_item_handler(props : @sol.PageProps) -> @core.Any {
+async fn update_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
   match @sol.require_int(props, "id") {
     Err(e) => e.to_json()
@@ -186,7 +185,7 @@ async fn update_item_handler(props : @sol.PageProps) -> @core.Any {
             created_at: old_item.created_at,
           }
           items_store.val[i] = updated_item
-          @sol.json_to_any(updated_item.to_json())
+          updated_item.to_json()
         }
         None => @sol.not_found_response(message="Item not found").to_json()
       }
@@ -194,7 +193,7 @@ async fn update_item_handler(props : @sol.PageProps) -> @core.Any {
 }
 
 ///|
-async fn delete_item_handler(props : @sol.PageProps) -> @core.Any {
+async fn delete_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
   match @sol.require_int(props, "id") {
     Err(e) => e.to_json()
@@ -207,8 +206,8 @@ async fn delete_item_handler(props : @sol.PageProps) -> @core.Any {
             .filter(fn(item) { item.id != id })
             .collect()
           @sol.ok([
-            ("deleted", @core.any(true)),
-            ("item", @sol.json_to_any(removed.to_json())),
+            ("deleted", true.to_json()),
+            ("item", removed.to_json()),
           ]).to_json()
         }
         None => @sol.not_found_response(message="Item not found").to_json()
@@ -217,16 +216,16 @@ async fn delete_item_handler(props : @sol.PageProps) -> @core.Any {
 }
 
 ///|
-async fn stats_handler(_props : @sol.PageProps) -> @core.Any {
+async fn stats_handler(_props : @sol.PageProps) -> Json {
   ensure_items_initialized()
   @sol.ok([
-    ("total_items", @core.any(items_store.val.length())),
-    ("last_updated", @core.any(get_timestamp())),
+    ("total_items", items_store.val.length().to_json()),
+    ("last_updated", get_timestamp().to_json()),
   ]).to_json()
 }
 
 ///|
-async fn error_handler(props : @sol.PageProps) -> @core.Any {
+async fn error_handler(props : @sol.PageProps) -> Json {
   let error_type = props.get_query("type").unwrap_or("generic")
   match error_type {
     "not_found" => @sol.not_found_response(message="Resource not found").to_json()

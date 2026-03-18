@@ -211,17 +211,21 @@ fn legacy_page_handler_from_resolver(
 fn legacy_api_handler_from_resolver(
   handler : String,
   api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
-) -> async (PageProps) -> @js.Any {
+) -> async (PageProps) -> Json {
   async fn(props : PageProps) {
     match api_resolver(handler, props.ctx, props.params) {
-      Some(json) => json
+      Some(json) => {
+        // Convert legacy @js.Any to Json string and back
+        let str = ffi_json_stringify_any(json)
+        @json.parse(str) catch { _ => ().to_json() }
+      }
       None => {
         @mars_response.send_json_error(
           props.ctx,
           "Handler not found",
           status=404,
         )
-        @js_any.json_obj([])
+        ().to_json()
       }
     }
   }
@@ -283,3 +287,7 @@ fn legacy_routes_to_sol_routes(
   }
   converted
 }
+
+///|
+extern "js" fn ffi_json_stringify_any(data : @js.Any) -> String =
+  #| (data) => JSON.stringify(data)

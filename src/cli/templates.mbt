@@ -251,8 +251,8 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|}
     #|
     #|///| API handler: health check
-    #|async fn api_health(_props : @sol.PageProps) -> @core.Any {
-    #|  @sol.ok([("status", @core.any("ok"))]).to_json()
+    #|async fn api_health(_props : @sol.PageProps) -> Json {
+    #|  @sol.ok([("status", "ok".to_json())]).to_json()
     #|}
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
@@ -264,7 +264,6 @@ pub fn template_routes_moon_pkg(package_name : String) -> String {
     #|import {
     #|  "mizchi/sol" @sol,
     #|  "mizchi/luna/dom/static" @server_dom,
-    #|  "mizchi/js/core" @core,
     #|  "{{PACKAGE_NAME}}/layout" @layout,
     #|  "{{PACKAGE_NAME}}/__gen__/types" @types,
     #|  "moonbitlang/async",

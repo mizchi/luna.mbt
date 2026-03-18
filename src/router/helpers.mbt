@@ -42,7 +42,7 @@ pub fn page(
 /// ```
 pub fn api_get(
   path : String,
-  handler : async (PageProps) -> @js.Any,
+  handler : async (PageProps) -> Json,
 ) -> SolRoutes {
   SolRoutes::Get(path~, handler=ApiHandler(handler))
 }
@@ -56,7 +56,7 @@ pub fn api_get(
 /// ```
 pub fn api_post(
   path : String,
-  handler : async (PageProps) -> @js.Any,
+  handler : async (PageProps) -> Json,
 ) -> SolRoutes {
   SolRoutes::Post(path~, handler=ApiHandler(handler))
 }
@@ -65,7 +65,7 @@ pub fn api_post(
 /// Create a PUT API route
 pub fn api_put(
   path : String,
-  handler : async (PageProps) -> @js.Any,
+  handler : async (PageProps) -> Json,
 ) -> SolRoutes {
   SolRoutes::Put(path~, handler=ApiHandler(handler))
 }
@@ -74,7 +74,7 @@ pub fn api_put(
 /// Create a DELETE API route
 pub fn api_delete(
   path : String,
-  handler : async (PageProps) -> @js.Any,
+  handler : async (PageProps) -> Json,
 ) -> SolRoutes {
   SolRoutes::Delete(path~, handler=ApiHandler(handler))
 }
@@ -83,7 +83,7 @@ pub fn api_delete(
 /// Create a PATCH API route
 pub fn api_patch(
   path : String,
-  handler : async (PageProps) -> @js.Any,
+  handler : async (PageProps) -> Json,
 ) -> SolRoutes {
   SolRoutes::Patch(path~, handler=ApiHandler(handler))
 }
@@ -129,10 +129,10 @@ pub fn with_mw(
 ///|
 /// Type-safe API response enum
 ///
-/// Use with `.to_json()` to convert to `@js.Any` for handler return.
+/// Use with `.to_json()` to convert to `Json` for handler return.
 pub(all) enum ApiResponse {
   /// JSON data response
-  Json(@js.Any)
+  Json(Json)
   /// Redirect response (url, status_code)
   Redirect(String, Int)
   /// Not found (404)
@@ -142,16 +142,19 @@ pub(all) enum ApiResponse {
 }
 
 ///|
-/// Convert ApiResponse to JSON for handler return
-pub fn ApiResponse::to_json(self : ApiResponse) -> @js.Any {
+/// Convert ApiResponse to Json for handler return
+pub fn ApiResponse::to_json(self : ApiResponse) -> Json {
   match self {
     Json(data) => data
     Redirect(url, status) =>
-      @js_any.json_obj([("redirect", @js.any(url)), ("status", @js.any(status))])
+      {
+        "redirect": url.to_json(),
+        "status": status.to_json(),
+      }
     NotFound(msg) =>
-      @js_any.json_obj([("error", @js.any(msg)), ("status", @js.any(404))])
+      { "error": msg.to_json(), "status": (404 : Int).to_json() }
     Error(msg, status) =>
-      @js_any.json_obj([("error", @js.any(msg)), ("status", @js.any(status))])
+      { "error": msg.to_json(), "status": status.to_json() }
   }
 }
 
@@ -160,10 +163,14 @@ pub fn ApiResponse::to_json(self : ApiResponse) -> @js.Any {
 ///
 /// Example:
 /// ```moonbit nocheck
-/// ok([("status", @js.any("success"))]).to_json()
+/// ok([("status", "ok".to_json())]).to_json()
 /// ```
-pub fn ok(pairs : Array[(String, @js.Any)]) -> ApiResponse {
-  ApiResponse::Json(@js_any.json_obj(pairs))
+pub fn ok(pairs : Array[(String, Json)]) -> ApiResponse {
+  let obj : Map[String, Json] = {}
+  for pair in pairs {
+    obj[pair.0] = pair.1
+  }
+  ApiResponse::Json(obj.to_json())
 }
 
 ///|

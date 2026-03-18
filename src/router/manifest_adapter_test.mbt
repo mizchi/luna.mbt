@@ -14,7 +14,7 @@ fn make_test_handler() -> @router.PageHandler {
 
 ///|
 fn make_test_api_handler() -> @router.ApiHandler {
-  @router.ApiHandler(async fn(_props) { @js.any("{}") })
+  @router.ApiHandler(async fn(_props) { ().to_json() })
 }
 
 // =============================================================================

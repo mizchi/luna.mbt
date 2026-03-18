@@ -20,8 +20,9 @@ let isr_in_flight : Ref[Set[String]] = Ref::new(Set::new())
 pub(all) struct PageHandler(async (PageProps) -> @server_dom.ServerNode)
 
 ///|
-/// API handler type - async function that receives PageProps and returns JSON response
-pub(all) struct ApiHandler(async (PageProps) -> @js.Any)
+/// API handler type - async function that receives PageProps and returns Json response.
+/// Uses MoonBit's built-in Json type for wasm/native compatibility.
+pub(all) struct ApiHandler(async (PageProps) -> Json)
 
 // ============================================================================
 // Cache Strategy
@@ -769,7 +770,7 @@ async fn handle_compiled_api_route(
   let props = PageProps::from_ctx_with_params(c, params)
   match route.api_handler {
     Some(ApiHandler(handler)) => {
-      let json : @js.Any = handler(props) catch {
+      let json : Json = handler(props) catch {
         e => {
           @mars_response.send_internal_error(c, message=e.to_string())
           return
@@ -778,7 +779,7 @@ async fn handle_compiled_api_route(
       if c.is_response_sent() {
         return
       }
-      @mars_response.send_json_any(c, json)
+      @mars_response.send_json(c, json)
     }
     None => @mars_response.send_json_error(c, "No handler", status=404)
   }

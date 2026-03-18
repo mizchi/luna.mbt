@@ -4,11 +4,11 @@ test "analyze_routes extracts API routes as dynamic" {
   let routes : Array[SolRoutes] = [
     SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(async fn(_) { @js.any("") }),
+      handler=ApiHandler(async fn(_) { ().to_json() }),
     ),
     SolRoutes::Post(
       path="/api/users",
-      handler=ApiHandler(async fn(_) { @js.any("") }),
+      handler=ApiHandler(async fn(_) { ().to_json() }),
     ),
   ]
   let analyzed = analyze_routes(routes)
@@ -106,7 +106,7 @@ test "extract_dynamic_patterns returns correct patterns" {
     ),
     SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(async fn(_) { @js.any("") }),
+      handler=ApiHandler(async fn(_) { ().to_json() }),
     ),
   ]
   let patterns = extract_dynamic_patterns(routes)
@@ -153,7 +153,7 @@ test "generate_wrangler_assets_config for hybrid site" {
     ),
     SolRoutes::Get(
       path="/api/health",
-      handler=ApiHandler(async fn(_) { @js.any("") }),
+      handler=ApiHandler(async fn(_) { ().to_json() }),
     ),
   ]
   let config = generate_wrangler_assets_config(routes, "./dist")
