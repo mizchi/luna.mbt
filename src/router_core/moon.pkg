@@ -1,0 +1,8 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
+  "moonbitlang/async",
+  "mizchi/mars" @mars,
+}
+
+warnings = "-29"
