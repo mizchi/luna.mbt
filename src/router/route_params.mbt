@@ -19,20 +19,12 @@ pub struct RouteParams {
   path : String
   /// Whether this is a fragment request (CSR navigation)
   is_fragment : Bool
-  /// URLPatternResult for advanced pattern matching (optional)
-  url_pattern_result : @url.URLPatternResult?
 }
 
 ///|
 /// Create empty route params
 pub fn RouteParams::empty() -> RouteParams {
-  {
-    params: [],
-    query: [],
-    path: "",
-    is_fragment: false,
-    url_pattern_result: None,
-  }
+  { params: [], query: [], path: "", is_fragment: false }
 }
 
 ///|
@@ -55,46 +47,6 @@ pub fn RouteParams::get_query(self : RouteParams, key : String) -> String? {
     }
   }
   None
-}
-
-///|
-/// Get pathname group from URLPatternResult
-/// Returns None if URLPatternResult is not available or group doesn't exist
-pub fn RouteParams::get_pathname_group(
-  self : RouteParams,
-  name : String,
-) -> String? {
-  match self.url_pattern_result {
-    Some(result) => {
-      let value = result.pathname.groups[name]
-      if @js.is_nullish(value) {
-        None
-      } else {
-        Some(@js.identity(value))
-      }
-    }
-    None => None
-  }
-}
-
-///|
-/// Get search group from URLPatternResult
-/// Returns None if URLPatternResult is not available or group doesn't exist
-pub fn RouteParams::get_search_group(
-  self : RouteParams,
-  name : String,
-) -> String? {
-  match self.url_pattern_result {
-    Some(result) => {
-      let value = result.search.groups[name]
-      if @js.is_nullish(value) {
-        None
-      } else {
-        Some(@js.identity(value))
-      }
-    }
-    None => None
-  }
 }
 
 ///|
@@ -297,7 +249,7 @@ fn extract_route_params(
     raw_path
   }
 
-  { params, query, path, is_fragment, url_pattern_result: None }
+  { params, query, path, is_fragment }
 }
 
 ///|

@@ -592,47 +592,7 @@ fn apply_layouts(
   node
 }
 
-///|
-fn create_streaming_response_with_async(
-  header : String,
-  footer : String,
-  shell : @luna.Node[Unit, String],
-) -> @js.Any {
-  ffi_create_streaming_response_async(header, footer, async fn(write) {
-    @stream_renderer.render_to_stream_with_async(
-      shell,
-      @stream_renderer.StreamWriter::from_callback(write),
-    )
-  })
-}
 
-///|
-async fn send_streaming_server_page(
-  c : Ctx,
-  node : @server_dom.ServerNode,
-  title : String,
-  head : String,
-  loader_url : String,
-  root_template : String,
-) -> Unit {
-  let resolved_node = node.resolve()
-  let full_head = @hot_reload.with_dev_head_script(head)
-  let (header_html, footer_html) = match
-    @page_shell.render_streaming_template_parts(
-      root_template, title, full_head, "", loader_url,
-    ) {
-    Some(parts) => parts
-    None =>
-      (
-        @page_shell.render_streaming_header(title, full_head, loader_url),
-        @page_shell.render_streaming_footer(),
-      )
-  }
-  let stream = create_streaming_response_with_async(
-    header_html, footer_html, resolved_node,
-  )
-  ffi_set_streaming_response(c, stream)
-}
 
 
 ///|
