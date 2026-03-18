@@ -2,124 +2,98 @@
 
 ## Current State (2026-03-18)
 
-Sol is JS-only. All 4 core packages declare `supported-targets: "js"`:
-- `src/` (@sol)
-- `src/router/` (@router)
-- `src/action/` (@action)
-- `src/internal/mars_response/`
-
-71 `extern "js"` FFI calls across the codebase. Mars itself supports native (`mars_js.mbt` / `mars_native.mbt`), but Sol connects to Mars exclusively through JS paths.
-
-### What's already portable (after Json migration)
+### What's done
 
 - `ApiHandler`: `async (PageProps) -> Json` — no `@js.Any`
-- `ApiResponse` enum and helpers (`ok`, `bad_request`, etc.) — pure MoonBit
-- `SolRoutes` enum and route compilation — pure data
-- `RouterConfig` — pure data
+- `ApiResponse` enum and helpers — pure MoonBit
 - Route helpers (`route`, `api_get`, `wrap`, `with_mw`, `nodes`) — pure MoonBit
+- Streaming SSR uses portable `luna/core/stream_render` (native + js + wasm-gc)
+- Router JS FFI isolated in `sol_routes_ffi_js.mbt`
+- `router_core` package compiles on native (RequestProps, ApiResponse, helpers)
+- Bench servers: `src/bench_native_api/` (native) and `src/bench_js_api/` (JS)
+- Header/footer streaming logic moved to MoonBit side (only ReadableStream FFI wrapper is JS)
 
-## Phase 1: Trait Abstraction for Router FFI
+### Benchmark (k6, 10 VUs, 10s)
 
-**Goal**: Make `src/router/` compilable on native by abstracting JS FFI behind traits.
+| | Native | JS (Node.js) | Ratio |
+|---|---|---|---|
+| req/s | ~12,400 | ~16,800 | Native ≈ 73% of JS |
+| avg latency | ~768µs | ~556µs | |
+| keep-alive single | 175µs | — | |
 
-### FFI in router/ (5 calls, excluding tests)
+### Profile Analysis (macOS `sample`, under k6 load)
 
-| FFI | File | Purpose | Abstraction |
-|-----|------|---------|-------------|
-| `ffi_parse_int` | helpers.mbt | parseInt | `@strconv.parse_int` (stdlib) |
-| `ffi_is_nan` | helpers.mbt | isNaN check | Remove (use Result from parse) |
-| `ffi_ensure_mars_to_handler_reschedule_symbol` | sol_routes.mbt | Async scheduler compat | Conditional (js-only, no-op on native) |
-| `ffi_create_streaming_response_async` | sol_routes.mbt | SSR streaming | Platform trait |
-| `ffi_set_streaming_response` | sol_routes.mbt | Set stream on ctx | Platform trait |
+| Category | % of CPU | Top functions |
+|---|---|---|
+| **RC (refcount)** | ~15% | `decref_inlined`(206), `incref_inlined`(138), `drop_object`(71), `malloc/free`(111) |
+| **String/Buffer** | ~13% | `write_string_utf8`(90), `encode_utf8`(85), `write_char`(78), `json.stringify`(72) |
+| **HTTP send** | ~11% | `Sender::write`(101+50), `send_headers`(56), `send_response`(51) |
+| **Hash/Map** | ~6% | `Hasher::combine_string`(49), `hash`(43) |
+| **to_lower** | ~1% | `String::to_lower`(33) |
 
-**Quick wins** (no trait needed):
-- Replace `ffi_parse_int` / `ffi_is_nan` with `@strconv.parse_int` — pure MoonBit
-- Guard `ffi_ensure_mars_to_handler_reschedule_symbol` with `_js.mbt` suffix
+### Key findings
 
-**Streaming trait**:
-```moonbit
-pub trait StreamingPlatform {
-  create_streaming_response(async () -> Unit) -> @http.Response
-  set_streaming_response(Ctx, stream) -> Unit
-}
+1. **RC overhead is dominant** (~15%). MoonBit's reference counting for short-lived HTTP objects (headers Map, response strings) causes high incref/decref traffic. This is a compiler optimization issue (escape analysis, RC elision).
+
+2. **Json.stringify → String → UTF-8 encode is triple-copy** (~13%). The path is `Json → String (stringify) → Bytes (encode) → socket write`. A direct Json-to-bytes serializer would halve this.
+
+3. **HTTP headers are written in 4+ small writes per header** (~11%). `send_headers` calls `write(k)`, `write(": ")`, `write(v)`, `write("\r\n")` per header. Concatenating into a single buffer write would reduce overhead.
+
+4. **HashMap for header storage** (~6%). Header keys are hashed with `combine_string` on every lookup. For the small number of headers in API responses (2-3), a simple array of pairs would be faster.
+
+5. **Content-Length optimization showed no improvement**. Tested adding `SendingFixedBody` mode to skip chunked encoding — performance was the same, confirming the bottleneck is not in chunked encoding but in the layers above (RC, string ops).
+
+## What can be improved (by layer)
+
+### Application layer (sol/mars) — Low impact
+
+- [x] Content-Length responses — tested, no measurable improvement
+- [ ] Pre-serialize common JSON responses (cache stringify result)
+- [ ] Avoid HashMap for response headers when count < 4
+
+### moonbitlang/async HTTP layer — Medium impact
+
+- [ ] Batch header writes into single buffer write in `send_headers`
+- [ ] send_buf size increase (1024 → 8192) — tested, no measurable improvement
+- [ ] Direct Json-to-bytes path bypassing String intermediate
+
+### MoonBit runtime — High impact (not actionable by us)
+
+- [ ] RC elision for short-lived objects (escape analysis)
+- [ ] Faster string hashing
+- [ ] Arena allocator for request-scoped objects
+
+## Phase 1 (completed)
+
+- [x] Replace `ffi_parse_int`/`ffi_is_nan` with `@strconv.parse_int`
+- [x] Move streaming FFI to `_js.mbt` files
+- [x] Replace `ffi_json_stringify_error` with `Json.stringify()`
+- [x] Streaming SSR logic moved to MoonBit (portable `luna/core/stream_render`)
+- [x] `router_core` package (native-compatible types + helpers)
+
+## Phase 2: Streaming SSR on native
+
+- [x] `luna/core/stream_render` — 10 tests pass on native
+- [x] `node.resolve()` moved inside ReadableStream for proper TTFB
+- [ ] Native streaming via `mars Context::write_raw` + `end_response`
+  (code path is ready, needs `sol_routes_ffi_native.mbt`)
+
+## Phase 3: Package split
+
+Blocked by `import ... for "js"` not supported in MoonBit.
+Alternative: `router_core` package provides portable types.
+Full router remains JS-only due to `@middleware`, `@isr` deps.
+
+## Dependency chain for native patches
+
+```
+moonbitlang/async (send.mbt, parser.mbt)
+  ↓
+mizchi/x (http_native.mbt — wraps async/http)
+  ↓
+mizchi/mars (context_native.mbt — uses x/http)
+  ↓
+mizchi/sol (bench_native_api — uses mars)
 ```
 
-### FFI in mars_response/ (2 calls)
-
-| FFI | Purpose | Abstraction |
-|-----|---------|-------------|
-| `ffi_json_stringify(@js.Any)` | Legacy `send_json_any` | Already bypassed by `send_json(Json)` |
-| `ffi_json_stringify_error(String)` | Error response | Replace with `Json.stringify()` |
-
-Both can be replaced with `Json.stringify()` on native. `send_json_any` is only used by legacy `register_routes` path.
-
-### FFI in action/ (2 calls, client-side only)
-
-| FFI | Purpose | Native? |
-|-----|---------|---------|
-| `ffi_invoke_action_cb` | Browser-only | N/A (client) |
-| `ffi_submit_form_action` | Browser-only | N/A (client) |
-
-Action client FFI is browser-only — not needed for server native. `register_actions` itself is pure.
-
-## Phase 2: Mars Connection Prototype
-
-**Goal**: Prove Sol routes can run on Mars native handler.
-
-### Minimal prototype
-
-```moonbit
-// native_main.mbt
-fn main {
-  let app = @mars.Server::new()
-  @sol.register_sol_routes(app, routes(), config=config())
-  // Mars native serves via its own native adapter
-  @mars_adapters.native_serve(app, port=7777)
-}
-```
-
-### What Mars native provides
-- `Context::json(data: Json)` — works on native
-- `Context::text(body, status)` — works on native
-- Route registration — pure MoonBit
-- Request/response — native HTTP via `@http`
-
-### What needs bridging
-- `send_json()` already uses `Json.stringify()` — portable
-- `PageProps::from_ctx()` accesses `@mars.Context` — works if Context is native
-- `PageProps::body_json()` — needs native body parsing (Mars has this)
-
-### Key insight
-The handler execution path (`handle_compiled_api_route`) is:
-```
-ApiHandler(handler) → handler(props) → Json → send_json(ctx, json) → ctx.text(json.stringify())
-```
-This entire chain is already `@js.Any`-free. The only blocker is the `supported-targets` declaration and the streaming FFI.
-
-## Phase 3: Package Split (if needed)
-
-Split `@sol` into:
-- `sol/core` — RouterConfig, SolRoutes, helpers, create_app (portable)
-- `sol/runtime` — run_app, serve, streaming, static serving (JS-only)
-- `sol/cli` — generate, build, dev (JS-only, tooling)
-
-This is only needed if Phase 2 reveals structural issues.
-
-## Non-goals
-
-These stay JS-only:
-- CLI (`sol generate`, `sol build`, `sol dev`) — Node.js tooling
-- SSG/SSR streaming — requires JS stream API
-- HMR — WebSocket dev tooling
-- Rolldown bundling — JS bundler
-- Shiki syntax highlighting — JS library
-- Client islands — browser-only
-
-## Execution Order
-
-1. Replace `ffi_parse_int`/`ffi_is_nan` with stdlib (trivial)
-2. Move streaming FFI to `_js.mbt` files with no-op `_native.mbt` stubs
-3. Replace `ffi_json_stringify_error` with `Json.stringify()`
-4. Remove `supported-targets: "js"` from router, action, mars_response
-5. Prototype: compile `register_sol_routes` + `handle_compiled_api_route` on native
-6. Prototype: connect to Mars native adapter with a minimal example
+All 4 repos need `path` overrides in moon.mod.json for local patching.

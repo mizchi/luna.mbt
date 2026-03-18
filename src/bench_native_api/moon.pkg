@@ -1,0 +1,11 @@
+import {
+  "mizchi/mars" @mars,
+  "mizchi/sol/router_core" @rc,
+  "moonbitlang/core/json",
+  "moonbitlang/async",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": "native",
+)
