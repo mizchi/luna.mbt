@@ -6,7 +6,7 @@
 
 ///|
 /// Home page - displays todo list with form-based interactions
-async fn home_page(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   @server_dom.ServerNode::async_(fn() {
     let todos = get_todos()
     let completed_count = todos.iter().filter(fn(t) { t.completed }).count()
@@ -115,8 +115,8 @@ async fn home_page(_props : @router.PageProps) -> @server_dom.ServerNode {
 
 ///|
 /// Add todo page - dedicated form page
-async fn add_page(_props : @router.PageProps) -> @server_dom.ServerNode {
-  @server_dom.ServerNode::sync(@luna.fragment([
+async fn add_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  @sol.nodes([
     div(class="card", [
       h1([text("Add New Todo")]),
       p([text("Enter a new todo item below.")]),
@@ -144,7 +144,7 @@ async fn add_page(_props : @router.PageProps) -> @server_dom.ServerNode {
         sol_link(href="/", [text("Back to List")]),
       ]),
     ]),
-  ]))
+  ])
 }
 
 // =============================================================================
@@ -153,8 +153,8 @@ async fn add_page(_props : @router.PageProps) -> @server_dom.ServerNode {
 
 ///|
 /// About page - static content for CSR navigation testing
-async fn about_page(_props : @router.PageProps) -> @server_dom.ServerNode {
-  @server_dom.ServerNode::sync(@luna.fragment([
+async fn about_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  @sol.nodes([
     div(class="card", [
       h1([text("About Sol Todo")]),
       p([
@@ -179,5 +179,5 @@ async fn about_page(_props : @router.PageProps) -> @server_dom.ServerNode {
         sol_link(href="/", [text("Back to Todo List")]),
       ]),
     ]),
-  ]))
+  ])
 }

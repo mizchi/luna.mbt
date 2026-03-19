@@ -6,12 +6,12 @@
 
 ///|
 /// About page - static content (sync server component)
-async fn about(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn about(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text("About")]),
     p([text("Built with MoonBit and Sol framework.")]),
   ]
 
   // Return content only - layout is applied by SolRoutes::Layout
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }

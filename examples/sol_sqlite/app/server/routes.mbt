@@ -8,49 +8,21 @@
 // =============================================================================
 
 ///|
-pub fn routes() -> Array[@router.SolRoutes] {
+pub fn routes() -> Array[@sol.SolRoutes] {
   [
-    @router.SolRoutes::WithMiddleware(
-      middleware=[@mw.logger()],
-      children=[
+    @sol.with_mw(
+      [@mw.logger()],
+      [
         // Layout wrapping all pages
-        @router.SolRoutes::Layout(segment="", layout=root_layout, children=[
+        @sol.wrap("", root_layout, [
           // Home page - navigation hub
-          @router.SolRoutes::Page(
-            path="/",
-            handler=@router.PageHandler(home_page),
-            title="SQLite ISR Demo",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/", home_page, title="SQLite ISR Demo"),
           // Blog index with ISR - 60s TTL (warm tier)
-          @router.SolRoutes::Page(
-            path="/blog",
-            handler=@router.PageHandler(blog_index),
-            title="Blog",
-            meta=[],
-            revalidate=Some(60), // ISR enabled: 60 seconds TTL
-            cache=None,
-          ),
+          @sol.route("/blog", blog_index, title="Blog", revalidate=Some(60)),
           // Individual blog posts with ISR - 120s TTL
-          @router.SolRoutes::Page(
-            path="/blog/:slug",
-            handler=@router.PageHandler(blog_post),
-            title="Blog Post",
-            meta=[],
-            revalidate=Some(120), // ISR enabled: 120 seconds TTL
-            cache=None,
-          ),
+          @sol.route("/blog/:slug", blog_post, title="Blog Post", revalidate=Some(120)),
           // Stats page with ISR - 10s TTL (near real-time)
-          @router.SolRoutes::Page(
-            path="/stats",
-            handler=@router.PageHandler(stats_page),
-            title="Statistics",
-            meta=[],
-            revalidate=Some(10), // ISR enabled: 10 seconds TTL
-            cache=None,
-          ),
+          @sol.route("/stats", stats_page, title="Statistics", revalidate=Some(10)),
         ]),
       ],
     ),
@@ -63,7 +35,7 @@ pub fn routes() -> Array[@router.SolRoutes] {
 
 ///|
 fn root_layout(
-  _props : @router.PageProps,
+  _props : @sol.PageProps,
   content : @server_dom.ServerNode,
 ) -> @server_dom.ServerNode raise Error {
   @server_dom.ServerNode::async_(async fn() {
@@ -90,7 +62,7 @@ fn root_layout(
 // =============================================================================
 
 ///| Home page - explains the demo
-async fn home_page(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content : Array[@luna.Node[Unit, String]] = [
     h1([text("SQLite ISR Demo")]),
     p([text("This demo shows ISR (Incremental Static Regeneration) with SQLite database.")]),
@@ -127,11 +99,11 @@ async fn home_page(_props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///| Blog index page - lists all posts from SQLite
-async fn blog_index(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn blog_index(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let posts = db_get_all_posts()
   let generated_at = get_timestamp()
   let len = array_len(posts)
@@ -166,11 +138,11 @@ async fn blog_index(_props : @router.PageProps) -> @server_dom.ServerNode {
     p([text("Total posts: " + len.to_string())]),
     div(post_items),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///| Individual blog post page
-async fn blog_post(props : @router.PageProps) -> @server_dom.ServerNode {
+async fn blog_post(props : @sol.PageProps) -> @server_dom.ServerNode {
   let slug = props.params.get_param("slug").unwrap_or("")
   let post = db_get_post_by_slug(slug)
   let generated_at = get_timestamp()
@@ -206,11 +178,11 @@ async fn blog_post(props : @router.PageProps) -> @server_dom.ServerNode {
       a(href="/blog", [text("Back to Blog")]),
     ]
   }
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///| Statistics page - shows aggregate data
-async fn stats_page(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn stats_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let stats = db_get_stats()
   let generated_at = get_timestamp()
 
@@ -248,7 +220,7 @@ async fn stats_page(_props : @router.PageProps) -> @server_dom.ServerNode {
     ]),
     p([a(href="/blog", [text("View Blog Posts")])]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 // =============================================================================
@@ -277,8 +249,8 @@ const ROOT : String =
   #|</html>
 
 ///|
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
   .with_root_template(ROOT)
 }
 

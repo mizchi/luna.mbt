@@ -10,7 +10,7 @@
 /// Application routes - defines all pages and API endpoints
 /// Uses Layout to wrap all pages with shared navigation
 /// Demonstrates middleware composition with Railway Oriented Programming
-pub fn routes() -> Array[@router.SolRoutes] {
+pub fn routes() -> Array[@sol.SolRoutes] {
   let bench_mode = is_bench_mode()
   let global_middleware = if bench_mode {
     [@mw.security_headers_relaxed()]
@@ -24,140 +24,48 @@ pub fn routes() -> Array[@router.SolRoutes] {
   }
   [
     // Apply security headers and logger middleware to all routes
-    @router.SolRoutes::WithMiddleware(
-      middleware=global_middleware,
-      children=[
+    @sol.with_mw(
+      global_middleware,
+      [
         // Root layout - wraps all pages with navigation
-        @router.SolRoutes::Layout(segment="", layout=root_layout, children=[
+        @sol.wrap("", root_layout, [
           // Home page with counter island
-          @router.SolRoutes::Page(
-            path="/",
-            handler=@router.PageHandler(home),
-            title="Home",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/", home, title="Home"),
           // About page (static, no hydration)
-          @router.SolRoutes::Page(
-            path="/about",
-            handler=@router.PageHandler(about),
-            title="About",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/about", about, title="About"),
           // Contact form page with contact_form island
-          @router.SolRoutes::Page(
-            path="/form",
-            handler=@router.PageHandler(form_page),
-            title="Contact Form",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/form", form_page, title="Contact Form"),
           // WC Counter page - Web Components based island
-          @router.SolRoutes::Page(
-            path="/wc-counter",
-            handler=@router.PageHandler(wc_counter),
-            title="WC Counter",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/wc-counter", wc_counter, title="WC Counter"),
           // WC Multiple page - multiple instances of same component
-          @router.SolRoutes::Page(
-            path="/wc-multiple",
-            handler=@router.PageHandler(wc_multiple),
-            title="WC Multiple",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/wc-multiple", wc_multiple, title="WC Multiple"),
           // Docs page - catch-all route [...slug]
-          @router.SolRoutes::Page(
-            path="/docs/[...slug]",
-            handler=@router.PageHandler(docs_page),
-            title="Documentation",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/docs/[...slug]", docs_page, title="Documentation"),
           // Blog page - optional catch-all route [[...path]]
-          @router.SolRoutes::Page(
-            path="/blog/[[...path]]",
-            handler=@router.PageHandler(blog_page),
-            title="Blog",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/blog/[[...path]]", blog_page, title="Blog"),
           // Middleware test page
-          @router.SolRoutes::Page(
-            path="/middleware-test",
-            handler=@router.PageHandler(middleware_test),
-            title="Middleware Test",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/middleware-test", middleware_test, title="Middleware Test"),
           // Admin section - nested layout example
-          @router.SolRoutes::Layout(segment="/admin", layout=admin_layout, children=[
-            @router.SolRoutes::Page(
-              path="/",
-              handler=@router.PageHandler(admin_home),
-              title="Admin Dashboard",
-              meta=[],
-              revalidate=None,
-              cache=None,
-            ),
-            @router.SolRoutes::Page(
-              path="/settings",
-              handler=@router.PageHandler(admin_settings),
-              title="Admin Settings",
-              meta=[],
-              revalidate=None,
-              cache=None,
-            ),
-            @router.SolRoutes::Page(
-              path="/users",
-              handler=@router.PageHandler(admin_users),
-              title="Admin Users",
-              meta=[],
-              revalidate=None,
-              cache=None,
-            ),
+          @sol.wrap("/admin", admin_layout, [
+            @sol.route("/", admin_home, title="Admin Dashboard"),
+            @sol.route("/settings", admin_settings, title="Admin Settings"),
+            @sol.route("/users", admin_users, title="Admin Users"),
           ]),
         ]),
         // API endpoints with CORS middleware
         // Using method-style composition: logger().then(cors())
-        @router.SolRoutes::WithMiddleware(
-          middleware=api_middleware,
-          children=[
-            @router.SolRoutes::Get(
-              path="/api/health",
-              handler=@router.ApiHandler(api_health),
-            ),
+        @sol.with_mw(
+          api_middleware,
+          [
+            @sol.api_get("/api/health", api_health),
             // Benchmark API - lightweight endpoint for k6 runs
-            @router.SolRoutes::Get(
-              path="/api/bench/ping",
-              handler=@router.ApiHandler(api_bench_ping),
-            ),
+            @sol.api_get("/api/bench/ping", api_bench_ping),
             // Benchmark API - catch-all endpoint for routing benchmarks
-            @router.SolRoutes::Get(
-              path="/api/bench/test/[...path]",
-              handler=@router.ApiHandler(api_bench_catch_all),
-            ),
+            @sol.api_get("/api/bench/test/[...path]", api_bench_catch_all),
             // Middleware test API - returns info about current request
-            @router.SolRoutes::Get(
-              path="/api/middleware-test",
-              handler=@router.ApiHandler(api_middleware_test),
-            ),
+            @sol.api_get("/api/middleware-test", api_middleware_test),
             // Debug API - test catch-all params
-            @router.SolRoutes::Get(
-              path="/api/test/[...path]",
-              handler=@router.ApiHandler(api_test_catch_all),
-            ),
+            @sol.api_get("/api/test/[...path]", api_test_catch_all),
           ],
         ),
       ],
@@ -177,7 +85,7 @@ extern "js" fn is_bench_mode() -> Bool =
 
 ///|
 /// Debug API - returns catch-all params
-async fn api_test_catch_all(props : @router.PageProps) -> Json {
+async fn api_test_catch_all(props : @sol.PageProps) -> Json {
   let path = props.params.get_param("path").unwrap_or("(none)")
   let star = props.params.get_param("*").unwrap_or("(none)")
   let all_params = props.params.params.map(fn(p) { p.0 + "=" + p.1 }).join(",")
@@ -190,19 +98,19 @@ async fn api_test_catch_all(props : @router.PageProps) -> Json {
 
 ///|
 /// API handler: health check
-async fn api_health(_props : @router.PageProps) -> Json {
+async fn api_health(_props : @sol.PageProps) -> Json {
   @sol.ok([("status", "ok".to_json())]).to_json()
 }
 
 ///|
 /// API handler: benchmark ping (lightweight)
-async fn api_bench_ping(_props : @router.PageProps) -> Json {
+async fn api_bench_ping(_props : @sol.PageProps) -> Json {
   @sol.ok([("ok", true.to_json())]).to_json()
 }
 
 ///|
 /// API handler: benchmark catch-all (lightweight)
-async fn api_bench_catch_all(props : @router.PageProps) -> Json {
+async fn api_bench_catch_all(props : @sol.PageProps) -> Json {
   let path = props.params.get_param("path").unwrap_or("(none)")
   @sol.ok([("path", path.to_json())]).to_json()
 }
@@ -292,7 +200,7 @@ pub fn action_registry() -> @action.ActionRegistry {
 
 ///|
 /// API handler: middleware test - returns request info
-async fn api_middleware_test(_props : @router.PageProps) -> Json {
+async fn api_middleware_test(_props : @sol.PageProps) -> Json {
   @sol.ok([
     ("middleware", "logger >> cors".to_json()),
     ("timestamp", get_timestamp().to_json()),
@@ -332,8 +240,8 @@ const ROOT : String =
 
 ///|
 /// Router configuration
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
   .with_root_template(ROOT)
   .with_default_head(head())
 }
@@ -341,7 +249,7 @@ pub fn config() -> @router.RouterConfig {
 ///|
 /// Middleware Test Page
 /// Demonstrates middleware functionality with Logger and CORS.
-async fn middleware_test(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn middleware_test(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content : Array[@luna.Node[Unit, String]] = [
     h1([text("Middleware Test")]),
     p([text("This page tests middleware functionality.")]),
@@ -377,5 +285,5 @@ async fn middleware_test(_props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }

@@ -8,7 +8,7 @@
 
 ///|
 /// Home page - with counter client component (async server component)
-async fn home(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn home(_props : @sol.PageProps) -> @server_dom.ServerNode {
   // Return an async ServerNode that can perform data fetching
   @server_dom.ServerNode::async_(fn() {
     // Generate a random number on the server side

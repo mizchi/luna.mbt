@@ -51,7 +51,7 @@ pub fn layout(inner : Array[@luna.Node[Unit, String]]) -> @luna.Node[Unit, Strin
 /// Root layout function for SolRoutes::Layout
 /// Wraps child content with navigation and container
 pub fn root_layout(
-  _props : @router.PageProps,
+  _props : @sol.PageProps,
   content : @server_dom.ServerNode,
 ) -> @server_dom.ServerNode raise Error {
   @server_dom.ServerNode::async_(async fn() {

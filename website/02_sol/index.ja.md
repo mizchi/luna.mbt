@@ -86,52 +86,40 @@ sol serve --port 8080  # ポート指定
 
 ## SolRoutes定義
 
-宣言的なルート定義（`@router.SolRoutes`を使用）：
+`@sol`ヘルパー関数による宣言的なルート定義：
 
 ```moonbit
-pub fn routes() -> Array[@router.SolRoutes] {
+pub fn routes() -> Array[@sol.SolRoutes] {
   [
     // ページルート
-    @router.SolRoutes::Page(
-      path="/",
-      handler=@router.PageHandler(home_page),
-      title="Home",
-      meta=[],
-      revalidate=None,
-      cache=None,
-    ),
+    @sol.route("/", home_page, title="Home"),
     // GET APIルート
-    @router.SolRoutes::Get(
-      path="/api/health",
-      handler=@router.ApiHandler(api_health),
-    ),
+    @sol.api_get("/api/health", api_health),
     // ネストされたレイアウト
     // segment="/admin" + path="/" => /admin
-    @router.SolRoutes::Layout(
-      segment="/admin",
-      layout=admin_layout,
-      children=[
-        @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
-      ],
-    ),
+    @sol.wrap("/admin", admin_layout, [
+      @sol.route("/", admin_dashboard, title="Admin"),
+    ]),
     // ミドルウェア適用
-    @router.SolRoutes::WithMiddleware(
-      middleware=[@middleware.cors(), @middleware.logger()],
-      children=[...],
-    ),
+    @sol.with_mw([@middleware.cors(), @middleware.logger()], [
+      @sol.api_get("/api/data", api_data),
+    ]),
   ]
 }
 ```
 
-### SolRoutesバリアント
+### ルートヘルパー関数
 
-| バリアント | 説明 |
-|-----------|------|
-| `Page` | ページルート（HTMLレスポンス） |
-| `Get` | GET APIルート（JSONレスポンス） |
-| `Post` | POST APIルート（JSONレスポンス） |
-| `Layout` | ネストされたレイアウトグループ |
-| `WithMiddleware` | ミドルウェアを適用したルートグループ |
+| 関数 | 説明 |
+|------|------|
+| `@sol.route(path, handler, title=...)` | ページルート（HTMLレスポンス） |
+| `@sol.api_get(path, handler)` | GET APIルート（JSONレスポンス） |
+| `@sol.api_post(path, handler)` | POST APIルート（JSONレスポンス） |
+| `@sol.api_put(path, handler)` | PUT APIルート（JSONレスポンス） |
+| `@sol.api_delete(path, handler)` | DELETE APIルート（JSONレスポンス） |
+| `@sol.wrap(segment, layout, children)` | ネストされたレイアウトグループ |
+| `@sol.with_mw(middleware, children)` | ミドルウェアを適用したルートグループ |
+| `@sol.nodes(content)` | ノードからsync ServerNodeを作成 |
 
 ## ミドルウェア
 
@@ -144,10 +132,9 @@ let middleware = @middleware.logger()
   .then(@middleware.cors())
   .then(@middleware.security_headers())
 
-@router.SolRoutes::WithMiddleware(
-  middleware=[middleware],
-  children=[...],
-)
+@sol.with_mw([middleware], [
+  @sol.api_get("/api/data", get_data),
+])
 ```
 
 ### 組み込みミドルウェア
@@ -276,8 +263,8 @@ sol_link(href="/about", [text("About")])
 `register_sol_routes` でストリーミング応答を使う場合は、`RouterConfig` で有効化します（デフォルトは無効）。
 
 ```moonbit
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
     .with_default_head(head())
     .with_loader_url("/static/loader.js")
     .with_streaming_ssr()

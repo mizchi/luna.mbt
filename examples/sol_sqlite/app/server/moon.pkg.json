@@ -2,6 +2,7 @@
   "supported-targets": "js",
   "import": [
     { "path": "mizchi/luna", "alias": "luna" },
+    { "path": "mizchi/sol", "alias": "sol" },
     { "path": "mizchi/sol/router", "alias": "router" },
     { "path": "mizchi/sol/middleware", "alias": "mw" },
     { "path": "mizchi/sol/action", "alias": "action" },

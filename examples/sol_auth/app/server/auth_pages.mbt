@@ -6,7 +6,7 @@
 ///|
 /// Login page - shows login/signup forms
 /// Uses client-side JavaScript to handle auth API calls
-async fn login_page(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn login_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   // Check if already logged in
   let session = get_session()
 
@@ -82,12 +82,12 @@ async fn login_page(_props : @router.PageProps) -> @server_dom.ServerNode {
         @luna.raw_html(auth_styles()),
       ]
   }
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|
 /// Profile page - shows user info (requires authentication)
-async fn profile_page(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn profile_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let session = get_session()
 
   let content : Array[@luna.Node[Unit, String]] = match session {
@@ -123,7 +123,7 @@ async fn profile_page(_props : @router.PageProps) -> @server_dom.ServerNode {
         p([a(href="/login", [text("Go to Login")])]),
       ]
   }
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|

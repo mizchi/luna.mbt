@@ -8,7 +8,7 @@
 
 ///|
 /// Contact form page - with contact_form client component (sync server component)
-async fn form_page(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn form_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
   // Create props using generated types
   // Use Server Action endpoint instead of API endpoint
   let form_props : @types.ContactFormProps = {
@@ -62,5 +62,5 @@ async fn form_page(_props : @router.PageProps) -> @server_dom.ServerNode {
   ]
 
   // Return content only - layout is applied by SolRoutes::Layout
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }

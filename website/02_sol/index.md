@@ -130,67 +130,50 @@ sol clean  # Delete .sol/, app/__gen__/, _build/
 
 ## SolRoutes Definition
 
-Declarative route definition with `@router.SolRoutes`:
+Declarative route definition using `@sol` helper functions:
 
 ```moonbit
 // app/server/routes.mbt
 
-pub fn routes() -> Array[@router.SolRoutes] {
+pub fn routes() -> Array[@sol.SolRoutes] {
   [
     // Page route
-    @router.SolRoutes::Page(
-      path="/",
-      handler=@router.PageHandler(home_page),
-      title="Home",
-      meta=[],
-      revalidate=None,
-      cache=None,
-    ),
+    @sol.route("/", home_page, title="Home"),
     // GET API route
-    @router.SolRoutes::Get(
-      path="/api/health",
-      handler=@router.ApiHandler(api_health),
-    ),
+    @sol.api_get("/api/health", api_health),
     // POST API route
-    @router.SolRoutes::Post(
-      path="/api/submit",
-      handler=@router.ApiHandler(api_submit),
-    ),
+    @sol.api_post("/api/submit", api_submit),
     // Nested layout
-    @router.SolRoutes::Layout(
-      segment="/admin",
-      layout=admin_layout,
-      children=[
-        @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
-        @router.SolRoutes::Page(path="/users", handler=@router.PageHandler(admin_users), title="Users", meta=[], revalidate=None, cache=None),
-      ],
-    ),
+    @sol.wrap("/admin", admin_layout, [
+      @sol.route("/", admin_dashboard, title="Admin"),
+      @sol.route("/users", admin_users, title="Users"),
+    ]),
     // With middleware
-    @router.SolRoutes::WithMiddleware(
-      middleware=[@middleware.cors(), @middleware.logger()],
-      children=[
-        @router.SolRoutes::Get(path="/api/data", handler=@router.ApiHandler(api_data)),
-      ],
-    ),
+    @sol.with_mw([@middleware.cors(), @middleware.logger()], [
+      @sol.api_get("/api/data", api_data),
+    ]),
   ]
 }
 
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
     .with_default_head(head())
     .with_loader_url("/static/loader.js")
 }
 ```
 
-### SolRoutes Variants
+### Route Helper Functions
 
-| Variant | Description |
-|---------|-------------|
-| `Page` | Page route (HTML response) |
-| `Get` | GET API route (JSON response) |
-| `Post` | POST API route (JSON response) |
-| `Layout` | Nested layout group |
-| `WithMiddleware` | Routes with middleware applied |
+| Function | Description |
+|----------|-------------|
+| `@sol.route(path, handler, title=...)` | Page route (HTML response) |
+| `@sol.api_get(path, handler)` | GET API route (JSON response) |
+| `@sol.api_post(path, handler)` | POST API route (JSON response) |
+| `@sol.api_put(path, handler)` | PUT API route (JSON response) |
+| `@sol.api_delete(path, handler)` | DELETE API route (JSON response) |
+| `@sol.wrap(segment, layout, children)` | Nested layout group |
+| `@sol.with_mw(middleware, children)` | Routes with middleware applied |
+| `@sol.nodes(content)` | Create sync ServerNode from nodes |
 
 ## Nested Layouts
 
@@ -207,30 +190,26 @@ using @server_dom {
 }
 
 fn admin_layout(
-  props : @router.PageProps,
+  _props : @sol.PageProps,
   content : @server_dom.ServerNode,
 ) -> @server_dom.ServerNode raise {
-  @server_dom.ServerNode::sync(@luna.fragment([
+  @sol.nodes([
     h1([text("Admin Panel")]),
     nav([
       sol_link(href="/admin", [text("Dashboard")]),
       sol_link(href="/admin/users", [text("Users")]),
     ]),
     div(class="admin-content", [content.to_vnode()]),
-  ]))
+  ])
 }
 
 // Route definition
 // segment="/admin" + path="/" => /admin
 // segment="/admin" + path="/users" => /admin/users
-@router.SolRoutes::Layout(
-  segment="/admin",    // URL prefix
-  layout=admin_layout, // Layout function
-  children=[
-    @router.SolRoutes::Page(path="/", handler=@router.PageHandler(admin_dashboard), title="Admin", meta=[], revalidate=None, cache=None),
-    @router.SolRoutes::Page(path="/users", handler=@router.PageHandler(admin_users), title="Users", meta=[], revalidate=None, cache=None),
-  ],
-)
+@sol.wrap("/admin", admin_layout, [
+  @sol.route("/", admin_dashboard, title="Admin"),
+  @sol.route("/users", admin_users, title="Users"),
+])
 ```
 
 ## Middleware
@@ -246,10 +225,9 @@ let middleware = @middleware.logger()
   .then(@middleware.security_headers())
 
 // Apply to routes
-@router.SolRoutes::WithMiddleware(
-  middleware=[middleware],
-  children=[...],
-)
+@sol.with_mw([middleware], [
+  @sol.api_get("/api/data", get_data),
+])
 ```
 
 ### Built-in Middleware
@@ -421,8 +399,8 @@ Async content streaming using `ServerNode::async_`:
 Enable route-level streaming responses with router config (disabled by default):
 
 ```moonbit
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
     .with_default_head(head())
     .with_loader_url("/static/loader.js")
     .with_streaming_ssr()

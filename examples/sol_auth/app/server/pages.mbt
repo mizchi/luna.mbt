@@ -3,7 +3,7 @@
 
 ///|
 /// WC Multiple page - demonstrates multiple instances of the same Web Component
-async fn wc_multiple(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text("Multiple WC Counters")]),
     p([text("Multiple instances of the same Web Component on one page.")]),
@@ -57,12 +57,12 @@ async fn wc_multiple(_props : @router.PageProps) -> @server_dom.ServerNode {
       trigger=@luna.TriggerType::Load,
     ),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|
 /// Docs page - catch-all route handler for /docs/[...slug]
-async fn docs_page(props : @router.PageProps) -> @server_dom.ServerNode {
+async fn docs_page(props : @sol.PageProps) -> @server_dom.ServerNode {
   let slug = props.params.get_param("slug").unwrap_or("index")
   let content = [
     h1([text("Documentation")]),
@@ -76,12 +76,12 @@ async fn docs_page(props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|
 /// Blog page - optional catch-all route handler for /blog/[[...path]]
-async fn blog_page(props : @router.PageProps) -> @server_dom.ServerNode {
+async fn blog_page(props : @sol.PageProps) -> @server_dom.ServerNode {
   let path = props.params.get_param("path").unwrap_or("")
   let title = if path == "" { "Blog Home" } else { "Blog: " + path }
   let content = [
@@ -96,13 +96,13 @@ async fn blog_page(props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|
 /// Admin layout - wraps admin pages with sidebar navigation
 pub fn admin_layout(
-  _props : @router.PageProps,
+  _props : @sol.PageProps,
   content : @server_dom.ServerNode,
 ) -> @server_dom.ServerNode raise Error {
   @server_dom.ServerNode::async_(async fn() {
@@ -123,7 +123,7 @@ pub fn admin_layout(
 
 ///|
 /// Admin home page - dashboard
-async fn admin_home(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn admin_home(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text("Admin Dashboard")]),
     p([text("Welcome to the admin panel.")]),
@@ -142,12 +142,12 @@ async fn admin_home(_props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|
 /// Admin settings page
-async fn admin_settings(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn admin_settings(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text("Admin Settings")]),
     div(class="settings-section", [
@@ -161,12 +161,12 @@ async fn admin_settings(_props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|
 /// Admin users page
-async fn admin_users(_props : @router.PageProps) -> @server_dom.ServerNode {
+async fn admin_users(_props : @sol.PageProps) -> @server_dom.ServerNode {
   let content = [
     h1([text("User Management")]),
     div(class="users-list", [
@@ -192,7 +192,7 @@ async fn admin_users(_props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 // ============================================================================
@@ -203,7 +203,7 @@ async fn admin_users(_props : @router.PageProps) -> @server_dom.ServerNode {
 ///|
 /// User profile page - /@[user_id]
 /// Shows user's profile and list of their pages
-async fn user_profile(props : @router.PageProps) -> @server_dom.ServerNode {
+async fn user_profile(props : @sol.PageProps) -> @server_dom.ServerNode {
   let user_id = props.get_param("user_id").unwrap_or("unknown")
   let content = [
     div(class="user-profile", [
@@ -224,13 +224,13 @@ async fn user_profile(props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|
 /// User page - /@[user_id]/[page_id]
 /// Individual page within user's namespace
-async fn user_page(props : @router.PageProps) -> @server_dom.ServerNode {
+async fn user_page(props : @sol.PageProps) -> @server_dom.ServerNode {
   let user_id = props.get_param("user_id").unwrap_or("unknown")
   let page_id = props.get_param("page_id").unwrap_or("index")
   let content = [
@@ -255,7 +255,7 @@ async fn user_page(props : @router.PageProps) -> @server_dom.ServerNode {
       ]),
     ]),
   ]
-  @server_dom.ServerNode::sync(@luna.fragment(content))
+  @sol.nodes(content)
 }
 
 ///|

@@ -7,56 +7,26 @@
 
 ///|
 /// Application routes
-pub fn routes() -> Array[@router.SolRoutes] {
+pub fn routes() -> Array[@sol.SolRoutes] {
   [
-    @router.SolRoutes::WithMiddleware(
-      middleware=[@mw.security_headers_relaxed(), @mw.logger()],
-      children=[
-        @router.SolRoutes::Layout(segment="", layout=root_layout, children=[
+    @sol.with_mw(
+      [@mw.security_headers_relaxed(), @mw.logger()],
+      [
+        @sol.wrap("", root_layout, [
           // Home - Todo list with Island
-          @router.SolRoutes::Page(
-            path="/",
-            handler=@router.PageHandler(home_page),
-            title="Todo List",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/", home_page, title="Todo List"),
           // Add Todo - Form with Server Actions
-          @router.SolRoutes::Page(
-            path="/add",
-            handler=@router.PageHandler(add_page),
-            title="Add Todo",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/add", add_page, title="Add Todo"),
           // About - Static page for CSR navigation test
-          @router.SolRoutes::Page(
-            path="/about",
-            handler=@router.PageHandler(about_page),
-            title="About",
-            meta=[],
-            revalidate=None,
-            cache=None,
-          ),
+          @sol.route("/about", about_page, title="About"),
         ]),
         // API endpoints
-        @router.SolRoutes::WithMiddleware(
-          middleware=[@mw.cors()],
-          children=[
-            @router.SolRoutes::Get(
-              path="/api/todos",
-              handler=@router.ApiHandler(api_get_todos),
-            ),
-            @router.SolRoutes::Post(
-              path="/api/todos",
-              handler=@router.ApiHandler(api_add_todo),
-            ),
-            @router.SolRoutes::Delete(
-              path="/api/todos/:id",
-              handler=@router.ApiHandler(api_delete_todo),
-            ),
+        @sol.with_mw(
+          [@mw.cors()],
+          [
+            @sol.api_get("/api/todos", api_get_todos),
+            @sol.api_post("/api/todos", api_add_todo),
+            @sol.api_delete("/api/todos/:id", api_delete_todo),
           ],
         ),
       ],
@@ -142,7 +112,7 @@ fn delete_todo(id : Int) -> Bool {
 
 ///|
 /// GET /api/todos - List all todos
-async fn api_get_todos(_props : @router.PageProps) -> Json {
+async fn api_get_todos(_props : @sol.PageProps) -> Json {
   let todos = get_todos()
   let todos_json : Array[Json] = todos.map(fn(t) { t.to_json() })
   { "todos": todos_json.to_json() }.to_json()
@@ -163,7 +133,7 @@ fn get_json_string(json : Json?, field : String) -> String {
 
 ///|
 /// POST /api/todos - Add a new todo
-async fn api_add_todo(props : @router.PageProps) -> Json {
+async fn api_add_todo(props : @sol.PageProps) -> Json {
   let json = props.body_json()
   let text = get_json_string(json, "text")
   if text == "" {
@@ -175,7 +145,7 @@ async fn api_add_todo(props : @router.PageProps) -> Json {
 
 ///|
 /// DELETE /api/todos/:id - Delete a todo
-async fn api_delete_todo(props : @router.PageProps) -> Json {
+async fn api_delete_todo(props : @sol.PageProps) -> Json {
   let id_str = props.get_param("id").unwrap_or("")
   let id = parse_int(id_str)
   if id <= 0 {
@@ -328,8 +298,8 @@ const ROOT : String =
   #|</html>
 
 ///|
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
   .with_root_template(ROOT)
   .with_default_head(head())
 }

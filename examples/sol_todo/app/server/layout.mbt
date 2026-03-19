@@ -124,7 +124,7 @@ fn navigation() -> @luna.Node[Unit, String] {
 ///|
 /// Root layout
 pub fn root_layout(
-  _props : @router.PageProps,
+  _props : @sol.PageProps,
   content : @server_dom.ServerNode,
 ) -> @server_dom.ServerNode raise Error {
   @server_dom.ServerNode::async_(async fn() {
