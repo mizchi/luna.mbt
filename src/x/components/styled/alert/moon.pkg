@@ -1,6 +1,5 @@
 import {
   "mizchi/luna",
-  "mizchi/js/core" @js,
 }
 
 options(

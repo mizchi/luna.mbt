@@ -57,13 +57,13 @@ pub fn alert_slots() -> AlertSlots {
 /// - variant: Alert variant (error, warning, success, status)
 /// - class: Additional CSS class
 /// - children: Child nodes (alternative to title/description)
-pub fn alert(
+pub fn[E] alert(
   variant : AlertVariant,
   title? : String,
   description? : String,
   class? : String,
-  children? : Array[@luna.Node[@js.Any, String]],
-) -> @luna.Node[@js.Any, String] {
+  children? : Array[@luna.Node[E, String]],
+) -> @luna.Node[E, String] {
   let slots = alert_slots()
   let variant_str = variant_to_string(variant)
   let root_class = slots.root + " " + slots.root + "--" + variant_str
@@ -71,7 +71,7 @@ pub fn alert(
     Some(c) => root_class + " " + c
     None => root_class
   }
-  let content : Array[@luna.Node[@js.Any, String]] = []
+  let content : Array[@luna.Node[E, String]] = []
 
   // Add title if provided
   match title {
