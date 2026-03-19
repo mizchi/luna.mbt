@@ -1,0 +1,11 @@
+import {
+  "mizchi/x/fs" @fs,
+  "mizchi/x/sys" @sys,
+  "mizchi/x/process" @process,
+  "moonbitlang/async",
+  "moonbitlang/async/io" @io,
+}
+
+options(
+  "is-main": true,
+)
