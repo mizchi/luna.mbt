@@ -30,7 +30,29 @@ pub fn config() -> @sol.RouterConfig {
 }
 
 // =============================================================================
-// In-memory data store (for demo purposes)
+// Response types (compile-time structure guarantee)
+// =============================================================================
+
+///|
+priv struct HealthResponse {
+  status : String
+  timestamp : String
+} derive(ToJson)
+
+///|
+priv struct ItemListResponse {
+  items : Array[Item]
+  total : Int
+} derive(ToJson)
+
+///|
+priv struct StatsResponse {
+  total_items : Int
+  last_updated : String
+} derive(ToJson)
+
+// =============================================================================
+// In-memory data store
 // =============================================================================
 
 ///|
@@ -94,23 +116,17 @@ fn find_item_index(id : Int) -> Int? {
 }
 
 // =============================================================================
-// Response types (compile-time structure guarantee)
+// Request types
 // =============================================================================
 
 ///|
-priv struct HealthResponse {
-  status : String
-  timestamp : String
-} derive(ToJson)
-
-///|
-priv struct ItemListResponse {
-  items : Array[Item]
-  total : Int
-} derive(ToJson)
+priv struct CreateItemRequest {
+  name : String
+  description : String
+} derive(FromJson)
 
 // =============================================================================
-// API Handlers
+// API Handlers — guard let early-return pattern
 // =============================================================================
 
 ///|
@@ -127,24 +143,16 @@ async fn list_items_handler(_props : @sol.PageProps) -> ItemListResponse {
 ///|
 async fn get_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  match @sol.require_int(props, "id") {
-    Err(e) => e.to_json()
-    Ok(id) => {
-      let found = items_store.val.iter().find_first(fn(item) { item.id == id })
-      match found {
-        Some(item) => item.to_json()
-        None => @sol.not_found_response(message="Item not found").to_json()
-      }
-    }
+  let id = match @sol.require_int(props, "id") {
+    Ok(id) => id
+    Err(e) => return e.to_json()
+  }
+  let found = items_store.val.iter().find_first(fn(item) { item.id == id })
+  match found {
+    Some(item) => item.to_json()
+    None => @sol.not_found_response(message="Item not found").to_json()
   }
 }
-
-///|
-/// Request body for creating an item
-priv struct CreateItemRequest {
-  name : String
-  description : String
-} derive(FromJson)
 
 ///|
 async fn create_item_handler(props : @sol.PageProps) -> Json {
@@ -153,15 +161,13 @@ async fn create_item_handler(props : @sol.PageProps) -> Json {
     Ok(b) => b
     Err(e) => return e.to_json()
   }
-  let name = body.name
-  if name == "" {
+  if body.name == "" {
     return @sol.bad_request("name is required").to_json()
   }
-  let description = body.description
   let new_item : Item = {
     id: get_next_id(),
-    name,
-    description,
+    name: body.name,
+    description: body.description,
     created_at: get_timestamp(),
   }
   items_store.val.push(new_item)
@@ -171,74 +177,66 @@ async fn create_item_handler(props : @sol.PageProps) -> Json {
 ///|
 async fn update_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  match @sol.require_int(props, "id") {
-    Err(e) => e.to_json()
-    Ok(id) =>
-      match find_item_index(id) {
-        Some(i) => {
-          let body : CreateItemRequest = match props.body_as() {
-            Ok(b) => b
-            Err(e) => return e.to_json()
-          }
-          let old_item = items_store.val[i]
-          let name = if body.name == "" { old_item.name } else { body.name }
-          let description = if body.description == "" {
-            old_item.description
-          } else {
-            body.description
-          }
-          let updated_item : Item = {
-            id: old_item.id,
-            name,
-            description,
-            created_at: old_item.created_at,
-          }
-          items_store.val[i] = updated_item
-          updated_item.to_json()
-        }
-        None => @sol.not_found_response(message="Item not found").to_json()
-      }
+  let id = match @sol.require_int(props, "id") {
+    Ok(id) => id
+    Err(e) => return e.to_json()
   }
+  let i = match find_item_index(id) {
+    Some(i) => i
+    None => return @sol.not_found_response(message="Item not found").to_json()
+  }
+  let body : CreateItemRequest = match props.body_as() {
+    Ok(b) => b
+    Err(e) => return e.to_json()
+  }
+  let old_item = items_store.val[i]
+  let updated_item : Item = {
+    id: old_item.id,
+    name: if body.name == "" { old_item.name } else { body.name },
+    description: if body.description == "" {
+      old_item.description
+    } else {
+      body.description
+    },
+    created_at: old_item.created_at,
+  }
+  items_store.val[i] = updated_item
+  updated_item.to_json()
 }
 
 ///|
 async fn delete_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  match @sol.require_int(props, "id") {
-    Err(e) => e.to_json()
-    Ok(id) =>
-      match find_item_index(id) {
-        Some(i) => {
-          let removed = items_store.val[i]
-          items_store.val = items_store.val
-            .iter()
-            .filter(fn(item) { item.id != id })
-            .collect()
-          @sol.ok([
-            ("deleted", true.to_json()),
-            ("item", removed.to_json()),
-          ]).to_json()
-        }
-        None => @sol.not_found_response(message="Item not found").to_json()
-      }
+  let id = match @sol.require_int(props, "id") {
+    Ok(id) => id
+    Err(e) => return e.to_json()
   }
+  let i = match find_item_index(id) {
+    Some(i) => i
+    None => return @sol.not_found_response(message="Item not found").to_json()
+  }
+  let removed = items_store.val[i]
+  items_store.val = items_store.val
+    .iter()
+    .filter(fn(item) { item.id != id })
+    .collect()
+  @sol.ok([("deleted", true.to_json()), ("item", removed.to_json())]).to_json()
 }
 
 ///|
-async fn stats_handler(_props : @sol.PageProps) -> Json {
+async fn stats_handler(_props : @sol.PageProps) -> StatsResponse {
   ensure_items_initialized()
-  @sol.ok([
-    ("total_items", items_store.val.length().to_json()),
-    ("last_updated", get_timestamp().to_json()),
-  ]).to_json()
+  { total_items: items_store.val.length(), last_updated: get_timestamp() }
 }
 
 ///|
 async fn error_handler(props : @sol.PageProps) -> Json {
   let error_type = props.get_query("type").unwrap_or("generic")
   match error_type {
-    "not_found" => @sol.not_found_response(message="Resource not found").to_json()
-    "unauthorized" => @sol.unauthorized(message="Authentication required").to_json()
+    "not_found" =>
+      @sol.not_found_response(message="Resource not found").to_json()
+    "unauthorized" =>
+      @sol.unauthorized(message="Authentication required").to_json()
     "forbidden" => @sol.forbidden(message="Access denied").to_json()
     "bad_request" => @sol.bad_request("Invalid request").to_json()
     _ => @sol.error_response("Internal server error").to_json()
