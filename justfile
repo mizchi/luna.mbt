@@ -87,6 +87,10 @@ test-e2e-ui:
 test-sol-app:
     cd examples/sol_app && pnpm test
 
+# sol_app hydration E2E (Playwright — verifies island hydration works)
+test-sol-app-hydration:
+    pnpm playwright test --config e2e/playwright-sol-app.config.mts
+
 # Docs consistency test
 test-docs:
     node --test docs/docs-index.test.js docs/docs-chapters.test.js docs/docs-build-paths.test.js docs/docs-ci.test.js
