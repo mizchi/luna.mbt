@@ -2,3 +2,7 @@ import {
   "mizchi/sol/ssg" @ssg,
   "mizchi/sol/adapters/fs" @fs_adapter,
 }
+
+options(
+  "supported-targets": "js",
+)

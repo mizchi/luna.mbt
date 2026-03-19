@@ -35,5 +35,5 @@ warnings = "-27-20"
 
 options(
   "is-main": true,
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

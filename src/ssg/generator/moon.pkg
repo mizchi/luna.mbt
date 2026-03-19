@@ -22,5 +22,5 @@ import {
 }
 
 options(
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

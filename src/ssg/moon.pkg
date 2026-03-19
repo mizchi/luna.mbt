@@ -13,5 +13,5 @@ import {
 warnings = "-7-unused_field"
 
 options(
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

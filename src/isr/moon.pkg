@@ -11,5 +11,5 @@ import {
 } for "wbtest"
 
 options(
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

@@ -13,3 +13,7 @@ import {
 import {
   "mizchi/luna/core/render" @render,
 } for "test"
+
+options(
+  "supported-targets": "js",
+)

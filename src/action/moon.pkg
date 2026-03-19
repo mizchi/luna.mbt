@@ -8,5 +8,5 @@ import {
 warnings = "-6"
 
 options(
-  "supported-targets": [ "js" ],
+  "supported-targets": "js",
 )

@@ -6,3 +6,7 @@ import {
   "mizchi/markdown/slug" @slug,
   "mizchi/markdown/toc" @md_toc,
 }
+
+options(
+  "supported-targets": "js",
+)
