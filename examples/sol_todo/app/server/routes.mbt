@@ -212,7 +212,7 @@ let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else {
-    @action.ActionResult::ok(todo.to_json())
+    @action.ActionResult::ok(@sol.json_to_any(todo.to_json()))
   }
 })
 
@@ -238,7 +238,7 @@ let toggle_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok({ "toggled": true }.to_json())
+    @action.ActionResult::ok(@sol.json_to_any({ "toggled": true }.to_json()))
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }
@@ -266,7 +266,7 @@ let delete_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok({ "deleted": true }.to_json())
+    @action.ActionResult::ok(@sol.json_to_any({ "deleted": true }.to_json()))
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }

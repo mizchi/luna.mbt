@@ -8,7 +8,8 @@
     "mizchi/luna": "0.18.0",
     "mizchi/mars": "0.3.10",
     "mizchi/signals": "0.6.3",
-    "mizchi/js": "0.10.14"
+    "mizchi/js": "0.10.14",
+    "moonbitlang/async": "0.16.6"
   },
   "source": "app",
   "preferred-target": "js"
