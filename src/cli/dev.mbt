@@ -245,6 +245,11 @@ fn[FS : @env.FileSystem] run_incremental_build_dev_with_fs(
     )
     if build_result.status() != Some(0) {
       @cli_common.console_error(@colorette.red("Build failed"))
+      println(
+        @colorette.gray(
+          "  Hint: Props changed? Run `sol generate`. Missing dep? Run `moon update`.",
+        ),
+      )
       return false
     }
   } catch {
@@ -403,8 +408,11 @@ async fn run_dev_watch_mode(
                   set_timeout(
                     fn() {
                       if is_client_change {
-                        // HMR: notify clients to reload islands
-                        hmr_server.notify_update(["*"])
+                        // HMR: notify clients to reload specific island
+                        let island_name = extract_island_name_from_path(
+                          filename,
+                        )
+                        hmr_server.notify_update([island_name])
                       } else {
                         // Server-side change: full reload
                         hmr_server.notify_full_reload()
@@ -590,6 +598,24 @@ fn[FS : @env.FileSystem] run_server_with_fs(
 }
 
 ///|
+/// Extract island name from changed file path
+/// "client/counter.mbt" → "counter", "client/my_widget.mbt" → "my_widget"
+fn extract_island_name_from_path(filename : String) -> String {
+  // Get basename
+  let parts = filename.split("/").to_array()
+  let basename = if parts.length() > 0 {
+    parts[parts.length() - 1].to_string()
+  } else {
+    filename
+  }
+  // Remove .mbt extension
+  if basename.has_suffix(".mbt") && basename.length() > 4 {
+    basename.substring(end=basename.length() - 4)
+  } else {
+    basename
+  }
+}
+
 /// Find sol framework root by walking up directories
 /// Looks for src/cli/dev.mbt as a marker file
 fn find_framework_root(start_dir : String) -> String? {

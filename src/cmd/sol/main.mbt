@@ -15,13 +15,15 @@ async fn main {
   }
   match command {
     "new" => run_new(rest)
+    "init" => run_init(rest)
+    "check" => run_check(rest)
     "clean" => run_clean(rest)
     "build" => run_build(rest)
     "dev" => run_dev(rest)
     "serve" => run_serve(rest)
     "generate" => run_generate(rest)
     "help" | "--help" | "-h" => print_help()
-    "version" | "--version" | "-v" => println("sol 0.13.0")
+    "version" | "--version" | "-v" => println("sol 0.13.1")
     _ => {
       println("Unknown command: \{command}")
       print_help()
@@ -32,15 +34,17 @@ async fn main {
 
 ///|
 fn print_help() -> Unit {
-  println("Sol CLI v0.13.0")
+  println("Sol CLI v0.13.1")
   println("")
   println("Usage: sol <command> [options]")
   println("")
   println("Commands:")
   println("  new <name> --user <ns>  Create a new Sol project")
+  println("  init --user <ns>        Add Sol to existing project")
   println("  dev                     Start dev server (watch + HMR)")
   println("  build                   Build for production")
   println("  serve                   Serve production build")
+  println("  check                   Type check with hints")
   println("  generate                Generate .sol directory")
   println("  clean [--all]           Remove generated files")
   println("  help                    Show this help")

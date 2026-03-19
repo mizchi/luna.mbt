@@ -299,6 +299,22 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     )
     if build_result.status() != Some(0) {
       @cli_common.console_error(@colorette.red("Moon build failed"))
+      println(@colorette.gray("Hints:"))
+      println(
+        @colorette.gray(
+          "  - Props type changed? Run `sol generate` to regenerate types",
+        ),
+      )
+      println(
+        @colorette.gray(
+          "  - Missing dependency? Run `moon update` to fetch packages",
+        ),
+      )
+      println(
+        @colorette.gray(
+          "  - New island? Ensure Props struct has derive(ToJson, FromJson)",
+        ),
+      )
       @process.exit(1)
     }
   } catch {
