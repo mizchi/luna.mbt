@@ -18,7 +18,7 @@ async fn main {
     "clean" => run_clean(rest)
     "build" => run_build(rest)
     "help" | "--help" | "-h" => print_help()
-    "version" | "--version" | "-v" => println("sol 0.13.0 (native)")
+    "version" | "--version" | "-v" => println("sol 0.13.0")
     _ => {
       println("Unknown command: \{command}")
       print_help()

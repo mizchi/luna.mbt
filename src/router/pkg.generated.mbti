@@ -2,26 +2,26 @@
 package "mizchi/sol/router"
 
 import {
-  "mizchi/js/web/url",
   "mizchi/luna/dom/static",
   "mizchi/mars",
   "mizchi/sol/isr",
   "mizchi/sol/middleware",
   "mizchi/sol/ssg",
+  "moonbitlang/core/json",
 }
 
 // Values
 pub fn analyze_routes(Array[SolRoutes]) -> Array[AnalyzedRoute]
 
-pub fn api_delete(String, async (PageProps) -> @mizchi/js/core.Any) -> SolRoutes
+pub fn[T : ToJson] api_delete(String, async (PageProps) -> T) -> SolRoutes
 
-pub fn api_get(String, async (PageProps) -> @mizchi/js/core.Any) -> SolRoutes
+pub fn[T : ToJson] api_get(String, async (PageProps) -> T) -> SolRoutes
 
-pub fn api_patch(String, async (PageProps) -> @mizchi/js/core.Any) -> SolRoutes
+pub fn[T : ToJson] api_patch(String, async (PageProps) -> T) -> SolRoutes
 
-pub fn api_post(String, async (PageProps) -> @mizchi/js/core.Any) -> SolRoutes
+pub fn[T : ToJson] api_post(String, async (PageProps) -> T) -> SolRoutes
 
-pub fn api_put(String, async (PageProps) -> @mizchi/js/core.Any) -> SolRoutes
+pub fn[T : ToJson] api_put(String, async (PageProps) -> T) -> SolRoutes
 
 pub fn bad_request(String) -> ApiResponse
 
@@ -53,7 +53,7 @@ pub fn null_api_factory() -> ApiHandlerFactory
 
 pub fn null_page_factory() -> PageHandlerFactory
 
-pub fn ok(Array[(String, @mizchi/js/core.Any)]) -> ApiResponse
+pub fn ok(Array[(String, Json)]) -> ApiResponse
 
 pub fn optional(PageProps, String, String) -> String
 
@@ -98,21 +98,21 @@ pub(all) struct AnalyzedRoute {
   reason : String
 }
 
-pub(all) struct ApiHandler(async (PageProps) -> @mizchi/js/core.Any)
+pub(all) struct ApiHandler(async (PageProps) -> Json)
 #deprecated
-pub fn ApiHandler::inner(Self) -> async (PageProps) -> @mizchi/js/core.Any
+pub fn ApiHandler::inner(Self) -> async (PageProps) -> Json
 
 pub(all) struct ApiHandlerFactory((@mizchi/sol/routes.RouteEntry) -> ApiHandler?)
 #deprecated
 pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> ApiHandler?
 
 pub(all) enum ApiResponse {
-  Json(@mizchi/js/core.Any)
+  Json(Json)
   Redirect(String, Int)
   NotFound(String)
   Error(String, Int)
 }
-pub fn ApiResponse::to_json(Self) -> @mizchi/js/core.Any
+pub fn ApiResponse::to_json(Self) -> Json
 
 pub(all) enum CacheStrategy {
   AlwaysFetch
@@ -172,10 +172,9 @@ pub struct PageProps {
   is_isr_render : Bool
   // private fields
 }
+pub async fn[T : @json.FromJson] PageProps::body_as(Self) -> Result[T, ApiResponse]
 pub async fn PageProps::body_json(Self) -> Json?
 pub fn PageProps::cookie(Self, String) -> String?
-pub fn PageProps::from_ctx(@mars.Context) -> Self
-pub fn PageProps::from_ctx_fragment(@mars.Context) -> Self
 pub fn PageProps::from_ctx_with_params(@mars.Context, RouteParams) -> Self
 pub fn PageProps::get_param(Self, String) -> String?
 pub fn PageProps::get_pathname_group(Self, String) -> String?
@@ -199,7 +198,6 @@ pub struct RouteParams {
   query : Array[(String, String)]
   path : String
   is_fragment : Bool
-  url_pattern_result : @url.URLPatternResult?
 }
 pub fn RouteParams::empty() -> Self
 pub fn RouteParams::get_param(Self, String) -> String?

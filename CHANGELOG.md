@@ -4,6 +4,74 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.13.0 (2026-03-19)
+
+### Breaking Changes
+
+- **`ApiHandler` return type: `@js.Any` → `Json`**
+  API handlers now return MoonBit's built-in `Json` type instead of `@js.Any`.
+  This enables wasm/native compatibility and eliminates `@core.any()` wrappers.
+
+  ```moonbit
+  // Before
+  async fn handler(_props : @router.PageProps) -> @core.Any {
+    @sol.json_obj([("status", @core.any("ok"))])
+  }
+
+  // After (typed response — recommended)
+  priv struct HealthResponse { status : String } derive(ToJson)
+  async fn handler(_props : @sol.PageProps) -> HealthResponse {
+    { status: "ok" }
+  }
+  ```
+
+- **`api_get` / `api_post` / etc. are now generic `[T : ToJson]`**
+  Handlers can return any type implementing `ToJson`, not just `Json`.
+  Existing `-> Json` handlers continue to work (`Json : ToJson`).
+
+- **`@sol` re-exports replace direct `@router` / `@action` imports**
+  Use `@sol.route()`, `@sol.api_get()`, `@sol.ok()`, `@sol.PageProps` etc.
+  Direct `@router` import still works but is no longer needed in most cases.
+
+- **`shiki` (JS) replaced with `syntree` (pure MoonBit)**
+  Syntax highlighting now uses `mizchi/syntree` (zero deps, native compatible).
+  `create_default_highlighter()` is now synchronous (no `.wait()`).
+  17 languages supported (was ~30 with shiki).
+
+- **`supported-targets` syntax: `["js"]` → `"js"`**
+
+### New Features
+
+- **`@sol.create_app()` facade** — one-call app creation
+- **`PageProps::body_as[T : FromJson]()`** — typed request body extraction
+- **Island Props round-trip test auto-generation** via `sol generate`
+- **Island hydration Props validation** via `@json.from_json` (replaces `@js.identity`)
+- **User-managed server entry point** (`app/server/main.mbt`)
+- **Native Sol CLI** (`src/cmd/sol/`) — `sol new`, `sol clean`, `sol build`
+- **Portable streaming SSR** via `luna/core/stream_render`
+- **`api_put` / `api_delete` / `api_patch`** shortcut helpers
+
+### Security
+
+- HTML-escape `<title>` in all render paths (XSS prevention)
+- Hide internal error details from clients
+- try/catch in ReadableStream for stream error handling
+
+### Dependencies
+
+- `mizchi/luna`: 0.17.0 → 0.18.0
+- `mizchi/mars`: 0.3.9 → 0.3.10 (fixes query string routing)
+- `mizchi/syntree`: 0.2.3 (new — replaces shiki)
+
+### Migration Guide
+
+1. Update `moon.mod.json`: `"mizchi/sol": "0.13.0"`, `"mizchi/luna": "0.18.0"`, `"mizchi/mars": "0.3.10"`, add `"moonbitlang/async": "0.16.6"`
+2. API handlers: `-> @core.Any` → `-> Json` (or typed struct with `derive(ToJson)`)
+3. Replace `@core.any(x)` with `x.to_json()`
+4. Replace `@sol.json_obj([...])` with `@sol.ok([...]).to_json()` or typed struct
+5. Replace `@router.*` with `@sol.*` (optional)
+6. Fix `supported-targets`: `["js"]` → `"js"`
+
 ### Added
 
 - Add hydration module URL origin policy in `loader.js` with `window.__LUNA_ALLOWED_HOSTS__` and `window.__LUNA_SET_ALLOWED_HOSTS__`
