@@ -20,31 +20,33 @@ async fn run_generate(args : Array[String]) -> Unit {
 
 ///|
 /// Delegate a command to the JS CLI.
-/// Spawns node with inherited stdio so output streams in real-time.
+/// Note: moonbitlang/async process API captures stdout/stderr,
+/// so long-running commands (dev/serve) don't show real-time output.
+/// Use `node _build/js/release/build/cli/cli.js dev` directly for
+/// real-time output until native process stdio inheritance is supported.
 async fn delegate_to_js_cli(command : String, args : Array[String]) -> Int {
   let cli_path = ensure_js_cli()
   let full_args : Array[String] = [cli_path, command]
   for a in args {
     full_args.push(a)
   }
-  // spawn_orphan inherits parent stdio — output appears in real-time
-  let _pid = @async_process.spawn_orphan(
-    "node",
-    full_args,
-    inherit_env=true,
-    stdout=@stdio.stdout,
-    stderr=@stdio.stderr,
+  let (exit_code, stdout, stderr) = @process.collect_output(
+    "node", full_args, inherit_env=true,
   ) catch {
     _ => {
       println("Error: failed to run node \{cli_path} \{command}")
       return 1
     }
   }
-  // Block forever — child process handles everything
-  // Parent stays alive so child isn't orphaned prematurely
-  let (_r, _w) = @io.pipe()
-  _r.read_all() |> ignore
-  0
+  let out = try { stdout.text() } catch { _ => "" }
+  let err = try { stderr.text() } catch { _ => "" }
+  if out.length() > 0 {
+    println(out)
+  }
+  if err.length() > 0 {
+    println(err)
+  }
+  exit_code
 }
 
 ///|

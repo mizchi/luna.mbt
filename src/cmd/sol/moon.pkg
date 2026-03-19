@@ -2,10 +2,7 @@ import {
   "mizchi/x/fs" @fs,
   "mizchi/x/sys" @sys,
   "mizchi/x/process" @process,
-  "moonbitlang/async/stdio" @stdio,
   "moonbitlang/async",
-  "moonbitlang/async/io" @io,
-  "moonbitlang/async/process" @async_process,
 }
 
 options(
