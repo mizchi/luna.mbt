@@ -22,7 +22,7 @@ pub async fn generate_site_async(
   cwd : String,
 ) -> Result[Unit, String] {
   // Create Shiki highlighter
-  let highlighter = @shiki.create_default_highlighter().wait()
+  let highlighter = @shiki.create_default_highlighter()
   generate_site_internal_async(config, cwd, Some(highlighter))
 }
 

@@ -1,36 +1,33 @@
-// MoonBit FFI bindings for Shiki syntax highlighter
-// https://shiki.style
+// Syntax highlighting via mizchi/syntree (pure MoonBit, native compatible)
+// Drop-in replacement for the previous Shiki JS FFI bindings
 
 // =============================================================================
-// Types
+// Types (compatible with existing SSG code)
 // =============================================================================
-
-///|
-/// Highlighter instance
-#external
-pub type Highlighter
 
 ///|
-/// Convert Highlighter to Any for property access
-pub extern "js" fn Highlighter::as_any(self : Highlighter) -> @core.Any =
-  #| (x) => x
+/// Highlighter instance (now a thin wrapper around syntree theme)
+pub struct Highlighter {
+  theme : @highlight.HighlightTheme
+}
 
-// =============================================================================
-// Language Aliases
-// =============================================================================
+///|
+/// Create a highlighter with default theme
+pub fn create_default_highlighter() -> Highlighter {
+  { theme: @highlight.github_dark() }
+}
 
 ///|
 /// Language aliases for common shorthand names
 let lang_aliases : Map[String, String] = {
-  "js": "javascript",
+  "js": "typescript",
   "ts": "typescript",
-  "mbt": "rust", // MoonBit syntax is similar to Rust
-  "moonbit": "rust",
+  "mbt": "moonbit",
   "sh": "bash",
   "shell": "bash",
   "zsh": "bash",
   "yml": "yaml",
-  "dockerfile": "docker",
+  "dockerfile": "bash",
 }
 
 ///|
@@ -39,50 +36,11 @@ pub fn resolve_language(lang : String) -> String {
   lang_aliases.get(lang).unwrap_or(lang)
 }
 
-// =============================================================================
-// Supported Languages
-// =============================================================================
-
 ///|
-/// Check if a language is likely supported
-/// Note: This is a best-effort check. Shiki will gracefully handle unknown languages.
+/// Check if a language is supported by syntree
 pub fn is_language_supported(lang : String) -> Bool {
   let resolved = resolve_language(lang)
-  // Common languages that Shiki supports
-  let supported = [
-    "javascript", "typescript", "json", "html", "css", "markdown", "rust", "python",
-    "go", "java", "c", "cpp", "csharp", "ruby", "php", "swift", "kotlin", "scala",
-    "lua", "bash", "shell", "powershell", "sql", "yaml", "toml", "xml", "graphql",
-    "dockerfile", "makefile", "vue", "svelte", "jsx", "tsx", "astro",
-  ]
-  supported.contains(resolved)
-}
-
-// =============================================================================
-// Create Highlighter
-// =============================================================================
-
-///|
-/// Create a new Shiki highlighter with specified themes and languages
-/// Languages are loaded eagerly to support sync highlighting
-pub extern "js" fn create_highlighter_async(
-  themes : Array[String],
-  langs : Array[String],
-) -> @core.Promise[Highlighter] =
-  #| async (themes, langs) => {
-  #|   const { createHighlighter } = await import("shiki");
-  #|   // Default common languages if none specified
-  #|   const defaultLangs = langs.length > 0 ? langs : [
-  #|     "javascript", "typescript", "json", "html", "css", "bash",
-  #|     "rust", "python", "go", "yaml", "markdown", "tsx", "jsx"
-  #|   ];
-  #|   return await createHighlighter({ themes, langs: defaultLangs });
-  #| }
-
-///|
-/// Create a highlighter with default GitHub themes (light/dark)
-pub fn create_default_highlighter() -> @core.Promise[Highlighter] {
-  create_highlighter_async(["github-light", "github-dark"], [])
+  @syntree.supported_languages().contains(resolved)
 }
 
 // =============================================================================
@@ -90,122 +48,65 @@ pub fn create_default_highlighter() -> @core.Promise[Highlighter] {
 // =============================================================================
 
 ///|
-/// Get list of loaded languages
-pub fn Highlighter::get_loaded_languages(self : Highlighter) -> Array[String] {
-  self.as_any()._call("getLoadedLanguages", []).cast()
-}
-
-///|
-/// Get list of loaded themes
-pub fn Highlighter::get_loaded_themes(self : Highlighter) -> Array[String] {
-  self.as_any()._call("getLoadedThemes", []).cast()
-}
-
-///|
-/// Load a language dynamically
-pub extern "js" fn Highlighter::load_language_async(
-  self : Highlighter,
-  lang : String,
-) -> @core.Promise[Unit] =
-  #| async (h, lang) => { await h.loadLanguage(lang); }
-
-///|
-/// Check if a language is loaded
-pub fn Highlighter::is_language_loaded(
-  self : Highlighter,
-  lang : String,
-) -> Bool {
-  let loaded = self.get_loaded_languages()
-  loaded.contains(lang)
-}
-
-///|
-/// Ensure a language is loaded (load if not already loaded)
-pub extern "js" fn Highlighter::ensure_language_async(
-  self : Highlighter,
-  lang : String,
-) -> @core.Promise[Unit] =
-  #| async (h, lang) => {
-  #|   const loaded = h.getLoadedLanguages();
-  #|   if (!loaded.includes(lang)) {
-  #|     try {
-  #|       await h.loadLanguage(lang);
-  #|     } catch (e) {
-  #|       console.warn(`[shiki] Failed to load language: ${lang}`, e.message);
-  #|     }
-  #|   }
-  #| }
-
-// =============================================================================
-// Code to HTML
-// =============================================================================
-
-///|
-/// Highlight code to HTML with a single theme
-pub fn Highlighter::code_to_html(
+/// Highlight code to HTML with the configured theme
+pub fn Highlighter::highlight(
   self : Highlighter,
   code : String,
-  lang~ : String,
-  theme~ : String,
+  lang : String,
 ) -> String {
-  let options = @core.from_entries([
-    ("lang", @core.any(lang)),
-    ("theme", @core.any(theme)),
-  ])
-  self.as_any()._call("codeToHtml", [@core.any(code), options]).cast()
+  let resolved = resolve_language(lang)
+  highlight_by_language(code, resolved, self.theme)
 }
 
 ///|
-/// Highlight code to HTML with dual themes (light/dark with CSS variables)
-pub fn Highlighter::code_to_html_dual(
-  self : Highlighter,
-  code : String,
-  lang~ : String,
-  light_theme? : String = "github-light",
-  dark_theme? : String = "github-dark",
-) -> String {
-  let themes = @core.from_entries([
-    ("light", @core.any(light_theme)),
-    ("dark", @core.any(dark_theme)),
-  ])
-  let options = @core.from_entries([
-    ("lang", @core.any(lang)),
-    ("themes", themes),
-    ("defaultColor", @core.any(false)), // Use CSS variables
-  ])
-  self.as_any()._call("codeToHtml", [@core.any(code), options]).cast()
-}
-
-///|
-/// Highlight code with language auto-resolution and fallback
-pub extern "js" fn Highlighter::highlight_async(
+/// Highlight code (async signature for backward compat, actually sync)
+pub fn Highlighter::highlight_sync(
   self : Highlighter,
   code : String,
   lang : String,
-) -> @core.Promise[String] =
-  #| async (h, code, lang) => {
-  #|   // Resolve language alias
-  #|   const aliases = { js: "javascript", ts: "typescript", mbt: "rust", moonbit: "rust", sh: "bash", shell: "bash", yml: "yaml" };
-  #|   const resolved = aliases[lang] || lang;
-  #|
-  #|   // Try to load language
-  #|   const loaded = h.getLoadedLanguages();
-  #|   if (!loaded.includes(resolved)) {
-  #|     try {
-  #|       await h.loadLanguage(resolved);
-  #|     } catch (e) {
-  #|       // Return plain code block if language not supported
-  #|       return `<pre class="shiki" data-lang="${lang}"><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`;
-  #|     }
-  #|   }
-  #|
-  #|   // Highlight with dual themes
-  #|   return h.codeToHtml(code, {
-  #|     lang: resolved,
-  #|     themes: { light: "github-light", dark: "github-dark" },
-  #|     defaultColor: false,
-  #|   });
-  #| }
+) -> String {
+  self.highlight(code, lang)
+}
+
+///|
+fn highlight_by_language(
+  code : String,
+  lang : String,
+  theme : @highlight.HighlightTheme,
+) -> String {
+  match lang {
+    "typescript" | "javascript" | "tsx" | "jsx" =>
+      @highlight.highlight_typescript(code, theme)
+    "moonbit" => @highlight.highlight_moonbit(code, theme)
+    "rust" => @highlight.highlight_rust(code, theme)
+    "python" => @highlight.highlight_python(code, theme)
+    "go" => @highlight.highlight_go(code, theme)
+    "java" => @highlight.highlight_java(code, theme)
+    "c" | "cpp" | "csharp" => @highlight.highlight_c(code, theme)
+    "html" => @highlight.highlight_html(code, theme)
+    "css" => @highlight.highlight_css(code, theme)
+    "json" => @highlight.highlight_json(code, theme)
+    "yaml" => @highlight.highlight_yaml(code, theme)
+    "toml" => @highlight.highlight_toml(code, theme)
+    "bash" => @highlight.highlight_bash(code, theme)
+    "sql" => @highlight.highlight_sql(code, theme)
+    "swift" => @highlight.highlight_swift(code, theme)
+    "ocaml" => @highlight.highlight_ocaml(code, theme)
+    "zig" => @highlight.highlight_zig(code, theme)
+    "ruby" | "php" | "kotlin" | "scala" | "lua" | "graphql" | "xml" |
+    "makefile" | "markdown" =>
+      // Unsupported language — return escaped code block
+      plain_code_block(code, lang)
+    _ => plain_code_block(code, lang)
+  }
+}
+
+///|
+/// Plain code block for unsupported languages
+fn plain_code_block(code : String, lang : String) -> String {
+  let escaped = @syntree.escape_html(code)
+  "<pre class=\"shiki\" data-lang=\"\{lang}\"><code>\{escaped}</code></pre>"
+}
 
 // =============================================================================
 // Utility Functions
@@ -213,7 +114,6 @@ pub extern "js" fn Highlighter::highlight_async(
 
 ///|
 /// Decode HTML entities in code content
-/// Note: &amp; must be decoded last to avoid double-decoding
 pub fn decode_html_entities(html : String) -> String {
   html
   .replace_all(old="&lt;", new="<")
@@ -226,79 +126,60 @@ pub fn decode_html_entities(html : String) -> String {
 }
 
 ///|
-/// Generate CSS for Shiki dual theme support
+/// Generate CSS for syntax highlighting
 pub fn generate_shiki_css() -> String {
-  let css =
-    #|/* Shiki syntax highlighting - dual theme support */
-    #|/* Light theme (default) */
-    #|.shiki,
-    #|.shiki span {
-    #|  color: var(--shiki-light);
-    #|  background-color: var(--shiki-light-bg);
-    #|}
-    #|
-    #|/* Dark theme - controlled by .dark class on html */
-    #|html.dark .shiki,
-    #|html.dark .shiki span {
-    #|  color: var(--shiki-dark);
-    #|  background-color: var(--shiki-dark-bg);
-    #|}
-    #|
-    #|/* Code block styling */
-    #|.shiki {
-    #|  padding: 1rem;
-    #|  border-radius: 6px;
-    #|  overflow-x: auto;
-    #|  font-size: 0.875rem;
-    #|  line-height: 1.6;
-    #|}
-    #|
-    #|.shiki code {
-    #|  background: none;
-    #|  padding: 0;
-    #|  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-    #|}
-    #|
-    #|/* Code block with filename header */
-    #|.code-block-wrapper {
-    #|  margin: 1rem 0;
-    #|  border-radius: 6px;
-    #|  overflow: hidden;
-    #|  border: 1px solid var(--border-color, #d0d7de);
-    #|}
-    #|
-    #|.code-block-header {
-    #|  display: flex;
-    #|  justify-content: space-between;
-    #|  align-items: center;
-    #|  padding: 0.5rem 1rem;
-    #|  background: var(--sidebar-bg, #f6f8fa);
-    #|  border-bottom: 1px solid var(--border-color, #d0d7de);
-    #|  font-size: 0.75rem;
-    #|}
-    #|
-    #|.code-block-filename {
-    #|  font-weight: 600;
-    #|  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    #|}
-    #|
-    #|.code-block-lang {
-    #|  color: var(--text-muted, #656d76);
-    #|  text-transform: uppercase;
-    #|  font-size: 0.625rem;
-    #|  letter-spacing: 0.05em;
-    #|}
-    #|
-    #|.code-block-wrapper .shiki {
-    #|  margin: 0;
-    #|  border-radius: 0;
-    #|}
-    #|
-    #|/* Improve contrast for comments in dark mode */
-    #|/* WCAG AA requires 4.5:1 for normal text, 3:1 for large text */
-    #|html.dark .shiki span[style*="--shiki-dark:#6e7681"],
-    #|html.dark .shiki span[style*="--shiki-dark:#8b949e"] {
-    #|  --shiki-dark: #9ca3af !important;
-    #|}
-  css
+  let theme = @highlight.github_dark()
+  let css = StringBuilder::new()
+  css.write_string("/* Syntax highlighting - generated from syntree theme */\n")
+  css.write_string("pre.shiki {\n")
+  css.write_string("  background-color: \{theme.background};\n")
+  css.write_string("  color: \{theme.foreground};\n")
+  css.write_string("  padding: 1rem;\n")
+  css.write_string("  border-radius: 6px;\n")
+  css.write_string("  overflow-x: auto;\n")
+  css.write_string("  font-size: 0.875rem;\n")
+  css.write_string("  line-height: 1.6;\n")
+  css.write_string("}\n\n")
+  css.write_string("pre.shiki code {\n")
+  css.write_string("  background: none;\n")
+  css.write_string("  padding: 0;\n")
+  css.write_string(
+    "  font-family: ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, \"Liberation Mono\", monospace;\n",
+  )
+  css.write_string("}\n\n")
+  css.write_string("/* Code block with filename header */\n")
+  css.write_string(".code-block-wrapper {\n")
+  css.write_string("  margin: 1rem 0;\n")
+  css.write_string("  border-radius: 6px;\n")
+  css.write_string("  overflow: hidden;\n")
+  css.write_string("  border: 1px solid var(--border-color, #d0d7de);\n")
+  css.write_string("}\n\n")
+  css.write_string(".code-block-header {\n")
+  css.write_string("  display: flex;\n")
+  css.write_string("  justify-content: space-between;\n")
+  css.write_string("  align-items: center;\n")
+  css.write_string("  padding: 0.5rem 1rem;\n")
+  css.write_string("  background: var(--sidebar-bg, #f6f8fa);\n")
+  css.write_string(
+    "  border-bottom: 1px solid var(--border-color, #d0d7de);\n",
+  )
+  css.write_string("  font-size: 0.75rem;\n")
+  css.write_string("}\n\n")
+  css.write_string(".code-block-filename {\n")
+  css.write_string("  font-weight: 600;\n")
+  css.write_string(
+    "  font-family: ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, monospace;\n",
+  )
+  css.write_string("}\n\n")
+  css.write_string(".code-block-lang {\n")
+  css.write_string("  color: var(--text-muted, #656d76);\n")
+  css.write_string("  text-transform: uppercase;\n")
+  css.write_string("  font-size: 0.625rem;\n")
+  css.write_string("  letter-spacing: 0.05em;\n")
+  css.write_string("}\n\n")
+  css.write_string(".code-block-wrapper pre.shiki {\n")
+  css.write_string("  margin: 0;\n")
+  css.write_string("  border-radius: 0;\n")
+  css.write_string("}\n")
+  css.to_string()
 }

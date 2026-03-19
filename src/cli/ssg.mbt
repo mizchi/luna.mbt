@@ -214,7 +214,7 @@ pub async fn run_ssg_dev(
   println("")
 
   // Create highlighter once for reuse
-  let highlighter = @shiki.create_default_highlighter().wait()
+  let highlighter = @shiki.create_default_highlighter()
 
   // Initial build
   run_ssg_initial_build(config, cwd, highlighter)

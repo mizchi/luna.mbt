@@ -456,7 +456,7 @@ async fn execute_ssg_build(
   println(@colorette.gray("  Docs: \{config.docs_dir}"))
   println(@colorette.gray("  Output: \{config.output_dir}"))
   // Create highlighter for syntax highlighting
-  let highlighter = @shiki.create_default_highlighter().wait()
+  let highlighter = @shiki.create_default_highlighter()
   // Use sync version with pre-created highlighter
   match @ssg_gen.generate_site_with_highlighter(config, cwd, highlighter) {
     Ok(_) => {

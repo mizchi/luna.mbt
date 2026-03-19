@@ -54,7 +54,7 @@ async fn handle_init(data_json : String) -> Unit {
   let sidebar = sidebar_from_json(data.sidebar_json)
 
   // Create Shiki highlighter (this is the expensive operation)
-  let highlighter = @shiki.create_default_highlighter().wait()
+  let highlighter = @shiki.create_default_highlighter()
 
   // Store context
   worker_ctx.val = Some(WorkerContext::{

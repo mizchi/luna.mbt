@@ -1,7 +1,8 @@
 import {
-  "mizchi/js/core" @core,
+  "mizchi/syntree",
+  "mizchi/syntree/highlight" @highlight,
 }
 
 options(
-  "supported-targets": "js",
+  "supported-targets": "all",
 )

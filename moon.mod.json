@@ -14,7 +14,8 @@
     "mizchi/process_pool": "0.1.3",
     "mizchi/mars": "0.3.10",
     "mizchi/wite": "0.6.4",
-    "mizchi/x": "0.1.5"
+    "mizchi/x": "0.1.5",
+    "mizchi/syntree": "0.2.3"
   },
   "readme": "README.md",
   "repository": "https://github.com/mizchi/sol.mbt",

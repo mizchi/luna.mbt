@@ -480,65 +480,97 @@ fn get_page_order(
 
 ///|
 /// Apply syntax highlighting to code blocks in HTML
-/// Finds <pre class="code-block" data-lang="xxx"> elements and highlights them
+/// Find substring position starting from `from` index
+fn find_from(s : String, needle : String, from? : Int = 0) -> Int? {
+  let sub = s.substring(start=from)
+  match sub.find(needle) {
+    Some(idx) => Some(from + idx)
+    None => None
+  }
+}
+
+/// Finds <pre class="code-block" data-lang="xxx"> elements and highlights them.
+/// Pure MoonBit implementation using syntree (no JS FFI).
 fn apply_syntax_highlighting(
   html : String,
   highlighter : @shiki.Highlighter,
 ) -> String {
-  apply_syntax_highlighting_js(html, highlighter)
+  let marker = "<pre class=\"code-block\""
+  if not(html.contains(marker)) {
+    return html
+  }
+  let result = StringBuilder::new()
+  let mut pos = 0
+  let len = html.length()
+  while pos < len {
+    match find_from(html, marker, from=pos) {
+      None => {
+        result.write_string(html.substring(start=pos))
+        break
+      }
+      Some(start) => {
+        // Copy everything before the match
+        result.write_string(html.substring(start=pos, end=start))
+        // Find the end of </pre>
+        let end_marker = "</pre>"
+        match find_from(html, end_marker, from=start) {
+          None => {
+            result.write_string(html.substring(start=start))
+            break
+          }
+          Some(end_pos) => {
+            let block_end = end_pos + end_marker.length()
+            let block = html.substring(start=start, end=block_end)
+            // Extract lang from data-lang="xxx"
+            let lang = extract_data_attr(block, "data-lang")
+            // Extract code content between <code...>...</code>
+            let code_content = extract_code_content(block)
+            match (lang, code_content) {
+              (Some(l), Some(code)) => {
+                let decoded = @shiki.decode_html_entities(code)
+                result.write_string(highlighter.highlight(decoded, l))
+              }
+              _ => result.write_string(block) // keep original
+            }
+            pos = block_end
+          }
+        }
+      }
+    }
+  }
+  result.to_string()
 }
 
 ///|
-/// JS implementation of syntax highlighting
-extern "js" fn apply_syntax_highlighting_js(
-  html : String,
-  highlighter : @shiki.Highlighter,
-) -> String =
-  #| (html, h) => {
-  #|   // Match <pre class="code-block" data-lang="xxx"><code ...>...</code></pre>
-  #|   const codeBlockRegex = /<pre class="code-block"(?: data-lang="([^"]*)")?(?: data-filename="([^"]*)")?(?: data-meta="([^"]*)")?><code[^>]*>([\s\S]*?)<\/code><\/pre>/g;
-  #|   const aliases = { js: "javascript", ts: "typescript", mbt: "rust", moonbit: "rust", sh: "bash", shell: "bash", yml: "yaml" };
-  #|
-  #|   let result = html;
-  #|   let match;
-  #|   const replacements = [];
-  #|
-  #|   while ((match = codeBlockRegex.exec(html)) !== null) {
-  #|     const [fullMatch, lang, filename, meta, codeContent] = match;
-  #|     if (!lang) continue;
-  #|
-  #|     // Decode HTML entities
-  #|     const code = codeContent
-  #|       .replace(/&lt;/g, '<')
-  #|       .replace(/&gt;/g, '>')
-  #|       .replace(/&quot;/g, '"')
-  #|       .replace(/&#39;/g, "'")
-  #|       .replace(/&amp;/g, '&');
-  #|
-  #|     const resolved = aliases[lang] || lang;
-  #|
-  #|     // Try to highlight (sync since we preloaded themes)
-  #|     try {
-  #|       const loaded = h.getLoadedLanguages();
-  #|       if (!loaded.includes(resolved)) {
-  #|         // Skip if language not loaded (will use fallback styling)
-  #|         continue;
-  #|       }
-  #|       const highlighted = h.codeToHtml(code, {
-  #|         lang: resolved,
-  #|         themes: { light: "github-light", dark: "github-dark" },
-  #|         defaultColor: false,
-  #|       });
-  #|       replacements.push({ original: fullMatch, replacement: highlighted });
-  #|     } catch (e) {
-  #|       // Keep original on error
-  #|     }
-  #|   }
-  #|
-  #|   // Apply replacements
-  #|   for (const { original, replacement } of replacements) {
-  #|     result = result.replace(original, replacement);
-  #|   }
-  #|
-  #|   return result;
-  #| }
+fn extract_data_attr(html : String, attr : String) -> String? {
+  let needle = attr + "=\""
+  match find_from(html, needle) {
+    None => None
+    Some(start) => {
+      let val_start = start + needle.length()
+      match find_from(html, "\"", from=val_start) {
+        None => None
+        Some(val_end) => Some(html.substring(start=val_start, end=val_end))
+      }
+    }
+  }
+}
+
+///|
+fn extract_code_content(html : String) -> String? {
+  let code_start_marker = "<code"
+  match find_from(html, code_start_marker) {
+    None => None
+    Some(tag_start) =>
+      match find_from(html, ">", from=tag_start) {
+        None => None
+        Some(content_start) => {
+          let cs = content_start + 1
+          match find_from(html, "</code>") {
+            None => None
+            Some(content_end) => Some(html.substring(start=cs, end=content_end))
+          }
+        }
+      }
+  }
+}
