@@ -40,11 +40,14 @@ pub fn page(
 /// ```moonbit nocheck
 /// api_get("/api/users/:id", get_user)
 /// ```
-pub fn api_get(
+pub fn api_get[T : ToJson](
   path : String,
-  handler : async (PageProps) -> Json,
+  handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Get(path~, handler=ApiHandler(handler))
+  SolRoutes::Get(
+    path~,
+    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
+  )
 }
 
 ///|
@@ -54,38 +57,50 @@ pub fn api_get(
 /// ```moonbit nocheck
 /// api_post("/api/users", create_user)
 /// ```
-pub fn api_post(
+pub fn api_post[T : ToJson](
   path : String,
-  handler : async (PageProps) -> Json,
+  handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Post(path~, handler=ApiHandler(handler))
+  SolRoutes::Post(
+    path~,
+    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
+  )
 }
 
 ///|
 /// Create a PUT API route
-pub fn api_put(
+pub fn api_put[T : ToJson](
   path : String,
-  handler : async (PageProps) -> Json,
+  handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Put(path~, handler=ApiHandler(handler))
+  SolRoutes::Put(
+    path~,
+    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
+  )
 }
 
 ///|
 /// Create a DELETE API route
-pub fn api_delete(
+pub fn api_delete[T : ToJson](
   path : String,
-  handler : async (PageProps) -> Json,
+  handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Delete(path~, handler=ApiHandler(handler))
+  SolRoutes::Delete(
+    path~,
+    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
+  )
 }
 
 ///|
 /// Create a PATCH API route
-pub fn api_patch(
+pub fn api_patch[T : ToJson](
   path : String,
-  handler : async (PageProps) -> Json,
+  handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Patch(path~, handler=ApiHandler(handler))
+  SolRoutes::Patch(
+    path~,
+    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
+  )
 }
 
 ///|

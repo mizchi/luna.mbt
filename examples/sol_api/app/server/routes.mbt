@@ -94,24 +94,34 @@ fn find_item_index(id : Int) -> Int? {
 }
 
 // =============================================================================
+// Response types (compile-time structure guarantee)
+// =============================================================================
+
+///|
+priv struct HealthResponse {
+  status : String
+  timestamp : String
+} derive(ToJson)
+
+///|
+priv struct ItemListResponse {
+  items : Array[Item]
+  total : Int
+} derive(ToJson)
+
+// =============================================================================
 // API Handlers
 // =============================================================================
 
 ///|
-async fn health_handler(_props : @sol.PageProps) -> Json {
-  @sol.ok([
-    ("status", "ok".to_json()),
-    ("timestamp", get_timestamp().to_json()),
-  ]).to_json()
+async fn health_handler(_props : @sol.PageProps) -> HealthResponse {
+  { status: "ok", timestamp: get_timestamp() }
 }
 
 ///|
-async fn list_items_handler(_props : @sol.PageProps) -> Json {
+async fn list_items_handler(_props : @sol.PageProps) -> ItemListResponse {
   ensure_items_initialized()
-  @sol.ok([
-    ("items", items_store.val.to_json()),
-    ("total", items_store.val.length().to_json()),
-  ]).to_json()
+  { items: items_store.val, total: items_store.val.length() }
 }
 
 ///|
