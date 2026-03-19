@@ -1,5 +1,5 @@
 {
-  "supported-targets": ["js"],
+  "supported-targets": "js",
   "import": [],
   "link": {
     "js": {

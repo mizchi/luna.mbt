@@ -142,17 +142,10 @@ fn delete_todo(id : Int) -> Bool {
 
 ///|
 /// GET /api/todos - List all todos
-async fn api_get_todos(_props : @router.PageProps) -> @core.Any {
+async fn api_get_todos(_props : @router.PageProps) -> Json {
   let todos = get_todos()
-  // Manually build JSON to avoid Bool serialization issues
-  let todos_any = todos.map(fn(t) {
-    @sol.json_obj([
-      ("id", @core.any(t.id)),
-      ("text", @core.any(t.text)),
-      ("completed", @core.any(t.completed)),
-    ])
-  })
-  @sol.json_obj([("todos", ffi_to_js_array(todos_any))])
+  let todos_json : Array[Json] = todos.map(fn(t) { t.to_json() })
+  { "todos": todos_json.to_json() }.to_json()
 }
 
 ///|
@@ -170,33 +163,26 @@ fn get_json_string(json : Json?, field : String) -> String {
 
 ///|
 /// POST /api/todos - Add a new todo
-async fn api_add_todo(props : @router.PageProps) -> @core.Any {
+async fn api_add_todo(props : @router.PageProps) -> Json {
   let json = props.body_json()
   let text = get_json_string(json, "text")
   if text == "" {
-    return @sol.json_obj([
-      ("error", @core.any("text is required")),
-    ])
+    return { "error": "text is required" }.to_json()
   }
   let todo = add_todo(text)
-  // Manually build JSON to avoid Bool serialization issues
-  @sol.json_obj([
-    ("id", @core.any(todo.id)),
-    ("text", @core.any(todo.text)),
-    ("completed", @core.any(todo.completed)),
-  ])
+  todo.to_json()
 }
 
 ///|
 /// DELETE /api/todos/:id - Delete a todo
-async fn api_delete_todo(props : @router.PageProps) -> @core.Any {
+async fn api_delete_todo(props : @router.PageProps) -> Json {
   let id_str = props.get_param("id").unwrap_or("")
   let id = parse_int(id_str)
   if id <= 0 {
-    return @sol.json_obj([("error", @core.any("invalid id"))])
+    return { "error": "invalid id" }.to_json()
   }
   let deleted = delete_todo(id)
-  @sol.json_obj([("deleted", @core.any(deleted))])
+  { "deleted": deleted.to_json() }.to_json()
 }
 
 // =============================================================================
@@ -226,7 +212,7 @@ let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else {
-    @action.ActionResult::ok(@sol.json_to_any(todo.to_json()))
+    @action.ActionResult::ok(todo.to_json())
   }
 })
 
@@ -252,7 +238,7 @@ let toggle_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok(@sol.json_obj([("toggled", @core.any(true))]))
+    @action.ActionResult::ok({ "toggled": true }.to_json())
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }
@@ -280,7 +266,7 @@ let delete_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok(@sol.json_obj([("deleted", @core.any(true))]))
+    @action.ActionResult::ok({ "deleted": true }.to_json())
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }
@@ -321,10 +307,6 @@ extern "js" fn get_int_field(obj : @core.Any, field : String) -> Int =
 ///|
 extern "js" fn parse_int(s : String) -> Int =
   #| (s) => parseInt(s, 10) || 0
-
-///|
-extern "js" fn ffi_to_js_array(arr : Array[@core.Any]) -> @core.Any =
-  #| (arr) => arr
 
 // =============================================================================
 // Router Config

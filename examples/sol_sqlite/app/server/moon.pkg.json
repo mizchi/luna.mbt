@@ -1,5 +1,5 @@
 {
-  "supported-targets": ["js"],
+  "supported-targets": "js",
   "import": [
     { "path": "mizchi/luna", "alias": "luna" },
     { "path": "mizchi/sol/router", "alias": "router" },

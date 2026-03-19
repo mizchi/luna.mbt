@@ -177,34 +177,34 @@ extern "js" fn is_bench_mode() -> Bool =
 
 ///|
 /// Debug API - returns catch-all params
-async fn api_test_catch_all(props : @router.PageProps) -> @core.Any {
+async fn api_test_catch_all(props : @router.PageProps) -> Json {
   let path = props.params.get_param("path").unwrap_or("(none)")
   let star = props.params.get_param("*").unwrap_or("(none)")
   let all_params = props.params.params.map(fn(p) { p.0 + "=" + p.1 }).join(",")
-  @sol.json_obj([
-    ("path", @core.any(path)),
-    ("star", @core.any(star)),
-    ("all_params", @core.any(all_params)),
-  ])
+  @sol.ok([
+    ("path", path.to_json()),
+    ("star", star.to_json()),
+    ("all_params", all_params.to_json()),
+  ]).to_json()
 }
 
 ///|
 /// API handler: health check
-async fn api_health(_props : @router.PageProps) -> @core.Any {
-  @sol.json_obj([("status", @core.any("ok"))])
+async fn api_health(_props : @router.PageProps) -> Json {
+  @sol.ok([("status", "ok".to_json())]).to_json()
 }
 
 ///|
 /// API handler: benchmark ping (lightweight)
-async fn api_bench_ping(_props : @router.PageProps) -> @core.Any {
-  @sol.json_obj([("ok", @core.any(true))])
+async fn api_bench_ping(_props : @router.PageProps) -> Json {
+  @sol.ok([("ok", true.to_json())]).to_json()
 }
 
 ///|
 /// API handler: benchmark catch-all (lightweight)
-async fn api_bench_catch_all(props : @router.PageProps) -> @core.Any {
+async fn api_bench_catch_all(props : @router.PageProps) -> Json {
   let path = props.params.get_param("path").unwrap_or("(none)")
-  @sol.json_obj([("path", @core.any(path))])
+  @sol.ok([("path", path.to_json())]).to_json()
 }
 
 // ============================================================================
@@ -292,15 +292,15 @@ pub fn action_registry() -> @action.ActionRegistry {
 
 ///|
 /// API handler: middleware test - returns request info
-async fn api_middleware_test(_props : @router.PageProps) -> @core.Any {
-  @sol.json_obj([
-    ("middleware", @core.any("logger >> cors")),
-    ("timestamp", @core.any(get_timestamp())),
+async fn api_middleware_test(_props : @router.PageProps) -> Json {
+  @sol.ok([
+    ("middleware", "logger >> cors".to_json()),
+    ("timestamp", get_timestamp().to_json()),
     (
       "message",
-      @core.any("Middleware is working! Check CORS headers in response."),
+      "Middleware is working! Check CORS headers in response.".to_json(),
     ),
-  ])
+  ]).to_json()
 }
 
 ///|
