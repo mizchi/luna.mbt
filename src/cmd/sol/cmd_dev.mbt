@@ -20,19 +20,31 @@ async fn run_generate(args : Array[String]) -> Unit {
 
 ///|
 /// Delegate a command to the JS CLI.
-/// Builds the JS CLI if not found, then runs it with node.
+/// Spawns node with inherited stdio so output streams in real-time.
 async fn delegate_to_js_cli(command : String, args : Array[String]) -> Int {
   let cli_path = ensure_js_cli()
   let full_args : Array[String] = [cli_path, command]
   for a in args {
     full_args.push(a)
   }
-  @process.run("node", full_args, inherit_env=true) catch {
+  // spawn_orphan inherits parent stdio — output appears in real-time
+  let _pid = @async_process.spawn_orphan(
+    "node",
+    full_args,
+    inherit_env=true,
+    stdout=@stdio.stdout,
+    stderr=@stdio.stderr,
+  ) catch {
     _ => {
       println("Error: failed to run node \{cli_path} \{command}")
-      1
+      return 1
     }
   }
+  // Block forever — child process handles everything
+  // Parent stays alive so child isn't orphaned prematurely
+  let (_r, _w) = @io.pipe()
+  _r.read_all() |> ignore
+  0
 }
 
 ///|
