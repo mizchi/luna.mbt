@@ -68,20 +68,6 @@ pub struct PageProps {
 }
 
 ///|
-/// Create PageProps from context
-pub fn PageProps::from_ctx(ctx : Ctx) -> PageProps {
-  let params = extract_route_params(ctx)
-  { ctx, params, is_fragment: false, is_isr_render: false }
-}
-
-///|
-/// Create PageProps for fragment request
-pub fn PageProps::from_ctx_fragment(ctx : Ctx) -> PageProps {
-  let params = extract_route_params(ctx)
-  { ctx, params, is_fragment: true, is_isr_render: false }
-}
-
-///|
 /// Create PageProps from context and pre-extracted params
 /// Use this when params are already extracted by the router
 pub fn PageProps::from_ctx_with_params(

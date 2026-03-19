@@ -258,20 +258,6 @@ fn join_segments(segments : ArrayView[String]) -> String {
 }
 
 ///|
-/// Add catch-all parameter (Hono v4 compatibility)
-/// With Hono v4's `:name{regex}` pattern, the parameter is already
-/// available with the correct name, so this function just returns params as-is.
-fn add_catch_all_param(
-  params : RouteParams,
-  _catch_all : CatchAllInfo?,
-) -> RouteParams {
-  // Hono v4 uses named regex patterns like :slug{.+} which automatically
-  // populate the params with the correct key name.
-  // No transformation needed.
-  params
-}
-
-///|
 fn split_by_char(s : String, c : Char) -> Array[String] {
   let result : Array[String] = []
   let current : Array[Char] = []
@@ -289,6 +275,34 @@ fn split_by_char(s : String, c : Char) -> Array[String] {
     result.push(String::from_array(current))
   }
   result
+}
+
+///|
+fn push_api_route(
+  result : Array[CompiledSolRoute],
+  prefix : String,
+  path : String,
+  handler : ApiHandler,
+  kind : SolRouteKind,
+  inherited_middlewares : Array[@middleware.Middleware],
+) -> Unit {
+  let full_path = normalize_path(prefix + path)
+  let param_names = extract_param_names(full_path)
+  let catch_all = extract_catch_all(full_path)
+  result.push({
+    pattern: full_path,
+    param_names,
+    page_handler: None,
+    api_handler: Some(handler),
+    layouts: [],
+    middlewares: inherited_middlewares.copy(),
+    kind,
+    title: "",
+    meta: [],
+    catch_all,
+    revalidate: None,
+    cache_strategy: CacheStrategy::AlwaysFetch,
+  })
 }
 
 ///|
@@ -369,101 +383,16 @@ fn compile_sol_routes_inner(
           children, new_prefix, new_layouts, inherited_middlewares, result,
         )
       }
-      Get(path~, handler~) => {
-        let full_path = normalize_path(prefix + path)
-        let param_names = extract_param_names(full_path)
-        let catch_all = extract_catch_all(full_path)
-        result.push({
-          pattern: full_path,
-          param_names,
-          page_handler: None,
-          api_handler: Some(handler),
-          layouts: [],
-          middlewares: inherited_middlewares.copy(),
-          kind: SolRouteKind::GetApi,
-          title: "",
-          meta: [],
-          catch_all,
-          revalidate: None,
-          cache_strategy: CacheStrategy::AlwaysFetch,
-        })
-      }
-      Post(path~, handler~) => {
-        let full_path = normalize_path(prefix + path)
-        let param_names = extract_param_names(full_path)
-        let catch_all = extract_catch_all(full_path)
-        result.push({
-          pattern: full_path,
-          param_names,
-          page_handler: None,
-          api_handler: Some(handler),
-          layouts: [],
-          middlewares: inherited_middlewares.copy(),
-          kind: SolRouteKind::PostApi,
-          title: "",
-          meta: [],
-          catch_all,
-          revalidate: None,
-          cache_strategy: CacheStrategy::AlwaysFetch,
-        })
-      }
-      Put(path~, handler~) => {
-        let full_path = normalize_path(prefix + path)
-        let param_names = extract_param_names(full_path)
-        let catch_all = extract_catch_all(full_path)
-        result.push({
-          pattern: full_path,
-          param_names,
-          page_handler: None,
-          api_handler: Some(handler),
-          layouts: [],
-          middlewares: inherited_middlewares.copy(),
-          kind: SolRouteKind::PutApi,
-          title: "",
-          meta: [],
-          catch_all,
-          revalidate: None,
-          cache_strategy: CacheStrategy::AlwaysFetch,
-        })
-      }
-      Delete(path~, handler~) => {
-        let full_path = normalize_path(prefix + path)
-        let param_names = extract_param_names(full_path)
-        let catch_all = extract_catch_all(full_path)
-        result.push({
-          pattern: full_path,
-          param_names,
-          page_handler: None,
-          api_handler: Some(handler),
-          layouts: [],
-          middlewares: inherited_middlewares.copy(),
-          kind: SolRouteKind::DeleteApi,
-          title: "",
-          meta: [],
-          catch_all,
-          revalidate: None,
-          cache_strategy: CacheStrategy::AlwaysFetch,
-        })
-      }
-      Patch(path~, handler~) => {
-        let full_path = normalize_path(prefix + path)
-        let param_names = extract_param_names(full_path)
-        let catch_all = extract_catch_all(full_path)
-        result.push({
-          pattern: full_path,
-          param_names,
-          page_handler: None,
-          api_handler: Some(handler),
-          layouts: [],
-          middlewares: inherited_middlewares.copy(),
-          kind: SolRouteKind::PatchApi,
-          title: "",
-          meta: [],
-          catch_all,
-          revalidate: None,
-          cache_strategy: CacheStrategy::AlwaysFetch,
-        })
-      }
+      Get(path~, handler~) =>
+        push_api_route(result, prefix, path, handler, GetApi, inherited_middlewares)
+      Post(path~, handler~) =>
+        push_api_route(result, prefix, path, handler, PostApi, inherited_middlewares)
+      Put(path~, handler~) =>
+        push_api_route(result, prefix, path, handler, PutApi, inherited_middlewares)
+      Delete(path~, handler~) =>
+        push_api_route(result, prefix, path, handler, DeleteApi, inherited_middlewares)
+      Patch(path~, handler~) =>
+        push_api_route(result, prefix, path, handler, PatchApi, inherited_middlewares)
       WithMiddleware(middleware~, children~) => {
         let new_middlewares = inherited_middlewares.copy()
         for mw in middleware {
@@ -688,12 +617,12 @@ async fn handle_compiled_api_route(
   if halted {
     return
   }
-  let mut params = extract_route_params(
+  let params = extract_route_params(
     c,
     is_fragment=false,
     param_names=route.param_names,
   )
-  params = add_catch_all_param(params, route.catch_all)
+
   let props = PageProps::from_ctx_with_params(c, params)
   match route.api_handler {
     Some(ApiHandler(handler)) => {
@@ -765,13 +694,13 @@ fn register_compiled_sol_routes(
             return
           }
           let is_fragment = has_fragment_header(c)
-          let mut params = extract_route_params(
+          let params = extract_route_params(
             c,
             is_fragment~,
             param_names=route.param_names,
           )
           // Add catch-all parameter if present
-          params = add_catch_all_param(params, route.catch_all)
+        
           let props = PageProps::from_ctx_with_params(c, params)
           let page_title = format_title(
             route.title,
