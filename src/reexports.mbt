@@ -12,7 +12,6 @@ pub using @router {
   wrap,
   with_mw,
   nodes,
-  register_sol_routes,
 }
 
 // API response helpers
