@@ -1,9 +1,9 @@
-///| Sol CLI (native) — subset of commands that work without Node.js
-///| Supports: new, clean, generate (JSON config only), build, help
+///| Sol CLI — native MoonBit binary
+///| Native commands: new, clean, build
+///| Delegated to JS CLI: dev, serve, generate
 
 async fn main {
   let args = @sys.get_cli_args()
-  // Skip binary name
   if args.length() <= 1 {
     print_help()
     return
@@ -17,6 +17,9 @@ async fn main {
     "new" => run_new(rest)
     "clean" => run_clean(rest)
     "build" => run_build(rest)
+    "dev" => run_dev(rest)
+    "serve" => run_serve(rest)
+    "generate" => run_generate(rest)
     "help" | "--help" | "-h" => print_help()
     "version" | "--version" | "-v" => println("sol 0.13.0")
     _ => {
@@ -29,16 +32,16 @@ async fn main {
 
 ///|
 fn print_help() -> Unit {
-  println("Sol CLI (native)")
+  println("Sol CLI v0.13.0")
   println("")
   println("Usage: sol <command> [options]")
   println("")
   println("Commands:")
   println("  new <name> --user <ns>  Create a new Sol project")
-  println("  clean                   Remove generated files")
-  println("  build                   Build (delegates to moon build)")
+  println("  dev                     Start dev server (watch + HMR)")
+  println("  build                   Build for production")
+  println("  serve                   Serve production build")
+  println("  generate                Generate .sol directory")
+  println("  clean [--all]           Remove generated files")
   println("  help                    Show this help")
-  println("")
-  println("For full features (dev, serve, generate), use the JS CLI:")
-  println("  node _build/js/release/build/cli/cli.js <command>")
 }
