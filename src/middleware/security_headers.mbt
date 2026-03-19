@@ -63,7 +63,7 @@ pub fn SecurityHeadersConfig::relaxed() -> SecurityHeadersConfig {
     coop: "same-origin-allow-popups",
     coep: "unsafe-none",
     permissions_policy: "geolocation=(), microphone=(), camera=()",
-    csp: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'self'",
+    csp: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; object-src 'none'; frame-ancestors 'self'",
     cache_control_html: "private, no-cache",
     cache_control_static: "public, max-age=3600",
   }
