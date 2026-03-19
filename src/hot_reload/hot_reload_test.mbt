@@ -48,6 +48,18 @@ test "client_script_hostname: uses location.hostname and handles reload events" 
   assert_true(script.contains("m.type==='reload'"))
   assert_true(script.contains("m.type==='full-reload'"))
   assert_true(script.contains("location.reload()"))
+  assert_true(script.contains("24679"))
+}
+
+///|
+test "client_script_hostname: supports island-specific HMR" {
+  let script = client_script_hostname(7877)
+  // Should check for __LUNA_HYDRATE__ function
+  assert_true(script.contains("__LUNA_HYDRATE__"))
+  // Should query islands by luna:url attribute
+  assert_true(script.contains("luna\\\\:url"))
+  // Should fallback to full reload for wildcard
+  assert_true(script.contains("islands[0]==='*'"))
 }
 
 ///|

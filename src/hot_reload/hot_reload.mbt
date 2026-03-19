@@ -52,9 +52,43 @@ pub fn resolve_hmr_port(
 /// Build HMR client script with custom JavaScript host expression
 /// Example host_expr: "location.hostname", "'localhost'"
 pub fn client_script_with_host_expr(port : Int, host_expr : String) -> String {
-  "<script>(function(){var ws=new WebSocket('ws://'+(" +
-  host_expr +
-  ")+':\{port}');ws.onmessage=function(e){var m=JSON.parse(e.data);if(m.type==='update'||m.type==='reload'||m.type==='full-reload'){location.reload()}else if(m.type==='error'){console.error('[HMR]',m.error||m.message)}};ws.onclose=function(){setTimeout(function(){location.reload()},1000)}})()</script>"
+  let port_str = port.to_string()
+  let script =
+    #|(function(){
+    #|  var ws=new WebSocket('ws://'+(__HOST__)+':__PORT__');
+    #|  ws.onmessage=function(e){
+    #|    var m=JSON.parse(e.data);
+    #|    if(m.type==='full-reload'||m.type==='reload'){
+    #|      location.reload();
+    #|    }else if(m.type==='update'){
+    #|      var islands=m.islands||[];
+    #|      if(islands.length===1&&islands[0]==='*'){
+    #|        location.reload();
+    #|      }else if(typeof window.__LUNA_HYDRATE__==='function'){
+    #|        islands.forEach(function(name){
+    #|          var el=document.querySelector('[luna\\:url$="/'+name+'.js"]');
+    #|          if(el){
+    #|            console.log('[HMR] Re-hydrating island:',name);
+    #|            window.__LUNA_HYDRATE__(el);
+    #|          }else{
+    #|            location.reload();
+    #|          }
+    #|        });
+    #|      }else{
+    #|        location.reload();
+    #|      }
+    #|    }else if(m.type==='error'){
+    #|      console.error('[HMR]',m.error||m.message);
+    #|    }
+    #|  };
+    #|  ws.onclose=function(){setTimeout(function(){location.reload()},1000)};
+    #|})()
+  "<script>" +
+  script.replace(old="__HOST__", new=host_expr).replace(
+    old="__PORT__",
+    new=port_str,
+  ) +
+  "</script>"
 }
 
 ///|
