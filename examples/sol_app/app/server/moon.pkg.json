@@ -32,6 +32,10 @@
     {
       "path": "example/sol-app/client",
       "alias": "client"
+    },
+    {
+      "path": "mizchi/luna/x/components/styled/alert",
+      "alias": "alert_ui"
     }
   ],
   "warn-list": "-35-67-24"
