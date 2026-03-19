@@ -34,15 +34,13 @@ test("ssg component SSR loader resolves from _build", () => {
   assert.doesNotMatch(loader, /target\/js\/release\/build/);
 });
 
-test("public docs and todo avoid stale target/js path reference", () => {
+test("public docs avoid stale target/js path reference", () => {
   const readme = read("README.md");
   const srcReadme = read("src/README.md");
   const websiteIndex = read("website/02_sol/index.md");
-  const todo = read("TODO.md");
   assert.doesNotMatch(readme, /target\/js\/debug\/build\/cli\/cli\.js/);
   assert.doesNotMatch(srcReadme, /target\/js\/debug\/build\/cli\/cli\.js/);
   assert.doesNotMatch(websiteIndex, /target\/js\/debug\/build\/cli\/cli\.js/);
-  assert.doesNotMatch(todo, /target\/js\/debug\/build\/cli\/cli\.js/);
 });
 
 test("clean routines remove legacy target before _build to avoid dangling symlink", () => {

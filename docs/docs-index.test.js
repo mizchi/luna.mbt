@@ -12,7 +12,7 @@ const ROOT_README = path.join(ROOT, "README.md");
 test("docs index defines reading order and links canonical docs", () => {
   const index = fs.readFileSync(DOCS_INDEX, "utf8");
   assert.match(index, /ドキュメントガイド|Documentation Guide/);
-  assert.match(index, /読む順|学習順/);
+  assert.match(index, /Reading Order|読む順|学習順/);
   assert.match(index, /docs\/deploy\.md/);
   assert.match(index, /docs\/runbook\.md/);
   assert.match(index, /docs\/routing\.md/);

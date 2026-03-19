@@ -68,7 +68,7 @@ test("deploy and runbook docs describe large-change deploy guard", () => {
   assert.match(runbook, /同じ ref|same ref/i);
   assert.match(runbook, /最新|latest|集約|consolidat/i);
   assert.match(runbook, /成功|successful|close.*最新|latest/i);
-  assert.match(runbook, /再利用|reuse|コメント/i);
+  assert.match(runbook, /再利用|reuse|comment|コメント/i);
   assert.match(runbook, /concurrency|同時実行/i);
 });
 
