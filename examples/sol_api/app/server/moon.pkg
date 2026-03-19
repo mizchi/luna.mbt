@@ -1,6 +1,7 @@
 import {
   "mizchi/sol" @sol,
   "mizchi/sol/middleware" @middleware,
+  "moonbitlang/core/json",
   "moonbitlang/async",
 }
 

@@ -155,6 +155,23 @@ pub async fn PageProps::body_json(self : PageProps) -> Json? {
 }
 
 ///|
+/// Parse request body as a typed struct via FromJson.
+/// Returns Err(ApiResponse) on parse failure (400 Bad Request).
+pub async fn[T : @json.FromJson] PageProps::body_as(
+  self : PageProps,
+) -> Result[T, ApiResponse] {
+  match self.body_json() {
+    None => Err(bad_request("Missing or unreadable request body"))
+    Some(json) =>
+      try {
+        Ok(@json.from_json(json))
+      } catch {
+        e => Err(bad_request("Invalid request body: " + e.to_string()))
+      }
+  }
+}
+
+///|
 /// Set response header.
 pub fn PageProps::set_header(
   self : PageProps,

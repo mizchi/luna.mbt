@@ -140,26 +140,24 @@ async fn get_item_handler(props : @sol.PageProps) -> Json {
 }
 
 ///|
-fn get_json_string(json : Json?, field : String) -> String {
-  match json {
-    Some(Object(obj)) =>
-      match obj.get(field) {
-        Some(String(s)) => s
-        _ => ""
-      }
-    _ => ""
-  }
-}
+/// Request body for creating an item
+priv struct CreateItemRequest {
+  name : String
+  description : String
+} derive(FromJson)
 
 ///|
 async fn create_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  let json = props.body_json()
-  let name = get_json_string(json, "name")
+  let body : CreateItemRequest = match props.body_as() {
+    Ok(b) => b
+    Err(e) => return e.to_json()
+  }
+  let name = body.name
   if name == "" {
     return @sol.bad_request("name is required").to_json()
   }
-  let description = get_json_string(json, "description")
+  let description = body.description
   let new_item : Item = {
     id: get_next_id(),
     name,
@@ -178,15 +176,16 @@ async fn update_item_handler(props : @sol.PageProps) -> Json {
     Ok(id) =>
       match find_item_index(id) {
         Some(i) => {
-          let json = props.body_json()
+          let body : CreateItemRequest = match props.body_as() {
+            Ok(b) => b
+            Err(e) => return e.to_json()
+          }
           let old_item = items_store.val[i]
-          let name_field = get_json_string(json, "name")
-          let name = if name_field == "" { old_item.name } else { name_field }
-          let desc_field = get_json_string(json, "description")
-          let description = if desc_field == "" {
+          let name = if body.name == "" { old_item.name } else { body.name }
+          let description = if body.description == "" {
             old_item.description
           } else {
-            desc_field
+            body.description
           }
           let updated_item : Item = {
             id: old_item.id,

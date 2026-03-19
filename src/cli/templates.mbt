@@ -250,9 +250,14 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|  ])
     #|}
     #|
+    #|///| API response type (compile-time structure guarantee)
+    #|priv struct HealthResponse {
+    #|  status : String
+    #|} derive(ToJson)
+    #|
     #|///| API handler: health check
-    #|async fn api_health(_props : @sol.PageProps) -> Json {
-    #|  @sol.ok([("status", "ok".to_json())]).to_json()
+    #|async fn api_health(_props : @sol.PageProps) -> HealthResponse {
+    #|  { status: "ok" }
     #|}
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
 }
