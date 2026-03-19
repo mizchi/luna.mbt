@@ -171,9 +171,14 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     let types_pkg_content = generate_types_pkg(source_structs, has_actions~)
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
     let types_pkg_path = @path.join2(types_dir, "moon.pkg")
+    let types_test_content = generate_types_roundtrip_tests(source_structs)
+    let types_test_path = @path.join2(types_dir, "types_test.mbt")
     try {
       fs.write_file_sync(types_mbt_path, types_mbt_content)
       fs.write_file_sync(types_pkg_path, types_pkg_content)
+      if types_test_content.length() > 0 {
+        fs.write_file_sync(types_test_path, types_test_content)
+      }
       println(@colorette.gray("  Generated __gen__/types/ from source"))
     } catch {
       e => {

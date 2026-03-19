@@ -73,6 +73,141 @@ fn generate_types_mbt(
 }
 
 ///|
+/// Generate round-trip tests for all Props types.
+/// These tests verify that to_json → from_json produces identical values.
+fn generate_types_roundtrip_tests(structs : Array[StructExport]) -> String {
+  if structs.is_empty() {
+    return ""
+  }
+  let buf = StringBuilder::new()
+  buf.write_string("///| Auto-generated Props round-trip tests\n")
+  buf.write_string("///| Verifies to_json/from_json symmetry for all island Props types\n\n")
+  for s in structs {
+    let component_name = extract_component_name_from_props(s.name)
+    buf.write_string("///|\n")
+    buf.write_string("test \"\{s.name} round-trip\" {\n")
+    buf.write_string(
+      "  let json_str = \{default_props_json(s)}\n",
+    )
+    buf.write_string(
+      "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
+    )
+    buf.write_string(
+      "  let props : \{s.name} = @json.from_json(json)\n",
+    )
+    buf.write_string("  let roundtrip = props.to_json()\n")
+    buf.write_string(
+      "  let restored : \{s.name} = @json.from_json(roundtrip)\n",
+    )
+    buf.write_string(
+      "  assert_eq(props.to_json().stringify(), restored.to_json().stringify())\n",
+    )
+    buf.write_string("}\n\n")
+    // Also verify ComponentRef factory creates valid ref
+    buf.write_string("///|\n")
+    buf.write_string("test \"\{component_name} ComponentRef url\" {\n")
+    buf.write_string(
+      "  let json_str = \{default_props_json(s)}\n",
+    )
+    buf.write_string(
+      "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
+    )
+    buf.write_string(
+      "  let props : \{s.name} = @json.from_json(json)\n",
+    )
+    buf.write_string("  let cref = \{component_name}(props)\n")
+    buf.write_string(
+      "  assert_true(cref.url.has_suffix(\"\{component_name}.js\"))\n",
+    )
+    buf.write_string("}\n\n")
+  }
+  buf.to_string()
+}
+
+///|
+/// Generate a default JSON string for a Props struct (using empty/zero values)
+fn default_props_json(s : StructExport) -> String {
+  // Parse fields from raw_definition to build a minimal valid JSON
+  let fields = extract_struct_fields(s.raw_definition)
+  if fields.is_empty() {
+    return "\"{}\""
+  }
+  let buf = StringBuilder::new()
+  buf.write_string("\"{ ")
+  for i, field in fields {
+    if i > 0 {
+      buf.write_string(", ")
+    }
+    buf.write_string("\\\"")
+    buf.write_string(field.0) // field name
+    buf.write_string("\\\": ")
+    buf.write_string(default_json_value(field.1)) // field type → default value
+  }
+  buf.write_string(" }\"")
+  buf.to_string()
+}
+
+///|
+/// Extract field name-type pairs from struct definition
+fn extract_struct_fields(raw : String) -> Array[(String, String)] {
+  let fields : Array[(String, String)] = []
+  // Find { ... } block
+  let start = match raw.find("{") {
+    Some(i) => i + 1
+    None => return fields
+  }
+  let end = match raw.find("}") {
+    Some(i) => i
+    None => return fields
+  }
+  let body = raw.substring(start~, end~)
+  // Split by newlines, parse "name : Type"
+  for line_view in body.split("\n") {
+    let line = line_view.to_string().trim_space().to_string()
+    if line.is_empty() || line.has_prefix("//") {
+      continue
+    }
+    match line.find(":") {
+      Some(colon) => {
+        let name = line.substring(end=colon).trim_space().to_string()
+        let mut type_str = line.substring(start=colon + 1).trim_space().to_string()
+        // Remove trailing comma if present
+        if type_str.has_suffix(",") {
+          type_str = type_str.substring(end=type_str.length() - 1)
+            .trim_space()
+            .to_string()
+        }
+        if not(name.is_empty()) && not(type_str.is_empty()) {
+          fields.push((name, type_str))
+        }
+      }
+      None => ()
+    }
+  }
+  fields
+}
+
+///|
+/// Default JSON value for common MoonBit types
+fn default_json_value(type_str : String) -> String {
+  if type_str == "Int" || type_str == "Double" || type_str == "Float" {
+    "0"
+  } else if type_str == "String" {
+    "\\\"\\\"" // escaped empty string
+  } else if type_str == "Bool" {
+    "false"
+  } else if type_str.has_prefix("Array") {
+    "[]"
+  } else if type_str.has_prefix("Map") {
+    "{}"
+  } else if type_str.has_suffix("?") {
+    "null"
+  } else {
+    "{}" // fallback for nested structs
+  }
+}
+
+///|
 /// Generate types/moon.pkg
 fn generate_types_pkg(
   structs : Array[StructExport],
