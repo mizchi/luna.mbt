@@ -271,8 +271,8 @@ pub fn serve_sol_assets(app : App) -> Unit {
     "/__sol__/*",
     @mars.handler(async fn(c) {
       let path = c.path()
-      // "/__sol__/".length() == 8
-      let filename = path[8:].to_string()
+      // "/__sol__/".length() == 9
+      let filename = path[9:].to_string()
       let content_type = content_type_for_file(filename)
       // In prod: serve from memory cache; in dev: resolve from disk
       let content = if is_dev {

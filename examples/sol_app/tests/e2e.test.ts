@@ -1,20 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// Helper: wait for island hydration by checking if click handlers are attached
+// Helper: wait for island hydration by checking if interactive elements exist
 async function waitForHydration(page: Page, selector: string, timeout = 10000) {
-  // Wait for the element to exist and be attached
   await page.waitForSelector(selector, { state: 'attached', timeout });
-  // Give hydration a moment (island scripts need to load and execute)
-  await page.waitForTimeout(200);
-  // For counter islands, verify the element has event listeners by checking
-  // if the shadow DOM is set up (for WC) or if the component is interactive
   await page.waitForFunction(
     (sel) => {
       const el = document.querySelector(sel);
       if (!el) return false;
-      // Check if the element or its children have click handlers
-      // by looking for hydration markers or interactive elements
-      return el.querySelector('button') !== null;
+      // Check light DOM first, then shadow DOM for Web Components
+      if (el.querySelector('button')) return true;
+      if (el.shadowRoot?.querySelector('button')) return true;
+      // For non-button islands (forms etc.), check if any input exists
+      if (el.querySelector('input')) return true;
+      return false;
     },
     selector,
     { timeout }
