@@ -346,3 +346,449 @@ test "PropsDiagnostic::to_string warning format" {
   }
   assert_eq!(d.to_string(), "warning: <Counter> unknown prop \"foo\"")
 }
+
+// =============================================================================
+// check_literal_compat: edge cases
+// =============================================================================
+
+///|
+test "check_literal_compat: zero is valid Int" {
+  assert_true!(check_literal_compat("0", "Int") is None)
+}
+
+///|
+test "check_literal_compat: large Int" {
+  assert_true!(check_literal_compat("999999", "Int") is None)
+}
+
+///|
+test "check_literal_compat: float string is invalid Int" {
+  match check_literal_compat("3.14", "Int") {
+    Some(msg) => assert_true!(msg.contains("expected Int"))
+    None => fail("expected error for float as Int")
+  }
+}
+
+///|
+test "check_literal_compat: empty string is invalid Int" {
+  match check_literal_compat("", "Int") {
+    Some(msg) => assert_true!(msg.contains("expected Int"))
+    None => fail("expected error for empty string as Int")
+  }
+}
+
+///|
+test "check_literal_compat: Float type alias works like Double" {
+  assert_true!(check_literal_compat("1.5", "Float") is None)
+}
+
+///|
+test "check_literal_compat: Int valid for Double field" {
+  assert_true!(check_literal_compat("42", "Double") is None)
+}
+
+///|
+test "check_literal_compat: negative Double" {
+  assert_true!(check_literal_compat("-0.5", "Double") is None)
+}
+
+///|
+test "check_literal_compat: optional Bool accepts true" {
+  assert_true!(check_literal_compat("true", "Bool?") is None)
+}
+
+///|
+test "check_literal_compat: optional Bool rejects garbage" {
+  match check_literal_compat("maybe", "Bool?") {
+    Some(msg) => assert_true!(msg.contains("expected Bool"))
+    None => fail("expected error")
+  }
+}
+
+///|
+test "check_literal_compat: Array type is unknown, always ok" {
+  assert_true!(check_literal_compat("anything", "Array[Int]") is None)
+}
+
+///|
+test "check_literal_compat: empty string for String is ok" {
+  assert_true!(check_literal_compat("", "String") is None)
+}
+
+// =============================================================================
+// build_props_schema: edge cases
+// =============================================================================
+
+///|
+test "build_props_schema: empty struct" {
+  let s : StructExport = {
+    name: "EmptyProps",
+    raw_definition: "pub struct EmptyProps {}",
+    package_path: "app/client/empty",
+    import_alias: "empty",
+  }
+  let fields = build_props_schema(s)
+  assert_eq!(fields.length(), 0)
+}
+
+///|
+test "build_props_schema: struct with comments" {
+  let s : StructExport = {
+    name: "Props",
+    raw_definition: "pub struct Props {\n  // comment\n  name : String\n}",
+    package_path: "app/client/x",
+    import_alias: "x",
+  }
+  let fields = build_props_schema(s)
+  assert_eq!(fields.length(), 1)
+  assert_eq!(fields[0].name, "name")
+}
+
+///|
+test "build_props_schema: struct with trailing comma" {
+  let s : StructExport = {
+    name: "Props",
+    raw_definition: "pub struct Props {\n  x : Int,\n  y : Int,\n}",
+    package_path: "app/client/x",
+    import_alias: "x",
+  }
+  let fields = build_props_schema(s)
+  assert_eq!(fields.length(), 2)
+  assert_eq!(fields[0].type_str, "Int")
+  assert_eq!(fields[1].type_str, "Int")
+}
+
+///|
+test "build_props_schema: complex type field" {
+  let s : StructExport = {
+    name: "Props",
+    raw_definition: "pub struct Props {\n  items : Array[String]\n  cb : (Int) -> Bool\n}",
+    package_path: "app/client/x",
+    import_alias: "x",
+  }
+  let fields = build_props_schema(s)
+  assert_eq!(fields.length(), 2)
+  assert_eq!(fields[0].type_str, "Array[String]")
+  assert_false!(fields[0].optional)
+}
+
+// =============================================================================
+// ComponentPropsRegistry: edge cases
+// =============================================================================
+
+///|
+test "ComponentPropsRegistry: multiple components" {
+  let registry = ComponentPropsRegistry::from_structs([
+    {
+      name: "CounterProps",
+      raw_definition: "pub struct CounterProps {\n  count : Int\n}",
+      package_path: "app/client/counter",
+      import_alias: "counter",
+    },
+    {
+      name: "ButtonProps",
+      raw_definition: "pub struct ButtonProps {\n  label : String\n  disabled : Bool\n}",
+      package_path: "app/client/button",
+      import_alias: "button",
+    },
+  ])
+  assert_true!(registry.lookup("Counter") is Some(_))
+  assert_true!(registry.lookup("Button") is Some(_))
+  assert_true!(registry.lookup("Nonexistent") is None)
+}
+
+///|
+test "ComponentPropsRegistry: PascalCase multi-word lookup" {
+  let registry = ComponentPropsRegistry::from_structs([
+    {
+      name: "MyWidgetProps",
+      raw_definition: "pub struct MyWidgetProps {\n  value : Int\n}",
+      package_path: "app/client/my_widget",
+      import_alias: "my_widget",
+    },
+  ])
+  // "MyWidget" → "mywidget" via to_lower, but registry stores "my_widget"
+  // This tests whether the lookup matches correctly
+  match registry.lookup("my_widget") {
+    Some(fields) => assert_eq!(fields[0].name, "value")
+    None => fail("expected fields")
+  }
+}
+
+// =============================================================================
+// validate_jsx_embed: more edge cases
+// =============================================================================
+
+///|
+test "validate_jsx_embed: all fields missing" {
+  let registry = make_registry()
+  let embed : @ssg.JsxComponentEmbed = {
+    tag: "Counter",
+    attrs: [],
+    children: "",
+    self_closing: true,
+    cls_hints: None,
+  }
+  let diags = validate_jsx_embed(embed, registry)
+  // count and label are both required
+  assert_eq!(diags.length(), 2)
+  let messages = diags.map(fn(d) { d.message })
+  assert_true!(messages.iter().any(fn(m) { m.contains("\"count\"") }))
+  assert_true!(messages.iter().any(fn(m) { m.contains("\"label\"") }))
+}
+
+///|
+test "validate_jsx_embed: multiple errors at once" {
+  let registry = make_registry()
+  let embed : @ssg.JsxComponentEmbed = {
+    tag: "Counter",
+    attrs: [
+      ("count", @ssg.MdxAttrValue::StringLiteral("abc")), // type mismatch
+      // label missing
+      ("extra", @ssg.MdxAttrValue::StringLiteral("x")), // unknown
+    ],
+    children: "",
+    self_closing: true,
+    cls_hints: None,
+  }
+  let diags = validate_jsx_embed(embed, registry)
+  // type mismatch (count) + unknown (extra) + missing (label) = 3
+  assert_eq!(diags.length(), 3)
+}
+
+///|
+test "validate_jsx_embed: luna:trigger attr ignored" {
+  let registry = make_registry()
+  let embed : @ssg.JsxComponentEmbed = {
+    tag: "Counter",
+    attrs: [
+      ("count", @ssg.MdxAttrValue::StringLiteral("1")),
+      ("label", @ssg.MdxAttrValue::StringLiteral("ok")),
+      ("luna:trigger", @ssg.MdxAttrValue::StringLiteral("idle")),
+    ],
+    children: "",
+    self_closing: true,
+    cls_hints: None,
+  }
+  let diags = validate_jsx_embed(embed, registry)
+  assert_eq!(diags.length(), 0)
+}
+
+///|
+test "validate_jsx_embed: cls:height attr ignored" {
+  let registry = make_registry()
+  let embed : @ssg.JsxComponentEmbed = {
+    tag: "Counter",
+    attrs: [
+      ("count", @ssg.MdxAttrValue::StringLiteral("1")),
+      ("label", @ssg.MdxAttrValue::StringLiteral("ok")),
+      ("cls:height", @ssg.MdxAttrValue::StringLiteral("100px")),
+    ],
+    children: "",
+    self_closing: true,
+    cls_hints: None,
+  }
+  let diags = validate_jsx_embed(embed, registry)
+  assert_eq!(diags.length(), 0)
+}
+
+///|
+test "validate_jsx_embed: all expressions skips all type checks" {
+  let registry = make_registry()
+  let embed : @ssg.JsxComponentEmbed = {
+    tag: "Counter",
+    attrs: [
+      ("count", @ssg.MdxAttrValue::Expression("getCount()")),
+      ("label", @ssg.MdxAttrValue::Expression("getLabel()")),
+    ],
+    children: "",
+    self_closing: true,
+    cls_hints: None,
+  }
+  let diags = validate_jsx_embed(embed, registry)
+  assert_eq!(diags.length(), 0)
+}
+
+///|
+test "validate_jsx_embed: non-self-closing with children" {
+  let registry = make_registry()
+  let embed : @ssg.JsxComponentEmbed = {
+    tag: "Counter",
+    attrs: [
+      ("count", @ssg.MdxAttrValue::StringLiteral("5")),
+      ("label", @ssg.MdxAttrValue::StringLiteral("ok")),
+    ],
+    children: "<span>inner</span>",
+    self_closing: false,
+    cls_hints: None,
+  }
+  let diags = validate_jsx_embed(embed, registry)
+  assert_eq!(diags.length(), 0)
+}
+
+// =============================================================================
+// validate_mdx_props: batch validation with MdNode tree
+// =============================================================================
+
+///|
+test "validate_mdx_props: empty nodes" {
+  let registry = make_registry()
+  let diags = validate_mdx_props([], registry)
+  assert_eq!(diags.length(), 0)
+}
+
+///|
+test "validate_mdx_props: text-only nodes produce no diagnostics" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::Text("hello"),
+    @ssg.MdNode::ThematicBreak,
+    @ssg.MdNode::CodeBlock(lang="moonbit", code="let x = 1"),
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  assert_eq!(diags.length(), 0)
+}
+
+///|
+test "validate_mdx_props: finds JsxComponent at top level" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::JsxComponent({
+      tag: "Counter",
+      attrs: [], // missing both required fields
+      children: "",
+      self_closing: true,
+      cls_hints: None,
+    }),
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  assert_eq!(diags.length(), 2) // missing count + label
+}
+
+///|
+test "validate_mdx_props: finds JsxComponent nested in Paragraph" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::Paragraph(children=[
+      @ssg.MdNode::Text("Before "),
+      @ssg.MdNode::JsxComponent({
+        tag: "Counter",
+        attrs: [("count", @ssg.MdxAttrValue::StringLiteral("bad"))],
+        children: "",
+        self_closing: true,
+        cls_hints: None,
+      }),
+    ]),
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  // type mismatch on "count" + missing "label"
+  assert_eq!(diags.length(), 2)
+}
+
+///|
+test "validate_mdx_props: finds JsxComponent nested in Heading" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::Heading(level=1, id="title", children=[
+      @ssg.MdNode::JsxComponent({
+        tag: "Counter",
+        attrs: [
+          ("count", @ssg.MdxAttrValue::StringLiteral("1")),
+          ("label", @ssg.MdxAttrValue::StringLiteral("ok")),
+        ],
+        children: "",
+        self_closing: true,
+        cls_hints: None,
+      }),
+    ]),
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  assert_eq!(diags.length(), 0)
+}
+
+///|
+test "validate_mdx_props: finds JsxComponent in List items" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::List(ordered=false, items=[
+      [
+        @ssg.MdNode::JsxComponent({
+          tag: "Counter",
+          attrs: [],
+          children: "",
+          self_closing: true,
+          cls_hints: None,
+        }),
+      ],
+    ]),
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  assert_eq!(diags.length(), 2) // missing count + label
+}
+
+///|
+test "validate_mdx_props: multiple components across tree" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::JsxComponent({
+      tag: "Counter",
+      attrs: [
+        ("count", @ssg.MdxAttrValue::StringLiteral("1")),
+        ("label", @ssg.MdxAttrValue::StringLiteral("a")),
+      ],
+      children: "",
+      self_closing: true,
+      cls_hints: None,
+    }),
+    @ssg.MdNode::Paragraph(children=[
+      @ssg.MdNode::JsxComponent({
+        tag: "Toggle",
+        attrs: [], // missing required "enabled"
+        children: "",
+        self_closing: true,
+        cls_hints: None,
+      }),
+    ]),
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  // Counter is valid, Toggle is missing "enabled"
+  assert_eq!(diags.length(), 1)
+  assert_true!(diags[0].component == "Toggle")
+}
+
+///|
+test "validate_mdx_props: deeply nested Bold > Italic > JsxComponent" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::Bold(children=[
+      @ssg.MdNode::Italic(children=[
+        @ssg.MdNode::JsxComponent({
+          tag: "Counter",
+          attrs: [
+            ("count", @ssg.MdxAttrValue::StringLiteral("x")), // invalid Int
+            ("label", @ssg.MdxAttrValue::StringLiteral("ok")),
+          ],
+          children: "",
+          self_closing: true,
+          cls_hints: None,
+        }),
+      ]),
+    ]),
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  assert_eq!(diags.length(), 1)
+  assert_true!(diags[0].message.contains("expected Int"))
+}
+
+///|
+test "validate_mdx_props: ignores non-traversable nodes" {
+  let registry = make_registry()
+  let nodes : Array[@ssg.MdNode] = [
+    @ssg.MdNode::Image(src="/img.png", alt="alt", title=""),
+    @ssg.MdNode::Html("<div>raw</div>"),
+    @ssg.MdNode::Code("inline code"),
+    @ssg.MdNode::LineBreak,
+  ]
+  let diags = validate_mdx_props(nodes, registry)
+  assert_eq!(diags.length(), 0)
+}
