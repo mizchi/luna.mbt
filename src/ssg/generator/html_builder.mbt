@@ -645,6 +645,14 @@ test "rewrite_content_links replaces bare links" {
 }
 
 ///|
+test "rewrite_content_links preserves modulepreload" {
+  let html = "<link rel=\"modulepreload\" href=\"/sol.mbt/assets/loader.js\">"
+  let result = rewrite_content_links(html, "/sol.mbt/")
+  assert_false!(result.contains("hhref"))
+  assert_true!(result.contains("href=\"/sol.mbt/assets/loader.js\""))
+}
+
+///|
 test "rewrite_content_links skips already-prefixed links" {
   let html = "<a href=\"/sol.mbt/luna/\">Luna</a><a href=\"/intro/\">Intro</a>"
   let result = rewrite_content_links(html, "/sol.mbt/")
