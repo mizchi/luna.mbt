@@ -63,6 +63,9 @@ fn generate_types_mbt(
   // Generate route path constants and param name constants
   buf.write_string(generate_route_constants(route_info.route_paths))
 
+  // Generate link builder functions
+  buf.write_string(generate_link_builders(route_info.route_paths))
+
   // Generate ActionRef factory functions
   buf.write_string(generate_action_ref_factories(route_info.action_ids))
 

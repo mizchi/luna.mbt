@@ -146,6 +146,149 @@ fn generate_route_constants(route_paths : Array[String]) -> String {
 }
 
 // =============================================================================
+// Link Builder Functions
+// =============================================================================
+
+///|
+/// Generate type-safe link builder functions from route paths
+/// e.g., "/blog/:slug" -> pub fn link_blog_slug(slug~ : String) -> String { "/blog/" + slug }
+fn generate_link_builders(route_paths : Array[String]) -> String {
+  if route_paths.is_empty() {
+    return ""
+  }
+  let buf = StringBuilder::new()
+  buf.write_string(
+    "// =============================================================================\n",
+  )
+  buf.write_string("// Link Builder Functions\n")
+  buf.write_string(
+    "// =============================================================================\n\n",
+  )
+  for path in route_paths {
+    let ident = path_to_identifier(path)
+    let params = extract_param_names_from_path(path)
+    buf.write_string("///|\n")
+    buf.write_string("/// Link builder for route: \{path}\n")
+    if params.is_empty() {
+      // No parameters - constant returning function
+      buf.write_string("pub fn link_\{ident}() -> String {\n")
+      buf.write_string("  \"\{path}\"\n")
+      buf.write_string("}\n\n")
+    } else {
+      // Has parameters - labeled args function
+      buf.write_string("pub fn link_\{ident}(")
+      for i, name in params {
+        if i > 0 {
+          buf.write_string(", ")
+        }
+        buf.write_string("\{name}~ : String")
+      }
+      buf.write_string(") -> String {\n")
+      // Build the path expression by walking segments
+      buf.write_string("  ")
+      let segments = split_path_segments(path)
+      let mut first_expr = true
+      for seg in segments {
+        if not(first_expr) {
+          buf.write_string(" + ")
+        }
+        first_expr = false
+        match classify_segment(seg) {
+          StaticSegment(s) => buf.write_string("\"\{s}\"")
+          DynamicSegment(name) => buf.write_string(name)
+        }
+      }
+      buf.write_string("\n")
+      buf.write_string("}\n\n")
+    }
+  }
+  buf.to_string()
+}
+
+///|
+/// Segment classification for link builder generation
+enum SegmentKind {
+  StaticSegment(String)
+  DynamicSegment(String)
+}
+
+///|
+/// Classify a path segment as static or dynamic
+fn classify_segment(segment : String) -> SegmentKind {
+  if segment.has_prefix(":") && segment.length() > 1 {
+    DynamicSegment(segment.substring(start=1))
+  } else if segment.has_prefix("[[...") &&
+    segment.has_suffix("]]") &&
+    segment.length() > 7 {
+    DynamicSegment(segment.substring(start=5, end=segment.length() - 2))
+  } else if segment.has_prefix("[...") &&
+    segment.has_suffix("]") &&
+    segment.length() > 5 {
+    DynamicSegment(segment.substring(start=4, end=segment.length() - 1))
+  } else if segment.has_prefix("[") &&
+    segment.has_suffix("]") &&
+    segment.length() > 2 {
+    DynamicSegment(segment.substring(start=1, end=segment.length() - 1))
+  } else {
+    StaticSegment(segment)
+  }
+}
+
+///|
+/// Split a route path into alternating static/dynamic pieces for string concatenation.
+/// e.g., "/blog/:slug" -> ["/blog/", ":slug"]
+///       "/users/:id/posts/:postId" -> ["/users/", ":id", "/posts/", ":postId"]
+///       "/" -> ["/"]
+fn split_path_segments(path : String) -> Array[String] {
+  if path == "/" {
+    return ["/"]
+  }
+  let result : Array[String] = []
+  let static_buf = StringBuilder::new()
+  for segment_view in path.split("/") {
+    let segment = segment_view.to_string()
+    if segment.is_empty() {
+      static_buf.write_string("/")
+      continue
+    }
+    match classify_segment(segment) {
+      StaticSegment(_) => {
+        static_buf.write_string(segment)
+        static_buf.write_string("/")
+      }
+      DynamicSegment(_) => {
+        // Flush accumulated static text
+        let s = static_buf.to_string()
+        if not(s.is_empty()) {
+          result.push(s)
+          static_buf.reset()
+        }
+        result.push(segment)
+        // After dynamic segment, prepare for next "/"
+        static_buf.write_string("/")
+      }
+    }
+  }
+  // Flush remaining static text, removing trailing slash if it's extra
+  let remaining = static_buf.to_string()
+  if not(remaining.is_empty()) {
+    // Remove trailing "/" unless it's the only content
+    if remaining == "/" && not(result.is_empty()) {
+      // Don't add trailing slash
+      ()
+    } else {
+      // Remove trailing slash for cleanliness
+      if remaining.length() > 1 && remaining.has_suffix("/") {
+        result.push(remaining.substring(end=remaining.length() - 1))
+      } else if remaining == "/" && result.is_empty() {
+        result.push(remaining)
+      }
+    }
+  }
+  result
+}
+
+// =============================================================================
 // ActionRef Factory Functions
 // =============================================================================
 
