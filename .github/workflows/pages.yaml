@@ -49,6 +49,15 @@ jobs:
           cp -r ../markdown.mbt/src/* .mooncakes/mizchi/markdown/src/
       - name: Build CLI
         run: moon build --target js --release src/cli
+      - name: Patch base path for GitHub Pages
+        run: |
+          cd website
+          node -e "
+            const fs = require('fs');
+            const config = JSON.parse(fs.readFileSync('sol.config.json', 'utf8'));
+            config.base = '/sol.mbt/';
+            fs.writeFileSync('sol.config.json', JSON.stringify(config, null, 2));
+          "
       - name: Build docs
         run: node _build/js/release/build/cli/cli.js build
       - name: Smoke test
