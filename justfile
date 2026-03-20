@@ -199,6 +199,7 @@ dev-doc:
 build-doc *args:
     just build-moon
     node _build/js/debug/build/cli/cli.js build {{args}}
+    npx pagefind --site website/dist-docs
 
 # Docs smoke test
 smoke-docs:

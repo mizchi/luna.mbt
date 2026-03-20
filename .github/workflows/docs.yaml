@@ -53,6 +53,8 @@ jobs:
         run: moon build --target js --release src/cli
       - name: Build docs with Sol SSG
         run: node _build/js/release/build/cli/cli.js build
+      - name: Build search index
+        run: npx pagefind --site website/dist-docs
       - name: Smoke test built docs
         run: just smoke-docs
       - name: Upload docs artifact

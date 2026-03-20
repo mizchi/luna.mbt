@@ -25,6 +25,7 @@
     "execa": "^9.6.1",
     "hono": "^4.11.9",
     "memfs": "^4.56.10",
+    "pagefind": "^1.4.0",
     "rolldown": "1.0.0-rc.4",
     "shiki": "^3.22.0",
     "terser": "^5.46.0",
@@ -39,5 +40,11 @@
     "onlyBuiltDependencies": [
       "better-sqlite3"
     ]
+  },
+  "dependencies": {
+    "@puppeteer/browsers": "^2.13.0",
+    "chromium-bidi": "^14.0.0",
+    "debug": "^4.4.3",
+    "websocket": "^1.0.35"
   }
 }

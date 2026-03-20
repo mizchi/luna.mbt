@@ -60,6 +60,8 @@ jobs:
           "
       - name: Build docs
         run: node _build/js/release/build/cli/cli.js build --force
+      - name: Build search index
+        run: npx pagefind --site website/dist-docs
       - name: Smoke test
         run: |
           test -f website/dist-docs/index.html

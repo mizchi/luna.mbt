@@ -45,7 +45,11 @@ fn build_home_layout(
   content : @luna.Node[Unit, String],
 ) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
-  let main = h("main", [attr("class", "home-content")], [content])
+  let main = h(
+    "main",
+    [attr("class", "home-content"), attr("data-pagefind-body", "")],
+    [content],
+  )
   let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-home")], [nav, main, footer])
 }
@@ -59,7 +63,11 @@ fn build_default_layout(
   content : @luna.Node[Unit, String],
 ) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
-  let main = h("main", [attr("class", "main-content")], [content])
+  let main = h(
+    "main",
+    [attr("class", "main-content"), attr("data-pagefind-body", "")],
+    [content],
+  )
   let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-default")], [nav, main, footer])
 }
@@ -91,7 +99,7 @@ fn build_blog_layout(
   } else {
     @luna.fragment([])
   }
-  let main = h("main", [attr("class", "blog-content")], [
+  let main = h("main", [attr("class", "blog-content"), attr("data-pagefind-body", "")], [
     h("div", [attr("class", "blog-container")], [
       h("div", [attr("class", "blog-main")], [intro, post_list]),
       tags_section,
@@ -165,7 +173,7 @@ fn build_blog_post_layout(
 
   // Prev/Next navigation
   let prev_next = @components.build_prev_next(ctx, page)
-  let main = h("main", [attr("class", "blog-post-main")], [
+  let main = h("main", [attr("class", "blog-post-main"), attr("data-pagefind-body", "")], [
     h("div", [attr("class", "blog-post-container")], [
       header, article, prev_next,
     ]),
@@ -209,9 +217,14 @@ fn build_doc_layout(
   let breadcrumb = @components.build_breadcrumb(ctx, page)
 
   // Main content
-  let article = h("article", [attr("class", "doc-content markdown-body")], [
-    content,
-  ])
+  let article = h(
+    "article",
+    [
+      attr("class", "doc-content markdown-body"),
+      attr("data-pagefind-body", ""),
+    ],
+    [content],
+  )
 
   // TOC (outline)
   let toc_vnode = if not(toc.is_empty()) {
