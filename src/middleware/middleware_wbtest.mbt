@@ -432,3 +432,714 @@ test "is_safe_method returns false for PUT" {
 test "is_safe_method returns false for DELETE" {
   assert_false(is_safe_method("DELETE"))
 }
+
+// ============================================================================
+// CORS resolve_response_origin Tests
+// ============================================================================
+
+///|
+test "resolve_response_origin with All allows any origin" {
+  let result = resolve_response_origin("https://anything.com", CorsOrigin::All)
+  match result {
+    Some(o) => assert_eq!(o, "*")
+    None => fail!("expected Some")
+  }
+}
+
+///|
+test "resolve_response_origin with Single matches exact origin" {
+  let result = resolve_response_origin(
+    "https://example.com",
+    CorsOrigin::Single("https://example.com"),
+  )
+  match result {
+    Some(o) => assert_eq!(o, "https://example.com")
+    None => fail!("expected Some")
+  }
+}
+
+///|
+test "resolve_response_origin with Single rejects mismatched origin" {
+  let result = resolve_response_origin(
+    "https://evil.com",
+    CorsOrigin::Single("https://example.com"),
+  )
+  assert_true(result is None)
+}
+
+///|
+test "resolve_response_origin with List matches included origin" {
+  let result = resolve_response_origin(
+    "https://app.example.com",
+    CorsOrigin::List(["https://example.com", "https://app.example.com"]),
+  )
+  match result {
+    Some(o) => assert_eq!(o, "https://app.example.com")
+    None => fail!("expected Some")
+  }
+}
+
+///|
+test "resolve_response_origin with List rejects unlisted origin" {
+  let result = resolve_response_origin(
+    "https://evil.com",
+    CorsOrigin::List(["https://example.com"]),
+  )
+  assert_true(result is None)
+}
+
+///|
+test "resolve_response_origin with Dynamic allows matching origin" {
+  let result = resolve_response_origin(
+    "https://sub.example.com",
+    CorsOrigin::Dynamic(fn(o) { o.has_suffix(".example.com") }),
+  )
+  match result {
+    Some(o) => assert_eq!(o, "https://sub.example.com")
+    None => fail!("expected Some")
+  }
+}
+
+///|
+test "resolve_response_origin with Dynamic rejects non-matching origin" {
+  let result = resolve_response_origin(
+    "https://evil.com",
+    CorsOrigin::Dynamic(fn(o) { o.has_suffix(".example.com") }),
+  )
+  assert_true(result is None)
+}
+
+// ============================================================================
+// CORS to_mars_cors_options Tests
+// ============================================================================
+
+///|
+test "to_mars_cors_options maps origin" {
+  let config = CorsConfig::default()
+  let opts = to_mars_cors_options(config, "https://example.com")
+  assert_eq(opts.origin, "https://example.com")
+}
+
+///|
+test "to_mars_cors_options maps methods" {
+  let config = CorsConfig::default().with_methods(["GET", "POST"])
+  let opts = to_mars_cors_options(config, "*")
+  assert_eq(opts.methods.length(), 2)
+  assert_true(opts.methods.contains("GET"))
+}
+
+///|
+test "to_mars_cors_options maps allowed_headers" {
+  let config = CorsConfig::default().with_allowed_headers(["X-Custom"])
+  let opts = to_mars_cors_options(config, "*")
+  assert_true(opts.allowed_headers.contains("X-Custom"))
+}
+
+///|
+test "to_mars_cors_options maps exposed_headers" {
+  let config = CorsConfig::default().with_exposed_headers(["X-Total"])
+  let opts = to_mars_cors_options(config, "*")
+  assert_true(opts.exposed_headers.contains("X-Total"))
+}
+
+///|
+test "to_mars_cors_options maps credentials" {
+  let config = CorsConfig::default().with_credentials()
+  let opts = to_mars_cors_options(config, "*")
+  assert_true(opts.credentials)
+}
+
+///|
+test "to_mars_cors_options maps max_age Some to int" {
+  let config = CorsConfig::default().with_max_age(3600)
+  let opts = to_mars_cors_options(config, "*")
+  assert_eq(opts.max_age, 3600)
+}
+
+///|
+test "to_mars_cors_options maps max_age None to zero" {
+  let config = CorsConfig::strict()
+  let opts = to_mars_cors_options(config, "*")
+  assert_eq(opts.max_age, 0)
+}
+
+// ============================================================================
+// CorsConfig builder Tests
+// ============================================================================
+
+///|
+test "CorsConfig::with_methods sets methods" {
+  let config = CorsConfig::default().with_methods(["GET", "HEAD"])
+  assert_eq(config.methods.length(), 2)
+}
+
+///|
+test "CorsConfig::with_allowed_headers sets headers" {
+  let config = CorsConfig::default().with_allowed_headers(["Authorization"])
+  assert_eq(config.allowed_headers.length(), 1)
+}
+
+///|
+test "CorsConfig::with_exposed_headers sets headers" {
+  let config = CorsConfig::default().with_exposed_headers(["X-Request-Id"])
+  assert_true(config.exposed_headers.contains("X-Request-Id"))
+}
+
+///|
+test "CorsConfig::with_max_age sets age" {
+  let config = CorsConfig::default().with_max_age(7200)
+  assert_eq(config.max_age, Some(7200))
+}
+
+// ============================================================================
+// CORS factory Tests
+// ============================================================================
+
+///|
+test "cors() factory creates middleware" {
+  let mw = cors()
+  let _ = mw
+}
+
+///|
+test "cors_with_config() for All origin creates middleware" {
+  let mw = cors_with_config(CorsConfig::default())
+  let _ = mw
+}
+
+///|
+test "cors_with_config() for Single origin creates middleware" {
+  let mw = cors_with_config(
+    CorsConfig::default().with_origin_single("https://example.com"),
+  )
+  let _ = mw
+}
+
+///|
+test "cors_with_config() for List origin creates middleware" {
+  let mw = cors_with_config(
+    CorsConfig::default().with_origin(CorsOrigin::List(["https://a.com"])),
+  )
+  let _ = mw
+}
+
+///|
+test "cors_with_config() for Dynamic origin creates middleware" {
+  let mw = cors_with_config(
+    CorsConfig::default().with_origin(
+      CorsOrigin::Dynamic(fn(_o) { true }),
+    ),
+  )
+  let _ = mw
+}
+
+// ============================================================================
+// SecurityHeadersConfig builder Tests
+// ============================================================================
+
+///|
+test "SecurityHeadersConfig::with_frame_options sets value" {
+  let config = SecurityHeadersConfig::default().with_frame_options("DENY")
+  assert_eq(config.frame_options, "DENY")
+}
+
+///|
+test "SecurityHeadersConfig::with_referrer_policy sets value" {
+  let config = SecurityHeadersConfig::default().with_referrer_policy(
+    "no-referrer",
+  )
+  assert_eq(config.referrer_policy, "no-referrer")
+}
+
+///|
+test "SecurityHeadersConfig::with_coop sets value" {
+  let config = SecurityHeadersConfig::default().with_coop(
+    "same-origin-allow-popups",
+  )
+  assert_eq(config.coop, "same-origin-allow-popups")
+}
+
+///|
+test "SecurityHeadersConfig::with_coep sets value" {
+  let config = SecurityHeadersConfig::default().with_coep("unsafe-none")
+  assert_eq(config.coep, "unsafe-none")
+}
+
+///|
+test "SecurityHeadersConfig::with_permissions_policy sets value" {
+  let config = SecurityHeadersConfig::default().with_permissions_policy(
+    "geolocation=()",
+  )
+  assert_eq(config.permissions_policy, "geolocation=()")
+}
+
+///|
+test "SecurityHeadersConfig::with_csp sets value" {
+  let config = SecurityHeadersConfig::default().with_csp("default-src 'none'")
+  assert_eq(config.csp, "default-src 'none'")
+}
+
+///|
+test "SecurityHeadersConfig::with_cache_control_html sets value" {
+  let config = SecurityHeadersConfig::default().with_cache_control_html(
+    "private, no-cache",
+  )
+  assert_eq(config.cache_control_html, "private, no-cache")
+}
+
+///|
+test "SecurityHeadersConfig::with_cache_control_static sets value" {
+  let config = SecurityHeadersConfig::default().with_cache_control_static(
+    "public, max-age=3600",
+  )
+  assert_eq(config.cache_control_static, "public, max-age=3600")
+}
+
+// ============================================================================
+// to_mars_secure_headers_options Tests
+// ============================================================================
+
+///|
+test "to_mars_secure_headers_options maps frame_options" {
+  let config = SecurityHeadersConfig::default().with_frame_options("DENY")
+  let opts = to_mars_secure_headers_options(config)
+  assert_eq(opts.frame_options, "DENY")
+}
+
+///|
+test "to_mars_secure_headers_options maps referrer_policy" {
+  let config = SecurityHeadersConfig::default().with_referrer_policy(
+    "no-referrer",
+  )
+  let opts = to_mars_secure_headers_options(config)
+  assert_eq(opts.referrer_policy, "no-referrer")
+}
+
+///|
+test "to_mars_secure_headers_options maps csp" {
+  let config = SecurityHeadersConfig::default().with_csp("default-src 'none'")
+  let opts = to_mars_secure_headers_options(config)
+  assert_eq(opts.csp, "default-src 'none'")
+}
+
+///|
+test "to_mars_secure_headers_options sets no_sniff true when nosniff" {
+  let config = SecurityHeadersConfig::default()
+  let opts = to_mars_secure_headers_options(config)
+  assert_true(opts.no_sniff)
+}
+
+///|
+test "to_mars_secure_headers_options enables hsts" {
+  let config = SecurityHeadersConfig::default()
+  let opts = to_mars_secure_headers_options(config)
+  assert_true(opts.hsts)
+  assert_eq(opts.hsts_max_age, 31536000)
+  assert_true(opts.hsts_include_subdomains)
+}
+
+///|
+test "to_mars_secure_headers_options enables xss_protection" {
+  let config = SecurityHeadersConfig::default()
+  let opts = to_mars_secure_headers_options(config)
+  assert_true(opts.xss_protection)
+}
+
+// ============================================================================
+// is_static_asset Tests
+// ============================================================================
+
+///|
+test "is_static_asset returns true for /static/ prefix" {
+  assert_true(is_static_asset("/static/app.js"))
+}
+
+///|
+test "is_static_asset returns true for .js suffix" {
+  assert_true(is_static_asset("/assets/main.js"))
+}
+
+///|
+test "is_static_asset returns true for .css suffix" {
+  assert_true(is_static_asset("/styles/main.css"))
+}
+
+///|
+test "is_static_asset returns true for .png suffix" {
+  assert_true(is_static_asset("/images/logo.png"))
+}
+
+///|
+test "is_static_asset returns true for .jpg suffix" {
+  assert_true(is_static_asset("/images/photo.jpg"))
+}
+
+///|
+test "is_static_asset returns true for .svg suffix" {
+  assert_true(is_static_asset("/icons/icon.svg"))
+}
+
+///|
+test "is_static_asset returns true for .woff suffix" {
+  assert_true(is_static_asset("/fonts/font.woff"))
+}
+
+///|
+test "is_static_asset returns true for .woff2 suffix" {
+  assert_true(is_static_asset("/fonts/font.woff2"))
+}
+
+///|
+test "is_static_asset returns false for HTML page" {
+  assert_false(is_static_asset("/index.html"))
+}
+
+///|
+test "is_static_asset returns false for API path" {
+  assert_false(is_static_asset("/api/users"))
+}
+
+///|
+test "is_static_asset returns false for root path" {
+  assert_false(is_static_asset("/"))
+}
+
+// ============================================================================
+// Security Headers factory Tests
+// ============================================================================
+
+///|
+test "security_headers_relaxed() factory creates middleware" {
+  let mw = security_headers_relaxed()
+  let _ = mw
+}
+
+///|
+test "referrer_policy() factory creates middleware" {
+  let mw = referrer_policy("no-referrer")
+  let _ = mw
+}
+
+///|
+test "cache_control() factory creates middleware" {
+  let mw = cache_control("no-store")
+  let _ = mw
+}
+
+// ============================================================================
+// CSRF Pure Validation Tests
+// ============================================================================
+
+///|
+test "validate_origin_pure: valid origin in allowed list" {
+  let result = validate_origin_pure(
+    origin=Some("https://example.com"),
+    referer=None,
+    allowed_origins=["https://example.com"],
+    allow_no_origin=true,
+  )
+  match result {
+    ValidOrigin(o) => assert_eq!(o, "https://example.com")
+    _ => fail("expected ValidOrigin")
+  }
+}
+
+///|
+test "validate_origin_pure: origin not in allowed list" {
+  let result = validate_origin_pure(
+    origin=Some("https://evil.com"),
+    referer=None,
+    allowed_origins=["https://example.com"],
+    allow_no_origin=true,
+  )
+  assert_true!(result is Invalid(_))
+}
+
+///|
+test "validate_origin_pure: origin with empty allowed list" {
+  let result = validate_origin_pure(
+    origin=Some("https://example.com"),
+    referer=None,
+    allowed_origins=[],
+    allow_no_origin=true,
+  )
+  match result {
+    Invalid(InvalidOrigin(_)) => ()
+    _ => fail("expected Invalid")
+  }
+}
+
+///|
+test "validate_origin_pure: no origin with allow_no_origin" {
+  let result = validate_origin_pure(
+    origin=None,
+    referer=None,
+    allowed_origins=[],
+    allow_no_origin=true,
+  )
+  assert_true!(result is ValidNoOrigin)
+}
+
+///|
+test "validate_origin_pure: no origin without allow_no_origin" {
+  let result = validate_origin_pure(
+    origin=None,
+    referer=None,
+    allowed_origins=[],
+    allow_no_origin=false,
+  )
+  assert_true!(result is Invalid(_))
+}
+
+///|
+test "validate_origin_pure: no origin with valid referer" {
+  let result = validate_origin_pure(
+    origin=None,
+    referer=Some("https://example.com/page"),
+    allowed_origins=["https://example.com"],
+    allow_no_origin=true,
+  )
+  assert_true!(result is ValidNoOrigin)
+}
+
+///|
+test "validate_origin_pure: no origin with invalid referer" {
+  let result = validate_origin_pure(
+    origin=None,
+    referer=Some("https://evil.com/page"),
+    allowed_origins=["https://example.com"],
+    allow_no_origin=true,
+  )
+  assert_true!(result is Invalid(_))
+}
+
+///|
+test "validate_origin_pure: no origin with referer and empty allowed list" {
+  let result = validate_origin_pure(
+    origin=None,
+    referer=Some("https://something.com/page"),
+    allowed_origins=[],
+    allow_no_origin=true,
+  )
+  assert_true!(result is ValidNoOrigin)
+}
+
+// ============================================================================
+// Fetch Metadata Pure Validation Tests
+// ============================================================================
+
+///|
+test "validate_fetch_metadata_pure: cross-site rejected" {
+  let result = validate_fetch_metadata_pure(Some("cross-site"))
+  assert_true!(result is Invalid(CrossSiteFetch))
+}
+
+///|
+test "validate_fetch_metadata_pure: same-origin allowed" {
+  let result = validate_fetch_metadata_pure(Some("same-origin"))
+  assert_true!(result is Valid)
+}
+
+///|
+test "validate_fetch_metadata_pure: same-site allowed" {
+  let result = validate_fetch_metadata_pure(Some("same-site"))
+  assert_true!(result is Valid)
+}
+
+///|
+test "validate_fetch_metadata_pure: none allowed" {
+  let result = validate_fetch_metadata_pure(Some("none"))
+  assert_true!(result is Valid)
+}
+
+///|
+test "validate_fetch_metadata_pure: missing header allowed" {
+  let result = validate_fetch_metadata_pure(None)
+  assert_true!(result is Valid)
+}
+
+///|
+test "validate_fetch_metadata_pure: unknown value allowed (forward compat)" {
+  let result = validate_fetch_metadata_pure(Some("future-value"))
+  assert_true!(result is Valid)
+}
+
+// ============================================================================
+// Content-Type Pure Validation Tests
+// ============================================================================
+
+///|
+test "validate_content_type_pure: exact match" {
+  let result = validate_content_type_pure(
+    Some("application/json"),
+    "application/json",
+  )
+  assert_true!(result is Valid)
+}
+
+///|
+test "validate_content_type_pure: with charset suffix" {
+  let result = validate_content_type_pure(
+    Some("application/json; charset=utf-8"),
+    "application/json",
+  )
+  assert_true!(result is Valid)
+}
+
+///|
+test "validate_content_type_pure: mismatch" {
+  let result = validate_content_type_pure(
+    Some("text/html"),
+    "application/json",
+  )
+  match result {
+    Invalid(InvalidContentType(ct)) => assert_eq!(ct, "text/html")
+    _ => fail("expected InvalidContentType")
+  }
+}
+
+///|
+test "validate_content_type_pure: missing header" {
+  let result = validate_content_type_pure(None, "application/json")
+  match result {
+    Invalid(InvalidContentType(ct)) => assert_eq!(ct, "(none)")
+    _ => fail("expected InvalidContentType")
+  }
+}
+
+// ============================================================================
+// Full CSRF Pure Validation Tests
+// ============================================================================
+
+///|
+test "validate_csrf_pure: valid same-origin POST" {
+  let config = CsrfConfig::for_origin("https://example.com")
+  let result = validate_csrf_pure(
+    origin=Some("https://example.com"),
+    referer=None,
+    sec_fetch_site=Some("same-origin"),
+    content_type=None,
+    config~,
+  )
+  assert_true!(result is ValidOrigin(_))
+}
+
+///|
+test "validate_csrf_pure: cross-origin blocked by origin check" {
+  let config = CsrfConfig::for_origin("https://example.com")
+  let result = validate_csrf_pure(
+    origin=Some("https://evil.com"),
+    referer=None,
+    sec_fetch_site=None,
+    content_type=None,
+    config~,
+  )
+  assert_true!(result is Invalid(_))
+}
+
+///|
+test "validate_csrf_pure: cross-site fetch metadata blocks" {
+  let config = CsrfConfig::default().with_origin("https://example.com")
+  let result = validate_csrf_pure(
+    origin=Some("https://example.com"),
+    referer=None,
+    sec_fetch_site=Some("cross-site"),
+    content_type=None,
+    config~,
+  )
+  assert_true!(result is Invalid(CrossSiteFetch))
+}
+
+///|
+test "validate_csrf_pure: content-type check blocks wrong type" {
+  let config = CsrfConfig::for_origin("https://example.com").require_json()
+  let result = validate_csrf_pure(
+    origin=Some("https://example.com"),
+    referer=None,
+    sec_fetch_site=Some("same-origin"),
+    content_type=Some("text/plain"),
+    config~,
+  )
+  assert_true!(result is Invalid(InvalidContentType(_)))
+}
+
+///|
+test "validate_csrf_pure: all checks pass" {
+  let config = CsrfConfig::for_origin("https://example.com").require_json()
+  let result = validate_csrf_pure(
+    origin=Some("https://example.com"),
+    referer=None,
+    sec_fetch_site=Some("same-origin"),
+    content_type=Some("application/json"),
+    config~,
+  )
+  assert_true!(result is ValidOrigin(_))
+}
+
+///|
+test "validate_csrf_pure: fetch metadata disabled skips check" {
+  let config = CsrfConfig::for_origin("https://example.com").with_fetch_metadata(
+    false,
+  )
+  let result = validate_csrf_pure(
+    origin=Some("https://example.com"),
+    referer=None,
+    sec_fetch_site=Some("cross-site"),
+    content_type=None,
+    config~,
+  )
+  assert_true!(result is ValidOrigin(_))
+}
+
+// ============================================================================
+// Logger Pure Format Tests
+// ============================================================================
+
+///|
+test "format_dev_pure formats method and path" {
+  assert_eq!(format_dev_pure("GET", "/api/users"), "GET /api/users")
+}
+
+///|
+test "format_dev_pure with POST" {
+  assert_eq!(format_dev_pure("POST", "/api/data"), "POST /api/data")
+}
+
+///|
+test "format_combined_pure formats all fields" {
+  let result = format_combined_pure(
+    "GET",
+    "/index.html",
+    "Mozilla/5.0",
+    "https://example.com",
+    "2024-01-01T00:00:00.000Z",
+  )
+  assert_true!(result.contains("GET /index.html"))
+  assert_true!(result.contains("Mozilla/5.0"))
+  assert_true!(result.contains("https://example.com"))
+  assert_true!(result.contains("2024-01-01"))
+}
+
+///|
+test "format_combined_pure with missing user-agent and referer" {
+  let result = format_combined_pure("POST", "/api", "-", "-", "2024-01-01T00:00:00.000Z")
+  assert_true!(result.contains("POST /api"))
+  assert_true!(result.contains("\"-\""))
+}
+
+///|
+test "format_json_pure produces valid JSON structure" {
+  let result = format_json_pure("DELETE", "/api/item/1", "2024-06-15T12:00:00Z")
+  assert_true!(result.contains("\"method\":\"DELETE\""))
+  assert_true!(result.contains("\"path\":\"/api/item/1\""))
+  assert_true!(result.contains("\"timestamp\":\"2024-06-15T12:00:00Z\""))
+}
+
+///|
+test "format_json_pure with GET" {
+  let result = format_json_pure("GET", "/", "2024-01-01T00:00:00Z")
+  assert_eq!(
+    result,
+    "{\"method\":\"GET\",\"path\":\"/\",\"timestamp\":\"2024-01-01T00:00:00Z\"}",
+  )
+}

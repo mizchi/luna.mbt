@@ -156,6 +156,7 @@ pub struct CompiledSolRoute {
   catch_all : CatchAllInfo?
   revalidate : Int?
   cache_strategy : CacheStrategy
+  rendered_meta : String
 }
 
 pub(all) struct PageHandler(async (PageProps) -> @static.ServerNode)
@@ -204,6 +205,11 @@ pub fn RouteParams::get_param(Self, String) -> String?
 pub fn RouteParams::get_pathname_group(Self, String) -> String?
 pub fn RouteParams::get_query(Self, String) -> String?
 pub fn RouteParams::get_search_group(Self, String) -> String?
+pub fn RouteParams::optional(Self, String, String) -> String
+pub fn RouteParams::optional_query(Self, String, String) -> String
+pub fn RouteParams::require(Self, String) -> Result[String, ApiResponse]
+pub fn RouteParams::require_int(Self, String) -> Result[Int, ApiResponse]
+pub fn RouteParams::require_query(Self, String) -> Result[String, ApiResponse]
 
 pub struct RouterConfig {
   title_prefix : String

@@ -138,9 +138,9 @@ pub struct CompiledSolRoute {
   middlewares : Array[@middleware.Middleware]
   /// Route kind
   kind : SolRouteKind
-  /// Page title
+  /// Page title (raw)
   title : String
-  /// Meta information
+  /// Meta information (raw)
   meta : Array[(String, String)]
   /// Catch-all parameter info (for [...slug] or [[...slug]])
   catch_all : CatchAllInfo?
@@ -148,6 +148,8 @@ pub struct CompiledSolRoute {
   revalidate : Int?
   /// CSR cache strategy
   cache_strategy : CacheStrategy
+  /// Pre-rendered meta HTML (computed once at route registration)
+  rendered_meta : String
 }
 
 ///|
@@ -302,6 +304,7 @@ fn push_api_route(
     catch_all,
     revalidate: None,
     cache_strategy: CacheStrategy::AlwaysFetch,
+    rendered_meta: "",
   })
 }
 
@@ -373,6 +376,7 @@ fn compile_sol_routes_inner(
           catch_all,
           revalidate,
           cache_strategy: cache.unwrap_or(CacheStrategy::AlwaysFetch),
+          rendered_meta: render_meta_tags(meta),
         })
       }
       Layout(segment~, layout~, children~) => {
@@ -444,14 +448,6 @@ fn render_meta_tags(meta : Array[(String, String)]) -> String {
     buf.write_string("\">")
   }
   buf.to_string()
-}
-
-///|
-fn build_page_head(
-  default_head : String,
-  meta : Array[(String, String)],
-) -> String {
-  default_head + render_meta_tags(meta)
 }
 
 ///|
@@ -707,7 +703,7 @@ fn register_compiled_sol_routes(
             title_prefix=config.title_prefix,
             default_title=config.default_title,
           )
-          let page_head = build_page_head(config.default_head, route.meta)
+          let page_head = config.default_head + route.rendered_meta
           c.set_header(
             "X-Sol-Cache-Strategy",
             cache_strategy_to_header_value(route.cache_strategy),

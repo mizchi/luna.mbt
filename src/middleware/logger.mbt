@@ -152,42 +152,52 @@ fn delegate_logger_handler(config : LoggerConfig) -> @mars.Handler? {
 ///|
 fn format_log_message(
   ctx : Ctx,
-  start_time : Float,
+  _start_time : Float,
   format : LogFormat,
 ) -> String {
+  let method = ctx.meth().to_string()
+  let path = ctx.path()
   match format {
-    Dev => format_dev(ctx, start_time)
-    Combined => format_combined(ctx, start_time)
-    Json => format_json(ctx, start_time)
+    Dev => format_dev_pure(method, path)
+    Combined => {
+      let user_agent = ctx.header("User-Agent").unwrap_or("-")
+      let referer = ctx.header("Referer").unwrap_or("-")
+      let timestamp = get_timestamp()
+      format_combined_pure(method, path, user_agent, referer, timestamp)
+    }
+    Json => {
+      let timestamp = get_timestamp()
+      format_json_pure(method, path, timestamp)
+    }
   }
 }
 
 ///|
-/// Dev format: GET /path
-fn format_dev(ctx : Ctx, _start_time : Float) -> String {
-  let m = ctx.meth().to_string()
-  let path = ctx.path()
-  "\{m} \{path}"
+/// Dev format: GET /path (pure, no IO)
+fn format_dev_pure(method : String, path : String) -> String {
+  "\{method} \{path}"
 }
 
 ///|
-/// Combined format: IP - - [timestamp] "METHOD /path" status size "referer" "user-agent"
-fn format_combined(ctx : Ctx, _start_time : Float) -> String {
-  let m = ctx.meth().to_string()
-  let path = ctx.path()
-  let user_agent = ctx.header("User-Agent").unwrap_or("-")
-  let referer = ctx.header("Referer").unwrap_or("-")
-  let timestamp = get_timestamp()
-  "- - - [\{timestamp}] \"\{m} \{path}\" - - \"\{referer}\" \"\{user_agent}\""
+/// Combined format (pure, no IO)
+fn format_combined_pure(
+  method : String,
+  path : String,
+  user_agent : String,
+  referer : String,
+  timestamp : String,
+) -> String {
+  "- - - [\{timestamp}] \"\{method} \{path}\" - - \"\{referer}\" \"\{user_agent}\""
 }
 
 ///|
-/// JSON format: {"method": "GET", "path": "/", "timestamp": "..."}
-fn format_json(ctx : Ctx, _start_time : Float) -> String {
-  let m = ctx.meth().to_string()
-  let path = ctx.path()
-  let timestamp = get_timestamp()
-  "{\"method\":\"\{m}\",\"path\":\"\{path}\",\"timestamp\":\"\{timestamp}\"}"
+/// JSON format (pure, no IO)
+fn format_json_pure(
+  method : String,
+  path : String,
+  timestamp : String,
+) -> String {
+  "{\"method\":\"\{method}\",\"path\":\"\{path}\",\"timestamp\":\"\{timestamp}\"}"
 }
 
 // ============================================================================

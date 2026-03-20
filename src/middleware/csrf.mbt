@@ -197,10 +197,37 @@ pub fn csrf_with_config(config : CsrfConfig) -> Middleware {
 // ============================================================================
 
 ///|
-/// Validate CSRF protection
+/// Validate CSRF protection (delegates to pure functions)
 fn validate_csrf(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
+  let origin = ctx.header("Origin")
+  let referer = ctx.header("Referer")
+  let sec_fetch_site = ctx.header("Sec-Fetch-Site")
+  let content_type = ctx.header("Content-Type")
+  validate_csrf_pure(
+    origin~,
+    referer~,
+    sec_fetch_site~,
+    content_type~,
+    config~,
+  )
+}
+
+///|
+/// Pure CSRF validation — no IO dependencies, fully testable
+fn validate_csrf_pure(
+  origin~ : String?,
+  referer~ : String?,
+  sec_fetch_site~ : String?,
+  content_type~ : String?,
+  config~ : CsrfConfig,
+) -> CsrfResult {
   // Layer 1: Origin header validation (most important)
-  let origin_result = validate_origin(ctx, config)
+  let origin_result = validate_origin_pure(
+    origin~,
+    referer~,
+    allowed_origins=config.allowed_origins,
+    allow_no_origin=config.allow_no_origin,
+  )
   match origin_result {
     Invalid(_) as err => return err
     _ => ()
@@ -208,7 +235,7 @@ fn validate_csrf(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
 
   // Layer 2: Fetch Metadata validation (if enabled)
   if config.check_fetch_metadata {
-    let fetch_result = validate_fetch_metadata(ctx)
+    let fetch_result = validate_fetch_metadata_pure(sec_fetch_site)
     match fetch_result {
       Invalid(_) as err => return err
       _ => ()
@@ -218,7 +245,7 @@ fn validate_csrf(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
   // Layer 3: Content-Type validation (if configured)
   match config.expected_content_type {
     Some(expected) => {
-      let ct_result = validate_content_type(ctx, expected)
+      let ct_result = validate_content_type_pure(content_type, expected)
       match ct_result {
         Invalid(_) as err => return err
         _ => ()
@@ -230,39 +257,34 @@ fn validate_csrf(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
 }
 
 ///|
-/// Validate Origin header
-fn validate_origin(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
-  let origin = ctx.header("Origin")
+/// Pure Origin validation — testable without Ctx
+fn validate_origin_pure(
+  origin~ : String?,
+  referer~ : String?,
+  allowed_origins~ : Array[String],
+  allow_no_origin~ : Bool,
+) -> CsrfResult {
   match origin {
     None =>
-      // No Origin header - could be same-origin request
-      // Check Referer as fallback
-      if config.allow_no_origin {
-        // Optionally validate Referer
-        match ctx.header("Referer") {
+      if allow_no_origin {
+        match referer {
           Some(referer) =>
-            // Referer present - validate it matches allowed origins
-            if is_referer_allowed(referer, config.allowed_origins) {
+            if is_referer_allowed(referer, allowed_origins) {
               ValidNoOrigin
-            } else if config.allowed_origins.is_empty() {
-              // No origins configured - allow same-origin
+            } else if allowed_origins.is_empty() {
               ValidNoOrigin
             } else {
               Invalid(InvalidOrigin(referer))
             }
-          None =>
-            // No Origin and no Referer - likely same-origin
-            ValidNoOrigin
+          None => ValidNoOrigin
         }
       } else {
         Invalid(MissingOrigin)
       }
     Some(origin) =>
-      // Origin present - validate against allowed list
-      if config.allowed_origins.is_empty() {
-        // No allowed origins configured - reject all cross-origin
+      if allowed_origins.is_empty() {
         Invalid(InvalidOrigin(origin))
-      } else if config.allowed_origins.contains(origin) {
+      } else if allowed_origins.contains(origin) {
         ValidOrigin(origin)
       } else {
         Invalid(InvalidOrigin(origin))
@@ -312,45 +334,42 @@ pub fn extract_origin_from_url(url : String) -> String? {
 }
 
 ///|
-/// Validate Fetch Metadata headers
+/// Validate Fetch Metadata headers (delegates to pure function)
 fn validate_fetch_metadata(ctx : Ctx) -> CsrfResult {
-  // Sec-Fetch-Site: cross-site | same-origin | same-site | none
-  let sec_fetch_site = ctx.header("Sec-Fetch-Site")
+  validate_fetch_metadata_pure(ctx.header("Sec-Fetch-Site"))
+}
+
+///|
+/// Pure Fetch Metadata validation — testable without Ctx
+fn validate_fetch_metadata_pure(sec_fetch_site : String?) -> CsrfResult {
   match sec_fetch_site {
-    Some("cross-site") =>
-      // Cross-site requests are not allowed for mutations
-      Invalid(CrossSiteFetch)
-    Some("same-origin") | Some("same-site") | Some("none") =>
-      // same-origin: Same origin
-      // same-site: Same site (subdomain)
-      // none: Direct navigation (bookmark, URL bar)
-      Valid
-    None =>
-      // Header not present (older browsers) - rely on Origin validation
-      Valid
-    Some(_) =>
-      // Unknown value - allow (forward compatible)
-      Valid
+    Some("cross-site") => Invalid(CrossSiteFetch)
+    Some("same-origin") | Some("same-site") | Some("none") => Valid
+    None => Valid
+    Some(_) => Valid
   }
 }
 
 ///|
-/// Validate Content-Type header
+/// Validate Content-Type header (delegates to pure function)
 fn validate_content_type(ctx : Ctx, expected : String) -> CsrfResult {
-  let content_type = ctx.header("Content-Type")
+  validate_content_type_pure(ctx.header("Content-Type"), expected)
+}
+
+///|
+/// Pure Content-Type validation — testable without Ctx
+fn validate_content_type_pure(
+  content_type : String?,
+  expected : String,
+) -> CsrfResult {
   match content_type {
     Some(ct) =>
-      // Check if Content-Type starts with expected value
-      // (handles charset suffix like "application/json; charset=utf-8")
       if ct.has_prefix(expected) {
         Valid
       } else {
         Invalid(InvalidContentType(ct))
       }
-    None =>
-      // No Content-Type - might be empty body
-      // For strict APIs, this should be rejected
-      Invalid(InvalidContentType("(none)"))
+    None => Invalid(InvalidContentType("(none)"))
   }
 }
 

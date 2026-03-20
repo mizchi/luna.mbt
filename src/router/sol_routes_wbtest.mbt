@@ -264,15 +264,6 @@ test "render_meta_tags escapes meta values" {
 }
 
 ///|
-test "build_page_head appends meta tags to default head" {
-  let head = build_page_head("<meta charset=\"utf-8\">", [
-    ("description", "Hello"),
-  ])
-  assert_true(head.contains("<meta charset=\"utf-8\">"))
-  assert_true(head.contains("<meta name=\"description\" content=\"Hello\">"))
-}
-
-///|
 test "should_use_streaming skips ISR routes with cache" {
   let cfg = RouterConfig::default().with_streaming_ssr()
   let cfg_isr = cfg.with_isr_cache(@isr.MemoryCache::new())

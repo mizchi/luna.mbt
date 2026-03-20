@@ -50,6 +50,72 @@ pub fn RouteParams::get_query(self : RouteParams, key : String) -> String? {
 }
 
 ///|
+/// Extract a required path parameter, returning ApiResponse error if missing
+pub fn RouteParams::require(
+  self : RouteParams,
+  name : String,
+) -> Result[String, ApiResponse] {
+  match self.get_param(name) {
+    Some(v) => Ok(v)
+    None => Err(ApiResponse::Error("Missing required parameter: " + name, 400))
+  }
+}
+
+///|
+/// Extract an optional path parameter with default value
+pub fn RouteParams::optional(
+  self : RouteParams,
+  name : String,
+  default : String,
+) -> String {
+  self.get_param(name).unwrap_or(default)
+}
+
+///|
+/// Extract and parse an integer path parameter
+pub fn RouteParams::require_int(
+  self : RouteParams,
+  name : String,
+) -> Result[Int, ApiResponse] {
+  match self.get_param(name) {
+    Some(v) =>
+      try {
+        Ok(@strconv.parse_int!(v))
+      } catch {
+        _ =>
+          Err(ApiResponse::Error("Invalid integer parameter: " + name, 400))
+      }
+    None =>
+      Err(ApiResponse::Error("Missing required parameter: " + name, 400))
+  }
+}
+
+///|
+/// Extract a required query parameter
+pub fn RouteParams::require_query(
+  self : RouteParams,
+  name : String,
+) -> Result[String, ApiResponse] {
+  match self.get_query(name) {
+    Some(v) => Ok(v)
+    None =>
+      Err(
+        ApiResponse::Error("Missing required query parameter: " + name, 400),
+      )
+  }
+}
+
+///|
+/// Extract an optional query parameter with default value
+pub fn RouteParams::optional_query(
+  self : RouteParams,
+  name : String,
+  default : String,
+) -> String {
+  self.get_query(name).unwrap_or(default)
+}
+
+///|
 /// Props passed to page components
 pub struct PageProps {
   /// Request context (Hono Context)

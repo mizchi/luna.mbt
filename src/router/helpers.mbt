@@ -235,69 +235,43 @@ pub fn forbidden(message? : String = "Forbidden") -> ApiResponse {
 // ============================================================================
 
 ///|
-/// Extract a required path parameter
-///
-/// Returns error response if parameter is missing.
-///
-/// Example:
-/// ```moonbit nocheck
-/// match require(props, "id") {
-///   Ok(id) => ok([("id", @js.any(id))]).to_json()
-///   Err(err) => err.to_json()
-/// }
-/// ```
+/// Extract a required path parameter (delegates to RouteParams)
 pub fn require(props : PageProps, name : String) -> Result[String, ApiResponse] {
-  match props.get_param(name) {
-    Some(v) => Ok(v)
-    None => Err(bad_request("Missing required parameter: " + name))
-  }
+  props.params.require(name)
 }
 
 ///|
-/// Extract an optional path parameter with default value
+/// Extract an optional path parameter with default value (delegates to RouteParams)
 pub fn optional(props : PageProps, name : String, default : String) -> String {
-  props.get_param(name).unwrap_or(default)
+  props.params.optional(name, default)
 }
 
 ///|
-/// Extract and parse an integer parameter
-///
-/// Returns error response if parameter is missing or invalid.
+/// Extract and parse an integer parameter (delegates to RouteParams)
 pub fn require_int(
   props : PageProps,
   name : String,
 ) -> Result[Int, ApiResponse] {
-  match props.get_param(name) {
-    Some(v) =>
-      try {
-        Ok(@strconv.parse_int!(v))
-      } catch {
-        _ => Err(bad_request("Invalid integer parameter: " + name))
-      }
-    None => Err(bad_request("Missing required parameter: " + name))
-  }
+  props.params.require_int(name)
 }
 
 ///|
-/// Extract a required query parameter
+/// Extract a required query parameter (delegates to RouteParams)
 pub fn require_query(
   props : PageProps,
   name : String,
 ) -> Result[String, ApiResponse] {
-  match props.get_query(name) {
-    Some(v) => Ok(v)
-    None => Err(bad_request("Missing required query parameter: " + name))
-  }
+  props.params.require_query(name)
 }
 
 ///|
-/// Extract an optional query parameter with default value
+/// Extract an optional query parameter with default value (delegates to RouteParams)
 pub fn optional_query(
   props : PageProps,
   name : String,
   default : String,
 ) -> String {
-  props.get_query(name).unwrap_or(default)
+  props.params.optional_query(name, default)
 }
 
 // ============================================================================

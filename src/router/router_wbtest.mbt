@@ -116,3 +116,206 @@ test "legacy_routes_to_sol_routes - keeps layout prefix and route kinds" {
   assert_eq(compiled[2].pattern, "/admin/stats")
   assert_true(compiled[2].kind is SolRouteKind::PostApi)
 }
+
+// ============================================================================
+// format_title Tests
+// ============================================================================
+
+///|
+test "format_title: empty title uses default" {
+  let result = format_title(
+    "",
+    title_prefix="Prefix",
+    default_title="Default Title",
+  )
+  assert_eq(result, "Default Title")
+}
+
+///|
+test "format_title: title with empty prefix returns title" {
+  let result = format_title("About", title_prefix="", default_title="Default")
+  assert_eq(result, "About")
+}
+
+///|
+test "format_title: title with prefix joins with separator" {
+  let result = format_title(
+    "About",
+    title_prefix="MySite",
+    default_title="Default",
+  )
+  assert_eq(result, "MySite - About")
+}
+
+///|
+test "format_title: both empty returns default" {
+  let result = format_title("", title_prefix="", default_title="Fallback")
+  assert_eq(result, "Fallback")
+}
+
+// ============================================================================
+// render_meta_tags Tests
+// ============================================================================
+
+///|
+test "render_meta_tags: empty array returns empty string" {
+  let result = render_meta_tags([])
+  assert_eq(result, "")
+}
+
+///|
+test "render_meta_tags: single meta tag" {
+  let result = render_meta_tags([("description", "Hello World")])
+  assert_eq(result, "<meta name=\"description\" content=\"Hello World\">")
+}
+
+///|
+test "render_meta_tags: multiple meta tags" {
+  let result = render_meta_tags([
+    ("description", "Test"),
+    ("author", "Mizchi"),
+  ])
+  assert_true(result.contains("<meta name=\"description\" content=\"Test\">"))
+  assert_true(result.contains("<meta name=\"author\" content=\"Mizchi\">"))
+}
+
+// ============================================================================
+// rendered_meta pre-computation Tests
+// ============================================================================
+
+///|
+test "compiled route pre-computes rendered_meta for page routes" {
+  async fn handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.text(""))
+  }
+
+  let routes = [
+    page("/about", handler, meta=[("description", "About page")]),
+  ]
+  let compiled = compile_sol_routes(routes)
+  assert_eq(compiled.length(), 1)
+  assert_eq(
+    compiled[0].rendered_meta,
+    "<meta name=\"description\" content=\"About page\">",
+  )
+}
+
+///|
+test "compiled route has empty rendered_meta for API routes" {
+  async fn handler(_props : PageProps) -> Json {
+    {}.to_json()
+  }
+
+  let routes = [api_get("/api/test", handler)]
+  let compiled = compile_sol_routes(routes)
+  assert_eq(compiled.length(), 1)
+  assert_eq(compiled[0].rendered_meta, "")
+}
+
+// ============================================================================
+// collect_preload_urls Tests
+// ============================================================================
+
+///|
+test "collect_preload_urls: empty inputs" {
+  let result = collect_preload_urls([], [], None)
+  assert_eq!(result.length(), 0)
+}
+
+///|
+test "collect_preload_urls: libs only" {
+  let result = collect_preload_urls(
+    ["/lib/react.js", "/lib/signals.js"],
+    [],
+    None,
+  )
+  assert_eq!(result.length(), 2)
+  assert_eq!(result[0], "/lib/react.js")
+}
+
+///|
+test "collect_preload_urls: islands without manifest" {
+  let result = collect_preload_urls(
+    [],
+    ["/static/counter.js", "/static/form.js"],
+    None,
+  )
+  assert_eq!(result.length(), 2)
+  assert_eq!(result[0], "/static/counter.js")
+}
+
+///|
+test "collect_preload_urls: libs before islands" {
+  let result = collect_preload_urls(
+    ["/lib/runtime.js"],
+    ["/static/counter.js"],
+    None,
+  )
+  assert_eq!(result.length(), 2)
+  assert_eq!(result[0], "/lib/runtime.js")
+  assert_eq!(result[1], "/static/counter.js")
+}
+
+///|
+test "collect_preload_urls: deduplicates URLs" {
+  let result = collect_preload_urls(
+    ["/lib/shared.js"],
+    ["/lib/shared.js", "/static/counter.js"],
+    None,
+  )
+  assert_eq!(result.length(), 2)
+  assert_eq!(result[0], "/lib/shared.js")
+  assert_eq!(result[1], "/static/counter.js")
+}
+
+///|
+test "collect_preload_urls: with chunk manifest adds dependencies" {
+  let manifest = ChunkManifest::new("/static/")
+  manifest.add(
+    "counter.js",
+    ChunkManifestEntry::new("counter.js", ["_shared/signals.js"]),
+  )
+  let result = collect_preload_urls(
+    [],
+    ["/static/counter.js"],
+    Some(manifest),
+  )
+  // Should have chunk dep first, then island
+  assert_true!(result.contains("/static/_shared/signals.js"))
+  assert_true!(result.contains("/static/counter.js"))
+}
+
+///|
+test "collect_preload_urls: manifest deduplicates chunks with libs" {
+  let manifest = ChunkManifest::new("/static/")
+  manifest.add(
+    "counter.js",
+    ChunkManifestEntry::new("counter.js", ["_shared/lib.js"]),
+  )
+  let result = collect_preload_urls(
+    ["/static/_shared/lib.js"],
+    ["/static/counter.js"],
+    Some(manifest),
+  )
+  // lib.js already in preload_libs, should not duplicate
+  let lib_count = result.iter().filter(fn(u) { u == "/static/_shared/lib.js" }).fold(
+    init=0,
+    fn(acc, _) { acc + 1 },
+  )
+  assert_eq!(lib_count, 1)
+}
+
+///|
+test "compiled route rendered_meta matches render_meta_tags output" {
+  async fn handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.text(""))
+  }
+
+  let meta : Array[(String, String)] = [
+    ("description", "Test"),
+    ("og:title", "Title"),
+  ]
+  let routes = [page("/test", handler, meta~)]
+  let compiled = compile_sol_routes(routes)
+  assert_eq(compiled[0].rendered_meta, render_meta_tags(meta))
+}

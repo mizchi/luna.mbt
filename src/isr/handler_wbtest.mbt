@@ -525,3 +525,209 @@ test "parse_manifest handles missing fields" {
     None => fail("Expected page meta")
   }
 }
+
+// =============================================================================
+// parse_page_meta via parse_manifest (indirect tests for page meta parsing)
+// =============================================================================
+
+///|
+test "parse_page_meta skips page with non-object JSON value" {
+  // A page entry that is not an object (e.g. an array) should be skipped
+  let json =
+    #|{"version": 1, "pages": {"/broken/": []}}
+  let manifest = parse_manifest(json)
+  assert_false(manifest.is_isr_page("/broken/"))
+}
+
+///|
+test "parse_page_meta skips page when revalidate is missing" {
+  let json =
+    #|{"version": 1, "pages": {"/no-revalidate/": {"renderer": "markdown", "source": "index.md"}}}
+  let manifest = parse_manifest(json)
+  // Page without revalidate should be skipped
+  assert_false(manifest.is_isr_page("/no-revalidate/"))
+}
+
+///|
+test "parse_page_meta skips page when revalidate is not a number" {
+  let json =
+    #|{"version": 1, "pages": {"/bad-revalidate/": {"revalidate": "sixty", "renderer": "markdown"}}}
+  let manifest = parse_manifest(json)
+  assert_false(manifest.is_isr_page("/bad-revalidate/"))
+}
+
+///|
+test "parse_page_meta parses all fields including dynamic renderer" {
+  let json =
+    #|{"version": 1, "pages": {"/api/data/": {"revalidate": 120, "renderer": "dynamic", "source": "pages/api.ts"}}}
+  let manifest = parse_manifest(json)
+  assert_true(manifest.is_isr_page("/api/data/"))
+  match manifest.get_page("/api/data/") {
+    Some(meta) => {
+      assert_eq(meta.revalidate, 120)
+      assert_eq(meta.renderer, "dynamic")
+      assert_eq(meta.source, "pages/api.ts")
+    }
+    None => fail("Expected Some(ISRPageMeta)")
+  }
+}
+
+///|
+test "parse_page_meta uses default renderer markdown when missing" {
+  let json =
+    #|{"version": 1, "pages": {"/blog/": {"revalidate": 60, "source": "blog.md"}}}
+  let manifest = parse_manifest(json)
+  match manifest.get_page("/blog/") {
+    Some(meta) => {
+      assert_eq(meta.revalidate, 60)
+      assert_eq(meta.renderer, "markdown")
+      assert_eq(meta.source, "blog.md")
+    }
+    None => fail("Expected Some(ISRPageMeta)")
+  }
+}
+
+///|
+test "parse_page_meta uses empty string for default source" {
+  let json =
+    #|{"version": 1, "pages": {"/page/": {"revalidate": 30, "renderer": "markdown"}}}
+  let manifest = parse_manifest(json)
+  match manifest.get_page("/page/") {
+    Some(meta) => {
+      assert_eq(meta.revalidate, 30)
+      assert_eq(meta.source, "")
+    }
+    None => fail("Expected Some(ISRPageMeta)")
+  }
+}
+
+///|
+test "parse_page_meta handles zero revalidate value" {
+  let json =
+    #|{"version": 1, "pages": {"/instant/": {"revalidate": 0}}}
+  let manifest = parse_manifest(json)
+  match manifest.get_page("/instant/") {
+    Some(meta) => assert_eq(meta.revalidate, 0)
+    None => fail("Expected Some(ISRPageMeta) with revalidate=0")
+  }
+}
+
+// =============================================================================
+// lexicographic_compare Additional Edge Cases
+// =============================================================================
+
+///|
+test "lexicographic_compare empty strings are equal" {
+  assert_eq(lexicographic_compare("", ""), 0)
+}
+
+///|
+test "lexicographic_compare empty vs non-empty" {
+  assert_eq(lexicographic_compare("", "a"), -1)
+  assert_eq(lexicographic_compare("a", ""), 1)
+}
+
+///|
+test "lexicographic_compare prefix relationship" {
+  assert_eq(lexicographic_compare("ab", "abc"), -1)
+  assert_eq(lexicographic_compare("abc", "ab"), 1)
+}
+
+///|
+test "lexicographic_compare identical strings" {
+  assert_eq(lexicographic_compare("hello", "hello"), 0)
+}
+
+///|
+test "lexicographic_compare case sensitive" {
+  // Uppercase letters have lower code points than lowercase in ASCII
+  assert_eq(lexicographic_compare("A", "a"), -1)
+  assert_eq(lexicographic_compare("a", "A"), 1)
+}
+
+// =============================================================================
+// cache_key Additional Edge Cases
+// =============================================================================
+
+///|
+test "cache_key with empty query array" {
+  let key = cache_key("/blog/", [])
+  assert_eq(key, "isr:/blog/")
+}
+
+///|
+test "cache_key with single query param" {
+  let key = cache_key("/page", [("foo", "bar")])
+  assert_eq(key, "isr:/page?foo=bar")
+}
+
+///|
+test "cache_key sorts params with same prefix by full name" {
+  let key = cache_key("/x", [("ab", "2"), ("a", "1")])
+  assert_eq(key, "isr:/x?a=1&ab=2")
+}
+
+///|
+test "cache_key with three unsorted params" {
+  let key = cache_key("/q", [("z", "3"), ("a", "1"), ("m", "2")])
+  assert_eq(key, "isr:/q?a=1&m=2&z=3")
+}
+
+///|
+test "cache_key preserves empty param values" {
+  let key = cache_key("/page", [("debug", "")])
+  assert_eq(key, "isr:/page?debug=")
+}
+
+// =============================================================================
+// parse_manifest Additional Edge Cases
+// =============================================================================
+
+///|
+test "parse_manifest handles non-object root" {
+  let manifest = parse_manifest("[]")
+  assert_eq(manifest.version, 1)
+  assert_true(manifest.pages.is_empty())
+}
+
+///|
+test "parse_manifest skips pages with invalid meta" {
+  let json =
+    #|{
+    #|  "version": 2,
+    #|  "pages": {
+    #|    "/valid/": {"revalidate": 60, "renderer": "markdown"},
+    #|    "/invalid/": {"renderer": "markdown"}
+    #|  }
+    #|}
+  let manifest = parse_manifest(json)
+  assert_eq(manifest.version, 2)
+  // valid page should be present, invalid (no revalidate) should be skipped
+  assert_true(manifest.is_isr_page("/valid/"))
+  assert_false(manifest.is_isr_page("/invalid/"))
+}
+
+///|
+test "parse_manifest handles multiple pages" {
+  let json =
+    #|{
+    #|  "version": 1,
+    #|  "pages": {
+    #|    "/a/": {"revalidate": 10, "renderer": "markdown", "source": "a.md"},
+    #|    "/b/": {"revalidate": 300, "renderer": "dynamic", "source": "b.ts"},
+    #|    "/c/": {"revalidate": 60}
+    #|  }
+    #|}
+  let manifest = parse_manifest(json)
+  assert_eq(manifest.len(), 3)
+  assert_true(manifest.is_isr_page("/a/"))
+  assert_true(manifest.is_isr_page("/b/"))
+  assert_true(manifest.is_isr_page("/c/"))
+  match manifest.get_page("/b/") {
+    Some(meta) => {
+      assert_eq(meta.revalidate, 300)
+      assert_eq(meta.renderer, "dynamic")
+    }
+    None => fail("Expected page /b/")
+  }
+}

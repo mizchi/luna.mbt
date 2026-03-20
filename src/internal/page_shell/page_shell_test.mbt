@@ -60,3 +60,45 @@ test "escape_html_text escapes entities" {
   let escaped = escape_html_text("<>&\"'")
   assert_eq(escaped, "&lt;&gt;&amp;&quot;&#39;")
 }
+
+///|
+test "escape_html_text returns empty string unchanged" {
+  assert_eq(escape_html_text(""), "")
+}
+
+///|
+test "escape_html_text leaves plain text unchanged" {
+  assert_eq(escape_html_text("Hello World"), "Hello World")
+}
+
+///|
+test "render_template escapes HTML in title" {
+  let tpl = "<title>__LUNA_TITLE__</title>__LUNA_HEAD____LUNA_PRELOAD____LUNA_MAIN__"
+  let result = render_template(tpl, "<script>alert(1)</script>", "", "", "")
+  assert_true(result.contains("&lt;script&gt;alert(1)&lt;/script&gt;"))
+  assert_false(result.contains("<script>"))
+}
+
+///|
+test "render_document escapes HTML in title" {
+  let html = render_document("<My & App>", "", "")
+  assert_true(html.contains("&lt;My &amp; App&gt;"))
+  assert_false(html.contains("<My"))
+}
+
+///|
+test "render_streaming_header escapes HTML in title" {
+  let header = render_streaming_header("<App & Co>", "", "/loader.js")
+  assert_true(header.contains("&lt;App &amp; Co&gt;"))
+}
+
+///|
+test "app_container wraps inner html" {
+  let result = app_container("<p>test</p>")
+  assert_eq(result, "<div id=\"app\"><p>test</p></div>")
+}
+
+///|
+test "render_streaming_footer returns closing tags" {
+  assert_eq(render_streaming_footer(), "</div></body></html>")
+}
