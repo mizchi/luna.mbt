@@ -95,7 +95,7 @@ fn new_project_files(
   [
     (
       "moon.mod.json",
-      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.12.0\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.0\",\n    \"mizchi/signals\": \"0.6.3\",\n    \"mizchi/js\": \"0.10.14\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.16.6\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
+      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.13.2\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.2\",\n    \"mizchi/signals\": \"0.6.3\",\n    \"mizchi/js\": \"0.10.14\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.16.6\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
     ),
     (
       "package.json",
@@ -111,7 +111,7 @@ fn new_project_files(
     ),
     (
       "app/server/moon.pkg",
-      "import {\n  \"mizchi/sol\" @sol,\n  \"mizchi/luna/dom/static\" @server_dom,\n  \"\{package_name}}/__gen__/types\" @types,\n  \"moonbitlang/async\",\n}\n\noptions(\n  \"is-main\": true,\n  \"supported-targets\": \"js\",\n  \"warn-list\": \"-67-29\",\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
+      "import {\n  \"mizchi/sol\" @sol,\n  \"mizchi/luna/dom/static\" @server_dom,\n  \"\{package_name}/__gen__/types\" @types,\n  \"moonbitlang/async\",\n}\n\noptions(\n  \"is-main\": true,\n  \"supported-targets\": \"js\",\n  \"warn-list\": \"-67-29\",\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
     ),
     (
       "app/server/main.mbt",
