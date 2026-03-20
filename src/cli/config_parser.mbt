@@ -210,6 +210,23 @@ pub fn parse_runtime(s : String) -> ServerRuntime {
 }
 
 ///|
+/// Validate top-level config keys and warn about unknown ones
+fn validate_config_keys(obj : Map[String, Json]) -> Unit {
+  let valid_keys = [
+    "islands", "routes", "output", "clientAutoExports", "client_auto_exports",
+    "runtime", "adapter", "staticDirs", "static_dirs", "wasmEntrypoints",
+    "wasm_entrypoints",
+  ]
+  for key in obj.keys() {
+    if not(valid_keys.contains(key)) {
+      println(
+        "Warning: unknown config key \"\{key}\" in sol.config.json",
+      )
+    }
+  }
+}
+
+///|
 /// Parse sol.config.json
 pub fn parse_sol_config(json_str : String) -> SolConfig? {
   try {
@@ -232,6 +249,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
     }
     let static_dirs = parse_static_dirs(obj)
     let wasm_entrypoints = parse_wasm_entrypoints(obj)
+    validate_config_keys(obj)
     Some(SolConfig::{
       islands,
       routes,
@@ -400,9 +418,34 @@ fn parse_sidebar_config(obj : Map[String, Json]) -> @ssg.SidebarConfig {
   match obj.get("sidebar") {
     Some(String("auto")) => @ssg.SidebarConfig::Auto
     Some(String("Auto")) => @ssg.SidebarConfig::Auto
-    Some(Array(_)) =>
-      // TODO: Parse manual sidebar groups
-      @ssg.SidebarConfig::Auto
+    Some(Array(arr)) => {
+      let groups : Array[@ssg.SidebarGroup] = []
+      for item in arr {
+        if item is Object(item_obj) {
+          let text = @json_utils.extract_string(item_obj, "text", "")
+          let link = @json_utils.extract_string_opt(item_obj, "link")
+          let collapsed = @json_utils.extract_bool(item_obj, "collapsed", false)
+          let items : Array[@ssg.SidebarItem] = []
+          match item_obj.get("items") {
+            Some(Array(sub_arr)) =>
+              for sub in sub_arr {
+                if sub is Object(sub_obj) {
+                  let sub_text = @json_utils.extract_string(sub_obj, "text", "")
+                  let sub_link = @json_utils.extract_string(sub_obj, "link", "")
+                  if not(sub_text.is_empty()) && not(sub_link.is_empty()) {
+                    items.push(@ssg.SidebarItem::Link(text=sub_text, link=sub_link))
+                  }
+                }
+              }
+            _ => ()
+          }
+          if not(text.is_empty()) {
+            groups.push(@ssg.SidebarGroup::{ text, link, collapsed, items })
+          }
+        }
+      }
+      @ssg.SidebarConfig::Manual(groups)
+    }
     _ => @ssg.SidebarConfig::Auto
   }
 }
@@ -537,9 +580,9 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
 
       // Non-color settings
       let logo = @json_utils.extract_string_opt(theme_obj, "logo")
-      let header : @ssg.HeaderConfig? = None // TODO: parse header
-      let footer : @ssg.FooterConfig? = None // TODO: parse footer
-      let social_links : Array[@ssg.SocialLink] = [] // TODO: parse social links
+      let header = parse_header_config(theme_obj)
+      let footer = parse_footer_config(theme_obj)
+      let social_links = parse_social_links(theme_obj)
       @ssg.ThemeConfig::{
         primary_color,
         secondary_color,
@@ -567,6 +610,157 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
     }
     _ => @ssg.ThemeConfig::default()
   }
+}
+
+///|
+/// Parse a string to HeaderElement (case-insensitive, unknown maps to Custom)
+fn parse_header_element(s : String) -> @ssg.HeaderElement {
+  match s.to_lower() {
+    "logo" => @ssg.HeaderElement::Logo
+    "navlinks" => @ssg.HeaderElement::NavLinks
+    "search" => @ssg.HeaderElement::Search
+    "themetoggle" => @ssg.HeaderElement::ThemeToggle
+    "sociallinks" => @ssg.HeaderElement::SocialLinks
+    "langswitcher" => @ssg.HeaderElement::LangSwitcher
+    "spacer" => @ssg.HeaderElement::Spacer
+    _ => @ssg.HeaderElement::Custom(s)
+  }
+}
+
+///|
+/// Parse header configuration from theme object
+fn parse_header_config(obj : Map[String, Json]) -> @ssg.HeaderConfig? {
+  match obj.get("header") {
+    Some(Object(header_obj)) => {
+      let left : Array[@ssg.HeaderElement] = []
+      let center : Array[@ssg.HeaderElement] = []
+      let right : Array[@ssg.HeaderElement] = []
+      match header_obj.get("left") {
+        Some(Array(arr)) =>
+          for item in arr {
+            if item is String(s) {
+              left.push(parse_header_element(s))
+            }
+          }
+        _ => ()
+      }
+      match header_obj.get("center") {
+        Some(Array(arr)) =>
+          for item in arr {
+            if item is String(s) {
+              center.push(parse_header_element(s))
+            }
+          }
+        _ => ()
+      }
+      match header_obj.get("right") {
+        Some(Array(arr)) =>
+          for item in arr {
+            if item is String(s) {
+              right.push(parse_header_element(s))
+            }
+          }
+        _ => ()
+      }
+      let sticky = @json_utils.extract_bool(header_obj, "sticky", false)
+      Some(@ssg.HeaderConfig::{ left, center, right, sticky })
+    }
+    _ => None
+  }
+}
+
+///|
+/// Parse a string to FooterElement (case-insensitive, unknown maps to Custom)
+fn parse_footer_element(s : String) -> @ssg.FooterElement {
+  match s.to_lower() {
+    "columns" => @ssg.FooterElement::Columns
+    "message" => @ssg.FooterElement::Message
+    "copyright" => @ssg.FooterElement::Copyright
+    "sociallinks" => @ssg.FooterElement::SocialLinks
+    _ => @ssg.FooterElement::Custom(s)
+  }
+}
+
+///|
+/// Parse footer configuration from theme object
+fn parse_footer_config(obj : Map[String, Json]) -> @ssg.FooterConfig? {
+  match obj.get("footer") {
+    Some(Object(footer_obj)) => {
+      let message = @json_utils.extract_string_opt(footer_obj, "message")
+      let copyright = @json_utils.extract_string_opt(footer_obj, "copyright")
+      let links : Array[@ssg.FooterColumn] = []
+      match footer_obj.get("links") {
+        Some(Array(arr)) =>
+          for item in arr {
+            if item is Object(col_obj) {
+              let title = @json_utils.extract_string(col_obj, "title", "")
+              let col_items : Array[@ssg.FooterLink] = []
+              match col_obj.get("items") {
+                Some(Array(link_arr)) =>
+                  for link_item in link_arr {
+                    if link_item is Object(link_obj) {
+                      let label = @json_utils.extract_string(
+                        link_obj, "label", "",
+                      )
+                      let href = @json_utils.extract_string(
+                        link_obj, "href", "",
+                      )
+                      if not(label.is_empty()) && not(href.is_empty()) {
+                        col_items.push(@ssg.FooterLink::{ label, href })
+                      }
+                    }
+                  }
+                _ => ()
+              }
+              links.push(@ssg.FooterColumn::{ title, items: col_items })
+            }
+          }
+        _ => ()
+      }
+      let top : Array[@ssg.FooterElement] = []
+      match footer_obj.get("top") {
+        Some(Array(arr)) =>
+          for item in arr {
+            if item is String(s) {
+              top.push(parse_footer_element(s))
+            }
+          }
+        _ => ()
+      }
+      let bottom : Array[@ssg.FooterElement] = []
+      match footer_obj.get("bottom") {
+        Some(Array(arr)) =>
+          for item in arr {
+            if item is String(s) {
+              bottom.push(parse_footer_element(s))
+            }
+          }
+        _ => ()
+      }
+      Some(@ssg.FooterConfig::{ message, copyright, links, top, bottom })
+    }
+    _ => None
+  }
+}
+
+///|
+/// Parse social links array from theme object
+fn parse_social_links(obj : Map[String, Json]) -> Array[@ssg.SocialLink] {
+  let result : Array[@ssg.SocialLink] = []
+  match obj.get("socialLinks") {
+    Some(Array(arr)) =>
+      for item in arr {
+        if item is Object(link_obj) {
+          let icon = @json_utils.extract_string(link_obj, "icon", "")
+          let link = @json_utils.extract_string(link_obj, "link", "")
+          if not(icon.is_empty()) && not(link.is_empty()) {
+            result.push(@ssg.SocialLink::{ icon, link })
+          }
+        }
+      }
+    _ => ()
+  }
+  result
 }
 
 ///|

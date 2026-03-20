@@ -135,7 +135,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   let use_parallel : Bool = if result.values.contains("parallel") {
     result.values["parallel"].cast()
   } else {
-    false
+    true
   }
   let num_workers : Int? = if result.values.contains("workers") {
     let workers_str : String = result.values["workers"].cast()
