@@ -34,6 +34,13 @@ pub fn page(
 }
 
 ///|
+fn make_api_handler[T : ToJson](
+  handler : async (PageProps) -> T,
+) -> ApiHandler {
+  ApiHandler(async fn(props) { handler(props).to_json() })
+}
+
+///|
 /// Create a GET API route
 ///
 /// Example:
@@ -44,10 +51,7 @@ pub fn api_get[T : ToJson](
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Get(
-    path~,
-    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
-  )
+  SolRoutes::Get(path~, handler=make_api_handler(handler))
 }
 
 ///|
@@ -61,10 +65,7 @@ pub fn api_post[T : ToJson](
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Post(
-    path~,
-    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
-  )
+  SolRoutes::Post(path~, handler=make_api_handler(handler))
 }
 
 ///|
@@ -73,10 +74,7 @@ pub fn api_put[T : ToJson](
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Put(
-    path~,
-    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
-  )
+  SolRoutes::Put(path~, handler=make_api_handler(handler))
 }
 
 ///|
@@ -85,10 +83,7 @@ pub fn api_delete[T : ToJson](
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Delete(
-    path~,
-    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
-  )
+  SolRoutes::Delete(path~, handler=make_api_handler(handler))
 }
 
 ///|
@@ -97,10 +92,7 @@ pub fn api_patch[T : ToJson](
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
-  SolRoutes::Patch(
-    path~,
-    handler=ApiHandler(async fn(props) { handler(props).to_json() }),
-  )
+  SolRoutes::Patch(path~, handler=make_api_handler(handler))
 }
 
 ///|

@@ -99,11 +99,8 @@ pub fn logger_with_config(config : LoggerConfig) -> Middleware {
         }
       }
 
-      // Get current time
-      let start_time = now_ms()
-
       // Format log message
-      let message = format_log_message(ctx, start_time, config.format)
+      let message = format_log_message(ctx, config.format)
 
       // Output log
       match config.log_fn {
@@ -150,11 +147,7 @@ fn delegate_logger_handler(config : LoggerConfig) -> @mars.Handler? {
 // ============================================================================
 
 ///|
-fn format_log_message(
-  ctx : Ctx,
-  _start_time : Float,
-  format : LogFormat,
-) -> String {
+fn format_log_message(ctx : Ctx, format : LogFormat) -> String {
   let method = ctx.meth().to_string()
   let path = ctx.path()
   match format {
@@ -197,7 +190,12 @@ fn format_json_pure(
   path : String,
   timestamp : String,
 ) -> String {
-  "{\"method\":\"\{method}\",\"path\":\"\{path}\",\"timestamp\":\"\{timestamp}\"}"
+  let json : Json = {
+    "method": method.to_json(),
+    "path": path.to_json(),
+    "timestamp": timestamp.to_json(),
+  }
+  json.stringify()
 }
 
 // ============================================================================

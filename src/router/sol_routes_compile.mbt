@@ -111,10 +111,7 @@ fn compile_sol_routes_inner(
       Patch(path~, handler~) =>
         push_api_route(result, prefix, path, handler, PatchApi, inherited_middlewares)
       WithMiddleware(middleware~, children~) => {
-        let new_middlewares = inherited_middlewares.copy()
-        for mw in middleware {
-          new_middlewares.push(mw)
-        }
+        let new_middlewares = inherited_middlewares + middleware
         compile_sol_routes_inner(
           children, prefix, inherited_layouts, new_middlewares, result,
         )

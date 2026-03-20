@@ -19,12 +19,12 @@ fn normalize_path(path : String) -> String {
       prev_slash = false
     }
   }
-  // Remove trailing slash by truncating the builder (avoid extra allocation)
-  if prev_slash && buf.to_string().length() > 1 {
-    let s = buf.to_string()
+  // Remove trailing slash: prev_slash tracks if last char was '/'
+  let s = buf.to_string()
+  if prev_slash && s.length() > 1 {
     s.substring(end=s.length() - 1)
   } else {
-    buf.to_string()
+    s
   }
 }
 
