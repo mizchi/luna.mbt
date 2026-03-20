@@ -50,6 +50,11 @@ async fn run_suite() -> Unit {
   run("no hydration errors on about", (b) => { test_no_hydration_errors(b, "/about") }, browser, passed, failed, errors)
   run("no WC counter errors", (b) => { test_no_wc_errors(b) }, browser, passed, failed, errors)
 
+  // === Interaction + fetch helpers ===
+  run("counter click increments", (b) => { test_counter_click(b) }, browser, passed, failed, errors)
+  run("fetch_json API health", (b) => { test_fetch_json(b) }, browser, passed, failed, errors)
+  run("fetch_json POST action", (b) => { test_fetch_post(b) }, browser, passed, failed, errors)
+
   // === Parallel safety ===
   run("parallel: home", (b) => { test_home_ssr(b) }, browser, passed, failed, errors)
   run("parallel: api", (b) => { test_api_health(b) }, browser, passed, failed, errors)
@@ -263,6 +268,73 @@ async fn test_no_wc_errors(browser : @pw.Browser) -> Unit {
     m.text.contains("WcCounterProps") || m.text.contains("wc_counter")
   })
   @pw.expect(wc_errors.length()).to_be(0)
+  page.close()
+}
+
+// =============================================================================
+// Interaction + fetch helper tests
+// =============================================================================
+
+///|
+async fn test_counter_click(browser : @pw.Browser) -> Unit {
+  let page = browser.new_page()
+  let _ = page.goto("\{base}/")
+  page.wait_for_timeout(2000)
+  let initial = page.evaluate(
+    "() => parseInt(document.querySelector('.count-display')?.textContent || '0')",
+  )
+  let initial_n = match initial {
+    Number(n, ..) => n.to_int()
+    _ => 0
+  }
+  page.locator("button.inc").click()
+  page.wait_for_timeout(500)
+  let after = page.evaluate(
+    "() => parseInt(document.querySelector('.count-display')?.textContent || '0')",
+  )
+  match after {
+    Number(n, ..) => @pw.expect(n.to_int()).to_be(initial_n + 1)
+    _ => fail("expected number after click")
+  }
+  page.close()
+}
+
+///|
+async fn test_fetch_json(browser : @pw.Browser) -> Unit {
+  let page = browser.new_page()
+  let _ = page.goto("\{base}/")
+  let (status, json) = page.fetch_json("\{base}/api/health")
+  @pw.expect(status).to_be(200)
+  match json {
+    Object(m) =>
+      match m.get("status") {
+        Some(String(s)) => @pw.expect(s).to_be("ok")
+        _ => fail("expected status field")
+      }
+    _ => fail("expected JSON object")
+  }
+  page.close()
+}
+
+///|
+async fn test_fetch_post(browser : @pw.Browser) -> Unit {
+  let page = browser.new_page()
+  let _ = page.goto("\{base}/")
+  let (status, json) = page.fetch_json(
+    "\{base}/_action/submit-contact",
+    method="POST",
+    body="{\"name\":\"Test\",\"email\":\"test@example.com\"}",
+    headers=[("Content-Type", "application/json"), ("Origin", "\{base}")],
+  )
+  @pw.expect(status).to_be(200)
+  match json {
+    Object(m) =>
+      match m.get("success") {
+        Some(True) => ()
+        _ => fail("expected success:true")
+      }
+    _ => fail("expected JSON object from action")
+  }
   page.close()
 }
 
