@@ -1,6 +1,7 @@
 import {
   "mizchi/playwright" @pw,
   "moonbitlang/async" @async,
+  "moonbitlang/core/strconv" @strconv,
 }
 
 options(
