@@ -63,9 +63,8 @@ async fn run_suite() -> Unit {
     }
   }
   browser.close()
-  if failed.val > 0 {
-    ffi_exit(1)
-  }
+  // Force exit — chromium-bidi's WebSocketServer keeps the process alive
+  ffi_exit(if failed.val > 0 { 1 } else { 0 })
 }
 
 ///|
