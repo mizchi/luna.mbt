@@ -35,11 +35,15 @@ jobs:
         run: npx playwright install chromium --with-deps
       - name: E2E tests (core)
         run: pnpm test:e2e
-      - name: E2E tests (sol_app)
+      - name: Build sol_app for E2E
         working-directory: examples/sol_app
         run: |
           pnpm install
-          pnpm test:e2e
+          node ../../_build/js/release/build/cli/cli.js generate
+          node ../../_build/js/release/build/cli/cli.js build
+      - name: E2E tests (sol_app)
+        working-directory: examples/sol_app
+        run: pnpm test:e2e
 
   # MoonBit Playwright E2E (WebDriver BiDi)
   e2e-mbt:
