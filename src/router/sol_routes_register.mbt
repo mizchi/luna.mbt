@@ -243,6 +243,127 @@ fn register_compiled_api_route(
 }
 
 ///|
+/// Handle an ISR-enabled page request. Called when revalidate and isr_cache
+/// are both present and the request is not a fragment.
+async fn handle_isr_page_request(
+  c : Ctx,
+  props : PageProps,
+  handler : async (PageProps) -> @server_dom.ServerNode,
+  layouts : Array[
+    (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise Error,
+  ],
+  page_title : String,
+  page_head : String,
+  root_template : String,
+  cache_strategy : CacheStrategy,
+  route_revalidate : Int?,
+  revalidate : Int,
+  cache : @isr.MemoryCache,
+  config : RouterConfig,
+) -> Unit {
+  if not(props.params.query.is_empty()) {
+    c.set_header("Cache-Control", "private, no-store")
+    c.set_header("X-Sol-ISR-Status", "BYPASS")
+    return send_non_isr_page_response(
+      c,
+      props,
+      handler,
+      layouts,
+      false,
+      page_title,
+      page_head,
+      root_template,
+      cache_strategy,
+      route_revalidate,
+      config,
+    )
+  }
+  // Apply CDN cache headers if strategy is configured
+  apply_cdn_cache_headers(c, config.cache_strategy, revalidate)
+  // ISR enabled - check cache
+  let cache_key = @isr.cache_key(props.params.path, props.params.query)
+  let entry = @isr.ISRCache::get(cache, cache_key)
+  let now = @isr.now_ms()
+  let status = @isr.check_status(entry, now)
+  // Set X-Sol-ISR-Status header for diagnostics
+  let isr_status_str = match status {
+    @isr.Fresh => "HIT"
+    @isr.Stale => "STALE"
+    @isr.Miss => "MISS"
+  }
+  c.set_header("X-Sol-ISR-Status", isr_status_str)
+  // ISR render props: mark as ISR to warn against ctx header access
+  let isr_props = { ..props, is_isr_render: true }
+  match status {
+    @isr.Fresh =>
+      // Return cached HTML directly
+      match entry {
+        Some(e) => c.html(e.html)
+        None => c.text("Cache error", status=500)
+      }
+    @isr.Stale =>
+      // Return cached HTML and schedule background revalidation
+      match entry {
+        Some(e) => {
+          // Deduplicate in-flight revalidations for same cache key
+          if not(isr_in_flight.val.contains(cache_key)) {
+            isr_in_flight.val.add(cache_key)
+            @isr.ISRCache::schedule_revalidation(cache, async fn() {
+              let html = render_page_to_html(
+                c,
+                isr_props,
+                handler,
+                layouts,
+                false,
+                page_title,
+                page_head,
+                root_template,
+                cache_strategy,
+              ) catch {
+                _ => {
+                  isr_in_flight.val.remove(cache_key)
+                  return
+                }
+              }
+              let new_entry = @isr.CacheEntry::new(
+                html,
+                @isr.now_ms(),
+                revalidate,
+              )
+              @isr.ISRCache::put(cache, cache_key, new_entry)
+              isr_in_flight.val.remove(cache_key)
+            })
+          }
+          c.html(e.html)
+        }
+        None => c.text("Cache error", status=500)
+      }
+    @isr.Miss => {
+      // Render, cache, and return
+      let html = render_page_to_html(
+        c,
+        isr_props,
+        handler,
+        layouts,
+        false,
+        page_title,
+        page_head,
+        root_template,
+        cache_strategy,
+      ) catch {
+        e => {
+          log_server_error("ISR revalidation error", e)
+          return c.text("Internal Server Error", status=500)
+        }
+      }
+      let new_entry = @isr.CacheEntry::new(html, now, revalidate)
+      @isr.ISRCache::put(cache, cache_key, new_entry)
+      c.html(html)
+    }
+  }
+}
+
+///|
 fn register_compiled_sol_routes(
   app : App,
   routes : Array[CompiledSolRoute],
@@ -283,110 +404,21 @@ fn register_compiled_sol_routes(
             Some(PageHandler(handler)) =>
               // Check if ISR is enabled for this route (only for full page requests)
               match (route.revalidate, config.isr_cache, is_fragment) {
-                (Some(revalidate), Some(cache), false) => {
-                  if not(params.query.is_empty()) {
-                    c.set_header("Cache-Control", "private, no-store")
-                    c.set_header("X-Sol-ISR-Status", "BYPASS")
-                    return send_non_isr_page_response(
-                      c,
-                      props,
-                      handler,
-                      route.layouts,
-                      false,
-                      page_title,
-                      page_head,
-                      config.root_template,
-                      route.cache_strategy,
-                      route.revalidate,
-                      config,
-                    )
-                  }
-                  // Apply CDN cache headers if strategy is configured
-                  apply_cdn_cache_headers(c, config.cache_strategy, revalidate)
-                  // ISR enabled - check cache
-                  let cache_key = @isr.cache_key(params.path, params.query)
-                  let entry = @isr.ISRCache::get(cache, cache_key)
-                  let now = @isr.now_ms()
-                  let status = @isr.check_status(entry, now)
-                  // Set X-Sol-ISR-Status header for diagnostics
-                  let isr_status_str = match status {
-                    @isr.Fresh => "HIT"
-                    @isr.Stale => "STALE"
-                    @isr.Miss => "MISS"
-                  }
-                  c.set_header("X-Sol-ISR-Status", isr_status_str)
-                  // ISR render props: mark as ISR to warn against ctx header access
-                  let isr_props = { ..props, is_isr_render: true }
-                  match status {
-                    @isr.Fresh =>
-                      // Return cached HTML directly
-                      match entry {
-                        Some(e) => c.html(e.html)
-                        None => c.text("Cache error", status=500)
-                      }
-                    @isr.Stale =>
-                      // Return cached HTML and schedule background revalidation
-                      match entry {
-                        Some(e) => {
-                          // Deduplicate in-flight revalidations for same cache key
-                          if not(isr_in_flight.val.contains(cache_key)) {
-                            isr_in_flight.val.add(cache_key)
-                            @isr.ISRCache::schedule_revalidation(cache, async fn() {
-                              let html = render_page_to_html(
-                                c,
-                                isr_props,
-                                handler,
-                                route.layouts,
-                                false,
-                                page_title,
-                                page_head,
-                                config.root_template,
-                                route.cache_strategy,
-                              ) catch {
-                                _ => {
-                                  isr_in_flight.val.remove(cache_key)
-                                  return
-                                }
-                              }
-                              let new_entry = @isr.CacheEntry::new(
-                                html,
-                                @isr.now_ms(),
-                                revalidate,
-                              )
-                              @isr.ISRCache::put(cache, cache_key, new_entry)
-                              isr_in_flight.val.remove(cache_key)
-                            })
-                          }
-                          c.html(e.html)
-                        }
-                        None => c.text("Cache error", status=500)
-                      }
-                    @isr.Miss => {
-                      // Render, cache, and return
-                      let html = render_page_to_html(
-                        c,
-                        isr_props,
-                        handler,
-                        route.layouts,
-                        false,
-                        page_title,
-                        page_head,
-                        config.root_template,
-                        route.cache_strategy,
-                      ) catch {
-                        e => {
-                          log_server_error("ISR revalidation error", e)
-                          return c.text("Internal Server Error", status=500)
-                        }
-                      }
-                      let new_entry = @isr.CacheEntry::new(
-                        html, now, revalidate,
-                      )
-                      @isr.ISRCache::put(cache, cache_key, new_entry)
-                      c.html(html)
-                    }
-                  }
-                }
+                (Some(revalidate), Some(cache), false) =>
+                  handle_isr_page_request(
+                    c,
+                    props,
+                    handler,
+                    route.layouts,
+                    page_title,
+                    page_head,
+                    config.root_template,
+                    route.cache_strategy,
+                    route.revalidate,
+                    revalidate,
+                    cache,
+                    config,
+                  )
                 _ =>
                   send_non_isr_page_response(
                     c,

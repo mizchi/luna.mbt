@@ -30,23 +30,19 @@ pub fn RouteParams::empty() -> RouteParams {
 ///|
 /// Get path parameter by name
 pub fn RouteParams::get_param(self : RouteParams, key : String) -> String? {
-  for pair in self.params {
-    if pair.0 == key {
-      return Some(pair.1)
-    }
-  }
-  None
+  self.params
+  .iter()
+  .find_first(fn(pair) { pair.0 == key })
+  .map(fn(pair) { pair.1 })
 }
 
 ///|
 /// Get query parameter by name
 pub fn RouteParams::get_query(self : RouteParams, key : String) -> String? {
-  for pair in self.query {
-    if pair.0 == key {
-      return Some(pair.1)
-    }
-  }
-  None
+  self.query
+  .iter()
+  .find_first(fn(pair) { pair.0 == key })
+  .map(fn(pair) { pair.1 })
 }
 
 ///|
@@ -298,24 +294,15 @@ fn extract_route_params(
   param_names? : Array[String] = [],
 ) -> RouteParams {
   let raw_path = c.path()
-  let params : Array[(String, String)] = []
   // Use Mars public API (`Context::param`) to extract known route params.
-  for name in param_names {
-    match c.param(name) {
-      Some(value) => params.push((name, value))
-      None => ()
-    }
-  }
+  let params = param_names.filter_map(fn(name) {
+    c.param(name).map(fn(value) { (name, value) })
+  })
 
   // Get query params and strip query from path
-  let query : Array[(String, String)] = []
-  let path = if has_query_string(raw_path) {
-    for entry in c.queries() {
-      query.push((entry.0, entry.1))
-    }
-    strip_query_string(raw_path)
-  } else {
-    raw_path
+  let (path, query) = match raw_path.find("?") {
+    Some(_) => (strip_query_string(raw_path), c.queries().to_array())
+    None => (raw_path, [])
   }
 
   { params, query, path, is_fragment }
@@ -324,24 +311,15 @@ fn extract_route_params(
 ///|
 /// Remove query string from path (everything after first '?')
 fn strip_query_string(path : String) -> String {
-  let buf = StringBuilder::new()
-  for c in path {
-    if c == '?' {
-      break
-    }
-    buf.write_char(c)
+  match path.find("?") {
+    Some(idx) => path.substring(end=idx)
+    None => path
   }
-  buf.to_string()
 }
 
 ///|
 fn has_query_string(path : String) -> Bool {
-  for c in path {
-    if c == '?' {
-      return true
-    }
-  }
-  false
+  path.find("?") is Some(_)
 }
 
 ///|
@@ -356,17 +334,14 @@ fn has_query_string(path : String) -> Bool {
 /// the newer SolRoutes compilation pipeline.
 fn extract_route_param_names(path : String) -> Array[String] {
   let names : Array[String] = []
-  for segment_view in path.split("/") {
-    let segment = segment_view.to_string()
-    let name_opt = segment_to_param_name(segment)
-    match name_opt {
-      Some(name) =>
-        if not(name.is_empty()) && not(names.contains(name)) {
-          names.push(name)
-        }
-      None => ()
+  path
+  .split("/")
+  .filter_map(fn(seg) { segment_to_param_name(seg.to_string()) })
+  .each(fn(name) {
+    if not(name.is_empty()) && not(names.contains(name)) {
+      names.push(name)
     }
-  }
+  })
   names
 }
 
