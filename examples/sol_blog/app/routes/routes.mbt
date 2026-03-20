@@ -1,5 +1,5 @@
 ///| SSG-only project - minimal routes for build compatibility
-pub fn routes() -> Array[@router.SolRoutes] {
+pub fn routes() -> Array[@sol.SolRoutes] {
   []
 }
 
@@ -9,6 +9,6 @@ pub fn action_registry() -> @action.ActionRegistry {
 }
 
 ///| Router configuration
-pub fn config() -> @router.RouterConfig {
-  @router.RouterConfig::default()
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
 }

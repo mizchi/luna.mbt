@@ -1,7 +1,7 @@
 {
   "supported-targets": "js",
   "import": [
-    { "path": "mizchi/sol/router", "alias": "router" },
+    { "path": "mizchi/sol", "alias": "sol" },
     { "path": "mizchi/sol/action", "alias": "action" }
   ]
 }

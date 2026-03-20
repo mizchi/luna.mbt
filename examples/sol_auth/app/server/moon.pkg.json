@@ -10,10 +10,6 @@
       "alias": "sol"
     },
     {
-      "path": "mizchi/sol/router",
-      "alias": "router"
-    },
-    {
       "path": "mizchi/sol/middleware",
       "alias": "mw"
     },
