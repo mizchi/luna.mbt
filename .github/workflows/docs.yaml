@@ -62,7 +62,7 @@ jobs:
           path: website/dist-docs
 
   deploy-cloudflare:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -77,11 +77,12 @@ jobs:
         with:
           node-version: 24
       - name: Deploy to Cloudflare Workers
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm dlx wrangler@4 deploy --config=wrangler.json --name=luna --assets=website/dist-docs
-      - name: Skip deploy (missing secrets)
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '' }}
-        run: echo "Skipping deploy — Cloudflare secrets not configured."
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Skipping deploy — Cloudflare secrets not configured."
+          else
+            pnpm dlx wrangler@4 deploy --config=wrangler.json --name=luna --assets=website/dist-docs
+          fi
