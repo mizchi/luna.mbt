@@ -39,7 +39,7 @@ fn print_help() -> Unit {
   println("Usage: sol <command> [options]")
   println("")
   println("Commands:")
-  println("  new <name> --user <ns>  Create a new Sol project")
+  println("  new <name> --user <ns>  Create a new Sol project [--doc]")
   println("  init --user <ns>        Add Sol to existing project")
   println("  dev                     Start dev server (watch + HMR)")
   println("  build                   Build for production")
