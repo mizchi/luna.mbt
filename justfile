@@ -139,6 +139,7 @@ clean-examples:
     @rm -rf examples/sol_docs/.mooncakes examples/sol_docs/_build
     @rm -rf examples/sol_sqlite/.mooncakes examples/sol_sqlite/_build
     @rm -rf examples/sol_api/.mooncakes examples/sol_api/_build
+    @rm -rf examples/sol_todo/.mooncakes examples/sol_todo/_build
     @echo "✓ Examples cache cleaned"
 
 # Build check for each example
@@ -172,8 +173,13 @@ check-example-sol-api:
     @rm -rf examples/sol_api/.mooncakes examples/sol_api/_build
     cd examples/sol_api && moon check --target js
 
+check-example-sol-todo:
+    @echo "=== Checking sol_todo ==="
+    @rm -rf examples/sol_todo/.mooncakes examples/sol_todo/_build
+    cd examples/sol_todo && moon check --target js
+
 # Check all examples
-check-examples: check-example-sol-app check-example-sol-auth check-example-sol-blog check-example-sol-docs check-example-sol-sqlite check-example-sol-api
+check-examples: check-example-sol-app check-example-sol-auth check-example-sol-blog check-example-sol-docs check-example-sol-sqlite check-example-sol-api check-example-sol-todo
     @echo "✓ All examples checked"
 
 # =============================================================================

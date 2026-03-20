@@ -50,7 +50,7 @@ jobs:
           moon test --target native src/parser
       # Note: router and routes are skipped - they depend on mizchi/js which requires JS FFI
 
-  # Example projects
+  # Example projects — type check all examples
   test-examples:
     runs-on: ubuntu-latest
     steps:
@@ -69,9 +69,10 @@ jobs:
           version: latest
       - name: Bootstrap
         run: just bootstrap
-      - name: Build examples
+      - name: Check all examples
+        run: just check-examples
+      - name: Build sol_app (full build verification)
         run: |
-          moon info
           moon build --target js --release src/cli
           cd examples/sol_app
           node ../../_build/js/release/build/cli/cli.js generate
