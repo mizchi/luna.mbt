@@ -363,44 +363,50 @@ fn rewrite_content_links(html : String, base_url : String) -> String {
   } else {
     base_url
   }
-  let href_bare = "href=\"/"
-  let href_based = "href=\"" + base + "/"
-  let src_bare = "src=\"/"
-  let src_based = "src=\"" + base + "/"
-  let chars = html.to_array()
-  let len = chars.length()
+  // Step 1: Replace bare href="/..." with href="{base}/..."
+  // Use a placeholder to avoid double-replacement
+  let placeholder = "%%BASE_HREF%%"
+  let step1 = replace_all_occurrences(
+    html, "href=\"" + base + "/", "href=\"" + placeholder + "/",
+  )
+  let step2 = replace_all_occurrences(step1, "href=\"/", "href=\"" + base + "/")
+  let step3 = replace_all_occurrences(
+    step2, "href=\"" + placeholder + "/", "href=\"" + base + "/",
+  )
+  // Step 2: Same for src
+  let step4 = replace_all_occurrences(
+    step3, "src=\"" + base + "/", "src=\"" + placeholder + "/",
+  )
+  let step5 = replace_all_occurrences(step4, "src=\"/", "src=\"" + base + "/")
+  replace_all_occurrences(
+    step5, "src=\"" + placeholder + "/", "src=\"" + base + "/",
+  )
+}
+
+///|
+fn replace_all_occurrences(
+  input : String,
+  old : String,
+  new_ : String,
+) -> String {
+  if old.is_empty() || not(input.contains(old)) {
+    return input
+  }
   let buf = StringBuilder::new()
-  let mut i = 0
-  while i < len {
-    // Check for href="/ — skip if already base-prefixed
-    if i + href_based.length() <= len &&
-      html.substring(start=i, end=i + href_based.length()) == href_based {
-      // Already has base prefix — pass through
-      buf.write_string(href_based)
-      i = i + href_based.length()
-      continue
+  let old_len = old.length()
+  let mut pos = 0
+  while true {
+    match input.substring(start=pos).find(old) {
+      Some(idx) => {
+        buf.write_string(input.substring(start=pos, end=pos + idx))
+        buf.write_string(new_)
+        pos = pos + idx + old_len
+      }
+      None => {
+        buf.write_string(input.substring(start=pos))
+        break
+      }
     }
-    if i + href_bare.length() <= len &&
-      html.substring(start=i, end=i + href_bare.length()) == href_bare {
-      buf.write_string(href_based)
-      i = i + href_bare.length()
-      continue
-    }
-    // Check for src="/ — skip if already base-prefixed
-    if i + src_based.length() <= len &&
-      html.substring(start=i, end=i + src_based.length()) == src_based {
-      buf.write_string(src_based)
-      i = i + src_based.length()
-      continue
-    }
-    if i + src_bare.length() <= len &&
-      html.substring(start=i, end=i + src_bare.length()) == src_bare {
-      buf.write_string(src_based)
-      i = i + src_bare.length()
-      continue
-    }
-    buf.write_char(chars[i])
-    i = i + 1
   }
   buf.to_string()
 }
