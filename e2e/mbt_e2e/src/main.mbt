@@ -27,6 +27,11 @@ async fn main {
   run("404 response", (b) => { test_404(b) }, browser, passed, failed, errors)
   run("fragment request works", (b) => { test_fragment_request(b) }, browser, passed, failed, errors)
 
+  // === Hydration error detection (replaces TS console event tests) ===
+  run("no hydration errors on home", (b) => { test_no_hydration_errors(b, "/") }, browser, passed, failed, errors)
+  run("no hydration errors on about", (b) => { test_no_hydration_errors(b, "/about") }, browser, passed, failed, errors)
+  run("no WC counter errors", (b) => { test_no_wc_errors(b) }, browser, passed, failed, errors)
+
   // === Parallel safety ===
   run("parallel: home", (b) => { test_home_ssr(b) }, browser, passed, failed, errors)
   run("parallel: api", (b) => { test_api_health(b) }, browser, passed, failed, errors)
@@ -201,6 +206,38 @@ async fn test_fragment_request(browser : @pw.Browser) -> Unit {
     "() => fetch('/about', { headers: { 'X-Sol-Fragment': '1' } }).then(r => r.status)",
   )
   @pw.expect(status).to_equal(Json::number(200.0))
+  page.close()
+}
+
+// =============================================================================
+// Hydration error detection
+// =============================================================================
+
+///|
+async fn test_no_hydration_errors(browser : @pw.Browser, path : String) -> Unit {
+  let page = browser.new_page()
+  let _ = page.goto("\{base}\{path}")
+  // Wait for hydration to complete
+  page.wait_for_timeout(3000)
+  // Check console errors for hydration failures
+  let errors = page.console_errors()
+  let hydration_errors = errors.filter(fn(m) {
+    m.text.contains("[sol] Hydration failed")
+  })
+  @pw.expect(hydration_errors.length()).to_be(0)
+  page.close()
+}
+
+///|
+async fn test_no_wc_errors(browser : @pw.Browser) -> Unit {
+  let page = browser.new_page()
+  let _ = page.goto("\{base}/")
+  page.wait_for_timeout(3000)
+  let errors = page.console_errors()
+  let wc_errors = errors.filter(fn(m) {
+    m.text.contains("WcCounterProps") || m.text.contains("wc_counter")
+  })
+  @pw.expect(wc_errors.length()).to_be(0)
   page.close()
 }
 
