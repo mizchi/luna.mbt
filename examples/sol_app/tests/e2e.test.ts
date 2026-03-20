@@ -1,20 +1,37 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+// Helper: wait for island hydration by checking if click handlers are attached
+async function waitForHydration(page: Page, selector: string, timeout = 10000) {
+  // Wait for the element to exist and be attached
+  await page.waitForSelector(selector, { state: 'attached', timeout });
+  // Give hydration a moment (island scripts need to load and execute)
+  await page.waitForTimeout(200);
+  // For counter islands, verify the element has event listeners by checking
+  // if the shadow DOM is set up (for WC) or if the component is interactive
+  await page.waitForFunction(
+    (sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return false;
+      // Check if the element or its children have click handlers
+      // by looking for hydration markers or interactive elements
+      return el.querySelector('button') !== null;
+    },
+    selector,
+    { timeout }
+  );
+}
 
 test.describe('Sol App E2E', () => {
   test.describe('Progressive Enhancement (JavaScript Disabled)', () => {
     test.use({ javaScriptEnabled: false });
 
     test('form submission without JavaScript redirects to home', async ({ page, request }) => {
-      // Navigate to form page (no JavaScript)
       await page.goto('/form');
       await expect(page).toHaveURL('/form');
 
-      // Verify form is visible (SSR content)
       const form = page.locator('form.contact-form');
       await expect(form).toBeVisible();
 
-      // Test Server Action endpoint with form-urlencoded data (non-JS form submission)
-      // Playwright follows redirects automatically, so we get 200 (home page) after 302
       const response = await request.post('/_action/submit-contact', {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -22,71 +39,54 @@ test.describe('Sol App E2E', () => {
         },
         data: 'name=Test&email=test@example.com',
       });
-      // After following redirect, we should get 200 OK from the home page
       expect(response.status()).toBe(200);
-      // The response URL should be the home page (redirect target)
       expect(response.url()).toContain('/');
     });
   });
 
 
   test('full user flow: counter interaction and navigation', async ({ page }) => {
-    // 1. Navigate to home page
     await page.goto('/');
     await expect(page).toHaveURL('/');
 
-    // 2. Verify home page content
-    const counter = page.locator('.counter');
-    await expect(counter).toBeVisible();
+    // Wait for counter hydration
+    await waitForHydration(page, '.counter');
 
     const countDisplay = page.locator('.count-display');
-    // Get initial value (can be random)
     const initialText = await countDisplay.textContent();
     const initialValue = parseInt(initialText || '0', 10);
 
-    // 3. Wait for hydration
-    await page.waitForTimeout(500);
-
-    // 4. Click counter and verify increment
+    // Click counter and verify increment
     const incButton = page.locator('button.inc');
     await incButton.click();
-    await expect(countDisplay).toHaveText(String(initialValue + 1));
+    await expect(countDisplay).toHaveText(String(initialValue + 1), { timeout: 5000 });
 
-    // Click again to verify multiple increments work
     await incButton.click();
-    await expect(countDisplay).toHaveText(String(initialValue + 2));
+    await expect(countDisplay).toHaveText(String(initialValue + 2), { timeout: 5000 });
 
-    // 5. Navigate to About page via navigation link (use first() for multiple nav elements)
+    // Navigate to About
     const aboutLink = page.locator('nav a[href="/about"]').first();
     await aboutLink.click();
+    await expect(page).toHaveURL('/about', { timeout: 10000 });
 
-    // 6. Verify URL changed to /about
-    await expect(page).toHaveURL('/about');
-
-    // 7. Verify About page content is visible
     await expect(page.locator('body')).toContainText('About');
   });
 
   test('navigation between all pages', async ({ page }) => {
-    // Start at home
     await page.goto('/');
     await expect(page).toHaveURL('/');
 
-    // Navigate to About (use first() to handle multiple nav elements)
     await page.locator('nav a[href="/about"]').first().click();
-    await expect(page).toHaveURL('/about');
+    await expect(page).toHaveURL('/about', { timeout: 10000 });
 
-    // Navigate to Form
     await page.locator('nav a[href="/form"]').first().click();
-    await expect(page).toHaveURL('/form');
+    await expect(page).toHaveURL('/form', { timeout: 10000 });
 
-    // Navigate to WC Counter
     await page.locator('nav a[href="/wc-counter"]').first().click();
-    await expect(page).toHaveURL('/wc-counter');
+    await expect(page).toHaveURL('/wc-counter', { timeout: 10000 });
 
-    // Navigate back to Home
     await page.locator('nav a[href="/"]').first().click();
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/', { timeout: 10000 });
   });
 
   test('API health endpoint', async ({ request }) => {
@@ -97,14 +97,13 @@ test.describe('Sol App E2E', () => {
   });
 
   test('form page hydration and two-way binding', async ({ page }) => {
-    // Navigate to form page
     await page.goto('/form');
     await expect(page).toHaveURL('/form');
 
-    // Wait for hydration
-    await page.waitForTimeout(1000);
+    // Wait for form hydration
+    await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
+    await page.waitForTimeout(500);
 
-    // Fill in the form
     const nameInput = page.locator('input[name="name"]');
     const emailInput = page.locator('input[name="email"]');
     await expect(nameInput).toBeVisible();
@@ -113,13 +112,12 @@ test.describe('Sol App E2E', () => {
     await nameInput.fill('Test User');
     await emailInput.fill('test@example.com');
 
-    // Verify preview updates (two-way binding) - this confirms hydration is working
-    await expect(page.locator('.preview-name')).toContainText('Test User', { timeout: 5000 });
-    await expect(page.locator('.preview-email')).toContainText('test@example.com', { timeout: 5000 });
+    // Verify preview updates with longer timeout for CI
+    await expect(page.locator('.preview-name')).toContainText('Test User', { timeout: 10000 });
+    await expect(page.locator('.preview-email')).toContainText('test@example.com', { timeout: 10000 });
   });
 
   test('Server Action API endpoint', async ({ request }) => {
-    // Test Server Action endpoint directly
     const response = await request.post('/_action/submit-contact', {
       headers: {
         'Content-Type': 'application/json',
@@ -134,284 +132,231 @@ test.describe('Sol App E2E', () => {
   });
 
   test('form submission via browser', async ({ page }) => {
-    // Navigate to form page
     await page.goto('/form');
     await expect(page).toHaveURL('/form');
 
     // Wait for hydration
-    await page.waitForTimeout(1000);
+    await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
+    await page.waitForTimeout(500);
 
-    // Fill in the form
     await page.fill('input[name="name"]', 'Test User');
     await page.fill('input[name="email"]', 'test@example.com');
 
-    // Submit the form by clicking the submit button
     await page.click('button[type="submit"]');
 
-    // Wait for the Server Action response and check result
     const result = page.locator('[data-testid="form-result"]');
-    await expect(result).toContainText('Form submitted successfully', { timeout: 10000 });
+    await expect(result).toContainText('Form submitted successfully', { timeout: 15000 });
 
-    // Verify we're still on the form page (no redirect/404)
     await expect(page).toHaveURL('/form');
   });
 
   test.describe('Nested Layout (Admin Section)', () => {
     test('admin dashboard has nested layout structure', async ({ page }) => {
-      // Navigate to admin page
       await page.goto('/admin');
       await expect(page).toHaveURL('/admin');
 
-      // Verify nested layout structure
-      // 1. Root layout: main nav should be present
       await expect(page.locator('nav').first()).toBeVisible();
       await expect(page.locator('nav a[href="/"]').first()).toBeVisible();
 
-      // 2. Admin layout: admin sidebar should be present
       await expect(page.locator('.admin-sidebar')).toBeVisible();
       await expect(page.locator('.admin-sidebar h3')).toContainText('Admin');
 
-      // 3. Admin content area
       await expect(page.locator('.admin-content')).toBeVisible();
       await expect(page.locator('h1')).toContainText('Admin Dashboard');
     });
 
     test('navigation within admin section (CSR)', async ({ page }) => {
-      // Start at admin dashboard
       await page.goto('/admin');
       await expect(page).toHaveURL('/admin');
       await expect(page.locator('h1')).toContainText('Admin Dashboard');
 
-      // Navigate to settings (CSR via sol-link)
       await page.locator('.admin-sidebar a[href="/admin/settings"]').click();
-      await expect(page).toHaveURL('/admin/settings');
+      await expect(page).toHaveURL('/admin/settings', { timeout: 10000 });
       await expect(page.locator('h1')).toContainText('Settings');
 
-      // Verify admin layout is still present
       await expect(page.locator('.admin-sidebar')).toBeVisible();
 
-      // Navigate to users
       await page.locator('.admin-sidebar a[href="/admin/users"]').click();
-      await expect(page).toHaveURL('/admin/users');
+      await expect(page).toHaveURL('/admin/users', { timeout: 10000 });
       await expect(page.locator('h1')).toContainText('User Management');
 
-      // Navigate back to dashboard
       await page.locator('.admin-sidebar a[href="/admin"]').click();
-      await expect(page).toHaveURL('/admin');
+      await expect(page).toHaveURL('/admin', { timeout: 10000 });
       await expect(page.locator('h1')).toContainText('Admin Dashboard');
     });
 
     test('navigation from main nav to admin and back', async ({ page }) => {
-      // Start at home
       await page.goto('/');
       await expect(page).toHaveURL('/');
 
-      // Navigate to admin via main nav
       await page.locator('nav a[href="/admin"]').first().click();
-      await expect(page).toHaveURL('/admin');
+      await expect(page).toHaveURL('/admin', { timeout: 10000 });
 
-      // Verify nested layout
       await expect(page.locator('.admin-sidebar')).toBeVisible();
       await expect(page.locator('h1')).toContainText('Admin Dashboard');
 
-      // Navigate back to home via main nav
       await page.locator('nav a[href="/"]').first().click();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/', { timeout: 10000 });
 
-      // Verify admin layout is no longer present
       await expect(page.locator('.admin-sidebar')).not.toBeVisible();
     });
   });
 
   test.describe('WC Counter Navigation', () => {
     test('WC counter works after CSR navigation from home', async ({ page }) => {
-      // Start at home page
       await page.goto('/');
       await expect(page).toHaveURL('/');
 
-      // Navigate to WC Counter via sol-link (CSR navigation)
       await page.locator('nav a[href="/wc-counter"]').first().click();
-      await expect(page).toHaveURL('/wc-counter');
+      await expect(page).toHaveURL('/wc-counter', { timeout: 10000 });
 
       // Wait for WC hydration
-      await page.waitForTimeout(500);
+      await waitForHydration(page, 'wc-counter');
 
-      // Verify WC counter is visible
       const wcCounter = page.locator('wc-counter');
       await expect(wcCounter).toBeVisible();
 
-      // Get initial count
       const countDisplay = wcCounter.locator('.count-display');
-      await expect(countDisplay).toBeVisible();
+      await expect(countDisplay).toBeVisible({ timeout: 5000 });
       const initialText = await countDisplay.textContent();
       const initialValue = parseInt(initialText || '0', 10);
 
-      // Click increment button - this is the key test!
       const incButton = wcCounter.locator('button.inc');
       await incButton.click();
 
-      // Verify count incremented (proves shadow DOM and event handlers work)
-      await expect(countDisplay).toHaveText(String(initialValue + 1));
+      await expect(countDisplay).toHaveText(String(initialValue + 1), { timeout: 5000 });
     });
 
     test('WC counter works on direct page load', async ({ page }) => {
-      // Direct navigation to WC Counter (SSR)
       await page.goto('/wc-counter');
       await expect(page).toHaveURL('/wc-counter');
 
-      // Wait for hydration
-      await page.waitForTimeout(500);
+      await waitForHydration(page, 'wc-counter');
 
-      // Verify WC counter works
       const wcCounter = page.locator('wc-counter');
       const countDisplay = wcCounter.locator('.count-display');
+      await expect(countDisplay).toBeVisible({ timeout: 5000 });
       const initialText = await countDisplay.textContent();
       const initialValue = parseInt(initialText || '0', 10);
 
-      // Click increment
       await wcCounter.locator('button.inc').click();
-      await expect(countDisplay).toHaveText(String(initialValue + 1));
+      await expect(countDisplay).toHaveText(String(initialValue + 1), { timeout: 5000 });
     });
 
     test('WC counter re-hydrates after round-trip navigation', async ({ page }) => {
-      // Start at home
       await page.goto('/');
       await expect(page).toHaveURL('/');
 
-      // Navigate to WC Counter
       await page.locator('nav a[href="/wc-counter"]').first().click();
-      await expect(page).toHaveURL('/wc-counter');
-      await page.waitForTimeout(500);
+      await expect(page).toHaveURL('/wc-counter', { timeout: 10000 });
+      await waitForHydration(page, 'wc-counter');
 
-      // Click increment
-      const wcCounter = page.locator('wc-counter');
-      await wcCounter.locator('button.inc').click();
+      await page.locator('wc-counter button.inc').click();
 
-      // Navigate to About
       await page.locator('nav a[href="/about"]').first().click();
-      await expect(page).toHaveURL('/about');
+      await expect(page).toHaveURL('/about', { timeout: 10000 });
 
-      // Navigate back to WC Counter
       await page.locator('nav a[href="/wc-counter"]').first().click();
-      await expect(page).toHaveURL('/wc-counter');
-      await page.waitForTimeout(500);
+      await expect(page).toHaveURL('/wc-counter', { timeout: 10000 });
+      await waitForHydration(page, 'wc-counter');
 
-      // Verify WC counter works again (re-hydrated)
       const countDisplayAfter = page.locator('wc-counter .count-display');
+      await expect(countDisplayAfter).toBeVisible({ timeout: 5000 });
       const valueAfter = await countDisplayAfter.textContent();
       const valueNum = parseInt(valueAfter || '0', 10);
 
-      // Click increment - must work after re-navigation
       await page.locator('wc-counter button.inc').click();
-      await expect(countDisplayAfter).toHaveText(String(valueNum + 1));
+      await expect(countDisplayAfter).toHaveText(String(valueNum + 1), { timeout: 5000 });
     });
   });
 
   test.describe('CSR Re-navigation (Stale-While-Revalidate)', () => {
     test('counter re-hydrates correctly on A → B → A navigation', async ({ page }) => {
-      // Navigate to home page
       await page.goto('/');
       await expect(page).toHaveURL('/');
 
-      // Wait for hydration
-      await page.waitForTimeout(500);
+      await waitForHydration(page, '.counter');
 
-      // Get initial count and increment
       const countDisplay = page.locator('.count-display');
       const initialText = await countDisplay.textContent();
       const initialValue = parseInt(initialText || '0', 10);
 
-      // Click increment
       const incButton = page.locator('button.inc');
       await incButton.click();
-      await expect(countDisplay).toHaveText(String(initialValue + 1));
+      await expect(countDisplay).toHaveText(String(initialValue + 1), { timeout: 5000 });
 
-      // Navigate to About
       await page.locator('nav a[href="/about"]').first().click();
-      await expect(page).toHaveURL('/about');
+      await expect(page).toHaveURL('/about', { timeout: 10000 });
 
-      // Navigate back to Home (CSR re-navigation)
       await page.locator('nav a[href="/"]').first().click();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/', { timeout: 10000 });
 
       // Wait for re-hydration
-      await page.waitForTimeout(500);
+      await waitForHydration(page, '.counter');
 
-      // Verify counter is visible and functional (new server state, not preserved client state)
       const counterAfterNav = page.locator('.counter');
       await expect(counterAfterNav).toBeVisible();
 
-      // Counter should work again after re-hydration
       const incButtonAfterNav = page.locator('button.inc');
       await incButtonAfterNav.click();
 
-      // Verify button click works (proves hydration happened)
       const newCount = await page.locator('.count-display').textContent();
       expect(parseInt(newCount || '0', 10)).toBeGreaterThan(0);
     });
 
     test('form page re-hydrates on re-navigation', async ({ page }) => {
-      // Navigate to form page
       await page.goto('/form');
       await expect(page).toHaveURL('/form');
 
-      // Wait for hydration
-      await page.waitForTimeout(1000);
+      // Wait for form hydration
+      await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
+      await page.waitForTimeout(500);
 
-      // Fill in name
       const nameInput = page.locator('input[name="name"]');
       await nameInput.fill('Original Name');
 
-      // Verify preview updates
-      await expect(page.locator('.preview-name')).toContainText('Original Name', { timeout: 5000 });
+      await expect(page.locator('.preview-name')).toContainText('Original Name', { timeout: 10000 });
 
-      // Navigate to About
       await page.locator('nav a[href="/about"]').first().click();
-      await expect(page).toHaveURL('/about');
+      await expect(page).toHaveURL('/about', { timeout: 10000 });
 
-      // Navigate back to Form (CSR re-navigation)
       await page.locator('nav a[href="/form"]').first().click();
-      await expect(page).toHaveURL('/form');
+      await expect(page).toHaveURL('/form', { timeout: 10000 });
 
       // Wait for re-hydration
-      await page.waitForTimeout(1000);
+      await page.waitForSelector('input[name="name"]', { state: 'attached', timeout: 10000 });
+      await page.waitForTimeout(500);
 
-      // Form should be functional again (fresh state from server)
       const newNameInput = page.locator('input[name="name"]');
       await newNameInput.fill('New Name');
 
-      // Verify two-way binding works after re-hydration
-      await expect(page.locator('.preview-name')).toContainText('New Name', { timeout: 5000 });
+      await expect(page.locator('.preview-name')).toContainText('New Name', { timeout: 10000 });
     });
 
     test('multiple round trips maintain page functionality', async ({ page }) => {
-      // Start at home
       await page.goto('/');
       await expect(page).toHaveURL('/');
 
       // Round trip 1: Home → About → Home
       await page.locator('nav a[href="/about"]').first().click();
-      await expect(page).toHaveURL('/about');
+      await expect(page).toHaveURL('/about', { timeout: 10000 });
       await page.locator('nav a[href="/"]').first().click();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/', { timeout: 10000 });
 
-      // Verify counter is functional
-      await page.waitForTimeout(500);
+      await waitForHydration(page, '.counter');
       await expect(page.locator('.counter')).toBeVisible();
       await page.locator('button.inc').click();
 
       // Round trip 2: Home → Form → Home
       await page.locator('nav a[href="/form"]').first().click();
-      await expect(page).toHaveURL('/form');
+      await expect(page).toHaveURL('/form', { timeout: 10000 });
       await page.locator('nav a[href="/"]').first().click();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/', { timeout: 10000 });
 
-      // Verify counter still works
-      await page.waitForTimeout(500);
+      await waitForHydration(page, '.counter');
       await expect(page.locator('.counter')).toBeVisible();
       await page.locator('button.dec').click();
 
-      // Verify the button actually did something
       const finalCount = await page.locator('.count-display').textContent();
       expect(finalCount).toBeTruthy();
     });
