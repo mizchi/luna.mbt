@@ -1,6 +1,6 @@
 import {
   "mizchi/playwright" @pw,
-  "moonbitlang/async",
+  "moonbitlang/async" @async,
 }
 
 options(

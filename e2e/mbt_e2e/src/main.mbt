@@ -5,7 +5,25 @@
 
 let base = "http://localhost:3457"
 
+/// Per-test timeout (ms)
+let test_timeout = 15000
+
+/// Total suite timeout (ms)
+let suite_timeout = 120000
+
 async fn main {
+  // Global timeout: kill everything if suite hangs
+  match @async.with_timeout_opt(suite_timeout, run_suite) {
+    Some(_) => ()
+    None => {
+      println("\n✗ SUITE TIMEOUT (\{suite_timeout}ms) — aborting")
+      ffi_exit(2)
+    }
+  }
+}
+
+///|
+async fn run_suite() -> Unit {
   let browser = @pw.chromium().launch(headless=true)
   println("Browser: \{browser.version()}")
   let passed = Ref::new(0)
@@ -60,9 +78,17 @@ async fn run(
   errors : Array[String],
 ) -> Unit {
   try {
-    f(b)
-    println("  ✓ \{name}")
-    passed.val += 1
+    match @async.with_timeout_opt(test_timeout, async fn() { f(b) }) {
+      Some(_) => {
+        println("  ✓ \{name}")
+        passed.val += 1
+      }
+      None => {
+        println("  ✗ \{name}: TIMEOUT (\{test_timeout}ms)")
+        failed.val += 1
+        errors.push("\{name}: TIMEOUT (\{test_timeout}ms)")
+      }
+    }
   } catch {
     e => {
       println("  ✗ \{name}: \{e}")
