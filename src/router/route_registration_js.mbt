@@ -3,6 +3,7 @@
 ///|
 /// Register routes from Routes definition to Hono app
 /// Uses a resolver function to map component IDs to render functions
+/// @deprecated Use register_sol_routes instead
 pub fn[E] register_routes(
   app : App,
   routes : Array[@routes.Routes],
@@ -149,6 +150,7 @@ pub type AsyncPageResolver = (String, Ctx, RouteParams) -> @server_dom.ServerNod
 ///|
 /// Register routes with async server component support
 /// Uses ServerNode which supports both sync and async server components
+/// @deprecated Use register_sol_routes instead
 pub fn register_server_routes(
   app : App,
   routes : Array[@routes.Routes],

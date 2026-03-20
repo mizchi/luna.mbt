@@ -345,6 +345,15 @@ fn has_query_string(path : String) -> Bool {
 }
 
 ///|
+/// Extract parameter names from a route path pattern for use with Mars/Hono param().
+/// Handles colon params (`:id`, `:version{[0-9]+}`), bracket params (`[id]`),
+/// catch-all params (`[...slug]`), and optional catch-all params (`[[...slug]]`).
+/// Deduplicates names and strips regex suffixes from colon params.
+///
+/// Note: This is distinct from `extract_param_names` in `sol_routes.mbt`, which
+/// excludes catch-all params and does not handle regex suffixes. Use this function
+/// when registering legacy routes via Mars/Hono; use `extract_param_names` for
+/// the newer SolRoutes compilation pipeline.
 fn extract_route_param_names(path : String) -> Array[String] {
   let names : Array[String] = []
   for segment_view in path.split("/") {
