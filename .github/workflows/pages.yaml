@@ -49,21 +49,17 @@ jobs:
           cp -r ../markdown.mbt/src/* .mooncakes/mizchi/markdown/src/
       - name: Build CLI
         run: moon build --target js --release src/cli
-      - name: Build docs
-        run: node _build/js/release/build/cli/cli.js build
-      - name: Rewrite paths for GitHub Pages subpath
+      - name: Patch base path for GitHub Pages
         run: |
-          cd website/dist-docs
-          # Rewrite href="/..." to href="/sol.mbt/..." in all HTML files
-          find . -name "*.html" -exec sed -i 's|href="/|href="/sol.mbt/|g' {} +
-          find . -name "*.html" -exec sed -i 's|src="/|src="/sol.mbt/|g' {} +
-          # Fix double-rewrite of already-correct paths
-          find . -name "*.html" -exec sed -i 's|/sol.mbt//sol.mbt/|/sol.mbt/|g' {} +
-          # Fix modulepreload/prefetch links
-          find . -name "*.html" -exec sed -i 's|href="/sol.mbt/sol.mbt/|href="/sol.mbt/|g' {} +
-          # Verify
-          grep -c 'href="/' index.html || true
-          grep 'href="/sol.mbt/' index.html | head -3
+          cd website
+          node -e "
+            const fs = require('fs');
+            const c = JSON.parse(fs.readFileSync('sol.config.json', 'utf8'));
+            c.base = '/sol.mbt/';
+            fs.writeFileSync('sol.config.json', JSON.stringify(c, null, 2));
+          "
+      - name: Build docs
+        run: node _build/js/release/build/cli/cli.js build --force
       - name: Smoke test
         run: |
           test -f website/dist-docs/index.html

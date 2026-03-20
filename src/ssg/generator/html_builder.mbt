@@ -86,7 +86,7 @@ fn build_blog_layout(
   let tags_section = if not(all_tags.is_empty()) {
     h("aside", [attr("class", "blog-tags-section")], [
       h("h3", [], [@luna.text("Tags")]),
-      @components.build_tag_list(all_tags),
+      @components.build_tag_list(ctx, all_tags),
     ])
   } else {
     @luna.fragment([])
@@ -154,7 +154,7 @@ fn build_blog_post_layout(
 
   // Tags
   if not(frontmatter.tags.is_empty()) {
-    header_children.push(@components.build_tag_list(frontmatter.tags))
+    header_children.push(@components.build_tag_list(ctx, frontmatter.tags))
   }
   let header = h("header", [attr("class", "post-header")], header_children)
 
@@ -286,7 +286,7 @@ fn build_html_document(
   }
 
   // Prefetch prev/next pages
-  write_prefetch_tags(html, ctx.pages, page.url_path)
+  write_prefetch_tags(html, ctx.pages, page.url_path, base)
 
   // === HEAD: Critical inline scripts ===
   // Theme script (runs early to prevent flash of unstyled content)
@@ -344,7 +344,65 @@ fn build_html_document(
     }
   }
   html.write_string("</body>\n</html>")
-  html.to_string()
+  let result = html.to_string()
+  // Post-process: rewrite remaining bare absolute paths in content HTML
+  if base != "/" {
+    rewrite_content_links(result, base)
+  } else {
+    result
+  }
+}
+
+///|
+/// Rewrite absolute href/src links in HTML content to include base_url prefix.
+/// Handles: href="/path" → href="/base/path", src="/path" → src="/base/path"
+/// Skips external URLs, anchors, and already-prefixed paths.
+fn rewrite_content_links(html : String, base_url : String) -> String {
+  let base = if base_url.has_suffix("/") {
+    base_url.substring(end=base_url.length() - 1)
+  } else {
+    base_url
+  }
+  let href_bare = "href=\"/"
+  let href_based = "href=\"" + base + "/"
+  let src_bare = "src=\"/"
+  let src_based = "src=\"" + base + "/"
+  let chars = html.to_array()
+  let len = chars.length()
+  let buf = StringBuilder::new()
+  let mut i = 0
+  while i < len {
+    // Check for href="/ — skip if already base-prefixed
+    if i + href_based.length() <= len &&
+      html.substring(start=i, end=i + href_based.length()) == href_based {
+      // Already has base prefix — pass through
+      buf.write_string(href_based)
+      i = i + href_based.length()
+      continue
+    }
+    if i + href_bare.length() <= len &&
+      html.substring(start=i, end=i + href_bare.length()) == href_bare {
+      buf.write_string(href_based)
+      i = i + href_bare.length()
+      continue
+    }
+    // Check for src="/ — skip if already base-prefixed
+    if i + src_based.length() <= len &&
+      html.substring(start=i, end=i + src_based.length()) == src_based {
+      buf.write_string(src_based)
+      i = i + src_based.length()
+      continue
+    }
+    if i + src_bare.length() <= len &&
+      html.substring(start=i, end=i + src_bare.length()) == src_bare {
+      buf.write_string(src_based)
+      i = i + src_bare.length()
+      continue
+    }
+    buf.write_char(chars[i])
+    i = i + 1
+  }
+  buf.to_string()
 }
 
 ///|
@@ -353,12 +411,15 @@ fn write_prefetch_tags(
   html : StringBuilder,
   pages : Array[@ssg.PageMeta],
   current_path : String,
+  base_url : String,
 ) -> Unit {
   if @routes.find_prev_page(pages, current_path) is Some(link) {
-    html.write_string("  <link rel=\"prefetch\" href=\"\{link.link}\">\n")
+    let url = @ssg.resolve_base_url(base_url, link.link)
+    html.write_string("  <link rel=\"prefetch\" href=\"\{url}\">\n")
   }
   if @routes.find_next_page(pages, current_path) is Some(link) {
-    html.write_string("  <link rel=\"prefetch\" href=\"\{link.link}\">\n")
+    let url = @ssg.resolve_base_url(base_url, link.link)
+    html.write_string("  <link rel=\"prefetch\" href=\"\{url}\">\n")
   }
 }
 
@@ -573,4 +634,23 @@ fn extract_code_content(html : String) -> String? {
         }
       }
   }
+}
+
+///|
+test "rewrite_content_links replaces bare links" {
+  let html = "<a href=\"/intro/\">Intro</a><a href=\"/about/\">About</a>"
+  let result = rewrite_content_links(html, "/sol.mbt/")
+  assert_true!(result.contains("href=\"/sol.mbt/intro/\""))
+  assert_true!(result.contains("href=\"/sol.mbt/about/\""))
+}
+
+///|
+test "rewrite_content_links skips already-prefixed links" {
+  let html = "<a href=\"/sol.mbt/luna/\">Luna</a><a href=\"/intro/\">Intro</a>"
+  let result = rewrite_content_links(html, "/sol.mbt/")
+  // luna link should not be double-prefixed
+  assert_true!(result.contains("href=\"/sol.mbt/luna/\""))
+  assert_false!(result.contains("href=\"/sol.mbt/sol.mbt/"))
+  // intro link should be prefixed
+  assert_true!(result.contains("href=\"/sol.mbt/intro/\""))
 }

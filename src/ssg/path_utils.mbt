@@ -276,3 +276,41 @@ pub fn replace_filename(path : String, new_filename : String) -> String {
     None => new_filename
   }
 }
+
+///|
+/// Resolve a URL path with the site's base_url prefix.
+/// - Absolute paths starting with "/" get base_url prepended
+/// - External URLs (http://, https://) pass through unchanged
+/// - Anchor-only links (#...) pass through unchanged
+/// - base_url "/" is a no-op
+///
+/// Examples:
+///   resolve_base_url("/sol.mbt/", "/intro/") => "/sol.mbt/intro/"
+///   resolve_base_url("/", "/intro/") => "/intro/"
+///   resolve_base_url("/sol.mbt/", "https://example.com") => "https://example.com"
+///   resolve_base_url("/sol.mbt/", "#section") => "#section"
+pub fn resolve_base_url(base_url : String, path : String) -> String {
+  // No-op for root base
+  if base_url == "/" || base_url.is_empty() {
+    return path
+  }
+  // Pass through external URLs and anchors
+  if path.has_prefix("http://") ||
+    path.has_prefix("https://") ||
+    path.has_prefix("#") ||
+    path.has_prefix("mailto:") {
+    return path
+  }
+  // Prefix absolute paths
+  if path.has_prefix("/") {
+    // Ensure no double slashes: base="/sol.mbt/" + path="/intro/" => "/sol.mbt/intro/"
+    let base_trimmed = if base_url.has_suffix("/") {
+      base_url.substring(end=base_url.length() - 1)
+    } else {
+      base_url
+    }
+    return base_trimmed + path
+  }
+  // Relative paths pass through
+  path
+}

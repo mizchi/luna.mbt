@@ -36,7 +36,7 @@ pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
         // Legacy behavior: use links, message, copyright directly
         // Render link columns if present
         if not(footer_config.links.is_empty()) {
-          children.push(build_footer_columns(footer_config.links))
+          children.push(build_footer_columns(ctx, footer_config.links))
         }
 
         // Bottom section with message and copyright
@@ -85,7 +85,7 @@ fn render_footer_element(
   footer_config : @ssg.FooterConfig,
 ) -> @luna.Node[Unit, String] {
   match element {
-    @ssg.FooterElement::Columns => build_footer_columns(footer_config.links)
+    @ssg.FooterElement::Columns => build_footer_columns(ctx, footer_config.links)
     @ssg.FooterElement::Message =>
       match footer_config.message {
         Some(msg) =>
@@ -107,6 +107,7 @@ fn render_footer_element(
 ///|
 /// Build footer columns (link groups)
 fn build_footer_columns(
+  ctx : @ssg.BuildContext,
   columns : Array[@ssg.FooterColumn],
 ) -> @luna.Node[Unit, String] {
   if columns.is_empty() {
@@ -115,9 +116,11 @@ fn build_footer_columns(
   let column_nodes = columns.map(fn(col) {
     let links = col.items.map(fn(link) {
       h("li", [], [
-        h("a", [attr("href", link.href), attr("class", "footer-link")], [
-          @luna.text(link.label),
-        ]),
+        h(
+          "a",
+          [attr("href", ctx.url(link.href)), attr("class", "footer-link")],
+          [@luna.text(link.label)],
+        ),
       ])
     })
     h("div", [attr("class", "footer-column")], [

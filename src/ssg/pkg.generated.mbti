@@ -54,6 +54,8 @@ pub fn parse_ssg_from_sol_config(String) -> SsgConfig?
 
 pub fn replace_filename(String, String) -> String
 
+pub fn resolve_base_url(String, String) -> String
+
 pub fn strip_locale_from_url(String, I18nConfig) -> (String, String)
 
 pub fn strip_numeric_prefixes(String) -> String
@@ -74,6 +76,7 @@ pub(all) struct BuildContext {
   is_dev : Bool
 }
 pub fn BuildContext::new(SsgConfig, String) -> Self
+pub fn BuildContext::url(Self, String) -> String
 
 pub(all) enum ContentType {
   Markdown

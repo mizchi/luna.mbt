@@ -24,6 +24,8 @@ pub(all) struct NavContext {
   next_page : @ssg.PageInfo?
   /// Current locale
   locale : String
+  /// Base URL for link resolution
+  base_url : String
 }
 
 ///|
@@ -51,6 +53,7 @@ pub fn NavContext::build(
   tree : @ssg.DocumentTree,
   current_url : String,
   locale? : String = "en",
+  base_url? : String = "/",
 ) -> NavContext {
   // Find current page
   let current_page = tree.get_page_by_url(current_url)
@@ -60,7 +63,7 @@ pub fn NavContext::build(
 
   // Find prev/next pages
   let (prev_page, next_page) = find_siblings(tree, current_url, locale)
-  { tree, current_page, breadcrumb_path, prev_page, next_page, locale }
+  { tree, current_page, breadcrumb_path, prev_page, next_page, locale, base_url }
 }
 
 ///|

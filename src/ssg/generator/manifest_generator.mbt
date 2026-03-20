@@ -208,13 +208,7 @@ pub fn generate_404_page(ctx : @ssg.BuildContext) -> Unit {
   let theme_script = @assets.get_theme_script()
 
   // Build 404 page content
-  let content =
-    #|<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 2rem;">
-    #|  <h1 style="font-size: 6rem; margin: 0; color: var(--text-muted);">404</h1>
-    #|  <h2 style="font-size: 1.5rem; margin: 1rem 0; color: var(--text-color);">Page Not Found</h2>
-    #|  <p style="color: var(--text-muted); margin-bottom: 2rem;">The page you're looking for doesn't exist or has been moved.</p>
-    #|  <a href="/" style="color: var(--primary-color); text-decoration: none; padding: 0.75rem 1.5rem; border: 1px solid var(--primary-color); border-radius: 0.5rem;">Go to Home</a>
-    #|</div>
+  let content = "<div style=\"display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 2rem;\">\n  <h1 style=\"font-size: 6rem; margin: 0; color: var(--text-muted);\">404</h1>\n  <h2 style=\"font-size: 1.5rem; margin: 1rem 0; color: var(--text-color);\">Page Not Found</h2>\n  <p style=\"color: var(--text-muted); margin-bottom: 2rem;\">The page you're looking for doesn't exist or has been moved.</p>\n  <a href=\"\{base}\" style=\"color: var(--primary-color); text-decoration: none; padding: 0.75rem 1.5rem; border: 1px solid var(--primary-color); border-radius: 0.5rem;\">Go to Home</a>\n</div>"
   let theme_style = if theme_vars.is_empty() {
     ""
   } else {

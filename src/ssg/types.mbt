@@ -641,3 +641,10 @@ pub(all) struct BuildContext {
 pub fn BuildContext::new(config : SsgConfig, cwd : String) -> BuildContext {
   { config, pages: [], sidebar: [], cwd, doc_tree: None, is_dev: false }
 }
+
+///|
+/// Resolve a URL with the site's base_url prefix.
+/// Use this for all internal link generation.
+pub fn BuildContext::url(self : BuildContext, path : String) -> String {
+  resolve_base_url(self.config.base_url, path)
+}

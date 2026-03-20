@@ -7,7 +7,10 @@
 
 ///|
 /// Blog post card for listings
-pub fn build_blog_post_card(page : @ssg.PageMeta) -> @luna.Node[Unit, String] {
+pub fn build_blog_post_card(
+  ctx : @ssg.BuildContext,
+  page : @ssg.PageMeta,
+) -> @luna.Node[Unit, String] {
   let fm = page.frontmatter
   let title = fm.title.unwrap_or("Untitled")
   let description = fm.description.unwrap_or("")
@@ -41,7 +44,7 @@ pub fn build_blog_post_card(page : @ssg.PageMeta) -> @luna.Node[Unit, String] {
   // Title
   body_children.push(
     h("h3", [attr("class", "blog-card-title")], [
-      h("a", [attr("href", page.url_path)], [@luna.text(title)]),
+      h("a", [attr("href", ctx.url(page.url_path))], [@luna.text(title)]),
     ]),
   )
 
@@ -54,7 +57,7 @@ pub fn build_blog_post_card(page : @ssg.PageMeta) -> @luna.Node[Unit, String] {
 
   // Tags
   if not(fm.tags.is_empty()) {
-    body_children.push(build_tag_list(fm.tags))
+    body_children.push(build_tag_list(ctx, fm.tags))
   }
   children.push(h("div", [attr("class", "blog-card-body")], body_children))
 
@@ -131,14 +134,19 @@ fn format_date(date : String) -> String {
 
 ///|
 /// Build tag list with links
-pub fn build_tag_list(tags : Array[String]) -> @luna.Node[Unit, String] {
+pub fn build_tag_list(
+  ctx : @ssg.BuildContext,
+  tags : Array[String],
+) -> @luna.Node[Unit, String] {
   if tags.is_empty() {
     return empty()
   }
   let tag_nodes = tags.map(fn(tag) {
-    h("a", [attr("href", "/tags/" + tag + "/"), attr("class", "tag")], [
-      @luna.text(tag),
-    ])
+    h(
+      "a",
+      [attr("href", ctx.url("/tags/" + tag + "/")), attr("class", "tag")],
+      [@luna.text(tag)],
+    )
   })
   h("div", [attr("class", "tag-list")], tag_nodes)
 }
@@ -185,7 +193,7 @@ pub fn build_blog_post_list(
   }
 
   // Build post cards
-  let cards = display_posts.map(fn(page) { build_blog_post_card(page) })
+  let cards = display_posts.map(fn(page) { build_blog_post_card(ctx, page) })
   h("div", [attr("class", "blog-post-list")], cards)
 }
 
@@ -255,6 +263,7 @@ pub fn get_posts_by_tag(
 ///|
 /// Build blog hero section for home/landing pages
 pub fn build_blog_hero(
+  ctx : @ssg.BuildContext,
   title : String,
   subtitle : String?,
   cta_text : String?,
@@ -274,7 +283,7 @@ pub fn build_blog_hero(
   match (cta_text, cta_link) {
     (Some(text), Some(link)) =>
       children.push(
-        h("a", [attr("href", link), attr("class", "hero-cta")], [
+        h("a", [attr("href", ctx.url(link)), attr("class", "hero-cta")], [
           @luna.text(text),
         ]),
       )
@@ -287,12 +296,15 @@ pub fn build_blog_hero(
 
 ///|
 /// Build hero from page frontmatter
-pub fn build_hero_from_page(page : @ssg.PageMeta) -> @luna.Node[Unit, String] {
+pub fn build_hero_from_page(
+  ctx : @ssg.BuildContext,
+  page : @ssg.PageMeta,
+) -> @luna.Node[Unit, String] {
   let fm = page.frontmatter
   let title = fm.title.unwrap_or("Welcome")
   let subtitle = fm.description
   // Default CTA for home pages
-  build_blog_hero(title, subtitle, Some("Read Blog"), Some("/blog/"))
+  build_blog_hero(ctx, title, subtitle, Some("Read Blog"), Some("/blog/"))
 }
 
 // =============================================================================
@@ -315,7 +327,7 @@ pub fn build_featured_posts(
   } else {
     posts
   }
-  let cards = display_posts.map(fn(page) { build_blog_post_card(page) })
+  let cards = display_posts.map(fn(page) { build_blog_post_card(ctx, page) })
   h("section", [attr("class", "featured-posts")], [
     h("h2", [attr("class", "featured-posts-title")], [
       @luna.text("Featured Posts"),

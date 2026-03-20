@@ -112,7 +112,7 @@ fn build_nav_links(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
   if ctx.config.nav.is_empty() {
     return empty()
   }
-  let nav_items = ctx.config.nav.map(item => build_nav_item(item))
+  let nav_items = ctx.config.nav.map(item => build_nav_item(ctx, item))
   h("nav", [attr("class", "nav-links")], nav_items)
 }
 
@@ -205,7 +205,10 @@ fn build_nav_icon(icon : String) -> @luna.Node[Unit, String] {
 
 ///|
 /// Build single nav item
-pub fn build_nav_item(item : @ssg.NavItem) -> @luna.Node[Unit, String] {
+pub fn build_nav_item(
+  ctx : @ssg.BuildContext,
+  item : @ssg.NavItem,
+) -> @luna.Node[Unit, String] {
   if item.items.is_empty() {
     // Simple link with optional icon
     let children : Array[@luna.Node[Unit, String]] = []
@@ -214,11 +217,11 @@ pub fn build_nav_item(item : @ssg.NavItem) -> @luna.Node[Unit, String] {
       None => ()
     }
     children.push(@luna.text(item.text))
-    h("a", [attr("href", item.link), attr("class", "nav-link")], children)
+    h("a", [attr("href", ctx.url(item.link)), attr("class", "nav-link")], children)
   } else {
     // Dropdown (simplified - actual dropdown needs JS)
     let dropdown_items = item.items.map(fn(sub) {
-      h("a", [attr("href", sub.link), attr("class", "nav-dropdown-item")], [
+      h("a", [attr("href", ctx.url(sub.link)), attr("class", "nav-dropdown-item")], [
         @luna.text(sub.text),
       ])
     })
@@ -403,7 +406,7 @@ pub fn build_language_switcher(
       "lang-item"
     }
     items.push(
-      h("a", [attr("href", target_url), attr("class", class_name)], [
+      h("a", [attr("href", ctx.url(target_url)), attr("class", class_name)], [
         @luna.text(locale.label),
       ]),
     )

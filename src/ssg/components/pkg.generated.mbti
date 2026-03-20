@@ -12,9 +12,9 @@ pub fn all_component_types() -> Array[ComponentType]
 
 pub fn attr(String, String) -> (String, @core.Attr[Unit, String])
 
-pub fn build_blog_hero(String, String?, String?, String?) -> @core.Node[Unit, String]
+pub fn build_blog_hero(@ssg.BuildContext, String, String?, String?, String?) -> @core.Node[Unit, String]
 
-pub fn build_blog_post_card(@ssg.PageMeta) -> @core.Node[Unit, String]
+pub fn build_blog_post_card(@ssg.BuildContext, @ssg.PageMeta) -> @core.Node[Unit, String]
 
 pub fn build_blog_post_list(@ssg.BuildContext, Int?, Bool) -> @core.Node[Unit, String]
 
@@ -24,13 +24,13 @@ pub fn build_featured_posts(@ssg.BuildContext, Int) -> @core.Node[Unit, String]
 
 pub fn build_footer(@ssg.BuildContext) -> @core.Node[Unit, String]
 
-pub fn build_hero_from_page(@ssg.PageMeta) -> @core.Node[Unit, String]
+pub fn build_hero_from_page(@ssg.BuildContext, @ssg.PageMeta) -> @core.Node[Unit, String]
 
 pub fn build_language_switcher(@ssg.BuildContext, @ssg.PageMeta) -> @core.Node[Unit, String]
 
 pub fn build_nav(@ssg.BuildContext, @ssg.PageMeta) -> @core.Node[Unit, String]
 
-pub fn build_nav_item(@ssg.NavItem) -> @core.Node[Unit, String]
+pub fn build_nav_item(@ssg.BuildContext, @ssg.NavItem) -> @core.Node[Unit, String]
 
 pub fn build_post_meta(String, String, Int?) -> @core.Node[Unit, String]
 
@@ -44,7 +44,7 @@ pub fn build_social_icon(String) -> @core.Node[Unit, String]
 
 pub fn build_social_links(Array[@ssg.SocialLink]) -> @core.Node[Unit, String]
 
-pub fn build_tag_list(Array[String]) -> @core.Node[Unit, String]
+pub fn build_tag_list(@ssg.BuildContext, Array[String]) -> @core.Node[Unit, String]
 
 pub fn build_tag_list_inline(Array[String]) -> @core.Node[Unit, String]
 
@@ -117,8 +117,9 @@ pub(all) struct NavContext {
   prev_page : @ssg.PageInfo?
   next_page : @ssg.PageInfo?
   locale : String
+  base_url : String
 }
-pub fn NavContext::build(@ssg.DocumentTree, String, locale? : String) -> Self
+pub fn NavContext::build(@ssg.DocumentTree, String, locale? : String, base_url? : String) -> Self
 
 pub(all) enum SidebarNode {
   Link(text~ : String, url~ : String, active~ : Bool)

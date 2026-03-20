@@ -10,22 +10,28 @@
 /// Render sidebar from NavContext
 pub fn render_sidebar(ctx : NavContext) -> @luna.Node[Unit, String] {
   let tree = build_sidebar_tree(ctx.tree, get_current_url(ctx), ctx.locale)
-  render_sidebar_nodes(tree)
+  render_sidebar_nodes(tree, ctx.base_url)
 }
 
 ///|
 /// Render sidebar nodes recursively
-fn render_sidebar_nodes(nodes : Array[SidebarNode]) -> @luna.Node[Unit, String] {
+fn render_sidebar_nodes(
+  nodes : Array[SidebarNode],
+  base_url : String,
+) -> @luna.Node[Unit, String] {
   if nodes.is_empty() {
     return empty()
   }
-  let items = nodes.map(fn(node) { render_sidebar_node(node) })
+  let items = nodes.map(fn(node) { render_sidebar_node(node, base_url) })
   h("ul", [attr("class", "sidebar-list")], items)
 }
 
 ///|
 /// Render single sidebar node
-fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit, String] {
+fn render_sidebar_node(
+  node : SidebarNode,
+  base_url : String,
+) -> @luna.Node[Unit, String] {
   match node {
     Link(text~, url~, active~) => {
       let class_name = if active {
@@ -34,9 +40,14 @@ fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit, String] {
         "sidebar-link"
       }
       h("li", [attr("class", "sidebar-item")], [
-        h("a", [attr("href", url), attr("class", class_name)], [
-          @luna.text(text),
-        ]),
+        h(
+          "a",
+          [
+            attr("href", @ssg.resolve_base_url(base_url, url)),
+            attr("class", class_name),
+          ],
+          [@luna.text(text)],
+        ),
       ])
     }
     Section(text~, url~, collapsed~, active~, children~) => {
@@ -52,7 +63,10 @@ fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit, String] {
           [
             h(
               "a",
-              [attr("href", link), attr("class", "sidebar-section-link")],
+              [
+                attr("href", @ssg.resolve_base_url(base_url, link)),
+                attr("class", "sidebar-section-link"),
+              ],
               [@luna.text(text)],
             ),
           ]
@@ -65,7 +79,7 @@ fn render_sidebar_node(node : SidebarNode) -> @luna.Node[Unit, String] {
       )
 
       // Children
-      let children_node = render_sidebar_nodes(children)
+      let children_node = render_sidebar_nodes(children, base_url)
 
       // Wrap in details/summary if collapsible
       if collapsed {
@@ -111,9 +125,14 @@ pub fn render_breadcrumb(ctx : NavContext) -> @luna.Node[Unit, String] {
       )
     } else {
       items.push(
-        h("a", [attr("href", url), attr("class", "breadcrumb-link")], [
-          @luna.text(title),
-        ]),
+        h(
+          "a",
+          [
+            attr("href", @ssg.resolve_base_url(ctx.base_url, url)),
+            attr("class", "breadcrumb-link"),
+          ],
+          [@luna.text(title)],
+        ),
       )
     }
   }
@@ -131,20 +150,34 @@ pub fn render_prev_next(ctx : NavContext) -> @luna.Node[Unit, String] {
   match ctx.prev_page {
     Some(page) =>
       children.push(
-        h("a", [attr("href", page.url_path), attr("class", "prev-link")], [
-          h("span", [attr("class", "label")], [@luna.text("Previous")]),
-          h("span", [attr("class", "title")], [@luna.text(page.title)]),
-        ]),
+        h(
+          "a",
+          [
+            attr("href", @ssg.resolve_base_url(ctx.base_url, page.url_path)),
+            attr("class", "prev-link"),
+          ],
+          [
+            h("span", [attr("class", "label")], [@luna.text("Previous")]),
+            h("span", [attr("class", "title")], [@luna.text(page.title)]),
+          ],
+        ),
       )
     None => ()
   }
   match ctx.next_page {
     Some(page) =>
       children.push(
-        h("a", [attr("href", page.url_path), attr("class", "next-link")], [
-          h("span", [attr("class", "label")], [@luna.text("Next")]),
-          h("span", [attr("class", "title")], [@luna.text(page.title)]),
-        ]),
+        h(
+          "a",
+          [
+            attr("href", @ssg.resolve_base_url(ctx.base_url, page.url_path)),
+            attr("class", "next-link"),
+          ],
+          [
+            h("span", [attr("class", "label")], [@luna.text("Next")]),
+            h("span", [attr("class", "title")], [@luna.text(page.title)]),
+          ],
+        ),
       )
     None => ()
   }

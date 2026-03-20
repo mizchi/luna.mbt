@@ -9,7 +9,12 @@ pub fn build_breadcrumb(
 ) -> @luna.Node[Unit, String] {
   match ctx.doc_tree {
     Some(tree) => {
-      let nav_ctx = NavContext::build(tree, page.url_path, locale=page.locale)
+      let nav_ctx = NavContext::build(
+        tree,
+        page.url_path,
+        locale=page.locale,
+        base_url=ctx.config.base_url,
+      )
       render_breadcrumb(nav_ctx)
     }
     None => empty()
@@ -24,7 +29,12 @@ pub fn build_prev_next(
 ) -> @luna.Node[Unit, String] {
   match ctx.doc_tree {
     Some(tree) => {
-      let nav_ctx = NavContext::build(tree, page.url_path, locale=page.locale)
+      let nav_ctx = NavContext::build(
+        tree,
+        page.url_path,
+        locale=page.locale,
+        base_url=ctx.config.base_url,
+      )
       render_prev_next(nav_ctx)
     }
     None => empty()
