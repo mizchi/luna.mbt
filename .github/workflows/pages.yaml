@@ -1,10 +1,13 @@
 name: GitHub Pages
 
 on:
-  workflow_run:
-    workflows: ["docs"]
-    types: [completed]
+  workflow_dispatch:
+  push:
     branches: [main]
+    paths:
+      - 'website/**'
+      - 'src/ssg/**'
+      - '.github/workflows/pages.yaml'
 
 permissions:
   contents: read
@@ -16,20 +19,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  build-and-deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download docs artifact from triggering workflow
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
         with:
-          name: docs-dist
-          path: website/dist-docs
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+      - name: Clone markdown.mbt
+        run: git clone --depth 1 https://github.com/mizchi/markdown.mbt ../markdown.mbt
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - run: |
+          pnpm install
+          moon update
+          moon install
+      - name: Sync markdown.mbt sources
+        run: |
+          cp ../markdown.mbt/moon.mod.json .mooncakes/mizchi/markdown/
+          cp -r ../markdown.mbt/src/* .mooncakes/mizchi/markdown/src/
+      - name: Build CLI
+        run: moon build --target js --release src/cli
+      - name: Build docs
+        run: node _build/js/release/build/cli/cli.js build
+      - name: Smoke test
+        run: |
+          test -f website/dist-docs/index.html
+          test -s website/dist-docs/index.html
       - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
