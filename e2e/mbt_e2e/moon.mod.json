@@ -2,7 +2,7 @@
   "name": "sol_e2e",
   "version": "0.1.0",
   "deps": {
-    "mizchi/playwright": { "path": "../../../playwright.mbt" },
+    "mizchi/playwright": "0.3.6",
     "moonbitlang/async": "0.16.6"
   },
   "source": "src",
