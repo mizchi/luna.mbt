@@ -11,7 +11,7 @@
 ///|
 /// Check if request has X-Sol-Fragment header
 /// Uses raw_header to access custom headers not in Mars's common headers list
-pub fn has_fragment_header(c : Ctx) -> Bool {
+fn has_fragment_header(c : Ctx) -> Bool {
   c.raw_header("X-Sol-Fragment") == Some("true")
 }
 

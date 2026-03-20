@@ -31,8 +31,6 @@ pub fn combine_page_factories(Array[PageHandlerFactory]) -> PageHandlerFactory
 
 pub fn compile_sol_routes(Array[SolRoutes], base? : String) -> Array[CompiledSolRoute]
 
-pub fn default_root_template() -> String
-
 pub fn error_response(String, status? : Int) -> ApiResponse
 
 pub fn extract_dynamic_patterns(Array[SolRoutes]) -> Array[String]
@@ -40,8 +38,6 @@ pub fn extract_dynamic_patterns(Array[SolRoutes]) -> Array[String]
 pub fn forbidden(message? : String) -> ApiResponse
 
 pub fn generate_wrangler_assets_config(Array[SolRoutes], String) -> String
-
-pub fn has_fragment_header(@mars.Context) -> Bool
 
 pub fn manifest_to_sol_routes(@mizchi/sol/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 

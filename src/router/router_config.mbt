@@ -182,7 +182,7 @@ pub struct RouterConfig {
 
 ///|
 /// Default root HTML template
-pub fn default_root_template() -> String {
+fn default_root_template() -> String {
   "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>__LUNA_TITLE__</title>__LUNA_PRELOAD____LUNA_HEAD__</head><body><div id=\"__sol__\">__LUNA_MAIN__</div></body></html>"
 }
 
