@@ -178,6 +178,9 @@ pub struct RouterConfig {
   /// Controls Cache-Control headers and CDN/app layer interaction.
   /// None = use AppIsr (default, backward compatible)
   cache_strategy : @isr.CDNCacheStrategy?
+  /// Server island registry for deferred server-side rendering
+  /// None = no server islands (default)
+  server_islands : ServerIslandRegistry?
 }
 
 ///|
@@ -202,6 +205,7 @@ pub fn RouterConfig::default() -> RouterConfig {
     root_template: default_root_template(),
     isr_cache: None,
     cache_strategy: None,
+    server_islands: None,
   }
 }
 
@@ -293,6 +297,15 @@ pub fn RouterConfig::with_cache_strategy(
   strategy : @isr.CDNCacheStrategy,
 ) -> RouterConfig {
   { ..self, cache_strategy: Some(strategy) }
+}
+
+///|
+/// Set server island registry for deferred rendering
+pub fn RouterConfig::with_server_islands(
+  self : RouterConfig,
+  registry : ServerIslandRegistry,
+) -> RouterConfig {
+  { ..self, server_islands: Some(registry) }
 }
 
 ///|

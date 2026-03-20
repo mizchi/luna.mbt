@@ -369,6 +369,14 @@ fn register_compiled_sol_routes(
   routes : Array[CompiledSolRoute],
   config : RouterConfig,
 ) -> Unit {
+  // Register server island defer endpoint if registry is configured
+  match config.server_islands {
+    Some(registry) =>
+      if not(registry.is_empty()) {
+        register_defer_endpoint(app, registry)
+      }
+    None => ()
+  }
   for route in routes {
     // Convert catch-all pattern to Hono wildcard pattern
     let hono_pattern = convert_to_hono_pattern(route.pattern, route.catch_all)

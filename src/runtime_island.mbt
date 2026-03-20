@@ -1,5 +1,9 @@
 // Runtime island helpers
 
+///|
+extern "js" fn encode_uri_component(value : String) -> String =
+  #| (value) => encodeURIComponent(value)
+
 // ============================================================================
 // Island Architecture Support
 // ============================================================================
@@ -197,6 +201,56 @@ pub fn[E] render_island_with_state_script(
 /// Generate state script tag for external state
 pub fn generate_state_script(id : String, json : String) -> String {
   @stella.generate_state_script(id, json)
+}
+
+// ============================================================================
+// Server Island VNode Support (deferred server-side rendering)
+// ============================================================================
+
+///|
+/// Create a Server Island VNode that renders a placeholder with `luna:defer` attribute.
+/// The client-side loader will fetch the actual content from `/_sol/defer/:id`.
+///
+/// Example:
+/// ```moonbit nocheck
+/// @sol.server_island(
+///   id="user-profile",
+///   props=Json::Object({ "userId": Json::String("123") }),
+///   fallback=div([text("Loading...")]),
+/// )
+/// ```
+pub fn[E] server_island(
+  id~ : String,
+  props~ : Json? = None,
+  fallback~ : @luna.Node[E, String] = @luna.text(""),
+  revalidate~ : Int? = None,
+) -> @luna.Node[E, String] {
+  // Build the defer URL with encoded props
+  let props_json = props.unwrap_or(().to_json())
+  let props_encoded = encode_uri_component(props_json.stringify())
+  let defer_url = "/_sol/defer/" + id + "?props=" + props_encoded
+  // Build attributes
+  let attrs : Array[(String, @luna.Attr[E, String])] = [
+    ("luna:defer", @luna.attr_static(defer_url)),
+  ]
+  // Add revalidate as data attribute for potential client-side use
+  match revalidate {
+    Some(seconds) =>
+      attrs.push(("data-revalidate", @luna.attr_static(seconds.to_string())))
+    None => ()
+  }
+  @luna.h("div", attrs, [fallback])
+}
+
+///|
+/// Create a Server Island VNode with typed props (convenience wrapper)
+pub fn[T : ToJson, E] server_island_typed(
+  id~ : String,
+  props~ : T,
+  fallback~ : @luna.Node[E, String] = @luna.text(""),
+  revalidate~ : Int? = None,
+) -> @luna.Node[E, String] {
+  server_island(id~, props=Some(props.to_json()), fallback~, revalidate~)
 }
 
 // ============================================================================

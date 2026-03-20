@@ -138,8 +138,25 @@
 	d.querySelectorAll("script[type=\"luna/json\"]").forEach((s) => {
 		if (s.id) S[s.id] = JSON.parse(s.textContent ?? "{}");
 	});
+	const scanDefer = () => {
+		d.querySelectorAll('[luna\\:defer]').forEach(el => {
+			const url = el.getAttribute('luna:defer');
+			if (!url) return;
+			el.removeAttribute('luna:defer');
+			fetch(url).then(r => r.ok ? r.text() : '').then(html => {
+				if (html) {
+					el.innerHTML = html;
+					scan();
+				}
+			}).catch(e => console.warn('[luna] defer fetch failed:', e));
+		});
+	};
 	onReady(scan);
-	observeAdditions((el) => el.hasAttribute("luna:url"), setup);
+	onReady(scanDefer);
+	observeAdditions((el) => el.hasAttribute("luna:url") || el.hasAttribute("luna:defer"), (el) => {
+		if (el.hasAttribute("luna:url")) setup(el);
+		if (el.hasAttribute("luna:defer")) scanDefer();
+	});
 	const w = window;
 	w.__LUNA_STATE__ = S;
 	w.__LUNA_HYDRATE__ = hydrate;
@@ -147,6 +164,7 @@
 	w.__LUNA_UNLOAD__ = unload;
 	w.__LUNA_CLEAR_LOADED__ = clear;
 	w.__LUNA_SET_ALLOWED_HOSTS__ = setAllowedHosts;
+	w.__LUNA_SCAN_DEFER__ = scanDefer;
 
 //#endregion
 })();
