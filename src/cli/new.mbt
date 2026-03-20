@@ -11,11 +11,13 @@ fn show_new_help() -> Unit {
     #|
     #|Options:
     #|  -u, --user <name>   User/organization namespace (required)
+    #|  --doc               Generate documentation site template
     #|  -d, --dev           Development mode (use local luna path)
     #|  -h, --help          Show help
     #|
     #|Examples:
     #|  sol new myapp --user mizchi         Create ./myapp with package mizchi/myapp
+    #|  sol new mydocs --user mizchi --doc  Create documentation site
     #|  sol new myapp --user mizchi --dev   Create with local luna dependency
   println(help)
 }
@@ -65,6 +67,7 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
     args~,
     options=[
       @util.String(key="user", short="u", multiple=false, default=None),
+      @util.Boolean(key="doc", short="D"),
       @util.Boolean(key="dev", short="d"),
       @util.Boolean(key="help", short="h"),
     ],
@@ -104,6 +107,11 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
   } else {
     false
   }
+  let doc_mode : Bool = if result.values.contains("doc") {
+    result.values["doc"].cast()
+  } else {
+    false
+  }
   let project_base = extract_project_basename(project_name)
   let package_name = "\{user_ns}/\{project_base}" // Full name for moon.mod.json
   // Calculate luna path for dev mode (based on project depth)
@@ -128,13 +136,19 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
     )
     @process.exit(1)
   }
+  let template_type = if doc_mode { "doc" } else { "app" }
   println(@colorette.cyan("Creating new Sol project: \{project_dir}"))
   println(@colorette.gray("  Package name: \{package_name}"))
+  println(@colorette.gray("  Template: \{template_type}"))
   if dev_mode {
     println(@colorette.gray("  Mode: development (local luna)"))
   }
   // Generate project from embedded templates
-  let templates = generate_templates(package_name, project_base, luna_path)
+  let templates = if doc_mode {
+    generate_doc_templates(package_name, project_base)
+  } else {
+    generate_templates(package_name, project_base, luna_path)
+  }
   for tmpl in templates {
     let file_path = @path.join2(project_dir, tmpl.path)
     let dir_path = @path.dirname(file_path)
