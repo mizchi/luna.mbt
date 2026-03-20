@@ -9,7 +9,7 @@ let base = "http://localhost:3457"
 let test_timeout = 15000
 
 /// Total suite timeout (ms)
-let suite_timeout = 180000
+let suite_timeout = 300000
 
 async fn main {
   // Global timeout: kill everything if suite hangs
@@ -51,40 +51,28 @@ async fn run_suite() -> Unit {
   run("no WC counter errors", (b) => { test_no_wc_errors(b) }, browser, passed, failed, errors)
 
   // === Interaction + fetch helpers ===
-  // NOTE: counter click skipped — module scripts don't execute in BiDi environment
-  //   so island hydration doesn't happen and click handlers aren't attached.
-  // run("counter click increments", (b) => { test_counter_click(b) }, browser, passed, failed, errors)
+  run("counter click increments", (b) => { test_counter_click(b) }, browser, passed, failed, errors)
   run("fetch_json API health", (b) => { test_fetch_json(b) }, browser, passed, failed, errors)
   run("fetch_json POST action", (b) => { test_fetch_post(b) }, browser, passed, failed, errors)
 
-  // === Navigation (replaces TS "navigation between all pages") ===
-  // NOTE: navigate all pages flaky — CSR navigation timing varies.
-  //   Covered by individual page tests (about, admin, form).
-  // run("navigate all pages", (b) => { test_navigate_all(b) }, browser, passed, failed, errors)
+  // === Navigation ===
+  run("navigate all pages", (b) => { test_navigate_all(b) }, browser, passed, failed, errors)
 
-  // === Admin layout (replaces TS admin tests) ===
+  // === Admin layout ===
   run("admin nested layout", (b) => { test_admin_layout(b) }, browser, passed, failed, errors)
   run("admin CSR navigation", (b) => { test_admin_csr_nav(b) }, browser, passed, failed, errors)
 
   // === WC Counter (shadow DOM) ===
   run("WC counter direct load", (b) => { test_wc_counter_direct(b) }, browser, passed, failed, errors)
 
-  // === Form (fill + two-way binding) ===
-  // NOTE: form fill tests skipped — locator.fill() triggers input+change events
-  //   Fixed: Page::fill_input uses script.evaluate with single-quote escaping.
-  // NOTE: form fill binding skipped — island hydration doesn't run in BiDi
-  //   (module scripts not executed), so input event handler isn't attached.
-  //   fill_input sets value correctly but signals don't update preview.
-  // run("form fill + two-way binding", (b) => { test_form_binding(b) }, browser, passed, failed, errors)
+  // === Form ===
+  run("form fill + two-way binding", (b) => { test_form_binding(b) }, browser, passed, failed, errors)
   run("form submit via fetch", (b) => { test_form_submit(b) }, browser, passed, failed, errors)
-  // NOTE: form re-hydration skipped — same module script limitation
-  // run("form re-hydration", (b) => { test_form_rehydration(b) }, browser, passed, failed, errors)
+  run("form re-hydration", (b) => { test_form_rehydration(b) }, browser, passed, failed, errors)
 
-  // === Re-hydration (counter works) ===
+  // === Re-hydration ===
   run("counter A→B→A re-hydration", (b) => { test_counter_rehydration(b) }, browser, passed, failed, errors)
-  // NOTE: multiple round trips skipped — count-display textContent is empty after
-  //   repeated CSR navigation + evaluate. Needs investigation of BiDi evaluate timing.
-  // run("multiple round trips", (b) => { test_round_trips(b) }, browser, passed, failed, errors)
+  run("multiple round trips", (b) => { test_round_trips(b) }, browser, passed, failed, errors)
 
   // === Parallel safety ===
   run("parallel: home", (b) => { test_home_ssr(b) }, browser, passed, failed, errors)
@@ -279,7 +267,7 @@ async fn test_no_hydration_errors(browser : @pw.Browser, path : String) -> Unit 
   let page = browser.new_page()
   let _ = page.goto("\{base}\{path}")
   // Wait for hydration to complete
-  page.wait_for_timeout(3000)
+  page.ensure_hydration()
   // Check console errors for hydration failures
   let errors = page.console_errors()
   let hydration_errors = errors.filter(fn(m) {
@@ -293,7 +281,7 @@ async fn test_no_hydration_errors(browser : @pw.Browser, path : String) -> Unit 
 async fn test_no_wc_errors(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  page.wait_for_timeout(3000)
+  page.ensure_hydration()
   let errors = page.console_errors()
   let wc_errors = errors.filter(fn(m) {
     m.text.contains("WcCounterProps") || m.text.contains("wc_counter")
@@ -310,7 +298,7 @@ async fn test_no_wc_errors(browser : @pw.Browser) -> Unit {
 async fn test_counter_click(browser : @pw.Browser) -> Unit {
   let page = browser.new_page()
   let _ = page.goto("\{base}/")
-  page.wait_for_timeout(2000)
+  page.ensure_hydration()
   let initial = page.evaluate(
     "() => parseInt(document.querySelector('.count-display')?.textContent || '0')",
   )
