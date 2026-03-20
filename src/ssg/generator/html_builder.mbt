@@ -257,11 +257,6 @@ fn build_html_document(
   )
   html.write_string("  <title>\{page_title}</title>\n")
 
-  // Base URL for resolving relative links (important for subpath deployments like GitHub Pages)
-  if base != "/" {
-    html.write_string("  <base href=\"\{base}\">\n")
-  }
-
   // Description meta tag
   if not(desc.is_empty()) {
     html.write_string("  <meta name=\"description\" content=\"\{desc}\">\n")
