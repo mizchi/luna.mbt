@@ -12,7 +12,7 @@ fn format_title(
   } else if title_prefix.is_empty() {
     title
   } else {
-    title_prefix + " - " + title
+    "\{title_prefix} - \{title}"
   }
 }
 
@@ -23,25 +23,28 @@ fn collect_preload_urls(
   island_urls : Array[String],
   chunk_manifest : ChunkManifest?,
 ) -> Array[String] {
-  let all_urls = preload_libs.copy()
-  // Add chunk dependencies for each island URL (if manifest provided)
+  let seen : @hashset.T[String] = @hashset.new()
+  let all_urls : Array[String] = []
+  let add = fn(url : String) {
+    if not(seen.contains(url)) {
+      seen.insert(url)
+      all_urls.push(url)
+    }
+  }
+  for u in preload_libs {
+    add(u)
+  }
   match chunk_manifest {
     Some(manifest) =>
       for url in island_urls {
-        let chunks = manifest.get_chunks(url)
-        for chunk in chunks {
-          if not(all_urls.contains(chunk)) {
-            all_urls.push(chunk)
-          }
+        for chunk in manifest.get_chunks(url) {
+          add(chunk)
         }
       }
     None => ()
   }
-  // Add island entry URLs
   for url in island_urls {
-    if not(all_urls.contains(url)) {
-      all_urls.push(url)
-    }
+    add(url)
   }
   all_urls
 }
@@ -58,29 +61,21 @@ fn[E] render_page_html(
   preload_libs? : Array[String] = [],
   chunk_manifest? : ChunkManifest? = None,
 ) -> String {
-  let (body_html, preload_tags) = if hydration {
-    let result = @render.render_to_string(node, preload=enable_preload)
-    let tags = if enable_preload {
-      let all_urls = collect_preload_urls(
-        preload_libs, result.preload_urls, chunk_manifest,
-      )
-      @render.generate_preload_tags(all_urls)
-    } else {
-      ""
-    }
-    let html = @render.render_to_string_with_hydration(node)
-    (html, tags)
+  // Collect preload URLs from initial render (shared for both paths)
+  let result = @render.render_to_string(node, preload=enable_preload)
+  let preload_tags = if enable_preload {
+    let all_urls = collect_preload_urls(
+      preload_libs, result.preload_urls, chunk_manifest,
+    )
+    @render.generate_preload_tags(all_urls)
   } else {
-    let result = @render.render_to_string(node, preload=enable_preload)
-    let tags = if enable_preload {
-      let all_urls = collect_preload_urls(
-        preload_libs, result.preload_urls, chunk_manifest,
-      )
-      @render.generate_preload_tags(all_urls)
-    } else {
-      ""
-    }
-    (result.html, tags)
+    ""
+  }
+  // Hydration path adds markers; non-hydration uses the already-rendered HTML
+  let body_html = if hydration {
+    @render.render_to_string_with_hydration(node)
+  } else {
+    result.html
   }
   let full_head = @hot_reload.with_dev_head_script(head)
   @page_shell.render_template(

@@ -318,11 +318,6 @@ fn strip_query_string(path : String) -> String {
 }
 
 ///|
-fn has_query_string(path : String) -> Bool {
-  path.find("?") is Some(_)
-}
-
-///|
 /// Extract parameter names from a route path pattern for use with Mars/Hono param().
 /// Handles colon params (`:id`, `:version{[0-9]+}`), bracket params (`[id]`),
 /// catch-all params (`[...slug]`), and optional catch-all params (`[[...slug]]`).

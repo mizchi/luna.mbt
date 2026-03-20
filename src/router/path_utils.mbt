@@ -6,25 +6,25 @@ fn normalize_path(path : String) -> String {
   if path == "" || path == "/" {
     return "/"
   }
-  let result = StringBuilder::new()
+  let buf = StringBuilder::new()
   let mut prev_slash = false
   for c in path {
     if c == '/' {
       if not(prev_slash) {
-        result.write_char(c)
+        buf.write_char(c)
       }
       prev_slash = true
     } else {
-      result.write_char(c)
+      buf.write_char(c)
       prev_slash = false
     }
   }
-  // Remove trailing slash (except for root)
-  let s = result.to_string()
-  if s.length() > 1 && s.has_suffix("/") {
-    s[0:s.length() - 1].to_string()
+  // Remove trailing slash by truncating the builder (avoid extra allocation)
+  if prev_slash && buf.to_string().length() > 1 {
+    let s = buf.to_string()
+    s.substring(end=s.length() - 1)
   } else {
-    s
+    buf.to_string()
   }
 }
 

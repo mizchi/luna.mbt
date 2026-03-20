@@ -182,11 +182,7 @@ pub fn csrf_with_config(config : CsrfConfig) -> Middleware {
       // Validate CSRF
       match validate_csrf(ctx, config) {
         Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
-        Invalid(error) => {
-          // Log error internally (don't expose details to client)
-          let _ = error.to_string()
-          ctx.text(config.error_message, status=403)
-        }
+        Invalid(_) => ctx.text(config.error_message, status=403)
       }
     }),
   )
@@ -334,12 +330,6 @@ pub fn extract_origin_from_url(url : String) -> String? {
 }
 
 ///|
-/// Validate Fetch Metadata headers (delegates to pure function)
-fn validate_fetch_metadata(ctx : Ctx) -> CsrfResult {
-  validate_fetch_metadata_pure(ctx.header("Sec-Fetch-Site"))
-}
-
-///|
 /// Pure Fetch Metadata validation — testable without Ctx
 fn validate_fetch_metadata_pure(sec_fetch_site : String?) -> CsrfResult {
   match sec_fetch_site {
@@ -348,12 +338,6 @@ fn validate_fetch_metadata_pure(sec_fetch_site : String?) -> CsrfResult {
     None => Valid
     Some(_) => Valid
   }
-}
-
-///|
-/// Validate Content-Type header (delegates to pure function)
-fn validate_content_type(ctx : Ctx, expected : String) -> CsrfResult {
-  validate_content_type_pure(ctx.header("Content-Type"), expected)
 }
 
 ///|
@@ -417,7 +401,7 @@ pub fn fetch_metadata() -> Middleware {
       if is_safe_method(ctx.meth().to_string()) {
         return // Continue
       }
-      match validate_fetch_metadata(ctx) {
+      match validate_fetch_metadata_pure(ctx.header("Sec-Fetch-Site")) {
         Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
         Invalid(_) => ctx.text("Forbidden", status=403)
       }
@@ -438,7 +422,7 @@ pub fn require_content_type(content_type : String) -> Middleware {
       if is_safe_method(ctx.meth().to_string()) {
         return // Continue
       }
-      match validate_content_type(ctx, content_type) {
+      match validate_content_type_pure(ctx.header("Content-Type"), content_type) {
         Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
         Invalid(_) => ctx.text("Invalid Content-Type", status=400)
       }
