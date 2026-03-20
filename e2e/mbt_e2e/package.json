@@ -1,0 +1,8 @@
+{
+  "name": "sol-e2e-mbt",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "playwright-core": "^1.50.0"
+  }
+}
