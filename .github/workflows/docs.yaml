@@ -3,8 +3,6 @@ name: docs
 permissions:
   contents: read
   issues: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: docs-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref || github.run_id }}
@@ -703,27 +701,6 @@ jobs:
               `- stale_issue_count: ${staleTargets.length}`,
               `- stale_issue_numbers: ${staleIssueNumbers || "(none)"}`,
             ]);
-
-  # GitHub Pages deployment (parallel with Cloudflare)
-  deploy-github-pages:
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_ref == '') }}
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: docs-dist
-          path: website/dist-docs
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: website/dist-docs
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
 
   rollback-production:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_ref != ''
