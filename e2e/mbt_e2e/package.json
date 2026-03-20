@@ -3,6 +3,10 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "playwright-core": "^1.50.0"
+    "chromium-bidi": "^14.0.0",
+    "ws": "^8.0.0",
+    "websocket": "^1.0.0",
+    "debug": "^4.0.0",
+    "@puppeteer/browsers": "^2.0.0"
   }
 }
