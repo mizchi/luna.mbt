@@ -706,7 +706,7 @@ jobs:
 
   # GitHub Pages deployment (parallel with Cloudflare)
   deploy-github-pages:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_ref == '')
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_ref == '') }}
     needs: build
     runs-on: ubuntu-latest
     environment:
