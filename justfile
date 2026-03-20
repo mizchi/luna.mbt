@@ -91,6 +91,10 @@ test-sol-app:
 test-sol-app-hydration:
     pnpm playwright test --config e2e/playwright-sol-app.config.mts
 
+# MoonBit Playwright E2E (requires sol_app server on :3457)
+test-mbt-e2e:
+    cd e2e/mbt_e2e && timeout 120 moon run src/ --target js
+
 # Docs consistency test
 test-docs:
     node --test docs/docs-index.test.js docs/docs-chapters.test.js docs/docs-build-paths.test.js docs/docs-ci.test.js
