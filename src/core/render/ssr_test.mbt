@@ -4,14 +4,14 @@
 
 ///|
 test "render simple text" {
-  let node : @luna.Node[Unit, String] = @luna.text("Hello, World!")
+  let node : @core.Node[Unit, String] = @core.text("Hello, World!")
   let html = render_to_string(node).html
   assert_eq(html, "Hello, World!")
 }
 
 ///|
 test "render escaped text" {
-  let node : @luna.Node[Unit, String] = @luna.text(
+  let node : @core.Node[Unit, String] = @core.text(
     "<script>alert('xss')</script>",
   )
   let html = render_to_string(node).html
@@ -20,23 +20,23 @@ test "render escaped text" {
 
 ///|
 test "render simple element" {
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [])
+  let node : @core.Node[Unit, String] = @core.h("div", [], [])
   let html = render_to_string(node).html
   assert_eq(html, "<div></div>")
 }
 
 ///|
 test "render element with text child" {
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [@luna.text("Hello")])
+  let node : @core.Node[Unit, String] = @core.h("div", [], [@core.text("Hello")])
   let html = render_to_string(node).html
   assert_eq(html, "<div>Hello</div>")
 }
 
 ///|
 test "render element with class" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("class", @luna.attr_static("container"))],
+    [("class", @core.attr_static("container"))],
     [],
   )
   let html = render_to_string(node).html
@@ -45,11 +45,11 @@ test "render element with class" {
 
 ///|
 test "render element with multiple attrs" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
     [
-      ("id", @luna.attr_static("main")),
-      ("class", @luna.attr_static("container")),
+      ("id", @core.attr_static("main")),
+      ("class", @core.attr_static("container")),
     ],
     [],
   )
@@ -59,8 +59,8 @@ test "render element with multiple attrs" {
 
 ///|
 test "render nested elements" {
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
-    @luna.h("span", [], [@luna.text("nested")]),
+  let node : @core.Node[Unit, String] = @core.h("div", [], [
+    @core.h("span", [], [@core.text("nested")]),
   ])
   let html = render_to_string(node).html
   assert_eq(html, "<div><span>nested</span></div>")
@@ -68,11 +68,11 @@ test "render nested elements" {
 
 ///|
 test "render void element" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "input",
     [
-      ("type", @luna.attr_static("text")),
-      ("placeholder", @luna.attr_static("Enter name")),
+      ("type", @core.attr_static("text")),
+      ("placeholder", @core.attr_static("Enter name")),
     ],
     [],
   )
@@ -82,9 +82,9 @@ test "render void element" {
 
 ///|
 test "render br and hr" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.h("br", [], []),
-    @luna.h("hr", [], []),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.h("br", [], []),
+    @core.h("hr", [], []),
   ])
   let html = render_to_string(node).html
   assert_eq(html, "<br /><hr />")
@@ -92,10 +92,10 @@ test "render br and hr" {
 
 ///|
 test "render fragment" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.text("A"),
-    @luna.text("B"),
-    @luna.text("C"),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.text("A"),
+    @core.text("B"),
+    @core.text("C"),
   ])
   let html = render_to_string(node).html
   assert_eq(html, "ABC")
@@ -104,7 +104,7 @@ test "render fragment" {
 ///|
 test "render dynamic text" {
   let count = 42
-  let node : @luna.Node[Unit, String] = @luna.text_dyn(fn() {
+  let node : @core.Node[Unit, String] = @core.text_dyn(fn() {
     "Count: " + count.to_string()
   })
   let html = render_to_string(node).html
@@ -114,12 +114,12 @@ test "render dynamic text" {
 ///|
 test "render dynamic attribute" {
   let active = true
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
     [
       (
         "class",
-        @luna.attr_dynamic(fn() { if active { "active" } else { "inactive" } }),
+        @core.attr_dynamic(fn() { if active { "active" } else { "inactive" } }),
       ),
     ],
     [],
@@ -130,9 +130,9 @@ test "render dynamic attribute" {
 
 ///|
 test "render style attribute" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("style", @luna.attr_style("color: red; font-size: 16px"))],
+    [("style", @core.attr_style("color: red; font-size: 16px"))],
     [],
   )
   let html = render_to_string(node).html
@@ -141,10 +141,10 @@ test "render style attribute" {
 
 ///|
 test "render disabled attribute true" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "button",
-    [("disabled", @luna.attr_static(""))],
-    [@luna.text("Submit")],
+    [("disabled", @core.attr_static(""))],
+    [@core.text("Submit")],
   )
   let html = render_to_string(node).html
   assert_eq(html, "<button disabled>Submit</button>")
@@ -152,8 +152,8 @@ test "render disabled attribute true" {
 
 ///|
 test "render disabled attribute false" {
-  let node : @luna.Node[Unit, String] = @luna.h("button", [], [
-    @luna.text("Submit"),
+  let node : @core.Node[Unit, String] = @core.h("button", [], [
+    @core.text("Submit"),
   ])
   let html = render_to_string(node).html
   assert_eq(html, "<button>Submit</button>")
@@ -162,8 +162,8 @@ test "render disabled attribute false" {
 ///|
 test "render show when true" {
   let visible = true
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
-    @luna.text("Visible!")
+  let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
+    @core.text("Visible!")
   })
   let html = render_to_string(node).html
   assert_eq(html, "Visible!")
@@ -172,8 +172,8 @@ test "render show when true" {
 ///|
 test "render show when false" {
   let visible = false
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
-    @luna.text("Visible!")
+  let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
+    @core.text("Visible!")
   })
   let html = render_to_string(node).html
   assert_eq(html, "<!--show-->")
@@ -182,8 +182,8 @@ test "render show when false" {
 ///|
 test "render for list" {
   let items = ["A", "B", "C"]
-  let node : @luna.Node[Unit, String] = @luna.for_each(fn() {
-    items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
+  let node : @core.Node[Unit, String] = @core.for_each(fn() {
+    items.map(fn(item) { @core.h("li", [], [@core.text(item)]) })
   })
   let html = render_to_string(node).html
   assert_eq(html, "<li>A</li><li>B</li><li>C</li>")
@@ -191,11 +191,11 @@ test "render for list" {
 
 ///|
 test "render component" {
-  fn greeting(name : String) -> @luna.Node[Unit, String] {
-    @luna.h("div", [], [@luna.text("Hello, " + name + "!")])
+  fn greeting(name : String) -> @core.Node[Unit, String] {
+    @core.h("div", [], [@core.text("Hello, " + name + "!")])
   }
 
-  let node : @luna.Node[Unit, String] = @luna.component(fn() {
+  let node : @core.Node[Unit, String] = @core.component(fn() {
     greeting("World")
   })
   let html = render_to_string(node).html
@@ -204,13 +204,13 @@ test "render component" {
 
 ///|
 test "handlers are not rendered" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "button",
     [
-      ("onClick", @luna.attr_handler(@luna.event_handler())),
-      ("class", @luna.attr_static("btn")),
+      ("onClick", @core.attr_handler(@core.event_handler())),
+      ("class", @core.attr_static("btn")),
     ],
-    [@luna.text("Click me")],
+    [@core.text("Click me")],
   )
   let html = render_to_string(node).html
   // Handler should not appear in output
@@ -219,9 +219,9 @@ test "handlers are not rendered" {
 
 ///|
 test "escape attribute value" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("data-value", @luna.attr_static("a\"b&c"))],
+    [("data-value", @core.attr_static("a\"b&c"))],
     [],
   )
   let html = render_to_string(node).html
@@ -231,7 +231,7 @@ test "escape attribute value" {
 ///|
 test "render with hydration markers for dynamic text" {
   let count = 5
-  let node : @luna.Node[Unit, String] = @luna.text_dyn(fn() {
+  let node : @core.Node[Unit, String] = @core.text_dyn(fn() {
     count.to_string()
   })
   let html = render_to_string_with_hydration(node)
@@ -240,10 +240,10 @@ test "render with hydration markers for dynamic text" {
 
 ///|
 test "render with hydration markers for element with handler" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "button",
-    [("onClick", @luna.attr_handler(@luna.event_handler()))],
-    [@luna.text("Click")],
+    [("onClick", @core.attr_handler(@core.event_handler()))],
+    [@core.text("Click")],
   )
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<button sol:hk=\"0\">Click</button>")
@@ -252,8 +252,8 @@ test "render with hydration markers for element with handler" {
 ///|
 test "render with hydration markers for show" {
   let visible = true
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
-    @luna.text("Content")
+  let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
+    @core.text("Content")
   })
   let html = render_to_string_with_hydration(node)
   assert_eq(html, "<!--s:0-->Content<!--/s-->")
@@ -261,8 +261,8 @@ test "render with hydration markers for show" {
 
 ///|
 test "render with hydration markers for list" {
-  let node : @luna.Node[Unit, String] = @luna.for_each(fn() {
-    [@luna.text("A"), @luna.text("B")]
+  let node : @core.Node[Unit, String] = @core.for_each(fn() {
+    [@core.text("A"), @core.text("B")]
   })
   let html = render_to_string_with_hydration(node)
   assert_eq(
@@ -275,24 +275,24 @@ test "complex page render" {
   let title = "My App"
   let count = 0
   let items = ["Item 1", "Item 2"]
-  let page : @luna.Node[Unit, String] = @luna.h(
+  let page : @core.Node[Unit, String] = @core.h(
     "div",
-    [("class", @luna.attr_static("app"))],
+    [("class", @core.attr_static("app"))],
     [
-      @luna.h("h1", [], [@luna.text(title)]),
-      @luna.h("p", [], [
-        @luna.text("Count: "),
-        @luna.text_dyn(fn() { count.to_string() }),
+      @core.h("h1", [], [@core.text(title)]),
+      @core.h("p", [], [
+        @core.text("Count: "),
+        @core.text_dyn(fn() { count.to_string() }),
       ]),
-      @luna.h("ul", [], [
-        @luna.for_each(fn() {
-          items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
+      @core.h("ul", [], [
+        @core.for_each(fn() {
+          items.map(fn(item) { @core.h("li", [], [@core.text(item)]) })
         }),
       ]),
-      @luna.h(
+      @core.h(
         "button",
-        [("onClick", @luna.attr_handler(@luna.event_handler()))],
-        [@luna.text("Increment")],
+        [("onClick", @core.attr_handler(@core.event_handler()))],
+        [@core.text("Increment")],
       ),
     ],
   )
@@ -309,23 +309,23 @@ test "complex page render" {
 
 ///|
 test "render text with ampersand" {
-  let node : @luna.Node[Unit, String] = @luna.text("Tom & Jerry")
+  let node : @core.Node[Unit, String] = @core.text("Tom & Jerry")
   let html = render_to_string(node).html
   assert_eq(html, "Tom &amp; Jerry")
 }
 
 ///|
 test "render text with double quote" {
-  let node : @luna.Node[Unit, String] = @luna.text("Say \"hello\"")
+  let node : @core.Node[Unit, String] = @core.text("Say \"hello\"")
   let html = render_to_string(node).html
   assert_eq(html, "Say &quot;hello&quot;")
 }
 
 ///|
 test "render void elements img" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "img",
-    [("src", @luna.attr_static("/image.png"))],
+    [("src", @core.attr_static("/image.png"))],
     [],
   )
   let html = render_to_string(node).html
@@ -334,9 +334,9 @@ test "render void elements img" {
 
 ///|
 test "render void element col" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "col",
-    [("span", @luna.attr_static("2"))],
+    [("span", @core.attr_static("2"))],
     [],
   )
   let html = render_to_string(node).html
@@ -345,16 +345,16 @@ test "render void element col" {
 
 ///|
 test "render void element wbr" {
-  let node : @luna.Node[Unit, String] = @luna.h("wbr", [], [])
+  let node : @core.Node[Unit, String] = @core.h("wbr", [], [])
   let html = render_to_string(node).html
   assert_eq(html, "<wbr />")
 }
 
 ///|
 test "render void element area" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "area",
-    [("shape", @luna.attr_static("rect"))],
+    [("shape", @core.attr_static("rect"))],
     [],
   )
   let html = render_to_string(node).html
@@ -363,9 +363,9 @@ test "render void element area" {
 
 ///|
 test "render void element base" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "base",
-    [("href", @luna.attr_static("/"))],
+    [("href", @core.attr_static("/"))],
     [],
   )
   let html = render_to_string(node).html
@@ -374,9 +374,9 @@ test "render void element base" {
 
 ///|
 test "render void element link" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "link",
-    [("rel", @luna.attr_static("stylesheet"))],
+    [("rel", @core.attr_static("stylesheet"))],
     [],
   )
   let html = render_to_string(node).html
@@ -385,9 +385,9 @@ test "render void element link" {
 
 ///|
 test "render void element meta" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "meta",
-    [("charset", @luna.attr_static("utf-8"))],
+    [("charset", @core.attr_static("utf-8"))],
     [],
   )
   let html = render_to_string(node).html
@@ -396,9 +396,9 @@ test "render void element meta" {
 
 ///|
 test "render void element embed" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "embed",
-    [("src", @luna.attr_static("/video.swf"))],
+    [("src", @core.attr_static("/video.swf"))],
     [],
   )
   let html = render_to_string(node).html
@@ -407,9 +407,9 @@ test "render void element embed" {
 
 ///|
 test "render void element track" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "track",
-    [("kind", @luna.attr_static("subtitles"))],
+    [("kind", @core.attr_static("subtitles"))],
     [],
   )
   let html = render_to_string(node).html
@@ -418,9 +418,9 @@ test "render void element track" {
 
 ///|
 test "render void element source" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "source",
-    [("src", @luna.attr_static("/audio.mp3"))],
+    [("src", @core.attr_static("/audio.mp3"))],
     [],
   )
   let html = render_to_string(node).html
@@ -430,8 +430,8 @@ test "render void element source" {
 ///|
 test "render non-void element with length 7" {
   // "section" has length 7, should not be void element
-  let node : @luna.Node[Unit, String] = @luna.h("section", [], [
-    @luna.text("content"),
+  let node : @core.Node[Unit, String] = @core.h("section", [], [
+    @core.text("content"),
   ])
   let html = render_to_string(node).html
   assert_eq(html, "<section>content</section>")
@@ -439,9 +439,9 @@ test "render non-void element with length 7" {
 
 ///|
 test "render dynamic style" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("style", @luna.attr_dynamic_style(fn() { "color: blue; margin: 10px" }))],
+    [("style", @core.attr_dynamic_style(fn() { "color: blue; margin: 10px" }))],
     [],
   )
   let html = render_to_string(node).html
@@ -450,9 +450,9 @@ test "render dynamic style" {
 
 ///|
 test "render empty dynamic style" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("style", @luna.attr_dynamic_style(fn() { "" }))],
+    [("style", @core.attr_dynamic_style(fn() { "" }))],
     [],
   )
   let html = render_to_string(node).html
@@ -466,12 +466,12 @@ test "render empty dynamic style" {
 
 ///|
 test "render island basic" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "counter-1",
     "/components/counter.js",
     "{\"count\":5}",
     [
-      @luna.h("span", [("data-count", @luna.attr_static(""))], [@luna.text("5")]),
+      @core.h("span", [("data-count", @core.attr_static(""))], [@core.text("5")]),
     ],
   )
   let html = render_to_string(node).html
@@ -493,11 +493,11 @@ test "render island basic" {
 
 ///|
 test "render island with idle trigger" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "lazy-1",
     "/components/lazy.js",
     "{}",
-    [@luna.text("Loading...")],
+    [@core.text("Loading...")],
     trigger=@core.Idle,
   )
   let html = render_to_string(node).html
@@ -507,11 +507,11 @@ test "render island with idle trigger" {
 
 ///|
 test "render island with visible trigger" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "lazy-2",
     "/components/lazy.js",
     "{}",
-    [@luna.text("Loading...")],
+    [@core.text("Loading...")],
     trigger=@core.Visible,
   )
   let html = render_to_string(node).html
@@ -521,11 +521,11 @@ test "render island with visible trigger" {
 
 ///|
 test "render island with media trigger" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "responsive-1",
     "/components/responsive.js",
     "{}",
-    [@luna.text("Content")],
+    [@core.text("Content")],
     trigger=@core.Media("(min-width: 768px)"),
   )
   let html = render_to_string(node).html
@@ -535,17 +535,17 @@ test "render island with media trigger" {
 
 ///|
 test "render nested islands" {
-  let inner_island : @luna.Node[Unit, String] = @luna.island(
+  let inner_island : @core.Node[Unit, String] = @core.island(
     "inner-1",
     "/components/inner.js",
     "{\"value\":42}",
-    [@luna.text("Inner")],
+    [@core.text("Inner")],
   )
-  let outer_island : @luna.Node[Unit, String] = @luna.island(
+  let outer_island : @core.Node[Unit, String] = @core.island(
     "outer-1",
     "/components/outer.js",
     "{}",
-    [@luna.h("div", [], [inner_island])],
+    [@core.h("div", [], [inner_island])],
   )
   let html = render_to_string(outer_island).html
   // Check both islands are present
@@ -560,11 +560,11 @@ test "render nested islands" {
 ///|
 test "render island state escaping" {
   // State with special characters that need escaping
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "escape-1",
     "/components/test.js",
     "{\"text\":\"<script>alert(1)</script>\"}",
-    [@luna.text("Safe")],
+    [@core.text("Safe")],
   )
   let html = render_to_string(node).html
   // Ensure < and > are NOT in the attribute value (they should be entity-escaped)
@@ -574,11 +574,11 @@ test "render island state escaping" {
 
 ///|
 test "render island escapes url and trigger attributes" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "escape-url-1",
     "/components/test.js\" data-x=\"1",
     "{}",
-    [@luna.text("Safe")],
+    [@core.text("Safe")],
     trigger=@core.Media("(min-width: \"768px\")"),
   )
   let html = render_to_string(node).html
@@ -594,11 +594,11 @@ test "render island escapes url and trigger attributes" {
 
 ///|
 test "render island comment escapes close token in url" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "escape-comment-1",
     "/components/test.js--><script>alert(1)</script>",
     "{}",
-    [@luna.text("Safe")],
+    [@core.text("Safe")],
   )
   let html = render_to_string(node).html
   assert_false(html.contains("url=/components/test.js--><script"))
@@ -607,22 +607,22 @@ test "render island comment escapes close token in url" {
 ///|
 test "render island with complex children" {
   let count = 3
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "complex-1",
     "/components/complex.js",
     "{\"items\":[\"a\",\"b\",\"c\"]}",
     [
-      @luna.h("h2", [], [@luna.text("Title")]),
-      @luna.h("ul", [], [
-        @luna.for_each(fn() {
-          let items : Array[@luna.Node[Unit, String]] = []
+      @core.h("h2", [], [@core.text("Title")]),
+      @core.h("ul", [], [
+        @core.for_each(fn() {
+          let items : Array[@core.Node[Unit, String]] = []
           for i in 0..<count {
-            items.push(@luna.h("li", [], [@luna.text("Item " + i.to_string())]))
+            items.push(@core.h("li", [], [@core.text("Item " + i.to_string())]))
           }
           items
         }),
       ]),
-      @luna.show(fn() { true }, fn() { @luna.text("Visible text") }),
+      @core.show(fn() { true }, fn() { @core.text("Visible text") }),
     ],
   )
   let html = render_to_string(node).html
@@ -635,11 +635,11 @@ test "render island with complex children" {
 
 ///|
 test "render island with hydration markers" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "hyd-1",
     "/components/counter.js",
     "{\"count\":10}",
-    [@luna.text_dyn(fn() { "10" })],
+    [@core.text_dyn(fn() { "10" })],
   )
   let html = render_to_string_with_hydration(node)
   // Should have island markers
@@ -761,9 +761,9 @@ test "needs_attr_escape" {
 
 ///|
 test "render_to_string with preload collects island urls" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("island-1", "/components/a.js", "{}", [@luna.text("A")]),
-    @luna.island("island-2", "/components/b.js", "{}", [@luna.text("B")]),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("island-1", "/components/a.js", "{}", [@core.text("A")]),
+    @core.island("island-2", "/components/b.js", "{}", [@core.text("B")]),
   ])
   let result = render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 2)
@@ -773,9 +773,9 @@ test "render_to_string with preload collects island urls" {
 
 ///|
 test "render_to_string with preload deduplicates urls" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("island-1", "/components/shared.js", "{}", [@luna.text("A")]),
-    @luna.island("island-2", "/components/shared.js", "{}", [@luna.text("B")]),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("island-1", "/components/shared.js", "{}", [@core.text("A")]),
+    @core.island("island-2", "/components/shared.js", "{}", [@core.text("B")]),
   ])
   let result = render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 1)
@@ -784,8 +784,8 @@ test "render_to_string with preload deduplicates urls" {
 
 ///|
 test "render_to_string with preload skips empty island url" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("island-empty", "", "{}", [@luna.text("A")]),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("island-empty", "", "{}", [@core.text("A")]),
   ])
   let result = render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 0)
@@ -817,14 +817,14 @@ test "generate_preload_tags escapes href attribute" {
 ///|
 test "preload with nested islands in div hierarchy" {
   // div > div > island structure
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("class", @luna.attr_static("outer"))],
+    [("class", @core.attr_static("outer"))],
     [
-      @luna.h("div", [("class", @luna.attr_static("middle"))], [
-        @luna.h("div", [("class", @luna.attr_static("inner"))], [
-          @luna.island("nested-island", "/components/nested.js", "{}", [
-            @luna.text("Nested"),
+      @core.h("div", [("class", @core.attr_static("middle"))], [
+        @core.h("div", [("class", @core.attr_static("inner"))], [
+          @core.island("nested-island", "/components/nested.js", "{}", [
+            @core.text("Nested"),
           ]),
         ]),
       ]),
@@ -840,21 +840,21 @@ test "preload with nested islands in div hierarchy" {
 ///|
 test "preload with multiple islands at different nesting levels" {
   // Islands at root, first level, and deeply nested
-  let node : @luna.Node[Unit, String] = @luna.fragment([
+  let node : @core.Node[Unit, String] = @core.fragment([
     // Root level island
-    @luna.island("root-island", "/components/root.js", "{}", [
-      @luna.text("Root"),
+    @core.island("root-island", "/components/root.js", "{}", [
+      @core.text("Root"),
     ]),
     // First level nesting
-    @luna.h("section", [], [
-      @luna.island("section-island", "/components/section.js", "{}", [
-        @luna.text("Section"),
+    @core.h("section", [], [
+      @core.island("section-island", "/components/section.js", "{}", [
+        @core.text("Section"),
       ]),
       // Deeply nested island
-      @luna.h("article", [], [
-        @luna.h("div", [], [
-          @luna.island("deep-island", "/components/deep.js", "{}", [
-            @luna.text("Deep"),
+      @core.h("article", [], [
+        @core.h("div", [], [
+          @core.island("deep-island", "/components/deep.js", "{}", [
+            @core.text("Deep"),
           ]),
         ]),
       ]),
@@ -870,9 +870,9 @@ test "preload with multiple islands at different nesting levels" {
 ///|
 test "preload with conditional show - visible branch" {
   let visible = true
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
-    @luna.island("conditional-island", "/components/conditional.js", "{}", [
-      @luna.text("Shown"),
+  let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
+    @core.island("conditional-island", "/components/conditional.js", "{}", [
+      @core.text("Shown"),
     ])
   })
   let result = render_to_string(node, preload=true)
@@ -884,9 +884,9 @@ test "preload with conditional show - visible branch" {
 ///|
 test "preload with conditional show - hidden branch" {
   let visible = false
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
-    @luna.island("conditional-island", "/components/conditional.js", "{}", [
-      @luna.text("Hidden"),
+  let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
+    @core.island("conditional-island", "/components/conditional.js", "{}", [
+      @core.text("Hidden"),
     ])
   })
   let result = render_to_string(node, preload=true)
@@ -899,15 +899,15 @@ test "preload with mixed visible and hidden islands" {
   let show_a = true
   let show_b = false
   let show_c = true
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.show(fn() { show_a }, fn() {
-      @luna.island("island-a", "/components/a.js", "{}", [@luna.text("A")])
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.show(fn() { show_a }, fn() {
+      @core.island("island-a", "/components/a.js", "{}", [@core.text("A")])
     }),
-    @luna.show(fn() { show_b }, fn() {
-      @luna.island("island-b", "/components/b.js", "{}", [@luna.text("B")])
+    @core.show(fn() { show_b }, fn() {
+      @core.island("island-b", "/components/b.js", "{}", [@core.text("B")])
     }),
-    @luna.show(fn() { show_c }, fn() {
-      @luna.island("island-c", "/components/c.js", "{}", [@luna.text("C")])
+    @core.show(fn() { show_c }, fn() {
+      @core.island("island-c", "/components/c.js", "{}", [@core.text("C")])
     }),
   ])
   let result = render_to_string(node, preload=true)
@@ -922,14 +922,14 @@ test "preload with mixed visible and hidden islands" {
 test "preload with nested conditionals" {
   let outer_visible = true
   let inner_visible = true
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { outer_visible }, fn() {
-    @luna.h("div", [], [
-      @luna.island("outer-island", "/components/outer.js", "{}", [
-        @luna.text("Outer"),
+  let node : @core.Node[Unit, String] = @core.show(fn() { outer_visible }, fn() {
+    @core.h("div", [], [
+      @core.island("outer-island", "/components/outer.js", "{}", [
+        @core.text("Outer"),
       ]),
-      @luna.show(fn() { inner_visible }, fn() {
-        @luna.island("inner-island", "/components/inner.js", "{}", [
-          @luna.text("Inner"),
+      @core.show(fn() { inner_visible }, fn() {
+        @core.island("inner-island", "/components/inner.js", "{}", [
+          @core.text("Inner"),
         ])
       }),
     ])
@@ -944,14 +944,14 @@ test "preload with nested conditionals" {
 test "preload with nested conditionals - inner hidden" {
   let outer_visible = true
   let inner_visible = false
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { outer_visible }, fn() {
-    @luna.h("div", [], [
-      @luna.island("outer-island", "/components/outer.js", "{}", [
-        @luna.text("Outer"),
+  let node : @core.Node[Unit, String] = @core.show(fn() { outer_visible }, fn() {
+    @core.h("div", [], [
+      @core.island("outer-island", "/components/outer.js", "{}", [
+        @core.text("Outer"),
       ]),
-      @luna.show(fn() { inner_visible }, fn() {
-        @luna.island("inner-island", "/components/inner.js", "{}", [
-          @luna.text("Inner"),
+      @core.show(fn() { inner_visible }, fn() {
+        @core.island("inner-island", "/components/inner.js", "{}", [
+          @core.text("Inner"),
         ])
       }),
     ])
@@ -967,14 +967,14 @@ test "preload with nested conditionals - inner hidden" {
 test "preload with nested conditionals - outer hidden" {
   let outer_visible = false
   let inner_visible = true
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { outer_visible }, fn() {
-    @luna.h("div", [], [
-      @luna.island("outer-island", "/components/outer.js", "{}", [
-        @luna.text("Outer"),
+  let node : @core.Node[Unit, String] = @core.show(fn() { outer_visible }, fn() {
+    @core.h("div", [], [
+      @core.island("outer-island", "/components/outer.js", "{}", [
+        @core.text("Outer"),
       ]),
-      @luna.show(fn() { inner_visible }, fn() {
-        @luna.island("inner-island", "/components/inner.js", "{}", [
-          @luna.text("Inner"),
+      @core.show(fn() { inner_visible }, fn() {
+        @core.island("inner-island", "/components/inner.js", "{}", [
+          @core.text("Inner"),
         ])
       }),
     ])
@@ -986,21 +986,21 @@ test "preload with nested conditionals - outer hidden" {
 
 ///|
 test "preload with fragment containing islands and elements" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.h("header", [], [@luna.text("Header")]),
-    @luna.island("nav-island", "/components/nav.js", "{}", [@luna.text("Nav")]),
-    @luna.h("main", [], [
-      @luna.h("h1", [], [@luna.text("Title")]),
-      @luna.island("content-island", "/components/content.js", "{}", [
-        @luna.text("Content"),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.h("header", [], [@core.text("Header")]),
+    @core.island("nav-island", "/components/nav.js", "{}", [@core.text("Nav")]),
+    @core.h("main", [], [
+      @core.h("h1", [], [@core.text("Title")]),
+      @core.island("content-island", "/components/content.js", "{}", [
+        @core.text("Content"),
       ]),
-      @luna.h("aside", [], [
-        @luna.island("sidebar-island", "/components/sidebar.js", "{}", [
-          @luna.text("Sidebar"),
+      @core.h("aside", [], [
+        @core.island("sidebar-island", "/components/sidebar.js", "{}", [
+          @core.text("Sidebar"),
         ]),
       ]),
     ]),
-    @luna.h("footer", [], [@luna.text("Footer")]),
+    @core.h("footer", [], [@core.text("Footer")]),
   ])
   let result = render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 3)
@@ -1015,17 +1015,17 @@ test "preload with fragment containing islands and elements" {
 ///|
 test "preload with duplicate urls in nested structure" {
   // Same component used multiple times at different nesting levels
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
-    @luna.island("counter-1", "/components/counter.js", "{\"count\":1}", [
-      @luna.text("1"),
+  let node : @core.Node[Unit, String] = @core.h("div", [], [
+    @core.island("counter-1", "/components/counter.js", "{\"count\":1}", [
+      @core.text("1"),
     ]),
-    @luna.h("section", [], [
-      @luna.island("counter-2", "/components/counter.js", "{\"count\":2}", [
-        @luna.text("2"),
+    @core.h("section", [], [
+      @core.island("counter-2", "/components/counter.js", "{\"count\":2}", [
+        @core.text("2"),
       ]),
-      @luna.h("div", [], [
-        @luna.island("counter-3", "/components/counter.js", "{\"count\":3}", [
-          @luna.text("3"),
+      @core.h("div", [], [
+        @core.island("counter-3", "/components/counter.js", "{\"count\":3}", [
+          @core.text("3"),
         ]),
       ]),
     ]),
@@ -1038,9 +1038,9 @@ test "preload with duplicate urls in nested structure" {
 
 ///|
 test "preload disabled returns empty urls" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("island-1", "/components/a.js", "{}", [@luna.text("A")]),
-    @luna.island("island-2", "/components/b.js", "{}", [@luna.text("B")]),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("island-1", "/components/a.js", "{}", [@core.text("A")]),
+    @core.island("island-2", "/components/b.js", "{}", [@core.text("B")]),
   ])
   let result = render_to_string(node, preload=false)
   // When preload is disabled, URLs array should be empty
@@ -1052,12 +1052,12 @@ test "preload disabled returns empty urls" {
 
 ///|
 test "preload with wc_island collects luna:wc-url" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-counter",
     "/static/wc_counter.js",
     "",
     "{\"count\":0}",
-    [@luna.text("0")],
+    [@core.text("0")],
   )
   let result = render_to_string(node, preload=true)
   assert_eq(result.preload_urls.length(), 1)
@@ -1067,10 +1067,10 @@ test "preload with wc_island collects luna:wc-url" {
 
 ///|
 test "preload with mixed island and wc_island" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("counter", "/static/counter.js", "{}", [@luna.text("Count")]),
-    @luna.wc_island("wc-timer", "/static/wc_timer.js", "", "{}", [
-      @luna.text("Timer"),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("counter", "/static/counter.js", "{}", [@core.text("Count")]),
+    @core.wc_island("wc-timer", "/static/wc_timer.js", "", "{}", [
+      @core.text("Timer"),
     ]),
   ])
   let result = render_to_string(node, preload=true)
@@ -1081,10 +1081,10 @@ test "preload with mixed island and wc_island" {
 
 ///|
 test "preload with nested wc_island in div" {
-  let node : @luna.Node[Unit, String] = @luna.h("main", [], [
-    @luna.h("section", [], [
-      @luna.wc_island("wc-nested", "/static/wc_nested.js", "", "{}", [
-        @luna.text("Nested"),
+  let node : @core.Node[Unit, String] = @core.h("main", [], [
+    @core.h("section", [], [
+      @core.wc_island("wc-nested", "/static/wc_nested.js", "", "{}", [
+        @core.text("Nested"),
       ]),
     ]),
   ])
@@ -1096,9 +1096,9 @@ test "preload with nested wc_island in div" {
 ///|
 test "preload with wc_island in conditional show" {
   let visible = true
-  let node : @luna.Node[Unit, String] = @luna.show(fn() { visible }, fn() {
-    @luna.wc_island("wc-conditional", "/static/wc_conditional.js", "", "{}", [
-      @luna.text("Conditional"),
+  let node : @core.Node[Unit, String] = @core.show(fn() { visible }, fn() {
+    @core.wc_island("wc-conditional", "/static/wc_conditional.js", "", "{}", [
+      @core.text("Conditional"),
     ])
   })
   let result = render_to_string(node, preload=true)
@@ -1108,15 +1108,15 @@ test "preload with wc_island in conditional show" {
 
 ///|
 test "preload with duplicate wc_island urls" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.wc_island("wc-counter-1", "/static/wc_counter.js", "", "{\"id\":1}", [
-      @luna.text("1"),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.wc_island("wc-counter-1", "/static/wc_counter.js", "", "{\"id\":1}", [
+      @core.text("1"),
     ]),
-    @luna.wc_island("wc-counter-2", "/static/wc_counter.js", "", "{\"id\":2}", [
-      @luna.text("2"),
+    @core.wc_island("wc-counter-2", "/static/wc_counter.js", "", "{\"id\":2}", [
+      @core.text("2"),
     ]),
-    @luna.wc_island("wc-counter-3", "/static/wc_counter.js", "", "{\"id\":3}", [
-      @luna.text("3"),
+    @core.wc_island("wc-counter-3", "/static/wc_counter.js", "", "{\"id\":3}", [
+      @core.text("3"),
     ]),
   ])
   let result = render_to_string(node, preload=true)
@@ -1131,9 +1131,9 @@ test "preload with duplicate wc_island urls" {
 
 ///|
 test "render async fallback in sync mode" {
-  let node : @luna.Node[Unit, String] = @luna.async_(
-    render=fn() { @luna.h("div", [], [@luna.text("Loaded!")]) },
-    fallback=fn() { @luna.h("div", [], [@luna.text("Loading...")]) },
+  let node : @core.Node[Unit, String] = @core.async_(
+    render=fn() { @core.h("div", [], [@core.text("Loaded!")]) },
+    fallback=fn() { @core.h("div", [], [@core.text("Loading...")]) },
   )
   // In sync rendering, fallback is rendered
   let html = render_to_string(node).html
@@ -1142,9 +1142,9 @@ test "render async fallback in sync mode" {
 
 ///|
 test "render async with hydration markers" {
-  let node : @luna.Node[Unit, String] = @luna.async_(
-    render=fn() { @luna.h("div", [], [@luna.text("Loaded!")]) },
-    fallback=fn() { @luna.h("div", [], [@luna.text("Loading...")]) },
+  let node : @core.Node[Unit, String] = @core.async_(
+    render=fn() { @core.h("div", [], [@core.text("Loaded!")]) },
+    fallback=fn() { @core.h("div", [], [@core.text("Loading...")]) },
   )
   let html = render_to_string_with_hydration(node)
   // Should have async marker <!--a:ID-->
@@ -1155,13 +1155,13 @@ test "render async with hydration markers" {
 
 ///|
 test "render nested async fallback" {
-  let inner : @luna.Node[Unit, String] = @luna.async_(
-    render=fn() { @luna.text("Inner loaded") },
-    fallback=fn() { @luna.text("Inner loading...") },
+  let inner : @core.Node[Unit, String] = @core.async_(
+    render=fn() { @core.text("Inner loaded") },
+    fallback=fn() { @core.text("Inner loading...") },
   )
-  let outer : @luna.Node[Unit, String] = @luna.h(
+  let outer : @core.Node[Unit, String] = @core.h(
     "div",
-    [("class", @luna.attr_static("container"))],
+    [("class", @core.attr_static("container"))],
     [inner],
   )
   let html = render_to_string(outer).html
@@ -1170,12 +1170,12 @@ test "render nested async fallback" {
 
 ///|
 test "render async with on_error handler" {
-  let node : @luna.Node[Unit, String] = @luna.async_(
-    render=fn() { @luna.text("Success") },
-    fallback=fn() { @luna.text("Loading...") },
+  let node : @core.Node[Unit, String] = @core.async_(
+    render=fn() { @core.text("Success") },
+    fallback=fn() { @core.text("Loading...") },
     on_error=Some(fn(_e) {
-      @luna.h("div", [("class", @luna.attr_static("error"))], [
-        @luna.text("Error occurred"),
+      @core.h("div", [("class", @core.attr_static("error"))], [
+        @core.text("Error occurred"),
       ])
     }),
   )
@@ -1190,12 +1190,12 @@ test "render async with on_error handler" {
 
 ///|
 test "render wc_island basic" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-counter",
     "/static/wc-counter.js",
     ":host { display: block; }",
     "{\"count\":5}",
-    [@luna.text("5")],
+    [@core.text("5")],
   )
   let html = render_to_string(node).html
   // Check custom element with data attributes
@@ -1217,12 +1217,12 @@ test "render wc_island basic" {
 ///|
 test "render wc_island preserves spaces in css strings" {
   let styles = ".foo::before { content: \"a  b\"; }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-css",
     "/static/wc-css.js",
     styles,
     "{}",
-    [@luna.text("ok")],
+    [@core.text("ok")],
   )
   let html = render_to_string(node).html
   // Minifier should keep spaces inside quoted strings
@@ -1233,12 +1233,12 @@ test "render wc_island preserves spaces in css strings" {
 
 ///|
 test "render wc_island without styles" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-simple",
     "/static/wc-simple.js",
     "", // empty styles
     "{}",
-    [@luna.text("Content")],
+    [@core.text("Content")],
   )
   let html = render_to_string(node).html
   // Should not have style tag when styles is empty
@@ -1250,12 +1250,12 @@ test "render wc_island without styles" {
 
 ///|
 test "render wc_island with idle trigger" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-lazy",
     "/static/wc-lazy.js",
     "",
     "{}",
-    [@luna.text("Loading...")],
+    [@core.text("Loading...")],
     trigger=@core.Idle,
   )
   let html = render_to_string(node).html
@@ -1264,12 +1264,12 @@ test "render wc_island with idle trigger" {
 
 ///|
 test "render wc_island with visible trigger" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-visible",
     "/static/wc-visible.js",
     "",
     "{}",
-    [@luna.text("Loading...")],
+    [@core.text("Loading...")],
     trigger=@core.Visible,
   )
   let html = render_to_string(node).html
@@ -1278,12 +1278,12 @@ test "render wc_island with visible trigger" {
 
 ///|
 test "render wc_island with media trigger" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-responsive",
     "/static/wc-responsive.js",
     "",
     "{}",
-    [@luna.text("Content")],
+    [@core.text("Content")],
     trigger=@core.Media("(min-width: 768px)"),
   )
   let html = render_to_string(node).html
@@ -1293,12 +1293,12 @@ test "render wc_island with media trigger" {
 ///|
 test "render wc_island load trigger omits luna:wc-trigger" {
   // Load trigger is the default, should not render luna:wc-trigger attribute
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-default",
     "/static/wc-default.js",
     "",
     "{}",
-    [@luna.text("Default")],
+    [@core.text("Default")],
     trigger=@core.Load,
   )
   let html = render_to_string(node).html
@@ -1308,12 +1308,12 @@ test "render wc_island load trigger omits luna:wc-trigger" {
 
 ///|
 test "render wc_island state escaping" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-escape",
     "/static/wc-escape.js",
     "",
     "{\"text\":\"<script>alert(1)</script>\"}",
-    [@luna.text("Safe")],
+    [@core.text("Safe")],
   )
   let html = render_to_string(node).html
   // Ensure < and > are escaped in attribute value
@@ -1323,16 +1323,16 @@ test "render wc_island state escaping" {
 ///|
 test "render wc_island with complex children" {
   let items = ["A", "B", "C"]
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-list",
     "/static/wc-list.js",
     ":host { display: block; } ul { padding: 0; }",
     "{\"items\":[\"A\",\"B\",\"C\"]}",
     [
-      @luna.h("h2", [], [@luna.text("Items")]),
-      @luna.h("ul", [], [
-        @luna.for_each(fn() {
-          items.map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
+      @core.h("h2", [], [@core.text("Items")]),
+      @core.h("ul", [], [
+        @core.for_each(fn() {
+          items.map(fn(item) { @core.h("li", [], [@core.text(item)]) })
         }),
       ]),
     ],
@@ -1348,12 +1348,12 @@ test "render wc_island with complex children" {
 
 ///|
 test "render wc_island with hydration markers" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-hyd",
     "/static/wc-hyd.js",
     "",
     "{\"count\":10}",
-    [@luna.text_dyn(fn() { "10" })],
+    [@core.text_dyn(fn() { "10" })],
   )
   let html = render_to_string_with_hydration(node)
   // Should have wc marker
@@ -1371,12 +1371,12 @@ test "render wc_island with hydration markers" {
 ///|
 test "wc_island CSS with :host selector" {
   let css = ":host { display: block; margin: 1rem; }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-host",
     "/static/wc-host.js",
     css,
     "{}",
-    [@luna.text("Content")],
+    [@core.text("Content")],
   )
   let html = render_to_string(node).html
   // CSS should be in <template><style id="style-{hash}">
@@ -1389,12 +1389,12 @@ test "wc_island CSS with :host selector" {
 ///|
 test "wc_island CSS with @media query" {
   let css = "@media (max-width: 768px) { :host { padding: 0.5rem; } }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-responsive",
     "/static/wc-responsive.js",
     css,
     "{}",
-    [@luna.text("Responsive")],
+    [@core.text("Responsive")],
   )
   let html = render_to_string(node).html
   assert_true(html.contains("<style id=\"style-"))
@@ -1405,12 +1405,12 @@ test "wc_island CSS with @media query" {
 ///|
 test "wc_island CSS with ::slotted selector" {
   let css = "::slotted(*) { color: inherit; } ::slotted(p) { margin: 0; }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-slot",
     "/static/wc-slot.js",
     css,
     "{}",
-    [@luna.h("slot", [], [])],
+    [@core.h("slot", [], [])],
   )
   let html = render_to_string(node).html
   assert_true(html.contains("::slotted(*)"))
@@ -1420,12 +1420,12 @@ test "wc_island CSS with ::slotted selector" {
 ///|
 test "wc_island CSS with :host-context" {
   let css = ":host-context(.dark) { background: #333; color: white; }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-theme",
     "/static/wc-theme.js",
     css,
     "{}",
-    [@luna.text("Themed")],
+    [@core.text("Themed")],
   )
   let html = render_to_string(node).html
   assert_true(html.contains(":host-context(.dark)"))
@@ -1434,17 +1434,17 @@ test "wc_island CSS with :host-context" {
 ///|
 test "wc_island CSS with multiple rules" {
   let css = ":host { display: block; } .title { font-size: 1.5rem; } .content { padding: 1rem; }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-multi",
     "/static/wc-multi.js",
     css,
     "{}",
     [
-      @luna.h("h1", [("class", @luna.attr_static("title"))], [
-        @luna.text("Title"),
+      @core.h("h1", [("class", @core.attr_static("title"))], [
+        @core.text("Title"),
       ]),
-      @luna.h("div", [("class", @luna.attr_static("content"))], [
-        @luna.text("Body"),
+      @core.h("div", [("class", @core.attr_static("content"))], [
+        @core.text("Body"),
       ]),
     ],
   )
@@ -1457,20 +1457,20 @@ test "wc_island CSS with multiple rules" {
 
 ///|
 test "multiple wc_islands with different styles" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.wc_island(
       "wc-card-a",
       "/static/wc-card.js",
       ":host { background: blue; }",
       "{\"id\":\"a\"}",
-      [@luna.text("Card A")],
+      [@core.text("Card A")],
     ),
-    @luna.wc_island(
+    @core.wc_island(
       "wc-card-b",
       "/static/wc-card.js",
       ":host { background: red; }",
       "{\"id\":\"b\"}",
-      [@luna.text("Card B")],
+      [@core.text("Card B")],
     ),
   ])
   let html = render_to_string(node).html
@@ -1486,16 +1486,16 @@ test "multiple wc_islands with different styles" {
 
 ///|
 test "wc_island CSS preserved in nested structure" {
-  let node : @luna.Node[Unit, String] = @luna.h("main", [], [
-    @luna.h("section", [], [
-      @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.h("main", [], [
+    @core.h("section", [], [
+      @core.wc_island(
         "wc-nested",
         "/static/wc-nested.js",
         ".inner { display: flex; gap: 1rem; }",
         "{}",
         [
-          @luna.h("div", [("class", @luna.attr_static("inner"))], [
-            @luna.text("Nested"),
+          @core.h("div", [("class", @core.attr_static("inner"))], [
+            @core.text("Nested"),
           ]),
         ],
       ),
@@ -1512,14 +1512,14 @@ test "wc_island CSS preserved in nested structure" {
 ///|
 test "wc_island CSS with CSS variables" {
   let css = ":host { --primary: #007bff; --spacing: 1rem; } .btn { background: var(--primary); padding: var(--spacing); }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-vars",
     "/static/wc-vars.js",
     css,
     "{}",
     [
-      @luna.h("button", [("class", @luna.attr_static("btn"))], [
-        @luna.text("Click"),
+      @core.h("button", [("class", @core.attr_static("btn"))], [
+        @core.text("Click"),
       ]),
     ],
   )
