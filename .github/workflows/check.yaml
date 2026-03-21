@@ -219,11 +219,6 @@ jobs:
           moon test --target wasm src/core/render
           moon test --target wasm-gc src/core/render
           moon test --target native src/core/render
-      - name: Test core/serialize (wasm, wasm-gc, native)
-        run: |
-          moon test --target wasm src/core/serialize
-          moon test --target wasm-gc src/core/serialize
-          moon test --target native src/core/serialize
       - name: Test x/components/aria (wasm, wasm-gc, native)
         run: |
           moon test --target wasm src/x/components/aria

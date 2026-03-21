@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-20T07:10:19.187Z",
+  "generatedAt": "2026-03-21T13:36:05.205Z",
   "node": "v24.12.0",
   "platform": "darwin",
   "arch": "arm64",
@@ -9,38 +9,38 @@
     {
       "id": "control-loop",
       "iterations": 1000000,
-      "nsPerOp": 2.3628,
+      "nsPerOp": 2.3265,
       "ratioToControl": 1
     },
     {
       "id": "signal-set-get",
       "iterations": 500000,
-      "nsPerOp": 6.2293,
-      "ratioToControl": 2.6365
+      "nsPerOp": 5.9934,
+      "ratioToControl": 2.5761
     },
     {
       "id": "signal-update-fn",
       "iterations": 250000,
-      "nsPerOp": 7.2895,
-      "ratioToControl": 3.0852
+      "nsPerOp": 7.1398,
+      "ratioToControl": 3.0689
     },
     {
       "id": "memo-after-update",
       "iterations": 200000,
-      "nsPerOp": 32.9773,
-      "ratioToControl": 13.9572
+      "nsPerOp": 32.1875,
+      "ratioToControl": 13.8349
     },
     {
       "id": "batch-10-updates",
       "iterations": 200000,
-      "nsPerOp": 24.9229,
-      "ratioToControl": 10.5483
+      "nsPerOp": 12.5619,
+      "ratioToControl": 5.3994
     },
     {
       "id": "create-signal",
       "iterations": 100000,
-      "nsPerOp": 23.3888,
-      "ratioToControl": 9.899
+      "nsPerOp": 18.2058,
+      "ratioToControl": 7.8253
     }
   ]
 }
