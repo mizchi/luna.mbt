@@ -5,7 +5,6 @@
 #external
 pub type Any
 
-///|
 extern "js" fn _create_resource(
   fetcher : ((Any) -> Unit, (String) -> Unit) -> Unit,
 ) -> Any =
@@ -27,7 +26,6 @@ extern "js" fn _create_resource(
   #|   return resource;
   #| }
 
-///|
 extern "js" fn _create_deferred() -> (Any, (Any) -> Unit, (String) -> Unit) =
   #| () => {
   #|   const resource = {
@@ -45,63 +43,48 @@ extern "js" fn _create_deferred() -> (Any, (Any) -> Unit, (String) -> Unit) =
   #|   return { _0: resource, _1: resolve, _2: reject };
   #| }
 
-///|
 extern "js" fn _resource_get(resource : Any) -> Any =
   #| (resource) => resource.state
 
-///|
 extern "js" fn _resource_peek(resource : Any) -> Any =
   #| (resource) => resource.state
 
-///|
 extern "js" fn _resource_refetch(resource : Any) -> Unit =
   #| (resource) => { resource.refetch(); }
 
-///|
 extern "js" fn _resource_is_pending(resource : Any) -> Bool =
   #| (resource) => resource.state.$tag === 0
 
-///|
 extern "js" fn _resource_is_success(resource : Any) -> Bool =
   #| (resource) => resource.state.$tag === 1
 
-///|
 extern "js" fn _resource_is_failure(resource : Any) -> Bool =
   #| (resource) => resource.state.$tag === 2
 
-///|
 extern "js" fn _resource_value(resource : Any) -> Any =
   #| (resource) => (resource.state.$tag === 1 ? resource.state._0 : undefined)
 
-///|
 extern "js" fn _resource_error(resource : Any) -> Any =
   #| (resource) => (resource.state.$tag === 2 ? resource.state._0 : undefined)
 
-///|
 extern "js" fn _state_is_pending(state : Any) -> Bool =
   #| (state) => state.$tag === 0
 
-///|
 extern "js" fn _state_is_success(state : Any) -> Bool =
   #| (state) => state.$tag === 1
 
-///|
 extern "js" fn _state_is_failure(state : Any) -> Bool =
   #| (state) => state.$tag === 2
 
-///|
 extern "js" fn _state_value(state : Any) -> Any =
   #| (state) => (state.$tag === 1 ? state._0 : undefined)
 
-///|
 extern "js" fn _state_error(state : Any) -> Any =
   #| (state) => (state.$tag === 2 ? state._0 : undefined)
 
 ///|
 /// Create a Resource from a callback-based fetcher
-pub fn create_resource(
-  fetcher : ((Any) -> Unit, (String) -> Unit) -> Unit,
-) -> Any {
+pub fn create_resource(fetcher : ((Any) -> Unit, (String) -> Unit) -> Unit) -> Any {
   _create_resource(fetcher)
 }
 

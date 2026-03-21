@@ -70,7 +70,8 @@ fn render_node_to_stream(
     Island(island) => render_island_to_stream(island, writer)
     WcIsland(wc_island) => render_wc_island_to_stream(wc_island, writer)
     InternalRef(iref) => render_internal_ref_to_stream(iref, writer)
-    Async(async_node) => render_node_to_stream((async_node.fallback)(), writer)
+    Async(async_node) =>
+      render_node_to_stream((async_node.fallback)(), writer)
     ErrorBoundary(boundary) =>
       render_node_to_stream((boundary.children)(), writer) catch {
         err => {
@@ -439,9 +440,7 @@ fn extract_wc_name_from_url(url : String) -> String {
   }
   let filename = filename_view.to_string()
   let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    filename[:filename.length() - 3].to_string() catch {
-      _ => filename
-    }
+    filename[:filename.length() - 3].to_string() catch { _ => filename }
   } else {
     filename
   }
