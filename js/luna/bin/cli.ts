@@ -214,7 +214,7 @@ export default defineConfig({
       content: `import { render } from "@luna_ui/luna";
 import { App } from "./App";
 
-render(() => <App />, document.getElementById("app")!);
+render(document.getElementById("app")!, <App />);
 `,
     },
     {
@@ -298,8 +298,9 @@ function getMbtTemplates(projectName: string): Template[] {
           name: `internal/${projectName}`,
           version: "0.0.1",
           deps: {
-            "mizchi/luna": "0.1.3",
-            "mizchi/js": "0.10.6",
+            "mizchi/luna": "0.16.0",
+            "mizchi/signals": "0.6.3",
+            "mizchi/js": "0.10.14",
           },
           source: "src",
           "preferred-target": "js",
@@ -378,9 +379,12 @@ import "mbt:internal/${projectName}";
           "is-main": true,
           "supported-targets": ["js"],
           import: [
-            "mizchi/luna/signal",
             {
-              path: "mizchi/luna/platform/dom/element",
+              path: "mizchi/signals",
+              alias: "signal",
+            },
+            {
+              path: "mizchi/luna/dom",
               alias: "dom",
             },
             {
@@ -432,7 +436,7 @@ fn main {
           ),
         ]),
       ])
-      @dom.render(el |> @dom.DomElement::from_jsdom, app)
+      @dom.render(el |> @dom.DomElement::from_dom, app)
     }
     None => ()
   }
