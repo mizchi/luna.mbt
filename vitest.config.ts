@@ -63,13 +63,16 @@ export default defineConfig({
         test: {
           name: "bench",
           browser: browserConfig(),
-          include: [
-            "js/luna/tests/*.bench.ts",
-            "js/luna/benches/*.bench.ts",
-            "js/wcssr/tests/*.bench.ts",
-          ],
+          include: [],
           exclude: commonExclude,
-          benchmark: { reporters: ["default"] },
+          benchmark: {
+            include: [
+              "js/luna/tests/*.bench.ts",
+              "js/luna/benches/*.bench.ts",
+              "js/wcssr/tests/*.bench.ts",
+            ],
+            reporters: ["default"],
+          },
         },
         esbuild: {
           jsx: "automatic",

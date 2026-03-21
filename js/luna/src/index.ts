@@ -76,6 +76,8 @@ export interface ResourceAccessor<T> {
   error: string | undefined;
   state: 'pending' | 'ready' | 'errored' | 'unresolved';
   latest: T | undefined;
+  /** Reactive accessor for pending state - tracks dependencies unlike `loading` */
+  pending: Accessor<boolean>;
 }
 
 export type SetStoreFunction<T> = (...args: any[]) => void;
@@ -109,6 +111,7 @@ import {
   render,
   mount,
   show,
+  loading as _loading,
   jsx,
   jsxs,
   Fragment as fragment,  // MoonBit's fragment function (Array -> LunaNode)
@@ -141,6 +144,7 @@ import {
   resourcePeek,
   resourceRefetch,
   resourceIsPending,
+  resourcePendingGetter,
   resourceIsSuccess,
   resourceIsFailure,
   resourceValue,
@@ -362,6 +366,7 @@ export function createResource<T>(fetcher: (resolve: (v: T) => void, reject: (e:
       },
     },
     latest: { get: () => resourcePeek(resource) },
+    pending: { value: resourcePendingGetter(resource) },
   });
 
   return [accessor, { refetch: () => resourceRefetch(resource) }];
@@ -381,6 +386,7 @@ export function createDeferred<T>(): [ResourceAccessor<T>, (value: T) => void, (
   Object.defineProperties(accessor, {
     loading: { get: () => resourceIsPending(resource) },
     error: { get: () => resourceError(resource) },
+    pending: { value: resourcePendingGetter(resource) },
   });
 
   return [accessor, resolve, reject];
@@ -472,6 +478,29 @@ export function Show<T>(props: ShowProps<T>): any {
     () => Boolean(condition()),
     () => resolveChild(children, valueAccessor)
   );
+}
+
+/**
+ * Loading component (SolidJS v2-style)
+ *
+ * Shows fallback during initial load, then maintains stale content during refetch.
+ * Unlike Show, after content has been rendered once, it won't flash back to fallback
+ * during background refetch.
+ */
+export interface LoadingProps {
+  when: Accessor<boolean> | boolean;
+  fallback?: LunaNode | (() => LunaNode);
+  children: (() => LunaNode);
+}
+
+export function Loading(props: LoadingProps): any {
+  const { when, fallback, children } = props;
+  const condition = typeof when === "function" ? when : () => when;
+  const fallbackFn = typeof fallback === "function"
+    ? fallback as () => LunaNode
+    : () => fallback ?? text("");
+
+  return _loading(condition, fallbackFn, children);
 }
 
 /**

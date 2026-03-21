@@ -14,7 +14,7 @@ const TARGETS = [
 ];
 
 const ABORT_RETURN_RE =
-  /^\s*return _M0FP311moonbitlang4core(?:7builtin5abort|5abort5abort)/;
+  /^\s*return _M0FP(?:311moonbitlang4core(?:7builtin5abort|5abort5abort)|C15abort5abort|B5abort)/;
 const BOUND_CHECK_FN_PREFIX = "function $bound_check(";
 const BOUND_CHECK_CALL_RE = /^\s*\$bound_check\([^;]*\);\s*$/;
 

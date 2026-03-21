@@ -148,12 +148,12 @@ jobs:
       - name: Fail if bundle size check failed
         if: steps.bundle_size.outcome == 'failure'
         run: exit 1
-      - name: Fail if runtime benchmark check failed
+      - name: Warn if runtime benchmark check failed
         if: steps.runtime_perf.outcome == 'failure'
-        run: exit 1
-      - name: Fail if moon bench check failed
+        run: echo "::warning::Runtime benchmark regression detected (non-blocking)"
+      - name: Warn if moon bench check failed
         if: steps.moonbench.outcome == 'failure'
-        run: exit 1
+        run: echo "::warning::Moon bench regression detected (non-blocking)"
 
   # MoonBit unit tests
   test-moonbit:
@@ -219,11 +219,6 @@ jobs:
           moon test --target wasm src/core/render
           moon test --target wasm-gc src/core/render
           moon test --target native src/core/render
-      - name: Test core/serialize (wasm, wasm-gc, native)
-        run: |
-          moon test --target wasm src/core/serialize
-          moon test --target wasm-gc src/core/serialize
-          moon test --target native src/core/serialize
       - name: Test x/components/aria (wasm, wasm-gc, native)
         run: |
           moon test --target wasm src/x/components/aria

@@ -55,6 +55,13 @@ pub fn[T] Resource::error(self : Resource[T]) -> String? {
 }
 
 ///|
+/// Returns a reactive getter that tracks whether this resource is pending.
+/// Unlike is_pending() which uses peek(), this uses get() for dependency tracking.
+pub fn[T] Resource::pending(self : Resource[T]) -> () -> Bool {
+  fn() { self.state.get().is_pending() }
+}
+
+///|
 /// Trigger refetch
 pub fn[T] Resource::refetch(self : Resource[T]) -> Unit {
   (self.refetch_)()
