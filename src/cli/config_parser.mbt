@@ -32,6 +32,8 @@ pub struct SolConfig {
   static_dirs : Array[StaticDirEntry]
   /// Per-route wasm entrypoints (.mbtx/.wasm)
   wasm_entrypoints : Array[WasmEntrypointConfig]
+  /// Experimental feature flags
+  experimental : Array[String]
 }
 
 ///|
@@ -194,6 +196,12 @@ fn extract_quoted_values(
   }
 }
 
+///|
+/// Check if an experimental feature is enabled
+pub fn SolConfig::has_experimental(self : SolConfig, flag : String) -> Bool {
+  self.experimental.contains(flag)
+}
+
 // =============================================================================
 // Config Parser
 // =============================================================================
@@ -215,7 +223,7 @@ fn validate_config_keys(obj : Map[String, Json]) -> Unit {
   let valid_keys = [
     "islands", "routes", "output", "clientAutoExports", "client_auto_exports",
     "runtime", "adapter", "staticDirs", "static_dirs", "wasmEntrypoints",
-    "wasm_entrypoints",
+    "wasm_entrypoints", "experimental",
   ]
   for key in obj.keys() {
     if not(valid_keys.contains(key)) {
@@ -249,6 +257,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
     }
     let static_dirs = parse_static_dirs(obj)
     let wasm_entrypoints = parse_wasm_entrypoints(obj)
+    let experimental = @json_utils.extract_string_array(obj, "experimental")
     validate_config_keys(obj)
     Some(SolConfig::{
       islands,
@@ -259,6 +268,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       adapter,
       static_dirs,
       wasm_entrypoints,
+      experimental,
     })
   } catch {
     _ => None

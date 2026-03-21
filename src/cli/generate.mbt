@@ -405,11 +405,20 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
         )
       } else {
         // Use route_info already parsed at Step 1.5
+        // Scan for .mbtx files if experimental_mbtx is enabled
+        let mbtx_entries : Array[MbtxFileEntry] = if config.has_experimental(
+            "experimental_mbtx",
+          ) {
+          scan_mbtx_dir(fs, "app/mbtx", cwd)
+        } else {
+          []
+        }
         // Generate server main.mbt
         let server_main = generate_server_main_mbt(
           routes_pkg,
           route_info,
           config.static_dirs,
+          mbtx_entries~,
         )
         let server_main_path = @path.join2(server_dir, "main.mbt")
         try {

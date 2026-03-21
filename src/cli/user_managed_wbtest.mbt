@@ -16,6 +16,7 @@ test "is_user_managed_server: true when main.mbt exists" {
     client_auto_exports: true,
     static_dirs: [],
     wasm_entrypoints: [],
+    experimental: [],
   }
   assert_true(is_user_managed_server(fs, "/project", config))
 }
@@ -35,6 +36,7 @@ test "is_user_managed_server: false when main.mbt missing" {
     client_auto_exports: true,
     static_dirs: [],
     wasm_entrypoints: [],
+    experimental: [],
   }
   assert_true(not(is_user_managed_server(fs, "/project", config)))
 }
@@ -54,6 +56,7 @@ test "detect_app_mode_with_fs: MoonBitFull when routes.mbt exists" {
     client_auto_exports: true,
     static_dirs: [],
     wasm_entrypoints: [],
+    experimental: [],
   }
   assert_eq(detect_app_mode_with_fs(fs, "/project", config), MoonBitFull)
 }
@@ -73,6 +76,7 @@ test "detect_app_mode_with_fs: hybrid when routes.ts exists" {
     client_auto_exports: true,
     static_dirs: [],
     wasm_entrypoints: [],
+    experimental: [],
   }
   assert_eq(
     detect_app_mode_with_fs(fs, "/project", config),
