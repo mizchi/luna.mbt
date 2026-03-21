@@ -152,3 +152,56 @@ test "Resource::refetch" {
   res.refetch()
   assert_eq(res.value(), Some(3))
 }
+
+///|
+test "Resource::pending returns reactive getter" {
+  let (res, resolve, _reject) : (Resource[Int], (Int) -> Unit, (String) -> Unit) = deferred()
+
+  // pending() returns a reactive getter
+  let is_pending = res.pending()
+
+  // Track changes via render_effect
+  let log : Array[Bool] = []
+  let dispose = render_effect(fn() { log.push(is_pending()) })
+  defer dispose()
+
+  // Initially pending
+  assert_eq(log.length(), 1)
+  assert_true(log[0])
+
+  // Resolve — getter should now return false
+  resolve(42)
+  assert_eq(log.length(), 2)
+  assert_false(log[1])
+}
+
+///|
+test "Resource::pending tracks refetch" {
+  let call_count = Ref::new(0)
+  let resolve_fn : Ref[((Int) -> Unit)?] = Ref::new(None)
+  let res = resource(fn(resolve, _reject) {
+    call_count.val = call_count.val + 1
+    // First call resolves immediately, subsequent calls defer
+    if call_count.val == 1 {
+      resolve(call_count.val)
+    } else {
+      resolve_fn.val = Some(resolve)
+    }
+  })
+
+  let is_pending = res.pending()
+
+  // After initial sync resolve, not pending
+  assert_false(is_pending())
+
+  // Refetch sets to pending
+  res.refetch()
+  assert_true(is_pending())
+
+  // Resolve the refetch
+  match resolve_fn.val {
+    Some(resolve) => resolve(2)
+    None => ()
+  }
+  assert_false(is_pending())
+}

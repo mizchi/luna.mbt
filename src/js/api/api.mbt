@@ -232,6 +232,15 @@ pub fn show(
 }
 
 ///|
+pub fn loading(
+  when : () -> Bool,
+  fallback : () -> @element.DomNode,
+  render : () -> @element.DomNode,
+) -> @element.DomNode {
+  @element.loading(when~, fallback~, render)
+}
+
+///|
 pub fn jsx(
   tag : String,
   attrs : Array[(String, @element.AttrValue)],
@@ -468,6 +477,12 @@ pub fn resource_refetch(res : JsResource) -> Unit {
 /// Check if currently pending
 pub fn resource_is_pending(res : JsResource) -> Bool {
   res.0.is_pending()
+}
+
+///|
+/// Returns a reactive getter for pending state
+pub fn resource_pending_getter(res : JsResource) -> () -> Bool {
+  res.0.pending()
 }
 
 ///|

@@ -5,9 +5,11 @@
 #external
 pub type Any
 
+///|
 extern "js" fn _route_page(path : String, component : Any) -> Any =
   #| (path, component) => ({ $tag: 0, path, component, title: "", meta: [] })
 
+///|
 extern "js" fn _route_page_titled(
   path : String,
   component : Any,
@@ -15,6 +17,7 @@ extern "js" fn _route_page_titled(
 ) -> Any =
   #| (path, component, title) => ({ $tag: 0, path, component, title, meta: [] })
 
+///|
 extern "js" fn _route_page_full(
   path : String,
   component : Any,
@@ -23,6 +26,7 @@ extern "js" fn _route_page_full(
 ) -> Any =
   #| (path, component, title, meta) => ({ $tag: 0, path, component, title, meta: meta || [] })
 
+///|
 extern "js" fn _create_router(routes : Array[Any], base : String) -> Any =
   #| (routes, base) => {
   #|   const normalizePath = (input) => {
@@ -173,32 +177,40 @@ extern "js" fn _create_router(routes : Array[Any], base : String) -> Any =
   #|   return router;
   #| }
 
+///|
 extern "js" fn _router_navigate(router : Any, path : String) -> Unit =
   #| (router, path) => { router.navigate(path); }
 
+///|
 extern "js" fn _router_replace(router : Any, path : String) -> Unit =
   #| (router, path) => { router.replace(path); }
 
+///|
 extern "js" fn _router_get_path(router : Any) -> String =
   #| (router) => router.currentPath
 
+///|
 extern "js" fn _router_get_match(router : Any) -> Any =
   #| (router) => router.currentMatch
 
+///|
 extern "js" fn _router_get_base(router : Any) -> String =
   #| (router) => router.base
 
-///| Create a page route
+///|
+/// Create a page route
 pub fn route_page(path : String, component : Any) -> Any {
   _route_page(path, component)
 }
 
-///| Create a page route with title
+///|
+/// Create a page route with title
 pub fn route_page_titled(path : String, component : Any, title : String) -> Any {
   _route_page_titled(path, component, title)
 }
 
-///| Create a page route with full options
+///|
+/// Create a page route with full options
 pub fn route_page_full(
   path : String,
   component : Any,
@@ -208,32 +220,38 @@ pub fn route_page_full(
   _route_page_full(path, component, title, meta)
 }
 
-///| Create a BrowserRouter from routes definition
+///|
+/// Create a BrowserRouter from routes definition
 pub fn create_router(routes : Array[Any], base : String) -> Any {
   _create_router(routes, base)
 }
 
-///| Navigate to a path
+///|
+/// Navigate to a path
 pub fn router_navigate(router : Any, path : String) -> Unit {
   _router_navigate(router, path)
 }
 
-///| Replace current path
+///|
+/// Replace current path
 pub fn router_replace(router : Any, path : String) -> Unit {
   _router_replace(router, path)
 }
 
-///| Get current path
+///|
+/// Get current path
 pub fn router_get_path(router : Any) -> String {
   _router_get_path(router)
 }
 
-///| Get current match result
+///|
+/// Get current match result
 pub fn router_get_match(router : Any) -> Any {
   _router_get_match(router)
 }
 
-///| Get base path
+///|
+/// Get base path
 pub fn router_get_base(router : Any) -> String {
   _router_get_base(router)
 }
