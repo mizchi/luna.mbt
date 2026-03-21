@@ -10,6 +10,7 @@ fn generate_server_main_mbt(
   routes_pkg : String,
   route_info : RouteInfo,
   static_dirs : Array[StaticDirEntry],
+  mbtx_entries? : Array[MbtxFileEntry] = [],
 ) -> String {
   let _ = routes_pkg
   let _ = route_info
@@ -51,6 +52,17 @@ fn generate_server_main_mbt(
       )
     }
     buf.write_string("\n")
+  }
+  // Generate .mbtx route registration
+  if not(mbtx_entries.is_empty()) {
+    buf.write_string("  // Register .mbtx page routes (auto-discovered)\n")
+    buf.write_string("  @router.register_mbtx_routes(app, [\n")
+    for entry in mbtx_entries {
+      buf.write_string(
+        "    { path: \"\{entry.route}\", js_path: \".sol/mbtx/\{entry.id}.mjs\" },\n",
+      )
+    }
+    buf.write_string("  ])\n\n")
   }
   buf.write_string("  // Serve built-in framework assets (/__sol__/*)\n")
   buf.write_string("  @sol.serve_sol_assets(app)\n")
