@@ -16,19 +16,19 @@
       "id": "signal-set-get",
       "iterations": 500000,
       "nsPerOp": 5.9934,
-      "ratioToControl": 2.5761
+      "ratioToControl": 3.7875
     },
     {
       "id": "signal-update-fn",
       "iterations": 250000,
       "nsPerOp": 7.1398,
-      "ratioToControl": 3.0689
+      "ratioToControl": 4.7909
     },
     {
       "id": "memo-after-update",
       "iterations": 200000,
       "nsPerOp": 32.1875,
-      "ratioToControl": 13.8349
+      "ratioToControl": 19.825
     },
     {
       "id": "batch-10-updates",
@@ -40,7 +40,7 @@
       "id": "create-signal",
       "iterations": 100000,
       "nsPerOp": 18.2058,
-      "ratioToControl": 7.8253
+      "ratioToControl": 12.9216
     }
   ]
 }

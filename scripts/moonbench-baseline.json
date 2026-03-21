@@ -9,25 +9,25 @@
       "id": "core/render/render: large_list (100 items with escape)",
       "suite": "core/render",
       "name": "render: large_list (100 items with escape)",
-      "nsPerOp": 32270
+      "nsPerOp": 76390
     },
     {
       "id": "core/render/render: list (10 items)",
       "suite": "core/render",
       "name": "render: list (10 items)",
-      "nsPerOp": 1220
+      "nsPerOp": 2870
     },
     {
       "id": "core/render/render: page",
       "suite": "core/render",
       "name": "render: page",
-      "nsPerOp": 1055
+      "nsPerOp": 2480
     },
     {
       "id": "core/serialize/state_value_to_json: large_array",
       "suite": "core/serialize",
       "name": "state_value_to_json: large_array",
-      "nsPerOp": 1240
+      "nsPerOp": 3280
     }
   ]
 }
