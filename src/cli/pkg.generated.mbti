@@ -2,11 +2,14 @@
 package "mizchi/sol/cli"
 
 import {
+  "mizchi/sol/content/markdown",
   "mizchi/sol/core/env",
   "mizchi/sol/ssg",
 }
 
 // Values
+pub fn build_url_set(Array[String]) -> Map[String, Bool]
+
 pub fn build_wasm_entrypoints(String, Array[WasmEntrypointConfig], runtime_override? : WasmEntrypointRuntime?, emit_spin_fragment? : Bool) -> Result[Array[WasmMountEntry], String]
 
 pub fn build_wasm_entrypoints_with_options(String, Array[WasmEntrypointConfig], options? : WasmEntrypointBuildOptions) -> Result[WasmEntrypointBuildResult, String]
@@ -15,6 +18,8 @@ pub fn detect_app_mode(String, SolConfig) -> AppMode
 
 pub fn extract_component_name_from_props(String) -> String
 
+pub fn extract_internal_links(String) -> Array[String]
+
 pub fn extract_island_name(String) -> String
 
 pub fn extract_package_path(String) -> String?
@@ -22,6 +27,8 @@ pub fn extract_package_path(String) -> String?
 pub fn find_matching_paren(String, Int) -> Int?
 
 pub fn find_ssg_config_file(String) -> String
+
+pub fn generate_doc_templates(String, String) -> Array[TemplateFile]
 
 pub fn generate_export_name(String, String, String) -> String
 
@@ -115,6 +122,12 @@ pub fn uses_luna_types(String) -> Bool
 
 pub fn uses_signal_types(String) -> Bool
 
+pub fn validate_internal_links(Array[(String, String)], Map[String, Bool]) -> Array[LinkDiagnostic]
+
+pub fn validate_jsx_embed(@markdown.JsxComponentEmbed, ComponentPropsRegistry) -> Array[PropsDiagnostic]
+
+pub fn validate_mdx_props(Array[@markdown.MdNode], ComponentPropsRegistry) -> Array[PropsDiagnostic]
+
 pub fn wasm_build_kind_to_string(WasmBuildKind) -> String
 
 pub fn wasm_entrypoint_runtime_to_string(WasmEntrypointRuntime) -> String
@@ -130,6 +143,18 @@ pub enum AppMode {
 pub impl Eq for AppMode
 pub impl Show for AppMode
 
+pub struct ComponentPropsRegistry {
+  entries : Map[String, Array[PropsField]]
+}
+pub fn ComponentPropsRegistry::from_structs(Array[StructExport]) -> Self
+
+pub(all) enum DiagnosticSeverity {
+  Error
+  Warning
+}
+pub impl Eq for DiagnosticSeverity
+pub impl Show for DiagnosticSeverity
+
 pub(all) struct FuncExport {
   name : String
   signature : String
@@ -137,6 +162,21 @@ pub(all) struct FuncExport {
   import_alias : String
   source_pattern : String
 }
+
+pub(all) struct LinkDiagnostic {
+  source_page : String
+  target_link : String
+  message : String
+}
+
+pub(all) struct PropsDiagnostic {
+  component : String
+  severity : DiagnosticSeverity
+  message : String
+}
+pub fn PropsDiagnostic::to_string(Self) -> String
+
+type PropsField
 
 type RouteInfo
 
