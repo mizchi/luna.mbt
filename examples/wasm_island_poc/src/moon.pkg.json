@@ -1,0 +1,13 @@
+{
+  "import": [
+    "mizchi/js/core"
+  ],
+  "is-main": true,
+  "link": {
+    "wasm-gc": {
+      "use-js-builtin-string": true,
+      "exports": ["render", "handle_click"],
+      "export-memory-name": "memory"
+    }
+  }
+}
