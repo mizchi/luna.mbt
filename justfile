@@ -220,6 +220,23 @@ release-doc: build-doc
     pnpm wrangler deploy --config wrangler.json
 
 # =============================================================================
+# Slide
+# =============================================================================
+
+# Build markdown.mbt slide runtime (requires markdown.mbt repo)
+slide-build markdown_dir="../markdown.mbt":
+    cd {{markdown_dir}} && moon build --target js src/api
+    cp {{markdown_dir}}/js/api.js docs/slide0322/md-api.js
+    cp {{markdown_dir}}/_build/js/release/build/api/api.js docs/slide0322/md-core.js
+    @sed -i '' 's|"\.\./\_build/js/release/build/api/api\.js"|"./md-core.js"|' docs/slide0322/md-api.js
+    @echo "✓ Slide runtime built"
+
+# Serve slide presentation
+slide:
+    @test -f docs/slide0322/md-core.js || just slide-build
+    npx serve docs/slide0322
+
+# =============================================================================
 # Benchmark
 # =============================================================================
 
