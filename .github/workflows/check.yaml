@@ -229,3 +229,37 @@ jobs:
           moon test --target wasm src/x/components/aria
           moon test --target wasm-gc src/x/components/aria
           moon test --target native src/x/components/aria
+
+  # CLI: Verify that scaffolded projects build successfully
+  test-scaffold:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - name: Build CLI
+        run: cd js/luna && pnpm tsdown bin/cli.ts --no-config --out-dir dist --format esm
+      - name: Create TypeScript project
+        run: cd ${{ runner.temp }} && node ${{ github.workspace }}/js/luna/dist/cli.mjs new test-tsx
+      - name: Build TypeScript project
+        working-directory: ${{ runner.temp }}/test-tsx
+        run: npm install && npm run build
+      - name: Create MoonBit project
+        run: cd ${{ runner.temp }} && node ${{ github.workspace }}/js/luna/dist/cli.mjs new test-mbt --mbt
+      - name: Build MoonBit project
+        working-directory: ${{ runner.temp }}/test-mbt
+        run: |
+          moon update
+          npm install 
+          npm run build

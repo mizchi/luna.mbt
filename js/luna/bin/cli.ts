@@ -203,6 +203,7 @@ export default defineConfig({
     <title>${projectName}</title>
   </head>
   <body>
+    <h1>${projectName}</h1>
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
@@ -344,6 +345,7 @@ export default defineConfig({
     moonbit({
       watch: true,
       showLogs: true,
+      mode: "debug",
     }),
   ],
 });
@@ -407,8 +409,9 @@ import "mbt:internal/${projectName}";
       content: `// Luna Counter App
 
 fn main {
-  let count = @signal.signal(0)
+  let count = @signal.Signal::new(0)
   let doubled = @signal.memo(fn() { count.get() * 2 })
+  let items : @signal.Signal[Array[String]] = @signal.Signal::new([])
 
   let doc = @js_dom.document()
   match doc.getElementById("app") {
@@ -435,6 +438,35 @@ fn main {
             [@dom.text("Reset")],
           ),
         ]),
+        @dom.h2([@dom.text("Items")]),
+        @dom.button(
+          on=@dom.events().click(_ => {
+            let next_index = items.get().length() + 1
+            items.update(fn(prev) {
+              let arr = prev.copy()
+              arr.push("Item " + next_index.to_string())
+              arr
+            })
+          }),
+          [@dom.text("Add Item")],
+        ),
+        @dom.show(
+          fn() { items.get().length() > 0 },
+          fn() {
+            @dom.ul([
+              @dom.for_each(
+                fn() { items.get() },
+                fn(item, index) {
+                  @dom.li([@dom.text("\\{index}: \\{item}")])
+                },
+              ),
+            ])
+          },
+        ),
+        @dom.show(
+          fn() { items.get().length() == 0 },
+          fn() { @dom.p([@dom.text("No items yet")]) },
+        ),
       ])
       @dom.render(el |> @dom.DomElement::from_dom, app)
     }

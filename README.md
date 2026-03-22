@@ -8,13 +8,29 @@ Island Architecture-based UI library implemented in MoonBit.
 
 ## Installation
 
-```json
-// moon.mod.json
-{
-  "deps": {
-    "mizchi/luna": "0.7.0"
-  }
-}
+```sh
+moon add mizchi/luna
+```
+
+## Quick Start
+
+### TypeScript/JSX Project
+
+```sh
+npx @luna_ui/luna new myapp
+cd myapp
+npm install
+npm run dev
+```
+
+### MoonBit Project
+
+```sh
+npx @luna_ui/luna new myapp --mbt
+cd myapp
+moon update
+npm install
+npm run dev
 ```
 
 ## Packages
