@@ -3,7 +3,7 @@
   "version": "0.14.0",
   "deps": {
     "moonbitlang/yacc": "0.7.10",
-    "mizchi/luna": "0.18.1",
+    "mizchi/luna": "0.18.3",
     "moonbitlang/async": "0.16.6",
     "moonbitlang/x": "0.4.40",
     "moonbitlang/parser": "0.1.16",
