@@ -23,7 +23,7 @@ async fn main {
     "serve" => run_serve(rest)
     "generate" => run_generate(rest)
     "help" | "--help" | "-h" => print_help()
-    "version" | "--version" | "-v" => println("sol 0.15.0")
+    "version" | "--version" | "-v" => println("sol 0.15.1")
     _ => {
       println("Unknown command: \{command}")
       print_help()
@@ -34,7 +34,7 @@ async fn main {
 
 ///|
 fn print_help() -> Unit {
-  println("Sol CLI v0.15.0")
+  println("Sol CLI v0.15.1")
   println("")
   println("Usage: sol <command> [options]")
   println("")

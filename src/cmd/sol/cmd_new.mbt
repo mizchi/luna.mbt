@@ -118,7 +118,7 @@ fn new_doc_project_files(
   [
     (
       "moon.mod.json",
-      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.15.0\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.3\",\n    \"mizchi/js\": \"0.10.15\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.17.0\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
+      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.15.1\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.3\",\n    \"mizchi/js\": \"0.10.15\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.17.0\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
     ),
     (
       "package.json",
@@ -184,7 +184,7 @@ fn new_project_files(
   [
     (
       "moon.mod.json",
-      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.15.0\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.3\",\n    \"mizchi/signals\": \"0.6.4\",\n    \"mizchi/js\": \"0.10.15\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.17.0\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
+      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.15.1\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.3\",\n    \"mizchi/signals\": \"0.6.4\",\n    \"mizchi/js\": \"0.10.15\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.17.0\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
     ),
     (
       "package.json",
