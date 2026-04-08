@@ -1200,6 +1200,17 @@ test "generate_templates: moon.mod.json includes sol and mars dependencies" {
 }
 
 ///|
+test "template_moon_mod_json: uses current published moon deps" {
+  let templates = generate_templates("tester/myapp", "myapp", None)
+  let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
+  assert_true(content.contains("\"mizchi/sol\": \"0.14.1\""))
+  assert_true(content.contains("\"mizchi/luna\": \"0.18.3\""))
+  assert_true(content.contains("\"mizchi/signals\": \"0.6.4\""))
+  assert_true(content.contains("\"mizchi/js\": \"0.10.15\""))
+  assert_true(content.contains("\"moonbitlang/async\": \"0.17.0\""))
+}
+
+///|
 test "template_layout_mbt: provides root_layout used by routes template" {
   let content = template_layout_mbt()
   assert_true(content.contains("pub fn root_layout("))
@@ -1252,6 +1263,15 @@ test "generate_templates: package.json includes dev/build/serve scripts" {
   assert_true(content.contains("\"dev\""))
   assert_true(content.contains("\"build\""))
   assert_true(content.contains("\"serve\""))
+}
+
+///|
+test "template_package_json: uses current npm deps" {
+  let templates = generate_templates("tester/myapp", "myapp", None)
+  let content = find_template_content(templates, "package.json").unwrap_or("")
+  assert_true(content.contains("\"hono\": \"^4.12.12\""))
+  assert_true(content.contains("\"@hono/node-server\": \"^1.19.13\""))
+  assert_true(content.contains("\"rolldown\": \"1.0.0-rc.13\""))
 }
 
 ///|

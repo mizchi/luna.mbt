@@ -70,6 +70,12 @@
     .slide-content blockquote {
       border-left: 3px solid #404040; margin: 0 0 12px 0; padding-left: 12px; color: #a0a0a0;
     }
+    .slide-content .mermaid-svg {
+      display: flex; justify-content: center; margin: 8px 0;
+    }
+    .slide-content .mermaid-svg svg {
+      max-width: 100%; max-height: 300px;
+    }
     .slide-content table { border-collapse: collapse; width: 100%; margin: 0 0 12px 0; font-size: 0.85em; }
     .slide-content th, .slide-content td { border: 1px solid #404040; padding: 4px 8px; text-align: left; }
     .slide-content th { background: #2d2d2d; }
@@ -136,6 +142,8 @@
 
   <script type="module">
     import { parse } from "./md-api.js";
+    import { highlight } from "./syntree-api.js";
+    import { renderToSvg } from "./moomaid-api.js";
 
     const editor = document.getElementById('editor');
     const slidesContainer = document.getElementById('slidesContainer');
@@ -213,7 +221,21 @@
         case 'paragraph':
           return `<p>${inlinesToHtml(block.children)}</p>`;
         case 'code':
-          return `<pre><code>${escapeHtml(block.value || '')}</code></pre>`;
+          const lang = block.lang || '';
+          const code = block.value || '';
+          if (lang === 'mermaid') {
+            try {
+              return `<div class="mermaid-svg">${renderToSvg(code)}</div>`;
+            } catch (e) {
+              console.error('Mermaid render error:', e);
+              return `<pre><code>${escapeHtml(code)}</code></pre>`;
+            }
+          }
+          try {
+            return highlight(code, lang);
+          } catch {
+            return `<pre><code>${escapeHtml(code)}</code></pre>`;
+          }
         case 'blockquote':
           return `<blockquote>${block.children ? block.children.map(blockToHtml).join('') : ''}</blockquote>`;
         case 'list':

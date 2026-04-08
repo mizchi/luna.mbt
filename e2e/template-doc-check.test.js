@@ -30,6 +30,13 @@ function ensureCliBuilt() {
   );
 }
 
+function pinWorkspaceSol(projectDir) {
+  const moonModPath = path.join(projectDir, "moon.mod.json");
+  const moonMod = JSON.parse(fs.readFileSync(moonModPath, "utf8"));
+  moonMod.deps["mizchi/sol"] = { path: ROOT };
+  fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
+}
+
 test("sol new --doc generates project structure", () => {
   ensureCliBuilt();
 
@@ -154,6 +161,7 @@ test("sol new --doc template passes moon check", () => {
     assert.equal(create.status, 0, "sol new --doc should succeed");
 
     const projectDir = path.join(sandbox, "mydocs");
+    pinWorkspaceSol(projectDir);
 
     // Install MoonBit dependencies
     const install = spawnSync("moon", ["install"], {

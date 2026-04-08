@@ -11,10 +11,8 @@ pub(all) struct StatInfo {
   is_directory : Bool
   mtime_ms : Float
   size : Int
-}
+} derive(Eq, Show)
 pub impl FileStat for StatInfo
-pub impl Eq for StatInfo
-pub impl Show for StatInfo
 
 // Type aliases
 

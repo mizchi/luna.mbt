@@ -84,9 +84,7 @@ pub(all) enum ContentType {
   Component
   TsxComponent
   Mdx
-}
-pub impl Eq for ContentType
-pub impl Show for ContentType
+} derive(Eq, Show)
 
 pub(all) struct CssUtilitiesConfig {
   enabled : Bool
@@ -104,10 +102,8 @@ pub(all) enum DeployTarget {
   Netlify
   Deno
   Node
-}
+} derive(Eq, Show)
 pub fn DeployTarget::default() -> Self
-pub impl Eq for DeployTarget
-pub impl Show for DeployTarget
 
 pub(all) struct DocumentTree {
   site : SiteInfo
@@ -123,9 +119,7 @@ pub fn DocumentTree::new(site~ : SiteInfo, pages? : Array[PageInfo], root? : Tre
 pub(all) struct FooterColumn {
   title : String
   items : Array[FooterLink]
-}
-pub impl ToJson for FooterColumn
-pub impl @json.FromJson for FooterColumn
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct FooterConfig {
   message : String?
@@ -133,9 +127,7 @@ pub(all) struct FooterConfig {
   links : Array[FooterColumn]
   top : Array[FooterElement]
   bottom : Array[FooterElement]
-}
-pub impl ToJson for FooterConfig
-pub impl @json.FromJson for FooterConfig
+} derive(ToJson, @json.FromJson)
 
 pub(all) enum FooterElement {
   Columns
@@ -143,28 +135,20 @@ pub(all) enum FooterElement {
   Copyright
   SocialLinks
   Custom(String)
-}
-pub impl Eq for FooterElement
-pub impl Show for FooterElement
-pub impl ToJson for FooterElement
-pub impl @json.FromJson for FooterElement
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub(all) struct FooterLink {
   label : String
   href : String
-}
-pub impl ToJson for FooterLink
-pub impl @json.FromJson for FooterLink
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct HeaderConfig {
   left : Array[HeaderElement]
   center : Array[HeaderElement]
   right : Array[HeaderElement]
   sticky : Bool
-}
+} derive(ToJson, @json.FromJson)
 pub fn HeaderConfig::default() -> Self
-pub impl ToJson for HeaderConfig
-pub impl @json.FromJson for HeaderConfig
 
 pub(all) enum HeaderElement {
   Logo
@@ -175,11 +159,7 @@ pub(all) enum HeaderElement {
   LangSwitcher
   Spacer
   Custom(String)
-}
-pub impl Eq for HeaderElement
-pub impl Show for HeaderElement
-pub impl ToJson for HeaderElement
-pub impl @json.FromJson for HeaderElement
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub(all) struct Heading {
   level : Int
@@ -204,9 +184,7 @@ pub(all) struct LocaleConfig {
   code : String
   label : String
   path : String
-}
-pub impl ToJson for LocaleConfig
-pub impl @json.FromJson for LocaleConfig
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct MetaFilesConfig {
   sitemap : Bool
@@ -220,19 +198,15 @@ pub(all) struct NavItem {
   link : String
   icon : String?
   items : Array[NavItem]
-}
+} derive(ToJson, @json.FromJson)
 pub fn NavItem::new(String, String) -> Self
-pub impl ToJson for NavItem
-pub impl @json.FromJson for NavItem
 
 pub(all) struct NavigationConfig {
   spa : Bool
   view_transitions : Bool
   keyboard : Bool
-}
+} derive(ToJson, @json.FromJson)
 pub fn NavigationConfig::default() -> Self
-pub impl ToJson for NavigationConfig
-pub impl @json.FromJson for NavigationConfig
 
 pub(all) struct OgpConfig {
   site_url : String?
@@ -290,10 +264,8 @@ pub(all) enum RendererType {
   PreactRenderer
   ClientOnlyRenderer
   MdxRenderer
-}
+} derive(Eq, Show)
 pub fn RendererType::default() -> Self
-pub impl Eq for RendererType
-pub impl Show for RendererType
 
 pub(all) enum SidebarConfig {
   Auto
@@ -305,16 +277,12 @@ pub(all) struct SidebarGroup {
   link : String?
   collapsed : Bool
   items : Array[SidebarItem]
-}
-pub impl ToJson for SidebarGroup
-pub impl @json.FromJson for SidebarGroup
+} derive(ToJson, @json.FromJson)
 
 pub(all) enum SidebarItem {
   Link(text~ : String, link~ : String)
   Group(SidebarGroup)
-}
-pub impl ToJson for SidebarItem
-pub impl @json.FromJson for SidebarItem
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct SiteConfig {
   title : String
@@ -335,9 +303,7 @@ pub fn SiteInfo::new(title~ : String, description? : String, base_url? : String,
 pub(all) struct SocialLink {
   icon : String
   link : String
-}
-pub impl ToJson for SocialLink
-pub impl @json.FromJson for SocialLink
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct SsgConfig {
   docs_dir : String

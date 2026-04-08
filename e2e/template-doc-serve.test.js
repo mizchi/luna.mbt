@@ -57,6 +57,36 @@ function runSync(cmd, args, cwd) {
   return result;
 }
 
+function pinWorkspaceSol(projectDir) {
+  const moonModPath = path.join(projectDir, "moon.mod.json");
+  const moonMod = JSON.parse(fs.readFileSync(moonModPath, "utf8"));
+  moonMod.deps["mizchi/sol"] = { path: ROOT };
+  fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
+}
+
+function ensureRuntimeNodeModules(projectDir) {
+  const offlineInstall = runSync(
+    "pnpm",
+    ["install", "--prod", "--offline"],
+    projectDir
+  );
+  if (offlineInstall.status === 0) return;
+
+  const rootNodeModules = path.join(ROOT, "node_modules");
+  assert.ok(
+    fs.existsSync(path.join(rootNodeModules, "@hono", "node-server", "package.json")),
+    `pnpm install failed and root node_modules is unavailable:\n${offlineInstall.stdout}\n${offlineInstall.stderr}`
+  );
+
+  const targetNodeModules = path.join(projectDir, "node_modules");
+  fs.rmSync(targetNodeModules, { recursive: true, force: true });
+  fs.symlinkSync(
+    rootNodeModules,
+    targetNodeModules,
+    process.platform === "win32" ? "junction" : "dir"
+  );
+}
+
 async function waitForServer(url, timeoutMs = 30_000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
@@ -69,6 +99,21 @@ async function waitForServer(url, timeoutMs = 30_000) {
     await new Promise((r) => setTimeout(r, 500));
   }
   throw new Error(`Server at ${url} did not start within ${timeoutMs}ms`);
+}
+
+async function waitForProcessExit(child, timeoutMs = 2_000) {
+  if (child.exitCode !== null || child.signalCode !== null) return true;
+  return await new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      child.off("exit", onExit);
+      resolve(false);
+    }, timeoutMs);
+    const onExit = () => {
+      clearTimeout(timer);
+      resolve(true);
+    };
+    child.once("exit", onExit);
+  });
 }
 
 test("sol new --doc: build and serve e2e", { timeout: 120_000 }, async () => {
@@ -93,6 +138,7 @@ test("sol new --doc: build and serve e2e", { timeout: 120_000 }, async () => {
       0,
       `sol new --doc failed:\n${create.stdout}\n${create.stderr}`
     );
+    pinWorkspaceSol(projectDir);
 
     // Step 2: Install MoonBit deps
     const install = runSync("moon", ["install"], projectDir);
@@ -102,8 +148,7 @@ test("sol new --doc: build and serve e2e", { timeout: 120_000 }, async () => {
     );
 
     // Step 3: Install npm deps
-    const npmInstall = runSync("pnpm", ["install"], projectDir);
-    // pnpm install may fail if no lockfile, that's ok for basic serve
+    ensureRuntimeNodeModules(projectDir);
 
     // Step 4: Generate + Build
     const generate = runSync(
@@ -144,7 +189,11 @@ test("sol new --doc: build and serve e2e", { timeout: 120_000 }, async () => {
       stderr += data.toString();
     });
 
-    await waitForServer(`${BASE}/api/health`);
+    try {
+      await waitForServer(`${BASE}/api/health`);
+    } catch (error) {
+      throw new Error(`${error.message}\nserver stderr:\n${stderr}`);
+    }
 
     // ========== Verification ==========
 
@@ -237,10 +286,10 @@ test("sol new --doc: build and serve e2e", { timeout: 120_000 }, async () => {
     // Cleanup: kill server
     if (serverProcess) {
       serverProcess.kill("SIGTERM");
-      // Give it a moment to die
-      await new Promise((r) => setTimeout(r, 500));
-      if (!serverProcess.killed) {
+      const exited = await waitForProcessExit(serverProcess);
+      if (!exited) {
         serverProcess.kill("SIGKILL");
+        await waitForProcessExit(serverProcess);
       }
     }
     // Cleanup: remove sandbox

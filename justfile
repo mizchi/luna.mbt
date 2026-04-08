@@ -223,17 +223,25 @@ release-doc: build-doc
 # Slide
 # =============================================================================
 
-# Build markdown.mbt slide runtime (requires markdown.mbt repo)
-slide-build markdown_dir="../markdown.mbt":
-    cd {{markdown_dir}} && moon build --target js src/api
+# Build slide runtime (requires markdown.mbt, syntree.mbt, moomaid repos)
+slide-build markdown_dir="../markdown.mbt" syntree_dir="../syntree.mbt" moomaid_dir="../moomaid":
+    cd {{markdown_dir}} && moon build --target js --release src/api
     cp {{markdown_dir}}/js/api.js docs/slide0322/md-api.js
     cp {{markdown_dir}}/_build/js/release/build/api/api.js docs/slide0322/md-core.js
     @sed -i '' 's|"\.\./\_build/js/release/build/api/api\.js"|"./md-core.js"|' docs/slide0322/md-api.js
-    @echo "✓ Slide runtime built"
+    cd {{syntree_dir}} && moon build --target js --release src/syntree_api
+    cp {{syntree_dir}}/js/syntree_api.js docs/slide0322/syntree-api.js
+    cp {{syntree_dir}}/_build/js/release/build/syntree_api/syntree_api.js docs/slide0322/syntree-core.js
+    @sed -i '' 's|"\.\./\_build/js/release/build/syntree_api/syntree_api\.js"|"./syntree-core.js"|' docs/slide0322/syntree-api.js
+    cd {{moomaid_dir}} && moon build --target js --release
+    cp {{moomaid_dir}}/_build/js/release/build/moomaid.js docs/slide0322/moomaid-core.js
+    @echo "✓ Slide runtime built (markdown + syntree + moomaid)"
 
 # Serve slide presentation
 slide:
     @test -f docs/slide0322/md-core.js || just slide-build
+    @test -f docs/slide0322/syntree-core.js || just slide-build
+    @test -f docs/slide0322/moomaid-core.js || just slide-build
     npx serve docs/slide0322
 
 # =============================================================================

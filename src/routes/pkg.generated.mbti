@@ -203,10 +203,9 @@ pub(all) enum ComponentType {
   SsrComponent
   ClientOnlyComponent
   ServerOnlyComponent
-}
+} derive(Show)
 pub fn ComponentType::can_hydrate(Self) -> Bool
 pub fn ComponentType::can_ssr(Self) -> Bool
-pub impl Show for ComponentType
 
 pub(all) enum ConflictType {
   DuplicatePath(path~ : String, sources~ : Array[String])
@@ -248,12 +247,10 @@ pub(all) enum FallbackConfig {
   NotFound(path~ : String)
   Spa(entry~ : String)
   SpaPrefix(prefix~ : String, entry~ : String)
-}
+} derive(Eq, Show)
 pub fn FallbackConfig::default() -> Self
 pub fn FallbackConfig::is_spa(Self) -> Bool
 pub fn FallbackConfig::spa_entry(Self) -> String?
-pub impl Eq for FallbackConfig
-pub impl Show for FallbackConfig
 
 pub(all) struct FileEntry {
   relative_path : String
@@ -275,11 +272,9 @@ pub(all) enum FileType {
   Mdx
   Html
   Unknown
-}
+} derive(Eq, Show)
 pub fn FileType::from_extension(String) -> Self
 pub fn FileType::is_page(Self) -> Bool
-pub impl Eq for FileType
-pub impl Show for FileType
 
 pub(all) struct HierarchicalManifest {
   version : Int
@@ -299,11 +294,9 @@ pub(all) enum HttpMethod {
   Delete
   Patch
   All
-}
+} derive(Eq, Show)
 pub fn HttpMethod::from_string(String) -> Self?
 pub fn HttpMethod::to_string(Self) -> String
-pub impl Eq for HttpMethod
-pub impl Show for HttpMethod
 
 pub(all) struct PageConfig {
   mode : String?
@@ -340,12 +333,10 @@ pub(all) enum RenderMode {
   Ssr
   Isr(revalidate~ : Int)
   Spa
-}
+} derive(Eq, Show)
 pub fn RenderMode::default() -> Self
 pub fn RenderMode::requires_server(Self) -> Bool
 pub fn RenderMode::revalidate_seconds(Self) -> Int?
-pub impl Eq for RenderMode
-pub impl Show for RenderMode
 
 pub(all) enum RouteEntry {
   Static(StaticRouteEntry)

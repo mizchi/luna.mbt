@@ -121,6 +121,10 @@ pub fn serve_static(@mars.Server, config? : StaticFileConfig) -> Unit
 
 pub fn serve_static_dir(@mars.Server, StaticDirServeConfig) -> Unit
 
+pub fn[E] server_island(id~ : String, props? : Json?, fallback? : @mizchi/luna/core.Node[E, String], revalidate? : Int?) -> @mizchi/luna/core.Node[E, String]
+
+pub fn[T : ToJson, E] server_island_typed(id~ : String, props~ : T, fallback? : @mizchi/luna/core.Node[E, String], revalidate? : Int?) -> @mizchi/luna/core.Node[E, String]
+
 pub fn streaming_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> Unit
 
 pub fn unauthorized(message? : String) -> @router.ApiResponse

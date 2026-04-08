@@ -25,15 +25,15 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.13.0",
+        #|    "mizchi/sol": "0.14.1",
         #|    "mizchi/mars": "0.3.10",
         #|    "mizchi/luna": {
         #|      "path": "{{LUNA_PATH}}"
         #|    },
-        #|    "mizchi/signals": "0.6.3",
-        #|    "mizchi/js": "0.10.14",
+        #|    "mizchi/signals": "0.6.4",
+        #|    "mizchi/js": "0.10.15",
         #|    "mizchi/npm_typed": "0.1.11",
-        #|    "moonbitlang/async": "0.16.6"
+        #|    "moonbitlang/async": "0.17.0"
         #|  },
         #|  "source": "app",
         #|  "preferred-target": "js"
@@ -49,13 +49,13 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.13.0",
+        #|    "mizchi/sol": "0.14.1",
         #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.18.0",
-        #|    "mizchi/signals": "0.6.3",
-        #|    "mizchi/js": "0.10.14",
+        #|    "mizchi/luna": "0.18.3",
+        #|    "mizchi/signals": "0.6.4",
+        #|    "mizchi/js": "0.10.15",
         #|    "mizchi/npm_typed": "0.1.11",
-        #|    "moonbitlang/async": "0.16.6"
+        #|    "moonbitlang/async": "0.17.0"
         #|  },
         #|  "source": "app",
         #|  "preferred-target": "js"
@@ -79,11 +79,11 @@ fn template_package_json(project_name : String) -> String {
     #|    "generate": "sol generate"
     #|  },
     #|  "dependencies": {
-    #|    "hono": "^4.0.0",
-    #|    "@hono/node-server": "^1.0.0"
+    #|    "hono": "^4.12.12",
+    #|    "@hono/node-server": "^1.19.13"
     #|  },
     #|  "devDependencies": {
-    #|    "rolldown": "^1.0.0-beta.54"
+    #|    "rolldown": "1.0.0-rc.13"
     #|  }
     #|}
   tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)

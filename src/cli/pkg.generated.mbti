@@ -56,6 +56,8 @@ pub fn generate_wasm_manifest_json(Array[WasmMountEntry]) -> String
 
 pub fn has_ssg_config(String) -> Bool
 
+pub fn inject_mbtx_prelude(String) -> String
+
 pub fn[FS : @env.FileSystem] is_user_managed_server(FS, String, SolConfig) -> Bool
 
 pub fn is_web_component(String) -> Bool
@@ -63,6 +65,8 @@ pub fn is_web_component(String) -> Bool
 pub async fn load_config(String) -> (SolConfig?, String)
 
 pub async fn load_ts_config(String) -> SolConfig?
+
+pub fn mbtx_prelude() -> String
 
 pub fn parse_mbti(String) -> Array[(String, String)]
 
@@ -87,6 +91,8 @@ pub async fn run_ssg_build(@ssg.SsgConfig, String, Bool, Int?, Bool) -> Result[U
 pub async fn run_ssg_dev(@ssg.SsgConfig, String, Int) -> Unit
 
 pub fn run_ssg_lint(Array[String]) -> Unit
+
+pub fn[FS : @env.FileSystem] scan_mbtx_dir(FS, String, String, base_path? : String) -> Array[MbtxFileEntry]
 
 pub fn split_params(String) -> Array[String]
 
@@ -139,9 +145,7 @@ pub enum AppMode {
   MoonBitFull
   MoonBitClientTsServer
   TypeScriptFull
-}
-pub impl Eq for AppMode
-pub impl Show for AppMode
+} derive(Eq, Show)
 
 pub struct ComponentPropsRegistry {
   entries : Map[String, Array[PropsField]]
@@ -151,9 +155,7 @@ pub fn ComponentPropsRegistry::from_structs(Array[StructExport]) -> Self
 pub(all) enum DiagnosticSeverity {
   Error
   Warning
-}
-pub impl Eq for DiagnosticSeverity
-pub impl Show for DiagnosticSeverity
+} derive(Eq, Show)
 
 pub(all) struct FuncExport {
   name : String
@@ -169,6 +171,12 @@ pub(all) struct LinkDiagnostic {
   message : String
 }
 
+pub(all) struct MbtxFileEntry {
+  route : String
+  source : String
+  id : String
+}
+
 pub(all) struct PropsDiagnostic {
   component : String
   severity : DiagnosticSeverity
@@ -180,14 +188,14 @@ type PropsField
 
 type RouteInfo
 
+type SegmentKind
+
 pub enum ServerRuntime {
   RuntimeNode
   RuntimeCloudflare
   RuntimeDeno
   RuntimeBun
-}
-pub impl Eq for ServerRuntime
-pub impl Show for ServerRuntime
+} derive(Eq, Show)
 
 pub struct SolConfig {
   islands : Array[String]
@@ -198,7 +206,9 @@ pub struct SolConfig {
   adapter : ServerRuntime
   static_dirs : Array[StaticDirEntry]
   wasm_entrypoints : Array[WasmEntrypointConfig]
+  experimental : Array[String]
 }
+pub fn SolConfig::has_experimental(Self, String) -> Bool
 
 pub(all) struct SsgLintIssue {
   severity : SsgLintSeverity
@@ -256,9 +266,7 @@ pub enum WasmBuildKind {
   MoonBuild
   DirectCopy
   WiteCompose
-}
-pub impl Eq for WasmBuildKind
-pub impl Show for WasmBuildKind
+} derive(Eq, Show)
 
 pub struct WasmEntrypointBuildArtifacts {
   manifest_path : String
@@ -294,17 +302,13 @@ pub enum WasmEntrypointRuntime {
   Wagi
   WasiCli
   Component
-}
-pub impl Eq for WasmEntrypointRuntime
-pub impl Show for WasmEntrypointRuntime
+} derive(Eq, Show)
 
 pub enum WasmEntrypointSourceKind {
   MoonEntrypoint
   DirectWasm
   WacFile
-}
-pub impl Eq for WasmEntrypointSourceKind
-pub impl Show for WasmEntrypointSourceKind
+} derive(Eq, Show)
 
 pub struct WasmMountEntry {
   id : String

@@ -40,16 +40,12 @@ pub fn Frontmatter::default() -> Self
 pub(all) struct NavLink {
   text : String
   link : String
-}
-pub impl ToJson for NavLink
-pub impl @json.FromJson for NavLink
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct OutlineConfig {
   level_min : Int
   level_max : Int
-}
-pub impl ToJson for OutlineConfig
-pub impl @json.FromJson for OutlineConfig
+} derive(ToJson, @json.FromJson)
 
 // Type aliases
 

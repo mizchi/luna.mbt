@@ -97,10 +97,8 @@ pub(all) enum ComponentType {
   Toc
   Breadcrumb
   PrevNext
-}
+} derive(Eq, Show)
 pub fn ComponentType::filename(Self) -> String
-pub impl Eq for ComponentType
-pub impl Show for ComponentType
 
 pub(all) struct DiscoveryResult {
   scanned_dir : String

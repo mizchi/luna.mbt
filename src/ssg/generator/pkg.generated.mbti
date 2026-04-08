@@ -47,17 +47,13 @@ pub fn write_routes_json(@ssg.BuildContext) -> Unit
 pub(all) struct CssManifestEntry {
   css : String
   size : Int
-}
-pub impl ToJson for CssManifestEntry
-pub impl @json.FromJson for CssManifestEntry
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct CssSplitManifest {
   entries : Map[String, CssManifestEntry]
   shared_css : String
   shared_size : Int
-}
-pub impl ToJson for CssSplitManifest
-pub impl @json.FromJson for CssSplitManifest
+} derive(ToJson, @json.FromJson)
 
 pub struct ParallelCssConfig {
   max_workers : Int

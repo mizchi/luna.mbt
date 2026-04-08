@@ -13,10 +13,8 @@ import {
 pub(all) struct ClsHints {
   width : String?
   height : String?
-}
+} derive(Eq, Show)
 pub fn ClsHints::new() -> Self
-pub impl Eq for ClsHints
-pub impl Show for ClsHints
 
 pub(all) struct ComponentEmbed {
   tag : String
@@ -68,9 +66,7 @@ pub(all) enum MdxAttrValue {
   StringLiteral(String)
   Expression(String)
   Boolean
-}
-pub impl Eq for MdxAttrValue
-pub impl Show for MdxAttrValue
+} derive(Eq, Show)
 
 // Type aliases
 

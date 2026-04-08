@@ -118,11 +118,11 @@ fn new_doc_project_files(
   [
     (
       "moon.mod.json",
-      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.13.2\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.2\",\n    \"mizchi/js\": \"0.10.14\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.16.6\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
+      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.14.1\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.3\",\n    \"mizchi/js\": \"0.10.15\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.17.0\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
     ),
     (
       "package.json",
-      "{\n  \"name\": \"\{project_name}\",\n  \"version\": \"0.1.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"sol dev\",\n    \"build\": \"sol build\",\n    \"serve\": \"sol serve\"\n  },\n  \"dependencies\": {\n    \"hono\": \"^4.0.0\",\n    \"@hono/node-server\": \"^1.0.0\"\n  },\n  \"devDependencies\": {\n    \"rolldown\": \"^1.0.0-beta.54\"\n  }\n}",
+      "{\n  \"name\": \"\{project_name}\",\n  \"version\": \"0.1.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"sol dev\",\n    \"build\": \"sol build\",\n    \"serve\": \"sol serve\"\n  },\n  \"dependencies\": {\n    \"hono\": \"^4.12.12\",\n    \"@hono/node-server\": \"^1.19.13\"\n  },\n  \"devDependencies\": {\n    \"rolldown\": \"1.0.0-rc.13\"\n  }\n}",
     ),
     (
       "sol.config.json",
@@ -184,11 +184,11 @@ fn new_project_files(
   [
     (
       "moon.mod.json",
-      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.13.2\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.2\",\n    \"mizchi/signals\": \"0.6.3\",\n    \"mizchi/js\": \"0.10.14\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.16.6\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
+      "{\n  \"name\": \"\{package_name}\",\n  \"version\": \"0.1.0\",\n  \"deps\": {\n    \"mizchi/sol\": \"0.14.1\",\n    \"mizchi/mars\": \"0.3.10\",\n    \"mizchi/luna\": \"0.18.3\",\n    \"mizchi/signals\": \"0.6.4\",\n    \"mizchi/js\": \"0.10.15\",\n    \"mizchi/npm_typed\": \"0.1.11\",\n    \"moonbitlang/async\": \"0.17.0\"\n  },\n  \"source\": \"app\",\n  \"preferred-target\": \"js\"\n}",
     ),
     (
       "package.json",
-      "{\n  \"name\": \"\{project_name}\",\n  \"version\": \"0.1.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"sol dev\",\n    \"build\": \"sol build\",\n    \"serve\": \"sol serve\"\n  },\n  \"dependencies\": {\n    \"hono\": \"^4.0.0\",\n    \"@hono/node-server\": \"^1.0.0\"\n  },\n  \"devDependencies\": {\n    \"rolldown\": \"^1.0.0-beta.54\"\n  }\n}",
+      "{\n  \"name\": \"\{project_name}\",\n  \"version\": \"0.1.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"sol dev\",\n    \"build\": \"sol build\",\n    \"serve\": \"sol serve\"\n  },\n  \"dependencies\": {\n    \"hono\": \"^4.12.12\",\n    \"@hono/node-server\": \"^1.19.13\"\n  },\n  \"devDependencies\": {\n    \"rolldown\": \"1.0.0-rc.13\"\n  }\n}",
     ),
     (
       "sol.config.json",

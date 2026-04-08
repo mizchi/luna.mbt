@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "chromium-bidi": "^14.0.0",
-    "ws": "^8.0.0",
-    "websocket": "^1.0.0",
-    "debug": "^4.0.0",
-    "@puppeteer/browsers": "^2.0.0"
+    "chromium-bidi": "^15.0.0",
+    "ws": "^8.20.0",
+    "websocket": "^1.0.35",
+    "debug": "^4.4.3",
+    "@puppeteer/browsers": "^2.13.0"
   }
 }

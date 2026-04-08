@@ -30,6 +30,13 @@ function ensureCliBuilt() {
   );
 }
 
+function pinWorkspaceSol(projectDir) {
+  const moonModPath = path.join(projectDir, "moon.mod.json");
+  const moonMod = JSON.parse(fs.readFileSync(moonModPath, "utf8"));
+  moonMod.deps["mizchi/sol"] = { path: ROOT };
+  fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
+}
+
 test("sol new template passes moon check --deny-warn", () => {
   ensureCliBuilt();
 
@@ -48,6 +55,7 @@ test("sol new template passes moon check --deny-warn", () => {
     );
 
     const projectDir = path.join(sandbox, "check-app");
+    pinWorkspaceSol(projectDir);
 
     // Install dependencies
     const install = spawnSync("moon", ["install"], {

@@ -61,6 +61,8 @@ pub fn redirect_permanent_to(String) -> ApiResponse
 
 pub fn redirect_to(String, status? : Int) -> ApiResponse
 
+pub fn register_mbtx_routes(@mars.Server, Array[MbtxRoute]) -> Unit
+
 pub fn[E] register_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @mizchi/luna/core.Node[E, String]?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
 
 pub fn register_server_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @static.ServerNode?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
@@ -78,6 +80,10 @@ pub fn require_query(PageProps, String) -> Result[String, ApiResponse]
 pub async fn send_fragment_response(@mars.Context, String) -> Unit
 
 pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/sol/routes.RouteManifest
+
+pub fn split_mbtx_chunks(Array[MbtxEntry], shared_path? : String) -> MbtxChunkResult
+
+pub fn transform_mbtx_to_esm(String) -> String
 
 pub fn unauthorized(message? : String) -> ApiResponse
 
@@ -113,10 +119,8 @@ pub fn ApiResponse::to_json(Self) -> Json
 pub(all) enum CacheStrategy {
   AlwaysFetch
   StaleWhileRevalidate
-}
+} derive(Eq, Show)
 pub fn CacheStrategy::default() -> Self
-pub impl Eq for CacheStrategy
-pub impl Show for CacheStrategy
 
 pub(all) struct CatchAllInfo {
   name : String
@@ -153,6 +157,28 @@ pub struct CompiledSolRoute {
   revalidate : Int?
   cache_strategy : CacheStrategy
   rendered_meta : String
+}
+
+pub(all) struct MbtxChunkEntry {
+  id : String
+  code : String
+}
+
+pub(all) struct MbtxChunkResult {
+  shared_code : String
+  entries : Array[MbtxChunkEntry]
+}
+
+pub(all) struct MbtxEntry {
+  id : String
+  code : String
+}
+
+type MbtxResponse
+
+pub(all) struct MbtxRoute {
+  path : String
+  js_path : String
 }
 
 pub(all) struct PageHandler(async (PageProps) -> @static.ServerNode)
@@ -220,6 +246,7 @@ pub struct RouterConfig {
   root_template : String
   isr_cache : @isr.MemoryCache?
   cache_strategy : @isr.CDNCacheStrategy?
+  server_islands : ServerIslandRegistry?
 }
 pub fn RouterConfig::default() -> Self
 pub fn RouterConfig::with_cache_strategy(Self, @isr.CDNCacheStrategy) -> Self
@@ -230,9 +257,24 @@ pub fn RouterConfig::with_isr_cache(Self, @isr.MemoryCache) -> Self
 pub fn RouterConfig::with_loader_url(Self, String) -> Self
 pub fn RouterConfig::with_preload_libs(Self, Array[String]) -> Self
 pub fn RouterConfig::with_root_template(Self, String) -> Self
+pub fn RouterConfig::with_server_islands(Self, ServerIslandRegistry) -> Self
 pub fn RouterConfig::with_streaming_ssr(Self, enabled? : Bool) -> Self
 pub fn RouterConfig::with_title_prefix(Self, String) -> Self
 pub fn RouterConfig::with_wc_loader_url(Self, String) -> Self
+
+pub(all) struct ServerIslandDef {
+  id : String
+  render : async (Json) -> @static.ServerNode
+  revalidate : Int?
+}
+
+pub(all) struct ServerIslandRegistry {
+  islands : Map[String, ServerIslandDef]
+}
+pub fn ServerIslandRegistry::get(Self, String) -> ServerIslandDef?
+pub fn ServerIslandRegistry::is_empty(Self) -> Bool
+pub fn ServerIslandRegistry::new() -> Self
+pub fn ServerIslandRegistry::register(Self, ServerIslandDef) -> Unit
 
 pub enum SolRouteKind {
   Page
@@ -241,9 +283,7 @@ pub enum SolRouteKind {
   PutApi
   DeleteApi
   PatchApi
-}
-pub impl Eq for SolRouteKind
-pub impl Show for SolRouteKind
+} derive(Eq, Show)
 
 pub(all) enum SolRoutes {
   Page(path~ : String, handler~ : PageHandler, title~ : String, meta~ : Array[(String, String)], revalidate~ : Int?, cache~ : CacheStrategy?)

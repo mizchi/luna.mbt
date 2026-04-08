@@ -48,8 +48,7 @@ pub struct AccordionDemoItem {
   title : String
   content : String
   open : Bool
-}
-pub impl Eq for AccordionDemoItem
+} derive(Eq)
 
 // Type aliases
 pub using @toc {type TocItem}
