@@ -1203,7 +1203,7 @@ test "generate_templates: moon.mod.json includes sol and mars dependencies" {
 test "template_moon_mod_json: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol\": \"0.14.1\""))
+  assert_true(content.contains("\"mizchi/sol\": \"0.15.0\""))
   assert_true(content.contains("\"mizchi/luna\": \"0.18.3\""))
   assert_true(content.contains("\"mizchi/signals\": \"0.6.4\""))
   assert_true(content.contains("\"mizchi/js\": \"0.10.15\""))

@@ -4,7 +4,7 @@
 
 ///|
 /// Sol SSG version for cache invalidation
-pub let sol_version : String = "0.1.0"
+pub let sol_version : String = "0.15.0"
 
 ///|
 /// Local file system provider for build state
