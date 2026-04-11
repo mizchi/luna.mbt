@@ -184,7 +184,7 @@ fn make_tree_handler(
         if find_node(nodes, current_id) is Some(node) {
           if has_children(node) {
             let is_expanded = exp_map.get(current_id).unwrap_or(false)
-            if not(is_expanded) {
+            if !(is_expanded) {
               // Expand
               let new_map = exp_map.copy()
               new_map.set(current_id, true)
@@ -272,7 +272,7 @@ fn render_single_styled_tree_node(
               let exp_map = expanded.get()
               let new_map = exp_map.copy()
               let is_expanded = exp_map.get(node_id).unwrap_or(false)
-              new_map.set(node_id, not(is_expanded))
+              new_map.set(node_id, !(is_expanded))
               expanded.set(new_map)
             }),
           ),

@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/x/css/optimizer"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn analyze(Array[ClassUsage], Map[String, Declaration], Int) -> AnalysisResult
 
@@ -48,46 +52,37 @@ pub struct AnalysisResult {
   cooccurrences : Array[CoOccurrence]
   patterns : Array[FrequentPattern]
   suggestions : Array[MergeSuggestion]
-}
-pub impl Show for AnalysisResult
+} derive(@debug.Debug)
 
 pub struct ClassUsage {
   classes : Array[String]
   source : String
-}
+} derive(@debug.Debug)
 pub fn ClassUsage::new(Array[String], String) -> Self
-pub impl Show for ClassUsage
 
 pub struct CoOccurrence {
   class_a : String
   class_b : String
   frequency : Int
-}
-pub impl Show for CoOccurrence
+} derive(@debug.Debug)
 
 pub struct Declaration {
   property : String
   value : String
-}
+} derive(Compare, Eq, Hash, @debug.Debug)
 pub fn Declaration::key(Self) -> String
 pub fn Declaration::new(String, String) -> Self
-pub impl Compare for Declaration
-pub impl Eq for Declaration
-pub impl Hash for Declaration
-pub impl Show for Declaration
 
 pub struct Edge {
   target : String
   weight : Int
-}
-pub impl Show for Edge
+} derive(@debug.Debug)
 
 pub struct FrequentPattern {
   classes : Array[String]
   frequency : Int
   potential_savings : Int
-}
-pub impl Show for FrequentPattern
+} derive(@debug.Debug)
 
 pub struct MergeSuggestion {
   original_classes : Array[String]
@@ -95,8 +90,7 @@ pub struct MergeSuggestion {
   declarations : Array[Declaration]
   usage_count : Int
   bytes_saved : Int
-}
-pub impl Show for MergeSuggestion
+} derive(@debug.Debug)
 
 pub enum PropertyCategory {
   Position
@@ -117,22 +111,17 @@ pub enum PropertyCategory {
   Animation
   Cursor
   Other
-}
-pub impl Compare for PropertyCategory
-pub impl Eq for PropertyCategory
-pub impl Show for PropertyCategory
+} derive(Compare, Eq, @debug.Debug)
 
 pub struct Rule {
   selector : String
   declarations : Array[Declaration]
-}
-pub impl Show for Rule
+} derive(@debug.Debug)
 
 pub struct ShorthandDef {
   shorthand : String
   longhands : Array[String]
-}
-pub impl Show for ShorthandDef
+} derive(@debug.Debug)
 
 // Type aliases
 

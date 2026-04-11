@@ -209,10 +209,7 @@ pub let z_index_2 : String
 // Errors
 
 // Types and methods
-type Todo
-pub impl Eq for Todo
-pub impl ToJson for Todo
-pub impl @json.FromJson for Todo
+type Todo derive(Eq, ToJson, @json.FromJson)
 
 // Type aliases
 

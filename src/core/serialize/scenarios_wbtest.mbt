@@ -329,7 +329,7 @@ test "scenario: theme preference persistence" {
       assert_eq(c_font.get(), 16)
 
       // User toggles theme
-      c_dark.set(not(c_dark.get()))
+      c_dark.set(!c_dark.get())
       assert_eq(c_dark.get(), false) // Now light mode
     }
     None => assert_true(false)

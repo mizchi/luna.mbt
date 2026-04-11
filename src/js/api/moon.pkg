@@ -16,6 +16,7 @@ import {
   "mizchi/npm_typed/global_jsdom",
 } for "test"
 
+supported_targets = "js"
 options(
   link: {
     "js": {
@@ -47,6 +48,7 @@ options(
         "render_to:render",
         "mount_to:mount",
         "show",
+        "loading",
         "jsx",
         "jsxs",
         "fragment:Fragment",
@@ -75,6 +77,7 @@ options(
         "resource_peek:resourcePeek",
         "resource_refetch:resourceRefetch",
         "resource_is_pending:resourceIsPending",
+        "resource_pending_getter:resourcePendingGetter",
         "resource_is_success:resourceIsSuccess",
         "resource_is_failure:resourceIsFailure",
         "resource_value:resourceValue",
@@ -92,5 +95,4 @@ options(
       "format": "esm",
     },
   },
-  "supported-targets": "js",
 )

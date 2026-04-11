@@ -23,7 +23,7 @@ pub fn[E] assert_tag(node : @luna.Node[E, String], expected : String) -> Unit {
 ///|
 /// 要素がElementであることを検証
 pub fn[E] assert_is_element(node : @luna.Node[E, String]) -> Unit {
-  if not(is_element(node)) {
+  if !(is_element(node)) {
     abort("Expected Element, but got \{node_type_name(node)}")
   }
 }
@@ -31,7 +31,7 @@ pub fn[E] assert_is_element(node : @luna.Node[E, String]) -> Unit {
 ///|
 /// 要素がTextであることを検証
 pub fn[E] assert_is_text(node : @luna.Node[E, String]) -> Unit {
-  if not(is_text(node)) {
+  if !(is_text(node)) {
     abort("Expected Text, but got \{node_type_name(node)}")
   }
 }
@@ -104,7 +104,7 @@ pub fn[E] assert_has_handler(
   node : @luna.Node[E, String],
   name : String,
 ) -> Unit {
-  if not(has_handler(node, name)) {
+  if !(has_handler(node, name)) {
     abort("Expected handler '\{name}' to exist")
   }
 }
@@ -129,7 +129,7 @@ pub fn[E] assert_text_contains(
   expected : String,
 ) -> Unit {
   let actual = get_all_text(node)
-  if not(actual.contains(expected)) {
+  if !(actual.contains(expected)) {
     abort("Expected text to contain '\{expected}', but got '\{actual}'")
   }
 }
@@ -203,7 +203,7 @@ pub fn[E] assert_element_count(
 pub fn[E] assert_show_visible(node : @luna.Node[E, String]) -> Unit {
   match node {
     @core.Show(condition~, ..) =>
-      if not(condition()) {
+      if !(condition()) {
         abort("Expected Show to be visible, but condition is false")
       }
     _ => abort("Expected Show node, but got \{node_type_name(node)}")

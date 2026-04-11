@@ -54,7 +54,7 @@ pub fn[E] toolbar(
   if aria_labelledby is Some(id) {
     attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -90,14 +90,14 @@ pub fn[E] toolbar_item(
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   if on_click is Some(handler) {
-    if not(is_disabled) {
+    if !is_disabled {
       attrs.push(("click", @luna.attr_handler(handler)))
     }
   }
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -135,14 +135,14 @@ pub fn[E] toolbar_item_dyn(
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   if on_click is Some(handler) {
-    if not(is_disabled) {
+    if !is_disabled {
       attrs.push(("click", @luna.attr_handler(handler)))
     }
   }
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -163,8 +163,7 @@ pub fn[E] toolbar_separator(
       ("aria-orientation", @luna.attr_static(orient)),
       ("class", @luna.attr_static("toolbar-separator")),
     ],
-    [],
-  )
+  ) <| []
 }
 
 ///|
@@ -336,7 +335,11 @@ pub fn toolbar_interactive(
         ),
       )
     }
-    toolbar_items.push(@luna.h("button", attrs, [@luna.text(item.label)]))
+    toolbar_items.push(
+      @luna.h("button", attrs) <| [
+        @luna.text(item.label),
+      ],
+    )
   }
   // Build toolbar container
   let orient_str = match orient {
@@ -351,5 +354,5 @@ pub fn toolbar_interactive(
   if aria_label is Some(label) {
     container_attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("div", container_attrs, toolbar_items)
+  @luna.h("div", container_attrs) <| toolbar_items
 }

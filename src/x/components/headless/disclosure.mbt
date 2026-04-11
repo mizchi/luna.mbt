@@ -32,7 +32,7 @@ pub fn use_disclosure_trigger(
   panel_id : String,
   expanded : @resource.Signal[Bool],
 ) -> DisclosureTriggerProps {
-  let toggle = fn() { expanded.set(not(expanded.get())) }
+  let toggle = fn() { expanded.set(!(expanded.get())) }
   let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
     ("type", @luna.attr_static("button")),
     ("id", @luna.attr_static(button_id)),

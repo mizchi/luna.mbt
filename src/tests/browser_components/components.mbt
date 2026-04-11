@@ -133,7 +133,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) { active.update(a => not(a)) }),
+            @luna.handler(fn(_event : @js.Any) { active.update(a => !(a)) }),
           ),
         ),
       ],
@@ -185,7 +185,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) { visible.update(v => not(v)) }),
+            @luna.handler(fn(_event : @js.Any) { visible.update(v => !(v)) }),
           ),
         ),
       ],

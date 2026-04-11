@@ -61,17 +61,31 @@ fn counter_example() -> DomNode {
   let count = signal(0)
   let doubled = memo(fn() { count.get() * 2 })
   let is_even = memo(fn() { count.get() % 2 == 0 })
-  div(class="counter-example", [
-    h2([text("Counter Example")]),
-    p([text_dyn(fn() { "Count: " + count.get().to_string() })]),
-    p([text_dyn(fn() { "Doubled: " + doubled().to_string() })]),
-    p([text_dyn(fn() { if is_even() { "Even" } else { "Odd" } })]),
-    div(class="buttons", [
-      button(on=events().click(_ => count.update(n => n - 1)), [text("-")]),
-      button(on=events().click(_ => count.update(n => n + 1)), [text("+")]),
-      button(on=events().click(_ => count.set(0)), [text("Reset")]),
-    ]),
-  ])
+  div(class="counter-example") <| [
+    h2() <| [
+      text("Counter Example"),
+    ],
+    p() <| [
+      text_dyn(fn() { "Count: " + count.get().to_string() }),
+    ],
+    p() <| [
+      text_dyn(fn() { "Doubled: " + doubled().to_string() }),
+    ],
+    p() <| [
+      text_dyn(fn() { if is_even() { "Even" } else { "Odd" } }),
+    ],
+    div(class="buttons") <| [
+      button(on=events().click(_ => count.update(n => n - 1))) <| [
+        text("-"),
+      ],
+      button(on=events().click(_ => count.update(n => n + 1))) <| [
+        text("+"),
+      ],
+      button(on=events().click(_ => count.set(0))) <| [
+        text("Reset"),
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -82,8 +96,10 @@ fn counter_example() -> DomNode {
 fn input_example() -> DomNode {
   let txt = signal("")
   let char_count = memo(fn() { txt.get().length() })
-  div(class="input-example", [
-    h2([text("Input Example")]),
+  div(class="input-example") <| [
+    h2() <| [
+      text("Input Example"),
+    ],
     input(
       type_="text",
       placeholder="Type something...",
@@ -93,9 +109,13 @@ fn input_example() -> DomNode {
         txt.set(value)
       }),
     ),
-    p([text_dyn(fn() { "Characters: " + char_count().to_string() })]),
-    p([text_dyn(fn() { "You typed: " + txt.get() })]),
-  ])
+    p() <| [
+      text_dyn(fn() { "Characters: " + char_count().to_string() }),
+    ],
+    p() <| [
+      text_dyn(fn() { "You typed: " + txt.get() }),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -111,20 +131,26 @@ fn effect_example() -> DomNode {
     console_log("Active state changed: " + is_active.to_string())
     on_cleanup(fn() { console_log("Cleaning up effect") })
   })
-  div(class="effect-example", [
-    h2([text("Effect Example")]),
-    p([
+  div(class="effect-example") <| [
+    h2() <| [
+      text("Effect Example"),
+    ],
+    p() <| [
       text_dyn(fn() {
         let status = if active.get() { "Active" } else { "Inactive" }
         "Status: " + status
       }),
-    ]),
-    p([text_dyn(fn() { "Ticks: " + ticks.get().to_string() })]),
-    button(on=events().click(_ => active.update(b => not(b))), [
+    ],
+    p() <| [
+      text_dyn(fn() { "Ticks: " + ticks.get().to_string() }),
+    ],
+    button(on=events().click(_ => active.update(b => !(b)))) <| [
       text_dyn(fn() { if active.get() { "Stop" } else { "Start" } }),
-    ]),
-    button(on=events().click(_ => ticks.update(n => n + 1)), [text("Tick")]),
-  ])
+    ],
+    button(on=events().click(_ => ticks.update(n => n + 1))) <| [
+      text("Tick"),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -134,9 +160,11 @@ fn effect_example() -> DomNode {
 ///|
 fn conditional_example() -> DomNode {
   let show_message = signal(true)
-  div(class="conditional-example", [
-    h2([text("Conditional Example")]),
-    button(on=events().click(_ => show_message.update(b => not(b))), [
+  div(class="conditional-example") <| [
+    h2() <| [
+      text("Conditional Example"),
+    ],
+    button(on=events().click(_ => show_message.update(b => !(b)))) <| [
       text_dyn(fn() {
         if show_message.get() {
           "Hide Message"
@@ -144,13 +172,13 @@ fn conditional_example() -> DomNode {
           "Show Message"
         }
       }),
-    ]),
+    ],
     show(fn() { show_message.get() }, fn() {
-      div(class="message", style="padding: 10px; background-color: #e0f7fa;", [
+      div(class="message", style="padding: 10px; background-color: #e0f7fa;") <| [
         text("Hello! This message is conditionally rendered."),
-      ])
+      ]
     }),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -161,8 +189,10 @@ fn conditional_example() -> DomNode {
 fn style_example() -> DomNode {
   let hue = signal(180)
   let size = signal(100)
-  div(class="style-example", [
-    h2([text("Style Example")]),
+  div(class="style-example") <| [
+    h2() <| [
+      text("Style Example"),
+    ],
     create_element(
       "div",
       [
@@ -179,10 +209,11 @@ fn style_example() -> DomNode {
           }),
         ),
       ],
-      [],
-    ),
-    div([
-      label([text("Hue: ")]),
+    ) <| [],
+    div() <| [
+      label() <| [
+        text("Hue: "),
+      ],
       input(
         type_="range",
         value="180",
@@ -196,9 +227,11 @@ fn style_example() -> DomNode {
           }
         }),
       ),
-    ]),
-    div([
-      label([text("Size: ")]),
+    ],
+    div() <| [
+      label() <| [
+        text("Size: "),
+      ],
       input(
         type_="range",
         value="100",
@@ -212,8 +245,8 @@ fn style_example() -> DomNode {
           }
         }),
       ),
-    ]),
-  ])
+    ],
+  ]
 }
 
 // =============================================================================
@@ -254,7 +287,7 @@ fn todo_example() -> DomNode {
     todos.update(fn(items) {
       items.map(fn(item) {
         if item.id == id {
-          { ..item, completed: not(item.completed) }
+          { ..item, completed: !(item.completed) }
         } else {
           item
         }
@@ -266,33 +299,34 @@ fn todo_example() -> DomNode {
     todos.update(fn(items) { items.filter(fn(item) { item.id != id }) })
   }
 
-  div(class="todo-example", [
-    h2([text("Todo List Example")]),
+  div(class="todo-example") <| [
+    h2() <| [
+      text("Todo List Example"),
+    ],
     form(
       on=events().submit(fn(e) {
         e.preventDefault()
         add_todo()
       }),
-      [
-        input(
-          type_="text",
-          placeholder="Add a todo...",
-          on=events().input(fn(e) {
-            let target : @js.Any = e.target() |> @js.identity
-            input_text.set(target._get("value").cast())
-          }),
-        ),
-        create_element("button", [("type", attr_static("submit"))], [
-          text("Add"),
-        ]),
+    ) <| [
+      input(
+        type_="text",
+        placeholder="Add a todo...",
+        on=events().input(fn(e) {
+          let target : @js.Any = e.target() |> @js.identity
+          input_text.set(target._get("value").cast())
+        }),
+      ),
+      create_element("button", [("type", attr_static("submit"))]) <| [
+        text("Add"),
       ],
-    ),
-    p([
+    ],
+    p() <| [
       text_dyn(fn() {
         completed_count().to_string() + "/" + total().to_string() + " completed"
       }),
-    ]),
-    ul([
+    ],
+    ul() <| [
       for_each(fn() { todos.get() }, fn(todo, _index) {
         let todo_id = todo.id
         create_element(
@@ -313,22 +347,23 @@ fn todo_example() -> DomNode {
               }),
             ),
           ],
-          [
-            span(
-              style="cursor: pointer;",
-              on=events().click(_ => toggle_todo(todo_id)),
-              [text(todo.text)],
-            ),
-            button(
-              style="margin-left: 10px;",
-              on=events().click(_ => remove_todo(todo_id)),
-              [text("x")],
-            ),
+        ) <| [
+          span(
+            style="cursor: pointer;",
+            on=events().click(_ => toggle_todo(todo_id)),
+          ) <| [
+            text(todo.text),
           ],
-        )
+          button(
+            style="margin-left: 10px;",
+            on=events().click(_ => remove_todo(todo_id)),
+          ) <| [
+            text("x"),
+          ],
+        ]
       }),
-    ]),
-  ])
+    ],
+  ]
 }
 
 // =============================================================================
@@ -348,48 +383,54 @@ fn from_portal_node(n : @portal.DomNode) -> DomNode {
 ///|
 fn modal_example() -> DomNode {
   let is_open = signal(false)
-  div(class="modal-example", [
-    h2([text("Modal Example (Portal)")]),
-    p([text("Modal renders outside the component tree using Portal.")]),
-    button(on=events().click(_ => is_open.set(true)), id="open-modal-btn", [
+  div(class="modal-example") <| [
+    h2() <| [
+      text("Modal Example (Portal)"),
+    ],
+    p() <| [
+      text("Modal renders outside the component tree using Portal."),
+    ],
+    button(on=events().click(_ => is_open.set(true)), id="open-modal-btn") <| [
       text("Open Modal"),
-    ]),
+    ],
     show(fn() { is_open.get() }, fn() {
+      let modal_card = div(
+          class="modal-content",
+          style="background: white; padding: 20px; border-radius: 8px; min-width: 300px; max-width: 500px;",
+          id="modal-content",
+        ) <| [
+          h3() <| [
+            text("Modal Title"),
+          ],
+          p() <| [
+            text(
+              "This modal is rendered using Portal, which teleports the content to document.body. This helps avoid z-index and overflow issues.",
+            ),
+          ],
+          button(
+            on=events().click(_ => is_open.set(false)),
+            id="close-modal-btn",
+          ) <| [
+            text("Close"),
+          ],
+        ]
       let modal_content = div(
-        class="modal-overlay",
-        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;",
-        id="modal-overlay",
-        on=events().click(fn(e) {
-          let target : @js.Any = e.target() |> @js.identity
-          let target_id : String = target._get("id").cast()
-          if target_id == "modal-overlay" {
-            is_open.set(false)
-          }
-        }),
-        [
-          div(
-            class="modal-content",
-            style="background: white; padding: 20px; border-radius: 8px; min-width: 300px; max-width: 500px;",
-            id="modal-content",
-            [
-              h3([text("Modal Title")]),
-              p([
-                text(
-                  "This modal is rendered using Portal, which teleports the content to document.body. This helps avoid z-index and overflow issues.",
-                ),
-              ]),
-              button(
-                on=events().click(_ => is_open.set(false)),
-                id="close-modal-btn",
-                [text("Close")],
-              ),
-            ],
-          ),
-        ],
-      )
+          class="modal-overlay",
+          style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;",
+          id="modal-overlay",
+          on=events().click(fn(e) {
+            let target : @js.Any = e.target() |> @js.identity
+            let target_id : String = target._get("id").cast()
+            if target_id == "modal-overlay" {
+              is_open.set(false)
+            }
+          }),
+        ) <| [
+          modal_card,
+        ]
       from_portal_node(portal_to_body([to_portal_node(modal_content)]))
     }),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -404,15 +445,17 @@ fn main {
   match doc.getElementById("app") {
     Some(el) => {
       let app = div(
-        class="app",
-        style="padding: 20px; max-width: 800px; margin: 0 auto;",
-        [
-          h1([text("Luna Examples")]),
-          p([
+          class="app",
+          style="padding: 20px; max-width: 800px; margin: 0 auto;",
+        ) <| [
+          h1() <| [
+            text("Luna Examples"),
+          ],
+          p() <| [
             text(
               "A collection of examples demonstrating the reactive UI library.",
             ),
-          ]),
+          ],
           hr(),
           counter_example(),
           hr(),
@@ -427,8 +470,7 @@ fn main {
           todo_example(),
           hr(),
           modal_example(),
-        ],
-      )
+        ]
       render(el |> DomElement::from_dom, app)
       console_log("App rendered successfully!")
     }

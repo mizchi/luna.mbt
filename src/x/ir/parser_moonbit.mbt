@@ -14,7 +14,7 @@ pub struct ParseResult {
   schema : Schema
   /// Parser errors
   errors : Array[ParseError]
-} derive(Show)
+}
 
 ///|
 /// Parse error
@@ -23,7 +23,7 @@ pub struct ParseError {
   line : Int
   /// Error message
   message : String
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 // =============================================================================
 // Main Parser
@@ -131,9 +131,7 @@ pub fn parse_moonbit_with_options(
     }
 
     // Reset pending state for other non-empty lines
-    if line.length() > 0 &&
-      not(line.has_prefix("//")) &&
-      not(line.has_prefix("/*")) {
+    if line.length() > 0 && !line.has_prefix("//") && !line.has_prefix("/*") {
       pending_doc = None
       pending_annotations = []
     }
@@ -167,7 +165,7 @@ fn parse_struct_def(
 
   // Check if this line has opening brace
   let has_brace = line.contains("{")
-  if not(has_brace) {
+  if !has_brace {
     // Look for opening brace on next lines
     let mut j = start + 1
     while j < lines.length() {
@@ -175,7 +173,7 @@ fn parse_struct_def(
       if l.has_prefix("{") {
         break
       }
-      if l.length() > 0 && not(l.has_prefix("//")) {
+      if l.length() > 0 && !l.has_prefix("//") {
         return Err("Expected '{' for struct body")
       }
       j = j + 1
@@ -209,7 +207,7 @@ fn parse_struct_def(
     }
     i = i + 1
   }
-  if not(found_close) {
+  if !found_close {
     return Err("Unclosed struct definition")
   }
 
@@ -225,9 +223,7 @@ fn parse_struct_def(
           let end_idx = find_char(derive_str, ')')
           match end_idx {
             Some(end) => {
-              let derives_content = derive_str[0:end].to_string() catch {
-                _ => ""
-              }
+              let derives_content = derive_str[0:end].to_string()
               for d in derives_content.split(",") {
                 let trimmed = d.to_string().trim(chars=" \t").to_string()
                 if trimmed.length() > 0 {
@@ -263,19 +259,12 @@ fn parse_field(line : String) -> Result[Field, String] {
   match colon_idx {
     None => Err("No colon in field definition")
     Some(idx) => {
-      let name = (line[0:idx].to_string() catch { _ => "" })
-        .trim(chars=" \t")
-        .to_string()
+      let name = line[0:idx].to_string().trim(chars=" \t").to_string()
       let type_str = safe_substring(line, idx + 1).trim(chars=" \t").to_string()
 
       // Check for optional marker
       let (actual_type, optional) = if type_str.has_suffix("?") {
-        (
-          type_str[0:type_str.length() - 1].to_string() catch {
-            _ => type_str
-          },
-          true,
-        )
+        (type_str[0:type_str.length() - 1].to_string(), true)
       } else {
         (type_str, false)
       }
@@ -303,25 +292,23 @@ pub fn parse_type_ref(type_str : String) -> TypeRef {
 
   // Check for Option type (trailing ?)
   if s.has_suffix("?") {
-    let inner = s[0:s.length() - 1].to_string() catch { _ => s }
+    let inner = s[0:s.length() - 1].to_string()
     return Option(parse_type_ref(inner))
   }
 
   // Check for Array type
   if s.has_prefix("Array[") && s.has_suffix("]") {
-    let inner = s[6:s.length() - 1].to_string() catch { _ => "" }
+    let inner = s[6:s.length() - 1].to_string()
     return Array(parse_type_ref(inner))
   }
 
   // Check for Map type
   if s.has_prefix("Map[") && s.has_suffix("]") {
-    let inner = s[4:s.length() - 1].to_string() catch { _ => "" }
+    let inner = s[4:s.length() - 1].to_string()
     // Find comma separator (simple case, no nested generics)
     match find_char(inner, ',') {
       Some(idx) => {
-        let key = (inner[0:idx].to_string() catch { _ => "" })
-          .trim(chars=" \t")
-          .to_string()
+        let key = inner[0:idx].to_string().trim(chars=" \t").to_string()
         let value = safe_substring(inner, idx + 1).trim(chars=" \t").to_string()
         return Map(parse_type_ref(key), parse_type_ref(value))
       }
@@ -333,7 +320,8 @@ pub fn parse_type_ref(type_str : String) -> TypeRef {
   if s.contains("->") {
     match find_substring(s, "->") {
       Some(arrow_idx) => {
-        let params_part = (s[0:arrow_idx].to_string() catch { _ => "" })
+        let params_part = s[0:arrow_idx]
+          .to_string()
           .trim(chars=" \t")
           .to_string()
         let return_part = safe_substring(s, arrow_idx + 2)
@@ -343,9 +331,7 @@ pub fn parse_type_ref(type_str : String) -> TypeRef {
         // Parse parameters
         let params : Array[TypeRef] = []
         if params_part.has_prefix("(") && params_part.has_suffix(")") {
-          let inner = params_part[1:params_part.length() - 1].to_string() catch {
-            _ => ""
-          }
+          let inner = params_part[1:params_part.length() - 1].to_string()
           if inner.length() > 0 {
             for p in inner.split(",") {
               params.push(
@@ -418,7 +404,7 @@ fn parse_enum_def(
     }
     i = i + 1
   }
-  if not(found_close) {
+  if !found_close {
     return Err("Unclosed enum definition")
   }
   let enum_def : EnumDef = { name, doc, type_params: [], variants, derives: [] }
@@ -432,16 +418,13 @@ fn parse_variant(line : String) -> Result[EnumVariant, String] {
   let paren_idx = find_char(line, '(')
   match paren_idx {
     Some(idx) => {
-      let name = (line[0:idx].to_string() catch { _ => "" })
-        .trim(chars=" \t")
-        .to_string()
+      let name = line[0:idx].to_string().trim(chars=" \t").to_string()
       let payload_str = safe_substring(line, idx + 1)
       let close_idx = find_char(payload_str, ')')
       match close_idx {
         Some(end_idx) => {
-          let payload_type = (payload_str[0:end_idx].to_string() catch {
-              _ => ""
-            })
+          let payload_type = payload_str[0:end_idx]
+            .to_string()
             .trim(chars=" \t")
             .to_string()
           Ok({ name, doc: None, payload: Some(parse_type_ref(payload_type)) })
@@ -452,9 +435,7 @@ fn parse_variant(line : String) -> Result[EnumVariant, String] {
     None => {
       // No payload - remove trailing comma if present
       let name = if line.has_suffix(",") {
-        line[0:line.length() - 1].to_string() catch {
-          _ => line
-        }
+        line[0:line.length() - 1].to_string()
       } else {
         line
       }
@@ -477,9 +458,7 @@ fn parse_alias_def(line : String, doc : String?) -> Result[AliasDef, String] {
   match find_char(rest, '=') {
     None => Err("Expected '=' in type alias")
     Some(idx) => {
-      let name = (rest[0:idx].to_string() catch { _ => "" })
-        .trim(chars=" \t")
-        .to_string()
+      let name = rest[0:idx].to_string().trim(chars=" \t").to_string()
       let target_str = safe_substring(rest, idx + 1)
         .trim(chars=" \t")
         .to_string()
@@ -521,9 +500,7 @@ fn safe_substring(s : String, start : Int) -> String {
   if start >= s.length() {
     return ""
   }
-  s[start:].to_string() catch {
-    _ => ""
-  }
+  s[start:].to_string()
 }
 
 ///|
@@ -550,7 +527,7 @@ fn find_substring(s : String, pattern : String) -> Int? {
   }
   let max_start = s.length() - pattern.length()
   for i in 0..<=max_start {
-    let sub = s[i:i + pattern.length()].to_string() catch { _ => continue }
+    let sub = s[i:i + pattern.length()].to_string()
     if sub == pattern {
       return Some(i)
     }

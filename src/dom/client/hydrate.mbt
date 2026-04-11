@@ -143,7 +143,7 @@ pub fn hydrate_with_dispose(
     hydration_dispose.val = Some(dispose)
 
     // Check for mismatches
-    if not(ctx.mismatches.is_empty()) {
+    if !ctx.mismatches.is_empty() {
       let mismatch_msg = ctx.mismatches.iter().join("; ")
       if warn {
         warn_hydration(logger, "Hydration mismatch detected: " + mismatch_msg)
@@ -379,7 +379,7 @@ fn build_hk_cache_recursive(
             break
           }
         }
-        if valid && not(id_str.is_empty()) {
+        if valid && !id_str.is_empty() {
           cache.set(id, elem)
         }
       }
@@ -470,7 +470,7 @@ fn hydrate_dynamic_text(
       }
     }
   }
-  if not(found_marker) {
+  if !found_marker {
     ctx.mismatches.push("Dynamic text marker not found: t:" + id.to_string())
   }
 }
@@ -641,7 +641,7 @@ fn hydrate_show(
   }
 
   // If currently showing, hydrate the child
-  if cond() && not(current_nodes.is_empty()) && end_marker is Some(end_node) {
+  if cond() && !current_nodes.is_empty() && end_marker is Some(end_node) {
     let child_vnode = child_fn()
     // We need to hydrate the existing nodes
     let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(marker))
@@ -679,7 +679,7 @@ fn hydrate_show(
           current_nodes.push(node)
         }
       }
-    } else if not(should_show) && not(current_nodes.is_empty()) {
+    } else if !should_show && !current_nodes.is_empty() {
       // Need to hide - remove nodes
       match current_dispose.val {
         Some(dispose) => {

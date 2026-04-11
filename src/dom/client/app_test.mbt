@@ -7,7 +7,7 @@ struct Todo {
   id : Int
   text : String
   completed : Bool
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Create a Todo app component
@@ -40,7 +40,7 @@ fn create_todo_app() -> (
     todos.update(fn(arr) {
       arr.map(fn(todo) {
         if todo.id == id {
-          { id: todo.id, text: todo.text, completed: not(todo.completed) }
+          { id: todo.id, text: todo.text, completed: !todo.completed }
         } else {
           todo
         }
@@ -261,7 +261,7 @@ test "Todo app reactive text updates" {
   assert_eq(count.get(), 42)
 
   // Multiple updates
-  for i in 0..<10 {
+  for _ in 0..<10 {
     count.update(n => n + 1)
   }
   assert_eq(count.get(), 52)
@@ -347,7 +347,7 @@ test "Todo app with memo for derived state" {
     todos.get().filter(fn(item) { item.completed }).length()
   })
   let active_count = @resource.memo(fn() {
-    todos.get().filter(fn(item) { not(item.completed) }).length()
+    todos.get().filter(fn(item) { !item.completed }).length()
   })
 
   // Initial counts
@@ -379,7 +379,7 @@ test "Todo app filter with combinator" {
     if mode == "all" {
       items
     } else if mode == "active" {
-      items.filter(fn(item) { not(item.completed) })
+      items.filter(fn(item) { !item.completed })
     } else {
       items.filter(fn(item) { item.completed })
     }

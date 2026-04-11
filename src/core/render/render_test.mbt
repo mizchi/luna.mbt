@@ -68,32 +68,44 @@ test "escape_attr_to" {
 
 ///|
 test "render_to_string text node" {
-  let node : @luna.Node[Unit, String] = @luna.text("Hello")
+  let node : @core.Node[Unit, String] = @core.text("Hello")
   let result = render_to_string(node)
   assert_eq(result.html, "Hello")
 }
 
 ///|
 test "render_to_string element" {
-  let node : @luna.Node[Unit, String] = @luna.h("div", [], [
-    @luna.text("content"),
+  let node : @core.Node[Unit, String] = @core.h("div", [], [
+    @core.text("content"),
   ])
   let result = render_to_string(node)
   assert_eq(result.html, "<div>content</div>")
 }
 
 ///|
+test "render_to_string reverse pipeline element" {
+  let node : @core.Node[Unit, String] = @core.h("div", []) <| [
+      @core.text("hello"),
+      @core.h("span", []) <| [
+        @core.text("world"),
+      ],
+    ]
+  let result = render_to_string(node)
+  assert_eq(result.html, "<div>hello<span>world</span></div>")
+}
+
+///|
 test "render_to_string void element" {
-  let node : @luna.Node[Unit, String] = @luna.h("br", [], [])
+  let node : @core.Node[Unit, String] = @core.h("br", [], [])
   let result = render_to_string(node)
   assert_eq(result.html, "<br />")
 }
 
 ///|
 test "render_to_string with static attr" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("class", @luna.attr_static("container"))],
+    [("class", @core.attr_static("container"))],
     [],
   )
   let result = render_to_string(node)
@@ -102,7 +114,7 @@ test "render_to_string with static attr" {
 
 ///|
 test "render_to_string escapes content" {
-  let node : @luna.Node[Unit, String] = @luna.text(
+  let node : @core.Node[Unit, String] = @core.text(
     "<script>alert('xss')</script>",
   )
   let result = render_to_string(node)
@@ -111,10 +123,10 @@ test "render_to_string escapes content" {
 
 ///|
 test "render_to_string fragment" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.text("a"),
-    @luna.text("b"),
-    @luna.text("c"),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.text("a"),
+    @core.text("b"),
+    @core.text("c"),
   ])
   let result = render_to_string(node)
   assert_eq(result.html, "abc")

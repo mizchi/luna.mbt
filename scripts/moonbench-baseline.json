@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T13:26:57.216Z",
+  "generatedAt": "2026-03-21T13:35:59.200Z",
   "node": "v24.12.0",
   "platform": "darwin",
   "arch": "arm64",
@@ -9,25 +9,25 @@
       "id": "core/render/render: large_list (100 items with escape)",
       "suite": "core/render",
       "name": "render: large_list (100 items with escape)",
-      "nsPerOp": 35605
+      "nsPerOp": 76390
     },
     {
       "id": "core/render/render: list (10 items)",
       "suite": "core/render",
       "name": "render: list (10 items)",
-      "nsPerOp": 1400
+      "nsPerOp": 2870
     },
     {
       "id": "core/render/render: page",
       "suite": "core/render",
       "name": "render: page",
-      "nsPerOp": 1235
+      "nsPerOp": 2480
     },
     {
       "id": "core/serialize/state_value_to_json: large_array",
       "suite": "core/serialize",
       "name": "state_value_to_json: large_array",
-      "nsPerOp": 1540
+      "nsPerOp": 3280
     }
   ]
 }

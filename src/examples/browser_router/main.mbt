@@ -88,22 +88,25 @@ fn nav_component(router : @router.BrowserRouter) -> DomNode {
         e.preventDefault()
         router.navigate(href)
       }),
-      [text(label)],
-    )
+    ) <| [
+      text(label),
+    ]
   }
 
-  nav(style="background: #333; padding: 10px;", [
-    span(style="color: white; margin-right: 20px;", [nav_link(base, "Home")]),
-    span(style="color: white; margin-right: 20px;", [
+  nav(style="background: #333; padding: 10px;") <| [
+    span(style="color: white; margin-right: 20px;") <| [
+      nav_link(base, "Home"),
+    ],
+    span(style="color: white; margin-right: 20px;") <| [
       nav_link(base + "/about", "About"),
-    ]),
-    span(style="color: white; margin-right: 20px;", [
+    ],
+    span(style="color: white; margin-right: 20px;") <| [
       nav_link(base + "/users", "Users"),
-    ]),
-    span(style="color: white; margin-right: 20px;", [
+    ],
+    span(style="color: white; margin-right: 20px;") <| [
       nav_link(base + "/settings", "Settings"),
-    ]),
-  ])
+    ],
+  ]
 }
 
 ///|
@@ -113,12 +116,14 @@ fn counter_component() -> DomNode {
   console_log(
     "Creating counter component, initial count: " + count.get().to_string(),
   )
-  div(class="counter", attrs=[("data-testid", Attr::AttrString("counter"))], [
-    h3([text("Interactive Counter")]),
-    p(attrs=[("data-testid", Attr::AttrString("count-display"))], [
+  div(class="counter", attrs=[("data-testid", Attr::AttrString("counter"))]) <| [
+    h3() <| [
+      text("Interactive Counter"),
+    ],
+    p(attrs=[("data-testid", Attr::AttrString("count-display"))]) <| [
       text_dyn(fn() { "Count: " + count.get().to_string() }),
-    ]),
-    div(class="counter-buttons", [
+    ],
+    div(class="counter-buttons") <| [
       button(
         attrs=[("data-testid", Attr::AttrString("decrement-btn"))],
         on=events().click(fn(_) {
@@ -126,8 +131,9 @@ fn counter_component() -> DomNode {
           count.update(n => n - 1)
           console_log("After decrement: " + count.get().to_string())
         }),
-        [text("-")],
-      ),
+      ) <| [
+        text("-"),
+      ],
       button(
         attrs=[("data-testid", Attr::AttrString("increment-btn"))],
         on=events().click(fn(_) {
@@ -135,56 +141,84 @@ fn counter_component() -> DomNode {
           count.update(n => n + 1)
           console_log("After increment: " + count.get().to_string())
         }),
-        [text("+")],
-      ),
+      ) <| [
+        text("+"),
+      ],
       button(
         attrs=[("data-testid", Attr::AttrString("reset-btn"))],
         on=events().click(fn(_) {
           console_log("Reset clicked")
           count.set(0)
         }),
-        [text("Reset")],
-      ),
-    ]),
-  ])
+      ) <| [
+        text("Reset"),
+      ],
+    ],
+  ]
 }
 
 ///|
 /// Home page
 fn home_component(router : @router.BrowserRouter) -> DomNode {
-  div(class="page home", attrs=[("data-page", Attr::AttrString("home"))], [
-    h1([text("Welcome to Browser App")]),
-    p([text("This is an example of the new Routes-based routing system.")]),
+  div(class="page home", attrs=[("data-page", Attr::AttrString("home"))]) <| [
+    h1() <| [
+      text("Welcome to Browser App"),
+    ],
+    p() <| [
+      text("This is an example of the new Routes-based routing system."),
+    ],
     // Add counter (for testing dynamic elements)
     counter_component(),
     hr(),
-    h2([text("Features")]),
-    ul([
-      li([text("Routes enum for declarative route definitions")]),
-      li([text("Component ID-based resolution")]),
-      li([text("Layout support for nested routes")]),
-      li([text("Dynamic parameters with :id syntax")]),
-      li([text("URLPattern API for matching")]),
-    ]),
-    p(attrs=[("data-testid", Attr::AttrString("current-path"))], [
+    h2() <| [
+      text("Features"),
+    ],
+    ul() <| [
+      li() <| [
+        text("Routes enum for declarative route definitions"),
+      ],
+      li() <| [
+        text("Component ID-based resolution"),
+      ],
+      li() <| [
+        text("Layout support for nested routes"),
+      ],
+      li() <| [
+        text("Dynamic parameters with :id syntax"),
+      ],
+      li() <| [
+        text("URLPattern API for matching"),
+      ],
+    ],
+    p(attrs=[("data-testid", Attr::AttrString("current-path"))]) <| [
       text("Current path: "),
       text_dyn(fn() { router.get_path() }),
-    ]),
-  ])
+    ],
+  ]
 }
 
 ///|
 /// About page
 fn about_component(_router : @router.BrowserRouter) -> DomNode {
-  div(class="page about", attrs=[("data-page", Attr::AttrString("about"))], [
-    h1([text("About")]),
-    p([text("This app demonstrates the new routing architecture:")]),
-    ul([
-      li([text("ServerComponent: async data fetching on server")]),
-      li([text("ClientComponent (Island): Hydration with luna:url")]),
-      li([text("Layout: shared wrapper for nested routes")]),
-    ]),
-  ])
+  div(class="page about", attrs=[("data-page", Attr::AttrString("about"))]) <| [
+    h1() <| [
+      text("About"),
+    ],
+    p() <| [
+      text("This app demonstrates the new routing architecture:"),
+    ],
+    ul() <| [
+      li() <| [
+        text("ServerComponent: async data fetching on server"),
+      ],
+      li() <| [
+        text("ClientComponent (Island): Hydration with luna:url"),
+      ],
+      li() <| [
+        text("Layout: shared wrapper for nested routes"),
+      ],
+    ],
+  ]
 }
 
 ///|
@@ -197,53 +231,63 @@ fn users_layout_component(
   div(
     class="users-layout",
     style="border: 2px solid #007bff; padding: 15px; margin: 10px 0;",
-    [
-      div(
-        style="background: #007bff; color: white; padding: 10px; margin: -15px -15px 15px -15px;",
-        [
-          h2(style="margin: 0;", [text("Users Section")]),
-          p(style="margin: 5px 0 0 0; font-size: 0.9em;", [
-            text("This is a layout wrapper for all /users/* routes"),
-          ]),
-        ],
-      ),
-      div(style="margin-bottom: 10px;", [
-        button(
-          style="margin-right: 10px;",
-          on=events().click(fn(_) { router.navigate(base + "/users") }),
-          [text("User List")],
-        ),
-        button(
-          style="margin-right: 10px;",
-          on=events().click(fn(_) { router.navigate(base + "/users/1") }),
-          [text("User 1")],
-        ),
-        button(
-          style="margin-right: 10px;",
-          on=events().click(fn(_) { router.navigate(base + "/users/2") }),
-          [text("User 2")],
-        ),
-        button(
-          on=events().click(fn(_) { router.navigate(base + "/users/3") }),
-          [text("User 3")],
-        ),
-      ]),
-      children,
+  ) <| [
+    div(
+      style="background: #007bff; color: white; padding: 10px; margin: -15px -15px 15px -15px;",
+    ) <| [
+      h2(style="margin: 0;") <| [
+        text("Users Section"),
+      ],
+      p(style="margin: 5px 0 0 0; font-size: 0.9em;") <| [
+        text("This is a layout wrapper for all /users/* routes"),
+      ],
     ],
-  )
+    div(style="margin-bottom: 10px;") <| [
+      button(
+        style="margin-right: 10px;",
+        on=events().click(fn(_) { router.navigate(base + "/users") }),
+      ) <| [
+        text("User List"),
+      ],
+      button(
+        style="margin-right: 10px;",
+        on=events().click(fn(_) { router.navigate(base + "/users/1") }),
+      ) <| [
+        text("User 1"),
+      ],
+      button(
+        style="margin-right: 10px;",
+        on=events().click(fn(_) { router.navigate(base + "/users/2") }),
+      ) <| [
+        text("User 2"),
+      ],
+      button(on=events().click(fn(_) { router.navigate(base + "/users/3") })) <| [
+        text("User 3"),
+      ],
+    ],
+    children,
+  ]
 }
 
 ///|
 /// User list
 fn users_list_component(_router : @router.BrowserRouter) -> DomNode {
-  div(class="users-list", [
-    h3([text("User List")]),
-    ul([
-      li([text("User 1 - Alice")]),
-      li([text("User 2 - Bob")]),
-      li([text("User 3 - Charlie")]),
-    ]),
-  ])
+  div(class="users-list") <| [
+    h3() <| [
+      text("User List"),
+    ],
+    ul() <| [
+      li() <| [
+        text("User 1 - Alice"),
+      ],
+      li() <| [
+        text("User 2 - Bob"),
+      ],
+      li() <| [
+        text("User 3 - Charlie"),
+      ],
+    ],
+  ]
 }
 
 ///|
@@ -259,14 +303,20 @@ fn user_detail_component(
     "3" => "Charlie"
     _ => "Unknown User"
   }
-  div(class="user-detail", [
-    h3([text("User Detail")]),
-    p([text("User ID: " + user_id)]),
-    p([text("Name: " + user_name)]),
-    p(style="color: #666; font-style: italic;", [
+  div(class="user-detail") <| [
+    h3() <| [
+      text("User Detail"),
+    ],
+    p() <| [
+      text("User ID: " + user_id),
+    ],
+    p() <| [
+      text("Name: " + user_name),
+    ],
+    p(style="color: #666; font-style: italic;") <| [
       text("(In a real app, this data would be fetched from an API)"),
-    ]),
-  ])
+    ],
+  ]
 }
 
 ///|
@@ -274,45 +324,59 @@ fn user_detail_component(
 fn settings_index_component(router : @router.BrowserRouter) -> DomNode {
   let base = router.get_base()
   let profile_path = base + "/settings/profile"
-  div(class="settings-index", [
-    h1([text("Settings")]),
-    ul([
-      li([
+  div(class="settings-index") <| [
+    h1() <| [
+      text("Settings"),
+    ],
+    ul() <| [
+      li() <| [
         a(
           href=profile_path,
           on=events().click(fn(e) {
             e.preventDefault()
             router.navigate(profile_path)
           }),
-          [text("Profile Settings")],
-        ),
-      ]),
-    ]),
-  ])
+        ) <| [
+          text("Profile Settings"),
+        ],
+      ],
+    ],
+  ]
 }
 
 ///|
 /// Profile settings
 fn settings_profile_component(router : @router.BrowserRouter) -> DomNode {
   let base = router.get_base()
-  div(class="settings-profile", [
-    h1([text("Profile Settings")]),
-    p([text("Edit your profile here.")]),
-    button(on=events().click(fn(_) { router.navigate(base + "/settings") }), [
+  div(class="settings-profile") <| [
+    h1() <| [
+      text("Profile Settings"),
+    ],
+    p() <| [
+      text("Edit your profile here."),
+    ],
+    button(on=events().click(fn(_) { router.navigate(base + "/settings") })) <| [
       text("Back to Settings"),
-    ]),
-  ])
+    ],
+  ]
 }
 
 ///|
 /// 404 page
 fn not_found_component(router : @router.BrowserRouter) -> DomNode {
   let base = router.get_base()
-  div(class="not-found", [
-    h1([text("404 - Not Found")]),
-    p([text("Page not found: "), text_dyn(fn() { router.get_path() })]),
-    button(on=events().click(fn(_) { router.navigate(base) }), [text("Go Home")]),
-  ])
+  div(class="not-found") <| [
+    h1() <| [
+      text("404 - Not Found"),
+    ],
+    p() <| [
+      text("Page not found: "),
+      text_dyn(fn() { router.get_path() }),
+    ],
+    button(on=events().click(fn(_) { router.navigate(base) })) <| [
+      text("Go Home"),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -391,8 +455,12 @@ fn render_route(router : @router.BrowserRouter, container : DomElement) -> Unit 
       div(
         class="app",
         style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;",
-        [nav, div(style="padding: 20px;", [page])],
-      )
+      ) <| [
+        nav,
+        div(style="padding: 20px;") <| [
+          page,
+        ],
+      ]
     })
     mount(container, app)
   })

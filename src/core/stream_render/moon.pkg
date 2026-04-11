@@ -8,6 +8,4 @@ import {
   "moonbitlang/async",
 } for "test"
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

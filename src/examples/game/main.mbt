@@ -326,7 +326,7 @@ fn check_collisions(state : GameState) -> GameState {
         break
       }
     }
-    if not(remove) {
+    if !remove {
       filtered_bullets.push(b)
     }
   }
@@ -339,7 +339,7 @@ fn check_collisions(state : GameState) -> GameState {
         break
       }
     }
-    if not(remove) {
+    if !remove {
       filtered_enemies.push(e)
     }
   }
@@ -440,7 +440,7 @@ let prev_cell_types : Array[Int] = []
 ///|
 fn init_prev_cell_types() -> Unit {
   let total = GRID_SIZE * GRID_SIZE
-  for i in 0..<total {
+  for _ in 0..<total {
     prev_cell_types.push(0)
   }
 }
@@ -463,29 +463,33 @@ fn render_grid(state_sig : @resource.Signal[GameState]) -> DomNode {
       }
     }
   })
-  div(class="grid", [
+  div(class="grid") <| [
     for_each(fn() { indices }, fn(_, _) {
-      div(class="cell c0", ref_=el => cell_elements.push(el), [])
+      div(class="cell c0", ref_=el => cell_elements.push(el)) <| []
     }),
-  ])
+  ]
 }
 
 ///|
 fn render_stats(state_sig : @resource.Signal[GameState]) -> DomNode {
-  div(class="stats", [
-    span([text_dyn(fn() { "FPS: " + state_sig.get().fps.to_string() })]),
-    span([text_dyn(fn() { "Score: " + state_sig.get().score.to_string() })]),
-    span([
+  div(class="stats") <| [
+    span() <| [
+      text_dyn(fn() { "FPS: " + state_sig.get().fps.to_string() }),
+    ],
+    span() <| [
+      text_dyn(fn() { "Score: " + state_sig.get().score.to_string() }),
+    ],
+    span() <| [
       text_dyn(fn() {
         "Enemies: " + state_sig.get().enemies.length().to_string()
       }),
-    ]),
-    span([
+    ],
+    span() <| [
       text_dyn(fn() {
         "Bullets: " + state_sig.get().bullets.length().to_string()
       }),
-    ]),
-  ])
+    ],
+  ]
 }
 
 ///|
@@ -493,12 +497,14 @@ fn render_controls(
   running_sig : @resource.Signal[Bool],
   on_reset : () -> Unit,
 ) -> DomNode {
-  div(class="controls", [
-    button(on=events().click(_ => running_sig.update(r => not(r))), [
+  div(class="controls") <| [
+    button(on=events().click(_ => running_sig.update(r => !r))) <| [
       text_dyn(fn() { if running_sig.get() { "Pause" } else { "Run" } }),
-    ]),
-    button(on=events().click(_ => on_reset()), [text("Reset")]),
-  ])
+    ],
+    button(on=events().click(_ => on_reset())) <| [
+      text("Reset"),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -598,19 +604,23 @@ fn main {
         fn() { if running_sig.get() { state_sig.update(game_tick) } },
         1000 / TARGET_FPS,
       )
-      let app = div(class="container", [
-        h1([text("Luna Benchmark Game")]),
-        render_stats(state_sig),
-        render_controls(running_sig, fn() {
-          state_sig.set(create_initial_state())
-        }),
-        div(class="grid-wrapper", [render_grid(state_sig)]),
-        div(class="legend", [
-          text(
-            "Arrow keys to move | White=Player | Green=Player Bullets | Yellow=Enemy Bullets | Red=Enemies",
-          ),
-        ]),
-      ])
+      let app = div(class="container") <| [
+          h1() <| [
+            text("Luna Benchmark Game"),
+          ],
+          render_stats(state_sig),
+          render_controls(running_sig, fn() {
+            state_sig.set(create_initial_state())
+          }),
+          div(class="grid-wrapper") <| [
+            render_grid(state_sig),
+          ],
+          div(class="legend") <| [
+            text(
+              "Arrow keys to move | White=Player | Green=Player Bullets | Yellow=Enemy Bullets | Red=Enemies",
+            ),
+          ],
+        ]
       render(el |> DomElement::from_dom, app)
       console_log("Game initialized!")
     }

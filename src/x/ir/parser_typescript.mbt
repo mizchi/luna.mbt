@@ -86,9 +86,7 @@ pub fn parse_typescript_with_options(
     }
 
     // Reset pending state for other non-empty lines
-    if line.length() > 0 &&
-      not(line.has_prefix("//")) &&
-      not(line.has_prefix("/*")) {
+    if line.length() > 0 && !line.has_prefix("//") && !line.has_prefix("/*") {
       pending_doc = None
       pending_annotations = []
     }
@@ -158,7 +156,7 @@ fn extract_jsdoc_content(line : String) -> String {
     safe_substring(trimmed, 1).trim(chars=" \t").to_string()
   } else if trimmed.has_suffix("/") {
     let end = trimmed.length() - 1
-    (trimmed[0:end].to_string() catch { _ => "" }).trim(chars=" \t").to_string()
+    trimmed[0:end].to_string().trim(chars=" \t").to_string()
   } else {
     trimmed
   }
@@ -214,7 +212,7 @@ fn parse_ts_interface(
     }
     i = i + 1
   }
-  if not(found_close) {
+  if !found_close {
     return Err("Unclosed interface definition")
   }
   let struct_def : StructDef = {
@@ -260,9 +258,7 @@ fn parse_ts_field(line : String) -> Result[Field, String] {
     None => Err("No colon in field definition")
     Some(idx) => {
       // Extract name (without optional marker)
-      let name_part = (trimmed[0:idx].to_string() catch { _ => "" })
-        .trim(chars=" \t?")
-        .to_string()
+      let name_part = trimmed[0:idx].to_string().trim(chars=" \t?").to_string()
       let type_str = safe_substring(trimmed, idx + 1)
         .trim(chars=" \t")
         .to_string()
@@ -305,22 +301,20 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
 
   // Check for array type (T[] or Array<T>)
   if s.has_suffix("[]") {
-    let inner = s[0:s.length() - 2].to_string() catch { _ => "" }
+    let inner = s[0:s.length() - 2].to_string()
     return Array(parse_ts_type_ref(inner))
   }
   if s.has_prefix("Array<") && s.has_suffix(">") {
-    let inner = s[6:s.length() - 1].to_string() catch { _ => "" }
+    let inner = s[6:s.length() - 1].to_string()
     return Array(parse_ts_type_ref(inner))
   }
 
   // Check for Record type
   if s.has_prefix("Record<") && s.has_suffix(">") {
-    let inner = s[7:s.length() - 1].to_string() catch { _ => "" }
+    let inner = s[7:s.length() - 1].to_string()
     match find_char(inner, ',') {
       Some(idx) => {
-        let key = (inner[0:idx].to_string() catch { _ => "" })
-          .trim(chars=" \t")
-          .to_string()
+        let key = inner[0:idx].to_string().trim(chars=" \t").to_string()
         let value = safe_substring(inner, idx + 1).trim(chars=" \t").to_string()
         return Map(parse_ts_type_ref(key), parse_ts_type_ref(value))
       }
@@ -332,7 +326,8 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
   if s.contains("=>") {
     match find_substring(s, "=>") {
       Some(arrow_idx) => {
-        let params_part = (s[0:arrow_idx].to_string() catch { _ => "" })
+        let params_part = s[0:arrow_idx]
+          .to_string()
           .trim(chars=" \t")
           .to_string()
         let return_part = safe_substring(s, arrow_idx + 2)
@@ -340,9 +335,7 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
           .to_string()
         let params : Array[TypeRef] = []
         if params_part.has_prefix("(") && params_part.has_suffix(")") {
-          let inner = params_part[1:params_part.length() - 1].to_string() catch {
-            _ => ""
-          }
+          let inner = params_part[1:params_part.length() - 1].to_string()
           // Simple parsing - split by comma (doesn't handle nested generics)
           if inner.length() > 0 {
             for p in inner.split(",") {
@@ -386,7 +379,7 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
   // Check for string literal type
   if (s.has_prefix("\"") && s.has_suffix("\"")) ||
     (s.has_prefix("'") && s.has_suffix("'")) {
-    let inner = s[1:s.length() - 1].to_string() catch { _ => "" }
+    let inner = s[1:s.length() - 1].to_string()
     return Literal(StringLit(inner))
   }
 
@@ -423,9 +416,7 @@ fn parse_ts_type_alias(
   match find_char(rest, '=') {
     None => Err("Expected '=' in type alias")
     Some(idx) => {
-      let name_part = (rest[0:idx].to_string() catch { _ => "" })
-        .trim(chars=" \t")
-        .to_string()
+      let name_part = rest[0:idx].to_string().trim(chars=" \t").to_string()
       // Extract just the name without generic parameters
       let name = extract_ts_identifier(name_part)
       let target_str = safe_substring(rest, idx + 1)

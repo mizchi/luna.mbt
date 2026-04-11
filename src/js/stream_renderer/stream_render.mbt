@@ -19,9 +19,7 @@ fn extract_wc_name_from_url(url : String) -> String {
   }
   let filename = filename_view.to_string()
   let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    filename[:filename.length() - 3].to_string() catch {
-      _ => filename
-    }
+    filename[:filename.length() - 3].to_string()
   } else {
     filename
   }
@@ -186,7 +184,7 @@ fn render_wc_island_to_stream(
   sb.write_string(" data-state=\"")
   @render.escape_attr_to(sb, wc_island.state)
   sb.write_char('"')
-  if not(wc_island.trigger is Load) {
+  if !(wc_island.trigger is Load) {
     sb.write_string(" data-trigger=\"")
     sb.write_string(wc_island.trigger.to_string())
     sb.write_char('"')
@@ -285,7 +283,7 @@ fn render_internal_ref_wc_to_stream(
   sb.write_string(" luna:wc-state=\"")
   @render.escape_attr_to(sb, iref.state)
   sb.write_char('"')
-  if not(iref.trigger is @core.Load) {
+  if !(iref.trigger is @core.Load) {
     sb.write_string(" luna:wc-trigger=\"")
     sb.write_string(iref.trigger.to_string())
     sb.write_char('"')

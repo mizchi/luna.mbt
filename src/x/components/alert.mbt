@@ -62,7 +62,7 @@ pub fn[E] alert(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -86,7 +86,7 @@ pub fn[E] alert_live(
   if type_ is Some(t) {
     attrs.push(("data-type", @luna.attr_static(t.to_string())))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -107,5 +107,5 @@ pub fn[E] status(
   if type_ is Some(t) {
     attrs.push(("data-type", @luna.attr_static(t.to_string())))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }

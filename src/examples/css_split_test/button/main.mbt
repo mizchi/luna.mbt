@@ -71,7 +71,7 @@ pub fn register_button_component() -> Unit {
       }
     }
 
-    fragment([
+    fragment <| [
       h(
         "div",
         [
@@ -86,52 +86,53 @@ pub fn register_button_component() -> Unit {
             ),
           ),
         ],
-        [
-          h(
-            "button",
-            [
-              ("class", attr_dynamic(get_button_class)),
-              (
-                "onclick",
-                attr_handler(
-                  handler(fn(_) { click_count.update(fn(n) { n + 1 }) }),
-                ),
+      ) <| [
+        h(
+          "button",
+          [
+            ("class", attr_dynamic(get_button_class)),
+            (
+              "onclick",
+              attr_handler(
+                handler(fn(_) { click_count.update(fn(n) { n + 1 }) }),
               ),
-            ],
-            [text_dyn(fn() { "Clicked: " + click_count.get().to_string() })],
-          ),
-          h(
-            "button",
-            [
-              (
-                "class",
-                attr_static(
-                  @css.styles([
-                    ("padding", "4px 8px"),
-                    ("font-size", "12px"),
-                    ("cursor", "pointer"),
-                  ]),
-                ),
-              ),
-              (
-                "onclick",
-                attr_handler(
-                  handler(fn(_) {
-                    variant.update(fn(v) {
-                      if v == "primary" {
-                        "secondary"
-                      } else {
-                        "primary"
-                      }
-                    })
-                  }),
-                ),
-              ),
-            ],
-            [text("Toggle Variant")],
-          ),
+            ),
+          ],
+        ) <| [
+          text_dyn(fn() { "Clicked: " + click_count.get().to_string() }),
         ],
-      ),
-    ])
+        h(
+          "button",
+          [
+            (
+              "class",
+              attr_static(
+                @css.styles([
+                  ("padding", "4px 8px"),
+                  ("font-size", "12px"),
+                  ("cursor", "pointer"),
+                ]),
+              ),
+            ),
+            (
+              "onclick",
+              attr_handler(
+                handler(fn(_) {
+                  variant.update(fn(v) {
+                    if v == "primary" {
+                      "secondary"
+                    } else {
+                      "primary"
+                    }
+                  })
+                }),
+              ),
+            ),
+          ],
+        ) <| [
+          text("Toggle Variant"),
+        ],
+      ],
+    ]
   })
 }

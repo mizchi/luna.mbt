@@ -69,7 +69,7 @@ pub enum RoutesKind {
   GetApi
   /// POST API
   PostApi
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Match result

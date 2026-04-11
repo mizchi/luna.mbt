@@ -11,11 +11,11 @@
 
 ///|
 test "render Island - basic structure" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "counter-1",
     "/static/counter.js",
     "{\"count\":0}",
-    [@luna.text("Loading...")],
+    [@core.text("Loading...")],
   )
   let result = render_to_string(node)
   let html = result.html
@@ -38,11 +38,11 @@ test "render Island - basic structure" {
 
 ///|
 test "render Island - with visible trigger" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "lazy-1",
     "/static/lazy.js",
     "{}",
-    [@luna.text("Lazy content")],
+    [@core.text("Lazy content")],
     trigger=@core.Visible,
   )
   let result = render_to_string(node)
@@ -54,7 +54,7 @@ test "render Island - with visible trigger" {
 
 ///|
 test "render Island - with idle trigger" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "idle-1",
     "/static/idle.js",
     "{}",
@@ -67,7 +67,7 @@ test "render Island - with idle trigger" {
 
 ///|
 test "render Island - with media trigger" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "mobile-1",
     "/static/mobile.js",
     "{}",
@@ -83,7 +83,7 @@ test "render Island - with media trigger" {
 
 ///|
 test "render Island - state with quotes is escaped" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "test-1",
     "/static/test.js",
     "{\"message\":\"Hello \\\"World\\\"\"}",
@@ -101,13 +101,13 @@ test "render Island - state with quotes is escaped" {
 
 ///|
 test "render Island - children are rendered inside" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "parent-1",
     "/static/parent.js",
     "{}",
     [
-      @luna.h("span", [("class", @luna.attr_static("child"))], [
-        @luna.text("Child content"),
+      @core.h("span", [("class", @core.attr_static("child"))], [
+        @core.text("Child content"),
       ]),
     ],
   )
@@ -118,13 +118,13 @@ test "render Island - children are rendered inside" {
 
 ///|
 test "render Island - nested islands" {
-  let inner_island : @luna.Node[Unit, String] = @luna.island(
+  let inner_island : @core.Node[Unit, String] = @core.island(
     "inner-1",
     "/static/inner.js",
     "{}",
-    [@luna.text("Inner")],
+    [@core.text("Inner")],
   )
-  let outer_island : @luna.Node[Unit, String] = @luna.island(
+  let outer_island : @core.Node[Unit, String] = @core.island(
     "outer-1",
     "/static/outer.js",
     "{}",
@@ -142,12 +142,12 @@ test "render Island - nested islands" {
 
 ///|
 test "render WcIsland - basic structure" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-counter",
     "/static/wc-counter.js",
     ".counter { color: blue; }",
     "{\"count\":0}",
-    [@luna.text("0")],
+    [@core.text("0")],
   )
   let result = render_to_string(node)
   let html = result.html
@@ -169,12 +169,12 @@ test "render WcIsland - basic structure" {
 
 ///|
 test "render WcIsland - includes styles in shadow DOM" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-styled",
     "/static/wc-styled.js",
     ".styled { background: red; padding: 10px; }",
     "{}",
-    [@luna.text("Styled")],
+    [@core.text("Styled")],
   )
   let result = render_to_string(node)
   // Should have style tag with content
@@ -184,7 +184,7 @@ test "render WcIsland - includes styles in shadow DOM" {
 
 ///|
 test "render WcIsland - with visible trigger" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-lazy",
     "/static/wc-lazy.js",
     "",
@@ -198,14 +198,14 @@ test "render WcIsland - with visible trigger" {
 
 ///|
 test "render WcIsland - children in shadow DOM" {
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-container",
     "/static/wc-container.js",
     "",
     "{}",
     [
-      @luna.h("div", [("class", @luna.attr_static("content"))], [
-        @luna.text("Shadow content"),
+      @core.h("div", [("class", @core.attr_static("content"))], [
+        @core.text("Shadow content"),
       ]),
     ],
   )
@@ -221,12 +221,12 @@ test "render WcIsland - children in shadow DOM" {
 
 ///|
 test "render InternalRef - as regular Island" {
-  let node : @luna.Node[Unit, String] = @luna.internal_ref(
+  let node : @core.Node[Unit, String] = @core.internal_ref(
     "/components/button.js",
     "{\"label\":\"Click\"}",
     trigger=@core.Load,
     wc=false,
-    children=[@luna.text("Click")],
+    children=[@core.text("Click")],
   )
   let result = render_to_string(node)
   let html = result.html
@@ -239,13 +239,13 @@ test "render InternalRef - as regular Island" {
 
 ///|
 test "render InternalRef - as Web Component" {
-  let node : @luna.Node[Unit, String] = @luna.internal_ref(
+  let node : @core.Node[Unit, String] = @core.internal_ref(
     "/components/wc-modal.js",
     "{\"open\":false}",
     trigger=@core.Load,
     wc=true,
     styles=".modal { position: fixed; }",
-    children=[@luna.text("Modal content")],
+    children=[@core.text("Modal content")],
   )
   let result = render_to_string(node)
   let html = result.html
@@ -261,7 +261,7 @@ test "render InternalRef - as Web Component" {
 
 ///|
 test "render InternalRef - ID generation from URL" {
-  let node : @luna.Node[Unit, String] = @luna.internal_ref(
+  let node : @core.Node[Unit, String] = @core.internal_ref(
     "/static/components/counter.js",
     "{}",
     wc=false,
@@ -278,10 +278,10 @@ test "render InternalRef - ID generation from URL" {
 
 ///|
 test "render with preload - collects island URLs" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("a", "/static/a.js", "{}", []),
-    @luna.island("b", "/static/b.js", "{}", []),
-    @luna.island("c", "/static/c.js", "{}", []),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("a", "/static/a.js", "{}", []),
+    @core.island("b", "/static/b.js", "{}", []),
+    @core.island("c", "/static/c.js", "{}", []),
   ])
   let result = render_to_string(node, preload=true)
   inspect(result.preload_urls.length(), content="3")
@@ -292,10 +292,10 @@ test "render with preload - collects island URLs" {
 
 ///|
 test "render with preload - deduplicates URLs" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("a1", "/static/shared.js", "{}", []),
-    @luna.island("a2", "/static/shared.js", "{}", []),
-    @luna.island("a3", "/static/shared.js", "{}", []),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("a1", "/static/shared.js", "{}", []),
+    @core.island("a2", "/static/shared.js", "{}", []),
+    @core.island("a3", "/static/shared.js", "{}", []),
   ])
   let result = render_to_string(node, preload=true)
   // Should only have one URL despite multiple islands using it
@@ -305,9 +305,9 @@ test "render with preload - deduplicates URLs" {
 
 ///|
 test "render with preload - includes WcIsland URLs" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("i1", "/static/island.js", "{}", []),
-    @luna.wc_island("wc-1", "/static/wc.js", "", "{}", []),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("i1", "/static/island.js", "{}", []),
+    @core.wc_island("wc-1", "/static/wc.js", "", "{}", []),
   ])
   let result = render_to_string(node, preload=true)
   inspect(result.preload_urls.length(), content="2")
@@ -342,7 +342,7 @@ test "generate_preload_tags - empty array returns empty string" {
 
 ///|
 test "render Island - JSON state with special characters" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "json-test",
     "/static/json.js",
     "{\"text\":\"Line1\\nLine2\",\"tab\":\"Col1\\tCol2\"}",
@@ -356,7 +356,7 @@ test "render Island - JSON state with special characters" {
 ///|
 test "render Island - complex nested JSON state" {
   let state = "{\"user\":{\"name\":\"John\",\"email\":\"john@example.com\"},\"items\":[1,2,3]}"
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "complex",
     "/static/complex.js",
     state,
@@ -369,7 +369,7 @@ test "render Island - complex nested JSON state" {
 
 ///|
 test "render Island - empty state" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "empty-state",
     "/static/empty.js",
     "{}",
@@ -385,10 +385,10 @@ test "render Island - empty state" {
 
 ///|
 test "render multiple islands - in fragment" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("first", "/static/first.js", "{\"n\":1}", [@luna.text("First")]),
-    @luna.island("second", "/static/second.js", "{\"n\":2}", [
-      @luna.text("Second"),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("first", "/static/first.js", "{\"n\":1}", [@core.text("First")]),
+    @core.island("second", "/static/second.js", "{\"n\":2}", [
+      @core.text("Second"),
     ]),
   ])
   let result = render_to_string(node)
@@ -400,13 +400,13 @@ test "render multiple islands - in fragment" {
 
 ///|
 test "render multiple islands - in element" {
-  let node : @luna.Node[Unit, String] = @luna.h(
+  let node : @core.Node[Unit, String] = @core.h(
     "div",
-    [("class", @luna.attr_static("container"))],
+    [("class", @core.attr_static("container"))],
     [
-      @luna.island("header", "/static/header.js", "{}", [@luna.text("Header")]),
-      @luna.h("main", [], [@luna.text("Content")]),
-      @luna.island("footer", "/static/footer.js", "{}", [@luna.text("Footer")]),
+      @core.island("header", "/static/header.js", "{}", [@core.text("Header")]),
+      @core.h("main", [], [@core.text("Content")]),
+      @core.island("footer", "/static/footer.js", "{}", [@core.text("Footer")]),
     ],
   )
   let result = render_to_string(node)
@@ -421,10 +421,10 @@ test "render multiple islands - in element" {
 
 ///|
 test "render mixed - VIsland and VWcIsland" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("regular", "/static/regular.js", "{}", [@luna.text("Regular")]),
-    @luna.wc_island("wc-special", "/static/wc.js", ".s{}", "{}", [
-      @luna.text("WC"),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("regular", "/static/regular.js", "{}", [@core.text("Regular")]),
+    @core.wc_island("wc-special", "/static/wc.js", ".s{}", "{}", [
+      @core.text("WC"),
     ]),
   ])
   let result = render_to_string(node)
@@ -437,10 +437,10 @@ test "render mixed - VIsland and VWcIsland" {
 
 ///|
 test "render mixed - all three island types" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.island("v-island", "/a.js", "{}", []),
-    @luna.wc_island("wc-island", "/b.js", "", "{}", []),
-    @luna.internal_ref("/c.js", "{}", wc=false, children=[]),
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.island("v-island", "/a.js", "{}", []),
+    @core.wc_island("wc-island", "/b.js", "", "{}", []),
+    @core.internal_ref("/c.js", "{}", wc=false, children=[]),
   ])
   let result = render_to_string(node)
   // All three should be present
@@ -456,14 +456,14 @@ test "render mixed - all three island types" {
 ///|
 test "render Island - very long ID" {
   let long_id = "a".repeat(100)
-  let node : @luna.Node[Unit, String] = @luna.island(long_id, "/x.js", "{}", [])
+  let node : @core.Node[Unit, String] = @core.island(long_id, "/x.js", "{}", [])
   let result = render_to_string(node)
   inspect(result.html.contains("luna:id=\"" + long_id + "\""), content="true")
 }
 
 ///|
 test "render Island - ID with allowed special characters" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "my-island_v2",
     "/static/island.js",
     "{}",
@@ -476,7 +476,7 @@ test "render Island - ID with allowed special characters" {
 ///|
 test "render WcIsland - complex styles" {
   let styles = ".host { display: block; } .child { margin: 0; padding: 0; }"
-  let node : @luna.Node[Unit, String] = @luna.wc_island(
+  let node : @core.Node[Unit, String] = @core.wc_island(
     "wc-styled",
     "/static/styled.js",
     styles,
@@ -489,7 +489,7 @@ test "render WcIsland - complex styles" {
 
 ///|
 test "render Island - with boolean-like state values" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "bool-state",
     "/static/bool.js",
     "{\"active\":true,\"disabled\":false}",
@@ -501,7 +501,7 @@ test "render Island - with boolean-like state values" {
 
 ///|
 test "render Island - with array state" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "array-state",
     "/static/array.js",
     "[1,2,3,4,5]",
@@ -513,7 +513,7 @@ test "render Island - with array state" {
 
 ///|
 test "render Island - with null in state" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "null-state",
     "/static/null.js",
     "{\"value\":null}",
@@ -529,7 +529,7 @@ test "render Island - with null in state" {
 
 ///|
 test "render Island - absolute URL" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "abs-url",
     "https://cdn.example.com/components/counter.js",
     "{}",
@@ -546,7 +546,7 @@ test "render Island - absolute URL" {
 
 ///|
 test "render Island - relative URL without leading slash" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "rel-url",
     "components/counter.js",
     "{}",
@@ -561,7 +561,7 @@ test "render Island - relative URL without leading slash" {
 
 ///|
 test "render Island - URL with query params" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "query-url",
     "/static/counter.js?v=1.0.0",
     "{}",
@@ -580,18 +580,18 @@ test "render Island - URL with query params" {
 
 ///|
 test "render Island - children with complex HTML" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "complex-children",
     "/static/complex.js",
     "{}",
     [
-      @luna.h("div", [("class", @luna.attr_static("wrapper"))], [
-        @luna.h("header", [], [@luna.text("Header")]),
-        @luna.h("section", [], [
-          @luna.h("p", [], [@luna.text("Paragraph 1")]),
-          @luna.h("p", [], [@luna.text("Paragraph 2")]),
+      @core.h("div", [("class", @core.attr_static("wrapper"))], [
+        @core.h("header", [], [@core.text("Header")]),
+        @core.h("section", [], [
+          @core.h("p", [], [@core.text("Paragraph 1")]),
+          @core.h("p", [], [@core.text("Paragraph 2")]),
         ]),
-        @luna.h("footer", [], [@luna.text("Footer")]),
+        @core.h("footer", [], [@core.text("Footer")]),
       ]),
     ],
   )
@@ -604,7 +604,7 @@ test "render Island - children with complex HTML" {
 
 ///|
 test "render Island - empty children renders empty content" {
-  let node : @luna.Node[Unit, String] = @luna.island(
+  let node : @core.Node[Unit, String] = @core.island(
     "empty-children",
     "/static/empty.js",
     "{}",

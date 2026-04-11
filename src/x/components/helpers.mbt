@@ -40,7 +40,25 @@ pub(all) enum KeyCode {
   End
   Tab
   Escape
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for KeyCode with output(self, logger) {
+  logger.write_string(
+    match self {
+      Enter => "Enter"
+      Space => "Space"
+      ArrowUp => "ArrowUp"
+      ArrowDown => "ArrowDown"
+      ArrowLeft => "ArrowLeft"
+      ArrowRight => "ArrowRight"
+      Home => "Home"
+      End => "End"
+      Tab => "Tab"
+      Escape => "Escape"
+    },
+  )
+}
 
 ///|
 pub fn KeyCode::from_string(key : String) -> KeyCode? {

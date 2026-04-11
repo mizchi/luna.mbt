@@ -8,7 +8,7 @@ pub enum JsonNode {
   Element(JsonElement)
   Text(String)
   Fragment(Array[JsonNode])
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// JSON element structure
@@ -16,7 +16,7 @@ pub struct JsonElement {
   tag : String
   attrs : Map[String, JsonAttrValue]
   children : Array[JsonNode]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Attribute value in JSON representation
@@ -24,7 +24,24 @@ pub enum JsonAttrValue {
   Static(String)
   Dynamic(String) // Evaluated value at render time
   Handler // Placeholder for event handlers
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for JsonAttrValue with output(self, logger) {
+  match self {
+    Static(value) => {
+      logger.write_string("Static(")
+      logger.write_string(value)
+      logger.write_string(")")
+    }
+    Dynamic(value) => {
+      logger.write_string("Dynamic(")
+      logger.write_string(value)
+      logger.write_string(")")
+    }
+    Handler => logger.write_string("Handler")
+  }
+}
 
 ///|
 /// Create a JSON element node

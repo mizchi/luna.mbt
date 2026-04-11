@@ -1,13 +1,7 @@
 import {
-  "mizchi/luna" @luna,
+  "mizchi/luna/core" @core,
   "moonbitlang/core/bench",
   "moonbitlang/core/json",
 }
 
-import {
-  "mizchi/luna/core" @core,
-} for "test"
-
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

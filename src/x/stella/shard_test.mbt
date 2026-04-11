@@ -13,7 +13,7 @@ test "escape_json_for_script - escapes script closing tag" {
   let dangerous = "{\"html\":\"</script><script>alert(1)</script>\"}"
   let result = @render.escape_json_for_script(dangerous)
   assert_true(result.contains("<\\/script>"))
-  assert_true(not(result.contains("</script>")))
+  assert_true(!(result.contains("</script>")))
 }
 
 ///|
@@ -123,7 +123,7 @@ test "generate_shard - minimal config" {
   assert_true(output.html.contains("luna:id=\"counter-1\""))
   assert_true(output.html.contains("luna:url=\"./counter.js\""))
   // load is default, should not be included
-  assert_true(not(output.html.contains("luna:client-trigger")))
+  assert_true(!(output.html.contains("luna:client-trigger")))
 }
 
 ///|
@@ -210,9 +210,9 @@ test "generate_minimal_shard - creates minimal HTML" {
   assert_true(html.contains("luna:url=\"./min.js\""))
   assert_true(html.contains("<span>Content</span>"))
   // Should not have trigger (default load is omitted)
-  assert_true(not(html.contains("luna:client-trigger")))
+  assert_true(!(html.contains("luna:client-trigger")))
   // Should not have loader script
-  assert_true(not(html.contains("<script type=\"module\"")))
+  assert_true(!(html.contains("<script type=\"module\"")))
 }
 
 ///|

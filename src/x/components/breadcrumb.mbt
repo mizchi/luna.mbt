@@ -48,19 +48,23 @@ pub fn[E] breadcrumb(
     if item.current {
       link_attrs.push(("aria-current", @luna.attr_static("page")))
     }
-    let link_node = @luna.h("a", link_attrs, [@luna.text(item.label)])
+    let link_node = @luna.h("a", link_attrs) <| [
+        @luna.text(item.label),
+      ]
     let li_children : Array[@luna.Node[E, String]] = [link_node]
     if i < items.length() - 1 {
       li_children.push(
-        @luna.h("span", [("aria-hidden", @luna.attr_static("true"))], [
+        @luna.h("span", [("aria-hidden", @luna.attr_static("true"))]) <| [
           @luna.text(" " + sep + " "),
-        ]),
+        ],
       )
     }
-    list_items.push(@luna.h("li", [], li_children))
+    list_items.push(@luna.h("li", []) <| li_children)
   }
-  let ol = @luna.h("ol", [], list_items)
-  @luna.h("nav", [("aria-label", @luna.attr_static(label))], [ol])
+  let ol = @luna.h("ol", []) <| list_items
+  @luna.h("nav", [("aria-label", @luna.attr_static(label))]) <| [
+    ol,
+  ]
 }
 
 ///|

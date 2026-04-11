@@ -79,7 +79,7 @@ pub fn[E] button(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -140,7 +140,7 @@ pub fn[E] toggle_button(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -174,7 +174,7 @@ pub fn[E] toggle_button_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -243,7 +243,7 @@ pub fn[E] menu_button(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -277,5 +277,5 @@ pub fn[E] menu_button_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }

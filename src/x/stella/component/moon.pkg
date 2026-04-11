@@ -2,6 +2,4 @@ import {
   "mizchi/js" @js,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

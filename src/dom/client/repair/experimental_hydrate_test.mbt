@@ -6,7 +6,12 @@
 // Test enum for action
 enum TestAction {
   TestAction
-} derive(Show)
+} derive(Debug)
+
+///|
+impl Show for TestAction with output(_self, logger) {
+  logger.write_string("TestAction")
+}
 
 ///|
 /// Helper to set innerHTML on container
@@ -917,7 +922,7 @@ test "report: node path tracks hierarchy" {
   ])
   exp_set_inner_html(container, "<div><span>Different</span></div>")
   let report = experimental_hydrate_with_report(container, vnode, logger~)
-  if not(report.is_clean()) {
+  if !report.is_clean() {
     let repairs = report.get_repairs()
     if repairs.length() > 0 {
       let path = repairs[0].get_node_path()

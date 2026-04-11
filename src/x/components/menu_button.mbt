@@ -79,7 +79,7 @@ pub fn[E] menu_trigger(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -112,7 +112,7 @@ pub fn[E] menu_trigger_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -134,10 +134,10 @@ pub fn[E] menu(
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelled_by)),
   ]
-  if not(visible) {
+  if !visible {
     attrs.push(("hidden", @luna.attr_static("")))
   }
-  @luna.h("ul", attrs, children)
+  @luna.h("ul", attrs) <| children
 }
 
 ///|
@@ -153,7 +153,7 @@ pub fn[E] menu_dyn(
     ("id", @luna.attr_static(id)),
     ("aria-labelledby", @luna.attr_static(labelled_by)),
   ]
-  @luna.show(fn() { visible.get() }, fn() { @luna.h("ul", attrs, children) })
+  @luna.show(fn() { visible.get() }, fn() { @luna.h("ul", attrs) <| children })
 }
 
 ///|
@@ -186,14 +186,14 @@ pub fn[E] menuitem(
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   if on_click is Some(handler) {
-    if not(is_disabled) {
+    if !is_disabled {
       attrs.push(("click", @luna.attr_handler(handler)))
     }
   }
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("li", attrs, children)
+  @luna.h("li", attrs) <| children
 }
 
 ///|
@@ -228,14 +228,14 @@ pub fn[E] menuitem_dyn(
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   if on_click is Some(handler) {
-    if not(is_disabled) {
+    if !is_disabled {
       attrs.push(("click", @luna.attr_handler(handler)))
     }
   }
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("li", attrs, children)
+  @luna.h("li", attrs) <| children
 }
 
 ///|
@@ -253,14 +253,14 @@ pub fn make_menu_button_handler(
     match key {
       "Enter" | " " | "ArrowDown" => {
         let _ = e._call("preventDefault", [])
-        if not(is_open()) {
+        if !is_open() {
           open_menu()
           focus_first()
         }
       }
       "ArrowUp" => {
         let _ = e._call("preventDefault", [])
-        if not(is_open()) {
+        if !is_open() {
           open_menu()
           focus_last()
         }
@@ -369,7 +369,7 @@ pub fn menu_button_interactive(
     close_and_focus_button,
     fn(idx) {
       let item = items[idx]
-      if not(item.disabled) {
+      if !item.disabled {
         on_select(item.id)
       }
     },
@@ -386,25 +386,25 @@ pub fn menu_button_interactive(
         idx,
         disabled=item.disabled,
         on_click=@luna.handler(fn(_) {
-          if not(item.disabled) {
+          if !item.disabled {
             on_select(item.id)
             close_and_focus_button()
           }
         }),
         on_keydown=menu_keydown,
-        [@luna.text(item.label)],
-      ),
+      ) <| [
+        @luna.text(item.label),
+      ],
     )
   }
-  @luna.h("div", [("class", @luna.attr_static("menu-button-container"))], [
+  @luna.h("div", [("class", @luna.attr_static("menu-button-container"))]) <| [
     menu_trigger_dyn(
       button_id,
       open,
       menu_id,
-      on_click=@luna.handler(fn(_) { open.set(not(open.get())) }),
+      on_click=@luna.handler(fn(_) { open.set(!open.get()) }),
       on_keydown=button_keydown,
-      button_content,
-    ),
-    menu_dyn(menu_id, button_id, open, menu_items),
-  ])
+    ) <| button_content,
+    menu_dyn(menu_id, button_id, open) <| menu_items,
+  ]
 }

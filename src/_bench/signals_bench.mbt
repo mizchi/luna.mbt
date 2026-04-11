@@ -205,7 +205,7 @@ test "create_1000_signals" (b : @bench.T) {
 test "100_effects_1_signal" (b : @bench.T) {
   let sig = @resource.signal(0)
   let counts : Array[Int] = []
-  for i in 0..<100 {
+  for _ in 0..<100 {
     counts.push(0)
   }
   for i in 0..<100 {
@@ -267,7 +267,7 @@ test "wide_dependency_100_memos" (b : @bench.T) {
 ///|
 test "batch_100_updates" (b : @bench.T) {
   let signals : Array[@resource.Signal[Int]] = []
-  for i in 0..<100 {
+  for _ in 0..<100 {
     signals.push(@resource.signal(0))
   }
   // One effect that reads all
@@ -293,7 +293,7 @@ test "batch_100_updates" (b : @bench.T) {
 ///|
 test "unbatched_100_updates" (b : @bench.T) {
   let signals : Array[@resource.Signal[Int]] = []
-  for i in 0..<100 {
+  for _ in 0..<100 {
     signals.push(@resource.signal(0))
   }
   // One effect that reads all

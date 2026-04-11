@@ -3,7 +3,7 @@ import {
   "mizchi/js" @js,
 }
 
+supported_targets = "js"
 options(
   link: { "js": { "exports": [ "setup", "template" ], "format": "esm" } },
-  "supported-targets": "js",
 )

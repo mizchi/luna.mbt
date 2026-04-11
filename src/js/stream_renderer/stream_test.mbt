@@ -4,7 +4,17 @@
 enum TestAction {
   Increment
   DoSomething
-} derive(Show)
+} derive(Debug)
+
+///|
+impl Show for TestAction with output(self, logger) {
+  logger.write_string(
+    match self {
+      Increment => "Increment"
+      DoSomething => "DoSomething"
+    },
+  )
+}
 
 ///|
 test "render_to_stream_collecting_async collects boundaries" {
@@ -563,7 +573,7 @@ test "escape_js_string - prevents script injection" {
   let dangerous = "</script><script>alert(1)"
   let escaped = @render.escape_js_string(dangerous)
   assert_true(escaped.contains("\\u003c/script\\u003e"))
-  assert_true(not(escaped.contains("</script>")))
+  assert_true(!escaped.contains("</script>"))
 }
 
 ///|

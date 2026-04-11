@@ -5,6 +5,4 @@ import {
   "mizchi/js/web/streams" @streams,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

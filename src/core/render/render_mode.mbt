@@ -13,7 +13,21 @@ pub(all) enum HydrationTrigger {
   Visible
   /// Hydrate when media query matches
   Media(String)
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+impl Show for HydrationTrigger with output(self, logger) {
+  match self {
+    Load => logger.write_string("Load")
+    Idle => logger.write_string("Idle")
+    Visible => logger.write_string("Visible")
+    Media(query) => {
+      logger.write_string("Media(")
+      logger.write_string(query)
+      logger.write_string(")")
+    }
+  }
+}
 
 ///|
 /// Render mode for components
@@ -26,7 +40,21 @@ pub(all) enum RenderMode {
   ClientOnly
   /// Server-side deferred rendering (Server Islands)
   ServerDefer
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+impl Show for RenderMode with output(self, logger) {
+  match self {
+    SSROnly => logger.write_string("SSROnly")
+    Hydration(trigger) => {
+      logger.write_string("Hydration(")
+      logger.write_string(trigger.to_string())
+      logger.write_string(")")
+    }
+    ClientOnly => logger.write_string("ClientOnly")
+    ServerDefer => logger.write_string("ServerDefer")
+  }
+}
 
 ///|
 /// Check if render mode requires client JavaScript
@@ -80,7 +108,7 @@ pub fn HydrationTrigger::parse(s : String) -> HydrationTrigger {
   } else if s == "visible" {
     Visible
   } else if s.has_prefix("media:") {
-    let query = s[6:].to_string() catch { _ => "" }
+    let query = s[6:].to_string()
     Media(query)
   } else {
     Load // default

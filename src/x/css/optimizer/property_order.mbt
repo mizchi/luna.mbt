@@ -27,7 +27,7 @@ pub enum PropertyCategory {
   // Other
   Cursor // cursor, pointer-events
   Other // everything else
-} derive(Eq, Compare, Show)
+} derive(Eq, Compare, Debug)
 
 ///|
 /// Get property category for ordering

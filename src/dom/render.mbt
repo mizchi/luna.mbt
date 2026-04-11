@@ -360,6 +360,150 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
 }
 
 ///|
+/// Loading component - shows fallback during initial load, then maintains
+/// stale content during refetch (inspired by SolidJS v2 <Loading>).
+///
+/// State machine:
+///   NeverLoaded + pending=true  → show fallback
+///   NeverLoaded + pending=false → show content, transition to Loaded
+///   Loaded      + pending=true  → keep showing content (stale)
+///   Loaded      + pending=false → show content (fresh)
+pub fn loading(
+  when~ : () -> Bool,
+  fallback~ : () -> DomNode,
+  render_fn : () -> DomNode,
+) -> DomNode {
+  let doc = @js_dom.document()
+  let placeholder = doc.createComment("loading")
+  let captured_owner = @resource.get_owner()
+
+  // Track dispose functions for fallback and content scopes
+  let fallback_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let content_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+
+  // State: has content ever been successfully rendered?
+  let has_loaded : Ref[Bool] = Ref::new(false)
+
+  // Currently displayed nodes
+  let current_nodes : Ref[Array[@js_dom.Node]] = Ref::new([])
+
+  // Which mode is currently displayed: true=fallback, false=content
+  let showing_fallback : Ref[Bool] = Ref::new(false)
+
+  // Helper to render fallback with a new child owner scope
+  fn render_fallback_with_scope() -> Array[@js_dom.Node] {
+    @resource.with_parent_owner(captured_owner, fn() {
+      let (dom, dispose) = @resource.create_root_with_dispose(fn() {
+        fallback()
+      })
+      fallback_dispose.val = Some(dispose)
+      collect_child_nodes(dom.to_dom())
+    })
+  }
+
+  // Helper to render content with a new child owner scope
+  fn render_content_with_scope() -> Array[@js_dom.Node] {
+    @resource.with_parent_owner(captured_owner, fn() {
+      let (dom, dispose) = @resource.create_root_with_dispose(fn() {
+        render_fn()
+      })
+      content_dispose.val = Some(dispose)
+      collect_child_nodes(dom.to_dom())
+    })
+  }
+
+  // Helper to remove current nodes from DOM
+  fn remove_current_nodes() -> Unit {
+    for node in current_nodes.val {
+      if node.parentNode() is Some(parent) {
+        parent.removeChild(node) |> ignore
+      }
+    }
+    current_nodes.val = ([] : Array[@js_dom.Node])
+  }
+
+  // Helper to insert nodes before placeholder
+  fn insert_nodes(nodes : Array[@js_dom.Node]) -> Unit {
+    if placeholder.parentNode() is Some(parent) {
+      for node in nodes {
+        parent.insertBefore(node, Some(placeholder)) |> ignore
+      }
+    }
+    current_nodes.val = nodes
+  }
+
+  // Helper to dispose a scope
+  fn dispose_scope(scope : Ref[(() -> Unit)?]) -> Unit {
+    match scope.val {
+      Some(dispose) => {
+        dispose()
+        scope.val = None
+      }
+      None => ()
+    }
+  }
+
+  // Evaluate initial state
+  let initial_pending = @resource.untracked(fn() { when() })
+  let initial_nodes : Array[@js_dom.Node] = if initial_pending {
+    // Show fallback initially
+    showing_fallback.val = true
+    @resource.untracked(fn() { render_fallback_with_scope() })
+  } else {
+    // Already resolved — show content
+    has_loaded.val = true
+    showing_fallback.val = false
+    @resource.untracked(fn() { render_content_with_scope() })
+  }
+  current_nodes.val = initial_nodes
+
+  let is_first_run : Ref[Bool] = Ref::new(true)
+
+  // Reactive effect for state transitions
+  let _ = @resource.render_effect(fn() {
+    let is_pending = when()
+
+    if is_first_run.val {
+      is_first_run.val = false
+      return
+    }
+
+    match (is_pending, has_loaded.val, showing_fallback.val) {
+      // NeverLoaded + pending → already showing fallback, nothing to do
+      (true, false, true) => ()
+      // NeverLoaded + resolved → switch from fallback to content
+      (false, false, _) => {
+        has_loaded.val = true
+        dispose_scope(fallback_dispose)
+        remove_current_nodes()
+        let nodes = @resource.untracked(fn() { render_content_with_scope() })
+        insert_nodes(nodes)
+        showing_fallback.val = false
+      }
+      // Loaded + pending → keep stale content (do nothing)
+      (true, true, false) => ()
+      // Loaded + resolved → content is already showing, effect will
+      // re-run render_effect dependencies naturally for content updates
+      (false, true, false) => ()
+      // Catch-all: unexpected states
+      _ => ()
+    }
+  })
+
+  // Return fragment containing initial nodes and placeholder
+  if initial_nodes.length() > 0 {
+    let all_nodes : Array[DomNode] = []
+    for node in initial_nodes {
+      all_nodes.push(Raw(node))
+    }
+    all_nodes.push(Raw(placeholder))
+    fragment(all_nodes)
+  } else {
+    Raw(placeholder)
+  }
+}
+
+///|
 /// List rendering with reference-based DOM reuse (Solid-style)
 ///
 /// Items are tracked by reference equality (JavaScript ===).

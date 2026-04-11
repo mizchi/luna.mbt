@@ -256,7 +256,7 @@ fn find_next_enabled(
   let mut idx = (current_index + 1) % count
   let mut iterations = 0
   while iterations < count {
-    if not(options[idx].disabled) {
+    if !options[idx].disabled {
       return idx
     }
     idx = (idx + 1) % count
@@ -275,7 +275,7 @@ fn find_prev_enabled(
   let mut idx = if current_index == 0 { count - 1 } else { current_index - 1 }
   let mut iterations = 0
   while iterations < count {
-    if not(options[idx].disabled) {
+    if !options[idx].disabled {
       return idx
     }
     idx = if idx == 0 { count - 1 } else { idx - 1 }
@@ -289,7 +289,7 @@ fn find_prev_enabled(
 fn find_first_enabled(options : Array[RadioOption[@js.Any]]) -> Int {
   let mut idx = 0
   while idx < options.length() {
-    if not(options[idx].disabled) {
+    if !options[idx].disabled {
       return idx
     }
     idx = idx + 1
@@ -302,7 +302,7 @@ fn find_first_enabled(options : Array[RadioOption[@js.Any]]) -> Int {
 fn find_last_enabled(options : Array[RadioOption[@js.Any]]) -> Int {
   let mut idx = options.length() - 1
   while idx >= 0 {
-    if not(options[idx].disabled) {
+    if !options[idx].disabled {
       return idx
     }
     idx = idx - 1
@@ -360,7 +360,7 @@ pub fn make_radio_keydown_handler(
       }
       " " => {
         let _ = e._call("preventDefault", [])
-        if not(options[current_index].disabled) {
+        if !options[current_index].disabled {
           on_select(current_index)
         }
       }
@@ -423,7 +423,7 @@ pub fn radiogroup_interactive(
       options, radio_ids, index, on_select,
     )
     let click_handler = @luna.handler(fn(_) {
-      if not(option.disabled) {
+      if !option.disabled {
         on_select(index)
       }
     })

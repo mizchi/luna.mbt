@@ -73,8 +73,10 @@ pub fn[E] accordion_header(
   if on_keydown is Some(handler) {
     button_attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  let button = @luna.h("button", button_attrs, children)
-  @luna.h(heading_tag, [], [button])
+  let button = @luna.h("button", button_attrs) <| children
+  @luna.h(heading_tag, []) <| [
+    button,
+  ]
 }
 
 ///|
@@ -104,8 +106,10 @@ pub fn[E] accordion_header_dyn(
   if on_keydown is Some(handler) {
     button_attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  let button = @luna.h("button", button_attrs, children)
-  @luna.h(heading_tag, [], [button])
+  let button = @luna.h("button", button_attrs) <| children
+  @luna.h(heading_tag, []) <| [
+    button,
+  ]
 }
 
 ///|
@@ -133,8 +137,10 @@ pub fn[E] accordion_header_computed(
   if on_keydown is Some(handler) {
     button_attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  let button = @luna.h("button", button_attrs, children)
-  @luna.h(heading_tag, [], [button])
+  let button = @luna.h("button", button_attrs) <| children
+  @luna.h(heading_tag, []) <| [
+    button,
+  ]
 }
 
 ///|
@@ -163,7 +169,7 @@ pub fn[E] accordion_panel(
   if hidden {
     attrs.push(("hidden", @luna.attr_static("")))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -182,7 +188,7 @@ pub fn[E] accordion_panel_dyn(
   if use_region is Some(true) {
     attrs.push(("role", @luna.attr_static("region")))
   }
-  @luna.show(fn() { visible.get() }, fn() { @luna.h("div", attrs, children) })
+  @luna.show(fn() { visible.get() }, fn() { @luna.h("div", attrs) <| children })
 }
 
 ///|
@@ -201,7 +207,7 @@ pub fn[E] accordion_panel_computed(
   if use_region is Some(true) {
     attrs.push(("role", @luna.attr_static("region")))
   }
-  @luna.show(visible, fn() { @luna.h("div", attrs, children) })
+  @luna.show(visible, fn() { @luna.h("div", attrs) <| children })
 }
 
 ///|
@@ -224,21 +230,15 @@ pub fn[E] accordion(
     let header_id = "accordion-header-" + item.id
     let panel_id = "accordion-panel-" + item.id
     children.push(
-      accordion_header(header_id, is_expanded, panel_id, level=item.level, [
+      accordion_header(header_id, is_expanded, panel_id, level=item.level) <| [
         @luna.text(item.heading),
-      ]),
+      ],
     )
     children.push(
-      accordion_panel(
-        panel_id,
-        header_id,
-        not(is_expanded),
-        use_region=use_reg,
-        item.content,
-      ),
+      accordion_panel(panel_id, header_id, !is_expanded, use_region=use_reg) <| item.content,
     )
   }
-  @luna.h("div", [("data-accordion", @luna.attr_static(""))], children)
+  @luna.h("div", [("data-accordion", @luna.attr_static(""))]) <| children
 }
 
 ///|
@@ -260,21 +260,15 @@ pub fn[E] accordion_multi(
     let header_id = "accordion-header-" + item.id
     let panel_id = "accordion-panel-" + item.id
     children.push(
-      accordion_header(header_id, is_expanded, panel_id, level=item.level, [
+      accordion_header(header_id, is_expanded, panel_id, level=item.level) <| [
         @luna.text(item.heading),
-      ]),
+      ],
     )
     children.push(
-      accordion_panel(
-        panel_id,
-        header_id,
-        not(is_expanded),
-        use_region=use_reg,
-        item.content,
-      ),
+      accordion_panel(panel_id, header_id, !is_expanded, use_region=use_reg) <| item.content,
     )
   }
-  @luna.h("div", [("data-accordion", @luna.attr_static("multi"))], children)
+  @luna.h("div", [("data-accordion", @luna.attr_static("multi"))]) <| children
 }
 
 ///|
@@ -309,8 +303,9 @@ pub fn[E] accordion_dyn(
             expanded_index.set(index)
           }
         }),
-        [@luna.text(item.heading)],
-      ),
+      ) <| [
+        @luna.text(item.heading),
+      ],
     )
     children.push(
       accordion_panel_computed(
@@ -318,11 +313,10 @@ pub fn[E] accordion_dyn(
         header_id,
         fn() { expanded_index.get() == index },
         use_region=use_reg,
-        item.content,
-      ),
+      ) <| item.content,
     )
   }
-  @luna.h("div", [("data-accordion", @luna.attr_static(""))], children)
+  @luna.h("div", [("data-accordion", @luna.attr_static(""))]) <| children
 }
 
 // =============================================================================
@@ -460,8 +454,12 @@ pub fn accordion_interactive(
       ("click", @luna.attr_handler(click_handler)),
       ("keydown", @luna.attr_handler(keydown_handler)),
     ]
-    let button = @luna.h("button", button_attrs, [@luna.text(item.heading)])
-    let header = @luna.h(heading_tag, [], [button])
+    let button = @luna.h("button", button_attrs) <| [
+        @luna.text(item.heading),
+      ]
+    let header = @luna.h(heading_tag, []) <| [
+        button,
+      ]
     children.push(header)
     // Build panel
     let panel_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
@@ -473,7 +471,7 @@ pub fn accordion_interactive(
     }
     children.push(
       @luna.show(fn() { expanded_index.get() == index }, fn() {
-        @luna.h("div", panel_attrs, item.content)
+        @luna.h("div", panel_attrs) <| item.content
       }),
     )
     idx = idx + 1
@@ -481,6 +479,5 @@ pub fn accordion_interactive(
   @luna.h(
     "div",
     [("id", @luna.attr_static(id)), ("data-accordion", @luna.attr_static(""))],
-    children,
-  )
+  ) <| children
 }

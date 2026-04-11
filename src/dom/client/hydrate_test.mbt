@@ -7,7 +7,17 @@
 enum TestAction {
   Increment
   TestAction
-} derive(Show)
+} derive(Debug)
+
+///|
+impl Show for TestAction with output(self, logger) {
+  logger.write_string(
+    match self {
+      Increment => "Increment"
+      TestAction => "TestAction"
+    },
+  )
+}
 
 ///|
 /// Helper to set innerHTML on container
@@ -1430,7 +1440,7 @@ test "render_vnode_to_dom with Switch" {
       @luna.match_case(when=fn() { condition.get() }, render=fn() {
         @luna.text("Case 1")
       }),
-      @luna.match_case(when=fn() { not(condition.get()) }, render=fn() {
+      @luna.match_case(when=fn() { !condition.get() }, render=fn() {
         @luna.text("Case 2")
       }),
     ],

@@ -8,8 +8,9 @@ import {
   "mizchi/js/builtins/global",
 }
 
+supported_targets = "js"
+
 options(
   "is-main": true,
   link: { "js": { "format": "esm" } },
-  "supported-targets": "js",
 )

@@ -47,7 +47,7 @@ fn find_next_enabled(items : Array[RadioItemData], current : Int) -> Int {
   let mut idx = (current + 1) % count
   let mut iterations = 0
   while iterations < count {
-    if not(items[idx].disabled) {
+    if !(items[idx].disabled) {
       return idx
     }
     idx = (idx + 1) % count
@@ -67,7 +67,7 @@ fn find_prev_enabled(items : Array[RadioItemData], current : Int) -> Int {
   let mut idx = if current == 0 { count - 1 } else { current - 1 }
   let mut iterations = 0
   while iterations < count {
-    if not(items[idx].disabled) {
+    if !(items[idx].disabled) {
       return idx
     }
     idx = if idx == 0 { count - 1 } else { idx - 1 }
@@ -81,7 +81,7 @@ fn find_prev_enabled(items : Array[RadioItemData], current : Int) -> Int {
 ///|
 fn find_first_enabled(items : Array[RadioItemData]) -> Int {
   for i, item in items {
-    if not(item.disabled) {
+    if !(item.disabled) {
       return i
     }
   }
@@ -94,7 +94,7 @@ fn find_first_enabled(items : Array[RadioItemData]) -> Int {
 fn find_last_enabled(items : Array[RadioItemData]) -> Int {
   let mut last = items.length() - 1
   while last >= 0 {
-    if not(items[last].disabled) {
+    if !(items[last].disabled) {
       return last
     }
     last = last - 1

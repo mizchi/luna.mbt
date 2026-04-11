@@ -37,7 +37,7 @@ pub fn[E] banner(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("header", attrs, children)
+  @luna.h("header", attrs) <| children
 }
 
 ///|
@@ -61,7 +61,7 @@ pub fn[E] nav(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("nav", attrs, children)
+  @luna.h("nav", attrs) <| children
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn[E] nav(
 pub fn[E] main_content(
   children : Array[@luna.Node[E, String]],
 ) -> @luna.Node[E, String] {
-  @luna.h("main", [], children)
+  @luna.h("main", []) <| children
 }
 
 ///|
@@ -94,7 +94,7 @@ pub fn[E] aside(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("aside", attrs, children)
+  @luna.h("aside", attrs) <| children
 }
 
 ///|
@@ -113,7 +113,7 @@ pub fn[E] contentinfo(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("footer", attrs, children)
+  @luna.h("footer", attrs) <| children
 }
 
 ///|
@@ -132,7 +132,7 @@ pub fn[E] search(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("search", attrs, children)
+  @luna.h("search", attrs) <| children
 }
 
 ///|
@@ -151,7 +151,7 @@ pub fn[E] search_role(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("form", attrs, children)
+  @luna.h("form", attrs) <| children
 }
 
 ///|
@@ -174,7 +174,7 @@ pub fn[E] form_landmark(
   if aria_labelledby is Some(id) {
     attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  @luna.h("form", attrs, children)
+  @luna.h("form", attrs) <| children
 }
 
 ///|
@@ -203,7 +203,7 @@ pub fn[E] region(
   if aria_labelledby is Some(id) {
     attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  @luna.h("section", attrs, children)
+  @luna.h("section", attrs) <| children
 }
 
 ///|
@@ -247,5 +247,5 @@ pub fn[E] page_layout(
   if footer_content is Some(f) {
     children.push(contentinfo(f))
   }
-  @luna.fragment(children)
+  @luna.fragment <| children
 }

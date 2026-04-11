@@ -5,6 +5,7 @@ import {
   "mizchi/luna/x/css" @css,
 }
 
+supported_targets = "js"
 options(
   link: {
     "js": {
@@ -75,5 +76,4 @@ options(
       "format": "esm",
     },
   },
-  "supported-targets": "js",
 )

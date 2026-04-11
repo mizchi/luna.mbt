@@ -62,7 +62,7 @@ pub fn checkbox(
   }
 
   // Toggle handler
-  let toggle = fn() { if not(disabled) { checked.set(not(checked.get())) } }
+  let toggle = fn() { if !(disabled) { checked.set(!(checked.get())) } }
 
   // Root wrapper with click handler
   let root_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [

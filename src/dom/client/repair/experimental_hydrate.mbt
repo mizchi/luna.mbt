@@ -443,7 +443,7 @@ fn build_hk_cache_recursive(
             break
           }
         }
-        if valid && not(id_str.is_empty()) {
+        if valid && !id_str.is_empty() {
           cache.set(id, elem)
         }
       }
@@ -1193,7 +1193,7 @@ fn experimental_hydrate_show(
       let child_node = @client.render_vnode_to_dom(child_fn())
       parent.insertBefore(child_node, Some(end)) |> ignore
       current_nodes.push(child_node)
-    } else if not(should_show) && not(current_nodes.is_empty()) {
+    } else if !should_show && !current_nodes.is_empty() {
       for node in current_nodes {
         parent.removeChild(node) |> ignore
       }

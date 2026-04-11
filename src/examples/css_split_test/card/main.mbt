@@ -42,10 +42,12 @@ pub fn register_card_component() -> Unit {
       @css.css("border-radius", "8px"), // shared: rounded
       @css.css("box-shadow", "0 2px 4px rgba(0,0,0,0.1)"), // shared: shadow
     ])
-    fragment([
-      h("div", [("class", attr_static(container_class))], [
-        h("div", [("class", attr_static(card_title()))], [text("Card Title")]),
-        h("div", [("class", attr_static(card_content()))], [
+    fragment <| [
+      h("div", [("class", attr_static(container_class))]) <| [
+        h("div", [("class", attr_static(card_title()))]) <| [
+          text("Card Title"),
+        ],
+        h("div", [("class", attr_static(card_content()))]) <| [
           text_dyn(fn() {
             if expanded.get() {
               "This is expanded content. Click to collapse."
@@ -53,7 +55,7 @@ pub fn register_card_component() -> Unit {
               "Click to expand..."
             }
           }),
-        ]),
+        ],
         h(
           "button",
           [
@@ -69,14 +71,13 @@ pub fn register_card_component() -> Unit {
             ),
             (
               "onclick",
-              attr_handler(handler(fn(_) { expanded.update(fn(v) { not(v) }) })),
+              attr_handler(handler(fn(_) { expanded.update(fn(v) { !(v) }) })),
             ),
           ],
-          [
-            text_dyn(fn() { if expanded.get() { "Collapse" } else { "Expand" } }),
-          ],
-        ),
-      ]),
-    ])
+        ) <| [
+          text_dyn(fn() { if expanded.get() { "Collapse" } else { "Expand" } }),
+        ],
+      ],
+    ]
   })
 }

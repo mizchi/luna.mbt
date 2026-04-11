@@ -74,7 +74,18 @@ enum TestAction {
   Increment
   Decrement
   Click
-} derive(Show)
+} derive(Debug)
+
+///|
+impl Show for TestAction with output(self, logger) {
+  logger.write_string(
+    match self {
+      Increment => "Increment"
+      Decrement => "Decrement"
+      Click => "Click"
+    },
+  )
+}
 
 ///|
 test "action with enum - Increment" {
@@ -291,7 +302,7 @@ test "has_dynamic_content returns false for static attrs" {
     ("class", attr_static("foo")),
     ("id", attr_static("bar")),
   ]
-  assert_true(not(has_dynamic_content(attrs)))
+  assert_true(!has_dynamic_content(attrs))
 }
 
 ///|
@@ -320,7 +331,7 @@ test "has_dynamic_content returns true for VAction" {
 ///|
 test "has_dynamic_content empty attrs" {
   let attrs : Array[(String, Attr[Unit, String])] = []
-  assert_true(not(has_dynamic_content(attrs)))
+  assert_true(!has_dynamic_content(attrs))
 }
 
 // =============================================================================

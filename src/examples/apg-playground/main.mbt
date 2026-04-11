@@ -11,7 +11,7 @@
 fn div(
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("div", [], children)
+  @luna.h("div", []) <| children
 }
 
 ///|
@@ -19,28 +19,28 @@ fn div_class(
   class : String,
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("div", [("class", @luna.attr_static(class))], children)
+  @luna.h("div", [("class", @luna.attr_static(class))]) <| children
 }
 
 ///|
 fn h1(
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("h1", [], children)
+  @luna.h("h1", []) <| children
 }
 
 ///|
 fn h2(
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("h2", [], children)
+  @luna.h("h2", []) <| children
 }
 
 ///|
 fn p(
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("p", [], children)
+  @luna.h("p", []) <| children
 }
 
 ///|
@@ -48,14 +48,14 @@ fn p_class(
   class : String,
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("p", [("class", @luna.attr_static(class))], children)
+  @luna.h("p", [("class", @luna.attr_static(class))]) <| children
 }
 
 ///|
 fn span(
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("span", [], children)
+  @luna.h("span", []) <| children
 }
 
 ///|
@@ -63,7 +63,7 @@ fn btn(
   on_click : @luna.EventHandler[@js.Any],
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("button", [("click", @luna.attr_handler(on_click))], children)
+  @luna.h("button", [("click", @luna.attr_handler(on_click))]) <| children
 }
 
 // =============================================================================
@@ -101,7 +101,7 @@ pub(all) enum Section {
   Link
   Landmarks
   Table
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 fn section_name(section : Section) -> String {
@@ -197,25 +197,36 @@ fn all_sections() -> Array[Section] {
 ///|
 fn button_demo() -> @luna.Node[@js.Any, String] {
   let pressed = @resource.signal(false)
-  div([
-    h2([@luna.text("Button")]),
-    p([@luna.text("Basic button and toggle button examples")]),
-    div([
-      @apg.button([@luna.text("Click me")]),
-      @apg.button(disabled=true, [@luna.text("Disabled")]),
-    ]),
-    p([@luna.text("Toggle Button:")]),
-    div([
+  div <| [
+    h2 <| [
+      @luna.text("Button"),
+    ],
+    p <| [
+      @luna.text("Basic button and toggle button examples"),
+    ],
+    div <| [
+      @apg.button <| [
+        @luna.text("Click me"),
+      ],
+      @apg.button(disabled=true) <| [
+        @luna.text("Disabled"),
+      ],
+    ],
+    p <| [
+      @luna.text("Toggle Button:"),
+    ],
+    div <| [
       @apg.toggle_button_dyn(
         pressed,
-        on_click=@luna.handler(fn(_) { pressed.set(not(pressed.get())) }),
-        [@luna.text("Mute")],
-      ),
-      span([
+        on_click=@luna.handler(fn(_) { pressed.set(!(pressed.get())) }),
+      ) <| [
+        @luna.text("Mute"),
+      ],
+      span <| [
         @luna.text_dyn(fn() { " (pressed: " + pressed.get().to_string() + ")" }),
-      ]),
-    ]),
-  ])
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -227,22 +238,28 @@ fn checkbox_demo() -> @luna.Node[@js.Any, String] {
   let terms = @resource.signal(true)
   let newsletter = @resource.signal(false)
   let select_all = @resource.signal(false) // Will be shown as indeterminate
-  div([
-    h2([@luna.text("Checkbox")]),
-    p([@luna.text("Accessible checkbox with native input and custom styling")]),
-    @checkbox.checkbox_group(aria_label="Agreement options", [
-      @checkbox.checkbox(terms, [
+  div <| [
+    h2 <| [
+      @luna.text("Checkbox"),
+    ],
+    p <| [
+      @luna.text("Accessible checkbox with native input and custom styling"),
+    ],
+    @checkbox.checkbox_group(aria_label="Agreement options") <| [
+      @checkbox.checkbox(terms) <| [
         @luna.text("I agree to the terms and conditions"),
-      ]),
-      @checkbox.checkbox(newsletter, [@luna.text("Subscribe to newsletter")]),
-      @checkbox.checkbox(select_all, indeterminate=true, [
+      ],
+      @checkbox.checkbox(newsletter) <| [
+        @luna.text("Subscribe to newsletter"),
+      ],
+      @checkbox.checkbox(select_all, indeterminate=true) <| [
         @luna.text("Select all items"),
-      ]),
-      @checkbox.checkbox(@resource.signal(false), disabled=true, [
+      ],
+      @checkbox.checkbox(@resource.signal(false), disabled=true) <| [
         @luna.text("Unavailable option (disabled)"),
-      ]),
-    ]),
-  ])
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -253,13 +270,17 @@ fn checkbox_demo() -> @luna.Node[@js.Any, String] {
 fn switch_demo() -> @luna.Node[@js.Any, String] {
   let wifi = @resource.signal(false)
   let bluetooth = @resource.signal(true)
-  @switch.switch_group(aria_label="Settings", [
-    @switch.switch(wifi, aria_label="Wi-Fi", [@luna.text("Wi-Fi")]),
-    @switch.switch(bluetooth, aria_label="Bluetooth", [@luna.text("Bluetooth")]),
-    @switch.switch_static(false, disabled=true, aria_label="Airplane Mode", [
+  @switch.switch_group(aria_label="Settings") <| [
+    @switch.switch(wifi, aria_label="Wi-Fi") <| [
+      @luna.text("Wi-Fi"),
+    ],
+    @switch.switch(bluetooth, aria_label="Bluetooth") <| [
+      @luna.text("Bluetooth"),
+    ],
+    @switch.switch_static(false, disabled=true, aria_label="Airplane Mode") <| [
       @luna.text("Airplane Mode (disabled)"),
-    ]),
-  ])
+    ],
+  ]
 }
 
 // =============================================================================
@@ -275,17 +296,23 @@ fn radio_demo() -> @luna.Node[@js.Any, String] {
     @radio.radio_item("option3", "Option 3"),
     @radio.radio_item("option4", "Disabled Option", disabled=true),
   ]
-  div([
-    h2([@luna.text("Radio Group")]),
-    p([@luna.text("Select one option from the group")]),
+  div <| [
+    h2 <| [
+      @luna.text("Radio Group"),
+    ],
+    p <| [
+      @luna.text("Select one option from the group"),
+    ],
     @radio.radio_group(
       "demo-radio",
       items,
       selected,
       aria_label="Choose an option",
     ),
-    p([@luna.text_dyn(fn() { "Selected: " + selected.get() })]),
-  ])
+    p <| [
+      @luna.text_dyn(fn() { "Selected: " + selected.get() }),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -296,19 +323,27 @@ fn radio_demo() -> @luna.Node[@js.Any, String] {
 fn tabs_demo() -> @luna.Node[@js.Any, String] {
   let active_tab = @resource.signal(0)
   let items : Array[@tabs.TabItem] = [
-    @tabs.tab_item("0", "Tab 1", [@luna.text("Content for Tab 1")]),
-    @tabs.tab_item("1", "Tab 2", [@luna.text("Content for Tab 2")]),
-    @tabs.tab_item("2", "Tab 3", [@luna.text("Content for Tab 3")]),
+    @tabs.tab_item("0", "Tab 1") <| [
+      @luna.text("Content for Tab 1"),
+    ],
+    @tabs.tab_item("1", "Tab 2") <| [
+      @luna.text("Content for Tab 2"),
+    ],
+    @tabs.tab_item("2", "Tab 3") <| [
+      @luna.text("Content for Tab 3"),
+    ],
   ]
-  div([
-    h2([@luna.text("Tabs")]),
-    p([
+  div <| [
+    h2 <| [
+      @luna.text("Tabs"),
+    ],
+    p <| [
       @luna.text(
         "Tabbed interface with keyboard navigation (use ←/→ arrows)",
       ),
-    ]),
+    ],
     @tabs.tabs(items, active_tab, aria_label="Demo tabs"),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -319,21 +354,25 @@ fn tabs_demo() -> @luna.Node[@js.Any, String] {
 fn accordion_demo() -> @luna.Node[@js.Any, String] {
   let expanded = @resource.signal(-1) // -1 = all collapsed
   let items : Array[@accordion.AccordionItemData] = [
-    @accordion.accordion_item("0", "Section 1", [
+    @accordion.accordion_item("0", "Section 1") <| [
       @luna.text("Content for section 1"),
-    ]),
-    @accordion.accordion_item("1", "Section 2", [
+    ],
+    @accordion.accordion_item("1", "Section 2") <| [
       @luna.text("Content for section 2"),
-    ]),
-    @accordion.accordion_item("2", "Section 3", [
+    ],
+    @accordion.accordion_item("2", "Section 3") <| [
       @luna.text("Content for section 3"),
-    ]),
+    ],
   ]
-  div([
-    h2([@luna.text("Accordion")]),
-    p([@luna.text("Expandable sections")]),
+  div <| [
+    h2 <| [
+      @luna.text("Accordion"),
+    ],
+    p <| [
+      @luna.text("Expandable sections"),
+    ],
     @accordion.accordion(items, expanded),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -343,13 +382,15 @@ fn accordion_demo() -> @luna.Node[@js.Any, String] {
 ///|
 fn slider_demo() -> @luna.Node[@js.Any, String] {
   let value = @resource.signal(50.0)
-  div([
-    h2([@luna.text("Slider")]),
-    p([
+  div <| [
+    h2 <| [
+      @luna.text("Slider"),
+    ],
+    p <| [
       @luna.text(
         "Accessible range input (use ←/→/↑/↓, Home/End, PageUp/PageDown)",
       ),
-    ]),
+    ],
     @apg.slider_interactive(
       value,
       min=0.0,
@@ -358,26 +399,31 @@ fn slider_demo() -> @luna.Node[@js.Any, String] {
       large_step=10.0,
       aria_label="Volume",
       aria_valuetext_fn=fn(v) { v.to_string() + "%" },
-      [@luna.text_dyn(fn() { value.get().to_string() })],
-    ),
-    p([@luna.text_dyn(fn() { "Value: " + value.get().to_string() })]),
-    div([
+    ) <| [
+      @luna.text_dyn(fn() { value.get().to_string() }),
+    ],
+    p <| [
+      @luna.text_dyn(fn() { "Value: " + value.get().to_string() }),
+    ],
+    div <| [
       btn(
         @luna.handler(fn(_) {
           let v = value.get() - 10.0
           value.set(if v < 0.0 { 0.0 } else { v })
         }),
-        [@luna.text("-10")],
-      ),
+      ) <| [
+        @luna.text("-10"),
+      ],
       btn(
         @luna.handler(fn(_) {
           let v = value.get() + 10.0
           value.set(if v > 100.0 { 100.0 } else { v })
         }),
-        [@luna.text("+10")],
-      ),
-    ]),
-  ])
+      ) <| [
+        @luna.text("+10"),
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -387,25 +433,34 @@ fn slider_demo() -> @luna.Node[@js.Any, String] {
 ///|
 fn dialog_demo() -> @luna.Node[@js.Any, String] {
   let open = @resource.signal(false)
-  div([
-    h2([@luna.text("Dialog")]),
-    p([@luna.text("Modal dialog example")]),
-    btn(@luna.handler(fn(_) { open.set(true) }), [@luna.text("Open Dialog")]),
+  div <| [
+    h2 <| [
+      @luna.text("Dialog"),
+    ],
+    p <| [
+      @luna.text("Modal dialog example"),
+    ],
+    btn(@luna.handler(fn(_) { open.set(true) })) <| [
+      @luna.text("Open Dialog"),
+    ],
     // Use dialog_interactive which handles focus management automatically
     @apg.dialog_interactive(
       "demo-dialog",
       aria_label="Example Dialog",
       open,
       fn() {  }, // on_close callback
-      [
-        @luna.h("h3", [], [@luna.text("Dialog Title")]),
-        @luna.h("p", [], [@luna.text("This is a modal dialog.")]),
-        @apg.button(on_click=@luna.handler(fn(_) { open.set(false) }), [
-          @luna.text("Close"),
-        ]),
+    ) <| [
+      @luna.h("h3", []) <| [
+        @luna.text("Dialog Title"),
       ],
-    ),
-  ])
+      @luna.h("p", []) <| [
+        @luna.text("This is a modal dialog."),
+      ],
+      @apg.button(on_click=@luna.handler(fn(_) { open.set(false) })) <| [
+        @luna.text("Close"),
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -415,22 +470,26 @@ fn dialog_demo() -> @luna.Node[@js.Any, String] {
 ///|
 fn disclosure_demo() -> @luna.Node[@js.Any, String] {
   let expanded = @resource.signal(true)
-  div([
-    h2([@luna.text("Disclosure")]),
-    p([@luna.text("Show/hide content toggle")]),
+  div <| [
+    h2 <| [
+      @luna.text("Disclosure"),
+    ],
+    p <| [
+      @luna.text("Show/hide content toggle"),
+    ],
     @disclosure.disclosure(
       "demo-disclosure",
       expanded,
       "What is a Disclosure?",
       [
-        @luna.h("p", [], [
+        @luna.h("p", []) <| [
           @luna.text(
             "A disclosure is a button that controls the visibility of a section of content. It is commonly used for FAQ sections, additional details, or expandable navigation.",
           ),
-        ]),
+        ],
       ],
     ),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -445,11 +504,15 @@ fn breadcrumb_demo() -> @luna.Node[@js.Any, String] {
     @apg.breadcrumb_item("/products/electronics", "Electronics"),
     @apg.breadcrumb_item("#", "Laptops", current=true),
   ]
-  div([
-    h2([@luna.text("Breadcrumb")]),
-    p([@luna.text("Navigation trail")]),
+  div <| [
+    h2 <| [
+      @luna.text("Breadcrumb"),
+    ],
+    p <| [
+      @luna.text("Navigation trail"),
+    ],
     @apg.breadcrumb(items),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -459,17 +522,23 @@ fn breadcrumb_demo() -> @luna.Node[@js.Any, String] {
 ///|
 fn listbox_demo() -> @luna.Node[@js.Any, String] {
   let selected = @resource.signal("apple")
-  div([
-    h2([@luna.text("Listbox")]),
-    p([@luna.text("Selection list")]),
-    @apg.listbox(aria_label="Choose a fruit", [
+  div <| [
+    h2 <| [
+      @luna.text("Listbox"),
+    ],
+    p <| [
+      @luna.text("Selection list"),
+    ],
+    @apg.listbox(aria_label="Choose a fruit") <| [
       listbox_option(selected, "apple", "Apple"),
       listbox_option(selected, "banana", "Banana"),
       listbox_option(selected, "cherry", "Cherry"),
       listbox_option(selected, "date", "Date"),
-    ]),
-    p([@luna.text_dyn(fn() { "Selected: " + selected.get() })]),
-  ])
+    ],
+    p <| [
+      @luna.text_dyn(fn() { "Selected: " + selected.get() }),
+    ],
+  ]
 }
 
 ///|
@@ -493,7 +562,9 @@ fn listbox_option(
     ("data-value", @luna.attr_static(value)),
     ("click", @luna.attr_handler(@luna.handler(fn(_) { selected.set(value) }))),
   ]
-  @luna.h("div", attrs, [@luna.text(label)])
+  @luna.h("div", attrs) <| [
+    @luna.text(label),
+  ]
 }
 
 // =============================================================================
@@ -503,13 +574,15 @@ fn listbox_option(
 ///|
 fn spinbutton_demo() -> @luna.Node[@js.Any, String] {
   let value = @resource.signal(5.0)
-  div([
-    h2([@luna.text("Spinbutton")]),
-    p([
+  div <| [
+    h2 <| [
+      @luna.text("Spinbutton"),
+    ],
+    p <| [
       @luna.text(
         "Number input with keyboard support (↑/↓, Home/End, PageUp/PageDown)",
       ),
-    ]),
+    ],
     @spinbutton.spinbutton(
       value,
       min=0.0,
@@ -520,8 +593,10 @@ fn spinbutton_demo() -> @luna.Node[@js.Any, String] {
       aria_valuetext_fn=fn(v) { v.to_string() + " items" },
       label="Quantity",
     ),
-    p([@luna.text_dyn(fn() { "Value: " + value.get().to_string() })]),
-  ])
+    p <| [
+      @luna.text_dyn(fn() { "Value: " + value.get().to_string() }),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -540,13 +615,15 @@ fn combobox_demo() -> @luna.Node[@js.Any, String] {
     @apg.combobox_option("fig", "Fig"),
     @apg.combobox_option("grape", "Grape"),
   ]
-  div([
-    h2([@luna.text("Combobox")]),
-    p([
+  div <| [
+    h2 <| [
+      @luna.text("Combobox"),
+    ],
+    p <| [
       @luna.text(
         "Text input with autocomplete dropdown (↑/↓, Enter, Escape)",
       ),
-    ]),
+    ],
     @apg.combobox_interactive(
       "fruit-combo",
       options,
@@ -554,8 +631,10 @@ fn combobox_demo() -> @luna.Node[@js.Any, String] {
       aria_label="Select a fruit",
       fn(opt) { selected_fruit.set(opt.label) },
     ),
-    p([@luna.text_dyn(fn() { "Selected: " + selected_fruit.get() })]),
-  ])
+    p <| [
+      @luna.text_dyn(fn() { "Selected: " + selected_fruit.get() }),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -580,13 +659,15 @@ fn treeview_demo() -> @luna.Node[@js.Any, String] {
     ]),
     @treeview.tree_node("readme", "readme.md"),
   ]
-  div([
-    h2([@luna.text("Tree View")]),
-    p([
+  div <| [
+    h2 <| [
+      @luna.text("Tree View"),
+    ],
+    p <| [
       @luna.text(
         "Hierarchical list (↑/↓/←/→ arrows, Home/End, Enter/Space)",
       ),
-    ]),
+    ],
     @treeview.treeview(
       "file-tree",
       nodes,
@@ -594,8 +675,10 @@ fn treeview_demo() -> @luna.Node[@js.Any, String] {
       fn(id) { selected_node.set(id) },
       initial_expanded=["documents", "projects"],
     ),
-    p([@luna.text_dyn(fn() { "Selected: " + selected_node.get() })]),
-  ])
+    p <| [
+      @luna.text_dyn(fn() { "Selected: " + selected_node.get() }),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -608,20 +691,24 @@ fn toolbar_demo() -> @luna.Node[@js.Any, String] {
     "bold": true,
   })
   let groups : Array[@toolbar.ToolbarGroup] = [
-    @toolbar.ToolbarGroup([
+    @toolbar.ToolbarGroup <| [
       @toolbar.toolbar_item_config("bold", "Bold", pressed=true),
       @toolbar.toolbar_item_config("italic", "Italic"),
       @toolbar.toolbar_item_config("underline", "Underline"),
-    ]),
-    @toolbar.ToolbarGroup([
+    ],
+    @toolbar.ToolbarGroup <| [
       @toolbar.toolbar_item_config("copy", "Copy"),
       @toolbar.toolbar_item_config("cut", "Cut"),
       @toolbar.toolbar_item_config("paste", "Paste"),
-    ]),
+    ],
   ]
-  div([
-    h2([@luna.text("Toolbar")]),
-    p([@luna.text("Button group with keyboard navigation (←/→ arrows)")]),
+  div <| [
+    h2 <| [
+      @luna.text("Toolbar"),
+    ],
+    p <| [
+      @luna.text("Button group with keyboard navigation (←/→ arrows)"),
+    ],
     @toolbar.toolbar_reactive(
       "editor-toolbar",
       groups,
@@ -631,11 +718,11 @@ fn toolbar_demo() -> @luna.Node[@js.Any, String] {
         let states = pressed_states.get()
         let new_states = states.copy()
         let current = states.get(id).unwrap_or(false)
-        new_states.set(id, not(current))
+        new_states.set(id, !(current))
         pressed_states.set(new_states)
       },
     ),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -652,21 +739,26 @@ fn menu_button_demo() -> @luna.Node[@js.Any, String] {
     @apg.menu_item("save-as", "Save As..."),
     @apg.menu_item("export", "Export", disabled=true),
   ]
-  div([
-    h2([@luna.text("Menu Button")]),
-    p([
+  div <| [
+    h2 <| [
+      @luna.text("Menu Button"),
+    ],
+    p <| [
       @luna.text(
         "Button that opens a menu dropdown (↑/↓, Enter/Space, Escape)",
       ),
-    ]),
+    ],
     @apg.menu_button_interactive(
       "file-menu",
       items,
       fn(id) { selected_action.set(id) },
-      [@luna.text("File ▾")],
-    ),
-    p([@luna.text_dyn(fn() { "Last action: " + selected_action.get() })]),
-  ])
+    ) <| [
+      @luna.text("File ▾"),
+    ],
+    p <| [
+      @luna.text_dyn(fn() { "Last action: " + selected_action.get() }),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -677,10 +769,16 @@ fn menu_button_demo() -> @luna.Node[@js.Any, String] {
 fn alert_dialog_demo() -> @luna.Node[@js.Any, String] {
   let open = @resource.signal(false)
   let result = @resource.signal("")
-  div([
-    h2([@luna.text("Alert Dialog")]),
-    p([@luna.text("Confirmation dialog with required user action")]),
-    btn(@luna.handler(fn(_) { open.set(true) }), [@luna.text("Delete Item")]),
+  div <| [
+    h2 <| [
+      @luna.text("Alert Dialog"),
+    ],
+    p <| [
+      @luna.text("Confirmation dialog with required user action"),
+    ],
+    btn(@luna.handler(fn(_) { open.set(true) })) <| [
+      @luna.text("Delete Item"),
+    ],
     @apg.confirm_dialog(
       "confirm-delete",
       "Confirm Delete",
@@ -691,8 +789,10 @@ fn alert_dialog_demo() -> @luna.Node[@js.Any, String] {
       fn() { result.set("Confirmed") },
       fn() { result.set("Cancelled") },
     ),
-    p([@luna.text_dyn(fn() { "Result: " + result.get() })]),
-  ])
+    p <| [
+      @luna.text_dyn(fn() { "Result: " + result.get() }),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -701,16 +801,20 @@ fn alert_dialog_demo() -> @luna.Node[@js.Any, String] {
 
 ///|
 fn tooltip_demo() -> @luna.Node[@js.Any, String] {
-  div([
-    h2([@luna.text("Tooltip")]),
-    p([@luna.text("Informational popup on hover/focus")]),
-    @luna.h("span", [("class", @luna.attr_static("tooltip-wrapper"))], [
+  div <| [
+    h2 <| [
+      @luna.text("Tooltip"),
+    ],
+    p <| [
+      @luna.text("Informational popup on hover/focus"),
+    ],
+    @luna.h("span", [("class", @luna.attr_static("tooltip-wrapper"))]) <| [
       // Use tooltip_interactive which handles focus/blur on the trigger
-      @apg.tooltip_interactive("demo-tooltip", [@luna.text("Hover me")], [
+      @apg.tooltip_interactive("demo-tooltip", [@luna.text("Hover me")]) <| [
         @luna.text("This is helpful tooltip text"),
-      ]),
-    ]),
-  ])
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -719,9 +823,13 @@ fn tooltip_demo() -> @luna.Node[@js.Any, String] {
 
 ///|
 fn alert_demo() -> @luna.Node[@js.Any, String] {
-  div([
-    h2([@luna.text("Alert")]),
-    p([@luna.text("Live region for important messages")]),
+  div <| [
+    h2 <| [
+      @luna.text("Alert"),
+    ],
+    p <| [
+      @luna.text("Live region for important messages"),
+    ],
     @alert.alert(
       @alert.Error,
       title="Error",
@@ -742,7 +850,7 @@ fn alert_demo() -> @luna.Node[@js.Any, String] {
       title="Status",
       description="Processing your request...",
     ),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -751,9 +859,13 @@ fn alert_demo() -> @luna.Node[@js.Any, String] {
 
 ///|
 fn meter_demo() -> @luna.Node[@js.Any, String] {
-  div([
-    h2([@luna.text("Meter")]),
-    p([@luna.text("Visual representation of a value within a known range")]),
+  div <| [
+    h2 <| [
+      @luna.text("Meter"),
+    ],
+    p <| [
+      @luna.text("Visual representation of a value within a known range"),
+    ],
     @meter.meter("cpu-meter", 75.0, label="CPU Usage", value_text="75%"),
     @meter.meter(
       "rating-meter",
@@ -772,7 +884,7 @@ fn meter_demo() -> @luna.Node[@js.Any, String] {
       value_text="25\u{00B0}C",
     ),
     @meter.meter("progress-meter", 65.0, label="Progress", value_text="65%"),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -781,17 +893,25 @@ fn meter_demo() -> @luna.Node[@js.Any, String] {
 
 ///|
 fn link_demo() -> @luna.Node[@js.Any, String] {
-  div([
-    h2([@luna.text("Link")]),
-    p([@luna.text("Accessible hyperlinks")]),
-    @apg.link("https://www.w3.org/WAI/ARIA/apg/", [@luna.text("WAI-ARIA APG")]),
+  div <| [
+    h2 <| [
+      @luna.text("Link"),
+    ],
+    p <| [
+      @luna.text("Accessible hyperlinks"),
+    ],
+    @apg.link("https://www.w3.org/WAI/ARIA/apg/") <| [
+      @luna.text("WAI-ARIA APG"),
+    ],
     @luna.text(" | "),
-    @apg.link("https://moonbitlang.com", target=@apg.Blank, [
+    @apg.link("https://moonbitlang.com", target=@apg.Blank) <| [
       @luna.text("MoonBit (opens in new tab)"),
-    ]),
+    ],
     @luna.text(" | "),
-    @apg.link("#", disabled=true, [@luna.text("Disabled Link")]),
-  ])
+    @apg.link("#", disabled=true) <| [
+      @luna.text("Disabled Link"),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -800,87 +920,110 @@ fn link_demo() -> @luna.Node[@js.Any, String] {
 
 ///|
 fn landmarks_demo() -> @luna.Node[@js.Any, String] {
-  div([
-    h2([@luna.text("Landmarks")]),
-    p([@luna.text("ARIA landmark roles for page structure")]),
-    div_class("landmarks-example", [
+  div <| [
+    h2 <| [
+      @luna.text("Landmarks"),
+    ],
+    p <| [
+      @luna.text("ARIA landmark roles for page structure"),
+    ],
+    div_class("landmarks-example") <| [
       // Banner landmark
-      @apg.banner(aria_label="Site Header", [
-        @luna.h("div", [("class", @luna.attr_static("landmark-header"))], [
-          @luna.h("strong", [], [@luna.text("Site Logo")]),
-          @apg.nav(aria_label="Main Navigation", [
-            @luna.h("a", [("href", @luna.attr_static("#"))], [
+      @apg.banner(aria_label="Site Header") <| [
+        @luna.h("div", [("class", @luna.attr_static("landmark-header"))]) <| [
+          @luna.h("strong", []) <| [
+            @luna.text("Site Logo"),
+          ],
+          @apg.nav(aria_label="Main Navigation") <| [
+            @luna.h("a", [("href", @luna.attr_static("#"))]) <| [
               @luna.text("Home"),
-            ]),
+            ],
             @luna.text(" "),
-            @luna.h("a", [("href", @luna.attr_static("#"))], [
+            @luna.h("a", [("href", @luna.attr_static("#"))]) <| [
               @luna.text("About"),
-            ]),
+            ],
             @luna.text(" "),
-            @luna.h("a", [("href", @luna.attr_static("#"))], [
+            @luna.h("a", [("href", @luna.attr_static("#"))]) <| [
               @luna.text("Contact"),
-            ]),
-          ]),
-        ]),
-      ]),
+            ],
+          ],
+        ],
+      ],
       // Main landmark
-      @apg.main_content([
+      @apg.main_content <| [
         // Region landmark
-        @apg.region(aria_label="Main Content", [
-          @luna.h("h3", [], [@luna.text("Main Content")]),
-          @luna.h("p", [], [
+        @apg.region(aria_label="Main Content") <| [
+          @luna.h("h3", []) <| [
+            @luna.text("Main Content"),
+          ],
+          @luna.h("p", []) <| [
             @luna.text("This section demonstrates the "),
-            @luna.h("code", [], [@luna.text("region")]),
+            @luna.h("code", []) <| [
+              @luna.text("region"),
+            ],
             @luna.text(
               " landmark. A section element only becomes a region landmark when it has an accessible name via ",
             ),
-            @luna.h("code", [], [@luna.text("aria-labelledby")]),
+            @luna.h("code", []) <| [
+              @luna.text("aria-labelledby"),
+            ],
             @luna.text(" or "),
-            @luna.h("code", [], [@luna.text("aria-label")]),
+            @luna.h("code", []) <| [
+              @luna.text("aria-label"),
+            ],
             @luna.text("."),
-          ]),
-        ]),
+          ],
+        ],
         // Search landmark
-        @apg.search_role(aria_label="Site Search", [
-          @luna.h("label", [], [@luna.text("Search ")]),
+        @apg.search_role(aria_label="Site Search") <| [
+          @luna.h("label", []) <| [
+            @luna.text("Search "),
+          ],
           @luna.h(
             "input",
             [
               ("type", @luna.attr_static("search")),
               ("placeholder", @luna.attr_static("Search...")),
             ],
-            [],
-          ),
+          ) <| [],
           @luna.text(" "),
-          @luna.h("button", [("type", @luna.attr_static("submit"))], [
+          @luna.h("button", [("type", @luna.attr_static("submit"))]) <| [
             @luna.text("Search"),
-          ]),
-        ]),
+          ],
+        ],
         // Form landmark
-        @apg.form_landmark(aria_label="Contact Form", [
-          @luna.h("div", [("class", @luna.attr_static("form-field"))], [
-            @luna.h("label", [], [@luna.text("Name")]),
-            @luna.h("input", [("type", @luna.attr_static("text"))], []),
-          ]),
-          @luna.h("div", [("class", @luna.attr_static("form-field"))], [
-            @luna.h("label", [], [@luna.text("Email")]),
-            @luna.h("input", [("type", @luna.attr_static("email"))], []),
-          ]),
-          @luna.h("button", [("type", @luna.attr_static("submit"))], [
+        @apg.form_landmark(aria_label="Contact Form") <| [
+          @luna.h("div", [("class", @luna.attr_static("form-field"))]) <| [
+            @luna.h("label", []) <| [
+              @luna.text("Name"),
+            ],
+            @luna.h("input", [("type", @luna.attr_static("text"))]) <| [],
+          ],
+          @luna.h("div", [("class", @luna.attr_static("form-field"))]) <| [
+            @luna.h("label", []) <| [
+              @luna.text("Email"),
+            ],
+            @luna.h("input", [("type", @luna.attr_static("email"))]) <| [],
+          ],
+          @luna.h("button", [("type", @luna.attr_static("submit"))]) <| [
             @luna.text("Submit"),
-          ]),
-        ]),
-      ]),
+          ],
+        ],
+      ],
       // Complementary landmark
-      @apg.aside(aria_label="Related Information", [
-        @luna.h("p", [], [@luna.text("Complementary sidebar content")]),
-      ]),
+      @apg.aside(aria_label="Related Information") <| [
+        @luna.h("p", []) <| [
+          @luna.text("Complementary sidebar content"),
+        ],
+      ],
       // Contentinfo landmark
-      @apg.contentinfo(aria_label="Site Footer", [
-        @luna.h("p", [], [@luna.text("© 2024 Example Site")]),
-      ]),
-    ]),
-  ])
+      @apg.contentinfo(aria_label="Site Footer") <| [
+        @luna.h("p", []) <| [
+          @luna.text("© 2024 Example Site"),
+        ],
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -901,9 +1044,13 @@ fn table_demo() -> @luna.Node[@js.Any, String] {
     @table.table_row("3", ["Charlie", "42", "Manager", "charlie@example.com"]),
     @table.table_row("4", ["Diana", "31", "QA Engineer", "diana@example.com"]),
   ]
-  div([
-    h2([@luna.text("Table")]),
-    p([@luna.text("Data table with sortable columns (click headers to sort)")]),
+  div <| [
+    h2 <| [
+      @luna.text("Table"),
+    ],
+    p <| [
+      @luna.text("Data table with sortable columns (click headers to sort)"),
+    ],
     @table.table(
       "team-table",
       columns,
@@ -915,7 +1062,7 @@ fn table_demo() -> @luna.Node[@js.Any, String] {
         console._call("log", [@js.any("Selected row: " + id)]) |> ignore
       },
     ),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -988,8 +1135,7 @@ fn color_swatch_btn(
       ("aria-label", @luna.attr_static(color + " accent color")),
       ("click", @luna.attr_handler(on_click)),
     ],
-    [],
-  )
+  ) <| []
 }
 
 // =============================================================================
@@ -1009,23 +1155,27 @@ fn demo_section(
       ("class", @luna.attr_static("demo-section")),
       ("id", @luna.attr_static(id)),
     ],
-    [
-      @luna.h("h2", [], [
-        @luna.text(title),
-        @luna.h(
-          "a",
-          [
-            ("href", @luna.attr_static("#" + id)),
-            ("aria-label", @luna.attr_static("Link to " + title)),
-          ],
-          [@luna.text("#")],
-        ),
-      ]),
-      p_class("demo-description", [@luna.text(description)]),
-      div_class("demo-preview", [preview]),
-      // TODO: Add tabbed code display (MoonBit / TypeScript)
+  ) <| [
+    @luna.h("h2", []) <| [
+      @luna.text(title),
+      @luna.h(
+        "a",
+        [
+          ("href", @luna.attr_static("#" + id)),
+          ("aria-label", @luna.attr_static("Link to " + title)),
+        ],
+      ) <| [
+        @luna.text("#"),
+      ],
     ],
-  )
+    p_class("demo-description") <| [
+      @luna.text(description),
+    ],
+    div_class("demo-preview") <| [
+      preview,
+    ],
+    // TODO: Add tabbed code display (MoonBit / TypeScript)
+  ]
 }
 
 // =============================================================================
@@ -1038,7 +1188,7 @@ fn sidebar_nav_item(
   current : @resource.Signal[Section],
 ) -> @luna.Node[@js.Any, String] {
   let s = section
-  @luna.h("li", [], [
+  @luna.h("li", []) <| [
     @luna.h(
       "button",
       [
@@ -1067,9 +1217,10 @@ fn sidebar_nav_item(
           ),
         ),
       ],
-      [@luna.text(section_name(s))],
-    ),
-  ])
+    ) <| [
+      @luna.text(section_name(s)),
+    ],
+  ]
 }
 
 ///|
@@ -1091,16 +1242,12 @@ fn accent_controls(
       ),
     )
   }
-  @luna.h("div", [("class", @luna.attr_static("accent-controls"))], [
-    @luna.h("span", [("class", @luna.attr_static("theme-controls-label"))], [
+  @luna.h("div", [("class", @luna.attr_static("accent-controls"))]) <| [
+    @luna.h("span", [("class", @luna.attr_static("theme-controls-label"))]) <| [
       @luna.text("Accent"),
-    ]),
-    @luna.h(
-      "div",
-      [("class", @luna.attr_static("color-swatches"))],
-      color_swatches,
-    ),
-  ])
+    ],
+    @luna.h("div", [("class", @luna.attr_static("color-swatches"))]) <| color_swatches,
+  ]
 }
 
 ///|
@@ -1114,14 +1261,14 @@ fn sidebar(
   for s in sections {
     nav_items.push(sidebar_nav_item(s, current_section))
   }
-  @luna.h("aside", [("class", @luna.attr_static("sidebar"))], [
-    @luna.h("h1", [("class", @luna.attr_static("sidebar-title"))], [
+  @luna.h("aside", [("class", @luna.attr_static("sidebar"))]) <| [
+    @luna.h("h1", [("class", @luna.attr_static("sidebar-title"))]) <| [
       @luna.text("Component Catalog"),
-    ]),
-    @luna.h("p", [("class", @luna.attr_static("sidebar-subtitle"))], [
+    ],
+    @luna.h("p", [("class", @luna.attr_static("sidebar-subtitle"))]) <| [
       @luna.text("WAI-ARIA APG Patterns"),
-    ]),
-    @luna.h("ul", [("class", @luna.attr_static("sidebar-nav"))], nav_items),
+    ],
+    @luna.h("ul", [("class", @luna.attr_static("sidebar-nav"))]) <| nav_items,
     accent_controls(accent),
     @luna.h(
       "a",
@@ -1129,9 +1276,10 @@ fn sidebar(
         ("href", @luna.attr_static("../")),
         ("class", @luna.attr_static("back-link")),
       ],
-      [@luna.text("\u{2190} Back to Demos")],
-    ),
-  ])
+    ) <| [
+      @luna.text("\u{2190} Back to Demos"),
+    ],
+  ]
 }
 
 // =============================================================================
@@ -1142,19 +1290,15 @@ fn sidebar(
 fn theme_switch(
   is_dark : @resource.Signal[Bool],
 ) -> @luna.Node[@js.Any, String] {
-  @luna.h("div", [("class", @luna.attr_static("theme-switch"))], [
-    @luna.h(
-      "span",
-      [("class", @luna.attr_static("theme-switch-icon"))],
-      [@luna.text("\u{2600}")], // ☀
-    ),
-    @switch.switch(is_dark, aria_label="Dark mode", []),
-    @luna.h(
-      "span",
-      [("class", @luna.attr_static("theme-switch-icon"))],
-      [@luna.text("\u{1F319}")], // 🌙
-    ),
-  ])
+  @luna.h("div", [("class", @luna.attr_static("theme-switch"))]) <| [
+    @luna.h("span", [("class", @luna.attr_static("theme-switch-icon"))]) <| [
+      @luna.text("\u{2600}"),
+    ], // ☀
+    @switch.switch(is_dark, aria_label="Dark mode") <| [],
+    @luna.h("span", [("class", @luna.attr_static("theme-switch-icon"))]) <| [
+      @luna.text("\u{1F319}"),
+    ], // 🌙
+  ]
 }
 
 ///|
@@ -1163,18 +1307,20 @@ fn main_content(
   is_dark : @resource.Signal[Bool],
 ) -> @luna.Node[@js.Any, String] {
   let _ = current_section // Future: could filter to show only current section
-  @luna.h("main", [("class", @luna.attr_static("main-content"))], [
-    div_class("main-header", [
-      @luna.h("div", [("class", @luna.attr_static("main-header-top"))], [
-        h1([@luna.text("APG Components Playground")]),
+  @luna.h("main", [("class", @luna.attr_static("main-content"))]) <| [
+    div_class("main-header") <| [
+      @luna.h("div", [("class", @luna.attr_static("main-header-top"))]) <| [
+        h1 <| [
+          @luna.text("APG Components Playground"),
+        ],
         theme_switch(is_dark),
-      ]),
-      p([
+      ],
+      p <| [
         @luna.text(
           "Interactive demos for WAI-ARIA Authoring Practices Guide compliant components",
         ),
-      ]),
-    ]),
+      ],
+    ],
     demo_section(
       "button",
       "Button",
@@ -1313,7 +1459,7 @@ fn main_content(
       "A data table with sortable columns, selectable rows, and keyboard navigation.",
       table_demo(),
     ),
-  ])
+  ]
 }
 
 // =============================================================================
@@ -1340,10 +1486,10 @@ fn app() -> @luna.Node[@js.Any, String] {
       set_theme(Light)
     }
   })
-  @luna.fragment([
+  @luna.fragment <| [
     sidebar(current_section, is_dark, accent),
     main_content(current_section, is_dark),
-  ])
+  ]
 }
 
 ///|

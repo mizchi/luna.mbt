@@ -124,7 +124,7 @@ pub fn generate_optimized_css(
     }
   }
   original_css.each(fn(class_name, rule) {
-    if not(merged_classes.contains(class_name)) {
+    if !(merged_classes.contains(class_name)) {
       css = css + rule + "\n"
     }
   })

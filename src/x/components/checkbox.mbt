@@ -70,7 +70,7 @@ pub fn[E] checkbox(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -100,7 +100,7 @@ pub fn[E] checkbox_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -131,7 +131,7 @@ pub fn[E] checkbox_computed(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -158,10 +158,10 @@ pub fn[E] checkbox_native(
   let label_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("for", @luna.attr_static(input_id)),
   ]
-  @luna.fragment([
-    @luna.h("input", input_attrs, []),
-    @luna.h("label", label_attrs, children),
-  ])
+  @luna.fragment <| [
+    @luna.h("input", input_attrs) <| [],
+    @luna.h("label", label_attrs) <| children,
+  ]
 }
 
 ///|
@@ -180,5 +180,5 @@ pub fn[E] checkbox_group(
   if aria_labelledby is Some(id) {
     attrs.push(("aria-labelledby", @luna.attr_static(id)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
