@@ -84,8 +84,7 @@ pub enum RepairType {
   ForMarkerMissing
   ForItemCountMismatch
   ShowContentMissing
-}
-pub impl Eq for RepairType
+} derive(Eq)
 
 pub enum SmartHydrateResult {
   Hydrated(ExperimentalHydrationResult)

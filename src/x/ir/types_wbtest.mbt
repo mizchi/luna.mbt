@@ -328,7 +328,7 @@ test "parse_moonbit - skips non-island structs" {
   assert_eq(result.errors.length(), 0)
   assert_eq(result.schema.definitions.length(), 1)
   assert_true(result.schema.definitions.contains("IslandProps"))
-  assert_true(not(result.schema.definitions.contains("RegularStruct")))
+  assert_true(!result.schema.definitions.contains("RegularStruct"))
 }
 
 ///|
@@ -434,7 +434,7 @@ test "parse_typescript - skips non-island interfaces" {
   assert_eq(result.errors.length(), 0)
   assert_eq(result.schema.definitions.length(), 1)
   assert_true(result.schema.definitions.contains("IslandProps"))
-  assert_true(not(result.schema.definitions.contains("RegularInterface")))
+  assert_true(!result.schema.definitions.contains("RegularInterface"))
 }
 
 ///|

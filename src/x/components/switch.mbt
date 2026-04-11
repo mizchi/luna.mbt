@@ -56,18 +56,16 @@ pub fn[E] switch(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build switch with track, thumb, icon structure
-  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
-    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
-      @luna.text("✓"),
-    ]),
-    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
-  ])
-  let label = @luna.h(
-    "span",
-    [("class", @luna.attr_static("switch-label"))],
-    children,
-  )
-  @luna.h("button", attrs, [track, label])
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))]) <| [
+      @luna.h("span", [("class", @luna.attr_static("switch-icon"))]) <| [
+        @luna.text("✓"),
+      ],
+      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))]) <| [],
+    ]
+  let label = @luna.h("span", [("class", @luna.attr_static("switch-label"))]) <| children
+  @luna.h("button", attrs) <| [
+    track, label,
+  ]
 }
 
 ///|
@@ -101,18 +99,16 @@ pub fn[E] switch_dyn(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build switch with track, thumb, icon structure
-  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
-    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
-      @luna.text("✓"),
-    ]),
-    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
-  ])
-  let label = @luna.h(
-    "span",
-    [("class", @luna.attr_static("switch-label"))],
-    children,
-  )
-  @luna.h("button", attrs, [track, label])
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))]) <| [
+      @luna.h("span", [("class", @luna.attr_static("switch-icon"))]) <| [
+        @luna.text("✓"),
+      ],
+      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))]) <| [],
+    ]
+  let label = @luna.h("span", [("class", @luna.attr_static("switch-label"))]) <| children
+  @luna.h("button", attrs) <| [
+    track, label,
+  ]
 }
 
 ///|
@@ -144,18 +140,16 @@ pub fn[E] switch_computed(
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
   // Build switch with track, thumb, icon structure
-  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
-    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
-      @luna.text("✓"),
-    ]),
-    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
-  ])
-  let label = @luna.h(
-    "span",
-    [("class", @luna.attr_static("switch-label"))],
-    children,
-  )
-  @luna.h("button", attrs, [track, label])
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))]) <| [
+      @luna.h("span", [("class", @luna.attr_static("switch-icon"))]) <| [
+        @luna.text("✓"),
+      ],
+      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))]) <| [],
+    ]
+  let label = @luna.h("span", [("class", @luna.attr_static("switch-label"))]) <| children
+  @luna.h("button", attrs) <| [
+    track, label,
+  ]
 }
 
 ///|
@@ -183,10 +177,10 @@ pub fn[E] switch_native(
   let label_attrs : Array[(String, @luna.Attr[E, String])] = [
     ("for", @luna.attr_static(input_id)),
   ]
-  @luna.fragment([
-    @luna.h("input", input_attrs, []),
-    @luna.h("label", label_attrs, children),
-  ])
+  @luna.fragment <| [
+    @luna.h("input", input_attrs) <| [],
+    @luna.h("label", label_attrs) <| children,
+  ]
 }
 
 ///|
@@ -201,7 +195,7 @@ pub fn[E] switch_group(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -248,7 +242,7 @@ pub fn switch_interactive(
   children : Array[@luna.Node[@js.Any, String]],
 ) -> @luna.Node[@js.Any, String] {
   let is_disabled = disabled.unwrap_or(false)
-  let toggle = fn() { if not(is_disabled) { on.set(not(on.get())) } }
+  let toggle = fn() { if !is_disabled { on.set(!on.get()) } }
   let keydown_handler = make_switch_handler(toggle)
   let click_handler = @luna.handler(fn(_) { toggle() })
   let attrs : Array[(String, @luna.Attr[@js.Any, String])] = [
@@ -268,16 +262,14 @@ pub fn switch_interactive(
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
   // Build switch with track, thumb, icon structure
-  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))], [
-    @luna.h("span", [("class", @luna.attr_static("switch-icon"))], [
-      @luna.text("✓"),
-    ]),
-    @luna.h("span", [("class", @luna.attr_static("switch-thumb"))], []),
-  ])
-  let label = @luna.h(
-    "span",
-    [("class", @luna.attr_static("switch-label"))],
-    children,
-  )
-  @luna.h("button", attrs, [track, label])
+  let track = @luna.h("span", [("class", @luna.attr_static("switch-track"))]) <| [
+      @luna.h("span", [("class", @luna.attr_static("switch-icon"))]) <| [
+        @luna.text("✓"),
+      ],
+      @luna.h("span", [("class", @luna.attr_static("switch-thumb"))]) <| [],
+    ]
+  let label = @luna.h("span", [("class", @luna.attr_static("switch-label"))]) <| children
+  @luna.h("button", attrs) <| [
+    track, label,
+  ]
 }

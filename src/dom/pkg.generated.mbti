@@ -92,6 +92,8 @@ pub fn label(for_? : String, id? : String, class? : String, style? : String, dyn
 
 pub fn li(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js/browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
+pub fn loading(when~ : () -> Bool, fallback~ : () -> DomNode, () -> DomNode) -> DomNode
+
 pub fn main_(id? : String, class? : String, style? : String, dyn_class? : () -> String, dyn_style? : () -> String, on? : HandlerMap, ref_? : (@mizchi/js/browser/dom.Element) -> Unit, attrs? : Array[(String, Attr)], dyn_attrs? : Array[(String, AttrValue)], Array[DomNode]) -> DomNode
 
 pub let mathml_ns : String

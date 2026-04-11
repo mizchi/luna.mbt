@@ -60,7 +60,7 @@ fn write_json(value : StateValue, buf : StringBuilder) -> Unit {
 fn write_double(f : Double, buf : StringBuilder) -> Unit {
   let s = f.to_string()
   // Ensure it looks like a float (has decimal point)
-  if not(s.contains(".")) && not(s.contains("e")) && not(s.contains("E")) {
+  if !s.contains(".") && !s.contains("e") && !s.contains("E") {
     buf.write_string(s)
     buf.write_string(".0")
   } else {

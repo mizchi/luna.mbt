@@ -110,7 +110,9 @@ extern "js" fn int_to_any(n : Int) -> @js.Any =
 
 ///|
 fn style(css : String) -> Node[@js.Any, String] {
-  h("style", [], [text(css)])
+  h("style", []) <| [
+    text(css),
+  ]
 }
 
 // =============================================================================
@@ -123,19 +125,21 @@ fn register_wc_counter() -> Unit {
     let count = @resource.signal(0)
     let doubled = @resource.memo(fn() { count.get() * 2 })
     let is_even = @resource.memo(fn() { count.get() % 2 == 0 })
-    fragment([
+    fragment <| [
       style(counter_css),
-      h("h2", [], [text("Counter Example")]),
-      h("p", [("class", attr_static("count"))], [
+      h("h2", []) <| [
+        text("Counter Example"),
+      ],
+      h("p", [("class", attr_static("count"))]) <| [
         text_dyn(fn() { "Count: " + count.get().to_string() }),
-      ]),
-      h("p", [("class", attr_static("doubled"))], [
+      ],
+      h("p", [("class", attr_static("doubled"))]) <| [
         text_dyn(fn() { "Doubled: " + doubled().to_string() }),
-      ]),
-      h("p", [("class", attr_static("parity"))], [
+      ],
+      h("p", [("class", attr_static("parity"))]) <| [
         text_dyn(fn() { if is_even() { "Even" } else { "Odd" } }),
-      ]),
-      h("div", [("class", attr_static("buttons"))], [
+      ],
+      h("div", [("class", attr_static("buttons"))]) <| [
         h(
           "button",
           [
@@ -145,8 +149,9 @@ fn register_wc_counter() -> Unit {
               attr_handler(handler(fn(_) { count.update(fn(n) { n - 1 }) })),
             ),
           ],
-          [text("-")],
-        ),
+        ) <| [
+          text("-"),
+        ],
         h(
           "button",
           [
@@ -156,18 +161,20 @@ fn register_wc_counter() -> Unit {
               attr_handler(handler(fn(_) { count.update(fn(n) { n + 1 }) })),
             ),
           ],
-          [text("+")],
-        ),
+        ) <| [
+          text("+"),
+        ],
         h(
           "button",
           [
             ("class", attr_static("reset")),
             ("onclick", attr_handler(handler(fn(_) { count.set(0) }))),
           ],
-          [text("Reset")],
-        ),
-      ]),
-    ])
+        ) <| [
+          text("Reset"),
+        ],
+      ],
+    ]
   })
 }
 
@@ -180,9 +187,11 @@ fn register_wc_input() -> Unit {
   @luna_api.register_shadow("wc-input", fn(_host) {
     let text_signal = @resource.signal("")
     let char_count = @resource.memo(fn() { text_signal.get().length() })
-    fragment([
+    fragment <| [
       style(input_css),
-      h("h2", [], [text("Input Example")]),
+      h("h2", []) <| [
+        text("Input Example"),
+      ],
       h(
         "input",
         [
@@ -199,15 +208,14 @@ fn register_wc_input() -> Unit {
             ),
           ),
         ],
-        [],
-      ),
-      h("p", [("class", attr_static("char-count"))], [
+      ) <| [],
+      h("p", [("class", attr_static("char-count"))]) <| [
         text_dyn(fn() { "Characters: " + char_count().to_string() }),
-      ]),
-      h("p", [("class", attr_static("typed"))], [
+      ],
+      h("p", [("class", attr_static("typed"))]) <| [
         text_dyn(fn() { "You typed: " + text_signal.get() }),
-      ]),
-    ])
+      ],
+    ]
   })
 }
 
@@ -220,29 +228,32 @@ fn register_wc_effect() -> Unit {
   @luna_api.register_shadow("wc-effect", fn(_host) {
     let active = @resource.signal(false)
     let ticks = @resource.signal(0)
-    fragment([
+    fragment <| [
       style(effect_css),
-      h("h2", [], [text("Effect Example")]),
-      h("p", [("class", attr_static("status"))], [
+      h("h2", []) <| [
+        text("Effect Example"),
+      ],
+      h("p", [("class", attr_static("status"))]) <| [
         text_dyn(fn() {
           let status = if active.get() { "Active" } else { "Inactive" }
           "Status: " + status
         }),
-      ]),
-      h("p", [("class", attr_static("ticks"))], [
+      ],
+      h("p", [("class", attr_static("ticks"))]) <| [
         text_dyn(fn() { "Ticks: " + ticks.get().to_string() }),
-      ]),
+      ],
       h(
         "button",
         [
           ("class", attr_static("toggle")),
           (
             "onclick",
-            attr_handler(handler(fn(_) { active.update(fn(b) { not(b) }) })),
+            attr_handler(handler(fn(_) { active.update(fn(b) { !(b) }) })),
           ),
         ],
-        [text_dyn(fn() { if active.get() { "Stop" } else { "Start" } })],
-      ),
+      ) <| [
+        text_dyn(fn() { if active.get() { "Stop" } else { "Start" } }),
+      ],
       h(
         "button",
         [
@@ -252,9 +263,10 @@ fn register_wc_effect() -> Unit {
             attr_handler(handler(fn(_) { ticks.update(fn(n) { n + 1 }) })),
           ),
         ],
-        [text("Tick")],
-      ),
-    ])
+      ) <| [
+        text("Tick"),
+      ],
+    ]
   })
 }
 
@@ -266,9 +278,11 @@ fn register_wc_effect() -> Unit {
 fn register_wc_conditional() -> Unit {
   @luna_api.register_shadow("wc-conditional", fn(_host) {
     let show_message = @resource.signal(true)
-    fragment([
+    fragment <| [
       style(conditional_css),
-      h("h2", [], [text("Conditional Example")]),
+      h("h2", []) <| [
+        text("Conditional Example"),
+      ],
       h(
         "button",
         [
@@ -276,20 +290,19 @@ fn register_wc_conditional() -> Unit {
           (
             "onclick",
             attr_handler(
-              handler(fn(_) { show_message.update(fn(b) { not(b) }) }),
+              handler(fn(_) { show_message.update(fn(b) { !(b) }) }),
             ),
           ),
         ],
-        [
-          text_dyn(fn() {
-            if show_message.get() {
-              "Hide Message"
-            } else {
-              "Show Message"
-            }
-          }),
-        ],
-      ),
+      ) <| [
+        text_dyn(fn() {
+          if show_message.get() {
+            "Hide Message"
+          } else {
+            "Show Message"
+          }
+        }),
+      ],
       h(
         "div",
         [
@@ -305,9 +318,10 @@ fn register_wc_conditional() -> Unit {
             }),
           ),
         ],
-        [text("Hello! This message is conditionally rendered.")],
-      ),
-    ])
+      ) <| [
+        text("Hello! This message is conditionally rendered."),
+      ],
+    ]
   })
 }
 
@@ -320,9 +334,11 @@ fn register_wc_style() -> Unit {
   @luna_api.register_shadow("wc-style", fn(_host) {
     let hue = @resource.signal(180)
     let size = @resource.signal(100)
-    fragment([
+    fragment <| [
       style(style_css),
-      h("h2", [], [text("Style Example")]),
+      h("h2", []) <| [
+        text("Style Example"),
+      ],
       h(
         "div",
         [
@@ -336,10 +352,11 @@ fn register_wc_style() -> Unit {
             }),
           ),
         ],
-        [],
-      ),
-      h("div", [("class", attr_static("control"))], [
-        h("label", [], [text("Hue:")]),
+      ) <| [],
+      h("div", [("class", attr_static("control"))]) <| [
+        h("label", []) <| [
+          text("Hue:"),
+        ],
         h(
           "input",
           [
@@ -361,11 +378,12 @@ fn register_wc_style() -> Unit {
               ),
             ),
           ],
-          [],
-        ),
-      ]),
-      h("div", [("class", attr_static("control"))], [
-        h("label", [], [text("Size:")]),
+        ) <| [],
+      ],
+      h("div", [("class", attr_static("control"))]) <| [
+        h("label", []) <| [
+          text("Size:"),
+        ],
         h(
           "input",
           [
@@ -387,10 +405,9 @@ fn register_wc_style() -> Unit {
               ),
             ),
           ],
-          [],
-        ),
-      ]),
-    ])
+        ) <| [],
+      ],
+    ]
   })
 }
 
@@ -429,7 +446,7 @@ fn register_wc_todo() -> Unit {
       todos.update(fn(items) {
         items.map(fn(item) {
           if item.id == id {
-            { ..item, completed: not(item.completed) }
+            { ..item, completed: !(item.completed) }
           } else {
             item
           }
@@ -445,9 +462,11 @@ fn register_wc_todo() -> Unit {
       todos.get().iter().filter(fn(item) { item.completed }).count()
     }
 
-    fragment([
+    fragment <| [
       style(todo_css),
-      h("h2", [], [text("Todo List Example")]),
+      h("h2", []) <| [
+        text("Todo List Example"),
+      ],
       h(
         "form",
         [
@@ -461,44 +480,44 @@ fn register_wc_todo() -> Unit {
             ),
           ),
         ],
-        [
-          h(
-            "input",
-            [
-              ("class", attr_static("todo-input")),
-              ("type", attr_static("text")),
-              ("placeholder", attr_static("Add a todo...")),
-              ("value", attr_dynamic(fn() { input_text.get() })),
-              (
-                "oninput",
-                attr_handler(
-                  handler(fn(e : @js.Any) {
-                    let value : String = e._get("target")._get("value").cast()
-                    input_text.set(value)
-                  }),
-                ),
+      ) <| [
+        h(
+          "input",
+          [
+            ("class", attr_static("todo-input")),
+            ("type", attr_static("text")),
+            ("placeholder", attr_static("Add a todo...")),
+            ("value", attr_dynamic(fn() { input_text.get() })),
+            (
+              "oninput",
+              attr_handler(
+                handler(fn(e : @js.Any) {
+                  let value : String = e._get("target")._get("value").cast()
+                  input_text.set(value)
+                }),
               ),
-            ],
-            [],
-          ),
-          h("button", [("type", attr_static("submit"))], [text("Add")]),
+            ),
+          ],
+        ) <| [],
+        h("button", [("type", attr_static("submit"))]) <| [
+          text("Add"),
         ],
-      ),
-      h("p", [("class", attr_static("stats"))], [
+      ],
+      h("p", [("class", attr_static("stats"))]) <| [
         text_dyn(fn() {
           let total = todos.get().length()
           let completed = get_completed_count()
           "\{completed}/\{total} completed"
         }),
-      ]),
-      h("ul", [("class", attr_static("todo-list"))], [
+      ],
+      h("ul", [("class", attr_static("todo-list"))]) <| [
         for_each(fn() {
           todos
           .get()
           .map(fn(item) {
             let class_name = if item.completed { "completed" } else { "" }
             let item_id = item.id
-            h("li", [("class", attr_static(class_name))], [
+            h("li", [("class", attr_static(class_name))]) <| [
               h(
                 "span",
                 [
@@ -508,8 +527,9 @@ fn register_wc_todo() -> Unit {
                     attr_handler(handler(fn(_) { toggle_todo(item_id) })),
                   ),
                 ],
-                [text(item.text)],
-              ),
+              ) <| [
+                text(item.text),
+              ],
               h(
                 "button",
                 [
@@ -519,13 +539,14 @@ fn register_wc_todo() -> Unit {
                     attr_handler(handler(fn(_) { remove_todo(item_id) })),
                   ),
                 ],
-                [text("×")],
-              ),
-            ])
+              ) <| [
+                text("×"),
+              ],
+            ]
           })
         }),
-      ]),
-    ])
+      ],
+    ]
   })
 }
 
@@ -537,7 +558,7 @@ fn register_wc_todo() -> Unit {
 fn register_wc_child_button() -> Unit {
   @luna_api.register_shadow("wc-child-button", fn(host) {
     let click_count = @resource.signal(0)
-    fragment([
+    fragment <| [
       style(child_button_css),
       h(
         "button",
@@ -557,12 +578,13 @@ fn register_wc_child_button() -> Unit {
             ),
           ),
         ],
-        [text("Child Button")],
-      ),
-      h("div", [("class", attr_static("local-count"))], [
+      ) <| [
+        text("Child Button"),
+      ],
+      h("div", [("class", attr_static("local-count"))]) <| [
         text_dyn(fn() { click_count.get().to_string() }),
-      ]),
-    ])
+      ],
+    ]
   })
 }
 
@@ -579,25 +601,25 @@ fn register_wc_nested_parent() -> Unit {
     add_custom_event_listener(host, "child-clicked", fn(_detail) {
       total_child_clicks.update(fn(n) { n + 1 })
     })
-    fragment([
+    fragment <| [
       style(nested_parent_css),
-      h("div", [("class", attr_static("parent-container"))], [
-        h("h3", [("class", attr_static("parent-header"))], [
+      h("div", [("class", attr_static("parent-container"))]) <| [
+        h("h3", [("class", attr_static("parent-header"))]) <| [
           text("Parent Component"),
-        ]),
-        h("div", [("class", attr_static("children"))], [
-          h("wc-child-button", [], []),
-          h("wc-child-button", [], []),
-          h("wc-child-button", [], []),
-        ]),
-        h("div", [("class", attr_static("stats"))], [
+        ],
+        h("div", [("class", attr_static("children"))]) <| [
+          h("wc-child-button", []) <| [],
+          h("wc-child-button", []) <| [],
+          h("wc-child-button", []) <| [],
+        ],
+        h("div", [("class", attr_static("stats"))]) <| [
           text("Total clicks from children: "),
-          h("span", [("class", attr_static("total-clicks"))], [
+          h("span", [("class", attr_static("total-clicks"))]) <| [
             text_dyn(fn() { total_child_clicks.get().to_string() }),
-          ]),
-        ]),
-      ]),
-    ])
+          ],
+        ],
+      ],
+    ]
   })
 }
 

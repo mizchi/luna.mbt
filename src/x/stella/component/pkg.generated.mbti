@@ -111,8 +111,7 @@ pub enum ShadowMode {
   Open
   Closed
   None
-}
-pub impl Eq for ShadowMode
+} derive(Eq)
 
 pub struct WcContext {
   raw : @core.Any

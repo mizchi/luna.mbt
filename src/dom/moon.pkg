@@ -9,6 +9,4 @@ import {
 import {
 } for "test"
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

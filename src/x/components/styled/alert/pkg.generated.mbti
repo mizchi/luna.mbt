@@ -1,8 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/x/components/styled/alert"
 
+import {
+  "mizchi/luna/core",
+}
+
 // Values
-pub fn alert(AlertVariant, title? : String, description? : String, class? : String, children? : Array[@mizchi/luna/core.Node[@mizchi/js/core.Any, String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+pub fn[E] alert(AlertVariant, title? : String, description? : String, class? : String, children? : Array[@core.Node[E, String]]) -> @core.Node[E, String]
 
 pub fn alert_css() -> String
 

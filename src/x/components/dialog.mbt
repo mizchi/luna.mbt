@@ -64,10 +64,10 @@ pub fn[E] dialog(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  if not(open) {
+  if !open {
     attrs.push(("hidden", @luna.attr_static("")))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -97,7 +97,7 @@ pub fn[E] dialog_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.show(fn() { open.get() }, fn() { @luna.h("div", attrs, children) })
+  @luna.show(fn() { open.get() }, fn() { @luna.h("div", attrs) <| children })
 }
 
 ///|
@@ -119,7 +119,7 @@ pub fn[E] dialog_native(
   if open {
     attrs.push(("open", @luna.attr_static("")))
   }
-  @luna.h("dialog", attrs, children)
+  @luna.h("dialog", attrs) <| children
 }
 
 ///|
@@ -157,10 +157,10 @@ pub fn[E] alert_dialog(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  if not(open) {
+  if !open {
     attrs.push(("hidden", @luna.attr_static("")))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -189,7 +189,7 @@ pub fn[E] alert_dialog_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.show(fn() { open.get() }, fn() { @luna.h("div", attrs, children) })
+  @luna.show(fn() { open.get() }, fn() { @luna.h("div", attrs) <| children })
 }
 
 ///|
@@ -221,7 +221,7 @@ pub fn confirm_dialog(
   let message_id = id + "-message"
   let close = fn() { open.set(false) }
   @luna.show(fn() { open.get() }, fn() {
-    @luna.fragment([
+    @luna.fragment <| [
       // Backdrop - does not close on click for alert dialogs
       @luna.h(
         "div",
@@ -229,8 +229,7 @@ pub fn confirm_dialog(
           ("class", @luna.attr_static("dialog-backdrop")),
           ("aria-hidden", @luna.attr_static("true")),
         ],
-        [],
-      ),
+      ) <| [],
       // Alert Dialog
       @luna.h(
         "div",
@@ -241,54 +240,55 @@ pub fn confirm_dialog(
           ("aria-describedby", @luna.attr_static(message_id)),
           ("class", @luna.attr_static("alert-dialog")),
         ],
-        [
-          @luna.h("h2", [("id", @luna.attr_static(title_id))], [
-            @luna.text(title),
-          ]),
-          @luna.h("p", [("id", @luna.attr_static(message_id))], [
-            @luna.text(message),
-          ]),
-          @luna.h("div", [("class", @luna.attr_static("dialog-actions"))], [
-            // Cancel button (should be focused first for safety)
-            @luna.h(
-              "button",
-              [
-                ("type", @luna.attr_static("button")),
-                ("class", @luna.attr_static("dialog-cancel")),
-                (
-                  "click",
-                  @luna.attr_handler(
-                    @luna.handler(fn(_) {
-                      close()
-                      on_cancel()
-                    }),
-                  ),
-                ),
-              ],
-              [@luna.text(cancel_text)],
-            ),
-            // Confirm button
-            @luna.h(
-              "button",
-              [
-                ("type", @luna.attr_static("button")),
-                ("class", @luna.attr_static("dialog-confirm")),
-                (
-                  "click",
-                  @luna.attr_handler(
-                    @luna.handler(fn(_) {
-                      close()
-                      on_confirm()
-                    }),
-                  ),
-                ),
-              ],
-              [@luna.text(confirm_text)],
-            ),
-          ]),
+      ) <| [
+        @luna.h("h2", [("id", @luna.attr_static(title_id))]) <| [
+          @luna.text(title),
         ],
-      ),
-    ])
+        @luna.h("p", [("id", @luna.attr_static(message_id))]) <| [
+          @luna.text(message),
+        ],
+        @luna.h("div", [("class", @luna.attr_static("dialog-actions"))]) <| [
+          // Cancel button (should be focused first for safety)
+          @luna.h(
+            "button",
+            [
+              ("type", @luna.attr_static("button")),
+              ("class", @luna.attr_static("dialog-cancel")),
+              (
+                "click",
+                @luna.attr_handler(
+                  @luna.handler(fn(_) {
+                    close()
+                    on_cancel()
+                  }),
+                ),
+              ),
+            ],
+          ) <| [
+            @luna.text(cancel_text),
+          ],
+          // Confirm button
+          @luna.h(
+            "button",
+            [
+              ("type", @luna.attr_static("button")),
+              ("class", @luna.attr_static("dialog-confirm")),
+              (
+                "click",
+                @luna.attr_handler(
+                  @luna.handler(fn(_) {
+                    close()
+                    on_confirm()
+                  }),
+                ),
+              ),
+            ],
+          ) <| [
+            @luna.text(confirm_text),
+          ],
+        ],
+      ],
+    ]
   })
 }
 
@@ -306,7 +306,7 @@ pub fn[E] dialog_backdrop(
   if on_click is Some(handler) {
     attrs.push(("click", @luna.attr_handler(handler)))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -319,15 +319,17 @@ pub fn[E] modal(
   on_backdrop_click? : @luna.EventHandler[E],
   children : Array[@luna.Node[E, String]],
 ) -> @luna.Node[E, String] {
-  if not(open) {
-    return @luna.fragment([])
+  if !open {
+    return @luna.fragment <| []
   }
   let dialog_node = dialog(aria_label?, aria_labelledby?, true, children)
   let backdrop = match on_backdrop_click {
-    Some(handler) => dialog_backdrop(on_click=handler, [])
-    None => dialog_backdrop([])
+    Some(handler) => dialog_backdrop(on_click=handler) <| []
+    None => dialog_backdrop <| []
   }
-  @luna.fragment([backdrop, dialog_node])
+  @luna.fragment <| [
+    backdrop, dialog_node,
+  ]
 }
 
 // =============================================================================
@@ -478,7 +480,7 @@ pub fn dialog_interactive(
       @js.any(fn() { focus_first_in_dialog(id) }),
       @js.any(0),
     ])
-    @luna.fragment([
+    @luna.fragment <| [
       // Backdrop
       @luna.h(
         "div",
@@ -490,8 +492,7 @@ pub fn dialog_interactive(
             @luna.attr_handler(@luna.handler(fn(_) { close_and_restore() })),
           ),
         ],
-        [],
-      ),
+      ) <| [],
       // Dialog
       @luna.h(
         "div",
@@ -508,8 +509,7 @@ pub fn dialog_interactive(
           ),
           ("keydown", @luna.attr_handler(keydown_handler)),
         ],
-        children,
-      ),
-    ])
+      ) <| children,
+    ]
   })
 }

@@ -5,8 +5,9 @@ import {
   "mizchi/js/browser/dom" @dom,
 }
 
+supported_targets = "js"
+
 options(
   "is-main": true,
   link: { "js": { "format": "esm" } },
-  "supported-targets": "js",
 )

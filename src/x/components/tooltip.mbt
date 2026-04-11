@@ -50,7 +50,7 @@ pub fn[E] tooltip_popup(
     ("role", @luna.attr_static("tooltip")),
     ("id", @luna.attr_static(id)),
   ]
-  if not(visible) {
+  if !visible {
     attrs.push(("hidden", @luna.attr_static("")))
   }
   @luna.h("div", attrs, children)

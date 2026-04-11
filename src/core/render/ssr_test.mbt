@@ -569,7 +569,7 @@ test "render island state escaping" {
   let html = render_to_string(node).html
   // Ensure < and > are NOT in the attribute value (they should be entity-escaped)
   // The attribute value should have &lt; and &gt; or be safe
-  assert_true(not(html.contains("luna:state=\"{\"text\":\"<script>")))
+  assert_true(!html.contains("luna:state=\"{\"text\":\"<script>"))
 }
 
 ///|
@@ -706,7 +706,7 @@ test "escape_js_string prevents script injection" {
   // < and > should be unicode escaped
   assert_true(escaped.contains("\\u003c"))
   assert_true(escaped.contains("\\u003e"))
-  assert_true(not(escaped.contains("</script>")))
+  assert_true(!escaped.contains("</script>"))
 }
 
 ///|
@@ -727,11 +727,11 @@ test "is_void_element" {
   assert_true(is_void_element("wbr"))
   assert_true(is_void_element("param"))
   // Non-void elements
-  assert_true(not(is_void_element("div")))
-  assert_true(not(is_void_element("span")))
-  assert_true(not(is_void_element("p")))
-  assert_true(not(is_void_element("button")))
-  assert_true(not(is_void_element("a")))
+  assert_true(!is_void_element("div"))
+  assert_true(!is_void_element("span"))
+  assert_true(!is_void_element("p"))
+  assert_true(!is_void_element("button"))
+  assert_true(!is_void_element("a"))
 }
 
 ///|
@@ -741,18 +741,18 @@ test "needs_html_escape" {
   assert_true(needs_html_escape("&"))
   assert_true(needs_html_escape("\""))
   assert_true(needs_html_escape("'"))
-  assert_true(not(needs_html_escape("hello world")))
-  assert_true(not(needs_html_escape("")))
+  assert_true(!needs_html_escape("hello world"))
+  assert_true(!needs_html_escape(""))
 }
 
 ///|
 test "needs_attr_escape" {
   assert_true(needs_attr_escape("&"))
   assert_true(needs_attr_escape("\""))
-  assert_true(not(needs_attr_escape("'")))
-  assert_true(not(needs_attr_escape("<")))
-  assert_true(not(needs_attr_escape(">")))
-  assert_true(not(needs_attr_escape("hello world")))
+  assert_true(!needs_attr_escape("'"))
+  assert_true(!needs_attr_escape("<"))
+  assert_true(!needs_attr_escape(">"))
+  assert_true(!needs_attr_escape("hello world"))
 }
 
 // =============================================================================
@@ -1242,7 +1242,7 @@ test "render wc_island without styles" {
   )
   let html = render_to_string(node).html
   // Should not have style tag when styles is empty
-  assert_true(not(html.contains("<style>")))
+  assert_true(!html.contains("<style>"))
   assert_true(
     html.contains("<template shadowrootmode=\"open\">Content</template>"),
   )
@@ -1303,7 +1303,7 @@ test "render wc_island load trigger omits luna:wc-trigger" {
   )
   let html = render_to_string(node).html
   // Should NOT have luna:wc-trigger for load (it's the default)
-  assert_true(not(html.contains("luna:wc-trigger=")))
+  assert_true(!html.contains("luna:wc-trigger="))
 }
 
 ///|
@@ -1317,7 +1317,7 @@ test "render wc_island state escaping" {
   )
   let html = render_to_string(node).html
   // Ensure < and > are escaped in attribute value
-  assert_true(not(html.contains("data-state=\"{\"text\":\"<script>")))
+  assert_true(!html.contains("data-state=\"{\"text\":\"<script>"))
 }
 
 ///|
@@ -1535,7 +1535,7 @@ fn count_occurrences(s : String, pattern : String) -> Int {
   let mut count = 0
   let mut start = 0
   while start < s.length() {
-    let view = s.sub(start~) catch { _ => break }
+    let view = s.sub(start~)
     match view.find(pattern) {
       Some(idx) => {
         count = count + 1

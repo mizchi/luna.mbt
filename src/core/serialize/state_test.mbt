@@ -295,7 +295,7 @@ test "state_to_script_tag escapes id attribute" {
     ),
   )
   assert_true(
-    not(tag.contains("data-resumable-state=\"counter\" onclick=\"alert(1)\"")),
+    !tag.contains("data-resumable-state=\"counter\" onclick=\"alert(1)\""),
   )
 }
 
@@ -724,11 +724,11 @@ test "json_value_to_state_value rejects object" {
 ///|
 test "StateValue::is_null" {
   assert_true(sv_null().is_null())
-  assert_true(not(sv_bool(true).is_null()))
-  assert_true(not(sv_int(0).is_null()))
-  assert_true(not(sv_number(0.0).is_null()))
-  assert_true(not(sv_str("").is_null()))
-  assert_true(not(sv_arr([]).is_null()))
+  assert_true(!sv_bool(true).is_null())
+  assert_true(!sv_int(0).is_null())
+  assert_true(!sv_number(0.0).is_null())
+  assert_true(!sv_str("").is_null())
+  assert_true(!sv_arr([]).is_null())
 }
 
 ///|

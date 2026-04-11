@@ -9,6 +9,4 @@ import {
   "mizchi/luna/core" @core,
 } for "test"
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

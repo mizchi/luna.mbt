@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/core/routes"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn compile(Array[Routes], base? : String) -> Array[CompiledRoutes]
 
@@ -36,9 +40,7 @@ pub enum RoutesKind {
   Page
   GetApi
   PostApi
-}
-pub impl Eq for RoutesKind
-pub impl Show for RoutesKind
+} derive(Eq, @debug.Debug)
 
 pub struct RoutesMatch {
   route : CompiledRoutes

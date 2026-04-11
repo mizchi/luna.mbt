@@ -32,7 +32,7 @@ pub fn generate_shard(config : ShardConfig) -> ShardOutput {
   sb.write_char('"')
 
   // luna:client-trigger attribute (only if not default)
-  if not(config.trigger is Load) {
+  if !(config.trigger is Load) {
     sb.write_string(" luna:client-trigger=\"")
     sb.write_string(config.trigger.to_string())
     sb.write_char('"')

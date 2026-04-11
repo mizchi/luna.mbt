@@ -28,7 +28,7 @@ pub fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
 ///|
 /// Escape HTML and return new string
 pub fn escape_html(s : String) -> String {
-  if not(needs_html_escape(s)) {
+  if !needs_html_escape(s) {
     return s
   }
   let sb = StringBuilder::new(size_hint=s.length() + 16)
@@ -57,7 +57,7 @@ pub fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
 ///|
 /// Escape attribute and return new string
 pub fn escape_attr(s : String) -> String {
-  if not(needs_attr_escape(s)) {
+  if !needs_attr_escape(s) {
     return s
   }
   let sb = StringBuilder::new(size_hint=s.length() + 8)
@@ -147,7 +147,7 @@ pub fn escape_json_for_script(json : String) -> String {
       }
     }
   }
-  if not(needs_escape) {
+  if !needs_escape {
     return json
   }
 
@@ -187,7 +187,7 @@ pub fn escape_json_for_script(json : String) -> String {
 /// - `<` -> `&lt;`
 /// - `>` -> `&gt;`
 pub fn escape_json_for_attr(json : String) -> String {
-  if not(needs_json_attr_escape(json)) {
+  if !needs_json_attr_escape(json) {
     return json
   }
   let sb = StringBuilder::new(size_hint=json.length() + 32)

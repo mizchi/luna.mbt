@@ -16,6 +16,7 @@ import {
   "mizchi/npm_typed/global_jsdom",
 } for "test"
 
+supported_targets = "js"
 options(
   link: {
     "js": {
@@ -94,5 +95,4 @@ options(
       "format": "esm",
     },
   },
-  "supported-targets": "js",
 )

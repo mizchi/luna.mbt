@@ -3,6 +3,4 @@ import {
   "mizchi/js/browser/dom" @js_dom,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

@@ -64,7 +64,7 @@ pub fn[E] tablist(
   if orientation is Some(Vertical) {
     attrs.push(("aria-orientation", @luna.attr_static("vertical")))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -101,7 +101,7 @@ pub fn[E] tab(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -133,7 +133,7 @@ pub fn[E] tab_dyn(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -159,7 +159,7 @@ pub fn[E] tabpanel(
   if hidden {
     attrs.push(("hidden", @luna.attr_static("")))
   }
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -176,7 +176,7 @@ pub fn[E] tabpanel_dyn(
     ("aria-labelledby", @luna.attr_static(labelledby)),
     ("tabindex", @luna.attr_static("0")),
   ]
-  @luna.show(fn() { visible.get() }, fn() { @luna.h("div", attrs, children) })
+  @luna.show(fn() { visible.get() }, fn() { @luna.h("div", attrs) <| children })
 }
 
 ///|
@@ -207,7 +207,7 @@ pub fn[E] tab_computed(
   if on_keydown is Some(handler) {
     attrs.push(("keydown", @luna.attr_handler(handler)))
   }
-  @luna.h("button", attrs, children)
+  @luna.h("button", attrs) <| children
 }
 
 ///|
@@ -229,7 +229,7 @@ pub fn[E] tabpanel_computed(
       @luna.attr_dynamic(fn() { if visible() { "" } else { "display:none" } }),
     ),
   ]
-  @luna.h("div", attrs, children)
+  @luna.h("div", attrs) <| children
 }
 
 ///|
@@ -254,16 +254,18 @@ pub fn[E] tabs(
     let tab_id = "tab-" + item.id
     let panel_id = "panel-" + item.id
     tab_buttons.push(
-      tab(tab_id, is_selected, panel_id, [@luna.text(item.label)]),
+      tab(tab_id, is_selected, panel_id) <| [
+        @luna.text(item.label),
+      ],
     )
-    panels.push(tabpanel(panel_id, tab_id, not(is_selected), item.panel))
+    panels.push(tabpanel(panel_id, tab_id, !is_selected) <| item.panel)
   }
-  let list = tablist(aria_label?, orientation?, tab_buttons)
+  let list = tablist(aria_label?, orientation?) <| tab_buttons
   let children : Array[@luna.Node[E, String]] = [list]
   for p in panels {
     children.push(p)
   }
-  @luna.fragment(children)
+  @luna.fragment <| children
 }
 
 ///|
@@ -293,24 +295,24 @@ pub fn[E] tabs_dyn(
         fn() { selected_index.get() == index },
         panel_id,
         on_click=@luna.handler(fn(_) { selected_index.set(index) }),
-        [@luna.text(item.label)],
-      ),
+      ) <| [
+        @luna.text(item.label),
+      ],
     )
     panels.push(
       tabpanel_computed(
         panel_id,
         tab_id,
         fn() { selected_index.get() == index },
-        item.panel,
-      ),
+      ) <| item.panel,
     )
   }
-  let list = tablist(aria_label?, orientation?, tab_buttons)
+  let list = tablist(aria_label?, orientation?) <| tab_buttons
   let children : Array[@luna.Node[E, String]] = [list]
   for p in panels {
     children.push(p)
   }
-  @luna.fragment(children)
+  @luna.fragment <| children
 }
 
 ///|
@@ -355,22 +357,22 @@ pub fn tabs_interactive(
         panel_id,
         on_click=@luna.handler(fn(_) { selected_index.set(index) }),
         on_keydown=keydown_handler,
-        [@luna.text(item.label)],
-      ),
+      ) <| [
+        @luna.text(item.label),
+      ],
     )
     panels.push(
       tabpanel_computed(
         panel_id,
         tab_id,
         fn() { selected_index.get() == index },
-        item.panel,
-      ),
+      ) <| item.panel,
     )
   }
-  let list = tablist(aria_label?, orientation?, tab_buttons)
+  let list = tablist(aria_label?, orientation?) <| tab_buttons
   let children : Array[@luna.Node[@js.Any, String]] = [list]
   for p in panels {
     children.push(p)
   }
-  @luna.fragment(children)
+  @luna.fragment <| children
 }

@@ -47,7 +47,7 @@ pub fn use_checkbox(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  let toggle = fn() { if not(disabled) { checked.set(not(checked.get())) } }
+  let toggle = fn() { if !(disabled) { checked.set(!(checked.get())) } }
   attrs.push(("click", @luna.attr_handler(@luna.handler(fn(_) { toggle() }))))
   attrs.push(
     (

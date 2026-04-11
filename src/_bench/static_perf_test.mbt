@@ -35,7 +35,7 @@ test "perf_static_vs_dynamic_rendering" {
 
   // Measure: render_vnode_to_dom (createElement one by one)
   let start_dynamic = performance_now()
-  for i in 0..<iterations {
+  for _ in 0..<iterations {
     let node = create_list_vnode_dynamic(item_count)
     let container = doc.createElement("div")
     container.as_node().appendChild(@client.render_vnode_to_dom(node)) |> ignore
@@ -44,7 +44,7 @@ test "perf_static_vs_dynamic_rendering" {
 
   // Measure: inject_static (VNode → HTML → innerHTML)
   let start_inject = performance_now()
-  for i in 0..<iterations {
+  for _ in 0..<iterations {
     let node = create_list_vnode_static(item_count)
     let container = doc.createElement("div")
     @client.inject_static(container, node)
@@ -53,7 +53,7 @@ test "perf_static_vs_dynamic_rendering" {
 
   // Measure: inject_static_html (pre-rendered HTML → innerHTML)
   let start_ssr = performance_now()
-  for i in 0..<iterations {
+  for _ in 0..<iterations {
     let container = doc.createElement("div")
     @client.inject_static_html(container, pre_html)
   }
@@ -61,7 +61,7 @@ test "perf_static_vs_dynamic_rendering" {
 
   // Measure: static_div (creates wrapper, uses innerHTML)
   let start_block = performance_now()
-  for i in 0..<iterations {
+  for _ in 0..<iterations {
     let node = create_list_vnode_static(item_count)
     let _ = @client.static_div(node)
   }

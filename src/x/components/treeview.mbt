@@ -83,7 +83,7 @@ pub fn[E] tree(
   if multiselectable is Some(true) {
     attrs.push(("aria-multiselectable", @luna.attr_static("true")))
   }
-  @luna.h("ul", attrs, children)
+  @luna.h("ul", attrs) <| children
 }
 
 ///|
@@ -135,7 +135,7 @@ pub fn[E] treeitem(
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   if on_click is Some(handler) {
-    if not(is_disabled) {
+    if !(is_disabled) {
       attrs.push(("click", @luna.attr_handler(handler)))
     }
   }
@@ -147,10 +147,12 @@ pub fn[E] treeitem(
   // Add child group if expanded
   if has_children {
     if expanded is Some(true) && children is Some(kids) {
-      content.push(@luna.h("ul", [("role", @luna.attr_static("group"))], kids))
+      content.push(
+        @luna.h("ul", [("role", @luna.attr_static("group"))]) <| kids,
+      )
     }
   }
-  @luna.h("li", attrs, content)
+  @luna.h("li", attrs) <| content
 }
 
 ///|
@@ -215,7 +217,7 @@ pub fn[E] treeitem_dyn(
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   if on_click is Some(handler) {
-    if not(is_disabled) {
+    if !is_disabled {
       attrs.push(("click", @luna.attr_handler(handler)))
     }
   }
@@ -228,12 +230,12 @@ pub fn[E] treeitem_dyn(
     if expanded is Some(exp_map) && children is Some(kids) {
       content.push(
         @luna.show(fn() { exp_map.get().get(item_id).unwrap_or(false) }, fn() {
-          @luna.h("ul", [("role", @luna.attr_static("group"))], kids)
+          @luna.h("ul", [("role", @luna.attr_static("group"))]) <| kids
         }),
       )
     }
   }
-  @luna.h("li", attrs, content)
+  @luna.h("li", attrs) <| content
 }
 
 ///|
@@ -342,7 +344,7 @@ pub fn make_tree_handler(
         if find_node(nodes, current_id) is Some(node) {
           if has_children(node) {
             let is_expanded = exp_map.get(current_id).unwrap_or(false)
-            if not(is_expanded) {
+            if !is_expanded {
               // Expand
               let new_map = exp_map.copy()
               new_map.set(current_id, true)
@@ -512,5 +514,5 @@ pub fn tree_interactive(
   if aria_label is Some(label) {
     attrs.push(("aria-label", @luna.attr_static(label)))
   }
-  @luna.h("ul", attrs, tree_items)
+  @luna.h("ul", attrs) <| tree_items
 }

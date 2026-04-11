@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.18.4] - 2026-04-09
+
+### Changed
+
+- Bumped `mizchi/js` dependency to `0.10.16`
+- Bumped `mizchi/npm_typed` dependency to `0.1.13`
+- Bumped `moonbitlang/parser` dependency to `0.2.5` to avoid broken `0.1.17` package metadata
+
 ## [0.17.0] - 2026-02-28
 
 ### Documentation
@@ -1082,5 +1090,3 @@ All notable changes to this project will be documented in this file.
 - Misc changes
 - Add types package generation for Props structs
 - Sol generate - parse mbti with moonbitlang/parser
-
-

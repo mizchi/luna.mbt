@@ -4,6 +4,4 @@ import {
   "moonbitlang/core/json",
 }
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

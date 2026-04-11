@@ -3,6 +3,7 @@ package "mizchi/luna/x/components"
 
 import {
   "mizchi/signals",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -437,9 +438,8 @@ pub(all) enum KeyCode {
   End
   Tab
   Escape
-}
+} derive(Eq, @debug.Debug)
 pub fn KeyCode::from_string(String) -> Self?
-pub impl Eq for KeyCode
 pub impl Show for KeyCode
 
 pub(all) enum LinkTarget {

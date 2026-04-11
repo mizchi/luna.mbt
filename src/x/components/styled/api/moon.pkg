@@ -6,6 +6,7 @@ import {
   "mizchi/luna/x/components/styled/accordion" @accordion,
 }
 
+supported_targets = "js"
 options(
   link: {
     "js": {
@@ -20,5 +21,4 @@ options(
       "format": "esm",
     },
   },
-  "supported-targets": "js",
 )

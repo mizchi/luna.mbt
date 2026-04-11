@@ -200,7 +200,7 @@ fn visitor_traverse(
       let tag = elem.tag
       let is_void = is_void_element(tag)
       visitor.on_element_open(tag, elem.attrs)
-      if not(is_void) {
+      if !is_void {
         for child in elem.children {
           visitor_traverse(child, visitor)
         }
@@ -242,7 +242,7 @@ impl NodeVisitor for SBVisitor with on_element_open(self, tag, attrs) {
 
 ///|
 impl NodeVisitor for SBVisitor with on_element_close(self, tag, is_void) {
-  if not(is_void) {
+  if !is_void {
     self.sb.write_string("</")
     self.sb.write_string(tag)
     self.sb.write_char('>')

@@ -3,6 +3,7 @@ package "mizchi/luna/core/serialize"
 
 import {
   "mizchi/signals",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -82,14 +83,13 @@ pub enum StateValue {
   Number(Double)
   Str(String)
   Arr(Array[StateValue])
-}
+} derive(Eq, @debug.Debug)
 pub fn StateValue::as_array(Self) -> Array[Self]?
 pub fn StateValue::as_bool(Self) -> Bool?
 pub fn StateValue::as_int(Self) -> Int?
 pub fn StateValue::as_number(Self) -> Double?
 pub fn StateValue::as_string(Self) -> String?
 pub fn StateValue::is_null(Self) -> Bool
-pub impl Eq for StateValue
 pub impl Show for StateValue
 
 // Type aliases

@@ -14,7 +14,7 @@ pub(all) enum AttrValue {
   Num(Double)
   /// JSON value for complex data
   Json(Json)
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Component hydration configuration
@@ -29,7 +29,7 @@ pub(all) struct ComponentConfig {
   client_url : String?
   /// Use Web Components
   use_web_component : Bool
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Abstract node - framework-agnostic representation
@@ -50,7 +50,7 @@ pub(all) enum AbstractNode {
   RawHtml(String)
   /// Slot for content projection
   Slot(name~ : String, fallback~ : Array[AbstractNode])
-} derive(Eq, Show)
+} derive(Eq)
 
 // =============================================================================
 // Constructors
@@ -167,7 +167,7 @@ pub fn AbstractNode::get_render_modes(self : AbstractNode) -> Array[RenderMode] 
   let seen : Map[String, Bool] = {}
   for comp in components {
     let key = comp.mode.to_string()
-    if not(seen.contains(key)) {
+    if !seen.contains(key) {
       seen[key] = true
       modes.push(comp.mode)
     }

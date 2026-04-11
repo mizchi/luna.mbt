@@ -5,6 +5,4 @@ import {
   "moonbitlang/core/json",
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

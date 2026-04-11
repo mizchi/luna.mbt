@@ -2,6 +2,4 @@ import {
   "mizchi/luna/x/css",
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

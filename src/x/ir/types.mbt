@@ -16,14 +16,14 @@ pub struct Schema {
   definitions : Map[String, TypeDef]
   /// Source file information (optional)
   source : SourceInfo?
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Source file metadata
 pub struct SourceInfo {
   file : String
   lang : SourceLang
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Supported source languages
@@ -33,7 +33,7 @@ pub enum SourceLang {
   Rust
   Go
   Unknown(String)
-} derive(Eq, Show)
+} derive(Eq)
 
 // =============================================================================
 // Type Definitions
@@ -48,7 +48,7 @@ pub enum TypeDef {
   Enum(EnumDef)
   /// Type alias
   Alias(AliasDef)
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Struct definition
@@ -63,7 +63,7 @@ pub struct StructDef {
   fields : Array[Field]
   /// Derive attributes (e.g., Serialize, Eq)
   derives : Array[String]
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Enum definition
@@ -78,7 +78,7 @@ pub struct EnumDef {
   variants : Array[EnumVariant]
   /// Derive attributes
   derives : Array[String]
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Enum variant
@@ -89,7 +89,7 @@ pub struct EnumVariant {
   doc : String?
   /// Payload type (None for unit variants)
   payload : TypeRef?
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Type alias definition
@@ -102,7 +102,7 @@ pub struct AliasDef {
   type_params : Array[TypeParam]
   /// Target type
   target : TypeRef
-} derive(Eq, Show)
+} derive(Eq)
 
 // =============================================================================
 // Fields
@@ -123,7 +123,7 @@ pub struct Field {
   default : Json?
   /// Field attributes/annotations
   attrs : Map[String, String]
-} derive(Eq, Show)
+} derive(Eq)
 
 // =============================================================================
 // Type References
@@ -156,7 +156,12 @@ pub enum TypeRef {
   Function(FunctionType)
   /// Unknown/Any type
   Unknown
-} derive(Eq, Show)
+} derive(Eq)
+
+///|
+pub impl Show for TypeRef with output(self, logger) {
+  logger.write_string(self.to_moonbit())
+}
 
 ///|
 /// Primitive types
@@ -169,7 +174,7 @@ pub enum PrimitiveType {
   String
   Unit
   Never
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Literal type values
@@ -177,14 +182,14 @@ pub enum LiteralType {
   BoolLit(Bool)
   IntLit(Int)
   StringLit(String)
-} derive(Eq, Show)
+} derive(Eq)
 
 ///|
 /// Function type
 pub struct FunctionType {
   params : Array[TypeRef]
   return_ : TypeRef
-} derive(Eq, Show)
+} derive(Eq)
 
 // =============================================================================
 // Generics
@@ -199,7 +204,7 @@ pub struct TypeParam {
   constraint : TypeRef?
   /// Default type (optional)
   default : TypeRef?
-} derive(Eq, Show)
+} derive(Eq)
 
 // =============================================================================
 // Annotations/Attributes
@@ -212,7 +217,7 @@ pub struct Annotation {
   name : String
   /// Annotation arguments
   args : Map[String, Json]
-} derive(Eq, Show)
+} derive(Eq)
 
 // =============================================================================
 // Constructors

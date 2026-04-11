@@ -8,6 +8,4 @@ import {
   "mizchi/signals",
 } for "test"
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

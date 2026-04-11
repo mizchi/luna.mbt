@@ -83,6 +83,18 @@ test "render_to_string element" {
 }
 
 ///|
+test "render_to_string reverse pipeline element" {
+  let node : @core.Node[Unit, String] = @core.h("div", []) <| [
+      @core.text("hello"),
+      @core.h("span", []) <| [
+        @core.text("world"),
+      ],
+    ]
+  let result = render_to_string(node)
+  assert_eq(result.html, "<div>hello<span>world</span></div>")
+}
+
+///|
 test "render_to_string void element" {
   let node : @core.Node[Unit, String] = @core.h("br", [], [])
   let result = render_to_string(node)

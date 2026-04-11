@@ -116,7 +116,7 @@ fn decode_percent_encoded_bytes(
   while i + 2 < len && chars[i] == '%' {
     let hi = chars[i + 1]
     let lo = chars[i + 2]
-    if not(is_hex_digit(hi) && is_hex_digit(lo)) {
+    if !(is_hex_digit(hi) && is_hex_digit(lo)) {
       break
     }
     let byte = hex_digit_to_int(hi) * 16 + hex_digit_to_int(lo)
@@ -245,8 +245,8 @@ fn starts_with_char(s : String, c : Char) -> Bool {
 fn is_bracket_param(s : String) -> Bool {
   s.has_prefix("[") &&
   s.has_suffix("]") &&
-  not(s.has_prefix("[...")) &&
-  not(s.has_prefix("[[..."))
+  !(s.has_prefix("[...")) &&
+  !(s.has_prefix("[[..."))
 }
 
 ///|

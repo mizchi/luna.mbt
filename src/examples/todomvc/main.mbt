@@ -109,7 +109,13 @@ fn filter_link(
       classes([base_classes, border_color_transparent])
     }
   }
-  li([a(href~, [span(dyn_class=class_getter, [text(label_)])])])
+  li() <| [
+    a(href~) <| [
+      span(dyn_class=class_getter) <| [
+        text(label_),
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -140,7 +146,7 @@ fn app() -> DomNode {
   // Computed Values
   // ---------------------------------------------------------------------------
   let active_count = memo(() => {
-    todos.get().iter().filter(t => not(t.completed)).count()
+    todos.get().iter().filter(t => !(t.completed)).count()
   })
   let completed_count = memo(() => {
     todos.get().iter().filter(t => t.completed).count()
@@ -156,7 +162,7 @@ fn app() -> DomNode {
     items.filter(t => {
       match f {
         All => true
-        Active => not(t.completed)
+        Active => !(t.completed)
         Completed => t.completed
       }
     })
@@ -183,7 +189,7 @@ fn app() -> DomNode {
     todos.update(items => {
       items.map(t => {
         if t.id == id {
-          { ..t, completed: not(t.completed) }
+          { ..t, completed: !(t.completed) }
         } else {
           t
         }
@@ -208,11 +214,11 @@ fn app() -> DomNode {
 
   fn toggle_all() {
     let all_done = all_completed()
-    todos.update(items => items.map(t => { ..t, completed: not(all_done) }))
+    todos.update(items => items.map(t => { ..t, completed: !(all_done) }))
   }
 
   fn clear_completed() {
-    todos.update(items => items.filter(t => not(t.completed)))
+    todos.update(items => items.filter(t => !(t.completed)))
   }
 
   // ---------------------------------------------------------------------------
@@ -250,9 +256,9 @@ fn app() -> DomNode {
       let editing_class = if is_editing { "editing" } else { "" }
       classes([completed_styles, editing_class])
     }
-    li(dyn_class=class_name, [
+    li(dyn_class=class_name) <| [
       // View mode
-      div(class="view", [
+      div(class="view") <| [
         // Toggle checkbox
         input(
           class="toggle",
@@ -261,16 +267,15 @@ fn app() -> DomNode {
           on=events().change(_ => toggle_todo(get_todo().id)),
         ),
         // Label (double-click to edit)
-        label(on=events().dblclick(_ => editing_id.set(Some(get_todo().id))), [
+        label(on=events().dblclick(_ => editing_id.set(Some(get_todo().id)))) <| [
           text_dyn(() => get_todo().title),
-        ]),
+        ],
         // Delete button
         button(
           class="destroy",
           on=events().click(_ => remove_todo(get_todo().id)),
-          [],
-        ),
-      ]),
+        ) <| [],
+      ],
       // Edit mode input
       input(
         class="edit",
@@ -292,7 +297,7 @@ fn app() -> DomNode {
           .keydown(e => {
             let todo = get_todo()
             let inp = @dom.HTMLInputElement::cast_from_element(e.target())
-            if e.key == "Enter" && not(edit_composing.val) {
+            if e.key == "Enter" && !(edit_composing.val) {
               update_todo_title(todo.id, inp.value)
               editing_id.set(None)
             } else if e.key == "Escape" {
@@ -301,13 +306,15 @@ fn app() -> DomNode {
             }
           }),
       ),
-    ])
+    ]
   }
 
   /// Render header with new todo input
   fn render_header() -> DomNode {
-    header_(class="header", [
-      h1([text("todos")]),
+    header_(class="header") <| [
+      h1() <| [
+        text("todos"),
+      ],
       input(
         class="new-todo",
         placeholder="What needs to be done?",
@@ -320,18 +327,18 @@ fn app() -> DomNode {
           .compositionstart(_ => is_composing.set(true))
           .compositionend(_ => is_composing.set(false))
           .keydown(e => {
-            if e.key == "Enter" && not(is_composing.peek()) {
+            if e.key == "Enter" && !(is_composing.peek()) {
               add_todo()
               @dom.HTMLInputElement::cast_from_element(e.target()).value = ""
             }
           }),
       ),
-    ])
+    ]
   }
 
   /// Render main section with todo list
   fn render_main() -> DomNode {
-    section(class="main", dyn_style=visible_when(has_todos), [
+    section(class="main", dyn_style=visible_when(has_todos)) <| [
       // Toggle all checkbox
       input(
         id="toggle-all",
@@ -340,18 +347,24 @@ fn app() -> DomNode {
         dyn_checked=all_completed,
         on=events().change(_ => toggle_all()),
       ),
-      label(for_="toggle-all", [text("Mark all as complete")]),
+      label(for_="toggle-all") <| [
+        text("Mark all as complete"),
+      ],
       // Todo list
-      ul(class="todo-list", [index_each(filtered_todos, render_todo_item)]),
-    ])
+      ul(class="todo-list") <| [
+        index_each(filtered_todos, render_todo_item),
+      ],
+    ]
   }
 
   /// Render footer with count and filters
   fn render_footer() -> DomNode {
-    footer_(class="footer", dyn_style=visible_when(has_todos), [
+    footer_(class="footer", dyn_style=visible_when(has_todos)) <| [
       // Item count
-      span(class="todo-count", [
-        strong([text_dyn(fn() { active_count().to_string() })]),
+      span(class="todo-count") <| [
+        strong() <| [
+          text_dyn(fn() { active_count().to_string() }),
+        ],
         text_dyn(fn() {
           if active_count() == 1 {
             " item left"
@@ -359,27 +372,32 @@ fn app() -> DomNode {
             " items left"
           }
         }),
-      ]),
+      ],
       // Filter links
-      ul(class="filters", [
+      ul(class="filters") <| [
         filter_link("#/", "All", filter, All),
         filter_link("#/active", "Active", filter, Active),
         filter_link("#/completed", "Completed", filter, Completed),
-      ]),
+      ],
       // Clear completed button (with Luna CSS hover effect)
       button(
         class=classes(["clear-completed", hover_underline]),
         on=events().click(_ => clear_completed()),
         dyn_style=visible_when(fn() { completed_count() > 0 }),
-        [text("Clear completed")],
-      ),
-    ])
+      ) <| [
+        text("Clear completed"),
+      ],
+    ]
   }
 
   // ---------------------------------------------------------------------------
   // Main App Structure
   // ---------------------------------------------------------------------------
-  section(class="todoapp", [render_header(), render_main(), render_footer()])
+  section(class="todoapp") <| [
+    render_header(),
+    render_main(),
+    render_footer(),
+  ]
 }
 
 // =============================================================================
@@ -407,7 +425,7 @@ fn main {
     Some(el) => {
       render(el |> DomElement::from_dom, app())
       // Inject utility CSS only if not pre-embedded (zero-runtime for production)
-      if not(has_static_css()) {
+      if !(has_static_css()) {
         let css = @css.generate_full_css()
         if css.length() > 0 {
           @element.use_style(css, el)

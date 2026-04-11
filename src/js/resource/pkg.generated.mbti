@@ -120,6 +120,7 @@ pub fn[T] Resource::is_failure(Self[T]) -> Bool
 pub fn[T] Resource::is_pending(Self[T]) -> Bool
 pub fn[T] Resource::is_success(Self[T]) -> Bool
 pub fn[T] Resource::peek(Self[T]) -> @ui.AsyncState[T]
+pub fn[T] Resource::pending(Self[T]) -> () -> Bool
 pub fn[T] Resource::refetch(Self[T]) -> Unit
 pub fn[T] Resource::value(Self[T]) -> T?
 

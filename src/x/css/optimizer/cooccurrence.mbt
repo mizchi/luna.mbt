@@ -80,7 +80,7 @@ pub fn top_cooccurrences(
 pub struct Edge {
   target : String
   weight : Int
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Build adjacency list from co-occurrences (for graph algorithms)

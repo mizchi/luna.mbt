@@ -6,7 +6,12 @@
 // Test enum for action
 enum TestAction {
   Increment
-} derive(Show)
+} derive(Debug)
+
+///|
+impl Show for TestAction with output(_self, logger) {
+  logger.write_string("Increment")
+}
 
 ///|
 test "render simple text" {

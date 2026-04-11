@@ -7,7 +7,7 @@ import {
   "mizchi/js/core" @js,
 }
 
+supported_targets = "js"
 options(
   link: { "js": { "exports": [ "hydrate" ], "format": "esm" } },
-  "supported-targets": "js",
 )

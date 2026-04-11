@@ -78,13 +78,13 @@ pub fn spinbutton(
 
   // Handlers
   let decrement = fn() {
-    if not(disabled) {
+    if !(disabled) {
       let v = value.get() - step
       value.set(clamp(v))
     }
   }
   let increment = fn() {
-    if not(disabled) {
+    if !(disabled) {
       let v = value.get() + step
       value.set(clamp(v))
     }
@@ -125,7 +125,7 @@ pub fn spinbutton(
       ._call("parseFloat", [@js.any(input_str)])
       .cast()
     let is_nan : Bool = @js.global_this()._call("isNaN", [@js.any(v)]).cast()
-    if not(is_nan) {
+    if !(is_nan) {
       value.set(clamp(v))
     }
   })

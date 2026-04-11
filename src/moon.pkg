@@ -5,6 +5,4 @@ import {
   "mizchi/signals/ui" @ui,
 }
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

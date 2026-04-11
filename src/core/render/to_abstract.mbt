@@ -69,9 +69,7 @@ fn[E, A : Show] convert_attr(
     VDynamic(getter) => (name, Str(getter().to_string()))
     VHandler(_) => (name, Str(""))
     VAction(action_name) =>
-      ("data-action-" + name[2:].to_string(), Str(action_name)) catch {
-        _ => (name, Str(action_name))
-      }
+      ("data-action-" + name[2:].to_string(), Str(action_name))
   }
 }
 

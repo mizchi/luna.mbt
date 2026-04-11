@@ -3,8 +3,8 @@ import {
   "mizchi/luna/examples/css_split_test/button" @button,
 }
 
+supported_targets = "js"
 options(
   "is-main": true,
   link: { "js": { "format": "esm" } },
-  "supported-targets": "js",
 )

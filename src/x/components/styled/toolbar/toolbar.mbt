@@ -87,7 +87,7 @@ pub fn toolbar(
   let all_item_ids : Array[String] = []
   for group in groups {
     for item in group.0 {
-      if not(item.disabled) {
+      if !(item.disabled) {
         all_item_ids.push(id + "-" + item.id)
       }
     }
@@ -196,7 +196,7 @@ pub fn toolbar_reactive(
   let all_item_ids : Array[String] = []
   for group in groups {
     for item in group.0 {
-      if not(item.disabled) {
+      if !(item.disabled) {
         all_item_ids.push(id + "-" + item.id)
       }
     }

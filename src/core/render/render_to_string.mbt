@@ -94,10 +94,10 @@ fn minify_css(css : String) -> String {
           }
           '\n' | '\r' | '\t' =>
             // Convert to space, will be handled by space collapsing
-            if not(in_space) {
+            if !in_space {
               in_space = true
             }
-          ' ' => if not(in_space) { in_space = true }
+          ' ' => if !in_space { in_space = true }
           '{' | '}' | ':' | ';' | ',' => {
             // Remove space before these characters
             in_space = false
@@ -359,7 +359,7 @@ fn write_wc_open_tag(
   sb.write_string(" luna:wc-state=\"")
   escape_attr_to(sb, state)
   sb.write_char('"')
-  if not(trigger is Load) {
+  if !(trigger is Load) {
     sb.write_string(" luna:wc-trigger=\"")
     escape_attr_to(sb, trigger_str)
     sb.write_char('"')
@@ -615,9 +615,7 @@ pub fn[E, A : Show] render_attrs_to(
         // Render action as data-action attribute for hydration
         // onclick -> data-action-click="increment"
         let event_name = if name.has_prefix("on") {
-          name[2:].to_string() catch {
-            _ => name
-          }
+          name[2:].to_string()
         } else {
           name
         }

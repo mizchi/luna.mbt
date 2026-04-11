@@ -166,7 +166,7 @@ fn write_json_node(sb : StringBuilder, node : JsonNode) -> Unit {
       sb.write_string(",\"attrs\":{")
       let mut first = true
       elem.attrs.each(fn(name, value) {
-        if not(first) {
+        if !first {
           sb.write_string(",")
         }
         first = false

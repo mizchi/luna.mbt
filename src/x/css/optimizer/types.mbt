@@ -6,14 +6,14 @@
 pub struct Declaration {
   property : String
   value : String
-} derive(Eq, Compare, Hash, Show)
+} derive(Eq, Compare, Hash, Debug)
 
 ///|
 /// A CSS rule: selector -> declarations
 pub struct Rule {
   selector : String
   declarations : Array[Declaration]
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// A class usage instance (which classes appear together on an element)
@@ -22,7 +22,7 @@ pub struct ClassUsage {
   classes : Array[String]
   /// Source location for debugging
   source : String
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Co-occurrence pair with frequency
@@ -30,7 +30,7 @@ pub struct CoOccurrence {
   class_a : String
   class_b : String
   frequency : Int
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// A frequent pattern: set of classes that often appear together
@@ -39,7 +39,7 @@ pub struct FrequentPattern {
   frequency : Int
   /// Combined CSS size if merged
   potential_savings : Int
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Merge suggestion
@@ -54,7 +54,7 @@ pub struct MergeSuggestion {
   usage_count : Int
   /// Bytes saved by merging
   bytes_saved : Int
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Analysis result
@@ -67,7 +67,7 @@ pub struct AnalysisResult {
   patterns : Array[FrequentPattern]
   /// Merge suggestions
   suggestions : Array[MergeSuggestion]
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Create a declaration

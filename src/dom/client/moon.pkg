@@ -16,6 +16,4 @@ import {
   "mizchi/npm_typed/global_jsdom",
 } for "test"
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/examples/apg-playground"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 
 // Errors
@@ -30,9 +34,7 @@ pub(all) enum Section {
   Link
   Landmarks
   Table
-}
-pub impl Eq for Section
-pub impl Show for Section
+} derive(Eq, @debug.Debug)
 
 pub(all) enum ThemeMode {
   System

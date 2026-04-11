@@ -115,49 +115,58 @@ fn sidebar_component(router : @router.BrowserRouter) -> DomNode {
         e.preventDefault()
         router.navigate(href)
       }),
-      [text(label)],
-    )
+    ) <| [
+      text(label),
+    ]
   }
 
   aside(
     class="wiki-sidebar",
     style="width: 200px; padding: 1rem; border-right: 1px solid var(--border-color, #e5e7eb);",
-    [
-      h3(style="margin: 0 0 1rem 0; font-size: 1rem;", [text("Wiki Pages")]),
-      nav(
-        class="wiki-sidebar-nav",
-        style="display: flex; flex-direction: column; gap: 0.25rem;",
-        pages
-        .iter()
-        .map(fn(page) {
-          let href = if page.slug == "index" {
-            base
-          } else {
-            base + "/" + page.slug
-          }
-          nav_link(href, page.title)
-        })
-        .collect(),
-      ),
+  ) <| [
+    h3(style="margin: 0 0 1rem 0; font-size: 1rem;") <| [
+      text("Wiki Pages"),
     ],
-  )
+    nav(
+      class="wiki-sidebar-nav",
+      style="display: flex; flex-direction: column; gap: 0.25rem;",
+    ) <| pages
+    .iter()
+    .map(fn(page) {
+      let href = if page.slug == "index" {
+        base
+      } else {
+        base + "/" + page.slug
+      }
+      nav_link(href, page.title)
+    })
+    .collect(),
+  ]
 }
 
 ///|
 fn wiki_index_component(_router : @router.BrowserRouter) -> DomNode {
   let pages = get_wiki_pages()
-  article(class="wiki-page", [
-    h1([text("Wiki Home")]),
-    p([text("Welcome to the wiki! Select a page from the sidebar.")]),
-    h2([text("Available Pages")]),
-    ul(
-      pages
-      .iter()
-      .filter(fn(p) { p.slug != "index" })
-      .map(fn(page) { li([text(page.title)]) })
-      .collect(),
-    ),
-  ])
+  article(class="wiki-page") <| [
+    h1() <| [
+      text("Wiki Home"),
+    ],
+    p() <| [
+      text("Welcome to the wiki! Select a page from the sidebar."),
+    ],
+    h2() <| [
+      text("Available Pages"),
+    ],
+    ul() <| pages
+    .iter()
+    .filter(fn(p) { p.slug != "index" })
+    .map(fn(page) {
+      li() <| [
+        text(page.title),
+      ]
+    })
+    .collect(),
+  ]
 }
 
 ///|
@@ -168,35 +177,49 @@ fn wiki_page_component(
   let slug = m.get_param("slug").unwrap_or("index")
   match find_page(slug) {
     Some(page) =>
-      article(class="wiki-page", [
-        h1([text(page.title)]),
-        p([text(page.content)]),
-      ])
+      article(class="wiki-page") <| [
+        h1() <| [
+          text(page.title),
+        ],
+        p() <| [
+          text(page.content),
+        ],
+      ]
     None =>
-      article(class="wiki-page wiki-not-found", [
-        h1([text("Page Not Found")]),
-        p([text("The page '" + slug + "' does not exist.")]),
-      ])
+      article(class="wiki-page wiki-not-found") <| [
+        h1() <| [
+          text("Page Not Found"),
+        ],
+        p() <| [
+          text("The page '" + slug + "' does not exist."),
+        ],
+      ]
   }
 }
 
 ///|
 fn not_found_component(router : @router.BrowserRouter) -> DomNode {
   let base = router.get_base()
-  article(class="wiki-page wiki-not-found", [
-    h1([text("404 - Not Found")]),
-    p([text("Page not found: "), text_dyn(fn() { router.get_path() })]),
-    p([
+  article(class="wiki-page wiki-not-found") <| [
+    h1() <| [
+      text("404 - Not Found"),
+    ],
+    p() <| [
+      text("Page not found: "),
+      text_dyn(fn() { router.get_path() }),
+    ],
+    p() <| [
       a(
         href=base,
         on=events().click(fn(e) {
           e.preventDefault()
           router.navigate(base)
         }),
-        [text("← Back to Wiki Home")],
-      ),
-    ]),
-  ])
+      ) <| [
+        text("← Back to Wiki Home"),
+      ],
+    ],
+  ]
 }
 
 // =============================================================================
@@ -243,11 +266,12 @@ fn render_wiki(router : @router.BrowserRouter, container : DomElement) -> Unit {
       div(
         class="wiki-container",
         style="display: flex; min-height: 300px; max-width: 100%; overflow: hidden;",
-        [
-          sidebar,
-          div(class="wiki-content", style="flex: 1; padding: 1rem;", [content]),
+      ) <| [
+        sidebar,
+        div(class="wiki-content", style="flex: 1; padding: 1rem;") <| [
+          content,
         ],
-      )
+      ]
     })
     mount(container, app)
   })

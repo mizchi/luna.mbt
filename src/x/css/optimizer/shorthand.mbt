@@ -8,7 +8,7 @@ pub struct ShorthandDef {
   shorthand : String
   /// Longhand property names in order
   longhands : Array[String]
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Get shorthand definitions for box properties (margin, padding)
@@ -303,7 +303,7 @@ pub fn compress_to_shorthands(
 
   // Add remaining declarations that weren't compressed
   for d in declarations {
-    if not(used.contains(d.property)) {
+    if !(used.contains(d.property)) {
       result.push(d)
     }
   }

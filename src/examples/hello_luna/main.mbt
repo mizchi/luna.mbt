@@ -25,20 +25,24 @@ using @resource {signal, on_mount, on_cleanup}
 ///|
 fn counter() -> DomNode {
   let count = signal(0)
-  div([
-    p([text_dyn(fn() { "Count: " + count.get().to_string() })]),
-    button(on=events().click(fn(_) { count.update(fn(n) { n + 1 }) }), [
+  div() <| [
+    p() <| [
+      text_dyn(fn() { "Count: " + count.get().to_string() }),
+    ],
+    button(on=events().click(fn(_) { count.update(fn(n) { n + 1 }) })) <| [
       text("Increment"),
-    ]),
+    ],
     show(fn() { count.get() % 2 == 0 }, fn() { even_message() }),
-  ])
+  ]
 }
 
 ///|
 fn even_message() -> DomNode {
   on_mount(fn() { println("even_message mounted") })
   on_cleanup(fn() { println("even_message cleaned up") })
-  p([text("Count is even!")])
+  p() <| [
+    text("Count is even!"),
+  ]
 }
 
 ///|

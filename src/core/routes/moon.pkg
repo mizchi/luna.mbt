@@ -2,6 +2,4 @@ import {
   "moonbitlang/core/encoding/utf8" @utf8,
 }
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

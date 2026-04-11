@@ -1,3 +1,4 @@
+supported_targets = "js"
 options(
   link: {
     "js": {
@@ -15,5 +16,4 @@ options(
       "format": "esm",
     },
   },
-  "supported-targets": "js",
 )
