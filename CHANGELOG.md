@@ -2,19 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.18.4] - 2026-04-09
+## [0.19.0] - 2026-04-11
 
-### Changed
+### Features
 
-- Bumped `mizchi/js` dependency to `0.10.16`
-- Bumped `mizchi/npm_typed` dependency to `0.1.13`
-- Bumped `moonbitlang/parser` dependency to `0.2.5` to avoid broken `0.1.17` package metadata
+- Add Resource.pending() and Loading component (#20)
 
-## [0.17.0] - 2026-02-28
+### Miscellaneous
+
+- Bump mizchi/x to 0.2.0 (#22)
+
+## [0.18.3] - 2026-03-21
+
+### Bug Fixes
+
+- **cli**: Update scaffold templates to use current API (#19)
+
+### Features
+
+- Generic-ize meter component for SSR compatibility
+- Make styled/alert component generic [E] for SSR compatibility
+
+### Miscellaneous
+
+- Bump version to 0.18.3
+
+## [0.18.0] - 2026-03-18
+
+### Bug Fixes
+
+- **examples**: Resolve deprecation and visibility warnings in stella-component
 
 ### Documentation
 
 - Update CHANGELOG for v0.16.0
+
+### Features
+
+- V0.18.0 — portable stream_render + fix supported-targets warnings
+- **core**: Add portable stream_render package (native + js + wasm-gc)
+
+### Miscellaneous
+
+- Include loader dist in repo for mooncakes publish
+
+### Testing
+
+- **stream_render**: Add native streaming behavior tests
 
 ## [0.16.0] - 2026-02-28
 
@@ -1090,3 +1124,5 @@ All notable changes to this project will be documented in this file.
 - Misc changes
 - Add types package generation for Props structs
 - Sol generate - parse mbti with moonbitlang/parser
+
+
