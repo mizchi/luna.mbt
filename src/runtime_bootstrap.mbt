@@ -11,7 +11,7 @@ fn select_bootstrap_mode(
   is_adapter~ : Bool,
   is_node~ : Bool,
 ) -> RuntimeBootstrapMode {
-  if is_adapter && not(is_node) {
+  if is_adapter && !(is_node) {
     RuntimeBootstrapMode::AdapterExportOnly
   } else {
     RuntimeBootstrapMode::InitFsAndMaybeServe

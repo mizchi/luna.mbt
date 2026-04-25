@@ -39,7 +39,7 @@ fn run_serve_command(args : Array[String]) -> Unit {
   let cwd = @process.cwd()
   // Check if this is a MoonBit project
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  if not(@fs.existsSync(moon_mod_path)) {
+  if !(@fs.existsSync(moon_mod_path)) {
     @cli_common.console_error(
       @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
     )
@@ -47,7 +47,7 @@ fn run_serve_command(args : Array[String]) -> Unit {
   }
   // Check if build exists
   let target_dir = @path.join2(cwd, "_build/js/release/build")
-  if not(@fs.existsSync(target_dir)) {
+  if !(@fs.existsSync(target_dir)) {
     @cli_common.console_error(
       @colorette.red("Error: No production build found. Run 'sol build' first."),
     )

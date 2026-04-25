@@ -38,7 +38,7 @@ test "is_user_managed_server: false when main.mbt missing" {
     wasm_entrypoints: [],
     experimental: [],
   }
-  assert_true(not(is_user_managed_server(fs, "/project", config)))
+  assert_true(!(is_user_managed_server(fs, "/project", config)))
 }
 
 ///|

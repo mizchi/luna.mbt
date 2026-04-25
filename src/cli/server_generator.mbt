@@ -42,7 +42,7 @@ fn generate_server_main_mbt(
   )
 
   // Generate static directory routes
-  if not(static_dirs.is_empty()) {
+  if !(static_dirs.is_empty()) {
     buf.write_string("  // Serve static directories (SSG)\n")
     for entry in static_dirs {
       let path_prefix = entry.path_prefix
@@ -54,7 +54,7 @@ fn generate_server_main_mbt(
     buf.write_string("\n")
   }
   // Generate .mbtx route registration
-  if not(mbtx_entries.is_empty()) {
+  if !(mbtx_entries.is_empty()) {
     buf.write_string("  // Register .mbtx page routes (auto-discovered)\n")
     buf.write_string("  @router.register_mbtx_routes(app, [\n")
     for entry in mbtx_entries {

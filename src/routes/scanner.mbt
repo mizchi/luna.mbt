@@ -16,7 +16,7 @@ pub fn[FS : @env.FileSystem] scan_pages_dir(
   let full_path = join_path(cwd, pages_dir)
 
   // Check if directory exists
-  if not(fs.exists_sync(full_path)) {
+  if !(fs.exists_sync(full_path)) {
     return RouteManifest::empty()
   }
 
@@ -313,7 +313,7 @@ fn process_dynamic_page_file(
   routes : Array[RouteEntry],
 ) -> Unit {
   let file_type = FileType::from_extension(get_extension(filename))
-  if not(file_type.is_page()) {
+  if !(file_type.is_page()) {
     return
   }
   let param_name = param_info.name
@@ -391,7 +391,7 @@ fn process_page_file(
   routes : Array[RouteEntry],
 ) -> Unit {
   let file_type = FileType::from_extension(get_extension(filename))
-  if not(file_type.is_page()) {
+  if !(file_type.is_page()) {
     return
   }
 

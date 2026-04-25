@@ -53,13 +53,13 @@ pub fn route_manifest_to_chunk_manifest(
   // Process each route entry
   for entry in manifest.routes {
     let (path, required_chunks) = analyze_route_chunks(entry)
-    if not(required_chunks.is_empty()) {
+    if !(required_chunks.is_empty()) {
       routes[path] = required_chunks
     }
   }
 
   // Add default chunks for fallback pattern
-  if not(routes.contains("*")) {
+  if !(routes.contains("*")) {
     routes["*"] = ["boot"]
   }
   ChunkManifest::{ routes, chunks, base: "/_luna/" }
@@ -93,7 +93,7 @@ fn get_static_route_chunks(route : StaticRouteEntry) -> Array[String] {
   let chunks : Array[String] = ["boot"]
 
   // Add hydration if has islands
-  if not(route.islands.is_empty()) {
+  if !(route.islands.is_empty()) {
     chunks.push("hydrate")
     chunks.push("signal")
 
@@ -111,7 +111,7 @@ fn get_dynamic_route_chunks(route : DynamicRouteEntry) -> Array[String] {
   let chunks : Array[String] = ["boot"]
 
   // Dynamic routes typically need hydration
-  if not(route.islands.is_empty()) {
+  if !(route.islands.is_empty()) {
     chunks.push("hydrate")
     chunks.push("signal")
     for island in route.islands {
@@ -147,7 +147,7 @@ fn get_component_route_chunks(route : ComponentRouteEntry) -> Array[String] {
   // Add any additional islands
   for island in route.islands {
     let island_chunk = "island-" + island
-    if not(chunks.contains(island_chunk)) {
+    if !(chunks.contains(island_chunk)) {
       chunks.push(island_chunk)
     }
   }

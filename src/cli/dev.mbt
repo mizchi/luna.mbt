@@ -63,7 +63,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   }
   // Watch is enabled by default, --no-watch disables it
   let watch : Bool = if result.values.contains("no-watch") {
-    not(result.values["no-watch"].cast())
+    !(result.values["no-watch"].cast())
   } else {
     true
   }
@@ -82,7 +82,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   let has_moon_mod = fs.exists_sync(moon_mod_path)
   let has_ssg = has_ssg_config(cwd)
   let resolved_mode = if mode == "auto" {
-    if has_ssg && not(has_moon_mod) {
+    if has_ssg && !(has_moon_mod) {
       "ssg"
     } else {
       "app"
@@ -107,7 +107,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     )
   }
   if resolved_mode == "ssg" {
-    if not(has_ssg) {
+    if !(has_ssg) {
       @cli_common.console_error(
         @colorette.red(
           "SSG mode requires sol.config.json with ssg/docs configuration",
@@ -141,7 +141,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     return
   }
   // Check if this is a MoonBit project (required for app mode)
-  if not(has_moon_mod) {
+  if !(has_moon_mod) {
     @cli_common.console_error(
       @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
     )
@@ -170,7 +170,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     println(@colorette.green("✓ Clean complete"))
   }
   // Step 2: Run initial build (includes sol generate)
-  if not(run_initial_build_dev(cwd)) {
+  if !(run_initial_build_dev(cwd)) {
     @process.exit(1)
   }
   // Run server (watch mode or blocking mode)
@@ -387,7 +387,7 @@ async fn run_dev_watch_mode(
             let is_generated = filename.contains("__gen__")
             if filename.ends_with(".mbt") &&
               event == "change" &&
-              not(is_generated) {
+              !(is_generated) {
               let now = @cli_common.date_now()
               // Debounce rapid changes
               if now - last_rebuild.val > debounce_ms {
@@ -453,7 +453,7 @@ async fn run_dev_watch_mode(
               let is_generated = filename.contains("__gen__")
               if filename.ends_with(".mbt") &&
                 event == "change" &&
-                not(is_generated) {
+                !(is_generated) {
                 let now = @cli_common.date_now()
                 if now - last_rebuild.val > debounce_ms {
                   last_rebuild.val = now

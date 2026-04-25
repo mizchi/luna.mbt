@@ -10,7 +10,7 @@ async fn run_init(args : Array[String]) -> Unit {
     }
   }
   // Check moon.mod.json exists
-  if not(@fs.exists("moon.mod.json")) {
+  if !(@fs.exists("moon.mod.json")) {
     println("Error: moon.mod.json not found. Run `moon init` first.")
     @sys.exit(1)
   }

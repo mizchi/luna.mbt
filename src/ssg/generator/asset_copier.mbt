@@ -196,7 +196,7 @@ fn copy_islands_dir(ctx : @ssg.BuildContext) -> Unit {
   let islands_src = @path.join2(ctx.cwd, src_dir)
 
   // Check if source directory exists
-  if not(@fs.existsSync(islands_src)) {
+  if !(@fs.existsSync(islands_src)) {
     // Silently skip if using convention and directory doesn't exist
     return
   }
@@ -336,7 +336,7 @@ fn copy_public_dir(ctx : @ssg.BuildContext) -> Unit {
   let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
 
   // Check if public directory exists
-  if not(@fs.existsSync(public_dir)) {
+  if !(@fs.existsSync(public_dir)) {
     return
   }
 

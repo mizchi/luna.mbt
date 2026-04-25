@@ -39,8 +39,8 @@ fn should_use_streaming(
   route_revalidate : Int?,
 ) -> Bool {
   config.enable_streaming &&
-  not(is_fragment) &&
-  not(is_isr_with_cache(config, route_revalidate))
+  !(is_fragment) &&
+  !(is_isr_with_cache(config, route_revalidate))
 }
 
 ///|
@@ -261,7 +261,7 @@ async fn handle_isr_page_request(
   cache : @isr.MemoryCache,
   config : RouterConfig,
 ) -> Unit {
-  if not(props.params.query.is_empty()) {
+  if !(props.params.query.is_empty()) {
     c.set_header("Cache-Control", "private, no-store")
     c.set_header("X-Sol-ISR-Status", "BYPASS")
     return send_non_isr_page_response(
@@ -306,7 +306,7 @@ async fn handle_isr_page_request(
       match entry {
         Some(e) => {
           // Deduplicate in-flight revalidations for same cache key
-          if not(isr_in_flight.val.contains(cache_key)) {
+          if !(isr_in_flight.val.contains(cache_key)) {
             isr_in_flight.val.add(cache_key)
             @isr.ISRCache::schedule_revalidation(cache, async fn() {
               let html = render_page_to_html(
@@ -372,7 +372,7 @@ fn register_compiled_sol_routes(
   // Register server island defer endpoint if registry is configured
   match config.server_islands {
     Some(registry) =>
-      if not(registry.is_empty()) {
+      if !(registry.is_empty()) {
         register_defer_endpoint(app, registry)
       }
     None => ()

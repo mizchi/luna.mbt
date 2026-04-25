@@ -187,7 +187,7 @@ pub fn validate_jsx_embed(
   }
   // Check for missing required fields
   for field in fields {
-    if not(field.optional) && not(provided_names.contains(field.name)) {
+    if !(field.optional) && !(provided_names.contains(field.name)) {
       diags.push({
         component: tag,
         severity: Error,
@@ -219,7 +219,7 @@ fn check_attr_value(
         None => ()
       }
     Boolean =>
-      if not(field.type_str.contains("Bool")) {
+      if !(field.type_str.contains("Bool")) {
         diags.push({
           component: tag,
           severity: Warning,

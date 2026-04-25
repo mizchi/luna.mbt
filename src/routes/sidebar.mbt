@@ -95,7 +95,7 @@ fn build_page_tree(pages : Array[@ssg.PageMeta]) -> Map[String, PageTreeNode] {
             children: {},
           }
           current_map[segment] = new_node
-          if not(is_last) {
+          if !(is_last) {
             current_map = new_node.children
           }
         }

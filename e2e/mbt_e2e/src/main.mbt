@@ -80,7 +80,7 @@ async fn run_suite() -> Unit {
 
   println("")
   println("Results: \{passed.val} passed, \{failed.val} failed")
-  if not(errors.is_empty()) {
+  if !(errors.is_empty()) {
     println("Failures:")
     for e in errors {
       println("  ✗ \{e}")

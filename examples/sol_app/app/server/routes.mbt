@@ -148,7 +148,7 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
   if email == "" {
     return @action.ActionResult::bad_request("Email is required")
   }
-  if not(email.contains("@")) {
+  if !(email.contains("@")) {
     return @action.ActionResult::bad_request("Invalid email format")
   }
 

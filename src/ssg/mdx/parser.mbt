@@ -52,9 +52,9 @@ fn extract_frontmatter_from_exports(
           match name {
             Some(n) => {
               let cleaned = extract_string_value(value)
-              if n == "title" && not(cleaned.is_empty()) {
+              if n == "title" && !(cleaned.is_empty()) {
                 fm = { ..fm, title: Some(cleaned) }
-              } else if n == "description" && not(cleaned.is_empty()) {
+              } else if n == "description" && !(cleaned.is_empty()) {
                 fm = { ..fm, description: Some(cleaned) }
               }
             }

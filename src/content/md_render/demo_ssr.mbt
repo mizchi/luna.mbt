@@ -21,7 +21,7 @@ pub fn parse_accordion_items(json : String) -> Array[AccordionDemoItem] {
   let items : Array[AccordionDemoItem] = []
   // Simple JSON array parsing
   let trimmed = json.trim(chars=" \t\n\r").to_string()
-  if not(trimmed.has_prefix("[")) || not(trimmed.has_suffix("]")) {
+  if !(trimmed.has_prefix("[")) || !(trimmed.has_suffix("]")) {
     return items
   }
   // Remove outer brackets
@@ -62,11 +62,11 @@ fn split_json_objects(s : String) -> Array[String] {
       continue
     }
     if c == '"' {
-      in_string = not(in_string)
+      in_string = !(in_string)
       buf.write_char(c)
       continue
     }
-    if not(in_string) {
+    if !(in_string) {
       if c == '{' {
         depth = depth + 1
         buf.write_char(c)
@@ -91,7 +91,7 @@ fn split_json_objects(s : String) -> Array[String] {
 /// Parse single accordion item from JSON object string
 fn parse_accordion_item(json : String) -> AccordionDemoItem? {
   let trimmed = json.trim(chars=" \t\n\r").to_string()
-  if not(trimmed.has_prefix("{")) || not(trimmed.has_suffix("}")) {
+  if !(trimmed.has_prefix("{")) || !(trimmed.has_suffix("}")) {
     return None
   }
 

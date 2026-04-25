@@ -161,7 +161,7 @@ fn remove_double_slashes(path : String) -> String {
   let mut prev_slash = false
   for ch in path {
     if ch == '/' {
-      if not(prev_slash) {
+      if !(prev_slash) {
         result.write_char(ch)
       }
       prev_slash = true

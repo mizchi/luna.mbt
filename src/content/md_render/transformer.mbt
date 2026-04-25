@@ -294,7 +294,7 @@ pub fn md_node_to_vnode(
 
       // Build code element attributes
       let code_attrs : Array[(String, @luna.Attr[Unit, String])] = []
-      if not(info.lang.is_empty()) {
+      if !(info.lang.is_empty()) {
         code_attrs.push(attr("class", "language-\{info.lang}"))
       }
       let code_el = h("code", code_attrs, [@luna.text(code)])
@@ -303,13 +303,13 @@ pub fn md_node_to_vnode(
       let pre_attrs : Array[(String, @luna.Attr[Unit, String])] = [
         attr("class", "code-block"),
       ]
-      if not(info.lang.is_empty()) {
+      if !(info.lang.is_empty()) {
         pre_attrs.push(attr("data-lang", info.lang))
       }
-      if not(info.filename.is_empty()) {
+      if !(info.filename.is_empty()) {
         pre_attrs.push(attr("data-filename", info.filename))
       }
-      if not(info.meta.is_empty()) {
+      if !(info.meta.is_empty()) {
         pre_attrs.push(attr("data-meta", info.meta))
       }
       h("pre", pre_attrs, [code_el])
@@ -332,7 +332,7 @@ pub fn md_node_to_vnode(
       let attrs : Array[(String, @luna.Attr[Unit, String])] = [
         attr("href", resolved_href),
       ]
-      if not(title.is_empty()) {
+      if !(title.is_empty()) {
         attrs.push(attr("title", title))
       }
       // Add external link attributes for external URLs
@@ -347,7 +347,7 @@ pub fn md_node_to_vnode(
         attr("src", src),
         attr("alt", alt),
       ]
-      if not(title.is_empty()) {
+      if !(title.is_empty()) {
         attrs.push(attr("title", title))
       }
       h("img", attrs, [])
@@ -596,7 +596,7 @@ fn jsx_to_component_embed(
         Some(h) => style = style + "min-height:\{h};"
         None => ()
       }
-      if not(style.is_empty()) {
+      if !(style.is_empty()) {
         attrs.push(("style", style))
       }
     }

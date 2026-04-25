@@ -23,7 +23,7 @@ pub fn generate_wasm_manifest_json(entries : Array[WasmMountEntry]) -> String {
     buf.write_string("      \"env\": \{json_string_map(entry.env)}\n")
     buf.write_string("    }")
   }
-  if not(entries.is_empty()) {
+  if !(entries.is_empty()) {
     buf.write_string("\n  ")
   }
   buf.write_string("]\n}\n")
@@ -47,7 +47,7 @@ pub fn generate_wasm_env_json(entries : Array[WasmMountEntry]) -> String {
     buf.write_string("      \"env\": \{json_string_map(entry.env)}\n")
     buf.write_string("    }")
   }
-  if not(entries.is_empty()) {
+  if !(entries.is_empty()) {
     buf.write_string("\n  ")
   }
   buf.write_string("]\n}\n")
@@ -74,7 +74,7 @@ pub fn generate_spin_toml_fragment(entries : Array[WasmMountEntry]) -> String {
     if entry.runtime == Wagi {
       buf.write_string("executor = \"wagi\"\n")
     }
-    if not(entry.env.is_empty()) {
+    if !(entry.env.is_empty()) {
       buf.write_string("\n")
       buf.write_string("[component.\{entry.id}.environment]\n")
       for item in entry.env {

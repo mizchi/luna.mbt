@@ -178,7 +178,7 @@ pub fn validate_internal_links(
     let (source_path, content) = entry
     let links = extract_internal_links(content)
     for link in links {
-      if not(known_urls.contains(link)) {
+      if !(known_urls.contains(link)) {
         diagnostics.push(LinkDiagnostic::{
           source_page: source_path,
           target_link: link,

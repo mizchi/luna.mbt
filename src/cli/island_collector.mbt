@@ -153,7 +153,7 @@ fn[FS : @env.FileSystem] collect_island_structs_from_source_with_fs(
       try {
         let entries = fs.readdir_sync(base_path)
         for entry in entries {
-          if entry.has_suffix(".mbt") && not(entry.has_suffix("_test.mbt")) {
+          if entry.has_suffix(".mbt") && !(entry.has_suffix("_test.mbt")) {
             let file_path = @path.join2(base_path, entry)
             let content = fs.read_file_sync(file_path)
             // Parse struct definitions from source

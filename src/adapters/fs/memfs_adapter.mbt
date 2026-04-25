@@ -124,13 +124,13 @@ fn copy_recursive(
     let content = fs.readFileSync(src)
     // Ensure parent directory exists
     let parent = dirname(dest)
-    if not(parent.is_empty()) && not(fs.existsSync(parent)) {
+    if !(parent.is_empty()) && !(fs.existsSync(parent)) {
       fs.mkdirSync(parent, recursive=true)
     }
     fs.writeFileSync(dest, content)
   } else if stats.isDirectory() && recursive {
     // Create destination directory
-    if not(fs.existsSync(dest)) {
+    if !(fs.existsSync(dest)) {
       fs.mkdirSync(dest, recursive=true)
     }
     // Copy all entries

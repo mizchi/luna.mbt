@@ -65,14 +65,14 @@ pub fn build_wasm_entrypoints_with_options(
         if artifact.is_empty() {
           return Err("wasm artifact not found for source: \{entry.source}")
         }
-        if not(ffi_copy_file_sync(artifact, abs_wasm)) {
+        if !(ffi_copy_file_sync(artifact, abs_wasm)) {
           return Err("failed to copy wasm artifact: \{artifact}")
         }
         MoonBuild
       }
       DirectWasm => {
         let artifact = resolve_entry_source_path(cwd, entry.source)
-        if not(ffi_copy_file_sync(artifact, abs_wasm)) {
+        if !(ffi_copy_file_sync(artifact, abs_wasm)) {
           return Err("failed to copy wasm artifact: \{artifact}")
         }
         DirectCopy
@@ -84,7 +84,7 @@ pub fn build_wasm_entrypoints_with_options(
           Err(msg) =>
             return Err("wite compose failed for \{entry.source}: \{msg}")
         }
-        if not(ffi_write_bytes_sync(abs_wasm, composed)) {
+        if !(ffi_write_bytes_sync(abs_wasm, composed)) {
           return Err(
             "failed to write wite-composed wasm artifact for \{entry.source}",
           )
@@ -233,23 +233,23 @@ fn resolve_wasm_entry_env(
   for item in entry.env {
     env[item.0] = item.1
   }
-  if not(env.contains("SOL_ENTRYPOINT_ID")) {
+  if !(env.contains("SOL_ENTRYPOINT_ID")) {
     env["SOL_ENTRYPOINT_ID"] = entry.id
   }
-  if not(env.contains("SOL_ROUTE")) {
+  if !(env.contains("SOL_ROUTE")) {
     env["SOL_ROUTE"] = entry.route
   }
-  if not(env.contains("SOL_METHODS")) {
+  if !(env.contains("SOL_METHODS")) {
     env["SOL_METHODS"] = entry.methods.join(",")
   }
-  if not(env.contains("SOL_RUNTIME")) {
+  if !(env.contains("SOL_RUNTIME")) {
     env["SOL_RUNTIME"] = wasm_entrypoint_runtime_to_string(runtime)
   }
   if runtime == Wagi {
-    if not(env.contains("SERVER_PROTOCOL")) {
+    if !(env.contains("SERVER_PROTOCOL")) {
       env["SERVER_PROTOCOL"] = "HTTP/1.1"
     }
-    if not(env.contains("GATEWAY_INTERFACE")) {
+    if !(env.contains("GATEWAY_INTERFACE")) {
       env["GATEWAY_INTERFACE"] = "CGI/1.1"
     }
   }

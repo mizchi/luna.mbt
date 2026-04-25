@@ -352,7 +352,7 @@ pub fn PageConfig::is_spa(self : PageConfig) -> Bool {
 ///|
 /// Check if this config has static params defined
 pub fn PageConfig::has_static_params(self : PageConfig) -> Bool {
-  not(self.static_params.is_empty())
+  !(self.static_params.is_empty())
 }
 
 ///|

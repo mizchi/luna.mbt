@@ -91,7 +91,7 @@ fn build_blog_layout(
 
   // Tags cloud (collect all tags)
   let all_tags = collect_all_tags(ctx.pages)
-  let tags_section = if not(all_tags.is_empty()) {
+  let tags_section = if !(all_tags.is_empty()) {
     h("aside", [attr("class", "blog-tags-section")], [
       h("h3", [], [@luna.text("Tags")]),
       @components.build_tag_list(ctx, all_tags),
@@ -115,7 +115,7 @@ fn collect_all_tags(pages : Array[@ssg.PageMeta]) -> Array[String] {
   let tags_set : Map[String, Bool] = {}
   for page in pages {
     let fm = page.frontmatter
-    if fm.date is Some(_) && not(fm.draft) {
+    if fm.date is Some(_) && !(fm.draft) {
       for tag in fm.tags {
         tags_set[tag] = true
       }
@@ -156,12 +156,12 @@ fn build_blog_post_layout(
   )
 
   // Meta (date, author)
-  if not(date.is_empty()) || not(author.is_empty()) {
+  if !(date.is_empty()) || !(author.is_empty()) {
     header_children.push(@components.build_post_meta(date, author, None))
   }
 
   // Tags
-  if not(frontmatter.tags.is_empty()) {
+  if !(frontmatter.tags.is_empty()) {
     header_children.push(@components.build_tag_list(ctx, frontmatter.tags))
   }
   let header = h("header", [attr("class", "post-header")], header_children)
@@ -227,7 +227,7 @@ fn build_doc_layout(
   )
 
   // TOC (outline)
-  let toc_vnode = if not(toc.is_empty()) {
+  let toc_vnode = if !(toc.is_empty()) {
     @components.build_toc(toc)
   } else {
     @luna.fragment([])
@@ -271,7 +271,7 @@ fn build_html_document(
   html.write_string("  <title>\{page_title}</title>\n")
 
   // Description meta tag
-  if not(desc.is_empty()) {
+  if !(desc.is_empty()) {
     html.write_string("  <meta name=\"description\" content=\"\{desc}\">\n")
   }
 
@@ -351,7 +351,7 @@ fn build_html_document(
   }
 
   // Production-only body snippets (analytics, etc.)
-  if not(ctx.is_dev) {
+  if !(ctx.is_dev) {
     for snippet in ctx.config.prod_body_snippets {
       html.write_string("  \{snippet}\n")
     }
@@ -402,7 +402,7 @@ fn replace_all_occurrences(
   old : String,
   new_ : String,
 ) -> String {
-  if old.is_empty() || not(input.contains(old)) {
+  if old.is_empty() || !(input.contains(old)) {
     return input
   }
   let buf = StringBuilder::new()
@@ -458,7 +458,7 @@ fn write_ogp_meta_tags(
   html.write_string("  <meta property=\"og:title\" content=\"\{title}\">\n")
 
   // og:description
-  if not(desc.is_empty()) {
+  if !(desc.is_empty()) {
     html.write_string(
       "  <meta property=\"og:description\" content=\"\{desc}\">\n",
     )
@@ -509,7 +509,7 @@ fn write_ogp_meta_tags(
     "  <meta name=\"twitter:card\" content=\"\{twitter_card}\">\n",
   )
   html.write_string("  <meta name=\"twitter:title\" content=\"\{title}\">\n")
-  if not(desc.is_empty()) {
+  if !(desc.is_empty()) {
     html.write_string(
       "  <meta name=\"twitter:description\" content=\"\{desc}\">\n",
     )
@@ -576,7 +576,7 @@ fn apply_syntax_highlighting(
   highlighter : @shiki.Highlighter,
 ) -> String {
   let marker = "<pre class=\"code-block\""
-  if not(html.contains(marker)) {
+  if !(html.contains(marker)) {
     return html
   }
   let result = StringBuilder::new()

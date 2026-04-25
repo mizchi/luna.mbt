@@ -225,7 +225,7 @@ pub async fn WorkerPool::wait_all(self : WorkerPool) -> Array[JobResult] {
 /// Shutdown all workers
 pub fn WorkerPool::shutdown(self : WorkerPool) -> Unit {
   for worker in self.workers {
-    if not(worker.state is Terminated) {
+    if !(worker.state is Terminated) {
       let msg = ParentMessage::Shutdown
       worker.process.send(msg.to_json()) |> ignore
     }

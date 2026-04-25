@@ -9,10 +9,10 @@ pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
       let children : Array[@luna.Node[Unit, String]] = []
 
       // If top/bottom elements are configured, use element-based rendering
-      if not(footer_config.top.is_empty()) ||
-        not(footer_config.bottom.is_empty()) {
+      if !(footer_config.top.is_empty()) ||
+        !(footer_config.bottom.is_empty()) {
         // Top section
-        if not(footer_config.top.is_empty()) {
+        if !(footer_config.top.is_empty()) {
           let top_elements = render_footer_elements(
             footer_config.top,
             ctx,
@@ -22,7 +22,7 @@ pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
         }
 
         // Bottom section
-        if not(footer_config.bottom.is_empty()) {
+        if !(footer_config.bottom.is_empty()) {
           let bottom_elements = render_footer_elements(
             footer_config.bottom,
             ctx,
@@ -35,7 +35,7 @@ pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
       } else {
         // Legacy behavior: use links, message, copyright directly
         // Render link columns if present
-        if not(footer_config.links.is_empty()) {
+        if !(footer_config.links.is_empty()) {
           children.push(build_footer_columns(ctx, footer_config.links))
         }
 
@@ -51,7 +51,7 @@ pub fn build_footer(ctx : @ssg.BuildContext) -> @luna.Node[Unit, String] {
             h("p", [attr("class", "footer-copyright")], [@luna.text(copyright)]),
           )
         }
-        if not(bottom_items.is_empty()) {
+        if !(bottom_items.is_empty()) {
           children.push(
             h("div", [attr("class", "footer-bottom")], bottom_items),
           )

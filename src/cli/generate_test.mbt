@@ -243,7 +243,7 @@ test "uses_luna_types: true" {
 
 ///|
 test "uses_luna_types: false" {
-  assert_true(not(uses_luna_types("(s : String) -> Int")))
+  assert_true(!(uses_luna_types("(s : String) -> Int")))
 }
 
 ///|
@@ -296,7 +296,7 @@ test "is_web_component: wc_ prefix" {
 
 ///|
 test "is_web_component: no prefix" {
-  assert_true(not(is_web_component("counter")))
+  assert_true(!(is_web_component("counter")))
 }
 
 ///|
@@ -621,7 +621,7 @@ test "parse_sol_config: staticDirs with navigation config" {
   let c = config.unwrap()
   let nav = c.static_dirs[0].navigation
   assert_true(nav.spa)
-  assert_true(not(nav.view_transitions))
+  assert_true(!(nav.view_transitions))
   assert_true(nav.keyboard)
 }
 
@@ -1080,7 +1080,7 @@ test "generate_sol_server_main_js_user_managed: node runtime uses server/server.
     ),
   )
   // Must NOT reference __gen__/server
-  assert_true(not(js.contains("__gen__")))
+  assert_true(!(js.contains("__gen__")))
 }
 
 ///|
@@ -1095,7 +1095,7 @@ test "generate_sol_server_main_js_user_managed: dev mode uses debug path" {
       "import * as server from '../../../_build/js/debug/build/server/server.js'",
     ),
   )
-  assert_true(not(js.contains("__gen__")))
+  assert_true(!(js.contains("__gen__")))
 }
 
 ///|
@@ -1113,7 +1113,7 @@ test "generate_sol_server_main_js_user_managed: cloudflare runtime" {
       "import '../../../_build/js/release/build/server/server.js'",
     ),
   )
-  assert_true(not(js.contains("__gen__")))
+  assert_true(!(js.contains("__gen__")))
 }
 
 ///|
@@ -1126,7 +1126,7 @@ test "generate_sol_server_main_js_user_managed: deno runtime" {
   assert_true(js.contains("RuntimeDeno"))
   assert_true(js.contains("Deno.serve"))
   assert_true(js.contains("Deno.env.get('PORT')"))
-  assert_true(not(js.contains("__gen__")))
+  assert_true(!(js.contains("__gen__")))
 }
 
 ///|
@@ -1139,7 +1139,7 @@ test "generate_sol_server_main_js_user_managed: bun runtime" {
   assert_true(js.contains("RuntimeBun"))
   assert_true(js.contains("export default {"))
   assert_true(js.contains("fetch: app.fetch"))
-  assert_true(not(js.contains("__gen__")))
+  assert_true(!(js.contains("__gen__")))
 }
 
 ///|
@@ -1149,9 +1149,9 @@ test "template_routes_main_mbt: has async fn main and create_app facade" {
   assert_true(content.contains("@sol.run_app"))
   assert_true(content.contains("@sol.create_app(routes()"))
   // Should NOT reference @mars, @router, @action directly
-  assert_true(not(content.contains("@mars.")))
-  assert_true(not(content.contains("@router.")))
-  assert_true(not(content.contains("@action.")))
+  assert_true(!(content.contains("@mars.")))
+  assert_true(!(content.contains("@router.")))
+  assert_true(!(content.contains("@action.")))
 }
 
 ///|
@@ -1162,11 +1162,11 @@ test "template_routes_moon_pkg: user-managed has is-main, minimal imports" {
   assert_true(content.contains("\"moonbitlang/async\""))
   assert_true(content.contains("\"format\": \"esm\""))
   // Should NOT require @mars, @router, or @action (re-exported via @sol)
-  assert_true(not(content.contains("\"mizchi/mars\"")))
-  assert_true(not(content.contains("\"mizchi/sol/router\"")))
-  assert_true(not(content.contains("\"mizchi/sol/action\"")))
+  assert_true(!(content.contains("\"mizchi/mars\"")))
+  assert_true(!(content.contains("\"mizchi/sol/router\"")))
+  assert_true(!(content.contains("\"mizchi/sol/action\"")))
   // Should NOT export configure_app (no longer exists)
-  assert_true(not(content.contains("configure_app")))
+  assert_true(!(content.contains("configure_app")))
 }
 
 ///|
@@ -1220,7 +1220,7 @@ test "template_layout_mbt: provides root_layout used by routes template" {
 test "template_layout_moon_pkg: uses current static dom package path" {
   let content = template_layout_moon_pkg()
   assert_true(content.contains("\"mizchi/luna/dom/static\" @server_dom"))
-  assert_true(not(content.contains(" as @")))
+  assert_true(!(content.contains(" as @")))
 }
 
 ///|
@@ -1240,7 +1240,7 @@ test "template_gen_types_moon_pkg: imports luna for ComponentRef types" {
 test "template_ln_loader_js: scans luna:url selector" {
   let content = template_ln_loader_js()
   assert_true(content.contains("[luna\\\\:url]"))
-  assert_true(not(content.contains("[ln\\\\:id]")))
+  assert_true(!(content.contains("[ln\\\\:id]")))
 }
 
 ///|
@@ -1278,8 +1278,8 @@ test "template_package_json: uses current npm deps" {
 test "generate_templates: package.json avoids unreleased sol npm version" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "package.json").unwrap_or("")
-  assert_true(not(content.contains("\"@luna_ui/sol\"")))
-  assert_true(not(content.contains("^0.8.0")))
+  assert_true(!(content.contains("\"@luna_ui/sol\"")))
+  assert_true(!(content.contains("^0.8.0")))
 }
 
 ///|
@@ -1301,7 +1301,7 @@ test "generate_templates: uses flat app/client package layout" {
   }
   assert_true(has_flat_client_pkg)
   assert_true(has_flat_client_mbt)
-  assert_true(not(has_nested_client_pkg))
+  assert_true(!(has_nested_client_pkg))
 }
 
 ///|
@@ -1318,14 +1318,14 @@ test "template_client_counter_mbt: uses modern using syntax" {
   let content = template_client_counter_mbt()
   assert_true(content.contains("using @element {"))
   assert_true(content.contains("text_of"))
-  assert_true(not(content.contains("using @element.{")))
+  assert_true(!(content.contains("using @element.{")))
 }
 
 ///|
 test "template_routes_moon_pkg: uses current static dom package path" {
   let content = template_routes_moon_pkg("tester/myapp")
   assert_true(content.contains("\"mizchi/luna/dom/static\" @server_dom"))
-  assert_true(not(content.contains(" as @")))
+  assert_true(!(content.contains(" as @")))
 }
 
 ///|
@@ -1333,14 +1333,14 @@ test "template_routes_moon_pkg: imports sol (action via facade)" {
   let content = template_routes_moon_pkg("tester/myapp")
   assert_true(content.contains("\"mizchi/sol\" @sol"))
   // @action is no longer needed directly - accessed via @sol.create_app facade
-  assert_true(not(content.contains("\"mizchi/sol/action\"")))
+  assert_true(!(content.contains("\"mizchi/sol/action\"")))
 }
 
 ///|
 test "template_routes_mbt: no action_registry (optional via create_app)" {
   let content = template_routes_mbt("tester/myapp")
   // action_registry removed from template - actions are optional in create_app
-  assert_true(not(content.contains("action_registry")))
+  assert_true(!(content.contains("action_registry")))
 }
 
 ///|
@@ -1359,8 +1359,8 @@ test "template_routes_using_mbt: keeps only starter-used tags" {
   assert_true(content.contains("h1"))
   assert_true(content.contains("p"))
   assert_true(content.contains("text"))
-  assert_true(not(content.contains("h2")))
-  assert_true(not(content.contains("\n  a,\n")))
+  assert_true(!(content.contains("h2")))
+  assert_true(!(content.contains("\n  a,\n")))
 }
 
 ///|
@@ -1371,8 +1371,8 @@ test "template_server_using_mbt: keeps layout-only tags" {
   assert_true(content.contains("nav"))
   assert_true(content.contains("text"))
   assert_true(content.contains("outlet"))
-  assert_true(not(content.contains("\n  span,\n")))
-  assert_true(not(content.contains("\n  button,\n")))
-  assert_true(not(content.contains("\n  h1,\n")))
-  assert_true(not(content.contains("\n  p,\n")))
+  assert_true(!(content.contains("\n  span,\n")))
+  assert_true(!(content.contains("\n  button,\n")))
+  assert_true(!(content.contains("\n  h1,\n")))
+  assert_true(!(content.contains("\n  p,\n")))
 }

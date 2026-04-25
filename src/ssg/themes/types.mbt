@@ -265,7 +265,7 @@ pub fn theme_to_css(theme : Theme) -> String {
   let mut css = ":root {\n\{light_vars}\n}\n\n" +
     "html.dark {\n\{dark_vars}\n}\n\n" +
     "@media (prefers-color-scheme: dark) {\n" +
-    "  :root:not(.light) {\n\{dark_vars}\n  }\n}"
+    "  :root:!(.light) {\n\{dark_vars}\n  }\n}"
 
   // Add custom CSS if provided
   if theme.custom_css is Some(custom) {

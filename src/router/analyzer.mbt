@@ -143,8 +143,8 @@ fn has_dynamic_segment(path : String) -> Bool {
       return true
     }
     if segment.has_prefix("[") &&
-      not(segment.has_prefix("[...")) &&
-      not(segment.has_prefix("[[...")) &&
+      !(segment.has_prefix("[...")) &&
+      !(segment.has_prefix("[[...")) &&
       segment.has_suffix("]") {
       return true
     }
@@ -171,7 +171,7 @@ pub fn extract_dynamic_patterns(routes : Array[SolRoutes]) -> Array[String] {
     if route.kind is Dynamic {
       // Convert to glob pattern for Cloudflare
       let pattern = to_cloudflare_pattern(route.pattern)
-      if not(patterns.contains(pattern)) {
+      if !(patterns.contains(pattern)) {
         patterns.push(pattern)
       }
     }
@@ -192,7 +192,7 @@ fn to_cloudflare_pattern(path : String) -> String {
     if segment.is_empty() {
       continue
     }
-    if not(first) {
+    if !(first) {
       result.write_string("/")
     }
     first = false

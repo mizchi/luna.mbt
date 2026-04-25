@@ -64,7 +64,7 @@ pub async fn run_ssg_build(
 ) -> Result[Unit, String] {
   // Check for incremental build skip
   let cache_dir = @path.join2(cwd, ".sol-cache")
-  if not(force_build) {
+  if !(force_build) {
     match @ssg_cache.check_local_build_state(config, cwd, cache_dir) {
       @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
         println(
@@ -167,7 +167,7 @@ async fn run_parallel_ssg_build(
 
   // Step 6: Report results
   for result in results {
-    if not(result.success) {
+    if !(result.success) {
       let error_msg = result.error.unwrap_or("Unknown error")
       println(@colorette.red("    Error: \{result.url_path}: \{error_msg}"))
     }
@@ -302,7 +302,7 @@ pub async fn run_ssg_dev(
       let full_path = @path.join2(docs_dir, filename)
       let file_exists = @fs.existsSync(full_path)
       let is_known = known_pages.contains(source_path)
-      if file_exists && not(is_known) {
+      if file_exists && !(is_known) {
         println(
           @colorette.yellow(
             "[\{event_type}] \{filename} - new file, full rebuild...",
@@ -314,7 +314,7 @@ pub async fn run_ssg_dev(
         run_ssg_build_sync(config, cwd, highlighter)
         is_building.val = false
         hmr_server.notify_reload()
-      } else if not(file_exists) && is_known {
+      } else if !(file_exists) && is_known {
         println(
           @colorette.yellow(
             "[\{event_type}] \{filename} - deleted, full rebuild...",
@@ -446,7 +446,7 @@ fn copy_ssg_components(config : @ssg.SsgConfig, cwd : String) -> Unit {
     }
   }
   let src = @path.join2(cwd, src_dir)
-  if not(@fs.existsSync(src)) {
+  if !(@fs.existsSync(src)) {
     return
   }
   let output_subdir = if base_path.has_prefix("/") {
@@ -605,7 +605,7 @@ fn serve_ssg_file(
   let base_path = @path.join2(output_dir, path_part)
 
   // Security: prevent directory traversal
-  if not(base_path.starts_with(output_dir)) {
+  if !(base_path.starts_with(output_dir)) {
     res.writeHead(403) |> ignore
     res.end(data="Forbidden")
     return
@@ -724,7 +724,7 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
   let issues : Array[SsgLintIssue] = []
 
   // Check config file exists
-  if not(fs.exists_sync(full_config_path)) {
+  if !(fs.exists_sync(full_config_path)) {
     issues.push(SsgLintIssue::{
       severity: Warning,
       file: config_path,
@@ -774,7 +774,7 @@ pub fn run_ssg_lint(args : Array[String]) -> Unit {
 
   // Check docs directory exists (relative to config file location)
   let docs_dir = @path.join2(config_dir, config.docs_dir)
-  if not(fs.exists_sync(docs_dir)) {
+  if !(fs.exists_sync(docs_dir)) {
     issues.push(SsgLintIssue::{
       severity: Error,
       file: config.docs_dir,
@@ -935,7 +935,7 @@ fn lint_markdown_content(
   let mut line_num = 1
 
   // Check for frontmatter
-  if not(content.starts_with("---")) {
+  if !(content.starts_with("---")) {
     issues.push(SsgLintIssue::{
       severity: Warning,
       file,
@@ -951,7 +951,7 @@ fn lint_markdown_content(
   for line in lines {
     let line_str = line.to_string()
     if line_str == "---" {
-      if not(in_frontmatter) {
+      if !(in_frontmatter) {
         in_frontmatter = true
       } else {
         in_frontmatter = false
@@ -973,7 +973,7 @@ fn lint_markdown_content(
   }
 
   // Only warn about missing title if frontmatter exists
-  if content.starts_with("---") && not(has_title) {
+  if content.starts_with("---") && !(has_title) {
     issues.push(SsgLintIssue::{
       severity: Info,
       file,
@@ -997,7 +997,7 @@ fn print_ssg_lint_results(
   // Print issues grouped by file
   let files : Map[String, Array[SsgLintIssue]] = {}
   for issue in issues {
-    if not(files.contains(issue.file)) {
+    if !(files.contains(issue.file)) {
       files[issue.file] = []
     }
     match files.get(issue.file) {

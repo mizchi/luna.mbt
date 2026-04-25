@@ -144,7 +144,7 @@ fn build_tree_children_from_pages(
       children.push(
         TreeNode::Page(page_id=page.id, renderer=page.renderer_type),
       )
-    } else if not(rel_path.contains("/")) {
+    } else if !(rel_path.contains("/")) {
       // Direct child
       children.push(
         TreeNode::Page(page_id=page.id, renderer=page.renderer_type),
@@ -153,7 +153,7 @@ fn build_tree_children_from_pages(
       // Subdirectory
       let segments = rel_path.split("/").collect()
       let first_segment = segments[0].to_string()
-      if not(seen_dirs.contains(first_segment)) {
+      if !(seen_dirs.contains(first_segment)) {
         seen_dirs[first_segment] = true
         let sub_path = parent_path + "/" + first_segment
         let sub_children = build_tree_children_from_pages(pages, sub_path + "/")

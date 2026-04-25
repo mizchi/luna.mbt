@@ -225,8 +225,8 @@ test "get_component_route_chunks - ServerOnlyComponent does not hydrate" {
   )
   let chunks = get_component_route_chunks(route)
   assert_true!(chunks.contains("boot"))
-  assert_true!(not(chunks.contains("hydrate")))
-  assert_true!(not(chunks.contains("signal")))
+  assert_true!(!(chunks.contains("hydrate")))
+  assert_true!(!(chunks.contains("signal")))
 }
 
 ///|

@@ -35,7 +35,7 @@ fn generate_types_mbt(
   }
 
   // Generate ComponentRef factory functions
-  if not(structs.is_empty()) {
+  if !(structs.is_empty()) {
     buf.write_string(
       "// =============================================================================\n",
     )
@@ -180,7 +180,7 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
             .trim_space()
             .to_string()
         }
-        if not(name.is_empty()) && not(type_str.is_empty()) {
+        if !(name.is_empty()) && !(type_str.is_empty()) {
           fields.push((name, type_str))
         }
       }
@@ -266,7 +266,7 @@ pub fn split_params(params_str : String) -> Array[String] {
       ',' =>
         if depth == 0 {
           let s = current.to_string().trim_space().to_string()
-          if not(s.is_empty()) {
+          if !(s.is_empty()) {
             result.push(s)
           }
           current.reset()
@@ -278,7 +278,7 @@ pub fn split_params(params_str : String) -> Array[String] {
   }
   // Add last param
   let s = current.to_string().trim_space().to_string()
-  if not(s.is_empty()) {
+  if !(s.is_empty()) {
     result.push(s)
   }
   result

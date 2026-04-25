@@ -231,7 +231,7 @@ fn generate_page_content(page : PageInfo) -> String {
 ///|
 /// Strip frontmatter
 fn strip_frontmatter(content : String) -> String {
-  if not(content.has_prefix("---")) {
+  if !(content.has_prefix("---")) {
     return content
   }
   // Find the second "---"

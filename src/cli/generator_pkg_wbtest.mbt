@@ -2,8 +2,8 @@
 test "generate_server_pkg: uses modern import alias syntax" {
   let content = generate_server_pkg("tester/myapp/server")
   assert_true(content.contains("\"tester/myapp/server\" @app_server"))
-  assert_true(not(content.contains(" as @")))
-  assert_true(not(content.contains("\"mizchi/js/core\"")))
+  assert_true(!(content.contains(" as @")))
+  assert_true(!(content.contains("\"mizchi/js/core\"")))
 }
 
 ///|
@@ -14,7 +14,7 @@ test "generate_client_gen_pkg: uses modern import alias syntax" {
   assert_true(content.contains("\"tester/myapp/client\" @client"))
   assert_true(content.contains("\"mizchi/js/browser/dom\" @js_dom"))
   assert_true(content.contains("\"mizchi/luna/dom/client\" @wc"))
-  assert_true(not(content.contains(" as @")))
+  assert_true(!(content.contains(" as @")))
 }
 
 ///|

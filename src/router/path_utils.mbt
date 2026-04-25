@@ -10,7 +10,7 @@ fn normalize_path(path : String) -> String {
   let mut prev_slash = false
   for c in path {
     if c == '/' {
-      if not(prev_slash) {
+      if !(prev_slash) {
         buf.write_char(c)
       }
       prev_slash = true
@@ -77,8 +77,8 @@ fn extract_param_names(path : String) -> Array[String] {
       let name = segment[1:].to_string()
       result.push(name)
     } else if segment.has_prefix("[") &&
-      not(segment.has_prefix("[...")) &&
-      not(segment.has_prefix("[[...")) {
+      !(segment.has_prefix("[...")) &&
+      !(segment.has_prefix("[[...")) {
       // [id] style param (Next.js style)
       if segment.has_suffix("]") && segment.length() > 2 {
         let name = segment[1:segment.length() - 1].to_string()

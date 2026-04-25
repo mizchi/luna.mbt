@@ -26,7 +26,7 @@ fn collect_preload_urls(
   let seen : @hashset.T[String] = @hashset.new()
   let all_urls : Array[String] = []
   let add = fn(url : String) {
-    if not(seen.contains(url)) {
+    if !(seen.contains(url)) {
       seen.insert(url)
       all_urls.push(url)
     }

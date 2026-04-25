@@ -31,7 +31,7 @@ pub fn[FS : @env.FileSystem] scan_mbtx_dir(
   } else {
     cwd + "/" + mbtx_dir
   }
-  if not(fs.exists_sync(full_path)) {
+  if !(fs.exists_sync(full_path)) {
     return []
   }
   let entries : Array[MbtxFileEntry] = []
@@ -125,7 +125,7 @@ fn mbtx_file_to_id(rel_path : String) -> String {
     if segment.is_empty() || segment == "index" {
       continue
     }
-    if not(first) {
+    if !(first) {
       buf.write_string("_")
     }
     first = false

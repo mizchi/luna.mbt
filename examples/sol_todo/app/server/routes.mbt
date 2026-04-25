@@ -90,7 +90,7 @@ fn toggle_todo(id : Int) -> Bool {
   ensure_initialized()
   for i, todo in todo_store.val {
     if todo.id == id {
-      todo_store.val[i] = { ..todo, completed: not(todo.completed) }
+      todo_store.val[i] = { ..todo, completed: !(todo.completed) }
       return true
     }
   }

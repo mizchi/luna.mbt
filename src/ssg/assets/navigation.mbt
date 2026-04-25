@@ -245,7 +245,7 @@ pub fn build_navigation_script(
   config : @ssg.NavigationConfig,
 ) -> String {
   // If all navigation features are disabled, return empty
-  if not(config.spa) && not(config.view_transitions) && not(config.keyboard) {
+  if !(config.spa) && !(config.view_transitions) && !(config.keyboard) {
     return ""
   }
 

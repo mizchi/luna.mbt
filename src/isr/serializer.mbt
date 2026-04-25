@@ -15,7 +15,7 @@ pub fn ISRManifest::to_json(self : ISRManifest) -> String {
   buf.write_string("  \"pages\": {")
   let mut first = true
   for url_path, entry in self.pages {
-    if not(first) {
+    if !(first) {
       buf.write_string(",")
     }
     first = false
@@ -29,7 +29,7 @@ pub fn ISRManifest::to_json(self : ISRManifest) -> String {
     buf.write_string(escape_json(entry.source))
     buf.write_string("\"}")
   }
-  if not(self.pages.is_empty()) {
+  if !(self.pages.is_empty()) {
     buf.write_string("\n  ")
   }
   buf.write_string("}\n}")

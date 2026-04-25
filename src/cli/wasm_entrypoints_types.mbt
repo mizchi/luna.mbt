@@ -203,11 +203,11 @@ fn extract_wasm_entrypoint_array(obj : Map[String, Json]) -> Array[Json] {
 ///|
 fn parse_wasm_methods(entry_obj : Map[String, Json]) -> Array[String] {
   let from_method = parse_method_field(entry_obj.get("method"))
-  if not(from_method.is_empty()) {
+  if !(from_method.is_empty()) {
     return from_method
   }
   let from_methods = parse_method_field(entry_obj.get("methods"))
-  if not(from_methods.is_empty()) {
+  if !(from_methods.is_empty()) {
     return from_methods
   }
   ["GET"]
@@ -227,7 +227,7 @@ fn parse_method_field(value : Json?) -> Array[String] {
         match item {
           String(s) =>
             match normalize_http_method(s) {
-              Some(v) => if not(parsed.contains(v)) { parsed.push(v) }
+              Some(v) => if !(parsed.contains(v)) { parsed.push(v) }
               None => ()
             }
           _ => ()

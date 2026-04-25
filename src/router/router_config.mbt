@@ -65,7 +65,7 @@ pub fn ChunkManifest::get_chunks(
       // Add all import dependencies with base URL prefix
       for imp in entry.imports {
         let chunk_url = self.base_url + imp
-        if not(chunks.contains(chunk_url)) {
+        if !(chunks.contains(chunk_url)) {
           chunks.push(chunk_url)
         }
       }

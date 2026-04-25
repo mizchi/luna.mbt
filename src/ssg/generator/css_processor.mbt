@@ -40,7 +40,7 @@ fn remove_css_comments(css : String) -> String {
     if i + 1 < len && chars[i] == '/' && chars[i + 1] == '*' {
       // Skip until */
       i = i + 2
-      while i + 1 < len && not(chars[i] == '*' && chars[i + 1] == '/') {
+      while i + 1 < len && !(chars[i] == '*' && chars[i + 1] == '/') {
         i = i + 1
       }
       i = i + 2 // Skip */
@@ -226,9 +226,9 @@ pub async fn extract_css_utilities_parallel(
   // Combine results
   let css_parts : Array[String] = []
   for result in results {
-    if result.exit_code == 0 && not(result.stdout.is_empty()) {
+    if result.exit_code == 0 && !(result.stdout.is_empty()) {
       let trimmed = result.stdout.trim().to_string()
-      if not(trimmed.is_empty()) {
+      if !(trimmed.is_empty()) {
         css_parts.push(trimmed)
       }
     }

@@ -39,7 +39,7 @@ fn export_runtime_app(app : App) -> Unit {
 
 ///|
 fn should_start_server() -> Bool {
-  runtime_is_node() && not(is_adapter_mode())
+  runtime_is_node() && !(is_adapter_mode())
 }
 
 ///|

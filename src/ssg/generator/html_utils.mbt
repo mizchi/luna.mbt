@@ -64,7 +64,7 @@ fn transform_internal_links(html : String, trailing_slash : Bool) -> String {
 /// e.g., /00_introduction/01_overview/ -> /introduction/overview/
 fn transform_url_path(url : String, trailing_slash : Bool) -> String {
   // Only transform internal absolute paths starting with /
-  if not(url.has_prefix("/")) || url.has_prefix("//") {
+  if !(url.has_prefix("/")) || url.has_prefix("//") {
     return url
   }
   // Split by / and process each segment
@@ -81,7 +81,7 @@ fn transform_url_path(url : String, trailing_slash : Bool) -> String {
   }
   let path = result.join("/")
   // Ensure trailing slash consistency
-  if trailing_slash && not(path.has_suffix("/")) && not(path.contains(".")) {
+  if trailing_slash && !(path.has_suffix("/")) && !(path.contains(".")) {
     path + "/"
   } else {
     path

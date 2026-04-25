@@ -16,7 +16,7 @@ test "transform_mbtx_to_esm: basic IIFE" {
   assert_true(esm.contains("return globalThis.__MBTX_RESPONSE__"))
   assert_true(esm.contains("const helper = 1;"))
   // IIFE markers should be gone
-  assert_true(not(esm.contains("(() => {")))
+  assert_true(!(esm.contains("(() => {")))
 }
 
 ///|

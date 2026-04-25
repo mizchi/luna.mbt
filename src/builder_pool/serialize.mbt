@@ -204,7 +204,7 @@ fn write_theme_config(config : @ssg.ThemeConfig, buf : StringBuilder) -> Unit {
   }
   match config.logo {
     Some(l) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"logo\":\"")
@@ -216,7 +216,7 @@ fn write_theme_config(config : @ssg.ThemeConfig, buf : StringBuilder) -> Unit {
   }
   match config.footer {
     Some(f) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"footer\":")
@@ -225,7 +225,7 @@ fn write_theme_config(config : @ssg.ThemeConfig, buf : StringBuilder) -> Unit {
     }
     None => ()
   }
-  if not(first) {
+  if !(first) {
     buf.write_string(",")
   }
   buf.write_string("\"socialLinks\":[")
@@ -257,7 +257,7 @@ fn write_footer_config(config : @ssg.FooterConfig, buf : StringBuilder) -> Unit 
   }
   match config.copyright {
     Some(c) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"copyright\":\"")
@@ -267,7 +267,7 @@ fn write_footer_config(config : @ssg.FooterConfig, buf : StringBuilder) -> Unit 
     }
     None => ()
   }
-  if not(first) {
+  if !(first) {
     buf.write_string(",")
   }
   buf.write_string("\"links\":[")
@@ -342,7 +342,7 @@ fn write_ogp_config(config : @ssg.OgpConfig, buf : StringBuilder) -> Unit {
   }
   match config.image {
     Some(i) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"image\":\"")
@@ -354,7 +354,7 @@ fn write_ogp_config(config : @ssg.OgpConfig, buf : StringBuilder) -> Unit {
   }
   match config.twitter_handle {
     Some(h) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"twitterHandle\":\"")
@@ -366,7 +366,7 @@ fn write_ogp_config(config : @ssg.OgpConfig, buf : StringBuilder) -> Unit {
   }
   match config.twitter_card {
     Some(c) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"twitterCard\":\"")
@@ -975,7 +975,7 @@ fn write_frontmatter(fm : @ssg.Frontmatter, buf : StringBuilder) -> Unit {
   }
   match fm.description {
     Some(d) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"description\":\"")
@@ -987,7 +987,7 @@ fn write_frontmatter(fm : @ssg.Frontmatter, buf : StringBuilder) -> Unit {
   }
   match fm.layout {
     Some(l) => {
-      if not(first) {
+      if !(first) {
         buf.write_string(",")
       }
       buf.write_string("\"layout\":\"")
@@ -997,7 +997,7 @@ fn write_frontmatter(fm : @ssg.Frontmatter, buf : StringBuilder) -> Unit {
     }
     None => ()
   }
-  if not(first) {
+  if !(first) {
     buf.write_string(",")
   }
   buf.write_string("\"sidebar\":")

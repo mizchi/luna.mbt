@@ -105,7 +105,7 @@ fn run_deploy_command(args : Array[String]) -> Unit {
 
   let cwd = @process.cwd()
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  if not(@fs.existsSync(moon_mod_path)) {
+  if !(@fs.existsSync(moon_mod_path)) {
     @cli_common.console_error(
       @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
     )
@@ -124,7 +124,7 @@ fn run_deploy_command(args : Array[String]) -> Unit {
   }
 
   let deploy_target = if provider == "cloudflare-workers" {
-    if not(@fs.existsSync(worker_entry)) {
+    if !(@fs.existsSync(worker_entry)) {
       @cli_common.console_error(
         @colorette.red(
           "Error: Worker entry not found (.sol/prod/server/main.js). Run `sol build` first.",

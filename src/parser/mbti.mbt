@@ -40,7 +40,7 @@ pub fn parse_pub_funcs(
   )
   // Filter out newlines and comments
   let tokens = lex_result.tokens.filter(fn(triple) {
-    not(triple.0 is (NEWLINE | COMMENT(_)))
+    !(triple.0 is (NEWLINE | COMMENT(_)))
   })
   // Parse
   let mbti = @mbti_parser.mbti(tokens, initial_pos=@basic.Position::{
@@ -173,7 +173,7 @@ fn extract_struct_raw(
   let buf = StringBuilder::new()
   for line in lines {
     let line_str = line.to_string()
-    if not(in_struct) {
+    if !(in_struct) {
       if line_str.contains(pattern) {
         in_struct = true
         buf.write_string(line_str)

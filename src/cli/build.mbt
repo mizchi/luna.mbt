@@ -60,7 +60,7 @@ fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
   }
   let content = fs.read_file_sync(server_js_path) catch { _ => return }
   let broken = "moonbitlang$async$internal$event_loop$$reschedule();"
-  if not(content.contains(broken)) {
+  if !(content.contains(broken)) {
     return
   }
   let patched = content.replace_all(old=broken, new="void 0;")
@@ -193,14 +193,14 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   let (sol_config, sol_config_path) = load_config_with_fs(fs, cwd)
   let has_sol_config = sol_config_path.length() > 0
   let has_static_dirs = match sol_config {
-    Some(config) => not(config.static_dirs.is_empty())
+    Some(config) => !(config.static_dirs.is_empty())
     None => false
   }
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
   let has_moon_mod = fs.exists_sync(moon_mod_path)
   let has_ssg = has_ssg_config(cwd)
   // Check if this is a pure SSG project (no moon.mod.json needed)
-  let is_ssg_only = has_ssg && not(has_moon_mod)
+  let is_ssg_only = has_ssg && !(has_moon_mod)
   let mode_detail = if is_ssg_only {
     "SSG-only"
   } else if has_moon_mod && has_ssg && has_static_dirs {
@@ -228,7 +228,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       Some(ssg_config) => {
         let ssg_cwd = @path.dirname(full_config_path)
         let cache_dir = @path.join2(ssg_cwd, ".sol-cache")
-        if not(force_build) {
+        if !(force_build) {
           match
             @ssg_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
             @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
@@ -257,7 +257,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
   }
   // Check if this is a MoonBit project (required for non-SSG-only mode)
-  if not(has_moon_mod) {
+  if !(has_moon_mod) {
     @cli_common.console_error(
       @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
     )
@@ -285,7 +285,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     println(@colorette.green("✓ Clean complete"))
   }
   // Run generate if sol.config.json exists
-  if not(skip_generate) && has_sol_config {
+  if !(skip_generate) && has_sol_config {
     println(@colorette.cyan("Generating .sol directory..."))
     run_generate_command(["--mode", "prod"])
   }
@@ -327,7 +327,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   patch_mars_reschedule_shim_with_fs(fs, cwd, target, "release")
   // Bundle client code with rolldown if manifest exists
   let manifest_path = @path.join2(cwd, ".sol/prod/manifest.json")
-  if not(skip_bundle) && fs.exists_sync(manifest_path) {
+  if !(skip_bundle) && fs.exists_sync(manifest_path) {
     let minify_msg = if skip_minify { "" } else { " (minified)" }
     println(
       @colorette.cyan(
@@ -360,7 +360,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   // Build static directories (SSG) if configured via static_dirs
   match sol_config {
     Some(config) =>
-      if not(config.static_dirs.is_empty()) {
+      if !(config.static_dirs.is_empty()) {
         build_static_dirs(config.static_dirs, cwd)
       }
     None => ()
@@ -382,7 +382,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
         let ssg_cwd = @path.dirname(full_config_path)
         let cache_dir = @path.join2(ssg_cwd, ".sol-cache")
         // Check cache unless force build
-        if not(force_build) {
+        if !(force_build) {
           match
             @ssg_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
             @ssg_cache.BuildStateCheck::UpToDate(built_at) => {

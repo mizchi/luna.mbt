@@ -19,7 +19,7 @@ fn extract_param_names_from_path(path : String) -> Array[String] {
     if segment.has_prefix(":") && segment.length() > 1 {
       // :param style
       let name = segment.substring(start=1)
-      if not(result.contains(name)) {
+      if !(result.contains(name)) {
         result.push(name)
       }
     } else if segment.has_prefix("[[...") &&
@@ -27,7 +27,7 @@ fn extract_param_names_from_path(path : String) -> Array[String] {
       segment.length() > 7 {
       // [[...param]] optional catch-all
       let name = segment.substring(start=5, end=segment.length() - 2)
-      if not(result.contains(name)) {
+      if !(result.contains(name)) {
         result.push(name)
       }
     } else if segment.has_prefix("[...") &&
@@ -35,7 +35,7 @@ fn extract_param_names_from_path(path : String) -> Array[String] {
       segment.length() > 5 {
       // [...param] catch-all
       let name = segment.substring(start=4, end=segment.length() - 1)
-      if not(result.contains(name)) {
+      if !(result.contains(name)) {
         result.push(name)
       }
     } else if segment.has_prefix("[") &&
@@ -43,7 +43,7 @@ fn extract_param_names_from_path(path : String) -> Array[String] {
       segment.length() > 2 {
       // [param] style
       let name = segment.substring(start=1, end=segment.length() - 1)
-      if not(result.contains(name)) {
+      if !(result.contains(name)) {
         result.push(name)
       }
     }
@@ -67,7 +67,7 @@ fn path_to_identifier(path : String) -> String {
     if segment.is_empty() {
       continue
     }
-    if not(first) {
+    if !(first) {
       buf.write_string("_")
     }
     first = false
@@ -121,14 +121,14 @@ fn generate_route_constants(route_paths : Array[String]) -> String {
     // Collect param names
     let params = extract_param_names_from_path(path)
     for name in params {
-      if not(all_param_names.contains(name)) {
+      if !(all_param_names.contains(name)) {
         all_param_names.push(name)
       }
     }
   }
 
   // Generate param name constants
-  if not(all_param_names.is_empty()) {
+  if !(all_param_names.is_empty()) {
     buf.write_string(
       "// =============================================================================\n",
     )
@@ -189,7 +189,7 @@ fn generate_link_builders(route_paths : Array[String]) -> String {
       let segments = split_path_segments(path)
       let mut first_expr = true
       for seg in segments {
-        if not(first_expr) {
+        if !(first_expr) {
           buf.write_string(" + ")
         }
         first_expr = false
@@ -259,7 +259,7 @@ fn split_path_segments(path : String) -> Array[String] {
       DynamicSegment(_) => {
         // Flush accumulated static text
         let s = static_buf.to_string()
-        if not(s.is_empty()) {
+        if !(s.is_empty()) {
           result.push(s)
           static_buf.reset()
         }
@@ -271,9 +271,9 @@ fn split_path_segments(path : String) -> Array[String] {
   }
   // Flush remaining static text, removing trailing slash if it's extra
   let remaining = static_buf.to_string()
-  if not(remaining.is_empty()) {
+  if !(remaining.is_empty()) {
     // Remove trailing "/" unless it's the only content
-    if remaining == "/" && not(result.is_empty()) {
+    if remaining == "/" && !(result.is_empty()) {
       // Don't add trailing slash
       ()
     } else {
@@ -346,7 +346,7 @@ fn generate_locale_enum(static_dirs : Array[StaticDirEntry]) -> String {
   let locale_labels : Array[(String, String)] = []
   for dir in static_dirs {
     for locale in dir.i18n.locales {
-      if not(locale_codes.contains(locale.code)) {
+      if !(locale_codes.contains(locale.code)) {
         locale_codes.push(locale.code)
         locale_labels.push((locale.code, locale.label))
       }

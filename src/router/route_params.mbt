@@ -333,7 +333,7 @@ fn extract_route_param_names(path : String) -> Array[String] {
   .split("/")
   .filter_map(fn(seg) { segment_to_param_name(seg.to_string()) })
   .each(fn(name) {
-    if not(name.is_empty()) && not(names.contains(name)) {
+    if !(name.is_empty()) && !(names.contains(name)) {
       names.push(name)
     }
   })

@@ -137,7 +137,7 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
     route_paths,
     action_ids,
   }
-  if not(fs.exists_sync(routes_path)) {
+  if !(fs.exists_sync(routes_path)) {
     return empty
   }
   let content = fs.read_file_sync(routes_path) catch { _ => return empty }
@@ -183,7 +183,7 @@ fn extract_quoted_values(
         match after_key.find("\"") {
           Some(end_idx) => {
             let value = after_key.unsafe_substring(start=0, end=end_idx)
-            if not(result.contains(value)) {
+            if !(result.contains(value)) {
               result.push(value)
             }
             search_pos = search_pos + start + prefix_len + end_idx + 1
@@ -226,7 +226,7 @@ fn validate_config_keys(obj : Map[String, Json]) -> Unit {
     "wasm_entrypoints", "experimental",
   ]
   for key in obj.keys() {
-    if not(valid_keys.contains(key)) {
+    if !(valid_keys.contains(key)) {
       println(
         "Warning: unknown config key \"\{key}\" in sol.config.json",
       )
@@ -412,7 +412,7 @@ fn parse_nav_items(obj : Map[String, Json]) -> Array[@ssg.NavItem] {
         if item is Object(item_obj) {
           let text = @json_utils.extract_string(item_obj, "text", "")
           let link = @json_utils.extract_string(item_obj, "link", "")
-          if not(text.is_empty()) && not(link.is_empty()) {
+          if !(text.is_empty()) && !(link.is_empty()) {
             result.push(@ssg.NavItem::new(text, link))
           }
         }
@@ -442,14 +442,14 @@ fn parse_sidebar_config(obj : Map[String, Json]) -> @ssg.SidebarConfig {
                 if sub is Object(sub_obj) {
                   let sub_text = @json_utils.extract_string(sub_obj, "text", "")
                   let sub_link = @json_utils.extract_string(sub_obj, "link", "")
-                  if not(sub_text.is_empty()) && not(sub_link.is_empty()) {
+                  if !(sub_text.is_empty()) && !(sub_link.is_empty()) {
                     items.push(@ssg.SidebarItem::Link(text=sub_text, link=sub_link))
                   }
                 }
               }
             _ => ()
           }
-          if not(text.is_empty()) {
+          if !(text.is_empty()) {
             groups.push(@ssg.SidebarGroup::{ text, link, collapsed, items })
           }
         }
@@ -715,7 +715,7 @@ fn parse_footer_config(obj : Map[String, Json]) -> @ssg.FooterConfig? {
                       let href = @json_utils.extract_string(
                         link_obj, "href", "",
                       )
-                      if not(label.is_empty()) && not(href.is_empty()) {
+                      if !(label.is_empty()) && !(href.is_empty()) {
                         col_items.push(@ssg.FooterLink::{ label, href })
                       }
                     }
@@ -763,7 +763,7 @@ fn parse_social_links(obj : Map[String, Json]) -> Array[@ssg.SocialLink] {
         if item is Object(link_obj) {
           let icon = @json_utils.extract_string(link_obj, "icon", "")
           let link = @json_utils.extract_string(link_obj, "link", "")
-          if not(icon.is_empty()) && not(link.is_empty()) {
+          if !(icon.is_empty()) && !(link.is_empty()) {
             result.push(@ssg.SocialLink::{ icon, link })
           }
         }

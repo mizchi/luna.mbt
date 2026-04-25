@@ -18,7 +18,7 @@ pub fn write_github_pages_config(ctx : @ssg.BuildContext) -> Unit {
   match ctx.config.ogp.site_url {
     Some(site_url) => {
       let domain = extract_domain(site_url)
-      if not(domain.is_empty()) {
+      if !(domain.is_empty()) {
         write_cname(output_dir, domain)
       }
     }

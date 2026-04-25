@@ -76,7 +76,7 @@ fn generate_site_internal(
 
   // Step 1.5: Resolve duplicate pages (static paths take priority over dynamic)
   let (pages, unresolved) = @routes.resolve_duplicate_pages(scanned_pages)
-  if not(unresolved.is_empty()) {
+  if !(unresolved.is_empty()) {
     let errors = unresolved.map(@routes.format_duplicate_error)
     return Err("Unresolvable duplicate pages:\n" + errors.join("\n"))
   }
@@ -152,7 +152,7 @@ async fn generate_site_internal_async(
 
   // Step 1.5: Resolve duplicate pages (static paths take priority over dynamic)
   let (pages, unresolved) = @routes.resolve_duplicate_pages(scanned_pages)
-  if not(unresolved.is_empty()) {
+  if !(unresolved.is_empty()) {
     let errors = unresolved.map(@routes.format_duplicate_error)
     return Err("Unresolvable duplicate pages:\n" + errors.join("\n"))
   }
@@ -273,13 +273,13 @@ fn parse_query_params(query : String, params : Map[String, String]) -> Unit {
           part.length(),
         )
         let key = decode_query_component(key_raw)
-        if not(key.is_empty()) {
+        if !(key.is_empty()) {
           params[key] = decode_query_component(value_raw)
         }
       }
       None => {
         let key = decode_query_component(part)
-        if not(key.is_empty()) {
+        if !(key.is_empty()) {
           params[key] = ""
         }
       }

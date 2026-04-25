@@ -76,7 +76,7 @@ pub fn discover_components(
   let result = DiscoveryResult::new(components_dir)
 
   // Check if directory exists
-  if not(@fs.existsSync(full_path)) {
+  if !(@fs.existsSync(full_path)) {
     // Directory doesn't exist - all components are "missing" (using defaults)
     for ct in all_component_types() {
       result.missing.push(ct)
