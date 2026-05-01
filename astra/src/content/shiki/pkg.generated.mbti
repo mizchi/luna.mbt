@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/sol/content/shiki"
+package "mizchi/astra/content/shiki"
 
 import {
   "mizchi/syntree/highlight",

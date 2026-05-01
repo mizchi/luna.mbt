@@ -5,7 +5,7 @@ import {
   "mizchi/astra" @astra,
   "mizchi/sol/ssg" @ssg,
   "mizchi/astra/render" @generator,
-  "mizchi/sol/content/shiki" @shiki,
+  "mizchi/astra/content/shiki" @shiki,
 }
 
 options(

@@ -3,8 +3,8 @@ package "mizchi/astra/components"
 
 import {
   "mizchi/astra",
+  "mizchi/astra/content/toc",
   "mizchi/luna/core",
-  "mizchi/sol/content/toc",
 }
 
 // Values

@@ -12,7 +12,7 @@ import {
   "mizchi/astra/tree" @tree,
   "mizchi/astra/assets" @assets,
   "mizchi/sol/adapters" @adapters,
-  "mizchi/sol/content/shiki" @shiki,
+  "mizchi/astra/content/shiki" @shiki,
   "mizchi/sol/core/env" @env,
   "mizchi/sol/adapters/fs" @fs_adapter,
   "mizchi/js/core" @js,
