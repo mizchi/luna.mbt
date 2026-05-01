@@ -1,0 +1,22 @@
+// Astra CLI library: the in-process build crawler (`build_to_disk`)
+// and the helpers a Mars dev-server entry point reuses. Kept as a
+// non-main package so the helpers stay test-friendly; the actual
+// process entry point lives in `mizchi/astra/cli/main`.
+
+import {
+  "mizchi/astra" @astra,
+  "mizchi/astra/middleware" @middleware,
+  "mizchi/astra/testing" @testing,
+  "mizchi/mars" @mars,
+  "mizchi/js/core" @core,
+  "mizchi/js/node/fs" @fs,
+  "mizchi/js/node/path" @path,
+}
+
+import {
+  "moonbitlang/async",
+} for "test"
+
+options(
+  "supported-targets": "js",
+)
