@@ -10,8 +10,8 @@
 /// Try to handle the request as a static asset. Returns `true` when the
 /// asset was served (the response has been sent), `false` when the URL is
 /// not part of the asset surface and dispatch should continue.
-fn try_serve_asset(_self : Middleware, ctx : @mars.Context) -> Bool {
-  match @assets.lookup_asset(ctx.path()) {
+fn try_serve_asset(mw : Middleware, ctx : @mars.Context) -> Bool {
+  match @assets.lookup_asset(ctx.path(), mw.config) {
     Some(asset) => {
       // mars's `text` helper sets `Content-Type: text/plain` by default; we
       // override via `set_header` first and rely on `merge_headers`'s rule

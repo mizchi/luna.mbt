@@ -23,14 +23,24 @@ pub(all) struct Asset {
 ///
 /// This is the public counterpart to `copy_static_assets` in the render
 /// package: serving the same URL via this function and via a static build
-/// must yield equivalent bytes for the same SSG config.
-pub fn lookup_asset(path : String) -> Asset? {
+/// must yield equivalent bytes for the same SSG config. The `config`
+/// argument feeds the theme-aware `get_default_css` so `/assets/style.css`
+/// matches what `copy_static_assets` writes for the same `SsgConfig`.
+///
+/// PARITY-NOTE: build-time CSS-utility extraction (`extract_css_utilities`
+/// in `astra/src/render/css_processor.mbt`) is not run here -- it requires
+/// a filesystem scan of source dirs that's only available during a full
+/// `copy_static_assets_async` run. The middleware-served CSS therefore
+/// omits the auto-extracted utility classes; T11 must close that gap
+/// (e.g. by caching the last build's utility CSS or running extraction at
+/// `Middleware::create` time).
+pub fn lookup_asset(path : String, config : @astra.SsgConfig) -> Asset? {
   match path {
     "/assets/loader.js" =>
       Some({ body: get_island_loader_js(), content_type: js_content_type() })
     "/assets/style.css" =>
       Some({
-        body: get_main_css(),
+        body: get_default_css(config),
         content_type: css_content_type(),
       })
     "/assets/markdown.css" | "/assets/github-markdown.css" =>

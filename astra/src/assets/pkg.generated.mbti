@@ -50,7 +50,7 @@ pub fn get_wc_loader_script() -> String
 
 pub fn list_asset_urls() -> Array[String]
 
-pub fn lookup_asset(String) -> Asset?
+pub fn lookup_asset(String, @astra.SsgConfig) -> Asset?
 
 // Errors
 
