@@ -1,0 +1,14 @@
+import {
+  "mizchi/astra" @astra,
+  "mizchi/astra/testing" @testing,
+  "mizchi/mars" @mars,
+  "moonbitlang/async",
+}
+
+// -29 silences `unused_package` because moon's check pass evaluates the
+// package without test files; every import here is consumed by mount_test.mbt.
+warnings = "-29"
+
+options(
+  "supported-targets": "js",
+)
