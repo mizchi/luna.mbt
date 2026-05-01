@@ -76,7 +76,7 @@ fn copy_static_assets_internal(
     css + "\n/* === CSS Utilities (auto-extracted) === */\n" + utility_css
   }
   // Minify CSS only for production builds (skip in dev mode for readability)
-  let output_css = if ctx.is_dev { full_css } else { minify_css(full_css) }
+  let output_css = if ctx.is_dev { full_css } else { @css_kit.minify_css(full_css) }
   let css_path = @path.join2(output_assets, "style.css")
   @fs.writeFileSync(css_path, @js.any(output_css)) catch {
     _ => ()
@@ -84,7 +84,7 @@ fn copy_static_assets_internal(
 
   // Write shiki CSS (minified only in production)
   let shiki_raw = @shiki.generate_shiki_css()
-  let shiki_css = if ctx.is_dev { shiki_raw } else { minify_css(shiki_raw) }
+  let shiki_css = if ctx.is_dev { shiki_raw } else { @css_kit.minify_css(shiki_raw) }
   let shiki_css_path = @path.join2(output_assets, "shiki.css")
   @fs.writeFileSync(shiki_css_path, @js.any(shiki_css)) catch {
     _ => ()
@@ -95,7 +95,7 @@ fn copy_static_assets_internal(
   let github_md_css = if ctx.is_dev {
     github_md_raw
   } else {
-    minify_css(github_md_raw)
+    @css_kit.minify_css(github_md_raw)
   }
   let github_md_css_path = @path.join2(output_assets, "github-markdown.css")
   @fs.writeFileSync(github_md_css_path, @js.any(github_md_css)) catch {

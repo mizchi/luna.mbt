@@ -1,56 +1,8 @@
-// CSS Processor - CSS extraction, minification, and utility processing
-
-// =============================================================================
-// CSS Minification
-// =============================================================================
-
-///|
-/// Simple CSS minification - removes comments and excessive whitespace
-fn minify_css(css : String) -> String {
-  // Remove CSS comments /* ... */
-  let no_comments = remove_css_comments(css)
-  // Simple whitespace normalization using string operations
-  // Use replace_all to replace ALL occurrences, not just the first one
-  no_comments
-  .replace_all(old="\n", new=" ")
-  .replace_all(old="\r", new="")
-  .replace_all(old="\t", new=" ")
-  .replace_all(old="  ", new=" ")
-  .replace_all(old="  ", new=" ")
-  .replace_all(old="  ", new=" ")
-  .replace_all(old="  ", new=" ")
-  .replace_all(old=" {", new="{")
-  .replace_all(old="{ ", new="{")
-  .replace_all(old=" }", new="}")
-  .replace_all(old="} ", new="}")
-  .replace_all(old=" :", new=":")
-  .replace_all(old=": ", new=":")
-  .replace_all(old=" ;", new=";")
-  .replace_all(old="; ", new=";")
-}
-
-///|
-/// Remove CSS comments /* ... */
-fn remove_css_comments(css : String) -> String {
-  let result = StringBuilder::new()
-  let chars = css.to_array()
-  let len = chars.length()
-  let mut i = 0
-  while i < len {
-    if i + 1 < len && chars[i] == '/' && chars[i + 1] == '*' {
-      // Skip until */
-      i = i + 2
-      while i + 1 < len && !(chars[i] == '*' && chars[i + 1] == '/') {
-        i = i + 1
-      }
-      i = i + 2 // Skip */
-    } else {
-      result.write_char(chars[i])
-      i = i + 1
-    }
-  }
-  result.to_string()
-}
+// CSS Processor - CSS extraction, minification, and utility processing.
+// Minification (`@css_kit.minify_css`) and theme-overrides
+// (`@css_kit.build_theme_overrides`) live in `astra/internal/css_kit` so
+// the static-build path here and the middleware-served path in
+// `astra/assets/lookup.mbt` share one canonical implementation.
 
 // =============================================================================
 // CSS Utilities Extraction
@@ -275,77 +227,6 @@ pub(all) struct CssSplitManifest {
 // =============================================================================
 
 ///|
-/// Build CSS variable overrides from ThemeConfig
-fn build_theme_overrides(theme : @astra.ThemeConfig) -> String {
-  let vars = StringBuilder::new()
-
-  // Core colors
-  if theme.primary_color is Some(v) {
-    vars.write_string("--primary-color:\{v};")
-  }
-  if theme.secondary_color is Some(v) {
-    vars.write_string("--secondary-color:\{v};")
-  }
-  if theme.accent_color is Some(v) {
-    vars.write_string("--accent-color:\{v};")
-  }
-
-  // Semantic colors
-  if theme.success_color is Some(v) {
-    vars.write_string("--success-color:\{v};")
-  }
-  if theme.warning_color is Some(v) {
-    vars.write_string("--warning-color:\{v};")
-  }
-  if theme.error_color is Some(v) {
-    vars.write_string("--error-color:\{v};")
-  }
-
-  // Text colors
-  if theme.text_color is Some(v) {
-    vars.write_string("--text-color:\{v};")
-  }
-  if theme.text_muted_color is Some(v) {
-    vars.write_string("--text-muted:\{v};")
-  }
-  if theme.heading_color is Some(v) {
-    vars.write_string("--heading-color:\{v};")
-  }
-  if theme.link_color is Some(v) {
-    vars.write_string("--link-color:\{v};")
-  }
-  if theme.link_hover_color is Some(v) {
-    vars.write_string("--link-hover-color:\{v};")
-  }
-
-  // Background colors
-  if theme.background_color is Some(v) {
-    vars.write_string("--bg-color:\{v};")
-  }
-  if theme.surface_color is Some(v) {
-    vars.write_string("--surface-color:\{v};")
-  }
-  if theme.sidebar_bg_color is Some(v) {
-    vars.write_string("--sidebar-bg:\{v};")
-  }
-  if theme.input_bg_color is Some(v) {
-    vars.write_string("--input-bg:\{v};")
-  }
-  if theme.code_bg_color is Some(v) {
-    vars.write_string("--code-bg:\{v};")
-  }
-
-  // UI colors
-  if theme.border_color is Some(v) {
-    vars.write_string("--border-color:\{v};")
-  }
-  if theme.focus_ring_color is Some(v) {
-    vars.write_string("--focus-ring-color:\{v};")
-  }
-  vars.to_string()
-}
-
-///|
 /// Build combined CSS with optional minification (skip in dev mode)
 fn build_combined_css(
   config : @astra.SsgConfig,
@@ -359,8 +240,8 @@ fn build_combined_css(
   let markdown_css = @assets.get_github_markdown_css()
   let shiki_css = @shiki.generate_shiki_css()
   let all_css = main_css + "\n" + markdown_css + "\n" + shiki_css
-  let output_css = if is_dev { all_css } else { minify_css(all_css) }
-  let theme_vars = build_theme_overrides(config.theme)
+  let output_css = if is_dev { all_css } else { @css_kit.minify_css(all_css) }
+  let theme_vars = @css_kit.build_theme_overrides(config.theme)
   if theme_vars.is_empty() {
     output_css
   } else {

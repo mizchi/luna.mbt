@@ -204,7 +204,7 @@ pub fn generate_404_page(ctx : @astra.BuildContext) -> Unit {
   let base = ctx.config.base_url
   let title = "Page Not Found"
   let site_title = ctx.config.title
-  let theme_vars = build_theme_overrides(ctx.config.theme)
+  let theme_vars = @css_kit.build_theme_overrides(ctx.config.theme)
   let theme_script = @assets.get_theme_script()
 
   // Build 404 page content

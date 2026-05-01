@@ -57,12 +57,12 @@ pub fn lookup_asset(
       })
     "/assets/markdown.css" | "/assets/github-markdown.css" => {
       let raw = get_github_markdown_css()
-      let body = if minify { minify_css(raw) } else { raw }
+      let body = if minify { @css_kit.minify_css(raw) } else { raw }
       Some({ body, content_type: css_content_type() })
     }
     "/assets/shiki.css" => {
       let raw = @shiki.generate_shiki_css()
-      let body = if minify { minify_css(raw) } else { raw }
+      let body = if minify { @css_kit.minify_css(raw) } else { raw }
       Some({ body, content_type: css_content_type() })
     }
     _ => None
@@ -78,14 +78,14 @@ pub fn lookup_asset(
 /// `astra/render/css_processor.mbt`.
 fn build_style_css_body(config : @astra.SsgConfig, minify~ : Bool) -> String {
   let base = get_default_css(config)
-  let theme_vars = build_theme_overrides_css(config.theme)
+  let theme_vars = @css_kit.build_theme_overrides(config.theme)
   let combined = if theme_vars.is_empty() {
     base
   } else {
     "\{base}:root{\{theme_vars}}"
   }
   if minify {
-    minify_css(combined)
+    @css_kit.minify_css(combined)
   } else {
     combined
   }
