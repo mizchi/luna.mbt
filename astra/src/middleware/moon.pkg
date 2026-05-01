@@ -3,6 +3,7 @@ import {
   "mizchi/x/http" @http,
   "mizchi/astra" @astra,
   "mizchi/astra/tree" @tree,
+  "mizchi/astra/render" @render,
   "mizchi/sol/routes" @routes,
 }
 

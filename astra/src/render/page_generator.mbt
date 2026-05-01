@@ -319,6 +319,40 @@ fn generate_page_with_highlight(
   page : @astra.PageMeta,
   highlighter : @shiki.Highlighter?,
 ) -> Result[Unit, String] {
+  // Render the page to a string (pure, no disk write)
+  let final_html = match render_page_html(ctx, page, highlighter) {
+    Ok(html) => html
+    Err(e) => return Err(e)
+  }
+
+  // Write to output
+  let output_path = @path.join2(
+    @path.join2(ctx.cwd, ctx.config.output_dir),
+    @routes.url_to_output_path(page.url_path),
+  )
+
+  // Ensure parent directory exists
+  let parent_dir = @path.dirname(output_path)
+  ensure_dir(parent_dir)
+  try {
+    @fs.writeFileSync(output_path, @js.any(final_html))
+    Ok(())
+  } catch {
+    e => Err("Failed to write \{output_path}: \{e}")
+  }
+}
+
+///|
+/// Render a single page to an HTML string without writing to disk.
+/// Pure transformation: read source, parse, build VNode tree, render to
+/// string, optionally apply syntax highlighting. Used by both the static
+/// builder (which then writes to disk) and the runtime middleware (which
+/// returns the HTML directly to the client).
+pub fn render_page_html(
+  ctx : @astra.BuildContext,
+  page : @astra.PageMeta,
+  highlighter : @shiki.Highlighter?,
+) -> Result[String, String] {
   // Build available URLs list for link fallback checking
   let available_urls : Array[String] = ctx.pages.map(fn(p) { p.url_path })
 
@@ -500,22 +534,7 @@ fn generate_page_with_highlight(
     Some(h) => apply_syntax_highlighting(html, h)
     None => html
   }
-
-  // Write to output
-  let output_path = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    @routes.url_to_output_path(page.url_path),
-  )
-
-  // Ensure parent directory exists
-  let parent_dir = @path.dirname(output_path)
-  ensure_dir(parent_dir)
-  try {
-    @fs.writeFileSync(output_path, @js.any(final_html))
-    Ok(())
-  } catch {
-    e => Err("Failed to write \{output_path}: \{e}")
-  }
+  Ok(final_html)
 }
 
 ///|

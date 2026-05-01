@@ -23,10 +23,9 @@ pub fn create(config : @astra.SsgConfig, cwd~ : String = ".") -> Middleware {
 
 ///|
 /// Async dispatch: rejects non-GET/HEAD methods with 405, attempts to
-/// resolve the request path against the document tree, and renders a
-/// minimal HTML response on hit. Asset serving and full markdown→HTML
-/// rendering arrive in Task 9 / Task 10; for now the handler proves the
-/// wiring works end-to-end against a real Mars server.
+/// resolve the request path against the document tree, and renders the
+/// page through the shared `render_page_html` pipeline. Asset serving
+/// arrives in Task 9; the build crawler / CLI in Task 10.
 fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
   match ctx.meth() {
     @http.RequestMethod::Get | @http.RequestMethod::Head => ()
@@ -35,10 +34,10 @@ fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
       return
     }
   }
-  let path = normalize_path(ctx.path())
-  match find_page(mw.doc_tree, path) {
+  let path = normalize_path(ctx.path(), mw.config.trailing_slash)
+  match find_page_meta(mw.pages, path) {
     Some(page) => {
-      let html = render_page(mw.config, mw.cwd, page)
+      let html = render_page(mw, page)
       ctx.html(html)
     }
     None => ctx.text("Not Found", status=404)
@@ -46,39 +45,83 @@ fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
 }
 
 ///|
-/// Look up a page in the document tree by URL path. Returns `None` when
-/// the path does not correspond to any scanned page.
-fn find_page(
-  tree : @astra.DocumentTree,
+/// Look up a page's `PageMeta` (the renderer-friendly representation) by
+/// URL path. Returns `None` when the path does not correspond to any
+/// scanned page.
+fn find_page_meta(
+  pages : Array[@astra.PageMeta],
   path : String,
-) -> @astra.PageInfo? {
-  tree.get_page_by_url(path)
+) -> @astra.PageMeta? {
+  for page in pages {
+    if page.url_path == path {
+      return Some(page)
+    }
+  }
+  None
 }
 
 ///|
-/// Render a single page to HTML. Phase B-1 produces a minimal placeholder
-/// that wraps the page title and URL; the full markdown→HTML pipeline
-/// (markdown parse, syntax highlighting, theme HTML) lands in a later
-/// task once the render package is exposed via the public surface.
-fn render_page(
-  _config : @astra.SsgConfig,
-  _cwd : String,
-  page : @astra.PageInfo,
-) -> String {
-  let title = if page.title.is_empty() { page.url_path } else { page.title }
-  "<!doctype html><html><head><title>\{title}</title></head>" +
-  "<body><h1>\{title}</h1><p>" +
-  page.url_path +
-  "</p></body></html>"
+/// Render a single page to HTML by invoking the shared `render_page_html`
+/// pipeline (markdown parse → VNode tree → string → optional syntax
+/// highlighting). Highlighting is intentionally skipped at runtime in this
+/// phase; it adds significant per-request latency and Task 11 will gate it
+/// behind config. On render error we fall back to a simple error page so
+/// the response never silently 500s.
+fn render_page(mw : Middleware, page : @astra.PageMeta) -> String {
+  let build_ctx : @astra.BuildContext = {
+    config: mw.config,
+    pages: mw.pages,
+    sidebar: [],
+    cwd: mw.cwd,
+    doc_tree: Some(mw.doc_tree),
+    is_dev: false,
+  }
+  match @render.render_page_html(build_ctx, page, None) {
+    Ok(html) => html
+    Err(e) =>
+      "<!doctype html><html><head><title>Render error</title></head>" +
+      "<body><h1>Render error</h1><pre>" +
+      escape_html(e) +
+      "</pre></body></html>"
+  }
 }
 
 ///|
-/// Normalize an incoming URL path so it lines up with the page index in
-/// the document tree. Trailing-slash URLs are mapped to the directory's
-/// `index` entry.
-fn normalize_path(p : String) -> String {
-  if p.has_suffix("/") {
-    p + "index"
+/// Minimal HTML escape for the runtime error page. Not used for rendered
+/// markdown content (that goes through the full luna VNode renderer).
+fn escape_html(s : String) -> String {
+  let mut out = ""
+  for ch in s {
+    out = out +
+      (match ch {
+        '&' => "&amp;"
+        '<' => "&lt;"
+        '>' => "&gt;"
+        '"' => "&quot;"
+        _ => ch.to_string()
+      })
+  }
+  out
+}
+
+///|
+/// Normalize an incoming URL path so it lines up with the URLs produced
+/// by the routes scanner. The scanner's `trailing_slash` option controls
+/// whether scanned page URLs end in `/`; the runtime middleware mirrors
+/// that convention here so request paths match `page.url_path`.
+fn normalize_path(p : String, trailing_slash : Bool) -> String {
+  if trailing_slash {
+    if p.is_empty() {
+      "/"
+    } else if p.has_suffix("/") {
+      p
+    } else {
+      p + "/"
+    }
+  } else if p.length() > 1 && p.has_suffix("/") {
+    p[:p.length() - 1].to_string()
+  } else if p.is_empty() {
+    "/"
   } else {
     p
   }

@@ -37,6 +37,8 @@ pub async fn generate_site_async(@astra.SsgConfig, String) -> Result[Unit, Strin
 
 pub fn generate_site_with_highlighter(@astra.SsgConfig, String, @shiki.Highlighter, is_dev? : Bool) -> Result[Unit, String]
 
+pub fn render_page_html(@astra.BuildContext, @astra.PageMeta, @shiki.Highlighter?) -> Result[String, String]
+
 pub fn write_isr_manifest(@isr.ISRManifest, String) -> Unit
 
 pub fn write_routes_json(@astra.BuildContext) -> Unit
