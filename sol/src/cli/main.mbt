@@ -68,12 +68,12 @@ async fn main {
     "generate" => run_generate_command(command_args)
     "clean" => run_clean_command(command_args)
     "lint" | "ssg" => {
-      println(
-        @colorette.yellow(
-          "Note: 'sol \{command}' has moved to the astra CLI. Use `astra \{command}` (or `astra build` for SSG builds).",
+      @cli_common.console_error(
+        @colorette.red(
+          "Error: 'sol \{command}' has moved to the astra CLI. Use `astra \{command}` (or `astra build` for SSG builds).",
         ),
       )
-      @process.exit(0)
+      @process.exit(2)
     }
     _ => {
       @cli_common.console_error(

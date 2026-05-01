@@ -23,9 +23,6 @@ fn show_build_help() -> Unit {
     #|  --skip-generate     Skip .sol directory generation
     #|  --skip-minify       Skip minification
     #|  --clean             Clean _build and .sol directories before build
-    #|  --parallel          Enable parallel SSG build
-    #|  --workers <n>       Number of parallel workers (default: 4)
-    #|  --force             Force rebuild (ignore cache)
     #|  --wasm-entrypoints  Build wasm entrypoints from config.wasmEntryPoints
     #|  --runtime <kind>    Override wasm runtime (wagi|wasi-cli|component)
     #|  --emit-spin-fragment  Emit .sol/wasm/spin.toml.fragment
@@ -92,9 +89,6 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       @util.Boolean(key="skip-generate", short="g"),
       @util.Boolean(key="skip-minify", short="m"),
       @util.Boolean(key="clean", short="c"),
-      @util.Boolean(key="parallel", short="p"),
-      @util.String(key="workers", short="w", multiple=false, default=None),
-      @util.Boolean(key="force", short="f"),
       @util.Boolean(key="wasm-entrypoints", short="x"),
       @util.String(key="runtime", short="r", multiple=false, default=None),
       @util.Boolean(key="emit-spin-fragment", short="e"),
@@ -129,24 +123,6 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   let clean : Bool = if result.values.contains("clean") {
     result.values["clean"].cast()
-  } else {
-    false
-  }
-  let use_parallel : Bool = if result.values.contains("parallel") {
-    result.values["parallel"].cast()
-  } else {
-    true
-  }
-  let num_workers : Int? = if result.values.contains("workers") {
-    let workers_str : String = result.values["workers"].cast()
-    Some(@strconv.parse_int(workers_str)) catch {
-      _ => None
-    }
-  } else {
-    None
-  }
-  let force_build : Bool = if result.values.contains("force") {
-    result.values["force"].cast()
   } else {
     false
   }
@@ -189,11 +165,6 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       }
     None => None
   }
-  // SSG-only flags retained on the CLI surface for backward compatibility,
-  // but the SSR build no longer drives SSG. Run `astra build` for SSG.
-  let _ = use_parallel
-  let _ = num_workers
-  let _ = force_build
   let cwd = @process.cwd()
   let (sol_config, sol_config_path) = load_config_with_fs(fs, cwd)
   let has_sol_config = sol_config_path.length() > 0
