@@ -9,13 +9,13 @@
 fn make_test_page_meta(
   source_path : String,
   url_path : String,
-) -> @ssg.PageMeta {
-  @ssg.PageMeta::new(source_path, url_path)
+) -> @astra.PageMeta {
+  @astra.PageMeta::new(source_path, url_path)
 }
 
 ///|
-fn make_test_config() -> @ssg.SsgConfig {
-  @ssg.SsgConfig::default()
+fn make_test_config() -> @astra.SsgConfig {
+  @astra.SsgConfig::default()
 }
 
 // =============================================================================
@@ -33,18 +33,18 @@ test "page_meta_to_static_route - basic conversion" {
 
 ///|
 test "page_meta_to_static_route - with frontmatter" {
-  let frontmatter = @ssg.Frontmatter::{
-    ..@ssg.Frontmatter::default(),
+  let frontmatter = @astra.Frontmatter::{
+    ..@astra.Frontmatter::default(),
     title: Some("Introduction"),
     description: Some("Getting started guide"),
     layout: Some("docs"),
     islands: ["counter"],
   }
-  let page = @ssg.PageMeta::{
+  let page = @astra.PageMeta::{
     source_path: "guide/intro.md",
     url_path: "/guide/intro/",
-    content_type: @ssg.ContentType::Markdown,
-    renderer_type: @ssg.RendererType::MarkdownRenderer,
+    content_type: @astra.ContentType::Markdown,
+    renderer_type: @astra.RendererType::MarkdownRenderer,
     frontmatter,
     last_modified: None,
     locale: "en",
@@ -61,12 +61,12 @@ test "page_meta_to_static_route - with frontmatter" {
 
 ///|
 test "page_meta_to_static_route - preserves locale" {
-  let page = @ssg.PageMeta::{
+  let page = @astra.PageMeta::{
     source_path: "ja/intro.md",
     url_path: "/ja/intro/",
-    content_type: @ssg.ContentType::Markdown,
-    renderer_type: @ssg.RendererType::MarkdownRenderer,
-    frontmatter: @ssg.Frontmatter::default(),
+    content_type: @astra.ContentType::Markdown,
+    renderer_type: @astra.RendererType::MarkdownRenderer,
+    frontmatter: @astra.Frontmatter::default(),
     last_modified: None,
     locale: "ja",
     canonical_path: "/intro/",
@@ -140,7 +140,7 @@ test "static_route_to_page_meta - roundtrip" {
 
 ///|
 test "page_metas_to_manifest - empty pages" {
-  let pages : Array[@ssg.PageMeta] = []
+  let pages : Array[@astra.PageMeta] = []
   let config = make_test_config()
   let manifest = page_metas_to_manifest(pages, config)
   inspect(manifest.routes.length(), content="0")
@@ -170,7 +170,7 @@ test "page_metas_to_manifest - multiple pages" {
 
 ///|
 test "page_metas_to_manifest - default fallback" {
-  let pages : Array[@ssg.PageMeta] = []
+  let pages : Array[@astra.PageMeta] = []
   let config = make_test_config()
   let manifest = page_metas_to_manifest(pages, config)
   inspect(manifest.fallback.is_spa(), content="false")
@@ -178,14 +178,14 @@ test "page_metas_to_manifest - default fallback" {
 
 ///|
 test "page_metas_to_manifest - SPA fallback when config.navigation.spa" {
-  let config = @ssg.SsgConfig::{
-    ..@ssg.SsgConfig::default(),
-    navigation: @ssg.NavigationConfig::{
-      ..@ssg.NavigationConfig::default(),
+  let config = @astra.SsgConfig::{
+    ..@astra.SsgConfig::default(),
+    navigation: @astra.NavigationConfig::{
+      ..@astra.NavigationConfig::default(),
       spa: true,
     },
   }
-  let pages : Array[@ssg.PageMeta] = []
+  let pages : Array[@astra.PageMeta] = []
   let manifest = page_metas_to_manifest(pages, config)
   inspect(manifest.fallback.is_spa(), content="true")
   inspect(manifest.fallback.spa_entry(), content="Some(\"/index.html\")")

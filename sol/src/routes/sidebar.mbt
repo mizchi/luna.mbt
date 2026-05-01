@@ -31,9 +31,9 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit, String]) {
 /// Generate sidebar from pages automatically (filtered by locale)
 /// Supports arbitrary nesting depth
 pub fn generate_auto_sidebar(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   locale? : String = "en",
-) -> Array[@ssg.SidebarGroup] {
+) -> Array[@astra.SidebarGroup] {
   // Filter pages by locale and exclude pages with sidebar: false
   let locale_pages = pages.filter(p => {
     p.locale == locale && p.frontmatter.sidebar
@@ -50,13 +50,13 @@ pub fn generate_auto_sidebar(
 /// Represents a node in the page tree
 priv struct PageTreeNode {
   sort_key : String
-  pages : Array[@ssg.PageMeta] // Pages directly in this directory
+  pages : Array[@astra.PageMeta] // Pages directly in this directory
   children : Map[String, PageTreeNode] // Subdirectories
 }
 
 ///|
 /// Build a hierarchical tree from flat page list
-fn build_page_tree(pages : Array[@ssg.PageMeta]) -> Map[String, PageTreeNode] {
+fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] {
   let root : Map[String, PageTreeNode] = {}
   for page in pages {
     // Get path segments from canonical_path
@@ -185,8 +185,8 @@ fn get_segment_sort_key(full_sort_key : String, depth : Int) -> String {
 /// Convert page tree to sidebar groups (top level)
 fn tree_to_sidebar_groups(
   tree : Map[String, PageTreeNode],
-) -> Array[@ssg.SidebarGroup] {
-  let groups : Array[@ssg.SidebarGroup] = []
+) -> Array[@astra.SidebarGroup] {
+  let groups : Array[@astra.SidebarGroup] = []
 
   // Collect and sort nodes
   let nodes : Array[(String, PageTreeNode)] = []
@@ -217,7 +217,7 @@ fn sort_tree_nodes(
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
       let (_, existing) = result[i]
-      if @ssg.compare_strings_lex(node.sort_key, existing.sort_key) < 0 {
+      if @astra.compare_strings_lex(node.sort_key, existing.sort_key) < 0 {
         pos = i
         break
       }
@@ -240,8 +240,8 @@ fn sort_tree_nodes(
 fn tree_node_to_sidebar_group(
   name : String,
   node : PageTreeNode,
-) -> @ssg.SidebarGroup {
-  let items : Array[@ssg.SidebarItem] = []
+) -> @astra.SidebarGroup {
+  let items : Array[@astra.SidebarItem] = []
 
   // Find index page for group link (source ends with index.md)
   let mut group_link : String? = None
@@ -262,7 +262,7 @@ fn tree_node_to_sidebar_group(
       continue
     }
     let text = page.frontmatter.title.unwrap_or(get_page_name(page.url_path))
-    items.push(@ssg.SidebarItem::Link(text~, link=page.url_path))
+    items.push(@astra.SidebarItem::Link(text~, link=page.url_path))
   }
 
   // Add child directories as nested groups
@@ -276,14 +276,14 @@ fn tree_node_to_sidebar_group(
   for entry in sorted_children {
     let (child_name, child_node) = entry
     let nested_group = tree_node_to_sidebar_group(child_name, child_node)
-    items.push(@ssg.SidebarItem::Group(nested_group))
+    items.push(@astra.SidebarItem::Group(nested_group))
   }
 
   // Get group title from index page or generate from name
   let text = group_title.unwrap_or(
     capitalize(name.replace(old="-", new=" ").replace(old="_", new=" ")),
   )
-  @ssg.SidebarGroup::{ text, link: group_link, collapsed: true, items }
+  @astra.SidebarGroup::{ text, link: group_link, collapsed: true, items }
 }
 
 ///|
@@ -300,14 +300,14 @@ fn slice(s : String, start : Int, end : Int) -> String {
 ///|
 /// Get sidebar for specific URL path (filtered by locale)
 pub fn get_sidebar_for_path(
-  config : @ssg.SsgConfig,
-  pages : Array[@ssg.PageMeta],
+  config : @astra.SsgConfig,
+  pages : Array[@astra.PageMeta],
   url_path : String,
   locale? : String = "en",
-) -> Array[@ssg.SidebarGroup] {
+) -> Array[@astra.SidebarGroup] {
   match config.sidebar {
-    @ssg.SidebarConfig::Auto => generate_auto_sidebar(pages, locale~)
-    @ssg.SidebarConfig::Manual(groups) =>
+    @astra.SidebarConfig::Auto => generate_auto_sidebar(pages, locale~)
+    @astra.SidebarConfig::Manual(groups) =>
       // For manual sidebar, find matching path group
       find_sidebar_for_path(groups, url_path)
   }
@@ -316,9 +316,9 @@ pub fn get_sidebar_for_path(
 ///|
 /// Find sidebar groups that match the current path
 fn find_sidebar_for_path(
-  groups : Array[@ssg.SidebarGroup],
+  groups : Array[@astra.SidebarGroup],
   url_path : String,
-) -> Array[@ssg.SidebarGroup] {
+) -> Array[@astra.SidebarGroup] {
   // For path /guide/intro, look for /guide sidebar
   let dir = get_url_directory(url_path)
 
@@ -390,7 +390,7 @@ fn capitalize(s : String) -> String {
 ///|
 /// Get flat list of page URLs in sidebar order (supports arbitrary nesting)
 pub fn get_sidebar_page_order(
-  groups : Array[@ssg.SidebarGroup],
+  groups : Array[@astra.SidebarGroup],
 ) -> Array[String] {
   let urls : Array[String] = []
   for group in groups {
@@ -402,7 +402,7 @@ pub fn get_sidebar_page_order(
 ///|
 /// Recursively collect URLs from a sidebar group
 fn collect_urls_from_group(
-  group : @ssg.SidebarGroup,
+  group : @astra.SidebarGroup,
   urls : Array[String],
 ) -> Unit {
   for item in group.items {
@@ -413,12 +413,12 @@ fn collect_urls_from_group(
 ///|
 /// Recursively collect URLs from a sidebar item
 fn collect_urls_from_item(
-  item : @ssg.SidebarItem,
+  item : @astra.SidebarItem,
   urls : Array[String],
 ) -> Unit {
   match item {
-    @ssg.SidebarItem::Link(link~, ..) => urls.push(link)
-    @ssg.SidebarItem::Group(nested) => collect_urls_from_group(nested, urls)
+    @astra.SidebarItem::Link(link~, ..) => urls.push(link)
+    @astra.SidebarItem::Group(nested) => collect_urls_from_group(nested, urls)
   }
 }
 
@@ -430,7 +430,7 @@ fn collect_urls_from_item(
 /// Render sidebar to VNode (desktop version with collapse button)
 /// Enhanced with luna hydration for keyboard navigation
 pub fn render_sidebar(
-  groups : Array[@ssg.SidebarGroup],
+  groups : Array[@astra.SidebarGroup],
   current_path : String,
 ) -> @luna.Node[Unit, String] {
   // Reset counter at start of sidebar render for consistent IDs
@@ -469,7 +469,7 @@ pub fn render_sidebar(
 /// Render mobile sidebar dropdown (Docusaurus-style)
 /// Enhanced with luna hydration for keyboard navigation
 pub fn render_mobile_sidebar(
-  groups : Array[@ssg.SidebarGroup],
+  groups : Array[@astra.SidebarGroup],
   current_path : String,
 ) -> @luna.Node[Unit, String] {
   // Reset counter at start of mobile sidebar render for consistent IDs
@@ -505,7 +505,7 @@ pub fn render_mobile_sidebar(
 ///|
 /// Find current page title from sidebar groups (supports arbitrary nesting)
 fn find_current_page_title(
-  groups : Array[@ssg.SidebarGroup],
+  groups : Array[@astra.SidebarGroup],
   current_path : String,
 ) -> String {
   for group in groups {
@@ -520,7 +520,7 @@ fn find_current_page_title(
 ///|
 /// Recursively find title in a sidebar group
 fn find_title_in_group(
-  group : @ssg.SidebarGroup,
+  group : @astra.SidebarGroup,
   current_path : String,
 ) -> String? {
   for item in group.items {
@@ -535,35 +535,35 @@ fn find_title_in_group(
 ///|
 /// Recursively find title in a sidebar item
 fn find_title_in_item(
-  item : @ssg.SidebarItem,
+  item : @astra.SidebarItem,
   current_path : String,
 ) -> String? {
   match item {
-    @ssg.SidebarItem::Link(text~, link~) =>
+    @astra.SidebarItem::Link(text~, link~) =>
       if link == current_path ||
         (link.has_suffix("/") && current_path.has_prefix(link)) {
         Some(text)
       } else {
         None
       }
-    @ssg.SidebarItem::Group(nested) => find_title_in_group(nested, current_path)
+    @astra.SidebarItem::Group(nested) => find_title_in_group(nested, current_path)
   }
 }
 
 ///|
 /// Check if a sidebar item or its children are active
-fn is_item_active(item : @ssg.SidebarItem, current_path : String) -> Bool {
+fn is_item_active(item : @astra.SidebarItem, current_path : String) -> Bool {
   match item {
-    @ssg.SidebarItem::Link(link~, ..) =>
+    @astra.SidebarItem::Link(link~, ..) =>
       link == current_path ||
       (link.has_suffix("/") && current_path.has_prefix(link))
-    @ssg.SidebarItem::Group(nested) => is_group_active(nested, current_path)
+    @astra.SidebarItem::Group(nested) => is_group_active(nested, current_path)
   }
 }
 
 ///|
 /// Check if a sidebar group or its children are active
-fn is_group_active(group : @ssg.SidebarGroup, current_path : String) -> Bool {
+fn is_group_active(group : @astra.SidebarGroup, current_path : String) -> Bool {
   // Check if the group's own link matches
   match group.link {
     Some(link) =>
@@ -601,7 +601,7 @@ fn generate_sidebar_group_id() -> String {
 /// Groups with only index.md (no other items) render as simple links
 /// Enhanced with ARIA attributes for accessibility
 fn render_sidebar_group(
-  group : @ssg.SidebarGroup,
+  group : @astra.SidebarGroup,
   current_path : String,
 ) -> @luna.Node[Unit, String] {
   // If group has no items (only index.md), render as simple link
@@ -705,11 +705,11 @@ fn render_sidebar_group(
 ///|
 /// Render sidebar item
 fn render_sidebar_item(
-  item : @ssg.SidebarItem,
+  item : @astra.SidebarItem,
   current_path : String,
 ) -> @luna.Node[Unit, String] {
   match item {
-    @ssg.SidebarItem::Link(text~, link~) => {
+    @astra.SidebarItem::Link(text~, link~) => {
       let is_active = link == current_path ||
         (link.has_suffix("/") && current_path.has_prefix(link))
       let class_name = if is_active {
@@ -722,7 +722,7 @@ fn render_sidebar_item(
       ])
       h("li", [], [link_el])
     }
-    @ssg.SidebarItem::Group(nested) =>
+    @astra.SidebarItem::Group(nested) =>
       // Wrap nested groups in <li> for valid HTML
       h("li", [attr("class", "sidebar-nested-group")], [
         render_sidebar_group(nested, current_path),

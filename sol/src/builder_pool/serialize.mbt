@@ -8,7 +8,7 @@
 
 ///|
 /// Serialize SsgConfig to JSON string
-pub fn ssg_config_to_json(config : @ssg.SsgConfig) -> String {
+pub fn ssg_config_to_json(config : @astra.SsgConfig) -> String {
   let buf = StringBuilder::new()
   buf.write_string("{")
   buf.write_string("\"docs\":\"")
@@ -87,7 +87,7 @@ fn write_string_array(arr : Array[String], buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_nav_items(items : Array[@ssg.NavItem], buf : StringBuilder) -> Unit {
+fn write_nav_items(items : Array[@astra.NavItem], buf : StringBuilder) -> Unit {
   buf.write_string("[")
   for i, item in items {
     if i > 0 {
@@ -99,7 +99,7 @@ fn write_nav_items(items : Array[@ssg.NavItem], buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_nav_item(item : @ssg.NavItem, buf : StringBuilder) -> Unit {
+fn write_nav_item(item : @astra.NavItem, buf : StringBuilder) -> Unit {
   buf.write_string("{\"text\":\"")
   write_escaped_string(item.text, buf)
   buf.write_string("\",\"link\":\"")
@@ -111,12 +111,12 @@ fn write_nav_item(item : @ssg.NavItem, buf : StringBuilder) -> Unit {
 
 ///|
 fn write_sidebar_config(
-  config : @ssg.SidebarConfig,
+  config : @astra.SidebarConfig,
   buf : StringBuilder,
 ) -> Unit {
   match config {
-    @ssg.SidebarConfig::Auto => buf.write_string("\"auto\"")
-    @ssg.SidebarConfig::Manual(groups) => {
+    @astra.SidebarConfig::Auto => buf.write_string("\"auto\"")
+    @astra.SidebarConfig::Manual(groups) => {
       buf.write_string("[")
       for i, g in groups {
         if i > 0 {
@@ -130,7 +130,7 @@ fn write_sidebar_config(
 }
 
 ///|
-fn write_sidebar_group(group : @ssg.SidebarGroup, buf : StringBuilder) -> Unit {
+fn write_sidebar_group(group : @astra.SidebarGroup, buf : StringBuilder) -> Unit {
   buf.write_string("{\"text\":\"")
   write_escaped_string(group.text, buf)
   buf.write_string("\"")
@@ -155,16 +155,16 @@ fn write_sidebar_group(group : @ssg.SidebarGroup, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_sidebar_item(item : @ssg.SidebarItem, buf : StringBuilder) -> Unit {
+fn write_sidebar_item(item : @astra.SidebarItem, buf : StringBuilder) -> Unit {
   match item {
-    @ssg.SidebarItem::Link(text=t, link=l) => {
+    @astra.SidebarItem::Link(text=t, link=l) => {
       buf.write_string("{\"type\":\"link\",\"text\":\"")
       write_escaped_string(t, buf)
       buf.write_string("\",\"link\":\"")
       write_escaped_string(l, buf)
       buf.write_string("\"}")
     }
-    @ssg.SidebarItem::Group(g) => {
+    @astra.SidebarItem::Group(g) => {
       buf.write_string("{\"type\":\"group\",\"group\":")
       write_sidebar_group(g, buf)
       buf.write_string("}")
@@ -174,7 +174,7 @@ fn write_sidebar_item(item : @ssg.SidebarItem, buf : StringBuilder) -> Unit {
 
 ///|
 fn write_islands_config(
-  config : @ssg.IslandsConfig?,
+  config : @astra.IslandsConfig?,
   buf : StringBuilder,
 ) -> Unit {
   match config {
@@ -190,7 +190,7 @@ fn write_islands_config(
 }
 
 ///|
-fn write_theme_config(config : @ssg.ThemeConfig, buf : StringBuilder) -> Unit {
+fn write_theme_config(config : @astra.ThemeConfig, buf : StringBuilder) -> Unit {
   buf.write_string("{")
   let mut first = true
   match config.primary_color {
@@ -243,7 +243,7 @@ fn write_theme_config(config : @ssg.ThemeConfig, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_footer_config(config : @ssg.FooterConfig, buf : StringBuilder) -> Unit {
+fn write_footer_config(config : @astra.FooterConfig, buf : StringBuilder) -> Unit {
   buf.write_string("{")
   let mut first = true
   match config.message {
@@ -295,7 +295,7 @@ fn write_footer_config(config : @ssg.FooterConfig, buf : StringBuilder) -> Unit 
 
 ///|
 fn write_navigation_config(
-  config : @ssg.NavigationConfig,
+  config : @astra.NavigationConfig,
   buf : StringBuilder,
 ) -> Unit {
   buf.write_string("{\"spa\":")
@@ -308,7 +308,7 @@ fn write_navigation_config(
 }
 
 ///|
-fn write_i18n_config(config : @ssg.I18nConfig, buf : StringBuilder) -> Unit {
+fn write_i18n_config(config : @astra.I18nConfig, buf : StringBuilder) -> Unit {
   buf.write_string("{\"defaultLocale\":\"")
   write_escaped_string(config.default_locale, buf)
   buf.write_string("\",\"locales\":[")
@@ -328,7 +328,7 @@ fn write_i18n_config(config : @ssg.I18nConfig, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn write_ogp_config(config : @ssg.OgpConfig, buf : StringBuilder) -> Unit {
+fn write_ogp_config(config : @astra.OgpConfig, buf : StringBuilder) -> Unit {
   buf.write_string("{")
   let mut first = true
   match config.site_url {
@@ -384,7 +384,7 @@ fn write_ogp_config(config : @ssg.OgpConfig, buf : StringBuilder) -> Unit {
 
 ///|
 /// Parse SsgConfig from JSON string
-pub fn ssg_config_from_json(json_str : String) -> @ssg.SsgConfig? {
+pub fn ssg_config_from_json(json_str : String) -> @astra.SsgConfig? {
   try {
     let json = @json.parse(json_str.view())
     guard json is Object(obj) else { return None }
@@ -395,7 +395,7 @@ pub fn ssg_config_from_json(json_str : String) -> @ssg.SsgConfig? {
 }
 
 ///|
-fn parse_ssg_config_obj(obj : Map[String, Json]) -> @ssg.SsgConfig? {
+fn parse_ssg_config_obj(obj : Map[String, Json]) -> @astra.SsgConfig? {
   let docs_dir = match obj.get("docs") {
     Some(String(s)) => s
     _ => "docs"
@@ -417,25 +417,25 @@ fn parse_ssg_config_obj(obj : Map[String, Json]) -> @ssg.SsgConfig? {
     _ => []
   }
   let sidebar = match obj.get("sidebar") {
-    Some(String("auto")) => @ssg.SidebarConfig::Auto
-    Some(Array(arr)) => @ssg.SidebarConfig::Manual(parse_sidebar_groups(arr))
-    _ => @ssg.SidebarConfig::Auto
+    Some(String("auto")) => @astra.SidebarConfig::Auto
+    Some(Array(arr)) => @astra.SidebarConfig::Manual(parse_sidebar_groups(arr))
+    _ => @astra.SidebarConfig::Auto
   }
-  let islands : @ssg.IslandsConfig? = match obj.get("islands") {
+  let islands : @astra.IslandsConfig? = match obj.get("islands") {
     Some(Object(islands_obj)) => parse_islands_config(islands_obj)
     _ => None
   }
   let theme = match obj.get("theme") {
     Some(Object(theme_obj)) => parse_theme_config(theme_obj)
-    _ => @ssg.ThemeConfig::default()
+    _ => @astra.ThemeConfig::default()
   }
   let navigation = match obj.get("navigation") {
     Some(Object(nav_obj)) => parse_navigation_config(nav_obj)
-    _ => @ssg.NavigationConfig::default()
+    _ => @astra.NavigationConfig::default()
   }
   let i18n = match obj.get("i18n") {
     Some(Object(i18n_obj)) => parse_i18n_config(i18n_obj)
-    _ => @ssg.I18nConfig::default()
+    _ => @astra.I18nConfig::default()
   }
   let exclude = match obj.get("exclude") {
     Some(Array(arr)) => {
@@ -456,9 +456,9 @@ fn parse_ssg_config_obj(obj : Map[String, Json]) -> @ssg.SsgConfig? {
   }
   let ogp = match obj.get("ogp") {
     Some(Object(ogp_obj)) => parse_ogp_config(ogp_obj)
-    _ => @ssg.OgpConfig::default()
+    _ => @astra.OgpConfig::default()
   }
-  Some(@ssg.SsgConfig::{
+  Some(@astra.SsgConfig::{
     docs_dir,
     output_dir,
     title,
@@ -477,17 +477,17 @@ fn parse_ssg_config_obj(obj : Map[String, Json]) -> @ssg.SsgConfig? {
     body_snippets: [],
     prod_body_snippets: [],
     sanitize_html: false,
-    deploy_target: @ssg.DeployTarget::default(),
+    deploy_target: @astra.DeployTarget::default(),
     spa_routes: [],
     components_dir: None,
     css_utilities: None,
-    meta_files: @ssg.MetaFilesConfig::default(),
+    meta_files: @astra.MetaFilesConfig::default(),
   })
 }
 
 ///|
-fn parse_nav_items(arr : Array[Json]) -> Array[@ssg.NavItem] {
-  let result : Array[@ssg.NavItem] = []
+fn parse_nav_items(arr : Array[Json]) -> Array[@astra.NavItem] {
+  let result : Array[@astra.NavItem] = []
   for item in arr {
     if item is Object(obj) {
       let text = match obj.get("text") {
@@ -506,14 +506,14 @@ fn parse_nav_items(arr : Array[Json]) -> Array[@ssg.NavItem] {
         Some(Array(arr)) => parse_nav_items(arr)
         _ => []
       }
-      result.push(@ssg.NavItem::{ text, link, icon, items })
+      result.push(@astra.NavItem::{ text, link, icon, items })
     }
   }
   result
 }
 
 ///|
-fn parse_sidebar_group_from_obj(obj : Map[String, Json]) -> @ssg.SidebarGroup {
+fn parse_sidebar_group_from_obj(obj : Map[String, Json]) -> @astra.SidebarGroup {
   let text = match obj.get("text") {
     Some(String(s)) => s
     _ => ""
@@ -530,12 +530,12 @@ fn parse_sidebar_group_from_obj(obj : Map[String, Json]) -> @ssg.SidebarGroup {
     Some(Array(arr)) => parse_sidebar_items(arr)
     _ => []
   }
-  @ssg.SidebarGroup::{ text, link, collapsed, items }
+  @astra.SidebarGroup::{ text, link, collapsed, items }
 }
 
 ///|
-fn parse_sidebar_groups(arr : Array[Json]) -> Array[@ssg.SidebarGroup] {
-  let result : Array[@ssg.SidebarGroup] = []
+fn parse_sidebar_groups(arr : Array[Json]) -> Array[@astra.SidebarGroup] {
+  let result : Array[@astra.SidebarGroup] = []
   for item in arr {
     if item is Object(obj) {
       result.push(parse_sidebar_group_from_obj(obj))
@@ -545,8 +545,8 @@ fn parse_sidebar_groups(arr : Array[Json]) -> Array[@ssg.SidebarGroup] {
 }
 
 ///|
-fn parse_sidebar_items(arr : Array[Json]) -> Array[@ssg.SidebarItem] {
-  let result : Array[@ssg.SidebarItem] = []
+fn parse_sidebar_items(arr : Array[Json]) -> Array[@astra.SidebarItem] {
+  let result : Array[@astra.SidebarItem] = []
   for item in arr {
     if item is Object(obj) {
       let item_type = match obj.get("type") {
@@ -558,7 +558,7 @@ fn parse_sidebar_items(arr : Array[Json]) -> Array[@ssg.SidebarItem] {
           match obj.get("group") {
             Some(Object(group_obj)) => {
               let group = parse_sidebar_group_from_obj(group_obj)
-              result.push(@ssg.SidebarItem::Group(group))
+              result.push(@astra.SidebarItem::Group(group))
             }
             _ => ()
           }
@@ -571,7 +571,7 @@ fn parse_sidebar_items(arr : Array[Json]) -> Array[@ssg.SidebarItem] {
             Some(String(s)) => s
             _ => ""
           }
-          result.push(@ssg.SidebarItem::Link(text~, link~))
+          result.push(@astra.SidebarItem::Link(text~, link~))
         }
       }
     }
@@ -580,7 +580,7 @@ fn parse_sidebar_items(arr : Array[Json]) -> Array[@ssg.SidebarItem] {
 }
 
 ///|
-fn parse_islands_config(obj : Map[String, Json]) -> @ssg.IslandsConfig? {
+fn parse_islands_config(obj : Map[String, Json]) -> @astra.IslandsConfig? {
   let dir = match obj.get("dir") {
     Some(String(s)) => s
     _ => "docs/components"
@@ -589,7 +589,7 @@ fn parse_islands_config(obj : Map[String, Json]) -> @ssg.IslandsConfig? {
     Some(String(s)) => s
     _ => "/components/"
   }
-  Some(@ssg.IslandsConfig::{ dir, base_path })
+  Some(@astra.IslandsConfig::{ dir, base_path })
 }
 
 ///|
@@ -601,7 +601,7 @@ fn extract_opt_string(obj : Map[String, Json], key : String) -> String? {
 }
 
 ///|
-fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
+fn parse_theme_config(obj : Map[String, Json]) -> @astra.ThemeConfig {
   // Core colors
   let primary_color = extract_opt_string(obj, "primaryColor")
   let secondary_color = extract_opt_string(obj, "secondaryColor")
@@ -632,11 +632,11 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
 
   // Non-color settings
   let logo = extract_opt_string(obj, "logo")
-  let header : @ssg.HeaderConfig? = match obj.get("header") {
+  let header : @astra.HeaderConfig? = match obj.get("header") {
     Some(Object(header_obj)) => Some(parse_header_config(header_obj))
     _ => None
   }
-  let footer : @ssg.FooterConfig? = match obj.get("footer") {
+  let footer : @astra.FooterConfig? = match obj.get("footer") {
     Some(Object(footer_obj)) => parse_footer_config(footer_obj)
     _ => None
   }
@@ -644,7 +644,7 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
     Some(Array(arr)) => parse_social_links(arr)
     _ => []
   }
-  @ssg.ThemeConfig::{
+  @astra.ThemeConfig::{
     primary_color,
     secondary_color,
     accent_color,
@@ -671,7 +671,7 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
 }
 
 ///|
-fn parse_header_config(obj : Map[String, Json]) -> @ssg.HeaderConfig {
+fn parse_header_config(obj : Map[String, Json]) -> @astra.HeaderConfig {
   let left = match obj.get("left") {
     Some(Array(arr)) => parse_header_elements(arr)
     _ => [@astra.Logo]
@@ -688,12 +688,12 @@ fn parse_header_config(obj : Map[String, Json]) -> @ssg.HeaderConfig {
     Some(True) => true
     _ => false
   }
-  @ssg.HeaderConfig::{ left, center, right, sticky }
+  @astra.HeaderConfig::{ left, center, right, sticky }
 }
 
 ///|
-fn parse_header_elements(arr : Array[Json]) -> Array[@ssg.HeaderElement] {
-  let result : Array[@ssg.HeaderElement] = []
+fn parse_header_elements(arr : Array[Json]) -> Array[@astra.HeaderElement] {
+  let result : Array[@astra.HeaderElement] = []
   for item in arr {
     match item {
       String(s) =>
@@ -714,7 +714,7 @@ fn parse_header_elements(arr : Array[Json]) -> Array[@ssg.HeaderElement] {
 }
 
 ///|
-fn parse_footer_config(obj : Map[String, Json]) -> @ssg.FooterConfig? {
+fn parse_footer_config(obj : Map[String, Json]) -> @astra.FooterConfig? {
   let message : String? = match obj.get("message") {
     Some(String(s)) => Some(s)
     _ => None
@@ -735,21 +735,21 @@ fn parse_footer_config(obj : Map[String, Json]) -> @ssg.FooterConfig? {
     Some(Array(arr)) => parse_footer_elements(arr)
     _ => []
   }
-  Some(@ssg.FooterConfig::{ message, copyright, links, top, bottom })
+  Some(@astra.FooterConfig::{ message, copyright, links, top, bottom })
 }
 
 ///|
-fn parse_footer_elements(arr : Array[Json]) -> Array[@ssg.FooterElement] {
-  let result : Array[@ssg.FooterElement] = []
+fn parse_footer_elements(arr : Array[Json]) -> Array[@astra.FooterElement] {
+  let result : Array[@astra.FooterElement] = []
   for item in arr {
     match item {
       String(s) =>
         match s {
-          "columns" => result.push(@ssg.FooterElement::Columns)
-          "message" => result.push(@ssg.FooterElement::Message)
-          "copyright" => result.push(@ssg.FooterElement::Copyright)
-          "social-links" => result.push(@ssg.FooterElement::SocialLinks)
-          _ => if s.contains("-") { result.push(@ssg.FooterElement::Custom(s)) }
+          "columns" => result.push(@astra.FooterElement::Columns)
+          "message" => result.push(@astra.FooterElement::Message)
+          "copyright" => result.push(@astra.FooterElement::Copyright)
+          "social-links" => result.push(@astra.FooterElement::SocialLinks)
+          _ => if s.contains("-") { result.push(@astra.FooterElement::Custom(s)) }
         }
       _ => ()
     }
@@ -758,8 +758,8 @@ fn parse_footer_elements(arr : Array[Json]) -> Array[@ssg.FooterElement] {
 }
 
 ///|
-fn parse_footer_columns(arr : Array[Json]) -> Array[@ssg.FooterColumn] {
-  let result : Array[@ssg.FooterColumn] = []
+fn parse_footer_columns(arr : Array[Json]) -> Array[@astra.FooterColumn] {
+  let result : Array[@astra.FooterColumn] = []
   for item in arr {
     if item is Object(obj) {
       let title = match obj.get("title") {
@@ -770,15 +770,15 @@ fn parse_footer_columns(arr : Array[Json]) -> Array[@ssg.FooterColumn] {
         Some(Array(links_arr)) => parse_footer_links(links_arr)
         _ => []
       }
-      result.push(@ssg.FooterColumn::{ title, items })
+      result.push(@astra.FooterColumn::{ title, items })
     }
   }
   result
 }
 
 ///|
-fn parse_footer_links(arr : Array[Json]) -> Array[@ssg.FooterLink] {
-  let result : Array[@ssg.FooterLink] = []
+fn parse_footer_links(arr : Array[Json]) -> Array[@astra.FooterLink] {
+  let result : Array[@astra.FooterLink] = []
   for item in arr {
     if item is Object(obj) {
       let label = match obj.get("label") {
@@ -789,15 +789,15 @@ fn parse_footer_links(arr : Array[Json]) -> Array[@ssg.FooterLink] {
         Some(String(s)) => s
         _ => ""
       }
-      result.push(@ssg.FooterLink::{ label, href })
+      result.push(@astra.FooterLink::{ label, href })
     }
   }
   result
 }
 
 ///|
-fn parse_social_links(arr : Array[Json]) -> Array[@ssg.SocialLink] {
-  let result : Array[@ssg.SocialLink] = []
+fn parse_social_links(arr : Array[Json]) -> Array[@astra.SocialLink] {
+  let result : Array[@astra.SocialLink] = []
   for item in arr {
     if item is Object(obj) {
       let icon = match obj.get("icon") {
@@ -808,14 +808,14 @@ fn parse_social_links(arr : Array[Json]) -> Array[@ssg.SocialLink] {
         Some(String(s)) => s
         _ => ""
       }
-      result.push(@ssg.SocialLink::{ icon, link })
+      result.push(@astra.SocialLink::{ icon, link })
     }
   }
   result
 }
 
 ///|
-fn parse_navigation_config(obj : Map[String, Json]) -> @ssg.NavigationConfig {
+fn parse_navigation_config(obj : Map[String, Json]) -> @astra.NavigationConfig {
   let spa = match obj.get("spa") {
     Some(True) => true
     _ => false
@@ -828,25 +828,25 @@ fn parse_navigation_config(obj : Map[String, Json]) -> @ssg.NavigationConfig {
     Some(False) => false
     _ => true
   }
-  @ssg.NavigationConfig::{ spa, view_transitions, keyboard }
+  @astra.NavigationConfig::{ spa, view_transitions, keyboard }
 }
 
 ///|
-fn parse_i18n_config(obj : Map[String, Json]) -> @ssg.I18nConfig {
+fn parse_i18n_config(obj : Map[String, Json]) -> @astra.I18nConfig {
   let default_locale = match obj.get("defaultLocale") {
     Some(String(s)) => s
     _ => "en"
   }
   let locales = match obj.get("locales") {
     Some(Array(arr)) => parse_locales(arr)
-    _ => [@ssg.LocaleConfig::{ code: "en", label: "English", path: "" }]
+    _ => [@astra.LocaleConfig::{ code: "en", label: "English", path: "" }]
   }
-  @ssg.I18nConfig::{ default_locale, locales }
+  @astra.I18nConfig::{ default_locale, locales }
 }
 
 ///|
-fn parse_locales(arr : Array[Json]) -> Array[@ssg.LocaleConfig] {
-  let result : Array[@ssg.LocaleConfig] = []
+fn parse_locales(arr : Array[Json]) -> Array[@astra.LocaleConfig] {
+  let result : Array[@astra.LocaleConfig] = []
   for item in arr {
     if item is Object(obj) {
       let code = match obj.get("code") {
@@ -861,14 +861,14 @@ fn parse_locales(arr : Array[Json]) -> Array[@ssg.LocaleConfig] {
         Some(String(s)) => s
         _ => ""
       }
-      result.push(@ssg.LocaleConfig::{ code, label, path })
+      result.push(@astra.LocaleConfig::{ code, label, path })
     }
   }
   result
 }
 
 ///|
-fn parse_ogp_config(obj : Map[String, Json]) -> @ssg.OgpConfig {
+fn parse_ogp_config(obj : Map[String, Json]) -> @astra.OgpConfig {
   let site_url : String? = match obj.get("siteUrl") {
     Some(String(s)) => Some(s)
     _ => None
@@ -885,7 +885,7 @@ fn parse_ogp_config(obj : Map[String, Json]) -> @ssg.OgpConfig {
     Some(String(s)) => Some(s)
     _ => None
   }
-  @ssg.OgpConfig::{ site_url, image, twitter_handle, twitter_card }
+  @astra.OgpConfig::{ site_url, image, twitter_handle, twitter_card }
 }
 
 // =============================================================================
@@ -894,7 +894,7 @@ fn parse_ogp_config(obj : Map[String, Json]) -> @ssg.OgpConfig {
 
 ///|
 /// Serialize Array[PageMeta] to JSON string
-pub fn pages_to_json(pages : Array[@ssg.PageMeta]) -> String {
+pub fn pages_to_json(pages : Array[@astra.PageMeta]) -> String {
   let buf = StringBuilder::new()
   buf.write_string("[")
   for i, page in pages {
@@ -908,7 +908,7 @@ pub fn pages_to_json(pages : Array[@ssg.PageMeta]) -> String {
 }
 
 ///|
-fn write_page_meta(page : @ssg.PageMeta, buf : StringBuilder) -> Unit {
+fn write_page_meta(page : @astra.PageMeta, buf : StringBuilder) -> Unit {
   buf.write_string("{\"sourcePath\":\"")
   write_escaped_string(page.source_path, buf)
   buf.write_string("\",\"urlPath\":\"")
@@ -937,7 +937,7 @@ fn write_page_meta(page : @ssg.PageMeta, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn content_type_to_string(ct : @ssg.ContentType) -> String {
+fn content_type_to_string(ct : @astra.ContentType) -> String {
   match ct {
     @astra.Markdown => "markdown"
     @astra.Mdx => "mdx"
@@ -948,20 +948,20 @@ fn content_type_to_string(ct : @ssg.ContentType) -> String {
 }
 
 ///|
-fn renderer_type_to_string(rt : @ssg.RendererType) -> String {
+fn renderer_type_to_string(rt : @astra.RendererType) -> String {
   match rt {
-    @ssg.RendererType::MarkdownRenderer => "markdown"
-    @ssg.RendererType::MdxRenderer => "mdx"
-    @ssg.RendererType::HtmlRenderer => "html"
-    @ssg.RendererType::LunaRenderer => "luna"
-    @ssg.RendererType::ReactRenderer => "react"
-    @ssg.RendererType::PreactRenderer => "preact"
-    @ssg.RendererType::ClientOnlyRenderer => "client"
+    @astra.RendererType::MarkdownRenderer => "markdown"
+    @astra.RendererType::MdxRenderer => "mdx"
+    @astra.RendererType::HtmlRenderer => "html"
+    @astra.RendererType::LunaRenderer => "luna"
+    @astra.RendererType::ReactRenderer => "react"
+    @astra.RendererType::PreactRenderer => "preact"
+    @astra.RendererType::ClientOnlyRenderer => "client"
   }
 }
 
 ///|
-fn write_frontmatter(fm : @ssg.Frontmatter, buf : StringBuilder) -> Unit {
+fn write_frontmatter(fm : @astra.Frontmatter, buf : StringBuilder) -> Unit {
   buf.write_string("{")
   let mut first = true
   match fm.title {
@@ -1060,11 +1060,11 @@ fn write_frontmatter(fm : @ssg.Frontmatter, buf : StringBuilder) -> Unit {
 
 ///|
 /// Parse Array[PageMeta] from JSON string
-pub fn pages_from_json(json_str : String) -> Array[@ssg.PageMeta] {
+pub fn pages_from_json(json_str : String) -> Array[@astra.PageMeta] {
   try {
     let json = @json.parse(json_str.view())
     guard json is Array(arr) else { return [] }
-    let result : Array[@ssg.PageMeta] = []
+    let result : Array[@astra.PageMeta] = []
     for item in arr {
       if parse_page_meta(item) is Some(page) {
         result.push(page)
@@ -1077,13 +1077,13 @@ pub fn pages_from_json(json_str : String) -> Array[@ssg.PageMeta] {
 }
 
 ///|
-fn parse_page_meta(json : Json) -> @ssg.PageMeta? {
+fn parse_page_meta(json : Json) -> @astra.PageMeta? {
   guard json is Object(obj) else { return None }
   guard obj.get("sourcePath") is Some(String(source_path)) else { return None }
   guard obj.get("urlPath") is Some(String(url_path)) else { return None }
   let frontmatter = match obj.get("frontmatter") {
     Some(Object(fm_obj)) => parse_frontmatter(fm_obj)
-    _ => @ssg.Frontmatter::default()
+    _ => @astra.Frontmatter::default()
   }
   let last_modified : String? = match obj.get("lastModified") {
     Some(String(lm)) => Some(lm)
@@ -1104,13 +1104,13 @@ fn parse_page_meta(json : Json) -> @ssg.PageMeta? {
   // Parse content_type and renderer_type from JSON
   let content_type = match obj.get("contentType") {
     Some(String(ct)) => string_to_content_type(ct)
-    _ => @ssg.ContentType::Markdown
+    _ => @astra.ContentType::Markdown
   }
   let renderer_type = match obj.get("rendererType") {
     Some(String(rt)) => string_to_renderer_type(rt)
-    _ => @ssg.RendererType::MarkdownRenderer
+    _ => @astra.RendererType::MarkdownRenderer
   }
-  Some(@ssg.PageMeta::{
+  Some(@astra.PageMeta::{
     source_path,
     url_path,
     content_type,
@@ -1124,7 +1124,7 @@ fn parse_page_meta(json : Json) -> @ssg.PageMeta? {
 }
 
 ///|
-fn string_to_content_type(s : String) -> @ssg.ContentType {
+fn string_to_content_type(s : String) -> @astra.ContentType {
   match s {
     "html" => @astra.Html
     "mdx" => @astra.Mdx
@@ -1135,20 +1135,20 @@ fn string_to_content_type(s : String) -> @ssg.ContentType {
 }
 
 ///|
-fn string_to_renderer_type(s : String) -> @ssg.RendererType {
+fn string_to_renderer_type(s : String) -> @astra.RendererType {
   match s {
-    "html" => @ssg.RendererType::HtmlRenderer
-    "mdx" => @ssg.RendererType::MdxRenderer
-    "luna" => @ssg.RendererType::LunaRenderer
-    "react" => @ssg.RendererType::ReactRenderer
-    "preact" => @ssg.RendererType::PreactRenderer
-    "client" => @ssg.RendererType::ClientOnlyRenderer
-    _ => @ssg.RendererType::MarkdownRenderer
+    "html" => @astra.RendererType::HtmlRenderer
+    "mdx" => @astra.RendererType::MdxRenderer
+    "luna" => @astra.RendererType::LunaRenderer
+    "react" => @astra.RendererType::ReactRenderer
+    "preact" => @astra.RendererType::PreactRenderer
+    "client" => @astra.RendererType::ClientOnlyRenderer
+    _ => @astra.RendererType::MarkdownRenderer
   }
 }
 
 ///|
-fn parse_frontmatter(obj : Map[String, Json]) -> @ssg.Frontmatter {
+fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
   let title : String? = match obj.get("title") {
     Some(String(t)) => Some(t)
     _ => None
@@ -1242,7 +1242,7 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @ssg.Frontmatter {
         _ => None
       }
   }
-  @ssg.Frontmatter::{
+  @astra.Frontmatter::{
     title,
     description,
     layout,
@@ -1273,7 +1273,7 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @ssg.Frontmatter {
 
 ///|
 /// Serialize Array[SidebarGroup] to JSON string
-pub fn sidebar_to_json(sidebar : Array[@ssg.SidebarGroup]) -> String {
+pub fn sidebar_to_json(sidebar : Array[@astra.SidebarGroup]) -> String {
   let buf = StringBuilder::new()
   buf.write_string("[")
   for i, g in sidebar {
@@ -1288,7 +1288,7 @@ pub fn sidebar_to_json(sidebar : Array[@ssg.SidebarGroup]) -> String {
 
 ///|
 /// Parse Array[SidebarGroup] from JSON string
-pub fn sidebar_from_json(json_str : String) -> Array[@ssg.SidebarGroup] {
+pub fn sidebar_from_json(json_str : String) -> Array[@astra.SidebarGroup] {
   try {
     let json = @json.parse(json_str.view())
     guard json is Array(arr) else { return [] }

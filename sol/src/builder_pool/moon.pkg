@@ -3,7 +3,6 @@ import {
   "mizchi/js/core" @core,
   "mizchi/sol/builder" @builder,
   "mizchi/astra" @astra,
-  "mizchi/sol/ssg" @ssg,
   "mizchi/astra/render" @generator,
   "mizchi/astra/content/shiki" @shiki,
 }

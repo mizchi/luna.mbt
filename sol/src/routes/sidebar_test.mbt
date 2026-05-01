@@ -10,17 +10,17 @@ fn make_page(
   url_path : String,
   title? : String? = None,
   locale? : String = "en",
-) -> @ssg.PageMeta {
-  let frontmatter = @ssg.Frontmatter::{
-    ..@ssg.Frontmatter::default(),
+) -> @astra.PageMeta {
+  let frontmatter = @astra.Frontmatter::{
+    ..@astra.Frontmatter::default(),
     title,
     sidebar: true,
   }
-  @ssg.PageMeta::{
+  @astra.PageMeta::{
     source_path,
     url_path,
-    content_type: @ssg.ContentType::Markdown,
-    renderer_type: @ssg.RendererType::MarkdownRenderer,
+    content_type: @astra.ContentType::Markdown,
+    renderer_type: @astra.RendererType::MarkdownRenderer,
     frontmatter,
     last_modified: None,
     locale,
@@ -33,16 +33,16 @@ fn make_page(
 fn make_page_no_sidebar(
   source_path : String,
   url_path : String,
-) -> @ssg.PageMeta {
-  let frontmatter = @ssg.Frontmatter::{
-    ..@ssg.Frontmatter::default(),
+) -> @astra.PageMeta {
+  let frontmatter = @astra.Frontmatter::{
+    ..@astra.Frontmatter::default(),
     sidebar: false,
   }
-  @ssg.PageMeta::{
+  @astra.PageMeta::{
     source_path,
     url_path,
-    content_type: @ssg.ContentType::Markdown,
-    renderer_type: @ssg.RendererType::MarkdownRenderer,
+    content_type: @astra.ContentType::Markdown,
+    renderer_type: @astra.RendererType::MarkdownRenderer,
     frontmatter,
     last_modified: None,
     locale: "en",
@@ -57,7 +57,7 @@ fn make_page_no_sidebar(
 
 ///|
 test "generate_auto_sidebar - empty pages" {
-  let pages : Array[@ssg.PageMeta] = []
+  let pages : Array[@astra.PageMeta] = []
   let groups = generate_auto_sidebar(pages)
   inspect(groups.length(), content="0")
 }
@@ -124,9 +124,9 @@ test "generate_auto_sidebar - nested directories" {
 
 ///|
 test "get_sidebar_for_path - auto sidebar" {
-  let config = @ssg.SsgConfig::{
-    ..@ssg.SsgConfig::default(),
-    sidebar: @ssg.SidebarConfig::Auto,
+  let config = @astra.SsgConfig::{
+    ..@astra.SsgConfig::default(),
+    sidebar: @astra.SidebarConfig::Auto,
   }
   let pages = [make_page("guide/intro.md", "/guide/intro/")]
   let groups = get_sidebar_for_path(config, pages, "/guide/intro/")
@@ -136,24 +136,24 @@ test "get_sidebar_for_path - auto sidebar" {
 ///|
 test "get_sidebar_for_path - manual sidebar" {
   let manual_groups = [
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
+      items: [@astra.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "API",
       link: None,
       collapsed: false,
-      items: [@ssg.SidebarItem::Link(text="Reference", link="/api/reference/")],
+      items: [@astra.SidebarItem::Link(text="Reference", link="/api/reference/")],
     },
   ]
-  let config = @ssg.SsgConfig::{
-    ..@ssg.SsgConfig::default(),
-    sidebar: @ssg.SidebarConfig::Manual(manual_groups),
+  let config = @astra.SsgConfig::{
+    ..@astra.SsgConfig::default(),
+    sidebar: @astra.SidebarConfig::Manual(manual_groups),
   }
-  let pages : Array[@ssg.PageMeta] = []
+  let pages : Array[@astra.PageMeta] = []
   let groups = get_sidebar_for_path(config, pages, "/guide/intro/")
   // Should return all groups for now (matching logic)
   inspect(groups.length() >= 1, content="true")
@@ -165,7 +165,7 @@ test "get_sidebar_for_path - manual sidebar" {
 
 ///|
 test "get_sidebar_page_order - empty groups" {
-  let groups : Array[@ssg.SidebarGroup] = []
+  let groups : Array[@astra.SidebarGroup] = []
   let order = get_sidebar_page_order(groups)
   inspect(order.length(), content="0")
 }
@@ -173,13 +173,13 @@ test "get_sidebar_page_order - empty groups" {
 ///|
 test "get_sidebar_page_order - single group with links" {
   let groups = [
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "Guide",
       link: None,
       collapsed: false,
       items: [
-        @ssg.SidebarItem::Link(text="Intro", link="/guide/intro/"),
-        @ssg.SidebarItem::Link(text="Setup", link="/guide/setup/"),
+        @astra.SidebarItem::Link(text="Intro", link="/guide/intro/"),
+        @astra.SidebarItem::Link(text="Setup", link="/guide/setup/"),
       ],
     },
   ]
@@ -192,19 +192,19 @@ test "get_sidebar_page_order - single group with links" {
 ///|
 test "get_sidebar_page_order - nested groups" {
   let groups = [
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "Guide",
       link: None,
       collapsed: false,
       items: [
-        @ssg.SidebarItem::Link(text="Intro", link="/guide/intro/"),
-        @ssg.SidebarItem::Group(@ssg.SidebarGroup::{
+        @astra.SidebarItem::Link(text="Intro", link="/guide/intro/"),
+        @astra.SidebarItem::Group(@astra.SidebarGroup::{
           text: "Basics",
           link: None,
           collapsed: false,
           items: [
-            @ssg.SidebarItem::Link(text="Setup", link="/guide/basics/setup/"),
-            @ssg.SidebarItem::Link(text="Config", link="/guide/basics/config/"),
+            @astra.SidebarItem::Link(text="Setup", link="/guide/basics/setup/"),
+            @astra.SidebarItem::Link(text="Config", link="/guide/basics/config/"),
           ],
         }),
       ],
@@ -220,17 +220,17 @@ test "get_sidebar_page_order - nested groups" {
 ///|
 test "get_sidebar_page_order - multiple groups" {
   let groups = [
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
+      items: [@astra.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "API",
       link: None,
       collapsed: false,
-      items: [@ssg.SidebarItem::Link(text="Reference", link="/api/reference/")],
+      items: [@astra.SidebarItem::Link(text="Reference", link="/api/reference/")],
     },
   ]
   let order = get_sidebar_page_order(groups)
@@ -246,11 +246,11 @@ test "get_sidebar_page_order - multiple groups" {
 ///|
 test "render_sidebar - returns valid node" {
   let groups = [
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
+      items: [@astra.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
   ]
   let node = render_sidebar(groups, "/")
@@ -261,11 +261,11 @@ test "render_sidebar - returns valid node" {
 ///|
 test "render_mobile_sidebar - returns valid node" {
   let groups = [
-    @ssg.SidebarGroup::{
+    @astra.SidebarGroup::{
       text: "Guide",
       link: None,
       collapsed: false,
-      items: [@ssg.SidebarItem::Link(text="Intro", link="/guide/intro/")],
+      items: [@astra.SidebarItem::Link(text="Intro", link="/guide/intro/")],
     },
   ]
   let node = render_mobile_sidebar(groups, "/")

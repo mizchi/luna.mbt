@@ -220,7 +220,7 @@ fn sort_strings(arr : Array[String]) -> Array[String] {
   for s in arr {
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
-      if @ssg.compare_strings_lex(s, result[i]) < 0 {
+      if @astra.compare_strings_lex(s, result[i]) < 0 {
         pos = i
         break
       }
@@ -402,7 +402,7 @@ fn process_page_file(
   let url_path = scanner_file_to_url_path(rel_path)
 
   // Build output path
-  let output_path = @ssg.url_to_output_path(url_path)
+  let output_path = @astra.url_to_output_path(url_path)
 
   // Check file-type specific config
   let ext = get_extension(filename)
@@ -558,7 +558,7 @@ fn build_regex_pattern(url_pattern : String) -> String {
 /// Convert file path to URL path (internal version with empty check)
 fn scanner_file_to_url_path(rel_path : String) -> String {
   // Strip numeric prefixes and convert to URL
-  let url = @ssg.file_to_url_path(rel_path, trailing_slash=true)
+  let url = @astra.file_to_url_path(rel_path, trailing_slash=true)
   if url.is_empty() {
     "/"
   } else {

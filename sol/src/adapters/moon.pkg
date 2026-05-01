@@ -1,6 +1,5 @@
 import {
   "mizchi/astra" @astra,
-  "mizchi/sol/ssg" @ssg,
   "mizchi/js/core" @js,
   "mizchi/js/node/fs" @fs,
   "mizchi/js/node/path" @path,

@@ -10,9 +10,9 @@
 ///|
 /// Run parallel build for all pages
 pub async fn run_parallel_build(
-  config : @ssg.SsgConfig,
-  pages : Array[@ssg.PageMeta],
-  sidebar : Array[@ssg.SidebarGroup],
+  config : @astra.SsgConfig,
+  pages : Array[@astra.PageMeta],
+  sidebar : Array[@astra.SidebarGroup],
   cwd : String,
   worker_script : String,
   num_workers? : Int,

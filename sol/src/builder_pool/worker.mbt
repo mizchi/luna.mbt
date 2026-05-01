@@ -11,11 +11,11 @@
 /// Worker context after initialization
 priv struct WorkerContext {
   /// Build configuration
-  config : @ssg.SsgConfig
+  config : @astra.SsgConfig
   /// All pages to generate
-  pages : Array[@ssg.PageMeta]
+  pages : Array[@astra.PageMeta]
   /// Generated sidebar
-  sidebar : Array[@ssg.SidebarGroup]
+  sidebar : Array[@astra.SidebarGroup]
   /// Working directory
   cwd : String
   /// Shiki highlighter instance
@@ -93,7 +93,7 @@ fn handle_job(job_id : Int) -> Unit {
   let page = ctx.pages[page_index]
 
   // Create build context
-  let build_ctx = @ssg.BuildContext::{
+  let build_ctx = @astra.BuildContext::{
     config: ctx.config,
     pages: ctx.pages,
     sidebar: ctx.sidebar,

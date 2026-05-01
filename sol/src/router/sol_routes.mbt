@@ -171,9 +171,9 @@ pub enum SolRouteKind {
 /// Configuration for static directory generation (minimal, backend-independent)
 pub(all) struct StaticDirConfig {
   /// Internationalization configuration
-  i18n : @ssg.I18nConfig
+  i18n : @astra.I18nConfig
   /// Navigation configuration (SPA, View Transitions, Keyboard)
-  navigation : @ssg.NavigationConfig
+  navigation : @astra.NavigationConfig
   /// Directories to exclude from scanning
   exclude : Array[String]
   /// Use trailing slash in URLs
@@ -184,8 +184,8 @@ pub(all) struct StaticDirConfig {
 /// Default static directory configuration
 pub fn StaticDirConfig::default() -> StaticDirConfig {
   {
-    i18n: @ssg.I18nConfig::default(),
-    navigation: @ssg.NavigationConfig::default(),
+    i18n: @astra.I18nConfig::default(),
+    navigation: @astra.NavigationConfig::default(),
     exclude: [],
     trailing_slash: true,
   }

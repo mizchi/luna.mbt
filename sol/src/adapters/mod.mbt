@@ -6,7 +6,7 @@
 
 ///|
 /// Run the appropriate deploy adapter based on config
-pub fn run_adapter(ctx : @ssg.BuildContext) -> Unit {
+pub fn run_adapter(ctx : @astra.BuildContext) -> Unit {
   match ctx.config.deploy_target {
     @astra.Cloudflare => write_cloudflare_config(ctx)
     @astra.GithubPages => write_github_pages_config(ctx)

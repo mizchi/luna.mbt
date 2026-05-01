@@ -11,24 +11,24 @@
 ///|
 /// Determine renderer type from content type and frontmatter
 pub fn determine_renderer_type(
-  content_type : @ssg.ContentType,
-  frontmatter : @ssg.Frontmatter,
-) -> @ssg.RendererType {
+  content_type : @astra.ContentType,
+  frontmatter : @astra.Frontmatter,
+) -> @astra.RendererType {
   match content_type {
-    @ssg.ContentType::Markdown => @ssg.RendererType::MarkdownRenderer
-    @ssg.ContentType::Html => @ssg.RendererType::HtmlRenderer
-    @ssg.ContentType::Mdx => @ssg.RendererType::MdxRenderer
+    @astra.ContentType::Markdown => @astra.RendererType::MarkdownRenderer
+    @astra.ContentType::Html => @astra.RendererType::HtmlRenderer
+    @astra.ContentType::Mdx => @astra.RendererType::MdxRenderer
     @astra.Component =>
       if frontmatter.ssr {
-        @ssg.RendererType::LunaRenderer
+        @astra.RendererType::LunaRenderer
       } else {
-        @ssg.RendererType::ClientOnlyRenderer
+        @astra.RendererType::ClientOnlyRenderer
       }
     @astra.TsxComponent =>
       if frontmatter.ssr && frontmatter.renderer == Some("react") {
-        @ssg.RendererType::ReactRenderer
+        @astra.RendererType::ReactRenderer
       } else {
-        @ssg.RendererType::ClientOnlyRenderer
+        @astra.RendererType::ClientOnlyRenderer
       }
   }
 }
@@ -42,10 +42,10 @@ pub fn determine_renderer_type(
 pub fn scan_docs_dir(
   docs_dir : String,
   cwd : String,
-  i18n? : @ssg.I18nConfig = @ssg.I18nConfig::default(),
+  i18n? : @astra.I18nConfig = @astra.I18nConfig::default(),
   exclude? : Array[String] = [],
   trailing_slash? : Bool = true,
-) -> Array[@ssg.PageMeta] {
+) -> Array[@astra.PageMeta] {
   let fs = @fs_adapter.NodeFsAdapter::new()
   scan_docs_dir_with_fs(fs, docs_dir, cwd, i18n~, exclude~, trailing_slash~)
 }
@@ -56,10 +56,10 @@ pub fn scan_docs_dir(
 ///       "guide/intro.md" -> ("en", "guide/intro.md")
 fn detect_locale_from_path(
   path : String,
-  i18n : @ssg.I18nConfig,
+  i18n : @astra.I18nConfig,
   trailing_slash? : Bool = true,
 ) -> (String, String) {
-  @ssg.detect_locale_from_path(path, i18n, trailing_slash~)
+  @astra.detect_locale_from_path(path, i18n, trailing_slash~)
 }
 
 ///|
@@ -69,9 +69,9 @@ fn detect_locale_from_path(
 fn build_localized_url(
   canonical_path : String,
   locale : String,
-  i18n : @ssg.I18nConfig,
+  i18n : @astra.I18nConfig,
 ) -> String {
-  @ssg.build_localized_url(canonical_path, locale, i18n)
+  @astra.build_localized_url(canonical_path, locale, i18n)
 }
 
 // is_excluded is now provided by is_excluded
@@ -82,19 +82,19 @@ fn build_localized_url(
 
 ///|
 /// Convert file path to URL path (strips numeric prefixes)
-/// Delegates to @ssg.file_to_url_path
+/// Delegates to @astra.file_to_url_path
 pub fn file_to_url_path(
   file_path : String,
   trailing_slash? : Bool = true,
 ) -> String {
-  @ssg.file_to_url_path(file_path, trailing_slash~)
+  @astra.file_to_url_path(file_path, trailing_slash~)
 }
 
 ///|
 /// Convert URL path to output file path
-/// Delegates to @ssg.url_to_output_path
+/// Delegates to @astra.url_to_output_path
 pub fn url_to_output_path(url_path : String) -> String {
-  @ssg.url_to_output_path(url_path)
+  @astra.url_to_output_path(url_path)
 }
 
 // =============================================================================
@@ -104,16 +104,16 @@ pub fn url_to_output_path(url_path : String) -> String {
 ///|
 /// Sort pages by sort_key (numeric prefix ordering)
 /// Files with numeric prefixes (e.g., 00_intro) come before those without
-pub fn sort_pages(pages : Array[@ssg.PageMeta]) -> Array[@ssg.PageMeta] {
+pub fn sort_pages(pages : Array[@astra.PageMeta]) -> Array[@astra.PageMeta] {
   // Create new array using insertion sort with custom comparison
-  let result : Array[@ssg.PageMeta] = []
+  let result : Array[@astra.PageMeta] = []
   for page in pages {
     let key = page.sort_key
     // Find insertion position using custom comparison
     let mut pos = result.length()
     for i = 0; i < result.length(); i = i + 1 {
       let existing_key = result[i].sort_key
-      if @ssg.compare_strings_lex(key, existing_key) < 0 {
+      if @astra.compare_strings_lex(key, existing_key) < 0 {
         pos = i
         break
       }
@@ -136,9 +136,9 @@ pub fn sort_pages(pages : Array[@ssg.PageMeta]) -> Array[@ssg.PageMeta] {
 ///|
 /// Group pages by directory
 pub fn group_pages_by_dir(
-  pages : Array[@ssg.PageMeta],
-) -> Map[String, Array[@ssg.PageMeta]] {
-  let groups : Map[String, Array[@ssg.PageMeta]] = {}
+  pages : Array[@astra.PageMeta],
+) -> Map[String, Array[@astra.PageMeta]] {
+  let groups : Map[String, Array[@astra.PageMeta]] = {}
   for page in pages {
     let dir = get_url_dir(page.url_path)
     match groups.get(dir) {
@@ -152,7 +152,7 @@ pub fn group_pages_by_dir(
 ///|
 /// Get directory part of URL path (local helper)
 fn get_url_dir(url_path : String) -> String {
-  @ssg.get_url_dir(url_path)
+  @astra.get_url_dir(url_path)
 }
 
 // =============================================================================
@@ -165,11 +165,11 @@ pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(
   filesystem : FS,
   docs_dir : String,
   cwd : String,
-  i18n? : @ssg.I18nConfig = @ssg.I18nConfig::default(),
+  i18n? : @astra.I18nConfig = @astra.I18nConfig::default(),
   exclude? : Array[String] = [],
   trailing_slash? : Bool = true,
-) -> Array[@ssg.PageMeta] {
-  let pages : Array[@ssg.PageMeta] = []
+) -> Array[@astra.PageMeta] {
+  let pages : Array[@astra.PageMeta] = []
   let full_path = join_path(cwd, docs_dir)
   if !(@env.FileSystem::exists_sync(filesystem, full_path)) {
     return pages
@@ -190,9 +190,9 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
   relative_path : String,
   docs_dir : String,
   cwd : String,
-  i18n : @ssg.I18nConfig,
+  i18n : @astra.I18nConfig,
   exclude : Array[String],
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   trailing_slash : Bool,
 ) -> Unit {
   let entries : Array[String] = @env.FileSystem::readdir_sync(
@@ -275,12 +275,12 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
 
       // Process regular markdown, mdx, or HTML file
       let source_path = entry_relative
-      let content_type : @ssg.ContentType = if entry.has_suffix(".html") {
-        @ssg.ContentType::Html
+      let content_type : @astra.ContentType = if entry.has_suffix(".html") {
+        @astra.ContentType::Html
       } else if entry.has_suffix(".mdx") {
-        @ssg.ContentType::Mdx
+        @astra.ContentType::Mdx
       } else {
-        @ssg.ContentType::Markdown
+        @astra.ContentType::Markdown
       }
 
       // Detect locale from path
@@ -292,11 +292,11 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
       let url_path = build_localized_url(canonical_path, locale, i18n)
 
       // Build sort key for ordering (preserves numeric prefixes)
-      let sort_key = @ssg.build_sort_key(source_path)
+      let sort_key = @astra.build_sort_key(source_path)
 
       // Parse frontmatter for markdown/mdx, use page.json for HTML
       let frontmatter = match content_type {
-        @ssg.ContentType::Markdown | @ssg.ContentType::Mdx => {
+        @astra.ContentType::Markdown | @astra.ContentType::Mdx => {
           let content : String = @env.FileSystem::read_file_sync(
             filesystem, entry_path,
           ) catch {
@@ -305,7 +305,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
           let (fm, _) = @md_render.parse_markdown(content)
           fm
         }
-        @ssg.ContentType::Html => {
+        @astra.ContentType::Html => {
           // Try to read page.{locale}.json for localized pages, fallback to page.json
           let localized_page_json = if locale != i18n.default_locale {
             join_path(dir_path, "page." + locale + ".json")
@@ -327,13 +327,13 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
             }
             parse_page_json_to_frontmatter(content)
           } else {
-            @ssg.Frontmatter::default()
+            @astra.Frontmatter::default()
           }
         }
-        @astra.Component | @astra.TsxComponent => @ssg.Frontmatter::default()
+        @astra.Component | @astra.TsxComponent => @astra.Frontmatter::default()
       }
       let renderer_type = determine_renderer_type(content_type, frontmatter)
-      let page = @ssg.PageMeta::{
+      let page = @astra.PageMeta::{
         source_path,
         url_path,
         content_type,
@@ -406,7 +406,7 @@ fn default_dynamic_title(param_value : String, parent_path : String) -> String {
     }
   }
   let base = if last_segment.is_empty() { "index" } else { last_segment }
-  @ssg.capitalize_first(base.replace(old="-", new=" "))
+  @astra.capitalize_first(base.replace(old="-", new=" "))
 }
 
 ///|
@@ -434,7 +434,7 @@ fn build_source_with_dynamic_params(
       extra_keys.push(key)
     }
   }
-  extra_keys.sort_by(fn(a, b) { @ssg.compare_strings_lex(a, b) })
+  extra_keys.sort_by(fn(a, b) { @astra.compare_strings_lex(a, b) })
   for key in extra_keys {
     let value = match param_set.get(key) {
       Some(v) => v
@@ -458,8 +458,8 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   relative_path : String,
   filename : String,
   param_info : ParamInfo,
-  i18n : @ssg.I18nConfig,
-  pages : Array[@ssg.PageMeta],
+  i18n : @astra.I18nConfig,
+  pages : Array[@astra.PageMeta],
   trailing_slash : Bool,
 ) -> Unit {
   let param_name = param_info.name
@@ -497,19 +497,19 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   }
 
   // Determine content type
-  let content_type : @ssg.ContentType = if filename.has_suffix(".html") {
-    @ssg.ContentType::Html
+  let content_type : @astra.ContentType = if filename.has_suffix(".html") {
+    @astra.ContentType::Html
   } else {
-    @ssg.ContentType::Markdown
+    @astra.ContentType::Markdown
   }
 
   // Parse frontmatter from template
   let base_frontmatter = match content_type {
-    @ssg.ContentType::Markdown => {
+    @astra.ContentType::Markdown => {
       let (fm, _) = @md_render.parse_markdown(template_content)
       fm
     }
-    _ => @ssg.Frontmatter::default()
+    _ => @astra.Frontmatter::default()
   }
 
   // Get parent path (directory containing the dynamic file)
@@ -552,7 +552,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
       Some(t) => Some(t)
       None => Some(default_dynamic_title(param_value, parent_path))
     }
-    let frontmatter = @ssg.Frontmatter::{ ..base_frontmatter, title, }
+    let frontmatter = @astra.Frontmatter::{ ..base_frontmatter, title, }
     let renderer_type = determine_renderer_type(content_type, frontmatter)
 
     // Store param info in source_path for later template processing
@@ -560,7 +560,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
     let source_with_param = build_source_with_dynamic_params(
       relative_path, param_name, param_value, param_set,
     )
-    let page = @ssg.PageMeta::{
+    let page = @astra.PageMeta::{
       source_path: source_with_param,
       url_path: url_path_normalized,
       content_type,
@@ -583,8 +583,8 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   dir_path : String,
   relative_path : String,
   param_info : ParamInfo,
-  i18n : @ssg.I18nConfig,
-  pages : Array[@ssg.PageMeta],
+  i18n : @astra.I18nConfig,
+  pages : Array[@astra.PageMeta],
   trailing_slash : Bool,
 ) -> Unit {
   let param_name = param_info.name
@@ -664,8 +664,8 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
       Some(t) => Some(t)
       None => Some(default_dynamic_title(param_value, parent_path))
     }
-    let frontmatter = @ssg.Frontmatter::{ ..base_frontmatter, title, }
-    let content_type = @ssg.ContentType::Markdown
+    let frontmatter = @astra.Frontmatter::{ ..base_frontmatter, title, }
+    let content_type = @astra.ContentType::Markdown
     let renderer_type = determine_renderer_type(content_type, frontmatter)
 
     // Store param info in source_path for later template processing
@@ -676,7 +676,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
       param_value,
       param_set,
     )
-    let page = @ssg.PageMeta::{
+    let page = @astra.PageMeta::{
       source_path: source_with_param,
       url_path: url_path_normalized,
       content_type,
@@ -741,9 +741,9 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
   filesystem : FS,
   dir_path : String,
   relative_path : String,
-  i18n : @ssg.I18nConfig,
+  i18n : @astra.I18nConfig,
   trailing_slash : Bool,
-) -> @ssg.PageMeta {
+) -> @astra.PageMeta {
   // Try to read page.json for metadata
   let page_json_path = join_path(dir_path, "page.json")
   let frontmatter = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
@@ -754,7 +754,7 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
     }
     parse_page_json_to_frontmatter(content)
   } else {
-    @ssg.Frontmatter::default()
+    @astra.Frontmatter::default()
   }
 
   // Build URL path from directory name
@@ -771,9 +771,9 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
   } else {
     url_path
   }
-  let content_type = @ssg.ContentType::Component
+  let content_type = @astra.ContentType::Component
   let renderer_type = determine_renderer_type(content_type, frontmatter)
-  @ssg.PageMeta::{
+  @astra.PageMeta::{
     source_path: relative_path,
     url_path: url_path_normalized,
     content_type,
@@ -794,9 +794,9 @@ fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
   filesystem : FS,
   dir_path : String,
   relative_path : String,
-  i18n : @ssg.I18nConfig,
+  i18n : @astra.I18nConfig,
   trailing_slash : Bool,
-) -> @ssg.PageMeta {
+) -> @astra.PageMeta {
   // Try to read page.json for metadata
   let page_json_path = join_path(dir_path, "page.json")
   let frontmatter = if @env.FileSystem::exists_sync(filesystem, page_json_path) {
@@ -807,7 +807,7 @@ fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
     }
     parse_page_json_to_frontmatter(content)
   } else {
-    @ssg.Frontmatter::default()
+    @astra.Frontmatter::default()
   }
 
   // Build URL path from directory name
@@ -824,9 +824,9 @@ fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
   } else {
     url_path
   }
-  let content_type = @ssg.ContentType::TsxComponent
+  let content_type = @astra.ContentType::TsxComponent
   let renderer_type = determine_renderer_type(content_type, frontmatter)
-  @ssg.PageMeta::{
+  @astra.PageMeta::{
     source_path: relative_path,
     url_path: url_path_normalized,
     content_type,
@@ -841,15 +841,15 @@ fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
 
 ///|
 /// Parse page.json content to Frontmatter
-fn parse_page_json_to_frontmatter(content : String) -> @ssg.Frontmatter {
+fn parse_page_json_to_frontmatter(content : String) -> @astra.Frontmatter {
   if content.is_empty() {
-    return @ssg.Frontmatter::default()
+    return @astra.Frontmatter::default()
   }
   // Parse JSON and extract relevant fields
   let json : Json = @json.parse(content.view()) catch {
-    _ => return @ssg.Frontmatter::default()
+    _ => return @astra.Frontmatter::default()
   }
-  guard json is Object(obj) else { return @ssg.Frontmatter::default() }
+  guard json is Object(obj) else { return @astra.Frontmatter::default() }
   let title = @json_utils.extract_string_opt(obj, "title")
   let description = @json_utils.extract_string_opt(obj, "description")
   let layout = @json_utils.extract_string_opt(obj, "layout")
@@ -883,7 +883,7 @@ fn parse_page_json_to_frontmatter(content : String) -> @ssg.Frontmatter {
 
   // Parse revalidate (ISR TTL in seconds)
   let revalidate = @json_utils.extract_int_opt(obj, "revalidate")
-  @ssg.Frontmatter::{
+  @astra.Frontmatter::{
     title,
     description,
     layout,
@@ -938,7 +938,7 @@ pub(all) struct DuplicatePage {
 /// Check for duplicate pages (e.g., index.md and index.html in same directory)
 /// Returns list of conflicts where multiple source files map to the same URL path
 pub fn check_duplicate_pages(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
 ) -> Array[DuplicatePage] {
   let duplicates : Array[DuplicatePage] = []
   let url_to_sources : Map[String, Array[String]] = {}
@@ -978,9 +978,9 @@ fn is_dynamic_source(source_path : String) -> Bool {
 /// Resolve duplicate pages by giving priority to static paths over dynamic ones
 /// Returns the deduplicated array and any unresolvable conflicts
 pub fn resolve_duplicate_pages(
-  pages : Array[@ssg.PageMeta],
-) -> (Array[@ssg.PageMeta], Array[DuplicatePage]) {
-  let url_to_pages : Map[String, Array[@ssg.PageMeta]] = {}
+  pages : Array[@astra.PageMeta],
+) -> (Array[@astra.PageMeta], Array[DuplicatePage]) {
+  let url_to_pages : Map[String, Array[@astra.PageMeta]] = {}
 
   // Group pages by URL path
   for page in pages {
@@ -989,7 +989,7 @@ pub fn resolve_duplicate_pages(
       None => url_to_pages[page.url_path] = [page]
     }
   }
-  let result : Array[@ssg.PageMeta] = []
+  let result : Array[@astra.PageMeta] = []
   let unresolved : Array[DuplicatePage] = []
 
   // Resolve each URL
@@ -1001,8 +1001,8 @@ pub fn resolve_duplicate_pages(
     } else {
       // Conflict - try to resolve by priority
       // Static paths (no ?) take priority over dynamic paths (with ?)
-      let static_pages : Array[@ssg.PageMeta] = []
-      let dynamic_pages : Array[@ssg.PageMeta] = []
+      let static_pages : Array[@astra.PageMeta] = []
+      let dynamic_pages : Array[@astra.PageMeta] = []
       for p in page_list {
         if is_dynamic_source(p.source_path) {
           dynamic_pages.push(p)
@@ -1043,15 +1043,15 @@ pub fn resolve_duplicate_pages(
 ///|
 /// Find previous page in sorted pages
 pub fn find_prev_page(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   current_url : String,
-) -> @ssg.NavLink? {
+) -> @astra.NavLink? {
   let sorted = sort_pages(pages)
   for i, page in sorted {
     if page.url_path == current_url && i > 0 {
       let prev = sorted[i - 1]
       let text = prev.frontmatter.title.unwrap_or(url_to_name(prev.url_path))
-      return Some(@ssg.NavLink::{ text, link: prev.url_path })
+      return Some(@astra.NavLink::{ text, link: prev.url_path })
     }
   }
   None
@@ -1060,15 +1060,15 @@ pub fn find_prev_page(
 ///|
 /// Find next page in sorted pages
 pub fn find_next_page(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   current_url : String,
-) -> @ssg.NavLink? {
+) -> @astra.NavLink? {
   let sorted = sort_pages(pages)
   for i, page in sorted {
     if page.url_path == current_url && i < sorted.length() - 1 {
       let next = sorted[i + 1]
       let text = next.frontmatter.title.unwrap_or(url_to_name(next.url_path))
-      return Some(@ssg.NavLink::{ text, link: next.url_path })
+      return Some(@astra.NavLink::{ text, link: next.url_path })
     }
   }
   None
@@ -1084,14 +1084,14 @@ fn url_to_name(url_path : String) -> String {
       if name.is_empty() {
         "Home"
       } else {
-        @ssg.capitalize_first(name.replace(old="-", new=" "))
+        @astra.capitalize_first(name.replace(old="-", new=" "))
       }
     }
     None =>
       if trimmed == "/" || trimmed.is_empty() {
         "Home"
       } else {
-        @ssg.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
+        @astra.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
       }
   }
 }
@@ -1103,9 +1103,9 @@ fn url_to_name(url_path : String) -> String {
 ///|
 /// Get all pages for a specific locale
 pub fn get_pages_for_locale(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   locale : String,
-) -> Array[@ssg.PageMeta] {
+) -> Array[@astra.PageMeta] {
   pages.filter(p => p.locale == locale)
 }
 
@@ -1113,10 +1113,10 @@ pub fn get_pages_for_locale(
 /// Find translation of a page in another locale
 /// Returns the translated page or None if not found
 pub fn find_translation(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   canonical_path : String,
   target_locale : String,
-) -> @ssg.PageMeta? {
+) -> @astra.PageMeta? {
   for page in pages {
     if page.locale == target_locale && page.canonical_path == canonical_path {
       return Some(page)
@@ -1128,11 +1128,11 @@ pub fn find_translation(
 ///|
 /// Get available translations for a page
 pub fn get_available_translations(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   canonical_path : String,
-  i18n : @ssg.I18nConfig,
-) -> Array[(@ssg.LocaleConfig, @ssg.PageMeta?)] {
-  let result : Array[(@ssg.LocaleConfig, @ssg.PageMeta?)] = []
+  i18n : @astra.I18nConfig,
+) -> Array[(@astra.LocaleConfig, @astra.PageMeta?)] {
+  let result : Array[(@astra.LocaleConfig, @astra.PageMeta?)] = []
   for locale in i18n.locales {
     let translation = find_translation(pages, canonical_path, locale.code)
     result.push((locale, translation))
@@ -1143,9 +1143,9 @@ pub fn get_available_translations(
 ///|
 /// Find fallback page in default locale
 pub fn find_fallback_page(
-  pages : Array[@ssg.PageMeta],
+  pages : Array[@astra.PageMeta],
   canonical_path : String,
-  i18n : @ssg.I18nConfig,
-) -> @ssg.PageMeta? {
+  i18n : @astra.I18nConfig,
+) -> @astra.PageMeta? {
   find_translation(pages, canonical_path, i18n.default_locale)
 }

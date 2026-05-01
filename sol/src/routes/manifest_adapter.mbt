@@ -9,12 +9,12 @@
 ///|
 /// Convert PageMeta array to RouteManifest
 pub fn page_metas_to_manifest(
-  pages : Array[@ssg.PageMeta],
-  config : @ssg.SsgConfig,
+  pages : Array[@astra.PageMeta],
+  config : @astra.SsgConfig,
 ) -> RouteManifest {
   let routes : Array[RouteEntry] = []
   for page in pages {
-    let output = @ssg.url_to_output_path(page.url_path)
+    let output = @astra.url_to_output_path(page.url_path)
     let entry = RouteEntry::Static(StaticRouteEntry::{
       path: page.url_path,
       source: page.source_path,
@@ -30,7 +30,7 @@ pub fn page_metas_to_manifest(
   }
 
   // Determine fallback based on config
-  let fallback = FallbackConfig::NotFound(path=@ssg.url_to_output_path("/404/"))
+  let fallback = FallbackConfig::NotFound(path=@astra.url_to_output_path("/404/"))
   RouteManifest::{ routes, fallback } |> ignore
   // Use config for potential SPA fallback
   if config.navigation.spa {
@@ -50,12 +50,12 @@ pub fn page_metas_to_manifest(
 ///|
 /// Convert RouteManifest back to PageMeta array
 /// Only static routes can be converted
-pub fn manifest_to_page_metas(manifest : RouteManifest) -> Array[@ssg.PageMeta] {
-  let pages : Array[@ssg.PageMeta] = []
+pub fn manifest_to_page_metas(manifest : RouteManifest) -> Array[@astra.PageMeta] {
+  let pages : Array[@astra.PageMeta] = []
   for route in manifest.routes {
     match route {
       RouteEntry::Static(static_route) => {
-        let frontmatter = @ssg.Frontmatter::{
+        let frontmatter = @astra.Frontmatter::{
           title: static_route.title,
           description: static_route.description,
           layout: static_route.layout,
@@ -78,9 +78,9 @@ pub fn manifest_to_page_metas(manifest : RouteManifest) -> Array[@ssg.PageMeta] 
           featured: false,
           cover_image: None,
         }
-        let content_type = @ssg.ContentType::Markdown
+        let content_type = @astra.ContentType::Markdown
         let renderer_type = determine_renderer_type(content_type, frontmatter)
-        let page = @ssg.PageMeta::{
+        let page = @astra.PageMeta::{
           source_path: static_route.source,
           url_path: static_route.path,
           content_type,
@@ -105,11 +105,11 @@ pub fn manifest_to_page_metas(manifest : RouteManifest) -> Array[@ssg.PageMeta] 
 
 ///|
 /// Convert a single PageMeta to StaticRouteEntry
-pub fn page_meta_to_static_route(page : @ssg.PageMeta) -> StaticRouteEntry {
+pub fn page_meta_to_static_route(page : @astra.PageMeta) -> StaticRouteEntry {
   StaticRouteEntry::{
     path: page.url_path,
     source: page.source_path,
-    output: @ssg.url_to_output_path(page.url_path),
+    output: @astra.url_to_output_path(page.url_path),
     layout: page.frontmatter.layout,
     title: page.frontmatter.title,
     description: page.frontmatter.description,
@@ -121,8 +121,8 @@ pub fn page_meta_to_static_route(page : @ssg.PageMeta) -> StaticRouteEntry {
 
 ///|
 /// Convert StaticRouteEntry back to PageMeta
-pub fn static_route_to_page_meta(route : StaticRouteEntry) -> @ssg.PageMeta {
-  let frontmatter = @ssg.Frontmatter::{
+pub fn static_route_to_page_meta(route : StaticRouteEntry) -> @astra.PageMeta {
+  let frontmatter = @astra.Frontmatter::{
     title: route.title,
     description: route.description,
     layout: route.layout,
@@ -145,9 +145,9 @@ pub fn static_route_to_page_meta(route : StaticRouteEntry) -> @ssg.PageMeta {
     featured: false,
     cover_image: None,
   }
-  let content_type = @ssg.ContentType::Markdown
+  let content_type = @astra.ContentType::Markdown
   let renderer_type = determine_renderer_type(content_type, frontmatter)
-  @ssg.PageMeta::{
+  @astra.PageMeta::{
     source_path: route.source,
     url_path: route.path,
     content_type,
