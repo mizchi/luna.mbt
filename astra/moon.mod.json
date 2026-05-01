@@ -1,0 +1,17 @@
+{
+  "name": "mizchi/astra",
+  "version": "0.1.0",
+  "deps": {
+    "mizchi/mars": "0.3.10",
+    "mizchi/markdown": "0.4.7",
+    "moonbitlang/async": "0.17.0",
+    "moonbitlang/x": "0.4.41"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/mizchi/luna.mbt",
+  "license": "MIT",
+  "keywords": ["astra", "ssg", "mars", "moonbit", "middleware"],
+  "description": "Mountable Mars middleware for static site generation",
+  "source": "src",
+  "preferred-target": "js"
+}

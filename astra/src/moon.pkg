@@ -1,0 +1,7 @@
+import {
+  "mizchi/mars" @mars,
+}
+
+options(
+  "supported-targets": "js",
+)
