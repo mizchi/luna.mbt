@@ -31,3 +31,20 @@ and parity coverage against the pre-extraction `sol --mode ssg` output
 `astra/BACK_EDGE_FOLLOWUP.md` lists 7 surviving `astra → mizchi/sol/*`
 imports (`adapters`, `routes`, `isr`, `core/env`, `adapters/fs`) that
 will be lifted in a future release. They do not affect rendering today.
+
+### Dev-only deps
+
+`mizchi/sol` is declared as `{ "path": "../sol" }` in
+`astra/moon.mod.json` for co-development inside the luna.mbt monorepo.
+**Before publishing astra to mooncakes**, flip it to a registry version
+matching the just-published sol:
+
+```diff
+  "deps": {
+-    "mizchi/sol": { "path": "../sol" },
++    "mizchi/sol": "0.16.0",
+  }
+```
+
+(astra and sol form a small mutual dep cycle today; both must be
+published in sequence — sol first, then astra with sol pinned.)

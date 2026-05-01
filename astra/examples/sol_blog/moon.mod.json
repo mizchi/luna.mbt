@@ -5,6 +5,9 @@
     "mizchi/astra": {
       "path": "../.."
     },
+    "mizchi/sol": {
+      "path": "../../../sol"
+    },
     "mizchi/luna": "0.18.3",
     "mizchi/mars": "0.3.10",
     "mizchi/signals": "0.6.4",

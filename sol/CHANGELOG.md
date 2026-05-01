@@ -52,6 +52,22 @@ All notable changes to this project will be documented in this file.
 - **Dropped deps**: `mizchi/markdown`, `mizchi/jsonschema`,
   `mizchi/process_pool`, `mizchi/syntree` (only used by the moved SSG).
 
+### Dev-only deps
+
+`mizchi/astra` is currently declared as a `{ "path": "../astra" }` dep
+in `sol/moon.mod.json` because astra is not yet published to mooncakes.
+**Before publishing sol to mooncakes**, flip it to a registry version:
+
+```diff
+  "deps": {
+-    "mizchi/astra": { "path": "../astra" },
++    "mizchi/astra": "0.1.0",
+  }
+```
+
+The same applies to `mizchi/sol` in `astra/moon.mod.json` (path dep
+during co-development; flip to registry once both publish).
+
 ## 0.13.0 (2026-03-19)
 
 ### Breaking Changes
