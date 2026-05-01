@@ -40,6 +40,7 @@
     "source-map": "^0.7.6",
     "turbo": "^2.8.12",
     "typescript": "^5.9.3",
+    "memfs": "^4.57.1",
     "vite": "8.0.0-beta.1",
     "vite-plugin-moonbit": "^0.1.5",
     "vitest": "^4.0.18"
