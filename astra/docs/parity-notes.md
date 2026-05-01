@@ -2,7 +2,7 @@
 
 This document records the diff between two paths that should produce
 equivalent static dumps for the same `SsgConfig` against
-`sol/examples/sol_docs`:
+`astra/examples/sol_docs`:
 
 - **Middleware build**: `astra build` -- `Middleware::create` -> walk
   `list_urls` -> dispatch each through `Server::to_handler` -> write the
@@ -15,7 +15,7 @@ Reproduction:
 
 ```sh
 moon build --release --target js
-cd sol/examples/sol_docs
+cd astra/examples/sol_docs
 node ../../_build/js/release/build/mizchi/astra/cli/main/main.js build --mode ssg
 mv dist /tmp/sol_dump
 node ../../_build/js/release/build/mizchi/astra/cli/main/main.js build --out /tmp/astra_dump
@@ -95,7 +95,7 @@ These were diffs after T10 that T11 narrowed to byte-equivalent.
   extractor. `extract_css_utilities` shells out to a `node extract.js`
   child process over each configured `source_dir`, scans for class names,
   and emits utility CSS rules (e.g. `.bg-indigo-500 { background: ...; }`).
-  In `sol/examples/sol_docs` the `extract.js` script is not present
+  In `astra/examples/sol_docs` the `extract.js` script is not present
   (it ships with the luna repo via `js/loader/dist`), so the static-build
   path produces an **empty** utility-CSS contribution -- and the diff
   collapses to zero for this fixture. In a project that does ship

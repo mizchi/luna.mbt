@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // astra/e2e -> astra -> luna.mbt
 const repoRoot = resolve(__dirname, "..", "..");
-const fixtureCwd = resolve(repoRoot, "sol", "examples", "sol_docs");
+const fixtureCwd = resolve(repoRoot, "astra", "examples", "sol_docs");
 const astraMain = resolve(
   repoRoot,
   "_build",

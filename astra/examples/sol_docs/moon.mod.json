@@ -2,7 +2,7 @@
   "name": "example/sol-docs",
   "version": "0.1.0",
   "deps": {
-    "mizchi/sol": {
+    "mizchi/astra": {
       "path": "../.."
     },
     "mizchi/luna": "0.18.3",
