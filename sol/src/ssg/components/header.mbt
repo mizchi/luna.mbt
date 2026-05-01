@@ -75,14 +75,14 @@ fn render_header_element(
   page : @ssg.PageMeta,
 ) -> @luna.Node[Unit, String] {
   match element {
-    @ssg.Logo => build_logo(ctx)
-    @ssg.NavLinks => build_nav_links(ctx)
-    @ssg.Search => build_search()
-    @ssg.ThemeToggle => build_theme_toggle()
-    @ssg.SocialLinks => build_social_links(ctx.config.theme.social_links)
-    @ssg.LangSwitcher => build_language_switcher(ctx, page)
-    @ssg.Spacer => h("div", [attr("class", "nav-spacer")], [])
-    @ssg.Custom(tag) => h(tag, [], [])
+    @astra.Logo => build_logo(ctx)
+    @astra.NavLinks => build_nav_links(ctx)
+    @astra.Search => build_search()
+    @astra.ThemeToggle => build_theme_toggle()
+    @astra.SocialLinks => build_social_links(ctx.config.theme.social_links)
+    @astra.LangSwitcher => build_language_switcher(ctx, page)
+    @astra.Spacer => h("div", [attr("class", "nav-spacer")], [])
+    @astra.Custom(tag) => h(tag, [], [])
   }
 }
 

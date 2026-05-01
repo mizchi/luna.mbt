@@ -146,7 +146,7 @@ fn escape_json_string(s : String) -> String {
 /// Write _routes.json to output directory (only if deploy target is Cloudflare)
 pub fn write_routes_json(ctx : @ssg.BuildContext) -> Unit {
   // Only generate for Cloudflare target
-  guard ctx.config.deploy_target == @ssg.Cloudflare else { return }
+  guard ctx.config.deploy_target == @astra.Cloudflare else { return }
   let content = generate_routes_json(ctx.pages)
   let output_path = @path.join2(
     @path.join2(ctx.cwd, ctx.config.output_dir),

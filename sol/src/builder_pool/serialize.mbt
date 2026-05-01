@@ -674,7 +674,7 @@ fn parse_theme_config(obj : Map[String, Json]) -> @ssg.ThemeConfig {
 fn parse_header_config(obj : Map[String, Json]) -> @ssg.HeaderConfig {
   let left = match obj.get("left") {
     Some(Array(arr)) => parse_header_elements(arr)
-    _ => [@ssg.Logo]
+    _ => [@astra.Logo]
   }
   let center = match obj.get("center") {
     Some(Array(arr)) => parse_header_elements(arr)
@@ -682,7 +682,7 @@ fn parse_header_config(obj : Map[String, Json]) -> @ssg.HeaderConfig {
   }
   let right = match obj.get("right") {
     Some(Array(arr)) => parse_header_elements(arr)
-    _ => [@ssg.NavLinks, @ssg.LangSwitcher, @ssg.SocialLinks, @ssg.ThemeToggle]
+    _ => [@astra.NavLinks, @astra.LangSwitcher, @astra.SocialLinks, @astra.ThemeToggle]
   }
   let sticky = match obj.get("sticky") {
     Some(True) => true
@@ -698,14 +698,14 @@ fn parse_header_elements(arr : Array[Json]) -> Array[@ssg.HeaderElement] {
     match item {
       String(s) =>
         match s {
-          "logo" => result.push(@ssg.Logo)
-          "nav-links" => result.push(@ssg.NavLinks)
-          "search" => result.push(@ssg.Search)
-          "theme-toggle" => result.push(@ssg.ThemeToggle)
-          "social-links" => result.push(@ssg.SocialLinks)
-          "lang-switcher" => result.push(@ssg.LangSwitcher)
-          "spacer" => result.push(@ssg.Spacer)
-          _ => if s.contains("-") { result.push(@ssg.Custom(s)) }
+          "logo" => result.push(@astra.Logo)
+          "nav-links" => result.push(@astra.NavLinks)
+          "search" => result.push(@astra.Search)
+          "theme-toggle" => result.push(@astra.ThemeToggle)
+          "social-links" => result.push(@astra.SocialLinks)
+          "lang-switcher" => result.push(@astra.LangSwitcher)
+          "spacer" => result.push(@astra.Spacer)
+          _ => if s.contains("-") { result.push(@astra.Custom(s)) }
         }
       _ => ()
     }
@@ -939,11 +939,11 @@ fn write_page_meta(page : @ssg.PageMeta, buf : StringBuilder) -> Unit {
 ///|
 fn content_type_to_string(ct : @ssg.ContentType) -> String {
   match ct {
-    @ssg.Markdown => "markdown"
-    @ssg.Mdx => "mdx"
-    @ssg.Html => "html"
-    @ssg.Component => "component"
-    @ssg.TsxComponent => "tsx"
+    @astra.Markdown => "markdown"
+    @astra.Mdx => "mdx"
+    @astra.Html => "html"
+    @astra.Component => "component"
+    @astra.TsxComponent => "tsx"
   }
 }
 
@@ -1126,11 +1126,11 @@ fn parse_page_meta(json : Json) -> @ssg.PageMeta? {
 ///|
 fn string_to_content_type(s : String) -> @ssg.ContentType {
   match s {
-    "html" => @ssg.Html
-    "mdx" => @ssg.Mdx
-    "component" => @ssg.Component
-    "tsx" => @ssg.TsxComponent
-    _ => @ssg.Markdown
+    "html" => @astra.Html
+    "mdx" => @astra.Mdx
+    "component" => @astra.Component
+    "tsx" => @astra.TsxComponent
+    _ => @astra.Markdown
   }
 }
 

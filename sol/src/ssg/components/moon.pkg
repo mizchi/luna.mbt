@@ -1,5 +1,6 @@
 import {
   "mizchi/luna",
+  "mizchi/astra" @astra,
   "mizchi/sol/ssg" @ssg,
   "mizchi/sol/routes" @routes,
   "mizchi/sol/content/md_render" @markdown,

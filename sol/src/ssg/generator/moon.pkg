@@ -2,6 +2,7 @@ import {
   "moonbitlang/core/json",
   "mizchi/luna" @luna,
   "mizchi/luna/core/render" @render,
+  "mizchi/astra" @astra,
   "mizchi/sol/ssg" @ssg,
   "mizchi/sol/content/md_render" @markdown,
   "mizchi/sol/ssg/mdx" @mdx,

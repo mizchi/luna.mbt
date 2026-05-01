@@ -18,13 +18,13 @@ pub fn determine_renderer_type(
     @ssg.ContentType::Markdown => @ssg.RendererType::MarkdownRenderer
     @ssg.ContentType::Html => @ssg.RendererType::HtmlRenderer
     @ssg.ContentType::Mdx => @ssg.RendererType::MdxRenderer
-    @ssg.Component =>
+    @astra.Component =>
       if frontmatter.ssr {
         @ssg.RendererType::LunaRenderer
       } else {
         @ssg.RendererType::ClientOnlyRenderer
       }
-    @ssg.TsxComponent =>
+    @astra.TsxComponent =>
       if frontmatter.ssr && frontmatter.renderer == Some("react") {
         @ssg.RendererType::ReactRenderer
       } else {
@@ -330,7 +330,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
             @ssg.Frontmatter::default()
           }
         }
-        @ssg.Component | @ssg.TsxComponent => @ssg.Frontmatter::default()
+        @astra.Component | @astra.TsxComponent => @ssg.Frontmatter::default()
       }
       let renderer_type = determine_renderer_type(content_type, frontmatter)
       let page = @ssg.PageMeta::{

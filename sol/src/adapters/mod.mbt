@@ -8,11 +8,11 @@
 /// Run the appropriate deploy adapter based on config
 pub fn run_adapter(ctx : @ssg.BuildContext) -> Unit {
   match ctx.config.deploy_target {
-    @ssg.Cloudflare => write_cloudflare_config(ctx)
-    @ssg.GithubPages => write_github_pages_config(ctx)
-    @ssg.Vercel => write_vercel_config(ctx)
-    @ssg.Netlify => write_netlify_config(ctx)
-    @ssg.Deno => write_deno_config(ctx)
-    @ssg.Static | @ssg.Node => ()
+    @astra.Cloudflare => write_cloudflare_config(ctx)
+    @astra.GithubPages => write_github_pages_config(ctx)
+    @astra.Vercel => write_vercel_config(ctx)
+    @astra.Netlify => write_netlify_config(ctx)
+    @astra.Deno => write_deno_config(ctx)
+    @astra.Static | @astra.Node => ()
   }
 }

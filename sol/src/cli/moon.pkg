@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/strconv",
   "moonbitlang/async",
   "mizchi/sol/internal/json_utils" @json_utils,
+  "mizchi/astra" @astra,
   "mizchi/sol/ssg" @ssg,
   "mizchi/sol/ssg/generator" @ssg_gen,
   "mizchi/sol/routes" @ssg_routes,

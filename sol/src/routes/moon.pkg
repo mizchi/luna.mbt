@@ -3,6 +3,7 @@ import {
   "mizchi/sol/internal/json_utils",
   "mizchi/sol/internal/utils" @utils,
   "mizchi/sol/core/env" @env,
+  "mizchi/astra" @astra,
   "mizchi/sol/ssg" @ssg,
   "mizchi/sol/content/md_render" @markdown,
   "mizchi/luna" @luna,
