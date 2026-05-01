@@ -1,10 +1,16 @@
 ///|
-/// Smoke test: mounting astra's placeholder middleware on a Mars server returns
-/// the expected 501 response. Phase A only checks that astra is wireable.
-async test "placeholder middleware returns 501" {
+/// Smoke test: mounting the public astra middleware on a Mars server
+/// returns a real HTTP response. Phase B replaces the Phase A 501
+/// placeholder with `@middleware.create(...).handler()` so this test now
+/// exercises the actual document-tree dispatch path end-to-end.
+async test "astra middleware responds to requests" {
+  let cfg = @astra.SsgConfig::default()
+  let mw = @middleware.create(cfg, cwd=".")
   let app = @mars.Server::new()
-  app.all("/anything", @astra.placeholder())
+  app.all("/anything", mw.handler())
   let res = @testing.invoke(app, path="/anything")
-  inspect(res.status, content="501")
-  inspect(res.body == "astra: not implemented yet", content="true")
+  // No `docs/` directory in the test cwd, so `/anything` does not match
+  // any scanned page — the middleware returns 404 with the body below.
+  inspect(res.status, content="404")
+  inspect(res.body == "Not Found", content="true")
 }

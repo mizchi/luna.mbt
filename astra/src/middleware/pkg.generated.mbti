@@ -1,0 +1,27 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/astra/middleware"
+
+import {
+  "mizchi/astra",
+  "mizchi/mars",
+}
+
+// Values
+pub fn create(@astra.SsgConfig, cwd? : String) -> Middleware
+
+// Errors
+
+// Types and methods
+pub(all) struct Middleware {
+  config : @astra.SsgConfig
+  cwd : String
+  pages : Array[@astra.PageMeta]
+  doc_tree : @astra.DocumentTree
+}
+pub fn Middleware::handler(Self) -> @mars.Handler
+pub fn Middleware::list_urls(Self) -> Array[String]
+
+// Type aliases
+
+// Traits
+

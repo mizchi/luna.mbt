@@ -4,7 +4,6 @@ package "mizchi/astra"
 import {
   "mizchi/astra/content/frontmatter",
   "mizchi/astra/content/markdown",
-  "mizchi/mars",
   "moonbitlang/core/json",
 }
 
@@ -50,8 +49,6 @@ pub fn parse_numeric_prefix(String) -> (Int, String)
 pub fn parse_ssg_config(String) -> SsgConfig?
 
 pub fn parse_ssg_from_sol_config(String) -> SsgConfig?
-
-pub fn placeholder() -> @mars.Handler
 
 pub fn replace_filename(String, String) -> String
 

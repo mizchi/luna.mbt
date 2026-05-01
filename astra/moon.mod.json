@@ -9,6 +9,7 @@
     "mizchi/process_pool": "0.1.3",
     "mizchi/sol": "0.15.3",
     "mizchi/syntree": "0.2.3",
+    "mizchi/x": "0.2.0",
     "moonbitlang/async": "0.17.0",
     "moonbitlang/x": "0.4.41"
   },
