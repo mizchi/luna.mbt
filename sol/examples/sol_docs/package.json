@@ -1,0 +1,9 @@
+{
+  "name": "sol-docs-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../_build/js/release/build/cli/cli.js dev",
+    "build": "node ../../_build/js/release/build/cli/cli.js build"
+  }
+}

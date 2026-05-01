@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/adapters/fs"
+
+import {
+  "mizchi/npm_typed/memfs",
+  "mizchi/sol/core/env",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct MemFSAdapter {
+  fs : @memfs.MemFS
+  vol : @memfs.Volume
+}
+pub fn MemFSAdapter::from_memfs(@memfs.Volume, @memfs.MemFS) -> Self
+pub fn MemFSAdapter::memfs(Self) -> @memfs.MemFS
+pub fn MemFSAdapter::new() -> Self
+pub fn MemFSAdapter::volume(Self) -> @memfs.Volume
+pub impl @env.FileSystem for MemFSAdapter
+
+pub struct NodeFsAdapter {
+}
+pub fn NodeFsAdapter::new() -> Self
+pub impl @env.FileSystem for NodeFsAdapter
+
+// Type aliases
+
+// Traits
+

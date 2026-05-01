@@ -1,0 +1,58 @@
+---
+title: Accordion
+---
+
+# Accordion
+
+Expandable sections for organizing content into collapsible panels.
+
+Based on [APG Accordion Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
+
+## Demo
+
+<accordion-demo
+  luna:trigger="visible"
+  items='[{"id":"1","title":"What is Luna?","content":"Luna is a reactive UI framework for MoonBit that provides accessible components following WAI-ARIA patterns.","open":true},{"id":"2","title":"How does it work?","content":"Luna uses signals for reactive state management and renders to the DOM with fine-grained updates.","open":false},{"id":"3","title":"Is it accessible?","content":"Yes! All components follow WAI-ARIA Authoring Practices Guide patterns with full keyboard navigation support.","open":false}]'
+/>
+
+## Usage
+
+```moonbit
+let expanded = @resource.signal(0)
+
+@styled_accordion.accordion(
+  [
+    @styled_accordion.accordion_item("1", "Section 1", [@luna.text("Content 1")]),
+    @styled_accordion.accordion_item("2", "Section 2", [@luna.text("Content 2")]),
+  ],
+  expanded,
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| items | Array[AccordionItemData] | - | Accordion items |
+| expanded | Signal[Int] | - | Index of expanded panel |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.accordion` | Root container |
+| `.accordion__item` | Item wrapper |
+| `.accordion__header` | Header button |
+| `.accordion__icon` | Expand/collapse icon |
+| `.accordion__panel` | Content panel |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Enter/Space | Toggle panel |
+| Arrow Down | Focus next header |
+| Arrow Up | Focus previous header |
+| Home | Focus first header |
+| End | Focus last header |

@@ -1,0 +1,20 @@
+{
+  "name": "sol-sqlite-example",
+  "version": "0.3.1",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "dev": "npm run generate && npm run start:dev",
+    "generate": "node ../../_build/js/release/build/cli/cli.js generate && moon build",
+    "start:dev": "node scripts/start-dev.js",
+    "build": "node ../../_build/js/release/build/cli/cli.js build",
+    "serve": "node scripts/start-dev.js",
+    "init-db": "node scripts/init-db.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.13",
+    "hono": "^4.12.12"
+  }
+}

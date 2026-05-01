@@ -1,0 +1,10 @@
+import {
+  "mizchi/js/core" @js,
+  "mizchi/js/web/console" @console,
+  "mizchi/sol/core/env" @env,
+  "mizchi/js/node/path" @path,
+}
+
+options(
+  "supported-targets": "js",
+)

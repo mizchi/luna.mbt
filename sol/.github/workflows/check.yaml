@@ -1,0 +1,79 @@
+name: check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  # Local golden path in CI: bootstrap -> verify
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: extractions/setup-just@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - name: Bootstrap
+        run: just bootstrap
+      - name: Verify
+        run: just verify
+
+  # Cross-platform tests (non-JS targets: wasm, wasm-gc, native)
+  test-xplat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - run: |
+          moon update
+          moon install
+      - name: Test parser only (other modules depend on JS FFI)
+        run: |
+          moon test --target wasm src/parser
+          moon test --target wasm-gc src/parser
+          moon test --target native src/parser
+      # Note: router and routes are skipped - they depend on mizchi/js which requires JS FFI
+
+  # Example projects — type check all examples
+  test-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: extractions/setup-just@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - name: Bootstrap
+        run: just bootstrap
+      - name: Check all examples
+        run: just check-examples
+      - name: Build sol_app (full build verification)
+        run: |
+          moon build --target js --release src/cli
+          cd examples/sol_app
+          node ../../_build/js/release/build/cli/cli.js generate
+          moon build --target js

@@ -1,0 +1,15 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/js/core" @js,
+  "mizchi/npm_typed/hono" @hono,
+  "mizchi/x/fs" @x_fs,
+  "moonbitlang/async/io",
+}
+
+import {
+  "moonbitlang/async",
+} for "wbtest"
+
+options(
+  "supported-targets": "js",
+)

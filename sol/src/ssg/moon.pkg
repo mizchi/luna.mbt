@@ -1,0 +1,17 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/sol/internal/json_utils" @json_utils,
+  "mizchi/sol/internal/utils" @utils,
+  "mizchi/sol/content/frontmatter" @frontmatter,
+  "mizchi/sol/content/markdown" @markdown,
+}
+
+import {
+  "mizchi/process_pool",
+} for "test"
+
+warnings = "-7-unused_field"
+
+options(
+  "supported-targets": "js",
+)

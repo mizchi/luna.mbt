@@ -1,0 +1,28 @@
+# Cloudflare Workers configuration for sol_auth
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "sol-auth"
+main = "worker.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "sol-auth-db"
+database_id = "YOUR_DATABASE_ID"  # Replace after: wrangler d1 create sol-auth-db
+
+# Static assets (optional - for production)
+# [site]
+# bucket = ".sol/prod/static"
+
+# Environment variables
+[vars]
+# Add any non-secret environment variables here
+
+# Development configuration
+[dev]
+port = 8787
+local_protocol = "http"
+
+# Note: Run migrations with:
+# wrangler d1 execute sol-auth-db --file=migrations/0001_init.sql

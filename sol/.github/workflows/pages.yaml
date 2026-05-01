@@ -1,0 +1,75 @@
+name: GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'src/ssg/**'
+      - '.github/workflows/pages.yaml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Clone markdown.mbt
+        run: git clone --depth 1 https://github.com/mizchi/markdown.mbt ../markdown.mbt
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - run: |
+          pnpm install
+          moon update
+          moon install
+      - name: Sync markdown.mbt sources
+        run: |
+          cp ../markdown.mbt/moon.mod.json .mooncakes/mizchi/markdown/
+          cp -r ../markdown.mbt/src/* .mooncakes/mizchi/markdown/src/
+      - name: Build CLI
+        run: moon build --target js --release src/cli
+      - name: Patch base path for GitHub Pages
+        run: |
+          cd website
+          node -e "
+            const fs = require('fs');
+            const c = JSON.parse(fs.readFileSync('sol.config.json', 'utf8'));
+            c.base = '/sol.mbt/';
+            fs.writeFileSync('sol.config.json', JSON.stringify(c, null, 2));
+          "
+      - name: Build docs
+        run: node _build/js/release/build/cli/cli.js build --force
+      - name: Build search index
+        run: npx pagefind --site website/dist-docs
+      - name: Smoke test
+        run: |
+          test -f website/dist-docs/index.html
+          test -s website/dist-docs/index.html
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/dist-docs
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

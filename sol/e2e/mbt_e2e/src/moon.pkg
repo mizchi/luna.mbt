@@ -1,0 +1,10 @@
+import {
+  "mizchi/playwright" @pw,
+  "moonbitlang/async" @async,
+  "moonbitlang/core/strconv" @strconv,
+}
+
+options(
+  "is-main": true,
+  "supported-targets": "js",
+)

@@ -1,0 +1,10 @@
+import {
+  "mizchi/mars" @mars,
+  "mizchi/mars/middleware" @mars_mw,
+}
+
+warnings = "-6"
+
+options(
+  "supported-targets": "js",
+)

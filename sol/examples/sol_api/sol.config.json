@@ -1,0 +1,7 @@
+{
+  "islands": [],
+  "routes": "app/server",
+  "output": "app/__gen__",
+  "runtime": "node",
+  "adapter": "node"
+}

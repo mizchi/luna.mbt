@@ -1,0 +1,12 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/js/core" @core,
+  "mizchi/sol/builder" @builder,
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/ssg/generator" @generator,
+  "mizchi/sol/content/shiki" @shiki,
+}
+
+options(
+  "supported-targets": "js",
+)

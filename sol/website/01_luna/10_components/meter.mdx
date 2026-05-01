@@ -1,0 +1,64 @@
+---
+title: Meter
+---
+
+# Meter
+
+Display a value within a known range using the native HTML meter element.
+
+Based on [APG Meter Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/meter/).
+
+## Demo
+
+<div style="display: flex; flex-direction: column; gap: 0.5rem;"><div class="meter"><label class="meter__label" for="meter-1">Storage used</label><meter class="meter__element" id="meter-1" value="75" min="0" max="100">75%</meter><span class="meter__value">75%</span></div><div class="meter"><label class="meter__label" for="meter-2">Battery level</label><meter class="meter__element" id="meter-2" value="30" min="0" max="100" low="20" high="80" optimum="100">30%</meter><span class="meter__value">30%</span></div><div class="meter"><label class="meter__label" for="meter-3">CPU usage</label><meter class="meter__element" id="meter-3" value="90" min="0" max="100" low="25" high="75" optimum="0">90%</meter><span class="meter__value">90%</span></div></div>
+
+## Usage
+
+```moonbit
+@styled_meter.meter(
+  "storage",
+  75.0,
+  label="Storage used",
+  value_text="75%",
+)
+
+@styled_meter.meter(
+  "battery",
+  30.0,
+  low=20.0,
+  high=80.0,
+  optimum=100.0,
+  label="Battery level",
+  value_text="30%",
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| id | String | - | Meter ID |
+| value | Double | - | Current value |
+| min | Double | 0 | Minimum value |
+| max | Double | 100 | Maximum value |
+| low | Double? | None | Low threshold |
+| high | Double? | None | High threshold |
+| optimum | Double? | None | Optimal value |
+| label | String? | None | Label text |
+| value_text | String? | None | Value display text |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.meter` | Root container |
+| `.meter__label` | Label element |
+| `.meter__element` | Native meter element |
+| `.meter__value` | Value text display |
+
+## Accessibility
+
+- Uses native `<meter>` element for semantics
+- Label associated via `for` attribute
+- Browser handles color coding based on thresholds

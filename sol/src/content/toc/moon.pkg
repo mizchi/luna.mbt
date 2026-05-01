@@ -1,0 +1,7 @@
+import {
+  "mizchi/sol/content/markdown" @markdown,
+}
+
+options(
+  "supported-targets": "js",
+)

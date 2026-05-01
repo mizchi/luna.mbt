@@ -1,0 +1,12 @@
+import {
+  "mizchi/luna",
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/routes" @routes,
+  "mizchi/sol/content/md_render" @markdown,
+  "mizchi/js/node/fs" @fs,
+  "mizchi/js/node/path" @path,
+}
+
+options(
+  "supported-targets": "js",
+)

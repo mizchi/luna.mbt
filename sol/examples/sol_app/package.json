@@ -1,0 +1,29 @@
+{
+  "name": "sol-app-example",
+  "version": "0.3.1",
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../_build/js/release/build/cli/cli.js dev",
+    "build": "node ../../_build/js/release/build/cli/cli.js build",
+    "serve": "node ../../_build/js/release/build/cli/cli.js serve",
+    "test": "playwright test",
+    "test:e2e": "playwright test tests/e2e.test.ts",
+    "bench": "k6 run bench/all.js",
+    "bench:static": "k6 run bench/static-routes.js",
+    "bench:dynamic": "k6 run bench/dynamic-routes.js",
+    "bench:api": "k6 run bench/api-routes.js",
+    "bench:quick": "k6 run --vus 5 --duration 10s bench/all.js",
+    "bench:compare": "k6 run bench/compare.js",
+    "bench:hono": "npx tsx bench/hono-server.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.13",
+    "hono": "^4.12.12"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "rolldown": "1.0.0-rc.13",
+    "tsx": "^4.21.0",
+    "wrangler": "^4.81.0"
+  }
+}

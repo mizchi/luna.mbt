@@ -1,0 +1,17 @@
+{
+  "name": "example/sol-auth",
+  "version": "0.1.0",
+  "deps": {
+    "mizchi/sol": {
+      "path": "../.."
+    },
+    "mizchi/luna": "0.18.3",
+    "mizchi/mars": "0.3.10",
+    "mizchi/signals": "0.6.4",
+    "mizchi/js": "0.10.15",
+    "mizchi/npm_typed": "0.1.11",
+    "moonbitlang/async": "0.17.0"
+  },
+  "source": "app",
+  "preferred-target": "js"
+}

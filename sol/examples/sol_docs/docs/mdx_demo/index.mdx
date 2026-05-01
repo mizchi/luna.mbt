@@ -1,0 +1,53 @@
+---
+title: MDX Demo
+description: Demonstrating MDX support in Astra
+---
+
+# MDX Demo
+
+This page demonstrates **MDX support** in Astra SSG. MDX allows you to use JSX components directly in your Markdown content.
+
+## Interactive Counter
+
+JSX components are automatically converted to Web Components:
+
+<Counter initial="5" />
+
+Web Components can also be used directly:
+
+<luna-counter initial="10"></luna-counter>
+
+## CLS Optimization
+
+Prevent layout shifts with `cls:width` and `cls:height` hints:
+
+<Counter initial="0" cls:width="150px" cls:height="50px" />
+
+## Code Example
+
+```javascript
+// Define a Web Component
+class LunaCounter extends HTMLElement {
+  connectedCallback() {
+    this.render();
+  }
+}
+customElements.define('luna-counter', LunaCounter);
+```
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| JSX Syntax | `<Counter />` → `<luna-counter>` |
+| Web Components | Use directly with hyphenated names |
+| CLS Hints | Specify width/height for layout stability |
+| Markdown | Full markdown support |
+
+> **Tip:** JSX components with PascalCase names get the `luna-` prefix automatically.
+
+## Links
+
+- [Home](/)
+- [Guide](/guide/)
+- [About](/about/)

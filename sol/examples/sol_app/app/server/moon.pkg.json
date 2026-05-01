@@ -1,0 +1,42 @@
+{
+  "supported-targets": "js",
+  "import": [
+    {
+      "path": "mizchi/luna",
+      "alias": "luna"
+    },
+    {
+      "path": "mizchi/sol",
+      "alias": "sol"
+    },
+    {
+      "path": "mizchi/sol/middleware",
+      "alias": "mw"
+    },
+    {
+      "path": "mizchi/sol/action",
+      "alias": "action"
+    },
+    {
+      "path": "mizchi/luna/dom/static",
+      "alias": "server_dom"
+    },
+    {
+      "path": "mizchi/js/core",
+      "alias": "core"
+    },
+    {
+      "path": "example/sol-app/__gen__/types",
+      "alias": "types"
+    },
+    {
+      "path": "example/sol-app/client",
+      "alias": "client"
+    },
+    {
+      "path": "mizchi/luna/x/components/styled/alert",
+      "alias": "alert_ui"
+    }
+  ],
+  "warn-list": "-35-67-24"
+}

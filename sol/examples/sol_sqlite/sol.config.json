@@ -1,0 +1,7 @@
+{
+  "islands": ["app/client"],
+  "routes": "app/server",
+  "runtime": "node",
+  "output": "app/__gen__",
+  "client_auto_exports": false
+}

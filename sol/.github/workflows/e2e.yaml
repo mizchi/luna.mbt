@@ -1,0 +1,86 @@
+name: e2e
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  # E2E tests with Playwright
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - run: |
+          moon update
+          moon install
+      - name: Build MoonBit
+        run: moon build --target js --release src/cli
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+      - name: E2E tests (core)
+        run: pnpm test:e2e
+      - name: Build sol_app for E2E
+        working-directory: examples/sol_app
+        run: |
+          pnpm install
+          node ../../_build/js/release/build/cli/cli.js generate
+          node ../../_build/js/release/build/cli/cli.js build
+      - name: E2E tests (sol_app)
+        working-directory: examples/sol_app
+        run: pnpm test:e2e
+
+  # MoonBit Playwright E2E (WebDriver BiDi)
+  e2e-mbt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - name: Install deps
+        run: |
+          moon update
+          moon install
+          pnpm install
+          cd e2e/mbt_e2e && pnpm install
+      - name: Install Chrome for BiDi
+        run: npx playwright install chromium --with-deps
+      - name: Build sol CLI
+        run: moon build --target js --release src/cli
+      - name: Build sol_app
+        working-directory: examples/sol_app
+        run: |
+          pnpm install
+          node ../../_build/js/release/build/cli/cli.js generate
+          moon build --target js
+      - name: Run MoonBit Playwright E2E
+        run: |
+          cd examples/sol_app
+          node ../../_build/js/release/build/cli/cli.js dev --no-watch -p 3457 &
+          for i in $(seq 1 30); do curl -s http://localhost:3457/api/health > /dev/null 2>&1 && break; sleep 1; done
+          cd ../../e2e/mbt_e2e
+          timeout 120 moon run src/ --target js

@@ -1,0 +1,78 @@
+---
+title: Tree View
+---
+
+# Tree View
+
+Hierarchical list with expandable/collapsible nodes.
+
+Based on [APG Tree View Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/).
+
+## Demo
+
+<styled-treeview-demo luna:trigger="visible"><ul class="treeview" role="tree" aria-label="File browser"><li class="treeview__item" role="treeitem" aria-expanded="true" data-expanded="true" data-depth="0"><div class="treeview__row" tabindex="0"><span class="treeview__icon" aria-hidden="true">▼</span><span class="treeview__label">Documents</span></div><ul class="treeview__group" role="group"><li class="treeview__item" role="treeitem" data-depth="1"><div class="treeview__row" tabindex="-1"><span class="treeview__icon" aria-hidden="true"></span><span class="treeview__label">report.pdf</span></div></li><li class="treeview__item" role="treeitem" data-depth="1"><div class="treeview__row" tabindex="-1"><span class="treeview__icon" aria-hidden="true"></span><span class="treeview__label">notes.txt</span></div></li></ul></li><li class="treeview__item" role="treeitem" aria-expanded="false" data-expanded="false" data-depth="0"><div class="treeview__row" tabindex="-1"><span class="treeview__icon" aria-hidden="true">▶</span><span class="treeview__label">Images</span></div><ul class="treeview__group" role="group"><li class="treeview__item" role="treeitem" data-depth="1"><div class="treeview__row" tabindex="-1"><span class="treeview__icon" aria-hidden="true"></span><span class="treeview__label">photo.jpg</span></div></li></ul></li><li class="treeview__item" role="treeitem" data-depth="0"><div class="treeview__row" tabindex="-1"><span class="treeview__icon" aria-hidden="true"></span><span class="treeview__label">readme.md</span></div></li></ul></styled-treeview-demo>
+
+## Usage
+
+```moonbit
+let expanded = @resource.signal(@immut/hashmap.new())
+let selected = @resource.signal("")
+
+@styled_treeview.treeview(
+  [
+    @styled_treeview.tree_node("docs", "Documents", children=[
+      @styled_treeview.tree_node("report", "report.pdf"),
+      @styled_treeview.tree_node("notes", "notes.txt"),
+    ]),
+    @styled_treeview.tree_node("images", "Images", children=[
+      @styled_treeview.tree_node("photo", "photo.jpg"),
+    ]),
+    @styled_treeview.tree_node("readme", "readme.md"),
+  ],
+  expanded,
+  selected,
+  aria_label="File browser",
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| nodes | Array[TreeNode] | - | Tree data |
+| expanded | Signal[Map[String, Bool]] | - | Expansion state |
+| selected | Signal[String] | - | Selected node ID |
+| aria_label | String? | None | Accessible label |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.treeview` | Root container |
+| `.treeview__item` | Tree item (li) |
+| `.treeview__row` | Clickable row |
+| `.treeview__icon` | Expand/collapse icon |
+| `.treeview__label` | Item label |
+| `.treeview__group` | Child container |
+
+## States
+
+| State | Description |
+|-------|-------------|
+| `data-expanded="true"` | Node expanded |
+| `data-expanded="false"` | Node collapsed |
+| `data-selected="true"` | Node selected |
+| `data-depth="N"` | Nesting level |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Arrow Down | Next visible item |
+| Arrow Up | Previous visible item |
+| Arrow Right | Expand or first child |
+| Arrow Left | Collapse or parent |
+| Home | First item |
+| End | Last visible item |
+| Enter/Space | Select item |

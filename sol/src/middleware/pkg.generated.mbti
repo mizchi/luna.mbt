@@ -1,0 +1,177 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/middleware"
+
+import {
+  "mizchi/mars",
+}
+
+// Values
+pub fn cache_control(String) -> Middleware
+
+pub fn cors() -> Middleware
+
+pub fn cors_with_config(CorsConfig) -> Middleware
+
+pub fn csp(String) -> Middleware
+
+pub fn csrf() -> Middleware
+
+pub fn csrf_for_origin(String) -> Middleware
+
+pub fn csrf_with_config(CsrfConfig) -> Middleware
+
+pub fn extract_origin_from_url(String) -> String?
+
+pub fn fetch_metadata() -> Middleware
+
+pub fn frame_options(String) -> Middleware
+
+pub fn get_header(@mars.Context, String) -> String?
+
+pub fn identity() -> Middleware
+
+pub fn is_referer_allowed(String, Array[String]) -> Bool
+
+pub fn is_safe_method(String) -> Bool
+
+pub fn logger() -> Middleware
+
+pub fn logger_with_config(LoggerConfig) -> Middleware
+
+pub fn nosniff() -> Middleware
+
+pub fn pipeline(Array[Middleware]) -> Middleware
+
+pub fn referrer_policy(String) -> Middleware
+
+pub fn require_content_type(String) -> Middleware
+
+pub fn require_json_content_type() -> Middleware
+
+pub async fn run(Middleware, @mars.Context) -> Bool
+
+pub async fn run_or_500(Middleware, @mars.Context, message_prefix? : String) -> Bool
+
+pub fn security_headers() -> Middleware
+
+pub fn security_headers_relaxed() -> Middleware
+
+pub fn security_headers_with_config(SecurityHeadersConfig) -> Middleware
+
+pub fn then(Middleware, Middleware) -> Middleware
+
+pub fn then_(Middleware, Middleware) -> Middleware
+
+pub fn validate_origin_middleware(Array[String]) -> Middleware
+
+// Errors
+
+// Types and methods
+pub struct CorsConfig {
+  origin : CorsOrigin
+  methods : Array[String]
+  allowed_headers : Array[String]
+  exposed_headers : Array[String]
+  credentials : Bool
+  max_age : Int?
+}
+pub fn CorsConfig::default() -> Self
+pub fn CorsConfig::strict() -> Self
+pub fn CorsConfig::with_allowed_headers(Self, Array[String]) -> Self
+pub fn CorsConfig::with_credentials(Self) -> Self
+pub fn CorsConfig::with_exposed_headers(Self, Array[String]) -> Self
+pub fn CorsConfig::with_max_age(Self, Int) -> Self
+pub fn CorsConfig::with_methods(Self, Array[String]) -> Self
+pub fn CorsConfig::with_origin(Self, CorsOrigin) -> Self
+pub fn CorsConfig::with_origin_single(Self, String) -> Self
+
+pub enum CorsOrigin {
+  All
+  Single(String)
+  List(Array[String])
+  Dynamic((String) -> Bool)
+}
+
+pub struct CsrfConfig {
+  allowed_origins : Array[String]
+  check_fetch_metadata : Bool
+  expected_content_type : String?
+  allow_no_origin : Bool
+  error_message : String
+}
+pub fn CsrfConfig::default() -> Self
+pub fn CsrfConfig::for_origin(String) -> Self
+pub fn CsrfConfig::for_origins(Array[String]) -> Self
+pub fn CsrfConfig::require_json(Self) -> Self
+pub fn CsrfConfig::with_content_type(Self, String) -> Self
+pub fn CsrfConfig::with_error_message(Self, String) -> Self
+pub fn CsrfConfig::with_fetch_metadata(Self, Bool) -> Self
+pub fn CsrfConfig::with_origin(Self, String) -> Self
+pub fn CsrfConfig::with_origins(Self, Array[String]) -> Self
+
+pub enum CsrfError {
+  MissingOrigin
+  InvalidOrigin(String)
+  CrossSiteFetch
+  UnsafeFetchMode
+  InvalidContentType(String)
+}
+pub fn CsrfError::to_string(Self) -> String
+
+pub enum CsrfResult {
+  Valid
+  ValidNoOrigin
+  ValidOrigin(String)
+  Invalid(CsrfError)
+}
+
+pub enum LogFormat {
+  Dev
+  Combined
+  Json
+}
+
+pub struct LoggerConfig {
+  format : LogFormat
+  skip_paths : Array[String]
+  log_fn : ((String) -> Unit)?
+}
+pub fn LoggerConfig::combined() -> Self
+pub fn LoggerConfig::default() -> Self
+pub fn LoggerConfig::dev() -> Self
+pub fn LoggerConfig::json() -> Self
+pub fn LoggerConfig::with_log_fn(Self, (String) -> Unit) -> Self
+pub fn LoggerConfig::with_skip_paths(Self, Array[String]) -> Self
+
+pub(all) struct Middleware(@mars.Handler)
+#deprecated
+pub fn Middleware::inner(Self) -> @mars.Handler
+pub fn Middleware::then(Self, Self) -> Self
+
+pub struct SecurityHeadersConfig {
+  frame_options : String
+  content_type_options : String
+  referrer_policy : String
+  coop : String
+  coep : String
+  permissions_policy : String
+  csp : String
+  cache_control_html : String
+  cache_control_static : String
+}
+pub fn SecurityHeadersConfig::default() -> Self
+pub fn SecurityHeadersConfig::relaxed() -> Self
+pub fn SecurityHeadersConfig::with_cache_control_html(Self, String) -> Self
+pub fn SecurityHeadersConfig::with_cache_control_static(Self, String) -> Self
+pub fn SecurityHeadersConfig::with_coep(Self, String) -> Self
+pub fn SecurityHeadersConfig::with_coop(Self, String) -> Self
+pub fn SecurityHeadersConfig::with_csp(Self, String) -> Self
+pub fn SecurityHeadersConfig::with_frame_options(Self, String) -> Self
+pub fn SecurityHeadersConfig::with_permissions_policy(Self, String) -> Self
+pub fn SecurityHeadersConfig::with_referrer_policy(Self, String) -> Self
+
+// Type aliases
+pub using @mars {type Context as Ctx}
+
+// Traits
+

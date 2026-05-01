@@ -1,0 +1,7 @@
+{
+  "staticParams": [
+    { "slug": "hello-world" },
+    { "slug": "getting-started" },
+    { "slug": "advanced-topics" }
+  ]
+}

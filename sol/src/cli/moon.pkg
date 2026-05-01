@@ -1,0 +1,39 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
+  "moonbitlang/async",
+  "mizchi/sol/internal/json_utils" @json_utils,
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/ssg/generator" @ssg_gen,
+  "mizchi/sol/routes" @ssg_routes,
+  "mizchi/sol/builder_pool" @builder_pool,
+  "mizchi/sol/ssg/cache" @ssg_cache,
+  "mizchi/sol/ssg/tree" @tree,
+  "mizchi/sol/ssg/assets" @assets,
+  "mizchi/sol/adapters" @adapters,
+  "mizchi/sol/content/shiki" @shiki,
+  "mizchi/sol/core/env" @env,
+  "mizchi/sol/adapters/fs" @fs_adapter,
+  "mizchi/js/core" @js,
+  "mizchi/js/node/process" @process,
+  "mizchi/js/node/fs" @fs,
+  "mizchi/js/node/path" @path,
+  "mizchi/js/node/child_process" @child_process,
+  "mizchi/js/node/util" @util,
+  "mizchi/js/node/http" @http,
+  "mizchi/npm_typed/colorette" @colorette,
+  "mizchi/wite/bundle" @wite_bundle,
+  "mizchi/mars" @mars,
+  "mizchi/mars/adapters" @mars_adapters,
+  "mizchi/sol/parser" @parser,
+  "mizchi/sol/hmr" @hmr,
+  "mizchi/sol/hot_reload" @hot_reload,
+  "mizchi/sol/cli_common" @cli_common,
+}
+
+warnings = "-27-20"
+
+options(
+  "is-main": true,
+  "supported-targets": "js",
+)

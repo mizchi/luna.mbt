@@ -1,0 +1,27 @@
+{
+  "name": "@sol/core",
+  "version": "0.15.1",
+  "description": "Sol Framework TypeScript API",
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./config": "./config.ts",
+    "./routes": "./routes.ts",
+    "./html": "./html.ts",
+    "./server-runtime": "./server-runtime.ts"
+  },
+  "types": "./index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.3"
+  }
+}

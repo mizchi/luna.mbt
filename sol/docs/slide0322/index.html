@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今、すべてを作り直すなら - Luna/Sol</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #1a1a1a; color: #e0e0e0;
+    }
+    .app-container { display: flex; flex-direction: column; height: 100%; }
+    .toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 16px; background: #242424; border-bottom: 1px solid #404040;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 16px; }
+    .slide-indicator { font-size: 14px; color: #a0a0a0; }
+    .slide-indicator .current { color: #66b3ff; font-weight: bold; }
+    .container { display: flex; flex: 1; overflow: hidden; }
+    .editor-pane {
+      width: 50%; border-right: 1px solid #404040; display: flex; flex-direction: column;
+    }
+    .editor-textarea {
+      flex: 1; width: 100%;
+      font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+      font-size: 14px; line-height: 1.6; padding: 16px; margin: 0;
+      border: none; background: #1a1a1a; color: #e0e0e0;
+      resize: none; outline: none; white-space: pre-wrap; word-wrap: break-word; tab-size: 2;
+    }
+    .preview-pane {
+      width: 50%; display: flex; flex-direction: column; background: #0d0d0d; overflow: hidden;
+    }
+    .slides-container {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 16px; align-items: center;
+    }
+    .slide-wrapper { width: 100%; max-width: 100%; position: relative; }
+    .slide-frame { position: relative; width: 100%; padding-bottom: 56.25%; overflow: hidden; }
+    .slide {
+      position: absolute; top: 0; left: 0; width: 960px; height: 540px;
+      background: #1a1a1a; border: 2px solid #333; border-radius: 8px;
+      padding: 32px; transform-origin: top left; transition: border-color 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+    .slide.active { border-color: #66b3ff; box-shadow: 0 0 20px rgba(102,179,255,0.2); }
+    .slide-number { font-size: 14px; color: #666; margin-bottom: 16px; }
+    .slide.active .slide-number { color: #66b3ff; }
+    .slide-content { line-height: 1.6; }
+    .slide-content h1 { font-size: 1.8em; margin: 0 0 16px 0; color: #fff; }
+    .slide-content h2 { font-size: 1.4em; margin: 0 0 12px 0; color: #fff; }
+    .slide-content h3 { font-size: 1.2em; margin: 0 0 8px 0; color: #fff; }
+    .slide-content p { margin: 0 0 12px 0; }
+    .slide-content ul, .slide-content ol { margin: 0 0 12px 0; padding-left: 24px; }
+    .slide-content li { margin-bottom: 4px; }
+    .slide-content code {
+      font-family: 'Monaco','Menlo','Consolas',monospace; font-size: 0.9em;
+      background: #2d2d2d; padding: 2px 6px; border-radius: 3px;
+    }
+    .slide-content pre {
+      background: #2d2d2d; padding: 12px; border-radius: 6px;
+      overflow-x: auto; margin: 0 0 12px 0;
+    }
+    .slide-content pre code { background: none; padding: 0; }
+    .slide-content strong { color: #ff7b72; }
+    .slide-content em { color: #a5d6ff; }
+    .slide-content a { color: #58a6ff; }
+    .slide-content blockquote {
+      border-left: 3px solid #404040; margin: 0 0 12px 0; padding-left: 12px; color: #a0a0a0;
+    }
+    .slide-content .mermaid-svg {
+      display: flex; justify-content: center; margin: 8px 0;
+    }
+    .slide-content .mermaid-svg svg {
+      max-width: 100%; max-height: 300px;
+    }
+    .slide-content table { border-collapse: collapse; width: 100%; margin: 0 0 12px 0; font-size: 0.85em; }
+    .slide-content th, .slide-content td { border: 1px solid #404040; padding: 4px 8px; text-align: left; }
+    .slide-content th { background: #2d2d2d; }
+    .present-btn {
+      background: #66b3ff; color: #000; border: none; padding: 6px 12px;
+      border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;
+    }
+    .present-btn:hover { background: #88c4ff; }
+    .presentation-mode {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; z-index: 1000; display: none;
+    }
+    .presentation-mode.active { display: flex; align-items: center; justify-content: center; }
+    .presentation-slide {
+      width: 90%; max-width: 1200px; height: 80%;
+      background: #1a1a1a; border-radius: 12px; padding: 48px; overflow: auto;
+    }
+    .presentation-slide .slide-content { font-size: 1.5em; }
+    .presentation-slide .slide-content h1 { font-size: 2.5em; }
+    .presentation-slide .slide-content h2 { font-size: 2em; }
+    .presentation-controls {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 12px; align-items: center; color: #666; font-size: 14px;
+    }
+    .presentation-controls button {
+      background: #333; color: #fff; border: none; padding: 8px 16px;
+      border-radius: 4px; cursor: pointer;
+    }
+    .presentation-controls button:hover { background: #444; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="toolbar">
+      <div class="toolbar-left">
+        <span style="font-weight: bold;">Slide Editor (markdown.mbt)</span>
+        <span class="slide-indicator">
+          Slide <span class="current" id="currentSlide">1</span> / <span id="totalSlides">1</span>
+        </span>
+      </div>
+      <button class="present-btn" id="presentBtn">Present</button>
+    </header>
+    <div class="container">
+      <div class="editor-pane">
+        <textarea class="editor-textarea" id="editor" spellcheck="false"></textarea>
+      </div>
+      <div class="preview-pane">
+        <div class="slides-container" id="slidesContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="presentation-mode" id="presentationMode">
+    <div class="presentation-slide" id="presentationSlide">
+      <div class="slide-content"></div>
+    </div>
+    <div class="presentation-controls">
+      <button id="prevSlide">Prev</button>
+      <span><span id="presCurrentSlide">1</span> / <span id="presTotalSlides">1</span></span>
+      <button id="nextSlide">Next</button>
+      <button id="exitPresentation">Exit (Esc)</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { parse } from "./md-api.js";
+    import { highlight } from "./syntree-api.js";
+    import { renderToSvg } from "./moomaid-api.js";
+
+    const editor = document.getElementById('editor');
+    const slidesContainer = document.getElementById('slidesContainer');
+    const currentSlideEl = document.getElementById('currentSlide');
+    const totalSlidesEl = document.getElementById('totalSlides');
+    const presentBtn = document.getElementById('presentBtn');
+    const presentationMode = document.getElementById('presentationMode');
+    const presentationSlide = document.getElementById('presentationSlide');
+    const presCurrentSlide = document.getElementById('presCurrentSlide');
+    const presTotalSlides = document.getElementById('presTotalSlides');
+
+    let slides = [];
+    let currentSlideIndex = 0;
+    let presentationSlideIndex = 0;
+
+    function splitIntoSlides(markdown) {
+      const lines = markdown.split('\n');
+      const slideTexts = [];
+      let currentSlide = [];
+      let slideSpans = [];
+      let charOffset = 0;
+      let slideStart = 0;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const lineStart = charOffset;
+        const lineEnd = charOffset + line.length;
+        if (/^---+\s*$/.test(line) && currentSlide.length > 0) {
+          slideTexts.push(currentSlide.join('\n'));
+          slideSpans.push({ start: slideStart, end: lineStart - 1 });
+          currentSlide = [];
+          slideStart = lineEnd + 1;
+        } else {
+          currentSlide.push(line);
+        }
+        charOffset = lineEnd + 1;
+      }
+      if (currentSlide.length > 0 || slideTexts.length === 0) {
+        slideTexts.push(currentSlide.join('\n'));
+        slideSpans.push({ start: slideStart, end: charOffset });
+      }
+      return { texts: slideTexts, spans: slideSpans };
+    }
+
+    function findSlideAtPosition(spans, position) {
+      for (let i = 0; i < spans.length; i++) {
+        if (position >= spans[i].start && position <= spans[i].end) return i;
+      }
+      return spans.length - 1;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderMarkdown(markdown) {
+      try {
+        const ast = parse(markdown);
+        return astToHtml(ast);
+      } catch (e) {
+        console.error('Parse error:', e);
+        return escapeHtml(markdown);
+      }
+    }
+
+    function astToHtml(ast) {
+      if (!ast || !ast.children) return '';
+      return ast.children.map(blockToHtml).join('');
+    }
+
+    function blockToHtml(block) {
+      switch (block.type) {
+        case 'heading':
+          const level = block.depth || 1;
+          return `<h${level}>${inlinesToHtml(block.children)}</h${level}>`;
+        case 'paragraph':
+          return `<p>${inlinesToHtml(block.children)}</p>`;
+        case 'code':
+          const lang = block.lang || '';
+          const code = block.value || '';
+          if (lang === 'mermaid') {
+            try {
+              return `<div class="mermaid-svg">${renderToSvg(code)}</div>`;
+            } catch (e) {
+              console.error('Mermaid render error:', e);
+              return `<pre><code>${escapeHtml(code)}</code></pre>`;
+            }
+          }
+          try {
+            return highlight(code, lang);
+          } catch {
+            return `<pre><code>${escapeHtml(code)}</code></pre>`;
+          }
+        case 'blockquote':
+          return `<blockquote>${block.children ? block.children.map(blockToHtml).join('') : ''}</blockquote>`;
+        case 'list':
+          const tag = block.ordered ? 'ol' : 'ul';
+          const items = (block.children || []).map(item => {
+            const content = item.children ? item.children.map(blockToHtml).join('') : '';
+            return `<li>${content}</li>`;
+          }).join('');
+          return `<${tag}>${items}</${tag}>`;
+        case 'table':
+          return tableToHtml(block);
+        case 'thematicBreak':
+          return '<hr>';
+        default:
+          return '';
+      }
+    }
+
+    function tableToHtml(block) {
+      if (!block.children || block.children.length === 0) return '';
+      let html = '<table>';
+      block.children.forEach((row, rowIndex) => {
+        html += '<tr>';
+        const cells = row.children || [];
+        cells.forEach(cell => {
+          const tag = rowIndex === 0 ? 'th' : 'td';
+          const content = cell.children ? cell.children.map(blockToHtml).join('') : inlinesToHtml(cell.children);
+          html += `<${tag}>${inlinesToHtml(cell.children || [])}</${tag}>`;
+        });
+        html += '</tr>';
+      });
+      html += '</table>';
+      return html;
+    }
+
+    function inlinesToHtml(inlines) {
+      if (!inlines) return '';
+      return inlines.map(inline => {
+        switch (inline.type) {
+          case 'text': return escapeHtml(inline.value || '');
+          case 'strong': return `<strong>${inlinesToHtml(inline.children)}</strong>`;
+          case 'emphasis': return `<em>${inlinesToHtml(inline.children)}</em>`;
+          case 'inlineCode': return `<code>${escapeHtml(inline.value || '')}</code>`;
+          case 'link': return `<a href="${escapeHtml(inline.url || '')}">${inlinesToHtml(inline.children)}</a>`;
+          case 'break': return '<br>';
+          default: return inline.value ? escapeHtml(inline.value) : '';
+        }
+      }).join('');
+    }
+
+    const SLIDE_WIDTH = 960;
+    function updateSlideScales() {
+      slidesContainer.querySelectorAll('.slide-frame').forEach(frame => {
+        const scale = frame.clientWidth / SLIDE_WIDTH;
+        const slide = frame.querySelector('.slide');
+        if (slide) slide.style.transform = `scale(${scale})`;
+      });
+    }
+
+    function updateSlides() {
+      const markdown = editor.value;
+      const { texts, spans } = splitIntoSlides(markdown);
+      slides = texts;
+      totalSlidesEl.textContent = slides.length;
+      presTotalSlides.textContent = slides.length;
+      slidesContainer.innerHTML = slides.map((slideText, index) => {
+        const html = renderMarkdown(slideText.trim());
+        const isActive = index === currentSlideIndex;
+        return `<div class="slide-wrapper" data-index="${index}">
+          <div class="slide-frame">
+            <div class="slide ${isActive ? 'active' : ''}">
+              <div class="slide-number">Slide ${index + 1}</div>
+              <div class="slide-content">${html}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+      requestAnimationFrame(updateSlideScales);
+      const active = slidesContainer.querySelector('.slide.active');
+      if (active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return spans;
+    }
+
+    function updateCurrentSlide(spans) {
+      const newIndex = findSlideAtPosition(spans, editor.selectionStart);
+      if (newIndex !== currentSlideIndex) {
+        currentSlideIndex = newIndex;
+        currentSlideEl.textContent = currentSlideIndex + 1;
+        slidesContainer.querySelectorAll('.slide-wrapper').forEach((w, i) => {
+          const s = w.querySelector('.slide');
+          if (s) s.classList.toggle('active', i === currentSlideIndex);
+        });
+        const active = slidesContainer.querySelector('.slide.active');
+        if (active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function enterPresentation() {
+      presentationSlideIndex = currentSlideIndex;
+      updatePresentationSlide();
+      presentationMode.classList.add('active');
+    }
+    function exitPresentation() { presentationMode.classList.remove('active'); }
+    function updatePresentationSlide() {
+      if (slides[presentationSlideIndex]) {
+        presentationSlide.querySelector('.slide-content').innerHTML =
+          renderMarkdown(slides[presentationSlideIndex].trim());
+        presCurrentSlide.textContent = presentationSlideIndex + 1;
+      }
+    }
+    function nextPresentationSlide() {
+      if (presentationSlideIndex < slides.length - 1) { presentationSlideIndex++; updatePresentationSlide(); }
+    }
+    function prevPresentationSlide() {
+      if (presentationSlideIndex > 0) { presentationSlideIndex--; updatePresentationSlide(); }
+    }
+
+    let spans = [];
+    editor.addEventListener('input', () => { spans = updateSlides(); updateCurrentSlide(spans); });
+    editor.addEventListener('click', () => updateCurrentSlide(spans));
+    editor.addEventListener('keyup', (e) => {
+      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)) updateCurrentSlide(spans);
+    });
+    presentBtn.addEventListener('click', enterPresentation);
+    document.getElementById('exitPresentation').addEventListener('click', exitPresentation);
+    document.getElementById('nextSlide').addEventListener('click', nextPresentationSlide);
+    document.getElementById('prevSlide').addEventListener('click', prevPresentationSlide);
+    document.addEventListener('keydown', (e) => {
+      if (!presentationMode.classList.contains('active')) return;
+      if (e.key === 'Escape') exitPresentation();
+      else if (e.key === 'ArrowRight' || e.key === ' ') nextPresentationSlide();
+      else if (e.key === 'ArrowLeft') prevPresentationSlide();
+    });
+    let resizeTimeout;
+    window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(updateSlideScales, 100); });
+
+    // Load slide content
+    const resp = await fetch('./slide-content.md');
+    editor.value = await resp.text();
+    spans = updateSlides();
+  </script>
+</body>
+</html>

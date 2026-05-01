@@ -1,0 +1,12 @@
+import {
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/content/frontmatter" @frontmatter,
+  "mizchi/markdown" @md_parser,
+  "mizchi/markdown/mdx" @md_mdx,
+  "mizchi/markdown/slug" @slug,
+  "mizchi/markdown/toc" @md_toc,
+}
+
+options(
+  "supported-targets": "js",
+)

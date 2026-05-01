@@ -1,0 +1,26 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/internal/page_shell"
+
+// Values
+pub fn app_container(String) -> String
+
+pub fn escape_html_text(String) -> String
+
+pub fn render_document(String, String, String, wrap_in_app? : Bool) -> String
+
+pub fn render_streaming_footer() -> String
+
+pub fn render_streaming_header(String, String, String) -> String
+
+pub fn render_streaming_template_parts(String, String, String, String, String) -> (String, String)?
+
+pub fn render_template(String, String, String, String, String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

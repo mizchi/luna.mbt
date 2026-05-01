@@ -1,0 +1,9 @@
+{
+  "name": "example/wasm-island-poc",
+  "version": "0.1.0",
+  "deps": {
+    "mizchi/js": "0.10.15"
+  },
+  "source": "src",
+  "preferred-target": "wasm-gc"
+}

@@ -1,0 +1,64 @@
+---
+title: Spinbutton
+---
+
+# Spinbutton
+
+Numeric input with increment/decrement buttons.
+
+Based on [APG Spinbutton Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/).
+
+## Demo
+
+<styled-spinbutton-demo luna:trigger="visible"><div class="spinbutton"><span class="spinbutton__label">Quantity</span><div class="spinbutton__controls"><button class="spinbutton__button spinbutton__decrement" aria-label="Decrease">−</button><div class="spinbutton__input" role="spinbutton" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100" aria-label="Quantity" tabindex="0">5</div><button class="spinbutton__button spinbutton__increment" aria-label="Increase">+</button></div></div></styled-spinbutton-demo>
+
+## Usage
+
+```moonbit
+let quantity = @resource.signal(5.0)
+
+@styled_spinbutton.spinbutton(
+  quantity,
+  min=0.0,
+  max=100.0,
+  step=1.0,
+  label="Quantity",
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| value | Signal[Double] | - | Current value |
+| min | Double? | None | Minimum value |
+| max | Double? | None | Maximum value |
+| step | Double | 1.0 | Step increment |
+| large_step | Double? | step*10 | Page step |
+| disabled | Bool | false | Disable input |
+| aria_label | String? | None | Accessible label |
+| label | String? | None | Visible label |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.spinbutton` | Root wrapper |
+| `.spinbutton__label` | Label text |
+| `.spinbutton__controls` | Button + input container |
+| `.spinbutton__button` | Increment/decrement button |
+| `.spinbutton__decrement` | Decrement button modifier |
+| `.spinbutton__increment` | Increment button modifier |
+| `.spinbutton__input` | Value display |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Arrow Up | Increase by step |
+| Arrow Down | Decrease by step |
+| Page Up | Increase by large step |
+| Page Down | Decrease by large step |
+| Home | Set to minimum |
+| End | Set to maximum |

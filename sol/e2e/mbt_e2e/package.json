@@ -1,0 +1,12 @@
+{
+  "name": "sol-e2e-mbt",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "chromium-bidi": "^15.0.0",
+    "ws": "^8.20.0",
+    "websocket": "^1.0.35",
+    "debug": "^4.4.3",
+    "@puppeteer/browsers": "^2.13.0"
+  }
+}

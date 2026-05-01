@@ -1,0 +1,36 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/luna" @luna,
+  "mizchi/luna/core/routes" @routes,
+  "mizchi/luna/core/render" @render,
+  "mizchi/luna/core/stream_render" @portable_stream,
+  "mizchi/sol/ssg" @ssg,
+  "mizchi/sol/routes" @sol_routes,
+  "mizchi/luna/dom/static" @server_dom,
+  "mizchi/sol/middleware" @middleware,
+  "mizchi/sol/isr" @isr,
+  "mizchi/mars" @mars,
+  "mizchi/js/core" @js,
+  "mizchi/js/web/url" @url,
+  "mizchi/sol/internal/utils" @utils,
+  "mizchi/sol/internal/mars_response" @mars_response,
+  "mizchi/sol/hot_reload" @hot_reload,
+  "mizchi/sol/internal/page_shell" @page_shell,
+  "mizchi/sol/internal/js_any" @js_any,
+}
+
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/js_async" @js_async,
+} for "wbtest"
+
+warnings = "-24-67-29"
+
+options(
+  "supported-targets": "js",
+  targets: {
+    "sol_routes_ffi_js.mbt": [ "js" ],
+    "route_registration_js.mbt": [ "js" ],
+    "route_params_js.mbt": [ "js" ],
+  },
+)

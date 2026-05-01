@@ -1,0 +1,6 @@
+.mooncakes
+target
+node_modules
+app/__gen__
+.sol
+package-lock.json
