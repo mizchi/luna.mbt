@@ -30,7 +30,8 @@ extern "js" fn ffi_dev_ensure_reschedule_symbol() -> Unit =
 /// signatures we need with the right async shape, and writing the bridge
 /// here keeps it close to the Web Request <-> node:http translation.
 extern "js" fn ffi_listen(handler : @mars.AppHandler, port : Int) -> Unit =
-  #| async (handler, port) => {
+  #| (handler, port) => {
+  #|   (async () => {
   #|   const http = await import("node:http");
   #|   const server = http.createServer(async (req, res) => {
   #|     try {
@@ -73,8 +74,20 @@ extern "js" fn ffi_listen(handler : @mars.AppHandler, port : Int) -> Unit =
   #|       res.end(msg);
   #|     }
   #|   });
+  #|   server.on("error", (err) => {
+  #|     if (err && err.code === "EADDRINUSE") {
+  #|       console.error(`astra dev: port ${port} is already in use. Pass --port <n> to choose another.`);
+  #|     } else {
+  #|       console.error(`astra dev: server error: ${(err && err.stack) || err}`);
+  #|     }
+  #|     process.exit(1);
+  #|   });
   #|   server.listen(port, () => {
   #|     console.log(`astra dev: listening on http://localhost:${port}`);
+  #|   });
+  #|   })().catch((err) => {
+  #|     console.error(`astra dev: failed to start: ${(err && err.stack) || err}`);
+  #|     process.exit(1);
   #|   });
   #| }
 

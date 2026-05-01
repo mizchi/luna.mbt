@@ -1,7 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// Prerequisite: run `pnpm build` (or `moon build --target js --release` from
+// the luna.mbt root) before this config is used.
+// `pnpm test:e2e` chains it via `pretest:e2e` so a fresh checkout works.
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // astra/e2e -> astra -> luna.mbt
 const repoRoot = resolve(__dirname, "..", "..");
@@ -18,6 +22,11 @@ const astraMain = resolve(
   "main",
   "main.js",
 );
+if (!existsSync(astraMain)) {
+  throw new Error(
+    `astra e2e: ${astraMain} not found. Run \`pnpm build\` (or \`moon build --target js --release\` from the luna.mbt root) first.`,
+  );
+}
 
 const port = Number(process.env.ASTRA_E2E_PORT ?? 7780);
 

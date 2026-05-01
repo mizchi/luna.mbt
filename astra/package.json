@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "cd .. && moon build --target js --release",
+    "pretest:e2e": "pnpm build",
     "test:e2e": "playwright test --config e2e/playwright.config.mts"
   },
   "devDependencies": {
