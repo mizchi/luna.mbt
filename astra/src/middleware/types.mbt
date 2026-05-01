@@ -20,12 +20,17 @@ pub fn Middleware::handler(self : Middleware) -> @mars.Handler {
 }
 
 ///|
-/// Page URLs known to this middleware. Phase B-1 returns only document
-/// URLs; assets are added in Task 10 once the asset crawler lands.
+/// Page URLs and static asset URLs known to this middleware. The build
+/// crawler in Task 10 walks this list to dump the dev-server output to
+/// disk; asset URLs come from `@assets.list_asset_urls()` so the static
+/// dump stays in lockstep with what `try_serve_asset` actually serves.
 pub fn Middleware::list_urls(self : Middleware) -> Array[String] {
   let urls : Array[String] = []
   for page in self.doc_tree.pages {
     urls.push(page.url_path)
+  }
+  for asset_url in @assets.list_asset_urls() {
+    urls.push(asset_url)
   }
   urls
 }

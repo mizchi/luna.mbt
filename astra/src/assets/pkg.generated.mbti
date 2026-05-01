@@ -48,9 +48,17 @@ pub fn get_wc_loader_js() -> String
 
 pub fn get_wc_loader_script() -> String
 
+pub fn list_asset_urls() -> Array[String]
+
+pub fn lookup_asset(String) -> Asset?
+
 // Errors
 
 // Types and methods
+pub(all) struct Asset {
+  body : String
+  content_type : String
+}
 
 // Type aliases
 

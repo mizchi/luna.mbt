@@ -4,10 +4,38 @@
 
 ///|
 /// Captured HTTP response from a single `invoke()` call.
+///
+/// `headers_json` carries the response headers as a JSON object string so
+/// MoonBit code can decode them without requiring a working JS-Map FFI
+/// (the mars JsHeaders side is a `fetch` `Headers` instance, not a
+/// MoonBit Map).
 pub(all) struct InvokeResult {
   status : Int
   body : String
+  headers_json : String
 }
+
+///|
+/// Lookup a single response header by name (case-insensitive).
+pub fn InvokeResult::header(self : InvokeResult, name : String) -> String? {
+  ffi_header_lookup(self.headers_json, name)
+}
+
+///|
+/// JS FFI: case-insensitive header lookup against the captured headers
+/// object. Returns `undefined` (mapped to `None`) when the header is absent.
+extern "js" fn ffi_header_lookup(
+  headers_json : String,
+  name : String,
+) -> String? =
+  #| (headers_json, name) => {
+  #|   const obj = JSON.parse(headers_json);
+  #|   const target = String(name).toLowerCase();
+  #|   for (const key of Object.keys(obj)) {
+  #|     if (String(key).toLowerCase() === target) return obj[key];
+  #|   }
+  #|   return undefined;
+  #| }
 
 ///|
 /// JS FFI: ensure the global symbol that mars's `to_handler` expects exists.
@@ -25,7 +53,7 @@ extern "js" fn ffi_ensure_reschedule_symbol() -> Unit =
 
 ///|
 /// JS FFI: build a `Request`, dispatch it through the Mars `AppHandler`,
-/// and return the response status + text body in one async hop.
+/// and return the response status + text body + headers in one async hop.
 extern "js" fn ffi_invoke(
   handler : @mars.AppHandler,
   meth : String,
@@ -35,7 +63,9 @@ extern "js" fn ffi_invoke(
   #|   const req = new Request(url, { method: meth });
   #|   const res = await handler(req);
   #|   const body = await res.text();
-  #|   return { status: res.status, body };
+  #|   const headers = {};
+  #|   res.headers.forEach((value, key) => { headers[key] = value; });
+  #|   return { status: res.status, body, headers_json: JSON.stringify(headers) };
   #| }
 
 ///|

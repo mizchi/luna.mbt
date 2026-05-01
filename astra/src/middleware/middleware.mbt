@@ -34,6 +34,11 @@ fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
       return
     }
   }
+  // Asset surface comes first so static URLs (`/assets/loader.js`, ...)
+  // never collide with a page that happens to share the path.
+  if try_serve_asset(mw, ctx) {
+    return
+  }
   let path = normalize_path(ctx.path(), mw.config.trailing_slash)
   match find_page_meta(mw.pages, path) {
     Some(page) => {

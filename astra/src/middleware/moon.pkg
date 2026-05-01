@@ -2,6 +2,7 @@ import {
   "mizchi/mars" @mars,
   "mizchi/x/http" @http,
   "mizchi/astra" @astra,
+  "mizchi/astra/assets" @assets,
   "mizchi/astra/tree" @tree,
   "mizchi/astra/render" @render,
   "mizchi/sol/routes" @routes,

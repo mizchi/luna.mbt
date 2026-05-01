@@ -53,3 +53,38 @@ async test "handler renders real markdown content into HTML" {
   // pages; the stub only emitted <body><h1>...</h1>.
   inspect(body.contains("<main"), content="true")
 }
+
+///|
+/// T9 step 1: an explicit asset URL must short-circuit page dispatch and
+/// return the bundled island loader script with a JS Content-Type. Plan's
+/// literal `/sol-island.js` URL doesn't match the actual asset layout
+/// (`/assets/loader.js`); we exercise the real URL the renderer references
+/// in `<link rel=modulepreload>` / `<script src=...>`.
+async test "GET /assets/loader.js returns the bundled island loader script" {
+  let cfg = @astra.SsgConfig::default()
+  let mw = @middleware.create(cfg, cwd=".")
+  let app = @mars.Server::new()
+  app.all("/*", mw.handler())
+  let res = @testing.invoke(app, path="/assets/loader.js")
+  inspect(res.status, content="200")
+  let expected_ct =
+    #|Some("application/javascript; charset=utf-8")
+  inspect(res.header("content-type"), content=expected_ct)
+}
+
+///|
+/// T9 step 5: `list_urls` must include every URL `try_serve_asset` is
+/// prepared to answer, otherwise the static-build crawler in T10 would
+/// silently skip assets and the dev server / static dump would diverge.
+test "list_urls includes the bundled asset URLs" {
+  let cfg = @astra.SsgConfig::default()
+  let mw = @middleware.create(cfg, cwd=".")
+  let urls = mw.list_urls()
+  let mut found_loader = false
+  for u in urls {
+    if u == "/assets/loader.js" {
+      found_loader = true
+    }
+  }
+  inspect(found_loader, content="true")
+}
