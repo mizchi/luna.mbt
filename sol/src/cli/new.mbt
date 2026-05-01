@@ -11,14 +11,15 @@ fn show_new_help() -> Unit {
     #|
     #|Options:
     #|  -u, --user <name>   User/organization namespace (required)
-    #|  --doc               Generate documentation site template
     #|  -d, --dev           Development mode (use local luna path)
     #|  -h, --help          Show help
     #|
     #|Examples:
     #|  sol new myapp --user mizchi         Create ./myapp with package mizchi/myapp
-    #|  sol new mydocs --user mizchi --doc  Create documentation site
     #|  sol new myapp --user mizchi --dev   Create with local luna dependency
+    #|
+    #|Note: documentation-site scaffolding moved to the astra package; see
+    #|astra/examples/sol_docs for a working starter.
   println(help)
 }
 
@@ -111,6 +112,14 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
     result.values["doc"].cast()
   } else {
     false
+  }
+  if doc_mode {
+    @cli_common.console_error(
+      @colorette.red(
+        "Error: 'sol new --doc' has moved. Use the astra package directly: see astra/examples/sol_docs for a working starter.",
+      ),
+    )
+    @process.exit(2)
   }
   let project_base = extract_project_basename(project_name)
   let package_name = "\{user_ns}/\{project_base}" // Full name for moon.mod.json
