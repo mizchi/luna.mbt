@@ -302,7 +302,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
           ) catch {
             _ => continue
           }
-          let (fm, _) = @markdown.parse_markdown(content)
+          let (fm, _) = @md_render.parse_markdown(content)
           fm
         }
         @ssg.ContentType::Html => {
@@ -506,7 +506,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
   // Parse frontmatter from template
   let base_frontmatter = match content_type {
     @ssg.ContentType::Markdown => {
-      let (fm, _) = @markdown.parse_markdown(template_content)
+      let (fm, _) = @md_render.parse_markdown(template_content)
       fm
     }
     _ => @ssg.Frontmatter::default()
@@ -622,7 +622,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
   }
 
   // Parse frontmatter from template
-  let (base_frontmatter, _) = @markdown.parse_markdown(template_content)
+  let (base_frontmatter, _) = @md_render.parse_markdown(template_content)
 
   // Get parent path (without the _slug_ part)
   let parent_path = get_parent_dir(relative_path)

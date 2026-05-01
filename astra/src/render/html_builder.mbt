@@ -11,7 +11,7 @@ fn build_page_html(
   page : @astra.PageMeta,
   frontmatter : @astra.Frontmatter,
   content : @luna.Node[Unit, String],
-  toc : Array[@markdown.TocItem],
+  toc : Array[@md_render.TocItem],
 ) -> String {
   // Determine layout
   let layout = frontmatter.layout.unwrap_or("doc")
@@ -189,7 +189,7 @@ fn build_doc_layout(
   page : @astra.PageMeta,
   frontmatter : @astra.Frontmatter,
   content : @luna.Node[Unit, String],
-  toc : Array[@markdown.TocItem],
+  toc : Array[@md_render.TocItem],
 ) -> @luna.Node[Unit, String] {
   let nav = @components.build_nav(ctx, page)
 

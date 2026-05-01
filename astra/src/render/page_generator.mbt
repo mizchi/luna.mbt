@@ -339,11 +339,11 @@ fn generate_page_with_highlight(
         e => return Err("Failed to read \{source_path}: \{e}")
       }
       // Parse markdown
-      let (parsed_frontmatter, nodes) = @markdown.parse_markdown(content)
+      let (parsed_frontmatter, nodes) = @md_render.parse_markdown(content)
 
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
-        match @markdown.extract_description(nodes) {
+        match @md_render.extract_description(nodes) {
           Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
           None => parsed_frontmatter
         }
@@ -365,7 +365,7 @@ fn generate_page_with_highlight(
         ctx.config.i18n,
         page.locale,
       )
-      let vnode = @markdown.md_nodes_to_vnode(
+      let vnode = @md_render.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
@@ -375,7 +375,7 @@ fn generate_page_with_highlight(
       )
 
       // Extract TOC
-      let extracted_toc = @markdown.extract_toc(nodes)
+      let extracted_toc = @md_render.extract_toc(nodes)
       (fm, vnode, extracted_toc)
     }
     @astra.RendererType::HtmlRenderer => {
@@ -456,7 +456,7 @@ fn generate_page_with_highlight(
 
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
-        match @markdown.extract_description(nodes) {
+        match @md_render.extract_description(nodes) {
           Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
           None => parsed_frontmatter
         }
@@ -477,7 +477,7 @@ fn generate_page_with_highlight(
         ctx.config.i18n,
         page.locale,
       )
-      let vnode = @markdown.md_nodes_to_vnode(
+      let vnode = @md_render.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
@@ -487,7 +487,7 @@ fn generate_page_with_highlight(
       )
 
       // Extract TOC
-      let extracted_toc = @markdown.extract_toc(nodes)
+      let extracted_toc = @md_render.extract_toc(nodes)
       (fm, vnode, extracted_toc)
     }
   }
@@ -580,11 +580,11 @@ async fn generate_page_with_highlight_async(
         e => return Err("Failed to read \{source_path}: \{e}")
       }
       // Parse markdown
-      let (parsed_frontmatter, nodes) = @markdown.parse_markdown(content)
+      let (parsed_frontmatter, nodes) = @md_render.parse_markdown(content)
 
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
-        match @markdown.extract_description(nodes) {
+        match @md_render.extract_description(nodes) {
           Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
           None => parsed_frontmatter
         }
@@ -605,7 +605,7 @@ async fn generate_page_with_highlight_async(
         ctx.config.i18n,
         page.locale,
       )
-      let vnode = @markdown.md_nodes_to_vnode(
+      let vnode = @md_render.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
@@ -615,7 +615,7 @@ async fn generate_page_with_highlight_async(
       )
 
       // Extract TOC
-      let extracted_toc = @markdown.extract_toc(nodes)
+      let extracted_toc = @md_render.extract_toc(nodes)
       (fm, vnode, extracted_toc)
     }
     @astra.RendererType::HtmlRenderer => {
@@ -716,7 +716,7 @@ async fn generate_page_with_highlight_async(
 
       // Auto-generate description from first paragraph if not provided
       let fm = if parsed_frontmatter.description is None {
-        match @markdown.extract_description(nodes) {
+        match @md_render.extract_description(nodes) {
           Some(desc) => { ..parsed_frontmatter, description: Some(desc) }
           None => parsed_frontmatter
         }
@@ -737,7 +737,7 @@ async fn generate_page_with_highlight_async(
         ctx.config.i18n,
         page.locale,
       )
-      let vnode = @markdown.md_nodes_to_vnode(
+      let vnode = @md_render.md_nodes_to_vnode(
         nodes,
         islands_base_path~,
         current_url_path=page.url_path,
@@ -747,7 +747,7 @@ async fn generate_page_with_highlight_async(
       )
 
       // Extract TOC
-      let extracted_toc = @markdown.extract_toc(nodes)
+      let extracted_toc = @md_render.extract_toc(nodes)
       (fm, vnode, extracted_toc)
     }
   }

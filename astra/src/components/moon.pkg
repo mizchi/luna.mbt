@@ -2,7 +2,7 @@ import {
   "mizchi/luna",
   "mizchi/astra" @astra,
   "mizchi/sol/routes" @routes,
-  "mizchi/astra/content/md_render" @markdown,
+  "mizchi/astra/content/md_render" @md_render,
   "mizchi/js/node/fs" @fs,
   "mizchi/js/node/path" @path,
 }

@@ -5,7 +5,7 @@ import {
   "mizchi/sol/core/env" @env,
   "mizchi/astra" @astra,
   "mizchi/sol/ssg" @ssg,
-  "mizchi/astra/content/md_render" @markdown,
+  "mizchi/astra/content/md_render" @md_render,
   "mizchi/luna" @luna,
   "mizchi/sol/adapters/fs" @fs_adapter,
 }

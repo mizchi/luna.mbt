@@ -11,7 +11,7 @@
 pub struct ComponentRegistry {
   header : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String])?
   footer : ((@astra.BuildContext) -> @luna.Node[Unit, String])?
-  toc : ((Array[@markdown.TocItem]) -> @luna.Node[Unit, String])?
+  toc : ((Array[@md_render.TocItem]) -> @luna.Node[Unit, String])?
   breadcrumb : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String])?
   prev_next : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String])?
 }
@@ -60,7 +60,7 @@ pub fn ComponentRegistry::with_footer(
 /// Set custom TOC renderer
 pub fn ComponentRegistry::with_toc(
   self : ComponentRegistry,
-  renderer : (Array[@markdown.TocItem]) -> @luna.Node[Unit, String],
+  renderer : (Array[@md_render.TocItem]) -> @luna.Node[Unit, String],
 ) -> ComponentRegistry {
   { ..self, toc: Some(renderer) }
 }
@@ -116,7 +116,7 @@ pub fn ComponentRegistry::render_footer(
 /// Render TOC using registry (fallback to default)
 pub fn ComponentRegistry::render_toc(
   self : ComponentRegistry,
-  toc : Array[@markdown.TocItem],
+  toc : Array[@md_render.TocItem],
 ) -> @luna.Node[Unit, String] {
   match self.toc {
     Some(render) => render(toc)

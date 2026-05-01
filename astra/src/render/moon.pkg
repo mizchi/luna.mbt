@@ -3,7 +3,7 @@ import {
   "mizchi/luna" @luna,
   "mizchi/luna/core/render" @luna_render,
   "mizchi/astra" @astra,
-  "mizchi/astra/content/md_render" @markdown,
+  "mizchi/astra/content/md_render" @md_render,
   "mizchi/astra/mdx" @mdx,
   "mizchi/astra/content/shiki" @shiki,
   "mizchi/astra/assets" @assets,
