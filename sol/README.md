@@ -17,19 +17,23 @@ just sol dev
 
 ## Runtime Asset Sync (Contributors)
 
-Canonical runtime assets live under `src/ssg/assets/scripts/`.
-When you update Luna loader runtime, sync in this order:
+Runtime assets (`loader.js`, `wc-loader.js`, `sol-nav.js`, `lib.js`) now
+live in the sibling [`mizchi/astra`](../astra/) package under
+`astra/src/assets/scripts/`. Sol's runtime resolves them via
+`.mooncakes/mizchi/astra/src/assets/scripts/<name>` at request time.
+
+When you update the Luna loader runtime, sync into astra (not sol):
 
 ```bash
-# 1) Sync from luna.mbt dist -> Sol canonical assets -> examples/static
-just sync-luna-assets ../luna.mbt
-
-# 2) Check sync status only (CI-friendly)
-just check-luna-assets ../luna.mbt
-
-# 3) Re-sync examples/static from canonical assets
-just sync-example-assets
+just -f ../astra/justfile sync-luna-assets ../luna.mbt
 ```
+
+## Static Site Generation
+
+SSG capability moved to the dedicated [`mizchi/astra`](../astra/) package
+in `0.16.0`. To build a docs / blog site, install `mizchi/astra` and use
+`astra dev` / `astra build`. See `astra/README.md` and
+`astra/examples/sol_docs/` for a working starter.
 
 ## Features
 
