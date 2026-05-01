@@ -1,4 +1,6 @@
 // Temporary re-export shim. Removed in Phase C once every sol caller imports mizchi/astra directly.
+// Note: pub typealias re-exports the type name only. Bare-variant references (@ssg.Logo) and
+// record-literal field access still require consumers to import mizchi/astra directly.
 
 pub typealias @astra.BuildContext as BuildContext
 
