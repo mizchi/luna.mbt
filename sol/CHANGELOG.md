@@ -4,6 +4,54 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.16.0 (2026-05-01)
+
+### Breaking Changes
+
+- **SSG removed; use `mizchi/astra` instead.**
+  Static-site generation moved to a dedicated middleware package
+  ([`mizchi/astra`](https://mooncakes.io/docs/mizchi/astra/)) that mounts
+  on any Mars `Server`. Migration:
+
+  ```diff
+  - sol build --mode ssg
+  + astra build
+
+  - sol dev --mode ssg
+  + astra dev
+  ```
+
+  ```diff
+  // moon.mod.json
+  {
+    "deps": {
+  -    "mizchi/sol": "0.15.3"
+  +    "mizchi/sol": "0.16.0",
+  +    "mizchi/astra": "0.1.0"
+    }
+  }
+  ```
+
+  See `astra/README.md` for usage and `astra/examples/sol_docs/` for a
+  working starter.
+
+- **`sol new --doc` removed.**
+  Document-site scaffolding now lives in astra's example surface; copy
+  `astra/examples/sol_docs/` as a template.
+
+- **CLI no-op flags removed: `--parallel`, `--workers`, `--force` on `sol build`.**
+  These drove the SSG cache; they are not relevant to SSR builds.
+
+- **`sol lint` and `sol ssg` subcommands removed.**
+  Both now exit non-zero with a forwarder pointing at the astra CLI.
+
+- **Runtime asset path moved.**
+  `sol/src/ssg/assets/scripts/` is gone. Sol's runtime resolves
+  loader/wc-loader/sol-nav/lib via `.mooncakes/mizchi/astra/src/assets/scripts/`.
+
+- **Dropped deps**: `mizchi/markdown`, `mizchi/jsonschema`,
+  `mizchi/process_pool`, `mizchi/syntree` (only used by the moved SSG).
+
 ## 0.13.0 (2026-03-19)
 
 ### Breaking Changes
