@@ -1,6 +1,13 @@
 import {
+  "moonbitlang/core/json",
+  "mizchi/astra/internal/json_utils" @json_utils,
+  "mizchi/astra/internal/utils" @utils,
+  "mizchi/astra/content/frontmatter" @frontmatter,
+  "mizchi/astra/content/markdown" @markdown,
   "mizchi/mars" @mars,
 }
+
+warnings = "-7-unused_field"
 
 options(
   "supported-targets": "js",
