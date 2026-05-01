@@ -3,11 +3,12 @@ package "mizchi/astra/middleware"
 
 import {
   "mizchi/astra",
+  "mizchi/astra/content/shiki",
   "mizchi/mars",
 }
 
 // Values
-pub fn create(@astra.SsgConfig, cwd? : String) -> Middleware
+pub fn create(@astra.SsgConfig, cwd? : String, minify_css? : Bool, highlighter? : @shiki.Highlighter?) -> Middleware
 
 // Errors
 
@@ -17,6 +18,8 @@ pub(all) struct Middleware {
   cwd : String
   pages : Array[@astra.PageMeta]
   doc_tree : @astra.DocumentTree
+  minify_css : Bool
+  highlighter : @shiki.Highlighter?
 }
 pub fn Middleware::asset_urls(Self) -> Array[String]
 pub fn Middleware::handler(Self) -> @mars.Handler

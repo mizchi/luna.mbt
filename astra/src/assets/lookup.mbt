@@ -29,26 +29,65 @@ pub(all) struct Asset {
 ///
 /// PARITY-NOTE: build-time CSS-utility extraction (`extract_css_utilities`
 /// in `astra/src/render/css_processor.mbt`) is not run here -- it requires
-/// a filesystem scan of source dirs that's only available during a full
-/// `copy_static_assets_async` run. The middleware-served CSS therefore
-/// omits the auto-extracted utility classes; T11 must close that gap
-/// (e.g. by caching the last build's utility CSS or running extraction at
-/// `Middleware::create` time).
-pub fn lookup_asset(path : String, config : @astra.SsgConfig) -> Asset? {
+/// a filesystem scan + child_process invocation of an external `extract.js`
+/// node script that's only available during a full `copy_static_assets_async`
+/// run. The middleware-served CSS therefore omits the auto-extracted utility
+/// classes. Closing that gap requires either caching the last build's utility
+/// CSS at `Middleware::create_async` time or wiring the extractor into the
+/// asset path; tracked in `astra/docs/parity-notes.md`.
+///
+/// Theme variable overrides (`build_theme_overrides_css`) ARE applied here
+/// so the served CSS includes the same `:root{--primary-color:...}`
+/// declaration that `build_combined_css` injects in the static dump path.
+/// CSS minification is still NOT applied (build path runs `minify_css` for
+/// non-dev builds); the served body is the unminified text. Both are noted
+/// in parity-notes.
+pub fn lookup_asset(
+  path : String,
+  config : @astra.SsgConfig,
+  minify~ : Bool = false,
+) -> Asset? {
   match path {
     "/assets/loader.js" =>
       Some({ body: get_island_loader_js(), content_type: js_content_type() })
     "/assets/style.css" =>
       Some({
-        body: get_default_css(config),
+        body: build_style_css_body(config, minify~),
         content_type: css_content_type(),
       })
-    "/assets/markdown.css" | "/assets/github-markdown.css" =>
-      Some({
-        body: get_github_markdown_css(),
-        content_type: css_content_type(),
-      })
+    "/assets/markdown.css" | "/assets/github-markdown.css" => {
+      let raw = get_github_markdown_css()
+      let body = if minify { minify_css(raw) } else { raw }
+      Some({ body, content_type: css_content_type() })
+    }
+    "/assets/shiki.css" => {
+      let raw = @shiki.generate_shiki_css()
+      let body = if minify { minify_css(raw) } else { raw }
+      Some({ body, content_type: css_content_type() })
+    }
     _ => None
+  }
+}
+
+///|
+/// Compose the body served at `/assets/style.css`: base default CSS plus
+/// a `:root{...}` block when the SsgConfig's `ThemeConfig` declares any
+/// overrides. When `minify` is true, run the result through `minify_css`
+/// so the served body byte-matches the production static-build output.
+/// Mirrors the tail of `build_combined_css` in
+/// `astra/render/css_processor.mbt`.
+fn build_style_css_body(config : @astra.SsgConfig, minify~ : Bool) -> String {
+  let base = get_default_css(config)
+  let theme_vars = build_theme_overrides_css(config.theme)
+  let combined = if theme_vars.is_empty() {
+    base
+  } else {
+    "\{base}:root{\{theme_vars}}"
+  }
+  if minify {
+    minify_css(combined)
+  } else {
+    combined
   }
 }
 
@@ -58,7 +97,12 @@ pub fn lookup_asset(path : String, config : @astra.SsgConfig) -> Asset? {
 /// tests asserting the dev server and the static dump cover the same
 /// surface.
 pub fn list_asset_urls() -> Array[String] {
-  ["/assets/loader.js", "/assets/style.css", "/assets/github-markdown.css"]
+  [
+    "/assets/loader.js",
+    "/assets/style.css",
+    "/assets/github-markdown.css",
+    "/assets/shiki.css",
+  ]
 }
 
 ///|

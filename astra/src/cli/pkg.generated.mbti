@@ -19,6 +19,8 @@ pub async fn run_build(Array[String], String) -> Unit
 
 pub fn run_dev(Array[String], String) -> Unit
 
+pub fn run_dev_listen(Array[String], String) -> Unit
+
 // Errors
 
 // Types and methods

@@ -4,12 +4,9 @@
 // (`astra.config.json` -> `sol.config.json` -> defaults), constructs
 // the middleware in-process, and hands every URL to `build_to_disk`.
 //
-// `run_dev` is intentionally minimum-viable in T10: it loads the same
-// config and instantiates the middleware, but cannot yet bind to a
-// real HTTP listener (mars's JS adapter exposes `to_handler`, not a
-// node:http listen helper). T11 wires that final hop. Until then the
-// command prints the resolved config / port and exits non-zero so a
-// caller never thinks the dev server is actually serving.
+// `run_dev` (T11) binds the middleware to a real `node:http` listener
+// via `Server::to_handler`; the bridge lives in `dev.mbt` next to its
+// FFI shim.
 
 ///|
 /// Discover an astra/sol config file in `cwd` and load it into an
@@ -115,7 +112,9 @@ pub fn has_flag(args : Array[String], flag : String) -> Bool {
 /// either wire it or document the lookup explicitly.
 pub async fn run_build(args : Array[String], cwd : String) -> Unit {
   if has_flag(args, "--help") || has_flag(args, "-h") {
-    println("Usage: astra build [--out <dir>]")
+    println("Usage: astra build [--out <dir>] [--mode middleware|ssg]")
+    println("  --mode middleware (default): crawl URLs through Mars handler")
+    println("  --mode ssg: invoke render.generate_site_async (full SSG path)")
     return
   }
   let cfg_base = load_config(cwd)
@@ -124,7 +123,35 @@ pub async fn run_build(args : Array[String], cwd : String) -> Unit {
     None => cfg_base.output_dir
   }
   let cfg = { ..cfg_base, output_dir }
-  let mw = @middleware.create(cfg, cwd~)
+  // T11 parity test entry point: `--mode ssg` skips the middleware crawl
+  // and runs the canonical `generate_site_async` pipeline (the same one
+  // sol's old SSG build called). Used by `astra/docs/parity-notes.md` to
+  // diff middleware-served output against the static-build pipeline.
+  let mode = match get_flag_value(args, "--mode") {
+    Some(m) => m
+    None => "middleware"
+  }
+  if mode == "ssg" {
+    println("astra build (mode=ssg): generate_site_async -> \{output_dir}")
+    match @render.generate_site_async(cfg, cwd) {
+      Ok(_) => println("astra build: done")
+      Err(e) => {
+        println("astra build: FAILED: \{e}")
+        @process.exit(1)
+      }
+    }
+    return
+  }
+  // Production build: minify CSS and run Shiki so the middleware-served
+  // bytes match the canonical SSG output (`build_combined_css` ->
+  // `minify_css`, plus syntax-highlighted code blocks).
+  let highlighter = @shiki.create_default_highlighter()
+  let mw = @middleware.create(
+    cfg,
+    cwd~,
+    minify_css=true,
+    highlighter=Some(highlighter),
+  )
   let urls = mw.list_urls()
   println("astra build: \{urls.length()} URL(s) -> \{output_dir}")
   build_to_disk(mw, output_dir)
@@ -132,26 +159,9 @@ pub async fn run_build(args : Array[String], cwd : String) -> Unit {
 }
 
 ///|
-/// `astra dev [--port <n>]` -- minimum-viable in T10. Logs the
-/// resolved config and prints a plan-tracked stub message; T11 will
-/// turn this into a real `node:http` listener wired to
-/// `mw.handler()` via `Server::to_handler`.
+/// `astra dev [--port <n>]` -- start a real node:http listener mounted on
+/// the in-process middleware. Implementation lives in `dev.mbt` so the FFI
+/// bridge stays paired with its caller.
 pub fn run_dev(args : Array[String], cwd : String) -> Unit {
-  if has_flag(args, "--help") || has_flag(args, "-h") {
-    println("Usage: astra dev [--port <n>]")
-    return
-  }
-  let port = match get_flag_value(args, "--port") {
-    Some(p) => p
-    None => "7777"
-  }
-  let cfg = load_config(cwd)
-  let mw = @middleware.create(cfg, cwd~)
-  let urls = mw.list_urls()
-  println(
-    "astra dev (stub): would listen on :\{port} with \{urls.length()} routes",
-  )
-  println(
-    "astra dev: real listener arrives in T11 (node:http + Server::to_handler)",
-  )
+  run_dev_listen(args, cwd)
 }

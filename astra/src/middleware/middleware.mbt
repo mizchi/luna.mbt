@@ -8,7 +8,12 @@
 /// `cwd` defaults to "." so callers can use the result directly with the
 /// process working directory; pass an absolute path for deterministic
 /// crawling in tests / build pipelines.
-pub fn create(config : @astra.SsgConfig, cwd~ : String = ".") -> Middleware {
+pub fn create(
+  config : @astra.SsgConfig,
+  cwd~ : String = ".",
+  minify_css~ : Bool = false,
+  highlighter~ : @shiki.Highlighter? = None,
+) -> Middleware {
   let scanned = @routes.scan_docs_dir(
     config.docs_dir,
     cwd,
@@ -18,7 +23,7 @@ pub fn create(config : @astra.SsgConfig, cwd~ : String = ".") -> Middleware {
   )
   let (pages, _unresolved) = @routes.resolve_duplicate_pages(scanned)
   let doc_tree = @tree.build_document_tree(config, pages, cwd)
-  { config, cwd, pages, doc_tree }
+  { config, cwd, pages, doc_tree, minify_css, highlighter }
 }
 
 ///|
@@ -81,7 +86,7 @@ fn render_page(mw : Middleware, page : @astra.PageMeta) -> String {
     doc_tree: Some(mw.doc_tree),
     is_dev: false,
   }
-  match @render.render_page_html(build_ctx, page, None) {
+  match @render.render_page_html(build_ctx, page, mw.highlighter) {
     Ok(html) => html
     Err(e) =>
       "<!doctype html><html><head><title>Render error</title></head>" +

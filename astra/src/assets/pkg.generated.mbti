@@ -8,6 +8,8 @@ import {
 // Values
 pub fn build_navigation_script(Array[String], @astra.NavigationConfig) -> String
 
+pub fn build_theme_overrides_css(@astra.ThemeConfig) -> String
+
 pub fn clear_cache() -> Unit
 
 pub fn get_default_css(@astra.SsgConfig) -> String
@@ -50,7 +52,9 @@ pub fn get_wc_loader_script() -> String
 
 pub fn list_asset_urls() -> Array[String]
 
-pub fn lookup_asset(String, @astra.SsgConfig) -> Asset?
+pub fn lookup_asset(String, @astra.SsgConfig, minify? : Bool) -> Asset?
+
+pub fn minify_css(String) -> String
 
 // Errors
 

@@ -9,6 +9,16 @@ pub(all) struct Middleware {
   cwd : String
   pages : Array[@astra.PageMeta]
   doc_tree : @astra.DocumentTree
+  // When true, the asset path runs CSS through `minify_css` so the
+  // middleware-served body byte-matches the static-build output. Defaults
+  // to `false` (dev mode); `build_to_disk` flips it on.
+  minify_css : Bool
+  // Optional Shiki highlighter for code-block syntax highlighting. None
+  // skips the highlighter pass entirely (the dev-server default, since
+  // initialising it costs startup time and per-request highlighting is
+  // expensive). `build_to_disk` populates it so static dumps match the
+  // SSG-style rendered output byte-for-byte (modulo deferred items).
+  highlighter : @shiki.Highlighter?
 }
 
 ///|

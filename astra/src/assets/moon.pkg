@@ -1,5 +1,6 @@
 import {
   "mizchi/astra" @astra,
+  "mizchi/astra/content/shiki" @shiki,
   "mizchi/js/node/fs" @fs,
 }
 
