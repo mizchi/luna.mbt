@@ -208,10 +208,7 @@ async fn resolve_builtin_asset_from_disk(filename : String) -> String? {
   }
   let candidates = [
     ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
-    ".mooncakes/mizchi/sol/src/ssg/assets/scripts/" + filename,
-    "../../src/ssg/assets/scripts/" + filename,
-    "../src/ssg/assets/scripts/" + filename,
-    "src/ssg/assets/scripts/" + filename,
+    ".mooncakes/mizchi/astra/src/assets/scripts/" + filename,
   ]
   for path in candidates {
     match read_file_text(path) {
