@@ -27,9 +27,14 @@ pub async fn build_to_disk(
   ensure_dir(output_dir)
   let app = @mars.Server::new()
   app.all("/*", mw.handler())
+  // Page-vs-asset routing comes from the middleware's own asset surface,
+  // not a dot-in-segment heuristic: a page URL like `/release/v1.0/`
+  // legitimately contains a dot but must still resolve to
+  // `release/v1.0/index.html`, never a flat `release/v1.0` file.
+  let asset_urls = mw.asset_urls()
   for url in mw.list_urls() {
     let res = @testing.invoke(app, path=url)
-    let target = @path.join2(output_dir, url_to_disk_path(url))
+    let target = @path.join2(output_dir, url_to_disk_path(url, asset_urls))
     ensure_parent_dir(target)
     @fs.writeFileSync(target, @core.any(res.body)) catch {
       _ => ()
@@ -42,13 +47,13 @@ pub async fn build_to_disk(
 ///
 /// Mirrors `@astra.url_to_output_path` for page URLs (so `/`,
 /// `/guide/`, `/guide/intro/` all turn into the right `index.html`),
-/// and treats asset URLs (anything with an extension other than
-/// `.html` after the last `/`) as direct file paths -- e.g.
-/// `/assets/loader.js` -> `assets/loader.js`. The dispatch checks the
-/// asset surface first so a page URL that happens to look extensioned
-/// would never reach `build_to_disk` as an asset.
-fn url_to_disk_path(url : String) -> String {
-  if has_file_extension(url) {
+/// and treats every URL in `asset_urls` as a direct file path -- e.g.
+/// `/assets/loader.js` -> `assets/loader.js`. Membership is checked
+/// rather than guessed from the URL shape, so a page URL like
+/// `/release/v1.0/` is routed through `url_to_output_path` even though
+/// its last segment contains a dot.
+fn url_to_disk_path(url : String, asset_urls : Array[String]) -> String {
+  if asset_urls.contains(url) {
     // Asset URL: drop the leading `/` and use the URL as-is.
     if url.has_prefix("/") {
       url[1:].to_string()
@@ -58,24 +63,6 @@ fn url_to_disk_path(url : String) -> String {
   } else {
     @astra.url_to_output_path(url)
   }
-}
-
-///|
-/// True when the last path segment contains a `.` (i.e. has a file
-/// extension that is not part of the parent directory name). Empty
-/// strings and bare slashes return `false`.
-fn has_file_extension(url : String) -> Bool {
-  // Walk once: each `/` resets the segment-dot tracker, so the final
-  // value reflects whether the last segment contained a dot.
-  let mut seen_dot_in_segment = false
-  for ch in url {
-    if ch == '/' {
-      seen_dot_in_segment = false
-    } else if ch == '.' {
-      seen_dot_in_segment = true
-    }
-  }
-  seen_dot_in_segment
 }
 
 ///|

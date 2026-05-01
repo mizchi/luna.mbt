@@ -16,25 +16,58 @@
 /// `SsgConfig`. Returns `SsgConfig::default()` when no file is found
 /// or parsing fails -- callers can treat the result as authoritative
 /// without needing to handle a None branch.
+///
+/// File-absent and file-malformed are treated differently: an absent
+/// file falls through quietly (the project simply hasn't opted into a
+/// config), but a malformed file prints a `WARN` line to stderr-style
+/// output before falling through. Without that distinction a typo in
+/// `astra.config.json` would silently produce a default-config build,
+/// which is the easiest kind of misconfiguration to miss.
 pub fn load_config(cwd : String) -> @astra.SsgConfig {
   // Astra's own config takes precedence so projects can opt into
   // astra-specific fields without disturbing an existing sol setup.
   let astra_path = @path.join2(cwd, "astra.config.json")
   if @fs.existsSync(astra_path) {
-    let content = @fs.read_file_as_string(astra_path) catch {
-      _ => return @astra.SsgConfig::default()
+    let content_opt : String? = try {
+      Some(@fs.read_file_as_string(astra_path))
+    } catch {
+      _ => {
+        println(
+          "astra: WARN failed to read astra.config.json -- falling through to sol.config.json",
+        )
+        None
+      }
     }
-    if @astra.parse_ssg_config(content) is Some(cfg) {
-      return cfg
+    if content_opt is Some(content) {
+      match @astra.parse_ssg_config(content) {
+        Some(cfg) => return cfg
+        None =>
+          println(
+            "astra: WARN astra.config.json failed to parse -- falling through to sol.config.json",
+          )
+      }
     }
   }
   let sol_path = @path.join2(cwd, "sol.config.json")
   if @fs.existsSync(sol_path) {
-    let content = @fs.read_file_as_string(sol_path) catch {
-      _ => return @astra.SsgConfig::default()
+    let content_opt : String? = try {
+      Some(@fs.read_file_as_string(sol_path))
+    } catch {
+      _ => {
+        println(
+          "astra: WARN failed to read sol.config.json -- using default config",
+        )
+        None
+      }
     }
-    if @astra.parse_ssg_from_sol_config(content) is Some(cfg) {
-      return cfg
+    if content_opt is Some(content) {
+      match @astra.parse_ssg_from_sol_config(content) {
+        Some(cfg) => return cfg
+        None =>
+          println(
+            "astra: WARN sol.config.json failed to parse -- using default config",
+          )
+      }
     }
   }
   @astra.SsgConfig::default()
@@ -69,15 +102,20 @@ pub fn has_flag(args : Array[String], flag : String) -> Bool {
 }
 
 ///|
-/// `astra build [--out <dir>] [--config <path>]`.
+/// `astra build [--out <dir>]`.
 ///
 /// `--out` overrides `SsgConfig.output_dir`. The default is read from
 /// the loaded config (which itself defaults to `dist`). Any I/O errors
 /// during the crawl propagate up and abort the build with a non-zero
 /// exit through the caller.
+///
+/// A `--config <path>` flag is intentionally not advertised here: T10
+/// only auto-discovers `astra.config.json` / `sol.config.json` in `cwd`,
+/// and the unwired flag was previously mentioned in help text. T11 will
+/// either wire it or document the lookup explicitly.
 pub async fn run_build(args : Array[String], cwd : String) -> Unit {
   if has_flag(args, "--help") || has_flag(args, "-h") {
-    println("Usage: astra build [--out <dir>] [--config <path>]")
+    println("Usage: astra build [--out <dir>]")
     return
   }
   let cfg_base = load_config(cwd)

@@ -34,3 +34,12 @@ pub fn Middleware::list_urls(self : Middleware) -> Array[String] {
   }
   urls
 }
+
+///|
+/// Just the static-asset URLs this middleware serves. Exposed so the
+/// build crawler can decide page vs asset routing by membership rather
+/// than a fragile dot-in-segment heuristic (a page URL like
+/// `/release/v1.0/` would otherwise be misclassified as an asset).
+pub fn Middleware::asset_urls(_self : Middleware) -> Array[String] {
+  @assets.list_asset_urls()
+}

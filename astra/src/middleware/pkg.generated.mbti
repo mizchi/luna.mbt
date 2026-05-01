@@ -18,6 +18,7 @@ pub(all) struct Middleware {
   pages : Array[@astra.PageMeta]
   doc_tree : @astra.DocumentTree
 }
+pub fn Middleware::asset_urls(Self) -> Array[String]
 pub fn Middleware::handler(Self) -> @mars.Handler
 pub fn Middleware::list_urls(Self) -> Array[String]
 
