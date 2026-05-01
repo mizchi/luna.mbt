@@ -1,4 +1,5 @@
 packages:
+  - "astra"
   - "js/*"
   - "js/luna/examples"
   - "js/luna/examples_preact"

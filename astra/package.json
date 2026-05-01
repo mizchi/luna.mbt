@@ -1,0 +1,11 @@
+{
+  "name": "@mizchi/astra-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test --config e2e/playwright.config.mts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}
