@@ -1,6 +1,7 @@
 # Surviving `mizchi/sol/*` back-edges in astra/src
 
-Status: deferred to Phase C (T11+).
+Status: deferred to Phase C (T12+). T11 closed parity gaps but did not
+lift the back-edges below; the plan keeps that work for Phase C T12-T13.
 
 These back-edges remain after T7 (SSG submodule lift). They are tracked here so that T11 cleanup can pick them up. The `mizchi/sol` dependency stays in `astra/moon.mod.json` until all of these are zero or migrated.
 
