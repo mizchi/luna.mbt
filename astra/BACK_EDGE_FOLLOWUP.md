@@ -15,6 +15,7 @@ These back-edges remain after T7 (SSG submodule lift). They are tracked here so 
 | `astra/src/render/moon.pkg:13` | `mizchi/sol/isr` | Incremental Static Regeneration: handler/middleware/manifest. `astra/render/isr.mbt` only constructs the manifest (`@sol_isr.ISRManifest`). The runtime handler stays in sol/router. Splitting types vs. handler is a non-trivial refactor; defer. |
 | `astra/src/render/moon.pkg:15` | `mizchi/sol/routes` | SSR file-router. Plan T12 line 965 explicitly says "routes/ stays in sol". DO NOT lift. |
 | `astra/src/components/moon.pkg:4` | `mizchi/sol/routes` | Same as render row. Plan T12 says stays in sol. |
+| `astra/src/middleware/moon.pkg:7` | `mizchi/sol/routes` | `scan_docs_dir`, `resolve_duplicate_pages`. KEEP — same plan-T12 justification as render/components. |
 
 ## Action plan for T11
 
