@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/strconv",
   "mizchi/astra" @astra,
   "mizchi/astra/content/frontmatter" @frontmatter,
   "mizchi/markdown" @md_parser,

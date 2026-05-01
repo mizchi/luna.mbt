@@ -35,8 +35,17 @@ pub fn PropsDiagnostic::to_string(self : PropsDiagnostic) -> String {
 }
 
 // =============================================================================
-// Props Schema (extracted from StructExport)
+// Props Schema Sources
 // =============================================================================
+
+///|
+/// A struct-like input used to build a `ComponentPropsRegistry`.
+/// `name` is the props type name (e.g., "CounterProps"). `raw_definition`
+/// is the full struct text including braces, used to extract fields.
+pub(all) struct PropsStructInput {
+  name : String
+  raw_definition : String
+}
 
 ///|
 /// Parsed field info from a Props struct definition
@@ -47,9 +56,9 @@ struct PropsField {
 }
 
 ///|
-/// Build a props schema (field name → type) from a StructExport
-fn build_props_schema(struct_export : StructExport) -> Array[PropsField] {
-  let fields = extract_struct_fields(struct_export.raw_definition)
+/// Build a props schema (field name -> type) from a `PropsStructInput`
+fn build_props_schema(input : PropsStructInput) -> Array[PropsField] {
+  let fields = extract_struct_fields(input.raw_definition)
   fields.map(fn(pair) {
     let name = pair.0
     let type_str = pair.1
@@ -59,8 +68,75 @@ fn build_props_schema(struct_export : StructExport) -> Array[PropsField] {
   })
 }
 
+///|
+/// Extract field name-type pairs from a struct definition string.
+/// Inlined here so the validator does not depend on sol's type-generator.
+fn extract_struct_fields(raw : String) -> Array[(String, String)] {
+  let fields : Array[(String, String)] = []
+  // Find { ... } block
+  let start = match raw.find("{") {
+    Some(i) => i + 1
+    None => return fields
+  }
+  let end = match raw.find("}") {
+    Some(i) => i
+    None => return fields
+  }
+  let body = raw.substring(start~, end~)
+  // Split by newlines, parse "name : Type"
+  for line_view in body.split("\n") {
+    let line = line_view.to_string().trim_space().to_string()
+    if line.is_empty() || line.has_prefix("//") {
+      continue
+    }
+    match line.find(":") {
+      Some(colon) => {
+        let name = line.substring(end=colon).trim_space().to_string()
+        let mut type_str = line.substring(start=colon + 1).trim_space().to_string()
+        // Remove trailing comma if present
+        if type_str.has_suffix(",") {
+          type_str = type_str.substring(end=type_str.length() - 1)
+            .trim_space()
+            .to_string()
+        }
+        if !(name.is_empty()) && !(type_str.is_empty()) {
+          fields.push((name, type_str))
+        }
+      }
+      None => ()
+    }
+  }
+  fields
+}
+
+///|
+/// Strip the "Props" suffix and convert PascalCase to snake_case
+/// (e.g., "CounterProps" -> "counter", "MyWidgetProps" -> "my_widget").
+fn extract_component_name_from_props(props_name : String) -> String {
+  // Remove "Props" suffix
+  let name = if props_name.has_suffix("Props") {
+    props_name.substring(end=props_name.length() - 5)
+  } else {
+    props_name
+  }
+  // Convert PascalCase to snake_case
+  let buf = StringBuilder::new()
+  let chars = name.to_array()
+  for i, c in chars {
+    if c >= 'A' && c <= 'Z' {
+      if i > 0 {
+        buf.write_char('_')
+      }
+      buf.write_char(Char::from_int(c.to_int() + 32))
+    } else {
+      buf.write_char(c)
+    }
+  }
+  buf.to_string()
+}
+
 // =============================================================================
-// Component Registry (maps JSX tag → Props schema)
+// Component Registry (maps JSX tag -> Props schema)
 // =============================================================================
 
 ///|
@@ -71,9 +147,9 @@ pub struct ComponentPropsRegistry {
 }
 
 ///|
-/// Build registry from collected StructExports
+/// Build registry from an array of `PropsStructInput` entries.
 pub fn ComponentPropsRegistry::from_structs(
-  structs : Array[StructExport],
+  structs : Array[PropsStructInput],
 ) -> ComponentPropsRegistry {
   let entries : Map[String, Array[PropsField]] = {}
   for s in structs {
@@ -90,7 +166,7 @@ fn ComponentPropsRegistry::lookup(
   self : ComponentPropsRegistry,
   jsx_tag : String,
 ) -> Array[PropsField]? {
-  // JSX tag "Counter" → "counter" for lookup
+  // JSX tag "Counter" -> "counter" for lookup
   let key = jsx_tag.to_lower()
   self.entries.get(key)
 }
@@ -134,7 +210,7 @@ fn check_literal_compat(
         _ => Some("expected Bool, got string \"\{value}\"")
       }
     "String" => None // String literal always compatible with String
-    _ => None // Unknown type — skip validation
+    _ => None // Unknown type - skip validation
   }
 }
 
@@ -145,14 +221,14 @@ fn check_literal_compat(
 ///|
 /// Validate a JsxComponentEmbed against the props registry
 pub fn validate_jsx_embed(
-  embed : @ssg.JsxComponentEmbed,
+  embed : @astra.JsxComponentEmbed,
   registry : ComponentPropsRegistry,
 ) -> Array[PropsDiagnostic] {
   let diags : Array[PropsDiagnostic] = []
   let tag = embed.tag
   let fields = match registry.lookup(tag) {
     Some(f) => f
-    None => return diags // Unknown component — skip (might be external)
+    None => return diags // Unknown component - skip (might be external)
   }
   // Build field lookup
   let field_map : Map[String, PropsField] = {}
@@ -202,11 +278,11 @@ pub fn validate_jsx_embed(
 fn check_attr_value(
   tag : String,
   attr_name : String,
-  attr_value : @ssg.MdxAttrValue,
+  attr_value : @astra.MdxAttrValue,
   field : PropsField,
   diags : Array[PropsDiagnostic],
 ) -> Unit {
-  let val : @ssg.MdxAttrValue = attr_value
+  let val : @astra.MdxAttrValue = attr_value
   match val {
     StringLiteral(value) =>
       match check_literal_compat(value, field.type_str) {
@@ -237,7 +313,7 @@ fn check_attr_value(
 ///|
 /// Validate all JSX embeds in an array of MdNodes
 pub fn validate_mdx_props(
-  nodes : Array[@ssg.MdNode],
+  nodes : Array[@astra.MdNode],
   registry : ComponentPropsRegistry,
 ) -> Array[PropsDiagnostic] {
   let diags : Array[PropsDiagnostic] = []
@@ -247,12 +323,12 @@ pub fn validate_mdx_props(
 
 ///|
 fn collect_jsx_embeds(
-  nodes : Array[@ssg.MdNode],
+  nodes : Array[@astra.MdNode],
   diags : Array[PropsDiagnostic],
   registry : ComponentPropsRegistry,
 ) -> Unit {
   for node in nodes {
-    let n : @ssg.MdNode = node
+    let n : @astra.MdNode = node
     match n {
       JsxComponent(embed) => {
         let embed_diags = validate_jsx_embed(embed, registry)

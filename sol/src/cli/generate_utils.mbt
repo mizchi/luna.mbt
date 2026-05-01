@@ -62,7 +62,9 @@ fn[FS : @env.FileSystem] detect_app_mode_with_fs(
 // =============================================================================
 
 ///|
-/// Built-in framework asset filenames served from /__sol__/
+/// Built-in framework asset filenames served from /__sol__/.
+/// These are pulled from `mizchi/astra/assets` for the canonical content,
+/// with luna's compiled iife dist preferred where available.
 let sol_asset_files : Array[String] = [
   "loader.js", "wc-loader.js", "sol-nav.js", "lib.js",
 ]
@@ -80,30 +82,46 @@ fn luna_dist_name(filename : String) -> String {
 }
 
 ///|
-/// Resolve a runtime asset file by trying multiple candidate paths.
-/// Used at build time (sol generate) to find and copy assets.
+/// Resolve a runtime asset file. Priority order:
+///   1. luna's compiled iife dist (mooncakes) for loader/wc-loader.
+///   2. astra's bundled asset accessors (`@astra_assets.get_*_js()`).
+///   3. astra-package raw script in mooncakes (for files astra has no
+///      named getter for, e.g. `sol-nav.js`, `lib.js`).
 fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
+  // Step 1: try luna's compiled iife dist when available (loader/wc-loader).
   let luna_name = luna_dist_name(filename)
-  let candidates = [
-    // mooncakes (luna): loader dist from luna package
-    @path.join2(cwd, ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name),
-    // mooncakes (sol): canonical assets from sol package
-    @path.join2(cwd, ".mooncakes/mizchi/sol/src/ssg/assets/scripts/" + filename),
-    // Development: sol.mbt repo root (monorepo examples)
-    @path.join2(cwd, "../../src/ssg/assets/scripts/" + filename),
-    // Development: direct child of sol.mbt
-    @path.join2(cwd, "../src/ssg/assets/scripts/" + filename),
-    // Same repo root
-    @path.join2(cwd, "src/ssg/assets/scripts/" + filename),
-  ]
-  for path in candidates {
+  if luna_name != filename {
+    let luna_dist = @path.join2(
+      cwd, ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
+    )
     try {
-      return Some(@fs.read_file_as_string(path))
+      return Some(@fs.read_file_as_string(luna_dist))
     } catch {
-      _ => continue
+      _ => ()
     }
   }
-  None
+  // Step 2: ask astra/assets for files it knows by name. Empty string
+  // means astra returned no content, so fall through to the raw lookup.
+  let from_astra = if filename == "loader.js" {
+    @astra_assets.get_loader_js()
+  } else if filename == "wc-loader.js" {
+    @astra_assets.get_wc_loader_js()
+  } else {
+    ""
+  }
+  if from_astra.length() > 0 {
+    return Some(from_astra)
+  }
+  // Step 3: fall back to reading the raw asset file from astra's mooncake.
+  // This covers `sol-nav.js` / `lib.js` which have no dedicated getter.
+  let astra_path = @path.join2(
+    cwd, ".mooncakes/mizchi/astra/src/assets/scripts/" + filename,
+  )
+  try {
+    return Some(@fs.read_file_as_string(astra_path))
+  } catch {
+    _ => return None
+  }
 }
 
 // =============================================================================

@@ -189,6 +189,11 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
       }
     None => None
   }
+  // SSG-only flags retained on the CLI surface for backward compatibility,
+  // but the SSR build no longer drives SSG. Run `astra build` for SSG.
+  let _ = use_parallel
+  let _ = num_workers
+  let _ = force_build
   let cwd = @process.cwd()
   let (sol_config, sol_config_path) = load_config_with_fs(fs, cwd)
   let has_sol_config = sol_config_path.length() > 0
@@ -198,68 +203,18 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
   let has_moon_mod = fs.exists_sync(moon_mod_path)
-  let has_ssg = has_ssg_config(cwd)
-  // Check if this is a pure SSG project (no moon.mod.json needed)
-  let is_ssg_only = has_ssg && !(has_moon_mod)
-  let mode_detail = if is_ssg_only {
-    "SSG-only"
-  } else if has_moon_mod && has_ssg && has_static_dirs {
-    "Hybrid (app + ssg + staticDirs)"
-  } else if has_moon_mod && has_ssg {
-    "Hybrid (app + ssg)"
-  } else if has_moon_mod && has_static_dirs {
-    "Hybrid (app + staticDirs)"
+  let mode_detail = if has_moon_mod && has_static_dirs {
+    "App (with staticDirs)"
   } else {
     "App"
   }
-  println(@colorette.gray("Mode: \{mode_detail} (auto)"))
-  if is_ssg_only {
-    // Pure SSG mode - skip MoonBit checks and go directly to SSG build
-    let config_path = find_ssg_config_file(cwd)
-    let full_config_path = @path.join2(cwd, config_path)
-    let config_content = fs.read_file_sync(full_config_path) catch {
-      _ => {
-        @cli_common.console_error(@colorette.red("Failed to read SSG config"))
-        @process.exit(1)
-        ""
-      }
-    }
-    match parse_ssg_config(config_content, config_path) {
-      Some(ssg_config) => {
-        let ssg_cwd = @path.dirname(full_config_path)
-        let cache_dir = @path.join2(ssg_cwd, ".sol-cache")
-        if !(force_build) {
-          match
-            @ssg_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
-            @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
-              println(
-                @colorette.green("SSG skipped (no changes since \{built_at})"),
-              )
-              println(@colorette.gray("  Use --force to rebuild anyway"))
-            }
-            _ =>
-              execute_ssg_build(
-                ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
-              )
-          }
-        } else {
-          execute_ssg_build(
-            ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
-          )
-        }
-        println(@colorette.gray("Output: \{ssg_config.output_dir}"))
-        return
-      }
-      None => {
-        @cli_common.console_error(@colorette.red("Failed to parse SSG config"))
-        @process.exit(1)
-      }
-    }
-  }
-  // Check if this is a MoonBit project (required for non-SSG-only mode)
+  println(@colorette.gray("Mode: \{mode_detail}"))
+  // Check if this is a MoonBit project (required for SSR build)
   if !(has_moon_mod) {
     @cli_common.console_error(
-      @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
+      @colorette.red(
+        "Error: Not a MoonBit project (moon.mod.json not found). Use `astra build` for SSG-only projects.",
+      ),
     )
     @process.exit(1)
   }
@@ -357,56 +312,14 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
     println(@colorette.green("✓ Client bundle complete"))
   }
-  // Build static directories (SSG) if configured via static_dirs
-  match sol_config {
-    Some(config) =>
-      if !(config.static_dirs.is_empty()) {
-        build_static_dirs(config.static_dirs, cwd)
-      }
-    None => ()
-  }
-  // Full SSG build if ssg section exists in sol.config.json
-  if has_ssg_config(cwd) {
-    let config_path = find_ssg_config_file(cwd)
-    let full_config_path = @path.join2(cwd, config_path)
-    let config_content = fs.read_file_sync(full_config_path) catch {
-      _ => {
-        @cli_common.console_error(@colorette.red("Failed to read SSG config"))
-        @process.exit(1)
-        "" // unreachable
-      }
-    }
-    match parse_ssg_config(config_content, config_path) {
-      Some(ssg_config) => {
-        // Use config directory as SSG working directory
-        let ssg_cwd = @path.dirname(full_config_path)
-        let cache_dir = @path.join2(ssg_cwd, ".sol-cache")
-        // Check cache unless force build
-        if !(force_build) {
-          match
-            @ssg_cache.check_local_build_state(ssg_config, ssg_cwd, cache_dir) {
-            @ssg_cache.BuildStateCheck::UpToDate(built_at) => {
-              println(
-                @colorette.green("SSG skipped (no changes since \{built_at})"),
-              )
-              println(@colorette.gray("  Use --force to rebuild anyway"))
-            }
-            _ =>
-              execute_ssg_build(
-                ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
-              )
-          }
-        } else {
-          execute_ssg_build(
-            ssg_config, ssg_cwd, cache_dir, use_parallel, num_workers,
-          )
-        }
-      }
-      None => {
-        @cli_common.console_error(@colorette.red("Failed to parse SSG config"))
-        @process.exit(1)
-      }
-    }
+  // Note: static_dirs / ssg sections of sol.config.json are no longer
+  // built by `sol build`. Run `astra build` for SSG output.
+  if has_static_dirs {
+    println(
+      @colorette.gray(
+        "  staticDirs entries detected; run `astra build` to generate them.",
+      ),
+    )
   }
   if build_wasm {
     let wasm_entries = match sol_config {
@@ -457,84 +370,4 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     }
   }
   println(@colorette.gray("Output: _build/\{target}/release/build/"))
-}
-
-///|
-/// Async SSG build for build command with syntax highlighting
-async fn execute_ssg_build(
-  config : @ssg.SsgConfig,
-  cwd : String,
-  cache_dir : String,
-  _use_parallel : Bool,
-  _num_workers : Int?,
-) -> Unit {
-  println(@colorette.cyan("Running SSG build..."))
-  println(@colorette.gray("  Docs: \{config.docs_dir}"))
-  println(@colorette.gray("  Output: \{config.output_dir}"))
-  // Create highlighter for syntax highlighting
-  let highlighter = @shiki.create_default_highlighter()
-  // Use sync version with pre-created highlighter
-  match @ssg_gen.generate_site_with_highlighter(config, cwd, highlighter) {
-    Ok(_) => {
-      @ssg_cache.save_manifest(cache_dir, config, cwd)
-      println(@colorette.green("✓ SSG build complete: \{config.output_dir}"))
-    }
-    Err(e) => {
-      @cli_common.console_error(@colorette.red("SSG build failed: \{e}"))
-      @process.exit(1)
-    }
-  }
-}
-
-///|
-/// Build static directories using Sol SSG
-fn build_static_dirs(static_dirs : Array[StaticDirEntry], cwd : String) -> Unit {
-  for entry in static_dirs {
-    println(
-      @colorette.cyan(
-        "Building static directory: \{entry.source_dir} -> \{entry.path_prefix}",
-      ),
-    )
-
-    // Convert StaticDirEntry to SsgConfig
-    let output_dir = ".sol/prod/static" +
-      entry.path_prefix.trim_end(chars="/").to_string()
-    let ssg_config = @ssg.SsgConfig::{
-      docs_dir: entry.source_dir,
-      output_dir,
-      title: entry.title,
-      base_url: entry.path_prefix,
-      nav: entry.nav,
-      sidebar: entry.sidebar,
-      islands: None,
-      theme: entry.theme,
-      navigation: entry.navigation,
-      i18n: entry.i18n,
-      exclude: entry.exclude,
-      trailing_slash: entry.trailing_slash,
-      ogp: entry.ogp,
-      ogp_text: entry.ogp_text,
-      head_snippets: entry.head_snippets,
-      body_snippets: entry.body_snippets,
-      prod_body_snippets: entry.prod_body_snippets,
-      sanitize_html: false,
-      deploy_target: @ssg.DeployTarget::default(),
-      spa_routes: [],
-      components_dir: None,
-      css_utilities: None,
-      meta_files: @ssg.MetaFilesConfig::default(),
-    }
-
-    // Generate static site
-    match @ssg_gen.generate_site(ssg_config, cwd) {
-      Ok(_) =>
-        println(
-          @colorette.green("✓ Static directory \{entry.path_prefix} built"),
-        )
-      Err(e) =>
-        println(
-          @colorette.red("✗ Failed to build \{entry.path_prefix}: \{e}"),
-        )
-    }
-  }
 }

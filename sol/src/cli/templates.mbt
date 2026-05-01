@@ -364,7 +364,7 @@ pub fn template_client_counter_moon_pkg() -> String {
 
 ///|
 pub fn template_ln_loader_js() -> String {
-  @assets.get_island_loader_js()
+  @astra_assets.get_island_loader_js()
 }
 
 ///|

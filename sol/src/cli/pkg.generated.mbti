@@ -3,7 +3,6 @@ package "mizchi/sol/cli"
 
 import {
   "mizchi/astra",
-  "mizchi/astra/content/markdown",
   "mizchi/sol/core/env",
 }
 
@@ -25,8 +24,6 @@ pub fn extract_island_name(String) -> String
 pub fn extract_package_path(String) -> String?
 
 pub fn find_matching_paren(String, Int) -> Int?
-
-pub fn find_ssg_config_file(String) -> String
 
 pub fn generate_doc_templates(String, String) -> Array[TemplateFile]
 
@@ -54,8 +51,6 @@ pub fn generate_wasm_env_json(Array[WasmMountEntry]) -> String
 
 pub fn generate_wasm_manifest_json(Array[WasmMountEntry]) -> String
 
-pub fn has_ssg_config(String) -> Bool
-
 pub fn inject_mbtx_prelude(String) -> String
 
 pub fn[FS : @env.FileSystem] is_user_managed_server(FS, String, SolConfig) -> Bool
@@ -76,8 +71,6 @@ pub fn parse_runtime(String) -> ServerRuntime
 
 pub fn parse_sol_config(String) -> SolConfig?
 
-pub fn parse_ssg_config(String, String) -> @astra.SsgConfig?
-
 pub fn parse_wasm_entrypoint_runtime(String) -> WasmEntrypointRuntime
 
 pub fn parse_wasm_entrypoint_runtime_opt(String) -> WasmEntrypointRuntime?
@@ -85,12 +78,6 @@ pub fn parse_wasm_entrypoint_runtime_opt(String) -> WasmEntrypointRuntime?
 pub fn parse_wasm_entrypoints(Map[String, Json]) -> Array[WasmEntrypointConfig]
 
 pub fn rewrite_type_refs(String, Map[String, String]) -> String
-
-pub async fn run_ssg_build(@astra.SsgConfig, String, Bool, Int?, Bool) -> Result[Unit, String]
-
-pub async fn run_ssg_dev(@astra.SsgConfig, String, Int) -> Unit
-
-pub fn run_ssg_lint(Array[String]) -> Unit
 
 pub fn[FS : @env.FileSystem] scan_mbtx_dir(FS, String, String, base_path? : String) -> Array[MbtxFileEntry]
 
@@ -130,10 +117,6 @@ pub fn uses_signal_types(String) -> Bool
 
 pub fn validate_internal_links(Array[(String, String)], Map[String, Bool]) -> Array[LinkDiagnostic]
 
-pub fn validate_jsx_embed(@markdown.JsxComponentEmbed, ComponentPropsRegistry) -> Array[PropsDiagnostic]
-
-pub fn validate_mdx_props(Array[@markdown.MdNode], ComponentPropsRegistry) -> Array[PropsDiagnostic]
-
 pub fn wasm_build_kind_to_string(WasmBuildKind) -> String
 
 pub fn wasm_entrypoint_runtime_to_string(WasmEntrypointRuntime) -> String
@@ -145,16 +128,6 @@ pub enum AppMode {
   MoonBitFull
   MoonBitClientTsServer
   TypeScriptFull
-} derive(Eq, Show)
-
-pub struct ComponentPropsRegistry {
-  entries : Map[String, Array[PropsField]]
-}
-pub fn ComponentPropsRegistry::from_structs(Array[StructExport]) -> Self
-
-pub(all) enum DiagnosticSeverity {
-  Error
-  Warning
 } derive(Eq, Show)
 
 pub(all) struct FuncExport {
@@ -176,15 +149,6 @@ pub(all) struct MbtxFileEntry {
   source : String
   id : String
 }
-
-pub(all) struct PropsDiagnostic {
-  component : String
-  severity : DiagnosticSeverity
-  message : String
-}
-pub fn PropsDiagnostic::to_string(Self) -> String
-
-type PropsField
 
 type RouteInfo
 
@@ -209,27 +173,6 @@ pub struct SolConfig {
   experimental : Array[String]
 }
 pub fn SolConfig::has_experimental(Self, String) -> Bool
-
-pub(all) struct SsgLintIssue {
-  severity : SsgLintSeverity
-  file : String
-  line : Int?
-  message : String
-  rule : String
-}
-
-pub(all) struct SsgLintResult {
-  issues : Array[SsgLintIssue]
-  files_checked : Int
-  errors : Int
-  warnings : Int
-}
-
-pub(all) enum SsgLintSeverity {
-  Error
-  Warning
-  Info
-}
 
 pub struct StaticDirEntry {
   path_prefix : String

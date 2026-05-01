@@ -12,9 +12,11 @@ fn show_dev_help() -> Unit {
   let help =
     #|Usage: sol dev [options]
     #|
+    #|Starts the SSR app development server. For SSG (docs) projects, use
+    #|`astra dev` instead.
+    #|
     #|Options:
     #|  -p, --port <port>   Port to listen on (default: 7777)
-    #|  --mode <mode>       Mode: auto | app | ssg (default: auto)
     #|  -n, --no-watch      Disable file watching (watch is enabled by default)
     #|  -f, --watch-framework  Watch sol framework source for hot reload
     #|  --clean             Clean _build and .sol directories before build
@@ -38,7 +40,6 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     args~,
     options=[
       @util.String(key="port", short="p", multiple=false, default=Some("7777")),
-      @util.String(key="mode", short="m", multiple=false, default=Some("auto")),
       @util.Boolean(key="no-watch", short="n"),
       @util.Boolean(key="watch-framework", short="f"),
       @util.Boolean(key="clean", short="c"),
@@ -55,11 +56,6 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     result.values["port"].cast()
   } else {
     "7777"
-  }
-  let mode : String = if result.values.contains("mode") {
-    result.values["mode"].cast()
-  } else {
-    "auto"
   }
   // Watch is enabled by default, --no-watch disables it
   let watch : Bool = if result.values.contains("no-watch") {
@@ -80,73 +76,16 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   let cwd = @process.cwd()
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
   let has_moon_mod = fs.exists_sync(moon_mod_path)
-  let has_ssg = has_ssg_config(cwd)
-  let resolved_mode = if mode == "auto" {
-    if has_ssg && !(has_moon_mod) {
-      "ssg"
-    } else {
-      "app"
-    }
-  } else {
-    mode
-  }
-  if resolved_mode != "auto" && resolved_mode != "app" && resolved_mode != "ssg" {
-    @cli_common.console_error(
-      @colorette.red("Invalid --mode: \{mode} (use auto|app|ssg)"),
-    )
-    @process.exit(1)
-  }
-  let mode_label = if resolved_mode == "ssg" { "SSG" } else { "App" }
-  let mode_hint = if mode == "auto" { "auto" } else { "forced" }
-  println(@colorette.gray("Mode: \{mode_label} (\{mode_hint})"))
-  if has_ssg && has_moon_mod && resolved_mode == "app" {
-    println(
-      @colorette.gray(
-        "Hybrid config detected (app + ssg). Use `sol dev --mode ssg` for docs preview.",
-      ),
-    )
-  }
-  if resolved_mode == "ssg" {
-    if !(has_ssg) {
-      @cli_common.console_error(
-        @colorette.red(
-          "SSG mode requires sol.config.json with ssg/docs configuration",
-        ),
-      )
-      @process.exit(1)
-    }
-    println(@colorette.cyan("Running SSG dev server..."))
-    let config_path = find_ssg_config_file(cwd)
-    let full_config_path = @path.join2(cwd, config_path)
-    let config_content = fs.read_file_sync(full_config_path) catch {
-      _ => {
-        @cli_common.console_error(@colorette.red("Failed to read SSG config"))
-        @process.exit(1)
-        ""
-      }
-    }
-    match parse_ssg_config(config_content, config_path) {
-      Some(ssg_config) => {
-        let port_int = @ssg.parse_int_simple(port)
-        // Use config directory as SSG working directory
-        let ssg_cwd = @path.dirname(full_config_path)
-        // Call async function and wait for completion
-        run_ssg_dev(ssg_config, ssg_cwd, port_int)
-      }
-      None => {
-        @cli_common.console_error(@colorette.red("Failed to parse SSG config"))
-        @process.exit(1)
-      }
-    }
-    return
-  }
-  // Check if this is a MoonBit project (required for app mode)
+  // Check if this is a MoonBit project (required for SSR app mode)
   if !(has_moon_mod) {
     @cli_common.console_error(
-      @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
+      @colorette.red(
+        "Error: Not a MoonBit project (moon.mod.json not found). Use `astra dev` for SSG-only projects.",
+      ),
     )
     @process.exit(1)
   }
+  println(@colorette.gray("Mode: App"))
   println(@colorette.cyan("Starting Sol development server..."))
   // Step 1: Clean generated files if requested
   if clean {

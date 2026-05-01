@@ -4,29 +4,25 @@
 ///|
 fn show_help() -> Unit {
   let help =
-    #|Sol CLI - MoonBit SSR/SSG Framework
+    #|Sol CLI - MoonBit SSR Framework
     #|
     #|Usage: sol <command> [options]
     #|
     #|Commands:
     #|  new <name>     Create a new Sol project
-    #|  dev            Start development server (SSR or SSG mode)
-    #|  build          Build for production (SSR + SSG if configured)
+    #|  dev            Start SSR development server
+    #|  build          Build SSR app for production
     #|  serve          Serve production build
     #|  deploy         Run deploy preflight and print deploy command
     #|  generate       Generate .sol directory from config
-    #|  lint           Lint SSG documentation (requires ssg config)
     #|  clean          Remove generated files and caches
     #|
     #|Options:
     #|  -h, --help     Show help
     #|  -v, --version  Show version
     #|
-    #|Modes:
-    #|  App (default): SSR app (requires moon.mod.json)
-    #|  SSG-only: docs-only project with sol.config.json containing "ssg" or "docs"
-    #|  Hybrid: app + docs via staticDirs in sol.config.json
-    #|  Use `sol dev --mode ssg` to preview docs in hybrid projects.
+    #|For static-site (docs) projects, use the `astra` CLI instead:
+    #|  astra dev / astra build / astra lint
   println(help)
 }
 
@@ -70,13 +66,13 @@ async fn main {
     "serve" => run_serve_command(command_args)
     "deploy" => run_deploy_command(command_args)
     "generate" => run_generate_command(command_args)
-    "lint" => run_ssg_lint(command_args)
     "clean" => run_clean_command(command_args)
-    "ssg" => {
-      // Redirect to sol build with ssg
-      println(@colorette.yellow("Note: 'sol ssg' is now part of 'sol build'."))
-      println("")
-      println("SSG is automatically detected via sol.config.json")
+    "lint" | "ssg" => {
+      println(
+        @colorette.yellow(
+          "Note: 'sol \{command}' has moved to the astra CLI. Use `astra \{command}` (or `astra build` for SSG builds).",
+        ),
+      )
       @process.exit(0)
     }
     _ => {

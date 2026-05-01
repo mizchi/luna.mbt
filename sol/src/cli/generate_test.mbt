@@ -642,7 +642,7 @@ test "parse_sol_config: staticDirs with sidebar auto" {
   let config = parse_sol_config(json)
   assert_true(config.is_some())
   let c = config.unwrap()
-  assert_true(c.static_dirs[0].sidebar is @ssg.SidebarConfig::Auto)
+  assert_true(c.static_dirs[0].sidebar is @astra.SidebarConfig::Auto)
 }
 
 ///|
@@ -667,7 +667,7 @@ test "parse_sol_config: staticDirs defaults" {
   // Default trailing_slash
   assert_true(entry.trailing_slash)
   // Default sidebar
-  assert_true(entry.sidebar is @ssg.SidebarConfig::Auto)
+  assert_true(entry.sidebar is @astra.SidebarConfig::Auto)
   // Default i18n
   assert_eq(entry.i18n.default_locale, "en")
 }
@@ -1252,7 +1252,7 @@ test "template_ln_loader_js: exposes allowed hosts controls" {
 
 ///|
 test "template_ln_loader_js: mirrors ssg asset loader" {
-  assert_eq(template_ln_loader_js(), @assets.get_island_loader_js())
+  assert_eq(template_ln_loader_js(), @astra_assets.get_island_loader_js())
 }
 
 ///|
