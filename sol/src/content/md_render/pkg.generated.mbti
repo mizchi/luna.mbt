@@ -2,10 +2,10 @@
 package "mizchi/sol/content/md_render"
 
 import {
+  "mizchi/astra/content/frontmatter",
+  "mizchi/astra/content/markdown",
   "mizchi/luna/core",
   "mizchi/markdown/info_string",
-  "mizchi/sol/content/frontmatter",
-  "mizchi/sol/content/markdown",
   "mizchi/sol/content/toc",
 }
 

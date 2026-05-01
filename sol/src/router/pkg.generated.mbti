@@ -2,11 +2,11 @@
 package "mizchi/sol/router"
 
 import {
+  "mizchi/astra",
   "mizchi/luna/dom/static",
   "mizchi/mars",
   "mizchi/sol/isr",
   "mizchi/sol/middleware",
-  "mizchi/sol/ssg",
   "moonbitlang/core/json",
 }
 
@@ -304,8 +304,8 @@ pub(all) struct StaticDir {
 }
 
 pub(all) struct StaticDirConfig {
-  i18n : @ssg.I18nConfig
-  navigation : @ssg.NavigationConfig
+  i18n : @astra.I18nConfig
+  navigation : @astra.NavigationConfig
   exclude : Array[String]
   trailing_slash : Bool
 }

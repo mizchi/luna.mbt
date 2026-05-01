@@ -2,7 +2,7 @@
 package "mizchi/sol/content/toc"
 
 import {
-  "mizchi/sol/content/markdown",
+  "mizchi/astra/content/markdown",
 }
 
 // Values

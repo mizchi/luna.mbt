@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/sol/content/frontmatter"
+package "mizchi/astra/content/frontmatter"
 
 import {
   "mizchi/markdown",

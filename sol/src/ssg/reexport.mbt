@@ -148,3 +148,15 @@ pub fn strip_numeric_prefixes(path : String) -> String {
 pub fn url_to_output_path(url_path : String) -> String {
   @astra.url_to_output_path(url_path)
 }
+
+pub fn generate_sitemap(tree : DocumentTree) -> String {
+  @astra.generate_sitemap(tree)
+}
+
+pub fn generate_rss(tree : DocumentTree, limit? : Int = 20) -> String {
+  @astra.generate_rss(tree, limit~)
+}
+
+pub fn generate_llms_txt(tree : DocumentTree) -> String {
+  @astra.generate_llms_txt(tree)
+}

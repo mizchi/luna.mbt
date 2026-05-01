@@ -1,0 +1,26 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/luna" @luna,
+  "mizchi/luna/core/render" @luna_render,
+  "mizchi/astra" @astra,
+  "mizchi/sol/content/md_render" @markdown,
+  "mizchi/astra/mdx" @mdx,
+  "mizchi/sol/content/shiki" @shiki,
+  "mizchi/astra/assets" @assets,
+  "mizchi/astra/tree" @tree,
+  "mizchi/sol/adapters" @adapters,
+  "mizchi/astra/cache" @cache,
+  "mizchi/sol/isr" @sol_isr,
+  "mizchi/astra/components" @components,
+  "mizchi/sol/routes" @routes,
+  "mizchi/astra/internal/utils" @utils,
+  "mizchi/js/core" @js,
+  "mizchi/js/node/fs" @fs,
+  "mizchi/js/node/path" @path,
+  "mizchi/js/node/child_process" @child_process,
+  "mizchi/process_pool",
+}
+
+options(
+  "supported-targets": "js",
+)

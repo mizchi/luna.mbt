@@ -4,7 +4,7 @@ import {
   "mizchi/sol/builder" @builder,
   "mizchi/astra" @astra,
   "mizchi/sol/ssg" @ssg,
-  "mizchi/sol/ssg/generator" @generator,
+  "mizchi/astra/render" @generator,
   "mizchi/sol/content/shiki" @shiki,
 }
 
