@@ -56,6 +56,7 @@ fn extract_param_names_from_path(path : String) -> Array[String] {
 /// e.g., "/blog/:slug" -> "blog_slug"
 ///       "/api/users/:id" -> "api_users_id"
 ///       "/" -> "root"
+///       "/@[user_id]" -> "user_id"
 fn path_to_identifier(path : String) -> String {
   if path == "/" {
     return "root"
@@ -63,7 +64,17 @@ fn path_to_identifier(path : String) -> String {
   let buf = StringBuilder::new()
   let mut first = true
   for segment_view in path.split("/") {
-    let segment = segment_view.to_string()
+    let segment_raw = segment_view.to_string()
+    if segment_raw.is_empty() {
+      continue
+    }
+    // Strip a leading "@" (Twitter-style /@user routes) before
+    // applying the standard parameter pattern matching.
+    let segment = if segment_raw.has_prefix("@") {
+      segment_raw.substring(start=1)
+    } else {
+      segment_raw
+    }
     if segment.is_empty() {
       continue
     }
@@ -72,22 +83,26 @@ fn path_to_identifier(path : String) -> String {
     }
     first = false
     // Strip parameter markers to get the name
-    if segment.has_prefix(":") {
-      buf.write_string(segment.substring(start=1))
+    let token = if segment.has_prefix(":") {
+      segment.substring(start=1)
     } else if segment.has_prefix("[[...") && segment.has_suffix("]]") {
-      buf.write_string(segment.substring(start=5, end=segment.length() - 2))
+      segment.substring(start=5, end=segment.length() - 2)
     } else if segment.has_prefix("[...") && segment.has_suffix("]") {
-      buf.write_string(segment.substring(start=4, end=segment.length() - 1))
+      segment.substring(start=4, end=segment.length() - 1)
     } else if segment.has_prefix("[") && segment.has_suffix("]") {
-      buf.write_string(segment.substring(start=1, end=segment.length() - 1))
+      segment.substring(start=1, end=segment.length() - 1)
     } else {
-      // Replace hyphens with underscores for valid identifiers
-      for c in segment {
-        if c == '-' {
-          buf.write_char('_')
-        } else {
-          buf.write_char(c)
-        }
+      segment
+    }
+    // Sanitize: replace anything that isn't [A-Za-z0-9_] with '_'
+    // so identifiers stay valid even for unusual segments.
+    for c in token {
+      let is_alpha = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+      let is_digit = c >= '0' && c <= '9'
+      if is_alpha || is_digit || c == '_' {
+        buf.write_char(c)
+      } else {
+        buf.write_char('_')
       }
     }
   }
