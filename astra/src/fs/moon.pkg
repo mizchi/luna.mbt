@@ -2,7 +2,7 @@ import {
   "mizchi/js/core" @js,
   "mizchi/js/node/fs" @node_fs,
   "mizchi/npm_typed/memfs" @memfs,
-  "mizchi/sol/core/env" @env,
+  "mizchi/astra/env" @env,
 }
 
 options(

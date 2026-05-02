@@ -1,8 +1,8 @@
 import {
   "moonbitlang/core/json",
   "mizchi/astra" @astra,
-  "mizchi/sol/core/env" @env,
-  "mizchi/sol/adapters/fs" @fs_adapter,
+  "mizchi/astra/env" @env,
+  "mizchi/astra/fs" @fs_adapter,
   "mizchi/js/node/path" @path,
   "mizchi/js/node/fs" @fs,
   "mizchi/js/core" @js,

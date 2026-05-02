@@ -6,6 +6,7 @@
     "mizchi/mars": "0.3.10",
     "mizchi/markdown": "0.4.7",
     "mizchi/js": "0.10.15",
+    "mizchi/npm_typed": "0.1.13",
     "mizchi/process_pool": "0.1.3",
     "mizchi/sol": {
       "path": "../sol"

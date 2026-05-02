@@ -1,6 +1,6 @@
 import {
   "mizchi/astra" @astra,
-  "mizchi/sol/adapters/fs" @fs_adapter,
+  "mizchi/astra/fs" @fs_adapter,
 }
 
 options(

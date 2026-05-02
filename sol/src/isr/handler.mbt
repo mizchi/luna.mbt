@@ -2,71 +2,16 @@
 //
 // Handles ISR (Incremental Static Regeneration) for Sol server.
 // Loads ISR manifest and applies cache logic for marked pages.
-
-// =============================================================================
-// ISR Manifest Types (matching Sol SSG output)
-// =============================================================================
-
-///|
-/// ISR page entry from manifest
-pub(all) struct ISRPageMeta {
-  revalidate : Int
-  renderer : String
-  source : String
-}
+//
+// The ISRManifest / ISRPageMeta types live in `mizchi/astra/isr` so the
+// build side (astra/render) and the runtime side (sol/router) share one
+// definition. They are re-exported here for back-compat with sol consumers.
 
 ///|
-/// ISR manifest loaded from _luna/isr.json
-pub(all) struct ISRManifest {
-  version : Int
-  pages : Map[String, ISRPageMeta]
-}
+pub typealias @astra_isr.ISRPageMeta as ISRPageMeta
 
 ///|
-/// Create empty manifest
-pub fn ISRManifest::empty() -> ISRManifest {
-  { version: 1, pages: {} }
-}
-
-///|
-/// Create a new empty ISR manifest (alias for empty)
-pub fn ISRManifest::new() -> ISRManifest {
-  ISRManifest::empty()
-}
-
-///|
-/// Add a page to the manifest
-pub fn ISRManifest::add(
-  self : ISRManifest,
-  url_path : String,
-  entry : ISRPageMeta,
-) -> Unit {
-  self.pages[url_path] = entry
-}
-
-///|
-/// Check if manifest has any ISR pages
-pub fn ISRManifest::is_empty(self : ISRManifest) -> Bool {
-  self.pages.is_empty()
-}
-
-///|
-/// Get number of ISR pages
-pub fn ISRManifest::len(self : ISRManifest) -> Int {
-  self.pages.length()
-}
-
-///|
-/// Check if a path is an ISR page
-pub fn ISRManifest::is_isr_page(self : ISRManifest, path : String) -> Bool {
-  self.pages.contains(path)
-}
-
-///|
-/// Get ISR config for a path
-pub fn ISRManifest::get_page(self : ISRManifest, path : String) -> ISRPageMeta? {
-  self.pages.get(path)
-}
+pub typealias @astra_isr.ISRManifest as ISRManifest
 
 // =============================================================================
 // ISR Handler
