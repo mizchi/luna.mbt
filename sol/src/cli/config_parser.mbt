@@ -150,6 +150,14 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
   extract_quoted_values(content, "path=\"", route_paths)
   // Find all segment="..." values (layout segments)
   extract_quoted_values(content, "segment=\"", route_paths)
+  // SolRoutes-style: @sol.route("PATH", handler, ...) — extract first arg.
+  extract_quoted_values(content, "@sol.route(\"", route_paths)
+  // SolRoutes-style API helpers: @sol.api_<method>("PATH", handler).
+  extract_quoted_values(content, "@sol.api_get(\"", route_paths)
+  extract_quoted_values(content, "@sol.api_post(\"", route_paths)
+  extract_quoted_values(content, "@sol.api_put(\"", route_paths)
+  extract_quoted_values(content, "@sol.api_delete(\"", route_paths)
+  extract_quoted_values(content, "@sol.api_patch(\"", route_paths)
   // Find all ActionDef::new("id", ...) patterns
   extract_quoted_values(content, "ActionDef::new(\"", action_ids)
   RouteInfo::{
