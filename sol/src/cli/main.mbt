@@ -22,7 +22,7 @@ fn show_help() -> Unit {
     #|  -v, --version  Show version
     #|
     #|For static-site (docs) projects, use the `astra` CLI instead:
-    #|  astra dev / astra build / astra lint
+    #|  astra dev / astra build
   println(help)
 }
 
@@ -70,7 +70,7 @@ async fn main {
     "lint" | "ssg" => {
       @cli_common.console_error(
         @colorette.red(
-          "Error: 'sol \{command}' has moved to the astra CLI. Use `astra \{command}` (or `astra build` for SSG builds).",
+          "Error: 'sol \{command}' has moved. Use `astra build` (static dump) or `astra dev` (dev server). See astra/README.md.",
         ),
       )
       @process.exit(2)

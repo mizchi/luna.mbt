@@ -11,7 +11,7 @@ fn show_help() -> Unit {
     #|Commands:
     #|  build       Crawl every URL the middleware can serve and dump the
     #|              responses to disk (--out <dir>, default from config).
-    #|  dev         Start a development server (T11 wires the listener).
+    #|  dev         Start a node:http dev server (--port <n>, default 7777).
     #|  -h, --help  Show this help.
   println(help)
 }
