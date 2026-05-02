@@ -7,8 +7,9 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(THIS_DIR, "..");
-const CLI_DEBUG = path.join(ROOT, "_build", "js", "debug", "build", "cli", "cli.js");
+const SOL_DIR = path.resolve(THIS_DIR, "..");
+const ROOT = path.resolve(SOL_DIR, "..");
+const CLI_DEBUG = path.join(ROOT, "_build", "js", "debug", "build", "mizchi", "sol", "cli", "cli.js");
 
 function runSol(args, cwd) {
   return spawnSync("node", [CLI_DEBUG, ...args], {
@@ -18,7 +19,7 @@ function runSol(args, cwd) {
 }
 
 function ensureCliBuilt() {
-  const build = spawnSync("moon", ["build", "--target", "js", "src/cli"], {
+  const build = spawnSync("moon", ["build", "--target", "js"], {
     cwd: ROOT,
     encoding: "utf8",
   });

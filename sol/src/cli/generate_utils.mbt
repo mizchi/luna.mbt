@@ -112,16 +112,25 @@ fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
   if from_astra.length() > 0 {
     return Some(from_astra)
   }
-  // Step 3: fall back to reading the raw asset file from astra's mooncake.
+  // Step 3: fall back to reading the raw asset file from astra. Try the
+  // mooncake location first (downstream consumers), then sibling dirs
+  // for monorepo/path-dep development.
   // This covers `sol-nav.js` / `lib.js` which have no dedicated getter.
-  let astra_path = @path.join2(
-    cwd, ".mooncakes/mizchi/astra/src/assets/scripts/" + filename,
-  )
-  try {
-    return Some(@fs.read_file_as_string(astra_path))
-  } catch {
-    _ => return None
+  let candidates = [
+    cwd + "/.mooncakes/mizchi/astra/src/assets/scripts/" + filename,
+    // sibling astra/ inside the same monorepo (sol/examples/<x>/ → ../../../astra/...)
+    cwd + "/../../../astra/src/assets/scripts/" + filename,
+    // sol-relative monorepo layout (running from sol/ → ../astra/...)
+    cwd + "/../astra/src/assets/scripts/" + filename,
+  ]
+  for p in candidates {
+    try {
+      return Some(@fs.read_file_as_string(p))
+    } catch {
+      _ => continue
+    }
   }
+  None
 }
 
 // =============================================================================

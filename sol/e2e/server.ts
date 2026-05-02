@@ -20,17 +20,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
 
 // Load static assets - Luna loader
-// Try multiple locations: local src, luna.mbt sibling repo, mooncakes
+// After the astra extraction, the canonical loader lives under astra/.
 function findLoaderPath(): string {
   const paths = [
-    join(rootDir, "src", "ssg", "assets", "scripts", "loader.js"),
-    join(rootDir, "..", "luna.mbt", "js", "loader", "dist", "loader.iife.js"),
+    // Monorepo layout (sol/ and astra/ side-by-side under luna.mbt)
+    join(rootDir, "..", "astra", "src", "assets", "scripts", "loader.js"),
+    // Standalone sol with mooncakes-installed astra
+    join(rootDir, ".mooncakes", "mizchi", "astra", "src", "assets", "scripts", "loader.js"),
+    // Legacy luna iife dist (fallback if astra is not installed)
     join(rootDir, ".mooncakes", "mizchi", "luna", "js", "loader", "dist", "loader.iife.js"),
   ];
   for (const p of paths) {
     if (existsSync(p)) return p;
   }
-  throw new Error("Luna loader not found. Please ensure luna.mbt is available.");
+  throw new Error("Luna loader not found. Run from a luna.mbt monorepo or install mizchi/astra.");
 }
 
 const loaderPath = findLoaderPath();
