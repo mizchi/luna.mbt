@@ -7,7 +7,7 @@
     "build:moon": "moon build --target js --release src && moon build --target js --release src/js/api && moon build --target js --release src/js/api_signals",
     "build:loader": "pnpm --filter @luna_ui/luna-loader build",
     "test:moonbit": "moon test --target js",
-    "test:integration": "node --test tests/integration/*.test.js",
+    "test:integration": "node --test tests/integration/*.test.js astra/e2e/build_dev_parity.test.js",
     "test:node": "pnpm vitest run --project node",
     "test:browser": "pnpm vitest run --project browser",
     "test:bench": "pnpm vitest bench --project bench",
