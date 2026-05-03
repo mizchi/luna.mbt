@@ -5,7 +5,7 @@ import {
   "mizchi/luna/core/render" @render,
   "mizchi/luna/core/stream_render" @portable_stream,
   "mizchi/astra" @astra,
-  "mizchi/sol/routes" @sol_routes,
+  "mizchi/astra/routes" @sol_routes,
   "mizchi/luna/dom/static" @server_dom,
   "mizchi/sol/middleware" @middleware,
   "mizchi/sol/isr" @isr,

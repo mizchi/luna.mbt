@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/sol/internal/json_utils",
-  "mizchi/sol/internal/utils" @utils,
+  "mizchi/astra/internal/json_utils",
+  "mizchi/astra/internal/utils" @utils,
   "mizchi/astra/env" @env,
   "mizchi/astra" @astra,
   "mizchi/astra/content/md_render" @md_render,
