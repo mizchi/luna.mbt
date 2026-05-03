@@ -29,7 +29,7 @@ import {
   runWithOwner,
   hasOwner,
   onMount,
-} from "../../../_build/js/release/build/js/api_signals/api_signals.js";
+} from "../../../_build/js/release/build/mizchi/luna/js/api_signals/api_signals.js";
 
 // ============================================================================
 // SolidJS-compatible Signal API

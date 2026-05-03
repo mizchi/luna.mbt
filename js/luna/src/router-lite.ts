@@ -36,7 +36,7 @@ import {
   routerGetPath,
   routerGetMatch,
   routerGetBase,
-} from "../../../_build/js/release/build/js/api_router_lite/api_router_lite.js";
+} from "../../../_build/js/release/build/mizchi/luna/js/api_router_lite/api_router_lite.js";
 
 export {
   routePage,
