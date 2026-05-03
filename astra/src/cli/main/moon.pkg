@@ -1,0 +1,14 @@
+// Process entry point for the astra CLI. Kept as a thin shell over
+// `mizchi/astra/cli` so the runners stay test-friendly in the parent
+// package.
+
+import {
+  "mizchi/astra/cli" @cli,
+  "mizchi/js/node/process" @process,
+  "moonbitlang/async",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": "js",
+)

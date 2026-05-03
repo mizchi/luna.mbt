@@ -1,0 +1,42 @@
+# sol_api - Pure REST API Example
+
+# Generate code from sol.config.json
+gen:
+  node ../../_build/js/release/build/cli/cli.js generate
+
+# Build MoonBit to JS
+build:
+  moon build --target js
+
+# Run all steps
+all: gen build
+
+# Start dev server
+serve:
+  node .sol/prod/server/main.js
+
+# Test API endpoints
+test-api:
+  @echo "Testing health endpoint..."
+  curl -s http://localhost:7777/api/health | jq .
+  @echo "\nTesting items list..."
+  curl -s http://localhost:7777/api/items | jq .
+  @echo "\nTesting single item..."
+  curl -s http://localhost:7777/api/items/1 | jq .
+  @echo "\nTesting stats..."
+  curl -s http://localhost:7777/api/stats | jq .
+
+# Test error responses
+test-errors:
+  @echo "Testing 404..."
+  curl -s "http://localhost:7777/api/error?type=not_found" | jq .
+  @echo "\nTesting 401..."
+  curl -s "http://localhost:7777/api/error?type=unauthorized" | jq .
+  @echo "\nTesting 403..."
+  curl -s "http://localhost:7777/api/error?type=forbidden" | jq .
+  @echo "\nTesting 500..."
+  curl -s "http://localhost:7777/api/error?type=generic" | jq .
+
+# Clean generated files
+clean:
+  rm -rf app/__gen__ .sol target

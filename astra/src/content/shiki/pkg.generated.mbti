@@ -1,0 +1,31 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/astra/content/shiki"
+
+import {
+  "mizchi/syntree/highlight",
+}
+
+// Values
+pub fn create_default_highlighter() -> Highlighter
+
+pub fn decode_html_entities(String) -> String
+
+pub fn generate_shiki_css() -> String
+
+pub fn is_language_supported(String) -> Bool
+
+pub fn resolve_language(String) -> String
+
+// Errors
+
+// Types and methods
+pub struct Highlighter {
+  theme : @highlight.HighlightTheme
+}
+pub fn Highlighter::highlight(Self, String, String) -> String
+pub fn Highlighter::highlight_sync(Self, String, String) -> String
+
+// Type aliases
+
+// Traits
+

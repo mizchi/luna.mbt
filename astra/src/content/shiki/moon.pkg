@@ -1,0 +1,8 @@
+import {
+  "mizchi/syntree",
+  "mizchi/syntree/highlight" @highlight,
+}
+
+options(
+  "supported-targets": "all",
+)

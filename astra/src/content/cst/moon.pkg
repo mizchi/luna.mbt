@@ -1,0 +1,12 @@
+import {
+  "mizchi/luna" @luna,
+  "mizchi/astra/content/markdown" @markdown,
+  "mizchi/astra/content/frontmatter" @frontmatter,
+  "mizchi/markdown" @md_parser,
+  "mizchi/markdown/slug" @slug,
+  "mizchi/markdown/toc" @md_toc,
+}
+
+options(
+  "supported-targets": "js",
+)

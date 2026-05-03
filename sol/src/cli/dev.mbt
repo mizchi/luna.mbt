@@ -1,0 +1,621 @@
+// sol dev command - Start development server
+//
+
+///|
+/// Generate inline JS script for rolldown build (dev mode, no minify)
+fn generate_rolldown_build_script_dev(manifest_path : String) -> String {
+  "import { readFileSync } from 'node:fs';\nimport { build } from 'rolldown';\nconst manifest = JSON.parse(readFileSync('\{manifest_path}', 'utf-8'));\nconst input = {};\nfor (const island of manifest.islands) { input[island.name] = island.entry_path; }\nawait build({ input, output: { dir: manifest.output_dir, format: 'esm', entryFileNames: '[name].js', chunkFileNames: '_shared/[name]-[hash].js' } });"
+}
+
+///|
+fn show_dev_help() -> Unit {
+  let help =
+    #|Usage: sol dev [options]
+    #|
+    #|Starts the SSR app development server. For SSG (docs) projects, use
+    #|`astra dev` instead.
+    #|
+    #|Options:
+    #|  -p, --port <port>   Port to listen on (default: 7777)
+    #|  -n, --no-watch      Disable file watching (watch is enabled by default)
+    #|  -f, --watch-framework  Watch sol framework source for hot reload
+    #|  --clean             Clean _build and .sol directories before build
+    #|  -h, --help          Show help
+  println(help)
+}
+
+///|
+async fn run_dev_command(args : Array[String]) -> Unit {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  run_dev_command_with_fs(fs, args)
+}
+
+///|
+async fn[FS : @env.FileSystem] run_dev_command_with_fs(
+  fs : FS,
+  args : Array[String],
+) -> Unit {
+  // Parse dev command options
+  let result = @util.parseArgs(
+    args~,
+    options=[
+      @util.String(key="port", short="p", multiple=false, default=Some("7777")),
+      @util.Boolean(key="no-watch", short="n"),
+      @util.Boolean(key="watch-framework", short="f"),
+      @util.Boolean(key="clean", short="c"),
+      @util.Boolean(key="help", short="h"),
+    ],
+    allow_positionals=false,
+  )
+  // Show help if requested
+  if result.values.contains("help") && result.values["help"].cast() {
+    show_dev_help()
+    return
+  }
+  let port : String = if result.values.contains("port") {
+    result.values["port"].cast()
+  } else {
+    "7777"
+  }
+  // Watch is enabled by default, --no-watch disables it
+  let watch : Bool = if result.values.contains("no-watch") {
+    !(result.values["no-watch"].cast())
+  } else {
+    true
+  }
+  let clean : Bool = if result.values.contains("clean") {
+    result.values["clean"].cast()
+  } else {
+    false
+  }
+  let watch_framework : Bool = if result.values.contains("watch-framework") {
+    result.values["watch-framework"].cast()
+  } else {
+    false
+  }
+  let cwd = @process.cwd()
+  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
+  let has_moon_mod = fs.exists_sync(moon_mod_path)
+  // Check if this is a MoonBit project (required for SSR app mode)
+  if !(has_moon_mod) {
+    @cli_common.console_error(
+      @colorette.red(
+        "Error: Not a MoonBit project (moon.mod.json not found). Use `astra dev` for SSG-only projects.",
+      ),
+    )
+    @process.exit(1)
+  }
+  println(@colorette.gray("Mode: App"))
+  println(@colorette.cyan("Starting Sol development server..."))
+  // Step 1: Clean generated files if requested
+  if clean {
+    let sol_dir = @path.join2(cwd, ".sol")
+    let gen_dir = @path.join2(cwd, "app/__gen__")
+    let legacy_target_dir = @path.join2(cwd, "target")
+    let build_dir = @path.join2(cwd, "_build")
+    println(@colorette.gray("Cleaning generated files..."))
+    if fs.exists_sync(sol_dir) {
+      @cli_common.rm_rf_sync(fs, sol_dir)
+    }
+    if fs.exists_sync(gen_dir) {
+      @cli_common.rm_rf_sync(fs, gen_dir)
+    }
+    if fs.exists_sync(legacy_target_dir) {
+      @cli_common.rm_rf_sync(fs, legacy_target_dir)
+    }
+    if fs.exists_sync(build_dir) {
+      @cli_common.rm_rf_sync(fs, build_dir)
+    }
+    println(@colorette.green("✓ Clean complete"))
+  }
+  // Step 2: Run initial build (includes sol generate)
+  if !(run_initial_build_dev(cwd)) {
+    @process.exit(1)
+  }
+  // Run server (watch mode or blocking mode)
+  if watch {
+    run_dev_watch_mode(cwd, port, watch_framework)
+  } else {
+    run_server(cwd, port, "dev")
+  }
+}
+
+///|
+/// Run initial build steps for dev mode (includes sol generate)
+/// Returns true on success, false on failure
+async fn run_initial_build_dev(cwd : String) -> Bool {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  run_initial_build_dev_with_fs(fs, cwd)
+}
+
+///|
+async fn[FS : @env.FileSystem] run_initial_build_dev_with_fs(
+  fs : FS,
+  cwd : String,
+) -> Bool {
+  // Clean stale static files before rebuild to avoid hash conflicts
+  let static_dir = @path.join2(cwd, ".sol/dev/static")
+  if fs.exists_sync(static_dir) {
+    @cli_common.rm_rf_sync(fs, static_dir)
+  }
+  // Also remove .sol/prod to avoid serve_static priority issues
+  let prod_dir = @path.join2(cwd, ".sol/prod")
+  if fs.exists_sync(prod_dir) {
+    @cli_common.rm_rf_sync(fs, prod_dir)
+  }
+  // Run generate if sol.config.json or sol.config.ts exists (only at startup)
+  let sol_config_json_path = @path.join2(cwd, "sol.config.json")
+  let sol_config_ts_path = @path.join2(cwd, "sol.config.ts")
+  if fs.exists_sync(sol_config_json_path) || fs.exists_sync(sol_config_ts_path) {
+    println(@colorette.gray("Generating .sol directory..."))
+    run_generate_command(["--mode", "dev"])
+    println(@colorette.green("✓ Generate complete"))
+  }
+  // Run incremental build
+  run_incremental_build_dev(cwd)
+}
+
+///|
+/// Run incremental build steps for dev mode (moon build + rolldown only)
+/// Skips sol generate for faster rebuilds
+/// Returns true on success, false on failure
+fn run_incremental_build_dev(cwd : String) -> Bool {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  run_incremental_build_dev_with_fs(fs, cwd)
+}
+
+///|
+fn[FS : @env.FileSystem] run_incremental_build_dev_with_fs(
+  fs : FS,
+  cwd : String,
+) -> Bool {
+  // Clean stale static files before rebuild to avoid hash conflicts
+  let static_dir = @path.join2(cwd, ".sol/dev/static")
+  if fs.exists_sync(static_dir) {
+    @cli_common.rm_rf_sync(fs, static_dir)
+  }
+  // Build MoonBit project
+  println(@colorette.gray("Building MoonBit project..."))
+  try {
+    let build_result = @child_process.spawnSync(
+      "moon",
+      args=["build", "--target", "js"],
+      stdio="inherit",
+    )
+    if build_result.status() != Some(0) {
+      @cli_common.console_error(@colorette.red("Build failed"))
+      println(
+        @colorette.gray(
+          "  Hint: Props changed? Run `sol generate`. Missing dep? Run `moon update`.",
+        ),
+      )
+      return false
+    }
+  } catch {
+    e => {
+      @cli_common.console_error(@colorette.red("Build error: \{e}"))
+      return false
+    }
+  }
+  println(@colorette.green("✓ Build complete"))
+  patch_mars_reschedule_shim_with_fs(fs, cwd, "js", "debug")
+  // Bundle client code with rolldown if manifest exists
+  let manifest_path = @path.join2(cwd, ".sol/dev/manifest.json")
+  if fs.exists_sync(manifest_path) {
+    println(
+      @colorette.gray("Bundling client code with rolldown -> .sol/dev/static/"),
+    )
+    let build_script = generate_rolldown_build_script_dev(manifest_path)
+    try {
+      let bundle_result = @child_process.spawnSync(
+        "node",
+        args=["--input-type=module", "-e", build_script],
+        stdio="inherit",
+        cwd~,
+      )
+      if bundle_result.status() != Some(0) {
+        @cli_common.console_error(@colorette.red("Rolldown bundle failed"))
+        return false
+      }
+      println(@colorette.green("✓ Client bundle complete"))
+    } catch {
+      e => {
+        @cli_common.console_error(@colorette.red("Bundle error: \{e}"))
+        return false
+      }
+    }
+  }
+  true
+}
+
+///|
+/// Calculate HMR WebSocket port (main port + 100)
+fn get_hmr_port(port : String) -> Int {
+  @hot_reload.resolve_hmr_port(hmr_port=None, app_port=Some(port))
+}
+
+///|
+/// Run dev server with watch mode
+async fn run_dev_watch_mode(
+  cwd : String,
+  port : String,
+  watch_framework : Bool,
+) -> Unit {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  // Find server entry point
+  let entry = find_server_entry_with_fs(fs, cwd, "dev")
+  match entry {
+    None => {
+      @cli_common.console_error(
+        @colorette.red("Error: Could not find server entry point"),
+      )
+      @process.exit(1)
+    }
+    Some(entry_path) => {
+      // Set environment variables
+      set_env("PORT", port)
+      set_env("SOL_DEV", "1") // Enable HMR script injection
+      // Start HMR WebSocket server
+      let hmr_port = get_hmr_port(port)
+      set_env("HMR_PORT", hmr_port.to_string())
+      let hmr_server = @hmr.HmrServer::start(hmr_port).wait()
+      // Start server process (non-blocking)
+      let server_proc : Ref[@child_process.ChildProcess?] = { val: None }
+      fn start_server() -> Unit {
+        println(@colorette.cyan("Starting server: \{entry_path}..."))
+        let proc = @child_process.spawn("node", args=[entry_path], cwd~)
+        // Pipe stdout/stderr to console
+        proc
+        .stdout()
+        .as_any()
+        ._call("on", [
+          @js.any("data"),
+          @js.any(fn(data : @js.Any) {
+            let s : String = data._call("toString", []).cast()
+            print_string(s)
+          }),
+        ])
+        |> ignore
+        proc
+        .stderr()
+        .as_any()
+        ._call("on", [
+          @js.any("data"),
+          @js.any(fn(data : @js.Any) {
+            let s : String = data._call("toString", []).cast()
+            print_string_stderr(s)
+          }),
+        ])
+        |> ignore
+        server_proc.val = Some(proc)
+      }
+
+      fn stop_server() -> Unit {
+        if server_proc.val is Some(proc) {
+          println(@colorette.gray("Stopping server..."))
+          proc.kill() |> ignore
+          server_proc.val = None
+        }
+      }
+
+      fn restart_server() -> Unit {
+        stop_server()
+        start_server()
+      }
+
+      // Start initial server
+      start_server()
+      // Setup file watcher for .mbt files
+      println(
+        @colorette.cyan("Watching for .mbt file changes... (Ctrl+C to stop)"),
+      )
+      // Debounce mechanism
+      let last_rebuild : Ref[Double] = { val: 0.0 }
+      let debounce_ms = 300.0
+      // Watch src directory (and app if exists)
+      // Note: @fs.watch is kept as-is since file watching is not part of FileSystem trait
+      let watch_dirs = ["src", "app"]
+      for dir in watch_dirs {
+        let watch_path = @path.join2(cwd, dir)
+        if fs.exists_sync(watch_path) {
+          let _watcher = @fs.watch(watch_path, recursive=true, listener=fn(
+            event : String,
+            filename : String,
+          ) {
+            // Only rebuild for .mbt files, excluding auto-generated files
+            let is_generated = filename.contains("__gen__")
+            if filename.ends_with(".mbt") &&
+              event == "change" &&
+              !(is_generated) {
+              let now = @cli_common.date_now()
+              // Debounce rapid changes
+              if now - last_rebuild.val > debounce_ms {
+                last_rebuild.val = now
+                println(
+                  @colorette.yellow(
+                    "\n[watch] File changed: \{filename}, rebuilding...",
+                  ),
+                )
+                stop_server()
+                if run_incremental_build_dev(cwd) {
+                  // Determine if this is a client-side change (Island)
+                  let is_client_change = filename.contains("client/") ||
+                    filename.contains("islands/")
+                  // Restart server first
+                  restart_server()
+                  // Wait for server to start, then send HMR notification
+                  set_timeout(
+                    fn() {
+                      if is_client_change {
+                        // HMR: notify clients to reload specific island
+                        let island_name = extract_island_name_from_path(
+                          filename,
+                        )
+                        hmr_server.notify_update([island_name])
+                      } else {
+                        // Server-side change: full reload
+                        hmr_server.notify_full_reload()
+                      }
+                    },
+                    500,
+                  )
+                } else {
+                  // Build failed: notify error
+                  hmr_server.notify_error(
+                    "Build failed. Check console for details.",
+                  )
+                  println(
+                    @colorette.red(
+                      "[watch] Build failed. Waiting for changes...",
+                    ),
+                  )
+                }
+              }
+            }
+          })
+        }
+      }
+      // Watch framework source if --watch-framework is enabled
+      if watch_framework {
+        match find_framework_root(cwd) {
+          Some(framework_root) => {
+            let framework_src = @path.join2(framework_root, "src")
+            println(
+              @colorette.cyan(
+                "Also watching framework source: \{framework_src}",
+              ),
+            )
+            let _fw_watcher = @fs.watch(framework_src, recursive=true, listener=fn(
+              event : String,
+              filename : String,
+            ) {
+              let is_generated = filename.contains("__gen__")
+              if filename.ends_with(".mbt") &&
+                event == "change" &&
+                !(is_generated) {
+                let now = @cli_common.date_now()
+                if now - last_rebuild.val > debounce_ms {
+                  last_rebuild.val = now
+                  println(
+                    @colorette.yellow(
+                      "\n[watch] Framework changed: \{filename}, rebuilding...",
+                    ),
+                  )
+                  stop_server()
+                  // First rebuild framework
+                  if rebuild_framework(framework_root) {
+                    // Then rebuild app
+                    if run_incremental_build_dev(cwd) {
+                      restart_server()
+                      set_timeout(fn() { hmr_server.notify_full_reload() }, 500)
+                    } else {
+                      hmr_server.notify_error(
+                        "App build failed after framework rebuild",
+                      )
+                      println(
+                        @colorette.red(
+                          "[watch] App build failed. Waiting for changes...",
+                        ),
+                      )
+                    }
+                  } else {
+                    hmr_server.notify_error("Framework rebuild failed")
+                    println(
+                      @colorette.red(
+                        "[watch] Framework rebuild failed. Waiting for changes...",
+                      ),
+                    )
+                  }
+                }
+              }
+            })
+          }
+          None =>
+            println(
+              @colorette.yellow(
+                "Warning: --watch-framework specified but framework root not found",
+              ),
+            )
+        }
+      }
+      // Keep process alive
+      @cli_common.keep_alive()
+    }
+  }
+}
+
+///|
+/// Find server entry point
+/// Prefers serve.js (adapter wrapper) over main.js for local serving
+fn[FS : @env.FileSystem] find_server_entry_with_fs(
+  fs : FS,
+  cwd : String,
+  mode : String,
+) -> String? {
+  let possible_entries = [
+    ".sol/\{mode}/server/serve.js", // adapter wrapper (preferred for local serving)
+    ".sol/\{mode}/server/main.js",
+    "_build/js/release/build/__gen__/server/server.js",
+    "_build/js/release/build/server/run/run.js",
+    "_build/js/release/build/examples/example_app/example_app.js",
+    "_build/js/release/build/main/main.js",
+  ]
+  for entry in possible_entries {
+    let entry_path = @path.join2(cwd, entry)
+    if fs.exists_sync(entry_path) {
+      return Some(entry)
+    }
+  }
+  None
+}
+
+///|
+fn run_server(cwd : String, port : String, mode : String) -> Unit {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  run_server_with_fs(fs, cwd, port, mode)
+}
+
+///|
+fn[FS : @env.FileSystem] run_server_with_fs(
+  fs : FS,
+  cwd : String,
+  port : String,
+  mode : String,
+) -> Unit {
+  // Step 5: Find and run the server entry point
+  // Prefer serve.js (adapter wrapper) over main.js for local serving
+  let possible_entries = [
+    ".sol/\{mode}/server/serve.js", // adapter wrapper (preferred for local serving)
+    ".sol/\{mode}/server/main.js",
+    "_build/js/release/build/__gen__/server/server.js",
+    "_build/js/release/build/server/run/run.js",
+    "_build/js/release/build/examples/example_app/example_app.js",
+    "_build/js/release/build/main/main.js",
+  ]
+  let mut entry_point : String? = None
+  for entry in possible_entries {
+    let entry_path = @path.join2(cwd, entry)
+    if fs.exists_sync(entry_path) {
+      entry_point = Some(entry)
+      break
+    }
+  }
+  match entry_point {
+    None => {
+      @cli_common.console_error(
+        @colorette.red("Error: Could not find server entry point"),
+      )
+      println(@colorette.gray("Expected one of:"))
+      for entry in possible_entries {
+        println(@colorette.gray("  - \{entry}"))
+      }
+      @process.exit(1)
+    }
+    Some(entry) => {
+      println(@colorette.cyan("Running \{entry}..."))
+      // Set environment variables before starting server
+      set_env("PORT", port)
+      set_env("SOL_DEV", "1") // Enable dev mode cache control
+      // Run the server with inherited stdio (blocking)
+      try {
+        let result = @child_process.spawnSync(
+          "node",
+          args=[entry],
+          cwd~,
+          stdio="inherit",
+        )
+        let exit_code = result.status().unwrap_or(1)
+        @process.exit(exit_code)
+      } catch {
+        e => {
+          @cli_common.console_error(@colorette.red("Server error: \{e}"))
+          @process.exit(1)
+        }
+      }
+    }
+  }
+}
+
+///|
+/// Extract island name from changed file path
+/// "client/counter.mbt" → "counter", "client/my_widget.mbt" → "my_widget"
+fn extract_island_name_from_path(filename : String) -> String {
+  // Get basename
+  let parts = filename.split("/").to_array()
+  let basename = if parts.length() > 0 {
+    parts[parts.length() - 1].to_string()
+  } else {
+    filename
+  }
+  // Remove .mbt extension
+  if basename.has_suffix(".mbt") && basename.length() > 4 {
+    basename.substring(end=basename.length() - 4)
+  } else {
+    basename
+  }
+}
+
+/// Find sol framework root by walking up directories
+/// Looks for src/cli/dev.mbt as a marker file
+fn find_framework_root(start_dir : String) -> String? {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  let mut current = start_dir
+  for _ in 0..<10 {
+    // Max 10 levels up
+    let marker = @path.join2(current, "src/cli/dev.mbt")
+    if fs.exists_sync(marker) {
+      return Some(current)
+    }
+    let parent = @path.dirname(current)
+    if parent == current {
+      break
+    } // Reached root
+    current = parent
+  }
+  None
+}
+
+///|
+/// Rebuild sol framework at the given root
+fn rebuild_framework(framework_root : String) -> Bool {
+  println(@colorette.cyan("[watch] Rebuilding sol framework..."))
+  try {
+    let result = @child_process.spawnSync(
+      "moon",
+      args=["build", "--target", "js"],
+      cwd=framework_root,
+      stdio="inherit",
+    )
+    if result.status() == Some(0) {
+      println(@colorette.green("[watch] Framework rebuild complete"))
+      true
+    } else {
+      println(@colorette.red("[watch] Framework rebuild failed"))
+      false
+    }
+  } catch {
+    e => {
+      println(@colorette.red("[watch] Framework rebuild error: \{e}"))
+      false
+    }
+  }
+}
+
+///|
+extern "js" fn set_env(key : String, value : String) -> Unit =
+  #| (key, value) => { process.env[key] = value }
+
+///|
+/// Print string to stdout without adding newline
+extern "js" fn print_string(s : String) -> Unit =
+  #| (s) => process.stdout.write(s)
+
+///|
+/// Print string to stderr without adding newline
+extern "js" fn print_string_stderr(s : String) -> Unit =
+  #| (s) => process.stderr.write(s)
+
+///|
+/// Set timeout for delayed execution
+extern "js" fn set_timeout(callback : () -> Unit, ms : Int) -> Unit =
+  #| (callback, ms) => setTimeout(callback, ms)

@@ -1,0 +1,130 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/astra/components"
+
+import {
+  "mizchi/astra",
+  "mizchi/astra/content/toc",
+  "mizchi/luna/core",
+}
+
+// Values
+pub fn all_component_types() -> Array[ComponentType]
+
+pub fn attr(String, String) -> (String, @core.Attr[Unit, String])
+
+pub fn build_blog_hero(@astra.BuildContext, String, String?, String?, String?) -> @core.Node[Unit, String]
+
+pub fn build_blog_post_card(@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+
+pub fn build_blog_post_list(@astra.BuildContext, Int?, Bool) -> @core.Node[Unit, String]
+
+pub fn build_breadcrumb(@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+
+pub fn build_featured_posts(@astra.BuildContext, Int) -> @core.Node[Unit, String]
+
+pub fn build_footer(@astra.BuildContext) -> @core.Node[Unit, String]
+
+pub fn build_hero_from_page(@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+
+pub fn build_language_switcher(@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+
+pub fn build_nav(@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+
+pub fn build_nav_item(@astra.BuildContext, @astra.NavItem) -> @core.Node[Unit, String]
+
+pub fn build_post_meta(String, String, Int?) -> @core.Node[Unit, String]
+
+pub fn build_prev_next(@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+
+pub fn build_recent_posts(@astra.BuildContext, Int, String) -> @core.Node[Unit, String]
+
+pub fn build_sidebar_tree(@astra.DocumentTree, String, String) -> Array[SidebarNode]
+
+pub fn build_social_icon(String) -> @core.Node[Unit, String]
+
+pub fn build_social_links(Array[@astra.SocialLink]) -> @core.Node[Unit, String]
+
+pub fn build_tag_list(@astra.BuildContext, Array[String]) -> @core.Node[Unit, String]
+
+pub fn build_tag_list_inline(Array[String]) -> @core.Node[Unit, String]
+
+pub fn build_theme_toggle() -> @core.Node[Unit, String]
+
+pub fn build_toc(Array[@toc.TocItem]) -> @core.Node[Unit, String]
+
+pub fn discover_components(@astra.SsgConfig, String) -> DiscoveryResult
+
+pub fn empty() -> @core.Node[Unit, String]
+
+pub fn get_components_dir(@astra.SsgConfig) -> String
+
+pub fn get_posts_by_tag(Array[@astra.PageMeta], String) -> Array[@astra.PageMeta]
+
+pub fn h(String, Array[(String, @core.Attr[Unit, String])], Array[@core.Node[Unit, String]]) -> @core.Node[Unit, String]
+
+pub fn render_breadcrumb(NavContext) -> @core.Node[Unit, String]
+
+pub fn render_prev_next(NavContext) -> @core.Node[Unit, String]
+
+pub fn render_sidebar(NavContext) -> @core.Node[Unit, String]
+
+// Errors
+
+// Types and methods
+pub struct ComponentRegistry {
+  header : ((@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String])?
+  footer : ((@astra.BuildContext) -> @core.Node[Unit, String])?
+  toc : ((Array[@toc.TocItem]) -> @core.Node[Unit, String])?
+  breadcrumb : ((@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String])?
+  prev_next : ((@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String])?
+}
+pub fn ComponentRegistry::defaults() -> Self
+pub fn ComponentRegistry::new() -> Self
+pub fn ComponentRegistry::render_breadcrumb(Self, @astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+pub fn ComponentRegistry::render_footer(Self, @astra.BuildContext) -> @core.Node[Unit, String]
+pub fn ComponentRegistry::render_header(Self, @astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+pub fn ComponentRegistry::render_prev_next(Self, @astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]
+pub fn ComponentRegistry::render_toc(Self, Array[@toc.TocItem]) -> @core.Node[Unit, String]
+pub fn ComponentRegistry::with_breadcrumb(Self, (@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]) -> Self
+pub fn ComponentRegistry::with_footer(Self, (@astra.BuildContext) -> @core.Node[Unit, String]) -> Self
+pub fn ComponentRegistry::with_header(Self, (@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]) -> Self
+pub fn ComponentRegistry::with_prev_next(Self, (@astra.BuildContext, @astra.PageMeta) -> @core.Node[Unit, String]) -> Self
+pub fn ComponentRegistry::with_toc(Self, (Array[@toc.TocItem]) -> @core.Node[Unit, String]) -> Self
+
+pub(all) enum ComponentType {
+  Header
+  Footer
+  Toc
+  Breadcrumb
+  PrevNext
+} derive(Eq, Show)
+pub fn ComponentType::filename(Self) -> String
+
+pub(all) struct DiscoveryResult {
+  scanned_dir : String
+  found : Array[ComponentType]
+  missing : Array[ComponentType]
+}
+pub fn DiscoveryResult::new(String) -> Self
+pub fn DiscoveryResult::to_string(Self) -> String
+
+pub(all) struct NavContext {
+  tree : @astra.DocumentTree
+  current_page : @astra.PageInfo?
+  breadcrumb_path : Array[(String, String)]
+  prev_page : @astra.PageInfo?
+  next_page : @astra.PageInfo?
+  locale : String
+  base_url : String
+}
+pub fn NavContext::build(@astra.DocumentTree, String, locale? : String, base_url? : String) -> Self
+
+pub(all) enum SidebarNode {
+  Link(text~ : String, url~ : String, active~ : Bool)
+  Section(text~ : String, url~ : String?, collapsed~ : Bool, active~ : Bool, children~ : Array[SidebarNode])
+}
+
+// Type aliases
+
+// Traits
+

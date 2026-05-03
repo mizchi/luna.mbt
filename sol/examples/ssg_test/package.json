@@ -1,0 +1,14 @@
+{
+  "name": "ssg-test",
+  "version": "0.3.1",
+  "type": "module",
+  "scripts": {
+    "build": "node ../../_build/js/release/build/cli/cli.js build && npx tsx ../../scripts/shiki-highlight.ts dist",
+    "build:only": "node ../../_build/js/release/build/cli/cli.js build",
+    "shiki": "npx tsx ../../scripts/shiki-highlight.ts dist"
+  },
+  "devDependencies": {
+    "shiki": "^4.0.2",
+    "tsx": "^4.21.0"
+  }
+}

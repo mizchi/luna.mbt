@@ -1,0 +1,11 @@
+import {
+  "mizchi/astra" @astra,
+  "mizchi/astra/middleware" @middleware,
+  "mizchi/astra/testing" @testing,
+  "mizchi/mars" @mars,
+  "moonbitlang/async",
+} for "test"
+
+options(
+  "supported-targets": "js",
+)

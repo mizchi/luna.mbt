@@ -1,0 +1,10 @@
+{
+  "name": "sol_e2e",
+  "version": "0.1.0",
+  "deps": {
+    "mizchi/playwright": "0.3.7",
+    "moonbitlang/async": "0.17.0"
+  },
+  "source": "src",
+  "preferred-target": "js"
+}

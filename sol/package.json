@@ -1,0 +1,50 @@
+{
+  "name": "@luna_ui/sol",
+  "private": true,
+  "description": "MoonBit SSR/SSG Framework",
+  "type": "module",
+  "bin": {
+    "sol": "./bin/sol.js"
+  },
+  "scripts": {
+    "test": "moon test --target js",
+    "test:e2e": "pnpm playwright test --config e2e/playwright.config.mts",
+    "check": "moon check",
+    "build": "moon build --target js",
+    "bench:k6": "just bench-k6",
+    "bench:k6:quick": "just bench-k6-quick"
+  },
+  "devDependencies": {
+    "@hono/node-server": "^1.19.13",
+    "@luna_ui/luna": "^0.11.0",
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.5.2",
+    "@types/ws": "^8.18.1",
+    "colorette": "^2.0.20",
+    "esbuild": "^0.28.0",
+    "execa": "^9.6.1",
+    "hono": "^4.12.12",
+    "memfs": "^4.57.1",
+    "pagefind": "^1.5.0",
+    "rolldown": "1.0.0-rc.13",
+    "shiki": "^4.0.2",
+    "terser": "^5.46.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.3",
+    "wrangler": "^4.81.0",
+    "ws": "^8.20.0"
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
+  },
+  "dependencies": {
+    "@puppeteer/browsers": "^2.13.0",
+    "chromium-bidi": "^15.0.0",
+    "debug": "^4.4.3",
+    "websocket": "^1.0.35"
+  }
+}

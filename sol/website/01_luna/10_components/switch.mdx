@@ -1,0 +1,62 @@
+---
+title: Switch
+---
+
+# Switch
+
+Toggle switch for binary on/off states.
+
+Based on [APG Switch Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/switch/).
+
+## Demo
+
+<styled-switch-demo luna:trigger="visible"><div class="switch-group" role="group" aria-label="Settings"><button class="switch" role="switch" aria-checked="true" data-state="on"><span class="switch__track"><span class="switch__thumb"></span></span><span class="switch__label">Enable notifications</span></button><button class="switch" role="switch" aria-checked="false" data-state="off"><span class="switch__track"><span class="switch__thumb"></span></span><span class="switch__label">Dark mode</span></button><button class="switch" role="switch" aria-checked="false" data-state="off" data-disabled disabled><span class="switch__track"><span class="switch__thumb"></span></span><span class="switch__label">Disabled option</span></button></div></styled-switch-demo>
+
+## Usage
+
+```moonbit
+// Create a signal for state
+let enabled = @resource.signal(true)
+
+// Reactive switch
+@styled_switch.switch(
+  enabled,
+  aria_label="Enable notifications",
+  [@luna.text("Notifications")],
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| on | Signal[Bool] | - | Reactive state signal |
+| disabled | Bool | false | Disable the switch |
+| aria_label | String? | None | Accessible label |
+| aria_labelledby | String? | None | ID of labelling element |
+| class | String? | None | Additional CSS class |
+| children | Array[Node] | - | Label content |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.switch` | Root button element |
+| `.switch__track` | Background track |
+| `.switch__thumb` | Sliding thumb |
+| `.switch__label` | Label text |
+| `.switch-group` | Container for multiple switches |
+
+## Data Attributes
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `data-state` | `on`, `off` | Current state |
+| `data-disabled` | - | Disabled state |
+
+## Accessibility
+
+- `role="switch"` announces as toggle
+- `aria-checked` reflects current state
+- Space/Enter toggles state
+- Focus ring on keyboard navigation

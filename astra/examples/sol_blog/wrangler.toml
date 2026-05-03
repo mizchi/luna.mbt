@@ -1,0 +1,16 @@
+name = "sol-blog"
+main = "worker.ts"
+compatibility_date = "2024-01-01"
+
+# KV namespace for ISR cache
+[[kv_namespaces]]
+binding = "SOL_CACHE"
+id = "82c914a14bd144d78a8206c5691bac0f"
+
+# Development settings
+[dev]
+port = 8787
+
+# Build settings (using tsx for TypeScript)
+[build]
+command = "echo 'No build needed - using tsx'"

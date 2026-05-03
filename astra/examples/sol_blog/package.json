@@ -1,0 +1,23 @@
+{
+  "name": "sol-blog-example",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx --no-cache server.ts",
+    "serve": "npx tsx server.ts",
+    "dev:worker": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "kv:create": "wrangler kv namespace create SOL_CACHE",
+    "kv:list": "wrangler kv namespace list"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.13",
+    "@sol/core": "workspace:*",
+    "hono": "^4.12.12"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.81.0"
+  }
+}

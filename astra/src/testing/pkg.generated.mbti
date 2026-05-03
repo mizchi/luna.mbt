@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/astra/testing"
+
+import {
+  "mizchi/mars",
+}
+
+// Values
+pub async fn invoke(@mars.Server, meth? : String, path~ : String) -> InvokeResult
+
+// Errors
+
+// Types and methods
+pub(all) struct InvokeResult {
+  status : Int
+  body : String
+  headers_json : String
+}
+pub fn InvokeResult::header(Self, String) -> String?
+
+// Type aliases
+
+// Traits
+

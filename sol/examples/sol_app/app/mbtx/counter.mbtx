@@ -1,0 +1,16 @@
+extern "js" fn get_env(key : String) -> String =
+  #| (key) => (globalThis.__MBTX_ENV__ && globalThis.__MBTX_ENV__[key]) || ""
+
+extern "js" fn set_response(status : Int, content_type : String, body : String) -> Unit =
+  #| (status, contentType, body) => {
+  #|   globalThis.__MBTX_RESPONSE__ = { status, contentType, body };
+  #| }
+
+fn main {
+  let count = get_env("QUERY_STRING")
+  let buf = StringBuilder::new()
+  buf.write_string("<html><body><h1>Counter</h1><p>Count: ")
+  buf.write_string(count)
+  buf.write_string("</p></body></html>")
+  set_response(200, "text/html", buf.to_string())
+}

@@ -1,0 +1,35 @@
+{
+  "name": "mizchi/sol",
+  "version": "0.16.0",
+  "deps": {
+    "moonbitlang/yacc": "0.7.12",
+    "mizchi/astra": {
+      "path": "../astra"
+    },
+    "mizchi/luna": "0.18.3",
+    "moonbitlang/async": "0.17.0",
+    "moonbitlang/x": "0.4.41",
+    "moonbitlang/parser": "0.2.5",
+    "mizchi/npm_typed": "0.1.11",
+    "mizchi/js": "0.10.15",
+    "mizchi/mars": "0.3.10",
+    "mizchi/wite": "0.11.0",
+    "mizchi/x": "0.2.0"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/mizchi/sol.mbt",
+  "license": "MIT",
+  "keywords": [
+    "sol",
+    "mars",
+    "moonbit",
+    "ssg",
+    "ssr",
+    "islands",
+    "routing"
+  ],
+  "description": "Thin Mars wrapper for file-based routing, SSR, and asset loading",
+  "source": "src",
+  "warn-list": "-6-67",
+  "preferred-target": "js"
+}

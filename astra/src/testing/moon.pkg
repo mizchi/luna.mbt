@@ -1,0 +1,8 @@
+import {
+  "mizchi/mars" @mars,
+  "moonbitlang/async/js_async" @js_async,
+}
+
+options(
+  "supported-targets": "js",
+)

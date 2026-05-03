@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/hmr"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum HmrMessage {
+  Connected
+  Reload
+  FullReload
+  Update(islands~ : Array[String], timestamp_ms~ : Double)
+  Error(message~ : String)
+}
+pub fn HmrMessage::to_json(Self) -> String
+
+pub struct HmrServer {
+  port : Int
+  // private fields
+}
+pub fn HmrServer::broadcast(Self, String) -> Unit
+pub fn HmrServer::client_count(Self) -> Int
+pub fn HmrServer::close(Self) -> Unit
+pub fn HmrServer::get_port(Self) -> Int
+pub fn HmrServer::notify_error(Self, String) -> Unit
+pub fn HmrServer::notify_full_reload(Self) -> Unit
+pub fn HmrServer::notify_reload(Self) -> Unit
+pub fn HmrServer::notify_update(Self, Array[String]) -> Unit
+pub fn HmrServer::on_connection(Self, (@core.Any) -> Unit) -> Unit
+pub fn HmrServer::start(Int) -> @core.Promise[Self]
+
+// Type aliases
+
+// Traits
+

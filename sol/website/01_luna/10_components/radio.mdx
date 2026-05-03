@@ -1,0 +1,68 @@
+---
+title: Radio Group
+---
+
+# Radio Group
+
+Single selection from a list of options.
+
+Based on [APG Radio Group Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/).
+
+## Demo
+
+<styled-radio-demo luna:trigger="visible"><div class="radio-group" role="radiogroup" aria-label="Notification preference"><div class="radio" role="radio" aria-checked="true" tabindex="0" data-selected><span class="radio__control"><span class="radio__indicator"></span></span><span class="radio__label">All notifications</span></div><div class="radio" role="radio" aria-checked="false" tabindex="-1" data-selected="false"><span class="radio__control"><span class="radio__indicator"></span></span><span class="radio__label">Important only</span></div><div class="radio" role="radio" aria-checked="false" tabindex="-1" data-selected="false"><span class="radio__control"><span class="radio__indicator"></span></span><span class="radio__label">None</span></div></div></styled-radio-demo>
+
+## Usage
+
+```moonbit
+let selected = @resource.signal("all")
+
+@styled_radio.radio_group(
+  "notifications",
+  [
+    @styled_radio.radio_item("all", "All notifications"),
+    @styled_radio.radio_item("important", "Important only"),
+    @styled_radio.radio_item("none", "None"),
+  ],
+  selected,
+  aria_label="Notification preference",
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| name | String | - | Group name |
+| items | Array[RadioItem] | - | Radio options |
+| selected | Signal[String] | - | Selected value |
+| aria_label | String? | None | Group label |
+| orientation | String | "vertical" | Layout direction |
+| class | String? | None | Additional CSS class |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.radio-group` | Group container |
+| `.radio` | Radio item wrapper |
+| `.radio__control` | Visual circle |
+| `.radio__indicator` | Inner dot |
+| `.radio__label` | Label text |
+
+## States
+
+| State | Description |
+|-------|-------------|
+| `data-selected` | Selected option |
+| `data-disabled` | Disabled option |
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| Arrow Down/Right | Next option (wraps) |
+| Arrow Up/Left | Previous option (wraps) |
+| Home | First option |
+| End | Last option |
+| Space | Select focused |

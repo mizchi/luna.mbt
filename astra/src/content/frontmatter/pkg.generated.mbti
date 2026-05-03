@@ -1,0 +1,53 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/astra/content/frontmatter"
+
+import {
+  "mizchi/markdown",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn from_cst(@markdown.Frontmatter) -> Frontmatter
+
+// Errors
+
+// Types and methods
+pub(all) struct Frontmatter {
+  title : String?
+  description : String?
+  layout : String?
+  sidebar : Bool
+  outline : OutlineConfig?
+  islands : Array[String]
+  prev : NavLink?
+  next : NavLink?
+  image : String?
+  og_type : String?
+  twitter_card : String?
+  ssr : Bool
+  renderer : String?
+  noindex : Bool
+  revalidate : Int?
+  date : String?
+  author : String?
+  tags : Array[String]
+  draft : Bool
+  featured : Bool
+  cover_image : String?
+}
+pub fn Frontmatter::default() -> Self
+
+pub(all) struct NavLink {
+  text : String
+  link : String
+} derive(ToJson, @json.FromJson)
+
+pub(all) struct OutlineConfig {
+  level_min : Int
+  level_max : Int
+} derive(ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,9 @@
+import {
+  "mizchi/sol/builder_pool" @builder_pool,
+}
+
+options(
+  "is-main": true,
+  link: { "js": { "format": "esm" } },
+  "supported-targets": "js",
+)

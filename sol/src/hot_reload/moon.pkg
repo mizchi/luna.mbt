@@ -1,0 +1,7 @@
+import {
+  "moonbitlang/core/strconv",
+}
+
+options(
+  "supported-targets": "js",
+)

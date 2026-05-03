@@ -1,0 +1,31 @@
+extern "js" fn get_env(key : String) -> String =
+  #| (key) => (globalThis.__MBTX_ENV__ && globalThis.__MBTX_ENV__[key]) || ""
+
+extern "js" fn now_iso() -> String =
+  #| () => new Date().toISOString()
+
+extern "js" fn set_response(status : Int, content_type : String, body : String) -> Unit =
+  #| (status, contentType, body) => {
+  #|   globalThis.__MBTX_RESPONSE__ = { status, contentType, body };
+  #| }
+
+fn main {
+  let req_method = get_env("REQUEST_METHOD")
+  let path = get_env("PATH_INFO")
+  let query = get_env("QUERY_STRING")
+  let timestamp = now_iso()
+  let buf = StringBuilder::new()
+  buf.write_string("<html><head><title>Hello from .mbtx</title></head><body>")
+  buf.write_string("<h1>Hello from .mbtx!</h1>")
+  buf.write_string("<p>Method: ")
+  buf.write_string(req_method)
+  buf.write_string("</p><p>Path: ")
+  buf.write_string(path)
+  buf.write_string("</p><p>Query: ")
+  buf.write_string(query)
+  buf.write_string("</p><p>Time: ")
+  buf.write_string(timestamp)
+  buf.write_string("</p><p><em>Rendered by standalone .mbtx (in-process).</em></p>")
+  buf.write_string("</body></html>")
+  set_response(200, "text/html; charset=utf-8", buf.to_string())
+}

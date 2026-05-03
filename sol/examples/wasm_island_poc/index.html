@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WASM Island PoC</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    #wasm-island { border: 2px dashed #ccc; padding: 1rem; min-height: 100px; }
+    button { padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer; }
+    .status { color: #666; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>WASM Island PoC</h1>
+  <p class="status" id="status">Loading WASM module...</p>
+  <div id="wasm-island">
+    <p>Fallback content (replaced by WASM)</p>
+  </div>
+
+  <script type="module">
+    // Inline jscore imports (from inject.ts)
+    function createJsCoreImports() {
+      return {
+        get: (obj, key) => obj[key],
+        get_by_index: (obj, index) => obj[index],
+        set: (obj, key, value) => { obj[key] = value; },
+        set_by_index: (obj, index, value) => { obj[index] = value; },
+        call0: (obj, name) => obj[name](),
+        call1: (obj, name, a1) => obj[name](a1),
+        call2: (obj, name, a1, a2) => obj[name](a1, a2),
+        call3: (obj, name, a1, a2, a3) => obj[name](a1, a2, a3),
+        call4: (obj, name, a1, a2, a3, a4) => obj[name](a1, a2, a3, a4),
+        invoke0: (fn) => fn(),
+        invoke1: (fn, a1) => fn(a1),
+        invoke2: (fn, a1, a2) => fn(a1, a2),
+        invoke3: (fn, a1, a2, a3) => fn(a1, a2, a3),
+        invoke4: (fn, a1, a2, a3, a4) => fn(a1, a2, a3, a4),
+        new0: (cls) => new cls(),
+        new1: (cls, a1) => new cls(a1),
+        new2: (cls, a1, a2) => new cls(a1, a2),
+        new3: (cls, a1, a2, a3) => new cls(a1, a2, a3),
+        new4: (cls, a1, a2, a3, a4) => new cls(a1, a2, a3, a4),
+        typeof: (v) => typeof v,
+        is_nullish: (v) => v == null,
+        is_null: (v) => v === null,
+        is_undefined: (v) => v === undefined,
+        is_array: (v) => Array.isArray(v),
+        is_object: (v) => typeof v === 'object' && v !== null,
+        instanceof: (v, cls) => v instanceof cls,
+        equal: (a, b) => a === b,
+        global_this: () => globalThis,
+        undefined: () => undefined,
+        null: () => null,
+        new_object: () => ({}),
+        new_array: () => [],
+        object_keys: (obj) => Object.keys(obj),
+        object_values: (obj) => Object.values(obj),
+        object_assign: (target, source) => Object.assign(target, source),
+        object_has_own: (obj, key) => Object.hasOwn(obj, key),
+        array_from: (v) => Array.from(v),
+        array_length: (arr) => arr.length,
+        json_stringify: (value) => JSON.stringify(value),
+        json_stringify_pretty: (value, space) => JSON.stringify(value, null, space),
+        json_parse: (text) => JSON.parse(text),
+        to_string: (v) => (v == null ? String(v) : v.toString()),
+        log: (message) => console.log(message),
+        throw: (value) => { throw value; },
+        from: (v) => v,
+        from_int: (v) => v,
+        from_uint: (v) => v,
+        from_int64: (v) => v,
+        from_uint64: (v) => v,
+        from_float: (v) => v,
+        from_double: (v) => v,
+        from_string: (v) => v,
+        from_bool: (v) => v,
+        from_bytes: (v) => v,
+        from_array: (v) => v,
+        int64_to_bigint: (v) => v,
+        bigint_to_int64: (v) => BigInt(v),
+      };
+    }
+
+    async function loadWasm() {
+      const statusEl = document.getElementById('status');
+      try {
+        const wasmPath = './_build/wasm-gc/release/build/wasm-island-poc.wasm';
+        const wasmResponse = await fetch(wasmPath);
+
+        const { instance } = await WebAssembly.instantiate(
+          await wasmResponse.arrayBuffer(),
+          { jscore: createJsCoreImports() },
+          { builtins: ['js-string'], importedStringConstants: '_' }
+        );
+
+        const exports = instance.exports;
+        const wasmSize = wasmResponse.headers.get('content-length') || '?';
+        statusEl.textContent = `WASM loaded (${wasmSize} bytes). Component JS = 0 bytes.`;
+
+        // Initial render (also called from main)
+        exports.render();
+
+        // Event delegation (closures can't cross WASM boundary)
+        document.addEventListener('click', (e) => {
+          if (e.target.id === 'wasm-btn') {
+            exports.handle_click();
+          }
+        });
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+        console.error(e);
+      }
+    }
+
+    loadWasm();
+  </script>
+</body>
+</html>

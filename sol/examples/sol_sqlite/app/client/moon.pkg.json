@@ -1,0 +1,10 @@
+{
+  "supported-targets": "js",
+  "import": [],
+  "link": {
+    "js": {
+      "exports": [],
+      "format": "esm"
+    }
+  }
+}

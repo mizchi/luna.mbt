@@ -32,7 +32,7 @@ import {
   stateIsFailure,
   stateValue,
   stateError,
-} from "../../../_build/js/release/build/js/api_resource_lite/api_resource_lite.js";
+} from "../../../_build/js/release/build/mizchi/luna/js/api_resource_lite/api_resource_lite.js";
 
 export function createResource<T>(fetcher: ResourceFetcher<T>): Resource<T> {
   return _createResource(fetcher);

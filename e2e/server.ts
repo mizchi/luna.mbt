@@ -13,7 +13,18 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
-const moonBuildDir = join(rootDir, "_build", "js", "release", "build");
+// Workspace layout (after the astra extraction added moon.work) puts
+// luna's build outputs under `_build/js/release/build/mizchi/luna/...`
+// rather than `_build/js/release/build/...`.
+const moonBuildDir = join(
+  rootDir,
+  "_build",
+  "js",
+  "release",
+  "build",
+  "mizchi",
+  "luna",
+);
 
 // Load static assets (use IIFE bundled version for serving)
 const loaderPath = join(rootDir, "js", "loader", "dist", "loader.iife.js");

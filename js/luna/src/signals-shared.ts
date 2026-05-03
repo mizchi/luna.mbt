@@ -28,7 +28,7 @@ import {
   runWithOwner,
   hasOwner,
   onMount,
-} from "../../../_build/js/release/build/js/api/api.js";
+} from "../../../_build/js/release/build/mizchi/luna/js/api/api.js";
 
 export function createSignal<T>(initialValue: T): Signal<T> {
   const signal = _createSignal(initialValue);

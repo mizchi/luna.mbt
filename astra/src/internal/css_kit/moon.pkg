@@ -1,0 +1,7 @@
+import {
+  "mizchi/astra" @astra,
+}
+
+options(
+  "supported-targets": "js",
+)

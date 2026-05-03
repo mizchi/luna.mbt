@@ -1,0 +1,10 @@
+import {
+  "mizchi/astra" @astra,
+  "mizchi/astra/content/shiki" @shiki,
+  "mizchi/astra/internal/css_kit" @css_kit,
+  "mizchi/js/node/fs" @fs,
+}
+
+options(
+  "supported-targets": "js",
+)

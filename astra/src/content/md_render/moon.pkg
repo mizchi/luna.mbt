@@ -1,0 +1,19 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/bench",
+  "mizchi/luna" @luna,
+  "mizchi/astra/content/markdown" @markdown,
+  "mizchi/astra/content/frontmatter" @frontmatter,
+  "mizchi/astra/content/cst" @cst,
+  "mizchi/astra/content/toc" @toc,
+  "mizchi/markdown/slug" @slug,
+  "mizchi/markdown/info_string" @info_string,
+}
+
+import {
+  "mizchi/luna/core/render" @render,
+} for "test"
+
+options(
+  "supported-targets": "js",
+)

@@ -1,0 +1,14 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/sol/internal/json_utils",
+  "mizchi/sol/internal/utils" @utils,
+  "mizchi/astra/env" @env,
+  "mizchi/astra" @astra,
+  "mizchi/astra/content/md_render" @md_render,
+  "mizchi/luna" @luna,
+  "mizchi/astra/fs" @fs_adapter,
+}
+
+options(
+  "supported-targets": "js",
+)

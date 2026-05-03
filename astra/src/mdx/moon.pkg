@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/strconv",
+  "mizchi/astra" @astra,
+  "mizchi/astra/content/frontmatter" @frontmatter,
+  "mizchi/markdown" @md_parser,
+  "mizchi/markdown/mdx" @md_mdx,
+  "mizchi/markdown/slug" @slug,
+  "mizchi/markdown/toc" @md_toc,
+}
+
+options(
+  "supported-targets": "js",
+)

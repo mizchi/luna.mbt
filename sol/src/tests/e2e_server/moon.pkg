@@ -1,0 +1,17 @@
+import {
+  "mizchi/sol" @sol,
+  "mizchi/luna" @luna,
+  "mizchi/luna/js/stream_renderer" @stream_renderer,
+  "mizchi/mars" @mars,
+  "moonbitlang/async/js_async" @js_async,
+}
+
+options(
+  link: {
+    "js": {
+      "exports": [ "create_app", "create_fetch_handler" ],
+      "format": "esm",
+    },
+  },
+  "supported-targets": "js",
+)

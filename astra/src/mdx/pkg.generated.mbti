@@ -1,0 +1,46 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/astra/mdx"
+
+import {
+  "mizchi/astra/content/frontmatter",
+  "mizchi/astra/content/markdown",
+}
+
+// Values
+pub fn parse_mdx(String) -> (@frontmatter.Frontmatter, Array[@markdown.MdNode])
+
+pub fn validate_jsx_embed(@markdown.JsxComponentEmbed, ComponentPropsRegistry) -> Array[PropsDiagnostic]
+
+pub fn validate_mdx_props(Array[@markdown.MdNode], ComponentPropsRegistry) -> Array[PropsDiagnostic]
+
+// Errors
+
+// Types and methods
+pub struct ComponentPropsRegistry {
+  entries : Map[String, Array[PropsField]]
+}
+pub fn ComponentPropsRegistry::from_structs(Array[PropsStructInput]) -> Self
+
+pub(all) enum DiagnosticSeverity {
+  Error
+  Warning
+} derive(Eq, Show)
+
+pub(all) struct PropsDiagnostic {
+  component : String
+  severity : DiagnosticSeverity
+  message : String
+}
+pub fn PropsDiagnostic::to_string(Self) -> String
+
+type PropsField
+
+pub(all) struct PropsStructInput {
+  name : String
+  raw_definition : String
+}
+
+// Type aliases
+
+// Traits
+

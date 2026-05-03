@@ -1,0 +1,66 @@
+---
+title: Checkbox
+---
+
+# Checkbox
+
+Checkbox input with checked, unchecked, and indeterminate states.
+
+Based on [APG Checkbox Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/).
+
+## Demo
+
+<styled-checkbox-demo luna:trigger="visible"><div class="checkbox-group" role="group" aria-label="Preferences"><div class="checkbox" data-checked="true"><input type="checkbox" class="checkbox__input" id="cb-1" aria-checked="true" checked><span class="checkbox__control"><span class="checkbox__icon checkbox__icon--check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M10 3L4.5 8.5L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span><span class="checkbox__label">Checked option</span></div><div class="checkbox" data-checked="false"><input type="checkbox" class="checkbox__input" id="cb-2" aria-checked="false"><span class="checkbox__control"><span class="checkbox__icon checkbox__icon--check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M10 3L4.5 8.5L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span><span class="checkbox__label">Unchecked option</span></div><div class="checkbox" data-checked="false" data-indeterminate="true"><input type="checkbox" class="checkbox__input" id="cb-3" aria-checked="mixed"><span class="checkbox__control"><span class="checkbox__icon checkbox__icon--check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M10 3L4.5 8.5L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="checkbox__icon checkbox__icon--indeterminate"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6H10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></span><span class="checkbox__label">Indeterminate state</span></div><div class="checkbox" data-checked="false" data-disabled><input type="checkbox" class="checkbox__input" id="cb-4" aria-checked="false" disabled><span class="checkbox__control"><span class="checkbox__icon checkbox__icon--check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M10 3L4.5 8.5L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span><span class="checkbox__label">Disabled option</span></div></div></styled-checkbox-demo>
+
+## Usage
+
+```moonbit
+// Create a signal for state
+let checked = @resource.signal(false)
+
+// Reactive checkbox
+@styled_checkbox.checkbox(
+  checked,
+  [@luna.text("Accept terms and conditions")],
+)
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| checked | Signal[Bool] | - | Reactive state signal |
+| disabled | Bool | false | Disable the checkbox |
+| indeterminate | Bool | false | Mixed/partial state |
+| id | String? | auto | Input element ID |
+| name | String? | auto | Form field name |
+| class | String? | None | Additional CSS class |
+| children | Array[Node] | - | Label content |
+
+## BEM Classes
+
+| Class | Description |
+|-------|-------------|
+| `.checkbox` | Root wrapper |
+| `.checkbox__input` | Hidden native input |
+| `.checkbox__control` | Visual checkbox box |
+| `.checkbox__icon` | Check/minus icon |
+| `.checkbox__label` | Label text |
+| `.checkbox-group` | Container for multiple checkboxes |
+
+## States
+
+| State | Description |
+|-------|-------------|
+| `data-checked="true"` | Checked state |
+| `data-checked="false"` | Unchecked state |
+| `data-indeterminate="true"` | Mixed/partial state |
+| `data-disabled` | Disabled state |
+
+## Accessibility
+
+- Native `<input type="checkbox">` for form integration
+- `aria-checked` reflects current state (`true`, `false`, `mixed`)
+- Space toggles state
+- Focus ring on keyboard navigation
+- Clicking label toggles checkbox

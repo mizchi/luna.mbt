@@ -1,0 +1,10 @@
+import {
+  "mizchi/js/core" @js,
+  "mizchi/js/node/fs" @node_fs,
+  "mizchi/npm_typed/memfs" @memfs,
+  "mizchi/astra/env" @env,
+}
+
+options(
+  "supported-targets": "js",
+)

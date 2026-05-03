@@ -1,0 +1,7 @@
+import {
+  "mizchi/astra/content/markdown" @markdown,
+}
+
+options(
+  "supported-targets": "js",
+)
