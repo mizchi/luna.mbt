@@ -8,9 +8,6 @@
     "mizchi/js": "0.10.15",
     "mizchi/npm_typed": "0.1.13",
     "mizchi/process_pool": "0.1.3",
-    "mizchi/sol": {
-      "path": "../sol"
-    },
     "mizchi/syntree": "0.2.3",
     "mizchi/x": "0.2.0",
     "moonbitlang/async": "0.17.0",
@@ -20,7 +17,7 @@
   "repository": "https://github.com/mizchi/luna.mbt",
   "license": "MIT",
   "keywords": ["astra", "ssg", "mars", "moonbit", "middleware"],
-  "description": "Mountable Mars middleware for static site generation. NOTE: mizchi/sol back-edge is intentional during Phase B; see BACK_EDGE_FOLLOWUP.md for the T11 cleanup plan.",
+  "description": "Mountable Mars middleware for static site generation",
   "source": "src",
   "preferred-target": "js"
 }

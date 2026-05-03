@@ -6,7 +6,7 @@ import {
   "mizchi/astra/content/shiki" @shiki,
   "mizchi/astra/tree" @tree,
   "mizchi/astra/render" @render,
-  "mizchi/sol/routes" @routes,
+  "mizchi/astra/routes" @routes,
 }
 
 import {

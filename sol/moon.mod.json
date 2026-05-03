@@ -4,7 +4,8 @@
   "deps": {
     "moonbitlang/yacc": "0.7.12",
     "mizchi/astra": {
-      "path": "../astra"
+      "path": "../astra",
+      "version": "0.1.0"
     },
     "mizchi/luna": "0.18.3",
     "moonbitlang/async": "0.17.0",

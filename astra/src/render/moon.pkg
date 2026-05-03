@@ -12,7 +12,7 @@ import {
   "mizchi/astra/cache" @cache,
   "mizchi/astra/isr" @sol_isr,
   "mizchi/astra/components" @components,
-  "mizchi/sol/routes" @routes,
+  "mizchi/astra/routes" @routes,
   "mizchi/astra/internal/css_kit" @css_kit,
   "mizchi/astra/internal/utils" @utils,
   "mizchi/js/core" @js,

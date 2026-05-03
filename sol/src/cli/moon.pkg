@@ -5,7 +5,7 @@ import {
   "mizchi/sol/internal/json_utils" @json_utils,
   "mizchi/astra" @astra,
   "mizchi/astra/render" @astra_render,
-  "mizchi/sol/routes" @ssg_routes,
+  "mizchi/astra/routes" @ssg_routes,
   "mizchi/sol/builder_pool" @builder_pool,
   "mizchi/astra/cache" @astra_cache,
   "mizchi/astra/tree" @astra_tree,
