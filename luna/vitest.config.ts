@@ -4,6 +4,11 @@ import { playwright } from "@vitest/browser-playwright";
 
 const commonExclude = ["**/node_modules/**", "**/.mooncakes/**"];
 
+// This config lives in luna/ but the test files (js/loader, js/luna, js/stella, ...)
+// live at the workspace root. Anchor every project's `root` to the workspace root
+// so the include globs resolve regardless of which directory invokes vitest.
+const workspaceRoot = resolve(__dirname, "..");
+
 function browserConfig() {
   return {
     enabled: true,
@@ -19,6 +24,7 @@ export default defineConfig({
       {
         test: {
           name: "node",
+          root: workspaceRoot,
           environment: "jsdom",
           include: [
             "js/loader/**/*.test.ts",
@@ -34,12 +40,13 @@ export default defineConfig({
         },
         esbuild: {
           jsx: "automatic",
-          jsxImportSource: resolve(__dirname, "js/luna/src"),
+          jsxImportSource: resolve(workspaceRoot, "js/luna/src"),
         },
       },
       {
         test: {
           name: "browser",
+          root: workspaceRoot,
           browser: browserConfig(),
           include: [
             "js/luna/tests/**/*.test.ts",
@@ -62,6 +69,7 @@ export default defineConfig({
       {
         test: {
           name: "bench",
+          root: workspaceRoot,
           browser: browserConfig(),
           include: [],
           exclude: commonExclude,

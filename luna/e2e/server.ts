@@ -12,12 +12,14 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = join(__dirname, "..");
+// This file is at luna/e2e/, but _build/ and js/loader/ live at the workspace
+// root (one level above luna/). Walk up twice to reach it.
+const workspaceRoot = join(__dirname, "..", "..");
 // Workspace layout (after the astra extraction added moon.work) puts
 // luna's build outputs under `_build/js/release/build/mizchi/luna/...`
 // rather than `_build/js/release/build/...`.
 const moonBuildDir = join(
-  rootDir,
+  workspaceRoot,
   "_build",
   "js",
   "release",
@@ -27,7 +29,7 @@ const moonBuildDir = join(
 );
 
 // Load static assets (use IIFE bundled version for serving)
-const loaderPath = join(rootDir, "js", "loader", "dist", "loader.iife.js");
+const loaderPath = join(workspaceRoot, "js", "loader", "dist", "loader.iife.js");
 const loaderCode = readFileSync(loaderPath, "utf-8");
 
 // Import MoonBit counter_component module for SSR
@@ -80,8 +82,12 @@ const chunkedCounterServerPath = join(
 );
 
 // Chunked counter static files directory
+// (Note: src/examples/chunked_counter/ does not exist in the current tree.
+// Kept for parity with the chunked-counter route handler below; that route
+// is unused by the active Playwright suite.)
 const chunkedCounterStaticDir = join(
-  rootDir,
+  workspaceRoot,
+  "luna",
   "src",
   "examples",
   "chunked_counter",

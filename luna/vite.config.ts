@@ -1,9 +1,12 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { moonbit } from 'vite-plugin-moonbit';
-import { lunaCss } from './js/luna/dist/vite-plugin.js';
+import { lunaCss } from '../js/luna/dist/vite-plugin.js';
 
+// vite root dir is `luna/` (this file's directory).
+// Workspace root (where `_build/`, `js/`, `node_modules/` live) is one level up.
 const rootDir = import.meta.dirname;
+const workspaceRoot = resolve(rootDir, '..');
 
 export default defineConfig(({ command }) => {
   const isDev = command === 'serve';
@@ -26,16 +29,17 @@ export default defineConfig(({ command }) => {
       alias: {
         // In dev, MoonBit emits to debug dir by default (moon build --watch)
         ...(isDev
-          ? { '/_build/js/release/build': resolve(rootDir, '_build/js/debug/build') }
+          ? { '/_build/js/release/build': resolve(workspaceRoot, '_build/js/debug/build') }
           : {}),
-        '/_build': resolve(rootDir, '_build'),
-        '@luna/loader': resolve(rootDir, 'js/loader/dist'),
+        '/_build': resolve(workspaceRoot, '_build'),
+        '@luna/loader': resolve(workspaceRoot, 'js/loader/dist'),
       },
     },
     server: {
       port: 4100,
       fs: {
-        allow: [rootDir],
+        // Allow vite to read both luna/ and the workspace root (for _build/, js/loader/dist/, ...).
+        allow: [rootDir, workspaceRoot],
       },
     },
     build: {
