@@ -32,20 +32,20 @@ jobs:
         run: |
           # Core libraries
           moon build --target js --release src
-          moon build --target js --release src/js/api
-          moon build --target js --release src/js/api_signals
-          moon build --target js --release src/js/stream_renderer
-          moon build --target js --release src/x/stella
+          moon build --target js --release luna/src/js/api
+          moon build --target js --release luna/src/js/api_signals
+          moon build --target js --release luna/src/js/stream_renderer
+          moon build --target js --release luna/src/x/stella
           # Test packages for browser tests
-          moon build --target js --release src/tests/counter_component
-          moon build --target js --release src/tests/counter_client
-          moon build --target js --release src/tests/browser_components
-          moon build --target js --release src/tests/router_csr
+          moon build --target js --release luna/src/tests/counter_component
+          moon build --target js --release luna/src/tests/counter_client
+          moon build --target js --release luna/src/tests/browser_components
+          moon build --target js --release luna/src/tests/router_csr
           # Examples for browser tests
-          moon build --target js --release src/examples/spa
-          moon build --target js --release src/examples/todomvc
-          moon build --target js --release src/examples/browser_router
-          moon build --target js --release src/examples/wc
+          moon build --target js --release luna/src/examples/spa
+          moon build --target js --release luna/src/examples/todomvc
+          moon build --target js --release luna/src/examples/browser_router
+          moon build --target js --release luna/src/examples/wc
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: Vitest browser tests
@@ -75,21 +75,21 @@ jobs:
         run: |
           # Core libraries
           moon build --target js --release src
-          moon build --target js --release src/js/api
-          moon build --target js --release src/js/api_signals
-          moon build --target js --release src/js/stream_renderer
-          moon build --target js --release src/x/stella
+          moon build --target js --release luna/src/js/api
+          moon build --target js --release luna/src/js/api_signals
+          moon build --target js --release luna/src/js/stream_renderer
+          moon build --target js --release luna/src/x/stella
           # Test packages for e2e tests
-          moon build --target js --release src/tests/counter_component
-          moon build --target js --release src/tests/counter_client
-          moon build --target js --release src/tests/browser_components
-          moon build --target js --release src/tests/router_csr
+          moon build --target js --release luna/src/tests/counter_component
+          moon build --target js --release luna/src/tests/counter_client
+          moon build --target js --release luna/src/tests/browser_components
+          moon build --target js --release luna/src/tests/router_csr
           # Examples for e2e tests
-          moon build --target js --release src/examples/spa
-          moon build --target js --release src/examples/todomvc
-          moon build --target js --release src/examples/browser_router
-          moon build --target js --release src/examples/wc
-          moon build --target js --release src/examples/apg-playground
+          moon build --target js --release luna/src/examples/spa
+          moon build --target js --release luna/src/examples/todomvc
+          moon build --target js --release luna/src/examples/browser_router
+          moon build --target js --release luna/src/examples/wc
+          moon build --target js --release luna/src/examples/apg-playground
       - name: Build Loader
         run: pnpm --filter @luna_ui/luna-loader build
       - name: Install Playwright Chromium

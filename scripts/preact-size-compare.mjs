@@ -95,7 +95,7 @@ function pickCases(filterValue) {
 }
 
 async function ensureBuild() {
-  await execa("moon", ["build", "--target", "js", "--release", "src"], {
+  await execa("moon", ["build", "--target", "js", "--release", "luna/src"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
   });

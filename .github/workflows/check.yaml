@@ -193,16 +193,16 @@ jobs:
           moon update
       - name: Test core/routes (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm src/core/routes
-          moon test --target wasm-gc src/core/routes
-          moon test --target native src/core/routes
+          moon test --target wasm luna/src/core/routes
+          moon test --target wasm-gc luna/src/core/routes
+          moon test --target native luna/src/core/routes
       - name: Test core/render (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm src/core/render
-          moon test --target wasm-gc src/core/render
-          moon test --target native src/core/render
+          moon test --target wasm luna/src/core/render
+          moon test --target wasm-gc luna/src/core/render
+          moon test --target native luna/src/core/render
       - name: Test x/components/aria (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm src/x/components/aria
-          moon test --target wasm-gc src/x/components/aria
-          moon test --target native src/x/components/aria
+          moon test --target wasm luna/src/x/components/aria
+          moon test --target wasm-gc luna/src/x/components/aria
+          moon test --target native luna/src/x/components/aria
