@@ -104,17 +104,17 @@ function formatBytes(bytes) {
 }
 
 async function ensureBuild() {
-  await execa("moon", ["build", "--target", "js", "--release", "src"], {
+  await execa("moon", ["build", "--target", "js", "--release", "luna/src"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
   });
-  await execa("moon", ["build", "--target", "js", "--release", "src/js/api"], {
+  await execa("moon", ["build", "--target", "js", "--release", "luna/src/js/api"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
   });
   await execa(
     "moon",
-    ["build", "--target", "js", "--release", "src/js/api_signals"],
+    ["build", "--target", "js", "--release", "luna/src/js/api_signals"],
     {
       cwd: PROJECT_ROOT,
       stdio: "inherit",
@@ -122,7 +122,7 @@ async function ensureBuild() {
   );
   await execa(
     "moon",
-    ["build", "--target", "js", "--release", "src/js/api_resource_lite"],
+    ["build", "--target", "js", "--release", "luna/src/js/api_resource_lite"],
     {
       cwd: PROJECT_ROOT,
       stdio: "inherit",
@@ -130,7 +130,7 @@ async function ensureBuild() {
   );
   await execa(
     "moon",
-    ["build", "--target", "js", "--release", "src/js/api_router_lite"],
+    ["build", "--target", "js", "--release", "luna/src/js/api_router_lite"],
     {
       cwd: PROJECT_ROOT,
       stdio: "inherit",

@@ -1,5 +1,5 @@
 members = [
-  ".",
+  "./luna",
   "./sol",
   "./astra",
 ]

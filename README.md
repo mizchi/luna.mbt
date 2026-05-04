@@ -5,7 +5,7 @@ published independently to [mooncakes](https://mooncakes.io/):
 
 | Package | Role | Path |
 |---------|------|------|
-| [`mizchi/luna`](./)            | UI primitive — VDOM, hydration, stream renderer, Island runtime | `src/` |
+| [`mizchi/luna`](./luna/)        | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/` |
 | [`mizchi/sol`](./sol/)         | Mars-based SSR framework with file-based routing                | `sol/` |
 | [`mizchi/astra`](./astra/)     | Mountable Mars middleware for static site generation            | `astra/` |
 
@@ -13,7 +13,7 @@ Each package's README has the canonical usage doc.
 
 ## Layout
 
-- `src/` — luna primitives (signals, render, routing, x/components)
+- `luna/` — luna primitives (signals, render, routing, x/components)
 - `sol/` — sol SSR framework + CLI
 - `astra/` — astra SSG middleware + CLI + examples
 - `examples/` — luna-only demos (sol/astra examples live under their packages)
