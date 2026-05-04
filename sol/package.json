@@ -1,7 +1,7 @@
 {
-  "name": "@luna_ui/sol",
+  "name": "@luna_ui/sol-workspace",
   "private": true,
-  "description": "MoonBit SSR/SSG Framework",
+  "description": "MoonBit SSR/SSG Framework — workspace dev package (the npm-published CLI lives at js/sol/, name @luna_ui/sol)",
   "type": "module",
   "bin": {
     "sol": "./bin/sol.js"
