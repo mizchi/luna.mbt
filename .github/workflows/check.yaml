@@ -47,6 +47,7 @@ jobs:
         continue-on-error: true
       - name: Comment bundle size result
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
@@ -71,6 +72,7 @@ jobs:
         continue-on-error: true
       - name: Comment treeshake result
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
@@ -95,6 +97,7 @@ jobs:
         continue-on-error: true
       - name: Comment runtime benchmark result
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
@@ -119,6 +122,7 @@ jobs:
         continue-on-error: true
       - name: Comment moon bench result
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
