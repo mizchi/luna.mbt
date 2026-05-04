@@ -31,7 +31,7 @@ jobs:
       - name: Build MoonBit
         run: |
           # Core libraries
-          moon build --target js --release src
+          moon build --target js --release luna/src
           moon build --target js --release luna/src/js/api
           moon build --target js --release luna/src/js/api_signals
           moon build --target js --release luna/src/js/stream_renderer
@@ -74,7 +74,7 @@ jobs:
       - name: Build MoonBit
         run: |
           # Core libraries
-          moon build --target js --release src
+          moon build --target js --release luna/src
           moon build --target js --release luna/src/js/api
           moon build --target js --release luna/src/js/api_signals
           moon build --target js --release luna/src/js/stream_renderer
