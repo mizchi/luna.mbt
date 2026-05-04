@@ -1,0 +1,16 @@
+{
+  "name": "@luna_ui/astra",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "astra": "./bin/astra.js"
+  },
+  "main": "./bin/astra.js",
+  "files": [
+    "bin/",
+    "README.md"
+  ],
+  "description": "Astra — SSG / static-export companion for Sol (CLI wrapper)",
+  "repository": "https://github.com/mizchi/luna.mbt"
+}

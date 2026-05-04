@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-import "../_build/js/release/build/cli/cli.js";
+// Workspace layout: outputs go to <workspace>/_build/js/release/build/<owner>/<package>/...
+// This shim is at sol/bin/sol.js, so workspace root is two dirs above.
+import "../../_build/js/release/build/mizchi/sol/cli/cli.js";

@@ -97,7 +97,9 @@ async function main() {
         path: resolve(MOONBIT_OUT, 'stella-component.js'),
       }));
       build.onResolve({ filter: /^@mizchi\/luna-wcr$/ }, () => ({
-        path: resolve(ROOT, '../../js/wcr/dist/index.js'),
+        // ROOT = js/stella/examples/stella-component/. Walk up four to
+        // workspace root, then into js/wcr/dist/.
+        path: resolve(ROOT, '../../../../js/wcr/dist/index.js'),
       }));
     },
   };

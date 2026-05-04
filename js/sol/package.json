@@ -1,0 +1,16 @@
+{
+  "name": "@luna_ui/sol",
+  "version": "0.16.0",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "sol": "./bin/sol.js"
+  },
+  "main": "./bin/sol.js",
+  "files": [
+    "bin/",
+    "README.md"
+  ],
+  "description": "Sol — SSR-first web framework for MoonBit (CLI wrapper)",
+  "repository": "https://github.com/mizchi/luna.mbt"
+}

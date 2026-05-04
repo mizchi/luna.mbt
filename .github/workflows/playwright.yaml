@@ -49,7 +49,7 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: Vitest browser tests
-        run: pnpm vitest run --project browser
+        run: pnpm test:browser
 
   # E2E tests with Playwright
   e2e:
@@ -95,7 +95,7 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: E2E tests
-        run: pnpm playwright test --config e2e/playwright.config.mts
+        run: pnpm playwright test --config luna/e2e/playwright.config.mts
 
   # astra middleware Playwright + node:test build_dev_parity smoke
   astra-e2e:
