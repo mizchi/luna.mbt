@@ -3,8 +3,13 @@
   "tasks": {
     "//#build:moon": {
       "inputs": [
-        "src/**/*.mbt",
-        "moon.mod.json",
+        "luna/src/**/*.mbt",
+        "sol/src/**/*.mbt",
+        "astra/src/**/*.mbt",
+        "luna/moon.mod.json",
+        "sol/moon.mod.json",
+        "astra/moon.mod.json",
+        "moon.work",
         "**/moon.pkg.json"
       ],
       "outputs": [
@@ -28,8 +33,13 @@
     "//#test:moonbit": {
       "dependsOn": ["//#build:moon"],
       "inputs": [
-        "src/**/*.mbt",
-        "moon.mod.json",
+        "luna/src/**/*.mbt",
+        "sol/src/**/*.mbt",
+        "astra/src/**/*.mbt",
+        "luna/moon.mod.json",
+        "sol/moon.mod.json",
+        "astra/moon.mod.json",
+        "moon.work",
         "**/moon.pkg.json"
       ],
       "outputs": []
@@ -39,16 +49,16 @@
       "inputs": [
         "js/**/*.ts",
         "js/**/*.test.ts",
-        "vitest.config.ts"
+        "luna/vitest.config.ts"
       ],
       "outputs": []
     },
     "//#test:e2e": {
       "dependsOn": ["//#build:moon", "@luna_ui/luna-loader#build"],
       "inputs": [
-        "e2e/**/*.ts",
-        "e2e/**/*.mts",
-        "src/**/*.mbt"
+        "luna/e2e/**/*.ts",
+        "luna/e2e/**/*.mts",
+        "luna/src/**/*.mbt"
       ],
       "outputs": [],
       "cache": false

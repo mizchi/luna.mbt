@@ -40,20 +40,20 @@ retest *tasks="test:moonbit test:vitest":
 
 # MoonBit ビルド
 build-moon:
-    moon build --target js --release src
-    moon build --target js --release src/js/api
-    moon build --target js --release src/js/api_signals
-    moon build --target js --release src/js/api_resource_lite
-    moon build --target js --release src/js/api_router_lite
+    moon build --target js --release luna/src
+    moon build --target js --release luna/src/js/api
+    moon build --target js --release luna/src/js/api_signals
+    moon build --target js --release luna/src/js/api_resource_lite
+    moon build --target js --release luna/src/js/api_router_lite
     @rm -f _build/js/release/build/package.json
 
 # MoonBit デバッグビルド（ソースマップ付き）
 build-debug:
-    moon build --target js -g src
-    moon build --target js -g src/js/api
-    moon build --target js -g src/js/api_signals
-    moon build --target js -g src/js/api_resource_lite
-    moon build --target js -g src/js/api_router_lite
+    moon build --target js -g luna/src
+    moon build --target js -g luna/src/js/api
+    moon build --target js -g luna/src/js/api_signals
+    moon build --target js -g luna/src/js/api_resource_lite
+    moon build --target js -g luna/src/js/api_router_lite
 
 # Loader ビルド
 build-loader:
@@ -62,7 +62,7 @@ build-loader:
 # フルビルド（turbo経由）
 build:
     pnpm turbo run build
-    pnpm vite build
+    pnpm vite build --config luna/vite.config.ts
 
 # =============================================================================
 # テスト（個別ランナー - turbo から呼ばれる）
@@ -74,21 +74,21 @@ test-moonbit: _setup-test-env
 
 # Vitest テスト
 test-vitest:
-    pnpm vitest run --project node --project browser
+    pnpm vitest run --config luna/vitest.config.ts --project node --project browser
 
 # E2E テスト
 test-e2e:
-    pnpm playwright test --config e2e/playwright.config.mts
+    pnpm playwright test --config luna/e2e/playwright.config.mts
 
 # E2E テスト（UI モード）
 test-e2e-ui:
-    pnpm playwright test --config e2e/playwright.config.mts --ui
+    pnpm playwright test --config luna/e2e/playwright.config.mts --ui
 
 # クロスプラットフォームテスト (js, wasm-gc, native)
 test-xplat:
-    moon test --target all src/core/routes
-    moon test --target all src/core/render
-    moon test --target all src/core/serialize
+    moon test --target all luna/src/core/routes
+    moon test --target all luna/src/core/render
+    moon test --target all luna/src/core/serialize
 
 # moon test 用 CommonJS 環境セットアップ
 _setup-test-env:
@@ -197,7 +197,7 @@ coverage-vitest:
 coverage-e2e:
     @just build-debug
     rm -rf coverage/e2e-v8
-    pnpm playwright test --config e2e/playwright.config.mts e2e/browser/coverage.test.mts
+    pnpm playwright test --config luna/e2e/playwright.config.mts luna/e2e/browser/coverage.test.mts
 
 # カバレッジクリーン
 coverage-clean:
@@ -213,7 +213,7 @@ luna *args:
     node js/luna/dist/cli.mjs {{args}}
 
 # CSS 抽出
-extract-css dir="src" *flags:
+extract-css dir="luna/src" *flags:
     just luna css extract {{dir}} --pretty {{flags}}
 
 # CSS ミニファイ
@@ -226,7 +226,7 @@ inject-css html src *flags:
 
 # CSS ベンチマーク
 bench-css scale="all":
-    node src/x/css/benchmark.js --scale {{scale}}
+    node luna/src/x/css/benchmark.js --scale {{scale}}
 
 # =============================================================================
 # リリース
