@@ -34,12 +34,8 @@ jobs:
       - run: |
           moon update
           moon install
-      - name: moon check
-        run: |
-          moon check --target js src
-          moon check --target js src/js/api
-          moon check --target js src/js/stream_renderer
-          moon check --target js src/x/stella
+      - name: moon check (workspace — luna + sol + astra)
+        run: moon check --target js
       - name: Build workspace packages
         run: |
           cd js/wcr && pnpm build
@@ -180,21 +176,10 @@ jobs:
         run: |
           mkdir -p _build/js/debug/test
           echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
-      - name: moon test
-        run: |
-          # Luna core
-          moon test --target js src/js/resource
-          moon test --target js src/core/routes
-          moon test --target js src/core/render
-          moon test --target js src/core/serialize
-          # Luna DOM
-          moon test --target js src/dom/client
-          moon test --target js src/dom/static
-          # Luna JS
-          moon test --target js src/js/stream_renderer
-          moon test --target js src/js/api
-          # Stella
-          moon test --target js src/x/stella
+      - name: moon test (workspace — luna + sol + astra)
+        # moon.work members [".", "./sol", "./astra"]; this runs every
+        # test across the three packages in one pass.
+        run: moon test --target js
 
   # Cross-platform tests (non-JS targets: wasm, wasm-gc, native)
   test-xplat:
