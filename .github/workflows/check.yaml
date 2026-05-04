@@ -33,7 +33,6 @@ jobs:
           version: latest
       - run: |
           moon update
-          moon install
       - name: moon check (workspace — luna + sol + astra)
         run: moon check --target js
       - name: Build workspace packages
@@ -171,7 +170,6 @@ jobs:
           version: latest
       - run: |
           moon update
-          moon install
       - name: Setup CJS test environment
         run: |
           mkdir -p _build/js/debug/test
@@ -193,7 +191,6 @@ jobs:
           version: latest
       - run: |
           moon update
-          moon install
       - name: Test core/routes (wasm, wasm-gc, native)
         run: |
           moon test --target wasm src/core/routes
