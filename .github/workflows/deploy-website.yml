@@ -1,0 +1,59 @@
+name: deploy-website
+
+# Builds the docs site under website/ with `astra build` (SSG mode) and
+# deploys the resulting dist-docs/ to luna.mizchi.workers.dev as a
+# Cloudflare Workers Static Assets worker (no SSR runtime; pure CDN).
+#
+# Trigger: tied to release-please's @luna_ui/luna release event. When the
+# Release PR merges, release-please publishes 8 GitHub Releases roughly
+# in parallel; we listen only to the luna-v* tag so the website is
+# deployed once per release cycle (not 8 times).
+#
+# workflow_dispatch is the manual fallback for redeploying off-cycle.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'luna-v') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+
+      - run: moon update
+
+      - run: pnpm install --frozen-lockfile
+
+      # astra binary lives at _build/js/release/build/mizchi/astra/cmd/astra/astra.js,
+      # produced by `moon build --target js --release`. Workspace-wide build
+      # also handles luna's tsdown step which reads moonbit-built api.js files.
+      - run: moon build --target js --release
+
+      - run: pnpm -r build
+
+      - name: astra build (SSG)
+        working-directory: website
+        run: node ../js/astra/bin/astra.js build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: website
+          wranglerVersion: "4"
