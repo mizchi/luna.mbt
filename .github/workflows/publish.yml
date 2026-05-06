@@ -15,6 +15,15 @@ name: publish
 on:
   release:
     types: [published]
+  # Manual fallback for republishing a tag whose original release event
+  # ran an old (broken) version of this workflow. GitHub Actions reruns
+  # use the workflow code at the event SHA, so workflow_dispatch is the
+  # only path to pick up post-release publish.yml fixes.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish (e.g. luna-v0.17.0)'
+        required: true
 
 permissions:
   contents: read
@@ -25,6 +34,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # For workflow_dispatch we want the tag's commit, not main.
+          ref: ${{ inputs.tag || github.ref }}
 
       # pnpm/action-setup reads the pinned version from package.json::packageManager.
       # Specifying `version:` here in addition causes ERR_PNPM_BAD_PM_VERSION.
@@ -55,8 +67,10 @@ jobs:
       # prefix, then walk js/*/package.json to find the matching directory.
       - name: Resolve package directory from tag
         id: pkg
+        env:
+          DISPATCH_TAG: ${{ inputs.tag }}
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${DISPATCH_TAG:-$GITHUB_REF_NAME}"
           COMPONENT="${TAG%-v*}"
           NAME="@luna_ui/${COMPONENT}"
           DIR=""
