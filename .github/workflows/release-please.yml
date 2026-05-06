@@ -1,0 +1,48 @@
+name: release-please
+
+# Two triggers:
+# 1. workflow_dispatch: maintainer runs this to create a Release PR
+#    (CHANGELOG is auto-generated from accumulated Conventional Commits).
+# 2. pull_request closed on main with head.ref starting with
+#    "release-please--": fires automatically after merging the Release PR
+#    so release-please itself creates the tag and GitHub Release without
+#    requiring a second manual dispatch.
+#
+# Regular feat:/fix: PR merges do NOT start this workflow — the job-level
+# `if` guard ensures only Release PR merges trigger tag creation.
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+# GITHUB_TOKEN is not handed to release-please. A dedicated GitHub App token
+# is used instead so the repo-wide "Allow GitHub Actions to create and approve
+# pull requests" setting can stay off.
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event.pull_request.merged == true &&
+         startsWith(github.event.pull_request.head.ref, 'release-please--'))
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          # App ID is safe to commit (cannot do anything by itself).
+          # The matching private key (full PEM with BEGIN/END lines) lives
+          # in the repo secret RELEASE_PLEASE_APP_PRIVATE_KEY.
+          app-id: 3420845
+          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
+
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

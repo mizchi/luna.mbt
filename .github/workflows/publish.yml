@@ -1,0 +1,80 @@
+name: publish
+
+# Triggered by the GitHub Releases that release-please creates.
+# Each release-please-managed package gets its own Release whose tag is
+# "@luna_ui/<pkg>-v<version>" (because include-component-in-tag is true in
+# release-please-config.json). This workflow runs once per Release event,
+# resolves the tag back to a workspace directory, and runs `npm publish`
+# from there with OIDC Trusted Publishing.
+#
+# Prerequisites (see docs/internal/npm-release-onboarding.md):
+#   - Each @luna_ui/* package has a Trusted Publisher entry on npmjs.com
+#     pointing at this repo + workflow filename "publish.yml".
+#   - npm 2FA on each package is set to "Authorization only" (NOT
+#     "Authorization and writes"), otherwise OIDC publish is rejected.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write  # required for OIDC Trusted Publishing
+
+jobs:
+  publish-monorepo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          cache: pnpm
+
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+
+      - run: moon update
+
+      - run: pnpm install --frozen-lockfile
+
+      # Workspace-wide build is the safest bet — most js/* packages have a
+      # build step that produces dist/ and we don't want to maintain a
+      # per-package matrix here.
+      - run: pnpm -r build
+
+      # release-please tag format is "@luna_ui/<pkg>-v<version>".
+      # Strip the "-v<version>" suffix to recover the npm name, then walk
+      # js/*/package.json to find the matching directory.
+      - name: Resolve package directory from tag
+        id: pkg
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          NAME="${TAG%-v*}"
+          DIR=""
+          for f in js/*/package.json; do
+            PKG_NAME=$(node -p "require('./${f}').name")
+            if [ "$PKG_NAME" = "$NAME" ]; then
+              DIR=$(dirname "$f")
+              break
+            fi
+          done
+          if [ -z "$DIR" ]; then
+            echo "::error::No package.json under js/* matches name '$NAME' (tag '$TAG')"
+            exit 1
+          fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "dir=$DIR"   >> "$GITHUB_OUTPUT"
+
+      - name: Publish ${{ steps.pkg.outputs.name }}
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        # --provenance is auto-attached by npm 11+ in OIDC environments;
+        # explicitly opting in here keeps it on for older npm too.
+        # Do NOT set NPM_TOKEN — its presence disables the OIDC code path.
+        run: npm publish --provenance --access public
