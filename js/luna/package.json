@@ -72,9 +72,14 @@
     "tsdown": "0.21.0-beta.2"
   },
   "repository": {
-    "directory": "js/luna",
-    "url": "https://github.com/mizchi/luna.mbt"
+    "type": "git",
+    "url": "git+https://github.com/mizchi/luna.mbt.git",
+    "directory": "js/luna"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
   "files": [
     "dist"
   ]

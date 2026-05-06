@@ -50,5 +50,13 @@
     "web-components"
   ],
   "author": "mizchi",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizchi/luna.mbt.git",
+    "directory": "js/loader"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
