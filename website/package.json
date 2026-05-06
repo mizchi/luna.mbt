@@ -1,0 +1,6 @@
+{
+  "name": "@luna_ui/website",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Luna UI documentation site (built by astra, deployed to Cloudflare Workers as the `luna` worker)."
+}
