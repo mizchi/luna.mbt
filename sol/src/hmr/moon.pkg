@@ -4,6 +4,4 @@ import {
   "mizchi/sol/cli_common" @cli_common,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

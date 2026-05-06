@@ -1,94 +1,77 @@
-# Luna UI Library
+# luna.mbt — Agent Notes
 
-MoonBitで実装されたIsland ArchitectureベースのUIライブラリ。
+Monorepo for three MoonBit packages plus their npm wrappers. Each
+mooncake publishes independently but lives and is tested together.
 
-## 関連リポジトリ
+## Layout
 
-- **Sol** (SSR/SSGフレームワーク): [mizchi/sol.mbt](https://github.com/mizchi/sol.mbt)
+| Path | Mooncake / npm | Role |
+|------|----------------|------|
+| `luna/`  | `mizchi/luna`  / `@luna_ui/luna`  | UI primitives — VDOM, hydration, stream renderer, Island runtime, signals, vite plugin |
+| `sol/`   | `mizchi/sol`   / `@luna_ui/sol`   | SSR framework over Mars (file-based routes, CLI under `sol/src/cmd/sol`) |
+| `astra/` | `mizchi/astra` / `@luna_ui/astra` | Mountable Mars middleware for SSG (CLI under `astra/src/cmd/astra`) |
 
-## ディレクトリ構成
+`moon.work` ties the three together. Workspace-wide `moon check` /
+`moon test` cover all three. `js/*` holds the npm wrappers — most are
+thin re-exports; `js/luna` is the real npm artifact (built by tsdown).
 
-```
-src/
-├── core/             # 環境非依存コア (mizchi/luna/core)
-│   ├── vnode.mbt     # VNode型定義
-│   ├── routes/       # ルート定義・マッチング
-│   ├── serialize/    # シリアライズ
-│   └── render/       # VNode → HTML レンダリング
-├── js/               # ブラウザ向けJS実装
-│   ├── resource/     # リアクティブシグナル (mizchi/luna/js/resource)
-│   └── api/          # JavaScript API エクスポート (mizchi/luna/js/api)
-├── dom/              # DOM操作、Hydration、ルーター (mizchi/luna/dom)
-├── x/                # 実験的モジュール
-│   ├── stella/       # Island埋め込み用Shard生成
-│   ├── css/          # CSS Utilities
-│   └── components/   # UIコンポーネント
-├── examples/         # サンプルコード
-└── tests/            # 統合テスト
-js/                   # NPMパッケージ
-├── luna/             # @luna_ui/luna
-└── loader/           # @luna_ui/luna-loader
-e2e/                  # Playwrightテスト
-```
+Other top-level dirs:
+- `js/` — TS bindings + npm wrappers (`@luna_ui/{luna,sol,astra,components,loader,stella,testing,wcr,wcssr}`)
+- `tests/integration/` — cross-package smoke tests (`pnpm test:integration`)
+- `website/` — monorepo docs site, built with `astra build`
+- `docs/`, `scripts/` — repo-wide notes + coverage tool
+- See root `README.md` for the public-facing story.
 
-## 開発コマンド
+CHANGELOGs are per-package: `luna/` (only this one currently has cliff
+config — `luna/cliff.toml`), `sol/CHANGELOG.md`, `astra/CHANGELOG.md`.
 
-タスク一覧は `just --list` で確認できる。
+## Commands
 
-```bash
-# 基本
-just check            # 型チェック (moon check --target js)
-just fmt              # フォーマット (moon fmt)
-just build-moon       # MoonBit ビルド
-just build-loader     # Loader ビルド (turbo経由)
+`just --list` enumerates everything. The ones an agent normally needs:
 
-# テスト
-just test-moonbit     # MoonBit ユニットテスト
-just test-vitest      # Vitest テスト (node + browser)
-just test-e2e         # E2E テスト (Playwright)
-just test-xplat       # クロスプラットフォームテスト (js, wasm, native)
-
-# CI
-just ci               # check + test-incremental + size-check
-just size             # バンドルサイズ表示
-just size-check       # バンドルサイズチェック (loader.js < 5KB)
-
-# ユーティリティ
-just luna --help      # Luna CLI (CSS utilities)
-just metrics          # メトリクス収集
-just vup patch        # バージョンアップ
+```sh
+just check          # moon check --target js (workspace-wide)
+just fmt            # moon fmt
+just test-moonbit   # moon test --target js  (must stay 2794 PASS)
+just test-vitest    # node + browser vitest (luna)
+just test-e2e       # playwright (luna)
+pnpm test:integration   # cross-package smoke (build/dev parity + 7-example matrix)
 ```
 
-## 開発ポリシー
-
-- `moon check` を通過すること
-- `moon fmt` でフォーマット統一
-- ローダーサイズは5KB以下を維持
-
-## コミットメッセージ
-
-[Conventional Commits](https://www.conventionalcommits.org/) に従う。
-
+Coordinated bumps:
+```sh
+node luna/scripts/vup.mjs --dry-run patch   # preview
+just vup patch                              # bump + per-package CHANGELOG
+just vup patch --release                    # ... + commit + per-pkg tags
 ```
-<type>(<scope>): <description>
+The script bumps all 6 manifests (`{luna,sol,astra}/moon.mod.json` +
+`js/{luna,sol,astra}/package.json`) and the sol→astra inter-dep ref.
+Tags are per-package: `luna-v<v>`, `sol-v<v>`, `astra-v<v>`.
+
+CLI installs (mooncakes):
+```sh
+moon install mizchi/sol/cmd/sol
+moon install mizchi/astra/cmd/astra
 ```
 
-| type | 用途 |
-|------|------|
-| `feat` | 新機能 |
-| `fix` | バグ修正 |
-| `docs` | ドキュメント |
-| `refactor` | リファクタリング |
-| `perf` | パフォーマンス改善 |
-| `test` | テスト追加・修正 |
-| `chore` | ビルド・CI など |
+## Conventions
 
-## テストポリシー
+- Conventional Commits (`feat`/`fix`/`refactor`/`docs`/`chore`/...).
+- English for commit messages and public docs.
+- Every package targets `js` by default (`supported_targets = "js"` —
+  use the statement form, not the deprecated `options("supported-targets": ...)`).
+- `moon check` should stay at 0 errors; warnings are tracked but not
+  gated. `moon test --target js` MUST stay at 2794 PASS.
+- Code generation: sol's `__gen__/` lives under example projects and
+  is regenerated by `sol generate`. Generators live in
+  `sol/src/cli/{server,type,hydrate}_generator.mbt` and `templates.mbt` —
+  edit them, not the generated output.
 
-テストピラミッドに基づき、可能な限り低レイヤーでテストする。
+## Test pyramid
 
-| レイヤー | ディレクトリ | 対象 |
-|---------|-------------|------|
-| MoonBit Unit | `src/**/*_test.mbt` | 純粋ロジック（DOM非依存） |
-| Vitest | `js/**/tests/*.test.ts` | DOM操作、Hydration |
-| E2E | `e2e/**/*.test.ts` | 統合テスト |
+| Layer | Where | Targets |
+|-------|-------|---------|
+| MoonBit unit | `*/src/**/*_test.mbt` | Pure logic, no DOM |
+| Vitest | `js/**/tests/*.test.ts` | DOM, hydration, browser |
+| Playwright e2e | `*/e2e/**/*.test.ts` | Full page interaction |
+| Integration | `tests/integration/`, `astra/e2e/build_dev_parity.test.js` | Cross-package smoke (`node:test`) |

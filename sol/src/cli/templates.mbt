@@ -163,8 +163,9 @@ pub fn template_layout_moon_pkg() -> String {
     #|  "mizchi/luna/dom/static" @server_dom,
     #|}
     #|
+    #|supported_targets = "js"
+    #|
     #|options(
-    #|  "supported-targets": "js",
     #|  "warn-list": "-24",
     #|)
   )
@@ -276,9 +277,10 @@ pub fn template_routes_moon_pkg(package_name : String) -> String {
     #|  "moonbitlang/async",
     #|}
     #|
+    #|supported_targets = "js"
+    #|
     #|options(
     #|  "is-main": true,
-    #|  "supported-targets": "js",
     #|  "warn-list": "-67-29",
     #|  link: { "js": { "format": "esm" } },
     #|)
@@ -355,8 +357,9 @@ pub fn template_client_counter_moon_pkg() -> String {
     #|  "mizchi/signals" @signal,
     #|}
     #|
+    #|supported_targets = "js"
+    #|
     #|options(
-    #|  "supported-targets": "js",
     #|  link: { "js": { "exports": [ "counter" ], "format": "esm" } },
     #|)
   )
@@ -376,8 +379,9 @@ pub fn template_gen_types_moon_pkg() -> String {
     #|  "mizchi/luna" @luna,
     #|}
     #|
+    #|supported_targets = "js"
+    #|
     #|options(
-    #|  "supported-targets": "js",
     #|  link: { "js": { "exports": [ "CounterProps", "counter" ], "format": "esm" } },
     #|)
   )
@@ -481,7 +485,7 @@ pub fn generate_doc_templates(
     { path: "sol.config.json", content: sol_config },
     {
       path: "app/server/moon.pkg",
-      content: "import {\n  \"mizchi/sol\" @sol,\n  \"moonbitlang/async\",\n}\n\noptions(\n  \"is-main\": true,\n  \"supported-targets\": \"js\",\n  \"warn-list\": \"-67-29\",\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
+      content: "import {\n  \"mizchi/sol\" @sol,\n  \"moonbitlang/async\",\n}\n\nsupported_targets = \"js\"\n\noptions(\n  \"is-main\": true,\n  \"warn-list\": \"-67-29\",\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
     },
     {
       path: "app/server/main.mbt",

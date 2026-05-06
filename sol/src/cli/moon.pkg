@@ -32,6 +32,4 @@ import {
 
 warnings = "-27-20"
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

@@ -7,6 +7,4 @@ import {
   "mizchi/js/node/path" @path,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

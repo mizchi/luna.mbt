@@ -27,10 +27,11 @@ import {
 warnings = "-24-67-29"
 
 options(
-  "supported-targets": "js",
   targets: {
     "sol_routes_ffi_js.mbt": [ "js" ],
     "route_registration_js.mbt": [ "js" ],
     "route_params_js.mbt": [ "js" ],
   },
 )
+
+supported_targets = "js"

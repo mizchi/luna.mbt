@@ -22,6 +22,4 @@ import {
   "moonbitlang/async",
 } for "test"
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

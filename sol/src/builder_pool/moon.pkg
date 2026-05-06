@@ -7,6 +7,4 @@ import {
   "mizchi/astra/content/shiki" @shiki,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

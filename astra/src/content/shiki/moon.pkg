@@ -3,6 +3,4 @@ import {
   "mizchi/syntree/highlight" @highlight,
 }
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"
