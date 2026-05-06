@@ -56,6 +56,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Build the MoonBit workspace first — js/luna's tsdown step reads
+      # _build/js/release/build/mizchi/luna/js/api/api.js to strip abort
+      # locations. Without this step it fails with ENOENT.
+      - run: moon build --target js --release
+
       # Workspace-wide build is the safest bet — most js/* packages have a
       # build step that produces dist/ and we don't want to maintain a
       # per-package matrix here.
