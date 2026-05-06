@@ -1,0 +1,87 @@
+name: deploy-pages
+
+# Builds the docs site under website/ for GitHub Pages and publishes
+# to https://mizchi.github.io/luna.mbt/. Runs alongside deploy-website
+# (Cloudflare Workers) — both are kept live because workers.dev is
+# blocked from mainland China; mizchi.github.io is the fallback.
+#
+# Trigger mirrors deploy-website: tied to release-please's @luna_ui/luna
+# Release event so each release-please cycle redeploys both targets in
+# parallel. workflow_dispatch is wired up for manual redeploy.
+#
+# Setup prerequisite (one-time, manual):
+#   Repo Settings > Pages > Source = "GitHub Actions"
+#
+# Why a separate workflow: GH Pages serves at /luna.mbt/, Cloudflare
+# Workers at /. astra reads `base` from sol.config.json and bakes it
+# into asset URLs at build time, so we need a second build with `base`
+# rewritten. Keeping it in its own workflow makes failures and reruns
+# independent of the workers.dev path.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'luna-v') }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+
+      - run: moon update
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: moon build --target js --release
+
+      - run: pnpm -r build
+
+      # GH Pages serves the project site under /<repo>/, so every
+      # absolute asset URL needs that prefix. astra reads `base` from
+      # sol.config.json once at build time, so we override it here
+      # without committing the change. siteUrl is left pointing at
+      # workers.dev — that's the canonical URL; the GH Pages path is
+      # the China-accessible mirror.
+      - name: Override base path for GitHub Pages
+        working-directory: website
+        run: |
+          tmp=$(mktemp)
+          jq '.base = "/luna.mbt/"' sol.config.json > "$tmp"
+          mv "$tmp" sol.config.json
+
+      - name: astra build
+        working-directory: website
+        run: node ../js/astra/bin/astra.js build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/dist-docs
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
