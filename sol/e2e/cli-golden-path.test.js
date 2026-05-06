@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SOL_DIR = path.resolve(THIS_DIR, "..");
 const ROOT = path.resolve(SOL_DIR, "..");
-const CLI_DEBUG = path.join(ROOT, "_build", "js", "debug", "build", "mizchi", "sol", "cli", "cli.js");
+const CLI_DEBUG = path.join(ROOT, "_build", "js", "debug", "build", "mizchi", "sol", "cmd", "sol", "sol.js");
 
 function runSol(args, cwd) {
   return spawnSync("node", [CLI_DEBUG, ...args], {
