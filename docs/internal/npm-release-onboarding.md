@@ -13,7 +13,9 @@ The two workflows together handle:
   the matching `js/<pkg>` directory using OIDC Trusted Publishing
   (no NPM_TOKEN needed).
 
-Scope: 9 packages — `@luna_ui/{luna,sol,astra,components,luna-loader,stella,testing,wcr,wcssr}`.
+Scope: 8 packages — `@luna_ui/{luna,sol,astra,components,luna-loader,stella,testing,wcr}`.
+
+(`@luna_ui/wcssr` is `private: true` and excluded from release-please. Re-enable by removing `"private": true` from `js/wcssr/package.json` and adding `"js/wcssr"` back to `release-please-config.json` + `.release-please-manifest.json`.)
 
 The 3 mooncakes packages (`mizchi/{luna,sol,astra}` MoonBit modules) stay
 on the existing `luna/scripts/vup.mjs` flow and are out of scope here.
@@ -46,12 +48,12 @@ create and approve pull requests" repo-wide.
 
 ---
 
-## 2. npm Trusted Publisher registration (per package, 9×)
+## 2. npm Trusted Publisher registration (per package, 8×)
 
 OIDC Trusted Publishing replaces NPM_TOKEN. Each package must be told
 which GitHub workflow is allowed to publish it.
 
-For **each** of the 9 packages below:
+For **each** of the 8 packages below:
 
 1. Sign in at <https://www.npmjs.com>.
 2. Go to the package page → **Settings** → **Trusted Publisher** → **Add**.
@@ -72,7 +74,6 @@ Packages:
 - `@luna_ui/stella`
 - `@luna_ui/testing`
 - `@luna_ui/wcr`
-- `@luna_ui/wcssr`
 
 ---
 
@@ -86,7 +87,7 @@ over for subsequent releases.
 Check current state:
 
 ```sh
-for pkg in luna sol astra components luna-loader stella testing wcr wcssr; do
+for pkg in luna sol astra components luna-loader stella testing wcr; do
   printf '%s: ' "@luna_ui/${pkg}"
   npm view "@luna_ui/${pkg}" version 2>/dev/null || echo '(not published)'
 done
@@ -159,4 +160,4 @@ Conventional Commits drive everything:
 
 Recognized scopes (from `release-please-config.json` package keys):
 `luna`, `sol`, `astra`, `components`, `loader` (publishes as `luna-loader`),
-`stella`, `testing`, `wcr`, `wcssr`.
+`stella`, `testing`, `wcr`.

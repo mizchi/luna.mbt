@@ -12,7 +12,6 @@
     "js/loader":      { "package-name": "@luna_ui/luna-loader" },
     "js/stella":      { "package-name": "@luna_ui/stella" },
     "js/testing":     { "package-name": "@luna_ui/testing" },
-    "js/wcr":         { "package-name": "@luna_ui/wcr" },
-    "js/wcssr":       { "package-name": "@luna_ui/wcssr" }
+    "js/wcr":         { "package-name": "@luna_ui/wcr" }
   }
 }
