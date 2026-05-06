@@ -55,5 +55,10 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # accountId is set explicitly so wrangler skips the /memberships
+          # auto-detect call. Without it, an API token that lacks
+          # User > Memberships:Read fails with 9106 even though the token
+          # has the right Workers Scripts:Edit scope for the actual deploy.
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: website
           wranglerVersion: "4"
