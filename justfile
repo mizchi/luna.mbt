@@ -122,55 +122,55 @@ size:
 
 # Loader bundle サイズ計測
 bundle-size:
-    node scripts/bundle-size.mjs --build
+    node luna/scripts/bundle-size.mjs --build
 
 # Loader bundle ベースライン更新
 bundle-baseline:
-    node scripts/bundle-size.mjs --build --write-baseline
+    node luna/scripts/bundle-size.mjs --build --write-baseline
 
 # Loader bundle ベースライン差分チェック
 bundle-check:
-    node scripts/bundle-size.mjs --build --check
+    node luna/scripts/bundle-size.mjs --build --check
 
 # Treeshake 後サイズ計測
 treeshake-size:
-    node scripts/treeshake-size.mjs --build
+    node luna/scripts/treeshake-size.mjs --build
 
 # Luna と Preact のユースケース別サイズ比較
 preact-size:
-    node scripts/preact-size-compare.mjs --build
+    node luna/scripts/preact-size-compare.mjs --build
 
 # Luna と Preact のユースケース別サイズ比較 (JSON)
 preact-size-json:
-    node scripts/preact-size-compare.mjs --build --json
+    node luna/scripts/preact-size-compare.mjs --build --json
 
 # Treeshake ベースライン更新
 treeshake-baseline:
-    node scripts/treeshake-size.mjs --build --write-baseline
+    node luna/scripts/treeshake-size.mjs --build --write-baseline
 
 # Treeshake ベースライン差分チェック
 treeshake-check:
-    node scripts/treeshake-size.mjs --build --check
+    node luna/scripts/treeshake-size.mjs --build --check
 
 # Runtime benchmark 計測
 runtime-bench:
-    node scripts/runtime-bench.mjs --build
+    node luna/scripts/runtime-bench.mjs --build
 
 # Runtime benchmark ベースライン更新
 runtime-baseline:
-    node scripts/runtime-bench.mjs --build --write-baseline
+    node luna/scripts/runtime-bench.mjs --build --write-baseline
 
 # Runtime benchmark ベースライン差分チェック
 runtime-check:
-    node scripts/runtime-bench.mjs --build --check
+    node luna/scripts/runtime-bench.mjs --build --check
 
 # MoonBit benchmark ベースライン更新
 moonbench-baseline:
-    node scripts/moonbench-check.mjs --write-baseline
+    node luna/scripts/moonbench-check.mjs --write-baseline
 
 # MoonBit benchmark ベースライン差分チェック
 moonbench-check:
-    node scripts/moonbench-check.mjs --check
+    node luna/scripts/moonbench-check.mjs --check
 
 # =============================================================================
 # カバレッジ
@@ -246,7 +246,7 @@ vup version *args:
     #!/usr/bin/env bash
     set -e
     # バージョン更新
-    node scripts/vup.mjs {{version}} {{args}}
+    node luna/scripts/vup.mjs {{version}} {{args}}
     # dry-run でなければ changelog 更新
     if [[ ! " {{args}} " =~ " --dry-run " ]]; then
         # 更新後のバージョンを取得
@@ -259,4 +259,4 @@ vup version *args:
 
 # メトリクス
 metrics *args:
-    node scripts/metrics.ts {{args}}
+    node luna/scripts/metrics.ts {{args}}

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, "..");
+const PROJECT_ROOT = join(__dirname, "..", "..");
 const LOADER_PACKAGE_DIR = join(PROJECT_ROOT, "js/loader");
 const LOADER_PACKAGE_JSON = join(LOADER_PACKAGE_DIR, "package.json");
 const STATIC_IMPORT_RE =

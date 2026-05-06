@@ -1111,7 +1111,7 @@ function generateSvgFile(opts: GeneratorOptions): string {
 }
 
 function main() {
-  const rootDir = join(__dirname, "..");
+  const rootDir = join(__dirname, "..", "..");
 
   // Generate dom/static elements (server-side SSR) - HTML only
   const serverDomPath = join(rootDir, "luna/src/dom/static/__generated.mbt");
