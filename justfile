@@ -240,21 +240,23 @@ changelog tag:
 changelog-preview:
     git cliff --unreleased
 
-# バージョンアップ (patch/minor/major または具体的なバージョン)
-# 使用例: just vup patch, just vup 0.4.0, just vup minor --dry-run
+# バージョンアップ (patch/minor/major or 0.X.Y)
+# Bumps luna / sol / astra (moon.mod + npm wrapper) in lockstep.
+# 例: just vup patch, just vup 0.4.0, just vup patch --dry-run, just vup patch --release
 vup version *args:
     #!/usr/bin/env bash
     set -e
-    # バージョン更新
     node luna/scripts/vup.mjs {{version}} {{args}}
-    # dry-run でなければ changelog 更新
     if [[ ! " {{args}} " =~ " --dry-run " ]]; then
-        # 更新後のバージョンを取得
-        NEW_VERSION=$(node -p "require('./moon.mod.json').version")
-        echo ""
-        echo "Updating CHANGELOG.md..."
-        git cliff --tag "v${NEW_VERSION}" -o CHANGELOG.md 2>/dev/null
-        echo "  CHANGELOG.md updated for v${NEW_VERSION}"
+        # Per-package CHANGELOGs (each package owns its own version + cliff config).
+        for pkg in luna sol astra; do
+            if [[ -f "${pkg}/cliff.toml" ]]; then
+                NEW_VERSION=$(node -p "require('./${pkg}/moon.mod.json').version")
+                echo ""
+                echo "Updating ${pkg}/CHANGELOG.md..."
+                git cliff --config "${pkg}/cliff.toml" --tag "${pkg}-v${NEW_VERSION}" -o "${pkg}/CHANGELOG.md" 2>/dev/null || true
+            fi
+        done
     fi
 
 # メトリクス
