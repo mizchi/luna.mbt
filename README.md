@@ -44,12 +44,13 @@ pnpm add -g @luna_ui/astra   # 0.1.2
 
 ## Layout
 
-- `luna/`  — luna primitives (signals, render, routing, x/components, e2e, vite/vitest configs)
-- `sol/`   — sol SSR framework + CLI (`cmd/sol`)
-- `astra/` — astra SSG middleware + CLI (`cmd/astra`)
-- `js/`    — TS bindings + npm wrappers (`@luna_ui/{luna,sol,astra,components,loader,stella,testing,wcr,wcssr}`)
+- `luna/`     — luna primitives (signals, render, routing, x/components, e2e, vite/vitest configs, scripts/)
+- `sol/`      — sol SSR framework + CLI (`cmd/sol`)
+- `astra/`    — astra SSG middleware + CLI (`cmd/astra`)
+- `js/`       — TS bindings + npm wrappers (`@luna_ui/{luna,sol,astra,components,loader,stella,testing,wcr,wcssr}`)
+- `website/`  — monorepo docs site (Luna UI), built with `astra build`
 - `tests/integration/` — cross-package smoke tests
-- `docs/`, `scripts/`
+- `docs/`, `scripts/` — monorepo-wide design notes + coverage tool
 
 ## Development
 
