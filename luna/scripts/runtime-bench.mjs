@@ -5,7 +5,7 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, "..");
+const PROJECT_ROOT = join(__dirname, "..", "..");
 const SIGNALS_DIST = join(PROJECT_ROOT, "js/luna/dist/signals.js");
 const CONTROL_SCENARIO_ID = "control-loop";
 

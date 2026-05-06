@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, "..");
+const PROJECT_ROOT = join(__dirname, "..", "..");
 
 const TARGETS = [
   "_build/js/release/build/mizchi/luna/js/api/api.js",
