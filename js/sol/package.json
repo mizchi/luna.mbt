@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/sol",
-  "version": "0.16.2",
+  "version": "0.17.0",
   "private": false,
   "type": "module",
   "bin": {
