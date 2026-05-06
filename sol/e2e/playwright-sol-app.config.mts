@@ -27,7 +27,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node ${rootDir}/_build/js/release/build/mizchi/sol/cli/cli.js dev --no-watch -p 3457`,
+    command: `node ${rootDir}/_build/js/release/build/mizchi/sol/cmd/sol/sol.js dev --no-watch -p 3457`,
     cwd: resolve(rootDir, "examples/sol_app"),
     url: "http://localhost:3457",
     reuseExistingServer: !process.env.CI,

@@ -1,5 +1,8 @@
 // Sol CLI - MoonBit SSR Framework CLI
 //
+// Library entry point. The process entry that calls into `run_main`
+// lives in `mizchi/sol/cmd/sol` so the package is installable via
+// `moon install mizchi/sol/cmd/sol`.
 
 ///|
 fn show_help() -> Unit {
@@ -28,18 +31,14 @@ fn show_help() -> Unit {
 
 ///|
 fn show_version() -> Unit {
-  println("sol 0.15.1")
+  println("sol 0.16.1")
 }
 
 ///|
-async fn main {
-  let argv = @process.argv()
-  // argv[0] = node, argv[1] = script path, argv[2..] = args
-  let args : Array[String] = if argv.length() > 2 {
-    argv[2:].to_array()
-  } else {
-    []
-  }
+/// Sol CLI dispatcher. `args` is the user-facing argv slice (no node /
+/// script-path prefix). Mirrors the previous `async fn main` body so
+/// the existing per-command behaviour is preserved.
+pub async fn run_main(args : Array[String]) -> Unit {
   // If no args, show help
   if args.is_empty() {
     show_help()

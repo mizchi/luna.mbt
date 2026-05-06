@@ -3,7 +3,7 @@ package "mizchi/sol/cli"
 
 import {
   "mizchi/astra",
-  "mizchi/sol/core/env",
+  "mizchi/astra/env",
 }
 
 // Values
@@ -78,6 +78,8 @@ pub fn parse_wasm_entrypoint_runtime_opt(String) -> WasmEntrypointRuntime?
 pub fn parse_wasm_entrypoints(Map[String, Json]) -> Array[WasmEntrypointConfig]
 
 pub fn rewrite_type_refs(String, Map[String, String]) -> String
+
+pub async fn run_main(Array[String]) -> Unit
 
 pub fn[FS : @env.FileSystem] scan_mbtx_dir(FS, String, String, base_path? : String) -> Array[MbtxFileEntry]
 
