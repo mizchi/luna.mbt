@@ -20,7 +20,7 @@ pub async fn handle_isr_request(String) -> (String?, Bool)
 
 pub async fn init_isr(String) -> ISRHandler[MemoryCache]
 
-pub async fn load_manifest(String) -> ISRManifest
+pub async fn load_manifest(String) -> @mizchi/astra/isr.ISRManifest
 
 pub fn now_ms() -> Int64
 
@@ -58,37 +58,18 @@ pub fn ISRConfig::default() -> Self
 
 pub struct ISRHandler[Cache] {
   cache : Cache
-  manifest : ISRManifest
+  manifest : @mizchi/astra/isr.ISRManifest
   dist_dir : String
 }
 pub async fn[Cache : ISRCache] ISRHandler::handle(Self[Cache], String) -> (String?, Bool)
-pub fn[Cache] ISRHandler::new(Cache, ISRManifest, String) -> Self[Cache]
+pub fn[Cache] ISRHandler::new(Cache, @mizchi/astra/isr.ISRManifest, String) -> Self[Cache]
 pub fn[Cache : ISRCache] ISRHandler::update_cache(Self[Cache], String, String) -> Unit
-
-pub(all) struct ISRManifest {
-  version : Int
-  pages : Map[String, ISRPageMeta]
-}
-pub fn ISRManifest::add(Self, String, ISRPageMeta) -> Unit
-pub fn ISRManifest::empty() -> Self
-pub fn ISRManifest::get_page(Self, String) -> ISRPageMeta?
-pub fn ISRManifest::is_empty(Self) -> Bool
-pub fn ISRManifest::is_isr_page(Self, String) -> Bool
-pub fn ISRManifest::len(Self) -> Int
-pub fn ISRManifest::new() -> Self
-pub fn ISRManifest::to_json(Self) -> String
 
 pub struct ISRMiddlewareConfig {
   dist_dir : String
   enabled : Bool
 }
 pub fn ISRMiddlewareConfig::default() -> Self
-
-pub(all) struct ISRPageMeta {
-  revalidate : Int
-  renderer : String
-  source : String
-}
 
 pub struct MemoryCache {
   store : @ref.Ref[Map[String, CacheEntry]]
@@ -97,6 +78,9 @@ pub fn MemoryCache::new() -> Self
 pub impl ISRCache for MemoryCache
 
 // Type aliases
+pub using @mizchi/astra/isr {type ISRManifest}
+
+pub using @mizchi/astra/isr {type ISRPageMeta}
 
 // Traits
 pub(open) trait ISRCache {

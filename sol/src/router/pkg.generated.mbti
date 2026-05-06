@@ -39,7 +39,7 @@ pub fn forbidden(message? : String) -> ApiResponse
 
 pub fn generate_wrangler_assets_config(Array[SolRoutes], String) -> String
 
-pub fn manifest_to_sol_routes(@mizchi/sol/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
+pub fn manifest_to_sol_routes(@mizchi/astra/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 
 pub fn nodes(Array[@mizchi/luna/core.Node[Unit, String]]) -> @static.ServerNode
 
@@ -79,7 +79,7 @@ pub fn require_query(PageProps, String) -> Result[String, ApiResponse]
 
 pub async fn send_fragment_response(@mars.Context, String) -> Unit
 
-pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/sol/routes.RouteManifest
+pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/astra/routes.RouteManifest
 
 pub fn split_mbtx_chunks(Array[MbtxEntry], shared_path? : String) -> MbtxChunkResult
 
@@ -104,9 +104,9 @@ pub(all) struct ApiHandler(async (PageProps) -> Json)
 #deprecated
 pub fn ApiHandler::inner(Self) -> async (PageProps) -> Json
 
-pub(all) struct ApiHandlerFactory((@mizchi/sol/routes.RouteEntry) -> ApiHandler?)
+pub(all) struct ApiHandlerFactory((@mizchi/astra/routes.RouteEntry) -> ApiHandler?)
 #deprecated
-pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> ApiHandler?
+pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/astra/routes.RouteEntry) -> ApiHandler?
 
 pub(all) enum ApiResponse {
   Json(Json)
@@ -185,9 +185,9 @@ pub(all) struct PageHandler(async (PageProps) -> @static.ServerNode)
 #deprecated
 pub fn PageHandler::inner(Self) -> async (PageProps) -> @static.ServerNode
 
-pub(all) struct PageHandlerFactory((@mizchi/sol/routes.RouteEntry) -> PageHandler?)
+pub(all) struct PageHandlerFactory((@mizchi/astra/routes.RouteEntry) -> PageHandler?)
 #deprecated
-pub fn PageHandlerFactory::inner(Self) -> (@mizchi/sol/routes.RouteEntry) -> PageHandler?
+pub fn PageHandlerFactory::inner(Self) -> (@mizchi/astra/routes.RouteEntry) -> PageHandler?
 
 pub struct PageProps {
   params : RouteParams

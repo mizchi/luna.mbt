@@ -1,0 +1,28 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/astra/deploy_adapters"
+
+import {
+  "mizchi/astra",
+}
+
+// Values
+pub fn run_adapter(@astra.BuildContext) -> Unit
+
+pub fn write_cloudflare_config(@astra.BuildContext) -> Unit
+
+pub fn write_deno_config(@astra.BuildContext) -> Unit
+
+pub fn write_github_pages_config(@astra.BuildContext) -> Unit
+
+pub fn write_netlify_config(@astra.BuildContext) -> Unit
+
+pub fn write_vercel_config(@astra.BuildContext) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
