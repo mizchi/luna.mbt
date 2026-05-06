@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/luna-loader",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Island loader for Luna SSR hydration",
   "type": "module",
   "main": "./dist/loader.js",
