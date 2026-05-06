@@ -1,34 +1,35 @@
 #!/usr/bin/env node
 /**
- * Monorepo version bump for luna.mbt.
+ * Mooncakes-side version bump for luna.mbt.
  *
- * Bumps the three MoonBit packages and their npm wrappers in lockstep.
- * Each package owns its OWN version (luna / sol / astra are independent),
- * but a single semver bump (patch/minor/major) increments each one
- * relative to its current value.
+ * Bumps ONLY the three MoonBit packages (luna / sol / astra). Each package
+ * owns its own version, but a single semver bump (patch/minor/major)
+ * increments each one relative to its current value.
+ *
+ * The npm packages under js/* are NOT touched here — they are managed by
+ * release-please (see release-please-config.json + .github/workflows/release-please.yml).
  *
  * Files touched (always run from the repo root):
  *   luna/moon.mod.json
  *   sol/moon.mod.json   (also updates the inter-dep ref `mizchi/astra.{path,version}`
  *                        to match astra's new version)
  *   astra/moon.mod.json
- *   js/luna/package.json
- *   js/sol/package.json
- *   js/astra/package.json
  *
  * Usage:
  *   node luna/scripts/vup.mjs patch              # bump each 0.x.y -> 0.x.(y+1)
  *   node luna/scripts/vup.mjs minor              # bump each 0.x.y -> 0.(x+1).0
  *   node luna/scripts/vup.mjs major              # bump each 0.x.y -> (x+1).0.0
- *   node luna/scripts/vup.mjs 0.20.0             # set ALL packages to 0.20.0
+ *   node luna/scripts/vup.mjs 0.20.0             # set ALL mooncakes to 0.20.0
  *   node luna/scripts/vup.mjs --dry-run patch    # preview without writing
  *   node luna/scripts/vup.mjs patch --release    # write, commit, tag (per-package tags)
  *   node luna/scripts/vup.mjs patch --release --push   # release then push
  *
- * Tags created by --release reflect each package's actual new version:
+ * Tags created by --release are the mooncakes tags:
  *   luna-v<luna_version>
  *   sol-v<sol_version>
  *   astra-v<astra_version>
+ *
+ * release-please creates separate "@luna_ui/<pkg>-v<v>" tags for the npm side.
  *
  * See `just vup` for the wrapper that also regenerates per-package CHANGELOGs.
  */
@@ -48,13 +49,12 @@ const rootDir = join(__dirname, "..", "..");
 /**
  * Each package is identified by its short id (luna / sol / astra) and has:
  *   - moonModPath:   path to moon.mod.json
- *   - npmPath:       path to js/<id>/package.json
  *   - tagPrefix:     git tag prefix (e.g. "luna-v")
  */
 const PACKAGES = [
-  { id: "luna",  moonModPath: "luna/moon.mod.json",  npmPath: "js/luna/package.json",  tagPrefix: "luna-v"  },
-  { id: "sol",   moonModPath: "sol/moon.mod.json",   npmPath: "js/sol/package.json",   tagPrefix: "sol-v"   },
-  { id: "astra", moonModPath: "astra/moon.mod.json", npmPath: "js/astra/package.json", tagPrefix: "astra-v" },
+  { id: "luna",  moonModPath: "luna/moon.mod.json",  tagPrefix: "luna-v"  },
+  { id: "sol",   moonModPath: "sol/moon.mod.json",   tagPrefix: "sol-v"   },
+  { id: "astra", moonModPath: "astra/moon.mod.json", tagPrefix: "astra-v" },
 ];
 
 // =============================================================================
@@ -105,32 +105,23 @@ function writeJson(absPath, json, dryRun) {
 // =============================================================================
 
 /**
- * Build a plan: { id, currentMoon, newMoon, currentNpm, newNpm } per package.
- * For an explicit version, all six get that version.
- * For a semver bump, each is incremented relative to its OWN current version
- * (npm wrapper bumps relative to its own current value too — they currently
- * mirror but this keeps that loosely coupled).
+ * Build a plan: { id, currentMoon, newMoon } per package.
+ * For an explicit version, all entries get that version.
+ * For a semver bump, each is incremented relative to its OWN current version.
  */
 function buildPlan(spec) {
   return PACKAGES.map(pkg => {
     const moonAbs = join(rootDir, pkg.moonModPath);
-    const npmAbs = join(rootDir, pkg.npmPath);
     const moon = readJson(moonAbs);
-    const npm = readJson(npmAbs);
     const currentMoon = moon.version;
-    const currentNpm = npm.version;
     const newMoon = spec.kind === "explicit"
       ? spec.version
       : incrementVersion(currentMoon, spec.kind);
-    const newNpm = spec.kind === "explicit"
-      ? spec.version
-      : incrementVersion(currentNpm, spec.kind);
     return {
       ...pkg,
-      moonAbs, npmAbs,
-      moon, npm,
+      moonAbs,
+      moon,
       currentMoon, newMoon,
-      currentNpm, newNpm,
     };
   });
 }
@@ -160,10 +151,6 @@ function applyPlan(plan, dryRun) {
 
     writeJson(entry.moonAbs, entry.moon, dryRun);
     console.log(`  ${entry.moonModPath}: ${entry.currentMoon} -> ${entry.newMoon}`);
-
-    entry.npm.version = entry.newNpm;
-    writeJson(entry.npmAbs, entry.npm, dryRun);
-    console.log(`  ${entry.npmPath}: ${entry.currentNpm} -> ${entry.newNpm}`);
   }
 }
 
@@ -184,7 +171,7 @@ function release(plan, kind, dryRun, doPush) {
   console.log("\nReleasing...");
   exec("git add -A", dryRun);
   const kindLabel = kind === "explicit" ? "set version" : `bump ${kind}`;
-  exec(`git commit -m "chore: ${kindLabel} all packages"`, dryRun);
+  exec(`git commit -m "chore: ${kindLabel} all mooncakes packages"`, dryRun);
   for (const entry of plan) {
     exec(`git tag ${entry.tagPrefix}${entry.newMoon}`, dryRun);
   }
@@ -205,17 +192,21 @@ function printUsage() {
   node luna/scripts/vup.mjs patch|minor|major [--dry-run] [--release [--push]]
   node luna/scripts/vup.mjs <X.Y.Z>            [--dry-run] [--release [--push]]
 
-Touches all 6 manifests:
-  luna/moon.mod.json, sol/moon.mod.json, astra/moon.mod.json,
-  js/luna/package.json, js/sol/package.json, js/astra/package.json
+Scope:
+  This script bumps ONLY the 3 mooncakes packages (mizchi/{luna,sol,astra}).
+  The npm packages under js/* are managed by release-please — do not edit
+  their versions by hand. See docs/internal/npm-release-onboarding.md.
+
+Touches 3 manifests:
+  luna/moon.mod.json, sol/moon.mod.json, astra/moon.mod.json
   (sol/moon.mod.json deps.mizchi/astra.version is also bumped to match astra)
 
 Tags created by --release: luna-v<v>, sol-v<v>, astra-v<v>.
 
 Examples:
   node luna/scripts/vup.mjs --dry-run patch         # preview
-  node luna/scripts/vup.mjs patch                   # bump each package
-  node luna/scripts/vup.mjs 0.20.0                  # set all to 0.20.0
+  node luna/scripts/vup.mjs patch                   # bump each mooncakes package
+  node luna/scripts/vup.mjs 0.20.0                  # set all mooncakes to 0.20.0
   node luna/scripts/vup.mjs patch --release         # bump + commit + per-pkg tags
   node luna/scripts/vup.mjs patch --release --push  # ... and push
 `);
