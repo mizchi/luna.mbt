@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/sol/routes"
+package "mizchi/astra/routes"
 
 import {
   "mizchi/astra",
   "mizchi/astra/content/frontmatter",
+  "mizchi/astra/env",
   "mizchi/luna/core",
-  "mizchi/sol/core/env",
 }
 
 // Values

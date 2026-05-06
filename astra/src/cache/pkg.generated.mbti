@@ -3,8 +3,8 @@ package "mizchi/astra/cache"
 
 import {
   "mizchi/astra",
-  "mizchi/sol/adapters/fs",
-  "mizchi/sol/core/env",
+  "mizchi/astra/env",
+  "mizchi/astra/fs",
 }
 
 // Values

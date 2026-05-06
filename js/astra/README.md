@@ -3,17 +3,28 @@
 CLI wrapper for **Astra**, the SSG / static-export companion for
 [Sol](../sol/).
 
-This package ships the `astra` command. It is the npm-distributable
-front for `mizchi/astra` on [mooncakes.io](https://mooncakes.io). The
-MoonBit-side library lives in the same repository under `astra/`.
+This package ships the `astra` command. The MoonBit-side library lives
+in the same repository under `astra/`.
 
 ## Install
+
+The **primary** install path is `moon install`; it drops a real binary
+into `$MOON_HOME/bin/`:
+
+```sh
+moon install mizchi/astra/cmd/astra
+```
+
+This npm package is a **secondary** distribution channel for users who
+already have node but not moon:
 
 ```sh
 pnpm add -g @luna_ui/astra
 # or
 npm i -g @luna_ui/astra
 ```
+
+Either one exposes the same `astra` command with the same surface.
 
 ## Usage
 
@@ -33,8 +44,8 @@ materialised, and Astra will walk and snapshot them — verifying that
 build-output and runtime-served HTML stay byte-for-byte identical
 (see `astra/e2e/build_dev_parity.test.js`).
 
-For library use in MoonBit, depend on `mizchi/astra`. For CLI usage
-in any project, install this package.
+For library use in MoonBit, depend on `mizchi/astra`. For CLI-only
+usage, `moon install mizchi/astra/cmd/astra` is the smaller install.
 
 ## License
 

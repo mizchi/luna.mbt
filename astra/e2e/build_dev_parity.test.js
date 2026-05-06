@@ -25,9 +25,9 @@ const ASTRA_CLI = path.join(
   "build",
   "mizchi",
   "astra",
-  "cli",
-  "main",
-  "main.js",
+  "cmd",
+  "astra",
+  "astra.js",
 );
 const PORT = Number(process.env.ASTRA_PARITY_PORT ?? 17840);
 

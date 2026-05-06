@@ -18,10 +18,11 @@ fn show_help() -> Unit {
 
 ///|
 async fn main {
-  let argv = @process.argv()
-  // argv[0] = node, argv[1] = script path, argv[2..] = args.
-  let args : Array[String] = if argv.length() > 2 {
-    argv[2:].to_array()
+  // mizchi/x/sys.get_cli_args() == process.argv.slice(1):
+  //   args[0] = script path, args[1..] = user-supplied arguments.
+  let argv = @sys.get_cli_args()
+  let args : Array[String] = if argv.length() > 1 {
+    argv[1:].to_array()
   } else {
     []
   }
@@ -42,7 +43,7 @@ async fn main {
     _ => {
       println("astra: unknown command '\{cmd}'")
       show_help()
-      @process.exit(1)
+      @sys.exit(1)
     }
   }
 }

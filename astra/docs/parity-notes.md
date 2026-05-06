@@ -16,9 +16,9 @@ Reproduction:
 ```sh
 moon build --release --target js
 cd astra/examples/sol_docs
-node ../../_build/js/release/build/mizchi/astra/cli/main/main.js build --mode ssg
+node ../../_build/js/release/build/mizchi/astra/cmd/astra/astra.js build --mode ssg
 mv dist /tmp/sol_dump
-node ../../_build/js/release/build/mizchi/astra/cli/main/main.js build --out /tmp/astra_dump
+node ../../_build/js/release/build/mizchi/astra/cmd/astra/astra.js build --out /tmp/astra_dump
 diff -rq /tmp/sol_dump /tmp/astra_dump
 ```
 
