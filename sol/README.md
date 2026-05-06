@@ -1,18 +1,36 @@
-# Sol - SSR-first Web Framework for MoonBit
+# mizchi/sol — SSR-first web framework for MoonBit
 
 Sol is an SSR-first web framework implemented in MoonBit.
-It adopts Island Architecture, combining server-side rendering with partial client-side hydration.
+It adopts Island Architecture, combining server-side rendering with partial
+client-side hydration. Static-site generation (SSG) lives in the sibling
+[`mizchi/astra`](../astra/) package and mounts on the same Mars Server.
+
+## Install
+
+Library:
+
+```jsonc
+// moon.mod.json
+{ "deps": { "mizchi/sol": "0.16.2", "mizchi/luna": "0.19.2" } }
+```
+
+CLI (binary):
+
+```sh
+moon install mizchi/sol/cmd/sol      # → $MOON_HOME/bin/sol
+# or via npm
+pnpm add -g @luna_ui/sol             # 0.16.2
+```
 
 ## Playground
 
-`examples/sol_app/` is the development playground for Sol framework.
-Used for prototyping new features, integration testing, and implementation verification.
+`examples/sol_app/` is the development playground (run from the repo
+root after `moon build --target js --release`):
 
 ```bash
-# Start development server in playground
-cd examples/sol_app
+cd sol/examples/sol_app
 pnpm install
-just sol dev
+sol dev
 ```
 
 ## Runtime Asset Sync (Contributors)

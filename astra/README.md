@@ -13,15 +13,25 @@ deps: mars + markdown + luna       (no edge to sol)
 
 ## Install
 
+Library:
+
 ```jsonc
 // moon.mod.json
 {
   "deps": {
-    "mizchi/astra": "0.1.0",
+    "mizchi/astra": "0.1.2",
     "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.18.3"
+    "mizchi/luna": "0.19.2"
   }
 }
+```
+
+CLI (binary):
+
+```sh
+moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
+# or via npm
+pnpm add -g @luna_ui/astra           # 0.1.2
 ```
 
 ## Quick start — mount on a Mars server
