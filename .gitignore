@@ -3,7 +3,11 @@
 target/
 dist/
 !js/loader/dist/
+dist-docs/
 _build/
+
+# Wrangler / Cloudflare Workers
+.wrangler/
 node_modules/
 .mooncakes/
 
