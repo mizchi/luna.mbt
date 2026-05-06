@@ -13,5 +13,6 @@ options(
       "format": "esm",
     },
   },
-  "supported-targets": "js",
 )
+
+supported_targets = "js"

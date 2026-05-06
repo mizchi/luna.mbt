@@ -3,6 +3,4 @@ import {
   "moonbitlang/async/js_async" @js_async,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

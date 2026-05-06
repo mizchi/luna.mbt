@@ -9,6 +9,4 @@ import {
   "mizchi/astra/fs" @fs_adapter,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

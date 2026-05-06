@@ -124,8 +124,8 @@ fn generate_client_gen_pkg(
     buf.write_string("  \"\{pkg_path}\" @\{pkg_alias},\n")
   }
   buf.write_string("}\n\n")
+  buf.write_string("supported_targets = \"js\"\n\n")
   buf.write_string("options(\n")
-  buf.write_string("  \"supported-targets\": \"js\",\n")
   let exports_str = exports.map(fn(n) { "\"\{n}\"" }).join(", ")
   buf.write_string(
     "  link: { \"js\": { \"exports\": [ \{exports_str} ], \"format\": \"esm\" } },\n",

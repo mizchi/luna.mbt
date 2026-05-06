@@ -5,6 +5,4 @@ import {
   "mizchi/astra/env" @env,
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

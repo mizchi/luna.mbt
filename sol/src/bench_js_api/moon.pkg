@@ -6,6 +6,7 @@ import {
 
 options(
   "is-main": true,
-  "supported-targets": "js",
   link: { "js": { "format": "esm" } },
 )
+
+supported_targets = "js"

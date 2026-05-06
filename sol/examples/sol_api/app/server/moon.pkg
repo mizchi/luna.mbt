@@ -7,7 +7,8 @@ import {
 
 options(
   "is-main": true,
-  "supported-targets": "js",
   "warn-list": "-35-67-29",
   link: { "js": { "format": "esm" } },
 )
+
+supported_targets = "js"

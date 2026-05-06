@@ -91,12 +91,12 @@ fn generate_server_pkg(routes_pkg : String) -> String {
   buf.write_string("}\n\n")
   buf.write_string("options(\n")
   buf.write_string("  \"is-main\": true,\n")
-  buf.write_string("  \"supported-targets\": \"js\",\n")
   buf.write_string("  \"warn-list\": \"-29\",\n")
   buf.write_string(
     "  link: { \"js\": { \"exports\": [ \"configure_app\" ], \"format\": \"esm\" } },\n",
   )
-  buf.write_string(")\n")
+  buf.write_string(")\n\n")
+  buf.write_string("supported_targets = \"js\"\n")
   buf.to_string()
 }
 

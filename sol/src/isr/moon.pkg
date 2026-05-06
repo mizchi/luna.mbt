@@ -11,6 +11,4 @@ import {
   "moonbitlang/async",
 } for "wbtest"
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"
