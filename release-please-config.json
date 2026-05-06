@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-component-in-tag": true,
+  "separate-pull-requests": false,
+  "plugins": ["node-workspace"],
+  "packages": {
+    "js/luna":        { "package-name": "@luna_ui/luna" },
+    "js/sol":         { "package-name": "@luna_ui/sol" },
+    "js/astra":       { "package-name": "@luna_ui/astra" },
+    "js/components":  { "package-name": "@luna_ui/components" },
+    "js/loader":      { "package-name": "@luna_ui/luna-loader" },
+    "js/stella":      { "package-name": "@luna_ui/stella" },
+    "js/testing":     { "package-name": "@luna_ui/testing" },
+    "js/wcr":         { "package-name": "@luna_ui/wcr" },
+    "js/wcssr":       { "package-name": "@luna_ui/wcssr" }
+  }
+}

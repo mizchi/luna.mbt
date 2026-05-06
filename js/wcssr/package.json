@@ -47,6 +47,14 @@
   ],
   "author": "mizchi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizchi/luna.mbt.git",
+    "directory": "js/wcssr"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@vitest/browser": "^4.0.18",
     "@vitest/browser-playwright": "^4.0.18",

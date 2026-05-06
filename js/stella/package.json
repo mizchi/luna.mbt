@@ -34,5 +34,16 @@
     "luna",
     "moonbit"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizchi/luna.mbt.git",
+    "directory": "js/stella"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

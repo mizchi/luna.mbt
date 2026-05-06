@@ -1,0 +1,11 @@
+{
+  "js/luna": "0.16.3",
+  "js/sol": "0.16.2",
+  "js/astra": "0.1.2",
+  "js/components": "0.1.0",
+  "js/loader": "0.3.1",
+  "js/stella": "0.3.1",
+  "js/testing": "0.1.0",
+  "js/wcr": "0.3.1",
+  "js/wcssr": "0.3.1"
+}

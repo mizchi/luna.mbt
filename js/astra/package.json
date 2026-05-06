@@ -12,5 +12,13 @@
     "README.md"
   ],
   "description": "Astra — SSG / static-export companion for Sol (CLI wrapper)",
-  "repository": "https://github.com/mizchi/luna.mbt"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizchi/luna.mbt.git",
+    "directory": "js/astra"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

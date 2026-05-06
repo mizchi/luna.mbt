@@ -12,5 +12,13 @@
     "README.md"
   ],
   "description": "Sol — SSR-first web framework for MoonBit (CLI wrapper)",
-  "repository": "https://github.com/mizchi/luna.mbt"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizchi/luna.mbt.git",
+    "directory": "js/sol"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
