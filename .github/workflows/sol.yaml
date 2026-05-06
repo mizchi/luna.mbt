@@ -1,0 +1,57 @@
+name: sol
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "sol/**"
+      - "js/sol/**"
+      - "astra/**"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/sol.yaml"
+  pull_request:
+    paths:
+      - "sol/**"
+      - "js/sol/**"
+      - "astra/**"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/sol.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  # sol Playwright (loader, hydration, async-streaming, etc.)
+  sol-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - run: |
+          moon update
+      - name: Build workspace
+        run: moon build --target js --release
+      - name: Install Playwright Chromium
+        # Install via sol's own pnpm context so the headless-shell
+        # cache path matches sol's @playwright/test version.
+        run: cd sol && pnpm exec playwright install chromium --with-deps
+      - name: sol Playwright
+        run: cd sol && pnpm test:e2e

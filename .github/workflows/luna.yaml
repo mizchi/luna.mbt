@@ -1,11 +1,37 @@
-name: check
+name: luna
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
+    paths:
+      - "luna/**"
+      - "js/luna/**"
+      - "js/loader/**"
+      - "js/components/**"
+      - "js/wcr/**"
+      - "js/wcssr/**"
+      - "js/stella/**"
+      - "js/testing/**"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/luna.yaml"
   pull_request:
+    paths:
+      - "luna/**"
+      - "js/luna/**"
+      - "js/loader/**"
+      - "js/components/**"
+      - "js/wcr/**"
+      - "js/wcssr/**"
+      - "js/stella/**"
+      - "js/testing/**"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/luna.yaml"
 
 permissions:
   contents: read
@@ -13,8 +39,10 @@ permissions:
   issues: write
 
 jobs:
-  # Fast: moon check + TypeScript type check
-  check:
+  # luna-specific bench/bundle/treeshake/runtime/moonbench baselines.
+  # Reports comment back on the PR via github-script; comment steps are
+  # marked continue-on-error so a failing comment never blocks the run.
+  luna-bench:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,14 +61,6 @@ jobs:
           version: latest
       - run: |
           moon update
-      - name: moon check (workspace — luna + sol + astra)
-        run: moon check --target js
-      - name: Build workspace packages
-        run: |
-          cd js/wcr && pnpm build
-          cd ../stella && pnpm build
-      - name: TypeScript check
-        run: pnpm tsc -b
       - name: Bundle size baseline
         id: bundle_size
         run: node luna/scripts/bundle-size.mjs --build --check --report /tmp/bundle-size-report.txt
@@ -154,36 +174,7 @@ jobs:
         if: steps.moonbench.outcome == 'failure'
         run: echo "::warning::Moon bench regression detected (non-blocking)"
 
-  # MoonBit unit tests
-  test-moonbit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - run: pnpm install
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: "pnpm"
-      - uses: hustcer/setup-moonbit@v1
-        with:
-          version: latest
-      - run: |
-          moon update
-      - name: Setup CJS test environment
-        run: |
-          mkdir -p _build/js/debug/test
-          echo '{"type": "commonjs"}' > _build/js/debug/test/package.json
-      - name: moon test (workspace — luna + sol + astra)
-        # moon.work members [".", "./sol", "./astra"]; this runs every
-        # test across the three packages in one pass.
-        run: moon test --target js
-
-  # Cross-platform tests (non-JS targets: wasm, wasm-gc, native)
+  # Cross-platform tests (non-JS targets: wasm, wasm-gc, native) — luna only.
   test-xplat:
     runs-on: ubuntu-latest
     steps:
@@ -210,3 +201,92 @@ jobs:
           moon test --target wasm luna/src/x/components/aria
           moon test --target wasm-gc luna/src/x/components/aria
           moon test --target native luna/src/x/components/aria
+
+  # Vitest browser tests
+  vitest-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - run: |
+          moon update
+      - name: Build MoonBit
+        run: |
+          # Core libraries
+          moon build --target js --release luna/src
+          moon build --target js --release luna/src/js/api
+          moon build --target js --release luna/src/js/api_signals
+          moon build --target js --release luna/src/js/stream_renderer
+          moon build --target js --release luna/src/x/stella
+          # Test packages for browser tests
+          moon build --target js --release luna/src/tests/counter_component
+          moon build --target js --release luna/src/tests/counter_client
+          moon build --target js --release luna/src/tests/browser_components
+          moon build --target js --release luna/src/tests/router_csr
+          # Examples for browser tests
+          moon build --target js --release luna/src/examples/spa
+          moon build --target js --release luna/src/examples/todomvc
+          moon build --target js --release luna/src/examples/browser_router
+          moon build --target js --release luna/src/examples/wc
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+      - name: Vitest browser tests
+        run: pnpm test:browser
+
+  # E2E tests with Playwright (luna)
+  luna-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+      - run: |
+          moon update
+      - name: Build MoonBit
+        run: |
+          # Core libraries
+          moon build --target js --release luna/src
+          moon build --target js --release luna/src/js/api
+          moon build --target js --release luna/src/js/api_signals
+          moon build --target js --release luna/src/js/stream_renderer
+          moon build --target js --release luna/src/x/stella
+          # Test packages for e2e tests
+          moon build --target js --release luna/src/tests/counter_component
+          moon build --target js --release luna/src/tests/counter_client
+          moon build --target js --release luna/src/tests/browser_components
+          moon build --target js --release luna/src/tests/router_csr
+          # Examples for e2e tests
+          moon build --target js --release luna/src/examples/spa
+          moon build --target js --release luna/src/examples/todomvc
+          moon build --target js --release luna/src/examples/browser_router
+          moon build --target js --release luna/src/examples/wc
+          moon build --target js --release luna/src/examples/apg-playground
+      - name: Build Loader
+        run: pnpm --filter @luna_ui/luna-loader build
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+      - name: E2E tests
+        run: pnpm playwright test --config luna/e2e/playwright.config.mts
