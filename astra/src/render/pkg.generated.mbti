@@ -4,7 +4,7 @@ package "mizchi/astra/render"
 import {
   "mizchi/astra",
   "mizchi/astra/content/shiki",
-  "mizchi/sol/isr",
+  "mizchi/astra/isr",
   "moonbitlang/core/json",
 }
 

@@ -16,8 +16,9 @@ const CLI_DEBUG = path.join(
   "build",
   "mizchi",
   "sol",
-  "cli",
-  "cli.js"
+  "cmd",
+  "sol",
+  "sol.js"
 );
 const SOL_APP = path.join(SOL_DIR, "examples", "sol_app");
 

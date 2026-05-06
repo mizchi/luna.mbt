@@ -1,10 +1,14 @@
+// Sol CLI process entry point — installable via
+// `moon install mizchi/sol/cmd/sol` ($MOON_HOME/bin/sol).
+// Stays a thin dispatcher; all command logic lives in `mizchi/sol/cli`.
+
 import {
-  "mizchi/x/fs" @fs,
+  "mizchi/sol/cli" @cli,
   "mizchi/x/sys" @sys,
-  "mizchi/x/process" @process,
   "moonbitlang/async",
 }
 
 options(
   "is-main": true,
+  "supported-targets": "js",
 )

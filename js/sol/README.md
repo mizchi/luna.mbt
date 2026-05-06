@@ -2,17 +2,28 @@
 
 CLI wrapper for **Sol**, an SSR-first web framework for MoonBit.
 
-This package ships the `sol` command. It is the npm-distributable
-front for `mizchi/sol` on [mooncakes.io](https://mooncakes.io). The
-MoonBit-side framework lives in the same repository under `sol/`.
+This package ships the `sol` command. The MoonBit-side framework
+lives in the same repository under `sol/`.
 
 ## Install
+
+The **primary** install path is `moon install`; it drops a real binary
+into `$MOON_HOME/bin/`:
+
+```sh
+moon install mizchi/sol/cmd/sol
+```
+
+This npm package is a **secondary** distribution channel for users who
+already have node but not moon:
 
 ```sh
 pnpm add -g @luna_ui/sol
 # or
 npm i -g @luna_ui/sol
 ```
+
+Either one exposes the same `sol` command with the same surface.
 
 ## Usage
 
@@ -34,7 +45,8 @@ file-system routing, hydration islands, SQL/auth integrations, and
 a static export mode (via [astra](../astra/)).
 
 For framework development in MoonBit, depend on `mizchi/sol`. For
-CLI usage in any project (MoonBit or not), install this package.
+CLI-only usage, `moon install mizchi/sol/cmd/sol` is the smaller
+install.
 
 ## License
 

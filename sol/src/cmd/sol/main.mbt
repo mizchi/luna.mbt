@@ -1,51 +1,16 @@
-///| Sol CLI — native MoonBit binary
-///| Native commands: new, clean, build
-///| Delegated to JS CLI: dev, serve, generate
-
-async fn main {
-  let args = @sys.get_cli_args()
-  if args.length() <= 1 {
-    print_help()
-    return
-  }
-  let command = args[1]
-  let rest : Array[String] = []
-  for i = 2; i < args.length(); i = i + 1 {
-    rest.push(args[i])
-  }
-  match command {
-    "new" => run_new(rest)
-    "init" => run_init(rest)
-    "check" => run_check(rest)
-    "clean" => run_clean(rest)
-    "build" => run_build(rest)
-    "dev" => run_dev(rest)
-    "serve" => run_serve(rest)
-    "generate" => run_generate(rest)
-    "help" | "--help" | "-h" => print_help()
-    "version" | "--version" | "-v" => println("sol 0.15.1")
-    _ => {
-      println("Unknown command: \{command}")
-      print_help()
-      @sys.exit(1)
-    }
-  }
-}
+// Sol CLI process entry point. Mirrors `mizchi/wite/cmd/wite`: parse
+// argv via `mizchi/x/sys`, then hand the user-facing slice to the
+// dispatcher in `mizchi/sol/cli`.
 
 ///|
-fn print_help() -> Unit {
-  println("Sol CLI v0.15.1")
-  println("")
-  println("Usage: sol <command> [options]")
-  println("")
-  println("Commands:")
-  println("  new <name> --user <ns>  Create a new Sol project [--doc]")
-  println("  init --user <ns>        Add Sol to existing project")
-  println("  dev                     Start dev server (watch + HMR)")
-  println("  build                   Build for production")
-  println("  serve                   Serve production build")
-  println("  check                   Type check with hints")
-  println("  generate                Generate .sol directory")
-  println("  clean [--all]           Remove generated files")
-  println("  help                    Show this help")
+async fn main {
+  // mizchi/x/sys.get_cli_args() == process.argv.slice(1):
+  //   args[0] = script path, args[1..] = user-supplied arguments.
+  let argv = @sys.get_cli_args()
+  let args : Array[String] = if argv.length() > 1 {
+    argv[1:].to_array()
+  } else {
+    []
+  }
+  @cli.run_main(args)
 }

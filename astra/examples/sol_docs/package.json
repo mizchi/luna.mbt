@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node ../../../_build/js/release/build/mizchi/astra/cli/main/main.js dev",
-    "build": "node ../../../_build/js/release/build/mizchi/astra/cli/main/main.js build"
+    "dev": "node ../../../_build/js/release/build/mizchi/astra/cmd/astra/astra.js dev",
+    "build": "node ../../../_build/js/release/build/mizchi/astra/cmd/astra/astra.js build"
   }
 }

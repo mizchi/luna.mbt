@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/astra/cli/main"
+package "mizchi/astra/cmd/astra"
 
 // Values
 

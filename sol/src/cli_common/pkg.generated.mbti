@@ -2,7 +2,7 @@
 package "mizchi/sol/cli_common"
 
 import {
-  "mizchi/sol/core/env",
+  "mizchi/astra/env",
 }
 
 // Values

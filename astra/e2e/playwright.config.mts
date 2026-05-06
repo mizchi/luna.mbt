@@ -18,9 +18,9 @@ const astraMain = resolve(
   "build",
   "mizchi",
   "astra",
-  "cli",
-  "main",
-  "main.js",
+  "cmd",
+  "astra",
+  "astra.js",
 );
 if (!existsSync(astraMain)) {
   throw new Error(

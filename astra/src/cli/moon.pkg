@@ -1,7 +1,8 @@
 // Astra CLI library: the in-process build crawler (`build_to_disk`)
 // and the helpers a Mars dev-server entry point reuses. Kept as a
 // non-main package so the helpers stay test-friendly; the actual
-// process entry point lives in `mizchi/astra/cli/main`.
+// process entry point lives in `mizchi/astra/cmd/astra` and is
+// installable via `moon install mizchi/astra/cmd/astra`.
 
 import {
   "mizchi/astra" @astra,

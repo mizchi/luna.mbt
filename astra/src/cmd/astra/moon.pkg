@@ -1,0 +1,14 @@
+// Astra CLI process entry point — installable via
+// `moon install mizchi/astra/cmd/astra` ($MOON_HOME/bin/astra).
+// Stays a thin dispatcher over the runners in `mizchi/astra/cli`.
+
+import {
+  "mizchi/astra/cli" @cli,
+  "mizchi/x/sys" @sys,
+  "moonbitlang/async",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": "js",
+)
