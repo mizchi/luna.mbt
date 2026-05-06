@@ -26,9 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # pnpm/action-setup reads the pinned version from package.json::packageManager.
+      # Specifying `version:` here in addition causes ERR_PNPM_BAD_PM_VERSION.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - uses: actions/setup-node@v4
         with:
@@ -49,14 +49,16 @@ jobs:
       # per-package matrix here.
       - run: pnpm -r build
 
-      # release-please tag format is "@luna_ui/<pkg>-v<version>".
-      # Strip the "-v<version>" suffix to recover the npm name, then walk
-      # js/*/package.json to find the matching directory.
+      # release-please tag format is "<component>-v<version>" where component
+      # defaults to the package name without scope (e.g. "luna" for
+      # "@luna_ui/luna"). Reconstruct the full scoped name with the @luna_ui
+      # prefix, then walk js/*/package.json to find the matching directory.
       - name: Resolve package directory from tag
         id: pkg
         run: |
           TAG="${GITHUB_REF_NAME}"
-          NAME="${TAG%-v*}"
+          COMPONENT="${TAG%-v*}"
+          NAME="@luna_ui/${COMPONENT}"
           DIR=""
           for f in js/*/package.json; do
             PKG_NAME=$(node -p "require('./${f}').name")
