@@ -10,6 +10,9 @@ export default defineConfig({
   testIgnore: [
     // Visual snapshot tests are skipped in CI due to cross-platform rendering differences
     ...(process.env.CI ? ["**/visual-snapshots.test.ts"] : []),
+    // deployed/ hits the live luna-examples worker via its own config
+    // (`just test-deployed`); the localhost server here doesn't serve those routes.
+    "**/deployed/**",
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
