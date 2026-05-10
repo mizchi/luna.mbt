@@ -126,9 +126,18 @@ const wcModulePath = join(
   "wc.js"
 );
 
-// Import MoonBit APG playground module path
+// Import MoonBit APG playground module path. Lives under the
+// mizchi/luna_components mooncake (extracted from luna in PR #71), so it
+// builds to _build/js/release/build/mizchi/luna_components/examples/...
+// rather than the luna-rooted moonBuildDir.
 const apgPlaygroundModulePath = join(
-  moonBuildDir,
+  workspaceRoot,
+  "_build",
+  "js",
+  "release",
+  "build",
+  "mizchi",
+  "luna_components",
   "examples",
   "apg-playground",
   "apg-playground.js"
