@@ -8,7 +8,7 @@
 //
 // Prereq: `moon build --target js --release` so artifacts exist at
 // _build/js/release/build/mizchi/luna/examples/<id>/<id>.js.
-import { readFile, writeFile, mkdir, copyFile, rm } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -118,7 +118,15 @@ async function main() {
 
     const dest = join(outDir, ex.id);
     await mkdir(dest, { recursive: true });
-    await copyFile(jsSrc, join(dest, "index.js"));
+    let js = await readFile(jsSrc, "utf8");
+    if (ex.id === "browser_router") {
+      // The example hard-codes `let base = "/demo/browser_router"` for vite
+      // dev where vite.config.ts mounts at base "/demo/". On the
+      // luna-examples worker the route prefix is "/browser_router". Patching
+      // the compiled JS keeps the source compatible with vite dev.
+      js = js.replace(/"\/demo\/browser_router"/g, '"/browser_router"');
+    }
+    await writeFile(join(dest, "index.js"), js);
 
     const html = await readFile(htmlSrc, "utf8");
     await writeFile(join(dest, "index.html"), rewriteExampleHtml(html));
