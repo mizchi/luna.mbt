@@ -34,7 +34,7 @@
       "alias": "client"
     },
     {
-      "path": "mizchi/luna/x/components/styled/alert",
+      "path": "mizchi/luna_components/styled/alert",
       "alias": "alert_ui"
     }
   ],

@@ -1,0 +1,23 @@
+{
+  "name": "mizchi/luna_components",
+  "version": "0.20.0",
+  "deps": {
+    "mizchi/luna": "0.20.0",
+    "mizchi/signals": "0.6.4",
+    "mizchi/js": "0.10.16"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/mizchi/luna.mbt",
+  "license": "MIT",
+  "keywords": [
+    "luna",
+    "components",
+    "apg",
+    "headless",
+    "ui"
+  ],
+  "description": "Headless + styled UI components (WAI-ARIA APG patterns) for Luna UI",
+  "source": "src",
+  "warn-list": "-6-unused_trait_bound",
+  "preferred-target": "js"
+}

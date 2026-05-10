@@ -34,15 +34,15 @@
       "alias": "client"
     },
     {
-      "path": "mizchi/luna/x/components/styled",
+      "path": "mizchi/luna_components/styled",
       "alias": "styled"
     },
     {
-      "path": "mizchi/luna/x/components/styled/alert",
+      "path": "mizchi/luna_components/styled/alert",
       "alias": "styled_alert"
     },
     {
-      "path": "mizchi/luna/x/components/styled/table",
+      "path": "mizchi/luna_components/styled/table",
       "alias": "styled_table"
     }
   ],

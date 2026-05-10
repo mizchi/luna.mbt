@@ -1,0 +1,29 @@
+import {
+  "mizchi/luna",
+  "mizchi/signals",
+  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna_components" @apg,
+  "mizchi/luna_components/styled" @styled,
+  "mizchi/luna_components/styled/switch" @switch,
+  "mizchi/luna_components/styled/tabs" @tabs,
+  "mizchi/luna_components/styled/accordion" @accordion,
+  "mizchi/luna_components/styled/checkbox" @checkbox,
+  "mizchi/luna_components/styled/radio" @radio,
+  "mizchi/luna_components/styled/spinbutton" @spinbutton,
+  "mizchi/luna_components/styled/toolbar" @toolbar,
+  "mizchi/luna_components/styled/alert" @alert,
+  "mizchi/luna_components/styled/table" @table,
+  "mizchi/luna_components/styled/meter" @meter,
+  "mizchi/luna_components/styled/disclosure" @disclosure,
+  "mizchi/luna_components/styled/treeview" @treeview,
+  "mizchi/js/browser/dom" @dom,
+  "mizchi/luna/dom/client" @client,
+  "mizchi/js/core" @js,
+}
+
+supported_targets = "js"
+
+options(
+  "is-main": true,
+  link: { "js": { "format": "esm" } },
+)

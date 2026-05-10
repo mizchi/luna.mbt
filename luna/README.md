@@ -16,7 +16,8 @@ For TypeScript consumers, the JS bindings ship as
 ## Layout
 
 - `src/` — luna source (Moon packages: signals, render, routes, dom,
-  x/components, x/css, x/stella, etc.)
+  x/css, x/stella, etc.). Headless + styled APG components live in the
+  separate `mizchi/luna_components` mooncake (`../luna_components/`).
 - `e2e/` — Playwright suites for the JS-side bindings
 - `experiments/` — research code (css-factorize, view_transition,
   webcomponents_ssr, …)

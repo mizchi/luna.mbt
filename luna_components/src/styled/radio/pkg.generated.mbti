@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna_components/styled/radio"
+
+import {
+  "mizchi/signals",
+}
+
+// Values
+pub fn radio_css() -> String
+
+pub fn radio_group(String, Array[RadioItem], @signals.Signal[String], aria_label? : String, orientation? : String, class? : String) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]
+
+pub fn radio_item(String, String, disabled? : Bool) -> RadioItem
+
+pub fn radio_slots() -> RadioSlots
+
+// Errors
+
+// Types and methods
+pub(all) struct RadioItem {
+  value : String
+  label : String
+  disabled : Bool
+}
+
+pub(all) struct RadioSlots {
+  group : String
+  radio : String
+  control : String
+  indicator : String
+  label : String
+}
+
+// Type aliases
+
+// Traits
+

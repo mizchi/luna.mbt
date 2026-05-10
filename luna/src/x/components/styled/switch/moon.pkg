@@ -1,9 +1,0 @@
-import {
-  "mizchi/luna",
-  "mizchi/signals",
-  "mizchi/luna/js/resource" @resource,
-  "mizchi/luna/x/components/headless" @headless,
-  "mizchi/js/core" @js,
-}
-
-supported_targets = "js"
