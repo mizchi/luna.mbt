@@ -5,7 +5,7 @@
   "compatibility_date": "2025-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
-    "directory": ".sol/prod/static",
+    "directory": ".sol/prod/dist-assets",
     "binding": "ASSETS"
   },
   "observability": {
