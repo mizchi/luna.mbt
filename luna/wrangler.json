@@ -1,0 +1,12 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "luna-examples",
+  "compatibility_date": "2025-10-01",
+  "assets": {
+    "directory": "./dist-demo",
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

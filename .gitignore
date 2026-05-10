@@ -4,6 +4,7 @@ target/
 dist/
 !js/loader/dist/
 dist-docs/
+dist-demo/
 _build/
 
 # Wrangler / Cloudflare Workers
