@@ -1,0 +1,6 @@
+{
+  "name": "@luna_ui/luna-examples",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Static demo bundle of luna examples, deployed to Cloudflare Workers as the `luna-examples` worker."
+}
