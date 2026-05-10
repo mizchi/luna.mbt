@@ -84,6 +84,10 @@ test-e2e:
 test-e2e-ui:
     pnpm playwright test --config luna/e2e/playwright.config.mts --ui
 
+# luna-examples worker のデプロイ後 smoke (LUNA_EXAMPLES_URL で URL 上書き可)
+test-deployed:
+    pnpm playwright test --config luna/e2e/deployed/playwright.config.mts
+
 # クロスプラットフォームテスト (js, wasm-gc, native)
 test-xplat:
     moon test --target all luna/src/core/routes
