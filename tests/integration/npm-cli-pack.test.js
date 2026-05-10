@@ -14,6 +14,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  readFileSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -24,6 +25,54 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..", "..");
+
+// Static checks below run instantly and catch the most common "0.17.0
+// regression": someone refactors the bin shim or trims package.json
+// fields, breaking the npm-install layout without realizing it. The
+// pack/install tests further down catch behavioural regressions; these
+// catch structural ones with a fast, specific failure message.
+const PACKAGES = [
+  { id: "sol",   pkgDir: path.join(ROOT, "js/sol"),   bin: "sol.js" },
+  { id: "astra", pkgDir: path.join(ROOT, "js/astra"), bin: "astra.js" },
+];
+
+for (const pkg of PACKAGES) {
+  test(`@luna_ui/${pkg.id} package.json wires dist/ for npm distribution`, () => {
+    const manifest = JSON.parse(
+      readFileSync(path.join(pkg.pkgDir, "package.json"), "utf8"),
+    );
+    assert.ok(
+      Array.isArray(manifest.files) && manifest.files.includes("dist/"),
+      `js/${pkg.id}/package.json: \"files\" must include \"dist/\" so the ` +
+        "bundled CLI ships in the tarball. Removing it republishes the " +
+        "0.17.0 ERR_MODULE_NOT_FOUND bug.",
+    );
+    assert.match(
+      manifest.scripts?.prepack ?? "",
+      /build-release/,
+      `js/${pkg.id}/package.json: \"scripts.prepack\" must invoke ` +
+        "scripts/build-release.mjs so `pnpm pack` (and `npm publish`'s " +
+        "implicit pack) populate dist/ from the moonbit _build/ output.",
+    );
+  });
+
+  test(`@luna_ui/${pkg.id} bin shim resolves dist/ before workspace _build/`, () => {
+    const source = readFileSync(
+      path.join(pkg.pkgDir, "bin", pkg.bin),
+      "utf8",
+    );
+    // The 0.17.0 shim hard-coded `import "../../../_build/..."` — fine
+    // inside the monorepo, fatal under any npm install layout. The
+    // current shim must reference dist/ so the npm install path works.
+    assert.match(
+      source,
+      /\.\.\/dist\//,
+      `js/${pkg.id}/bin/${pkg.bin}: shim must reference \"../dist/\" so ` +
+        "npm-installed copies resolve the bundled CLI. Reverting to a " +
+        "_build-only import recreates the 0.17.0 regression.",
+    );
+  });
+}
 
 function ensureMoonReleaseBuild() {
   const sentinel = path.join(
@@ -128,6 +177,79 @@ test("@luna_ui/sol tarball contains a runnable CLI", { timeout: 240_000 }, () =>
     assert.match(r.stdout, /Sol CLI/, `unexpected --help output: ${r.stdout}`);
   } finally {
     cleanup();
+  }
+});
+
+test("@luna_ui/sol works under pnpm's .pnpm/ store layout (thesparq scenario)", { timeout: 240_000 }, () => {
+  // Replicates the original `pnpm add -g @luna_ui/sol` failure mode.
+  // npm and pnpm lay out node_modules differently — pnpm puts every
+  // package under .pnpm/<name>@<version>/node_modules/<name>/ with
+  // symlinks. The 0.17.0 bin shim's `../../../_build/...` import
+  // traversed *past* the package root into a directory pnpm never
+  // creates. Installing via `pnpm add` instead of `npm install`
+  // exercises the exact resolution chain that crashed for thesparq.
+  ensureMoonReleaseBuild();
+  const stage = mkdtempSync(path.join(tmpdir(), "luna-cli-pnpm-"));
+  try {
+    const pack = spawnSync(
+      "pnpm",
+      ["pack", "--pack-destination", stage],
+      { cwd: path.join(ROOT, "js/sol"), encoding: "utf8" },
+    );
+    assert.equal(
+      pack.status,
+      0,
+      `pnpm pack failed:\n${pack.stdout}\n${pack.stderr}`,
+    );
+    const tgz = readdirSync(stage).find((f) => f.endsWith(".tgz"));
+    assert.ok(tgz, `no .tgz produced under ${stage}`);
+
+    const sandbox = path.join(stage, "sandbox");
+    mkdirSync(sandbox, { recursive: true });
+    writeFileSync(
+      path.join(sandbox, "package.json"),
+      JSON.stringify({ name: "luna-cli-pnpm-sandbox", private: true }),
+    );
+
+    // --ignore-workspace keeps pnpm from walking up into our actual
+    // workspace. --prefer-offline avoids registry round-trips for the
+    // tarball's transitive deps when a previous test already cached
+    // them. Both flags are about test hygiene, not behaviour under test.
+    const install = spawnSync(
+      "pnpm",
+      [
+        "add",
+        "--ignore-workspace",
+        "--prefer-offline",
+        path.join(stage, tgz),
+      ],
+      { cwd: sandbox, encoding: "utf8" },
+    );
+    assert.equal(
+      install.status,
+      0,
+      `pnpm add failed:\n${install.stdout}\n${install.stderr}`,
+    );
+
+    const binEntry = path.join(
+      sandbox,
+      "node_modules",
+      "@luna_ui",
+      "sol",
+      "bin",
+      "sol.js",
+    );
+    const r = spawnSync(process.execPath, [binEntry, "--help"], {
+      encoding: "utf8",
+    });
+    assert.equal(
+      r.status,
+      0,
+      `sol --help under pnpm layout failed:\nstdout=${r.stdout}\nstderr=${r.stderr}`,
+    );
+    assert.match(r.stdout, /Sol CLI/, `unexpected --help output: ${r.stdout}`);
+  } finally {
+    rmSync(stage, { recursive: true, force: true });
   }
 });
 
