@@ -1,5 +1,18 @@
 // Asset Copier - Static asset copying, bundling, and boot runtime
 
+///|
+#module("node:path")
+extern "js" fn resolve_path(path : String) -> String = "resolve"
+
+///|
+fn output_root(ctx : @astra.BuildContext) -> String {
+  if @path.isAbsolute(ctx.config.output_dir) {
+    ctx.config.output_dir
+  } else {
+    @path.join2(ctx.cwd, ctx.config.output_dir)
+  }
+}
+
 // =============================================================================
 // Static Asset Copying
 // =============================================================================
@@ -39,10 +52,7 @@ pub async fn copy_static_assets_async(ctx : @astra.BuildContext) -> Unit {
     copy_static_assets_internal(ctx, utility_css)
   } else {
     // Write CSS to separate file and reference it
-    let output_assets = @path.join2(
-      @path.join2(ctx.cwd, ctx.config.output_dir),
-      "assets",
-    )
+    let output_assets = @path.join2(output_root(ctx), "assets")
     ensure_dir(output_assets)
     let utility_css_path = @path.join2(output_assets, "utilities.css")
     @fs.writeFileSync(utility_css_path, @js.any(utility_css)) catch {
@@ -59,10 +69,7 @@ fn copy_static_assets_internal(
   ctx : @astra.BuildContext,
   utility_css : String,
 ) -> Unit {
-  let output_assets = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    "assets",
-  )
+  let output_assets = @path.join2(output_root(ctx), "assets")
   ensure_dir(output_assets)
 
   // Write default CSS
@@ -76,7 +83,11 @@ fn copy_static_assets_internal(
     css + "\n/* === CSS Utilities (auto-extracted) === */\n" + utility_css
   }
   // Minify CSS only for production builds (skip in dev mode for readability)
-  let output_css = if ctx.is_dev { full_css } else { @css_kit.minify_css(full_css) }
+  let output_css = if ctx.is_dev {
+    full_css
+  } else {
+    @css_kit.minify_css(full_css)
+  }
   let css_path = @path.join2(output_assets, "style.css")
   @fs.writeFileSync(css_path, @js.any(output_css)) catch {
     _ => ()
@@ -84,7 +95,11 @@ fn copy_static_assets_internal(
 
   // Write shiki CSS (minified only in production)
   let shiki_raw = @shiki.generate_shiki_css()
-  let shiki_css = if ctx.is_dev { shiki_raw } else { @css_kit.minify_css(shiki_raw) }
+  let shiki_css = if ctx.is_dev {
+    shiki_raw
+  } else {
+    @css_kit.minify_css(shiki_raw)
+  }
   let shiki_css_path = @path.join2(output_assets, "shiki.css")
   @fs.writeFileSync(shiki_css_path, @js.any(shiki_css)) catch {
     _ => ()
@@ -148,10 +163,7 @@ fn copy_boot_runtime(ctx : @astra.BuildContext) -> Unit {
   guard boot_src is Some(src_dir) else { return }
 
   // Create _luna/ directory
-  let luna_dir = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    "_luna",
-  )
+  let luna_dir = @path.join2(output_root(ctx), "_luna")
   ensure_dir(luna_dir)
 
   // Copy boot.iife.js (self-contained boot runtime)
@@ -196,7 +208,7 @@ fn copy_islands_dir(ctx : @astra.BuildContext) -> Unit {
   let islands_src = @path.join2(ctx.cwd, src_dir)
 
   // Check if source directory exists
-  if !(@fs.existsSync(islands_src)) {
+  if !@fs.existsSync(islands_src) {
     // Silently skip if using convention and directory doesn't exist
     return
   }
@@ -213,10 +225,7 @@ fn copy_islands_dir(ctx : @astra.BuildContext) -> Unit {
   } else {
     output_subdir
   }
-  let islands_dest = @path.join2(
-    @path.join2(ctx.cwd, ctx.config.output_dir),
-    output_subdir_clean,
-  )
+  let islands_dest = @path.join2(output_root(ctx), output_subdir_clean)
 
   // Ensure destination directory exists
   ensure_dir(islands_dest)
@@ -229,7 +238,7 @@ fn copy_islands_dir(ctx : @astra.BuildContext) -> Unit {
 /// Find js/luna/src path by checking current and parent directories
 fn find_luna_path(start_dir : String) -> String {
   // Check current directory and up to 3 parent levels
-  let mut dir = start_dir
+  let mut dir = resolve_path(start_dir)
   for _ in 0..<4 {
     // Check js/luna/src first
     let luna_src = @path.join2(dir, "js/luna/src")
@@ -300,7 +309,8 @@ fn bundle_components(src_dir : String, dest_dir : String, cwd : String) -> Unit 
     #|  resolve: {
     #|    extensions: ['.ts', '.js', '.mjs'],
     #|    alias: {
-    #|      '@luna': '__LUNA_PATH__'
+    #|      '@luna/hydration': path.join('__LUNA_PATH__', 'hydration/index.ts'),
+    #|      '@luna': path.join('__LUNA_PATH__', 'index.ts')
     #|    }
     #|  }
     #|});
@@ -333,10 +343,10 @@ fn copy_public_dir(ctx : @astra.BuildContext) -> Unit {
     @path.join2(ctx.cwd, ctx.config.docs_dir),
     "public",
   )
-  let output_dir = @path.join2(ctx.cwd, ctx.config.output_dir)
+  let output_dir = output_root(ctx)
 
   // Check if public directory exists
-  if !(@fs.existsSync(public_dir)) {
+  if !@fs.existsSync(public_dir) {
     return
   }
 

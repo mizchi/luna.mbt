@@ -68,6 +68,9 @@ importers:
       monocart-coverage-reports:
         specifier: ^2.12.9
         version: 2.12.9
+      pagefind:
+        specifier: ^1.5.2
+        version: 1.5.2
       playwright:
         specifier: ^1.58.2
         version: 1.58.2
