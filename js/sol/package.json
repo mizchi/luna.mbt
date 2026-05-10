@@ -9,8 +9,16 @@
   "main": "./bin/sol.js",
   "files": [
     "bin/",
+    "dist/",
     "README.md"
   ],
+  "scripts": {
+    "build": "node scripts/build-release.mjs",
+    "prepack": "node scripts/build-release.mjs"
+  },
+  "dependencies": {
+    "colorette": "^2.0.20"
+  },
   "description": "Sol — SSR-first web framework for MoonBit (CLI wrapper)",
   "license": "MIT",
   "repository": {
