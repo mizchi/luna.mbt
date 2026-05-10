@@ -36,3 +36,4 @@ tmp/
 
 # TypeScript build info
 *.tsbuildinfo
+.claude/scheduled_tasks.lock
