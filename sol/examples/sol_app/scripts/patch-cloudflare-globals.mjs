@@ -33,20 +33,41 @@ const serverJsPath = resolve(
   "server.js",
 );
 {
-  const original = readFileSync(serverJsPath, "utf8");
+  let body = readFileSync(serverJsPath, "utf8");
+
   const SEED_PATTERN = /const _M0FPB4seed = _M0FPB12random__seed\(\);/;
-  if (!SEED_PATTERN.test(original)) {
+  if (!SEED_PATTERN.test(body)) {
     throw new Error(
       `patch-cloudflare-globals: \`const _M0FPB4seed = _M0FPB12random__seed();\` not found in ${serverJsPath}.\n` +
         "MoonBit core may have changed the mangled symbol — update this script.",
     );
   }
-  const patched = original.replace(
+  body = body.replace(
     SEED_PATTERN,
-    "const _M0FPB4seed = 0; /* patched by patch-cloudflare-globals.mjs: Workers disallow crypto in global scope */",
+    "const _M0FPB4seed = 0; /* patched: Workers disallow crypto in global scope */",
   );
-  writeFileSync(serverJsPath, patched);
   console.log("patched _M0FPB4seed eager init -> 0");
+
+  // Sol's run_app picks mode 0 (sync export of __SOL_APP__) only when
+  // is_adapter_mode && !runtime_is_node. On Workers with nodejs_compat,
+  // process.versions.node is populated, so runtime_is_node returns true and
+  // run_app falls into mode 1 — which awaits a dynamic `import('node:fs')`
+  // on the microtask queue and only then sets __SOL_APP__. main.js used to
+  // setInterval-poll to wait, but Workers ban timers in global scope.
+  // Force mode 0 so __SOL_APP__ lands synchronously when server.js is imported.
+  const MODE_PATTERN = /const mode = _p && !_p\$2 \? 0 : 1;/;
+  if (!MODE_PATTERN.test(body)) {
+    throw new Error(
+      `patch-cloudflare-globals: run_app mode selector not found in ${serverJsPath}.`,
+    );
+  }
+  body = body.replace(
+    MODE_PATTERN,
+    "const mode = 0; /* patched: force sync sol_app export on Cloudflare Workers */",
+  );
+  console.log("patched run_app mode -> 0 (sync export)");
+
+  writeFileSync(serverJsPath, body);
 }
 
 // 2) Sol's generated `.sol/prod/server/main.js` polls `globalThis.__SOL_APP__`
