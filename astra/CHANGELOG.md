@@ -2,6 +2,13 @@
 
 All notable changes to `mizchi/astra` are documented here.
 
+## 0.20.1 (2026-05-10)
+
+- Chore: workspace-wide version bump to keep all four mooncakes (luna,
+  luna_components, sol, astra) on the same minor line. No API changes —
+  astra is unaffected by the `mizchi/luna_components` extraction in
+  luna 0.20.1.
+
 ## 0.1.0 (2026-05-01)
 
 Initial release. Astra is a Mars middleware for static-site generation,

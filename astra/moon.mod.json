@@ -1,6 +1,6 @@
 {
   "name": "mizchi/astra",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "deps": {
     "mizchi/luna": "0.20.0",
     "mizchi/mars": "0.3.10",

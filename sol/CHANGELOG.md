@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.20.1 (2026-05-10)
+
+- Chore: workspace-wide version bump to keep all four mooncakes (luna,
+  luna_components, sol, astra) on the same minor line. No API changes
+  — sol's `app/server/moon.pkg.json` references for the styled
+  components now resolve through `mizchi/luna_components` (split from
+  `mizchi/luna/x/components` in the matching luna 0.20.1 release).
+
 ## 0.16.0 (2026-05-01)
 
 ### Breaking Changes

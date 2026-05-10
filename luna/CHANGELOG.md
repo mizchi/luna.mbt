@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna-v0.20.1] - 2026-05-10
+
+### Refactor
+
+- **x/components**: Extract `luna/src/x/components/` into a new sibling
+  mooncake `mizchi/luna_components`. The headless + styled UI components
+  (WAI-ARIA APG patterns) and the apg-playground demo now live under
+  `luna_components/` and are versioned independently. Existing imports
+  must rewrite `mizchi/luna/x/components` → `mizchi/luna_components`.
+  Apps can now pin the component library separately from luna's
+  reactive primitives.
+
 ## [luna-v0.20.0] - 2026-05-10
 
 ### Bug Fixes

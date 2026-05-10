@@ -2,17 +2,19 @@
 /**
  * Mooncakes-side version bump for luna.mbt.
  *
- * Bumps ONLY the three MoonBit packages (luna / sol / astra). Each package
- * owns its own version, but a single semver bump (patch/minor/major)
- * increments each one relative to its current value.
+ * Bumps ONLY the four MoonBit packages (luna / luna_components / sol / astra).
+ * Each package owns its own version, but a single semver bump
+ * (patch/minor/major) increments each one relative to its current value.
  *
  * The npm packages under js/* are NOT touched here — they are managed by
  * release-please (see release-please-config.json + .github/workflows/release-please.yml).
  *
  * Files touched (always run from the repo root):
  *   luna/moon.mod.json
- *   sol/moon.mod.json   (also updates the inter-dep ref `mizchi/astra.{path,version}`
- *                        to match astra's new version)
+ *   luna_components/moon.mod.json (also updates `mizchi/luna.version` to match
+ *                                   luna's new version)
+ *   sol/moon.mod.json             (also updates `mizchi/astra.version` to match
+ *                                   astra's new version)
  *   astra/moon.mod.json
  *
  * Usage:
@@ -26,6 +28,7 @@
  *
  * Tags created by --release are the mooncakes tags:
  *   luna-v<luna_version>
+ *   luna_components-v<luna_components_version>
  *   sol-v<sol_version>
  *   astra-v<astra_version>
  *
@@ -52,9 +55,10 @@ const rootDir = join(__dirname, "..", "..");
  *   - tagPrefix:     git tag prefix (e.g. "luna-v")
  */
 const PACKAGES = [
-  { id: "luna",  moonModPath: "luna/moon.mod.json",  tagPrefix: "luna-v"  },
-  { id: "sol",   moonModPath: "sol/moon.mod.json",   tagPrefix: "sol-v"   },
-  { id: "astra", moonModPath: "astra/moon.mod.json", tagPrefix: "astra-v" },
+  { id: "luna",            moonModPath: "luna/moon.mod.json",            tagPrefix: "luna-v"            },
+  { id: "luna_components", moonModPath: "luna_components/moon.mod.json", tagPrefix: "luna_components-v" },
+  { id: "sol",             moonModPath: "sol/moon.mod.json",             tagPrefix: "sol-v"             },
+  { id: "astra",           moonModPath: "astra/moon.mod.json",           tagPrefix: "astra-v"           },
 ];
 
 // =============================================================================
@@ -127,26 +131,36 @@ function buildPlan(spec) {
 }
 
 function applyPlan(plan, dryRun) {
-  // First: figure out astra's new version so sol's inter-dep ref can be updated.
+  // Inter-dep refs to update inside other mooncakes' moon.mod.json:
+  //   sol depends on astra
+  //   luna_components depends on luna
   const astraEntry = plan.find(p => p.id === "astra");
+  const lunaEntry = plan.find(p => p.id === "luna");
   const astraNewVersion = astraEntry?.newMoon;
+  const lunaNewVersion = lunaEntry?.newMoon;
+
+  function bumpInterDep(moon, depName, newVersion, contextLabel) {
+    if (!newVersion || !moon.deps?.[depName]) return;
+    const dep = moon.deps[depName];
+    if (typeof dep === "object" && dep !== null) {
+      const oldRef = dep.version;
+      dep.version = newVersion;
+      console.log(`  ${contextLabel}: deps.${depName}.version ${oldRef} -> ${newVersion}`);
+    } else if (typeof dep === "string") {
+      console.log(`  ${contextLabel}: deps.${depName} ${dep} -> ${newVersion}`);
+      moon.deps[depName] = newVersion;
+    }
+  }
 
   for (const entry of plan) {
     // Update moon.mod.json own version.
     entry.moon.version = entry.newMoon;
 
-    // Special-case sol: bump the inter-package ref to astra.
-    if (entry.id === "sol" && astraNewVersion && entry.moon.deps?.["mizchi/astra"]) {
-      const dep = entry.moon.deps["mizchi/astra"];
-      if (typeof dep === "object" && dep !== null) {
-        const oldRef = dep.version;
-        dep.version = astraNewVersion;
-        // path stays as-is; only version field gets bumped.
-        console.log(`  sol/moon.mod.json: deps.mizchi/astra.version ${oldRef} -> ${astraNewVersion}`);
-      } else if (typeof dep === "string") {
-        console.log(`  sol/moon.mod.json: deps.mizchi/astra ${dep} -> ${astraNewVersion}`);
-        entry.moon.deps["mizchi/astra"] = astraNewVersion;
-      }
+    if (entry.id === "sol") {
+      bumpInterDep(entry.moon, "mizchi/astra", astraNewVersion, "sol/moon.mod.json");
+    }
+    if (entry.id === "luna_components") {
+      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "luna_components/moon.mod.json");
     }
 
     writeJson(entry.moonAbs, entry.moon, dryRun);

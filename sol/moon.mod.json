@@ -1,11 +1,11 @@
 {
   "name": "mizchi/sol",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "deps": {
     "moonbitlang/yacc": "0.7.12",
     "mizchi/astra": {
       "path": "../astra",
-      "version": "0.20.0"
+      "version": "0.20.1"
     },
     "mizchi/luna": "0.20.0",
     "moonbitlang/async": "0.17.0",
