@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/astra",
-  "version": "0.17.1",
+  "version": "0.20.0",
   "private": false,
   "type": "module",
   "bin": {

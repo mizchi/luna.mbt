@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/components",
-  "version": "0.17.0",
+  "version": "0.20.0",
   "description": "Headless UI components matching src/components APG patterns",
   "type": "module",
   "main": "./dist/index.js",

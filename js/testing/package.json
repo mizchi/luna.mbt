@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/testing",
-  "version": "0.17.0",
+  "version": "0.20.0",
   "description": "Testing utilities for Luna UI components",
   "type": "module",
   "main": "./dist/index.js",
