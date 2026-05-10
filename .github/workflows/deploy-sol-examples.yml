@@ -47,6 +47,14 @@ jobs:
         working-directory: sol/examples/sol_app
         run: node ${{ github.workspace }}/_build/js/release/build/mizchi/sol/cmd/sol/sol.js build
 
+      # MoonBit core eagerly seeds hash randomization at module init via
+      # crypto.getRandomValues — Workers' global-scope I/O ban rejects the
+      # bundle (validation error 10021). Patch the built server.js to use a
+      # deterministic seed. See sol/examples/sol_app/scripts/patch-cloudflare-globals.mjs.
+      - name: Patch Cloudflare global-scope I/O
+        working-directory: sol/examples/sol_app
+        run: node scripts/patch-cloudflare-globals.mjs
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
