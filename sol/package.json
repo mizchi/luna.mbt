@@ -3,9 +3,6 @@
   "private": true,
   "description": "MoonBit SSR/SSG Framework — workspace dev package (the npm-published CLI lives at js/sol/, name @luna_ui/sol)",
   "type": "module",
-  "bin": {
-    "sol": "./bin/sol.js"
-  },
   "scripts": {
     "test": "moon test --target js",
     "test:e2e": "pnpm playwright test --config e2e/playwright.config.mts",
