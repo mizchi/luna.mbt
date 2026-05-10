@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../node_modules/wrangler/config-schema.json",
+  "name": "sol-examples",
+  "main": ".sol/prod/server/main.js",
+  "compatibility_date": "2025-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".sol/prod/static",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
