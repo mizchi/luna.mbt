@@ -1,0 +1,56 @@
+name: deploy-sol-examples
+
+# Builds sol_app (Sol's flagship SSR example) into a Cloudflare Workers
+# bundle via `sol build` and deploys it to sol-examples.mizchi.workers.dev.
+# Other sol/examples/* are SSR-with-DB and aren't shipped from this worker.
+#
+# Trigger: same gating as deploy-website / deploy-luna-examples — fires on
+# sol-v* GitHub Releases (one deploy per release-please cycle).
+# workflow_dispatch is the manual fallback.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'sol-v') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+
+      - run: moon update
+
+      - run: pnpm install --frozen-lockfile
+
+      # `sol build` runs `moon build --target js --release` itself, but the
+      # workspace build also wires up loader / island chunks that downstream
+      # bundling depends on, so do it once up-front for parity with the
+      # other deploy workflows.
+      - run: moon build --target js --release
+
+      - name: sol build (sol_app)
+        working-directory: sol/examples/sol_app
+        run: node ${{ github.workspace }}/_build/js/release/build/mizchi/sol/cmd/sol/sol.js build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: sol/examples/sol_app
+          wranglerVersion: "4"
