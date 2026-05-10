@@ -11,7 +11,7 @@ Library:
 
 ```jsonc
 // moon.mod.json
-{ "deps": { "mizchi/sol": "0.16.2", "mizchi/luna": "0.19.2" } }
+{ "deps": { "mizchi/sol": "0.20.0", "mizchi/luna": "0.20.0" } }
 ```
 
 CLI (binary):
@@ -19,7 +19,7 @@ CLI (binary):
 ```sh
 moon install mizchi/sol/cmd/sol      # → $MOON_HOME/bin/sol
 # or via npm
-pnpm add -g @luna_ui/sol             # 0.16.2
+pnpm add -g @luna_ui/sol             # 0.20.0
 ```
 
 ## Playground
