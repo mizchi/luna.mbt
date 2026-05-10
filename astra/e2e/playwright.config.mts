@@ -32,6 +32,9 @@ const port = Number(process.env.ASTRA_E2E_PORT ?? 7780);
 
 export default defineConfig({
   testDir: ".",
+  // deployed/ targets the live website (luna.mizchi.workers.dev) via its
+  // own config and has no business hitting the localhost dev fixture.
+  testIgnore: ["**/deployed/**"],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
