@@ -1,0 +1,25 @@
+name: luna-mbt
+version: 0.20.1
+# APM 0.12+ requires explicit targets; do not rely on directory auto-detection.
+targets:
+  - claude
+
+dependencies:
+  apm:
+    # MoonBit primary axis — every package writes .mbt + extern "js" FFI.
+    - mizchi/skills/moonbit-practice#1e40906d470624f60cfbff7895ba5c7e68893a00
+    - mizchi/skills/moonbit-js-binding#1e40906d470624f60cfbff7895ba5c7e68893a00
+
+    # Tooling mandates from ~/.claude/CLAUDE.md.
+    - mizchi/skills/justfile#1e40906d470624f60cfbff7895ba5c7e68893a00
+    - mizchi/skills/ast-grep-practice#1e40906d470624f60cfbff7895ba5c7e68893a00
+    - mizchi/skills/playwright-test#1e40906d470624f60cfbff7895ba5c7e68893a00
+
+    # CI / release / deploy operating-knowledge already exercised in this repo.
+    - mizchi/skills/gh-fix-ci#1e40906d470624f60cfbff7895ba5c7e68893a00
+    - mizchi/skills/cloudflare-deploy#1e40906d470624f60cfbff7895ba5c7e68893a00
+    - mizchi/skills/conventional-changelog#1e40906d470624f60cfbff7895ba5c7e68893a00
+
+    # Meta — required by the skill-selector flow itself.
+    - mizchi/skills/retrospective-codify#1e40906d470624f60cfbff7895ba5c7e68893a00
+    - mizchi/skills/apm-usage#1e40906d470624f60cfbff7895ba5c7e68893a00

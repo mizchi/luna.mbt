@@ -1,0 +1,114 @@
+lockfile_version: '1'
+generated_at: '2026-05-10T13:48:26.211701+00:00'
+apm_version: 0.12.4
+dependencies:
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: apm-usage
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/apm-usage
+  - .claude/skills/apm-usage
+  content_hash: sha256:5ca113f215eb4433e6420abbdfbcbbb05166ec9325c810e5cc27bc9acbf7a5d9
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: ast-grep-practice
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/ast-grep-practice
+  - .claude/skills/ast-grep-practice
+  content_hash: sha256:5b3281c9b87bf483168c78d788be0f820d21dae0054f32fbd16f3905ce436df5
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: cloudflare-deploy
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/cloudflare-deploy
+  - .claude/skills/cloudflare-deploy
+  content_hash: sha256:c4adb67f36570a3341b0e946edba5e21d5a0910d5b0f089c7ea2b5153c64635d
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: conventional-changelog
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/conventional-changelog
+  - .claude/skills/conventional-changelog
+  content_hash: sha256:075f08f20df46cd867360123825b748a2ab02ab145b252327e529c84d3ec2f74
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: gh-fix-ci
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/gh-fix-ci
+  - .claude/skills/gh-fix-ci
+  content_hash: sha256:31de91ad0adfc38db5474ea69c03ce1dcc4b993a4b46e5e6c285dab423eb1d00
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: justfile
+  is_virtual: true
+  package_type: marketplace_plugin
+  deployed_files:
+  - .agents/skills/justfile
+  - .claude/skills/justfile
+  content_hash: sha256:38f1e5aa89c91e38ec09bad9223a51fa18c2c2ac300dd3be2533ad45b9129081
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: moonbit-js-binding
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/moonbit-js-binding
+  - .claude/skills/moonbit-js-binding
+  content_hash: sha256:620878e9b240fb73e988c70b41851093391bcfd81afe8d5c324a1e30e3fa30f0
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: moonbit-practice
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/moonbit-practice
+  - .claude/skills/moonbit-practice
+  content_hash: sha256:aaa7bfce94c3cb1bff9c2199423f26c345b99eb281ffb109574187725b0ea317
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: playwright-test
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/playwright-test
+  - .claude/skills/playwright-test
+  content_hash: sha256:8dfd6ca18ba07a932de883f36c18b3216cdd12dcfa064069bda00f6fdd826f43
+- repo_url: mizchi/skills
+  host: github.com
+  resolved_commit: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  resolved_ref: 1e40906d470624f60cfbff7895ba5c7e68893a00
+  virtual_path: retrospective-codify
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/retrospective-codify
+  - .claude/skills/retrospective-codify
+  content_hash: sha256:6816c79437f2c0fde7a4589ed42571663ff26454201c626278f891714f6b4f8d
