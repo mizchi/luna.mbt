@@ -6,7 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   testDir: ".",
-  testIgnore: ["sol-app-hydration.spec.ts"],
+  testIgnore: ["sol-app-hydration.spec.ts", "sol-app-chaos.spec.ts"],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

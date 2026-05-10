@@ -20,6 +20,7 @@
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.5.2",
     "@types/ws": "^8.18.1",
+    "chaosbringer": "^0.8.1",
     "colorette": "^2.0.20",
     "esbuild": "^0.28.0",
     "execa": "^9.6.1",

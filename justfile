@@ -96,6 +96,10 @@ test-deployed-website:
 # 全 deployed smoke (luna-examples + website)
 test-deployed: test-deployed-luna test-deployed-website
 
+# sol_app の遷移を chaosbringer で crawl (sol/e2e のローカル dev サーバー使用)
+test-sol-chaos:
+    pnpm -F @luna_ui/sol-workspace exec playwright test --config "$(pwd)/sol/e2e/playwright-sol-app-chaos.config.mts"
+
 # クロスプラットフォームテスト (js, wasm-gc, native)
 test-xplat:
     moon test --target all luna/src/core/routes
