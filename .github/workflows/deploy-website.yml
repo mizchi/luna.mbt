@@ -51,6 +51,9 @@ jobs:
         working-directory: website
         run: node ../js/astra/bin/astra.js build
 
+      - name: Build search index
+        run: pnpm exec pagefind --site website/dist-docs
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:

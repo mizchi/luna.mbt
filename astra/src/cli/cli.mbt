@@ -25,9 +25,7 @@ pub fn load_config(cwd : String) -> @astra.SsgConfig {
   // astra-specific fields without disturbing an existing sol setup.
   let astra_path = @path.join2(cwd, "astra.config.json")
   if @fs.existsSync(astra_path) {
-    let content_opt : String? = try {
-      Some(@fs.read_file_as_string(astra_path))
-    } catch {
+    let content_opt : String? = Some(@fs.read_file_as_string(astra_path)) catch {
       _ => {
         println(
           "astra: WARN failed to read astra.config.json -- falling through to sol.config.json",
@@ -47,9 +45,7 @@ pub fn load_config(cwd : String) -> @astra.SsgConfig {
   }
   let sol_path = @path.join2(cwd, "sol.config.json")
   if @fs.existsSync(sol_path) {
-    let content_opt : String? = try {
-      Some(@fs.read_file_as_string(sol_path))
-    } catch {
+    let content_opt : String? = Some(@fs.read_file_as_string(sol_path)) catch {
       _ => {
         println(
           "astra: WARN failed to read sol.config.json -- using default config",
@@ -122,7 +118,7 @@ pub async fn run_build(args : Array[String], cwd : String) -> Unit {
     Some(o) => o
     None => cfg_base.output_dir
   }
-  let cfg = { ..cfg_base, output_dir }
+  let cfg = { ..cfg_base, output_dir, }
   // T11 parity test entry point: `--mode ssg` skips the middleware crawl
   // and runs the canonical `generate_site_async` pipeline (the same one
   // sol's old SSG build called). Used by `astra/docs/parity-notes.md` to
@@ -155,6 +151,15 @@ pub async fn run_build(args : Array[String], cwd : String) -> Unit {
   let urls = mw.list_urls()
   println("astra build: \{urls.length()} URL(s) -> \{output_dir}")
   build_to_disk(mw, output_dir)
+  let build_ctx : @astra.BuildContext = {
+    config: cfg,
+    pages: [],
+    sidebar: [],
+    cwd,
+    doc_tree: None,
+    is_dev: false,
+  }
+  @render.copy_static_assets(build_ctx)
   println("astra build: done")
 }
 
