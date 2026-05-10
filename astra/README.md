@@ -19,9 +19,9 @@ Library:
 // moon.mod.json
 {
   "deps": {
-    "mizchi/astra": "0.1.2",
+    "mizchi/astra": "0.20.0",
     "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.19.2"
+    "mizchi/luna": "0.20.0"
   }
 }
 ```
@@ -31,7 +31,7 @@ CLI (binary):
 ```sh
 moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
 # or via npm
-pnpm add -g @luna_ui/astra           # 0.1.2
+pnpm add -g @luna_ui/astra           # 0.20.0
 ```
 
 ## Quick start — mount on a Mars server

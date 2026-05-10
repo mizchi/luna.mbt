@@ -5,9 +5,9 @@ published independently to [mooncakes](https://mooncakes.io/):
 
 | Package | Role | Path | Latest |
 |---------|------|------|--------|
-| [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.19.3 |
-| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.16.2 |
-| [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.1.2  |
+| [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.20.0 |
+| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.20.0 |
+| [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.20.0 |
 
 Each package's README has the canonical usage doc.
 
@@ -22,13 +22,13 @@ Add to your `moon.mod.json`:
 
 ```jsonc
 // UI library only
-{ "deps": { "mizchi/luna": "0.19.3" } }
+{ "deps": { "mizchi/luna": "0.20.0" } }
 
 // SSR framework
-{ "deps": { "mizchi/sol": "0.16.2", "mizchi/luna": "0.19.3" } }
+{ "deps": { "mizchi/sol": "0.20.0", "mizchi/luna": "0.20.0" } }
 
 // Static-site middleware (mounts on a Mars Server)
-{ "deps": { "mizchi/astra": "0.1.2", "mizchi/luna": "0.19.3" } }
+{ "deps": { "mizchi/astra": "0.20.0", "mizchi/luna": "0.20.0" } }
 ```
 
 ## Install — CLI
@@ -40,9 +40,9 @@ moon install mizchi/sol/cmd/sol      # → $MOON_HOME/bin/sol
 moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
 ```
 
-npm wrappers exist for users who already have node but not moon. The full
+npm wrappers exist for users who already have node but not moon. The
 [`@luna_ui/*`](https://www.npmjs.com/org/luna_ui) family is published in
-lockstep at the same minor version, currently `0.17.0`:
+lockstep with the mooncakes packages at the same version, currently `0.20.0`:
 
 ```sh
 pnpm add -g @luna_ui/sol      # SSR framework CLI
