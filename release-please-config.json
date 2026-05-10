@@ -5,13 +5,13 @@
   "separate-pull-requests": false,
   "plugins": ["node-workspace"],
   "packages": {
-    "js/luna":        { "package-name": "@luna_ui/luna",       "release-as": "0.17.0" },
-    "js/sol":         { "package-name": "@luna_ui/sol",        "release-as": "0.17.0" },
-    "js/astra":       { "package-name": "@luna_ui/astra",      "release-as": "0.17.0" },
-    "js/components":  { "package-name": "@luna_ui/components", "release-as": "0.17.0" },
-    "js/loader":      { "package-name": "@luna_ui/luna-loader","release-as": "0.17.0" },
-    "js/stella":      { "package-name": "@luna_ui/stella",     "release-as": "0.17.0" },
-    "js/testing":     { "package-name": "@luna_ui/testing",    "release-as": "0.17.0" },
-    "js/wcr":         { "package-name": "@luna_ui/wcr",        "release-as": "0.17.0" }
+    "js/luna":        { "package-name": "@luna_ui/luna" },
+    "js/sol":         { "package-name": "@luna_ui/sol" },
+    "js/astra":       { "package-name": "@luna_ui/astra" },
+    "js/components":  { "package-name": "@luna_ui/components" },
+    "js/loader":      { "package-name": "@luna_ui/luna-loader" },
+    "js/stella":      { "package-name": "@luna_ui/stella" },
+    "js/testing":     { "package-name": "@luna_ui/testing" },
+    "js/wcr":         { "package-name": "@luna_ui/wcr" }
   }
 }
