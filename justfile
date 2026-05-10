@@ -85,8 +85,16 @@ test-e2e-ui:
     pnpm playwright test --config luna/e2e/playwright.config.mts --ui
 
 # luna-examples worker のデプロイ後 smoke (LUNA_EXAMPLES_URL で URL 上書き可)
-test-deployed:
+test-deployed-luna:
     pnpm playwright test --config luna/e2e/deployed/playwright.config.mts
+
+# Luna UI website のデプロイ後 smoke (WEBSITE_URL で URL 上書き可)
+# astra ローカル node_modules の playwright を使うため astra から実行
+test-deployed-website:
+    cd astra && pnpm exec playwright test --config e2e/deployed/playwright.config.mts
+
+# 全 deployed smoke (luna-examples + website)
+test-deployed: test-deployed-luna test-deployed-website
 
 # クロスプラットフォームテスト (js, wasm-gc, native)
 test-xplat:
