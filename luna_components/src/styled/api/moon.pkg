@@ -1,0 +1,24 @@
+import {
+  "mizchi/luna_components/styled" @styled,
+  "mizchi/luna_components/styled/switch" @switch,
+  "mizchi/luna_components/styled/checkbox" @checkbox,
+  "mizchi/luna_components/styled/tabs" @tabs,
+  "mizchi/luna_components/styled/accordion" @accordion,
+}
+
+supported_targets = "js"
+options(
+  link: {
+    "js": {
+      "exports": [
+        "get_theme_variables:getThemeVariables",
+        "get_switch_css:getSwitchCss",
+        "get_checkbox_css:getCheckboxCss",
+        "get_tabs_css:getTabsCss",
+        "get_accordion_css:getAccordionCss",
+        "get_all_css:getAllCss",
+      ],
+      "format": "esm",
+    },
+  },
+)

@@ -196,11 +196,11 @@ jobs:
           moon test --target wasm luna/src/core/render
           moon test --target wasm-gc luna/src/core/render
           moon test --target native luna/src/core/render
-      - name: Test x/components/aria (wasm, wasm-gc, native)
+      - name: Test luna_components/aria (wasm, wasm-gc, native)
         run: |
-          moon test --target wasm luna/src/x/components/aria
-          moon test --target wasm-gc luna/src/x/components/aria
-          moon test --target native luna/src/x/components/aria
+          moon test --target wasm luna_components/src/aria
+          moon test --target wasm-gc luna_components/src/aria
+          moon test --target native luna_components/src/aria
 
   # Vitest browser tests
   vitest-browser:
@@ -283,7 +283,7 @@ jobs:
           moon build --target js --release luna/src/examples/todomvc
           moon build --target js --release luna/src/examples/browser_router
           moon build --target js --release luna/src/examples/wc
-          moon build --target js --release luna/src/examples/apg-playground
+          moon build --target js --release luna_components/src/examples/apg-playground
       - name: Build Loader
         run: pnpm --filter @luna_ui/luna-loader build
       - name: Install Playwright Chromium

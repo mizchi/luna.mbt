@@ -6,6 +6,9 @@
       "path": "../.."
     },
     "mizchi/luna": "0.20.0",
+    "mizchi/luna_components": {
+      "path": "../../../luna_components"
+    },
     "mizchi/mars": "0.3.10",
     "mizchi/signals": "0.6.4",
     "mizchi/js": "0.10.15",

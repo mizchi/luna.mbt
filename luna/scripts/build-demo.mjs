@@ -17,17 +17,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const lunaRoot = resolve(__dirname, "..");
 const repoRoot = resolve(lunaRoot, "..");
 
-const buildSrc = join(
-  repoRoot,
-  "_build",
-  "js",
-  "release",
-  "build",
-  "mizchi",
-  "luna",
-  "examples",
-);
-const examplesSrc = join(lunaRoot, "src", "examples");
+const moonBuildBase = join(repoRoot, "_build", "js", "release", "build", "mizchi");
+// luna's own examples build under mizchi/luna/examples, but apg-playground
+// moved out into the mizchi/luna_components mooncake — different build root.
+const buildSrcByMooncake = {
+  luna: join(moonBuildBase, "luna", "examples"),
+  luna_components: join(moonBuildBase, "luna_components", "examples"),
+};
+const examplesSrcByMooncake = {
+  luna: join(lunaRoot, "src", "examples"),
+  luna_components: join(repoRoot, "luna_components", "src", "examples"),
+};
 const outDir = join(lunaRoot, "dist-demo");
 
 // css_split_test depends on Vite's `virtual:luna.css` plugin and is excluded
@@ -35,36 +35,43 @@ const outDir = join(lunaRoot, "dist-demo");
 const examples = [
   {
     id: "hello_luna",
+    mooncake: "luna",
     title: "Hello Luna",
     desc: "Basic Luna Web Components examples",
   },
   {
     id: "todomvc",
+    mooncake: "luna",
     title: "TodoMVC",
     desc: "Classic TodoMVC implementation with Luna",
   },
   {
     id: "spa",
+    mooncake: "luna",
     title: "SPA Example",
     desc: "Single Page Application with signals and reactive components",
   },
   {
     id: "browser_router",
+    mooncake: "luna",
     title: "Browser Router",
     desc: "Client-side routing with dynamic parameters and nested routes",
   },
   {
     id: "game",
+    mooncake: "luna",
     title: "Game Demo",
     desc: "Interactive game built with Luna's reactive primitives",
   },
   {
     id: "wc",
+    mooncake: "luna",
     title: "Web Components",
     desc: "Luna components as custom elements with shadow DOM",
   },
   {
     id: "apg-playground",
+    mooncake: "luna_components",
     title: "APG Playground",
     desc: "WAI-ARIA APG compliant UI components playground",
   },
@@ -105,6 +112,11 @@ async function main() {
   await mkdir(outDir, { recursive: true });
 
   for (const ex of examples) {
+    const buildSrc = buildSrcByMooncake[ex.mooncake];
+    const examplesSrc = examplesSrcByMooncake[ex.mooncake];
+    if (!buildSrc || !examplesSrc) {
+      throw new Error(`Unknown mooncake "${ex.mooncake}" for example "${ex.id}"`);
+    }
     const jsSrc = join(buildSrc, ex.id, `${ex.id}.js`);
     const htmlSrc = join(examplesSrc, ex.id, "index.html");
     if (!existsSync(jsSrc)) {

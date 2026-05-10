@@ -1,5 +1,6 @@
 members = [
   "./luna",
+  "./luna_components",
   "./sol",
   "./astra",
 ]

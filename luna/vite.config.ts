@@ -55,7 +55,8 @@ export default defineConfig(({ command }) => {
           wc: resolve(rootDir, 'src/examples/wc/index.html'),
           todomvc: resolve(rootDir, 'src/examples/todomvc/index.html'),
           css_split_test: resolve(rootDir, 'src/examples/css_split_test/index.html'),
-          'apg-playground': resolve(rootDir, 'src/examples/apg-playground/index.html'),
+          // apg-playground lives in the luna_components mooncake
+          'apg-playground': resolve(rootDir, '..', 'luna_components', 'src', 'examples', 'apg-playground', 'index.html'),
         },
       },
     },
