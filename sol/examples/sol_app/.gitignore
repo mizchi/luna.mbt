@@ -6,6 +6,5 @@ app/__gen__
 app/client/__gen__*
 .sol
 package-lock.json
-wrangler.json
 zap-reports
 bench/results/*.json

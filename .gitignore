@@ -5,6 +5,7 @@ dist/
 !js/loader/dist/
 dist-docs/
 dist-demo/
+.sol/
 _build/
 
 # Wrangler / Cloudflare Workers
