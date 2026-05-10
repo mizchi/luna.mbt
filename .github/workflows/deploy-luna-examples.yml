@@ -1,0 +1,55 @@
+name: deploy-luna-examples
+
+# Builds the static demo tree under luna/dist-demo (one HTML+JS per example
+# under luna/src/examples) and deploys it to luna-examples.mizchi.workers.dev
+# as a Cloudflare Workers Static Assets worker. No SSR runtime; pure CDN.
+#
+# Trigger: same as deploy-website — fires on luna-v* GitHub Releases (so each
+# release-please cycle deploys once, not once per package). workflow_dispatch
+# is the manual fallback.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'luna-v') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+
+      - run: moon update
+
+      - run: pnpm install --frozen-lockfile
+
+      # Examples emit to _build/js/release/build/mizchi/luna/examples/<id>/<id>.js.
+      - run: moon build --target js --release
+
+      - name: Build static demo tree
+        run: node luna/scripts/build-demo.mjs
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # accountId is set explicitly so wrangler skips the /memberships
+          # auto-detect call (which fails on tokens that lack
+          # User > Memberships:Read even when the deploy scope is fine).
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: luna
+          wranglerVersion: "4"
