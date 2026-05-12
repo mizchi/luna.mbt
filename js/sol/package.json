@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/sol",
-  "version": "0.20.0",
+  "version": "0.20.2",
   "private": false,
   "type": "module",
   "bin": {
@@ -15,9 +15,6 @@
   "scripts": {
     "build": "node scripts/build-release.mjs",
     "prepack": "node scripts/build-release.mjs"
-  },
-  "dependencies": {
-    "colorette": "^2.0.20"
   },
   "description": "Sol — SSR-first web framework for MoonBit (CLI wrapper)",
   "license": "MIT",

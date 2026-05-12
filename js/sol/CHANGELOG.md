@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.20.2](https://github.com/mizchi/luna.mbt/compare/sol-v0.20.0...sol-v0.20.2-npm) (2026-05-13)
+
+
+### Bug Fixes
+
+* publish the npm Sol CLI wrapper for the Mooncake 0.20.2 install fix
+* remove the unused `colorette` runtime dependency from `@luna_ui/sol`
+
 ## [0.20.0](https://github.com/mizchi/luna.mbt/compare/sol-v0.18.0...sol-v0.20.0) (2026-05-10)
 
 

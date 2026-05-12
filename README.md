@@ -42,7 +42,7 @@ moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
 
 npm wrappers exist for users who already have node but not moon. The
 [`@luna_ui/*`](https://www.npmjs.com/org/luna_ui) family is published in
-the current npm wrapper release is `0.20.0`:
+the current npm wrapper release is `0.20.2`:
 
 ```sh
 pnpm add -g @luna_ui/sol      # SSR framework CLI
