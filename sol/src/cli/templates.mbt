@@ -25,7 +25,7 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.15.1",
+        #|    "mizchi/sol": "0.20.2",
         #|    "mizchi/mars": "0.3.10",
         #|    "mizchi/luna": {
         #|      "path": "{{LUNA_PATH}}"
@@ -49,9 +49,9 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.15.1",
+        #|    "mizchi/sol": "0.20.2",
         #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.18.3",
+        #|    "mizchi/luna": "0.20.1",
         #|    "mizchi/signals": "0.6.4",
         #|    "mizchi/js": "0.10.15",
         #|    "mizchi/npm_typed": "0.1.11",
@@ -90,6 +90,30 @@ fn template_package_json(project_name : String) -> String {
 }
 
 ///|
+fn template_cloudflare_package_json(project_name : String) -> String {
+  let tmpl =
+    #|{
+    #|  "name": "{{PROJECT_NAME}}",
+    #|  "version": "0.1.0",
+    #|  "type": "module",
+    #|  "scripts": {
+    #|    "dev": "sol build && wrangler dev",
+    #|    "build": "sol build",
+    #|    "deploy": "sol build && wrangler deploy",
+    #|    "generate": "sol generate"
+    #|  },
+    #|  "dependencies": {
+    #|    "hono": "^4.12.12"
+    #|  },
+    #|  "devDependencies": {
+    #|    "rolldown": "1.0.0-rc.13",
+    #|    "wrangler": "^4.81.0"
+    #|  }
+    #|}
+  tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
+}
+
+///|
 fn template_sol_config_json() -> String {
   (
     #|{
@@ -97,6 +121,18 @@ fn template_sol_config_json() -> String {
     #|  "routes": "app/server",
     #|  "output": "app/__gen__",
     #|  "runtime": "node"
+    #|}
+  )
+}
+
+///|
+fn template_cloudflare_sol_config_json() -> String {
+  (
+    #|{
+    #|  "islands": ["app/client"],
+    #|  "routes": "app/server",
+    #|  "output": "app/__gen__",
+    #|  "runtime": "cloudflare"
     #|}
   )
 }
@@ -122,7 +158,7 @@ pub fn template_layout_mbt() -> String {
     #|///| This is a server component - no event handlers.
     #|
     #|///| Default page styles
-    #|let default_style : String = "<style>body { font-family: system-ui; max-width: 800px; margin: 0 auto; padding: 2rem; } .counter { margin: 2rem 0; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; } .buttons { margin-top: 1rem; } .buttons button { font-size: 1.5rem; padding: 0.5rem 1rem; margin: 0 0.5rem; cursor: pointer; } nav { margin-bottom: 1rem; } nav a { margin-right: 1rem; }</style>"
+    #|let default_style : String = "<style>body { font-family: system-ui; max-width: 800px; margin: 0 auto; padding: 2rem; color: #1f2937; } nav { margin-bottom: 1rem; } nav a { margin-right: 1rem; } .muted { color: #6b7280; } .counter, .worker-panel { margin: 2rem 0; padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; } .panel-title { font-weight: 700; margin: 0 0 0.5rem; } .buttons, .format-options { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; } .buttons button, .format-options button { border: 1px solid #9ca3af; border-radius: 6px; background: #fff; padding: 0.5rem 0.85rem; cursor: pointer; } .counter .buttons button { font-size: 1.5rem; padding: 0.5rem 1rem; } .format-options .is-active { background: #111827; color: white; border-color: #111827; } .status { display: block; margin-top: 1rem; font-size: 0.9rem; color: #2563eb; }</style>"
     #|
     #|///| Get default head HTML (styles)
     #|pub fn head() -> String {
@@ -228,6 +264,7 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|///| Home page - with counter island
     #|async fn home(_props : @sol.PageProps) -> @server_dom.ServerNode {
     #|  let counter_props : @types.CounterProps = { initial_count: 0 }
+    #|  let api_tools_props : @types.ApiToolsProps = { endpoint: "/api/health" }
     #|  @sol.nodes([
     #|    h1([text("Welcome to Sol")]),
     #|    p([text("A SSR-first web framework for MoonBit")]),
@@ -240,6 +277,22 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|          button(class="dec", [text("-")]),
     #|          button(class="inc", [text("+")]),
     #|        ]),
+    #|      ]),
+    #|    ]),
+    #|    @server_dom.client(@types.api_tools(api_tools_props), [
+    #|      div(class="worker-panel", [
+    #|        p(class="panel-title", [text("Worker API")]),
+    #|        p(class="muted", [text("GET /api/health")]),
+    #|        div(class="buttons", [
+    #|          button(class="copy-link", [text("Copy API URL")]),
+    #|        ]),
+    #|        div(class="format-options", [
+    #|          button(class="is-active", [text("auto")]),
+    #|          button([text("webp")]),
+    #|          button([text("avif")]),
+    #|          button([text("jpeg")]),
+    #|        ]),
+    #|        span(class="status", [text("Ready")]),
     #|      ]),
     #|    ]),
     #|  ])
@@ -348,6 +401,71 @@ pub fn template_client_counter_mbt() -> String {
 }
 
 ///|
+/// Client island template (worker API affordances)
+pub fn template_client_api_tools_mbt() -> String {
+  (
+    #|// Worker API Tools Client Component
+    #|// Small starter controls for copy/status and finite format options.
+    #|
+    #|extern "js" fn copy_to_clipboard(text : String) -> Unit =
+    #|  #| (text) => {
+    #|  #|   const clipboard = globalThis.navigator && globalThis.navigator.clipboard;
+    #|  #|   if (clipboard && clipboard.writeText) {
+    #|  #|     clipboard.writeText(String(text)).catch(() => {});
+    #|  #|   }
+    #|  #| }
+    #|
+    #|pub(all) struct ApiToolsProps {
+    #|  endpoint : String
+    #|} derive(ToJson, FromJson)
+    #|
+    #|fn format_button(
+    #|  label : String,
+    #|  selected : @signal.Signal[String],
+    #|  status : @signal.Signal[String],
+    #|) -> @element.DomNode {
+    #|  @element.button(
+    #|    dyn_class=fn() {
+    #|      if selected.get() == label { "is-active" } else { "" }
+    #|    },
+    #|    on=@element.events().click(_ => {
+    #|      selected.update(_ => label)
+    #|      status.update(_ => "Format: " + label)
+    #|    }),
+    #|    [@element.text(label)],
+    #|  )
+    #|}
+    #|
+    #|pub fn api_tools(props : ApiToolsProps) -> @element.DomNode {
+    #|  let selected = @signal.signal("auto")
+    #|  let status = @signal.signal("Ready")
+    #|  @element.div(class="worker-panel", [
+    #|    @element.span(class="panel-title", [@element.text("Worker API")]),
+    #|    @element.span(class="muted", [@element.text(props.endpoint)]),
+    #|    @element.div(class="buttons", [
+    #|      @element.button(
+    #|        class="copy-link",
+    #|        on=@element.events().click(_ => {
+    #|          status.update(_ => "Copying...")
+    #|          copy_to_clipboard(props.endpoint)
+    #|          status.update(_ => "Copied API URL")
+    #|        }),
+    #|        [@element.text("Copy API URL")],
+    #|      ),
+    #|    ]),
+    #|    @element.div(class="format-options", [
+    #|      format_button("auto", selected, status),
+    #|      format_button("webp", selected, status),
+    #|      format_button("avif", selected, status),
+    #|      format_button("jpeg", selected, status),
+    #|    ]),
+    #|    @element.span(class="status", [@element.text_of(status)]),
+    #|  ])
+    #|}
+  )
+}
+
+///|
 /// Client counter moon.pkg
 pub fn template_client_counter_moon_pkg() -> String {
   (
@@ -360,7 +478,7 @@ pub fn template_client_counter_moon_pkg() -> String {
     #|supported_targets = "js"
     #|
     #|options(
-    #|  link: { "js": { "exports": [ "counter" ], "format": "esm" } },
+    #|  link: { "js": { "exports": [ "counter", "api_tools" ], "format": "esm" } },
     #|)
   )
 }
@@ -382,7 +500,7 @@ pub fn template_gen_types_moon_pkg() -> String {
     #|supported_targets = "js"
     #|
     #|options(
-    #|  link: { "js": { "exports": [ "CounterProps", "counter" ], "format": "esm" } },
+    #|  link: { "js": { "exports": [ "CounterProps", "ApiToolsProps", "counter", "api_tools" ], "format": "esm" } },
     #|)
   )
 }
@@ -399,6 +517,11 @@ pub fn template_gen_types_mbt() -> String {
     #|  initial_count : Int
     #|} derive(ToJson, FromJson)
     #|
+    #|///| Props type from @client
+    #|pub(all) struct ApiToolsProps {
+    #|  endpoint : String
+    #|} derive(ToJson, FromJson)
+    #|
     #|///|
     #|///| Create ComponentRef for counter component
     #|pub fn counter(
@@ -407,7 +530,79 @@ pub fn template_gen_types_mbt() -> String {
     #|) -> @luna.ComponentRef[CounterProps] {
     #|  { url: "/static/counter.js", props, wc: false, trigger }
     #|}
+    #|
+    #|///|
+    #|///| Create ComponentRef for api_tools component
+    #|pub fn api_tools(
+    #|  props : ApiToolsProps,
+    #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
+    #|) -> @luna.ComponentRef[ApiToolsProps] {
+    #|  { url: "/static/api_tools.js", props, wc: false, trigger }
+    #|}
   )
+}
+
+///|
+pub fn template_worker_entry_mjs() -> String {
+  (
+    #|import solApp from "./.sol/prod/server/main.js";
+    #|
+    #|async function apiFetch(request, env, ctx) {
+    #|  const url = new URL(request.url);
+    #|  if (url.pathname === "/api/health") {
+    #|    return Response.json({
+    #|      status: "ok",
+    #|      source: "worker-api",
+    #|    });
+    #|  }
+    #|  return new Response("Not found", { status: 404 });
+    #|}
+    #|
+    #|export default {
+    #|  async fetch(request, env, ctx) {
+    #|    const url = new URL(request.url);
+    #|    if (url.pathname.startsWith("/api/")) {
+    #|      return apiFetch(request, env, ctx);
+    #|    }
+    #|    return solApp.fetch(request, env, ctx);
+    #|  },
+    #|};
+  )
+}
+
+///|
+fn template_wrangler_toml(project_name : String) -> String {
+  let tmpl =
+    #|name = "{{PROJECT_NAME}}"
+    #|main = "worker.entry.mjs"
+    #|compatibility_date = "2026-05-12"
+  tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
+}
+
+///|
+fn template_cloudflare_readme(project_name : String) -> String {
+  let tmpl =
+    #|# {{PROJECT_NAME}}
+    #|
+    #|Sol + Cloudflare Worker starter.
+    #|
+    #|## Development
+    #|
+    #|```bash
+    #|moon update
+    #|pnpm install
+    #|pnpm dev
+    #|```
+    #|
+    #|`worker.entry.mjs` is the public composition point. Keep UI routes on Sol and route Worker API paths before falling back to `solApp.fetch(request, env, ctx)`.
+    #|
+    #|## Build
+    #|
+    #|```bash
+    #|pnpm build
+    #|pnpm deploy
+    #|```
+  tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
 }
 
 ///|
@@ -445,10 +640,7 @@ pub fn generate_templates(
       path: "app/server/moon.pkg",
       content: template_routes_moon_pkg(package_name),
     },
-    {
-      path: "app/server/main.mbt",
-      content: template_routes_main_mbt(),
-    },
+    { path: "app/server/main.mbt", content: template_routes_main_mbt() },
     {
       path: "app/server/routes.mbt",
       content: template_routes_mbt(package_name),
@@ -457,6 +649,10 @@ pub fn generate_templates(
     // Client islands (render + hydrate in same file)
     { path: "app/client/moon.pkg", content: template_client_counter_moon_pkg() },
     { path: "app/client/counter.mbt", content: template_client_counter_mbt() },
+    {
+      path: "app/client/api_tools.mbt",
+      content: template_client_api_tools_mbt(),
+    },
     // Generated types (needed for initial build)
     {
       path: "app/__gen__/types/moon.pkg",
@@ -467,13 +663,47 @@ pub fn generate_templates(
 }
 
 ///|
+pub fn generate_cloudflare_templates(
+  package_name : String,
+  project_name : String,
+  luna_path : String?,
+) -> Array[TemplateFile] {
+  let templates = generate_templates(package_name, project_name, luna_path)
+  let out : Array[TemplateFile] = []
+  for file in templates {
+    if file.path == "package.json" {
+      out.push({
+        path: file.path,
+        content: template_cloudflare_package_json(project_name),
+      })
+    } else if file.path == "sol.config.json" {
+      out.push({
+        path: file.path,
+        content: template_cloudflare_sol_config_json(),
+      })
+    } else {
+      out.push(file)
+    }
+  }
+  out.push({ path: "worker.entry.mjs", content: template_worker_entry_mjs() })
+  out.push({
+    path: "wrangler.toml",
+    content: template_wrangler_toml(project_name),
+  })
+  out.push({
+    path: "README.md",
+    content: template_cloudflare_readme(project_name),
+  })
+  out
+}
+
+///|
 /// Generate template files for a documentation site project
 pub fn generate_doc_templates(
   package_name : String,
   project_name : String,
 ) -> Array[TemplateFile] {
-  let sol_config =
-    "{\n  \"islands\": [],\n  \"routes\": \"app/server\",\n  \"output\": \"app/__gen__\",\n  \"runtime\": \"node\",\n  \"staticDirs\": [\n    {\n      \"pathPrefix\": \"/docs\",\n      \"sourceDir\": \"docs\",\n      \"title\": \"\{project_name}\",\n      \"sidebar\": \"auto\",\n      \"trailingSlash\": true,\n      \"theme\": {\n        \"primaryColor\": \"#3b82f6\",\n        \"socialLinks\": [],\n        \"header\": {\n          \"left\": [\"logo\"],\n          \"right\": [\"navLinks\", \"themeToggle\"],\n          \"sticky\": true\n        },\n        \"footer\": {\n          \"message\": \"Built with Sol\",\n          \"copyright\": \"2025\"\n        }\n      }\n    }\n  ]\n}"
+  let sol_config = "{\n  \"islands\": [],\n  \"routes\": \"app/server\",\n  \"output\": \"app/__gen__\",\n  \"runtime\": \"node\",\n  \"staticDirs\": [\n    {\n      \"pathPrefix\": \"/docs\",\n      \"sourceDir\": \"docs\",\n      \"title\": \"\{project_name}\",\n      \"sidebar\": \"auto\",\n      \"trailingSlash\": true,\n      \"theme\": {\n        \"primaryColor\": \"#3b82f6\",\n        \"socialLinks\": [],\n        \"header\": {\n          \"left\": [\"logo\"],\n          \"right\": [\"navLinks\", \"themeToggle\"],\n          \"sticky\": true\n        },\n        \"footer\": {\n          \"message\": \"Built with Sol\",\n          \"copyright\": \"2025\"\n        }\n      }\n    }\n  ]\n}"
   let gitignore = template_gitignore() + "\ndist\n.sol-cache"
   [
     { path: ".gitignore", content: gitignore },
@@ -487,10 +717,7 @@ pub fn generate_doc_templates(
       path: "app/server/moon.pkg",
       content: "import {\n  \"mizchi/sol\" @sol,\n  \"moonbitlang/async\",\n}\n\nsupported_targets = \"js\"\n\noptions(\n  \"is-main\": true,\n  \"warn-list\": \"-67-29\",\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
     },
-    {
-      path: "app/server/main.mbt",
-      content: template_routes_main_mbt(),
-    },
+    { path: "app/server/main.mbt", content: template_routes_main_mbt() },
     {
       path: "app/server/routes.mbt",
       content: "///| Route definitions\n\npub fn routes() -> Array[@sol.SolRoutes] {\n  [\n    @sol.api_get(\"/api/health\", api_health),\n  ]\n}\n\npub fn config() -> @sol.RouterConfig {\n  @sol.RouterConfig::default()\n}\n\npriv struct HealthResponse {\n  status : String\n} derive(ToJson)\n\nasync fn api_health(_props : @sol.PageProps) -> HealthResponse {\n  { status: \"ok\" }\n}",
@@ -517,7 +744,7 @@ pub fn generate_doc_templates(
     },
     {
       path: "README.md",
-      content: "# \{project_name}\n\nDocumentation site built with [Sol](https://github.com/mizchi/sol.mbt).\n\n## Quick Start\n\n```bash\nmoon update\npnpm install\nsol dev\n```\n\nOpen http://localhost:7777/docs/\n\n## Project Structure\n\n```\ndocs/                 # Markdown documentation\n  index.md            # Home page\n  guide/              # Guide section\n  api/                # API reference\napp/\n  server/             # Server routes\nsol.config.json       # Sol configuration\n```\n",
+      content: "# \{project_name}\n\nDocumentation site built with [Sol](https://github.com/mizchi/luna.mbt/tree/main/sol).\n\n## Quick Start\n\n```bash\nmoon update\npnpm install\nsol dev\n```\n\nOpen http://localhost:7777/docs/\n\n## Project Structure\n\n```\ndocs/                 # Markdown documentation\n  index.md            # Home page\n  guide/              # Guide section\n  api/                # API reference\napp/\n  server/             # Server routes\nsol.config.json       # Sol configuration\n```\n",
     },
   ]
 }

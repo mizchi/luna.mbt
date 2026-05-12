@@ -5,10 +5,21 @@
 
 ///|
 async fn read_file_text(path : String) -> String? {
-  let data = @x_fs.read_file(path) catch { _ => return None }
-  let text = data.text() catch { _ => return None }
-  Some(text)
+  ffi_read_file_text(path).wait()
 }
+
+///|
+extern "js" fn ffi_read_file_text(path : String) -> @js.Promise[String?] =
+  #| async (path) => {
+  #|   try {
+  #|     const importer = globalThis.__SOL_DYNAMIC_IMPORT__ ||
+  #|       ((specifier) => new Function('specifier', 'return import(specifier)')(specifier));
+  #|     const fs = await importer('node:fs/promises');
+  #|     return await fs.readFile(path, 'utf-8');
+  #|   } catch (_) {
+  #|     return undefined;
+  #|   }
+  #| }
 
 ///|
 fn content_type_for_file(filename : String) -> String {
@@ -16,6 +27,8 @@ fn content_type_for_file(filename : String) -> String {
     "application/javascript"
   } else if filename.has_suffix(".css") {
     "text/css"
+  } else if filename.has_suffix(".svg") {
+    "image/svg+xml"
   } else if filename.has_suffix(".html") {
     "text/html"
   } else {
@@ -43,6 +56,28 @@ fn send_static_text(
 ) -> Unit {
   apply_static_headers(c, content_type, cache_control)
   c.text(body)
+}
+
+///|
+fn default_favicon_svg() -> String {
+  (
+    #|<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#111827"/><text x="32" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="34" font-weight="700" fill="#fff">S</text></svg>
+  )
+}
+
+///|
+pub fn serve_default_favicon(app : App) -> Unit {
+  app.get(
+    "/favicon.ico",
+    @mars.handler(async fn(c) {
+      send_static_text(
+        c,
+        default_favicon_svg(),
+        "image/svg+xml",
+        "public, max-age=86400",
+      )
+    }),
+  )
 }
 
 ///|

@@ -352,9 +352,11 @@ extern "js" fn ffi_build_from_manifest(
 ) -> @js.Promise[Unit] =
   #| async (manifestPath, cwd, onSuccess, onError) => {
   #|   try {
-  #|     const fs = await import('node:fs');
-  #|     const path = await import('node:path');
-  #|     const { createRequire } = await import('node:module');
+  #|     const importer = globalThis.__SOL_DYNAMIC_IMPORT__ ||
+  #|       ((specifier) => new Function('specifier', 'return import(specifier)')(specifier));
+  #|     const fs = await importer('node:fs');
+  #|     const path = await importer('node:path');
+  #|     const { createRequire } = await importer('node:module');
   #|     const manifestContent = fs.readFileSync(manifestPath, 'utf-8');
   #|     const manifest = JSON.parse(manifestContent);
   #|     // Resolve rolldown from the project's node_modules

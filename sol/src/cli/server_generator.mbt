@@ -42,7 +42,7 @@ fn generate_server_main_mbt(
   )
 
   // Generate static directory routes
-  if !(static_dirs.is_empty()) {
+  if !static_dirs.is_empty() {
     buf.write_string("  // Serve static directories (SSG)\n")
     for entry in static_dirs {
       let path_prefix = entry.path_prefix
@@ -54,7 +54,7 @@ fn generate_server_main_mbt(
     buf.write_string("\n")
   }
   // Generate .mbtx route registration
-  if !(mbtx_entries.is_empty()) {
+  if !mbtx_entries.is_empty() {
     buf.write_string("  // Register .mbtx page routes (auto-discovered)\n")
     buf.write_string("  @router.register_mbtx_routes(app, [\n")
     for entry in mbtx_entries {
@@ -66,6 +66,8 @@ fn generate_server_main_mbt(
   }
   buf.write_string("  // Serve built-in framework assets (/__sol__/*)\n")
   buf.write_string("  @sol.serve_sol_assets(app)\n")
+  buf.write_string("  // Serve default favicon\n")
+  buf.write_string("  @sol.serve_default_favicon(app)\n")
   buf.write_string("  // Serve static files\n")
   buf.write_string("  @sol.serve_static(app)\n\n")
   buf.write_string("  app\n")
@@ -120,6 +122,25 @@ fn write_node_port_and_log(buf : StringBuilder) -> Unit {
 }
 
 ///|
+fn write_cloudflare_server_entry(
+  buf : StringBuilder,
+  server_js_path : String,
+) -> Unit {
+  buf.write_string("// Cloudflare Workers runtime\n")
+  buf.write_string(
+    "// Mark this import as an edge adapter before evaluating the MoonBit server module.\n",
+  )
+  buf.write_string("globalThis.__SOL_RUNTIME__ = 'cloudflare';\n")
+  buf.write_string("globalThis.__SOL_ADAPTER_MODE__ = true;\n")
+  buf.write_string("await import('\{server_js_path}');\n\n")
+  buf.write_string("const app = globalThis.__SOL_APP__;\n")
+  buf.write_string(
+    "if (!app) throw new Error('Sol app was not exported by the server module');\n\n",
+  )
+  buf.write_string("export default app;\n")
+}
+
+///|
 /// Generate .sol/{mode}/server/main.js entry point (MoonBit mode)
 /// Path: .sol/{mode}/server/main.js -> ../../../_build/js/{profile}/build/__gen__/server/server.js
 pub fn generate_sol_server_main_js(
@@ -147,34 +168,11 @@ pub fn generate_sol_server_main_js(
         "export * from '../../../_build/js/\{build_profile}/build/__gen__/server/server.js';\n",
       )
     }
-    RuntimeCloudflare => {
-      // Cloudflare Workers: Import module (triggers run_app which sets __SOL_APP__)
-      buf.write_string(
-        "// Import module to trigger run_app() which sets globalThis.__SOL_APP__\n",
+    RuntimeCloudflare =>
+      write_cloudflare_server_entry(
+        buf,
+        "../../../_build/js/\{build_profile}/build/__gen__/server/server.js",
       )
-      buf.write_string(
-        "import '../../../_build/js/\{build_profile}/build/__gen__/server/server.js';\n\n",
-      )
-      buf.write_string("// Cloudflare Workers runtime\n")
-      buf.write_string(
-        "// For Node.js adapter, wait for async fs init to complete\n",
-      )
-      buf.write_string(
-        "// For edge runtimes (Cloudflare/Deno), __SOL_APP__ is set synchronously\n",
-      )
-      buf.write_string("const app = await new Promise(resolve => {\n")
-      buf.write_string(
-        "  if (globalThis.__SOL_APP__) return resolve(globalThis.__SOL_APP__);\n",
-      )
-      buf.write_string("  const check = setInterval(() => {\n")
-      buf.write_string("    if (globalThis.__SOL_APP__) {\n")
-      buf.write_string("      clearInterval(check);\n")
-      buf.write_string("      resolve(globalThis.__SOL_APP__);\n")
-      buf.write_string("    }\n")
-      buf.write_string("  }, 1);\n")
-      buf.write_string("});\n\n")
-      buf.write_string("export default app;\n")
-    }
     RuntimeDeno => {
       buf.write_string(
         "// Import module to trigger run_app() which sets globalThis.__SOL_APP__\n",
@@ -228,42 +226,16 @@ pub fn generate_sol_server_main_js_user_managed(
   let server_js_path = "../../../_build/js/\{build_profile}/build/server/server.js"
   match runtime {
     RuntimeNode => {
-      buf.write_string(
-        "import * as server from '\{server_js_path}';\n\n",
-      )
+      buf.write_string("import * as server from '\{server_js_path}';\n\n")
       buf.write_string("// Node.js runtime using @hono/node-server\n")
-      buf.write_string(
-        "export * from '\{server_js_path}';\n",
-      )
+      buf.write_string("export * from '\{server_js_path}';\n")
     }
-    RuntimeCloudflare => {
-      buf.write_string(
-        "// Import module to trigger run_app() which sets globalThis.__SOL_APP__\n",
-      )
-      buf.write_string(
-        "import '\{server_js_path}';\n\n",
-      )
-      buf.write_string("// Cloudflare Workers runtime\n")
-      buf.write_string("const app = await new Promise(resolve => {\n")
-      buf.write_string(
-        "  if (globalThis.__SOL_APP__) return resolve(globalThis.__SOL_APP__);\n",
-      )
-      buf.write_string("  const check = setInterval(() => {\n")
-      buf.write_string("    if (globalThis.__SOL_APP__) {\n")
-      buf.write_string("      clearInterval(check);\n")
-      buf.write_string("      resolve(globalThis.__SOL_APP__);\n")
-      buf.write_string("    }\n")
-      buf.write_string("  }, 1);\n")
-      buf.write_string("});\n\n")
-      buf.write_string("export default app;\n")
-    }
+    RuntimeCloudflare => write_cloudflare_server_entry(buf, server_js_path)
     RuntimeDeno => {
       buf.write_string(
         "// Import module to trigger run_app() which sets globalThis.__SOL_APP__\n",
       )
-      buf.write_string(
-        "import '\{server_js_path}';\n\n",
-      )
+      buf.write_string("import '\{server_js_path}';\n\n")
       buf.write_string("// Deno runtime\n")
       buf.write_string("const app = globalThis.__SOL_APP__;\n")
       write_port_and_log(
@@ -275,9 +247,7 @@ pub fn generate_sol_server_main_js_user_managed(
       buf.write_string(
         "// Import module to trigger run_app() which sets globalThis.__SOL_APP__\n",
       )
-      buf.write_string(
-        "import '\{server_js_path}';\n\n",
-      )
+      buf.write_string("import '\{server_js_path}';\n\n")
       buf.write_string("// Bun runtime\n")
       buf.write_string("const app = globalThis.__SOL_APP__;\n")
       write_node_port_and_log(buf)

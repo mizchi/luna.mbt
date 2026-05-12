@@ -88,6 +88,8 @@ jobs:
       - name: sol cli node:tests
         run: |
           cd sol
+          node --test e2e/moon-install.test.js
           node --test e2e/cli-golden-path.test.js
           node --test e2e/template-check.test.js
+          node --test e2e/cloudflare-starter.test.js
           node --test e2e/generate-codegen.test.js

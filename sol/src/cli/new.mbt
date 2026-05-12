@@ -12,11 +12,13 @@ fn show_new_help() -> Unit {
     #|Options:
     #|  -u, --user <name>   User/organization namespace (required)
     #|  -d, --dev           Development mode (use local luna path)
+    #|  -c, --cloudflare    Create a Cloudflare Worker starter
     #|  -h, --help          Show help
     #|
     #|Examples:
-    #|  sol new myapp --user mizchi         Create ./myapp with package mizchi/myapp
-    #|  sol new myapp --user mizchi --dev   Create with local luna dependency
+    #|  sol new myapp --user mizchi                Create ./myapp with package mizchi/myapp
+    #|  sol new myapp --user mizchi --cloudflare   Create a Worker starter
+    #|  sol new myapp --user mizchi --dev          Create with local luna dependency
     #|
     #|Note: documentation-site scaffolding moved to the astra package; see
     #|astra/examples/sol_docs for a working starter.
@@ -70,6 +72,7 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
       @util.String(key="user", short="u", multiple=false, default=None),
       @util.Boolean(key="doc", short="D"),
       @util.Boolean(key="dev", short="d"),
+      @util.Boolean(key="cloudflare", short="c"),
       @util.Boolean(key="help", short="h"),
     ],
     allow_positionals=true,
@@ -113,6 +116,11 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
   } else {
     false
   }
+  let cloudflare_mode : Bool = if result.values.contains("cloudflare") {
+    result.values["cloudflare"].cast()
+  } else {
+    false
+  }
   if doc_mode {
     @cli_common.console_error(
       @colorette.red(
@@ -145,7 +153,13 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
     )
     @process.exit(1)
   }
-  let template_type = if doc_mode { "doc" } else { "app" }
+  let template_type = if cloudflare_mode {
+    "cloudflare"
+  } else if doc_mode {
+    "doc"
+  } else {
+    "app"
+  }
   println(@colorette.cyan("Creating new Sol project: \{project_dir}"))
   println(@colorette.gray("  Package name: \{package_name}"))
   println(@colorette.gray("  Template: \{template_type}"))
@@ -153,7 +167,9 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
     println(@colorette.gray("  Mode: development (local luna)"))
   }
   // Generate project from embedded templates
-  let templates = if doc_mode {
+  let templates = if cloudflare_mode {
+    generate_cloudflare_templates(package_name, project_base, luna_path)
+  } else if doc_mode {
     generate_doc_templates(package_name, project_base)
   } else {
     generate_templates(package_name, project_base, luna_path)

@@ -1,8 +1,8 @@
 // Sol CLI - MoonBit SSR Framework CLI
 //
-// Library entry point. The process entry that calls into `run_main`
-// lives in `mizchi/sol/cmd/sol` so the package is installable via
-// `moon install mizchi/sol/cmd/sol`.
+// Library entry point. The JS process entry that calls into `run_main`
+// lives in `mizchi/sol/cmd/sol_js`; `mizchi/sol/cmd/sol` is the native
+// install shim for `moon install`.
 
 ///|
 fn show_help() -> Unit {
@@ -31,7 +31,7 @@ fn show_help() -> Unit {
 
 ///|
 fn show_version() -> Unit {
-  println("sol 0.16.1")
+  println("sol 0.20.2")
 }
 
 ///|

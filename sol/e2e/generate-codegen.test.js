@@ -17,8 +17,8 @@ const CLI_DEBUG = path.join(
   "mizchi",
   "sol",
   "cmd",
-  "sol",
-  "sol.js"
+  "sol_js",
+  "sol_js.js"
 );
 const SOL_APP = path.join(SOL_DIR, "examples", "sol_app");
 
@@ -199,6 +199,46 @@ test("sol generate: stdout reports route and action counts", () => {
     result.stdout,
     /\d+ action IDs/,
     "stdout reports action ID count"
+  );
+});
+
+test("sol build: cloudflare server output is Worker-bundler clean", () => {
+  ensureCliBuilt();
+  const result = spawnSync("node", [CLI_DEBUG, "build"], {
+    cwd: SOL_APP,
+    encoding: "utf8",
+  });
+  assert.equal(
+    result.status,
+    0,
+    `sol build failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+  );
+
+  const mainJs = fs.readFileSync(
+    path.join(SOL_APP, ".sol", "prod", "server", "main.js"),
+    "utf8"
+  );
+  assert.match(mainJs, /globalThis\.__SOL_RUNTIME__ = 'cloudflare'/);
+  assert.match(mainJs, /await import\('\.\.\/\.\.\/\.\.\/_build\/js\/release\/build\/__gen__\/server\/server\.js'\)/);
+  assert.doesNotMatch(mainJs, /setInterval/);
+  assert.doesNotMatch(mainJs, /await new Promise/);
+
+  const serverJs = fs.readFileSync(
+    path.join(
+      SOL_APP,
+      "_build",
+      "js",
+      "release",
+      "build",
+      "__gen__",
+      "server",
+      "server.js"
+    ),
+    "utf8"
+  );
+  assert.doesNotMatch(
+    serverJs,
+    /import\(['"](?:node:fs|node:fs\/promises|node:path|node:module|@hono\/node-server)['"]\)/
   );
 });
 

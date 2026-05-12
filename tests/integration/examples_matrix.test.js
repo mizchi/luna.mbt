@@ -23,8 +23,8 @@ const SOL_CLI_DEBUG = path.join(
   "mizchi",
   "sol",
   "cmd",
-  "sol",
-  "sol.js",
+  "sol_js",
+  "sol_js.js",
 );
 
 function ensureSolCliBuilt() {

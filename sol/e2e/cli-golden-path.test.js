@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SOL_DIR = path.resolve(THIS_DIR, "..");
 const ROOT = path.resolve(SOL_DIR, "..");
-const CLI_DEBUG = path.join(ROOT, "_build", "js", "debug", "build", "mizchi", "sol", "cmd", "sol", "sol.js");
+const CLI_DEBUG = path.join(ROOT, "_build", "js", "debug", "build", "mizchi", "sol", "cmd", "sol_js", "sol_js.js");
 
 function runSol(args, cwd) {
   return spawnSync("node", [CLI_DEBUG, ...args], {
@@ -35,6 +35,39 @@ test("cli golden path command availability (new/dev/build/deploy)", () => {
 
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-cli-golden-"));
   try {
+    const help = runSol(["--help"], sandbox);
+    assert.equal(help.status, 0, help.stderr);
+    assert.match(help.stdout, /Usage:\s*sol <command>/i);
+
+    const version = runSol(["--version"], sandbox);
+    assert.equal(version.status, 0, version.stderr);
+    assert.match(version.stdout, /sol 0\.20\.2/);
+
+    const cliSource = fs.readFileSync(CLI_DEBUG, "utf8");
+    assert.doesNotMatch(cliSource, /from ["']colorette["']/);
+    assert.doesNotMatch(cliSource, /import\(["']ws["']\)/);
+
+    const isolatedBinDir = fs.mkdtempSync(path.join(os.tmpdir(), "sol-cli-isolated-"));
+    try {
+      fs.writeFileSync(
+        path.join(isolatedBinDir, "package.json"),
+        JSON.stringify({ type: "module" })
+      );
+      fs.copyFileSync(CLI_DEBUG, path.join(isolatedBinDir, "sol.js"));
+      const isolatedHelp = spawnSync("node", ["sol.js", "--help"], {
+        cwd: isolatedBinDir,
+        encoding: "utf8",
+      });
+      assert.equal(
+        isolatedHelp.status,
+        0,
+        `standalone sol.js --help should not require npm deps\nstdout:\n${isolatedHelp.stdout}\nstderr:\n${isolatedHelp.stderr}`
+      );
+      assert.match(isolatedHelp.stdout, /Sol CLI/);
+    } finally {
+      fs.rmSync(isolatedBinDir, { recursive: true, force: true });
+    }
+
     const projectName = "demo-app";
     const create = runSol(["new", projectName, "--user", "mizchi"], sandbox);
     assert.equal(
@@ -45,6 +78,30 @@ test("cli golden path command availability (new/dev/build/deploy)", () => {
 
     const projectDir = path.join(sandbox, projectName);
     assert.ok(fs.existsSync(path.join(projectDir, "moon.mod.json")));
+
+    const workerProjectName = "worker-app";
+    const createWorker = runSol(
+      ["new", workerProjectName, "--user", "mizchi", "--cloudflare"],
+      sandbox
+    );
+    assert.equal(
+      createWorker.status,
+      0,
+      `sol new --cloudflare failed\nstdout:\n${createWorker.stdout}\nstderr:\n${createWorker.stderr}`
+    );
+    const workerProjectDir = path.join(sandbox, workerProjectName);
+    assert.match(
+      fs.readFileSync(path.join(workerProjectDir, "sol.config.json"), "utf8"),
+      /"runtime": "cloudflare"/
+    );
+    assert.match(
+      fs.readFileSync(path.join(workerProjectDir, "worker.entry.mjs"), "utf8"),
+      /\.sol\/prod\/server\/main\.js/
+    );
+    assert.match(
+      fs.readFileSync(path.join(workerProjectDir, "wrangler.toml"), "utf8"),
+      /main = "worker\.entry\.mjs"/
+    );
 
     const devHelp = runSol(["dev", "--help"], projectDir);
     assert.equal(devHelp.status, 0, devHelp.stderr);

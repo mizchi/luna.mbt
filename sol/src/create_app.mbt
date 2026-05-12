@@ -1,15 +1,27 @@
 ///| Create a fully configured Sol app from routes and config.
+
 ///|
+
 ///| This is the main facade API for user-managed server entry points.
+
 ///| It creates a mars Server, registers routes, actions, and static serving.
+
 ///|
+
 ///| ```mbt
+
 ///| async fn main {
+
 ///|   @sol.run_app(fn() {
+
 ///|     @sol.create_app(routes(), config=config())
+
 ///|   })
+
 ///| }
-///| ```
+
+///|
+/// ```
 pub fn create_app(
   routes : Array[@router.SolRoutes],
   config? : @router.RouterConfig,
@@ -22,6 +34,7 @@ pub fn create_app(
     None => ()
   }
   serve_sol_assets(app)
+  serve_default_favicon(app)
   serve_static(app)
   app
 }

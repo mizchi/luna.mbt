@@ -1,0 +1,14 @@
+// Sol JS CLI process entry point. This is the full command dispatcher used by
+// npm wrappers and Node-based e2e tests.
+
+import {
+  "mizchi/sol/cli" @cli,
+  "mizchi/x/sys" @sys,
+  "moonbitlang/async",
+}
+
+options(
+  "is-main": true,
+)
+
+supported_targets = "js"

@@ -77,7 +77,7 @@ for (const pkg of PACKAGES) {
 function ensureMoonReleaseBuild() {
   const sentinel = path.join(
     ROOT,
-    "_build/js/release/build/mizchi/sol/cmd/sol/sol.js",
+    "_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js",
   );
   if (existsSync(sentinel)) return;
   const r = spawnSync("moon", ["build", "--target", "js", "--release"], {

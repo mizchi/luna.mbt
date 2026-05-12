@@ -20,7 +20,7 @@ import {
   "mizchi/js/node/child_process" @child_process,
   "mizchi/js/node/util" @util,
   "mizchi/js/node/http" @http,
-  "mizchi/npm_typed/colorette" @colorette,
+  "mizchi/sol/internal/color" @colorette,
   "mizchi/wite/bundle" @wite_bundle,
   "mizchi/mars" @mars,
   "mizchi/mars/adapters" @mars_adapters,

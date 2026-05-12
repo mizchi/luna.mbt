@@ -11,7 +11,7 @@ Library:
 
 ```jsonc
 // moon.mod.json
-{ "deps": { "mizchi/sol": "0.20.0", "mizchi/luna": "0.20.0" } }
+{ "deps": { "mizchi/sol": "0.20.2", "mizchi/luna": "0.20.1" } }
 ```
 
 CLI (binary):
@@ -19,7 +19,7 @@ CLI (binary):
 ```sh
 moon install mizchi/sol/cmd/sol      # → $MOON_HOME/bin/sol
 # or via npm
-pnpm add -g @luna_ui/sol             # 0.20.0
+pnpm add -g @luna_ui/sol             # npm wrapper 0.20.0
 ```
 
 ## Playground
@@ -32,6 +32,42 @@ cd sol/examples/sol_app
 pnpm install
 sol dev
 ```
+
+## Cloudflare Worker Composition
+
+When `sol.config.json` uses `"runtime": "cloudflare"`, `sol build`
+emits `.sol/prod/server/main.js` as a Worker-safe module with a stable
+default export. Existing Workers can route some requests to Sol and keep
+their own API handlers in the same Worker. New apps can start with this
+wiring already in place:
+
+```bash
+sol new myapp --user mizchi --cloudflare
+cd myapp
+pnpm install
+pnpm dev
+```
+
+The generated `worker.entry.mjs` is the public composition point:
+
+```js
+import solApp from "./.sol/prod/server/main.js";
+import apiWorker from "./worker-api.mjs";
+
+export default {
+  fetch(request, env, ctx) {
+    const path = new URL(request.url).pathname;
+    return path.startsWith("/api/")
+      ? apiWorker.fetch(request, env, ctx)
+      : solApp.fetch(request, env, ctx);
+  },
+};
+```
+
+Keep Sol UI routes on `solApp.fetch(...)`, and expose custom MoonBit
+Worker handlers behind a stable wrapper such as `worker-api.mjs` instead
+of importing Sol's private `_build/js/...` output or waiting on
+`globalThis.__SOL_APP__`.
 
 ## Runtime Asset Sync (Contributors)
 
@@ -140,13 +176,16 @@ myapp/
 ├── moon.mod.json           # MoonBit module definition
 ├── package.json            # npm package definition
 ├── sol.config.json         # Sol config file
+├── worker.entry.mjs        # Cloudflare starter compose point (--cloudflare)
+├── wrangler.toml           # Cloudflare Workers config (--cloudflare)
 ├── app/
 │   ├── server/             # Server components
 │   │   ├── moon.pkg
 │   │   └── routes.mbt      # routes() + config() + page functions
 │   ├── client/             # Client components (Islands)
 │   │   ├── moon.pkg
-│   │   └── counter.mbt     # render + hydrate functions
+│   │   ├── counter.mbt     # render + hydrate functions
+│   │   └── api_tools.mbt   # copy/status/format starter controls
 │   └── __gen__/            # Auto-generated (sol generate)
 │       ├── client/         # Client exports
 │       └── server/         # Server entry point
@@ -164,6 +203,7 @@ Create a new project.
 
 ```bash
 sol new myapp --user mizchi         # Create mizchi/myapp package
+sol new myapp --user mizchi --cloudflare
 sol new myapp --user mizchi --dev   # Use local luna path (for development)
 ```
 

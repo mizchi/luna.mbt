@@ -12,7 +12,7 @@ const PKG_DIR = path.resolve(__dirname, "..");
 const ROOT = path.resolve(__dirname, "../../..");
 const SRC = path.join(
   ROOT,
-  "_build/js/release/build/mizchi/sol/cmd/sol/sol.js",
+  "_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js",
 );
 const OUT_DIR = path.join(PKG_DIR, "dist");
 const OUT = path.join(OUT_DIR, "sol.js");

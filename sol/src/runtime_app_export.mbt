@@ -23,7 +23,9 @@ extern "js" fn ffi_convert_fetch_handler(handler : @js.Any) -> MarsFetchHandler 
 ///|
 /// Check if running in Node.js environment
 extern "js" fn ffi_is_node() -> Bool =
-  #| () => typeof process !== 'undefined' && process.versions?.node != null
+  #| () => globalThis.__SOL_RUNTIME__ !== "cloudflare" &&
+  #|   typeof process !== 'undefined' &&
+  #|   process.versions?.node != null
 
 ///|
 fn runtime_is_node() -> Bool {
@@ -39,7 +41,7 @@ fn export_runtime_app(app : App) -> Unit {
 
 ///|
 fn should_start_server() -> Bool {
-  runtime_is_node() && !(is_adapter_mode())
+  runtime_is_node() && !is_adapter_mode()
 }
 
 ///|
@@ -59,7 +61,9 @@ fn serve_runtime(app : App, port : Int) -> Unit {
 ///|
 extern "js" fn ffi_serve(fetch_handler : MarsFetchHandler, port : Int) -> Unit =
   #|(fetchHandler, port) => {
-  #|  import('@hono/node-server').then(({ serve }) => {
+  #|  const importer = globalThis.__SOL_DYNAMIC_IMPORT__ ||
+  #|    ((specifier) => new Function('specifier', 'return import(specifier)')(specifier));
+  #|  importer('@hono/node-server').then(({ serve }) => {
   #|    serve({ fetch: fetchHandler, port });
   #|  });
   #|}

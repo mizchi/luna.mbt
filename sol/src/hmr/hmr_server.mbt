@@ -76,7 +76,7 @@ pub fn HmrMessage::to_json(self : HmrMessage) -> String {
 
 ///|
 /// Create and start HMR WebSocket server on specified port (async version)
-/// Uses Node.js 'ws' package via dynamic import
+/// Uses Node.js built-ins so moon-installed CLIs do not need npm deps.
 /// Returns a Promise that resolves when server is ready
 pub fn HmrServer::start(port : Int) -> @js.Promise[HmrServer] {
   create_hmr_server_promise(port)
@@ -86,12 +86,96 @@ pub fn HmrServer::start(port : Int) -> @js.Promise[HmrServer] {
 /// Create HMR server promise (internal)
 extern "js" fn create_hmr_server_promise(port : Int) -> @js.Promise[HmrServer] =
   #| (port) => {
-  #|   return import('ws').then(({ WebSocketServer }) => {
-  #|     const wss = new WebSocketServer({ port });
-  #|     wss.on('connection', () => console.log('\x1b[90m[HMR] Client connected\x1b[0m'));
+  #|   const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
+  #|   const env = globalThis?.process?.env ?? {};
+  #|   const useColor = !('NO_COLOR' in env) && env.FORCE_COLOR !== '0' && (env.FORCE_COLOR || globalThis?.process?.stdout?.isTTY);
+  #|   const color = (code, text) => useColor ? `\x1b[${code}m${text}\x1b[0m` : text;
+  #|   const encodeTextFrame = (message) => {
+  #|     const payload = Buffer.from(String(message));
+  #|     if (payload.length < 126) {
+  #|       return Buffer.concat([Buffer.from([0x81, payload.length]), payload]);
+  #|     }
+  #|     if (payload.length < 65536) {
+  #|       const header = Buffer.alloc(4);
+  #|       header[0] = 0x81;
+  #|       header[1] = 126;
+  #|       header.writeUInt16BE(payload.length, 2);
+  #|       return Buffer.concat([header, payload]);
+  #|     }
+  #|     const header = Buffer.alloc(10);
+  #|     header[0] = 0x81;
+  #|     header[1] = 127;
+  #|     header.writeBigUInt64BE(BigInt(payload.length), 2);
+  #|     return Buffer.concat([header, payload]);
+  #|   };
+  #|   return Promise.all([import('node:http'), import('node:crypto')]).then(([http, crypto]) => {
+  #|     const clients = new Set();
+  #|     const listeners = new Map();
+  #|     const wss = {
+  #|       clients,
+  #|       on(event, handler) {
+  #|         const list = listeners.get(event) ?? [];
+  #|         list.push(handler);
+  #|         listeners.set(event, list);
+  #|         return this;
+  #|       },
+  #|       emit(event, ...args) {
+  #|         for (const handler of listeners.get(event) ?? []) handler(...args);
+  #|       },
+  #|       close() {
+  #|         for (const client of [...clients]) client.close();
+  #|         server.close();
+  #|       },
+  #|     };
+  #|     const server = http.createServer((_, res) => {
+  #|       res.statusCode = 404;
+  #|       res.end();
+  #|     });
+  #|     server.on('upgrade', (req, socket) => {
+  #|       const key = req.headers['sec-websocket-key'];
+  #|       if (!key) {
+  #|         socket.destroy();
+  #|         return;
+  #|       }
+  #|       const accept = crypto.createHash('sha1').update(key + GUID).digest('base64');
+  #|       socket.write([
+  #|         'HTTP/1.1 101 Switching Protocols',
+  #|         'Upgrade: websocket',
+  #|         'Connection: Upgrade',
+  #|         `Sec-WebSocket-Accept: ${accept}`,
+  #|         '',
+  #|         '',
+  #|       ].join('\r\n'));
+  #|       const client = {
+  #|         readyState: 1,
+  #|         send(message) {
+  #|           if (!socket.destroyed) socket.write(encodeTextFrame(message));
+  #|         },
+  #|         close() {
+  #|           socket.destroy();
+  #|         },
+  #|       };
+  #|       clients.add(client);
+  #|       socket.on('data', (chunk) => {
+  #|         if ((chunk[0] & 0x0f) === 0x8) socket.end();
+  #|       });
+  #|       socket.on('close', () => clients.delete(client));
+  #|       socket.on('error', () => clients.delete(client));
+  #|       wss.emit('connection', client);
+  #|     });
+  #|     server.on('error', (err) => wss.emit('error', err));
+  #|     wss.on('connection', () => console.log(color(90, '[HMR] Client connected')));
   #|     wss.on('error', (err) => console.error('[HMR] Server error:', err));
-  #|     console.log(`\x1b[36m[HMR] WebSocket server started on port ${port}\x1b[0m`);
-  #|     return { inner: wss, port };
+  #|     return new Promise((resolve, reject) => {
+  #|       server.once('error', reject);
+  #|       server.listen(port, () => {
+  #|         server.off('error', reject);
+  #|         const address = server.address();
+  #|         const actualPort = typeof address === 'object' && address ? address.port : port;
+  #|         console.log(color(36, `[HMR] WebSocket server started on port ${actualPort}`));
+  #|         resolve({ inner: wss, port: actualPort });
+  #|       });
+  #|     });
   #|   });
   #| }
 

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.20.2 (2026-05-13)
+
+- Fix `moon install mizchi/sol/cmd/sol` by making the installable entry a
+  native shim and moving the JS CLI dispatcher to `mizchi/sol/cmd/sol_js`.
+- Remove runtime npm-only imports from the Sol CLI path so Mooncake installs do
+  not depend on npm `node_modules`.
+
 ## 0.20.1 (2026-05-10)
 
 - Chore: workspace-wide version bump to keep all four mooncakes (luna,

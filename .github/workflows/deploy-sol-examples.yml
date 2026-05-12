@@ -45,7 +45,7 @@ jobs:
 
       - name: sol build (sol_app)
         working-directory: sol/examples/sol_app
-        run: node ${{ github.workspace }}/_build/js/release/build/mizchi/sol/cmd/sol/sol.js build
+        run: node ${{ github.workspace }}/_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js build
 
       # MoonBit core eagerly seeds hash randomization at module init via
       # crypto.getRandomValues — Workers' global-scope I/O ban rejects the

@@ -38,7 +38,7 @@ test "is_user_managed_server: false when main.mbt missing" {
     wasm_entrypoints: [],
     experimental: [],
   }
-  assert_true(!(is_user_managed_server(fs, "/project", config)))
+  assert_true(!is_user_managed_server(fs, "/project", config))
 }
 
 ///|
@@ -99,4 +99,5 @@ test "generate_server_main_mbt: uses async fn main" {
   )
   assert_true(content.contains("async fn main {"))
   assert_true(content.contains("@sol.run_app(configure_app)"))
+  assert_true(content.contains("@sol.serve_default_favicon(app)"))
 }

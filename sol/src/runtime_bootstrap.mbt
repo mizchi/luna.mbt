@@ -10,8 +10,11 @@ priv enum RuntimeBootstrapMode {
 fn select_bootstrap_mode(
   is_adapter~ : Bool,
   is_node~ : Bool,
+  is_edge_runtime? : Bool = false,
 ) -> RuntimeBootstrapMode {
-  if is_adapter && !(is_node) {
+  if is_edge_runtime {
+    RuntimeBootstrapMode::AdapterExportOnly
+  } else if is_adapter && !is_node {
     RuntimeBootstrapMode::AdapterExportOnly
   } else {
     RuntimeBootstrapMode::InitFsAndMaybeServe
@@ -61,6 +64,7 @@ pub fn run_app(create_and_configure : () -> App, port? : Int) -> Unit {
   let mode = select_bootstrap_mode(
     is_adapter=is_adapter_mode(),
     is_node=runtime_is_node(),
+    is_edge_runtime=is_edge_runtime(),
   )
   match mode {
     RuntimeBootstrapMode::AdapterExportOnly => {

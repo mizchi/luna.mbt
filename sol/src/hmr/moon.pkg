@@ -1,7 +1,10 @@
 import {
+  "moonbitlang/async",
   "mizchi/js/core" @js,
-  "mizchi/npm_typed/colorette" @colorette,
+  "mizchi/sol/internal/color" @colorette,
   "mizchi/sol/cli_common" @cli_common,
 }
+
+warnings = "-29"
 
 supported_targets = "js"

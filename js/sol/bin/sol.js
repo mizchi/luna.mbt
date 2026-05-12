@@ -7,7 +7,7 @@
 // Resolution order:
 //   1. ../dist/sol.js — populated by scripts/build-release.mjs at
 //      publish time. This is the path used in real npm installs.
-//   2. ../../../_build/js/release/build/mizchi/sol/cmd/sol/sol.js —
+//   2. ../../../_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js —
 //      workspace fallback so the shim stays usable from a clean
 //      monorepo checkout (after `moon build --target js --release`),
 //      which is what tests/integration/* relies on.
@@ -19,7 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distEntry = path.resolve(__dirname, "../dist/sol.js");
 const workspaceEntry = path.resolve(
   __dirname,
-  "../../../_build/js/release/build/mizchi/sol/cmd/sol/sol.js",
+  "../../../_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js",
 );
 
 const entry = existsSync(distEntry)
