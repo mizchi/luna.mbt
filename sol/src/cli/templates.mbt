@@ -99,7 +99,7 @@ fn template_cloudflare_package_json(project_name : String) -> String {
     #|  "version": "0.1.0",
     #|  "type": "module",
     #|  "scripts": {
-    #|    "dev": "sol build && wrangler dev",
+    #|    "dev": "sol generate --mode dev && moon build --target js && wrangler dev --config wrangler.dev.toml",
     #|    "build": "sol build",
     #|    "deploy": "sol build && wrangler deploy",
     #|    "generate": "sol generate"
@@ -630,9 +630,11 @@ pub fn template_gen_types_mbt() -> String {
 }
 
 ///|
-pub fn template_worker_entry_mjs() -> String {
+pub fn template_worker_entry_mjs(
+  sol_module? : String = "./.sol/prod/server/main.js",
+) -> String {
   (
-    #|import solApp from "./.sol/prod/server/main.js";
+    #|import solApp from "{{SOL_MODULE}}";
     #|
     #|async function apiFetch(request, env, ctx) {
     #|  const url = new URL(request.url);
@@ -654,16 +656,26 @@ pub fn template_worker_entry_mjs() -> String {
     #|    return solApp.fetch(request, env, ctx);
     #|  },
     #|};
-  )
+  ).replace(old="{{SOL_MODULE}}", new=sol_module)
 }
 
 ///|
 fn template_wrangler_toml(project_name : String) -> String {
+  template_wrangler_toml_with_main(project_name, "worker.entry.mjs")
+}
+
+///|
+fn template_wrangler_toml_with_main(
+  project_name : String,
+  main : String,
+) -> String {
   let tmpl =
     #|name = "{{PROJECT_NAME}}"
-    #|main = "worker.entry.mjs"
+    #|main = "{{MAIN}}"
     #|compatibility_date = "2025-01-01"
-  tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
+  tmpl
+  .replace(old="{{PROJECT_NAME}}", new=project_name)
+  .replace(old="{{MAIN}}", new=main)
 }
 
 ///|
@@ -681,7 +693,9 @@ fn template_cloudflare_readme(project_name : String) -> String {
     #|pnpm dev
     #|```
     #|
-    #|`worker.entry.mjs` is the public composition point. Keep UI routes on Sol and route Worker API paths before falling back to `solApp.fetch(request, env, ctx)`.
+    #|`worker.entry.dev.mjs` and `wrangler.dev.toml` run the same Worker composition shape against `.sol/dev/server/main.js`. `worker.entry.mjs` and `wrangler.toml` use `.sol/prod/server/main.js` for production.
+    #|
+    #|Keep UI routes on Sol and route Worker API paths before falling back to `solApp.fetch(request, env, ctx)`.
     #|
     #|## Route ownership
     #|
@@ -799,8 +813,18 @@ pub fn generate_cloudflare_templates(
   }
   out.push({ path: "worker.entry.mjs", content: template_worker_entry_mjs() })
   out.push({
+    path: "worker.entry.dev.mjs",
+    content: template_worker_entry_mjs(sol_module="./.sol/dev/server/main.js"),
+  })
+  out.push({
     path: "wrangler.toml",
     content: template_wrangler_toml(project_name),
+  })
+  out.push({
+    path: "wrangler.dev.toml",
+    content: template_wrangler_toml_with_main(
+      project_name, "worker.entry.dev.mjs",
+    ),
   })
   out.push({
     path: "README.md",

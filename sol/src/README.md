@@ -107,6 +107,11 @@ Start development server. Auto-executes:
 3. `rolldown` - Client bundle (if manifest exists)
 4. Start server
 
+For `runtime: "cloudflare"`, `sol dev` starts `wrangler dev` instead of the
+Node adapter. If the project has `wrangler.dev.toml`, that file is used;
+otherwise Sol writes a fallback `.sol/dev/wrangler.toml` that runs
+`.sol/dev/server/main.js`.
+
 ```bash
 sol dev              # Default port 7777
 sol dev --port 8080  # Specify port

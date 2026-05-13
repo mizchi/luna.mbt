@@ -1437,7 +1437,13 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   let worker = find_template_content(templates, "worker.entry.mjs").unwrap_or(
     "",
   )
+  let worker_dev = find_template_content(templates, "worker.entry.dev.mjs").unwrap_or(
+    "",
+  )
   let wrangler = find_template_content(templates, "wrangler.toml").unwrap_or("")
+  let wrangler_dev = find_template_content(templates, "wrangler.dev.toml").unwrap_or(
+    "",
+  )
   assert_true(config.contains("\"runtime\": \"cloudflare\""))
   assert_true(moon_mod.contains("\"mizchi/sol_adapter_cloudflare\""))
   assert_false(moon_mod.contains("\"mizchi/sol_adapter_node\""))
@@ -1450,15 +1456,26 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   assert_true(worker.contains("solApp.fetch(request, env, ctx)"))
   assert_true(!worker.contains("__SOL_APP__"))
   assert_true(!worker.contains("_build/js"))
+  assert_true(worker_dev.contains("./.sol/dev/server/main.js"))
+  assert_true(worker_dev.contains("url.pathname.startsWith(\"/api/\")"))
+  assert_true(worker_dev.contains("solApp.fetch(request, env, ctx)"))
+  assert_true(!worker_dev.contains("__SOL_APP__"))
+  assert_true(!worker_dev.contains("_build/js"))
   assert_true(wrangler.contains("main = \"worker.entry.mjs\""))
   assert_true(wrangler.contains("compatibility_date = \"2025-01-01\""))
+  assert_true(wrangler_dev.contains("main = \"worker.entry.dev.mjs\""))
+  assert_true(wrangler_dev.contains("compatibility_date = \"2025-01-01\""))
 }
 
 ///|
 test "generate_cloudflare_templates: wrangler scripts do not require no-bundle" {
   let templates = generate_cloudflare_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "package.json").unwrap_or("")
-  assert_true(content.contains("\"dev\": \"sol build && wrangler dev\""))
+  assert_true(
+    content.contains(
+      "\"dev\": \"sol generate --mode dev && moon build --target js && wrangler dev --config wrangler.dev.toml\"",
+    ),
+  )
   assert_true(content.contains("\"deploy\": \"sol build && wrangler deploy\""))
   assert_true(content.contains("\"wrangler\""))
   assert_true(!content.contains("--no-bundle"))
