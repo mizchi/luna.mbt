@@ -40,6 +40,13 @@ function pinWorkspaceSol(projectDir) {
   moonMod.deps["mizchi/sol"] = { path: SOL_DIR };
   // sol depends on astra during co-development; pin that too for transitive resolution.
   moonMod.deps["mizchi/astra"] = { path: path.join(ROOT, "astra") };
+  moonMod.deps["mizchi/luna"] = { path: path.join(ROOT, "luna") };
+  moonMod.deps["mizchi/sol_adapter_node"] = {
+    path: path.join(ROOT, "sol_adapter_node"),
+  };
+  moonMod.deps["mizchi/sol_adapter_cloudflare"] = {
+    path: path.join(ROOT, "sol_adapter_cloudflare"),
+  };
   fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
 }
 

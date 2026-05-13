@@ -117,6 +117,7 @@ Quickstart guide: `docs/quickstart.md`
 Deploy guide: `docs/deploy.md`
 Runbook: `docs/runbook.md`
 Troubleshooting guide: `docs/troubleshooting.md`
+Worker auth guide: `docs/worker-auth.md`
 
 ## Quick Start
 

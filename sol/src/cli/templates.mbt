@@ -102,12 +102,15 @@ fn template_cloudflare_package_json(project_name : String) -> String {
     #|    "dev": "sol generate --mode dev && moon build --target js && wrangler dev --config wrangler.dev.toml",
     #|    "build": "sol build",
     #|    "deploy": "sol build && wrangler deploy",
-    #|    "generate": "sol generate"
+    #|    "generate": "sol generate",
+    #|    "test:e2e": "playwright test",
+    #|    "verify": "pnpm build && pnpm test:e2e"
     #|  },
     #|  "dependencies": {
     #|    "hono": "^4.12.12"
     #|  },
     #|  "devDependencies": {
+    #|    "@playwright/test": "^1.58.2",
     #|    "rolldown": "1.0.0-rc.13",
     #|    "wrangler": "^4.81.0"
     #|  }
@@ -213,7 +216,7 @@ pub fn template_layout_mbt() -> String {
     #|///| This is a server component - no event handlers.
     #|
     #|///| Default page styles
-    #|let default_style : String = "<style>body { font-family: system-ui; max-width: 800px; margin: 0 auto; padding: 2rem; color: #1f2937; } nav { margin-bottom: 1rem; } nav a { margin-right: 1rem; } .muted { color: #6b7280; } .counter, .worker-panel { margin: 2rem 0; padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; } .panel-title { font-weight: 700; margin: 0 0 0.5rem; } .buttons, .format-options { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; } .buttons button, .format-options button { border: 1px solid #9ca3af; border-radius: 6px; background: #fff; padding: 0.5rem 0.85rem; cursor: pointer; } .counter .buttons button { font-size: 1.5rem; padding: 0.5rem 1rem; } .format-options .is-active { background: #111827; color: white; border-color: #111827; } .status { display: block; margin-top: 1rem; font-size: 0.9rem; color: #2563eb; }</style>"
+    #|let default_style : String = "<style>body { font-family: system-ui; max-width: 1040px; margin: 0 auto; padding: 2rem; color: #1f2937; background: #f8fafc; } nav { margin-bottom: 1.25rem; } nav a { margin-right: 1rem; } h1 { margin-bottom: 0.25rem; } .muted { color: #6b7280; } .counter, .worker-panel, .ops-panel { margin: 1.5rem 0; padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; } .panel-title { display: block; font-weight: 700; margin: 0 0 0.5rem; } .buttons, .format-options, .filters, .pagination, .batch-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; } button { border: 1px solid #9ca3af; border-radius: 6px; background: #fff; padding: 0.5rem 0.85rem; cursor: pointer; } .counter .buttons button { font-size: 1.5rem; padding: 0.5rem 1rem; } .is-active { background: #111827; color: white; border-color: #111827; } .status { display: block; margin-top: 1rem; font-size: 0.9rem; color: #2563eb; } .ops-table { display: grid; gap: 0.5rem; margin-top: 1rem; } .ops-row { display: grid; grid-template-columns: 7rem 1fr 6rem auto; gap: 0.75rem; align-items: center; padding: 0.65rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; } .ops-row.is-hidden { display: none; } .badge { display: inline-block; text-align: center; border-radius: 999px; padding: 0.2rem 0.55rem; background: #e0f2fe; color: #075985; font-size: 0.8rem; } .badge.failed { background: #fee2e2; color: #991b1b; } .badge.done { background: #dcfce7; color: #166534; } .batch-progress { margin-top: 0.75rem; height: 0.5rem; background: #e5e7eb; border-radius: 999px; overflow: hidden; } .batch-progress span { display: block; height: 100%; width: 40%; background: #2563eb; } .auth-note { margin-top: 0.75rem; font-size: 0.9rem; color: #4b5563; }</style>"
     #|
     #|///| Get default head HTML (styles)
     #|pub fn head() -> String {
@@ -332,7 +335,7 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|  let api_tools_props : @types.ApiToolsProps = { endpoint: "/api/health" }
     #|  @sol.nodes([
     #|    h1([text("Welcome to Sol")]),
-    #|    p([text("A SSR-first web framework for MoonBit")]),
+    #|    p([text("A SSR-first web framework for MoonBit operational apps")]),
     #|    @server_dom.client(@types.counter(counter_props), [
     #|      div(class="counter", [
     #|        span(class="count-display", [
@@ -345,18 +348,49 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|      ]),
     #|    ]),
     #|    @server_dom.client(@types.api_tools(api_tools_props), [
-    #|      div(class="worker-panel", [
-    #|        p(class="panel-title", [text("Worker API")]),
-    #|        p(class="muted", [text("GET /api/health")]),
+    #|      div(class="ops-panel", [
+    #|        p(class="panel-title", [text("Operations Console")]),
+    #|        p(class="muted", [text("Filter jobs, copy API links, and run guarded batch actions.")]),
     #|        div(class="buttons", [
     #|          button(class="copy-link", [text("Copy API URL")]),
     #|        ]),
-    #|        div(class="format-options", [
-    #|          button(class="is-active", [text("auto")]),
-    #|          button([text("webp")]),
-    #|          button([text("avif")]),
-    #|          button([text("jpeg")]),
+    #|        div(class="filters", [
+    #|          button(class="is-active", [text("all")]),
+    #|          button([text("pending")]),
+    #|          button([text("failed")]),
+    #|          button([text("done")]),
     #|        ]),
+    #|        div(class="ops-table", [
+    #|          div(class="ops-row", [
+    #|            span([text("job-104")]),
+    #|            span([text("Resize upload variants")]),
+    #|            span(class="badge", [text("pending")]),
+    #|            button([text("Delete")]),
+    #|          ]),
+    #|          div(class="ops-row", [
+    #|            span([text("job-105")]),
+    #|            span([text("Sync metadata cache")]),
+    #|            span(class="badge failed", [text("failed")]),
+    #|            button([text("Retry")]),
+    #|          ]),
+    #|          div(class="ops-row", [
+    #|            span([text("job-106")]),
+    #|            span([text("Publish audit event")]),
+    #|            span(class="badge done", [text("done")]),
+    #|            button([text("Archive")]),
+    #|          ]),
+    #|        ]),
+    #|        div(class="batch-actions", [
+    #|          button([text("Create Job")]),
+    #|          button([text("Retry Failed")]),
+    #|        ]),
+    #|        div(class="pagination", [
+    #|          button([text("Previous")]),
+    #|          button(class="is-active", [text("Page 1")]),
+    #|          button([text("Next")]),
+    #|        ]),
+    #|        div(class="batch-progress", [span([text("")])]),
+    #|        p(class="auth-note", [text("POST /api/jobs/batch requires Authorization: Bearer dev-token in local dev.")]),
     #|        span(class="status", [text("Ready")]),
     #|      ]),
     #|    ]),
@@ -491,8 +525,8 @@ pub fn template_client_counter_mbt() -> String {
 /// Client island template (worker API affordances)
 pub fn template_client_api_tools_mbt() -> String {
   (
-    #|// Worker API Tools Client Component
-    #|// Small starter controls for copy/status and finite format options.
+    #|// Worker Operations Client Component
+    #|// Small starter controls for copy/status, filters, pagination, and batch actions.
     #|
     #|extern "js" fn copy_to_clipboard(text : String) -> Unit =
     #|  #| (text) => {
@@ -506,7 +540,7 @@ pub fn template_client_api_tools_mbt() -> String {
     #|  endpoint : String
     #|} derive(ToJson, FromJson)
     #|
-    #|fn format_button(
+    #|fn filter_button(
     #|  label : String,
     #|  selected : @signal.Signal[String],
     #|  status : @signal.Signal[String],
@@ -517,17 +551,54 @@ pub fn template_client_api_tools_mbt() -> String {
     #|    },
     #|    on=@element.events().click(_ => {
     #|      selected.update(_ => label)
-    #|      status.update(_ => "Format: " + label)
+    #|      status.update(_ => "Filter: " + label)
     #|    }),
     #|    [@element.text(label)],
     #|  )
     #|}
     #|
+    #|fn job_row(
+    #|  id : String,
+    #|  title : String,
+    #|  state : String,
+    #|  selected : @signal.Signal[String],
+    #|  status : @signal.Signal[String],
+    #|) -> @element.DomNode {
+    #|  let badge_class = if state == "failed" {
+    #|    "badge failed"
+    #|  } else if state == "done" {
+    #|    "badge done"
+    #|  } else {
+    #|    "badge"
+    #|  }
+    #|  @element.div(
+    #|    dyn_class=fn() {
+    #|      if selected.get() == "all" || selected.get() == state {
+    #|        "ops-row"
+    #|      } else {
+    #|        "ops-row is-hidden"
+    #|      }
+    #|    },
+    #|    [
+    #|      @element.span([@element.text(id)]),
+    #|      @element.span([@element.text(title)]),
+    #|      @element.span(class=badge_class, [@element.text(state)]),
+    #|      @element.button(
+    #|        on=@element.events().click(_ => {
+    #|          status.update(_ => "Queued " + id + " action")
+    #|        }),
+    #|        [@element.text(if state == "failed" { "Retry" } else { "Delete" })],
+    #|      ),
+    #|    ],
+    #|  )
+    #|}
+    #|
     #|pub fn api_tools(props : ApiToolsProps) -> @element.DomNode {
-    #|  let selected = @signal.signal("auto")
+    #|  let selected = @signal.signal("all")
     #|  let status = @signal.signal("Ready")
-    #|  @element.div(class="worker-panel", [
-    #|    @element.span(class="panel-title", [@element.text("Worker API")]),
+    #|  let page = @signal.signal(1)
+    #|  @element.div(class="ops-panel", [
+    #|    @element.span(class="panel-title", [@element.text("Operations Console")]),
     #|    @element.span(class="muted", [@element.text(props.endpoint)]),
     #|    @element.div(class="buttons", [
     #|      @element.button(
@@ -540,11 +611,48 @@ pub fn template_client_api_tools_mbt() -> String {
     #|        [@element.text("Copy API URL")],
     #|      ),
     #|    ]),
-    #|    @element.div(class="format-options", [
-    #|      format_button("auto", selected, status),
-    #|      format_button("webp", selected, status),
-    #|      format_button("avif", selected, status),
-    #|      format_button("jpeg", selected, status),
+    #|    @element.div(class="filters", [
+    #|      filter_button("all", selected, status),
+    #|      filter_button("pending", selected, status),
+    #|      filter_button("failed", selected, status),
+    #|      filter_button("done", selected, status),
+    #|    ]),
+    #|    @element.div(class="ops-table", [
+    #|      job_row("job-104", "Resize upload variants", "pending", selected, status),
+    #|      job_row("job-105", "Sync metadata cache", "failed", selected, status),
+    #|      job_row("job-106", "Publish audit event", "done", selected, status),
+    #|    ]),
+    #|    @element.div(class="batch-actions", [
+    #|      @element.button(
+    #|        on=@element.events().click(_ => {
+    #|          status.update(_ => "Created local draft job")
+    #|        }),
+    #|        [@element.text("Create Job")],
+    #|      ),
+    #|      @element.button(
+    #|        on=@element.events().click(_ => {
+    #|          status.update(_ => "Retrying failed jobs")
+    #|        }),
+    #|        [@element.text("Retry Failed")],
+    #|      ),
+    #|    ]),
+    #|    @element.div(class="pagination", [
+    #|      @element.button(
+    #|        on=@element.events().click(_ => page.update(n => if n > 1 { n - 1 } else { n })),
+    #|        [@element.text("Previous")],
+    #|      ),
+    #|      @element.span(class="badge", [
+    #|        @element.text("Page "),
+    #|        @element.text_of(page),
+    #|      ]),
+    #|      @element.button(
+    #|        on=@element.events().click(_ => page.update(n => n + 1)),
+    #|        [@element.text("Next")],
+    #|      ),
+    #|    ]),
+    #|    @element.div(class="batch-progress", [@element.span([@element.text("")])]),
+    #|    @element.span(class="auth-note", [
+    #|      @element.text("POST /api/jobs/batch requires Authorization: Bearer dev-token in local dev."),
     #|    ]),
     #|    @element.span(class="status", [@element.text_of(status)]),
     #|  ])
@@ -636,15 +744,46 @@ pub fn template_worker_entry_mjs(
   (
     #|import solApp from "{{SOL_MODULE}}";
     #|
+    #|const jobs = [
+    #|  { id: "job-104", title: "Resize upload variants", state: "pending" },
+    #|  { id: "job-105", title: "Sync metadata cache", state: "failed" },
+    #|  { id: "job-106", title: "Publish audit event", state: "done" },
+    #|];
+    #|
+    #|function json(data, init = {}) {
+    #|  const headers = new Headers(init.headers);
+    #|  headers.set("content-type", "application/json; charset=utf-8");
+    #|  return new Response(JSON.stringify(data), { ...init, headers });
+    #|}
+    #|
+    #|function requireWriteToken(request, env) {
+    #|  const expected = env.WRITE_TOKEN || "dev-token";
+    #|  return request.headers.get("Authorization") === `Bearer ${expected}`;
+    #|}
+    #|
     #|async function apiFetch(request, env, ctx) {
     #|  const url = new URL(request.url);
     #|  if (url.pathname === "/api/health") {
-    #|    return Response.json({
+    #|    return json({
     #|      status: "ok",
     #|      source: "worker-api",
+    #|      kv: Boolean(env.APP_KV),
+    #|      r2: Boolean(env.UPLOADS_BUCKET),
     #|    });
     #|  }
-    #|  return new Response("Not found", { status: 404 });
+    #|  if (url.pathname === "/api/jobs" && request.method === "GET") {
+    #|    return json({ jobs, page: 1, pageSize: jobs.length });
+    #|  }
+    #|  if (url.pathname === "/api/jobs/batch" && request.method === "POST") {
+    #|    if (!requireWriteToken(request, env)) {
+    #|      return json({ error: "unauthorized" }, { status: 401 });
+    #|    }
+    #|    return json({ status: "queued", count: 2 }, { status: 202 });
+    #|  }
+    #|  if (url.pathname === "/api/proxy" && env.BACKEND_SERVICE) {
+    #|    return env.BACKEND_SERVICE.fetch(request);
+    #|  }
+    #|  return json({ error: "not_found" }, { status: 404 });
     #|}
     #|
     #|export default {
@@ -672,7 +811,20 @@ fn template_wrangler_toml_with_main(
   let tmpl =
     #|name = "{{PROJECT_NAME}}"
     #|main = "{{MAIN}}"
-    #|compatibility_date = "2025-01-01"
+    #|compatibility_date = "2026-05-07"
+    #|workers_dev = true
+    #|
+    #|[vars]
+    #|APP_ENV = "local"
+    #|
+    #|[[kv_namespaces]]
+    #|binding = "APP_KV"
+    #|id = "replace-with-kv-id"
+    #|preview_id = "local-app-kv"
+    #|
+    #|[[r2_buckets]]
+    #|binding = "UPLOADS_BUCKET"
+    #|bucket_name = "replace-with-r2-bucket"
   tmpl
   .replace(old="{{PROJECT_NAME}}", new=project_name)
   .replace(old="{{MAIN}}", new=main)
@@ -684,6 +836,11 @@ fn template_cloudflare_readme(project_name : String) -> String {
     #|# {{PROJECT_NAME}}
     #|
     #|Sol + Cloudflare Worker starter.
+    #|
+    #|The first screen is an operational UI example: filters, pagination, a
+    #|copy-to-clipboard affordance, local create/delete/retry controls, and a
+    #|guarded batch action endpoint. It is intentionally small, but shaped like
+    #|an admin console instead of a content site.
     #|
     #|## Development
     #|
@@ -697,6 +854,13 @@ fn template_cloudflare_readme(project_name : String) -> String {
     #|
     #|Keep UI routes on Sol and route Worker API paths before falling back to `solApp.fetch(request, env, ctx)`.
     #|
+    #|## Operational UI
+    #|
+    #|- `app/server/routes.mbt` renders the SSR fallback for the Operations Console.
+    #|- `app/client/api_tools.mbt` hydrates filters, copy, pagination, and batch status controls.
+    #|- `worker.entry.mjs` owns `/api/health`, `/api/jobs`, `/api/jobs/batch`, and the service-binding proxy placeholder `/api/proxy`.
+    #|- `tests/e2e/worker-app.spec.ts` drives the actual Wrangler Worker entry.
+    #|
     #|## Route ownership
     #|
     #|- `worker.entry.mjs` owns platform-specific routes such as `/api/*`, media, service bindings, and auth callbacks.
@@ -707,13 +871,94 @@ fn template_cloudflare_readme(project_name : String) -> String {
     #|
     #|For route-group auth inside Sol, wrap routes with `@sol.with_mw([...], [...])`. For Cloudflare bindings, read `env` in `worker.entry.mjs` or in Worker-owned API handlers, then delegate unmatched UI requests to `solApp.fetch(request, env, ctx)`.
     #|
+    #|`/api/jobs/batch` demonstrates a write endpoint protected by
+    #|`Authorization: Bearer dev-token` in local development. In production,
+    #|set `WRITE_TOKEN` as a Cloudflare secret:
+    #|
+    #|```bash
+    #|wrangler secret put WRITE_TOKEN
+    #|```
+    #|
+    #|The generated `wrangler.toml` includes placeholder KV and R2 bindings:
+    #|replace `APP_KV.id` and `UPLOADS_BUCKET.bucket_name` before production deploy.
+    #|
     #|## Build
     #|
     #|```bash
     #|pnpm build
     #|pnpm deploy
     #|```
+    #|
+    #|## Verify
+    #|
+    #|```bash
+    #|pnpm verify
+    #|```
   tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
+}
+
+///|
+fn template_cloudflare_playwright_config_ts() -> String {
+  (
+    #|import { defineConfig, devices } from "@playwright/test";
+    #|
+    #|export default defineConfig({
+    #|  testDir: "./tests/e2e",
+    #|  fullyParallel: true,
+    #|  forbidOnly: !!process.env.CI,
+    #|  retries: process.env.CI ? 2 : 0,
+    #|  workers: process.env.CI ? 1 : undefined,
+    #|  reporter: process.env.CI ? [["github"], ["html"]] : [["html"]],
+    #|  use: {
+    #|    baseURL: "http://127.0.0.1:8787",
+    #|    trace: "on-first-retry",
+    #|    screenshot: "only-on-failure",
+    #|  },
+    #|  projects: [
+    #|    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    #|  ],
+    #|  webServer: {
+    #|    command: "pnpm dev",
+    #|    url: "http://127.0.0.1:8787",
+    #|    reuseExistingServer: !process.env.CI,
+    #|    timeout: 120_000,
+    #|  },
+    #|});
+  )
+}
+
+///|
+fn template_cloudflare_e2e_spec_ts() -> String {
+  (
+    #|import { test, expect } from "@playwright/test";
+    #|
+    #|test("operational UI and Worker APIs run through the Worker entry", async ({ page }) => {
+    #|  await page.goto("/");
+    #|  await expect(page.getByRole("heading", { name: "Welcome to Sol" })).toBeVisible();
+    #|  await expect(page.getByText("Operations Console")).toBeVisible();
+    #|
+    #|  await page.getByRole("button", { name: "failed" }).click();
+    #|  await expect(page.getByText("Filter: failed")).toBeVisible();
+    #|
+    #|  await page.getByRole("button", { name: "Retry Failed" }).click();
+    #|  await expect(page.getByText("Retrying failed jobs")).toBeVisible();
+    #|
+    #|  const health = await page.request.get("/api/health");
+    #|  await expect(health).toBeOK();
+    #|  await expect(await health.json()).toMatchObject({
+    #|    status: "ok",
+    #|    source: "worker-api",
+    #|  });
+    #|
+    #|  const denied = await page.request.post("/api/jobs/batch");
+    #|  expect(denied.status()).toBe(401);
+    #|
+    #|  const accepted = await page.request.post("/api/jobs/batch", {
+    #|    headers: { Authorization: "Bearer dev-token" },
+    #|  });
+    #|  expect(accepted.status()).toBe(202);
+    #|});
+  )
 }
 
 ///|
@@ -829,6 +1074,14 @@ pub fn generate_cloudflare_templates(
   out.push({
     path: "README.md",
     content: template_cloudflare_readme(project_name),
+  })
+  out.push({
+    path: "playwright.config.ts",
+    content: template_cloudflare_playwright_config_ts(),
+  })
+  out.push({
+    path: "tests/e2e/worker-app.spec.ts",
+    content: template_cloudflare_e2e_spec_ts(),
   })
   out
 }

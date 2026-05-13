@@ -1345,10 +1345,11 @@ test "template_client_api_tools_mbt: scaffolds worker app UX affordances" {
   assert_true(content.contains("copy_to_clipboard"))
   assert_true(content.contains("Copy API URL"))
   assert_true(content.contains("status.update"))
-  assert_true(content.contains("auto"))
-  assert_true(content.contains("webp"))
-  assert_true(content.contains("avif"))
-  assert_true(content.contains("jpeg"))
+  assert_true(content.contains("Operations Console"))
+  assert_true(content.contains("filter_button"))
+  assert_true(content.contains("job_row"))
+  assert_true(content.contains("Retry Failed"))
+  assert_true(content.contains("Authorization: Bearer dev-token"))
 }
 
 ///|
@@ -1444,6 +1445,13 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   let wrangler_dev = find_template_content(templates, "wrangler.dev.toml").unwrap_or(
     "",
   )
+  let playwright = find_template_content(templates, "playwright.config.ts").unwrap_or(
+    "",
+  )
+  let e2e = find_template_content(templates, "tests/e2e/worker-app.spec.ts").unwrap_or(
+    "",
+  )
+  let readme = find_template_content(templates, "README.md").unwrap_or("")
   assert_true(config.contains("\"runtime\": \"cloudflare\""))
   assert_true(moon_mod.contains("\"mizchi/sol_adapter_cloudflare\""))
   assert_false(moon_mod.contains("\"mizchi/sol_adapter_node\""))
@@ -1453,6 +1461,10 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   assert_true(server_main.contains("@sol_cloudflare.run_app"))
   assert_true(worker.contains("./.sol/prod/server/main.js"))
   assert_true(worker.contains("url.pathname.startsWith(\"/api/\")"))
+  assert_true(worker.contains("requireWriteToken"))
+  assert_true(worker.contains("/api/jobs"))
+  assert_true(worker.contains("/api/jobs/batch"))
+  assert_true(worker.contains("BACKEND_SERVICE"))
   assert_true(worker.contains("solApp.fetch(request, env, ctx)"))
   assert_true(!worker.contains("__SOL_APP__"))
   assert_true(!worker.contains("_build/js"))
@@ -1462,9 +1474,19 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   assert_true(!worker_dev.contains("__SOL_APP__"))
   assert_true(!worker_dev.contains("_build/js"))
   assert_true(wrangler.contains("main = \"worker.entry.mjs\""))
-  assert_true(wrangler.contains("compatibility_date = \"2025-01-01\""))
+  assert_true(wrangler.contains("compatibility_date = \"2026-05-07\""))
+  assert_true(wrangler.contains("[[kv_namespaces]]"))
+  assert_true(wrangler.contains("binding = \"APP_KV\""))
+  assert_true(wrangler.contains("[[r2_buckets]]"))
+  assert_true(wrangler.contains("binding = \"UPLOADS_BUCKET\""))
   assert_true(wrangler_dev.contains("main = \"worker.entry.dev.mjs\""))
-  assert_true(wrangler_dev.contains("compatibility_date = \"2025-01-01\""))
+  assert_true(wrangler_dev.contains("compatibility_date = \"2026-05-07\""))
+  assert_true(playwright.contains("webServer"))
+  assert_true(playwright.contains("pnpm dev"))
+  assert_true(e2e.contains("Operations Console"))
+  assert_true(e2e.contains("/api/jobs/batch"))
+  assert_true(readme.contains("Route ownership"))
+  assert_true(readme.contains("Operational UI"))
 }
 
 ///|
@@ -1477,6 +1499,9 @@ test "generate_cloudflare_templates: wrangler scripts do not require no-bundle" 
     ),
   )
   assert_true(content.contains("\"deploy\": \"sol build && wrangler deploy\""))
+  assert_true(content.contains("\"test:e2e\": \"playwright test\""))
+  assert_true(content.contains("\"verify\": \"pnpm build && pnpm test:e2e\""))
+  assert_true(content.contains("\"@playwright/test\""))
   assert_true(content.contains("\"wrangler\""))
   assert_true(!content.contains("--no-bundle"))
 }

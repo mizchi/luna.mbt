@@ -14,15 +14,17 @@ This is the entry point for `docs/`. It establishes a fixed reading order by pur
    - `docs/runbook.md`
 5. Routing specification
    - `docs/routing.md`
-6. Development operations (benchmarking)
+6. Worker auth and middleware patterns
+   - `docs/worker-auth.md`
+7. Development operations (benchmarking)
    - `docs/benchmarking.md`
-7. Troubleshooting
+8. Troubleshooting
    - `docs/troubleshooting.md`
-8. Development experience (HMR)
+9. Development experience (HMR)
    - `docs/hot-reload.md`
-9. Migration
+10. Migration
    - `docs/migrate-from-mars.md`
-10. Advanced design (Wasm entrypoint)
+11. Advanced design (Wasm entrypoint)
    - `docs/wasm-entrypoint.md`
 
 ## Links by Purpose
@@ -35,6 +37,8 @@ This is the entry point for `docs/`. It establishes a fixed reading order by pur
   - `docs/quickstart.md`
 - Want to check deployment
   - `docs/deploy.md`
+- Want to wire Worker auth or route middleware
+  - `docs/worker-auth.md`
 - Want to check incident response
   - `docs/runbook.md`
 - Want to isolate a problem
@@ -55,6 +59,7 @@ This is the entry point for `docs/`. It establishes a fixed reading order by pur
 | `docs/deploy.md` | Guide | Preview / production deployment steps for docs |
 | `docs/runbook.md` | Operations | Incident response and rollback steps for docs |
 | `docs/routing.md` | Specification (single source) | API selection, Layout semantics, `source_path` convention |
+| `docs/worker-auth.md` | Guide | Cloudflare env, route middleware, API/page auth failures, Worker composition |
 | `docs/benchmarking.md` | Specification (single source) | k6 steps, `SOL_BENCH_MODE`, isolating variance under high load |
 | `docs/troubleshooting.md` | Operations | Isolating 404/HMR/benchmark variance issues |
 | `docs/hot-reload.md` | Design | HMR contract shared between `sol`/`mars` |

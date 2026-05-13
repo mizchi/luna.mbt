@@ -12,6 +12,7 @@ const DEPLOY = path.join(ROOT, "docs", "deploy.md");
 const RUNBOOK = path.join(ROOT, "docs", "runbook.md");
 const TROUBLESHOOTING = path.join(ROOT, "docs", "troubleshooting.md");
 const ROUTING = path.join(ROOT, "docs", "routing.md");
+const WORKER_AUTH = path.join(ROOT, "docs", "worker-auth.md");
 const ROOT_README = path.join(ROOT, "README.md");
 
 test("docs index includes quickstart and troubleshooting chapters", () => {
@@ -19,6 +20,7 @@ test("docs index includes quickstart and troubleshooting chapters", () => {
   assert.match(index, /docs\/deploy\.md/);
   assert.match(index, /docs\/runbook\.md/);
   assert.match(index, /docs\/quickstart\.md/);
+  assert.match(index, /docs\/worker-auth\.md/);
   assert.match(index, /docs\/troubleshooting\.md/);
 });
 
@@ -62,6 +64,18 @@ test("routing doc covers route and component asset attachment", () => {
   assert.match(routing, /deterministic/);
   assert.match(routing, /deduplicated/);
   assert.match(routing, /\/static\//);
+});
+
+test("worker auth doc covers route middleware and host Worker composition", () => {
+  const doc = fs.readFileSync(WORKER_AUTH, "utf8");
+  assert.match(doc, /Authorization/);
+  assert.match(doc, /custom header/i);
+  assert.match(doc, /Cloudflare env/);
+  assert.match(doc, /with_mw/);
+  assert.match(doc, /JSON error/);
+  assert.match(doc, /HTML|redirect/i);
+  assert.match(doc, /worker.entry.mjs/);
+  assert.match(doc, /wrangler dev/);
 });
 
 test("deploy and runbook docs describe large-change deploy guard", () => {

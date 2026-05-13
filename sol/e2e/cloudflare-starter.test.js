@@ -46,6 +46,13 @@ function pinWorkspaceSol(projectDir) {
   const moonMod = JSON.parse(fs.readFileSync(moonModPath, "utf8"));
   moonMod.deps["mizchi/sol"] = { path: SOL_DIR };
   moonMod.deps["mizchi/astra"] = { path: path.join(ROOT, "astra") };
+  moonMod.deps["mizchi/luna"] = { path: path.join(ROOT, "luna") };
+  moonMod.deps["mizchi/sol_adapter_node"] = {
+    path: path.join(ROOT, "sol_adapter_node"),
+  };
+  moonMod.deps["mizchi/sol_adapter_cloudflare"] = {
+    path: path.join(ROOT, "sol_adapter_cloudflare"),
+  };
   fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
 }
 
@@ -211,6 +218,8 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
     assert.deepEqual(await api.json(), {
       status: "ok",
       source: "worker-api",
+      kv: false,
+      r2: false,
     });
 
     const ui = await worker.fetch(new Request("https://example.test/"), {}, {});
@@ -218,7 +227,37 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
     assert.match(ui.headers.get("content-type") ?? "", /text\/html/);
     const html = await ui.text();
     assert.match(html, /Welcome to Sol/);
+    assert.match(html, /Operations Console/);
     assert.match(html, /\/static\/api_tools\.js/);
+
+    const jobs = await worker.fetch(
+      new Request("https://example.test/api/jobs"),
+      {},
+      {}
+    );
+    assert.equal(jobs.status, 200);
+    assert.deepEqual((await jobs.json()).jobs.map((job) => job.id), [
+      "job-104",
+      "job-105",
+      "job-106",
+    ]);
+
+    const denied = await worker.fetch(
+      new Request("https://example.test/api/jobs/batch", { method: "POST" }),
+      {},
+      {}
+    );
+    assert.equal(denied.status, 401);
+
+    const accepted = await worker.fetch(
+      new Request("https://example.test/api/jobs/batch", {
+        method: "POST",
+        headers: { Authorization: "Bearer dev-token" },
+      }),
+      {},
+      {}
+    );
+    assert.equal(accepted.status, 202);
 
     const favicon = await worker.fetch(
       new Request("https://example.test/favicon.ico"),
@@ -244,6 +283,8 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
       assert.deepEqual(await wranglerApi.json(), {
         status: "ok",
         source: "worker-api",
+        kv: true,
+        r2: true,
       });
 
       const wranglerUi = await fetch(`http://127.0.0.1:${port}/`);
@@ -251,6 +292,7 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
       assert.match(wranglerUi.headers.get("content-type") ?? "", /text\/html/);
       const wranglerHtml = await wranglerUi.text();
       assert.match(wranglerHtml, /Welcome to Sol/);
+      assert.match(wranglerHtml, /Operations Console/);
       assert.match(wranglerHtml, /\/static\/api_tools\.js/);
     } finally {
       await stopWrangler(wrangler);
