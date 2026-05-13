@@ -333,6 +333,7 @@ pub fn config() -> @router.RouterConfig {
 | `Page` | Page route (HTML response) |
 | `Get` | GET API route (JSON response) |
 | `Post` | POST API route (JSON response) |
+| `RawGet` / `RawPost` / `RawPut` / `RawDelete` / `RawPatch` | Raw Web `Response` route |
 | `Layout` | Nested layout group |
 | `WithMiddleware` | Route group with middleware applied |
 
@@ -356,7 +357,9 @@ Benchmark procedures and `SOL_BENCH_MODE` specification: `docs/benchmarking.md`
 ### Route Ownership And Errors
 
 Sol is allowed to own only part of a deployed Worker. In mixed apps, keep
-ownership explicit in the host entry:
+ownership explicit in the host entry. `route_ownership_manifest(routes)` gives
+host routers a typed Sol ownership contract for pages, JSON APIs, raw
+responses, static assets, and reserved framework paths.
 
 ```js
 import solApp from "./.sol/prod/server/main.js";
@@ -378,15 +381,19 @@ Recommended split:
   framework assets such as `/__sol__/*` and `/static/*`.
 - Sol API routes own JSON responses declared with `api_get`, `api_post`,
   `api_put`, `api_delete`, or `api_patch`.
-- Host Worker routes own platform-specific passthroughs such as media,
-  service binding proxies, auth callbacks, and custom streaming responses.
+- Raw Sol routes own exact Web `Response` values declared with `raw_get`,
+  `raw_post`, `raw_put`, `raw_delete`, or `raw_patch`.
+- Host Worker routes own platform-specific passthroughs such as service
+  binding proxies and auth callbacks.
 
 Error handling follows the owning layer. Sol page handler/layout failures
 return HTML/text `500` responses. Sol API handler failures return JSON
-`500` responses. A route that is intentionally outside Sol should be matched
-before `solApp.fetch`; if neither the host nor Sol owns it, return the host
-fallback `404` from the Worker entry. Prefer returning JSON errors from
-host-owned API paths and HTML/redirects from page paths.
+`500` responses. Raw handler failures return plain text `500`; otherwise the
+raw `Response` body/status are not wrapped. Middleware response headers are
+merged into raw responses without overwriting headers that the raw `Response`
+already set. A route that is intentionally outside Sol should be matched before
+`solApp.fetch`; if neither the host nor Sol owns it, return the host fallback
+`404` from the Worker entry.
 
 ## Middleware
 

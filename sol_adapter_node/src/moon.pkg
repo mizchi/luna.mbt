@@ -1,0 +1,8 @@
+import {
+  "mizchi/mars" @mars,
+  "mizchi/js/core" @js,
+}
+
+warnings = "-24-67-29"
+
+supported_targets = "js"

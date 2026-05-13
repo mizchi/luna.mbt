@@ -13,7 +13,7 @@ extern "js" fn ffi_read_file_text(path : String) -> @js.Promise[String?] =
   #| async (path) => {
   #|   try {
   #|     const importer = globalThis.__SOL_DYNAMIC_IMPORT__ ||
-  #|       ((specifier) => new Function('specifier', 'return import(specifier)')(specifier));
+  #|       ((specifier) => import(specifier));
   #|     const fs = await importer('node:fs/promises');
   #|     return await fs.readFile(path, 'utf-8');
   #|   } catch (_) {

@@ -8,7 +8,12 @@
     "mizchi/sol": {
       "path": "../../../sol"
     },
-    "mizchi/luna": "0.20.0",
+    "mizchi/sol_adapter_node": {
+      "path": "../../../sol_adapter_node"
+    },
+    "mizchi/luna": {
+      "path": "../../../luna"
+    },
     "mizchi/mars": "0.3.10",
     "mizchi/signals": "0.6.4",
     "mizchi/js": "0.10.15",

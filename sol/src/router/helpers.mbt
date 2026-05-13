@@ -46,6 +46,13 @@ fn[T : ToJson] make_api_handler(handler : async (PageProps) -> T) -> ApiHandler 
 }
 
 ///|
+fn make_raw_handler(
+  handler : async (PageProps) -> @web_http.Response,
+) -> RawHandler {
+  RawHandler(handler)
+}
+
+///|
 /// Create a GET API route
 ///
 /// Example:
@@ -98,6 +105,51 @@ pub fn[T : ToJson] api_patch(
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
   SolRoutes::Patch(path~, handler=make_api_handler(handler))
+}
+
+///|
+/// Create a GET route that returns a Web Response directly.
+pub fn raw_get(
+  path : String,
+  handler : async (PageProps) -> @web_http.Response,
+) -> SolRoutes {
+  SolRoutes::RawGet(path~, handler=make_raw_handler(handler))
+}
+
+///|
+/// Create a POST route that returns a Web Response directly.
+pub fn raw_post(
+  path : String,
+  handler : async (PageProps) -> @web_http.Response,
+) -> SolRoutes {
+  SolRoutes::RawPost(path~, handler=make_raw_handler(handler))
+}
+
+///|
+/// Create a PUT route that returns a Web Response directly.
+pub fn raw_put(
+  path : String,
+  handler : async (PageProps) -> @web_http.Response,
+) -> SolRoutes {
+  SolRoutes::RawPut(path~, handler=make_raw_handler(handler))
+}
+
+///|
+/// Create a DELETE route that returns a Web Response directly.
+pub fn raw_delete(
+  path : String,
+  handler : async (PageProps) -> @web_http.Response,
+) -> SolRoutes {
+  SolRoutes::RawDelete(path~, handler=make_raw_handler(handler))
+}
+
+///|
+/// Create a PATCH route that returns a Web Response directly.
+pub fn raw_patch(
+  path : String,
+  handler : async (PageProps) -> @web_http.Response,
+) -> SolRoutes {
+  SolRoutes::RawPatch(path~, handler=make_raw_handler(handler))
 }
 
 ///|

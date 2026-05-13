@@ -19,6 +19,39 @@ fn push_api_route(
     param_names,
     page_handler: None,
     api_handler: Some(handler),
+    raw_handler: None,
+    layouts: [],
+    middlewares: inherited_middlewares.copy(),
+    kind,
+    title: "",
+    meta: [],
+    catch_all,
+    revalidate: None,
+    cache_strategy: CacheStrategy::AlwaysFetch,
+    rendered_meta: "",
+    styles: [],
+    scripts: [],
+  })
+}
+
+///|
+fn push_raw_route(
+  result : Array[CompiledSolRoute],
+  prefix : String,
+  path : String,
+  handler : RawHandler,
+  kind : SolRouteKind,
+  inherited_middlewares : Array[@middleware.Middleware],
+) -> Unit {
+  let full_path = normalize_path(prefix + path)
+  let param_names = extract_param_names(full_path)
+  let catch_all = extract_catch_all(full_path)
+  result.push({
+    pattern: full_path,
+    param_names,
+    page_handler: None,
+    api_handler: None,
+    raw_handler: Some(handler),
     layouts: [],
     middlewares: inherited_middlewares.copy(),
     kind,
@@ -85,6 +118,7 @@ fn compile_sol_routes_inner(
           param_names,
           page_handler: Some(handler),
           api_handler: None,
+          raw_handler: None,
           layouts: inherited_layouts.copy(),
           middlewares: inherited_middlewares.copy(),
           kind: SolRouteKind::Page,
@@ -113,7 +147,7 @@ fn compile_sol_routes_inner(
           prefix,
           path,
           handler,
-          GetApi,
+          SolRouteKind::GetApi,
           inherited_middlewares,
         )
       Post(path~, handler~) =>
@@ -122,7 +156,7 @@ fn compile_sol_routes_inner(
           prefix,
           path,
           handler,
-          PostApi,
+          SolRouteKind::PostApi,
           inherited_middlewares,
         )
       Put(path~, handler~) =>
@@ -131,7 +165,7 @@ fn compile_sol_routes_inner(
           prefix,
           path,
           handler,
-          PutApi,
+          SolRouteKind::PutApi,
           inherited_middlewares,
         )
       Delete(path~, handler~) =>
@@ -140,7 +174,7 @@ fn compile_sol_routes_inner(
           prefix,
           path,
           handler,
-          DeleteApi,
+          SolRouteKind::DeleteApi,
           inherited_middlewares,
         )
       Patch(path~, handler~) =>
@@ -149,7 +183,52 @@ fn compile_sol_routes_inner(
           prefix,
           path,
           handler,
-          PatchApi,
+          SolRouteKind::PatchApi,
+          inherited_middlewares,
+        )
+      RawGet(path~, handler~) =>
+        push_raw_route(
+          result,
+          prefix,
+          path,
+          handler,
+          SolRouteKind::RawGet,
+          inherited_middlewares,
+        )
+      RawPost(path~, handler~) =>
+        push_raw_route(
+          result,
+          prefix,
+          path,
+          handler,
+          SolRouteKind::RawPost,
+          inherited_middlewares,
+        )
+      RawPut(path~, handler~) =>
+        push_raw_route(
+          result,
+          prefix,
+          path,
+          handler,
+          SolRouteKind::RawPut,
+          inherited_middlewares,
+        )
+      RawDelete(path~, handler~) =>
+        push_raw_route(
+          result,
+          prefix,
+          path,
+          handler,
+          SolRouteKind::RawDelete,
+          inherited_middlewares,
+        )
+      RawPatch(path~, handler~) =>
+        push_raw_route(
+          result,
+          prefix,
+          path,
+          handler,
+          SolRouteKind::RawPatch,
           inherited_middlewares,
         )
       WithMiddleware(middleware~, children~) => {

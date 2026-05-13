@@ -127,7 +127,12 @@ test "FileType::is_page - unknown is not page" {
 ///|
 test "FallbackConfig::default - returns NotFound" {
   let config = FallbackConfig::default()
-  inspect(config, content="NotFound(path=\"/404.html\")")
+  inspect(
+    config,
+    content=(
+      #|NotFound(path=/404.html)
+    ),
+  )
 }
 
 ///|
@@ -157,11 +162,21 @@ test "FallbackConfig::spa_entry - NotFound returns None" {
 ///|
 test "FallbackConfig::spa_entry - Spa returns entry" {
   let config = FallbackConfig::Spa(entry="/index.html")
-  inspect(config.spa_entry(), content="Some(\"/index.html\")")
+  inspect(
+    config.spa_entry(),
+    content=(
+      #|Some(/index.html)
+    ),
+  )
 }
 
 ///|
 test "FallbackConfig::spa_entry - SpaPrefix returns entry" {
   let config = FallbackConfig::SpaPrefix(prefix="/app", entry="/app/index.html")
-  inspect(config.spa_entry(), content="Some(\"/app/index.html\")")
+  inspect(
+    config.spa_entry(),
+    content=(
+      #|Some(/app/index.html)
+    ),
+  )
 }

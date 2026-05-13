@@ -464,6 +464,14 @@ test "generate_sol_server_main_js: node runtime" {
 }
 
 ///|
+test "generate_sol_serve_js: node adapter uses exported global app fallback" {
+  let js = generate_sol_serve_js(parse_runtime("node"))
+  assert_true(js.contains("process.env.SOL_ADAPTER = '1'"))
+  assert_true(js.contains("m.default || globalThis.__SOL_APP__"))
+  assert_true(js.contains("@hono/node-server"))
+}
+
+///|
 test "generate_sol_server_main_js: cloudflare runtime" {
   let js = generate_sol_server_main_js(
     "myapp/server",
@@ -1211,6 +1219,7 @@ test "template_moon_mod_json: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
   assert_true(content.contains("\"mizchi/sol\": \"0.20.2\""))
+  assert_true(content.contains("\"mizchi/sol_adapter_node\": \"0.20.2\""))
   assert_true(content.contains("\"mizchi/luna\": \"0.20.1\""))
   assert_true(content.contains("\"mizchi/signals\": \"0.6.4\""))
   assert_true(content.contains("\"mizchi/js\": \"0.10.15\""))
@@ -1418,11 +1427,24 @@ test "template_server_using_mbt: keeps layout-only tags" {
 test "generate_cloudflare_templates: writes worker composition starter" {
   let templates = generate_cloudflare_templates("tester/myapp", "myapp", None)
   let config = find_template_content(templates, "sol.config.json").unwrap_or("")
+  let moon_mod = find_template_content(templates, "moon.mod.json").unwrap_or("")
+  let server_pkg = find_template_content(templates, "app/server/moon.pkg").unwrap_or(
+    "",
+  )
+  let server_main = find_template_content(templates, "app/server/main.mbt").unwrap_or(
+    "",
+  )
   let worker = find_template_content(templates, "worker.entry.mjs").unwrap_or(
     "",
   )
   let wrangler = find_template_content(templates, "wrangler.toml").unwrap_or("")
   assert_true(config.contains("\"runtime\": \"cloudflare\""))
+  assert_true(moon_mod.contains("\"mizchi/sol_adapter_cloudflare\""))
+  assert_false(moon_mod.contains("\"mizchi/sol_adapter_node\""))
+  assert_true(
+    server_pkg.contains("\"mizchi/sol_adapter_cloudflare\" @sol_cloudflare"),
+  )
+  assert_true(server_main.contains("@sol_cloudflare.run_app"))
   assert_true(worker.contains("./.sol/prod/server/main.js"))
   assert_true(worker.contains("url.pathname.startsWith(\"/api/\")"))
   assert_true(worker.contains("solApp.fetch(request, env, ctx)"))

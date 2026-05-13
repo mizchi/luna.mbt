@@ -16,7 +16,7 @@ extern "js" fn is_edge_runtime() -> Bool =
 extern "js" fn ffi_init_fs() -> @js.Promise[Unit] =
   #| () => {
   #|   const importer = globalThis.__SOL_DYNAMIC_IMPORT__ ||
-  #|     ((specifier) => new Function('specifier', 'return import(specifier)')(specifier));
+  #|     ((specifier) => import(specifier));
   #|   return importer('node:fs').then(fs => { globalThis.__SOL_FS__ = fs; });
   #| }
 

@@ -46,6 +46,33 @@ extern "js" fn ffi_set_streaming_response(ctx : Ctx, stream : @js.Any) -> Unit =
   #| }
 
 ///|
+extern "js" fn ffi_send_web_response(
+  ctx : Ctx,
+  response : @web_http.Response,
+) -> Unit =
+  #| (ctx, response) => {
+  #|   let outgoing = response;
+  #|   const map = ctx.response_headers;
+  #|   let curr = map ? map.head : undefined;
+  #|   if (curr !== undefined && curr !== -1) {
+  #|     const headers = new Headers(response.headers);
+  #|     while (curr !== undefined && curr !== -1) {
+  #|       if (!headers.has(curr.key)) {
+  #|         headers.set(curr.key, curr.value);
+  #|       }
+  #|       curr = curr.next;
+  #|     }
+  #|     outgoing = new Response(response.body, {
+  #|       status: response.status,
+  #|       statusText: response.statusText,
+  #|       headers,
+  #|     });
+  #|   }
+  #|   ctx.platform.response_resolve(outgoing);
+  #|   ctx.response_sent = true;
+  #| }
+
+///|
 extern "js" fn ffi_json_stringify_any(data : @js.Any) -> String =
   #| (data) => JSON.stringify(data)
 

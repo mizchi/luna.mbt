@@ -11,6 +11,7 @@ fn generate_server_main_mbt(
   route_info : RouteInfo,
   static_dirs : Array[StaticDirEntry],
   mbtx_entries? : Array[MbtxFileEntry] = [],
+  runtime? : ServerRuntime = RuntimeNode,
 ) -> String {
   let _ = routes_pkg
   let _ = route_info
@@ -74,17 +75,33 @@ fn generate_server_main_mbt(
   buf.write_string("}\n\n")
   buf.write_string("///|\n")
   buf.write_string("async fn main {\n")
-  buf.write_string("  @sol.run_app(configure_app)\n")
+  let runner = match runtime {
+    RuntimeNode => "@sol_node"
+    RuntimeCloudflare => "@sol_cloudflare"
+    RuntimeDeno | RuntimeBun => "@sol"
+  }
+  buf.write_string("  \{runner}.run_app(configure_app)\n")
   buf.write_string("}\n")
   buf.to_string()
 }
 
 ///|
 /// Generate server moon.pkg
-fn generate_server_pkg(routes_pkg : String) -> String {
+fn generate_server_pkg(
+  routes_pkg : String,
+  runtime? : ServerRuntime = RuntimeNode,
+) -> String {
   let buf = StringBuilder::new()
   buf.write_string("import {\n")
   buf.write_string("  \"mizchi/sol\" @sol,\n")
+  if runtime is RuntimeNode {
+    buf.write_string("  \"mizchi/sol_adapter_node\" @sol_node,\n")
+  }
+  if runtime is RuntimeCloudflare {
+    buf.write_string(
+      "  \"mizchi/sol_adapter_cloudflare\" @sol_cloudflare,\n",
+    )
+  }
   buf.write_string("  \"mizchi/mars\" @mars,\n")
   buf.write_string("  \"mizchi/sol/router\" @router,\n")
   buf.write_string("  \"mizchi/sol/action\" @action,\n")
@@ -348,7 +365,10 @@ pub fn generate_sol_serve_js(adapter : ServerRuntime) -> String {
   )
   buf.write_string("process.env.SOL_ADAPTER = '1';\n\n")
   buf.write_string(
-    "const app = await import('./main.js').then(m => m.default);\n\n",
+    "const app = await import('./main.js').then(m => m.default || globalThis.__SOL_APP__);\n\n",
+  )
+  buf.write_string(
+    "if (!app) throw new Error('Sol app was not exported by the server module');\n\n",
   )
   match adapter {
     RuntimeNode => {

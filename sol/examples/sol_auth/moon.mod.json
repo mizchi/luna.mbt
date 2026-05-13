@@ -5,7 +5,12 @@
     "mizchi/sol": {
       "path": "../.."
     },
-    "mizchi/luna": "0.20.0",
+    "mizchi/sol_adapter_node": {
+      "path": "../../../sol_adapter_node"
+    },
+    "mizchi/luna": {
+      "path": "../../../luna"
+    },
     "mizchi/luna_components": {
       "path": "../../../luna_components"
     },

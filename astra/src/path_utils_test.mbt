@@ -130,11 +130,15 @@ test "extract_locale_suffix - with locale" {
   let locales = ["en", "ja", "fr"]
   inspect(
     extract_locale_suffix("intro.ja.md", locales),
-    content="Some((\"ja\", \"intro.md\"))",
+    content=(
+      #|Some((ja, intro.md))
+    ),
   )
   inspect(
     extract_locale_suffix("intro.fr.md", locales),
-    content="Some((\"fr\", \"intro.md\"))",
+    content=(
+      #|Some((fr, intro.md))
+    ),
   )
 }
 
@@ -155,11 +159,15 @@ test "extract_locale_suffix - different extensions" {
   let locales = ["en", "ja"]
   inspect(
     extract_locale_suffix("page.ja.mdx", locales),
-    content="Some((\"ja\", \"page.mdx\"))",
+    content=(
+      #|Some((ja, page.mdx))
+    ),
   )
   inspect(
     extract_locale_suffix("page.ja.html", locales),
-    content="Some((\"ja\", \"page.html\"))",
+    content=(
+      #|Some((ja, page.html))
+    ),
   )
 }
 
@@ -168,7 +176,9 @@ test "extract_locale_suffix - index files" {
   let locales = ["en", "ja"]
   inspect(
     extract_locale_suffix("index.ja.md", locales),
-    content="Some((\"ja\", \"index.md\"))",
+    content=(
+      #|Some((ja, index.md))
+    ),
   )
 }
 

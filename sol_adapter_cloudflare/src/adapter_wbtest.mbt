@@ -1,12 +1,107 @@
 ///| Tests for Cloudflare adapter utilities.
 
 ///|
+extern "js" fn ffi_clear_exported_sol_app() -> Unit =
+  #| () => {
+  #|   delete globalThis.__SOL_APP__;
+  #|   delete globalThis.__SOL_RUNTIME__;
+  #|   delete globalThis.__SOL_ADAPTER_MODE__;
+  #| }
+
+///|
+extern "js" fn ffi_test_env() -> @mars.JsEnv =
+  #| () => ({
+  #|   API_TOKEN: "secret-token",
+  #|   CACHE: { get() {}, put() {} },
+  #|   MEDIA: { get() {}, put() {} },
+  #| })
+
+///|
+extern "js" fn ffi_fetch_exported_app_text(
+  path : String,
+  env : @mars.JsEnv,
+) -> @js_async.Promise[String] =
+  #| async (path, env) => {
+  #|   const app = globalThis.__SOL_APP__;
+  #|   if (!app || typeof app.fetch !== "function") {
+  #|     throw new Error("missing exported Sol app");
+  #|   }
+  #|   const ctx = { waitUntil(promise) { Promise.resolve(promise).catch(() => {}); } };
+  #|   const response = await app.fetch(new Request("https://example.test" + path), env, ctx);
+  #|   return await response.text();
+  #| }
+
+///|
+async test "export_app exposes Cloudflare fetch with env and execution context" {
+  ffi_clear_exported_sol_app()
+  let app = @mars.Server::new()
+  app.get(
+    "/secret",
+    @mars.handler(async fn(ctx) {
+      let token = ctx.env_var("API_TOKEN").unwrap_or("missing")
+      ctx.text(token)
+    }),
+  )
+  export_app(app)
+  let body = ffi_fetch_exported_app_text("/secret", ffi_test_env()).wait()
+  assert_eq(body, "secret-token")
+}
+
+///|
+test "missing_required_bindings reports absent non-optional bindings" {
+  let missing = missing_required_bindings(ffi_test_env(), [
+    env_var("API_TOKEN"),
+    kv_namespace("CACHE"),
+    r2_bucket("MISSING_MEDIA"),
+    service_binding("OPTIONAL_SERVICE", optional=true),
+  ])
+  assert_eq(missing.length(), 1)
+  assert_eq(missing[0].name, "MISSING_MEDIA")
+  assert_eq(missing[0].kind.label(), "r2")
+  assert_true(describe_missing_bindings(missing).contains("MISSING_MEDIA"))
+}
+
+///|
+test "generate_cloudflare_server_entry_js is edge-safe and escaped" {
+  let js = generate_cloudflare_server_entry_js(
+    "./server.js';globalThis.__SOL_PWNED__=true;//",
+  )
+  assert_true(
+    js.contains(
+      "await import(\"./server.js';globalThis.__SOL_PWNED__=true;//\")",
+    ),
+  )
+  assert_true(js.contains("globalThis.__SOL_RUNTIME__ = 'cloudflare'"))
+  assert_true(js.contains("export default app"))
+  assert_false(js.contains("setInterval"))
+  assert_false(js.contains("@hono/node-server"))
+  assert_false(js.contains("node:fs"))
+}
+
+///|
+test "generate_worker_entry_js composes Worker APIs before Sol routes" {
+  let js = generate_worker_entry_js("./.sol/prod/server/main.js")
+  assert_true(js.contains("import solApp from \"./.sol/prod/server/main.js\""))
+  assert_true(js.contains("url.pathname.startsWith(\"/api/\")"))
+  assert_true(js.contains("solApp.fetch(request, env, ctx)"))
+  assert_false(js.contains("__SOL_APP__"))
+  assert_false(js.contains("_build/js"))
+}
+
+///|
+test "generate_wrangler_toml documents default bundled Worker entry" {
+  let toml = generate_wrangler_toml("myapp")
+  assert_true(toml.contains("name = \"myapp\""))
+  assert_true(toml.contains("main = \"worker.entry.mjs\""))
+  assert_true(toml.contains("compatibility_date = \"2025-01-01\""))
+  assert_false(toml.contains("no_bundle"))
+}
+
+///|
 fn test_page(path : String, revalidate? : Int? = None) -> @router.SolRoutes {
   @router.SolRoutes::Page(
     path~,
-    handler=@router.PageHandler(async fn(_) {
-      @router.server_nodes([])
-    }),
+    handler=@router.PageHandler(async fn(_) { @router.server_nodes([]) }),
     title="",
     meta=[],
     revalidate~,
@@ -59,4 +154,15 @@ test "generate_wrangler_assets_config includes worker-first list for hybrid rout
   )
   assert_true(config.contains("\"run_worker_first\""))
   assert_true(config.contains("\"/api/health\""))
+}
+
+///|
+test "generate_wrangler_assets_config escapes string values" {
+  let config = generate_wrangler_assets_config(
+    [test_get("/api/quote\"path")],
+    "./dist\";bad",
+  )
+  assert_true(config.contains("\"directory\": \"./dist\\\";bad\""))
+  assert_true(config.contains("\"/api/quote\\\"path\""))
+  assert_false(config.contains("\"directory\": \"./dist\";bad\""))
 }

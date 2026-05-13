@@ -150,8 +150,8 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     )
     parse_routes_file(routes_file_path)
   }
-  let has_routes = !(route_info.route_paths.is_empty())
-  let has_actions = !(route_info.action_ids.is_empty())
+  let has_routes = !route_info.route_paths.is_empty()
+  let has_actions = !route_info.action_ids.is_empty()
   if has_routes || has_actions {
     let route_count = route_info.route_paths.length()
     let action_count = route_info.action_ids.length()
@@ -162,7 +162,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     )
   }
   // Step 2: Generate types package from source (so moon info can resolve imports)
-  if !(source_structs.is_empty()) || has_routes || has_actions {
+  if !source_structs.is_empty() || has_routes || has_actions {
     let types_mbt_content = generate_types_mbt(
       source_structs,
       route_info~,
@@ -192,7 +192,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     // Create empty stub if no Props found
     let stub_types_mbt_path = @path.join2(types_dir, "types.mbt")
     let stub_types_pkg_path = @path.join2(types_dir, "moon.pkg")
-    if !(fs.exists_sync(stub_types_mbt_path)) {
+    if !fs.exists_sync(stub_types_mbt_path) {
       try {
         fs.write_file_sync(stub_types_mbt_path, "///| No Props types found\n")
         fs.write_file_sync(
@@ -214,7 +214,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Skip for user-managed mode (user owns server/main.mbt and moon.pkg)
   let server_dir = @path.join2(output_dir, "server")
   let routes_pkg = get_routes_package_path(cwd, config.routes)
-  if app_mode == MoonBitFull && !(user_managed) {
+  if app_mode == MoonBitFull && !user_managed {
     fs.mkdir_sync(server_dir, true) catch {
       e => {
         @cli_common.console_error(
@@ -223,7 +223,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
         @process.exit(1)
       }
     }
-    let server_pkg = generate_server_pkg(routes_pkg)
+    let server_pkg = generate_server_pkg(routes_pkg, runtime=config.runtime)
     let server_pkg_path = @path.join2(server_dir, "moon.pkg")
     fs.write_file_sync(server_pkg_path, server_pkg) catch {
       e => {
@@ -282,7 +282,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       let exports = read_exports_from_pkg(island_dir)
       for export_name in exports {
         // Skip __sol_internal__client_* exports (they are generated, not source functions)
-        if !(export_name.has_prefix("__sol_internal__client_")) {
+        if !export_name.has_prefix("__sol_internal__client_") {
           result.push(func_export_from_name(export_name, island_pattern))
         }
       }
@@ -311,7 +311,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   let (mod_name, source_dir) = read_mod_info(mod_json_path)
   // Generate hydrate functions in __gen__/client/ directory
   // This separates generated code from user's client code
-  if !(funcs.is_empty()) {
+  if !funcs.is_empty() {
     // Create __gen__/client directory
     let client_gen_dir = @path.join2(output_dir, "client")
     fs.mkdir_sync(client_gen_dir, true) catch {
@@ -419,6 +419,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
           route_info,
           config.static_dirs,
           mbtx_entries~,
+          runtime=config.runtime,
         )
         let server_main_path = @path.join2(server_dir, "main.mbt")
         try {
@@ -445,7 +446,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   }
   // Note: server/moon.pkg already generated before moon info for MoonBitFull mode
   // Generate client JS entry files in .sol/client/
-  if !(funcs.is_empty()) {
+  if !funcs.is_empty() {
     for func in funcs {
       // Check if this function has Props -> DomNode signature (needs hydrate)
       let include_hydrate = func.signature.contains("Props") &&
@@ -500,7 +501,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     MoonBitFull =>
       if user_managed {
         generate_sol_server_main_js_user_managed(
-          config.runtime, mode, config.routes,
+          config.runtime,
+          mode,
+          config.routes,
         )
       } else {
         generate_sol_server_main_js(routes_pkg, config.runtime, mode)

@@ -40,9 +40,24 @@ test "scan_pages_dir - detects component directory with moon.pkg.json" {
   inspect(entry.path, content="/counter")
   inspect(entry.source, content="counter/")
   inspect(entry.component_type, content="SsrComponent")
-  inspect(entry.props_type, content="Some(\"CounterProps\")")
-  inspect(entry.client_export, content="Some(\"counter\")")
-  inspect(entry.server_export, content="Some(\"render_ssr\")")
+  inspect(
+    entry.props_type,
+    content=(
+      #|Some(CounterProps)
+    ),
+  )
+  inspect(
+    entry.client_export,
+    content=(
+      #|Some(counter)
+    ),
+  )
+  inspect(
+    entry.server_export,
+    content=(
+      #|Some(render_ssr)
+    ),
+  )
 }
 
 ///|
@@ -120,7 +135,12 @@ test "scan_pages_dir - component with staticParams" {
     fail("Expected Component route")
   }
   inspect(entry.static_paths.length(), content="3")
-  inspect(entry.static_paths[0].params.get("id"), content="Some(\"1\")")
+  inspect(
+    entry.static_paths[0].params.get("id"),
+    content=(
+      #|Some(1)
+    ),
+  )
   inspect(entry.static_paths[0].output, content="product/1/index.html")
   inspect(entry.static_paths[1].output, content="product/2/index.html")
   inspect(entry.static_paths[2].output, content="product/3/index.html")

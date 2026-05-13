@@ -24,6 +24,11 @@ pub(all) struct PageHandler(async (PageProps) -> @server_dom.ServerNode)
 /// Uses MoonBit's built-in Json type for wasm/native compatibility.
 pub(all) struct ApiHandler(async (PageProps) -> Json)
 
+///|
+/// Raw handler type - async function that returns a Web Response directly.
+/// Use this for streaming, redirects, binary bodies, and Worker pass-throughs.
+pub(all) struct RawHandler(async (PageProps) -> @web_http.Response)
+
 // ============================================================================
 // Cache Strategy
 // ============================================================================
@@ -97,6 +102,26 @@ pub(all) enum SolRoutes {
   /// - path: URL pattern
   /// - handler: Handler that returns JSON
   Patch(path~ : String, handler~ : ApiHandler)
+  /// Raw GET route
+  /// - path: URL pattern
+  /// - handler: Handler that returns a Web Response directly
+  RawGet(path~ : String, handler~ : RawHandler)
+  /// Raw POST route
+  /// - path: URL pattern
+  /// - handler: Handler that returns a Web Response directly
+  RawPost(path~ : String, handler~ : RawHandler)
+  /// Raw PUT route
+  /// - path: URL pattern
+  /// - handler: Handler that returns a Web Response directly
+  RawPut(path~ : String, handler~ : RawHandler)
+  /// Raw DELETE route
+  /// - path: URL pattern
+  /// - handler: Handler that returns a Web Response directly
+  RawDelete(path~ : String, handler~ : RawHandler)
+  /// Raw PATCH route
+  /// - path: URL pattern
+  /// - handler: Handler that returns a Web Response directly
+  RawPatch(path~ : String, handler~ : RawHandler)
   /// Middleware wrapper for route groups
   /// - middleware: Array of middlewares to apply
   /// - children: Nested routes
@@ -139,6 +164,8 @@ pub struct CompiledSolRoute {
   page_handler : PageHandler?
   /// API handler (if API route)
   api_handler : ApiHandler?
+  /// Raw handler (if raw Response route)
+  raw_handler : RawHandler?
   /// Layout handlers (from outermost to innermost)
   layouts : Array[
     (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise Error,
@@ -174,6 +201,11 @@ pub enum SolRouteKind {
   PutApi
   DeleteApi
   PatchApi
+  RawGet
+  RawPost
+  RawPut
+  RawDelete
+  RawPatch
 } derive(Eq, Show)
 
 // ============================================================================

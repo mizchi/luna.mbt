@@ -134,6 +134,71 @@ fn collect_routes(
         result.push(entry)
         let _ = handler
       }
+      RawGet(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Get,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+      }
+      RawPost(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Post,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+      }
+      RawPut(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Put,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+      }
+      RawDelete(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Delete,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+      }
+      RawPatch(path~, handler~) => {
+        let full_path = manifest_normalize_path(base + path)
+        let (pattern, param_names) = extract_route_pattern(full_path)
+        let entry = @sol_routes.RouteEntry::Api(@sol_routes.ApiRouteEntry::{
+          path: full_path,
+          pattern,
+          param_names,
+          http_method: @sol_routes.HttpMethod::Patch,
+          source: full_path,
+        })
+        result.push(entry)
+        let _ = handler
+      }
       WithMiddleware(middleware~, children~) => {
         // Middleware doesn't affect manifest, just recurse
         collect_routes(children, base, result)

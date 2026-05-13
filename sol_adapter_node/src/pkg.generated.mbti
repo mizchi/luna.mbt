@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol_adapter_node"
+
+import {
+  "mizchi/mars",
+}
+
+// Values
+pub fn export_app(@mars.Server) -> Unit
+
+pub fn generate_node_serve_js(String) -> String
+
+pub fn node_port_from_env(default? : Int) -> Int
+
+pub fn run((@mars.Server) -> Unit, port? : Int) -> Unit
+
+pub fn run_app(() -> @mars.Server, port? : Int) -> Unit
+
+pub fn serve(@mars.Server, port? : Int) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @mars {type Server as App}
+
+// Traits
+

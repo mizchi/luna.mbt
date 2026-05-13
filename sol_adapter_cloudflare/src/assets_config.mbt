@@ -1,4 +1,5 @@
-///| Convert a Sol route pattern to a Cloudflare `run_worker_first` glob.
+///|
+/// Convert a Sol route pattern to a Cloudflare `run_worker_first` glob.
 pub fn route_pattern_to_worker_glob(path : String) -> String {
   let result = StringBuilder::new()
   let segments = path.split("/")
@@ -26,7 +27,8 @@ pub fn route_pattern_to_worker_glob(path : String) -> String {
   "/" + result.to_string()
 }
 
-///| Extract Cloudflare `run_worker_first` patterns from Sol routes.
+///|
+/// Extract Cloudflare `run_worker_first` patterns from Sol routes.
 pub fn extract_worker_first_patterns(
   routes : Array[@router.SolRoutes],
 ) -> Array[String] {
@@ -70,14 +72,16 @@ fn compare_strings_lex(a : String, b : String) -> Int {
   }
 }
 
-///| Generate a Wrangler `assets` config fragment for Cloudflare Workers.
+///|
+/// Generate a Wrangler `assets` config fragment for Cloudflare Workers.
 pub fn generate_wrangler_assets_config(
   routes : Array[@router.SolRoutes],
   output_dir : String,
 ) -> String {
   let patterns = extract_worker_first_patterns(routes)
+  let output_dir_json = ffi_js_string_literal(output_dir)
   if patterns.is_empty() {
-    return "{\n  \"directory\": \"\{output_dir}\",\n  \"html_handling\": \"auto-trailing-slash\",\n  \"not_found_handling\": \"404-page\"\n}"
+    return "{\n  \"directory\": \{output_dir_json},\n  \"html_handling\": \"auto-trailing-slash\",\n  \"not_found_handling\": \"404-page\"\n}"
   }
 
   let patterns_json = StringBuilder::new()
@@ -86,10 +90,8 @@ pub fn generate_wrangler_assets_config(
     if i > 0 {
       patterns_json.write_string(", ")
     }
-    patterns_json.write_string("\"")
-    patterns_json.write_string(pattern)
-    patterns_json.write_string("\"")
+    patterns_json.write_string(ffi_js_string_literal(pattern))
   }
   patterns_json.write_string("]")
-  "{\n  \"directory\": \"\{output_dir}\",\n  \"html_handling\": \"auto-trailing-slash\",\n  \"not_found_handling\": \"single-page-application\",\n  \"run_worker_first\": \{patterns_json.to_string()}\n}"
+  "{\n  \"directory\": \{output_dir_json},\n  \"html_handling\": \"auto-trailing-slash\",\n  \"not_found_handling\": \"single-page-application\",\n  \"run_worker_first\": \{patterns_json.to_string()}\n}"
 }

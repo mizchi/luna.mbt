@@ -36,8 +36,18 @@ test "parse_markdown_native: heading" {
 test "parse_markdown_native: frontmatter" {
   let content = "---\ntitle: Test\ndescription: A test doc\n---\n\nHello"
   let (fm, nodes) = parse_markdown_native(content)
-  inspect(fm.title, content="Some(\"Test\")")
-  inspect(fm.description, content="Some(\"A test doc\")")
+  inspect(
+    fm.title,
+    content=(
+      #|Some(Test)
+    ),
+  )
+  inspect(
+    fm.description,
+    content=(
+      #|Some(A test doc)
+    ),
+  )
   inspect(nodes.length(), content="1")
 }
 

@@ -2,8 +2,8 @@
 /**
  * Mooncakes-side version bump for luna.mbt.
  *
- * Bumps ONLY the five MoonBit packages
- * (luna / luna_components / sol / sol_adapter_cloudflare / astra).
+ * Bumps ONLY the MoonBit packages
+ * (luna / luna_components / sol / sol_adapter_cloudflare / sol_adapter_node / astra).
  * Each package owns its own version, but a single semver bump
  * (patch/minor/major) increments each one relative to its current value.
  *
@@ -17,6 +17,9 @@
  *   sol/moon.mod.json             (also updates `mizchi/astra.version` to match
  *                                   astra's new version)
  *   sol_adapter_cloudflare/moon.mod.json
+ *                                 (also updates `mizchi/sol.version` to match
+ *                                   sol's new version)
+ *   sol_adapter_node/moon.mod.json
  *                                 (also updates `mizchi/sol.version` to match
  *                                   sol's new version)
  *   astra/moon.mod.json
@@ -35,6 +38,7 @@
  *   luna_components-v<luna_components_version>
  *   sol-v<sol_version>
  *   sol_adapter_cloudflare-v<sol_adapter_cloudflare_version>
+ *   sol_adapter_node-v<sol_adapter_node_version>
  *   astra-v<astra_version>
  *
  * release-please creates separate "@luna_ui/<pkg>-v<v>" tags for the npm side.
@@ -79,6 +83,11 @@ const PACKAGES = [
     id: "sol_adapter_cloudflare",
     moonModPath: "sol_adapter_cloudflare/moon.mod.json",
     tagPrefix: "sol_adapter_cloudflare-v",
+  },
+  {
+    id: "sol_adapter_node",
+    moonModPath: "sol_adapter_node/moon.mod.json",
+    tagPrefix: "sol_adapter_node-v",
   },
   {
     id: "astra",
@@ -160,6 +169,7 @@ function applyPlan(plan, dryRun) {
   // Inter-dep refs to update inside other mooncakes' moon.mod.json:
   //   sol depends on astra
   //   sol_adapter_cloudflare depends on sol
+  //   sol_adapter_node depends on sol
   //   luna_components depends on luna
   const astraEntry = plan.find(p => p.id === "astra");
   const lunaEntry = plan.find(p => p.id === "luna");
@@ -190,6 +200,9 @@ function applyPlan(plan, dryRun) {
     }
     if (entry.id === "sol_adapter_cloudflare") {
       bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_cloudflare/moon.mod.json");
+    }
+    if (entry.id === "sol_adapter_node") {
+      bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_node/moon.mod.json");
     }
     if (entry.id === "luna_components") {
       bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "luna_components/moon.mod.json");
@@ -239,21 +252,22 @@ function printUsage() {
   node luna/scripts/vup.mjs <X.Y.Z>            [--dry-run] [--release [--push]]
 
 Scope:
-  This script bumps ONLY the 5 mooncakes packages
-  (mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,astra}).
+  This script bumps ONLY the mooncakes packages
+  (mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,sol_adapter_node,astra}).
   The npm packages under js/* are managed by release-please — do not edit
   their versions by hand. See docs/internal/npm-release-onboarding.md.
 
-Touches 5 manifests:
+Touches manifests:
   luna/moon.mod.json, luna_components/moon.mod.json,
   sol/moon.mod.json, sol_adapter_cloudflare/moon.mod.json,
-  astra/moon.mod.json
+  sol_adapter_node/moon.mod.json, astra/moon.mod.json
   (sol/moon.mod.json deps.mizchi/astra.version is also bumped to match astra)
   (sol_adapter_cloudflare/moon.mod.json deps.mizchi/sol.version is also bumped)
+  (sol_adapter_node/moon.mod.json deps.mizchi/sol.version is also bumped)
 
 Tags created by --release:
   luna-v<v>, luna_components-v<v>, sol-v<v>,
-  sol_adapter_cloudflare-v<v>, astra-v<v>.
+  sol_adapter_cloudflare-v<v>, sol_adapter_node-v<v>, astra-v<v>.
 
 Examples:
   node luna/scripts/vup.mjs --dry-run patch         # preview

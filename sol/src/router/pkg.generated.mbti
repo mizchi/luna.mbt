@@ -3,10 +3,12 @@ package "mizchi/sol/router"
 
 import {
   "mizchi/astra",
+  "mizchi/js/web/http",
   "mizchi/luna/dom/static",
   "mizchi/mars",
   "mizchi/sol/isr",
   "mizchi/sol/middleware",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
@@ -55,6 +57,16 @@ pub fn optional_query(PageProps, String, String) -> String
 
 pub fn page(String, async (PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : CacheStrategy?, styles? : Array[String], scripts? : Array[String]) -> SolRoutes
 
+pub fn raw_delete(String, async (PageProps) -> @http.Response) -> SolRoutes
+
+pub fn raw_get(String, async (PageProps) -> @http.Response) -> SolRoutes
+
+pub fn raw_patch(String, async (PageProps) -> @http.Response) -> SolRoutes
+
+pub fn raw_post(String, async (PageProps) -> @http.Response) -> SolRoutes
+
+pub fn raw_put(String, async (PageProps) -> @http.Response) -> SolRoutes
+
 pub fn redirect_permanent_to(String) -> ApiResponse
 
 pub fn redirect_to(String, status? : Int) -> ApiResponse
@@ -74,6 +86,8 @@ pub fn require(PageProps, String) -> Result[String, ApiResponse]
 pub fn require_int(PageProps, String) -> Result[Int, ApiResponse]
 
 pub fn require_query(PageProps, String) -> Result[String, ApiResponse]
+
+pub fn route_ownership_manifest(Array[SolRoutes], config? : RouterConfig) -> RouteOwnershipManifest
 
 pub async fn send_fragment_response(@mars.Context, String) -> Unit
 
@@ -150,6 +164,7 @@ pub struct CompiledSolRoute {
   param_names : Array[String]
   page_handler : PageHandler?
   api_handler : ApiHandler?
+  raw_handler : RawHandler?
   layouts : Array[(PageProps, @static.ServerNode) -> @static.ServerNode raise]
   middlewares : Array[@middleware.Middleware]
   kind : SolRouteKind
@@ -211,10 +226,50 @@ pub fn PageProps::set_header(Self, String, String) -> Unit
 pub fn PageProps::set_status(Self, Int) -> Unit
 pub fn PageProps::text(Self, String, status? : Int) -> Unit
 
+pub(all) struct RawHandler(async (PageProps) -> @http.Response)
+
 pub(all) enum RouteKind {
   Static
   Dynamic
 }
+
+pub struct RouteManifestEntry {
+  pattern : String
+  http_method : RouteManifestMethod
+  owner : RouteManifestOwner
+  match_kind : RouteManifestMatchKind
+  param_names : Array[String]
+}
+pub fn RouteManifestEntry::to_json(Self) -> Json
+
+pub(all) enum RouteManifestMatchKind {
+  Exact
+  Pattern
+  Prefix
+} derive(Eq, @debug.Debug)
+
+pub(all) enum RouteManifestMethod {
+  Any
+  Get
+  Post
+  Put
+  Delete
+  Patch
+} derive(Eq, @debug.Debug)
+
+pub(all) enum RouteManifestOwner {
+  SolPage
+  SolApi
+  Raw
+  StaticAsset
+  Reserved
+} derive(Eq, @debug.Debug)
+
+pub struct RouteOwnershipManifest {
+  entries : Array[RouteManifestEntry]
+}
+pub fn RouteOwnershipManifest::match_path(Self, String, http_method? : RouteManifestMethod) -> RouteManifestEntry?
+pub fn RouteOwnershipManifest::to_json(Self) -> Json
 
 pub struct RouteParams {
   params : Array[(String, String)]
@@ -289,6 +344,11 @@ pub enum SolRouteKind {
   PutApi
   DeleteApi
   PatchApi
+  RawGet
+  RawPost
+  RawPut
+  RawDelete
+  RawPatch
 } derive(Eq, Show)
 
 pub(all) enum SolRoutes {
@@ -299,6 +359,11 @@ pub(all) enum SolRoutes {
   Put(path~ : String, handler~ : ApiHandler)
   Delete(path~ : String, handler~ : ApiHandler)
   Patch(path~ : String, handler~ : ApiHandler)
+  RawGet(path~ : String, handler~ : RawHandler)
+  RawPost(path~ : String, handler~ : RawHandler)
+  RawPut(path~ : String, handler~ : RawHandler)
+  RawDelete(path~ : String, handler~ : RawHandler)
+  RawPatch(path~ : String, handler~ : RawHandler)
   WithMiddleware(middleware~ : Array[@middleware.Middleware], children~ : Array[SolRoutes])
   WithAssets(styles~ : Array[String], scripts~ : Array[String], children~ : Array[SolRoutes])
 }

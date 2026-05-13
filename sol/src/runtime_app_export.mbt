@@ -62,7 +62,7 @@ fn serve_runtime(app : App, port : Int) -> Unit {
 extern "js" fn ffi_serve(fetch_handler : MarsFetchHandler, port : Int) -> Unit =
   #|(fetchHandler, port) => {
   #|  const importer = globalThis.__SOL_DYNAMIC_IMPORT__ ||
-  #|    ((specifier) => new Function('specifier', 'return import(specifier)')(specifier));
+  #|    ((specifier) => import(specifier));
   #|  importer('@hono/node-server').then(({ serve }) => {
   #|    serve({ fetch: fetchHandler, port });
   #|  });

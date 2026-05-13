@@ -353,7 +353,7 @@ extern "js" fn ffi_build_from_manifest(
   #| async (manifestPath, cwd, onSuccess, onError) => {
   #|   try {
   #|     const importer = globalThis.__SOL_DYNAMIC_IMPORT__ ||
-  #|       ((specifier) => new Function('specifier', 'return import(specifier)')(specifier));
+  #|       ((specifier) => import(specifier));
   #|     const fs = await importer('node:fs');
   #|     const path = await importer('node:path');
   #|     const { createRequire } = await importer('node:module');

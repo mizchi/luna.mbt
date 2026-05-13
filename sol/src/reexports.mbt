@@ -11,6 +11,12 @@ pub using @router {
   api_put,
   api_delete,
   api_patch,
+  raw_get,
+  raw_post,
+  raw_put,
+  raw_delete,
+  raw_patch,
+  route_ownership_manifest,
   wrap,
   with_mw,
   assets,
@@ -55,8 +61,14 @@ pub using @router {
   type RouterConfig,
   type PageHandler,
   type ApiHandler,
+  type RawHandler,
   type ApiResponse,
   type CacheStrategy,
+  type RouteOwnershipManifest,
+  type RouteManifestEntry,
+  type RouteManifestMethod,
+  type RouteManifestOwner,
+  type RouteManifestMatchKind,
 }
 
 // Action types

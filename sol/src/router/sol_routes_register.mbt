@@ -231,6 +231,41 @@ async fn handle_compiled_api_route(
 }
 
 ///|
+async fn handle_compiled_raw_route(
+  c : Ctx,
+  route : CompiledSolRoute,
+  middleware_chain : @middleware.Middleware,
+) -> Unit {
+  // Run middleware chain first
+  let halted = @middleware.run_or_500(middleware_chain, c)
+  if halted {
+    return
+  }
+  let params = extract_route_params(
+    c,
+    is_fragment=false,
+    param_names=route.param_names,
+  )
+
+  let props = PageProps::from_ctx_with_params(c, params)
+  match route.raw_handler {
+    Some(RawHandler(handler)) => {
+      let response = handler(props) catch {
+        e => {
+          log_server_error("Raw handler error", e)
+          return c.text("Internal Server Error", status=500)
+        }
+      }
+      if c.is_response_sent() {
+        return
+      }
+      ffi_send_web_response(c, response)
+    }
+    None => c.text("No handler", status=404)
+  }
+}
+
+///|
 fn is_api_route_kind(kind : SolRouteKind) -> Bool {
   match kind {
     SolRouteKind::GetApi => true
@@ -239,6 +274,28 @@ fn is_api_route_kind(kind : SolRouteKind) -> Bool {
     SolRouteKind::DeleteApi => true
     SolRouteKind::PatchApi => true
     SolRouteKind::Page => false
+    SolRouteKind::RawGet => false
+    SolRouteKind::RawPost => false
+    SolRouteKind::RawPut => false
+    SolRouteKind::RawDelete => false
+    SolRouteKind::RawPatch => false
+  }
+}
+
+///|
+fn is_raw_route_kind(kind : SolRouteKind) -> Bool {
+  match kind {
+    SolRouteKind::RawGet => true
+    SolRouteKind::RawPost => true
+    SolRouteKind::RawPut => true
+    SolRouteKind::RawDelete => true
+    SolRouteKind::RawPatch => true
+    SolRouteKind::Page => false
+    SolRouteKind::GetApi => false
+    SolRouteKind::PostApi => false
+    SolRouteKind::PutApi => false
+    SolRouteKind::DeleteApi => false
+    SolRouteKind::PatchApi => false
   }
 }
 
@@ -260,6 +317,37 @@ fn register_compiled_api_route(
     SolRouteKind::DeleteApi => app.delete(hono_pattern, handler)
     SolRouteKind::PatchApi => app.patch(hono_pattern, handler)
     SolRouteKind::Page => ()
+    SolRouteKind::RawGet => ()
+    SolRouteKind::RawPost => ()
+    SolRouteKind::RawPut => ()
+    SolRouteKind::RawDelete => ()
+    SolRouteKind::RawPatch => ()
+  }
+}
+
+///|
+fn register_compiled_raw_route(
+  app : App,
+  kind : SolRouteKind,
+  hono_pattern : String,
+  route : CompiledSolRoute,
+  middleware_chain : @middleware.Middleware,
+) -> Unit {
+  let handler = async fn(c) {
+    handle_compiled_raw_route(c, route, middleware_chain)
+  }
+  match kind {
+    SolRouteKind::RawGet => app.get(hono_pattern, handler)
+    SolRouteKind::RawPost => app.post(hono_pattern, handler)
+    SolRouteKind::RawPut => app.put(hono_pattern, handler)
+    SolRouteKind::RawDelete => app.delete(hono_pattern, handler)
+    SolRouteKind::RawPatch => app.patch(hono_pattern, handler)
+    SolRouteKind::Page => ()
+    SolRouteKind::GetApi => ()
+    SolRouteKind::PostApi => ()
+    SolRouteKind::PutApi => ()
+    SolRouteKind::DeleteApi => ()
+    SolRouteKind::PatchApi => ()
   }
 }
 
@@ -457,6 +545,10 @@ fn register_compiled_sol_routes(
       kind =>
         if is_api_route_kind(kind) {
           register_compiled_api_route(
+            app, kind, hono_pattern, route, middleware_chain,
+          )
+        } else if is_raw_route_kind(kind) {
+          register_compiled_raw_route(
             app, kind, hono_pattern, route, middleware_chain,
           )
         }

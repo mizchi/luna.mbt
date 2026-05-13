@@ -165,10 +165,17 @@ test "route_manifest_to_chunk_manifest - with chunk hashes" {
     route_manifest,
     chunk_hashes~,
   )
-  inspect(chunk_manifest.chunks.get("boot"), content="Some(\"boot.abc123.js\")")
+  inspect(
+    chunk_manifest.chunks.get("boot"),
+    content=(
+      #|Some(boot.abc123.js)
+    ),
+  )
   inspect(
     chunk_manifest.chunks.get("hydrate"),
-    content="Some(\"hydrate.def456.js\")",
+    content=(
+      #|Some(hydrate.def456.js)
+    ),
   )
 }
 
@@ -218,8 +225,18 @@ test "build_chunk_manifest - with chunk files" {
     ("hydrate", "hydrate.d4e5f6.js"),
   ]
   let manifest = build_chunk_manifest(route_manifest, chunk_files~)
-  inspect(manifest.chunks.get("boot"), content="Some(\"boot.a1b2c3.js\")")
-  inspect(manifest.chunks.get("hydrate"), content="Some(\"hydrate.d4e5f6.js\")")
+  inspect(
+    manifest.chunks.get("boot"),
+    content=(
+      #|Some(boot.a1b2c3.js)
+    ),
+  )
+  inspect(
+    manifest.chunks.get("hydrate"),
+    content=(
+      #|Some(hydrate.d4e5f6.js)
+    ),
+  )
 }
 
 ///|

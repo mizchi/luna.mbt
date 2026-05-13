@@ -289,14 +289,24 @@ test "FallbackConfig - NotFound" {
 test "FallbackConfig - SPA" {
   let config = FallbackConfig::Spa(entry="/index.html")
   inspect(config.is_spa(), content="true")
-  inspect(config.spa_entry(), content="Some(\"/index.html\")")
+  inspect(
+    config.spa_entry(),
+    content=(
+      #|Some(/index.html)
+    ),
+  )
 }
 
 ///|
 test "FallbackConfig - SpaPrefix" {
   let config = FallbackConfig::SpaPrefix(prefix="/app", entry="/app/index.html")
   inspect(config.is_spa(), content="true")
-  inspect(config.spa_entry(), content="Some(\"/app/index.html\")")
+  inspect(
+    config.spa_entry(),
+    content=(
+      #|Some(/app/index.html)
+    ),
+  )
 }
 
 // =============================================================================
@@ -314,28 +324,48 @@ test "extract_url_pattern - static path" {
 test "extract_url_pattern - single dynamic segment" {
   let (pattern, params) = extract_url_pattern("/blog/:slug")
   inspect(pattern, content="^/blog/([^/]+)$")
-  inspect(params, content="[\"slug\"]")
+  inspect(
+    params,
+    content=(
+      #|[slug]
+    ),
+  )
 }
 
 ///|
 test "extract_url_pattern - multiple dynamic segments" {
   let (pattern, params) = extract_url_pattern("/users/:id/posts/:postId")
   inspect(pattern, content="^/users/([^/]+)/posts/([^/]+)$")
-  inspect(params, content="[\"id\", \"postId\"]")
+  inspect(
+    params,
+    content=(
+      #|[id, postId]
+    ),
+  )
 }
 
 ///|
 test "extract_url_pattern - Next.js style brackets" {
   let (pattern, params) = extract_url_pattern("/blog/[slug]")
   inspect(pattern, content="^/blog/([^/]+)$")
-  inspect(params, content="[\"slug\"]")
+  inspect(
+    params,
+    content=(
+      #|[slug]
+    ),
+  )
 }
 
 ///|
 test "extract_url_pattern - catch-all pattern" {
   let (pattern, params) = extract_url_pattern("/docs/[...path]")
   inspect(pattern, content="^/docs/(.*)$")
-  inspect(params, content="[\"path\"]")
+  inspect(
+    params,
+    content=(
+      #|[path]
+    ),
+  )
 }
 
 // =============================================================================

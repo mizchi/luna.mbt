@@ -1,5 +1,5 @@
 {
-  "name": "mizchi/sol_adapter_cloudflare",
+  "name": "mizchi/sol_adapter_node",
   "version": "0.20.2",
   "deps": {
     "mizchi/sol": {
@@ -7,19 +7,18 @@
       "version": "0.20.2"
     },
     "mizchi/mars": "0.3.10",
-    "mizchi/js": "0.10.15",
-    "moonbitlang/async": "0.17.0"
+    "mizchi/js": "0.10.15"
   },
   "readme": "README.md",
   "repository": "https://github.com/mizchi/luna.mbt",
   "license": "MIT",
   "keywords": [
     "sol",
-    "cloudflare",
-    "wrangler",
+    "node",
+    "hono",
     "moonbit"
   ],
-  "description": "Cloudflare adapter utilities for Sol",
+  "description": "Node.js adapter utilities for Sol",
   "source": "src",
   "warn-list": "-6-67",
   "preferred-target": "js"

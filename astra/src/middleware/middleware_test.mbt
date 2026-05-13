@@ -69,7 +69,12 @@ async test "GET /assets/loader.js returns the bundled island loader script" {
   inspect(res.status, content="200")
   let expected_ct =
     #|Some("application/javascript; charset=utf-8")
-  inspect(res.header("content-type"), content=expected_ct)
+  inspect(
+    res.header("content-type"),
+    content=(
+      #|Some(application/javascript; charset=utf-8)
+    ),
+  )
 }
 
 ///|

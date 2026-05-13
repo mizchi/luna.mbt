@@ -83,6 +83,16 @@ pub fn[E] page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[E
 
 pub fn parse_island_manifest(String) -> IslandManifest?
 
+pub fn raw_delete(String, async (@router.PageProps) -> @http.Response) -> @router.SolRoutes
+
+pub fn raw_get(String, async (@router.PageProps) -> @http.Response) -> @router.SolRoutes
+
+pub fn raw_patch(String, async (@router.PageProps) -> @http.Response) -> @router.SolRoutes
+
+pub fn raw_post(String, async (@router.PageProps) -> @http.Response) -> @router.SolRoutes
+
+pub fn raw_put(String, async (@router.PageProps) -> @http.Response) -> @router.SolRoutes
+
 pub fn redirect_permanent_to(String) -> @router.ApiResponse
 
 pub fn redirect_to(String, status? : Int) -> @router.ApiResponse
@@ -112,6 +122,8 @@ pub fn require_int(@router.PageProps, String) -> Result[Int, @router.ApiResponse
 pub fn require_query(@router.PageProps, String) -> Result[String, @router.ApiResponse]
 
 pub fn route(String, async (@router.PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : @router.CacheStrategy?, styles? : Array[String], scripts? : Array[String]) -> @router.SolRoutes
+
+pub fn route_ownership_manifest(Array[@router.SolRoutes], config? : @router.RouterConfig) -> @router.RouteOwnershipManifest
 
 pub fn run((@mars.Server) -> Unit, port? : Int) -> Unit
 
@@ -245,6 +257,18 @@ pub using @router {type CacheStrategy}
 pub using @router {type PageHandler}
 
 pub using @router {type PageProps}
+
+pub using @router {type RawHandler}
+
+pub using @router {type RouteManifestEntry}
+
+pub using @router {type RouteManifestMatchKind}
+
+pub using @router {type RouteManifestMethod}
+
+pub using @router {type RouteManifestOwner}
+
+pub using @router {type RouteOwnershipManifest}
 
 pub using @router {type RouterConfig}
 

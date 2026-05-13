@@ -3,5 +3,6 @@ members = [
   "./luna_components",
   "./sol",
   "./sol_adapter_cloudflare",
+  "./sol_adapter_node",
   "./astra",
 ]

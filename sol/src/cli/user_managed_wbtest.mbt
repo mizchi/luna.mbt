@@ -98,6 +98,19 @@ test "generate_server_main_mbt: uses async fn main" {
     [],
   )
   assert_true(content.contains("async fn main {"))
-  assert_true(content.contains("@sol.run_app(configure_app)"))
+  assert_true(content.contains("@sol_node.run_app(configure_app)"))
   assert_true(content.contains("@sol.serve_default_favicon(app)"))
+}
+
+///|
+test "generate_server_main_mbt: cloudflare runtime uses cloudflare adapter" {
+  let content = generate_server_main_mbt(
+    "tester/myapp/server",
+    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] },
+    [],
+    runtime=RuntimeCloudflare,
+  )
+  assert_true(content.contains("@sol_cloudflare.run_app(configure_app)"))
+  assert_false(content.contains("@sol.run_app(configure_app)"))
+  assert_false(content.contains("@sol_node.run_app"))
 }

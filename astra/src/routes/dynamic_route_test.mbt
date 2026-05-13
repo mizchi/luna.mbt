@@ -532,7 +532,9 @@ test "ComponentRouteEntry - static paths for ISG" {
   inspect(route.static_paths.length(), content="3")
   inspect(
     route.static_paths[0].params.get("slug"),
-    content="Some(\"hello-world\")",
+    content=(
+      #|Some(hello-world)
+    ),
   )
 }
 

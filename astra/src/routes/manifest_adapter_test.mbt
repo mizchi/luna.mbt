@@ -52,9 +52,24 @@ test "page_meta_to_static_route - with frontmatter" {
     sort_key: "guide/intro.md",
   }
   let route = page_meta_to_static_route(page)
-  inspect(route.title, content="Some(\"Introduction\")")
-  inspect(route.description, content="Some(\"Getting started guide\")")
-  inspect(route.layout, content="Some(\"docs\")")
+  inspect(
+    route.title,
+    content=(
+      #|Some(Introduction)
+    ),
+  )
+  inspect(
+    route.description,
+    content=(
+      #|Some(Getting started guide)
+    ),
+  )
+  inspect(
+    route.layout,
+    content=(
+      #|Some(docs)
+    ),
+  )
   inspect(route.islands.length(), content="1")
   inspect(route.islands[0], content="counter")
 }
@@ -107,9 +122,24 @@ test "static_route_to_page_meta - preserves metadata" {
     generated_params: [],
   }
   let page = static_route_to_page_meta(route)
-  inspect(page.frontmatter.title, content="Some(\"Guide\")")
-  inspect(page.frontmatter.description, content="Some(\"User guide\")")
-  inspect(page.frontmatter.layout, content="Some(\"docs\")")
+  inspect(
+    page.frontmatter.title,
+    content=(
+      #|Some(Guide)
+    ),
+  )
+  inspect(
+    page.frontmatter.description,
+    content=(
+      #|Some(User guide)
+    ),
+  )
+  inspect(
+    page.frontmatter.layout,
+    content=(
+      #|Some(docs)
+    ),
+  )
   inspect(page.frontmatter.islands.length(), content="1")
 }
 
@@ -130,8 +160,18 @@ test "static_route_to_page_meta - roundtrip" {
   let roundtrip_route = page_meta_to_static_route(page)
   inspect(roundtrip_route.path, content="/test/")
   inspect(roundtrip_route.source, content="test.md")
-  inspect(roundtrip_route.title, content="Some(\"Test Page\")")
-  inspect(roundtrip_route.layout, content="Some(\"default\")")
+  inspect(
+    roundtrip_route.title,
+    content=(
+      #|Some(Test Page)
+    ),
+  )
+  inspect(
+    roundtrip_route.layout,
+    content=(
+      #|Some(default)
+    ),
+  )
 }
 
 // =============================================================================
@@ -188,7 +228,12 @@ test "page_metas_to_manifest - SPA fallback when config.navigation.spa" {
   let pages : Array[@astra.PageMeta] = []
   let manifest = page_metas_to_manifest(pages, config)
   inspect(manifest.fallback.is_spa(), content="true")
-  inspect(manifest.fallback.spa_entry(), content="Some(\"/index.html\")")
+  inspect(
+    manifest.fallback.spa_entry(),
+    content=(
+      #|Some(/index.html)
+    ),
+  )
 }
 
 // =============================================================================
@@ -303,8 +348,23 @@ test "manifest_to_page_metas - preserves metadata" {
   let pages = manifest_to_page_metas(manifest)
   inspect(pages.length(), content="1")
   let page = pages[0]
-  inspect(page.frontmatter.title, content="Some(\"Guide\")")
-  inspect(page.frontmatter.description, content="Some(\"User guide\")")
-  inspect(page.frontmatter.layout, content="Some(\"docs\")")
+  inspect(
+    page.frontmatter.title,
+    content=(
+      #|Some(Guide)
+    ),
+  )
+  inspect(
+    page.frontmatter.description,
+    content=(
+      #|Some(User guide)
+    ),
+  )
+  inspect(
+    page.frontmatter.layout,
+    content=(
+      #|Some(docs)
+    ),
+  )
   inspect(page.frontmatter.islands.length(), content="2")
 }

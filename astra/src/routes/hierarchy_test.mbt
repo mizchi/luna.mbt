@@ -141,10 +141,17 @@ test "resolve_chunks_inline - exact match" {
     chunks: {},
     routes: { "/": ["boot"], "/about": ["boot", "about"] },
   }
-  inspect(resolve_chunks_inline(manifest, "/"), content="Some([\"boot\"])")
+  inspect(
+    resolve_chunks_inline(manifest, "/"),
+    content=(
+      #|Some([boot])
+    ),
+  )
   inspect(
     resolve_chunks_inline(manifest, "/about"),
-    content="Some([\"boot\", \"about\"])",
+    content=(
+      #|Some([boot, about])
+    ),
   )
 }
 
@@ -160,9 +167,16 @@ test "resolve_chunks_inline - with trailing slash" {
   // Should match with or without trailing slash
   inspect(
     resolve_chunks_inline(manifest, "/about/"),
-    content="Some([\"boot\"])",
+    content=(
+      #|Some([boot])
+    ),
   )
-  inspect(resolve_chunks_inline(manifest, "/about"), content="Some([\"boot\"])")
+  inspect(
+    resolve_chunks_inline(manifest, "/about"),
+    content=(
+      #|Some([boot])
+    ),
+  )
 }
 
 ///|
@@ -271,7 +285,12 @@ test "split_manifest - separates root and segment routes" {
   let (hierarchical, segment_manifests) = split_manifest(manifest, configs)
 
   // Root routes should be inline
-  inspect(hierarchical.routes.get("/"), content="Some([\"boot\"])")
+  inspect(
+    hierarchical.routes.get("/"),
+    content=(
+      #|Some([boot])
+    ),
+  )
 
   // Segment routes should be in segment manifests
   inspect(segment_manifests.contains("docs"), content="true")
@@ -282,8 +301,18 @@ test "split_manifest - separates root and segment routes" {
     fail("Expected docs manifest")
   }
   inspect(docs_manifest.base, content="/docs")
-  inspect(docs_manifest.routes.get("/intro"), content="Some([\"boot\"])")
-  inspect(docs_manifest.routes.get("/guide"), content="Some([\"boot\"])")
+  inspect(
+    docs_manifest.routes.get("/intro"),
+    content=(
+      #|Some([boot])
+    ),
+  )
+  inspect(
+    docs_manifest.routes.get("/guide"),
+    content=(
+      #|Some([boot])
+    ),
+  )
 }
 
 ///|
@@ -379,7 +408,12 @@ test "match_dynamic_pattern - simple param" {
   let result = match_dynamic_pattern(manifest, "/blog/hello-world")
   guard result is Some((pattern, params)) else { fail("Expected match") }
   inspect(pattern.pattern, content="/:slug")
-  inspect(params.get("slug"), content="Some(\"hello-world\")")
+  inspect(
+    params.get("slug"),
+    content=(
+      #|Some(hello-world)
+    ),
+  )
 }
 
 ///|
@@ -420,5 +454,10 @@ test "match_dynamic_pattern - catch-all" {
   let result = match_dynamic_pattern(manifest, "/docs/guide/getting-started")
   guard result is Some((pattern, params)) else { fail("Expected match") }
   inspect(pattern.catch_all, content="true")
-  inspect(params.get("path"), content="Some(\"guide/getting-started\")")
+  inspect(
+    params.get("path"),
+    content=(
+      #|Some(guide/getting-started)
+    ),
+  )
 }

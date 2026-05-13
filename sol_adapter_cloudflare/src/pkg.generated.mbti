@@ -2,21 +2,88 @@
 package "mizchi/sol_adapter_cloudflare"
 
 import {
+  "mizchi/mars",
   "mizchi/sol/router",
 }
 
 // Values
+pub fn ai_binding(String, optional? : Bool) -> BindingSpec
+
+pub fn binding(String, BindingKind, optional? : Bool) -> BindingSpec
+
+pub fn d1_database(String, optional? : Bool) -> BindingSpec
+
+pub fn describe_missing_bindings(Array[MissingBinding]) -> String
+
+pub fn durable_object(String, optional? : Bool) -> BindingSpec
+
+pub fn env_var(String, optional? : Bool) -> BindingSpec
+
+pub fn export_app(@mars.Server) -> Unit
+
 pub fn extract_worker_first_patterns(Array[@router.SolRoutes]) -> Array[String]
+
+pub fn generate_cloudflare_server_entry_js(String) -> String
+
+pub fn generate_worker_entry_js(String, api_prefix? : String) -> String
 
 pub fn generate_wrangler_assets_config(Array[@router.SolRoutes], String) -> String
 
+pub fn generate_wrangler_toml(String, main? : String, compatibility_date? : String, no_bundle? : Bool) -> String
+
+pub fn kv_namespace(String, optional? : Bool) -> BindingSpec
+
+pub fn missing_required_bindings(@mars.JsEnv, Array[BindingSpec]) -> Array[MissingBinding]
+
+pub fn queue_binding(String, optional? : Bool) -> BindingSpec
+
+pub fn r2_bucket(String, optional? : Bool) -> BindingSpec
+
 pub fn route_pattern_to_worker_glob(String) -> String
+
+pub fn run((@mars.Server) -> Unit) -> Unit
+
+pub fn run_app(() -> @mars.Server) -> Unit
+
+pub fn secret(String, optional? : Bool) -> BindingSpec
+
+pub fn service_binding(String, optional? : Bool) -> BindingSpec
+
+pub fn validate_bindings(@mars.JsEnv, Array[BindingSpec]) -> Bool
 
 // Errors
 
 // Types and methods
+pub(all) enum BindingKind {
+  EnvVar
+  Secret
+  KV
+  R2
+  D1
+  DurableObject
+  Service
+  AI
+  Queue
+}
+pub fn BindingKind::label(Self) -> String
+
+pub(all) struct BindingSpec {
+  name : String
+  kind : BindingKind
+  optional : Bool
+}
+
+pub(all) struct MissingBinding {
+  name : String
+  kind : BindingKind
+}
 
 // Type aliases
+pub using @mars {type Server as App}
+
+pub using @mars {type JsEnv as Env}
+
+pub using @mars {type JsExecCtx as ExecutionContext}
 
 // Traits
 

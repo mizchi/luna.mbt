@@ -100,6 +100,51 @@ fn analyze_routes_inner(
           reason: "API PATCH endpoint",
         })
       }
+      RawGet(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "Raw GET endpoint",
+        })
+      }
+      RawPost(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "Raw POST endpoint",
+        })
+      }
+      RawPut(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "Raw PUT endpoint",
+        })
+      }
+      RawDelete(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "Raw DELETE endpoint",
+        })
+      }
+      RawPatch(path~, handler~) => {
+        let _ = handler
+        let full_path = normalize_path(prefix + path)
+        result.push({
+          pattern: full_path,
+          kind: RouteKind::Dynamic,
+          reason: "Raw PATCH endpoint",
+        })
+      }
       WithMiddleware(middleware~, children~) => {
         let _ = middleware
         analyze_routes_inner(children, prefix, result)

@@ -538,6 +538,13 @@ extern "js" fn ffi_call_app_handler(
   #| }
 
 ///|
+extern "js" fn ffi_raw_response_with_nosniff_header() -> @web_http.Response =
+  #| () => new Response("raw-custom-header", {
+  #|   status: 200,
+  #|   headers: { "X-Content-Type-Options": "raw-nosniff" },
+  #| })
+
+///|
 fn test_root_template(marker : String) -> String {
   "<!DOCTYPE html><html><head><title>__LUNA_TITLE__</title>__LUNA_PRELOAD____LUNA_HEAD__</head><body><div id=\"" +
   marker +
@@ -668,6 +675,73 @@ async test "register_sol_routes serves page, fragment, and ISR variants" {
     full_page_scenario()
     fragment_scenario()
     isr_variant_scenario()
+  })
+}
+
+///|
+async test "register_sol_routes serves raw response without HTML or JSON wrapping" {
+  run_async_test_with_cleanup(() => {
+    async fn media_handler(props : PageProps) -> @web_http.Response {
+      let id = props.get_param("id").unwrap_or("missing")
+      @web_http.Response::text_("range:" + id, 206)
+    }
+
+    let app = @mars.Server::new()
+    register_sol_routes(app, [raw_get("/media/:id", media_handler)])
+    let res = ffi_call_app_handler(
+      app.to_fetch_handler(),
+      "GET",
+      "http://localhost/media/clip-1",
+      false,
+    ).wait()
+    assert_eq(res.status, 206)
+    assert_eq(res.body, "range:clip-1")
+    assert_true(res.content_type.unwrap_or("").contains("text/plain"))
+    assert_eq(res.fragment_response, None)
+  })
+}
+
+///|
+async test "register_sol_routes merges middleware headers into raw response" {
+  run_async_test_with_cleanup(() => {
+    async fn media_handler(_props : PageProps) -> @web_http.Response {
+      @web_http.Response::text_("raw-body", 200)
+    }
+
+    async fn custom_header_handler(_props : PageProps) -> @web_http.Response {
+      ffi_raw_response_with_nosniff_header()
+    }
+
+    let app = @mars.Server::new()
+    register_sol_routes(app, [
+      with_mw([@middleware.security_headers()], [
+        raw_get("/secure-media", media_handler),
+        raw_get("/custom-secure-media", custom_header_handler),
+      ]),
+    ])
+    let res = ffi_call_app_handler(
+      app.to_fetch_handler(),
+      "GET",
+      "http://localhost/secure-media",
+      false,
+    ).wait()
+    assert_eq(res.status, 200)
+    assert_eq(res.body, "raw-body")
+    assert_eq(res.no_sniff, Some("nosniff"))
+    assert_eq(res.cache_control, Some("no-cache, no-store, must-revalidate"))
+    let custom_res = ffi_call_app_handler(
+      app.to_fetch_handler(),
+      "GET",
+      "http://localhost/custom-secure-media",
+      false,
+    ).wait()
+    assert_eq(custom_res.status, 200)
+    assert_eq(custom_res.body, "raw-custom-header")
+    assert_eq(custom_res.no_sniff, Some("raw-nosniff"))
+    assert_eq(
+      custom_res.cache_control,
+      Some("no-cache, no-store, must-revalidate"),
+    )
   })
 }
 

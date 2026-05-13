@@ -1,12 +1,15 @@
 # luna.mbt — UI / SSR / SSG monorepo for MoonBit
 
-Three packages share this repository, tied together by `moon.work` and
+MoonBit packages share this repository, tied together by `moon.work` and
 published independently to [mooncakes](https://mooncakes.io/):
 
 | Package | Role | Path | Latest |
 |---------|------|------|--------|
 | [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.20.1 |
+| [`mizchi/luna_components`](./luna_components/) | Headless and styled UI components | `luna_components/` | 0.20.1 |
 | [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.20.2 |
+| [`mizchi/sol_adapter_cloudflare`](./sol_adapter_cloudflare/) | Cloudflare/Wrangler adapter utilities for Sol | `sol_adapter_cloudflare/` | 0.20.2 |
+| [`mizchi/sol_adapter_node`](./sol_adapter_node/) | Node.js adapter utilities for Sol | `sol_adapter_node/` | 0.20.2 |
 | [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.20.1 |
 
 Each package's README has the canonical usage doc.
@@ -62,6 +65,7 @@ pnpm add @luna_ui/testing        # test helpers
 - `luna_components/`  — headless + styled UI components (WAI-ARIA APG patterns) + apg-playground demo
 - `sol/`              — sol SSR framework + CLI (`cmd/sol`)
 - `sol_adapter_cloudflare/` — Cloudflare/Wrangler adapter utilities for Sol
+- `sol_adapter_node/` — Node.js adapter utilities for Sol
 - `astra/`            — astra SSG middleware + CLI (`cmd/astra`)
 - `js/`       — TS bindings + npm wrappers (`@luna_ui/{luna,sol,astra,components,loader,stella,testing,wcr,wcssr}`)
 - `website/`  — monorepo docs site (Luna UI), built with `astra build`
@@ -80,7 +84,7 @@ pnpm test:integration   # build/dev parity + 7-example matrix (node:test)
 
 ## Release pipeline
 
-- mooncakes (`mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,astra}`) are bumped via `luna/scripts/vup.mjs`
+- mooncakes (`mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,sol_adapter_node,astra}`) are bumped via `luna/scripts/vup.mjs`
   and pushed to https://mooncakes.io/.
 - npm (`@luna_ui/*`) is automated end-to-end:
   - `release-please` (workflow_dispatch) opens a Release PR aggregating
@@ -104,7 +108,7 @@ This repo started as the canonical home for `mizchi/luna` only. In May 2026
 the upstream `mizchi/sol.mbt` was retired and its sources moved here, then
 SSG capability was extracted into the new `mizchi/astra` package
 (see `docs/superpowers/specs/2026-05-01-astra-extraction-design.md` and
-the implementation plan beside it). All three packages now release in
+the implementation plan beside it). These packages now release in
 coordinated patch bumps from this repository.
 
 ## License

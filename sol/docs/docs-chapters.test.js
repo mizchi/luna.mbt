@@ -11,6 +11,7 @@ const QUICKSTART = path.join(ROOT, "docs", "quickstart.md");
 const DEPLOY = path.join(ROOT, "docs", "deploy.md");
 const RUNBOOK = path.join(ROOT, "docs", "runbook.md");
 const TROUBLESHOOTING = path.join(ROOT, "docs", "troubleshooting.md");
+const ROUTING = path.join(ROOT, "docs", "routing.md");
 const ROOT_README = path.join(ROOT, "README.md");
 
 test("docs index includes quickstart and troubleshooting chapters", () => {
@@ -37,6 +38,18 @@ test("troubleshooting doc includes checks for routing and benchmark issues", () 
   assert.match(troubleshooting, /benchmark|ベンチ/i);
   assert.match(troubleshooting, /docs\/routing\.md/);
   assert.match(troubleshooting, /docs\/benchmarking\.md/);
+});
+
+test("routing doc defines ownership manifest, raw responses, and error ownership", () => {
+  const routing = fs.readFileSync(ROUTING, "utf8");
+  assert.match(routing, /route_ownership_manifest/);
+  assert.match(routing, /raw_get/);
+  assert.match(routing, /Raw `Response`/);
+  assert.match(routing, /404/);
+  assert.match(routing, /500/);
+  assert.match(routing, /Sol page routes own HTML/);
+  assert.match(routing, /Sol API routes own JSON/);
+  assert.match(routing, /Host Worker routes own/);
 });
 
 test("deploy and runbook docs describe large-change deploy guard", () => {

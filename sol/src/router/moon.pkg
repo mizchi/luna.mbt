@@ -11,6 +11,7 @@ import {
   "mizchi/sol/isr" @isr,
   "mizchi/mars" @mars,
   "mizchi/js/core" @js,
+  "mizchi/js/web/http" @web_http,
   "mizchi/js/web/url" @url,
   "mizchi/sol/internal/utils" @utils,
   "mizchi/sol/internal/mars_response" @mars_response,
@@ -26,6 +27,8 @@ import {
 
 warnings = "-24-67-29"
 
+supported_targets = "js"
+
 options(
   targets: {
     "sol_routes_ffi_js.mbt": [ "js" ],
@@ -33,5 +36,3 @@ options(
     "route_params_js.mbt": [ "js" ],
   },
 )
-
-supported_targets = "js"
