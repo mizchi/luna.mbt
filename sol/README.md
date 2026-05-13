@@ -354,7 +354,15 @@ pub fn config() -> @router.RouterConfig {
   - Actually applies `SolRoutes::Layout`
 
 Single source of truth: `docs/routing.md`
-Refer to this document for `Layout` application rules and `source_path` dynamic parameter format.
+Refer to this document for `Layout` application rules, raw response routes,
+route/component asset attachment, and `source_path` dynamic parameter format.
+
+Route and component assets are first-class Sol metadata. Use
+`RouterConfig.with_style(...)` / `.with_client_script(...)` for app-wide
+assets, `page(..., styles=[...], scripts=[...])` or `assets(...)` for
+route-scoped assets, and `with_style(...)` / `with_assets(...)` for
+component-local CSS and client modules. Local paths are emitted under
+`/static/` and deduplicated deterministically.
 
 Hot Reload design: `docs/hot-reload.md`
 Benchmark procedures and `SOL_BENCH_MODE` specification: `docs/benchmarking.md`

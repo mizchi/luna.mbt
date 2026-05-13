@@ -52,6 +52,18 @@ test("routing doc defines ownership manifest, raw responses, and error ownership
   assert.match(routing, /Host Worker routes own/);
 });
 
+test("routing doc covers route and component asset attachment", () => {
+  const routing = fs.readFileSync(ROUTING, "utf8");
+  assert.match(routing, /Route And Component Assets/);
+  assert.match(routing, /with_client_script/);
+  assert.match(routing, /with_style/);
+  assert.match(routing, /with_assets/);
+  assert.match(routing, /assets\(/);
+  assert.match(routing, /deterministic/);
+  assert.match(routing, /deduplicated/);
+  assert.match(routing, /\/static\//);
+});
+
 test("deploy and runbook docs describe large-change deploy guard", () => {
   const deploy = fs.readFileSync(DEPLOY, "utf8");
   const runbook = fs.readFileSync(RUNBOOK, "utf8");

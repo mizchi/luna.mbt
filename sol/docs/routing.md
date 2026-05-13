@@ -75,7 +75,76 @@ responses from service bindings or upstream services. Cloudflare-specific
 objects should stay in the host Worker or a platform adapter; the core Sol
 contract is only the Web `Response`.
 
-## 5. 404/500 Ownership
+## 5. Route And Component Assets
+
+Sol page routes can attach stylesheet and client module assets without
+embedding raw `<style>` or `<script>` strings in route heads. Assets are scoped
+at three levels:
+
+- App-wide defaults on `RouterConfig`
+- Route or route-group assets on `page(...)` and `assets(...)`
+- Component-local assets on the returned `ServerNode`
+
+```moonbit
+pub fn config() -> @router.RouterConfig {
+  @router.RouterConfig::default()
+    .with_style("./app.css")
+    .with_client_script("./client/app.ts")
+}
+
+pub fn routes() -> Array[@router.SolRoutes] {
+  [
+    @router.assets(
+      [
+        @router.page(
+          "/upload",
+          upload_page,
+          styles=["./upload.route.css"],
+          scripts=["./client/upload.route.ts"],
+        ),
+      ],
+      styles=["./admin.css"],
+      scripts=["./client/admin.ts"],
+    ),
+  ]
+}
+
+async fn upload_page(_props : @router.PageProps) -> @server_dom.ServerNode {
+  @router.with_style(
+    "./upload_panel.css",
+    section([
+      button(id="copy-link", [text("Copy")]),
+    ]),
+  )
+}
+```
+
+For components that need both CSS and a behavior module, return a styled
+`ServerNode` with `with_assets`:
+
+```moonbit
+@router.with_assets(
+  section([button(id="retry", [text("Retry")])]),
+  styles=["./job_status.css"],
+  scripts=["./client/job_status.ts"],
+)
+```
+
+Local asset paths such as `./upload_panel.css` are rendered under `/static/`
+and can be served as normal cacheable static files. Absolute paths and remote
+URLs are preserved. Asset ordering is deterministic: config assets are emitted
+first, then inherited route-group assets, then route assets, then
+component-local assets collected during render. Duplicate asset paths are
+deduplicated at each merge/render step, so nested layouts and repeated
+components do not inject duplicate tags.
+
+Client scripts are emitted as `<script type="module">` tags. They are intended
+for small progressive behavior such as form pending/error/success states,
+copy-to-clipboard buttons, retry controls, and batch status polling. The Sol
+core only emits Web-standard HTML tags and does not add Node-only runtime code,
+so Cloudflare-specific bundling stays outside the core routing contract.
+
+## 6. 404/500 Ownership
 
 Error handling follows the layer that owns the route:
 
@@ -96,7 +165,7 @@ return the host fallback `404`. Route groups and layouts define composition
 boundaries for Sol pages, but they are not general-purpose error boundary
 components.
 
-## 6. Dynamic `source_path` Query Format
+## 7. Dynamic `source_path` Query Format
 
 When retaining dynamic parameters in the SSG internal representation `source_path`, the format is as follows:
 
@@ -112,7 +181,7 @@ Examples:
 
 During restoration (`page_generator`), the query is URL-decoded and restored to a `Map[String, String]`.
 
-## 7. Scope
+## 8. Scope
 
 - This `source_path` convention is an internal representation for SSG
 - This convention is not required for runtime routing (`Context::param`)
