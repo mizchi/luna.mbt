@@ -68,7 +68,7 @@ test "sol_routes_to_manifest - page with ISR revalidation" {
     fail("Expected Dynamic route")
   }
   inspect(entry.path, content="/blog/:slug")
-  inspect(entry.param_names, content="[\"slug\"]")
+  inspect(entry.param_names, content="[slug]")
   guard entry.mode is @sol_routes.RenderMode::Isr(revalidate~) else {
     fail("Expected ISR mode")
   }
@@ -160,7 +160,7 @@ test "sol_routes_to_manifest - dynamic params extraction" {
   guard manifest.routes[0] is @sol_routes.Dynamic(entry) else {
     fail("Expected Dynamic route")
   }
-  inspect(entry.param_names, content="[\"id\", \"postId\"]")
+  inspect(entry.param_names, content="[id, postId]")
   inspect(entry.pattern, content="^/users/([^/]+)/posts/([^/]+)$")
 }
 

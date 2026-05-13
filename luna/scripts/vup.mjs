@@ -2,7 +2,8 @@
 /**
  * Mooncakes-side version bump for luna.mbt.
  *
- * Bumps ONLY the four MoonBit packages (luna / luna_components / sol / astra).
+ * Bumps ONLY the five MoonBit packages
+ * (luna / luna_components / sol / sol_adapter_cloudflare / astra).
  * Each package owns its own version, but a single semver bump
  * (patch/minor/major) increments each one relative to its current value.
  *
@@ -15,6 +16,9 @@
  *                                   luna's new version)
  *   sol/moon.mod.json             (also updates `mizchi/astra.version` to match
  *                                   astra's new version)
+ *   sol_adapter_cloudflare/moon.mod.json
+ *                                 (also updates `mizchi/sol.version` to match
+ *                                   sol's new version)
  *   astra/moon.mod.json
  *
  * Usage:
@@ -30,6 +34,7 @@
  *   luna-v<luna_version>
  *   luna_components-v<luna_components_version>
  *   sol-v<sol_version>
+ *   sol_adapter_cloudflare-v<sol_adapter_cloudflare_version>
  *   astra-v<astra_version>
  *
  * release-please creates separate "@luna_ui/<pkg>-v<v>" tags for the npm side.
@@ -50,15 +55,36 @@ const rootDir = join(__dirname, "..", "..");
 // =============================================================================
 
 /**
- * Each package is identified by its short id (luna / sol / astra) and has:
+ * Each package is identified by its short id and has:
  *   - moonModPath:   path to moon.mod.json
  *   - tagPrefix:     git tag prefix (e.g. "luna-v")
  */
 const PACKAGES = [
-  { id: "luna",            moonModPath: "luna/moon.mod.json",            tagPrefix: "luna-v"            },
-  { id: "luna_components", moonModPath: "luna_components/moon.mod.json", tagPrefix: "luna_components-v" },
-  { id: "sol",             moonModPath: "sol/moon.mod.json",             tagPrefix: "sol-v"             },
-  { id: "astra",           moonModPath: "astra/moon.mod.json",           tagPrefix: "astra-v"           },
+  {
+    id: "luna",
+    moonModPath: "luna/moon.mod.json",
+    tagPrefix: "luna-v",
+  },
+  {
+    id: "luna_components",
+    moonModPath: "luna_components/moon.mod.json",
+    tagPrefix: "luna_components-v",
+  },
+  {
+    id: "sol",
+    moonModPath: "sol/moon.mod.json",
+    tagPrefix: "sol-v",
+  },
+  {
+    id: "sol_adapter_cloudflare",
+    moonModPath: "sol_adapter_cloudflare/moon.mod.json",
+    tagPrefix: "sol_adapter_cloudflare-v",
+  },
+  {
+    id: "astra",
+    moonModPath: "astra/moon.mod.json",
+    tagPrefix: "astra-v",
+  },
 ];
 
 // =============================================================================
@@ -133,11 +159,14 @@ function buildPlan(spec) {
 function applyPlan(plan, dryRun) {
   // Inter-dep refs to update inside other mooncakes' moon.mod.json:
   //   sol depends on astra
+  //   sol_adapter_cloudflare depends on sol
   //   luna_components depends on luna
   const astraEntry = plan.find(p => p.id === "astra");
   const lunaEntry = plan.find(p => p.id === "luna");
+  const solEntry = plan.find(p => p.id === "sol");
   const astraNewVersion = astraEntry?.newMoon;
   const lunaNewVersion = lunaEntry?.newMoon;
+  const solNewVersion = solEntry?.newMoon;
 
   function bumpInterDep(moon, depName, newVersion, contextLabel) {
     if (!newVersion || !moon.deps?.[depName]) return;
@@ -158,6 +187,9 @@ function applyPlan(plan, dryRun) {
 
     if (entry.id === "sol") {
       bumpInterDep(entry.moon, "mizchi/astra", astraNewVersion, "sol/moon.mod.json");
+    }
+    if (entry.id === "sol_adapter_cloudflare") {
+      bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_cloudflare/moon.mod.json");
     }
     if (entry.id === "luna_components") {
       bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "luna_components/moon.mod.json");
@@ -207,15 +239,21 @@ function printUsage() {
   node luna/scripts/vup.mjs <X.Y.Z>            [--dry-run] [--release [--push]]
 
 Scope:
-  This script bumps ONLY the 3 mooncakes packages (mizchi/{luna,sol,astra}).
+  This script bumps ONLY the 5 mooncakes packages
+  (mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,astra}).
   The npm packages under js/* are managed by release-please — do not edit
   their versions by hand. See docs/internal/npm-release-onboarding.md.
 
-Touches 3 manifests:
-  luna/moon.mod.json, sol/moon.mod.json, astra/moon.mod.json
+Touches 5 manifests:
+  luna/moon.mod.json, luna_components/moon.mod.json,
+  sol/moon.mod.json, sol_adapter_cloudflare/moon.mod.json,
+  astra/moon.mod.json
   (sol/moon.mod.json deps.mizchi/astra.version is also bumped to match astra)
+  (sol_adapter_cloudflare/moon.mod.json deps.mizchi/sol.version is also bumped)
 
-Tags created by --release: luna-v<v>, sol-v<v>, astra-v<v>.
+Tags created by --release:
+  luna-v<v>, luna_components-v<v>, sol-v<v>,
+  sol_adapter_cloudflare-v<v>, astra-v<v>.
 
 Examples:
   node luna/scripts/vup.mjs --dry-run patch         # preview

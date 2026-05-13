@@ -65,7 +65,7 @@ pub fn ChunkManifest::get_chunks(
       // Add all import dependencies with base URL prefix
       for imp in entry.imports {
         let chunk_url = self.base_url + imp
-        if !(chunks.contains(chunk_url)) {
+        if !chunks.contains(chunk_url) {
           chunks.push(chunk_url)
         }
       }
@@ -150,6 +150,10 @@ pub struct RouterConfig {
   default_title : String
   /// Default head HTML (styles, meta tags, etc.)
   default_head : String
+  /// Stylesheet asset paths attached to every page.
+  styles : Array[String]
+  /// Client-side module script asset paths attached to every page.
+  client_scripts : Array[String]
   /// URL for the island loader script
   loader_url : String
   /// URL for the Web Components loader script
@@ -196,6 +200,8 @@ pub fn RouterConfig::default() -> RouterConfig {
     title_prefix: "",
     default_title: "App",
     default_head: "",
+    styles: [],
+    client_scripts: [],
     loader_url: "/__sol__/loader.js",
     wc_loader_url: "/__sol__/wc-loader.js",
     enable_preload: true,
@@ -252,6 +258,42 @@ pub fn RouterConfig::with_default_head(
   head : String,
 ) -> RouterConfig {
   { ..self, default_head: head }
+}
+
+///|
+/// Attach a stylesheet asset to every page.
+pub fn RouterConfig::with_style(
+  self : RouterConfig,
+  style : String,
+) -> RouterConfig {
+  self.with_styles([style])
+}
+
+///|
+/// Attach stylesheet assets to every page.
+pub fn RouterConfig::with_styles(
+  self : RouterConfig,
+  styles : Array[String],
+) -> RouterConfig {
+  { ..self, styles: merge_asset_paths(self.styles, styles) }
+}
+
+///|
+/// Attach a client module script asset to every page.
+pub fn RouterConfig::with_client_script(
+  self : RouterConfig,
+  script : String,
+) -> RouterConfig {
+  self.with_client_scripts([script])
+}
+
+///|
+/// Attach client module script assets to every page.
+pub fn RouterConfig::with_client_scripts(
+  self : RouterConfig,
+  scripts : Array[String],
+) -> RouterConfig {
+  { ..self, client_scripts: merge_asset_paths(self.client_scripts, scripts) }
 }
 
 ///|

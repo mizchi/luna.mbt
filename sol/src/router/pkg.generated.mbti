@@ -23,6 +23,8 @@ pub fn[T : ToJson] api_post(String, async (PageProps) -> T) -> SolRoutes
 
 pub fn[T : ToJson] api_put(String, async (PageProps) -> T) -> SolRoutes
 
+pub fn assets(Array[SolRoutes], styles? : Array[String], scripts? : Array[String]) -> SolRoutes
+
 pub fn bad_request(String) -> ApiResponse
 
 pub fn combine_api_factories(Array[ApiHandlerFactory]) -> ApiHandlerFactory
@@ -33,11 +35,7 @@ pub fn compile_sol_routes(Array[SolRoutes], base? : String) -> Array[CompiledSol
 
 pub fn error_response(String, status? : Int) -> ApiResponse
 
-pub fn extract_dynamic_patterns(Array[SolRoutes]) -> Array[String]
-
 pub fn forbidden(message? : String) -> ApiResponse
-
-pub fn generate_wrangler_assets_config(Array[SolRoutes], String) -> String
 
 pub fn manifest_to_sol_routes(@mizchi/astra/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 
@@ -55,7 +53,7 @@ pub fn optional(PageProps, String, String) -> String
 
 pub fn optional_query(PageProps, String, String) -> String
 
-pub fn page(String, async (PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : CacheStrategy?) -> SolRoutes
+pub fn page(String, async (PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : CacheStrategy?, styles? : Array[String], scripts? : Array[String]) -> SolRoutes
 
 pub fn redirect_permanent_to(String) -> ApiResponse
 
@@ -79,6 +77,8 @@ pub fn require_query(PageProps, String) -> Result[String, ApiResponse]
 
 pub async fn send_fragment_response(@mars.Context, String) -> Unit
 
+pub fn server_nodes(Array[@static.ServerNode]) -> @static.ServerNode
+
 pub fn sol_routes_to_manifest(Array[SolRoutes], base? : String) -> @mizchi/astra/routes.RouteManifest
 
 pub fn split_mbtx_chunks(Array[MbtxEntry], shared_path? : String) -> MbtxChunkResult
@@ -87,7 +87,13 @@ pub fn transform_mbtx_to_esm(String) -> String
 
 pub fn unauthorized(message? : String) -> ApiResponse
 
+pub fn with_assets(@mizchi/luna/core.Node[Unit, String], styles? : Array[String], scripts? : Array[String]) -> @static.ServerNode
+
 pub fn with_mw(Array[@middleware.Middleware], Array[SolRoutes]) -> SolRoutes
+
+pub fn with_script(String, @mizchi/luna/core.Node[Unit, String]) -> @static.ServerNode
+
+pub fn with_style(String, @mizchi/luna/core.Node[Unit, String]) -> @static.ServerNode
 
 pub fn wrap(String, (PageProps, @static.ServerNode) -> @static.ServerNode raise, Array[SolRoutes]) -> SolRoutes
 
@@ -101,12 +107,8 @@ pub(all) struct AnalyzedRoute {
 }
 
 pub(all) struct ApiHandler(async (PageProps) -> Json)
-#deprecated
-pub fn ApiHandler::inner(Self) -> async (PageProps) -> Json
 
 pub(all) struct ApiHandlerFactory((@mizchi/astra/routes.RouteEntry) -> ApiHandler?)
-#deprecated
-pub fn ApiHandlerFactory::inner(Self) -> (@mizchi/astra/routes.RouteEntry) -> ApiHandler?
 
 pub(all) enum ApiResponse {
   Json(Json)
@@ -157,6 +159,8 @@ pub struct CompiledSolRoute {
   revalidate : Int?
   cache_strategy : CacheStrategy
   rendered_meta : String
+  styles : Array[String]
+  scripts : Array[String]
 }
 
 pub(all) struct MbtxChunkEntry {
@@ -182,12 +186,8 @@ pub(all) struct MbtxRoute {
 }
 
 pub(all) struct PageHandler(async (PageProps) -> @static.ServerNode)
-#deprecated
-pub fn PageHandler::inner(Self) -> async (PageProps) -> @static.ServerNode
 
 pub(all) struct PageHandlerFactory((@mizchi/astra/routes.RouteEntry) -> PageHandler?)
-#deprecated
-pub fn PageHandlerFactory::inner(Self) -> (@mizchi/astra/routes.RouteEntry) -> PageHandler?
 
 pub struct PageProps {
   params : RouteParams
@@ -237,6 +237,8 @@ pub struct RouterConfig {
   title_prefix : String
   default_title : String
   default_head : String
+  styles : Array[String]
+  client_scripts : Array[String]
   loader_url : String
   wc_loader_url : String
   enable_preload : Bool
@@ -251,6 +253,8 @@ pub struct RouterConfig {
 pub fn RouterConfig::default() -> Self
 pub fn RouterConfig::with_cache_strategy(Self, @isr.CDNCacheStrategy) -> Self
 pub fn RouterConfig::with_chunk_manifest(Self, ChunkManifest) -> Self
+pub fn RouterConfig::with_client_script(Self, String) -> Self
+pub fn RouterConfig::with_client_scripts(Self, Array[String]) -> Self
 pub fn RouterConfig::with_default_head(Self, String) -> Self
 pub fn RouterConfig::with_default_title(Self, String) -> Self
 pub fn RouterConfig::with_isr_cache(Self, @isr.MemoryCache) -> Self
@@ -259,6 +263,8 @@ pub fn RouterConfig::with_preload_libs(Self, Array[String]) -> Self
 pub fn RouterConfig::with_root_template(Self, String) -> Self
 pub fn RouterConfig::with_server_islands(Self, ServerIslandRegistry) -> Self
 pub fn RouterConfig::with_streaming_ssr(Self, enabled? : Bool) -> Self
+pub fn RouterConfig::with_style(Self, String) -> Self
+pub fn RouterConfig::with_styles(Self, Array[String]) -> Self
 pub fn RouterConfig::with_title_prefix(Self, String) -> Self
 pub fn RouterConfig::with_wc_loader_url(Self, String) -> Self
 
@@ -294,6 +300,7 @@ pub(all) enum SolRoutes {
   Delete(path~ : String, handler~ : ApiHandler)
   Patch(path~ : String, handler~ : ApiHandler)
   WithMiddleware(middleware~ : Array[@middleware.Middleware], children~ : Array[SolRoutes])
+  WithAssets(styles~ : Array[String], scripts~ : Array[String], children~ : Array[SolRoutes])
 }
 
 pub(all) struct StaticDir {

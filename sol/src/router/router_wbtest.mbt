@@ -3,7 +3,7 @@
 ///|
 test "extract_route_param_names - supports colon and bracket params" {
   let names = extract_route_param_names("/users/:id/posts/[postId]")
-  inspect(names, content="[\"id\", \"postId\"]")
+  inspect(names, content="[id, postId]")
 }
 
 ///|
@@ -11,13 +11,13 @@ test "extract_route_param_names - supports regex and catch-all params" {
   let names = extract_route_param_names(
     "/api/:version{[0-9]+}/docs/[...slug]/[[...opt]]",
   )
-  inspect(names, content="[\"version\", \"slug\", \"opt\"]")
+  inspect(names, content="[version, slug, opt]")
 }
 
 ///|
 test "extract_route_param_names - deduplicates parameter names" {
   let names = extract_route_param_names("/a/:id/:id/[id]")
-  inspect(names, content="[\"id\"]")
+  inspect(names, content="[id]")
 }
 
 ///|
@@ -52,6 +52,28 @@ test "resolve_router_config - prefers explicit config when provided" {
   assert_eq(resolved.title_prefix, "Cfg")
   assert_eq(resolved.default_title, "CfgTitle")
   assert_eq(resolved.loader_url, "/cfg/loader.js")
+}
+
+///|
+test "RouterConfig - stores first-class style and client script assets" {
+  let config = RouterConfig::default()
+    .with_style("./app.css")
+    .with_styles(["./shared.css", "/global.css"])
+    .with_client_script("./client/app.ts")
+    .with_client_scripts(["./client/retry.js"])
+  assert_eq(config.styles, ["./app.css", "./shared.css", "/global.css"])
+  assert_eq(config.client_scripts, ["./client/app.ts", "./client/retry.js"])
+}
+
+///|
+test "render_asset_tags normalizes URLs escapes attributes and deduplicates" {
+  let html = render_asset_tags(
+    ["./app.css", "/static/app.css", "https://cdn.example/ui.css"],
+    ["./client/app.ts", "./client/app.ts", "/ready.js?x=<tag>"],
+  )
+  assert_eq(
+    html, "<link rel=\"stylesheet\" href=\"/static/app.css\"><link rel=\"stylesheet\" href=\"https://cdn.example/ui.css\"><script type=\"module\" src=\"/static/client/app.ts\"></script><script type=\"module\" src=\"/ready.js?x=&lt;tag&gt;\"></script>",
+  )
 }
 
 ///|
@@ -171,10 +193,7 @@ test "render_meta_tags: single meta tag" {
 
 ///|
 test "render_meta_tags: multiple meta tags" {
-  let result = render_meta_tags([
-    ("description", "Test"),
-    ("author", "Mizchi"),
-  ])
+  let result = render_meta_tags([("description", "Test"), ("author", "Mizchi")])
   assert_true(result.contains("<meta name=\"description\" content=\"Test\">"))
   assert_true(result.contains("<meta name=\"author\" content=\"Mizchi\">"))
 }
@@ -189,9 +208,7 @@ test "compiled route pre-computes rendered_meta for page routes" {
     @server_dom.ServerNode::sync(@luna.text(""))
   }
 
-  let routes = [
-    page("/about", handler, meta=[("description", "About page")]),
-  ]
+  let routes = [page("/about", handler, meta=[("description", "About page")])]
   let compiled = compile_sol_routes(routes)
   assert_eq(compiled.length(), 1)
   assert_eq(
@@ -219,7 +236,7 @@ test "compiled route has empty rendered_meta for API routes" {
 ///|
 test "collect_preload_urls: empty inputs" {
   let result = collect_preload_urls([], [], None)
-  assert_eq!(result.length(), 0)
+  assert_eq(result.length(), 0)
 }
 
 ///|
@@ -229,8 +246,8 @@ test "collect_preload_urls: libs only" {
     [],
     None,
   )
-  assert_eq!(result.length(), 2)
-  assert_eq!(result[0], "/lib/react.js")
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/lib/react.js")
 }
 
 ///|
@@ -240,8 +257,8 @@ test "collect_preload_urls: islands without manifest" {
     ["/static/counter.js", "/static/form.js"],
     None,
   )
-  assert_eq!(result.length(), 2)
-  assert_eq!(result[0], "/static/counter.js")
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/static/counter.js")
 }
 
 ///|
@@ -251,9 +268,9 @@ test "collect_preload_urls: libs before islands" {
     ["/static/counter.js"],
     None,
   )
-  assert_eq!(result.length(), 2)
-  assert_eq!(result[0], "/lib/runtime.js")
-  assert_eq!(result[1], "/static/counter.js")
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/lib/runtime.js")
+  assert_eq(result[1], "/static/counter.js")
 }
 
 ///|
@@ -263,9 +280,9 @@ test "collect_preload_urls: deduplicates URLs" {
     ["/lib/shared.js", "/static/counter.js"],
     None,
   )
-  assert_eq!(result.length(), 2)
-  assert_eq!(result[0], "/lib/shared.js")
-  assert_eq!(result[1], "/static/counter.js")
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/lib/shared.js")
+  assert_eq(result[1], "/static/counter.js")
 }
 
 ///|
@@ -275,14 +292,10 @@ test "collect_preload_urls: with chunk manifest adds dependencies" {
     "counter.js",
     ChunkManifestEntry::new("counter.js", ["_shared/signals.js"]),
   )
-  let result = collect_preload_urls(
-    [],
-    ["/static/counter.js"],
-    Some(manifest),
-  )
+  let result = collect_preload_urls([], ["/static/counter.js"], Some(manifest))
   // Should have chunk dep first, then island
-  assert_true!(result.contains("/static/_shared/signals.js"))
-  assert_true!(result.contains("/static/counter.js"))
+  assert_true(result.contains("/static/_shared/signals.js"))
+  assert_true(result.contains("/static/counter.js"))
 }
 
 ///|
@@ -298,11 +311,11 @@ test "collect_preload_urls: manifest deduplicates chunks with libs" {
     Some(manifest),
   )
   // lib.js already in preload_libs, should not duplicate
-  let lib_count = result.iter().filter(fn(u) { u == "/static/_shared/lib.js" }).fold(
-    init=0,
-    fn(acc, _) { acc + 1 },
-  )
-  assert_eq!(lib_count, 1)
+  let lib_count = result
+    .iter()
+    .filter(fn(u) { u == "/static/_shared/lib.js" })
+    .fold(init=0, fn(acc, _) { acc + 1 })
+  assert_eq(lib_count, 1)
 }
 
 ///|

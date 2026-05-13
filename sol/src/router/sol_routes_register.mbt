@@ -39,8 +39,8 @@ fn should_use_streaming(
   route_revalidate : Int?,
 ) -> Bool {
   config.enable_streaming &&
-  !(is_fragment) &&
-  !(is_isr_with_cache(config, route_revalidate))
+  !is_fragment &&
+  !is_isr_with_cache(config, route_revalidate)
 }
 
 ///|
@@ -69,26 +69,28 @@ fn apply_cdn_cache_headers(
 }
 
 ///|
-fn apply_layouts(
+fn apply_layouts_with_assets(
   content : @server_dom.ServerNode,
   props : PageProps,
   layouts : Array[
     (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise Error,
   ],
   is_fragment : Bool,
-) -> @server_dom.ServerNode raise Error {
+) -> (@server_dom.ServerNode, @server_dom.ServerAssets) raise Error {
   // Apply layouts from innermost to outermost
   // For fragments: skip root layout (index 0), apply nested layouts
   // For full pages: apply all layouts
   let mut node = content
+  let mut assets = content.declared_assets()
   let end_idx = if is_fragment { 1 } else { 0 }
   let mut i = layouts.length() - 1
   while i >= end_idx {
     let layout_fn = layouts[i]
     node = layout_fn(props, node)
+    assets = node.declared_assets().merge(assets)
     i -= 1
   }
-  node
+  (node, assets)
 }
 
 ///|
@@ -103,6 +105,8 @@ async fn render_page_to_html(
   is_fragment : Bool,
   title : String,
   page_head : String,
+  asset_styles : Array[String],
+  asset_scripts : Array[String],
   root_template : String,
   cache_strategy : CacheStrategy,
 ) -> String raise Error {
@@ -111,14 +115,21 @@ async fn render_page_to_html(
   if c.is_response_sent() {
     fail("ISR render attempted to send a direct response")
   }
-  let node = apply_layouts(content, props, layouts, is_fragment)
+  let (node, assets) = apply_layouts_with_assets(
+    content, props, layouts, is_fragment,
+  )
   if c.is_response_sent() {
     fail("ISR render attempted to mutate the response")
   }
   if is_fragment {
-    render_server_fragment(node, title, cache_strategy)
+    let head_assets = render_asset_tags(
+      merge_asset_paths(asset_styles, assets.styles),
+      merge_asset_paths(asset_scripts, assets.scripts),
+    )
+    render_server_fragment(node, title, cache_strategy, head_assets)
   } else {
-    render_server_page_html(node, title, page_head, root_template)
+    let head = build_page_head(page_head, asset_styles, asset_scripts, assets)
+    render_server_page_html(node, title, head, root_template)
   }
 }
 
@@ -133,6 +144,8 @@ async fn send_non_isr_page_response(
   is_fragment : Bool,
   page_title : String,
   page_head : String,
+  asset_styles : Array[String],
+  asset_scripts : Array[String],
   root_template : String,
   cache_strategy : CacheStrategy,
   route_revalidate : Int?,
@@ -147,28 +160,36 @@ async fn send_non_isr_page_response(
   if c.is_response_sent() {
     return
   }
-  let node = apply_layouts(content, props, layouts, is_fragment) catch {
+  let (node, assets) = apply_layouts_with_assets(
+    content, props, layouts, is_fragment,
+  ) catch {
     e => {
       log_server_error("Layout error", e)
       return c.text("Internal Server Error", status=500)
     }
   }
   if is_fragment {
-    let fragment_html = render_server_fragment(node, page_title, cache_strategy)
+    let head_assets = render_asset_tags(
+      merge_asset_paths(asset_styles, assets.styles),
+      merge_asset_paths(asset_scripts, assets.scripts),
+    )
+    let fragment_html = render_server_fragment(
+      node, page_title, cache_strategy, head_assets,
+    )
     send_fragment_response(c, fragment_html)
   } else if should_use_streaming(config, is_fragment, route_revalidate) {
+    let head = build_page_head(page_head, asset_styles, asset_scripts, assets)
     send_streaming_server_page(
       c,
       node,
       page_title,
-      page_head,
+      head,
       config.loader_url,
       root_template,
     )
   } else {
-    let html = render_server_page_html(
-      node, page_title, page_head, root_template,
-    )
+    let head = build_page_head(page_head, asset_styles, asset_scripts, assets)
+    let html = render_server_page_html(node, page_title, head, root_template)
     c.html(html)
   }
 }
@@ -254,6 +275,8 @@ async fn handle_isr_page_request(
   ],
   page_title : String,
   page_head : String,
+  asset_styles : Array[String],
+  asset_scripts : Array[String],
   root_template : String,
   cache_strategy : CacheStrategy,
   route_revalidate : Int?,
@@ -261,21 +284,12 @@ async fn handle_isr_page_request(
   cache : @isr.MemoryCache,
   config : RouterConfig,
 ) -> Unit {
-  if !(props.params.query.is_empty()) {
+  if !props.params.query.is_empty() {
     c.set_header("Cache-Control", "private, no-store")
     c.set_header("X-Sol-ISR-Status", "BYPASS")
     return send_non_isr_page_response(
-      c,
-      props,
-      handler,
-      layouts,
-      false,
-      page_title,
-      page_head,
-      root_template,
-      cache_strategy,
-      route_revalidate,
-      config,
+      c, props, handler, layouts, false, page_title, page_head, asset_styles, asset_scripts,
+      root_template, cache_strategy, route_revalidate, config,
     )
   }
   // Apply CDN cache headers if strategy is configured
@@ -306,19 +320,12 @@ async fn handle_isr_page_request(
       match entry {
         Some(e) => {
           // Deduplicate in-flight revalidations for same cache key
-          if !(isr_in_flight.val.contains(cache_key)) {
+          if !isr_in_flight.val.contains(cache_key) {
             isr_in_flight.val.add(cache_key)
             @isr.ISRCache::schedule_revalidation(cache, async fn() {
               let html = render_page_to_html(
-                c,
-                isr_props,
-                handler,
-                layouts,
-                false,
-                page_title,
-                page_head,
-                root_template,
-                cache_strategy,
+                c, isr_props, handler, layouts, false, page_title, page_head, asset_styles,
+                asset_scripts, root_template, cache_strategy,
               ) catch {
                 _ => {
                   isr_in_flight.val.remove(cache_key)
@@ -341,15 +348,8 @@ async fn handle_isr_page_request(
     @isr.Miss => {
       // Render, cache, and return
       let html = render_page_to_html(
-        c,
-        isr_props,
-        handler,
-        layouts,
-        false,
-        page_title,
-        page_head,
-        root_template,
-        cache_strategy,
+        c, isr_props, handler, layouts, false, page_title, page_head, asset_styles,
+        asset_scripts, root_template, cache_strategy,
       ) catch {
         e => {
           log_server_error("ISR revalidation error", e)
@@ -372,7 +372,7 @@ fn register_compiled_sol_routes(
   // Register server island defer endpoint if registry is configured
   match config.server_islands {
     Some(registry) =>
-      if !(registry.is_empty()) {
+      if !registry.is_empty() {
         register_defer_endpoint(app, registry)
       }
     None => ()
@@ -404,6 +404,11 @@ fn register_compiled_sol_routes(
             default_title=config.default_title,
           )
           let page_head = config.default_head + route.rendered_meta
+          let asset_styles = merge_asset_paths(config.styles, route.styles)
+          let asset_scripts = merge_asset_paths(
+            config.client_scripts,
+            route.scripts,
+          )
           c.set_header(
             "X-Sol-Cache-Strategy",
             cache_strategy_to_header_value(route.cache_strategy),
@@ -420,6 +425,8 @@ fn register_compiled_sol_routes(
                     route.layouts,
                     page_title,
                     page_head,
+                    asset_styles,
+                    asset_scripts,
                     config.root_template,
                     route.cache_strategy,
                     route.revalidate,
@@ -436,6 +443,8 @@ fn register_compiled_sol_routes(
                     is_fragment,
                     page_title,
                     page_head,
+                    asset_styles,
+                    asset_scripts,
                     config.root_template,
                     route.cache_strategy,
                     route.revalidate,
@@ -461,6 +470,7 @@ async fn render_server_fragment(
   node : @server_dom.ServerNode,
   title : String,
   cache_strategy : CacheStrategy,
+  head_assets : String,
 ) -> String {
   // Resolve the ServerNode to get the actual Node
   let resolved_node = node.resolve()
@@ -477,6 +487,11 @@ async fn render_server_fragment(
   buf.write_string("<template data-sol-cache-strategy>")
   buf.write_string(cache_strategy_to_header_value(cache_strategy))
   buf.write_string("</template>")
+  if !head_assets.is_empty() {
+    buf.write_string("<template data-sol-head-assets>")
+    buf.write_string(head_assets)
+    buf.write_string("</template>")
+  }
   buf.to_string()
 }
 

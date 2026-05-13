@@ -1,5 +1,7 @@
 ///| Re-export router and action APIs for convenience.
-///| Users can use @sol.route(), @sol.nodes(), @sol.ok() etc. directly.
+
+///|
+/// Users can use @sol.route(), @sol.nodes(), @sol.ok() etc. directly.
 
 // Route definition helpers
 pub using @router {
@@ -11,10 +13,17 @@ pub using @router {
   api_patch,
   wrap,
   with_mw,
+  assets,
   nodes,
+  server_nodes,
+  with_style,
+  with_script,
+  with_assets,
 }
 
 // API response helpers
+
+///|
 pub using @router {
   ok,
   error_response,
@@ -27,6 +36,8 @@ pub using @router {
 }
 
 // Parameter extraction helpers
+
+///|
 pub using @router {
   require,
   require_int,
@@ -36,6 +47,8 @@ pub using @router {
 }
 
 // Types
+
+///|
 pub using @router {
   type SolRoutes,
   type PageProps,
@@ -47,6 +60,6 @@ pub using @router {
 }
 
 // Action types
-pub using @action {
-  type ActionRegistry,
-}
+
+///|
+pub using @action {type ActionRegistry}

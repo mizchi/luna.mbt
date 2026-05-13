@@ -61,6 +61,7 @@ pnpm add @luna_ui/testing        # test helpers
 - `luna/`             — luna primitives (signals, render, routing, e2e, vite/vitest configs, scripts/)
 - `luna_components/`  — headless + styled UI components (WAI-ARIA APG patterns) + apg-playground demo
 - `sol/`              — sol SSR framework + CLI (`cmd/sol`)
+- `sol_adapter_cloudflare/` — Cloudflare/Wrangler adapter utilities for Sol
 - `astra/`            — astra SSG middleware + CLI (`cmd/astra`)
 - `js/`       — TS bindings + npm wrappers (`@luna_ui/{luna,sol,astra,components,loader,stella,testing,wcr,wcssr}`)
 - `website/`  — monorepo docs site (Luna UI), built with `astra build`
@@ -79,7 +80,7 @@ pnpm test:integration   # build/dev parity + 7-example matrix (node:test)
 
 ## Release pipeline
 
-- mooncakes (`mizchi/{luna,sol,astra}`) is bumped via `luna/scripts/vup.mjs`
+- mooncakes (`mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,astra}`) are bumped via `luna/scripts/vup.mjs`
   and pushed to https://mooncakes.io/.
 - npm (`@luna_ui/*`) is automated end-to-end:
   - `release-please` (workflow_dispatch) opens a Release PR aggregating

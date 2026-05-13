@@ -22,8 +22,10 @@ pub fn page(
   meta? : Array[(String, String)] = [],
   revalidate? : Int? = None,
   cache? : CacheStrategy? = None,
+  styles? : Array[String] = [],
+  scripts? : Array[String] = [],
 ) -> SolRoutes {
-  SolRoutes::Page(
+  let route = SolRoutes::Page(
     path~,
     handler=PageHandler(handler),
     title~,
@@ -31,12 +33,15 @@ pub fn page(
     revalidate~,
     cache~,
   )
+  if styles.is_empty() && scripts.is_empty() {
+    route
+  } else {
+    SolRoutes::WithAssets(styles~, scripts~, children=[route])
+  }
 }
 
 ///|
-fn make_api_handler[T : ToJson](
-  handler : async (PageProps) -> T,
-) -> ApiHandler {
+fn[T : ToJson] make_api_handler(handler : async (PageProps) -> T) -> ApiHandler {
   ApiHandler(async fn(props) { handler(props).to_json() })
 }
 
@@ -47,7 +52,7 @@ fn make_api_handler[T : ToJson](
 /// ```moonbit nocheck
 /// api_get("/api/users/:id", get_user)
 /// ```
-pub fn api_get[T : ToJson](
+pub fn[T : ToJson] api_get(
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
@@ -61,7 +66,7 @@ pub fn api_get[T : ToJson](
 /// ```moonbit nocheck
 /// api_post("/api/users", create_user)
 /// ```
-pub fn api_post[T : ToJson](
+pub fn[T : ToJson] api_post(
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
@@ -70,7 +75,7 @@ pub fn api_post[T : ToJson](
 
 ///|
 /// Create a PUT API route
-pub fn api_put[T : ToJson](
+pub fn[T : ToJson] api_put(
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
@@ -79,7 +84,7 @@ pub fn api_put[T : ToJson](
 
 ///|
 /// Create a DELETE API route
-pub fn api_delete[T : ToJson](
+pub fn[T : ToJson] api_delete(
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
@@ -88,7 +93,7 @@ pub fn api_delete[T : ToJson](
 
 ///|
 /// Create a PATCH API route
-pub fn api_patch[T : ToJson](
+pub fn[T : ToJson] api_patch(
   path : String,
   handler : async (PageProps) -> T,
 ) -> SolRoutes {
@@ -129,6 +134,16 @@ pub fn with_mw(
   SolRoutes::WithMiddleware(middleware~, children~)
 }
 
+///|
+/// Attach stylesheet and client script assets to a route group.
+pub fn assets(
+  children : Array[SolRoutes],
+  styles? : Array[String] = [],
+  scripts? : Array[String] = [],
+) -> SolRoutes {
+  SolRoutes::WithAssets(styles~, scripts~, children~)
+}
+
 // ============================================================================
 // API Response Builder
 // ============================================================================
@@ -154,14 +169,9 @@ pub fn ApiResponse::to_json(self : ApiResponse) -> Json {
   match self {
     Json(data) => data
     Redirect(url, status) =>
-      {
-        "redirect": url.to_json(),
-        "status": status.to_json(),
-      }
-    NotFound(msg) =>
-      { "error": msg.to_json(), "status": (404 : Int).to_json() }
-    Error(msg, status) =>
-      { "error": msg.to_json(), "status": status.to_json() }
+      { "redirect": url.to_json(), "status": status.to_json() }
+    NotFound(msg) => { "error": msg.to_json(), "status": (404 : Int).to_json() }
+    Error(msg, status) => { "error": msg.to_json(), "status": status.to_json() }
   }
 }
 
@@ -284,4 +294,40 @@ pub fn nodes(
   content : Array[@luna.Node[Unit, String]],
 ) -> @server_dom.ServerNode {
   @server_dom.ServerNode::sync(@luna.fragment(content))
+}
+
+///|
+/// Create a ServerNode group from server components.
+pub fn server_nodes(
+  children : Array[@server_dom.ServerNode],
+) -> @server_dom.ServerNode {
+  @server_dom.ServerNode::group(children)
+}
+
+///|
+/// Attach a component-local stylesheet to a node.
+pub fn with_style(
+  style : String,
+  content : @luna.Node[Unit, String],
+) -> @server_dom.ServerNode {
+  @server_dom.ServerNode::sync(content).with_style(style)
+}
+
+///|
+/// Attach a component-local client script to a node.
+pub fn with_script(
+  script : String,
+  content : @luna.Node[Unit, String],
+) -> @server_dom.ServerNode {
+  @server_dom.ServerNode::sync(content).with_script(script)
+}
+
+///|
+/// Attach component-local stylesheet and client script assets to a node.
+pub fn with_assets(
+  content : @luna.Node[Unit, String],
+  styles? : Array[String] = [],
+  scripts? : Array[String] = [],
+) -> @server_dom.ServerNode {
+  @server_dom.ServerNode::sync(content).with_assets(styles~, scripts~)
 }

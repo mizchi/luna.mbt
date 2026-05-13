@@ -23,6 +23,8 @@ pub fn[T : ToJson] api_post(String, async (@router.PageProps) -> T) -> @router.S
 
 pub fn[T : ToJson] api_put(String, async (@router.PageProps) -> T) -> @router.SolRoutes
 
+pub fn assets(Array[@router.SolRoutes], styles? : Array[String], scripts? : Array[String]) -> @router.SolRoutes
+
 pub fn bad_request(String) -> @router.ApiResponse
 
 pub async fn build(BundleConfig) -> RolldownOutput
@@ -109,11 +111,13 @@ pub fn require_int(@router.PageProps, String) -> Result[Int, @router.ApiResponse
 
 pub fn require_query(@router.PageProps, String) -> Result[String, @router.ApiResponse]
 
-pub fn route(String, async (@router.PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : @router.CacheStrategy?) -> @router.SolRoutes
+pub fn route(String, async (@router.PageProps) -> @static.ServerNode, title? : String, meta? : Array[(String, String)], revalidate? : Int?, cache? : @router.CacheStrategy?, styles? : Array[String], scripts? : Array[String]) -> @router.SolRoutes
 
 pub fn run((@mars.Server) -> Unit, port? : Int) -> Unit
 
 pub fn run_app(() -> @mars.Server, port? : Int) -> Unit
+
+pub fn serve_default_favicon(@mars.Server) -> Unit
 
 pub fn serve_sol_assets(@mars.Server) -> Unit
 
@@ -125,6 +129,8 @@ pub fn[E] server_island(id~ : String, props? : Json?, fallback? : @mizchi/luna/c
 
 pub fn[T : ToJson, E] server_island_typed(id~ : String, props~ : T, fallback? : @mizchi/luna/core.Node[E, String], revalidate? : Int?) -> @mizchi/luna/core.Node[E, String]
 
+pub fn server_nodes(Array[@static.ServerNode]) -> @static.ServerNode
+
 pub fn streaming_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[Unit, String], title? : String, head? : String, loader_url? : String) -> Unit
 
 pub fn unauthorized(message? : String) -> @router.ApiResponse
@@ -135,7 +141,13 @@ pub fn[E] wc_island_with_raw(String, String, String, String, () -> @mizchi/luna/
 
 pub fn[E] wc_page(@mars.Server, String, (@mars.Context) -> @mizchi/luna/core.Node[E, String], title? : String, head? : String, wc_loader_url? : String) -> Unit
 
+pub fn with_assets(@mizchi/luna/core.Node[Unit, String], styles? : Array[String], scripts? : Array[String]) -> @static.ServerNode
+
 pub fn with_mw(Array[@middleware.Middleware], Array[@router.SolRoutes]) -> @router.SolRoutes
+
+pub fn with_script(String, @mizchi/luna/core.Node[Unit, String]) -> @static.ServerNode
+
+pub fn with_style(String, @mizchi/luna/core.Node[Unit, String]) -> @static.ServerNode
 
 pub fn wrap(String, (@router.PageProps, @static.ServerNode) -> @static.ServerNode raise, Array[@router.SolRoutes]) -> @router.SolRoutes
 

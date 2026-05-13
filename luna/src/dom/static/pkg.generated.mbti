@@ -198,14 +198,29 @@ pub struct RenderResult {
   preload_urls : Array[String]
 }
 
+pub struct ServerAssets {
+  styles : Array[String]
+  scripts : Array[String]
+}
+pub fn ServerAssets::empty() -> Self
+pub fn ServerAssets::merge(Self, Self) -> Self
+pub fn ServerAssets::new(styles? : Array[String], scripts? : Array[String]) -> Self
+
 pub enum ServerNode {
   Sync(@core.Node[Unit, String])
   Async(async () -> @core.Node[Unit, String])
+  Group(Array[ServerNode])
+  WithAssets(styles~ : Array[String], scripts~ : Array[String], child~ : ServerNode)
 }
 pub fn ServerNode::async_(async () -> @core.Node[Unit, String]) -> Self
+pub fn ServerNode::declared_assets(Self) -> ServerAssets
+pub fn ServerNode::group(Array[Self]) -> Self
 pub fn ServerNode::is_async(Self) -> Bool
 pub async fn ServerNode::resolve(Self) -> @core.Node[Unit, String]
 pub fn ServerNode::sync(@core.Node[Unit, String]) -> Self
+pub fn ServerNode::with_assets(Self, styles? : Array[String], scripts? : Array[String]) -> Self
+pub fn ServerNode::with_script(Self, String) -> Self
+pub fn ServerNode::with_style(Self, String) -> Self
 
 // Type aliases
 

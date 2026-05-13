@@ -17,8 +17,9 @@ Scope: 8 packages — `@luna_ui/{luna,sol,astra,components,luna-loader,stella,te
 
 (`@luna_ui/wcssr` is `private: true` and excluded from release-please. Re-enable by removing `"private": true` from `js/wcssr/package.json` and adding `"js/wcssr"` back to `release-please-config.json` + `.release-please-manifest.json`.)
 
-The 3 mooncakes packages (`mizchi/{luna,sol,astra}` MoonBit modules) stay
-on the existing `luna/scripts/vup.mjs` flow and are out of scope here.
+The mooncakes packages (`mizchi/{luna,luna_components,sol,sol_adapter_cloudflare,astra}`
+MoonBit modules) stay on the existing `luna/scripts/vup.mjs` flow and are
+out of scope here.
 
 ---
 

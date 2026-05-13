@@ -2,5 +2,6 @@ members = [
   "./luna",
   "./luna_components",
   "./sol",
+  "./sol_adapter_cloudflare",
   "./astra",
 ]

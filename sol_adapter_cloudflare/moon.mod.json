@@ -1,0 +1,23 @@
+{
+  "name": "mizchi/sol_adapter_cloudflare",
+  "version": "0.20.2",
+  "deps": {
+    "mizchi/sol": {
+      "path": "../sol",
+      "version": "0.20.2"
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/mizchi/luna.mbt",
+  "license": "MIT",
+  "keywords": [
+    "sol",
+    "cloudflare",
+    "wrangler",
+    "moonbit"
+  ],
+  "description": "Cloudflare adapter utilities for Sol",
+  "source": "src",
+  "warn-list": "-6-67",
+  "preferred-target": "js"
+}

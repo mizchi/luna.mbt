@@ -44,6 +44,8 @@ pub fn[E] register_routes(
             title_prefix=resolved.title_prefix,
             default_title=resolved.default_title,
           )
+          let page_head = resolved.default_head +
+            render_asset_tags(resolved.styles, resolved.client_scripts)
           if is_fragment {
             let fragment_html = render_fragment_response(
               node, page_title, false,
@@ -53,7 +55,7 @@ pub fn[E] register_routes(
             let html = render_page_html(
               node,
               page_title,
-              resolved.default_head,
+              page_head,
               false,
               resolved.root_template,
               enable_preload=resolved.enable_preload,
@@ -219,7 +221,9 @@ fn legacy_api_handler_from_resolver(
       Some(json) => {
         // Convert legacy @js.Any to Json string and back
         let str = ffi_json_stringify_any(json)
-        @json.parse(str) catch { _ => ().to_json() }
+        @json.parse(str) catch {
+          _ => ().to_json()
+        }
       }
       None => {
         @mars_response.send_json_error(
@@ -289,4 +293,3 @@ fn legacy_routes_to_sol_routes(
   }
   converted
 }
-

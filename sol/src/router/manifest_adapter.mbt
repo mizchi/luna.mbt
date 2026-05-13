@@ -139,6 +139,11 @@ fn collect_routes(
         collect_routes(children, base, result)
         let _ = middleware
       }
+      WithAssets(styles~, scripts~, children~) => {
+        // Assets don't affect the route manifest, just recurse.
+        collect_routes(children, base, result)
+        let _ = (styles, scripts)
+      }
     }
   }
 }

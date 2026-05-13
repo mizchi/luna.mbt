@@ -39,6 +39,35 @@ const isBlockedLink = (href: string): boolean => {
     }
   };
 
+  const hasHeadAsset = (incoming: Element): boolean => {
+    if (incoming instanceof HTMLLinkElement) {
+      const href = incoming.getAttribute('href');
+      if (!href || incoming.rel !== 'stylesheet') return true;
+      return Array.from(
+        d.head.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href]')
+      ).some(node => node.getAttribute('href') === href);
+    }
+    if (incoming instanceof HTMLScriptElement) {
+      const src = incoming.getAttribute('src');
+      if (!src || incoming.type !== 'module') return true;
+      return Array.from(
+        d.head.querySelectorAll<HTMLScriptElement>('script[type="module"][src]')
+      ).some(node => node.getAttribute('src') === src);
+    }
+    return true;
+  };
+
+  const applyHeadAssets = (assets: Iterable<Element>): void => {
+    for (const asset of assets) {
+      if (hasHeadAsset(asset)) continue;
+      const clone = d.createElement(asset.tagName.toLowerCase());
+      for (const attr of Array.from(asset.attributes)) {
+        clone.setAttribute(attr.name, attr.value);
+      }
+      d.head.appendChild(clone);
+    }
+  };
+
   // Update DOM from HTML response
   const updateDOM = (html: string, isRerender = false): void => {
     const parser = new DOMParser();
@@ -64,7 +93,18 @@ const isBlockedLink = (href: string): boolean => {
       if (titleTpl) {
         d.title = titleTpl.textContent ?? '';
       }
+
+      const headAssetsTpl = doc.querySelector<HTMLTemplateElement>(
+        'template[data-sol-head-assets]'
+      );
+      if (headAssetsTpl) {
+        applyHeadAssets(Array.from(headAssetsTpl.content.children));
+      }
     } else {
+      applyHeadAssets(
+        doc.head.querySelectorAll('link[rel="stylesheet"][href],script[type="module"][src]')
+      );
+
       // Full page response - extract #app content
       const app = doc.querySelector('#app');
       const target = d.querySelector<HTMLElement>('#app');

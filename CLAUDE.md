@@ -1,6 +1,6 @@
 # luna.mbt — Agent Notes
 
-Monorepo for three MoonBit packages plus their npm wrappers. Each
+Monorepo for five MoonBit packages plus their npm wrappers. Each
 mooncake publishes independently but lives and is tested together.
 
 ## Layout
@@ -9,10 +9,11 @@ mooncake publishes independently but lives and is tested together.
 |------|----------------|------|
 | `luna/`  | `mizchi/luna`  / `@luna_ui/luna`  | UI primitives — VDOM, hydration, stream renderer, Island runtime, signals, vite plugin |
 | `sol/`   | `mizchi/sol`   / `@luna_ui/sol`   | SSR framework over Mars (file-based routes, CLI under `sol/src/cmd/sol`) |
+| `sol_adapter_cloudflare/` | `mizchi/sol_adapter_cloudflare` / n/a | Cloudflare/Wrangler adapter utilities for Sol; depends on Sol, never the other way around |
 | `astra/` | `mizchi/astra` / `@luna_ui/astra` | Mountable Mars middleware for SSG (CLI under `astra/src/cmd/astra`) |
 
-`moon.work` ties the three together. Workspace-wide `moon check` /
-`moon test` cover all three. `js/*` holds the npm wrappers — most are
+`moon.work` ties the five together. Workspace-wide `moon check` /
+`moon test` cover all five. `js/*` holds the npm wrappers — most are
 thin re-exports; `js/luna` is the real npm artifact (built by tsdown).
 
 Other top-level dirs:
@@ -44,9 +45,10 @@ node luna/scripts/vup.mjs --dry-run patch   # preview
 just vup patch                              # bump + per-package CHANGELOG
 just vup patch --release                    # ... + commit + per-pkg tags
 ```
-The script bumps all 6 manifests (`{luna,sol,astra}/moon.mod.json` +
-`js/{luna,sol,astra}/package.json`) and the sol→astra inter-dep ref.
-Tags are per-package: `luna-v<v>`, `sol-v<v>`, `astra-v<v>`.
+The script bumps the 5 mooncake manifests (`luna`, `luna_components`,
+`sol`, `sol_adapter_cloudflare`, `astra`) and the mooncake inter-dep refs.
+Tags are per-package: `luna-v<v>`, `luna_components-v<v>`, `sol-v<v>`,
+`sol_adapter_cloudflare-v<v>`, `astra-v<v>`.
 
 CLI installs (mooncakes):
 ```sh

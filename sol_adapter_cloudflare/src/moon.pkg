@@ -1,0 +1,11 @@
+import {
+  "mizchi/sol/router" @router,
+}
+
+import {
+  "moonbitlang/core/json",
+} for "wbtest"
+
+warnings = "-24-67-29"
+
+supported_targets = "js"

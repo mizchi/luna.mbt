@@ -20,6 +20,27 @@ test "ServerNode::async_ - creates asynchronous node" {
   inspect(server_node.is_async(), content="true")
 }
 
+///|
+async test "ServerNode - declared assets compose without affecting resolved HTML" {
+  let server_node = ServerNode::group([
+    ServerNode::sync(@luna.h("p", [], [@luna.text("First")])).with_assets(
+      styles=["./panel.css"],
+      scripts=["./panel.client.ts"],
+    ),
+    ServerNode::sync(@luna.h("span", [], [@luna.text("Second")])).with_assets(styles=[
+      "./panel.css", "./badge.css",
+    ]),
+  ])
+  let assets = server_node.declared_assets()
+  assert_eq(assets.styles, ["./panel.css", "./badge.css"])
+  assert_eq(assets.scripts, ["./panel.client.ts"])
+  let rendered = @render.render_to_string(server_node.resolve()).html
+  assert_true(rendered.contains("<p>First</p>"))
+  assert_true(rendered.contains("<span>Second</span>"))
+  assert_false(rendered.contains("panel.css"))
+  assert_false(rendered.contains("panel.client.ts"))
+}
+
 // =============================================================================
 // ServerNode with Complex VNode Trees
 // =============================================================================
@@ -318,6 +339,7 @@ test "ServerNode - pattern matching sync" {
   let is_sync = match server_node {
     Sync(_) => true
     Async(_) => false
+    _ => false
   }
   inspect(is_sync, content="true")
 }
@@ -328,6 +350,7 @@ test "ServerNode - pattern matching async" {
   let is_async = match server_node {
     Sync(_) => false
     Async(_) => true
+    _ => false
   }
   inspect(is_async, content="true")
 }

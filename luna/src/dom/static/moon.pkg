@@ -5,7 +5,12 @@ import {
   "mizchi/luna/x/css" @css,
 }
 
+import {
+  "moonbitlang/async",
+} for "test"
+
 supported_targets = "js"
+
 options(
   link: {
     "js": {

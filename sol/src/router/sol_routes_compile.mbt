@@ -28,6 +28,8 @@ fn push_api_route(
     revalidate: None,
     cache_strategy: CacheStrategy::AlwaysFetch,
     rendered_meta: "",
+    styles: [],
+    scripts: [],
   })
 }
 
@@ -56,7 +58,7 @@ pub fn compile_sol_routes(
   base? : String = "",
 ) -> Array[CompiledSolRoute] {
   let result : Array[CompiledSolRoute] = []
-  compile_sol_routes_inner(routes, base, [], [], result)
+  compile_sol_routes_inner(routes, base, [], [], [], [], result)
   result
 }
 
@@ -68,6 +70,8 @@ fn compile_sol_routes_inner(
     (PageProps, @server_dom.ServerNode) -> @server_dom.ServerNode raise Error,
   ],
   inherited_middlewares : Array[@middleware.Middleware],
+  inherited_styles : Array[String],
+  inherited_scripts : Array[String],
   result : Array[CompiledSolRoute],
 ) -> Unit {
   for route in routes {
@@ -90,6 +94,8 @@ fn compile_sol_routes_inner(
           revalidate,
           cache_strategy: cache.unwrap_or(CacheStrategy::AlwaysFetch),
           rendered_meta: render_meta_tags(meta),
+          styles: inherited_styles.copy(),
+          scripts: inherited_scripts.copy(),
         })
       }
       Layout(segment~, layout~, children~) => {
@@ -97,25 +103,72 @@ fn compile_sol_routes_inner(
         let new_layouts = inherited_layouts.copy()
         new_layouts.push(layout)
         compile_sol_routes_inner(
-          children, new_prefix, new_layouts, inherited_middlewares, result,
+          children, new_prefix, new_layouts, inherited_middlewares, inherited_styles,
+          inherited_scripts, result,
         )
       }
       Get(path~, handler~) =>
-        push_api_route(result, prefix, path, handler, GetApi, inherited_middlewares)
+        push_api_route(
+          result,
+          prefix,
+          path,
+          handler,
+          GetApi,
+          inherited_middlewares,
+        )
       Post(path~, handler~) =>
-        push_api_route(result, prefix, path, handler, PostApi, inherited_middlewares)
+        push_api_route(
+          result,
+          prefix,
+          path,
+          handler,
+          PostApi,
+          inherited_middlewares,
+        )
       Put(path~, handler~) =>
-        push_api_route(result, prefix, path, handler, PutApi, inherited_middlewares)
+        push_api_route(
+          result,
+          prefix,
+          path,
+          handler,
+          PutApi,
+          inherited_middlewares,
+        )
       Delete(path~, handler~) =>
-        push_api_route(result, prefix, path, handler, DeleteApi, inherited_middlewares)
+        push_api_route(
+          result,
+          prefix,
+          path,
+          handler,
+          DeleteApi,
+          inherited_middlewares,
+        )
       Patch(path~, handler~) =>
-        push_api_route(result, prefix, path, handler, PatchApi, inherited_middlewares)
+        push_api_route(
+          result,
+          prefix,
+          path,
+          handler,
+          PatchApi,
+          inherited_middlewares,
+        )
       WithMiddleware(middleware~, children~) => {
         let new_middlewares = inherited_middlewares + middleware
         compile_sol_routes_inner(
-          children, prefix, inherited_layouts, new_middlewares, result,
+          children, prefix, inherited_layouts, new_middlewares, inherited_styles,
+          inherited_scripts, result,
         )
       }
+      WithAssets(styles~, scripts~, children~) =>
+        compile_sol_routes_inner(
+          children,
+          prefix,
+          inherited_layouts,
+          inherited_middlewares,
+          merge_asset_paths(inherited_styles, styles),
+          merge_asset_paths(inherited_scripts, scripts),
+          result,
+        )
     }
   }
 }

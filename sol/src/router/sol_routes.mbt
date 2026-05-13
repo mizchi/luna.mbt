@@ -104,6 +104,15 @@ pub(all) enum SolRoutes {
     middleware~ : Array[@middleware.Middleware],
     children~ : Array[SolRoutes]
   )
+  /// Asset wrapper for route groups
+  /// - styles: CSS assets to inject for children
+  /// - scripts: client module scripts to inject for children
+  /// - children: Nested routes
+  WithAssets(
+    styles~ : Array[String],
+    scripts~ : Array[String],
+    children~ : Array[SolRoutes]
+  )
 }
 
 // ============================================================================
@@ -150,6 +159,10 @@ pub struct CompiledSolRoute {
   cache_strategy : CacheStrategy
   /// Pre-rendered meta HTML (computed once at route registration)
   rendered_meta : String
+  /// Stylesheet assets inherited by this route
+  styles : Array[String]
+  /// Client module script assets inherited by this route
+  scripts : Array[String]
 }
 
 ///|

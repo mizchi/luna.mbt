@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol_adapter_cloudflare"
+
+import {
+  "mizchi/sol/router",
+}
+
+// Values
+pub fn extract_worker_first_patterns(Array[@router.SolRoutes]) -> Array[String]
+
+pub fn generate_wrangler_assets_config(Array[@router.SolRoutes], String) -> String
+
+pub fn route_pattern_to_worker_glob(String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

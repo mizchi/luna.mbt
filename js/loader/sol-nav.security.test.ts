@@ -59,4 +59,36 @@ describe("sol-nav security", () => {
     expect(notCanceled).toBe(true);
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  test("fragment head assets are appended once", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        `<template data-sol-outlet="main"><p>Assets</p></template><template data-sol-title>Assets</template><template data-sol-head-assets><link rel="stylesheet" href="/static/panel.css"><script type="module" src="/static/panel.client.ts"></script></template>`,
+        {
+          status: 200,
+          headers: {
+            "X-Sol-Fragment-Response": "true",
+          },
+        }
+      )
+    );
+    document.head.innerHTML = "";
+    document.body.innerHTML = `<main data-sol-outlet="main"></main>`;
+
+    const nav = (window as unknown as {
+      __SOL_NAVIGATE__: (url: string, replace?: boolean) => Promise<void>;
+    }).__SOL_NAVIGATE__;
+    await nav("/assets");
+    await nav("/assets");
+
+    expect(document.querySelectorAll('link[href="/static/panel.css"]')).toHaveLength(
+      1
+    );
+    expect(
+      document.querySelectorAll('script[src="/static/panel.client.ts"]')
+    ).toHaveLength(1);
+    expect(document.querySelector('[data-sol-outlet="main"]')?.innerHTML).toBe(
+      "<p>Assets</p>"
+    );
+  });
 });

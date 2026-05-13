@@ -257,7 +257,7 @@ changelog-preview:
     git cliff --unreleased
 
 # バージョンアップ (patch/minor/major or 0.X.Y)
-# Bumps luna / sol / astra (moon.mod + npm wrapper) in lockstep.
+# Bumps MoonBit mooncakes in lockstep; npm wrappers are release-please-managed.
 # 例: just vup patch, just vup 0.4.0, just vup patch --dry-run, just vup patch --release
 vup version *args:
     #!/usr/bin/env bash
@@ -265,7 +265,7 @@ vup version *args:
     node luna/scripts/vup.mjs {{version}} {{args}}
     if [[ ! " {{args}} " =~ " --dry-run " ]]; then
         # Per-package CHANGELOGs (each package owns its own version + cliff config).
-        for pkg in luna sol astra; do
+        for pkg in luna luna_components sol sol_adapter_cloudflare astra; do
             if [[ -f "${pkg}/cliff.toml" ]]; then
                 NEW_VERSION=$(node -p "require('./${pkg}/moon.mod.json').version")
                 echo ""

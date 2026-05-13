@@ -55,6 +55,29 @@ test "compile sol layout with children" {
 }
 
 ///|
+test "compile asset-scoped routes carries inherited styles and scripts" {
+  async fn home_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.text("Home"))
+  }
+
+  let routes = [
+    assets(
+      [
+        page("/", home_handler, styles=["./home.css"], scripts=[
+          "./home.client.ts",
+        ]),
+      ],
+      styles=["./layout.css"],
+      scripts=["./layout.client.ts"],
+    ),
+  ]
+  let compiled = compile_sol_routes(routes)
+  assert_eq(compiled.length(), 1)
+  assert_eq(compiled[0].styles, ["./layout.css", "./home.css"])
+  assert_eq(compiled[0].scripts, ["./layout.client.ts", "./home.client.ts"])
+}
+
+///|
 test "compile sol api routes" {
   async fn get_handler(_props : PageProps) -> Json {
     { "status": "ok" }.to_json()
@@ -337,6 +360,19 @@ fn mark_cached_entry_fresh(cache : @isr.MemoryCache, path : String) -> Unit {
 ///|
 fn mark_cached_entry_stale(cache : @isr.MemoryCache, path : String) -> Unit {
   rewrite_cached_entry_timestamp(cache, path, @isr.now_ms() - 61000L)
+}
+
+///|
+fn count_substring(haystack : String, needle : String) -> Int {
+  if needle.is_empty() {
+    0
+  } else {
+    let mut parts = 0
+    for _part in haystack.split(needle) {
+      parts += 1
+    }
+    parts - 1
+  }
 }
 
 // ============================================================================
@@ -632,6 +668,59 @@ async test "register_sol_routes serves page, fragment, and ISR variants" {
     full_page_scenario()
     fragment_scenario()
     isr_variant_scenario()
+  })
+}
+
+///|
+async test "register_sol_routes injects config route and component assets once" {
+  run_async_test_with_cleanup(() => {
+    async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+      with_style("./panel.css", @luna.h("main", [], [@luna.text("Assets")]))
+    }
+
+    let app = @mars.Server::new()
+    register_sol_routes(
+      app,
+      [
+        page("/", page_handler, styles=["./route.css"], scripts=[
+          "./route.client.ts",
+        ]),
+      ],
+      config=RouterConfig::default()
+        .with_style("./app.css")
+        .with_style("./route.css")
+        .with_client_script("./app.client.ts")
+        .with_root_template(test_root_template("assets-root")),
+    )
+
+    let res = ffi_call_app_handler(
+      app.to_handler(),
+      "GET",
+      "http://localhost/",
+      false,
+    ).wait()
+    assert_eq(res.status, 200)
+    assert_true(
+      res.body.contains("<link rel=\"stylesheet\" href=\"/static/app.css\">"),
+    )
+    assert_true(
+      res.body.contains("<link rel=\"stylesheet\" href=\"/static/route.css\">"),
+    )
+    assert_true(
+      res.body.contains("<link rel=\"stylesheet\" href=\"/static/panel.css\">"),
+    )
+    assert_true(
+      res.body.contains(
+        "<script type=\"module\" src=\"/static/app.client.ts\"></script>",
+      ),
+    )
+    assert_true(
+      res.body.contains(
+        "<script type=\"module\" src=\"/static/route.client.ts\"></script>",
+      ),
+    )
+    assert_eq(count_substring(res.body, "/static/route.css"), 1)
+    assert_true(res.body.contains("<main>Assets</main>"))
   })
 }
 
