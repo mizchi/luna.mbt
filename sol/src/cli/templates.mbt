@@ -200,10 +200,7 @@ pub fn template_layout_moon_pkg() -> String {
     #|}
     #|
     #|supported_targets = "js"
-    #|
-    #|options(
-    #|  "warn-list": "-24",
-    #|)
+    #|warnings = "-24"
   )
 }
 
@@ -331,10 +328,10 @@ pub fn template_routes_moon_pkg(package_name : String) -> String {
     #|}
     #|
     #|supported_targets = "js"
+    #|warnings = "-67-29"
     #|
     #|options(
     #|  "is-main": true,
-    #|  "warn-list": "-67-29",
     #|  link: { "js": { "format": "esm" } },
     #|)
   tmpl.replace_all(old="{{PACKAGE_NAME}}", new=package_name)
@@ -596,6 +593,16 @@ fn template_cloudflare_readme(project_name : String) -> String {
     #|
     #|`worker.entry.mjs` is the public composition point. Keep UI routes on Sol and route Worker API paths before falling back to `solApp.fetch(request, env, ctx)`.
     #|
+    #|## Route ownership
+    #|
+    #|- `worker.entry.mjs` owns platform-specific routes such as `/api/*`, media, service bindings, and auth callbacks.
+    #|- Sol owns page routes, layouts, `/__sol__/*`, `/static/*`, and JSON routes you declare in `app/server/routes.mbt`.
+    #|- Return JSON 404/500 responses from Worker-owned API routes. Let Sol handle Sol-owned page and API route errors.
+    #|
+    #|## Auth and bindings
+    #|
+    #|For route-group auth inside Sol, wrap routes with `@sol.with_mw([...], [...])`. For Cloudflare bindings, read `env` in `worker.entry.mjs` or in Worker-owned API handlers, then delegate unmatched UI requests to `solApp.fetch(request, env, ctx)`.
+    #|
     #|## Build
     #|
     #|```bash
@@ -715,7 +722,7 @@ pub fn generate_doc_templates(
     { path: "sol.config.json", content: sol_config },
     {
       path: "app/server/moon.pkg",
-      content: "import {\n  \"mizchi/sol\" @sol,\n  \"moonbitlang/async\",\n}\n\nsupported_targets = \"js\"\n\noptions(\n  \"is-main\": true,\n  \"warn-list\": \"-67-29\",\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
+      content: "import {\n  \"mizchi/sol\" @sol,\n  \"moonbitlang/async\",\n}\n\nsupported_targets = \"js\"\nwarnings = \"-67-29\"\n\noptions(\n  \"is-main\": true,\n  link: { \"js\": { \"format\": \"esm\" } },\n)",
     },
     { path: "app/server/main.mbt", content: template_routes_main_mbt() },
     {

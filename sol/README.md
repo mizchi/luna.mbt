@@ -353,6 +353,41 @@ Refer to this document for `Layout` application rules and `source_path` dynamic 
 Hot Reload design: `docs/hot-reload.md`
 Benchmark procedures and `SOL_BENCH_MODE` specification: `docs/benchmarking.md`
 
+### Route Ownership And Errors
+
+Sol is allowed to own only part of a deployed Worker. In mixed apps, keep
+ownership explicit in the host entry:
+
+```js
+import solApp from "./.sol/prod/server/main.js";
+
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    if (url.pathname.startsWith("/api/")) {
+      return apiFetch(request, env, ctx);
+    }
+    return solApp.fetch(request, env, ctx);
+  },
+};
+```
+
+Recommended split:
+
+- Sol page routes own HTML responses, layout composition, fragments, and
+  framework assets such as `/__sol__/*` and `/static/*`.
+- Sol API routes own JSON responses declared with `api_get`, `api_post`,
+  `api_put`, `api_delete`, or `api_patch`.
+- Host Worker routes own platform-specific passthroughs such as media,
+  service binding proxies, auth callbacks, and custom streaming responses.
+
+Error handling follows the owning layer. Sol page handler/layout failures
+return HTML/text `500` responses. Sol API handler failures return JSON
+`500` responses. A route that is intentionally outside Sol should be matched
+before `solApp.fetch`; if neither the host nor Sol owns it, return the host
+fallback `404` from the Worker entry. Prefer returning JSON errors from
+host-owned API paths and HTML/redirects from page paths.
+
 ## Middleware
 
 Railway Oriented Programming based middleware system.
@@ -403,6 +438,37 @@ let middleware = @middleware.logger()
     .with_frame_options("DENY")
 )
 ```
+
+### Route-Level Auth For Worker Apps
+
+Middleware can protect a route group and may read request headers through the
+Mars context. To halt, send a response from the middleware; to continue, return
+without sending.
+
+```moonbit
+fn require_admin() -> @middleware.Middleware {
+  @middleware.Middleware(@mars.Handler(async fn(ctx) {
+    match ctx.header("Authorization") {
+      Some(token) if token.has_prefix("Bearer ") => ()
+      _ => ctx.json({ "error": "unauthorized" }.to_json(), status=401)
+    }
+  }))
+}
+
+pub fn routes() -> Array[@sol.SolRoutes] {
+  [
+    @sol.route("/", home),
+    @sol.with_mw([require_admin()], [
+      @sol.route("/admin", admin_page),
+      @sol.api_post("/api/items", create_item),
+    ]),
+  ]
+}
+```
+
+For Cloudflare bindings, keep the env-specific routing in the host Worker
+entry until a typed binding contract is available. Pass host-owned requests to
+the Worker API layer first, then fall back to Sol for UI routes.
 
 ### Middleware Composition
 
