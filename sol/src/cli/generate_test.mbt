@@ -1429,6 +1429,7 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   assert_true(!worker.contains("__SOL_APP__"))
   assert_true(!worker.contains("_build/js"))
   assert_true(wrangler.contains("main = \"worker.entry.mjs\""))
+  assert_true(wrangler.contains("compatibility_date = \"2025-01-01\""))
 }
 
 ///|

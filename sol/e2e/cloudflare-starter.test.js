@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -20,6 +21,12 @@ const CLI_DEBUG = path.join(
   "cmd",
   "sol_js",
   "sol_js.js"
+);
+const WRANGLER_BIN = path.join(
+  SOL_DIR,
+  "node_modules",
+  ".bin",
+  process.platform === "win32" ? "wrangler.cmd" : "wrangler"
 );
 
 function ensureCliBuilt() {
@@ -42,6 +49,98 @@ function pinWorkspaceSol(projectDir) {
   fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
 }
 
+function reservePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.on("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      const port = address && typeof address === "object" ? address.port : 0;
+      server.close(() => resolve(port));
+    });
+  });
+}
+
+function startWranglerDev(projectDir, port) {
+  const child = spawn(
+    WRANGLER_BIN,
+    [
+      "dev",
+      "--local",
+      "--ip",
+      "127.0.0.1",
+      "--port",
+      String(port),
+      "--show-interactive-dev-session=false",
+    ],
+    {
+      cwd: projectDir,
+      env: {
+        ...process.env,
+        CI: "true",
+        NO_COLOR: "1",
+        WRANGLER_SEND_METRICS: "false",
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    }
+  );
+
+  let stdout = "";
+  let stderr = "";
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => {
+    stdout += chunk;
+  });
+  child.stderr.on("data", (chunk) => {
+    stderr += chunk;
+  });
+
+  return {
+    child,
+    output() {
+      return `stdout:\n${stdout}\nstderr:\n${stderr}`;
+    },
+  };
+}
+
+async function stopWrangler(server) {
+  const { child } = server;
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return;
+  }
+  await new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      resolve();
+    }, 2_000);
+    child.once("exit", () => {
+      clearTimeout(timer);
+      resolve();
+    });
+    child.kill("SIGTERM");
+  });
+}
+
+async function waitForHttp(url, server) {
+  const started = Date.now();
+  let lastError;
+  while (Date.now() - started < 20_000) {
+    if (server.child.exitCode !== null) {
+      throw new Error(`wrangler dev exited early\n${server.output()}`);
+    }
+    try {
+      return await fetch(url);
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  }
+  throw new Error(
+    `wrangler dev did not serve ${url}\nlast error: ${lastError}\n${server.output()}`
+  );
+}
+
 test("sol new --cloudflare builds a composable Worker that serves API, UI, and favicon", async () => {
   ensureCliBuilt();
 
@@ -53,6 +152,10 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
   assert.ok(
     fs.existsSync(path.join(rootNodeModules, "rolldown")),
     "root node_modules must include rolldown before running the Worker smoke test"
+  );
+  assert.ok(
+    fs.existsSync(WRANGLER_BIN),
+    "sol node_modules must include wrangler before running the Worker smoke test"
   );
 
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-worker-starter-"));
@@ -125,6 +228,33 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
     assert.equal(favicon.status, 200);
     assert.match(favicon.headers.get("content-type") ?? "", /image\/svg\+xml/);
     assert.match(await favicon.text(), /<svg/);
+
+    const port = await reservePort();
+    const wrangler = startWranglerDev(projectDir, port);
+    try {
+      const wranglerApi = await waitForHttp(
+        `http://127.0.0.1:${port}/api/health`,
+        wrangler
+      );
+      assert.equal(wranglerApi.status, 200);
+      assert.match(
+        wranglerApi.headers.get("content-type") ?? "",
+        /application\/json/
+      );
+      assert.deepEqual(await wranglerApi.json(), {
+        status: "ok",
+        source: "worker-api",
+      });
+
+      const wranglerUi = await fetch(`http://127.0.0.1:${port}/`);
+      assert.equal(wranglerUi.status, 200);
+      assert.match(wranglerUi.headers.get("content-type") ?? "", /text\/html/);
+      const wranglerHtml = await wranglerUi.text();
+      assert.match(wranglerHtml, /Welcome to Sol/);
+      assert.match(wranglerHtml, /\/static\/api_tools\.js/);
+    } finally {
+      await stopWrangler(wrangler);
+    }
   } finally {
     fs.rmSync(sandbox, { recursive: true, force: true });
   }

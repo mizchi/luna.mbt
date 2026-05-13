@@ -41,12 +41,26 @@ fn with_created_app(callback : (App) -> Unit) -> Unit {
 /// }
 /// ```
 pub fn run(configure : (App) -> Unit, port? : Int) -> Unit {
-  let port = port.unwrap_or_else(runtime_port_from_env)
-  with_created_app(fn(app) {
-    configure(app)
-    export_runtime_app(app)
-    maybe_start_server(app, port)
-  })
+  let mode = select_bootstrap_mode(
+    is_adapter=is_adapter_mode(),
+    is_node=runtime_is_node(),
+    is_edge_runtime=is_edge_runtime(),
+  )
+  match mode {
+    RuntimeBootstrapMode::AdapterExportOnly => {
+      let app = @mars.Server::new()
+      configure(app)
+      export_runtime_app(app)
+    }
+    RuntimeBootstrapMode::InitFsAndMaybeServe => {
+      let port = port.unwrap_or_else(runtime_port_from_env)
+      with_created_app(fn(app) {
+        configure(app)
+        export_runtime_app(app)
+        maybe_start_server(app, port)
+      })
+    }
+  }
 }
 
 ///|
@@ -60,7 +74,6 @@ pub fn run(configure : (App) -> Unit, port? : Int) -> Unit {
 /// }
 /// ```
 pub fn run_app(create_and_configure : () -> App, port? : Int) -> Unit {
-  let port = port.unwrap_or_else(runtime_port_from_env)
   let mode = select_bootstrap_mode(
     is_adapter=is_adapter_mode(),
     is_node=runtime_is_node(),
@@ -71,11 +84,13 @@ pub fn run_app(create_and_configure : () -> App, port? : Int) -> Unit {
       let app = create_and_configure()
       export_runtime_app(app)
     }
-    RuntimeBootstrapMode::InitFsAndMaybeServe =>
+    RuntimeBootstrapMode::InitFsAndMaybeServe => {
+      let port = port.unwrap_or_else(runtime_port_from_env)
       with_initialized_fs(fn() {
         let app = create_and_configure()
         export_runtime_app(app)
         maybe_start_server(app, port)
       })
+    }
   }
 }

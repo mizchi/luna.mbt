@@ -70,6 +70,51 @@ fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
 }
 
 ///|
+/// Cloudflare Workers reject crypto/random calls during module evaluation.
+/// MoonBit core eagerly seeds hash randomization in generated JS, so patch
+/// Cloudflare server bundles to use a deterministic seed at global scope.
+fn[FS : @env.FileSystem] patch_cloudflare_global_seed_with_fs(
+  fs : FS,
+  cwd : String,
+  target : String,
+  profile : String,
+) -> Unit {
+  // Try __gen__/server/server.js first, then server/server.js (user-managed mode)
+  let gen_path = @path.join2(
+    cwd,
+    "_build/\{target}/\{profile}/build/__gen__/server/server.js",
+  )
+  let user_path = @path.join2(
+    cwd,
+    "_build/\{target}/\{profile}/build/server/server.js",
+  )
+  let server_js_path = if fs.exists_sync(gen_path) {
+    gen_path
+  } else if fs.exists_sync(user_path) {
+    user_path
+  } else {
+    return
+  }
+  let content = fs.read_file_sync(server_js_path) catch { _ => return }
+  let eager_seed = "const _M0FPB4seed = _M0FPB12random__seed();"
+  if !(content.contains(eager_seed)) {
+    return
+  }
+  let patched = content.replace_all(
+    old=eager_seed,
+    new="const _M0FPB4seed = 0; /* patched: Workers disallow crypto in global scope */",
+  )
+  fs.write_file_sync(server_js_path, patched) catch {
+    _ => return
+  }
+  println(
+    @colorette.gray(
+      "Patched Cloudflare global random seed in \{profile} server.js",
+    ),
+  )
+}
+
+///|
 async fn run_build_command(args : Array[String]) -> Unit {
   let fs = @fs_adapter.NodeFsAdapter::new()
   run_build_command_with_fs(fs, args)
@@ -251,6 +296,13 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   println(@colorette.green("✓ Moon build complete"))
   patch_mars_reschedule_shim_with_fs(fs, cwd, target, "release")
+  let is_cloudflare_runtime = match sol_config {
+    Some(config) => config.runtime == RuntimeCloudflare
+    None => false
+  }
+  if is_cloudflare_runtime {
+    patch_cloudflare_global_seed_with_fs(fs, cwd, target, "release")
+  }
   // Bundle client code with rolldown if manifest exists
   let manifest_path = @path.join2(cwd, ".sol/prod/manifest.json")
   if !(skip_bundle) && fs.exists_sync(manifest_path) {

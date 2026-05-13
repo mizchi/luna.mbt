@@ -107,7 +107,8 @@ pub fn client_script_localhost(port : Int) -> String {
 /// Read environment variable (Node.js)
 extern "js" fn env_var(name : String) -> String? =
   #| (name) => {
-  #|   const value = process.env[name];
+  #|   const processObj = globalThis.process;
+  #|   const value = processObj?.env?.[name];
   #|   return typeof value === 'string' ? value : undefined;
   #| }
 

@@ -572,7 +572,7 @@ fn template_wrangler_toml(project_name : String) -> String {
   let tmpl =
     #|name = "{{PROJECT_NAME}}"
     #|main = "worker.entry.mjs"
-    #|compatibility_date = "2026-05-12"
+    #|compatibility_date = "2025-01-01"
   tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
 }
 
