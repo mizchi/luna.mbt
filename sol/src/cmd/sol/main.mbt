@@ -39,6 +39,7 @@ fn print_help() -> Unit {
   println("  build          Build SSR app for production")
   println("  serve          Serve production build")
   println("  deploy         Run deploy preflight and print deploy command")
+  println("  doctor         Diagnose config and adapter wiring")
   println("  generate       Generate .sol directory from config")
   println("  clean          Remove generated files and caches")
   println("")

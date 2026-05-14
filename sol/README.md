@@ -259,6 +259,18 @@ sol deploy --provider cloudflare-workers --project my-worker
 sol deploy --execute                                # Execute wrangler command
 ```
 
+### `sol doctor`
+
+Diagnose local project wiring before build/serve/deploy. It checks
+`sol.config.json`, route files, generated outputs, and whether the selected
+runtime uses the matching adapter package (`sol_adapter_node` or
+`sol_adapter_cloudflare`).
+
+```bash
+sol doctor          # Print warnings/errors
+sol doctor --strict # Treat warnings as failures
+```
+
 ### `sol generate`
 
 Auto-generate code based on `sol.config.ts` (recommended) or `sol.config.json`. If both exist, `sol.config.ts` takes priority.

@@ -29,6 +29,7 @@ sol new myapp --user yourname
 cd myapp
 pnpm install
 pnpm dev
+sol doctor
 sol build
 sol deploy --provider cloudflare-workers --dry-run
 ```
@@ -37,6 +38,7 @@ Verification points:
 
 - `http://localhost:7777/` is displayed
 - `http://localhost:7777/api/health` returns JSON
+- `sol doctor` reports `0 error` before deployment
 
 ## 3. What to Do for Your First Change
 

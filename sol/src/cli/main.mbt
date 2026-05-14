@@ -17,6 +17,7 @@ fn show_help() -> Unit {
     #|  build          Build SSR app for production
     #|  serve          Serve production build
     #|  deploy         Run deploy preflight and print deploy command
+    #|  doctor         Diagnose config and adapter wiring
     #|  generate       Generate .sol directory from config
     #|  clean          Remove generated files and caches
     #|
@@ -64,6 +65,7 @@ pub async fn run_main(args : Array[String]) -> Unit {
     "build" => run_build_command(command_args)
     "serve" => run_serve_command(command_args)
     "deploy" => run_deploy_command(command_args)
+    "doctor" => run_doctor_command(command_args)
     "generate" => run_generate_command(command_args)
     "clean" => run_clean_command(command_args)
     "lint" | "ssg" => {

@@ -2,6 +2,19 @@
 
 This document summarizes diagnostic procedures for common issues encountered during `sol` development.
 
+## 0. Run `sol doctor` First
+
+Symptoms:
+
+- Build, serve, or deploy fails before reaching app code
+- A Node/Cloudflare project appears to use the wrong adapter
+
+Checks:
+
+1. Run `sol doctor` from the project root
+2. Fix any reported adapter dependency mismatch in `moon.mod.json`
+3. If generated output is missing, run `sol generate` or `sol build`
+
 ## 1. Route Returns 404
 
 Symptoms:
