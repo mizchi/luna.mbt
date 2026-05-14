@@ -395,7 +395,7 @@ fn generate_typescript_route_decl(route_paths : Array[String]) -> String {
     let fields = unique_param_fields(extract_param_specs_from_path(path))
     buf.write_string("  \{typescript_string_literal(path)}: ")
     if fields.is_empty() {
-      buf.write_string("{}")
+      buf.write_string("undefined")
     } else {
       buf.write_string("{ ")
       for item in fields {
@@ -414,7 +414,7 @@ fn generate_typescript_route_decl(route_paths : Array[String]) -> String {
     "export type SolRouteParamsOf<P extends SolRoutePath> = SolRouteParams[P];\n",
   )
   buf.write_string(
-    "export type SolRouteRef<P extends SolRoutePath = SolRoutePath> = { path: P; params: SolRouteParams[P]; };\n\n",
+    "export type SolRouteRef<P extends SolRoutePath = SolRoutePath> = P extends SolRoutePath ? SolRouteParams[P] extends undefined ? { path: P; params?: undefined; } : { path: P; params: SolRouteParams[P]; } : never;\n\n",
   )
   buf.to_string()
 }

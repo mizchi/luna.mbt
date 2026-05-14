@@ -579,6 +579,7 @@ test("sol generate: route and action declarations typecheck in TypeScript", () =
       dts,
       /export type SolRoutePath = "\/" \| "\/blog\/:slug" \| "\/docs\/\[\[\.\.\.path\]\]";/
     );
+    assert.match(dts, /"\/": undefined;/);
     assert.match(dts, /"\/blog\/:slug": \{ slug: string; \};/);
     assert.match(
       dts,
@@ -593,12 +594,20 @@ test("sol generate: route and action declarations typecheck in TypeScript", () =
         'import type { SolActionId, SolActionKey, SolRouteParamsOf, SolRoutePath, SolRouteRef } from "./app/__gen__/types/types";',
         "",
         'const path: SolRoutePath = "/blog/:slug";',
+        'const rootParams: SolRouteParamsOf<"/"> = undefined;',
+        'const rootRoute: SolRouteRef<"/"> = { path: "/" };',
+        'const rootRouteDefault: SolRouteRef = { path: "/" };',
         'const params: SolRouteParamsOf<"/blog/:slug"> = { slug: "hello" };',
         'const optionalParams: SolRouteParamsOf<"/docs/[[...path]]"> = {};',
         'const route: SolRouteRef<"/blog/:slug"> = { path: "/blog/:slug", params };',
+        'const routeDefault: SolRouteRef = { path: "/blog/:slug", params };',
         'const actionId: SolActionId = "submit-contact";',
         'const action: SolActionKey<"submit-contact"> = { id: actionId, basePath: "/_action" };',
-        "void [path, optionalParams, route, action];",
+        "void [path, rootParams, rootRoute, rootRouteDefault, optionalParams, route, routeDefault, action];",
+        "",
+        "// @ts-expect-error static route does not accept params",
+        'const badRootRoute: SolRouteRef<"/"> = { path: "/", params: {} };',
+        "void badRootRoute;",
         "",
         "// @ts-expect-error missing required route param",
         'const badParams: SolRouteParamsOf<"/blog/:slug"> = {};',

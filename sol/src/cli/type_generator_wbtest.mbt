@@ -155,9 +155,15 @@ test "generate_typescript_contract_decl: emits route and action declarations" {
     },
   )
   assert_true(content.contains("export type SolRoutePath = \"/\" | \"/blog/:slug\" | \"/docs/[[...path]]\";"))
+  assert_true(content.contains("\"/\": undefined;"))
   assert_true(content.contains("\"/blog/:slug\": { slug: string; };"))
   assert_true(content.contains("\"/docs/[[...path]]\": { path?: string | null; };"))
   assert_true(content.contains("export type SolRouteParamsOf<P extends SolRoutePath> = SolRouteParams[P];"))
+  assert_true(
+    content.contains(
+      "export type SolRouteRef<P extends SolRoutePath = SolRoutePath> = P extends SolRoutePath ? SolRouteParams[P] extends undefined ? { path: P; params?: undefined; } : { path: P; params: SolRouteParams[P]; } : never;",
+    ),
+  )
   assert_true(content.contains("export type SolActionId = \"submit-contact\";"))
   assert_true(content.contains("export interface SolActionKey<I extends SolActionId = SolActionId> {"))
 }
