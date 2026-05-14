@@ -67,6 +67,8 @@ test("action public API only exposes typed action keys", () => {
   assert.match(mbti, /pub struct TypedActionKey/);
   assert.match(mbti, /pub fn\[K : ActionKey\] action_id\(K\) -> String/);
   assert.match(mbti, /pub fn\[K : ActionKey\] action_url\(K\) -> String/);
+  assert.match(mbti, /pub fn\[T : (?:@json\.)?FromJson\] decode_action_body/);
+  assert.match(mbti, /pub fn\[T : (?:@json\.)?FromJson\] ActionContext::decode_json/);
   assert.match(mbti, /TypedActionKey::from_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionDef::from_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionRegistry::register_key/);
@@ -149,6 +151,28 @@ test("examples dogfood typed action JSON results", () => {
         `${path.relative(ROOT, file)} must use ActionResult::json for structured success payloads`
       );
     }
+  }
+});
+
+test("examples dogfood typed action request decoding", () => {
+  const files = [
+    path.join(SOL_DIR, "examples", "sol_app", "app", "server", "routes.mbt"),
+    path.join(SOL_DIR, "examples", "sol_auth", "app", "server", "routes.mbt"),
+    path.join(SOL_DIR, "examples", "sol_todo", "app", "server", "routes.mbt"),
+  ];
+
+  for (const file of files) {
+    const content = fs.readFileSync(file, "utf8");
+    assert.match(
+      content,
+      /ctx\.decode_json\(\)/,
+      `${path.relative(ROOT, file)} must use typed action request decoding`
+    );
+    assert.doesNotMatch(
+      content,
+      /extern "js" fn parse_json|let data : @core\.Any = parse_json/,
+      `${path.relative(ROOT, file)} must not decode action JSON through @core.Any`
+    );
   }
 });
 

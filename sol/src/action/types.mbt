@@ -26,6 +26,20 @@ pub fn ActionContext::from_ctx(
 }
 
 ///|
+/// Decode an action request body as typed JSON.
+pub fn[T : FromJson] decode_action_body(body : String) -> T? {
+  let json : Json = @json.parse(body.view()) catch { _ => return None }
+  let value : T = @json.from_json(json) catch { _ => return None }
+  Some(value)
+}
+
+///|
+/// Decode this action request body as typed JSON.
+pub fn[T : FromJson] ActionContext::decode_json(self : ActionContext) -> T? {
+  decode_action_body(self.body)
+}
+
+///|
 /// Get header value (case-insensitive)
 pub fn ActionContext::get_header(
   self : ActionContext,

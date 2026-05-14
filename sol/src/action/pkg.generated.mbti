@@ -18,6 +18,8 @@ pub fn[K : ActionKey] create_action_invoker_key(K, options? : ActionOptions) -> 
 
 pub fn[Req : ToJson, Res : @json.FromJson] create_typed_action_invoker_key(TypedActionKey[Req, Res], options? : ActionOptions) -> (Req, (TypedActionResponse[Res]) -> Unit) -> Unit
 
+pub fn[T : @json.FromJson] decode_action_body(String) -> T?
+
 pub fn[K : ActionKey] invoke_action_key(K, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
 
 pub fn[Req : ToJson, Res : @json.FromJson] invoke_typed_action_key(TypedActionKey[Req, Res], Req, (TypedActionResponse[Res]) -> Unit, options? : ActionOptions) -> Unit
@@ -35,6 +37,7 @@ pub struct ActionContext {
   ctx : @mars.Context
   body : String
 }
+pub fn[T : @json.FromJson] ActionContext::decode_json(Self) -> T?
 pub fn ActionContext::from_ctx(@mars.Context, String) -> Self
 pub fn ActionContext::get_header(Self, String) -> String?
 pub fn ActionContext::get_query(Self, String) -> String?

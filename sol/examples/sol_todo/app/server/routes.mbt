@@ -163,6 +163,16 @@ async fn api_delete_todo(props : @sol.PageProps) -> Json {
 // =============================================================================
 
 ///|
+priv struct AddTodoRequest {
+  text : String
+} derive(FromJson)
+
+///|
+priv struct TodoIdRequest {
+  id : Int
+} derive(FromJson)
+
+///|
 priv struct ToggleTodoResponse {
   toggled : Bool
 } derive(ToJson)
@@ -182,8 +192,11 @@ let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx
     let data = parse_form_urlencoded(ctx.body)
     get_string_field(data, "text")
   } else {
-    let data : @core.Any = parse_json(ctx.body)
-    get_string_field(data, "text")
+    let req : AddTodoRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    req.text
   }
 
   if text == "" {
@@ -209,8 +222,11 @@ let toggle_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
     let data = parse_form_urlencoded(ctx.body)
     get_int_field(data, "id")
   } else {
-    let data : @core.Any = parse_json(ctx.body)
-    get_int_field(data, "id")
+    let req : TodoIdRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    req.id
   }
 
   if id <= 0 {
@@ -237,8 +253,11 @@ let delete_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
     let data = parse_form_urlencoded(ctx.body)
     get_int_field(data, "id")
   } else {
-    let data : @core.Any = parse_json(ctx.body)
-    get_int_field(data, "id")
+    let req : TodoIdRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    req.id
   }
 
   if id <= 0 {
@@ -285,10 +304,6 @@ pub fn action_registry() -> @action.ActionRegistry {
 // =============================================================================
 // FFI Utilities
 // =============================================================================
-
-///|
-extern "js" fn parse_json(s : String) -> @core.Any =
-  #| (s) => { try { return JSON.parse(s); } catch { return {}; } }
 
 ///|
 extern "js" fn parse_form_urlencoded(s : String) -> @core.Any =

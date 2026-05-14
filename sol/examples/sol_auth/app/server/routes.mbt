@@ -93,6 +93,12 @@ async fn api_health(_props : @sol.PageProps) -> Json {
 // ============================================================================
 
 ///|
+priv struct ContactSubmitRequest {
+  name : String
+  email : String
+} derive(FromJson)
+
+///|
 priv struct ContactSubmitData {
   name : String
   email : String
@@ -123,8 +129,11 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     (get_field(data, "name"), get_field(data, "email"))
   } else {
     // Parse JSON
-    let data : @core.Any = parse_json(body)
-    (get_field(data, "name"), get_field(data, "email"))
+    let req : ContactSubmitRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    (req.name, req.email)
   }
 
   // Validate
@@ -154,10 +163,6 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     })
   }
 })
-
-///|
-extern "js" fn parse_json(s : String) -> @core.Any =
-  #| (s) => { try { return JSON.parse(s); } catch { return {}; } }
 
 ///|
 extern "js" fn parse_form_urlencoded(s : String) -> @core.Any =

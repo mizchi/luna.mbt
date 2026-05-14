@@ -180,7 +180,7 @@ test "action_url builds endpoint URL from action key" {
 ///|
 priv struct CreateUserRequest {
   name : String
-} derive(ToJson)
+} derive(ToJson, FromJson)
 
 ///|
 priv struct CreateUserResponse {
@@ -210,6 +210,22 @@ test "TypedActionKey can be used as an ActionKey" {
   )
   assert_eq(action_id(key), "create-user")
   assert_eq(action_url(key), "/_action/create-user")
+}
+
+///|
+test "decode_action_body decodes typed JSON request bodies" {
+  let body = CreateUserRequest::{ name: "Alice" }.to_json().stringify()
+  let decoded : CreateUserRequest? = decode_action_body(body)
+  match decoded {
+    Some(req) => assert_eq(req.name, "Alice")
+    None => fail("expected decoded request")
+  }
+}
+
+///|
+test "decode_action_body rejects invalid request bodies" {
+  let decoded : CreateUserRequest? = decode_action_body("{\"unexpected\":true}")
+  assert_true(decoded is None)
 }
 
 ///|
