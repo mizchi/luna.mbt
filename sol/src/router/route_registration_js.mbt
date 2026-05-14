@@ -8,7 +8,7 @@ pub fn[E] register_routes(
   app : App,
   routes : Array[@routes.Routes],
   page_resolver : (String, Ctx, RouteParams) -> @luna.Node[E, String]?,
-  api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
+  api_resolver : (String, Ctx, RouteParams) -> Json?,
   config? : RouterConfig,
   title_prefix? : String = "",
   default_title? : String = "App",
@@ -116,13 +116,13 @@ fn register_api_get_route(
   app : App,
   full_path : String,
   handler : String,
-  api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
+  api_resolver : (String, Ctx, RouteParams) -> Json?,
 ) -> Unit {
   let param_names = extract_route_param_names(full_path)
   app.get(full_path, async fn(c) {
     let params = extract_route_params(c, is_fragment=false, param_names~)
     match api_resolver(handler, c, params) {
-      Some(json) => @mars_response.send_json_any(c, json)
+      Some(json) => @mars_response.send_json(c, json)
       None => @mars_response.send_json_error(c, "Handler not found", status=404)
     }
   })
@@ -133,13 +133,13 @@ fn register_api_post_route(
   app : App,
   full_path : String,
   handler : String,
-  api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
+  api_resolver : (String, Ctx, RouteParams) -> Json?,
 ) -> Unit {
   let param_names = extract_route_param_names(full_path)
   app.post(full_path, async fn(c) {
     let params = extract_route_params(c, is_fragment=false, param_names~)
     match api_resolver(handler, c, params) {
-      Some(json) => @mars_response.send_json_any(c, json)
+      Some(json) => @mars_response.send_json(c, json)
       None => @mars_response.send_json_error(c, "Handler not found", status=404)
     }
   })
@@ -157,7 +157,7 @@ pub fn register_server_routes(
   app : App,
   routes : Array[@routes.Routes],
   page_resolver : AsyncPageResolver,
-  api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
+  api_resolver : (String, Ctx, RouteParams) -> Json?,
   config? : RouterConfig,
   title_prefix? : String = "",
   default_title? : String = "App",
@@ -214,17 +214,11 @@ fn legacy_page_handler_from_resolver(
 ///|
 fn legacy_api_handler_from_resolver(
   handler : String,
-  api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
+  api_resolver : (String, Ctx, RouteParams) -> Json?,
 ) -> async (PageProps) -> Json {
   async fn(props : PageProps) {
     match api_resolver(handler, props.ctx, props.params) {
-      Some(json) => {
-        // Convert legacy @js.Any to Json string and back
-        let str = ffi_json_stringify_any(json)
-        @json.parse(str) catch {
-          _ => ().to_json()
-        }
-      }
+      Some(json) => json
       None => {
         @mars_response.send_json_error(
           props.ctx,
@@ -241,7 +235,7 @@ fn legacy_api_handler_from_resolver(
 fn legacy_routes_to_sol_routes(
   routes : Array[@routes.Routes],
   page_resolver : AsyncPageResolver,
-  api_resolver : (String, Ctx, RouteParams) -> @js.Any?,
+  api_resolver : (String, Ctx, RouteParams) -> Json?,
 ) -> Array[SolRoutes] {
   let converted : Array[SolRoutes] = []
   for route in routes {

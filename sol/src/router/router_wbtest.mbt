@@ -129,7 +129,8 @@ test "legacy_routes_to_sol_routes - keeps layout prefix and route kinds" {
     Some(@server_dom.ServerNode::sync(@luna.text("ok")))
   }
   let api_resolver = fn(_handler : String, _ctx : Ctx, _params : RouteParams) {
-    Some(@js.any({ "ok": true }))
+    let json : Json = { "ok": true.to_json() }
+    Some(json)
   }
   let converted = legacy_routes_to_sol_routes(
     legacy_routes, page_resolver, api_resolver,

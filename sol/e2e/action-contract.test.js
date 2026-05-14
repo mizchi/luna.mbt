@@ -129,6 +129,27 @@ test("sol root public API does not expose JSON Any escape hatches", () => {
   }
 });
 
+test("router public API keeps legacy API resolvers typed as Json", () => {
+  const mbti = fs.readFileSync(
+    path.join(SOL_DIR, "src", "router", "pkg.generated.mbti"),
+    "utf8"
+  );
+
+  assert.doesNotMatch(
+    mbti,
+    /@mizchi\/js\/core\.Any/,
+    "router public API must not expose JavaScript Any"
+  );
+  assert.match(
+    mbti,
+    /register_routes\(.*\(String, @mars\.Context, RouteParams\) -> Json\?/s
+  );
+  assert.match(
+    mbti,
+    /register_server_routes\(.*\(String, @mars\.Context, RouteParams\) -> Json\?/s
+  );
+});
+
 test("docs and examples do not use removed stringly action APIs", () => {
   const files = [
     path.join(SOL_DIR, "README.md"),

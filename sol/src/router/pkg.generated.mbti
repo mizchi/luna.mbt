@@ -4,6 +4,7 @@ package "mizchi/sol/router"
 import {
   "mizchi/astra",
   "mizchi/js/web/http",
+  "mizchi/luna/core",
   "mizchi/luna/dom/static",
   "mizchi/mars",
   "mizchi/sol/isr",
@@ -41,7 +42,7 @@ pub fn forbidden(message? : String) -> ApiResponse
 
 pub fn manifest_to_sol_routes(@mizchi/astra/routes.RouteManifest, PageHandlerFactory, ApiHandlerFactory) -> Array[SolRoutes]
 
-pub fn nodes(Array[@mizchi/luna/core.Node[Unit, String]]) -> @static.ServerNode
+pub fn nodes(Array[@core.Node[Unit, String]]) -> @static.ServerNode
 
 pub fn not_found_response(message? : String) -> ApiResponse
 
@@ -73,13 +74,13 @@ pub fn redirect_to(String, status? : Int) -> ApiResponse
 
 pub fn register_mbtx_routes(@mars.Server, Array[MbtxRoute]) -> Unit
 
-pub fn[E] register_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @mizchi/luna/core.Node[E, String]?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
+pub fn[E] register_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @core.Node[E, String]?, (String, @mars.Context, RouteParams) -> Json?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
 
-pub fn register_server_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @static.ServerNode?, (String, @mars.Context, RouteParams) -> @mizchi/js/core.Any?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
+pub fn register_server_routes(@mars.Server, Array[@mizchi/luna/core/routes.Routes], (String, @mars.Context, RouteParams) -> @static.ServerNode?, (String, @mars.Context, RouteParams) -> Json?, config? : RouterConfig, title_prefix? : String, default_title? : String, default_head? : String, loader_url? : String, wc_loader_url? : String) -> Unit
 
 pub fn register_sol_routes(@mars.Server, Array[SolRoutes], config? : RouterConfig) -> Unit
 
-pub fn[E] render_fragment_response(@mizchi/luna/core.Node[E, String], String, Bool) -> String
+pub fn[E] render_fragment_response(@core.Node[E, String], String, Bool) -> String
 
 pub fn require(PageProps, String) -> Result[String, ApiResponse]
 
@@ -101,13 +102,13 @@ pub fn transform_mbtx_to_esm(String) -> String
 
 pub fn unauthorized(message? : String) -> ApiResponse
 
-pub fn with_assets(@mizchi/luna/core.Node[Unit, String], styles? : Array[String], scripts? : Array[String]) -> @static.ServerNode
+pub fn with_assets(@core.Node[Unit, String], styles? : Array[String], scripts? : Array[String]) -> @static.ServerNode
 
 pub fn with_mw(Array[@middleware.Middleware], Array[SolRoutes]) -> SolRoutes
 
-pub fn with_script(String, @mizchi/luna/core.Node[Unit, String]) -> @static.ServerNode
+pub fn with_script(String, @core.Node[Unit, String]) -> @static.ServerNode
 
-pub fn with_style(String, @mizchi/luna/core.Node[Unit, String]) -> @static.ServerNode
+pub fn with_style(String, @core.Node[Unit, String]) -> @static.ServerNode
 
 pub fn wrap(String, (PageProps, @static.ServerNode) -> @static.ServerNode raise, Array[SolRoutes]) -> SolRoutes
 

@@ -73,10 +73,6 @@ extern "js" fn ffi_send_web_response(
   #| }
 
 ///|
-extern "js" fn ffi_json_stringify_any(data : @js.Any) -> String =
-  #| (data) => JSON.stringify(data)
-
-///|
 /// Send streaming SSR page via JS ReadableStream.
 /// The header/footer/rendering logic is portable; only the transport is JS-specific.
 async fn send_streaming_server_page(
