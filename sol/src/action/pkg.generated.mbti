@@ -2,9 +2,10 @@
 package "mizchi/sol/action"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js/browser/dom",
   "mizchi/mars",
   "mizchi/sol/middleware",
+  "moonbitlang/async/js_async",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
@@ -22,7 +23,7 @@ pub fn[Req : ToJson, Res : @json.FromJson] invoke_typed_action_key(TypedActionKe
 
 pub fn register_actions(@mars.Server, ActionRegistry) -> Unit
 
-pub fn submit_form_as_action(@core.Any, ActionFormConfig) -> Unit
+pub fn[Res : @json.FromJson] submit_form_as_action(@dom.HTMLFormElement, ActionFormConfig[Res]) -> Unit
 
 pub fn[Req, Res] typed_action_url(TypedActionKey[Req, Res]) -> String
 
@@ -48,21 +49,21 @@ pub fn ActionDef::with_middleware(Self, @middleware.Middleware) -> Self
 pub fn ActionDef::with_middlewares(Self, Array[@middleware.Middleware]) -> Self
 pub fn ActionDef::with_require_json(Self, Bool) -> Self
 
-pub struct ActionFormConfig {
+pub struct ActionFormConfig[Res] {
   // private fields
 }
-pub fn[K : ActionKey] ActionFormConfig::from_key(K) -> Self
-pub fn ActionFormConfig::with_error(Self, (Int, String) -> Unit) -> Self
-pub fn ActionFormConfig::with_method(Self, String) -> Self
-pub fn ActionFormConfig::with_redirect(Self, (String) -> Bool) -> Self
-pub fn ActionFormConfig::with_success(Self, (@core.Any) -> Unit) -> Self
+pub fn[Req, Res] ActionFormConfig::from_key(TypedActionKey[Req, Res]) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_error(Self[Res], (Int, String) -> Unit) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_method(Self[Res], String) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_redirect(Self[Res], (String) -> Bool) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_success(Self[Res], (Res) -> Unit) -> Self[Res]
 
 pub(all) struct ActionHandler(async (ActionContext) -> ActionResult)
 
 pub struct ActionOptions {
   headers : Array[(String, String)]
   timeout : Int?
-  signal : @core.Any?
+  signal : @js_async.AbortSignal?
 }
 pub fn ActionOptions::default() -> Self
 

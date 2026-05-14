@@ -15,7 +15,7 @@ pub struct ActionOptions {
   /// Request timeout in milliseconds
   timeout : Int?
   /// Abort signal (for cancellation)
-  signal : @js.Any?
+  signal : @js_async.AbortSignal?
 }
 
 ///|
@@ -201,13 +201,13 @@ pub fn[Req : ToJson, Res : FromJson] create_typed_action_invoker_key(
 
 ///|
 /// Action form configuration
-pub struct ActionFormConfig {
+pub struct ActionFormConfig[Res] {
   /// Action URL
   priv action : String
   /// Method (default: POST)
   priv form_method : String
   /// On success callback
-  priv on_success : ((@js.Any) -> Unit)?
+  priv on_success : ((Res) -> Unit)?
   /// On error callback
   priv on_error : ((Int, String) -> Unit)?
   /// On redirect callback (return false to prevent redirect)
@@ -215,8 +215,18 @@ pub struct ActionFormConfig {
 }
 
 ///|
+/// Raw JS-facing form configuration.
+priv struct RawActionFormConfig {
+  action : String
+  form_method : String
+  on_success : ((@js.Any) -> Unit)?
+  on_error : ((Int, String) -> Unit)?
+  on_redirect : ((String) -> Bool)?
+}
+
+///|
 /// Default form config
-fn ActionFormConfig::new(action : String) -> ActionFormConfig {
+fn[Res] ActionFormConfig::new(action : String) -> ActionFormConfig[Res] {
   {
     action,
     form_method: "POST",
@@ -228,50 +238,92 @@ fn ActionFormConfig::new(action : String) -> ActionFormConfig {
 
 ///|
 /// Create form config from a generated action key
-pub fn[K : ActionKey] ActionFormConfig::from_key(key : K) -> ActionFormConfig {
-  ActionFormConfig::new(action_url(key))
+pub fn[Req, Res] ActionFormConfig::from_key(
+  key : TypedActionKey[Req, Res],
+) -> ActionFormConfig[Res] {
+  ActionFormConfig::new(typed_action_url(key))
 }
 
 ///|
 /// Set form method for action form submission.
-pub fn ActionFormConfig::with_method(
-  self : ActionFormConfig,
+pub fn[Res] ActionFormConfig::with_method(
+  self : ActionFormConfig[Res],
   form_method : String,
-) -> ActionFormConfig {
+) -> ActionFormConfig[Res] {
   { ..self, form_method, }
 }
 
 ///|
 /// Set success callback for action form submission.
-pub fn ActionFormConfig::with_success(
-  self : ActionFormConfig,
-  on_success : (@js.Any) -> Unit,
-) -> ActionFormConfig {
+pub fn[Res] ActionFormConfig::with_success(
+  self : ActionFormConfig[Res],
+  on_success : (Res) -> Unit,
+) -> ActionFormConfig[Res] {
   { ..self, on_success: Some(on_success) }
 }
 
 ///|
 /// Set error callback for action form submission.
-pub fn ActionFormConfig::with_error(
-  self : ActionFormConfig,
+pub fn[Res] ActionFormConfig::with_error(
+  self : ActionFormConfig[Res],
   on_error : (Int, String) -> Unit,
-) -> ActionFormConfig {
+) -> ActionFormConfig[Res] {
   { ..self, on_error: Some(on_error) }
 }
 
 ///|
 /// Set redirect callback for action form submission.
-pub fn ActionFormConfig::with_redirect(
-  self : ActionFormConfig,
+pub fn[Res] ActionFormConfig::with_redirect(
+  self : ActionFormConfig[Res],
   on_redirect : (String) -> Bool,
-) -> ActionFormConfig {
+) -> ActionFormConfig[Res] {
   { ..self, on_redirect: Some(on_redirect) }
 }
 
 ///|
+fn[Res : FromJson] ActionFormConfig::to_raw(
+  self : ActionFormConfig[Res],
+) -> RawActionFormConfig {
+  let on_success : ((@js.Any) -> Unit)? = match self.on_success {
+    Some(callback) =>
+      Some(fn(data) {
+        guard @js_any.any_to_json(data) is Some(json) else {
+          match self.on_error {
+            Some(on_error) => on_error(0, "Action form response is not JSON")
+            None => ()
+          }
+          return
+        }
+        let decoded : Res = @json.from_json(json) catch {
+          _ => {
+            match self.on_error {
+              Some(on_error) =>
+                on_error(0, "Action form response does not match expected type")
+              None => ()
+            }
+            return
+          }
+        }
+        callback(decoded)
+      })
+    None => None
+  }
+  {
+    action: self.action,
+    form_method: self.form_method,
+    on_success,
+    on_error: self.on_error,
+    on_redirect: self.on_redirect,
+  }
+}
+
+///|
 /// Handle form submission as server action
-pub fn submit_form_as_action(form : @js.Any, config : ActionFormConfig) -> Unit {
-  ffi_submit_form_action(form, config)
+pub fn[Res : FromJson] submit_form_as_action(
+  form : @js_dom.HTMLFormElement,
+  config : ActionFormConfig[Res],
+) -> Unit {
+  ffi_submit_form_action(form, config.to_raw())
 }
 
 // ============================================================================
@@ -361,8 +413,8 @@ extern "js" fn ffi_invoke_action_cb(
 
 ///|
 extern "js" fn ffi_submit_form_action(
-  form : @js.Any,
-  config : ActionFormConfig,
+  form : @js_dom.HTMLFormElement,
+  config : RawActionFormConfig,
 ) -> Unit =
   #| async (form, config) => {
   #|   try {

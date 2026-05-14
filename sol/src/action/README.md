@@ -151,9 +151,13 @@ create_user(
 ### Form Integration
 
 ```moonbit
+let create_user_action : TypedActionKey[CreateUserRequest, CreateUserResponse] =
+  @types.action_create_user_typed()
+
 submit_form_as_action(
   form_element,
-  ActionFormConfig::from_key(@types.action_create_user())
+  ActionFormConfig::from_key(create_user_action)
+    .with_success(fn(data) { save_user_id(data.id) })
 )
 ```
 

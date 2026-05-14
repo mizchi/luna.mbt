@@ -1,5 +1,7 @@
 import {
   "moonbitlang/core/json",
+  "moonbitlang/async/js_async" @js_async,
+  "mizchi/js/browser/dom" @js_dom,
   "mizchi/mars" @mars,
   "mizchi/js/core" @js,
   "mizchi/sol/internal/js_any" @js_any,

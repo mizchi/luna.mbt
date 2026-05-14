@@ -72,7 +72,9 @@ test("action public API only exposes typed action keys", () => {
   assert.match(mbti, /TypedActionKey::from_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionDef::from_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionRegistry::register_key/);
-  assert.match(mbti, /pub fn\[K : ActionKey\] ActionFormConfig::from_key/);
+  assert.match(mbti, /pub struct ActionFormConfig\[Res\]/);
+  assert.match(mbti, /ActionFormConfig::from_key\(TypedActionKey\[Req, Res\]\)/);
+  assert.match(mbti, /pub fn\[Res : (?:@json\.)?FromJson\] submit_form_as_action/);
   assert.match(mbti, /pub enum TypedActionResponse\[Res\]/);
   assert.match(mbti, /invoke_typed_action_key/);
   assert.match(mbti, /create_typed_action_invoker_key/);
@@ -96,6 +98,9 @@ test("action public API only exposes typed action keys", () => {
     /pub fn\[Res : (?:@json\.)?FromJson\] TypedActionResponse::from_action_response/,
     /pub fn ActionRegistry::get\b/,
     /pub fn ActionRegistry::action_url\b/,
+    /signal : @core\.Any\?/,
+    /ActionFormConfig::with_success\(Self, \(@core\.Any\) -> Unit\)/,
+    /pub fn submit_form_as_action\(@core\.Any/,
     /pub fn invoke_action\(/,
     /pub fn\[K : ActionKey\] invoke_action_key\b/,
     /pub fn create_action_invoker\(/,

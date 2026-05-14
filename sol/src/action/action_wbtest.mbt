@@ -401,16 +401,29 @@ test "ActionState constructors cover idle pending success and error states" {
 
 ///|
 test "ActionFormConfig::from_key creates typed form config" {
-  let config = ActionFormConfig::from_key(CreateUserActionKey::{  })
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let config : ActionFormConfig[CreateUserResponse] = ActionFormConfig::from_key(
+    key,
+  )
   assert_eq(config.action, "/_action/create-user")
   assert_eq(config.form_method, "POST")
 }
 
 ///|
 test "ActionFormConfig builder methods preserve typed action url" {
-  let config = ActionFormConfig::from_key(CreateUserActionKey::{  })
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let config = ActionFormConfig::from_key(key)
     .with_method("PUT")
-    .with_success(fn(_data) { () })
+    .with_success(fn(data) {
+      let _ = data.id
+      ()
+    })
     .with_error(fn(_status, _message) { () })
     .with_redirect(fn(_url) { false })
   assert_eq(config.action, "/_action/create-user")
