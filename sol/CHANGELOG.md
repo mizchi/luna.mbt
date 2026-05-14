@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.21.1 (2026-05-14)
+
+- Fix generated/example Cloudflare projects by declaring
+  `mizchi/sol_adapter_cloudflare` instead of the Node adapter.
+- Update `sol new` templates and `sol --version` to the 0.21 release line.
+
 ## 0.21.0 (2026-05-14)
 
 - Add route-scoped asset attachment APIs and Sol-generated asset manifests.

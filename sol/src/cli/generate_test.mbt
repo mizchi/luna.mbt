@@ -1218,9 +1218,9 @@ test "generate_templates: moon.mod.json includes sol and mars dependencies" {
 test "template_moon_mod_json: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol\": \"0.20.2\""))
-  assert_true(content.contains("\"mizchi/sol_adapter_node\": \"0.20.2\""))
-  assert_true(content.contains("\"mizchi/luna\": \"0.20.1\""))
+  assert_true(content.contains("\"mizchi/sol\": \"0.21.1\""))
+  assert_true(content.contains("\"mizchi/sol_adapter_node\": \"0.21.1\""))
+  assert_true(content.contains("\"mizchi/luna\": \"0.21.0\""))
   assert_true(content.contains("\"mizchi/signals\": \"0.6.4\""))
   assert_true(content.contains("\"mizchi/js\": \"0.10.15\""))
   assert_true(content.contains("\"moonbitlang/async\": \"0.17.0\""))
@@ -1232,7 +1232,9 @@ test "template_layout_mbt: provides root_layout used by routes template" {
   assert_true(content.contains("pub fn root_layout("))
   assert_true(content.contains("let default_head"))
   assert_true(content.contains("<meta name=\\\"description\\\""))
-  assert_true(content.contains("<link rel=\\\"icon\\\" href=\\\"/favicon.ico\\\""))
+  assert_true(
+    content.contains("<link rel=\\\"icon\\\" href=\\\"/favicon.ico\\\""),
+  )
 }
 
 ///|

@@ -26,10 +26,8 @@ fn write_minimal_project(
 test "diagnose_project reports ok for a generated node project" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
-  let deps = "\"mizchi/sol\": \"0.20.2\", \"mizchi/sol_adapter_node\": \"0.20.2\""
-  write_minimal_project(
-    fs, "/project", "node", deps,
-  )
+  let deps = "\"mizchi/sol\": \"0.21.1\", \"mizchi/sol_adapter_node\": \"0.21.1\""
+  write_minimal_project(fs, "/project", "node", deps)
   mem.mkdirSync("/project/app/__gen__", recursive=true)
   mem.mkdirSync("/project/.sol/prod/server", recursive=true)
   mem.writeFileSync("/project/.sol/prod/server/serve.js", "// serve wrapper")
@@ -43,7 +41,7 @@ test "diagnose_project reports ok for a generated node project" {
 ///|
 test "diagnose_project flags missing node adapter dependency" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  write_minimal_project(fs, "/project", "node", "\"mizchi/sol\": \"0.20.2\"")
+  write_minimal_project(fs, "/project", "node", "\"mizchi/sol\": \"0.21.1\"")
 
   let report = diagnose_project_with_fs(fs, "/project")
   assert_true(report.has_errors())
@@ -54,10 +52,8 @@ test "diagnose_project flags missing node adapter dependency" {
 ///|
 test "diagnose_project flags cloudflare projects that still depend on node adapter" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  let deps = "\"mizchi/sol\": \"0.20.2\", \"mizchi/sol_adapter_node\": \"0.20.2\""
-  write_minimal_project(
-    fs, "/project", "cloudflare", deps,
-  )
+  let deps = "\"mizchi/sol\": \"0.21.1\", \"mizchi/sol_adapter_node\": \"0.21.1\""
+  write_minimal_project(fs, "/project", "cloudflare", deps)
 
   let report = diagnose_project_with_fs(fs, "/project")
   assert_true(report.has_errors())
@@ -68,10 +64,8 @@ test "diagnose_project flags cloudflare projects that still depend on node adapt
 ///|
 test "diagnose_project warns when generated outputs are missing" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  let deps = "\"mizchi/sol\": \"0.20.2\", \"mizchi/sol_adapter_node\": \"0.20.2\""
-  write_minimal_project(
-    fs, "/project", "node", deps,
-  )
+  let deps = "\"mizchi/sol\": \"0.21.1\", \"mizchi/sol_adapter_node\": \"0.21.1\""
+  write_minimal_project(fs, "/project", "node", deps)
 
   let report = diagnose_project_with_fs(fs, "/project")
   assert_false(report.has_errors())

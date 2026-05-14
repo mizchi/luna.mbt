@@ -11,7 +11,7 @@ Library:
 
 ```jsonc
 // moon.mod.json
-{ "deps": { "mizchi/sol": "0.20.2", "mizchi/luna": "0.20.1" } }
+{ "deps": { "mizchi/sol": "0.21.1", "mizchi/luna": "0.21.0" } }
 ```
 
 CLI (binary):

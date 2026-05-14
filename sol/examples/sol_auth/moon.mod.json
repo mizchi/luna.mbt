@@ -5,8 +5,8 @@
     "mizchi/sol": {
       "path": "../.."
     },
-    "mizchi/sol_adapter_node": {
-      "path": "../../../sol_adapter_node"
+    "mizchi/sol_adapter_cloudflare": {
+      "path": "../../../sol_adapter_cloudflare"
     },
     "mizchi/luna": {
       "path": "../../../luna"

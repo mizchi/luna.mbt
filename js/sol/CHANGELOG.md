@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.1](https://github.com/mizchi/luna.mbt/compare/sol-v0.21.0-npm...sol-v0.21.1-npm) (2026-05-14)
+
+
+### Bug Fixes
+
+* publish Sol CLI templates with Cloudflare adapter deps and the 0.21 release version
+
 ## [0.21.0](https://github.com/mizchi/luna.mbt/compare/sol-v0.20.2-npm...sol-v0.21.0-npm) (2026-05-14)
 
 

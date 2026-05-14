@@ -7,9 +7,9 @@ published independently to [mooncakes](https://mooncakes.io/):
 |---------|------|------|--------|
 | [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.21.0 |
 | [`mizchi/luna_components`](./luna_components/) | Headless and styled UI components | `luna_components/` | 0.21.0 |
-| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.21.0 |
-| [`mizchi/sol_adapter_cloudflare`](./sol_adapter_cloudflare/) | Cloudflare/Wrangler adapter utilities for Sol | `sol_adapter_cloudflare/` | 0.21.0 |
-| [`mizchi/sol_adapter_node`](./sol_adapter_node/) | Node.js adapter utilities for Sol | `sol_adapter_node/` | 0.21.0 |
+| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.21.1 |
+| [`mizchi/sol_adapter_cloudflare`](./sol_adapter_cloudflare/) | Cloudflare/Wrangler adapter utilities for Sol | `sol_adapter_cloudflare/` | 0.21.1 |
+| [`mizchi/sol_adapter_node`](./sol_adapter_node/) | Node.js adapter utilities for Sol | `sol_adapter_node/` | 0.21.1 |
 | [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.21.0 |
 
 Each package's README has the canonical usage doc.
@@ -28,7 +28,7 @@ Add to your `moon.mod.json`:
 { "deps": { "mizchi/luna": "0.21.0" } }
 
 // SSR framework
-{ "deps": { "mizchi/sol": "0.21.0", "mizchi/luna": "0.21.0" } }
+{ "deps": { "mizchi/sol": "0.21.1", "mizchi/luna": "0.21.0" } }
 
 // Static-site middleware (mounts on a Mars Server)
 { "deps": { "mizchi/astra": "0.21.0", "mizchi/luna": "0.21.0" } }
@@ -45,7 +45,7 @@ moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
 
 npm wrappers exist for users who already have node but not moon. The
 [`@luna_ui/*`](https://www.npmjs.com/org/luna_ui) family is published in
-the current npm wrapper release is `0.21.0`:
+the current Sol npm wrapper release is `0.21.1`:
 
 ```sh
 pnpm add -g @luna_ui/sol      # SSR framework CLI

@@ -1,10 +1,10 @@
 {
   "name": "mizchi/sol_adapter_node",
-  "version": "0.21.0",
+  "version": "0.21.1",
   "deps": {
     "mizchi/sol": {
       "path": "../sol",
-      "version": "0.21.0"
+      "version": "0.21.1"
     },
     "mizchi/mars": "0.3.10",
     "mizchi/js": "0.10.15"
