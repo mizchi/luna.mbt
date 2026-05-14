@@ -185,7 +185,7 @@ priv struct CreateUserRequest {
 ///|
 priv struct CreateUserResponse {
   id : String
-} derive(ToJson)
+} derive(ToJson, FromJson)
 
 ///|
 test "TypedActionKey carries request and response phantom types" {
@@ -218,9 +218,37 @@ test "typed action invoker carries request payload type" {
 
     },
   )
-  let _invoker : (CreateUserRequest, (ActionResponse) -> Unit) -> Unit = create_typed_action_invoker_key(
-    key,
+  let _invoker : (
+    CreateUserRequest,
+    (TypedActionResponse[CreateUserResponse]) -> Unit,
+  ) -> Unit = create_typed_action_invoker_key(key)
+}
+
+///|
+test "typed action response decodes success payload" {
+  let raw = ActionResponse::Success(
+    @js_any.json_to_any(CreateUserResponse::{ id: "user-1" }.to_json()),
   )
+  let typed : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    raw,
+  )
+  match typed {
+    Success(data) => assert_eq(data.id, "user-1")
+    _ => fail("expected typed success")
+  }
+}
+
+///|
+test "typed action response reports decode errors" {
+  let obj : Map[String, Json] = {}
+  let raw = ActionResponse::Success(@js_any.json_to_any(obj.to_json()))
+  let typed : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    raw,
+  )
+  match typed {
+    DecodeError(_) => ()
+    _ => fail("expected decode error")
+  }
 }
 
 ///|

@@ -38,6 +38,47 @@ pub enum ActionResponse {
 }
 
 ///|
+/// Typed action client response.
+pub enum TypedActionResponse[Res] {
+  /// Successful response decoded into the generated response payload type
+  Success(Res)
+  /// Server requested a redirect
+  Redirect(String)
+  /// Error response
+  Error(Int, String)
+  /// Network error
+  NetworkError(String)
+  /// Successful HTTP response whose JSON shape did not match `Res`
+  DecodeError(String)
+}
+
+///|
+/// Decode an untyped action response into a typed action response.
+pub fn[Res : FromJson] TypedActionResponse::from_action_response(
+  response : ActionResponse,
+) -> TypedActionResponse[Res] {
+  match response {
+    ActionResponse::Success(data) => {
+      guard @js_any.any_to_json(data) is Some(json) else {
+        return TypedActionResponse::DecodeError("Action response is not JSON")
+      }
+      let decoded : Res = @json.from_json(json) catch {
+        _ =>
+          return TypedActionResponse::DecodeError(
+            "Action response does not match expected type",
+          )
+      }
+      TypedActionResponse::Success(decoded)
+    }
+    ActionResponse::Redirect(url) => TypedActionResponse::Redirect(url)
+    ActionResponse::Error(status, message) =>
+      TypedActionResponse::Error(status, message)
+    ActionResponse::NetworkError(message) =>
+      TypedActionResponse::NetworkError(message)
+  }
+}
+
+///|
 /// UI-facing action phase for common form/action states
 pub enum ActionPhase {
   Idle
@@ -140,16 +181,18 @@ pub fn[K : ActionKey] invoke_action_key(
 
 ///|
 /// Invoke a typed server action using its generated request payload type.
-pub fn[Req : ToJson, Res] invoke_typed_action_key(
+pub fn[Req : ToJson, Res : FromJson] invoke_typed_action_key(
   key : TypedActionKey[Req, Res],
   payload : Req,
-  callback : (ActionResponse) -> Unit,
+  callback : (TypedActionResponse[Res]) -> Unit,
   options? : ActionOptions,
 ) -> Unit {
   invoke_action(
     typed_action_url(key),
     @js_any.json_to_any(payload.to_json()),
-    callback,
+    fn(response) {
+      callback(TypedActionResponse::from_action_response(response))
+    },
     options?,
   )
 }
@@ -176,17 +219,19 @@ pub fn[K : ActionKey] create_action_invoker_key(
 
 ///|
 /// Create an action invoker whose payload parameter is tied to a typed key.
-pub fn[Req : ToJson, Res] create_typed_action_invoker_key(
+pub fn[Req : ToJson, Res : FromJson] create_typed_action_invoker_key(
   key : TypedActionKey[Req, Res],
   options? : ActionOptions,
-) -> (Req, (ActionResponse) -> Unit) -> Unit {
+) -> (Req, (TypedActionResponse[Res]) -> Unit) -> Unit {
   let url = typed_action_url(key)
   let opts = options.unwrap_or(ActionOptions::default())
   fn(payload, callback) {
     ffi_invoke_action_cb(
       url,
       @js_any.json_to_any(payload.to_json()),
-      callback,
+      fn(response) {
+        callback(TypedActionResponse::from_action_response(response))
+      },
       opts,
     )
   }

@@ -56,6 +56,20 @@ pub fn json_to_any(json : Json) -> @js.Any {
 }
 
 ///|
+extern "js" fn ffi_json_stringify(data : @js.Any) -> String =
+  #| (data) => {
+  #|   const text = JSON.stringify(data);
+  #|   return text === undefined ? "null" : text;
+  #| }
+
+///|
+pub fn any_to_json(data : @js.Any) -> Json? {
+  let raw = ffi_json_stringify(data)
+  let json : Json = @json.parse(raw.view()) catch { _ => return None }
+  Some(json)
+}
+
+///|
 extern "js" fn ffi_object_get_string(obj : @js.Any, key : String) -> String? =
   #| (obj, key) => {
   #|   const value = obj?.[key];

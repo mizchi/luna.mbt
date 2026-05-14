@@ -15,6 +15,12 @@ priv struct ContactSubmitRequest {
 } derive(ToJson)
 
 ///|
+priv struct ContactSubmitResponse {
+  success : Bool
+  message : String
+} derive(FromJson)
+
+///|
 /// Contact form component with two-way data binding and Server Action submission
 pub fn contact_form(props : ContactFormProps) -> DomNode {
   // Signals for form state
@@ -32,33 +38,40 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     result_msg.set("Submitting...")
 
     // Create response handler callback
-    let handle_response : (@action.ActionResponse) -> Unit = fn(response) {
+    let handle_response : (
+      @action.TypedActionResponse[ContactSubmitResponse]
+    ) -> Unit = fn(response) {
       match response {
-        @action.ActionResponse::Success(data) => {
+        @action.TypedActionResponse::Success(data) => {
           is_submitting.set(false)
-          let msg = get_message(data)
-          result_msg.set(msg)
+          is_error.set(!data.success)
+          result_msg.set(data.message)
         }
-        @action.ActionResponse::Error(_, error_msg) => {
+        @action.TypedActionResponse::Error(_, error_msg) => {
           is_submitting.set(false)
           is_error.set(true)
           result_msg.set(error_msg)
         }
-        @action.ActionResponse::NetworkError(error_msg) => {
+        @action.TypedActionResponse::NetworkError(error_msg) => {
           is_submitting.set(false)
           is_error.set(true)
           result_msg.set("Network error: " + error_msg)
         }
-        @action.ActionResponse::Redirect(url) => {
+        @action.TypedActionResponse::Redirect(url) => {
           is_submitting.set(false)
           result_msg.set("Redirecting to: " + url)
           redirect_to(url)
+        }
+        @action.TypedActionResponse::DecodeError(error_msg) => {
+          is_submitting.set(false)
+          is_error.set(true)
+          result_msg.set(error_msg)
         }
       }
     }
 
     // Call Server Action with callback
-    let key : @action.TypedActionKey[ContactSubmitRequest, Unit] = @action.TypedActionKey::from_key(
+    let key : @action.TypedActionKey[ContactSubmitRequest, ContactSubmitResponse] = @action.TypedActionKey::from_key(
       @types.action_submit_contact(),
     )
     let payload = ContactSubmitRequest::{ name: name.get(), email: email.get() }
@@ -135,10 +148,6 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     ],
   )
 }
-
-///|
-extern "js" fn get_message(data : @js.Any) -> String =
-  #| (data) => data.message || JSON.stringify(data)
 
 ///|
 extern "js" fn redirect_to(url : String) -> Unit =

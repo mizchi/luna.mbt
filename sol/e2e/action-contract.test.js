@@ -71,12 +71,14 @@ test("action public API only exposes typed action keys", () => {
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionDef::from_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionRegistry::register_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionFormConfig::from_key/);
+  assert.match(mbti, /pub enum TypedActionResponse\[Res\]/);
   assert.match(mbti, /invoke_typed_action_key/);
   assert.match(mbti, /create_typed_action_invoker_key/);
-  assert.match(mbti, /pub fn\[Req : ToJson, Res\] invoke_typed_action_key/);
+  assert.match(mbti, /pub fn\[Res : (?:@json\.)?FromJson\] TypedActionResponse::from_action_response/);
+  assert.match(mbti, /pub fn\[Req : ToJson, Res : (?:@json\.)?FromJson\] invoke_typed_action_key/);
   assert.match(
     mbti,
-    /pub fn\[Req : ToJson, Res\] create_typed_action_invoker_key/
+    /pub fn\[Req : ToJson, Res : (?:@json\.)?FromJson\] create_typed_action_invoker_key/
   );
   assert.match(mbti, /ActionResult::json/);
 
@@ -163,10 +165,20 @@ test("examples dogfood typed action invocation", () => {
       /invoke_typed_action_key\(/,
       `${path.relative(ROOT, file)} must use typed action invocation`
     );
+    assert.match(
+      content,
+      /TypedActionResponse\[ContactSubmitResponse\]/,
+      `${path.relative(ROOT, file)} must decode typed action responses`
+    );
     assert.doesNotMatch(
       content,
       /invoke_action_key\(/,
       `${path.relative(ROOT, file)} must not use untyped action invocation`
+    );
+    assert.doesNotMatch(
+      content,
+      /\bActionResponse\b|extern "js" fn get_message/,
+      `${path.relative(ROOT, file)} must not unwrap action responses through @js.Any`
     );
   }
 });

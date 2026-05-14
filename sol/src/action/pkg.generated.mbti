@@ -6,6 +6,7 @@ import {
   "mizchi/mars",
   "mizchi/sol/middleware",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -15,11 +16,11 @@ pub fn[K : ActionKey] action_url(K) -> String
 
 pub fn[K : ActionKey] create_action_invoker_key(K, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
 
-pub fn[Req : ToJson, Res] create_typed_action_invoker_key(TypedActionKey[Req, Res], options? : ActionOptions) -> (Req, (ActionResponse) -> Unit) -> Unit
+pub fn[Req : ToJson, Res : @json.FromJson] create_typed_action_invoker_key(TypedActionKey[Req, Res], options? : ActionOptions) -> (Req, (TypedActionResponse[Res]) -> Unit) -> Unit
 
 pub fn[K : ActionKey] invoke_action_key(K, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
 
-pub fn[Req : ToJson, Res] invoke_typed_action_key(TypedActionKey[Req, Res], Req, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
+pub fn[Req : ToJson, Res : @json.FromJson] invoke_typed_action_key(TypedActionKey[Req, Res], Req, (TypedActionResponse[Res]) -> Unit, options? : ActionOptions) -> Unit
 
 pub fn register_actions(@mars.Server, ActionRegistry) -> Unit
 
@@ -138,6 +139,15 @@ pub fn[Req, Res] TypedActionKey::base_path(Self[Req, Res]) -> String
 pub fn[Req, Res, K : ActionKey] TypedActionKey::from_key(K) -> Self[Req, Res]
 pub fn[Req, Res] TypedActionKey::id(Self[Req, Res]) -> String
 pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res]
+
+pub enum TypedActionResponse[Res] {
+  Success(Res)
+  Redirect(String)
+  Error(Int, String)
+  NetworkError(String)
+  DecodeError(String)
+}
+pub fn[Res : @json.FromJson] TypedActionResponse::from_action_response(ActionResponse) -> Self[Res]
 
 // Type aliases
 pub using @mars {type Server as App}
