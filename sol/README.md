@@ -213,6 +213,10 @@ For external bundles, generated type helpers use URL injection:
 
 This keeps `CounterProps` checked between the server and frontend without
 letting Sol own the client bundle output path.
+When generated contracts exist, Sol also writes
+`app/__gen__/types/types.d.ts` so TypeScript frontend code can import the same
+props, route path, route params, and action ID contracts without depending on
+Sol's bundler.
 
 For TypeScript-owned frontend contracts, `contractTs` can feed the same
 generated type helpers directly from TS interfaces without writing an

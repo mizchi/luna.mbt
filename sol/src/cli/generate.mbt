@@ -129,7 +129,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       } else {
         match load_contract_ts_manifest_with_fs(fs, cwd, config.contract_ts) {
           Ok(manifest) => {
-            println(@colorette.gray("  Contract manifest: TypeScript interfaces"))
+            println(
+              @colorette.gray("  Contract manifest: TypeScript interfaces"),
+            )
             Some(manifest)
           }
           Err(message) => {
@@ -258,12 +260,21 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       source_structs,
       external_client_bundle=config.uses_external_client_bundle(),
     )
+    let types_ts_content = generate_typescript_contract_decl(
+      source_structs,
+      route_info~,
+      client_assets~,
+    )
     let types_test_path = @path.join2(types_dir, "types_test.mbt")
+    let types_ts_path = @path.join2(types_dir, "types.d.ts")
     try {
       fs.write_file_sync(types_mbt_path, types_mbt_content)
       fs.write_file_sync(types_pkg_path, types_pkg_content)
       if types_test_content.length() > 0 {
         fs.write_file_sync(types_test_path, types_test_content)
+      }
+      if types_ts_content.length() > 0 {
+        fs.write_file_sync(types_ts_path, types_ts_content)
       }
       let generated_label = if config.uses_external_client_bundle() {
         "  Generated __gen__/types/ external Props contract"

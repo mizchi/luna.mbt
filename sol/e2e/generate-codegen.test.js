@@ -47,6 +47,29 @@ function runSolGenerate(cwd) {
   return runSol(cwd, ["generate"]);
 }
 
+function runTypeScriptCheck(entryPath) {
+  return spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "tsc",
+      "--strict",
+      "--noEmit",
+      "--module",
+      "ESNext",
+      "--moduleResolution",
+      "node",
+      "--target",
+      "ES2022",
+      entryPath,
+    ],
+    {
+      cwd: ROOT,
+      encoding: "utf8",
+    }
+  );
+}
+
 test("sol generate: external client bundle avoids generated client intermediates", () => {
   ensureCliBuilt();
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-external-bundle-"));
@@ -356,6 +379,21 @@ test("sol contract-ts output drives sol generate contract manifest mode", () => 
     assert.match(types, /label : String\?/);
     assert.match(types, /tags : Array\[String\]/);
     assert.match(types, /counter_at\("\/assets\/counter\.js"/);
+
+    const dts = fs.readFileSync(
+      path.join(sandbox, "app", "__gen__", "types", "types.d.ts"),
+      "utf8"
+    );
+    assert.match(dts, /export interface CounterProps/);
+    assert.match(dts, /initial: number/);
+    assert.match(dts, /label\?: string \| null/);
+    assert.match(dts, /tags: string\[\]/);
+    assert.match(dts, /export type SolComponentName = keyof SolComponentProps/);
+    assert.match(dts, /export interface SolComponentRef/);
+    assert.match(
+      dts,
+      /"counter": \{ props: CounterProps; url: "\/assets\/counter\.js"; wc: false; \}/
+    );
   } finally {
     fs.rmSync(sandbox, { recursive: true, force: true });
   }
@@ -439,6 +477,145 @@ test("sol generate: contractTs config drives generated contract types", () => {
     assert.match(types, /label : String\?/);
     assert.match(types, /tags : Array\[String\]/);
     assert.match(types, /counter_at\("\/assets\/counter\.js"/);
+
+    const dts = fs.readFileSync(
+      path.join(sandbox, "app", "__gen__", "types", "types.d.ts"),
+      "utf8"
+    );
+    assert.match(dts, /export interface CounterProps/);
+    assert.match(dts, /tags: string\[\]/);
+    assert.match(dts, /"counter": CounterProps/);
+    assert.match(dts, /export type SolComponentPropsOf/);
+
+    const typecheckPath = path.join(sandbox, "contract-check.ts");
+    fs.writeFileSync(
+      typecheckPath,
+      [
+        'import type { CounterProps, SolComponentPropsOf, SolComponentRef, SolComponentUrl } from "./app/__gen__/types/types";',
+        "",
+        "const props: CounterProps = { initial: 1, label: null, tags: [] };",
+        "const typedProps: SolComponentPropsOf<\"counter\"> = props;",
+        "const url: SolComponentUrl<\"counter\"> = \"/assets/counter.js\";",
+        "const ref: SolComponentRef<\"counter\"> = { component: \"counter\", props: typedProps, url, wc: false };",
+        "void ref;",
+        "",
+      ].join("\n")
+    );
+    const typecheck = runTypeScriptCheck(typecheckPath);
+    assert.equal(
+      typecheck.status,
+      0,
+      `generated types.d.ts should typecheck\nstdout:\n${typecheck.stdout}\nstderr:\n${typecheck.stderr}`
+    );
+  } finally {
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
+test("sol generate: route and action declarations typecheck in TypeScript", () => {
+  ensureCliBuilt();
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-route-dts-"));
+  try {
+    fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
+    fs.writeFileSync(
+      path.join(sandbox, "moon.mod.json"),
+      JSON.stringify(
+        {
+          name: "example/route-dts",
+          version: "0.1.0",
+          deps: {
+            "mizchi/sol": { path: SOL_DIR },
+            "mizchi/luna": { path: path.join(ROOT, "luna") },
+            "mizchi/mars": "0.3.10",
+            "mizchi/js": "0.10.15",
+            "moonbitlang/async": "0.17.0",
+          },
+          source: "app",
+          "preferred-target": "js",
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.config.json"),
+      JSON.stringify(
+        {
+          routes: "app/server",
+          output: "app/__gen__",
+          runtime: "node",
+          serverEntry: "user",
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "server", "routes.mbt"),
+      [
+        "let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async fn(ctx) {",
+        "  @action.ActionResult::ok(@core.any(true))",
+        "})",
+        "",
+        "pub fn routes() -> Array[Unit] {",
+        '  [@sol.route("/", home), @sol.route("/blog/:slug", blog), @sol.route("/docs/[[...path]]", docs)]',
+        "}",
+        "",
+      ].join("\n")
+    );
+
+    const result = runSolGenerate(sandbox);
+    assert.equal(
+      result.status,
+      0,
+      `sol generate failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+    );
+
+    const dts = fs.readFileSync(
+      path.join(sandbox, "app", "__gen__", "types", "types.d.ts"),
+      "utf8"
+    );
+    assert.match(
+      dts,
+      /export type SolRoutePath = "\/" \| "\/blog\/:slug" \| "\/docs\/\[\[\.\.\.path\]\]";/
+    );
+    assert.match(dts, /"\/blog\/:slug": \{ slug: string; \};/);
+    assert.match(
+      dts,
+      /"\/docs\/\[\[\.\.\.path\]\]": \{ path\?: string \| null; \};/
+    );
+    assert.match(dts, /export type SolActionId = "submit-contact";/);
+
+    const typecheckPath = path.join(sandbox, "route-check.ts");
+    fs.writeFileSync(
+      typecheckPath,
+      [
+        'import type { SolActionId, SolActionKey, SolRouteParamsOf, SolRoutePath, SolRouteRef } from "./app/__gen__/types/types";',
+        "",
+        'const path: SolRoutePath = "/blog/:slug";',
+        'const params: SolRouteParamsOf<"/blog/:slug"> = { slug: "hello" };',
+        'const optionalParams: SolRouteParamsOf<"/docs/[[...path]]"> = {};',
+        'const route: SolRouteRef<"/blog/:slug"> = { path: "/blog/:slug", params };',
+        'const actionId: SolActionId = "submit-contact";',
+        'const action: SolActionKey<"submit-contact"> = { id: actionId, basePath: "/_action" };',
+        "void [path, optionalParams, route, action];",
+        "",
+        "// @ts-expect-error missing required route param",
+        'const badParams: SolRouteParamsOf<"/blog/:slug"> = {};',
+        "void badParams;",
+        "",
+        "// @ts-expect-error unknown action id",
+        'const badAction: SolActionKey<"delete-user"> = { id: "delete-user", basePath: "/_action" };',
+        "void badAction;",
+        "",
+      ].join("\n")
+    );
+    const typecheck = runTypeScriptCheck(typecheckPath);
+    assert.equal(
+      typecheck.status,
+      0,
+      `generated route/action types should typecheck\nstdout:\n${typecheck.stdout}\nstderr:\n${typecheck.stderr}`
+    );
   } finally {
     fs.rmSync(sandbox, { recursive: true, force: true });
   }

@@ -30,7 +30,12 @@ test "generate_client_gen_pkg: uses modern import alias syntax" {
 
 ///|
 test "generate_types_pkg: imports core/json for derive support" {
-  let structs : Array[StructExport] = []
+  let structs : Array[StructExport] = [{
+    name: "CounterProps",
+    raw_definition: "pub(all) struct CounterProps {\n  initial : Int\n}",
+    package_path: "app/client",
+    import_alias: "client",
+  }]
   let content = generate_types_pkg(structs)
   assert_true(content.contains("\"moonbitlang/core/json\""))
   assert_true(content.contains("\"mizchi/luna\" @luna"))
