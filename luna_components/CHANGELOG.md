@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna_components-v0.21.0] - 2026-05-14
+
+### Changed
+
+- Align with `mizchi/luna` 0.21.0.
+
 ## [luna_components-v0.20.1] - 2026-05-10
 
 ### Initial release

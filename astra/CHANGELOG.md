@@ -2,6 +2,10 @@
 
 All notable changes to `mizchi/astra` are documented here.
 
+## 0.21.0 (2026-05-14)
+
+- Align with `mizchi/luna` 0.21.0 and the Sol 0.21 release line.
+
 ## 0.20.1 (2026-05-10)
 
 - Chore: workspace-wide version bump to keep all four mooncakes (luna,

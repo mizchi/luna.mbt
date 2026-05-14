@@ -1,8 +1,8 @@
 {
   "name": "mizchi/astra",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "deps": {
-    "mizchi/luna": "0.20.0",
+    "mizchi/luna": "0.21.0",
     "mizchi/mars": "0.3.10",
     "mizchi/markdown": "0.4.7",
     "mizchi/js": "0.10.15",

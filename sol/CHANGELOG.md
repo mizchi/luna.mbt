@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.21.0 (2026-05-14)
+
+- Add route-scoped asset attachment APIs and Sol-generated asset manifests.
+- Split Cloudflare and Node-specific runtime helpers into
+  `mizchi/sol_adapter_cloudflare` and `mizchi/sol_adapter_node` so adapter
+  behavior stays outside the Sol core package.
+- Add Cloudflare starter generation and Wrangler-backed development flow.
+- Add typed action state and API client helper generation.
+- Add `sol doctor` diagnostics for generated apps and common config problems.
+
 ## 0.20.2 (2026-05-13)
 
 - Fix `moon install mizchi/sol/cmd/sol` by making the installable entry a

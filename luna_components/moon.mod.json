@@ -1,8 +1,8 @@
 {
   "name": "mizchi/luna_components",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "deps": {
-    "mizchi/luna": "0.20.1",
+    "mizchi/luna": "0.21.0",
     "mizchi/signals": "0.6.4",
     "mizchi/js": "0.10.16"
   },

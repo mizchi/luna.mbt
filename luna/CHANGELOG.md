@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna-v0.21.0] - 2026-05-14
+
+### Features
+
+- Add `ServerAssets` and route-local asset attachment helpers on
+  `ServerNode` for SSR frameworks that need component-declared CSS or client
+  scripts.
+
 ## [luna-v0.20.1] - 2026-05-10
 
 ### Refactor
@@ -1035,5 +1043,4 @@ All notable changes to this project will be documented in this file.
 - Misc changes
 - Add types package generation for Props structs
 - Sol generate - parse mbti with moonbitlang/parser
-
 
