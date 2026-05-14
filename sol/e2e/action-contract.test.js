@@ -178,6 +178,36 @@ test("hmr public API wraps websocket clients", () => {
   );
 });
 
+test("builder public API wraps IPC messages", () => {
+  const builderMbti = fs.readFileSync(
+    path.join(SOL_DIR, "src", "builder", "pkg.generated.mbti"),
+    "utf8"
+  );
+  const builderPoolMbti = fs.readFileSync(
+    path.join(SOL_DIR, "src", "builder_pool", "pkg.generated.mbti"),
+    "utf8"
+  );
+
+  for (const [name, mbti] of [
+    ["builder", builderMbti],
+    ["builder_pool", builderPoolMbti],
+  ]) {
+    assert.doesNotMatch(
+      mbti,
+      /@core\.Any|@mizchi\/js\/core\.Any/,
+      `${name} public API must not expose JavaScript Any`
+    );
+  }
+
+  assert.match(builderMbti, /pub struct IpcMessage/);
+  assert.match(builderMbti, /pub fn on_message\(\(IpcMessage\) -> Unit\) -> Unit/);
+  assert.match(builderMbti, /pub fn send_message\(IpcMessage\) -> Bool/);
+  assert.match(builderMbti, /pub fn ParentMessage::to_json\(Self\) -> IpcMessage/);
+  assert.match(builderMbti, /pub fn WorkerMessage::from_json\(IpcMessage\) -> Self\?/);
+  assert.match(builderPoolMbti, /pub fn WorkerInitData::from_json\(Json\) -> Self\?/);
+  assert.match(builderPoolMbti, /pub fn PageJobResult::to_json\(Self\) -> @builder\.IpcMessage/);
+});
+
 test("docs and examples do not use removed stringly action APIs", () => {
   const files = [
     path.join(SOL_DIR, "README.md"),

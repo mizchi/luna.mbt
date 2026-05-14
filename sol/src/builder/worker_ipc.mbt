@@ -9,14 +9,14 @@
 
 ///|
 /// Listen for IPC messages from parent process
-pub extern "js" fn on_message(callback : (@core.Any) -> Unit) -> Unit =
+extern "js" fn on_message_raw(callback : (@core.Any) -> Unit) -> Unit =
   #| (callback) => {
   #|   process.on("message", (msg) => callback(msg));
   #| }
 
 ///|
 /// Send IPC message to parent process
-pub extern "js" fn send_message(message : @core.Any) -> Bool =
+extern "js" fn send_message_raw(message : @core.Any) -> Bool =
   #| (message) => {
   #|   return process.send(message);
   #| }
@@ -28,6 +28,18 @@ pub extern "js" fn exit(code : Int) -> Unit =
   #|   process.exit(code);
   #| }
 
+///|
+/// Listen for typed IPC messages from parent process.
+pub fn on_message(callback : (IpcMessage) -> Unit) -> Unit {
+  on_message_raw(fn(raw) { callback(IpcMessage::from_raw(raw)) })
+}
+
+///|
+/// Send typed IPC message to parent process.
+pub fn send_message(message : IpcMessage) -> Bool {
+  send_message_raw(message.raw())
+}
+
 // =============================================================================
 // Message Helpers
 // =============================================================================
@@ -37,7 +49,7 @@ pub extern "js" fn exit(code : Int) -> Unit =
 pub fn send_ready() -> Unit {
   let obj = @core.new_object()
   obj["type"] = @core.any("ready")
-  send_message(obj) |> ignore
+  send_message(IpcMessage::from_raw(obj)) |> ignore
 }
 
 ///|
@@ -52,7 +64,7 @@ pub fn send_error(message : String) -> Unit {
   let obj = @core.new_object()
   obj["type"] = @core.any("error")
   obj["message"] = @core.any(message)
-  send_message(obj) |> ignore
+  send_message(IpcMessage::from_raw(obj)) |> ignore
 }
 
 // =============================================================================
@@ -61,10 +73,11 @@ pub fn send_error(message : String) -> Unit {
 
 ///|
 /// Parse init data from message
-pub fn parse_init_data(msg : @core.Any) -> String? {
-  let msg_type : String = msg["type"].cast()
+pub fn parse_init_data(msg : IpcMessage) -> String? {
+  let raw = msg.raw()
+  let msg_type : String = raw["type"].cast()
   if msg_type == "init" {
-    Some(msg["data"].cast())
+    Some(raw["data"].cast())
   } else {
     None
   }
@@ -72,10 +85,11 @@ pub fn parse_init_data(msg : @core.Any) -> String? {
 
 ///|
 /// Parse job ID from message
-pub fn parse_job_id(msg : @core.Any) -> Int? {
-  let msg_type : String = msg["type"].cast()
+pub fn parse_job_id(msg : IpcMessage) -> Int? {
+  let raw = msg.raw()
+  let msg_type : String = raw["type"].cast()
   if msg_type == "job" {
-    Some(msg["jobId"].cast())
+    Some(raw["jobId"].cast())
   } else {
     None
   }
@@ -83,7 +97,8 @@ pub fn parse_job_id(msg : @core.Any) -> Int? {
 
 ///|
 /// Check if message is shutdown
-pub fn is_shutdown(msg : @core.Any) -> Bool {
-  let msg_type : String = msg["type"].cast()
+pub fn is_shutdown(msg : IpcMessage) -> Bool {
+  let raw = msg.raw()
+  let msg_type : String = raw["type"].cast()
   msg_type == "shutdown"
 }

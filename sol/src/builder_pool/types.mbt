@@ -61,12 +61,15 @@ pub fn WorkerInitData::to_json_string(self : WorkerInitData) -> String {
 }
 
 ///|
-/// Parse WorkerInitData from JSON object
-pub fn WorkerInitData::from_json(obj : @core.Any) -> WorkerInitData? {
-  let config_json : String = obj["configJson"].cast()
-  let pages_json : String = obj["pagesJson"].cast()
-  let sidebar_json : String = obj["sidebarJson"].cast()
-  let cwd : String = obj["cwd"].cast()
+/// Parse WorkerInitData from JSON.
+pub fn WorkerInitData::from_json(json : Json) -> WorkerInitData? {
+  guard json is Object(obj) else { return None }
+  guard obj.get("configJson") is Some(String(config_json)) else { return None }
+  guard obj.get("pagesJson") is Some(String(pages_json)) else { return None }
+  guard obj.get("sidebarJson") is Some(String(sidebar_json)) else {
+    return None
+  }
+  guard obj.get("cwd") is Some(String(cwd)) else { return None }
   Some(WorkerInitData::{ config_json, pages_json, sidebar_json, cwd })
 }
 
@@ -129,6 +132,6 @@ pub fn PageJobResult::to_builder_result(
 
 ///|
 /// Serialize PageJobResult to JSON object (for worker to send)
-pub fn PageJobResult::to_json(self : PageJobResult) -> @core.Any {
+pub fn PageJobResult::to_json(self : PageJobResult) -> @builder.IpcMessage {
   self.to_builder_result().to_json()
 }

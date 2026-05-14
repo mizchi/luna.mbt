@@ -3,4 +3,8 @@ import {
   "mizchi/js/node/child_process" @child_process,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
+
 supported_targets = "js"

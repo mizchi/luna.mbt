@@ -1,46 +1,46 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/sol/builder"
 
-import {
-  "mizchi/js/core",
-}
-
 // Values
 pub fn exit(Int) -> Unit
 
-pub fn is_shutdown(@core.Any) -> Bool
+pub fn is_shutdown(IpcMessage) -> Bool
 
-pub fn on_message((@core.Any) -> Unit) -> Unit
+pub fn on_message((IpcMessage) -> Unit) -> Unit
 
-pub fn parse_init_data(@core.Any) -> String?
+pub fn parse_init_data(IpcMessage) -> String?
 
-pub fn parse_job_id(@core.Any) -> Int?
+pub fn parse_job_id(IpcMessage) -> Int?
 
 pub fn send_done(JobResult) -> Unit
 
 pub fn send_error(String) -> Unit
 
-pub fn send_message(@core.Any) -> Bool
+pub fn send_message(IpcMessage) -> Bool
 
 pub fn send_ready() -> Unit
 
 // Errors
 
 // Types and methods
+pub struct IpcMessage {
+  // private fields
+}
+
 pub(all) struct JobResult {
   job_id : Int
   output_path : String
   success : Bool
   error : String?
 }
-pub fn JobResult::to_json(Self) -> @core.Any
+pub fn JobResult::to_json(Self) -> IpcMessage
 
 pub enum ParentMessage {
   Init(String)
   Job(Int)
   Shutdown
 }
-pub fn ParentMessage::to_json(Self) -> @core.Any
+pub fn ParentMessage::to_json(Self) -> IpcMessage
 
 pub(all) struct PoolConfig {
   num_workers : Int
@@ -57,7 +57,7 @@ pub enum WorkerMessage {
   Done(JobResult)
   Error(String)
 }
-pub fn WorkerMessage::from_json(@core.Any) -> Self?
+pub fn WorkerMessage::from_json(IpcMessage) -> Self?
 
 pub struct WorkerPool {
   config : PoolConfig

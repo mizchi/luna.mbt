@@ -3,7 +3,6 @@ package "mizchi/sol/builder_pool"
 
 import {
   "mizchi/astra",
-  "mizchi/js/core",
   "mizchi/sol/builder",
 }
 
@@ -35,7 +34,7 @@ pub(all) struct PageJobResult {
 }
 pub fn PageJobResult::from_builder_result(@builder.JobResult) -> Self
 pub fn PageJobResult::to_builder_result(Self) -> @builder.JobResult
-pub fn PageJobResult::to_json(Self) -> @core.Any
+pub fn PageJobResult::to_json(Self) -> @builder.IpcMessage
 
 pub(all) struct WorkerInitData {
   config_json : String
@@ -43,7 +42,7 @@ pub(all) struct WorkerInitData {
   sidebar_json : String
   cwd : String
 }
-pub fn WorkerInitData::from_json(@core.Any) -> Self?
+pub fn WorkerInitData::from_json(Json) -> Self?
 pub fn WorkerInitData::to_json_string(Self) -> String
 
 // Type aliases
