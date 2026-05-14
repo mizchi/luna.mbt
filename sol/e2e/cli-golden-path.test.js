@@ -10,6 +10,9 @@ const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SOL_DIR = path.resolve(THIS_DIR, "..");
 const ROOT = path.resolve(SOL_DIR, "..");
 const CLI_DEBUG = path.join(ROOT, "_build", "js", "debug", "build", "mizchi", "sol", "cmd", "sol_js", "sol_js.js");
+const SOL_VERSION = JSON.parse(
+  fs.readFileSync(path.join(SOL_DIR, "moon.mod.json"), "utf8")
+).version;
 
 function runSol(args, cwd) {
   return spawnSync("node", [CLI_DEBUG, ...args], {
@@ -41,7 +44,7 @@ test("cli golden path command availability (new/dev/build/deploy)", () => {
 
     const version = runSol(["--version"], sandbox);
     assert.equal(version.status, 0, version.stderr);
-    assert.match(version.stdout, /sol 0\.20\.2/);
+    assert.equal(version.stdout.trim(), `sol ${SOL_VERSION}`);
 
     const cliSource = fs.readFileSync(CLI_DEBUG, "utf8");
     assert.doesNotMatch(cliSource, /from ["']colorette["']/);
