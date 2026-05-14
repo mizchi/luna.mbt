@@ -112,6 +112,23 @@ test("action public API only exposes typed action keys", () => {
   }
 });
 
+test("sol root public API does not expose JSON Any escape hatches", () => {
+  const mbti = fs.readFileSync(
+    path.join(SOL_DIR, "src", "pkg.generated.mbti"),
+    "utf8"
+  );
+
+  const forbidden = [
+    /pub fn json_obj\(/,
+    /pub fn json_to_any\(/,
+    /pub fn json_array_to_any\(/,
+  ];
+
+  for (const pattern of forbidden) {
+    assert.doesNotMatch(mbti, pattern, `public API must not expose ${pattern}`);
+  }
+});
+
 test("docs and examples do not use removed stringly action APIs", () => {
   const files = [
     path.join(SOL_DIR, "README.md"),

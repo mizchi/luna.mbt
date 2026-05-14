@@ -63,12 +63,6 @@ pub fn[T : ToJson, E] island_with(@mizchi/luna/core.ComponentRef[T], () -> @mizc
 
 pub fn[E] island_with_raw(String, String, String, () -> @mizchi/luna/core.Node[E, String], trigger? : @mizchi/luna/core.TriggerType) -> @mizchi/luna/core.Node[E, String]
 
-pub fn json_array_to_any(Array[Json]) -> @mizchi/js/core.Any
-
-pub fn json_obj(Array[(String, @mizchi/js/core.Any)]) -> @mizchi/js/core.Any
-
-pub fn json_to_any(Json) -> @mizchi/js/core.Any
-
 pub fn nodes(Array[@mizchi/luna/core.Node[Unit, String]]) -> @static.ServerNode
 
 pub fn not_found_response(message? : String) -> @router.ApiResponse

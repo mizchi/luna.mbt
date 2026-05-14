@@ -12,7 +12,6 @@ import {
   "mizchi/sol/action" @action,
   "mizchi/sol/hot_reload" @hot_reload,
   "mizchi/sol/internal/page_shell" @page_shell,
-  "mizchi/sol/internal/js_any" @js_any,
 }
 
 import {

@@ -76,27 +76,3 @@ pub fn[E] page(
     }),
   )
 }
-
-///|
-/// Create a JSON object for API responses
-pub fn json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any {
-  @js_any.json_obj(pairs)
-}
-
-///|
-/// Convert MoonBit Json to JavaScript Any value
-pub fn json_to_any(json : Json) -> @js.Any {
-  @js_any.json_to_any(json)
-}
-
-///|
-/// Convert MoonBit Json array to JavaScript Any value
-pub fn json_array_to_any(arr : Array[Json]) -> @js.Any {
-  // Map each Json to Any and return as JS array
-  let result : Array[@js.Any] = arr.map(fn(j) { @js_any.json_to_any(j) })
-  ffi_array_to_any(result)
-}
-
-///|
-extern "js" fn ffi_array_to_any(arr : Array[@js.Any]) -> @js.Any =
-  #| (arr) => arr
