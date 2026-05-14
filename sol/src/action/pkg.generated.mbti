@@ -9,13 +9,13 @@ import {
 }
 
 // Values
-pub fn create_action_invoker(String, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
+pub fn[K : ActionKey] action_id(K) -> String
 
-pub fn create_action_invoker_ref(ActionRef, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
+pub fn[K : ActionKey] action_url(K) -> String
 
-pub fn invoke_action(String, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
+pub fn[K : ActionKey] create_action_invoker_key(K, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
 
-pub fn invoke_action_ref(ActionRef, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
+pub fn[K : ActionKey] invoke_action_key(K, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
 
 pub fn register_actions(@mars.Server, ActionRegistry) -> Unit
 
@@ -35,25 +35,21 @@ pub fn ActionContext::get_state(Self, String) -> String?
 pub fn ActionContext::set_state(Self, String, String) -> Unit
 
 pub struct ActionDef {
-  id : String
-  handler : ActionHandler
-  middlewares : Array[@middleware.Middleware]
-  require_json : Bool
+  // private fields
 }
-pub fn ActionDef::new(String, ActionHandler) -> Self
+pub fn[K : ActionKey] ActionDef::from_key(K, ActionHandler) -> Self
 pub fn ActionDef::with_middleware(Self, @middleware.Middleware) -> Self
 pub fn ActionDef::with_middlewares(Self, Array[@middleware.Middleware]) -> Self
 pub fn ActionDef::with_require_json(Self, Bool) -> Self
 
 pub struct ActionFormConfig {
-  action : String
-  form_method : String
-  on_success : ((@core.Any) -> Unit)?
-  on_error : ((Int, String) -> Unit)?
-  on_redirect : ((String) -> Bool)?
+  // private fields
 }
-pub fn ActionFormConfig::from_ref(ActionRef) -> Self
-pub fn ActionFormConfig::new(String) -> Self
+pub fn[K : ActionKey] ActionFormConfig::from_key(K) -> Self
+pub fn ActionFormConfig::with_error(Self, (Int, String) -> Unit) -> Self
+pub fn ActionFormConfig::with_method(Self, String) -> Self
+pub fn ActionFormConfig::with_redirect(Self, (String) -> Bool) -> Self
+pub fn ActionFormConfig::with_success(Self, (@core.Any) -> Unit) -> Self
 
 pub(all) struct ActionHandler(async (ActionContext) -> ActionResult)
 
@@ -72,25 +68,14 @@ pub enum ActionPhase {
   Redirecting
 } derive(Eq, @debug.Debug)
 
-pub(all) struct ActionRef {
-  id : String
-  base_path : String
-}
-pub fn ActionRef::to_def(Self, ActionHandler) -> ActionDef
-pub fn ActionRef::url(Self) -> String
-
 pub struct ActionRegistry {
-  actions : Map[String, ActionDef]
-  base_path : String
-  allowed_origins : Array[String]
+  // private fields
 }
 pub fn ActionRegistry::action_ids(Self) -> Array[String]
-pub fn ActionRegistry::action_url(Self, String) -> String
-pub fn ActionRegistry::get(Self, String) -> ActionDef?
 pub fn ActionRegistry::new(allowed_origins? : Array[String]) -> Self
 pub fn ActionRegistry::register(Self, ActionDef) -> Self
 pub fn ActionRegistry::register_all(Self, Array[ActionDef]) -> Self
-pub fn ActionRegistry::register_ref(Self, ActionRef, ActionHandler) -> Self
+pub fn[K : ActionKey] ActionRegistry::register_key(Self, K, ActionHandler) -> Self
 pub fn ActionRegistry::with_base_path(Self, String) -> Self
 
 pub enum ActionResponse {
@@ -142,4 +127,8 @@ pub using @mars {type Server as App}
 pub using @mars {type Context as Ctx}
 
 // Traits
+pub(open) trait ActionKey {
+  id(Self) -> String
+  base_path(Self) -> String
+}
 

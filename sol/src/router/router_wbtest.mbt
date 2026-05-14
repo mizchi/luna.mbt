@@ -319,6 +319,29 @@ test "collect_preload_urls: manifest deduplicates chunks with libs" {
 }
 
 ///|
+test "collect_preload_urls: external manifest preloads shared chunks before island" {
+  let json =
+    #|{
+    #|  "app/client/counter.ts": {
+    #|    "file": "assets/counter-abc123.js",
+    #|    "imports": ["_shared/runtime.ts"]
+    #|  },
+    #|  "_shared/runtime.ts": {
+    #|    "file": "assets/runtime-def456.js"
+    #|  }
+    #|}
+  let manifest = ChunkManifest::parse(json, "/static/").unwrap()
+  let result = collect_preload_urls(
+    [],
+    ["/static/assets/counter-abc123.js"],
+    Some(manifest),
+  )
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/static/assets/runtime-def456.js")
+  assert_eq(result[1], "/static/assets/counter-abc123.js")
+}
+
+///|
 test "compiled route rendered_meta matches render_meta_tags output" {
   async fn handler(_props : PageProps) -> @server_dom.ServerNode {
     @server_dom.ServerNode::sync(@luna.text(""))

@@ -14,6 +14,21 @@ pub enum ServerRuntime {
 } derive(Eq, Show)
 
 ///|
+/// Server entry ownership. Auto preserves the historical main.mbt detection.
+pub enum ServerEntryMode {
+  ServerEntryAuto
+  ServerEntryGenerated
+  ServerEntryUserManaged
+} derive(Eq, Show)
+
+///|
+/// Client island bundle ownership.
+pub enum ClientBundleMode {
+  ClientBundleAuto
+  ClientBundleExternal
+} derive(Eq, Show)
+
+///|
 /// Sol configuration (new architecture)
 pub struct SolConfig {
   /// Island directories (client hydration)
@@ -28,6 +43,10 @@ pub struct SolConfig {
   runtime : ServerRuntime
   /// Adapter for local dev/serve (defaults to runtime)
   adapter : ServerRuntime
+  /// Server entry ownership (auto, generated, user)
+  server_entry : ServerEntryMode
+  /// Client island bundle ownership (auto, external)
+  client_bundle : ClientBundleMode
   /// Static directories for SSG (markdown -> HTML)
   static_dirs : Array[StaticDirEntry]
   /// Per-route wasm entrypoints (.mbtx/.wasm)
@@ -100,14 +119,14 @@ pub fn StaticDirEntry::default(
 ///|
 /// Route information extracted from routes.mbt
 /// Note: Fields prefixed with _ are for future use
-struct RouteInfo {
+priv struct RouteInfo {
   /// Page component IDs (from Island and Page routes)
   _page_components : Array[String]
   /// API handler IDs (from Get, Post, etc. routes)
   _api_handlers : Array[String]
   /// Route paths (from path="..." in route definitions)
   route_paths : Array[String]
-  /// Action IDs (from ActionDef::new("id", ...) calls)
+  /// Action IDs (from typed action handler names)
   action_ids : Array[String]
 }
 
@@ -137,7 +156,7 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
     route_paths,
     action_ids,
   }
-  if !(fs.exists_sync(routes_path)) {
+  if !fs.exists_sync(routes_path) {
     return empty
   }
   let content = fs.read_file_sync(routes_path) catch { _ => return empty }
@@ -158,8 +177,8 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
   extract_quoted_values(content, "@sol.api_put(\"", route_paths)
   extract_quoted_values(content, "@sol.api_delete(\"", route_paths)
   extract_quoted_values(content, "@sol.api_patch(\"", route_paths)
-  // Find all ActionDef::new("id", ...) patterns
-  extract_quoted_values(content, "ActionDef::new(\"", action_ids)
+  // Typed source-of-truth: derive action IDs from handler binding names.
+  extract_action_handler_ids(content, action_ids)
   RouteInfo::{
     _page_components: page_components,
     _api_handlers: api_handlers,
@@ -191,7 +210,7 @@ fn extract_quoted_values(
         match after_key.find("\"") {
           Some(end_idx) => {
             let value = after_key.unsafe_substring(start=0, end=end_idx)
-            if !(result.contains(value)) {
+            if !result.contains(value) {
               result.push(value)
             }
             search_pos = search_pos + start + prefix_len + end_idx + 1
@@ -201,6 +220,77 @@ fn extract_quoted_values(
       }
       None => break
     }
+  }
+}
+
+///|
+/// Extract action IDs from `let name : @action.ActionHandler` bindings.
+fn extract_action_handler_ids(content : String, result : Array[String]) -> Unit {
+  for line_view in content.split("\n") {
+    let line = line_view.to_string().trim_space().to_string()
+    if !line.has_prefix("let ") || !line.contains("@action.ActionHandler") {
+      continue
+    }
+    let rest = line.substring(start=4)
+    match rest.find(":") {
+      Some(colon) => {
+        let name = rest.substring(end=colon).trim_space().to_string()
+        match action_handler_name_to_id(name) {
+          Some(id) => if !result.contains(id) { result.push(id) }
+          None => ()
+        }
+      }
+      None => ()
+    }
+  }
+}
+
+///|
+fn action_handler_name_to_id(name : String) -> String? {
+  let base = if name.has_suffix("_handler") {
+    name.substring(end=name.length() - "_handler".length())
+  } else if name.has_suffix("_action") {
+    name.substring(end=name.length() - "_action".length())
+  } else {
+    return None
+  }
+  let id = identifier_to_action_id(base)
+  if id.is_empty() {
+    None
+  } else {
+    Some(id)
+  }
+}
+
+///|
+fn identifier_to_action_id(name : String) -> String {
+  let buf = StringBuilder::new()
+  let mut prev_dash = false
+  let mut wrote_any = false
+  for c in name {
+    if c == '_' || c == '-' {
+      if !prev_dash && wrote_any {
+        buf.write_char('-')
+        prev_dash = true
+      }
+    } else if c >= 'A' && c <= 'Z' {
+      if !prev_dash && wrote_any {
+        buf.write_char('-')
+      }
+      buf.write_char(Char::from_int(c.to_int() + 32))
+      prev_dash = false
+      wrote_any = true
+    } else {
+      buf.write_char(c)
+      prev_dash = false
+      wrote_any = true
+    }
+  }
+  let s = buf.to_string()
+  if s.has_suffix("-") {
+    s.substring(end=s.length() - 1)
+  } else {
+    s
   }
 }
 
@@ -226,18 +316,35 @@ pub fn parse_runtime(s : String) -> ServerRuntime {
 }
 
 ///|
+/// Parse server entry ownership mode.
+pub fn parse_server_entry_mode(s : String) -> ServerEntryMode {
+  match s.to_lower() {
+    "generated" | "codegen" | "auto-generated" => ServerEntryGenerated
+    "user" | "user-managed" | "manual" | "external" => ServerEntryUserManaged
+    _ => ServerEntryAuto
+  }
+}
+
+///|
+/// Parse client bundle ownership mode.
+pub fn parse_client_bundle_mode(s : String) -> ClientBundleMode {
+  match s.to_lower() {
+    "external" | "manual" | "none" => ClientBundleExternal
+    _ => ClientBundleAuto
+  }
+}
+
+///|
 /// Validate top-level config keys and warn about unknown ones
 fn validate_config_keys(obj : Map[String, Json]) -> Unit {
   let valid_keys = [
-    "islands", "routes", "output", "clientAutoExports", "client_auto_exports",
-    "runtime", "adapter", "staticDirs", "static_dirs", "wasmEntrypoints",
-    "wasm_entrypoints", "experimental",
+    "islands", "routes", "output", "clientAutoExports", "client_auto_exports", "runtime",
+    "adapter", "serverEntry", "server_entry", "clientBundle", "client_bundle", "staticDirs",
+    "static_dirs", "wasmEntrypoints", "wasm_entrypoints", "experimental",
   ]
   for key in obj.keys() {
-    if !(valid_keys.contains(key)) {
-      println(
-        "Warning: unknown config key \"\{key}\" in sol.config.json",
-      )
+    if !valid_keys.contains(key) {
+      println("Warning: unknown config key \"\{key}\" in sol.config.json")
     }
   }
 }
@@ -263,6 +370,24 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       Some(s) => parse_runtime(s)
       None => runtime
     }
+    let server_entry = match
+      @json_utils.extract_string_opt(obj, "serverEntry") {
+      Some(s) => parse_server_entry_mode(s)
+      None =>
+        match @json_utils.extract_string_opt(obj, "server_entry") {
+          Some(s) => parse_server_entry_mode(s)
+          None => ServerEntryAuto
+        }
+    }
+    let client_bundle = match
+      @json_utils.extract_string_opt(obj, "clientBundle") {
+      Some(s) => parse_client_bundle_mode(s)
+      None =>
+        match @json_utils.extract_string_opt(obj, "client_bundle") {
+          Some(s) => parse_client_bundle_mode(s)
+          None => ClientBundleAuto
+        }
+    }
     let static_dirs = parse_static_dirs(obj)
     let wasm_entrypoints = parse_wasm_entrypoints(obj)
     let experimental = @json_utils.extract_string_array(obj, "experimental")
@@ -274,6 +399,8 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       client_auto_exports,
       runtime,
       adapter,
+      server_entry,
+      client_bundle,
       static_dirs,
       wasm_entrypoints,
       experimental,
@@ -420,7 +547,7 @@ fn parse_nav_items(obj : Map[String, Json]) -> Array[@astra.NavItem] {
         if item is Object(item_obj) {
           let text = @json_utils.extract_string(item_obj, "text", "")
           let link = @json_utils.extract_string(item_obj, "link", "")
-          if !(text.is_empty()) && !(link.is_empty()) {
+          if !text.is_empty() && !link.is_empty() {
             result.push(@astra.NavItem::new(text, link))
           }
         }
@@ -450,14 +577,16 @@ fn parse_sidebar_config(obj : Map[String, Json]) -> @astra.SidebarConfig {
                 if sub is Object(sub_obj) {
                   let sub_text = @json_utils.extract_string(sub_obj, "text", "")
                   let sub_link = @json_utils.extract_string(sub_obj, "link", "")
-                  if !(sub_text.is_empty()) && !(sub_link.is_empty()) {
-                    items.push(@astra.SidebarItem::Link(text=sub_text, link=sub_link))
+                  if !sub_text.is_empty() && !sub_link.is_empty() {
+                    items.push(
+                      @astra.SidebarItem::Link(text=sub_text, link=sub_link),
+                    )
                   }
                 }
               }
             _ => ()
           }
-          if !(text.is_empty()) {
+          if !text.is_empty() {
             groups.push(@astra.SidebarGroup::{ text, link, collapsed, items })
           }
         }
@@ -723,7 +852,7 @@ fn parse_footer_config(obj : Map[String, Json]) -> @astra.FooterConfig? {
                       let href = @json_utils.extract_string(
                         link_obj, "href", "",
                       )
-                      if !(label.is_empty()) && !(href.is_empty()) {
+                      if !label.is_empty() && !href.is_empty() {
                         col_items.push(@astra.FooterLink::{ label, href })
                       }
                     }
@@ -771,7 +900,7 @@ fn parse_social_links(obj : Map[String, Json]) -> Array[@astra.SocialLink] {
         if item is Object(link_obj) {
           let icon = @json_utils.extract_string(link_obj, "icon", "")
           let link = @json_utils.extract_string(link_obj, "link", "")
-          if !(icon.is_empty()) && !(link.is_empty()) {
+          if !icon.is_empty() && !link.is_empty() {
             result.push(@astra.SocialLink::{ icon, link })
           }
         }

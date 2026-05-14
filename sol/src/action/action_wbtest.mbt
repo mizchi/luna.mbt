@@ -107,12 +107,71 @@ test "ActionResult::server_error creates 500 error" {
 // ============================================================================
 
 ///|
-test "ActionDef::new creates default action" {
+priv struct CreateUserActionKey {}
+
+///|
+impl ActionKey for CreateUserActionKey with id(_self) {
+  "create-user"
+}
+
+///|
+impl ActionKey for CreateUserActionKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+priv struct GetUserActionKey {}
+
+///|
+impl ActionKey for GetUserActionKey with id(_self) {
+  "get-user"
+}
+
+///|
+impl ActionKey for GetUserActionKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+priv struct ActionOneKey {}
+
+///|
+impl ActionKey for ActionOneKey with id(_self) {
+  "action1"
+}
+
+///|
+impl ActionKey for ActionOneKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+priv struct ActionTwoKey {}
+
+///|
+impl ActionKey for ActionTwoKey with id(_self) {
+  "action2"
+}
+
+///|
+impl ActionKey for ActionTwoKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+test "action_url builds endpoint URL from action key" {
+  let key = CreateUserActionKey::{  }
+  assert_eq(action_id(key), "create-user")
+  assert_eq(action_url(key), "/_action/create-user")
+}
+
+///|
+test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
   })
-  let action = ActionDef::new("test-action", handler)
-  assert_eq(action.id, "test-action")
+  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
+  assert_eq(action.id, "create-user")
   assert_true(action.require_json)
   assert_true(action.middlewares.is_empty())
 }
@@ -122,7 +181,10 @@ test "ActionDef::with_require_json toggles json requirement" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
   })
-  let action = ActionDef::new("test-action", handler).with_require_json(false)
+  let action = ActionDef::from_key(
+    CreateUserActionKey::{  },
+    handler,
+  ).with_require_json(false)
   assert_false(action.require_json)
 }
 
@@ -148,8 +210,21 @@ test "ActionRegistry::register adds action" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
   })
-  let action = ActionDef::new("create-user", handler)
+  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
+  assert_eq(registry.action_ids().length(), 1)
+  assert_true(registry.action_ids().contains("create-user"))
+}
+
+///|
+test "ActionRegistry::register_key adds generated-key action" {
+  let handler = ActionHandler(async fn(_ctx) {
+    ActionResult::ok(@js.new_object())
+  })
+  let registry = ActionRegistry::new().register_key(
+    CreateUserActionKey::{  },
+    handler,
+  )
   assert_eq(registry.action_ids().length(), 1)
   assert_true(registry.action_ids().contains("create-user"))
 }
@@ -159,7 +234,7 @@ test "ActionRegistry::get returns registered action" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
   })
-  let action = ActionDef::new("get-user", handler)
+  let action = ActionDef::from_key(GetUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
   match registry.get("get-user") {
     Some(a) => assert_eq(a.id, "get-user")
@@ -188,8 +263,8 @@ test "ActionRegistry::register_all adds multiple actions" {
     ActionResult::ok(@js.new_object())
   })
   let actions = [
-    ActionDef::new("action1", handler1),
-    ActionDef::new("action2", handler2),
+    ActionDef::from_key(ActionOneKey::{  }, handler1),
+    ActionDef::from_key(ActionTwoKey::{  }, handler2),
   ]
   let registry = ActionRegistry::new().register_all(actions)
   assert_eq(registry.action_ids().length(), 2)
@@ -229,13 +304,42 @@ test "ActionState::from_response maps action responses to UI states" {
   assert_true(redirect.phase is ActionPhase::Redirecting)
   assert_eq(redirect.redirect, Some("/done"))
 
-  let failed = ActionState::from_response(ActionResponse::Error(400, "Bad input"))
+  let failed = ActionState::from_response(
+    ActionResponse::Error(400, "Bad input"),
+  )
   assert_true(failed.phase is ActionPhase::Failed)
   assert_eq(failed.status, Some(400))
   assert_eq(failed.message, Some("Bad input"))
 
-  let network = ActionState::from_response(ActionResponse::NetworkError("offline"))
+  let network = ActionState::from_response(
+    ActionResponse::NetworkError("offline"),
+  )
   assert_true(network.phase is ActionPhase::Failed)
   assert_eq(network.status, Some(0))
   assert_eq(network.message, Some("offline"))
+}
+
+// ============================================================================
+// ActionFormConfig Tests
+// ============================================================================
+
+///|
+test "ActionFormConfig::from_key creates typed form config" {
+  let config = ActionFormConfig::from_key(CreateUserActionKey::{  })
+  assert_eq(config.action, "/_action/create-user")
+  assert_eq(config.form_method, "POST")
+}
+
+///|
+test "ActionFormConfig builder methods preserve typed action url" {
+  let config = ActionFormConfig::from_key(CreateUserActionKey::{  })
+    .with_method("PUT")
+    .with_success(fn(_data) { () })
+    .with_error(fn(_status, _message) { () })
+    .with_redirect(fn(_url) { false })
+  assert_eq(config.action, "/_action/create-user")
+  assert_eq(config.form_method, "PUT")
+  assert_true(config.on_success is Some(_))
+  assert_true(config.on_error is Some(_))
+  assert_true(config.on_redirect is Some(_))
 }

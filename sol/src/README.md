@@ -349,7 +349,7 @@ Server-side functions with CSRF protection. See [Server Actions README](./action
 
 ```moonbit
 // Define action handler
-let submit_handler = @action.ActionHandler(async fn(ctx) {
+let submit_form_handler = @action.ActionHandler(async fn(ctx) {
   let body = ctx.body
   // ... processing
   @action.ActionResult::ok(@js.any({ "success": true }))
@@ -358,7 +358,12 @@ let submit_handler = @action.ActionHandler(async fn(ctx) {
 // Register to registry
 pub fn action_registry() -> @action.ActionRegistry {
   @action.ActionRegistry::new(allowed_origins=["http://localhost:7777"])
-    .register(@action.ActionDef::new("submit-form", submit_handler))
+    .register(
+      @action.ActionDef::from_key(
+        @types.action_submit_form(),
+        submit_form_handler,
+      ),
+    )
 }
 ```
 

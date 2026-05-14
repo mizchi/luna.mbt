@@ -77,7 +77,12 @@ pub fn ActionState::success(message? : String = "Success") -> ActionState {
 ///|
 /// Failed action state
 pub fn ActionState::error(status~ : Int, message~ : String) -> ActionState {
-  { phase: Failed, status: Some(status), message: Some(message), redirect: None }
+  {
+    phase: Failed,
+    status: Some(status),
+    message: Some(message),
+    redirect: None,
+  }
 }
 
 ///|
@@ -112,7 +117,7 @@ pub fn ActionState::from_response(response : ActionResponse) -> ActionState {
 /// - `payload`: The JSON payload to send
 /// - `callback`: Function to call with the response
 /// - `options`: Optional configuration
-pub fn invoke_action(
+fn invoke_action(
   url : String,
   payload : @js.Any,
   callback : (ActionResponse) -> Unit,
@@ -123,20 +128,20 @@ pub fn invoke_action(
 }
 
 ///|
-/// Invoke a server action using a type-safe ActionRef
-pub fn invoke_action_ref(
-  aref : ActionRef,
+/// Invoke a server action using a generated action key
+pub fn[K : ActionKey] invoke_action_key(
+  key : K,
   payload : @js.Any,
   callback : (ActionResponse) -> Unit,
   options? : ActionOptions,
 ) -> Unit {
-  invoke_action(aref.url(), payload, callback, options?)
+  invoke_action(action_url(key), payload, callback, options?)
 }
 
 ///|
 /// Create an action invoker for a specific endpoint
 /// Returns a function that takes payload and callback
-pub fn create_action_invoker(
+fn create_action_invoker(
   url : String,
   options? : ActionOptions,
 ) -> (@js.Any, (ActionResponse) -> Unit) -> Unit {
@@ -145,12 +150,12 @@ pub fn create_action_invoker(
 }
 
 ///|
-/// Create an action invoker from a type-safe ActionRef
-pub fn create_action_invoker_ref(
-  aref : ActionRef,
+/// Create an action invoker from a generated action key
+pub fn[K : ActionKey] create_action_invoker_key(
+  key : K,
   options? : ActionOptions,
 ) -> (@js.Any, (ActionResponse) -> Unit) -> Unit {
-  create_action_invoker(aref.url(), options?)
+  create_action_invoker(action_url(key), options?)
 }
 
 // ============================================================================
@@ -161,20 +166,20 @@ pub fn create_action_invoker_ref(
 /// Action form configuration
 pub struct ActionFormConfig {
   /// Action URL
-  action : String
+  priv action : String
   /// Method (default: POST)
-  form_method : String
+  priv form_method : String
   /// On success callback
-  on_success : ((@js.Any) -> Unit)?
+  priv on_success : ((@js.Any) -> Unit)?
   /// On error callback
-  on_error : ((Int, String) -> Unit)?
+  priv on_error : ((Int, String) -> Unit)?
   /// On redirect callback (return false to prevent redirect)
-  on_redirect : ((String) -> Bool)?
+  priv on_redirect : ((String) -> Bool)?
 }
 
 ///|
 /// Default form config
-pub fn ActionFormConfig::new(action : String) -> ActionFormConfig {
+fn ActionFormConfig::new(action : String) -> ActionFormConfig {
   {
     action,
     form_method: "POST",
@@ -185,9 +190,45 @@ pub fn ActionFormConfig::new(action : String) -> ActionFormConfig {
 }
 
 ///|
-/// Create form config from a type-safe ActionRef
-pub fn ActionFormConfig::from_ref(aref : ActionRef) -> ActionFormConfig {
-  ActionFormConfig::new(aref.url())
+/// Create form config from a generated action key
+pub fn[K : ActionKey] ActionFormConfig::from_key(key : K) -> ActionFormConfig {
+  ActionFormConfig::new(action_url(key))
+}
+
+///|
+/// Set form method for action form submission.
+pub fn ActionFormConfig::with_method(
+  self : ActionFormConfig,
+  form_method : String,
+) -> ActionFormConfig {
+  { ..self, form_method, }
+}
+
+///|
+/// Set success callback for action form submission.
+pub fn ActionFormConfig::with_success(
+  self : ActionFormConfig,
+  on_success : (@js.Any) -> Unit,
+) -> ActionFormConfig {
+  { ..self, on_success: Some(on_success), }
+}
+
+///|
+/// Set error callback for action form submission.
+pub fn ActionFormConfig::with_error(
+  self : ActionFormConfig,
+  on_error : (Int, String) -> Unit,
+) -> ActionFormConfig {
+  { ..self, on_error: Some(on_error), }
+}
+
+///|
+/// Set redirect callback for action form submission.
+pub fn ActionFormConfig::with_redirect(
+  self : ActionFormConfig,
+  on_redirect : (String) -> Bool,
+) -> ActionFormConfig {
+  { ..self, on_redirect: Some(on_redirect), }
 }
 
 ///|

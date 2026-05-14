@@ -65,11 +65,15 @@ pub async fn load_ts_config(String) -> SolConfig?
 
 pub fn mbtx_prelude() -> String
 
+pub fn parse_client_bundle_mode(String) -> ClientBundleMode
+
 pub fn parse_mbti(String) -> Array[(String, String)]
 
 pub fn parse_mbti_imports(String) -> Map[String, String]
 
 pub fn parse_runtime(String) -> ServerRuntime
+
+pub fn parse_server_entry_mode(String) -> ServerEntryMode
 
 pub fn parse_sol_config(String) -> SolConfig?
 
@@ -84,6 +88,8 @@ pub fn rewrite_type_refs(String, Map[String, String]) -> String
 pub async fn run_main(Array[String]) -> Unit
 
 pub fn[FS : @env.FileSystem] scan_mbtx_dir(FS, String, String, base_path? : String) -> Array[MbtxFileEntry]
+
+pub fn[FS : @env.FileSystem] should_use_user_managed_server(FS, String, SolConfig) -> Bool
 
 pub fn split_params(String) -> Array[String]
 
@@ -142,9 +148,26 @@ pub enum AppMode {
   TypeScriptFull
 } derive(Eq, Show)
 
+pub enum ClientBundleMode {
+  ClientBundleAuto
+  ClientBundleExternal
+} derive(Eq, Show)
+
+pub(all) struct ClientComponentContract {
+  props_type : String?
+  return_kind : ClientReturnKind
+}
+
+pub(all) enum ClientReturnKind {
+  ClientReturnDomNode
+  ClientReturnVNode
+  ClientReturnUnsupported
+} derive(Eq, Show)
+
 pub(all) struct FuncExport {
   name : String
   signature : String
+  contract : ClientComponentContract
   package_path : String
   import_alias : String
   source_pattern : String
@@ -162,9 +185,11 @@ pub(all) struct MbtxFileEntry {
   id : String
 }
 
-type RouteInfo
-
-type SegmentKind
+pub enum ServerEntryMode {
+  ServerEntryAuto
+  ServerEntryGenerated
+  ServerEntryUserManaged
+} derive(Eq, Show)
 
 pub enum ServerRuntime {
   RuntimeNode
@@ -180,11 +205,14 @@ pub struct SolConfig {
   client_auto_exports : Bool
   runtime : ServerRuntime
   adapter : ServerRuntime
+  server_entry : ServerEntryMode
+  client_bundle : ClientBundleMode
   static_dirs : Array[StaticDirEntry]
   wasm_entrypoints : Array[WasmEntrypointConfig]
   experimental : Array[String]
 }
 pub fn SolConfig::has_experimental(Self, String) -> Bool
+pub fn SolConfig::uses_external_client_bundle(Self) -> Bool
 
 pub struct StaticDirEntry {
   path_prefix : String

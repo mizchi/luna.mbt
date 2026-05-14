@@ -147,6 +147,9 @@ export default {
   routes: "app/server",
   output: "app/__gen__",
   runtime: "node",
+  // Defaults preserve the generated Sol pipeline.
+  serverEntry: "auto", // "auto" | "generated" | "user"
+  clientBundle: "auto", // "auto" | "external"
   client_auto_exports: false,
   wasmEntryPoints: [
     {
@@ -159,6 +162,57 @@ export default {
   ],
 }
 ```
+
+`serverEntry` and `clientBundle` split ownership of generated intermediates:
+
+- `serverEntry: "auto"` keeps the historical behavior: `app/server/main.mbt`
+  means user-managed server entry; otherwise Sol generates `app/__gen__/server`.
+- `serverEntry: "user"` makes the server entry explicit and skips
+  `app/__gen__/server` even if `main.mbt` is not present yet.
+- `clientBundle: "external"` makes island discovery and bundling user-owned.
+  Sol skips `app/__gen__/client`, `.sol/*/client`, and `.sol/*/manifest.json`.
+  It still generates `app/__gen__/types` when it finds Props structs, so the
+  server can keep a typed contract to frontend props while explicitly passing
+  URLs served by your own bundler.
+
+External bundles can still use SSR modulepreload without making Sol read or
+write the client build graph. Load the bundler manifest in your app entry and
+pass the JSON to `RouterConfig`:
+
+```moonbit
+let client_manifest =
+  #|{
+  #|  "app/client/counter.ts": {
+  #|    "file": "assets/counter-abc123.js",
+  #|    "imports": ["assets/runtime-def456.js"]
+  #|  }
+  #|}
+
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
+    .with_client_manifest_json(client_manifest, base_url="/static/")
+}
+```
+
+The manifest may be keyed by source entry or emitted file, matching
+Vite/Rolldown-style output. Island refs should point at the emitted URL, such
+as `/static/assets/counter-abc123.js`; Sol only uses the supplied JSON to emit
+the shared chunk `<link rel="modulepreload">` tags during SSR.
+
+For external bundles, generated type helpers use URL injection:
+
+```moonbit
+@sol.island(
+  @types.counter_at(
+    "/static/assets/counter-abc123.js",
+    { initial_count: 42 },
+  ),
+  [counter_ssr()],
+)
+```
+
+This keeps `CounterProps` checked between the server and frontend without
+letting Sol own the client bundle output path.
 
 If you prefer JSON, `sol.config.json` is supported. For schema validation in this repo, add:
 
@@ -213,7 +267,7 @@ sol new myapp --user mizchi --dev   # Use local luna path (for development)
 Start development server. Auto-executes:
 1. `sol generate --mode dev` - Code generation (outputs to `.sol/dev/`)
 2. `moon build` - MoonBit build
-3. `rolldown` - Client bundle (if manifest exists)
+3. `rolldown` - Client bundle (if manifest exists; skipped with `clientBundle: "external"`)
 4. Start server
 
 For `runtime: "cloudflare"`, `sol dev` starts `wrangler dev` instead of the
@@ -276,6 +330,11 @@ sol doctor --strict # Treat warnings as failures
 Auto-generate code based on `sol.config.ts` (recommended) or `sol.config.json`. If both exist, `sol.config.ts` takes priority.
 
 > **Note**: Usually `sol dev` and `sol build` call this internally, so explicit execution is not needed.
+
+For a user-owned server entry and external client bundle, `sol generate` writes
+the runtime server wrapper under `.sol/<mode>/server/`, built-in Sol assets, and
+`app/__gen__/types` when Props contracts exist. It does not create
+`app/__gen__/server`, `app/__gen__/client`, or client bundle manifests.
 
 ```bash
 sol generate                    # Use sol.config.ts or sol.config.json (default: prod)

@@ -6,7 +6,7 @@
 
 ///|
 /// Generate types.mbt content with all Props struct definitions, ComponentRef factories,
-/// route constants, ActionRef factories, and Locale enum
+/// route constants, action key factories, and Locale enum
 fn generate_types_mbt(
   structs : Array[StructExport],
   route_info? : RouteInfo = RouteInfo::{
@@ -16,6 +16,7 @@ fn generate_types_mbt(
     action_ids: [],
   },
   static_dirs? : Array[StaticDirEntry] = [],
+  external_client_bundle? : Bool = false,
 ) -> String {
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated types for island props\n")
@@ -35,7 +36,7 @@ fn generate_types_mbt(
   }
 
   // Generate ComponentRef factory functions
-  if !(structs.is_empty()) {
+  if !structs.is_empty() {
     buf.write_string(
       "// =============================================================================\n",
     )
@@ -50,24 +51,42 @@ fn generate_types_mbt(
     let is_wc = is_web_component(component_name)
     buf.write_string("///|\n")
     buf.write_string(
-      "///| Create ComponentRef for \{component_name} component\n",
+      "///| Create ComponentRef for \{component_name} component with an explicit client URL\n",
     )
-    buf.write_string("pub fn \{component_name}(\n")
+    buf.write_string("pub fn \{component_name}_at(\n")
+    buf.write_string("  url : String,\n")
     buf.write_string("  props : \{s.name},\n")
     buf.write_string("  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n")
     buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
-    buf.write_string("  { url: \"\{url}\", props, wc: \{is_wc}, trigger }\n")
+    buf.write_string("  { url, props, wc: \{is_wc}, trigger }\n")
     buf.write_string("}\n\n")
+    if !external_client_bundle {
+      buf.write_string("///|\n")
+      buf.write_string(
+        "///| Create ComponentRef for \{component_name} component using Sol's generated client URL\n",
+      )
+      buf.write_string("pub fn \{component_name}(\n")
+      buf.write_string("  props : \{s.name},\n")
+      buf.write_string(
+        "  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n",
+      )
+      buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
+      buf.write_string("  \{component_name}_at(\"\{url}\", props, trigger~)\n")
+      buf.write_string("}\n\n")
+    }
   }
 
   // Generate route path constants and param name constants
   buf.write_string(generate_route_constants(route_info.route_paths))
 
+  // Generate route-specific typed param accessors
+  buf.write_string(generate_route_param_accessors(route_info.route_paths))
+
   // Generate link builder functions
   buf.write_string(generate_link_builders(route_info.route_paths))
 
-  // Generate ActionRef factory functions
-  buf.write_string(generate_action_ref_factories(route_info.action_ids))
+  // Generate action key factory functions
+  buf.write_string(generate_action_key_factories(route_info.action_ids))
 
   // Generate Locale enum
   buf.write_string(generate_locale_enum(static_dirs))
@@ -78,26 +97,27 @@ fn generate_types_mbt(
 ///|
 /// Generate round-trip tests for all Props types.
 /// These tests verify that to_json → from_json produces identical values.
-fn generate_types_roundtrip_tests(structs : Array[StructExport]) -> String {
+fn generate_types_roundtrip_tests(
+  structs : Array[StructExport],
+  external_client_bundle? : Bool = false,
+) -> String {
   if structs.is_empty() {
     return ""
   }
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated Props round-trip tests\n")
-  buf.write_string("///| Verifies to_json/from_json symmetry for all island Props types\n\n")
+  buf.write_string(
+    "///| Verifies to_json/from_json symmetry for all island Props types\n\n",
+  )
   for s in structs {
     let component_name = extract_component_name_from_props(s.name)
     buf.write_string("///|\n")
     buf.write_string("test \"\{s.name} round-trip\" {\n")
-    buf.write_string(
-      "  let json_str = \{default_props_json(s)}\n",
-    )
+    buf.write_string("  let json_str = \{default_props_json(s)}\n")
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string(
-      "  let props : \{s.name} = @json.from_json(json)\n",
-    )
+    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
     buf.write_string("  let roundtrip = props.to_json()\n")
     buf.write_string(
       "  let restored : \{s.name} = @json.from_json(roundtrip)\n",
@@ -109,16 +129,17 @@ fn generate_types_roundtrip_tests(structs : Array[StructExport]) -> String {
     // Also verify ComponentRef factory creates valid ref
     buf.write_string("///|\n")
     buf.write_string("test \"\{component_name} ComponentRef url\" {\n")
-    buf.write_string(
-      "  let json_str = \{default_props_json(s)}\n",
-    )
+    buf.write_string("  let json_str = \{default_props_json(s)}\n")
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string(
-      "  let props : \{s.name} = @json.from_json(json)\n",
-    )
-    buf.write_string("  let cref = \{component_name}(props)\n")
+    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
+    let factory_call = if external_client_bundle {
+      "\{component_name}_at(\"/static/\{component_name}.js\", props)"
+    } else {
+      "\{component_name}(props)"
+    }
+    buf.write_string("  let cref = \{factory_call}\n")
     buf.write_string(
       "  assert_true(cref.url.has_suffix(\"\{component_name}.js\"))\n",
     )
@@ -173,14 +194,18 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
     match line.find(":") {
       Some(colon) => {
         let name = line.substring(end=colon).trim_space().to_string()
-        let mut type_str = line.substring(start=colon + 1).trim_space().to_string()
+        let mut type_str = line
+          .substring(start=colon + 1)
+          .trim_space()
+          .to_string()
         // Remove trailing comma if present
         if type_str.has_suffix(",") {
-          type_str = type_str.substring(end=type_str.length() - 1)
+          type_str = type_str
+            .substring(end=type_str.length() - 1)
             .trim_space()
             .to_string()
         }
-        if !(name.is_empty()) && !(type_str.is_empty()) {
+        if !name.is_empty() && !type_str.is_empty() {
           fields.push((name, type_str))
         }
       }
@@ -215,11 +240,16 @@ fn default_json_value(type_str : String) -> String {
 fn generate_types_pkg(
   structs : Array[StructExport],
   has_actions? : Bool = false,
+  external_client_bundle? : Bool = false,
+  has_route_params? : Bool = false,
 ) -> String {
   let buf = StringBuilder::new()
   buf.write_string("import {\n")
   buf.write_string("  \"moonbitlang/core/json\",\n")
   buf.write_string("  \"mizchi/luna\" @luna,\n")
+  if has_route_params {
+    buf.write_string("  \"mizchi/sol/router\" @router,\n")
+  }
   if has_actions {
     buf.write_string("  \"mizchi/sol/action\" @action,\n")
   }
@@ -233,7 +263,10 @@ fn generate_types_pkg(
     exports.push(s.name)
     // Add factory function name (derived from Props name)
     let fn_name = extract_component_name_from_props(s.name)
-    exports.push(fn_name)
+    exports.push("\{fn_name}_at")
+    if !external_client_bundle {
+      exports.push(fn_name)
+    }
   }
   let exports_str = exports.map(fn(n) { "\"\{n}\"" }).join(", ")
   buf.write_string(
@@ -266,7 +299,7 @@ pub fn split_params(params_str : String) -> Array[String] {
       ',' =>
         if depth == 0 {
           let s = current.to_string().trim_space().to_string()
-          if !(s.is_empty()) {
+          if !s.is_empty() {
             result.push(s)
           }
           current.reset()
@@ -278,7 +311,7 @@ pub fn split_params(params_str : String) -> Array[String] {
   }
   // Add last param
   let s = current.to_string().trim_space().to_string()
-  if !(s.is_empty()) {
+  if !s.is_empty() {
     result.push(s)
   }
   result

@@ -51,12 +51,18 @@ let delete_user_handler = ActionHandler(async fn(ctx) {
 ### 2. Register Actions
 
 ```moonbit
+// `sol generate` creates these factories from handler binding names:
+// - create_user_handler -> @types.action_create_user()
+// - delete_user_handler -> @types.action_delete_user()
+
 let registry = ActionRegistry::new(
   allowed_origins=["https://example.com"]
 )
-  .register(ActionDef::new("create-user", create_user_handler))
   .register(
-    ActionDef::new("delete-user", delete_user_handler)
+    ActionDef::from_key(@types.action_create_user(), create_user_handler)
+  )
+  .register(
+    ActionDef::from_key(@types.action_delete_user(), delete_user_handler)
       .with_require_json(false)
   )
 ```
@@ -77,32 +83,36 @@ This registers endpoints at:
 ### Basic Invocation
 
 ```moonbit
-let response = invoke_action(
-  "/_action/create-user",
-  @js.any({ "name": "John", "email": "john@example.com" })
-)
+let create_user_action = @types.action_create_user()
 
-match response {
-  Success(data) => {
-    // Handle success
-    let id = data["id"]
-  }
-  Redirect(url) => {
-    // Handle redirect (usually automatic)
-  }
-  Error(status, message) => {
-    // Handle error
-  }
-  NetworkError(message) => {
-    // Handle network failure
-  }
-}
+invoke_action_key(
+  create_user_action,
+  @js.any({ "name": "John", "email": "john@example.com" }),
+  fn(response) {
+    match response {
+      Success(data) => {
+        // Handle success
+        let id = data["id"]
+      }
+      Redirect(url) => {
+        // Handle redirect (usually automatic)
+      }
+      Error(status, message) => {
+        // Handle error
+      }
+      NetworkError(message) => {
+        // Handle network failure
+      }
+    }
+  },
+)
 ```
 
 ### Create Reusable Invoker
 
 ```moonbit
-let create_user = create_action_invoker("/_action/create-user")
+let create_user_action = @types.action_create_user()
+let create_user = create_action_invoker_key(create_user_action)
 
 // Later...
 let response = create_user(@js.any({ "name": "Jane" }))
@@ -113,7 +123,7 @@ let response = create_user(@js.any({ "name": "Jane" }))
 ```moonbit
 submit_form_as_action(
   form_element,
-  ActionFormConfig::new("/_action/create-user")
+  ActionFormConfig::from_key(@types.action_create_user())
 )
 ```
 
@@ -126,7 +136,7 @@ hand-rolling every state transition:
 let state = @signal.signal(ActionState::idle())
 
 state.set(ActionState::pending(message="Saving"))
-invoke_action("/_action/create-user", payload, fn(response) {
+invoke_action_key(@types.action_create_user(), payload, fn(response) {
   let next = ActionState::from_response(response)
   state.set(next)
   match next.phase {
@@ -183,19 +193,21 @@ CsrfConfig::default()
   .with_error_message("Access Denied")
 ```
 
-### ActionDef
+### ActionKey / ActionDef
 
 ```moonbit
-ActionDef::new("my-action", handler)
+ActionDef::from_key(@types.action_my_action(), handler)
   .with_require_json(true)           // Require application/json
   .with_middleware(auth_middleware)  // Add custom middleware
 ```
+
+Action IDs are derived from generated action key factories. Hand-written action
+ID strings are not part of the public action definition API.
 
 ### ActionRegistry
 
 ```moonbit
 ActionRegistry::new(allowed_origins=["https://example.com"])
   .with_base_path("/api/action")  // Custom base path
-  .register(action1)
-  .register_all([action2, action3])
+  .register_key(@types.action_my_action(), handler)
 ```

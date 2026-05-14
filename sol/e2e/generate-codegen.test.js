@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -41,7 +42,110 @@ function runSolGenerate(cwd) {
   });
 }
 
-test("sol generate: produces types.mbt with route constants, action refs, and component refs", () => {
+test("sol generate: external client bundle avoids generated client intermediates", () => {
+  ensureCliBuilt();
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-external-bundle-"));
+  try {
+    fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
+    fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
+    fs.writeFileSync(
+      path.join(sandbox, "moon.mod.json"),
+      JSON.stringify(
+        {
+          name: "example/external-bundle",
+          version: "0.1.0",
+          deps: {},
+          source: "app",
+          "preferred-target": "js",
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.config.json"),
+      JSON.stringify(
+        {
+          routes: "app/server",
+          output: "app/__gen__",
+          runtime: "node",
+          serverEntry: "user",
+          clientBundle: "external",
+          islands: ["app/client"],
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "server", "routes.mbt"),
+      "pub fn routes() -> Array[Unit] { [] }\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "client", "counter.mbt"),
+      [
+        "pub(all) struct CounterProps {",
+        "  initial : Int",
+        "}",
+        "",
+      ].join("\n")
+    );
+
+    const result = runSolGenerate(sandbox);
+    assert.equal(
+      result.status,
+      0,
+      `sol generate failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+    );
+
+    assert.equal(
+      fs.existsSync(path.join(sandbox, "app", "__gen__", "client")),
+      false,
+      "external client bundle should not create generated MoonBit client glue"
+    );
+    assert.equal(
+      fs.existsSync(path.join(sandbox, "app", "__gen__", "server")),
+      false,
+      "user-managed server entry should not create generated MoonBit server glue"
+    );
+    assert.equal(
+      fs.existsSync(path.join(sandbox, ".sol", "prod", "manifest.json")),
+      false,
+      "external client bundle should not create a rolldown manifest"
+    );
+    assert.equal(
+      fs.existsSync(path.join(sandbox, ".sol", "prod", "client")),
+      false,
+      "external client bundle should not create generated client entries"
+    );
+
+    const mainJs = fs.readFileSync(
+      path.join(sandbox, ".sol", "prod", "server", "main.js"),
+      "utf8"
+    );
+    assert.match(mainJs, /user-managed MoonBit mode/);
+    assert.match(mainJs, /_build\/js\/release\/build\/server\/server\.js/);
+    assert.doesNotMatch(mainJs, /__gen__\/server/);
+
+    const typesPath = path.join(
+      sandbox,
+      "app",
+      "__gen__",
+      "types",
+      "types.mbt"
+    );
+    assert.ok(fs.existsSync(typesPath), "external mode should keep Props types");
+    const types = fs.readFileSync(typesPath, "utf8");
+    assert.match(types, /pub\(all\) struct CounterProps/);
+    assert.match(types, /pub fn counter_at\(/);
+    assert.doesNotMatch(types, /counter_at\("\/static\/counter\.js"/);
+    assert.doesNotMatch(types, /pub fn counter\(\s*props : CounterProps/);
+  } finally {
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
+test("sol generate: produces types.mbt with route constants, action keys, and component refs", () => {
   ensureCliBuilt();
   const result = runSolGenerate(SOL_APP);
   assert.equal(
@@ -140,21 +244,73 @@ test("sol generate: produces types.mbt with route constants, action refs, and co
     "param_path constant"
   );
 
-  // --- ActionRef factory functions ---
+  // --- Typed route param accessors ---
   assert.match(
     content,
-    /pub fn action_submit_contact\(\) -> @action\.ActionRef/,
-    "action_submit_contact() factory"
+    /pub\(all\) struct RouteDocsSlugParams[\s\S]*?slug : String/,
+    "RouteDocsSlugParams struct"
   );
   assert.match(
     content,
-    /id: "submit-contact"/,
-    "action id in factory body"
+    /pub fn params_docs_slug\(props : @router\.PageProps\) -> Result\[RouteDocsSlugParams, @router\.ApiResponse\]/,
+    "params_docs_slug() accessor"
   );
   assert.match(
     content,
-    /base_path: "\/_action"/,
-    "action base_path in factory body"
+    /@router\.require\(props, "slug"\)/,
+    "required route param uses generated accessor body"
+  );
+  assert.match(
+    content,
+    /pub\(all\) struct RouteBlogPathParams[\s\S]*?path : String\?/,
+    "optional catch-all route param is optional"
+  );
+  assert.match(
+    content,
+    /pub fn params_blog_path\(props : @router\.PageProps\) -> Result\[RouteBlogPathParams, @router\.ApiResponse\]/,
+    "params_blog_path() accessor"
+  );
+  assert.match(
+    content,
+    /pub fn link_docs_slug_params\(params : RouteDocsSlugParams\) -> String/,
+    "link_docs_slug_params() builder"
+  );
+  assert.match(
+    content,
+    /link_docs_slug\(slug=params\.slug\)/,
+    "route params struct feeds link builder"
+  );
+  assert.match(
+    content,
+    /Some\(path\) => link_blog_path\(path~\)[\s\S]*?None => "\/blog"/,
+    "optional catch-all params builder omits missing segment"
+  );
+
+  // --- Action key factory functions ---
+  assert.match(
+    content,
+    /pub fn action_submit_contact\(\) -> ActionSubmitContact/,
+    "typed action_submit_contact() factory"
+  );
+  assert.match(
+    content,
+    /pub\(all\) struct ActionSubmitContact \{\}/,
+    "action key marker type"
+  );
+  assert.match(
+    content,
+    /pub impl @action\.ActionKey for ActionSubmitContact with id/,
+    "action key impl"
+  );
+  assert.match(
+    content,
+    /ActionSubmitContact::\{\}/,
+    "typed action marker factory body"
+  );
+  assert.doesNotMatch(
+    content,
+    new RegExp("Action" + "Ref"),
+    "removed action wrapper is not generated"
   );
 });
 
@@ -181,6 +337,11 @@ test("sol generate: types moon.pkg imports @action when actions exist", () => {
     content,
     /"mizchi\/luna" @luna/,
     "moon.pkg imports @luna"
+  );
+  assert.match(
+    content,
+    /"mizchi\/sol\/router" @router/,
+    "moon.pkg imports @router for typed route params"
   );
 });
 

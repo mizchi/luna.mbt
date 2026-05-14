@@ -146,7 +146,10 @@ async fn api_add_todo(props : @sol.PageProps) -> Json {
 ///|
 /// DELETE /api/todos/:id - Delete a todo
 async fn api_delete_todo(props : @sol.PageProps) -> Json {
-  let id_str = props.get_param("id").unwrap_or("")
+  let id_str = match @types.params_api_todos_id(props) {
+    Ok(p) => p.id
+    Err(_) => ""
+  }
   let id = parse_int(id_str)
   if id <= 0 {
     return { "error": "invalid id" }.to_json()
@@ -249,9 +252,24 @@ pub fn action_registry() -> @action.ActionRegistry {
     "http://localhost:3000",
     "http://localhost:7777",
   ])
-  .register(@action.ActionDef::new("add-todo", add_todo_action).with_require_json(false))
-  .register(@action.ActionDef::new("toggle-todo", toggle_todo_action).with_require_json(false))
-  .register(@action.ActionDef::new("delete-todo", delete_todo_action).with_require_json(false))
+  .register(
+    @action.ActionDef::from_key(
+      @types.action_add_todo(),
+      add_todo_action,
+    ).with_require_json(false),
+  )
+  .register(
+    @action.ActionDef::from_key(
+      @types.action_toggle_todo(),
+      toggle_todo_action,
+    ).with_require_json(false),
+  )
+  .register(
+    @action.ActionDef::from_key(
+      @types.action_delete_todo(),
+      delete_todo_action,
+    ).with_require_json(false),
+  )
 }
 
 // =============================================================================

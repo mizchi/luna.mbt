@@ -11,6 +11,9 @@ async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
     let todos = get_todos()
     let completed_count = todos.iter().filter(fn(t) { t.completed }).count()
     let total_count = todos.length()
+    let add_todo_url = @action.action_url(@types.action_add_todo())
+    let toggle_todo_url = @action.action_url(@types.action_toggle_todo())
+    let delete_todo_url = @action.action_url(@types.action_delete_todo())
 
     // Server-rendered todo items with form actions
     let todo_items = todos.map(fn(todo) {
@@ -23,7 +26,7 @@ async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
         // Toggle form (checkbox-like)
         form(
           http_method="POST",
-          action="/_action/toggle-todo",
+          action=toggle_todo_url,
           style="display: inline;",
           [
             input(type_="hidden", name="id", value=todo.id.to_string()),
@@ -38,7 +41,7 @@ async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
         // Delete form
         form(
           http_method="POST",
-          action="/_action/delete-todo",
+          action=delete_todo_url,
           style="display: inline;",
           [
             input(type_="hidden", name="id", value=todo.id.to_string()),
@@ -64,7 +67,7 @@ async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
         // Quick add form at top
         form(
           http_method="POST",
-          action="/_action/add-todo",
+          action=add_todo_url,
           class="add-form",
           style="margin-bottom: 1rem;",
           [
@@ -116,13 +119,14 @@ async fn home_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
 ///|
 /// Add todo page - dedicated form page
 async fn add_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let add_todo_url = @action.action_url(@types.action_add_todo())
   @sol.nodes([
     div(class="card", [
       h1([text("Add New Todo")]),
       p([text("Enter a new todo item below.")]),
       form(
         http_method="POST",
-        action="/_action/add-todo",
+        action=add_todo_url,
         class="add-form",
         [
           input(

@@ -165,14 +165,13 @@ test "is_web_component - false for empty string" {
 ///|
 test "func_export_from_name - generates Props type from snake_case name" {
   let fe = func_export_from_name("counter", "app/client")
-  // snake_to_pascal("counter") + "Props" = "CounterProps"
-  assert_true(fe.signature.contains("CounterProps"))
+  assert_eq(fe.contract.props_type, Some("CounterProps"))
 }
 
 ///|
 test "func_export_from_name - multi-word snake_case to PascalCase Props" {
   let fe = func_export_from_name("contact_form", "app/client")
-  assert_true(fe.signature.contains("ContactFormProps"))
+  assert_eq(fe.contract.props_type, Some("ContactFormProps"))
 }
 
 ///|
@@ -195,7 +194,50 @@ test "func_export_from_name - import_alias is last path segment" {
 }
 
 ///|
-test "func_export_from_name - signature has DomNode return type" {
+test "func_export_from_name - contract has DomNode return type" {
   let fe = func_export_from_name("counter", "app/client")
-  assert_true(fe.signature.contains("-> DomNode"))
+  assert_eq(fe.contract.return_kind, ClientReturnDomNode)
+}
+
+// =============================================================================
+// ClientComponentContract
+// =============================================================================
+
+///|
+test "client_component_contract_from_signature - accepts Props to DomNode" {
+  let contract = client_component_contract_from_signature(
+    "(CounterProps) -> DomNode",
+  )
+  assert_eq(contract.props_type, Some("CounterProps"))
+  assert_eq(contract.return_kind, ClientReturnDomNode)
+  assert_true(contract.can_hydrate())
+}
+
+///|
+test "client_component_contract_from_signature - accepts Props to Luna node" {
+  let contract = client_component_contract_from_signature(
+    "(CounterProps) -> @luna.Node[Unit, String]",
+  )
+  assert_eq(contract.props_type, Some("CounterProps"))
+  assert_eq(contract.return_kind, ClientReturnVNode)
+  assert_true(contract.can_hydrate())
+}
+
+///|
+test "client_component_contract_from_signature - rejects non Props parameter" {
+  let contract = client_component_contract_from_signature(
+    "(CounterState) -> DomNode",
+  )
+  assert_eq(contract.props_type, None)
+  assert_eq(contract.return_kind, ClientReturnDomNode)
+  assert_false(contract.can_hydrate())
+}
+
+///|
+test "client_component_contract_from_signature - rejects names that only contain Props" {
+  let contract = client_component_contract_from_signature(
+    "(CounterPropsFactory) -> DomNode",
+  )
+  assert_eq(contract.props_type, None)
+  assert_false(contract.can_hydrate())
 }

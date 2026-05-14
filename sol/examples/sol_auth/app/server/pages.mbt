@@ -63,7 +63,10 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
 ///|
 /// Docs page - catch-all route handler for /docs/[...slug]
 async fn docs_page(props : @sol.PageProps) -> @server_dom.ServerNode {
-  let slug = props.params.get_param("slug").unwrap_or("index")
+  let slug = match @types.params_docs_slug(props) {
+    Ok(p) => p.slug
+    Err(_) => "index"
+  }
   let content = [
     h1([text("Documentation")]),
     p([text("Current path: /docs/" + slug)]),
@@ -82,7 +85,10 @@ async fn docs_page(props : @sol.PageProps) -> @server_dom.ServerNode {
 ///|
 /// Blog page - optional catch-all route handler for /blog/[[...path]]
 async fn blog_page(props : @sol.PageProps) -> @server_dom.ServerNode {
-  let path = props.params.get_param("path").unwrap_or("")
+  let path = match @types.params_blog_path(props) {
+    Ok(p) => p.path.unwrap_or("")
+    Err(_) => ""
+  }
   let title = if path == "" { "Blog Home" } else { "Blog: " + path }
   let content = [
     h1([text(title)]),
@@ -204,7 +210,10 @@ async fn admin_users(_props : @sol.PageProps) -> @server_dom.ServerNode {
 /// User profile page - /@[user_id]
 /// Shows user's profile and list of their pages
 async fn user_profile(props : @sol.PageProps) -> @server_dom.ServerNode {
-  let user_id = props.get_param("user_id").unwrap_or("unknown")
+  let user_id = match @types.params_user_id(props) {
+    Ok(p) => p.user_id
+    Err(_) => "unknown"
+  }
   let content = [
     div(class="user-profile", [
       div(class="user-header", [
@@ -231,8 +240,10 @@ async fn user_profile(props : @sol.PageProps) -> @server_dom.ServerNode {
 /// User page - /@[user_id]/[page_id]
 /// Individual page within user's namespace
 async fn user_page(props : @sol.PageProps) -> @server_dom.ServerNode {
-  let user_id = props.get_param("user_id").unwrap_or("unknown")
-  let page_id = props.get_param("page_id").unwrap_or("index")
+  let (user_id, page_id) = match @types.params_user_id_page_id(props) {
+    Ok(p) => (p.user_id, p.page_id)
+    Err(_) => ("unknown", "index")
+  }
   let content = [
     article(class="user-page", [
       header_(class="page-header", [

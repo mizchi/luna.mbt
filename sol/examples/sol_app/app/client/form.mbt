@@ -4,7 +4,6 @@
 ///|
 /// Props passed from server
 pub(all) struct ContactFormProps {
-  action : String
   initial_name : String
   initial_email : String
 } derive(ToJson, FromJson)
@@ -54,7 +53,11 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
 
     // Call Server Action with callback
     let payload = create_form_payload(name.get(), email.get())
-    @action.invoke_action(props.action, payload, handle_response)
+    @action.invoke_action_key(
+      @types.action_submit_contact(),
+      payload,
+      handle_response,
+    )
   }
 
   // Input handlers for two-way binding
@@ -70,7 +73,12 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     class="contact-form",
     on=events().submit(handle_submit),
     attrs=[
-      ("action", @element.AttrString(props.action)),
+      (
+        "action",
+        @element.AttrString(
+          @action.action_url(@types.action_submit_contact()),
+        ),
+      ),
       ("method", @element.AttrString("POST")),
     ],
     [

@@ -92,7 +92,8 @@ fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
   let luna_name = luna_dist_name(filename)
   if luna_name != filename {
     let luna_dist = @path.join2(
-      cwd, ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
+      cwd,
+      ".mooncakes/mizchi/luna/js/loader/dist/" + luna_name,
     )
     try {
       return Some(@fs.read_file_as_string(luna_dist))
@@ -139,13 +140,34 @@ fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
 
 ///|
 /// Check if user has a main.mbt in the routes directory (user-managed server mode)
-pub fn is_user_managed_server[FS : @env.FileSystem](
+pub fn[FS : @env.FileSystem] is_user_managed_server(
   fs : FS,
   cwd : String,
   config : SolConfig,
 ) -> Bool {
   let main_path = @path.join2(@path.join2(cwd, config.routes), "main.mbt")
   fs.exists_sync(main_path)
+}
+
+///|
+/// Resolve server entry ownership. Explicit config wins; auto preserves
+/// the historical "main.mbt exists" detection.
+pub fn[FS : @env.FileSystem] should_use_user_managed_server(
+  fs : FS,
+  cwd : String,
+  config : SolConfig,
+) -> Bool {
+  match config.server_entry {
+    ServerEntryUserManaged => true
+    ServerEntryGenerated => false
+    ServerEntryAuto => is_user_managed_server(fs, cwd, config)
+  }
+}
+
+///|
+/// True when Sol should not discover, generate, or bundle client islands.
+pub fn SolConfig::uses_external_client_bundle(self : SolConfig) -> Bool {
+  self.client_bundle == ClientBundleExternal
 }
 
 // =============================================================================

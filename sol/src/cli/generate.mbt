@@ -103,6 +103,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   if config.adapter != config.runtime {
     println(@colorette.gray("  Adapter: \{adapter_name}"))
   }
+  if config.uses_external_client_bundle() {
+    println(@colorette.gray("  Client bundle: external"))
+  }
 
   // Detect app mode (MoonBit vs TypeScript server)
   let app_mode = detect_app_mode_with_fs(fs, cwd, config)
@@ -115,30 +118,30 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
 
   // Detect user-managed server mode
   let user_managed = app_mode == MoonBitFull &&
-    is_user_managed_server(fs, cwd, config)
+    should_use_user_managed_server(fs, cwd, config)
   if user_managed {
     println(@colorette.gray("  Server entry: user-managed (main.mbt)"))
   }
 
-  // Create output directories first (needed for types)
+  // Create output directories first (needed for generated types)
   let output_dir = @path.join2(cwd, config.output) // app/__gen__
   let types_dir = @path.join2(output_dir, "types")
-  fs.mkdir_sync(types_dir, true) catch {
-    e => {
-      @cli_common.console_error(
-        @colorette.red("Error creating types directory: \{e}"),
-      )
-      @process.exit(1)
-    }
-  }
   // Step 1: Parse source files to extract Props structs (before moon info)
-  println(@colorette.gray("  Parsing source files for Props types..."))
-  let source_structs = collect_island_structs_from_source(cwd, config)
-  println(
-    @colorette.gray(
-      "  Found \{source_structs.length()} Props types from source",
-    ),
-  )
+  let source_structs = if config.islands.is_empty() {
+    []
+  } else {
+    let scan_label = if config.uses_external_client_bundle() {
+      "  Parsing source files for external Props contract..."
+    } else {
+      "  Parsing source files for Props types..."
+    }
+    println(@colorette.gray(scan_label))
+    let found = collect_island_structs_from_source(cwd, config)
+    println(
+      @colorette.gray("  Found \{found.length()} Props types from source"),
+    )
+    found
+  }
   // Step 1.5: Parse routes.mbt for route paths and action IDs (text scan, no moon info needed)
   // In user-managed mode, skip route scanning (user handles everything in main.mbt)
   let route_info = if user_managed {
@@ -151,6 +154,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     parse_routes_file(routes_file_path)
   }
   let has_routes = !route_info.route_paths.is_empty()
+  let has_route_params = route_paths_have_params(route_info.route_paths)
   let has_actions = !route_info.action_ids.is_empty()
   if has_routes || has_actions {
     let route_count = route_info.route_paths.length()
@@ -162,16 +166,36 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     )
   }
   // Step 2: Generate types package from source (so moon info can resolve imports)
-  if !source_structs.is_empty() || has_routes || has_actions {
+  let should_generate_types = !source_structs.is_empty() ||
+    has_routes ||
+    has_actions
+  if should_generate_types {
+    fs.mkdir_sync(types_dir, true) catch {
+      e => {
+        @cli_common.console_error(
+          @colorette.red("Error creating types directory: \{e}"),
+        )
+        @process.exit(1)
+      }
+    }
     let types_mbt_content = generate_types_mbt(
       source_structs,
       route_info~,
       static_dirs=config.static_dirs,
+      external_client_bundle=config.uses_external_client_bundle(),
     )
-    let types_pkg_content = generate_types_pkg(source_structs, has_actions~)
+    let types_pkg_content = generate_types_pkg(
+      source_structs,
+      has_actions~,
+      external_client_bundle=config.uses_external_client_bundle(),
+      has_route_params~,
+    )
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
     let types_pkg_path = @path.join2(types_dir, "moon.pkg")
-    let types_test_content = generate_types_roundtrip_tests(source_structs)
+    let types_test_content = generate_types_roundtrip_tests(
+      source_structs,
+      external_client_bundle=config.uses_external_client_bundle(),
+    )
     let types_test_path = @path.join2(types_dir, "types_test.mbt")
     try {
       fs.write_file_sync(types_mbt_path, types_mbt_content)
@@ -179,7 +203,12 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       if types_test_content.length() > 0 {
         fs.write_file_sync(types_test_path, types_test_content)
       }
-      println(@colorette.gray("  Generated __gen__/types/ from source"))
+      let generated_label = if config.uses_external_client_bundle() {
+        "  Generated __gen__/types/ external Props contract"
+      } else {
+        "  Generated __gen__/types/ from source"
+      }
+      println(@colorette.gray(generated_label))
     } catch {
       e => {
         @cli_common.console_error(
@@ -188,7 +217,15 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
         @process.exit(1)
       }
     }
-  } else {
+  } else if !config.uses_external_client_bundle() {
+    fs.mkdir_sync(types_dir, true) catch {
+      e => {
+        @cli_common.console_error(
+          @colorette.red("Error creating types directory: \{e}"),
+        )
+        @process.exit(1)
+      }
+    }
     // Create empty stub if no Props found
     let stub_types_mbt_path = @path.join2(types_dir, "types.mbt")
     let stub_types_pkg_path = @path.join2(types_dir, "moon.pkg")
@@ -207,6 +244,12 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
         }
       }
     }
+  } else {
+    println(
+      @colorette.gray(
+        "  Skipping __gen__/types/ (external client bundle has no Props contract)",
+      ),
+    )
   }
   // Step 2.5: Pre-create server moon.pkg with warn-list (before moon info)
   // This ensures warnings are suppressed during moon info
@@ -249,7 +292,14 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Step 3: Collect island exports
   // If client_auto_exports is true, run moon info and parse mbti
   // If client_auto_exports is false, read exports from moon.pkg or moon.pkg.json (faster)
-  let funcs : Array[FuncExport] = if config.client_auto_exports {
+  let funcs : Array[FuncExport] = if config.uses_external_client_bundle() {
+    println(
+      @colorette.gray(
+        "  Skipping client export collection (external client bundle)",
+      ),
+    )
+    []
+  } else if config.client_auto_exports {
     println(@colorette.gray("  Running moon info..."))
     try {
       let info_result = @child_process.spawnSync(
@@ -296,7 +346,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   let sol_client_dir = @path.join2(sol_dir, "client")
   let sol_server_dir = @path.join2(sol_dir, "server")
   try {
-    fs.mkdir_sync(sol_client_dir, true)
+    if !config.uses_external_client_bundle() {
+      fs.mkdir_sync(sol_client_dir, true)
+    }
     fs.mkdir_sync(sol_server_dir, true)
   } catch {
     e => {
@@ -354,10 +406,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       // Collect export names for __sol_internal__client_* functions only
       let export_names : Array[String] = []
       for f in island_funcs {
-        let props_type = extract_props_type_internal(f.signature)
-        let returns_dom_node = f.signature.contains("DomNode")
-        let returns_vnode = f.signature.contains("Node[")
-        if props_type.length() > 0 && (returns_dom_node || returns_vnode) {
+        if f.contract.can_hydrate() {
           export_names.push("__sol_internal__client_\{f.name}")
         }
       }
@@ -448,9 +497,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   // Generate client JS entry files in .sol/client/
   if !funcs.is_empty() {
     for func in funcs {
-      // Check if this function has Props -> DomNode signature (needs hydrate)
-      let include_hydrate = func.signature.contains("Props") &&
-        func.signature.contains("DomNode")
+      let include_hydrate = func.contract.can_hydrate()
       // Calculate relative_path by removing source_dir prefix from source_pattern
       let relative_path = if source_dir.length() > 0 &&
         func.source_pattern.has_prefix(source_dir) {
@@ -591,25 +638,4 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     }
   }
   println(@colorette.green("✓ Generation complete"))
-}
-
-///|
-/// Extract Props type from signature (internal helper to avoid name conflict)
-fn extract_props_type_internal(sig : String) -> String {
-  // Look for pattern: (SomeProps) -> ...
-  match sig.find("(") {
-    None => ""
-    Some(start) =>
-      match sig.find(")") {
-        None => ""
-        Some(end) => {
-          let inner = sig.substring(start=start + 1, end~)
-          if inner.contains("Props") {
-            inner.trim_space().to_string()
-          } else {
-            ""
-          }
-        }
-      }
-  }
 }

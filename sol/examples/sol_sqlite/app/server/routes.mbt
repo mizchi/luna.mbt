@@ -143,7 +143,10 @@ async fn blog_index(_props : @sol.PageProps) -> @server_dom.ServerNode {
 
 ///| Individual blog post page
 async fn blog_post(props : @sol.PageProps) -> @server_dom.ServerNode {
-  let slug = props.params.get_param("slug").unwrap_or("")
+  let slug = match @types.params_blog_slug(props) {
+    Ok(p) => p.slug
+    Err(_) => ""
+  }
   let post = db_get_post_by_slug(slug)
   let generated_at = get_timestamp()
 

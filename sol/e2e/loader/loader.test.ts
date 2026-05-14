@@ -113,8 +113,10 @@ test.describe("luna-loader-v1 E2E Tests", () => {
   });
 
   test.describe("Multiple Components", () => {
-    test("hydrates multiple components independently", async ({ page }) => {
+    test("hydrates multiple components sharing one module URL independently", async ({ page }) => {
       await page.goto("/loader/multiple");
+
+      await expect(page.locator('[luna\\:url="/components/counter.js"]')).toHaveCount(2);
 
       // Both should hydrate
       await expect(page.locator('[luna\\:id="counter-a"]')).toHaveAttribute(
