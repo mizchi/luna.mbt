@@ -182,6 +182,16 @@ pub fn[Req, Res] TypedActionKey::base_path(
 }
 
 ///|
+pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res] with id(self) {
+  self.id
+}
+
+///|
+pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res] with base_path(self) {
+  self.base_path
+}
+
+///|
 pub fn[Req, Res] typed_action_url(key : TypedActionKey[Req, Res]) -> String {
   key.base_path() + "/" + key.id()
 }

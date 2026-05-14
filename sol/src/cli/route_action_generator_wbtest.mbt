@@ -221,6 +221,25 @@ test "generate_action_key_factories: generates factory" {
   assert_false(result.contains("Action" + "Ref"))
 }
 
+///|
+test "generate_action_key_factories: generates typed factory for contracts" {
+  let result = generate_action_key_factories(["submit-contact"], action_contracts=[
+    {
+      id: "submit-contact",
+      request_type: Some("SubmitContactRequest"),
+      response_type: Some("SubmitContactResponse"),
+    },
+  ])
+  assert_true(
+    result.contains(
+      "pub fn action_submit_contact_typed() -> @action.TypedActionKey[SubmitContactRequest, SubmitContactResponse]",
+    ),
+  )
+  assert_true(
+    result.contains("@action.TypedActionKey::new(\"submit-contact\")"),
+  )
+}
+
 // =============================================================================
 // Link Builder Tests
 // =============================================================================

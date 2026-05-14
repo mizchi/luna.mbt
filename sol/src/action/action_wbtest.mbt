@@ -193,6 +193,15 @@ test "TypedActionKey carries request and response phantom types" {
 }
 
 ///|
+test "TypedActionKey can be used as an ActionKey" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::new(
+    "create-user",
+  )
+  assert_eq(action_id(key), "create-user")
+  assert_eq(action_url(key), "/_action/create-user")
+}
+
+///|
 test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
