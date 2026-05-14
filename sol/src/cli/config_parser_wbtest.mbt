@@ -410,6 +410,41 @@ test "extract_action_handler_ids: supports typed handler names" {
 }
 
 ///|
+test "action_handler_name_to_id: documents generated action key naming" {
+  assert_eq(
+    action_handler_name_to_id("submit_contact_handler"),
+    Some("submit-contact"),
+  )
+  assert_eq(action_handler_name_to_id("add_todo_action"), Some("add-todo"))
+  assert_eq(
+    action_handler_name_to_id("submitContact_handler"),
+    Some("submit-contact"),
+  )
+  assert_eq(
+    action_handler_name_to_id("SubmitContact_action"),
+    Some("submit-contact"),
+  )
+  assert_eq(action_handler_name_to_id("submit_contact"), None)
+}
+
+///|
+test "extract_action_handler_ids: ignores stringly action definitions" {
+  let result : Array[String] = []
+  extract_action_handler_ids(
+    (
+      #|let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async fn(ctx) {
+      #|  @action.ActionResult::ok(@core.any(true))
+      #|})
+      #|let ignored = @action.ActionDef::new("stringly-action", submit_contact_handler)
+      #|let also_ignored_action = fn() { () }
+    ),
+    result,
+  )
+  assert_eq(result.length(), 1)
+  assert_eq(result[0], "submit-contact")
+}
+
+///|
 test "extract_quoted_values: multiple different prefixes accumulate in same array" {
   let result : Array[String] = []
   extract_quoted_values("path=\"/api\" segment=\"main\"", "path=\"", result)

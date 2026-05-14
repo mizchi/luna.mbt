@@ -596,7 +596,7 @@ let submit_handler = @action.ActionHandler(async fn(ctx) {
 // Register to registry
 pub fn action_registry() -> @action.ActionRegistry {
   @action.ActionRegistry::new(allowed_origins=["http://localhost:7777"])
-    .register(@action.ActionDef::new("submit-form", submit_handler))
+    .register(@action.ActionDef::from_key(@types.action_submit(), submit_handler))
 }
 ```
 

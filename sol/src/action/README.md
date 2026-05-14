@@ -53,6 +53,8 @@ let delete_user_handler = ActionHandler(async fn(ctx) {
 ```moonbit
 // `sol generate` creates these factories from handler binding names:
 // - create_user_handler -> @types.action_create_user()
+// - submit_contact_handler -> @types.action_submit_contact()
+// - add_todo_action -> @types.action_add_todo()
 // - delete_user_handler -> @types.action_delete_user()
 
 let registry = ActionRegistry::new(
