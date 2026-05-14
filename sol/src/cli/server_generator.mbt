@@ -108,9 +108,9 @@ fn generate_server_pkg(
   buf.write_string("  \"\{routes_pkg}\" @app_server,\n")
   buf.write_string("  \"moonbitlang/async\",\n")
   buf.write_string("}\n\n")
+  buf.write_string("warnings = \"-29\"\n\n")
   buf.write_string("options(\n")
   buf.write_string("  \"is-main\": true,\n")
-  buf.write_string("  \"warn-list\": \"-29\",\n")
   buf.write_string(
     "  link: { \"js\": { \"exports\": [ \"configure_app\" ], \"format\": \"esm\" } },\n",
   )

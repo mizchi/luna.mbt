@@ -1,13 +1,16 @@
 import {
   "mizchi/sol" @sol,
   "mizchi/sol/middleware" @middleware,
+  "example/sol-api/__gen__/types" @types,
   "moonbitlang/core/json",
+  "moonbitlang/core/string",
   "moonbitlang/async",
 }
 
+warnings = "-35-67-29"
+
 options(
   "is-main": true,
-  "warn-list": "-35-67-29",
   link: { "js": { "format": "esm" } },
 )
 

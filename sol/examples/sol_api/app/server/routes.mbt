@@ -143,7 +143,7 @@ async fn list_items_handler(_props : @sol.PageProps) -> ItemListResponse {
 ///|
 async fn get_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  let id = match @sol.require_int(props, "id") {
+  let id = match require_item_id(props) {
     Ok(id) => id
     Err(e) => return e.to_json()
   }
@@ -177,7 +177,7 @@ async fn create_item_handler(props : @sol.PageProps) -> Json {
 ///|
 async fn update_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  let id = match @sol.require_int(props, "id") {
+  let id = match require_item_id(props) {
     Ok(id) => id
     Err(e) => return e.to_json()
   }
@@ -207,7 +207,7 @@ async fn update_item_handler(props : @sol.PageProps) -> Json {
 ///|
 async fn delete_item_handler(props : @sol.PageProps) -> Json {
   ensure_items_initialized()
-  let id = match @sol.require_int(props, "id") {
+  let id = match require_item_id(props) {
     Ok(id) => id
     Err(e) => return e.to_json()
   }
@@ -246,6 +246,17 @@ async fn error_handler(props : @sol.PageProps) -> Json {
 // =============================================================================
 // Utilities
 // =============================================================================
+
+///|
+fn require_item_id(props : @sol.PageProps) -> Result[Int, @sol.ApiResponse] {
+  let raw_id = match @types.params_api_items_id(props) {
+    Ok(params) => params.id
+    Err(e) => return Err(e)
+  }
+  Ok(@string.parse_int(raw_id)) catch {
+    _ => Err(@sol.bad_request("Invalid integer parameter: id"))
+  }
+}
 
 ///|
 fn get_timestamp() -> String {

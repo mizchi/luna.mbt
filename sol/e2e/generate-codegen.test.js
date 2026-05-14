@@ -22,6 +22,7 @@ const CLI_DEBUG = path.join(
   "sol_js.js"
 );
 const SOL_APP = path.join(SOL_DIR, "examples", "sol_app");
+const SOL_API = path.join(SOL_DIR, "examples", "sol_api");
 
 function ensureCliBuilt() {
   const build = spawnSync("moon", ["build", "--target", "js"], {
@@ -311,6 +312,60 @@ test("sol generate: produces types.mbt with route constants, action keys, and co
     content,
     new RegExp("Action" + "Ref"),
     "removed action wrapper is not generated"
+  );
+});
+
+test("sol generate: dogfoods user-managed routes with typed params", () => {
+  ensureCliBuilt();
+  const result = runSolGenerate(SOL_API);
+  assert.equal(
+    result.status,
+    0,
+    `sol_api generate failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+  );
+
+  assert.equal(
+    fs.existsSync(path.join(SOL_API, "app", "__gen__", "server")),
+    false,
+    "user-managed sol_api should not create generated server glue"
+  );
+
+  const typesPath = path.join(
+    SOL_API,
+    "app",
+    "__gen__",
+    "types",
+    "types.mbt"
+  );
+  assert.ok(fs.existsSync(typesPath), "sol_api should generate route types");
+  const content = fs.readFileSync(typesPath, "utf8");
+
+  assert.match(
+    content,
+    /pub\(all\) struct RouteApiItemsIdParams[\s\S]*?id : String/,
+    "sol_api user-managed route params should be generated"
+  );
+  assert.match(
+    content,
+    /pub fn params_api_items_id\(props : @router\.PageProps\) -> Result\[RouteApiItemsIdParams, @router\.ApiResponse\]/,
+    "sol_api should expose typed params accessor"
+  );
+
+  const routes = fs.readFileSync(
+    path.join(SOL_API, "app", "server", "routes.mbt"),
+    "utf8"
+  );
+  assert.match(routes, /@types\.params_api_items_id\(props\)/);
+  assert.doesNotMatch(routes, /@sol\.require_int\(props,\s*"id"\)/);
+
+  const check = spawnSync("moon", ["check", "--target", "js"], {
+    cwd: SOL_API,
+    encoding: "utf8",
+  });
+  assert.equal(
+    check.status,
+    0,
+    `sol_api dogfood app must typecheck\nstdout:\n${check.stdout}\nstderr:\n${check.stderr}`
   );
 });
 

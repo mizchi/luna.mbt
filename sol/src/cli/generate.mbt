@@ -142,16 +142,17 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     )
     found
   }
-  // Step 1.5: Parse routes.mbt for route paths and action IDs (text scan, no moon info needed)
-  // In user-managed mode, skip route scanning (user handles everything in main.mbt)
-  let route_info = if user_managed {
-    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] }
-  } else {
+  // Step 1.5: Parse routes.mbt for route paths and action IDs (text scan, no moon info needed).
+  // Server entry ownership only controls generated server glue; typed contracts
+  // still come from routes.mbt when the app uses MoonBit routes.
+  let route_info = if app_mode == MoonBitFull {
     let routes_file_path = @path.join2(
       @path.join2(cwd, config.routes),
       "routes.mbt",
     )
     parse_routes_file(routes_file_path)
+  } else {
+    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] }
   }
   let has_routes = !route_info.route_paths.is_empty()
   let has_route_params = route_paths_have_params(route_info.route_paths)
@@ -233,7 +234,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       try {
         fs.write_file_sync(stub_types_mbt_path, "///| No Props types found\n")
         fs.write_file_sync(
-          stub_types_pkg_path, "supported_targets = \"js\"\n\noptions(\n  \"warn-list\": \"-29\",\n)\n",
+          stub_types_pkg_path, "supported_targets = \"js\"\n\nwarnings = \"-29\"\n",
         )
       } catch {
         e => {
@@ -251,7 +252,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       ),
     )
   }
-  // Step 2.5: Pre-create server moon.pkg with warn-list (before moon info)
+  // Step 2.5: Pre-create server moon.pkg with warning options (before moon info)
   // This ensures warnings are suppressed during moon info
   // Skip for hybrid mode (TypeScript server) as there's no MoonBit routes package
   // Skip for user-managed mode (user owns server/main.mbt and moon.pkg)
