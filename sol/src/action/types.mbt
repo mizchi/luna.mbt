@@ -75,73 +75,74 @@ pub fn ActionContext::set_state(
 // ============================================================================
 
 ///|
-/// Action result - either success with data or error
-pub enum ActionResult {
-  /// Success with JSON data
-  Success(@js.Any)
-  /// Success with redirect (returns JSON with redirect instruction for JavaScript clients)
-  Redirect(String)
-  /// HTTP redirect (returns 302 status with Location header, for non-JS form submissions)
-  HttpRedirect(String)
-  /// Client error (4xx)
-  ClientError(Int, String)
-  /// Server error (5xx)
-  ServerError(String)
+/// Internal action result representation.
+priv enum ActionResultKind {
+  JsonSuccess(@js.Any)
+  ClientRedirect(String)
+  HttpRedirectResult(String)
+  ClientFailure(Int, String)
+  ServerFailure(String)
+}
+
+///|
+/// Action result returned by server action handlers.
+pub struct ActionResult {
+  priv kind : ActionResultKind
 }
 
 ///|
 /// Create success result from a typed JSON-serializable payload.
 pub fn[T : ToJson] ActionResult::json(data : T) -> ActionResult {
-  Success(@js_any.json_to_any(data.to_json()))
+  { kind: JsonSuccess(@js_any.json_to_any(data.to_json())) }
 }
 
 ///|
 /// Create redirect result (returns JSON for JavaScript clients)
 pub fn ActionResult::redirect(url : String) -> ActionResult {
-  Redirect(url)
+  { kind: ClientRedirect(url) }
 }
 
 ///|
 /// Create HTTP redirect result (returns 302 with Location header)
 /// Use this for non-JavaScript form submissions (progressive enhancement)
 pub fn ActionResult::http_redirect(url : String) -> ActionResult {
-  HttpRedirect(url)
+  { kind: HttpRedirectResult(url) }
 }
 
 ///|
 /// Create bad request error
 pub fn ActionResult::bad_request(message : String) -> ActionResult {
-  ClientError(400, message)
+  { kind: ClientFailure(400, message) }
 }
 
 ///|
 /// Create validation error
 pub fn ActionResult::validation_error(message : String) -> ActionResult {
-  ClientError(422, message)
+  { kind: ClientFailure(422, message) }
 }
 
 ///|
 /// Create unauthorized error
 pub fn ActionResult::unauthorized(message? : String) -> ActionResult {
-  ClientError(401, message.unwrap_or("Unauthorized"))
+  { kind: ClientFailure(401, message.unwrap_or("Unauthorized")) }
 }
 
 ///|
 /// Create forbidden error
 pub fn ActionResult::forbidden(message? : String) -> ActionResult {
-  ClientError(403, message.unwrap_or("Forbidden"))
+  { kind: ClientFailure(403, message.unwrap_or("Forbidden")) }
 }
 
 ///|
 /// Create not found error
 pub fn ActionResult::not_found(message? : String) -> ActionResult {
-  ClientError(404, message.unwrap_or("Not Found"))
+  { kind: ClientFailure(404, message.unwrap_or("Not Found")) }
 }
 
 ///|
 /// Create server error
 pub fn ActionResult::server_error(message? : String) -> ActionResult {
-  ServerError(message.unwrap_or("Internal Server Error"))
+  { kind: ServerFailure(message.unwrap_or("Internal Server Error")) }
 }
 
 // ============================================================================

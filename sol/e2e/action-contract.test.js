@@ -89,6 +89,7 @@ test("action public API only exposes typed action keys", () => {
     /\bActionRef\b/,
     /pub fn ActionDef::new\b/,
     /pub fn ActionResult::ok\b/,
+    /Success\(@core\.Any\)/,
     /pub enum ActionResponse\b/,
     /pub fn ActionResponse::/,
     /pub fn ActionState::from_response\b/,

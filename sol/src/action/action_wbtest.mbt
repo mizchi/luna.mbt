@@ -11,9 +11,9 @@ using @test {assert_eq}
 
 ///|
 test "ActionResult success variant carries raw data internally" {
-  let result = ActionResult::Success(@js.any({ "id": 1 }))
-  match result {
-    Success(_) => ()
+  let result = ActionResult::{ kind: JsonSuccess(@js.any({ "id": 1 })) }
+  match result.kind {
+    JsonSuccess(_) => ()
     _ => fail("expected Success")
   }
 }
@@ -21,8 +21,8 @@ test "ActionResult success variant carries raw data internally" {
 ///|
 test "ActionResult::json creates success result from ToJson payload" {
   let result = ActionResult::json(CreateUserResponse::{ id: "user-1" })
-  match result {
-    Success(_) => ()
+  match result.kind {
+    JsonSuccess(_) => ()
     _ => fail("expected Success")
   }
 }
@@ -30,8 +30,8 @@ test "ActionResult::json creates success result from ToJson payload" {
 ///|
 test "ActionResult::redirect creates redirect result" {
   let result = ActionResult::redirect("/dashboard")
-  match result {
-    Redirect(url) => assert_eq(url, "/dashboard")
+  match result.kind {
+    ClientRedirect(url) => assert_eq(url, "/dashboard")
     _ => fail("expected Redirect")
   }
 }
@@ -39,8 +39,8 @@ test "ActionResult::redirect creates redirect result" {
 ///|
 test "ActionResult::http_redirect creates http redirect result" {
   let result = ActionResult::http_redirect("/login")
-  match result {
-    HttpRedirect(url) => assert_eq(url, "/login")
+  match result.kind {
+    HttpRedirectResult(url) => assert_eq(url, "/login")
     _ => fail("expected HttpRedirect")
   }
 }
@@ -48,8 +48,8 @@ test "ActionResult::http_redirect creates http redirect result" {
 ///|
 test "ActionResult::bad_request creates 400 error" {
   let result = ActionResult::bad_request("Invalid input")
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 400)
       assert_eq(msg, "Invalid input")
     }
@@ -60,8 +60,8 @@ test "ActionResult::bad_request creates 400 error" {
 ///|
 test "ActionResult::validation_error creates 422 error" {
   let result = ActionResult::validation_error("Name is required")
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 422)
       assert_eq(msg, "Name is required")
     }
@@ -72,8 +72,8 @@ test "ActionResult::validation_error creates 422 error" {
 ///|
 test "ActionResult::unauthorized creates 401 error" {
   let result = ActionResult::unauthorized()
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 401)
       assert_eq(msg, "Unauthorized")
     }
@@ -84,8 +84,8 @@ test "ActionResult::unauthorized creates 401 error" {
 ///|
 test "ActionResult::forbidden creates 403 error" {
   let result = ActionResult::forbidden(message="Access denied")
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 403)
       assert_eq(msg, "Access denied")
     }
@@ -96,8 +96,8 @@ test "ActionResult::forbidden creates 403 error" {
 ///|
 test "ActionResult::not_found creates 404 error" {
   let result = ActionResult::not_found()
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 404)
       assert_eq(msg, "Not Found")
     }
@@ -108,8 +108,8 @@ test "ActionResult::not_found creates 404 error" {
 ///|
 test "ActionResult::server_error creates 500 error" {
   let result = ActionResult::server_error(message="DB connection failed")
-  match result {
-    ServerError(msg) => assert_eq(msg, "DB connection failed")
+  match result.kind {
+    ServerFailure(msg) => assert_eq(msg, "DB connection failed")
     _ => fail("expected ServerError")
   }
 }

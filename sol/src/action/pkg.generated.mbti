@@ -84,12 +84,8 @@ pub fn ActionRegistry::register_all(Self, Array[ActionDef]) -> Self
 pub fn[K : ActionKey] ActionRegistry::register_key(Self, K, ActionHandler) -> Self
 pub fn ActionRegistry::with_base_path(Self, String) -> Self
 
-pub enum ActionResult {
-  Success(@core.Any)
-  Redirect(String)
-  HttpRedirect(String)
-  ClientError(Int, String)
-  ServerError(String)
+pub struct ActionResult {
+  // private fields
 }
 pub fn ActionResult::bad_request(String) -> Self
 pub fn ActionResult::forbidden(message? : String) -> Self
