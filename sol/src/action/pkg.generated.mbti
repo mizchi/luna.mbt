@@ -84,19 +84,6 @@ pub fn ActionRegistry::register_all(Self, Array[ActionDef]) -> Self
 pub fn[K : ActionKey] ActionRegistry::register_key(Self, K, ActionHandler) -> Self
 pub fn ActionRegistry::with_base_path(Self, String) -> Self
 
-pub enum ActionResponse {
-  Success(@core.Any)
-  Redirect(String)
-  Error(Int, String)
-  NetworkError(String)
-}
-pub fn ActionResponse::data(Self) -> @core.Any?
-pub fn ActionResponse::error_message(Self) -> String?
-pub fn ActionResponse::is_error(Self) -> Bool
-pub fn ActionResponse::is_redirect(Self) -> Bool
-pub fn ActionResponse::is_success(Self) -> Bool
-pub fn ActionResponse::redirect_url(Self) -> String?
-
 pub enum ActionResult {
   Success(@core.Any)
   Redirect(String)
@@ -121,7 +108,6 @@ pub struct ActionState {
   redirect : String?
 }
 pub fn ActionState::error(status~ : Int, message~ : String) -> Self
-pub fn ActionState::from_response(ActionResponse) -> Self
 pub fn ActionState::idle() -> Self
 pub fn ActionState::pending(message? : String) -> Self
 pub fn ActionState::redirect(String) -> Self
@@ -145,7 +131,6 @@ pub enum TypedActionResponse[Res] {
   NetworkError(String)
   DecodeError(String)
 }
-pub fn[Res : @json.FromJson] TypedActionResponse::from_action_response(ActionResponse) -> Self[Res]
 
 // Type aliases
 pub using @mars {type Server as App}

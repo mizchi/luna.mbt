@@ -76,7 +76,6 @@ test("action public API only exposes typed action keys", () => {
   assert.match(mbti, /pub enum TypedActionResponse\[Res\]/);
   assert.match(mbti, /invoke_typed_action_key/);
   assert.match(mbti, /create_typed_action_invoker_key/);
-  assert.match(mbti, /pub fn\[Res : (?:@json\.)?FromJson\] TypedActionResponse::from_action_response/);
   assert.match(mbti, /pub fn\[Req : ToJson, Res : (?:@json\.)?FromJson\] invoke_typed_action_key/);
   assert.match(
     mbti,
@@ -90,6 +89,10 @@ test("action public API only exposes typed action keys", () => {
     /\bActionRef\b/,
     /pub fn ActionDef::new\b/,
     /pub fn ActionResult::ok\b/,
+    /pub enum ActionResponse\b/,
+    /pub fn ActionResponse::/,
+    /pub fn ActionState::from_response\b/,
+    /pub fn\[Res : (?:@json\.)?FromJson\] TypedActionResponse::from_action_response/,
     /pub fn ActionRegistry::get\b/,
     /pub fn ActionRegistry::action_url\b/,
     /pub fn invoke_action\(/,

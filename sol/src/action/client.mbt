@@ -26,7 +26,7 @@ pub fn ActionOptions::default() -> ActionOptions {
 
 ///|
 /// Action client response
-pub enum ActionResponse {
+priv enum ActionResponse {
   /// Successful response with data
   Success(@js.Any)
   /// Server requested a redirect
@@ -54,7 +54,7 @@ pub enum TypedActionResponse[Res] {
 
 ///|
 /// Decode an untyped action response into a typed action response.
-pub fn[Res : FromJson] TypedActionResponse::from_action_response(
+fn[Res : FromJson] TypedActionResponse::from_action_response(
   response : ActionResponse,
 ) -> TypedActionResponse[Res] {
   match response {
@@ -134,17 +134,6 @@ pub fn ActionState::redirect(url : String) -> ActionState {
     status: None,
     message: Some("Redirecting"),
     redirect: Some(url),
-  }
-}
-
-///|
-/// Convert a client action response into a UI-facing state
-pub fn ActionState::from_response(response : ActionResponse) -> ActionState {
-  match response {
-    Success(_) => ActionState::success()
-    Redirect(url) => ActionState::redirect(url)
-    Error(status, message) => ActionState::error(status~, message~)
-    NetworkError(message) => ActionState::error(status=0, message~)
   }
 }
 
@@ -413,62 +402,3 @@ extern "js" fn ffi_submit_form_action(
   #|     }
   #|   }
   #| }
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-///|
-/// Check if response is successful
-pub fn ActionResponse::is_success(self : ActionResponse) -> Bool {
-  match self {
-    Success(_) => true
-    _ => false
-  }
-}
-
-///|
-/// Check if response is a redirect
-pub fn ActionResponse::is_redirect(self : ActionResponse) -> Bool {
-  match self {
-    Redirect(_) => true
-    _ => false
-  }
-}
-
-///|
-/// Check if response is an error
-pub fn ActionResponse::is_error(self : ActionResponse) -> Bool {
-  match self {
-    Error(_, _) | NetworkError(_) => true
-    _ => false
-  }
-}
-
-///|
-/// Get data from successful response
-pub fn ActionResponse::data(self : ActionResponse) -> @js.Any? {
-  match self {
-    Success(data) => Some(data)
-    _ => None
-  }
-}
-
-///|
-/// Get redirect URL
-pub fn ActionResponse::redirect_url(self : ActionResponse) -> String? {
-  match self {
-    Redirect(url) => Some(url)
-    _ => None
-  }
-}
-
-///|
-/// Get error message
-pub fn ActionResponse::error_message(self : ActionResponse) -> String? {
-  match self {
-    Error(_, msg) => Some(msg)
-    NetworkError(msg) => Some(msg)
-    _ => None
-  }
-}

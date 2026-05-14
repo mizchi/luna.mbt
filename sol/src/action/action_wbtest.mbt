@@ -395,31 +395,6 @@ test "ActionState constructors cover idle pending success and error states" {
   assert_eq(failed.message, Some("Invalid"))
 }
 
-///|
-test "ActionState::from_response maps action responses to UI states" {
-  let ok = ActionState::from_response(ActionResponse::Success(@js.new_object()))
-  assert_true(ok.phase is ActionPhase::Succeeded)
-  assert_eq(ok.message, Some("Success"))
-
-  let redirect = ActionState::from_response(ActionResponse::Redirect("/done"))
-  assert_true(redirect.phase is ActionPhase::Redirecting)
-  assert_eq(redirect.redirect, Some("/done"))
-
-  let failed = ActionState::from_response(
-    ActionResponse::Error(400, "Bad input"),
-  )
-  assert_true(failed.phase is ActionPhase::Failed)
-  assert_eq(failed.status, Some(400))
-  assert_eq(failed.message, Some("Bad input"))
-
-  let network = ActionState::from_response(
-    ActionResponse::NetworkError("offline"),
-  )
-  assert_true(network.phase is ActionPhase::Failed)
-  assert_eq(network.status, Some(0))
-  assert_eq(network.message, Some("offline"))
-}
-
 // ============================================================================
 // ActionFormConfig Tests
 // ============================================================================
