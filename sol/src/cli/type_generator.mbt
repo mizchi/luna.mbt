@@ -17,6 +17,7 @@ fn generate_types_mbt(
   },
   static_dirs? : Array[StaticDirEntry] = [],
   external_client_bundle? : Bool = false,
+  client_assets? : Array[ContractClientAsset] = [],
 ) -> String {
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated types for island props\n")
@@ -48,6 +49,11 @@ fn generate_types_mbt(
   for s in structs {
     let component_name = extract_component_name_from_props(s.name)
     let url = "/static/\{component_name}.js"
+    let default_url = if external_client_bundle {
+      contract_client_asset_url(client_assets, component_name)
+    } else {
+      Some(url)
+    }
     let is_wc = is_web_component(component_name)
     buf.write_string("///|\n")
     buf.write_string(
@@ -60,19 +66,24 @@ fn generate_types_mbt(
     buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
     buf.write_string("  { url, props, wc: \{is_wc}, trigger }\n")
     buf.write_string("}\n\n")
-    if !external_client_bundle {
-      buf.write_string("///|\n")
-      buf.write_string(
-        "///| Create ComponentRef for \{component_name} component using Sol's generated client URL\n",
-      )
-      buf.write_string("pub fn \{component_name}(\n")
-      buf.write_string("  props : \{s.name},\n")
-      buf.write_string(
-        "  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n",
-      )
-      buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
-      buf.write_string("  \{component_name}_at(\"\{url}\", props, trigger~)\n")
-      buf.write_string("}\n\n")
+    match default_url {
+      Some(default_url) => {
+        buf.write_string("///|\n")
+        buf.write_string(
+          "///| Create ComponentRef for \{component_name} component using the configured client URL\n",
+        )
+        buf.write_string("pub fn \{component_name}(\n")
+        buf.write_string("  props : \{s.name},\n")
+        buf.write_string(
+          "  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n",
+        )
+        buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
+        buf.write_string(
+          "  \{component_name}_at(\"\{default_url}\", props, trigger~)\n",
+        )
+        buf.write_string("}\n\n")
+      }
+      None => ()
     }
   }
 
@@ -242,6 +253,7 @@ fn generate_types_pkg(
   has_actions? : Bool = false,
   external_client_bundle? : Bool = false,
   has_route_params? : Bool = false,
+  client_assets? : Array[ContractClientAsset] = [],
 ) -> String {
   let buf = StringBuilder::new()
   buf.write_string("import {\n")
@@ -264,7 +276,8 @@ fn generate_types_pkg(
     // Add factory function name (derived from Props name)
     let fn_name = extract_component_name_from_props(s.name)
     exports.push("\{fn_name}_at")
-    if !external_client_bundle {
+    if !external_client_bundle ||
+      contract_client_assets_has(client_assets, fn_name) {
       exports.push(fn_name)
     }
   }

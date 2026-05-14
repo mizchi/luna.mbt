@@ -158,6 +158,13 @@ test "parse_sol_config: explicit user server entry and external client bundle" {
 }
 
 ///|
+test "parse_sol_config: contract manifest path" {
+  let result = parse_sol_config("{\"contractManifest\": \"sol.contract.json\"}")
+  guard result is Some(config) else { return }
+  assert_eq(config.contract_manifest, Some("sol.contract.json"))
+}
+
+///|
 test "parse_sol_config: default runtime is node" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }

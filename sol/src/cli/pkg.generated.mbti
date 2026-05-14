@@ -207,6 +207,7 @@ pub struct SolConfig {
   adapter : ServerRuntime
   server_entry : ServerEntryMode
   client_bundle : ClientBundleMode
+  contract_manifest : String?
   static_dirs : Array[StaticDirEntry]
   wasm_entrypoints : Array[WasmEntrypointConfig]
   experimental : Array[String]

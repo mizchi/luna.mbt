@@ -47,6 +47,8 @@ pub struct SolConfig {
   server_entry : ServerEntryMode
   /// Client island bundle ownership (auto, external)
   client_bundle : ClientBundleMode
+  /// Explicit contract manifest path for routes/actions/client assets
+  contract_manifest : String?
   /// Static directories for SSG (markdown -> HTML)
   static_dirs : Array[StaticDirEntry]
   /// Per-route wasm entrypoints (.mbtx/.wasm)
@@ -340,7 +342,8 @@ fn validate_config_keys(obj : Map[String, Json]) -> Unit {
   let valid_keys = [
     "islands", "routes", "output", "clientAutoExports", "client_auto_exports", "runtime",
     "adapter", "serverEntry", "server_entry", "clientBundle", "client_bundle", "staticDirs",
-    "static_dirs", "wasmEntrypoints", "wasm_entrypoints", "experimental",
+    "static_dirs", "contractManifest", "contract_manifest", "wasmEntryPoints", "wasmEntrypoints",
+    "wasm_entrypoints", "experimental",
   ]
   for key in obj.keys() {
     if !valid_keys.contains(key) {
@@ -388,6 +391,11 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
           None => ClientBundleAuto
         }
     }
+    let contract_manifest = match
+      @json_utils.extract_string_opt(obj, "contractManifest") {
+      Some(s) => Some(s)
+      None => @json_utils.extract_string_opt(obj, "contract_manifest")
+    }
     let static_dirs = parse_static_dirs(obj)
     let wasm_entrypoints = parse_wasm_entrypoints(obj)
     let experimental = @json_utils.extract_string_array(obj, "experimental")
@@ -401,6 +409,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       adapter,
       server_entry,
       client_bundle,
+      contract_manifest,
       static_dirs,
       wasm_entrypoints,
       experimental,

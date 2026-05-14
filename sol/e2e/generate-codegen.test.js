@@ -146,6 +146,125 @@ test("sol generate: external client bundle avoids generated client intermediates
   }
 });
 
+test("sol generate: contract manifest drives route/action/client asset types", () => {
+  ensureCliBuilt();
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-contract-"));
+  try {
+    fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
+    fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
+    fs.writeFileSync(
+      path.join(sandbox, "moon.mod.json"),
+      JSON.stringify(
+        {
+          name: "example/contract-manifest",
+          version: "0.1.0",
+          deps: {},
+          source: "app",
+          "preferred-target": "js",
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.config.json"),
+      JSON.stringify(
+        {
+          routes: "app/server",
+          output: "app/__gen__",
+          runtime: "node",
+          serverEntry: "user",
+          clientBundle: "external",
+          contractManifest: "sol.contract.json",
+          islands: ["app/client"],
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.contract.json"),
+      JSON.stringify(
+        {
+          routes: ["/api/items/:id"],
+          actions: ["submit-contact"],
+          clientAssets: [
+            {
+              component: "counter",
+              url: "/assets/counter.abc123.js",
+            },
+          ],
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "server", "routes.mbt"),
+      [
+        "pub fn routes() -> Array[Unit] {",
+        "  []",
+        "}",
+        "",
+      ].join("\n")
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "client", "counter.mbt"),
+      [
+        "pub(all) struct CounterProps {",
+        "  initial : Int",
+        "}",
+        "",
+      ].join("\n")
+    );
+
+    const result = runSolGenerate(sandbox);
+    assert.equal(
+      result.status,
+      0,
+      `sol generate failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+    );
+    assert.match(result.stdout, /Contract manifest: sol\.contract\.json/);
+    assert.match(result.stdout, /Found 1 route paths, 1 action IDs/);
+
+    const typesPath = path.join(
+      sandbox,
+      "app",
+      "__gen__",
+      "types",
+      "types.mbt"
+    );
+    assert.ok(fs.existsSync(typesPath), "manifest should generate types.mbt");
+    const types = fs.readFileSync(typesPath, "utf8");
+    assert.match(types, /pub\(all\) struct RouteApiItemsIdParams/);
+    assert.match(types, /pub fn params_api_items_id/);
+    assert.match(types, /pub fn action_submit_contact\(\)/);
+    assert.match(types, /pub fn counter\(/);
+    assert.match(types, /counter_at\("\/assets\/counter\.abc123\.js"/);
+
+    const pkg = fs.readFileSync(
+      path.join(sandbox, "app", "__gen__", "types", "moon.pkg"),
+      "utf8"
+    );
+    assert.match(pkg, /"counter"/);
+    assert.match(pkg, /"mizchi\/sol\/router" @router/);
+    assert.match(pkg, /"mizchi\/sol\/action" @action/);
+
+    assert.equal(
+      fs.existsSync(path.join(sandbox, "app", "__gen__", "server")),
+      false,
+      "user-managed server entry should not create generated MoonBit server glue"
+    );
+    assert.equal(
+      fs.existsSync(path.join(sandbox, "app", "__gen__", "client")),
+      false,
+      "external client bundle should not create generated MoonBit client glue"
+    );
+  } finally {
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
 test("sol generate: produces types.mbt with route constants, action keys, and component refs", () => {
   ensureCliBuilt();
   const result = runSolGenerate(SOL_APP);

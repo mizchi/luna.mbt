@@ -106,6 +106,29 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   if config.uses_external_client_bundle() {
     println(@colorette.gray("  Client bundle: external"))
   }
+  let contract_manifest = match config.contract_manifest {
+    Some(manifest_path) =>
+      match load_contract_manifest_with_fs(fs, cwd, manifest_path) {
+        Some(manifest) => {
+          println(@colorette.gray("  Contract manifest: \{manifest_path}"))
+          Some(manifest)
+        }
+        None => {
+          @cli_common.console_error(
+            @colorette.red(
+              "Error: contract manifest not found or invalid: \{manifest_path}",
+            ),
+          )
+          @process.exit(1)
+          None
+        }
+      }
+    None => None
+  }
+  let client_assets = match contract_manifest {
+    Some(manifest) => manifest.client_assets
+    None => []
+  }
 
   // Detect app mode (MoonBit vs TypeScript server)
   let app_mode = detect_app_mode_with_fs(fs, cwd, config)
@@ -142,17 +165,25 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     )
     found
   }
-  // Step 1.5: Parse routes.mbt for route paths and action IDs (text scan, no moon info needed).
-  // Server entry ownership only controls generated server glue; typed contracts
-  // still come from routes.mbt when the app uses MoonBit routes.
-  let route_info = if app_mode == MoonBitFull {
-    let routes_file_path = @path.join2(
-      @path.join2(cwd, config.routes),
-      "routes.mbt",
-    )
-    parse_routes_file(routes_file_path)
-  } else {
-    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] }
+  // Step 1.5: Load route/action contracts. An explicit manifest avoids source
+  // scanning; otherwise MoonBit apps keep the historical routes.mbt scan.
+  let route_info = match contract_manifest {
+    Some(manifest) => manifest.to_route_info()
+    None =>
+      if app_mode == MoonBitFull {
+        let routes_file_path = @path.join2(
+          @path.join2(cwd, config.routes),
+          "routes.mbt",
+        )
+        parse_routes_file(routes_file_path)
+      } else {
+        {
+          _page_components: [],
+          _api_handlers: [],
+          route_paths: [],
+          action_ids: [],
+        }
+      }
   }
   let has_routes = !route_info.route_paths.is_empty()
   let has_route_params = route_paths_have_params(route_info.route_paths)
@@ -184,12 +215,14 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       route_info~,
       static_dirs=config.static_dirs,
       external_client_bundle=config.uses_external_client_bundle(),
+      client_assets~,
     )
     let types_pkg_content = generate_types_pkg(
       source_structs,
       has_actions~,
       external_client_bundle=config.uses_external_client_bundle(),
       has_route_params~,
+      client_assets~,
     )
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
     let types_pkg_path = @path.join2(types_dir, "moon.pkg")

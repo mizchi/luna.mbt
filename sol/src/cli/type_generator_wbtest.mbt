@@ -45,6 +45,21 @@ test "generate_types_mbt: external bundle requires explicit component URL" {
 }
 
 ///|
+test "generate_types_mbt: external bundle manifest restores typed default factory" {
+  let content = generate_types_mbt(
+    [sample_counter_props()],
+    external_client_bundle=true,
+    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js" }],
+  )
+  assert_true(content.contains("pub fn counter("))
+  assert_true(
+    content.contains(
+      "counter_at(\"/assets/counter.abc123.js\", props, trigger~)",
+    ),
+  )
+}
+
+///|
 test "generate_types_pkg: external bundle exports url-injected factory only" {
   let content = generate_types_pkg(
     [sample_counter_props()],
@@ -53,6 +68,18 @@ test "generate_types_pkg: external bundle exports url-injected factory only" {
   assert_true(content.contains("\"CounterProps\""))
   assert_true(content.contains("\"counter_at\""))
   assert_false(content.contains("\"counter\","))
+}
+
+///|
+test "generate_types_pkg: external bundle manifest exports typed default factory" {
+  let content = generate_types_pkg(
+    [sample_counter_props()],
+    external_client_bundle=true,
+    client_assets=[{ component: "counter", url: "/assets/counter.abc123.js" }],
+  )
+  assert_true(content.contains("\"CounterProps\""))
+  assert_true(content.contains("\"counter_at\""))
+  assert_true(content.contains("\"counter\""))
 }
 
 ///|
