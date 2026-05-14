@@ -204,6 +204,17 @@ test "TypedActionKey can be used as an ActionKey" {
 }
 
 ///|
+test "typed action invoker carries request payload type" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let _invoker : (CreateUserRequest, (ActionResponse) -> Unit) -> Unit = create_typed_action_invoker_key(
+    key,
+  )
+}
+
+///|
 test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
