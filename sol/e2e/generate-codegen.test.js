@@ -151,7 +151,6 @@ test("sol generate: contract manifest drives route/action/client asset types", (
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-contract-"));
   try {
     fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
-    fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
     fs.writeFileSync(
       path.join(sandbox, "moon.mod.json"),
       JSON.stringify(
@@ -194,6 +193,17 @@ test("sol generate: contract manifest drives route/action/client asset types", (
               url: "/assets/counter.abc123.js",
             },
           ],
+          components: [
+            {
+              name: "counter",
+              package: "app/client",
+              importAlias: "client",
+              props: {
+                name: "CounterProps",
+                fields: [{ name: "initial", type: "Int" }],
+              },
+            },
+          ],
         },
         null,
         2
@@ -208,16 +218,6 @@ test("sol generate: contract manifest drives route/action/client asset types", (
         "",
       ].join("\n")
     );
-    fs.writeFileSync(
-      path.join(sandbox, "app", "client", "counter.mbt"),
-      [
-        "pub(all) struct CounterProps {",
-        "  initial : Int",
-        "}",
-        "",
-      ].join("\n")
-    );
-
     const result = runSolGenerate(sandbox);
     assert.equal(
       result.status,
@@ -237,6 +237,7 @@ test("sol generate: contract manifest drives route/action/client asset types", (
     assert.ok(fs.existsSync(typesPath), "manifest should generate types.mbt");
     const types = fs.readFileSync(typesPath, "utf8");
     assert.match(types, /pub\(all\) struct RouteApiItemsIdParams/);
+    assert.match(types, /pub\(all\) struct CounterProps/);
     assert.match(types, /pub fn params_api_items_id/);
     assert.match(types, /pub fn action_submit_contact\(\)/);
     assert.match(types, /pub fn counter\(/);

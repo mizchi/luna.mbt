@@ -150,7 +150,18 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   let output_dir = @path.join2(cwd, config.output) // app/__gen__
   let types_dir = @path.join2(output_dir, "types")
   // Step 1: Parse source files to extract Props structs (before moon info)
-  let source_structs = if config.islands.is_empty() {
+  let manifest_structs = match contract_manifest {
+    Some(manifest) => manifest.to_struct_exports()
+    None => []
+  }
+  let source_structs = if !manifest_structs.is_empty() {
+    println(
+      @colorette.gray(
+        "  Found \{manifest_structs.length()} Props types from contract manifest",
+      ),
+    )
+    manifest_structs
+  } else if config.islands.is_empty() {
     []
   } else {
     let scan_label = if config.uses_external_client_bundle() {

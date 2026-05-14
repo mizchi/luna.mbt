@@ -14,6 +14,20 @@ fn sample_contract_manifest_json() -> String {
     #|  ],
     #|  "clientAssets": [
     #|    { "component": "counter", "url": "/assets/counter.abc123.js" }
+    #|  ],
+    #|  "components": [
+    #|    {
+    #|      "name": "counter",
+    #|      "package": "app/client",
+    #|      "importAlias": "client",
+    #|      "props": {
+    #|        "name": "CounterProps",
+    #|        "fields": [
+    #|          { "name": "initial", "type": "Int" },
+    #|          { "name": "label", "type": "String" }
+    #|        ]
+    #|      }
+    #|    }
     #|  ]
     #|}
   )
@@ -33,6 +47,12 @@ test "parse_contract_manifest_json: routes actions and client assets" {
   assert_eq(m.client_assets.length(), 1)
   assert_eq(m.client_assets[0].component, "counter")
   assert_eq(m.client_assets[0].url, "/assets/counter.abc123.js")
+  assert_eq(m.components.length(), 1)
+  assert_eq(m.components[0].name, "counter")
+  assert_eq(m.components[0].props.name, "CounterProps")
+  assert_eq(m.components[0].props.fields.length(), 2)
+  assert_eq(m.components[0].props.fields[0].name, "initial")
+  assert_eq(m.components[0].props.fields[0].type_name, "Int")
 }
 
 ///|
@@ -54,4 +74,19 @@ test "ContractManifest::client_asset_url: resolves component url" {
     Some("/assets/counter.abc123.js"),
   )
   assert_eq(manifest.client_asset_url("missing"), None)
+}
+
+///|
+test "ContractManifest::to_struct_exports: feeds type generator without Props source scanning" {
+  let manifest = parse_contract_manifest_json(sample_contract_manifest_json()).unwrap()
+  let structs = manifest.to_struct_exports()
+  assert_eq(structs.length(), 1)
+  assert_eq(structs[0].name, "CounterProps")
+  assert_eq(structs[0].package_path, "app/client")
+  assert_eq(structs[0].import_alias, "client")
+  assert_true(
+    structs[0].raw_definition.contains("pub(all) struct CounterProps"),
+  )
+  assert_true(structs[0].raw_definition.contains("initial : Int"))
+  assert_true(structs[0].raw_definition.contains("label : String"))
 }
