@@ -90,12 +90,6 @@ pub enum ActionResult {
 }
 
 ///|
-/// Create success result
-pub fn ActionResult::ok(data : @js.Any) -> ActionResult {
-  Success(data)
-}
-
-///|
 /// Create success result from a typed JSON-serializable payload.
 pub fn[T : ToJson] ActionResult::json(data : T) -> ActionResult {
   Success(@js_any.json_to_any(data.to_json()))

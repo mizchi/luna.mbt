@@ -89,10 +89,13 @@ test("action public API only exposes typed action keys", () => {
     /TypedActionKey::new/,
     /\bActionRef\b/,
     /pub fn ActionDef::new\b/,
+    /pub fn ActionResult::ok\b/,
     /pub fn ActionRegistry::get\b/,
     /pub fn ActionRegistry::action_url\b/,
     /pub fn invoke_action\(/,
+    /pub fn\[K : ActionKey\] invoke_action_key\b/,
     /pub fn create_action_invoker\(/,
+    /pub fn\[K : ActionKey\] create_action_invoker_key\b/,
     /pub fn ActionFormConfig::new\b/,
   ];
   for (const pattern of forbidden) {

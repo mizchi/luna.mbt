@@ -10,8 +10,8 @@ using @test {assert_eq}
 // ============================================================================
 
 ///|
-test "ActionResult::ok creates success result" {
-  let result = ActionResult::ok(@js.any({ "id": 1 }))
+test "ActionResult success variant carries raw data internally" {
+  let result = ActionResult::Success(@js.any({ "id": 1 }))
   match result {
     Success(_) => ()
     _ => fail("expected Success")
@@ -270,7 +270,7 @@ test "typed action response reports decode errors" {
 ///|
 test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
   assert_eq(action.id, "create-user")
@@ -281,7 +281,7 @@ test "ActionDef::from_key creates definition from action key" {
 ///|
 test "ActionDef::with_require_json toggles json requirement" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let action = ActionDef::from_key(CreateUserActionKey::{  }, handler).with_require_json(
     false,
@@ -309,7 +309,7 @@ test "ActionRegistry::with_base_path sets base path" {
 ///|
 test "ActionRegistry::register adds action" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
@@ -320,7 +320,7 @@ test "ActionRegistry::register adds action" {
 ///|
 test "ActionRegistry::register_key adds generated-key action" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let registry = ActionRegistry::new().register_key(
     CreateUserActionKey::{  },
@@ -333,7 +333,7 @@ test "ActionRegistry::register_key adds generated-key action" {
 ///|
 test "ActionRegistry::get returns registered action" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let action = ActionDef::from_key(GetUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
@@ -358,10 +358,10 @@ test "ActionRegistry::action_url generates correct URL" {
 ///|
 test "ActionRegistry::register_all adds multiple actions" {
   let handler1 = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let handler2 = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let actions = [
     ActionDef::from_key(ActionOneKey::{  }, handler1),

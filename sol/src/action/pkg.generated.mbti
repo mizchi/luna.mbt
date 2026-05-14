@@ -14,13 +14,9 @@ pub fn[K : ActionKey] action_id(K) -> String
 
 pub fn[K : ActionKey] action_url(K) -> String
 
-pub fn[K : ActionKey] create_action_invoker_key(K, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
-
 pub fn[Req : ToJson, Res : @json.FromJson] create_typed_action_invoker_key(TypedActionKey[Req, Res], options? : ActionOptions) -> (Req, (TypedActionResponse[Res]) -> Unit) -> Unit
 
 pub fn[T : @json.FromJson] decode_action_body(String) -> T?
-
-pub fn[K : ActionKey] invoke_action_key(K, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
 
 pub fn[Req : ToJson, Res : @json.FromJson] invoke_typed_action_key(TypedActionKey[Req, Res], Req, (TypedActionResponse[Res]) -> Unit, options? : ActionOptions) -> Unit
 
@@ -113,7 +109,6 @@ pub fn ActionResult::forbidden(message? : String) -> Self
 pub fn ActionResult::http_redirect(String) -> Self
 pub fn[T : ToJson] ActionResult::json(T) -> Self
 pub fn ActionResult::not_found(message? : String) -> Self
-pub fn ActionResult::ok(@core.Any) -> Self
 pub fn ActionResult::redirect(String) -> Self
 pub fn ActionResult::server_error(message? : String) -> Self
 pub fn ActionResult::unauthorized(message? : String) -> Self
