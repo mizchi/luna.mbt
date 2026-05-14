@@ -11,6 +11,31 @@ pub struct HmrServer {
 }
 
 ///|
+/// Connected HMR WebSocket client.
+pub struct HmrClient {
+  priv inner : @js.Any
+}
+
+///|
+/// Send a text message to this client.
+pub fn HmrClient::send(self : HmrClient, message : String) -> Unit {
+  self.inner._call("send", [@js.any(message)]) |> ignore
+}
+
+///|
+/// Close this client connection.
+pub fn HmrClient::close(self : HmrClient) -> Unit {
+  self.inner._call("close", []) |> ignore
+}
+
+///|
+/// Return true when this client is currently open.
+pub fn HmrClient::is_open(self : HmrClient) -> Bool {
+  let ready_state = self.inner._get("readyState")
+  !@js.is_undefined(ready_state) && @js.identity(ready_state) == 1
+}
+
+///|
 pub(all) enum HmrMessage {
   Connected
   Reload
@@ -224,15 +249,15 @@ pub fn HmrServer::notify_error(self : HmrServer, error : String) -> Unit {
 /// Send connected message to new clients
 pub fn HmrServer::on_connection(
   self : HmrServer,
-  handler : (@js.Any) -> Unit,
+  handler : (HmrClient) -> Unit,
 ) -> Unit {
   let connected_message = HmrMessage::Connected.to_json()
   self.inner._call("on", [
     @js.any("connection"),
     @js.any(fn(ws : @js.Any) {
-      // Send connected message
-      ws._call("send", [@js.any(connected_message)]) |> ignore
-      handler(ws)
+      let client : HmrClient = { inner: ws }
+      client.send(connected_message)
+      handler(client)
     }),
   ])
   |> ignore

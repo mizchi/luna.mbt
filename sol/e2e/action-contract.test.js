@@ -157,6 +157,27 @@ test("router public API keeps legacy API resolvers typed as Json", () => {
   );
 });
 
+test("hmr public API wraps websocket clients", () => {
+  const mbti = fs.readFileSync(
+    path.join(SOL_DIR, "src", "hmr", "pkg.generated.mbti"),
+    "utf8"
+  );
+
+  assert.doesNotMatch(
+    mbti,
+    /@core\.Any|@mizchi\/js\/core\.Any/,
+    "hmr public API must not expose JavaScript Any"
+  );
+  assert.match(mbti, /pub struct HmrClient/);
+  assert.match(mbti, /pub fn HmrClient::send\(Self, String\) -> Unit/);
+  assert.match(mbti, /pub fn HmrClient::close\(Self\) -> Unit/);
+  assert.match(mbti, /pub fn HmrClient::is_open\(Self\) -> Bool/);
+  assert.match(
+    mbti,
+    /pub fn HmrServer::on_connection\(Self, \(HmrClient\) -> Unit\) -> Unit/
+  );
+});
+
 test("docs and examples do not use removed stringly action APIs", () => {
   const files = [
     path.join(SOL_DIR, "README.md"),
