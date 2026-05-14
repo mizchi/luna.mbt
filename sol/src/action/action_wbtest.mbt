@@ -10,10 +10,11 @@ using @test {assert_eq}
 // ============================================================================
 
 ///|
-test "ActionResult success variant carries raw data internally" {
-  let result = ActionResult::{ kind: JsonSuccess(@js.any({ "id": 1 })) }
+test "ActionResult success variant carries Json internally" {
+  let payload : Json = { "id": Json::number(1.0) }
+  let result = ActionResult::{ kind: JsonSuccess(payload) }
   match result.kind {
-    JsonSuccess(_) => ()
+    JsonSuccess(json) => assert_eq(json.stringify(), "{\"id\":1}")
     _ => fail("expected Success")
   }
 }

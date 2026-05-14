@@ -9,16 +9,6 @@ pub fn send_json(ctx : @mars.Context, data : Json, status? : Int = 200) -> Unit 
 }
 
 ///|
-/// Send `@js.Any` as JSON response.
-pub fn send_json_any(
-  ctx : @mars.Context,
-  data : @js.Any,
-  status? : Int = 200,
-) -> Unit {
-  send_json_text(ctx, ffi_json_stringify(data), status)
-}
-
-///|
 /// Send `{ error: message }` as JSON response.
 pub fn send_json_error(
   ctx : @mars.Context,
@@ -44,7 +34,3 @@ fn send_json_text(ctx : @mars.Context, body : String, status : Int) -> Unit {
   ctx.set_header("X-Content-Type-Options", "nosniff")
   ctx.text(body, status~)
 }
-
-///|
-extern "js" fn ffi_json_stringify(data : @js.Any) -> String =
-  #| (data) => JSON.stringify(data)

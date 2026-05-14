@@ -80,7 +80,7 @@ fn action_result_to_response(c : Ctx, result : ActionResult) -> Unit {
   // Always set security header for action responses
   c.set_header("X-Content-Type-Options", "nosniff")
   match result.kind {
-    JsonSuccess(data) => @mars_response.send_json_any(c, data)
+    JsonSuccess(data) => @mars_response.send_json(c, data)
     ClientRedirect(url) => {
       // Return JSON with redirect instruction (for JavaScript clients)
       let obj : Map[String, Json] = {}

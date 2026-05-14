@@ -77,7 +77,7 @@ pub fn ActionContext::set_state(
 ///|
 /// Internal action result representation.
 priv enum ActionResultKind {
-  JsonSuccess(@js.Any)
+  JsonSuccess(Json)
   ClientRedirect(String)
   HttpRedirectResult(String)
   ClientFailure(Int, String)
@@ -93,7 +93,7 @@ pub struct ActionResult {
 ///|
 /// Create success result from a typed JSON-serializable payload.
 pub fn[T : ToJson] ActionResult::json(data : T) -> ActionResult {
-  { kind: JsonSuccess(@js_any.json_to_any(data.to_json())) }
+  { kind: JsonSuccess(data.to_json()) }
 }
 
 ///|
