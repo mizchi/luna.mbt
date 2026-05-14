@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/mizchi/luna.mbt/compare/sol-v0.20.2-npm...sol-v0.21.0-npm) (2026-05-14)
+
+
+### Features
+
+* add Sol route asset helpers, runtime adapters, Cloudflare starter support, typed action/API helpers, and `sol doctor`
+
 ## [0.20.2](https://github.com/mizchi/luna.mbt/compare/sol-v0.20.0...sol-v0.20.2-npm) (2026-05-13)
 
 
