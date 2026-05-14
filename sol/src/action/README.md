@@ -18,13 +18,27 @@ CSRF tokens are intentionally NOT included as they add complexity without signif
 ### 1. Define Actions
 
 ```moonbit
-let create_user_handler = ActionHandler(async fn(ctx) {
-  // Parse request body
-  let body = ctx.body
-  // ... validate and process
+struct CreateUserRequest {
+  name : String
+  email : String
+} derive(ToJson, FromJson)
 
-  // Return success
-  ActionResult::ok(@js.any({ "id": 123, "name": "John" }))
+struct CreateUserResponse {
+  id : String
+  name : String
+} derive(ToJson, FromJson)
+
+let create_user_handler = ActionHandler(async fn(ctx) {
+  let req : CreateUserRequest = match ctx.decode_json() {
+    Some(req) => req
+    None => return ActionResult::bad_request("Invalid JSON payload")
+  }
+
+  if req.email == "" {
+    return ActionResult::validation_error("Email is required")
+  }
+
+  ActionResult::json(CreateUserResponse::{ id: "123", name: req.name })
 })
 
 let update_profile_handler = ActionHandler(async fn(ctx) {
@@ -35,7 +49,7 @@ let update_profile_handler = ActionHandler(async fn(ctx) {
     return ActionResult::validation_error("Profile payload is required")
   }
 
-  ActionResult::ok(@js.any({ "message": "Profile updated" }))
+  ActionResult::json({ "message": "Profile updated" })
 })
 
 let delete_user_handler = ActionHandler(async fn(ctx) {
@@ -85,39 +99,53 @@ This registers endpoints at:
 ### Basic Invocation
 
 ```moonbit
-let create_user_action = @types.action_create_user()
+let create_user_action : TypedActionKey[CreateUserRequest, CreateUserResponse] =
+  @types.action_create_user_typed()
 
-invoke_action_key(
-  create_user_action,
-  @js.any({ "name": "John", "email": "john@example.com" }),
-  fn(response) {
-    match response {
-      Success(data) => {
-        // Handle success
-        let id = data["id"]
-      }
-      Redirect(url) => {
-        // Handle redirect (usually automatic)
-      }
-      Error(status, message) => {
-        // Handle error
-      }
-      NetworkError(message) => {
-        // Handle network failure
-      }
+let handle_create_user : (TypedActionResponse[CreateUserResponse]) -> Unit = fn(response) {
+  match response {
+    Success(data) => {
+      save_user_id(data.id)
     }
-  },
+    Redirect(url) => {
+      // Handle redirect (usually automatic)
+    }
+    Error(status, message) => {
+      // Handle error
+    }
+    NetworkError(message) => {
+      // Handle network failure
+    }
+    DecodeError(message) => {
+      // Handle a response contract mismatch
+    }
+  }
+}
+
+invoke_typed_action_key(
+  create_user_action,
+  CreateUserRequest::{ name: "John", email: "john@example.com" },
+  handle_create_user,
 )
 ```
 
 ### Create Reusable Invoker
 
 ```moonbit
-let create_user_action = @types.action_create_user()
-let create_user = create_action_invoker_key(create_user_action)
+let create_user_action : TypedActionKey[CreateUserRequest, CreateUserResponse] =
+  @types.action_create_user_typed()
+let create_user = create_typed_action_invoker_key(create_user_action)
 
 // Later...
-let response = create_user(@js.any({ "name": "Jane" }))
+create_user(
+  CreateUserRequest::{ name: "Jane", email: "jane@example.com" },
+  fn(response) {
+    match response {
+      Success(data) => save_user_id(data.id)
+      _ => ()
+    }
+  },
+)
 ```
 
 ### Form Integration
@@ -138,17 +166,13 @@ hand-rolling every state transition:
 let state = @signal.signal(ActionState::idle())
 
 state.set(ActionState::pending(message="Saving"))
-invoke_action_key(@types.action_create_user(), payload, fn(response) {
-  let next = ActionState::from_response(response)
-  state.set(next)
-  match next.phase {
-    Succeeded => show_success(next.message.unwrap_or("Saved"))
-    Failed => show_error(next.message.unwrap_or("Action failed"))
-    Redirecting => match next.redirect {
-      Some(url) => redirect_to(url)
-      None => ()
-    }
-    Idle | Pending => ()
+invoke_typed_action_key(@types.action_create_user_typed(), payload, fn(response) {
+  match response {
+    Success(_) => state.set(ActionState::success(message="Saved"))
+    Redirect(url) => state.set(ActionState::redirect(url))
+    Error(status, message) => state.set(ActionState::error(status~, message~))
+    NetworkError(message) => state.set(ActionState::error(status=0, message~))
+    DecodeError(message) => state.set(ActionState::error(status=0, message~))
   }
 })
 ```

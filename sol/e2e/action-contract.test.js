@@ -133,6 +133,9 @@ test("docs and examples do not use removed stringly action APIs", () => {
 
 test("examples dogfood typed action JSON results", () => {
   const files = [
+    path.join(SOL_DIR, "README.md"),
+    path.join(SOL_DIR, "src", "README.md"),
+    path.join(SOL_DIR, "src", "action", "README.md"),
     path.join(SOL_DIR, "examples", "sol_app", "app", "server", "routes.mbt"),
     path.join(SOL_DIR, "examples", "sol_auth", "app", "server", "routes.mbt"),
     path.join(SOL_DIR, "examples", "sol_todo", "app", "server", "routes.mbt"),
@@ -140,6 +143,7 @@ test("examples dogfood typed action JSON results", () => {
   const forbidden = [
     /ActionResult::ok\(\s*@sol\.json_(?:obj|to_any)/s,
     /ActionResult::ok\([^)]*@core\.any\(/s,
+    /ActionResult::ok\([^)]*@js\.any\(/s,
   ];
 
   for (const file of files) {
@@ -178,6 +182,7 @@ test("examples dogfood typed action request decoding", () => {
 
 test("examples dogfood typed action invocation", () => {
   const files = [
+    path.join(SOL_DIR, "src", "action", "README.md"),
     path.join(SOL_DIR, "examples", "sol_app", "app", "client", "form.mbt"),
     path.join(SOL_DIR, "examples", "sol_auth", "app", "client", "form.mbt"),
   ];
@@ -191,7 +196,7 @@ test("examples dogfood typed action invocation", () => {
     );
     assert.match(
       content,
-      /TypedActionResponse\[ContactSubmitResponse\]/,
+      /TypedActionResponse\[/,
       `${path.relative(ROOT, file)} must decode typed action responses`
     );
     assert.doesNotMatch(
