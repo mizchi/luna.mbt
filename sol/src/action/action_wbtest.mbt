@@ -180,7 +180,7 @@ test "action_url builds endpoint URL from action key" {
 ///|
 priv struct CreateUserRequest {
   name : String
-}
+} derive(ToJson)
 
 ///|
 priv struct CreateUserResponse {

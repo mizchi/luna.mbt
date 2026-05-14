@@ -9,6 +9,12 @@ pub(all) struct ContactFormProps {
 } derive(ToJson, FromJson)
 
 ///|
+priv struct ContactSubmitRequest {
+  name : String
+  email : String
+} derive(ToJson)
+
+///|
 /// Contact form component with two-way data binding and Server Action submission
 pub fn contact_form(props : ContactFormProps) -> DomNode {
   // Signals for form state
@@ -52,9 +58,12 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     }
 
     // Call Server Action with callback
-    let payload = create_form_payload(name.get(), email.get())
-    @action.invoke_action_key(
+    let key : @action.TypedActionKey[ContactSubmitRequest, Unit] = @action.TypedActionKey::from_key(
       @types.action_submit_contact(),
+    )
+    let payload = ContactSubmitRequest::{ name: name.get(), email: email.get() }
+    @action.invoke_typed_action_key(
+      key,
       payload,
       handle_response,
     )
@@ -130,10 +139,6 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
 ///|
 extern "js" fn get_message(data : @js.Any) -> String =
   #| (data) => data.message || JSON.stringify(data)
-
-///|
-extern "js" fn create_form_payload(name : String, email : String) -> @js.Any =
-  #| (name, email) => ({ name, email })
 
 ///|
 extern "js" fn redirect_to(url : String) -> Unit =

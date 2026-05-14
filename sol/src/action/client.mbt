@@ -140,13 +140,18 @@ pub fn[K : ActionKey] invoke_action_key(
 
 ///|
 /// Invoke a typed server action using its generated request payload type.
-pub fn[Req, Res] invoke_typed_action_key(
+pub fn[Req : ToJson, Res] invoke_typed_action_key(
   key : TypedActionKey[Req, Res],
   payload : Req,
   callback : (ActionResponse) -> Unit,
   options? : ActionOptions,
 ) -> Unit {
-  invoke_action(typed_action_url(key), @js.any(payload), callback, options?)
+  invoke_action(
+    typed_action_url(key),
+    @js_any.json_to_any(payload.to_json()),
+    callback,
+    options?,
+  )
 }
 
 ///|
@@ -171,14 +176,19 @@ pub fn[K : ActionKey] create_action_invoker_key(
 
 ///|
 /// Create an action invoker whose payload parameter is tied to a typed key.
-pub fn[Req, Res] create_typed_action_invoker_key(
+pub fn[Req : ToJson, Res] create_typed_action_invoker_key(
   key : TypedActionKey[Req, Res],
   options? : ActionOptions,
 ) -> (Req, (ActionResponse) -> Unit) -> Unit {
   let url = typed_action_url(key)
   let opts = options.unwrap_or(ActionOptions::default())
   fn(payload, callback) {
-    ffi_invoke_action_cb(url, @js.any(payload), callback, opts)
+    ffi_invoke_action_cb(
+      url,
+      @js_any.json_to_any(payload.to_json()),
+      callback,
+      opts,
+    )
   }
 }
 

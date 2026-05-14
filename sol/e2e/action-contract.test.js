@@ -73,6 +73,11 @@ test("action public API only exposes typed action keys", () => {
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionFormConfig::from_key/);
   assert.match(mbti, /invoke_typed_action_key/);
   assert.match(mbti, /create_typed_action_invoker_key/);
+  assert.match(mbti, /pub fn\[Req : ToJson, Res\] invoke_typed_action_key/);
+  assert.match(
+    mbti,
+    /pub fn\[Req : ToJson, Res\] create_typed_action_invoker_key/
+  );
   assert.match(mbti, /ActionResult::json/);
 
   const forbidden = [
@@ -142,6 +147,27 @@ test("examples dogfood typed action JSON results", () => {
         `${path.relative(ROOT, file)} must use ActionResult::json for structured success payloads`
       );
     }
+  }
+});
+
+test("examples dogfood typed action invocation", () => {
+  const files = [
+    path.join(SOL_DIR, "examples", "sol_app", "app", "client", "form.mbt"),
+    path.join(SOL_DIR, "examples", "sol_auth", "app", "client", "form.mbt"),
+  ];
+
+  for (const file of files) {
+    const content = fs.readFileSync(file, "utf8");
+    assert.match(
+      content,
+      /invoke_typed_action_key\(/,
+      `${path.relative(ROOT, file)} must use typed action invocation`
+    );
+    assert.doesNotMatch(
+      content,
+      /invoke_action_key\(/,
+      `${path.relative(ROOT, file)} must not use untyped action invocation`
+    );
   }
 });
 
