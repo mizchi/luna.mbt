@@ -20,10 +20,12 @@ pub fn[E, A : Show] render_to_string(
   if preload {
     let urls : Array[String] = []
     let seen : Map[String, Bool] = {}
-    render_and_collect_urls(sb, node, urls, seen)
+    let island_ids = new_island_id_allocator()
+    render_and_collect_urls(sb, node, urls, seen, island_ids)
     { html: sb.to_string(), preload_urls: urls }
   } else {
-    render_to_sb(sb, node)
+    let island_ids = new_island_id_allocator()
+    render_to_sb(sb, node, island_ids)
     { html: sb.to_string(), preload_urls: [] }
   }
 }
@@ -158,6 +160,7 @@ fn[E, A : Show] render_and_collect_urls(
   node : @core.Node[E, A],
   urls : Array[String],
   seen : Map[String, Bool],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   match node {
     Text(content) => escape_html_to(sb, content)
@@ -165,7 +168,7 @@ fn[E, A : Show] render_and_collect_urls(
     RawHtml(html) => sb.write_string(html)
     Fragment(children) =>
       for child in children {
-        render_and_collect_urls(sb, child, urls, seen)
+        render_and_collect_urls(sb, child, urls, seen, island_ids)
       }
     Element(elem) => {
       let tag = elem.tag
@@ -177,7 +180,7 @@ fn[E, A : Show] render_and_collect_urls(
       } else {
         sb.write_char('>')
         for child in elem.children {
-          render_and_collect_urls(sb, child, urls, seen)
+          render_and_collect_urls(sb, child, urls, seen, island_ids)
         }
         sb.write_string("</")
         sb.write_string(tag)
@@ -186,26 +189,34 @@ fn[E, A : Show] render_and_collect_urls(
     }
     Show(condition~, child~) =>
       if condition() {
-        render_and_collect_urls(sb, child(), urls, seen)
+        render_and_collect_urls(sb, child(), urls, seen, island_ids)
       } else {
         sb.write_string("<!--show-->")
       }
     For(render~) =>
       for item in render() {
-        render_and_collect_urls(sb, item, urls, seen)
+        render_and_collect_urls(sb, item, urls, seen, island_ids)
       }
-    Component(render~) => render_and_collect_urls(sb, render(), urls, seen)
-    Island(island) => render_island_and_collect_urls(sb, island, urls, seen)
+    Component(render~) =>
+      render_and_collect_urls(sb, render(), urls, seen, island_ids)
+    Island(island) =>
+      render_island_and_collect_urls(sb, island, urls, seen, island_ids)
     WcIsland(wc_island) =>
-      render_wc_island_and_collect_urls(sb, wc_island, urls, seen)
+      render_wc_island_and_collect_urls(sb, wc_island, urls, seen, island_ids)
     InternalRef(iref) =>
-      render_internal_ref_and_collect_urls(sb, iref, urls, seen)
+      render_internal_ref_and_collect_urls(sb, iref, urls, seen, island_ids)
     Async(async_node) =>
       // In sync rendering, render fallback (async content handled by stream renderer)
-      render_and_collect_urls(sb, (async_node.fallback)(), urls, seen)
+      render_and_collect_urls(
+        sb,
+        (async_node.fallback)(),
+        urls,
+        seen,
+        island_ids,
+      )
     ErrorBoundary(boundary) =>
       // ErrorBoundary: try rendering children, catch errors and render fallback
-      render_and_collect_urls(sb, (boundary.children)(), urls, seen) catch {
+      render_and_collect_urls(sb, (boundary.children)(), urls, seen, island_ids) catch {
         err => {
           // reset function is a no-op in SSR context
           let reset = fn() { () }
@@ -214,6 +225,7 @@ fn[E, A : Show] render_and_collect_urls(
             (boundary.fallback)(err, reset),
             urls,
             seen,
+            island_ids,
           ) catch {
             _ => () // Ignore errors in fallback
           }
@@ -223,14 +235,14 @@ fn[E, A : Show] render_and_collect_urls(
       // Find first matching case and render it
       for case_ in switch_node.cases {
         if (case_.when)() {
-          render_and_collect_urls(sb, (case_.render)(), urls, seen)
+          render_and_collect_urls(sb, (case_.render)(), urls, seen, island_ids)
           return
         }
       }
       // No case matched, render fallback if present
       match switch_node.fallback {
         Some(fallback_fn) =>
-          render_and_collect_urls(sb, fallback_fn(), urls, seen)
+          render_and_collect_urls(sb, fallback_fn(), urls, seen, island_ids)
         None => sb.write_string("<!--switch-->")
       }
     }
@@ -244,18 +256,59 @@ fn[E, A : Show] render_island_and_collect_urls(
   island : @core.VIsland[E, A],
   urls : Array[String],
   seen : Map[String, Bool],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   collect_unique_url_if_non_empty(island.url, urls, seen)
   render_island_open_to(sb, island)
   for child in island.children {
-    render_and_collect_urls(sb, child, urls, seen)
+    render_and_collect_urls(sb, child, urls, seen, island_ids)
   }
   render_island_close_to(sb, island)
 }
 
 ///|
 fn island_id_from_url(url : String) -> String {
-  url.replace(old="/", new="_").replace(old=".", new="_")
+  url.replace_all(old="/", new="_").replace_all(old=".", new="_")
+}
+
+///|
+priv struct IslandIdAllocator {
+  next_by_base : Map[String, Int]
+  used : Map[String, Bool]
+}
+
+///|
+fn new_island_id_allocator() -> IslandIdAllocator {
+  { next_by_base: {}, used: {} }
+}
+
+///|
+fn reserve_island_id(
+  base : String,
+  index : Int,
+  allocator : IslandIdAllocator,
+) -> String {
+  let id = if index == 0 { base } else { base + "-" + index.to_string() }
+  if allocator.used.get(id) is None {
+    allocator.used.set(id, true)
+    allocator.next_by_base.set(base, index + 1)
+    id
+  } else {
+    reserve_island_id(base, index + 1, allocator)
+  }
+}
+
+///|
+fn next_internal_ref_island_id(
+  url : String,
+  allocator : IslandIdAllocator,
+) -> String {
+  let base = island_id_from_url(url)
+  let index = match allocator.next_by_base.get(base) {
+    Some(next) => next
+    None => 0
+  }
+  reserve_island_id(base, index, allocator)
 }
 
 ///|
@@ -382,6 +435,7 @@ fn write_wc_close_tag(sb : StringBuilder, name : String) -> Unit {
 fn[E, A : Show] render_wc_island_to(
   sb : StringBuilder,
   island : @core.VWcIsland[E, A],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   write_wc_open_tag(
     sb,
@@ -392,7 +446,7 @@ fn[E, A : Show] render_wc_island_to(
     island.styles,
   )
   for child in island.children {
-    render_to_sb(sb, child)
+    render_to_sb(sb, child, island_ids)
   }
   write_wc_close_tag(sb, island.name)
 }
@@ -404,6 +458,7 @@ fn[E, A : Show] render_wc_island_and_collect_urls(
   island : @core.VWcIsland[E, A],
   urls : Array[String],
   seen : Map[String, Bool],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   collect_unique_url_if_non_empty(island.url, urls, seen)
   write_wc_open_tag(
@@ -415,7 +470,7 @@ fn[E, A : Show] render_wc_island_and_collect_urls(
     island.styles,
   )
   for child in island.children {
-    render_and_collect_urls(sb, child, urls, seen)
+    render_and_collect_urls(sb, child, urls, seen, island_ids)
   }
   write_wc_close_tag(sb, island.name)
 }
@@ -426,6 +481,7 @@ fn[E, A : Show] render_wc_island_with_id_to(
   sb : StringBuilder,
   island : @core.VWcIsland[E, A],
   id_counter : Ref[Int],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let id = id_counter.val
   id_counter.val = id + 1
@@ -441,7 +497,7 @@ fn[E, A : Show] render_wc_island_with_id_to(
     island.styles,
   )
   for child in island.children {
-    render_with_id_to(sb, child, id_counter)
+    render_with_id_to(sb, child, id_counter, island_ids)
   }
   write_wc_close_tag(sb, island.name)
   sb.write_string("<!--/wc-->")
@@ -456,11 +512,12 @@ fn[E, A : Show] render_wc_island_with_id_to(
 fn[E, A : Show] render_internal_ref_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   if iref.wc {
-    render_internal_ref_wc_to(sb, iref)
+    render_internal_ref_wc_to(sb, iref, island_ids)
   } else {
-    render_internal_ref_island_to(sb, iref)
+    render_internal_ref_island_to(sb, iref, island_ids)
   }
 }
 
@@ -469,12 +526,13 @@ fn[E, A : Show] render_internal_ref_to(
 fn[E, A : Show] render_internal_ref_island_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
-  let id = island_id_from_url(iref.url)
+  let id = next_internal_ref_island_id(iref.url, island_ids)
   let trigger = iref.trigger.to_string()
   write_island_open_tag(sb, id, iref.url, iref.state, trigger)
   for child in iref.children {
-    render_to_sb(sb, child)
+    render_to_sb(sb, child, island_ids)
   }
   write_island_close_tag(sb, id)
 }
@@ -484,11 +542,12 @@ fn[E, A : Show] render_internal_ref_island_to(
 fn[E, A : Show] render_internal_ref_wc_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let name = extract_wc_name_from_url(iref.url)
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
   for child in iref.children {
-    render_to_sb(sb, child)
+    render_to_sb(sb, child, island_ids)
   }
   write_wc_close_tag(sb, name)
 }
@@ -500,12 +559,15 @@ fn[E, A : Show] render_internal_ref_and_collect_urls(
   iref : @core.VInternalRef[E, A],
   urls : Array[String],
   seen : Map[String, Bool],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   collect_unique_url_if_non_empty(iref.url, urls, seen)
   if iref.wc {
-    render_internal_ref_wc_and_collect_urls(sb, iref, urls, seen)
+    render_internal_ref_wc_and_collect_urls(sb, iref, urls, seen, island_ids)
   } else {
-    render_internal_ref_island_and_collect_urls(sb, iref, urls, seen)
+    render_internal_ref_island_and_collect_urls(
+      sb, iref, urls, seen, island_ids,
+    )
   }
 }
 
@@ -516,12 +578,13 @@ fn[E, A : Show] render_internal_ref_island_and_collect_urls(
   iref : @core.VInternalRef[E, A],
   urls : Array[String],
   seen : Map[String, Bool],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
-  let id = island_id_from_url(iref.url)
+  let id = next_internal_ref_island_id(iref.url, island_ids)
   let trigger = iref.trigger.to_string()
   write_island_open_tag(sb, id, iref.url, iref.state, trigger)
   for child in iref.children {
-    render_and_collect_urls(sb, child, urls, seen)
+    render_and_collect_urls(sb, child, urls, seen, island_ids)
   }
   write_island_close_tag(sb, id)
 }
@@ -533,11 +596,12 @@ fn[E, A : Show] render_internal_ref_wc_and_collect_urls(
   iref : @core.VInternalRef[E, A],
   urls : Array[String],
   seen : Map[String, Bool],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let name = extract_wc_name_from_url(iref.url)
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
   for child in iref.children {
-    render_and_collect_urls(sb, child, urls, seen)
+    render_and_collect_urls(sb, child, urls, seen, island_ids)
   }
   write_wc_close_tag(sb, name)
 }
@@ -548,11 +612,12 @@ fn[E, A : Show] render_internal_ref_with_id_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
   id_counter : Ref[Int],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   if iref.wc {
-    render_internal_ref_wc_with_id_to(sb, iref, id_counter)
+    render_internal_ref_wc_with_id_to(sb, iref, id_counter, island_ids)
   } else {
-    render_internal_ref_island_with_id_to(sb, iref, id_counter)
+    render_internal_ref_island_with_id_to(sb, iref, id_counter, island_ids)
   }
 }
 
@@ -562,17 +627,18 @@ fn[E, A : Show] render_internal_ref_island_with_id_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
   id_counter : Ref[Int],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let id = id_counter.val
   id_counter.val = id + 1
-  let island_id = island_id_from_url(iref.url)
+  let island_id = next_internal_ref_island_id(iref.url, island_ids)
   let trigger = iref.trigger.to_string()
   sb.write_string("<!--i:")
   sb.write_object(id)
   sb.write_string("-->")
   write_island_open_tag(sb, island_id, iref.url, iref.state, trigger)
   for child in iref.children {
-    render_with_id_to(sb, child, id_counter)
+    render_with_id_to(sb, child, id_counter, island_ids)
   }
   write_island_close_tag(sb, island_id)
   sb.write_string("<!--/i-->")
@@ -584,6 +650,7 @@ fn[E, A : Show] render_internal_ref_wc_with_id_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
   id_counter : Ref[Int],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let id = id_counter.val
   id_counter.val = id + 1
@@ -593,7 +660,7 @@ fn[E, A : Show] render_internal_ref_wc_with_id_to(
   sb.write_string("-->")
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
   for child in iref.children {
-    render_with_id_to(sb, child, id_counter)
+    render_with_id_to(sb, child, id_counter, island_ids)
   }
   write_wc_close_tag(sb, name)
   sb.write_string("<!--/wc-->")
@@ -654,6 +721,7 @@ pub fn render_attr_value(sb : StringBuilder, name : String, s : String) -> Unit 
 fn[E, A : Show] render_to_sb(
   sb : StringBuilder,
   node : @core.Node[E, A],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   match node {
     Text(content) => escape_html_to(sb, content)
@@ -661,7 +729,7 @@ fn[E, A : Show] render_to_sb(
     RawHtml(html) => sb.write_string(html)
     Fragment(children) =>
       for child in children {
-        render_to_sb(sb, child)
+        render_to_sb(sb, child, island_ids)
       }
     Element(elem) => {
       let tag = elem.tag
@@ -673,7 +741,7 @@ fn[E, A : Show] render_to_sb(
       } else {
         sb.write_char('>')
         for child in elem.children {
-          render_to_sb(sb, child)
+          render_to_sb(sb, child, island_ids)
         }
         sb.write_string("</")
         sb.write_string(tag)
@@ -682,27 +750,27 @@ fn[E, A : Show] render_to_sb(
     }
     Show(condition~, child~) =>
       if condition() {
-        render_to_sb(sb, child())
+        render_to_sb(sb, child(), island_ids)
       } else {
         sb.write_string("<!--show-->")
       }
     For(render~) =>
       for item in render() {
-        render_to_sb(sb, item)
+        render_to_sb(sb, item, island_ids)
       }
-    Component(render~) => render_to_sb(sb, render())
-    Island(island) => render_island_to(sb, island)
-    WcIsland(wc_island) => render_wc_island_to(sb, wc_island)
-    InternalRef(iref) => render_internal_ref_to(sb, iref)
+    Component(render~) => render_to_sb(sb, render(), island_ids)
+    Island(island) => render_island_to(sb, island, island_ids)
+    WcIsland(wc_island) => render_wc_island_to(sb, wc_island, island_ids)
+    InternalRef(iref) => render_internal_ref_to(sb, iref, island_ids)
     Async(async_node) =>
       // In sync rendering, render fallback (async content handled by stream renderer)
-      render_to_sb(sb, (async_node.fallback)())
+      render_to_sb(sb, (async_node.fallback)(), island_ids)
     ErrorBoundary(boundary) =>
       // ErrorBoundary: try rendering children, catch errors and render fallback
-      render_to_sb(sb, (boundary.children)()) catch {
+      render_to_sb(sb, (boundary.children)(), island_ids) catch {
         err => {
           let reset = fn() { () }
-          render_to_sb(sb, (boundary.fallback)(err, reset)) catch {
+          render_to_sb(sb, (boundary.fallback)(err, reset), island_ids) catch {
             _ => () // Ignore errors in fallback
           }
         }
@@ -711,13 +779,13 @@ fn[E, A : Show] render_to_sb(
       // Find first matching case and render it
       for case_ in switch_node.cases {
         if (case_.when)() {
-          render_to_sb(sb, (case_.render)())
+          render_to_sb(sb, (case_.render)(), island_ids)
           return
         }
       }
       // No case matched, render fallback if present
       match switch_node.fallback {
-        Some(fallback_fn) => render_to_sb(sb, fallback_fn())
+        Some(fallback_fn) => render_to_sb(sb, fallback_fn(), island_ids)
         None => sb.write_string("<!--switch-->")
       }
     }
@@ -729,10 +797,11 @@ fn[E, A : Show] render_to_sb(
 fn[E, A : Show] render_island_to(
   sb : StringBuilder,
   island : @core.VIsland[E, A],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   render_island_open_to(sb, island)
   for child in island.children {
-    render_to_sb(sb, child)
+    render_to_sb(sb, child, island_ids)
   }
   render_island_close_to(sb, island)
 }
@@ -744,7 +813,8 @@ pub fn[E, A : Show] render_to_string_with_hydration(
 ) -> String {
   let sb = StringBuilder::new(size_hint=256)
   let id_counter = Ref::new(0)
-  render_with_id_to(sb, node, id_counter)
+  let island_ids = new_island_id_allocator()
+  render_with_id_to(sb, node, id_counter, island_ids)
   sb.to_string()
 }
 
@@ -754,6 +824,7 @@ fn[E, A : Show] render_with_id_to(
   sb : StringBuilder,
   node : @core.Node[E, A],
   id_counter : Ref[Int],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   match node {
     Text(content) => escape_html_to(sb, content)
@@ -769,7 +840,7 @@ fn[E, A : Show] render_with_id_to(
     }
     Fragment(children) =>
       for child in children {
-        render_with_id_to(sb, child, id_counter)
+        render_with_id_to(sb, child, id_counter, island_ids)
       }
     Element(elem) => {
       let tag = elem.tag
@@ -791,7 +862,7 @@ fn[E, A : Show] render_with_id_to(
       } else {
         sb.write_char('>')
         for child in elem.children {
-          render_with_id_to(sb, child, id_counter)
+          render_with_id_to(sb, child, id_counter, island_ids)
         }
         sb.write_string("</")
         sb.write_string(tag)
@@ -805,7 +876,7 @@ fn[E, A : Show] render_with_id_to(
       sb.write_object(id)
       sb.write_string("-->")
       if condition() {
-        render_with_id_to(sb, child(), id_counter)
+        render_with_id_to(sb, child(), id_counter, island_ids)
       }
       sb.write_string("<!--/s-->")
     }
@@ -819,18 +890,21 @@ fn[E, A : Show] render_with_id_to(
         sb.write_string("<!--fi:")
         sb.write_object(id)
         sb.write_string("-->")
-        render_with_id_to(sb, item, id_counter)
+        render_with_id_to(sb, item, id_counter, island_ids)
         sb.write_string("<!--/fi:")
         sb.write_object(id)
         sb.write_string("-->")
       }
       sb.write_string("<!--/f-->")
     }
-    Component(render~) => render_with_id_to(sb, render(), id_counter)
-    Island(island) => render_island_with_id_to(sb, island, id_counter)
+    Component(render~) =>
+      render_with_id_to(sb, render(), id_counter, island_ids)
+    Island(island) =>
+      render_island_with_id_to(sb, island, id_counter, island_ids)
     WcIsland(wc_island) =>
-      render_wc_island_with_id_to(sb, wc_island, id_counter)
-    InternalRef(iref) => render_internal_ref_with_id_to(sb, iref, id_counter)
+      render_wc_island_with_id_to(sb, wc_island, id_counter, island_ids)
+    InternalRef(iref) =>
+      render_internal_ref_with_id_to(sb, iref, id_counter, island_ids)
     Async(async_node) => {
       // Render with async marker for potential hydration
       let id = id_counter.val
@@ -838,7 +912,7 @@ fn[E, A : Show] render_with_id_to(
       sb.write_string("<!--a:")
       sb.write_object(id)
       sb.write_string("-->")
-      render_with_id_to(sb, (async_node.fallback)(), id_counter)
+      render_with_id_to(sb, (async_node.fallback)(), id_counter, island_ids)
       sb.write_string("<!--/a-->")
     }
     ErrorBoundary(boundary) => {
@@ -848,10 +922,15 @@ fn[E, A : Show] render_with_id_to(
       sb.write_string("<!--eb:")
       sb.write_object(id)
       sb.write_string("-->")
-      render_with_id_to(sb, (boundary.children)(), id_counter) catch {
+      render_with_id_to(sb, (boundary.children)(), id_counter, island_ids) catch {
         err => {
           let reset = fn() { () }
-          render_with_id_to(sb, (boundary.fallback)(err, reset), id_counter) catch {
+          render_with_id_to(
+            sb,
+            (boundary.fallback)(err, reset),
+            id_counter,
+            island_ids,
+          ) catch {
             _ => () // Ignore errors in fallback
           }
         }
@@ -868,14 +947,15 @@ fn[E, A : Show] render_with_id_to(
       // Find first matching case and render it
       for case_ in switch_node.cases {
         if (case_.when)() {
-          render_with_id_to(sb, (case_.render)(), id_counter)
+          render_with_id_to(sb, (case_.render)(), id_counter, island_ids)
           sb.write_string("<!--/sw-->")
           return
         }
       }
       // No case matched, render fallback if present
       match switch_node.fallback {
-        Some(fallback_fn) => render_with_id_to(sb, fallback_fn(), id_counter)
+        Some(fallback_fn) =>
+          render_with_id_to(sb, fallback_fn(), id_counter, island_ids)
         None => ()
       }
       sb.write_string("<!--/sw-->")
@@ -889,10 +969,11 @@ fn[E, A : Show] render_island_with_id_to(
   sb : StringBuilder,
   island : @core.VIsland[E, A],
   id_counter : Ref[Int],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   render_island_open_to(sb, island)
   for child in island.children {
-    render_with_id_to(sb, child, id_counter)
+    render_with_id_to(sb, child, id_counter, island_ids)
   }
   render_island_close_to(sb, island)
 }

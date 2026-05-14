@@ -17,6 +17,30 @@ impl Show for TestAction with output(self, logger) {
 }
 
 ///|
+test "render_to_stream repeated InternalRef URL gets unique instance IDs" {
+  let node : @luna.Node[Unit, String] = @luna.fragment([
+    @luna.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":1}",
+      wc=false,
+      children=[],
+    ),
+    @luna.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":2}",
+      wc=false,
+      children=[],
+    ),
+  ])
+  let chunks : Array[String] = []
+  let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
+  render_to_stream(node, writer)
+  let html = chunks.iter().join("")
+  assert_true(html.contains("luna:id=\"_static_components_counter_js\""))
+  assert_true(html.contains("luna:id=\"_static_components_counter_js-1\""))
+}
+
+///|
 test "render_to_stream_collecting_async collects boundaries" {
   let node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.h("div", [], [@luna.text("Header")]),

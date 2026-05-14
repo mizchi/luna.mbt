@@ -11,17 +11,39 @@ test "render_to_stream simple element" {
 }
 
 ///|
+test "render_to_stream repeated InternalRef URL gets unique instance IDs" {
+  let node : @luna.Node[Unit, String] = @luna.fragment([
+    @luna.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":1}",
+      wc=false,
+      children=[],
+    ),
+    @luna.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":2}",
+      wc=false,
+      children=[],
+    ),
+  ])
+  let chunks : Array[String] = []
+  let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
+  render_to_stream(node, writer)
+  let html = chunks.iter().join("")
+  assert_true(html.contains("luna:id=\"_static_components_counter_js\""))
+  assert_true(html.contains("luna:id=\"_static_components_counter_js-1\""))
+}
+
+///|
 test "render_to_stream_collecting_async collects boundaries" {
   let node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.h("div", [], [@luna.text("Header")]),
-    @luna.async_(
-      render=fn() { @luna.h("div", [], [@luna.text("Async 1")]) },
-      fallback=fn() { @luna.h("div", [], [@luna.text("Loading 1...")]) },
-    ),
-    @luna.async_(
-      render=fn() { @luna.h("div", [], [@luna.text("Async 2")]) },
-      fallback=fn() { @luna.h("div", [], [@luna.text("Loading 2...")]) },
-    ),
+    @luna.async_(render=fn() { @luna.h("div", [], [@luna.text("Async 1")]) }, fallback=fn() {
+      @luna.h("div", [], [@luna.text("Loading 1...")])
+    }),
+    @luna.async_(render=fn() { @luna.h("div", [], [@luna.text("Async 2")]) }, fallback=fn() {
+      @luna.h("div", [], [@luna.text("Loading 2...")])
+    }),
     @luna.h("div", [], [@luna.text("Footer")]),
   ])
   let chunks : Array[String] = []
@@ -79,10 +101,9 @@ test "stream render error_boundary children when no error" {
 test "stream render switch first case" {
   let node : @luna.Node[Unit, String] = @luna.switch_(
     cases=[
-      @luna.match_case(
-        when=fn() { true },
-        render=fn() { @luna.text("Stream First") },
-      ),
+      @luna.match_case(when=fn() { true }, render=fn() {
+        @luna.text("Stream First")
+      }),
     ],
     fallback=Some(fn() { @luna.text("Fallback") }),
   )
@@ -96,10 +117,7 @@ test "stream render switch first case" {
 ///|
 test "stream render switch no fallback" {
   let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
-    @luna.match_case(
-      when=fn() { false },
-      render=fn() { @luna.text("Never") },
-    ),
+    @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
   let chunks : Array[String] = []
   let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })

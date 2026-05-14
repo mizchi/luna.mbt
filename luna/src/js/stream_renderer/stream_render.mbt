@@ -48,13 +48,15 @@ pub fn render_to_stream(
   node : @luna.Node[Unit, String],
   writer : StreamWriter,
 ) -> Unit {
-  render_node_to_stream(node, writer)
+  let island_ids = new_island_id_allocator()
+  render_node_to_stream(node, writer, island_ids)
 }
 
 ///|
 fn render_node_to_stream(
   node : @luna.Node[Unit, String],
   writer : StreamWriter,
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let write = writer.0
   match node {
@@ -63,7 +65,7 @@ fn render_node_to_stream(
     RawHtml(html) => write(html)
     Fragment(children) =>
       for child in children {
-        render_node_to_stream(child, writer)
+        render_node_to_stream(child, writer, island_ids)
       }
     Element(elem) => {
       let tag = elem.tag
@@ -80,7 +82,7 @@ fn render_node_to_stream(
         write(sb.to_string())
         // Children
         for child in elem.children {
-          render_node_to_stream(child, writer)
+          render_node_to_stream(child, writer, island_ids)
         }
         // Close tag
         write("</" + tag + ">")
@@ -88,28 +90,33 @@ fn render_node_to_stream(
     }
     Show(condition~, child~) =>
       if condition() {
-        render_node_to_stream(child(), writer)
+        render_node_to_stream(child(), writer, island_ids)
       } else {
         write("<!--show-->")
       }
     For(render~) =>
       for item in render() {
-        render_node_to_stream(item, writer)
+        render_node_to_stream(item, writer, island_ids)
       }
-    Component(render~) => render_node_to_stream(render(), writer)
-    Island(island) => render_island_to_stream(island, writer)
-    WcIsland(wc_island) => render_wc_island_to_stream(wc_island, writer)
-    InternalRef(iref) => render_internal_ref_to_stream(iref, writer)
+    Component(render~) => render_node_to_stream(render(), writer, island_ids)
+    Island(island) => render_island_to_stream(island, writer, island_ids)
+    WcIsland(wc_island) =>
+      render_wc_island_to_stream(wc_island, writer, island_ids)
+    InternalRef(iref) => render_internal_ref_to_stream(iref, writer, island_ids)
     Async(async_node) =>
       // In stream rendering, render fallback immediately
       // Async resolution happens via Suspense/render_with_suspense
-      render_node_to_stream((async_node.fallback)(), writer)
+      render_node_to_stream((async_node.fallback)(), writer, island_ids)
     ErrorBoundary(boundary) =>
       // ErrorBoundary: try rendering children, catch errors and render fallback
-      render_node_to_stream((boundary.children)(), writer) catch {
+      render_node_to_stream((boundary.children)(), writer, island_ids) catch {
         err => {
           let reset = fn() { () }
-          render_node_to_stream((boundary.fallback)(err, reset), writer) catch {
+          render_node_to_stream(
+            (boundary.fallback)(err, reset),
+            writer,
+            island_ids,
+          ) catch {
             _ => () // Ignore errors in fallback
           }
         }
@@ -118,13 +125,14 @@ fn render_node_to_stream(
       // Find first matching case and render it
       for case_ in switch_node.cases {
         if (case_.when)() {
-          render_node_to_stream((case_.render)(), writer)
+          render_node_to_stream((case_.render)(), writer, island_ids)
           return
         }
       }
       // No case matched, render fallback if present
       match switch_node.fallback {
-        Some(fallback_fn) => render_node_to_stream(fallback_fn(), writer)
+        Some(fallback_fn) =>
+          render_node_to_stream(fallback_fn(), writer, island_ids)
         None => write("<!--switch-->")
       }
     }
@@ -136,6 +144,7 @@ fn render_node_to_stream(
 fn render_island_to_stream(
   island : @luna.VIsland[Unit, String],
   writer : StreamWriter,
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let write = writer.0
   // Start comment marker
@@ -162,7 +171,7 @@ fn render_island_to_stream(
   write(sb.to_string())
   // Render children
   for child in island.children {
-    render_node_to_stream(child, writer)
+    render_node_to_stream(child, writer, island_ids)
   }
   write("</div>")
   // End comment marker
@@ -174,6 +183,7 @@ fn render_island_to_stream(
 fn render_wc_island_to_stream(
   wc_island : @luna.VWcIsland[Unit, String],
   writer : StreamWriter,
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let write = writer.0
   let sb = StringBuilder::new()
@@ -204,7 +214,7 @@ fn render_wc_island_to_stream(
 
   // Render children
   for child in wc_island.children {
-    render_node_to_stream(child, writer)
+    render_node_to_stream(child, writer, island_ids)
   }
 
   // Close template and custom element
@@ -216,11 +226,12 @@ fn render_wc_island_to_stream(
 fn render_internal_ref_to_stream(
   iref : @luna.VInternalRef[Unit, String],
   writer : StreamWriter,
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   if iref.wc {
-    render_internal_ref_wc_to_stream(iref, writer)
+    render_internal_ref_wc_to_stream(iref, writer, island_ids)
   } else {
-    render_internal_ref_island_to_stream(iref, writer)
+    render_internal_ref_island_to_stream(iref, writer, island_ids)
   }
 }
 
@@ -229,9 +240,10 @@ fn render_internal_ref_to_stream(
 fn render_internal_ref_island_to_stream(
   iref : @luna.VInternalRef[Unit, String],
   writer : StreamWriter,
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let write = writer.0
-  let id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
+  let id = next_internal_ref_island_id(iref.url, island_ids)
 
   // Start comment marker
   write(
@@ -257,7 +269,7 @@ fn render_internal_ref_island_to_stream(
   write(sb.to_string())
   // Render children
   for child in iref.children {
-    render_node_to_stream(child, writer)
+    render_node_to_stream(child, writer, island_ids)
   }
   write("</div>")
   // End comment marker
@@ -269,6 +281,7 @@ fn render_internal_ref_island_to_stream(
 fn render_internal_ref_wc_to_stream(
   iref : @luna.VInternalRef[Unit, String],
   writer : StreamWriter,
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let write = writer.0
   let name = extract_wc_name_from_url(iref.url)
@@ -303,7 +316,7 @@ fn render_internal_ref_wc_to_stream(
 
   // Render children
   for child in iref.children {
-    render_node_to_stream(child, writer)
+    render_node_to_stream(child, writer, island_ids)
   }
 
   // Close template and custom element
@@ -353,9 +366,19 @@ pub fn render_to_stream_collecting_async(
   node : @luna.Node[Unit, String],
   writer : StreamWriter,
 ) -> Array[AsyncBoundary] {
+  let island_ids = new_island_id_allocator()
+  render_to_stream_collecting_async_with_ids(node, writer, island_ids)
+}
+
+///|
+fn render_to_stream_collecting_async_with_ids(
+  node : @luna.Node[Unit, String],
+  writer : StreamWriter,
+  island_ids : IslandIdAllocator,
+) -> Array[AsyncBoundary] {
   let boundaries : Array[AsyncBoundary] = []
   let id_counter : Ref[Int] = Ref::new(0)
-  render_node_collecting_async(node, writer, boundaries, id_counter)
+  render_node_collecting_async(node, writer, boundaries, id_counter, island_ids)
   boundaries
 }
 
@@ -365,6 +388,7 @@ fn render_node_collecting_async(
   writer : StreamWriter,
   boundaries : Array[AsyncBoundary],
   id_counter : Ref[Int],
+  island_ids : IslandIdAllocator,
 ) -> Unit {
   let write = writer.0
   match node {
@@ -373,7 +397,9 @@ fn render_node_collecting_async(
     RawHtml(html) => write(html)
     Fragment(children) =>
       for child in children {
-        render_node_collecting_async(child, writer, boundaries, id_counter)
+        render_node_collecting_async(
+          child, writer, boundaries, id_counter, island_ids,
+        )
       }
     Element(elem) => {
       let tag = elem.tag
@@ -388,26 +414,43 @@ fn render_node_collecting_async(
         sb.write_char('>')
         write(sb.to_string())
         for child in elem.children {
-          render_node_collecting_async(child, writer, boundaries, id_counter)
+          render_node_collecting_async(
+            child, writer, boundaries, id_counter, island_ids,
+          )
         }
         write("</" + tag + ">")
       }
     }
     Show(condition~, child~) =>
       if condition() {
-        render_node_collecting_async(child(), writer, boundaries, id_counter)
+        render_node_collecting_async(
+          child(),
+          writer,
+          boundaries,
+          id_counter,
+          island_ids,
+        )
       } else {
         write("<!--show-->")
       }
     For(render~) =>
       for item in render() {
-        render_node_collecting_async(item, writer, boundaries, id_counter)
+        render_node_collecting_async(
+          item, writer, boundaries, id_counter, island_ids,
+        )
       }
     Component(render~) =>
-      render_node_collecting_async(render(), writer, boundaries, id_counter)
-    Island(island) => render_island_to_stream(island, writer)
-    WcIsland(wc_island) => render_wc_island_to_stream(wc_island, writer)
-    InternalRef(iref) => render_internal_ref_to_stream(iref, writer)
+      render_node_collecting_async(
+        render(),
+        writer,
+        boundaries,
+        id_counter,
+        island_ids,
+      )
+    Island(island) => render_island_to_stream(island, writer, island_ids)
+    WcIsland(wc_island) =>
+      render_wc_island_to_stream(wc_island, writer, island_ids)
+    InternalRef(iref) => render_internal_ref_to_stream(iref, writer, island_ids)
     Async(async_node) => {
       let id = id_counter.val
       id_counter.val = id + 1
@@ -420,6 +463,7 @@ fn render_node_collecting_async(
         writer,
         boundaries,
         id_counter,
+        island_ids,
       )
       write("</div>")
       // Collect for later resolution
@@ -432,6 +476,7 @@ fn render_node_collecting_async(
         writer,
         boundaries,
         id_counter,
+        island_ids,
       ) catch {
         err => {
           let reset = fn() { () }
@@ -440,6 +485,7 @@ fn render_node_collecting_async(
             writer,
             boundaries,
             id_counter,
+            island_ids,
           ) catch {
             _ => () // Ignore errors in fallback
           }
@@ -454,6 +500,7 @@ fn render_node_collecting_async(
             writer,
             boundaries,
             id_counter,
+            island_ids,
           )
           return
         }
@@ -466,6 +513,7 @@ fn render_node_collecting_async(
             writer,
             boundaries,
             id_counter,
+            island_ids,
           )
         None => write("<!--switch-->")
       }
@@ -511,14 +559,17 @@ pub async fn render_to_stream_with_async(
   writer : StreamWriter,
 ) -> Unit {
   // 1. Render shell collecting async boundaries
-  let boundaries = render_to_stream_collecting_async(node, writer)
+  let island_ids = new_island_id_allocator()
+  let boundaries = render_to_stream_collecting_async_with_ids(
+    node, writer, island_ids,
+  )
 
   // 2. Resolve each async boundary and stream replacement
   for boundary in boundaries {
     try {
       let content = (boundary.async_node.render)()
       stream_async_replacement(boundary.id, writer, fn(w) {
-        render_node_to_stream(content, w)
+        render_node_to_stream(content, w, island_ids)
       })
     } catch {
       err => {
@@ -528,9 +579,54 @@ pub async fn render_to_stream_with_async(
           None => (boundary.async_node.fallback)()
         }
         stream_async_replacement(boundary.id, writer, fn(w) {
-          render_node_to_stream(error_content, w)
+          render_node_to_stream(error_content, w, island_ids)
         })
       }
     }
   }
+}
+
+///|
+priv struct IslandIdAllocator {
+  next_by_base : Map[String, Int]
+  used : Map[String, Bool]
+}
+
+///|
+fn new_island_id_allocator() -> IslandIdAllocator {
+  { next_by_base: {}, used: {} }
+}
+
+///|
+fn island_id_from_url(url : String) -> String {
+  url.replace_all(old="/", new="_").replace_all(old=".", new="_")
+}
+
+///|
+fn reserve_island_id(
+  base : String,
+  index : Int,
+  allocator : IslandIdAllocator,
+) -> String {
+  let id = if index == 0 { base } else { base + "-" + index.to_string() }
+  if allocator.used.get(id) is None {
+    allocator.used.set(id, true)
+    allocator.next_by_base.set(base, index + 1)
+    id
+  } else {
+    reserve_island_id(base, index + 1, allocator)
+  }
+}
+
+///|
+fn next_internal_ref_island_id(
+  url : String,
+  allocator : IslandIdAllocator,
+) -> String {
+  let base = island_id_from_url(url)
+  let index = match allocator.next_by_base.get(base) {
+    Some(next) => next
+    None => 0
+  }
+  reserve_island_id(base, index, allocator)
 }
