@@ -112,16 +112,23 @@ test("action public API only exposes typed action keys", () => {
   }
 });
 
-test("sol root public API does not expose JSON Any escape hatches", () => {
+test("sol root public API does not expose JavaScript Any escape hatches", () => {
   const mbti = fs.readFileSync(
     path.join(SOL_DIR, "src", "pkg.generated.mbti"),
     "utf8"
   );
 
+  assert.doesNotMatch(
+    mbti,
+    /@mizchi\/js\/core\.Any/,
+    "sol root public API must not expose JavaScript Any"
+  );
   const forbidden = [
     /pub fn json_obj\(/,
     /pub fn json_to_any\(/,
     /pub fn json_array_to_any\(/,
+    /pub fn RolldownOutput::as_any\(/,
+    /pub fn RolldownChunk::as_any\(/,
   ];
 
   for (const pattern of forbidden) {
