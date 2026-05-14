@@ -1,6 +1,8 @@
 import {
+  "moonbitlang/core/json",
   "mizchi/mars" @mars,
   "mizchi/js/core" @js,
+  "mizchi/sol/internal/js_any" @js_any,
   "mizchi/sol/middleware" @middleware,
   "mizchi/sol/internal/mars_response" @mars_response,
 }

@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/json",
   "mizchi/js/core" @js,
 }
 

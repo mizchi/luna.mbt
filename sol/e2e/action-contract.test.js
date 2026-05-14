@@ -73,6 +73,7 @@ test("action public API only exposes typed action keys", () => {
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionFormConfig::from_key/);
   assert.match(mbti, /invoke_typed_action_key/);
   assert.match(mbti, /create_typed_action_invoker_key/);
+  assert.match(mbti, /ActionResult::json/);
 
   const forbidden = [
     /pub\(all\) struct TypedActionKey/,

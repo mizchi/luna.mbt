@@ -84,40 +84,16 @@ pub fn json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any {
 }
 
 ///|
-/// FFI to convert MoonBit Json to JavaScript value
-extern "js" fn ffi_json_to_any(json : Json) -> @js.Any =
-  #| (json) => {
-  #|   // Handle MoonBit Json tagged union
-  #|   if (json === null || json === undefined) return null;
-  #|   switch (json.$tag) {
-  #|     case 0: return null;                    // Null
-  #|     case 1: return json._0;                 // True -> true
-  #|     case 2: return json._0;                 // False -> false
-  #|     case 3: return json._0;                 // Number
-  #|     case 4: return json._0;                 // String
-  #|     case 5: return json._0.map(j => arguments.callee(j)); // Array
-  #|     case 6: {                               // Object
-  #|       const result = {};
-  #|       for (const [k, v] of json._0.entries()) {
-  #|         result[k] = arguments.callee(v);
-  #|       }
-  #|       return result;
-  #|     }
-  #|     default: return json;
-  #|   }
-  #| }
-
-///|
 /// Convert MoonBit Json to JavaScript Any value
 pub fn json_to_any(json : Json) -> @js.Any {
-  ffi_json_to_any(json)
+  @js_any.json_to_any(json)
 }
 
 ///|
 /// Convert MoonBit Json array to JavaScript Any value
 pub fn json_array_to_any(arr : Array[Json]) -> @js.Any {
   // Map each Json to Any and return as JS array
-  let result : Array[@js.Any] = arr.map(fn(j) { ffi_json_to_any(j) })
+  let result : Array[@js.Any] = arr.map(fn(j) { @js_any.json_to_any(j) })
   ffi_array_to_any(result)
 }
 

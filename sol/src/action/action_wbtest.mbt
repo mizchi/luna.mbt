@@ -19,6 +19,15 @@ test "ActionResult::ok creates success result" {
 }
 
 ///|
+test "ActionResult::json creates success result from ToJson payload" {
+  let result = ActionResult::json(CreateUserResponse::{ id: "user-1" })
+  match result {
+    Success(_) => ()
+    _ => fail("expected Success")
+  }
+}
+
+///|
 test "ActionResult::redirect creates redirect result" {
   let result = ActionResult::redirect("/dashboard")
   match result {
@@ -176,7 +185,7 @@ priv struct CreateUserRequest {
 ///|
 priv struct CreateUserResponse {
   id : String
-}
+} derive(ToJson)
 
 ///|
 test "TypedActionKey carries request and response phantom types" {

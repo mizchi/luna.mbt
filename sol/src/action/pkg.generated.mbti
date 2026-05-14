@@ -107,6 +107,7 @@ pub enum ActionResult {
 pub fn ActionResult::bad_request(String) -> Self
 pub fn ActionResult::forbidden(message? : String) -> Self
 pub fn ActionResult::http_redirect(String) -> Self
+pub fn[T : ToJson] ActionResult::json(T) -> Self
 pub fn ActionResult::not_found(message? : String) -> Self
 pub fn ActionResult::ok(@core.Any) -> Self
 pub fn ActionResult::redirect(String) -> Self

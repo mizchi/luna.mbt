@@ -8,6 +8,8 @@ import {
 // Values
 pub fn json_obj(Array[(String, @core.Any)]) -> @core.Any
 
+pub fn json_to_any(Json) -> @core.Any
+
 pub fn object_get_string(@core.Any, String) -> String?
 
 // Errors

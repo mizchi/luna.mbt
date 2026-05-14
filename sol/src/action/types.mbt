@@ -82,6 +82,12 @@ pub fn ActionResult::ok(data : @js.Any) -> ActionResult {
 }
 
 ///|
+/// Create success result from a typed JSON-serializable payload.
+pub fn[T : ToJson] ActionResult::json(data : T) -> ActionResult {
+  Success(@js_any.json_to_any(data.to_json()))
+}
+
+///|
 /// Create redirect result (returns JSON for JavaScript clients)
 pub fn ActionResult::redirect(url : String) -> ActionResult {
   Redirect(url)
