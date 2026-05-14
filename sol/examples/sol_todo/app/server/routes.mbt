@@ -163,6 +163,16 @@ async fn api_delete_todo(props : @sol.PageProps) -> Json {
 // =============================================================================
 
 ///|
+priv struct ToggleTodoResponse {
+  toggled : Bool
+} derive(ToJson)
+
+///|
+priv struct DeleteTodoResponse {
+  deleted : Bool
+} derive(ToJson)
+
+///|
 /// Add todo action handler
 let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx) {
   let content_type = ctx.get_header("Content-Type").unwrap_or("")
@@ -185,7 +195,7 @@ let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else {
-    @action.ActionResult::ok(@sol.json_to_any(todo.to_json()))
+    @action.ActionResult::json(todo)
   }
 })
 
@@ -211,7 +221,7 @@ let toggle_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok(@sol.json_to_any({ "toggled": true }.to_json()))
+    @action.ActionResult::json(ToggleTodoResponse::{ toggled: true })
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }
@@ -239,7 +249,7 @@ let delete_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok(@sol.json_to_any({ "deleted": true }.to_json()))
+    @action.ActionResult::json(DeleteTodoResponse::{ deleted: true })
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }

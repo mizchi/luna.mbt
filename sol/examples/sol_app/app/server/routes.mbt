@@ -115,6 +115,19 @@ async fn api_bench_catch_all(props : @sol.PageProps) -> Json {
 // ============================================================================
 
 ///|
+priv struct ContactSubmitData {
+  name : String
+  email : String
+} derive(ToJson)
+
+///|
+priv struct ContactSubmitResponse {
+  success : Bool
+  message : String
+  data : ContactSubmitData
+} derive(ToJson)
+
+///|
 /// Contact form submission handler
 /// Supports both JSON (JavaScript) and form-urlencoded (no-JS) submissions
 let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async fn(
@@ -156,16 +169,11 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     @action.ActionResult::http_redirect("/")
   } else {
     // AJAX submission: return JSON
-    @action.ActionResult::ok(
-      @sol.json_obj([
-        ("success", @core.any(true)),
-        ("message", @core.any("Form submitted successfully!")),
-        (
-          "data",
-          @sol.json_obj([("name", @core.any(name)), ("email", @core.any(email))]),
-        ),
-      ]),
-    )
+    @action.ActionResult::json(ContactSubmitResponse::{
+      success: true,
+      message: "Form submitted successfully!",
+      data: ContactSubmitData::{ name, email },
+    })
   }
 })
 

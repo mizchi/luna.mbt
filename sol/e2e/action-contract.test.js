@@ -122,6 +122,29 @@ test("docs and examples do not use removed stringly action APIs", () => {
   }
 });
 
+test("examples dogfood typed action JSON results", () => {
+  const files = [
+    path.join(SOL_DIR, "examples", "sol_app", "app", "server", "routes.mbt"),
+    path.join(SOL_DIR, "examples", "sol_auth", "app", "server", "routes.mbt"),
+    path.join(SOL_DIR, "examples", "sol_todo", "app", "server", "routes.mbt"),
+  ];
+  const forbidden = [
+    /ActionResult::ok\(\s*@sol\.json_(?:obj|to_any)/s,
+    /ActionResult::ok\([^)]*@core\.any\(/s,
+  ];
+
+  for (const file of files) {
+    const content = fs.readFileSync(file, "utf8");
+    for (const pattern of forbidden) {
+      assert.doesNotMatch(
+        content,
+        pattern,
+        `${path.relative(ROOT, file)} must use ActionResult::json for structured success payloads`
+      );
+    }
+  }
+});
+
 test("generated types dependency remains acyclic for client code", () => {
   ensureCliBuilt();
   const generate = runSolGenerate(SOL_APP);
