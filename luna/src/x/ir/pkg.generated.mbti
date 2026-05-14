@@ -26,14 +26,14 @@ pub struct AliasDef {
   doc : String?
   type_params : Array[TypeParam]
   target : TypeRef
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn AliasDef::to_moonbit(Self) -> String
 pub fn AliasDef::to_typescript(Self) -> String
 
 pub struct Annotation {
   name : String
   args : Map[String, Json]
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub impl ToJson for Annotation
 
 pub struct EnumDef {
@@ -42,7 +42,7 @@ pub struct EnumDef {
   type_params : Array[TypeParam]
   variants : Array[EnumVariant]
   derives : Array[String]
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn EnumDef::to_moonbit(Self) -> String
 pub fn EnumDef::to_typescript(Self) -> String
 
@@ -50,7 +50,7 @@ pub struct EnumVariant {
   name : String
   doc : String?
   payload : TypeRef?
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn EnumVariant::to_moonbit(Self) -> String
 pub impl ToJson for EnumVariant
 
@@ -61,7 +61,7 @@ pub struct Field {
   optional : Bool
   default : Json?
   attrs : Map[String, String]
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn Field::new(String, TypeRef) -> Self
 pub fn Field::optional(String, TypeRef) -> Self
 pub fn Field::to_moonbit(Self) -> String
@@ -71,13 +71,13 @@ pub impl ToJson for Field
 pub struct FunctionType {
   params : Array[TypeRef]
   return_ : TypeRef
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 
 pub enum LiteralType {
   BoolLit(Bool)
   IntLit(Int)
   StringLit(String)
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn LiteralType::to_typescript(Self) -> String
 pub impl ToJson for LiteralType
 
@@ -100,7 +100,7 @@ pub enum PrimitiveType {
   String
   Unit
   Never
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn PrimitiveType::to_moonbit(Self) -> String
 pub fn PrimitiveType::to_typescript(Self) -> String
 pub impl ToJson for PrimitiveType
@@ -109,7 +109,7 @@ pub struct Schema {
   version : String
   definitions : Map[String, TypeDef]
   source : SourceInfo?
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn Schema::empty() -> Self
 pub fn Schema::new(String) -> Self
 pub fn Schema::to_moonbit(Self) -> String
@@ -119,7 +119,7 @@ pub impl ToJson for Schema
 pub struct SourceInfo {
   file : String
   lang : SourceLang
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub impl ToJson for SourceInfo
 
 pub enum SourceLang {
@@ -128,7 +128,7 @@ pub enum SourceLang {
   Rust
   Go
   Unknown(String)
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub impl ToJson for SourceLang
 
 pub struct StructDef {
@@ -137,7 +137,7 @@ pub struct StructDef {
   type_params : Array[TypeParam]
   fields : Array[Field]
   derives : Array[String]
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn StructDef::new(String) -> Self
 pub fn StructDef::to_moonbit(Self) -> String
 pub fn StructDef::to_typescript(Self) -> String
@@ -146,7 +146,7 @@ pub enum TypeDef {
   Struct(StructDef)
   Enum(EnumDef)
   Alias(AliasDef)
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn TypeDef::to_moonbit(Self) -> String
 pub fn TypeDef::to_typescript(Self) -> String
 pub impl ToJson for TypeDef
@@ -155,7 +155,7 @@ pub struct TypeParam {
   name : String
   constraint : TypeRef?
   default : TypeRef?
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn TypeParam::to_moonbit(Self) -> String
 pub fn TypeParam::to_typescript(Self) -> String
 pub impl ToJson for TypeParam
@@ -173,7 +173,7 @@ pub enum TypeRef {
   Union(Array[TypeRef])
   Function(FunctionType)
   Unknown
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn TypeRef::array(Self) -> Self
 pub fn TypeRef::bool_() -> Self
 pub fn TypeRef::float() -> Self

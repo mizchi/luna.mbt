@@ -11,6 +11,10 @@ pub fn ai_binding(String, optional? : Bool) -> BindingSpec
 
 pub fn binding(String, BindingKind, optional? : Bool) -> BindingSpec
 
+pub fn[T] binding_key(String, BindingKind, optional? : Bool) -> BindingKey[T]
+
+pub fn bindings_typescript_decl(Array[BindingSpec], interface_name? : String) -> String
+
 pub fn d1_database(String, optional? : Bool) -> BindingSpec
 
 pub fn describe_missing_bindings(Array[MissingBinding]) -> String
@@ -18,6 +22,8 @@ pub fn describe_missing_bindings(Array[MissingBinding]) -> String
 pub fn durable_object(String, optional? : Bool) -> BindingSpec
 
 pub fn env_var(String, optional? : Bool) -> BindingSpec
+
+pub fn env_var_key(String, optional? : Bool) -> BindingKey[String]
 
 pub fn export_app(@mars.Server) -> Unit
 
@@ -47,6 +53,8 @@ pub fn run_app(() -> @mars.Server) -> Unit
 
 pub fn secret(String, optional? : Bool) -> BindingSpec
 
+pub fn secret_key(String, optional? : Bool) -> BindingKey[String]
+
 pub fn service_binding(String, optional? : Bool) -> BindingSpec
 
 pub fn validate_bindings(@mars.JsEnv, Array[BindingSpec]) -> Bool
@@ -54,6 +62,16 @@ pub fn validate_bindings(@mars.JsEnv, Array[BindingSpec]) -> Bool
 // Errors
 
 // Types and methods
+pub(all) struct BindingKey[T] {
+  name : String
+  kind : BindingKind
+  optional : Bool
+  _type : T?
+}
+pub fn[T] BindingKey::kind(Self[T]) -> BindingKind
+pub fn[T] BindingKey::name(Self[T]) -> String
+pub fn[T] BindingKey::optional(Self[T]) -> Bool
+
 pub(all) enum BindingKind {
   EnvVar
   Secret

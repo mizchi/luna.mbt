@@ -4,6 +4,7 @@ package "mizchi/astra/mdx"
 import {
   "mizchi/astra/content/frontmatter",
   "mizchi/astra/content/markdown",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -24,7 +25,7 @@ pub fn ComponentPropsRegistry::from_structs(Array[PropsStructInput]) -> Self
 pub(all) enum DiagnosticSeverity {
   Error
   Warning
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct PropsDiagnostic {
   component : String

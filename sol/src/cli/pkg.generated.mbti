@@ -4,6 +4,7 @@ package "mizchi/sol/cli"
 import {
   "mizchi/astra",
   "mizchi/astra/env",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -146,12 +147,12 @@ pub enum AppMode {
   MoonBitFull
   MoonBitClientTsServer
   TypeScriptFull
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub enum ClientBundleMode {
   ClientBundleAuto
   ClientBundleExternal
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub(all) struct ClientComponentContract {
   props_type : String?
@@ -162,7 +163,7 @@ pub(all) enum ClientReturnKind {
   ClientReturnDomNode
   ClientReturnVNode
   ClientReturnUnsupported
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub struct ContractTsConfig {
   input : String
@@ -170,7 +171,7 @@ pub struct ContractTsConfig {
   package_path : String
   import_alias : String?
   client_url : String?
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub(all) struct FuncExport {
   name : String
@@ -197,14 +198,14 @@ pub enum ServerEntryMode {
   ServerEntryAuto
   ServerEntryGenerated
   ServerEntryUserManaged
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub enum ServerRuntime {
   RuntimeNode
   RuntimeCloudflare
   RuntimeDeno
   RuntimeBun
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub struct SolConfig {
   islands : Array[String]
@@ -259,7 +260,7 @@ pub enum WasmBuildKind {
   MoonBuild
   DirectCopy
   WiteCompose
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub struct WasmEntrypointBuildArtifacts {
   manifest_path : String
@@ -295,13 +296,13 @@ pub enum WasmEntrypointRuntime {
   Wagi
   WasiCli
   Component
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub enum WasmEntrypointSourceKind {
   MoonEntrypoint
   DirectWasm
   WacFile
-} derive(Eq, Show)
+} derive(Eq, Show, @debug.Debug)
 
 pub struct WasmMountEntry {
   id : String

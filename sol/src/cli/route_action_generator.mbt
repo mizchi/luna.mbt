@@ -787,7 +787,9 @@ fn generate_action_key_factories(
             buf.write_string(
               "pub fn \{fn_name}_typed() -> @action.TypedActionKey[\{request_type}, \{response_type}] {\n",
             )
-            buf.write_string("  @action.TypedActionKey::new(\"\{id}\")\n")
+            buf.write_string(
+              "  @action.TypedActionKey::from_key(\{fn_name}())\n",
+            )
             buf.write_string("}\n\n")
           }
           _ => ()

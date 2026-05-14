@@ -182,8 +182,9 @@ priv struct CreateUserResponse {
 test "TypedActionKey carries request and response phantom types" {
   let req = CreateUserRequest::{ name: "Alice" }
   let res = CreateUserResponse::{ id: "user-1" }
-  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::new(
-    "create-user",
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
   )
   assert_eq(req.name, "Alice")
   assert_eq(res.id, "user-1")
@@ -194,8 +195,9 @@ test "TypedActionKey carries request and response phantom types" {
 
 ///|
 test "TypedActionKey can be used as an ActionKey" {
-  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::new(
-    "create-user",
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
   )
   assert_eq(action_id(key), "create-user")
   assert_eq(action_url(key), "/_action/create-user")

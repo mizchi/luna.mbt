@@ -94,6 +94,8 @@ pub fn render_with_preloads(@core.Node[Unit, String]) -> RenderResult
 
 pub fn script(src? : String, type_? : String, defer_? : Bool, async_? : Bool, content? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])]) -> @core.Node[Unit, String]
 
+pub fn script_trusted(TrustedScript, type_? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])]) -> @core.Node[Unit, String]
+
 pub fn section(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])], Array[@core.Node[Unit, String]]) -> @core.Node[Unit, String]
 
 pub fn sol_link(href~ : String, Array[@core.Node[Unit, String]], id? : String, class? : String, style? : String, prefetch? : Bool, replace? : Bool, attrs? : Array[(String, @core.Attr[Unit, String])]) -> @core.Node[Unit, String]
@@ -103,6 +105,8 @@ pub fn span(id? : String, class? : String, style? : String, attrs? : Array[(Stri
 pub fn strong(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])], Array[@core.Node[Unit, String]]) -> @core.Node[Unit, String]
 
 pub fn style_(String, type_? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])]) -> @core.Node[Unit, String]
+
+pub fn style_trusted(TrustedStyle, type_? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])]) -> @core.Node[Unit, String]
 
 pub fn svg(width? : String, height? : String, viewBox? : String, xmlns? : String, fill? : String, stroke? : String, role? : String, aria_label? : String, aria_labelledby? : String, aria_describedby? : String, id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])], Array[@core.Node[Unit, String]]) -> @core.Node[Unit, String]
 
@@ -184,6 +188,10 @@ pub fn uhover(String, String) -> String
 
 pub fn ul(id? : String, class? : String, style? : String, attrs? : Array[(String, @core.Attr[Unit, String])], Array[@core.Node[Unit, String]]) -> @core.Node[Unit, String]
 
+pub fn unsafe_trusted_script(String) -> TrustedScript
+
+pub fn unsafe_trusted_style(String) -> TrustedStyle
+
 pub fn uon(String, String, String) -> String
 
 pub fn ustyles(Array[(String, String)]) -> String
@@ -221,6 +229,16 @@ pub fn ServerNode::sync(@core.Node[Unit, String]) -> Self
 pub fn ServerNode::with_assets(Self, styles? : Array[String], scripts? : Array[String]) -> Self
 pub fn ServerNode::with_script(Self, String) -> Self
 pub fn ServerNode::with_style(Self, String) -> Self
+
+pub(all) struct TrustedScript {
+  content : String
+}
+pub fn TrustedScript::to_string(Self) -> String
+
+pub(all) struct TrustedStyle {
+  content : String
+}
+pub fn TrustedStyle::to_string(Self) -> String
 
 // Type aliases
 

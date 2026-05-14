@@ -154,7 +154,7 @@ pub(open) trait ActionKey {
 
 ///|
 /// Phantom-typed action key for generated request/response contracts.
-pub(all) struct TypedActionKey[Req, Res] {
+pub struct TypedActionKey[Req, Res] {
   id : String
   base_path : String
   _request : Req?
@@ -162,11 +162,18 @@ pub(all) struct TypedActionKey[Req, Res] {
 }
 
 ///|
-pub fn[Req, Res] TypedActionKey::new(
+fn[Req, Res] TypedActionKey::new(
   id : String,
   base_path? : String = "/_action",
 ) -> TypedActionKey[Req, Res] {
   { id, base_path, _request: None, _response: None }
+}
+
+///|
+pub fn[Req, Res, K : ActionKey] TypedActionKey::from_key(
+  key : K,
+) -> TypedActionKey[Req, Res] {
+  TypedActionKey::new(key.id(), base_path=key.base_path())
 }
 
 ///|

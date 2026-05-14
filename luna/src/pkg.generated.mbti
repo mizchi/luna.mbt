@@ -105,6 +105,8 @@ pub fn[T, R] provide(@signals.Context[T], T, () -> R) -> R
 
 pub fn[E, A] raw_html(String) -> @core.Node[E, A]
 
+pub fn[E, A] raw_trusted_html(@core.TrustedHtml) -> @core.Node[E, A]
+
 pub fn register_disposer(() -> Unit) -> Unit
 
 pub fn register_owner_cleanup(() -> Unit) -> Unit
@@ -132,6 +134,8 @@ pub fn[E, A] text(String) -> @core.Node[E, A]
 pub fn[E, A] text_dyn(() -> String) -> @core.Node[E, A]
 
 pub fn[E, A, T : Show] text_of(@signals.Signal[T]) -> @core.Node[E, A]
+
+pub fn unsafe_trusted_html(String) -> @core.TrustedHtml
 
 pub fn[T] untracked(() -> T) -> T
 
@@ -173,6 +177,8 @@ pub using @signals {type Signal}
 pub using @core {type TriggerType as Trigger}
 
 pub using @core {type TriggerType}
+
+pub using @core {type TrustedHtml}
 
 pub using @core {type VAsync}
 

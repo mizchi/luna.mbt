@@ -64,13 +64,17 @@ test("action public API only exposes typed action keys", () => {
   );
 
   assert.match(mbti, /pub\(open\) trait ActionKey/);
+  assert.match(mbti, /pub struct TypedActionKey/);
   assert.match(mbti, /pub fn\[K : ActionKey\] action_id\(K\) -> String/);
   assert.match(mbti, /pub fn\[K : ActionKey\] action_url\(K\) -> String/);
+  assert.match(mbti, /TypedActionKey::from_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionDef::from_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionRegistry::register_key/);
   assert.match(mbti, /pub fn\[K : ActionKey\] ActionFormConfig::from_key/);
 
   const forbidden = [
+    /pub\(all\) struct TypedActionKey/,
+    /TypedActionKey::new/,
     /\bActionRef\b/,
     /pub fn ActionDef::new\b/,
     /pub fn ActionRegistry::get\b/,

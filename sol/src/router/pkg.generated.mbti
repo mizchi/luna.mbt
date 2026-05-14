@@ -135,7 +135,7 @@ pub fn ApiResponse::to_json(Self) -> Json
 pub(all) enum CacheStrategy {
   AlwaysFetch
   StaleWhileRevalidate
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn CacheStrategy::default() -> Self
 
 pub(all) struct CatchAllInfo {
@@ -192,8 +192,6 @@ pub(all) struct MbtxEntry {
   id : String
   code : String
 }
-
-type MbtxResponse
 
 pub(all) struct MbtxRoute {
   path : String
@@ -352,7 +350,7 @@ pub enum SolRouteKind {
   RawPut
   RawDelete
   RawPatch
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum SolRoutes {
   Page(path~ : String, handler~ : PageHandler, title~ : String, meta~ : Array[(String, String)], revalidate~ : Int?, cache~ : CacheStrategy?)

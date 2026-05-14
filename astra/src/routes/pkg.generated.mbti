@@ -6,6 +6,7 @@ import {
   "mizchi/astra/content/frontmatter",
   "mizchi/astra/env",
   "mizchi/luna/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -203,7 +204,7 @@ pub(all) enum ComponentType {
   SsrComponent
   ClientOnlyComponent
   ServerOnlyComponent
-} derive(Show)
+} derive(@debug.Debug)
 pub fn ComponentType::can_hydrate(Self) -> Bool
 pub fn ComponentType::can_ssr(Self) -> Bool
 
@@ -247,7 +248,7 @@ pub(all) enum FallbackConfig {
   NotFound(path~ : String)
   Spa(entry~ : String)
   SpaPrefix(prefix~ : String, entry~ : String)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn FallbackConfig::default() -> Self
 pub fn FallbackConfig::is_spa(Self) -> Bool
 pub fn FallbackConfig::spa_entry(Self) -> String?
@@ -272,7 +273,7 @@ pub(all) enum FileType {
   Mdx
   Html
   Unknown
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn FileType::from_extension(String) -> Self
 pub fn FileType::is_page(Self) -> Bool
 
@@ -294,7 +295,7 @@ pub(all) enum HttpMethod {
   Delete
   Patch
   All
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn HttpMethod::from_string(String) -> Self?
 pub fn HttpMethod::to_string(Self) -> String
 
@@ -333,7 +334,7 @@ pub(all) enum RenderMode {
   Ssr
   Isr(revalidate~ : Int)
   Spa
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn RenderMode::default() -> Self
 pub fn RenderMode::requires_server(Self) -> Bool
 pub fn RenderMode::revalidate_seconds(Self) -> Int?

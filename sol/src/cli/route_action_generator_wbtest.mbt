@@ -236,8 +236,9 @@ test "generate_action_key_factories: generates typed factory for contracts" {
     ),
   )
   assert_true(
-    result.contains("@action.TypedActionKey::new(\"submit-contact\")"),
+    result.contains("@action.TypedActionKey::from_key(action_submit_contact())"),
   )
+  assert_false(result.contains("@action.TypedActionKey::new("))
 }
 
 // =============================================================================

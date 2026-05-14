@@ -21,6 +21,8 @@ pub fn register_actions(@mars.Server, ActionRegistry) -> Unit
 
 pub fn submit_form_as_action(@core.Any, ActionFormConfig) -> Unit
 
+pub fn[Req, Res] typed_action_url(TypedActionKey[Req, Res]) -> String
+
 // Errors
 
 // Types and methods
@@ -120,6 +122,17 @@ pub fn ActionState::idle() -> Self
 pub fn ActionState::pending(message? : String) -> Self
 pub fn ActionState::redirect(String) -> Self
 pub fn ActionState::success(message? : String) -> Self
+
+pub struct TypedActionKey[Req, Res] {
+  id : String
+  base_path : String
+  _request : Req?
+  _response : Res?
+}
+pub fn[Req, Res] TypedActionKey::base_path(Self[Req, Res]) -> String
+pub fn[Req, Res, K : ActionKey] TypedActionKey::from_key(K) -> Self[Req, Res]
+pub fn[Req, Res] TypedActionKey::id(Self[Req, Res]) -> String
+pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res]
 
 // Type aliases
 pub using @mars {type Server as App}

@@ -144,8 +144,6 @@ pub fn LoggerConfig::with_log_fn(Self, (String) -> Unit) -> Self
 pub fn LoggerConfig::with_skip_paths(Self, Array[String]) -> Self
 
 pub(all) struct Middleware(@mars.Handler)
-#deprecated
-pub fn Middleware::inner(Self) -> @mars.Handler
 pub fn Middleware::then(Self, Self) -> Self
 
 pub struct SecurityHeadersConfig {

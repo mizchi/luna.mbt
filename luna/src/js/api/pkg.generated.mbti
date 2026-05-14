@@ -163,24 +163,14 @@ pub fn use_context(JsContext) -> Any
 pub type Any
 
 pub struct BrowserRouter(@router.BrowserRouter)
-#deprecated
-pub fn BrowserRouter::inner(Self) -> @router.BrowserRouter
 
 pub struct JsAsyncState(@ui.AsyncState[Any])
-#deprecated
-pub fn JsAsyncState::inner(Self) -> @ui.AsyncState[Any]
 
 pub struct JsContext(@signals.Context[Any])
-#deprecated
-pub fn JsContext::inner(Self) -> @signals.Context[Any]
 
 pub struct JsOwner(@signals.Owner)
-#deprecated
-pub fn JsOwner::inner(Self) -> @signals.Owner
 
 pub struct JsResource(@resource.Resource[Any])
-#deprecated
-pub fn JsResource::inner(Self) -> @resource.Resource[Any]
 
 // Type aliases
 
