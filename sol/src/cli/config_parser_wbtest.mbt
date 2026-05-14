@@ -165,6 +165,48 @@ test "parse_sol_config: contract manifest path" {
 }
 
 ///|
+test "parse_sol_config: default contractTs is empty" {
+  let result = parse_sol_config("{}")
+  guard result is Some(config) else { return }
+  assert_eq(config.contract_ts.length(), 0)
+}
+
+///|
+test "parse_sol_config: TypeScript contract sources" {
+  let result = parse_sol_config(
+    #|{
+    #|  "contractTs": [
+    #|    {
+    #|      "input": "app/client/props.ts",
+    #|      "props": "CounterProps",
+    #|      "package": "app/client",
+    #|      "importAlias": "client",
+    #|      "clientUrl": "/assets/counter.js"
+    #|    }
+    #|  ]
+    #|}
+  )
+  guard result is Some(config) else { return }
+  assert_eq(config.contract_ts.length(), 1)
+  let entry = config.contract_ts[0]
+  assert_eq(entry.input, "app/client/props.ts")
+  assert_eq(entry.props_interface, "CounterProps")
+  assert_eq(entry.package_path, "app/client")
+  assert_eq(entry.import_alias, Some("client"))
+  assert_eq(entry.client_url, Some("/assets/counter.js"))
+}
+
+///|
+test "parse_sol_config: contract_ts rejects missing required fields" {
+  let result = parse_sol_config(
+    #|{
+    #|  "contract_ts": [{ "input": "app/client/props.ts" }]
+    #|}
+  )
+  assert_true(result is None)
+}
+
+///|
 test "parse_sol_config: default runtime is node" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }

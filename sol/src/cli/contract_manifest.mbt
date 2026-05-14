@@ -116,12 +116,28 @@ fn contract_client_assets_has(
 fn parse_contract_manifest_json(json_str : String) -> ContractManifest? {
   let json : Json = @json.parse(json_str) catch { _ => return None }
   guard json is Object(obj) else { return None }
-  Some({
-    routes: parse_contract_routes(obj),
-    actions: parse_contract_actions(obj),
-    client_assets: parse_contract_client_assets(obj),
-    components: parse_contract_components(obj),
-  })
+  let routes = match parse_contract_routes(obj) {
+    Some(routes) => routes
+    None => return None
+  }
+  let actions = match parse_contract_actions(obj) {
+    Some(actions) => actions
+    None => return None
+  }
+  let client_assets = match parse_contract_client_assets(obj) {
+    Some(client_assets) => client_assets
+    None => return None
+  }
+  let components = match parse_contract_components(obj) {
+    Some(components) => components
+    None => return None
+  }
+  let manifest = { routes, actions, client_assets, components }
+  if validate_contract_manifest(manifest) {
+    Some(manifest)
+  } else {
+    None
+  }
 }
 
 ///|
@@ -140,11 +156,12 @@ fn[FS : @env.FileSystem] load_contract_manifest_with_fs(
 }
 
 ///|
-fn parse_contract_routes(obj : Map[String, Json]) -> Array[ContractRoute] {
+fn parse_contract_routes(obj : Map[String, Json]) -> Array[ContractRoute]? {
   let result : Array[ContractRoute] = []
   let entries = match obj.get("routes") {
     Some(Array(arr)) => arr
-    _ => []
+    Some(_) => return None
+    None => []
   }
   for entry in entries {
     let path = match entry {
@@ -152,45 +169,48 @@ fn parse_contract_routes(obj : Map[String, Json]) -> Array[ContractRoute] {
       Object(route_obj) =>
         match @json_utils.extract_string_opt(route_obj, "path") {
           Some(s) => s
-          None => continue
+          None => return None
         }
-      _ => continue
+      _ => return None
     }
     if !path.is_empty() {
       result.push({ path, })
+    } else {
+      return None
     }
   }
-  result
+  Some(result)
 }
 
 ///|
 fn parse_contract_components(
   obj : Map[String, Json],
-) -> Array[ContractComponent] {
+) -> Array[ContractComponent]? {
   let result : Array[ContractComponent] = []
   let entries = match obj.get("components") {
     Some(Array(arr)) => arr
-    _ => []
+    Some(_) => return None
+    None => []
   }
   for entry in entries {
-    guard entry is Object(component_obj) else { continue }
+    guard entry is Object(component_obj) else { return None }
     let name = match extract_string_opt2(component_obj, "name", "component") {
       Some(s) => s
-      None => continue
+      None => return None
     }
     guard component_obj.get("props") is Some(Object(props_obj)) else {
-      continue
+      return None
     }
     let props = match parse_contract_props(name, props_obj) {
       Some(props) => props
-      None => continue
+      None => return None
     }
     let package_path = match
       extract_string_opt3(
         component_obj, "package", "packagePath", "package_path",
       ) {
       Some(s) => s
-      None => continue
+      None => return None
     }
     let import_alias = match
       extract_string_opt2(component_obj, "importAlias", "import_alias") {
@@ -199,9 +219,11 @@ fn parse_contract_components(
     }
     if !name.is_empty() && !package_path.is_empty() && !props.name.is_empty() {
       result.push({ name, props, package_path, import_alias })
+    } else {
+      return None
     }
   }
-  result
+  Some(result)
 }
 
 ///|
@@ -216,34 +238,41 @@ fn parse_contract_props(
   if name.is_empty() {
     return None
   }
-  Some({ name, fields: parse_contract_props_fields(obj) })
+  let fields = match parse_contract_props_fields(obj) {
+    Some(fields) => fields
+    None => return None
+  }
+  Some({ name, fields })
 }
 
 ///|
 fn parse_contract_props_fields(
   obj : Map[String, Json],
-) -> Array[ContractPropsField] {
+) -> Array[ContractPropsField]? {
   let result : Array[ContractPropsField] = []
   let fields = match obj.get("fields") {
     Some(Array(arr)) => arr
-    _ => []
+    Some(_) => return None
+    None => []
   }
   for field in fields {
-    guard field is Object(field_obj) else { continue }
+    guard field is Object(field_obj) else { return None }
     let name = match @json_utils.extract_string_opt(field_obj, "name") {
       Some(s) => s
-      None => continue
+      None => return None
     }
     let type_name = match
       extract_string_opt3(field_obj, "type", "typeName", "type_name") {
       Some(s) => s
-      None => continue
+      None => return None
     }
     if !name.is_empty() && !type_name.is_empty() {
       result.push({ name, type_name })
+    } else {
+      return None
     }
   }
-  result
+  Some(result)
 }
 
 ///|
@@ -283,11 +312,12 @@ fn extract_string_opt3(
 }
 
 ///|
-fn parse_contract_actions(obj : Map[String, Json]) -> Array[ContractAction] {
+fn parse_contract_actions(obj : Map[String, Json]) -> Array[ContractAction]? {
   let result : Array[ContractAction] = []
   let entries = match obj.get("actions") {
     Some(Array(arr)) => arr
-    _ => []
+    Some(_) => return None
+    None => []
   }
   for entry in entries {
     let id = match entry {
@@ -295,44 +325,242 @@ fn parse_contract_actions(obj : Map[String, Json]) -> Array[ContractAction] {
       Object(action_obj) =>
         match @json_utils.extract_string_opt(action_obj, "id") {
           Some(s) => s
-          None => continue
+          None => return None
         }
-      _ => continue
+      _ => return None
     }
     if !id.is_empty() {
       result.push({ id, })
+    } else {
+      return None
     }
   }
-  result
+  Some(result)
 }
 
 ///|
 fn parse_contract_client_assets(
   obj : Map[String, Json],
-) -> Array[ContractClientAsset] {
+) -> Array[ContractClientAsset]? {
   let result : Array[ContractClientAsset] = []
   let entries = match obj.get("clientAssets") {
     Some(Array(arr)) => arr
+    Some(_) => return None
     _ =>
       match obj.get("client_assets") {
         Some(Array(arr)) => arr
-        _ => []
+        Some(_) => return None
+        None => []
       }
   }
   for entry in entries {
-    guard entry is Object(asset_obj) else { continue }
+    guard entry is Object(asset_obj) else { return None }
     let component = match
       @json_utils.extract_string_opt(asset_obj, "component") {
       Some(s) => s
-      None => continue
+      None => return None
     }
     let url = match @json_utils.extract_string_opt(asset_obj, "url") {
       Some(s) => s
-      None => continue
+      None => return None
     }
     if !component.is_empty() && !url.is_empty() {
       result.push({ component, url })
+    } else {
+      return None
     }
   }
-  result
+  Some(result)
+}
+
+///|
+fn validate_contract_manifest(manifest : ContractManifest) -> Bool {
+  let seen_props : Array[String] = []
+  let seen_components : Array[String] = []
+  let seen_assets : Array[String] = []
+  let seen_routes : Array[String] = []
+  let seen_actions : Array[String] = []
+  for route in manifest.routes {
+    if !is_valid_route_path(route.path) || seen_routes.contains(route.path) {
+      return false
+    }
+    seen_routes.push(route.path)
+  }
+  for action in manifest.actions {
+    if !is_valid_action_id(action.id) || seen_actions.contains(action.id) {
+      return false
+    }
+    seen_actions.push(action.id)
+  }
+  for asset in manifest.client_assets {
+    if !is_valid_component_identifier(asset.component) ||
+      !is_safe_generated_string_literal(asset.url) ||
+      seen_assets.contains(asset.component) {
+      return false
+    }
+    seen_assets.push(asset.component)
+  }
+  for component in manifest.components {
+    if !is_valid_component_identifier(component.name) ||
+      !is_valid_moonbit_type_identifier(component.props.name) ||
+      seen_components.contains(component.name) ||
+      seen_props.contains(component.props.name) {
+      return false
+    }
+    let derived_component_name = extract_component_name_from_props(
+      component.props.name,
+    )
+    if component.name != derived_component_name {
+      return false
+    }
+    for field in component.props.fields {
+      if !is_valid_value_identifier(field.name) ||
+        !is_valid_moonbit_type_expr(field.type_name) {
+        return false
+      }
+    }
+    seen_components.push(component.name)
+    seen_props.push(component.props.name)
+  }
+  true
+}
+
+///|
+fn is_safe_generated_string_literal(value : String) -> Bool {
+  if value.is_empty() {
+    return false
+  }
+  for c in value.to_array() {
+    let code = c.to_int()
+    if code < 32 || code == 34 || code == 92 {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn is_valid_route_path(path : String) -> Bool {
+  path.has_prefix("/") && is_safe_generated_string_literal(path)
+}
+
+///|
+fn is_valid_action_id(id : String) -> Bool {
+  if id.is_empty() {
+    return false
+  }
+  for c in id.to_array() {
+    if is_ascii_lower(c) ||
+      is_ascii_digit_char(c) ||
+      c == '_' ||
+      c == '-' ||
+      c == ':' ||
+      c == '/' ||
+      c == '.' {
+      ()
+    } else {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn is_ascii_lower(c : Char) -> Bool {
+  c >= 'a' && c <= 'z'
+}
+
+///|
+fn is_ascii_upper(c : Char) -> Bool {
+  c >= 'A' && c <= 'Z'
+}
+
+///|
+fn is_ascii_digit_char(c : Char) -> Bool {
+  c >= '0' && c <= '9'
+}
+
+///|
+fn is_identifier_tail(c : Char) -> Bool {
+  is_ascii_lower(c) || is_ascii_upper(c) || is_ascii_digit_char(c) || c == '_'
+}
+
+///|
+fn is_valid_value_identifier(name : String) -> Bool {
+  if name.is_empty() {
+    return false
+  }
+  let chars = name.to_array()
+  let first = chars[0]
+  if !(is_ascii_lower(first) || first == '_') {
+    return false
+  }
+  for c in chars {
+    if !is_identifier_tail(c) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn is_valid_component_identifier(name : String) -> Bool {
+  if name.is_empty() {
+    return false
+  }
+  let chars = name.to_array()
+  if !is_ascii_lower(chars[0]) {
+    return false
+  }
+  for c in chars {
+    if !is_identifier_tail(c) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn is_valid_moonbit_type_identifier(name : String) -> Bool {
+  if name.is_empty() {
+    return false
+  }
+  let chars = name.to_array()
+  if !is_ascii_upper(chars[0]) {
+    return false
+  }
+  for c in chars {
+    if !is_identifier_tail(c) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn is_valid_moonbit_type_expr(type_name : String) -> Bool {
+  if type_name.is_blank() {
+    return false
+  }
+  let mut bracket_depth = 0
+  for c in type_name.to_array() {
+    if c == '[' {
+      bracket_depth += 1
+    } else if c == ']' {
+      bracket_depth -= 1
+      if bracket_depth < 0 {
+        return false
+      }
+    } else if is_identifier_tail(c) ||
+      c == '@' ||
+      c == '.' ||
+      c == '?' ||
+      c == ',' ||
+      c == ' ' {
+      ()
+    } else {
+      return false
+    }
+  }
+  bracket_depth == 0
 }

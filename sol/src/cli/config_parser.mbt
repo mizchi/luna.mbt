@@ -29,6 +29,21 @@ pub enum ClientBundleMode {
 } derive(Eq, Show)
 
 ///|
+/// TypeScript interface source used to generate Sol contract metadata.
+pub struct ContractTsConfig {
+  /// TypeScript file containing the props interface
+  input : String
+  /// Props interface name, e.g. CounterProps
+  props_interface : String
+  /// MoonBit package that exports the component
+  package_path : String
+  /// Import alias for generated moon.pkg entries
+  import_alias : String?
+  /// External client bundle URL for the component
+  client_url : String?
+} derive(Eq, Show)
+
+///|
 /// Sol configuration (new architecture)
 pub struct SolConfig {
   /// Island directories (client hydration)
@@ -49,6 +64,8 @@ pub struct SolConfig {
   client_bundle : ClientBundleMode
   /// Explicit contract manifest path for routes/actions/client assets
   contract_manifest : String?
+  /// TypeScript props interfaces used as contract sources
+  contract_ts : Array[ContractTsConfig]
   /// Static directories for SSG (markdown -> HTML)
   static_dirs : Array[StaticDirEntry]
   /// Per-route wasm entrypoints (.mbtx/.wasm)
@@ -342,8 +359,8 @@ fn validate_config_keys(obj : Map[String, Json]) -> Unit {
   let valid_keys = [
     "islands", "routes", "output", "clientAutoExports", "client_auto_exports", "runtime",
     "adapter", "serverEntry", "server_entry", "clientBundle", "client_bundle", "staticDirs",
-    "static_dirs", "contractManifest", "contract_manifest", "wasmEntryPoints", "wasmEntrypoints",
-    "wasm_entrypoints", "experimental",
+    "static_dirs", "contractManifest", "contract_manifest", "contractTs", "contract_ts",
+    "wasmEntryPoints", "wasmEntrypoints", "wasm_entrypoints", "experimental",
   ]
   for key in obj.keys() {
     if !valid_keys.contains(key) {
@@ -396,6 +413,10 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       Some(s) => Some(s)
       None => @json_utils.extract_string_opt(obj, "contract_manifest")
     }
+    let contract_ts = match parse_contract_ts_configs(obj) {
+      Some(configs) => configs
+      None => return None
+    }
     let static_dirs = parse_static_dirs(obj)
     let wasm_entrypoints = parse_wasm_entrypoints(obj)
     let experimental = @json_utils.extract_string_array(obj, "experimental")
@@ -410,6 +431,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       server_entry,
       client_bundle,
       contract_manifest,
+      contract_ts,
       static_dirs,
       wasm_entrypoints,
       experimental,
@@ -422,6 +444,87 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
 // =============================================================================
 // TypeScript Config Loader
 // =============================================================================
+
+///|
+/// Extract string option with both camelCase and snake_case support.
+fn extract_config_string_opt(
+  obj : Map[String, Json],
+  camel_key : String,
+  snake_key : String,
+) -> String? {
+  match @json_utils.extract_string_opt(obj, camel_key) {
+    Some(v) => Some(v)
+    None => @json_utils.extract_string_opt(obj, snake_key)
+  }
+}
+
+///|
+/// Parse contractTs / contract_ts config.
+fn parse_contract_ts_configs(
+  obj : Map[String, Json],
+) -> Array[ContractTsConfig]? {
+  let source = match obj.get("contractTs") {
+    Some(value) => Some(value)
+    None => obj.get("contract_ts")
+  }
+  match source {
+    None => Some([])
+    Some(Array(arr)) => {
+      let result : Array[ContractTsConfig] = []
+      for item in arr {
+        guard item is Object(item_obj) else { return None }
+        match parse_contract_ts_config(item_obj) {
+          Some(config) => result.push(config)
+          None => return None
+        }
+      }
+      Some(result)
+    }
+    Some(Object(item_obj)) =>
+      match parse_contract_ts_config(item_obj) {
+        Some(config) => Some([config])
+        None => None
+      }
+    _ => None
+  }
+}
+
+///|
+/// Parse a single TypeScript contract source entry.
+fn parse_contract_ts_config(obj : Map[String, Json]) -> ContractTsConfig? {
+  let input = match @json_utils.extract_string_opt(obj, "input") {
+    Some(v) => v
+    None => return None
+  }
+  let props_interface = match @json_utils.extract_string_opt(obj, "props") {
+    Some(v) => v
+    None =>
+      match extract_config_string_opt(obj, "propsInterface", "props_interface") {
+        Some(v) => v
+        None => return None
+      }
+  }
+  let package_path = match @json_utils.extract_string_opt(obj, "package") {
+    Some(v) => v
+    None =>
+      match extract_config_string_opt(obj, "packagePath", "package_path") {
+        Some(v) => v
+        None => return None
+      }
+  }
+  if input.is_empty() ||
+    props_interface.is_empty() ||
+    package_path.is_empty() {
+    return None
+  }
+  Some({
+    input,
+    props_interface,
+    package_path,
+    import_alias: extract_config_string_opt(obj, "importAlias", "import_alias"),
+    client_url: extract_config_string_opt(obj, "clientUrl", "client_url"),
+  })
+}
 
 ///|
 /// FFI to load TypeScript config file using tsx (async for ESM compatibility)

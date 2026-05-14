@@ -123,7 +123,24 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
           None
         }
       }
-    None => None
+    None =>
+      if config.contract_ts.is_empty() {
+        None
+      } else {
+        match load_contract_ts_manifest_with_fs(fs, cwd, config.contract_ts) {
+          Ok(manifest) => {
+            println(@colorette.gray("  Contract manifest: TypeScript interfaces"))
+            Some(manifest)
+          }
+          Err(message) => {
+            @cli_common.console_error(
+              @colorette.red("Error: invalid contractTs config: \{message}"),
+            )
+            @process.exit(1)
+            None
+          }
+        }
+      }
   }
   let client_assets = match contract_manifest {
     Some(manifest) => manifest.client_assets

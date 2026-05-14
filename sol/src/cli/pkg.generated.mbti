@@ -164,6 +164,14 @@ pub(all) enum ClientReturnKind {
   ClientReturnUnsupported
 } derive(Eq, Show)
 
+pub struct ContractTsConfig {
+  input : String
+  props_interface : String
+  package_path : String
+  import_alias : String?
+  client_url : String?
+} derive(Eq, Show)
+
 pub(all) struct FuncExport {
   name : String
   signature : String
@@ -208,6 +216,7 @@ pub struct SolConfig {
   server_entry : ServerEntryMode
   client_bundle : ClientBundleMode
   contract_manifest : String?
+  contract_ts : Array[ContractTsConfig]
   static_dirs : Array[StaticDirEntry]
   wasm_entrypoints : Array[WasmEntrypointConfig]
   experimental : Array[String]

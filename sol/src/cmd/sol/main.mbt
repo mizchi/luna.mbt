@@ -41,6 +41,9 @@ fn print_help() -> Unit {
   println("  deploy         Run deploy preflight and print deploy command")
   println("  doctor         Diagnose config and adapter wiring")
   println("  generate       Generate .sol directory from config")
+  println(
+    "  contract-ts    Generate sol.contract.json from TypeScript props interfaces",
+  )
   println("  clean          Remove generated files and caches")
   println("")
   println("Options:")
@@ -51,8 +54,7 @@ fn print_help() -> Unit {
 ///|
 async fn delegate_to_project_js_cli(args : Array[String]) -> Int {
   let candidates = [
-    "sol/src/cmd/sol_js",
-    ".mooncakes/mizchi/sol/src/cmd/sol_js",
+    "sol/src/cmd/sol_js", ".mooncakes/mizchi/sol/src/cmd/sol_js",
   ]
   for candidate in candidates {
     if @fs.exists(candidate) {
@@ -64,9 +66,7 @@ async fn delegate_to_project_js_cli(args : Array[String]) -> Int {
 
 ///|
 async fn run_js_entry(entry : String, args : Array[String]) -> Int {
-  let run_args : Array[String] = [
-    "run", "--target", "js", entry, "--",
-  ]
+  let run_args : Array[String] = ["run", "--target", "js", entry, "--"]
   for arg in args {
     run_args.push(arg)
   }
@@ -79,7 +79,9 @@ async fn run_js_entry(entry : String, args : Array[String]) -> Int {
   if status != 0 {
     println("")
     println("Error: failed to launch the Sol JS CLI.")
-    println("Run this command inside a MoonBit project that depends on mizchi/sol.")
+    println(
+      "Run this command inside a MoonBit project that depends on mizchi/sol.",
+    )
   }
   status
 }

@@ -90,3 +90,127 @@ test "ContractManifest::to_struct_exports: feeds type generator without Props so
   assert_true(structs[0].raw_definition.contains("initial : Int"))
   assert_true(structs[0].raw_definition.contains("label : String"))
 }
+
+///|
+test "parse_contract_manifest_json: rejects invalid MoonBit props field identifier" {
+  let manifest = parse_contract_manifest_json(
+    (
+      #|{
+      #|  "components": [
+      #|    {
+      #|      "name": "counter",
+      #|      "package": "app/client",
+      #|      "props": {
+      #|        "name": "CounterProps",
+      #|        "fields": [
+      #|          { "name": "bad-name", "type": "Int" }
+      #|        ]
+      #|      }
+      #|    }
+      #|  ]
+      #|}
+    ),
+  )
+  assert_true(manifest.is_none())
+}
+
+///|
+test "parse_contract_manifest_json: rejects invalid MoonBit props field type" {
+  let manifest = parse_contract_manifest_json(
+    (
+      #|{
+      #|  "components": [
+      #|    {
+      #|      "name": "counter",
+      #|      "package": "app/client",
+      #|      "props": {
+      #|        "name": "CounterProps",
+      #|        "fields": [
+      #|          { "name": "initial", "type": "Int }\n pub fn injected() -> Int { 1" }
+      #|        ]
+      #|      }
+      #|    }
+      #|  ]
+      #|}
+    ),
+  )
+  assert_true(manifest.is_none())
+}
+
+///|
+test "parse_contract_manifest_json: rejects component name not matching props name" {
+  let manifest = parse_contract_manifest_json(
+    (
+      #|{
+      #|  "clientAssets": [
+      #|    { "component": "todo_list", "url": "/assets/todo.js" }
+      #|  ],
+      #|  "components": [
+      #|    {
+      #|      "name": "todo_list",
+      #|      "package": "app/client",
+      #|      "props": {
+      #|        "name": "CounterProps",
+      #|        "fields": [
+      #|          { "name": "initial", "type": "Int" }
+      #|        ]
+      #|      }
+      #|    }
+      #|  ]
+      #|}
+    ),
+  )
+  assert_true(manifest.is_none())
+}
+
+///|
+test "parse_contract_manifest_json: rejects duplicate props names" {
+  let manifest = parse_contract_manifest_json(
+    (
+      #|{
+      #|  "components": [
+      #|    {
+      #|      "name": "counter",
+      #|      "package": "app/client",
+      #|      "props": { "name": "CounterProps", "fields": [] }
+      #|    },
+      #|    {
+      #|      "name": "counter",
+      #|      "package": "app/other",
+      #|      "props": { "name": "CounterProps", "fields": [] }
+      #|    }
+      #|  ]
+      #|}
+    ),
+  )
+  assert_true(manifest.is_none())
+}
+
+///|
+test "parse_contract_manifest_json: rejects route string literal injection" {
+  let manifest = parse_contract_manifest_json(
+    (
+      #|{
+      #|  "routes": [
+      #|    "/ok",
+      #|    "/bad\""
+      #|  ]
+      #|}
+    ),
+  )
+  assert_true(manifest.is_none())
+}
+
+///|
+test "parse_contract_manifest_json: rejects action IDs that cannot generate identifiers" {
+  let manifest = parse_contract_manifest_json(
+    (
+      #|{
+      #|  "actions": [
+      #|    "submit contact"
+      #|  ]
+      #|}
+    ),
+  )
+  assert_true(manifest.is_none())
+}

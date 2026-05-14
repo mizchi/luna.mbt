@@ -36,11 +36,15 @@ function ensureCliBuilt() {
   );
 }
 
-function runSolGenerate(cwd) {
-  return spawnSync("node", [CLI_DEBUG, "generate"], {
+function runSol(cwd, args) {
+  return spawnSync("node", [CLI_DEBUG, ...args], {
     cwd,
     encoding: "utf8",
   });
+}
+
+function runSolGenerate(cwd) {
+  return runSol(cwd, ["generate"]);
 }
 
 test("sol generate: external client bundle avoids generated client intermediates", () => {
@@ -260,6 +264,271 @@ test("sol generate: contract manifest drives route/action/client asset types", (
       fs.existsSync(path.join(sandbox, "app", "__gen__", "client")),
       false,
       "external client bundle should not create generated MoonBit client glue"
+    );
+  } finally {
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
+test("sol contract-ts output drives sol generate contract manifest mode", () => {
+  ensureCliBuilt();
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-contract-ts-"));
+  try {
+    fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
+    fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
+    fs.writeFileSync(
+      path.join(sandbox, "moon.mod.json"),
+      JSON.stringify(
+        {
+          name: "example/contract-ts",
+          version: "0.1.0",
+          deps: {},
+          source: "app",
+          "preferred-target": "js",
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.config.json"),
+      JSON.stringify(
+        {
+          routes: "app/server",
+          output: "app/__gen__",
+          runtime: "node",
+          serverEntry: "user",
+          clientBundle: "external",
+          contractManifest: "sol.contract.json",
+          islands: ["app/client"],
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "server", "routes.mbt"),
+      "pub fn routes() -> Array[Unit] { [] }\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "client", "props.ts"),
+      [
+        "export interface CounterProps {",
+        "  initial: int;",
+        "  label?: string;",
+        "  tags: Array<string>;",
+        "}",
+        "",
+      ].join("\n")
+    );
+
+    const contract = runSol(sandbox, [
+      "contract-ts",
+      "--input",
+      "app/client/props.ts",
+      "--props",
+      "CounterProps",
+      "--package",
+      "app/client",
+      "--client-url",
+      "/assets/counter.js",
+    ]);
+    assert.equal(
+      contract.status,
+      0,
+      `sol contract-ts failed\nstdout:\n${contract.stdout}\nstderr:\n${contract.stderr}`
+    );
+    fs.writeFileSync(path.join(sandbox, "sol.contract.json"), contract.stdout);
+
+    const result = runSolGenerate(sandbox);
+    assert.equal(
+      result.status,
+      0,
+      `sol generate failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+    );
+
+    const types = fs.readFileSync(
+      path.join(sandbox, "app", "__gen__", "types", "types.mbt"),
+      "utf8"
+    );
+    assert.match(types, /pub\(all\) struct CounterProps/);
+    assert.match(types, /initial : Int/);
+    assert.match(types, /label : String\?/);
+    assert.match(types, /tags : Array\[String\]/);
+    assert.match(types, /counter_at\("\/assets\/counter\.js"/);
+  } finally {
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
+test("sol generate: contractTs config drives generated contract types", () => {
+  ensureCliBuilt();
+  const sandbox = fs.mkdtempSync(
+    path.join(os.tmpdir(), "sol-contract-ts-config-")
+  );
+  try {
+    fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
+    fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
+    fs.writeFileSync(
+      path.join(sandbox, "moon.mod.json"),
+      JSON.stringify(
+        {
+          name: "example/contract-ts-config",
+          version: "0.1.0",
+          deps: {},
+          source: "app",
+          "preferred-target": "js",
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.config.json"),
+      JSON.stringify(
+        {
+          routes: "app/server",
+          output: "app/__gen__",
+          runtime: "node",
+          serverEntry: "user",
+          clientBundle: "external",
+          contractTs: [
+            {
+              input: "app/client/props.ts",
+              props: "CounterProps",
+              package: "app/client",
+              clientUrl: "/assets/counter.js",
+            },
+          ],
+          islands: ["app/client"],
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "server", "routes.mbt"),
+      "pub fn routes() -> Array[Unit] { [] }\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "client", "props.ts"),
+      [
+        "export interface CounterProps {",
+        "  initial: int;",
+        "  label?: string;",
+        "  tags: ReadonlyArray<string>;",
+        "}",
+        "",
+      ].join("\n")
+    );
+
+    const result = runSolGenerate(sandbox);
+    assert.equal(
+      result.status,
+      0,
+      `sol generate failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+    );
+    assert.match(result.stdout, /Contract manifest: TypeScript interfaces/);
+
+    const types = fs.readFileSync(
+      path.join(sandbox, "app", "__gen__", "types", "types.mbt"),
+      "utf8"
+    );
+    assert.match(types, /pub\(all\) struct CounterProps/);
+    assert.match(types, /initial : Int/);
+    assert.match(types, /label : String\?/);
+    assert.match(types, /tags : Array\[String\]/);
+    assert.match(types, /counter_at\("\/assets\/counter\.js"/);
+  } finally {
+    fs.rmSync(sandbox, { recursive: true, force: true });
+  }
+});
+
+test("sol generate: invalid contract manifest fails instead of source fallback", () => {
+  ensureCliBuilt();
+  const sandbox = fs.mkdtempSync(
+    path.join(os.tmpdir(), "sol-contract-invalid-")
+  );
+  try {
+    fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
+    fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
+    fs.writeFileSync(
+      path.join(sandbox, "moon.mod.json"),
+      JSON.stringify(
+        {
+          name: "example/contract-manifest-invalid",
+          version: "0.1.0",
+          deps: {},
+          source: "app",
+          "preferred-target": "js",
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.config.json"),
+      JSON.stringify(
+        {
+          routes: "app/server",
+          output: "app/__gen__",
+          runtime: "node",
+          serverEntry: "user",
+          clientBundle: "external",
+          contractManifest: "sol.contract.json",
+          islands: ["app/client"],
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "sol.contract.json"),
+      JSON.stringify(
+        {
+          components: [
+            {
+              name: "counter",
+              package: "app/client",
+              props: {
+                name: "CounterProps",
+                fields: [{ name: "bad-name", type: "Int" }],
+              },
+            },
+          ],
+        },
+        null,
+        2
+      ) + "\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "server", "routes.mbt"),
+      "pub fn routes() -> Array[Unit] { [] }\n"
+    );
+    fs.writeFileSync(
+      path.join(sandbox, "app", "client", "counter.mbt"),
+      [
+        "pub(all) struct CounterProps {",
+        "  initial : Int",
+        "}",
+        "",
+      ].join("\n")
+    );
+
+    const result = runSolGenerate(sandbox);
+    assert.notEqual(
+      result.status,
+      0,
+      `sol generate should reject invalid manifest\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+    );
+    assert.match(
+      result.stderr,
+      /contract manifest not found or invalid: sol\.contract\.json/
+    );
+    assert.equal(
+      fs.existsSync(path.join(sandbox, "app", "__gen__", "types")),
+      false,
+      "invalid manifest should not fall back to source-generated Props types"
     );
   } finally {
     fs.rmSync(sandbox, { recursive: true, force: true });

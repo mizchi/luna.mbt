@@ -214,6 +214,27 @@ For external bundles, generated type helpers use URL injection:
 This keeps `CounterProps` checked between the server and frontend without
 letting Sol own the client bundle output path.
 
+For TypeScript-owned frontend contracts, `contractTs` can feed the same
+generated type helpers directly from TS interfaces without writing an
+intermediate manifest file:
+
+```ts
+export default {
+  clientBundle: "external",
+  contractTs: [
+    {
+      input: "app/client/props.ts",
+      props: "CounterProps",
+      package: "app/client",
+      clientUrl: "/static/assets/counter-abc123.js",
+    },
+  ],
+}
+```
+
+`contractManifest` is still supported for fully explicit JSON contracts; when
+both fields are present, the explicit manifest path takes precedence.
+
 If you prefer JSON, `sol.config.json` is supported. For schema validation in this repo, add:
 
 ```json

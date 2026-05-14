@@ -28,6 +28,9 @@ import {
   "mizchi/sol/hmr" @hmr,
   "mizchi/sol/hot_reload" @hot_reload,
   "mizchi/sol/cli_common" @cli_common,
+  "mizchi/ts/ast" @ts_ast,
+  "mizchi/ts/checker" @ts_checker,
+  "mizchi/ts/parser" @ts_parser,
 }
 
 warnings = "-27-20"
