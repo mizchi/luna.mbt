@@ -1230,6 +1230,9 @@ test "template_moon_mod_json: uses current published moon deps" {
 test "template_layout_mbt: provides root_layout used by routes template" {
   let content = template_layout_mbt()
   assert_true(content.contains("pub fn root_layout("))
+  assert_true(content.contains("let default_head"))
+  assert_true(content.contains("<meta name=\\\"description\\\""))
+  assert_true(content.contains("<link rel=\\\"icon\\\" href=\\\"/favicon.ico\\\""))
 }
 
 ///|
@@ -1349,6 +1352,10 @@ test "template_client_api_tools_mbt: scaffolds worker app UX affordances" {
   assert_true(content.contains("filter_button"))
   assert_true(content.contains("job_row"))
   assert_true(content.contains("Retry Failed"))
+  assert_true(content.contains("Pending:"))
+  assert_true(content.contains("Last Success:"))
+  assert_true(content.contains("Last Error:"))
+  assert_true(content.contains("Simulate Error"))
   assert_true(content.contains("Authorization: Bearer dev-token"))
 }
 
@@ -1485,8 +1492,10 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   assert_true(playwright.contains("pnpm dev"))
   assert_true(e2e.contains("Operations Console"))
   assert_true(e2e.contains("/api/jobs/batch"))
+  assert_true(e2e.contains("Last Error: validation failed"))
   assert_true(readme.contains("Route ownership"))
   assert_true(readme.contains("Operational UI"))
+  assert_true(readme.contains("Dogfood checklist"))
 }
 
 ///|

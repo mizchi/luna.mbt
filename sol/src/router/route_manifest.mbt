@@ -95,6 +95,220 @@ pub fn RouteOwnershipManifest::to_json(self : RouteOwnershipManifest) -> Json {
 }
 
 ///|
+fn route_manifest_method_to_js_prefix(
+  http_method : RouteManifestMethod,
+) -> String {
+  match http_method {
+    Any => "request"
+    Get => "get"
+    Post => "post"
+    Put => "put"
+    Delete => "delete"
+    Patch => "patch"
+  }
+}
+
+///|
+fn route_manifest_is_separator(c : Char) -> Bool {
+  c == '-' || c == '_' || c == '.' || c == ' '
+}
+
+///|
+fn route_manifest_upper_ascii(c : Char) -> Char {
+  if c >= 'a' && c <= 'z' {
+    Char::from_int(c.to_int() - 32)
+  } else {
+    c
+  }
+}
+
+///|
+fn route_manifest_segment_token(segment : String) -> String {
+  let raw = if segment.has_prefix("@") {
+    segment[1:].to_owned()
+  } else {
+    segment
+  }
+  if raw.has_prefix(":") && raw.length() > 1 {
+    raw[1:].to_owned()
+  } else if raw.has_prefix("[[...") && raw.has_suffix("]]") {
+    raw[5:raw.length() - 2].to_owned()
+  } else if raw.has_prefix("[...") && raw.has_suffix("]") {
+    raw[4:raw.length() - 1].to_owned()
+  } else if raw.has_prefix("[") && raw.has_suffix("]") {
+    raw[1:raw.length() - 1].to_owned()
+  } else {
+    raw
+  }
+}
+
+///|
+fn route_manifest_path_to_pascal(path : String) -> String {
+  if path == "/" {
+    return "Root"
+  }
+  let buf = StringBuilder::new()
+  let mut capitalize_next = true
+  let mut wrote = false
+  for segment_view in path.split("/") {
+    let segment = route_manifest_segment_token(segment_view.to_owned())
+    if segment.is_empty() {
+      continue
+    }
+    capitalize_next = true
+    for c in segment {
+      let is_alpha = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+      let is_digit = c >= '0' && c <= '9'
+      if is_alpha || is_digit {
+        if capitalize_next {
+          buf.write_char(route_manifest_upper_ascii(c))
+        } else {
+          buf.write_char(c)
+        }
+        capitalize_next = false
+        wrote = true
+      } else if route_manifest_is_separator(c) {
+        capitalize_next = true
+      }
+    }
+  }
+  if wrote { buf.to_string() } else { "Root" }
+}
+
+///|
+fn route_manifest_api_helper_name(entry : RouteManifestEntry) -> String {
+  route_manifest_method_to_js_prefix(entry.http_method) +
+  route_manifest_path_to_pascal(entry.pattern)
+}
+
+///|
+fn route_manifest_param_type(params : Array[String]) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("{ ")
+  for i, param in params {
+    if i > 0 {
+      buf.write_string("; ")
+    }
+    buf.write_string(route_manifest_ts_string_literal(param))
+    buf.write_string(": string")
+  }
+  buf.write_string(" }")
+  buf.to_string()
+}
+
+///|
+fn route_manifest_ts_string_literal(value : String) -> String {
+  "\"" +
+  value
+  .replace(old="\\", new="\\\\")
+  .replace(old="\"", new="\\\"")
+  .replace(old="\n", new="\\n")
+  .replace(old="\r", new="\\r")
+  .replace(old="\t", new="\\t") +
+  "\""
+}
+
+///|
+fn route_manifest_write_api_helper(
+  buf : StringBuilder,
+  entry : RouteManifestEntry,
+) -> Unit {
+  let name = route_manifest_api_helper_name(entry)
+  let http_method_string = route_manifest_method_to_string(entry.http_method)
+  let path = entry.pattern
+  let has_params = !entry.param_names.is_empty()
+  let path_expr = if has_params {
+    "fillSolApiPath(\{route_manifest_ts_string_literal(path)}, params)"
+  } else {
+    route_manifest_ts_string_literal(path)
+  }
+  buf.write_string("  \{name}: ")
+  if entry.http_method is Get {
+    if has_params {
+      buf.write_string(
+        "<TResponse = unknown>(params: \{route_manifest_param_type(entry.param_names)}, init?: RequestInit) =>\n",
+      )
+    } else {
+      buf.write_string("<TResponse = unknown>(init?: RequestInit) =>\n")
+    }
+    buf.write_string(
+      "    solApiRequest<TResponse>(\{path_expr}, { ...init, method: \"\{http_method_string}\" }),\n",
+    )
+  } else {
+    if has_params {
+      buf.write_string(
+        "<TBody = unknown, TResponse = unknown>(params: \{route_manifest_param_type(entry.param_names)}, body: TBody, init?: RequestInit) =>\n",
+      )
+    } else {
+      buf.write_string(
+        "<TBody = unknown, TResponse = unknown>(body: TBody, init?: RequestInit) =>\n",
+      )
+    }
+    buf.write_string("    solApiRequest<TResponse>(\{path_expr}, {\n")
+    buf.write_string("      ...init,\n")
+    buf.write_string("      method: \"\{http_method_string}\",\n")
+    buf.write_string("      headers: jsonHeaders(init),\n")
+    buf.write_string("      body: JSON.stringify(body),\n")
+    buf.write_string("    }),\n")
+  }
+}
+
+///|
+pub fn RouteOwnershipManifest::api_client_manifest_json(
+  self : RouteOwnershipManifest,
+) -> Json {
+  let routes : Array[Json] = []
+  for entry in self.entries {
+    if entry.owner is SolApi {
+      routes.push({
+        "name": route_manifest_api_helper_name(entry).to_json(),
+        "method": route_manifest_method_to_string(entry.http_method).to_json(),
+        "path": entry.pattern.to_json(),
+        "params": entry.param_names.to_json(),
+      })
+    }
+  }
+  { "apis": routes.to_json() }
+}
+
+///|
+/// Generate optional TypeScript helpers for Sol JSON API routes.
+///
+/// The generated helpers carry the stable route path and HTTP method, expose
+/// path params where present, and return a typed success/error result shape.
+pub fn RouteOwnershipManifest::api_client_typescript(
+  self : RouteOwnershipManifest,
+) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string(
+    "export type SolApiError = { ok: false; status: number; message: string; response: Response };\n",
+  )
+  buf.write_string(
+    "export type SolApiSuccess<T> = { ok: true; data: T; response: Response };\n",
+  )
+  buf.write_string(
+    "export type SolApiResult<T> = SolApiSuccess<T> | SolApiError;\n\n",
+  )
+  buf.write_string(
+    "function jsonHeaders(init?: RequestInit): Headers {\n  const headers = new Headers(init?.headers);\n  if (!headers.has(\"content-type\")) headers.set(\"content-type\", \"application/json\");\n  return headers;\n}\n\n",
+  )
+  buf.write_string(
+    "function fillSolApiPath(path: string, params: Record<string, string>): string {\n  return path\n    .replace(/:([A-Za-z0-9_]+)/g, (_, key) => encodeURIComponent(params[key] ?? \"\"))\n    .replace(/\\[\\[?\\.\\.\\.([^\\]]+)\\]?\\]/g, (_, key) => encodeURIComponent(params[key] ?? \"\"))\n    .replace(/\\[([^\\]]+)\\]/g, (_, key) => encodeURIComponent(params[key] ?? \"\"));\n}\n\n",
+  )
+  buf.write_string(
+    "async function solApiRequest<T>(path: string, init: RequestInit): Promise<SolApiResult<T>> {\n  const response = await fetch(path, init);\n  const text = await response.text();\n  let data: unknown = null;\n  if (text.length > 0) {\n    try { data = JSON.parse(text); } catch { data = text; }\n  }\n  if (!response.ok) {\n    const message = typeof data === \"object\" && data !== null && \"error\" in data\n      ? String((data as { error?: unknown }).error)\n      : response.statusText;\n    return { ok: false, status: response.status, message, response };\n  }\n  return { ok: true, data: data as T, response };\n}\n\n",
+  )
+  buf.write_string("export const api = {\n")
+  for entry in self.entries {
+    if entry.owner is SolApi {
+      route_manifest_write_api_helper(buf, entry)
+    }
+  }
+  buf.write_string("} as const;\n")
+  buf.to_string()
+}
+
+///|
 fn push_manifest_entry(
   entries : Array[RouteManifestEntry],
   pattern : String,

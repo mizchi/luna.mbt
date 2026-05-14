@@ -79,3 +79,68 @@ test "route_ownership_manifest serializes stable json for host routers" {
   assert_true(json.contains("\"match\":\"exact\""))
   assert_true(json.contains("\"pattern\":\"/\""))
 }
+
+///|
+test "api_client_manifest_json includes only Sol JSON API routes" {
+  async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
+    @server_dom.ServerNode::sync(@luna.text("home"))
+  }
+
+  async fn api_handler(_props : PageProps) -> Json {
+    { "ok": true }.to_json()
+  }
+
+  async fn raw_handler(_props : PageProps) -> @web_http.Response {
+    @web_http.Response::text_("raw", 200)
+  }
+
+  let manifest = route_ownership_manifest([
+    page("/", page_handler),
+    api_get("/api/health", api_handler),
+    api_post("/api/items/:id", api_handler),
+    raw_get("/api/raw", raw_handler),
+  ])
+  let json = manifest.api_client_manifest_json().stringify()
+  assert_true(json.contains("\"name\":\"getApiHealth\""))
+  assert_true(json.contains("\"name\":\"postApiItemsId\""))
+  assert_true(json.contains("\"method\":\"GET\""))
+  assert_true(json.contains("\"method\":\"POST\""))
+  assert_true(json.contains("\"path\":\"/api/items/:id\""))
+  assert_true(json.contains("\"params\":[\"id\"]"))
+  assert_false(json.contains("/api/raw"))
+}
+
+///|
+test "api_client_typescript generates fetch helpers with typed error shape" {
+  async fn api_handler(_props : PageProps) -> Json {
+    { "ok": true }.to_json()
+  }
+
+  let manifest = route_ownership_manifest([
+    api_get("/api/health", api_handler),
+    api_post("/api/items/:id", api_handler),
+  ])
+  let source = manifest.api_client_typescript()
+  assert_true(source.contains("export type SolApiResult<T>"))
+  assert_true(source.contains("export const api"))
+  assert_true(source.contains("getApiHealth"))
+  assert_true(source.contains("postApiItemsId"))
+  assert_true(source.contains("params: { \"id\": string }"))
+  assert_true(source.contains("fillSolApiPath(\"/api/items/:id\", params)"))
+  assert_true(source.contains("method: \"POST\""))
+  assert_true(source.contains("jsonHeaders(init)"))
+}
+
+///|
+test "api_client_typescript quotes param names for file-system routes" {
+  async fn api_handler(_props : PageProps) -> Json {
+    { "ok": true }.to_json()
+  }
+
+  let manifest = route_ownership_manifest([
+    api_get("/api/users/[user-id]", api_handler),
+  ])
+  let source = manifest.api_client_typescript()
+  assert_true(source.contains("params: { \"user-id\": string }"))
+  assert_true(source.contains("fillSolApiPath(\"/api/users/[user-id]\", params)"))
+}

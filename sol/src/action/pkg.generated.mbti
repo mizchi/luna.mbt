@@ -5,6 +5,7 @@ import {
   "mizchi/js/core",
   "mizchi/mars",
   "mizchi/sol/middleware",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -55,8 +56,6 @@ pub fn ActionFormConfig::from_ref(ActionRef) -> Self
 pub fn ActionFormConfig::new(String) -> Self
 
 pub(all) struct ActionHandler(async (ActionContext) -> ActionResult)
-#deprecated
-pub fn ActionHandler::inner(Self) -> async (ActionContext) -> ActionResult
 
 pub struct ActionOptions {
   headers : Array[(String, String)]
@@ -64,6 +63,14 @@ pub struct ActionOptions {
   signal : @core.Any?
 }
 pub fn ActionOptions::default() -> Self
+
+pub enum ActionPhase {
+  Idle
+  Pending
+  Succeeded
+  Failed
+  Redirecting
+} derive(Eq, @debug.Debug)
 
 pub(all) struct ActionRef {
   id : String
@@ -114,6 +121,20 @@ pub fn ActionResult::ok(@core.Any) -> Self
 pub fn ActionResult::redirect(String) -> Self
 pub fn ActionResult::server_error(message? : String) -> Self
 pub fn ActionResult::unauthorized(message? : String) -> Self
+pub fn ActionResult::validation_error(String) -> Self
+
+pub struct ActionState {
+  phase : ActionPhase
+  status : Int?
+  message : String?
+  redirect : String?
+}
+pub fn ActionState::error(status~ : Int, message~ : String) -> Self
+pub fn ActionState::from_response(ActionResponse) -> Self
+pub fn ActionState::idle() -> Self
+pub fn ActionState::pending(message? : String) -> Self
+pub fn ActionState::redirect(String) -> Self
+pub fn ActionState::success(message? : String) -> Self
 
 // Type aliases
 pub using @mars {type Server as App}

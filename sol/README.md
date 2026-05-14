@@ -375,6 +375,11 @@ ownership explicit in the host entry. `route_ownership_manifest(routes)` gives
 host routers a typed Sol ownership contract for pages, JSON APIs, raw
 responses, static assets, and reserved framework paths.
 
+The same manifest can be used as an optional JSON API client source:
+`manifest.api_client_manifest_json()` returns method/path/param metadata, and
+`manifest.api_client_typescript()` emits browser/Worker `fetch` helpers with a
+typed `SolApiResult<T>` success/error shape.
+
 ```js
 import solApp from "./.sol/prod/server/main.js";
 

@@ -37,6 +37,71 @@ pub enum ActionResponse {
   NetworkError(String)
 }
 
+///|
+/// UI-facing action phase for common form/action states
+pub enum ActionPhase {
+  Idle
+  Pending
+  Succeeded
+  Failed
+  Redirecting
+} derive(Eq, Debug)
+
+///|
+/// UI-facing action state for pending/error/success controls
+pub struct ActionState {
+  phase : ActionPhase
+  status : Int?
+  message : String?
+  redirect : String?
+}
+
+///|
+/// Initial idle action state
+pub fn ActionState::idle() -> ActionState {
+  { phase: Idle, status: None, message: None, redirect: None }
+}
+
+///|
+/// Pending action state
+pub fn ActionState::pending(message? : String = "Pending") -> ActionState {
+  { phase: Pending, status: None, message: Some(message), redirect: None }
+}
+
+///|
+/// Successful action state
+pub fn ActionState::success(message? : String = "Success") -> ActionState {
+  { phase: Succeeded, status: None, message: Some(message), redirect: None }
+}
+
+///|
+/// Failed action state
+pub fn ActionState::error(status~ : Int, message~ : String) -> ActionState {
+  { phase: Failed, status: Some(status), message: Some(message), redirect: None }
+}
+
+///|
+/// Redirecting action state
+pub fn ActionState::redirect(url : String) -> ActionState {
+  {
+    phase: Redirecting,
+    status: None,
+    message: Some("Redirecting"),
+    redirect: Some(url),
+  }
+}
+
+///|
+/// Convert a client action response into a UI-facing state
+pub fn ActionState::from_response(response : ActionResponse) -> ActionState {
+  match response {
+    Success(_) => ActionState::success()
+    Redirect(url) => ActionState::redirect(url)
+    Error(status, message) => ActionState::error(status~, message~)
+    NetworkError(message) => ActionState::error(status=0, message~)
+  }
+}
+
 // ============================================================================
 // Action Invocation
 // ============================================================================

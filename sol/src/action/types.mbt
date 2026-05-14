@@ -101,6 +101,12 @@ pub fn ActionResult::bad_request(message : String) -> ActionResult {
 }
 
 ///|
+/// Create validation error
+pub fn ActionResult::validation_error(message : String) -> ActionResult {
+  ClientError(422, message)
+}
+
+///|
 /// Create unauthorized error
 pub fn ActionResult::unauthorized(message? : String) -> ActionResult {
   ClientError(401, message.unwrap_or("Unauthorized"))

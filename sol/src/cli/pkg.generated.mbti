@@ -25,6 +25,8 @@ pub fn extract_package_path(String) -> String?
 
 pub fn find_matching_paren(String, Int) -> Int?
 
+pub fn generate_cloudflare_templates(String, String, String?) -> Array[TemplateFile]
+
 pub fn generate_doc_templates(String, String) -> Array[TemplateFile]
 
 pub fn generate_export_name(String, String, String) -> String
@@ -85,9 +87,15 @@ pub fn[FS : @env.FileSystem] scan_mbtx_dir(FS, String, String, base_path? : Stri
 
 pub fn split_params(String) -> Array[String]
 
+pub fn template_client_api_tools_mbt() -> String
+
 pub fn template_client_counter_mbt() -> String
 
 pub fn template_client_counter_moon_pkg() -> String
+
+pub fn template_cloudflare_routes_main_mbt() -> String
+
+pub fn template_cloudflare_routes_moon_pkg(String) -> String
 
 pub fn template_gen_types_mbt() -> String
 
@@ -108,6 +116,8 @@ pub fn template_routes_moon_pkg(String) -> String
 pub fn template_routes_using_mbt() -> String
 
 pub fn template_server_using_mbt() -> String
+
+pub fn template_worker_entry_mjs(sol_module? : String) -> String
 
 pub fn uses_hono_types(String) -> Bool
 

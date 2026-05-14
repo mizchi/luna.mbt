@@ -228,6 +228,9 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
     const html = await ui.text();
     assert.match(html, /Welcome to Sol/);
     assert.match(html, /Operations Console/);
+    assert.match(html, /Last Error: none/);
+    assert.match(html, /Simulate Error/);
+    assert.match(html, /Sol operational app starter/);
     assert.match(html, /\/static\/api_tools\.js/);
 
     const jobs = await worker.fetch(
@@ -293,6 +296,8 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
       const wranglerHtml = await wranglerUi.text();
       assert.match(wranglerHtml, /Welcome to Sol/);
       assert.match(wranglerHtml, /Operations Console/);
+      assert.match(wranglerHtml, /Last Error: none/);
+      assert.match(wranglerHtml, /Simulate Error/);
       assert.match(wranglerHtml, /\/static\/api_tools\.js/);
     } finally {
       await stopWrangler(wrangler);

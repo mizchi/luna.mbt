@@ -27,6 +27,17 @@ let create_user_handler = ActionHandler(async fn(ctx) {
   ActionResult::ok(@js.any({ "id": 123, "name": "John" }))
 })
 
+let update_profile_handler = ActionHandler(async fn(ctx) {
+  let body = ctx.body
+  // ... parse and validate
+
+  if body == "" {
+    return ActionResult::validation_error("Profile payload is required")
+  }
+
+  ActionResult::ok(@js.any({ "message": "Profile updated" }))
+})
+
 let delete_user_handler = ActionHandler(async fn(ctx) {
   // Check authorization
   let user_id = ctx.get_query("id")
@@ -106,6 +117,30 @@ submit_form_as_action(
 )
 ```
 
+### Pending / Success / Error State
+
+Use `ActionState` when the UI needs standard action affordances without
+hand-rolling every state transition:
+
+```moonbit
+let state = @signal.signal(ActionState::idle())
+
+state.set(ActionState::pending(message="Saving"))
+invoke_action("/_action/create-user", payload, fn(response) {
+  let next = ActionState::from_response(response)
+  state.set(next)
+  match next.phase {
+    Succeeded => show_success(next.message.unwrap_or("Saved"))
+    Failed => show_error(next.message.unwrap_or("Action failed"))
+    Redirecting => match next.redirect {
+      Some(url) => redirect_to(url)
+      None => ()
+    }
+    Idle | Pending => ()
+  }
+})
+```
+
 ## ActionResult Types
 
 | Result | Description |
@@ -114,6 +149,9 @@ submit_form_as_action(
 | `Redirect(url)` | Operation succeeded, redirect client |
 | `ClientError(status, msg)` | Client error (4xx) |
 | `ServerError(msg)` | Server error (logged, not exposed) |
+
+`ActionResult::validation_error(message)` is a convenience helper for `422`
+validation failures.
 
 ## Security Middleware
 

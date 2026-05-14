@@ -215,12 +215,12 @@ pub fn template_layout_mbt() -> String {
     #|///| Provides the basic HTML structure for all pages.
     #|///| This is a server component - no event handlers.
     #|
-    #|///| Default page styles
-    #|let default_style : String = "<style>body { font-family: system-ui; max-width: 1040px; margin: 0 auto; padding: 2rem; color: #1f2937; background: #f8fafc; } nav { margin-bottom: 1.25rem; } nav a { margin-right: 1rem; } h1 { margin-bottom: 0.25rem; } .muted { color: #6b7280; } .counter, .worker-panel, .ops-panel { margin: 1.5rem 0; padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; } .panel-title { display: block; font-weight: 700; margin: 0 0 0.5rem; } .buttons, .format-options, .filters, .pagination, .batch-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; } button { border: 1px solid #9ca3af; border-radius: 6px; background: #fff; padding: 0.5rem 0.85rem; cursor: pointer; } .counter .buttons button { font-size: 1.5rem; padding: 0.5rem 1rem; } .is-active { background: #111827; color: white; border-color: #111827; } .status { display: block; margin-top: 1rem; font-size: 0.9rem; color: #2563eb; } .ops-table { display: grid; gap: 0.5rem; margin-top: 1rem; } .ops-row { display: grid; grid-template-columns: 7rem 1fr 6rem auto; gap: 0.75rem; align-items: center; padding: 0.65rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; } .ops-row.is-hidden { display: none; } .badge { display: inline-block; text-align: center; border-radius: 999px; padding: 0.2rem 0.55rem; background: #e0f2fe; color: #075985; font-size: 0.8rem; } .badge.failed { background: #fee2e2; color: #991b1b; } .badge.done { background: #dcfce7; color: #166534; } .batch-progress { margin-top: 0.75rem; height: 0.5rem; background: #e5e7eb; border-radius: 999px; overflow: hidden; } .batch-progress span { display: block; height: 100%; width: 40%; background: #2563eb; } .auth-note { margin-top: 0.75rem; font-size: 0.9rem; color: #4b5563; }</style>"
+    #|///| Default page metadata and styles
+    #|let default_head : String = "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta name=\"description\" content=\"Sol operational app starter\"><link rel=\"icon\" href=\"/favicon.ico\"><style>body { font-family: system-ui; max-width: 1040px; margin: 0 auto; padding: 2rem; color: #1f2937; background: #f8fafc; } nav { margin-bottom: 1.25rem; } nav a { margin-right: 1rem; } h1 { margin-bottom: 0.25rem; } .muted { color: #6b7280; } .counter, .worker-panel, .ops-panel { margin: 1.5rem 0; padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; } .panel-title { display: block; font-weight: 700; margin: 0 0 0.5rem; } .buttons, .format-options, .filters, .pagination, .batch-actions, .state-strip { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; } button { border: 1px solid #9ca3af; border-radius: 6px; background: #fff; padding: 0.5rem 0.85rem; cursor: pointer; } .counter .buttons button { font-size: 1.5rem; padding: 0.5rem 1rem; } .is-active { background: #111827; color: white; border-color: #111827; } .status { display: block; margin-top: 1rem; font-size: 0.9rem; color: #2563eb; } .ops-table { display: grid; gap: 0.5rem; margin-top: 1rem; } .ops-row { display: grid; grid-template-columns: 7rem 1fr 6rem auto; gap: 0.75rem; align-items: center; padding: 0.65rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; } .ops-row.is-hidden { display: none; } .badge { display: inline-block; text-align: center; border-radius: 999px; padding: 0.2rem 0.55rem; background: #e0f2fe; color: #075985; font-size: 0.8rem; } .badge.pending { background: #fef3c7; color: #92400e; } .badge.failed { background: #fee2e2; color: #991b1b; } .badge.done, .badge.success { background: #dcfce7; color: #166534; } .batch-progress { margin-top: 0.75rem; height: 0.5rem; background: #e5e7eb; border-radius: 999px; overflow: hidden; } .batch-progress span { display: block; height: 100%; width: 40%; background: #2563eb; } .auth-note { margin-top: 0.75rem; font-size: 0.9rem; color: #4b5563; }</style>"
     #|
-    #|///| Get default head HTML (styles)
+    #|///| Get default head HTML (metadata and styles)
     #|pub fn head() -> String {
-    #|  default_style
+    #|  default_head
     #|}
     #|
     #|///| Basic layout wrapper - wraps content in container with navigation
@@ -383,6 +383,12 @@ pub fn template_routes_mbt(package_name : String) -> String {
     #|        div(class="batch-actions", [
     #|          button([text("Create Job")]),
     #|          button([text("Retry Failed")]),
+    #|          button([text("Simulate Error")]),
+    #|        ]),
+    #|        div(class="state-strip", [
+    #|          span(class="badge pending", [text("Pending: idle")]),
+    #|          span(class="badge success", [text("Last Success: ready")]),
+    #|          span(class="badge failed", [text("Last Error: none")]),
     #|        ]),
     #|        div(class="pagination", [
     #|          button([text("Previous")]),
@@ -596,6 +602,9 @@ pub fn template_client_api_tools_mbt() -> String {
     #|pub fn api_tools(props : ApiToolsProps) -> @element.DomNode {
     #|  let selected = @signal.signal("all")
     #|  let status = @signal.signal("Ready")
+    #|  let pending = @signal.signal("idle")
+    #|  let last_success = @signal.signal("ready")
+    #|  let last_error = @signal.signal("none")
     #|  let page = @signal.signal(1)
     #|  @element.div(class="ops-panel", [
     #|    @element.span(class="panel-title", [@element.text("Operations Console")]),
@@ -625,16 +634,44 @@ pub fn template_client_api_tools_mbt() -> String {
     #|    @element.div(class="batch-actions", [
     #|      @element.button(
     #|        on=@element.events().click(_ => {
+    #|          pending.update(_ => "submitting")
+    #|          last_error.update(_ => "none")
+    #|          last_success.update(_ => "draft created")
     #|          status.update(_ => "Created local draft job")
     #|        }),
     #|        [@element.text("Create Job")],
     #|      ),
     #|      @element.button(
     #|        on=@element.events().click(_ => {
+    #|          pending.update(_ => "queued")
+    #|          last_error.update(_ => "none")
+    #|          last_success.update(_ => "retry queued")
     #|          status.update(_ => "Retrying failed jobs")
     #|        }),
     #|        [@element.text("Retry Failed")],
     #|      ),
+    #|      @element.button(
+    #|        on=@element.events().click(_ => {
+    #|          pending.update(_ => "idle")
+    #|          last_error.update(_ => "validation failed")
+    #|          status.update(_ => "Validation failed")
+    #|        }),
+    #|        [@element.text("Simulate Error")],
+    #|      ),
+    #|    ]),
+    #|    @element.div(class="state-strip", [
+    #|      @element.span(class="badge pending", [
+    #|        @element.text("Pending: "),
+    #|        @element.text_of(pending),
+    #|      ]),
+    #|      @element.span(class="badge success", [
+    #|        @element.text("Last Success: "),
+    #|        @element.text_of(last_success),
+    #|      ]),
+    #|      @element.span(class="badge failed", [
+    #|        @element.text("Last Error: "),
+    #|        @element.text_of(last_error),
+    #|      ]),
     #|    ]),
     #|    @element.div(class="pagination", [
     #|      @element.button(
@@ -882,6 +919,13 @@ fn template_cloudflare_readme(project_name : String) -> String {
     #|The generated `wrangler.toml` includes placeholder KV and R2 bindings:
     #|replace `APP_KV.id` and `UPLOADS_BUCKET.bucket_name` before production deploy.
     #|
+    #|## Dogfood checklist
+    #|
+    #|- Pending, success, and error states are visible before wiring real APIs.
+    #|- Copyable API URLs and finite filter controls are present on the first screen.
+    #|- Worker-owned APIs return JSON, while Sol-owned pages keep HTML responses.
+    #|- `pnpm verify` exercises the Worker entry instead of private build paths.
+    #|
     #|## Build
     #|
     #|```bash
@@ -942,6 +986,9 @@ fn template_cloudflare_e2e_spec_ts() -> String {
     #|
     #|  await page.getByRole("button", { name: "Retry Failed" }).click();
     #|  await expect(page.getByText("Retrying failed jobs")).toBeVisible();
+    #|
+    #|  await page.getByRole("button", { name: "Simulate Error" }).click();
+    #|  await expect(page.getByText("Last Error: validation failed")).toBeVisible();
     #|
     #|  const health = await page.request.get("/api/health");
     #|  await expect(health).toBeOK();

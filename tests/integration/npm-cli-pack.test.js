@@ -175,6 +175,20 @@ test("@luna_ui/sol tarball contains a runnable CLI", { timeout: 240_000 }, () =>
       `sol --help failed:\nstdout=${r.stdout}\nstderr=${r.stderr}`,
     );
     assert.match(r.stdout, /Sol CLI/, `unexpected --help output: ${r.stdout}`);
+
+    const buildHelp = spawnSync(process.execPath, [binEntry, "build", "--help"], {
+      encoding: "utf8",
+    });
+    assert.equal(
+      buildHelp.status,
+      0,
+      `sol build --help failed from npm tarball:\nstdout=${buildHelp.stdout}\nstderr=${buildHelp.stderr}`,
+    );
+    assert.match(
+      buildHelp.stdout,
+      /Usage:\s*sol build/i,
+      `unexpected build --help output: ${buildHelp.stdout}`,
+    );
   } finally {
     cleanup();
   }

@@ -46,6 +46,18 @@ test "ActionResult::bad_request creates 400 error" {
 }
 
 ///|
+test "ActionResult::validation_error creates 422 error" {
+  let result = ActionResult::validation_error("Name is required")
+  match result {
+    ClientError(status, msg) => {
+      assert_eq(status, 422)
+      assert_eq(msg, "Name is required")
+    }
+    _ => fail("expected ClientError")
+  }
+}
+
+///|
 test "ActionResult::unauthorized creates 401 error" {
   let result = ActionResult::unauthorized()
   match result {
@@ -181,4 +193,49 @@ test "ActionRegistry::register_all adds multiple actions" {
   ]
   let registry = ActionRegistry::new().register_all(actions)
   assert_eq(registry.action_ids().length(), 2)
+}
+
+// ============================================================================
+// ActionState Tests
+// ============================================================================
+
+///|
+test "ActionState constructors cover idle pending success and error states" {
+  let idle = ActionState::idle()
+  assert_true(idle.phase is ActionPhase::Idle)
+  assert_eq(idle.message, None)
+
+  let pending = ActionState::pending(message="Saving")
+  assert_true(pending.phase is ActionPhase::Pending)
+  assert_eq(pending.message, Some("Saving"))
+
+  let success = ActionState::success(message="Saved")
+  assert_true(success.phase is ActionPhase::Succeeded)
+  assert_eq(success.message, Some("Saved"))
+
+  let failed = ActionState::error(status=422, message="Invalid")
+  assert_true(failed.phase is ActionPhase::Failed)
+  assert_eq(failed.status, Some(422))
+  assert_eq(failed.message, Some("Invalid"))
+}
+
+///|
+test "ActionState::from_response maps action responses to UI states" {
+  let ok = ActionState::from_response(ActionResponse::Success(@js.new_object()))
+  assert_true(ok.phase is ActionPhase::Succeeded)
+  assert_eq(ok.message, Some("Success"))
+
+  let redirect = ActionState::from_response(ActionResponse::Redirect("/done"))
+  assert_true(redirect.phase is ActionPhase::Redirecting)
+  assert_eq(redirect.redirect, Some("/done"))
+
+  let failed = ActionState::from_response(ActionResponse::Error(400, "Bad input"))
+  assert_true(failed.phase is ActionPhase::Failed)
+  assert_eq(failed.status, Some(400))
+  assert_eq(failed.message, Some("Bad input"))
+
+  let network = ActionState::from_response(ActionResponse::NetworkError("offline"))
+  assert_true(network.phase is ActionPhase::Failed)
+  assert_eq(network.status, Some(0))
+  assert_eq(network.message, Some("offline"))
 }
