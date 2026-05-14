@@ -63,7 +63,15 @@ pub fn NavContext::build(
 
   // Find prev/next pages
   let (prev_page, next_page) = find_siblings(tree, current_url, locale)
-  { tree, current_page, breadcrumb_path, prev_page, next_page, locale, base_url }
+  {
+    tree,
+    current_page,
+    breadcrumb_path,
+    prev_page,
+    next_page,
+    locale,
+    base_url,
+  }
 }
 
 ///|
@@ -75,7 +83,7 @@ fn build_breadcrumb_path(
   let path : Array[(String, String)] = []
 
   // Parse URL into segments
-  let url = current_url.trim_start(chars="/").trim_end(chars="/").to_string()
+  let url = current_url.trim_start(chars="/").trim_end(chars="/").to_owned()
   if url.is_empty() {
     return path
   }

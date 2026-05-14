@@ -63,10 +63,7 @@ pub fn ServerIslandRegistry::is_empty(self : ServerIslandRegistry) -> Bool {
 ///|
 /// Register the `/_sol/defer/:id` endpoint for server islands.
 /// Called from `register_compiled_sol_routes` when a registry is provided.
-fn register_defer_endpoint(
-  app : App,
-  registry : ServerIslandRegistry,
-) -> Unit {
+fn register_defer_endpoint(app : App, registry : ServerIslandRegistry) -> Unit {
   app.get(
     "/_sol/defer/:id",
     @mars.handler(async fn(c) {
@@ -76,9 +73,7 @@ fn register_defer_endpoint(
         Some(def) => {
           // Parse props from query parameter
           let props_str = c.query("props").unwrap_or("{}")
-          let props : Json = @json.parse(props_str) catch {
-            _ => ().to_json()
-          }
+          let props : Json = @json.parse(props_str) catch { _ => ().to_json() }
           // Render the island
           let node : @server_dom.ServerNode = (def.render)(props)
           // Resolve async node and render to HTML

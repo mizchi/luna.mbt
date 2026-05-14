@@ -6,7 +6,7 @@ pub enum WasmEntrypointRuntime {
   Wagi
   WasiCli
   Component
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Source kinds accepted by wasm entrypoint builder.
@@ -14,7 +14,7 @@ pub enum WasmEntrypointSourceKind {
   MoonEntrypoint
   DirectWasm
   WacFile
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Build path used for final mounted wasm artifact.
@@ -22,7 +22,7 @@ pub enum WasmBuildKind {
   MoonBuild
   DirectCopy
   WiteCompose
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Build options for wasm entrypoint facade API.
@@ -203,11 +203,11 @@ fn extract_wasm_entrypoint_array(obj : Map[String, Json]) -> Array[Json] {
 ///|
 fn parse_wasm_methods(entry_obj : Map[String, Json]) -> Array[String] {
   let from_method = parse_method_field(entry_obj.get("method"))
-  if !(from_method.is_empty()) {
+  if !from_method.is_empty() {
     return from_method
   }
   let from_methods = parse_method_field(entry_obj.get("methods"))
-  if !(from_methods.is_empty()) {
+  if !from_methods.is_empty() {
     return from_methods
   }
   ["GET"]
@@ -227,7 +227,7 @@ fn parse_method_field(value : Json?) -> Array[String] {
         match item {
           String(s) =>
             match normalize_http_method(s) {
-              Some(v) => if !(parsed.contains(v)) { parsed.push(v) }
+              Some(v) => if !parsed.contains(v) { parsed.push(v) }
               None => ()
             }
           _ => ()

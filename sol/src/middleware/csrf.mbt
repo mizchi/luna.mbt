@@ -199,13 +199,7 @@ fn validate_csrf(ctx : Ctx, config : CsrfConfig) -> CsrfResult {
   let referer = ctx.header("Referer")
   let sec_fetch_site = ctx.header("Sec-Fetch-Site")
   let content_type = ctx.header("Content-Type")
-  validate_csrf_pure(
-    origin~,
-    referer~,
-    sec_fetch_site~,
-    content_type~,
-    config~,
-  )
+  validate_csrf_pure(origin~, referer~, sec_fetch_site~, content_type~, config~)
 }
 
 ///|
@@ -422,7 +416,8 @@ pub fn require_content_type(content_type : String) -> Middleware {
       if is_safe_method(ctx.meth().to_string()) {
         return // Continue
       }
-      match validate_content_type_pure(ctx.header("Content-Type"), content_type) {
+      match
+        validate_content_type_pure(ctx.header("Content-Type"), content_type) {
         Valid | ValidNoOrigin | ValidOrigin(_) => () // Continue
         Invalid(_) => ctx.text("Invalid Content-Type", status=400)
       }

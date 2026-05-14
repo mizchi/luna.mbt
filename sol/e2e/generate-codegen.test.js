@@ -212,8 +212,42 @@ test("sol generate: contract manifest drives route/action/client asset types", (
       path.join(sandbox, "sol.contract.json"),
       JSON.stringify(
         {
-          routes: ["/api/items/:id"],
-          actions: ["submit-contact"],
+          routes: [
+            {
+              path: "/api/items/:id",
+              query: [
+                { name: "include", optional: true },
+                { name: "token", optional: false },
+              ],
+            },
+          ],
+          actions: [
+            {
+              id: "submit-contact",
+              request: {
+                name: "SubmitContactRequest",
+                fields: [{ name: "email", type: "String" }],
+              },
+              response: {
+                name: "SubmitContactResponse",
+                fields: [{ name: "ok", type: "Bool" }],
+              },
+            },
+          ],
+          apis: [
+            {
+              method: "POST",
+              path: "/api/items/:id",
+              request: {
+                name: "CreateItemRequest",
+                fields: [{ name: "title", type: "String" }],
+              },
+              response: {
+                name: "ItemResponse",
+                fields: [{ name: "id", type: "String" }],
+              },
+            },
+          ],
           clientAssets: [
             {
               component: "counter",
@@ -264,9 +298,18 @@ test("sol generate: contract manifest drives route/action/client asset types", (
     assert.ok(fs.existsSync(typesPath), "manifest should generate types.mbt");
     const types = fs.readFileSync(typesPath, "utf8");
     assert.match(types, /pub\(all\) struct RouteApiItemsIdParams/);
+    assert.match(types, /pub\(all\) struct RouteApiItemsIdQuery/);
+    assert.match(types, /token : String/);
+    assert.match(types, /include : String\?/);
+    assert.match(types, /pub\(all\) struct SubmitContactRequest/);
+    assert.match(types, /pub\(all\) struct SubmitContactResponse/);
+    assert.match(types, /pub\(all\) struct CreateItemRequest/);
+    assert.match(types, /pub\(all\) struct ItemResponse/);
     assert.match(types, /pub\(all\) struct CounterProps/);
     assert.match(types, /pub fn params_api_items_id/);
+    assert.match(types, /pub fn query_api_items_id/);
     assert.match(types, /pub fn action_submit_contact\(\)/);
+    assert.match(types, /pub fn action_submit_contact_typed\(\)/);
     assert.match(types, /pub fn counter\(/);
     assert.match(types, /counter_at\("\/assets\/counter\.abc123\.js"/);
 
@@ -287,6 +330,37 @@ test("sol generate: contract manifest drives route/action/client asset types", (
       fs.existsSync(path.join(sandbox, "app", "__gen__", "client")),
       false,
       "external client bundle should not create generated MoonBit client glue"
+    );
+
+    const typecheckPath = path.join(sandbox, "contract-boundary-check.ts");
+    fs.writeFileSync(
+      typecheckPath,
+      [
+        'import type { SolActionRequest, SolActionResponse, SolApiRequest, SolApiResponse, SolRouteQueryOf, SolRouteRef } from "./app/__gen__/types/types";',
+        "",
+        'const query: SolRouteQueryOf<"/api/items/:id"> = { token: "t", include: null };',
+        'const route: SolRouteRef<"/api/items/:id"> = { path: "/api/items/:id", params: { id: "1" }, query };',
+        'const actionReq: SolActionRequest<"submit-contact"> = { email: "a@example.com" };',
+        'const actionRes: SolActionResponse<"submit-contact"> = { ok: true };',
+        'const apiReq: SolApiRequest<"POST /api/items/:id"> = { title: "hello" };',
+        'const apiRes: SolApiResponse<"POST /api/items/:id"> = { id: "1" };',
+        "void [route, actionReq, actionRes, apiReq, apiRes];",
+        "",
+        "// @ts-expect-error missing required query token",
+        'const badQuery: SolRouteQueryOf<"/api/items/:id"> = { include: "all" };',
+        "void badQuery;",
+        "",
+        "// @ts-expect-error action request payload is typed",
+        'const badActionReq: SolActionRequest<"submit-contact"> = { name: "not-email" };',
+        "void badActionReq;",
+        "",
+      ].join("\n")
+    );
+    const typecheck = runTypeScriptCheck(typecheckPath);
+    assert.equal(
+      typecheck.status,
+      0,
+      `generated boundary contract types should typecheck\nstdout:\n${typecheck.stdout}\nstderr:\n${typecheck.stderr}`
     );
   } finally {
     fs.rmSync(sandbox, { recursive: true, force: true });

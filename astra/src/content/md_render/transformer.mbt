@@ -59,7 +59,7 @@ fn resolve_href(
 
   // Handle ./ prefix
   let clean_href = if href.has_prefix("./") {
-    let slice_result : String = href[2:].to_string() catch { _ => href }
+    let slice_result : String = href[2:].to_owned()
     slice_result
   } else {
     href
@@ -121,9 +121,7 @@ fn strip_locale_prefix(url_path : String, locale_prefix : String) -> String {
   }
   let prefix_with_slash = locale_prefix + "/"
   if url_path.has_prefix(prefix_with_slash) {
-    let rest : String = url_path[prefix_with_slash.length():].to_string() catch {
-      _ => return url_path
-    }
+    let rest : String = url_path[prefix_with_slash.length():].to_owned()
     "/" + rest
   } else if url_path == locale_prefix + "/" {
     "/"
@@ -138,9 +136,7 @@ fn strip_locale_prefix(url_path : String, locale_prefix : String) -> String {
 fn get_parent_directory(url_path : String) -> String {
   // Remove trailing slash if present
   let trimmed = if url_path.has_suffix("/") {
-    let slice_result : String = url_path[:url_path.length() - 1].to_string() catch {
-      _ => url_path
-    }
+    let slice_result : String = url_path[:url_path.length() - 1].to_owned()
     slice_result
   } else {
     url_path
@@ -155,7 +151,7 @@ fn get_parent_directory(url_path : String) -> String {
     }
   }
   if last_slash > 0 {
-    String::from_array(chars[:last_slash + 1].to_array())
+    String::from_array(chars[:last_slash + 1].to_owned())
   } else {
     "/"
   }
@@ -294,7 +290,7 @@ pub fn md_node_to_vnode(
 
       // Build code element attributes
       let code_attrs : Array[(String, @luna.Attr[Unit, String])] = []
-      if !(info.lang.is_empty()) {
+      if !info.lang.is_empty() {
         code_attrs.push(attr("class", "language-\{info.lang}"))
       }
       let code_el = h("code", code_attrs, [@luna.text(code)])
@@ -303,13 +299,13 @@ pub fn md_node_to_vnode(
       let pre_attrs : Array[(String, @luna.Attr[Unit, String])] = [
         attr("class", "code-block"),
       ]
-      if !(info.lang.is_empty()) {
+      if !info.lang.is_empty() {
         pre_attrs.push(attr("data-lang", info.lang))
       }
-      if !(info.filename.is_empty()) {
+      if !info.filename.is_empty() {
         pre_attrs.push(attr("data-filename", info.filename))
       }
-      if !(info.meta.is_empty()) {
+      if !info.meta.is_empty() {
         pre_attrs.push(attr("data-meta", info.meta))
       }
       h("pre", pre_attrs, [code_el])
@@ -332,7 +328,7 @@ pub fn md_node_to_vnode(
       let attrs : Array[(String, @luna.Attr[Unit, String])] = [
         attr("href", resolved_href),
       ]
-      if !(title.is_empty()) {
+      if !title.is_empty() {
         attrs.push(attr("title", title))
       }
       // Add external link attributes for external URLs
@@ -347,7 +343,7 @@ pub fn md_node_to_vnode(
         attr("src", src),
         attr("alt", alt),
       ]
-      if !(title.is_empty()) {
+      if !title.is_empty() {
         attrs.push(attr("title", title))
       }
       h("img", attrs, [])
@@ -596,7 +592,7 @@ fn jsx_to_component_embed(
         Some(h) => style = style + "min-height:\{h};"
         None => ()
       }
-      if !(style.is_empty()) {
+      if !style.is_empty() {
         attrs.push(("style", style))
       }
     }
@@ -604,7 +600,7 @@ fn jsx_to_component_embed(
   }
 
   // Generate SSR content for demo components if children is empty
-  let content = if jsx.children.trim(chars=" \t\n\r").to_string().is_empty() &&
+  let content = if jsx.children.trim(chars=" \t\n\r").to_owned().is_empty() &&
     is_demo_component(tag) {
     generate_demo_ssr(tag, attrs).unwrap_or("")
   } else {
@@ -624,7 +620,7 @@ fn parse_trigger(s : String) -> @luna.Trigger {
     "none" => @luna.TriggerType::None
     _ =>
       if s.has_prefix("media:") {
-        let query : String = s[6:].to_string() catch { _ => "" }
+        let query : String = s[6:].to_owned()
         @luna.TriggerType::Media(query)
       } else {
         @luna.TriggerType::Load

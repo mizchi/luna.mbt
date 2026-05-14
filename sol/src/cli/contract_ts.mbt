@@ -41,7 +41,14 @@ fn contract_manifest_from_ts_source(
     }
     components.push(component)
   }
-  let manifest = { routes: [], actions: [], client_assets, components }
+  let manifest = {
+    routes: [],
+    actions: [],
+    apis: [],
+    client_assets,
+    components,
+    contract_shapes: [],
+  }
   if validate_contract_manifest(manifest) {
     Ok(manifest)
   } else {
@@ -84,7 +91,14 @@ fn[FS : @env.FileSystem] load_contract_ts_manifest_with_fs(
       components.push(component)
     }
   }
-  let manifest = { routes: [], actions: [], client_assets, components }
+  let manifest = {
+    routes: [],
+    actions: [],
+    apis: [],
+    client_assets,
+    components,
+    contract_shapes: [],
+  }
   if validate_contract_manifest(manifest) {
     Ok(manifest)
   } else {
@@ -120,7 +134,36 @@ fn ContractManifest::to_json(self : ContractManifest) -> Json {
   }
   let actions : Array[Json] = []
   for action in self.actions {
-    actions.push(action.id.to_json())
+    if action.request_shape.is_none() && action.response_shape.is_none() {
+      actions.push(action.id.to_json())
+    } else {
+      let obj : Map[String, Json] = { "id": action.id.to_json() }
+      match action.request_shape {
+        Some(shape) => obj["request"] = shape.to_json()
+        None => ()
+      }
+      match action.response_shape {
+        Some(shape) => obj["response"] = shape.to_json()
+        None => ()
+      }
+      actions.push(obj.to_json())
+    }
+  }
+  let apis : Array[Json] = []
+  for api in self.apis {
+    let obj : Map[String, Json] = {
+      "method": api.method_name.to_json(),
+      "path": api.path.to_json(),
+    }
+    match api.request_shape {
+      Some(shape) => obj["request"] = shape.to_json()
+      None => ()
+    }
+    match api.response_shape {
+      Some(shape) => obj["response"] = shape.to_json()
+      None => ()
+    }
+    apis.push(obj.to_json())
   }
   let client_assets : Array[Json] = []
   for asset in self.client_assets {
@@ -133,6 +176,7 @@ fn ContractManifest::to_json(self : ContractManifest) -> Json {
   {
     "routes": routes.to_json(),
     "actions": actions.to_json(),
+    "apis": apis.to_json(),
     "clientAssets": client_assets.to_json(),
     "components": components.to_json(),
   }.to_json()
@@ -155,6 +199,15 @@ fn ContractComponent::to_json(self : ContractComponent) -> Json {
 
 ///|
 fn ContractProps::to_json(self : ContractProps) -> Json {
+  let fields : Array[Json] = []
+  for field in self.fields {
+    fields.push(field.to_json())
+  }
+  { "name": self.name.to_json(), "fields": fields.to_json() }.to_json()
+}
+
+///|
+fn ContractDataShape::to_json(self : ContractDataShape) -> Json {
   let fields : Array[Json] = []
   for field in self.fields {
     fields.push(field.to_json())

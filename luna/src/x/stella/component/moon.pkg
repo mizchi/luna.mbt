@@ -2,4 +2,8 @@ import {
   "mizchi/js" @js,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
+
 supported_targets = "js"

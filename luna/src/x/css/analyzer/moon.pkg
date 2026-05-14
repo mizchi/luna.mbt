@@ -6,6 +6,7 @@ import {
 }
 
 supported_targets = "js"
+
 options(
   "is-main": true,
   link: { "js": { "exports": [ "analyze_file_json" ], "format": "esm" } },

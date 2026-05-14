@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 /// Tests for default switch component
 test "switch_css returns valid CSS" {
   let css = switch_css()

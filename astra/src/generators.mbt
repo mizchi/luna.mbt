@@ -35,9 +35,7 @@ fn generate_sitemap_url(page : PageInfo, base_url : String) -> String {
 /// "2024-12-22T12:00:00.000Z" -> "2024-12-22"
 fn iso_to_date(iso_date : String) -> String {
   if iso_date.length() >= 10 {
-    iso_date[:10].to_string() catch {
-      _ => iso_date
-    }
+    iso_date[:10].to_owned()
   } else {
     iso_date
   }
@@ -102,13 +100,11 @@ fn iso_to_rfc822(iso_date : String) -> String {
   if iso_date.length() < 10 {
     return iso_date
   }
-  let year = iso_date[:4].to_string() catch { _ => return iso_date }
-  let month = iso_date[5:7].to_string() catch { _ => return iso_date }
-  let day = iso_date[8:10].to_string() catch { _ => return iso_date }
+  let year = iso_date[:4].to_owned()
+  let month = iso_date[5:7].to_owned()
+  let day = iso_date[8:10].to_owned()
   let time = if iso_date.length() >= 19 {
-    iso_date[11:19].to_string() catch {
-      _ => "00:00:00"
-    }
+    iso_date[11:19].to_owned()
   } else {
     "00:00:00"
   }
@@ -231,16 +227,13 @@ fn generate_page_content(page : PageInfo) -> String {
 ///|
 /// Strip frontmatter
 fn strip_frontmatter(content : String) -> String {
-  if !(content.has_prefix("---")) {
+  if !content.has_prefix("---") {
     return content
   }
   // Find the second "---"
-  let after_first = content[3:].to_string() catch { _ => return content }
+  let after_first = content[3:].to_owned()
   match find_substring(after_first, "---") {
-    Some(idx) =>
-      after_first[idx + 3:].trim(chars=" \t\n\r").to_string() catch {
-        _ => content
-      }
+    Some(idx) => after_first[idx + 3:].trim(chars=" \t\n\r").to_owned()
     None => content
   }
 }

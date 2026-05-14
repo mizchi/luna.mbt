@@ -211,7 +211,11 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
           _page_components: [],
           _api_handlers: [],
           route_paths: [],
+          route_queries: [],
           action_ids: [],
+          action_contracts: [],
+          api_contracts: [],
+          contract_shapes: [],
         }
       }
   }
@@ -253,6 +257,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       external_client_bundle=config.uses_external_client_bundle(),
       has_route_params~,
       client_assets~,
+      contract_shapes=route_info.contract_shapes,
     )
     let types_mbt_path = @path.join2(types_dir, "types.mbt")
     let types_pkg_path = @path.join2(types_dir, "moon.pkg")

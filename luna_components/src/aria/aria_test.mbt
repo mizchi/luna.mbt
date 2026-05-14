@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 /// Tests for ARIA helpers
 test "switch_aria returns correct attributes" {
   let attrs = switch_aria(true, false)

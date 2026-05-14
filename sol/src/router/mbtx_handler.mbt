@@ -16,10 +16,7 @@ pub(all) struct MbtxRoute {
 ///|
 /// Register .mbtx routes to the app.
 /// Each route calls the pre-loaded render() function from the ESM module.
-pub fn register_mbtx_routes(
-  app : App,
-  routes : Array[MbtxRoute],
-) -> Unit {
+pub fn register_mbtx_routes(app : App, routes : Array[MbtxRoute]) -> Unit {
   for route in routes {
     let js_path = route.js_path
     app.get(
@@ -44,7 +41,7 @@ pub fn register_mbtx_routes(
 
 ///|
 /// Result from mbtx execution
-struct MbtxResponse {
+priv struct MbtxResponse {
   status : Int
   content_type : String
   body : String
@@ -117,7 +114,7 @@ pub fn transform_mbtx_to_esm(code : String) -> String {
   }
   let buf = StringBuilder::new()
   // Copy helper definitions before IIFE
-  buf.write_string(code.substring(end=iife_start))
+  buf.write_string(code[:iife_start].to_owned())
   // Replace IIFE with export default function
   buf.write_string(
     "export default function render(env) { globalThis.__MBTX_ENV__ = env; globalThis.__MBTX_RESPONSE__ = undefined;",
@@ -128,16 +125,15 @@ pub fn transform_mbtx_to_esm(code : String) -> String {
   let close_pattern = "})();"
   let close_idx = match code.find(close_pattern) {
     Some(i) => i
-    None => {
+    None =>
       // Try without semicolon
       match code.find("})()") {
         Some(i) => i
         None => return code
       }
-    }
   }
   // Copy IIFE body
-  buf.write_string(code.substring(start=iife_body_start, end=close_idx))
+  buf.write_string(code[iife_body_start:close_idx].to_owned())
   buf.write_string(" return globalThis.__MBTX_RESPONSE__; }\n")
   buf.to_string()
 }

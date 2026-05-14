@@ -130,7 +130,9 @@ test "generate_typescript_contract_decl: emits TypeScript props interfaces" {
       "\"counter\": { props: CounterProps; url: \"/assets/counter.abc123.js\"; wc: false; };",
     ),
   )
-  assert_true(content.contains("export type SolComponentName = keyof SolComponentProps;"))
+  assert_true(
+    content.contains("export type SolComponentName = keyof SolComponentProps;"),
+  )
   assert_true(
     content.contains(
       "export type SolComponentPropsOf<C extends SolComponentName> = SolComponentProps[C];",
@@ -145,27 +147,124 @@ test "generate_typescript_contract_decl: emits TypeScript props interfaces" {
 
 ///|
 test "generate_typescript_contract_decl: emits route and action declarations" {
-  let content = generate_typescript_contract_decl(
-    [],
-    route_info=RouteInfo::{
-      _page_components: [],
-      _api_handlers: [],
-      route_paths: ["/", "/blog/:slug", "/docs/[[...path]]"],
-      action_ids: ["submit-contact"],
-    },
-  )
-  assert_true(content.contains("export type SolRoutePath = \"/\" | \"/blog/:slug\" | \"/docs/[[...path]]\";"))
-  assert_true(content.contains("\"/\": undefined;"))
-  assert_true(content.contains("\"/blog/:slug\": { slug: string; };"))
-  assert_true(content.contains("\"/docs/[[...path]]\": { path?: string | null; };"))
-  assert_true(content.contains("export type SolRouteParamsOf<P extends SolRoutePath> = SolRouteParams[P];"))
+  let content = generate_typescript_contract_decl([], route_info=RouteInfo::{
+    _page_components: [],
+    _api_handlers: [],
+    route_paths: ["/", "/blog/:slug", "/docs/[[...path]]"],
+    route_queries: [],
+    action_ids: ["submit-contact"],
+    action_contracts: [],
+    api_contracts: [],
+    contract_shapes: [],
+  })
   assert_true(
     content.contains(
-      "export type SolRouteRef<P extends SolRoutePath = SolRoutePath> = P extends SolRoutePath ? SolRouteParams[P] extends undefined ? { path: P; params?: undefined; } : { path: P; params: SolRouteParams[P]; } : never;",
+      "export type SolRoutePath = \"/\" | \"/blog/:slug\" | \"/docs/[[...path]]\";",
+    ),
+  )
+  assert_true(content.contains("\"/\": undefined;"))
+  assert_true(content.contains("\"/blog/:slug\": { slug: string; };"))
+  assert_true(
+    content.contains("\"/docs/[[...path]]\": { path?: string | null; };"),
+  )
+  assert_true(
+    content.contains(
+      "export type SolRouteParamsOf<P extends SolRoutePath> = SolRouteParams[P];",
+    ),
+  )
+  assert_true(
+    content.contains(
+      "export type SolRouteRef<P extends SolRoutePath = SolRoutePath> = P extends SolRoutePath ? SolRouteParams[P] extends undefined ? SolRouteQuery[P] extends undefined ? { path: P; params?: undefined; query?: undefined; } : { path: P; params?: undefined; query: SolRouteQuery[P]; } : SolRouteQuery[P] extends undefined ? { path: P; params: SolRouteParams[P]; query?: undefined; } : { path: P; params: SolRouteParams[P]; query: SolRouteQuery[P]; } : never;",
     ),
   )
   assert_true(content.contains("export type SolActionId = \"submit-contact\";"))
-  assert_true(content.contains("export interface SolActionKey<I extends SolActionId = SolActionId> {"))
+  assert_true(
+    content.contains(
+      "export interface SolActionKey<I extends SolActionId = SolActionId> {",
+    ),
+  )
+}
+
+///|
+test "generate_typescript_contract_decl: emits query action and api contracts" {
+  let content = generate_typescript_contract_decl([], route_info=RouteInfo::{
+    _page_components: [],
+    _api_handlers: [],
+    route_paths: ["/search", "/items/:id"],
+    route_queries: [
+      {
+        path: "/search",
+        query: [
+          { name: "q", optional: false },
+          { name: "page", optional: true },
+        ],
+      },
+    ],
+    action_ids: ["submit-contact"],
+    action_contracts: [
+      {
+        id: "submit-contact",
+        request_type: Some("SubmitContactRequest"),
+        response_type: Some("SubmitContactResponse"),
+      },
+    ],
+    api_contracts: [
+      {
+        method_name: "POST",
+        path: "/api/items/:id",
+        request_type: Some("CreateItemRequest"),
+        response_type: Some("ItemResponse"),
+      },
+    ],
+    contract_shapes: [
+      {
+        name: "SubmitContactRequest",
+        fields: [{ name: "email", type_name: "String" }],
+      },
+      {
+        name: "SubmitContactResponse",
+        fields: [{ name: "ok", type_name: "Bool" }],
+      },
+      {
+        name: "CreateItemRequest",
+        fields: [{ name: "title", type_name: "String" }],
+      },
+      { name: "ItemResponse", fields: [{ name: "id", type_name: "String" }] },
+    ],
+  })
+  assert_true(content.contains("export interface SubmitContactRequest {"))
+  assert_true(content.contains("  email: string;"))
+  assert_true(content.contains("export interface SolRouteQuery {"))
+  assert_true(
+    content.contains("\"/search\": { q: string; page?: string | null; };"),
+  )
+  assert_true(content.contains("\"/items/:id\": undefined;"))
+  assert_true(
+    content.contains(
+      "export type SolRouteQueryOf<P extends SolRoutePath> = SolRouteQuery[P];",
+    ),
+  )
+  assert_true(
+    content.contains(
+      "export type SolActionRequest<I extends SolActionId> = SolActionContract[I][\"request\"];",
+    ),
+  )
+  assert_true(
+    content.contains(
+      "\"submit-contact\": { request: SubmitContactRequest; response: SubmitContactResponse; };",
+    ),
+  )
+  assert_true(content.contains("export interface SolApiContract {"))
+  assert_true(
+    content.contains(
+      "\"POST /api/items/:id\": { method: \"POST\"; path: \"/api/items/:id\"; request: CreateItemRequest; response: ItemResponse; };",
+    ),
+  )
+  assert_true(
+    content.contains(
+      "export type SolApiRequest<K extends SolApiKey> = SolApiContract[K][\"request\"];",
+    ),
+  )
 }
 
 ///|

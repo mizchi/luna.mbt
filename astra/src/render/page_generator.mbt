@@ -76,7 +76,7 @@ fn generate_site_internal(
 
   // Step 1.5: Resolve duplicate pages (static paths take priority over dynamic)
   let (pages, unresolved) = @routes.resolve_duplicate_pages(scanned_pages)
-  if !(unresolved.is_empty()) {
+  if !unresolved.is_empty() {
     let errors = unresolved.map(@routes.format_duplicate_error)
     return Err("Unresolvable duplicate pages:\n" + errors.join("\n"))
   }
@@ -91,7 +91,14 @@ fn generate_site_internal(
   let doc_tree = Some(@tree.build_document_tree(config, pages, cwd))
 
   // Step 4: Create build context
-  let ctx = @astra.BuildContext::{ config, pages, sidebar, cwd, doc_tree, is_dev }
+  let ctx = @astra.BuildContext::{
+    config,
+    pages,
+    sidebar,
+    cwd,
+    doc_tree,
+    is_dev,
+  }
 
   // Step 5: Create output directory
   let output_dir = @path.join2(cwd, config.output_dir)
@@ -152,7 +159,7 @@ async fn generate_site_internal_async(
 
   // Step 1.5: Resolve duplicate pages (static paths take priority over dynamic)
   let (pages, unresolved) = @routes.resolve_duplicate_pages(scanned_pages)
-  if !(unresolved.is_empty()) {
+  if !unresolved.is_empty() {
     let errors = unresolved.map(@routes.format_duplicate_error)
     return Err("Unresolvable duplicate pages:\n" + errors.join("\n"))
   }
@@ -167,7 +174,14 @@ async fn generate_site_internal_async(
   let doc_tree = Some(@tree.build_document_tree(config, pages, cwd))
 
   // Step 4: Create build context
-  let ctx = @astra.BuildContext::{ config, pages, sidebar, cwd, doc_tree, is_dev }
+  let ctx = @astra.BuildContext::{
+    config,
+    pages,
+    sidebar,
+    cwd,
+    doc_tree,
+    is_dev,
+  }
 
   // Step 5: Create output directory
   let output_dir = @path.join2(cwd, config.output_dir)
@@ -260,7 +274,7 @@ extern "js" fn decode_query_component(value : String) -> String =
 ///|
 fn parse_query_params(query : String, params : Map[String, String]) -> Unit {
   for part_view in query.split("&") {
-    let part = part_view.to_string()
+    let part = part_view.to_owned()
     if part.is_empty() {
       continue
     }
@@ -273,13 +287,13 @@ fn parse_query_params(query : String, params : Map[String, String]) -> Unit {
           part.length(),
         )
         let key = decode_query_component(key_raw)
-        if !(key.is_empty()) {
+        if !key.is_empty() {
           params[key] = decode_query_component(value_raw)
         }
       }
       None => {
         let key = decode_query_component(part)
-        if !(key.is_empty()) {
+        if !key.is_empty() {
           params[key] = ""
         }
       }

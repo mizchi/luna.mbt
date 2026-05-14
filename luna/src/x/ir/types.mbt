@@ -16,14 +16,14 @@ pub struct Schema {
   definitions : Map[String, TypeDef]
   /// Source file information (optional)
   source : SourceInfo?
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Source file metadata
 pub struct SourceInfo {
   file : String
   lang : SourceLang
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Supported source languages
@@ -33,7 +33,7 @@ pub enum SourceLang {
   Rust
   Go
   Unknown(String)
-} derive(Eq)
+} derive(Eq, Debug)
 
 // =============================================================================
 // Type Definitions
@@ -48,7 +48,7 @@ pub enum TypeDef {
   Enum(EnumDef)
   /// Type alias
   Alias(AliasDef)
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Struct definition
@@ -63,7 +63,7 @@ pub struct StructDef {
   fields : Array[Field]
   /// Derive attributes (e.g., Serialize, Eq)
   derives : Array[String]
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Enum definition
@@ -78,7 +78,7 @@ pub struct EnumDef {
   variants : Array[EnumVariant]
   /// Derive attributes
   derives : Array[String]
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Enum variant
@@ -89,7 +89,7 @@ pub struct EnumVariant {
   doc : String?
   /// Payload type (None for unit variants)
   payload : TypeRef?
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Type alias definition
@@ -102,7 +102,7 @@ pub struct AliasDef {
   type_params : Array[TypeParam]
   /// Target type
   target : TypeRef
-} derive(Eq)
+} derive(Eq, Debug)
 
 // =============================================================================
 // Fields
@@ -123,7 +123,7 @@ pub struct Field {
   default : Json?
   /// Field attributes/annotations
   attrs : Map[String, String]
-} derive(Eq)
+} derive(Eq, Debug)
 
 // =============================================================================
 // Type References
@@ -156,7 +156,7 @@ pub enum TypeRef {
   Function(FunctionType)
   /// Unknown/Any type
   Unknown
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 pub impl Show for TypeRef with output(self, logger) {
@@ -174,7 +174,7 @@ pub enum PrimitiveType {
   String
   Unit
   Never
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Literal type values
@@ -182,14 +182,14 @@ pub enum LiteralType {
   BoolLit(Bool)
   IntLit(Int)
   StringLit(String)
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 /// Function type
 pub struct FunctionType {
   params : Array[TypeRef]
   return_ : TypeRef
-} derive(Eq)
+} derive(Eq, Debug)
 
 // =============================================================================
 // Generics
@@ -204,7 +204,7 @@ pub struct TypeParam {
   constraint : TypeRef?
   /// Default type (optional)
   default : TypeRef?
-} derive(Eq)
+} derive(Eq, Debug)
 
 // =============================================================================
 // Annotations/Attributes
@@ -217,7 +217,7 @@ pub struct Annotation {
   name : String
   /// Annotation arguments
   args : Map[String, Json]
-} derive(Eq)
+} derive(Eq, Debug)
 
 // =============================================================================
 // Constructors

@@ -303,8 +303,8 @@ fn render_vnode_to_dom_with_ids(
       let placeholder = doc.createComment("show")
       // Track multiple nodes for Fragment support
       let current_nodes : Array[@js_dom.Node] = []
-      let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
-      let is_first_render : Ref[Bool] = Ref::new(true)
+      let current_dispose : Ref[(() -> Unit)?] = Ref(None)
+      let is_first_render : Ref[Bool] = Ref(true)
 
       // Create a fragment for initial render
       let fragment = doc.createDocumentFragment()
@@ -379,9 +379,9 @@ fn render_vnode_to_dom_with_ids(
     @core.For(render=render_fn) => {
       // Use a comment as a placeholder/marker for where to insert items
       let placeholder = doc.createComment("for")
-      let entries : Ref[Array[@element.ItemEntry[@luna.Node[@js.Any, String]]]] = Ref::new([],
+      let entries : Ref[Array[@element.ItemEntry[@luna.Node[@js.Any, String]]]] = Ref([],
       )
-      let is_first_render : Ref[Bool] = Ref::new(true)
+      let is_first_render : Ref[Bool] = Ref(true)
 
       // Create a fragment for initial render
       let fragment = doc.createDocumentFragment()
@@ -634,10 +634,10 @@ fn render_error_boundary_to_dom(
   let placeholder = doc.createComment("error-boundary")
 
   // State for error handling
-  let error_state : Ref[Error?] = Ref::new(None)
+  let error_state : Ref[Error?] = Ref(None)
   let content_nodes : Array[@js_dom.Node] = []
-  let reset_ref : Ref[() -> Unit] = Ref::new(fn() { () })
-  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let reset_ref : Ref[() -> Unit] = Ref(fn() { () })
+  let current_dispose : Ref[(() -> Unit)?] = Ref(None)
 
   // Reset function clears error and re-renders children
   let reset = fn() {
@@ -742,7 +742,7 @@ fn render_switch_to_dom(
   let doc = @js_dom.document()
   let placeholder = doc.createComment("switch")
   let current_nodes : Array[@js_dom.Node] = []
-  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let current_dispose : Ref[(() -> Unit)?] = Ref(None)
   let mut current_case_index : Int = -1 // -1 means fallback, -2 means no match
 
   // Helper to find which case matches
@@ -795,7 +795,7 @@ fn render_switch_to_dom(
   fragment_node.appendChild(placeholder) |> ignore
 
   // Set up effect for reactive updates
-  let is_first_render : Ref[Bool] = Ref::new(true)
+  let is_first_render : Ref[Bool] = Ref(true)
   let _ = @resource.render_effect(fn() {
     let new_case = find_matching_case()
 

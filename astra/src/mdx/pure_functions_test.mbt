@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 /// Tests for pure helper behaviors via the public parse_mdx API
 
 // =============================================================================
@@ -37,8 +40,7 @@ test "extract_string_value template literal: export const title with backticks" 
 
 ///|
 test "extract_string_value description: export const description extracted" {
-  let content =
-    "export const description = \"A test description.\"\n\n# Hello\n"
+  let content = "export const description = \"A test description.\"\n\n# Hello\n"
   let (fm, _) = parse_mdx(content)
   match fm.description {
     Some(d) => assert_eq(d, "A test description.")

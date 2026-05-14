@@ -71,7 +71,7 @@ pub fn register_card_component() -> Unit {
             ),
             (
               "onclick",
-              attr_handler(handler(fn(_) { expanded.update(fn(v) { !(v) }) })),
+              attr_handler(handler(fn(_) { expanded.update(fn(v) { !v }) })),
             ),
           ],
         ) <| [

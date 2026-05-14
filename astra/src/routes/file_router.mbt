@@ -171,7 +171,7 @@ pub fn[FS : @env.FileSystem] scan_docs_dir_with_fs(
 ) -> Array[@astra.PageMeta] {
   let pages : Array[@astra.PageMeta] = []
   let full_path = join_path(cwd, docs_dir)
-  if !(@env.FileSystem::exists_sync(filesystem, full_path)) {
+  if !@env.FileSystem::exists_sync(filesystem, full_path) {
     return pages
   }
   scan_recursive_with_fs(
@@ -352,7 +352,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
 ///|
 fn normalize_dynamic_param_value(raw : String, is_catch_all~ : Bool) -> String {
   if is_catch_all {
-    raw.trim(chars="/").to_string()
+    raw.trim(chars="/").to_owned()
   } else {
     raw
   }
@@ -400,8 +400,8 @@ fn default_dynamic_title(param_value : String, parent_path : String) -> String {
   let source = if param_value.is_empty() { parent_path } else { param_value }
   let mut last_segment = ""
   for part in source.split("/") {
-    let seg = part.to_string()
-    if !(seg.is_empty()) {
+    let seg = part.to_owned()
+    if !seg.is_empty() {
       last_segment = seg
     }
   }
@@ -540,7 +540,7 @@ fn[FS : @env.FileSystem] scan_dynamic_file_with_fs(
     let url_path = build_localized_url(canonical_path, locale, i18n)
 
     // Ensure trailing slash
-    let url_path_normalized = if trailing_slash && !(url_path.has_suffix("/")) {
+    let url_path_normalized = if trailing_slash && !url_path.has_suffix("/") {
       url_path + "/"
     } else {
       url_path
@@ -610,7 +610,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
 
   // Find index.md as template
   let index_md_path = join_path(dir_path, "index.md")
-  if !(@env.FileSystem::exists_sync(filesystem, index_md_path)) {
+  if !@env.FileSystem::exists_sync(filesystem, index_md_path) {
     return // No template file
   }
 
@@ -652,7 +652,7 @@ fn[FS : @env.FileSystem] scan_dynamic_dir_with_fs(
     let url_path = build_localized_url(canonical_path, locale, i18n)
 
     // Ensure trailing slash
-    let url_path_normalized = if trailing_slash && !(url_path.has_suffix("/")) {
+    let url_path_normalized = if trailing_slash && !url_path.has_suffix("/") {
       url_path + "/"
     } else {
       url_path
@@ -766,7 +766,7 @@ fn[FS : @env.FileSystem] scan_component_dir_with_fs(
   let url_path = build_localized_url(canonical_path, locale, i18n)
 
   // Ensure trailing slash for component directories
-  let url_path_normalized = if trailing_slash && !(url_path.has_suffix("/")) {
+  let url_path_normalized = if trailing_slash && !url_path.has_suffix("/") {
     url_path + "/"
   } else {
     url_path
@@ -819,7 +819,7 @@ fn[FS : @env.FileSystem] scan_tsx_component_dir_with_fs(
   let url_path = build_localized_url(canonical_path, locale, i18n)
 
   // Ensure trailing slash for component directories
-  let url_path_normalized = if trailing_slash && !(url_path.has_suffix("/")) {
+  let url_path_normalized = if trailing_slash && !url_path.has_suffix("/") {
     url_path + "/"
   } else {
     url_path
@@ -1091,7 +1091,7 @@ fn url_to_name(url_path : String) -> String {
       if trimmed == "/" || trimmed.is_empty() {
         "Home"
       } else {
-        @astra.capitalize_first(trimmed.to_string().replace(old="-", new=" "))
+        @astra.capitalize_first(trimmed.to_owned().replace(old="-", new=" "))
       }
   }
 }

@@ -75,14 +75,10 @@ pub fn RouteParams::require_int(
 ) -> Result[Int, ApiResponse] {
   match self.get_param(name) {
     Some(v) =>
-      try {
-        Ok(@strconv.parse_int!(v))
-      } catch {
-        _ =>
-          Err(ApiResponse::Error("Invalid integer parameter: " + name, 400))
+      Ok(@string.parse_int(v)) catch {
+        _ => Err(ApiResponse::Error("Invalid integer parameter: " + name, 400))
       }
-    None =>
-      Err(ApiResponse::Error("Missing required parameter: " + name, 400))
+    None => Err(ApiResponse::Error("Missing required parameter: " + name, 400))
   }
 }
 
@@ -95,9 +91,7 @@ pub fn RouteParams::require_query(
   match self.get_query(name) {
     Some(v) => Ok(v)
     None =>
-      Err(
-        ApiResponse::Error("Missing required query parameter: " + name, 400),
-      )
+      Err(ApiResponse::Error("Missing required query parameter: " + name, 400))
   }
 }
 
@@ -225,9 +219,7 @@ pub async fn[T : @json.FromJson] PageProps::body_as(
   match self.body_json() {
     None => Err(bad_request("Missing or unreadable request body"))
     Some(json) =>
-      try {
-        Ok(@json.from_json(json))
-      } catch {
+      Ok(@json.from_json(json)) catch {
         e => Err(bad_request("Invalid request body: " + e.to_string()))
       }
   }
@@ -312,7 +304,7 @@ fn extract_route_params(
 /// Remove query string from path (everything after first '?')
 fn strip_query_string(path : String) -> String {
   match path.find("?") {
-    Some(idx) => path.substring(end=idx)
+    Some(idx) => path[:idx].to_owned()
     None => path
   }
 }
@@ -331,9 +323,9 @@ fn extract_route_param_names(path : String) -> Array[String] {
   let names : Array[String] = []
   path
   .split("/")
-  .filter_map(fn(seg) { segment_to_param_name(seg.to_string()) })
+  .filter_map(fn(seg) { segment_to_param_name(seg.to_owned()) })
   .each(fn(name) {
-    if !(name.is_empty()) && !(names.contains(name)) {
+    if !name.is_empty() && !names.contains(name) {
       names.push(name)
     }
   })
@@ -343,9 +335,9 @@ fn extract_route_param_names(path : String) -> Array[String] {
 ///|
 fn segment_to_param_name(segment : String) -> String? {
   if segment.has_prefix(":") && segment.length() > 1 {
-    let raw = segment[1:].to_string() catch { _ => return None }
+    let raw = segment[1:].to_owned()
     let end = find_route_param_end(raw)
-    let name = raw[:end].to_string() catch { _ => return None }
+    let name = raw[:end].to_owned()
     if name.is_empty() {
       None
     } else {
@@ -354,9 +346,7 @@ fn segment_to_param_name(segment : String) -> String? {
   } else if segment.has_prefix("[[...") &&
     segment.has_suffix("]]") &&
     segment.length() > 7 {
-    let name = segment[5:segment.length() - 2].to_string() catch {
-      _ => return None
-    }
+    let name = segment[5:segment.length() - 2].to_owned()
     if name.is_empty() {
       None
     } else {
@@ -365,9 +355,7 @@ fn segment_to_param_name(segment : String) -> String? {
   } else if segment.has_prefix("[...") &&
     segment.has_suffix("]") &&
     segment.length() > 5 {
-    let name = segment[4:segment.length() - 1].to_string() catch {
-      _ => return None
-    }
+    let name = segment[4:segment.length() - 1].to_owned()
     if name.is_empty() {
       None
     } else {
@@ -376,9 +364,7 @@ fn segment_to_param_name(segment : String) -> String? {
   } else if segment.has_prefix("[") &&
     segment.has_suffix("]") &&
     segment.length() > 2 {
-    let name = segment[1:segment.length() - 1].to_string() catch {
-      _ => return None
-    }
+    let name = segment[1:segment.length() - 1].to_owned()
     if name.is_empty() {
       None
     } else {

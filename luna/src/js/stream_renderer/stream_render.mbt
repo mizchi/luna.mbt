@@ -17,9 +17,9 @@ fn extract_wc_name_from_url(url : String) -> String {
   } else {
     "".view()
   }
-  let filename = filename_view.to_string()
+  let filename = filename_view.to_owned()
   let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    filename[:filename.length() - 3].to_string()
+    filename[:filename.length() - 3].to_owned()
   } else {
     filename
   }
@@ -377,7 +377,7 @@ fn render_to_stream_collecting_async_with_ids(
   island_ids : IslandIdAllocator,
 ) -> Array[AsyncBoundary] {
   let boundaries : Array[AsyncBoundary] = []
-  let id_counter : Ref[Int] = Ref::new(0)
+  let id_counter : Ref[Int] = Ref(0)
   render_node_collecting_async(node, writer, boundaries, id_counter, island_ids)
   boundaries
 }

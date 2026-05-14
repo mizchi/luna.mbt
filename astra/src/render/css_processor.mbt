@@ -178,9 +178,9 @@ pub async fn extract_css_utilities_parallel(
   // Combine results
   let css_parts : Array[String] = []
   for result in results {
-    if result.exit_code == 0 && !(result.stdout.is_empty()) {
-      let trimmed = result.stdout.trim().to_string()
-      if !(trimmed.is_empty()) {
+    if result.exit_code == 0 && !result.stdout.is_empty() {
+      let trimmed = result.stdout.trim().to_owned()
+      if !trimmed.is_empty() {
         css_parts.push(trimmed)
       }
     }

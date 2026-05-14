@@ -1,12 +1,11 @@
 import {
   "mizchi/mars" @mars,
   "moonbitlang/core/json",
-  "moonbitlang/async",
 }
+
+supported_targets = "js"
 
 options(
   "is-main": true,
   link: { "js": { "format": "esm" } },
 )
-
-supported_targets = "js"

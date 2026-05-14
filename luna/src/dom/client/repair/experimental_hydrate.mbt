@@ -416,7 +416,7 @@ fn get_text_content(node : @js_dom.Node) -> String {
 fn build_hk_cache(
   container : @js_dom.Element,
 ) -> @hashmap.HashMap[Int, @js_dom.Element] {
-  let cache : @hashmap.HashMap[Int, @js_dom.Element] = @hashmap.new()
+  let cache : @hashmap.HashMap[Int, @js_dom.Element] = @hashmap.HashMap([])
   build_hk_cache_recursive(container.as_node(), cache)
   cache
 }

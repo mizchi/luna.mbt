@@ -5,4 +5,8 @@ import {
   "mizchi/luna/js/resource" @resource,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
+
 supported_targets = "js"

@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Server Action unit tests
 // Note: ActionContext tests require Mars.Context, which is not easily mockable.
 // These tests focus on ActionResult and ActionDef/ActionRegistry.
@@ -166,6 +169,30 @@ test "action_url builds endpoint URL from action key" {
 }
 
 ///|
+priv struct CreateUserRequest {
+  name : String
+}
+
+///|
+priv struct CreateUserResponse {
+  id : String
+}
+
+///|
+test "TypedActionKey carries request and response phantom types" {
+  let req = CreateUserRequest::{ name: "Alice" }
+  let res = CreateUserResponse::{ id: "user-1" }
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::new(
+    "create-user",
+  )
+  assert_eq(req.name, "Alice")
+  assert_eq(res.id, "user-1")
+  assert_eq(key.id(), "create-user")
+  assert_eq(key.base_path(), "/_action")
+  assert_eq(typed_action_url(key), "/_action/create-user")
+}
+
+///|
 test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
@@ -181,10 +208,9 @@ test "ActionDef::with_require_json toggles json requirement" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::ok(@js.new_object())
   })
-  let action = ActionDef::from_key(
-    CreateUserActionKey::{  },
-    handler,
-  ).with_require_json(false)
+  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler).with_require_json(
+    false,
+  )
   assert_false(action.require_json)
 }
 

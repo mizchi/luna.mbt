@@ -52,9 +52,9 @@ fn extract_frontmatter_from_exports(
           match name {
             Some(n) => {
               let cleaned = extract_string_value(value)
-              if n == "title" && !(cleaned.is_empty()) {
+              if n == "title" && !cleaned.is_empty() {
                 fm = { ..fm, title: Some(cleaned) }
-              } else if n == "description" && !(cleaned.is_empty()) {
+              } else if n == "description" && !cleaned.is_empty() {
                 fm = { ..fm, description: Some(cleaned) }
               }
             }
@@ -72,7 +72,7 @@ fn extract_frontmatter_from_exports(
 /// "\"hello\"" -> "hello"
 /// "'hello'" -> "hello"
 fn extract_string_value(value : String) -> String {
-  let trimmed = value.trim(chars=" \t\n\r").to_string()
+  let trimmed = value.trim(chars=" \t\n\r").to_owned()
   let chars = trimmed.to_array()
   let len = chars.length()
   if len < 2 {
@@ -235,8 +235,10 @@ fn convert_jsx_to_embed(
 /// Convert MDX attribute value to Sol SSG MdxAttrValue
 fn convert_attr_value(value : @md_mdx.MdxAttrValue) -> @astra.MdxAttrValue {
   match value {
-    @md_mdx.MdxAttrValue::StringValue(s) => @astra.MdxAttrValue::StringLiteral(s)
-    @md_mdx.MdxAttrValue::ExpressionValue(e) => @astra.MdxAttrValue::Expression(e)
+    @md_mdx.MdxAttrValue::StringValue(s) =>
+      @astra.MdxAttrValue::StringLiteral(s)
+    @md_mdx.MdxAttrValue::ExpressionValue(e) =>
+      @astra.MdxAttrValue::Expression(e)
     @md_mdx.MdxAttrValue::BooleanValue => @astra.MdxAttrValue::Boolean
   }
 }
@@ -303,7 +305,9 @@ fn convert_cst_block(block : @md_parser.Block) -> @astra.MdNode? {
           if children.length() == 1 {
             children[0]
           } else {
-            @astra.MdNode::Text(@md_toc.extract_text_from_inlines(cell.children))
+            @astra.MdNode::Text(
+              @md_toc.extract_text_from_inlines(cell.children),
+            )
           }
         })
       })
@@ -370,7 +374,9 @@ fn convert_inline(inline : @md_parser.Inline) -> @astra.MdNode? {
     }
     @md_parser.Inline::RefLink(children~, label~, ..) => {
       let md_children = convert_inlines(children)
-      Some(@astra.MdNode::Link(href="#" + label, title="", children=md_children))
+      Some(
+        @astra.MdNode::Link(href="#" + label, title="", children=md_children),
+      )
     }
     @md_parser.Inline::Autolink(url~, ..) => {
       let children = [@astra.MdNode::Text(url)]

@@ -76,7 +76,7 @@ extern "js" fn ffi_invoke(
 /// them.
 pub async fn invoke(
   app : @mars.Server,
-  meth~ : String = "GET",
+  meth? : String = "GET",
   path~ : String,
 ) -> InvokeResult {
   ffi_ensure_reschedule_symbol()

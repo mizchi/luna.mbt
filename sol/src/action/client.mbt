@@ -210,7 +210,7 @@ pub fn ActionFormConfig::with_success(
   self : ActionFormConfig,
   on_success : (@js.Any) -> Unit,
 ) -> ActionFormConfig {
-  { ..self, on_success: Some(on_success), }
+  { ..self, on_success: Some(on_success) }
 }
 
 ///|
@@ -219,7 +219,7 @@ pub fn ActionFormConfig::with_error(
   self : ActionFormConfig,
   on_error : (Int, String) -> Unit,
 ) -> ActionFormConfig {
-  { ..self, on_error: Some(on_error), }
+  { ..self, on_error: Some(on_error) }
 }
 
 ///|
@@ -228,7 +228,7 @@ pub fn ActionFormConfig::with_redirect(
   self : ActionFormConfig,
   on_redirect : (String) -> Bool,
 ) -> ActionFormConfig {
-  { ..self, on_redirect: Some(on_redirect), }
+  { ..self, on_redirect: Some(on_redirect) }
 }
 
 ///|

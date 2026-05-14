@@ -95,7 +95,7 @@ fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] 
             children: {},
           }
           current_map[segment] = new_node
-          if !(is_last) {
+          if !is_last {
             current_map = new_node.children
           }
         }
@@ -117,7 +117,7 @@ fn get_path_segments(
   let trimmed = canonical_path
     .trim_start(chars="/")
     .trim_end(chars="/")
-    .to_string()
+    .to_owned()
   if trimmed.is_empty() {
     return segments
   }
@@ -364,7 +364,7 @@ fn get_page_name(url_path : String) -> String {
       if trimmed == "/" || trimmed.is_empty() {
         "Introduction"
       } else {
-        capitalize(trimmed.to_string().replace(old="-", new=" "))
+        capitalize(trimmed.to_owned().replace(old="-", new=" "))
       }
   }
 }
@@ -546,7 +546,8 @@ fn find_title_in_item(
       } else {
         None
       }
-    @astra.SidebarItem::Group(nested) => find_title_in_group(nested, current_path)
+    @astra.SidebarItem::Group(nested) =>
+      find_title_in_group(nested, current_path)
   }
 }
 

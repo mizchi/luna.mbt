@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 //
 
 ///|

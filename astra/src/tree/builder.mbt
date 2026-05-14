@@ -79,16 +79,12 @@ fn build_page_infos_from_meta(
 fn url_to_id(url_path : String) -> String {
   // "/guide/intro/" -> "guide-intro"
   let path = if url_path.has_prefix("/") {
-    url_path[1:].to_string() catch {
-      _ => url_path
-    }
+    url_path[1:].to_owned()
   } else {
     url_path
   }
   let path = if path.has_suffix("/") {
-    path[:path.length() - 1].to_string() catch {
-      _ => path
-    }
+    path[:path.length() - 1].to_owned()
   } else {
     path
   }
@@ -132,25 +128,19 @@ fn build_tree_children(
       page.url_path
       // Relative path from parent_path
     } else if page.url_path.has_prefix(parent_path) {
-      page.url_path[parent_path.length():].to_string() catch {
-        _ => continue
-      }
+      page.url_path[parent_path.length():].to_owned()
     } else {
       continue
     }
     // Remove leading "/"
     let rel_path = if rel_path.has_prefix("/") {
-      rel_path[1:].to_string() catch {
-        _ => rel_path
-      }
+      rel_path[1:].to_owned()
     } else {
       rel_path
     }
     // Remove trailing "/"
     let rel_path = if rel_path.has_suffix("/") {
-      rel_path[:rel_path.length() - 1].to_string() catch {
-        _ => rel_path
-      }
+      rel_path[:rel_path.length() - 1].to_owned()
     } else {
       rel_path
     }
@@ -159,7 +149,7 @@ fn build_tree_children(
       children.push(
         @astra.TreeNode::Page(page_id=page.id, renderer=page.renderer_type),
       )
-    } else if !(rel_path.contains("/")) {
+    } else if !rel_path.contains("/") {
       // Direct child page
       children.push(
         @astra.TreeNode::Page(page_id=page.id, renderer=page.renderer_type),
@@ -167,8 +157,8 @@ fn build_tree_children(
     } else {
       // Subdirectory
       let segments = rel_path.split("/").collect()
-      let first_segment = segments[0].to_string()
-      if !(seen_dirs.contains(first_segment)) {
+      let first_segment = segments[0].to_owned()
+      if !seen_dirs.contains(first_segment) {
         seen_dirs[first_segment] = true
         let sub_path = parent_path + "/" + first_segment
         let sub_children = build_tree_children(pages, sub_path + "/")

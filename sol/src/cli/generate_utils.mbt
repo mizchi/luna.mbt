@@ -27,7 +27,7 @@ pub enum AppMode {
   MoonBitFull // All MoonBit (current default)
   MoonBitClientTsServer // MoonBit client + TypeScript server
   TypeScriptFull // All TypeScript (future)
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Detect app mode based on file extensions

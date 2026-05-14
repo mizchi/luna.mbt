@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 //
 
 ///|
@@ -91,6 +94,17 @@ test "render style element" {
   let node = style_("body { margin: 0; }")
   let html = render(node)
   assert_true(html.contains("<style>body { margin: 0; }</style>"))
+}
+
+///|
+test "render trusted script and style helpers" {
+  let node = fragment([
+    script_trusted(unsafe_trusted_script("console.log(1)")),
+    style_trusted(unsafe_trusted_style("body { color: red; }")),
+  ])
+  let html = render(node)
+  assert_true(html.contains("<script>console.log(1)</script>"))
+  assert_true(html.contains("<style>body { color: red; }</style>"))
 }
 
 ///|

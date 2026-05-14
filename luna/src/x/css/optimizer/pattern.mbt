@@ -54,7 +54,7 @@ pub fn find_frequent_patterns(
       let views = key.split("|").collect()
       let classes : Array[String] = []
       for v in views {
-        classes.push(v.to_string())
+        classes.push(v.to_owned())
       }
       // Estimate savings: each class is ~20 bytes, merged saves (n-1)*usage bytes
       let class_count = classes.length()
@@ -79,7 +79,7 @@ fn remove_subsumed_patterns(
   for i in 0..<patterns.length() {
     let pattern = patterns[i]
     let dominated = is_dominated(pattern, patterns, i)
-    if !(dominated) {
+    if !dominated {
       result.push(pattern)
     }
   }
@@ -125,7 +125,7 @@ fn set_from_array(arr : Array[String]) -> Map[String, Bool] {
 /// Check if a is subset of b
 fn is_subset(a : Map[String, Bool], b : Map[String, Bool]) -> Bool {
   let mut all_in = true
-  a.each(fn(item, _) { if !(b.contains(item)) { all_in = false } })
+  a.each(fn(item, _) { if !b.contains(item) { all_in = false } })
   all_in
 }
 

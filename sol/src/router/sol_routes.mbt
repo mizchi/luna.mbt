@@ -9,7 +9,7 @@
 
 ///|
 /// Tracks cache keys with in-flight STALE revalidation to prevent duplicate renders.
-let isr_in_flight : Ref[Set[String]] = Ref::new(Set::new())
+let isr_in_flight : Ref[Set[String]] = Ref(Set([]))
 
 // ============================================================================
 // Handler Types
@@ -43,7 +43,7 @@ pub(all) enum CacheStrategy {
   /// Stale-While-Revalidate
   /// Shows cached content immediately, then fetches and updates in background
   StaleWhileRevalidate
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Default cache strategy is AlwaysFetch
@@ -206,7 +206,7 @@ pub enum SolRouteKind {
   RawPut
   RawDelete
   RawPatch
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 // ============================================================================
 // Static Directory (SSG Integration)

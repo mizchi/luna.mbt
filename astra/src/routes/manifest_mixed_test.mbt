@@ -107,21 +107,21 @@ test "RouteEntry::path - returns path for all route types" {
 test "RenderMode - SSR mode" {
   let mode = RenderMode::Ssr
   inspect(mode.requires_server(), content="true")
-  inspect(mode.revalidate_seconds(), content="None")
+  debug_inspect(mode.revalidate_seconds(), content="None")
 }
 
 ///|
 test "RenderMode - ISR mode with revalidation" {
   let mode = RenderMode::Isr(revalidate=3600)
   inspect(mode.requires_server(), content="true")
-  inspect(mode.revalidate_seconds(), content="Some(3600)")
+  debug_inspect(mode.revalidate_seconds(), content="Some(3600)")
 }
 
 ///|
 test "RenderMode - SPA mode" {
   let mode = RenderMode::Spa
   inspect(mode.requires_server(), content="false")
-  inspect(mode.revalidate_seconds(), content="None")
+  debug_inspect(mode.revalidate_seconds(), content="None")
 }
 
 ///|
@@ -271,7 +271,7 @@ test "Mixed manifest - e-commerce scenario with catch-all" {
   guard product_route is Some(Dynamic(entry)) else {
     fail("Expected Dynamic route for /products/:id")
   }
-  inspect(entry.mode.revalidate_seconds(), content="Some(300)")
+  debug_inspect(entry.mode.revalidate_seconds(), content="Some(300)")
 }
 
 // =============================================================================
@@ -282,17 +282,18 @@ test "Mixed manifest - e-commerce scenario with catch-all" {
 test "FallbackConfig - NotFound" {
   let config = FallbackConfig::NotFound(path="/404.html")
   inspect(config.is_spa(), content="false")
-  inspect(config.spa_entry(), content="None")
+  debug_inspect(config.spa_entry(), content="None")
 }
 
 ///|
 test "FallbackConfig - SPA" {
   let config = FallbackConfig::Spa(entry="/index.html")
   inspect(config.is_spa(), content="true")
-  inspect(
+  debug_inspect(
     config.spa_entry(),
     content=(
-      #|Some(/index.html)
+      #|Some("/index.html")
+
     ),
   )
 }
@@ -301,10 +302,11 @@ test "FallbackConfig - SPA" {
 test "FallbackConfig - SpaPrefix" {
   let config = FallbackConfig::SpaPrefix(prefix="/app", entry="/app/index.html")
   inspect(config.is_spa(), content="true")
-  inspect(
+  debug_inspect(
     config.spa_entry(),
     content=(
-      #|Some(/app/index.html)
+      #|Some("/app/index.html")
+
     ),
   )
 }
@@ -324,10 +326,11 @@ test "extract_url_pattern - static path" {
 test "extract_url_pattern - single dynamic segment" {
   let (pattern, params) = extract_url_pattern("/blog/:slug")
   inspect(pattern, content="^/blog/([^/]+)$")
-  inspect(
+  debug_inspect(
     params,
     content=(
-      #|[slug]
+      #|["slug"]
+
     ),
   )
 }
@@ -336,10 +339,11 @@ test "extract_url_pattern - single dynamic segment" {
 test "extract_url_pattern - multiple dynamic segments" {
   let (pattern, params) = extract_url_pattern("/users/:id/posts/:postId")
   inspect(pattern, content="^/users/([^/]+)/posts/([^/]+)$")
-  inspect(
+  debug_inspect(
     params,
     content=(
-      #|[id, postId]
+      #|["id", "postId"]
+
     ),
   )
 }
@@ -348,10 +352,11 @@ test "extract_url_pattern - multiple dynamic segments" {
 test "extract_url_pattern - Next.js style brackets" {
   let (pattern, params) = extract_url_pattern("/blog/[slug]")
   inspect(pattern, content="^/blog/([^/]+)$")
-  inspect(
+  debug_inspect(
     params,
     content=(
-      #|[slug]
+      #|["slug"]
+
     ),
   )
 }
@@ -360,10 +365,11 @@ test "extract_url_pattern - Next.js style brackets" {
 test "extract_url_pattern - catch-all pattern" {
   let (pattern, params) = extract_url_pattern("/docs/[...path]")
   inspect(pattern, content="^/docs/(.*)$")
-  inspect(
+  debug_inspect(
     params,
     content=(
-      #|[path]
+      #|["path"]
+
     ),
   )
 }

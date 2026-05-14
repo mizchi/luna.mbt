@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Middleware unit tests
 
 // ============================================================================
@@ -441,8 +444,8 @@ test "is_safe_method returns false for DELETE" {
 test "resolve_response_origin with All allows any origin" {
   let result = resolve_response_origin("https://anything.com", CorsOrigin::All)
   match result {
-    Some(o) => assert_eq!(o, "*")
-    None => fail!("expected Some")
+    Some(o) => assert_eq(o, "*")
+    None => fail("expected Some")
   }
 }
 
@@ -453,8 +456,8 @@ test "resolve_response_origin with Single matches exact origin" {
     CorsOrigin::Single("https://example.com"),
   )
   match result {
-    Some(o) => assert_eq!(o, "https://example.com")
-    None => fail!("expected Some")
+    Some(o) => assert_eq(o, "https://example.com")
+    None => fail("expected Some")
   }
 }
 
@@ -474,8 +477,8 @@ test "resolve_response_origin with List matches included origin" {
     CorsOrigin::List(["https://example.com", "https://app.example.com"]),
   )
   match result {
-    Some(o) => assert_eq!(o, "https://app.example.com")
-    None => fail!("expected Some")
+    Some(o) => assert_eq(o, "https://app.example.com")
+    None => fail("expected Some")
   }
 }
 
@@ -495,8 +498,8 @@ test "resolve_response_origin with Dynamic allows matching origin" {
     CorsOrigin::Dynamic(fn(o) { o.has_suffix(".example.com") }),
   )
   match result {
-    Some(o) => assert_eq!(o, "https://sub.example.com")
-    None => fail!("expected Some")
+    Some(o) => assert_eq(o, "https://sub.example.com")
+    None => fail("expected Some")
   }
 }
 
@@ -626,9 +629,7 @@ test "cors_with_config() for List origin creates middleware" {
 ///|
 test "cors_with_config() for Dynamic origin creates middleware" {
   let mw = cors_with_config(
-    CorsConfig::default().with_origin(
-      CorsOrigin::Dynamic(fn(_o) { true }),
-    ),
+    CorsConfig::default().with_origin(CorsOrigin::Dynamic(fn(_o) { true })),
   )
   let _ = mw
 }
@@ -839,7 +840,7 @@ test "validate_origin_pure: valid origin in allowed list" {
     allow_no_origin=true,
   )
   match result {
-    ValidOrigin(o) => assert_eq!(o, "https://example.com")
+    ValidOrigin(o) => assert_eq(o, "https://example.com")
     _ => fail("expected ValidOrigin")
   }
 }
@@ -852,7 +853,7 @@ test "validate_origin_pure: origin not in allowed list" {
     allowed_origins=["https://example.com"],
     allow_no_origin=true,
   )
-  assert_true!(result is Invalid(_))
+  assert_true(result is Invalid(_))
 }
 
 ///|
@@ -877,7 +878,7 @@ test "validate_origin_pure: no origin with allow_no_origin" {
     allowed_origins=[],
     allow_no_origin=true,
   )
-  assert_true!(result is ValidNoOrigin)
+  assert_true(result is ValidNoOrigin)
 }
 
 ///|
@@ -888,7 +889,7 @@ test "validate_origin_pure: no origin without allow_no_origin" {
     allowed_origins=[],
     allow_no_origin=false,
   )
-  assert_true!(result is Invalid(_))
+  assert_true(result is Invalid(_))
 }
 
 ///|
@@ -899,7 +900,7 @@ test "validate_origin_pure: no origin with valid referer" {
     allowed_origins=["https://example.com"],
     allow_no_origin=true,
   )
-  assert_true!(result is ValidNoOrigin)
+  assert_true(result is ValidNoOrigin)
 }
 
 ///|
@@ -910,7 +911,7 @@ test "validate_origin_pure: no origin with invalid referer" {
     allowed_origins=["https://example.com"],
     allow_no_origin=true,
   )
-  assert_true!(result is Invalid(_))
+  assert_true(result is Invalid(_))
 }
 
 ///|
@@ -921,7 +922,7 @@ test "validate_origin_pure: no origin with referer and empty allowed list" {
     allowed_origins=[],
     allow_no_origin=true,
   )
-  assert_true!(result is ValidNoOrigin)
+  assert_true(result is ValidNoOrigin)
 }
 
 // ============================================================================
@@ -931,37 +932,37 @@ test "validate_origin_pure: no origin with referer and empty allowed list" {
 ///|
 test "validate_fetch_metadata_pure: cross-site rejected" {
   let result = validate_fetch_metadata_pure(Some("cross-site"))
-  assert_true!(result is Invalid(CrossSiteFetch))
+  assert_true(result is Invalid(CrossSiteFetch))
 }
 
 ///|
 test "validate_fetch_metadata_pure: same-origin allowed" {
   let result = validate_fetch_metadata_pure(Some("same-origin"))
-  assert_true!(result is Valid)
+  assert_true(result is Valid)
 }
 
 ///|
 test "validate_fetch_metadata_pure: same-site allowed" {
   let result = validate_fetch_metadata_pure(Some("same-site"))
-  assert_true!(result is Valid)
+  assert_true(result is Valid)
 }
 
 ///|
 test "validate_fetch_metadata_pure: none allowed" {
   let result = validate_fetch_metadata_pure(Some("none"))
-  assert_true!(result is Valid)
+  assert_true(result is Valid)
 }
 
 ///|
 test "validate_fetch_metadata_pure: missing header allowed" {
   let result = validate_fetch_metadata_pure(None)
-  assert_true!(result is Valid)
+  assert_true(result is Valid)
 }
 
 ///|
 test "validate_fetch_metadata_pure: unknown value allowed (forward compat)" {
   let result = validate_fetch_metadata_pure(Some("future-value"))
-  assert_true!(result is Valid)
+  assert_true(result is Valid)
 }
 
 // ============================================================================
@@ -974,7 +975,7 @@ test "validate_content_type_pure: exact match" {
     Some("application/json"),
     "application/json",
   )
-  assert_true!(result is Valid)
+  assert_true(result is Valid)
 }
 
 ///|
@@ -983,17 +984,14 @@ test "validate_content_type_pure: with charset suffix" {
     Some("application/json; charset=utf-8"),
     "application/json",
   )
-  assert_true!(result is Valid)
+  assert_true(result is Valid)
 }
 
 ///|
 test "validate_content_type_pure: mismatch" {
-  let result = validate_content_type_pure(
-    Some("text/html"),
-    "application/json",
-  )
+  let result = validate_content_type_pure(Some("text/html"), "application/json")
   match result {
-    Invalid(InvalidContentType(ct)) => assert_eq!(ct, "text/html")
+    Invalid(InvalidContentType(ct)) => assert_eq(ct, "text/html")
     _ => fail("expected InvalidContentType")
   }
 }
@@ -1002,7 +1000,7 @@ test "validate_content_type_pure: mismatch" {
 test "validate_content_type_pure: missing header" {
   let result = validate_content_type_pure(None, "application/json")
   match result {
-    Invalid(InvalidContentType(ct)) => assert_eq!(ct, "(none)")
+    Invalid(InvalidContentType(ct)) => assert_eq(ct, "(none)")
     _ => fail("expected InvalidContentType")
   }
 }
@@ -1021,7 +1019,7 @@ test "validate_csrf_pure: valid same-origin POST" {
     content_type=None,
     config~,
   )
-  assert_true!(result is ValidOrigin(_))
+  assert_true(result is ValidOrigin(_))
 }
 
 ///|
@@ -1034,7 +1032,7 @@ test "validate_csrf_pure: cross-origin blocked by origin check" {
     content_type=None,
     config~,
   )
-  assert_true!(result is Invalid(_))
+  assert_true(result is Invalid(_))
 }
 
 ///|
@@ -1047,7 +1045,7 @@ test "validate_csrf_pure: cross-site fetch metadata blocks" {
     content_type=None,
     config~,
   )
-  assert_true!(result is Invalid(CrossSiteFetch))
+  assert_true(result is Invalid(CrossSiteFetch))
 }
 
 ///|
@@ -1060,7 +1058,7 @@ test "validate_csrf_pure: content-type check blocks wrong type" {
     content_type=Some("text/plain"),
     config~,
   )
-  assert_true!(result is Invalid(InvalidContentType(_)))
+  assert_true(result is Invalid(InvalidContentType(_)))
 }
 
 ///|
@@ -1073,7 +1071,7 @@ test "validate_csrf_pure: all checks pass" {
     content_type=Some("application/json"),
     config~,
   )
-  assert_true!(result is ValidOrigin(_))
+  assert_true(result is ValidOrigin(_))
 }
 
 ///|
@@ -1088,7 +1086,7 @@ test "validate_csrf_pure: fetch metadata disabled skips check" {
     content_type=None,
     config~,
   )
-  assert_true!(result is ValidOrigin(_))
+  assert_true(result is ValidOrigin(_))
 }
 
 // ============================================================================
@@ -1097,49 +1095,46 @@ test "validate_csrf_pure: fetch metadata disabled skips check" {
 
 ///|
 test "format_dev_pure formats method and path" {
-  assert_eq!(format_dev_pure("GET", "/api/users"), "GET /api/users")
+  assert_eq(format_dev_pure("GET", "/api/users"), "GET /api/users")
 }
 
 ///|
 test "format_dev_pure with POST" {
-  assert_eq!(format_dev_pure("POST", "/api/data"), "POST /api/data")
+  assert_eq(format_dev_pure("POST", "/api/data"), "POST /api/data")
 }
 
 ///|
 test "format_combined_pure formats all fields" {
   let result = format_combined_pure(
-    "GET",
-    "/index.html",
-    "Mozilla/5.0",
-    "https://example.com",
-    "2024-01-01T00:00:00.000Z",
+    "GET", "/index.html", "Mozilla/5.0", "https://example.com", "2024-01-01T00:00:00.000Z",
   )
-  assert_true!(result.contains("GET /index.html"))
-  assert_true!(result.contains("Mozilla/5.0"))
-  assert_true!(result.contains("https://example.com"))
-  assert_true!(result.contains("2024-01-01"))
+  assert_true(result.contains("GET /index.html"))
+  assert_true(result.contains("Mozilla/5.0"))
+  assert_true(result.contains("https://example.com"))
+  assert_true(result.contains("2024-01-01"))
 }
 
 ///|
 test "format_combined_pure with missing user-agent and referer" {
-  let result = format_combined_pure("POST", "/api", "-", "-", "2024-01-01T00:00:00.000Z")
-  assert_true!(result.contains("POST /api"))
-  assert_true!(result.contains("\"-\""))
+  let result = format_combined_pure(
+    "POST", "/api", "-", "-", "2024-01-01T00:00:00.000Z",
+  )
+  assert_true(result.contains("POST /api"))
+  assert_true(result.contains("\"-\""))
 }
 
 ///|
 test "format_json_pure produces valid JSON structure" {
   let result = format_json_pure("DELETE", "/api/item/1", "2024-06-15T12:00:00Z")
-  assert_true!(result.contains("\"method\":\"DELETE\""))
-  assert_true!(result.contains("\"path\":\"/api/item/1\""))
-  assert_true!(result.contains("\"timestamp\":\"2024-06-15T12:00:00Z\""))
+  assert_true(result.contains("\"method\":\"DELETE\""))
+  assert_true(result.contains("\"path\":\"/api/item/1\""))
+  assert_true(result.contains("\"timestamp\":\"2024-06-15T12:00:00Z\""))
 }
 
 ///|
 test "format_json_pure with GET" {
   let result = format_json_pure("GET", "/", "2024-01-01T00:00:00Z")
-  assert_eq!(
-    result,
-    "{\"method\":\"GET\",\"path\":\"/\",\"timestamp\":\"2024-01-01T00:00:00Z\"}",
+  assert_eq(
+    result, "{\"method\":\"GET\",\"path\":\"/\",\"timestamp\":\"2024-01-01T00:00:00Z\"}",
   )
 }

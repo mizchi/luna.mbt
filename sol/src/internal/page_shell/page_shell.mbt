@@ -67,10 +67,8 @@ pub fn render_streaming_template_parts(
   match rendered.find(marker) {
     Some(idx) => {
       let marker_len = marker.length()
-      let header = rendered[:idx].to_string() catch { _ => return None }
-      let footer = rendered[idx + marker_len:].to_string() catch {
-        _ => return None
-      }
+      let header = rendered[:idx].to_owned()
+      let footer = rendered[idx + marker_len:].to_owned()
       Some((header, footer))
     }
     None => None

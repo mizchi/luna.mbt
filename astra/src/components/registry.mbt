@@ -12,8 +12,14 @@ pub struct ComponentRegistry {
   header : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String])?
   footer : ((@astra.BuildContext) -> @luna.Node[Unit, String])?
   toc : ((Array[@md_render.TocItem]) -> @luna.Node[Unit, String])?
-  breadcrumb : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String])?
-  prev_next : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[Unit, String])?
+  breadcrumb : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[
+    Unit,
+    String,
+  ])?
+  prev_next : ((@astra.BuildContext, @astra.PageMeta) -> @luna.Node[
+    Unit,
+    String,
+  ])?
 }
 
 ///|

@@ -34,7 +34,7 @@ pub fn setup(ctx : @js.Any) -> @js.Any {
   let disabled_signal = ctx_get_prop(ctx, "disabled")
 
   // Internal count state (starts at initial value)
-  let count = Ref::new(signal_get_int(initial_signal))
+  let count = Ref(signal_get_int(initial_signal))
 
   // Sync with external initial changes
   let unsub_initial = signal_subscribe(initial_signal, fn() {
@@ -84,7 +84,7 @@ priv struct Ref[T] {
   mut val : T
 }
 
-fn[T] Ref::new(val : T) -> Ref[T] {
+fn[T] Ref(val : T) -> Ref[T] {
   { val, }
 }
 

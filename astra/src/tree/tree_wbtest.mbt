@@ -48,7 +48,11 @@ fn create_test_tree() -> @astra.DocumentTree {
       updated_at="2024-12-20T08:00:00.000Z",
       content_md="# Advanced Topics\n\nAdvanced content here.",
       headings=[
-        @astra.Heading::new(level=1, text="Advanced Topics", id="advanced-topics"),
+        @astra.Heading::new(
+          level=1,
+          text="Advanced Topics",
+          id="advanced-topics",
+        ),
       ],
       sort_key="001_guide/002_advanced",
     ),

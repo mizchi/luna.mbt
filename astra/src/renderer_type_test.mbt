@@ -62,49 +62,37 @@ test "RendererType - inequality comparison" {
 }
 
 // =============================================================================
-// RendererType Show Implementation Tests
+// RendererType Debug Representation Tests
 // =============================================================================
 
 ///|
-test "RendererType - Show for RendererType::MarkdownRenderer" {
-  let r = RendererType::MarkdownRenderer
-  let s = r.to_string()
-  inspect(s.contains("Markdown"), content="true")
+test "RendererType - Debug for RendererType::MarkdownRenderer" {
+  debug_inspect(RendererType::MarkdownRenderer, content="MarkdownRenderer")
 }
 
 ///|
-test "RendererType - Show for RendererType::HtmlRenderer" {
-  let r = RendererType::HtmlRenderer
-  let s = r.to_string()
-  inspect(s.contains("Html"), content="true")
+test "RendererType - Debug for RendererType::HtmlRenderer" {
+  debug_inspect(RendererType::HtmlRenderer, content="HtmlRenderer")
 }
 
 ///|
-test "RendererType - Show for RendererType::LunaRenderer" {
-  let r = RendererType::LunaRenderer
-  let s = r.to_string()
-  inspect(s.contains("Luna"), content="true")
+test "RendererType - Debug for RendererType::LunaRenderer" {
+  debug_inspect(RendererType::LunaRenderer, content="LunaRenderer")
 }
 
 ///|
-test "RendererType - Show for RendererType::ReactRenderer" {
-  let r = RendererType::ReactRenderer
-  let s = r.to_string()
-  inspect(s.contains("React"), content="true")
+test "RendererType - Debug for RendererType::ReactRenderer" {
+  debug_inspect(RendererType::ReactRenderer, content="ReactRenderer")
 }
 
 ///|
-test "RendererType - Show for RendererType::ClientOnlyRenderer" {
-  let r = RendererType::ClientOnlyRenderer
-  let s = r.to_string()
-  inspect(s.contains("ClientOnly"), content="true")
+test "RendererType - Debug for RendererType::ClientOnlyRenderer" {
+  debug_inspect(RendererType::ClientOnlyRenderer, content="ClientOnlyRenderer")
 }
 
 ///|
-test "RendererType - Show for RendererType::MdxRenderer" {
-  let r = RendererType::MdxRenderer
-  let s = r.to_string()
-  inspect(s.contains("Mdx"), content="true")
+test "RendererType - Debug for RendererType::MdxRenderer" {
+  debug_inspect(RendererType::MdxRenderer, content="MdxRenderer")
 }
 
 // =============================================================================
@@ -157,17 +145,11 @@ test "ContentType - inequality comparison" {
 }
 
 ///|
-test "ContentType - Show implementation" {
-  inspect(
-    ContentType::Markdown.to_string().contains("Markdown"),
-    content="true",
-  )
-  inspect(ContentType::Html.to_string().contains("Html"), content="true")
-  inspect(
-    ContentType::Component.to_string().contains("Component"),
-    content="true",
-  )
-  inspect(ContentType::Mdx.to_string().contains("Mdx"), content="true")
+test "ContentType - Debug representation" {
+  debug_inspect(ContentType::Markdown, content="Markdown")
+  debug_inspect(ContentType::Html, content="Html")
+  debug_inspect(ContentType::Component, content="Component")
+  debug_inspect(ContentType::Mdx, content="Mdx")
 }
 
 // =============================================================================
@@ -340,13 +322,10 @@ test "DeployTarget - all variants" {
 }
 
 ///|
-test "DeployTarget - Show implementation" {
-  inspect(DeployTarget::Static.to_string().contains("Static"), content="true")
-  inspect(
-    DeployTarget::Cloudflare.to_string().contains("Cloudflare"),
-    content="true",
-  )
-  inspect(DeployTarget::Node.to_string().contains("Node"), content="true")
+test "DeployTarget - Debug representation" {
+  debug_inspect(DeployTarget::Static, content="Static")
+  debug_inspect(DeployTarget::Cloudflare, content="Cloudflare")
+  debug_inspect(DeployTarget::Node, content="Node")
 }
 
 // =============================================================================
@@ -425,9 +404,9 @@ test "NavigationConfig::default - has expected values" {
 test "ThemeConfig::default - colors are None by default" {
   let theme = ThemeConfig::default()
   // Default theme has no explicit colors (uses CSS theme defaults)
-  inspect(theme.primary_color, content="None")
-  inspect(theme.secondary_color, content="None")
-  inspect(theme.accent_color, content="None")
+  debug_inspect(theme.primary_color, content="None")
+  debug_inspect(theme.secondary_color, content="None")
+  debug_inspect(theme.accent_color, content="None")
 }
 
 // =============================================================================

@@ -175,6 +175,11 @@ fn route_params_type_name(ident : String) -> String {
 }
 
 ///|
+fn route_query_type_name(ident : String) -> String {
+  "Route\{identifier_to_pascal(ident)}Query"
+}
+
+///|
 fn route_paths_have_params(route_paths : Array[String]) -> Bool {
   for path in route_paths {
     if !extract_param_specs_from_path(path).is_empty() {
@@ -373,6 +378,75 @@ fn generate_route_constants(route_paths : Array[String]) -> String {
       buf.write_string("/// Route parameter name: \{name}\n")
       buf.write_string("pub let param_\{ident} : String = \"\{name}\"\n\n")
     }
+  }
+  buf.to_string()
+}
+
+// =============================================================================
+// Route Query Accessors
+// =============================================================================
+
+///|
+fn generate_route_query_accessors(
+  route_queries : Array[RouteQueryContract],
+) -> String {
+  if route_queries.is_empty() {
+    return ""
+  }
+  let buf = StringBuilder::new()
+  buf.write_string(
+    "// =============================================================================\n",
+  )
+  buf.write_string("// Route Query Accessors\n")
+  buf.write_string(
+    "// =============================================================================\n\n",
+  )
+  for route in route_queries {
+    if route.query.is_empty() {
+      continue
+    }
+    let ident = path_to_identifier(route.path)
+    let type_name = route_query_type_name(ident)
+    buf.write_string("///|\n")
+    buf.write_string("/// Route query params for: \{route.path}\n")
+    buf.write_string("pub(all) struct \{type_name} {\n")
+    for query in route.query {
+      let field = param_name_to_identifier(query.name)
+      let field_type = if query.optional { "String?" } else { "String" }
+      buf.write_string("  \{field} : \{field_type}\n")
+    }
+    buf.write_string("}\n\n")
+    buf.write_string("///|\n")
+    buf.write_string(
+      "/// Extract typed route query params for: \{route.path}\n",
+    )
+    buf.write_string(
+      "pub fn query_\{ident}(props : @router.PageProps) -> Result[\{type_name}, @router.ApiResponse] {\n",
+    )
+    for query in route.query {
+      let field = param_name_to_identifier(query.name)
+      if query.optional {
+        buf.write_string(
+          "  let \{field} = props.params.get_query(\"\{query.name}\")\n",
+        )
+      } else {
+        buf.write_string(
+          "  let \{field} = match props.params.require_query(\"\{query.name}\") {\n",
+        )
+        buf.write_string("    Ok(value) => value\n")
+        buf.write_string("    Err(err) => return Err(err)\n")
+        buf.write_string("  }\n")
+      }
+    }
+    buf.write_string("  Ok({ ")
+    for i, query in route.query {
+      if i > 0 {
+        buf.write_string(", ")
+      }
+      buf.write_string(param_name_to_identifier(query.name))
+    }
+    buf.write_string(", })\n")
+    buf.write_string("}\n\n")
   }
   buf.to_string()
 }
@@ -664,7 +738,10 @@ fn action_id_to_type_name(id : String) -> String {
 
 ///|
 /// Generate action key factory functions MoonBit code
-fn generate_action_key_factories(action_ids : Array[String]) -> String {
+fn generate_action_key_factories(
+  action_ids : Array[String],
+  action_contracts? : Array[ActionTypeContract] = [],
+) -> String {
   if action_ids.is_empty() {
     return ""
   }
@@ -699,8 +776,39 @@ fn generate_action_key_factories(action_ids : Array[String]) -> String {
     buf.write_string("pub fn \{fn_name}() -> \{type_name} {\n")
     buf.write_string("  \{type_name}::{}\n")
     buf.write_string("}\n\n")
+    match action_contract_for_id(action_contracts, id) {
+      Some(contract) =>
+        match (contract.request_type, contract.response_type) {
+          (Some(request_type), Some(response_type)) => {
+            buf.write_string("///|\n")
+            buf.write_string(
+              "/// Typed action key for \"\{id}\" request/response contract\n",
+            )
+            buf.write_string(
+              "pub fn \{fn_name}_typed() -> @action.TypedActionKey[\{request_type}, \{response_type}] {\n",
+            )
+            buf.write_string("  @action.TypedActionKey::new(\"\{id}\")\n")
+            buf.write_string("}\n\n")
+          }
+          _ => ()
+        }
+      None => ()
+    }
   }
   buf.to_string()
+}
+
+///|
+fn action_contract_for_id(
+  action_contracts : Array[ActionTypeContract],
+  id : String,
+) -> ActionTypeContract? {
+  for contract in action_contracts {
+    if contract.id == id {
+      return Some(contract)
+    }
+  }
+  None
 }
 
 // =============================================================================

@@ -23,7 +23,7 @@ pub(all) struct PropsDiagnostic {
 pub(all) enum DiagnosticSeverity {
   Error
   Warning
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn PropsDiagnostic::to_string(self : PropsDiagnostic) -> String {
@@ -62,8 +62,7 @@ fn build_props_schema(input : PropsStructInput) -> Array[PropsField] {
   fields.map(fn(pair) {
     let name = pair.0
     let type_str = pair.1
-    let optional = type_str.has_suffix("?") ||
-      type_str.contains("?") // e.g., Int?, String?
+    let optional = type_str.has_suffix("?") || type_str.contains("?") // e.g., Int?, String?
     { name, type_str, optional }
   })
 }
@@ -82,24 +81,22 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
     Some(i) => i
     None => return fields
   }
-  let body = raw.substring(start~, end~)
+  let body = raw[start:end].to_owned()
   // Split by newlines, parse "name : Type"
   for line_view in body.split("\n") {
-    let line = line_view.to_string().trim_space().to_string()
+    let line = line_view.to_owned().trim().to_owned()
     if line.is_empty() || line.has_prefix("//") {
       continue
     }
     match line.find(":") {
       Some(colon) => {
-        let name = line.substring(end=colon).trim_space().to_string()
-        let mut type_str = line.substring(start=colon + 1).trim_space().to_string()
+        let name = line[:colon].trim().to_owned()
+        let mut type_str = line[colon + 1:].trim().to_owned()
         // Remove trailing comma if present
         if type_str.has_suffix(",") {
-          type_str = type_str.substring(end=type_str.length() - 1)
-            .trim_space()
-            .to_string()
+          type_str = type_str[:type_str.length() - 1].trim().to_owned()
         }
-        if !(name.is_empty()) && !(type_str.is_empty()) {
+        if !name.is_empty() && !type_str.is_empty() {
           fields.push((name, type_str))
         }
       }
@@ -115,7 +112,7 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
 fn extract_component_name_from_props(props_name : String) -> String {
   // Remove "Props" suffix
   let name = if props_name.has_suffix("Props") {
-    props_name.substring(end=props_name.length() - 5)
+    props_name[:props_name.length() - 5].to_owned()
   } else {
     props_name
   }
@@ -127,7 +124,7 @@ fn extract_component_name_from_props(props_name : String) -> String {
       if i > 0 {
         buf.write_char('_')
       }
-      buf.write_char(Char::from_int(c.to_int() + 32))
+      buf.write_char(Int::unsafe_to_char(c.to_int() + 32))
     } else {
       buf.write_char(c)
     }
@@ -177,33 +174,28 @@ fn ComponentPropsRegistry::lookup(
 
 ///|
 /// Check if a StringLiteral value is compatible with the expected type
-fn check_literal_compat(
-  value : String,
-  type_str : String,
-) -> String? {
+fn check_literal_compat(value : String, type_str : String) -> String? {
   let base_type = if type_str.has_suffix("?") {
-    type_str.substring(end=type_str.length() - 1)
+    type_str[:type_str.length() - 1].to_owned()
   } else {
     type_str
   }
   match base_type {
-    "Int" => {
+    "Int" =>
       // Try parse as int
       try {
-        let _ = @strconv.parse_int!(value)
+        let _ = @string.parse_int(value)
         None
       } catch {
         _ => Some("expected Int, got string \"\{value}\"")
       }
-    }
-    "Double" | "Float" => {
+    "Double" | "Float" =>
       try {
-        let _ = @strconv.parse_double!(value)
+        let _ = @string.parse_double(value)
         None
       } catch {
         _ => Some("expected \{base_type}, got string \"\{value}\"")
       }
-    }
     "Bool" =>
       match value {
         "true" | "false" => None
@@ -263,7 +255,7 @@ pub fn validate_jsx_embed(
   }
   // Check for missing required fields
   for field in fields {
-    if !(field.optional) && !(provided_names.contains(field.name)) {
+    if !field.optional && !provided_names.contains(field.name) {
       diags.push({
         component: tag,
         severity: Error,
@@ -295,7 +287,7 @@ fn check_attr_value(
         None => ()
       }
     Boolean =>
-      if !(field.type_str.contains("Bool")) {
+      if !field.type_str.contains("Bool") {
         diags.push({
           component: tag,
           severity: Warning,
@@ -336,10 +328,12 @@ fn collect_jsx_embeds(
           diags.push(d)
         }
       }
-      Heading(children~, ..) | Paragraph(children~) | Bold(children~) | Italic(
-        children~,
-      ) | Link(children~, ..) | Blockquote(children~) =>
-        collect_jsx_embeds(children, diags, registry)
+      Heading(children~, ..)
+      | Paragraph(children~)
+      | Bold(children~)
+      | Italic(children~)
+      | Link(children~, ..)
+      | Blockquote(children~) => collect_jsx_embeds(children, diags, registry)
       List(items~, ..) =>
         for item in items {
           collect_jsx_embeds(item, diags, registry)

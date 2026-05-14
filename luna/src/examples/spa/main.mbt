@@ -144,7 +144,7 @@ fn effect_example() -> DomNode {
     p() <| [
       text_dyn(fn() { "Ticks: " + ticks.get().to_string() }),
     ],
-    button(on=events().click(_ => active.update(b => !(b)))) <| [
+    button(on=events().click(_ => active.update(b => !b))) <| [
       text_dyn(fn() { if active.get() { "Stop" } else { "Start" } }),
     ],
     button(on=events().click(_ => ticks.update(n => n + 1))) <| [
@@ -164,7 +164,7 @@ fn conditional_example() -> DomNode {
     h2() <| [
       text("Conditional Example"),
     ],
-    button(on=events().click(_ => show_message.update(b => !(b)))) <| [
+    button(on=events().click(_ => show_message.update(b => !b))) <| [
       text_dyn(fn() {
         if show_message.get() {
           "Hide Message"
@@ -287,7 +287,7 @@ fn todo_example() -> DomNode {
     todos.update(fn(items) {
       items.map(fn(item) {
         if item.id == id {
-          { ..item, completed: !(item.completed) }
+          { ..item, completed: !item.completed }
         } else {
           item
         }

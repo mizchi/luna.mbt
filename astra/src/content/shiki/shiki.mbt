@@ -93,8 +93,15 @@ fn highlight_by_language(
     "swift" => @highlight.highlight_swift(code, theme)
     "ocaml" => @highlight.highlight_ocaml(code, theme)
     "zig" => @highlight.highlight_zig(code, theme)
-    "ruby" | "php" | "kotlin" | "scala" | "lua" | "graphql" | "xml" |
-    "makefile" | "markdown" =>
+    "ruby"
+    | "php"
+    | "kotlin"
+    | "scala"
+    | "lua"
+    | "graphql"
+    | "xml"
+    | "makefile"
+    | "markdown" =>
       // Unsupported language — return escaped code block
       plain_code_block(code, lang)
     _ => plain_code_block(code, lang)
@@ -160,9 +167,7 @@ pub fn generate_shiki_css() -> String {
   css.write_string("  align-items: center;\n")
   css.write_string("  padding: 0.5rem 1rem;\n")
   css.write_string("  background: var(--sidebar-bg, #f6f8fa);\n")
-  css.write_string(
-    "  border-bottom: 1px solid var(--border-color, #d0d7de);\n",
-  )
+  css.write_string("  border-bottom: 1px solid var(--border-color, #d0d7de);\n")
   css.write_string("  font-size: 0.75rem;\n")
   css.write_string("}\n\n")
   css.write_string(".code-block-filename {\n")

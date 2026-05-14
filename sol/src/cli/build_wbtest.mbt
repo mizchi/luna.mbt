@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 test "patch_mars_reschedule_shim_with_fs: debug profile server.js is patched" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let cwd = "/app"
@@ -43,9 +46,7 @@ test "patch_cloudflare_global_seed_with_fs: generated server.js is patched" {
   let server_js_path = server_dir + "/server.js"
   @env.FileSystem::mkdir_sync(fs, server_dir, true)
   @env.FileSystem::write_file_sync(
-    fs,
-    server_js_path,
-    "before const _M0FPB4seed = _M0FPB12random__seed(); after",
+    fs, server_js_path, "before const _M0FPB4seed = _M0FPB12random__seed(); after",
   )
 
   patch_cloudflare_global_seed_with_fs(fs, cwd, "js", "release")

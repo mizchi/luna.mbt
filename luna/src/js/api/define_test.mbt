@@ -31,7 +31,7 @@ test "register: basic custom element" {
 ///|
 test "register: dispose on disconnect" {
   @global_jsdom.register()
-  let disposed : Ref[Bool] = Ref::new(false)
+  let disposed : Ref[Bool] = Ref(false)
   register("test-dispose-1", fn(_host) {
     @resource.on_cleanup(fn() { disposed.val = true })
     @luna.h("div", [], [@luna.text("bye")])

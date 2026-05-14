@@ -178,6 +178,26 @@ test "generate_route_param_accessors: at-prefixed bracket params" {
 }
 
 ///|
+test "generate_route_query_accessors: required and optional query params" {
+  let result = generate_route_query_accessors([
+    {
+      path: "/search",
+      query: [{ name: "q", optional: false }, { name: "page", optional: true }],
+    },
+  ])
+  assert_true(result.contains("pub(all) struct RouteSearchQuery"))
+  assert_true(result.contains("q : String"))
+  assert_true(result.contains("page : String?"))
+  assert_true(
+    result.contains(
+      "pub fn query_search(props : @router.PageProps) -> Result[RouteSearchQuery, @router.ApiResponse]",
+    ),
+  )
+  assert_true(result.contains("props.params.require_query(\"q\")"))
+  assert_true(result.contains("props.params.get_query(\"page\")"))
+}
+
+///|
 test "route_paths_have_params" {
   assert_false(route_paths_have_params(["/", "/about"]))
   assert_true(route_paths_have_params(["/", "/blog/:slug"]))

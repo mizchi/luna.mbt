@@ -41,26 +41,28 @@ test "extract_island_name - island_ prefix only extracts suffix" {
 
 ///|
 test "generate_import_alias - island category prefixes with island_" {
-  let alias = generate_import_alias("myproject/islands/counter", "island")
-  assert_eq(alias, "island_counter")
+  let import_alias = generate_import_alias(
+    "myproject/islands/counter", "island",
+  )
+  assert_eq(import_alias, "island_counter")
 }
 
 ///|
 test "generate_import_alias - page category prefixes with page_" {
-  let alias = generate_import_alias("myproject/pages/home", "page")
-  assert_eq(alias, "page_home")
+  let import_alias = generate_import_alias("myproject/pages/home", "page")
+  assert_eq(import_alias, "page_home")
 }
 
 ///|
 test "generate_import_alias - unknown category uses last segment" {
-  let alias = generate_import_alias("myproject/components", "other")
-  assert_eq(alias, "components")
+  let import_alias = generate_import_alias("myproject/components", "other")
+  assert_eq(import_alias, "components")
 }
 
 ///|
 test "generate_import_alias - single segment path" {
-  let alias = generate_import_alias("counter", "island")
-  assert_eq(alias, "island_counter")
+  let import_alias = generate_import_alias("counter", "island")
+  assert_eq(import_alias, "island_counter")
 }
 
 // =============================================================================

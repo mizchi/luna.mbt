@@ -57,7 +57,7 @@ fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
   }
   let content = fs.read_file_sync(server_js_path) catch { _ => return }
   let broken = "moonbitlang$async$internal$event_loop$$reschedule();"
-  if !(content.contains(broken)) {
+  if !content.contains(broken) {
     return
   }
   let patched = content.replace_all(old=broken, new="void 0;")
@@ -97,7 +97,7 @@ fn[FS : @env.FileSystem] patch_cloudflare_global_seed_with_fs(
   }
   let content = fs.read_file_sync(server_js_path) catch { _ => return }
   let eager_seed = "const _M0FPB4seed = _M0FPB12random__seed();"
-  if !(content.contains(eager_seed)) {
+  if !content.contains(eager_seed) {
     return
   }
   let patched = content.replace_all(
@@ -214,7 +214,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   let (sol_config, sol_config_path) = load_config_with_fs(fs, cwd)
   let has_sol_config = sol_config_path.length() > 0
   let has_static_dirs = match sol_config {
-    Some(config) => !(config.static_dirs.is_empty())
+    Some(config) => !config.static_dirs.is_empty()
     None => false
   }
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
@@ -226,7 +226,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   println(@colorette.gray("Mode: \{mode_detail}"))
   // Check if this is a MoonBit project (required for SSR build)
-  if !(has_moon_mod) {
+  if !has_moon_mod {
     @cli_common.console_error(
       @colorette.red(
         "Error: Not a MoonBit project (moon.mod.json not found). Use `astra build` for SSG-only projects.",
@@ -256,7 +256,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     println(@colorette.green("✓ Clean complete"))
   }
   // Run generate if sol.config.json exists
-  if !(skip_generate) && has_sol_config {
+  if !skip_generate && has_sol_config {
     println(@colorette.cyan("Generating .sol directory..."))
     run_generate_command(["--mode", "prod"])
   }
@@ -305,7 +305,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   // Bundle client code with rolldown if manifest exists
   let manifest_path = @path.join2(cwd, ".sol/prod/manifest.json")
-  if !(skip_bundle) && fs.exists_sync(manifest_path) {
+  if !skip_bundle && fs.exists_sync(manifest_path) {
     let minify_msg = if skip_minify { "" } else { " (minified)" }
     println(
       @colorette.cyan(

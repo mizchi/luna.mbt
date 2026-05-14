@@ -198,9 +198,7 @@ pub fn DocumentTree::get_pages_sorted_by_date(
 /// Generate canonical URL
 pub fn PageInfo::canonical_url(self : PageInfo, base_url : String) -> String {
   let base = if base_url.has_suffix("/") {
-    base_url[:base_url.length() - 1].to_string() catch {
-      _ => base_url
-    }
+    base_url[:base_url.length() - 1].to_owned()
   } else {
     base_url
   }

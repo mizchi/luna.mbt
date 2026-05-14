@@ -682,7 +682,7 @@ pub fn[E, A : Show] render_attrs_to(
         // Render action as data-action attribute for hydration
         // onclick -> data-action-click="increment"
         let event_name = if name.has_prefix("on") {
-          name[2:].to_string()
+          name[2:].to_owned()
         } else {
           name
         }
@@ -812,7 +812,7 @@ pub fn[E, A : Show] render_to_string_with_hydration(
   node : @core.Node[E, A],
 ) -> String {
   let sb = StringBuilder::new(size_hint=256)
-  let id_counter = Ref::new(0)
+  let id_counter = Ref(0)
   let island_ids = new_island_id_allocator()
   render_with_id_to(sb, node, id_counter, island_ids)
   sb.to_string()

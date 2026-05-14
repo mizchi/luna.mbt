@@ -169,10 +169,10 @@ fn extract_json_value(json : String, key : String) -> String? {
   let start_idx = find_pattern(json, pattern)
   guard start_idx >= 0 else { return None }
   let value_start = start_idx + pattern.length()
-  let remaining = json[value_start:].to_string() catch { _ => return None }
+  let remaining = json[value_start:].to_owned()
   let end_idx = find_pattern(remaining, "\"")
   guard end_idx >= 0 else { return None }
-  Some(remaining[:end_idx].to_string() catch { _ => return None })
+  Some(remaining[:end_idx].to_owned())
 }
 
 ///|

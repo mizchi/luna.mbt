@@ -174,17 +174,19 @@ test "parse_sol_config: default contractTs is empty" {
 ///|
 test "parse_sol_config: TypeScript contract sources" {
   let result = parse_sol_config(
-    #|{
-    #|  "contractTs": [
-    #|    {
-    #|      "input": "app/client/props.ts",
-    #|      "props": "CounterProps",
-    #|      "package": "app/client",
-    #|      "importAlias": "client",
-    #|      "clientUrl": "/assets/counter.js"
-    #|    }
-    #|  ]
-    #|}
+    (
+      #|{
+      #|  "contractTs": [
+      #|    {
+      #|      "input": "app/client/props.ts",
+      #|      "props": "CounterProps",
+      #|      "package": "app/client",
+      #|      "importAlias": "client",
+      #|      "clientUrl": "/assets/counter.js"
+      #|    }
+      #|  ]
+      #|}
+    ),
   )
   guard result is Some(config) else { return }
   assert_eq(config.contract_ts.length(), 1)
@@ -199,9 +201,11 @@ test "parse_sol_config: TypeScript contract sources" {
 ///|
 test "parse_sol_config: contract_ts rejects missing required fields" {
   let result = parse_sol_config(
-    #|{
-    #|  "contract_ts": [{ "input": "app/client/props.ts" }]
-    #|}
+    (
+      #|{
+      #|  "contract_ts": [{ "input": "app/client/props.ts" }]
+      #|}
+    ),
   )
   assert_true(result is None)
 }

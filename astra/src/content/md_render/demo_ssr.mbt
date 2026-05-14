@@ -20,14 +20,12 @@ pub struct AccordionDemoItem {
 pub fn parse_accordion_items(json : String) -> Array[AccordionDemoItem] {
   let items : Array[AccordionDemoItem] = []
   // Simple JSON array parsing
-  let trimmed = json.trim(chars=" \t\n\r").to_string()
-  if !(trimmed.has_prefix("[")) || !(trimmed.has_suffix("]")) {
+  let trimmed = json.trim(chars=" \t\n\r").to_owned()
+  if !trimmed.has_prefix("[") || !trimmed.has_suffix("]") {
     return items
   }
   // Remove outer brackets
-  let inner : String = trimmed[1:trimmed.length() - 1].to_string() catch {
-    _ => return items
-  }
+  let inner : String = trimmed[1:trimmed.length() - 1].to_owned()
 
   // Split by },{ pattern (simplified parsing)
   let parts = split_json_objects(inner)
@@ -62,11 +60,11 @@ fn split_json_objects(s : String) -> Array[String] {
       continue
     }
     if c == '"' {
-      in_string = !(in_string)
+      in_string = !in_string
       buf.write_char(c)
       continue
     }
-    if !(in_string) {
+    if !in_string {
       if c == '{' {
         depth = depth + 1
         buf.write_char(c)
@@ -74,7 +72,7 @@ fn split_json_objects(s : String) -> Array[String] {
         depth = depth - 1
         buf.write_char(c)
         if depth == 0 {
-          result.push(buf.to_string().trim(chars=" \t\n\r,").to_string())
+          result.push(buf.to_string().trim(chars=" \t\n\r,").to_owned())
           buf.reset()
         }
       } else if depth > 0 {
@@ -90,8 +88,8 @@ fn split_json_objects(s : String) -> Array[String] {
 ///|
 /// Parse single accordion item from JSON object string
 fn parse_accordion_item(json : String) -> AccordionDemoItem? {
-  let trimmed = json.trim(chars=" \t\n\r").to_string()
-  if !(trimmed.has_prefix("{")) || !(trimmed.has_suffix("}")) {
+  let trimmed = json.trim(chars=" \t\n\r").to_owned()
+  if !trimmed.has_prefix("{") || !trimmed.has_suffix("}") {
     return None
   }
 
@@ -178,7 +176,7 @@ fn extract_json_bool(json : String, key : String) -> Bool? {
   }
 
   // Check for true/false
-  let rest : String = json[pos:].to_string() catch { _ => return None }
+  let rest : String = json[pos:].to_owned()
   if rest.has_prefix("true") {
     return Some(true)
   }

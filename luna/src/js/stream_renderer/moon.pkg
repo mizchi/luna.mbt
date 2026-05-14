@@ -5,4 +5,8 @@ import {
   "mizchi/js/web/streams" @streams,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
 supported_targets = "js"

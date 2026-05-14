@@ -29,7 +29,7 @@ pub(all) enum ClientReturnKind {
   ClientReturnDomNode
   ClientReturnVNode
   ClientReturnUnsupported
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 pub(all) struct ClientComponentContract {

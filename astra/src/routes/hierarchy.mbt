@@ -174,7 +174,7 @@ pub fn get_all_segments(manifest : RouteManifest) -> Array[String] {
   for route in manifest.routes {
     let path = get_route_path(route)
     let segment = extract_first_segment(path)
-    if !(segment.is_empty()) {
+    if !segment.is_empty() {
       segments[segment] = true
     }
   }
@@ -198,7 +198,7 @@ pub fn resolve_chunks_inline(
     None => {
       // Try with trailing slash
       let with_slash = if path.has_suffix("/") { path } else { path + "/" }
-      let without_slash = path.trim_end(chars="/").to_string()
+      let without_slash = path.trim_end(chars="/").to_owned()
       match manifest.routes.get(with_slash) {
         Some(chunks) => Some(chunks)
         None =>
@@ -312,7 +312,7 @@ fn split_path(path : String) -> Array[String] {
   for c in path {
     if c == '/' {
       let s = buf.to_string()
-      if !(s.is_empty()) {
+      if !s.is_empty() {
         parts.push(s)
       }
       buf.reset()
@@ -321,7 +321,7 @@ fn split_path(path : String) -> Array[String] {
     }
   }
   let last = buf.to_string()
-  if !(last.is_empty()) {
+  if !last.is_empty() {
     parts.push(last)
   }
   parts

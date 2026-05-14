@@ -7,6 +7,7 @@ import {
 }
 
 supported_targets = "js"
+
 options(
   link: { "js": { "exports": [ "mount_router_app" ], "format": "esm" } },
 )

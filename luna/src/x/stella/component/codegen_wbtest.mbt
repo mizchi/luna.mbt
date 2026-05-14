@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Tests for Web Component code generation (whitebox)
 
 ///|

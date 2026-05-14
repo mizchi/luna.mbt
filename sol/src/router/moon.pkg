@@ -1,5 +1,7 @@
 import {
   "moonbitlang/core/json",
+  "moonbitlang/core/hashset",
+  "moonbitlang/core/string",
   "mizchi/luna" @luna,
   "mizchi/luna/core/routes" @routes,
   "mizchi/luna/core/render" @render,
@@ -23,7 +25,12 @@ import {
 import {
   "moonbitlang/async",
   "moonbitlang/async/js_async" @js_async,
+  "moonbitlang/core/test" @test,
 } for "wbtest"
+
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
 
 warnings = "-24-67-29"
 

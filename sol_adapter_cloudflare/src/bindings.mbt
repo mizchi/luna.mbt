@@ -38,6 +38,30 @@ pub(all) struct BindingSpec {
 }
 
 ///|
+/// Phantom-typed binding key for generated env contracts.
+pub(all) struct BindingKey[T] {
+  name : String
+  kind : BindingKind
+  optional : Bool
+  _type : T?
+}
+
+///|
+pub fn[T] BindingKey::name(self : BindingKey[T]) -> String {
+  self.name
+}
+
+///|
+pub fn[T] BindingKey::kind(self : BindingKey[T]) -> BindingKind {
+  self.kind
+}
+
+///|
+pub fn[T] BindingKey::optional(self : BindingKey[T]) -> Bool {
+  self.optional
+}
+
+///|
 /// A required binding that is missing from the Worker env.
 pub(all) struct MissingBinding {
   name : String
@@ -54,15 +78,40 @@ pub fn binding(
 }
 
 ///|
+pub fn[T] binding_key(
+  name : String,
+  kind : BindingKind,
+  optional? : Bool = false,
+) -> BindingKey[T] {
+  { name, kind, optional, _type: None }
+}
+
+///|
 /// Required plain env var.
 pub fn env_var(name : String, optional? : Bool = false) -> BindingSpec {
   binding(name, EnvVar, optional~)
 }
 
 ///|
+pub fn env_var_key(
+  name : String,
+  optional? : Bool = false,
+) -> BindingKey[String] {
+  binding_key(name, EnvVar, optional~)
+}
+
+///|
 /// Required secret env var.
 pub fn secret(name : String, optional? : Bool = false) -> BindingSpec {
   binding(name, Secret, optional~)
+}
+
+///|
+pub fn secret_key(
+  name : String,
+  optional? : Bool = false,
+) -> BindingKey[String] {
+  binding_key(name, Secret, optional~)
 }
 
 ///|
@@ -149,5 +198,93 @@ pub fn describe_missing_bindings(missing : Array[MissingBinding]) -> String {
     buf.write_string(item.kind.label())
     buf.write_string(")")
   }
+  buf.to_string()
+}
+
+///|
+pub fn bindings_typescript_decl(
+  specs : Array[BindingSpec],
+  interface_name? : String = "CloudflareEnv",
+) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string(
+    "// Auto-generated Cloudflare binding contract. Do not edit.\n\n",
+  )
+  buf.write_string("export interface \{interface_name} {\n")
+  for spec in specs {
+    let marker = if spec.optional { "?" } else { "" }
+    buf.write_string(
+      "  \{binding_typescript_property_key(spec.name)}\{marker}: \{binding_kind_typescript_type(spec.kind)};\n",
+    )
+  }
+  buf.write_string("}\n")
+  buf.to_string()
+}
+
+///|
+fn binding_kind_typescript_type(kind : BindingKind) -> String {
+  match kind {
+    EnvVar | Secret => "string"
+    KV => "KVNamespace"
+    R2 => "R2Bucket"
+    D1 => "D1Database"
+    DurableObject => "DurableObjectNamespace"
+    Service => "Fetcher"
+    AI => "Ai"
+    Queue => "Queue"
+  }
+}
+
+///|
+fn binding_typescript_property_key(value : String) -> String {
+  if binding_is_typescript_identifier(value) {
+    value
+  } else {
+    binding_typescript_string_literal(value)
+  }
+}
+
+///|
+fn binding_is_typescript_identifier(value : String) -> Bool {
+  if value.is_empty() {
+    return false
+  }
+  let chars = value.to_array()
+  let first = chars[0]
+  let first_ok = (first >= 'a' && first <= 'z') ||
+    (first >= 'A' && first <= 'Z') ||
+    first == '_' ||
+    first == '$'
+  if !first_ok {
+    return false
+  }
+  for c in chars {
+    let ok = (c >= 'a' && c <= 'z') ||
+      (c >= 'A' && c <= 'Z') ||
+      (c >= '0' && c <= '9') ||
+      c == '_' ||
+      c == '$'
+    if !ok {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn binding_typescript_string_literal(value : String) -> String {
+  let buf = StringBuilder::new()
+  buf.write_char('"')
+  for c in value {
+    match c {
+      '"' => buf.write_string("\\\"")
+      '\\' => buf.write_string("\\\\")
+      '\n' => buf.write_string("\\n")
+      '\r' => buf.write_string("\\r")
+      '\t' => buf.write_string("\\t")
+      _ => buf.write_char(c)
+    }
+  }
+  buf.write_char('"')
   buf.to_string()
 }

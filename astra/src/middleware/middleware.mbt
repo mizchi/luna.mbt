@@ -10,9 +10,9 @@
 /// crawling in tests / build pipelines.
 pub fn create(
   config : @astra.SsgConfig,
-  cwd~ : String = ".",
-  minify_css~ : Bool = false,
-  highlighter~ : @shiki.Highlighter? = None,
+  cwd? : String = ".",
+  minify_css? : Bool = false,
+  highlighter? : @shiki.Highlighter? = None,
 ) -> Middleware {
   let scanned = @routes.scan_docs_dir(
     config.docs_dir,
@@ -129,7 +129,7 @@ fn normalize_path(p : String, trailing_slash : Bool) -> String {
       p + "/"
     }
   } else if p.length() > 1 && p.has_suffix("/") {
-    p[:p.length() - 1].to_string()
+    p[:p.length() - 1].to_owned()
   } else if p.is_empty() {
     "/"
   } else {

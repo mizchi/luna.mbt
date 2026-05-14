@@ -215,8 +215,8 @@ This keeps `CounterProps` checked between the server and frontend without
 letting Sol own the client bundle output path.
 When generated contracts exist, Sol also writes
 `app/__gen__/types/types.d.ts` so TypeScript frontend code can import the same
-props, route path, route params, and action ID contracts without depending on
-Sol's bundler.
+props, route path, route params, route query params, action payload/response,
+and API request/response contracts without depending on Sol's bundler.
 
 For TypeScript-owned frontend contracts, `contractTs` can feed the same
 generated type helpers directly from TS interfaces without writing an
@@ -238,6 +238,51 @@ export default {
 
 `contractManifest` is still supported for fully explicit JSON contracts; when
 both fields are present, the explicit manifest path takes precedence.
+
+`contractManifest` route entries may declare query parameters, and action/API
+entries may declare request/response shapes. Sol emits both MoonBit structs and
+TypeScript declarations from those shapes:
+
+```json
+{
+  "routes": [
+    {
+      "path": "/api/items/:id",
+      "query": [
+        { "name": "token" },
+        { "name": "include", "optional": true }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "submit-contact",
+      "request": {
+        "name": "SubmitContactRequest",
+        "fields": [{ "name": "email", "type": "String" }]
+      },
+      "response": {
+        "name": "SubmitContactResponse",
+        "fields": [{ "name": "ok", "type": "Bool" }]
+      }
+    }
+  ],
+  "apis": [
+    {
+      "method": "POST",
+      "path": "/api/items/:id",
+      "request": {
+        "name": "CreateItemRequest",
+        "fields": [{ "name": "title", "type": "String" }]
+      },
+      "response": {
+        "name": "ItemResponse",
+        "fields": [{ "name": "id", "type": "String" }]
+      }
+    }
+  ]
+}
+```
 
 If you prefer JSON, `sol.config.json` is supported. For schema validation in this repo, add:
 

@@ -62,7 +62,7 @@ pub fn generate_full_css() -> String {
   }
 
   // Media query styles (grouped by condition for better compression)
-  let media_groups : Map[String, Array[(String, String, String)]] = Map::new()
+  let media_groups : Map[String, Array[(String, String, String)]] = Map([])
   for entry in get_media_entries() {
     let (cls, condition, property, value) = entry
     match media_groups.get(condition) {

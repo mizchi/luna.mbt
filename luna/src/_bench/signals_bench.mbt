@@ -63,7 +63,7 @@ test "effect_with_signal" (b : @bench.T) {
 ///|
 test "effect_rerun" (b : @bench.T) {
   let sig = @resource.signal(0)
-  let count = Ref::new(0)
+  let count = Ref(0)
   let _ = @resource.effect(fn() { count.val = sig.get() })
   let mut i = 0
   b.bench(name="effect_rerun", fn() {
@@ -271,7 +271,7 @@ test "batch_100_updates" (b : @bench.T) {
     signals.push(@resource.signal(0))
   }
   // One effect that reads all
-  let sum = Ref::new(0)
+  let sum = Ref(0)
   let _ = @resource.effect(fn() {
     let mut s = 0
     for i in 0..<signals.length() {
@@ -297,7 +297,7 @@ test "unbatched_100_updates" (b : @bench.T) {
     signals.push(@resource.signal(0))
   }
   // One effect that reads all
-  let sum = Ref::new(0)
+  let sum = Ref(0)
   let _ = @resource.effect(fn() {
     let mut s = 0
     for i in 0..<signals.length() {

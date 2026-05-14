@@ -14,10 +14,7 @@ priv struct PseudoRegistry {
 
 ///|
 /// Global pseudo registry
-let pseudo_registry : PseudoRegistry = {
-  pseudo_to_class: Map::new(),
-  entries: [],
-}
+let pseudo_registry : PseudoRegistry = { pseudo_to_class: Map([]), entries: [] }
 
 ///|
 /// Generate hash-based class name for pseudo declarations

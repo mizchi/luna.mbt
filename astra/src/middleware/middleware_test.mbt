@@ -67,12 +67,11 @@ async test "GET /assets/loader.js returns the bundled island loader script" {
   app.all("/*", mw.handler())
   let res = @testing.invoke(app, path="/assets/loader.js")
   inspect(res.status, content="200")
-  let expected_ct =
-    #|Some("application/javascript; charset=utf-8")
-  inspect(
+  debug_inspect(
     res.header("content-type"),
     content=(
-      #|Some(application/javascript; charset=utf-8)
+      #|Some("application/javascript; charset=utf-8")
+
     ),
   )
 }

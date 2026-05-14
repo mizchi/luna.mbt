@@ -183,7 +183,7 @@ pub(all) enum ComponentType {
   ClientOnlyComponent
   /// server/ only → SSR only (no hydration)
   ServerOnlyComponent
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// A component route entry for moon.pkg.json directories

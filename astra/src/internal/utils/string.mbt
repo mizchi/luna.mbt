@@ -12,9 +12,7 @@ pub fn slice_from(s : String, start : Int) -> String {
   if start >= s.length() || start < 0 {
     ""
   } else {
-    s[start:].to_string() catch {
-      _ => ""
-    }
+    s[start:].to_owned()
   }
 }
 
@@ -24,9 +22,7 @@ pub fn slice_to(s : String, end : Int) -> String {
   if end <= 0 || end > s.length() {
     s
   } else {
-    s[:end].to_string() catch {
-      _ => s
-    }
+    s[:end].to_owned()
   }
 }
 
@@ -36,9 +32,7 @@ pub fn slice_view_from(s : StringView, start : Int) -> String {
   if start >= s.length() || start < 0 {
     ""
   } else {
-    s[start:].to_string() catch {
-      _ => ""
-    }
+    s[start:].to_owned()
   }
 }
 
@@ -46,11 +40,9 @@ pub fn slice_view_from(s : StringView, start : Int) -> String {
 /// Safely slice StringView to end index
 pub fn slice_view_to(s : StringView, end : Int) -> String {
   if end <= 0 || end > s.length() {
-    s.to_string()
+    s.to_owned()
   } else {
-    s[:end].to_string() catch {
-      _ => s.to_string()
-    }
+    s[:end].to_owned()
   }
 }
 

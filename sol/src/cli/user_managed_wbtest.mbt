@@ -159,7 +159,16 @@ test "generate_server_pkg: includes moonbitlang/async import" {
 test "generate_server_main_mbt: uses async fn main" {
   let content = generate_server_main_mbt(
     "tester/myapp/server",
-    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] },
+    {
+      _page_components: [],
+      _api_handlers: [],
+      route_paths: [],
+      route_queries: [],
+      action_ids: [],
+      action_contracts: [],
+      api_contracts: [],
+      contract_shapes: [],
+    },
     [],
   )
   assert_true(content.contains("async fn main {"))
@@ -171,7 +180,16 @@ test "generate_server_main_mbt: uses async fn main" {
 test "generate_server_main_mbt: cloudflare runtime uses cloudflare adapter" {
   let content = generate_server_main_mbt(
     "tester/myapp/server",
-    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] },
+    {
+      _page_components: [],
+      _api_handlers: [],
+      route_paths: [],
+      route_queries: [],
+      action_ids: [],
+      action_contracts: [],
+      api_contracts: [],
+      contract_shapes: [],
+    },
     [],
     runtime=RuntimeCloudflare,
   )

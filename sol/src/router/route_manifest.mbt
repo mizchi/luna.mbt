@@ -116,7 +116,7 @@ fn route_manifest_is_separator(c : Char) -> Bool {
 ///|
 fn route_manifest_upper_ascii(c : Char) -> Char {
   if c >= 'a' && c <= 'z' {
-    Char::from_int(c.to_int() - 32)
+    Int::unsafe_to_char(c.to_int() - 32)
   } else {
     c
   }
@@ -180,7 +180,11 @@ fn route_manifest_path_to_pascal(path : String) -> String {
       }
     }
   }
-  if wrote { buf.to_string() } else { "Root" }
+  if wrote {
+    buf.to_string()
+  } else {
+    "Root"
+  }
 }
 
 ///|

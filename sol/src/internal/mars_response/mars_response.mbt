@@ -4,11 +4,7 @@
 
 ///|
 /// Send `Json` as JSON response (wasm/native compatible).
-pub fn send_json(
-  ctx : @mars.Context,
-  data : Json,
-  status? : Int = 200,
-) -> Unit {
+pub fn send_json(ctx : @mars.Context, data : Json, status? : Int = 200) -> Unit {
   send_json_text(ctx, data.stringify(), status)
 }
 

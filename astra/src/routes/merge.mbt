@@ -30,7 +30,7 @@ pub fn merge_manifests(
   // Add file-based routes that don't conflict
   for route in file_based.routes {
     let path = get_route_path(route)
-    if !(explicit_paths.contains(path)) {
+    if !explicit_paths.contains(path) {
       merged_routes.push(route)
     }
   }

@@ -24,7 +24,7 @@ priv struct WorkerContext {
 
 ///|
 /// Mutable reference to worker context
-let worker_ctx : Ref[WorkerContext?] = Ref::new(None)
+let worker_ctx : Ref[WorkerContext?] = Ref(None)
 
 // =============================================================================
 // Message Handlers

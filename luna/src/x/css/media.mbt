@@ -15,7 +15,7 @@ priv struct MediaRegistry {
 ///|
 /// Global media registry
 let media_registry : MediaRegistry = {
-  media_to_class: Map::new(),
+  media_to_class: Map([]),
   counter: 0,
   entries: [],
 }

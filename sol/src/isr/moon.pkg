@@ -9,6 +9,7 @@ import {
 
 import {
   "moonbitlang/async",
+  "moonbitlang/core/test" @test,
 } for "wbtest"
 
 supported_targets = "js"

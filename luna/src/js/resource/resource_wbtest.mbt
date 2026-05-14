@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 //
 
 ///|
@@ -135,7 +138,7 @@ test "Resource::get tracks signal" {
 
 ///|
 test "Resource::refetch" {
-  let call_count = Ref::new(0)
+  let call_count = Ref(0)
   let res = resource(fn(resolve, _reject) {
     call_count.val = call_count.val + 1
     resolve(call_count.val)
@@ -177,8 +180,8 @@ test "Resource::pending returns reactive getter" {
 
 ///|
 test "Resource::pending tracks refetch" {
-  let call_count = Ref::new(0)
-  let resolve_fn : Ref[((Int) -> Unit)?] = Ref::new(None)
+  let call_count = Ref(0)
+  let resolve_fn : Ref[((Int) -> Unit)?] = Ref(None)
   let res = resource(fn(resolve, _reject) {
     call_count.val = call_count.val + 1
     // First call resolves immediately, subsequent calls defer

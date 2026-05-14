@@ -1,4 +1,8 @@
 import {
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
 supported_targets = "all"

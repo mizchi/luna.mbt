@@ -1,7 +1,7 @@
 // WASM Island PoC - MoonBit wasm-gc で DOM 操作
 
 // State
-let count : Ref[Int] = Ref::new(0)
+let count : Ref[Int] = Ref(0)
 
 ///|
 fn main {

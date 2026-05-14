@@ -133,7 +133,7 @@ pub fn hydrate_dynamic_attrs(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) { active.update(a => !(a)) }),
+            @luna.handler(fn(_event : @js.Any) { active.update(a => !a) }),
           ),
         ),
       ],
@@ -185,7 +185,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
         (
           "onClick",
           @luna.attr_handler(
-            @luna.handler(fn(_event : @js.Any) { visible.update(v => !(v)) }),
+            @luna.handler(fn(_event : @js.Any) { visible.update(v => !v) }),
           ),
         ),
       ],
@@ -214,7 +214,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
 pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
   let items = @resource.signal(js_getArray(state, "items"))
   // Store the pending input value separately since we need to capture it at add time
-  let pending_input : Ref[String] = Ref::new("")
+  let pending_input : Ref[String] = Ref("")
   let vnode = @luna.h("div", [], [
     @luna.h("div", [("class", @luna.attr_static("input-row"))], [
       @luna.h(
@@ -371,15 +371,15 @@ pub fn hydrate_events(el : @js_dom.Element, _state : @js.Any) -> Unit {
 }
 
 ///|
+priv struct SortableItem {
+  id : Int
+  label : String
+}
+
+///|
 /// Sortable list test component
 /// Tests: List reordering without destroying DOM instances
 pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
-  // Item struct with id and label
-  struct Item {
-    id : Int
-    label : String
-  }
-
   // Parse initial items from state
   let initial_items = js_getArray(state, "items")
   let items = initial_items.mapi(fn(i, label) { { id: i, label } })
@@ -410,7 +410,7 @@ pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
             @dom.Handler(fn(_event) {
               let current = items_sig.get()
               if current.length() > 1 {
-                let reordered : Array[Item] = []
+                let reordered : Array[SortableItem] = []
                 for i in 1..<current.length() {
                   reordered.push(current[i])
                 }
@@ -527,7 +527,7 @@ pub fn hydrate_input_binding(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// Tests: ref_ callback for direct DOM element access
 pub fn hydrate_element_ref(el : @js_dom.Element, _state : @js.Any) -> Unit {
   // Store ref to the input element
-  let input_ref : Ref[@js_dom.Element?] = Ref::new(None)
+  let input_ref : Ref[@js_dom.Element?] = Ref(None)
   let focus_count = @resource.signal(0)
 
   // Build UI using @dom DSL with ref_ support

@@ -1428,7 +1428,7 @@ test "render_vnode_to_dom ErrorBoundary reset re-inserts" {
   defer cleanup()
   let container = create_container()
   let should_throw = @resource.signal(true)
-  let reset_ref : Ref[(() -> Unit)?] = Ref::new(None)
+  let reset_ref : Ref[(() -> Unit)?] = Ref(None)
   let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
     children=() => {
       if should_throw.get() {

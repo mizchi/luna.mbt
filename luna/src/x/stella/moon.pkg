@@ -4,7 +4,12 @@ import {
   "mizchi/luna/core/render" @render,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
 supported_targets = "js"
+
 options(
   link: {
     "js": {

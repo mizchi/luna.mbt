@@ -47,7 +47,7 @@ pub fn strip_numeric_prefixes(path : String) -> String {
   let segments = path.split("/")
   let stripped : Array[String] = []
   for seg in segments {
-    let (_, name) = parse_numeric_prefix(seg.to_string())
+    let (_, name) = parse_numeric_prefix(seg.to_owned())
     stripped.push(name)
   }
   stripped.join("/")
@@ -76,7 +76,7 @@ pub fn build_sort_key(path : String) -> String {
   let segments = path.split("/")
   let keyed : Array[String] = []
   for seg in segments {
-    let (order, name) = parse_numeric_prefix(seg.to_string())
+    let (order, name) = parse_numeric_prefix(seg.to_owned())
     let padded = pad_number(order, 8)
     keyed.push(padded + "_" + name)
   }
@@ -195,7 +195,7 @@ pub fn capitalize_first(s : String) -> String {
 pub fn get_dir_name(path : String) -> String {
   let parts = path.split("/").to_array()
   if parts.length() > 0 {
-    parts[parts.length() - 1].to_string()
+    parts[parts.length() - 1].to_owned()
   } else {
     ""
   }
@@ -305,7 +305,7 @@ pub fn resolve_base_url(base_url : String, path : String) -> String {
   if path.has_prefix("/") {
     // Ensure no double slashes: base="/sol.mbt/" + path="/intro/" => "/sol.mbt/intro/"
     let base_trimmed = if base_url.has_suffix("/") {
-      base_url.substring(end=base_url.length() - 1)
+      base_url[:base_url.length() - 1].to_owned()
     } else {
       base_url
     }

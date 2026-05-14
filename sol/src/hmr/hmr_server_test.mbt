@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 test "HmrMessage::to_json - update includes islands and timestamp" {
   let msg = HmrMessage::Update(islands=["*"], timestamp_ms=1234.0).to_json()
   assert_true(msg.contains("\"type\":\"update\""))
@@ -22,10 +25,9 @@ test "HmrMessage::to_json - error message" {
 ///|
 async test "HmrServer broadcasts over built-in WebSocket server" {
   let server = HmrServer::start(0).wait()
-  let received = connect_and_wait_message(
-    server.get_port(),
-    fn() { server.notify_full_reload() },
-  ).wait()
+  let received = connect_and_wait_message(server.get_port(), fn() {
+    server.notify_full_reload()
+  }).wait()
   assert_eq(received, HmrMessage::FullReload.to_json())
   server.close()
 }

@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 test "render_document wraps body with app container by default" {
   let html = render_document("App", "", "<p>hello</p>")
   assert_true(html.contains("<div id=\"app\"><p>hello</p></div>"))

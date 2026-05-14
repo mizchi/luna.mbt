@@ -92,7 +92,7 @@ fn[T] build_entry_index_map(entries : Array[ItemEntry[T]]) -> @js.Any {
   let map = ref_map_new()
   for i, entry in entries {
     let key = @js.any(entry.item)
-    if !(ref_map_has(map, key)) {
+    if !ref_map_has(map, key) {
       ref_map_set(map, key, i)
     }
   }
@@ -123,12 +123,12 @@ fn[T] find_entry_index(
 ) -> Int {
   let key = @js.any(item)
   let first = ref_map_get_or_minus1(map, key)
-  if first >= 0 && !(used_indices[first]) {
+  if first >= 0 && !used_indices[first] {
     return first
   }
   // Duplicate references: find another unused entry with the same reference
   for i, entry in old_entries {
-    if !(used_indices[i]) && ref_equal(entry.item, item) {
+    if !used_indices[i] && ref_equal(entry.item, item) {
       return i
     }
   }
@@ -233,7 +233,7 @@ pub fn[T] reconcile_items(
   // Process items in REVERSE order (last to first)
   // This allows us to efficiently check if nodes are already in correct position
   // cursor tracks "what should be the next sibling of the current item"
-  let cursor : Ref[@js_dom.Node] = Ref::new(end_marker)
+  let cursor : Ref[@js_dom.Node] = Ref(end_marker)
 
   // Process from last to first
   let last = n - 1
@@ -248,7 +248,7 @@ pub fn[T] reconcile_items(
       // Only move if not already at correct position
       // The node is at correct position if its nextSibling equals cursor
       if entry.nodes.length() > 0 {
-        if !(next_sibling_is(entry.last, cursor.val)) {
+        if !next_sibling_is(entry.last, cursor.val) {
           move_nodes_before(parent, entry.nodes, cursor.val)
         }
         cursor.val = entry.dom
@@ -281,7 +281,7 @@ pub fn[T] reconcile_items(
 
   // Remove unused DOM nodes and dispose their owner scopes
   for i, entry in old_entries {
-    if !(used_indices[i]) {
+    if !used_indices[i] {
       // Dispose first to run cleanups, then remove DOM
       (entry.dispose)()
       safe_remove_nodes(parent, entry.nodes)
@@ -402,7 +402,7 @@ pub fn[T] reconcile_items_with_dispose(
   }
   let used_indices : Array[Bool] = Array::make(old_entries.length(), false)
   let index_map = build_entry_index_map(old_entries)
-  let cursor : Ref[@js_dom.Node] = Ref::new(end_marker)
+  let cursor : Ref[@js_dom.Node] = Ref(end_marker)
 
   // Process from last to first
   let last = n - 1
@@ -414,7 +414,7 @@ pub fn[T] reconcile_items_with_dispose(
       let entry = old_entries[old_index]
       used_indices[old_index] = true
       if entry.nodes.length() > 0 {
-        if !(next_sibling_is(entry.last, cursor.val)) {
+        if !next_sibling_is(entry.last, cursor.val) {
           move_nodes_before(parent, entry.nodes, cursor.val)
         }
         cursor.val = entry.dom
@@ -444,7 +444,7 @@ pub fn[T] reconcile_items_with_dispose(
 
   // Remove unused DOM nodes and dispose their owner scopes
   for i, entry in old_entries {
-    if !(used_indices[i]) {
+    if !used_indices[i] {
       (entry.dispose)()
       safe_remove_nodes(parent, entry.nodes)
     }

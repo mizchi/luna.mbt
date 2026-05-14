@@ -18,7 +18,7 @@ pub struct MemoryCache {
 ///|
 /// Create a new empty MemoryCache
 pub fn MemoryCache::new() -> MemoryCache {
-  { store: Ref::new({}) }
+  { store: Ref({}) }
 }
 
 ///|

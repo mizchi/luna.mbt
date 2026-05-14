@@ -11,7 +11,7 @@ pub enum ServerRuntime {
   RuntimeCloudflare // Cloudflare Workers (export default app)
   RuntimeDeno // Deno.serve
   RuntimeBun // Bun.serve
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Server entry ownership. Auto preserves the historical main.mbt detection.
@@ -19,14 +19,14 @@ pub enum ServerEntryMode {
   ServerEntryAuto
   ServerEntryGenerated
   ServerEntryUserManaged
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Client island bundle ownership.
 pub enum ClientBundleMode {
   ClientBundleAuto
   ClientBundleExternal
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// TypeScript interface source used to generate Sol contract metadata.
@@ -41,7 +41,7 @@ pub struct ContractTsConfig {
   import_alias : String?
   /// External client bundle URL for the component
   client_url : String?
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Sol configuration (new architecture)
@@ -136,6 +136,39 @@ pub fn StaticDirEntry::default(
 }
 
 ///|
+priv struct ContractDataShape {
+  name : String
+  fields : Array[ContractPropsField]
+}
+
+///|
+priv struct RouteQuerySpec {
+  name : String
+  optional : Bool
+}
+
+///|
+priv struct RouteQueryContract {
+  path : String
+  query : Array[RouteQuerySpec]
+}
+
+///|
+priv struct ActionTypeContract {
+  id : String
+  request_type : String?
+  response_type : String?
+}
+
+///|
+priv struct ApiTypeContract {
+  method_name : String
+  path : String
+  request_type : String?
+  response_type : String?
+}
+
+///|
 /// Route information extracted from routes.mbt
 /// Note: Fields prefixed with _ are for future use
 priv struct RouteInfo {
@@ -145,8 +178,16 @@ priv struct RouteInfo {
   _api_handlers : Array[String]
   /// Route paths (from path="..." in route definitions)
   route_paths : Array[String]
+  /// Query parameter contracts keyed by route path
+  route_queries : Array[RouteQueryContract]
   /// Action IDs (from typed action handler names)
   action_ids : Array[String]
+  /// Optional action payload/response contracts
+  action_contracts : Array[ActionTypeContract]
+  /// Optional JSON API request/response contracts
+  api_contracts : Array[ApiTypeContract]
+  /// Generated data shapes used by action/API contracts
+  contract_shapes : Array[ContractDataShape]
 }
 
 // =============================================================================
@@ -169,11 +210,19 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
   let api_handlers : Array[String] = []
   let route_paths : Array[String] = []
   let action_ids : Array[String] = []
+  let route_queries : Array[RouteQueryContract] = []
+  let action_contracts : Array[ActionTypeContract] = []
+  let api_contracts : Array[ApiTypeContract] = []
+  let contract_shapes : Array[ContractDataShape] = []
   let empty = RouteInfo::{
     _page_components: page_components,
     _api_handlers: api_handlers,
     route_paths,
+    route_queries,
     action_ids,
+    action_contracts,
+    api_contracts,
+    contract_shapes,
   }
   if !fs.exists_sync(routes_path) {
     return empty
@@ -202,7 +251,11 @@ fn[FS : @env.FileSystem] parse_routes_file_with_fs(
     _page_components: page_components,
     _api_handlers: api_handlers,
     route_paths,
+    route_queries,
     action_ids,
+    action_contracts,
+    api_contracts,
+    contract_shapes,
   }
 }
 
@@ -499,7 +552,8 @@ fn parse_contract_ts_config(obj : Map[String, Json]) -> ContractTsConfig? {
   let props_interface = match @json_utils.extract_string_opt(obj, "props") {
     Some(v) => v
     None =>
-      match extract_config_string_opt(obj, "propsInterface", "props_interface") {
+      match
+        extract_config_string_opt(obj, "propsInterface", "props_interface") {
         Some(v) => v
         None => return None
       }
@@ -512,9 +566,7 @@ fn parse_contract_ts_config(obj : Map[String, Json]) -> ContractTsConfig? {
         None => return None
       }
   }
-  if input.is_empty() ||
-    props_interface.is_empty() ||
-    package_path.is_empty() {
+  if input.is_empty() || props_interface.is_empty() || package_path.is_empty() {
     return None
   }
   Some({

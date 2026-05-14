@@ -153,6 +153,40 @@ pub(open) trait ActionKey {
 }
 
 ///|
+/// Phantom-typed action key for generated request/response contracts.
+pub(all) struct TypedActionKey[Req, Res] {
+  id : String
+  base_path : String
+  _request : Req?
+  _response : Res?
+}
+
+///|
+pub fn[Req, Res] TypedActionKey::new(
+  id : String,
+  base_path? : String = "/_action",
+) -> TypedActionKey[Req, Res] {
+  { id, base_path, _request: None, _response: None }
+}
+
+///|
+pub fn[Req, Res] TypedActionKey::id(self : TypedActionKey[Req, Res]) -> String {
+  self.id
+}
+
+///|
+pub fn[Req, Res] TypedActionKey::base_path(
+  self : TypedActionKey[Req, Res],
+) -> String {
+  self.base_path
+}
+
+///|
+pub fn[Req, Res] typed_action_url(key : TypedActionKey[Req, Res]) -> String {
+  key.base_path() + "/" + key.id()
+}
+
+///|
 /// Get the stable action identifier from a generated action key.
 pub fn[K : ActionKey] action_id(key : K) -> String {
   key.id()

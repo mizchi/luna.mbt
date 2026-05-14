@@ -170,7 +170,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   }
   // Watch is enabled by default, --no-watch disables it
   let watch : Bool = if result.values.contains("no-watch") {
-    !(result.values["no-watch"].cast())
+    !result.values["no-watch"].cast()
   } else {
     true
   }
@@ -188,7 +188,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
   let moon_mod_path = @path.join2(cwd, "moon.mod.json")
   let has_moon_mod = fs.exists_sync(moon_mod_path)
   // Check if this is a MoonBit project (required for SSR app mode)
-  if !(has_moon_mod) {
+  if !has_moon_mod {
     @cli_common.console_error(
       @colorette.red(
         "Error: Not a MoonBit project (moon.mod.json not found). Use `astra dev` for SSG-only projects.",
@@ -220,7 +220,7 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     println(@colorette.green("✓ Clean complete"))
   }
   // Step 2: Run initial build (includes sol generate)
-  if !(run_initial_build_dev(cwd)) {
+  if !run_initial_build_dev(cwd) {
     @process.exit(1)
   }
   if is_cloudflare_runtime_project_with_fs(fs, cwd) {
@@ -446,9 +446,7 @@ async fn run_dev_watch_mode(
           ) {
             // Only rebuild for .mbt files, excluding auto-generated files
             let is_generated = filename.contains("__gen__")
-            if filename.ends_with(".mbt") &&
-              event == "change" &&
-              !(is_generated) {
+            if filename.ends_with(".mbt") && event == "change" && !is_generated {
               let now = @cli_common.date_now()
               // Debounce rapid changes
               if now - last_rebuild.val > debounce_ms {
@@ -514,7 +512,7 @@ async fn run_dev_watch_mode(
               let is_generated = filename.contains("__gen__")
               if filename.ends_with(".mbt") &&
                 event == "change" &&
-                !(is_generated) {
+                !is_generated {
                 let now = @cli_common.date_now()
                 if now - last_rebuild.val > debounce_ms {
                   last_rebuild.val = now

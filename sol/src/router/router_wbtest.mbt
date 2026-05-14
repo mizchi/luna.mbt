@@ -3,7 +3,9 @@
 ///|
 test "extract_route_param_names - supports colon and bracket params" {
   let names = extract_route_param_names("/users/:id/posts/[postId]")
-  inspect(names, content="[id, postId]")
+  debug_inspect(names, content=(
+    #|["id", "postId"]
+  ))
 }
 
 ///|
@@ -11,13 +13,17 @@ test "extract_route_param_names - supports regex and catch-all params" {
   let names = extract_route_param_names(
     "/api/:version{[0-9]+}/docs/[...slug]/[[...opt]]",
   )
-  inspect(names, content="[version, slug, opt]")
+  debug_inspect(names, content=(
+    #|["version", "slug", "opt"]
+  ))
 }
 
 ///|
 test "extract_route_param_names - deduplicates parameter names" {
   let names = extract_route_param_names("/a/:id/:id/[id]")
-  inspect(names, content="[id]")
+  debug_inspect(names, content=(
+    #|["id"]
+  ))
 }
 
 ///|
@@ -220,7 +226,8 @@ test "compiled route pre-computes rendered_meta for page routes" {
 ///|
 test "compiled route has empty rendered_meta for API routes" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    let obj : Map[String, Json] = {}
+    obj.to_json()
   }
 
   let routes = [api_get("/api/test", handler)]

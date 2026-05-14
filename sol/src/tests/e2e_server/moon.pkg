@@ -6,6 +6,8 @@ import {
   "moonbitlang/async/js_async" @js_async,
 }
 
+supported_targets = "js"
+
 options(
   link: {
     "js": {
@@ -14,5 +16,3 @@ options(
     },
   },
 )
-
-supported_targets = "js"
