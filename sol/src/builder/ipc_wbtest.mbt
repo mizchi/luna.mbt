@@ -41,3 +41,40 @@ test "WorkerMessage done parses through opaque IPC message" {
   assert_true(result.success)
   assert_eq(result.error, None)
 }
+
+///|
+test "WorkerMessage done preserves error field through opaque IPC message" {
+  let msg = JobResult::{
+    job_id: 8,
+    output_path: "/docs/bad",
+    success: false,
+    error: Some("render failed"),
+  }.to_json()
+  guard WorkerMessage::from_json(msg) is Some(Done(result)) else {
+    fail("expected done message")
+  }
+  assert_eq(result.job_id, 8)
+  assert_eq(result.output_path, "/docs/bad")
+  assert_false(result.success)
+  assert_eq(result.error, Some("render failed"))
+}
+
+///|
+test "WorkerMessage ready parses through opaque IPC message" {
+  let raw = @core.new_object()
+  raw["type"] = @core.any("ready")
+  guard WorkerMessage::from_json(IpcMessage::from_raw(raw)) is Some(Ready) else {
+    fail("expected ready message")
+  }
+}
+
+///|
+test "WorkerMessage error parses through opaque IPC message" {
+  let raw = @core.new_object()
+  raw["type"] = @core.any("error")
+  raw["message"] = @core.any("worker failed")
+  guard WorkerMessage::from_json(IpcMessage::from_raw(raw)) is Some(Error(message)) else {
+    fail("expected error message")
+  }
+  assert_eq(message, "worker failed")
+}

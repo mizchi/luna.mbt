@@ -29,35 +29,13 @@ pub(all) struct WorkerInitData {
 ///|
 /// Serialize WorkerInitData to JSON string for IPC
 pub fn WorkerInitData::to_json_string(self : WorkerInitData) -> String {
-  // Manual JSON construction for efficiency
-  let q = "\""
-  "{" +
-  q +
-  "configJson" +
-  q +
-  ":" +
-  escape_json(self.config_json) +
-  "," +
-  q +
-  "pagesJson" +
-  q +
-  ":" +
-  escape_json(self.pages_json) +
-  "," +
-  q +
-  "sidebarJson" +
-  q +
-  ":" +
-  escape_json(self.sidebar_json) +
-  "," +
-  q +
-  "cwd" +
-  q +
-  ":" +
-  q +
-  self.cwd +
-  q +
-  "}"
+  let obj : Map[String, Json] = {
+    "configJson": self.config_json.to_json(),
+    "pagesJson": self.pages_json.to_json(),
+    "sidebarJson": self.sidebar_json.to_json(),
+    "cwd": self.cwd.to_json(),
+  }
+  obj.to_json().stringify()
 }
 
 ///|
@@ -71,20 +49,6 @@ pub fn WorkerInitData::from_json(json : Json) -> WorkerInitData? {
   }
   guard obj.get("cwd") is Some(String(cwd)) else { return None }
   Some(WorkerInitData::{ config_json, pages_json, sidebar_json, cwd })
-}
-
-///|
-fn escape_json(s : String) -> String {
-  // Simple JSON string escape - the string itself is JSON so just wrap in quotes
-  // For complex strings, proper escaping would be needed
-  "\"" +
-  s
-  .replace(old="\\", new="\\\\")
-  .replace(old="\"", new="\\\"")
-  .replace(old="\n", new="\\n")
-  .replace(old="\r", new="\\r")
-  .replace(old="\t", new="\\t") +
-  "\""
 }
 
 // =============================================================================
