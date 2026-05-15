@@ -37,7 +37,12 @@ cd myapp
 
 # 3) install BOTH dep trees. pnpm covers npm (hono, etc.), moon covers MoonBit.
 pnpm install
-moon install                           # CRITICAL — without this `sol dev` fails
+moon update && moon install            # CRITICAL — `moon update` refreshes the
+                                       # registry index so freshly published
+                                       # mooncake versions in the scaffolded
+                                       # moon.mod.json resolve; without the
+                                       # pair `sol dev` fails to resolve
+                                       # `mizchi/sol/cmd/sol_js`.
 
 # 4) start dev server on :7777
 sol dev                                # ready marker: "Server running at http://localhost:7777"
@@ -119,7 +124,7 @@ Minimum diff:
 |---------|------------|-----|
 | `sol new <name> --cloudflare` in `/tmp/empty/` → `Run this command inside a MoonBit project that depends on mizchi/sol.` | Flagged variants of `sol new` still go through the JS delegate, which needs `.mooncakes/mizchi/sol/` | Create a host moon project (see "When `sol new` still needs a host moon project" above) |
 | `sol new <name>` → `Error: --user option is required` | `--user` is mandatory; `sol --help` now annotates this on the `new` row | Pass `--user <namespace>` (5-39 chars) |
-| Right after `sol new`, `sol dev` → `failed to resolve path mizchi/sol/cmd/sol_js` | Generated project has no `.mooncakes/` yet — `pnpm install` doesn't fetch MoonBit deps | `moon install` in the project dir, then retry. The `sol new` Next steps now print this explicitly. |
+| Right after `sol new`, `sol dev` → `failed to resolve path mizchi/sol/cmd/sol_js` | Generated project has no `.mooncakes/` yet — `pnpm install` doesn't fetch MoonBit deps | `moon update && moon install` in the project dir, then retry. `moon install` alone fails when the registry index hasn't seen the freshly published mooncake versions; `moon update` refreshes the index first. The `sol new` Next steps now print this pair explicitly. |
 | `moon new bootstrap --user me` → `Username must be between 5 and 39 characters long` | Moon's username validator, not a sol issue | Use a ≥5-char namespace (e.g. `myorg`, `dogfood`) |
 | Route edit applied but curl returns the old page | Earlier versions of the HMR watcher only listened for `"change"` events and missed atomic-save / `rename` writers. Fixed (watcher now also accepts `"rename"` and re-verifies existence). | If still observed, kill and restart `sol dev`; report which editor / write pattern was used. |
 | Want to bypass the launcher entirely | Delegate fallback uses module ref form that moon's `run` cannot resolve as a path | Run `moon run --target js .mooncakes/mizchi/sol/src/cmd/sol_js -- <subcommand>` directly. Useful when binary path resolution fails for unknown reasons. |

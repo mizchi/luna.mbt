@@ -339,16 +339,22 @@ async fn try_native_new(args : Array[String]) -> Bool {
   println("Next steps:")
   println("  cd \{project_name}")
   println("  pnpm install")
-  println("  moon install")
+  println("  moon update && moon install")
   println("  pnpm dev")
   println("")
   println(
-    "Note: `moon install` is required even after `pnpm install` — it fetches",
+    "Note: `moon update && moon install` is required even after `pnpm install`.",
   )
   println(
-    "MoonBit deps into .mooncakes/. Without it, `sol dev` fails to resolve",
+    "`moon update` refreshes the registry index (the freshly published",
   )
-  println("`mizchi/sol/cmd/sol_js`.")
+  println(
+    "mooncake versions this scaffold pins are otherwise unresolvable);",
+  )
+  println(
+    "`moon install` then fetches MoonBit deps into .mooncakes/. Without",
+  )
+  println("the pair, `sol dev` fails to resolve `mizchi/sol/cmd/sol_js`.")
   true
 }
 

@@ -194,18 +194,32 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
   println("Next steps:")
   println(@colorette.cyan("  cd \{project_name}"))
   println(@colorette.cyan("  pnpm install"))
-  println(@colorette.cyan("  moon install"))
+  println(@colorette.cyan("  moon update && moon install"))
   println(@colorette.cyan("  pnpm dev"))
   println("")
   println(
     @colorette.gray(
-      "Note: `moon install` is required even after `pnpm install` — it fetches",
+      "Note: `moon update && moon install` is required even after `pnpm install`.",
     ),
   )
   println(
     @colorette.gray(
-      "MoonBit deps into .mooncakes/. Without it, `sol dev` fails to resolve",
+      "`moon update` refreshes the registry index (newly published mooncake",
     ),
   )
-  println(@colorette.gray("`mizchi/sol/cmd/sol_js`."))
+  println(
+    @colorette.gray(
+      "versions like the one in this scaffold are otherwise unresolvable);",
+    ),
+  )
+  println(
+    @colorette.gray(
+      "`moon install` then fetches MoonBit deps into .mooncakes/. Without",
+    ),
+  )
+  println(
+    @colorette.gray(
+      "the pair, `sol dev` fails to resolve `mizchi/sol/cmd/sol_js`.",
+    ),
+  )
 }
