@@ -1,18 +1,18 @@
 ---
 name: sol-bootstrap
-description: Use when running `sol new` for the first time, when `sol <subcommand>` fails with `failed to resolve path mizchi/sol/cmd/sol_js` / `Run this command inside a MoonBit project that depends on mizchi/sol.`, or when moving from `sol dev` to `sol build` / `sol serve` for the first time. Covers (a) the two undocumented prerequisites of the sol CLI — `sol new` must run inside an existing MoonBit project, and every subcommand needs `.mooncakes/mizchi/sol/` locally — (b) the actual sol 0.22.x scaffold layout (`app/server/routes.mbt` holds routes + page handlers; `app/layout/` is a separate package; `/` and `/about` are pre-registered) and (c) the production flow gotchas (`sol build` writes to two directories, `sol serve` does NOT rebuild, dev & prod both default to :7777, and prod HTML still embeds the dev HMR script in 0.22.1).
+description: Use when running `sol new` for the first time, when `sol <subcommand>` fails with `failed to resolve path mizchi/sol/cmd/sol_js` / `Run this command inside a MoonBit project that depends on mizchi/sol.`, or when moving from `sol dev` to `sol build` / `sol serve` for the first time. Covers (a) the bootstrap rules — `sol new <name> --user <ns>` works in an empty directory as of sol 0.22.2, but `--cloudflare` / `--doc` / `--dev` still need a host moon project, and every non-new subcommand needs `.mooncakes/mizchi/sol/` locally (= `moon install` after `sol new`) — (b) the sol 0.22.x scaffold layout (`app/server/routes.mbt` holds routes + page handlers; `app/layout/` is a separate package; `/` and `/about` are pre-registered) and (c) the production flow gotchas (`sol build` writes to two directories, `sol serve` does NOT rebuild, dev & prod both default to :7777).
 ---
 
 # sol-bootstrap
 
 ## Purpose
 
-The sol native CLI (`$MOON_HOME/bin/sol`) is a thin launcher that delegates every subcommand other than `--help` / `--version` to `moon run --target js <path-to-sol_js>`. Two consequences trip up first-time users:
+The sol native CLI (`$MOON_HOME/bin/sol`) is a thin launcher. Most subcommands (`dev` / `build` / `serve` / `generate` / `doctor` / ...) delegate to `moon run --target js mizchi/sol/cmd/sol_js`, which only resolves inside a moon project with `.mooncakes/mizchi/sol/` populated. Two friction points remain even on sol 0.22.2:
 
-1. `sol new` cannot run in an empty directory — it is itself a delegated subcommand, so the launcher needs `mizchi/sol/cmd/sol_js` resolvable. Empty `/tmp/foo` produces `Run this command inside a MoonBit project that depends on mizchi/sol.`
-2. Right after `sol new myapp --user <ns>` succeeds, the generated `myapp/` has **no `.mooncakes/`**. Running `sol dev` immediately fails with `failed to resolve path mizchi/sol/cmd/sol_js`. The `pnpm install` step alone does **not** fetch MoonBit deps; `moon install` is the missing step.
+1. **`sol new` without flags** (the common path) is now handled natively in the launcher and works in an empty directory. **However**, `sol new --cloudflare` / `--doc` / `--dev` still go through the JS delegate, so they need a host moon project. If you hit `failed to resolve path mizchi/sol/cmd/sol_js` from a flagged variant of `sol new`, that is why.
+2. Right after `sol new myapp --user <ns>` succeeds, the generated `myapp/` has **no `.mooncakes/`**. Running `sol dev` immediately fails with `failed to resolve path mizchi/sol/cmd/sol_js`. The `pnpm install` step alone does **not** fetch MoonBit deps; `moon install` is the missing step (`sol new` now prints this in its Next steps).
 
-The CLI source for the launcher is `sol/src/cmd/sol/main.mbt::delegate_to_project_js_cli` — it checks `sol/src/cmd/sol_js` and `.mooncakes/mizchi/sol/src/cmd/sol_js`, then falls back to passing the bare module ref to `moon run`, which fails because moon's `run` does not resolve registry-form refs as paths.
+The native-new entrypoint lives in `sol/src/cmd/sol/main.mbt::try_native_new` and the underlying templates moved to `sol/src/scaffold_templates/`. The delegate fallback (`delegate_to_project_js_cli`) is still where every other subcommand goes through; it branches its error message on `moon.mod.json` / `.mooncakes/mizchi/sol` presence so the diagnostic points at the right next action.
 
 ## When to use
 
@@ -29,25 +29,30 @@ The CLI source for the launcher is `sol/src/cmd/sol/main.mbt::delegate_to_projec
 # 1) install the sol native binary into $MOON_HOME/bin
 moon install mizchi/sol/cmd/sol
 
-# 2) make a HOST moon project so the `sol new` launcher can resolve sol_js.
-#    The hostproject directory is throwaway scaffolding — sol new generates
-#    the real app as a sibling subdir. Username must be 5-39 chars (moon constraint).
-mkdir -p /tmp/sol-host && cd /tmp/sol-host
-moon new hostproject --user myorg     # NOT `--user me` — moon rejects <5 chars
-cd hostproject
-moon add mizchi/sol                   # fetches .mooncakes/mizchi/sol so the
-                                      # launcher can find sol_js in step 3
-
-# 3) scaffold the actual app. The generated dir lives under hostproject/.
+# 2) scaffold directly in an empty dir — `sol new` (no flags) is native.
+#    Namespace must be 5-39 chars (moon constraint, e.g. `myorg`, not `me`).
+mkdir -p /tmp/sol-myapp && cd /tmp/sol-myapp
 sol new myapp --user myorg
 cd myapp
 
-# 4) install BOTH dep trees. pnpm covers npm (hono, etc.), moon covers MoonBit.
+# 3) install BOTH dep trees. pnpm covers npm (hono, etc.), moon covers MoonBit.
 pnpm install
-moon install                          # CRITICAL — without this `sol dev` fails
+moon install                           # CRITICAL — without this `sol dev` fails
 
-# 5) start dev server on :7777
+# 4) start dev server on :7777
 sol dev                                # ready marker: "Server running at http://localhost:7777"
+```
+
+### When `sol new` still needs a host moon project
+
+`--cloudflare` / `--doc` / `--dev` go through the JS delegate, so they require `.mooncakes/mizchi/sol/` resolvable from the cwd. Use the host-project pattern in that case:
+
+```sh
+mkdir -p /tmp/sol-host && cd /tmp/sol-host
+moon new hostproject --user myorg
+cd hostproject
+moon add mizchi/sol                    # fetches .mooncakes/mizchi/sol
+sol new myapp --user myorg --cloudflare
 ```
 
 The HMR WebSocket binds to `:7877` (used by the loader, not for your curl). After step 5, the scaffolded routes already work:
@@ -112,12 +117,12 @@ Minimum diff:
 
 | Symptom | Root cause | Fix |
 |---------|------------|-----|
-| `sol new <name>` in `/tmp/empty/` → `Run this command inside a MoonBit project that depends on mizchi/sol.` | Native launcher cannot resolve sol_js with no project context | Create a host moon project first (step 2 above) |
-| `sol new <name>` → `Error: --user option is required` | `--user` is mandatory but not shown in `sol --help` | Pass `--user <namespace>` (5-39 chars) |
-| Right after `sol new`, `sol dev` → `failed to resolve path mizchi/sol/cmd/sol_js` | Generated project has no `.mooncakes/` yet — `pnpm install` doesn't fetch MoonBit deps | `moon install` in the project dir, then retry |
+| `sol new <name> --cloudflare` in `/tmp/empty/` → `Run this command inside a MoonBit project that depends on mizchi/sol.` | Flagged variants of `sol new` still go through the JS delegate, which needs `.mooncakes/mizchi/sol/` | Create a host moon project (see "When `sol new` still needs a host moon project" above) |
+| `sol new <name>` → `Error: --user option is required` | `--user` is mandatory; `sol --help` now annotates this on the `new` row | Pass `--user <namespace>` (5-39 chars) |
+| Right after `sol new`, `sol dev` → `failed to resolve path mizchi/sol/cmd/sol_js` | Generated project has no `.mooncakes/` yet — `pnpm install` doesn't fetch MoonBit deps | `moon install` in the project dir, then retry. The `sol new` Next steps now print this explicitly. |
 | `moon new bootstrap --user me` → `Username must be between 5 and 39 characters long` | Moon's username validator, not a sol issue | Use a ≥5-char namespace (e.g. `myorg`, `dogfood`) |
-| Route edit applied but curl returns the old page | HMR occasionally misses edits made within the first few seconds of `sol dev` startup | Kill and restart `sol dev` |
-| Want to bypass the launcher entirely | Delegate fallback uses module ref form that moon's `run` cannot resolve as a path | Run `moon run --target js .mooncakes/mizchi/sol/src/cmd/sol_js -- <subcommand>` directly. This is also how to call sol from contexts where the binary path resolution fails for unknown reasons. |
+| Route edit applied but curl returns the old page | Earlier versions of the HMR watcher only listened for `"change"` events and missed atomic-save / `rename` writers. Fixed (watcher now also accepts `"rename"` and re-verifies existence). | If still observed, kill and restart `sol dev`; report which editor / write pattern was used. |
+| Want to bypass the launcher entirely | Delegate fallback uses module ref form that moon's `run` cannot resolve as a path | Run `moon run --target js .mooncakes/mizchi/sol/src/cmd/sol_js -- <subcommand>` directly. Useful when binary path resolution fails for unknown reasons. |
 
 ## Production build & serve
 
@@ -159,25 +164,25 @@ sol serve --port 8888              # → http://localhost:8888 (dev's 7777 is bu
 | Port flag | (not exposed in `--help`) | `-p, --port <port>` |
 | Output | `.sol/dev/` (~312 KB) | `.sol/prod/` (~128 KB) + `_build/js/release/build/` (~1.6 MB SSR bundle) |
 | Bundle minified | no | yes (5× smaller per island) |
-| HMR | enabled, WS on :7877 | disabled, but **HTML still embeds the dev HMR `<script>` (sol 0.22.1 bug)** |
-| File watch | yes (`Watching for .mbt file changes...`), but sometimes misses edits — restart if curl returns stale HTML | no |
+| HMR | enabled, WS on :7877 | disabled (fixed in 0.22.2: `SOL_DEV` is no longer set when mode = `"prod"`, so prod HTML no longer embeds the dev HMR `<script>`) |
+| File watch | yes (`Watching for .mbt file changes...`); accepts both `"change"` and `"rename"` events since 0.22.2 — atomic-save editors are no longer dropped | no |
 | Cold-start time | ~15s (generate + moon build + rolldown) | ~3s after `sol build` (4–5s) |
 | Ready marker | `Server running at http://localhost:7777` | `Server running at http://localhost:<port>` |
 
-### Known production gotchas (sol 0.22.1)
+### Known production gotchas (sol 0.22.2+)
 
-1. **HMR `<script>` leaks into prod HTML.** Every `sol serve` response includes `<script>(function(){ var ws=new WebSocket('ws://'+(location.hostname)+':7877'); … })()</script>`. The WebSocket connect always fails in prod (no HMR server listening), the script schedules a reload, and the reload re-fetches the same HTML — so it's a silent no-op loop, not a crash. Still dead bytes shipped to every client and a `ws://` request in DevTools. Until fixed, treat any prod build as carrying this artifact.
-2. **`sol build` exits 0 even when generate is stale.** If you edit `routes.mbt` without `sol generate --mode prod`, `sol build` may bundle the old route table. `sol build --clean` is the safe option when in doubt.
-3. **Dev file-watch occasionally misses edits.** Restart `sol dev` when curl shows stale HTML. The HMR ready log printing does not mean the watcher is correctly subscribed to your edited file.
+1. **`sol build` exits 0 even when generate is stale.** By default `sol build` runs `sol generate --mode prod` first, so this only matters when `--skip-generate` is passed — in that case 0.22.2 prints a yellow warning. `sol build --clean` is the safe option when in doubt.
+2. **`_build/js/release/` is part of the deployable.** `.sol/prod/server/main.js` re-exports `_build/js/release/build/server/server.js` (~1.6 MB). A naive `rsync .sol/prod/ <host>` ships a broken bundle. Use the platform adapter (`sol-cloudflare-deploy` skill) or ship both directories.
 
 ## Source of truth
 
-- Launcher: `sol/src/cmd/sol/main.mbt` (`delegate_to_project_js_cli` defines the path-resolution fallbacks)
-- `sol new` implementation: `sol/src/cli/new.mbt`
-- Generated templates: `sol/src/cli/templates.mbt` (`build_*_template_files` decides the on-disk layout)
+- Launcher: `sol/src/cmd/sol/main.mbt` — `try_native_new` handles `sol new` natively (flag-less form), `delegate_to_project_js_cli` handles every other subcommand with branched diagnostics
+- Native-shared templates: `sol/src/scaffold_templates/` (`supported_targets = "js + native"`, zero deps, pure string fns)
+- JS-side `sol new` wrapper: `sol/src/cli/new.mbt` (still owns `--cloudflare` / `--doc` / `--dev`)
+- JS-side templates re-export + cloudflare/doc extras: `sol/src/cli/templates.mbt`
 - `sol build` pipeline: `sol/src/cli/build.mbt` (rolldown invocation + manifest emission)
 - `sol serve` entry: `sol/src/cli/serve.mbt` (`--port` default 7777, reuses `run_server(cwd, port, "prod")`)
-- Existing reference app with the same 2-route shape: `sol/examples/sol_todo/app/server/` (note: uses an older `routes.mbt`/`pages.mbt` split that diverges from current scaffold output — treat with care)
+- Reference app matching the current scaffold: `sol/examples/sol_todo/app/{server,layout}/`
 - Routing API reference: `sol/docs/routing.md` — `@sol.SolRoutes` (scaffold default) vs `@router.register_routes` (host-worker embedding)
-- Quickstart (does NOT mention the `moon install` gap as of sol 0.22.1): `sol/docs/quickstart.md`
+- Quickstart: `sol/docs/quickstart.md`
 - Cloudflare deploy follow-up: `sol-cloudflare-deploy` skill (in this repo's `.claude/skills/`)
