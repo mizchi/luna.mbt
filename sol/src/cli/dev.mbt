@@ -444,9 +444,21 @@ async fn run_dev_watch_mode(
             event : String,
             filename : String,
           ) {
-            // Only rebuild for .mbt files, excluding auto-generated files
+            // Only rebuild for .mbt files, excluding auto-generated files.
+            // Accept both "change" and "rename" events: some editors
+            // (macOS `sed -i`, vim's :w with `backupcopy=auto`, atomic
+            // saves via tmp+rename) deliver "rename" instead of "change",
+            // and previously we missed those edits entirely. Re-verify the
+            // file still exists so we don't trigger rebuilds on deletes.
             let is_generated = filename.contains("__gen__")
-            if filename.ends_with(".mbt") && event == "change" && !is_generated {
+            let is_modify_event = event == "change" || event == "rename"
+            let still_exists = fs.exists_sync(
+              @path.join2(watch_path, filename),
+            )
+            if filename.ends_with(".mbt") &&
+              is_modify_event &&
+              still_exists &&
+              !is_generated {
               let now = @cli_common.date_now()
               // Debounce rapid changes
               if now - last_rebuild.val > debounce_ms {

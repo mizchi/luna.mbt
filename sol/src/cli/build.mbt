@@ -259,6 +259,25 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   if !skip_generate && has_sol_config {
     println(@colorette.cyan("Generating .sol directory..."))
     run_generate_command(["--mode", "prod"])
+  } else if skip_generate && has_sol_config {
+    // Stale-generate detection: when generate is skipped, warn so the user
+    // knows that any edits to app/server/**/*.mbt since the last `sol generate`
+    // will not be reflected in the bundled output.
+    println(
+      @colorette.yellow(
+        "Warning: --skip-generate is set; app/__gen__/ will be used as-is.",
+      ),
+    )
+    println(
+      @colorette.gray(
+        "  If you edited route or page source files since the last generate,",
+      ),
+    )
+    println(
+      @colorette.gray(
+        "  run `sol generate --mode prod` first to avoid bundling stale code.",
+      ),
+    )
   }
   println(@colorette.cyan("Building for production (target: \{target})..."))
   // Run moon build

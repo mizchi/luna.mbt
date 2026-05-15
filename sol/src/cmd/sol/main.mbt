@@ -34,7 +34,9 @@ fn print_help() -> Unit {
   println("Usage: sol <command> [options]")
   println("")
   println("Commands:")
-  println("  new <name>     Create a new Sol project")
+  println(
+    "  new <name>     Create a new Sol project (requires --user <namespace>)",
+  )
   println("  dev            Start SSR development server")
   println("  build          Build SSR app for production")
   println("  serve          Serve production build")
@@ -49,6 +51,8 @@ fn print_help() -> Unit {
   println("Options:")
   println("  -h, --help     Show help")
   println("  -v, --version  Show version")
+  println("")
+  println("Run `sol <command> --help` for command-specific options.")
 }
 
 ///|
