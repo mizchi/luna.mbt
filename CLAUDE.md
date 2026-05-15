@@ -51,6 +51,10 @@ and tag the pending version. So the two-step flow above is safe, and so is
 running `just vup patch --release` directly from a clean tree.
 The script bumps the 5 mooncake manifests (`luna`, `luna_components`,
 `sol`, `sol_adapter_cloudflare`, `astra`) and the mooncake inter-dep refs.
+It also rewrites the version literals embedded in
+`sol/src/cli/templates.mbt`, `sol/src/scaffold_templates/templates.mbt`,
+and `sol/src/version/version.mbt` so `sol new` scaffolds and the
+`sol --version` output stay aligned with the just-bumped versions.
 Tags are per-package: `luna-v<v>`, `luna_components-v<v>`, `sol-v<v>`,
 `sol_adapter_cloudflare-v<v>`, `astra-v<v>`.
 
