@@ -1100,6 +1100,9 @@ test("sol build: cloudflare server output is Worker-bundler clean", () => {
   assert.doesNotMatch(mainJs, /setInterval/);
   assert.doesNotMatch(mainJs, /await new Promise/);
 
+  // user-managed mode (sol_app): the moonbit bundle lives directly under
+  // `_build/js/release/build/server/server.js` — `__gen__/server/` is not
+  // produced. Auto-managed examples would read from the __gen__ path.
   const serverJs = fs.readFileSync(
     path.join(
       SOL_APP,
@@ -1107,7 +1110,6 @@ test("sol build: cloudflare server output is Worker-bundler clean", () => {
       "js",
       "release",
       "build",
-      "__gen__",
       "server",
       "server.js"
     ),
