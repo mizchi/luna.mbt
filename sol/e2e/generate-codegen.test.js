@@ -23,6 +23,10 @@ const CLI_DEBUG = path.join(
 );
 const SOL_APP = path.join(SOL_DIR, "examples", "sol_app");
 const SOL_API = path.join(SOL_DIR, "examples", "sol_api");
+// sol_sqlite is the surviving auto-managed (sol-generates-main.mbt) example
+// after sol_app/sol_auth/sol_todo/sol_api moved to user-managed mode. Tests
+// that assert on the `__gen__/server/main.mbt` generator output target this.
+const SOL_SQLITE = path.join(SOL_DIR, "examples", "sol_sqlite");
 
 function ensureCliBuilt() {
   const build = spawnSync("moon", ["build", "--target", "js"], {
@@ -1084,7 +1088,15 @@ test("sol build: cloudflare server output is Worker-bundler clean", () => {
     "utf8"
   );
   assert.match(mainJs, /globalThis\.__SOL_RUNTIME__ = 'cloudflare'/);
-  assert.match(mainJs, /await import\('\.\.\/\.\.\/\.\.\/_build\/js\/release\/build\/__gen__\/server\/server\.js'\)/);
+  // user-managed mode (sol_app ships its own app/server/main.mbt): the
+  // generated `.sol/prod/server/main.js` imports the moonbit server bundle
+  // directly, not via `__gen__/server/`. auto-managed examples instead
+  // import `_build/js/release/build/__gen__/server/server.js` — see
+  // sol_sqlite below for that path.
+  assert.match(
+    mainJs,
+    /await import\('\.\.\/\.\.\/\.\.\/_build\/js\/release\/build\/server\/server\.js'\)/,
+  );
   assert.doesNotMatch(mainJs, /setInterval/);
   assert.doesNotMatch(mainJs, /await new Promise/);
 
@@ -1132,11 +1144,15 @@ test("sol generate: idempotent (running twice produces same output)", () => {
 
 test("sol generate: server main.mbt includes serve_sol_assets", () => {
   ensureCliBuilt();
-  const result = runSolGenerate(SOL_APP);
+  // This test asserts on the generator output, so it has to run against
+  // an auto-managed example (where sol owns `__gen__/server/main.mbt`).
+  // After the 0.22.4 example migration, sol_sqlite is the canonical
+  // auto-managed survivor.
+  const result = runSolGenerate(SOL_SQLITE);
   assert.equal(result.status, 0);
 
   const mainPath = path.join(
-    SOL_APP,
+    SOL_SQLITE,
     "app",
     "__gen__",
     "server",
