@@ -3,11 +3,10 @@
 ///|
 /// Version of the JS-side sol CLI bundled with this build. Used to compare
 /// against the version of `mizchi/sol` actually resolved into the project's
-/// `.mooncakes/` (and the native launcher, when reachable on PATH).
-///
-/// Keep this in sync with `sol/moon.mod.json` `version` and the literal in
-/// `sol/src/cmd/sol/main.mbt`.
-const SOL_JS_CLI_VERSION : String = "0.22.3"
+/// `.mooncakes/` (and the native launcher, when reachable on PATH). Sourced
+/// from `mizchi/sol/version::VERSION`, which is the single source of truth
+/// that all sol CLI entry points share.
+const SOL_JS_CLI_VERSION : String = @version.VERSION
 
 ///|
 priv enum DoctorSeverity {

@@ -7,6 +7,7 @@ import {
   "mizchi/x/sys" @sys,
   "mizchi/x/process" @process,
   "mizchi/sol/scaffold_templates" @scaffold_templates,
+  "mizchi/sol/version" @version,
   "moonbitlang/core/env" @env,
   "moonbitlang/async",
 }

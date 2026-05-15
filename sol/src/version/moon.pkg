@@ -1,0 +1,9 @@
+// Pure-data package holding the canonical sol version string. Kept
+// dependency-free and target-agnostic so both the native launcher
+// (`mizchi/sol/cmd/sol`) and the JS CLI (`mizchi/sol/cli`) can import
+// the same value. Bump together with `sol/moon.mod.json::version` on
+// every release — luna/scripts/vup.mjs should ideally rewrite this
+// literal automatically; until then this is the single source of
+// truth that callers must match.
+
+supported_targets = "js + native"

@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/strconv",
   "mizchi/sol/internal/json_utils" @json_utils,
   "mizchi/sol/scaffold_templates" @scaffold_templates,
+  "mizchi/sol/version" @version,
   "mizchi/astra" @astra,
   "mizchi/astra/assets" @astra_assets,
   "mizchi/astra/env" @env,
