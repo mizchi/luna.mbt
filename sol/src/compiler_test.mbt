@@ -63,6 +63,44 @@ test "BundleConfig: builder chain" {
   assert_eq(config.sourcemap, true)
 }
 
+///|
+test "RolldownOutput::output exposes chunks through typed accessors" {
+  let chunks = ffi_mock_rolldown_output().output()
+  assert_eq(chunks.length(), 2)
+
+  assert_eq(chunks[0].file_name(), "main.js")
+  assert_eq(chunks[0].code(), "console.log('main')")
+  assert_true(chunks[0].is_entry())
+
+  assert_eq(chunks[1].file_name(), "asset.css")
+  assert_eq(chunks[1].code(), "")
+  assert_false(chunks[1].is_entry())
+}
+
+///|
+test "RolldownOutput::output handles missing output array" {
+  assert_eq(ffi_mock_empty_rolldown_output().output().length(), 0)
+}
+
+///|
+extern "js" fn ffi_mock_rolldown_output() -> RolldownOutput =
+  #| () => ({
+  #|   output: [
+  #|     {
+  #|       fileName: "main.js",
+  #|       code: "console.log('main')",
+  #|       isEntry: true
+  #|     },
+  #|     {
+  #|       fileName: "asset.css"
+  #|     }
+  #|   ]
+  #| })
+
+///|
+extern "js" fn ffi_mock_empty_rolldown_output() -> RolldownOutput =
+  #| () => ({})
+
 // =============================================================================
 // IslandManifest Tests
 // =============================================================================
