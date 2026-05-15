@@ -19,30 +19,15 @@ project/
 │   └── index.md
 ├── docs/ja/        # 日本語
 │   └── index.md
-├── sol.config.ts   # 設定ファイル (推奨)
-├── sol.config.json # JSON設定 (任意)
-└── dist/           # 出力先
+├── astra.config.json # 設定ファイル
+└── dist/             # 出力先
 ```
+
+`sol.config.json` は `astra.config.json` が無い場合にのみ fallback として読まれる (sol の SSG モード時代の互換用)。 新規プロジェクトでは `astra.config.json` を使う。
 
 ## 多言語対応
 
-`sol.config.ts` (推奨) または `sol.config.json` で言語を設定します：
-
-```ts
-export default {
-  ssg: {
-    i18n: {
-      defaultLocale: "en",
-      locales: [
-        { code: "en", label: "English", path: "" },
-        { code: "ja", label: "日本語", path: "ja" },
-      ],
-    },
-  },
-}
-```
-
-JSON 版:
+`astra.config.json` で言語を設定します：
 
 ```json
 {

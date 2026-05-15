@@ -21,28 +21,19 @@ project/
 │   └── guide/
 │       ├── index.md      # Guide index (/guide/)
 │       └── config.md     # Config page (/guide/config)
-├── sol.config.ts         # Configuration file (recommended)
-├── sol.config.json       # Optional JSON config
+├── astra.config.json     # Configuration file (primary)
 └── dist/                 # Output directory (auto-generated)
 ```
+
+`sol.config.json` is read as a fallback when `astra.config.json` is
+missing — only relevant for projects that started under sol's SSG
+mode before the astra extraction.
 
 ## Basic Usage
 
 ### 1. Create Configuration
 
-Add an `ssg` section to `sol.config.ts` (recommended) or `sol.config.json`:
-
-```ts
-export default {
-  ssg: {
-    docs: "docs",
-    output: "dist",
-    title: "My Site",
-  },
-}
-```
-
-JSON alternative:
+Write the site config in `astra.config.json`:
 
 ```json
 {

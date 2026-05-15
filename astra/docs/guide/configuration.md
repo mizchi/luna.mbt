@@ -1,11 +1,14 @@
 ---
 title: Configuration
-description: SSG configuration reference for sol.config.ts and sol.config.json
+description: SSG configuration reference for astra.config.json (with sol.config.json fallback)
 ---
 
 # Configuration Reference
 
-Configure SSG in the `ssg` field of `sol.config.ts` (recommended) or `sol.config.json`.
+Configure the site in `astra.config.json`. Astra also reads
+`sol.config.json` as a fallback when `astra.config.json` is missing
+(legacy compatibility — new projects should write `astra.config.json`).
+The `.ts` config form is sol-specific and is not parsed by astra.
 
 ## Basic Settings
 

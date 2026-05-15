@@ -79,7 +79,12 @@ dump — there is no second renderer to keep in sync.
 
 ## Configuration
 
-`astra.config.json` (or `sol.config.json` for back-compat) drives:
+`astra.config.json` is the primary config file. `sol.config.json` is
+read as a fallback when `astra.config.json` is missing (kept for
+compatibility with projects that started under sol's SSG mode before
+astra extraction). New projects should write `astra.config.json`.
+
+The config drives:
 
 - `docs_dir` — where to scan markdown sources (default `docs`)
 - `output_dir` — where `astra build` writes (default `dist`)

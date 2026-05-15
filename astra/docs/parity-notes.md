@@ -139,7 +139,7 @@ These were diffs after T10 that T11 narrowed to byte-equivalent.
 
 - **Status**: ACCEPTED INTENTIONAL. `copy_islands_dir` bundles the
   configured islands directory (`docs/public/islands` per
-  `sol.config.json`'s `islands.dir`) through rolldown. Produces JS bundles
+  `astra.config.json`'s `islands.dir`, or `sol.config.json` fallback) through rolldown. Produces JS bundles
   consumed at runtime by the loader. Astra middleware doesn't bundle (the
   loader source is exposed separately at `/assets/loader.js`); when the
   docs project provides pre-bundled islands, they would be served via the
