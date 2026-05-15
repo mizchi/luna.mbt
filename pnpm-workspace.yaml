@@ -5,6 +5,8 @@ packages:
   - "js/luna/examples"
   - "js/luna/examples_preact"
 
+linkWorkspacePackages: true
+
 onlyBuiltDependencies:
   - esbuild
   - sharp
