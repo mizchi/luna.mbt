@@ -4,6 +4,7 @@ package "mizchi/sol/cli"
 import {
   "mizchi/astra",
   "mizchi/astra/env",
+  "mizchi/sol/scaffold_templates",
   "moonbitlang/core/debug",
 }
 
@@ -26,9 +27,9 @@ pub fn extract_package_path(String) -> String?
 
 pub fn find_matching_paren(String, Int) -> Int?
 
-pub fn generate_cloudflare_templates(String, String, String?) -> Array[TemplateFile]
+pub fn generate_cloudflare_templates(String, String, String?) -> Array[@scaffold_templates.TemplateFile]
 
-pub fn generate_doc_templates(String, String) -> Array[TemplateFile]
+pub fn generate_doc_templates(String, String) -> Array[@scaffold_templates.TemplateFile]
 
 pub fn generate_export_name(String, String, String) -> String
 
@@ -48,7 +49,7 @@ pub fn generate_sol_server_main_js_user_managed(ServerRuntime, String, String) -
 
 pub fn generate_spin_toml_fragment(Array[WasmMountEntry]) -> String
 
-pub fn generate_templates(String, String, String?) -> Array[TemplateFile]
+pub fn generate_templates(String, String, String?) -> Array[@scaffold_templates.TemplateFile]
 
 pub fn generate_wasm_env_json(Array[WasmMountEntry]) -> String
 
@@ -108,11 +109,17 @@ pub fn template_gen_types_mbt() -> String
 
 pub fn template_gen_types_moon_pkg() -> String
 
+pub fn template_gitignore() -> String
+
 pub fn template_layout_mbt() -> String
 
 pub fn template_layout_moon_pkg() -> String
 
 pub fn template_ln_loader_js() -> String
+
+pub fn template_moon_mod_json(String, String?) -> String
+
+pub fn template_package_json(String) -> String
 
 pub fn template_routes_main_mbt() -> String
 
@@ -123,6 +130,8 @@ pub fn template_routes_moon_pkg(String) -> String
 pub fn template_routes_using_mbt() -> String
 
 pub fn template_server_using_mbt() -> String
+
+pub fn template_sol_config_json() -> String
 
 pub fn template_worker_entry_mjs(sol_module? : String) -> String
 
@@ -251,11 +260,6 @@ pub(all) struct StructExport {
   import_alias : String
 }
 
-pub struct TemplateFile {
-  path : String
-  content : String
-}
-
 pub enum WasmBuildKind {
   MoonBuild
   DirectCopy
@@ -316,6 +320,7 @@ pub struct WasmMountEntry {
 pub fn WasmMountEntry::new(String, String, Array[String], WasmEntrypointRuntime, String, build? : WasmBuildKind, env? : Map[String, String]) -> Self
 
 // Type aliases
+pub using @scaffold_templates {type TemplateFile}
 
 // Traits
 

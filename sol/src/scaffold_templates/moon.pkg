@@ -1,0 +1,6 @@
+// Pure scaffolding templates shared by the JS-targeted `sol new` command in
+// `mizchi/sol/cli` and the native install shim in `mizchi/sol/cmd/sol`.
+// Kept dep-free on purpose so the native binary can self-host `sol new`
+// without dragging the entire JS-targeted `cli` package in.
+
+supported_targets = "js + native"
