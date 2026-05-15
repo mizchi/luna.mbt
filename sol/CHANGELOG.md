@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.22.0 (2026-05-15)
+
+### Added
+
+- Add Sol contract manifest generation for routes, params, props, actions, and
+  generated server/frontend glue.
+- Emit TypeScript contract declarations from the generated Sol manifest so
+  frontend code can consume the same route/action contracts as MoonBit server
+  code.
+- Add typed action request decoding, typed JSON action results, and typed
+  invocation helpers.
+- Add generated `TypedActionKey[Req, Res]` action identifiers to replace the
+  unreleased string-based `ActionRef` API.
+
+### Changed
+
+- Strengthen generated route/action contracts and dogfood the user-managed
+  Sol build path in the examples.
+- Keep raw action payloads, untyped action invocation APIs, and internal
+  builder/HMR/Rolldown escape hatches behind implementation boundaries.
+- Tighten generated package/interface metadata and explicit imports to keep
+  `moon check --target js` warning-free.
+
+### Fixed
+
+- Normalize colon route parameters in generated API helpers.
+- Preserve static route TypeScript references without stringly route drift.
+- Keep repeated island references unique during SSR rendering.
+- Declare the Cloudflare adapter in generated Cloudflare templates instead of
+  the Node adapter.
+
 ## 0.21.1 (2026-05-14)
 
 - Fix generated/example Cloudflare projects by declaring

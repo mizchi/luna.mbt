@@ -265,7 +265,7 @@ vup version *args:
     node luna/scripts/vup.mjs {{version}} {{args}}
     if [[ ! " {{args}} " =~ " --dry-run " ]]; then
         # Per-package CHANGELOGs (each package owns its own version + cliff config).
-        for pkg in luna luna_components sol sol_adapter_cloudflare astra; do
+        for pkg in luna luna_components sol sol_adapter_cloudflare sol_adapter_node astra; do
             if [[ -f "${pkg}/cliff.toml" ]]; then
                 NEW_VERSION=$(node -p "require('./${pkg}/moon.mod.json').version")
                 echo ""

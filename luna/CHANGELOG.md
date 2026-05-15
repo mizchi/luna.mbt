@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna-v0.22.0] - 2026-05-15
+
+### Added
+
+- Add explicit `TrustedScript` and `TrustedStyle` wrappers plus
+  `script_trusted` / `style_trusted` helpers for SSR code that intentionally
+  emits trusted inline content.
+
+### Fixed
+
+- Keep repeated island and internal-ref IDs unique while rendering SSR HTML, so
+  multiple islands using the same module URL do not collide during hydration.
+
+### Changed
+
+- Tighten generated package/interface metadata and explicit imports used by the
+  Sol/Astra typed-contract builds.
+
 ## [luna-v0.21.0] - 2026-05-14
 
 ### Features
@@ -18,7 +36,7 @@ All notable changes to this project will be documented in this file.
   mooncake `mizchi/luna_components`. The headless + styled UI components
   (WAI-ARIA APG patterns) and the apg-playground demo now live under
   `luna_components/` and are versioned independently. Existing imports
-  must rewrite `mizchi/luna/x/components` → `mizchi/luna_components`.
+  must rewrite `mizchi/luna/x/components` -> `mizchi/luna_components`.
   Apps can now pin the component library separately from luna's
   reactive primitives.
 
@@ -63,7 +81,7 @@ All notable changes to this project will be documented in this file.
 - Add Resource.pending() and Loading component (#20)
 - Generic-ize meter component for SSR compatibility
 - Make styled/alert component generic [E] for SSR compatibility
-- V0.18.0 — portable stream_render + fix supported-targets warnings
+- V0.18.0 - portable stream_render + fix supported-targets warnings
 - **core**: Add portable stream_render package (native + js + wasm-gc)
 
 ### Miscellaneous
@@ -79,7 +97,7 @@ All notable changes to this project will be documented in this file.
 - **release-please**: Make wcssr private + bump astra manifest to 0.3.0
 - **vup**: Scope to mooncakes; document npm release onboarding
 - **js**: Add repository.directory + publishConfig to publishable packages
-- **luna**: Patch bump 0.19.2 → 0.19.3 / @luna_ui/luna 0.16.2 → 0.16.3
+- **luna**: Patch bump 0.19.2 -> 0.19.3 / @luna_ui/luna 0.16.2 -> 0.16.3
 - **moon.pkg**: Migrate options(supported-targets) -> supported_targets statement
 - **scripts**: Rewrite vup.mjs for monorepo layout
 - Split workflows by package with paths filters
@@ -110,13 +128,13 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
-- **layout**: Website → root, drop empty test-results
-- **scripts**: Luna-only scripts → luna/scripts/
+- **layout**: Website -> root, drop empty test-results
+- **scripts**: Luna-only scripts -> luna/scripts/
 - **sol**: Replace cmd/sol native shim with JS dispatcher
 - **astra**: Move CLI entry to cmd/astra for moon install
 - **layout**: Move luna-only files from root into luna/
 - **luna**: Move luna package from . to ./luna/ subdir
-- **astra**: Move sol/routes to astra/routes — break sol↔astra cycle
+- **astra**: Move sol/routes to astra/routes - break sol<->astra cycle
 - **luna**: Bind lite router/resource from moonbit extern modules
 - **scripts**: Simplify moonbit js post-process pipeline
 

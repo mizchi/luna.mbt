@@ -167,9 +167,10 @@ function buildPlan(spec) {
 
 function applyPlan(plan, dryRun) {
   // Inter-dep refs to update inside other mooncakes' moon.mod.json:
-  //   sol depends on astra
+  //   sol depends on astra and luna
   //   sol_adapter_cloudflare depends on sol
   //   sol_adapter_node depends on sol
+  //   astra depends on luna
   //   luna_components depends on luna
   const astraEntry = plan.find(p => p.id === "astra");
   const lunaEntry = plan.find(p => p.id === "luna");
@@ -197,6 +198,7 @@ function applyPlan(plan, dryRun) {
 
     if (entry.id === "sol") {
       bumpInterDep(entry.moon, "mizchi/astra", astraNewVersion, "sol/moon.mod.json");
+      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "sol/moon.mod.json");
     }
     if (entry.id === "sol_adapter_cloudflare") {
       bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_cloudflare/moon.mod.json");
@@ -206,6 +208,9 @@ function applyPlan(plan, dryRun) {
     }
     if (entry.id === "luna_components") {
       bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "luna_components/moon.mod.json");
+    }
+    if (entry.id === "astra") {
+      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "astra/moon.mod.json");
     }
 
     writeJson(entry.moonAbs, entry.moon, dryRun);
@@ -262,8 +267,10 @@ Touches manifests:
   sol/moon.mod.json, sol_adapter_cloudflare/moon.mod.json,
   sol_adapter_node/moon.mod.json, astra/moon.mod.json
   (sol/moon.mod.json deps.mizchi/astra.version is also bumped to match astra)
+  (sol/moon.mod.json deps.mizchi/luna is also bumped to match luna)
   (sol_adapter_cloudflare/moon.mod.json deps.mizchi/sol.version is also bumped)
   (sol_adapter_node/moon.mod.json deps.mizchi/sol.version is also bumped)
+  (astra/moon.mod.json deps.mizchi/luna is also bumped to match luna)
 
 Tags created by --release:
   luna-v<v>, luna_components-v<v>, sol-v<v>,

@@ -2,6 +2,12 @@
 
 All notable changes to `mizchi/astra` are documented here.
 
+## 0.22.0 (2026-05-15)
+
+- Align with `mizchi/luna` 0.22.0 and the Sol 0.22 release line.
+- Tighten route/config package metadata and explicit imports used by shared
+  Sol/Astra typed-contract checks. No intentional rendering API changes.
+
 ## 0.21.0 (2026-05-14)
 
 - Align with `mizchi/luna` 0.21.0 and the Sol 0.21 release line.

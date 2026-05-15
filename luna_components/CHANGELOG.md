@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna_components-v0.22.0] - 2026-05-15
+
+### Changed
+
+- Align with `mizchi/luna` 0.22.0.
+- Tighten generated package/interface metadata and explicit imports. No
+  intentional component API changes.
+
 ## [luna_components-v0.21.0] - 2026-05-14
 
 ### Changed
