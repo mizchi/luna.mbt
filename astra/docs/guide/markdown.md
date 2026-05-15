@@ -5,7 +5,7 @@ description: Supported Markdown syntax
 
 # Markdown Features
 
-Luna SSG supports standard Markdown syntax.
+Astra supports standard Markdown syntax.
 
 ## Frontmatter
 

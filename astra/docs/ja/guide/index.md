@@ -1,11 +1,15 @@
 ---
 title: はじめに
-description: Luna SSGの使い方ガイド
+description: Astra の使い方ガイド
 ---
 
 # はじめに
 
-Luna SSG は Sol CLI に統合された静的サイトジェネレーターです。
+Astra は MoonBit で書かれた markdown ドリブンな静的サイトジェネレーターです。
+`astra build` で static tree を吐き、 任意の static host (Cloudflare Workers
+Static Assets, GitHub Pages, S3, ...) に配るのが基本フロー。 同じレンダラを
+Mars サーバーに mount する形態もあるが、 sol に組み込むなど特別な理由がない
+限りは static path が推奨です。
 
 ## インストール
 

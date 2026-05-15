@@ -1,11 +1,14 @@
 ---
 title: Getting Started
-description: Overview and setup guide for Luna SSG
+description: Overview and setup guide for Astra
 ---
 
 # Getting Started
 
-Luna SSG is a static site generator integrated into the Sol CLI.
+Astra is a markdown-driven static site generator written in MoonBit.
+The default workflow is `astra build` → static tree → any CDN. The same
+renderer can also be mounted on a Mars server when you need on-request
+rendering, but the static path is the primary form.
 
 ## Prerequisites
 
@@ -62,7 +65,7 @@ This is my documentation site.
 ### 3. Build
 
 ```bash
-sol ssg build
+astra build
 ```
 
 Generated files will be output to the `dist/` directory.

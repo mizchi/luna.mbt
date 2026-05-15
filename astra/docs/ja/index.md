@@ -1,12 +1,15 @@
 ---
-title: Luna SSG
+title: Astra
 description: MoonBitで作られた静的サイトジェネレーター
 layout: home
 ---
 
-# Luna SSG
+# Astra
 
-MoonBit で実装された静的サイトジェネレーター。VitePress/Docusaurus 風のドキュメントサイトを生成できます。
+MoonBit で実装された markdown ドリブンな静的サイトジェネレーター。
+VitePress / Docusaurus 風のドキュメントサイトを `astra build` 1 発で生成
+できます。 同じレンダラを Mars サーバーに mount することもできますが、
+デフォルトの使い方は「build したものを任意の static host に置く」 です。
 
 ## 特徴
 
@@ -25,6 +28,6 @@ mkdir docs
 # Markdownファイルを追加
 echo "# Hello World" > docs/index.md
 
-# ビルド実行
-sol ssg build
+# dist/ にビルド
+astra build
 ```
