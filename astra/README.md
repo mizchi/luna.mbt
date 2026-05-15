@@ -1,11 +1,15 @@
 # mizchi/astra
 
-Mountable [Mars](https://mooncakes.io/docs/mizchi/mars/) middleware for
-static-site generation in MoonBit. Renders Markdown / MDX documentation
-pages on request and serves bundled assets (loader, default CSS, Shiki
-syntax highlighting). Pair with the `astra` CLI to dump the same output
-as a static tree (`astra build`) or serve it from a dev server
-(`astra dev`).
+Static site generator in MoonBit. Renders Markdown / MDX documentation
+pages and bundles the assets needed to display them (loader, default
+CSS, Shiki syntax highlighting). The default workflow is `astra build`
+→ static tree → any CDN; `astra dev` runs a local preview server.
+
+Internally astra is implemented as [Mars](https://mooncakes.io/docs/mizchi/mars/)
+middleware so the same renderer can also be mounted on a long-running
+Mars server (for sol embedding or ISR-style on-demand revalidation),
+but that path is **optional** — `astra build` does not open a network
+listener and the build output is fully deployable as a static bundle.
 
 ```
 deps: mars + markdown + luna       (no edge to sol)
@@ -34,7 +38,32 @@ moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
 pnpm add -g @luna_ui/astra           # 0.20.0
 ```
 
-## Quick start — mount on a Mars server
+## Quick start — CLI (default path)
+
+```bash
+# Static dump (writes <out>/<url>/index.html for every page URL)
+astra build --out ./dist
+
+# Dev server against the current directory's docs/ tree
+astra dev --port 3000
+```
+
+`astra build` walks every URL the in-process middleware can serve and
+writes the rendered body to `<out>/<url-to-disk-path>`. No network
+listener is opened during the build — dispatch goes through the
+testing harness (`@testing.invoke`). Deploy the resulting tree to any
+static host (Cloudflare Workers Static Assets, GitHub Pages, S3, etc).
+
+A working example lives at
+[`astra/examples/sol_docs/`](./examples/sol_docs/) — a docs site with
+i18n, blog, MDX, components, and parity tests against the sol-built
+output.
+
+## Optional — mount on a Mars server
+
+Reach for this only when you need on-demand rendering inside a
+long-running server (sol embedding, ISR with `revalidate`, dynamic
+content). For a pure docs / blog site the static path above is enough.
 
 ```moonbit
 import "mizchi/astra/middleware" as middleware
@@ -53,21 +82,6 @@ async fn main {
 every page URL the document tree exposes plus the asset URLs in
 `@assets.list_asset_urls()`. `Middleware::list_urls()` returns the union,
 which the build CLI uses to crawl.
-
-## Quick start — CLI
-
-```bash
-# Dev server against the current directory's docs/ tree
-astra dev --port 3000
-
-# Static dump (writes <out>/<url>/index.html for every page URL)
-astra build --out ./dist
-```
-
-A working example lives at
-[`astra/examples/sol_docs/`](./examples/sol_docs/) — a docs site with
-i18n, blog, MDX, components, and parity tests against the sol-built
-output.
 
 ## How dev and build share one Middleware
 

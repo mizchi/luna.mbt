@@ -1,16 +1,18 @@
 ---
 name: astra-ssg
-description: Use when building markdown-driven docs / blog sites with `mizchi/astra` — either via the `astra` CLI (`astra dev` / `astra build`) or as Mars middleware mounted into an existing server. Covers (a) the file-to-URL routing rules under `docs/` (every `.md` becomes a route; `index.md` becomes the directory root; `ja/` and other locale dirs are i18n branches), (b) `astra.config.json` fields (`docs_dir`, `out_dir`, `nav`, `sidebar`, `i18n`, `islands`, `spaRoutes`, `deploy`, `headSnippets`), (c) per-page metadata via frontmatter (`title`, `description`, `layout`, `sidebar`, `revalidate` for ISR) and `page.json` (`ssr`, `renderer`, `spa`, `fallbackBehavior`, `staticParams`), (d) three ways to drop components onto a page — TSX with React `renderToString` SSR, MoonBit `.mbt` with `pub fn render() -> Node[Unit]`, or client-side web components in the islands directory, and (e) how this composes with sol (no edge; astra is sol-independent and can be deployed pure-static).
+description: Use when building markdown-driven docs / blog sites with `mizchi/astra`. Astra is a static-site generator first — `astra build` writes a pure-static tree to disk and `astra dev` runs a local preview server. The Mars-middleware form (`mizchi/astra/middleware`) is a secondary shape for when you need to mount the same content on a long-running server (e.g. sol). `astra build` itself does not open a network listener — it dispatches every URL in-process via the testing harness — so the typical deploy is "build once, serve from any static host" (CF Workers Static Assets, GitHub Pages, S3, etc.). Covers (a) the file-to-URL routing rules under `docs/` (every `.md` becomes a route; `index.md` becomes the directory root; `ja/` and other locale dirs are i18n branches), (b) `astra.config.json` fields (`docs_dir`, `out_dir`, `nav`, `sidebar`, `i18n`, `islands`, `spaRoutes`, `deploy`, `headSnippets`), (c) per-page metadata via frontmatter (`title`, `description`, `layout`, `sidebar`, `revalidate` for ISR — the last one only matters when served from Mars) and `page.json` (`ssr`, `renderer`, `spa`, `fallbackBehavior`, `staticParams`), (d) three ways to drop components onto a page — TSX with React `renderToString` SSR, MoonBit `.mbt` with `pub fn render() -> Node[Unit]`, or client-side web components in the islands directory, (e) when to reach for the middleware mount instead (sol embedding, on-demand revalidation), and (f) how this composes with sol (no edge: astra has no sol dependency).
 ---
 
 # astra-ssg
 
 ## Purpose
 
-`mizchi/astra` is a markdown-driven static site generator implemented in MoonBit. It can be used in two shapes:
+`mizchi/astra` is a markdown-driven **static site generator** in MoonBit. The primary form is the CLI:
 
-- **CLI** (`moon install mizchi/astra/cmd/astra`): `astra dev` runs a local server, `astra build` writes a pure-static tree to `out_dir/` (default `dist/`). The build output is a CDN-friendly bundle that any static host can serve (Cloudflare Workers Static Assets, GitHub Pages, S3, etc.).
-- **Library**: import `mizchi/astra/middleware` and mount onto a Mars `Server` to render the same content on request.
+- `astra build` walks the configured `docs_dir`, renders every URL through an in-process handler, and writes a pure-static tree to `out_dir/` (default `dist/`). **No network listener is opened during the build** — dispatch happens via the testing harness (`@testing.invoke`), as documented in `astra/src/cli/build.mbt`'s header comment ("no localhost listener"). The result is a CDN-friendly bundle that any static host can serve: Cloudflare Workers Static Assets, GitHub Pages, S3 + CloudFront, Vercel/Netlify static, etc.
+- `astra dev` does open a `node:http` listener for local preview, but only because that's what a dev server needs. Build-and-deploy paths never depend on a running process.
+
+The Mars-middleware form (`mizchi/astra/middleware`) is a **secondary shape** for when you specifically want to mount the same content on a long-running server — typically when embedding astra inside a sol app or running ISR-style revalidation. Reaching for the middleware is opt-in; the SSG path does not require Mars to be present at runtime.
 
 Astra has **no dependency on sol** (`deps: mars + markdown + luna`). It was extracted out of sol's old SSG mode in 0.16.0. If you see `sol new --doc` in older notes, it has been removed — use astra directly.
 
@@ -20,7 +22,17 @@ Astra has **no dependency on sol** (`deps: mars + markdown + luna`). It was extr
 - Adding new markdown pages, navigation entries, or sidebar configuration
 - Adding interactive components (TSX, MoonBit, or web components) into otherwise-static pages
 - Auditing `astra.config.json` against the field list below
-- Choosing between SSG (`astra build`) and SSR (mount the middleware on Mars) for a given page
+- Choosing between the default SSG path (`astra build` → static host) and the middleware mount (sol embedding / ISR with `revalidate`)
+
+## When to reach for the Mars middleware mount instead
+
+Default to `astra build` + static hosting. Switch to mounting `@middleware.create(...)` on a Mars `Server` only when one of these applies:
+
+- You need to serve astra-rendered pages from inside an existing long-running server (sol app, custom Mars worker) and don't want a separate static origin.
+- A page genuinely needs on-request rendering — e.g. `revalidate: 300` ISR semantics, dynamic content that can't be enumerated at build time, request-driven personalization.
+- You want to compose astra under a non-`/` base path of a running app whose other routes are dynamic.
+
+For a pure docs / blog site, none of these apply — `astra build` and a CDN are the right answer.
 
 ## File-to-URL routing
 
