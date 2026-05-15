@@ -30,9 +30,7 @@ async fn main {
       } else {
         []
       }
-      let handled = try {
-        try_native_new(new_args)
-      } catch {
+      let handled = try_native_new(new_args) catch {
         e => {
           println("Error: failed to scaffold project: \{e}")
           @sys.exit(1)
@@ -282,7 +280,9 @@ async fn try_native_new(args : Array[String]) -> Bool {
   println("  Package name: \{package_name}")
   println("  Template: app")
   let templates = @scaffold_templates.generate_templates(
-    package_name, project_base, None,
+    package_name,
+    project_base,
+    None,
   )
   for tmpl in templates {
     let file_path = join_path(project_dir, tmpl.path)
@@ -312,7 +312,9 @@ async fn try_native_new(args : Array[String]) -> Bool {
   println(
     "Note: `moon install` is required even after `pnpm install` — it fetches",
   )
-  println("MoonBit deps into .mooncakes/. Without it, `sol dev` fails to resolve")
+  println(
+    "MoonBit deps into .mooncakes/. Without it, `sol dev` fails to resolve",
+  )
   println("`mizchi/sol/cmd/sol_js`.")
   true
 }
@@ -364,11 +366,6 @@ fn join_path(base : String, rel : String) -> String {
 fn dirname(path : String) -> String {
   match path.rev_find("/") {
     None => ""
-    Some(idx) =>
-      if idx == 0 {
-        "/"
-      } else {
-        path[:idx].to_owned()
-      }
+    Some(idx) => if idx == 0 { "/" } else { path[:idx].to_owned() }
   }
 }

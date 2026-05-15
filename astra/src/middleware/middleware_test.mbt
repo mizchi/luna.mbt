@@ -71,7 +71,6 @@ async test "GET /assets/loader.js returns the bundled island loader script" {
     res.header("content-type"),
     content=(
       #|Some("application/javascript; charset=utf-8")
-
     ),
   )
 }

@@ -3,9 +3,12 @@
 ///|
 test "extract_route_param_names - supports colon and bracket params" {
   let names = extract_route_param_names("/users/:id/posts/[postId]")
-  debug_inspect(names, content=(
-    #|["id", "postId"]
-  ))
+  debug_inspect(
+    names,
+    content=(
+      #|["id", "postId"]
+    ),
+  )
 }
 
 ///|
@@ -13,17 +16,23 @@ test "extract_route_param_names - supports regex and catch-all params" {
   let names = extract_route_param_names(
     "/api/:version{[0-9]+}/docs/[...slug]/[[...opt]]",
   )
-  debug_inspect(names, content=(
-    #|["version", "slug", "opt"]
-  ))
+  debug_inspect(
+    names,
+    content=(
+      #|["version", "slug", "opt"]
+    ),
+  )
 }
 
 ///|
 test "extract_route_param_names - deduplicates parameter names" {
   let names = extract_route_param_names("/a/:id/:id/[id]")
-  debug_inspect(names, content=(
-    #|["id"]
-  ))
+  debug_inspect(
+    names,
+    content=(
+      #|["id"]
+    ),
+  )
 }
 
 ///|

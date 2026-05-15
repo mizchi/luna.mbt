@@ -132,14 +132,12 @@ test "extract_locale_suffix - with locale" {
     extract_locale_suffix("intro.ja.md", locales),
     content=(
       #|Some(("ja", "intro.md"))
-
     ),
   )
   debug_inspect(
     extract_locale_suffix("intro.fr.md", locales),
     content=(
       #|Some(("fr", "intro.md"))
-
     ),
   )
 }
@@ -163,14 +161,12 @@ test "extract_locale_suffix - different extensions" {
     extract_locale_suffix("page.ja.mdx", locales),
     content=(
       #|Some(("ja", "page.mdx"))
-
     ),
   )
   debug_inspect(
     extract_locale_suffix("page.ja.html", locales),
     content=(
       #|Some(("ja", "page.html"))
-
     ),
   )
 }
@@ -182,7 +178,6 @@ test "extract_locale_suffix - index files" {
     extract_locale_suffix("index.ja.md", locales),
     content=(
       #|Some(("ja", "index.md"))
-
     ),
   )
 }

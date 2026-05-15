@@ -131,7 +131,6 @@ test "FallbackConfig::default - returns NotFound" {
     config,
     content=(
       #|NotFound(path="/404.html")
-
     ),
   )
 }
@@ -167,7 +166,6 @@ test "FallbackConfig::spa_entry - Spa returns entry" {
     config.spa_entry(),
     content=(
       #|Some("/index.html")
-
     ),
   )
 }
@@ -179,7 +177,6 @@ test "FallbackConfig::spa_entry - SpaPrefix returns entry" {
     config.spa_entry(),
     content=(
       #|Some("/app/index.html")
-
     ),
   )
 }

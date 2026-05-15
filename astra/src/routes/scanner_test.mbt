@@ -44,21 +44,18 @@ test "scan_pages_dir - detects component directory with moon.pkg.json" {
     entry.props_type,
     content=(
       #|Some("CounterProps")
-
     ),
   )
   debug_inspect(
     entry.client_export,
     content=(
       #|Some("counter")
-
     ),
   )
   debug_inspect(
     entry.server_export,
     content=(
       #|Some("render_ssr")
-
     ),
   )
 }
@@ -142,7 +139,6 @@ test "scan_pages_dir - component with staticParams" {
     entry.static_paths[0].params.get("id"),
     content=(
       #|Some("1")
-
     ),
   )
   inspect(entry.static_paths[0].output, content="product/1/index.html")

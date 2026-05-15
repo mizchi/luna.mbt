@@ -53,9 +53,12 @@ test "RenderMode - Show implementation" {
   let isr = RenderMode::Isr(revalidate=300)
   debug_inspect(ssr, content="Ssr")
   debug_inspect(spa, content="Spa")
-  debug_inspect(isr, content=(
-    #|Isr(revalidate=300)
-  ))
+  debug_inspect(
+    isr,
+    content=(
+      #|Isr(revalidate=300)
+    ),
+  )
 }
 
 // =============================================================================
@@ -536,7 +539,6 @@ test "ComponentRouteEntry - static paths for ISG" {
     route.static_paths[0].params.get("slug"),
     content=(
       #|Some("hello-world")
-
     ),
   )
 }

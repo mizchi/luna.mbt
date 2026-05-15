@@ -56,21 +56,18 @@ test "page_meta_to_static_route - with frontmatter" {
     route.title,
     content=(
       #|Some("Introduction")
-
     ),
   )
   debug_inspect(
     route.description,
     content=(
       #|Some("Getting started guide")
-
     ),
   )
   debug_inspect(
     route.layout,
     content=(
       #|Some("docs")
-
     ),
   )
   inspect(route.islands.length(), content="1")
@@ -129,21 +126,18 @@ test "static_route_to_page_meta - preserves metadata" {
     page.frontmatter.title,
     content=(
       #|Some("Guide")
-
     ),
   )
   debug_inspect(
     page.frontmatter.description,
     content=(
       #|Some("User guide")
-
     ),
   )
   debug_inspect(
     page.frontmatter.layout,
     content=(
       #|Some("docs")
-
     ),
   )
   inspect(page.frontmatter.islands.length(), content="1")
@@ -170,14 +164,12 @@ test "static_route_to_page_meta - roundtrip" {
     roundtrip_route.title,
     content=(
       #|Some("Test Page")
-
     ),
   )
   debug_inspect(
     roundtrip_route.layout,
     content=(
       #|Some("default")
-
     ),
   )
 }
@@ -240,7 +232,6 @@ test "page_metas_to_manifest - SPA fallback when config.navigation.spa" {
     manifest.fallback.spa_entry(),
     content=(
       #|Some("/index.html")
-
     ),
   )
 }
@@ -361,21 +352,18 @@ test "manifest_to_page_metas - preserves metadata" {
     page.frontmatter.title,
     content=(
       #|Some("Guide")
-
     ),
   )
   debug_inspect(
     page.frontmatter.description,
     content=(
       #|Some("User guide")
-
     ),
   )
   debug_inspect(
     page.frontmatter.layout,
     content=(
       #|Some("docs")
-
     ),
   )
   inspect(page.frontmatter.islands.length(), content="2")

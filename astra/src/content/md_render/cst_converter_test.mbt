@@ -40,14 +40,12 @@ test "parse_markdown_native: frontmatter" {
     fm.title,
     content=(
       #|Some("Test")
-
     ),
   )
   debug_inspect(
     fm.description,
     content=(
       #|Some("A test doc")
-
     ),
   )
   inspect(nodes.length(), content="1")

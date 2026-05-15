@@ -8,6 +8,7 @@
 
 // Re-export the shared scaffold types/fns so that downstream callers in
 // this package (and the existing test surface) keep working unchanged.
+
 ///|
 pub using @scaffold_templates {
   type TemplateFile,

@@ -145,14 +145,12 @@ test "resolve_chunks_inline - exact match" {
     resolve_chunks_inline(manifest, "/"),
     content=(
       #|Some(["boot"])
-
     ),
   )
   debug_inspect(
     resolve_chunks_inline(manifest, "/about"),
     content=(
       #|Some(["boot", "about"])
-
     ),
   )
 }
@@ -171,14 +169,12 @@ test "resolve_chunks_inline - with trailing slash" {
     resolve_chunks_inline(manifest, "/about/"),
     content=(
       #|Some(["boot"])
-
     ),
   )
   debug_inspect(
     resolve_chunks_inline(manifest, "/about"),
     content=(
       #|Some(["boot"])
-
     ),
   )
 }
@@ -293,7 +289,6 @@ test "split_manifest - separates root and segment routes" {
     hierarchical.routes.get("/"),
     content=(
       #|Some(["boot"])
-
     ),
   )
 
@@ -310,14 +305,12 @@ test "split_manifest - separates root and segment routes" {
     docs_manifest.routes.get("/intro"),
     content=(
       #|Some(["boot"])
-
     ),
   )
   debug_inspect(
     docs_manifest.routes.get("/guide"),
     content=(
       #|Some(["boot"])
-
     ),
   )
 }
@@ -419,7 +412,6 @@ test "match_dynamic_pattern - simple param" {
     params.get("slug"),
     content=(
       #|Some("hello-world")
-
     ),
   )
 }
@@ -466,7 +458,6 @@ test "match_dynamic_pattern - catch-all" {
     params.get("path"),
     content=(
       #|Some("guide/getting-started")
-
     ),
   )
 }

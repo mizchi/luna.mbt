@@ -293,7 +293,6 @@ test "FallbackConfig - SPA" {
     config.spa_entry(),
     content=(
       #|Some("/index.html")
-
     ),
   )
 }
@@ -306,7 +305,6 @@ test "FallbackConfig - SpaPrefix" {
     config.spa_entry(),
     content=(
       #|Some("/app/index.html")
-
     ),
   )
 }
@@ -330,7 +328,6 @@ test "extract_url_pattern - single dynamic segment" {
     params,
     content=(
       #|["slug"]
-
     ),
   )
 }
@@ -343,7 +340,6 @@ test "extract_url_pattern - multiple dynamic segments" {
     params,
     content=(
       #|["id", "postId"]
-
     ),
   )
 }
@@ -356,7 +352,6 @@ test "extract_url_pattern - Next.js style brackets" {
     params,
     content=(
       #|["slug"]
-
     ),
   )
 }
@@ -369,7 +364,6 @@ test "extract_url_pattern - catch-all pattern" {
     params,
     content=(
       #|["path"]
-
     ),
   )
 }

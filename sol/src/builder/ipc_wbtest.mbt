@@ -73,7 +73,8 @@ test "WorkerMessage error parses through opaque IPC message" {
   let raw = @core.new_object()
   raw["type"] = @core.any("error")
   raw["message"] = @core.any("worker failed")
-  guard WorkerMessage::from_json(IpcMessage::from_raw(raw)) is Some(Error(message)) else {
+  guard WorkerMessage::from_json(IpcMessage::from_raw(raw))
+    is Some(Error(message)) else {
     fail("expected error message")
   }
   assert_eq(message, "worker failed")

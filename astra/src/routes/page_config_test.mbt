@@ -60,7 +60,6 @@ test "parse_page_config - mode field" {
     config.mode,
     content=(
       #|Some("ssr")
-
     ),
   )
 }
@@ -73,7 +72,6 @@ test "parse_page_config - all mode values" {
     ssr_config.mode,
     content=(
       #|Some("ssr")
-
     ),
   )
   let isr_result = parse_page_config("{\"mode\": \"isr\"}")
@@ -82,7 +80,6 @@ test "parse_page_config - all mode values" {
     isr_config.mode,
     content=(
       #|Some("isr")
-
     ),
   )
   let spa_result = parse_page_config("{\"mode\": \"spa\"}")
@@ -91,7 +88,6 @@ test "parse_page_config - all mode values" {
     spa_config.mode,
     content=(
       #|Some("spa")
-
     ),
   )
   let static_result = parse_page_config("{\"mode\": \"static\"}")
@@ -100,7 +96,6 @@ test "parse_page_config - all mode values" {
     static_config.mode,
     content=(
       #|Some("static")
-
     ),
   )
 }
@@ -122,14 +117,12 @@ test "parse_page_config - title and description" {
     config.title,
     content=(
       #|Some("My Page")
-
     ),
   )
   debug_inspect(
     config.description,
     content=(
       #|Some("Page description")
-
     ),
   )
 }
@@ -142,7 +135,6 @@ test "parse_page_config - layout field" {
     config.layout,
     content=(
       #|Some("docs")
-
     ),
   )
 }
@@ -178,14 +170,12 @@ test "parse_page_config - staticParams array" {
     config.static_params[0].get("slug"),
     content=(
       #|Some("hello")
-
     ),
   )
   debug_inspect(
     config.static_params[1].get("slug"),
     content=(
       #|Some("world")
-
     ),
   )
 }
@@ -198,7 +188,6 @@ test "parse_page_config - extends field" {
     config.extends,
     content=(
       #|Some("base")
-
     ),
   )
 }
@@ -233,21 +222,18 @@ test "parse_page_config - component config" {
     comp.props_type,
     content=(
       #|Some("CounterProps")
-
     ),
   )
   debug_inspect(
     comp.client_export,
     content=(
       #|Some("counter")
-
     ),
   )
   debug_inspect(
     comp.server_export,
     content=(
       #|Some("render_ssr")
-
     ),
   )
 }
@@ -265,7 +251,6 @@ test "parse_page_config - handlers config" {
     handler.layout,
     content=(
       #|Some("docs")
-
     ),
   )
   inspect(handler.islands.length(), content="1")
@@ -285,7 +270,6 @@ test "PageConfig::merge - child overrides base mode" {
     merged.mode,
     content=(
       #|Some("isr")
-
     ),
   )
 }
@@ -299,7 +283,6 @@ test "PageConfig::merge - child inherits base mode when None" {
     merged.mode,
     content=(
       #|Some("ssr")
-
     ),
   )
 }
@@ -321,14 +304,12 @@ test "PageConfig::merge - title and description override" {
     merged.title,
     content=(
       #|Some("Child Title")
-
     ),
   )
   debug_inspect(
     merged.description,
     content=(
       #|Some("Base Desc")
-
     ),
   )
 }
@@ -403,7 +384,6 @@ test "PageConfig::merge - handlers merge with child override" {
     md_handler.layout,
     content=(
       #|Some("blog")
-
     ),
   ) // child overrides
 }

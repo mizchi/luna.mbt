@@ -300,9 +300,7 @@ test "typed action response preserves non-success outcomes" {
 
 ///|
 test "ActionDef::from_key creates definition from action key" {
-  let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::json(())
-  })
+  let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
   assert_eq(action.id, "create-user")
   assert_true(action.require_json)
@@ -311,9 +309,7 @@ test "ActionDef::from_key creates definition from action key" {
 
 ///|
 test "ActionDef::with_require_json toggles json requirement" {
-  let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::json(())
-  })
+  let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let action = ActionDef::from_key(CreateUserActionKey::{  }, handler).with_require_json(
     false,
   )
@@ -339,9 +335,7 @@ test "ActionRegistry::with_base_path sets base path" {
 
 ///|
 test "ActionRegistry::register adds action" {
-  let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::json(())
-  })
+  let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
   assert_eq(registry.action_ids().length(), 1)
@@ -350,9 +344,7 @@ test "ActionRegistry::register adds action" {
 
 ///|
 test "ActionRegistry::register_key adds generated-key action" {
-  let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::json(())
-  })
+  let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let registry = ActionRegistry::new().register_key(
     CreateUserActionKey::{  },
     handler,
@@ -363,9 +355,7 @@ test "ActionRegistry::register_key adds generated-key action" {
 
 ///|
 test "ActionRegistry::get returns registered action" {
-  let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::json(())
-  })
+  let handler = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let action = ActionDef::from_key(GetUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
   match registry.get("get-user") {
@@ -388,12 +378,8 @@ test "ActionRegistry::action_url generates correct URL" {
 
 ///|
 test "ActionRegistry::register_all adds multiple actions" {
-  let handler1 = ActionHandler(async fn(_ctx) {
-    ActionResult::json(())
-  })
-  let handler2 = ActionHandler(async fn(_ctx) {
-    ActionResult::json(())
-  })
+  let handler1 = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
+  let handler2 = ActionHandler(async fn(_ctx) { ActionResult::json(()) })
   let actions = [
     ActionDef::from_key(ActionOneKey::{  }, handler1),
     ActionDef::from_key(ActionTwoKey::{  }, handler2),

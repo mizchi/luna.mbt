@@ -541,9 +541,7 @@ extern "js" fn ffi_call_app_handler(
 async test "register_routes serves typed Json from legacy api resolver" {
   run_async_test_with_cleanup(() => {
     let app = @mars.Server::new()
-    let routes = [
-      @routes.Get(path="/api/legacy/:id", handler="legacy-get"),
-    ]
+    let routes = [@routes.Get(path="/api/legacy/:id", handler="legacy-get")]
     let page_resolver : (String, Ctx, RouteParams) -> @luna.Node[Unit, String]? = fn(
       _component,
       _ctx,
@@ -551,11 +549,7 @@ async test "register_routes serves typed Json from legacy api resolver" {
     ) {
       None
     }
-    let api_resolver = fn(
-      handler : String,
-      _ctx : Ctx,
-      params : RouteParams,
-    ) {
+    let api_resolver = fn(handler : String, _ctx : Ctx, params : RouteParams) {
       if handler == "legacy-get" {
         let json : Json = {
           "id": params.get_param("id").unwrap_or("missing"),
