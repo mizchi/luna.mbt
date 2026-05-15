@@ -37,8 +37,8 @@ function ensureSolCliBuilt() {
 }
 
 const EXAMPLES = [
-  { dir: "sol/examples/sol_api", needsGenerate: false },
-  { dir: "sol/examples/sol_sqlite", needsGenerate: false },
+  { dir: "sol/examples/sol_api", needsGenerate: true },
+  { dir: "sol/examples/sol_sqlite", needsGenerate: true },
   { dir: "sol/examples/sol_app", needsGenerate: true },
   { dir: "sol/examples/sol_auth", needsGenerate: true },
   { dir: "sol/examples/sol_todo", needsGenerate: true },

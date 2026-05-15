@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-28T15:05:31.299Z",
+  "generatedAt": "2026-05-15T05:35:49.077Z",
   "entries": [
     {
       "id": "boot",
@@ -142,8 +142,8 @@
       "files": [
         "js/loader/dist/sol-nav.js"
       ],
-      "bytes": 2111,
-      "gzip": 971
+      "bytes": 2880,
+      "gzip": 1235
     },
     {
       "id": "wc",
