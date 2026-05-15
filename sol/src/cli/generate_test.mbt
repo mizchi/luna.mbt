@@ -1221,9 +1221,9 @@ test "generate_templates: moon.mod.json includes sol and mars dependencies" {
 test "template_moon_mod_json: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol\": \"0.22.1\""))
-  assert_true(content.contains("\"mizchi/sol_adapter_node\": \"0.22.1\""))
-  assert_true(content.contains("\"mizchi/luna\": \"0.22.0\""))
+  assert_true(content.contains("\"mizchi/sol\": \"0.22.3\""))
+  assert_true(content.contains("\"mizchi/sol_adapter_node\": \"0.22.3\""))
+  assert_true(content.contains("\"mizchi/luna\": \"0.22.2\""))
   assert_true(content.contains("\"mizchi/signals\": \"0.6.4\""))
   assert_true(content.contains("\"mizchi/js\": \"0.10.15\""))
   assert_true(content.contains("\"moonbitlang/async\": \"0.17.0\""))

@@ -7,7 +7,7 @@
 ///
 /// Keep this in sync with `sol/moon.mod.json` `version` and the literal in
 /// `sol/src/cmd/sol/main.mbt`.
-const SOL_JS_CLI_VERSION : String = "0.22.2"
+const SOL_JS_CLI_VERSION : String = "0.22.3"
 
 ///|
 priv enum DoctorSeverity {
@@ -249,7 +249,7 @@ fn detect_launcher_version() -> String? {
   match out {
     Ok(raw) => {
       let trimmed = raw.trim_space().to_string()
-      // Expect "sol 0.22.2" or just "0.22.2".
+      // Expect "sol 0.22.3" or just "0.22.3".
       if trimmed.has_prefix("sol ") {
         Some(trimmed.substring(start=4).trim_space().to_string())
       } else if trimmed == "" {

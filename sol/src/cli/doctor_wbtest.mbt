@@ -78,11 +78,11 @@ test "diagnose_project warns when generated outputs are missing" {
 test "diagnose_project surfaces mooncake versions when .mooncakes is populated" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
-  let deps = "\"mizchi/sol\": \"0.22.2\", \"mizchi/sol_adapter_node\": \"0.22.2\""
+  let deps = "\"mizchi/sol\": \"0.22.3\", \"mizchi/sol_adapter_node\": \"0.22.3\""
   write_minimal_project(fs, "/project", "node", deps)
   mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
   mem.writeFileSync(
-    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.2\" }",
+    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.3\" }",
   )
   mem.mkdirSync("/project/.mooncakes/mizchi/luna", recursive=true)
   mem.writeFileSync(
@@ -91,7 +91,7 @@ test "diagnose_project surfaces mooncake versions when .mooncakes is populated" 
   let report = diagnose_project_with_fs(fs, "/project")
   let rendered = report.render()
   assert_true(rendered.contains("Mooncake versions:"))
-  assert_true(rendered.contains("mizchi/sol @ 0.22.2"))
+  assert_true(rendered.contains("mizchi/sol @ 0.22.3"))
   assert_true(rendered.contains("mizchi/luna @ 0.22.1"))
   // No skew warning when JS CLI version matches the resolved sol mooncake.
   assert_false(rendered.contains("Sol JS CLI / .mooncakes version diverge"))
@@ -118,11 +118,11 @@ test "diagnose_project warns when .mooncakes sol version differs from bundled JS
 test "diagnose_project warns when launcher and mooncake versions diverge" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
-  let deps = "\"mizchi/sol\": \"0.22.2\", \"mizchi/sol_adapter_node\": \"0.22.2\""
+  let deps = "\"mizchi/sol\": \"0.22.3\", \"mizchi/sol_adapter_node\": \"0.22.3\""
   write_minimal_project(fs, "/project", "node", deps)
   mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
   mem.writeFileSync(
-    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.2\" }",
+    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.3\" }",
   )
   let report = diagnose_project_with_fs(
     fs,
