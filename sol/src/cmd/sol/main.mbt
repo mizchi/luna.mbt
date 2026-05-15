@@ -4,10 +4,11 @@
 // implementation is JS-only, so subcommands generally delegate to the JS
 // entry, which requires a host moon project with `mizchi/sol` resolved.
 //
-// EXCEPTION: `sol new <name> --user <ns>` (no extra flags) is scaffolded
-// natively so it can run inside an empty directory — no host moon project
-// required. Flagged variants like `--cloudflare` / `--doc` / `--dev`
-// still delegate to the JS CLI (so they require a host project).
+// EXCEPTION: `sol new <name> --user <ns>` and
+// `sol new <name> --user <ns> --cloudflare` are scaffolded natively so
+// they can run inside an empty directory — no host moon project
+// required. `--doc` / `--dev` still delegate to the JS CLI (so they
+// require a host project).
 
 ///|
 async fn main {
@@ -196,12 +197,13 @@ fn show_new_help() -> Unit {
 }
 
 ///|
-/// Parsed `sol new` invocation. Only the "minimal default-app" path is
-/// handled natively; anything that requests cloudflare / doc / dev falls
-/// back to the JS CLI delegate.
+/// Parsed `sol new` invocation. The minimal default-app path and the
+/// `--cloudflare` worker-starter path are both handled natively;
+/// `--doc` / `--dev` (or unknown flags) still delegate to the JS CLI.
 priv struct ParsedNewArgs {
   project_name : String?
   user_ns : String?
+  cloudflare : Bool
   needs_delegate : Bool
   show_help : Bool
 }
@@ -210,6 +212,7 @@ priv struct ParsedNewArgs {
 fn parse_new_args(args : Array[String]) -> ParsedNewArgs {
   let mut project_name : String? = None
   let mut user_ns : String? = None
+  let mut cloudflare = false
   let mut needs_delegate = false
   let mut show_help = false
   let mut i = 0
@@ -228,14 +231,15 @@ fn parse_new_args(args : Array[String]) -> ParsedNewArgs {
     } else if a.has_prefix("--user=") {
       user_ns = Some(a[7:].to_owned())
       i = i + 1
-    } else if a == "-d" ||
-      a == "--dev" ||
-      a == "-c" ||
-      a == "--cloudflare" ||
-      a == "-D" ||
-      a == "--doc" {
-      // Any of these flags require the JS CLI (cloudflare / doc starter,
-      // dev path resolution via the existing JS implementation).
+    } else if a == "-c" || a == "--cloudflare" {
+      // Cloudflare worker starter — handled natively via
+      // `@scaffold_templates.generate_cloudflare_templates`.
+      cloudflare = true
+      i = i + 1
+    } else if a == "-d" || a == "--dev" || a == "-D" || a == "--doc" {
+      // `--dev` needs JS CLI luna-path resolution; `--doc` is deprecated
+      // in favour of astra but the JS CLI still owns the deprecation
+      // message. Both keep delegating for now.
       needs_delegate = true
       i = i + 1
     } else if a.has_prefix("-") {
@@ -251,7 +255,7 @@ fn parse_new_args(args : Array[String]) -> ParsedNewArgs {
       i = i + 1
     }
   }
-  { project_name, user_ns, needs_delegate, show_help }
+  { project_name, user_ns, cloudflare, needs_delegate, show_help }
 }
 
 ///|
@@ -309,14 +313,17 @@ async fn try_native_new(args : Array[String]) -> Bool {
     @sys.exit(1)
     return true
   }
+  let template_label = if parsed.cloudflare { "cloudflare" } else { "app" }
   println("Creating new Sol project: \{project_dir}")
   println("  Package name: \{package_name}")
-  println("  Template: app")
-  let templates = @scaffold_templates.generate_templates(
-    package_name,
-    project_base,
-    None,
-  )
+  println("  Template: \{template_label}")
+  let templates = if parsed.cloudflare {
+    @scaffold_templates.generate_cloudflare_templates(
+      package_name, project_base, None,
+    )
+  } else {
+    @scaffold_templates.generate_templates(package_name, project_base, None)
+  }
   for tmpl in templates {
     let file_path = join_path(project_dir, tmpl.path)
     let dir_path = dirname(file_path)
