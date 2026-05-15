@@ -4,7 +4,7 @@
   "description": "Stella CLI - Web Components generator for Luna",
   "type": "module",
   "bin": {
-    "stella": "./dist/cli.js"
+    "stella": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
