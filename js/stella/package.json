@@ -21,7 +21,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@luna_ui/wcr": "workspace:*"
+    "@luna_ui/wcr": "^0.22.0"
   },
   "devDependencies": {
     "happy-dom": "^20.7.0",

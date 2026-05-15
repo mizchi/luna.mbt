@@ -8,6 +8,11 @@
 * publish the npm Stella package alongside the 0.22 release
 
 
+### Bug Fixes
+
+* publish npm dependency without the workspace protocol
+
+
 ### Dependencies
 
 * The following workspace dependencies were updated

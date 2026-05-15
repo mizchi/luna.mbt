@@ -39,6 +39,16 @@ const EXPORT_PACKAGES = [
   { id: "components", pkgDir: path.join(ROOT, "js/components") },
   { id: "testing", pkgDir: path.join(ROOT, "js/testing") },
 ];
+const PUBLIC_PACKAGE_DIRS = [
+  "js/astra",
+  "js/components",
+  "js/loader",
+  "js/luna",
+  "js/sol",
+  "js/stella",
+  "js/testing",
+  "js/wcr",
+].map((rel) => path.join(ROOT, rel));
 
 for (const pkg of PACKAGES) {
   test(`@luna_ui/${pkg.id} package.json wires dist/ for npm distribution`, () => {
@@ -130,6 +140,32 @@ for (const pkg of EXPORT_PACKAGES) {
     }
   });
 }
+
+test("public npm package runtime dependency fields do not use workspace protocol", () => {
+  const dependencyFields = [
+    "dependencies",
+    "peerDependencies",
+    "optionalDependencies",
+    "bundleDependencies",
+    "bundledDependencies",
+  ];
+  for (const pkgDir of PUBLIC_PACKAGE_DIRS) {
+    const manifest = JSON.parse(
+      readFileSync(path.join(pkgDir, "package.json"), "utf8"),
+    );
+    for (const field of dependencyFields) {
+      const deps = manifest[field];
+      if (!deps || typeof deps !== "object") continue;
+      for (const [name, specifier] of Object.entries(deps)) {
+        assert.ok(
+          typeof specifier !== "string" || !specifier.startsWith("workspace:"),
+          `${path.relative(ROOT, pkgDir)}/package.json ${field}.${name} ` +
+            `uses ${specifier}; npm publishes must use registry semver ranges`,
+        );
+      }
+    }
+  }
+});
 
 function ensureMoonReleaseBuild() {
   const sentinel = path.join(

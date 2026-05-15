@@ -1,6 +1,6 @@
 {
   "name": "@luna_ui/testing",
-  "version": "0.22.0",
+  "version": "0.22.1",
   "description": "Testing utilities for Luna UI components",
   "type": "module",
   "main": "./dist/index.mjs",
@@ -26,7 +26,7 @@
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "@luna_ui/luna": "workspace:*"
+    "@luna_ui/luna": "^0.22.0"
   },
   "keywords": [
     "testing",

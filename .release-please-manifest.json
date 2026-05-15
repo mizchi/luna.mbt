@@ -5,6 +5,6 @@
   "js/components": "0.22.0",
   "js/loader": "0.22.0",
   "js/stella": "0.22.0",
-  "js/testing": "0.22.0",
+  "js/testing": "0.22.1",
   "js/wcr": "0.22.0"
 }

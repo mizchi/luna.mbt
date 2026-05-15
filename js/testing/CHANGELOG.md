@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.1](https://github.com/mizchi/luna.mbt/compare/testing-v0.22.0-npm...testing-v0.22.1-npm) (2026-05-15)
+
+
+### Bug Fixes
+
+* publish npm peer dependency without the workspace protocol
+
 ## [0.22.0](https://github.com/mizchi/luna.mbt/compare/testing-v0.20.0...testing-v0.22.0-npm) (2026-05-15)
 
 
