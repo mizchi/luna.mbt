@@ -1,0 +1,21 @@
+{
+  "name": "@luna_ui/sol-docs-search-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:moon": "cd ../../.. && moon build --target js --release",
+    "prebuild": "pnpm build:moon",
+    "build": "node ../../../_build/js/release/build/mizchi/astra/cmd/astra/astra.js build && pagefind --site dist",
+    "build:site": "node ../../../_build/js/release/build/mizchi/astra/cmd/astra/astra.js build",
+    "build:index": "pagefind --site dist",
+    "dev": "node ../../../_build/js/release/build/mizchi/astra/cmd/astra/astra.js dev",
+    "pretest:e2e": "pnpm build",
+    "test:e2e": "playwright test --config e2e/playwright.config.mts",
+    "test:e2e:update": "playwright test --config e2e/playwright.config.mts --update-snapshots"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "http-server": "^14.1.1",
+    "pagefind": "^1.1.0"
+  }
+}

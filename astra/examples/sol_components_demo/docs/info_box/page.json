@@ -1,0 +1,5 @@
+{
+  "title": "InfoBox (MoonBit)",
+  "description": "MoonBit component rendered server-side via @luna SSR.",
+  "ssr": true
+}

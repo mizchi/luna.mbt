@@ -1,0 +1,10 @@
+.mooncakes
+target
+node_modules
+app/__gen__
+.sol
+dist
+package-lock.json
+pnpm-lock.yaml
+test-results
+playwright-report

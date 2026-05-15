@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <linearGradient id="g4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#78350f"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g4)"/>
+  <g font-family="ui-monospace, monospace" font-size="14" fill="#fef3c7">
+    <rect x="40" y="60" width="560" height="240" rx="8" fill="#451a03" fill-opacity="0.7"/>
+    <text x="64" y="100">// rule: no-stale-effect-deps</text>
+    <text x="64" y="130">useEffect(() =&gt; { ... }, [])</text>
+    <text x="64" y="160" fill="#fca5a5">^^^ missing dep: count</text>
+    <text x="64" y="200" fill="#86efac">+ }, [count])</text>
+  </g>
+  <text x="40" y="340" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#ffffff">Pulsar Lint</text>
+</svg>

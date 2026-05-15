@@ -1,0 +1,6 @@
+{
+  "title": "ColorPalette (TSX)",
+  "description": "TSX component rendered server-side via React renderToString.",
+  "ssr": true,
+  "renderer": "react"
+}

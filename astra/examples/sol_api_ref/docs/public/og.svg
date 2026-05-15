@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#0b1020"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <text x="60" y="240" font-family="system-ui, sans-serif" font-size="84" font-weight="700" fill="#ffffff">Sol API Reference</text>
+  <text x="60" y="320" font-family="system-ui, sans-serif" font-size="32" fill="#cbd5f5">TypeScript-style symbol pages · auto sidebar</text>
+  <text x="60" y="560" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="24" fill="#94a3b8">github.com/mizchi/luna.mbt</text>
+</svg>

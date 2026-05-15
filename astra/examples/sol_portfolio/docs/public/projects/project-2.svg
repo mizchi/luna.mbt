@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#064e3b"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g2)"/>
+  <rect x="40" y="60" width="560" height="240" rx="8" fill="#022c22" fill-opacity="0.6"/>
+  <text x="64" y="110" font-family="ui-monospace, monospace" font-size="16" fill="#6ee7b7">$ nebula --tail prod.log</text>
+  <text x="64" y="140" font-family="ui-monospace, monospace" font-size="14" fill="#a7f3d0">[INFO] booted in 142ms</text>
+  <text x="64" y="164" font-family="ui-monospace, monospace" font-size="14" fill="#fde68a">[WARN] slow query 412ms</text>
+  <text x="64" y="188" font-family="ui-monospace, monospace" font-size="14" fill="#fca5a5">[ERR ] timeout / retry</text>
+  <text x="40" y="340" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#ffffff">Nebula CLI</text>
+</svg>

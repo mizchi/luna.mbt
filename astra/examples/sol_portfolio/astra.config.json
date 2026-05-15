@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/sol.config.schema.json",
+  "title": "Portfolio",
+  "description": "A flat project list + detail portfolio built with Astra SSG.",
+  "docs_dir": "docs",
+  "out_dir": "dist",
+  "base_url": "/",
+  "trailing_slash": true,
+  "deploy": "cloudflare",
+  "headSnippets": [
+    "<meta property=\"og:type\" content=\"website\">",
+    "<meta property=\"og:title\" content=\"Portfolio\">",
+    "<meta property=\"og:description\" content=\"A flat project list + detail portfolio built with Astra SSG.\">",
+    "<meta property=\"og:image\" content=\"/og.svg\">",
+    "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+    "<meta name=\"twitter:image\" content=\"/og.svg\">",
+    "<style>:root{color-scheme:light dark;--accent:#4f46e5}html[data-theme=\"dark\"]{background:#0b1020;color:#e5e7eb}html[data-theme=\"light\"]{background:#ffffff;color:#111827}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0}.portfolio-wrap{max-width:1040px;margin:0 auto;padding:48px 24px}.portfolio-header{text-align:center;margin-bottom:48px}.portfolio-header h1{font-size:40px;margin:0 0 12px;letter-spacing:-0.02em}.portfolio-header p{margin:0;opacity:0.75;font-size:16px}.project-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}.project-card{display:block;border:1px solid rgba(120,120,120,0.3);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;background:rgba(255,255,255,0.02);transition:transform 0.15s ease,border-color 0.15s ease}.project-card:hover{transform:translateY(-2px);border-color:var(--accent)}.project-card img{display:block;width:100%;height:160px;object-fit:cover;background:#111}.project-card-body{padding:16px}.project-card h3{margin:0 0 6px;font-size:18px}.project-card p{margin:0 0 10px;font-size:14px;opacity:0.75;line-height:1.5}.project-tags{display:flex;flex-wrap:wrap;gap:6px}.project-tag{font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(79,70,229,0.15);color:var(--accent);border:1px solid rgba(79,70,229,0.3)}.project-detail{max-width:760px;margin:0 auto;padding:48px 24px}.project-detail img.hero{display:block;width:100%;height:auto;border-radius:12px;margin:0 0 24px;background:#111}.project-detail h1{font-size:36px;margin:0 0 8px;letter-spacing:-0.02em}.project-detail .meta{margin:0 0 24px;opacity:0.7;font-size:14px}.back-link{display:inline-block;margin-bottom:24px;font-size:14px;opacity:0.7;text-decoration:none;color:inherit}.back-link:hover{opacity:1}footer{padding:32px 24px;text-align:center;opacity:0.6;font-size:13px;border-top:1px solid rgba(120,120,120,0.2);margin-top:64px}@media (prefers-reduced-motion: reduce){*{animation-duration:0.001s!important;transition-duration:0.001s!important}}</style>"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/sol.config.schema.json",
+  "title": "Astra Docs Search",
+  "description": "A docs example wired to PageFind for client-side full-text search.",
+  "docs_dir": "docs",
+  "out_dir": "dist",
+  "base_url": "/",
+  "trailing_slash": true,
+  "deploy": "cloudflare",
+  "islands": {
+    "dir": "docs/public/islands",
+    "basePath": "/islands/"
+  },
+  "nav": [
+    { "text": "Home", "link": "/" },
+    { "text": "Guide", "link": "/guide/intro/" }
+  ],
+  "sidebar": {
+    "/guide/": [
+      { "text": "Intro", "link": "/guide/intro/" },
+      { "text": "Install", "link": "/guide/install/" },
+      { "text": "Configuration", "link": "/guide/configuration/" },
+      { "text": "First page", "link": "/guide/first-page/" },
+      { "text": "Components", "link": "/guide/components/" },
+      { "text": "i18n", "link": "/guide/i18n/" },
+      { "text": "Search", "link": "/guide/search/" },
+      { "text": "Deploy", "link": "/guide/deploy/" },
+      { "text": "PageFind", "link": "/guide/pagefind/" },
+      { "text": "FAQ", "link": "/guide/faq/" }
+    ]
+  },
+  "headSnippets": [
+    "<meta property=\"og:type\" content=\"website\">",
+    "<meta property=\"og:title\" content=\"Astra Docs Search\">",
+    "<meta property=\"og:description\" content=\"A docs example wired to PageFind for client-side full-text search.\">",
+    "<meta property=\"og:image\" content=\"/og.svg\">",
+    "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+    "<meta name=\"twitter:image\" content=\"/og.svg\">",
+    "<style>:root{color-scheme:light dark;--accent:#4f46e5;--border:rgba(120,120,120,0.3)}html{background:#fff;color:#111827}body{margin:0;font-family:system-ui,sans-serif;line-height:1.6}main,.layout{max-width:880px;margin:0 auto;padding:32px 24px}h1{font-size:36px;letter-spacing:-0.02em;margin:0 0 16px}h2{margin-top:32px}.hero{padding:32px 0 16px;text-align:left}.hero p{font-size:18px;opacity:0.85}search-box{display:block;margin:24px 0 32px}search-box input{width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--border);border-radius:8px;background:transparent;color:inherit}search-box input:focus{outline:2px solid var(--accent);outline-offset:2px}search-box .results{margin-top:12px;display:flex;flex-direction:column;gap:8px}search-box .results a{display:block;padding:10px 12px;border:1px solid var(--border);border-radius:8px;text-decoration:none;color:inherit;background:rgba(120,120,120,0.05)}search-box .results a:hover{background:rgba(79,70,229,0.08);border-color:var(--accent)}search-box .results .meta{display:block;font-size:13px;opacity:0.7;margin-top:2px}search-box .empty{padding:8px 4px;font-size:14px;opacity:0.6}.toc{margin:24px 0;padding:16px 20px;border:1px solid var(--border);border-radius:8px;background:rgba(120,120,120,0.04)}.toc ul{margin:8px 0 0;padding-left:20px}.toc a{color:inherit;text-decoration:none}.toc a:hover{text-decoration:underline}footer{margin-top:48px;padding:24px;text-align:center;font-size:14px;opacity:0.7;border-top:1px solid var(--border)}code{background:rgba(120,120,120,0.12);padding:1px 6px;border-radius:4px;font-size:0.9em}pre{background:rgba(120,120,120,0.08);padding:16px;border-radius:8px;overflow-x:auto}@media (prefers-reduced-motion: reduce){*{animation-duration:0.001s!important;transition-duration:0.001s!important}}</style>"
+  ]
+}
