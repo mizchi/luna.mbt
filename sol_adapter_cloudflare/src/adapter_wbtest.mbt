@@ -35,6 +35,14 @@ extern "js" fn ffi_fetch_exported_app_text(
   #| }
 
 ///|
+extern "js" fn ffi_exported_runtime() -> String =
+  #| () => globalThis.__SOL_RUNTIME__ || ""
+
+///|
+extern "js" fn ffi_is_adapter_mode() -> Bool =
+  #| () => globalThis.__SOL_ADAPTER_MODE__ === true
+
+///|
 async test "export_app exposes Cloudflare fetch with env and execution context" {
   ffi_clear_exported_sol_app()
   let app = @mars.Server::new()
@@ -48,6 +56,8 @@ async test "export_app exposes Cloudflare fetch with env and execution context" 
   export_app(app)
   let body = ffi_fetch_exported_app_text("/secret", ffi_test_env()).wait()
   assert_eq(body, "secret-token")
+  assert_eq(ffi_exported_runtime(), "cloudflare")
+  assert_true(ffi_is_adapter_mode())
 }
 
 ///|
