@@ -58,6 +58,17 @@ and `sol/src/version/version.mbt` so `sol new` scaffolds and the
 Tags are per-package: `luna-v<v>`, `luna_components-v<v>`, `sol-v<v>`,
 `sol_adapter_cloudflare-v<v>`, `astra-v<v>`.
 
+Mooncake publish after the tags land on origin:
+```sh
+just release-mooncakes               # publish all 6 in dep-order, moon update between each
+just release-mooncakes --dry-run     # preview the publish plan
+```
+`moon update` between each `moon publish` is required: without it, the
+next package's dep resolver still sees the old version in the local
+registry index and the publish fails ("no version satisfies …"). The
+`scripts/release-mooncakes.sh` helper handles the order and the index
+refresh.
+
 CLI installs (mooncakes):
 ```sh
 moon install mizchi/sol/cmd/sol

@@ -256,6 +256,11 @@ changelog tag:
 changelog-preview:
     git cliff --unreleased
 
+# mooncakes 6 連 publish (dep-order + 各 publish 後に moon update)
+# 例: just release-mooncakes, just release-mooncakes --dry-run
+release-mooncakes *args:
+    bash scripts/release-mooncakes.sh {{args}}
+
 # バージョンアップ (patch/minor/major or 0.X.Y)
 # Bumps MoonBit mooncakes in lockstep; npm wrappers are release-please-managed.
 # 例: just vup patch, just vup 0.4.0, just vup patch --dry-run, just vup patch --release
