@@ -23,7 +23,7 @@ test "ActionResult success variant carries Json internally" {
 test "ActionResult::json creates success result from ToJson payload" {
   let result = ActionResult::json(CreateUserResponse::{ id: "user-1" })
   match result.kind {
-    JsonSuccess(_) => ()
+    JsonSuccess(json) => assert_eq(json.stringify(), "{\"id\":\"user-1\"}")
     _ => fail("expected Success")
   }
 }

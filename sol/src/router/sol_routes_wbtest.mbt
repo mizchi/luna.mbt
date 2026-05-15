@@ -538,6 +538,51 @@ extern "js" fn ffi_call_app_handler(
   #| }
 
 ///|
+async test "register_routes serves typed Json from legacy api resolver" {
+  run_async_test_with_cleanup(() => {
+    let app = @mars.Server::new()
+    let routes = [
+      @routes.Get(path="/api/legacy/:id", handler="legacy-get"),
+    ]
+    let page_resolver : (String, Ctx, RouteParams) -> @luna.Node[Unit, String]? = fn(
+      _component,
+      _ctx,
+      _params,
+    ) {
+      None
+    }
+    let api_resolver = fn(
+      handler : String,
+      _ctx : Ctx,
+      params : RouteParams,
+    ) {
+      if handler == "legacy-get" {
+        let json : Json = {
+          "id": params.get_param("id").unwrap_or("missing"),
+          "ok": true,
+        }
+        Some(json)
+      } else {
+        None
+      }
+    }
+    register_routes(app, routes, page_resolver, api_resolver)
+
+    let res = ffi_call_app_handler(
+      app.to_handler(),
+      "GET",
+      "http://localhost/api/legacy/42",
+      false,
+    ).wait()
+    assert_eq(res.status, 200)
+    assert_true(res.content_type.unwrap_or("").contains("application/json"))
+    assert_eq(res.no_sniff, Some("nosniff"))
+    assert_true(res.body.contains("\"id\":\"42\""))
+    assert_true(res.body.contains("\"ok\":true"))
+  })
+}
+
+///|
 extern "js" fn ffi_raw_response_with_nosniff_header() -> @web_http.Response =
   #| () => new Response("raw-custom-header", {
   #|   status: 200,
