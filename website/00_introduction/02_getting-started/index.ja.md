@@ -31,16 +31,17 @@ npm run dev
 
 ブラウザで http://localhost:5173 を開きます。
 
-### Sol SSG (ドキュメントサイト)
+### Astra (ドキュメントサイト)
 
 ```bash
-npx @luna_ui/sol new my-docs --ssg
-cd my-docs
-npm install
-npm run dev
+moon install mizchi/astra/cmd/astra
+mkdir my-docs && cd my-docs
+mkdir docs && echo "# Hello Astra" > docs/index.md
+astra dev          # ローカルプレビュー
+astra build        # ./dist へ静的出力
 ```
 
-ブラウザで http://localhost:3355 を開きます。
+`astra dev` のデフォルトは http://localhost:7777 です（`--port` で変更可）。
 
 ## 次のステップ
 

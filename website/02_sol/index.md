@@ -19,20 +19,27 @@ Sol is a full-stack SSR framework built on Luna UI and MoonBit. It provides Isla
 - **Middleware** - Railway Oriented Programming based middleware
 - **Server Actions** - CSRF-protected server-side functions
 - **Nested Layouts** - Hierarchical layout structures
-- **Docs / SSG** - Docs-only sites via Sol SSG, or hybrid docs via `staticDirs`
+- **Docs** - Pair with [Astra](/astra/) for a docs surface; the old `--ssg` flag was removed in 0.16
 
 ## Quick Start
 
 ```bash
-# Create a new Sol project
-npx @luna_ui/sol new myapp --user yourname
+# 1) Install the sol native CLI once (preferred)
+moon install mizchi/sol/cmd/sol            # → $MOON_HOME/bin/sol
+# (alternative: pnpm add -g @luna_ui/sol)
+
+# 2) Scaffold directly in an empty directory (sol new is empty-dir friendly since 0.22.3;
+#    --cloudflare is empty-dir friendly since 0.22.4). --user namespace must be 5-39 chars.
+sol new myapp --user yourname
 cd myapp
 
-# Install dependencies
-npm install
+# 3) Install BOTH dep trees. pnpm covers npm, moon covers MoonBit.
+pnpm install
+moon update && moon install                # CRITICAL — pnpm install alone does not fetch
+                                            # MoonBit deps; .mooncakes/ is populated here.
 
-# Start development server
-npm run dev
+# 4) Start dev server on :7777
+pnpm dev
 ```
 
 ## Project Structure
@@ -43,12 +50,17 @@ myapp/
 ├── package.json            # npm package
 ├── sol.config.json         # Sol configuration
 ├── app/
-│   ├── server/             # Server components
+│   ├── server/             # Server components (entrypoint + routes)
 │   │   ├── moon.pkg
-│   │   └── routes.mbt      # routes() + config() + pages
+│   │   ├── main.mbt        # async fn main — server entry
+│   │   └── routes.mbt      # routes() + page handlers (/, /about pre-registered)
+│   ├── layout/             # Shared HTML layout (separate package)
+│   │   ├── moon.pkg
+│   │   └── layout.mbt
 │   ├── client/             # Client components (Islands)
 │   │   ├── moon.pkg
-│   │   └── counter.mbt     # render + hydrate functions
+│   │   ├── counter.mbt
+│   │   └── api_tools.mbt
 │   └── __gen__/            # Auto-generated (sol generate)
 │       ├── client/         # Client exports
 │       └── server/         # Server entry point
@@ -68,11 +80,11 @@ myapp/
 
 ### `sol new <name>`
 
-Create a new project.
+Create a new project. `--user <ns>` (5-39 chars) is required.
 
 ```bash
-sol new myapp --user mizchi         # Create mizchi/myapp package
-sol new myapp --user mizchi --dev   # Use local luna paths (development)
+sol new myapp --user mizchi               # Create mizchi/myapp (works in an empty dir, 0.22.3+)
+sol new myapp --user mizchi --cloudflare  # Cloudflare Workers starter (empty dir OK, 0.22.4+)
 ```
 
 ### `sol dev`
@@ -112,10 +124,10 @@ sol serve --port 8080  # Custom port
 
 ### `sol generate`
 
-Generate code from `sol.config.ts` or `sol.config.json`.
+Generate code from `sol.config.json`.
 
 ```bash
-sol generate                    # Use sol.config.ts or sol.config.json (default: prod)
+sol generate                    # Default: prod mode
 sol generate --mode dev         # Development mode (.sol/dev/)
 sol generate --mode prod        # Production mode (.sol/prod/)
 ```
@@ -409,45 +421,19 @@ pub fn config() -> @sol.RouterConfig {
 
 > Note: streaming response uses `root_template` when `__LUNA_MAIN__` exists; otherwise it falls back to built-in page shell.
 
-## Modes
+## Sol vs Astra
 
-Sol supports three usage styles:
+Sol is an SSR application framework. For a docs-only site, use
+[Astra](/astra/) instead — Sol's built-in `--ssg` mode was extracted
+into `mizchi/astra` in 0.16. The `astra build` CLI walks every page
+URL the same renderer would serve and writes a static tree to disk,
+so the typical deploy is "build once, serve from any static host".
 
-### App (default)
-
-- SSR app with islands
-- Requires `moon.mod.json`
-- `sol dev` starts the app server
-
-### SSG-only (docs)
-
-Docs site with Sol SSG (no app). Detected when `sol.config.json` has `ssg` or `docs` section **and** no `moon.mod.json`.
-
-```bash
-sol new my-docs --ssg
-sol dev    # SSG dev server with HMR
-sol build  # Static site build
-sol lint   # Lint SSG content
-```
-
-For SSG-specific features and configuration, see [Sol SSG](/sol/ssg/).
-
-### Hybrid (app + docs)
-
-Keep the app and mount docs under a path using `staticDirs`:
-
-```json
-{
-  "staticDirs": [
-    { "path_prefix": "/docs", "source_dir": "docs", "title": "Docs" }
-  ]
-}
-```
-
-- `sol build` builds the app and docs
-- `sol dev` runs the app server (use `sol dev --mode ssg` to preview docs)
+If you need both an SSR app and a docs surface in one binary, mount
+Astra as Mars middleware alongside Sol's routes — Astra has no
+dependency on Sol (`deps: mars + markdown + luna`).
 
 ## See Also
 
 - [Luna UI](/luna/) - Core reactivity concepts
-- [Sol SSG](/sol/ssg/) - Static site generation
+- [Astra](/astra/) - Markdown-driven static-site generator

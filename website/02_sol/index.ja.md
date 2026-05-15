@@ -19,7 +19,29 @@ SolはLuna UIとMoonBitで構築されたフルスタックSSRフレームワー
 - **ミドルウェア** - Railway Oriented Programmingベースのミドルウェア
 - **Server Actions** - CSRF保護付きのサーバーサイド関数
 - **ネストされたレイアウト** - 階層的なレイアウト構造
-- **ドキュメント/SSG** - Sol SSG単体サイト、または`staticDirs`によるハイブリッド
+- **ドキュメント** - ドキュメントサイトは [Astra](/ja/astra/) と組み合わせる（旧 `--ssg` フラグは 0.16 で廃止）
+
+## クイックスタート
+
+```bash
+# 1) sol ネイティブ CLI を一度だけインストール（推奨）
+moon install mizchi/sol/cmd/sol            # → $MOON_HOME/bin/sol
+# (代替: pnpm add -g @luna_ui/sol)
+
+# 2) 空ディレクトリで scaffold（0.22.3+ で空ディレクトリ対応、
+#    --cloudflare も 0.22.4 で空ディレクトリ対応）。--user は 5-39 文字。
+sol new myapp --user yourname
+cd myapp
+
+# 3) 両方の依存をインストール。pnpm は npm 側、moon は MoonBit 側を担当。
+pnpm install
+moon update && moon install                # 重要 — pnpm install だけでは
+                                            # MoonBit 依存は取得されない。
+                                            # ここで .mooncakes/ が埋まる。
+
+# 4) 開発サーバー起動（:7777）
+pnpm dev
+```
 
 ## プロジェクト構造
 
@@ -29,12 +51,17 @@ myapp/
 ├── package.json            # npmパッケージ
 ├── sol.config.json         # Sol設定
 ├── app/
-│   ├── server/             # サーバーコンポーネント
+│   ├── server/             # サーバーコンポーネント（エントリ + ルート）
 │   │   ├── moon.pkg
-│   │   └── routes.mbt      # routes() + config() + ページ
+│   │   ├── main.mbt        # async fn main — サーバーエントリ
+│   │   └── routes.mbt      # routes() + ページハンドラ（/ と /about は scaffold 済み）
+│   ├── layout/             # 共通レイアウト（独立パッケージ）
+│   │   ├── moon.pkg
+│   │   └── layout.mbt
 │   ├── client/             # クライアントコンポーネント (Islands)
 │   │   ├── moon.pkg
-│   │   └── counter.mbt
+│   │   ├── counter.mbt
+│   │   └── api_tools.mbt
 │   └── __gen__/            # 自動生成 (sol generate)
 └── static/
     └── loader.js           # Islandローダー
@@ -44,11 +71,11 @@ myapp/
 
 ### `sol new <name>`
 
-新規プロジェクトを作成。
+新規プロジェクトを作成。`--user <ns>`（5-39 文字）は必須。
 
 ```bash
-sol new myapp --user mizchi         # mizchi/myapp パッケージを作成
-sol new myapp --user mizchi --dev   # ローカル luna パスを使用
+sol new myapp --user mizchi               # mizchi/myapp（0.22.3+ は空ディレクトリで OK）
+sol new myapp --user mizchi --cloudflare  # Cloudflare Workers スターター（0.22.4+ は空ディレクトリで OK）
 ```
 
 ### `sol dev`
@@ -273,45 +300,19 @@ pub fn config() -> @sol.RouterConfig {
 
 > 注: ストリーミング応答は `__LUNA_MAIN__` を含む場合 `root_template` を使い、見つからない場合は組み込み page shell にフォールバックします。
 
-## モード
+## Sol と Astra
 
-Solは3つの使い方を想定しています。
+Sol は SSR アプリケーション用フレームワークです。ドキュメント専用サイトには
+[Astra](/ja/astra/) を使用してください — Sol 内蔵の `--ssg` モードは 0.16
+で `mizchi/astra` として独立しました。`astra build` は同じレンダラーが
+配信する全ページ URL を巡回して静的ツリーをディスクに出力するため、
+「一度ビルドして任意の静的ホストに配信する」 形式が標準的なデプロイです。
 
-### アプリ (デフォルト)
-
-- Islands付きSSRアプリ
-- `moon.mod.json`が必要
-- `sol dev`でアプリサーバー起動
-
-### SSGのみ（ドキュメント）
-
-`sol.config.json`に`ssg`または`docs`セクションがあり、かつ`moon.mod.json`が無い場合に検出されます。
-
-```bash
-sol new my-docs --ssg
-sol dev    # HMR付きSSG開発サーバー
-sol build  # 静的サイト生成
-sol lint   # SSGコンテンツをリント
-```
-
-SSG固有の機能と設定については、[Sol SSG](/ja/sol/ssg/)を参照してください。
-
-### ハイブリッド（アプリ + ドキュメント）
-
-アプリを維持したまま、`staticDirs`でドキュメントをマウントします：
-
-```json
-{
-  "staticDirs": [
-    { "path_prefix": "/docs", "source_dir": "docs", "title": "Docs" }
-  ]
-}
-```
-
-- `sol build`でアプリとドキュメントをまとめてビルド
-- `sol dev`はアプリサーバーを起動（ドキュメントのプレビューは`sol dev --mode ssg`）
+SSR アプリとドキュメントを 1 バイナリで提供したい場合は、Sol のルートに並べて
+Mars ミドルウェアとして Astra をマウントできます — Astra は Sol に依存しません
+（`deps: mars + markdown + luna`）。
 
 ## 関連項目
 
 - [Luna UI](/ja/luna/) - コアリアクティビティの概念
-- [Sol SSG](/ja/sol/ssg/) - 静的サイト生成（Sol CLI経由で実行）
+- [Astra](/ja/astra/) - Markdown 駆動の静的サイトジェネレーター

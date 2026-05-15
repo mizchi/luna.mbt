@@ -43,9 +43,9 @@ Astra は Sol に依存しません。`deps: mars + markdown + luna` のみ。So
 // moon.mod.json
 {
   "deps": {
-    "mizchi/astra": "0.20.0",
+    "mizchi/astra": "0.22.3",
     "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.20.0"
+    "mizchi/luna": "0.22.3"
   }
 }
 ```
@@ -55,7 +55,7 @@ CLI:
 ```sh
 moon install mizchi/astra/cmd/astra   # → $MOON_HOME/bin/astra
 # moon は無いが node がある場合
-pnpm add -g @luna_ui/astra
+pnpm add -g @luna_ui/astra            # 0.22.3
 ```
 
 ## さわってみる

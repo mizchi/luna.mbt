@@ -1,139 +1,48 @@
 ---
-title: Sol SSG
+title: Sol SSG (Astra へ移行)
 ---
 
-# Sol SSG
+# Sol SSG → Astra
 
-> **実験的**: Sol SSGは開発中です。APIは変更される可能性があります。
+> **このページは旧リンク互換のために残しています。**
+> Sol 内蔵の SSG モード (`sol new --ssg`、静的サイト向けの `sol build`)
+> は sol 0.16 で **[Astra](/ja/astra/)** として独立しました。
+> `sol new` の `--ssg` フラグも同時に削除されています。
 
-Sol SSGはLunaの静的サイトジェネレーターです。Markdownからドキュメントサイトやブログを構築します。
+ドキュメント / ブログ / 静的サイト用途は Astra を直接使用してください:
 
-## 特徴
+- [Astra 概要](/ja/astra/)
+- [Astra — はじめる](/ja/astra/getting-started/)
+- [Astra — Mars にマウントする](/ja/astra/mount-on-mars/)
+- [Astra — デプロイ](/ja/astra/deploy/)
 
-- **Markdownベース** - フロントマター付きMarkdownでコンテンツを記述
-- **シンタックスハイライト** - Shikiによるコードブロックのハイライト
-- **i18nサポート** - 多言語ドキュメント対応
-- **自動サイドバー** - ディレクトリ構造からナビゲーション自動生成
-- **Islands対応** - インタラクティブなWeb Componentsを埋め込み可能
-- **ISR** - Stale-While-RevalidateによるIncremental Static Regeneration
-- **HMR** - Hot Module Replacementによる高速開発
-- **SPAナビゲーション** - View Transitionsによるスムーズな遷移
+## 分離理由
 
-## ガイド
+Astra は Sol に依存しません (`deps: mars + markdown + luna`)。
+ビルド経路は sol サーバーを必要としなくなり、`astra build` は
+プロセス内ミドルウェアが配信できる全 URL を巡回してレスポンス本文を
+ディスクに書き出します。そのため「一度ビルドして任意の静的ホストに
+配信する」 形式が標準的なデプロイです (Cloudflare Workers Static Assets、
+GitHub Pages、S3 など)。詳細は [astra README](https://github.com/mizchi/luna.mbt/tree/main/astra)
+を参照してください。
 
-- [動的ルート](/ja/sol/ssg/dynamic-routes/) - パラメータから静的ページを生成
-- [Islands](/ja/sol/ssg/islands/) - 静的ページにインタラクティブコンポーネントを埋め込む
-- [ISR](/ja/sol/ssg/isr/) - 動的コンテンツのためのIncremental Static Regeneration
+## 移行チートシート
 
-## クイックスタート
+| 旧 (sol ≤ 0.15) | 新 (astra 0.22.3+) |
+|----------------|--------------------|
+| `sol new my-docs --ssg` | `mkdir my-docs && cd my-docs && mkdir docs && echo "# Hello" > docs/index.md` |
+| `sol dev` (SSG モード) | `astra dev` |
+| `sol build` (SSG モード) | `astra build --out ./dist` |
+| `sol.config.json` の `ssg`/`docs` セクション | `astra.config.json` (同じフィールド名。レガシープロジェクトのため `sol.config.json` はフォールバックとして読まれる) |
 
-```bash
-# 新規プロジェクト作成
-npx @luna_ui/sol new my-docs --ssg
-cd my-docs
-npm install
+元のクイックスタート相当は Astra をインストールして [はじめる](/ja/astra/getting-started/) を参照してください:
 
-# 開発サーバー起動
-npm run dev
+```sh
+moon install mizchi/astra/cmd/astra   # または: pnpm add -g @luna_ui/astra
 ```
 
-http://localhost:3355 でHMR付きプレビューが開きます。
+## ハイブリッド (Sol アプリ + Astra ドキュメント)
 
-## CLIリファレンス
-
-Sol SSGは統合された`sol`CLIの一部になりました。プロジェクトに`sol.config.json`または`ssg`セクションを持つ`sol.config.json`がある場合、SolはSSGモードで自動的に実行されます。
-
-```bash
-# 新規SSGプロジェクト作成
-sol new <name> --ssg [options]
-  -t, --title <text>  サイトタイトル (デフォルト: プロジェクト名)
-
-# HMR付き開発サーバー起動
-sol dev [options]
-  -p, --port <port>    ポート番号 (デフォルト: 3355)
-  -c, --config <path>  設定ファイルパス
-
-# 静的サイトをビルド
-sol build [options]
-  -c, --config <path>  設定ファイルパス (デフォルト: sol.config.json または sol.config.json)
-  -o, --output <dir>   出力ディレクトリ
-
-# SSGコンテンツをリント
-sol lint [options]
-  -c, --config <path>  設定ファイルパス
-```
-
-## 設定 (sol.config.json)
-
-```json
-{
-  "docs": "docs",
-  "output": "dist",
-  "title": "My Docs",
-  "base": "/",
-  "trailingSlash": true,
-  "sidebar": "auto",
-  "i18n": {
-    "defaultLocale": "en",
-    "locales": [
-      { "code": "en", "label": "English", "path": "" },
-      { "code": "ja", "label": "日本語", "path": "ja" }
-    ]
-  },
-  "nav": [
-    { "text": "ガイド", "link": "/guide/" },
-    { "text": "API", "link": "/api/" }
-  ]
-}
-```
-
-## ディレクトリ構造
-
-```
-docs/
-├── index.md              # ホームページ (/)
-├── 00_introduction/      # /introduction/
-│   └── index.md
-├── 01_guide/             # /guide/
-│   ├── index.md
-│   ├── 01_basics.md      # /guide/basics/
-│   └── 02_advanced.md    # /guide/advanced/
-└── ja/                   # 日本語版
-    ├── index.md
-    └── ...
-```
-
-数字プレフィックス（`00_`、`01_`）は順序制御用で、URLからは除去されます。
-
-## フロントマター
-
-```markdown
----
-title: ページタイトル
-description: SEO用の説明文
-layout: doc
-sidebar: true
----
-
-# ここにコンテンツ
-```
-
-## Web Components
-
-静的ページにインタラクティブなコンポーネントを埋め込み：
-
-```html
-<my-counter initial="5" luna:trigger="visible"></my-counter>
-```
-
-| トリガー | 説明 |
-|---------|------|
-| `load` | ページ読み込み時に即座にハイドレート |
-| `idle` | ブラウザがアイドル時にハイドレート |
-| `visible` | ビューポートに入った時にハイドレート |
-| `media` | メディアクエリにマッチした時 |
-
-## 関連項目
-
-- [Luna UI](/ja/luna/) - リアクティビティシステム
-- [Sol Framework](/ja/sol/) - フルスタックSSR
+SSR アプリとドキュメントを 1 バイナリで配信したい場合は、Sol のルートに
+並べて Mars ミドルウェアとして Astra をマウントできます。詳細は
+[Astra — Mars にマウントする](/ja/astra/mount-on-mars/) を参照してください。

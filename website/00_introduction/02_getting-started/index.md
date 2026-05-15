@@ -32,5 +32,5 @@ npm run dev
 ## Next Steps
 
 - [Luna UI](/luna/) - Learn about signals, islands, and components
-- [Sol SSG](/sol/ssg/) - Build documentation sites
+- [Astra](/astra/) - Build documentation sites
 - [Sol](/sol/) - Build full-stack applications

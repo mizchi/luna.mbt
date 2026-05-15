@@ -10,7 +10,7 @@ Luna is a suite of tools for building modern web applications with MoonBit and J
 
 | I want to... | Use | Language |
 |--------------|-----|----------|
-| Build a documentation site | **Sol SSG** | Markdown + Islands |
+| Build a documentation site | **Astra** | Markdown + Islands |
 | Build a full-stack web app | **Sol** | MoonBit |
 | Add reactivity to existing pages | **Luna UI** | JavaScript/TypeScript |
 | Learn fine-grained reactivity | **Luna UI Tutorial** | JS or MoonBit |
@@ -19,7 +19,7 @@ Luna is a suite of tools for building modern web applications with MoonBit and J
 
 ```
 Need a website?
-├── Static content (docs, blog) → Sol SSG
+├── Static content (docs, blog) → Astra
 └── Dynamic app (user auth, API) → Sol
 
 Just learning?
@@ -99,8 +99,8 @@ Luna combines Islands Architecture with fine-grained reactivity:
 ┌─────────────────────────────────────────────────────────────┐
 │                     Your Application                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Sol SSG (SSG)          │  Sol (SSR Framework)                 │
-│  Static docs sites    │  Full-stack apps with islands        │
+│  Astra (SSG)            │  Sol (SSR Framework)                │
+│  Static docs sites      │  Full-stack apps with islands       │
 ├─────────────────────────────────────────────────────────────┤
 │                       Luna UI                                 │
 │           Signals, Islands, Hydration, Components            │
@@ -120,7 +120,7 @@ The foundation of everything. Luna provides:
 - **Components** - Web Components with declarative syntax
 - **Hydration** - Smart loading strategies (load, idle, visible, media)
 
-### [Sol SSG](/sol/ssg/) - Static Site Generator
+### [Astra](/astra/) - Static Site Generator
 
 Build documentation sites and blogs from Markdown. Features:
 
@@ -130,7 +130,9 @@ Build documentation sites and blogs from Markdown. Features:
 - Syntax highlighting with Shiki
 - SPA navigation with View Transitions
 
-This documentation site is built with Sol SSG.
+This documentation site is built with Astra. (Sol's pre-0.16 built-in
+SSG mode was extracted into `mizchi/astra` — use `astra build` for
+static dumps.)
 
 ### [Sol](/sol/) - Full-Stack Framework
 
@@ -147,7 +149,8 @@ Server-side rendering framework with Hono integration:
 | Package | Description |
 |---------|-------------|
 | `@luna_ui/luna` | Core UI library + CLI for scaffolding |
-| `@luna_ui/sol` | SSR/SSG framework CLI (includes Sol SSG) |
+| `@luna_ui/sol` | Sol SSR framework CLI |
+| `@luna_ui/astra` | Astra static-site generator CLI |
 
 ## Quick Start
 
@@ -165,11 +168,28 @@ npx @luna_ui/luna new myapp --mbt
 cd myapp && moon update && npm install && npm run dev
 ```
 
-### Sol SSG (Documentation Site)
+### Sol (SSR App)
 
 ```bash
-npx @luna_ui/sol new my-docs --ssg
-cd my-docs && npm install && npm run dev
+# Install the sol native CLI once (preferred)
+moon install mizchi/sol/cmd/sol
+
+# Scaffold an empty directory (sol new is empty-dir friendly since 0.22.3)
+sol new myapp --user yourname
+cd myapp
+pnpm install
+moon update && moon install
+pnpm dev
+```
+
+### Astra (Documentation Site)
+
+```bash
+moon install mizchi/astra/cmd/astra
+mkdir my-docs && cd my-docs
+mkdir docs && echo "# Hello" > docs/index.md
+astra dev          # local preview
+astra build        # static dump to ./dist
 ```
 
 ## Code Examples
@@ -203,7 +223,7 @@ count.set(1)  // Prints: 1
 
 1. Start with [JavaScript Tutorial](/luna/tutorial-js/)
 2. Learn [Signals](/luna/api-js/signals) and [Islands](/luna/api-js/islands)
-3. Build a site with [Sol SSG](/sol/ssg/) or app with [Sol](/sol/)
+3. Build a docs site with [Astra](/astra/) or an app with [Sol](/sol/)
 
 ### For MoonBit Developers
 
@@ -213,7 +233,7 @@ count.set(1)  // Prints: 1
 
 ## Feature Comparison
 
-| Feature | Luna UI | Sol SSG | Sol |
+| Feature | Luna UI | Astra | Sol |
 |---------|---------|-------|-----|
 | Signals | ✅ | ✅ | ✅ |
 | Islands | ✅ | ✅ | ✅ |
