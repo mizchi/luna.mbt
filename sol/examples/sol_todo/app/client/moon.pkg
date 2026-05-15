@@ -1,0 +1,11 @@
+supported_targets = "js"
+
+import {
+  "mizchi/luna/dom" @element,
+  "mizchi/signals" @signal,
+  "moonbitlang/core/json",
+}
+
+options(
+  link: { "js": { "exports": [ "todo_list" ], "format": "esm" } },
+)

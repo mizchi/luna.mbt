@@ -1,4 +1,5 @@
 ///| Todo List Client Island
+
 ///| Simple interactive counter to demonstrate hydration
 
 ///|
@@ -26,10 +27,10 @@ pub fn todo_list(props : TodoListProps) -> DomNode {
     div(class="stat-actions", [
       button(
         class="btn refresh-btn",
-        on=events().click(_ => {
+        on=events().click(
           // Reload stats from server
-          refresh_stats(total, completed)
-        }),
+          _ => refresh_stats(total, completed),
+        ),
         [text("Refresh Stats")],
       ),
     ]),

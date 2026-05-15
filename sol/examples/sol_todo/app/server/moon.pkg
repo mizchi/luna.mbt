@@ -1,0 +1,21 @@
+supported_targets = "js"
+
+import {
+  "mizchi/luna" @luna,
+  "mizchi/sol" @sol,
+  "mizchi/sol/middleware" @mw,
+  "mizchi/sol/action" @action,
+  "mizchi/luna/dom/static" @server_dom,
+  "mizchi/js/core" @core,
+  "example/sol-todo/layout" @layout,
+  "example/sol-todo/__gen__/types" @types,
+  "moonbitlang/core/json",
+  "moonbitlang/async",
+}
+
+warnings = "-35-67-24-29"
+
+options(
+  "is-main": true,
+  link: { "js": { "format": "esm" } },
+)

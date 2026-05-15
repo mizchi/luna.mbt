@@ -1,0 +1,9 @@
+supported_targets = "js"
+
+import {
+  "mizchi/luna" @luna,
+  "mizchi/sol/router" @router,
+  "mizchi/luna/dom/static" @server_dom,
+}
+
+warnings = "-24-29"
