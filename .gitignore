@@ -14,6 +14,9 @@ _build/
 .wrangler/
 node_modules/
 .mooncakes/
+# pnpm store left behind by docker bind-mount runs (e.g. seeding the
+# Playwright VRT linux baseline through mcr.microsoft.com/playwright)
+.pnpm-store/
 
 # APM — agent skill manager (apm.yml + apm.lock.yaml are committed; modules cache + deployed skills regenerate via `apm install`)
 apm_modules/
