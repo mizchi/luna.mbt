@@ -87,7 +87,40 @@ async fn delegate_to_project_js_cli(args : Array[String]) -> Int {
       return run_js_entry(candidate, args)
     }
   }
+  // luna.mbt monorepo / path-dep workspaces don't populate
+  // .mooncakes/mizchi/sol, but sol_js lives at <workspace>/sol/src/cmd/sol_js.
+  // Walk up the directory tree looking for a sibling sol/src/cmd/sol_js so
+  // `sol doctor` (and any other delegated subcommand) works inside
+  // sol/examples/* without going through the bare module-ref fallback.
+  match find_workspace_sol_js() {
+    Some(absolute_path) => return run_js_entry(absolute_path, args)
+    None => ()
+  }
   run_js_entry("mizchi/sol/cmd/sol_js", args)
+}
+
+///|
+/// Walk up to 10 directories from cwd looking for a `sol/src/cmd/sol_js`
+/// subtree. Returns the absolute path when found, `None` otherwise.
+/// Used by the launcher to bridge monorepo path-dep projects whose
+/// `.mooncakes/mizchi/sol/` is intentionally empty.
+async fn find_workspace_sol_js() -> String? {
+  let mut current = match @env.current_dir() {
+    Some(c) => c
+    None => "."
+  }
+  for _ in 0..<10 {
+    let candidate = join_path(current, "sol/src/cmd/sol_js")
+    if @fs.exists(candidate) {
+      return Some(candidate)
+    }
+    let parent = dirname(current)
+    if parent == current || parent.length() == 0 {
+      return None
+    }
+    current = parent
+  }
+  None
 }
 
 ///|
