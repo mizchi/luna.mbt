@@ -1,39 +1,31 @@
 // `build_to_disk`: the in-process crawler that produces astra's static
-// dump. The same `Middleware` value the dev server mounts on a Mars
-// `Server` is reused here -- we walk `mw.list_urls()`, dispatch each URL
-// through `@testing.invoke` (a real `Server::to_handler()` call, no
-// localhost listener), and write the captured body to disk under the
-// requested `output_dir`.
+// dump. Walks `mw.list_urls()`, asks the middleware to render each URL
+// directly via `Middleware::render_url` (no Mars `Server`, no
+// `@testing.invoke`, no localhost listener), and writes the rendered
+// body to disk under the requested `output_dir`.
 //
 // PARITY-NOTE: every asset astra serves today is UTF-8 text (JS / CSS),
-// so capturing `InvokeResult.body : String` round-trips correctly. If a
-// future asset type is introduced (binary fonts, raster images), the
-// invoker side has to expose a `body_bytes : Bytes` channel and this
+// so writing `RenderedResponse.body : String` round-trips correctly. If
+// a future asset type is introduced (binary fonts, raster images), the
+// middleware needs to expose a `body_bytes : Bytes` channel and this
 // crawler must select per URL. The plan flagged that extension; T9's
 // asset surface keeps it deferred until then.
 
 ///|
-/// Walk every URL the middleware can serve, dispatch each through the
-/// in-process handler, and write the captured response body to
-/// `<output_dir>/<url-to-disk-path>`.
-///
-/// Async because `@testing.invoke` is async (it awaits the Mars handler's
-/// returned Promise). Surfaces handler errors through the regular `Error`
-/// channel so callers can decide whether to abort or continue.
-pub async fn build_to_disk(
+/// Walk every URL the middleware can serve, render each one in-process,
+/// and write the rendered body to `<output_dir>/<url-to-disk-path>`.
+pub fn build_to_disk(
   mw : @middleware.Middleware,
   output_dir : String,
 ) -> Unit {
   ensure_dir(output_dir)
-  let app = @mars.Server::new()
-  app.all("/*", mw.handler())
   // Page-vs-asset routing comes from the middleware's own asset surface,
   // not a dot-in-segment heuristic: a page URL like `/release/v1.0/`
   // legitimately contains a dot but must still resolve to
   // `release/v1.0/index.html`, never a flat `release/v1.0` file.
   let asset_urls = mw.asset_urls()
   for url in mw.list_urls() {
-    let res = @testing.invoke(app, path=url)
+    let res = mw.render_url(url)
     let target = @path.join2(output_dir, url_to_disk_path(url, asset_urls))
     ensure_parent_dir(target)
     @fs.writeFileSync(target, @core.any(res.body)) catch {

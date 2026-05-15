@@ -27,6 +27,48 @@ pub fn create(
 }
 
 ///|
+/// A rendered HTTP-ish response. Returned by `Middleware::render_url`
+/// so callers (in particular the static-build crawler) can produce the
+/// same bytes as `dispatch` without instantiating a Mars `Server`.
+pub(all) struct RenderedResponse {
+  status : Int
+  body : String
+  content_type : String
+}
+
+///|
+/// Render `url` directly through the middleware's render pipeline,
+/// without going through a Mars `Server` or `@testing.invoke`. Asset
+/// URLs win first (matching `dispatch`'s ordering); page URLs flow
+/// through `render_page`; unknown URLs return a 404 with a plain-text
+/// body. This is the API the SSG build path uses — see
+/// `astra/src/cli/build.mbt`.
+pub fn Middleware::render_url(
+  self : Middleware,
+  url : String,
+) -> RenderedResponse {
+  match @assets.lookup_asset(url, self.config, minify=self.minify_css) {
+    Some(asset) =>
+      { status: 200, body: asset.body, content_type: asset.content_type }
+    None => {
+      let path = normalize_path(url, self.config.trailing_slash)
+      match find_page_meta(self.pages, path) {
+        Some(page) => {
+          let html = render_page(self, page)
+          { status: 200, body: html, content_type: "text/html; charset=utf-8" }
+        }
+        None =>
+          {
+            status: 404,
+            body: "Not Found",
+            content_type: "text/plain; charset=utf-8",
+          }
+      }
+    }
+  }
+}
+
+///|
 /// Async dispatch: rejects non-GET/HEAD methods with 405, attempts to
 /// resolve the request path against the document tree, and renders the
 /// page through the shared `render_page_html` pipeline. Asset serving

@@ -9,7 +9,6 @@ import {
   "mizchi/astra/content/shiki" @shiki,
   "mizchi/astra/middleware" @middleware,
   "mizchi/astra/render" @render,
-  "mizchi/astra/testing" @testing,
   "mizchi/mars" @mars,
   "mizchi/js/core" @core,
   "mizchi/js/node/fs" @fs,
