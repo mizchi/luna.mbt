@@ -8,7 +8,10 @@ on:
     paths:
       - "sol/**"
       - "js/sol/**"
-      - "astra/**"
+      # astra core only — astra/examples/** is owned by astra.yaml, not sol.
+      - "astra/src/**"
+      - "astra/moon.mod.json"
+      - "astra/moon.pkg.json"
       - "package.json"
       - "pnpm-workspace.yaml"
       - "pnpm-lock.yaml"
@@ -17,7 +20,10 @@ on:
     paths:
       - "sol/**"
       - "js/sol/**"
-      - "astra/**"
+      # astra core only — astra/examples/** is owned by astra.yaml, not sol.
+      - "astra/src/**"
+      - "astra/moon.mod.json"
+      - "astra/moon.pkg.json"
       - "package.json"
       - "pnpm-workspace.yaml"
       - "pnpm-lock.yaml"
