@@ -93,3 +93,4 @@ jobs:
           node --test e2e/template-check.test.js
           node --test e2e/cloudflare-starter.test.js
           node --test e2e/generate-codegen.test.js
+          node --test e2e/cli-bootstrap-environments.test.js
