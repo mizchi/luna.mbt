@@ -33,6 +33,19 @@
  *   node luna/scripts/vup.mjs patch --release    # write, commit, tag (per-package tags)
  *   node luna/scripts/vup.mjs patch --release --push   # release then push
  *
+ * Idempotency:
+ *   For semver bumps (patch/minor/major), the plan is computed against the
+ *   HEAD commit. If moon.mod.json in the working tree is already ahead of
+ *   HEAD (= a previous `vup patch` already ran but wasn't committed), the
+ *   script REUSES that pending version instead of bumping again. This means
+ *   the documented two-step flow
+ *
+ *     just vup patch              # bump + per-package CHANGELOG
+ *     just vup patch --release    # commit + tag (no double-bump)
+ *
+ *   is safe: the second call detects the pending bump and only commits/tags.
+ *   Explicit `vup X.Y.Z` always sets to that exact version.
+ *
  * Tags created by --release are the mooncakes tags:
  *   luna-v<luna_version>
  *   luna_components-v<luna_components_version>
@@ -144,23 +157,62 @@ function writeJson(absPath, json, dryRun) {
 // =============================================================================
 
 /**
- * Build a plan: { id, currentMoon, newMoon } per package.
- * For an explicit version, all entries get that version.
- * For a semver bump, each is incremented relative to its OWN current version.
+ * Read the version recorded for `path` in the current HEAD commit, so we
+ * can tell whether a moon.mod.json has already been bumped relative to HEAD.
+ * Returns null if HEAD does not have the file (new package) or git is unhappy.
+ */
+function readHeadVersion(path) {
+  try {
+    const blob = execSync(`git show HEAD:${path}`, {
+      cwd: rootDir,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return JSON.parse(blob).version ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build a plan: { id, currentMoon, newMoon, alreadyBumped } per package.
+ *
+ * For an explicit version, all entries get that version. If the working tree
+ * already records that version, the entry is flagged `alreadyBumped` so we
+ * skip the write.
+ *
+ * For a semver bump, we compare moon.mod.json with HEAD:
+ *   - clean (working == HEAD):  newMoon = incrementVersion(working, kind)
+ *   - already bumped (working != HEAD): newMoon = working, no further bump
+ *
+ * This makes `vup patch --release` idempotent: running `just vup patch` and
+ * then `just vup patch --release` does NOT double-bump. The second call sees
+ * the pending bump in the working tree and just reuses it.
  */
 function buildPlan(spec) {
   return PACKAGES.map(pkg => {
     const moonAbs = join(rootDir, pkg.moonModPath);
     const moon = readJson(moonAbs);
     const currentMoon = moon.version;
-    const newMoon = spec.kind === "explicit"
-      ? spec.version
-      : incrementVersion(currentMoon, spec.kind);
+    const headMoon = readHeadVersion(pkg.moonModPath);
+    const alreadyBumped = headMoon !== null && headMoon !== currentMoon;
+
+    let newMoon;
+    if (spec.kind === "explicit") {
+      newMoon = spec.version;
+    } else if (alreadyBumped) {
+      // Working tree is ahead of HEAD; trust it instead of bumping again.
+      newMoon = currentMoon;
+    } else {
+      newMoon = incrementVersion(currentMoon, spec.kind);
+    }
     return {
       ...pkg,
       moonAbs,
       moon,
       currentMoon, newMoon,
+      headMoon,
+      alreadyBumped,
     };
   });
 }
@@ -213,8 +265,14 @@ function applyPlan(plan, dryRun) {
       bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "astra/moon.mod.json");
     }
 
-    writeJson(entry.moonAbs, entry.moon, dryRun);
-    console.log(`  ${entry.moonModPath}: ${entry.currentMoon} -> ${entry.newMoon}`);
+    const unchanged = entry.currentMoon === entry.newMoon
+      && JSON.stringify(entry.moon) === JSON.stringify(readJson(entry.moonAbs));
+    if (unchanged) {
+      console.log(`  ${entry.moonModPath}: ${entry.newMoon} (already bumped, no write)`);
+    } else {
+      writeJson(entry.moonAbs, entry.moon, dryRun);
+      console.log(`  ${entry.moonModPath}: ${entry.currentMoon} -> ${entry.newMoon}`);
+    }
   }
 }
 
@@ -319,6 +377,9 @@ function main() {
 
   console.log(`Plan (${spec.kind === "explicit" ? `set ${spec.version}` : `${spec.kind} bump`}):`);
   const plan = buildPlan(spec);
+  if (spec.kind !== "explicit" && plan.every(p => p.alreadyBumped)) {
+    console.log("  (idempotent: HEAD vs working tree already shows a pending bump — reusing it)");
+  }
   applyPlan(plan, dryRun);
 
   if (doRelease) {

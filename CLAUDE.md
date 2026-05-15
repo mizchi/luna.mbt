@@ -43,8 +43,12 @@ Coordinated bumps:
 ```sh
 node luna/scripts/vup.mjs --dry-run patch   # preview
 just vup patch                              # bump + per-package CHANGELOG
-just vup patch --release                    # ... + commit + per-pkg tags
+just vup patch --release                    # commit + per-pkg tags (idempotent: reuses the pending bump above)
 ```
+`vup` is idempotent on semver bumps: if `moon.mod.json` in the working tree
+is already ahead of HEAD, `--release` will NOT bump again — it will commit
+and tag the pending version. So the two-step flow above is safe, and so is
+running `just vup patch --release` directly from a clean tree.
 The script bumps the 5 mooncake manifests (`luna`, `luna_components`,
 `sol`, `sol_adapter_cloudflare`, `astra`) and the mooncake inter-dep refs.
 Tags are per-package: `luna-v<v>`, `luna_components-v<v>`, `sol-v<v>`,

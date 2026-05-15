@@ -30,6 +30,13 @@ trim = true
 conventional_commits = true
 filter_unconventional = true
 split_commits = false
+# Restrict the tags considered for changelog section headers to the luna
+# mooncake tags. Without this, git-cliff picks the lexicographically last
+# tag at each release point (after a coordinated bump that ends up being
+# `sol_adapter_node-v...`), and the rendered heading becomes confusing.
+# `luna-v*` is the monorepo's canonical version line and bumps every
+# release via vup.mjs's coordinated bump.
+tag_pattern = "luna-v[0-9].*"
 commit_parsers = [
     { message = "^feat", group = "Features" },
     { message = "^fix", group = "Bug Fixes" },
