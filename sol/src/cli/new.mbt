@@ -194,5 +194,18 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
   println("Next steps:")
   println(@colorette.cyan("  cd \{project_name}"))
   println(@colorette.cyan("  pnpm install"))
+  println(@colorette.cyan("  moon install"))
   println(@colorette.cyan("  pnpm dev"))
+  println("")
+  println(
+    @colorette.gray(
+      "Note: `moon install` is required even after `pnpm install` — it fetches",
+    ),
+  )
+  println(
+    @colorette.gray(
+      "MoonBit deps into .mooncakes/. Without it, `sol dev` fails to resolve",
+    ),
+  )
+  println(@colorette.gray("`mizchi/sol/cmd/sol_js`."))
 }

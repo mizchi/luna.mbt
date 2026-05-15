@@ -77,11 +77,32 @@ async fn run_js_entry(entry : String, args : Array[String]) -> Int {
     }
   }
   if status != 0 {
+    print_launch_failure_guidance()
+  }
+  status
+}
+
+///|
+async fn print_launch_failure_guidance() -> Unit {
+  println("")
+  println("Error: failed to launch the Sol JS CLI.")
+  if !@fs.exists("moon.mod.json") {
+    println(
+      "You're not inside a MoonBit project. `sol` subcommands need a host project that depends on `mizchi/sol`.",
+    )
     println("")
-    println("Error: failed to launch the Sol JS CLI.")
+    println("  moon new <name> --user <namespace>")
+    println("  cd <name>")
+    println("  moon add mizchi/sol")
+    println("")
+    println("Then re-run the sol command from inside that directory.")
+  } else if !@fs.exists(".mooncakes/mizchi/sol") {
+    println(
+      "MoonBit dependencies are not installed. Run `moon install` to fetch `mizchi/sol` into `.mooncakes/`, then retry.",
+    )
+  } else {
     println(
       "Run this command inside a MoonBit project that depends on mizchi/sol.",
     )
   }
-  status
 }
