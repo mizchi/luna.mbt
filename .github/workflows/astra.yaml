@@ -53,24 +53,89 @@ jobs:
         run: cd astra && pnpm exec playwright install chromium --with-deps
       - name: astra Playwright (dev_smoke)
         run: cd astra && pnpm test:e2e
-      # astra/examples/<name>/ Playwright VRT — chromium image is shared
-      # with the dev_smoke step above (same pnpm store / same @playwright
-      # /test pin). Linux baselines live under each example's
-      # `e2e/__screenshots__/linux/`. Refresh them locally with
-      # `just test-vrt-astra <name> --update --linux` (same docker image
-      # CI uses).
-      - name: sol_landing Playwright VRT
-        run: pnpm -F @luna_ui/sol-landing-example test:e2e
-      - name: sol_changelog Playwright VRT
-        run: pnpm -F @luna_ui/sol-changelog-example test:e2e
-      - name: sol_components_demo Playwright VRT
-        run: pnpm -F @luna_ui/sol-components-demo-example test:e2e
-      - name: sol_portfolio Playwright VRT
-        run: pnpm -F @luna_ui/sol-portfolio-example test:e2e
-      - name: sol_api_ref Playwright VRT
-        run: pnpm -F @luna_ui/sol-api-ref-example test:e2e
-      - name: sol_docs_search Playwright VRT
-        run: pnpm -F @luna_ui/sol-docs-search-example test:e2e
+      # astra/examples/<name>/ Playwright VRT.
+      #
+      # The baselines under each example's `e2e/__screenshots__/linux/`
+      # are seeded from `mcr.microsoft.com/playwright:v1.59.1-noble`
+      # (see `just test-vrt-astra <name> --update --linux`). The host's
+      # `ubuntu-latest` runner ships a different font set, so we run the
+      # actual test pass inside that same docker image to keep font
+      # rendering deterministic — host builds the dist/, container only
+      # runs `playwright test`.
+      - name: Build astra example dist/ on host (moon-toolchain side)
+        run: |
+          pnpm -F @luna_ui/sol-landing-example build
+          pnpm -F @luna_ui/sol-changelog-example build
+          pnpm -F @luna_ui/sol-components-demo-example build
+          pnpm -F @luna_ui/sol-portfolio-example build
+          pnpm -F @luna_ui/sol-api-ref-example build
+          pnpm -F @luna_ui/sol-docs-search-example build
+      - name: sol_landing Playwright VRT (docker)
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work/astra/examples/sol_landing \
+            -e CI=true \
+            -e HOME=/tmp \
+            --network host \
+            --user "$(id -u):$(id -g)" \
+            mcr.microsoft.com/playwright:v1.59.1-noble \
+            npx --no-install playwright test --config e2e/playwright.config.mts
+      - name: sol_changelog Playwright VRT (docker)
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work/astra/examples/sol_changelog \
+            -e CI=true \
+            -e HOME=/tmp \
+            --network host \
+            --user "$(id -u):$(id -g)" \
+            mcr.microsoft.com/playwright:v1.59.1-noble \
+            npx --no-install playwright test --config e2e/playwright.config.mts
+      - name: sol_components_demo Playwright VRT (docker)
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work/astra/examples/sol_components_demo \
+            -e CI=true \
+            -e HOME=/tmp \
+            --network host \
+            --user "$(id -u):$(id -g)" \
+            mcr.microsoft.com/playwright:v1.59.1-noble \
+            npx --no-install playwright test --config e2e/playwright.config.mts
+      - name: sol_portfolio Playwright VRT (docker)
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work/astra/examples/sol_portfolio \
+            -e CI=true \
+            -e HOME=/tmp \
+            --network host \
+            --user "$(id -u):$(id -g)" \
+            mcr.microsoft.com/playwright:v1.59.1-noble \
+            npx --no-install playwright test --config e2e/playwright.config.mts
+      - name: sol_api_ref Playwright VRT (docker)
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work/astra/examples/sol_api_ref \
+            -e CI=true \
+            -e HOME=/tmp \
+            --network host \
+            --user "$(id -u):$(id -g)" \
+            mcr.microsoft.com/playwright:v1.59.1-noble \
+            npx --no-install playwright test --config e2e/playwright.config.mts
+      - name: sol_docs_search Playwright VRT (docker)
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -w /work/astra/examples/sol_docs_search \
+            -e CI=true \
+            -e HOME=/tmp \
+            --network host \
+            --user "$(id -u):$(id -g)" \
+            mcr.microsoft.com/playwright:v1.59.1-noble \
+            npx --no-install playwright test --config e2e/playwright.config.mts
       - name: Upload astra example VRT diffs on failure
         if: failure()
         uses: actions/upload-artifact@v4
