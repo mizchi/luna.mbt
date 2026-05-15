@@ -1,5 +1,6 @@
 packages:
   - "astra"
+  - "astra/examples/sol_landing"
   - "sol"
   - "js/*"
   - "js/luna/examples"

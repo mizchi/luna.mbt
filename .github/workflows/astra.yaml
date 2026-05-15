@@ -53,3 +53,19 @@ jobs:
         run: cd astra && pnpm exec playwright install chromium --with-deps
       - name: astra Playwright (dev_smoke)
         run: cd astra && pnpm test:e2e
+      - name: sol_landing Playwright VRT
+        # Browser images shared with the previous step (same pnpm store).
+        # Linux baselines live under
+        # `astra/examples/sol_landing/e2e/__screenshots__/linux/`. Refresh
+        # them with `just test-vrt-sol-landing --update` (uses the same
+        # playwright docker image as the runner).
+        run: pnpm -F @luna_ui/sol-landing-example test:e2e
+      - name: Upload sol_landing VRT diffs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sol-landing-vrt-diffs
+          path: |
+            astra/examples/sol_landing/test-results/**
+            astra/examples/sol_landing/playwright-report/**
+          if-no-files-found: ignore
