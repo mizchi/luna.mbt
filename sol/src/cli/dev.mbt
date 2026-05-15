@@ -635,7 +635,13 @@ fn[FS : @env.FileSystem] run_server_with_fs(
       println(@colorette.cyan("Running \{entry}..."))
       // Set environment variables before starting server
       set_env("PORT", port)
-      set_env("SOL_DEV", "1") // Enable dev mode cache control
+      // SOL_DEV must NOT leak into the prod server: it gates the HMR
+      // <script> injection (hot_reload.with_dev_head_script) and dev-only
+      // cache-control. Setting it unconditionally caused `sol serve` to
+      // ship the dev HMR client to every prod response in sol 0.22.1.
+      if mode == "dev" {
+        set_env("SOL_DEV", "1")
+      }
       // Run the server with inherited stdio (blocking)
       try {
         let result = @child_process.spawnSync(
