@@ -31,9 +31,9 @@ pub fn Middleware::handler(self : Middleware) -> @mars.Handler {
 
 ///|
 /// Page URLs and static asset URLs known to this middleware. The build
-/// crawler in Task 10 walks this list to dump the dev-server output to
-/// disk; asset URLs come from `@assets.list_asset_urls()` so the static
-/// dump stays in lockstep with what `try_serve_asset` actually serves.
+/// crawler walks this list to dump the dev-server output to disk; asset
+/// URLs come from `@assets.list_asset_urls()` so the static dump stays
+/// in lockstep with what `render_url` resolves to an asset.
 pub fn Middleware::list_urls(self : Middleware) -> Array[String] {
   let urls : Array[String] = []
   for page in self.doc_tree.pages {

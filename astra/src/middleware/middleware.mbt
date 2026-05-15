@@ -69,10 +69,12 @@ pub fn Middleware::render_url(
 }
 
 ///|
-/// Async dispatch: rejects non-GET/HEAD methods with 405, attempts to
-/// resolve the request path against the document tree, and renders the
-/// page through the shared `render_page_html` pipeline. Asset serving
-/// arrives in Task 9; the build crawler / CLI in Task 10.
+/// Reject non-GET/HEAD methods with 405; otherwise delegate to
+/// `render_url` and copy the rendered status / body / content-type onto
+/// the Mars `Context`. `render_url` already handles asset-first
+/// resolution and the page-vs-404 split, so this function stays thin —
+/// the same body bytes the SSG build crawler writes to disk are what
+/// the Mars handler returns over the wire.
 fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
   match ctx.meth() {
     @http.RequestMethod::Get | @http.RequestMethod::Head => ()
@@ -81,19 +83,12 @@ fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
       return
     }
   }
-  // Asset surface comes first so static URLs (`/assets/loader.js`, ...)
-  // never collide with a page that happens to share the path.
-  if try_serve_asset(mw, ctx) {
-    return
-  }
-  let path = normalize_path(ctx.path(), mw.config.trailing_slash)
-  match find_page_meta(mw.pages, path) {
-    Some(page) => {
-      let html = render_page(mw, page)
-      ctx.html(html)
-    }
-    None => ctx.text("Not Found", status=404)
-  }
+  let res = mw.render_url(ctx.path())
+  // `set_header` before `text` so the explicit Content-Type wins over
+  // mars's text-helper default (`text/plain`). The same rule applied in
+  // the previous asset path; it now covers pages too.
+  ctx.set_header("Content-Type", res.content_type)
+  ctx.text(res.body, status=res.status)
 }
 
 ///|

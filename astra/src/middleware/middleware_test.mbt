@@ -76,13 +76,12 @@ async test "GET /assets/loader.js returns the bundled island loader script" {
 }
 
 ///|
-/// T9 step 5: `list_urls` must include every URL `try_serve_asset` is
-/// prepared to answer, otherwise the static-build crawler in T10 would
-/// silently skip assets and the dev server / static dump would diverge.
-/// Loop over the full asset surface rather than spot-checking a single
-/// URL so that any silent regression (an asset URL added to
-/// `lookup_asset` but forgotten in `list_asset_urls`, or vice versa)
-/// trips this test.
+/// `list_urls` must include every URL `render_url` is prepared to
+/// answer, otherwise the static-build crawler would silently skip
+/// assets and the dev server / static dump would diverge. Loop over
+/// the full asset surface rather than spot-checking a single URL so
+/// that any silent regression (an asset URL added to `lookup_asset`
+/// but forgotten in `list_asset_urls`, or vice versa) trips this test.
 test "list_urls includes the bundled asset URLs" {
   let cfg = @astra.SsgConfig::default()
   let mw = @middleware.create(cfg, cwd=".")
