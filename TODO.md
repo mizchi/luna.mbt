@@ -95,15 +95,15 @@ WAI-ARIA APG準拠のアクセシブルUIコンポーネント集。
 
 直近の 0.22.x 系作業で見えたリファクタ余地。 数字は「impact × cost の優先度」。
 
-- [ ] **#1 sol/astra: version 文字列の 1 const 化** — `sol/src/cmd/sol/main.mbt` の native version, `sol/src/cli/main.mbt::show_version` の JS CLI version, `sol/src/cli/doctor.mbt::SOL_JS_CLI_VERSION` の 3 か所に独立に hardcoded されている。 0.22.3 release で 1 つの bump 漏れ (cli/main.mbt) が CI fail を引き起こした。 解: 1 const に集約、 もしくは build 時に sol/moon.mod.json から生成。
-- [ ] **#2 vup script に templates の hardcoded deps 自動同期** — `sol/src/cli/templates.mbt` と `sol/src/scaffold_templates/templates.mbt` の `mizchi/sol`/`mizchi/sol_adapter_*`/`mizchi/luna` の version pin を毎 release 手動で書き換えている。 vup --release の bump 対象に taking。 verify subagent 報告でも指摘済。
-- [ ] **#3 astra middleware: dispatch を render_url 経由に統合** — `dispatch(ctx)` と `render_url(url)` で render logic が並立。 dispatch を「render_url を呼んで ctx に書き戻すだけ」 に薄くすれば dedup。
-- [ ] **#4 astra/docs/guide/* の「Luna SSG」 文言整理** — README は astra-canonical に直したが、 `astra/docs/guide/index.md` 冒頭「Luna SSG is a static site generator integrated into the Sol CLI.」、 `markdown.md` 冒頭「Luna SSG supports standard Markdown syntax.」 など旧文言が残る。
-- [ ] **#5 sol_app / sol_auth example を新 scaffold layout へ** — sol_todo は D8 で揃えた (`app/server/main.mbt` + routes.mbt 同居 + `app/layout/` 別 package)。 sol_app と sol_auth は旧構造 (`app/server/{pages,layout,routes}.mbt`) のまま。 別 PR 候補。
-- [ ] **#6 astra middleware の `render_page` 中間層削除** — `middleware.mbt::render_page` は `@render.render_page_html` への 1 段 wrapper。 BuildContext 組み立てを Middleware 側に move して中間層を畳む。 cosmetic だが軽い。
-- [ ] **#7 sol/src/cli/dev.mbt の watch dirs hardcoded** — `["src", "app"]` を hardcoded で listen。 sol_docs / astra 系 (`docs/` 配下) を拾えない。 config 化候補。
-- [ ] **#8 sol launcher の monorepo dev UX** — `~/.moon/bin/sol doctor` を `sol/examples/*` で打つと delegate fail。 launcher の `delegate_to_project_js_cli` に「workspace root を ascend」 or 「path dep follow」 を追加。 verify subagent 報告。
-- [ ] **#9 moon test `-f <file>` filter 不具合** — moon CLI 側の bug or 仕様。 upstream issue 候補。
-- [ ] **#10 mnemo token 設定** — `mnemo --server doctor` で bearer_source=none。 chezmoi 経由で `MNEMO_API_TOKEN` を環境に乗せれば agent が retrospective を hosted に保存できる。
+- [x] **#1 sol/astra: version 文字列の 1 const 化** — done in `c2f5b84f` (`sol/src/version/` package; 3 entry points read `@version.VERSION`).
+- [x] **#2 vup script に templates の hardcoded deps 自動同期** — done in `858b8620` (`rewriteEmbeddedVersionLiterals` in vup.mjs touches scaffold templates + `sol/src/version/version.mbt`).
+- [x] **#3 astra middleware: dispatch を render_url 経由に統合** — done in `9edaa4f4` (dispatch is now a thin wrapper that copies `render_url` output onto the Mars context; `assets.mbt` deleted as obsolete).
+- [x] **#4 astra/docs/guide/* の「Luna SSG」 文言整理** — done in `66b4fa13` (root index, guide/index, guide/markdown, ja/index, ja/guide/index renamed to Astra / `astra build`).
+- [x] **#5 sol_app / sol_auth example を新 scaffold layout へ** — done in `adff396d` (both examples now mirror sol_todo: `app/server/main.mbt` + co-located routes/handlers + separate `app/layout/` package).
+- [ ] ~~**#6 astra middleware の `render_page` 中間層削除**~~ — skipped (cosmetic; inlining the wrapper would bloat `render_url` and scatter `BuildContext` construction across call sites without an actual maintenance win).
+- [x] **#7 sol/src/cli/dev.mbt の watch dirs hardcoded** — done in `bffaee30` (`SolConfig::watch_dirs` parsed as `watch_dirs` / `watchDirs`, defaults to `["src", "app"]`).
+- [x] **#8 sol launcher の monorepo dev UX** — done in `f1762de1` (`find_workspace_sol_js` walks up to 10 directories to find a sibling `sol/src/cmd/sol_js`, fixing `sol doctor` in `sol/examples/*`).
+- [ ] **#9 moon test `-f <file>` filter 不具合** — moon CLI 側の bug or 仕様。 upstream issue 候補 (agent では fix できない、 keep)。
+- [ ] **#10 mnemo token 設定** — `mnemo --server doctor` で bearer_source=none。 chezmoi 経由で `MNEMO_API_TOKEN` を環境に乗せれば agent が retrospective を hosted に保存できる (mizchi の手作業)。
 
-優先度: #1 と #2 は即効 (release 周りの再発防止)、 #3-#6 は cleanup、 #7-#9 は調査要、 #10 は環境設定。
+残りは #9 (upstream issue) と #10 (環境設定) のみ。
