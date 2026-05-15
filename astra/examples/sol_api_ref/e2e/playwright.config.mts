@@ -1,16 +1,6 @@
-// Playwright config for sol_api_ref.
-//
-// Strategy:
-// 1. `astra build` is run via the `pretest:e2e` npm hook (see package.json).
-// 2. This config's `webServer` then serves the resulting `dist/` over
-//    `http-server` on a fixed port. We deliberately use a static server
-//    rather than `astra dev` here because dev mode renders some
-//    non-deterministic prefetch hints that would invalidate snapshots.
-// 3. Each spec navigates the served URL, asserts basic chrome, and
-//    captures a non-baseline `fullPage` screenshot for spot inspection.
-//
-// No screenshot baseline is committed for this example — the spec only
-// verifies the pages render and do basic chrome assertions.
+// Playwright config for sol_api_ref. Mirrors sol_landing's VRT config
+// (chromium-only, http-server over `dist/`, screenshot diff with
+// per-OS baselines under e2e/__screenshots__/{darwin,linux}/).
 import { defineConfig, devices } from "@playwright/test";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -23,6 +13,14 @@ const port = Number(process.env.SOL_API_REF_VRT_PORT ?? 5559);
 export default defineConfig({
   testDir: __dirname,
   testMatch: ["**/*.spec.ts"],
+  snapshotPathTemplate: "{testDir}/__screenshots__/{platform}/{arg}{ext}",
+  expect: {
+    toHaveScreenshot: {
+      threshold: 0.2,
+      maxDiffPixelRatio: 0.02,
+      animations: "disabled",
+    },
+  },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

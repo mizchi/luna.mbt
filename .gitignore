@@ -41,7 +41,10 @@ apm_modules/
 test-results/
 coverage/
 *.coverage
-__screenshots__
+# NOTE: do NOT ignore __screenshots__ here. astra/examples/*/e2e/
+# stores Playwright VRT baselines under __screenshots__/ that MUST be
+# tracked. luna's local js/luna/.gitignore keeps its own
+# tests/__screenshots__ scoped-ignored.
 .test-output/
 
 # Logs and databases

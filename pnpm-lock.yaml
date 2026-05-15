@@ -114,7 +114,55 @@ importers:
         specifier: ^4.57.1
         version: 4.57.2(tslib@2.8.1)
 
+  astra/examples/sol_api_ref:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.59.1
+        version: 1.59.1
+      http-server:
+        specifier: ^14.1.1
+        version: 14.1.1
+
+  astra/examples/sol_changelog:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.59.1
+        version: 1.59.1
+      http-server:
+        specifier: ^14.1.1
+        version: 14.1.1
+
+  astra/examples/sol_components_demo:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.59.1
+        version: 1.59.1
+      http-server:
+        specifier: ^14.1.1
+        version: 14.1.1
+
+  astra/examples/sol_docs_search:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.59.1
+        version: 1.59.1
+      http-server:
+        specifier: ^14.1.1
+        version: 14.1.1
+      pagefind:
+        specifier: ^1.1.0
+        version: 1.5.2
+
   astra/examples/sol_landing:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.59.1
+        version: 1.59.1
+      http-server:
+        specifier: ^14.1.1
+        version: 14.1.1
+
+  astra/examples/sol_portfolio:
     devDependencies:
       '@playwright/test':
         specifier: ^1.59.1
