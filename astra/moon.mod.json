@@ -1,10 +1,10 @@
 {
   "name": "mizchi/astra",
-  "version": "0.22.2",
+  "version": "0.22.3",
   "deps": {
     "mizchi/luna": {
       "path": "../luna",
-      "version": "0.22.2"
+      "version": "0.22.3"
     },
     "mizchi/mars": "0.3.10",
     "mizchi/markdown": "0.4.7",
