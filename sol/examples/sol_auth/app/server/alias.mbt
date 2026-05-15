@@ -13,7 +13,6 @@ using @server_dom {
   nav,
   text,
   sol_link,
-  outlet,
   form,
   input,
   label,

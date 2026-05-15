@@ -17,7 +17,7 @@ pub fn routes() -> Array[@sol.SolRoutes] {
       [@mw.security_headers_relaxed(), @mw.logger()],
       [
         // Root layout - wraps all pages with navigation
-        @sol.wrap("", root_layout, [
+        @sol.wrap("", @layout.root_layout, [
           // Home page with counter island
           @sol.route("/", home, title="Home"),
           // About page (static, no hydration)
@@ -69,6 +69,827 @@ pub fn routes() -> Array[@sol.SolRoutes] {
 }
 
 ///|
+/// Root HTML template - customize the document structure
+// Available placeholders:
+// - __LUNA_TITLE__ : Page title
+// - __LUNA_PRELOAD__ : Modulepreload tags
+// - __LUNA_HEAD__ : Custom head HTML (styles, meta, etc.)
+// - __LUNA_MAIN__ : Main content
+
+const ROOT : String =
+  #|<!DOCTYPE html>
+  #|<html lang="en">
+  #|<head>
+  #|  <meta charset="UTF-8">
+  #|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  #|  <title>__LUNA_TITLE__</title>
+  #|  __LUNA_PRELOAD__
+  #|  __LUNA_HEAD__
+  #|</head>
+  #|<body>
+  #|  <div id="__sol__">__LUNA_MAIN__</div>
+  #|</body>
+  #|</html>
+
+///|
+/// Router configuration
+pub fn config() -> @sol.RouterConfig {
+  @sol.RouterConfig::default()
+  .with_root_template(ROOT)
+  .with_default_head(@layout.head())
+}
+
+// =============================================================================
+// Page Handlers
+// =============================================================================
+
+///|
+/// Home page - with counter client component (async server component)
+async fn home(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  // Return an async ServerNode that can perform data fetching
+  @server_dom.ServerNode::async_(fn() {
+    // Generate a random number on the server side
+    // This demonstrates async data fetching capability
+    let server_random = generate_random_int(1, 1000)
+
+    // Create props using generated types
+    let counter_props : @types.CounterProps = { initial_count: server_random }
+    let content = [
+      h1([text("Welcome to Sol")]),
+      p([text("A SSR-first web framework for MoonBit")]),
+      p([
+        text("Server-generated random number: "),
+        span(style="font-weight: bold; color: #0066cc;", [
+          text(server_random.to_string()),
+        ]),
+      ]),
+      p(style="color: #666; font-size: 0.9em;", [
+        text("(Refresh to see a new random number from the server)"),
+      ]),
+      @server_dom.client(@types.counter(counter_props), [
+        div(class="counter", [
+          span(class="count-display", [
+            text(counter_props.initial_count.to_string()),
+          ]),
+          div(class="buttons", [
+            button(class="dec", [text("-")]),
+            button(class="inc", [text("+")]),
+          ]),
+        ]),
+      ]),
+    ]
+
+    // Return content only - layout is applied by SolRoutes::Layout
+    @luna.fragment(content)
+  })
+}
+
+///|
+/// Generate a random integer between min and max (inclusive)
+fn generate_random_int(min : Int, max : Int) -> Int {
+  let random = ffi_math_random()
+  min + (random * (max - min + 1).to_double()).to_int()
+}
+
+///|
+/// FFI for Math.random()
+extern "js" fn ffi_math_random() -> Double =
+  #| () => Math.random()
+
+///|
+/// About page - static content (sync server component)
+async fn about(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let content = [
+    h1([text("About")]),
+    p([text("Built with MoonBit and Sol framework.")]),
+  ]
+
+  // Return content only - layout is applied by SolRoutes::Layout
+  @sol.nodes(content)
+}
+
+///|
+/// Contact form page - with contact_form client component (sync server component)
+async fn form_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  // Create props using generated types
+  // Use Server Action endpoint instead of API endpoint
+  let form_props : @types.ContactFormProps = {
+    initial_name: "",
+    initial_email: "",
+  }
+  let content = [
+    h1([text("Contact Form")]),
+    p([text("A demo of data binding and form submission")]),
+    @server_dom.client(@types.contact_form(form_props), [
+      // SSR placeholder matching client component structure
+      form(
+        class="contact-form",
+        action=@action.action_url(@types.action_submit_contact()),
+        http_method="POST",
+        [
+          div(class="form-group", [
+            label(for_="name", [text("Name:")]),
+            input(
+              type_="text",
+              id="name",
+              name="name",
+              placeholder="Enter your name",
+              value=form_props.initial_name,
+            ),
+          ]),
+          div(class="form-group", [
+            label(for_="email", [text("Email:")]),
+            input(
+              type_="email",
+              id="email",
+              name="email",
+              placeholder="Enter your email",
+              value=form_props.initial_email,
+            ),
+          ]),
+          div(class="form-preview", [
+            span([text("Preview: ")]),
+            span(class="preview-name", [text(form_props.initial_name)]),
+            span([text(" <")]),
+            span(class="preview-email", [text(form_props.initial_email)]),
+            span([text(">")]),
+          ]),
+          div(class="form-actions", [
+            button(attrs=[("type", @luna.attr_static("submit"))], [text("Submit")]),
+          ]),
+          div(
+            class="form-result",
+            attrs=[("data-testid", @luna.attr_static("form-result"))],
+            [text("")],
+          ),
+        ],
+      ),
+    ]),
+  ]
+
+  // Return content only - layout is applied by SolRoutes::Layout
+  @sol.nodes(content)
+}
+
+///|
+/// WC Counter Page Server Component
+/// Uses wc_island() to embed a Web Components based counter.
+/// Demonstrates Declarative Shadow DOM SSR with unified hydration.
+/// CSS is defined in app/client/wc_counter.mbt and shared between SSR and hydration.
+async fn wc_counter(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  // Create props using WcCounterProps from client module
+  let counter_props : @client.WcCounterProps = { initial_count: 0 }
+  let state_json = counter_props.to_json().stringify()
+
+  // CSS is imported from client module - shared between SSR and hydration
+  let counter_styles = @client.wc_counter_css
+  let content = [
+    h1([text("Web Components Counter")]),
+    p([text("This counter uses Declarative Shadow DOM for SSR.")]),
+    p([
+      text(
+        "CSS is defined in app/client/wc_counter.mbt and shared between SSR and hydration.",
+      ),
+    ]),
+    p([
+      text(
+        "Inspect the element to see <template shadowrootmode=\"open\"> with <style>.",
+      ),
+    ]),
+    // WcIsland with Declarative Shadow DOM
+    // Uses wc_counter.js generated from app/client/wc_counter.mbt
+    @server_dom.wc_island(
+      "wc-counter",
+      "/static/wc_counter.js", // WC-specific component
+      [
+        div(class="counter", [
+          span(class="count-display", [
+            text(counter_props.initial_count.to_string()),
+          ]),
+          div(class="buttons", [
+            button(
+              class="dec",
+              attrs=[("data-on-click", @luna.attr_static("decrement"))],
+              [text("-")],
+            ),
+            button(
+              class="inc",
+              attrs=[("data-on-click", @luna.attr_static("increment"))],
+              [text("+")],
+            ),
+          ]),
+        ]),
+      ],
+      styles=counter_styles,
+      state=state_json,
+      trigger=@luna.TriggerType::Load,
+    ),
+    h2([text("How it works")]),
+    p([
+      text(
+        "The WcIsland generates a custom element with Declarative Shadow DOM:",
+      ),
+    ]),
+    div(
+      class="code-block",
+      style="background: #f5f5f5; padding: 1rem; border-radius: 4px; font-family: monospace; white-space: pre; overflow-x: auto;",
+      [
+        text("<wc-counter data-wc-url=\"...\" data-state=\"...\">\\n"),
+        text("  <template shadowrootmode=\"open\">\\n"),
+        text("    <style>:host { ... }</style>\\n"),
+        text("    <div class=\"counter\">...</div>\\n"),
+        text("  </template>\\n"),
+        text("</wc-counter>"),
+      ],
+    ),
+  ]
+
+  // Return content only - layout is applied by SolRoutes::Layout
+  @sol.nodes(content)
+}
+
+///|
+/// WC Multiple page - demonstrates multiple instances of the same Web Component
+async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let content = [
+    h1([text("Multiple WC Counters")]),
+    p([text("Multiple instances of the same Web Component on one page.")]),
+    // Multiple instances with different initial values
+    @server_dom.wc_island(
+      "wc-counter",
+      "/static/wc_counter.js",
+      [
+        div(class="counter", [
+          span(class="count-display", [text("0")]),
+          div(class="buttons", [
+            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
+            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+          ]),
+        ]),
+      ],
+      styles=@client.wc_counter_css,
+      state="{\"initial_count\":0}",
+      trigger=@luna.TriggerType::Load,
+    ),
+    @server_dom.wc_island(
+      "wc-counter",
+      "/static/wc_counter.js",
+      [
+        div(class="counter", [
+          span(class="count-display", [text("10")]),
+          div(class="buttons", [
+            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
+            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+          ]),
+        ]),
+      ],
+      styles=@client.wc_counter_css,
+      state="{\"initial_count\":10}",
+      trigger=@luna.TriggerType::Load,
+    ),
+    @server_dom.wc_island(
+      "wc-counter",
+      "/static/wc_counter.js",
+      [
+        div(class="counter", [
+          span(class="count-display", [text("100")]),
+          div(class="buttons", [
+            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
+            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+          ]),
+        ]),
+      ],
+      styles=@client.wc_counter_css,
+      state="{\"initial_count\":100}",
+      trigger=@luna.TriggerType::Load,
+    ),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// Docs page - catch-all route handler for /docs/[...slug]
+async fn docs_page(props : @sol.PageProps) -> @server_dom.ServerNode {
+  let slug = match @types.params_docs_slug(props) {
+    Ok(p) => p.slug
+    Err(_) => "index"
+  }
+  let content = [
+    h1([text("Documentation")]),
+    p([text("Current path: /docs/" + slug)]),
+    div([
+      h2([text("Available Docs")]),
+      ul([
+        li([sol_link(href="/docs/intro", [text("Introduction")])]),
+        li([sol_link(href="/docs/getting-started", [text("Getting Started")])]),
+        li([sol_link(href="/docs/api/overview", [text("API Overview")])]),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// Blog page - optional catch-all route handler for /blog/[[...path]]
+async fn blog_page(props : @sol.PageProps) -> @server_dom.ServerNode {
+  let path = match @types.params_blog_path(props) {
+    Ok(p) => p.path.unwrap_or("")
+    Err(_) => ""
+  }
+  let title = if path == "" { "Blog Home" } else { "Blog: " + path }
+  let content = [
+    h1([text(title)]),
+    p([text(if path == "" { "Welcome to the blog!" } else { "Viewing: " + path })]),
+    div([
+      h2([text("Recent Posts")]),
+      ul([
+        li([sol_link(href="/blog/hello-world", [text("Hello World")])]),
+        li([sol_link(href="/blog/moonbit-guide", [text("MoonBit Guide")])]),
+        li([sol_link(href="/blog/2024/recap", [text("2024 Recap")])]),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// Admin layout - wraps admin pages with sidebar navigation
+pub fn admin_layout(
+  _props : @sol.PageProps,
+  content : @server_dom.ServerNode,
+) -> @server_dom.ServerNode raise Error {
+  @server_dom.ServerNode::async_(async fn() {
+    let inner = content.resolve()
+    div(class="admin-container", [
+      div(class="admin-sidebar", [
+        h3([text("Admin")]),
+        ul([
+          li([sol_link(href="/admin", [text("Dashboard")])]),
+          li([sol_link(href="/admin/settings", [text("Settings")])]),
+          li([sol_link(href="/admin/users", [text("Users")])]),
+        ]),
+      ]),
+      div(class="admin-content", [inner]),
+    ])
+  })
+}
+
+///|
+/// Admin home page - dashboard
+async fn admin_home(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let content = [
+    h1([text("Admin Dashboard")]),
+    p([text("Welcome to the admin panel.")]),
+    div(class="admin-stats", [
+      div(class="stat-card", [
+        h4([text("Users")]),
+        div(class="stat-value", [text("42")]),
+      ]),
+      div(class="stat-card", [
+        h4([text("Posts")]),
+        div(class="stat-value", [text("128")]),
+      ]),
+      div(class="stat-card", [
+        h4([text("Views")]),
+        div(class="stat-value", [text("1.2k")]),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// Admin settings page
+async fn admin_settings(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let content = [
+    h1([text("Admin Settings")]),
+    div(class="settings-section", [
+      div(class="setting-item", [
+        label(for_="site-name", [text("Site Name")]),
+        input(type_="text", id="site-name", value="Sol App"),
+      ]),
+      div(class="setting-item", [
+        label(for_="contact-email", [text("Contact Email")]),
+        input(type_="email", id="contact-email", value="admin@example.com"),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// Admin users page
+async fn admin_users(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let content = [
+    h1([text("User Management")]),
+    div(class="users-list", [
+      div(class="user-row user-header", [
+        span(class="user-cell", [text("Name")]),
+        span(class="user-cell", [text("Email")]),
+        span(class="user-cell", [text("Role")]),
+      ]),
+      div(class="user-row", [
+        span(class="user-cell", [text("Alice")]),
+        span(class="user-cell", [text("alice@example.com")]),
+        span(class="user-cell", [text("Admin")]),
+      ]),
+      div(class="user-row", [
+        span(class="user-cell", [text("Bob")]),
+        span(class="user-cell", [text("bob@example.com")]),
+        span(class="user-cell", [text("User")]),
+      ]),
+      div(class="user-row", [
+        span(class="user-cell", [text("Charlie")]),
+        span(class="user-cell", [text("charlie@example.com")]),
+        span(class="user-cell", [text("User")]),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// Middleware Test Page
+/// Demonstrates middleware functionality with Logger and CORS.
+async fn middleware_test(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let content : Array[@luna.Node[Unit, String]] = [
+    h1([text("Middleware Test")]),
+    p([text("This page tests middleware functionality.")]),
+    div([
+      h2([text("Middleware Stack")]),
+      ul([
+        li([text("Logger - logs requests to console")]),
+        li([text("CORS - adds cross-origin headers to API responses")]),
+      ]),
+    ]),
+    div([
+      h2([text("Test API Endpoints")]),
+      ul([
+        li([
+          a(href="/api/middleware-test", [text("/api/middleware-test")]),
+          text(" - Returns middleware info with CORS headers"),
+        ]),
+        li([
+          a(href="/api/health", [text("/api/health")]),
+          text(" - Health check endpoint"),
+        ]),
+      ]),
+    ]),
+    div([
+      h2([text("Expected Behavior")]),
+      ul([
+        li([text("Check server console for request logs")]),
+        li([
+          text(
+            "API responses should include Access-Control-Allow-Origin header",
+          ),
+        ]),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+// =============================================================================
+// User Namespace Pages (/@user_id/page_id) - ISR-enabled user content pages
+// =============================================================================
+
+///|
+/// User profile page - /@[user_id]
+/// Shows user's profile and list of their pages
+async fn user_profile(props : @sol.PageProps) -> @server_dom.ServerNode {
+  let user_id = match @types.params_user_id(props) {
+    Ok(p) => p.user_id
+    Err(_) => "unknown"
+  }
+  let content = [
+    div(class="user-profile", [
+      div(class="user-header", [
+        div(class="user-avatar", [text(user_id[0:1].to_string())]),
+        div(class="user-info", [
+          h1([text("@" + user_id)]),
+          p(class="user-bio", [text("User profile for " + user_id)]),
+        ]),
+      ]),
+      div(class="user-pages", [
+        h2([text("Pages")]),
+        ul([
+          li([sol_link(href="/@" + user_id + "/hello", [text("Hello World")])]),
+          li([sol_link(href="/@" + user_id + "/about", [text("About Me")])]),
+          li([sol_link(href="/@" + user_id + "/projects", [text("Projects")])]),
+        ]),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// User page - /@[user_id]/[page_id]
+/// Individual page within user's namespace
+async fn user_page(props : @sol.PageProps) -> @server_dom.ServerNode {
+  let (user_id, page_id) = match @types.params_user_id_page_id(props) {
+    Ok(p) => (p.user_id, p.page_id)
+    Err(_) => ("unknown", "index")
+  }
+  let content = [
+    article(class="user-page", [
+      header_(class="page-header", [
+        nav(class="breadcrumb", [
+          sol_link(href="/@" + user_id, [text("@" + user_id)]),
+          span([text(" / ")]),
+          span([text(page_id)]),
+        ]),
+      ]),
+      h1([text(page_id_to_title(page_id))]),
+      div(class="page-content", [
+        p([text("This is the \"" + page_id + "\" page by @" + user_id + ".")]),
+        p([text("Content would be loaded from database via ISR.")]),
+      ]),
+      footer_(class="page-footer", [
+        p(class="page-meta", [
+          text("Author: "),
+          sol_link(href="/@" + user_id, [text("@" + user_id)]),
+        ]),
+      ]),
+    ]),
+  ]
+  @sol.nodes(content)
+}
+
+///|
+/// Convert page_id slug to title
+fn page_id_to_title(page_id : String) -> String {
+  // Simple slug to title conversion: "hello-world" -> "Hello World"
+  page_id.replace(old="-", new=" ")
+}
+
+// =============================================================================
+// Authentication Pages (login / profile)
+// =============================================================================
+
+///|
+/// Login page - shows login/signup forms
+/// Uses client-side JavaScript to handle auth API calls
+async fn login_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  // Check if already logged in
+  let session = get_session()
+
+  let content : Array[@luna.Node[Unit, String]] = match session {
+    Some(s) =>
+      [
+        h1([text("Already Logged In")]),
+        p([text("Welcome back, " + s.user_name + "!")]),
+        p([a(href="/profile", [text("Go to Profile")])]),
+        // Sign out form
+        form(
+          action="/api/auth/sign-out",
+          http_method="POST",
+          style="margin-top: 1rem",
+          [
+            button(attrs=[("type", @luna.attr_static("submit"))], [
+              text("Sign Out"),
+            ]),
+          ],
+        ),
+      ]
+    None =>
+      [
+        h1([text("Login")]),
+        // Login Form
+        div(class="auth-form", [
+          h2([text("Sign In")]),
+          form(id="login-form", [
+            div(class="form-group", [
+              label(for_="login-email", [text("Email")]),
+              input(type_="email", id="login-email", name="email"),
+            ]),
+            div(class="form-group", [
+              label(for_="login-password", [text("Password")]),
+              input(type_="password", id="login-password", name="password"),
+            ]),
+            button(attrs=[("type", @luna.attr_static("submit"))], [
+              text("Sign In"),
+            ]),
+            div(id="login-error", style="color: red; margin-top: 0.5rem", []),
+          ]),
+        ]),
+        // Signup Form
+        div(class="auth-form", style="margin-top: 2rem", [
+          h2([text("Create Account")]),
+          form(id="signup-form", [
+            div(class="form-group", [
+              label(for_="signup-name", [text("Name")]),
+              input(type_="text", id="signup-name", name="name"),
+            ]),
+            div(class="form-group", [
+              label(for_="signup-email", [text("Email")]),
+              input(type_="email", id="signup-email", name="email"),
+            ]),
+            div(class="form-group", [
+              label(for_="signup-password", [text("Password")]),
+              input(type_="password", id="signup-password", name="password"),
+            ]),
+            button(attrs=[("type", @luna.attr_static("submit"))], [
+              text("Create Account"),
+            ]),
+            div(id="signup-error", style="color: red; margin-top: 0.5rem", []),
+            div(
+              id="signup-success",
+              style="color: green; margin-top: 0.5rem",
+              [],
+            ),
+          ]),
+        ]),
+        // Client-side auth script
+        @luna.raw_html(auth_script()),
+        // Basic styles
+        @luna.raw_html(auth_styles()),
+      ]
+  }
+  @sol.nodes(content)
+}
+
+///|
+/// Profile page - shows user info (requires authentication)
+async fn profile_page(_props : @sol.PageProps) -> @server_dom.ServerNode {
+  let session = get_session()
+
+  let content : Array[@luna.Node[Unit, String]] = match session {
+    Some(s) =>
+      [
+        h1([text("Profile")]),
+        div(class="profile-card", [
+          h2([text(s.user_name)]),
+          p([text("Email: " + s.user_email)]),
+          p(style="color: #666; font-size: 0.9em", [
+            text("User ID: " + s.user_id),
+          ]),
+        ]),
+        // Sign out form (POST form for proper sign-out)
+        form(
+          id="signout-form",
+          action="/api/auth/sign-out",
+          http_method="POST",
+          style="margin-top: 1rem",
+          [
+            button(attrs=[("type", @luna.attr_static("submit"))], [
+              text("Sign Out"),
+            ]),
+          ],
+        ),
+        @luna.raw_html(profile_script()),
+        @luna.raw_html(profile_styles()),
+      ]
+    None =>
+      [
+        h1([text("Not Authenticated")]),
+        p([text("Please log in to view your profile.")]),
+        p([a(href="/login", [text("Go to Login")])]),
+      ]
+  }
+  @sol.nodes(content)
+}
+
+///|
+fn auth_script() -> String {
+  let js =
+    #|document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+    #|  e.preventDefault();
+    #|  const form = e.target;
+    #|  const email = form.email.value;
+    #|  const password = form.password.value;
+    #|  const errorEl = document.getElementById('login-error');
+    #|  try {
+    #|    const res = await fetch('/api/auth/sign-in/email', {
+    #|      method: 'POST',
+    #|      headers: { 'Content-Type': 'application/json' },
+    #|      credentials: 'include',
+    #|      body: JSON.stringify({ email, password })
+    #|    });
+    #|    if (res.ok) {
+    #|      window.location.href = '/profile';
+    #|    } else {
+    #|      const data = await res.json();
+    #|      errorEl.textContent = data.message || 'Login failed';
+    #|    }
+    #|  } catch (err) {
+    #|    errorEl.textContent = 'Network error';
+    #|  }
+    #|});
+    #|document.getElementById('signup-form')?.addEventListener('submit', async (e) => {
+    #|  e.preventDefault();
+    #|  const form = e.target;
+    #|  const name = form.name.value;
+    #|  const email = form.email.value;
+    #|  const password = form.password.value;
+    #|  const errorEl = document.getElementById('signup-error');
+    #|  const successEl = document.getElementById('signup-success');
+    #|  try {
+    #|    const res = await fetch('/api/auth/sign-up/email', {
+    #|      method: 'POST',
+    #|      headers: { 'Content-Type': 'application/json' },
+    #|      credentials: 'include',
+    #|      body: JSON.stringify({ name, email, password })
+    #|    });
+    #|    if (res.ok) {
+    #|      successEl.textContent = 'Account created! Redirecting...';
+    #|      errorEl.textContent = '';
+    #|      setTimeout(() => window.location.href = '/profile', 1000);
+    #|    } else {
+    #|      const data = await res.json();
+    #|      errorEl.textContent = data.message || 'Signup failed';
+    #|      successEl.textContent = '';
+    #|    }
+    #|  } catch (err) {
+    #|    errorEl.textContent = 'Network error';
+    #|    successEl.textContent = '';
+    #|  }
+    #|});
+  "<script>\n\{js}\n</script>"
+}
+
+///|
+fn auth_styles() -> String {
+  let css =
+    #|.auth-form {
+    #|  max-width: 400px;
+    #|  padding: 1rem;
+    #|  border: 1px solid #ddd;
+    #|  border-radius: 8px;
+    #|}
+    #|.auth-form .form-group {
+    #|  margin-bottom: 1rem;
+    #|}
+    #|.auth-form .form-group label {
+    #|  display: block;
+    #|  margin-bottom: 0.25rem;
+    #|  font-weight: 500;
+    #|}
+    #|.auth-form .form-group input {
+    #|  width: 100%;
+    #|  padding: 0.5rem;
+    #|  border: 1px solid #ccc;
+    #|  border-radius: 4px;
+    #|  box-sizing: border-box;
+    #|}
+    #|.auth-form button[type="submit"] {
+    #|  background: #0070f3;
+    #|  color: white;
+    #|  border: none;
+    #|  padding: 0.5rem 1rem;
+    #|  border-radius: 4px;
+    #|  cursor: pointer;
+    #|}
+    #|.auth-form button[type="submit"]:hover {
+    #|  background: #0060df;
+    #|}
+  "<style>\n\{css}\n</style>"
+}
+
+///|
+fn profile_script() -> String {
+  let js =
+    #|document.getElementById('signout-form')?.addEventListener('submit', async (e) => {
+    #|  e.preventDefault();
+    #|  try {
+    #|    const res = await fetch('/api/auth/sign-out', {
+    #|      method: 'POST',
+    #|      headers: { 'Content-Type': 'application/json' },
+    #|      credentials: 'include',
+    #|      body: '{}'
+    #|    });
+    #|    if (res.ok) {
+    #|      window.location.href = '/login';
+    #|    }
+    #|  } catch (err) {
+    #|    console.error('Sign out failed', err);
+    #|  }
+    #|});
+  "<script>\n\{js}\n</script>"
+}
+
+///|
+fn profile_styles() -> String {
+  let css =
+    #|.profile-card {
+    #|  max-width: 400px;
+    #|  padding: 1.5rem;
+    #|  border: 1px solid #ddd;
+    #|  border-radius: 8px;
+    #|  background: #f9f9f9;
+    #|}
+    #|.profile-card h2 {
+    #|  margin-top: 0;
+    #|}
+  "<style>\n\{css}\n</style>"
+}
+
+// =============================================================================
+// API Handlers
+// =============================================================================
+
+///|
 /// Debug API - returns catch-all params
 async fn api_test_catch_all(props : @sol.PageProps) -> Json {
   let path = match @types.params_api_test_path(props) {
@@ -88,9 +909,26 @@ async fn api_health(_props : @sol.PageProps) -> Json {
   @sol.ok([("status", "ok".to_json())]).to_json()
 }
 
-// ============================================================================
+///|
+/// API handler: middleware test - returns request info
+async fn api_middleware_test(_props : @sol.PageProps) -> Json {
+  @sol.ok([
+    ("middleware", "logger >> cors".to_json()),
+    ("timestamp", get_timestamp().to_json()),
+    (
+      "message",
+      "Middleware is working! Check CORS headers in response.".to_json(),
+    ),
+  ]).to_json()
+}
+
+///|
+extern "js" fn get_timestamp() -> String =
+  #| () => new Date().toISOString()
+
+// =============================================================================
 // Server Actions
-// ============================================================================
+// =============================================================================
 
 ///|
 priv struct ContactSubmitRequest {
@@ -183,94 +1021,4 @@ pub fn action_registry() -> @action.ActionRegistry {
       submit_contact_handler,
     ).with_require_json(false), // Allow form-urlencoded for progressive enhancement
   )
-}
-
-///|
-/// API handler: middleware test - returns request info
-async fn api_middleware_test(_props : @sol.PageProps) -> Json {
-  @sol.ok([
-    ("middleware", "logger >> cors".to_json()),
-    ("timestamp", get_timestamp().to_json()),
-    (
-      "message",
-      "Middleware is working! Check CORS headers in response.".to_json(),
-    ),
-  ]).to_json()
-}
-
-///|
-extern "js" fn get_timestamp() -> String =
-  #| () => new Date().toISOString()
-
-///|
-/// Root HTML template - customize the document structure
-// Available placeholders:
-// - __LUNA_TITLE__ : Page title
-// - __LUNA_PRELOAD__ : Modulepreload tags
-// - __LUNA_HEAD__ : Custom head HTML (styles, meta, etc.)
-// - __LUNA_MAIN__ : Main content
-
-const ROOT : String =
-  #|<!DOCTYPE html>
-  #|<html lang="en">
-  #|<head>
-  #|  <meta charset="UTF-8">
-  #|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  #|  <title>__LUNA_TITLE__</title>
-  #|  __LUNA_PRELOAD__
-  #|  __LUNA_HEAD__
-  #|</head>
-  #|<body>
-  #|  <div id="__sol__">__LUNA_MAIN__</div>
-  #|</body>
-  #|</html>
-
-///|
-/// Router configuration
-pub fn config() -> @sol.RouterConfig {
-  @sol.RouterConfig::default()
-  .with_root_template(ROOT)
-  .with_default_head(head())
-}
-
-///|
-/// Middleware Test Page
-/// Demonstrates middleware functionality with Logger and CORS.
-async fn middleware_test(_props : @sol.PageProps) -> @server_dom.ServerNode {
-  let content : Array[@luna.Node[Unit, String]] = [
-    h1([text("Middleware Test")]),
-    p([text("This page tests middleware functionality.")]),
-    div([
-      h2([text("Middleware Stack")]),
-      ul([
-        li([text("Logger - logs requests to console")]),
-        li([text("CORS - adds cross-origin headers to API responses")]),
-      ]),
-    ]),
-    div([
-      h2([text("Test API Endpoints")]),
-      ul([
-        li([
-          a(href="/api/middleware-test", [text("/api/middleware-test")]),
-          text(" - Returns middleware info with CORS headers"),
-        ]),
-        li([
-          a(href="/api/health", [text("/api/health")]),
-          text(" - Health check endpoint"),
-        ]),
-      ]),
-    ]),
-    div([
-      h2([text("Expected Behavior")]),
-      ul([
-        li([text("Check server console for request logs")]),
-        li([
-          text(
-            "API responses should include Access-Control-Allow-Origin header",
-          ),
-        ]),
-      ]),
-    ]),
-  ]
-  @sol.nodes(content)
 }

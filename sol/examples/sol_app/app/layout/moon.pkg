@@ -1,0 +1,10 @@
+supported_targets = "js"
+
+import {
+  "mizchi/luna" @luna,
+  "mizchi/sol/router" @router,
+  "mizchi/luna/dom/static" @server_dom,
+  "mizchi/luna_components/styled/alert" @alert_ui,
+}
+
+warnings = "-24-29"
