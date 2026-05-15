@@ -53,19 +53,40 @@ jobs:
         run: cd astra && pnpm exec playwright install chromium --with-deps
       - name: astra Playwright (dev_smoke)
         run: cd astra && pnpm test:e2e
+      # astra/examples/<name>/ Playwright VRT — chromium image is shared
+      # with the dev_smoke step above (same pnpm store / same @playwright
+      # /test pin). Linux baselines live under each example's
+      # `e2e/__screenshots__/linux/`. Refresh them locally with
+      # `just test-vrt-astra <name> --update --linux` (same docker image
+      # CI uses).
       - name: sol_landing Playwright VRT
-        # Browser images shared with the previous step (same pnpm store).
-        # Linux baselines live under
-        # `astra/examples/sol_landing/e2e/__screenshots__/linux/`. Refresh
-        # them with `just test-vrt-sol-landing --update` (uses the same
-        # playwright docker image as the runner).
         run: pnpm -F @luna_ui/sol-landing-example test:e2e
-      - name: Upload sol_landing VRT diffs on failure
+      - name: sol_changelog Playwright VRT
+        run: pnpm -F @luna_ui/sol-changelog-example test:e2e
+      - name: sol_components_demo Playwright VRT
+        run: pnpm -F @luna_ui/sol-components-demo-example test:e2e
+      - name: sol_portfolio Playwright VRT
+        run: pnpm -F @luna_ui/sol-portfolio-example test:e2e
+      - name: sol_api_ref Playwright VRT
+        run: pnpm -F @luna_ui/sol-api-ref-example test:e2e
+      - name: sol_docs_search Playwright VRT
+        run: pnpm -F @luna_ui/sol-docs-search-example test:e2e
+      - name: Upload astra example VRT diffs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: sol-landing-vrt-diffs
+          name: astra-example-vrt-diffs
           path: |
             astra/examples/sol_landing/test-results/**
             astra/examples/sol_landing/playwright-report/**
+            astra/examples/sol_changelog/test-results/**
+            astra/examples/sol_changelog/playwright-report/**
+            astra/examples/sol_components_demo/test-results/**
+            astra/examples/sol_components_demo/playwright-report/**
+            astra/examples/sol_portfolio/test-results/**
+            astra/examples/sol_portfolio/playwright-report/**
+            astra/examples/sol_api_ref/test-results/**
+            astra/examples/sol_api_ref/playwright-report/**
+            astra/examples/sol_docs_search/test-results/**
+            astra/examples/sol_docs_search/playwright-report/**
           if-no-files-found: ignore

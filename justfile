@@ -100,25 +100,30 @@ test-deployed: test-deployed-luna test-deployed-website
 test-sol-chaos:
     pnpm -F @luna_ui/sol-workspace exec playwright test --config "$(pwd)/sol/e2e/playwright-sol-app-chaos.config.mts"
 
-# astra/examples/sol_landing の Playwright VRT (screenshot diff)
-# 比較: just test-vrt-sol-landing (現在のホスト OS = darwin/linux のベースラインを比較)
-# 更新: just test-vrt-sol-landing --update          (host OS 用)
-# 更新: just test-vrt-sol-landing --update --linux  (docker で linux 用を seed する)
-test-vrt-sol-landing *args:
+# astra/examples/<name> の Playwright VRT (screenshot diff)
+# package 命名規約: dir 名 (underscore 区切り) → @luna_ui/<dir-with-hyphens>-example
+# 比較: just test-vrt-astra <name>                 (現在のホスト OS のベースライン)
+# 更新: just test-vrt-astra <name> --update          (host OS 用)
+# 更新: just test-vrt-astra <name> --update --linux  (docker で linux 用を seed)
+# 例:   just test-vrt-astra sol_landing
+#       just test-vrt-astra sol_changelog --update --linux
+test-vrt-astra name *args:
     #!/usr/bin/env bash
     set -e
+    pkg_name="$(echo {{name}} | tr '_' '-')"
+    pkg="@luna_ui/${pkg_name}-example"
     if [[ " {{args}} " =~ " --update " ]]; then
         if [[ " {{args}} " =~ " --linux " ]]; then
             # CI 互換の linux ベースラインを docker で seed する。
             docker run --rm -v "$(pwd):/work" -w /work \
                 mcr.microsoft.com/playwright:v1.59.1-noble \
-                bash -c 'corepack enable && cd astra/examples/sol_landing && \
-                  pnpm exec playwright test --config e2e/playwright.config.mts --update-snapshots'
+                bash -c "corepack enable && cd astra/examples/{{name}} && \
+                  pnpm exec playwright test --config e2e/playwright.config.mts --update-snapshots"
         else
-            pnpm -F @luna_ui/sol-landing-example test:e2e:update
+            pnpm -F "${pkg}" test:e2e:update
         fi
     else
-        pnpm -F @luna_ui/sol-landing-example test:e2e
+        pnpm -F "${pkg}" test:e2e
     fi
 
 # クロスプラットフォームテスト (js, wasm-gc, native)

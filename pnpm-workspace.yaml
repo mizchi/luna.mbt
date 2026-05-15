@@ -1,6 +1,11 @@
 packages:
   - "astra"
   - "astra/examples/sol_landing"
+  - "astra/examples/sol_changelog"
+  - "astra/examples/sol_components_demo"
+  - "astra/examples/sol_portfolio"
+  - "astra/examples/sol_api_ref"
+  - "astra/examples/sol_docs_search"
   - "sol"
   - "js/*"
   - "js/luna/examples"
