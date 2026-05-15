@@ -72,6 +72,11 @@ pub struct SolConfig {
   wasm_entrypoints : Array[WasmEntrypointConfig]
   /// Experimental feature flags
   experimental : Array[String]
+  /// Directories the `sol dev` file watcher monitors for `.mbt` changes.
+  /// Defaults to `["src", "app"]`; override in sol.config.json under the
+  /// `watch_dirs` (snake_case) or `watchDirs` (camelCase) key for projects
+  /// that put MoonBit sources outside those defaults.
+  watch_dirs : Array[String]
 }
 
 ///|
@@ -473,6 +478,21 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
     let static_dirs = parse_static_dirs(obj)
     let wasm_entrypoints = parse_wasm_entrypoints(obj)
     let experimental = @json_utils.extract_string_array(obj, "experimental")
+    // watch_dirs: accept camelCase first, fall back to snake_case, finally
+    // the historical default the file watcher used to hard-code.
+    let watch_dirs_camel = @json_utils.extract_string_array(obj, "watchDirs")
+    let watch_dirs = if !watch_dirs_camel.is_empty() {
+      watch_dirs_camel
+    } else {
+      let watch_dirs_snake = @json_utils.extract_string_array(
+        obj, "watch_dirs",
+      )
+      if !watch_dirs_snake.is_empty() {
+        watch_dirs_snake
+      } else {
+        ["src", "app"]
+      }
+    }
     validate_config_keys(obj)
     Some(SolConfig::{
       islands,
@@ -488,6 +508,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
       static_dirs,
       wasm_entrypoints,
       experimental,
+      watch_dirs,
     })
   } catch {
     _ => None

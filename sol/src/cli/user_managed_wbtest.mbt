@@ -21,6 +21,7 @@ test "is_user_managed_server: true when main.mbt exists" {
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
+    watch_dirs: ["src", "app"],
   }
   assert_true(is_user_managed_server(fs, "/project", config))
 }
@@ -45,6 +46,7 @@ test "is_user_managed_server: false when main.mbt missing" {
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
+    watch_dirs: ["src", "app"],
   }
   assert_true(!is_user_managed_server(fs, "/project", config))
 }
@@ -69,6 +71,7 @@ test "should_use_user_managed_server: explicit user mode does not require main.m
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
+    watch_dirs: ["src", "app"],
   }
   assert_true(should_use_user_managed_server(fs, "/project", config))
 }
@@ -94,6 +97,7 @@ test "should_use_user_managed_server: generated mode ignores main.mbt" {
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
+    watch_dirs: ["src", "app"],
   }
   assert_false(should_use_user_managed_server(fs, "/project", config))
 }
@@ -118,6 +122,7 @@ test "detect_app_mode_with_fs: MoonBitFull when routes.mbt exists" {
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
+    watch_dirs: ["src", "app"],
   }
   assert_eq(detect_app_mode_with_fs(fs, "/project", config), MoonBitFull)
 }
@@ -142,6 +147,7 @@ test "detect_app_mode_with_fs: hybrid when routes.ts exists" {
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
+    watch_dirs: ["src", "app"],
   }
   assert_eq(
     detect_app_mode_with_fs(fs, "/project", config),

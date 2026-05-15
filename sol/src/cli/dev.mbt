@@ -434,9 +434,12 @@ async fn run_dev_watch_mode(
       // Debounce mechanism
       let last_rebuild : Ref[Double] = { val: 0.0 }
       let debounce_ms = 300.0
-      // Watch src directory (and app if exists)
+      // Watch the directories listed in sol.config.json's `watch_dirs`
+      // (defaults to `["src", "app"]` when unset / unparseable). Projects
+      // with sources outside those defaults — e.g. docs sites with
+      // `docs/` — can extend the list without touching this file.
       // Note: @fs.watch is kept as-is since file watching is not part of FileSystem trait
-      let watch_dirs = ["src", "app"]
+      let watch_dirs = load_watch_dirs(cwd)
       for dir in watch_dirs {
         let watch_path = @path.join2(cwd, dir)
         if fs.exists_sync(watch_path) {
@@ -692,6 +695,25 @@ fn extract_island_name_from_path(filename : String) -> String {
     basename.substring(end=basename.length() - 4)
   } else {
     basename
+  }
+}
+
+///|
+/// Read `watch_dirs` from sol.config.json, falling back to the historical
+/// default when the file is missing or unparseable. Keeps the dev watcher
+/// behaviour unchanged for projects without an explicit `watch_dirs`.
+fn load_watch_dirs(cwd : String) -> Array[String] {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  let config_path = @path.join2(cwd, "sol.config.json")
+  if !fs.exists_sync(config_path) {
+    return ["src", "app"]
+  }
+  let content = fs.read_file_sync(config_path) catch {
+    _ => return ["src", "app"]
+  }
+  match parse_sol_config(content) {
+    Some(cfg) => cfg.watch_dirs
+    None => ["src", "app"]
   }
 }
 
