@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://github.com/mizchi/luna.mbt/compare/luna-loader-v0.20.0...luna-loader-v0.22.0-npm) (2026-05-15)
+
+
+### Features
+
+* publish the npm Luna loader package alongside the 0.22 release
+
 ## [0.20.0](https://github.com/mizchi/luna.mbt/compare/luna-loader-v0.17.0...luna-loader-v0.20.0) (2026-05-10)
 
 

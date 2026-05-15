@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.22.0](https://github.com/mizchi/luna.mbt/compare/stella-v0.20.0...stella-v0.22.0-npm) (2026-05-15)
+
+
+### Features
+
+* publish the npm Stella package alongside the 0.22 release
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @luna_ui/wcr bumped to 0.22.0
+
 ## [0.20.0](https://github.com/mizchi/luna.mbt/compare/stella-v0.17.0...stella-v0.20.0) (2026-05-10)
 
 

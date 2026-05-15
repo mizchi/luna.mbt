@@ -35,6 +35,10 @@ const PACKAGES = [
   { id: "sol",   pkgDir: path.join(ROOT, "js/sol"),   bin: "sol.js" },
   { id: "astra", pkgDir: path.join(ROOT, "js/astra"), bin: "astra.js" },
 ];
+const EXPORT_PACKAGES = [
+  { id: "components", pkgDir: path.join(ROOT, "js/components") },
+  { id: "testing", pkgDir: path.join(ROOT, "js/testing") },
+];
 
 for (const pkg of PACKAGES) {
   test(`@luna_ui/${pkg.id} package.json wires dist/ for npm distribution`, () => {
@@ -71,6 +75,59 @@ for (const pkg of PACKAGES) {
         "npm-installed copies resolve the bundled CLI. Reverting to a " +
         "_build-only import recreates the 0.17.0 regression.",
     );
+  });
+}
+
+function collectManifestPaths(manifest) {
+  const paths = new Set();
+  for (const key of ["main", "module", "types"]) {
+    if (typeof manifest[key] === "string") {
+      paths.add(manifest[key]);
+    }
+  }
+
+  function visit(value) {
+    if (typeof value === "string") {
+      paths.add(value);
+      return;
+    }
+    if (value && typeof value === "object") {
+      for (const child of Object.values(value)) {
+        visit(child);
+      }
+    }
+  }
+  visit(manifest.exports);
+  return [...paths].filter((p) => p.startsWith("./dist/"));
+}
+
+for (const pkg of EXPORT_PACKAGES) {
+  test(`@luna_ui/${pkg.id} package exports point at built files`, { timeout: 120_000 }, () => {
+    const build = spawnSync("pnpm", ["build"], {
+      cwd: pkg.pkgDir,
+      encoding: "utf8",
+    });
+    assert.equal(
+      build.status,
+      0,
+      `pnpm build failed in ${pkg.pkgDir}:\n${build.stdout}\n${build.stderr}`,
+    );
+
+    const manifest = JSON.parse(
+      readFileSync(path.join(pkg.pkgDir, "package.json"), "utf8"),
+    );
+    const exportedPaths = collectManifestPaths(manifest);
+    assert.ok(
+      exportedPaths.length > 0,
+      `js/${pkg.id}/package.json should expose at least one dist file`,
+    );
+    for (const rel of exportedPaths) {
+      const abs = path.join(pkg.pkgDir, rel);
+      assert.ok(
+        existsSync(abs),
+        `js/${pkg.id}/package.json points at missing build output: ${rel}`,
+      );
+    }
   });
 }
 

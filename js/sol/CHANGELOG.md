@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.1](https://github.com/mizchi/luna.mbt/compare/sol-v0.21.1-npm...sol-v0.22.1-npm) (2026-05-15)
+
+
+### Bug Fixes
+
+* publish the npm Sol CLI wrapper for the 0.22.1 version output fix
+
 ## [0.21.1](https://github.com/mizchi/luna.mbt/compare/sol-v0.21.0-npm...sol-v0.21.1-npm) (2026-05-14)
 
 

@@ -1,58 +1,58 @@
 {
   "name": "@luna_ui/components",
-  "version": "0.20.0",
+  "version": "0.22.0",
   "description": "Headless UI components matching src/components APG patterns",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./core": {
-      "types": "./dist/core.d.ts",
-      "import": "./dist/core.js"
+      "types": "./dist/core.d.mts",
+      "import": "./dist/core.mjs"
     },
     "./accordion": {
-      "types": "./dist/accordion.d.ts",
-      "import": "./dist/accordion.js"
+      "types": "./dist/accordion.d.mts",
+      "import": "./dist/accordion.mjs"
     },
     "./checkbox": {
-      "types": "./dist/checkbox.d.ts",
-      "import": "./dist/checkbox.js"
+      "types": "./dist/checkbox.d.mts",
+      "import": "./dist/checkbox.mjs"
     },
     "./switch": {
-      "types": "./dist/switch.d.ts",
-      "import": "./dist/switch.js"
+      "types": "./dist/switch.d.mts",
+      "import": "./dist/switch.mjs"
     },
     "./dialog": {
-      "types": "./dist/dialog.d.ts",
-      "import": "./dist/dialog.js"
+      "types": "./dist/dialog.d.mts",
+      "import": "./dist/dialog.mjs"
     },
     "./tabs": {
-      "types": "./dist/tabs.d.ts",
-      "import": "./dist/tabs.js"
+      "types": "./dist/tabs.d.mts",
+      "import": "./dist/tabs.mjs"
     },
     "./slider": {
-      "types": "./dist/slider.d.ts",
-      "import": "./dist/slider.js"
+      "types": "./dist/slider.d.mts",
+      "import": "./dist/slider.mjs"
     },
     "./radio": {
-      "types": "./dist/radio.d.ts",
-      "import": "./dist/radio.js"
+      "types": "./dist/radio.d.mts",
+      "import": "./dist/radio.mjs"
     },
     "./tooltip": {
-      "types": "./dist/tooltip.d.ts",
-      "import": "./dist/tooltip.js"
+      "types": "./dist/tooltip.d.mts",
+      "import": "./dist/tooltip.mjs"
     },
     "./hydrate": {
-      "types": "./dist/hydrate.d.ts",
-      "import": "./dist/hydrate.js"
+      "types": "./dist/hydrate.d.mts",
+      "import": "./dist/hydrate.mjs"
     },
     "./accordion-demo": {
-      "types": "./dist/accordion-demo.d.ts",
-      "import": "./dist/accordion-demo.js"
+      "types": "./dist/accordion-demo.d.mts",
+      "import": "./dist/accordion-demo.mjs"
     }
   },
   "files": [

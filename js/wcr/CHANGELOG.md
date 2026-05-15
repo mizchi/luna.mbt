@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://github.com/mizchi/luna.mbt/compare/wcr-v0.20.0...wcr-v0.22.0-npm) (2026-05-15)
+
+
+### Features
+
+* publish the npm Web Components runtime package alongside the 0.22 release
+
 ## [0.20.0](https://github.com/mizchi/luna.mbt/compare/wcr-v0.17.0...wcr-v0.20.0) (2026-05-10)
 
 

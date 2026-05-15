@@ -1,14 +1,14 @@
 {
   "name": "@luna_ui/testing",
-  "version": "0.20.0",
+  "version": "0.22.0",
   "description": "Testing utilities for Luna UI components",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     }
   },
   "files": [

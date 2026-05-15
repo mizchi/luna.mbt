@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://github.com/mizchi/luna.mbt/compare/astra-v0.20.0...astra-v0.22.0-npm) (2026-05-15)
+
+
+### Features
+
+* publish the npm Astra CLI wrapper alongside the Mooncake 0.22.0 release
+
 ## [0.20.0](https://github.com/mizchi/luna.mbt/compare/astra-v0.17.1...astra-v0.20.0) (2026-05-10)
 
 

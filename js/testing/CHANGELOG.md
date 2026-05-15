@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.22.0](https://github.com/mizchi/luna.mbt/compare/testing-v0.20.0...testing-v0.22.0-npm) (2026-05-15)
+
+
+### Features
+
+* publish the npm testing package alongside the 0.22 release
+
+
+### Bug Fixes
+
+* point package exports at the generated `.mjs` and `.d.mts` files
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * peerDependencies
+    * @luna_ui/luna bumped to 0.22.0
+
 ## [0.20.0](https://github.com/mizchi/luna.mbt/compare/testing-v0.17.0...testing-v0.20.0) (2026-05-10)
 
 

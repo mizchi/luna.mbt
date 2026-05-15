@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.22.0](https://github.com/mizchi/luna.mbt/compare/components-v0.20.0...components-v0.22.0-npm) (2026-05-15)
+
+
+### Features
+
+* publish the npm components package alongside the Luna Components 0.22.0 release
+
+
+### Bug Fixes
+
+* point package exports at the generated `.mjs` and `.d.mts` files
+
 ## [0.20.0](https://github.com/mizchi/luna.mbt/compare/components-v0.17.0...components-v0.20.0) (2026-05-10)
 
 
