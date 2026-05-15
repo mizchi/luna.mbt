@@ -269,6 +269,36 @@ test "typed action response reports decode errors" {
 }
 
 ///|
+test "typed action response preserves non-success outcomes" {
+  let redirect : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    ActionResponse::Redirect("/login"),
+  )
+  match redirect {
+    Redirect(url) => assert_eq(url, "/login")
+    _ => fail("expected redirect")
+  }
+
+  let failure : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    ActionResponse::Error(422, "Invalid"),
+  )
+  match failure {
+    Error(status, message) => {
+      assert_eq(status, 422)
+      assert_eq(message, "Invalid")
+    }
+    _ => fail("expected error")
+  }
+
+  let network : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    ActionResponse::NetworkError("offline"),
+  )
+  match network {
+    NetworkError(message) => assert_eq(message, "offline")
+    _ => fail("expected network error")
+  }
+}
+
+///|
 test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) {
     ActionResult::json(())
@@ -394,6 +424,10 @@ test "ActionState constructors cover idle pending success and error states" {
   assert_true(failed.phase is ActionPhase::Failed)
   assert_eq(failed.status, Some(422))
   assert_eq(failed.message, Some("Invalid"))
+
+  let redirect = ActionState::redirect("/login")
+  assert_true(redirect.phase is ActionPhase::Redirecting)
+  assert_eq(redirect.redirect, Some("/login"))
 }
 
 // ============================================================================
@@ -432,4 +466,53 @@ test "ActionFormConfig builder methods preserve typed action url" {
   assert_true(config.on_success is Some(_))
   assert_true(config.on_error is Some(_))
   assert_true(config.on_redirect is Some(_))
+}
+
+///|
+test "ActionFormConfig::to_raw decodes success callback payload" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let mut received = ""
+  let mut error_status = -1
+  let config = ActionFormConfig::from_key(key)
+    .with_success(fn(data) { received = data.id })
+    .with_error(fn(status, _message) { error_status = status })
+  let raw = config.to_raw()
+  match raw.on_success {
+    Some(on_success) =>
+      on_success(
+        @js_any.json_to_any(CreateUserResponse::{ id: "user-2" }.to_json()),
+      )
+    None => fail("expected raw success callback")
+  }
+  assert_eq(received, "user-2")
+  assert_eq(error_status, -1)
+}
+
+///|
+test "ActionFormConfig::to_raw reports decode error through typed error callback" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let mut received = ""
+  let mut error_status = -1
+  let mut error_message = ""
+  let config = ActionFormConfig::from_key(key)
+    .with_success(fn(data) { received = data.id })
+    .with_error(fn(status, message) {
+      error_status = status
+      error_message = message
+    })
+  let raw = config.to_raw()
+  let mismatch : Map[String, Json] = { "unexpected": true.to_json() }
+  match raw.on_success {
+    Some(on_success) => on_success(@js_any.json_to_any(mismatch.to_json()))
+    None => fail("expected raw success callback")
+  }
+  assert_eq(received, "")
+  assert_eq(error_status, 0)
+  assert_eq(error_message, "Action form response does not match expected type")
 }
