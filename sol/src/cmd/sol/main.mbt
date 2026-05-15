@@ -19,7 +19,7 @@ async fn main {
   }
   match args[0] {
     "help" | "--help" | "-h" => print_help()
-    "version" | "--version" | "-v" => println("sol 0.20.2")
+    "version" | "--version" | "-v" => println("sol 0.22.1")
     _ => {
       let status = delegate_to_project_js_cli(args)
       @sys.exit(status)

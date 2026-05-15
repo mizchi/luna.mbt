@@ -8,6 +8,9 @@ import { fileURLToPath } from "node:url";
 
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(THIS_DIR, "..", "..");
+const SOL_VERSION = JSON.parse(
+  fs.readFileSync(path.join(ROOT, "sol", "moon.mod.json"), "utf8")
+).version;
 
 test("moon install mizchi/sol/cmd/sol creates a runnable sol binary", () => {
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-moon-install-"));
@@ -49,7 +52,7 @@ test("moon install mizchi/sol/cmd/sol creates a runnable sol binary", () => {
       encoding: "utf8",
     });
     assert.equal(version.status, 0, version.stderr);
-    assert.match(version.stdout, /sol 0\.20\.2/);
+    assert.equal(version.stdout.trim(), `sol ${SOL_VERSION}`);
 
     const delegatedHelp = spawnSync(solBin, ["build", "--help"], {
       cwd: ROOT,

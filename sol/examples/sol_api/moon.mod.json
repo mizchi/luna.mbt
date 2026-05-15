@@ -4,11 +4,11 @@
   "deps": {
     "mizchi/sol": {
       "path": "../..",
-      "version": "0.22.0"
+      "version": "0.22.1"
     },
     "mizchi/sol_adapter_node": {
       "path": "../../../sol_adapter_node",
-      "version": "0.22.0"
+      "version": "0.22.1"
     },
     "mizchi/luna": {
       "path": "../../../luna",

@@ -33,7 +33,7 @@ fn show_help() -> Unit {
 
 ///|
 fn show_version() -> Unit {
-  println("sol 0.21.1")
+  println("sol 0.22.1")
 }
 
 ///|

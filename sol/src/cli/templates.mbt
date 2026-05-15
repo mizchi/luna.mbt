@@ -25,8 +25,8 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.21.1",
-        #|    "mizchi/sol_adapter_node": "0.21.1",
+        #|    "mizchi/sol": "0.22.1",
+        #|    "mizchi/sol_adapter_node": "0.22.1",
         #|    "mizchi/mars": "0.3.10",
         #|    "mizchi/luna": {
         #|      "path": "{{LUNA_PATH}}"
@@ -50,10 +50,10 @@ fn template_moon_mod_json(package_name : String, luna_path : String?) -> String 
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.21.1",
-        #|    "mizchi/sol_adapter_node": "0.21.1",
+        #|    "mizchi/sol": "0.22.1",
+        #|    "mizchi/sol_adapter_node": "0.22.1",
         #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.21.0",
+        #|    "mizchi/luna": "0.22.0",
         #|    "mizchi/signals": "0.6.4",
         #|    "mizchi/js": "0.10.15",
         #|    "mizchi/npm_typed": "0.1.11",
@@ -130,8 +130,8 @@ fn template_cloudflare_moon_mod_json(
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.21.1",
-        #|    "mizchi/sol_adapter_cloudflare": "0.21.1",
+        #|    "mizchi/sol": "0.22.1",
+        #|    "mizchi/sol_adapter_cloudflare": "0.22.1",
         #|    "mizchi/mars": "0.3.10",
         #|    "mizchi/luna": {
         #|      "path": "{{LUNA_PATH}}"
@@ -154,10 +154,10 @@ fn template_cloudflare_moon_mod_json(
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.21.1",
-        #|    "mizchi/sol_adapter_cloudflare": "0.21.1",
+        #|    "mizchi/sol": "0.22.1",
+        #|    "mizchi/sol_adapter_cloudflare": "0.22.1",
         #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.21.0",
+        #|    "mizchi/luna": "0.22.0",
         #|    "mizchi/signals": "0.6.4",
         #|    "mizchi/js": "0.10.15",
         #|    "mizchi/npm_typed": "0.1.11",

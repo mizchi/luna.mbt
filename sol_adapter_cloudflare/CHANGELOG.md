@@ -2,6 +2,10 @@
 
 All notable changes to `mizchi/sol_adapter_cloudflare` are documented here.
 
+## 0.22.1 (2026-05-15)
+
+- Align the adapter dependency with `mizchi/sol` 0.22.1.
+
 ## 0.22.0 (2026-05-15)
 
 - Align with `mizchi/sol` 0.22.0 typed action and contract generation APIs.

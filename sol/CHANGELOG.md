@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.22.1 (2026-05-15)
+
+- Fix `sol --version` and the installable native shim to report the manifest
+  version.
+- Update `sol new` templates to depend on `mizchi/sol` 0.22.1,
+  `mizchi/sol_adapter_{node,cloudflare}` 0.22.1, and `mizchi/luna` 0.22.0.
+
 ## 0.22.0 (2026-05-15)
 
 ### Added
