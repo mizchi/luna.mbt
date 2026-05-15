@@ -23,7 +23,7 @@ async fn main {
   }
   match args[0] {
     "help" | "--help" | "-h" => print_help()
-    "version" | "--version" | "-v" => println("sol 0.22.1")
+    "version" | "--version" | "-v" => println("sol 0.22.2")
     "new" => {
       let new_args : Array[String] = if args.length() > 1 {
         args[1:].to_owned()

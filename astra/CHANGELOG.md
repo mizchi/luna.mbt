@@ -2,6 +2,11 @@
 
 All notable changes to `mizchi/astra` are documented here.
 
+## 0.22.1 (2026-05-15)
+
+- Coordinated bump with `mizchi/luna` 0.22.1 and `mizchi/sol` 0.22.2. No
+  intentional astra API changes.
+
 ## 0.22.0 (2026-05-15)
 
 - Align with `mizchi/luna` 0.22.0 and the Sol 0.22 release line.

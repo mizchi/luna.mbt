@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## 0.22.2 (2026-05-15)
+
+### Added
+
+- Self-host `sol new <name> --user <ns>` so the scaffolder runs in an empty
+  directory, no host moon project required. Flag-driven variants
+  (`--cloudflare` / `--doc` / `--dev`) still go through the JS CLI delegate.
+  Templates extracted to a new `mizchi/sol/scaffold_templates` package
+  (`supported_targets = "js + native"`).
+- `sol --help` now annotates `new` with `(requires --user <namespace>)` and
+  points to `sol <command> --help` for per-command options.
+- `sol new` Next steps now include `moon install` and explain why
+  `pnpm install` alone is not enough.
+- `sol build --skip-generate` prints a yellow warning that `app/__gen__/` is
+  being used as-is, so stale routes are not silently bundled.
+
+### Fixed
+
+- Stop leaking the dev HMR `<script>` into production HTML. `SOL_DEV` is no
+  longer set when `run_server_with_fs` is invoked in prod mode.
+- The dev file watcher now accepts both `"change"` and `"rename"` events, so
+  atomic-save editors (macOS `sed -i ''`, vim's `:w` with `backupcopy=auto`,
+  any tmp+rename writer) are no longer silently dropped.
+- The launcher's "failed to launch the Sol JS CLI" diagnostic now branches on
+  whether `moon.mod.json` and `.mooncakes/mizchi/sol/` exist, pointing the
+  user at the right next action (bootstrap a host project, run `moon install`,
+  or read the generic message).
+
 ## 0.22.1 (2026-05-15)
 
 - Fix `sol --version` and the installable native shim to report the manifest

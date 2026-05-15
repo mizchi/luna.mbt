@@ -7,6 +7,8 @@ dist-docs/
 dist-demo/
 .sol/
 _build/
+# astra test fixture builds (e.g. sol/astra/tests/fixture/.out/)
+**/tests/fixture/.out/
 
 # Wrangler / Cloudflare Workers
 .wrangler/
