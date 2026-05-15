@@ -27,7 +27,7 @@ pub fn ISRMiddlewareConfig::default() -> ISRMiddlewareConfig {
 // =============================================================================
 
 ///|
-let isr_handler_store : Ref[ISRHandler[MemoryCache]?] = Ref::new(None)
+let isr_handler_store : Ref[ISRHandler[MemoryCache]?] = Ref(None)
 
 ///|
 /// Initialize ISR handler (call once at server startup)

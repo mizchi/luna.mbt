@@ -3,6 +3,10 @@ import {
   "mizchi/mars/middleware" @mars_mw,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
+
 warnings = "-6"
 
 supported_targets = "js"

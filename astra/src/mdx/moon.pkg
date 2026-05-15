@@ -1,5 +1,5 @@
 import {
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
   "mizchi/astra" @astra,
   "mizchi/astra/content/frontmatter" @frontmatter,
   "mizchi/markdown" @md_parser,
@@ -7,5 +7,13 @@ import {
   "mizchi/markdown/slug" @slug,
   "mizchi/markdown/toc" @md_toc,
 }
+
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
 
 supported_targets = "js"

@@ -329,7 +329,7 @@ struct TestHttpResponse {
 /// Keep async cases batched and reset shared ISR state after each scenario.
 async fn run_async_test_with_cleanup(body : async () -> Unit) -> Unit {
   defer {
-    isr_in_flight.val = Set::new()
+    isr_in_flight.val = Set([])
   }
   body()
 }
@@ -536,6 +536,51 @@ extern "js" fn ffi_call_app_handler(
   #|     cache_control: res.headers.get("cache-control") ?? undefined,
   #|   };
   #| }
+
+///|
+async test "register_routes serves typed Json from legacy api resolver" {
+  run_async_test_with_cleanup(() => {
+    let app = @mars.Server::new()
+    let routes = [
+      @routes.Get(path="/api/legacy/:id", handler="legacy-get"),
+    ]
+    let page_resolver : (String, Ctx, RouteParams) -> @luna.Node[Unit, String]? = fn(
+      _component,
+      _ctx,
+      _params,
+    ) {
+      None
+    }
+    let api_resolver = fn(
+      handler : String,
+      _ctx : Ctx,
+      params : RouteParams,
+    ) {
+      if handler == "legacy-get" {
+        let json : Json = {
+          "id": params.get_param("id").unwrap_or("missing"),
+          "ok": true,
+        }
+        Some(json)
+      } else {
+        None
+      }
+    }
+    register_routes(app, routes, page_resolver, api_resolver)
+
+    let res = ffi_call_app_handler(
+      app.to_handler(),
+      "GET",
+      "http://localhost/api/legacy/42",
+      false,
+    ).wait()
+    assert_eq(res.status, 200)
+    assert_true(res.content_type.unwrap_or("").contains("application/json"))
+    assert_eq(res.no_sniff, Some("nosniff"))
+    assert_true(res.body.contains("\"id\":\"42\""))
+    assert_true(res.body.contains("\"ok\":true"))
+  })
+}
 
 ///|
 extern "js" fn ffi_raw_response_with_nosniff_header() -> @web_http.Response =
@@ -875,7 +920,7 @@ async test "register_sol_routes keeps API headers and non-ISR pages omit ISR sta
 async test "ISR lifecycle covers cache transitions and fragment bypass" {
   run_async_test_with_cleanup(() => {
     async fn lifecycle_scenario() -> Unit {
-      let call_count = Ref::new(0)
+      let call_count = Ref(0)
       async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
         call_count.val = call_count.val + 1
         @server_dom.ServerNode::sync(
@@ -937,7 +982,7 @@ async test "ISR lifecycle covers cache transitions and fragment bypass" {
     }
 
     async fn fragment_bypass_scenario() -> Unit {
-      let call_count = Ref::new(0)
+      let call_count = Ref(0)
       async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
         call_count.val = call_count.val + 1
         @server_dom.ServerNode::sync(
@@ -1156,7 +1201,7 @@ async test "CDN cache strategies set expected headers" {
 async test "ISR render flags and request guards behave as expected" {
   run_async_test_with_cleanup(() => {
     async fn isr_flag_scenario() -> Unit {
-      let isr_flag = Ref::new(false)
+      let isr_flag = Ref(false)
       async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
         isr_flag.val = props.is_isr_render
         @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("isr-flag")]))
@@ -1193,9 +1238,9 @@ async test "ISR render flags and request guards behave as expected" {
     }
 
     async fn isr_header_guard_scenario() -> Unit {
-      let auth_header = Ref::new("unexpected")
-      let raw_header = Ref::new("unexpected")
-      let cookie_header = Ref::new("unexpected")
+      let auth_header = Ref("unexpected")
+      let raw_header = Ref("unexpected")
+      let cookie_header = Ref("unexpected")
       async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
         auth_header.val = props.header("Authorization").unwrap_or("none")
         raw_header.val = props.raw_header("X-Secret").unwrap_or("none")
@@ -1239,7 +1284,7 @@ async test "ISR render flags and request guards behave as expected" {
     }
 
     async fn isr_body_guard_scenario() -> Unit {
-      let seen_body = Ref::new("unexpected")
+      let seen_body = Ref("unexpected")
       async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
         seen_body.val = match props.body_json() {
           Some(json) => json.stringify()
@@ -1334,7 +1379,7 @@ async test "ISR render flags and request guards behave as expected" {
 async test "non-ISR render exposes request context safely" {
   run_async_test_with_cleanup(() => {
     async fn non_isr_flag_scenario() -> Unit {
-      let isr_flag = Ref::new(true)
+      let isr_flag = Ref(true)
       async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
         isr_flag.val = props.is_isr_render
         @server_dom.ServerNode::sync(@luna.h("p", [], [@luna.text("no-isr")]))
@@ -1367,9 +1412,9 @@ async test "non-ISR render exposes request context safely" {
     }
 
     async fn non_isr_headers_scenario() -> Unit {
-      let auth_header = Ref::new("missing")
-      let raw_header = Ref::new("missing")
-      let cookie_header = Ref::new("missing")
+      let auth_header = Ref("missing")
+      let raw_header = Ref("missing")
+      let cookie_header = Ref("missing")
       async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
         auth_header.val = props.header("Authorization").unwrap_or("none")
         raw_header.val = props.raw_header("X-Secret").unwrap_or("none")
@@ -1416,7 +1461,7 @@ async test "non-ISR render exposes request context safely" {
 ///|
 async test "ISR: STALE revalidation updates cache with fresh entry" {
   run_async_test_with_cleanup(() => {
-    let call_count = Ref::new(0)
+    let call_count = Ref(0)
     async fn page_handler(_props : PageProps) -> @server_dom.ServerNode {
       call_count.val = call_count.val + 1
       @server_dom.ServerNode::sync(
@@ -1482,14 +1527,14 @@ async test "ISR: STALE revalidation updates cache with fresh entry" {
     assert_eq(res3.isr_status, Some("HIT"))
     assert_true(res3.body.contains("dedup-2")) // Fresh content from revalidation
     assert_eq(call_count.val, 2) // No additional render
-    isr_in_flight.val = Set::new()
+    isr_in_flight.val = Set([])
   })
 }
 
 ///|
 async test "ISR: query requests bypass shared cache" {
   run_async_test_with_cleanup(() => {
-    let call_count = Ref::new(0)
+    let call_count = Ref(0)
     async fn page_handler(props : PageProps) -> @server_dom.ServerNode {
       call_count.val = call_count.val + 1
       let tag = props.get_query("tag").unwrap_or("none")

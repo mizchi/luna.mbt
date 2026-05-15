@@ -108,7 +108,7 @@ pub fn HydrationTrigger::parse(s : String) -> HydrationTrigger {
   } else if s == "visible" {
     Visible
   } else if s.has_prefix("media:") {
-    let query = s[6:].to_string()
+    let query = s[6:].to_owned()
     Media(query)
   } else {
     Load // default

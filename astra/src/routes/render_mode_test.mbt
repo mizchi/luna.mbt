@@ -16,28 +16,28 @@ test "HttpMethod::to_string - all methods" {
 
 ///|
 test "HttpMethod::from_string - valid methods lowercase" {
-  inspect(HttpMethod::from_string("get"), content="Some(Get)")
-  inspect(HttpMethod::from_string("post"), content="Some(Post)")
-  inspect(HttpMethod::from_string("put"), content="Some(Put)")
-  inspect(HttpMethod::from_string("delete"), content="Some(Delete)")
-  inspect(HttpMethod::from_string("patch"), content="Some(Patch)")
-  inspect(HttpMethod::from_string("all"), content="Some(All)")
+  debug_inspect(HttpMethod::from_string("get"), content="Some(Get)")
+  debug_inspect(HttpMethod::from_string("post"), content="Some(Post)")
+  debug_inspect(HttpMethod::from_string("put"), content="Some(Put)")
+  debug_inspect(HttpMethod::from_string("delete"), content="Some(Delete)")
+  debug_inspect(HttpMethod::from_string("patch"), content="Some(Patch)")
+  debug_inspect(HttpMethod::from_string("all"), content="Some(All)")
 }
 
 ///|
 test "HttpMethod::from_string - valid methods uppercase" {
-  inspect(HttpMethod::from_string("GET"), content="Some(Get)")
-  inspect(HttpMethod::from_string("POST"), content="Some(Post)")
-  inspect(HttpMethod::from_string("PUT"), content="Some(Put)")
-  inspect(HttpMethod::from_string("DELETE"), content="Some(Delete)")
-  inspect(HttpMethod::from_string("PATCH"), content="Some(Patch)")
-  inspect(HttpMethod::from_string("ALL"), content="Some(All)")
+  debug_inspect(HttpMethod::from_string("GET"), content="Some(Get)")
+  debug_inspect(HttpMethod::from_string("POST"), content="Some(Post)")
+  debug_inspect(HttpMethod::from_string("PUT"), content="Some(Put)")
+  debug_inspect(HttpMethod::from_string("DELETE"), content="Some(Delete)")
+  debug_inspect(HttpMethod::from_string("PATCH"), content="Some(Patch)")
+  debug_inspect(HttpMethod::from_string("ALL"), content="Some(All)")
 }
 
 ///|
 test "HttpMethod::from_string - mixed case" {
-  inspect(HttpMethod::from_string("Get"), content="Some(Get)")
-  inspect(HttpMethod::from_string("PoSt"), content="Some(Post)")
+  debug_inspect(HttpMethod::from_string("Get"), content="Some(Get)")
+  debug_inspect(HttpMethod::from_string("PoSt"), content="Some(Post)")
 }
 
 ///|
@@ -74,37 +74,37 @@ test "HttpMethod - roundtrip" {
 
 ///|
 test "FileType::from_extension - moonbit" {
-  inspect(FileType::from_extension(".mbt"), content="MoonBit")
-  inspect(FileType::from_extension(".MBT"), content="MoonBit")
+  debug_inspect(FileType::from_extension(".mbt"), content="MoonBit")
+  debug_inspect(FileType::from_extension(".MBT"), content="MoonBit")
 }
 
 ///|
 test "FileType::from_extension - markdown" {
-  inspect(FileType::from_extension(".md"), content="Markdown")
-  inspect(FileType::from_extension(".MD"), content="Markdown")
+  debug_inspect(FileType::from_extension(".md"), content="Markdown")
+  debug_inspect(FileType::from_extension(".MD"), content="Markdown")
 }
 
 ///|
 test "FileType::from_extension - mdx" {
-  inspect(FileType::from_extension(".mdx"), content="Mdx")
-  inspect(FileType::from_extension(".MDX"), content="Mdx")
+  debug_inspect(FileType::from_extension(".mdx"), content="Mdx")
+  debug_inspect(FileType::from_extension(".MDX"), content="Mdx")
 }
 
 ///|
 test "FileType::from_extension - html" {
-  inspect(FileType::from_extension(".html"), content="Html")
-  inspect(FileType::from_extension(".htm"), content="Html")
-  inspect(FileType::from_extension(".HTML"), content="Html")
-  inspect(FileType::from_extension(".HTM"), content="Html")
+  debug_inspect(FileType::from_extension(".html"), content="Html")
+  debug_inspect(FileType::from_extension(".htm"), content="Html")
+  debug_inspect(FileType::from_extension(".HTML"), content="Html")
+  debug_inspect(FileType::from_extension(".HTM"), content="Html")
 }
 
 ///|
 test "FileType::from_extension - unknown" {
-  inspect(FileType::from_extension(".js"), content="Unknown")
-  inspect(FileType::from_extension(".ts"), content="Unknown")
-  inspect(FileType::from_extension(".css"), content="Unknown")
-  inspect(FileType::from_extension(".json"), content="Unknown")
-  inspect(FileType::from_extension(""), content="Unknown")
+  debug_inspect(FileType::from_extension(".js"), content="Unknown")
+  debug_inspect(FileType::from_extension(".ts"), content="Unknown")
+  debug_inspect(FileType::from_extension(".css"), content="Unknown")
+  debug_inspect(FileType::from_extension(".json"), content="Unknown")
+  debug_inspect(FileType::from_extension(""), content="Unknown")
 }
 
 ///|
@@ -127,10 +127,11 @@ test "FileType::is_page - unknown is not page" {
 ///|
 test "FallbackConfig::default - returns NotFound" {
   let config = FallbackConfig::default()
-  inspect(
+  debug_inspect(
     config,
     content=(
-      #|NotFound(path=/404.html)
+      #|NotFound(path="/404.html")
+
     ),
   )
 }
@@ -156,16 +157,17 @@ test "FallbackConfig::is_spa - SpaPrefix" {
 ///|
 test "FallbackConfig::spa_entry - NotFound returns None" {
   let config = FallbackConfig::NotFound(path="/404.html")
-  inspect(config.spa_entry(), content="None")
+  debug_inspect(config.spa_entry(), content="None")
 }
 
 ///|
 test "FallbackConfig::spa_entry - Spa returns entry" {
   let config = FallbackConfig::Spa(entry="/index.html")
-  inspect(
+  debug_inspect(
     config.spa_entry(),
     content=(
-      #|Some(/index.html)
+      #|Some("/index.html")
+
     ),
   )
 }
@@ -173,10 +175,11 @@ test "FallbackConfig::spa_entry - Spa returns entry" {
 ///|
 test "FallbackConfig::spa_entry - SpaPrefix returns entry" {
   let config = FallbackConfig::SpaPrefix(prefix="/app", entry="/app/index.html")
-  inspect(
+  debug_inspect(
     config.spa_entry(),
     content=(
-      #|Some(/app/index.html)
+      #|Some("/app/index.html")
+
     ),
   )
 }

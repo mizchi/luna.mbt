@@ -273,7 +273,7 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
   let captured_owner = @resource.get_owner()
 
   // Track current dispose function (for cleanup when hiding)
-  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let current_dispose : Ref[(() -> Unit)?] = Ref(None)
 
   // Helper to render with a new child owner scope
   fn render_with_scope() -> Array[@js_dom.Node] {
@@ -296,10 +296,10 @@ pub fn show(when : () -> Bool, render_fn : () -> DomNode) -> DomNode {
     []
   }
   // Track all child nodes (may be multiple if fragment was used)
-  let current_nodes : Ref[Array[@js_dom.Node]] = Ref::new(initial_nodes)
+  let current_nodes : Ref[Array[@js_dom.Node]] = Ref(initial_nodes)
 
   // Track whether we are in initial render to skip DOM operations
-  let is_first_run : Ref[Bool] = Ref::new(true)
+  let is_first_run : Ref[Bool] = Ref(true)
 
   // RenderEffect handles subsequent updates only (synchronous DOM updates)
   let _ = @resource.render_effect(fn() {
@@ -378,17 +378,17 @@ pub fn loading(
   let captured_owner = @resource.get_owner()
 
   // Track dispose functions for fallback and content scopes
-  let fallback_dispose : Ref[(() -> Unit)?] = Ref::new(None)
-  let content_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let fallback_dispose : Ref[(() -> Unit)?] = Ref(None)
+  let content_dispose : Ref[(() -> Unit)?] = Ref(None)
 
   // State: has content ever been successfully rendered?
-  let has_loaded : Ref[Bool] = Ref::new(false)
+  let has_loaded : Ref[Bool] = Ref(false)
 
   // Currently displayed nodes
-  let current_nodes : Ref[Array[@js_dom.Node]] = Ref::new([])
+  let current_nodes : Ref[Array[@js_dom.Node]] = Ref([])
 
   // Which mode is currently displayed: true=fallback, false=content
-  let showing_fallback : Ref[Bool] = Ref::new(false)
+  let showing_fallback : Ref[Bool] = Ref(false)
 
   // Helper to render fallback with a new child owner scope
   fn render_fallback_with_scope() -> Array[@js_dom.Node] {
@@ -457,7 +457,7 @@ pub fn loading(
   }
   current_nodes.val = initial_nodes
 
-  let is_first_run : Ref[Bool] = Ref::new(true)
+  let is_first_run : Ref[Bool] = Ref(true)
 
   // Reactive effect for state transitions
   let _ = @resource.render_effect(fn() {
@@ -515,8 +515,8 @@ pub fn[T] for_each(
 ) -> DomNode {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("for")
-  let entries : Ref[Array[ItemEntry[T]]] = Ref::new([])
-  let is_first = Ref::new(true)
+  let entries : Ref[Array[ItemEntry[T]]] = Ref([])
+  let is_first = Ref(true)
   // Capture current owner for context inheritance
   let captured_owner = @resource.get_owner()
 
@@ -622,13 +622,13 @@ pub fn[T] index_each(
   let doc = @js_dom.document()
   let placeholder = doc.createComment("index")
   let entries : Array[IndexEntry] = []
-  let is_first = Ref::new(true)
+  let is_first = Ref(true)
   // Capture current owner for context inheritance
   let captured_owner = @resource.get_owner()
 
   // Helper to render item with owner scope for proper cleanup
   fn render_with_scope(index : Int) -> IndexEntry {
-    let disposed : Ref[Bool] = Ref::new(false)
+    let disposed : Ref[Bool] = Ref(false)
     let snapshot = @resource.untracked(fn() { items() })
     if index >= snapshot.length() {
       // Array changed between scheduling and render. Return inert placeholder.
@@ -637,7 +637,7 @@ pub fn[T] index_each(
     } else {
       // Cache initial value so stale effects can read safely after shrink.
       let initial_value = snapshot[index]
-      let cached_value : Ref[T?] = Ref::new(Some(initial_value))
+      let cached_value : Ref[T?] = Ref(Some(initial_value))
       let item_getter = fn() -> T {
         let arr = items()
         let len = arr.length()

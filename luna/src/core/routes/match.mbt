@@ -245,8 +245,8 @@ fn starts_with_char(s : String, c : Char) -> Bool {
 fn is_bracket_param(s : String) -> Bool {
   s.has_prefix("[") &&
   s.has_suffix("]") &&
-  !(s.has_prefix("[...")) &&
-  !(s.has_prefix("[[..."))
+  !s.has_prefix("[...") &&
+  !s.has_prefix("[[...")
 }
 
 ///|

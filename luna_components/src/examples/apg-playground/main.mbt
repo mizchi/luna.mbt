@@ -218,7 +218,7 @@ fn button_demo() -> @luna.Node[@js.Any, String] {
     div <| [
       @apg.toggle_button_dyn(
         pressed,
-        on_click=@luna.handler(fn(_) { pressed.set(!(pressed.get())) }),
+        on_click=@luna.handler(fn(_) { pressed.set(!pressed.get()) }),
       ) <| [
         @luna.text("Mute"),
       ],
@@ -718,7 +718,7 @@ fn toolbar_demo() -> @luna.Node[@js.Any, String] {
         let states = pressed_states.get()
         let new_states = states.copy()
         let current = states.get(id).unwrap_or(false)
-        new_states.set(id, !(current))
+        new_states.set(id, !current)
         pressed_states.set(new_states)
       },
     ),

@@ -142,5 +142,28 @@ test "api_client_typescript quotes param names for file-system routes" {
   ])
   let source = manifest.api_client_typescript()
   assert_true(source.contains("params: { \"user-id\": string }"))
-  assert_true(source.contains("fillSolApiPath(\"/api/users/[user-id]\", params)"))
+  assert_true(
+    source.contains("fillSolApiPath(\"/api/users/[user-id]\", params)"),
+  )
+}
+
+///|
+test "api_client_typescript fills colon regex routes without leaving regex suffix" {
+  async fn api_handler(_props : PageProps) -> Json {
+    { "ok": true }.to_json()
+  }
+
+  let manifest = route_ownership_manifest([
+    api_get("/api/:version{[0-9]+}/items/:id", api_handler),
+  ])
+  let source = manifest.api_client_typescript()
+  assert_true(
+    source.contains("params: { \"version\": string; \"id\": string }"),
+  )
+  assert_true(
+    source.contains(
+      "fillSolApiPath(\"/api/:version{[0-9]+}/items/:id\", params)",
+    ),
+  )
+  assert_true(source.contains(".replace(/:([A-Za-z0-9_]+)(?:\\{[^/]+\\})?/g"))
 }

@@ -5,6 +5,7 @@ import {
   "mizchi/astra",
   "mizchi/astra/content/toc",
   "mizchi/luna/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -97,7 +98,7 @@ pub(all) enum ComponentType {
   Toc
   Breadcrumb
   PrevNext
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn ComponentType::filename(Self) -> String
 
 pub(all) struct DiscoveryResult {

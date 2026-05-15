@@ -3,6 +3,7 @@ package "mizchi/astra/content/markdown"
 
 import {
   "mizchi/luna/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -13,7 +14,7 @@ import {
 pub(all) struct ClsHints {
   width : String?
   height : String?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn ClsHints::new() -> Self
 
 pub(all) struct ComponentEmbed {
@@ -66,7 +67,7 @@ pub(all) enum MdxAttrValue {
   StringLiteral(String)
   Expression(String)
   Boolean
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 

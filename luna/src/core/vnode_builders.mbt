@@ -101,6 +101,12 @@ pub fn[E, A] raw_html(content : String) -> Node[E, A] {
 }
 
 ///|
+/// Create a raw HTML VNode from an explicit trusted wrapper.
+pub fn[E, A] raw_trusted_html(content : TrustedHtml) -> Node[E, A] {
+  RawHtml(content.to_string())
+}
+
+///|
 /// Create a conditional VNode.
 /// Only renders the child when the condition is true.
 /// ```mbt check

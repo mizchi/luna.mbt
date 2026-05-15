@@ -56,7 +56,7 @@ fn url_to_disk_path(url : String, asset_urls : Array[String]) -> String {
   if asset_urls.contains(url) {
     // Asset URL: drop the leading `/` and use the URL as-is.
     if url.has_prefix("/") {
-      url[1:].to_string()
+      url[1:].to_owned()
     } else {
       url
     }
@@ -85,4 +85,3 @@ fn ensure_parent_dir(target : String) -> Unit {
   }
   ensure_dir(parent)
 }
-

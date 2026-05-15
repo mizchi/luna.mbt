@@ -110,58 +110,9 @@ extern "js" fn create_mathml_element_ns(tag : String) -> @js_dom.Element =
 
 ///|
 /// Render VNode to DOM within SVG context (all elements use SVG namespace)
-fn render_vnode_to_dom_svg(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
-  let doc = @js_dom.document()
-  match node {
-    @core.Text(content) => doc.createTextNode(content).as_node()
-    @core.DynamicText(getter) => {
-      let text_node = doc.createTextNode(getter())
-      let node_ref = text_node.as_node()
-      let _ = @resource.render_effect(fn() {
-        let new_text = getter()
-        node_ref.setTextContent(new_text)
-      })
-      node_ref
-    }
-    @core.Fragment(children) => {
-      let fragment = doc.createDocumentFragment()
-      for child in children {
-        fragment.as_node().appendChild(render_vnode_to_dom_svg(child)) |> ignore
-      }
-      fragment.as_node()
-    }
-    @core.Element(elem) => {
-      // Within SVG context, all elements use SVG namespace
-      let dom_elem = create_svg_element_ns(elem.tag)
-
-      // Apply attributes
-      for attr in elem.attrs {
-        let (name, value) = attr
-        apply_vattr(dom_elem, name, value)
-      }
-
-      // Append children (still in SVG context)
-      if elem.tag == "foreignObject" {
-        for child in elem.children {
-          dom_elem.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
-        }
-      } else {
-        for child in elem.children {
-          dom_elem.as_node().appendChild(render_vnode_to_dom_svg(child))
-          |> ignore
-        }
-      }
-      dom_elem.as_node()
-    }
-    // For other node types, delegate to regular render
-    _ => render_vnode_to_dom(node)
-  }
-}
-
-///|
-/// Render VNode to DOM within MathML context (all elements use MathML namespace)
-fn render_vnode_to_dom_mathml(
+fn render_vnode_to_dom_svg(
   node : @luna.Node[@js.Any, String],
+  island_ids : IslandIdAllocator,
 ) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
@@ -178,7 +129,70 @@ fn render_vnode_to_dom_mathml(
     @core.Fragment(children) => {
       let fragment = doc.createDocumentFragment()
       for child in children {
-        fragment.as_node().appendChild(render_vnode_to_dom_mathml(child))
+        fragment
+        .as_node()
+        .appendChild(render_vnode_to_dom_svg(child, island_ids))
+        |> ignore
+      }
+      fragment.as_node()
+    }
+    @core.Element(elem) => {
+      // Within SVG context, all elements use SVG namespace
+      let dom_elem = create_svg_element_ns(elem.tag)
+
+      // Apply attributes
+      for attr in elem.attrs {
+        let (name, value) = attr
+        apply_vattr(dom_elem, name, value)
+      }
+
+      // Append children (still in SVG context)
+      if elem.tag == "foreignObject" {
+        for child in elem.children {
+          dom_elem
+          .as_node()
+          .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
+          |> ignore
+        }
+      } else {
+        for child in elem.children {
+          dom_elem
+          .as_node()
+          .appendChild(render_vnode_to_dom_svg(child, island_ids))
+          |> ignore
+        }
+      }
+      dom_elem.as_node()
+    }
+    // For other node types, delegate to regular render
+    _ => render_vnode_to_dom_with_ids(node, island_ids)
+  }
+}
+
+///|
+/// Render VNode to DOM within MathML context (all elements use MathML namespace)
+fn render_vnode_to_dom_mathml(
+  node : @luna.Node[@js.Any, String],
+  island_ids : IslandIdAllocator,
+) -> @js_dom.Node {
+  let doc = @js_dom.document()
+  match node {
+    @core.Text(content) => doc.createTextNode(content).as_node()
+    @core.DynamicText(getter) => {
+      let text_node = doc.createTextNode(getter())
+      let node_ref = text_node.as_node()
+      let _ = @resource.render_effect(fn() {
+        let new_text = getter()
+        node_ref.setTextContent(new_text)
+      })
+      node_ref
+    }
+    @core.Fragment(children) => {
+      let fragment = doc.createDocumentFragment()
+      for child in children {
+        fragment
+        .as_node()
+        .appendChild(render_vnode_to_dom_mathml(child, island_ids))
         |> ignore
       }
       fragment.as_node()
@@ -190,12 +204,14 @@ fn render_vnode_to_dom_mathml(
         apply_vattr(dom_elem, name, value)
       }
       for child in elem.children {
-        dom_elem.as_node().appendChild(render_vnode_to_dom_mathml(child))
+        dom_elem
+        .as_node()
+        .appendChild(render_vnode_to_dom_mathml(child, island_ids))
         |> ignore
       }
       dom_elem.as_node()
     }
-    _ => render_vnode_to_dom(node)
+    _ => render_vnode_to_dom_with_ids(node, island_ids)
   }
 }
 
@@ -220,6 +236,15 @@ fn collect_dom_nodes(node : @js_dom.Node) -> Array[@js_dom.Node] {
 ///|
 /// Render VNode to DOM node (for client-side rendering after hydration)
 pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
+  let island_ids = new_island_id_allocator()
+  render_vnode_to_dom_with_ids(node, island_ids)
+}
+
+///|
+fn render_vnode_to_dom_with_ids(
+  node : @luna.Node[@js.Any, String],
+  island_ids : IslandIdAllocator,
+) -> @js_dom.Node {
   let doc = @js_dom.document()
   match node {
     @core.Text(content) => doc.createTextNode(content).as_node()
@@ -238,7 +263,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
     @core.Fragment(children) => {
       let fragment = doc.createDocumentFragment()
       for child in children {
-        fragment.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
+        fragment
+        .as_node()
+        .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
+        |> ignore
       }
       fragment.as_node()
     }
@@ -261,11 +289,11 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       for child in elem.children {
         let child_dom = if is_svg_element(elem.tag) &&
           elem.tag != "foreignObject" {
-          render_vnode_to_dom_svg(child)
+          render_vnode_to_dom_svg(child, island_ids)
         } else if is_mathml_element(elem.tag) {
-          render_vnode_to_dom_mathml(child)
+          render_vnode_to_dom_mathml(child, island_ids)
         } else {
-          render_vnode_to_dom(child)
+          render_vnode_to_dom_with_ids(child, island_ids)
         }
         dom_elem.as_node().appendChild(child_dom) |> ignore
       }
@@ -275,8 +303,8 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       let placeholder = doc.createComment("show")
       // Track multiple nodes for Fragment support
       let current_nodes : Array[@js_dom.Node] = []
-      let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
-      let is_first_render : Ref[Bool] = Ref::new(true)
+      let current_dispose : Ref[(() -> Unit)?] = Ref(None)
+      let is_first_render : Ref[Bool] = Ref(true)
 
       // Create a fragment for initial render
       let fragment = doc.createDocumentFragment()
@@ -286,7 +314,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       let initial_show = @resource.untracked(fn() { cond() })
       if initial_show {
         let (rendered, dispose) = @resource.untracked(fn() {
-          render_vnode_to_dom_with_dispose(child_fn())
+          render_vnode_to_dom_with_dispose_with_ids(child_fn(), island_ids)
         })
         current_dispose.val = Some(dispose)
         // Collect actual nodes before inserting (Fragment children get moved)
@@ -314,7 +342,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
               // as dependencies of this Show's effect. This prevents infinite
               // loops when nested Show components access signals.
               let (rendered, dispose) = @resource.untracked(fn() {
-                render_vnode_to_dom_with_dispose(child_fn())
+                render_vnode_to_dom_with_dispose_with_ids(
+                  child_fn(),
+                  island_ids,
+                )
               })
               current_dispose.val = Some(dispose)
               // Collect actual nodes before inserting (Fragment children get moved)
@@ -348,9 +379,9 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
     @core.For(render=render_fn) => {
       // Use a comment as a placeholder/marker for where to insert items
       let placeholder = doc.createComment("for")
-      let entries : Ref[Array[@element.ItemEntry[@luna.Node[@js.Any, String]]]] = Ref::new([],
+      let entries : Ref[Array[@element.ItemEntry[@luna.Node[@js.Any, String]]]] = Ref([],
       )
-      let is_first_render : Ref[Bool] = Ref::new(true)
+      let is_first_render : Ref[Bool] = Ref(true)
 
       // Create a fragment for initial render
       let fragment = doc.createDocumentFragment()
@@ -360,7 +391,7 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       let initial_items = @resource.untracked(fn() { render_fn() })
       for item in initial_items {
         let (rendered, dispose) = @resource.untracked(fn() {
-          render_vnode_to_dom_with_dispose(item)
+          render_vnode_to_dom_with_dispose_with_ids(item, island_ids)
         })
         let nodes_to_track = collect_dom_nodes(rendered)
         if nodes_to_track.length() == 0 {
@@ -400,13 +431,16 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
             entries,
             placeholder,
             new_items,
-            fn(item, _idx) { render_vnode_to_dom_with_dispose(item) },
+            fn(item, _idx) {
+              render_vnode_to_dom_with_dispose_with_ids(item, island_ids)
+            },
           )
         })
       })
       fragment_node
     }
-    @core.Component(render=render_fn) => render_vnode_to_dom(render_fn())
+    @core.Component(render=render_fn) =>
+      render_vnode_to_dom_with_ids(render_fn(), island_ids)
     @core.Island(island) => {
       // For client-side rendering, create a wrapper div with island attributes
       // and render children inside
@@ -416,7 +450,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       wrapper.setAttribute("luna:state", island.state)
       wrapper.setAttribute("luna:client-trigger", island.trigger.to_string())
       for child in island.children {
-        wrapper.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
+        wrapper
+        .as_node()
+        .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
+        |> ignore
       }
       wrapper.as_node()
     }
@@ -428,7 +465,10 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
       // Note: Shadow DOM would be created by the custom element itself
       // For CSR, we just create the host element with data attributes
       for child in wc_island.children {
-        wrapper.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
+        wrapper
+        .as_node()
+        .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
+        |> ignore
       }
       wrapper.as_node()
     }
@@ -442,32 +482,38 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
         wrapper.setAttribute("luna:wc-state", iref.state)
         wrapper.setAttribute("luna:wc-trigger", iref.trigger.to_string())
         for child in iref.children {
-          wrapper.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
+          wrapper
+          .as_node()
+          .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
+          |> ignore
         }
         wrapper.as_node()
       } else {
         // Regular island
         let wrapper = doc.createElement("div")
-        let id = iref.url.replace(old="/", new="_").replace(old=".", new="_")
+        let id = next_internal_ref_island_id(iref.url, island_ids)
         wrapper.setAttribute("luna:id", id)
         wrapper.setAttribute("luna:url", iref.url)
         wrapper.setAttribute("luna:state", iref.state)
         wrapper.setAttribute("luna:client-trigger", iref.trigger.to_string())
         for child in iref.children {
-          wrapper.as_node().appendChild(render_vnode_to_dom(child)) |> ignore
+          wrapper
+          .as_node()
+          .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
+          |> ignore
         }
         wrapper.as_node()
       }
     @core.Async(async_node) =>
       // For client-side rendering, render fallback initially
       // Async replacement would be handled separately
-      render_vnode_to_dom((async_node.fallback)())
+      render_vnode_to_dom_with_ids((async_node.fallback)(), island_ids)
     @core.ErrorBoundary(boundary) =>
       // Client-side ErrorBoundary with reset support
-      render_error_boundary_to_dom(boundary)
+      render_error_boundary_to_dom(boundary, island_ids)
     @core.Switch(switch_node) =>
       // Client-side Switch rendering
-      render_switch_to_dom(switch_node)
+      render_switch_to_dom(switch_node, island_ids)
   }
 }
 
@@ -476,7 +522,18 @@ pub fn render_vnode_to_dom(node : @luna.Node[@js.Any, String]) -> @js_dom.Node {
 pub fn render_vnode_to_dom_with_dispose(
   node : @luna.Node[@js.Any, String],
 ) -> (@js_dom.Node, () -> Unit) {
-  @resource.create_root_with_dispose(fn() { render_vnode_to_dom(node) })
+  let island_ids = new_island_id_allocator()
+  render_vnode_to_dom_with_dispose_with_ids(node, island_ids)
+}
+
+///|
+fn render_vnode_to_dom_with_dispose_with_ids(
+  node : @luna.Node[@js.Any, String],
+  island_ids : IslandIdAllocator,
+) -> (@js_dom.Node, () -> Unit) {
+  @resource.create_root_with_dispose(fn() {
+    render_vnode_to_dom_with_ids(node, island_ids)
+  })
 }
 
 ///|
@@ -569,6 +626,7 @@ pub fn render_vnode(
 /// Render ErrorBoundary to DOM with error catching and reset support
 fn render_error_boundary_to_dom(
   boundary : @luna.VErrorBoundary[@js.Any, String],
+  island_ids : IslandIdAllocator,
 ) -> @js_dom.Node {
   let doc = @js_dom.document()
   let container = doc.createDocumentFragment()
@@ -576,10 +634,10 @@ fn render_error_boundary_to_dom(
   let placeholder = doc.createComment("error-boundary")
 
   // State for error handling
-  let error_state : Ref[Error?] = Ref::new(None)
+  let error_state : Ref[Error?] = Ref(None)
   let content_nodes : Array[@js_dom.Node] = []
-  let reset_ref : Ref[() -> Unit] = Ref::new(fn() { () })
-  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let reset_ref : Ref[() -> Unit] = Ref(fn() { () })
+  let current_dispose : Ref[(() -> Unit)?] = Ref(None)
 
   // Reset function clears error and re-renders children
   let reset = fn() {
@@ -600,8 +658,9 @@ fn render_error_boundary_to_dom(
     content_nodes.clear()
     // Re-render children
     try {
-      let (child_node, dispose) = render_vnode_to_dom_with_dispose(
+      let (child_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
         (boundary.children)(),
+        island_ids,
       )
       current_dispose.val = Some(dispose)
       let nodes_to_track = collect_dom_nodes(child_node)
@@ -617,8 +676,9 @@ fn render_error_boundary_to_dom(
       err => {
         error_state.val = Some(err)
         try {
-          let (fallback_node, dispose) = render_vnode_to_dom_with_dispose(
+          let (fallback_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
             (boundary.fallback)(err, reset_ref.val),
+            island_ids,
           )
           current_dispose.val = Some(dispose)
           let nodes_to_track = collect_dom_nodes(fallback_node)
@@ -640,8 +700,9 @@ fn render_error_boundary_to_dom(
 
   // Initial render
   try {
-    let (child_node, dispose) = render_vnode_to_dom_with_dispose(
+    let (child_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
       (boundary.children)(),
+      island_ids,
     )
     current_dispose.val = Some(dispose)
     let nodes_to_track = collect_dom_nodes(child_node)
@@ -653,8 +714,9 @@ fn render_error_boundary_to_dom(
     err => {
       error_state.val = Some(err)
       try {
-        let (fallback_node, dispose) = render_vnode_to_dom_with_dispose(
+        let (fallback_node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
           (boundary.fallback)(err, reset_ref.val),
+          island_ids,
         )
         current_dispose.val = Some(dispose)
         let nodes_to_track = collect_dom_nodes(fallback_node)
@@ -675,11 +737,12 @@ fn render_error_boundary_to_dom(
 /// Render Switch to DOM with reactive updates
 fn render_switch_to_dom(
   switch_node : @luna.VSwitch[@js.Any, String],
+  island_ids : IslandIdAllocator,
 ) -> @js_dom.Node {
   let doc = @js_dom.document()
   let placeholder = doc.createComment("switch")
   let current_nodes : Array[@js_dom.Node] = []
-  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let current_dispose : Ref[(() -> Unit)?] = Ref(None)
   let mut current_case_index : Int = -1 // -1 means fallback, -2 means no match
 
   // Helper to find which case matches
@@ -702,8 +765,9 @@ fn render_switch_to_dom(
   let fragment = doc.createDocumentFragment()
   let fragment_node = fragment.as_node()
   if initial_case >= 0 {
-    let (node, dispose) = render_vnode_to_dom_with_dispose(
+    let (node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
       (switch_node.cases[initial_case].render)(),
+      island_ids,
     )
     current_dispose.val = Some(dispose)
     let nodes_to_track = collect_dom_nodes(node)
@@ -714,7 +778,10 @@ fn render_switch_to_dom(
   } else if initial_case == -1 {
     match switch_node.fallback {
       Some(fallback_fn) => {
-        let (node, dispose) = render_vnode_to_dom_with_dispose(fallback_fn())
+        let (node, dispose) = render_vnode_to_dom_with_dispose_with_ids(
+          fallback_fn(),
+          island_ids,
+        )
         current_dispose.val = Some(dispose)
         let nodes_to_track = collect_dom_nodes(node)
         fragment_node.appendChild(node) |> ignore
@@ -728,7 +795,7 @@ fn render_switch_to_dom(
   fragment_node.appendChild(placeholder) |> ignore
 
   // Set up effect for reactive updates
-  let is_first_render : Ref[Bool] = Ref::new(true)
+  let is_first_render : Ref[Bool] = Ref(true)
   let _ = @resource.render_effect(fn() {
     let new_case = find_matching_case()
 
@@ -763,7 +830,10 @@ fn render_switch_to_dom(
     // as dependencies of this Switch's effect
     if new_case >= 0 {
       let (node, dispose) = @resource.untracked(fn() {
-        render_vnode_to_dom_with_dispose((switch_node.cases[new_case].render)())
+        render_vnode_to_dom_with_dispose_with_ids(
+          (switch_node.cases[new_case].render)(),
+          island_ids,
+        )
       })
       current_dispose.val = Some(dispose)
       if placeholder.parentNode() is Some(par) {
@@ -777,7 +847,7 @@ fn render_switch_to_dom(
       match switch_node.fallback {
         Some(fallback_fn) => {
           let (node, dispose) = @resource.untracked(fn() {
-            render_vnode_to_dom_with_dispose(fallback_fn())
+            render_vnode_to_dom_with_dispose_with_ids(fallback_fn(), island_ids)
           })
           current_dispose.val = Some(dispose)
           if placeholder.parentNode() is Some(par) {
@@ -794,6 +864,51 @@ fn render_switch_to_dom(
     current_case_index = new_case
   })
   fragment_node
+}
+
+///|
+priv struct IslandIdAllocator {
+  next_by_base : Map[String, Int]
+  used : Map[String, Bool]
+}
+
+///|
+fn new_island_id_allocator() -> IslandIdAllocator {
+  { next_by_base: {}, used: {} }
+}
+
+///|
+fn island_id_from_url(url : String) -> String {
+  url.replace_all(old="/", new="_").replace_all(old=".", new="_")
+}
+
+///|
+fn reserve_island_id(
+  base : String,
+  index : Int,
+  allocator : IslandIdAllocator,
+) -> String {
+  let id = if index == 0 { base } else { base + "-" + index.to_string() }
+  if allocator.used.get(id) is None {
+    allocator.used.set(id, true)
+    allocator.next_by_base.set(base, index + 1)
+    id
+  } else {
+    reserve_island_id(base, index + 1, allocator)
+  }
+}
+
+///|
+fn next_internal_ref_island_id(
+  url : String,
+  allocator : IslandIdAllocator,
+) -> String {
+  let base = island_id_from_url(url)
+  let index = match allocator.next_by_base.get(base) {
+    Some(next) => next
+    None => 0
+  }
+  reserve_island_id(base, index, allocator)
 }
 
 ///|

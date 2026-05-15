@@ -15,7 +15,7 @@ pub(all) enum RenderMode {
   Isr(revalidate~ : Int)
   /// SPA mode (client-side only)
   Spa
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Default render mode is SSR
@@ -55,7 +55,7 @@ pub(all) enum FallbackConfig {
   Spa(entry~ : String)
   /// Fallback to SPA for specific prefix only
   SpaPrefix(prefix~ : String, entry~ : String)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Default fallback is 404
@@ -96,7 +96,7 @@ pub(all) enum HttpMethod {
   Delete
   Patch
   All
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Convert HTTP method to string
@@ -142,7 +142,7 @@ pub(all) enum FileType {
   Html
   /// Unknown file type
   Unknown
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Detect file type from extension

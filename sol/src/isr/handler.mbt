@@ -8,10 +8,10 @@
 // definition. They are re-exported here for back-compat with sol consumers.
 
 ///|
-pub typealias @astra_isr.ISRPageMeta as ISRPageMeta
+pub using @astra_isr {type ISRPageMeta}
 
 ///|
-pub typealias @astra_isr.ISRManifest as ISRManifest
+pub using @astra_isr {type ISRManifest}
 
 // =============================================================================
 // ISR Handler

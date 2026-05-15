@@ -47,7 +47,7 @@ pub fn CacheManager::get(
   url_path : String,
   source_hash : String,
 ) -> String? {
-  if !(self.enabled) {
+  if !self.enabled {
     return None
   }
   match self.cache.get_with_hash(url_path, source_hash) {
@@ -64,7 +64,7 @@ pub fn CacheManager::set(
   source_hash : String,
   html : String,
 ) -> Unit {
-  if !(self.enabled) {
+  if !self.enabled {
     return
   }
   self.cache.set(url_path, source_hash, html)
@@ -73,7 +73,7 @@ pub fn CacheManager::set(
 ///|
 /// Save cache metadata to disk
 pub fn CacheManager::save(self : CacheManager) -> Unit {
-  if !(self.enabled) {
+  if !self.enabled {
     return
   }
   self.cache.save()

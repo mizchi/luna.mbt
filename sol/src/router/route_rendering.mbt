@@ -23,11 +23,11 @@ fn collect_preload_urls(
   island_urls : Array[String],
   chunk_manifest : ChunkManifest?,
 ) -> Array[String] {
-  let seen : @hashset.T[String] = @hashset.new()
+  let seen : @hashset.HashSet[String] = @hashset.HashSet([])
   let all_urls : Array[String] = []
   let add = fn(url : String) {
     if !seen.contains(url) {
-      seen.insert(url)
+      seen.add(url)
       all_urls.push(url)
     }
   }

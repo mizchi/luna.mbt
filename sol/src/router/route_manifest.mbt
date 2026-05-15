@@ -116,9 +116,17 @@ fn route_manifest_is_separator(c : Char) -> Bool {
 ///|
 fn route_manifest_upper_ascii(c : Char) -> Char {
   if c >= 'a' && c <= 'z' {
-    Char::from_int(c.to_int() - 32)
+    Int::unsafe_to_char(c.to_int() - 32)
   } else {
     c
+  }
+}
+
+///|
+fn route_manifest_strip_colon_regex(name : String) -> String {
+  match name.find("{") {
+    Some(idx) => name[:idx].to_owned()
+    None => name
   }
 }
 
@@ -130,7 +138,7 @@ fn route_manifest_segment_token(segment : String) -> String {
     segment
   }
   if raw.has_prefix(":") && raw.length() > 1 {
-    raw[1:].to_owned()
+    route_manifest_strip_colon_regex(raw[1:].to_owned())
   } else if raw.has_prefix("[[...") && raw.has_suffix("]]") {
     raw[5:raw.length() - 2].to_owned()
   } else if raw.has_prefix("[...") && raw.has_suffix("]") {
@@ -172,7 +180,11 @@ fn route_manifest_path_to_pascal(path : String) -> String {
       }
     }
   }
-  if wrote { buf.to_string() } else { "Root" }
+  if wrote {
+    buf.to_string()
+  } else {
+    "Root"
+  }
 }
 
 ///|
@@ -293,7 +305,7 @@ pub fn RouteOwnershipManifest::api_client_typescript(
     "function jsonHeaders(init?: RequestInit): Headers {\n  const headers = new Headers(init?.headers);\n  if (!headers.has(\"content-type\")) headers.set(\"content-type\", \"application/json\");\n  return headers;\n}\n\n",
   )
   buf.write_string(
-    "function fillSolApiPath(path: string, params: Record<string, string>): string {\n  return path\n    .replace(/:([A-Za-z0-9_]+)/g, (_, key) => encodeURIComponent(params[key] ?? \"\"))\n    .replace(/\\[\\[?\\.\\.\\.([^\\]]+)\\]?\\]/g, (_, key) => encodeURIComponent(params[key] ?? \"\"))\n    .replace(/\\[([^\\]]+)\\]/g, (_, key) => encodeURIComponent(params[key] ?? \"\"));\n}\n\n",
+    "function fillSolApiPath(path: string, params: Record<string, string>): string {\n  return path\n    .replace(/:([A-Za-z0-9_]+)(?:\\{[^/]+\\})?/g, (_, key) => encodeURIComponent(params[key] ?? \"\"))\n    .replace(/\\[\\[?\\.\\.\\.([^\\]]+)\\]?\\]/g, (_, key) => encodeURIComponent(params[key] ?? \"\"))\n    .replace(/\\[([^\\]]+)\\]/g, (_, key) => encodeURIComponent(params[key] ?? \"\"));\n}\n\n",
   )
   buf.write_string(
     "async function solApiRequest<T>(path: string, init: RequestInit): Promise<SolApiResult<T>> {\n  const response = await fetch(path, init);\n  const text = await response.text();\n  let data: unknown = null;\n  if (text.length > 0) {\n    try { data = JSON.parse(text); } catch { data = text; }\n  }\n  if (!response.ok) {\n    const message = typeof data === \"object\" && data !== null && \"error\" in data\n      ? String((data as { error?: unknown }).error)\n      : response.statusText;\n    return { ok: false, status: response.status, message, response };\n  }\n  return { ok: true, data: data as T, response };\n}\n\n",
@@ -374,7 +386,13 @@ fn route_manifest_match_kind_for_route(
 
 ///|
 fn route_manifest_param_names(route : CompiledSolRoute) -> Array[String] {
-  let names = route.param_names.copy()
+  let names : Array[String] = []
+  for name in route.param_names {
+    let normalized = route_manifest_strip_colon_regex(name)
+    if !names.contains(normalized) {
+      names.push(normalized)
+    }
+  }
   match route.catch_all {
     Some(info) => if !names.contains(info.name) { names.push(info.name) }
     None => ()

@@ -67,7 +67,7 @@ test "ok() with empty pairs produces empty object" {
   let resp = ok([])
   let json = resp.to_json()
   match json {
-    Object(m) => assert_eq(m.size(), 0)
+    Object(m) => assert_eq(m.length(), 0)
     _ => fail("expected empty object")
   }
 }
@@ -373,9 +373,15 @@ test "page() wraps route-level style and script assets" {
 // ============================================================================
 
 ///|
+fn empty_json() -> Json {
+  let obj : Map[String, Json] = {}
+  obj.to_json()
+}
+
+///|
 test "api_get() returns SolRoutes::Get with correct path" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    empty_json()
   }
 
   let route = api_get("/api/users/:id", handler)
@@ -388,7 +394,7 @@ test "api_get() returns SolRoutes::Get with correct path" {
 ///|
 test "api_post() returns SolRoutes::Post with correct path" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    empty_json()
   }
 
   let route = api_post("/api/create", handler)
@@ -401,7 +407,7 @@ test "api_post() returns SolRoutes::Post with correct path" {
 ///|
 test "api_put() returns SolRoutes::Put with correct path" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    empty_json()
   }
 
   let route = api_put("/api/update", handler)
@@ -414,7 +420,7 @@ test "api_put() returns SolRoutes::Put with correct path" {
 ///|
 test "api_delete() returns SolRoutes::Delete with correct path" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    empty_json()
   }
 
   let route = api_delete("/api/remove/:id", handler)
@@ -427,7 +433,7 @@ test "api_delete() returns SolRoutes::Delete with correct path" {
 ///|
 test "api_patch() returns SolRoutes::Patch with correct path" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    empty_json()
   }
 
   let route = api_patch("/api/partial/:id", handler)
@@ -467,7 +473,7 @@ test "wrap() stores children count" {
   }
 
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    empty_json()
   }
 
   let route = wrap("/api", layout_fn, [api_get("/data", handler)])
@@ -490,7 +496,7 @@ test "with_mw() returns SolRoutes::WithMiddleware" {
 ///|
 test "with_mw() stores children" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    empty_json()
   }
 
   let route = with_mw([], [api_get("/a", handler), api_post("/b", handler)])

@@ -39,23 +39,26 @@ test "scan_pages_dir - detects component directory with moon.pkg.json" {
   }
   inspect(entry.path, content="/counter")
   inspect(entry.source, content="counter/")
-  inspect(entry.component_type, content="SsrComponent")
-  inspect(
+  debug_inspect(entry.component_type, content="SsrComponent")
+  debug_inspect(
     entry.props_type,
     content=(
-      #|Some(CounterProps)
+      #|Some("CounterProps")
+
     ),
   )
-  inspect(
+  debug_inspect(
     entry.client_export,
     content=(
-      #|Some(counter)
+      #|Some("counter")
+
     ),
   )
-  inspect(
+  debug_inspect(
     entry.server_export,
     content=(
-      #|Some(render_ssr)
+      #|Some("render_ssr")
+
     ),
   )
 }
@@ -78,7 +81,7 @@ test "scan_pages_dir - client only component" {
   guard manifest.routes[0] is Component(entry) else {
     fail("Expected Component route")
   }
-  inspect(entry.component_type, content="ClientOnlyComponent")
+  debug_inspect(entry.component_type, content="ClientOnlyComponent")
 }
 
 ///|
@@ -103,7 +106,7 @@ test "scan_pages_dir - server only component" {
   guard manifest.routes[0] is Component(entry) else {
     fail("Expected Component route")
   }
-  inspect(entry.component_type, content="ServerOnlyComponent")
+  debug_inspect(entry.component_type, content="ServerOnlyComponent")
 }
 
 ///|
@@ -135,10 +138,11 @@ test "scan_pages_dir - component with staticParams" {
     fail("Expected Component route")
   }
   inspect(entry.static_paths.length(), content="3")
-  inspect(
+  debug_inspect(
     entry.static_paths[0].params.get("id"),
     content=(
-      #|Some(1)
+      #|Some("1")
+
     ),
   )
   inspect(entry.static_paths[0].output, content="product/1/index.html")
@@ -192,10 +196,19 @@ test "scan_pages_dir - mixed regular and component directories" {
 
 ///|
 test "detect_component_type - all combinations" {
-  inspect(detect_component_type(true, true), content="SsrComponent")
-  inspect(detect_component_type(true, false), content="ClientOnlyComponent")
-  inspect(detect_component_type(false, true), content="ServerOnlyComponent")
-  inspect(detect_component_type(false, false), content="ServerOnlyComponent")
+  debug_inspect(detect_component_type(true, true), content="SsrComponent")
+  debug_inspect(
+    detect_component_type(true, false),
+    content="ClientOnlyComponent",
+  )
+  debug_inspect(
+    detect_component_type(false, true),
+    content="ServerOnlyComponent",
+  )
+  debug_inspect(
+    detect_component_type(false, false),
+    content="ServerOnlyComponent",
+  )
 }
 
 ///|

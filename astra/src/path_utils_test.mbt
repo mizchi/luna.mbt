@@ -128,16 +128,18 @@ test "get_url_dir - root" {
 ///|
 test "extract_locale_suffix - with locale" {
   let locales = ["en", "ja", "fr"]
-  inspect(
+  debug_inspect(
     extract_locale_suffix("intro.ja.md", locales),
     content=(
-      #|Some((ja, intro.md))
+      #|Some(("ja", "intro.md"))
+
     ),
   )
-  inspect(
+  debug_inspect(
     extract_locale_suffix("intro.fr.md", locales),
     content=(
-      #|Some((fr, intro.md))
+      #|Some(("fr", "intro.md"))
+
     ),
   )
 }
@@ -145,28 +147,30 @@ test "extract_locale_suffix - with locale" {
 ///|
 test "extract_locale_suffix - without locale" {
   let locales = ["en", "ja", "fr"]
-  inspect(extract_locale_suffix("intro.md", locales), content="None")
+  debug_inspect(extract_locale_suffix("intro.md", locales), content="None")
 }
 
 ///|
 test "extract_locale_suffix - invalid locale" {
   let locales = ["en", "ja"]
-  inspect(extract_locale_suffix("intro.de.md", locales), content="None")
+  debug_inspect(extract_locale_suffix("intro.de.md", locales), content="None")
 }
 
 ///|
 test "extract_locale_suffix - different extensions" {
   let locales = ["en", "ja"]
-  inspect(
+  debug_inspect(
     extract_locale_suffix("page.ja.mdx", locales),
     content=(
-      #|Some((ja, page.mdx))
+      #|Some(("ja", "page.mdx"))
+
     ),
   )
-  inspect(
+  debug_inspect(
     extract_locale_suffix("page.ja.html", locales),
     content=(
-      #|Some((ja, page.html))
+      #|Some(("ja", "page.html"))
+
     ),
   )
 }
@@ -174,10 +178,11 @@ test "extract_locale_suffix - different extensions" {
 ///|
 test "extract_locale_suffix - index files" {
   let locales = ["en", "ja"]
-  inspect(
+  debug_inspect(
     extract_locale_suffix("index.ja.md", locales),
     content=(
-      #|Some((ja, index.md))
+      #|Some(("ja", "index.md"))
+
     ),
   )
 }

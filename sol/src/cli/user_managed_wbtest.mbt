@@ -14,6 +14,10 @@ test "is_user_managed_server: true when main.mbt exists" {
     runtime: RuntimeNode,
     adapter: RuntimeNode,
     client_auto_exports: true,
+    server_entry: ServerEntryAuto,
+    client_bundle: ClientBundleAuto,
+    contract_manifest: None,
+    contract_ts: [],
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
@@ -34,11 +38,64 @@ test "is_user_managed_server: false when main.mbt missing" {
     runtime: RuntimeNode,
     adapter: RuntimeNode,
     client_auto_exports: true,
+    server_entry: ServerEntryAuto,
+    client_bundle: ClientBundleAuto,
+    contract_manifest: None,
+    contract_ts: [],
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
   }
   assert_true(!is_user_managed_server(fs, "/project", config))
+}
+
+///|
+test "should_use_user_managed_server: explicit user mode does not require main.mbt" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  let mem = fs.memfs()
+  mem.mkdirSync("/project/app/server", recursive=true)
+  mem.writeFileSync("/project/app/server/routes.mbt", "pub fn routes() {}")
+  let config : SolConfig = {
+    islands: [],
+    routes: "app/server",
+    output: "app/__gen__",
+    runtime: RuntimeNode,
+    adapter: RuntimeNode,
+    client_auto_exports: true,
+    server_entry: ServerEntryUserManaged,
+    client_bundle: ClientBundleAuto,
+    contract_manifest: None,
+    contract_ts: [],
+    static_dirs: [],
+    wasm_entrypoints: [],
+    experimental: [],
+  }
+  assert_true(should_use_user_managed_server(fs, "/project", config))
+}
+
+///|
+test "should_use_user_managed_server: generated mode ignores main.mbt" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  let mem = fs.memfs()
+  mem.mkdirSync("/project/app/server", recursive=true)
+  mem.writeFileSync("/project/app/server/main.mbt", "fn main {}")
+  mem.writeFileSync("/project/app/server/routes.mbt", "pub fn routes() {}")
+  let config : SolConfig = {
+    islands: [],
+    routes: "app/server",
+    output: "app/__gen__",
+    runtime: RuntimeNode,
+    adapter: RuntimeNode,
+    client_auto_exports: true,
+    server_entry: ServerEntryGenerated,
+    client_bundle: ClientBundleAuto,
+    contract_manifest: None,
+    contract_ts: [],
+    static_dirs: [],
+    wasm_entrypoints: [],
+    experimental: [],
+  }
+  assert_false(should_use_user_managed_server(fs, "/project", config))
 }
 
 ///|
@@ -54,6 +111,10 @@ test "detect_app_mode_with_fs: MoonBitFull when routes.mbt exists" {
     runtime: RuntimeNode,
     adapter: RuntimeNode,
     client_auto_exports: true,
+    server_entry: ServerEntryAuto,
+    client_bundle: ClientBundleAuto,
+    contract_manifest: None,
+    contract_ts: [],
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
@@ -74,6 +135,10 @@ test "detect_app_mode_with_fs: hybrid when routes.ts exists" {
     runtime: RuntimeNode,
     adapter: RuntimeNode,
     client_auto_exports: true,
+    server_entry: ServerEntryAuto,
+    client_bundle: ClientBundleAuto,
+    contract_manifest: None,
+    contract_ts: [],
     static_dirs: [],
     wasm_entrypoints: [],
     experimental: [],
@@ -94,7 +159,16 @@ test "generate_server_pkg: includes moonbitlang/async import" {
 test "generate_server_main_mbt: uses async fn main" {
   let content = generate_server_main_mbt(
     "tester/myapp/server",
-    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] },
+    {
+      _page_components: [],
+      _api_handlers: [],
+      route_paths: [],
+      route_queries: [],
+      action_ids: [],
+      action_contracts: [],
+      api_contracts: [],
+      contract_shapes: [],
+    },
     [],
   )
   assert_true(content.contains("async fn main {"))
@@ -106,7 +180,16 @@ test "generate_server_main_mbt: uses async fn main" {
 test "generate_server_main_mbt: cloudflare runtime uses cloudflare adapter" {
   let content = generate_server_main_mbt(
     "tester/myapp/server",
-    { _page_components: [], _api_handlers: [], route_paths: [], action_ids: [] },
+    {
+      _page_components: [],
+      _api_handlers: [],
+      route_paths: [],
+      route_queries: [],
+      action_ids: [],
+      action_contracts: [],
+      api_contracts: [],
+      contract_shapes: [],
+    },
     [],
     runtime=RuntimeCloudflare,
   )

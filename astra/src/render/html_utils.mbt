@@ -64,7 +64,7 @@ fn transform_internal_links(html : String, trailing_slash : Bool) -> String {
 /// e.g., /00_introduction/01_overview/ -> /introduction/overview/
 fn transform_url_path(url : String, trailing_slash : Bool) -> String {
   // Only transform internal absolute paths starting with /
-  if !(url.has_prefix("/")) || url.has_prefix("//") {
+  if !url.has_prefix("/") || url.has_prefix("//") {
     return url
   }
   // Split by / and process each segment
@@ -75,13 +75,13 @@ fn transform_url_path(url : String, trailing_slash : Bool) -> String {
       result.push("")
     } else {
       // Remove numeric prefix (e.g., "00_intro" -> "intro", "01_getting-started" -> "getting-started")
-      let (_, name) = @astra.parse_numeric_prefix(segment.to_string())
+      let (_, name) = @astra.parse_numeric_prefix(segment.to_owned())
       result.push(name)
     }
   }
   let path = result.join("/")
   // Ensure trailing slash consistency
-  if trailing_slash && !(path.has_suffix("/")) && !(path.contains(".")) {
+  if trailing_slash && !path.has_suffix("/") && !path.contains(".") {
     path + "/"
   } else {
     path

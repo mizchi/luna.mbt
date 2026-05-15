@@ -4,6 +4,7 @@
     { "path": "mizchi/luna/dom", "alias": "element" },
     { "path": "mizchi/signals", "alias": "signal" },
     { "path": "mizchi/sol/action", "alias": "action" },
+    { "path": "example/sol-auth/__gen__/types", "alias": "types" },
     { "path": "mizchi/js/core", "alias": "js" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
     "moonbitlang/core/json"

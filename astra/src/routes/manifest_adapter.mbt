@@ -30,7 +30,9 @@ pub fn page_metas_to_manifest(
   }
 
   // Determine fallback based on config
-  let fallback = FallbackConfig::NotFound(path=@astra.url_to_output_path("/404/"))
+  let fallback = FallbackConfig::NotFound(
+    path=@astra.url_to_output_path("/404/"),
+  )
   RouteManifest::{ routes, fallback } |> ignore
   // Use config for potential SPA fallback
   if config.navigation.spa {
@@ -50,7 +52,9 @@ pub fn page_metas_to_manifest(
 ///|
 /// Convert RouteManifest back to PageMeta array
 /// Only static routes can be converted
-pub fn manifest_to_page_metas(manifest : RouteManifest) -> Array[@astra.PageMeta] {
+pub fn manifest_to_page_metas(
+  manifest : RouteManifest,
+) -> Array[@astra.PageMeta] {
   let pages : Array[@astra.PageMeta] = []
   for route in manifest.routes {
     match route {

@@ -6,16 +6,22 @@
 
 ///|
 /// Generate types.mbt content with all Props struct definitions, ComponentRef factories,
-/// route constants, ActionRef factories, and Locale enum
+/// route constants, action key factories, and Locale enum
 fn generate_types_mbt(
   structs : Array[StructExport],
   route_info? : RouteInfo = RouteInfo::{
     _page_components: [],
     _api_handlers: [],
     route_paths: [],
+    route_queries: [],
     action_ids: [],
+    action_contracts: [],
+    api_contracts: [],
+    contract_shapes: [],
   },
   static_dirs? : Array[StaticDirEntry] = [],
+  external_client_bundle? : Bool = false,
+  client_assets? : Array[ContractClientAsset] = [],
 ) -> String {
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated types for island props\n")
@@ -33,9 +39,19 @@ fn generate_types_mbt(
       buf.write_string(" derive(ToJson, FromJson)\n\n")
     }
   }
+  let emitted_struct_names = structs.map(fn(s) { s.name })
+  for shape in route_info.contract_shapes {
+    if emitted_struct_names.contains(shape.name) {
+      continue
+    }
+    buf.write_string("///| Contract data shape \{shape.name}\n")
+    buf.write_string(contract_data_shape_raw_definition(shape))
+    buf.write_string(" derive(ToJson, FromJson)\n\n")
+    emitted_struct_names.push(shape.name)
+  }
 
   // Generate ComponentRef factory functions
-  if !(structs.is_empty()) {
+  if !structs.is_empty() {
     buf.write_string(
       "// =============================================================================\n",
     )
@@ -47,27 +63,63 @@ fn generate_types_mbt(
   for s in structs {
     let component_name = extract_component_name_from_props(s.name)
     let url = "/static/\{component_name}.js"
+    let default_url = if external_client_bundle {
+      contract_client_asset_url(client_assets, component_name)
+    } else {
+      Some(url)
+    }
     let is_wc = is_web_component(component_name)
     buf.write_string("///|\n")
     buf.write_string(
-      "///| Create ComponentRef for \{component_name} component\n",
+      "///| Create ComponentRef for \{component_name} component with an explicit client URL\n",
     )
-    buf.write_string("pub fn \{component_name}(\n")
+    buf.write_string("pub fn \{component_name}_at(\n")
+    buf.write_string("  url : String,\n")
     buf.write_string("  props : \{s.name},\n")
     buf.write_string("  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n")
     buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
-    buf.write_string("  { url: \"\{url}\", props, wc: \{is_wc}, trigger }\n")
+    buf.write_string("  { url, props, wc: \{is_wc}, trigger }\n")
     buf.write_string("}\n\n")
+    match default_url {
+      Some(default_url) => {
+        buf.write_string("///|\n")
+        buf.write_string(
+          "///| Create ComponentRef for \{component_name} component using the configured client URL\n",
+        )
+        buf.write_string("pub fn \{component_name}(\n")
+        buf.write_string("  props : \{s.name},\n")
+        buf.write_string(
+          "  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n",
+        )
+        buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
+        buf.write_string(
+          "  \{component_name}_at(\"\{default_url}\", props, trigger~)\n",
+        )
+        buf.write_string("}\n\n")
+      }
+      None => ()
+    }
   }
 
   // Generate route path constants and param name constants
   buf.write_string(generate_route_constants(route_info.route_paths))
 
+  // Generate route-specific typed param accessors
+  buf.write_string(generate_route_param_accessors(route_info.route_paths))
+
+  // Generate route-specific typed query accessors
+  buf.write_string(generate_route_query_accessors(route_info.route_queries))
+
   // Generate link builder functions
   buf.write_string(generate_link_builders(route_info.route_paths))
 
-  // Generate ActionRef factory functions
-  buf.write_string(generate_action_ref_factories(route_info.action_ids))
+  // Generate action key factory functions
+  buf.write_string(
+    generate_action_key_factories(
+      route_info.action_ids,
+      action_contracts=route_info.action_contracts,
+    ),
+  )
 
   // Generate Locale enum
   buf.write_string(generate_locale_enum(static_dirs))
@@ -78,26 +130,27 @@ fn generate_types_mbt(
 ///|
 /// Generate round-trip tests for all Props types.
 /// These tests verify that to_json → from_json produces identical values.
-fn generate_types_roundtrip_tests(structs : Array[StructExport]) -> String {
+fn generate_types_roundtrip_tests(
+  structs : Array[StructExport],
+  external_client_bundle? : Bool = false,
+) -> String {
   if structs.is_empty() {
     return ""
   }
   let buf = StringBuilder::new()
   buf.write_string("///| Auto-generated Props round-trip tests\n")
-  buf.write_string("///| Verifies to_json/from_json symmetry for all island Props types\n\n")
+  buf.write_string(
+    "///| Verifies to_json/from_json symmetry for all island Props types\n\n",
+  )
   for s in structs {
     let component_name = extract_component_name_from_props(s.name)
     buf.write_string("///|\n")
     buf.write_string("test \"\{s.name} round-trip\" {\n")
-    buf.write_string(
-      "  let json_str = \{default_props_json(s)}\n",
-    )
+    buf.write_string("  let json_str = \{default_props_json(s)}\n")
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string(
-      "  let props : \{s.name} = @json.from_json(json)\n",
-    )
+    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
     buf.write_string("  let roundtrip = props.to_json()\n")
     buf.write_string(
       "  let restored : \{s.name} = @json.from_json(roundtrip)\n",
@@ -109,16 +162,17 @@ fn generate_types_roundtrip_tests(structs : Array[StructExport]) -> String {
     // Also verify ComponentRef factory creates valid ref
     buf.write_string("///|\n")
     buf.write_string("test \"\{component_name} ComponentRef url\" {\n")
-    buf.write_string(
-      "  let json_str = \{default_props_json(s)}\n",
-    )
+    buf.write_string("  let json_str = \{default_props_json(s)}\n")
     buf.write_string(
       "  let json : Json = @json.parse(json_str) catch { _ => panic() }\n",
     )
-    buf.write_string(
-      "  let props : \{s.name} = @json.from_json(json)\n",
-    )
-    buf.write_string("  let cref = \{component_name}(props)\n")
+    buf.write_string("  let props : \{s.name} = @json.from_json(json)\n")
+    let factory_call = if external_client_bundle {
+      "\{component_name}_at(\"/static/\{component_name}.js\", props)"
+    } else {
+      "\{component_name}(props)"
+    }
+    buf.write_string("  let cref = \{factory_call}\n")
     buf.write_string(
       "  assert_true(cref.url.has_suffix(\"\{component_name}.js\"))\n",
     )
@@ -173,14 +227,18 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
     match line.find(":") {
       Some(colon) => {
         let name = line.substring(end=colon).trim_space().to_string()
-        let mut type_str = line.substring(start=colon + 1).trim_space().to_string()
+        let mut type_str = line
+          .substring(start=colon + 1)
+          .trim_space()
+          .to_string()
         // Remove trailing comma if present
         if type_str.has_suffix(",") {
-          type_str = type_str.substring(end=type_str.length() - 1)
+          type_str = type_str
+            .substring(end=type_str.length() - 1)
             .trim_space()
             .to_string()
         }
-        if !(name.is_empty()) && !(type_str.is_empty()) {
+        if !name.is_empty() && !type_str.is_empty() {
           fields.push((name, type_str))
         }
       }
@@ -215,25 +273,47 @@ fn default_json_value(type_str : String) -> String {
 fn generate_types_pkg(
   structs : Array[StructExport],
   has_actions? : Bool = false,
+  external_client_bundle? : Bool = false,
+  has_route_params? : Bool = false,
+  client_assets? : Array[ContractClientAsset] = [],
+  contract_shapes? : Array[ContractDataShape] = [],
 ) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("import {\n")
-  buf.write_string("  \"moonbitlang/core/json\",\n")
-  buf.write_string("  \"mizchi/luna\" @luna,\n")
-  if has_actions {
-    buf.write_string("  \"mizchi/sol/action\" @action,\n")
+  let imports : Array[String] = []
+  if !structs.is_empty() || !contract_shapes.is_empty() {
+    imports.push("  \"moonbitlang/core/json\",")
   }
-  buf.write_string("}\n\n")
+  if !structs.is_empty() {
+    imports.push("  \"mizchi/luna\" @luna,")
+  }
+  if has_route_params {
+    imports.push("  \"mizchi/sol/router\" @router,")
+  }
+  if has_actions {
+    imports.push("  \"mizchi/sol/action\" @action,")
+  }
+  if !imports.is_empty() {
+    buf.write_string("import {\n")
+    for item in imports {
+      buf.write_string(item)
+      buf.write_string("\n")
+    }
+    buf.write_string("}\n\n")
+  }
   buf.write_string("supported_targets = \"js\"\n\n")
+  buf.write_string("warnings = \"-29\"\n\n")
   buf.write_string("options(\n")
-  buf.write_string("  \"warn-list\": \"-29\",\n")
   // Export all struct names and factory functions
   let exports : Array[String] = []
   for s in structs {
     exports.push(s.name)
     // Add factory function name (derived from Props name)
     let fn_name = extract_component_name_from_props(s.name)
-    exports.push(fn_name)
+    exports.push("\{fn_name}_at")
+    if !external_client_bundle ||
+      contract_client_assets_has(client_assets, fn_name) {
+      exports.push(fn_name)
+    }
   }
   let exports_str = exports.map(fn(n) { "\"\{n}\"" }).join(", ")
   buf.write_string(
@@ -241,6 +321,392 @@ fn generate_types_pkg(
   )
   buf.write_string(")\n")
   buf.to_string()
+}
+
+///|
+/// Generate TypeScript declarations for frontend code that consumes Sol contracts.
+fn generate_typescript_contract_decl(
+  structs : Array[StructExport],
+  route_info? : RouteInfo = RouteInfo::{
+    _page_components: [],
+    _api_handlers: [],
+    route_paths: [],
+    route_queries: [],
+    action_ids: [],
+    action_contracts: [],
+    api_contracts: [],
+    contract_shapes: [],
+  },
+  client_assets? : Array[ContractClientAsset] = [],
+) -> String {
+  if structs.is_empty() &&
+    route_info.route_paths.is_empty() &&
+    route_info.route_queries.is_empty() &&
+    route_info.action_ids.is_empty() &&
+    route_info.action_contracts.is_empty() &&
+    route_info.api_contracts.is_empty() &&
+    route_info.contract_shapes.is_empty() {
+    return ""
+  }
+  let buf = StringBuilder::new()
+  buf.write_string("// Auto-generated by sol generate. Do not edit.\n\n")
+
+  let emitted_struct_names = structs.map(fn(s) { s.name })
+  for shape in route_info.contract_shapes {
+    if emitted_struct_names.contains(shape.name) {
+      continue
+    }
+    write_typescript_shape_interface(buf, shape.name, shape.fields)
+    emitted_struct_names.push(shape.name)
+  }
+
+  if !structs.is_empty() {
+    for s in structs {
+      write_typescript_shape_interface(
+        buf,
+        s.name,
+        extract_struct_fields(s.raw_definition).map(fn(field) {
+          { name: field.0, type_name: field.1 }
+        }),
+      )
+    }
+    buf.write_string("export interface SolComponentProps {\n")
+    for s in structs {
+      let component_name = extract_component_name_from_props(s.name)
+      buf.write_string(
+        "  \{typescript_string_literal(component_name)}: \{s.name};\n",
+      )
+    }
+    buf.write_string("}\n\n")
+    buf.write_string("export interface SolComponentContract {\n")
+    for s in structs {
+      let component_name = extract_component_name_from_props(s.name)
+      let url_type = match
+        contract_client_asset_url(client_assets, component_name) {
+        Some(url) => typescript_string_literal(url)
+        None => "string"
+      }
+      let wc = if is_web_component(component_name) { "true" } else { "false" }
+      buf.write_string(
+        "  \{typescript_string_literal(component_name)}: { props: \{s.name}; url: \{url_type}; wc: \{wc}; };\n",
+      )
+    }
+    buf.write_string("}\n\n")
+    buf.write_string(
+      "export type SolComponentName = keyof SolComponentProps;\n",
+    )
+    buf.write_string(
+      "export type SolComponentPropsOf<C extends SolComponentName> = SolComponentProps[C];\n",
+    )
+    buf.write_string(
+      "export type SolComponentAsset<C extends SolComponentName> = SolComponentContract[C];\n",
+    )
+    buf.write_string(
+      "export type SolComponentUrl<C extends SolComponentName> = SolComponentContract[C][\"url\"];\n\n",
+    )
+    buf.write_string(
+      "export interface SolComponentRef<C extends SolComponentName = SolComponentName> {\n",
+    )
+    buf.write_string("  component: C;\n")
+    buf.write_string("  props: SolComponentProps[C];\n")
+    buf.write_string("  url: SolComponentContract[C][\"url\"];\n")
+    buf.write_string("  wc: SolComponentContract[C][\"wc\"];\n")
+    buf.write_string("}\n\n")
+  }
+
+  if !route_info.route_paths.is_empty() {
+    buf.write_string(
+      generate_typescript_route_decl(
+        route_info.route_paths,
+        route_queries=route_info.route_queries,
+      ),
+    )
+  }
+
+  if !route_info.action_ids.is_empty() {
+    buf.write_string(
+      generate_typescript_action_decl(
+        route_info.action_ids,
+        action_contracts=route_info.action_contracts,
+      ),
+    )
+  }
+
+  if !route_info.api_contracts.is_empty() {
+    buf.write_string(generate_typescript_api_decl(route_info.api_contracts))
+  }
+
+  buf.to_string()
+}
+
+///|
+fn write_typescript_shape_interface(
+  buf : StringBuilder,
+  name : String,
+  fields : Array[ContractPropsField],
+) -> Unit {
+  buf.write_string("export interface \{name} {\n")
+  for field in fields {
+    let optional = moonbit_type_is_top_level_optional(field.type_name)
+    let marker = if optional { "?" } else { "" }
+    buf.write_string(
+      "  \{field.name}\{marker}: \{moonbit_type_to_typescript_type(field.type_name)};\n",
+    )
+  }
+  buf.write_string("}\n\n")
+}
+
+///|
+fn generate_typescript_route_decl(
+  route_paths : Array[String],
+  route_queries? : Array[RouteQueryContract] = [],
+) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("export type SolRoutePath = ")
+  buf.write_string(typescript_string_union(route_paths))
+  buf.write_string(";\n\n")
+  buf.write_string("export interface SolRouteParams {\n")
+  for path in route_paths {
+    let fields = unique_param_fields(extract_param_specs_from_path(path))
+    buf.write_string("  \{typescript_string_literal(path)}: ")
+    if fields.is_empty() {
+      buf.write_string("undefined")
+    } else {
+      buf.write_string("{ ")
+      for item in fields {
+        let spec = item.0
+        let field = item.1
+        let marker = if spec.optional { "?" } else { "" }
+        let field_type = if spec.optional { "string | null" } else { "string" }
+        buf.write_string("\{field}\{marker}: \{field_type}; ")
+      }
+      buf.write_string("}")
+    }
+    buf.write_string(";\n")
+  }
+  buf.write_string("}\n\n")
+  buf.write_string(
+    "export type SolRouteParamsOf<P extends SolRoutePath> = SolRouteParams[P];\n",
+  )
+  buf.write_string("export interface SolRouteQuery {\n")
+  for path in route_paths {
+    let query = route_query_for_path(route_queries, path)
+    buf.write_string("  \{typescript_string_literal(path)}: ")
+    match query {
+      Some(query) =>
+        if query.query.is_empty() {
+          buf.write_string("undefined")
+        } else {
+          buf.write_string("{ ")
+          for item in query.query {
+            let marker = if item.optional { "?" } else { "" }
+            let field_type = if item.optional {
+              "string | null"
+            } else {
+              "string"
+            }
+            buf.write_string(
+              "\{typescript_property_key(item.name)}\{marker}: \{field_type}; ",
+            )
+          }
+          buf.write_string("}")
+        }
+      None => buf.write_string("undefined")
+    }
+    buf.write_string(";\n")
+  }
+  buf.write_string("}\n\n")
+  buf.write_string(
+    "export type SolRouteQueryOf<P extends SolRoutePath> = SolRouteQuery[P];\n",
+  )
+  buf.write_string(
+    "export type SolRouteRef<P extends SolRoutePath = SolRoutePath> = P extends SolRoutePath ? SolRouteParams[P] extends undefined ? SolRouteQuery[P] extends undefined ? { path: P; params?: undefined; query?: undefined; } : { path: P; params?: undefined; query: SolRouteQuery[P]; } : SolRouteQuery[P] extends undefined ? { path: P; params: SolRouteParams[P]; query?: undefined; } : { path: P; params: SolRouteParams[P]; query: SolRouteQuery[P]; } : never;\n\n",
+  )
+  buf.to_string()
+}
+
+///|
+fn route_query_for_path(
+  route_queries : Array[RouteQueryContract],
+  path : String,
+) -> RouteQueryContract? {
+  for query in route_queries {
+    if query.path == path {
+      return Some(query)
+    }
+  }
+  None
+}
+
+///|
+fn generate_typescript_action_decl(
+  action_ids : Array[String],
+  action_contracts? : Array[ActionTypeContract] = [],
+) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("export type SolActionId = ")
+  buf.write_string(typescript_string_union(action_ids))
+  buf.write_string(";\n\n")
+  buf.write_string("export interface SolActionContract {\n")
+  for id in action_ids {
+    let contract = action_contract_for_id(action_contracts, id)
+    let request_type = match contract {
+      Some(contract) => contract.request_type.unwrap_or("unknown")
+      None => "unknown"
+    }
+    let response_type = match contract {
+      Some(contract) => contract.response_type.unwrap_or("unknown")
+      None => "unknown"
+    }
+    buf.write_string(
+      "  \{typescript_string_literal(id)}: { request: \{request_type}; response: \{response_type}; };\n",
+    )
+  }
+  buf.write_string("}\n\n")
+  buf.write_string(
+    "export interface SolActionKey<I extends SolActionId = SolActionId> {\n",
+  )
+  buf.write_string("  id: I;\n")
+  buf.write_string("  basePath: \"/_action\";\n")
+  buf.write_string("}\n\n")
+  buf.write_string(
+    "export type SolActionRequest<I extends SolActionId> = SolActionContract[I][\"request\"];\n",
+  )
+  buf.write_string(
+    "export type SolActionResponse<I extends SolActionId> = SolActionContract[I][\"response\"];\n",
+  )
+  buf.write_string(
+    "export type SolTypedActionKey<I extends SolActionId = SolActionId> = SolActionKey<I> & { readonly __request?: SolActionRequest<I>; readonly __response?: SolActionResponse<I>; };\n",
+  )
+  buf.to_string()
+}
+
+///|
+fn generate_typescript_api_decl(
+  api_contracts : Array[ApiTypeContract],
+) -> String {
+  let buf = StringBuilder::new()
+  let keys : Array[String] = []
+  for api in api_contracts {
+    keys.push(api_contract_key(api))
+  }
+  buf.write_string("export type SolApiKey = ")
+  buf.write_string(typescript_string_union(keys))
+  buf.write_string(";\n\n")
+  buf.write_string("export interface SolApiContract {\n")
+  for api in api_contracts {
+    let key = api_contract_key(api)
+    let request_type = api.request_type.unwrap_or("unknown")
+    let response_type = api.response_type.unwrap_or("unknown")
+    buf.write_string(
+      "  \{typescript_string_literal(key)}: { method: \{typescript_string_literal(api.method_name)}; path: \{typescript_string_literal(api.path)}; request: \{request_type}; response: \{response_type}; };\n",
+    )
+  }
+  buf.write_string("}\n\n")
+  buf.write_string(
+    "export type SolApiRequest<K extends SolApiKey> = SolApiContract[K][\"request\"];\n",
+  )
+  buf.write_string(
+    "export type SolApiResponse<K extends SolApiKey> = SolApiContract[K][\"response\"];\n",
+  )
+  buf.to_string()
+}
+
+///|
+fn api_contract_key(api : ApiTypeContract) -> String {
+  api.method_name + " " + api.path
+}
+
+///|
+fn typescript_string_union(values : Array[String]) -> String {
+  if values.is_empty() {
+    return "never"
+  }
+  let buf = StringBuilder::new()
+  for i, value in values {
+    if i > 0 {
+      buf.write_string(" | ")
+    }
+    buf.write_string(typescript_string_literal(value))
+  }
+  buf.to_string()
+}
+
+///|
+fn typescript_string_literal(value : String) -> String {
+  let buf = StringBuilder::new()
+  buf.write_char('"')
+  for c in value {
+    match c {
+      '"' => buf.write_string("\\\"")
+      '\\' => buf.write_string("\\\\")
+      '\n' => buf.write_string("\\n")
+      '\r' => buf.write_string("\\r")
+      '\t' => buf.write_string("\\t")
+      _ => buf.write_char(c)
+    }
+  }
+  buf.write_char('"')
+  buf.to_string()
+}
+
+///|
+fn typescript_property_key(value : String) -> String {
+  if is_valid_value_identifier(value) {
+    value
+  } else {
+    typescript_string_literal(value)
+  }
+}
+
+///|
+fn moonbit_type_is_top_level_optional(type_str : String) -> Bool {
+  type_str.trim_space().to_string().has_suffix("?")
+}
+
+///|
+fn moonbit_type_to_typescript_type(type_str : String) -> String {
+  let type_name = type_str.trim_space().to_string()
+  if type_name.has_suffix("?") {
+    let inner = type_name.substring(end=type_name.length() - 1)
+    return moonbit_type_to_typescript_type(inner) + " | null"
+  }
+  if type_name.has_prefix("Array[") && type_name.has_suffix("]") {
+    let inner = type_name.substring(start=6, end=type_name.length() - 1)
+    return typescript_array_type(moonbit_type_to_typescript_type(inner))
+  }
+  if type_name.has_prefix("Map[") && type_name.has_suffix("]") {
+    let inner = type_name.substring(start=4, end=type_name.length() - 1)
+    let params = split_params(inner)
+    if params.length() == 2 {
+      let key = moonbit_type_to_typescript_type(params[0])
+      let value = moonbit_type_to_typescript_type(params[1])
+      let key_type = if key == "string" || key == "number" {
+        key
+      } else {
+        "string"
+      }
+      return "Record<\{key_type}, \{value}>"
+    }
+  }
+  match type_name {
+    "Unit" => "undefined"
+    "Bool" => "boolean"
+    "Int" | "UInt" | "Float" | "Double" | "Byte" | "Char" => "number"
+    "Int64" | "UInt64" => "bigint"
+    "String" => "string"
+    "Json" => "unknown"
+    _ => "unknown"
+  }
+}
+
+///|
+fn typescript_array_type(element_type : String) -> String {
+  if element_type.contains("|") {
+    "(\{element_type})[]"
+  } else {
+    "\{element_type}[]"
+  }
 }
 
 // =============================================================================
@@ -266,7 +732,7 @@ pub fn split_params(params_str : String) -> Array[String] {
       ',' =>
         if depth == 0 {
           let s = current.to_string().trim_space().to_string()
-          if !(s.is_empty()) {
+          if !s.is_empty() {
             result.push(s)
           }
           current.reset()
@@ -278,7 +744,7 @@ pub fn split_params(params_str : String) -> Array[String] {
   }
   // Add last param
   let s = current.to_string().trim_space().to_string()
-  if !(s.is_empty()) {
+  if !s.is_empty() {
     result.push(s)
   }
   result

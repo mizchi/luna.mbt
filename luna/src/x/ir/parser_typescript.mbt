@@ -31,7 +31,7 @@ pub fn parse_typescript_with_options(
   let mut pending_annotations : Array[String] = []
   while i < lines.length() {
     let line_view = lines[i]
-    let line = line_view.to_string().trim(chars=" \t").to_string()
+    let line = line_view.to_owned().trim(chars=" \t").to_owned()
 
     // JSDoc comment block start
     if line.has_prefix("/**") {
@@ -109,7 +109,7 @@ fn parse_jsdoc(
   let annotations : Array[String] = []
   let mut i = start
   while i < lines.length() {
-    let line = lines[i].to_string().trim(chars=" \t").to_string()
+    let line = lines[i].to_owned().trim(chars=" \t").to_owned()
 
     // End of JSDoc
     if line.contains("*/") {
@@ -128,7 +128,7 @@ fn parse_jsdoc(
 
     // Middle line of JSDoc
     if line.has_prefix("*") {
-      let content = safe_substring(line, 1).trim(chars=" \t").to_string()
+      let content = safe_substring(line, 1).trim(chars=" \t").to_owned()
       if content.has_prefix("@island") {
         annotations.push("island")
       } else if content.has_prefix("@") {
@@ -151,12 +151,12 @@ fn parse_jsdoc(
 ///|
 /// Extract content from a JSDoc line
 fn extract_jsdoc_content(line : String) -> String {
-  let trimmed = line.trim(chars=" \t*").to_string()
+  let trimmed = line.trim(chars=" \t*").to_owned()
   if trimmed.has_prefix("/") {
-    safe_substring(trimmed, 1).trim(chars=" \t").to_string()
+    safe_substring(trimmed, 1).trim(chars=" \t").to_owned()
   } else if trimmed.has_suffix("/") {
     let end = trimmed.length() - 1
-    trimmed[0:end].to_string().trim(chars=" \t").to_string()
+    trimmed[0:end].to_owned().trim(chars=" \t").to_owned()
   } else {
     trimmed
   }
@@ -173,7 +173,7 @@ fn parse_ts_interface(
   start : Int,
   doc : String?,
 ) -> Result[(StructDef, Int), String] {
-  let line = lines[start].to_string().trim(chars=" \t").to_string()
+  let line = lines[start].to_owned().trim(chars=" \t").to_owned()
 
   // Extract interface name
   let prefix_len = if line.has_prefix("export interface ") { 17 } else { 10 }
@@ -190,7 +190,7 @@ fn parse_ts_interface(
   let mut i = start + 1
   let mut found_close = false
   while i < lines.length() {
-    let l = lines[i].to_string().trim(chars=" \t").to_string()
+    let l = lines[i].to_owned().trim(chars=" \t").to_owned()
 
     // Skip empty lines and comments
     if l.length() == 0 || l.has_prefix("//") {
@@ -233,7 +233,7 @@ fn parse_ts_interface(
 /// Parse a TypeScript interface field
 fn parse_ts_field(line : String) -> Result[Field, String] {
   // Remove trailing semicolon and comma
-  let trimmed = line.trim(chars=" \t;,").to_string()
+  let trimmed = line.trim(chars=" \t;,").to_owned()
 
   // Skip lines that don't look like fields
   if trimmed.has_prefix("//") ||
@@ -258,10 +258,10 @@ fn parse_ts_field(line : String) -> Result[Field, String] {
     None => Err("No colon in field definition")
     Some(idx) => {
       // Extract name (without optional marker)
-      let name_part = trimmed[0:idx].to_string().trim(chars=" \t?").to_string()
+      let name_part = trimmed[0:idx].to_owned().trim(chars=" \t?").to_owned()
       let type_str = safe_substring(trimmed, idx + 1)
         .trim(chars=" \t")
-        .to_string()
+        .to_owned()
 
       // Check for | null or | undefined
       let is_nullable = type_str.contains("| null") ||
@@ -273,7 +273,7 @@ fn parse_ts_field(line : String) -> Result[Field, String] {
         .replace_all(old="| null", new="")
         .replace_all(old="| undefined", new="")
         .trim(chars=" \t")
-        .to_string()
+        .to_owned()
       } else {
         type_str
       }
@@ -297,25 +297,25 @@ fn parse_ts_field(line : String) -> Result[Field, String] {
 ///|
 /// Parse a TypeScript type reference
 pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
-  let s = type_str.trim(chars=" \t").to_string()
+  let s = type_str.trim(chars=" \t").to_owned()
 
   // Check for array type (T[] or Array<T>)
   if s.has_suffix("[]") {
-    let inner = s[0:s.length() - 2].to_string()
+    let inner = s[0:s.length() - 2].to_owned()
     return Array(parse_ts_type_ref(inner))
   }
   if s.has_prefix("Array<") && s.has_suffix(">") {
-    let inner = s[6:s.length() - 1].to_string()
+    let inner = s[6:s.length() - 1].to_owned()
     return Array(parse_ts_type_ref(inner))
   }
 
   // Check for Record type
   if s.has_prefix("Record<") && s.has_suffix(">") {
-    let inner = s[7:s.length() - 1].to_string()
+    let inner = s[7:s.length() - 1].to_owned()
     match find_char(inner, ',') {
       Some(idx) => {
-        let key = inner[0:idx].to_string().trim(chars=" \t").to_string()
-        let value = safe_substring(inner, idx + 1).trim(chars=" \t").to_string()
+        let key = inner[0:idx].to_owned().trim(chars=" \t").to_owned()
+        let value = safe_substring(inner, idx + 1).trim(chars=" \t").to_owned()
         return Map(parse_ts_type_ref(key), parse_ts_type_ref(value))
       }
       None => return Unknown
@@ -326,31 +326,28 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
   if s.contains("=>") {
     match find_substring(s, "=>") {
       Some(arrow_idx) => {
-        let params_part = s[0:arrow_idx]
-          .to_string()
-          .trim(chars=" \t")
-          .to_string()
+        let params_part = s[0:arrow_idx].to_owned().trim(chars=" \t").to_owned()
         let return_part = safe_substring(s, arrow_idx + 2)
           .trim(chars=" \t")
-          .to_string()
+          .to_owned()
         let params : Array[TypeRef] = []
         if params_part.has_prefix("(") && params_part.has_suffix(")") {
-          let inner = params_part[1:params_part.length() - 1].to_string()
+          let inner = params_part[1:params_part.length() - 1].to_owned()
           // Simple parsing - split by comma (doesn't handle nested generics)
           if inner.length() > 0 {
             for p in inner.split(",") {
               // TypeScript params have name: type format
-              let p_str = p.to_string()
+              let p_str = p.to_owned()
               match find_char(p_str, ':') {
                 Some(colon_idx) => {
                   let type_part = safe_substring(p_str, colon_idx + 1)
                     .trim(chars=" \t")
-                    .to_string()
+                    .to_owned()
                   params.push(parse_ts_type_ref(type_part))
                 }
                 None =>
                   params.push(
-                    parse_ts_type_ref(p_str.trim(chars=" \t").to_string()),
+                    parse_ts_type_ref(p_str.trim(chars=" \t").to_owned()),
                   )
               }
             }
@@ -366,7 +363,7 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
   if s.contains("|") {
     let types : Array[TypeRef] = []
     for part in s.split("|") {
-      let part_str = part.to_string().trim(chars=" \t").to_string()
+      let part_str = part.to_owned().trim(chars=" \t").to_owned()
       if part_str.length() > 0 {
         types.push(parse_ts_type_ref(part_str))
       }
@@ -379,7 +376,7 @@ pub fn parse_ts_type_ref(type_str : String) -> TypeRef {
   // Check for string literal type
   if (s.has_prefix("\"") && s.has_suffix("\"")) ||
     (s.has_prefix("'") && s.has_suffix("'")) {
-    let inner = s[1:s.length() - 1].to_string()
+    let inner = s[1:s.length() - 1].to_owned()
     return Literal(StringLit(inner))
   }
 
@@ -416,12 +413,12 @@ fn parse_ts_type_alias(
   match find_char(rest, '=') {
     None => Err("Expected '=' in type alias")
     Some(idx) => {
-      let name_part = rest[0:idx].to_string().trim(chars=" \t").to_string()
+      let name_part = rest[0:idx].to_owned().trim(chars=" \t").to_owned()
       // Extract just the name without generic parameters
       let name = extract_ts_identifier(name_part)
       let target_str = safe_substring(rest, idx + 1)
         .trim(chars=" \t;")
-        .to_string()
+        .to_owned()
       Ok({ name, doc, type_params: [], target: parse_ts_type_ref(target_str) })
     }
   }

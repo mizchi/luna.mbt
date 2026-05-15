@@ -19,6 +19,7 @@ fn show_help() -> Unit {
     #|  deploy         Run deploy preflight and print deploy command
     #|  doctor         Diagnose config and adapter wiring
     #|  generate       Generate .sol directory from config
+    #|  contract-ts    Generate sol.contract.json from TypeScript props interfaces
     #|  clean          Remove generated files and caches
     #|
     #|Options:
@@ -67,6 +68,7 @@ pub async fn run_main(args : Array[String]) -> Unit {
     "deploy" => run_deploy_command(command_args)
     "doctor" => run_doctor_command(command_args)
     "generate" => run_generate_command(command_args)
+    "contract-ts" => run_contract_ts_command(command_args)
     "clean" => run_clean_command(command_args)
     "lint" | "ssg" => {
       @cli_common.console_error(

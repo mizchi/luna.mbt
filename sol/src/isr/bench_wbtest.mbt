@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // ISR Performance Benchmark Tests
 //
 // Measures actual request handling efficiency:

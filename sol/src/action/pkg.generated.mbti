@@ -2,24 +2,30 @@
 package "mizchi/sol/action"
 
 import {
-  "mizchi/js/core",
+  "mizchi/js/browser/dom",
   "mizchi/mars",
   "mizchi/sol/middleware",
+  "moonbitlang/async/js_async",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
-pub fn create_action_invoker(String, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
+pub fn[K : ActionKey] action_id(K) -> String
 
-pub fn create_action_invoker_ref(ActionRef, options? : ActionOptions) -> (@core.Any, (ActionResponse) -> Unit) -> Unit
+pub fn[K : ActionKey] action_url(K) -> String
 
-pub fn invoke_action(String, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
+pub fn[Req : ToJson, Res : @json.FromJson] create_typed_action_invoker_key(TypedActionKey[Req, Res], options? : ActionOptions) -> (Req, (TypedActionResponse[Res]) -> Unit) -> Unit
 
-pub fn invoke_action_ref(ActionRef, @core.Any, (ActionResponse) -> Unit, options? : ActionOptions) -> Unit
+pub fn[T : @json.FromJson] decode_action_body(String) -> T?
+
+pub fn[Req : ToJson, Res : @json.FromJson] invoke_typed_action_key(TypedActionKey[Req, Res], Req, (TypedActionResponse[Res]) -> Unit, options? : ActionOptions) -> Unit
 
 pub fn register_actions(@mars.Server, ActionRegistry) -> Unit
 
-pub fn submit_form_as_action(@core.Any, ActionFormConfig) -> Unit
+pub fn[Res : @json.FromJson] submit_form_as_action(@dom.HTMLFormElement, ActionFormConfig[Res]) -> Unit
+
+pub fn[Req, Res] typed_action_url(TypedActionKey[Req, Res]) -> String
 
 // Errors
 
@@ -28,6 +34,7 @@ pub struct ActionContext {
   ctx : @mars.Context
   body : String
 }
+pub fn[T : @json.FromJson] ActionContext::decode_json(Self) -> T?
 pub fn ActionContext::from_ctx(@mars.Context, String) -> Self
 pub fn ActionContext::get_header(Self, String) -> String?
 pub fn ActionContext::get_query(Self, String) -> String?
@@ -35,32 +42,28 @@ pub fn ActionContext::get_state(Self, String) -> String?
 pub fn ActionContext::set_state(Self, String, String) -> Unit
 
 pub struct ActionDef {
-  id : String
-  handler : ActionHandler
-  middlewares : Array[@middleware.Middleware]
-  require_json : Bool
+  // private fields
 }
-pub fn ActionDef::new(String, ActionHandler) -> Self
+pub fn[K : ActionKey] ActionDef::from_key(K, ActionHandler) -> Self
 pub fn ActionDef::with_middleware(Self, @middleware.Middleware) -> Self
 pub fn ActionDef::with_middlewares(Self, Array[@middleware.Middleware]) -> Self
 pub fn ActionDef::with_require_json(Self, Bool) -> Self
 
-pub struct ActionFormConfig {
-  action : String
-  form_method : String
-  on_success : ((@core.Any) -> Unit)?
-  on_error : ((Int, String) -> Unit)?
-  on_redirect : ((String) -> Bool)?
+pub struct ActionFormConfig[Res] {
+  // private fields
 }
-pub fn ActionFormConfig::from_ref(ActionRef) -> Self
-pub fn ActionFormConfig::new(String) -> Self
+pub fn[Req, Res] ActionFormConfig::from_key(TypedActionKey[Req, Res]) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_error(Self[Res], (Int, String) -> Unit) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_method(Self[Res], String) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_redirect(Self[Res], (String) -> Bool) -> Self[Res]
+pub fn[Res] ActionFormConfig::with_success(Self[Res], (Res) -> Unit) -> Self[Res]
 
 pub(all) struct ActionHandler(async (ActionContext) -> ActionResult)
 
 pub struct ActionOptions {
   headers : Array[(String, String)]
   timeout : Int?
-  signal : @core.Any?
+  signal : @js_async.AbortSignal?
 }
 pub fn ActionOptions::default() -> Self
 
@@ -72,52 +75,24 @@ pub enum ActionPhase {
   Redirecting
 } derive(Eq, @debug.Debug)
 
-pub(all) struct ActionRef {
-  id : String
-  base_path : String
-}
-pub fn ActionRef::to_def(Self, ActionHandler) -> ActionDef
-pub fn ActionRef::url(Self) -> String
-
 pub struct ActionRegistry {
-  actions : Map[String, ActionDef]
-  base_path : String
-  allowed_origins : Array[String]
+  // private fields
 }
 pub fn ActionRegistry::action_ids(Self) -> Array[String]
-pub fn ActionRegistry::action_url(Self, String) -> String
-pub fn ActionRegistry::get(Self, String) -> ActionDef?
 pub fn ActionRegistry::new(allowed_origins? : Array[String]) -> Self
 pub fn ActionRegistry::register(Self, ActionDef) -> Self
 pub fn ActionRegistry::register_all(Self, Array[ActionDef]) -> Self
-pub fn ActionRegistry::register_ref(Self, ActionRef, ActionHandler) -> Self
+pub fn[K : ActionKey] ActionRegistry::register_key(Self, K, ActionHandler) -> Self
 pub fn ActionRegistry::with_base_path(Self, String) -> Self
 
-pub enum ActionResponse {
-  Success(@core.Any)
-  Redirect(String)
-  Error(Int, String)
-  NetworkError(String)
-}
-pub fn ActionResponse::data(Self) -> @core.Any?
-pub fn ActionResponse::error_message(Self) -> String?
-pub fn ActionResponse::is_error(Self) -> Bool
-pub fn ActionResponse::is_redirect(Self) -> Bool
-pub fn ActionResponse::is_success(Self) -> Bool
-pub fn ActionResponse::redirect_url(Self) -> String?
-
-pub enum ActionResult {
-  Success(@core.Any)
-  Redirect(String)
-  HttpRedirect(String)
-  ClientError(Int, String)
-  ServerError(String)
+pub struct ActionResult {
+  // private fields
 }
 pub fn ActionResult::bad_request(String) -> Self
 pub fn ActionResult::forbidden(message? : String) -> Self
 pub fn ActionResult::http_redirect(String) -> Self
+pub fn[T : ToJson] ActionResult::json(T) -> Self
 pub fn ActionResult::not_found(message? : String) -> Self
-pub fn ActionResult::ok(@core.Any) -> Self
 pub fn ActionResult::redirect(String) -> Self
 pub fn ActionResult::server_error(message? : String) -> Self
 pub fn ActionResult::unauthorized(message? : String) -> Self
@@ -130,11 +105,29 @@ pub struct ActionState {
   redirect : String?
 }
 pub fn ActionState::error(status~ : Int, message~ : String) -> Self
-pub fn ActionState::from_response(ActionResponse) -> Self
 pub fn ActionState::idle() -> Self
 pub fn ActionState::pending(message? : String) -> Self
 pub fn ActionState::redirect(String) -> Self
 pub fn ActionState::success(message? : String) -> Self
+
+pub struct TypedActionKey[Req, Res] {
+  id : String
+  base_path : String
+  _request : Req?
+  _response : Res?
+}
+pub fn[Req, Res] TypedActionKey::base_path(Self[Req, Res]) -> String
+pub fn[Req, Res, K : ActionKey] TypedActionKey::from_key(K) -> Self[Req, Res]
+pub fn[Req, Res] TypedActionKey::id(Self[Req, Res]) -> String
+pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res]
+
+pub enum TypedActionResponse[Res] {
+  Success(Res)
+  Redirect(String)
+  Error(Int, String)
+  NetworkError(String)
+  DecodeError(String)
+}
 
 // Type aliases
 pub using @mars {type Server as App}
@@ -142,4 +135,8 @@ pub using @mars {type Server as App}
 pub using @mars {type Context as Ctx}
 
 // Traits
+pub(open) trait ActionKey {
+  id(Self) -> String
+  base_path(Self) -> String
+}
 

@@ -91,7 +91,7 @@ fn build_blog_layout(
 
   // Tags cloud (collect all tags)
   let all_tags = collect_all_tags(ctx.pages)
-  let tags_section = if !(all_tags.is_empty()) {
+  let tags_section = if !all_tags.is_empty() {
     h("aside", [attr("class", "blog-tags-section")], [
       h("h3", [], [@luna.text("Tags")]),
       @components.build_tag_list(ctx, all_tags),
@@ -99,12 +99,16 @@ fn build_blog_layout(
   } else {
     @luna.fragment([])
   }
-  let main = h("main", [attr("class", "blog-content"), attr("data-pagefind-body", "")], [
-    h("div", [attr("class", "blog-container")], [
-      h("div", [attr("class", "blog-main")], [intro, post_list]),
-      tags_section,
-    ]),
-  ])
+  let main = h(
+    "main",
+    [attr("class", "blog-content"), attr("data-pagefind-body", "")],
+    [
+      h("div", [attr("class", "blog-container")], [
+        h("div", [attr("class", "blog-main")], [intro, post_list]),
+        tags_section,
+      ]),
+    ],
+  )
   let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-blog")], [nav, main, footer])
 }
@@ -115,7 +119,7 @@ fn collect_all_tags(pages : Array[@astra.PageMeta]) -> Array[String] {
   let tags_set : Map[String, Bool] = {}
   for page in pages {
     let fm = page.frontmatter
-    if fm.date is Some(_) && !(fm.draft) {
+    if fm.date is Some(_) && !fm.draft {
       for tag in fm.tags {
         tags_set[tag] = true
       }
@@ -156,12 +160,12 @@ fn build_blog_post_layout(
   )
 
   // Meta (date, author)
-  if !(date.is_empty()) || !(author.is_empty()) {
+  if !date.is_empty() || !author.is_empty() {
     header_children.push(@components.build_post_meta(date, author, None))
   }
 
   // Tags
-  if !(frontmatter.tags.is_empty()) {
+  if !frontmatter.tags.is_empty() {
     header_children.push(@components.build_tag_list(ctx, frontmatter.tags))
   }
   let header = h("header", [attr("class", "post-header")], header_children)
@@ -173,11 +177,15 @@ fn build_blog_post_layout(
 
   // Prev/Next navigation
   let prev_next = @components.build_prev_next(ctx, page)
-  let main = h("main", [attr("class", "blog-post-main"), attr("data-pagefind-body", "")], [
-    h("div", [attr("class", "blog-post-container")], [
-      header, article, prev_next,
-    ]),
-  ])
+  let main = h(
+    "main",
+    [attr("class", "blog-post-main"), attr("data-pagefind-body", "")],
+    [
+      h("div", [attr("class", "blog-post-container")], [
+        header, article, prev_next,
+      ]),
+    ],
+  )
   let footer = @components.build_footer(ctx)
   h("div", [attr("class", "layout layout-blog-post")], [nav, main, footer])
 }
@@ -219,15 +227,12 @@ fn build_doc_layout(
   // Main content
   let article = h(
     "article",
-    [
-      attr("class", "doc-content markdown-body"),
-      attr("data-pagefind-body", ""),
-    ],
+    [attr("class", "doc-content markdown-body"), attr("data-pagefind-body", "")],
     [content],
   )
 
   // TOC (outline)
-  let toc_vnode = if !(toc.is_empty()) {
+  let toc_vnode = if !toc.is_empty() {
     @components.build_toc(toc)
   } else {
     @luna.fragment([])
@@ -271,7 +276,7 @@ fn build_html_document(
   html.write_string("  <title>\{page_title}</title>\n")
 
   // Description meta tag
-  if !(desc.is_empty()) {
+  if !desc.is_empty() {
     html.write_string("  <meta name=\"description\" content=\"\{desc}\">\n")
   }
 
@@ -295,7 +300,9 @@ fn build_html_document(
 
   // Preload tags for islands
   if render_result.preload_urls.length() > 0 {
-    html.write_string(@luna_render.generate_preload_tags(render_result.preload_urls))
+    html.write_string(
+      @luna_render.generate_preload_tags(render_result.preload_urls),
+    )
   }
 
   // Prefetch prev/next pages
@@ -351,7 +358,7 @@ fn build_html_document(
   }
 
   // Production-only body snippets (analytics, etc.)
-  if !(ctx.is_dev) {
+  if !ctx.is_dev {
     for snippet in ctx.config.prod_body_snippets {
       html.write_string("  \{snippet}\n")
     }
@@ -372,7 +379,7 @@ fn build_html_document(
 /// Skips external URLs, anchors, and already-prefixed paths.
 fn rewrite_content_links(html : String, base_url : String) -> String {
   let base = if base_url.has_suffix("/") {
-    base_url.substring(end=base_url.length() - 1)
+    base_url[:base_url.length() - 1].to_owned()
   } else {
     base_url
   }
@@ -380,19 +387,27 @@ fn rewrite_content_links(html : String, base_url : String) -> String {
   // Use a placeholder to avoid double-replacement
   let placeholder = "%%BASE_HREF%%"
   let step1 = replace_all_occurrences(
-    html, "href=\"" + base + "/", "href=\"" + placeholder + "/",
+    html,
+    "href=\"" + base + "/",
+    "href=\"" + placeholder + "/",
   )
   let step2 = replace_all_occurrences(step1, "href=\"/", "href=\"" + base + "/")
   let step3 = replace_all_occurrences(
-    step2, "href=\"" + placeholder + "/", "href=\"" + base + "/",
+    step2,
+    "href=\"" + placeholder + "/",
+    "href=\"" + base + "/",
   )
   // Step 2: Same for src
   let step4 = replace_all_occurrences(
-    step3, "src=\"" + base + "/", "src=\"" + placeholder + "/",
+    step3,
+    "src=\"" + base + "/",
+    "src=\"" + placeholder + "/",
   )
   let step5 = replace_all_occurrences(step4, "src=\"/", "src=\"" + base + "/")
   replace_all_occurrences(
-    step5, "src=\"" + placeholder + "/", "src=\"" + base + "/",
+    step5,
+    "src=\"" + placeholder + "/",
+    "src=\"" + base + "/",
   )
 }
 
@@ -402,21 +417,21 @@ fn replace_all_occurrences(
   old : String,
   new_ : String,
 ) -> String {
-  if old.is_empty() || !(input.contains(old)) {
+  if old.is_empty() || !input.contains(old) {
     return input
   }
   let buf = StringBuilder::new()
   let old_len = old.length()
   let mut pos = 0
   while true {
-    match input.substring(start=pos).find(old) {
+    match input[pos:].find(old) {
       Some(idx) => {
-        buf.write_string(input.substring(start=pos, end=pos + idx))
+        buf.write_string(input[pos:pos + idx].to_owned())
         buf.write_string(new_)
         pos = pos + idx + old_len
       }
       None => {
-        buf.write_string(input.substring(start=pos))
+        buf.write_string(input[pos:].to_owned())
         break
       }
     }
@@ -458,7 +473,7 @@ fn write_ogp_meta_tags(
   html.write_string("  <meta property=\"og:title\" content=\"\{title}\">\n")
 
   // og:description
-  if !(desc.is_empty()) {
+  if !desc.is_empty() {
     html.write_string(
       "  <meta property=\"og:description\" content=\"\{desc}\">\n",
     )
@@ -509,7 +524,7 @@ fn write_ogp_meta_tags(
     "  <meta name=\"twitter:card\" content=\"\{twitter_card}\">\n",
   )
   html.write_string("  <meta name=\"twitter:title\" content=\"\{title}\">\n")
-  if !(desc.is_empty()) {
+  if !desc.is_empty() {
     html.write_string(
       "  <meta name=\"twitter:description\" content=\"\{desc}\">\n",
     )
@@ -562,13 +577,14 @@ fn get_page_order(
 /// Apply syntax highlighting to code blocks in HTML
 /// Find substring position starting from `from` index
 fn find_from(s : String, needle : String, from? : Int = 0) -> Int? {
-  let sub = s.substring(start=from)
+  let sub = s[from:]
   match sub.find(needle) {
     Some(idx) => Some(from + idx)
     None => None
   }
 }
 
+///|
 /// Finds <pre class="code-block" data-lang="xxx"> elements and highlights them.
 /// Pure MoonBit implementation using syntree (no JS FFI).
 fn apply_syntax_highlighting(
@@ -576,7 +592,7 @@ fn apply_syntax_highlighting(
   highlighter : @shiki.Highlighter,
 ) -> String {
   let marker = "<pre class=\"code-block\""
-  if !(html.contains(marker)) {
+  if !html.contains(marker) {
     return html
   }
   let result = StringBuilder::new()
@@ -585,22 +601,22 @@ fn apply_syntax_highlighting(
   while pos < len {
     match find_from(html, marker, from=pos) {
       None => {
-        result.write_string(html.substring(start=pos))
+        result.write_string(html[pos:].to_owned())
         break
       }
       Some(start) => {
         // Copy everything before the match
-        result.write_string(html.substring(start=pos, end=start))
+        result.write_string(html[pos:start].to_owned())
         // Find the end of </pre>
         let end_marker = "</pre>"
         match find_from(html, end_marker, from=start) {
           None => {
-            result.write_string(html.substring(start=start))
+            result.write_string(html[start:].to_owned())
             break
           }
           Some(end_pos) => {
             let block_end = end_pos + end_marker.length()
-            let block = html.substring(start=start, end=block_end)
+            let block = html[start:block_end].to_owned()
             // Extract lang from data-lang="xxx"
             let lang = extract_data_attr(block, "data-lang")
             // Extract code content between <code...>...</code>
@@ -630,7 +646,7 @@ fn extract_data_attr(html : String, attr : String) -> String? {
       let val_start = start + needle.length()
       match find_from(html, "\"", from=val_start) {
         None => None
-        Some(val_end) => Some(html.substring(start=val_start, end=val_end))
+        Some(val_end) => Some(html[val_start:val_end].to_owned())
       }
     }
   }
@@ -648,7 +664,7 @@ fn extract_code_content(html : String) -> String? {
           let cs = content_start + 1
           match find_from(html, "</code>") {
             None => None
-            Some(content_end) => Some(html.substring(start=cs, end=content_end))
+            Some(content_end) => Some(html[cs:content_end].to_owned())
           }
         }
       }
@@ -659,16 +675,16 @@ fn extract_code_content(html : String) -> String? {
 test "rewrite_content_links replaces bare links" {
   let html = "<a href=\"/intro/\">Intro</a><a href=\"/about/\">About</a>"
   let result = rewrite_content_links(html, "/sol.mbt/")
-  assert_true!(result.contains("href=\"/sol.mbt/intro/\""))
-  assert_true!(result.contains("href=\"/sol.mbt/about/\""))
+  assert_true(result.contains("href=\"/sol.mbt/intro/\""))
+  assert_true(result.contains("href=\"/sol.mbt/about/\""))
 }
 
 ///|
 test "rewrite_content_links preserves modulepreload" {
   let html = "<link rel=\"modulepreload\" href=\"/sol.mbt/assets/loader.js\">"
   let result = rewrite_content_links(html, "/sol.mbt/")
-  assert_false!(result.contains("hhref"))
-  assert_true!(result.contains("href=\"/sol.mbt/assets/loader.js\""))
+  assert_false(result.contains("hhref"))
+  assert_true(result.contains("href=\"/sol.mbt/assets/loader.js\""))
 }
 
 ///|
@@ -676,8 +692,8 @@ test "rewrite_content_links skips already-prefixed links" {
   let html = "<a href=\"/sol.mbt/luna/\">Luna</a><a href=\"/intro/\">Intro</a>"
   let result = rewrite_content_links(html, "/sol.mbt/")
   // luna link should not be double-prefixed
-  assert_true!(result.contains("href=\"/sol.mbt/luna/\""))
-  assert_false!(result.contains("href=\"/sol.mbt/sol.mbt/"))
+  assert_true(result.contains("href=\"/sol.mbt/luna/\""))
+  assert_false(result.contains("href=\"/sol.mbt/sol.mbt/"))
   // intro link should be prefixed
-  assert_true!(result.contains("href=\"/sol.mbt/intro/\""))
+  assert_true(result.contains("href=\"/sol.mbt/intro/\""))
 }

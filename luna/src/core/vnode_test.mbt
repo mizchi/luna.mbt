@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Tests for VNode
 
 // =============================================================================
@@ -6,7 +9,7 @@
 
 ///|
 test "EventHandler::get_callback" {
-  let called : Ref[Bool] = Ref::new(false)
+  let called : Ref[Bool] = Ref(false)
   let h = handler(fn(_e : Unit) { called.val = true })
   let cb = h.get_callback()
   cb(())
@@ -37,7 +40,7 @@ test "attr_dynamic" {
 
 ///|
 test "attr_handler" {
-  let called : Ref[Bool] = Ref::new(false)
+  let called : Ref[Bool] = Ref(false)
   let h = handler(fn(_e : Unit) { called.val = true })
   let attr : Attr[Unit, String] = attr_handler(h)
   match attr {
@@ -141,6 +144,17 @@ test "fragment creates Fragment node" {
   let node : Node[Unit, String] = fragment([text("a"), text("b")])
   match node {
     Fragment(children) => assert_eq(children.length(), 2)
+    _ => assert_true(false)
+  }
+}
+
+///|
+test "raw_trusted_html requires explicit trusted wrapper" {
+  let trusted = unsafe_trusted_html("<strong>trusted</strong>")
+  assert_eq(trusted.to_string(), "<strong>trusted</strong>")
+  let node : Node[Unit, String] = raw_trusted_html(trusted)
+  match node {
+    RawHtml(content) => assert_eq(content, "<strong>trusted</strong>")
     _ => assert_true(false)
   }
 }
@@ -347,7 +361,7 @@ test "event_handler creates noop handler" {
 
 ///|
 test "handler_from_callback creates handler from callback" {
-  let called : Ref[Bool] = Ref::new(false)
+  let called : Ref[Bool] = Ref(false)
   let h = handler_from_callback(fn() { called.val = true })
   h.get_callback()(())
   assert_true(called.val)

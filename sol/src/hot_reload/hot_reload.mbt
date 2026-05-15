@@ -35,7 +35,7 @@ pub fn resolve_hmr_port(
 ) -> Int {
   match hmr_port {
     Some(raw_hmr) =>
-      @strconv.parse_int(raw_hmr) catch {
+      @string.parse_int(raw_hmr) catch {
         _ => {
           let app = resolve_app_port(app_port~, default_port~)
           default_hmr_port(app, offset~)
@@ -84,10 +84,9 @@ pub fn client_script_with_host_expr(port : Int, host_expr : String) -> String {
     #|  ws.onclose=function(){setTimeout(function(){location.reload()},1000)};
     #|})()
   "<script>" +
-  script.replace(old="__HOST__", new=host_expr).replace(
-    old="__PORT__",
-    new=port_str,
-  ) +
+  script
+  .replace(old="__HOST__", new=host_expr)
+  .replace(old="__PORT__", new=port_str) +
   "</script>"
 }
 
@@ -192,7 +191,7 @@ pub fn inject_script(html : String, script : String) -> String {
 ///|
 fn parse_port_or(raw : String?, fallback : Int) -> Int {
   match raw {
-    Some(v) => @strconv.parse_int(v) catch { _ => fallback }
+    Some(v) => @string.parse_int(v) catch { _ => fallback }
     None => fallback
   }
 }

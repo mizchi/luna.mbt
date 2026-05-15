@@ -9,6 +9,7 @@
 pub(all) struct FuncExport {
   name : String
   signature : String
+  contract : ClientComponentContract
   package_path : String
   import_alias : String
   source_pattern : String // The island pattern from config (e.g., "app/client")
@@ -21,6 +22,125 @@ pub(all) struct StructExport {
   raw_definition : String
   package_path : String
   import_alias : String
+}
+
+///|
+pub(all) enum ClientReturnKind {
+  ClientReturnDomNode
+  ClientReturnVNode
+  ClientReturnUnsupported
+} derive(Eq, Show, Debug)
+
+///|
+pub(all) struct ClientComponentContract {
+  props_type : String?
+  return_kind : ClientReturnKind
+}
+
+///|
+fn ClientComponentContract::can_hydrate(self : ClientComponentContract) -> Bool {
+  match self.props_type {
+    None => false
+    Some(_) =>
+      match self.return_kind {
+        ClientReturnDomNode | ClientReturnVNode => true
+        ClientReturnUnsupported => false
+      }
+  }
+}
+
+///|
+fn client_component_contract_from_signature(
+  signature : String,
+) -> ClientComponentContract {
+  {
+    props_type: extract_client_props_type(signature),
+    return_kind: classify_client_return_type(signature),
+  }
+}
+
+///|
+fn extract_client_props_type(signature : String) -> String? {
+  match signature.find("(") {
+    None => None
+    Some(start) =>
+      match find_matching_paren(signature, start) {
+        None => None
+        Some(end) => {
+          let params_str = signature.substring(start=start + 1, end~)
+          let params = split_params(params_str)
+          if params.length() != 1 {
+            return None
+          }
+          let param = normalize_param_type(params[0])
+          if is_props_type_name(param) {
+            Some(param)
+          } else {
+            None
+          }
+        }
+      }
+  }
+}
+
+///|
+fn normalize_param_type(param : String) -> String {
+  let trimmed = param.trim_space().to_string()
+  match trimmed.find(":") {
+    Some(colon) => trimmed.substring(start=colon + 1).trim_space().to_string()
+    None => trimmed
+  }
+}
+
+///|
+fn is_props_type_name(type_name : String) -> Bool {
+  type_name.has_suffix("Props")
+}
+
+///|
+fn classify_client_return_type(signature : String) -> ClientReturnKind {
+  match extract_signature_return_type(signature) {
+    None => ClientReturnUnsupported
+    Some(ret) =>
+      if ret == "DomNode" || ret.has_suffix(".DomNode") {
+        ClientReturnDomNode
+      } else if ret == "Node[Unit, String]" ||
+        ret.has_prefix("@luna.Node[") ||
+        ret.has_prefix("@core.Node[") {
+        ClientReturnVNode
+      } else {
+        ClientReturnUnsupported
+      }
+  }
+}
+
+///|
+fn extract_signature_return_type(signature : String) -> String? {
+  match signature.find("(") {
+    None => None
+    Some(start) =>
+      match find_matching_paren(signature, start) {
+        None => None
+        Some(end) => {
+          let tail = signature.substring(start=end + 1)
+          match tail.find("->") {
+            None => None
+            Some(arrow) => {
+              let ret = tail.substring(start=arrow + 2).trim_space().to_string()
+              Some(strip_raise_suffix(ret))
+            }
+          }
+        }
+      }
+  }
+}
+
+///|
+fn strip_raise_suffix(type_name : String) -> String {
+  match type_name.find(" raise ") {
+    Some(idx) => type_name.substring(end=idx).trim_space().to_string()
+    None => type_name
+  }
 }
 
 // =============================================================================
@@ -115,6 +235,7 @@ fn collect_island_functions(
       exports.push(FuncExport::{
         name,
         signature: sig,
+        contract: client_component_contract_from_signature(sig),
         package_path: pkg_path,
         import_alias,
         source_pattern,
@@ -153,7 +274,7 @@ fn[FS : @env.FileSystem] collect_island_structs_from_source_with_fs(
       try {
         let entries = fs.readdir_sync(base_path)
         for entry in entries {
-          if entry.has_suffix(".mbt") && !(entry.has_suffix("_test.mbt")) {
+          if entry.has_suffix(".mbt") && !entry.has_suffix("_test.mbt") {
             let file_path = @path.join2(base_path, entry)
             let content = fs.read_file_sync(file_path)
             // Parse struct definitions from source
@@ -268,6 +389,7 @@ fn func_export_from_name(name : String, source_pattern : String) -> FuncExport {
   FuncExport::{
     name,
     signature: "(\{props_type}) -> DomNode", // Assumed signature
+    contract: { props_type: Some(props_type), return_kind: ClientReturnDomNode },
     package_path: source_pattern,
     import_alias: get_dir_name(source_pattern),
     source_pattern,

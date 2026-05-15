@@ -1,8 +1,11 @@
+///|
+using @test {assert_eq}
+
 // Abstract Node Tests
 
 ///|
 fn empty_json() -> Json {
-  Json::object(Map::new())
+  Json::object(Map([]))
 }
 
 ///|

@@ -56,10 +56,11 @@ test "parse_page_config - empty object" {
 test "parse_page_config - mode field" {
   let result = parse_page_config("{\"mode\": \"ssr\"}")
   guard result is Some(config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     config.mode,
     content=(
-      #|Some(ssr)
+      #|Some("ssr")
+
     ),
   )
 }
@@ -68,34 +69,38 @@ test "parse_page_config - mode field" {
 test "parse_page_config - all mode values" {
   let ssr_result = parse_page_config("{\"mode\": \"ssr\"}")
   guard ssr_result is Some(ssr_config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     ssr_config.mode,
     content=(
-      #|Some(ssr)
+      #|Some("ssr")
+
     ),
   )
   let isr_result = parse_page_config("{\"mode\": \"isr\"}")
   guard isr_result is Some(isr_config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     isr_config.mode,
     content=(
-      #|Some(isr)
+      #|Some("isr")
+
     ),
   )
   let spa_result = parse_page_config("{\"mode\": \"spa\"}")
   guard spa_result is Some(spa_config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     spa_config.mode,
     content=(
-      #|Some(spa)
+      #|Some("spa")
+
     ),
   )
   let static_result = parse_page_config("{\"mode\": \"static\"}")
   guard static_result is Some(static_config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     static_config.mode,
     content=(
-      #|Some(static)
+      #|Some("static")
+
     ),
   )
 }
@@ -104,7 +109,7 @@ test "parse_page_config - all mode values" {
 test "parse_page_config - revalidate field" {
   let result = parse_page_config("{\"mode\": \"isr\", \"revalidate\": 3600}")
   guard result is Some(config) else { fail("Expected Some") }
-  inspect(config.revalidate, content="Some(3600)")
+  debug_inspect(config.revalidate, content="Some(3600)")
 }
 
 ///|
@@ -113,16 +118,18 @@ test "parse_page_config - title and description" {
     "{\"title\": \"My Page\", \"description\": \"Page description\"}",
   )
   guard result is Some(config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     config.title,
     content=(
-      #|Some(My Page)
+      #|Some("My Page")
+
     ),
   )
-  inspect(
+  debug_inspect(
     config.description,
     content=(
-      #|Some(Page description)
+      #|Some("Page description")
+
     ),
   )
 }
@@ -131,10 +138,11 @@ test "parse_page_config - title and description" {
 test "parse_page_config - layout field" {
   let result = parse_page_config("{\"layout\": \"docs\"}")
   guard result is Some(config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     config.layout,
     content=(
-      #|Some(docs)
+      #|Some("docs")
+
     ),
   )
 }
@@ -166,16 +174,18 @@ test "parse_page_config - staticParams array" {
   )
   guard result is Some(config) else { fail("Expected Some") }
   inspect(config.static_params.length(), content="2")
-  inspect(
+  debug_inspect(
     config.static_params[0].get("slug"),
     content=(
-      #|Some(hello)
+      #|Some("hello")
+
     ),
   )
-  inspect(
+  debug_inspect(
     config.static_params[1].get("slug"),
     content=(
-      #|Some(world)
+      #|Some("world")
+
     ),
   )
 }
@@ -184,10 +194,11 @@ test "parse_page_config - staticParams array" {
 test "parse_page_config - extends field" {
   let result = parse_page_config("{\"extends\": \"base\"}")
   guard result is Some(config) else { fail("Expected Some") }
-  inspect(
+  debug_inspect(
     config.extends,
     content=(
-      #|Some(base)
+      #|Some("base")
+
     ),
   )
 }
@@ -218,22 +229,25 @@ test "parse_page_config - component config" {
     fail("Expected component config")
   }
   inspect(comp.ssr, content="true")
-  inspect(
+  debug_inspect(
     comp.props_type,
     content=(
-      #|Some(CounterProps)
+      #|Some("CounterProps")
+
     ),
   )
-  inspect(
+  debug_inspect(
     comp.client_export,
     content=(
-      #|Some(counter)
+      #|Some("counter")
+
     ),
   )
-  inspect(
+  debug_inspect(
     comp.server_export,
     content=(
-      #|Some(render_ssr)
+      #|Some("render_ssr")
+
     ),
   )
 }
@@ -247,10 +261,11 @@ test "parse_page_config - handlers config" {
   guard config.handlers.get(".md") is Some(handler) else {
     fail("Expected handler config")
   }
-  inspect(
+  debug_inspect(
     handler.layout,
     content=(
-      #|Some(docs)
+      #|Some("docs")
+
     ),
   )
   inspect(handler.islands.length(), content="1")
@@ -266,10 +281,11 @@ test "PageConfig::merge - child overrides base mode" {
   let base = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
   let child = PageConfig::{ ..PageConfig::default(), mode: Some("isr") }
   let merged = PageConfig::merge(base, child)
-  inspect(
+  debug_inspect(
     merged.mode,
     content=(
-      #|Some(isr)
+      #|Some("isr")
+
     ),
   )
 }
@@ -279,10 +295,11 @@ test "PageConfig::merge - child inherits base mode when None" {
   let base = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
   let child = PageConfig::default()
   let merged = PageConfig::merge(base, child)
-  inspect(
+  debug_inspect(
     merged.mode,
     content=(
-      #|Some(ssr)
+      #|Some("ssr")
+
     ),
   )
 }
@@ -300,16 +317,18 @@ test "PageConfig::merge - title and description override" {
     description: None,
   }
   let merged = PageConfig::merge(base, child)
-  inspect(
+  debug_inspect(
     merged.title,
     content=(
-      #|Some(Child Title)
+      #|Some("Child Title")
+
     ),
   )
-  inspect(
+  debug_inspect(
     merged.description,
     content=(
-      #|Some(Base Desc)
+      #|Some("Base Desc")
+
     ),
   )
 }
@@ -380,10 +399,11 @@ test "PageConfig::merge - handlers merge with child override" {
   guard merged.handlers.get(".md") is Some(md_handler) else {
     fail("Expected .md handler")
   }
-  inspect(
+  debug_inspect(
     md_handler.layout,
     content=(
-      #|Some(blog)
+      #|Some("blog")
+
     ),
   ) // child overrides
 }
@@ -395,7 +415,7 @@ test "PageConfig::merge - handlers merge with child override" {
 ///|
 test "PageConfig::to_render_mode - ssr" {
   let config = PageConfig::{ ..PageConfig::default(), mode: Some("ssr") }
-  inspect(config.to_render_mode(), content="Ssr")
+  debug_inspect(config.to_render_mode(), content="Ssr")
 }
 
 ///|
@@ -421,19 +441,19 @@ test "PageConfig::to_render_mode - isr default revalidate" {
 ///|
 test "PageConfig::to_render_mode - spa" {
   let config = PageConfig::{ ..PageConfig::default(), mode: Some("spa") }
-  inspect(config.to_render_mode(), content="Spa")
+  debug_inspect(config.to_render_mode(), content="Spa")
 }
 
 ///|
 test "PageConfig::to_render_mode - static defaults to ssr" {
   let config = PageConfig::{ ..PageConfig::default(), mode: Some("static") }
-  inspect(config.to_render_mode(), content="Ssr")
+  debug_inspect(config.to_render_mode(), content="Ssr")
 }
 
 ///|
 test "PageConfig::to_render_mode - None defaults to ssr" {
   let config = PageConfig::default()
-  inspect(config.to_render_mode(), content="Ssr")
+  debug_inspect(config.to_render_mode(), content="Ssr")
 }
 
 // =============================================================================

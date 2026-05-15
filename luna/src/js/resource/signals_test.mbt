@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Luna-specific signal tests (Resource and VNode)
 // Core signal tests are in mizchi/signals
 

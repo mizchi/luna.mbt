@@ -15,7 +15,7 @@ pub struct ActionOptions {
   /// Request timeout in milliseconds
   timeout : Int?
   /// Abort signal (for cancellation)
-  signal : @js.Any?
+  signal : @js_async.AbortSignal?
 }
 
 ///|
@@ -26,7 +26,7 @@ pub fn ActionOptions::default() -> ActionOptions {
 
 ///|
 /// Action client response
-pub enum ActionResponse {
+priv enum ActionResponse {
   /// Successful response with data
   Success(@js.Any)
   /// Server requested a redirect
@@ -35,6 +35,47 @@ pub enum ActionResponse {
   Error(Int, String)
   /// Network error
   NetworkError(String)
+}
+
+///|
+/// Typed action client response.
+pub enum TypedActionResponse[Res] {
+  /// Successful response decoded into the generated response payload type
+  Success(Res)
+  /// Server requested a redirect
+  Redirect(String)
+  /// Error response
+  Error(Int, String)
+  /// Network error
+  NetworkError(String)
+  /// Successful HTTP response whose JSON shape did not match `Res`
+  DecodeError(String)
+}
+
+///|
+/// Decode an untyped action response into a typed action response.
+fn[Res : FromJson] TypedActionResponse::from_action_response(
+  response : ActionResponse,
+) -> TypedActionResponse[Res] {
+  match response {
+    ActionResponse::Success(data) => {
+      guard @js_any.any_to_json(data) is Some(json) else {
+        return TypedActionResponse::DecodeError("Action response is not JSON")
+      }
+      let decoded : Res = @json.from_json(json) catch {
+        _ =>
+          return TypedActionResponse::DecodeError(
+            "Action response does not match expected type",
+          )
+      }
+      TypedActionResponse::Success(decoded)
+    }
+    ActionResponse::Redirect(url) => TypedActionResponse::Redirect(url)
+    ActionResponse::Error(status, message) =>
+      TypedActionResponse::Error(status, message)
+    ActionResponse::NetworkError(message) =>
+      TypedActionResponse::NetworkError(message)
+  }
 }
 
 ///|
@@ -77,7 +118,12 @@ pub fn ActionState::success(message? : String = "Success") -> ActionState {
 ///|
 /// Failed action state
 pub fn ActionState::error(status~ : Int, message~ : String) -> ActionState {
-  { phase: Failed, status: Some(status), message: Some(message), redirect: None }
+  {
+    phase: Failed,
+    status: Some(status),
+    message: Some(message),
+    redirect: None,
+  }
 }
 
 ///|
@@ -91,17 +137,6 @@ pub fn ActionState::redirect(url : String) -> ActionState {
   }
 }
 
-///|
-/// Convert a client action response into a UI-facing state
-pub fn ActionState::from_response(response : ActionResponse) -> ActionState {
-  match response {
-    Success(_) => ActionState::success()
-    Redirect(url) => ActionState::redirect(url)
-    Error(status, message) => ActionState::error(status~, message~)
-    NetworkError(message) => ActionState::error(status=0, message~)
-  }
-}
-
 // ============================================================================
 // Action Invocation
 // ============================================================================
@@ -112,7 +147,7 @@ pub fn ActionState::from_response(response : ActionResponse) -> ActionState {
 /// - `payload`: The JSON payload to send
 /// - `callback`: Function to call with the response
 /// - `options`: Optional configuration
-pub fn invoke_action(
+fn invoke_action(
   url : String,
   payload : @js.Any,
   callback : (ActionResponse) -> Unit,
@@ -123,34 +158,41 @@ pub fn invoke_action(
 }
 
 ///|
-/// Invoke a server action using a type-safe ActionRef
-pub fn invoke_action_ref(
-  aref : ActionRef,
-  payload : @js.Any,
-  callback : (ActionResponse) -> Unit,
+/// Invoke a typed server action using its generated request payload type.
+pub fn[Req : ToJson, Res : FromJson] invoke_typed_action_key(
+  key : TypedActionKey[Req, Res],
+  payload : Req,
+  callback : (TypedActionResponse[Res]) -> Unit,
   options? : ActionOptions,
 ) -> Unit {
-  invoke_action(aref.url(), payload, callback, options?)
+  invoke_action(
+    typed_action_url(key),
+    @js_any.json_to_any(payload.to_json()),
+    fn(response) {
+      callback(TypedActionResponse::from_action_response(response))
+    },
+    options?,
+  )
 }
 
 ///|
-/// Create an action invoker for a specific endpoint
-/// Returns a function that takes payload and callback
-pub fn create_action_invoker(
-  url : String,
+/// Create an action invoker whose payload parameter is tied to a typed key.
+pub fn[Req : ToJson, Res : FromJson] create_typed_action_invoker_key(
+  key : TypedActionKey[Req, Res],
   options? : ActionOptions,
-) -> (@js.Any, (ActionResponse) -> Unit) -> Unit {
+) -> (Req, (TypedActionResponse[Res]) -> Unit) -> Unit {
+  let url = typed_action_url(key)
   let opts = options.unwrap_or(ActionOptions::default())
-  fn(payload, callback) { ffi_invoke_action_cb(url, payload, callback, opts) }
-}
-
-///|
-/// Create an action invoker from a type-safe ActionRef
-pub fn create_action_invoker_ref(
-  aref : ActionRef,
-  options? : ActionOptions,
-) -> (@js.Any, (ActionResponse) -> Unit) -> Unit {
-  create_action_invoker(aref.url(), options?)
+  fn(payload, callback) {
+    ffi_invoke_action_cb(
+      url,
+      @js_any.json_to_any(payload.to_json()),
+      fn(response) {
+        callback(TypedActionResponse::from_action_response(response))
+      },
+      opts,
+    )
+  }
 }
 
 // ============================================================================
@@ -159,22 +201,32 @@ pub fn create_action_invoker_ref(
 
 ///|
 /// Action form configuration
-pub struct ActionFormConfig {
+pub struct ActionFormConfig[Res] {
   /// Action URL
-  action : String
+  priv action : String
   /// Method (default: POST)
-  form_method : String
+  priv form_method : String
   /// On success callback
-  on_success : ((@js.Any) -> Unit)?
+  priv on_success : ((Res) -> Unit)?
   /// On error callback
-  on_error : ((Int, String) -> Unit)?
+  priv on_error : ((Int, String) -> Unit)?
   /// On redirect callback (return false to prevent redirect)
+  priv on_redirect : ((String) -> Bool)?
+}
+
+///|
+/// Raw JS-facing form configuration.
+priv struct RawActionFormConfig {
+  action : String
+  form_method : String
+  on_success : ((@js.Any) -> Unit)?
+  on_error : ((Int, String) -> Unit)?
   on_redirect : ((String) -> Bool)?
 }
 
 ///|
 /// Default form config
-pub fn ActionFormConfig::new(action : String) -> ActionFormConfig {
+fn[Res] ActionFormConfig::new(action : String) -> ActionFormConfig[Res] {
   {
     action,
     form_method: "POST",
@@ -185,15 +237,93 @@ pub fn ActionFormConfig::new(action : String) -> ActionFormConfig {
 }
 
 ///|
-/// Create form config from a type-safe ActionRef
-pub fn ActionFormConfig::from_ref(aref : ActionRef) -> ActionFormConfig {
-  ActionFormConfig::new(aref.url())
+/// Create form config from a generated action key
+pub fn[Req, Res] ActionFormConfig::from_key(
+  key : TypedActionKey[Req, Res],
+) -> ActionFormConfig[Res] {
+  ActionFormConfig::new(typed_action_url(key))
+}
+
+///|
+/// Set form method for action form submission.
+pub fn[Res] ActionFormConfig::with_method(
+  self : ActionFormConfig[Res],
+  form_method : String,
+) -> ActionFormConfig[Res] {
+  { ..self, form_method, }
+}
+
+///|
+/// Set success callback for action form submission.
+pub fn[Res] ActionFormConfig::with_success(
+  self : ActionFormConfig[Res],
+  on_success : (Res) -> Unit,
+) -> ActionFormConfig[Res] {
+  { ..self, on_success: Some(on_success) }
+}
+
+///|
+/// Set error callback for action form submission.
+pub fn[Res] ActionFormConfig::with_error(
+  self : ActionFormConfig[Res],
+  on_error : (Int, String) -> Unit,
+) -> ActionFormConfig[Res] {
+  { ..self, on_error: Some(on_error) }
+}
+
+///|
+/// Set redirect callback for action form submission.
+pub fn[Res] ActionFormConfig::with_redirect(
+  self : ActionFormConfig[Res],
+  on_redirect : (String) -> Bool,
+) -> ActionFormConfig[Res] {
+  { ..self, on_redirect: Some(on_redirect) }
+}
+
+///|
+fn[Res : FromJson] ActionFormConfig::to_raw(
+  self : ActionFormConfig[Res],
+) -> RawActionFormConfig {
+  let on_success : ((@js.Any) -> Unit)? = match self.on_success {
+    Some(callback) =>
+      Some(fn(data) {
+        guard @js_any.any_to_json(data) is Some(json) else {
+          match self.on_error {
+            Some(on_error) => on_error(0, "Action form response is not JSON")
+            None => ()
+          }
+          return
+        }
+        let decoded : Res = @json.from_json(json) catch {
+          _ => {
+            match self.on_error {
+              Some(on_error) =>
+                on_error(0, "Action form response does not match expected type")
+              None => ()
+            }
+            return
+          }
+        }
+        callback(decoded)
+      })
+    None => None
+  }
+  {
+    action: self.action,
+    form_method: self.form_method,
+    on_success,
+    on_error: self.on_error,
+    on_redirect: self.on_redirect,
+  }
 }
 
 ///|
 /// Handle form submission as server action
-pub fn submit_form_as_action(form : @js.Any, config : ActionFormConfig) -> Unit {
-  ffi_submit_form_action(form, config)
+pub fn[Res : FromJson] submit_form_as_action(
+  form : @js_dom.HTMLFormElement,
+  config : ActionFormConfig[Res],
+) -> Unit {
+  ffi_submit_form_action(form, config.to_raw())
 }
 
 // ============================================================================
@@ -283,8 +413,8 @@ extern "js" fn ffi_invoke_action_cb(
 
 ///|
 extern "js" fn ffi_submit_form_action(
-  form : @js.Any,
-  config : ActionFormConfig,
+  form : @js_dom.HTMLFormElement,
+  config : RawActionFormConfig,
 ) -> Unit =
   #| async (form, config) => {
   #|   try {
@@ -324,62 +454,3 @@ extern "js" fn ffi_submit_form_action(
   #|     }
   #|   }
   #| }
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-///|
-/// Check if response is successful
-pub fn ActionResponse::is_success(self : ActionResponse) -> Bool {
-  match self {
-    Success(_) => true
-    _ => false
-  }
-}
-
-///|
-/// Check if response is a redirect
-pub fn ActionResponse::is_redirect(self : ActionResponse) -> Bool {
-  match self {
-    Redirect(_) => true
-    _ => false
-  }
-}
-
-///|
-/// Check if response is an error
-pub fn ActionResponse::is_error(self : ActionResponse) -> Bool {
-  match self {
-    Error(_, _) | NetworkError(_) => true
-    _ => false
-  }
-}
-
-///|
-/// Get data from successful response
-pub fn ActionResponse::data(self : ActionResponse) -> @js.Any? {
-  match self {
-    Success(data) => Some(data)
-    _ => None
-  }
-}
-
-///|
-/// Get redirect URL
-pub fn ActionResponse::redirect_url(self : ActionResponse) -> String? {
-  match self {
-    Redirect(url) => Some(url)
-    _ => None
-  }
-}
-
-///|
-/// Get error message
-pub fn ActionResponse::error_message(self : ActionResponse) -> String? {
-  match self {
-    Error(_, msg) => Some(msg)
-    NetworkError(msg) => Some(msg)
-    _ => None
-  }
-}

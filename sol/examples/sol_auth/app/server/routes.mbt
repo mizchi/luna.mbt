@@ -71,12 +71,13 @@ pub fn routes() -> Array[@sol.SolRoutes] {
 ///|
 /// Debug API - returns catch-all params
 async fn api_test_catch_all(props : @sol.PageProps) -> Json {
-  let path = props.params.get_param("path").unwrap_or("(none)")
-  let star = props.params.get_param("*").unwrap_or("(none)")
+  let path = match @types.params_api_test_path(props) {
+    Ok(p) => p.path
+    Err(_) => "(none)"
+  }
   let all_params = props.params.params.map(fn(p) { p.0 + "=" + p.1 }).join(",")
   @sol.ok([
     ("path", path.to_json()),
-    ("star", star.to_json()),
     ("all_params", all_params.to_json()),
   ]).to_json()
 }
@@ -90,6 +91,25 @@ async fn api_health(_props : @sol.PageProps) -> Json {
 // ============================================================================
 // Server Actions
 // ============================================================================
+
+///|
+priv struct ContactSubmitRequest {
+  name : String
+  email : String
+} derive(FromJson)
+
+///|
+priv struct ContactSubmitData {
+  name : String
+  email : String
+} derive(ToJson)
+
+///|
+priv struct ContactSubmitResponse {
+  success : Bool
+  message : String
+  data : ContactSubmitData
+} derive(ToJson)
 
 ///|
 /// Contact form submission handler
@@ -109,8 +129,11 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     (get_field(data, "name"), get_field(data, "email"))
   } else {
     // Parse JSON
-    let data : @core.Any = parse_json(body)
-    (get_field(data, "name"), get_field(data, "email"))
+    let req : ContactSubmitRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    (req.name, req.email)
   }
 
   // Validate
@@ -133,22 +156,13 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     @action.ActionResult::http_redirect("/")
   } else {
     // AJAX submission: return JSON
-    @action.ActionResult::ok(
-      @sol.json_obj([
-        ("success", @core.any(true)),
-        ("message", @core.any("Form submitted successfully!")),
-        (
-          "data",
-          @sol.json_obj([("name", @core.any(name)), ("email", @core.any(email))]),
-        ),
-      ]),
-    )
+    @action.ActionResult::json(ContactSubmitResponse::{
+      success: true,
+      message: "Form submitted successfully!",
+      data: ContactSubmitData::{ name, email },
+    })
   }
 })
-
-///|
-extern "js" fn parse_json(s : String) -> @core.Any =
-  #| (s) => { try { return JSON.parse(s); } catch { return {}; } }
 
 ///|
 extern "js" fn parse_form_urlencoded(s : String) -> @core.Any =
@@ -164,9 +178,10 @@ pub fn action_registry() -> @action.ActionRegistry {
   @action.ActionRegistry::new(allowed_origins=[
     "http://localhost:3000", "http://localhost:3457", "http://localhost:9123",
   ]).register(
-    @action.ActionDef::new("submit-contact", submit_contact_handler).with_require_json(
-      false,
-    ), // Allow form-urlencoded for progressive enhancement
+    @action.ActionDef::from_key(
+      @types.action_submit_contact(),
+      submit_contact_handler,
+    ).with_require_json(false), // Allow form-urlencoded for progressive enhancement
   )
 }
 

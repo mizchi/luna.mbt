@@ -1,5 +1,10 @@
 import {
+  "moonbitlang/core/json",
   "mizchi/js/core" @js,
 }
+
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
 
 supported_targets = "js"

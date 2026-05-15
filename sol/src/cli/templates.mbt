@@ -732,7 +732,7 @@ pub fn template_gen_types_moon_pkg() -> String {
     #|supported_targets = "js"
     #|
     #|options(
-    #|  link: { "js": { "exports": [ "CounterProps", "ApiToolsProps", "counter", "api_tools" ], "format": "esm" } },
+    #|  link: { "js": { "exports": [ "CounterProps", "ApiToolsProps", "counter_at", "counter", "api_tools_at", "api_tools" ], "format": "esm" } },
     #|)
   )
 }
@@ -755,21 +755,41 @@ pub fn template_gen_types_mbt() -> String {
     #|} derive(ToJson, FromJson)
     #|
     #|///|
-    #|///| Create ComponentRef for counter component
+    #|///| Create ComponentRef for counter component with an explicit client URL
+    #|pub fn counter_at(
+    #|  url : String,
+    #|  props : CounterProps,
+    #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
+    #|) -> @luna.ComponentRef[CounterProps] {
+    #|  { url, props, wc: false, trigger }
+    #|}
+    #|
+    #|///|
+    #|///| Create ComponentRef for counter component using Sol's generated client URL
     #|pub fn counter(
     #|  props : CounterProps,
     #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
     #|) -> @luna.ComponentRef[CounterProps] {
-    #|  { url: "/static/counter.js", props, wc: false, trigger }
+    #|  counter_at("/static/counter.js", props, trigger~)
     #|}
     #|
     #|///|
-    #|///| Create ComponentRef for api_tools component
+    #|///| Create ComponentRef for api_tools component with an explicit client URL
+    #|pub fn api_tools_at(
+    #|  url : String,
+    #|  props : ApiToolsProps,
+    #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
+    #|) -> @luna.ComponentRef[ApiToolsProps] {
+    #|  { url, props, wc: false, trigger }
+    #|}
+    #|
+    #|///|
+    #|///| Create ComponentRef for api_tools component using Sol's generated client URL
     #|pub fn api_tools(
     #|  props : ApiToolsProps,
     #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
     #|) -> @luna.ComponentRef[ApiToolsProps] {
-    #|  { url: "/static/api_tools.js", props, wc: false, trigger }
+    #|  api_tools_at("/static/api_tools.js", props, trigger~)
     #|}
   )
 }

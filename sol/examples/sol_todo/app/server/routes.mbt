@@ -146,7 +146,10 @@ async fn api_add_todo(props : @sol.PageProps) -> Json {
 ///|
 /// DELETE /api/todos/:id - Delete a todo
 async fn api_delete_todo(props : @sol.PageProps) -> Json {
-  let id_str = props.get_param("id").unwrap_or("")
+  let id_str = match @types.params_api_todos_id(props) {
+    Ok(p) => p.id
+    Err(_) => ""
+  }
   let id = parse_int(id_str)
   if id <= 0 {
     return { "error": "invalid id" }.to_json()
@@ -160,6 +163,26 @@ async fn api_delete_todo(props : @sol.PageProps) -> Json {
 // =============================================================================
 
 ///|
+priv struct AddTodoRequest {
+  text : String
+} derive(FromJson)
+
+///|
+priv struct TodoIdRequest {
+  id : Int
+} derive(FromJson)
+
+///|
+priv struct ToggleTodoResponse {
+  toggled : Bool
+} derive(ToJson)
+
+///|
+priv struct DeleteTodoResponse {
+  deleted : Bool
+} derive(ToJson)
+
+///|
 /// Add todo action handler
 let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx) {
   let content_type = ctx.get_header("Content-Type").unwrap_or("")
@@ -169,8 +192,11 @@ let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx
     let data = parse_form_urlencoded(ctx.body)
     get_string_field(data, "text")
   } else {
-    let data : @core.Any = parse_json(ctx.body)
-    get_string_field(data, "text")
+    let req : AddTodoRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    req.text
   }
 
   if text == "" {
@@ -182,7 +208,7 @@ let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else {
-    @action.ActionResult::ok(@sol.json_to_any(todo.to_json()))
+    @action.ActionResult::json(todo)
   }
 })
 
@@ -196,8 +222,11 @@ let toggle_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
     let data = parse_form_urlencoded(ctx.body)
     get_int_field(data, "id")
   } else {
-    let data : @core.Any = parse_json(ctx.body)
-    get_int_field(data, "id")
+    let req : TodoIdRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    req.id
   }
 
   if id <= 0 {
@@ -208,7 +237,7 @@ let toggle_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok(@sol.json_to_any({ "toggled": true }.to_json()))
+    @action.ActionResult::json(ToggleTodoResponse::{ toggled: true })
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }
@@ -224,8 +253,11 @@ let delete_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
     let data = parse_form_urlencoded(ctx.body)
     get_int_field(data, "id")
   } else {
-    let data : @core.Any = parse_json(ctx.body)
-    get_int_field(data, "id")
+    let req : TodoIdRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    req.id
   }
 
   if id <= 0 {
@@ -236,7 +268,7 @@ let delete_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(
   if is_form {
     @action.ActionResult::http_redirect("/")
   } else if success {
-    @action.ActionResult::ok(@sol.json_to_any({ "deleted": true }.to_json()))
+    @action.ActionResult::json(DeleteTodoResponse::{ deleted: true })
   } else {
     @action.ActionResult::not_found(message="Todo not found")
   }
@@ -249,18 +281,29 @@ pub fn action_registry() -> @action.ActionRegistry {
     "http://localhost:3000",
     "http://localhost:7777",
   ])
-  .register(@action.ActionDef::new("add-todo", add_todo_action).with_require_json(false))
-  .register(@action.ActionDef::new("toggle-todo", toggle_todo_action).with_require_json(false))
-  .register(@action.ActionDef::new("delete-todo", delete_todo_action).with_require_json(false))
+  .register(
+    @action.ActionDef::from_key(
+      @types.action_add_todo(),
+      add_todo_action,
+    ).with_require_json(false),
+  )
+  .register(
+    @action.ActionDef::from_key(
+      @types.action_toggle_todo(),
+      toggle_todo_action,
+    ).with_require_json(false),
+  )
+  .register(
+    @action.ActionDef::from_key(
+      @types.action_delete_todo(),
+      delete_todo_action,
+    ).with_require_json(false),
+  )
 }
 
 // =============================================================================
 // FFI Utilities
 // =============================================================================
-
-///|
-extern "js" fn parse_json(s : String) -> @core.Any =
-  #| (s) => { try { return JSON.parse(s); } catch { return {}; } }
 
 ///|
 extern "js" fn parse_form_urlencoded(s : String) -> @core.Any =

@@ -79,21 +79,21 @@ pub fn register_actions(app : App, registry : ActionRegistry) -> Unit {
 fn action_result_to_response(c : Ctx, result : ActionResult) -> Unit {
   // Always set security header for action responses
   c.set_header("X-Content-Type-Options", "nosniff")
-  match result {
-    Success(data) => @mars_response.send_json_any(c, data)
-    Redirect(url) => {
+  match result.kind {
+    JsonSuccess(data) => @mars_response.send_json(c, data)
+    ClientRedirect(url) => {
       // Return JSON with redirect instruction (for JavaScript clients)
       let obj : Map[String, Json] = {}
       obj["redirect"] = Json::string(url)
       c.json(Json::object(obj))
     }
-    HttpRedirect(url) =>
+    HttpRedirectResult(url) =>
       // Return actual HTTP redirect (302 with Location header)
       // For non-JavaScript form submissions (progressive enhancement)
       c.redirect(url)
-    ClientError(status, message) =>
+    ClientFailure(status, message) =>
       @mars_response.send_json_error(c, message, status~)
-    ServerError(message) => {
+    ServerFailure(message) => {
       // Log the actual error (implementation depends on logging setup)
       let _ = message
       // Don't expose internal error details in production

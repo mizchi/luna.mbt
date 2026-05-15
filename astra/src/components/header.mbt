@@ -217,13 +217,19 @@ pub fn build_nav_item(
       None => ()
     }
     children.push(@luna.text(item.text))
-    h("a", [attr("href", ctx.url(item.link)), attr("class", "nav-link")], children)
+    h(
+      "a",
+      [attr("href", ctx.url(item.link)), attr("class", "nav-link")],
+      children,
+    )
   } else {
     // Dropdown (simplified - actual dropdown needs JS)
     let dropdown_items = item.items.map(fn(sub) {
-      h("a", [attr("href", ctx.url(sub.link)), attr("class", "nav-dropdown-item")], [
-        @luna.text(sub.text),
-      ])
+      h(
+        "a",
+        [attr("href", ctx.url(sub.link)), attr("class", "nav-dropdown-item")],
+        [@luna.text(sub.text)],
+      )
     })
     h("div", [attr("class", "nav-dropdown")], [
       h("span", [attr("class", "nav-dropdown-trigger")], [@luna.text(item.text)]),

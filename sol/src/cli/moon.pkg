@@ -1,16 +1,9 @@
 import {
   "moonbitlang/core/json",
   "moonbitlang/core/strconv",
-  "moonbitlang/async",
   "mizchi/sol/internal/json_utils" @json_utils,
   "mizchi/astra" @astra,
-  "mizchi/astra/render" @astra_render,
-  "mizchi/astra/routes" @ssg_routes,
-  "mizchi/sol/builder_pool" @builder_pool,
-  "mizchi/astra/cache" @astra_cache,
-  "mizchi/astra/tree" @astra_tree,
   "mizchi/astra/assets" @astra_assets,
-  "mizchi/astra/content/shiki" @shiki,
   "mizchi/astra/env" @env,
   "mizchi/astra/fs" @fs_adapter,
   "mizchi/js/core" @js,
@@ -19,7 +12,6 @@ import {
   "mizchi/js/node/path" @path,
   "mizchi/js/node/child_process" @child_process,
   "mizchi/js/node/util" @util,
-  "mizchi/js/node/http" @http,
   "mizchi/sol/internal/color" @colorette,
   "mizchi/wite/bundle" @wite_bundle,
   "mizchi/mars" @mars,
@@ -28,7 +20,18 @@ import {
   "mizchi/sol/hmr" @hmr,
   "mizchi/sol/hot_reload" @hot_reload,
   "mizchi/sol/cli_common" @cli_common,
+  "mizchi/ts/ast" @ts_ast,
+  "mizchi/ts/checker" @ts_checker,
+  "mizchi/ts/parser" @ts_parser,
 }
+
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
 
 warnings = "-27-20"
 

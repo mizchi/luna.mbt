@@ -146,7 +146,7 @@ fn app() -> DomNode {
   // Computed Values
   // ---------------------------------------------------------------------------
   let active_count = memo(() => {
-    todos.get().iter().filter(t => !(t.completed)).count()
+    todos.get().iter().filter(t => !t.completed).count()
   })
   let completed_count = memo(() => {
     todos.get().iter().filter(t => t.completed).count()
@@ -162,7 +162,7 @@ fn app() -> DomNode {
     items.filter(t => {
       match f {
         All => true
-        Active => !(t.completed)
+        Active => !t.completed
         Completed => t.completed
       }
     })
@@ -172,7 +172,7 @@ fn app() -> DomNode {
   // Actions
   // ---------------------------------------------------------------------------
   fn add_todo() {
-    let txt = new_todo_text.peek().trim(chars=" ").to_string()
+    let txt = new_todo_text.peek().trim(chars=" ").to_owned()
     if txt != "" {
       let id = next_id.peek()
       next_id.set(id + 1)
@@ -189,7 +189,7 @@ fn app() -> DomNode {
     todos.update(items => {
       items.map(t => {
         if t.id == id {
-          { ..t, completed: !(t.completed) }
+          { ..t, completed: !t.completed }
         } else {
           t
         }
@@ -202,7 +202,7 @@ fn app() -> DomNode {
   }
 
   fn update_todo_title(id : Int, new_title : String) {
-    let trimmed = new_title.trim(chars=" ").to_string()
+    let trimmed = new_title.trim(chars=" ").to_owned()
     if trimmed == "" {
       remove_todo(id)
     } else {
@@ -214,11 +214,11 @@ fn app() -> DomNode {
 
   fn toggle_all() {
     let all_done = all_completed()
-    todos.update(items => items.map(t => { ..t, completed: !(all_done) }))
+    todos.update(items => items.map(t => { ..t, completed: !all_done }))
   }
 
   fn clear_completed() {
-    todos.update(items => items.filter(t => !(t.completed)))
+    todos.update(items => items.filter(t => !t.completed))
   }
 
   // ---------------------------------------------------------------------------
@@ -227,8 +227,8 @@ fn app() -> DomNode {
 
   /// Render a single todo item
   fn render_todo_item(get_todo : () -> Todo, _index : Int) -> DomNode {
-    let edit_ref : Ref[@dom.HTMLInputElement?] = Ref::new(None)
-    let edit_composing : Ref[Bool] = Ref::new(false)
+    let edit_ref : Ref[@dom.HTMLInputElement?] = Ref(None)
+    let edit_composing : Ref[Bool] = Ref(false)
 
     // Focus edit input when entering edit mode
     let _ = effect(() => {
@@ -297,7 +297,7 @@ fn app() -> DomNode {
           .keydown(e => {
             let todo = get_todo()
             let inp = @dom.HTMLInputElement::cast_from_element(e.target())
-            if e.key == "Enter" && !(edit_composing.val) {
+            if e.key == "Enter" && !edit_composing.val {
               update_todo_title(todo.id, inp.value)
               editing_id.set(None)
             } else if e.key == "Escape" {
@@ -327,7 +327,7 @@ fn app() -> DomNode {
           .compositionstart(_ => is_composing.set(true))
           .compositionend(_ => is_composing.set(false))
           .keydown(e => {
-            if e.key == "Enter" && !(is_composing.peek()) {
+            if e.key == "Enter" && !is_composing.peek() {
               add_todo()
               @dom.HTMLInputElement::cast_from_element(e.target()).value = ""
             }
@@ -425,7 +425,7 @@ fn main {
     Some(el) => {
       render(el |> DomElement::from_dom, app())
       // Inject utility CSS only if not pre-embedded (zero-runtime for production)
-      if !(has_static_css()) {
+      if !has_static_css() {
         let css = @css.generate_full_css()
         if css.length() > 0 {
           @element.use_style(css, el)

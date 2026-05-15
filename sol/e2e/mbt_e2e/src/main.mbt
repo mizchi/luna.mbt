@@ -26,8 +26,8 @@ async fn main {
 async fn run_suite() -> Unit {
   let browser = @pw.chromium().launch(headless=true)
   println("Browser: \{browser.version()}")
-  let passed = Ref::new(0)
-  let failed = Ref::new(0)
+  let passed = Ref(0)
+  let failed = Ref(0)
   let errors : Array[String] = []
 
   // === Core functionality ===

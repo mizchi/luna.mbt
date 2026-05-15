@@ -5,4 +5,12 @@ import {
   "moonbitlang/core/json",
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
+
 supported_targets = "js"

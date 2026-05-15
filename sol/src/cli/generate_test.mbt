@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 //
 
 ///|
@@ -1247,13 +1250,18 @@ test "template_layout_moon_pkg: uses current static dom package path" {
 ///|
 test "template_gen_types_mbt: includes counter component ref factory" {
   let content = template_gen_types_mbt()
+  assert_true(content.contains("pub fn counter_at("))
   assert_true(content.contains("pub fn counter("))
+  assert_true(
+    content.contains("counter_at(\"/static/counter.js\", props, trigger~)"),
+  )
 }
 
 ///|
 test "template_gen_types_mbt: includes api tools component ref factory" {
   let content = template_gen_types_mbt()
   assert_true(content.contains("pub(all) struct ApiToolsProps"))
+  assert_true(content.contains("pub fn api_tools_at("))
   assert_true(content.contains("pub fn api_tools("))
   assert_true(content.contains("/static/api_tools.js"))
 }

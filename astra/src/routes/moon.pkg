@@ -9,4 +9,12 @@ import {
   "mizchi/astra/fs" @fs_adapter,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
+
 supported_targets = "js"

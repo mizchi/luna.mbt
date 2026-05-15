@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Server Action unit tests
 // Note: ActionContext tests require Mars.Context, which is not easily mockable.
 // These tests focus on ActionResult and ActionDef/ActionRegistry.
@@ -7,10 +10,20 @@
 // ============================================================================
 
 ///|
-test "ActionResult::ok creates success result" {
-  let result = ActionResult::ok(@js.any({ "id": 1 }))
-  match result {
-    Success(_) => ()
+test "ActionResult success variant carries Json internally" {
+  let payload : Json = { "id": Json::number(1.0) }
+  let result = ActionResult::{ kind: JsonSuccess(payload) }
+  match result.kind {
+    JsonSuccess(json) => assert_eq(json.stringify(), "{\"id\":1}")
+    _ => fail("expected Success")
+  }
+}
+
+///|
+test "ActionResult::json creates success result from ToJson payload" {
+  let result = ActionResult::json(CreateUserResponse::{ id: "user-1" })
+  match result.kind {
+    JsonSuccess(json) => assert_eq(json.stringify(), "{\"id\":\"user-1\"}")
     _ => fail("expected Success")
   }
 }
@@ -18,8 +31,8 @@ test "ActionResult::ok creates success result" {
 ///|
 test "ActionResult::redirect creates redirect result" {
   let result = ActionResult::redirect("/dashboard")
-  match result {
-    Redirect(url) => assert_eq(url, "/dashboard")
+  match result.kind {
+    ClientRedirect(url) => assert_eq(url, "/dashboard")
     _ => fail("expected Redirect")
   }
 }
@@ -27,8 +40,8 @@ test "ActionResult::redirect creates redirect result" {
 ///|
 test "ActionResult::http_redirect creates http redirect result" {
   let result = ActionResult::http_redirect("/login")
-  match result {
-    HttpRedirect(url) => assert_eq(url, "/login")
+  match result.kind {
+    HttpRedirectResult(url) => assert_eq(url, "/login")
     _ => fail("expected HttpRedirect")
   }
 }
@@ -36,8 +49,8 @@ test "ActionResult::http_redirect creates http redirect result" {
 ///|
 test "ActionResult::bad_request creates 400 error" {
   let result = ActionResult::bad_request("Invalid input")
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 400)
       assert_eq(msg, "Invalid input")
     }
@@ -48,8 +61,8 @@ test "ActionResult::bad_request creates 400 error" {
 ///|
 test "ActionResult::validation_error creates 422 error" {
   let result = ActionResult::validation_error("Name is required")
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 422)
       assert_eq(msg, "Name is required")
     }
@@ -60,8 +73,8 @@ test "ActionResult::validation_error creates 422 error" {
 ///|
 test "ActionResult::unauthorized creates 401 error" {
   let result = ActionResult::unauthorized()
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 401)
       assert_eq(msg, "Unauthorized")
     }
@@ -72,8 +85,8 @@ test "ActionResult::unauthorized creates 401 error" {
 ///|
 test "ActionResult::forbidden creates 403 error" {
   let result = ActionResult::forbidden(message="Access denied")
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 403)
       assert_eq(msg, "Access denied")
     }
@@ -84,8 +97,8 @@ test "ActionResult::forbidden creates 403 error" {
 ///|
 test "ActionResult::not_found creates 404 error" {
   let result = ActionResult::not_found()
-  match result {
-    ClientError(status, msg) => {
+  match result.kind {
+    ClientFailure(status, msg) => {
       assert_eq(status, 404)
       assert_eq(msg, "Not Found")
     }
@@ -96,8 +109,8 @@ test "ActionResult::not_found creates 404 error" {
 ///|
 test "ActionResult::server_error creates 500 error" {
   let result = ActionResult::server_error(message="DB connection failed")
-  match result {
-    ServerError(msg) => assert_eq(msg, "DB connection failed")
+  match result.kind {
+    ServerFailure(msg) => assert_eq(msg, "DB connection failed")
     _ => fail("expected ServerError")
   }
 }
@@ -107,12 +120,191 @@ test "ActionResult::server_error creates 500 error" {
 // ============================================================================
 
 ///|
-test "ActionDef::new creates default action" {
+priv struct CreateUserActionKey {}
+
+///|
+impl ActionKey for CreateUserActionKey with id(_self) {
+  "create-user"
+}
+
+///|
+impl ActionKey for CreateUserActionKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+priv struct GetUserActionKey {}
+
+///|
+impl ActionKey for GetUserActionKey with id(_self) {
+  "get-user"
+}
+
+///|
+impl ActionKey for GetUserActionKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+priv struct ActionOneKey {}
+
+///|
+impl ActionKey for ActionOneKey with id(_self) {
+  "action1"
+}
+
+///|
+impl ActionKey for ActionOneKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+priv struct ActionTwoKey {}
+
+///|
+impl ActionKey for ActionTwoKey with id(_self) {
+  "action2"
+}
+
+///|
+impl ActionKey for ActionTwoKey with base_path(_self) {
+  "/_action"
+}
+
+///|
+test "action_url builds endpoint URL from action key" {
+  let key = CreateUserActionKey::{  }
+  assert_eq(action_id(key), "create-user")
+  assert_eq(action_url(key), "/_action/create-user")
+}
+
+///|
+priv struct CreateUserRequest {
+  name : String
+} derive(ToJson, FromJson)
+
+///|
+priv struct CreateUserResponse {
+  id : String
+} derive(ToJson, FromJson)
+
+///|
+test "TypedActionKey carries request and response phantom types" {
+  let req = CreateUserRequest::{ name: "Alice" }
+  let res = CreateUserResponse::{ id: "user-1" }
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  assert_eq(req.name, "Alice")
+  assert_eq(res.id, "user-1")
+  assert_eq(key.id(), "create-user")
+  assert_eq(key.base_path(), "/_action")
+  assert_eq(typed_action_url(key), "/_action/create-user")
+}
+
+///|
+test "TypedActionKey can be used as an ActionKey" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  assert_eq(action_id(key), "create-user")
+  assert_eq(action_url(key), "/_action/create-user")
+}
+
+///|
+test "decode_action_body decodes typed JSON request bodies" {
+  let body = CreateUserRequest::{ name: "Alice" }.to_json().stringify()
+  let decoded : CreateUserRequest? = decode_action_body(body)
+  match decoded {
+    Some(req) => assert_eq(req.name, "Alice")
+    None => fail("expected decoded request")
+  }
+}
+
+///|
+test "decode_action_body rejects invalid request bodies" {
+  let decoded : CreateUserRequest? = decode_action_body("{\"unexpected\":true}")
+  assert_true(decoded is None)
+}
+
+///|
+test "typed action invoker carries request payload type" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let _invoker : (
+    CreateUserRequest,
+    (TypedActionResponse[CreateUserResponse]) -> Unit,
+  ) -> Unit = create_typed_action_invoker_key(key)
+}
+
+///|
+test "typed action response decodes success payload" {
+  let raw = ActionResponse::Success(
+    @js_any.json_to_any(CreateUserResponse::{ id: "user-1" }.to_json()),
+  )
+  let typed : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    raw,
+  )
+  match typed {
+    Success(data) => assert_eq(data.id, "user-1")
+    _ => fail("expected typed success")
+  }
+}
+
+///|
+test "typed action response reports decode errors" {
+  let obj : Map[String, Json] = {}
+  let raw = ActionResponse::Success(@js_any.json_to_any(obj.to_json()))
+  let typed : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    raw,
+  )
+  match typed {
+    DecodeError(_) => ()
+    _ => fail("expected decode error")
+  }
+}
+
+///|
+test "typed action response preserves non-success outcomes" {
+  let redirect : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    ActionResponse::Redirect("/login"),
+  )
+  match redirect {
+    Redirect(url) => assert_eq(url, "/login")
+    _ => fail("expected redirect")
+  }
+
+  let failure : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    ActionResponse::Error(422, "Invalid"),
+  )
+  match failure {
+    Error(status, message) => {
+      assert_eq(status, 422)
+      assert_eq(message, "Invalid")
+    }
+    _ => fail("expected error")
+  }
+
+  let network : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
+    ActionResponse::NetworkError("offline"),
+  )
+  match network {
+    NetworkError(message) => assert_eq(message, "offline")
+    _ => fail("expected network error")
+  }
+}
+
+///|
+test "ActionDef::from_key creates definition from action key" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
-  let action = ActionDef::new("test-action", handler)
-  assert_eq(action.id, "test-action")
+  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
+  assert_eq(action.id, "create-user")
   assert_true(action.require_json)
   assert_true(action.middlewares.is_empty())
 }
@@ -120,9 +312,11 @@ test "ActionDef::new creates default action" {
 ///|
 test "ActionDef::with_require_json toggles json requirement" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
-  let action = ActionDef::new("test-action", handler).with_require_json(false)
+  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler).with_require_json(
+    false,
+  )
   assert_false(action.require_json)
 }
 
@@ -146,10 +340,23 @@ test "ActionRegistry::with_base_path sets base path" {
 ///|
 test "ActionRegistry::register adds action" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
-  let action = ActionDef::new("create-user", handler)
+  let action = ActionDef::from_key(CreateUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
+  assert_eq(registry.action_ids().length(), 1)
+  assert_true(registry.action_ids().contains("create-user"))
+}
+
+///|
+test "ActionRegistry::register_key adds generated-key action" {
+  let handler = ActionHandler(async fn(_ctx) {
+    ActionResult::json(())
+  })
+  let registry = ActionRegistry::new().register_key(
+    CreateUserActionKey::{  },
+    handler,
+  )
   assert_eq(registry.action_ids().length(), 1)
   assert_true(registry.action_ids().contains("create-user"))
 }
@@ -157,9 +364,9 @@ test "ActionRegistry::register adds action" {
 ///|
 test "ActionRegistry::get returns registered action" {
   let handler = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
-  let action = ActionDef::new("get-user", handler)
+  let action = ActionDef::from_key(GetUserActionKey::{  }, handler)
   let registry = ActionRegistry::new().register(action)
   match registry.get("get-user") {
     Some(a) => assert_eq(a.id, "get-user")
@@ -182,14 +389,14 @@ test "ActionRegistry::action_url generates correct URL" {
 ///|
 test "ActionRegistry::register_all adds multiple actions" {
   let handler1 = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let handler2 = ActionHandler(async fn(_ctx) {
-    ActionResult::ok(@js.new_object())
+    ActionResult::json(())
   })
   let actions = [
-    ActionDef::new("action1", handler1),
-    ActionDef::new("action2", handler2),
+    ActionDef::from_key(ActionOneKey::{  }, handler1),
+    ActionDef::from_key(ActionTwoKey::{  }, handler2),
   ]
   let registry = ActionRegistry::new().register_all(actions)
   assert_eq(registry.action_ids().length(), 2)
@@ -217,25 +424,95 @@ test "ActionState constructors cover idle pending success and error states" {
   assert_true(failed.phase is ActionPhase::Failed)
   assert_eq(failed.status, Some(422))
   assert_eq(failed.message, Some("Invalid"))
+
+  let redirect = ActionState::redirect("/login")
+  assert_true(redirect.phase is ActionPhase::Redirecting)
+  assert_eq(redirect.redirect, Some("/login"))
+}
+
+// ============================================================================
+// ActionFormConfig Tests
+// ============================================================================
+
+///|
+test "ActionFormConfig::from_key creates typed form config" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let config : ActionFormConfig[CreateUserResponse] = ActionFormConfig::from_key(
+    key,
+  )
+  assert_eq(config.action, "/_action/create-user")
+  assert_eq(config.form_method, "POST")
 }
 
 ///|
-test "ActionState::from_response maps action responses to UI states" {
-  let ok = ActionState::from_response(ActionResponse::Success(@js.new_object()))
-  assert_true(ok.phase is ActionPhase::Succeeded)
-  assert_eq(ok.message, Some("Success"))
+test "ActionFormConfig builder methods preserve typed action url" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
 
-  let redirect = ActionState::from_response(ActionResponse::Redirect("/done"))
-  assert_true(redirect.phase is ActionPhase::Redirecting)
-  assert_eq(redirect.redirect, Some("/done"))
+    },
+  )
+  let config = ActionFormConfig::from_key(key)
+    .with_method("PUT")
+    .with_success(fn(data) {
+      let _ = data.id
+      ()
+    })
+    .with_error(fn(_status, _message) { () })
+    .with_redirect(fn(_url) { false })
+  assert_eq(config.action, "/_action/create-user")
+  assert_eq(config.form_method, "PUT")
+  assert_true(config.on_success is Some(_))
+  assert_true(config.on_error is Some(_))
+  assert_true(config.on_redirect is Some(_))
+}
 
-  let failed = ActionState::from_response(ActionResponse::Error(400, "Bad input"))
-  assert_true(failed.phase is ActionPhase::Failed)
-  assert_eq(failed.status, Some(400))
-  assert_eq(failed.message, Some("Bad input"))
+///|
+test "ActionFormConfig::to_raw decodes success callback payload" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
 
-  let network = ActionState::from_response(ActionResponse::NetworkError("offline"))
-  assert_true(network.phase is ActionPhase::Failed)
-  assert_eq(network.status, Some(0))
-  assert_eq(network.message, Some("offline"))
+    },
+  )
+  let mut received = ""
+  let mut error_status = -1
+  let config = ActionFormConfig::from_key(key)
+    .with_success(fn(data) { received = data.id })
+    .with_error(fn(status, _message) { error_status = status })
+  let raw = config.to_raw()
+  match raw.on_success {
+    Some(on_success) =>
+      on_success(
+        @js_any.json_to_any(CreateUserResponse::{ id: "user-2" }.to_json()),
+      )
+    None => fail("expected raw success callback")
+  }
+  assert_eq(received, "user-2")
+  assert_eq(error_status, -1)
+}
+
+///|
+test "ActionFormConfig::to_raw reports decode error through typed error callback" {
+  let key : TypedActionKey[CreateUserRequest, CreateUserResponse] = TypedActionKey::from_key(CreateUserActionKey::{
+
+    },
+  )
+  let mut received = ""
+  let mut error_status = -1
+  let mut error_message = ""
+  let config = ActionFormConfig::from_key(key)
+    .with_success(fn(data) { received = data.id })
+    .with_error(fn(status, message) {
+      error_status = status
+      error_message = message
+    })
+  let raw = config.to_raw()
+  let mismatch : Map[String, Json] = { "unexpected": true.to_json() }
+  match raw.on_success {
+    Some(on_success) => on_success(@js_any.json_to_any(mismatch.to_json()))
+    None => fail("expected raw success callback")
+  }
+  assert_eq(received, "")
+  assert_eq(error_status, 0)
+  assert_eq(error_message, "Action form response does not match expected type")
 }

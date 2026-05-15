@@ -12,7 +12,7 @@ fn normalize_path(path : String) -> String {
   let mut prev_slash = false
   for c in chars {
     if c == '/' {
-      if !(prev_slash) {
+      if !prev_slash {
         result.push(c)
       }
       prev_slash = true
@@ -39,14 +39,14 @@ fn extract_param_names(path : String) -> Array[String] {
   for segment in segments {
     if segment.has_prefix(":") && segment.length() > 1 {
       // ":id" -> "id"
-      let name = segment[1:].to_string()
+      let name = segment[1:].to_owned()
       result.push(name)
     } else if segment.has_prefix("[") &&
-      !(segment.has_prefix("[...")) &&
-      !(segment.has_prefix("[[...")) {
+      !segment.has_prefix("[...") &&
+      !segment.has_prefix("[[...") {
       // "[id]" -> "id" (Next.js style single param)
       if segment.has_suffix("]") && segment.length() > 2 {
-        let name = segment[1:segment.length() - 1].to_string()
+        let name = segment[1:segment.length() - 1].to_owned()
         result.push(name)
       }
     }
@@ -67,12 +67,12 @@ fn extract_catch_all(path : String) -> CatchAllInfo? {
   let last = segments[segments.length() - 1]
   // Optional catch-all: [[...name]]
   if last.has_prefix("[[...") && last.has_suffix("]]") && last.length() > 7 {
-    let name = last[5:last.length() - 2].to_string()
+    let name = last[5:last.length() - 2].to_owned()
     return Some({ name, optional: true })
   }
   // Required catch-all: [...name]
   if last.has_prefix("[...") && last.has_suffix("]") && last.length() > 5 {
-    let name = last[4:last.length() - 1].to_string()
+    let name = last[4:last.length() - 1].to_owned()
     return Some({ name, optional: false })
   }
   None

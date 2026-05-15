@@ -21,7 +21,7 @@ pub(all) enum DeployTarget {
   Deno
   /// Node.js server
   Node
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Default deploy target
@@ -382,7 +382,7 @@ pub(all) enum HeaderElement {
   Spacer
   /// Custom component by tag name
   Custom(String)
-} derive(Eq, Show, ToJson, FromJson)
+} derive(Eq, Debug, ToJson, FromJson)
 
 ///|
 /// Footer element types
@@ -397,7 +397,7 @@ pub(all) enum FooterElement {
   SocialLinks
   /// Custom component by tag name
   Custom(String)
-} derive(Eq, Show, ToJson, FromJson)
+} derive(Eq, Debug, ToJson, FromJson)
 
 ///|
 /// Header configuration with element slots
@@ -529,7 +529,7 @@ pub(all) enum ContentType {
   TsxComponent
   /// MDX file (.mdx) - Markdown with JSX components
   Mdx
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Page metadata for routing and generation

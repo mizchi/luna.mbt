@@ -1,4 +1,5 @@
 ///| Additional Page Handlers
+
 ///| These pages complete the routes defined in routes.mbt
 
 ///|
@@ -39,8 +40,16 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
         div(class="counter", [
           span(class="count-display", [text("0")]),
           div(class="buttons", [
-            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
-            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+            button(
+              class="dec",
+              attrs=[("data-on-click", @luna.attr_static("decrement"))],
+              [text("-")],
+            ),
+            button(
+              class="inc",
+              attrs=[("data-on-click", @luna.attr_static("increment"))],
+              [text("+")],
+            ),
           ]),
         ]),
       ],
@@ -55,8 +64,16 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
         div(class="counter", [
           span(class="count-display", [text("10")]),
           div(class="buttons", [
-            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
-            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+            button(
+              class="dec",
+              attrs=[("data-on-click", @luna.attr_static("decrement"))],
+              [text("-")],
+            ),
+            button(
+              class="inc",
+              attrs=[("data-on-click", @luna.attr_static("increment"))],
+              [text("+")],
+            ),
           ]),
         ]),
       ],
@@ -71,8 +88,16 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
         div(class="counter", [
           span(class="count-display", [text("100")]),
           div(class="buttons", [
-            button(class="dec", attrs=[("data-on-click", @luna.attr_static("decrement"))], [text("-")]),
-            button(class="inc", attrs=[("data-on-click", @luna.attr_static("increment"))], [text("+")]),
+            button(
+              class="dec",
+              attrs=[("data-on-click", @luna.attr_static("decrement"))],
+              [text("-")],
+            ),
+            button(
+              class="inc",
+              attrs=[("data-on-click", @luna.attr_static("increment"))],
+              [text("+")],
+            ),
           ]),
         ]),
       ],
@@ -87,7 +112,10 @@ async fn wc_multiple(_props : @sol.PageProps) -> @server_dom.ServerNode {
 ///|
 /// Docs page - catch-all route handler for /docs/[...slug]
 async fn docs_page(props : @sol.PageProps) -> @server_dom.ServerNode {
-  let slug = props.params.get_param("slug").unwrap_or("index")
+  let slug = match @types.params_docs_slug(props) {
+    Ok(p) => p.slug
+    Err(_) => "index"
+  }
   let content = [
     h1([text("Documentation")]),
     p([text("Current path: /docs/" + slug)]),
@@ -99,11 +127,16 @@ async fn docs_page(props : @sol.PageProps) -> @server_dom.ServerNode {
 ///|
 /// Blog page - optional catch-all route handler for /blog/[[...path]]
 async fn blog_page(props : @sol.PageProps) -> @server_dom.ServerNode {
-  let path = props.params.get_param("path").unwrap_or("")
+  let path = match @types.params_blog_path(props) {
+    Ok(p) => p.path.unwrap_or("")
+    Err(_) => ""
+  }
   let title = if path == "" { "Blog Home" } else { "Blog: " + path }
   let content = [
     h1([text(title)]),
-    p([text(if path == "" { "Welcome to the blog!" } else { "Viewing: " + path })]),
+    p([
+      text(if path == "" { "Welcome to the blog!" } else { "Viewing: " + path }),
+    ]),
     blog_recent_posts_section(),
   ]
   @sol.nodes(content)

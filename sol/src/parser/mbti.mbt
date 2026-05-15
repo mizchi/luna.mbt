@@ -105,7 +105,7 @@ pub fn parse_struct_defs(
   let lines = content.split("\n").to_array()
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].to_string().trim(chars=" \t\n\r").to_string()
+    let line = lines[i].to_owned().trim(chars=" \t\n\r").to_owned()
     // Look for struct definitions: pub(all) struct Name { or pub struct Name {
     if line.has_prefix("pub(all) struct ") || line.has_prefix("pub struct ") {
       let visibility = if line.has_prefix("pub(all)") {
@@ -115,13 +115,9 @@ pub fn parse_struct_defs(
       }
       // Extract struct name (safe: has_prefix check guarantees length)
       let after_struct = if visibility == "pub(all)" {
-        line[16:].to_string() catch {
-          _ => ""
-        } // after "pub(all) struct "
+        line[16:].to_owned() // after "pub(all) struct "
       } else {
-        line[11:].to_string() catch {
-          _ => ""
-        } // after "pub struct "
+        line[11:].to_owned() // after "pub struct "
       }
       // Find name (up to space or {)
       let name = extract_name_until_delimiter(after_struct)
@@ -172,8 +168,8 @@ fn extract_struct_raw(
   let mut brace_count = 0
   let buf = StringBuilder::new()
   for line in lines {
-    let line_str = line.to_string()
-    if !(in_struct) {
+    let line_str = line.to_owned()
+    if !in_struct {
       if line_str.contains(pattern) {
         in_struct = true
         buf.write_string(line_str)
@@ -206,5 +202,5 @@ fn extract_struct_raw(
       }
     }
   }
-  buf.to_string().trim(chars=" \t\n\r").to_string()
+  buf.to_string().trim(chars=" \t\n\r").to_owned()
 }

@@ -3,6 +3,9 @@ fn dummy_func_export() -> FuncExport {
   {
     name: "counter",
     signature: "(CounterProps) -> DomNode",
+    contract: client_component_contract_from_signature(
+      "(CounterProps) -> DomNode",
+    ),
     package_path: "tester/myapp/client",
     import_alias: "client",
     source_pattern: "app/client",

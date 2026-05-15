@@ -78,7 +78,7 @@ pub fn get_flag_value(args : Array[String], flag : String) -> String? {
       return Some(args[i + 1])
     }
     if a.has_prefix(prefix) {
-      return Some(a[prefix.length():].to_string())
+      return Some(a[prefix.length():].to_owned())
     }
   }
   None

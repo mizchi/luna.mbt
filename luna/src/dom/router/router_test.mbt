@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 extern "js" fn set_location_path(path : String) -> Unit =
   #| (path) => window.history.replaceState(null, '', path)
 

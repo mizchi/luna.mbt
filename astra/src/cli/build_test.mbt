@@ -73,10 +73,6 @@ async test "build_to_disk routes page URLs with a dot to <dir>/index.html" {
   // a regular file. Assert it's a directory instead, so a regression
   // back to the dot-heuristic trips this test.
   let target = "astra/tests/fixture/.out/release/v1.0"
-  let stat_is_dir = try {
-    @fs.statSync(target).isDirectory()
-  } catch {
-    _ => false
-  }
+  let stat_is_dir = @fs.statSync(target).isDirectory() catch { _ => false }
   inspect(stat_is_dir, content="true")
 }

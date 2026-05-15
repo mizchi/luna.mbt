@@ -176,6 +176,22 @@ pub(all) struct ComponentRef[T] {
   trigger : TriggerType
 }
 
+///|
+/// Explicit wrapper for HTML that has already been trusted by the caller.
+pub(all) struct TrustedHtml {
+  content : String
+}
+
+///|
+pub fn unsafe_trusted_html(content : String) -> TrustedHtml {
+  { content, }
+}
+
+///|
+pub fn TrustedHtml::to_string(self : TrustedHtml) -> String {
+  self.content
+}
+
 // =============================================================================
 // Type aliases for static DOM (SSR/pre-rendering)
 // =============================================================================

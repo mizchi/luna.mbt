@@ -20,8 +20,6 @@ pub fn toolbar_slots() -> ToolbarSlots
 
 // Types and methods
 pub(all) struct ToolbarGroup(Array[ToolbarItemConfig])
-#deprecated
-pub fn ToolbarGroup::inner(Self) -> Array[ToolbarItemConfig]
 
 pub(all) struct ToolbarItemConfig {
   id : String

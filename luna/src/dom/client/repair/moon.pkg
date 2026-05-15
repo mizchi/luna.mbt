@@ -14,6 +14,11 @@ import {
   "mizchi/npm_typed/global_jsdom",
   "mizchi/signals",
   "mizchi/luna/core/render" @render,
+  "moonbitlang/core/test" @test,
 } for "test"
+
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
 
 supported_targets = "js"

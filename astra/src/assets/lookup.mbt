@@ -45,7 +45,7 @@ pub(all) struct Asset {
 pub fn lookup_asset(
   path : String,
   config : @astra.SsgConfig,
-  minify~ : Bool = false,
+  minify? : Bool = false,
 ) -> Asset? {
   match path {
     "/assets/loader.js" =>
@@ -98,10 +98,7 @@ fn build_style_css_body(config : @astra.SsgConfig, minify~ : Bool) -> String {
 /// surface.
 pub fn list_asset_urls() -> Array[String] {
   [
-    "/assets/loader.js",
-    "/assets/style.css",
-    "/assets/github-markdown.css",
-    "/assets/shiki.css",
+    "/assets/loader.js", "/assets/style.css", "/assets/github-markdown.css", "/assets/shiki.css",
   ]
 }
 

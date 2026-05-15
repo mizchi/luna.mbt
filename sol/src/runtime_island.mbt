@@ -221,9 +221,9 @@ pub fn generate_state_script(id : String, json : String) -> String {
 /// ```
 pub fn[E] server_island(
   id~ : String,
-  props~ : Json? = None,
-  fallback~ : @luna.Node[E, String] = @luna.text(""),
-  revalidate~ : Int? = None,
+  props? : Json? = None,
+  fallback? : @luna.Node[E, String] = @luna.text(""),
+  revalidate? : Int? = None,
 ) -> @luna.Node[E, String] {
   // Build the defer URL with encoded props
   let props_json = props.unwrap_or(().to_json())
@@ -247,8 +247,8 @@ pub fn[E] server_island(
 pub fn[T : ToJson, E] server_island_typed(
   id~ : String,
   props~ : T,
-  fallback~ : @luna.Node[E, String] = @luna.text(""),
-  revalidate~ : Int? = None,
+  fallback? : @luna.Node[E, String] = @luna.text(""),
+  revalidate? : Int? = None,
 ) -> @luna.Node[E, String] {
   server_island(id~, props=Some(props.to_json()), fallback~, revalidate~)
 }

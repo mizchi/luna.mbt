@@ -24,52 +24,46 @@ pub fn routes() -> Array[@sol.SolRoutes] {
   }
   [
     // Apply security headers and logger middleware to all routes
-    @sol.with_mw(
-      global_middleware,
-      [
-        // Root layout - wraps all pages with navigation
-        @sol.wrap("", root_layout, [
-          // Home page with counter island
-          @sol.route("/", home, title="Home"),
-          // About page (static, no hydration)
-          @sol.route("/about", about, title="About"),
-          // Contact form page with contact_form island
-          @sol.route("/form", form_page, title="Contact Form"),
-          // WC Counter page - Web Components based island
-          @sol.route("/wc-counter", wc_counter, title="WC Counter"),
-          // WC Multiple page - multiple instances of same component
-          @sol.route("/wc-multiple", wc_multiple, title="WC Multiple"),
-          // Docs page - catch-all route [...slug]
-          @sol.route("/docs/[...slug]", docs_page, title="Documentation"),
-          // Blog page - optional catch-all route [[...path]]
-          @sol.route("/blog/[[...path]]", blog_page, title="Blog"),
-          // Middleware test page
-          @sol.route("/middleware-test", middleware_test, title="Middleware Test"),
-          // Admin section - nested layout example
-          @sol.wrap("/admin", admin_layout, [
-            @sol.route("/", admin_home, title="Admin Dashboard"),
-            @sol.route("/settings", admin_settings, title="Admin Settings"),
-            @sol.route("/users", admin_users, title="Admin Users"),
-          ]),
+    @sol.with_mw(global_middleware, [
+      // Root layout - wraps all pages with navigation
+      @sol.wrap("", root_layout, [
+        // Home page with counter island
+        @sol.route("/", home, title="Home"),
+        // About page (static, no hydration)
+        @sol.route("/about", about, title="About"),
+        // Contact form page with contact_form island
+        @sol.route("/form", form_page, title="Contact Form"),
+        // WC Counter page - Web Components based island
+        @sol.route("/wc-counter", wc_counter, title="WC Counter"),
+        // WC Multiple page - multiple instances of same component
+        @sol.route("/wc-multiple", wc_multiple, title="WC Multiple"),
+        // Docs page - catch-all route [...slug]
+        @sol.route("/docs/[...slug]", docs_page, title="Documentation"),
+        // Blog page - optional catch-all route [[...path]]
+        @sol.route("/blog/[[...path]]", blog_page, title="Blog"),
+        // Middleware test page
+        @sol.route("/middleware-test", middleware_test, title="Middleware Test"),
+        // Admin section - nested layout example
+        @sol.wrap("/admin", admin_layout, [
+          @sol.route("/", admin_home, title="Admin Dashboard"),
+          @sol.route("/settings", admin_settings, title="Admin Settings"),
+          @sol.route("/users", admin_users, title="Admin Users"),
         ]),
-        // API endpoints with CORS middleware
-        // Using method-style composition: logger().then(cors())
-        @sol.with_mw(
-          api_middleware,
-          [
-            @sol.api_get("/api/health", api_health),
-            // Benchmark API - lightweight endpoint for k6 runs
-            @sol.api_get("/api/bench/ping", api_bench_ping),
-            // Benchmark API - catch-all endpoint for routing benchmarks
-            @sol.api_get("/api/bench/test/[...path]", api_bench_catch_all),
-            // Middleware test API - returns info about current request
-            @sol.api_get("/api/middleware-test", api_middleware_test),
-            // Debug API - test catch-all params
-            @sol.api_get("/api/test/[...path]", api_test_catch_all),
-          ],
-        ),
-      ],
-    ),
+      ]),
+      // API endpoints with CORS middleware
+      // Using method-style composition: logger().then(cors())
+      @sol.with_mw(api_middleware, [
+        @sol.api_get("/api/health", api_health),
+        // Benchmark API - lightweight endpoint for k6 runs
+        @sol.api_get("/api/bench/ping", api_bench_ping),
+        // Benchmark API - catch-all endpoint for routing benchmarks
+        @sol.api_get("/api/bench/test/[...path]", api_bench_catch_all),
+        // Middleware test API - returns info about current request
+        @sol.api_get("/api/middleware-test", api_middleware_test),
+        // Debug API - test catch-all params
+        @sol.api_get("/api/test/[...path]", api_test_catch_all),
+      ]),
+    ]),
   ]
 }
 
@@ -86,14 +80,12 @@ extern "js" fn is_bench_mode() -> Bool =
 ///|
 /// Debug API - returns catch-all params
 async fn api_test_catch_all(props : @sol.PageProps) -> Json {
-  let path = props.params.get_param("path").unwrap_or("(none)")
-  let star = props.params.get_param("*").unwrap_or("(none)")
+  let path = match @types.params_api_test_path(props) {
+    Ok(p) => p.path
+    Err(_) => "(none)"
+  }
   let all_params = props.params.params.map(fn(p) { p.0 + "=" + p.1 }).join(",")
-  @sol.ok([
-    ("path", path.to_json()),
-    ("star", star.to_json()),
-    ("all_params", all_params.to_json()),
-  ]).to_json()
+  @sol.ok([("path", path.to_json()), ("all_params", all_params.to_json())]).to_json()
 }
 
 ///|
@@ -111,13 +103,35 @@ async fn api_bench_ping(_props : @sol.PageProps) -> Json {
 ///|
 /// API handler: benchmark catch-all (lightweight)
 async fn api_bench_catch_all(props : @sol.PageProps) -> Json {
-  let path = props.params.get_param("path").unwrap_or("(none)")
+  let path = match @types.params_api_bench_test_path(props) {
+    Ok(p) => p.path
+    Err(_) => "(none)"
+  }
   @sol.ok([("path", path.to_json())]).to_json()
 }
 
 // ============================================================================
 // Server Actions
 // ============================================================================
+
+///|
+priv struct ContactSubmitRequest {
+  name : String
+  email : String
+} derive(FromJson)
+
+///|
+priv struct ContactSubmitData {
+  name : String
+  email : String
+} derive(ToJson)
+
+///|
+priv struct ContactSubmitResponse {
+  success : Bool
+  message : String
+  data : ContactSubmitData
+} derive(ToJson)
 
 ///|
 /// Contact form submission handler
@@ -137,8 +151,11 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     (get_field(data, "name"), get_field(data, "email"))
   } else {
     // Parse JSON
-    let data : @core.Any = parse_json(body)
-    (get_field(data, "name"), get_field(data, "email"))
+    let req : ContactSubmitRequest = match ctx.decode_json() {
+      Some(req) => req
+      None => return @action.ActionResult::bad_request("Invalid JSON payload")
+    }
+    (req.name, req.email)
   }
 
   // Validate
@@ -148,7 +165,7 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
   if email == "" {
     return @action.ActionResult::bad_request("Email is required")
   }
-  if !(email.contains("@")) {
+  if !email.contains("@") {
     return @action.ActionResult::bad_request("Invalid email format")
   }
 
@@ -161,22 +178,13 @@ let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async
     @action.ActionResult::http_redirect("/")
   } else {
     // AJAX submission: return JSON
-    @action.ActionResult::ok(
-      @sol.json_obj([
-        ("success", @core.any(true)),
-        ("message", @core.any("Form submitted successfully!")),
-        (
-          "data",
-          @sol.json_obj([("name", @core.any(name)), ("email", @core.any(email))]),
-        ),
-      ]),
-    )
+    @action.ActionResult::json(ContactSubmitResponse::{
+      success: true,
+      message: "Form submitted successfully!",
+      data: ContactSubmitData::{ name, email },
+    })
   }
 })
-
-///|
-extern "js" fn parse_json(s : String) -> @core.Any =
-  #| (s) => { try { return JSON.parse(s); } catch { return {}; } }
 
 ///|
 extern "js" fn parse_form_urlencoded(s : String) -> @core.Any =
@@ -192,9 +200,10 @@ pub fn action_registry() -> @action.ActionRegistry {
   @action.ActionRegistry::new(allowed_origins=[
     "http://localhost:3000", "http://localhost:3457", "http://localhost:9123",
   ]).register(
-    @action.ActionDef::new("submit-contact", submit_contact_handler).with_require_json(
-      false,
-    ), // Allow form-urlencoded for progressive enhancement
+    @action.ActionDef::from_key(
+      @types.action_submit_contact(),
+      submit_contact_handler,
+    ).with_require_json(false), // Allow form-urlencoded for progressive enhancement
   )
 }
 

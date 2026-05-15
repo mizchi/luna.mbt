@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/internal/color"
+
+// Values
+pub fn cyan(String) -> String
+
+pub fn gray(String) -> String
+
+pub fn green(String) -> String
+
+pub fn red(String) -> String
+
+pub fn yellow(String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

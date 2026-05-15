@@ -98,9 +98,7 @@ fn generate_server_pkg(
     buf.write_string("  \"mizchi/sol_adapter_node\" @sol_node,\n")
   }
   if runtime is RuntimeCloudflare {
-    buf.write_string(
-      "  \"mizchi/sol_adapter_cloudflare\" @sol_cloudflare,\n",
-    )
+    buf.write_string("  \"mizchi/sol_adapter_cloudflare\" @sol_cloudflare,\n")
   }
   buf.write_string("  \"mizchi/mars\" @mars,\n")
   buf.write_string("  \"mizchi/sol/router\" @router,\n")
@@ -108,9 +106,9 @@ fn generate_server_pkg(
   buf.write_string("  \"\{routes_pkg}\" @app_server,\n")
   buf.write_string("  \"moonbitlang/async\",\n")
   buf.write_string("}\n\n")
+  buf.write_string("warnings = \"-29\"\n\n")
   buf.write_string("options(\n")
   buf.write_string("  \"is-main\": true,\n")
-  buf.write_string("  \"warn-list\": \"-29\",\n")
   buf.write_string(
     "  link: { \"js\": { \"exports\": [ \"configure_app\" ], \"format\": \"esm\" } },\n",
   )

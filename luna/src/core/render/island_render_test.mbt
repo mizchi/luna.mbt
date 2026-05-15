@@ -272,6 +272,33 @@ test "render InternalRef - ID generation from URL" {
   inspect(result.html.contains("luna:id=\""), content="true")
 }
 
+///|
+test "render InternalRef - repeated URL gets unique instance IDs" {
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":1}",
+      wc=false,
+      children=[],
+    ),
+    @core.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":2}",
+      wc=false,
+      children=[],
+    ),
+  ])
+  let result = render_to_string(node)
+  inspect(
+    result.html.contains("luna:id=\"_static_components_counter_js\""),
+    content="true",
+  )
+  inspect(
+    result.html.contains("luna:id=\"_static_components_counter_js-1\""),
+    content="true",
+  )
+}
+
 // =============================================================================
 // Preload URL Collection Tests
 // =============================================================================
@@ -301,6 +328,22 @@ test "render with preload - deduplicates URLs" {
   // Should only have one URL despite multiple islands using it
   inspect(result.preload_urls.length(), content="1")
   inspect(result.preload_urls[0], content="/static/shared.js")
+}
+
+///|
+test "render with preload - deduplicates InternalRef URLs" {
+  let node : @core.Node[Unit, String] = @core.fragment([
+    @core.internal_ref("/static/shared.js", "{\"count\":1}", wc=false, children=[]),
+    @core.internal_ref("/static/shared.js", "{\"count\":2}", wc=false, children=[]),
+  ])
+  let result = render_to_string(node, preload=true)
+  inspect(result.preload_urls.length(), content="1")
+  inspect(result.preload_urls[0], content="/static/shared.js")
+  inspect(result.html.contains("luna:id=\"_static_shared_js\""), content="true")
+  inspect(
+    result.html.contains("luna:id=\"_static_shared_js-1\""),
+    content="true",
+  )
 }
 
 ///|

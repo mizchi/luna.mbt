@@ -1369,6 +1369,32 @@ test "render_vnode_to_dom with Island" {
 }
 
 ///|
+test "render_vnode_to_dom InternalRef repeated URL gets unique instance IDs" {
+  @global_jsdom.register()
+  defer cleanup()
+  let container = create_container()
+  let vnode : @luna.Node[@js.Any, String] = @luna.fragment([
+    @luna.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":1}",
+      wc=false,
+      children=[],
+    ),
+    @luna.internal_ref(
+      "/static/components/counter.js",
+      "{\"count\":2}",
+      wc=false,
+      children=[],
+    ),
+  ])
+  let dom_node = render_vnode_to_dom(vnode)
+  container.as_node().appendChild(dom_node) |> ignore
+  let inner = get_inner_html(container)
+  assert_true(inner.contains("luna:id=\"_static_components_counter_js\""))
+  assert_true(inner.contains("luna:id=\"_static_components_counter_js-1\""))
+}
+
+///|
 test "render_vnode_to_dom with Async renders fallback" {
   @global_jsdom.register()
   defer cleanup()
@@ -1402,7 +1428,7 @@ test "render_vnode_to_dom ErrorBoundary reset re-inserts" {
   defer cleanup()
   let container = create_container()
   let should_throw = @resource.signal(true)
-  let reset_ref : Ref[(() -> Unit)?] = Ref::new(None)
+  let reset_ref : Ref[(() -> Unit)?] = Ref(None)
   let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
     children=() => {
       if should_throw.get() {

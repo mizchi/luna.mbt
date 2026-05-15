@@ -348,17 +348,33 @@ Server-side functions with CSRF protection. See [Server Actions README](./action
 ### Basic Usage
 
 ```moonbit
+struct SubmitFormRequest {
+  value : String
+} derive(FromJson)
+
+struct SubmitFormResponse {
+  success : Bool
+} derive(ToJson)
+
 // Define action handler
-let submit_handler = @action.ActionHandler(async fn(ctx) {
-  let body = ctx.body
-  // ... processing
-  @action.ActionResult::ok(@js.any({ "success": true }))
+let submit_form_handler = @action.ActionHandler(async fn(ctx) {
+  let req : SubmitFormRequest = match ctx.decode_json() {
+    Some(req) => req
+    None => return @action.ActionResult::bad_request("Invalid JSON payload")
+  }
+  // ... processing with req
+  @action.ActionResult::json(SubmitFormResponse::{ success: true })
 })
 
 // Register to registry
 pub fn action_registry() -> @action.ActionRegistry {
   @action.ActionRegistry::new(allowed_origins=["http://localhost:7777"])
-    .register(@action.ActionDef::new("submit-form", submit_handler))
+    .register(
+      @action.ActionDef::from_key(
+        @types.action_submit_form(),
+        submit_form_handler,
+      ),
+    )
 }
 ```
 

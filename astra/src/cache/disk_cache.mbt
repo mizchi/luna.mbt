@@ -42,7 +42,7 @@ pub fn[F : @env.FileSystem] DiskCache::get(
   self : DiskCache[F],
   key : String,
 ) -> CacheStatus {
-  if !(self.enabled) {
+  if !self.enabled {
     return Miss
   }
 
@@ -71,7 +71,7 @@ pub fn[F : @env.FileSystem] DiskCache::get_with_hash(
   key : String,
   content_hash : String,
 ) -> CacheStatus {
-  if !(self.enabled) {
+  if !self.enabled {
     return Miss
   }
 
@@ -103,7 +103,7 @@ pub fn[F : @env.FileSystem] DiskCache::set(
   value : String,
   ttl? : Int = 0,
 ) -> Unit {
-  if !(self.enabled) {
+  if !self.enabled {
     return
   }
 
@@ -127,7 +127,7 @@ pub fn[F : @env.FileSystem] DiskCache::remove(
   self : DiskCache[F],
   key : String,
 ) -> Unit {
-  if !(self.enabled) {
+  if !self.enabled {
     return
   }
 
@@ -150,7 +150,7 @@ pub fn[F : @env.FileSystem] DiskCache::remove(
 ///|
 /// Clear all cache
 pub fn[F : @env.FileSystem] DiskCache::clear(self : DiskCache[F]) -> Unit {
-  if !(self.enabled) {
+  if !self.enabled {
     return
   }
 
@@ -166,7 +166,7 @@ pub fn[F : @env.FileSystem] DiskCache::clear(self : DiskCache[F]) -> Unit {
 ///|
 /// Save cache metadata to disk
 pub fn[F : @env.FileSystem] DiskCache::save(self : DiskCache[F]) -> Unit {
-  if !(self.enabled) {
+  if !self.enabled {
     return
   }
   ensure_cache_dir(self.fs, self.cache_dir)
@@ -281,7 +281,7 @@ fn serialize_cache_meta(meta : CacheMeta) -> String {
   entries_json.write_string("{")
   let mut first = true
   for key, entry in meta.entries {
-    if !(first) {
+    if !first {
       entries_json.write_string(",")
     }
     first = false

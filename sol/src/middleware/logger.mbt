@@ -148,50 +148,50 @@ fn delegate_logger_handler(config : LoggerConfig) -> @mars.Handler? {
 
 ///|
 fn format_log_message(ctx : Ctx, format : LogFormat) -> String {
-  let method = ctx.meth().to_string()
+  let http_method = ctx.meth().to_string()
   let path = ctx.path()
   match format {
-    Dev => format_dev_pure(method, path)
+    Dev => format_dev_pure(http_method, path)
     Combined => {
       let user_agent = ctx.header("User-Agent").unwrap_or("-")
       let referer = ctx.header("Referer").unwrap_or("-")
       let timestamp = get_timestamp()
-      format_combined_pure(method, path, user_agent, referer, timestamp)
+      format_combined_pure(http_method, path, user_agent, referer, timestamp)
     }
     Json => {
       let timestamp = get_timestamp()
-      format_json_pure(method, path, timestamp)
+      format_json_pure(http_method, path, timestamp)
     }
   }
 }
 
 ///|
 /// Dev format: GET /path (pure, no IO)
-fn format_dev_pure(method : String, path : String) -> String {
-  "\{method} \{path}"
+fn format_dev_pure(http_method : String, path : String) -> String {
+  "\{http_method} \{path}"
 }
 
 ///|
 /// Combined format (pure, no IO)
 fn format_combined_pure(
-  method : String,
+  http_method : String,
   path : String,
   user_agent : String,
   referer : String,
   timestamp : String,
 ) -> String {
-  "- - - [\{timestamp}] \"\{method} \{path}\" - - \"\{referer}\" \"\{user_agent}\""
+  "- - - [\{timestamp}] \"\{http_method} \{path}\" - - \"\{referer}\" \"\{user_agent}\""
 }
 
 ///|
 /// JSON format (pure, no IO)
 fn format_json_pure(
-  method : String,
+  http_method : String,
   path : String,
   timestamp : String,
 ) -> String {
   let json : Json = {
-    "method": method.to_json(),
+    "method": http_method.to_json(),
     "path": path.to_json(),
     "timestamp": timestamp.to_json(),
   }
@@ -201,10 +201,6 @@ fn format_json_pure(
 // ============================================================================
 // FFI Helpers
 // ============================================================================
-
-///|
-extern "js" fn now_ms() -> Float =
-  #| () => Date.now()
 
 ///|
 extern "js" fn get_timestamp() -> String =

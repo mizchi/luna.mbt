@@ -17,6 +17,7 @@ import {
 } for "test"
 
 supported_targets = "js"
+
 options(
   link: {
     "js": {

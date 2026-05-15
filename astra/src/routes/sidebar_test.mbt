@@ -146,7 +146,9 @@ test "get_sidebar_for_path - manual sidebar" {
       text: "API",
       link: None,
       collapsed: false,
-      items: [@astra.SidebarItem::Link(text="Reference", link="/api/reference/")],
+      items: [
+        @astra.SidebarItem::Link(text="Reference", link="/api/reference/"),
+      ],
     },
   ]
   let config = @astra.SsgConfig::{
@@ -204,7 +206,10 @@ test "get_sidebar_page_order - nested groups" {
           collapsed: false,
           items: [
             @astra.SidebarItem::Link(text="Setup", link="/guide/basics/setup/"),
-            @astra.SidebarItem::Link(text="Config", link="/guide/basics/config/"),
+            @astra.SidebarItem::Link(
+              text="Config",
+              link="/guide/basics/config/",
+            ),
           ],
         }),
       ],
@@ -230,7 +235,9 @@ test "get_sidebar_page_order - multiple groups" {
       text: "API",
       link: None,
       collapsed: false,
-      items: [@astra.SidebarItem::Link(text="Reference", link="/api/reference/")],
+      items: [
+        @astra.SidebarItem::Link(text="Reference", link="/api/reference/"),
+      ],
     },
   ]
   let order = get_sidebar_page_order(groups)

@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 //
 
 ///|
@@ -122,6 +125,43 @@ test "ChunkManifest::parse: parses valid manifest" {
 }
 
 ///|
+test "ChunkManifest::parse: resolves external manifest by emitted file" {
+  let json =
+    #|{
+    #|  "app/client/counter.ts": {
+    #|    "file": "assets/counter-abc123.js",
+    #|    "imports": ["assets/runtime-def456.js"]
+    #|  }
+    #|}
+  let manifest = @router.ChunkManifest::parse(json, "/static/")
+  assert_true(manifest is Some(_))
+  let chunks = manifest.unwrap().get_chunks("/static/assets/counter-abc123.js")
+  assert_eq(chunks.length(), 1)
+  assert_eq(chunks[0], "/static/assets/runtime-def456.js")
+}
+
+///|
+test "ChunkManifest::parse: resolves imports that reference manifest keys" {
+  let json =
+    #|{
+    #|  "app/client/counter.ts": {
+    #|    "file": "assets/counter-abc123.js",
+    #|    "imports": ["_shared/runtime.ts"]
+    #|  },
+    #|  "_shared/runtime.ts": {
+    #|    "file": "assets/runtime-def456.js",
+    #|    "imports": ["assets/vendor-ghi789.js"]
+    #|  }
+    #|}
+  let manifest = @router.ChunkManifest::parse(json, "/static/")
+  assert_true(manifest is Some(_))
+  let chunks = manifest.unwrap().get_chunks("/static/assets/counter-abc123.js")
+  assert_eq(chunks.length(), 2)
+  assert_eq(chunks[0], "/static/assets/runtime-def456.js")
+  assert_eq(chunks[1], "/static/assets/vendor-ghi789.js")
+}
+
+///|
 test "ChunkManifest::parse: returns None for invalid json" {
   let manifest = @router.ChunkManifest::parse("not json", "/static/")
   assert_true(manifest is None)
@@ -193,6 +233,35 @@ test "RouterConfig::with_chunk_manifest: sets manifest" {
   manifest.add("counter.js", @router.ChunkManifestEntry::new("counter.js", []))
   let config = @router.RouterConfig::default().with_chunk_manifest(manifest)
   assert_true(config.chunk_manifest is Some(_))
+}
+
+///|
+test "RouterConfig::with_client_manifest_json: parses external manifest" {
+  let json =
+    #|{
+    #|  "app/client/counter.ts": {
+    #|    "file": "assets/counter-abc123.js",
+    #|    "imports": ["assets/runtime-def456.js"]
+    #|  }
+    #|}
+  let config = @router.RouterConfig::default().with_client_manifest_json(
+    json,
+    base_url="/static/",
+  )
+  guard config.chunk_manifest is Some(manifest) else {
+    fail("chunk manifest should be set")
+  }
+  let chunks = manifest.get_chunks("/static/assets/counter-abc123.js")
+  assert_eq(chunks.length(), 1)
+  assert_eq(chunks[0], "/static/assets/runtime-def456.js")
+}
+
+///|
+test "RouterConfig::with_client_manifest_json: invalid json keeps config" {
+  let config = @router.RouterConfig::default().with_client_manifest_json(
+    "not json",
+  )
+  assert_true(config.chunk_manifest is None)
 }
 
 ///|

@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 /// Additional tests for hot_reload pure functions
 
 ///|

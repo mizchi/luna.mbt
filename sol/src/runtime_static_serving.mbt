@@ -144,7 +144,7 @@ pub fn StaticDirServeConfig::new(
 ) -> StaticDirServeConfig {
   // Map to .sol/prod/static/{path_prefix}
   let local_dir = ".sol/prod/static" +
-    path_prefix.trim_end(chars="/").to_string()
+    path_prefix.trim_end(chars="/").to_owned()
   { path_prefix, local_dir }
 }
 
@@ -152,7 +152,7 @@ pub fn StaticDirServeConfig::new(
 /// Register a static directory for serving SSG output
 /// This serves HTML files from .sol/prod/static/{path_prefix}
 pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> Unit {
-  let prefix = config.path_prefix.trim_end(chars="/").to_string()
+  let prefix = config.path_prefix.trim_end(chars="/").to_owned()
   let local_dir = config.local_dir
 
   // Serve index.html for directory roots
@@ -169,7 +169,7 @@ pub fn serve_static_dir(app : App, config : StaticDirServeConfig) -> Unit {
     @mars.handler(async fn(c) {
       let path = c.path()
       let start_idx = prefix.length() + 1
-      let rest = path[start_idx:].to_string().trim_end(chars="/").to_string()
+      let rest = path[start_idx:].to_owned().trim_end(chars="/").to_owned()
 
       // Try exact path first, then as directory index
       if rest.is_empty() {
@@ -265,7 +265,7 @@ let sol_builtin_assets : Array[String] = [
 let asset_cache : Map[String, String] = {}
 
 ///|
-let assets_preloaded : Ref[Bool] = Ref::new(false)
+let assets_preloaded : Ref[Bool] = Ref(false)
 
 ///|
 /// Load all built-in assets into memory cache.
@@ -304,7 +304,7 @@ pub fn serve_sol_assets(app : App) -> Unit {
     @mars.handler(async fn(c) {
       let path = c.path()
       // "/__sol__/".length() == 9
-      let filename = path[9:].to_string()
+      let filename = path[9:].to_owned()
       let content_type = content_type_for_file(filename)
       // In prod: serve from memory cache; in dev: resolve from disk
       let content = if is_dev {
@@ -344,7 +344,7 @@ pub fn serve_static(app : App, config? : StaticFileConfig) -> Unit {
     @mars.handler(async fn(c) {
       let path = c.path()
       let start_idx = prefix.length() + 1
-      let filename = path[start_idx:].to_string() // Remove prefix + "/"
+      let filename = path[start_idx:].to_owned() // Remove prefix + "/"
 
       // Check mappings
       for mapping in mappings {

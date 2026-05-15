@@ -29,59 +29,26 @@ pub(all) struct WorkerInitData {
 ///|
 /// Serialize WorkerInitData to JSON string for IPC
 pub fn WorkerInitData::to_json_string(self : WorkerInitData) -> String {
-  // Manual JSON construction for efficiency
-  let q = "\""
-  "{" +
-  q +
-  "configJson" +
-  q +
-  ":" +
-  escape_json(self.config_json) +
-  "," +
-  q +
-  "pagesJson" +
-  q +
-  ":" +
-  escape_json(self.pages_json) +
-  "," +
-  q +
-  "sidebarJson" +
-  q +
-  ":" +
-  escape_json(self.sidebar_json) +
-  "," +
-  q +
-  "cwd" +
-  q +
-  ":" +
-  q +
-  self.cwd +
-  q +
-  "}"
+  let obj : Map[String, Json] = {
+    "configJson": self.config_json.to_json(),
+    "pagesJson": self.pages_json.to_json(),
+    "sidebarJson": self.sidebar_json.to_json(),
+    "cwd": self.cwd.to_json(),
+  }
+  obj.to_json().stringify()
 }
 
 ///|
-/// Parse WorkerInitData from JSON object
-pub fn WorkerInitData::from_json(obj : @core.Any) -> WorkerInitData? {
-  let config_json : String = obj["configJson"].cast()
-  let pages_json : String = obj["pagesJson"].cast()
-  let sidebar_json : String = obj["sidebarJson"].cast()
-  let cwd : String = obj["cwd"].cast()
+/// Parse WorkerInitData from JSON.
+pub fn WorkerInitData::from_json(json : Json) -> WorkerInitData? {
+  guard json is Object(obj) else { return None }
+  guard obj.get("configJson") is Some(String(config_json)) else { return None }
+  guard obj.get("pagesJson") is Some(String(pages_json)) else { return None }
+  guard obj.get("sidebarJson") is Some(String(sidebar_json)) else {
+    return None
+  }
+  guard obj.get("cwd") is Some(String(cwd)) else { return None }
   Some(WorkerInitData::{ config_json, pages_json, sidebar_json, cwd })
-}
-
-///|
-fn escape_json(s : String) -> String {
-  // Simple JSON string escape - the string itself is JSON so just wrap in quotes
-  // For complex strings, proper escaping would be needed
-  "\"" +
-  s
-  .replace(old="\\", new="\\\\")
-  .replace(old="\"", new="\\\"")
-  .replace(old="\n", new="\\n")
-  .replace(old="\r", new="\\r")
-  .replace(old="\t", new="\\t") +
-  "\""
 }
 
 // =============================================================================
@@ -129,6 +96,6 @@ pub fn PageJobResult::to_builder_result(
 
 ///|
 /// Serialize PageJobResult to JSON object (for worker to send)
-pub fn PageJobResult::to_json(self : PageJobResult) -> @core.Any {
+pub fn PageJobResult::to_json(self : PageJobResult) -> @builder.IpcMessage {
   self.to_builder_result().to_json()
 }

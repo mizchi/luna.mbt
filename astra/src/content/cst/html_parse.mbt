@@ -9,8 +9,8 @@
 /// Parse Island directive from HTML string
 /// Format: <Island name="counter" :props='{"initial": 0}' trigger="visible" />
 pub fn parse_island_directive(html : String) -> @markdown.IslandEmbed? {
-  let trimmed = html.trim(chars=" \t\n\r").to_string()
-  if !(trimmed.has_prefix("<Island")) && !(trimmed.has_prefix("<island")) {
+  let trimmed = html.trim(chars=" \t\n\r").to_owned()
+  if !trimmed.has_prefix("<Island") && !trimmed.has_prefix("<island") {
     return None
   }
 
@@ -49,8 +49,8 @@ pub fn parse_island_directive(html : String) -> @markdown.IslandEmbed? {
 /// Custom elements must have a hyphen in their name (e.g., <my-counter>, <foo-bar>)
 /// Supports luna:trigger attribute for hydration timing
 pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
-  let trimmed = html.trim(chars=" \t\n\r").to_string()
-  if !(trimmed.has_prefix("<")) {
+  let trimmed = html.trim(chars=" \t\n\r").to_owned()
+  if !trimmed.has_prefix("<") {
     return None
   }
 
@@ -61,7 +61,7 @@ pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
   }
 
   // Custom elements must contain a hyphen
-  if !(tag.contains("-")) {
+  if !tag.contains("-") {
     return None
   }
 
@@ -97,7 +97,7 @@ pub fn parse_custom_element(html : String) -> @markdown.ComponentEmbed? {
 ///|
 /// Extract tag name from HTML element
 fn extract_tag_name(html : String) -> String? {
-  if !(html.has_prefix("<")) {
+  if !html.has_prefix("<") {
     return None
   }
   // Skip the opening <

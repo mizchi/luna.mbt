@@ -6,58 +6,94 @@
 
 ///|
 test "parse_runtime: node is default" {
-  assert_eq!(parse_runtime("node"), RuntimeNode)
+  assert_eq(parse_runtime("node"), RuntimeNode)
 }
 
 ///|
 test "parse_runtime: unknown string defaults to node" {
-  assert_eq!(parse_runtime("unknown"), RuntimeNode)
+  assert_eq(parse_runtime("unknown"), RuntimeNode)
 }
 
 ///|
 test "parse_runtime: empty string defaults to node" {
-  assert_eq!(parse_runtime(""), RuntimeNode)
+  assert_eq(parse_runtime(""), RuntimeNode)
 }
 
 ///|
 test "parse_runtime: cloudflare" {
-  assert_eq!(parse_runtime("cloudflare"), RuntimeCloudflare)
+  assert_eq(parse_runtime("cloudflare"), RuntimeCloudflare)
 }
 
 ///|
 test "parse_runtime: cf alias" {
-  assert_eq!(parse_runtime("cf"), RuntimeCloudflare)
+  assert_eq(parse_runtime("cf"), RuntimeCloudflare)
 }
 
 ///|
 test "parse_runtime: workers alias" {
-  assert_eq!(parse_runtime("workers"), RuntimeCloudflare)
+  assert_eq(parse_runtime("workers"), RuntimeCloudflare)
 }
 
 ///|
 test "parse_runtime: deno" {
-  assert_eq!(parse_runtime("deno"), RuntimeDeno)
+  assert_eq(parse_runtime("deno"), RuntimeDeno)
 }
 
 ///|
 test "parse_runtime: bun" {
-  assert_eq!(parse_runtime("bun"), RuntimeBun)
+  assert_eq(parse_runtime("bun"), RuntimeBun)
 }
 
 ///|
 test "parse_runtime: case insensitive cloudflare" {
-  assert_eq!(parse_runtime("Cloudflare"), RuntimeCloudflare)
-  assert_eq!(parse_runtime("CLOUDFLARE"), RuntimeCloudflare)
+  assert_eq(parse_runtime("Cloudflare"), RuntimeCloudflare)
+  assert_eq(parse_runtime("CLOUDFLARE"), RuntimeCloudflare)
 }
 
 ///|
 test "parse_runtime: case insensitive deno" {
-  assert_eq!(parse_runtime("DENO"), RuntimeDeno)
+  assert_eq(parse_runtime("DENO"), RuntimeDeno)
 }
 
 ///|
 test "parse_runtime: case insensitive bun" {
-  assert_eq!(parse_runtime("BUN"), RuntimeBun)
+  assert_eq(parse_runtime("BUN"), RuntimeBun)
+}
+
+// =============================================================================
+// Ownership mode parser tests
+// =============================================================================
+
+///|
+test "parse_server_entry_mode: defaults to auto" {
+  assert_eq(parse_server_entry_mode(""), ServerEntryAuto)
+  assert_eq(parse_server_entry_mode("unknown"), ServerEntryAuto)
+}
+
+///|
+test "parse_server_entry_mode: accepts explicit user-managed aliases" {
+  assert_eq(parse_server_entry_mode("user"), ServerEntryUserManaged)
+  assert_eq(parse_server_entry_mode("user-managed"), ServerEntryUserManaged)
+  assert_eq(parse_server_entry_mode("manual"), ServerEntryUserManaged)
+}
+
+///|
+test "parse_server_entry_mode: accepts generated aliases" {
+  assert_eq(parse_server_entry_mode("generated"), ServerEntryGenerated)
+  assert_eq(parse_server_entry_mode("codegen"), ServerEntryGenerated)
+}
+
+///|
+test "parse_client_bundle_mode: defaults to auto" {
+  assert_eq(parse_client_bundle_mode(""), ClientBundleAuto)
+  assert_eq(parse_client_bundle_mode("unknown"), ClientBundleAuto)
+}
+
+///|
+test "parse_client_bundle_mode: accepts external aliases" {
+  assert_eq(parse_client_bundle_mode("external"), ClientBundleExternal)
+  assert_eq(parse_client_bundle_mode("manual"), ClientBundleExternal)
+  assert_eq(parse_client_bundle_mode("none"), ClientBundleExternal)
 }
 
 // =============================================================================
@@ -86,14 +122,14 @@ test "parse_sol_config: empty string returns None" {
 test "parse_sol_config: default routes value" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }
-  assert_eq!(config.routes, "app/server")
+  assert_eq(config.routes, "app/server")
 }
 
 ///|
 test "parse_sol_config: default output value" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }
-  assert_eq!(config.output, "app/__gen__")
+  assert_eq(config.output, "app/__gen__")
 }
 
 ///|
@@ -104,52 +140,123 @@ test "parse_sol_config: default client_auto_exports is true" {
 }
 
 ///|
+test "parse_sol_config: default ownership modes stay automatic" {
+  let result = parse_sol_config("{}")
+  guard result is Some(config) else { return }
+  assert_eq(config.server_entry, ServerEntryAuto)
+  assert_eq(config.client_bundle, ClientBundleAuto)
+}
+
+///|
+test "parse_sol_config: explicit user server entry and external client bundle" {
+  let result = parse_sol_config(
+    "{\"serverEntry\": \"user\", \"clientBundle\": \"external\"}",
+  )
+  guard result is Some(config) else { return }
+  assert_eq(config.server_entry, ServerEntryUserManaged)
+  assert_eq(config.client_bundle, ClientBundleExternal)
+}
+
+///|
+test "parse_sol_config: contract manifest path" {
+  let result = parse_sol_config("{\"contractManifest\": \"sol.contract.json\"}")
+  guard result is Some(config) else { return }
+  assert_eq(config.contract_manifest, Some("sol.contract.json"))
+}
+
+///|
+test "parse_sol_config: default contractTs is empty" {
+  let result = parse_sol_config("{}")
+  guard result is Some(config) else { return }
+  assert_eq(config.contract_ts.length(), 0)
+}
+
+///|
+test "parse_sol_config: TypeScript contract sources" {
+  let result = parse_sol_config(
+    (
+      #|{
+      #|  "contractTs": [
+      #|    {
+      #|      "input": "app/client/props.ts",
+      #|      "props": "CounterProps",
+      #|      "package": "app/client",
+      #|      "importAlias": "client",
+      #|      "clientUrl": "/assets/counter.js"
+      #|    }
+      #|  ]
+      #|}
+    ),
+  )
+  guard result is Some(config) else { return }
+  assert_eq(config.contract_ts.length(), 1)
+  let entry = config.contract_ts[0]
+  assert_eq(entry.input, "app/client/props.ts")
+  assert_eq(entry.props_interface, "CounterProps")
+  assert_eq(entry.package_path, "app/client")
+  assert_eq(entry.import_alias, Some("client"))
+  assert_eq(entry.client_url, Some("/assets/counter.js"))
+}
+
+///|
+test "parse_sol_config: contract_ts rejects missing required fields" {
+  let result = parse_sol_config(
+    (
+      #|{
+      #|  "contract_ts": [{ "input": "app/client/props.ts" }]
+      #|}
+    ),
+  )
+  assert_true(result is None)
+}
+
+///|
 test "parse_sol_config: default runtime is node" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }
-  assert_eq!(config.runtime, RuntimeNode)
+  assert_eq(config.runtime, RuntimeNode)
 }
 
 ///|
 test "parse_sol_config: default adapter matches runtime when not specified" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }
-  assert_eq!(config.adapter, config.runtime)
+  assert_eq(config.adapter, config.runtime)
 }
 
 ///|
 test "parse_sol_config: default islands is empty" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }
-  assert_eq!(config.islands.length(), 0)
+  assert_eq(config.islands.length(), 0)
 }
 
 ///|
 test "parse_sol_config: default static_dirs is empty" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 0)
+  assert_eq(config.static_dirs.length(), 0)
 }
 
 ///|
 test "parse_sol_config: default wasm_entrypoints is empty" {
   let result = parse_sol_config("{}")
   guard result is Some(config) else { return }
-  assert_eq!(config.wasm_entrypoints.length(), 0)
+  assert_eq(config.wasm_entrypoints.length(), 0)
 }
 
 ///|
 test "parse_sol_config: custom routes" {
   let result = parse_sol_config("{\"routes\": \"src/server\"}")
   guard result is Some(config) else { return }
-  assert_eq!(config.routes, "src/server")
+  assert_eq(config.routes, "src/server")
 }
 
 ///|
 test "parse_sol_config: custom output" {
   let result = parse_sol_config("{\"output\": \"gen\"}")
   guard result is Some(config) else { return }
-  assert_eq!(config.output, "gen")
+  assert_eq(config.output, "gen")
 }
 
 ///|
@@ -163,21 +270,21 @@ test "parse_sol_config: client_auto_exports false" {
 test "parse_sol_config: runtime cloudflare" {
   let result = parse_sol_config("{\"runtime\": \"cloudflare\"}")
   guard result is Some(config) else { return }
-  assert_eq!(config.runtime, RuntimeCloudflare)
+  assert_eq(config.runtime, RuntimeCloudflare)
 }
 
 ///|
 test "parse_sol_config: runtime bun" {
   let result = parse_sol_config("{\"runtime\": \"bun\"}")
   guard result is Some(config) else { return }
-  assert_eq!(config.runtime, RuntimeBun)
+  assert_eq(config.runtime, RuntimeBun)
 }
 
 ///|
 test "parse_sol_config: runtime deno" {
   let result = parse_sol_config("{\"runtime\": \"deno\"}")
   guard result is Some(config) else { return }
-  assert_eq!(config.runtime, RuntimeDeno)
+  assert_eq(config.runtime, RuntimeDeno)
 }
 
 ///|
@@ -186,25 +293,25 @@ test "parse_sol_config: adapter overrides runtime for adapter field" {
     "{\"runtime\": \"cloudflare\", \"adapter\": \"node\"}",
   )
   guard result is Some(config) else { return }
-  assert_eq!(config.runtime, RuntimeCloudflare)
-  assert_eq!(config.adapter, RuntimeNode)
+  assert_eq(config.runtime, RuntimeCloudflare)
+  assert_eq(config.adapter, RuntimeNode)
 }
 
 ///|
 test "parse_sol_config: adapter defaults to runtime when absent" {
   let result = parse_sol_config("{\"runtime\": \"bun\"}")
   guard result is Some(config) else { return }
-  assert_eq!(config.runtime, RuntimeBun)
-  assert_eq!(config.adapter, RuntimeBun)
+  assert_eq(config.runtime, RuntimeBun)
+  assert_eq(config.adapter, RuntimeBun)
 }
 
 ///|
 test "parse_sol_config: islands array" {
   let result = parse_sol_config("{\"islands\": [\"app/client\", \"app/ui\"]}")
   guard result is Some(config) else { return }
-  assert_eq!(config.islands.length(), 2)
-  assert_eq!(config.islands[0], "app/client")
-  assert_eq!(config.islands[1], "app/ui")
+  assert_eq(config.islands.length(), 2)
+  assert_eq(config.islands[0], "app/client")
+  assert_eq(config.islands[1], "app/ui")
 }
 
 ///|
@@ -226,31 +333,31 @@ test "parse_sol_config: null returns None" {
 ///|
 test "StaticDirEntry::default: path_prefix is set" {
   let entry = StaticDirEntry::default("/docs", "docs", "Docs")
-  assert_eq!(entry.path_prefix, "/docs")
+  assert_eq(entry.path_prefix, "/docs")
 }
 
 ///|
 test "StaticDirEntry::default: source_dir is set" {
   let entry = StaticDirEntry::default("/docs", "docs", "Docs")
-  assert_eq!(entry.source_dir, "docs")
+  assert_eq(entry.source_dir, "docs")
 }
 
 ///|
 test "StaticDirEntry::default: title is set" {
   let entry = StaticDirEntry::default("/docs", "docs", "My Docs")
-  assert_eq!(entry.title, "My Docs")
+  assert_eq(entry.title, "My Docs")
 }
 
 ///|
 test "StaticDirEntry::default: nav is empty" {
   let entry = StaticDirEntry::default("/docs", "docs", "Docs")
-  assert_eq!(entry.nav.length(), 0)
+  assert_eq(entry.nav.length(), 0)
 }
 
 ///|
 test "StaticDirEntry::default: exclude is empty" {
   let entry = StaticDirEntry::default("/docs", "docs", "Docs")
-  assert_eq!(entry.exclude.length(), 0)
+  assert_eq(entry.exclude.length(), 0)
 }
 
 ///|
@@ -268,19 +375,19 @@ test "StaticDirEntry::default: ogp_text is None" {
 ///|
 test "StaticDirEntry::default: head_snippets is empty" {
   let entry = StaticDirEntry::default("/docs", "docs", "Docs")
-  assert_eq!(entry.head_snippets.length(), 0)
+  assert_eq(entry.head_snippets.length(), 0)
 }
 
 ///|
 test "StaticDirEntry::default: body_snippets is empty" {
   let entry = StaticDirEntry::default("/docs", "docs", "Docs")
-  assert_eq!(entry.body_snippets.length(), 0)
+  assert_eq(entry.body_snippets.length(), 0)
 }
 
 ///|
 test "StaticDirEntry::default: prod_body_snippets is empty" {
   let entry = StaticDirEntry::default("/docs", "docs", "Docs")
-  assert_eq!(entry.prod_body_snippets.length(), 0)
+  assert_eq(entry.prod_body_snippets.length(), 0)
 }
 
 // =============================================================================
@@ -291,26 +398,24 @@ test "StaticDirEntry::default: prod_body_snippets is empty" {
 test "extract_quoted_values: basic extraction" {
   let result : Array[String] = []
   extract_quoted_values("component=\"MyComponent\"", "component=\"", result)
-  assert_eq!(result.length(), 1)
-  assert_eq!(result[0], "MyComponent")
+  assert_eq(result.length(), 1)
+  assert_eq(result[0], "MyComponent")
 }
 
 ///|
 test "extract_quoted_values: multiple matches" {
   let result : Array[String] = []
-  extract_quoted_values(
-    "path=\"/home\" path=\"/about\"", "path=\"", result,
-  )
-  assert_eq!(result.length(), 2)
-  assert_eq!(result[0], "/home")
-  assert_eq!(result[1], "/about")
+  extract_quoted_values("path=\"/home\" path=\"/about\"", "path=\"", result)
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/home")
+  assert_eq(result[1], "/about")
 }
 
 ///|
 test "extract_quoted_values: no matches returns empty" {
   let result : Array[String] = []
   extract_quoted_values("some text without prefix", "component=\"", result)
-  assert_eq!(result.length(), 0)
+  assert_eq(result.length(), 0)
 }
 
 ///|
@@ -319,41 +424,85 @@ test "extract_quoted_values: deduplicates identical values" {
   extract_quoted_values(
     "path=\"/home\" path=\"/home\" path=\"/about\"", "path=\"", result,
   )
-  assert_eq!(result.length(), 2)
-  assert_eq!(result[0], "/home")
-  assert_eq!(result[1], "/about")
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/home")
+  assert_eq(result[1], "/about")
 }
 
 ///|
 test "extract_quoted_values: empty content" {
   let result : Array[String] = []
   extract_quoted_values("", "path=\"", result)
-  assert_eq!(result.length(), 0)
+  assert_eq(result.length(), 0)
 }
 
 ///|
 test "extract_quoted_values: prefix at end with no closing quote" {
   let result : Array[String] = []
   extract_quoted_values("path=\"incomplete", "path=\"", result)
-  assert_eq!(result.length(), 0)
+  assert_eq(result.length(), 0)
 }
 
 ///|
-test "extract_quoted_values: ActionDef pattern" {
+test "extract_action_handler_ids: supports typed handler names" {
   let result : Array[String] = []
-  extract_quoted_values(
-    "ActionDef::new(\"submit-form\", handler)", "ActionDef::new(\"", result,
+  extract_action_handler_ids(
+    (
+      #|let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async fn(ctx) {
+      #|  @action.ActionResult::ok(@core.any(true))
+      #|})
+      #|let add_todo_action : @action.ActionHandler = @action.ActionHandler(async fn(ctx) {
+      #|  @action.ActionResult::ok(@core.any(true))
+      #|})
+    ),
+    result,
   )
-  assert_eq!(result.length(), 1)
-  assert_eq!(result[0], "submit-form")
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "submit-contact")
+  assert_eq(result[1], "add-todo")
+}
+
+///|
+test "action_handler_name_to_id: documents generated action key naming" {
+  assert_eq(
+    action_handler_name_to_id("submit_contact_handler"),
+    Some("submit-contact"),
+  )
+  assert_eq(action_handler_name_to_id("add_todo_action"), Some("add-todo"))
+  assert_eq(
+    action_handler_name_to_id("submitContact_handler"),
+    Some("submit-contact"),
+  )
+  assert_eq(
+    action_handler_name_to_id("SubmitContact_action"),
+    Some("submit-contact"),
+  )
+  assert_eq(action_handler_name_to_id("submit_contact"), None)
+}
+
+///|
+test "extract_action_handler_ids: ignores stringly action definitions" {
+  let result : Array[String] = []
+  extract_action_handler_ids(
+    (
+      #|let submit_contact_handler : @action.ActionHandler = @action.ActionHandler(async fn(ctx) {
+      #|  @action.ActionResult::ok(@core.any(true))
+      #|})
+      #|let ignored = @action.ActionDef::new("stringly-action", submit_contact_handler)
+      #|let also_ignored_action = fn() { () }
+    ),
+    result,
+  )
+  assert_eq(result.length(), 1)
+  assert_eq(result[0], "submit-contact")
 }
 
 ///|
 test "extract_quoted_values: multiple different prefixes accumulate in same array" {
   let result : Array[String] = []
   extract_quoted_values("path=\"/api\" segment=\"main\"", "path=\"", result)
-  assert_eq!(result.length(), 1)
-  assert_eq!(result[0], "/api")
+  assert_eq(result.length(), 1)
+  assert_eq(result[0], "/api")
 }
 
 // =============================================================================
@@ -374,10 +523,10 @@ test "parse_sol_config: staticDirs with valid entry" {
     #|}
   let result = parse_sol_config(json)
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 1)
-  assert_eq!(config.static_dirs[0].path_prefix, "/docs")
-  assert_eq!(config.static_dirs[0].source_dir, "docs")
-  assert_eq!(config.static_dirs[0].title, "Documentation")
+  assert_eq(config.static_dirs.length(), 1)
+  assert_eq(config.static_dirs[0].path_prefix, "/docs")
+  assert_eq(config.static_dirs[0].source_dir, "docs")
+  assert_eq(config.static_dirs[0].title, "Documentation")
 }
 
 ///|
@@ -393,7 +542,7 @@ test "parse_sol_config: staticDirs entry without path_prefix is skipped" {
     #|}
   let result = parse_sol_config(json)
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 0)
+  assert_eq(config.static_dirs.length(), 0)
 }
 
 ///|
@@ -409,7 +558,7 @@ test "parse_sol_config: staticDirs entry without source_dir is skipped" {
     #|}
   let result = parse_sol_config(json)
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 0)
+  assert_eq(config.static_dirs.length(), 0)
 }
 
 ///|
@@ -425,8 +574,8 @@ test "parse_sol_config: staticDirs default title is Documentation" {
     #|}
   let result = parse_sol_config(json)
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 1)
-  assert_eq!(config.static_dirs[0].title, "Documentation")
+  assert_eq(config.static_dirs.length(), 1)
+  assert_eq(config.static_dirs[0].title, "Documentation")
 }
 
 ///|
@@ -443,7 +592,7 @@ test "parse_sol_config: staticDirs trailing_slash false" {
     #|}
   let result = parse_sol_config(json)
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 1)
+  assert_eq(config.static_dirs.length(), 1)
   assert_false(config.static_dirs[0].trailing_slash)
 }
 
@@ -461,7 +610,7 @@ test "parse_sol_config: staticDirs with ogpText" {
     #|}
   let result = parse_sol_config(json)
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 1)
+  assert_eq(config.static_dirs.length(), 1)
   assert_true(config.static_dirs[0].ogp_text is Some(_))
 }
 
@@ -479,8 +628,8 @@ test "parse_sol_config: staticDirs with exclude array" {
     #|}
   let result = parse_sol_config(json)
   guard result is Some(config) else { return }
-  assert_eq!(config.static_dirs.length(), 1)
-  assert_eq!(config.static_dirs[0].exclude.length(), 2)
-  assert_eq!(config.static_dirs[0].exclude[0], "draft")
-  assert_eq!(config.static_dirs[0].exclude[1], "wip")
+  assert_eq(config.static_dirs.length(), 1)
+  assert_eq(config.static_dirs[0].exclude.length(), 2)
+  assert_eq(config.static_dirs[0].exclude[0], "draft")
+  assert_eq(config.static_dirs[0].exclude[1], "wip")
 }

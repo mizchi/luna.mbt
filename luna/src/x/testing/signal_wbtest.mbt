@@ -51,8 +51,8 @@ test "assert_tracked_values succeeds for correct values" {
 
 ///|
 test "test_batch executes in order" {
-  let result : Ref[String] = Ref::new("")
-  let verified : Ref[Bool] = Ref::new(false)
+  let result : Ref[String] = Ref("")
+  let verified : Ref[Bool] = Ref(false)
   test_batch(
     fn() { result.val = "setup" },
     fn() { result.val = result.val + "-update" },

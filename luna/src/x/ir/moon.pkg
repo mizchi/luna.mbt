@@ -1,1 +1,5 @@
+import {
+  "moonbitlang/core/test" @test,
+} for "wbtest"
+
 warnings = "-9-struct_never_constructed"

@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 ///| Tests for Cloudflare adapter utilities.
 
 ///|
@@ -32,6 +35,14 @@ extern "js" fn ffi_fetch_exported_app_text(
   #| }
 
 ///|
+extern "js" fn ffi_exported_runtime() -> String =
+  #| () => globalThis.__SOL_RUNTIME__ || ""
+
+///|
+extern "js" fn ffi_is_adapter_mode() -> Bool =
+  #| () => globalThis.__SOL_ADAPTER_MODE__ === true
+
+///|
 async test "export_app exposes Cloudflare fetch with env and execution context" {
   ffi_clear_exported_sol_app()
   let app = @mars.Server::new()
@@ -45,6 +56,8 @@ async test "export_app exposes Cloudflare fetch with env and execution context" 
   export_app(app)
   let body = ffi_fetch_exported_app_text("/secret", ffi_test_env()).wait()
   assert_eq(body, "secret-token")
+  assert_eq(ffi_exported_runtime(), "cloudflare")
+  assert_true(ffi_is_adapter_mode())
 }
 
 ///|
@@ -59,6 +72,36 @@ test "missing_required_bindings reports absent non-optional bindings" {
   assert_eq(missing[0].name, "MISSING_MEDIA")
   assert_eq(missing[0].kind.label(), "r2")
   assert_true(describe_missing_bindings(missing).contains("MISSING_MEDIA"))
+}
+
+///|
+test "binding keys and TypeScript env declaration preserve binding kinds" {
+  let token : BindingKey[String] = env_var_key("API_TOKEN")
+  assert_eq(token.name(), "API_TOKEN")
+  assert_eq(token.kind().label(), "var")
+  let dts = bindings_typescript_decl([
+    env_var("API_TOKEN"),
+    secret("SESSION_SECRET"),
+    kv_namespace("CACHE"),
+    r2_bucket("MEDIA", optional=true),
+    d1_database("DB"),
+    durable_object("COUNTER"),
+    service_binding("AUTH"),
+    ai_binding("AI"),
+    queue_binding("JOBS"),
+    env_var("FEATURE-FLAG", optional=true),
+  ])
+  assert_true(dts.contains("export interface CloudflareEnv {"))
+  assert_true(dts.contains("  API_TOKEN: string;"))
+  assert_true(dts.contains("  SESSION_SECRET: string;"))
+  assert_true(dts.contains("  CACHE: KVNamespace;"))
+  assert_true(dts.contains("  MEDIA?: R2Bucket;"))
+  assert_true(dts.contains("  DB: D1Database;"))
+  assert_true(dts.contains("  COUNTER: DurableObjectNamespace;"))
+  assert_true(dts.contains("  AUTH: Fetcher;"))
+  assert_true(dts.contains("  AI: Ai;"))
+  assert_true(dts.contains("  JOBS: Queue;"))
+  assert_true(dts.contains("  \"FEATURE-FLAG\"?: string;"))
 }
 
 ///|

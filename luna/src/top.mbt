@@ -24,6 +24,7 @@ pub using @core {
   type TriggerType,
   type Trigger,
   type ComponentRef,
+  type TrustedHtml,
 
   // Factory functions
   handler,
@@ -32,6 +33,8 @@ pub using @core {
   text_dyn,
   fragment,
   raw_html,
+  raw_trusted_html,
+  unsafe_trusted_html,
   show,
   for_each,
   component,

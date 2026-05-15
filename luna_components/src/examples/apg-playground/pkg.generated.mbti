@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/luna/examples/apg-playground"
+package "mizchi/luna_components/examples/apg-playground"
 
 import {
   "moonbitlang/core/debug",

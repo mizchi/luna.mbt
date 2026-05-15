@@ -4,7 +4,7 @@
 /// Tests for CST to MdNode converter
 test "parse_markdown_native: basic paragraph" {
   let (fm, nodes) = parse_markdown_native("Hello World")
-  inspect(fm.title, content="None")
+  debug_inspect(fm.title, content="None")
   inspect(nodes.length(), content="1")
   match nodes[0] {
     @markdown.MdNode::Paragraph(children~) => {
@@ -36,16 +36,18 @@ test "parse_markdown_native: heading" {
 test "parse_markdown_native: frontmatter" {
   let content = "---\ntitle: Test\ndescription: A test doc\n---\n\nHello"
   let (fm, nodes) = parse_markdown_native(content)
-  inspect(
+  debug_inspect(
     fm.title,
     content=(
-      #|Some(Test)
+      #|Some("Test")
+
     ),
   )
-  inspect(
+  debug_inspect(
     fm.description,
     content=(
-      #|Some(A test doc)
+      #|Some("A test doc")
+
     ),
   )
   inspect(nodes.length(), content="1")
@@ -59,7 +61,7 @@ test "parse_markdown_native: code block" {
   match nodes[0] {
     @markdown.MdNode::CodeBlock(lang~, code~) => {
       inspect(lang, content="javascript")
-      inspect(code.trim(chars=" \t\n\r").to_string(), content="const x = 1;")
+      inspect(code.trim(chars=" \t\n\r").to_owned(), content="const x = 1;")
     }
     _ => fail("Expected CodeBlock node")
   }

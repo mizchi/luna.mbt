@@ -15,8 +15,6 @@ pub fn create_fetch_handler() -> FetchHandler
 
 // Types and methods
 pub struct FetchHandler((@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse])
-#deprecated
-pub fn FetchHandler::inner(Self) -> (@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse]
 
 // Type aliases
 

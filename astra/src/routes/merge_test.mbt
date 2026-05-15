@@ -376,8 +376,8 @@ test "get_api_routes - mixed manifest" {
   }
   let apis = get_api_routes(manifest)
   inspect(apis.length(), content="2")
-  inspect(apis[0].http_method, content="Get")
-  inspect(apis[1].http_method, content="Post")
+  debug_inspect(apis[0].http_method, content="Get")
+  debug_inspect(apis[1].http_method, content="Post")
 }
 
 // =============================================================================

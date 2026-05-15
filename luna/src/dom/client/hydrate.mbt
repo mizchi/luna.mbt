@@ -130,8 +130,8 @@ pub fn hydrate_with_dispose(
       mismatches: [],
       hk_cache: None,
     }
-    let hydration_dispose : Ref[(() -> Unit)?] = Ref::new(None)
-    let root_cursor : Ref[@js_dom.Node?] = Ref::new(None)
+    let hydration_dispose : Ref[(() -> Unit)?] = Ref(None)
+    let root_cursor : Ref[@js_dom.Node?] = Ref(None)
     let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
       hydrate_node(container.as_node(), node, ctx, root_cursor, None) catch {
         err =>
@@ -286,7 +286,7 @@ fn hydrate_node(
             }
           None => ()
         }
-        let child_cursor : Ref[@js_dom.Node?] = Ref::new(None)
+        let child_cursor : Ref[@js_dom.Node?] = Ref(None)
         for child in elem.children {
           hydrate_node(dom_elem.as_node(), child, ctx, child_cursor, None)
         }
@@ -354,7 +354,7 @@ extern "js" fn node_ref_equal(a : @js_dom.Node, b : @js_dom.Node) -> Bool =
 fn build_hk_cache(
   container : @js_dom.Element,
 ) -> @hashmap.HashMap[Int, @js_dom.Element] {
-  let cache : @hashmap.HashMap[Int, @js_dom.Element] = @hashmap.new()
+  let cache : @hashmap.HashMap[Int, @js_dom.Element] = @hashmap.HashMap([])
   build_hk_cache_recursive(container.as_node(), cache)
   cache
 }
@@ -615,7 +615,7 @@ fn hydrate_show(
     return
   }
   let current_nodes : Array[@js_dom.Node] = []
-  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let current_dispose : Ref[(() -> Unit)?] = Ref(None)
 
   // Collect nodes between markers
   let mut sibling = marker.nextSibling()
@@ -644,7 +644,7 @@ fn hydrate_show(
   if cond() && !current_nodes.is_empty() && end_marker is Some(end_node) {
     let child_vnode = child_fn()
     // We need to hydrate the existing nodes
-    let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(marker))
+    let region_cursor : Ref[@js_dom.Node?] = Ref(Some(marker))
     let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
       hydrate_child_nodes(
         parent,
@@ -808,13 +808,11 @@ fn hydrate_for(
         if item_regions.length() == items.length() {
           let entries : Ref[
             Array[@element.ItemEntry[@luna.Node[@js.Any, String]]],
-          ] = Ref::new([])
+          ] = Ref([])
           for i, item in items {
             let (nodes, start_marker, end_marker) = item_regions[i]
             let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
-              let region_cursor : Ref[@js_dom.Node?] = Ref::new(
-                Some(start_marker),
-              )
+              let region_cursor : Ref[@js_dom.Node?] = Ref(Some(start_marker))
               hydrate_child_nodes(
                 parent,
                 region_cursor,
@@ -846,7 +844,7 @@ fn hydrate_for(
           }
 
           // Set up effect for list updates with reconciliation
-          let is_first_render : Ref[Bool] = Ref::new(true)
+          let is_first_render : Ref[Bool] = Ref(true)
           let _ = @resource.render_effect(fn() {
             let new_items = render_fn()
             if is_first_render.val {
@@ -885,9 +883,9 @@ fn hydrate_for(
       }
 
       // Fallback: hydrate in a single owner and clear/re-render on updates
-      let list_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+      let list_dispose : Ref[(() -> Unit)?] = Ref(None)
       let (hydrated, dispose) = @resource.create_root_with_dispose(fn() {
-        let region_cursor : Ref[@js_dom.Node?] = Ref::new(Some(start))
+        let region_cursor : Ref[@js_dom.Node?] = Ref(Some(start))
         for item in items {
           hydrate_child_nodes(parent, region_cursor, Some(end), item, ctx) catch {
             _ => () // Ignore errors during hydration of for items
@@ -898,7 +896,7 @@ fn hydrate_for(
       list_dispose.val = Some(dispose)
 
       // Set up effect for list updates (clear and re-render with cleanup)
-      let is_first_render : Ref[Bool] = Ref::new(true)
+      let is_first_render : Ref[Bool] = Ref(true)
       let _ = @resource.render_effect(fn() {
         let new_items = render_fn()
         if is_first_render.val {
@@ -1071,7 +1069,7 @@ pub fn[State] hydrate_with_actions(
   update : (State, String) -> State,
 ) -> Unit {
   let state_signal = @resource.signal(initial_state)
-  let current_dispose : Ref[(() -> Unit)?] = Ref::new(None)
+  let current_dispose : Ref[(() -> Unit)?] = Ref(None)
 
   // Create dispatcher that updates state
   let dispatch : (String) -> Unit = fn(action : String) {
@@ -1084,7 +1082,7 @@ pub fn[State] hydrate_with_actions(
   bind_actions_from_dom(container, dispatch)
 
   // Set up effect to re-render when state changes
-  let is_first_render : Ref[Bool] = Ref::new(true)
+  let is_first_render : Ref[Bool] = Ref(true)
   let _ = @resource.render_effect(fn() {
     let current_state = state_signal.get()
 

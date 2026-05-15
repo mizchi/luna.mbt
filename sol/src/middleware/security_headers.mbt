@@ -171,10 +171,10 @@ pub fn security_headers_with_config(
       base_handler(ctx)
 
       // Sol-specific headers not covered by mars secure_headers
-      if !(config.coop.is_empty()) {
+      if !config.coop.is_empty() {
         ctx.set_header("Cross-Origin-Opener-Policy", config.coop)
       }
-      if !(config.coep.is_empty()) {
+      if !config.coep.is_empty() {
         ctx.set_header("Cross-Origin-Embedder-Policy", config.coep)
       }
 

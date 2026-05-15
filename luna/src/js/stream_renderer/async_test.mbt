@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Async Exception Handling Tests
 // Exploring MoonBit's try-catch expression for error handling patterns.
 // MoonBit's try-catch is an expression that returns a value,

@@ -4,6 +4,7 @@ package "mizchi/astra"
 import {
   "mizchi/astra/content/frontmatter",
   "mizchi/astra/content/markdown",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
@@ -80,7 +81,7 @@ pub(all) enum ContentType {
   Component
   TsxComponent
   Mdx
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct CssUtilitiesConfig {
   enabled : Bool
@@ -98,7 +99,7 @@ pub(all) enum DeployTarget {
   Netlify
   Deno
   Node
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn DeployTarget::default() -> Self
 
 pub(all) struct DocumentTree {
@@ -131,7 +132,7 @@ pub(all) enum FooterElement {
   Copyright
   SocialLinks
   Custom(String)
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub(all) struct FooterLink {
   label : String
@@ -155,7 +156,7 @@ pub(all) enum HeaderElement {
   LangSwitcher
   Spacer
   Custom(String)
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub(all) struct Heading {
   level : Int
@@ -250,7 +251,7 @@ pub(all) enum RendererType {
   PreactRenderer
   ClientOnlyRenderer
   MdxRenderer
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn RendererType::default() -> Self
 
 pub(all) enum SidebarConfig {

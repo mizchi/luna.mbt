@@ -55,8 +55,6 @@ pub fn update(@signals.Signal[Any], (Any) -> Any) -> Unit
 pub type Any
 
 pub struct JsOwner(@signals.Owner)
-#deprecated
-pub fn JsOwner::inner(Self) -> @signals.Owner
 
 // Type aliases
 

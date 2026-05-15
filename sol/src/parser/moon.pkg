@@ -1,4 +1,8 @@
 import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
+import {
   "moonbitlang/parser/lexer" @lexer,
   "moonbitlang/parser/mbti_parser" @mbti_parser,
   "moonbitlang/parser/basic" @basic,

@@ -22,7 +22,7 @@ async fn main {
   //   args[0] = script path, args[1..] = user-supplied arguments.
   let argv = @sys.get_cli_args()
   let args : Array[String] = if argv.length() > 1 {
-    argv[1:].to_array()
+    argv[1:].to_owned()
   } else {
     []
   }
@@ -32,7 +32,7 @@ async fn main {
   }
   let cmd = args[0]
   let rest : Array[String] = if args.length() > 1 {
-    args[1:].to_array()
+    args[1:].to_owned()
   } else {
     []
   }

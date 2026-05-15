@@ -9,7 +9,9 @@
 
 ///|
 /// Build ISR manifest from pages
-pub fn build_isr_manifest(pages : Array[@astra.PageMeta]) -> @sol_isr.ISRManifest {
+pub fn build_isr_manifest(
+  pages : Array[@astra.PageMeta],
+) -> @sol_isr.ISRManifest {
   let manifest = @sol_isr.ISRManifest::new()
   for page in pages {
     // Only include pages with revalidate set

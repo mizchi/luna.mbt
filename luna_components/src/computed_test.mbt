@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 test "tab_computed creates tab with computed selected" {
   let selected_index = @resource.signal(0)
   let node : @luna.Node[@js.Any, String] = tab_computed(

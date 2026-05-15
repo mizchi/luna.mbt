@@ -24,7 +24,7 @@ priv struct WorkerContext {
 
 ///|
 /// Mutable reference to worker context
-let worker_ctx : Ref[WorkerContext?] = Ref::new(None)
+let worker_ctx : Ref[WorkerContext?] = Ref(None)
 
 // =============================================================================
 // Message Handlers
@@ -34,8 +34,13 @@ let worker_ctx : Ref[WorkerContext?] = Ref::new(None)
 /// Handle Init message
 async fn handle_init(data_json : String) -> Unit {
   // Parse init data JSON
-  let obj = parse_json_string(data_json)
-  guard WorkerInitData::from_json(obj) is Some(data) else {
+  let json = @json.parse(data_json.view()) catch {
+    _ => {
+      @builder.send_error("Failed to parse init data JSON")
+      return
+    }
+  }
+  guard WorkerInitData::from_json(json) is Some(data) else {
     @builder.send_error("Failed to parse init data JSON")
     return
   }
@@ -133,19 +138,18 @@ fn handle_shutdown() -> Unit {
 
 ///|
 /// Parse and route incoming IPC message (async wrapper)
-async fn handle_message_async(msg : @core.Any) -> Unit {
-  let msg_type : String = msg["type"].cast()
-  match msg_type {
-    "init" => {
-      let data_json : String = msg["data"].cast()
-      handle_init(data_json)
-    }
-    "job" => {
-      let job_id : Int = msg["jobId"].cast()
-      handle_job(job_id)
-    }
-    "shutdown" => handle_shutdown()
-    _ => @builder.send_error("Unknown message type: \{msg_type}")
+async fn handle_message_async(msg : @builder.IpcMessage) -> Unit {
+  if @builder.is_shutdown(msg) {
+    handle_shutdown()
+    return
+  }
+  match @builder.parse_init_data(msg) {
+    Some(data_json) => handle_init(data_json)
+    None =>
+      match @builder.parse_job_id(msg) {
+        Some(job_id) => handle_job(job_id)
+        None => @builder.send_error("Unknown message type")
+      }
   }
 }
 
@@ -162,12 +166,3 @@ pub fn start_worker() -> Unit {
     let _ = @core.from_async(async fn() { handle_message_async(msg) })
   })
 }
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-///|
-/// Parse JSON string to Any object
-extern "js" fn parse_json_string(json : String) -> @core.Any =
-  #| (json) => JSON.parse(json)

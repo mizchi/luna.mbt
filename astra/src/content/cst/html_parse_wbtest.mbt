@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Tests for HTML Parsing Utilities
 // Covers: extract_tag_name, extract_attribute, extract_all_attributes,
 //         extract_inner_content, parse_island_directive, parse_custom_element

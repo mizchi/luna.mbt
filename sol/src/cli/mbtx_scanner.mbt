@@ -31,7 +31,7 @@ pub fn[FS : @env.FileSystem] scan_mbtx_dir(
   } else {
     cwd + "/" + mbtx_dir
   }
-  if !(fs.exists_sync(full_path)) {
+  if !fs.exists_sync(full_path) {
     return []
   }
   let entries : Array[MbtxFileEntry] = []
@@ -51,9 +51,15 @@ fn[FS : @env.FileSystem] scan_mbtx_recursive(
   let dir_entries : Array[String] = fs.readdir_sync(abs_path) catch { _ => [] }
   for entry in dir_entries {
     let entry_abs = abs_path + "/" + entry
-    let entry_rel = if rel_path.is_empty() { entry } else { rel_path + "/" + entry }
+    let entry_rel = if rel_path.is_empty() {
+      entry
+    } else {
+      rel_path + "/" + entry
+    }
     if (fs.is_directory_sync(entry_abs) catch { _ => false }) {
-      scan_mbtx_recursive(fs, entry_abs, mbtx_dir, entry_rel, base_path, entries)
+      scan_mbtx_recursive(
+        fs, entry_abs, mbtx_dir, entry_rel, base_path, entries,
+      )
     } else if entry.has_suffix(".mbtx") {
       let source = mbtx_dir + "/" + entry_rel
       let route = mbtx_file_to_route(entry_rel, base_path)
@@ -86,7 +92,9 @@ fn mbtx_file_to_route(rel_path : String, base_path : String) -> String {
     }
     buf.write_string("/")
     // Check for dynamic segment: _name_ → :name
-    if segment.has_prefix("___") && segment.has_suffix("___") && segment.length() > 6 {
+    if segment.has_prefix("___") &&
+      segment.has_suffix("___") &&
+      segment.length() > 6 {
       // Catch-all: ___slug___ → [...slug]
       let param = segment.substring(start=3, end=segment.length() - 3)
       buf.write_string("[...")
@@ -125,12 +133,14 @@ fn mbtx_file_to_id(rel_path : String) -> String {
     if segment.is_empty() || segment == "index" {
       continue
     }
-    if !(first) {
+    if !first {
       buf.write_string("_")
     }
     first = false
     // Strip dynamic markers
-    if segment.has_prefix("___") && segment.has_suffix("___") && segment.length() > 6 {
+    if segment.has_prefix("___") &&
+      segment.has_suffix("___") &&
+      segment.length() > 6 {
       buf.write_string(segment.substring(start=3, end=segment.length() - 3))
     } else if segment.has_prefix("_") &&
       segment.has_suffix("_") &&
@@ -147,5 +157,9 @@ fn mbtx_file_to_id(rel_path : String) -> String {
     }
   }
   let id = buf.to_string()
-  if id.is_empty() { "index" } else { id }
+  if id.is_empty() {
+    "index"
+  } else {
+    id
+  }
 }

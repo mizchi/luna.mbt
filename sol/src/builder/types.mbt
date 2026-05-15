@@ -48,6 +48,22 @@ pub enum WorkerState {
 // =============================================================================
 
 ///|
+/// Opaque IPC message exchanged with worker processes.
+pub struct IpcMessage {
+  priv raw : @core.Any
+}
+
+///|
+fn IpcMessage::from_raw(raw : @core.Any) -> IpcMessage {
+  { raw, }
+}
+
+///|
+fn IpcMessage::raw(self : IpcMessage) -> @core.Any {
+  self.raw
+}
+
+///|
 /// Result of a job execution
 pub(all) struct JobResult {
   /// Job identifier
@@ -62,7 +78,7 @@ pub(all) struct JobResult {
 
 ///|
 /// Serialize JobResult to JSON object (for worker to send)
-pub fn JobResult::to_json(self : JobResult) -> @core.Any {
+pub fn JobResult::to_json(self : JobResult) -> IpcMessage {
   let obj = @core.new_object()
   obj["type"] = @core.any("done")
   obj["jobId"] = @core.any(self.job_id)
@@ -72,7 +88,7 @@ pub fn JobResult::to_json(self : JobResult) -> @core.Any {
     Some(e) => obj["error"] = @core.any(e)
     None => ()
   }
-  obj
+  IpcMessage::from_raw(obj)
 }
 
 // =============================================================================
@@ -92,7 +108,7 @@ pub enum ParentMessage {
 
 ///|
 /// Serialize ParentMessage to JSON object
-pub fn ParentMessage::to_json(self : ParentMessage) -> @core.Any {
+pub fn ParentMessage::to_json(self : ParentMessage) -> IpcMessage {
   let obj = @core.new_object()
   match self {
     Init(data) => {
@@ -105,7 +121,7 @@ pub fn ParentMessage::to_json(self : ParentMessage) -> @core.Any {
     }
     Shutdown => obj["type"] = @core.any("shutdown")
   }
-  obj
+  IpcMessage::from_raw(obj)
 }
 
 // =============================================================================
@@ -125,7 +141,8 @@ pub enum WorkerMessage {
 
 ///|
 /// Deserialize WorkerMessage from JSON object
-pub fn WorkerMessage::from_json(obj : @core.Any) -> WorkerMessage? {
+pub fn WorkerMessage::from_json(message : IpcMessage) -> WorkerMessage? {
+  let obj = message.raw()
   let msg_type : String = obj["type"].cast()
   match msg_type {
     "ready" => Some(Ready)

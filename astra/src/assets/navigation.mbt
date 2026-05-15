@@ -245,7 +245,7 @@ pub fn build_navigation_script(
   config : @astra.NavigationConfig,
 ) -> String {
   // If all navigation features are disabled, return empty
-  if !(config.spa) && !(config.view_transitions) && !(config.keyboard) {
+  if !config.spa && !config.view_transitions && !config.keyboard {
     return ""
   }
 

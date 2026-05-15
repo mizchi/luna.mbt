@@ -54,7 +54,7 @@ pub fn extract_description(
     match node {
       @markdown.MdNode::Paragraph(children~) => {
         let text = extract_text_from_nodes(children)
-        if !(text.is_empty()) {
+        if !text.is_empty() {
           return Some(truncate_text(text, max_length))
         }
       }

@@ -121,7 +121,7 @@ pub(all) enum MdxAttrValue {
   Expression(String)
   /// Boolean: prop (true when present)
   Boolean
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// CLS (Cumulative Layout Shift) optimization hints
@@ -131,7 +131,7 @@ pub(all) struct ClsHints {
   width : String?
   /// Expected height (CSS value, e.g., "100px", "auto")
   height : String?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Default CLS hints (no hints)

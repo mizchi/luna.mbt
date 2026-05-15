@@ -10,6 +10,13 @@ import {
 // Errors
 
 // Types and methods
+pub struct HmrClient {
+  // private fields
+}
+pub fn HmrClient::close(Self) -> Unit
+pub fn HmrClient::is_open(Self) -> Bool
+pub fn HmrClient::send(Self, String) -> Unit
+
 pub(all) enum HmrMessage {
   Connected
   Reload
@@ -31,7 +38,7 @@ pub fn HmrServer::notify_error(Self, String) -> Unit
 pub fn HmrServer::notify_full_reload(Self) -> Unit
 pub fn HmrServer::notify_reload(Self) -> Unit
 pub fn HmrServer::notify_update(Self, Array[String]) -> Unit
-pub fn HmrServer::on_connection(Self, (@core.Any) -> Unit) -> Unit
+pub fn HmrServer::on_connection(Self, (HmrClient) -> Unit) -> Unit
 pub fn HmrServer::start(Int) -> @core.Promise[Self]
 
 // Type aliases

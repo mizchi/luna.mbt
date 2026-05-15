@@ -3,7 +3,9 @@
 ///|
 test "extract_route_param_names - supports colon and bracket params" {
   let names = extract_route_param_names("/users/:id/posts/[postId]")
-  inspect(names, content="[id, postId]")
+  debug_inspect(names, content=(
+    #|["id", "postId"]
+  ))
 }
 
 ///|
@@ -11,13 +13,17 @@ test "extract_route_param_names - supports regex and catch-all params" {
   let names = extract_route_param_names(
     "/api/:version{[0-9]+}/docs/[...slug]/[[...opt]]",
   )
-  inspect(names, content="[version, slug, opt]")
+  debug_inspect(names, content=(
+    #|["version", "slug", "opt"]
+  ))
 }
 
 ///|
 test "extract_route_param_names - deduplicates parameter names" {
   let names = extract_route_param_names("/a/:id/:id/[id]")
-  inspect(names, content="[id]")
+  debug_inspect(names, content=(
+    #|["id"]
+  ))
 }
 
 ///|
@@ -123,7 +129,8 @@ test "legacy_routes_to_sol_routes - keeps layout prefix and route kinds" {
     Some(@server_dom.ServerNode::sync(@luna.text("ok")))
   }
   let api_resolver = fn(_handler : String, _ctx : Ctx, _params : RouteParams) {
-    Some(@js.any({ "ok": true }))
+    let json : Json = { "ok": true.to_json() }
+    Some(json)
   }
   let converted = legacy_routes_to_sol_routes(
     legacy_routes, page_resolver, api_resolver,
@@ -220,7 +227,8 @@ test "compiled route pre-computes rendered_meta for page routes" {
 ///|
 test "compiled route has empty rendered_meta for API routes" {
   async fn handler(_props : PageProps) -> Json {
-    {}.to_json()
+    let obj : Map[String, Json] = {}
+    obj.to_json()
   }
 
   let routes = [api_get("/api/test", handler)]
@@ -316,6 +324,29 @@ test "collect_preload_urls: manifest deduplicates chunks with libs" {
     .filter(fn(u) { u == "/static/_shared/lib.js" })
     .fold(init=0, fn(acc, _) { acc + 1 })
   assert_eq(lib_count, 1)
+}
+
+///|
+test "collect_preload_urls: external manifest preloads shared chunks before island" {
+  let json =
+    #|{
+    #|  "app/client/counter.ts": {
+    #|    "file": "assets/counter-abc123.js",
+    #|    "imports": ["_shared/runtime.ts"]
+    #|  },
+    #|  "_shared/runtime.ts": {
+    #|    "file": "assets/runtime-def456.js"
+    #|  }
+    #|}
+  let manifest = ChunkManifest::parse(json, "/static/").unwrap()
+  let result = collect_preload_urls(
+    [],
+    ["/static/assets/counter-abc123.js"],
+    Some(manifest),
+  )
+  assert_eq(result.length(), 2)
+  assert_eq(result[0], "/static/assets/runtime-def456.js")
+  assert_eq(result[1], "/static/assets/counter-abc123.js")
 }
 
 ///|

@@ -68,7 +68,7 @@ fn collect_file_hashes(
     } else if entry.has_suffix(".md") || entry.has_suffix(".mdx") {
       // Hash file path relative to base + content
       let base_len = base_dir.length()
-      let rel_path = full_path[base_len:].to_string() catch { _ => continue }
+      let rel_path = full_path[base_len:].to_owned()
       let content : String = @fs.readFileSync(full_path).to_string() catch {
         _ => continue
       }
@@ -120,7 +120,7 @@ fn collect_asset_hashes(
       entry.has_suffix(".js") ||
       entry.has_suffix(".json") {
       let base_len = base_dir.length()
-      let rel_path = full_path[base_len:].to_string() catch { _ => continue }
+      let rel_path = full_path[base_len:].to_owned()
       let content : String = @fs.readFileSync(full_path).to_string() catch {
         _ => continue
       }

@@ -8,8 +8,8 @@ import {
   "moonbitlang/async",
 }
 
+supported_targets = "js"
+
 options(
   "is-main": true,
 )
-
-supported_targets = "js"

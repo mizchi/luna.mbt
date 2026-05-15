@@ -1,6 +1,7 @@
 ///| Minimal native API server for benchmarking
-///| Comparable to examples/sol_api but using mars native directly
 
+///|
+/// Comparable to examples/sol_api but using mars native directly
 async fn main {
   let app = @mars.Server::new()
 
@@ -22,10 +23,7 @@ async fn main {
   app.get(
     "/api/items",
     @mars.handler(async fn(c) {
-      let json : Json = {
-        "items": items_json,
-        "total": (3).to_json(),
-      }
+      let json : Json = { "items": items_json, "total": (3).to_json() }
       c.json(json)
     }),
   )

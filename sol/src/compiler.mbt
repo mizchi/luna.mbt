@@ -19,7 +19,7 @@ extern "js" fn ffi_rolldown_build(
 pub type RolldownOutput
 
 ///|
-pub fn RolldownOutput::as_any(self : RolldownOutput) -> @js.Any = "%identity"
+fn RolldownOutput::as_any(self : RolldownOutput) -> @js.Any = "%identity"
 
 ///|
 /// Get output chunks from build result
@@ -42,7 +42,7 @@ pub fn RolldownOutput::output(self : RolldownOutput) -> Array[RolldownChunk] {
 pub type RolldownChunk
 
 ///|
-pub fn RolldownChunk::as_any(self : RolldownChunk) -> @js.Any = "%identity"
+fn RolldownChunk::as_any(self : RolldownChunk) -> @js.Any = "%identity"
 
 ///|
 /// Get the file name

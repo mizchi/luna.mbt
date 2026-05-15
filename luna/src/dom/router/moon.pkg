@@ -6,6 +6,7 @@ import {
 
 import {
   "mizchi/npm_typed/global_jsdom",
+  "moonbitlang/core/test" @test,
 } for "test"
 
 supported_targets = "js"

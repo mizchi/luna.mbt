@@ -5,6 +5,10 @@ import {
   "mizchi/sol/cli_common" @cli_common,
 }
 
+import {
+  "moonbitlang/core/test" @test,
+} for "test"
+
 warnings = "-29"
 
 supported_targets = "js"

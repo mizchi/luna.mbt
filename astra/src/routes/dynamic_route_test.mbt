@@ -51,9 +51,11 @@ test "RenderMode - Show implementation" {
   let ssr = RenderMode::Ssr
   let spa = RenderMode::Spa
   let isr = RenderMode::Isr(revalidate=300)
-  inspect(ssr.to_string().contains("Ssr"), content="true")
-  inspect(spa.to_string().contains("Spa"), content="true")
-  inspect(isr.to_string().contains("Isr"), content="true")
+  debug_inspect(ssr, content="Ssr")
+  debug_inspect(spa, content="Spa")
+  debug_inspect(isr, content=(
+    #|Isr(revalidate=300)
+  ))
 }
 
 // =============================================================================
@@ -530,10 +532,11 @@ test "ComponentRouteEntry - static paths for ISG" {
     islands: ["comments", "share-buttons"],
   }
   inspect(route.static_paths.length(), content="3")
-  inspect(
+  debug_inspect(
     route.static_paths[0].params.get("slug"),
     content=(
-      #|Some(hello-world)
+      #|Some("hello-world")
+
     ),
   )
 }

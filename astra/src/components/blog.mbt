@@ -37,7 +37,7 @@ pub fn build_blog_post_card(
   let body_children : Array[@luna.Node[Unit, String]] = []
 
   // Meta info (date + author)
-  if !(date.is_empty()) || !(author.is_empty()) {
+  if !date.is_empty() || !author.is_empty() {
     body_children.push(build_post_meta(date, author, None))
   }
 
@@ -49,14 +49,14 @@ pub fn build_blog_post_card(
   )
 
   // Description
-  if !(description.is_empty()) {
+  if !description.is_empty() {
     body_children.push(
       h("p", [attr("class", "blog-card-description")], [@luna.text(description)]),
     )
   }
 
   // Tags
-  if !(fm.tags.is_empty()) {
+  if !fm.tags.is_empty() {
     body_children.push(build_tag_list(ctx, fm.tags))
   }
   children.push(h("div", [attr("class", "blog-card-body")], body_children))
@@ -84,7 +84,7 @@ pub fn build_post_meta(
   let items : Array[@luna.Node[Unit, String]] = []
 
   // Date
-  if !(date.is_empty()) {
+  if !date.is_empty() {
     items.push(
       h("time", [attr("class", "post-meta-date"), attr("datetime", date)], [
         @luna.text(format_date(date)),
@@ -93,8 +93,8 @@ pub fn build_post_meta(
   }
 
   // Author
-  if !(author.is_empty()) {
-    if !(items.is_empty()) {
+  if !author.is_empty() {
+    if !items.is_empty() {
       items.push(
         h("span", [attr("class", "post-meta-separator")], [@luna.text(" · ")]),
       )
@@ -106,7 +106,7 @@ pub fn build_post_meta(
 
   // Reading time
   if reading_time is Some(minutes) {
-    if !(items.is_empty()) {
+    if !items.is_empty() {
       items.push(
         h("span", [attr("class", "post-meta-separator")], [@luna.text(" · ")]),
       )
@@ -208,7 +208,7 @@ fn filter_blog_posts(
   let filtered : Array[@astra.PageMeta] = []
   for page in pages {
     let fm = page.frontmatter
-    if fm.date is Some(_) && !(fm.draft) {
+    if fm.date is Some(_) && !fm.draft {
       if featured_only {
         if fm.featured {
           filtered.push(page)
@@ -238,7 +238,7 @@ pub fn get_posts_by_tag(
   let result : Array[@astra.PageMeta] = []
   for page in pages {
     let fm = page.frontmatter
-    if fm.date is Some(_) && !(fm.draft) {
+    if fm.date is Some(_) && !fm.draft {
       for t in fm.tags {
         if t == tag {
           result.push(page)

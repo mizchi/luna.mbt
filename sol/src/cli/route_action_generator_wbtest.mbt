@@ -8,6 +8,13 @@ test "extract_param_names_from_path: colon style" {
 }
 
 ///|
+test "extract_param_names_from_path: colon regex strips suffix" {
+  let params = extract_param_names_from_path("/api/:version{[0-9]+}")
+  assert_eq(params.length(), 1)
+  assert_eq(params[0], "version")
+}
+
+///|
 test "extract_param_names_from_path: multiple params" {
   let params = extract_param_names_from_path("/users/:id/posts/:postId")
   assert_eq(params.length(), 2)
@@ -20,6 +27,14 @@ test "extract_param_names_from_path: bracket style" {
   let params = extract_param_names_from_path("/users/[id]")
   assert_eq(params.length(), 1)
   assert_eq(params[0], "id")
+}
+
+///|
+test "extract_param_names_from_path: at-prefixed bracket style" {
+  let params = extract_param_names_from_path("/@[user_id]/[page_id]")
+  assert_eq(params.length(), 2)
+  assert_eq(params[0], "user_id")
+  assert_eq(params[1], "page_id")
 }
 
 ///|
@@ -68,6 +83,11 @@ test "path_to_identifier: nested path" {
 }
 
 ///|
+test "path_to_identifier: colon regex strips suffix" {
+  assert_eq(path_to_identifier("/api/:version{[0-9]+}"), "api_version")
+}
+
+///|
 test "path_to_identifier: hyphenated segments" {
   assert_eq(path_to_identifier("/my-page/sub-path"), "my_page_sub_path")
 }
@@ -98,17 +118,127 @@ test "generate_route_constants: generates constants" {
 }
 
 ///|
-test "generate_action_ref_factories: empty" {
-  assert_eq(generate_action_ref_factories([]), "")
+test "generate_route_constants: sanitizes param constant identifiers" {
+  let result = generate_route_constants(["/users/[user-id]"])
+  assert_true(result.contains("pub let param_user_id : String = \"user-id\""))
 }
 
 ///|
-test "generate_action_ref_factories: generates factory" {
-  let result = generate_action_ref_factories(["create-user"])
+test "generate_route_param_accessors: empty" {
+  assert_eq(generate_route_param_accessors([]), "")
+  assert_eq(generate_route_param_accessors(["/about"]), "")
+}
+
+///|
+test "generate_route_param_accessors: required params struct" {
+  let result = generate_route_param_accessors(["/users/:id/posts/:postId"])
+  assert_true(result.contains("pub(all) struct RouteUsersIdPostsPostIdParams"))
+  assert_true(result.contains("id : String"))
+  assert_true(result.contains("postId : String"))
+  assert_true(
+    result.contains(
+      "pub fn params_users_id_posts_postId(props : @router.PageProps) -> Result[RouteUsersIdPostsPostIdParams, @router.ApiResponse]",
+    ),
+  )
+  assert_true(result.contains("@router.require(props, \"id\")"))
+  assert_true(result.contains("@router.require(props, \"postId\")"))
+}
+
+///|
+test "generate_route_param_accessors: optional catch-all is optional" {
+  let result = generate_route_param_accessors(["/blog/[[...path]]"])
+  assert_true(result.contains("pub(all) struct RouteBlogPathParams"))
+  assert_true(result.contains("path : String?"))
+  assert_true(result.contains("let path = props.params.get_param(\"path\")"))
+}
+
+///|
+test "generate_route_param_accessors: sanitizes field names" {
+  let result = generate_route_param_accessors(["/users/[user-id]"])
+  assert_true(result.contains("user_id : String"))
+  assert_true(result.contains("@router.require(props, \"user-id\")"))
+}
+
+///|
+test "generate_route_param_accessors: colon regex uses normalized param name" {
+  let result = generate_route_param_accessors(["/api/:version{[0-9]+}"])
+  assert_true(result.contains("pub(all) struct RouteApiVersionParams"))
+  assert_true(result.contains("version : String"))
+  assert_true(result.contains("@router.require(props, \"version\")"))
+}
+
+///|
+test "generate_route_param_accessors: at-prefixed bracket params" {
+  let result = generate_route_param_accessors(["/@[user_id]/[page_id]"])
+  assert_true(result.contains("pub(all) struct RouteUserIdPageIdParams"))
+  assert_true(result.contains("user_id : String"))
+  assert_true(result.contains("page_id : String"))
+  assert_true(result.contains("@router.require(props, \"user_id\")"))
+  assert_true(result.contains("@router.require(props, \"page_id\")"))
+}
+
+///|
+test "generate_route_query_accessors: required and optional query params" {
+  let result = generate_route_query_accessors([
+    {
+      path: "/search",
+      query: [{ name: "q", optional: false }, { name: "page", optional: true }],
+    },
+  ])
+  assert_true(result.contains("pub(all) struct RouteSearchQuery"))
+  assert_true(result.contains("q : String"))
+  assert_true(result.contains("page : String?"))
+  assert_true(
+    result.contains(
+      "pub fn query_search(props : @router.PageProps) -> Result[RouteSearchQuery, @router.ApiResponse]",
+    ),
+  )
+  assert_true(result.contains("props.params.require_query(\"q\")"))
+  assert_true(result.contains("props.params.get_query(\"page\")"))
+}
+
+///|
+test "route_paths_have_params" {
+  assert_false(route_paths_have_params(["/", "/about"]))
+  assert_true(route_paths_have_params(["/", "/blog/:slug"]))
+}
+
+///|
+test "generate_action_key_factories: empty" {
+  assert_eq(generate_action_key_factories([]), "")
+}
+
+///|
+test "generate_action_key_factories: generates factory" {
+  let result = generate_action_key_factories(["create-user"])
+  assert_true(result.contains("pub(all) struct ActionCreateUser {}"))
+  assert_true(
+    result.contains("pub impl @action.ActionKey for ActionCreateUser with id"),
+  )
   assert_true(result.contains("pub fn action_create_user()"))
-  assert_true(result.contains("@action.ActionRef"))
-  assert_true(result.contains("id: \"create-user\""))
-  assert_true(result.contains("base_path: \"/_action\""))
+  assert_true(result.contains("-> ActionCreateUser"))
+  assert_true(result.contains("ActionCreateUser::{}"))
+  assert_false(result.contains("Action" + "Ref"))
+}
+
+///|
+test "generate_action_key_factories: generates typed factory for contracts" {
+  let result = generate_action_key_factories(["submit-contact"], action_contracts=[
+    {
+      id: "submit-contact",
+      request_type: Some("SubmitContactRequest"),
+      response_type: Some("SubmitContactResponse"),
+    },
+  ])
+  assert_true(
+    result.contains(
+      "pub fn action_submit_contact_typed() -> @action.TypedActionKey[SubmitContactRequest, SubmitContactResponse]",
+    ),
+  )
+  assert_true(
+    result.contains("@action.TypedActionKey::from_key(action_submit_contact())"),
+  )
+  assert_false(result.contains("@action.TypedActionKey::new("))
 }
 
 // =============================================================================
@@ -137,9 +267,17 @@ test "generate_link_builders: root route" {
 ///|
 test "generate_link_builders: single param" {
   let result = generate_link_builders(["/blog/:slug"])
-  assert_true(result.contains("pub fn link_blog_slug(slug~ : String) -> String"))
+  assert_true(
+    result.contains("pub fn link_blog_slug(slug~ : String) -> String"),
+  )
   assert_true(result.contains("\"/blog/\""))
   assert_true(result.contains("slug"))
+  assert_true(
+    result.contains(
+      "pub fn link_blog_slug_params(params : RouteBlogSlugParams) -> String",
+    ),
+  )
+  assert_true(result.contains("link_blog_slug(slug=params.slug)"))
 }
 
 ///|
@@ -150,6 +288,16 @@ test "generate_link_builders: multiple params" {
       "pub fn link_users_id_posts_postId(id~ : String, postId~ : String) -> String",
     ),
   )
+  assert_true(
+    result.contains(
+      "pub fn link_users_id_posts_postId_params(params : RouteUsersIdPostsPostIdParams) -> String",
+    ),
+  )
+  assert_true(
+    result.contains(
+      "link_users_id_posts_postId(id=params.id, postId=params.postId)",
+    ),
+  )
 }
 
 ///|
@@ -158,6 +306,60 @@ test "generate_link_builders: catch-all param" {
   assert_true(
     result.contains("pub fn link_docs_slug(slug~ : String) -> String"),
   )
+}
+
+///|
+test "generate_link_builders: sanitizes param labels" {
+  let result = generate_link_builders(["/users/[user-id]"])
+  assert_true(
+    result.contains("pub fn link_users_user_id(user_id~ : String) -> String"),
+  )
+  assert_true(result.contains("\"/users/\" + user_id"))
+  assert_true(result.contains("link_users_user_id(user_id=params.user_id)"))
+}
+
+///|
+test "generate_link_builders: at-prefixed bracket params" {
+  let result = generate_link_builders(["/@[user_id]/[page_id]"])
+  assert_true(
+    result.contains(
+      "pub fn link_user_id_page_id(user_id~ : String, page_id~ : String) -> String",
+    ),
+  )
+  assert_true(result.contains("\"/@\" + user_id + \"/\" + page_id"))
+  assert_true(
+    result.contains(
+      "link_user_id_page_id(user_id=params.user_id, page_id=params.page_id)",
+    ),
+  )
+}
+
+///|
+test "generate_link_builders: optional catch-all params struct omits segment" {
+  let result = generate_link_builders(["/blog/[[...path]]"])
+  assert_true(
+    result.contains(
+      "pub fn link_blog_path_params(params : RouteBlogPathParams) -> String",
+    ),
+  )
+  assert_true(result.contains("Some(path) => link_blog_path(path~)"))
+  assert_true(result.contains("None => \"/blog\""))
+}
+
+///|
+test "generate_link_builders: optional catch-all params struct preserves required prefix params" {
+  let result = generate_link_builders(["/docs/:lang/[[...path]]"])
+  assert_true(
+    result.contains(
+      "pub fn link_docs_lang_path_params(params : RouteDocsLangPathParams) -> String",
+    ),
+  )
+  assert_true(
+    result.contains(
+      "Some(path) => link_docs_lang_path(lang=params.lang, path~)",
+    ),
+  )
+  assert_true(result.contains("None => \"/docs/\" + params.lang"))
 }
 
 ///|
@@ -190,6 +392,16 @@ test "split_path_segments: multiple params" {
   assert_eq(segs[1], ":id")
   assert_eq(segs[2], "/posts/")
   assert_eq(segs[3], ":postId")
+}
+
+///|
+test "split_path_segments: at-prefixed bracket param" {
+  let segs = split_path_segments("/@[user_id]/[page_id]")
+  assert_eq(segs.length(), 4)
+  assert_eq(segs[0], "/@")
+  assert_eq(segs[1], "[user_id]")
+  assert_eq(segs[2], "/")
+  assert_eq(segs[3], "[page_id]")
 }
 
 ///|

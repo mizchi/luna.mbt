@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // User Scenario Tests for Resumable State
 //
 // These tests demonstrate real-world usage patterns from a user's perspective.

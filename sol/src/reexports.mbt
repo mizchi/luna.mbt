@@ -5,7 +5,6 @@
 
 // Route definition helpers
 pub using @router {
-  page as route,
   api_get,
   api_post,
   api_put,
@@ -25,6 +24,29 @@ pub using @router {
   with_style,
   with_script,
   with_assets,
+}
+
+///|
+pub fn route(
+  path : String,
+  handler : async (@router.PageProps) -> @server_dom.ServerNode,
+  title? : String = "",
+  meta? : Array[(String, String)] = [],
+  revalidate? : Int? = None,
+  cache? : @router.CacheStrategy? = None,
+  styles? : Array[String] = [],
+  scripts? : Array[String] = [],
+) -> @router.SolRoutes {
+  @router.page(
+    path,
+    handler,
+    title~,
+    meta~,
+    revalidate~,
+    cache~,
+    styles~,
+    scripts~,
+  )
 }
 
 // API response helpers

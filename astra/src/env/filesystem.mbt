@@ -31,7 +31,7 @@ pub(all) struct StatInfo {
   is_directory : Bool
   mtime_ms : Float
   size : Int
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub impl FileStat for StatInfo with isFile(self) {

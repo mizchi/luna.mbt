@@ -76,7 +76,7 @@ test "parse actual checkbox mdx content" {
     match node {
       @astra.MdNode::JsxComponent(embed) => {
         println("Tag: \{embed.tag}")
-        println("Children preview: \{embed.children[:200].to_string()}")
+        println("Children preview: \{embed.children[:200].to_owned()}")
         // Check BEM classes are preserved
         assert_true(embed.children.contains("checkbox__input"))
         assert_true(embed.children.contains("checkbox__control"))
@@ -109,7 +109,7 @@ test "parse mdx with plain div HTML block (alert style)" {
       @astra.MdNode::Html(html) => {
         println("Node \{i}: Html")
         let preview = if html.length() > 100 {
-          html[:100].to_string()
+          html[:100].to_owned()
         } else {
           html
         }
@@ -158,7 +158,7 @@ test "parse actual alert.mdx content" {
       @astra.MdNode::Html(html) => {
         println("Node \{i}: Html (len=\{html.length()})")
         let preview = if html.length() > 80 {
-          html[:80].to_string()
+          html[:80].to_owned()
         } else {
           html
         }

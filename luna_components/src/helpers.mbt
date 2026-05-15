@@ -4,7 +4,7 @@
 
 ///|
 /// Global ID counter for auto-generated IDs
-let id_counter : Ref[Int] = Ref::new(0)
+let id_counter : Ref[Int] = Ref(0)
 
 ///|
 /// Generate a unique ID with a given prefix.
@@ -422,7 +422,7 @@ pub fn make_slider_drag_handler(
       on_change(v)
     })
     // Create mouseup handler that removes listeners
-    let up_handler_ref : Ref[@js.Any] = Ref::new(@js.undefined())
+    let up_handler_ref : Ref[@js.Any] = Ref(@js.undefined())
     let up_handler = @js.from_fn1(fn(_up_e : @js.Any) {
       let _ = doc._call("removeEventListener", [
         @js.any("mousemove"),

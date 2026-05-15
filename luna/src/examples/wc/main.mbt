@@ -248,7 +248,7 @@ fn register_wc_effect() -> Unit {
           ("class", attr_static("toggle")),
           (
             "onclick",
-            attr_handler(handler(fn(_) { active.update(fn(b) { !(b) }) })),
+            attr_handler(handler(fn(_) { active.update(fn(b) { !b }) })),
           ),
         ],
       ) <| [
@@ -289,9 +289,7 @@ fn register_wc_conditional() -> Unit {
           ("class", attr_static("toggle")),
           (
             "onclick",
-            attr_handler(
-              handler(fn(_) { show_message.update(fn(b) { !(b) }) }),
-            ),
+            attr_handler(handler(fn(_) { show_message.update(fn(b) { !b }) })),
           ),
         ],
       ) <| [
@@ -446,7 +444,7 @@ fn register_wc_todo() -> Unit {
       todos.update(fn(items) {
         items.map(fn(item) {
           if item.id == id {
-            { ..item, completed: !(item.completed) }
+            { ..item, completed: !item.completed }
           } else {
             item
           }

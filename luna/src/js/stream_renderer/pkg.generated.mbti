@@ -27,8 +27,6 @@ pub(all) struct AsyncBoundary {
 
 pub struct StreamWriter((String) -> Unit)
 pub fn StreamWriter::from_callback((String) -> Unit) -> Self
-#deprecated
-pub fn StreamWriter::inner(Self) -> (String) -> Unit
 
 // Type aliases
 

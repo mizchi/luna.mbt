@@ -4,10 +4,21 @@
 ///|
 /// Props passed from server
 pub(all) struct ContactFormProps {
-  action : String
   initial_name : String
   initial_email : String
 } derive(ToJson, FromJson)
+
+///|
+priv struct ContactSubmitRequest {
+  name : String
+  email : String
+} derive(ToJson)
+
+///|
+priv struct ContactSubmitResponse {
+  success : Bool
+  message : String
+} derive(FromJson)
 
 ///|
 /// Contact form component with two-way data binding and Server Action submission
@@ -27,34 +38,48 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     result_msg.set("Submitting...")
 
     // Create response handler callback
-    let handle_response : (@action.ActionResponse) -> Unit = fn(response) {
+    let handle_response : (
+      @action.TypedActionResponse[ContactSubmitResponse]
+    ) -> Unit = fn(response) {
       match response {
-        @action.ActionResponse::Success(data) => {
+        @action.TypedActionResponse::Success(data) => {
           is_submitting.set(false)
-          let msg = get_message(data)
-          result_msg.set(msg)
+          is_error.set(!data.success)
+          result_msg.set(data.message)
         }
-        @action.ActionResponse::Error(_, error_msg) => {
+        @action.TypedActionResponse::Error(_, error_msg) => {
           is_submitting.set(false)
           is_error.set(true)
           result_msg.set(error_msg)
         }
-        @action.ActionResponse::NetworkError(error_msg) => {
+        @action.TypedActionResponse::NetworkError(error_msg) => {
           is_submitting.set(false)
           is_error.set(true)
           result_msg.set("Network error: " + error_msg)
         }
-        @action.ActionResponse::Redirect(url) => {
+        @action.TypedActionResponse::Redirect(url) => {
           is_submitting.set(false)
           result_msg.set("Redirecting to: " + url)
           redirect_to(url)
+        }
+        @action.TypedActionResponse::DecodeError(error_msg) => {
+          is_submitting.set(false)
+          is_error.set(true)
+          result_msg.set(error_msg)
         }
       }
     }
 
     // Call Server Action with callback
-    let payload = create_form_payload(name.get(), email.get())
-    @action.invoke_action(props.action, payload, handle_response)
+    let key : @action.TypedActionKey[ContactSubmitRequest, ContactSubmitResponse] = @action.TypedActionKey::from_key(
+      @types.action_submit_contact(),
+    )
+    let payload = ContactSubmitRequest::{ name: name.get(), email: email.get() }
+    @action.invoke_typed_action_key(
+      key,
+      payload,
+      handle_response,
+    )
   }
 
   // Input handlers for two-way binding
@@ -70,7 +95,12 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     class="contact-form",
     on=events().submit(handle_submit),
     attrs=[
-      ("action", @element.AttrString(props.action)),
+      (
+        "action",
+        @element.AttrString(
+          @action.action_url(@types.action_submit_contact()),
+        ),
+      ),
       ("method", @element.AttrString("POST")),
     ],
     [
@@ -118,14 +148,6 @@ pub fn contact_form(props : ContactFormProps) -> DomNode {
     ],
   )
 }
-
-///|
-extern "js" fn get_message(data : @js.Any) -> String =
-  #| (data) => data.message || JSON.stringify(data)
-
-///|
-extern "js" fn create_form_payload(name : String, email : String) -> @js.Any =
-  #| (name, email) => ({ name, email })
 
 ///|
 extern "js" fn redirect_to(url : String) -> Unit =

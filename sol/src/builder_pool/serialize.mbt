@@ -130,7 +130,10 @@ fn write_sidebar_config(
 }
 
 ///|
-fn write_sidebar_group(group : @astra.SidebarGroup, buf : StringBuilder) -> Unit {
+fn write_sidebar_group(
+  group : @astra.SidebarGroup,
+  buf : StringBuilder,
+) -> Unit {
   buf.write_string("{\"text\":\"")
   write_escaped_string(group.text, buf)
   buf.write_string("\"")
@@ -204,7 +207,7 @@ fn write_theme_config(config : @astra.ThemeConfig, buf : StringBuilder) -> Unit 
   }
   match config.logo {
     Some(l) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"logo\":\"")
@@ -216,7 +219,7 @@ fn write_theme_config(config : @astra.ThemeConfig, buf : StringBuilder) -> Unit 
   }
   match config.footer {
     Some(f) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"footer\":")
@@ -225,7 +228,7 @@ fn write_theme_config(config : @astra.ThemeConfig, buf : StringBuilder) -> Unit 
     }
     None => ()
   }
-  if !(first) {
+  if !first {
     buf.write_string(",")
   }
   buf.write_string("\"socialLinks\":[")
@@ -243,7 +246,10 @@ fn write_theme_config(config : @astra.ThemeConfig, buf : StringBuilder) -> Unit 
 }
 
 ///|
-fn write_footer_config(config : @astra.FooterConfig, buf : StringBuilder) -> Unit {
+fn write_footer_config(
+  config : @astra.FooterConfig,
+  buf : StringBuilder,
+) -> Unit {
   buf.write_string("{")
   let mut first = true
   match config.message {
@@ -257,7 +263,7 @@ fn write_footer_config(config : @astra.FooterConfig, buf : StringBuilder) -> Uni
   }
   match config.copyright {
     Some(c) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"copyright\":\"")
@@ -267,7 +273,7 @@ fn write_footer_config(config : @astra.FooterConfig, buf : StringBuilder) -> Uni
     }
     None => ()
   }
-  if !(first) {
+  if !first {
     buf.write_string(",")
   }
   buf.write_string("\"links\":[")
@@ -342,7 +348,7 @@ fn write_ogp_config(config : @astra.OgpConfig, buf : StringBuilder) -> Unit {
   }
   match config.image {
     Some(i) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"image\":\"")
@@ -354,7 +360,7 @@ fn write_ogp_config(config : @astra.OgpConfig, buf : StringBuilder) -> Unit {
   }
   match config.twitter_handle {
     Some(h) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"twitterHandle\":\"")
@@ -366,7 +372,7 @@ fn write_ogp_config(config : @astra.OgpConfig, buf : StringBuilder) -> Unit {
   }
   match config.twitter_card {
     Some(c) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"twitterCard\":\"")
@@ -682,7 +688,13 @@ fn parse_header_config(obj : Map[String, Json]) -> @astra.HeaderConfig {
   }
   let right = match obj.get("right") {
     Some(Array(arr)) => parse_header_elements(arr)
-    _ => [@astra.NavLinks, @astra.LangSwitcher, @astra.SocialLinks, @astra.ThemeToggle]
+    _ =>
+      [
+        @astra.NavLinks,
+        @astra.LangSwitcher,
+        @astra.SocialLinks,
+        @astra.ThemeToggle,
+      ]
   }
   let sticky = match obj.get("sticky") {
     Some(True) => true
@@ -749,7 +761,10 @@ fn parse_footer_elements(arr : Array[Json]) -> Array[@astra.FooterElement] {
           "message" => result.push(@astra.FooterElement::Message)
           "copyright" => result.push(@astra.FooterElement::Copyright)
           "social-links" => result.push(@astra.FooterElement::SocialLinks)
-          _ => if s.contains("-") { result.push(@astra.FooterElement::Custom(s)) }
+          _ =>
+            if s.contains("-") {
+              result.push(@astra.FooterElement::Custom(s))
+            }
         }
       _ => ()
     }
@@ -975,7 +990,7 @@ fn write_frontmatter(fm : @astra.Frontmatter, buf : StringBuilder) -> Unit {
   }
   match fm.description {
     Some(d) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"description\":\"")
@@ -987,7 +1002,7 @@ fn write_frontmatter(fm : @astra.Frontmatter, buf : StringBuilder) -> Unit {
   }
   match fm.layout {
     Some(l) => {
-      if !(first) {
+      if !first {
         buf.write_string(",")
       }
       buf.write_string("\"layout\":\"")
@@ -997,7 +1012,7 @@ fn write_frontmatter(fm : @astra.Frontmatter, buf : StringBuilder) -> Unit {
     }
     None => ()
   }
-  if !(first) {
+  if !first {
     buf.write_string(",")
   }
   buf.write_string("\"sidebar\":")

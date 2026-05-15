@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Whitebox tests for Experimental Hydration - internal coverage
 //
 

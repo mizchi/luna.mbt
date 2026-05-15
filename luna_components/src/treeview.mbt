@@ -135,7 +135,7 @@ pub fn[E] treeitem(
     attrs.push(("aria-disabled", @luna.attr_static("true")))
   }
   if on_click is Some(handler) {
-    if !(is_disabled) {
+    if !is_disabled {
       attrs.push(("click", @luna.attr_handler(handler)))
     }
   }

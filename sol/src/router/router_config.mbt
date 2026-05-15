@@ -59,16 +59,10 @@ pub fn ChunkManifest::get_chunks(
 ) -> Array[String] {
   // Extract entry name from URL (e.g., "/static/counter.js" -> "counter.js")
   let entry_name = extract_entry_name(entry_url, self.base_url)
-  match self.entries.get(entry_name) {
+  match self.resolve_entry(entry_name) {
     Some(entry) => {
       let chunks : Array[String] = []
-      // Add all import dependencies with base URL prefix
-      for imp in entry.imports {
-        let chunk_url = self.base_url + imp
-        if !chunks.contains(chunk_url) {
-          chunks.push(chunk_url)
-        }
-      }
+      self.collect_import_chunks(entry, chunks, [])
       chunks
     }
     None => []
@@ -76,10 +70,85 @@ pub fn ChunkManifest::get_chunks(
 }
 
 ///|
+fn is_manifest_url(path : String) -> Bool {
+  path.has_prefix("http://") ||
+  path.has_prefix("https://") ||
+  path.has_prefix("//") ||
+  path.has_prefix("/")
+}
+
+///|
+fn ChunkManifest::manifest_path_to_url(
+  self : ChunkManifest,
+  path : String,
+) -> String {
+  if is_manifest_url(path) {
+    path
+  } else {
+    self.base_url + path
+  }
+}
+
+///|
+fn ChunkManifest::resolve_entry(
+  self : ChunkManifest,
+  reference : String,
+) -> ChunkManifestEntry? {
+  let entry_name = extract_entry_name(reference, self.base_url)
+  match self.entries.get(reference) {
+    Some(entry) => Some(entry)
+    None =>
+      match self.entries.get(entry_name) {
+        Some(entry) => Some(entry)
+        None => {
+          for item in self.entries {
+            let entry = item.1
+            if entry.file == reference || entry.file == entry_name {
+              return Some(entry)
+            }
+          }
+          None
+        }
+      }
+  }
+}
+
+///|
+fn ChunkManifest::collect_import_chunks(
+  self : ChunkManifest,
+  entry : ChunkManifestEntry,
+  chunks : Array[String],
+  visited : Array[String],
+) -> Unit {
+  if visited.contains(entry.file) {
+    return
+  }
+  let next_visited = visited.copy()
+  next_visited.push(entry.file)
+  for imp in entry.imports {
+    match self.resolve_entry(imp) {
+      Some(dep) => {
+        let url = self.manifest_path_to_url(dep.file)
+        if !chunks.contains(url) {
+          chunks.push(url)
+        }
+        self.collect_import_chunks(dep, chunks, next_visited)
+      }
+      None => {
+        let url = self.manifest_path_to_url(imp)
+        if !chunks.contains(url) {
+          chunks.push(url)
+        }
+      }
+    }
+  }
+}
+
+///|
 fn extract_entry_name(url : String, base_url : String) -> String {
   if url.has_prefix(base_url) {
     // Remove base_url prefix
-    let result = url[base_url.length():].to_string() catch { _ => url }
+    let result = url[base_url.length():].to_owned()
     result
   } else {
     // Find last slash and get filename
@@ -91,7 +160,7 @@ fn extract_entry_name(url : String, base_url : String) -> String {
       }
     }
     if last_slash >= 0 && last_slash < url.length() - 1 {
-      let result = url[last_slash + 1:].to_string() catch { _ => url }
+      let result = url[last_slash + 1:].to_owned()
       result
     } else {
       url
@@ -231,6 +300,21 @@ pub fn RouterConfig::with_chunk_manifest(
   manifest : ChunkManifest,
 ) -> RouterConfig {
   { ..self, chunk_manifest: Some(manifest) }
+}
+
+///|
+/// Parse an external bundler manifest JSON and use it for SSR modulepreload.
+/// This accepts Vite/Rolldown-style manifest objects keyed either by source
+/// entry or by emitted file.
+pub fn RouterConfig::with_client_manifest_json(
+  self : RouterConfig,
+  json : String,
+  base_url? : String = "/static/",
+) -> RouterConfig {
+  match ChunkManifest::parse(json, base_url) {
+    Some(manifest) => self.with_chunk_manifest(manifest)
+    None => self
+  }
 }
 
 ///|

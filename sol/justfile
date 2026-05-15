@@ -105,7 +105,7 @@ test-cli-golden:
 
 # Code generation E2E (sol generate output verification)
 test-generate:
-    node --test e2e/generate-codegen.test.js
+    node --test e2e/generate-codegen.test.js e2e/action-contract.test.js
 
 test-all: test test-ssg test-xplat test-docs test-cli-golden test-generate test-e2e test-sol-app
 

@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 /// Tests for IR types and serialization
 test "Schema::empty creates empty schema" {
   let schema = Schema::empty()

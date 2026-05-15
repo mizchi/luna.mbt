@@ -14,7 +14,7 @@ priv struct StyleRegistry {
 
 ///|
 /// Global style registry (singleton)
-let registry : StyleRegistry = { decl_to_class: Map::new(), declarations: [] }
+let registry : StyleRegistry = { decl_to_class: Map([]), declarations: [] }
 
 ///|
 /// DJB2 hash function - must match extract.ts implementation

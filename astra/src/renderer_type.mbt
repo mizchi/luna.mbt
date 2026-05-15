@@ -19,7 +19,7 @@ pub(all) enum RendererType {
   ClientOnlyRenderer
   /// MDX renderer - Markdown with JSX components
   MdxRenderer
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Default renderer type

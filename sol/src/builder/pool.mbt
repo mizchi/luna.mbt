@@ -89,7 +89,7 @@ fn WorkerPool::spawn_worker(self : WorkerPool) -> Unit {
 
   // Send init message
   let init_msg = ParentMessage::Init(self.init_data)
-  child.send(init_msg.to_json()) |> ignore
+  child.send(init_msg.to_json().raw()) |> ignore
 }
 
 ///|
@@ -125,7 +125,7 @@ fn WorkerPool::handle_worker_message(
   worker_id : Int,
   msg : @core.Any,
 ) -> Unit {
-  guard WorkerMessage::from_json(msg) is Some(worker_msg) else {
+  guard WorkerMessage::from_json(IpcMessage::from_raw(msg)) is Some(worker_msg) else {
     println("  Warning: Invalid message from worker \{worker_id}")
     return
   }
@@ -203,7 +203,7 @@ fn WorkerPool::try_assign_job(self : WorkerPool, worker_id : Int) -> Unit {
 
   // Send job message
   let msg = ParentMessage::Job(job_id)
-  self.workers[worker_id].process.send(msg.to_json()) |> ignore
+  self.workers[worker_id].process.send(msg.to_json().raw()) |> ignore
 }
 
 ///|
@@ -227,7 +227,7 @@ pub fn WorkerPool::shutdown(self : WorkerPool) -> Unit {
   for worker in self.workers {
     if !(worker.state is Terminated) {
       let msg = ParentMessage::Shutdown
-      worker.process.send(msg.to_json()) |> ignore
+      worker.process.send(msg.to_json().raw()) |> ignore
     }
   }
 }

@@ -104,12 +104,7 @@ pub fn run_dev_listen(args : Array[String], cwd : String) -> Unit {
     return
   }
   let port : Int = match get_flag_value(args, "--port") {
-    Some(p) =>
-      try {
-        @string.parse_int(p)
-      } catch {
-        _ => 7777
-      }
+    Some(p) => @string.parse_int(p) catch { _ => 7777 }
     None => 7777
   }
   let cfg = load_config(cwd)

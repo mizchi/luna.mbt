@@ -74,7 +74,7 @@ fn render_component_to(
       sb.write_string("\" data-trigger=\"")
       sb.write_string(trigger.to_attr_string())
       sb.write_string("\" data-props=\"")
-      abstract_escape_attr_to(sb, config.props.to_string())
+      abstract_escape_attr_to(sb, config.props.stringify())
       sb.write_string("\">")
       for child in children {
         child.render_html_to(sb)
@@ -86,7 +86,7 @@ fn render_component_to(
       sb.write_string("<div data-client-only=\"")
       sb.write_string(config.name)
       sb.write_string("\" data-props=\"")
-      abstract_escape_attr_to(sb, config.props.to_string())
+      abstract_escape_attr_to(sb, config.props.stringify())
       sb.write_string("\">")
       // Show loading placeholder or nothing
       sb.write_string("<!--loading-->")
@@ -97,7 +97,7 @@ fn render_component_to(
       sb.write_string("<div data-server-island=\"")
       sb.write_string(config.name)
       sb.write_string("\" data-props=\"")
-      abstract_escape_attr_to(sb, config.props.to_string())
+      abstract_escape_attr_to(sb, config.props.stringify())
       sb.write_string("\">")
       // Show fallback content
       for child in children {
@@ -135,7 +135,7 @@ fn abstract_render_attrs_to(
         sb.write_char(' ')
         sb.write_string(name)
         sb.write_string("=\"")
-        abstract_escape_attr_to(sb, j.to_string())
+        abstract_escape_attr_to(sb, j.stringify())
         sb.write_char('"')
       }
     }

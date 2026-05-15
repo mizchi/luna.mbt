@@ -44,6 +44,8 @@ pub fn[E, A] match_case(when~ : () -> Bool, render~ : () -> Node[E, A]) -> Match
 
 pub fn[E, A] raw_html(String) -> Node[E, A]
 
+pub fn[E, A] raw_trusted_html(TrustedHtml) -> Node[E, A]
+
 pub fn[E, A] show(() -> Bool, () -> Node[E, A]) -> Node[E, A]
 
 pub fn[E, A] switch_(cases~ : Array[MatchCase[E, A]], fallback? : (() -> Node[E, A])?) -> Node[E, A]
@@ -51,6 +53,8 @@ pub fn[E, A] switch_(cases~ : Array[MatchCase[E, A]], fallback? : (() -> Node[E,
 pub fn[E, A] text(String) -> Node[E, A]
 
 pub fn[E, A] text_dyn(() -> String) -> Node[E, A]
+
+pub fn unsafe_trusted_html(String) -> TrustedHtml
 
 pub fn[T] wc_component_ref(String, T, trigger? : TriggerType) -> ComponentRef[T]
 
@@ -110,6 +114,11 @@ pub(all) enum TriggerType {
 }
 pub fn TriggerType::parse(String) -> Self
 pub fn TriggerType::to_string(Self) -> String
+
+pub(all) struct TrustedHtml {
+  content : String
+}
+pub fn TrustedHtml::to_string(Self) -> String
 
 pub struct VAsync[E, A] {
   render : async () -> Node[E, A]

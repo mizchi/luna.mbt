@@ -10,9 +10,9 @@ fn extract_wc_name_from_url(url : String) -> String {
   } else {
     "".view()
   }
-  let filename = filename_view.to_string()
+  let filename = filename_view.to_owned()
   let name = if filename.has_suffix(".js") && filename.length() > 3 {
-    filename[:filename.length() - 3].to_string()
+    filename[:filename.length() - 3].to_owned()
   } else {
     filename
   }

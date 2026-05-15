@@ -18,13 +18,27 @@ CSRF tokens are intentionally NOT included as they add complexity without signif
 ### 1. Define Actions
 
 ```moonbit
-let create_user_handler = ActionHandler(async fn(ctx) {
-  // Parse request body
-  let body = ctx.body
-  // ... validate and process
+struct CreateUserRequest {
+  name : String
+  email : String
+} derive(ToJson, FromJson)
 
-  // Return success
-  ActionResult::ok(@js.any({ "id": 123, "name": "John" }))
+struct CreateUserResponse {
+  id : String
+  name : String
+} derive(ToJson, FromJson)
+
+let create_user_handler = ActionHandler(async fn(ctx) {
+  let req : CreateUserRequest = match ctx.decode_json() {
+    Some(req) => req
+    None => return ActionResult::bad_request("Invalid JSON payload")
+  }
+
+  if req.email == "" {
+    return ActionResult::validation_error("Email is required")
+  }
+
+  ActionResult::json(CreateUserResponse::{ id: "123", name: req.name })
 })
 
 let update_profile_handler = ActionHandler(async fn(ctx) {
@@ -35,7 +49,7 @@ let update_profile_handler = ActionHandler(async fn(ctx) {
     return ActionResult::validation_error("Profile payload is required")
   }
 
-  ActionResult::ok(@js.any({ "message": "Profile updated" }))
+  ActionResult::json({ "message": "Profile updated" })
 })
 
 let delete_user_handler = ActionHandler(async fn(ctx) {
@@ -51,12 +65,20 @@ let delete_user_handler = ActionHandler(async fn(ctx) {
 ### 2. Register Actions
 
 ```moonbit
+// `sol generate` creates these factories from handler binding names:
+// - create_user_handler -> @types.action_create_user()
+// - submit_contact_handler -> @types.action_submit_contact()
+// - add_todo_action -> @types.action_add_todo()
+// - delete_user_handler -> @types.action_delete_user()
+
 let registry = ActionRegistry::new(
   allowed_origins=["https://example.com"]
 )
-  .register(ActionDef::new("create-user", create_user_handler))
   .register(
-    ActionDef::new("delete-user", delete_user_handler)
+    ActionDef::from_key(@types.action_create_user(), create_user_handler)
+  )
+  .register(
+    ActionDef::from_key(@types.action_delete_user(), delete_user_handler)
       .with_require_json(false)
   )
 ```
@@ -77,43 +99,65 @@ This registers endpoints at:
 ### Basic Invocation
 
 ```moonbit
-let response = invoke_action(
-  "/_action/create-user",
-  @js.any({ "name": "John", "email": "john@example.com" })
-)
+let create_user_action : TypedActionKey[CreateUserRequest, CreateUserResponse] =
+  @types.action_create_user_typed()
 
-match response {
-  Success(data) => {
-    // Handle success
-    let id = data["id"]
-  }
-  Redirect(url) => {
-    // Handle redirect (usually automatic)
-  }
-  Error(status, message) => {
-    // Handle error
-  }
-  NetworkError(message) => {
-    // Handle network failure
+let handle_create_user : (TypedActionResponse[CreateUserResponse]) -> Unit = fn(response) {
+  match response {
+    Success(data) => {
+      save_user_id(data.id)
+    }
+    Redirect(url) => {
+      // Handle redirect (usually automatic)
+    }
+    Error(status, message) => {
+      // Handle error
+    }
+    NetworkError(message) => {
+      // Handle network failure
+    }
+    DecodeError(message) => {
+      // Handle a response contract mismatch
+    }
   }
 }
+
+invoke_typed_action_key(
+  create_user_action,
+  CreateUserRequest::{ name: "John", email: "john@example.com" },
+  handle_create_user,
+)
 ```
 
 ### Create Reusable Invoker
 
 ```moonbit
-let create_user = create_action_invoker("/_action/create-user")
+let create_user_action : TypedActionKey[CreateUserRequest, CreateUserResponse] =
+  @types.action_create_user_typed()
+let create_user = create_typed_action_invoker_key(create_user_action)
 
 // Later...
-let response = create_user(@js.any({ "name": "Jane" }))
+create_user(
+  CreateUserRequest::{ name: "Jane", email: "jane@example.com" },
+  fn(response) {
+    match response {
+      Success(data) => save_user_id(data.id)
+      _ => ()
+    }
+  },
+)
 ```
 
 ### Form Integration
 
 ```moonbit
+let create_user_action : TypedActionKey[CreateUserRequest, CreateUserResponse] =
+  @types.action_create_user_typed()
+
 submit_form_as_action(
   form_element,
-  ActionFormConfig::new("/_action/create-user")
+  ActionFormConfig::from_key(create_user_action)
+    .with_success(fn(data) { save_user_id(data.id) })
 )
 ```
 
@@ -126,17 +170,13 @@ hand-rolling every state transition:
 let state = @signal.signal(ActionState::idle())
 
 state.set(ActionState::pending(message="Saving"))
-invoke_action("/_action/create-user", payload, fn(response) {
-  let next = ActionState::from_response(response)
-  state.set(next)
-  match next.phase {
-    Succeeded => show_success(next.message.unwrap_or("Saved"))
-    Failed => show_error(next.message.unwrap_or("Action failed"))
-    Redirecting => match next.redirect {
-      Some(url) => redirect_to(url)
-      None => ()
-    }
-    Idle | Pending => ()
+invoke_typed_action_key(@types.action_create_user_typed(), payload, fn(response) {
+  match response {
+    Success(_) => state.set(ActionState::success(message="Saved"))
+    Redirect(url) => state.set(ActionState::redirect(url))
+    Error(status, message) => state.set(ActionState::error(status~, message~))
+    NetworkError(message) => state.set(ActionState::error(status=0, message~))
+    DecodeError(message) => state.set(ActionState::error(status=0, message~))
   }
 })
 ```
@@ -183,19 +223,21 @@ CsrfConfig::default()
   .with_error_message("Access Denied")
 ```
 
-### ActionDef
+### ActionKey / ActionDef
 
 ```moonbit
-ActionDef::new("my-action", handler)
+ActionDef::from_key(@types.action_my_action(), handler)
   .with_require_json(true)           // Require application/json
   .with_middleware(auth_middleware)  // Add custom middleware
 ```
+
+Action IDs are derived from generated action key factories. Hand-written action
+ID strings are not part of the public action definition API.
 
 ### ActionRegistry
 
 ```moonbit
 ActionRegistry::new(allowed_origins=["https://example.com"])
   .with_base_path("/api/action")  // Custom base path
-  .register(action1)
-  .register_all([action2, action3])
+  .register_key(@types.action_my_action(), handler)
 ```

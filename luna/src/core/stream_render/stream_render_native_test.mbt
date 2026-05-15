@@ -1,3 +1,6 @@
+///|
+using @test {assert_eq}
+
 // Tests verifying actual streaming behavior (chunk-by-chunk output)
 
 ///|
@@ -21,10 +24,9 @@ test "streaming produces multiple chunks, not a single string" {
 test "streaming flushes header before async fallback" {
   let node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.h("h1", [], [@luna.text("Header")]),
-    @luna.async_(
-      render=fn() { @luna.h("p", [], [@luna.text("Loaded")]) },
-      fallback=fn() { @luna.h("p", [], [@luna.text("Loading...")]) },
-    ),
+    @luna.async_(render=fn() { @luna.h("p", [], [@luna.text("Loaded")]) }, fallback=fn() {
+      @luna.h("p", [], [@luna.text("Loading...")])
+    }),
     @luna.h("footer", [], [@luna.text("Footer")]),
   ])
   let chunks : Array[String] = []

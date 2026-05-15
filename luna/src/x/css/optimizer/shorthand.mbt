@@ -303,7 +303,7 @@ pub fn compress_to_shorthands(
 
   // Add remaining declarations that weren't compressed
   for d in declarations {
-    if !(used.contains(d.property)) {
+    if !used.contains(d.property) {
       result.push(d)
     }
   }

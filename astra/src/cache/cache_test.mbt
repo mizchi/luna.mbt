@@ -1,4 +1,7 @@
 ///|
+using @test {assert_eq}
+
+///|
 /// Tests for CacheManager using MemFSAdapter
 
 ///|
