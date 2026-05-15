@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.22.1](https://github.com/mizchi/luna.mbt/compare/testing-v0.22.0-npm...testing-v0.22.1-npm) (2026-05-15)
+## [0.22.1](https://github.com/mizchi/luna.mbt/compare/testing-v0.22.0-npm...testing-v0.22.1-npm.1) (2026-05-15)
 
 
 ### Bug Fixes

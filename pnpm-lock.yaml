@@ -170,7 +170,7 @@ importers:
   js/stella:
     dependencies:
       '@luna_ui/wcr':
-        specifier: workspace:*
+        specifier: ^0.22.0
         version: link:../wcr
     devDependencies:
       happy-dom:
@@ -186,7 +186,7 @@ importers:
   js/testing:
     dependencies:
       '@luna_ui/luna':
-        specifier: workspace:*
+        specifier: ^0.22.0
         version: link:../luna
     devDependencies:
       jsdom:
