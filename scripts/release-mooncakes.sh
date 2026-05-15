@@ -51,6 +51,36 @@ run() {
   fi
 }
 
+# `moon publish` with a 409-duplicate-version skip. The coordinated bump
+# in `vup --release` advances every package's version even when only a
+# subset has actual changes; the unchanged ones can collide with what
+# the registry already serves. Treat that specific failure mode as a
+# skip, not a hard error — every other failure still aborts the script.
+publish_pkg() {
+  local pkg="$1"
+  local version="$2"
+  local output status
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "  [dry-run] (cd $pkg && moon publish)"
+    return 0
+  fi
+  echo "  \$ (cd $pkg && moon publish)"
+  set +e
+  output=$(cd "$pkg" && moon publish 2>&1)
+  status=$?
+  set -e
+  echo "$output"
+  if [[ "$status" -eq 0 ]]; then
+    return 0
+  fi
+  if echo "$output" | grep -qE "Version Error|duplicated with an existing version|409 Conflict"; then
+    echo "  -> $pkg @ $version is already on the registry; skipping."
+    return 0
+  fi
+  echo "  -> moon publish failed for $pkg @ $version (status=$status)"
+  return "$status"
+}
+
 for pkg in "${PACKAGES[@]}"; do
   if [[ ! -f "$pkg/moon.mod.json" ]]; then
     echo "Skipping $pkg (no moon.mod.json)"
@@ -59,10 +89,10 @@ for pkg in "${PACKAGES[@]}"; do
   version=$(node -p "require('./$pkg/moon.mod.json').version")
   echo ""
   echo "=== Publishing $pkg @ $version ==="
-  (cd "$pkg" && run moon publish)
+  publish_pkg "$pkg" "$version"
   echo "=== Refreshing registry index (moon update) ==="
   run moon update
 done
 
 echo ""
-echo "All mooncakes published."
+echo "All mooncakes published (skipped any that were already on the registry)."
