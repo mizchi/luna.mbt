@@ -1,6 +1,15 @@
 // sol doctor command - Diagnose project configuration and adapter wiring.
 
 ///|
+/// Version of the JS-side sol CLI bundled with this build. Used to compare
+/// against the version of `mizchi/sol` actually resolved into the project's
+/// `.mooncakes/` (and the native launcher, when reachable on PATH).
+///
+/// Keep this in sync with `sol/moon.mod.json` `version` and the literal in
+/// `sol/src/cmd/sol/main.mbt`.
+const SOL_JS_CLI_VERSION : String = "0.22.2"
+
+///|
 priv enum DoctorSeverity {
   DoctorInfo
   DoctorWarning
@@ -16,11 +25,24 @@ priv struct DoctorFinding {
 }
 
 ///|
+/// A single resolved mooncake entry under `.mooncakes/<owner>/<pkg>/`.
+///
+/// `version` is `None` when either the package directory or its
+/// `moon.mod.json` could not be read / parsed.
+priv struct MooncakeEntry {
+  name : String
+  version : String?
+}
+
+///|
 priv struct DoctorReport {
   cwd : String
   runtime : String
   config_path : String
   findings : Array[DoctorFinding]
+  js_cli_version : String
+  launcher_version : String?
+  mooncakes : Array[MooncakeEntry]
 }
 
 ///|
@@ -95,6 +117,28 @@ fn DoctorReport::render(self : DoctorReport) -> String {
     buf.write_string("config: \{self.config_path}\n")
   }
   buf.write_string("\n")
+  buf.write_string("Versions:\n")
+  buf.write_string("  sol JS CLI (bundled): \{self.js_cli_version}\n")
+  match self.launcher_version {
+    Some(v) => buf.write_string("  sol native launcher:  \{v}\n")
+    None => buf.write_string("  sol native launcher:  (not detected)\n")
+  }
+  buf.write_string("\n")
+  buf.write_string("Mooncake versions:\n")
+  let mut printed = 0
+  for entry in self.mooncakes {
+    match entry.version {
+      Some(v) => {
+        buf.write_string("  \{entry.name} @ \{v}\n")
+        printed += 1
+      }
+      None => ()
+    }
+  }
+  if printed == 0 {
+    buf.write_string("  (no resolved mooncakes — run `moon install`)\n")
+  }
+  buf.write_string("\n")
   if self.findings.is_empty() {
     buf.write_string("[ok] No issues found\n")
   } else {
@@ -132,6 +176,133 @@ fn moon_mod_has_dep(content : String, dep : String) -> Bool {
     }
   } catch {
     _ => false
+  }
+}
+
+///|
+/// Extract the top-level `version` field from a moon.mod.json string.
+fn moon_mod_version(content : String) -> String? {
+  try {
+    let parsed = @json.parse(content.view())
+    guard parsed is Object(obj) else { return None }
+    match obj.get("version") {
+      Some(String(v)) => Some(v)
+      _ => None
+    }
+  } catch {
+    _ => None
+  }
+}
+
+///|
+/// Read the version of a mooncake under `.mooncakes/<owner>/<pkg>/`.
+///
+/// Returns `None` if the package or its `moon.mod.json` is missing /
+/// unparseable. The package directory missing is a normal case for
+/// optional deps (e.g. sol_adapter_cloudflare on a Node project).
+fn[FS : @env.FileSystem] read_mooncake_version(
+  fs : FS,
+  cwd : String,
+  qualified : String,
+) -> String? {
+  let mod_path = @path.join2(
+    @path.join2(cwd, ".mooncakes"),
+    qualified + "/moon.mod.json",
+  )
+  if !fs.exists_sync(mod_path) {
+    return None
+  }
+  let content = fs.read_file_sync(mod_path) catch { _ => "" }
+  if content == "" {
+    return None
+  }
+  moon_mod_version(content)
+}
+
+///|
+/// Collect the resolved versions of sol-stack mooncakes in user's project.
+fn[FS : @env.FileSystem] collect_mooncake_versions(
+  fs : FS,
+  cwd : String,
+) -> Array[MooncakeEntry] {
+  let names = [
+    "mizchi/sol", "mizchi/luna", "mizchi/astra", "mizchi/sol_adapter_cloudflare",
+    "mizchi/sol_adapter_node",
+  ]
+  let out : Array[MooncakeEntry] = []
+  for name in names {
+    out.push({ name, version: read_mooncake_version(fs, cwd, name) })
+  }
+  out
+}
+
+///|
+/// Best-effort detection of the native `sol` launcher version by running
+/// `sol --version`. Returns `None` if the binary is not on PATH or the
+/// output is unexpected (e.g. recursion guard prints something else).
+fn detect_launcher_version() -> String? {
+  let out = try? @child_process.execSync(
+    "sol --version",
+    encoding="utf8",
+    timeout=2000,
+  )
+  match out {
+    Ok(raw) => {
+      let trimmed = raw.trim_space().to_string()
+      // Expect "sol 0.22.2" or just "0.22.2".
+      if trimmed.has_prefix("sol ") {
+        Some(trimmed.substring(start=4).trim_space().to_string())
+      } else if trimmed == "" {
+        None
+      } else {
+        Some(trimmed)
+      }
+    }
+    Err(_) => None
+  }
+}
+
+///|
+/// Add a warning when the JS CLI version and the resolved
+/// `.mooncakes/mizchi/sol/` version diverge — the typical symptom is "user
+/// updated sol but a fix in the new version is not picked up".
+fn add_version_skew_findings(
+  findings : Array[DoctorFinding],
+  js_cli_version : String,
+  launcher_version : String?,
+  mooncakes : Array[MooncakeEntry],
+) -> Unit {
+  let mut sol_version : String? = None
+  for entry in mooncakes {
+    if entry.name == "mizchi/sol" {
+      sol_version = entry.version
+    }
+  }
+  match sol_version {
+    Some(v) =>
+      if v != js_cli_version {
+        findings.push(
+          doctor_warning(
+            "Sol JS CLI / .mooncakes version diverge",
+            "Bundled sol JS CLI is \{js_cli_version}, but .mooncakes/mizchi/sol/moon.mod.json is \{v}.",
+            "Run `moon update && moon install` to refresh `.mooncakes/`.",
+          ),
+        )
+      }
+    None => ()
+  }
+  match (launcher_version, sol_version) {
+    (Some(l), Some(m)) =>
+      if l != m {
+        findings.push(
+          doctor_warning(
+            "Launcher and delegated JS CLI versions diverge",
+            "Native `sol` launcher is \{l}, but .mooncakes/mizchi/sol/ is \{m}.",
+            "Run `moon update && moon install` to refresh `.mooncakes/`, or reinstall the launcher via `moon install mizchi/sol/cmd/sol`.",
+          ),
+        )
+      }
+    _ => ()
   }
 }
 
@@ -222,6 +393,7 @@ fn[FS : @env.FileSystem] add_generated_output_findings(
 fn[FS : @env.FileSystem] diagnose_project_with_fs(
   fs : FS,
   cwd : String,
+  launcher_version? : String? = None,
 ) -> DoctorReport {
   let findings : Array[DoctorFinding] = []
   let json_config_path = @path.join2(cwd, "sol.config.json")
@@ -304,8 +476,22 @@ fn[FS : @env.FileSystem] diagnose_project_with_fs(
   if config_loaded {
     add_generated_output_findings(fs, findings, cwd, output)
   }
-
-  DoctorReport::{ cwd, runtime, config_path, findings }
+  let mooncakes = collect_mooncake_versions(fs, cwd)
+  add_version_skew_findings(
+    findings,
+    SOL_JS_CLI_VERSION,
+    launcher_version,
+    mooncakes,
+  )
+  DoctorReport::{
+    cwd,
+    runtime,
+    config_path,
+    findings,
+    js_cli_version: SOL_JS_CLI_VERSION,
+    launcher_version,
+    mooncakes,
+  }
 }
 
 ///|
@@ -329,7 +515,8 @@ fn run_doctor_command(args : Array[String]) -> Unit {
   }
   let strict = args.contains("--strict")
   let fs = @fs_adapter.NodeFsAdapter::new()
-  let report = diagnose_project_with_fs(fs, @process.cwd())
+  let launcher_version = detect_launcher_version()
+  let report = diagnose_project_with_fs(fs, @process.cwd(), launcher_version~)
   println(report.render())
   if report.has_errors() || (strict && report.has_warnings()) {
     @process.exit(1)

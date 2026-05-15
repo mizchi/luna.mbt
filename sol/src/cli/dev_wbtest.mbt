@@ -57,3 +57,13 @@ test "ensure_cloudflare_dev_files_with_fs prefers user wrangler.dev.toml" {
   assert_eq(config_path, "wrangler.dev.toml")
   assert_false(mem.existsSync("/project/.sol/dev/worker.entry.mjs"))
 }
+
+///|
+test "should_enable_sol_dev: only `dev` mode flips SOL_DEV on" {
+  assert_true(should_enable_sol_dev("dev"))
+  assert_false(should_enable_sol_dev("prod"))
+  // Defensive: any unknown mode is treated as non-dev so we never leak
+  // the HMR <script> into a prod-ish bundle.
+  assert_false(should_enable_sol_dev(""))
+  assert_false(should_enable_sol_dev("preview"))
+}

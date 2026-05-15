@@ -73,3 +73,66 @@ test "diagnose_project warns when generated outputs are missing" {
   assert_true(report.render().contains("sol generate"))
   assert_true(report.render().contains("sol build"))
 }
+
+///|
+test "diagnose_project surfaces mooncake versions when .mooncakes is populated" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  let mem = fs.memfs()
+  let deps = "\"mizchi/sol\": \"0.22.2\", \"mizchi/sol_adapter_node\": \"0.22.2\""
+  write_minimal_project(fs, "/project", "node", deps)
+  mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
+  mem.writeFileSync(
+    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.2\" }",
+  )
+  mem.mkdirSync("/project/.mooncakes/mizchi/luna", recursive=true)
+  mem.writeFileSync(
+    "/project/.mooncakes/mizchi/luna/moon.mod.json", "{ \"name\": \"mizchi/luna\", \"version\": \"0.22.1\" }",
+  )
+  let report = diagnose_project_with_fs(fs, "/project")
+  let rendered = report.render()
+  assert_true(rendered.contains("Mooncake versions:"))
+  assert_true(rendered.contains("mizchi/sol @ 0.22.2"))
+  assert_true(rendered.contains("mizchi/luna @ 0.22.1"))
+  // No skew warning when JS CLI version matches the resolved sol mooncake.
+  assert_false(rendered.contains("Sol JS CLI / .mooncakes version diverge"))
+}
+
+///|
+test "diagnose_project warns when .mooncakes sol version differs from bundled JS CLI" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  let mem = fs.memfs()
+  let deps = "\"mizchi/sol\": \"0.22.1\", \"mizchi/sol_adapter_node\": \"0.22.1\""
+  write_minimal_project(fs, "/project", "node", deps)
+  mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
+  mem.writeFileSync(
+    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.1\" }",
+  )
+  let report = diagnose_project_with_fs(fs, "/project")
+  let rendered = report.render()
+  assert_true(report.has_warnings())
+  assert_true(rendered.contains("Sol JS CLI / .mooncakes version diverge"))
+  assert_true(rendered.contains("moon update"))
+}
+
+///|
+test "diagnose_project warns when launcher and mooncake versions diverge" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  let mem = fs.memfs()
+  let deps = "\"mizchi/sol\": \"0.22.2\", \"mizchi/sol_adapter_node\": \"0.22.2\""
+  write_minimal_project(fs, "/project", "node", deps)
+  mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
+  mem.writeFileSync(
+    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.2\" }",
+  )
+  let report = diagnose_project_with_fs(
+    fs,
+    "/project",
+    launcher_version=Some("0.22.0"),
+  )
+  let rendered = report.render()
+  assert_true(report.has_warnings())
+  assert_true(
+    rendered.contains("Launcher and delegated JS CLI versions diverge"),
+  )
+  assert_true(rendered.contains("0.22.0"))
+}

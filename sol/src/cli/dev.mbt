@@ -440,69 +440,71 @@ async fn run_dev_watch_mode(
       for dir in watch_dirs {
         let watch_path = @path.join2(cwd, dir)
         if fs.exists_sync(watch_path) {
+          // Trigger an incremental rebuild for `filename` if it currently
+          // exists. The 300ms debounce coalesces duplicates from the
+          // immediate + 100ms-retry pair used for rename events.
+          fn trigger_rebuild(filename : String) -> Unit {
+            let full_path = @path.join2(watch_path, filename)
+            if !fs.exists_sync(full_path) {
+              return
+            }
+            let now = @cli_common.date_now()
+            if now - last_rebuild.val <= debounce_ms {
+              return
+            }
+            last_rebuild.val = now
+            println(
+              @colorette.yellow(
+                "\n[watch] File changed: \{filename}, rebuilding...",
+              ),
+            )
+            stop_server()
+            if run_incremental_build_dev(cwd) {
+              let is_client_change = filename.contains("client/") ||
+                filename.contains("islands/")
+              restart_server()
+              set_timeout(
+                fn() {
+                  if is_client_change {
+                    let island_name = extract_island_name_from_path(filename)
+                    hmr_server.notify_update([island_name])
+                  } else {
+                    hmr_server.notify_full_reload()
+                  }
+                },
+                500,
+              )
+            } else {
+              hmr_server.notify_error(
+                "Build failed. Check console for details.",
+              )
+              println(
+                @colorette.red("[watch] Build failed. Waiting for changes..."),
+              )
+            }
+          }
+
           let _watcher = @fs.watch(watch_path, recursive=true, listener=fn(
             event : String,
             filename : String,
           ) {
             // Only rebuild for .mbt files, excluding auto-generated files.
             // Accept both "change" and "rename" events: some editors
-            // (macOS `sed -i`, vim's :w with `backupcopy=auto`, atomic
-            // saves via tmp+rename) deliver "rename" instead of "change",
-            // and previously we missed those edits entirely. Re-verify the
-            // file still exists so we don't trigger rebuilds on deletes.
+            // (macOS `sed -i ''`, vim's :w with `backupcopy=auto`, atomic
+            // saves via tmp+rename) deliver "rename".
             let is_generated = filename.contains("__gen__")
-            let is_modify_event = event == "change" || event == "rename"
-            let still_exists = fs.exists_sync(
-              @path.join2(watch_path, filename),
-            )
-            if filename.ends_with(".mbt") &&
-              is_modify_event &&
-              still_exists &&
-              !is_generated {
-              let now = @cli_common.date_now()
-              // Debounce rapid changes
-              if now - last_rebuild.val > debounce_ms {
-                last_rebuild.val = now
-                println(
-                  @colorette.yellow(
-                    "\n[watch] File changed: \{filename}, rebuilding...",
-                  ),
-                )
-                stop_server()
-                if run_incremental_build_dev(cwd) {
-                  // Determine if this is a client-side change (Island)
-                  let is_client_change = filename.contains("client/") ||
-                    filename.contains("islands/")
-                  // Restart server first
-                  restart_server()
-                  // Wait for server to start, then send HMR notification
-                  set_timeout(
-                    fn() {
-                      if is_client_change {
-                        // HMR: notify clients to reload specific island
-                        let island_name = extract_island_name_from_path(
-                          filename,
-                        )
-                        hmr_server.notify_update([island_name])
-                      } else {
-                        // Server-side change: full reload
-                        hmr_server.notify_full_reload()
-                      }
-                    },
-                    500,
-                  )
-                } else {
-                  // Build failed: notify error
-                  hmr_server.notify_error(
-                    "Build failed. Check console for details.",
-                  )
-                  println(
-                    @colorette.red(
-                      "[watch] Build failed. Waiting for changes...",
-                    ),
-                  )
-                }
-              }
+            if !filename.ends_with(".mbt") || is_generated {
+              return
+            }
+            // Synchronous attempt — wins for `change` events and any
+            // `rename` where the replacement file is already visible.
+            trigger_rebuild(filename)
+            // For `rename` the kernel can deliver the event before the
+            // replacement file is visible (rename(2) atomic-replace micro
+            // window). Retry once after 100ms; the debounce inside
+            // trigger_rebuild coalesces if the synchronous attempt won.
+            if event == "rename" {
+              set_timeout(fn() { trigger_rebuild(filename) }, 100)
             }
           })
         }
@@ -651,7 +653,7 @@ fn[FS : @env.FileSystem] run_server_with_fs(
       // <script> injection (hot_reload.with_dev_head_script) and dev-only
       // cache-control. Setting it unconditionally caused `sol serve` to
       // ship the dev HMR client to every prod response in sol 0.22.1.
-      if mode == "dev" {
+      if should_enable_sol_dev(mode) {
         set_env("SOL_DEV", "1")
       }
       // Run the server with inherited stdio (blocking)
@@ -691,6 +693,15 @@ fn extract_island_name_from_path(filename : String) -> String {
   } else {
     basename
   }
+}
+
+///|
+/// Returns true when the server-launch path should set `SOL_DEV=1`.
+/// Only dev mode enables the HMR `<script>` injection and dev-only
+/// cache-control. `sol serve` (mode = "prod") must NOT set this — see
+/// the 0.22.1 prod HMR-leak regression.
+pub fn should_enable_sol_dev(mode : String) -> Bool {
+  mode == "dev"
 }
 
 ///|
