@@ -2,55 +2,338 @@
 
 All notable changes to this project will be documented in this file.
 
-## [luna-v0.22.0] - 2026-05-15
+## [luna-v0.23.0] - 2026-05-16
 
-### Added
+### Bug Fixes
 
-- Add explicit `TrustedScript` and `TrustedStyle` wrappers plus
-  `script_trusted` / `style_trusted` helpers for SSR code that intentionally
-  emits trusted inline content.
+- **release**: Skip already-published mooncake versions in release-mooncakes
 
-### Fixed
+### Documentation
 
-- Keep repeated island and internal-ref IDs unique while rendering SSR HTML, so
-  multiple islands using the same module URL do not collide during hydration.
-
-### Changed
-
-- Tighten generated package/interface metadata and explicit imports used by the
-  Sol/Astra typed-contract builds.
-
-## [luna-v0.21.0] - 2026-05-14
+- **website**: Refresh for sol 0.22.4 / luna 0.22.3 / astra 0.22.3
 
 ### Features
 
-- Add `ServerAssets` and route-local asset attachment helpers on
-  `ServerNode` for SSR frameworks that need component-declared CSS or client
-  scripts.
+- **astra**: Add 5 example sites covering the catalog (no VRT baselines yet)
+- **astra**: Add sol_landing example with Playwright VRT pattern
 
-## [luna-v0.20.1] - 2026-05-10
+### Miscellaneous
+
+- Bump minor all mooncakes packages
+- **astra**: Run example VRT inside playwright docker image to fix font drift
+- **astra**: Wire 5 new examples into workspace + CI
+- **sol**: Narrow astra path filter so example edits don't trigger sol
+- **gitignore**: Ignore .pnpm-store left by docker bind mounts
 
 ### Refactor
 
-- **x/components**: Extract `luna/src/x/components/` into a new sibling
-  mooncake `mizchi/luna_components`. The headless + styled UI components
-  (WAI-ARIA APG patterns) and the apg-playground demo now live under
-  `luna_components/` and are versioned independently. Existing imports
-  must rewrite `mizchi/luna/x/components` -> `mizchi/luna_components`.
-  Apps can now pin the component library separately from luna's
-  reactive primitives.
+- **islands**: Drop legacy VIsland marker in favor of WC island [**BREAKING**]
+
+### Testing
+
+- **astra**: Seed Playwright VRT baselines for 6 examples (darwin + linux)
+- **sol**: Fix second user-managed path in generate-codegen Worker test
+- **sol**: Fix generate-codegen expectations for user-managed sol_app
+- **sol**: Guard `sol new` self-host across empty-dir + flagged variants
+
+## [luna-v0.22.3] - 2026-05-15
+
+### Bug Fixes
+
+- **sol**: Instruct users to run `moon update && moon install` after sol new
+- **sol**: Launcher ascends workspace for path-dep monorepo dev
+
+### Documentation
+
+- **todo**: Mark 0.22.x refactor audit items as done
+- **astra**: Replace stale "Luna SSG" / "sol ssg" wording
+- **todo**: Record 0.22.x refactor audit candidates
+- **skills**: Note Middleware::render_url in astra-ssg
+- **astra**: Position SSG as the primary path, mount as optional
+- **skills**: Add astra-ssg usage skill
+- **astra**: Make astra.config.json the canonical config name
+
+### Features
+
+- **sol**: Self-host `sol new --cloudflare` in the native launcher
+- **sol**: Expose dev file watcher dirs via sol.config.json
+
+### Miscellaneous
+
+- Bump patch all mooncakes packages
+
+### Refactor
+
+- **sol_app, sol_auth**: Align examples with sol 0.22.x scaffold
+- **astra**: Collapse dispatch through render_url and drop assets.mbt
+- **sol**: Consolidate the version literal into a shared package
+- **astra**: Drop Mars dependency from the SSG build path
+
+## [luna-v0.22.2] - 2026-05-15
+
+### Features
+
+- **sol**: Tighten dev HMR + add version-skew diagnostics
+
+### Miscellaneous
+
+- Bump patch all mooncakes packages
+- Apply moon fmt to test snapshots and template re-exports
+
+## [luna-v0.22.1] - 2026-05-15
+
+### Bug Fixes
+
+- **sol**: Surface CLI affordances missed by first-time users
+- **sol**: Stop leaking the dev HMR script into prod responses
+- **sol**: Guide users through the moon install / host project gap
+- **stella**: Drop ./ prefix from bin path
+- **npm**: Keep workspace semver deps installable
+- **npm**: Publish testing peer dependency as semver
+
+### Documentation
+
+- **skills**: Refresh sol-bootstrap for 0.22.2 fixes
+- **skills**: Add sol-bootstrap onboarding skill
+
+### Features
+
+- **sol**: Self-host `sol new` so it works in an empty directory
+
+### Miscellaneous
+
+- Bump patch all mooncakes packages
+- **pnpm**: Link workspace semver dependencies
+
+### Refactor
+
+- **sol_todo**: Align example with sol 0.22.x scaffold layout
+
+## [luna-v0.22.0-npm] - 2026-05-15
+
+### Bug Fixes
+
+- **sol**: Align release version outputs
+
+### Miscellaneous
+
+- **npm**: Release 0.22 packages
+
+## [luna-v0.22.0] - 2026-05-15
+
+### Bug Fixes
+
+- **sol**: Hide typed action string constructor
+- **sol**: Allow typed action keys in action APIs
+- **sol**: Normalize colon regex params in API helpers
+- **sol**: Tighten static route TypeScript refs
+- Dogfood user-managed sol route types
+- Keep repeated island refs unique
+- **sol**: Release cloudflare adapter template deps
+
+### Documentation
+
+- **sol**: Document typed action contracts
+
+### Features
+
+- **sol**: Decode typed action request bodies
+- **sol**: Decode typed action responses
+- **sol**: Dogfood typed action invocation
+- **sol**: Add typed action JSON results
+- **sol**: Add typed action invocation helpers
+- **sol**: Strengthen typed contracts and clear warnings
+- **sol**: Emit TypeScript contract declarations
+- **sol**: Integrate TypeScript contract sources
+- Support sol manifest props contracts
+- Add sol contract manifest generation
+
+### Miscellaneous
+
+- Release mooncakes 0.22.0
+- **sol**: Release npm wrapper 0.21.0
+
+### Refactor
+
+- **sol**: Wrap builder ipc messages
+- **sol**: Keep action results as json
+- **sol**: Wrap hmr websocket clients
+- **sol**: Hide rolldown any accessors
+- **sol**: Type legacy route api resolvers
+- **sol**: Hide public json any helpers
+- **sol**: Type action form callbacks
+- **sol**: Hide raw action result payloads
+- **sol**: Keep raw action responses internal
+- **sol**: Hide untyped action invocation APIs
+- Strengthen sol generated contracts
+
+### Testing
+
+- Update integration and size baselines
+- **sol**: Cover adapter runtime contracts
+- **sol**: Cover builder ipc serialization
+- **sol**: Cover rolldown typed accessors
+- **sol**: Cover typed action callback decoding
+- **sol**: Cover typed json response paths
+- **sol**: Dogfood typed action JSON results
+- Guard typed sol action contracts
+- **sol**: Derive cli version expectation from manifest
+
+## [luna-v0.21.0] - 2026-05-14
+
+### Bug Fixes
+
+- **sol**: Make moon install use native shim
+
+### Documentation
+
+- **sol**: Document asset attachment APIs
+- **sol**: Clarify worker route ownership
+- **luna**: Add onboarding doc and unified project skill
+
+### Features
+
+- **sol**: Add doctor diagnostics
+- **sol**: Add action state and api client helpers
+- **sol**: Strengthen cloudflare worker starter
+- **sol**: Run cloudflare dev through wrangler
+- **sol**: Split runtime adapters
+- **sol**: Add route assets and cloudflare adapter
+
+### Miscellaneous
+
+- Release mooncakes 0.21.0
+- Bump mizchi x dependency
+- **sol**: Release npm wrapper 0.20.2
+- **apm**: Bootstrap apm.yml with curated skill catalog
+- **cli**: Drop redundant workspace bin shims
+
+### Testing
+
+- **sol**: Smoke cloudflare worker with wrangler
+
+## [luna-v0.20.1] - 2026-05-10
+
+### Bug Fixes
+
+- **sol**: Stage __sol__/ + static/ under dist-assets for ASSETS binding (#69)
+- **sol**: Force run_app mode 0 (sync export) on Cloudflare deploy (#68)
+- **sol**: Also patch main.js setInterval poll for Cloudflare deploy (#67)
+- **sol**: Patch eager seed init for Cloudflare Workers deploy (#66)
+- **luna**: Rewrite browser_router base path for luna-examples worker (#61)
+- **luna**: Add package.json so wrangler-action can install wrangler@4
+
+### Documentation
+
+- Project-scoped skills for sol cloudflare deploy + playwright skew (#70)
+- **website**: Add Astra chapter
+
+### Features
+
+- **sol**: Deploy sol_app to sol-examples.mizchi.workers.dev (#65)
+- **luna**: Static demo bundle + Cloudflare Workers deploy (#60)
+
+### Miscellaneous
+
+- Bump patch all mooncakes packages
+- **release-please**: Drop release-as 0.20.0 pins after bootstrap
+
+### Refactor
+
+- Extract luna/x/components into mizchi/luna_components mooncake (#71)
+
+### Testing
+
+- **sol**: Chaosbringer-driven crawl over sol_app dev server (#64)
+- **astra**: Deploy smoke for the Luna UI website (#63)
+- **luna**: Deploy smoke for luna-examples worker (#62)
+- **website**: Regression for missing assets in deployed docs
+- **integration**: Expand npm-cli-pack regression coverage
 
 ## [luna-v0.20.0] - 2026-05-10
 
 ### Bug Fixes
 
+- Align all @luna_ui npm package versions at 0.20.0
 - **npm**: Bundle sol/astra CLI into dist/ for npm distribution
 - **astra-shim**: Point __sol_assets_dir at the monorepo astra source
 - **website**: Pass accountId so wrangler skips /memberships lookup
 - **website**: Add package.json so wrangler-action can install wrangler
 - **publish**: Build MoonBit workspace before pnpm -r build
 - **publish**: Pnpm version conflict + correct npm-name reconstruction
+
+### Documentation
+
+- **readme**: Refresh versions, add documentation URLs and release pipeline
+
+### Features
+
+- **publish**: Add workflow_dispatch fallback for manual re-publish
+
+### Miscellaneous
+
+- Release main
+- Align mooncakes + npm packages at 0.20.0
+- Release main
+- **release-please**: Drop release-as 0.17.0 pins after bootstrap
+- **website**: Also publish docs to GitHub Pages as a China-accessible mirror
+- **website**: Deploy docs site to luna.mizchi.workers.dev on luna release
+- **sol**: Align @luna_ui/sol to 0.17.0 after manual publish
+
+### Testing
+
+- **integration**: Regression for astra build CSS bundling
+
+## [luna-v0.17.0] - 2026-05-06
+
+### Miscellaneous
+
+- Release main
+- **release-please**: Drop bootstrap-sha so 0.17.0 alignment can fire
+- **release-please**: Align all 8 npm packages at 0.17.0
+- **release-please**: Make wcssr private + bump astra manifest to 0.3.0
+- **vup**: Scope to mooncakes; document npm release onboarding
+- **js**: Add repository.directory + publishConfig to publishable packages
+
+## [luna-v0.19.3] - 2026-05-06
+
+### Documentation
+
+- **claude**: Rewrite CLAUDE.md for monorepo layout
+- **readme**: Refresh root + sol + astra + new luna README
+
+### Miscellaneous
+
+- **luna**: Patch bump 0.19.2 → 0.19.3 / @luna_ui/luna 0.16.2 → 0.16.3
+- **moon.pkg**: Migrate options(supported-targets) -> supported_targets statement
+- **scripts**: Rewrite vup.mjs for monorepo layout
+- Split workflows by package with paths filters
+
+### Refactor
+
+- **layout**: Website → root, drop empty test-results
+- **scripts**: Luna-only scripts → luna/scripts/
+
+## [luna-v0.19.2] - 2026-05-06
+
+### Bug Fixes
+
 - **tests**: Point sol/e2e CLI tests at cmd/sol/sol.js post-rename
+
+### Miscellaneous
+
+- Patch bump all packages (cmd/<name> CLI release)
+- Regenerate stale pkg.generated.mbti files
+
+### Refactor
+
+- **sol**: Replace cmd/sol native shim with JS dispatcher
+- **astra**: Move CLI entry to cmd/astra for moon install
+
+## [luna-v0.19.1] - 2026-05-04
+
+### Bug Fixes
+
 - **ci**: Make 'Comment X result' steps non-blocking on transient API errors
 - **ci**: Vitest-browser job uses pnpm test:browser (carries luna/ config path)
 - **bins**: Repair sol/bin/sol.js path + add astra/bin/astra.js
@@ -58,6 +341,27 @@ All notable changes to this project will be documented in this file.
 - **ci**: Point all 'src' / 'src/...' moon args at luna/src after subdir move
 - **ci**: Drop deprecated 'moon install' (no moon.mod.json at root after luna move)
 - **ci**: Install Playwright via per-package pnpm exec to match version
+
+### Features
+
+- **npm**: Add @luna_ui/sol and @luna_ui/astra CLI wrappers
+
+### Miscellaneous
+
+- Patch bump all packages
+- **workspace**: Point root configs at luna/ after subdir move
+- Simplify workspace check + add astra/sol/integration jobs
+
+### Refactor
+
+- **layout**: Move luna-only files from root into luna/
+- **luna**: Move luna package from . to ./luna/ subdir
+- **astra**: Move sol/routes to astra/routes — break sol↔astra cycle
+
+## [luna-v0.19.0] - 2026-05-03
+
+### Bug Fixes
+
 - **cli**: Update scaffold templates to use current API (#19)
 - **examples**: Resolve deprecation and visibility warnings in stella-component
 - **examples**: Load debug moonbit output in vite dev
@@ -65,127 +369,12 @@ All notable changes to this project will be documented in this file.
 - **vite**: Align dev moonbit path and luna css filename
 - **e2e**: Read moonbit artifacts from _build
 - **ci**: Align moon release outputs for browser and treeshake
-
-### Documentation
-
-- **readme**: Refresh versions, add documentation URLs and release pipeline
-- **claude**: Rewrite CLAUDE.md for monorepo layout
-- **readme**: Refresh root + sol + astra + new luna README
-- Update CHANGELOG for v0.16.0
-
-### Features
-
-- **publish**: Add workflow_dispatch fallback for manual re-publish
-- **npm**: Add @luna_ui/sol and @luna_ui/astra CLI wrappers
-- Extract astra (SSG middleware) from sol (#23)
-- Add Resource.pending() and Loading component (#20)
-- Generic-ize meter component for SSR compatibility
-- Make styled/alert component generic [E] for SSR compatibility
-- V0.18.0 - portable stream_render + fix supported-targets warnings
-- **core**: Add portable stream_render package (native + js + wasm-gc)
-
-### Miscellaneous
-
-- Release main
-- **release-please**: Drop release-as 0.17.0 pins after bootstrap
-- **website**: Also publish docs to GitHub Pages as a China-accessible mirror
-- **website**: Deploy docs site to luna.mizchi.workers.dev on luna release
-- **sol**: Align @luna_ui/sol to 0.17.0 after manual publish
-- Release main
-- **release-please**: Drop bootstrap-sha so 0.17.0 alignment can fire
-- **release-please**: Align all 8 npm packages at 0.17.0
-- **release-please**: Make wcssr private + bump astra manifest to 0.3.0
-- **vup**: Scope to mooncakes; document npm release onboarding
-- **js**: Add repository.directory + publishConfig to publishable packages
-- **luna**: Patch bump 0.19.2 -> 0.19.3 / @luna_ui/luna 0.16.2 -> 0.16.3
-- **moon.pkg**: Migrate options(supported-targets) -> supported_targets statement
-- **scripts**: Rewrite vup.mjs for monorepo layout
-- Split workflows by package with paths filters
-- Patch bump all packages (cmd/<name> CLI release)
-- Regenerate stale pkg.generated.mbti files
-- Patch bump all packages
-- **workspace**: Point root configs at luna/ after subdir move
-- Simplify workspace check + add astra/sol/integration jobs
-- V0.19.0
-- Bump mizchi/x to 0.2.0 (#22)
-- Bump version to 0.18.3
-- Include loader dist in repo for mooncakes publish
-- Bump version to 0.16.0
-- **scripts**: Add luna-preact size comparison tooling
-- **js/luna**: Bump minor version to 0.13.0
-- Bump version to 0.12.3
-- Update js and npm_typed dependencies
-- Bump to 0.12.2 and remove signals ui/render dependency
-
-### Performance
-
-- **router-lite**: Shrink lite wrapper and bump moon to 0.14.0
-- **resource-lite**: Replace moonbit resource with tiny ts state machine
-- **router-lite**: Replace moonbit router with tiny ts implementation
-- **luna**: Add lite/raw entrypoints with split router/resource APIs
-- **luna**: Strip bound checks from generated moonbit js
-- **luna**: Strip moonbit abort location paths from js bundle
-
-### Refactor
-
-- **layout**: Website -> root, drop empty test-results
-- **scripts**: Luna-only scripts -> luna/scripts/
-- **sol**: Replace cmd/sol native shim with JS dispatcher
-- **astra**: Move CLI entry to cmd/astra for moon install
-- **layout**: Move luna-only files from root into luna/
-- **luna**: Move luna package from . to ./luna/ subdir
-- **astra**: Move sol/routes to astra/routes - break sol<->astra cycle
-- **luna**: Bind lite router/resource from moonbit extern modules
-- **scripts**: Simplify moonbit js post-process pipeline
-
-### Testing
-
-- **integration**: Regression for astra build CSS bundling
-- **stream_render**: Add native streaming behavior tests
-
-## [0.12.0] - 2026-02-10
-
-### Bug Fixes
-
 - **css**: Handle DeclNone in analyzer
 - **dom**: Dispose CSR branches and reconcile hydrated lists
 - **js-api**: Cleanup custom element lifecycle
 - **js-api**: Return undefined for resource errors
-
-### Features
-
-- **render**: Add hydration item markers for for_each
-
-### Miscellaneous
-
-- **build**: Migrate moonbit output path to _build
-- Run moon fmt
-- **ci**: Update treeshake baseline
-
-## [0.10.0] - 2026-02-03
-
-### Bug Fixes
-
 - **dom**: Hydrate fragments and reconcile lists
 - Add explicit core package imports to resolve moon check warnings
-
-### Features
-
-- Add treeshake baseline and signals entrypoint
-
-### Miscellaneous
-
-- Update bench/tests formatting
-- Bump version to 0.8.1
-
-### Refactor
-
-- Migrate to signals/ui for shared types and escape functions
-
-## [0.8.0] - 2026-01-24
-
-### Bug Fixes
-
 - Resolve moon check warnings
 - **ci**: Add missing apg-playground build to e2e job
 - **treeview**: Prevent keyboard event bubbling causing multiple handlers
@@ -330,6 +519,7 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
+- Update CHANGELOG for v0.16.0
 - **apg**: Add APG pattern reference documentation
 - Update CLAUDE.md to reflect current structure
 - Simplify README based on CLAUDE.md
@@ -422,6 +612,14 @@ All notable changes to this project will be documented in this file.
 
 ### Features
 
+- Extract astra (SSG middleware) from sol (#23)
+- Add Resource.pending() and Loading component (#20)
+- Generic-ize meter component for SSR compatibility
+- Make styled/alert component generic [E] for SSR compatibility
+- V0.18.0 — portable stream_render + fix supported-targets warnings
+- **core**: Add portable stream_render package (native + js + wasm-gc)
+- **render**: Add hydration item markers for for_each
+- Add treeshake baseline and signals entrypoint
 - **core**: Make Attr type generic for environment-specific attributes (#14) [**BREAKING**]
 - **components**: Improve toolbar, treeview, and landmarks
 - **components**: Add APG keyboard navigation and remove switch checkmark
@@ -652,6 +850,21 @@ All notable changes to this project will be documented in this file.
 
 ### Miscellaneous
 
+- V0.19.0
+- Bump mizchi/x to 0.2.0 (#22)
+- Bump version to 0.18.3
+- Include loader dist in repo for mooncakes publish
+- Bump version to 0.16.0
+- **scripts**: Add luna-preact size comparison tooling
+- **js/luna**: Bump minor version to 0.13.0
+- Bump version to 0.12.3
+- Update js and npm_typed dependencies
+- Bump to 0.12.2 and remove signals ui/render dependency
+- **build**: Migrate moonbit output path to _build
+- Run moon fmt
+- **ci**: Update treeshake baseline
+- Update bench/tests formatting
+- Bump version to 0.8.1
 - Bump version to 0.8.0
 - Bump version to 0.7.3
 - Bump version to 0.7.2
@@ -762,6 +975,12 @@ All notable changes to this project will be documented in this file.
 
 ### Performance
 
+- **router-lite**: Shrink lite wrapper and bump moon to 0.14.0
+- **resource-lite**: Replace moonbit resource with tiny ts state machine
+- **router-lite**: Replace moonbit router with tiny ts implementation
+- **luna**: Add lite/raw entrypoints with split router/resource APIs
+- **luna**: Strip bound checks from generated moonbit js
+- **luna**: Strip moonbit abort location paths from js bundle
 - **sol**: Optimize SSG lint to single-pass file reading
 - **astra**: Preload loader.js in head
 - **astra**: Add async to loader.js script tag
@@ -778,6 +997,9 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+- **luna**: Bind lite router/resource from moonbit extern modules
+- **scripts**: Simplify moonbit js post-process pipeline
+- Migrate to signals/ui for shared types and escape functions
 - **components**: Move logic from styled to headless components
 - Simplify config files
 - Rename .justfile to justfile and fix commands
@@ -988,6 +1210,7 @@ All notable changes to this project will be documented in this file.
 
 ### Testing
 
+- **stream_render**: Add native streaming behavior tests
 - **e2e**: Add comprehensive Playwright hydration tests
 - **luna**: Add tests for reconcile ref_equal and debounced signal
 - **sol**: Add parallel CSS extraction verification tests
@@ -1061,4 +1284,5 @@ All notable changes to this project will be documented in this file.
 - Misc changes
 - Add types package generation for Props structs
 - Sol generate - parse mbti with moonbitlang/parser
+
 
