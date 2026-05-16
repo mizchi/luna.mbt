@@ -304,12 +304,6 @@ fn hydrate_node(
     }
     @core.Component(render=render_fn) =>
       hydrate_node(parent, render_fn(), ctx, cursor, stop)
-    @core.Island(island) =>
-      // Island hydration is handled by the loader, not this function
-      // Just hydrate children normally for nested content
-      for child in island.children {
-        hydrate_node(parent, child, ctx, cursor, stop)
-      }
     @core.WcIsland(wc_island) =>
       // WcIsland hydration is handled by wcssr client runtime
       // Just hydrate children normally for nested content

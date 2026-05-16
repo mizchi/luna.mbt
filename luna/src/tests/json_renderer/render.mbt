@@ -44,19 +44,6 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
       Fragment(children)
     }
     @core.Component(render~) => render_to_json(render())
-    @core.Island(island) => {
-      // Render Island as an element with luna:* attributes
-      let attrs : Map[String, JsonAttrValue] = {}
-      attrs.set("luna:id", Static(island.id))
-      attrs.set("luna:url", Static(island.url))
-      attrs.set("luna:state", Static(island.state))
-      attrs.set("luna:client-trigger", Static(island.trigger.to_string()))
-      let children : Array[JsonNode] = []
-      for child in island.children {
-        children.push(render_to_json(child))
-      }
-      Element({ tag: "div", attrs, children })
-    }
     @core.WcIsland(wc_island) => {
       // Render WcIsland as a custom element with data-* attributes
       let attrs : Map[String, JsonAttrValue] = {}
@@ -69,23 +56,16 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
       Element({ tag: wc_island.name, attrs, children })
     }
     @core.InternalRef(iref) => {
-      // Render InternalRef as element with luna:* or luna:wc-* attributes
+      // Render InternalRef as a WC island element
       let attrs : Map[String, JsonAttrValue] = {}
-      if iref.wc {
-        attrs.set("luna:wc-url", Static(iref.url))
-        attrs.set("luna:wc-state", Static(iref.state))
-        attrs.set("luna:wc-trigger", Static(iref.trigger.to_string()))
-      } else {
-        attrs.set("luna:url", Static(iref.url))
-        attrs.set("luna:state", Static(iref.state))
-        attrs.set("luna:client-trigger", Static(iref.trigger.to_string()))
-      }
+      attrs.set("luna:wc-url", Static(iref.url))
+      attrs.set("luna:wc-state", Static(iref.state))
+      attrs.set("luna:wc-trigger", Static(iref.trigger.to_string()))
       let children : Array[JsonNode] = []
       for child in iref.children {
         children.push(render_to_json(child))
       }
-      let tag = if iref.wc { "wc-internal-ref" } else { "div" }
-      Element({ tag, attrs, children })
+      Element({ tag: "wc-internal-ref", attrs, children })
     }
     @core.Async(async_node) =>
       // Render fallback content for async nodes

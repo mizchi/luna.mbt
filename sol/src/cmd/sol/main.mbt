@@ -319,7 +319,9 @@ async fn try_native_new(args : Array[String]) -> Bool {
   println("  Template: \{template_label}")
   let templates = if parsed.cloudflare {
     @scaffold_templates.generate_cloudflare_templates(
-      package_name, project_base, None,
+      package_name,
+      project_base,
+      None,
     )
   } else {
     @scaffold_templates.generate_templates(package_name, project_base, None)
@@ -352,15 +354,9 @@ async fn try_native_new(args : Array[String]) -> Bool {
   println(
     "Note: `moon update && moon install` is required even after `pnpm install`.",
   )
-  println(
-    "`moon update` refreshes the registry index (the freshly published",
-  )
-  println(
-    "mooncake versions this scaffold pins are otherwise unresolvable);",
-  )
-  println(
-    "`moon install` then fetches MoonBit deps into .mooncakes/. Without",
-  )
+  println("`moon update` refreshes the registry index (the freshly published")
+  println("mooncake versions this scaffold pins are otherwise unresolvable);")
+  println("`moon install` then fetches MoonBit deps into .mooncakes/. Without")
   println("the pair, `sol dev` fails to resolve `mizchi/sol/cmd/sol_js`.")
   true
 }

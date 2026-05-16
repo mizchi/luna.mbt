@@ -44,11 +44,6 @@ pub using @scaffold_templates {
 // - "bun"        - Bun.serve
 
 ///|
-pub fn template_ln_loader_js() -> String {
-  @astra_assets.get_island_loader_js()
-}
-
-///|
 /// Generate template files for a documentation site project
 pub fn generate_doc_templates(
   package_name : String,

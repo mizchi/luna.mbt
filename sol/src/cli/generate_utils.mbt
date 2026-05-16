@@ -103,9 +103,7 @@ fn resolve_runtime_asset(cwd : String, filename : String) -> String? {
   }
   // Step 2: ask astra/assets for files it knows by name. Empty string
   // means astra returned no content, so fall through to the raw lookup.
-  let from_astra = if filename == "loader.js" {
-    @astra_assets.get_loader_js()
-  } else if filename == "wc-loader.js" {
+  let from_astra = if filename == "wc-loader.js" {
     @astra_assets.get_wc_loader_js()
   } else {
     ""

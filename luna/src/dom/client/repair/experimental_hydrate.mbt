@@ -321,13 +321,6 @@ fn count_vnode_nodes(node : @luna.Node[@js.Any, String]) -> Int {
       count
     }
     @core.Component(render=render_fn) => 1 + count_vnode_nodes(render_fn())
-    @core.Island(island) => {
-      let mut count = 1
-      for child in island.children {
-        count = count + count_vnode_nodes(child)
-      }
-      count
-    }
     @core.WcIsland(wc_island) => {
       let mut count = 1
       for child in wc_island.children {
@@ -731,11 +724,6 @@ fn experimental_hydrate_node(
     }
     @core.Component(render=render_fn) =>
       experimental_hydrate_node(parent, render_fn(), ctx)
-    @core.Island(island) =>
-      // Island hydration is handled by the loader, just hydrate children
-      for child in island.children {
-        experimental_hydrate_node(parent, child, ctx)
-      }
     @core.WcIsland(wc_island) =>
       // WcIsland hydration is handled by wcssr client runtime, just hydrate children
       for child in wc_island.children {

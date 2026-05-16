@@ -123,7 +123,7 @@ fn counter_island(initial : Int) -> @luna.Node {
 This renders HTML with hydration attributes:
 
 ```html
-<div luna:id="counter" luna:url="/static/counter.js" luna:state="0" luna:client-trigger="load">
+<div luna:wc-url="/static/counter.js" luna:wc-state="0" luna:wc-trigger="load">
   <div><p>Count: 0</p><button>Increment</button></div>
 </div>
 ```

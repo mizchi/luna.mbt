@@ -51,10 +51,10 @@ fn counter_island(initial : Int) -> @luna.Node {
 
 ```html
 <div
-  luna:id="counter"
-  luna:url="/static/counter.js"
-  luna:state="0"
-  luna:client-trigger="load"
+ 
+  luna:wc-url="/static/counter.js"
+  luna:wc-state="0"
+  luna:wc-trigger="load"
 >
   <div>
     <button>Count: 0</button>
@@ -80,17 +80,17 @@ function Counter(props) {
   );
 }
 
-hydrate("counter", Counter);
+hydrateWC("counter", Counter);
 ```
 
 ## Island 属性
 
 | 属性 | ソース | 説明 |
 |-----|-------|------|
-| `luna:id` | `ComponentRef.url` から導出 | コンポーネント識別子 |
-| `luna:url` | `ComponentRef.url` | JavaScript モジュール URL |
-| `luna:state` | `ComponentRef.props`（自動シリアライズ） | シリアライズされた props（JSON） |
-| `luna:client-trigger` | `ComponentRef.trigger` | いつハイドレートするか |
+|  | `ComponentRef.url` から導出 | コンポーネント識別子 |
+| `luna:wc-url` | `ComponentRef.url` | JavaScript モジュール URL |
+| `luna:wc-state` | `ComponentRef.props`（自動シリアライズ） | シリアライズされた props（JSON） |
+| `luna:wc-trigger` | `ComponentRef.trigger` | いつハイドレートするか |
 
 ## 複数の Islands
 

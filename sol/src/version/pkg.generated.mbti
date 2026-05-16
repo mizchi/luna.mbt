@@ -1,0 +1,14 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/sol/version"
+
+// Values
+pub const VERSION : String = "0.22.4"
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

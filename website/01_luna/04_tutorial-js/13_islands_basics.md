@@ -4,7 +4,7 @@ title: "Islands: Basics"
 
 # Islands Basics
 
-Islands Architecture enables partial hydration - only interactive parts of your page load JavaScript.
+Islands Architecture enables partial hydration — only interactive parts of your page load JavaScript.
 
 ## The Problem
 
@@ -48,17 +48,18 @@ Result: Minimal JavaScript, fast load, great Core Web Vitals.
 
 ### 1. Server-Rendered HTML
 
-The server renders an island with hydration attributes:
+The server renders an island as a custom element with `luna:wc-*` attributes:
 
 ```html
-<div
-  luna:id="counter"
-  luna:url="/static/counter.js"
-  luna:state="0"
-  luna:client-trigger="load"
+<wc-counter
+  luna:wc-url="/static/wc-counter.js"
+  luna:wc-state="0"
+  luna:wc-trigger="load"
 >
-  <button>Count: 0</button>
-</div>
+  <template shadowrootmode="open">
+    <button>Count: 0</button>
+  </template>
+</wc-counter>
 ```
 
 > For server-side rendering with MoonBit, see the [MoonBit Tutorial](/luna/tutorial-moonbit/).
@@ -68,8 +69,8 @@ The server renders an island with hydration attributes:
 Create the interactive component:
 
 ```typescript
-// counter.ts
-import { createSignal, hydrate } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
@@ -79,53 +80,42 @@ function Counter(props: CounterProps) {
   const [count, setCount] = createSignal(props.initial);
 
   return (
-    <button onClick={() => setCount(c => c + 1)}>
-      Count: {count()}
-    </button>
+    <>
+      <style>{`:host { display: block; }`}</style>
+      <button onClick={() => setCount(c => c + 1)}>
+        Count: {count()}
+      </button>
+    </>
   );
 }
 
 // Register for hydration
-hydrate("counter", Counter);
+hydrateWC("wc-counter", Counter);
 ```
 
-### 3. HTML Output
-
-The server renders:
-
-```html
-<div
-  luna:id="counter"
-  luna:url="/static/counter.js"
-  luna:state="0"
-  luna:client-trigger="load"
->
-  <button>Count: 0</button>
-</div>
-```
-
-### 4. Hydration
+### 3. Hydration
 
 1. Page loads with server-rendered HTML (instant display)
-2. Luna loader detects `luna:id` elements
-3. Based on trigger, loads `/static/counter.js`
+2. Luna loader scans for `[luna:wc-url]` elements
+3. Based on trigger, loads `/static/wc-counter.js`
 4. JavaScript takes over, element becomes interactive
 
 ## Island Attributes
 
 | Attribute | Purpose |
 |-----------|---------|
-| `luna:id` | Component identifier for hydration |
-| `luna:url` | URL to load component JavaScript |
-| `luna:state` | Serialized props (JSON) |
-| `luna:client-trigger` | When to hydrate |
+| `luna:wc-url` | URL to load component JavaScript |
+| `luna:wc-state` | Serialized props (JSON) |
+| `luna:wc-trigger` | When to hydrate |
+
+`customElements.define()` is **not** required — the loader picks up any element with `luna:wc-url`, regardless of whether the tag is a registered Custom Element.
 
 ## How Hydration Works
 
 ```
 Server HTML          Luna Loader           Island Component
      │                    │                       │
-     │  luna:id found     │                       │
+     │  luna:wc-url found │                       │
      │ ──────────────────>│                       │
      │                    │                       │
      │                    │ Check trigger         │
@@ -150,7 +140,7 @@ Each island is independent. A typical page structure:
   <h1>My Page</h1>
 
   <!-- Search island - hydrates immediately -->
-  <div luna:id="search" luna:client-trigger="load">...</div>
+  <wc-search luna:wc-url="/wc-search.js" luna:wc-trigger="load">...</wc-search>
 
   <!-- Article - pure HTML, no JS -->
   <article>
@@ -158,7 +148,7 @@ Each island is independent. A typical page structure:
   </article>
 
   <!-- Comments island - hydrates when visible -->
-  <div luna:id="comments" luna:client-trigger="visible">...</div>
+  <wc-comments luna:wc-url="/wc-comments.js" luna:wc-trigger="visible">...</wc-comments>
 
   <!-- Footer - pure HTML -->
   <footer>...</footer>
@@ -169,7 +159,7 @@ Each island is independent. A typical page structure:
 
 | Metric | Traditional SPA | Islands |
 |--------|----------------|---------|
-| Initial JS | 100KB+ | ~3KB loader |
+| Initial JS | 100KB+ | ~2KB loader |
 | TTI | Slow | Fast |
 | LCP | Blocked by JS | Immediate |
 | Interactivity | All or nothing | Progressive |

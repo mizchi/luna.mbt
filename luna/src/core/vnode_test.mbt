@@ -197,39 +197,6 @@ test "component creates Component node" {
 }
 
 ///|
-test "island creates Island node" {
-  let node : Node[Unit, String] = island("id1", "/app.js", "{}", [text("child")])
-  match node {
-    Island(island) => {
-      assert_eq(island.id, "id1")
-      assert_eq(island.url, "/app.js")
-      assert_eq(island.state, "{}")
-      assert_eq(island.children.length(), 1)
-    }
-    _ => assert_true(false)
-  }
-}
-
-///|
-test "island with custom trigger" {
-  let node : Node[Unit, String] = island(
-    "id1",
-    "/app.js",
-    "{}",
-    [],
-    trigger=TriggerType::Idle,
-  )
-  match node {
-    Island(island) =>
-      match island.trigger {
-        Idle => ()
-        _ => assert_true(false)
-      }
-    _ => assert_true(false)
-  }
-}
-
-///|
 test "async_ creates Async node" {
   let node : Node[Unit, String] = async_(render=fn() { text("resolved") }, fallback=fn() {
     text("loading")
@@ -372,11 +339,10 @@ test "handler_from_callback creates handler from callback" {
 // =============================================================================
 
 ///|
-test "component_ref creates regular Island ref" {
+test "component_ref creates Web Components ref" {
   let cref : ComponentRef[Int] = component_ref("/static/counter.js", 42)
   assert_eq(cref.url, "/static/counter.js")
   assert_eq(cref.props, 42)
-  assert_eq(cref.wc, false)
   match cref.trigger {
     Load => ()
     _ => assert_true(false)
@@ -396,32 +362,6 @@ test "component_ref with custom trigger" {
   }
 }
 
-///|
-test "wc_component_ref creates Web Components ref" {
-  let cref : ComponentRef[Int] = wc_component_ref("/static/wc_counter.js", 100)
-  assert_eq(cref.url, "/static/wc_counter.js")
-  assert_eq(cref.props, 100)
-  assert_eq(cref.wc, true)
-  match cref.trigger {
-    Load => ()
-    _ => assert_true(false)
-  }
-}
-
-///|
-test "wc_component_ref with custom trigger" {
-  let cref : ComponentRef[String] = wc_component_ref(
-    "/static/widget.js",
-    "test",
-    trigger=Visible,
-  )
-  assert_eq(cref.wc, true)
-  match cref.trigger {
-    Visible => ()
-    _ => assert_true(false)
-  }
-}
-
 // =============================================================================
 // InternalRef Tests
 // =============================================================================
@@ -429,13 +369,12 @@ test "wc_component_ref with custom trigger" {
 ///|
 test "internal_ref creates InternalRef node" {
   let node : Node[Unit, String] = internal_ref(
-    "/static/counter.js", "{\"count\":0}",
+    "/static/wc-counter.js", "{\"count\":0}",
   )
   match node {
     InternalRef(iref) => {
-      assert_eq(iref.url, "/static/counter.js")
+      assert_eq(iref.url, "/static/wc-counter.js")
       assert_eq(iref.state, "{\"count\":0}")
-      assert_eq(iref.wc, false)
       assert_eq(iref.styles, "")
       assert_eq(iref.children.length(), 0)
     }
@@ -444,18 +383,16 @@ test "internal_ref creates InternalRef node" {
 }
 
 ///|
-test "internal_ref with wc flag" {
+test "internal_ref with styles and children" {
   let node : Node[Unit, String] = internal_ref(
     "/static/wc_counter.js",
     "{}",
-    wc=true,
     styles=":host { display: block; }",
     children=[text("child")],
   )
   match node {
     InternalRef(iref) => {
       assert_eq(iref.url, "/static/wc_counter.js")
-      assert_eq(iref.wc, true)
       assert_eq(iref.styles, ":host { display: block; }")
       assert_eq(iref.children.length(), 1)
     }

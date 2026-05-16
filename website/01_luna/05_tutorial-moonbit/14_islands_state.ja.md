@@ -68,7 +68,7 @@ function Counter(props: CounterProps) {
   );
 }
 
-hydrate("counter", Counter);
+hydrateWC("counter", Counter);
 ```
 
 ## 複雑な State

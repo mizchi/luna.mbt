@@ -275,7 +275,6 @@ pub fn[T : ToJson, E] island(
     cref.url,
     cref.props.to_json().stringify(),
     trigger=cref.trigger,
-    wc=cref.wc,
     children~,
   )
 }
@@ -290,33 +289,33 @@ pub fn[T : ToJson, E] island_with(
 }
 
 // ============================================================================
-// Island VNode Support (string-based, low-level)
+// Web Components Island VNode Support (string-based, low-level)
 // ============================================================================
 
 ///|
-/// Create an Island VNode from raw strings (low-level API)
+/// Create a Web Components Island VNode from raw strings (low-level API)
 /// Prefer `island(cref, children)` with ComponentRef for type safety
 pub fn[E] island_raw(
-  id : String,
+  name : String,
   url : String,
   state : String,
   children : Array[@luna.Node[E, String]],
   trigger? : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E, String] {
-  @luna.island(id, url, state, children, trigger~)
+  @luna.wc_island(name, url, "", state, children, trigger~)
 }
 
 ///|
-/// Create an Island VNode with a render function (low-level API)
+/// Create a Web Components Island VNode with a render function (low-level API)
 /// Prefer `island_with(cref, render)` with ComponentRef for type safety
 pub fn[E] island_with_raw(
-  id : String,
+  name : String,
   url : String,
   state : String,
   render : () -> @luna.Node[E, String],
   trigger? : @luna.TriggerType = @luna.TriggerType::Load,
 ) -> @luna.Node[E, String] {
-  @luna.island(id, url, state, [render()], trigger~)
+  @luna.wc_island(name, url, "", state, [render()], trigger~)
 }
 
 ///|

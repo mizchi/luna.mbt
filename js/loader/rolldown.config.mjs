@@ -4,7 +4,6 @@ export default defineConfig([
   // ESM build with code splitting
   {
     input: {
-      'loader': './src/loader.ts',
       'wc-loader': './src/wc-loader.ts',
       'sol-nav': './src/sol-nav.ts',
       'lib': './src/lib.ts',
@@ -30,15 +29,6 @@ export default defineConfig([
     },
   },
   // IIFE bundled builds (self-contained, for testing and static serving)
-  {
-    input: './src/loader.ts',
-    output: {
-      file: './dist/loader.iife.js',
-      format: 'iife',
-      minify: true,
-      legalComments: 'none',
-    },
-  },
   {
     input: './src/wc-loader.ts',
     output: {

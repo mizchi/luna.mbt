@@ -1189,47 +1189,6 @@ test "hydration_result_recovered factory" {
 }
 
 // =============================================================================
-// Island Hydration Tests
-// =============================================================================
-
-///|
-test "hydrate island node" {
-  @global_jsdom.register()
-  defer cleanup()
-  let container = create_container()
-  let vnode : @luna.Node[@js.Any, String] = @luna.island(
-    "island-1",
-    "/components/counter.js",
-    "{}",
-    [@luna.text("Island content")],
-  )
-  let html = @render.render_to_string_with_hydration(vnode)
-  set_inner_html(container, html)
-  let result = hydrate(container, vnode)
-  // Island hydration should succeed (loader handles the actual hydration)
-  assert_true(result.is_success())
-  assert_true(get_inner_html(container).contains("Island content"))
-}
-
-///|
-test "hydrate island with nested elements" {
-  @global_jsdom.register()
-  defer cleanup()
-  let container = create_container()
-  let vnode : @luna.Node[@js.Any, String] = @luna.island(
-    "island-nested",
-    "/components/nested.js",
-    "{\"count\":0}",
-    [@luna.h("div", [], [@luna.text("Nested in island")])],
-  )
-  let html = @render.render_to_string_with_hydration(vnode)
-  set_inner_html(container, html)
-  let result = hydrate(container, vnode)
-  assert_true(result.is_success())
-  assert_true(get_inner_html(container).contains("Nested in island"))
-}
-
-// =============================================================================
 // Async Node Hydration Tests
 // =============================================================================
 
@@ -1348,51 +1307,6 @@ test "hydrate switch no fallback" {
 // =============================================================================
 // render_vnode_to_dom Additional Tests
 // =============================================================================
-
-///|
-test "render_vnode_to_dom with Island" {
-  @global_jsdom.register()
-  defer cleanup()
-  let container = create_container()
-  let vnode : @luna.Node[@js.Any, String] = @luna.island(
-    "island-render",
-    "/module.js",
-    "{\"state\":1}",
-    [@luna.text("Island child")],
-  )
-  let dom_node = render_vnode_to_dom(vnode)
-  container.as_node().appendChild(dom_node) |> ignore
-  let inner = get_inner_html(container)
-  assert_true(inner.contains("Island child"))
-  assert_true(inner.contains("luna:id"))
-  assert_true(inner.contains("luna:url"))
-}
-
-///|
-test "render_vnode_to_dom InternalRef repeated URL gets unique instance IDs" {
-  @global_jsdom.register()
-  defer cleanup()
-  let container = create_container()
-  let vnode : @luna.Node[@js.Any, String] = @luna.fragment([
-    @luna.internal_ref(
-      "/static/components/counter.js",
-      "{\"count\":1}",
-      wc=false,
-      children=[],
-    ),
-    @luna.internal_ref(
-      "/static/components/counter.js",
-      "{\"count\":2}",
-      wc=false,
-      children=[],
-    ),
-  ])
-  let dom_node = render_vnode_to_dom(vnode)
-  container.as_node().appendChild(dom_node) |> ignore
-  let inner = get_inner_html(container)
-  assert_true(inner.contains("luna:id=\"_static_components_counter_js\""))
-  assert_true(inner.contains("luna:id=\"_static_components_counter_js-1\""))
-}
 
 ///|
 test "render_vnode_to_dom with Async renders fallback" {

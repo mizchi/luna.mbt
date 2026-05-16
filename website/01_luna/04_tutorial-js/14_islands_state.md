@@ -25,26 +25,25 @@ Server (MoonBit)              Client (TypeScript)
 Luna serializes state as JSON in the HTML:
 
 ```html
-<div
-  luna:id="counter"
-  luna:state='{"initial":5,"max":100}'
-  luna:url="/static/counter.js"
+<wc-counter
+  luna:wc-state='{"initial":5,"max":100}'
+  luna:wc-url="/static/wc-counter.js"
 >
   <!-- SSR content -->
-</div>
+</wc-counter>
 ```
 
 ## Defining State
 
 ### Server Side
 
-The server serializes state as JSON in the `luna:state` attribute. For server-side rendering with MoonBit, see the [MoonBit Tutorial](/luna/tutorial-moonbit/).
+The server serializes state as JSON in the `luna:wc-state` attribute. For server-side rendering with MoonBit, see the [MoonBit Tutorial](/luna/tutorial-moonbit/).
 
 ### Client Side (TypeScript)
 
 ```typescript
-// counter.ts
-import { createSignal, hydrate } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
 // Define matching TypeScript interface
 interface CounterProps {
@@ -66,7 +65,7 @@ function Counter(props: CounterProps) {
   );
 }
 
-hydrate("counter", Counter);
+hydrateWC("wc-counter", Counter);
 ```
 
 ## Complex State
@@ -112,7 +111,7 @@ interface TodoListProps {
 │  ↓                                              │
 │  .to_json().stringify()                         │
 │  ↓                                              │
-│  HTML: luna:state='{"initial":5}'               │
+│  HTML: luna:wc-state='{"initial":5}'            │
 └─────────────────────────────────────────────────┘
                         │
                         ▼
@@ -121,7 +120,7 @@ interface TodoListProps {
 ├─────────────────────────────────────────────────┤
 │  Luna Loader                                    │
 │  ↓                                              │
-│  JSON.parse(luna:state)                         │
+│  JSON.parse(luna:wc-state)                      │
 │  ↓                                              │
 │  TypeScript Interface                           │
 │  ↓                                              │
@@ -187,7 +186,7 @@ function Counter(props: Props) {
 
 ### XSS Prevention
 
-Luna automatically escapes state to prevent XSS. The `luna:state` attribute is safely encoded.
+Luna automatically escapes state to prevent XSS. The `luna:wc-state` attribute is safely encoded.
 
 ### Sensitive Data
 

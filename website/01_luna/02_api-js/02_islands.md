@@ -4,62 +4,24 @@ title: Islands & Components API
 
 # Islands & Components API
 
-Islands enable partial hydration, and control flow components help build reactive UIs.
+Islands enable partial hydration via Web Components, and control flow components help build reactive UIs.
 
 ## Hydration API
 
-### hydrate
+Luna hydrates a custom element that the server emits with `luna:wc-url` / `luna:wc-state` / `luna:wc-trigger` attributes. Declarative Shadow DOM is opt-in. The same triggers (`load` / `idle` / `visible` / `media` / `none`) apply.
 
-Register a component for hydration.
+### hydrateWC
+
+Register a Web Component for hydration.
 
 ```typescript
-import { createSignal, hydrate } from '@luna_ui/luna';
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
 }
 
 function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
-
-  return (
-    <button onClick={() => setCount(c => c + 1)}>
-      Count: {count()}
-    </button>
-  );
-}
-
-hydrate("counter", Counter);
-```
-
-### HTML Attributes
-
-```html
-<div
-  luna:id="counter"
-  luna:url="/static/counter.js"
-  luna:state='{"initial":5}'
-  luna:client-trigger="load"
->
-  <button>Count: 5</button>
-</div>
-```
-
-| Attribute | Description |
-|-----------|-------------|
-| `luna:id` | Component identifier |
-| `luna:url` | JavaScript module URL |
-| `luna:state` | Serialized props (JSON) |
-| `luna:client-trigger` | When to hydrate |
-
-### hydrateWC
-
-Register a Web Component for hydration with Shadow DOM.
-
-```typescript
-import { createSignal, hydrateWC } from '@luna_ui/luna';
-
-function Counter(props: { initial: number }) {
   const [count, setCount] = createSignal(props.initial);
 
   return (
@@ -75,6 +37,28 @@ function Counter(props: { initial: number }) {
 hydrateWC("wc-counter", Counter);
 ```
 
+### HTML Attributes
+
+```html
+<wc-counter
+  luna:wc-url="/static/wc-counter.js"
+  luna:wc-state='{"initial":5}'
+  luna:wc-trigger="load"
+>
+  <template shadowrootmode="open">
+    <button>Count: 5</button>
+  </template>
+</wc-counter>
+```
+
+| Attribute | Description |
+|-----------|-------------|
+| `luna:wc-url` | JavaScript module URL |
+| `luna:wc-state` | Serialized props (JSON) |
+| `luna:wc-trigger` | When to hydrate |
+
+Custom-element registration via `customElements.define()` is **not** required — the loader scans `[luna:wc-url]` regardless of whether the tag is a registered Custom Element. Declarative Shadow DOM (`<template shadowrootmode="open">`) is optional.
+
 ## Hydration Triggers
 
 | Trigger | HTML Value | Description |
@@ -88,8 +72,8 @@ hydrateWC("wc-counter", Counter);
 ### Manual Hydration
 
 ```typescript
-// Trigger hydration programmatically
-window.__LUNA_HYDRATE__?.("modal");
+// Trigger hydration programmatically for a specific custom element name
+window.__LUNA_WC_HYDRATE__?.(document.querySelector("my-modal"));
 ```
 
 ## Control Flow Components
@@ -429,9 +413,8 @@ interface Props {
 
 | Function | Description |
 |----------|-------------|
-| `hydrate(id, component)` | Register component for hydration |
-| `hydrateWC(tagName, component)` | Register Web Component |
-| `useHost()` | Get host element in WC |
+| `hydrateWC(tagName, component)` | Register a Web Component island |
+| `useHost()` | Get host element inside a Web Component |
 
 ### Control Flow
 

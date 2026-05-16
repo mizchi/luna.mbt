@@ -22,7 +22,7 @@ Luna provides four hydration triggers:
 Hydrate immediately when the page loads:
 
 ```html
-<div luna:id="search" luna:url="/static/search.js" luna:client-trigger="load">
+<div luna:wc-url="/static/search.js" luna:wc-trigger="load">
   <!-- Server-rendered content -->
 </div>
 ```
@@ -38,7 +38,7 @@ Hydrate immediately when the page loads:
 Hydrate when the browser is idle (using `requestIdleCallback`):
 
 ```html
-<div luna:id="analytics" luna:url="/static/analytics.js" luna:client-trigger="idle">
+<div luna:wc-url="/static/analytics.js" luna:wc-trigger="idle">
   <!-- Server-rendered content -->
 </div>
 ```
@@ -54,7 +54,7 @@ Hydrate when the browser is idle (using `requestIdleCallback`):
 Hydrate when the element scrolls into view (using `IntersectionObserver`):
 
 ```html
-<div luna:id="comments" luna:url="/static/comments.js" luna:client-trigger="visible">
+<div luna:wc-url="/static/comments.js" luna:wc-trigger="visible">
   <!-- Server-rendered content -->
 </div>
 ```
@@ -71,7 +71,7 @@ Hydrate when the element scrolls into view (using `IntersectionObserver`):
 Hydrate when a media query matches:
 
 ```html
-<div luna:id="sidebar" luna:url="/static/sidebar.js" luna:client-trigger="media:(min-width: 768px)">
+<div luna:wc-url="/static/sidebar.js" luna:wc-trigger="media:(min-width: 768px)">
   <!-- Server-rendered content -->
 </div>
 ```
@@ -86,19 +86,19 @@ Hydrate when a media query matches:
 
 ```html
 <!-- Desktop only (768px+) -->
-<div luna:client-trigger="media:(min-width: 768px)">...</div>
+<div luna:wc-trigger="media:(min-width: 768px)">...</div>
 
 <!-- Mobile only (under 768px) -->
-<div luna:client-trigger="media:(max-width: 767px)">...</div>
+<div luna:wc-trigger="media:(max-width: 767px)">...</div>
 
 <!-- Dark mode preference -->
-<div luna:client-trigger="media:(prefers-color-scheme: dark)">...</div>
+<div luna:wc-trigger="media:(prefers-color-scheme: dark)">...</div>
 
 <!-- Reduced motion preference -->
-<div luna:client-trigger="media:(prefers-reduced-motion: no-preference)">...</div>
+<div luna:wc-trigger="media:(prefers-reduced-motion: no-preference)">...</div>
 
 <!-- Landscape orientation -->
-<div luna:client-trigger="media:(orientation: landscape)">...</div>
+<div luna:wc-trigger="media:(orientation: landscape)">...</div>
 ```
 
 ## Choosing the Right Trigger
@@ -133,19 +133,19 @@ A typical page might use all triggers:
 ```html
 <div>
   <!-- Immediate - critical for UX -->
-  <div luna:id="search" luna:client-trigger="load">...</div>
+  <div luna:wc-trigger="load">...</div>
 
   <!-- Idle - nice to have but not urgent -->
-  <div luna:id="theme-toggle" luna:client-trigger="idle">...</div>
+  <div luna:wc-trigger="idle">...</div>
 
   <!-- Static article content - no JS -->
   <article>...</article>
 
   <!-- Visible - only load when user scrolls down -->
-  <div luna:id="comments" luna:client-trigger="visible">...</div>
+  <div luna:wc-trigger="visible">...</div>
 
   <!-- Media - only on desktop -->
-  <div luna:id="sidebar" luna:client-trigger="media:(min-width: 1024px)">...</div>
+  <div luna:wc-trigger="media:(min-width: 1024px)">...</div>
 </div>
 ```
 
@@ -156,7 +156,7 @@ A typical page might use all triggers:
 For programmatic control, use `none`:
 
 ```html
-<div luna:id="modal" luna:url="/static/modal.js" luna:client-trigger="none">
+<div luna:wc-url="/static/modal.js" luna:wc-trigger="none">
   <!-- Server-rendered modal content -->
 </div>
 ```
@@ -179,7 +179,7 @@ Track hydration timing:
 
 ```typescript
 // In your island component
-hydrate("myComponent", (props) => {
+hydrateWC("myComponent", (props) => {
   console.log("Hydrated at:", performance.now());
   return <MyComponent {...props} />;
 });

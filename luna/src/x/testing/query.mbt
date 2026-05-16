@@ -403,7 +403,6 @@ pub fn[E] node_type_name(node : @luna.Node[E, String]) -> String {
     @core.Show(..) => "Show"
     @core.For(..) => "For"
     @core.Component(..) => "Component"
-    @core.Island(_) => "Island"
     @core.WcIsland(_) => "WcIsland"
     @core.Async(_) => "Async"
     @core.ErrorBoundary(_) => "ErrorBoundary"

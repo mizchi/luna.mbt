@@ -18,7 +18,7 @@ Pass data from server (MoonBit) to client (TypeScript) with type safety.
 │  ↓                                              │
 │  .to_json().stringify()                         │
 │  ↓                                              │
-│  HTML: luna:state='{"initial":5}'               │
+│  HTML: luna:wc-state='{"initial":5}'               │
 └─────────────────────────────────────────────────┘
                         │
                         ▼
@@ -27,7 +27,7 @@ Pass data from server (MoonBit) to client (TypeScript) with type safety.
 ├─────────────────────────────────────────────────┤
 │  Luna Loader                                    │
 │  ↓                                              │
-│  JSON.parse(luna:state)                         │
+│  JSON.parse(luna:wc-state)                         │
 │  ↓                                              │
 │  TypeScript Interface                           │
 │  ↓                                              │
@@ -82,7 +82,7 @@ function Counter(props: CounterProps) {
   );
 }
 
-hydrate("counter", Counter);
+hydrateWC("counter", Counter);
 ```
 
 ## Complex State

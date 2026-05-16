@@ -294,10 +294,6 @@ fn build_html_document(
   }
 
   // === HEAD: Preload and prefetch ===
-  html.write_string(
-    "  <link rel=\"modulepreload\" href=\"\{base}assets/loader.js\">\n",
-  )
-
   // Preload tags for islands
   if render_result.preload_urls.length() > 0 {
     html.write_string(
@@ -328,12 +324,7 @@ fn build_html_document(
   html.write_string("  <div id=\"app\">\{render_result.html}</div>\n")
 
   // === BODY: Deferred scripts ===
-  // Island loader (module, async)
-  html.write_string(
-    "  <script type=\"module\" async src=\"\{base}assets/loader.js\"></script>\n",
-  )
-
-  // Web Components loader
+  // Web Components loader (inlined)
   html.write_string(@assets.get_wc_loader_script())
   html.write_string("\n")
 
@@ -681,10 +672,10 @@ test "rewrite_content_links replaces bare links" {
 
 ///|
 test "rewrite_content_links preserves modulepreload" {
-  let html = "<link rel=\"modulepreload\" href=\"/sol.mbt/assets/loader.js\">"
+  let html = "<link rel=\"modulepreload\" href=\"/sol.mbt/assets/wc-loader.js\">"
   let result = rewrite_content_links(html, "/sol.mbt/")
   assert_false(result.contains("hhref"))
-  assert_true(result.contains("href=\"/sol.mbt/assets/loader.js\""))
+  assert_true(result.contains("href=\"/sol.mbt/assets/wc-loader.js\""))
 }
 
 ///|

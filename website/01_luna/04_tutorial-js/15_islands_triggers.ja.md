@@ -22,7 +22,7 @@ Luna は4つのハイドレーショントリガーを提供：
 ページロード時に即座にハイドレート：
 
 ```html
-<div luna:id="search" luna:url="/static/search.js" luna:client-trigger="load">
+<div luna:wc-url="/static/search.js" luna:wc-trigger="load">
   <!-- サーバーレンダリングコンテンツ -->
 </div>
 ```
@@ -38,7 +38,7 @@ Luna は4つのハイドレーショントリガーを提供：
 ブラウザがアイドル時にハイドレート（`requestIdleCallback` を使用）：
 
 ```html
-<div luna:id="analytics" luna:url="/static/analytics.js" luna:client-trigger="idle">
+<div luna:wc-url="/static/analytics.js" luna:wc-trigger="idle">
   <!-- サーバーレンダリングコンテンツ -->
 </div>
 ```
@@ -54,7 +54,7 @@ Luna は4つのハイドレーショントリガーを提供：
 要素がスクロールして表示されたときにハイドレート（`IntersectionObserver` を使用）：
 
 ```html
-<div luna:id="comments" luna:url="/static/comments.js" luna:client-trigger="visible">
+<div luna:wc-url="/static/comments.js" luna:wc-trigger="visible">
   <!-- サーバーレンダリングコンテンツ -->
 </div>
 ```
@@ -71,7 +71,7 @@ Luna は4つのハイドレーショントリガーを提供：
 メディアクエリがマッチしたときにハイドレート：
 
 ```html
-<div luna:id="sidebar" luna:url="/static/sidebar.js" luna:client-trigger="media:(min-width: 768px)">
+<div luna:wc-url="/static/sidebar.js" luna:wc-trigger="media:(min-width: 768px)">
   <!-- サーバーレンダリングコンテンツ -->
 </div>
 ```
@@ -86,13 +86,13 @@ Luna は4つのハイドレーショントリガーを提供：
 
 ```html
 <!-- デスクトップのみ（768px+） -->
-<div luna:client-trigger="media:(min-width: 768px)">...</div>
+<div luna:wc-trigger="media:(min-width: 768px)">...</div>
 
 <!-- モバイルのみ（768px 未満） -->
-<div luna:client-trigger="media:(max-width: 767px)">...</div>
+<div luna:wc-trigger="media:(max-width: 767px)">...</div>
 
 <!-- ダークモード設定 -->
-<div luna:client-trigger="media:(prefers-color-scheme: dark)">...</div>
+<div luna:wc-trigger="media:(prefers-color-scheme: dark)">...</div>
 ```
 
 ## 適切なトリガーの選択
@@ -118,19 +118,19 @@ Luna は4つのハイドレーショントリガーを提供：
 ```html
 <div>
   <!-- 即座 - UX に重要 -->
-  <div luna:id="search" luna:client-trigger="load">...</div>
+  <div luna:wc-trigger="load">...</div>
 
   <!-- Idle - あると良いが緊急ではない -->
-  <div luna:id="theme-toggle" luna:client-trigger="idle">...</div>
+  <div luna:wc-trigger="idle">...</div>
 
   <!-- 静的な記事コンテンツ - JS なし -->
   <article>...</article>
 
   <!-- Visible - ユーザーがスクロールしたときのみロード -->
-  <div luna:id="comments" luna:client-trigger="visible">...</div>
+  <div luna:wc-trigger="visible">...</div>
 
   <!-- Media - デスクトップのみ -->
-  <div luna:id="sidebar" luna:client-trigger="media:(min-width: 1024px)">...</div>
+  <div luna:wc-trigger="media:(min-width: 1024px)">...</div>
 </div>
 ```
 

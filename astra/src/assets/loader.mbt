@@ -28,9 +28,6 @@ let toc_js_cache : Ref[String?] = { val: None }
 let wc_loader_js_cache : Ref[String?] = { val: None }
 
 ///|
-let loader_js_cache : Ref[String?] = { val: None }
-
-///|
 /// Load a file from the assets directory
 /// Note: Uses simple string concatenation instead of @path.join to avoid
 /// async issues with the MoonBit coroutine scheduler
@@ -143,19 +140,6 @@ pub fn get_wc_loader_js() -> String {
 }
 
 ///|
-/// Load and cache island loader script
-pub fn get_loader_js() -> String {
-  match loader_js_cache.val {
-    Some(js) => js
-    None => {
-      let js = load_asset("scripts/loader.js")
-      loader_js_cache.val = Some(js)
-      js
-    }
-  }
-}
-
-///|
 /// Clear all caches (useful for development/hot reload)
 pub fn clear_cache() -> Unit {
   main_css_cache.val = None
@@ -164,5 +148,4 @@ pub fn clear_cache() -> Unit {
   sidebar_js_cache.val = None
   toc_js_cache.val = None
   wc_loader_js_cache.val = None
-  loader_js_cache.val = None
 }

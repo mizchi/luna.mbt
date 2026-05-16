@@ -17,30 +17,6 @@ impl Show for TestAction with output(self, logger) {
 }
 
 ///|
-test "render_to_stream repeated InternalRef URL gets unique instance IDs" {
-  let node : @luna.Node[Unit, String] = @luna.fragment([
-    @luna.internal_ref(
-      "/static/components/counter.js",
-      "{\"count\":1}",
-      wc=false,
-      children=[],
-    ),
-    @luna.internal_ref(
-      "/static/components/counter.js",
-      "{\"count\":2}",
-      wc=false,
-      children=[],
-    ),
-  ])
-  let chunks : Array[String] = []
-  let writer = StreamWriter::from_callback(fn(chunk) { chunks.push(chunk) })
-  render_to_stream(node, writer)
-  let html = chunks.iter().join("")
-  assert_true(html.contains("luna:id=\"_static_components_counter_js\""))
-  assert_true(html.contains("luna:id=\"_static_components_counter_js-1\""))
-}
-
-///|
 test "render_to_stream_collecting_async collects boundaries" {
   let node : @luna.Node[Unit, String] = @luna.fragment([
     @luna.h("div", [], [@luna.text("Header")]),
@@ -208,26 +184,6 @@ test "render nested error_boundaries" {
 }
 
 ///|
-test "render error_boundary in island" {
-  let node : @luna.Node[Unit, String] = @luna.island(
-    "eb-island-1",
-    "/components/test.js",
-    "{}",
-    [
-      @luna.error_boundary(children=fn() { @luna.text("Island content") }, fallback=fn(
-        _err,
-        _reset,
-      ) {
-        @luna.text("Error")
-      }),
-    ],
-  )
-  let html = @render.render_to_string(node).html
-  assert_true(html.contains("luna:id=\"eb-island-1\""))
-  assert_true(html.contains("Island content"))
-}
-
-///|
 test "stream render error_boundary children when no error" {
   let node : @luna.Node[Unit, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Stream Success")]) },
@@ -265,20 +221,6 @@ test "stream render error_boundary with async boundaries" {
 // =============================================================================
 // Additional Coverage Tests
 // =============================================================================
-
-///|
-test "render_to_string preload=false" {
-  let node : @luna.Node[Unit, String] = @luna.island(
-    "island-1",
-    "/components/a.js",
-    "{}",
-    [@luna.text("Content")],
-  )
-  let result = @render.render_to_string(node, preload=false)
-  // Should render correctly but not collect URLs
-  assert_eq(result.preload_urls.length(), 0)
-  assert_true(result.html.contains("luna:id=\"island-1\""))
-}
 
 ///|
 test "render action attribute" {
@@ -371,7 +313,9 @@ test "render switch no fallback" {
 test "render switch with preloads" {
   let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { true }, render=fn() {
-      @luna.island("sw-island", "/sw.js", "{}", [@luna.text("Island")])
+      @luna.wc_island(
+        "sw-island", "/sw.js", "", "{}", [@luna.text("Island")],
+      )
     }),
   ])
   let result = @render.render_to_string(node, preload=true)

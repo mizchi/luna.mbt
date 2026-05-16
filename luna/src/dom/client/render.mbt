@@ -441,22 +441,6 @@ fn render_vnode_to_dom_with_ids(
     }
     @core.Component(render=render_fn) =>
       render_vnode_to_dom_with_ids(render_fn(), island_ids)
-    @core.Island(island) => {
-      // For client-side rendering, create a wrapper div with island attributes
-      // and render children inside
-      let wrapper = doc.createElement("div")
-      wrapper.setAttribute("luna:id", island.id)
-      wrapper.setAttribute("luna:url", island.url)
-      wrapper.setAttribute("luna:state", island.state)
-      wrapper.setAttribute("luna:client-trigger", island.trigger.to_string())
-      for child in island.children {
-        wrapper
-        .as_node()
-        .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
-        |> ignore
-      }
-      wrapper.as_node()
-    }
     @core.WcIsland(wc_island) => {
       // For client-side rendering, create the custom element with shadow DOM
       let wrapper = doc.createElement(wc_island.name)
@@ -472,38 +456,21 @@ fn render_vnode_to_dom_with_ids(
       }
       wrapper.as_node()
     }
-    @core.InternalRef(iref) =>
-      // For client-side rendering, create appropriate element based on wc flag
-      if iref.wc {
-        // Web Components island - extract name from URL
-        let name = extract_wc_name_from_url(iref.url)
-        let wrapper = doc.createElement(name)
-        wrapper.setAttribute("luna:wc-url", iref.url)
-        wrapper.setAttribute("luna:wc-state", iref.state)
-        wrapper.setAttribute("luna:wc-trigger", iref.trigger.to_string())
-        for child in iref.children {
-          wrapper
-          .as_node()
-          .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
-          |> ignore
-        }
-        wrapper.as_node()
-      } else {
-        // Regular island
-        let wrapper = doc.createElement("div")
-        let id = next_internal_ref_island_id(iref.url, island_ids)
-        wrapper.setAttribute("luna:id", id)
-        wrapper.setAttribute("luna:url", iref.url)
-        wrapper.setAttribute("luna:state", iref.state)
-        wrapper.setAttribute("luna:client-trigger", iref.trigger.to_string())
-        for child in iref.children {
-          wrapper
-          .as_node()
-          .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
-          |> ignore
-        }
-        wrapper.as_node()
+    @core.InternalRef(iref) => {
+      // For client-side rendering, create the WC custom element
+      let name = extract_wc_name_from_url(iref.url)
+      let wrapper = doc.createElement(name)
+      wrapper.setAttribute("luna:wc-url", iref.url)
+      wrapper.setAttribute("luna:wc-state", iref.state)
+      wrapper.setAttribute("luna:wc-trigger", iref.trigger.to_string())
+      for child in iref.children {
+        wrapper
+        .as_node()
+        .appendChild(render_vnode_to_dom_with_ids(child, island_ids))
+        |> ignore
       }
+      wrapper.as_node()
+    }
     @core.Async(async_node) =>
       // For client-side rendering, render fallback initially
       // Async replacement would be handled separately
@@ -867,48 +834,14 @@ fn render_switch_to_dom(
 }
 
 ///|
-priv struct IslandIdAllocator {
-  next_by_base : Map[String, Int]
-  used : Map[String, Bool]
-}
+/// Placeholder allocator threaded through hydration helpers. Kept as an
+/// opaque token so we can revive id allocation later without resigning every
+/// helper.
+priv struct IslandIdAllocator {}
 
 ///|
 fn new_island_id_allocator() -> IslandIdAllocator {
-  { next_by_base: {}, used: {} }
-}
-
-///|
-fn island_id_from_url(url : String) -> String {
-  url.replace_all(old="/", new="_").replace_all(old=".", new="_")
-}
-
-///|
-fn reserve_island_id(
-  base : String,
-  index : Int,
-  allocator : IslandIdAllocator,
-) -> String {
-  let id = if index == 0 { base } else { base + "-" + index.to_string() }
-  if allocator.used.get(id) is None {
-    allocator.used.set(id, true)
-    allocator.next_by_base.set(base, index + 1)
-    id
-  } else {
-    reserve_island_id(base, index + 1, allocator)
-  }
-}
-
-///|
-fn next_internal_ref_island_id(
-  url : String,
-  allocator : IslandIdAllocator,
-) -> String {
-  let base = island_id_from_url(url)
-  let index = match allocator.next_by_base.get(base) {
-    Some(next) => next
-    None => 0
-  }
-  reserve_island_id(base, index, allocator)
+  IslandIdAllocator::{  }
 }
 
 ///|

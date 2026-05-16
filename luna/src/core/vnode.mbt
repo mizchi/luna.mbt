@@ -40,16 +40,6 @@ pub(all) enum TriggerType {
 }
 
 ///|
-/// Virtual Island node - serializable hydration unit
-pub struct VIsland[E, A] {
-  id : String // Unique identifier (luna:id)
-  url : String // Script URL for loading implementation (luna:url)
-  state : String // Serialized state JSON (luna:state)
-  trigger : TriggerType // Hydration trigger (luna:client-trigger)
-  children : Array[Node[E, A]] // SSR-rendered content (can contain nested Islands)
-}
-
-///|
 /// Virtual Web Components Island node - Web Components based hydration unit
 /// Uses Declarative Shadow DOM for SSR and DOM Parts for partial updates
 pub struct VWcIsland[E, A] {
@@ -72,7 +62,6 @@ pub(all) enum Node[E, A] {
   Show(condition~ : () -> Bool, child~ : () -> Node[E, A])
   For(render~ : () -> Array[Node[E, A]])
   Component(render~ : () -> Node[E, A])
-  Island(VIsland[E, A]) // Hydration boundary for partial hydration (luna:* style)
   WcIsland(VWcIsland[E, A]) // Web Components based hydration (Declarative Shadow DOM)
   /// Async node - renders content asynchronously with fallback
   /// - render: async function that may raise errors
@@ -106,8 +95,7 @@ pub struct VInternalRef[E, A] {
   url : String
   state : String
   trigger : TriggerType
-  wc : Bool
-  styles : String // CSS for Shadow DOM (empty for non-WC)
+  styles : String // CSS for Shadow DOM (empty if not needed)
   children : Array[Node[E, A]]
 }
 
@@ -164,15 +152,13 @@ pub type Trigger = TriggerType
 
 ///|
 /// Component reference for type-safe Island embedding
-/// Represents a client-side component that can be embedded in server-rendered HTML
+/// Represents a client-side Web Components Island that can be embedded in server-rendered HTML
 /// - url: Path to the client JavaScript (e.g., "/static/counter.js")
 /// - props: Component props (must be ToJson serializable)
-/// - wc: Whether this is a Web Components based Island
 /// - trigger: When to hydrate the component
 pub(all) struct ComponentRef[T] {
   url : String
   props : T
-  wc : Bool
   trigger : TriggerType
 }
 

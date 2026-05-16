@@ -31,7 +31,7 @@ Hydrate immediately when the page loads:
 
 **Output:**
 ```html
-<div luna:id="search" luna:client-trigger="load">...</div>
+<div luna:wc-trigger="load">...</div>
 ```
 
 **Use for:**
@@ -53,7 +53,7 @@ Hydrate when the browser is idle (using `requestIdleCallback`):
 
 **Output:**
 ```html
-<div luna:id="analytics" luna:client-trigger="idle">...</div>
+<div luna:wc-trigger="idle">...</div>
 ```
 
 **Use for:**
@@ -75,7 +75,7 @@ Hydrate when the element scrolls into view (using `IntersectionObserver`):
 
 **Output:**
 ```html
-<div luna:id="comments" luna:client-trigger="visible">...</div>
+<div luna:wc-trigger="visible">...</div>
 ```
 
 **Use for:**
@@ -98,7 +98,7 @@ Hydrate when a media query matches:
 
 **Output:**
 ```html
-<div luna:id="sidebar" luna:client-trigger="media:(min-width: 768px)">...</div>
+<div luna:wc-trigger="media:(min-width: 768px)">...</div>
 ```
 
 **Use for:**
@@ -183,7 +183,7 @@ For programmatic control:
 
 **Output:**
 ```html
-<div luna:id="modal" luna:client-trigger="none">...</div>
+<div luna:wc-trigger="none">...</div>
 ```
 
 Trigger from JavaScript:

@@ -60,13 +60,13 @@ test "SSG simulation: generate assets" {
   // Write JS
   let js =
     #|console.log('Hello');
-  mem.writeFileSync("/project/dist/assets/loader.js", js)
+  mem.writeFileSync("/project/dist/assets/wc-loader.js", js)
 
   // Verify
   let entries = mem.readdirSync("/project/dist/assets")
   inspect(entries.length(), content="2")
   inspect(mem.existsSync("/project/dist/assets/style.css"), content="true")
-  inspect(mem.existsSync("/project/dist/assets/loader.js"), content="true")
+  inspect(mem.existsSync("/project/dist/assets/wc-loader.js"), content="true")
 }
 
 ///|

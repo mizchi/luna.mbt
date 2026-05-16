@@ -420,9 +420,16 @@ pub fn md_node_to_vnode(
     @markdown.MdNode::Html(html) =>
       // Raw HTML blocks - render as-is
       @luna.raw_html(html)
-    @markdown.MdNode::Island(embed) =>
-      // Convert to VIsland for hydration (legacy)
-      create_island_vnode(embed, islands_base_path)
+    @markdown.MdNode::Island(embed) => {
+      // Legacy <island> directive — render as Web Component island
+      let component = @markdown.ComponentEmbed::{
+        tag: embed.name,
+        attrs: [("luna:wc-state", embed.props)],
+        content: "",
+        trigger: embed.trigger,
+      }
+      create_component_vnode(component, islands_base_path)
+    }
     @markdown.MdNode::Component(embed) =>
       // Convert to Web Component with luna:wc-* attributes
       create_component_vnode(embed, islands_base_path)
@@ -434,16 +441,6 @@ pub fn md_node_to_vnode(
     @markdown.MdNode::ThematicBreak => h("hr", [], [])
     @markdown.MdNode::LineBreak => h("br", [], [])
   }
-}
-
-///|
-/// Create island VNode from IslandEmbed (legacy)
-fn create_island_vnode(
-  embed : @markdown.IslandEmbed,
-  base_path : String,
-) -> @luna.Node[Unit, String] {
-  let url = "\{base_path}\{embed.name}.js"
-  @luna.island(embed.name, url, embed.props, [], trigger=embed.trigger)
 }
 
 ///|

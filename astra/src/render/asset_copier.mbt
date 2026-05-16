@@ -117,13 +117,6 @@ fn copy_static_assets_internal(
     _ => ()
   }
 
-  // Write loader.js (for island hydration)
-  let loader_js = @assets.get_island_loader_js()
-  let loader_js_path = @path.join2(output_assets, "loader.js")
-  @fs.writeFileSync(loader_js_path, @js.any(loader_js)) catch {
-    _ => ()
-  }
-
   // Copy public directory if it exists
   copy_public_dir(ctx)
 

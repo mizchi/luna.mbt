@@ -46,13 +46,6 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
 }
 
 ///|
-/// Escape dynamic content embedded in HTML comment text.
-/// Prevents premature comment close via "-->" injection.
-fn escape_comment_text(s : String) -> String {
-  s.replace(old="--", new="- -")
-}
-
-///|
 /// Minify CSS by removing unnecessary whitespace and newlines
 /// - Removes newlines
 /// - Collapses multiple spaces to one
@@ -199,8 +192,6 @@ fn[E, A : Show] render_and_collect_urls(
       }
     Component(render~) =>
       render_and_collect_urls(sb, render(), urls, seen, island_ids)
-    Island(island) =>
-      render_island_and_collect_urls(sb, island, urls, seen, island_ids)
     WcIsland(wc_island) =>
       render_wc_island_and_collect_urls(sb, wc_island, urls, seen, island_ids)
     InternalRef(iref) =>
@@ -250,65 +241,13 @@ fn[E, A : Show] render_and_collect_urls(
 }
 
 ///|
-/// Render Island node and collect its URL
-fn[E, A : Show] render_island_and_collect_urls(
-  sb : StringBuilder,
-  island : @core.VIsland[E, A],
-  urls : Array[String],
-  seen : Map[String, Bool],
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  collect_unique_url_if_non_empty(island.url, urls, seen)
-  render_island_open_to(sb, island)
-  for child in island.children {
-    render_and_collect_urls(sb, child, urls, seen, island_ids)
-  }
-  render_island_close_to(sb, island)
-}
-
-///|
-fn island_id_from_url(url : String) -> String {
-  url.replace_all(old="/", new="_").replace_all(old=".", new="_")
-}
-
-///|
-priv struct IslandIdAllocator {
-  next_by_base : Map[String, Int]
-  used : Map[String, Bool]
-}
+/// Placeholder allocator threaded through SSR helpers. Kept opaque so future
+/// id-allocation work can land without resigning every helper.
+priv struct IslandIdAllocator {}
 
 ///|
 fn new_island_id_allocator() -> IslandIdAllocator {
-  { next_by_base: {}, used: {} }
-}
-
-///|
-fn reserve_island_id(
-  base : String,
-  index : Int,
-  allocator : IslandIdAllocator,
-) -> String {
-  let id = if index == 0 { base } else { base + "-" + index.to_string() }
-  if allocator.used.get(id) is None {
-    allocator.used.set(id, true)
-    allocator.next_by_base.set(base, index + 1)
-    id
-  } else {
-    reserve_island_id(base, index + 1, allocator)
-  }
-}
-
-///|
-fn next_internal_ref_island_id(
-  url : String,
-  allocator : IslandIdAllocator,
-) -> String {
-  let base = island_id_from_url(url)
-  let index = match allocator.next_by_base.get(base) {
-    Some(next) => next
-    None => 0
-  }
-  reserve_island_id(base, index, allocator)
+  IslandIdAllocator::{  }
 }
 
 ///|
@@ -336,59 +275,6 @@ fn collect_unique_url_if_non_empty(
 
 ///|
 /// Write Island wrapper opening (comment + div with attributes)
-fn write_island_open_tag(
-  sb : StringBuilder,
-  id : String,
-  url : String,
-  state : String,
-  trigger : String,
-) -> Unit {
-  sb.write_string("<!--luna:island:")
-  sb.write_string(escape_comment_text(id))
-  sb.write_string(" url=")
-  sb.write_string(escape_comment_text(url))
-  sb.write_string(" trigger=")
-  sb.write_string(escape_comment_text(trigger))
-  sb.write_string("-->")
-  sb.write_string("<div luna:id=\"")
-  escape_attr_to(sb, id)
-  sb.write_string("\" luna:url=\"")
-  escape_attr_to(sb, url)
-  sb.write_string("\" luna:state=\"")
-  escape_attr_to(sb, state)
-  sb.write_string("\" luna:client-trigger=\"")
-  escape_attr_to(sb, trigger)
-  sb.write_string("\">")
-}
-
-///|
-/// Write Island wrapper closing (div + comment)
-fn write_island_close_tag(sb : StringBuilder, id : String) -> Unit {
-  sb.write_string("</div>")
-  sb.write_string("<!--/luna:island:")
-  sb.write_string(escape_comment_text(id))
-  sb.write_string("-->")
-}
-
-///|
-/// Render Island wrapper opening (comment + div with attributes)
-fn[E, A : Show] render_island_open_to(
-  sb : StringBuilder,
-  island : @core.VIsland[E, A],
-) -> Unit {
-  let trigger = island.trigger.to_string()
-  write_island_open_tag(sb, island.id, island.url, island.state, trigger)
-}
-
-///|
-/// Render Island wrapper closing (div + comment)
-fn[E, A : Show] render_island_close_to(
-  sb : StringBuilder,
-  island : @core.VIsland[E, A],
-) -> Unit {
-  write_island_close_tag(sb, island.id)
-}
-
 // ============================================================
 // Web Components Island Rendering (Declarative Shadow DOM)
 // ============================================================
@@ -508,38 +394,8 @@ fn[E, A : Show] render_wc_island_with_id_to(
 // ============================================================
 
 ///|
-/// Render InternalRef node (dispatches to Island or WcIsland based on wc flag)
+/// Render InternalRef node as Web Components island
 fn[E, A : Show] render_internal_ref_to(
-  sb : StringBuilder,
-  iref : @core.VInternalRef[E, A],
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  if iref.wc {
-    render_internal_ref_wc_to(sb, iref, island_ids)
-  } else {
-    render_internal_ref_island_to(sb, iref, island_ids)
-  }
-}
-
-///|
-/// Render InternalRef as regular Island
-fn[E, A : Show] render_internal_ref_island_to(
-  sb : StringBuilder,
-  iref : @core.VInternalRef[E, A],
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  let id = next_internal_ref_island_id(iref.url, island_ids)
-  let trigger = iref.trigger.to_string()
-  write_island_open_tag(sb, id, iref.url, iref.state, trigger)
-  for child in iref.children {
-    render_to_sb(sb, child, island_ids)
-  }
-  write_island_close_tag(sb, id)
-}
-
-///|
-/// Render InternalRef as WcIsland (Web Components)
-fn[E, A : Show] render_internal_ref_wc_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
   island_ids : IslandIdAllocator,
@@ -562,42 +418,6 @@ fn[E, A : Show] render_internal_ref_and_collect_urls(
   island_ids : IslandIdAllocator,
 ) -> Unit {
   collect_unique_url_if_non_empty(iref.url, urls, seen)
-  if iref.wc {
-    render_internal_ref_wc_and_collect_urls(sb, iref, urls, seen, island_ids)
-  } else {
-    render_internal_ref_island_and_collect_urls(
-      sb, iref, urls, seen, island_ids,
-    )
-  }
-}
-
-///|
-/// Render InternalRef as Island and collect URLs
-fn[E, A : Show] render_internal_ref_island_and_collect_urls(
-  sb : StringBuilder,
-  iref : @core.VInternalRef[E, A],
-  urls : Array[String],
-  seen : Map[String, Bool],
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  let id = next_internal_ref_island_id(iref.url, island_ids)
-  let trigger = iref.trigger.to_string()
-  write_island_open_tag(sb, id, iref.url, iref.state, trigger)
-  for child in iref.children {
-    render_and_collect_urls(sb, child, urls, seen, island_ids)
-  }
-  write_island_close_tag(sb, id)
-}
-
-///|
-/// Render InternalRef as WcIsland and collect URLs
-fn[E, A : Show] render_internal_ref_wc_and_collect_urls(
-  sb : StringBuilder,
-  iref : @core.VInternalRef[E, A],
-  urls : Array[String],
-  seen : Map[String, Bool],
-  island_ids : IslandIdAllocator,
-) -> Unit {
   let name = extract_wc_name_from_url(iref.url)
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
   for child in iref.children {
@@ -607,55 +427,17 @@ fn[E, A : Show] render_internal_ref_wc_and_collect_urls(
 }
 
 ///|
-/// Render InternalRef with hydration markers
+/// Render InternalRef with hydration markers as Web Components island
 fn[E, A : Show] render_internal_ref_with_id_to(
   sb : StringBuilder,
   iref : @core.VInternalRef[E, A],
   id_counter : Ref[Int],
   island_ids : IslandIdAllocator,
 ) -> Unit {
-  if iref.wc {
-    render_internal_ref_wc_with_id_to(sb, iref, id_counter, island_ids)
-  } else {
-    render_internal_ref_island_with_id_to(sb, iref, id_counter, island_ids)
-  }
-}
-
-///|
-/// Render InternalRef as Island with hydration markers
-fn[E, A : Show] render_internal_ref_island_with_id_to(
-  sb : StringBuilder,
-  iref : @core.VInternalRef[E, A],
-  id_counter : Ref[Int],
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  let id = id_counter.val
-  id_counter.val = id + 1
-  let island_id = next_internal_ref_island_id(iref.url, island_ids)
-  let trigger = iref.trigger.to_string()
-  sb.write_string("<!--i:")
-  sb.write_object(id)
-  sb.write_string("-->")
-  write_island_open_tag(sb, island_id, iref.url, iref.state, trigger)
-  for child in iref.children {
-    render_with_id_to(sb, child, id_counter, island_ids)
-  }
-  write_island_close_tag(sb, island_id)
-  sb.write_string("<!--/i-->")
-}
-
-///|
-/// Render InternalRef as WcIsland with hydration markers
-fn[E, A : Show] render_internal_ref_wc_with_id_to(
-  sb : StringBuilder,
-  iref : @core.VInternalRef[E, A],
-  id_counter : Ref[Int],
-  island_ids : IslandIdAllocator,
-) -> Unit {
   let id = id_counter.val
   id_counter.val = id + 1
   let name = extract_wc_name_from_url(iref.url)
-  sb.write_string("<!--wc:")
+  sb.write_string("<!--i:")
   sb.write_object(id)
   sb.write_string("-->")
   write_wc_open_tag(sb, name, iref.url, iref.state, iref.trigger, iref.styles)
@@ -663,7 +445,7 @@ fn[E, A : Show] render_internal_ref_wc_with_id_to(
     render_with_id_to(sb, child, id_counter, island_ids)
   }
   write_wc_close_tag(sb, name)
-  sb.write_string("<!--/wc-->")
+  sb.write_string("<!--/i-->")
 }
 
 ///|
@@ -759,7 +541,6 @@ fn[E, A : Show] render_to_sb(
         render_to_sb(sb, item, island_ids)
       }
     Component(render~) => render_to_sb(sb, render(), island_ids)
-    Island(island) => render_island_to(sb, island, island_ids)
     WcIsland(wc_island) => render_wc_island_to(sb, wc_island, island_ids)
     InternalRef(iref) => render_internal_ref_to(sb, iref, island_ids)
     Async(async_node) =>
@@ -790,20 +571,6 @@ fn[E, A : Show] render_to_sb(
       }
     }
   }
-}
-
-///|
-/// Render Island node with luna:* attributes for hydration
-fn[E, A : Show] render_island_to(
-  sb : StringBuilder,
-  island : @core.VIsland[E, A],
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  render_island_open_to(sb, island)
-  for child in island.children {
-    render_to_sb(sb, child, island_ids)
-  }
-  render_island_close_to(sb, island)
 }
 
 ///|
@@ -899,8 +666,6 @@ fn[E, A : Show] render_with_id_to(
     }
     Component(render~) =>
       render_with_id_to(sb, render(), id_counter, island_ids)
-    Island(island) =>
-      render_island_with_id_to(sb, island, id_counter, island_ids)
     WcIsland(wc_island) =>
       render_wc_island_with_id_to(sb, wc_island, id_counter, island_ids)
     InternalRef(iref) =>
@@ -961,21 +726,6 @@ fn[E, A : Show] render_with_id_to(
       sb.write_string("<!--/sw-->")
     }
   }
-}
-
-///|
-/// Render Island node with luna:* attributes and hydration markers
-fn[E, A : Show] render_island_with_id_to(
-  sb : StringBuilder,
-  island : @core.VIsland[E, A],
-  id_counter : Ref[Int],
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  render_island_open_to(sb, island)
-  for child in island.children {
-    render_with_id_to(sb, child, id_counter, island_ids)
-  }
-  render_island_close_to(sb, island)
 }
 
 ///|

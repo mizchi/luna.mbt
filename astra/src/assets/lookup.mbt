@@ -48,8 +48,6 @@ pub fn lookup_asset(
   minify? : Bool = false,
 ) -> Asset? {
   match path {
-    "/assets/loader.js" =>
-      Some({ body: get_island_loader_js(), content_type: js_content_type() })
     "/assets/style.css" =>
       Some({
         body: build_style_css_body(config, minify~),
@@ -98,13 +96,8 @@ fn build_style_css_body(config : @astra.SsgConfig, minify~ : Bool) -> String {
 /// surface.
 pub fn list_asset_urls() -> Array[String] {
   [
-    "/assets/loader.js", "/assets/style.css", "/assets/github-markdown.css", "/assets/shiki.css",
+    "/assets/style.css", "/assets/github-markdown.css", "/assets/shiki.css",
   ]
-}
-
-///|
-fn js_content_type() -> String {
-  "application/javascript; charset=utf-8"
 }
 
 ///|

@@ -1274,25 +1274,6 @@ test "template_gen_types_moon_pkg: imports luna for ComponentRef types" {
 }
 
 ///|
-test "template_ln_loader_js: scans luna:url selector" {
-  let content = template_ln_loader_js()
-  assert_true(content.contains("[luna\\\\:url]"))
-  assert_true(!content.contains("[ln\\\\:id]"))
-}
-
-///|
-test "template_ln_loader_js: exposes allowed hosts controls" {
-  let content = template_ln_loader_js()
-  assert_true(content.contains("__LUNA_ALLOWED_HOSTS__"))
-  assert_true(content.contains("__LUNA_SET_ALLOWED_HOSTS__"))
-}
-
-///|
-test "template_ln_loader_js: mirrors ssg asset loader" {
-  assert_eq(template_ln_loader_js(), @astra_assets.get_island_loader_js())
-}
-
-///|
 test "generate_templates: package.json includes dev/build/serve scripts" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "package.json").unwrap_or("")

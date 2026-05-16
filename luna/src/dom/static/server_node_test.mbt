@@ -81,25 +81,6 @@ test "ServerNode - async with dynamic data factory" {
 // =============================================================================
 
 ///|
-test "ServerNode - sync with island" {
-  let island_node = @luna.island(
-    "counter-1",
-    "/static/counter.js",
-    "{\"count\":0}",
-    [@luna.text("Loading...")],
-    trigger=@core.Load,
-  )
-  let server_node = ServerNode::sync(island_node)
-  inspect(server_node.is_async(), content="false")
-  guard server_node is Sync(inner) else { fail("Expected Sync") }
-  guard inner is @core.Island(island) else { fail("Expected Island") }
-  inspect(island.id, content="counter-1")
-  inspect(island.url, content="/static/counter.js")
-  inspect(island.state, content="{\"count\":0}")
-  inspect(island.trigger.to_string(), content="load")
-}
-
-///|
 test "ServerNode - sync with wc_island" {
   let wc_island = @luna.wc_island(
     "wc-toggle",
@@ -124,7 +105,6 @@ test "ServerNode - sync with internal_ref" {
     "/components/button.js",
     "{\"label\":\"Click me\"}",
     trigger=@core.Idle,
-    wc=false,
     children=[@luna.text("Click me")],
   )
   let server_node = ServerNode::sync(ref_node)
@@ -132,7 +112,6 @@ test "ServerNode - sync with internal_ref" {
   guard server_node is Sync(inner) else { fail("Expected Sync") }
   guard inner is @core.InternalRef(iref) else { fail("Expected InternalRef") }
   inspect(iref.url, content="/components/button.js")
-  inspect(iref.wc, content="false")
   inspect(iref.trigger.to_string(), content="idle")
 }
 
@@ -141,15 +120,16 @@ test "ServerNode - sync with internal_ref" {
 // =============================================================================
 
 ///|
-test "ServerNode - nested islands in sync" {
+test "ServerNode - nested wc_islands in sync" {
   let node = @luna.h("main", [], [
-    @luna.island("header-nav", "/static/nav.js", "{}", [
+    @luna.wc_island("header-nav", "/static/nav.js", "", "{}", [
       @luna.text("Navigation"),
     ]),
     @luna.h("article", [], [@luna.text("Main content")]),
-    @luna.island(
+    @luna.wc_island(
       "footer-contact",
       "/static/contact.js",
+      "",
       "{\"email\":\"test@example.com\"}",
       [@luna.text("Contact")],
     ),
@@ -203,35 +183,6 @@ test "TriggerType - from_string roundtrip" {
 // =============================================================================
 
 ///|
-test "island - creates VIsland with all parameters" {
-  let node : @luna.Node[Unit, String] = @luna.island(
-    "test-island",
-    "/static/test.js",
-    "{\"foo\":\"bar\"}",
-    [@luna.text("Placeholder")],
-    trigger=@core.Visible,
-  )
-  guard node is @core.Island(island) else { fail("Expected Island") }
-  inspect(island.id, content="test-island")
-  inspect(island.url, content="/static/test.js")
-  inspect(island.state, content="{\"foo\":\"bar\"}")
-  inspect(island.trigger.to_string(), content="visible")
-  inspect(island.children.length(), content="1")
-}
-
-///|
-test "island - default trigger is Load" {
-  let node : @luna.Node[Unit, String] = @luna.island(
-    "default-trigger",
-    "/static/default.js",
-    "{}",
-    [],
-  )
-  guard node is @core.Island(island) else { fail("Expected Island") }
-  inspect(island.trigger.to_string(), content="load")
-}
-
-///|
 test "wc_island - creates VWcIsland with all parameters" {
   let node : @luna.Node[Unit, String] = @luna.wc_island(
     "my-component",
@@ -251,34 +202,16 @@ test "wc_island - creates VWcIsland with all parameters" {
 }
 
 ///|
-test "internal_ref - creates VInternalRef for regular island" {
-  let node : @luna.Node[Unit, String] = @luna.internal_ref(
-    "/components/counter.js",
-    "{\"initial\":10}",
-    trigger=@core.Load,
-    wc=false,
-    children=[@luna.text("Counter")],
-  )
-  guard node is @core.InternalRef(iref) else { fail("Expected InternalRef") }
-  inspect(iref.url, content="/components/counter.js")
-  inspect(iref.state, content="{\"initial\":10}")
-  inspect(iref.wc, content="false")
-  inspect(iref.trigger.to_string(), content="load")
-}
-
-///|
 test "internal_ref - creates VInternalRef for web component" {
   let node : @luna.Node[Unit, String] = @luna.internal_ref(
     "/components/wc-tabs.js",
     "{\"selected\":0}",
     trigger=@core.Visible,
-    wc=true,
     styles=".tabs { display: flex; }",
     children=[@luna.text("Tab content")],
   )
   guard node is @core.InternalRef(iref) else { fail("Expected InternalRef") }
   inspect(iref.url, content="/components/wc-tabs.js")
-  inspect(iref.wc, content="true")
   inspect(iref.styles.length() > 0, content="true")
   inspect(iref.trigger.to_string(), content="visible")
 }
@@ -291,12 +224,6 @@ test "internal_ref - creates VInternalRef for web component" {
 test "VNode types - distinguish between node types" {
   let text_node : @luna.Node[Unit, String] = @luna.text("Hello")
   let element_node : @luna.Node[Unit, String] = @luna.h("div", [], [])
-  let island_node : @luna.Node[Unit, String] = @luna.island(
-    "i1",
-    "/a.js",
-    "{}",
-    [],
-  )
   let wc_node : @luna.Node[Unit, String] = @luna.wc_island(
     "wc-1",
     "/b.js",
@@ -308,14 +235,11 @@ test "VNode types - distinguish between node types" {
   // Check types
   inspect(text_node is @core.Text(_), content="true")
   inspect(element_node is @core.Element(_), content="true")
-  inspect(island_node is @core.Island(_), content="true")
   inspect(wc_node is @core.WcIsland(_), content="true")
 
   // Negative checks
   inspect(text_node is @core.Element(_), content="false")
   inspect(element_node is @core.Text(_), content="false")
-  inspect(island_node is @core.WcIsland(_), content="false")
-  inspect(wc_node is @core.Island(_), content="false")
 }
 
 ///|
@@ -360,42 +284,6 @@ test "ServerNode - pattern matching async" {
 // =============================================================================
 
 ///|
-test "island - empty children" {
-  let node : @luna.Node[Unit, String] = @luna.island("empty", "/e.js", "{}", [])
-  guard node is @core.Island(island) else { fail("Expected Island") }
-  inspect(island.children.length(), content="0")
-}
-
-///|
-test "island - deeply nested children" {
-  let node : @luna.Node[Unit, String] = @luna.island("nested", "/n.js", "{}", [
-    @luna.h("div", [], [
-      @luna.h("div", [], [@luna.h("div", [], [@luna.text("Deep")])]),
-    ]),
-  ])
-  guard node is @core.Island(island) else { fail("Expected Island") }
-  inspect(island.children.length(), content="1")
-  guard island.children[0] is @core.Element(el) else {
-    fail("Expected Element")
-  }
-  inspect(el.tag, content="div")
-}
-
-///|
-test "island - special characters in state" {
-  let state = "{\"msg\":\"Hello\\nWorld\\t!\"}"
-  let node : @luna.Node[Unit, String] = @luna.island(
-    "special",
-    "/s.js",
-    state,
-    [],
-  )
-  guard node is @core.Island(island) else { fail("Expected Island") }
-  inspect(island.state.contains("\\n"), content="true")
-  inspect(island.state.contains("\\t"), content="true")
-}
-
-///|
 test "wc_island - empty styles" {
   let node : @luna.Node[Unit, String] = @luna.wc_island(
     "wc-empty",
@@ -413,7 +301,6 @@ test "internal_ref - styles is empty string by default" {
   let node : @luna.Node[Unit, String] = @luna.internal_ref(
     "/c.js",
     "{}",
-    wc=false,
     children=[],
   )
   guard node is @core.InternalRef(iref) else { fail("Expected InternalRef") }

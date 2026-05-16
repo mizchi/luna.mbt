@@ -484,9 +484,7 @@ pub fn parse_sol_config(json_str : String) -> SolConfig? {
     let watch_dirs = if !watch_dirs_camel.is_empty() {
       watch_dirs_camel
     } else {
-      let watch_dirs_snake = @json_utils.extract_string_array(
-        obj, "watch_dirs",
-      )
+      let watch_dirs_snake = @json_utils.extract_string_array(obj, "watch_dirs")
       if !watch_dirs_snake.is_empty() {
         watch_dirs_snake
       } else {

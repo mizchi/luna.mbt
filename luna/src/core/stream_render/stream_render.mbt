@@ -69,7 +69,6 @@ fn render_node_to_stream(
         render_node_to_stream(item, writer, island_ids)
       }
     Component(render~) => render_node_to_stream(render(), writer, island_ids)
-    Island(island) => render_island_to_stream(island, writer, island_ids)
     WcIsland(wc_island) =>
       render_wc_island_to_stream(wc_island, writer, island_ids)
     InternalRef(iref) => render_internal_ref_to_stream(iref, writer, island_ids)
@@ -109,40 +108,6 @@ fn render_node_to_stream(
 // =============================================================================
 
 ///|
-fn render_island_to_stream(
-  island : @luna.VIsland[Unit, String],
-  writer : StreamWriter,
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  let write = writer.0
-  write(
-    "<!--luna:island:" +
-    island.id +
-    " url=" +
-    island.url +
-    " trigger=" +
-    island.trigger.to_string() +
-    "-->",
-  )
-  let sb = StringBuilder::new()
-  sb.write_string("<div luna:id=\"")
-  sb.write_string(island.id)
-  sb.write_string("\" luna:url=\"")
-  sb.write_string(island.url)
-  sb.write_string("\" luna:state=\"")
-  @render.escape_attr_to(sb, island.state)
-  sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(island.trigger.to_string())
-  sb.write_string("\">")
-  write(sb.to_string())
-  for child in island.children {
-    render_node_to_stream(child, writer, island_ids)
-  }
-  write("</div>")
-  write("<!--/luna:island:" + island.id + "-->")
-}
-
-///|
 fn render_wc_island_to_stream(
   wc_island : @luna.VWcIsland[Unit, String],
   writer : StreamWriter,
@@ -176,54 +141,6 @@ fn render_wc_island_to_stream(
 
 ///|
 fn render_internal_ref_to_stream(
-  iref : @luna.VInternalRef[Unit, String],
-  writer : StreamWriter,
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  if iref.wc {
-    render_internal_ref_wc_to_stream(iref, writer, island_ids)
-  } else {
-    render_internal_ref_island_to_stream(iref, writer, island_ids)
-  }
-}
-
-///|
-fn render_internal_ref_island_to_stream(
-  iref : @luna.VInternalRef[Unit, String],
-  writer : StreamWriter,
-  island_ids : IslandIdAllocator,
-) -> Unit {
-  let write = writer.0
-  let id = next_internal_ref_island_id(iref.url, island_ids)
-  write(
-    "<!--luna:island:" +
-    id +
-    " url=" +
-    iref.url +
-    " trigger=" +
-    iref.trigger.to_string() +
-    "-->",
-  )
-  let sb = StringBuilder::new()
-  sb.write_string("<div luna:id=\"")
-  sb.write_string(id)
-  sb.write_string("\" luna:url=\"")
-  sb.write_string(iref.url)
-  sb.write_string("\" luna:state=\"")
-  @render.escape_attr_to(sb, iref.state)
-  sb.write_string("\" luna:client-trigger=\"")
-  sb.write_string(iref.trigger.to_string())
-  sb.write_string("\">")
-  write(sb.to_string())
-  for child in iref.children {
-    render_node_to_stream(child, writer, island_ids)
-  }
-  write("</div>")
-  write("<!--/luna:island:" + id + "-->")
-}
-
-///|
-fn render_internal_ref_wc_to_stream(
   iref : @luna.VInternalRef[Unit, String],
   writer : StreamWriter,
   island_ids : IslandIdAllocator,
@@ -355,7 +272,6 @@ fn render_node_collecting_async(
         id_counter,
         island_ids,
       )
-    Island(island) => render_island_to_stream(island, writer, island_ids)
     WcIsland(wc_island) =>
       render_wc_island_to_stream(wc_island, writer, island_ids)
     InternalRef(iref) => render_internal_ref_to_stream(iref, writer, island_ids)
@@ -499,46 +415,12 @@ fn extract_wc_name_from_url(url : String) -> String {
 }
 
 ///|
-priv struct IslandIdAllocator {
-  next_by_base : Map[String, Int]
-  used : Map[String, Bool]
-}
+/// Placeholder allocator threaded through stream renderer. Kept opaque so
+/// future id-allocation work can land without resigning every helper.
+priv struct IslandIdAllocator {}
 
 ///|
 fn new_island_id_allocator() -> IslandIdAllocator {
-  { next_by_base: {}, used: {} }
+  IslandIdAllocator::{  }
 }
 
-///|
-fn island_id_from_url(url : String) -> String {
-  url.replace_all(old="/", new="_").replace_all(old=".", new="_")
-}
-
-///|
-fn reserve_island_id(
-  base : String,
-  index : Int,
-  allocator : IslandIdAllocator,
-) -> String {
-  let id = if index == 0 { base } else { base + "-" + index.to_string() }
-  if allocator.used.get(id) is None {
-    allocator.used.set(id, true)
-    allocator.next_by_base.set(base, index + 1)
-    id
-  } else {
-    reserve_island_id(base, index + 1, allocator)
-  }
-}
-
-///|
-fn next_internal_ref_island_id(
-  url : String,
-  allocator : IslandIdAllocator,
-) -> String {
-  let base = island_id_from_url(url)
-  let index = match allocator.next_by_base.get(base) {
-    Some(next) => next
-    None => 0
-  }
-  reserve_island_id(base, index, allocator)
-}

@@ -34,7 +34,6 @@ pub fn[T : ToJson] client(
     cref.url,
     cref.props.to_json().stringify(),
     trigger=cref.trigger,
-    wc=cref.wc,
     styles~,
     children~,
   )

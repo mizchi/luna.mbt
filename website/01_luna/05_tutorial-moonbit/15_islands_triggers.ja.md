@@ -76,13 +76,13 @@ fn page() -> @luna.Node {
 
 ## HTML 出力
 
-各トリガーは `luna:client-trigger` 属性を生成：
+各トリガーは `luna:wc-trigger` 属性を生成：
 
 ```html
-<div luna:client-trigger="load">...</div>
-<div luna:client-trigger="idle">...</div>
-<div luna:client-trigger="visible">...</div>
-<div luna:client-trigger="media:(min-width: 768px)">...</div>
+<div luna:wc-trigger="load">...</div>
+<div luna:wc-trigger="idle">...</div>
+<div luna:wc-trigger="visible">...</div>
+<div luna:wc-trigger="media:(min-width: 768px)">...</div>
 ```
 
 ## 試してみよう

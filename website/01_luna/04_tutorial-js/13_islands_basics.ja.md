@@ -48,17 +48,18 @@ Islands はインタラクティブなコンポーネントのみをハイドレ
 
 ### 1. サーバーレンダリングされた HTML
 
-サーバーがハイドレーション属性を持つ Island をレンダリング：
+サーバーがハイドレーション属性を持つ Island を Custom Element として出力：
 
 ```html
-<div
-  luna:id="counter"
-  luna:url="/static/counter.js"
-  luna:state="0"
-  luna:client-trigger="load"
+<wc-counter
+  luna:wc-url="/static/wc-counter.js"
+  luna:wc-state="0"
+  luna:wc-trigger="load"
 >
-  <button>Count: 0</button>
-</div>
+  <template shadowrootmode="open">
+    <button>Count: 0</button>
+  </template>
+</wc-counter>
 ```
 
 > MoonBit でのサーバーサイドレンダリングについては、[MoonBit チュートリアル](/ja/luna/tutorial-moonbit/)を参照してください。
@@ -68,8 +69,8 @@ Islands はインタラクティブなコンポーネントのみをハイドレ
 インタラクティブコンポーネントを作成：
 
 ```typescript
-// counter.ts
-import { createSignal, hydrate } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
@@ -79,31 +80,35 @@ function Counter(props: CounterProps) {
   const [count, setCount] = createSignal(props.initial);
 
   return (
-    <button onClick={() => setCount(c => c + 1)}>
-      Count: {count()}
-    </button>
+    <>
+      <style>{`:host { display: block; }`}</style>
+      <button onClick={() => setCount(c => c + 1)}>
+        Count: {count()}
+      </button>
+    </>
   );
 }
 
 // ハイドレーションに登録
-hydrate("counter", Counter);
+hydrateWC("wc-counter", Counter);
 ```
 
 ### 3. ハイドレーション
 
 1. ページがサーバーレンダリングされた HTML でロード（即座に表示）
-2. Luna ローダーが `luna:id` 要素を検出
-3. トリガーに基づいて `/static/counter.js` をロード
+2. Luna ローダーが `[luna:wc-url]` 要素を検出
+3. トリガーに基づいて `/static/wc-counter.js` をロード
 4. JavaScript が引き継ぎ、要素がインタラクティブに
 
 ## Island 属性
 
 | 属性 | 目的 |
 |-----|------|
-| `luna:id` | ハイドレーション用のコンポーネント識別子 |
-| `luna:url` | コンポーネント JavaScript をロードする URL |
-| `luna:state` | シリアライズされた props（JSON） |
-| `luna:client-trigger` | いつハイドレートするか |
+| `luna:wc-url` | コンポーネント JavaScript をロードする URL |
+| `luna:wc-state` | シリアライズされた props（JSON） |
+| `luna:wc-trigger` | いつハイドレートするか |
+
+`customElements.define()` は **不要** です。 loader は `[luna:wc-url]` を持つ要素を直接スキャンするので、 Custom Element として登録していないタグでも動作します。
 
 ## 複数の Islands
 
@@ -114,7 +119,7 @@ hydrate("counter", Counter);
   <h1>マイページ</h1>
 
   <!-- 検索 Island - 即座にハイドレート -->
-  <div luna:id="search" luna:client-trigger="load">...</div>
+  <wc-search luna:wc-url="/wc-search.js" luna:wc-trigger="load">...</wc-search>
 
   <!-- 記事 - 純粋な HTML、JS なし -->
   <article>
@@ -122,7 +127,7 @@ hydrate("counter", Counter);
   </article>
 
   <!-- コメント Island - 表示時にハイドレート -->
-  <div luna:id="comments" luna:client-trigger="visible">...</div>
+  <wc-comments luna:wc-url="/wc-comments.js" luna:wc-trigger="visible">...</wc-comments>
 
   <!-- フッター - 純粋な HTML -->
   <footer>...</footer>

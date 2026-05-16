@@ -29,7 +29,7 @@ async test "build_to_disk dumps every URL from list_urls() into output_dir" {
 
 ///|
 /// Asset URLs from `list_urls()` must round-trip through the crawler too:
-/// the static dump and the dev server agree on `/assets/loader.js`, etc.
+/// the static dump and the dev server agree on `/assets/style.css`, etc.
 async test "build_to_disk writes asset URLs alongside pages" {
   let cfg = {
     ..@astra.SsgConfig::default(),
@@ -42,10 +42,10 @@ async test "build_to_disk writes asset URLs alongside pages" {
     @fs.rmSync(out_dir, recursive=true, force=true)
   }
   @cli.build_to_disk(mw, out_dir)
-  // `list_asset_urls` ships at least loader.js; if the crawler skipped it
+  // `list_asset_urls` ships at least style.css; if the crawler skipped it
   // the file would be missing from disk.
-  let loader_path = "astra/tests/fixture/.out/assets/loader.js"
-  inspect(@fs.existsSync(loader_path), content="true")
+  let style_path = "astra/tests/fixture/.out/assets/style.css"
+  inspect(@fs.existsSync(style_path), content="true")
 }
 
 ///|

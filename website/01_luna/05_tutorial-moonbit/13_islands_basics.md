@@ -51,10 +51,10 @@ fn counter_island(initial : Int) -> @luna.Node {
 
 ```html
 <div
-  luna:id="counter"
-  luna:url="/static/counter.js"
-  luna:state="0"
-  luna:client-trigger="load"
+ 
+  luna:wc-url="/static/counter.js"
+  luna:wc-state="0"
+  luna:wc-trigger="load"
 >
   <div>
     <button>Count: 0</button>
@@ -84,17 +84,17 @@ function Counter(props: CounterProps) {
   );
 }
 
-hydrate("counter", Counter);
+hydrateWC("counter", Counter);
 ```
 
 ## Island Attributes
 
 | Attribute | Source | Description |
 |-----------|-------|-------------|
-| `luna:id` | Derived from `ComponentRef.url` | Component identifier |
-| `luna:url` | `ComponentRef.url` | JavaScript module URL |
-| `luna:state` | `ComponentRef.props` (auto-serialized) | Serialized props (JSON) |
-| `luna:client-trigger` | `ComponentRef.trigger` | When to hydrate |
+|  | Derived from `ComponentRef.url` | Component identifier |
+| `luna:wc-url` | `ComponentRef.url` | JavaScript module URL |
+| `luna:wc-state` | `ComponentRef.props` (auto-serialized) | Serialized props (JSON) |
+| `luna:wc-trigger` | `ComponentRef.trigger` | When to hydrate |
 
 ## Island Function Signature
 
@@ -146,7 +146,7 @@ Server (MoonBit)         Luna Loader          Island Component
      │  Render HTML          │                       │
      │ ─────────────────>    │                       │
      │                       │                       │
-     │  luna:id found        │                       │
+     │  luna:wc-url found        │                       │
      │                       │ Check trigger         │
      │                       │                       │
      │                       │ Load JS module        │

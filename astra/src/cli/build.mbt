@@ -14,10 +14,7 @@
 ///|
 /// Walk every URL the middleware can serve, render each one in-process,
 /// and write the rendered body to `<output_dir>/<url-to-disk-path>`.
-pub fn build_to_disk(
-  mw : @middleware.Middleware,
-  output_dir : String,
-) -> Unit {
+pub fn build_to_disk(mw : @middleware.Middleware, output_dir : String) -> Unit {
   ensure_dir(output_dir)
   // Page-vs-asset routing comes from the middleware's own asset surface,
   // not a dot-in-segment heuristic: a page URL like `/release/v1.0/`

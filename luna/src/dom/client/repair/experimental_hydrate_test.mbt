@@ -1078,27 +1078,6 @@ test "hydration_failed creates Failed result" {
 // =============================================================================
 
 ///|
-test "exp: hydrate island node" {
-  @global_jsdom.register()
-  defer exp_cleanup()
-  let container = exp_create_container()
-  let logger = StringBuilder::new()
-  let vnode : @luna.Node[@js.Any, String] = @luna.island(
-    "island-1",
-    "/app.js",
-    "{}",
-    [@luna.text("Island content")],
-  )
-  exp_set_inner_html(container, "")
-  let result = experimental_hydrate(container, vnode, logger~)
-  match result {
-    Clean => assert_true(true)
-    Repaired(_) => assert_true(true)
-    Failed(_) => assert_true(false)
-  }
-}
-
-///|
 test "exp: hydrate async node fallback" {
   @global_jsdom.register()
   defer exp_cleanup()

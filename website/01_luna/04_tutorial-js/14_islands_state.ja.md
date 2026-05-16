@@ -26,9 +26,9 @@ Luna は状態を JSON として HTML にシリアライズ：
 
 ```html
 <div
-  luna:id="counter"
-  luna:state='{"initial":5,"max":100}'
-  luna:url="/static/counter.js"
+ 
+  luna:wc-state='{"initial":5,"max":100}'
+  luna:wc-url="/static/counter.js"
 >
   <!-- SSR コンテンツ -->
 </div>
@@ -38,7 +38,7 @@ Luna は状態を JSON として HTML にシリアライズ：
 
 ### サーバーサイド
 
-サーバーは `luna:state` 属性で状態を JSON としてシリアライズします。MoonBit でのサーバーサイドレンダリングについては、[MoonBit チュートリアル](/ja/luna/tutorial-moonbit/)を参照してください。
+サーバーは `luna:wc-state` 属性で状態を JSON としてシリアライズします。MoonBit でのサーバーサイドレンダリングについては、[MoonBit チュートリアル](/ja/luna/tutorial-moonbit/)を参照してください。
 
 ### クライアントサイド（TypeScript）
 
@@ -66,7 +66,7 @@ function Counter(props: CounterProps) {
   );
 }
 
-hydrate("counter", Counter);
+hydrateWC("counter", Counter);
 ```
 
 ## 複雑な State

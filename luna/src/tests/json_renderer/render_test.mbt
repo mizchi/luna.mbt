@@ -317,61 +317,6 @@ test "signal reactivity captured at render time" {
 // Additional Coverage Tests
 // =============================================================================
 
-///|
-test "render island node" {
-  let node : @luna.Node[Unit, String] = @luna.island(
-    "island-1",
-    "/components/counter.js",
-    "{\"count\":5}",
-    [@luna.text("content")],
-  )
-  let json = render_to_json(node)
-  match json {
-    Element(elem) => {
-      assert_eq(elem.tag, "div")
-      // Check luna:* attributes
-      match elem.attrs.get("luna:id") {
-        Some(Static(v)) => assert_eq(v, "island-1")
-        _ => assert_true(false)
-      }
-      match elem.attrs.get("luna:url") {
-        Some(Static(v)) => assert_eq(v, "/components/counter.js")
-        _ => assert_true(false)
-      }
-      match elem.attrs.get("luna:state") {
-        Some(Static(v)) => assert_eq(v, "{\"count\":5}")
-        _ => assert_true(false)
-      }
-      match elem.attrs.get("luna:client-trigger") {
-        Some(Static(v)) => assert_eq(v, "load")
-        _ => assert_true(false)
-      }
-      // Check children
-      assert_eq(elem.children.length(), 1)
-    }
-    _ => assert_true(false)
-  }
-}
-
-///|
-test "render island with idle trigger" {
-  let node : @luna.Node[Unit, String] = @luna.island(
-    "lazy-1",
-    "/lazy.js",
-    "{}",
-    [],
-    trigger=@core.Idle,
-  )
-  let json = render_to_json(node)
-  match json {
-    Element(elem) =>
-      match elem.attrs.get("luna:client-trigger") {
-        Some(Static(v)) => assert_eq(v, "idle")
-        _ => assert_true(false)
-      }
-    _ => assert_true(false)
-  }
-}
 
 ///|
 test "render async fallback" {

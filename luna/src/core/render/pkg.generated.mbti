@@ -3,14 +3,9 @@ package "mizchi/luna/core/render"
 
 import {
   "mizchi/luna/core",
-  "moonbitlang/core/debug",
 }
 
 // Values
-pub fn component(String, Json, RenderMode, Array[AbstractNode], client_url? : String?, use_web_component? : Bool) -> AbstractNode
-
-pub fn element(String, Array[(String, AttrValue)], Array[AbstractNode]) -> AbstractNode
-
 pub fn escape_attr(String) -> String
 
 pub fn escape_attr_to(StringBuilder, String) -> Unit
@@ -27,8 +22,6 @@ pub fn escape_json_for_attr(String) -> String
 
 pub fn escape_json_for_script(String) -> String
 
-pub fn fragment(Array[AbstractNode]) -> AbstractNode
-
 pub fn generate_preload_tags(Array[String]) -> String
 
 pub fn is_void_element(String) -> Bool
@@ -36,8 +29,6 @@ pub fn is_void_element(String) -> Bool
 pub fn needs_attr_escape(String) -> Bool
 
 pub fn needs_html_escape(String) -> Bool
-
-pub fn raw_html(String) -> AbstractNode
 
 pub fn render_attr_value(StringBuilder, String, String) -> Unit
 
@@ -47,62 +38,9 @@ pub fn[E, A : Show] render_to_string(@core.Node[E, A], preload? : Bool) -> SSRRe
 
 pub fn[E, A : Show] render_to_string_with_hydration(@core.Node[E, A]) -> String
 
-pub fn text(String) -> AbstractNode
-
-pub fn[E, A : Show] to_abstract(@core.Node[E, A]) -> AbstractNode
-
 // Errors
 
 // Types and methods
-pub(all) enum AbstractNode {
-  Element(tag~ : String, attrs~ : Array[(String, AttrValue)], children~ : Array[AbstractNode])
-  Text(String)
-  Fragment(Array[AbstractNode])
-  Component(config~ : ComponentConfig, children~ : Array[AbstractNode])
-  RawHtml(String)
-  Slot(name~ : String, fallback~ : Array[AbstractNode])
-} derive(Eq)
-pub fn AbstractNode::count_nodes(Self) -> Int
-pub fn AbstractNode::get_components(Self) -> Array[ComponentConfig]
-pub fn AbstractNode::get_render_modes(Self) -> Array[RenderMode]
-pub fn AbstractNode::has_client_js(Self) -> Bool
-pub fn AbstractNode::map(Self, (Self) -> Self) -> Self
-pub fn AbstractNode::render_html(Self) -> String
-
-pub(all) enum AttrValue {
-  Str(String)
-  Bool(Bool)
-  Num(Double)
-  Json(Json)
-} derive(Eq)
-
-pub(all) struct ComponentConfig {
-  name : String
-  props : Json
-  mode : RenderMode
-  client_url : String?
-  use_web_component : Bool
-} derive(Eq)
-
-pub(all) enum HydrationTrigger {
-  Load
-  Idle
-  Visible
-  Media(String)
-} derive(Eq, @debug.Debug)
-pub fn HydrationTrigger::parse(String) -> Self
-pub fn HydrationTrigger::to_attr_string(Self) -> String
-
-pub(all) enum RenderMode {
-  SSROnly
-  Hydration(HydrationTrigger)
-  ClientOnly
-  ServerDefer
-} derive(Eq, @debug.Debug)
-pub fn RenderMode::get_trigger(Self) -> HydrationTrigger?
-pub fn RenderMode::requires_client_js(Self) -> Bool
-pub fn RenderMode::requires_ssr(Self) -> Bool
-
 pub struct SSRResult {
   html : String
   preload_urls : Array[String]

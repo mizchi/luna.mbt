@@ -91,6 +91,8 @@ pub async fn run_main(Array[String]) -> Unit
 
 pub fn[FS : @env.FileSystem] scan_mbtx_dir(FS, String, String, base_path? : String) -> Array[MbtxFileEntry]
 
+pub fn should_enable_sol_dev(String) -> Bool
+
 pub fn[FS : @env.FileSystem] should_use_user_managed_server(FS, String, SolConfig) -> Bool
 
 pub fn split_params(String) -> Array[String]
@@ -230,6 +232,7 @@ pub struct SolConfig {
   static_dirs : Array[StaticDirEntry]
   wasm_entrypoints : Array[WasmEntrypointConfig]
   experimental : Array[String]
+  watch_dirs : Array[String]
 }
 pub fn SolConfig::has_experimental(Self, String) -> Bool
 pub fn SolConfig::uses_external_client_bundle(Self) -> Bool

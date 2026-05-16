@@ -4,27 +4,30 @@ title: Islands
 
 # Islands
 
-Island Architecture による部分的ハイドレーション。
+Web Components による部分的ハイドレーション。
 
 ## 基本的な使い方
 
 ```html
-<div luna:id="counter"
-     luna:url="/static/counter.js"
-     luna:state='{"count":0}'
-     luna:client-trigger="visible">
-  <button>Count: 0</button>
-</div>
+<wc-counter
+  luna:wc-url="/static/wc-counter.js"
+  luna:wc-state='{"count":0}'
+  luna:wc-trigger="visible">
+  <template shadowrootmode="open">
+    <button>Count: 0</button>
+  </template>
+</wc-counter>
 ```
+
+Custom Element として `customElements.define()` を呼ぶ必要は **無い**。 loader は `[luna:wc-url]` 属性を持つ要素を直接スキャンする。 Declarative Shadow DOM (`<template shadowrootmode="open">`) はオプション。
 
 ## 属性
 
 | 属性 | 説明 |
 |------|------|
-| `luna:id` | コンポーネント識別子 |
-| `luna:url` | JavaScript モジュール URL |
-| `luna:state` | シリアライズされた初期状態 |
-| `luna:client-trigger` | ハイドレーション戦略 |
+| `luna:wc-url` | JavaScript モジュール URL |
+| `luna:wc-state` | シリアライズされた初期状態 (JSON) |
+| `luna:wc-trigger` | ハイドレーション戦略 |
 
 ## トリガー
 
@@ -36,30 +39,23 @@ Island Architecture による部分的ハイドレーション。
 | `media` | メディアクエリマッチ時 |
 | `none` | 手動トリガー |
 
-## hydrate 関数
+## hydrateWC 関数
 
 ```typescript
-import { hydrate } from '@luna_ui/luna';
+import { createSignal, hydrateWC } from '@luna_ui/luna';
 
-hydrate('counter', (element, props) => {
+function Counter(props: { count: number }) {
   const [count, setCount] = createSignal(props.count);
 
-  element.querySelector('button').onclick = () => {
-    setCount(c => c + 1);
-  };
+  return (
+    <>
+      <style>{`:host { display: block; }`}</style>
+      <button onClick={() => setCount(c => c + 1)}>
+        Count: {count()}
+      </button>
+    </>
+  );
+}
 
-  createEffect(() => {
-    element.querySelector('button').textContent = `Count: ${count()}`;
-  });
-});
-```
-
-## Web Components
-
-```typescript
-import { hydrateWC } from '@luna_ui/luna';
-
-hydrateWC('my-counter', (shadowRoot, props) => {
-  // Shadow DOM 内での操作
-});
+hydrateWC('wc-counter', Counter);
 ```
