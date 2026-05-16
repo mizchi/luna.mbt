@@ -39,8 +39,8 @@ pub fn template_moon_mod_json(
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.22.4",
-        #|    "mizchi/sol_adapter_node": "0.22.4",
+        #|    "mizchi/sol": "0.23.0",
+        #|    "mizchi/sol_adapter_node": "0.23.0",
         #|    "mizchi/mars": "0.3.10",
         #|    "mizchi/luna": {
         #|      "path": "{{LUNA_PATH}}"
@@ -64,10 +64,10 @@ pub fn template_moon_mod_json(
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.22.4",
-        #|    "mizchi/sol_adapter_node": "0.22.4",
+        #|    "mizchi/sol": "0.23.0",
+        #|    "mizchi/sol_adapter_node": "0.23.0",
         #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.22.3",
+        #|    "mizchi/luna": "0.23.0",
         #|    "mizchi/signals": "0.6.4",
         #|    "mizchi/js": "0.10.15",
         #|    "mizchi/npm_typed": "0.1.11",
@@ -710,8 +710,8 @@ pub fn template_cloudflare_moon_mod_json(
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.22.4",
-        #|    "mizchi/sol_adapter_cloudflare": "0.22.4",
+        #|    "mizchi/sol": "0.23.0",
+        #|    "mizchi/sol_adapter_cloudflare": "0.23.0",
         #|    "mizchi/mars": "0.3.10",
         #|    "mizchi/luna": {
         #|      "path": "{{LUNA_PATH}}"
@@ -734,10 +734,10 @@ pub fn template_cloudflare_moon_mod_json(
         #|  "name": "{{PACKAGE_NAME}}",
         #|  "version": "0.1.0",
         #|  "deps": {
-        #|    "mizchi/sol": "0.22.4",
-        #|    "mizchi/sol_adapter_cloudflare": "0.22.4",
+        #|    "mizchi/sol": "0.23.0",
+        #|    "mizchi/sol_adapter_cloudflare": "0.23.0",
         #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.22.3",
+        #|    "mizchi/luna": "0.23.0",
         #|    "mizchi/signals": "0.6.4",
         #|    "mizchi/js": "0.10.15",
         #|    "mizchi/npm_typed": "0.1.11",

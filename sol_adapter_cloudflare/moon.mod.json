@@ -1,10 +1,10 @@
 {
   "name": "mizchi/sol_adapter_cloudflare",
-  "version": "0.22.4",
+  "version": "0.23.0",
   "deps": {
     "mizchi/sol": {
       "path": "../sol",
-      "version": "0.22.4"
+      "version": "0.23.0"
     },
     "mizchi/mars": "0.3.10",
     "mizchi/js": "0.10.15",

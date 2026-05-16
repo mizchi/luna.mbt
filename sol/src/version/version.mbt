@@ -6,4 +6,4 @@
 // Keep in sync with `sol/moon.mod.json::version`.
 
 ///|
-pub const VERSION : String = "0.22.4"
+pub const VERSION : String = "0.23.0"
