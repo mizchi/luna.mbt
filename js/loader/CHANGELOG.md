@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.0.0](https://github.com/mizchi/luna.mbt/compare/luna-loader-v0.22.0...luna-loader-v1.0.0) (2026-05-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **islands:** mooncake `mizchi/luna` removes `VIsland`, `Node::Island`, `island()`, `internal_ref(wc=...)`, `wc_component_ref`, and the `wc` fields on `ComponentRef` and `VInternalRef`. `mizchi/sol`'s `island_raw` now emits WC markup. `mizchi/astra` no longer writes `/assets/loader.js`. `@luna_ui/luna-loader`'s default export is now the WC loader.
+
+### Features
+
+* **components:** add [@luna](https://github.com/luna)_ui/components headless UI library ([e19ceea](https://github.com/mizchi/luna.mbt/commit/e19ceeadb3e7ecd1e6faa5b66bb88754e344c573))
+* **loader:** add framework-agnostic SSR + Hydration utilities ([6e3fbac](https://github.com/mizchi/luna.mbt/commit/6e3fbacb2db9f2aff02885703d234a90fd621e0a))
+* **sol:** add route assets and cloudflare adapter ([c7a5024](https://github.com/mizchi/luna.mbt/commit/c7a502422a9221a872f292b21e41ff9e5f641a8d))
+
+
+### Bug Fixes
+
+* align all [@luna](https://github.com/luna)_ui npm package versions at 0.20.0 ([0d5f727](https://github.com/mizchi/luna.mbt/commit/0d5f7273fd5c3daa1f6f0854ae0cb04c4eee84fd))
+* align all [@luna](https://github.com/luna)_ui npm package versions at 0.20.0 ([87d6672](https://github.com/mizchi/luna.mbt/commit/87d6672038730544716ff07406368c0a61070c02))
+* **astra:** SSG cache invalidation and syntax highlighting ([357e6f6](https://github.com/mizchi/luna.mbt/commit/357e6f6f0759624a9a3acd2d8ce15fcea45bc330))
+* **loader:** harden navigation and optimize state extraction ([a2db7c3](https://github.com/mizchi/luna.mbt/commit/a2db7c34a3dbe96078823e67eaa3a68c85e4c42f))
+
+
+### Code Refactoring
+
+* **islands:** drop legacy VIsland marker in favor of WC island ([d579a88](https://github.com/mizchi/luna.mbt/commit/d579a88fceedb6d387a87c6169372d7b070917c3))
+
 ## [0.22.0](https://github.com/mizchi/luna.mbt/compare/luna-loader-v0.20.0...luna-loader-v0.22.0-npm) (2026-05-15)
 
 
