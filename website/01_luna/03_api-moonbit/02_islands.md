@@ -66,11 +66,11 @@ Equivalent API provided by Luna's static DOM package:
 
 ## island_raw (string-based, low-level)
 
-Create an island element with raw string parameters. Use `island()` with `ComponentRef` for type safety.
+Create a Web Components island element with raw string parameters. Internally this delegates to `@luna.wc_island` and emits the same `<wc-*>` markup as `island()`. Prefer `island()` with `ComponentRef` for type safety.
 
 ```moonbit
 @sol.island_raw(
-  "counter",
+  "wc-counter",
   "/components/counter.js",
   initial.to_string(),
   [@element.div([@element.button([@element.text("Count: \{initial}")])])],
@@ -82,7 +82,7 @@ Create an island element with raw string parameters. Use `island()` with `Compon
 
 ```moonbit
 fn island_raw(
-  id : String,
+  name : String,
   url : String,
   state : String,
   children : Array[@luna.Node],
@@ -94,7 +94,7 @@ fn island_raw(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `id` | `String` | Component identifier (matches `luna:id`) |
+| `name` | `String` | Custom element tag name (e.g. `"wc-counter"`) |
 | `url` | `String` | JavaScript module URL |
 | `state` | `String` | Serialized props (JSON) |
 | `children` | `Array[Node]` | Server-rendered content |
@@ -103,14 +103,13 @@ fn island_raw(
 ### HTML Output
 
 ```html
-<div
-  luna:id="counter"
-  luna:url="/components/counter.js"
-  luna:state="0"
-  luna:client-trigger="load"
+<wc-counter
+  luna:wc-url="/components/counter.js"
+  luna:wc-state="0"
+  luna:wc-trigger="load"
 >
   <div><button>Count: 0</button></div>
-</div>
+</wc-counter>
 ```
 
 ### Example with Visible Trigger
@@ -121,7 +120,7 @@ fn island_raw(
   @types.lazy({}, trigger=@luna.TriggerType::Visible),
   [@element.text("Lazy content")],
 )
-// Output: luna:client-trigger="visible"
+// Output: luna:wc-trigger="visible"
 ```
 
 ## Trigger
@@ -191,19 +190,11 @@ let preload_links = result.preload_urls.map(fn(url) {
 })
 ```
 
-## Web Components Island
+## Web Components Island (low-level)
 
-For Web Components islands, use `island()` with a WC-prefixed ComponentRef (auto-generated with `wc: true`):
+`@sol.island()` already emits Web Component markup. The helpers below are direct entry points to the same machinery for cases where you need full control over the tag name, scoped styles, or want to skip `ComponentRef` plumbing.
 
-```moonbit
-// Auto-generated: WcCounterProps → wc_counter() factory with wc=true
-@sol.island(
-  @types.wc_counter(wc_counter_props),
-  [@element.button([@element.text("Count: 0")])],
-)
-```
-
-### Low-level: wc_island_raw
+### wc_island_raw / @luna.wc_island
 
 For direct string-based Web Component islands, use `@luna.wc_island` or `@sol.wc_island_raw`:
 
@@ -288,7 +279,7 @@ pub(all) struct CounterProps {
 // String-based (low-level) - manual serialization
 let state : CounterProps = { initial: 0, max: 100 }
 @sol.island_raw(
-  "counter",
+  "wc-counter",
   "/static/counter.js",
   state.to_json().stringify(),
   [@element.div([@element.text("Loading...")])],
@@ -297,38 +288,34 @@ let state : CounterProps = { initial: 0, max: 100 }
 
 ## Client-Side Hydration
 
-The island loader (`@luna_ui/luna-loader`) handles hydration on the client:
-
-```html
-<!-- Add to your page -->
-<script type="module">
-import { setupHydration } from '@luna_ui/luna-loader';
-setupHydration();
-</script>
-```
+Sol and Astra inject the wc-loader (`@luna_ui/luna-loader`) into the rendered HTML automatically. You do not need to bootstrap it manually.
 
 ### Hydration Process
 
-1. Loader scans for elements with `luna:id` or `luna:wc-*` attributes
-2. Based on trigger, it:
+1. Loader scans for elements with `[luna:wc-url]`
+2. Based on `luna:wc-trigger`, it:
    - `load`: Immediately imports the module
    - `idle`: Uses `requestIdleCallback`
    - `visible`: Uses `IntersectionObserver`
-   - `media`: Uses `matchMedia`
-3. Module's default export receives the element and parsed state
+   - `media:(query)`: Uses `matchMedia`
+   - `none`: Waits for manual `window.__LUNA_WC_HYDRATE__(el)`
+3. The module's `export default` (or named `hydrate`) is called with `(element, state, name)`
 
 ### Island Module Structure
 
-```javascript
+```typescript
 // /components/counter.js
-export default function hydrate(element, state) {
-  // state is parsed from luna:state
-  const count = state.initial || 0;
+import { createSignal, render } from '@luna_ui/luna';
 
-  // Set up reactivity
-  element.querySelector('button').onclick = () => {
-    // Update logic
-  };
+export default function hydrate(element: Element, state: { initial?: number }) {
+  // state is parsed from luna:wc-state
+  const [count, setCount] = createSignal(state.initial ?? 0);
+
+  render(element, () => (
+    <button onClick={() => setCount(c => c + 1)}>
+      Count: {count()}
+    </button>
+  ));
 }
 ```
 
@@ -338,7 +325,7 @@ export default function hydrate(element, state) {
 |----------|-------------|
 | `@sol.island(cref, children)` | Create island from ComponentRef (recommended) |
 | `@sol.island_with(cref, render)` | Create island with render function |
-| `@sol.island_raw(id, url, state, children, trigger~)` | Create island from strings (low-level) |
+| `@sol.island_raw(name, url, state, children, trigger~)` | Create island from strings (low-level) |
 | `@server_dom.client(cref, children)` | Equivalent to `@sol.island` |
 | `@luna.wc_island(...)` | Create Web Component island (low-level) |
 | `@sol.wc_island_raw(...)` | Sol wrapper for WC island (low-level) |

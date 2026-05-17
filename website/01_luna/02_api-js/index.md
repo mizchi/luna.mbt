@@ -18,10 +18,10 @@ title: "API: JavaScript"
 
 ## Island Hydration
 
-| Function | Description |
-|----------|-------------|
-| [`hydrate`](./islands#hydrate) | Hydrate a standard island |
-| [`hydrateWC`](./islands#hydratewc) | Hydrate a Web Component island |
+| Export | Description |
+|--------|-------------|
+| [`export default function hydrate`](./islands#island-module-contract) | Island module entry point invoked by the wc-loader |
+| [`render(el, () => jsx)`](./islands#island-module-contract) | Render JSX into the element on hydration |
 
 ## Control Flow Components
 

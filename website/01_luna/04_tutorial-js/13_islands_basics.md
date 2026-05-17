@@ -70,27 +70,27 @@ Create the interactive component:
 
 ```typescript
 // wc-counter.ts
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+import { createSignal, render } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+// The wc-loader matches the file referenced by luna:wc-url and calls
+// the module's default export (or named `hydrate`) with the element
+// and the parsed luna:wc-state value.
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
-  return (
+  render(element, () => (
     <>
       <style>{`:host { display: block; }`}</style>
       <button onClick={() => setCount(c => c + 1)}>
         Count: {count()}
       </button>
     </>
-  );
+  ));
 }
-
-// Register for hydration
-hydrateWC("wc-counter", Counter);
 ```
 
 ### 3. Hydration

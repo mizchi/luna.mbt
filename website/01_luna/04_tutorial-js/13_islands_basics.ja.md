@@ -70,27 +70,27 @@ Islands はインタラクティブなコンポーネントのみをハイドレ
 
 ```typescript
 // wc-counter.ts
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+import { createSignal, render } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+// wc-loader は luna:wc-url が指すモジュールを動的 import し、
+// 既定 export (もしくは名前付き export `hydrate`) を要素と
+// パース済み luna:wc-state とともに呼び出します。
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
-  return (
+  render(element, () => (
     <>
       <style>{`:host { display: block; }`}</style>
       <button onClick={() => setCount(c => c + 1)}>
         Count: {count()}
       </button>
     </>
-  );
+  ));
 }
-
-// ハイドレーションに登録
-hydrateWC("wc-counter", Counter);
 ```
 
 ### 3. ハイドレーション

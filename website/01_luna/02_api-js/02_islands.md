@@ -10,31 +10,38 @@ Islands enable partial hydration via Web Components, and control flow components
 
 Luna hydrates a custom element that the server emits with `luna:wc-url` / `luna:wc-state` / `luna:wc-trigger` attributes. Declarative Shadow DOM is opt-in. The same triggers (`load` / `idle` / `visible` / `media` / `none`) apply.
 
-### hydrateWC
+### Island Module Contract
 
-Register a Web Component for hydration.
+The module pointed to by `luna:wc-url` must export a `hydrate` function (named export or default). The wc-loader dynamically imports the module and calls:
 
 ```typescript
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+hydrate(element: Element, state: unknown, name: string): void | (() => void)
+```
+
+- `element` — the custom element instance (e.g. the `<wc-counter>` DOM node)
+- `state` — the value parsed from `luna:wc-state` (JSON), or `{}` if absent
+- `name` — the element's tag name (e.g. `"wc-counter"`)
+- An optional cleanup function can be returned for HMR / teardown.
+
+```typescript
+import { createSignal, render } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
-  return (
+  render(element, () => (
     <>
       <style>{`:host { display: block; }`}</style>
       <button onClick={() => setCount(c => c + 1)}>
         Count: {count()}
       </button>
     </>
-  );
+  ));
 }
-
-hydrateWC("wc-counter", Counter);
 ```
 
 ### HTML Attributes
@@ -345,27 +352,26 @@ const handlers = events()
   .keydown((e) => console.log('keydown'));
 ```
 
-### useHost
+### Host Element
 
-Get the host element in a Web Component.
+Inside `hydrate`, the host element is the first argument (`element`). There is no separate `useHost` helper — operate on `element` directly.
 
 ```typescript
-import { useHost, hydrateWC } from '@luna_ui/luna';
+import { createSignal, render } from '@luna_ui/luna';
 
-function Counter() {
-  const host = useHost();
+export default function hydrate(element: Element) {
+  const [count, setCount] = createSignal(0);
 
   const handleClick = () => {
-    host.dispatchEvent(new CustomEvent('count-changed', {
+    setCount(c => c + 1);
+    element.dispatchEvent(new CustomEvent('count-changed', {
       detail: { count: count() },
       bubbles: true,
     }));
   };
 
-  return <button onClick={handleClick}>Click</button>;
+  render(element, () => <button onClick={handleClick}>Click ({count()})</button>);
 }
-
-hydrateWC("wc-counter", Counter);
 ```
 
 ## Best Practices
@@ -411,10 +417,10 @@ interface Props {
 
 ### Hydration
 
-| Function | Description |
-|----------|-------------|
-| `hydrateWC(tagName, component)` | Register a Web Component island |
-| `useHost()` | Get host element inside a Web Component |
+| Export | Description |
+|--------|-------------|
+| `export default function hydrate(el, state, name)` | Island module entry point — loader calls this with the custom element, parsed JSON state, and tag name |
+| `render(el, () => jsx)` | Render JSX into the element |
 
 ### Control Flow
 

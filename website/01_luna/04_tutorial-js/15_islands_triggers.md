@@ -178,11 +178,13 @@ window.__LUNA_HYDRATE__?.("modal");
 Track hydration timing:
 
 ```typescript
-// In your island component
-hydrateWC("myComponent", (props) => {
+// In your island module (e.g. my-component.ts)
+import { render } from '@luna_ui/luna';
+
+export default function hydrate(element: Element, state: unknown) {
   console.log("Hydrated at:", performance.now());
-  return <MyComponent {...props} />;
-});
+  render(element, () => <MyComponent state={state} />);
+}
 ```
 
 ## Try It

@@ -33,12 +33,12 @@ Luna は Declarative Shadow DOM を使用した完全な WebComponents SSR + Hyd
 
 ```html
 <!-- サーバーレンダリング出力 -->
-<my-counter luna:client-trigger="visible">
+<wc-counter luna:wc-url="/static/counter.js" luna:wc-trigger="visible">
   <template shadowrootmode="open">
     <style>button { color: blue; }</style>
     <button>Count: 0</button>
   </template>
-</my-counter>
+</wc-counter>
 ```
 
 キーとなる洞察：Declarative Shadow DOM（`<template shadowrootmode="open">`）により、Shadow DOM を HTML としてシリアライズできます。Luna のハイドレーションシステムと組み合わせることで、以下が可能になります：
@@ -132,8 +132,7 @@ pub enum Node[E] {
   Fragment(Array[Node[E]])  // フラグメント
   Show(...)                 // 条件付きレンダリング
   For(...)                  // リストレンダリング
-  Island(VIsland[E])        // Hydration 境界
-  WcIsland(VWcIsland[E])    // Web Components Island
+  WcIsland(VWcIsland[E])    // Web Components Island (Hydration 境界)
   Async(VAsync[E])          // 非同期ノード
 }
 ```
@@ -275,47 +274,48 @@ Luna は複数のハイドレーション戦略をサポートします：
 
 ### Island 属性
 
-サーバーレンダリングされた HTML にはハイドレーションメタデータが含まれます：
+サーバーレンダリングされた HTML には、 Web Component 要素にハイドレーションメタデータが含まれます：
 
 ```html
-<div luna:id="counter"
-     luna:url="/static/counter.js"
-     luna:state='{"count":0}'
-     luna:client-trigger="visible">
+<wc-counter luna:wc-url="/static/counter.js"
+            luna:wc-state='{"count":0}'
+            luna:wc-trigger="visible">
   <!-- SSR コンテンツ -->
-</div>
+</wc-counter>
 ```
 
 | 属性 | 目的 |
 |-----|------|
-| `luna:id` | コンポーネント識別子 |
-| `luna:url` | JavaScript モジュール URL |
-| `luna:state` | シリアライズされた初期状態 |
-| `luna:client-trigger` | ハイドレーション戦略 |
+| `luna:wc-url` | JavaScript モジュール URL |
+| `luna:wc-state` | シリアライズされた初期状態 |
+| `luna:wc-trigger` | ハイドレーション戦略 |
+
+loader は `[luna:wc-url]` を scan し、 要素のタグ名 (例: `wc-counter`) をコンポーネント識別子として使用します。 `customElements.define()` は不要。
 
 ### ハイドレーションプロセス
 
 1. **ローダー初期化** - 小さな（~1.6KB）ローダースクリプトが実行
-2. **Island 検出** - `luna:id` を持つ要素を検索
+2. **Island 検出** - `luna:wc-url` を持つ要素を検索
 3. **戦略評価** - トリガー条件をチェック
 4. **モジュールロード** - Island コードの動的インポート
-5. **状態デシリアライズ** - `luna:state` をパース
-6. **ハイドレーション** - 既存 DOM にリアクティビティをアタッチ
+5. **状態デシリアライズ** - `luna:wc-state` をパース
+6. **ハイドレーション** - モジュールの `export default` (または named `hydrate`) が `(element, state, name)` を受け取り、 リアクティビティをアタッチ
 
-### Web Components 統合
-
-Island は Web Components として実装できます：
+### Island モジュールの形
 
 ```typescript
-hydrateWC("my-counter", (root, props, trigger) => {
-  // root: ShadowRoot（SSR から既存）
-  // props: シリアライズされた props
-  // trigger: ハイドレーショントリガー情報
-});
+import { createSignal, render } from '@luna_ui/luna';
+
+export default function hydrate(element: Element, state: { count?: number }) {
+  const [count, setCount] = createSignal(state.count ?? 0);
+  render(element, () => (
+    <button onClick={() => setCount(c => c + 1)}>Count: {count()}</button>
+  ));
+}
 ```
 
-利点：
-- Shadow DOM によるスタイルカプセル化
+Web Component シェルの利点：
+- Declarative Shadow DOM によるスタイルカプセル化
 - ネイティブブラウザサポート
 - フレームワーク非依存の Island
 

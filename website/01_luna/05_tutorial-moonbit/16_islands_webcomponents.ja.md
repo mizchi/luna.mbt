@@ -62,12 +62,17 @@ fn counter_wc(initial : Int) -> @luna.Node {
 ### クライアントサイド（TypeScript）
 
 ```typescript
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, render } from '@luna_ui/luna';
 
-function Counter(props) {
-  const [count, setCount] = createSignal(props.initial);
+interface CounterProps {
+  initial: number;
+}
 
-  return (
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
+
+  render(element, () => (
     <>
       <style>
         {`:host { display: block; padding: 16px; }
@@ -77,10 +82,8 @@ function Counter(props) {
         Count: {count()}
       </button>
     </>
-  );
+  ));
 }
-
-hydrateWC("wc-counter", Counter);
 ```
 
 ## Declarative Shadow DOM

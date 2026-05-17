@@ -43,7 +43,7 @@ The server serializes state as JSON in the `luna:wc-state` attribute. For server
 
 ```typescript
 // wc-counter.ts
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+import { createSignal, render } from '@luna_ui/luna';
 
 // Define matching TypeScript interface
 interface CounterProps {
@@ -51,21 +51,19 @@ interface CounterProps {
   max: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
   const increment = () => {
-    setCount(c => Math.min(c + 1, props.max));
+    setCount(c => Math.min(c + 1, state.max));
   };
 
-  return (
+  render(element, () => (
     <button onClick={increment}>
-      Count: {count()} / {props.max}
+      Count: {count()} / {state.max}
     </button>
-  );
+  ));
 }
-
-hydrateWC("wc-counter", Counter);
 ```
 
 ## Complex State

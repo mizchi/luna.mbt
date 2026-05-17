@@ -45,16 +45,16 @@ The server renders an island with Web Component attributes:
 
 ```typescript
 // wc-counter.ts
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+import { createSignal, render } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
-  return (
+  render(element, () => (
     <>
       <style>
         {`:host { display: block; padding: 16px; }
@@ -64,11 +64,8 @@ function Counter(props: CounterProps) {
         Count: {count()}
       </button>
     </>
-  );
+  ));
 }
-
-// Register as Web Component
-hydrateWC("wc-counter", Counter);
 ```
 
 ## Declarative Shadow DOM
@@ -186,20 +183,24 @@ wc-counter::part(button) {
 Dispatch custom events from Web Components:
 
 ```typescript
-function Counter() {
-  const host = useHost();  // Get the custom element
+import { createSignal, render } from '@luna_ui/luna';
+
+export default function hydrate(element: Element) {
+  const [count, setCount] = createSignal(0);
 
   const handleClick = () => {
     setCount(c => c + 1);
 
-    // Dispatch custom event
-    host.dispatchEvent(new CustomEvent('count-changed', {
+    // Dispatch custom event from the host element
+    element.dispatchEvent(new CustomEvent('count-changed', {
       detail: { count: count() },
       bubbles: true,
     }));
   };
 
-  return <button onClick={handleClick}>Count: {count()}</button>;
+  render(element, () => (
+    <button onClick={handleClick}>Count: {count()}</button>
+  ));
 }
 ```
 
@@ -323,17 +324,18 @@ Design a Web Component island for a notification toast:
 **Client (TypeScript):**
 
 ```typescript
+import { createSignal, onCleanup, onMount, render, Show } from '@luna_ui/luna';
+
 interface ToastProps {
   message: string;
   type: "success" | "error" | "info";
 }
 
-function Toast(props: ToastProps) {
+export default function hydrate(element: Element, state: ToastProps) {
   const [visible, setVisible] = createSignal(true);
-  const host = useHost();
 
   onMount(() => {
-    host.classList.add(props.type);
+    element.classList.add(state.type);
 
     // Auto-dismiss after 5 seconds
     const timeout = setTimeout(() => setVisible(false), 5000);
@@ -342,18 +344,16 @@ function Toast(props: ToastProps) {
 
   const dismiss = () => {
     setVisible(false);
-    host.remove();
+    element.remove();
   };
 
-  return (
+  render(element, () => (
     <Show when={visible()}>
-      <span>{props.message}</span>
+      <span>{state.message}</span>
       <button onClick={dismiss}>×</button>
     </Show>
-  );
+  ));
 }
-
-hydrateWC("wc-toast", Toast);
 ```
 
 </details>

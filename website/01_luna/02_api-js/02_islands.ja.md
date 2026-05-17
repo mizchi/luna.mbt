@@ -39,23 +39,36 @@ Custom Element として `customElements.define()` を呼ぶ必要は **無い**
 | `media` | メディアクエリマッチ時 |
 | `none` | 手動トリガー |
 
-## hydrateWC 関数
+## Island モジュール契約
+
+`luna:wc-url` が指す JavaScript モジュールは `hydrate` 関数 (名前付き or default export) を公開する。 wc-loader が動的 import し、 以下のシグネチャで呼ぶ:
 
 ```typescript
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+hydrate(element: Element, state: unknown, name: string): void | (() => void)
+```
 
-function Counter(props: { count: number }) {
-  const [count, setCount] = createSignal(props.count);
+- `element` — Custom Element の実体 (例: `<wc-counter>`)
+- `state` — `luna:wc-state` (JSON) のパース結果。 属性が無ければ `{}`
+- `name` — 要素のタグ名 (例: `"wc-counter"`)
+- 戻り値に cleanup function を返すと HMR / 切り離し時に呼ばれる
 
-  return (
+```typescript
+import { createSignal, render } from '@luna_ui/luna';
+
+interface CounterProps {
+  count: number;
+}
+
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.count);
+
+  render(element, () => (
     <>
       <style>{`:host { display: block; }`}</style>
       <button onClick={() => setCount(c => c + 1)}>
         Count: {count()}
       </button>
     </>
-  );
+  ));
 }
-
-hydrateWC('wc-counter', Counter);
 ```

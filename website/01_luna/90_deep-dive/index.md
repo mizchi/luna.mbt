@@ -33,12 +33,12 @@ Luna is the first framework to support full WebComponents SSR + Hydration using 
 
 ```html
 <!-- Server-rendered output -->
-<my-counter luna:client-trigger="visible">
+<wc-counter luna:wc-url="/static/counter.js" luna:wc-trigger="visible">
   <template shadowrootmode="open">
     <style>button { color: blue; }</style>
     <button>Count: 0</button>
   </template>
-</my-counter>
+</wc-counter>
 ```
 
 The key insight: Declarative Shadow DOM (`<template shadowrootmode="open">`) allows Shadow DOM to be serialized as HTML. Combined with Luna's hydration system, this enables:
@@ -132,8 +132,7 @@ pub enum Node[E] {
   Fragment(Array[Node[E]])  // Fragment
   Show(...)                 // Conditional rendering
   For(...)                  // List rendering
-  Island(VIsland[E])        // Hydration boundary
-  WcIsland(VWcIsland[E])    // Web Components Island
+  WcIsland(VWcIsland[E])    // Web Components Island (hydration boundary)
   Async(VAsync[E])          // Async node
 }
 ```
@@ -275,49 +274,50 @@ Luna supports multiple hydration strategies:
 
 ### Island Attributes
 
-Server-rendered HTML includes hydration metadata:
+Server-rendered HTML includes hydration metadata on a Web Component element:
 
 ```html
-<div luna:id="counter"
-     luna:url="/static/counter.js"
-     luna:state='{"count":0}'
-     luna:client-trigger="visible">
+<wc-counter luna:wc-url="/static/counter.js"
+            luna:wc-state='{"count":0}'
+            luna:wc-trigger="visible">
   <!-- SSR content -->
-</div>
+</wc-counter>
 ```
 
 | Attribute | Purpose |
 |-----------|---------|
-| `luna:id` | Component identifier |
-| `luna:url` | JavaScript module URL |
-| `luna:state` | Serialized initial state |
-| `luna:client-trigger` | Hydration strategy |
+| `luna:wc-url` | JavaScript module URL |
+| `luna:wc-state` | Serialized initial state |
+| `luna:wc-trigger` | Hydration strategy |
+
+The loader scans `[luna:wc-url]` and uses the element's tag name (e.g. `wc-counter`) as the component identifier. `customElements.define()` is not required.
 
 ### Hydration Process
 
 1. **Loader initialization** - Small (~1.6KB) loader script runs
-2. **Island detection** - Find elements with `luna:id`
+2. **Island detection** - Find elements with `luna:wc-url`
 3. **Strategy evaluation** - Check trigger conditions
 4. **Module loading** - Dynamic import of island code
-5. **State deserialization** - Parse `luna:state`
-6. **Hydration** - Attach reactivity to existing DOM
+5. **State deserialization** - Parse `luna:wc-state`
+6. **Hydration** - Module's `export default` (or named `hydrate`) receives `(element, state, name)` and attaches reactivity
 
-### Web Components Integration
-
-Islands can be implemented as Web Components:
+### Island Module Shape
 
 ```typescript
-hydrateWC("my-counter", (root, props, trigger) => {
-  // root: ShadowRoot (existing from SSR)
-  // props: Serialized props
-  // trigger: Hydration trigger info
-});
+import { createSignal, render } from '@luna_ui/luna';
+
+export default function hydrate(element: Element, state: { count?: number }) {
+  const [count, setCount] = createSignal(state.count ?? 0);
+  render(element, () => (
+    <button onClick={() => setCount(c => c + 1)}>Count: {count()}</button>
+  ));
+}
 ```
 
-Benefits:
-- Style encapsulation via Shadow DOM
+Benefits of the Web Component shell:
+- Style encapsulation via Declarative Shadow DOM
 - Native browser support
-- Framework agnostic islands
+- Framework-agnostic islands
 
 ---
 

@@ -67,24 +67,22 @@ fn counter_island(initial : Int) -> @luna.Node {
 The client-side code hydrates the island:
 
 ```typescript
-// counter.ts
-import { createSignal, hydrate } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, render } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
-  return (
+  render(element, () => (
     <button onClick={() => setCount(c => c + 1)}>
       Count: {count()}
     </button>
-  );
+  ));
 }
-
-hydrateWC("counter", Counter);
 ```
 
 ## Island Attributes

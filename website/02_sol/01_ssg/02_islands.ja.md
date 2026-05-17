@@ -158,7 +158,7 @@ pub fn counter(props : CounterProps, trigger~ : @luna.Trigger) -> @luna.Componen
 )
 
 // 低レベル（非推奨）
-@sol.island_raw("counter", "/static/counter.js", state_json, children)
+@sol.island_raw("wc-counter", "/static/counter.js", state_json, children)
 ```
 
 ## 生成される HTML
@@ -166,13 +166,11 @@ pub fn counter(props : CounterProps, trigger~ : @luna.Trigger) -> @luna.Componen
 Island ディレクティブは以下を生成します：
 
 ```html
-<!--luna:island:wiki url=/islands/wiki.js trigger=load-->
-<div luna:id="wiki"
-     luna:url="/islands/wiki.js"
-     luna:state="{}"
-     luna:client-trigger="load">
-</div>
-<!--/luna:island:wiki-->
+<wc-wiki
+  luna:wc-url="/islands/wiki.js"
+  luna:wc-state="{}"
+  luna:wc-trigger="load">
+</wc-wiki>
 ```
 
 Luna ローダーは自動的にこれらの要素を検出してハイドレートします。

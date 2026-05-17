@@ -30,8 +30,7 @@ pub enum Node[E] {
   Fragment(Array[Node[E]])  // フラグメント
   Show(...)                 // 条件付きレンダリング
   For(...)                  // リストレンダリング
-  Island(VIsland[E])        // Hydration 境界
-  WcIsland(VWcIsland[E])    // Web Components Island
+  WcIsland(VWcIsland[E])    // Web Components Island (Hydration 境界)
   Async(VAsync[E])          // 非同期ノード
 }
 ```

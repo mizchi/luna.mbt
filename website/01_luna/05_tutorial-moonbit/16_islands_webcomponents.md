@@ -61,16 +61,17 @@ fn counter_wc(initial : Int) -> @luna.Node {
 ### TypeScript (Client)
 
 ```typescript
-import { createSignal, hydrateWC } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, render } from '@luna_ui/luna';
 
 interface CounterProps {
   initial: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
-  return (
+  render(element, () => (
     <>
       <style>
         {`:host { display: block; padding: 16px; }
@@ -80,10 +81,8 @@ function Counter(props: CounterProps) {
         Count: {count()}
       </button>
     </>
-  );
+  ));
 }
-
-hydrateWC("wc-counter", Counter);
 ```
 
 ## wc_island Function

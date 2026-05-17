@@ -67,20 +67,22 @@ fn counter_island(initial : Int) -> @luna.Node {
 クライアントサイドコードが Island をハイドレート：
 
 ```typescript
-// counter.ts
-import { createSignal, hydrate } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, render } from '@luna_ui/luna';
 
-function Counter(props) {
-  const [count, setCount] = createSignal(props.initial);
+interface CounterProps {
+  initial: number;
+}
 
-  return (
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
+
+  render(element, () => (
     <button onClick={() => setCount(c => c + 1)}>
       Count: {count()}
     </button>
-  );
+  ));
 }
-
-hydrateWC("counter", Counter);
 ```
 
 ## Island 属性

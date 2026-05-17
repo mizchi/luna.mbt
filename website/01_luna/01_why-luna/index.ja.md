@@ -27,11 +27,11 @@ title: なぜ Luna なのか？
 Luna は **WebComponents SSR + Hydration を完全サポートした初めてのフレームワーク** です。
 
 ```html
-<my-counter luna:client-trigger="visible">
+<wc-counter luna:wc-url="/static/counter.js" luna:wc-trigger="visible">
   <template shadowrootmode="open">
     <button>Count: 0</button>
   </template>
-</my-counter>
+</wc-counter>
 ```
 
 ### ランタイムパフォーマンス

@@ -25,13 +25,12 @@ title: "Islands: State"
 Luna は状態を JSON として HTML にシリアライズ：
 
 ```html
-<div
- 
+<wc-counter
   luna:wc-state='{"initial":5,"max":100}'
-  luna:wc-url="/static/counter.js"
+  luna:wc-url="/static/wc-counter.js"
 >
   <!-- SSR コンテンツ -->
-</div>
+</wc-counter>
 ```
 
 ## State の定義
@@ -43,8 +42,8 @@ Luna は状態を JSON として HTML にシリアライズ：
 ### クライアントサイド（TypeScript）
 
 ```typescript
-// counter.ts
-import { createSignal, hydrate } from '@luna_ui/luna';
+// wc-counter.ts
+import { createSignal, render } from '@luna_ui/luna';
 
 // マッチする TypeScript インターフェースを定義
 interface CounterProps {
@@ -52,21 +51,19 @@ interface CounterProps {
   max: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
   const increment = () => {
-    setCount(c => Math.min(c + 1, props.max));
+    setCount(c => Math.min(c + 1, state.max));
   };
 
-  return (
+  render(element, () => (
     <button onClick={increment}>
-      Count: {count()} / {props.max}
+      Count: {count()} / {state.max}
     </button>
-  );
+  ));
 }
-
-hydrateWC("counter", Counter);
 ```
 
 ## 複雑な State

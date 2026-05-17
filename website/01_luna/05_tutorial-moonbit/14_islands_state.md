@@ -62,27 +62,27 @@ fn counter_island(props : @types.CounterProps) -> @luna.Node {
 ### TypeScript (Client)
 
 ```typescript
-// counter.ts
+// wc-counter.ts
+import { createSignal, render } from '@luna_ui/luna';
+
 interface CounterProps {
   initial: number;
   max: number;
 }
 
-function Counter(props: CounterProps) {
-  const [count, setCount] = createSignal(props.initial);
+export default function hydrate(element: Element, state: CounterProps) {
+  const [count, setCount] = createSignal(state.initial);
 
   const increment = () => {
-    setCount(c => Math.min(c + 1, props.max));
+    setCount(c => Math.min(c + 1, state.max));
   };
 
-  return (
+  render(element, () => (
     <button onClick={increment}>
-      Count: {count()} / {props.max}
+      Count: {count()} / {state.max}
     </button>
-  );
+  ));
 }
-
-hydrateWC("counter", Counter);
 ```
 
 ## Complex State
