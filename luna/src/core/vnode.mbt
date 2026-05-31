@@ -155,10 +155,12 @@ pub type Trigger = TriggerType
 /// Represents a client-side Web Components Island that can be embedded in server-rendered HTML
 /// - url: Path to the client JavaScript (e.g., "/static/counter.js")
 /// - props: Component props (must be ToJson serializable)
+/// - wc: Whether this references a Web Component island
 /// - trigger: When to hydrate the component
 pub(all) struct ComponentRef[T] {
   url : String
   props : T
+  wc : Bool
   trigger : TriggerType
 }
 

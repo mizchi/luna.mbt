@@ -264,7 +264,7 @@ pub fn[T] component_ref(
   props : T,
   trigger? : TriggerType = Load,
 ) -> ComponentRef[T] {
-  { url, props, trigger }
+  { url, props, wc: false, trigger }
 }
 
 ///|
@@ -274,7 +274,7 @@ pub fn[T] wc_component_ref(
   props : T,
   trigger? : TriggerType = Load,
 ) -> ComponentRef[T] {
-  { url, props, trigger }
+  { url, props, wc: true, trigger }
 }
 
 // =============================================================================
