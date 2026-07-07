@@ -2,8 +2,8 @@
 package "mizchi/luna/examples/wiki"
 
 import {
-  "mizchi/js/browser/dom",
   "mizchi/js/core",
+  "mizchi/js_browser/dom",
 }
 
 // Values

@@ -80,7 +80,7 @@ enum TestAction {
 } derive(Debug)
 
 ///|
-impl Show for TestAction with output(self, logger) {
+impl Show for TestAction with fn output(self, logger) {
   logger.write_string(
     match self {
       Increment => "Increment"

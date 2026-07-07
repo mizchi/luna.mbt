@@ -185,13 +185,12 @@ async fn[FS : @env.FileSystem] run_dev_command_with_fs(
     false
   }
   let cwd = @process.cwd()
-  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  let has_moon_mod = fs.exists_sync(moon_mod_path)
+  let has_moon_mod = has_moon_mod_with_fs(fs, cwd)
   // Check if this is a MoonBit project (required for SSR app mode)
   if !has_moon_mod {
     @cli_common.console_error(
       @colorette.red(
-        "Error: Not a MoonBit project (moon.mod.json not found). Use `astra dev` for SSG-only projects.",
+        "Error: Not a MoonBit project (moon.mod or moon.mod.json not found). Use `astra dev` for SSG-only projects.",
       ),
     )
     @process.exit(1)

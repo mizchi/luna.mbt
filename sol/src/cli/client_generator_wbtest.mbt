@@ -17,12 +17,17 @@ test "generate_island_entry_js_v2: dev mode uses debug build imports" {
   let js = generate_island_entry_js_v2(
     dummy_func_export(),
     true,
-    "client",
+    "tester/myapp/client",
+    "tester/myapp/__gen__/client",
     "dev",
   )
-  assert_true(js.contains("../../../_build/js/debug/build/client/client.js"))
   assert_true(
-    js.contains("../../../_build/js/debug/build/__gen__/client/client.js"),
+    js.contains("../../../_build/js/debug/build/tester/myapp/client/client.js"),
+  )
+  assert_true(
+    js.contains(
+      "../../../_build/js/debug/build/tester/myapp/__gen__/client/client.js",
+    ),
   )
 }
 
@@ -31,11 +36,18 @@ test "generate_island_entry_js_v2: prod mode uses release build imports" {
   let js = generate_island_entry_js_v2(
     dummy_func_export(),
     true,
-    "client",
+    "tester/myapp/client",
+    "tester/myapp/__gen__/client",
     "prod",
   )
-  assert_true(js.contains("../../../_build/js/release/build/client/client.js"))
   assert_true(
-    js.contains("../../../_build/js/release/build/__gen__/client/client.js"),
+    js.contains(
+      "../../../_build/js/release/build/tester/myapp/client/client.js",
+    ),
+  )
+  assert_true(
+    js.contains(
+      "../../../_build/js/release/build/tester/myapp/__gen__/client/client.js",
+    ),
   )
 }

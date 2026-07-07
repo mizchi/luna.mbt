@@ -33,40 +33,66 @@ fn show_build_help() -> Unit {
 ///|
 /// Patch generated server JS for MoonBit 0.8 async scheduler symbol mismatch.
 /// This keeps request handling working until upstream codegen is fixed.
+fn[FS : @env.FileSystem] collect_built_js_paths(
+  fs : FS,
+  dir : String,
+  paths : Array[String],
+) -> Unit {
+  if !fs.exists_sync(dir) {
+    return
+  }
+  let entries = fs.readdir_sync(dir) catch { _ => return }
+  for entry in entries {
+    let entry_path = @path.join2(dir, entry)
+    let is_dir = fs.is_directory_sync(entry_path) catch { _ => false }
+    if is_dir {
+      collect_built_js_paths(fs, entry_path, paths)
+    } else if entry.has_suffix(".js") {
+      paths.push(entry_path)
+    }
+  }
+}
+
+///|
+fn[FS : @env.FileSystem] built_js_paths(
+  fs : FS,
+  cwd : String,
+  target : String,
+  profile : String,
+) -> Array[String] {
+  let paths : Array[String] = []
+  let build_root = @path.join2(cwd, "_build/\{target}/\{profile}/build")
+  collect_built_js_paths(fs, build_root, paths)
+  paths
+}
+
+///|
 fn[FS : @env.FileSystem] patch_mars_reschedule_shim_with_fs(
   fs : FS,
   cwd : String,
   target : String,
   profile : String,
 ) -> Unit {
-  // Try __gen__/server/server.js first, then server/server.js (user-managed mode)
-  let gen_path = @path.join2(
-    cwd,
-    "_build/\{target}/\{profile}/build/__gen__/server/server.js",
-  )
-  let user_path = @path.join2(
-    cwd,
-    "_build/\{target}/\{profile}/build/server/server.js",
-  )
-  let server_js_path = if fs.exists_sync(gen_path) {
-    gen_path
-  } else if fs.exists_sync(user_path) {
-    user_path
-  } else {
-    return
-  }
-  let content = fs.read_file_sync(server_js_path) catch { _ => return }
   let broken = "moonbitlang$async$internal$event_loop$$reschedule();"
-  if !content.contains(broken) {
-    return
+  let mut patched_count = 0
+  for js_path in built_js_paths(fs, cwd, target, profile) {
+    let content = fs.read_file_sync(js_path) catch { _ => continue }
+    if !content.contains(broken) {
+      continue
+    }
+    let patched = content.replace_all(old=broken, new="void 0;")
+    fs.write_file_sync(js_path, patched) catch {
+      _ => continue
+    }
+    patched_count += 1
   }
-  let patched = content.replace_all(old=broken, new="void 0;")
-  fs.write_file_sync(server_js_path, patched) catch {
-    _ => return
+  if patched_count > 0 {
+    println(
+      @colorette.gray(
+        "Patched async reschedule shim in \{patched_count} \{profile} JS file(s)",
+      ),
+    )
   }
-  println(
-    @colorette.gray("Patched async reschedule shim in \{profile} server.js"),
-  )
 }
 
 ///|
@@ -79,39 +105,29 @@ fn[FS : @env.FileSystem] patch_cloudflare_global_seed_with_fs(
   target : String,
   profile : String,
 ) -> Unit {
-  // Try __gen__/server/server.js first, then server/server.js (user-managed mode)
-  let gen_path = @path.join2(
-    cwd,
-    "_build/\{target}/\{profile}/build/__gen__/server/server.js",
-  )
-  let user_path = @path.join2(
-    cwd,
-    "_build/\{target}/\{profile}/build/server/server.js",
-  )
-  let server_js_path = if fs.exists_sync(gen_path) {
-    gen_path
-  } else if fs.exists_sync(user_path) {
-    user_path
-  } else {
-    return
-  }
-  let content = fs.read_file_sync(server_js_path) catch { _ => return }
   let eager_seed = "const _M0FPB4seed = _M0FPB12random__seed();"
-  if !content.contains(eager_seed) {
-    return
+  let mut patched_count = 0
+  for js_path in built_js_paths(fs, cwd, target, profile) {
+    let content = fs.read_file_sync(js_path) catch { _ => continue }
+    if !content.contains(eager_seed) {
+      continue
+    }
+    let patched = content.replace_all(
+      old=eager_seed,
+      new="const _M0FPB4seed = 0; /* patched: Workers disallow crypto in global scope */",
+    )
+    fs.write_file_sync(js_path, patched) catch {
+      _ => continue
+    }
+    patched_count += 1
   }
-  let patched = content.replace_all(
-    old=eager_seed,
-    new="const _M0FPB4seed = 0; /* patched: Workers disallow crypto in global scope */",
-  )
-  fs.write_file_sync(server_js_path, patched) catch {
-    _ => return
+  if patched_count > 0 {
+    println(
+      @colorette.gray(
+        "Patched Cloudflare global random seed in \{patched_count} \{profile} JS file(s)",
+      ),
+    )
   }
-  println(
-    @colorette.gray(
-      "Patched Cloudflare global random seed in \{profile} server.js",
-    ),
-  )
 }
 
 ///|
@@ -217,8 +233,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     Some(config) => !config.static_dirs.is_empty()
     None => false
   }
-  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  let has_moon_mod = fs.exists_sync(moon_mod_path)
+  let has_moon_mod = has_moon_mod_with_fs(fs, cwd)
   let mode_detail = if has_moon_mod && has_static_dirs {
     "App (with staticDirs)"
   } else {
@@ -229,7 +244,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   if !has_moon_mod {
     @cli_common.console_error(
       @colorette.red(
-        "Error: Not a MoonBit project (moon.mod.json not found). Use `astra build` for SSG-only projects.",
+        "Error: Not a MoonBit project (moon.mod or moon.mod.json not found). Use `astra build` for SSG-only projects.",
       ),
     )
     @process.exit(1)

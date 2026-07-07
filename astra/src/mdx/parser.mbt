@@ -389,5 +389,14 @@ fn convert_inline(inline : @md_parser.Inline) -> @astra.MdNode? {
     @md_parser.Inline::HtmlInline(html~, ..) => Some(@astra.MdNode::Html(html))
     @md_parser.Inline::FootnoteReference(label~, ..) =>
       Some(@astra.MdNode::Text("[^\{label}]"))
+    @md_parser.Inline::WikiLink(target~, label~, fragment~, ..) => {
+      let href = if fragment == "" { target } else { target + "#" + fragment }
+      let text = if label == "" { target } else { label }
+      Some(
+        @astra.MdNode::Link(href~, title="", children=[
+          @astra.MdNode::Text(text),
+        ]),
+      )
+    }
   }
 }

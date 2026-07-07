@@ -4,25 +4,25 @@
   "deps": {
     "mizchi/astra": {
       "path": "../..",
-      "version": "0.22.0"
+      "version": "0.23.1"
     },
     "mizchi/sol": {
       "path": "../../../sol",
-      "version": "0.22.1"
+      "version": "0.23.1"
     },
     "mizchi/sol_adapter_node": {
       "path": "../../../sol_adapter_node",
-      "version": "0.22.0"
+      "version": "0.23.1"
     },
     "mizchi/luna": {
       "path": "../../../luna",
-      "version": "0.22.0"
+      "version": "0.23.1"
     },
     "mizchi/mars": "0.3.10",
     "mizchi/signals": "0.6.4",
-    "mizchi/js": "0.10.15",
-    "mizchi/npm_typed": "0.1.11",
-    "moonbitlang/async": "0.17.0"
+    "mizchi/js": "0.12.1",
+    "mizchi/npm_typed": "0.1.15",
+    "moonbitlang/async": "0.20.1"
   },
   "source": "app",
   "preferred-target": "js"

@@ -85,7 +85,6 @@ pub fn get_wc_loader_script() -> String {
   }
 }
 
-
 // Fallback functions for when external files are not available
 // These contain the minimal necessary CSS/JS
 
@@ -130,4 +129,3 @@ fn get_fallback_toc_script() -> String {
 fn get_fallback_wc_loader_script() -> String {
   "<script>(function(){ window.__LUNA_WC_SCAN__ = function(){}; window.__LUNA_WC_CLEAR_LOADED__ = function(){}; })();</script>"
 }
-

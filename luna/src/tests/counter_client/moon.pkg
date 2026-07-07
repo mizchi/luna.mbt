@@ -1,9 +1,9 @@
 import {
-  "mizchi/luna" @luna,
+  "mizchi/luna",
   "mizchi/signals",
-  "mizchi/luna/js/resource" @resource,
-  "mizchi/js/browser/dom" @js_dom,
-  "mizchi/luna/dom/client" @client,
+  "mizchi/luna/js/resource",
+  "mizchi/js_browser/dom" @js_dom,
+  "mizchi/luna/dom/client",
   "mizchi/js/core" @js,
 }
 

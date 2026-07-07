@@ -130,7 +130,7 @@ fn[FS : @env.FileSystem] run_new_command_with_fs(
     @process.exit(2)
   }
   let project_base = extract_project_basename(project_name)
-  let package_name = "\{user_ns}/\{project_base}" // Full name for moon.mod.json
+  let package_name = "\{user_ns}/\{project_base}" // Full name for moon.mod
   // Calculate luna path for dev mode (based on project depth)
   let luna_path : String? = if dev_mode {
     // Count path depth (number of slashes + 1)

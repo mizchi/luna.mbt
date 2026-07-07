@@ -53,6 +53,11 @@ export default defineConfig([
     minify: false,
     // Bundle CSS module into plugin
     noExternal: [/\.\/css/],
+    deps: {
+      dts: {
+        neverBundle: [/^vite($|\/)/, /^postcss($|\/)/, /^esbuild($|\/)/],
+      },
+    },
     outExtensions() {
       return { js: ".js", dts: ".d.ts" };
     },

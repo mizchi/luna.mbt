@@ -4,6 +4,7 @@ export default defineConfig([
   // ESM build with code splitting
   {
     input: {
+      'loader': './src/loader.ts',
       'wc-loader': './src/wc-loader.ts',
       'sol-nav': './src/sol-nav.ts',
       'lib': './src/lib.ts',
@@ -25,17 +26,26 @@ export default defineConfig([
       format: 'esm',
       entryFileNames: '[name].js',
       minify: true,
-      legalComments: 'none',
+      comments: { legal: false },
     },
   },
   // IIFE bundled builds (self-contained, for testing and static serving)
+  {
+    input: './src/loader.ts',
+    output: {
+      file: './dist/loader.iife.js',
+      format: 'iife',
+      minify: true,
+      comments: { legal: false },
+    },
+  },
   {
     input: './src/wc-loader.ts',
     output: {
       file: './dist/wc-loader.iife.js',
       format: 'iife',
       minify: true,
-      legalComments: 'none',
+      comments: { legal: false },
     },
   },
   // HMR client (dev-only, injected by sol dev server)
@@ -55,7 +65,7 @@ export default defineConfig([
       format: 'iife',
       name: 'LunaBoot',
       minify: true,
-      legalComments: 'none',
+      comments: { legal: false },
     },
   },
 ]);

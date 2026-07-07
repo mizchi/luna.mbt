@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SOL_DIR = path.resolve(THIS_DIR, "..");
 const ROOT = path.resolve(SOL_DIR, "..");
+const SOL_VERSION = readMoonModVersion(path.join(SOL_DIR, "moon.mod"));
 const CLI_DEBUG = path.join(
   ROOT,
   "_build",
@@ -27,6 +28,13 @@ const SOL_API = path.join(SOL_DIR, "examples", "sol_api");
 // after sol_app/sol_auth/sol_todo/sol_api moved to user-managed mode. Tests
 // that assert on the `__gen__/server/main.mbt` generator output target this.
 const SOL_SQLITE = path.join(SOL_DIR, "examples", "sol_sqlite");
+
+function readMoonModVersion(filePath) {
+  const content = fs.readFileSync(filePath, "utf8");
+  const match = content.match(/^version\s*=\s*"([^"]+)"/m);
+  assert.ok(match, `missing version assignment in ${filePath}`);
+  return match[1];
+}
 
 function ensureCliBuilt() {
   const build = spawnSync("moon", ["build", "--target", "js"], {
@@ -51,18 +59,54 @@ function runSolGenerate(cwd) {
   return runSol(cwd, ["generate"]);
 }
 
+function moonWorkMember(projectDir, memberPath) {
+  return path
+    .relative(fs.realpathSync(projectDir), fs.realpathSync(memberPath))
+    .split(path.sep)
+    .join("/");
+}
+
+function writeMoonWork(projectDir) {
+  const members = [
+    ".",
+    moonWorkMember(projectDir, SOL_DIR),
+    moonWorkMember(projectDir, path.join(ROOT, "astra")),
+    moonWorkMember(projectDir, path.join(ROOT, "luna")),
+    moonWorkMember(projectDir, path.join(ROOT, "luna_components")),
+    moonWorkMember(projectDir, path.join(ROOT, "sol_adapter_node")),
+    moonWorkMember(projectDir, path.join(ROOT, "sol_adapter_cloudflare")),
+  ];
+  fs.writeFileSync(
+    path.join(projectDir, "moon.work"),
+    `members = [\n${members.map((member) => `  "${member}",`).join("\n")}\n]\n`,
+  );
+}
+
+function writeMoonMod(projectDir, name, imports = []) {
+  const importBlock =
+    imports.length === 0
+      ? ""
+      : `\nimport {\n${imports.map((entry) => `  "${entry}",`).join("\n")}\n}\n`;
+  fs.writeFileSync(
+    path.join(projectDir, "moon.mod"),
+    `name = "${name}"\n\nversion = "0.1.0"\n${importBlock}\nsource = "app"\n\npreferred_target = "js"\n`,
+  );
+  writeMoonWork(projectDir);
+}
+
 function runTypeScriptCheck(entryPath) {
   return spawnSync(
     "pnpm",
     [
       "exec",
       "tsc",
+      "--ignoreConfig",
       "--strict",
       "--noEmit",
       "--module",
       "ESNext",
       "--moduleResolution",
-      "node",
+      "bundler",
       "--target",
       "ES2022",
       entryPath,
@@ -80,20 +124,7 @@ test("sol generate: external client bundle avoids generated client intermediates
   try {
     fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
     fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
-    fs.writeFileSync(
-      path.join(sandbox, "moon.mod.json"),
-      JSON.stringify(
-        {
-          name: "example/external-bundle",
-          version: "0.1.0",
-          deps: {},
-          source: "app",
-          "preferred-target": "js",
-        },
-        null,
-        2
-      ) + "\n"
-    );
+    writeMoonMod(sandbox, "example/external-bundle");
     fs.writeFileSync(
       path.join(sandbox, "sol.config.json"),
       JSON.stringify(
@@ -156,7 +187,10 @@ test("sol generate: external client bundle avoids generated client intermediates
       "utf8"
     );
     assert.match(mainJs, /user-managed MoonBit mode/);
-    assert.match(mainJs, /_build\/js\/release\/build\/server\/server\.js/);
+    assert.match(
+      mainJs,
+      /_build\/js\/release\/build\/example\/external-bundle\/server\/server\.js/
+    );
     assert.doesNotMatch(mainJs, /__gen__\/server/);
 
     const typesPath = path.join(
@@ -182,20 +216,7 @@ test("sol generate: contract manifest drives route/action/client asset types", (
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-contract-"));
   try {
     fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
-    fs.writeFileSync(
-      path.join(sandbox, "moon.mod.json"),
-      JSON.stringify(
-        {
-          name: "example/contract-manifest",
-          version: "0.1.0",
-          deps: {},
-          source: "app",
-          "preferred-target": "js",
-        },
-        null,
-        2
-      ) + "\n"
-    );
+    writeMoonMod(sandbox, "example/contract-manifest");
     fs.writeFileSync(
       path.join(sandbox, "sol.config.json"),
       JSON.stringify(
@@ -377,20 +398,7 @@ test("sol contract-ts output drives sol generate contract manifest mode", () => 
   try {
     fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
     fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
-    fs.writeFileSync(
-      path.join(sandbox, "moon.mod.json"),
-      JSON.stringify(
-        {
-          name: "example/contract-ts",
-          version: "0.1.0",
-          deps: {},
-          source: "app",
-          "preferred-target": "js",
-        },
-        null,
-        2
-      ) + "\n"
-    );
+    writeMoonMod(sandbox, "example/contract-ts");
     fs.writeFileSync(
       path.join(sandbox, "sol.config.json"),
       JSON.stringify(
@@ -485,20 +493,7 @@ test("sol generate: contractTs config drives generated contract types", () => {
   try {
     fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
     fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
-    fs.writeFileSync(
-      path.join(sandbox, "moon.mod.json"),
-      JSON.stringify(
-        {
-          name: "example/contract-ts-config",
-          version: "0.1.0",
-          deps: {},
-          source: "app",
-          "preferred-target": "js",
-        },
-        null,
-        2
-      ) + "\n"
-    );
+    writeMoonMod(sandbox, "example/contract-ts-config");
     fs.writeFileSync(
       path.join(sandbox, "sol.config.json"),
       JSON.stringify(
@@ -595,26 +590,13 @@ test("sol generate: route and action declarations typecheck in TypeScript", () =
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), "sol-route-dts-"));
   try {
     fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
-    fs.writeFileSync(
-      path.join(sandbox, "moon.mod.json"),
-      JSON.stringify(
-        {
-          name: "example/route-dts",
-          version: "0.1.0",
-          deps: {
-            "mizchi/sol": { path: SOL_DIR },
-            "mizchi/luna": { path: path.join(ROOT, "luna") },
-            "mizchi/mars": "0.3.10",
-            "mizchi/js": "0.10.15",
-            "moonbitlang/async": "0.17.0",
-          },
-          source: "app",
-          "preferred-target": "js",
-        },
-        null,
-        2
-      ) + "\n"
-    );
+    writeMoonMod(sandbox, "example/route-dts", [
+      `mizchi/sol@${SOL_VERSION}`,
+      `mizchi/luna@${SOL_VERSION}`,
+      "mizchi/mars@0.3.10",
+      "mizchi/js@0.12.1",
+      "moonbitlang/async@0.20.1",
+    ]);
     fs.writeFileSync(
       path.join(sandbox, "sol.config.json"),
       JSON.stringify(
@@ -716,20 +698,7 @@ test("sol generate: invalid contract manifest fails instead of source fallback",
   try {
     fs.mkdirSync(path.join(sandbox, "app", "server"), { recursive: true });
     fs.mkdirSync(path.join(sandbox, "app", "client"), { recursive: true });
-    fs.writeFileSync(
-      path.join(sandbox, "moon.mod.json"),
-      JSON.stringify(
-        {
-          name: "example/contract-manifest-invalid",
-          version: "0.1.0",
-          deps: {},
-          source: "app",
-          "preferred-target": "js",
-        },
-        null,
-        2
-      ) + "\n"
-    );
+    writeMoonMod(sandbox, "example/contract-manifest-invalid");
     fs.writeFileSync(
       path.join(sandbox, "sol.config.json"),
       JSON.stringify(
@@ -847,11 +816,11 @@ test("sol generate: produces types.mbt with route constants, action keys, and co
     /pub fn wc_counter\(/,
     "wc_counter() ComponentRef factory"
   );
-  // wc_counter should have wc: true
+  // wc_counter should use the Web Component ComponentRef factory.
   assert.match(
     content,
-    /wc_counter[\s\S]*?wc: true/,
-    "wc_counter has wc: true"
+    /pub fn wc_counter[\s\S]*?@luna\.wc_component_ref/,
+    "wc_counter uses wc_component_ref"
   );
 
   // --- Route path constants ---
@@ -1089,20 +1058,18 @@ test("sol build: cloudflare server output is Worker-bundler clean", () => {
   );
   assert.match(mainJs, /globalThis\.__SOL_RUNTIME__ = 'cloudflare'/);
   // user-managed mode (sol_app ships its own app/server/main.mbt): the
-  // generated `.sol/prod/server/main.js` imports the moonbit server bundle
-  // directly, not via `__gen__/server/`. auto-managed examples instead
-  // import `_build/js/release/build/__gen__/server/server.js` — see
-  // sol_sqlite below for that path.
+  // generated `.sol/prod/server/main.js` imports the package-scoped MoonBit
+  // server bundle directly, not via `__gen__/server/`.
   assert.match(
     mainJs,
-    /await import\('\.\.\/\.\.\/\.\.\/_build\/js\/release\/build\/server\/server\.js'\)/,
+    /await import\('\.\.\/\.\.\/\.\.\/_build\/js\/release\/build\/example\/sol-app\/server\/server\.js'\)/,
   );
   assert.doesNotMatch(mainJs, /setInterval/);
   assert.doesNotMatch(mainJs, /await new Promise/);
 
-  // user-managed mode (sol_app): the moonbit bundle lives directly under
-  // `_build/js/release/build/server/server.js` — `__gen__/server/` is not
-  // produced. Auto-managed examples would read from the __gen__ path.
+  // user-managed mode (sol_app): the MoonBit bundle lives under the
+  // package-scoped build path. Auto-managed examples would read from
+  // the package-scoped __gen__ path.
   const serverJs = fs.readFileSync(
     path.join(
       SOL_APP,
@@ -1110,6 +1077,8 @@ test("sol build: cloudflare server output is Worker-bundler clean", () => {
       "js",
       "release",
       "build",
+      "example",
+      "sol-app",
       "server",
       "server.js"
     ),

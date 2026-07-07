@@ -1,12 +1,12 @@
 import {
-  "mizchi/luna/core" @core,
+  "mizchi/luna/core",
   "mizchi/signals",
-  "mizchi/luna" @luna,
-  "mizchi/luna/js/resource" @resource,
-  "mizchi/luna/core/render" @render,
+  "mizchi/luna",
+  "mizchi/luna/js/resource",
+  "mizchi/luna/core/render",
   "mizchi/luna/dom" @element,
   "mizchi/js/core" @js,
-  "mizchi/js/browser/dom" @js_dom,
+  "mizchi/js_browser/dom" @js_dom,
   "mizchi/js/web/event",
   "mizchi/js/builtins/global",
   "moonbitlang/core/hashmap",
@@ -14,7 +14,7 @@ import {
 
 import {
   "mizchi/npm_typed/global_jsdom",
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 supported_targets = "js"

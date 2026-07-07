@@ -2,8 +2,8 @@
 package "mizchi/luna/tests/counter_client"
 
 import {
-  "mizchi/js/browser/dom",
   "mizchi/js/core",
+  "mizchi/js_browser/dom",
 }
 
 // Values

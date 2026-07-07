@@ -96,7 +96,7 @@ pub impl Show for StateValue
 
 // Traits
 pub(open) trait Serializable {
-  to_state_value(Self) -> StateValue
-  from_state_value(StateValue) -> Self?
+  fn to_state_value(Self) -> StateValue
+  fn from_state_value(StateValue) -> Self?
 }
 

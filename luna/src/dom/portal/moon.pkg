@@ -1,6 +1,6 @@
 import {
-  "mizchi/luna/js/resource" @resource,
-  "mizchi/js/browser/dom" @js_dom,
+  "mizchi/luna/js/resource",
+  "mizchi/js_browser/dom" @js_dom,
 }
 
 supported_targets = "js"

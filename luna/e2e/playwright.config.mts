@@ -38,7 +38,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node ${join(__dirname, "server.ts")}`,
+    command: `node ${join(__dirname, "server.mts")}`,
     url: "http://127.0.0.1:4156",
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",

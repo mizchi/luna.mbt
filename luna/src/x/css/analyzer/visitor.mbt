@@ -346,7 +346,7 @@ fn visit_impl(ctx : AnalyzerContext, impl_ : @syntax.Impl) -> Unit {
 /// Visit function body
 fn visit_decl_body(ctx : AnalyzerContext, body : @syntax.DeclBody) -> Unit {
   match body {
-    DeclBody(expr~, ..) => visit_expr(ctx, expr)
+    DeclBody(expr~) => visit_expr(ctx, expr)
     DeclStubs(_) => () // External function stubs
     DeclNone => ()
   }

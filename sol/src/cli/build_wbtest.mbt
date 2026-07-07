@@ -72,3 +72,20 @@ test "patch_cloudflare_global_seed_with_fs: user-managed server.js is patched" {
   let content = @env.FileSystem::read_file_sync(fs, server_js_path)
   assert_true(content.contains("const _M0FPB4seed = 0;"))
 }
+
+///|
+test "patch_cloudflare_global_seed_with_fs: package-scoped server.js is patched" {
+  let fs = @fs_adapter.MemFSAdapter::new()
+  let cwd = "/app"
+  let server_dir = "/app/_build/js/release/build/testuser/worker-app/server"
+  let server_js_path = server_dir + "/server.js"
+  @env.FileSystem::mkdir_sync(fs, server_dir, true)
+  @env.FileSystem::write_file_sync(
+    fs, server_js_path, "const _M0FPB4seed = _M0FPB12random__seed();",
+  )
+
+  patch_cloudflare_global_seed_with_fs(fs, cwd, "js", "release")
+
+  let content = @env.FileSystem::read_file_sync(fs, server_js_path)
+  assert_true(content.contains("const _M0FPB4seed = 0;"))
+}

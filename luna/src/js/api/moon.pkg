@@ -1,15 +1,15 @@
 import {
-  "mizchi/luna" @luna,
-  "mizchi/signals/ui" @ui,
+  "mizchi/luna",
+  "mizchi/signals/ui",
   "mizchi/signals",
-  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna/js/resource",
   "mizchi/luna/dom" @element,
-  "mizchi/luna/dom/client" @client,
-  "mizchi/luna/core/routes" @routes,
+  "mizchi/luna/dom/client",
+  "mizchi/luna/core/routes",
   "mizchi/luna/dom/router" @browser_router,
   "mizchi/js/core" @js,
-  "mizchi/js/browser/dom" @js_dom,
-  "mizchi/luna/dom/portal" @portal,
+  "mizchi/js_browser/dom" @js_dom,
+  "mizchi/luna/dom/portal",
 }
 
 import {

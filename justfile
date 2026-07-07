@@ -78,11 +78,11 @@ test-vitest:
 
 # E2E テスト
 test-e2e:
-    pnpm playwright test --config luna/e2e/playwright.config.mts
+    env -u NO_COLOR pnpm playwright test --config luna/e2e/playwright.config.mts
 
 # E2E テスト（UI モード）
 test-e2e-ui:
-    pnpm playwright test --config luna/e2e/playwright.config.mts --ui
+    env -u NO_COLOR pnpm playwright test --config luna/e2e/playwright.config.mts --ui
 
 # luna-examples worker のデプロイ後 smoke (LUNA_EXAMPLES_URL で URL 上書き可)
 test-deployed-luna:
@@ -116,7 +116,7 @@ test-vrt-astra name *args:
         if [[ " {{args}} " =~ " --linux " ]]; then
             # CI 互換の linux ベースラインを docker で seed する。
             docker run --rm -v "$(pwd):/work" -w /work \
-                mcr.microsoft.com/playwright:v1.59.1-noble \
+                mcr.microsoft.com/playwright:v1.61.1-noble \
                 bash -c "corepack enable && cd astra/examples/{{name}} && \
                   pnpm exec playwright test --config e2e/playwright.config.mts --update-snapshots"
         else
@@ -298,7 +298,7 @@ vup version *args:
         # Per-package CHANGELOGs (each package owns its own version + cliff config).
         for pkg in luna luna_components sol sol_adapter_cloudflare sol_adapter_node astra; do
             if [[ -f "${pkg}/cliff.toml" ]]; then
-                NEW_VERSION=$(node -p "require('./${pkg}/moon.mod.json').version")
+                NEW_VERSION=$(node -e "const fs=require('fs'); const m=fs.readFileSync('./${pkg}/moon.mod','utf8').match(/^version\\s*=\\s*\\\"([^\\\"]+)\\\"/m); if(!m) process.exit(1); console.log(m[1])")
                 echo ""
                 echo "Updating ${pkg}/CHANGELOG.md..."
                 git cliff --config "${pkg}/cliff.toml" --tag "${pkg}-v${NEW_VERSION}" -o "${pkg}/CHANGELOG.md" 2>/dev/null || true

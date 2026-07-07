@@ -298,11 +298,7 @@ test "wc_island - empty styles" {
 
 ///|
 test "internal_ref - styles is empty string by default" {
-  let node : @luna.Node[Unit, String] = @luna.internal_ref(
-    "/c.js",
-    "{}",
-    children=[],
-  )
+  let node : @luna.Node[Unit, String] = @luna.internal_ref("/c.js", "{}", children=[])
   guard node is @core.InternalRef(iref) else { fail("Expected InternalRef") }
   inspect(iref.styles, content="")
 }

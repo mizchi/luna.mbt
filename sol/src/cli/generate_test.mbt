@@ -454,6 +454,7 @@ test "generate_sol_server_main_js: node runtime" {
     "myapp/server",
     parse_runtime("node"),
     "prod",
+    "myapp/__gen__/server",
   )
   assert_true(js.contains("Runtime: RuntimeNode"))
   assert_true(js.contains("@hono/node-server"))
@@ -461,7 +462,7 @@ test "generate_sol_server_main_js: node runtime" {
   assert_true(js.contains("export *"))
   assert_true(
     js.contains(
-      "import * as server from '../../../_build/js/release/build/__gen__/server/server.js'",
+      "import * as server from '../../../_build/js/release/build/myapp/__gen__/server/server.js'",
     ),
   )
 }
@@ -480,11 +481,12 @@ test "generate_sol_server_main_js: cloudflare runtime" {
     "myapp/server",
     parse_runtime("cloudflare"),
     "prod",
+    "myapp/__gen__/server",
   )
   assert_true(js.contains("Runtime: RuntimeCloudflare"))
   assert_true(
     js.contains(
-      "await import('../../../_build/js/release/build/__gen__/server/server.js')",
+      "await import('../../../_build/js/release/build/myapp/__gen__/server/server.js')",
     ),
   )
   assert_true(js.contains("globalThis.__SOL_APP__"))
@@ -501,11 +503,12 @@ test "generate_sol_server_main_js: deno runtime" {
     "myapp/server",
     parse_runtime("deno"),
     "prod",
+    "myapp/__gen__/server",
   )
   assert_true(js.contains("Runtime: RuntimeDeno"))
   assert_true(
     js.contains(
-      "import '../../../_build/js/release/build/__gen__/server/server.js'",
+      "import '../../../_build/js/release/build/myapp/__gen__/server/server.js'",
     ),
   )
   assert_true(js.contains("globalThis.__SOL_APP__"))
@@ -520,11 +523,12 @@ test "generate_sol_server_main_js: bun runtime" {
     "myapp/server",
     parse_runtime("bun"),
     "prod",
+    "myapp/__gen__/server",
   )
   assert_true(js.contains("Runtime: RuntimeBun"))
   assert_true(
     js.contains(
-      "import '../../../_build/js/release/build/__gen__/server/server.js'",
+      "import '../../../_build/js/release/build/myapp/__gen__/server/server.js'",
     ),
   )
   assert_true(js.contains("globalThis.__SOL_APP__"))
@@ -539,15 +543,16 @@ test "generate_sol_server_main_js: dev mode uses debug build path" {
     "myapp/server",
     parse_runtime("node"),
     "dev",
+    "myapp/__gen__/server",
   )
   assert_true(
     js.contains(
-      "import * as server from '../../../_build/js/debug/build/__gen__/server/server.js'",
+      "import * as server from '../../../_build/js/debug/build/myapp/__gen__/server/server.js'",
     ),
   )
   assert_true(
     js.contains(
-      "export * from '../../../_build/js/debug/build/__gen__/server/server.js'",
+      "export * from '../../../_build/js/debug/build/myapp/__gen__/server/server.js'",
     ),
   )
 }
@@ -1081,17 +1086,17 @@ test "generate_sol_server_main_js_user_managed: node runtime uses server/server.
   let js = generate_sol_server_main_js_user_managed(
     parse_runtime("node"),
     "prod",
-    "app/server",
+    "myapp/server",
   )
   assert_true(js.contains("user-managed MoonBit mode"))
   assert_true(
     js.contains(
-      "import * as server from '../../../_build/js/release/build/server/server.js'",
+      "import * as server from '../../../_build/js/release/build/myapp/server/server.js'",
     ),
   )
   assert_true(
     js.contains(
-      "export * from '../../../_build/js/release/build/server/server.js'",
+      "export * from '../../../_build/js/release/build/myapp/server/server.js'",
     ),
   )
   // Must NOT reference __gen__/server
@@ -1103,11 +1108,11 @@ test "generate_sol_server_main_js_user_managed: dev mode uses debug path" {
   let js = generate_sol_server_main_js_user_managed(
     parse_runtime("node"),
     "dev",
-    "app/server",
+    "myapp/server",
   )
   assert_true(
     js.contains(
-      "import * as server from '../../../_build/js/debug/build/server/server.js'",
+      "import * as server from '../../../_build/js/debug/build/myapp/server/server.js'",
     ),
   )
   assert_true(!js.contains("__gen__"))
@@ -1118,14 +1123,14 @@ test "generate_sol_server_main_js_user_managed: cloudflare runtime" {
   let js = generate_sol_server_main_js_user_managed(
     parse_runtime("cloudflare"),
     "prod",
-    "app/server",
+    "myapp/server",
   )
   assert_true(js.contains("RuntimeCloudflare"))
   assert_true(js.contains("globalThis.__SOL_APP__"))
   assert_true(js.contains("export default app"))
   assert_true(
     js.contains(
-      "await import('../../../_build/js/release/build/server/server.js')",
+      "await import('../../../_build/js/release/build/myapp/server/server.js')",
     ),
   )
   assert_true(js.contains("globalThis.__SOL_RUNTIME__ = 'cloudflare'"))
@@ -1139,7 +1144,7 @@ test "generate_sol_server_main_js_user_managed: deno runtime" {
   let js = generate_sol_server_main_js_user_managed(
     parse_runtime("deno"),
     "prod",
-    "app/server",
+    "myapp/server",
   )
   assert_true(js.contains("RuntimeDeno"))
   assert_true(js.contains("Deno.serve"))
@@ -1152,7 +1157,7 @@ test "generate_sol_server_main_js_user_managed: bun runtime" {
   let js = generate_sol_server_main_js_user_managed(
     parse_runtime("bun"),
     "prod",
-    "app/server",
+    "myapp/server",
   )
   assert_true(js.contains("RuntimeBun"))
   assert_true(js.contains("export default {"))
@@ -1209,24 +1214,37 @@ fn find_template_content(
 }
 
 ///|
-test "generate_templates: moon.mod.json includes sol and mars dependencies" {
+test "generate_templates: moon.mod includes sol and mars dependencies" {
   let templates = generate_templates("tester/myapp", "myapp", None)
-  let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol\""))
-  assert_true(content.contains("\"mizchi/mars\""))
-  assert_true(content.contains("\"mizchi/signals\""))
+  let content = find_template_content(templates, "moon.mod").unwrap_or("")
+  assert_true(content.contains("\"mizchi/sol@"))
+  assert_true(content.contains("\"mizchi/mars@"))
+  assert_true(content.contains("\"mizchi/signals@"))
 }
 
 ///|
-test "template_moon_mod_json: uses current published moon deps" {
+test "template_moon_mod: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
-  let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol\": \"0.22.4\""))
-  assert_true(content.contains("\"mizchi/sol_adapter_node\": \"0.22.4\""))
-  assert_true(content.contains("\"mizchi/luna\": \"0.22.3\""))
-  assert_true(content.contains("\"mizchi/signals\": \"0.6.4\""))
-  assert_true(content.contains("\"mizchi/js\": \"0.10.15\""))
-  assert_true(content.contains("\"moonbitlang/async\": \"0.17.0\""))
+  let content = find_template_content(templates, "moon.mod").unwrap_or("")
+  assert_true(content.contains("\"mizchi/sol@\{@version.VERSION}\""))
+  assert_true(
+    content.contains("\"mizchi/sol_adapter_node@\{@version.VERSION}\""),
+  )
+  assert_true(content.contains("\"mizchi/luna@\{@version.VERSION}\""))
+  assert_true(content.contains("\"mizchi/signals@0.6.4\""))
+  assert_true(content.contains("\"mizchi/js@0.12.1\""))
+  assert_true(content.contains("\"mizchi/js_browser@0.12.1\""))
+  assert_true(content.contains("\"mizchi/npm_typed@0.1.15\""))
+  assert_true(content.contains("\"moonbitlang/async@0.20.1\""))
+}
+
+///|
+test "generate_templates: dev mode writes moon.work for local luna" {
+  let templates = generate_templates("tester/myapp", "myapp", Some("../luna"))
+  let moon_work = find_template_content(templates, "moon.work").unwrap_or("")
+  assert_true(moon_work.contains("members = ["))
+  assert_true(moon_work.contains("\".\""))
+  assert_true(moon_work.contains("\"../luna\""))
 }
 
 ///|
@@ -1426,7 +1444,7 @@ test "template_server_using_mbt: keeps layout-only tags" {
 test "generate_cloudflare_templates: writes worker composition starter" {
   let templates = generate_cloudflare_templates("tester/myapp", "myapp", None)
   let config = find_template_content(templates, "sol.config.json").unwrap_or("")
-  let moon_mod = find_template_content(templates, "moon.mod.json").unwrap_or("")
+  let moon_mod = find_template_content(templates, "moon.mod").unwrap_or("")
   let server_pkg = find_template_content(templates, "app/server/moon.pkg").unwrap_or(
     "",
   )
@@ -1451,8 +1469,8 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   )
   let readme = find_template_content(templates, "README.md").unwrap_or("")
   assert_true(config.contains("\"runtime\": \"cloudflare\""))
-  assert_true(moon_mod.contains("\"mizchi/sol_adapter_cloudflare\""))
-  assert_false(moon_mod.contains("\"mizchi/sol_adapter_node\""))
+  assert_true(moon_mod.contains("\"mizchi/sol_adapter_cloudflare@"))
+  assert_false(moon_mod.contains("\"mizchi/sol_adapter_node@"))
   assert_true(
     server_pkg.contains("\"mizchi/sol_adapter_cloudflare\" @sol_cloudflare"),
   )

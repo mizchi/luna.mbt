@@ -3,7 +3,7 @@
 //   - `sol/src/cli/main.mbt`      (JS CLI `sol --version`)
 //   - `sol/src/cli/doctor.mbt`    (skew detection in `sol doctor`)
 //
-// Keep in sync with `sol/moon.mod.json::version`.
+// Keep in sync with `sol/moon.mod::version`.
 
 ///|
-pub const VERSION : String = "0.23.0"
+pub const VERSION : String = "0.23.1"

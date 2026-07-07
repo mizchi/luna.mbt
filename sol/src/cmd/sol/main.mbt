@@ -146,7 +146,7 @@ async fn run_js_entry(entry : String, args : Array[String]) -> Int {
 async fn print_launch_failure_guidance() -> Unit {
   println("")
   println("Error: failed to launch the Sol JS CLI.")
-  if !@fs.exists("moon.mod.json") {
+  if !has_moon_mod() {
     println(
       "You're not inside a MoonBit project. `sol` subcommands need a host project that depends on `mizchi/sol`.",
     )
@@ -165,6 +165,11 @@ async fn print_launch_failure_guidance() -> Unit {
       "Run this command inside a MoonBit project that depends on mizchi/sol.",
     )
   }
+}
+
+///|
+async fn has_moon_mod() -> Bool {
+  @fs.exists("moon.mod") || @fs.exists("moon.mod.json")
 }
 
 // ---------------------------------------------------------------------------

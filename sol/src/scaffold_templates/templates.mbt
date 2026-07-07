@@ -27,58 +27,47 @@ pub fn template_gitignore() -> String {
 }
 
 ///|
+pub fn template_moon_mod(package_name : String, luna_path : String?) -> String {
+  let _ = luna_path
+  let tmpl =
+    #|name = "{{PACKAGE_NAME}}"
+    #|
+    #|version = "0.1.0"
+    #|
+    #|import {
+    #|  "mizchi/sol@0.23.1",
+    #|  "mizchi/sol_adapter_node@0.23.1",
+    #|  "mizchi/mars@0.3.10",
+    #|  "mizchi/luna@0.23.1",
+    #|  "mizchi/signals@0.6.4",
+    #|  "mizchi/js@0.12.1",
+    #|  "mizchi/js_browser@0.12.1",
+    #|  "mizchi/npm_typed@0.1.15",
+    #|  "moonbitlang/async@0.20.1",
+    #|}
+    #|
+    #|source = "app"
+    #|
+    #|preferred_target = "js"
+  tmpl.replace(old="{{PACKAGE_NAME}}", new=package_name)
+}
+
+///|
 pub fn template_moon_mod_json(
   package_name : String,
   luna_path : String?,
 ) -> String {
-  match luna_path {
-    Some(path) => {
-      // Development mode - use local path
-      let tmpl =
-        #|{
-        #|  "name": "{{PACKAGE_NAME}}",
-        #|  "version": "0.1.0",
-        #|  "deps": {
-        #|    "mizchi/sol": "0.23.0",
-        #|    "mizchi/sol_adapter_node": "0.23.0",
-        #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": {
-        #|      "path": "{{LUNA_PATH}}"
-        #|    },
-        #|    "mizchi/signals": "0.6.4",
-        #|    "mizchi/js": "0.10.15",
-        #|    "mizchi/npm_typed": "0.1.11",
-        #|    "moonbitlang/async": "0.17.0"
-        #|  },
-        #|  "source": "app",
-        #|  "preferred-target": "js"
-        #|}
-      tmpl
-      .replace(old="{{PACKAGE_NAME}}", new=package_name)
-      .replace(old="{{LUNA_PATH}}", new=path)
-    }
-    None => {
-      // Production mode - use mooncakes version
-      let tmpl =
-        #|{
-        #|  "name": "{{PACKAGE_NAME}}",
-        #|  "version": "0.1.0",
-        #|  "deps": {
-        #|    "mizchi/sol": "0.23.0",
-        #|    "mizchi/sol_adapter_node": "0.23.0",
-        #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.23.0",
-        #|    "mizchi/signals": "0.6.4",
-        #|    "mizchi/js": "0.10.15",
-        #|    "mizchi/npm_typed": "0.1.11",
-        #|    "moonbitlang/async": "0.17.0"
-        #|  },
-        #|  "source": "app",
-        #|  "preferred-target": "js"
-        #|}
-      tmpl.replace(old="{{PACKAGE_NAME}}", new=package_name)
-    }
-  }
+  template_moon_mod(package_name, luna_path)
+}
+
+///|
+pub fn template_moon_work(luna_path : String) -> String {
+  let tmpl =
+    #|members = [
+    #|  ".",
+    #|  "{{LUNA_PATH}}",
+    #|]
+  tmpl.replace(old="{{LUNA_PATH}}", new=luna_path)
 }
 
 ///|
@@ -633,7 +622,7 @@ pub fn template_gen_types_mbt() -> String {
     #|  props : CounterProps,
     #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
     #|) -> @luna.ComponentRef[CounterProps] {
-    #|  { url, props, wc: false, trigger }
+    #|  @luna.component_ref(url, props, trigger~)
     #|}
     #|
     #|///|
@@ -652,7 +641,7 @@ pub fn template_gen_types_mbt() -> String {
     #|  props : ApiToolsProps,
     #|  trigger~ : @luna.Trigger = @luna.TriggerType::Load,
     #|) -> @luna.ComponentRef[ApiToolsProps] {
-    #|  { url, props, wc: false, trigger }
+    #|  @luna.component_ref(url, props, trigger~)
     #|}
     #|
     #|///|
@@ -697,58 +686,42 @@ pub fn template_cloudflare_package_json(project_name : String) -> String {
 }
 
 ///|
-/// Cloudflare variant of `template_moon_mod_json` — swaps the node adapter
+/// Cloudflare variant of `template_moon_mod` — swaps the node adapter
 /// dep for `mizchi/sol_adapter_cloudflare`.
+pub fn template_cloudflare_moon_mod(
+  package_name : String,
+  luna_path : String?,
+) -> String {
+  let _ = luna_path
+  let tmpl =
+    #|name = "{{PACKAGE_NAME}}"
+    #|
+    #|version = "0.1.0"
+    #|
+    #|import {
+    #|  "mizchi/sol@0.23.1",
+    #|  "mizchi/sol_adapter_cloudflare@0.23.1",
+    #|  "mizchi/mars@0.3.10",
+    #|  "mizchi/luna@0.23.1",
+    #|  "mizchi/signals@0.6.4",
+    #|  "mizchi/js@0.12.1",
+    #|  "mizchi/js_browser@0.12.1",
+    #|  "mizchi/npm_typed@0.1.15",
+    #|  "moonbitlang/async@0.20.1",
+    #|}
+    #|
+    #|source = "app"
+    #|
+    #|preferred_target = "js"
+  tmpl.replace(old="{{PACKAGE_NAME}}", new=package_name)
+}
+
+///|
 pub fn template_cloudflare_moon_mod_json(
   package_name : String,
   luna_path : String?,
 ) -> String {
-  match luna_path {
-    Some(path) => {
-      let tmpl =
-        #|{
-        #|  "name": "{{PACKAGE_NAME}}",
-        #|  "version": "0.1.0",
-        #|  "deps": {
-        #|    "mizchi/sol": "0.23.0",
-        #|    "mizchi/sol_adapter_cloudflare": "0.23.0",
-        #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": {
-        #|      "path": "{{LUNA_PATH}}"
-        #|    },
-        #|    "mizchi/signals": "0.6.4",
-        #|    "mizchi/js": "0.10.15",
-        #|    "mizchi/npm_typed": "0.1.11",
-        #|    "moonbitlang/async": "0.17.0"
-        #|  },
-        #|  "source": "app",
-        #|  "preferred-target": "js"
-        #|}
-      tmpl
-      .replace(old="{{PACKAGE_NAME}}", new=package_name)
-      .replace(old="{{LUNA_PATH}}", new=path)
-    }
-    None => {
-      let tmpl =
-        #|{
-        #|  "name": "{{PACKAGE_NAME}}",
-        #|  "version": "0.1.0",
-        #|  "deps": {
-        #|    "mizchi/sol": "0.23.0",
-        #|    "mizchi/sol_adapter_cloudflare": "0.23.0",
-        #|    "mizchi/mars": "0.3.10",
-        #|    "mizchi/luna": "0.23.0",
-        #|    "mizchi/signals": "0.6.4",
-        #|    "mizchi/js": "0.10.15",
-        #|    "mizchi/npm_typed": "0.1.11",
-        #|    "moonbitlang/async": "0.17.0"
-        #|  },
-        #|  "source": "app",
-        #|  "preferred-target": "js"
-        #|}
-      tmpl.replace(old="{{PACKAGE_NAME}}", new=package_name)
-    }
-  }
+  template_cloudflare_moon_mod(package_name, luna_path)
 }
 
 ///|
@@ -1063,10 +1036,10 @@ pub fn generate_cloudflare_templates(
         path: file.path,
         content: template_cloudflare_package_json(project_name),
       })
-    } else if file.path == "moon.mod.json" {
+    } else if file.path == "moon.mod" {
       out.push({
         path: file.path,
-        content: template_cloudflare_moon_mod_json(package_name, luna_path),
+        content: template_cloudflare_moon_mod(package_name, luna_path),
       })
     } else if file.path == "sol.config.json" {
       out.push({
@@ -1119,21 +1092,18 @@ pub fn generate_cloudflare_templates(
 
 ///|
 /// Generate all template files for a new project
-/// package_name: Full name with namespace (e.g. "mizchi/mysun") for moon.mod.json
+/// package_name: Full name with namespace (e.g. "mizchi/mysun") for moon.mod
 /// project_name: Short name without namespace (e.g. "mysun") for package.json and directory
-/// luna_path: Optional local path to luna (for dev mode)
+/// luna_path: Optional local path to luna (for dev mode moon.work)
 pub fn generate_templates(
   package_name : String,
   project_name : String,
   luna_path : String?,
 ) -> Array[TemplateFile] {
-  [
+  let templates : Array[TemplateFile] = [
     // Root config files
     { path: ".gitignore", content: template_gitignore() },
-    {
-      path: "moon.mod.json",
-      content: template_moon_mod_json(package_name, luna_path),
-    },
+    { path: "moon.mod", content: template_moon_mod(package_name, luna_path) },
     { path: "package.json", content: template_package_json(project_name) },
     { path: "sol.config.json", content: template_sol_config_json() },
     // Layout (explicit layout wrapper)
@@ -1165,4 +1135,10 @@ pub fn generate_templates(
     },
     { path: "app/__gen__/types/types.mbt", content: template_gen_types_mbt() },
   ]
+  match luna_path {
+    Some(path) =>
+      templates.push({ path: "moon.work", content: template_moon_work(path) })
+    None => ()
+  }
+  templates
 }

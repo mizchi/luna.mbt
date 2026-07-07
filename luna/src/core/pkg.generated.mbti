@@ -36,9 +36,7 @@ pub fn handler_from_callback(() -> Unit) -> EventHandler[Unit]
 
 pub fn[E, A] has_dynamic_content(Array[(String, Attr[E, A])]) -> Bool
 
-pub fn[E, A] internal_ref(String, String, trigger? : TriggerType, wc? : Bool, styles? : String, children? : Array[Node[E, A]]) -> Node[E, A]
-
-pub fn[E, A] island(String, String, String, Array[Node[E, A]], trigger? : TriggerType) -> Node[E, A]
+pub fn[E, A] internal_ref(String, String, trigger? : TriggerType, styles? : String, children? : Array[Node[E, A]]) -> Node[E, A]
 
 pub fn[E, A] match_case(when~ : () -> Bool, render~ : () -> Node[E, A]) -> MatchCase[E, A]
 
@@ -73,7 +71,6 @@ pub(all) enum Attr[E, A] {
 pub(all) struct ComponentRef[T] {
   url : String
   props : T
-  wc : Bool
   trigger : TriggerType
 }
 
@@ -95,7 +92,6 @@ pub(all) enum Node[E, A] {
   Show(condition~ : () -> Bool, child~ : () -> Node[E, A])
   For(render~ : () -> Array[Node[E, A]])
   Component(render~ : () -> Node[E, A])
-  Island(VIsland[E, A])
   WcIsland(VWcIsland[E, A])
   Async(VAsync[E, A])
   ErrorBoundary(VErrorBoundary[E, A])
@@ -141,16 +137,7 @@ pub struct VInternalRef[E, A] {
   url : String
   state : String
   trigger : TriggerType
-  wc : Bool
   styles : String
-  children : Array[Node[E, A]]
-}
-
-pub struct VIsland[E, A] {
-  id : String
-  url : String
-  state : String
-  trigger : TriggerType
   children : Array[Node[E, A]]
 }
 

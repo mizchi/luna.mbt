@@ -51,6 +51,21 @@ run() {
   fi
 }
 
+read_version() {
+  local manifest="$1"
+  node -e '
+const fs = require("fs");
+const manifest = process.argv[1];
+const content = fs.readFileSync(manifest, "utf8");
+const match = content.match(/^version\s*=\s*"([^"]+)"/m);
+if (!match) {
+  console.error(`Cannot find version in ${manifest}`);
+  process.exit(1);
+}
+console.log(match[1]);
+' "$manifest"
+}
+
 # `moon publish` with a 409-duplicate-version skip. The coordinated bump
 # in `vup --release` advances every package's version even when only a
 # subset has actual changes; the unchanged ones can collide with what
@@ -82,11 +97,12 @@ publish_pkg() {
 }
 
 for pkg in "${PACKAGES[@]}"; do
-  if [[ ! -f "$pkg/moon.mod.json" ]]; then
-    echo "Skipping $pkg (no moon.mod.json)"
+  manifest="$pkg/moon.mod"
+  if [[ ! -f "$manifest" ]]; then
+    echo "Skipping $pkg (no moon.mod)"
     continue
   fi
-  version=$(node -p "require('./$pkg/moon.mod.json').version")
+  version=$(read_version "$manifest")
   echo ""
   echo "=== Publishing $pkg @ $version ==="
   publish_pkg "$pkg" "$version"

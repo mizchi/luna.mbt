@@ -58,7 +58,7 @@ Package configuration (`moon.pkg.json`):
   "import": [
     "mizchi/luna/signal",
     { "path": "mizchi/luna/dom/element", "alias": "dom" },
-    { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
+    { "path": "mizchi/js_browser/dom", "alias": "js_dom" },
     { "path": "mizchi/js/core", "alias": "js" }
   ],
   "link": {

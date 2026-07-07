@@ -17,6 +17,26 @@
 // =============================================================================
 
 ///|
+fn build_package_path(
+  mod_name : String,
+  source_dir : String,
+  package_dir : String,
+) -> String {
+  let relative_path = if source_dir.length() > 0 &&
+    source_dir != "." &&
+    package_dir.has_prefix(source_dir + "/") {
+    package_dir.substring(start=source_dir.length() + 1)
+  } else {
+    package_dir
+  }
+  if mod_name.length() > 0 {
+    "\{mod_name}/\{relative_path}"
+  } else {
+    relative_path
+  }
+}
+
+///|
 async fn run_generate_command(args : Array[String]) -> Unit {
   let fs = @fs_adapter.NodeFsAdapter::new()
   run_generate_command_with_fs(fs, args)
@@ -436,9 +456,8 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       @process.exit(1)
     }
   }
-  // Get module name and source from moon.mod.json (needed for both __gen__/client and JS entries)
-  let mod_json_path = @path.join2(cwd, "moon.mod.json")
-  let (mod_name, source_dir) = read_mod_info(mod_json_path)
+  // Get module name and source from moon.mod / moon.mod.json (needed for both __gen__/client and JS entries).
+  let (mod_name, source_dir) = read_mod_info_from_cwd_with_fs(fs, cwd)
   // Generate hydrate functions in __gen__/client/ directory
   // This separates generated code from user's client code
   if !funcs.is_empty() {
@@ -460,26 +479,10 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       if island_funcs.is_empty() {
         continue
       }
-      // Construct client package path
-      // If source is set (e.g., "app"), remove it from island_pattern
-      // island_pattern: "app/client" -> relative_path: "client" (when source="app")
-      let relative_path = if source_dir.length() > 0 &&
-        island_pattern.has_prefix(source_dir) {
-        let prefix_len = source_dir.length()
-        // Remove source_dir prefix and leading slash
-        if island_pattern.length() > prefix_len + 1 {
-          island_pattern.substring(start=prefix_len + 1)
-        } else {
-          island_pattern
-        }
-      } else {
-        island_pattern
-      }
-      let client_pkg_path = if mod_name.length() > 0 {
-        "\{mod_name}/\{relative_path}"
-      } else {
-        relative_path
-      }
+      // Construct client package path from moon.mod name + source-stripped path.
+      let client_pkg_path = build_package_path(
+        mod_name, source_dir, island_pattern,
+      )
       let client_alias_name = "app_client"
       // Collect export names for __sol_internal__client_* functions only
       let export_names : Array[String] = []
@@ -576,20 +579,18 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   if !funcs.is_empty() {
     for func in funcs {
       let include_hydrate = func.contract.can_hydrate()
-      // Calculate relative_path by removing source_dir prefix from source_pattern
-      let relative_path = if source_dir.length() > 0 &&
-        func.source_pattern.has_prefix(source_dir) {
-        let prefix_len = source_dir.length()
-        if func.source_pattern.length() > prefix_len + 1 {
-          func.source_pattern.substring(start=prefix_len + 1)
-        } else {
-          func.source_pattern
-        }
-      } else {
-        func.source_pattern
-      }
+      let client_pkg_path = build_package_path(
+        mod_name,
+        source_dir,
+        func.source_pattern,
+      )
+      let hydrate_pkg_path = build_package_path(
+        mod_name,
+        source_dir,
+        @path.join2(config.output, "client"),
+      )
       let island_entry_content = generate_island_entry_js_v2(
-        func, include_hydrate, relative_path, mode,
+        func, include_hydrate, client_pkg_path, hydrate_pkg_path, mode,
       )
       let island_entry_path = @path.join2(sol_client_dir, "\{func.name}.js")
       fs.write_file_sync(island_entry_path, island_entry_content) catch {
@@ -622,16 +623,31 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     }
   }
   // Generate .sol/{mode}/server/main.js (server entry point)
+  let generated_server_pkg_path = build_package_path(
+    mod_name,
+    source_dir,
+    @path.join2(config.output, "server"),
+  )
+  let user_server_pkg_path = build_package_path(
+    mod_name,
+    source_dir,
+    config.routes,
+  )
   let server_main_js = match app_mode {
     MoonBitFull =>
       if user_managed {
         generate_sol_server_main_js_user_managed(
           config.runtime,
           mode,
-          config.routes,
+          user_server_pkg_path,
         )
       } else {
-        generate_sol_server_main_js(routes_pkg, config.runtime, mode)
+        generate_sol_server_main_js(
+          routes_pkg,
+          config.runtime,
+          mode,
+          generated_server_pkg_path,
+        )
       }
     MoonBitClientTsServer =>
       generate_sol_server_main_js_hybrid(config.routes, config.runtime)

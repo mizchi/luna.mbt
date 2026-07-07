@@ -22,23 +22,23 @@ pub impl FileStat for StatInfo
 
 // Traits
 pub(open) trait FileStat {
-  isFile(Self) -> Bool
-  isDirectory(Self) -> Bool
-  mtime_ms(Self) -> Float
-  size(Self) -> Int
+  fn isFile(Self) -> Bool
+  fn isDirectory(Self) -> Bool
+  fn mtime_ms(Self) -> Float
+  fn size(Self) -> Int
 }
 
 pub(open) trait FileSystem {
-  read_file_sync(Self, String) -> String raise
-  write_file_sync(Self, String, String) -> Unit raise
-  exists_sync(Self, String) -> Bool
-  mkdir_sync(Self, String, Bool) -> Unit raise
-  readdir_sync(Self, String) -> Array[String] raise
-  is_file_sync(Self, String) -> Bool raise
-  is_directory_sync(Self, String) -> Bool raise
-  cp_sync(Self, String, String, Bool) -> Unit raise
-  unlink_sync(Self, String) -> Unit raise
-  rmdir_sync(Self, String, Bool) -> Unit raise
-  stat_sync(Self, String) -> StatInfo raise
+  fn read_file_sync(Self, String) -> String raise
+  fn write_file_sync(Self, String, String) -> Unit raise
+  fn exists_sync(Self, String) -> Bool
+  fn mkdir_sync(Self, String, Bool) -> Unit raise
+  fn readdir_sync(Self, String) -> Array[String] raise
+  fn is_file_sync(Self, String) -> Bool raise
+  fn is_directory_sync(Self, String) -> Bool raise
+  fn cp_sync(Self, String, String, Bool) -> Unit raise
+  fn unlink_sync(Self, String) -> Unit raise
+  fn rmdir_sync(Self, String, Bool) -> Unit raise
+  fn stat_sync(Self, String) -> StatInfo raise
 }
 

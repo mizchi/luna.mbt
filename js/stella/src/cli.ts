@@ -81,6 +81,7 @@ async function buildCommand(args: string[]) {
     console.error(`Error reading config file: ${configPath}`);
     console.error(e);
     process.exit(1);
+    return;
   }
 
   // Generate JS code
