@@ -1,11 +1,11 @@
 import {
-  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna/js/resource",
   "mizchi/signals",
   "mizchi/luna/dom" @element,
   "mizchi/luna/x/css",
-  "mizchi/js/browser/dom" @dom,
-  "mizchi/js/browser/storage" @storage,
-  "mizchi/js/browser/location" @location,
+  "mizchi/js_browser/dom",
+  "mizchi/js_browser/storage",
+  "mizchi/js_browser/location",
   "moonbitlang/core/json",
 }
 

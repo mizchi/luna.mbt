@@ -1,8 +1,8 @@
 import {
-  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna/js/resource",
   "mizchi/signals",
   "mizchi/js/core" @js,
-  "mizchi/js/browser/dom" @js_dom,
+  "mizchi/js_browser/dom" @js_dom,
   "mizchi/js/builtins/global",
 }
 
@@ -10,7 +10,7 @@ import {
 } for "test"
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 supported_targets = "js"

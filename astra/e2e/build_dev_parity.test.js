@@ -33,9 +33,9 @@ const PORT = Number(process.env.ASTRA_PARITY_PORT ?? 17840);
 
 // Each entry: URL, marker (substring expected in both build + dev output).
 const CASES = [
-  { url: "/", markers: ['<link rel="modulepreload" href="/assets/loader.js">'] },
+  { url: "/", markers: ["__LUNA_WC_SCAN__"] },
   { url: "/guide/", markers: ["<title>Getting Started</title>"] },
-  { url: "/assets/loader.js", markers: ["luna:url"] },
+  { url: "/assets/style.css", markers: [".nav-bar"] },
 ];
 
 function ensureBuilt() {

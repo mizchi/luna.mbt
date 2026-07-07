@@ -1,17 +1,17 @@
 import {
   "moonbitlang/core/json",
   "moonbitlang/core/bench",
-  "mizchi/luna" @luna,
-  "mizchi/astra/content/markdown" @markdown,
-  "mizchi/astra/content/frontmatter" @frontmatter,
-  "mizchi/astra/content/cst" @cst,
-  "mizchi/astra/content/toc" @toc,
-  "mizchi/markdown/slug" @slug,
-  "mizchi/markdown/info_string" @info_string,
+  "mizchi/luna",
+  "mizchi/astra/content/markdown",
+  "mizchi/astra/content/frontmatter",
+  "mizchi/astra/content/cst",
+  "mizchi/astra/content/toc",
+  "mizchi/markdown" @md,
+  "mizchi/markdown/slug",
 }
 
 import {
-  "mizchi/luna/core/render" @render,
+  "mizchi/luna/core/render",
 } for "test"
 
 supported_targets = "js"

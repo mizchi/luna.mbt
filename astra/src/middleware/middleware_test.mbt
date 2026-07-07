@@ -28,18 +28,13 @@ test "list_urls returns the document tree URLs" {
 /// file -- not just the page title -- so that T10's `build_to_disk`
 /// produces the same bytes as a hot HTTP fetch from the dev server.
 async test "handler renders real markdown content into HTML" {
-  let cfg = @astra.SsgConfig::default()
-  // Run with cwd="astra" so the default docs_dir="docs" resolves to
-  // astra/docs (which ships with index.md / guide/*.md).
-  let mw = @middleware.create(cfg, cwd="astra")
-  // Pick a real URL discovered by the scanner (deterministic regardless
-  // of trailing-slash / index-handling conventions).
-  let urls = mw.list_urls()
-  inspect(urls.length() > 0, content="true")
-  let target = urls[0]
+  let cfg = { ..@astra.SsgConfig::default(), docs_dir: "tests/fixture/docs" }
+  // The moon test runner runs this package from astra/, so cwd="." keeps
+  // fixture resolution independent from workspace layout.
+  let mw = @middleware.create(cfg, cwd=".")
   let app = @mars.Server::new()
   app.all("/*", mw.handler())
-  let res = @testing.invoke(app, path=target)
+  let res = @testing.invoke(app, path="/")
   // The rendered response must contain markdown-derived markup -- not
   // merely the page title -- proving the pipeline ran end to end rather
   // than emitting the old stub.

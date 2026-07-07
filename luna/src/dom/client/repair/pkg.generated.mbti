@@ -2,7 +2,7 @@
 package "mizchi/luna/dom/client/repair"
 
 import {
-  "mizchi/js/browser/dom",
+  "mizchi/js_browser/dom",
   "mizchi/luna/dom/client",
 }
 

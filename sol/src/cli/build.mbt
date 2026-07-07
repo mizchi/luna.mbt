@@ -217,8 +217,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
     Some(config) => !config.static_dirs.is_empty()
     None => false
   }
-  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  let has_moon_mod = fs.exists_sync(moon_mod_path)
+  let has_moon_mod = has_moon_mod_with_fs(fs, cwd)
   let mode_detail = if has_moon_mod && has_static_dirs {
     "App (with staticDirs)"
   } else {
@@ -229,7 +228,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   if !has_moon_mod {
     @cli_common.console_error(
       @colorette.red(
-        "Error: Not a MoonBit project (moon.mod.json not found). Use `astra build` for SSG-only projects.",
+        "Error: Not a MoonBit project (moon.mod or moon.mod.json not found). Use `astra build` for SSG-only projects.",
       ),
     )
     @process.exit(1)

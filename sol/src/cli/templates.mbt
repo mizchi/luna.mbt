@@ -15,7 +15,9 @@
 pub using @scaffold_templates {
   type TemplateFile,
   template_gitignore,
+  template_moon_mod,
   template_moon_mod_json,
+  template_moon_work,
   template_package_json,
   template_sol_config_json,
   template_layout_mbt,
@@ -32,6 +34,8 @@ pub using @scaffold_templates {
   template_gen_types_mbt,
   template_cloudflare_routes_main_mbt,
   template_cloudflare_routes_moon_pkg,
+  template_cloudflare_moon_mod,
+  template_cloudflare_moon_mod_json,
   template_worker_entry_mjs,
   generate_templates,
   generate_cloudflare_templates,
@@ -53,10 +57,7 @@ pub fn generate_doc_templates(
   let gitignore = template_gitignore() + "\ndist\n.sol-cache"
   [
     { path: ".gitignore", content: gitignore },
-    {
-      path: "moon.mod.json",
-      content: template_moon_mod_json(package_name, None),
-    },
+    { path: "moon.mod", content: template_moon_mod(package_name, None) },
     { path: "package.json", content: template_package_json(project_name) },
     { path: "sol.config.json", content: sol_config },
     {

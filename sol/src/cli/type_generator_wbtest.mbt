@@ -25,6 +25,7 @@ test "generate_types_mbt: auto bundle keeps default and url-injected factories" 
   let content = generate_types_mbt([sample_counter_props()])
   assert_true(content.contains("pub fn counter_at("))
   assert_true(content.contains("  url : String,"))
+  assert_true(content.contains("@luna.component_ref(url, props, trigger~)"))
   assert_true(content.contains("pub fn counter("))
   assert_true(
     content.contains("counter_at(\"/static/counter.js\", props, trigger~)"),

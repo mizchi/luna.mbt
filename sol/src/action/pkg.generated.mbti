@@ -2,7 +2,7 @@
 package "mizchi/sol/action"
 
 import {
-  "mizchi/js/browser/dom",
+  "mizchi/js_browser/dom",
   "mizchi/mars",
   "mizchi/sol/middleware",
   "moonbitlang/async/js_async",
@@ -136,7 +136,7 @@ pub using @mars {type Context as Ctx}
 
 // Traits
 pub(open) trait ActionKey {
-  id(Self) -> String
-  base_path(Self) -> String
+  fn id(Self) -> String
+  fn base_path(Self) -> String
 }
 

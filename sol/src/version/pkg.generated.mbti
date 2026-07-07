@@ -2,7 +2,7 @@
 package "mizchi/sol/version"
 
 // Values
-pub const VERSION : String = "0.22.4"
+pub const VERSION : String = "0.23.0"
 
 // Errors
 

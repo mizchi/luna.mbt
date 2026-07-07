@@ -1,11 +1,11 @@
 import {
-  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna/js/resource",
   "mizchi/signals",
   "mizchi/luna/core/routes",
-  "mizchi/luna/dom/router" @router,
+  "mizchi/luna/dom/router",
   "mizchi/luna/dom" @element,
   "mizchi/js/core" @js,
-  "mizchi/js/browser/dom" @dom,
+  "mizchi/js_browser/dom",
   "mizchi/js/builtins/global",
 }
 

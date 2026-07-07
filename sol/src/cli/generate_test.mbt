@@ -1209,24 +1209,35 @@ fn find_template_content(
 }
 
 ///|
-test "generate_templates: moon.mod.json includes sol and mars dependencies" {
+test "generate_templates: moon.mod includes sol and mars dependencies" {
   let templates = generate_templates("tester/myapp", "myapp", None)
-  let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol\""))
-  assert_true(content.contains("\"mizchi/mars\""))
-  assert_true(content.contains("\"mizchi/signals\""))
+  let content = find_template_content(templates, "moon.mod").unwrap_or("")
+  assert_true(content.contains("\"mizchi/sol@"))
+  assert_true(content.contains("\"mizchi/mars@"))
+  assert_true(content.contains("\"mizchi/signals@"))
 }
 
 ///|
-test "template_moon_mod_json: uses current published moon deps" {
+test "template_moon_mod: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
-  let content = find_template_content(templates, "moon.mod.json").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol\": \"0.22.4\""))
-  assert_true(content.contains("\"mizchi/sol_adapter_node\": \"0.22.4\""))
-  assert_true(content.contains("\"mizchi/luna\": \"0.22.3\""))
-  assert_true(content.contains("\"mizchi/signals\": \"0.6.4\""))
-  assert_true(content.contains("\"mizchi/js\": \"0.10.15\""))
-  assert_true(content.contains("\"moonbitlang/async\": \"0.17.0\""))
+  let content = find_template_content(templates, "moon.mod").unwrap_or("")
+  assert_true(content.contains("\"mizchi/sol@0.23.0\""))
+  assert_true(content.contains("\"mizchi/sol_adapter_node@0.23.0\""))
+  assert_true(content.contains("\"mizchi/luna@0.23.0\""))
+  assert_true(content.contains("\"mizchi/signals@0.6.4\""))
+  assert_true(content.contains("\"mizchi/js@0.12.1\""))
+  assert_true(content.contains("\"mizchi/js_browser@0.12.1\""))
+  assert_true(content.contains("\"mizchi/npm_typed@0.1.15\""))
+  assert_true(content.contains("\"moonbitlang/async@0.20.1\""))
+}
+
+///|
+test "generate_templates: dev mode writes moon.work for local luna" {
+  let templates = generate_templates("tester/myapp", "myapp", Some("../luna"))
+  let moon_work = find_template_content(templates, "moon.work").unwrap_or("")
+  assert_true(moon_work.contains("members = ["))
+  assert_true(moon_work.contains("\".\""))
+  assert_true(moon_work.contains("\"../luna\""))
 }
 
 ///|
@@ -1426,7 +1437,7 @@ test "template_server_using_mbt: keeps layout-only tags" {
 test "generate_cloudflare_templates: writes worker composition starter" {
   let templates = generate_cloudflare_templates("tester/myapp", "myapp", None)
   let config = find_template_content(templates, "sol.config.json").unwrap_or("")
-  let moon_mod = find_template_content(templates, "moon.mod.json").unwrap_or("")
+  let moon_mod = find_template_content(templates, "moon.mod").unwrap_or("")
   let server_pkg = find_template_content(templates, "app/server/moon.pkg").unwrap_or(
     "",
   )
@@ -1451,8 +1462,8 @@ test "generate_cloudflare_templates: writes worker composition starter" {
   )
   let readme = find_template_content(templates, "README.md").unwrap_or("")
   assert_true(config.contains("\"runtime\": \"cloudflare\""))
-  assert_true(moon_mod.contains("\"mizchi/sol_adapter_cloudflare\""))
-  assert_false(moon_mod.contains("\"mizchi/sol_adapter_node\""))
+  assert_true(moon_mod.contains("\"mizchi/sol_adapter_cloudflare@"))
+  assert_false(moon_mod.contains("\"mizchi/sol_adapter_node@"))
   assert_true(
     server_pkg.contains("\"mizchi/sol_adapter_cloudflare\" @sol_cloudflare"),
   )

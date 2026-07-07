@@ -26,8 +26,8 @@ priv struct DoctorFinding {
 ///|
 /// A single resolved mooncake entry under `.mooncakes/<owner>/<pkg>/`.
 ///
-/// `version` is `None` when either the package directory or its
-/// `moon.mod.json` could not be read / parsed.
+/// `version` is `None` when either the package directory or its manifest
+/// could not be read / parsed.
 priv struct MooncakeEntry {
   name : String
   version : String?
@@ -174,12 +174,16 @@ fn moon_mod_has_dep(content : String, dep : String) -> Bool {
       _ => false
     }
   } catch {
-    _ => false
+    _ => {
+      let versioned = "\"" + dep + "@"
+      let unversioned = "\"" + dep + "\""
+      content.contains(versioned) || content.contains(unversioned)
+    }
   }
 }
 
 ///|
-/// Extract the top-level `version` field from a moon.mod.json string.
+/// Extract the top-level `version` field from a moon.mod / moon.mod.json string.
 fn moon_mod_version(content : String) -> String? {
   try {
     let parsed = @json.parse(content.view())
@@ -189,14 +193,14 @@ fn moon_mod_version(content : String) -> String? {
       _ => None
     }
   } catch {
-    _ => None
+    _ => moon_mod_string_field(content, "version")
   }
 }
 
 ///|
 /// Read the version of a mooncake under `.mooncakes/<owner>/<pkg>/`.
 ///
-/// Returns `None` if the package or its `moon.mod.json` is missing /
+/// Returns `None` if the package or its manifest is missing /
 /// unparseable. The package directory missing is a normal case for
 /// optional deps (e.g. sol_adapter_cloudflare on a Node project).
 fn[FS : @env.FileSystem] read_mooncake_version(
@@ -204,12 +208,10 @@ fn[FS : @env.FileSystem] read_mooncake_version(
   cwd : String,
   qualified : String,
 ) -> String? {
-  let mod_path = @path.join2(
-    @path.join2(cwd, ".mooncakes"),
-    qualified + "/moon.mod.json",
-  )
-  if !fs.exists_sync(mod_path) {
-    return None
+  let package_dir = @path.join2(@path.join2(cwd, ".mooncakes"), qualified)
+  let mod_path = match find_moon_mod_path_with_fs(fs, package_dir) {
+    Some(path) => path
+    None => return None
   }
   let content = fs.read_file_sync(mod_path) catch { _ => "" }
   if content == "" {
@@ -283,7 +285,7 @@ fn add_version_skew_findings(
         findings.push(
           doctor_warning(
             "Sol JS CLI / .mooncakes version diverge",
-            "Bundled sol JS CLI is \{js_cli_version}, but .mooncakes/mizchi/sol/moon.mod.json is \{v}.",
+            "Bundled sol JS CLI is \{js_cli_version}, but .mooncakes/mizchi/sol is \{v}.",
             "Run `moon update && moon install` to refresh `.mooncakes/`.",
           ),
         )
@@ -323,7 +325,7 @@ fn add_adapter_findings(
           doctor_error(
             "Missing Node adapter dependency",
             "\{moon_mod_path} does not declare mizchi/sol_adapter_node for runtime=node.",
-            "Add \"mizchi/sol_adapter_node\" to moon.mod.json deps.",
+            "Add \"mizchi/sol_adapter_node@<version>\" to moon.mod imports.",
           ),
         )
       }
@@ -333,7 +335,7 @@ fn add_adapter_findings(
           doctor_error(
             "Missing Cloudflare adapter dependency",
             "\{moon_mod_path} does not declare mizchi/sol_adapter_cloudflare for runtime=cloudflare.",
-            "Add \"mizchi/sol_adapter_cloudflare\" to moon.mod.json deps.",
+            "Add \"mizchi/sol_adapter_cloudflare@<version>\" to moon.mod imports.",
           ),
         )
       }
@@ -397,7 +399,9 @@ fn[FS : @env.FileSystem] diagnose_project_with_fs(
   let findings : Array[DoctorFinding] = []
   let json_config_path = @path.join2(cwd, "sol.config.json")
   let ts_config_path = @path.join2(cwd, "sol.config.ts")
-  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
+  let moon_mod_path = find_moon_mod_path_with_fs(fs, cwd).unwrap_or(
+    @path.join2(cwd, "moon.mod"),
+  )
   let mut config_path = ""
   let mut runtime = "unknown"
   let mut routes = "app/server"
@@ -437,7 +441,7 @@ fn[FS : @env.FileSystem] diagnose_project_with_fs(
         } else {
           findings.push(
             doctor_error(
-              "moon.mod.json is missing",
+              "moon.mod is missing",
               "\{moon_mod_path} was not found.",
               "Create a MoonBit module or run `sol new`.",
             ),

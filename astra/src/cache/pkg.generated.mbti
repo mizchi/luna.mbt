@@ -127,7 +127,7 @@ pub impl BuildStateProvider for LocalFileProvider
 
 // Traits
 pub(open) trait BuildStateProvider {
-  get_content_state(Self) -> String
-  describe_state(Self) -> String
+  fn get_content_state(Self) -> String
+  fn describe_state(Self) -> String
 }
 

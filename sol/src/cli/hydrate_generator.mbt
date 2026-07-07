@@ -9,7 +9,7 @@
 let hydrate_required_imports : Array[(String, String)] = [
   ("moonbitlang/core/json", "json"),
   ("mizchi/js/core", "js"),
-  ("mizchi/js/browser/dom", "js_dom"),
+  ("mizchi/js_browser/dom", "js_dom"),
   ("mizchi/luna/dom/client", "wc"),
 ]
 

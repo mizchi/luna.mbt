@@ -7,7 +7,7 @@ enum TestAction {
 } derive(Debug)
 
 ///|
-impl Show for TestAction with output(self, logger) {
+impl Show for TestAction with fn output(self, logger) {
   logger.write_string(
     match self {
       Increment => "Increment"
@@ -313,9 +313,7 @@ test "render switch no fallback" {
 test "render switch with preloads" {
   let node : @luna.Node[Unit, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { true }, render=fn() {
-      @luna.wc_island(
-        "sw-island", "/sw.js", "", "{}", [@luna.text("Island")],
-      )
+      @luna.wc_island("sw-island", "/sw.js", "", "{}", [@luna.text("Island")])
     }),
   ])
   let result = @render.render_to_string(node, preload=true)

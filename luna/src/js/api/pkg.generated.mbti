@@ -62,7 +62,7 @@ pub fn map(@signals.Signal[Any], (Any) -> Any) -> () -> Any
 
 pub fn mathml_ns() -> String
 
-pub fn mount_to(@mizchi/js/browser/dom.Element, @mizchi/luna/dom.DomNode) -> Unit
+pub fn mount_to(@mizchi/js_browser/dom.Element, @mizchi/luna/dom.DomNode) -> Unit
 
 pub fn on_cleanup(() -> Unit) -> Unit
 
@@ -72,7 +72,7 @@ pub fn peek(@signals.Signal[Any]) -> Any
 
 pub fn portal_to_body(Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.DomNode
 
-pub fn portal_to_element_with_shadow(@mizchi/js/browser/dom.Element, Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.DomNode
+pub fn portal_to_element_with_shadow(@mizchi/js_browser/dom.Element, Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.DomNode
 
 pub fn portal_to_selector(String, Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.DomNode
 
@@ -80,15 +80,15 @@ pub fn portal_with_shadow(Array[@mizchi/luna/dom.DomNode]) -> @mizchi/luna/dom.D
 
 pub fn provide(JsContext, Any, () -> Any) -> Any
 
-pub fn register(String, (@mizchi/js/browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
+pub fn register(String, (@mizchi/js_browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
 
-pub fn register_shadow(String, mode? : String, (@mizchi/js/browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
+pub fn register_shadow(String, mode? : String, (@mizchi/js_browser/dom.Element) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
 
-pub fn register_with_attrs(String, Array[String], (@mizchi/js/browser/dom.Element, Map[String, @signals.Signal[String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
+pub fn register_with_attrs(String, Array[String], (@mizchi/js_browser/dom.Element, Map[String, @signals.Signal[String]]) -> @mizchi/luna/core.Node[@mizchi/js/core.Any, String]) -> Unit
 
 pub fn render_effect(() -> Unit) -> () -> Unit
 
-pub fn render_to(@mizchi/js/browser/dom.Element, @mizchi/luna/dom.DomNode) -> Unit
+pub fn render_to(@mizchi/js_browser/dom.Element, @mizchi/luna/dom.DomNode) -> Unit
 
 pub fn resource_error(JsResource) -> Any
 

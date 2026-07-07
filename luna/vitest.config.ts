@@ -8,6 +8,7 @@ const commonExclude = ["**/node_modules/**", "**/.mooncakes/**"];
 // live at the workspace root. Anchor every project's `root` to the workspace root
 // so the include globs resolve regardless of which directory invokes vitest.
 const workspaceRoot = resolve(__dirname, "..");
+const lunaImportSource = resolve(workspaceRoot, "js/luna/src");
 
 function browserConfig() {
   return {
@@ -38,9 +39,11 @@ export default defineConfig({
           ],
           exclude: commonExclude,
         },
-        esbuild: {
-          jsx: "automatic",
-          jsxImportSource: resolve(workspaceRoot, "js/luna/src"),
+        oxc: {
+          jsx: {
+            runtime: "automatic",
+            importSource: lunaImportSource,
+          },
         },
       },
       {
@@ -61,9 +64,11 @@ export default defineConfig({
             "**/bench.browser.test.ts",
           ],
         },
-        esbuild: {
-          jsx: "automatic",
-          jsxImportSource: "@luna_ui/luna",
+        oxc: {
+          jsx: {
+            runtime: "automatic",
+            importSource: "@luna_ui/luna",
+          },
         },
       },
       {
@@ -82,9 +87,11 @@ export default defineConfig({
             reporters: ["default"],
           },
         },
-        esbuild: {
-          jsx: "automatic",
-          jsxImportSource: "@luna_ui/luna",
+        oxc: {
+          jsx: {
+            runtime: "automatic",
+            importSource: "@luna_ui/luna",
+          },
         },
       },
     ],

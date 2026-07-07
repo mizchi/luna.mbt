@@ -212,9 +212,11 @@ test "render error_boundary with wc_island inside" {
     children=fn() {
       div([
         @luna.wc_island(
-          "wc-counter", "/components/counter.js", "", "{\"count\":0}", [
-            text("Loading..."),
-          ],
+          "wc-counter",
+          "/components/counter.js",
+          "",
+          "{\"count\":0}",
+          [text("Loading...")],
         ),
       ])
     },

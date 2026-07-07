@@ -499,4 +499,3 @@ priv struct IslandIdAllocator {}
 fn new_island_id_allocator() -> IslandIdAllocator {
   IslandIdAllocator::{  }
 }
-

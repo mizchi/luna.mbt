@@ -14,6 +14,8 @@ pub fn template_client_counter_moon_pkg() -> String
 
 pub fn template_cloudflare_e2e_spec_ts() -> String
 
+pub fn template_cloudflare_moon_mod(String, String?) -> String
+
 pub fn template_cloudflare_moon_mod_json(String, String?) -> String
 
 pub fn template_cloudflare_package_json(String) -> String
@@ -38,7 +40,11 @@ pub fn template_layout_mbt() -> String
 
 pub fn template_layout_moon_pkg() -> String
 
+pub fn template_moon_mod(String, String?) -> String
+
 pub fn template_moon_mod_json(String, String?) -> String
+
+pub fn template_moon_work(String) -> String
 
 pub fn template_package_json(String) -> String
 

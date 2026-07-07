@@ -436,9 +436,8 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       @process.exit(1)
     }
   }
-  // Get module name and source from moon.mod.json (needed for both __gen__/client and JS entries)
-  let mod_json_path = @path.join2(cwd, "moon.mod.json")
-  let (mod_name, source_dir) = read_mod_info(mod_json_path)
+  // Get module name and source from moon.mod / moon.mod.json (needed for both __gen__/client and JS entries).
+  let (mod_name, source_dir) = read_mod_info_from_cwd_with_fs(fs, cwd)
   // Generate hydrate functions in __gen__/client/ directory
   // This separates generated code from user's client code
   if !funcs.is_empty() {

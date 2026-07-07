@@ -298,9 +298,10 @@ function getMbtTemplates(projectName: string): Template[] {
           name: `internal/${projectName}`,
           version: "0.0.1",
           deps: {
-            "mizchi/luna": "0.16.0",
-            "mizchi/signals": "0.6.3",
-            "mizchi/js": "0.10.14",
+            "mizchi/luna": "0.23.0",
+            "mizchi/signals": "0.6.4",
+            "mizchi/js": "0.12.1",
+            "mizchi/js_browser": "0.12.1",
           },
           source: "src",
           "preferred-target": "js",
@@ -388,7 +389,7 @@ import "mbt:internal/${projectName}";
               alias: "dom",
             },
             {
-              path: "mizchi/js/browser/dom",
+              path: "mizchi/js_browser/dom",
               alias: "js_dom",
             },
           ],

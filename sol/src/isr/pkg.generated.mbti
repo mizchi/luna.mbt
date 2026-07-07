@@ -84,9 +84,9 @@ pub using @mizchi/astra/isr {type ISRPageMeta}
 
 // Traits
 pub(open) trait ISRCache {
-  get(Self, String) -> CacheEntry?
-  put(Self, String, CacheEntry) -> Unit
-  delete(Self, String) -> Unit
-  schedule_revalidation(Self, async () -> Unit) -> Unit
+  fn get(Self, String) -> CacheEntry?
+  fn put(Self, String, CacheEntry) -> Unit
+  fn delete(Self, String) -> Unit
+  fn schedule_revalidation(Self, async () -> Unit) -> Unit
 }
 

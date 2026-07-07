@@ -95,9 +95,7 @@ fn build_style_css_body(config : @astra.SsgConfig, minify~ : Bool) -> String {
 /// tests asserting the dev server and the static dump cover the same
 /// surface.
 pub fn list_asset_urls() -> Array[String] {
-  [
-    "/assets/style.css", "/assets/github-markdown.css", "/assets/shiki.css",
-  ]
+  ["/assets/style.css", "/assets/github-markdown.css", "/assets/shiki.css"]
 }
 
 ///|

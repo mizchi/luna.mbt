@@ -81,9 +81,7 @@ pub fn[E, A] has_dynamic_content(Array[(String, @core.Attr[E, A])]) -> Bool
 
 pub fn has_owner() -> Bool
 
-pub fn[E, A] internal_ref(String, String, trigger? : @core.TriggerType, wc? : Bool, styles? : String, children? : Array[@core.Node[E, A]]) -> @core.Node[E, A]
-
-pub fn[E, A] island(String, String, String, Array[@core.Node[E, A]], trigger? : @core.TriggerType) -> @core.Node[E, A]
+pub fn[E, A] internal_ref(String, String, trigger? : @core.TriggerType, styles? : String, children? : Array[@core.Node[E, A]]) -> @core.Node[E, A]
 
 pub fn[E, A] match_case(when~ : () -> Bool, render~ : () -> @core.Node[E, A]) -> @core.MatchCase[E, A]
 
@@ -187,8 +185,6 @@ pub using @core {type VElement}
 pub using @core {type VErrorBoundary}
 
 pub using @core {type VInternalRef}
-
-pub using @core {type VIsland}
 
 pub using @core {type VSwitch}
 

@@ -50,7 +50,7 @@ pub fn generate_heading_id(text : String) -> String {
 
 ///|
 /// Parse code block info string
-/// Re-exported from @info_string
-pub fn parse_code_block_info(info : String) -> @info_string.CodeBlockInfo {
-  @info_string.parse(info)
+/// Re-exported from @md
+pub fn parse_code_block_info(info : String) -> @md.CodeBlockInfo {
+  @md.parse_code_block_info(info)
 }

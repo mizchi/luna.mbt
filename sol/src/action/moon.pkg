@@ -1,16 +1,16 @@
 import {
   "moonbitlang/core/json",
-  "moonbitlang/async/js_async" @js_async,
-  "mizchi/js/browser/dom" @js_dom,
-  "mizchi/mars" @mars,
+  "moonbitlang/async/js_async",
+  "mizchi/js_browser/dom" @js_dom,
+  "mizchi/mars",
   "mizchi/js/core" @js,
-  "mizchi/sol/internal/js_any" @js_any,
-  "mizchi/sol/middleware" @middleware,
-  "mizchi/sol/internal/mars_response" @mars_response,
+  "mizchi/sol/internal/js_any",
+  "mizchi/sol/middleware",
+  "mizchi/sol/internal/mars_response",
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 warnings = "-6"

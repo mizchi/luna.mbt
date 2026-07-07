@@ -2,18 +2,18 @@
 // drives the same `Middleware` handler used at dev time, captures every
 // response via `@testing.invoke`, and writes the bytes to disk.
 //
-// Pre-requisites: the moon test runner runs from the workspace root, so
-// `cwd="astra"` resolves `tests/fixture/docs` against the astra subdir.
+// Pre-requisites: the moon test runner runs this package from the astra
+// module root, so `cwd="."` resolves `tests/fixture/docs` against astra/.
 
 ///|
 async test "build_to_disk dumps every URL from list_urls() into output_dir" {
   let cfg = {
     ..@astra.SsgConfig::default(),
     docs_dir: "tests/fixture/docs",
-    output_dir: "tests/fixture/.out",
+    output_dir: "tests/fixture/.out/pages",
   }
-  let mw = @middleware.create(cfg, cwd="astra")
-  let out_dir = "astra/tests/fixture/.out"
+  let mw = @middleware.create(cfg, cwd=".")
+  let out_dir = "tests/fixture/.out/pages"
   // Best-effort: nuke any previous run so the fixture stays deterministic.
   if @fs.existsSync(out_dir) {
     @fs.rmSync(out_dir, recursive=true, force=true)
@@ -21,7 +21,7 @@ async test "build_to_disk dumps every URL from list_urls() into output_dir" {
   @cli.build_to_disk(mw, out_dir)
   // The fixture's index.md becomes /index.html under any trailing-slash
   // convention (root URL is the one URL where both conventions agree).
-  let index_path = "astra/tests/fixture/.out/index.html"
+  let index_path = "tests/fixture/.out/pages/index.html"
   inspect(@fs.existsSync(index_path), content="true")
   let html = @fs.read_file_as_string(index_path)
   inspect(html.contains("Hello Astra"), content="true")
@@ -34,17 +34,17 @@ async test "build_to_disk writes asset URLs alongside pages" {
   let cfg = {
     ..@astra.SsgConfig::default(),
     docs_dir: "tests/fixture/docs",
-    output_dir: "tests/fixture/.out",
+    output_dir: "tests/fixture/.out/assets",
   }
-  let mw = @middleware.create(cfg, cwd="astra")
-  let out_dir = "astra/tests/fixture/.out"
+  let mw = @middleware.create(cfg, cwd=".")
+  let out_dir = "tests/fixture/.out/assets"
   if @fs.existsSync(out_dir) {
     @fs.rmSync(out_dir, recursive=true, force=true)
   }
   @cli.build_to_disk(mw, out_dir)
   // `list_asset_urls` ships at least style.css; if the crawler skipped it
   // the file would be missing from disk.
-  let style_path = "astra/tests/fixture/.out/assets/style.css"
+  let style_path = "tests/fixture/.out/assets/assets/style.css"
   inspect(@fs.existsSync(style_path), content="true")
 }
 
@@ -58,21 +58,21 @@ async test "build_to_disk routes page URLs with a dot to <dir>/index.html" {
   let cfg = {
     ..@astra.SsgConfig::default(),
     docs_dir: "tests/fixture/docs",
-    output_dir: "tests/fixture/.out",
+    output_dir: "tests/fixture/.out/dotted-page",
   }
-  let mw = @middleware.create(cfg, cwd="astra")
-  let out_dir = "astra/tests/fixture/.out"
+  let mw = @middleware.create(cfg, cwd=".")
+  let out_dir = "tests/fixture/.out/dotted-page"
   if @fs.existsSync(out_dir) {
     @fs.rmSync(out_dir, recursive=true, force=true)
   }
   @cli.build_to_disk(mw, out_dir)
   // Correct page output: nested index.html.
-  let page_index = "astra/tests/fixture/.out/release/v1.0/index.html"
+  let page_index = "tests/fixture/.out/dotted-page/release/v1.0/index.html"
   inspect(@fs.existsSync(page_index), content="true")
   // The flat-file misclassification path would create `release/v1.0` as
   // a regular file. Assert it's a directory instead, so a regression
   // back to the dot-heuristic trips this test.
-  let target = "astra/tests/fixture/.out/release/v1.0"
+  let target = "tests/fixture/.out/dotted-page/release/v1.0"
   let stat_is_dir = @fs.statSync(target).isDirectory() catch { _ => false }
   inspect(stat_is_dir, content="true")
 }

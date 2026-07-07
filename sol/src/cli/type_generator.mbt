@@ -78,7 +78,8 @@ fn generate_types_mbt(
     buf.write_string("  props : \{s.name},\n")
     buf.write_string("  trigger~ : @luna.Trigger = @luna.TriggerType::Load,\n")
     buf.write_string(") -> @luna.ComponentRef[\{s.name}] {\n")
-    buf.write_string("  { url, props, wc: \{is_wc}, trigger }\n")
+    let ref_factory = if is_wc { "wc_component_ref" } else { "component_ref" }
+    buf.write_string("  @luna.\{ref_factory}(url, props, trigger~)\n")
     buf.write_string("}\n\n")
     match default_url {
       Some(default_url) => {

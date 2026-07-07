@@ -201,5 +201,14 @@ fn convert_inline(inline : @md_parser.Inline) -> @markdown.MdNode? {
     @md_parser.Inline::FootnoteReference(label~, ..) =>
       // Convert footnote reference to superscript link
       Some(@markdown.MdNode::Text("[^\{label}]"))
+    @md_parser.Inline::WikiLink(target~, label~, fragment~, ..) => {
+      let href = if fragment == "" { target } else { target + "#" + fragment }
+      let text = if label == "" { target } else { label }
+      Some(
+        @markdown.MdNode::Link(href~, title="", children=[
+          @markdown.MdNode::Text(text),
+        ]),
+      )
+    }
   }
 }

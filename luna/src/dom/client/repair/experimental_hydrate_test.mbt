@@ -12,7 +12,7 @@ enum TestAction {
 } derive(Debug)
 
 ///|
-impl Show for TestAction with output(_self, logger) {
+impl Show for TestAction with fn output(_self, logger) {
   logger.write_string("TestAction")
 }
 

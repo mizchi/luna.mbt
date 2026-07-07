@@ -38,10 +38,12 @@ fn run_serve_command(args : Array[String]) -> Unit {
   }
   let cwd = @process.cwd()
   // Check if this is a MoonBit project
-  let moon_mod_path = @path.join2(cwd, "moon.mod.json")
-  if !@fs.existsSync(moon_mod_path) {
+  let fs = @fs_adapter.NodeFsAdapter::new()
+  if !has_moon_mod_with_fs(fs, cwd) {
     @cli_common.console_error(
-      @colorette.red("Error: Not a MoonBit project (moon.mod.json not found)"),
+      @colorette.red(
+        "Error: Not a MoonBit project (moon.mod or moon.mod.json not found)",
+      ),
     )
     @process.exit(1)
   }
