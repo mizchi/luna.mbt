@@ -77,6 +77,20 @@ test "render_to_string text node" {
 }
 
 ///|
+test "render_to_string accepts size hint" {
+  let node : @core.Node[Unit, String] = @core.text("Hello")
+  let result = render_to_string(node, size_hint=1024)
+  assert_eq(result.html, "Hello")
+}
+
+///|
+test "render_to_string_with_hydration accepts size hint" {
+  let node : @core.Node[Unit, String] = @core.text_dyn(fn() { "Hello" })
+  let html = render_to_string_with_hydration(node, size_hint=1024)
+  assert_eq(html, "<!--t:0-->Hello<!--/t-->")
+}
+
+///|
 test "render_to_string element" {
   let node : @core.Node[Unit, String] = @core.h("div", [], [
     @core.text("content"),
@@ -88,11 +102,11 @@ test "render_to_string element" {
 ///|
 test "render_to_string reverse pipeline element" {
   let node : @core.Node[Unit, String] = @core.h("div", []) <| [
-      @core.text("hello"),
-      @core.h("span", []) <| [
-        @core.text("world"),
-      ],
-    ]
+    @core.text("hello"),
+    @core.h("span", []) <| [
+      @core.text("world"),
+    ],
+  ]
   let result = render_to_string(node)
   assert_eq(result.html, "<div>hello<span>world</span></div>")
 }
@@ -113,6 +127,17 @@ test "render_to_string with static attr" {
   )
   let result = render_to_string(node)
   assert_eq(result.html, "<div class=\"container\"></div>")
+}
+
+///|
+test "render_to_string skips remove marker attr" {
+  let node : @core.Node[Unit, String] = @core.h(
+    "div",
+    [("hidden", @core.attr_static("__remove__"))],
+    [],
+  )
+  let result = render_to_string(node)
+  assert_eq(result.html, "<div></div>")
 }
 
 ///|

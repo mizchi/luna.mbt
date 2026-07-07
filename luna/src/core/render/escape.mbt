@@ -13,14 +13,50 @@ pub fn needs_html_escape(s : String) -> Bool {
 ///|
 /// Escape HTML special characters and write to StringBuilder
 pub fn escape_html_to(sb : StringBuilder, s : String) -> Unit {
-  for c in s {
-    match c {
-      '&' => sb.write_string("&amp;")
-      '<' => sb.write_string("&lt;")
-      '>' => sb.write_string("&gt;")
-      '"' => sb.write_string("&quot;")
-      '\'' => sb.write_string("&#39;")
-      _ => sb.write_char(c)
+  escape_html_view_to(sb, s[:])
+}
+
+///|
+fn escape_html_view_to(sb : StringBuilder, s : StringView) -> Unit {
+  let len = s.length()
+  fn flush_segment(start : Int, end : Int) -> Unit {
+    if end > start {
+      sb.write_view(s[start:end])
+    }
+  }
+
+  for i = 0, segment_start = 0 {
+    if i >= len {
+      flush_segment(segment_start, i)
+      break
+    }
+    match s.unsafe_get(i) {
+      '&' => {
+        flush_segment(segment_start, i)
+        sb.write_string("&amp;")
+        continue i + 1, i + 1
+      }
+      '<' => {
+        flush_segment(segment_start, i)
+        sb.write_string("&lt;")
+        continue i + 1, i + 1
+      }
+      '>' => {
+        flush_segment(segment_start, i)
+        sb.write_string("&gt;")
+        continue i + 1, i + 1
+      }
+      '"' => {
+        flush_segment(segment_start, i)
+        sb.write_string("&quot;")
+        continue i + 1, i + 1
+      }
+      '\'' => {
+        flush_segment(segment_start, i)
+        sb.write_string("&#39;")
+        continue i + 1, i + 1
+      }
+      _ => continue i + 1, segment_start
     }
   }
 }
@@ -45,11 +81,35 @@ pub fn needs_attr_escape(s : String) -> Bool {
 ///|
 /// Escape attribute value and write to StringBuilder
 pub fn escape_attr_to(sb : StringBuilder, s : String) -> Unit {
-  for c in s {
-    match c {
-      '&' => sb.write_string("&amp;")
-      '"' => sb.write_string("&quot;")
-      _ => sb.write_char(c)
+  escape_attr_view_to(sb, s[:])
+}
+
+///|
+fn escape_attr_view_to(sb : StringBuilder, s : StringView) -> Unit {
+  let len = s.length()
+  fn flush_segment(start : Int, end : Int) -> Unit {
+    if end > start {
+      sb.write_view(s[start:end])
+    }
+  }
+
+  for i = 0, segment_start = 0 {
+    if i >= len {
+      flush_segment(segment_start, i)
+      break
+    }
+    match s.unsafe_get(i) {
+      '&' => {
+        flush_segment(segment_start, i)
+        sb.write_string("&amp;")
+        continue i + 1, i + 1
+      }
+      '"' => {
+        flush_segment(segment_start, i)
+        sb.write_string("&quot;")
+        continue i + 1, i + 1
+      }
+      _ => continue i + 1, segment_start
     }
   }
 }

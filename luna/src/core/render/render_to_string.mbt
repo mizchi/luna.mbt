@@ -15,8 +15,9 @@ pub struct SSRResult {
 pub fn[E, A : Show] render_to_string(
   node : @core.Node[E, A],
   preload? : Bool = false,
+  size_hint? : Int = 256,
 ) -> SSRResult {
-  let sb = StringBuilder::new(size_hint=256)
+  let sb = StringBuilder::new(size_hint~)
   if preload {
     let urls : Array[String] = []
     let seen : Map[String, Bool] = {}
@@ -577,8 +578,9 @@ fn[E, A : Show] render_to_sb(
 /// Render with data-ssr-id markers for hydration
 pub fn[E, A : Show] render_to_string_with_hydration(
   node : @core.Node[E, A],
+  size_hint? : Int = 256,
 ) -> String {
-  let sb = StringBuilder::new(size_hint=256)
+  let sb = StringBuilder::new(size_hint~)
   let id_counter = Ref(0)
   let island_ids = new_island_id_allocator()
   render_with_id_to(sb, node, id_counter, island_ids)
