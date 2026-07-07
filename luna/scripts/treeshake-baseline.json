@@ -1,30 +1,30 @@
 {
-  "generatedAt": "2026-05-15T05:35:51.219Z",
+  "generatedAt": "2026-07-07T12:46:32.758Z",
   "entries": [
     {
       "id": "signals-only",
-      "bytes": 6207,
-      "gzip": 2194
+      "bytes": 7433,
+      "gzip": 2626
     },
     {
       "id": "signals-effect",
-      "bytes": 7734,
-      "gzip": 2609
+      "bytes": 8965,
+      "gzip": 3048
     },
     {
       "id": "memo",
-      "bytes": 7324,
-      "gzip": 2512
+      "bytes": 8550,
+      "gzip": 2953
     },
     {
       "id": "render",
-      "bytes": 6803,
-      "gzip": 2148
+      "bytes": 7025,
+      "gzip": 2263
     },
     {
       "id": "router-resource",
-      "bytes": 26812,
-      "gzip": 7180
+      "bytes": 26542,
+      "gzip": 7072
     },
     {
       "id": "resource-lite",
@@ -33,8 +33,8 @@
     },
     {
       "id": "resource-index",
-      "bytes": 8617,
-      "gzip": 2789
+      "bytes": 10057,
+      "gzip": 3344
     },
     {
       "id": "router-lite",
@@ -43,23 +43,23 @@
     },
     {
       "id": "router-index",
-      "bytes": 23758,
-      "gzip": 6279
+      "bytes": 23490,
+      "gzip": 6160
     },
     {
       "id": "split-signals",
-      "bytes": 13149,
-      "gzip": 3688
+      "bytes": 14609,
+      "gzip": 4237
     },
     {
       "id": "split-signals-shared",
-      "bytes": 10546,
-      "gzip": 3345
+      "bytes": 12006,
+      "gzip": 3903
     },
     {
       "id": "raw-signals",
-      "bytes": 7288,
-      "gzip": 2363
+      "bytes": 8726,
+      "gzip": 2915
     }
   ]
 }

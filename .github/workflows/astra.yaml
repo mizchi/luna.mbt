@@ -56,7 +56,7 @@ jobs:
       # astra/examples/<name>/ Playwright VRT.
       #
       # The baselines under each example's `e2e/__screenshots__/linux/`
-      # are seeded from `mcr.microsoft.com/playwright:v1.59.1-noble`
+      # are seeded from `mcr.microsoft.com/playwright:v1.61.1-noble`
       # (see `just test-vrt-astra <name> --update --linux`). The host's
       # `ubuntu-latest` runner ships a different font set, so we run the
       # actual test pass inside that same docker image to keep font
@@ -79,7 +79,7 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.59.1-noble \
+            mcr.microsoft.com/playwright:v1.61.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_changelog Playwright VRT (docker)
         run: |
@@ -90,7 +90,7 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.59.1-noble \
+            mcr.microsoft.com/playwright:v1.61.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_components_demo Playwright VRT (docker)
         run: |
@@ -101,7 +101,7 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.59.1-noble \
+            mcr.microsoft.com/playwright:v1.61.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_portfolio Playwright VRT (docker)
         run: |
@@ -112,7 +112,7 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.59.1-noble \
+            mcr.microsoft.com/playwright:v1.61.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_api_ref Playwright VRT (docker)
         run: |
@@ -123,7 +123,7 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.59.1-noble \
+            mcr.microsoft.com/playwright:v1.61.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: sol_docs_search Playwright VRT (docker)
         run: |
@@ -134,7 +134,7 @@ jobs:
             -e HOME=/tmp \
             --network host \
             --user "$(id -u):$(id -g)" \
-            mcr.microsoft.com/playwright:v1.59.1-noble \
+            mcr.microsoft.com/playwright:v1.61.1-noble \
             npx --no-install playwright test --config e2e/playwright.config.mts
       - name: Upload astra example VRT diffs on failure
         if: failure()

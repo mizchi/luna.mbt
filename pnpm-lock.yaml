@@ -230,6 +230,9 @@ importers:
         specifier: ^0.22.0
         version: link:../wcr
     devDependencies:
+      '@types/node':
+        specifier: ^26.1.0
+        version: 26.1.0
       happy-dom:
         specifier: ^20.10.6
         version: 20.10.6(bufferutil@4.1.0)(utf-8-validate@5.0.10)

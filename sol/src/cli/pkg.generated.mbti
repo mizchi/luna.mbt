@@ -41,7 +41,7 @@ pub fn generate_params_with_names(String) -> (String, String)
 
 pub fn generate_sol_serve_js(ServerRuntime) -> String
 
-pub fn generate_sol_server_main_js(String, ServerRuntime, String) -> String
+pub fn generate_sol_server_main_js(String, ServerRuntime, String, String) -> String
 
 pub fn generate_sol_server_main_js_hybrid(String, ServerRuntime) -> String
 

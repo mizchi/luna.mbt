@@ -34,13 +34,28 @@ const SOL_DIR = path.resolve(THIS_DIR, "..");
 const REPO_ROOT = path.resolve(SOL_DIR, "..");
 const MOON_HOME = process.env.MOON_HOME || path.join(os.homedir(), ".moon");
 const SOL_NATIVE = path.join(MOON_HOME, "bin", "sol");
+const SOL_VERSION = readMoonModVersion(path.join(SOL_DIR, "moon.mod"));
 
-function ensureNativeSolInstalled() {
+function readMoonModVersion(filePath) {
+  const content = fs.readFileSync(filePath, "utf8");
+  const match = content.match(/^version\s*=\s*"([^"]+)"/m);
+  assert.ok(match, `missing version assignment in ${filePath}`);
+  return match[1];
+}
+
+function ensureNativeSolInstalled(t) {
   const r = spawnSync(
     "moon",
     ["install", "--path", "./sol/src/cmd/sol"],
     { cwd: REPO_ROOT, encoding: "utf8" },
   );
+  if (
+    r.status !== 0 &&
+    r.stderr.includes(`no version satisfies requirement \`${SOL_VERSION}\``)
+  ) {
+    t.skip(`mizchi/sol ${SOL_VERSION} has not been published to mooncakes yet`);
+    return false;
+  }
   assert.equal(
     r.status,
     0,
@@ -50,6 +65,7 @@ function ensureNativeSolInstalled() {
     fs.existsSync(SOL_NATIVE),
     `expected native sol binary at ${SOL_NATIVE} after install`,
   );
+  return true;
 }
 
 function runSol(args, cwd) {
@@ -60,8 +76,8 @@ function mkSandbox(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
-test("sol new (no flags) succeeds from an empty directory", () => {
-  ensureNativeSolInstalled();
+test("sol new (no flags) succeeds from an empty directory", (t) => {
+  if (!ensureNativeSolInstalled(t)) return;
   const sandbox = mkSandbox("sol-bootstrap-noflag-");
   try {
     const result = runSol(["new", "ciapp", "--user", "ciuser"], sandbox);
@@ -75,7 +91,7 @@ test("sol new (no flags) succeeds from an empty directory", () => {
     // package, co-located routes + handlers in app/server/routes.mbt,
     // user-managed main.mbt).
     for (const rel of [
-      "moon.mod.json",
+      "moon.mod",
       "package.json",
       "sol.config.json",
       "app/server/main.mbt",
@@ -102,8 +118,8 @@ test("sol new (no flags) succeeds from an empty directory", () => {
   }
 });
 
-test("sol new --cloudflare succeeds from an empty directory", () => {
-  ensureNativeSolInstalled();
+test("sol new --cloudflare succeeds from an empty directory", (t) => {
+  if (!ensureNativeSolInstalled(t)) return;
   const sandbox = mkSandbox("sol-bootstrap-cf-");
   try {
     const result = runSol(
@@ -119,7 +135,7 @@ test("sol new --cloudflare succeeds from an empty directory", () => {
     // Cloudflare scaffold ships the wrangler glue + a worker entry
     // alongside the regular sol app surface. Spot-check both.
     for (const rel of [
-      "moon.mod.json",
+      "moon.mod",
       "package.json",
       "sol.config.json",
       "worker.entry.mjs",
@@ -137,23 +153,21 @@ test("sol new --cloudflare succeeds from an empty directory", () => {
       fs.existsSync(path.join(projectDir, "wrangler.toml")) ||
       fs.existsSync(path.join(projectDir, "wrangler.json"));
     assert.ok(hasWrangler, "missing wrangler.{toml,json}");
-    // The scaffolded moon.mod.json must point at sol_adapter_cloudflare,
+    // The scaffolded moon.mod must point at sol_adapter_cloudflare,
     // not sol_adapter_node (the wrong adapter would silently produce
     // bundles that won't start on Workers).
-    const moonMod = JSON.parse(
-      fs.readFileSync(path.join(projectDir, "moon.mod.json"), "utf8"),
-    );
+    const moonMod = fs.readFileSync(path.join(projectDir, "moon.mod"), "utf8");
     assert.ok(
-      Object.keys(moonMod.deps || {}).includes("mizchi/sol_adapter_cloudflare"),
-      `cloudflare scaffold should declare mizchi/sol_adapter_cloudflare, got deps: ${Object.keys(moonMod.deps || {})}`,
+      moonMod.includes('"mizchi/sol_adapter_cloudflare@'),
+      `cloudflare scaffold should declare mizchi/sol_adapter_cloudflare, got moon.mod:\n${moonMod}`,
     );
   } finally {
     fs.rmSync(sandbox, { recursive: true, force: true });
   }
 });
 
-test("sol new without --user exits non-zero and complains in an empty directory", () => {
-  ensureNativeSolInstalled();
+test("sol new without --user exits non-zero and complains in an empty directory", (t) => {
+  if (!ensureNativeSolInstalled(t)) return;
   const sandbox = mkSandbox("sol-bootstrap-no-user-");
   try {
     const result = runSol(["new", "ciapp"], sandbox);

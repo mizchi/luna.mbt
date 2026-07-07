@@ -116,7 +116,7 @@ test-vrt-astra name *args:
         if [[ " {{args}} " =~ " --linux " ]]; then
             # CI 互換の linux ベースラインを docker で seed する。
             docker run --rm -v "$(pwd):/work" -w /work \
-                mcr.microsoft.com/playwright:v1.59.1-noble \
+                mcr.microsoft.com/playwright:v1.61.1-noble \
                 bash -c "corepack enable && cd astra/examples/{{name}} && \
                   pnpm exec playwright test --config e2e/playwright.config.mts --update-snapshots"
         else

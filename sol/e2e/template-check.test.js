@@ -34,20 +34,27 @@ function ensureCliBuilt() {
   );
 }
 
+function moonWorkMember(projectDir, memberPath) {
+  return path
+    .relative(fs.realpathSync(projectDir), fs.realpathSync(memberPath))
+    .split(path.sep)
+    .join("/");
+}
+
 function pinWorkspaceSol(projectDir) {
-  const moonModPath = path.join(projectDir, "moon.mod.json");
-  const moonMod = JSON.parse(fs.readFileSync(moonModPath, "utf8"));
-  moonMod.deps["mizchi/sol"] = { path: SOL_DIR };
-  // sol depends on astra during co-development; pin that too for transitive resolution.
-  moonMod.deps["mizchi/astra"] = { path: path.join(ROOT, "astra") };
-  moonMod.deps["mizchi/luna"] = { path: path.join(ROOT, "luna") };
-  moonMod.deps["mizchi/sol_adapter_node"] = {
-    path: path.join(ROOT, "sol_adapter_node"),
-  };
-  moonMod.deps["mizchi/sol_adapter_cloudflare"] = {
-    path: path.join(ROOT, "sol_adapter_cloudflare"),
-  };
-  fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
+  const members = [
+    ".",
+    moonWorkMember(projectDir, SOL_DIR),
+    moonWorkMember(projectDir, path.join(ROOT, "astra")),
+    moonWorkMember(projectDir, path.join(ROOT, "luna")),
+    moonWorkMember(projectDir, path.join(ROOT, "luna_components")),
+    moonWorkMember(projectDir, path.join(ROOT, "sol_adapter_node")),
+    moonWorkMember(projectDir, path.join(ROOT, "sol_adapter_cloudflare")),
+  ];
+  fs.writeFileSync(
+    path.join(projectDir, "moon.work"),
+    `members = [\n${members.map((member) => `  "${member}",`).join("\n")}\n]\n`,
+  );
 }
 
 test("sol new templates pass moon check --deny-warn", () => {
@@ -79,15 +86,6 @@ test("sol new templates pass moon check --deny-warn", () => {
 
       const projectDir = path.join(sandbox, scenario.name);
       pinWorkspaceSol(projectDir);
-
-      const install = spawnSync("moon", ["install"], {
-        cwd: projectDir,
-        encoding: "utf8",
-      });
-      assert.ok(
-        fs.existsSync(path.join(projectDir, ".mooncakes")),
-        `${scenario.name}: moon install should create .mooncakes directory`
-      );
 
       const check = spawnSync(
         "moon",

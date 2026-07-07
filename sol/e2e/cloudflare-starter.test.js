@@ -41,19 +41,27 @@ function ensureCliBuilt() {
   );
 }
 
+function moonWorkMember(projectDir, memberPath) {
+  return path
+    .relative(fs.realpathSync(projectDir), fs.realpathSync(memberPath))
+    .split(path.sep)
+    .join("/");
+}
+
 function pinWorkspaceSol(projectDir) {
-  const moonModPath = path.join(projectDir, "moon.mod.json");
-  const moonMod = JSON.parse(fs.readFileSync(moonModPath, "utf8"));
-  moonMod.deps["mizchi/sol"] = { path: SOL_DIR };
-  moonMod.deps["mizchi/astra"] = { path: path.join(ROOT, "astra") };
-  moonMod.deps["mizchi/luna"] = { path: path.join(ROOT, "luna") };
-  moonMod.deps["mizchi/sol_adapter_node"] = {
-    path: path.join(ROOT, "sol_adapter_node"),
-  };
-  moonMod.deps["mizchi/sol_adapter_cloudflare"] = {
-    path: path.join(ROOT, "sol_adapter_cloudflare"),
-  };
-  fs.writeFileSync(moonModPath, `${JSON.stringify(moonMod, null, 2)}\n`);
+  const members = [
+    ".",
+    moonWorkMember(projectDir, SOL_DIR),
+    moonWorkMember(projectDir, path.join(ROOT, "astra")),
+    moonWorkMember(projectDir, path.join(ROOT, "luna")),
+    moonWorkMember(projectDir, path.join(ROOT, "luna_components")),
+    moonWorkMember(projectDir, path.join(ROOT, "sol_adapter_node")),
+    moonWorkMember(projectDir, path.join(ROOT, "sol_adapter_cloudflare")),
+  ];
+  fs.writeFileSync(
+    path.join(projectDir, "moon.work"),
+    `members = [\n${members.map((member) => `  "${member}",`).join("\n")}\n]\n`,
+  );
 }
 
 function reservePort() {
@@ -181,16 +189,6 @@ test("sol new --cloudflare builds a composable Worker that serves API, UI, and f
     const projectDir = path.join(sandbox, "worker-app");
     pinWorkspaceSol(projectDir);
     fs.symlinkSync(rootNodeModules, path.join(projectDir, "node_modules"));
-
-    const install = spawnSync("moon", ["install"], {
-      cwd: projectDir,
-      encoding: "utf8",
-    });
-    assert.equal(
-      install.status,
-      0,
-      `moon install failed\nstdout:\n${install.stdout}\nstderr:\n${install.stderr}`
-    );
 
     const build = spawnSync("node", [CLI_DEBUG, "build"], {
       cwd: projectDir,
