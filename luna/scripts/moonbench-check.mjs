@@ -53,6 +53,26 @@ const SUITES = [
       "state_value_to_json: large_array",
     ]),
   },
+  {
+    id: "core/stream_render",
+    cmd: [
+      "moon",
+      "bench",
+      "--target",
+      "js",
+      "-p",
+      "mizchi/luna/core/stream_render",
+      "-f",
+      "stream_render_bench.mbt",
+      "-i",
+      "0-3",
+    ],
+    include: new Set([
+      "stream render: list (10 items)",
+      "stream render: large_list (100 items with escape)",
+      "stream render: page",
+    ]),
+  },
 ];
 
 function parseArgs() {
