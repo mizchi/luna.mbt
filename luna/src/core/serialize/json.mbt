@@ -71,20 +71,59 @@ fn write_double(f : Double, buf : StringBuilder) -> Unit {
 ///|
 /// Escape special characters in JSON string
 fn write_escaped_string(s : String, buf : StringBuilder) -> Unit {
-  for char in s {
+  write_escaped_string_view(s[:], buf)
+}
+
+///|
+fn write_escaped_string_view(s : StringView, buf : StringBuilder) -> Unit {
+  let len = s.length()
+  fn flush_segment(start : Int, end : Int) -> Unit {
+    if end > start {
+      buf.write_view(s[start:end])
+    }
+  }
+
+  for i = 0, segment_start = 0 {
+    if i >= len {
+      flush_segment(segment_start, i)
+      break
+    }
+    let char = s.unsafe_get(i)
     match char {
-      '"' => buf.write_string("\\\"")
-      '\\' => buf.write_string("\\\\")
-      '\n' => buf.write_string("\\n")
-      '\r' => buf.write_string("\\r")
-      '\t' => buf.write_string("\\t")
+      '"' => {
+        flush_segment(segment_start, i)
+        buf.write_string("\\\"")
+        continue i + 1, i + 1
+      }
+      '\\' => {
+        flush_segment(segment_start, i)
+        buf.write_string("\\\\")
+        continue i + 1, i + 1
+      }
+      '\n' => {
+        flush_segment(segment_start, i)
+        buf.write_string("\\n")
+        continue i + 1, i + 1
+      }
+      '\r' => {
+        flush_segment(segment_start, i)
+        buf.write_string("\\r")
+        continue i + 1, i + 1
+      }
+      '\t' => {
+        flush_segment(segment_start, i)
+        buf.write_string("\\t")
+        continue i + 1, i + 1
+      }
       _ =>
         if char.to_int() < 32 {
           // Control characters
+          flush_segment(segment_start, i)
           buf.write_string("\\u")
           write_hex4(char.to_int(), buf)
+          continue i + 1, i + 1
         } else {
-          buf.write_char(char)
+          continue i + 1, segment_start
         }
     }
   }

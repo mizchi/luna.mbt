@@ -34,9 +34,9 @@ pub fn render_attr_value(StringBuilder, String, String) -> Unit
 
 pub fn[E, A : Show] render_attrs_to(StringBuilder, Array[(String, @core.Attr[E, A])]) -> Unit
 
-pub fn[E, A : Show] render_to_string(@core.Node[E, A], preload? : Bool) -> SSRResult
+pub fn[E, A : Show] render_to_string(@core.Node[E, A], preload? : Bool, size_hint? : Int) -> SSRResult
 
-pub fn[E, A : Show] render_to_string_with_hydration(@core.Node[E, A]) -> String
+pub fn[E, A : Show] render_to_string_with_hydration(@core.Node[E, A], size_hint? : Int) -> String
 
 // Errors
 
