@@ -35,10 +35,10 @@ pub fn template_moon_mod(package_name : String, luna_path : String?) -> String {
     #|version = "0.1.0"
     #|
     #|import {
-    #|  "mizchi/sol@0.23.0",
-    #|  "mizchi/sol_adapter_node@0.23.0",
+    #|  "mizchi/sol@0.23.1",
+    #|  "mizchi/sol_adapter_node@0.23.1",
     #|  "mizchi/mars@0.3.10",
-    #|  "mizchi/luna@0.23.0",
+    #|  "mizchi/luna@0.23.1",
     #|  "mizchi/signals@0.6.4",
     #|  "mizchi/js@0.12.1",
     #|  "mizchi/js_browser@0.12.1",
@@ -699,10 +699,10 @@ pub fn template_cloudflare_moon_mod(
     #|version = "0.1.0"
     #|
     #|import {
-    #|  "mizchi/sol@0.23.0",
-    #|  "mizchi/sol_adapter_cloudflare@0.23.0",
+    #|  "mizchi/sol@0.23.1",
+    #|  "mizchi/sol_adapter_cloudflare@0.23.1",
     #|  "mizchi/mars@0.3.10",
-    #|  "mizchi/luna@0.23.0",
+    #|  "mizchi/luna@0.23.1",
     #|  "mizchi/signals@0.6.4",
     #|  "mizchi/js@0.12.1",
     #|  "mizchi/js_browser@0.12.1",

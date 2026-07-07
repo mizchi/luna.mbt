@@ -11,18 +11,12 @@
  * release-please (see release-please-config.json + .github/workflows/release-please.yml).
  *
  * Files touched (always run from the repo root):
- *   luna/moon.mod.json
- *   luna_components/moon.mod.json (also updates `mizchi/luna.version` to match
- *                                   luna's new version)
- *   sol/moon.mod.json             (also updates `mizchi/astra.version` to match
- *                                   astra's new version)
- *   sol_adapter_cloudflare/moon.mod.json
- *                                 (also updates `mizchi/sol.version` to match
- *                                   sol's new version)
- *   sol_adapter_node/moon.mod.json
- *                                 (also updates `mizchi/sol.version` to match
- *                                   sol's new version)
- *   astra/moon.mod.json
+ *   luna/moon.mod
+ *   luna_components/moon.mod (also updates `mizchi/luna` to match luna's new version)
+ *   sol/moon.mod             (also updates `mizchi/astra` and `mizchi/luna`)
+ *   sol_adapter_cloudflare/moon.mod (also updates `mizchi/sol`)
+ *   sol_adapter_node/moon.mod       (also updates `mizchi/sol`)
+ *   astra/moon.mod
  *
  * Usage:
  *   node luna/scripts/vup.mjs patch              # bump each 0.x.y -> 0.x.(y+1)
@@ -35,7 +29,7 @@
  *
  * Idempotency:
  *   For semver bumps (patch/minor/major), the plan is computed against the
- *   HEAD commit. If moon.mod.json in the working tree is already ahead of
+ *   HEAD commit. If moon.mod in the working tree is already ahead of
  *   HEAD (= a previous `vup patch` already ran but wasn't committed), the
  *   script REUSES that pending version instead of bumping again. This means
  *   the documented two-step flow
@@ -58,7 +52,7 @@
  *
  * See `just vup` for the wrapper that also regenerates per-package CHANGELOGs.
  */
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
@@ -73,41 +67,50 @@ const rootDir = join(__dirname, "..", "..");
 
 /**
  * Each package is identified by its short id and has:
- *   - moonModPath:   path to moon.mod.json
+ *   - moonModPath:   path to moon.mod
  *   - tagPrefix:     git tag prefix (e.g. "luna-v")
  */
 const PACKAGES = [
   {
     id: "luna",
-    moonModPath: "luna/moon.mod.json",
+    moonModPath: "luna/moon.mod",
     tagPrefix: "luna-v",
   },
   {
     id: "luna_components",
-    moonModPath: "luna_components/moon.mod.json",
+    moonModPath: "luna_components/moon.mod",
     tagPrefix: "luna_components-v",
   },
   {
     id: "sol",
-    moonModPath: "sol/moon.mod.json",
+    moonModPath: "sol/moon.mod",
     tagPrefix: "sol-v",
   },
   {
     id: "sol_adapter_cloudflare",
-    moonModPath: "sol_adapter_cloudflare/moon.mod.json",
+    moonModPath: "sol_adapter_cloudflare/moon.mod",
     tagPrefix: "sol_adapter_cloudflare-v",
   },
   {
     id: "sol_adapter_node",
-    moonModPath: "sol_adapter_node/moon.mod.json",
+    moonModPath: "sol_adapter_node/moon.mod",
     tagPrefix: "sol_adapter_node-v",
   },
   {
     id: "astra",
-    moonModPath: "astra/moon.mod.json",
+    moonModPath: "astra/moon.mod",
     tagPrefix: "astra-v",
   },
 ];
+
+const PACKAGE_NAME_BY_ID = {
+  luna: "mizchi/luna",
+  luna_components: "mizchi/luna_components",
+  sol: "mizchi/sol",
+  sol_adapter_cloudflare: "mizchi/sol_adapter_cloudflare",
+  sol_adapter_node: "mizchi/sol_adapter_node",
+  astra: "mizchi/astra",
+};
 
 // =============================================================================
 // Semver helpers
@@ -138,18 +141,74 @@ function incrementVersion(version, type) {
 // File helpers
 // =============================================================================
 
+function escapeRegExp(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseMoonMod(content, label) {
+  const version = content.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+  if (!version) throw new Error(`Cannot find version in ${label}`);
+  const deps = {};
+  for (const match of content.matchAll(/^\s*"([^"@]+)@([^"]+)",\s*$/gm)) {
+    deps[match[1]] = match[2];
+  }
+  return { version, deps };
+}
+
 function readJson(absPath) {
   if (!existsSync(absPath)) throw new Error(`File not found: ${absPath}`);
-  return JSON.parse(readFileSync(absPath, "utf-8"));
+  return parseMoonMod(readFileSync(absPath, "utf-8"), absPath);
 }
 
 function writeJson(absPath, json, dryRun) {
-  const serialized = JSON.stringify(json, null, 2) + "\n";
+  let serialized = readFileSync(absPath, "utf-8");
+  serialized = serialized.replace(
+    /^version\s*=\s*"[^"]+"/m,
+    `version = "${json.version}"`,
+  );
+  for (const [depName, depVersion] of Object.entries(json.deps ?? {})) {
+    const pattern = new RegExp(
+      `"${escapeRegExp(depName)}@[^"]+"`,
+      "g",
+    );
+    serialized = serialized.replace(pattern, `"${depName}@${depVersion}"`);
+  }
   if (dryRun) {
     console.log(`  [dry-run] write ${absPath}`);
     return;
   }
   writeFileSync(absPath, serialized);
+}
+
+function versionByPackage(plan) {
+  const versions = {};
+  for (const entry of plan) {
+    const packageName = PACKAGE_NAME_BY_ID[entry.id];
+    if (packageName) versions[packageName] = entry.newMoon;
+  }
+  return versions;
+}
+
+function findNamedFiles(rootRel, fileName) {
+  const rootAbs = join(rootDir, rootRel);
+  if (!existsSync(rootAbs)) return [];
+  const out = [];
+  function visit(absDir, relDir) {
+    for (const entry of readdirSync(absDir, { withFileTypes: true })) {
+      const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
+      const childAbs = join(absDir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === ".mooncakes" || entry.name === "_build" || entry.name === "node_modules") {
+          continue;
+        }
+        visit(childAbs, childRel);
+      } else if (entry.isFile() && entry.name === fileName) {
+        out.push(`${rootRel}/${childRel}`);
+      }
+    }
+  }
+  visit(rootAbs, "");
+  return out;
 }
 
 // =============================================================================
@@ -158,7 +217,7 @@ function writeJson(absPath, json, dryRun) {
 
 /**
  * Read the version recorded for `path` in the current HEAD commit, so we
- * can tell whether a moon.mod.json has already been bumped relative to HEAD.
+ * can tell whether a moon.mod has already been bumped relative to HEAD.
  * Returns null if HEAD does not have the file (new package) or git is unhappy.
  */
 function readHeadVersion(path) {
@@ -168,7 +227,7 @@ function readHeadVersion(path) {
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "ignore"],
     });
-    return JSON.parse(blob).version ?? null;
+    return parseMoonMod(blob, path).version ?? null;
   } catch {
     return null;
   }
@@ -181,7 +240,7 @@ function readHeadVersion(path) {
  * already records that version, the entry is flagged `alreadyBumped` so we
  * skip the write.
  *
- * For a semver bump, we compare moon.mod.json with HEAD:
+ * For a semver bump, we compare moon.mod with HEAD:
  *   - clean (working == HEAD):  newMoon = incrementVersion(working, kind)
  *   - already bumped (working != HEAD): newMoon = working, no further bump
  *
@@ -218,7 +277,7 @@ function buildPlan(spec) {
 }
 
 function applyPlan(plan, dryRun) {
-  // Inter-dep refs to update inside other mooncakes' moon.mod.json:
+  // Inter-dep refs to update inside other mooncakes' moon.mod:
   //   sol depends on astra and luna
   //   sol_adapter_cloudflare depends on sol
   //   sol_adapter_node depends on sol
@@ -245,24 +304,24 @@ function applyPlan(plan, dryRun) {
   }
 
   for (const entry of plan) {
-    // Update moon.mod.json own version.
+    // Update moon.mod own version.
     entry.moon.version = entry.newMoon;
 
     if (entry.id === "sol") {
-      bumpInterDep(entry.moon, "mizchi/astra", astraNewVersion, "sol/moon.mod.json");
-      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "sol/moon.mod.json");
+      bumpInterDep(entry.moon, "mizchi/astra", astraNewVersion, "sol/moon.mod");
+      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "sol/moon.mod");
     }
     if (entry.id === "sol_adapter_cloudflare") {
-      bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_cloudflare/moon.mod.json");
+      bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_cloudflare/moon.mod");
     }
     if (entry.id === "sol_adapter_node") {
-      bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_node/moon.mod.json");
+      bumpInterDep(entry.moon, "mizchi/sol", solNewVersion, "sol_adapter_node/moon.mod");
     }
     if (entry.id === "luna_components") {
-      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "luna_components/moon.mod.json");
+      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "luna_components/moon.mod");
     }
     if (entry.id === "astra") {
-      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "astra/moon.mod.json");
+      bumpInterDep(entry.moon, "mizchi/luna", lunaNewVersion, "astra/moon.mod");
     }
 
     const unchanged = entry.currentMoon === entry.newMoon
@@ -276,28 +335,22 @@ function applyPlan(plan, dryRun) {
   }
 
   // Rewrite version literals embedded in source templates so they match the
-  // bumped moon.mod.json values. Without this `sol new` scaffolds a project
+  // bumped moon.mod values. Without this `sol new` scaffolds a project
   // that pins the previous release line; tracked as TODO.md refactor #2.
   rewriteEmbeddedVersionLiterals(plan, dryRun);
+  rewriteLegacyExampleManifests(plan, dryRun);
 }
 
-// Re-target every "mizchi/<pkg>": "<semver>" string literal inside the
-// scaffold templates and bump the standalone sol VERSION const so they all
-// reference the post-bump versions. Idempotent: replaces only when the
-// target is different from the current literal.
+// Re-target every "mizchi/<pkg>@<semver>" or legacy
+// "mizchi/<pkg>": "<semver>" string literal inside the scaffold templates
+// and bump the standalone sol VERSION const so they all reference the
+// post-bump versions. Idempotent: replaces only when the target is different
+// from the current literal.
 function rewriteEmbeddedVersionLiterals(plan, dryRun) {
-  const versionByPkg = {};
-  for (const entry of plan) {
-    if (entry.id === "sol") versionByPkg["mizchi/sol"] = entry.newMoon;
-    if (entry.id === "luna") versionByPkg["mizchi/luna"] = entry.newMoon;
-    if (entry.id === "sol_adapter_cloudflare")
-      versionByPkg["mizchi/sol_adapter_cloudflare"] = entry.newMoon;
-    if (entry.id === "sol_adapter_node")
-      versionByPkg["mizchi/sol_adapter_node"] = entry.newMoon;
-  }
+  const versionByPkg = versionByPackage(plan);
   const solNew = versionByPkg["mizchi/sol"];
   // Templates that hard-code scaffold dependency versions. Both files emit
-  // the same project moon.mod.json shape; the scaffold_templates copy is
+  // the same project moon.mod shape; the scaffold_templates copy is
   // shared with the native launcher.
   const templateFiles = [
     "sol/src/cli/templates.mbt",
@@ -309,11 +362,21 @@ function rewriteEmbeddedVersionLiterals(plan, dryRun) {
     let content = readFileSync(abs, "utf-8");
     let touched = false;
     for (const [pkg, version] of Object.entries(versionByPkg)) {
-      const pattern = new RegExp(
-        `("${pkg.replace(/\//g, "\\/")}":\\s*)"(\\d+\\.\\d+\\.\\d+)"`,
+      const moonModPattern = new RegExp(
+        `"${escapeRegExp(pkg)}@(\\d+\\.\\d+\\.\\d+)"`,
         "g",
       );
-      content = content.replace(pattern, (match, prefix, current) => {
+      content = content.replace(moonModPattern, (match, current) => {
+        if (current === version) return match;
+        console.log(`  ${rel}: ${pkg} ${current} -> ${version}`);
+        touched = true;
+        return `"${pkg}@${version}"`;
+      });
+      const legacyJsonPattern = new RegExp(
+        `("${escapeRegExp(pkg)}":\\s*)"(\\d+\\.\\d+\\.\\d+)"`,
+        "g",
+      );
+      content = content.replace(legacyJsonPattern, (match, prefix, current) => {
         if (current === version) return match;
         console.log(`  ${rel}: ${pkg} ${current} -> ${version}`);
         touched = true;
@@ -345,6 +408,49 @@ function rewriteEmbeddedVersionLiterals(plan, dryRun) {
         } else {
           writeFileSync(versionAbs, next);
         }
+      }
+    }
+  }
+}
+
+// Keep checked-in example projects buildable before the just-bumped mooncakes
+// are published. These examples use legacy moon.mod.json path dependencies so
+// local CI can resolve the workspace packages, but their version pins must
+// still match the package versions required by transitive deps.
+function rewriteLegacyExampleManifests(plan, dryRun) {
+  const versionByPkg = versionByPackage(plan);
+  const manifestFiles = [
+    ...findNamedFiles("sol/examples", "moon.mod.json"),
+    ...findNamedFiles("astra/examples", "moon.mod.json"),
+  ];
+
+  for (const rel of manifestFiles) {
+    const abs = join(rootDir, rel);
+    const json = JSON.parse(readFileSync(abs, "utf-8"));
+    if (!json.deps || typeof json.deps !== "object") continue;
+    let touched = false;
+
+    for (const [pkg, version] of Object.entries(versionByPkg)) {
+      const dep = json.deps[pkg];
+      if (!dep) continue;
+      if (typeof dep === "object" && dep !== null && typeof dep.version === "string") {
+        if (dep.version === version) continue;
+        console.log(`  ${rel}: deps.${pkg}.version ${dep.version} -> ${version}`);
+        dep.version = version;
+        touched = true;
+      } else if (typeof dep === "string" && /^\d+\.\d+\.\d+$/.test(dep)) {
+        if (dep === version) continue;
+        console.log(`  ${rel}: deps.${pkg} ${dep} -> ${version}`);
+        json.deps[pkg] = version;
+        touched = true;
+      }
+    }
+
+    if (touched) {
+      if (dryRun) {
+        console.log(`  [dry-run] write ${rel}`);
+      } else {
+        writeFileSync(abs, JSON.stringify(json, null, 2) + "\n");
       }
     }
   }
@@ -395,14 +501,14 @@ Scope:
   their versions by hand. See docs/internal/npm-release-onboarding.md.
 
 Touches manifests:
-  luna/moon.mod.json, luna_components/moon.mod.json,
-  sol/moon.mod.json, sol_adapter_cloudflare/moon.mod.json,
-  sol_adapter_node/moon.mod.json, astra/moon.mod.json
-  (sol/moon.mod.json deps.mizchi/astra.version is also bumped to match astra)
-  (sol/moon.mod.json deps.mizchi/luna is also bumped to match luna)
-  (sol_adapter_cloudflare/moon.mod.json deps.mizchi/sol.version is also bumped)
-  (sol_adapter_node/moon.mod.json deps.mizchi/sol.version is also bumped)
-  (astra/moon.mod.json deps.mizchi/luna is also bumped to match luna)
+  luna/moon.mod, luna_components/moon.mod,
+  sol/moon.mod, sol_adapter_cloudflare/moon.mod,
+  sol_adapter_node/moon.mod, astra/moon.mod
+  (sol/moon.mod import mizchi/astra is also bumped to match astra)
+  (sol/moon.mod import mizchi/luna is also bumped to match luna)
+  (sol_adapter_cloudflare/moon.mod import mizchi/sol is also bumped)
+  (sol_adapter_node/moon.mod import mizchi/sol is also bumped)
+  (astra/moon.mod import mizchi/luna is also bumped to match luna)
 
 Tags created by --release:
   luna-v<v>, luna_components-v<v>, sol-v<v>,

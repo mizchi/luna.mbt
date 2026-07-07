@@ -298,7 +298,7 @@ vup version *args:
         # Per-package CHANGELOGs (each package owns its own version + cliff config).
         for pkg in luna luna_components sol sol_adapter_cloudflare sol_adapter_node astra; do
             if [[ -f "${pkg}/cliff.toml" ]]; then
-                NEW_VERSION=$(node -p "require('./${pkg}/moon.mod.json').version")
+                NEW_VERSION=$(node -e "const fs=require('fs'); const m=fs.readFileSync('./${pkg}/moon.mod','utf8').match(/^version\\s*=\\s*\\\"([^\\\"]+)\\\"/m); if(!m) process.exit(1); console.log(m[1])")
                 echo ""
                 echo "Updating ${pkg}/CHANGELOG.md..."
                 git cliff --config "${pkg}/cliff.toml" --tag "${pkg}-v${NEW_VERSION}" -o "${pkg}/CHANGELOG.md" 2>/dev/null || true

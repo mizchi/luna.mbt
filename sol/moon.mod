@@ -1,11 +1,11 @@
 name = "mizchi/sol"
 
-version = "0.23.0"
+version = "0.23.1"
 
 import {
   "moonbitlang/yacc@0.7.17",
-  "mizchi/astra@0.23.0",
-  "mizchi/luna@0.23.0",
+  "mizchi/astra@0.23.1",
+  "mizchi/luna@0.23.1",
   "moonbitlang/async@0.20.1",
   "moonbitlang/x@0.4.46",
   "moonbitlang/parser@0.3.8",

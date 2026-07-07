@@ -23,11 +23,25 @@ fn write_minimal_project(
 }
 
 ///|
+fn sol_dep() -> String {
+  "  \"mizchi/sol@\{@version.VERSION}\""
+}
+
+///|
+fn sol_node_deps() -> String {
+  sol_dep() + ",\n  \"mizchi/sol_adapter_node@\{@version.VERSION}\""
+}
+
+///|
+fn mooncake_mod_json(name : String, version : String) -> String {
+  "{ \"name\": \"\{name}\", \"version\": \"\{version}\" }"
+}
+
+///|
 test "diagnose_project reports ok for a generated node project" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
-  let deps = "  \"mizchi/sol@0.23.0\",\n  \"mizchi/sol_adapter_node@0.23.0\""
-  write_minimal_project(fs, "/project", "node", deps)
+  write_minimal_project(fs, "/project", "node", sol_node_deps())
   mem.mkdirSync("/project/app/__gen__", recursive=true)
   mem.mkdirSync("/project/.sol/prod/server", recursive=true)
   mem.writeFileSync("/project/.sol/prod/server/serve.js", "// serve wrapper")
@@ -41,7 +55,7 @@ test "diagnose_project reports ok for a generated node project" {
 ///|
 test "diagnose_project flags missing node adapter dependency" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  write_minimal_project(fs, "/project", "node", "  \"mizchi/sol@0.23.0\"")
+  write_minimal_project(fs, "/project", "node", sol_dep())
 
   let report = diagnose_project_with_fs(fs, "/project")
   assert_true(report.has_errors())
@@ -52,8 +66,7 @@ test "diagnose_project flags missing node adapter dependency" {
 ///|
 test "diagnose_project flags cloudflare projects that still depend on node adapter" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  let deps = "  \"mizchi/sol@0.23.0\",\n  \"mizchi/sol_adapter_node@0.23.0\""
-  write_minimal_project(fs, "/project", "cloudflare", deps)
+  write_minimal_project(fs, "/project", "cloudflare", sol_node_deps())
 
   let report = diagnose_project_with_fs(fs, "/project")
   assert_true(report.has_errors())
@@ -64,8 +77,7 @@ test "diagnose_project flags cloudflare projects that still depend on node adapt
 ///|
 test "diagnose_project warns when generated outputs are missing" {
   let fs = @fs_adapter.MemFSAdapter::new()
-  let deps = "  \"mizchi/sol@0.23.0\",\n  \"mizchi/sol_adapter_node@0.23.0\""
-  write_minimal_project(fs, "/project", "node", deps)
+  write_minimal_project(fs, "/project", "node", sol_node_deps())
 
   let report = diagnose_project_with_fs(fs, "/project")
   assert_false(report.has_errors())
@@ -78,21 +90,22 @@ test "diagnose_project warns when generated outputs are missing" {
 test "diagnose_project surfaces mooncake versions when .mooncakes is populated" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
-  let deps = "  \"mizchi/sol@0.23.0\",\n  \"mizchi/sol_adapter_node@0.23.0\""
-  write_minimal_project(fs, "/project", "node", deps)
+  write_minimal_project(fs, "/project", "node", sol_node_deps())
   mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
   mem.writeFileSync(
-    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.23.0\" }",
+    "/project/.mooncakes/mizchi/sol/moon.mod.json",
+    mooncake_mod_json("mizchi/sol", @version.VERSION),
   )
   mem.mkdirSync("/project/.mooncakes/mizchi/luna", recursive=true)
   mem.writeFileSync(
-    "/project/.mooncakes/mizchi/luna/moon.mod.json", "{ \"name\": \"mizchi/luna\", \"version\": \"0.23.0\" }",
+    "/project/.mooncakes/mizchi/luna/moon.mod.json",
+    mooncake_mod_json("mizchi/luna", @version.VERSION),
   )
   let report = diagnose_project_with_fs(fs, "/project")
   let rendered = report.render()
   assert_true(rendered.contains("Mooncake versions:"))
-  assert_true(rendered.contains("mizchi/sol @ 0.23.0"))
-  assert_true(rendered.contains("mizchi/luna @ 0.23.0"))
+  assert_true(rendered.contains("mizchi/sol @ \{@version.VERSION}"))
+  assert_true(rendered.contains("mizchi/luna @ \{@version.VERSION}"))
   // No skew warning when JS CLI version matches the resolved sol mooncake.
   assert_false(rendered.contains("Sol JS CLI / .mooncakes version diverge"))
 }
@@ -101,11 +114,11 @@ test "diagnose_project surfaces mooncake versions when .mooncakes is populated" 
 test "diagnose_project warns when .mooncakes sol version differs from bundled JS CLI" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
-  let deps = "  \"mizchi/sol@0.23.0\",\n  \"mizchi/sol_adapter_node@0.23.0\""
-  write_minimal_project(fs, "/project", "node", deps)
+  write_minimal_project(fs, "/project", "node", sol_node_deps())
   mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
   mem.writeFileSync(
-    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.22.1\" }",
+    "/project/.mooncakes/mizchi/sol/moon.mod.json",
+    mooncake_mod_json("mizchi/sol", "0.22.1"),
   )
   let report = diagnose_project_with_fs(fs, "/project")
   let rendered = report.render()
@@ -118,11 +131,11 @@ test "diagnose_project warns when .mooncakes sol version differs from bundled JS
 test "diagnose_project warns when launcher and mooncake versions diverge" {
   let fs = @fs_adapter.MemFSAdapter::new()
   let mem = fs.memfs()
-  let deps = "  \"mizchi/sol@0.23.0\",\n  \"mizchi/sol_adapter_node@0.23.0\""
-  write_minimal_project(fs, "/project", "node", deps)
+  write_minimal_project(fs, "/project", "node", sol_node_deps())
   mem.mkdirSync("/project/.mooncakes/mizchi/sol", recursive=true)
   mem.writeFileSync(
-    "/project/.mooncakes/mizchi/sol/moon.mod.json", "{ \"name\": \"mizchi/sol\", \"version\": \"0.23.0\" }",
+    "/project/.mooncakes/mizchi/sol/moon.mod.json",
+    mooncake_mod_json("mizchi/sol", @version.VERSION),
   )
   let report = diagnose_project_with_fs(
     fs,

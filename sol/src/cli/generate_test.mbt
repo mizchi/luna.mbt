@@ -1221,9 +1221,11 @@ test "generate_templates: moon.mod includes sol and mars dependencies" {
 test "template_moon_mod: uses current published moon deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "moon.mod").unwrap_or("")
-  assert_true(content.contains("\"mizchi/sol@0.23.0\""))
-  assert_true(content.contains("\"mizchi/sol_adapter_node@0.23.0\""))
-  assert_true(content.contains("\"mizchi/luna@0.23.0\""))
+  assert_true(content.contains("\"mizchi/sol@\{@version.VERSION}\""))
+  assert_true(
+    content.contains("\"mizchi/sol_adapter_node@\{@version.VERSION}\""),
+  )
+  assert_true(content.contains("\"mizchi/luna@\{@version.VERSION}\""))
   assert_true(content.contains("\"mizchi/signals@0.6.4\""))
   assert_true(content.contains("\"mizchi/js@0.12.1\""))
   assert_true(content.contains("\"mizchi/js_browser@0.12.1\""))

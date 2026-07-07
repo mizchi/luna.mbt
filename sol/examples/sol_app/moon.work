@@ -1,0 +1,8 @@
+members = [
+  ".",
+  "../..",
+  "../../../sol_adapter_cloudflare",
+  "../../../astra",
+  "../../../luna",
+  "../../../luna_components",
+]
