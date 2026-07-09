@@ -280,11 +280,11 @@ function getMbtTemplates(projectName: string): Template[] {
           type: "module",
           scripts: {
             dev: "vite",
-            build: "moon build && vite build",
+            build: "moon build --target js --release && vite build",
           },
           devDependencies: {
             vite: "^6.0.0",
-            "vite-plugin-moonbit": "^0.1.0",
+            "vite-plugin-moonbit": "^0.3.0",
           },
         },
         null,
@@ -298,7 +298,7 @@ function getMbtTemplates(projectName: string): Template[] {
           name: `internal/${projectName}`,
           version: "0.0.1",
           deps: {
-            "mizchi/luna": "0.23.0",
+            "mizchi/luna": "0.23.1",
             "mizchi/signals": "0.6.4",
             "mizchi/js": "0.12.1",
             "mizchi/js_browser": "0.12.1",
@@ -325,7 +325,7 @@ function getMbtTemplates(projectName: string): Template[] {
             skipLibCheck: true,
             paths: {
               [`mbt:internal/${projectName}`]: [
-                "./_build/js/release/build/app/app.js",
+                `./_build/js/release/build/${projectName}.js`,
               ],
             },
           },
@@ -521,7 +521,7 @@ function handleNew(args: string[]) {
   if (useMbt) {
     console.log(`  moon update`);
     console.log(`  npm install`);
-    console.log(`  moon build`);
+    console.log(`  moon build --target js --release`);
     console.log(`  npm run dev`);
   } else {
     console.log(`  npm install`);
