@@ -123,12 +123,12 @@ test "ActionResult::server_error creates 500 error" {
 priv struct CreateUserActionKey {}
 
 ///|
-impl ActionKey for CreateUserActionKey with id(_self) {
+impl ActionKey for CreateUserActionKey with fn id(_self) {
   "create-user"
 }
 
 ///|
-impl ActionKey for CreateUserActionKey with base_path(_self) {
+impl ActionKey for CreateUserActionKey with fn base_path(_self) {
   "/_action"
 }
 
@@ -136,12 +136,12 @@ impl ActionKey for CreateUserActionKey with base_path(_self) {
 priv struct GetUserActionKey {}
 
 ///|
-impl ActionKey for GetUserActionKey with id(_self) {
+impl ActionKey for GetUserActionKey with fn id(_self) {
   "get-user"
 }
 
 ///|
-impl ActionKey for GetUserActionKey with base_path(_self) {
+impl ActionKey for GetUserActionKey with fn base_path(_self) {
   "/_action"
 }
 
@@ -149,12 +149,12 @@ impl ActionKey for GetUserActionKey with base_path(_self) {
 priv struct ActionOneKey {}
 
 ///|
-impl ActionKey for ActionOneKey with id(_self) {
+impl ActionKey for ActionOneKey with fn id(_self) {
   "action1"
 }
 
 ///|
-impl ActionKey for ActionOneKey with base_path(_self) {
+impl ActionKey for ActionOneKey with fn base_path(_self) {
   "/_action"
 }
 
@@ -162,12 +162,12 @@ impl ActionKey for ActionOneKey with base_path(_self) {
 priv struct ActionTwoKey {}
 
 ///|
-impl ActionKey for ActionTwoKey with id(_self) {
+impl ActionKey for ActionTwoKey with fn id(_self) {
   "action2"
 }
 
 ///|
-impl ActionKey for ActionTwoKey with base_path(_self) {
+impl ActionKey for ActionTwoKey with fn base_path(_self) {
   "/_action"
 }
 
@@ -182,6 +182,13 @@ test "action_url builds endpoint URL from action key" {
 priv struct CreateUserRequest {
   name : String
 } derive(ToJson, FromJson)
+
+///|
+priv struct ContactRequest {
+  name : String
+  email : String
+  message : String
+} derive(FromJson)
 
 ///|
 priv struct CreateUserResponse {
@@ -226,6 +233,40 @@ test "decode_action_body decodes typed JSON request bodies" {
 ///|
 test "decode_action_body rejects invalid request bodies" {
   let decoded : CreateUserRequest? = decode_action_body("{\"unexpected\":true}")
+  assert_true(decoded is None)
+}
+
+///|
+test "decode_action_form_urlencoded decodes typed form payloads" {
+  let decoded : CreateUserRequest? = decode_action_form_urlencoded(
+    "name=Alice+Smith",
+  )
+  match decoded {
+    Some(req) => assert_eq(req.name, "Alice Smith")
+    None => fail("expected decoded form payload")
+  }
+}
+
+///|
+test "decode_action_form_urlencoded decodes percent-encoded utf8" {
+  let decoded : ContactRequest? = decode_action_form_urlencoded(
+    "name=%E6%9C%88&email=a%40example.test&message=hello+world",
+  )
+  match decoded {
+    Some(req) => {
+      assert_eq(req.name, "月")
+      assert_eq(req.email, "a@example.test")
+      assert_eq(req.message, "hello world")
+    }
+    None => fail("expected decoded contact form")
+  }
+}
+
+///|
+test "decode_action_form_urlencoded rejects missing required fields" {
+  let decoded : CreateUserRequest? = decode_action_form_urlencoded(
+    "unexpected=true",
+  )
   assert_true(decoded is None)
 }
 

@@ -233,6 +233,12 @@ pub fn[E] option_dyn(String, @signals.Signal[Array[String]], disabled? : Bool, A
 
 pub fn[E] page_layout(header? : Array[@mizchi/luna/core.Node[E, String]], nav_content? : Array[@mizchi/luna/core.Node[E, String]], Array[@mizchi/luna/core.Node[E, String]], aside_content? : Array[@mizchi/luna/core.Node[E, String]], footer_content? : Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
+pub fn[E] popover(String, mode? : PopoverMode, role? : String, aria_label? : String, aria_labelledby? : String, class? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
+
+pub fn[E] popover_dialog(String, mode? : PopoverMode, aria_label? : String, aria_labelledby? : String, class? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
+
+pub fn[E] popover_trigger(String, action? : PopoverTargetAction, id? : String, aria_label? : String, class? : String, Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
+
 pub fn[E] radio(String, Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
 
 pub fn[E] radio_computed(String, () -> Bool, disabled? : Bool, on_click? : @mizchi/luna/core.EventHandler[E], on_keydown? : @mizchi/luna/core.EventHandler[E], Array[@mizchi/luna/core.Node[E, String]]) -> @mizchi/luna/core.Node[E, String]
@@ -460,6 +466,17 @@ pub(all) struct MenuItem {
   label : String
   disabled : Bool
 }
+
+pub(all) enum PopoverMode {
+  Auto
+  Manual
+} derive(Eq, @debug.Debug)
+
+pub(all) enum PopoverTargetAction {
+  Toggle
+  Show
+  Hide
+} derive(Eq, @debug.Debug)
 
 pub(all) enum PopupType {
   Menu

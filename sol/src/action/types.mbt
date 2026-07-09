@@ -34,9 +34,120 @@ pub fn[T : FromJson] decode_action_body(body : String) -> T? {
 }
 
 ///|
+/// Decode an `application/x-www-form-urlencoded` action body as a typed payload.
+/// Field values are normalized to JSON strings and decoded through `FromJson`,
+/// which keeps the server action contract identical to JSON submissions.
+pub fn[T : FromJson] decode_action_form_urlencoded(body : String) -> T? {
+  let obj : Map[String, Json] = {}
+  for pair_view in body.split("&") {
+    let pair = pair_view.to_owned()
+    if pair.is_empty() {
+      continue
+    }
+    let (raw_key, raw_value) = match pair.split_once("=") {
+      Some((key, value)) => (key.to_owned(), value.to_owned())
+      None => (pair, "")
+    }
+    let key = decode_form_component(raw_key)
+    if key.is_empty() {
+      continue
+    }
+    obj[key] = Json::string(decode_form_component(raw_value))
+  }
+  let value : T = @json.from_json(Json::object(obj)) catch { _ => return None }
+  Some(value)
+}
+
+///|
 /// Decode this action request body as typed JSON.
 pub fn[T : FromJson] ActionContext::decode_json(self : ActionContext) -> T? {
   decode_action_body(self.body)
+}
+
+///|
+/// Decode this action request body as `application/x-www-form-urlencoded`.
+pub fn[T : FromJson] ActionContext::decode_form_urlencoded(
+  self : ActionContext,
+) -> T? {
+  decode_action_form_urlencoded(self.body)
+}
+
+///|
+fn decode_form_component(s : String) -> String {
+  let chars = s.to_array()
+  let len = chars.length()
+  let sb = StringBuilder::new(size_hint=len)
+  let mut i = 0
+  while i < len {
+    let c = chars[i]
+    let has_percent_triplet = c == '%' &&
+      i + 2 < len &&
+      is_hex_digit(chars[i + 1]) &&
+      is_hex_digit(chars[i + 2])
+    if c == '+' {
+      sb.write_char(' ')
+      i += 1
+    } else if has_percent_triplet {
+      let (decoded, next_i) = decode_percent_encoded_bytes(chars, i, len)
+      sb.write_string(decoded)
+      i = next_i
+    } else {
+      sb.write_char(c)
+      i += 1
+    }
+  }
+  sb.to_string()
+}
+
+///|
+fn decode_percent_encoded_bytes(
+  chars : Array[Char],
+  start : Int,
+  len : Int,
+) -> (String, Int) {
+  let bytes : Array[Byte] = []
+  let mut i = start
+  while i + 2 < len && chars[i] == '%' {
+    let hi = chars[i + 1]
+    let lo = chars[i + 2]
+    if !(is_hex_digit(hi) && is_hex_digit(lo)) {
+      break
+    }
+    let byte = hex_digit_to_int(hi) * 16 + hex_digit_to_int(lo)
+    bytes.push(byte.to_byte())
+    i += 3
+  }
+  (decode_percent_bytes(bytes), i)
+}
+
+///|
+fn decode_percent_bytes(bytes : Array[Byte]) -> String {
+  let raw = Bytes::from_array(bytes)
+  @utf8.decode(raw) catch {
+    _ => {
+      let fallback : Array[Char] = []
+      for b in bytes {
+        fallback.push(b.to_int().unsafe_to_char())
+      }
+      String::from_array(fallback)
+    }
+  }
+}
+
+///|
+fn is_hex_digit(c : Char) -> Bool {
+  (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
+}
+
+///|
+fn hex_digit_to_int(c : Char) -> Int {
+  if c >= '0' && c <= '9' {
+    c.to_int() - '0'.to_int()
+  } else if c >= 'a' && c <= 'f' {
+    c.to_int() - 'a'.to_int() + 10
+  } else {
+    c.to_int() - 'A'.to_int() + 10
+  }
 }
 
 ///|
@@ -161,10 +272,10 @@ pub(all) struct ActionHandler(async (ActionContext) -> ActionResult raise Error)
 /// Action key implemented by generated marker types.
 pub(open) trait ActionKey {
   /// Stable action identifier used in the HTTP endpoint.
-  id(Self) -> String
+  fn id(Self) -> String
 
   /// Base path for action endpoints.
-  base_path(Self) -> String
+  fn base_path(Self) -> String
 }
 
 ///|
@@ -204,12 +315,14 @@ pub fn[Req, Res] TypedActionKey::base_path(
 }
 
 ///|
-pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res] with id(self) {
+pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res] with fn id(self) {
   self.id
 }
 
 ///|
-pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res] with base_path(self) {
+pub impl[Req, Res] ActionKey for TypedActionKey[Req, Res] with fn base_path(
+  self,
+) {
   self.base_path
 }
 
