@@ -7,13 +7,13 @@
   "bump-patch-for-minor-pre-major": false,
   "plugins": ["node-workspace"],
   "packages": {
-    "js/luna":        { "package-name": "@luna_ui/luna" },
-    "js/sol":         { "package-name": "@luna_ui/sol" },
-    "js/astra":       { "package-name": "@luna_ui/astra" },
-    "js/components":  { "package-name": "@luna_ui/components" },
-    "js/loader":      { "package-name": "@luna_ui/luna-loader" },
-    "js/stella":      { "package-name": "@luna_ui/stella" },
-    "js/testing":     { "package-name": "@luna_ui/testing" },
-    "js/wcr":         { "package-name": "@luna_ui/wcr" }
+    "js/luna":        { "package-name": "@luna_ui/luna",        "component": "luna-npm" },
+    "js/sol":         { "package-name": "@luna_ui/sol",         "component": "sol-npm" },
+    "js/astra":       { "package-name": "@luna_ui/astra",       "component": "astra-npm" },
+    "js/components":  { "package-name": "@luna_ui/components",   "component": "components-npm" },
+    "js/loader":      { "package-name": "@luna_ui/luna-loader", "component": "luna-loader-npm" },
+    "js/stella":      { "package-name": "@luna_ui/stella",      "component": "stella-npm" },
+    "js/testing":     { "package-name": "@luna_ui/testing",     "component": "testing-npm" },
+    "js/wcr":         { "package-name": "@luna_ui/wcr",         "component": "wcr-npm" }
   }
 }
