@@ -82,3 +82,26 @@ describe("Issue #12: CLI MoonBit template - lib.mbt API", () => {
     expect(cliSource).toContain("from_dom");
   });
 });
+
+describe("CLI MoonBit template - buildable out of the box", () => {
+  // 0.23.0's _bench subpackage imports mizchi/js/browser/dom, which the
+  // pinned mizchi/js@0.12.1 does not export, so `moon build` fails with
+  // "Cannot find import 'mizchi/js/browser/dom' in mizchi/luna/_bench@0.23.0".
+  test("moon.mod.json must not pin the broken mizchi/luna 0.23.0", () => {
+    expect(cliSource).not.toContain('"mizchi/luna": "0.23.0"');
+  });
+
+  // vite-plugin-moonbit resolves `mbt:` imports to the RELEASE artifact
+  // (_build/js/release/build/<name>.js). A plain `moon build` writes debug/,
+  // so vite dies with "failed to resolve import 'mbt:internal/<name>'".
+  // Both the build script and the printed getting-started must use --release.
+  test("build script must build release, not debug", () => {
+    expect(cliSource).not.toContain('"moon build && vite build"');
+    expect(cliSource).toContain("moon build --target js --release && vite build");
+  });
+
+  test("printed getting-started must instruct a release build", () => {
+    expect(cliSource).toContain("moon build --target js --release`");
+    expect(cliSource).not.toMatch(/console\.log\(`\s*moon build`\)/);
+  });
+});
