@@ -42,7 +42,49 @@ jobs:
           private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
 
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      # release-please's node-workspace plugin rewrites internal @luna_ui/*
+      # dependency ranges in each package.json when it opens/updates the Release
+      # PR, but it never touches pnpm-lock.yaml. The Release PR would then fail
+      # CI's `pnpm install --frozen-lockfile` with ERR_PNPM_OUTDATED_LOCKFILE.
+      # When a Release PR exists this run, regenerate the lockfile on its branch
+      # and push the fix. Pushing to the PR branch re-triggers the normal CI
+      # workflows (pull_request: synchronize) but NOT this one (no `push`
+      # trigger), so there is no loop. The branch name is release-please's
+      # deterministic convention for a single combined PR onto main.
+      - name: Check out Release PR branch
+        if: ${{ steps.release.outputs.pr }}
+        uses: actions/checkout@v4
+        with:
+          ref: release-please--branches--main
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Setup pnpm
+        if: ${{ steps.release.outputs.pr }}
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        if: ${{ steps.release.outputs.pr }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Sync pnpm-lock.yaml with release-please bumps
+        if: ${{ steps.release.outputs.pr }}
+        run: |
+          pnpm install --lockfile-only --ignore-scripts
+          if [ -z "$(git status --porcelain pnpm-lock.yaml)" ]; then
+            echo "pnpm-lock.yaml already in sync — nothing to do"
+            exit 0
+          fi
+          git config user.name "luna-release-please[bot]"
+          git config user.email "luna-release-please[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          git commit -m "chore: sync pnpm-lock.yaml with release-please bumps"
+          git push
