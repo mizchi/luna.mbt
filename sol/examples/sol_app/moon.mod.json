@@ -4,23 +4,23 @@
   "deps": {
     "mizchi/sol": {
       "path": "../..",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/astra": {
       "path": "../../../astra",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/sol_adapter_cloudflare": {
       "path": "../../../sol_adapter_cloudflare",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/luna": {
       "path": "../../../luna",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/luna_components": {
       "path": "../../../luna_components",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/mars": "0.3.10",
     "mizchi/signals": "0.6.4",

@@ -1,9 +1,9 @@
 name = "mizchi/sol_adapter_node"
 
-version = "0.23.1"
+version = "0.23.2"
 
 import {
-  "mizchi/sol@0.23.1",
+  "mizchi/sol@0.23.2",
   "mizchi/mars@0.3.10",
   "mizchi/js@0.12.1",
 }

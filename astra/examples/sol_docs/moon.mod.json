@@ -4,19 +4,19 @@
   "deps": {
     "mizchi/astra": {
       "path": "../..",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/sol": {
       "path": "../../../sol",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/sol_adapter_node": {
       "path": "../../../sol_adapter_node",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/luna": {
       "path": "../../../luna",
-      "version": "0.23.1"
+      "version": "0.23.2"
     },
     "mizchi/mars": "0.3.10",
     "mizchi/signals": "0.6.4",
