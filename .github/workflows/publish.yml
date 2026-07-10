@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to publish (e.g. luna-v0.17.0)'
+        description: 'Tag to publish (e.g. luna-npm-v0.23.1)'
         required: true
 
 permissions:
@@ -66,10 +66,12 @@ jobs:
       # per-package matrix here.
       - run: pnpm -r build
 
-      # release-please tag format is "<component>-v<version>" where component
-      # defaults to the package name without scope (e.g. "luna" for
-      # "@luna_ui/luna"). Reconstruct the full scoped name with the @luna_ui
-      # prefix, then walk js/*/package.json to find the matching directory.
+      # release-please tag format is "<component>-v<version>". Each npm package
+      # sets component to "<name>-npm" in release-please-config.json so these
+      # tags (e.g. "luna-npm-v0.23.1") never collide with the mooncake release
+      # flow's "<name>-v<version>" tags (cut by `just vup`). Strip the "-v*"
+      # version suffix, then the trailing "-npm" component suffix, to recover
+      # the package name; walk js/*/package.json to find the matching directory.
       - name: Resolve package directory from tag
         id: pkg
         env:
@@ -77,6 +79,7 @@ jobs:
         run: |
           TAG="${DISPATCH_TAG:-$GITHUB_REF_NAME}"
           COMPONENT="${TAG%-v*}"
+          COMPONENT="${COMPONENT%-npm}"
           NAME="@luna_ui/${COMPONENT}"
           DIR=""
           for f in js/*/package.json; do
