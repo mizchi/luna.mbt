@@ -3,6 +3,8 @@
   "release-type": "node",
   "include-component-in-tag": true,
   "separate-pull-requests": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
   "plugins": ["node-workspace"],
   "packages": {
     "js/luna":        { "package-name": "@luna_ui/luna" },
