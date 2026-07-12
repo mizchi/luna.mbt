@@ -32,7 +32,8 @@ pub fn register_mbtx_routes(app : App, routes : Array[MbtxRoute]) -> Unit {
           c.text("Internal Server Error", status=500)
           return
         }
-        c.set_header("Content-Type", result.content_type)
+        let content_type = result.content_type.replace_all(old="\r", new="").replace_all(old="\n", new="")
+        c.set_header("Content-Type", content_type)
         c.text(result.body, status=result.status)
       }),
     )
