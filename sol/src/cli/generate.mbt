@@ -489,10 +489,13 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       if island_funcs.is_empty() {
         continue
       }
-      // Construct client package path from moon.mod name + source-stripped path.
-      let client_pkg_path = build_package_path(
+      // MoonBit import path = module name + source-relative package path.
+      // `build_package_path` is source-relative (matches moon's _build layout);
+      // moon.pkg imports still need the full package identity (`mod_name/...`).
+      let client_pkg_rel = build_package_path(
         mod_name, source_dir, island_pattern,
       )
+      let client_pkg_path = "\{mod_name}/\{client_pkg_rel}"
       let client_alias_name = "app_client"
       // Collect export names for __sol_internal__client_* functions only
       let export_names : Array[String] = []
