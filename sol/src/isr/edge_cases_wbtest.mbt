@@ -254,7 +254,7 @@ test "manifest: empty pages map" {
 
 ///|
 test "manifest: path not found" {
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/exists/"] = ISRPageMeta::{
     revalidate: 60,
     renderer: "markdown",
@@ -267,7 +267,7 @@ test "manifest: path not found" {
 
 ///|
 test "manifest: trailing slash matters" {
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/"] = ISRPageMeta::{
     revalidate: 60,
     renderer: "markdown",
@@ -284,7 +284,7 @@ test "manifest: trailing slash matters" {
 
 ///|
 test "manifest: case sensitive paths" {
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/Blog/"] = ISRPageMeta::{
     revalidate: 60,
     renderer: "markdown",
@@ -303,7 +303,7 @@ test "manifest: case sensitive paths" {
 ///|
 async test "handler: non-ISR page returns None" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/isr-page/"] = ISRPageMeta::{
     revalidate: 60,
     renderer: "markdown",
@@ -319,7 +319,7 @@ async test "handler: non-ISR page returns None" {
 ///|
 test "handler: update_cache preserves TTL from manifest" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/test/"] = ISRPageMeta::{
     revalidate: 120,
     renderer: "markdown",

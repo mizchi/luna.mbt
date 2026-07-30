@@ -1,14 +1,14 @@
 import {
-  "mizchi/luna" @luna,
-  "mizchi/astra/content/markdown" @markdown,
-  "mizchi/astra/content/frontmatter" @frontmatter,
+  "mizchi/luna",
+  "mizchi/astra/content/markdown",
+  "mizchi/astra/content/frontmatter",
   "mizchi/markdown" @md_parser,
-  "mizchi/markdown/slug" @slug,
+  "mizchi/markdown/slug",
   "mizchi/markdown/toc" @md_toc,
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 supported_targets = "js"

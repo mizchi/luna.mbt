@@ -8,7 +8,7 @@
 /// Parse mbti imports to build alias mapping
 pub fn parse_mbti_imports(content : String) -> Map[String, String] {
   // Returns: Map[alias -> package_path]
-  let result : Map[String, String] = {}
+  let result : Map[String, String] = Map([])
   let lines = content.split("\n").to_array()
   let mut in_import = false
   for line in lines {

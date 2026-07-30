@@ -1,14 +1,14 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/js/core" @core,
-  "mizchi/sol/builder" @builder,
-  "mizchi/astra" @astra,
+  "mizchi/js/core",
+  "mizchi/sol/builder",
+  "mizchi/astra",
   "mizchi/astra/render" @generator,
-  "mizchi/astra/content/shiki" @shiki,
+  "mizchi/astra/content/shiki",
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 supported_targets = "js"

@@ -1,9 +1,9 @@
 import {
-  "mizchi/sol" @sol,
-  "mizchi/luna" @luna,
-  "mizchi/luna/js/stream_renderer" @stream_renderer,
-  "mizchi/mars" @mars,
-  "moonbitlang/async/js_async" @js_async,
+  "mizchi/sol",
+  "mizchi/luna",
+  "mizchi/luna/js/stream_renderer",
+  "mizchi/mars",
+  "moonbitlang/async/js_async",
 }
 
 supported_targets = "js"

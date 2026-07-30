@@ -14,8 +14,8 @@ pub fn split_manifest(
   configs : Map[String, PageConfig],
 ) -> (HierarchicalManifest, Map[String, SegmentManifest]) {
   // Classify routes by first segment
-  let inline_routes : Map[String, Array[String]] = {}
-  let by_segment : Map[String, Array[RouteEntry]] = {}
+  let inline_routes : Map[String, Array[String]] = Map([])
+  let by_segment : Map[String, Array[RouteEntry]] = Map([])
   for route in manifest.routes {
     let path = get_route_path(route)
     let segment = extract_first_segment(path)
@@ -32,8 +32,8 @@ pub fn split_manifest(
   }
 
   // Build segment references and manifests
-  let segments : Map[String, SegmentRef] = {}
-  let segment_manifests : Map[String, SegmentManifest] = {}
+  let segments : Map[String, SegmentRef] = Map([])
+  let segment_manifests : Map[String, SegmentManifest] = Map([])
   for segment, routes in by_segment {
     // Check if segment should be SPA (from page.json config)
     let config_key = segment
@@ -60,7 +60,7 @@ pub fn split_manifest(
     segments[segment] = seg_ref
 
     // Create segment manifest
-    let segment_routes : Map[String, Array[String]] = {}
+    let segment_routes : Map[String, Array[String]] = Map([])
     let dynamic_patterns : Array[DynamicPattern] = []
     for route in routes {
       let path = get_route_path(route)
@@ -170,7 +170,7 @@ pub fn path_matches_segment(path : String, segment : String) -> Bool {
 ///|
 /// Get all unique first-level segments from routes
 pub fn get_all_segments(manifest : RouteManifest) -> Array[String] {
-  let segments : Map[String, Bool] = {}
+  let segments : Map[String, Bool] = Map([])
   for route in manifest.routes {
     let path = get_route_path(route)
     let segment = extract_first_segment(path)
@@ -271,7 +271,7 @@ fn try_match_pattern(
       }
     }
     // Extract catch-all value
-    let params : Map[String, String] = {}
+    let params : Map[String, String] = Map([])
     if pattern.params.length() > 0 {
       let catch_all_value = join_path_parts(
         path_parts,
@@ -286,7 +286,7 @@ fn try_match_pattern(
   if path_parts.length() != pattern_parts.length() {
     return None
   }
-  let params : Map[String, String] = {}
+  let params : Map[String, String] = Map([])
   let mut param_idx = 0
   for i = 0; i < pattern_parts.length(); i = i + 1 {
     let pp = pattern_parts[i]

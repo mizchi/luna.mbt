@@ -69,43 +69,43 @@ pub fn DomNode::to_dom(self : DomNode) -> @js_dom.Node {
 ///|
 /// ToDomNode trait - types that can be converted to DomNode
 pub trait ToDomNode {
-  to_dom_node(Self) -> DomNode
+  fn to_dom_node(Self) -> DomNode
 }
 
 ///|
 /// DomElement -> DomNode
-pub impl ToDomNode for DomElement with to_dom_node(self) {
+pub impl ToDomNode for DomElement with fn to_dom_node(self) {
   El(self)
 }
 
 ///|
 /// String -> DomNode (creates text node)
-pub impl ToDomNode for String with to_dom_node(self) {
+pub impl ToDomNode for String with fn to_dom_node(self) {
   let doc = @js_dom.document()
   Txt(doc.createTextNode(self))
 }
 
 ///|
 /// @js_dom.Node -> DomNode (raw node)
-pub impl ToDomNode for @js_dom.Node with to_dom_node(self) {
+pub impl ToDomNode for @js_dom.Node with fn to_dom_node(self) {
   Raw(self)
 }
 
 ///|
 /// @js_dom.Element -> DomNode
-pub impl ToDomNode for @js_dom.Element with to_dom_node(self) {
+pub impl ToDomNode for @js_dom.Element with fn to_dom_node(self) {
   El(DomElement::from_dom(self))
 }
 
 ///|
 /// @js_dom.Text -> DomNode
-pub impl ToDomNode for @js_dom.Text with to_dom_node(self) {
+pub impl ToDomNode for @js_dom.Text with fn to_dom_node(self) {
   Txt(self)
 }
 
 ///|
 /// DomNode -> DomNode (identity)
-pub impl ToDomNode for DomNode with to_dom_node(self) {
+pub impl ToDomNode for DomNode with fn to_dom_node(self) {
   self
 }
 

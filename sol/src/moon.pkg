@@ -1,21 +1,21 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/luna" @luna,
-  "mizchi/luna/core/render" @render,
-  "mizchi/luna/js/stream_renderer" @stream_renderer,
+  "mizchi/luna",
+  "mizchi/luna/core/render",
+  "mizchi/luna/js/stream_renderer",
   "mizchi/luna/x/stella",
   "mizchi/js/core" @js,
-  "mizchi/mars" @mars,
-  "mizchi/js/web/http" @http,
+  "mizchi/mars",
+  "mizchi/js/web/http",
   "mizchi/luna/dom/static" @server_dom,
-  "mizchi/sol/router" @router,
-  "mizchi/sol/action" @action,
-  "mizchi/sol/hot_reload" @hot_reload,
-  "mizchi/sol/internal/page_shell" @page_shell,
+  "mizchi/sol/router",
+  "mizchi/sol/action",
+  "mizchi/sol/hot_reload",
+  "mizchi/sol/internal/page_shell",
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 supported_targets = "js"

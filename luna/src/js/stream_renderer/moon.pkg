@@ -1,12 +1,12 @@
 import {
-  "mizchi/luna/core" @core,
-  "mizchi/luna" @luna,
-  "mizchi/luna/core/render" @render,
-  "mizchi/js/web/streams" @streams,
+  "mizchi/luna/core",
+  "mizchi/luna",
+  "mizchi/luna/core/render",
+  "mizchi/js/web/streams",
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 supported_targets = "js"

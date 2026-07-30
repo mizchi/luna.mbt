@@ -305,7 +305,7 @@ fn parse_query_params(query : String, params : Map[String, String]) -> Unit {
 fn parse_dynamic_source_path(
   source_path : String,
 ) -> (String, Map[String, String]) {
-  let params : Map[String, String] = {}
+  let params : Map[String, String] = Map([])
 
   // Check if path contains query params
   match source_path.find("?") {

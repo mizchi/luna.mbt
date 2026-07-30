@@ -49,7 +49,7 @@ test "ISRManifest::is_isr_page returns false for empty manifest" {
 
 ///|
 test "ISRManifest::is_isr_page returns true for registered page" {
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/post-1/"] = create_page_meta(60, source="blog/post-1.md")
   let manifest = create_manifest(pages)
   assert_true(manifest.is_isr_page("/blog/post-1/"))
@@ -58,7 +58,7 @@ test "ISRManifest::is_isr_page returns true for registered page" {
 
 ///|
 test "ISRManifest::get_page returns page meta" {
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/api/data/"] = create_page_meta(
     10,
     renderer="dynamic",
@@ -114,7 +114,7 @@ test "MemoryCache Ref sharing works" {
 ///|
 test "ISRHandler cache sharing via Ref" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/"] = create_page_meta(60, source="blog/index.md")
   let manifest = create_manifest(pages)
   let handler = create_handler(cache, manifest, "/tmp/dist")
@@ -143,7 +143,7 @@ test "ISRHandler cache sharing via Ref" {
 ///|
 test "ISRHandler handle flow debug" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/"] = create_page_meta(60, source="blog/index.md")
   let manifest = create_manifest(pages)
   let handler = create_handler(cache, manifest, "/tmp/dist")
@@ -192,7 +192,7 @@ test "ISRHandler handle flow debug" {
 ///|
 async test "ISRHandler with fresh cache returns cached content" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/"] = create_page_meta(60, source="blog/index.md")
   let manifest = create_manifest(pages)
   let handler = create_handler(cache, manifest, "/tmp/dist")
@@ -425,7 +425,7 @@ test "Boundary: 1ms before TTL expiry is Fresh" {
 ///|
 test "update_cache refreshes entry with new timestamp" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/page/"] = create_page_meta(60, source="page.md")
   let manifest = create_manifest(pages)
   let handler = create_handler(cache, manifest, "/tmp/dist")

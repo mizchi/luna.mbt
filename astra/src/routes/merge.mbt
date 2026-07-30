@@ -13,7 +13,7 @@ pub fn merge_manifests(
   file_based : RouteManifest,
 ) -> RouteManifest {
   // Build set of paths from explicit routes
-  let explicit_paths : Map[String, Bool] = {}
+  let explicit_paths : Map[String, Bool] = Map([])
   for route in explicit.routes {
     let path = get_route_path(route)
     explicit_paths[path] = true

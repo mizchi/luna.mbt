@@ -605,22 +605,22 @@ fn main {
         1000 / TARGET_FPS,
       )
       let app = div(class="container") <| [
-          h1() <| [
-            text("Luna Benchmark Game"),
-          ],
-          render_stats(state_sig),
-          render_controls(running_sig, fn() {
-            state_sig.set(create_initial_state())
-          }),
-          div(class="grid-wrapper") <| [
-            render_grid(state_sig),
-          ],
-          div(class="legend") <| [
-            text(
-              "Arrow keys to move | White=Player | Green=Player Bullets | Yellow=Enemy Bullets | Red=Enemies",
-            ),
-          ],
-        ]
+        h1() <| [
+          text("Luna Benchmark Game"),
+        ],
+        render_stats(state_sig),
+        render_controls(running_sig, fn() {
+          state_sig.set(create_initial_state())
+        }),
+        div(class="grid-wrapper") <| [
+          render_grid(state_sig),
+        ],
+        div(class="legend") <| [
+          text(
+            "Arrow keys to move | White=Player | Green=Player Bullets | Yellow=Enemy Bullets | Red=Enemies",
+          ),
+        ],
+      ]
       render(el |> DomElement::from_dom, app)
       console_log("Game initialized!")
     }

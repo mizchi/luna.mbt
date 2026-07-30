@@ -6,7 +6,7 @@
 pub fn build_cooccurrence_matrix(
   usages : Array[ClassUsage],
 ) -> Map[String, Map[String, Int]] {
-  let matrix : Map[String, Map[String, Int]] = {}
+  let matrix : Map[String, Map[String, Int]] = Map([])
   for usage in usages {
     let classes = usage.classes
     let n = classes.length()
@@ -29,7 +29,7 @@ pub fn build_cooccurrence_matrix(
               None => inner.set(second, 1)
             }
           None => {
-            let inner : Map[String, Int] = {}
+            let inner : Map[String, Int] = Map([])
             inner.set(second, 1)
             matrix.set(first, inner)
           }
@@ -88,7 +88,7 @@ pub fn build_adjacency_list(
   cooccurrences : Array[CoOccurrence],
   min_frequency : Int,
 ) -> Map[String, Array[Edge]] {
-  let adj : Map[String, Array[Edge]] = {}
+  let adj : Map[String, Array[Edge]] = Map([])
   for co in cooccurrences {
     if co.frequency >= min_frequency {
       // Add edge a -> b

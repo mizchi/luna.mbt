@@ -1,6 +1,6 @@
 import {
   "mizchi/luna/x/stella/component" @wc,
-  "mizchi/js" @js,
+  "mizchi/js",
 }
 
 supported_targets = "js"

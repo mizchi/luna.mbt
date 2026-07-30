@@ -1,5 +1,5 @@
 import {
-  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna/js/resource",
   "mizchi/signals",
 }
 

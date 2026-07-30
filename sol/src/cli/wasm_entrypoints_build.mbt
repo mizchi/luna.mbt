@@ -229,7 +229,7 @@ fn resolve_wasm_entry_env(
   entry : WasmEntrypointConfig,
   runtime : WasmEntrypointRuntime,
 ) -> Map[String, String] {
-  let env : Map[String, String] = {}
+  let env : Map[String, String] = Map([])
   for item in entry.env {
     env[item.0] = item.1
   }

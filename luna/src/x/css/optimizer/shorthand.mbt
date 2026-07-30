@@ -211,12 +211,12 @@ pub fn compress_to_shorthands(
   declarations : Array[Declaration],
 ) -> Array[Declaration] {
   // Build property -> value map
-  let decl_map : Map[String, String] = {}
+  let decl_map : Map[String, String] = Map([])
   for d in declarations {
     decl_map[d.property] = d.value
   }
   let result : Array[Declaration] = []
-  let used : Map[String, Bool] = {}
+  let used : Map[String, Bool] = Map([])
 
   // Try margin shorthand
   if can_compress_box_shorthand(decl_map, "margin") {

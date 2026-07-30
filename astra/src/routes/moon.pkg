@@ -1,20 +1,20 @@
 import {
   "moonbitlang/core/json",
   "mizchi/astra/internal/json_utils",
-  "mizchi/astra/internal/utils" @utils,
-  "mizchi/astra/env" @env,
-  "mizchi/astra" @astra,
-  "mizchi/astra/content/md_render" @md_render,
-  "mizchi/luna" @luna,
+  "mizchi/astra/internal/utils",
+  "mizchi/astra/env",
+  "mizchi/astra",
+  "mizchi/astra/content/md_render",
+  "mizchi/luna",
   "mizchi/astra/fs" @fs_adapter,
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 supported_targets = "js"

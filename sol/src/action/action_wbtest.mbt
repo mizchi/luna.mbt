@@ -184,6 +184,9 @@ priv struct CreateUserRequest {
 } derive(ToJson, FromJson)
 
 ///|
+extend CreateUserRequest with ToJson::{to_json}
+
+///|
 priv struct ContactRequest {
   name : String
   email : String
@@ -194,6 +197,9 @@ priv struct ContactRequest {
 priv struct CreateUserResponse {
   id : String
 } derive(ToJson, FromJson)
+
+///|
+extend CreateUserResponse with ToJson::{to_json}
 
 ///|
 test "TypedActionKey carries request and response phantom types" {
@@ -298,7 +304,7 @@ test "typed action response decodes success payload" {
 
 ///|
 test "typed action response reports decode errors" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   let raw = ActionResponse::Success(@js_any.json_to_any(obj.to_json()))
   let typed : TypedActionResponse[CreateUserResponse] = TypedActionResponse::from_action_response(
     raw,

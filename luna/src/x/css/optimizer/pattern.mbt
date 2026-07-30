@@ -11,7 +11,7 @@ pub fn find_frequent_patterns(
   min_support : Int,
 ) -> Array[FrequentPattern] {
   // Build frequency map for each class set
-  let pattern_counts : Map[String, Int] = {}
+  let pattern_counts : Map[String, Int] = Map([])
 
   // Count all 2-class patterns
   for usage in usages {
@@ -114,7 +114,7 @@ fn is_dominated(
 ///|
 /// Convert array to set (using Map as set)
 fn set_from_array(arr : Array[String]) -> Map[String, Bool] {
-  let set : Map[String, Bool] = {}
+  let set : Map[String, Bool] = Map([])
   for item in arr {
     set[item] = true
   }
@@ -134,7 +134,7 @@ fn is_subset(a : Map[String, Bool], b : Map[String, Bool]) -> Bool {
 pub fn group_by_class_set(
   usages : Array[ClassUsage],
 ) -> Map[String, Array[ClassUsage]] {
-  let groups : Map[String, Array[ClassUsage]] = {}
+  let groups : Map[String, Array[ClassUsage]] = Map([])
   for usage in usages {
     let classes = usage.classes.copy()
     classes.sort_by(fn(a, b) { a.compare(b) })

@@ -76,6 +76,51 @@ fn read_mod_info_from_json(content : String) -> (String, String) {
 }
 
 ///|
+/// Whether `cwd` participates in a multi-module `moon.work` workspace.
+///
+/// moon's build output layout depends on this: a standalone module (or a
+/// `moon.work` whose only member is this module, with everything else
+/// resolved from `.mooncakes/`) writes its own packages source-relative —
+/// `_build/js/{profile}/build/{rel}/...`, no module name. A `moon.work`
+/// listing two or more source members (the case whenever this monorepo's
+/// own e2e/integration tests build a scaffold alongside local `luna`/`sol`
+/// source) instead disambiguates every member by its full module name —
+/// `_build/js/{profile}/build/{mod_name}/{rel}/...`.
+fn[FS : @env.FileSystem] is_multi_module_workspace_with_fs(
+  fs : FS,
+  cwd : String,
+) -> Bool {
+  let path = @path.join2(cwd, "moon.work")
+  if !fs.exists_sync(path) {
+    return false
+  }
+  let content : String = fs.read_file_sync(path) catch { _ => return false }
+  count_moon_work_members(content) > 1
+}
+
+///|
+fn count_moon_work_members(content : String) -> Int {
+  let mut in_members = false
+  let mut count = 0
+  for raw_line in content.split("\n") {
+    let line = strip_moon_mod_comment(raw_line.to_owned()).trim().to_owned()
+    if !in_members {
+      if line.contains("members") && line.contains("[") {
+        in_members = true
+      }
+      continue
+    }
+    if line.contains("]") {
+      break
+    }
+    if line.contains("\"") {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
 fn moon_mod_string_field(content : String, field : String) -> String? {
   for raw_line in content.split("\n") {
     let line = strip_moon_mod_comment(raw_line.to_owned()).trim().to_owned()

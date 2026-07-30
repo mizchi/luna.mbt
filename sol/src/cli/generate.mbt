@@ -20,29 +20,41 @@
 /// Build the on-disk package path that `moon` emits under
 /// `_build/js/{profile}/build/`.
 ///
-/// moon's build output is **source-relative** — for a module whose `source`
-/// is `app`, the package `app/client` is emitted to
-/// `_build/js/{profile}/build/client/client.js`. The module name from
-/// `moon.mod`'s `name` field does **not** appear in the build path.
+/// moon's build output layout depends on whether this module is building
+/// standalone (or as the sole source member of a `moon.work`, with
+/// everything else resolved from `.mooncakes/`) or as one of several source
+/// members of a `moon.work` workspace:
 ///
-/// Prepending `mod_name` here produced references to
-/// `_build/js/{profile}/build/{mod_name}/{rel}/...` which do not exist on
-/// disk, so `sol build`'s bundling step failed with an unresolved import
-/// (this regressed against 0.23.0, which used the source-relative path).
-/// `moon check` / `moon test` don't surface it because they never run the
-/// bundler. `mod_name` is retained in the signature for call-site
-/// compatibility but is intentionally unused.
+/// - Standalone / sole workspace member: **source-relative** — for a module
+///   whose `source` is `app`, package `app/client` is emitted to
+///   `_build/js/{profile}/build/client/client.js`. The module name from
+///   `moon.mod`'s `name` field does **not** appear in the build path.
+/// - Multi-member `moon.work` (e.g. this monorepo's own e2e tests, which
+///   build a scaffold alongside local `luna`/`sol` source): every member,
+///   including this one, is disambiguated by its full module name —
+///   `_build/js/{profile}/build/{mod_name}/{rel}/...`.
+///
+/// Prepending `mod_name` unconditionally previously broke the standalone
+/// case (regressed against 0.23.0); dropping it unconditionally breaks the
+/// multi-member workspace case instead. `moon check` / `moon test` don't
+/// surface either because they never run the bundler.
 fn build_package_path(
-  _mod_name : String,
+  mod_name : String,
   source_dir : String,
   package_dir : String,
+  is_workspace_build? : Bool = false,
 ) -> String {
-  if source_dir.length() > 0 &&
+  let relative_path = if source_dir.length() > 0 &&
     source_dir != "." &&
     package_dir.has_prefix(source_dir + "/") {
     package_dir.substring(start=source_dir.length() + 1)
   } else {
     package_dir
+  }
+  if is_workspace_build && mod_name.length() > 0 {
+    "\{mod_name}/\{relative_path}"
+  } else {
+    relative_path
   }
 }
 
@@ -468,6 +480,9 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
   }
   // Get module name and source from moon.mod / moon.mod.json (needed for both __gen__/client and JS entries).
   let (mod_name, source_dir) = read_mod_info_from_cwd_with_fs(fs, cwd)
+  // Bundler-facing package paths must match moon's actual _build layout,
+  // which only segments by module name inside a multi-member moon.work.
+  let is_workspace_build = is_multi_module_workspace_with_fs(fs, cwd)
   // Generate hydrate functions in __gen__/client/ directory
   // This separates generated code from user's client code
   if !funcs.is_empty() {
@@ -477,7 +492,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       _ => ()
     }
     // Group functions by source_pattern (for now assume single client pattern)
-    let patterns_seen : Map[String, Bool] = {}
+    let patterns_seen : Map[String, Bool] = Map([])
     for f in funcs {
       patterns_seen[f.source_pattern] = true
     }
@@ -596,11 +611,13 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
         mod_name,
         source_dir,
         func.source_pattern,
+        is_workspace_build~,
       )
       let hydrate_pkg_path = build_package_path(
         mod_name,
         source_dir,
         @path.join2(config.output, "client"),
+        is_workspace_build~,
       )
       let island_entry_content = generate_island_entry_js_v2(
         func, include_hydrate, client_pkg_path, hydrate_pkg_path, mode,
@@ -640,11 +657,13 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
     mod_name,
     source_dir,
     @path.join2(config.output, "server"),
+    is_workspace_build~,
   )
   let user_server_pkg_path = build_package_path(
     mod_name,
     source_dir,
     config.routes,
+    is_workspace_build~,
   )
   let server_main_js = match app_mode {
     MoonBitFull =>

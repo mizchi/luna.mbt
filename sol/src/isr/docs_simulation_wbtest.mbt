@@ -13,7 +13,7 @@
 ///|
 /// Create ISR manifest simulating Luna docs structure
 fn create_docs_manifest() -> ISRManifest {
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
 
   // Main pages - hot (TTL: 300s)
   let main_pages = ["/", "/introduction/", "/luna/", "/ssg/", "/sol/"]

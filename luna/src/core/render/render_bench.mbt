@@ -173,11 +173,11 @@ test "render: page" (b : @bench.T) {
 ///|
 /// Visitor interface for VNode traversal
 priv trait NodeVisitor {
-  on_text(Self, String) -> Unit
-  on_element_open(Self, String, Array[(String, @core.Attr[Unit, String])]) -> Unit
-  on_element_close(Self, String, Bool) -> Unit // (tag, is_void)
-  on_fragment_start(Self) -> Unit
-  on_fragment_end(Self) -> Unit
+  fn on_text(Self, String) -> Unit
+  fn on_element_open(Self, String, Array[(String, @core.Attr[Unit, String])]) -> Unit
+  fn on_element_close(Self, String, Bool) -> Unit // (tag, is_void)
+  fn on_fragment_start(Self) -> Unit
+  fn on_fragment_end(Self) -> Unit
 }
 
 ///|
@@ -224,12 +224,12 @@ fn SBVisitor::new() -> SBVisitor {
 }
 
 ///|
-impl NodeVisitor for SBVisitor with on_text(self, content) {
+impl NodeVisitor for SBVisitor with fn on_text(self, content) {
   escape_html_to(self.sb, content)
 }
 
 ///|
-impl NodeVisitor for SBVisitor with on_element_open(self, tag, attrs) {
+impl NodeVisitor for SBVisitor with fn on_element_open(self, tag, attrs) {
   self.sb.write_char('<')
   self.sb.write_string(tag)
   render_attrs_to(self.sb, attrs)
@@ -241,7 +241,7 @@ impl NodeVisitor for SBVisitor with on_element_open(self, tag, attrs) {
 }
 
 ///|
-impl NodeVisitor for SBVisitor with on_element_close(self, tag, is_void) {
+impl NodeVisitor for SBVisitor with fn on_element_close(self, tag, is_void) {
   if !is_void {
     self.sb.write_string("</")
     self.sb.write_string(tag)
@@ -250,12 +250,12 @@ impl NodeVisitor for SBVisitor with on_element_close(self, tag, is_void) {
 }
 
 ///|
-impl NodeVisitor for SBVisitor with on_fragment_start(_self) {
+impl NodeVisitor for SBVisitor with fn on_fragment_start(_self) {
   // No output for fragment
 }
 
 ///|
-impl NodeVisitor for SBVisitor with on_fragment_end(_self) {
+impl NodeVisitor for SBVisitor with fn on_fragment_end(_self) {
   // No output for fragment
 }
 

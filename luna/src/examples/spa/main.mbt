@@ -395,39 +395,36 @@ fn modal_example() -> DomNode {
     ],
     show(fn() { is_open.get() }, fn() {
       let modal_card = div(
-          class="modal-content",
-          style="background: white; padding: 20px; border-radius: 8px; min-width: 300px; max-width: 500px;",
-          id="modal-content",
-        ) <| [
-          h3() <| [
-            text("Modal Title"),
-          ],
-          p() <| [
-            text(
-              "This modal is rendered using Portal, which teleports the content to document.body. This helps avoid z-index and overflow issues.",
-            ),
-          ],
-          button(
-            on=events().click(_ => is_open.set(false)),
-            id="close-modal-btn",
-          ) <| [
-            text("Close"),
-          ],
-        ]
+        class="modal-content",
+        style="background: white; padding: 20px; border-radius: 8px; min-width: 300px; max-width: 500px;",
+        id="modal-content",
+      ) <| [
+        h3() <| [
+          text("Modal Title"),
+        ],
+        p() <| [
+          text(
+            "This modal is rendered using Portal, which teleports the content to document.body. This helps avoid z-index and overflow issues.",
+          ),
+        ],
+        button(on=events().click(_ => is_open.set(false)), id="close-modal-btn") <| [
+          text("Close"),
+        ],
+      ]
       let modal_content = div(
-          class="modal-overlay",
-          style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;",
-          id="modal-overlay",
-          on=events().click(fn(e) {
-            let target : @js.Any = e.target() |> @js.identity
-            let target_id : String = target._get("id").cast()
-            if target_id == "modal-overlay" {
-              is_open.set(false)
-            }
-          }),
-        ) <| [
-          modal_card,
-        ]
+        class="modal-overlay",
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;",
+        id="modal-overlay",
+        on=events().click(fn(e) {
+          let target : @js.Any = e.target() |> @js.identity
+          let target_id : String = target._get("id").cast()
+          if target_id == "modal-overlay" {
+            is_open.set(false)
+          }
+        }),
+      ) <| [
+        modal_card,
+      ]
       from_portal_node(portal_to_body([to_portal_node(modal_content)]))
     }),
   ]
@@ -445,32 +442,32 @@ fn main {
   match doc.getElementById("app") {
     Some(el) => {
       let app = div(
-          class="app",
-          style="padding: 20px; max-width: 800px; margin: 0 auto;",
-        ) <| [
-          h1() <| [
-            text("Luna Examples"),
-          ],
-          p() <| [
-            text(
-              "A collection of examples demonstrating the reactive UI library.",
-            ),
-          ],
-          hr(),
-          counter_example(),
-          hr(),
-          input_example(),
-          hr(),
-          effect_example(),
-          hr(),
-          conditional_example(),
-          hr(),
-          style_example(),
-          hr(),
-          todo_example(),
-          hr(),
-          modal_example(),
-        ]
+        class="app",
+        style="padding: 20px; max-width: 800px; margin: 0 auto;",
+      ) <| [
+        h1() <| [
+          text("Luna Examples"),
+        ],
+        p() <| [
+          text(
+            "A collection of examples demonstrating the reactive UI library.",
+          ),
+        ],
+        hr(),
+        counter_example(),
+        hr(),
+        input_example(),
+        hr(),
+        effect_example(),
+        hr(),
+        conditional_example(),
+        hr(),
+        style_example(),
+        hr(),
+        todo_example(),
+        hr(),
+        modal_example(),
+      ]
       render(el |> DomElement::from_dom, app)
       console_log("App rendered successfully!")
     }

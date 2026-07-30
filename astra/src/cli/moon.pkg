@@ -5,15 +5,15 @@
 // installable via `moon install mizchi/astra/cmd/astra`.
 
 import {
-  "mizchi/astra" @astra,
-  "mizchi/astra/content/shiki" @shiki,
-  "mizchi/astra/middleware" @middleware,
-  "mizchi/astra/render" @render,
-  "mizchi/mars" @mars,
-  "mizchi/js/core" @core,
-  "mizchi/js/node/fs" @fs,
-  "mizchi/js/node/path" @path,
-  "mizchi/js/node/process" @process,
+  "mizchi/astra",
+  "mizchi/astra/content/shiki",
+  "mizchi/astra/middleware",
+  "mizchi/astra/render",
+  "mizchi/mars",
+  "mizchi/js/core",
+  "mizchi/js/node/fs",
+  "mizchi/js/node/path",
+  "mizchi/js/node/process",
   "moonbitlang/core/string",
 }
 

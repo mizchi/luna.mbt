@@ -1,14 +1,14 @@
 import {
-  "mizchi/mars" @mars,
+  "mizchi/mars",
   "mizchi/js/core" @js,
-  "mizchi/sol/router" @router,
+  "mizchi/sol/router",
 }
 
 import {
   "moonbitlang/core/json",
   "moonbitlang/async",
-  "moonbitlang/async/js_async" @js_async,
-  "moonbitlang/core/test" @test,
+  "moonbitlang/async/js_async",
+  "moonbitlang/core/test",
 } for "wbtest"
 
 warnings = "-24-67-29"

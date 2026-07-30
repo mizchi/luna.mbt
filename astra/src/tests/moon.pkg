@@ -1,8 +1,8 @@
 import {
-  "mizchi/astra" @astra,
-  "mizchi/astra/middleware" @middleware,
-  "mizchi/astra/testing" @testing,
-  "mizchi/mars" @mars,
+  "mizchi/astra",
+  "mizchi/astra/middleware",
+  "mizchi/astra/testing",
+  "mizchi/mars",
   "moonbitlang/async",
 } for "test"
 

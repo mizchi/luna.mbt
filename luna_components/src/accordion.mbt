@@ -455,11 +455,11 @@ pub fn accordion_interactive(
       ("keydown", @luna.attr_handler(keydown_handler)),
     ]
     let button = @luna.h("button", button_attrs) <| [
-        @luna.text(item.heading),
-      ]
+      @luna.text(item.heading),
+    ]
     let header = @luna.h(heading_tag, []) <| [
-        button,
-      ]
+      button,
+    ]
     children.push(header)
     // Build panel
     let panel_attrs : Array[(String, @luna.Attr[@js.Any, String])] = [

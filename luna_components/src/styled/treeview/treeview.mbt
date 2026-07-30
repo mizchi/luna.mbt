@@ -473,7 +473,7 @@ pub fn treeview(
   let focused_id = @resource.signal(first_id)
 
   // Build initial expanded map
-  let init_expanded : Map[String, Bool] = {}
+  let init_expanded : Map[String, Bool] = Map([])
   match initial_expanded {
     Some(ids) => {
       let mut i = 0

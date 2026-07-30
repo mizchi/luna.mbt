@@ -236,7 +236,7 @@ test "compiled route pre-computes rendered_meta for page routes" {
 ///|
 test "compiled route has empty rendered_meta for API routes" {
   async fn handler(_props : PageProps) -> Json {
-    let obj : Map[String, Json] = {}
+    let obj : Map[String, Json] = Map([])
     obj.to_json()
   }
 

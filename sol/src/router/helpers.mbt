@@ -235,7 +235,7 @@ pub fn ApiResponse::to_json(self : ApiResponse) -> Json {
 /// ok([("status", "ok".to_json())]).to_json()
 /// ```
 pub fn ok(pairs : Array[(String, Json)]) -> ApiResponse {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   for pair in pairs {
     obj[pair.0] = pair.1
   }

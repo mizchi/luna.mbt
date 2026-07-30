@@ -1,16 +1,16 @@
 import {
-  "mizchi/mars" @mars,
-  "mizchi/x/http" @http,
-  "mizchi/astra" @astra,
-  "mizchi/astra/assets" @assets,
-  "mizchi/astra/content/shiki" @shiki,
-  "mizchi/astra/tree" @tree,
-  "mizchi/astra/render" @render,
-  "mizchi/astra/routes" @routes,
+  "mizchi/mars",
+  "mizchi/x/http",
+  "mizchi/astra",
+  "mizchi/astra/assets",
+  "mizchi/astra/content/shiki",
+  "mizchi/astra/tree",
+  "mizchi/astra/render",
+  "mizchi/astra/routes",
 }
 
 import {
-  "mizchi/astra/testing" @testing,
+  "mizchi/astra/testing",
   "moonbitlang/async",
 } for "test"
 

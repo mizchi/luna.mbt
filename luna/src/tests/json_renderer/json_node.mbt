@@ -27,7 +27,7 @@ pub enum JsonAttrValue {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for JsonAttrValue with output(self, logger) {
+pub impl Show for JsonAttrValue with fn output(self, logger) {
   match self {
     Static(value) => {
       logger.write_string("Static(")

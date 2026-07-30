@@ -281,7 +281,7 @@ test "split_manifest - separates root and segment routes" {
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
-  let configs : Map[String, PageConfig] = {}
+  let configs : Map[String, PageConfig] = Map([])
   let (hierarchical, segment_manifests) = split_manifest(manifest, configs)
 
   // Root routes should be inline
@@ -373,7 +373,7 @@ test "split_manifest - dynamic routes included in segment" {
     ],
     fallback: FallbackConfig::NotFound(path="/404.html"),
   }
-  let configs : Map[String, PageConfig] = {}
+  let configs : Map[String, PageConfig] = Map([])
   let (_, segment_manifests) = split_manifest(manifest, configs)
   guard segment_manifests.get("blog") is Some(blog_manifest) else {
     fail("Expected blog manifest")

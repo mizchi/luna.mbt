@@ -4,47 +4,47 @@
 ///|
 /// Trait for types that can be serialized to StateValue
 pub(open) trait Serializable {
-  to_state_value(Self) -> StateValue
-  from_state_value(StateValue) -> Self?
+  fn to_state_value(Self) -> StateValue
+  fn from_state_value(StateValue) -> Self?
 }
 
 ///|
-impl Serializable for Int with to_state_value(self) {
+impl Serializable for Int with fn to_state_value(self) {
   sv_int(self)
 }
 
 ///|
-impl Serializable for Int with from_state_value(value) {
+impl Serializable for Int with fn from_state_value(value) {
   value.as_int()
 }
 
 ///|
-impl Serializable for String with to_state_value(self) {
+impl Serializable for String with fn to_state_value(self) {
   sv_str(self)
 }
 
 ///|
-impl Serializable for String with from_state_value(value) {
+impl Serializable for String with fn from_state_value(value) {
   value.as_string()
 }
 
 ///|
-impl Serializable for Bool with to_state_value(self) {
+impl Serializable for Bool with fn to_state_value(self) {
   sv_bool(self)
 }
 
 ///|
-impl Serializable for Bool with from_state_value(value) {
+impl Serializable for Bool with fn from_state_value(value) {
   value.as_bool()
 }
 
 ///|
-impl Serializable for Double with to_state_value(self) {
+impl Serializable for Double with fn to_state_value(self) {
   sv_number(self)
 }
 
 ///|
-impl Serializable for Double with from_state_value(value) {
+impl Serializable for Double with fn from_state_value(value) {
   value.as_number()
 }
 

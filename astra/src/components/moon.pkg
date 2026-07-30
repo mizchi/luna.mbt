@@ -1,10 +1,10 @@
 import {
   "mizchi/luna",
-  "mizchi/astra" @astra,
-  "mizchi/astra/routes" @routes,
-  "mizchi/astra/content/md_render" @md_render,
-  "mizchi/js/node/fs" @fs,
-  "mizchi/js/node/path" @path,
+  "mizchi/astra",
+  "mizchi/astra/routes",
+  "mizchi/astra/content/md_render",
+  "mizchi/js/node/fs",
+  "mizchi/js/node/path",
 }
 
 supported_targets = "js"

@@ -2,11 +2,11 @@ import {
   "moonbitlang/async",
   "mizchi/js/core" @js,
   "mizchi/sol/internal/color" @colorette,
-  "mizchi/sol/cli_common" @cli_common,
+  "mizchi/sol/cli_common",
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 warnings = "-29"

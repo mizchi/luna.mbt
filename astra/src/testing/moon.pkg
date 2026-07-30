@@ -1,6 +1,6 @@
 import {
-  "mizchi/mars" @mars,
-  "moonbitlang/async/js_async" @js_async,
+  "mizchi/mars",
+  "moonbitlang/async/js_async",
 }
 
 supported_targets = "js"

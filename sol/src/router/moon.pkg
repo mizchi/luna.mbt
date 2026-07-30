@@ -2,34 +2,34 @@ import {
   "moonbitlang/core/json",
   "moonbitlang/core/hashset",
   "moonbitlang/core/string",
-  "mizchi/luna" @luna,
-  "mizchi/luna/core/routes" @routes,
-  "mizchi/luna/core/render" @render,
+  "mizchi/luna",
+  "mizchi/luna/core/routes",
+  "mizchi/luna/core/render",
   "mizchi/luna/core/stream_render" @portable_stream,
-  "mizchi/astra" @astra,
+  "mizchi/astra",
   "mizchi/astra/routes" @sol_routes,
   "mizchi/luna/dom/static" @server_dom,
-  "mizchi/sol/middleware" @middleware,
-  "mizchi/sol/isr" @isr,
-  "mizchi/mars" @mars,
+  "mizchi/sol/middleware",
+  "mizchi/sol/isr",
+  "mizchi/mars",
   "mizchi/js/core" @js,
   "mizchi/js/web/http" @web_http,
-  "mizchi/js/web/url" @url,
-  "mizchi/sol/internal/utils" @utils,
-  "mizchi/sol/internal/mars_response" @mars_response,
-  "mizchi/sol/hot_reload" @hot_reload,
-  "mizchi/sol/internal/page_shell" @page_shell,
-  "mizchi/sol/internal/js_any" @js_any,
+  "mizchi/js/web/url",
+  "mizchi/sol/internal/utils",
+  "mizchi/sol/internal/mars_response",
+  "mizchi/sol/hot_reload",
+  "mizchi/sol/internal/page_shell",
+  "mizchi/sol/internal/js_any",
 }
 
 import {
   "moonbitlang/async",
-  "moonbitlang/async/js_async" @js_async,
-  "moonbitlang/core/test" @test,
+  "moonbitlang/async/js_async",
+  "moonbitlang/core/test",
 } for "wbtest"
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 warnings = "-24-67-29"

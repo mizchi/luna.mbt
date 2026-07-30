@@ -359,13 +359,13 @@ test "PageConfig::merge - boolean OR" {
 
 ///|
 test "PageConfig::merge - handlers merge with child override" {
-  let base_handlers : Map[String, FileHandlerConfig] = {}
+  let base_handlers : Map[String, FileHandlerConfig] = Map([])
   base_handlers[".md"] = FileHandlerConfig::{
     ..FileHandlerConfig::default(),
     layout: Some("docs"),
   }
   let base = PageConfig::{ ..PageConfig::default(), handlers: base_handlers }
-  let child_handlers : Map[String, FileHandlerConfig] = {}
+  let child_handlers : Map[String, FileHandlerConfig] = Map([])
   child_handlers[".md"] = FileHandlerConfig::{
     ..FileHandlerConfig::default(),
     layout: Some("blog"),
@@ -505,7 +505,7 @@ test "PageConfig::is_isr - other modes" {
 
 ///|
 test "PageConfig::has_static_params - with params" {
-  let params : Map[String, String] = {}
+  let params : Map[String, String] = Map([])
   params["slug"] = "hello"
   let config = PageConfig::{ ..PageConfig::default(), static_params: [params] }
   inspect(config.has_static_params(), content="true")

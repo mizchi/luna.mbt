@@ -42,8 +42,8 @@ pub fn route_manifest_to_chunk_manifest(
   manifest : RouteManifest,
   chunk_hashes? : Map[String, String] = {},
 ) -> ChunkManifest {
-  let routes : Map[String, Array[String]] = {}
-  let chunks : Map[String, String] = {}
+  let routes : Map[String, Array[String]] = Map([])
+  let chunks : Map[String, String] = Map([])
 
   // Copy chunk hashes
   for key, value in chunk_hashes {
@@ -435,7 +435,7 @@ pub fn build_chunk_manifest(
   chunk_files? : Array[(String, String)] = [],
   base? : String = "/_luna/",
 ) -> ChunkManifest {
-  let chunk_hashes : Map[String, String] = {}
+  let chunk_hashes : Map[String, String] = Map([])
 
   // Register chunk file mappings
   for pair in chunk_files {

@@ -1,5 +1,5 @@
 import {
-  "mizchi/astra" @astra,
+  "mizchi/astra",
   "mizchi/astra/fs" @fs_adapter,
 }
 

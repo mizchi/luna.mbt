@@ -1,5 +1,5 @@
 import {
-  "mizchi/mars" @mars,
+  "mizchi/mars",
   "mizchi/js/core" @js,
 }
 

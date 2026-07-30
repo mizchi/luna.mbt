@@ -240,7 +240,7 @@ fn parse_method_field(value : Json?) -> Array[String] {
 
 ///|
 fn parse_env_map(entry_obj : Map[String, Json]) -> Map[String, String] {
-  let env : Map[String, String] = {}
+  let env : Map[String, String] = Map([])
   match entry_obj.get("env") {
     Some(Object(env_obj)) =>
       for item in env_obj {

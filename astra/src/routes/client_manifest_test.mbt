@@ -158,7 +158,7 @@ test "route_manifest_to_chunk_manifest - component route" {
 ///|
 test "route_manifest_to_chunk_manifest - with chunk hashes" {
   let route_manifest = RouteManifest::empty()
-  let chunk_hashes : Map[String, String] = {}
+  let chunk_hashes : Map[String, String] = Map([])
   chunk_hashes["boot"] = "boot.abc123.js"
   chunk_hashes["hydrate"] = "hydrate.def456.js"
   let chunk_manifest = route_manifest_to_chunk_manifest(

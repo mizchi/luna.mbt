@@ -52,18 +52,18 @@ pub enum CacheStatus {
 /// Implement this trait for different backends (Memory, KV, Redis, etc.)
 pub(open) trait ISRCache {
   /// Get cache entry by key
-  get(Self, String) -> CacheEntry?
+  fn get(Self, String) -> CacheEntry?
 
   /// Put cache entry
-  put(Self, String, CacheEntry) -> Unit
+  fn put(Self, String, CacheEntry) -> Unit
 
   /// Delete cache entry
-  delete(Self, String) -> Unit
+  fn delete(Self, String) -> Unit
 
   /// Schedule background task for SWR revalidation
   /// In memory: executes immediately
   /// In Workers: uses waitUntil for background execution
-  schedule_revalidation(Self, async () -> Unit) -> Unit
+  fn schedule_revalidation(Self, async () -> Unit) -> Unit
 }
 
 // ============================================================================

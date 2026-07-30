@@ -15,7 +15,7 @@ test "extract_string: returns string value when key exists" {
 
 ///|
 test "extract_string: returns default when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   assert_eq(extract_string(obj, "name", "fallback"), "fallback")
 }
 
@@ -55,7 +55,7 @@ test "extract_string_opt: returns Some when key exists with string" {
 
 ///|
 test "extract_string_opt: returns None when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   assert_eq(extract_string_opt(obj, "name"), None)
 }
 
@@ -89,7 +89,7 @@ test "extract_bool: returns false when value is False" {
 
 ///|
 test "extract_bool: returns default when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   assert_eq(extract_bool(obj, "enabled", true), true)
 }
 
@@ -101,7 +101,7 @@ test "extract_bool: returns default when value is not a bool" {
 
 ///|
 test "extract_bool: returns default false when key missing and default is false" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   assert_eq(extract_bool(obj, "flag", false), false)
 }
 
@@ -117,7 +117,7 @@ test "extract_int: returns int value when key exists" {
 
 ///|
 test "extract_int: returns default when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   assert_eq(extract_int(obj, "count", 99), 99)
 }
 
@@ -151,7 +151,7 @@ test "extract_int_opt: returns Some when key exists with number" {
 
 ///|
 test "extract_int_opt: returns None when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   assert_eq(extract_int_opt(obj, "port"), None)
 }
 
@@ -181,7 +181,7 @@ test "extract_array: returns array when key exists" {
 
 ///|
 test "extract_array: returns empty array when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   let result = extract_array(obj, "items")
   assert_eq(result.length(), 0)
 }
@@ -218,7 +218,7 @@ test "extract_object: returns Some map when key exists with object" {
 
 ///|
 test "extract_object: returns None when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   assert_eq(extract_object(obj, "nested"), None)
 }
 
@@ -294,7 +294,7 @@ test "extract_string_array: returns string array when key exists" {
 
 ///|
 test "extract_string_array: returns empty array when key missing" {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   let result = extract_string_array(obj, "tags")
   assert_eq(result.length(), 0)
 }

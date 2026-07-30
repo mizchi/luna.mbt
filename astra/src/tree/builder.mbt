@@ -122,7 +122,7 @@ fn build_tree_children(
   parent_path : String,
 ) -> Array[@astra.TreeNode] {
   let children : Array[@astra.TreeNode] = []
-  let seen_dirs : Map[String, Bool] = {}
+  let seen_dirs : Map[String, Bool] = Map([])
   for page in pages {
     let rel_path = if parent_path == "" {
       page.url_path

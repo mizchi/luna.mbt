@@ -1,5 +1,5 @@
 import {
-  "mizchi/mars" @mars,
+  "mizchi/mars",
 }
 
 supported_targets = "js"

@@ -16,7 +16,7 @@ test "Large blog scenario: hot pages stay fresh, cold pages go stale" {
   let cache = MemoryCache::new()
 
   // Simulate manifest with 1000 pages (scaled down from 50k for test speed)
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   let num_pages = 1000
   for i = 0; i < num_pages; i = i + 1 {
     let path = "/blog/post-" + i.to_string() + "/"
@@ -79,7 +79,7 @@ test "Large blog scenario: hot pages stay fresh, cold pages go stale" {
 /// Test that accessing a stale page returns content while signaling revalidation
 test "Stale page serves content while signaling revalidation need" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/old-post/"] = ISRPageMeta::{
     revalidate: 60,
     renderer: "markdown",
@@ -146,7 +146,7 @@ test "Cache handles many entries efficiently" {
 /// Test revalidation updates cache correctly
 test "Revalidation updates stale entry to fresh" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/updated/"] = ISRPageMeta::{
     revalidate: 60,
     renderer: "markdown",
@@ -188,7 +188,7 @@ test "Revalidation updates stale entry to fresh" {
 /// Test hot page access pattern: frequently accessed pages stay fresh
 test "Hot page access pattern keeps cache fresh" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   pages["/blog/popular/"] = ISRPageMeta::{
     revalidate: 60,
     renderer: "markdown",

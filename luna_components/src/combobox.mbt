@@ -532,12 +532,12 @@ pub fn combobox_interactive(
   }
   // Caret icon (CSS-based, since Luna doesn't support SVG namespace yet)
   let caret_icon = @luna.h(
-      "span",
-      [
-        ("class", @luna.attr_static("combobox-caret")),
-        ("aria-hidden", @luna.attr_static("true")),
-      ],
-    ) <| []
+    "span",
+    [
+      ("class", @luna.attr_static("combobox-caret")),
+      ("aria-hidden", @luna.attr_static("true")),
+    ],
+  ) <| []
   @luna.h("div", [("class", @luna.attr_static("combobox-container"))]) <| [
     @luna.h("div", [("class", @luna.attr_static("combobox-input-wrapper"))]) <| [
       @luna.h("input", input_attrs) <| [],

@@ -194,7 +194,7 @@ pub fn validate_internal_links(
 /// Build a URL set from an array of page URL paths.
 /// Convenience helper to create the known_urls map for validate_internal_links.
 pub fn build_url_set(url_paths : Array[String]) -> Map[String, Bool] {
-  let m : Map[String, Bool] = {}
+  let m : Map[String, Bool] = Map([])
   for url in url_paths {
     m[url] = true
   }

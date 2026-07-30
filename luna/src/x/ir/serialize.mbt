@@ -8,10 +8,10 @@
 // Schema Serialization
 // =============================================================================
 
-pub impl ToJson for Schema with to_json(self) {
-  let obj : Map[String, Json] = {}
+pub impl ToJson for Schema with fn to_json(self) {
+  let obj : Map[String, Json] = Map([])
   obj["version"] = self.version.to_json()
-  let defs : Map[String, Json] = {}
+  let defs : Map[String, Json] = Map([])
   for name, def in self.definitions {
     defs[name] = def.to_json()
   }
@@ -24,12 +24,12 @@ pub impl ToJson for Schema with to_json(self) {
 }
 
 ///|
-pub impl ToJson for SourceInfo with to_json(self) {
+pub impl ToJson for SourceInfo with fn to_json(self) {
   { "file": self.file.to_json(), "lang": self.lang.to_json() }.to_json()
 }
 
 ///|
-pub impl ToJson for SourceLang with to_json(self) {
+pub impl ToJson for SourceLang with fn to_json(self) {
   match self {
     MoonBit => "moonbit".to_json()
     TypeScript => "typescript".to_json()
@@ -44,7 +44,7 @@ pub impl ToJson for SourceLang with to_json(self) {
 // =============================================================================
 
 ///|
-pub impl ToJson for TypeDef with to_json(self) {
+pub impl ToJson for TypeDef with fn to_json(self) {
   match self {
     Struct(s) => {
       let obj = s.to_json_obj()
@@ -66,7 +66,7 @@ pub impl ToJson for TypeDef with to_json(self) {
 
 ///|
 fn StructDef::to_json_obj(self : StructDef) -> Map[String, Json] {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   obj["name"] = self.name.to_json()
   match self.doc {
     Some(d) => obj["doc"] = d.to_json()
@@ -84,7 +84,7 @@ fn StructDef::to_json_obj(self : StructDef) -> Map[String, Json] {
 
 ///|
 fn EnumDef::to_json_obj(self : EnumDef) -> Map[String, Json] {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   obj["name"] = self.name.to_json()
   match self.doc {
     Some(d) => obj["doc"] = d.to_json()
@@ -102,7 +102,7 @@ fn EnumDef::to_json_obj(self : EnumDef) -> Map[String, Json] {
 
 ///|
 fn AliasDef::to_json_obj(self : AliasDef) -> Map[String, Json] {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   obj["name"] = self.name.to_json()
   match self.doc {
     Some(d) => obj["doc"] = d.to_json()
@@ -120,8 +120,8 @@ fn AliasDef::to_json_obj(self : AliasDef) -> Map[String, Json] {
 // =============================================================================
 
 ///|
-pub impl ToJson for Field with to_json(self) {
-  let obj : Map[String, Json] = {}
+pub impl ToJson for Field with fn to_json(self) {
+  let obj : Map[String, Json] = Map([])
   obj["name"] = self.name.to_json()
   match self.doc {
     Some(d) => obj["doc"] = d.to_json()
@@ -142,8 +142,8 @@ pub impl ToJson for Field with to_json(self) {
 }
 
 ///|
-pub impl ToJson for EnumVariant with to_json(self) {
-  let obj : Map[String, Json] = {}
+pub impl ToJson for EnumVariant with fn to_json(self) {
+  let obj : Map[String, Json] = Map([])
   obj["name"] = self.name.to_json()
   match self.doc {
     Some(d) => obj["doc"] = d.to_json()
@@ -161,7 +161,7 @@ pub impl ToJson for EnumVariant with to_json(self) {
 // =============================================================================
 
 ///|
-pub impl ToJson for TypeRef with to_json(self) {
+pub impl ToJson for TypeRef with fn to_json(self) {
   match self {
     Primitive(p) =>
       { "kind": "primitive".to_json(), "type": p.to_json() }.to_json()
@@ -202,7 +202,7 @@ pub impl ToJson for TypeRef with to_json(self) {
 }
 
 ///|
-pub impl ToJson for PrimitiveType with to_json(self) {
+pub impl ToJson for PrimitiveType with fn to_json(self) {
   match self {
     Bool => "bool".to_json()
     Int => "int".to_json()
@@ -216,7 +216,7 @@ pub impl ToJson for PrimitiveType with to_json(self) {
 }
 
 ///|
-pub impl ToJson for LiteralType with to_json(self) {
+pub impl ToJson for LiteralType with fn to_json(self) {
   match self {
     BoolLit(b) => { "type": "bool".to_json(), "value": b.to_json() }.to_json()
     IntLit(i) => { "type": "int".to_json(), "value": i.to_json() }.to_json()
@@ -230,8 +230,8 @@ pub impl ToJson for LiteralType with to_json(self) {
 // =============================================================================
 
 ///|
-pub impl ToJson for TypeParam with to_json(self) {
-  let obj : Map[String, Json] = {}
+pub impl ToJson for TypeParam with fn to_json(self) {
+  let obj : Map[String, Json] = Map([])
   obj["name"] = self.name.to_json()
   match self.constraint {
     Some(c) => obj["constraint"] = c.to_json()
@@ -249,6 +249,6 @@ pub impl ToJson for TypeParam with to_json(self) {
 // =============================================================================
 
 ///|
-pub impl ToJson for Annotation with to_json(self) {
+pub impl ToJson for Annotation with fn to_json(self) {
   { "name": self.name.to_json(), "args": self.args.to_json() }.to_json()
 }

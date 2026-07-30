@@ -236,8 +236,12 @@ pub fn PageProps::set_header(
     ()
   } else {
     // Strip CRLF to prevent header injection (CWE-113)
-    let safe_name = name.replace_all(old="\r", new="").replace_all(old="\n", new="")
-    let safe_value = value.replace_all(old="\r", new="").replace_all(old="\n", new="")
+    let safe_name = name
+      .replace_all(old="\r", new="")
+      .replace_all(old="\n", new="")
+    let safe_value = value
+      .replace_all(old="\r", new="")
+      .replace_all(old="\n", new="")
     self.ctx.set_header(safe_name, safe_value)
   }
 }

@@ -262,7 +262,7 @@ let sol_builtin_assets : Array[String] = [
 
 ///|
 /// In-memory cache for prod mode assets (loaded once on first request)
-let asset_cache : Map[String, String] = {}
+let asset_cache : Map[String, String] = Map([])
 
 ///|
 let assets_preloaded : Ref[Bool] = Ref(false)

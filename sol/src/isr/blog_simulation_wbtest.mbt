@@ -12,7 +12,7 @@
 ///|
 /// Create a manifest for a large blog
 fn create_blog_manifest(num_posts : Int) -> ISRManifest {
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   for i = 0; i < num_posts; i = i + 1 {
     let path = "/blog/post-" + i.to_string() + "/"
 

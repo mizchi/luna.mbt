@@ -1,15 +1,15 @@
 import {
-  "mizchi/luna/core" @core,
+  "mizchi/luna/core",
   "moonbitlang/core/bench",
   "moonbitlang/core/json",
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 supported_targets = "all"

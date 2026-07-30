@@ -30,14 +30,14 @@ test "build_dynamic_page_relative - catch-all nested keeps segments" {
 
 ///|
 test "resolve_dynamic_param_value - catch-all allows missing param" {
-  let params : Map[String, String] = {}
+  let params : Map[String, String] = Map([])
   let value = resolve_dynamic_param_value(params, "slug", is_catch_all=true)
   assert_eq(value, Some(""))
 }
 
 ///|
 test "resolve_dynamic_param_value - non catch-all skips missing param" {
-  let params : Map[String, String] = {}
+  let params : Map[String, String] = Map([])
   let value = resolve_dynamic_param_value(params, "id", is_catch_all=false)
   assert_eq(value, None)
 }

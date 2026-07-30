@@ -1,15 +1,15 @@
 import {
   "moonbitlang/core/json",
-  "mizchi/astra" @astra,
-  "mizchi/astra/env" @env,
+  "mizchi/astra",
+  "mizchi/astra/env",
   "mizchi/astra/fs" @fs_adapter,
-  "mizchi/js/node/path" @path,
-  "mizchi/js/node/fs" @fs,
+  "mizchi/js/node/path",
+  "mizchi/js/node/fs",
   "mizchi/js/core" @js,
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "test"
 
 supported_targets = "js"
