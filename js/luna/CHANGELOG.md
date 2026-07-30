@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.23.1](https://github.com/mizchi/luna.mbt/compare/luna-v0.23.0...luna-v0.23.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* **luna:** make `luna new --mbt` scaffold build out of the box ([0d33860](https://github.com/mizchi/luna.mbt/commit/0d33860bb4558326984387f1b65334e99c709fcc))
+* **luna:** make `luna new --mbt` scaffold build out of the box ([a422706](https://github.com/mizchi/luna.mbt/commit/a42270662ba980a0553b31d018612be9975672cb))
+
 ## [0.23.0](https://github.com/mizchi/luna.mbt/compare/luna-v0.22.0...luna-v0.23.0) (2026-07-10)
 
 
