@@ -17,22 +17,32 @@
 // =============================================================================
 
 ///|
+/// Build the on-disk package path that `moon` emits under
+/// `_build/js/{profile}/build/`.
+///
+/// moon's build output is **source-relative** — for a module whose `source`
+/// is `app`, the package `app/client` is emitted to
+/// `_build/js/{profile}/build/client/client.js`. The module name from
+/// `moon.mod`'s `name` field does **not** appear in the build path.
+///
+/// Prepending `mod_name` here produced references to
+/// `_build/js/{profile}/build/{mod_name}/{rel}/...` which do not exist on
+/// disk, so `sol build`'s bundling step failed with an unresolved import
+/// (this regressed against 0.23.0, which used the source-relative path).
+/// `moon check` / `moon test` don't surface it because they never run the
+/// bundler. `mod_name` is retained in the signature for call-site
+/// compatibility but is intentionally unused.
 fn build_package_path(
-  mod_name : String,
+  _mod_name : String,
   source_dir : String,
   package_dir : String,
 ) -> String {
-  let relative_path = if source_dir.length() > 0 &&
+  if source_dir.length() > 0 &&
     source_dir != "." &&
     package_dir.has_prefix(source_dir + "/") {
     package_dir.substring(start=source_dir.length() + 1)
   } else {
     package_dir
-  }
-  if mod_name.length() > 0 {
-    "\{mod_name}/\{relative_path}"
-  } else {
-    relative_path
   }
 }
 
@@ -479,10 +489,13 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       if island_funcs.is_empty() {
         continue
       }
-      // Construct client package path from moon.mod name + source-stripped path.
-      let client_pkg_path = build_package_path(
+      // MoonBit import path = module name + source-relative package path.
+      // `build_package_path` is source-relative (matches moon's _build layout);
+      // moon.pkg imports still need the full package identity (`mod_name/...`).
+      let client_pkg_rel = build_package_path(
         mod_name, source_dir, island_pattern,
       )
+      let client_pkg_path = "\{mod_name}/\{client_pkg_rel}"
       let client_alias_name = "app_client"
       // Collect export names for __sol_internal__client_* functions only
       let export_names : Array[String] = []
