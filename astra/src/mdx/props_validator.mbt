@@ -148,7 +148,7 @@ pub struct ComponentPropsRegistry {
 pub fn ComponentPropsRegistry::from_structs(
   structs : Array[PropsStructInput],
 ) -> ComponentPropsRegistry {
-  let entries : Map[String, Array[PropsField]] = {}
+  let entries : Map[String, Array[PropsField]] = Map([])
   for s in structs {
     let component_name = extract_component_name_from_props(s.name)
     let fields = build_props_schema(s)
@@ -223,7 +223,7 @@ pub fn validate_jsx_embed(
     None => return diags // Unknown component - skip (might be external)
   }
   // Build field lookup
-  let field_map : Map[String, PropsField] = {}
+  let field_map : Map[String, PropsField] = Map([])
   for f in fields {
     field_map[f.name] = f
   }

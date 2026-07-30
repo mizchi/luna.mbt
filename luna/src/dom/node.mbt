@@ -51,43 +51,43 @@ pub fn Node::to_dom(self : Node) -> @js_dom.Node {
 ///|
 /// ToNode trait - types that can be converted to Node
 pub trait ToNode {
-  to_node(Self) -> Node
+  fn to_node(Self) -> Node
 }
 
 ///|
 /// Element -> Node
-pub impl ToNode for Element with to_node(self) {
+pub impl ToNode for Element with fn to_node(self) {
   El(self)
 }
 
 ///|
 /// String -> Node (creates text node)
-pub impl ToNode for String with to_node(self) {
+pub impl ToNode for String with fn to_node(self) {
   let doc = @js_dom.document()
   Txt(doc.createTextNode(self))
 }
 
 ///|
 /// @js_dom.Node -> Node (raw node)
-pub impl ToNode for @js_dom.Node with to_node(self) {
+pub impl ToNode for @js_dom.Node with fn to_node(self) {
   Raw(self)
 }
 
 ///|
 /// @js_dom.Element -> Node
-pub impl ToNode for @js_dom.Element with to_node(self) {
+pub impl ToNode for @js_dom.Element with fn to_node(self) {
   El(Element::from_dom(self))
 }
 
 ///|
 /// @js_dom.Text -> Node
-pub impl ToNode for @js_dom.Text with to_node(self) {
+pub impl ToNode for @js_dom.Text with fn to_node(self) {
   Txt(self)
 }
 
 ///|
 /// Node -> Node (identity)
-pub impl ToNode for Node with to_node(self) {
+pub impl ToNode for Node with fn to_node(self) {
   self
 }
 

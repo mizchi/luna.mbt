@@ -161,7 +161,7 @@ fn parse_static_params(obj : Map[String, Json]) -> Array[Map[String, String]] {
     Some(Array(arr)) =>
       for item in arr {
         if item is Object(param_obj) {
-          let param_map : Map[String, String] = {}
+          let param_map : Map[String, String] = Map([])
           for k, v in param_obj {
             if v is String(s) {
               param_map[k] = s
@@ -195,7 +195,7 @@ fn parse_component_config(obj : Map[String, Json]) -> ComponentConfig? {
 ///|
 /// Parse file handlers from config
 fn parse_handlers(obj : Map[String, Json]) -> Map[String, FileHandlerConfig] {
-  let result : Map[String, FileHandlerConfig] = {}
+  let result : Map[String, FileHandlerConfig] = Map([])
   match obj.get("handlers") {
     Some(Object(handlers_obj)) =>
       for k, v in handlers_obj {
@@ -273,7 +273,7 @@ pub fn PageConfig::merge(base : PageConfig, child : PageConfig) -> PageConfig {
   let extends = child.extends
 
   // Merge handlers (child overrides)
-  let handlers : Map[String, FileHandlerConfig] = {}
+  let handlers : Map[String, FileHandlerConfig] = Map([])
   for k, v in base.handlers {
     handlers[k] = v
   }

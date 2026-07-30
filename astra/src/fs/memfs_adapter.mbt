@@ -35,12 +35,12 @@ pub fn MemFSAdapter::memfs(self : MemFSAdapter) -> @memfs.MemFS {
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with read_file_sync(self, path) {
+pub impl @env.FileSystem for MemFSAdapter with fn read_file_sync(self, path) {
   @js.throwable(fn() { self.fs.readFileSync(path) })
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with write_file_sync(
+pub impl @env.FileSystem for MemFSAdapter with fn write_file_sync(
   self,
   path,
   content,
@@ -49,32 +49,36 @@ pub impl @env.FileSystem for MemFSAdapter with write_file_sync(
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with exists_sync(self, path) {
+pub impl @env.FileSystem for MemFSAdapter with fn exists_sync(self, path) {
   self.fs.existsSync(path)
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with mkdir_sync(self, path, recursive) {
+pub impl @env.FileSystem for MemFSAdapter with fn mkdir_sync(
+  self,
+  path,
+  recursive,
+) {
   @js.throwable(fn() { self.fs.mkdirSync(path, recursive~) })
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with readdir_sync(self, path) {
+pub impl @env.FileSystem for MemFSAdapter with fn readdir_sync(self, path) {
   @js.throwable(fn() { self.fs.readdirSync(path) })
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with is_file_sync(self, path) {
+pub impl @env.FileSystem for MemFSAdapter with fn is_file_sync(self, path) {
   @js.throwable(fn() { self.fs.statSync(path).isFile() })
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with is_directory_sync(self, path) {
+pub impl @env.FileSystem for MemFSAdapter with fn is_directory_sync(self, path) {
   @js.throwable(fn() { self.fs.statSync(path).isDirectory() })
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with cp_sync(
+pub impl @env.FileSystem for MemFSAdapter with fn cp_sync(
   self,
   src,
   dest,
@@ -84,17 +88,21 @@ pub impl @env.FileSystem for MemFSAdapter with cp_sync(
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with unlink_sync(self, path) {
+pub impl @env.FileSystem for MemFSAdapter with fn unlink_sync(self, path) {
   @js.throwable(fn() { self.fs.unlinkSync(path) })
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with rmdir_sync(self, path, recursive) {
+pub impl @env.FileSystem for MemFSAdapter with fn rmdir_sync(
+  self,
+  path,
+  recursive,
+) {
   @js.throwable(fn() { self.fs.rmdirSync(path, recursive~) })
 }
 
 ///|
-pub impl @env.FileSystem for MemFSAdapter with stat_sync(self, path) {
+pub impl @env.FileSystem for MemFSAdapter with fn stat_sync(self, path) {
   @js.throwable(fn() {
     let stat = self.fs.statSync(path)
     @env.StatInfo::{

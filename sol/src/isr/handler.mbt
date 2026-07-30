@@ -147,7 +147,7 @@ fn parse_manifest(content : String) -> ISRManifest {
     Some(Number(n, ..)) => n.to_int()
     _ => 1
   }
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   match obj.get("pages") {
     Some(Object(pages_obj)) =>
       for path, page_json in pages_obj {

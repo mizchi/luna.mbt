@@ -157,7 +157,7 @@ fn generate_hierarchical_manifest(
 fn collect_page_configs(
   ctx : @astra.BuildContext,
 ) -> Map[String, @routes.PageConfig] {
-  let configs : Map[String, @routes.PageConfig] = {}
+  let configs : Map[String, @routes.PageConfig] = Map([])
   let pages_dir = @path.join2(ctx.cwd, ctx.config.docs_dir)
 
   // Scan for page.json files in first-level directories

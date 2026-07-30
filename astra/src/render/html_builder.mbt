@@ -116,7 +116,7 @@ fn build_blog_layout(
 ///|
 /// Collect all unique tags from blog posts
 fn collect_all_tags(pages : Array[@astra.PageMeta]) -> Array[String] {
-  let tags_set : Map[String, Bool] = {}
+  let tags_set : Map[String, Bool] = Map([])
   for page in pages {
     let fm = page.frontmatter
     if fm.date is Some(_) && !fm.draft {

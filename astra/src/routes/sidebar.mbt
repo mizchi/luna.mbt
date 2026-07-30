@@ -57,7 +57,7 @@ priv struct PageTreeNode {
 ///|
 /// Build a hierarchical tree from flat page list
 fn build_page_tree(pages : Array[@astra.PageMeta]) -> Map[String, PageTreeNode] {
-  let root : Map[String, PageTreeNode] = {}
+  let root : Map[String, PageTreeNode] = Map([])
   for page in pages {
     // Get path segments from canonical_path
     // For index pages (source ends with "index.md"), don't strip last segment

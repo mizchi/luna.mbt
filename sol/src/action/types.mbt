@@ -38,7 +38,7 @@ pub fn[T : FromJson] decode_action_body(body : String) -> T? {
 /// Field values are normalized to JSON strings and decoded through `FromJson`,
 /// which keeps the server action contract identical to JSON submissions.
 pub fn[T : FromJson] decode_action_form_urlencoded(body : String) -> T? {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   for pair_view in body.split("&") {
     let pair = pair_view.to_owned()
     if pair.is_empty() {

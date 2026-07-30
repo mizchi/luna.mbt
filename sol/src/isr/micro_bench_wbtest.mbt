@@ -71,7 +71,7 @@ test "micro-bench: cache operations timing" {
 ///|
 async test "micro-bench: handler.handle() latency" {
   let cache = MemoryCache::new()
-  let pages : Map[String, ISRPageMeta] = {}
+  let pages : Map[String, ISRPageMeta] = Map([])
   let num_pages = 1000
   for i = 0; i < num_pages; i = i + 1 {
     let path = "/bench/" + i.to_string() + "/"

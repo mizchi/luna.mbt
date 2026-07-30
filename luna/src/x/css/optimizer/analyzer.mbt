@@ -117,7 +117,7 @@ pub fn generate_optimized_css(
   }
 
   // Add remaining original rules (not merged)
-  let merged_classes : Map[String, Bool] = {}
+  let merged_classes : Map[String, Bool] = Map([])
   for s in suggestions {
     for c in s.original_classes {
       merged_classes[c] = true

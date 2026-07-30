@@ -83,7 +83,7 @@ fn action_result_to_response(c : Ctx, result : ActionResult) -> Unit {
     JsonSuccess(data) => @mars_response.send_json(c, data)
     ClientRedirect(url) => {
       // Return JSON with redirect instruction (for JavaScript clients)
-      let obj : Map[String, Json] = {}
+      let obj : Map[String, Json] = Map([])
       obj["redirect"] = Json::string(url)
       c.json(Json::object(obj))
     }

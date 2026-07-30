@@ -62,7 +62,7 @@ pub fn generate_routes_json(pages : Array[@astra.PageMeta]) -> String {
 pub fn extract_dynamic_route_patterns(
   pages : Array[@astra.PageMeta],
 ) -> Array[String] {
-  let patterns : Map[String, Bool] = {} // Use map for deduplication
+  let patterns : Map[String, Bool] = Map([]) // Use map for deduplication
   for page in pages {
     // Check if this page is from a dynamic route (has ? in source_path)
     guard page.source_path.find("?") is Some(query_idx) else { continue }

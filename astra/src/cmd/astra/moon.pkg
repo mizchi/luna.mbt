@@ -3,13 +3,11 @@
 // Stays a thin dispatcher over the runners in `mizchi/astra/cli`.
 
 import {
-  "mizchi/astra/cli" @cli,
-  "mizchi/x/sys" @sys,
+  "mizchi/astra/cli",
+  "mizchi/x/sys",
   "moonbitlang/async",
 }
 
 supported_targets = "js"
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

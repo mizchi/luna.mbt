@@ -16,7 +16,7 @@ pub enum StateValue {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for StateValue with output(self, logger) {
+pub impl Show for StateValue with fn output(self, logger) {
   logger.write_string(state_value_to_json(self))
 }
 

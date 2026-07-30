@@ -1,7 +1,7 @@
 import {
-  "mizchi/luna/js/resource" @resource,
+  "mizchi/luna/js/resource",
   "mizchi/signals",
-  "mizchi/luna" @luna,
+  "mizchi/luna",
   "mizchi/luna/js/api" @luna_api,
   "mizchi/luna/x/css",
 }

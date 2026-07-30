@@ -3,17 +3,15 @@
 // Keep this native-compatible because `moon install` builds native binaries.
 
 import {
-  "mizchi/x/fs" @fs,
-  "mizchi/x/sys" @sys,
-  "mizchi/x/process" @process,
-  "mizchi/sol/scaffold_templates" @scaffold_templates,
-  "mizchi/sol/version" @version,
-  "moonbitlang/core/env" @env,
+  "mizchi/x/fs",
+  "mizchi/x/sys",
+  "mizchi/x/process",
+  "mizchi/sol/scaffold_templates",
+  "mizchi/sol/version",
+  "moonbitlang/core/env",
   "moonbitlang/async",
 }
 
 supported_targets = "native"
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

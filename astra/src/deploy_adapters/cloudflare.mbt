@@ -69,7 +69,7 @@ fn generate_routes_json(pages : Array[@astra.PageMeta]) -> String {
 fn extract_dynamic_route_patterns(
   pages : Array[@astra.PageMeta],
 ) -> Array[String] {
-  let patterns : Map[String, Bool] = {}
+  let patterns : Map[String, Bool] = Map([])
   for page in pages {
     guard page.source_path.find("?") is Some(query_idx) else { continue }
     let dynamic_source = extract_substring_before(page.source_path, query_idx)

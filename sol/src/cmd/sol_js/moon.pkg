@@ -2,13 +2,11 @@
 // npm wrappers and Node-based e2e tests.
 
 import {
-  "mizchi/sol/cli" @cli,
-  "mizchi/x/sys" @sys,
+  "mizchi/sol/cli",
+  "mizchi/x/sys",
   "moonbitlang/async",
 }
 
 supported_targets = "js"
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

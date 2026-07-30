@@ -1,15 +1,15 @@
 import {
-  "mizchi/signals" @signals,
-  "mizchi/signals/ui" @ui,
+  "mizchi/signals",
+  "mizchi/signals/ui",
 }
 
 import {
-  "mizchi/luna" @luna,
-  "moonbitlang/core/test" @test,
+  "mizchi/luna",
+  "moonbitlang/core/test",
 } for "test"
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 supported_targets = "js"

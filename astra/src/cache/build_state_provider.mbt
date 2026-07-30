@@ -14,11 +14,11 @@ pub(open) trait BuildStateProvider {
   /// Get the current content state as a string
   /// This could be a hash, timestamp, version number, etc.
   /// The value should change when content changes.
-  get_content_state(Self) -> String
+  fn get_content_state(Self) -> String
 
   /// Optional: Get a human-readable description of the state
   /// e.g., "2024-12-28T12:00:00Z" or "42 files, hash: abc123"
-  describe_state(Self) -> String
+  fn describe_state(Self) -> String
 }
 
 // =============================================================================

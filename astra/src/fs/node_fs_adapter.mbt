@@ -10,13 +10,13 @@ pub fn NodeFsAdapter::new() -> NodeFsAdapter {
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with read_file_sync(self, path) {
+pub impl @env.FileSystem for NodeFsAdapter with fn read_file_sync(self, path) {
   let _ = self
   @node_fs.read_file_as_string(path, encoding="utf8")
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with write_file_sync(
+pub impl @env.FileSystem for NodeFsAdapter with fn write_file_sync(
   self,
   path,
   content,
@@ -26,13 +26,13 @@ pub impl @env.FileSystem for NodeFsAdapter with write_file_sync(
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with exists_sync(self, path) {
+pub impl @env.FileSystem for NodeFsAdapter with fn exists_sync(self, path) {
   let _ = self
   @node_fs.existsSync(path)
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with mkdir_sync(
+pub impl @env.FileSystem for NodeFsAdapter with fn mkdir_sync(
   self,
   path,
   recursive,
@@ -42,25 +42,25 @@ pub impl @env.FileSystem for NodeFsAdapter with mkdir_sync(
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with readdir_sync(self, path) {
+pub impl @env.FileSystem for NodeFsAdapter with fn readdir_sync(self, path) {
   let _ = self
   @node_fs.readdirSync(path)
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with is_file_sync(self, path) {
+pub impl @env.FileSystem for NodeFsAdapter with fn is_file_sync(self, path) {
   let _ = self
   @node_fs.statSync(path).isFile()
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with is_directory_sync(self, path) {
+pub impl @env.FileSystem for NodeFsAdapter with fn is_directory_sync(self, path) {
   let _ = self
   @node_fs.statSync(path).isDirectory()
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with cp_sync(
+pub impl @env.FileSystem for NodeFsAdapter with fn cp_sync(
   self,
   src,
   dest,
@@ -71,13 +71,13 @@ pub impl @env.FileSystem for NodeFsAdapter with cp_sync(
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with unlink_sync(self, path) {
+pub impl @env.FileSystem for NodeFsAdapter with fn unlink_sync(self, path) {
   let _ = self
   @node_fs.unlinkSync(path)
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with rmdir_sync(
+pub impl @env.FileSystem for NodeFsAdapter with fn rmdir_sync(
   self,
   path,
   recursive,
@@ -87,7 +87,7 @@ pub impl @env.FileSystem for NodeFsAdapter with rmdir_sync(
 }
 
 ///|
-pub impl @env.FileSystem for NodeFsAdapter with stat_sync(self, path) {
+pub impl @env.FileSystem for NodeFsAdapter with fn stat_sync(self, path) {
   let _ = self
   let stat = @node_fs.statSync(path)
   @env.StatInfo::{

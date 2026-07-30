@@ -24,7 +24,7 @@ fn test_tree() -> Array[TreeNode] {
 ///|
 test "flatten_visible_nodes: all collapsed" {
   let nodes = test_tree()
-  let expanded : Map[String, Bool] = {}
+  let expanded : Map[String, Bool] = Map([])
   let visible = flatten_visible_nodes(nodes, expanded)
   // Only root level nodes should be visible
   inspect(visible.length(), content="3")

@@ -374,7 +374,7 @@ test "page() wraps route-level style and script assets" {
 
 ///|
 fn empty_json() -> Json {
-  let obj : Map[String, Json] = {}
+  let obj : Map[String, Json] = Map([])
   obj.to_json()
 }
 

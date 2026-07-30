@@ -1,11 +1,9 @@
 import {
-  "mizchi/mars" @mars,
+  "mizchi/mars",
   "moonbitlang/core/json",
   "moonbitlang/async",
 }
 
 supported_targets = "native"
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

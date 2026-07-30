@@ -18,7 +18,7 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
       Fragment(json_children)
     }
     @core.Element(elem) => {
-      let attrs : Map[String, JsonAttrValue] = {}
+      let attrs : Map[String, JsonAttrValue] = Map([])
       for pair in elem.attrs {
         let (name, value) = pair
         attrs.set(name, convert_attr(value))
@@ -46,7 +46,7 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
     @core.Component(render~) => render_to_json(render())
     @core.WcIsland(wc_island) => {
       // Render WcIsland as a custom element with data-* attributes
-      let attrs : Map[String, JsonAttrValue] = {}
+      let attrs : Map[String, JsonAttrValue] = Map([])
       attrs.set("data-state", Static(wc_island.state))
       attrs.set("data-trigger", Static(wc_island.trigger.to_string()))
       let children : Array[JsonNode] = []
@@ -57,7 +57,7 @@ pub fn render_to_json(node : @luna.Node[Unit, String]) -> JsonNode {
     }
     @core.InternalRef(iref) => {
       // Render InternalRef as a WC island element
-      let attrs : Map[String, JsonAttrValue] = {}
+      let attrs : Map[String, JsonAttrValue] = Map([])
       attrs.set("luna:wc-url", Static(iref.url))
       attrs.set("luna:wc-state", Static(iref.state))
       attrs.set("luna:wc-trigger", Static(iref.trigger.to_string()))

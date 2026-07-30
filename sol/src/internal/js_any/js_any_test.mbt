@@ -13,6 +13,9 @@ priv struct StatusPayload {
 } derive(ToJson, FromJson)
 
 ///|
+extend StatusPayload with ToJson::{to_json}
+
+///|
 test "json_to_any converts ToJson payload objects" {
   let obj = json_to_any(StatusPayload::{ status: "ok" }.to_json())
   assert_eq(object_get_string(obj, "status"), Some("ok"))

@@ -22,22 +22,22 @@ pub fn MemoryCache::new() -> MemoryCache {
 }
 
 ///|
-pub impl ISRCache for MemoryCache with get(self, key) {
+pub impl ISRCache for MemoryCache with fn get(self, key) {
   self.store.val.get(key)
 }
 
 ///|
-pub impl ISRCache for MemoryCache with put(self, key, entry) {
+pub impl ISRCache for MemoryCache with fn put(self, key, entry) {
   self.store.val[key] = entry
 }
 
 ///|
-pub impl ISRCache for MemoryCache with delete(self, key) {
+pub impl ISRCache for MemoryCache with fn delete(self, key) {
   self.store.val.remove(key) |> ignore
 }
 
 ///|
-pub impl ISRCache for MemoryCache with schedule_revalidation(_self, task) {
+pub impl ISRCache for MemoryCache with fn schedule_revalidation(_self, task) {
   // In memory mode, execute task synchronously via promise
   // This is simplified - in production, use waitUntil
   let _ = ffi_run_async(task)

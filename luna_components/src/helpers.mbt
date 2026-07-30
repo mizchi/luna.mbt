@@ -43,7 +43,7 @@ pub(all) enum KeyCode {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for KeyCode with output(self, logger) {
+pub impl Show for KeyCode with fn output(self, logger) {
   logger.write_string(
     match self {
       Enter => "Enter"

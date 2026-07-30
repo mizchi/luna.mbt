@@ -467,7 +467,7 @@ async fn[FS : @env.FileSystem] run_generate_command_with_fs(
       _ => ()
     }
     // Group functions by source_pattern (for now assume single client pattern)
-    let patterns_seen : Map[String, Bool] = {}
+    let patterns_seen : Map[String, Bool] = Map([])
     for f in funcs {
       patterns_seen[f.source_pattern] = true
     }

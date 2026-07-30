@@ -20,7 +20,7 @@ pub fn[E, A : Show] render_to_string(
   let sb = StringBuilder::new(size_hint~)
   if preload {
     let urls : Array[String] = []
-    let seen : Map[String, Bool] = {}
+    let seen : Map[String, Bool] = Map([])
     let island_ids = new_island_id_allocator()
     render_and_collect_urls(sb, node, urls, seen, island_ids)
     { html: sb.to_string(), preload_urls: urls }

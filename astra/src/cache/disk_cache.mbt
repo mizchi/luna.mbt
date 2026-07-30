@@ -234,7 +234,7 @@ fn[F : @env.FileSystem] load_cache_meta(
   }
 
   // Parse entries
-  let entries : Map[String, EntryMeta] = {}
+  let entries : Map[String, EntryMeta] = Map([])
   match obj.get("entries") {
     Some(Object(entries_obj)) =>
       for key, entry_json in entries_obj {

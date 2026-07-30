@@ -29,9 +29,9 @@ pub fn detect_conflicts(manifest : RouteManifest) -> Array[ConflictType] {
   let conflicts : Array[ConflictType] = []
 
   // Collect routes by type
-  let static_paths : Map[String, Array[String]] = {}
+  let static_paths : Map[String, Array[String]] = Map([])
   let dynamic_patterns : Array[(String, String, String)] = [] // (path, regex, source)
-  let catch_all_by_parent : Map[String, Array[String]] = {}
+  let catch_all_by_parent : Map[String, Array[String]] = Map([])
   for route in manifest.routes {
     match route {
       Static(r) =>

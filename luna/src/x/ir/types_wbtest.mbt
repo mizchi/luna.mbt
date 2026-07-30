@@ -101,7 +101,7 @@ test "Full schema serialization" {
       Field::new("label", TypeRef::string()),
     ],
   }
-  let defs : Map[String, TypeDef] = {}
+  let defs : Map[String, TypeDef] = Map([])
   defs["SwitchProps"] = Struct(switch_def)
   let schema : Schema = {
     version: "1.0",
@@ -175,7 +175,7 @@ test "Schema::to_moonbit" {
       Field::optional("label", TypeRef::string()),
     ],
   }
-  let defs : Map[String, TypeDef] = {}
+  let defs : Map[String, TypeDef] = Map([])
   defs["SwitchProps"] = Struct(switch_def)
   let schema : Schema = {
     version: "1.0",
@@ -258,7 +258,7 @@ test "Schema::to_typescript" {
       Field::optional("label", TypeRef::string()),
     ],
   }
-  let defs : Map[String, TypeDef] = {}
+  let defs : Map[String, TypeDef] = Map([])
   defs["SwitchProps"] = Struct(switch_def)
   let schema : Schema = {
     version: "1.0",

@@ -56,7 +56,7 @@ pub fn register_with_attrs(
   ) {
     let (dom_node, dispose) = @resource.create_root_with_dispose(fn() {
       // Create signals for each observed attribute
-      let attr_signals : Map[String, @resource.Signal[String]] = {}
+      let attr_signals : Map[String, @resource.Signal[String]] = Map([])
       for attr in observed_attrs {
         let initial = get_attr(attr)
         attr_signals[attr] = @resource.signal(initial)

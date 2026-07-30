@@ -1,8 +1,8 @@
 import {
-  "mizchi/astra" @astra,
+  "mizchi/astra",
   "mizchi/js/core" @js,
-  "mizchi/js/node/fs" @fs,
-  "mizchi/js/node/path" @path,
+  "mizchi/js/node/fs",
+  "mizchi/js/node/path",
 }
 
 supported_targets = "js"

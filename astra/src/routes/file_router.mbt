@@ -138,7 +138,7 @@ pub fn sort_pages(pages : Array[@astra.PageMeta]) -> Array[@astra.PageMeta] {
 pub fn group_pages_by_dir(
   pages : Array[@astra.PageMeta],
 ) -> Map[String, Array[@astra.PageMeta]] {
-  let groups : Map[String, Array[@astra.PageMeta]] = {}
+  let groups : Map[String, Array[@astra.PageMeta]] = Map([])
   for page in pages {
     let dir = get_url_dir(page.url_path)
     match groups.get(dir) {
@@ -708,7 +708,7 @@ fn parse_page_json(content : String) -> DynamicPageConfig? {
       for item in arr {
         match item {
           Object(param_obj) => {
-            let params : Map[String, String] = {}
+            let params : Map[String, String] = Map([])
             for key in param_obj.keys() {
               match param_obj.get(key) {
                 Some(String(v)) => params[key] = v
@@ -941,7 +941,7 @@ pub fn check_duplicate_pages(
   pages : Array[@astra.PageMeta],
 ) -> Array[DuplicatePage] {
   let duplicates : Array[DuplicatePage] = []
-  let url_to_sources : Map[String, Array[String]] = {}
+  let url_to_sources : Map[String, Array[String]] = Map([])
 
   // Group pages by URL path
   for page in pages {
@@ -980,7 +980,7 @@ fn is_dynamic_source(source_path : String) -> Bool {
 pub fn resolve_duplicate_pages(
   pages : Array[@astra.PageMeta],
 ) -> (Array[@astra.PageMeta], Array[DuplicatePage]) {
-  let url_to_pages : Map[String, Array[@astra.PageMeta]] = {}
+  let url_to_pages : Map[String, Array[@astra.PageMeta]] = Map([])
 
   // Group pages by URL path
   for page in pages {

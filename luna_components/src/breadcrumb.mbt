@@ -49,8 +49,8 @@ pub fn[E] breadcrumb(
       link_attrs.push(("aria-current", @luna.attr_static("page")))
     }
     let link_node = @luna.h("a", link_attrs) <| [
-        @luna.text(item.label),
-      ]
+      @luna.text(item.label),
+    ]
     let li_children : Array[@luna.Node[E, String]] = [link_node]
     if i < items.length() - 1 {
       li_children.push(

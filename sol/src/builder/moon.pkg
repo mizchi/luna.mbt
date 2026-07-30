@@ -1,10 +1,10 @@
 import {
-  "mizchi/js/core" @core,
-  "mizchi/js/node/child_process" @child_process,
+  "mizchi/js/core",
+  "mizchi/js/node/child_process",
 }
 
 import {
-  "moonbitlang/core/test" @test,
+  "moonbitlang/core/test",
 } for "wbtest"
 
 supported_targets = "js"

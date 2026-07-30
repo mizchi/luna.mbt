@@ -52,7 +52,7 @@ fn double_to_string(d : Double) -> String {
 }
 
 ///|
-impl Show for Attr with output(self, logger) {
+impl Show for Attr with fn output(self, logger) {
   match self {
     AttrString(s) => logger.write_string(s)
     AttrNumber(d) => logger.write_string(double_to_string(d))
@@ -60,6 +60,9 @@ impl Show for Attr with output(self, logger) {
     AttrBool(b) => logger.write_string(b.to_string())
   }
 }
+
+///|
+extend Attr with Show::{to_string}
 
 ///|
 /// Convert Attr to AttrValue

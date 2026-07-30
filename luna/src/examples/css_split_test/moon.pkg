@@ -1,11 +1,12 @@
 import {
-  "mizchi/luna/examples/css_split_test/card" @card,
-  "mizchi/luna/examples/css_split_test/button" @button,
+  "mizchi/luna/examples/css_split_test/card",
+  "mizchi/luna/examples/css_split_test/button",
 }
 
 supported_targets = "js"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: { "js": { "format": "esm" } },
 )

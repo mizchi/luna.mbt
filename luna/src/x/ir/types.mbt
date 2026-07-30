@@ -159,7 +159,7 @@ pub enum TypeRef {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for TypeRef with output(self, logger) {
+pub impl Show for TypeRef with fn output(self, logger) {
   logger.write_string(self.to_moonbit())
 }
 
