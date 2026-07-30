@@ -9,7 +9,7 @@ import {
   "mizchi/js_browser@0.12.1",
   "mizchi/npm_typed@0.1.15",
   "moonbitlang/parser@0.3.8",
-  "mizchi/signals@0.6.4",
+  "mizchi/signals@0.6.5",
   "mizchi/x@0.3.0",
   "moonbitlang/lexer@0.3.8",
 }

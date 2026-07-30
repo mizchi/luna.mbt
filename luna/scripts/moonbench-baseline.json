@@ -1,51 +1,51 @@
 {
-  "generatedAt": "2026-07-30T12:37:07.195Z",
+  "generatedAt": "2026-07-30T13:03:57.290Z",
   "node": "v24.18.0",
   "platform": "linux",
   "arch": "x64",
-  "rounds": 2,
+  "rounds": 5,
   "entries": [
     {
       "id": "core/render/render: large_list (100 items with escape)",
       "suite": "core/render",
       "name": "render: large_list (100 items with escape)",
-      "nsPerOp": 57170
+      "nsPerOp": 59140
     },
     {
       "id": "core/render/render: list (10 items)",
       "suite": "core/render",
       "name": "render: list (10 items)",
-      "nsPerOp": 2365
+      "nsPerOp": 2270
     },
     {
       "id": "core/render/render: page",
       "suite": "core/render",
       "name": "render: page",
-      "nsPerOp": 2525
+      "nsPerOp": 2390
     },
     {
       "id": "core/serialize/state_value_to_json: large_array",
       "suite": "core/serialize",
       "name": "state_value_to_json: large_array",
-      "nsPerOp": 3115
+      "nsPerOp": 2910
     },
     {
       "id": "core/stream_render/stream render: large_list (100 items with escape)",
       "suite": "core/stream_render",
       "name": "stream render: large_list (100 items with escape)",
-      "nsPerOp": 75265
+      "nsPerOp": 78700
     },
     {
       "id": "core/stream_render/stream render: list (10 items)",
       "suite": "core/stream_render",
       "name": "stream render: list (10 items)",
-      "nsPerOp": 2365
+      "nsPerOp": 2770
     },
     {
       "id": "core/stream_render/stream render: page",
       "suite": "core/stream_render",
       "name": "stream render: page",
-      "nsPerOp": 3000
+      "nsPerOp": 3130
     }
   ]
 }
