@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-30T12:31:44.504Z",
-  "node": "v22.22.2",
+  "generatedAt": "2026-07-30T12:36:29.795Z",
+  "node": "v24.18.0",
   "platform": "linux",
   "arch": "x64",
   "warmup": 3,
@@ -9,38 +9,38 @@
     {
       "id": "control-loop",
       "iterations": 1000000,
-      "nsPerOp": 3.3224,
+      "nsPerOp": 3.2582,
       "ratioToControl": 1
     },
     {
       "id": "signal-set-get",
       "iterations": 500000,
-      "nsPerOp": 17.2654,
-      "ratioToControl": 5.1966
+      "nsPerOp": 14.3546,
+      "ratioToControl": 4.4057
     },
     {
       "id": "signal-update-fn",
       "iterations": 250000,
-      "nsPerOp": 40.8576,
-      "ratioToControl": 12.2975
+      "nsPerOp": 18.8267,
+      "ratioToControl": 5.7783
     },
     {
       "id": "memo-after-update",
       "iterations": 200000,
-      "nsPerOp": 174.0977,
-      "ratioToControl": 52.4008
+      "nsPerOp": 76.2288,
+      "ratioToControl": 23.3963
     },
     {
       "id": "batch-10-updates",
       "iterations": 200000,
-      "nsPerOp": 33.7739,
-      "ratioToControl": 10.1654
+      "nsPerOp": 22.9804,
+      "ratioToControl": 7.0532
     },
     {
       "id": "create-signal",
       "iterations": 100000,
-      "nsPerOp": 52.8469,
-      "ratioToControl": 15.9061
+      "nsPerOp": 56.5714,
+      "ratioToControl": 17.363
     }
   ]
 }
