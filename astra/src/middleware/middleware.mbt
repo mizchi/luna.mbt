@@ -87,7 +87,9 @@ fn dispatch(mw : Middleware, ctx : @mars.Context) -> Unit {
   // `set_header` before `text` so the explicit Content-Type wins over
   // mars's text-helper default (`text/plain`). The same rule applied in
   // the previous asset path; it now covers pages too.
-  let content_type = res.content_type.replace_all(old="\r", new="").replace_all(old="\n", new="")
+  let content_type = res.content_type
+    .replace_all(old="\r", new="")
+    .replace_all(old="\n", new="")
   ctx.set_header("Content-Type", content_type)
   ctx.text(res.body, status=res.status)
 }
