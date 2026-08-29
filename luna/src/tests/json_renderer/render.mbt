@@ -117,7 +117,7 @@ pub fn render_to_json_string(node : @luna.Node[Unit, String]) -> String {
 ///|
 /// Convert JsonNode to JSON string
 pub fn json_node_to_string(node : JsonNode) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   write_json_node(sb, node)
   sb.to_string()
 }

@@ -28,7 +28,7 @@ pub fn minify_css(css : String) -> String {
 ///|
 /// Remove CSS comments `/* ... */`. Used by `minify_css`.
 fn remove_css_comments(css : String) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let chars = css.to_array()
   let len = chars.length()
   let mut i = 0

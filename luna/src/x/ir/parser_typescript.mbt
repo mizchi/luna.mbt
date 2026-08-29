@@ -431,7 +431,7 @@ fn parse_ts_type_alias(
 ///|
 /// Extract a TypeScript identifier from the start of a string
 fn extract_ts_identifier(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if is_ts_ident_char(c) {
       buf.write_char(c)

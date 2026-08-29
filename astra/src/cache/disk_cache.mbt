@@ -277,7 +277,7 @@ fn parse_entry_meta(json : Json) -> EntryMeta? {
 ///|
 /// Serialize cache metadata to JSON
 fn serialize_cache_meta(meta : CacheMeta) -> String {
-  let entries_json = StringBuilder::new()
+  let entries_json = StringBuilder()
   entries_json.write_string("{")
   let mut first = true
   for key, entry in meta.entries {
@@ -308,7 +308,7 @@ fn serialize_cache_meta(meta : CacheMeta) -> String {
 ///|
 /// Escape JSON string
 fn escape_json_string(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if c == '\\' {
       buf.write_string("\\\\")

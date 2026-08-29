@@ -380,7 +380,7 @@ fn parse_contract_props_fields(
 
 ///|
 fn contract_props_raw_definition(props : ContractProps) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("pub(all) struct \{props.name} {\n")
   for field in props.fields {
     buf.write_string("  \{field.name} : \{field.type_name}\n")
@@ -391,7 +391,7 @@ fn contract_props_raw_definition(props : ContractProps) -> String {
 
 ///|
 fn contract_data_shape_raw_definition(shape : ContractDataShape) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("pub(all) struct \{shape.name} {\n")
   for field in shape.fields {
     buf.write_string("  \{field.name} : \{field.type_name}\n")

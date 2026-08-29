@@ -493,7 +493,7 @@ test "escape_html - escapes all dangerous characters" {
 
 ///|
 test "escape_html_to - writes to StringBuilder" {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   @render.escape_html_to(sb, "<div>")
   assert_eq(sb.to_string(), "&lt;div&gt;")
 }
@@ -516,7 +516,7 @@ test "escape_attr - escapes & and quote only" {
 
 ///|
 test "escape_attr_to - writes to StringBuilder" {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   @render.escape_attr_to(sb, "Tom & \"Jerry\"")
   assert_eq(sb.to_string(), "Tom &amp; &quot;Jerry&quot;")
 }

@@ -6,7 +6,7 @@
 ///|
 /// Generate the complete shard HTML
 pub fn generate_shard(config : ShardConfig) -> ShardOutput {
-  let sb = StringBuilder::new(size_hint=512)
+  let sb = StringBuilder(size_hint=512)
   let head_scripts : Array[String] = []
   let state_scripts : Array[String] = []
 
@@ -128,7 +128,7 @@ pub fn generate_shard_group(
   loader_url : String,
   configs : Array[ShardConfig],
 ) -> String {
-  let sb = StringBuilder::new(size_hint=1024)
+  let sb = StringBuilder(size_hint=1024)
 
   // Single loader for all
   sb.write_string("<script type=\"module\" src=\"")

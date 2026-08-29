@@ -71,7 +71,7 @@ pub fn split_by(s : String, sep : Char) -> Array[String] {
 ///|
 /// Extract string until one of the delimiter characters
 pub fn extract_until(s : String, delimiters : Array[Char]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if delimiters.contains(c) {
       break
@@ -84,7 +84,7 @@ pub fn extract_until(s : String, delimiters : Array[Char]) -> String {
 ///|
 /// Extract substring from start to end position
 pub fn extract_substring(s : String, start : Int, end : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut idx = 0
   for c in s {
     if idx >= start && idx < end {

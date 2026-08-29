@@ -115,7 +115,7 @@ pub fn transform_mbtx_to_esm(code : String) -> String {
     Some(i) => i
     None => return code // not a standard IIFE, return as-is
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   // Copy helper definitions before IIFE
   buf.write_string(code[:iife_start].to_owned())
   // Replace IIFE with export default function

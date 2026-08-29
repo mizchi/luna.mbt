@@ -115,7 +115,7 @@ fn normalize_asset_urls(paths : Array[String]) -> Array[String] {
 
 ///|
 fn render_asset_tags(styles : Array[String], scripts : Array[String]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for href in normalize_asset_urls(styles) {
     buf.write_string("<link rel=\"stylesheet\" href=\"")
     buf.write_string(@page_shell.escape_html_text(href))

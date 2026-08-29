@@ -100,7 +100,7 @@ pub fn render_streaming_footer() -> String {
 ///|
 /// Escape HTML entities for text insertion (e.g. title template fragment).
 pub fn escape_html_text(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in s {
     match ch {
       '<' => buf.write_string("&lt;")

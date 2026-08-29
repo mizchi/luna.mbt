@@ -262,7 +262,7 @@ fn get_component_name_from_path(source_path : String) -> String {
   // Remove trailing slash if present
   let path = if source_path.has_suffix("/") {
     let len = source_path.length()
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     let mut idx = 0
     for c in source_path {
       if idx < len - 1 {

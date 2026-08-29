@@ -3,15 +3,15 @@ name = "mizchi/luna"
 version = "0.23.2"
 
 import {
-  "moonbitlang/async@0.20.1",
-  "moonbitlang/x@0.4.46",
-  "mizchi/js@0.12.1",
-  "mizchi/js_browser@0.12.1",
+  "moonbitlang/async@0.21.2",
+  "moonbitlang/x@0.5.1",
+  "mizchi/js@0.12.2",
+  "mizchi/js_browser@0.12.2",
   "mizchi/npm_typed@0.1.15",
-  "moonbitlang/parser@0.3.8",
-  "mizchi/signals@0.6.4",
-  "mizchi/x@0.3.0",
-  "moonbitlang/lexer@0.3.8",
+  "moonbitlang/parser@0.3.18",
+  "mizchi/signals@0.6.5",
+  "mizchi/x@0.5.3",
+  "moonbitlang/lexer@0.3.15",
 }
 
 readme = "README.md"

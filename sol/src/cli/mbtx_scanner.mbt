@@ -79,7 +79,7 @@ fn[FS : @env.FileSystem] scan_mbtx_recursive(
 fn mbtx_file_to_route(rel_path : String, base_path : String) -> String {
   // Remove .mbtx extension
   let without_ext = rel_path.substring(end=rel_path.length() - 5)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(base_path)
   for segment_view in without_ext.split("/") {
     let segment = segment_view.to_string()
@@ -126,7 +126,7 @@ fn mbtx_file_to_route(rel_path : String, base_path : String) -> String {
 /// "users/_id_.mbtx"  → "users_id"
 fn mbtx_file_to_id(rel_path : String) -> String {
   let without_ext = rel_path.substring(end=rel_path.length() - 5)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for segment_view in without_ext.split("/") {
     let segment = segment_view.to_string()

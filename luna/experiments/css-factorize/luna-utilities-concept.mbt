@@ -230,7 +230,7 @@ pub fn rounded(r: Radius) -> @luna.Attr {
 
 /// Generate CSS for all used utilities
 pub fn generate_css() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for id in registry.used.iter() {
     match registry.definitions.get(id) {
       Some(css) => {

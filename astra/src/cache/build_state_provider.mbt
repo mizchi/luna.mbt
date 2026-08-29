@@ -111,7 +111,7 @@ pub fn BuildManifest::matches(
 ///|
 /// Serialize manifest to JSON
 pub fn BuildManifest::to_json(self : BuildManifest) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\n")
   buf.write_string("  \"tool_version\": \"")
   buf.write_string(escape_json(self.tool_version))
@@ -149,7 +149,7 @@ pub fn BuildManifest::from_json(json : String) -> BuildManifest? {
 
 ///|
 fn escape_json(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     match c {
       '"' => buf.write_string("\\\"")

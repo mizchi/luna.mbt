@@ -4,8 +4,8 @@ version = "0.23.2"
 
 import {
   "mizchi/sol@0.23.2",
-  "mizchi/mars@0.3.10",
-  "mizchi/js@0.12.1",
+  "mizchi/mars@0.3.11",
+  "mizchi/js@0.12.2",
 }
 
 readme = "README.md"

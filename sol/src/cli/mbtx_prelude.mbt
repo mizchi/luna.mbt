@@ -10,7 +10,7 @@
 /// MoonBit source code prepended to each .mbtx file before compilation.
 /// Provides the runtime bridge between Sol router and .mbtx handlers.
 pub fn mbtx_prelude() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("// [sol:mbtx-prelude] Auto-injected helpers\n")
   // env bridge
   buf.write_string(

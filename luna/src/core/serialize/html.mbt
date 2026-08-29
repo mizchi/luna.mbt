@@ -41,7 +41,7 @@ pub fn state_endpoint_tag(
 ///|
 /// Escape HTML attribute value
 fn escape_html_attr(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for char in s {
     match char {
       '&' => buf.write_string("&amp;")
@@ -58,7 +58,7 @@ fn escape_html_attr(s : String) -> String {
 ///|
 /// Escape HTML special characters in content
 fn escape_html_content(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for char in s {
     match char {
       '<' => buf.write_string("\\u003c")
@@ -148,7 +148,7 @@ fn chars_range_to_string(chars : Array[Char], start : Int, end : Int) -> String 
   if start < 0 || end < start || end > chars.length() {
     return ""
   }
-  let buf = StringBuilder::new(size_hint=end - start)
+  let buf = StringBuilder(size_hint=end - start)
   for i in start..<end {
     buf.write_char(chars[i])
   }
@@ -158,7 +158,7 @@ fn chars_range_to_string(chars : Array[Char], start : Int, end : Int) -> String 
 ///|
 /// Unescape HTML entities in content
 fn unescape_html_content(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let chars : Array[Char] = []
   for c in s {
     chars.push(c)

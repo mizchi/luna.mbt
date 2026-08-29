@@ -350,7 +350,7 @@ test "hydrate detects missing dynamic text marker" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let count = @resource.signal(42)
   let vnode = @luna.text_dyn(fn() { count.get().to_string() })
 
@@ -369,7 +369,7 @@ test "hydrate detects missing show marker" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Visible") })
 
@@ -388,7 +388,7 @@ test "hydrate detects missing for marker" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let items = @resource.signal(["A", "B"])
   let vnode = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
@@ -409,7 +409,7 @@ test "hydrate detects missing element" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
 
   // VNode expects a button with handler
   let vnode = @luna.h(
@@ -441,7 +441,7 @@ test "hydrate recovers on mismatch" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [("class", @luna.attr_static("expected"))], [
     @luna.text("Expected"),
   ])
@@ -499,7 +499,7 @@ test "hydrate complex page structure" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let count = @resource.signal(0)
   let items = @resource.signal(["Item 1", "Item 2"])
   let vnode = @luna.h("div", [("class", @luna.attr_static("app"))], [
@@ -621,7 +621,7 @@ test "hydrate with logger captures mismatch warning" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
 
   // VNode expects a button with handler
   let vnode = @luna.h(
@@ -648,7 +648,7 @@ test "hydrate with logger captures strict mode mismatch" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -675,7 +675,7 @@ test "hydrate with logger no output on success" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   set_inner_html(container, html)
@@ -697,7 +697,7 @@ test "hydrate logger contains element info" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -741,7 +741,7 @@ test "hydrate multiple mismatches joined with semicolon" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // Two buttons with handlers - both need sol:hk
   let vnode = @luna.fragment([
     @luna.h(
@@ -771,7 +771,7 @@ test "hydrate tag mismatch with correct sol:hk" {
   @global_jsdom.register()
   defer cleanup()
   let container = create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // Expect a button
   let vnode = @luna.h(
     "button",

@@ -6,7 +6,7 @@
 /// Build CSS variable overrides from a `ThemeConfig`. Returns an empty
 /// string when no theme variables are configured.
 pub fn build_theme_overrides(theme : @astra.ThemeConfig) -> String {
-  let vars = StringBuilder::new()
+  let vars = StringBuilder()
   if theme.primary_color is Some(v) {
     vars.write_string("--primary-color:\{v};")
   }

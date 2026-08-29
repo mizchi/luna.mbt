@@ -80,7 +80,7 @@ fn split_query_pair(pair : String) -> (String, String?) {
 fn decode_query_component(s : String) -> String {
   let chars = s.to_array()
   let len = chars.length()
-  let sb = StringBuilder::new(size_hint=len)
+  let sb = StringBuilder(size_hint=len)
   let mut i = 0
   while i < len {
     let c = chars[i]
@@ -255,7 +255,7 @@ fn join_segments(segments : Array[String]) -> String {
   if segments.is_empty() {
     return ""
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for i, seg in segments {
     if i > 0 {
       result.write_string("/")

@@ -18,11 +18,11 @@
       "path": "../../../luna",
       "version": "0.23.2"
     },
-    "mizchi/mars": "0.3.10",
-    "mizchi/signals": "0.6.4",
-    "mizchi/js": "0.12.1",
+    "mizchi/mars": "0.3.11",
+    "mizchi/signals": "0.6.5",
+    "mizchi/js": "0.12.2",
     "mizchi/npm_typed": "0.1.15",
-    "moonbitlang/async": "0.20.1"
+    "moonbitlang/async": "0.21.2"
   },
   "source": "app",
   "preferred-target": "js"

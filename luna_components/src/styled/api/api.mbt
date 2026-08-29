@@ -41,7 +41,7 @@ pub fn get_accordion_css() -> String {
 ///|
 /// Get all CSS combined (theme variables + all components)
 pub fn get_all_css() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("/* Luna Styled Components */\n\n")
   buf.write_string(@styled.theme_variables())
   buf.write_string("\n\n")

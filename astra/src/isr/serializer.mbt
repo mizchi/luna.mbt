@@ -9,7 +9,7 @@
 ///|
 /// Serialize manifest to JSON string
 pub fn ISRManifest::to_json(self : ISRManifest) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\n")
   buf.write_string("  \"version\": \{self.version},\n")
   buf.write_string("  \"pages\": {")
@@ -39,7 +39,7 @@ pub fn ISRManifest::to_json(self : ISRManifest) -> String {
 ///|
 /// Escape special characters for JSON string
 fn escape_json(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if c == '\\' {
       buf.write_string("\\\\")

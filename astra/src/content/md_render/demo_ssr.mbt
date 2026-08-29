@@ -43,7 +43,7 @@ pub fn parse_accordion_items(json : String) -> Array[AccordionDemoItem] {
 fn split_json_objects(s : String) -> Array[String] {
   let result : Array[String] = []
   let chars = s.to_array()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut depth = 0
   let mut in_string = false
   let mut escape_next = false
@@ -132,7 +132,7 @@ fn extract_json_string(json : String, key : String) -> String? {
   pos = pos + 1
 
   // Read until closing quote
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut escape_next = false
   while pos < chars.length() {
     let c = chars[pos]
@@ -216,7 +216,7 @@ fn index_of(s : String, pattern : String) -> Int {
 ///|
 /// Generate accordion demo SSR markup
 pub fn accordion_demo_ssr(items : Array[AccordionDemoItem]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("<div class=\"accordion\" data-accordion>")
 
   for item in items {
@@ -280,7 +280,7 @@ pub fn accordion_demo_ssr(items : Array[AccordionDemoItem]) -> String {
 ///|
 /// Escape HTML special characters
 fn escape_html(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     match c {
       '<' => buf.write_string("&lt;")
