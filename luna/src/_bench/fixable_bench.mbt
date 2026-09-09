@@ -53,7 +53,7 @@ test "fixable_clean_simple" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [@luna.text("Hello")])
   let html = @ssr.render_to_string(node).html
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_clean_simple", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -67,7 +67,7 @@ test "fixable_clean_nested" (b : @bench.T) {
     @luna.h("section", [], [@luna.h("p", [], [@luna.text("Nested content")])]),
   ])
   let html = @ssr.render_to_string(node).html
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_clean_nested", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -88,7 +88,7 @@ test "fixable_clean_list_50" (b : @bench.T) {
   @global_jsdom.register()
   let node = create_fixable_list_node(50)
   let html = @ssr.render_to_string(node).html
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_clean_list_50", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -104,7 +104,7 @@ test "fixable_repair_text_mismatch" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [@luna.text("Expected Text")])
   let html = "<div>Different Text</div>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_text_mismatch", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -116,7 +116,7 @@ test "fixable_repair_text_missing" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [@luna.text("Expected Text")])
   let html = "<div></div>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_text_missing", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -132,7 +132,7 @@ test "fixable_repair_element_missing" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [@luna.h("span", [], [@luna.text("Child")])])
   let html = ""
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_element_missing", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -150,7 +150,7 @@ test "fixable_repair_attr_mismatch" (b : @bench.T) {
     @luna.text("Content"),
   ])
   let html = "<div class=\"wrong-class\">Content</div>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_attr_mismatch", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -167,7 +167,7 @@ test "fixable_repair_dynamic_text_marker" (b : @bench.T) {
   let count = @resource.signal(42)
   let node = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
   let html = "Count: 42"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_dynamic_text_marker", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -182,7 +182,7 @@ test "fixable_repair_show_marker" (b : @bench.T) {
     @luna.h("div", [], [@luna.text("Visible")])
   })
   let html = "<div>Visible</div>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_show_marker", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -197,7 +197,7 @@ test "fixable_repair_for_marker" (b : @bench.T) {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = "<li>a</li><li>b</li><li>c</li>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_for_marker", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -212,7 +212,7 @@ test "fixable_repair_for_item_count" (b : @bench.T) {
     items_sig.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
   })
   let html = "<!--f:0--><li>a</li><li>b</li><!--/f-->"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_for_item_count", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -249,7 +249,7 @@ test "fixable_repair_multiple_cards" (b : @bench.T) {
   }
   let node = @luna.h("div", [("class", @luna.attr_static("container"))], cards)
   let html = "<div class=\"wrong-container\"><div class=\"card\"><h3>Card 0</h3><p>Old Content</p></div></div>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_repair_multiple_cards", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate(container, node, logger~))
@@ -265,7 +265,7 @@ test "fixable_with_report_clean" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [@luna.text("Hello")])
   let html = @ssr.render_to_string(node).html
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_with_report_clean", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate_with_report(container, node, logger~))
@@ -279,7 +279,7 @@ test "fixable_with_report_repairs" (b : @bench.T) {
     @luna.text("Expected"),
   ])
   let html = "<div class=\"wrong\">Wrong</div>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_with_report_repairs", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.experimental_hydrate_with_report(container, node, logger~))
@@ -291,7 +291,7 @@ test "fixable_hydrate_with_fallback" (b : @bench.T) {
   @global_jsdom.register()
   let node = @luna.h("div", [], [@luna.text("Content")])
   let html = "<span>Wrong tag</span>"
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   b.bench(name="fixable_hydrate_with_fallback", fn() {
     let container = setup_fixable_container(html)
     b.keep(@fixable.hydrate_with_fallback(container, node, logger~))

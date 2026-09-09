@@ -9,7 +9,7 @@
 ///|
 /// Serialize SsgConfig to JSON string
 pub fn ssg_config_to_json(config : @astra.SsgConfig) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   buf.write_string("\"docs\":\"")
   write_escaped_string(config.docs_dir, buf)
@@ -910,7 +910,7 @@ fn parse_ogp_config(obj : Map[String, Json]) -> @astra.OgpConfig {
 ///|
 /// Serialize Array[PageMeta] to JSON string
 pub fn pages_to_json(pages : Array[@astra.PageMeta]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("[")
   for i, page in pages {
     if i > 0 {
@@ -1289,7 +1289,7 @@ fn parse_frontmatter(obj : Map[String, Json]) -> @astra.Frontmatter {
 ///|
 /// Serialize Array[SidebarGroup] to JSON string
 pub fn sidebar_to_json(sidebar : Array[@astra.SidebarGroup]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("[")
   for i, g in sidebar {
     if i > 0 {

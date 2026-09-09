@@ -262,7 +262,7 @@ fn build_html_document(
   frontmatter : @astra.Frontmatter,
   render_result : @luna_render.SSRResult,
 ) -> String {
-  let html = StringBuilder::new()
+  let html = StringBuilder()
   let page_title = frontmatter.title.unwrap_or(ctx.config.title)
   let desc = frontmatter.description.unwrap_or("")
   let base = ctx.config.base_url
@@ -411,7 +411,7 @@ fn replace_all_occurrences(
   if old.is_empty() || !input.contains(old) {
     return input
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let old_len = old.length()
   let mut pos = 0
   while true {
@@ -586,7 +586,7 @@ fn apply_syntax_highlighting(
   if !html.contains(marker) {
     return html
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut pos = 0
   let len = html.length()
   while pos < len {

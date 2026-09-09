@@ -9,7 +9,7 @@
 ///|
 /// Generate TypeScript source code from a schema
 pub fn Schema::to_typescript(self : Schema) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Add header comment
   buf.write_string("// Generated from IR Schema v")
@@ -54,7 +54,7 @@ pub fn TypeDef::to_typescript(self : TypeDef) -> String {
 ///|
 /// Generate TypeScript code for a struct definition (as interface)
 pub fn StructDef::to_typescript(self : StructDef) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // JSDoc comment
   match self.doc {
@@ -96,7 +96,7 @@ pub fn StructDef::to_typescript(self : StructDef) -> String {
 ///|
 /// Generate TypeScript code for an enum definition
 pub fn EnumDef::to_typescript(self : EnumDef) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // JSDoc comment
   match self.doc {
@@ -163,7 +163,7 @@ pub fn EnumDef::to_typescript(self : EnumDef) -> String {
 ///|
 /// Generate TypeScript code for a type alias
 pub fn AliasDef::to_typescript(self : AliasDef) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // JSDoc comment
   match self.doc {
@@ -203,7 +203,7 @@ pub fn AliasDef::to_typescript(self : AliasDef) -> String {
 ///|
 /// Generate TypeScript code for a field
 pub fn Field::to_typescript(self : Field) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Field name with optional marker
   buf.write_string(self.name)
@@ -297,7 +297,7 @@ pub fn LiteralType::to_typescript(self : LiteralType) -> String {
 ///|
 /// Generate TypeScript code for a type parameter
 pub fn TypeParam::to_typescript(self : TypeParam) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.name)
   match self.constraint {
     Some(constraint) => {

@@ -12,7 +12,7 @@
 /// Supports both :slug (Express/Hono style) and [slug] (Next.js style) syntaxes
 pub fn extract_url_pattern(path : String) -> (String, Array[String]) {
   let param_names : Array[String] = []
-  let pattern = StringBuilder::new()
+  let pattern = StringBuilder()
   pattern.write_string("^")
   let mut i = 0
   let len = path.length()
@@ -157,7 +157,7 @@ pub fn normalize_url_path(path : String) -> String {
 ///|
 /// Remove consecutive slashes from path
 fn remove_double_slashes(path : String) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut prev_slash = false
   for ch in path {
     if ch == '/' {
@@ -218,7 +218,7 @@ pub fn safe_substring(s : String, start : Int, end : Int) -> String {
   if start < 0 || end > s.length() || start >= end {
     ""
   } else {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i = start; i < end; i = i + 1 {
       buf.write_char(safe_char_at(s, i))
     }

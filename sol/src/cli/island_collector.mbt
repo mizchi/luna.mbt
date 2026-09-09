@@ -313,7 +313,7 @@ pub fn extract_component_name_from_props(props_name : String) -> String {
     props_name
   }
   // Convert PascalCase to snake_case
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let chars = name.to_array()
   for i, c in chars {
     if c >= 'A' && c <= 'Z' {

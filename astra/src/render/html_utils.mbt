@@ -26,7 +26,7 @@ fn attr(key : String, value : String) -> (String, @luna.Attr[Unit, String]) {
 fn transform_internal_links(html : String, trailing_slash : Bool) -> String {
   // Simple regex-like replacement for href="/NN_name/" patterns
   // We need to find href="..." attributes and transform the paths
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let chars = html.to_array()
   let len = chars.length()
   let mut i = 0

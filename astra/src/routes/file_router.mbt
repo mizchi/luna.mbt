@@ -420,7 +420,7 @@ fn build_source_with_dynamic_params(
   param_value : String,
   param_set : Map[String, String],
 ) -> String {
-  let sb = StringBuilder::new(size_hint=source_path.length() + 64)
+  let sb = StringBuilder(size_hint=source_path.length() + 64)
   sb.write_string(source_path)
   sb.write_char('?')
   sb.write_string(encode_query_component(param_name))

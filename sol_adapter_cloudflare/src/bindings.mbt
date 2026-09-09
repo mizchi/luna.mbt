@@ -187,7 +187,7 @@ pub fn describe_missing_bindings(missing : Array[MissingBinding]) -> String {
   if missing.is_empty() {
     return "all required Cloudflare bindings are present"
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("missing Cloudflare bindings: ")
   for i, item in missing {
     if i > 0 {
@@ -206,7 +206,7 @@ pub fn bindings_typescript_decl(
   specs : Array[BindingSpec],
   interface_name? : String = "CloudflareEnv",
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "// Auto-generated Cloudflare binding contract. Do not edit.\n\n",
   )
@@ -273,7 +273,7 @@ fn binding_is_typescript_identifier(value : String) -> Bool {
 
 ///|
 fn binding_typescript_string_literal(value : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('"')
   for c in value {
     match c {

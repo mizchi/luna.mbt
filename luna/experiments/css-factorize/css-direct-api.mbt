@@ -83,7 +83,7 @@ pub fn styles(props : Array[(String, String)]) -> @luna.Attr {
 
 /// Generate CSS output (minified)
 pub fn generate_css() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for decl in registry.declarations {
     match registry.decl_to_class.get(decl) {
       Some(cls) => {
@@ -101,7 +101,7 @@ pub fn generate_css() -> String {
 
 /// Generate CSS output (readable)
 pub fn generate_css_pretty() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for decl in registry.declarations {
     match registry.decl_to_class.get(decl) {
       Some(cls) => {
@@ -311,7 +311,7 @@ pub fn dark(property : String, value : String) -> @luna.Attr {
 
 /// Generate complete CSS output (including pseudo-classes and media queries)
 pub fn generate_full_css() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Base styles
   for decl in registry.declarations {

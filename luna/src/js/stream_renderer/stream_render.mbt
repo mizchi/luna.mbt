@@ -70,7 +70,7 @@ fn render_node_to_stream(
     Element(elem) => {
       let tag = elem.tag
       // Open tag
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_char('<')
       sb.write_string(tag)
       @render.render_attrs_to(sb, elem.attrs)
@@ -146,7 +146,7 @@ fn render_wc_island_to_stream(
   island_ids : IslandIdAllocator,
 ) -> Unit {
   let write = writer.0
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
 
   // Custom element opening tag with data attributes
   sb.write_char('<')
@@ -190,7 +190,7 @@ fn render_internal_ref_to_stream(
 ) -> Unit {
   let write = writer.0
   let name = extract_wc_name_from_url(iref.url)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
 
   // Custom element opening tag with luna:wc-* attributes
   sb.write_char('<')
@@ -308,7 +308,7 @@ fn render_node_collecting_async(
       }
     Element(elem) => {
       let tag = elem.tag
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_char('<')
       sb.write_string(tag)
       @render.render_attrs_to(sb, elem.attrs)

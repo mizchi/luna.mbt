@@ -143,7 +143,7 @@ pub fn get_props_structs(structs : Array[StructDef]) -> Array[StructDef] {
 ///|
 /// Extract string until space or brace
 fn extract_name_until_delimiter(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if c == ' ' || c == '{' {
       break
@@ -166,7 +166,7 @@ fn extract_struct_raw(
   let lines = content.split("\n")
   let mut in_struct = false
   let mut brace_count = 0
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for line in lines {
     let line_str = line.to_owned()
     if !in_struct {

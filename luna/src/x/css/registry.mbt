@@ -39,7 +39,7 @@ fn to_base36(n : UInt) -> String {
   if num == 0 {
     return "0"
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   while num > 0 {
     let idx = (num % 36).reinterpret_as_int()
     buf.write_char(base36_chars[idx].to_int().unsafe_to_char())
@@ -47,7 +47,7 @@ fn to_base36(n : UInt) -> String {
   }
   // Reverse the string
   let s = buf.to_string()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let last = s.length() - 1
   for i in last>=..0 {
     result.write_char(s[i].to_int().unsafe_to_char())

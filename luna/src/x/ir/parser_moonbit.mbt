@@ -471,7 +471,7 @@ fn parse_alias_def(line : String, doc : String?) -> Result[AliasDef, String] {
 ///|
 /// Extract an identifier from the start of a string
 fn extract_identifier(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if is_ident_char(c) {
       buf.write_char(c)

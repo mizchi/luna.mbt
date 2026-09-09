@@ -76,7 +76,7 @@ pub fn[T : FromJson] ActionContext::decode_form_urlencoded(
 fn decode_form_component(s : String) -> String {
   let chars = s.to_array()
   let len = chars.length()
-  let sb = StringBuilder::new(size_hint=len)
+  let sb = StringBuilder(size_hint=len)
   let mut i = 0
   while i < len {
     let c = chars[i]

@@ -23,7 +23,7 @@ pub fn format_state_attr(state : StateConfig) -> String? {
 /// Used when state is too large for inline attribute
 pub fn generate_state_script(id : String, json : String) -> String {
   let escaped = @render.escape_json_for_script(json)
-  let sb = StringBuilder::new(size_hint=escaped.length() + 64)
+  let sb = StringBuilder(size_hint=escaped.length() + 64)
   sb.write_string("<script id=\"")
   sb.write_string(id)
   sb.write_string("\" type=\"luna/json\">")

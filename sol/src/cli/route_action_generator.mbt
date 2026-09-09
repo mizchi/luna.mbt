@@ -102,7 +102,7 @@ fn extract_param_names_from_path(path : String) -> Array[String] {
 
 ///|
 fn param_name_to_identifier(name : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, c in name {
     let is_alpha = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
     let is_digit = c >= '0' && c <= '9'
@@ -145,7 +145,7 @@ fn unique_param_fields(
 
 ///|
 fn identifier_to_pascal(ident : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut capitalize_next = true
   for c in ident {
     if c == '_' {
@@ -191,7 +191,7 @@ fn route_paths_have_params(route_paths : Array[String]) -> Bool {
 
 ///|
 fn optional_catch_all_base_pattern(path : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for segment_view in path.split("/") {
     let segment = segment_view.to_string()
     if segment.is_empty() {
@@ -282,7 +282,7 @@ fn path_to_identifier(path : String) -> String {
   if path == "/" {
     return "root"
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for segment_view in path.split("/") {
     let segment_raw = segment_view.to_string()
@@ -336,7 +336,7 @@ fn generate_route_constants(route_paths : Array[String]) -> String {
   if route_paths.is_empty() {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "// =============================================================================\n",
   )
@@ -393,7 +393,7 @@ fn generate_route_query_accessors(
   if route_queries.is_empty() {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "// =============================================================================\n",
   )
@@ -462,7 +462,7 @@ fn generate_route_param_accessors(route_paths : Array[String]) -> String {
   if !route_paths_have_params(route_paths) {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "// =============================================================================\n",
   )
@@ -534,7 +534,7 @@ fn generate_link_builders(route_paths : Array[String]) -> String {
   if route_paths.is_empty() {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "// =============================================================================\n",
   )
@@ -645,7 +645,7 @@ fn split_path_segments(path : String) -> Array[String] {
     return ["/"]
   }
   let result : Array[String] = []
-  let static_buf = StringBuilder::new()
+  let static_buf = StringBuilder()
   for segment_view in path.split("/") {
     let segment = segment_view.to_string()
     if segment.is_empty() {
@@ -713,7 +713,7 @@ fn split_path_segments(path : String) -> Array[String] {
 /// e.g., "create-user" -> "action_create_user"
 ///       "submit-contact" -> "action_submit_contact"
 fn action_id_to_fn_name(id : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("action_")
   for c in id {
     if c == '-' || c == ':' || c == '/' || c == '.' {
@@ -745,7 +745,7 @@ fn generate_action_key_factories(
   if action_ids.is_empty() {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "// =============================================================================\n",
   )
@@ -835,7 +835,7 @@ fn generate_locale_enum(static_dirs : Array[StaticDirEntry]) -> String {
     // Single locale (or none), no enum needed
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "// =============================================================================\n",
   )
@@ -883,7 +883,7 @@ fn generate_locale_enum(static_dirs : Array[StaticDirEntry]) -> String {
 /// Convert locale code to PascalCase enum variant
 /// e.g., "en" -> "En", "ja" -> "Ja", "zh-CN" -> "ZhCn"
 fn locale_code_to_variant(code : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut capitalize_next = true
   for c in code {
     if c == '-' || c == '_' {

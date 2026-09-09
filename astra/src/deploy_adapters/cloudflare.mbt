@@ -114,7 +114,7 @@ fn extract_substring_before(s : String, idx : Int) -> String {
 
 ///|
 fn escape_json_string(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if c == '\\' {
       buf.write_string("\\\\")

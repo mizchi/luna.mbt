@@ -431,7 +431,7 @@ extern "js" fn ffi_call_app_handler_with_headers(
   handler : @mars.AppHandler,
   meth : String,
   url : String,
-  headers_list : Array[String],
+  headers_list : FixedArray[String],
 ) -> @js_async.Promise[TestHttpResponse] =
   #| async (handler, meth, url, headersList) => {
   #|   const headers = {};
@@ -459,7 +459,7 @@ extern "js" fn ffi_call_app_handler_with_headers_and_body(
   handler : @mars.AppHandler,
   meth : String,
   url : String,
-  headers_list : Array[String],
+  headers_list : FixedArray[String],
   body : String,
 ) -> @js_async.Promise[TestHttpResponse] =
   #| async (handler, meth, url, headersList, body) => {

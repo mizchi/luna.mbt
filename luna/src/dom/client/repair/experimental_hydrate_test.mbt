@@ -59,7 +59,7 @@ test "exp: repair missing static text" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.text("Hello World")
   // Empty container
   exp_set_inner_html(container, "")
@@ -82,7 +82,7 @@ test "exp: repair wrong static text content" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.text("Correct")
   // Wrong text
   exp_set_inner_html(container, "Wrong")
@@ -105,7 +105,7 @@ test "exp: repair missing element with handler" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -132,7 +132,7 @@ test "exp: repair tag mismatch with sol:hk" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -163,7 +163,7 @@ test "exp: repair class attribute mismatch" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [("class", @luna.attr_static("correct-class"))], [
     @luna.text("Content"),
   ])
@@ -187,7 +187,7 @@ test "exp: repair id attribute mismatch" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [("id", @luna.attr_static("correct-id"))], [
     @luna.text("Content"),
   ])
@@ -211,7 +211,7 @@ test "exp: repair missing attribute" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [("data-testid", @luna.attr_static("my-test"))], [
     @luna.text("Content"),
   ])
@@ -238,7 +238,7 @@ test "exp: repair missing dynamic text markers" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let count = @resource.signal(42)
   let vnode = @luna.text_dyn(fn() { "Count: " + count.get().to_string() })
   // No markers
@@ -263,7 +263,7 @@ test "exp: repair dynamic text with existing marker but missing text node" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let name = @resource.signal("Alice")
   let vnode = @luna.text_dyn(fn() { name.get() })
   // Has marker but no text node after it
@@ -288,7 +288,7 @@ test "exp: dynamic attribute setup works after repair" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let title = @resource.signal("Title 1")
   let vnode = @luna.h(
     "div",
@@ -314,7 +314,7 @@ test "exp: dynamic style setup works after repair" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let bg = @resource.signal("red")
   let vnode = @luna.h(
     "div",
@@ -348,7 +348,7 @@ test "exp: repair missing show markers" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() {
     @luna.text("Visible content")
@@ -378,7 +378,7 @@ test "exp: repair show with condition initially false" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let visible = @resource.signal(false)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Hidden") })
   exp_set_inner_html(container, "")
@@ -400,7 +400,7 @@ test "exp: repair missing for markers" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let items = @resource.signal(["A", "B", "C"])
   let vnode = @luna.for_each(fn() {
     items.get().map(fn(item) { @luna.h("li", [], [@luna.text(item)]) })
@@ -429,7 +429,7 @@ test "exp: repair for item count mismatch - too few items" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.for_each(fn() {
     [@luna.text("A"), @luna.text("B"), @luna.text("C")]
   })
@@ -454,7 +454,7 @@ test "exp: repair for item count mismatch - too many items" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.for_each(fn() { [@luna.text("A")] })
   // 3 items in DOM
   exp_set_inner_html(container, "<!--f:0-->X Y Z<!--/f-->")
@@ -479,7 +479,7 @@ test "exp: repair deeply nested missing element" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [], [
     @luna.h("div", [], [
       @luna.h("div", [], [@luna.h("span", [], [@luna.text("Deep")])]),
@@ -503,7 +503,7 @@ test "exp: repair fragment children" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.fragment([
     @luna.text("First"),
     @luna.text("Second"),
@@ -524,7 +524,7 @@ test "exp: repair component render" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   fn counter_component(initial : Int) -> @luna.Node[@js.Any, String] {
     let count = @resource.signal(initial)
     let _ = count // suppress unused warning
@@ -559,7 +559,7 @@ test "exp: fallback succeeds when normal hydration works" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   exp_set_inner_html(container, html)
@@ -575,7 +575,7 @@ test "exp: fallback recovers from complete mismatch" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -601,7 +601,7 @@ test "exp: fallback with logger captures both phases" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -624,7 +624,7 @@ test "exp: handle empty vnode" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.text("")
   exp_set_inner_html(container, "something")
   let result = experimental_hydrate(container, vnode, logger~)
@@ -640,7 +640,7 @@ test "exp: handle special characters in text" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.text("<script>alert('xss')</script>")
   exp_set_inner_html(container, "wrong content")
   let result = experimental_hydrate(container, vnode, logger~)
@@ -656,7 +656,7 @@ test "exp: handle multiple dynamic elements" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let a = @resource.signal("A")
   let b = @resource.signal("B")
   let vnode = @luna.h("div", [], [
@@ -683,7 +683,7 @@ test "exp: handle static style attribute" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "div",
     [("style", @luna.attr_style("color: red; font-size: 16px"))],
@@ -704,7 +704,7 @@ test "exp: handle event handler attachment" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -731,7 +731,7 @@ test "report: clean hydration returns clean report" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [], [@luna.text("Content")])
   let html = @render.render_to_string(vnode).html
   exp_set_inner_html(container, html)
@@ -746,7 +746,7 @@ test "report: text mismatch has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.text("Expected")
   exp_set_inner_html(container, "Wrong")
   let report = experimental_hydrate_with_report(container, vnode, logger~)
@@ -765,7 +765,7 @@ test "report: missing text has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.text("Missing")
   exp_set_inner_html(container, "")
   let report = experimental_hydrate_with_report(container, vnode, logger~)
@@ -778,7 +778,7 @@ test "report: element missing has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -799,7 +799,7 @@ test "report: tag mismatch has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h(
     "button",
     [("onClick", @luna.attr_handler(@luna.handler(fn(_) { () })))],
@@ -821,7 +821,7 @@ test "report: attribute mismatch has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [("class", @luna.attr_static("expected"))], [
     @luna.text("Content"),
   ])
@@ -841,7 +841,7 @@ test "report: dynamic text marker missing has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let sig = @resource.signal("Dynamic")
   let vnode = @luna.text_dyn(fn() { sig.get() })
   exp_set_inner_html(container, "")
@@ -855,7 +855,7 @@ test "report: show marker missing has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Content") })
   exp_set_inner_html(container, "")
@@ -869,7 +869,7 @@ test "report: for marker missing has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.for_each(fn() { [@luna.text("A"), @luna.text("B")] })
   exp_set_inner_html(container, "")
   let report = experimental_hydrate_with_report(container, vnode, logger~)
@@ -882,7 +882,7 @@ test "report: for item count mismatch has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.for_each(fn() {
     [@luna.text("A"), @luna.text("B"), @luna.text("C")]
   })
@@ -904,7 +904,7 @@ test "report: show content missing has correct repair type" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let visible = @resource.signal(true)
   let vnode = @luna.show(fn() { visible.get() }, fn() { @luna.text("Content") })
   // Markers exist but no content
@@ -919,7 +919,7 @@ test "report: node path tracks hierarchy" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [], [
     @luna.h("span", [], [@luna.text("Wrong content")]),
   ])
@@ -942,7 +942,7 @@ test "report: multiple repairs tracked" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // Multiple things wrong
   let vnode = @luna.h("div", [("class", @luna.attr_static("expected"))], [
     @luna.text("Wrong"),
@@ -964,7 +964,7 @@ test "report: get_repairs returns all repair infos" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("div", [("class", @luna.attr_static("test"))], [
     @luna.text("Hello"),
   ])
@@ -982,7 +982,7 @@ test "report: filter repairs by type returns correct subset" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // Create scenario with attribute mismatch
   let vnode = @luna.h("div", [("id", @luna.attr_static("expected-id"))], [
     @luna.text("Content"),
@@ -1007,7 +1007,7 @@ test "smart_hydrate uses experimental for small trees" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // Small tree - should use experimental hydration
   let vnode = @luna.h("div", [], [@luna.text("Small")])
   exp_set_inner_html(container, "<div>Small</div>")
@@ -1025,7 +1025,7 @@ test "smart_hydrate falls back for empty DOM" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // Moderate tree with empty DOM
   let vnode = @luna.h("div", [], [
     @luna.text("A"),
@@ -1082,7 +1082,7 @@ test "exp: hydrate async node fallback" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode : @luna.Node[@js.Any, String] = @luna.async_(
     render=fn() { @luna.text("Loaded") },
     fallback=fn() { @luna.text("Loading...") },
@@ -1103,7 +1103,7 @@ test "exp: hydrate error_boundary success" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode : @luna.Node[@js.Any, String] = @luna.error_boundary(
     children=fn() { @luna.h("div", [], [@luna.text("Safe")]) },
     fallback=fn(_err, _reset) { @luna.text("Error") },
@@ -1122,7 +1122,7 @@ test "exp: hydrate switch first case" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { true }, render=fn() { @luna.text("First") }),
@@ -1144,7 +1144,7 @@ test "exp: hydrate switch fallback" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode : @luna.Node[@js.Any, String] = @luna.switch_(
     cases=[
       @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
@@ -1165,7 +1165,7 @@ test "exp: hydrate switch no fallback" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode : @luna.Node[@js.Any, String] = @luna.switch_(cases=[
     @luna.match_case(when=fn() { false }, render=fn() { @luna.text("Never") }),
   ])
@@ -1187,7 +1187,7 @@ test "exp: apply_vattr with className" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // className is an alias for class
   let vnode = @luna.h("div", [("className", @luna.attr_static("my-class"))], [
     @luna.text("Content"),
@@ -1206,7 +1206,7 @@ test "exp: apply_vattr with value attribute" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.h("input", [("value", @luna.attr_static("test-value"))], [])
   exp_set_inner_html(container, "<input />")
   let result = experimental_hydrate(container, vnode, logger~)
@@ -1222,7 +1222,7 @@ test "exp: apply_vattr dynamic value" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let value = @resource.signal("initial")
   let vnode = @luna.h(
     "input",
@@ -1246,7 +1246,7 @@ test "exp: apply_vattr dynamic className" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let cls = @resource.signal("class-a")
   let vnode = @luna.h(
     "div",
@@ -1269,7 +1269,7 @@ test "exp: apply_vattr dynamic __remove__" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let show_attr = @resource.signal(true)
   let vnode = @luna.h(
     "div",
@@ -1303,7 +1303,7 @@ test "exp: apply_vattr VAction skipped" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode : @luna.Node[@js.Any, String] = @luna.h(
     "button",
     [("onclick", @luna.action(TestAction))],
@@ -1327,7 +1327,7 @@ test "exp: hydrate for with element items" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   let vnode = @luna.for_each(fn() {
     [@luna.h("li", [], [@luna.text("A")]), @luna.h("li", [], [@luna.text("B")])]
   })
@@ -1346,7 +1346,7 @@ test "exp: hydrate for replacing text with element" {
   @global_jsdom.register()
   defer exp_cleanup()
   let container = exp_create_container()
-  let logger = StringBuilder::new()
+  let logger = StringBuilder()
   // VNode expects elements
   let vnode = @luna.for_each(fn() {
     [@luna.h("span", [], [@luna.text("Item")])]

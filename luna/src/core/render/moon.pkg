@@ -1,7 +1,6 @@
 import {
   "mizchi/luna/core",
   "moonbitlang/core/bench",
-  "moonbitlang/core/json",
 }
 
 import {

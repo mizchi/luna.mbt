@@ -186,7 +186,7 @@ fn get_dir_name(path : String) -> String {
 ///|
 /// Convert snake_case to PascalCase
 fn snake_to_pascal(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut capitalize_next = true
   for c in s {
     if c == '_' {

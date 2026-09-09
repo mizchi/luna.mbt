@@ -2,11 +2,11 @@
 package "mizchi/luna/js/api_router_lite"
 
 // Values
-pub fn create_router(Array[Any], String) -> Any
+pub fn create_router(FixedArray[Any], String) -> Any
 
 pub fn route_page(String, Any) -> Any
 
-pub fn route_page_full(String, Any, String, Array[(String, String)]) -> Any
+pub fn route_page_full(String, Any, String, FixedArray[(String, String)]) -> Any
 
 pub fn route_page_titled(String, Any, String) -> Any
 
@@ -29,4 +29,3 @@ pub type Any
 // Type aliases
 
 // Traits
-

@@ -18,8 +18,16 @@ extern "js" fn js_getBool(state : @js.Any, key : String) -> Bool =
   #|(s, k) => (s && typeof s[k] === 'boolean') ? s[k] : false
 
 ///|
-extern "js" fn js_getArray(state : @js.Any, key : String) -> Array[String] =
+extern "js" fn js_getArray(state : @js.Any, key : String) -> FixedArray[String] =
   #|(s, k) => (s && Array.isArray(s[k])) ? s[k] : []
+
+///|
+/// `js_getArray` hands back the JS array as-is (`FixedArray`), but the list
+/// components below grow and reshape it, so materialize a growable `Array`.
+fn js_get_string_list(state : @js.Any, key : String) -> Array[String] {
+  let raw = js_getArray(state, key)
+  Array::makei(raw.length(), fn(i) { raw[i] })
+}
 
 // FFI to set data-hydrated attribute
 
@@ -212,7 +220,7 @@ pub fn hydrate_show_toggle(el : @js_dom.Element, state : @js.Any) -> Unit {
 /// For each list test component
 /// Tests: List rendering with for_each()
 pub fn hydrate_for_each(el : @js_dom.Element, state : @js.Any) -> Unit {
-  let items = @resource.signal(js_getArray(state, "items"))
+  let items = @resource.signal(js_get_string_list(state, "items"))
   // Store the pending input value separately since we need to capture it at add time
   let pending_input : Ref[String] = Ref("")
   let vnode = @luna.h("div", [], [
@@ -381,7 +389,7 @@ priv struct SortableItem {
 /// Tests: List reordering without destroying DOM instances
 pub fn hydrate_sortable_list(el : @js_dom.Element, state : @js.Any) -> Unit {
   // Parse initial items from state
-  let initial_items = js_getArray(state, "items")
+  let initial_items = js_get_string_list(state, "items")
   let items = initial_items.mapi(fn(i, label) { { id: i, label } })
   let items_sig = @resource.signal(items)
 

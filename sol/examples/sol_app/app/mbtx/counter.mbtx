@@ -8,7 +8,7 @@ extern "js" fn set_response(status : Int, content_type : String, body : String) 
 
 fn main {
   let count = get_env("QUERY_STRING")
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("<html><body><h1>Counter</h1><p>Count: ")
   buf.write_string(count)
   buf.write_string("</p></body></html>")

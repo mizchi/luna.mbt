@@ -341,7 +341,7 @@ fn action_handler_name_to_id(name : String) -> String? {
 
 ///|
 fn identifier_to_action_id(name : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut prev_dash = false
   let mut wrote_any = false
   for c in name {

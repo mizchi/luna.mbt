@@ -108,7 +108,7 @@ fn DoctorReport::summary(self : DoctorReport) -> String {
 
 ///|
 fn DoctorReport::render(self : DoctorReport) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("Sol doctor\n")
   buf.write_string("cwd: \{self.cwd}\n")
   buf.write_string("runtime: \{self.runtime}\n")

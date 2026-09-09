@@ -5,7 +5,7 @@
 ///|
 /// Generate CSS for base styles only (minified)
 pub fn generate_css() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for decl in registry.declarations {
     match registry.decl_to_class.get(decl) {
       Some(cls) => {
@@ -24,7 +24,7 @@ pub fn generate_css() -> String {
 ///|
 /// Generate CSS for base styles (pretty printed)
 pub fn generate_css_pretty() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for decl in registry.declarations {
     match registry.decl_to_class.get(decl) {
       Some(cls) => {
@@ -43,7 +43,7 @@ pub fn generate_css_pretty() -> String {
 ///|
 /// Generate complete CSS including pseudo-classes and media queries (minified)
 pub fn generate_full_css() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Base styles
   buf.write_string(generate_css())

@@ -161,7 +161,7 @@ fn get_component_route_chunks(route : ComponentRouteEntry) -> Array[String] {
 ///|
 /// Serialize ChunkManifest to JSON string
 pub fn ChunkManifest::to_json(self : ChunkManifest) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\n")
 
   // routes
@@ -218,7 +218,7 @@ fn strip_trailing_slash(path : String) -> String {
   }
   if path.has_suffix("/") {
     let len = path.length()
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     let mut idx = 0
     for c in path {
       if idx < len - 1 {
@@ -235,7 +235,7 @@ fn strip_trailing_slash(path : String) -> String {
 ///|
 /// Escape string for JSON
 fn json_string(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("\"")
   for c in s {
     match c {
@@ -258,7 +258,7 @@ fn json_string(s : String) -> String {
 ///|
 /// Serialize HierarchicalManifest to JSON string
 pub fn HierarchicalManifest::to_json(self : HierarchicalManifest) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\n")
 
   // version
@@ -331,7 +331,7 @@ pub fn HierarchicalManifest::to_json(self : HierarchicalManifest) -> String {
 ///|
 /// Serialize SegmentRef to JSON string
 pub fn SegmentRef::to_json(self : SegmentRef) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   buf.write_string("\"path\": ")
   buf.write_string(json_string(self.path))
@@ -350,7 +350,7 @@ pub fn SegmentRef::to_json(self : SegmentRef) -> String {
 ///|
 /// Serialize SegmentManifest to JSON string
 pub fn SegmentManifest::to_json(self : SegmentManifest) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\n")
 
   // base
@@ -403,7 +403,7 @@ pub fn SegmentManifest::to_json(self : SegmentManifest) -> String {
 ///|
 /// Serialize DynamicPattern to JSON string
 pub fn DynamicPattern::to_json(self : DynamicPattern) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   buf.write_string("\"pattern\": ")
   buf.write_string(json_string(self.pattern))

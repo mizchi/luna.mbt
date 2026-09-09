@@ -12,7 +12,7 @@ import {
   "mizchi/syntree@0.2.3",
   "mizchi/x@0.3.0",
   "moonbitlang/async@0.20.1",
-  "moonbitlang/x@0.4.46",
+  "moonbitlang/x@0.4.50",
 }
 
 readme = "README.md"
