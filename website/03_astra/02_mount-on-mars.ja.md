@@ -56,8 +56,8 @@ app.listen(port=3000)
 
 ```moonbit
 for url in mw.list_urls() {
-  let response = @testing.invoke(mw.handler(), path=url)
-  write_to_disk(out, url, response.body)
+  let res = mw.render_url(url)
+  write_to_disk(out, url, res.body)
 }
 ```
 

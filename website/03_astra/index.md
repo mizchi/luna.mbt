@@ -11,7 +11,7 @@ Astra is a mountable [Mars](https://mooncakes.io/docs/mizchi/mars/) middleware f
 
 ## What makes Astra different
 
-The middleware and the static dump go through the **same** `Middleware::handler()`. The build crawler calls `@testing.invoke(handler, path=url)` for each entry the middleware exposes and writes the response body to disk. So if a page renders correctly via `astra dev`, it is also correct in the static dump — there is no second renderer to keep in sync.
+The middleware and the static dump render through the **same** `Middleware`. `astra dev` serves it over HTTP; the build crawler calls `Middleware::render_url(url)` for each entry the middleware exposes and writes the response body to disk — no Mars `Server`, no localhost listener. So if a page renders correctly via `astra dev`, it is also correct in the static dump — there is no second renderer to keep in sync.
 
 That property gives Astra two postures:
 
@@ -27,7 +27,7 @@ That property gives Astra two postures:
 | Full SSR app with file-based routing, API routes, server actions | [**Sol**](/sol/) |
 | Both, in one repository | Sol with Astra mounted under `/docs/*` |
 
-Astra has no edge to Sol — `deps: mars + markdown + luna`. Sol pulls Astra in for its docs surface but the inverse is not true.
+Astra has no edge to Sol: its dependency graph is built on mars, markdown and luna (plus support packages), and never reaches Sol. Sol pulls Astra in for its docs surface but the inverse is not true.
 
 ## Sections
 
@@ -43,9 +43,9 @@ Library:
 // moon.mod.json
 {
   "deps": {
-    "mizchi/astra": "0.22.3",
+    "mizchi/astra": "0.23.2",
     "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.22.3"
+    "mizchi/luna": "0.23.2"
   }
 }
 ```
@@ -55,7 +55,7 @@ CLI:
 ```sh
 moon install mizchi/astra/cmd/astra   # → $MOON_HOME/bin/astra
 # or via npm if you have node but not moon
-pnpm add -g @luna_ui/astra            # 0.22.3
+pnpm add -g @luna_ui/astra            # 0.23.0
 ```
 
 ## Quick taste
