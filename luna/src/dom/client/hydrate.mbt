@@ -1000,7 +1000,7 @@ pub fn bind_actions_from_dom(
 ///|
 extern "js" fn query_all_with_action_attrs(
   container : @js_dom.Element,
-) -> Array[@js.Any] =
+) -> FixedArray[@js.Any] =
   #| (container) => {
   #|   const result = [];
   #|   const walk = (node) => {
@@ -1022,7 +1022,7 @@ extern "js" fn query_all_with_action_attrs(
 ///|
 extern "js" fn get_action_attrs(
   elem : @js_dom.Element,
-) -> Array[(String, String)] =
+) -> FixedArray[(String, String)] =
   #| (elem) => {
   #|   const result = [];
   #|   const attrs = elem.attributes;

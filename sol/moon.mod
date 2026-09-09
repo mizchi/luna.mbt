@@ -5,7 +5,7 @@ version = "0.23.2"
 import {
   "moonbitlang/yacc@0.7.19",
   "mizchi/astra@0.23.2",
-  "mizchi/luna@0.23.3",
+  "mizchi/luna@0.23.2",
   "moonbitlang/async@0.21.2",
   "moonbitlang/x@0.5.1",
   "moonbitlang/parser@0.3.18",

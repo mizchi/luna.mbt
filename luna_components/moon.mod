@@ -3,7 +3,7 @@ name = "mizchi/luna_components"
 version = "0.23.2"
 
 import {
-  "mizchi/luna@0.23.3",
+  "mizchi/luna@0.23.2",
   "mizchi/signals@0.6.5",
   "mizchi/js@0.12.2",
   "mizchi/js_browser@0.12.2",

@@ -1,5 +1,4 @@
 import {
-  "moonbitlang/core/json",
   "moonbitlang/core/bench",
   "mizchi/luna",
   "mizchi/astra/content/markdown",

@@ -404,7 +404,7 @@ pub extern "js" fn HandlerMap::resize(
 /// Keys are already lowercase event names, tag 2 = Handler variant
 extern "js" fn HandlerMap::to_attrs(
   self : HandlerMap,
-) -> Array[(String, AttrValue)] =
+) -> FixedArray[(String, AttrValue)] =
   #|(m) => Object.entries(m).map(([k, v]) => ({ _0: k, _1: { $tag: 2, _0: v } }))
 
 // =============================================================================

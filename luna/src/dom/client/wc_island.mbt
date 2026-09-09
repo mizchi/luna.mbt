@@ -386,7 +386,7 @@ pub fn hydrate_auto_dom(
 /// Extract all <style> elements from a container
 extern "js" fn extract_style_elements(
   container : @js_dom.Element,
-) -> Array[@js_dom.Node] =
+) -> FixedArray[@js_dom.Node] =
   #| (container) => {
   #|   const styles = [];
   #|   container.querySelectorAll('style').forEach(s => {

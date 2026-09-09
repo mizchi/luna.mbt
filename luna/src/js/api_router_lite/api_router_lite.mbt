@@ -22,12 +22,12 @@ extern "js" fn _route_page_full(
   path : String,
   component : Any,
   title : String,
-  meta : Array[(String, String)],
+  meta : FixedArray[(String, String)],
 ) -> Any =
   #| (path, component, title, meta) => ({ $tag: 0, path, component, title, meta: meta || [] })
 
 ///|
-extern "js" fn _create_router(routes : Array[Any], base : String) -> Any =
+extern "js" fn _create_router(routes : FixedArray[Any], base : String) -> Any =
   #| (routes, base) => {
   #|   const normalizePath = (input) => {
   #|     if (!input) return "/";
@@ -215,14 +215,14 @@ pub fn route_page_full(
   path : String,
   component : Any,
   title : String,
-  meta : Array[(String, String)],
+  meta : FixedArray[(String, String)],
 ) -> Any {
   _route_page_full(path, component, title, meta)
 }
 
 ///|
 /// Create a BrowserRouter from routes definition
-pub fn create_router(routes : Array[Any], base : String) -> Any {
+pub fn create_router(routes : FixedArray[Any], base : String) -> Any {
   _create_router(routes, base)
 }
 
