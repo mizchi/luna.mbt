@@ -162,7 +162,7 @@ fn contract_client_assets_has(
   assets : Array[ContractClientAsset],
   component : String,
 ) -> Bool {
-  contract_client_asset_url(assets, component).is_some()
+  contract_client_asset_url(assets, component) is Some(_)
 }
 
 ///|

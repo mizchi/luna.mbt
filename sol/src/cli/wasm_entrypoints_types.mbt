@@ -113,7 +113,7 @@ pub fn WasmMountEntry::new(
 /// Parse runtime string for config/CLI.
 /// Unknown values default to Wagi for safe fallback.
 pub fn parse_wasm_entrypoint_runtime(s : String) -> WasmEntrypointRuntime {
-  match s.to_lower().trim_space() {
+  match s.to_lower().trim() {
     "wagi" => Wagi
     "wasi-cli" | "wasi" | "wasip2" => WasiCli
     "component" | "wasm-component" => Component
@@ -124,7 +124,7 @@ pub fn parse_wasm_entrypoint_runtime(s : String) -> WasmEntrypointRuntime {
 ///|
 /// Parse runtime string strictly (returns None for unknown values).
 pub fn parse_wasm_entrypoint_runtime_opt(s : String) -> WasmEntrypointRuntime? {
-  match s.to_lower().trim_space() {
+  match s.to_lower().trim() {
     "wagi" => Some(Wagi)
     "wasi-cli" | "wasi" | "wasip2" => Some(WasiCli)
     "component" | "wasm-component" => Some(Component)
@@ -255,7 +255,7 @@ fn parse_env_map(entry_obj : Map[String, Json]) -> Map[String, String] {
 
 ///|
 fn normalize_http_method(raw : String) -> String? {
-  let normalized = raw.trim_space().to_string().to_upper()
+  let normalized = raw.trim().to_owned().to_upper()
   if normalized == "GET" ||
     normalized == "POST" ||
     normalized == "PUT" ||

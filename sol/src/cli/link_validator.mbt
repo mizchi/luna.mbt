@@ -55,13 +55,13 @@ pub fn extract_internal_links(content : String) -> Array[String] {
         }
         if k < len {
           // Extract raw URL substring (may include title like "url \"title\"")
-          let raw = content.substring(start=paren_start, end=k)
+          let raw = content[paren_start:k].to_owned()
           // Split on first space to get URL part (title in quotes follows)
           let url = match raw.find(" ") {
-            Some(space_idx) => raw.substring(end=space_idx)
+            Some(space_idx) => raw[:space_idx].to_owned()
             None => raw
           }
-          let trimmed = url.trim(chars=" \t\n\r").to_string()
+          let trimmed = url.trim(chars=" \t\n\r").to_owned()
           if is_internal_link(trimmed) {
             links.push(normalize_link(trimmed))
           }
@@ -94,8 +94,8 @@ pub fn extract_internal_links(content : String) -> Array[String] {
             k += 1
           }
           if k < len {
-            let url = content.substring(start=url_start, end=k)
-            let trimmed = url.trim(chars=" \t\n\r").to_string()
+            let url = content[url_start:k].to_owned()
+            let trimmed = url.trim(chars=" \t\n\r").to_owned()
             if is_internal_link(trimmed) {
               links.push(normalize_link(trimmed))
             }
@@ -142,12 +142,12 @@ fn is_internal_link(url : String) -> Bool {
 fn normalize_link(url : String) -> String {
   // Strip fragment
   let without_fragment = match url.find("#") {
-    Some(idx) => url.substring(end=idx)
+    Some(idx) => url[:idx].to_owned()
     None => url
   }
   // Strip query string
   let without_query = match without_fragment.find("?") {
-    Some(idx) => without_fragment.substring(end=idx)
+    Some(idx) => without_fragment[:idx].to_owned()
     None => without_fragment
   }
   without_query

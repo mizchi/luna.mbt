@@ -218,26 +218,20 @@ fn extract_struct_fields(raw : String) -> Array[(String, String)] {
     Some(i) => i
     None => return fields
   }
-  let body = raw.substring(start~, end~)
+  let body = raw[start:end].to_owned()
   // Split by newlines, parse "name : Type"
   for line_view in body.split("\n") {
-    let line = line_view.to_string().trim_space().to_string()
+    let line = line_view.trim().to_owned()
     if line.is_empty() || line.has_prefix("//") {
       continue
     }
     match line.find(":") {
       Some(colon) => {
-        let name = line.substring(end=colon).trim_space().to_string()
-        let mut type_str = line
-          .substring(start=colon + 1)
-          .trim_space()
-          .to_string()
+        let name = line[:colon].trim().to_owned()
+        let mut type_str = line[colon + 1:].trim().to_owned()
         // Remove trailing comma if present
         if type_str.has_suffix(",") {
-          type_str = type_str
-            .substring(end=type_str.length() - 1)
-            .trim_space()
-            .to_string()
+          type_str = type_str[:type_str.length() - 1].trim().to_owned()
         }
         if !name.is_empty() && !type_str.is_empty() {
           fields.push((name, type_str))
@@ -662,22 +656,22 @@ fn typescript_property_key(value : String) -> String {
 
 ///|
 fn moonbit_type_is_top_level_optional(type_str : String) -> Bool {
-  type_str.trim_space().to_string().has_suffix("?")
+  type_str.trim().to_owned().has_suffix("?")
 }
 
 ///|
 fn moonbit_type_to_typescript_type(type_str : String) -> String {
-  let type_name = type_str.trim_space().to_string()
+  let type_name = type_str.trim().to_owned()
   if type_name.has_suffix("?") {
-    let inner = type_name.substring(end=type_name.length() - 1)
+    let inner = type_name[:type_name.length() - 1].to_owned()
     return moonbit_type_to_typescript_type(inner) + " | null"
   }
   if type_name.has_prefix("Array[") && type_name.has_suffix("]") {
-    let inner = type_name.substring(start=6, end=type_name.length() - 1)
+    let inner = type_name[6:type_name.length() - 1].to_owned()
     return typescript_array_type(moonbit_type_to_typescript_type(inner))
   }
   if type_name.has_prefix("Map[") && type_name.has_suffix("]") {
-    let inner = type_name.substring(start=4, end=type_name.length() - 1)
+    let inner = type_name[4:type_name.length() - 1].to_owned()
     let params = split_params(inner)
     if params.length() == 2 {
       let key = moonbit_type_to_typescript_type(params[0])
@@ -732,7 +726,7 @@ pub fn split_params(params_str : String) -> Array[String] {
       }
       ',' =>
         if depth == 0 {
-          let s = current.to_string().trim_space().to_string()
+          let s = current.to_string().trim().to_owned()
           if !s.is_empty() {
             result.push(s)
           }
@@ -744,7 +738,7 @@ pub fn split_params(params_str : String) -> Array[String] {
     }
   }
   // Add last param
-  let s = current.to_string().trim_space().to_string()
+  let s = current.to_string().trim().to_owned()
   if !s.is_empty() {
     result.push(s)
   }
@@ -787,7 +781,7 @@ pub fn generate_params_with_names(signature : String) -> (String, String) {
             start=paren_start + 1,
             end=paren_end,
           )
-          if params_str.trim_space().to_string().is_empty() {
+          if params_str.trim().to_owned().is_empty() {
             // No params: () -> RetType
             (signature, "()")
           } else {

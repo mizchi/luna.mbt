@@ -188,7 +188,7 @@ pub struct ContractTsConfig {
   package_path : String
   import_alias : String?
   client_url : String?
-} derive(Eq, Show, @debug.Debug)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct FuncExport {
   name : String
@@ -332,4 +332,3 @@ pub fn WasmMountEntry::new(String, String, Array[String], WasmEntrypointRuntime,
 pub using @scaffold_templates {type TemplateFile}
 
 // Traits
-

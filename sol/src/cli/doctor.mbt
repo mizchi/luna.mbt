@@ -242,24 +242,21 @@ fn[FS : @env.FileSystem] collect_mooncake_versions(
 /// `sol --version`. Returns `None` if the binary is not on PATH or the
 /// output is unexpected (e.g. recursion guard prints something else).
 fn detect_launcher_version() -> String? {
-  let out = try? @child_process.execSync(
-    "sol --version",
-    encoding="utf8",
-    timeout=2000,
-  )
-  match out {
-    Ok(raw) => {
-      let trimmed = raw.trim_space().to_string()
-      // Expect "sol 0.22.3" or just "0.22.3".
-      if trimmed.has_prefix("sol ") {
-        Some(trimmed.substring(start=4).trim_space().to_string())
-      } else if trimmed == "" {
-        None
-      } else {
-        Some(trimmed)
-      }
-    }
-    Err(_) => None
+  let raw = try @child_process.execSync(
+      "sol --version",
+      encoding="utf8",
+      timeout=2000,
+    ) catch {
+    _ => return None
+  }
+  let trimmed = raw.trim().to_owned()
+  // Expect "sol 0.22.3" or just "0.22.3".
+  if trimmed.has_prefix("sol ") {
+    Some(trimmed[4:].trim().to_owned())
+  } else if trimmed == "" {
+    None
+  } else {
+    Some(trimmed)
   }
 }
 

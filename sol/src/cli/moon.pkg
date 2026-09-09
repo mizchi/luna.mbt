@@ -34,6 +34,6 @@ import {
   "moonbitlang/core/test",
 } for "wbtest"
 
-warnings = "-27-20"
+warnings = "-27"
 
 supported_targets = "js"

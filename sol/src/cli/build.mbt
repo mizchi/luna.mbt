@@ -201,7 +201,7 @@ async fn[FS : @env.FileSystem] run_build_command_with_fs(
   }
   let wasm_runtime_override_raw : String? = if result.values.contains("runtime") {
     let value : String = result.values["runtime"].cast()
-    if value.trim_space().length() == 0 {
+    if value.trim().length() == 0 {
       None
     } else {
       Some(value)

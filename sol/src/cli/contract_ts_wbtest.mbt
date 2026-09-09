@@ -76,7 +76,7 @@ test "contract_manifest_json_from_ts_source: emits parseable Sol contract manife
     },
   ])
   guard result is Ok(json_source) else { panic() }
-  assert_true(parse_contract_manifest_json(json_source).is_some())
+  assert_true(parse_contract_manifest_json(json_source) is Some(_))
   let json : Json = @json.parse(json_source) catch { _ => panic() }
   guard json is Object(obj) else { panic() }
   guard obj.get("components") is Some(Array(components)) else { panic() }

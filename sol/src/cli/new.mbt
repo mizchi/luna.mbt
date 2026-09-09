@@ -34,7 +34,7 @@ fn run_new_command(args : Array[String]) -> Unit {
 ///|
 fn extract_project_basename(project_name : String) -> String {
   let trimmed = if project_name.length() > 1 && project_name.has_suffix("/") {
-    project_name.substring(end=project_name.length() - 1)
+    project_name[:project_name.length() - 1].to_owned()
   } else {
     project_name
   }
@@ -42,7 +42,7 @@ fn extract_project_basename(project_name : String) -> String {
   if parts.is_empty() {
     project_name
   } else {
-    let base = parts[parts.length() - 1].to_string()
+    let base = parts[parts.length() - 1].to_owned()
     if base.is_empty() {
       project_name
     } else {

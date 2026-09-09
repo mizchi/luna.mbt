@@ -18,7 +18,7 @@ test "parse_sol_config: valid config" {
     #|  "output": "app/__gen__"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.islands.length(), 1)
   assert_eq(c.islands[0], "app/client/*")
@@ -34,7 +34,7 @@ test "parse_sol_config: default output" {
     #|  "routes": "app/server"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().output, "app/__gen__")
 }
 
@@ -42,7 +42,7 @@ test "parse_sol_config: default output" {
 test "parse_sol_config: invalid json" {
   let json = "not valid json"
   let config = parse_sol_config(json)
-  assert_true(config.is_none())
+  assert_true(config is None)
 }
 
 // =============================================================================
@@ -105,7 +105,7 @@ test "extract_package_path: valid path" {
 test "extract_package_path: no package" {
   let content = "pub fn render() -> Unit"
   let path = extract_package_path(content)
-  assert_true(path.is_none())
+  assert_true(path is None)
 }
 
 // =============================================================================
@@ -211,7 +211,7 @@ test "find_matching_paren: nested" {
 test "find_matching_paren: not found" {
   let s = "(abc"
   let idx = find_matching_paren(s, 0)
-  assert_true(idx.is_none())
+  assert_true(idx is None)
 }
 
 ///|
@@ -389,7 +389,7 @@ test "parse_sol_config: with runtime node" {
     #|  "runtime": "node"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().runtime, parse_runtime("node"))
 }
 
@@ -402,7 +402,7 @@ test "parse_sol_config: with runtime cloudflare" {
     #|  "runtime": "cloudflare"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().runtime, parse_runtime("cloudflare"))
 }
 
@@ -415,7 +415,7 @@ test "parse_sol_config: with runtime deno" {
     #|  "runtime": "deno"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().runtime, parse_runtime("deno"))
 }
 
@@ -428,7 +428,7 @@ test "parse_sol_config: with runtime bun" {
     #|  "runtime": "bun"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().runtime, parse_runtime("bun"))
 }
 
@@ -440,7 +440,7 @@ test "parse_sol_config: default runtime is node" {
     #|  "routes": "app/server"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().runtime, parse_runtime("node"))
 }
 
@@ -576,7 +576,7 @@ test "parse_sol_config: with staticDirs" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.static_dirs.length(), 1)
   assert_eq(c.static_dirs[0].path_prefix, "/docs")
@@ -606,7 +606,7 @@ test "parse_sol_config: staticDirs with i18n" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.static_dirs.length(), 1)
   let i18n = c.static_dirs[0].i18n
@@ -637,7 +637,7 @@ test "parse_sol_config: staticDirs with navigation config" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   let nav = c.static_dirs[0].navigation
   assert_true(nav.spa)
@@ -660,7 +660,7 @@ test "parse_sol_config: staticDirs with sidebar auto" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_true(c.static_dirs[0].sidebar is @astra.SidebarConfig::Auto)
 }
@@ -679,7 +679,7 @@ test "parse_sol_config: staticDirs defaults" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   let entry = c.static_dirs[0]
   // Default title
@@ -704,7 +704,7 @@ test "parse_sol_config: multiple staticDirs" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.static_dirs.length(), 2)
   assert_eq(c.static_dirs[0].path_prefix, "/docs")
@@ -723,7 +723,7 @@ test "parse_sol_config: staticDirs missing required fields" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   // Entry should be skipped due to missing source_dir
   assert_eq(c.static_dirs.length(), 0)
@@ -738,7 +738,7 @@ test "parse_sol_config: empty staticDirs" {
     #|  "staticDirs": []
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().static_dirs.length(), 0)
 }
 
@@ -750,7 +750,7 @@ test "parse_sol_config: no staticDirs field" {
     #|  "routes": "app/server"
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   assert_eq(config.unwrap().static_dirs.length(), 0)
 }
 
@@ -769,7 +769,7 @@ test "parse_sol_config: staticDirs with exclude" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.static_dirs[0].exclude.length(), 2)
   assert_eq(c.static_dirs[0].exclude[0], "internal")
@@ -794,7 +794,7 @@ test "parse_sol_config: staticDirs with theme" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   let theme = c.static_dirs[0].theme
   assert_eq(theme.primary_color, Some("#ff6600"))
@@ -820,7 +820,7 @@ test "parse_sol_config: staticDirs with ogp" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   let ogp = c.static_dirs[0].ogp
   assert_eq(ogp.site_url, Some("https://example.com"))
@@ -849,7 +849,7 @@ test "parse_sol_config: with wasmEntryPoints" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.wasm_entrypoints.length(), 1)
   let ep = c.wasm_entrypoints[0]
@@ -877,7 +877,7 @@ test "parse_sol_config: wasmEntryPoints defaults" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.wasm_entrypoints.length(), 1)
   let ep = c.wasm_entrypoints[0]
@@ -907,7 +907,7 @@ test "parse_sol_config: wasmEntryPoints with env and wac source" {
     #|  ]
     #|}
   let config = parse_sol_config(json)
-  assert_true(config.is_some())
+  assert_true(config is Some(_))
   let c = config.unwrap()
   assert_eq(c.wasm_entrypoints.length(), 1)
   let ep = c.wasm_entrypoints[0]
@@ -1196,7 +1196,7 @@ test "template_routes_moon_pkg: user-managed has is-main, minimal imports" {
 test "generate_templates: includes app/server/main.mbt" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let main_mbt = find_template_content(templates, "app/server/main.mbt")
-  assert_true(main_mbt.is_some())
+  assert_true(main_mbt is Some(_))
   assert_true(main_mbt.unwrap().contains("async fn main"))
 }
 
@@ -1372,7 +1372,7 @@ test "template_client_api_tools_mbt: scaffolds worker app UX affordances" {
 test "generate_templates: includes api tools island" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   assert_true(
-    find_template_content(templates, "app/client/api_tools.mbt").is_some(),
+    find_template_content(templates, "app/client/api_tools.mbt") is Some(_),
   )
 }
 

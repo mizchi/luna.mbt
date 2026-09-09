@@ -67,7 +67,7 @@ fn extract_client_props_type(signature : String) -> String? {
       match find_matching_paren(signature, start) {
         None => None
         Some(end) => {
-          let params_str = signature.substring(start=start + 1, end~)
+          let params_str = signature[start + 1:end].to_owned()
           let params = split_params(params_str)
           if params.length() != 1 {
             return None
@@ -85,9 +85,9 @@ fn extract_client_props_type(signature : String) -> String? {
 
 ///|
 fn normalize_param_type(param : String) -> String {
-  let trimmed = param.trim_space().to_string()
+  let trimmed = param.trim().to_owned()
   match trimmed.find(":") {
-    Some(colon) => trimmed.substring(start=colon + 1).trim_space().to_string()
+    Some(colon) => trimmed[colon + 1:].trim().to_owned()
     None => trimmed
   }
 }
@@ -122,11 +122,11 @@ fn extract_signature_return_type(signature : String) -> String? {
       match find_matching_paren(signature, start) {
         None => None
         Some(end) => {
-          let tail = signature.substring(start=end + 1)
+          let tail = signature[end + 1:].to_owned()
           match tail.find("->") {
             None => None
             Some(arrow) => {
-              let ret = tail.substring(start=arrow + 2).trim_space().to_string()
+              let ret = tail[arrow + 2:].trim().to_owned()
               Some(strip_raise_suffix(ret))
             }
           }
@@ -138,7 +138,7 @@ fn extract_signature_return_type(signature : String) -> String? {
 ///|
 fn strip_raise_suffix(type_name : String) -> String {
   match type_name.find(" raise ") {
-    Some(idx) => type_name.substring(end=idx).trim_space().to_string()
+    Some(idx) => type_name[:idx].trim().to_owned()
     None => type_name
   }
 }
@@ -152,9 +152,9 @@ fn strip_raise_suffix(type_name : String) -> String {
 /// Removes "island_client_" or "island_" prefix
 pub fn extract_island_name(name : String) -> String {
   if name.has_prefix("island_client_") {
-    name.substring(start=14)
+    name[14:].to_owned()
   } else if name.has_prefix("island_") {
-    name.substring(start=7)
+    name[7:].to_owned()
   } else {
     name
   }
@@ -173,7 +173,7 @@ pub fn generate_import_alias(
   if parts.length() == 0 {
     return "unknown"
   }
-  let last = parts[parts.length() - 1].to_string()
+  let last = parts[parts.length() - 1].to_owned()
   match category {
     "island" => "island_\{last}"
     "page" => "page_\{last}"
@@ -225,7 +225,7 @@ fn collect_island_functions(
     // Use last part of package path as alias
     let parts = pkg_path.split("/").to_array()
     let import_alias = if parts.length() > 0 {
-      parts[parts.length() - 1].to_string()
+      parts[parts.length() - 1].to_owned()
     } else {
       "unknown"
     }
@@ -308,7 +308,7 @@ fn[FS : @env.FileSystem] collect_island_structs_from_source_with_fs(
 pub fn extract_component_name_from_props(props_name : String) -> String {
   // Remove "Props" suffix
   let name = if props_name.has_suffix("Props") {
-    props_name.substring(end=props_name.length() - 5)
+    props_name[:props_name.length() - 5].to_owned()
   } else {
     props_name
   }
@@ -321,7 +321,7 @@ pub fn extract_component_name_from_props(props_name : String) -> String {
         buf.write_char('_')
       }
       // Convert to lowercase
-      buf.write_char(Char::from_int(c.to_int() + 32))
+      buf.write_char((c.to_int() + 32).unsafe_to_char())
     } else {
       buf.write_char(c)
     }

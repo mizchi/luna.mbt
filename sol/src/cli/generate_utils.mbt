@@ -177,7 +177,7 @@ pub fn SolConfig::uses_external_client_bundle(self : SolConfig) -> Bool {
 fn get_dir_name(path : String) -> String {
   let parts = path.split("/").to_array()
   if parts.length() > 0 {
-    parts[parts.length() - 1].to_string()
+    parts[parts.length() - 1].to_owned()
   } else {
     "unknown"
   }
@@ -193,7 +193,7 @@ fn snake_to_pascal(s : String) -> String {
       capitalize_next = true
     } else if capitalize_next {
       if c >= 'a' && c <= 'z' {
-        buf.write_char(Char::from_int(c.to_int() - 32))
+        buf.write_char((c.to_int() - 32).unsafe_to_char())
       } else {
         buf.write_char(c)
       }
@@ -225,8 +225,8 @@ fn[FS : @env.FileSystem] get_routes_package_path_with_fs(
     // If source is "app", strip "app/" prefix for backward compatibility.
     let routes_suffix = if source == "." || source == "" {
       routes_dir
-    } else if routes_dir.starts_with(source + "/") {
-      routes_dir.substring(start=source.length() + 1)
+    } else if routes_dir.has_prefix(source + "/") {
+      routes_dir[source.length() + 1:].to_owned()
     } else {
       routes_dir
     }
