@@ -47,7 +47,7 @@ fn build_package_path(
   let relative_path = if source_dir.length() > 0 &&
     source_dir != "." &&
     package_dir.has_prefix(source_dir + "/") {
-    package_dir.substring(start=source_dir.length() + 1)
+    package_dir[source_dir.length() + 1:].to_owned()
   } else {
     package_dir
   }

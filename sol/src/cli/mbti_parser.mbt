@@ -12,8 +12,8 @@ pub fn parse_mbti_imports(content : String) -> Map[String, String] {
   let lines = content.split("\n").to_array()
   let mut in_import = false
   for line in lines {
-    let line_str = line.to_string()
-    let trimmed = line_str.trim_space().to_string()
+    let line_str = line.to_owned()
+    let trimmed = line_str.trim().to_owned()
     if trimmed == "import(" {
       in_import = true
       continue
@@ -35,7 +35,7 @@ pub fn parse_mbti_imports(content : String) -> Map[String, String] {
           // Extract alias (last part of path)
           let parts = pkg_path.split("/").to_array()
           if parts.length() > 0 {
-            let alias_part = parts[parts.length() - 1].to_string()
+            let alias_part = parts[parts.length() - 1].to_owned()
             result[alias_part] = pkg_path
           }
         }
@@ -80,8 +80,8 @@ pub fn parse_mbti(content : String) -> Array[(String, String)] {
   let imports = parse_mbti_imports(content)
   let lines = content.split("\n").to_array()
   for line in lines {
-    let line_str = line.to_string()
-    let trimmed = line_str.trim_start(chars=" \t").to_string()
+    let line_str = line.to_owned()
+    let trimmed = line_str.trim_start(chars=" \t").to_owned()
     // Look for "pub fn name(...) -> RetType"
     if trimmed.has_prefix("pub fn ") {
       let rest = trimmed.unsafe_substring(start=7, end=trimmed.length()) // After "pub fn "
@@ -122,7 +122,7 @@ fn[FS : @env.FileSystem] find_mbti_files_with_fs(
     // Check if pattern ends with /* (directory glob)
     if pattern.has_suffix("/*") {
       // List subdirectories
-      let parent = base_path.substring(end=base_path.length() - 2)
+      let parent = base_path[:base_path.length() - 2].to_owned()
       if fs.exists_sync(parent) {
         try {
           let entries = fs.readdir_sync(parent)
@@ -132,7 +132,7 @@ fn[FS : @env.FileSystem] find_mbti_files_with_fs(
             if fs.exists_sync(mbti_path) {
               let content = fs.read_file_sync(mbti_path)
               // For glob patterns, use the actual subdirectory as the pattern
-              let sub_pattern = pattern.substring(end=pattern.length() - 2) +
+              let sub_pattern = pattern[:pattern.length() - 2].to_owned() +
                 "/" +
                 entry.to_string()
               result.push((sub_pattern, entry_path, content))
@@ -163,8 +163,8 @@ fn[FS : @env.FileSystem] find_mbti_files_with_fs(
 pub fn extract_package_path(mbti_content : String) -> String? {
   let lines = mbti_content.split("\n").to_array()
   for line in lines {
-    let line_str = line.to_string()
-    let trimmed = line_str.trim_start(chars=" \t").to_string()
+    let line_str = line.to_owned()
+    let trimmed = line_str.trim_start(chars=" \t").to_owned()
     if trimmed.has_prefix("package \"") {
       let start = 9 // len of 'package "'
       let after_prefix = trimmed.unsafe_substring(start~, end=trimmed.length())

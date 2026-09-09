@@ -41,7 +41,7 @@ pub struct ContractTsConfig {
   import_alias : String?
   /// External client bundle URL for the component
   client_url : String?
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 
 ///|
 /// Sol configuration (new architecture)
@@ -304,14 +304,14 @@ fn extract_quoted_values(
 /// Extract action IDs from `let name : @action.ActionHandler` bindings.
 fn extract_action_handler_ids(content : String, result : Array[String]) -> Unit {
   for line_view in content.split("\n") {
-    let line = line_view.to_string().trim_space().to_string()
+    let line = line_view.trim().to_owned()
     if !line.has_prefix("let ") || !line.contains("@action.ActionHandler") {
       continue
     }
-    let rest = line.substring(start=4)
+    let rest = line[4:].to_owned()
     match rest.find(":") {
       Some(colon) => {
-        let name = rest.substring(end=colon).trim_space().to_string()
+        let name = rest[:colon].trim().to_owned()
         match action_handler_name_to_id(name) {
           Some(id) => if !result.contains(id) { result.push(id) }
           None => ()
@@ -325,9 +325,9 @@ fn extract_action_handler_ids(content : String, result : Array[String]) -> Unit 
 ///|
 fn action_handler_name_to_id(name : String) -> String? {
   let base = if name.has_suffix("_handler") {
-    name.substring(end=name.length() - "_handler".length())
+    name[:name.length() - "_handler".length()].to_owned()
   } else if name.has_suffix("_action") {
-    name.substring(end=name.length() - "_action".length())
+    name[:name.length() - "_action".length()].to_owned()
   } else {
     return None
   }
@@ -354,7 +354,7 @@ fn identifier_to_action_id(name : String) -> String {
       if !prev_dash && wrote_any {
         buf.write_char('-')
       }
-      buf.write_char(Char::from_int(c.to_int() + 32))
+      buf.write_char((c.to_int() + 32).unsafe_to_char())
       prev_dash = false
       wrote_any = true
     } else {
@@ -365,7 +365,7 @@ fn identifier_to_action_id(name : String) -> String {
   }
   let s = buf.to_string()
   if s.has_suffix("-") {
-    s.substring(end=s.length() - 1)
+    s[:s.length() - 1].to_owned()
   } else {
     s
   }

@@ -22,7 +22,7 @@ fn[FS : @env.FileSystem] find_moon_mod_path_with_fs(
 
 ///|
 fn[FS : @env.FileSystem] has_moon_mod_with_fs(fs : FS, cwd : String) -> Bool {
-  find_moon_mod_path_with_fs(fs, cwd).is_some()
+  find_moon_mod_path_with_fs(fs, cwd) is Some(_)
 }
 
 ///|

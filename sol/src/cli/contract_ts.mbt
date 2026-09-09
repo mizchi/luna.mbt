@@ -134,7 +134,7 @@ fn ContractManifest::to_json(self : ContractManifest) -> Json {
   }
   let actions : Array[Json] = []
   for action in self.actions {
-    if action.request_shape.is_none() && action.response_shape.is_none() {
+    if action.request_shape is None && action.response_shape is None {
       actions.push(action.id.to_json())
     } else {
       let obj : Map[String, Json] = { "id": action.id.to_json() }

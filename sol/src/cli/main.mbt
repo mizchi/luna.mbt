@@ -58,7 +58,7 @@ pub async fn run_main(args : Array[String]) -> Unit {
   }
   // First non-flag argument is the command
   let command = first_arg
-  let command_args = if args.length() > 1 { args[1:].to_array() } else { [] }
+  let command_args = if args.length() > 1 { args[1:].to_owned() } else { [] }
   // Dispatch to command handlers
   match command {
     "new" => run_new_command(command_args)

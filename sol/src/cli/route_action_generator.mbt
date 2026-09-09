@@ -32,7 +32,7 @@ fn push_param_spec(
 ///|
 fn normalize_colon_param_name(raw : String) -> String {
   match raw.find("{") {
-    Some(idx) => raw.substring(end=idx)
+    Some(idx) => raw[:idx].to_owned()
     None => raw
   }
 }
@@ -44,42 +44,33 @@ fn normalize_colon_param_name(raw : String) -> String {
 fn extract_param_specs_from_path(path : String) -> Array[RouteParamSpec] {
   let specs : Array[RouteParamSpec] = []
   for segment_view in path.split("/") {
-    let segment = segment_view.to_string()
+    let segment = segment_view.to_owned()
     let param_segment = if segment.has_prefix("@") && segment.length() > 1 {
-      segment.substring(start=1)
+      segment[1:].to_owned()
     } else {
       segment
     }
     if param_segment.has_prefix(":") && param_segment.length() > 1 {
       // :param style
-      let name = normalize_colon_param_name(param_segment.substring(start=1))
+      let name = normalize_colon_param_name(param_segment[1:].to_owned())
       push_param_spec(specs, name, false)
     } else if param_segment.has_prefix("[[...") &&
       param_segment.has_suffix("]]") &&
       param_segment.length() > 7 {
       // [[...param]] optional catch-all
-      let name = param_segment.substring(
-        start=5,
-        end=param_segment.length() - 2,
-      )
+      let name = param_segment[5:param_segment.length() - 2].to_owned()
       push_param_spec(specs, name, true)
     } else if param_segment.has_prefix("[...") &&
       param_segment.has_suffix("]") &&
       param_segment.length() > 5 {
       // [...param] catch-all
-      let name = param_segment.substring(
-        start=4,
-        end=param_segment.length() - 1,
-      )
+      let name = param_segment[4:param_segment.length() - 1].to_owned()
       push_param_spec(specs, name, false)
     } else if param_segment.has_prefix("[") &&
       param_segment.has_suffix("]") &&
       param_segment.length() > 2 {
       // [param] style
-      let name = param_segment.substring(
-        start=1,
-        end=param_segment.length() - 1,
-      )
+      let name = param_segment[1:param_segment.length() - 1].to_owned()
       push_param_spec(specs, name, false)
     }
   }
@@ -152,7 +143,7 @@ fn identifier_to_pascal(ident : String) -> String {
       capitalize_next = true
     } else if capitalize_next {
       if c >= 'a' && c <= 'z' {
-        buf.write_char(Char::from_int(c.to_int() - 32))
+        buf.write_char((c.to_int() - 32).unsafe_to_char())
       } else {
         buf.write_char(c)
       }
@@ -193,7 +184,7 @@ fn route_paths_have_params(route_paths : Array[String]) -> Bool {
 fn optional_catch_all_base_pattern(path : String) -> String {
   let buf = StringBuilder()
   for segment_view in path.split("/") {
-    let segment = segment_view.to_string()
+    let segment = segment_view.to_owned()
     if segment.is_empty() {
       continue
     }
@@ -285,14 +276,14 @@ fn path_to_identifier(path : String) -> String {
   let buf = StringBuilder()
   let mut first = true
   for segment_view in path.split("/") {
-    let segment_raw = segment_view.to_string()
+    let segment_raw = segment_view.to_owned()
     if segment_raw.is_empty() {
       continue
     }
     // Strip a leading "@" (Twitter-style /@user routes) before
     // applying the standard parameter pattern matching.
     let segment = if segment_raw.has_prefix("@") {
-      segment_raw.substring(start=1)
+      segment_raw[1:].to_owned()
     } else {
       segment_raw
     }
@@ -305,13 +296,13 @@ fn path_to_identifier(path : String) -> String {
     first = false
     // Strip parameter markers to get the name
     let token = if segment.has_prefix(":") {
-      normalize_colon_param_name(segment.substring(start=1))
+      normalize_colon_param_name(segment[1:].to_owned())
     } else if segment.has_prefix("[[...") && segment.has_suffix("]]") {
-      segment.substring(start=5, end=segment.length() - 2)
+      segment[5:segment.length() - 2].to_owned()
     } else if segment.has_prefix("[...") && segment.has_suffix("]") {
-      segment.substring(start=4, end=segment.length() - 1)
+      segment[4:segment.length() - 1].to_owned()
     } else if segment.has_prefix("[") && segment.has_suffix("]") {
-      segment.substring(start=1, end=segment.length() - 1)
+      segment[1:segment.length() - 1].to_owned()
     } else {
       segment
     }
@@ -617,19 +608,19 @@ priv enum SegmentKind {
 /// Classify a path segment as static or dynamic
 fn classify_segment(segment : String) -> SegmentKind {
   if segment.has_prefix(":") && segment.length() > 1 {
-    DynamicSegment(normalize_colon_param_name(segment.substring(start=1)))
+    DynamicSegment(normalize_colon_param_name(segment[1:].to_owned()))
   } else if segment.has_prefix("[[...") &&
     segment.has_suffix("]]") &&
     segment.length() > 7 {
-    DynamicSegment(segment.substring(start=5, end=segment.length() - 2))
+    DynamicSegment(segment[5:segment.length() - 2].to_owned())
   } else if segment.has_prefix("[...") &&
     segment.has_suffix("]") &&
     segment.length() > 5 {
-    DynamicSegment(segment.substring(start=4, end=segment.length() - 1))
+    DynamicSegment(segment[4:segment.length() - 1].to_owned())
   } else if segment.has_prefix("[") &&
     segment.has_suffix("]") &&
     segment.length() > 2 {
-    DynamicSegment(segment.substring(start=1, end=segment.length() - 1))
+    DynamicSegment(segment[1:segment.length() - 1].to_owned())
   } else {
     StaticSegment(segment)
   }
@@ -647,13 +638,13 @@ fn split_path_segments(path : String) -> Array[String] {
   let result : Array[String] = []
   let static_buf = StringBuilder()
   for segment_view in path.split("/") {
-    let segment = segment_view.to_string()
+    let segment = segment_view.to_owned()
     if segment.is_empty() {
       static_buf.write_string("/")
       continue
     }
     if segment.has_prefix("@") && segment.length() > 1 {
-      let rest = segment.substring(start=1)
+      let rest = segment[1:].to_owned()
       match classify_segment(rest) {
         DynamicSegment(_) => {
           static_buf.write_string("@")
@@ -696,7 +687,7 @@ fn split_path_segments(path : String) -> Array[String] {
       ()
       // Remove trailing slash for cleanliness
     } else if remaining.length() > 1 && remaining.has_suffix("/") {
-      result.push(remaining.substring(end=remaining.length() - 1))
+      result.push(remaining[:remaining.length() - 1].to_owned())
     } else if remaining == "/" && result.is_empty() {
       result.push(remaining)
     }
@@ -729,7 +720,7 @@ fn action_id_to_fn_name(id : String) -> String {
 fn action_id_to_type_name(id : String) -> String {
   let fn_name = action_id_to_fn_name(id)
   let ident = if fn_name.has_prefix("action_") {
-    fn_name.substring(start="action_".length())
+    fn_name["action_".length():].to_owned()
   } else {
     fn_name
   }
@@ -890,7 +881,7 @@ fn locale_code_to_variant(code : String) -> String {
       capitalize_next = true
     } else if capitalize_next {
       if c >= 'a' && c <= 'z' {
-        buf.write_char(Char::from_int(c.to_int() - 32))
+        buf.write_char((c.to_int() - 32).unsafe_to_char())
       } else {
         buf.write_char(c)
       }

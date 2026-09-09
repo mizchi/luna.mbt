@@ -65,7 +65,7 @@ fn sample_contract_manifest_json() -> String {
 ///|
 test "parse_contract_manifest_json: routes actions and client assets" {
   let manifest = parse_contract_manifest_json(sample_contract_manifest_json())
-  assert_true(manifest.is_some())
+  assert_true(manifest is Some(_))
   let m = manifest.unwrap()
   assert_eq(m.routes.length(), 2)
   assert_eq(m.routes[0].path, "/api/items/:id")
@@ -156,7 +156,7 @@ test "parse_contract_manifest_json: rejects invalid MoonBit props field identifi
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }
 
 ///|
@@ -179,7 +179,7 @@ test "parse_contract_manifest_json: rejects invalid MoonBit props field type" {
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }
 
 ///|
@@ -205,7 +205,7 @@ test "parse_contract_manifest_json: rejects component name not matching props na
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }
 
 ///|
@@ -228,7 +228,7 @@ test "parse_contract_manifest_json: rejects duplicate props names" {
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }
 
 ///|
@@ -243,7 +243,7 @@ test "parse_contract_manifest_json: rejects route string literal injection" {
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }
 
 ///|
@@ -257,7 +257,7 @@ test "parse_contract_manifest_json: rejects action IDs that cannot generate iden
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }
 
 ///|
@@ -278,7 +278,7 @@ test "parse_contract_manifest_json: rejects malformed action contract shape" {
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }
 
 ///|
@@ -308,5 +308,5 @@ test "parse_contract_manifest_json: rejects conflicting contract shape definitio
       #|}
     ),
   )
-  assert_true(manifest.is_none())
+  assert_true(manifest is None)
 }

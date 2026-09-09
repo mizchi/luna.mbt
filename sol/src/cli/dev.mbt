@@ -69,7 +69,7 @@ fn project_name_from_cwd(cwd : String) -> String {
   let mut idx = parts.length()
   while idx > 0 {
     idx = idx - 1
-    let part = parts[idx].to_string()
+    let part = parts[idx].to_owned()
     if part.length() > 0 {
       return part
     }
@@ -495,7 +495,7 @@ async fn run_dev_watch_mode(
             // (macOS `sed -i ''`, vim's :w with `backupcopy=auto`, atomic
             // saves via tmp+rename) deliver "rename".
             let is_generated = filename.contains("__gen__")
-            if !filename.ends_with(".mbt") || is_generated {
+            if !filename.has_suffix(".mbt") || is_generated {
               return
             }
             // Synchronous attempt — wins for `change` events and any
@@ -526,7 +526,7 @@ async fn run_dev_watch_mode(
               filename : String,
             ) {
               let is_generated = filename.contains("__gen__")
-              if filename.ends_with(".mbt") &&
+              if filename.has_suffix(".mbt") &&
                 event == "change" &&
                 !is_generated {
                 let now = @cli_common.date_now()
@@ -685,13 +685,13 @@ fn extract_island_name_from_path(filename : String) -> String {
   // Get basename
   let parts = filename.split("/").to_array()
   let basename = if parts.length() > 0 {
-    parts[parts.length() - 1].to_string()
+    parts[parts.length() - 1].to_owned()
   } else {
     filename
   }
   // Remove .mbt extension
   if basename.has_suffix(".mbt") && basename.length() > 4 {
-    basename.substring(end=basename.length() - 4)
+    basename[:basename.length() - 4].to_owned()
   } else {
     basename
   }

@@ -78,11 +78,11 @@ fn[FS : @env.FileSystem] scan_mbtx_recursive(
 /// "api/index.mbtx"       → "/api"
 fn mbtx_file_to_route(rel_path : String, base_path : String) -> String {
   // Remove .mbtx extension
-  let without_ext = rel_path.substring(end=rel_path.length() - 5)
+  let without_ext = rel_path[:rel_path.length() - 5].to_owned()
   let buf = StringBuilder()
   buf.write_string(base_path)
   for segment_view in without_ext.split("/") {
-    let segment = segment_view.to_string()
+    let segment = segment_view.to_owned()
     if segment.is_empty() {
       continue
     }
@@ -96,7 +96,7 @@ fn mbtx_file_to_route(rel_path : String, base_path : String) -> String {
       segment.has_suffix("___") &&
       segment.length() > 6 {
       // Catch-all: ___slug___ → [...slug]
-      let param = segment.substring(start=3, end=segment.length() - 3)
+      let param = segment[3:segment.length() - 3].to_owned()
       buf.write_string("[...")
       buf.write_string(param)
       buf.write_string("]")
@@ -104,7 +104,7 @@ fn mbtx_file_to_route(rel_path : String, base_path : String) -> String {
       segment.has_suffix("_") &&
       segment.length() > 2 {
       // Dynamic param: _id_ → :id
-      let param = segment.substring(start=1, end=segment.length() - 1)
+      let param = segment[1:segment.length() - 1].to_owned()
       buf.write_string(":")
       buf.write_string(param)
     } else {
@@ -125,11 +125,11 @@ fn mbtx_file_to_route(rel_path : String, base_path : String) -> String {
 /// "api/hello.mbtx"  → "api_hello"
 /// "users/_id_.mbtx"  → "users_id"
 fn mbtx_file_to_id(rel_path : String) -> String {
-  let without_ext = rel_path.substring(end=rel_path.length() - 5)
+  let without_ext = rel_path[:rel_path.length() - 5].to_owned()
   let buf = StringBuilder()
   let mut first = true
   for segment_view in without_ext.split("/") {
-    let segment = segment_view.to_string()
+    let segment = segment_view.to_owned()
     if segment.is_empty() || segment == "index" {
       continue
     }
@@ -141,11 +141,11 @@ fn mbtx_file_to_id(rel_path : String) -> String {
     if segment.has_prefix("___") &&
       segment.has_suffix("___") &&
       segment.length() > 6 {
-      buf.write_string(segment.substring(start=3, end=segment.length() - 3))
+      buf.write_string(segment[3:segment.length() - 3].to_owned())
     } else if segment.has_prefix("_") &&
       segment.has_suffix("_") &&
       segment.length() > 2 {
-      buf.write_string(segment.substring(start=1, end=segment.length() - 1))
+      buf.write_string(segment[1:segment.length() - 1].to_owned())
     } else {
       for c in segment {
         if c == '-' {
