@@ -16,7 +16,7 @@ import {
   "mizchi/ts@0.5.2",
   "mizchi/wite@0.11.3",
   "mizchi/x@0.5.3",
-  "moonbitlang/lexer@0.3.15",
+  "moonbitlang/lexer@0.3.16",
   "mizchi/wit@0.3.2",
 }
 

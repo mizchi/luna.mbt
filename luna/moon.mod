@@ -9,9 +9,9 @@ import {
   "mizchi/js_browser@0.12.2",
   "mizchi/npm_typed@0.1.15",
   "moonbitlang/parser@0.3.18",
-  "mizchi/signals@0.6.5",
+  "mizchi/signals@0.6.4",
   "mizchi/x@0.5.3",
-  "moonbitlang/lexer@0.3.15",
+  "moonbitlang/lexer@0.3.16",
 }
 
 readme = "README.md"
