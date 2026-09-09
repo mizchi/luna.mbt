@@ -166,7 +166,7 @@ fn dirname(path : String) -> String {
   } else if last_sep == 0 {
     "/"
   } else {
-    let result = StringBuilder::new()
+    let result = StringBuilder()
     for i = 0; i < last_sep; i = i + 1 {
       result.write_char(chars[i])
     }

@@ -37,7 +37,7 @@ pub fn[E] render_fragment_response(
 
   // For now, we wrap the entire content as the "main" outlet
   // In the future, we can parse the HTML to extract specific outlets
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Main content outlet
   buf.write_string("<template data-sol-outlet=\"main\">")
@@ -65,7 +65,7 @@ pub async fn send_fragment_response(c : Ctx, html : String) -> Unit {
 ///|
 /// Escape HTML entities in title
 fn escape_html(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in s {
     match ch {
       '<' => buf.write_string("&lt;")

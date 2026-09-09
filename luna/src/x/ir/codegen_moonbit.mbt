@@ -9,7 +9,7 @@
 ///|
 /// Generate MoonBit source code from a schema
 pub fn Schema::to_moonbit(self : Schema) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Add header comment
   buf.write_string("// Generated from IR Schema v")
@@ -54,7 +54,7 @@ pub fn TypeDef::to_moonbit(self : TypeDef) -> String {
 ///|
 /// Generate MoonBit code for a struct definition
 pub fn StructDef::to_moonbit(self : StructDef) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Doc comment
   match self.doc {
@@ -109,7 +109,7 @@ pub fn StructDef::to_moonbit(self : StructDef) -> String {
 ///|
 /// Generate MoonBit code for an enum definition
 pub fn EnumDef::to_moonbit(self : EnumDef) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Doc comment
   match self.doc {
@@ -164,7 +164,7 @@ pub fn EnumDef::to_moonbit(self : EnumDef) -> String {
 ///|
 /// Generate MoonBit code for a type alias
 pub fn AliasDef::to_moonbit(self : AliasDef) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Doc comment
   match self.doc {
@@ -204,7 +204,7 @@ pub fn AliasDef::to_moonbit(self : AliasDef) -> String {
 ///|
 /// Generate MoonBit code for a field
 pub fn Field::to_moonbit(self : Field) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // Field name
   buf.write_string(self.name)
@@ -223,7 +223,7 @@ pub fn Field::to_moonbit(self : Field) -> String {
 ///|
 /// Generate MoonBit code for an enum variant
 pub fn EnumVariant::to_moonbit(self : EnumVariant) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.name)
   match self.payload {
     Some(payload) => {
@@ -300,7 +300,7 @@ pub fn PrimitiveType::to_moonbit(self : PrimitiveType) -> String {
 ///|
 /// Generate MoonBit code for a type parameter
 pub fn TypeParam::to_moonbit(self : TypeParam) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.name)
   match self.constraint {
     Some(constraint) => {

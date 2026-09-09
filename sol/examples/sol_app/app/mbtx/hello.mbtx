@@ -14,7 +14,7 @@ fn main {
   let path = get_env("PATH_INFO")
   let query = get_env("QUERY_STRING")
   let timestamp = now_iso()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("<html><head><title>Hello from .mbtx</title></head><body>")
   buf.write_string("<h1>Hello from .mbtx!</h1>")
   buf.write_string("<p>Method: ")

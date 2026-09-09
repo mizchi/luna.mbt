@@ -6,7 +6,7 @@ fn normalize_path(path : String) -> String {
   if path == "" || path == "/" {
     return "/"
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut prev_slash = false
   for c in path {
     if c == '/' {
@@ -31,7 +31,7 @@ fn normalize_path(path : String) -> String {
 ///|
 fn split_by_char(s : String, c : Char) -> Array[String] {
   let result : Array[String] = []
-  let current = StringBuilder::new()
+  let current = StringBuilder()
   for ch in s {
     if ch == c {
       let seg = current.to_string()
@@ -56,7 +56,7 @@ fn join_segments(segments : ArrayView[String]) -> String {
   if segments.length() == 0 {
     return ""
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for i, seg in segments {
     if i > 0 {
       result.write_string("/")

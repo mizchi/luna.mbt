@@ -11,7 +11,7 @@ let medium_md : String = "---\ntitle: Test\ndescription: A test doc\n---\n\n# Ma
 
 ///|
 fn generate_large_md() -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("# Large Document\n\n")
   for i = 0; i < 50; i = i + 1 {
     buf.write_string("## Section \{i + 1}\n\n")

@@ -28,7 +28,7 @@ pub fn template(props_js : @js.Any) -> String {
 
   // Return HTML string
   // Note: Using simple string concatenation for clarity
-  let html = StringBuilder::new()
+  let html = StringBuilder()
   html.write_string("<div class=\"counter\">")
   html.write_string("<span class=\"label\">")
   html.write_string(label)

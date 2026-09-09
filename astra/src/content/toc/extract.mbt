@@ -94,7 +94,7 @@ fn truncate_text(text : String, max_length : Int) -> String {
 ///|
 /// Extract plain text from MdNode array
 pub fn extract_text_from_nodes(nodes : Array[@markdown.MdNode]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for node in nodes {
     extract_text_recursive(node, buf)
   }

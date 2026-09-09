@@ -277,7 +277,7 @@ test "auto_select_state_format - small state uses inline" {
 test "auto_select_state_format - medium state uses script ref" {
   let base = @stella.ShardConfig::new("test-2", "./test.js")
   // Create a string larger than 1KB but smaller than 100KB
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("{\"data\":\"")
   for _ in 0..<2000 {
     sb.write_char('x')

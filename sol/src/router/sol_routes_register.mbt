@@ -569,7 +569,7 @@ async fn render_server_fragment(
   let body_html = @render.render_to_string(resolved_node).html
 
   // Wrap in templates like fragment.mbt does
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("<template data-sol-outlet=\"main\">")
   buf.write_string(body_html)
   buf.write_string("</template>")

@@ -64,7 +64,7 @@ fn parse_box_shorthand_value(value : String) -> Array[String] {
 /// Split CSS value by whitespace (simple tokenizer)
 fn split_css_value(value : String) -> Array[String] {
   let result : Array[String] = []
-  let current = StringBuilder::new()
+  let current = StringBuilder()
   let mut in_parens = 0
   let paren_open : UInt16 = 40 // '('
   let paren_close : UInt16 = 41 // ')'

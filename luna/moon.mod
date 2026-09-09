@@ -11,7 +11,7 @@ import {
   "moonbitlang/parser@0.3.8",
   "mizchi/signals@0.6.4",
   "mizchi/x@0.3.0",
-  "moonbitlang/lexer@0.3.8",
+  "moonbitlang/lexer@0.3.16",
 }
 
 readme = "README.md"

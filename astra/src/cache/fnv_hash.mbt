@@ -39,7 +39,7 @@ pub fn fnv1a_64(data : String) -> String {
 fn uint_to_hex(n : UInt) -> String {
   let hex_chars = "0123456789abcdef"
   let chars = hex_chars.to_array()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 7; i >= 0; i = i - 1 {
     let shift = i * 4
     let nibble = (n >> shift) & 0xF
@@ -53,7 +53,7 @@ fn uint_to_hex(n : UInt) -> String {
 fn uint64_to_hex(n : UInt64) -> String {
   let hex_chars = "0123456789abcdef"
   let chars = hex_chars.to_array()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 15; i >= 0; i = i - 1 {
     let shift = i * 4
     let nibble = (n >> shift) & 0xFUL

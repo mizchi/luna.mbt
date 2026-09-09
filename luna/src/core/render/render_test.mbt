@@ -57,14 +57,14 @@ test "needs_attr_escape" {
 
 ///|
 test "escape_html_to" {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   escape_html_to(sb, "<div>")
   assert_eq(sb.to_string(), "&lt;div&gt;")
 }
 
 ///|
 test "escape_attr_to" {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   escape_attr_to(sb, "class=\"foo\"")
   assert_eq(sb.to_string(), "class=&quot;foo&quot;")
 }

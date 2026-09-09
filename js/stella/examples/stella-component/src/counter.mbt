@@ -9,7 +9,7 @@ pub fn template(props : @js.Any) -> String {
   let initial = props_get_int(props, "initial")
   let label = props_get_string(props, "label")
 
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("<div class=\"counter\">")
   sb.write_string("<span class=\"label\">")
   sb.write_string(label)

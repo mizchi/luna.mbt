@@ -308,7 +308,7 @@ fn try_match_pattern(
 /// Split path into segments
 fn split_path(path : String) -> Array[String] {
   let parts : Array[String] = []
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in path {
     if c == '/' {
       let s = buf.to_string()
@@ -330,7 +330,7 @@ fn split_path(path : String) -> Array[String] {
 ///|
 /// Join path parts from index
 fn join_path_parts(parts : Array[String], from_index : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = from_index; i < parts.length(); i = i + 1 {
     if i > from_index {
       buf.write_char('/')

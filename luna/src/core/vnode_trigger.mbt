@@ -45,7 +45,7 @@ pub fn TriggerType::parse(s : String) -> TriggerType {
     "none" => None
     _ =>
       if s.has_prefix("media:") {
-        let sb = StringBuilder::new()
+        let sb = StringBuilder()
         for i in 6..<s.length() {
           sb.write_char(s.iter().nth(i).unwrap())
         }

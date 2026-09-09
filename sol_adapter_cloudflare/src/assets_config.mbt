@@ -1,7 +1,7 @@
 ///|
 /// Convert a Sol route pattern to a Cloudflare `run_worker_first` glob.
 pub fn route_pattern_to_worker_glob(path : String) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let segments = path.split("/")
   let mut first = true
   for segment in segments {
@@ -84,7 +84,7 @@ pub fn generate_wrangler_assets_config(
     return "{\n  \"directory\": \{output_dir_json},\n  \"html_handling\": \"auto-trailing-slash\",\n  \"not_found_handling\": \"404-page\"\n}"
   }
 
-  let patterns_json = StringBuilder::new()
+  let patterns_json = StringBuilder()
   patterns_json.write_string("[")
   for i, pattern in patterns {
     if i > 0 {

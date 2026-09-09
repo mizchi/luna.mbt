@@ -71,7 +71,7 @@ fn render_meta_tags(meta : Array[(String, String)]) -> String {
   if meta.is_empty() {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for pair in meta {
     let key = @page_shell.escape_html_text(pair.0)
     let value = @page_shell.escape_html_text(pair.1)

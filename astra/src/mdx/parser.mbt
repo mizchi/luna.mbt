@@ -83,7 +83,7 @@ fn extract_string_value(value : String) -> String {
   // Check for quoted string
   if (first == '"' || first == '\'') && first == last {
     // Remove quotes
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i = 1; i < len - 1; i = i + 1 {
       buf.write_char(chars[i])
     }
@@ -91,7 +91,7 @@ fn extract_string_value(value : String) -> String {
   }
   // Check for template literal
   if first == '`' && last == '`' {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i = 1; i < len - 1; i = i + 1 {
       buf.write_char(chars[i])
     }

@@ -44,14 +44,14 @@ pub fn split_mbtx_chunks(
     })
     return { shared_code: "", entries: result_entries }
   }
-  ffi_split_mbtx_chunks(entries, shared_path)
+  ffi_split_mbtx_chunks(FixedArray::from_array(entries[:]), shared_path)
 }
 
 ///|
 /// JS implementation of chunk splitting.
 /// Parses top-level declarations, finds duplicates, and rewrites.
 extern "js" fn ffi_split_mbtx_chunks(
-  entries : Array[MbtxEntry],
+  entries : FixedArray[MbtxEntry],
   shared_path : String,
 ) -> MbtxChunkResult =
   #| (entries, sharedPath) => {

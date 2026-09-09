@@ -143,7 +143,7 @@ pub fn render_island_page(
     "<script type=\"module\" src=\"" +
     loader +
     "\"></script>"
-  let sb = StringBuilder::new(size_hint=4096)
+  let sb = StringBuilder(size_hint=4096)
   for island_html in islands {
     sb.write_string(island_html)
   }

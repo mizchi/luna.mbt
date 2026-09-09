@@ -102,7 +102,7 @@ fn extract_tag_name(html : String) -> String? {
   }
   // Skip the opening <
   let rest = html.unsafe_substring(start=1, end=html.length())
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in rest {
     if c == ' ' || c == '>' || c == '/' {
       break
@@ -154,7 +154,7 @@ fn extract_all_attributes(html : String) -> Array[(String, String)] {
     }
 
     // Read attribute name
-    let name_buf = StringBuilder::new()
+    let name_buf = StringBuilder()
     while i < len &&
           chars[i] != '=' &&
           chars[i] != ' ' &&
@@ -178,7 +178,7 @@ fn extract_all_attributes(html : String) -> Array[(String, String)] {
         i = i + 1 // skip opening quote
 
         // Read value
-        let value_buf = StringBuilder::new()
+        let value_buf = StringBuilder()
         while i < len && chars[i] != quote {
           value_buf.write_char(chars[i])
           i = i + 1

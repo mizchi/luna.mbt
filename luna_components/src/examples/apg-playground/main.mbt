@@ -1871,7 +1871,7 @@ fn apg_components_css() -> String {
 ///|
 fn inject_styled_css() -> Unit {
   // Build CSS from individually imported styled components
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("/* Luna Styled Components */\n\n")
   buf.write_string(@styled.theme_variables())
   buf.write_string("\n\n")

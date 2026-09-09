@@ -49,7 +49,8 @@ pub fn register_with_attrs(
     String,
   ],
 ) -> Unit {
-  js_define_element_with_attrs(name, observed_attrs, fn(
+  let observed = FixedArray::from_array(observed_attrs[:])
+  js_define_element_with_attrs(name, observed, fn(
     host,
     get_attr,
     on_attr_change,
@@ -138,7 +139,7 @@ extern "js" fn js_define_element_shadow(
 ///|
 extern "js" fn js_define_element_with_attrs(
   name : String,
-  observed_attrs : Array[String],
+  observed_attrs : FixedArray[String],
   connected_callback : (
     @js_dom.Element,
     (String) -> String,

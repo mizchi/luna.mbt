@@ -351,7 +351,7 @@ fn[E] find_all_by_impl(
 ///|
 /// VNode 以下の全テキストコンテンツを取得
 pub fn[E] get_all_text(node : @luna.Node[E, String]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   collect_text(node, sb)
   sb.to_string()
 }

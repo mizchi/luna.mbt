@@ -297,7 +297,7 @@ pub fn generate_island_manifest(
   islands : Array[(String, String)],
   output_dir : String,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\n")
   buf.write_string("  \"output_dir\": \"")
   buf.write_string(output_dir)

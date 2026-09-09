@@ -15,7 +15,7 @@ async fn extract_css_utilities(
   cwd : String,
   source_dirs : Array[String],
 ) -> String {
-  ffi_extract_css_utilities(cwd, source_dirs).wait()
+  ffi_extract_css_utilities(cwd, FixedArray::from_array(source_dirs[:])).wait()
 }
 
 ///|
@@ -23,7 +23,7 @@ async fn extract_css_utilities(
 /// Uses child_process.execSync to run node src/luna/css/extract.js
 extern "js" fn ffi_extract_css_utilities(
   cwd : String,
-  source_dirs : Array[String],
+  source_dirs : FixedArray[String],
 ) -> @js.Promise[String] =
   #| async (cwd, sourceDirs) => {
   #|   try {
@@ -203,7 +203,7 @@ pub async fn extract_css_utilities_auto(
     )
   } else {
     // Fall back to sequential for single directory
-    ffi_extract_css_utilities(cwd, source_dirs).wait()
+    ffi_extract_css_utilities(cwd, FixedArray::from_array(source_dirs[:])).wait()
   }
 }
 

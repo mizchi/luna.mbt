@@ -136,7 +136,7 @@ pub fn decode_html_entities(html : String) -> String {
 /// Generate CSS for syntax highlighting
 pub fn generate_shiki_css() -> String {
   let theme = @highlight.github_dark()
-  let css = StringBuilder::new()
+  let css = StringBuilder()
   css.write_string("/* Syntax highlighting - generated from syntree theme */\n")
   css.write_string("pre.shiki {\n")
   css.write_string("  background-color: \{theme.background};\n")

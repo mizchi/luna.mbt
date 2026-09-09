@@ -55,7 +55,7 @@ fn vnode_stream_page() -> @luna.Node[Unit, String] {
 
 ///|
 fn stream_to_string(node : @luna.Node[Unit, String]) -> String {
-  let sb = StringBuilder::new(size_hint=1024)
+  let sb = StringBuilder(size_hint=1024)
   let writer = StreamWriter::from_callback(fn(chunk) { sb.write_string(chunk) })
   render_to_stream(node, writer)
   sb.to_string()

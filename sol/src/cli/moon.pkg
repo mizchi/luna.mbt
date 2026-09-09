@@ -1,6 +1,5 @@
 import {
   "moonbitlang/core/json",
-  "moonbitlang/core/strconv",
   "mizchi/sol/internal/json_utils",
   "mizchi/sol/scaffold_templates",
   "mizchi/sol/version",

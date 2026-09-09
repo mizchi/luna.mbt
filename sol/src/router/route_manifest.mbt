@@ -155,7 +155,7 @@ fn route_manifest_path_to_pascal(path : String) -> String {
   if path == "/" {
     return "Root"
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut capitalize_next = true
   let mut wrote = false
   for segment_view in path.split("/") {
@@ -195,7 +195,7 @@ fn route_manifest_api_helper_name(entry : RouteManifestEntry) -> String {
 
 ///|
 fn route_manifest_param_type(params : Array[String]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{ ")
   for i, param in params {
     if i > 0 {
@@ -291,7 +291,7 @@ pub fn RouteOwnershipManifest::api_client_manifest_json(
 pub fn RouteOwnershipManifest::api_client_typescript(
   self : RouteOwnershipManifest,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "export type SolApiError = { ok: false; status: number; message: string; response: Response };\n",
   )

@@ -146,7 +146,7 @@ test "SSG simulation: generate sitemap" {
   mem.mkdirSync("/dist", recursive=true)
 
   // Generate sitemap XML
-  let sitemap = StringBuilder::new()
+  let sitemap = StringBuilder()
   sitemap.write_string(
     (
       #|<?xml version="1.0" encoding="UTF-8"?>

@@ -9,7 +9,7 @@
 ///|
 /// Serialize a StateValue to JSON string
 pub fn state_value_to_json(value : StateValue) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   write_json(value, buf)
   buf.to_string()
 }
@@ -17,7 +17,7 @@ pub fn state_value_to_json(value : StateValue) -> String {
 ///|
 /// Serialize an array of StateValues to JSON string
 pub fn state_values_to_json(values : Array[StateValue]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("[")
   for i, value in values {
     if i > 0 {
@@ -144,7 +144,7 @@ fn write_hex4(n : Int, buf : StringBuilder) -> Unit {
 ///|
 /// Escape JSON string (convenience function)
 pub fn escape_json_string(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   write_escaped_string(s, buf)
   buf.to_string()
 }

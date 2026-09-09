@@ -220,7 +220,7 @@ priv struct SBVisitor {
 
 ///|
 fn SBVisitor::new() -> SBVisitor {
-  { sb: StringBuilder::new(size_hint=256) }
+  { sb: StringBuilder(size_hint=256) }
 }
 
 ///|

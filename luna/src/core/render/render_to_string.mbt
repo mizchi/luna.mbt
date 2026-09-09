@@ -17,7 +17,7 @@ pub fn[E, A : Show] render_to_string(
   preload? : Bool = false,
   size_hint? : Int = 256,
 ) -> SSRResult {
-  let sb = StringBuilder::new(size_hint~)
+  let sb = StringBuilder(size_hint~)
   if preload {
     let urls : Array[String] = []
     let seen : Map[String, Bool] = Map([])
@@ -37,7 +37,7 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
   if urls.is_empty() {
     return ""
   }
-  let sb = StringBuilder::new(size_hint=64 * urls.length())
+  let sb = StringBuilder(size_hint=64 * urls.length())
   for url in urls {
     sb.write_string("  <link rel=\"modulepreload\" href=\"")
     escape_attr_to(sb, url)
@@ -52,7 +52,7 @@ pub fn generate_preload_tags(urls : Array[String]) -> String {
 /// - Collapses multiple spaces to one
 /// - Removes spaces around { } : ; ,
 fn minify_css(css : String) -> String {
-  let sb = StringBuilder::new(size_hint=css.length())
+  let sb = StringBuilder(size_hint=css.length())
   let mut prev_char : Char = ' '
   let mut in_space = false
   let mut in_string : Char? = None
@@ -580,7 +580,7 @@ pub fn[E, A : Show] render_to_string_with_hydration(
   node : @core.Node[E, A],
   size_hint? : Int = 256,
 ) -> String {
-  let sb = StringBuilder::new(size_hint~)
+  let sb = StringBuilder(size_hint~)
   let id_counter = Ref(0)
   let island_ids = new_island_id_allocator()
   render_with_id_to(sb, node, id_counter, island_ids)

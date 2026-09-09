@@ -1,12 +1,12 @@
 // Shared JavaScript Any helpers
 
 ///|
-extern "js" fn ffi_json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any =
+extern "js" fn ffi_json_obj(pairs : FixedArray[(String, @js.Any)]) -> @js.Any =
   #| (pairs) => Object.fromEntries(pairs.map(p => [p._0, p._1]))
 
 ///|
 pub fn json_obj(pairs : Array[(String, @js.Any)]) -> @js.Any {
-  ffi_json_obj(pairs)
+  ffi_json_obj(FixedArray::from_array(pairs[:]))
 }
 
 ///|

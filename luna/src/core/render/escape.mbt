@@ -73,7 +73,7 @@ pub fn escape_html(s : String) -> String {
   if !needs_html_escape(s) {
     return s
   }
-  let sb = StringBuilder::new(size_hint=s.length() + 16)
+  let sb = StringBuilder(size_hint=s.length() + 16)
   escape_html_to(sb, s)
   sb.to_string()
 }
@@ -126,7 +126,7 @@ pub fn escape_attr(s : String) -> String {
   if !needs_attr_escape(s) {
     return s
   }
-  let sb = StringBuilder::new(size_hint=s.length() + 8)
+  let sb = StringBuilder(size_hint=s.length() + 8)
   escape_attr_to(sb, s)
   sb.to_string()
 }
@@ -135,7 +135,7 @@ pub fn escape_attr(s : String) -> String {
 /// Escape JS string for embedding in script tags
 /// Handles </script> injection prevention
 pub fn escape_js_string(s : String) -> String {
-  let sb = StringBuilder::new(size_hint=s.length() + 16)
+  let sb = StringBuilder(size_hint=s.length() + 16)
   escape_js_string_to(sb, s)
   sb.to_string()
 }
@@ -218,7 +218,7 @@ pub fn escape_json_for_script(json : String) -> String {
   }
 
   // Slow path: build escaped string
-  let sb = StringBuilder::new(size_hint=json.length() + 16)
+  let sb = StringBuilder(size_hint=json.length() + 16)
   let mut i = 0
   while i < len {
     let c = chars[i]
@@ -256,7 +256,7 @@ pub fn escape_json_for_attr(json : String) -> String {
   if !needs_json_attr_escape(json) {
     return json
   }
-  let sb = StringBuilder::new(size_hint=json.length() + 32)
+  let sb = StringBuilder(size_hint=json.length() + 32)
   for c in json {
     match c {
       '"' => sb.write_string("&quot;")

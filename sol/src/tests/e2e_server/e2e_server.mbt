@@ -324,7 +324,7 @@ fn register_async_routes(app : @mars.Server) -> Unit {
       )
 
       // Build the HTML with template replacement
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string(
         "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Async Streaming Test</title></head><body>",
       )
@@ -394,7 +394,7 @@ fn register_async_routes(app : @mars.Server) -> Unit {
       let boundaries = @stream_renderer.render_to_stream_collecting_async(
         node, writer,
       )
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string(
         "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Multiple Async Test</title></head><body>",
       )
@@ -466,7 +466,7 @@ fn register_async_routes(app : @mars.Server) -> Unit {
       let boundaries = @stream_renderer.render_to_stream_collecting_async(
         node, writer,
       )
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string(
         "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Nested Async Test</title></head><body>",
       )
@@ -517,7 +517,7 @@ fn register_async_routes(app : @mars.Server) -> Unit {
         chunks.push(chunk)
       })
       let _ = @stream_renderer.render_to_stream_collecting_async(node, writer)
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string(
         "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Fallback Only Test</title></head><body>",
       )
