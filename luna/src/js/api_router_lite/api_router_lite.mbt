@@ -215,15 +215,15 @@ pub fn route_page_full(
   path : String,
   component : Any,
   title : String,
-  meta : Array[(String, String)],
+  meta : FixedArray[(String, String)],
 ) -> Any {
-  _route_page_full(path, component, title, FixedArray::from_array(meta[:]))
+  _route_page_full(path, component, title, meta)
 }
 
 ///|
 /// Create a BrowserRouter from routes definition
-pub fn create_router(routes : Array[Any], base : String) -> Any {
-  _create_router(FixedArray::from_array(routes[:]), base)
+pub fn create_router(routes : FixedArray[Any], base : String) -> Any {
+  _create_router(routes, base)
 }
 
 ///|
