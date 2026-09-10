@@ -80,6 +80,11 @@ requirements. Run `moon upgrade` and `moon update` when upgrading an older
 toolchain. All npm packages and examples share the root pnpm workspace and
 `pnpm-lock.yaml`; run `pnpm install` from the repository root.
 
+`pnpm build:moon` and the npm publish hooks check the compiler returned by
+`moon version --all` before building. If it reports an older `moonc`, run
+`moon upgrade` and `moon update` in your normal shell. An alternate toolchain
+used in a separate shell does not update the compiler on your default PATH.
+
 ```sh
 just check          # Type check workspace-wide
 just fmt            # Format

@@ -4,7 +4,7 @@
   "type": "module",
   "description": "MoonBit Island Architecture UI Framework",
   "scripts": {
-    "build:moon": "moon build --target js --release",
+    "build:moon": "node scripts/check-moon-toolchain.mjs && moon build --target js --release",
     "build:loader": "pnpm --filter @luna_ui/luna-loader build",
     "test:moonbit": "moon test --target js",
     "test:integration": "node --test tests/integration/*.test.js astra/e2e/build_dev_parity.test.js",
@@ -15,7 +15,7 @@
     "test:e2e": "env -u NO_COLOR pnpm playwright test --config luna/e2e/playwright.config.mts",
     "dev": "pnpm vite --config luna/vite.config.ts",
     "build:npm": "pnpm build:moon && pnpm --filter './js/*' --filter '!@luna_ui/wcssr' -r build",
-    "test:npm-pack": "node --test tests/integration/npm-workspace.test.js tests/integration/npm-cli-pack.test.js"
+    "test:npm-pack": "node --test tests/integration/moon-toolchain.test.js tests/integration/npm-workspace.test.js tests/integration/npm-cli-pack.test.js"
   },
   "devDependencies": {
     "@hono/node-server": "^2.1.1",
