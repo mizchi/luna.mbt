@@ -89,8 +89,11 @@ fn resolve_href(
 
   // If available_urls is provided and not empty, check if localized URL exists
   if available_urls.length() > 0 {
-    // Check if localized version exists
-    if url_exists(localized_url, available_urls) {
+    // available_urls holds page URLs with no fragment, so look up the path
+    // alone — otherwise every anchored link misses and silently falls back to
+    // the default locale.
+    let (localized_path, _) = split_url_suffix(localized_url)
+    if url_exists(localized_path, available_urls) {
       return localized_url
     }
     // Fallback to default locale (canonical path without prefix)
@@ -160,17 +163,35 @@ fn get_parent_directory(url_path : String) -> String {
 ///|
 /// Normalize a URL path (ensure trailing slash for directory-like paths)
 fn normalize_href(href : String) -> String {
+  let (path, suffix) = split_url_suffix(href)
+
   // If it looks like a file (has extension), don't add trailing slash
-  if has_file_extension(href) {
-    return href
+  if has_file_extension(path) {
+    return path + suffix
   }
 
   // Add trailing slash if not present
-  if href.has_suffix("/") {
-    href
+  if path.has_suffix("/") {
+    path + suffix
   } else {
-    href + "/"
+    path + "/" + suffix
   }
+}
+
+///|
+/// Split a URL into its path and its `#fragment` / `?query` tail.
+///
+/// Path normalisation must not run over the tail: appending a trailing slash
+/// after a fragment turns `/guide#intro` into `/guide#intro/`, which a browser
+/// reads as the fragment `intro/` and fails to scroll to.
+fn split_url_suffix(url : String) -> (String, String) {
+  let chars = url.to_array()
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '#' || chars[i] == '?' {
+      return (String::from_array(chars[0:i]), String::from_array(chars[i:]))
+    }
+  }
+  (url, "")
 }
 
 ///|

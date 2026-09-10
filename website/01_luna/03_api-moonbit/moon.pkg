@@ -1,0 +1,18 @@
+// Documentation package: the `.mbt.md` pages in this directory are compiled by
+// `moon check` and their test blocks are executed by `moon test`, so the
+// sample code stays true to the API it documents.
+//
+// -29 (unused_package): moon's unused-import analysis does not look inside
+// `.mbt.md` fences, so every import below is reported as unused even though
+// the doc samples reference all of them. Remove this once moon counts them.
+import {
+  "mizchi/luna/dom" @element,
+  "mizchi/luna/js/resource",
+  "mizchi/js_browser/dom",
+  "mizchi/js/core" @js,
+  "mizchi/signals",
+} for "test"
+
+warnings = "-29"
+
+supported_targets = "js"

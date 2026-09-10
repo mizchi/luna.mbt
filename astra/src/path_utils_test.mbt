@@ -259,3 +259,34 @@ test "extract_locale_suffix - mbt.md keeps the compound extension" {
     content="None",
   )
 }
+
+///|
+/// A localised index is still an index. Without the locale, `index.ja.md`
+/// reads as an ordinary content page and every relative link in its body
+/// resolves against the parent directory.
+test "is_index_source recognises a localised index" {
+  inspect(is_index_source("index.md"), content="true")
+  inspect(is_index_source("guide/index.mdx"), content="true")
+  inspect(is_index_source("guide/index.mbt.md"), content="true")
+  inspect(is_index_source("guide/index.ja.md", locale="ja"), content="true")
+  inspect(
+    is_index_source("guide/index.ja.mbt.md", locale="ja"),
+    content="true",
+  )
+  // the default locale has no suffix to strip
+  inspect(is_index_source("guide/index.md", locale="en"), content="true")
+}
+
+///|
+/// Only the page's own locale is stripped, and only a whole `index` stem
+/// counts.
+test "is_index_source rejects near misses" {
+  inspect(is_index_source("guide/signals.md"), content="false")
+  inspect(is_index_source("guide/indexes.md"), content="false")
+  inspect(is_index_source("guide/intro.index.md"), content="false")
+  // a suffix that is not this page's locale is part of the name
+  inspect(is_index_source("guide/index.ja.md", locale="en"), content="false")
+  inspect(is_index_source("guide/index.ja.md"), content="false")
+  // not a page source at all
+  inspect(is_index_source("guide/moon.pkg"), content="false")
+}

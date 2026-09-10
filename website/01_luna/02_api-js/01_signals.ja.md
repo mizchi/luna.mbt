@@ -283,6 +283,12 @@ const result = provide(ThemeContext, 'dark', () => {
 </Provider>
 ```
 
+`Provider` の children は関数でなければなりません。JSX は素の `<App />` を `Provider`
+の呼び出し**前**に評価してしまうので、その中の `useContext()` は外側の値を読み、Provider
+は何もしていないように見えます。そのため素の要素を渡すと、黙って壊れるのではなく
+`Provider children must be a function` で失敗します。コンポーネントの完全なシグネチャは
+[Provider](./islands#provider) を参照してください。
+
 ## Resource API
 
 loading / error 状態つきで非同期処理を扱います。
