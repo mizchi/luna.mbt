@@ -129,6 +129,41 @@ fn memo[T](fn : () -> T) -> () -> T
 fn computed[T](fn : () -> T) -> () -> T
 ```
 
+## memo_eq
+
+`memo` cuts off on **identity**: it stops propagating only when a
+recomputation returns the same object as last time. A computation that
+allocates — a formatted `String`, a small struct — produces a new object every
+run, so every dependent wakes on every source change even while the value is
+unchanged.
+
+`memo_eq` compares with `Eq` instead:
+
+```moonbit
+let n = @resource.signal(0)
+
+// Re-runs on every change to `n`: each result is a fresh String.
+let loud = @resource.memo(fn() { "page \{n.get() / 100}" })
+
+// Re-runs only when the page number actually moves.
+let quiet = @resource.memo_eq(fn() { "page \{n.get() / 100}" })
+```
+
+Two differences from `memo`:
+
+- **Eager.** `memo` first runs its body on the first read. `memo_eq` runs it
+  once at construction and again on every source change, read or not. Per
+  source change both cost one evaluation.
+- **Owned.** It installs an effect registered with the current owner, so it
+  stops recomputing when that owner is disposed, and then keeps returning the
+  last value it published.
+
+### Signature
+
+```moonbit
+fn memo_eq[T : Eq](fn : () -> T) -> () -> T
+```
+
 ## batch
 
 Batch multiple signal updates to prevent redundant effect runs.
@@ -530,7 +565,8 @@ assert_true(res.is_pending())
 | `effect(fn)` | Create side effect, returns dispose |
 | `effect_when(cond, fn)` | Conditional effect |
 | `effect_once(fn)` | One-time effect |
-| `memo(fn)` / `computed(fn)` | Create cached computed |
+| `memo(fn)` / `computed(fn)` | Create cached computed (identity cutoff) |
+| `memo_eq(fn)` | Cached computed with `Eq` cutoff |
 | `batch(fn)` | Batch updates |
 | `untracked(fn)` | Run without tracking |
 | `on_cleanup(fn)` | Register cleanup |

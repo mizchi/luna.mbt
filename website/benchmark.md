@@ -97,20 +97,22 @@ Five signal writes drive every scenario:
 | Effect behind a value-collapsing memo | **5** | See below |
 | Effect behind an `Eq`-aware memo | **0** | |
 
-The seventh row is the one gap: `memo` cuts off on **identity**
-(`physical_equal`), so a memo that maps many different inputs to an equal-but-
-newly-allocated value still notifies its dependents. `watch` compares with
-`Eq` and does cut off. When cutoff matters, wrap the memo:
+Rows 7 and 8 are the same derivation under the two cutoffs luna offers.
+`memo` cuts off on **identity** (`physical_equal`), so a computation that
+allocates — here a formatted `String` — hands back a new object on every run
+and wakes its dependents even while the text is unchanged. `memo_eq` compares
+with `Eq`:
 
 ```moonbit
-fn[T : Eq] memo_eq(f : () -> T) -> () -> T {
-  let out = @resource.signal(f())
-  let _ = @signals.watch(f, (next, _prev) => out.set(next))
-  () => out.get()
-}
+// 5 effect runs over 5 source updates
+let loud = @resource.memo(() => "bucket \{src.get() / 100}")
+
+// 0 effect runs over the same 5 updates
+let quiet = @resource.memo_eq(() => "bucket \{src.get() / 100}")
 ```
 
-That is the difference between rows 7 and 8 — 5 effect runs versus 0.
+Both cost exactly one evaluation of the body per source change; the difference
+is only in what they republish.
 
 ## 3. Signal throughput
 
