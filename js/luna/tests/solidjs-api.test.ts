@@ -232,6 +232,24 @@ describe("Provider component", () => {
     expect(capturedTheme).toBe("dark");
   });
 
+  // A plain child has already been evaluated by JSX when Provider runs, so its
+  // useContext() read the enclosing value. Silently accepting it would make the
+  // provider look like a no-op; the throw names the fix instead.
+  test("Provider rejects non-function children with an actionable message", () => {
+    const themeCtx = createContext("light");
+    let capturedTheme = "";
+
+    const evaluatedChild = (() => {
+      capturedTheme = useContext(themeCtx);
+      return text(capturedTheme);
+    })();
+
+    expect(capturedTheme).toBe("light");
+    expect(() =>
+      Provider({ context: themeCtx, value: "dark", children: evaluatedChild as never })
+    ).toThrow(/Provider children must be a function/);
+  });
+
   test("Provider works with function children", () => {
     const countCtx = createContext(0);
     let capturedCount = -1;
@@ -533,6 +551,31 @@ describe("Portal component", () => {
     const rendered = portalTarget.querySelector(".selector-content");
     expect(rendered).not.toBeNull();
     expect(rendered?.textContent).toBe("Selector content");
+  });
+
+  test("Portal accepts a plain node as children", () => {
+    const content = createElement("span", [attr("id", AttrValue.Static("plain-portal"))], [text("Plain child")]);
+
+    Portal({
+      children: content,
+    });
+
+    const rendered = document.getElementById("plain-portal");
+    expect(rendered).not.toBeNull();
+    expect(rendered?.textContent).toBe("Plain child");
+
+    rendered?.remove();
+  });
+
+  test("Portal accepts a plain node with a selector mount target", () => {
+    Portal({
+      mount: "#portal-target",
+      children: createElement("span", [attr("id", AttrValue.Static("plain-selector-portal"))], [text("Plain selector")]),
+    });
+
+    const rendered = portalTarget.querySelector("#plain-selector-portal");
+    expect(rendered).not.toBeNull();
+    expect(rendered?.textContent).toBe("Plain selector");
   });
 
   test("Portal accepts function children", () => {

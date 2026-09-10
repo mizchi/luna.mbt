@@ -45,7 +45,11 @@ export interface Context<T> {
 export interface ProviderProps<T> {
   context: Context<T>;
   value: T;
-  /** Must be a function to ensure proper context access and lifecycle (onCleanup/onMount) support */
+  /**
+   * Must be a function. JSX evaluates plain children *before* `Provider` runs,
+   * so a `useContext()` inside them would read the enclosing value instead of
+   * this one. Passing a non-function throws rather than reading it silently.
+   */
   children: () => LunaNode;
 }
 
@@ -66,8 +70,11 @@ export interface SwitchProps {
 export interface PortalProps {
   mount?: Element | string;
   useShadow?: boolean;
-  /** Must be a function to ensure proper lifecycle (onCleanup/onMount) support */
-  children: () => LunaNode;
+  /**
+   * A node, or a thunk returning one. Unlike `Provider`, a portal only
+   * relocates its children, so nothing depends on when they are built.
+   */
+  children: LunaNode | (() => LunaNode);
 }
 
 export interface ResourceAccessor<T> {
@@ -108,8 +115,8 @@ import {
   // DOM API
   text,
   textDyn,
-  render,
-  mount,
+  render as _renderTo,
+  mount as _mountTo,
   show,
   loading as _loading,
   jsx,
@@ -119,7 +126,6 @@ import {
   createElementNs,
   svgNs,
   mathmlNs,
-  events,
   forEach,
   // Timer utilities
   debounced as _debounced,
@@ -412,6 +418,42 @@ export function debounced<T>(signal: Signal<T>, delayMs: number): Signal<T> {
 }
 
 // ============================================================================
+// DOM rendering
+// ============================================================================
+
+/**
+ * Replaces `container`'s content with `node`.
+ *
+ * `node` is either an already-built node or a thunk that returns one, so both
+ * `render(el, <App />)` and `render(el, () => <App />)` work. The thunk form
+ * has to be accepted at runtime: SolidJS's `render` takes one, so it is the
+ * shape most JSX call sites reach for, and TypeScript cannot flag the mistake
+ * because `LunaNode` is `unknown`.
+ *
+ * Note the argument order — the container comes first, unlike SolidJS's
+ * `render(code, element)`. The thunk must return a single node; wrap several
+ * in `<>...</>` or `fragment([...])`. Resolving arrays here instead would pull
+ * `fragment` into every bundle that renders, for ~440 B.
+ */
+export function render(
+  container: Element,
+  node: LunaNode | (() => LunaNode)
+): void {
+  _renderTo(container, typeof node === "function" ? node() : node);
+}
+
+/**
+ * Appends `node` to `container`, leaving the existing content in place.
+ * Accepts a thunk in the node position, exactly like `render`.
+ */
+export function mount(
+  container: Element,
+  node: LunaNode | (() => LunaNode)
+): void {
+  _mountTo(container, typeof node === "function" ? node() : node);
+}
+
+// ============================================================================
 // SolidJS-compatible Component API
 // ============================================================================
 
@@ -545,6 +587,16 @@ export function Index<T>(props: IndexProps<T>): any {
 export function Provider<T>(props: ProviderProps<T>): any {
   const { context, value, children } = props;
 
+  if (typeof children !== "function") {
+    // Accepting a plain node here would be worse than throwing: JSX has
+    // already evaluated it, so any useContext() inside read the enclosing
+    // value and the provider would appear to do nothing.
+    throw new TypeError(
+      "Provider children must be a function: " +
+        "<Provider context={ctx} value={v}>{() => <Child />}</Provider>"
+    );
+  }
+
   return provide(context, value, children);
 }
 
@@ -636,32 +688,31 @@ export function Match<T>(props: MatchProps<T>): { __isMatch: true; when: () => b
 
 /**
  * Portal component for rendering outside the component tree (SolidJS-style)
- * Children must be a function: {() => <Child />}
+ * Children may be a node or a thunk: {<Child />} and {() => <Child />} both work.
  */
 export function Portal(props: PortalProps): any {
-  const { mount, useShadow = false, children } = props;
+  const { mount: mountTarget, useShadow = false, children } = props;
 
-  // Resolve children (must be a function)
-  const resolvedChildren = [children()];
+  const resolvedChildren = [resolveChild(children)];
 
   // Handle different mount targets
   if (useShadow) {
-    if (typeof mount === "string") {
-      const target = document.querySelector(mount);
+    if (typeof mountTarget === "string") {
+      const target = document.querySelector(mountTarget);
       if (target) {
         return portalToElementWithShadow(target, resolvedChildren);
       }
-    } else if (mount) {
-      return portalToElementWithShadow(mount, resolvedChildren);
+    } else if (mountTarget) {
+      return portalToElementWithShadow(mountTarget, resolvedChildren);
     }
     return portalWithShadow(resolvedChildren);
   }
 
-  if (typeof mount === "string") {
-    return portalToSelector(mount, resolvedChildren);
+  if (typeof mountTarget === "string") {
+    return portalToSelector(mountTarget, resolvedChildren);
   }
 
-  if (mount) {
+  if (mountTarget) {
     // For custom element mount, use selector approach
     return portalToBody(resolvedChildren);
   }
@@ -881,8 +932,6 @@ export {
   // DOM API
   text,
   textDyn,
-  render,
-  mount,
   show,
   jsx,
   jsxs,
@@ -891,7 +940,6 @@ export {
   createElementNs,
   svgNs,
   mathmlNs,
-  events,
   forEach,
   // Route definitions
   routePage,
