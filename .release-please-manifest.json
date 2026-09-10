@@ -1,10 +1,10 @@
 {
-  "js/luna": "0.23.1",
-  "js/sol": "0.23.0",
-  "js/astra": "0.23.0",
-  "js/components": "0.23.0",
-  "js/loader": "0.23.0",
-  "js/stella": "0.23.0",
-  "js/testing": "0.23.0",
-  "js/wcr": "0.23.0"
+  "js/luna": "0.23.2",
+  "js/sol": "0.23.1",
+  "js/astra": "0.23.1",
+  "js/components": "0.23.1",
+  "js/loader": "0.23.1",
+  "js/stella": "0.23.1",
+  "js/testing": "0.23.1",
+  "js/wcr": "0.23.1"
 }
