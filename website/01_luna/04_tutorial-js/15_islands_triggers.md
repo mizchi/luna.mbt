@@ -183,7 +183,7 @@ import { render } from '@luna_ui/luna';
 
 export default function hydrate(element: Element, state: unknown) {
   console.log("Hydrated at:", performance.now());
-  render(element, () => <MyComponent state={state} />);
+  render(element, <MyComponent state={state} />);
 }
 ```
 

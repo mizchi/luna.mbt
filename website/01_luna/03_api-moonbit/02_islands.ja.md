@@ -315,7 +315,7 @@ export default function hydrate(element: Element, state: { initial?: number }) {
   // state は luna:wc-state からパースされる
   const [count, setCount] = createSignal(state.initial ?? 0);
 
-  render(element, () => (
+  render(element, (
     <button onClick={() => setCount(c => c + 1)}>
       Count: {count()}
     </button>
