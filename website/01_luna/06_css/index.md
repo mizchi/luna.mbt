@@ -154,23 +154,23 @@ For zero runtime overhead:
 
 ```moonbit
 // ✓ Good - SSR component (server-side only)
-fn my_component() -> @static_dom.Node {
+fn my_component() -> @server_dom.ServerNode {
   div(class=@css.css("display", "flex"), [...])
 }
 
 // ✗ Avoid - Island component (runs in browser)
-fn my_island() -> @luna.Node[Unit] {
+fn my_island() -> @luna.Node[Unit, String] {
   // This includes @css module in client bundle!
   div(class=@css.css("display", "flex"), [...])
 }
 
 // ✓ Better for Islands - use pre-computed class string
-fn my_island() -> @luna.Node[Unit] {
+fn my_island() -> @luna.Node[Unit, String] {
   div(class="_z5et", [...])  // No @css import needed
 }
 ```
 
-**Why?** `@static_dom.Node` components only run on the server. `@luna.Node` components run in the browser, so importing `@css` would include CSS generation code in the client bundle.
+**Why?** `@server_dom.ServerNode` components only run on the server. `@luna.Node` components run in the browser, so importing `@css` would include CSS generation code in the client bundle.
 
 ### 3. Dynamic Styling in Islands
 

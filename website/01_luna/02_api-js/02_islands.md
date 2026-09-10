@@ -33,7 +33,7 @@ interface CounterProps {
 export default function hydrate(element: Element, state: CounterProps) {
   const [count, setCount] = createSignal(state.initial);
 
-  render(element, () => (
+  render(element, (
     <>
       <style>{`:host { display: block; }`}</style>
       <button onClick={() => setCount(c => c + 1)}>
@@ -108,13 +108,13 @@ const [items, setItems] = createSignal(['a', 'b', 'c']);
 #### Signature
 
 ```typescript
-interface ForProps<T, U extends Node> {
+interface ForProps<T> {
   each: Accessor<T[]> | T[];
-  fallback?: Node;
-  children: (item: T, index: Accessor<number>) => U;
+  fallback?: LunaNode;
+  children: (item: T, index: Accessor<number>) => LunaNode;
 }
 
-function For<T, U extends Node>(props: ForProps<T, U>): Node;
+function For<T>(props: ForProps<T>): LunaNode;
 ```
 
 ### Index
@@ -152,11 +152,11 @@ const [isVisible, setIsVisible] = createSignal(false);
   <div>Visible!</div>
 </Show>
 
-// With function children (receives truthy value)
+// With function children — the argument is an Accessor, so call it
 const [user, setUser] = createSignal<User | null>(null);
 
 <Show when={user}>
-  {(u) => <div>Hello, {u.name}</div>}
+  {(u) => <div>Hello, {u().name}</div>}
 </Show>
 ```
 
@@ -165,12 +165,16 @@ const [user, setUser] = createSignal<User | null>(null);
 ```typescript
 interface ShowProps<T> {
   when: T | Accessor<T>;
-  fallback?: Node;
-  children: Node | ((item: NonNullable<T>) => Node);
+  fallback?: LunaNode;
+  children: (() => LunaNode) | ((item: Accessor<NonNullable<T>>) => LunaNode);
 }
 
-function Show<T>(props: ShowProps<T>): Node;
+function Show<T>(props: ShowProps<T>): LunaNode;
 ```
+
+JSX children are wrapped in a thunk for you, so `<Show><div/></Show>` works as
+written. When you pass a function explicitly, its argument is an
+`Accessor<NonNullable<T>>` — `u()`, not `u`.
 
 ### Switch / Match
 
@@ -220,19 +224,22 @@ import { Portal } from '@luna_ui/luna';
 
 // Render to document.body (default)
 <Portal>
-  <div class="modal">Modal content</div>
+  {() => <div class="modal">Modal content</div>}
 </Portal>
 
 // Render to specific selector
 <Portal mount="#modal-root">
-  <div class="modal">Modal content</div>
+  {() => <div class="modal">Modal content</div>}
 </Portal>
 
 // Render with Shadow DOM encapsulation
 <Portal useShadow>
-  <div>Encapsulated content</div>
+  {() => <div>Encapsulated content</div>}
 </Portal>
 ```
+
+`Portal` calls its children, so they must be a **function**. Passing a bare
+element throws `children is not a function`.
 
 #### Signature
 
@@ -240,10 +247,10 @@ import { Portal } from '@luna_ui/luna';
 interface PortalProps {
   mount?: Element | string;  // Target element or CSS selector
   useShadow?: boolean;       // Use Shadow DOM
-  children: Node | Node[] | (() => Node);
+  children: () => LunaNode;
 }
 
-function Portal(props: PortalProps): Node;
+function Portal(props: PortalProps): LunaNode;
 ```
 
 #### Low-level APIs
@@ -271,11 +278,22 @@ import { createContext, useContext, Provider } from '@luna_ui/luna';
 const ThemeContext = createContext('light');
 
 <Provider context={ThemeContext} value="dark">
-  <App />
+  {() => <App />}
 </Provider>
 
 // Inside App or descendants:
 const theme = useContext(ThemeContext);  // 'dark'
+```
+
+Like `Portal`, `Provider` calls its children — the value is only in scope while
+that function runs, so bare element children throw `f is not a function`.
+
+```typescript
+interface ProviderProps<T> {
+  context: Context<T>;
+  value: T;
+  children: () => LunaNode;
+}
 ```
 
 ## DOM Utilities
@@ -287,12 +305,19 @@ Mount a component to a DOM element.
 ```typescript
 import { mount, render, createElement, text } from '@luna_ui/luna';
 
-// Using mount
+// Both take (root, node) — a node, not a function returning one
 mount(document.getElementById('app'), <App />);
-
-// Using render (same as mount)
-render(document.getElementById('app'), myComponent);
+render(document.getElementById('app'), <App />);
 ```
+
+```typescript
+function mount(root: Element, node: LunaNode): void;
+function render(root: Element, node: LunaNode): void;
+```
+
+Passing a function instead — `render(el, () => <App />)` — throws inside
+`appendChild`, because the function object itself is handed to the DOM as if it
+were a node.
 
 ### text / textDyn
 
@@ -339,17 +364,27 @@ const list = forEach(
 );
 ```
 
-### events
+### Event handlers
 
-Create event handler maps with method chaining.
+In JSX, attach handlers as props:
+
+```tsx
+<button onClick={(e) => console.log('clicked')}>Click</button>
+<input onInput={(e) => console.log('input')} onKeyDown={(e) => console.log('key')} />
+```
+
+`events()` is exported, but its chaining DSL (`events().click(…)`) is MoonBit
+API: `HandlerMap::click` and friends are MoonBit extern methods, so from
+JavaScript `events()` returns a plain object with no methods on it. Use the JSX
+props above instead.
+
+The `event-utils` entry point holds the reader helpers that *are* meant for
+JavaScript:
 
 ```typescript
-import { events } from '@luna_ui/luna';
+import { getTargetValue, isEnterKey, stopEvent } from '@luna_ui/luna/event-utils';
 
-const handlers = events()
-  .click((e) => console.log('clicked'))
-  .input((e) => console.log('input'))
-  .keydown((e) => console.log('keydown'));
+<input onKeyDown={(e) => { if (isEnterKey(e)) { stopEvent(e); submit(getTargetValue(e)); } }} />
 ```
 
 ### Host Element
@@ -370,7 +405,7 @@ export default function hydrate(element: Element) {
     }));
   };
 
-  render(element, () => <button onClick={handleClick}>Click ({count()})</button>);
+  render(element, <button onClick={handleClick}>Click ({count()})</button>);
 }
 ```
 
@@ -420,7 +455,7 @@ interface Props {
 | Export | Description |
 |--------|-------------|
 | `export default function hydrate(el, state, name)` | Island module entry point — loader calls this with the custom element, parsed JSON state, and tag name |
-| `render(el, () => jsx)` | Render JSX into the element |
+| `render(el, jsx)` | Render JSX into the element |
 
 ### Control Flow
 
@@ -443,4 +478,5 @@ interface Props {
 | `textDyn(getter)` | Dynamic text node |
 | `show(cond, render)` | Conditional node |
 | `forEach(items, render)` | List of nodes |
-| `events()` | Event handler builder |
+| `onClick` / `onInput` / … | Attach handlers as JSX props |
+| `@luna_ui/luna/event-utils` | `getTargetValue`, `isEnterKey`, `stopEvent`, … |

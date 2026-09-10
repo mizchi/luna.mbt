@@ -40,31 +40,41 @@ fn Signal::new[T](value : T) -> Signal[T]
 | `.set(value)` | Set new value |
 | `.update(fn)` | Update based on current value |
 | `.peek()` | Read without tracking |
-| `.map(fn)` | Create derived signal |
-| `.filter(fn)` | Filter values by predicate |
-| `.filter_map(fn)` | Filter and map values |
-| `.to_getter()` | Create read-only getter function |
 | `.subscriber_count()` | Get number of subscribers |
 | `.clear_subscribers()` | Remove all subscribers |
 
 ### Transformations
 
+These are free functions, not methods on `Signal`:
+
 ```moonbit
 let count = Signal::new(5)
 
-// Map to derived value
-let doubled = count.map(fn(n) { n * 2 })
+// Map to a derived getter
+let doubled = sig_map(count, fn(n) { n * 2 })
 assert_eq(doubled(), 10)
 
-// Filter values
-let positive = count.filter(fn(n) { n > 0 })
+// Filter values — yields a Signal of Option
+let positive = sig_filter(count, fn(n) { n > 0 })
 assert_eq(positive.peek(), Some(5))
 
-// Filter and map
-let doubled_positive = count.filter_map(fn(n) {
+// Filter and map in one pass
+let doubled_positive = sig_filter_map(count, fn(n) {
   if n > 0 { Some(n * 2) } else { None }
 })
+assert_eq(doubled_positive.peek(), Some(10))
+
+// Read-only view
+let getter = to_getter(count)
+assert_eq(getter(), 5)
 ```
+
+| Function | Returns |
+|----------|---------|
+| `sig_map(signal, fn)` | `() -> U` |
+| `sig_filter(signal, pred)` | `Signal[T?]` |
+| `sig_filter_map(signal, fn)` | `Signal[U?]` |
+| `to_getter(signal)` | `() -> T` |
 
 ## effect
 
@@ -127,6 +137,41 @@ let tripled = computed(fn() { count.get() * 3 })
 ```moonbit
 fn memo[T](fn : () -> T) -> () -> T
 fn computed[T](fn : () -> T) -> () -> T
+```
+
+## memo_eq
+
+`memo` cuts off on **identity**: it stops propagating only when a
+recomputation returns the same object as last time. A computation that
+allocates — a formatted `String`, a small struct — produces a new object every
+run, so every dependent wakes on every source change even while the value is
+unchanged.
+
+`memo_eq` compares with `Eq` instead:
+
+```moonbit
+let n = @resource.signal(0)
+
+// Re-runs on every change to `n`: each result is a fresh String.
+let loud = @resource.memo(fn() { "page \{n.get() / 100}" })
+
+// Re-runs only when the page number actually moves.
+let quiet = @resource.memo_eq(fn() { "page \{n.get() / 100}" })
+```
+
+Two differences from `memo`:
+
+- **Eager.** `memo` first runs its body on the first read. `memo_eq` runs it
+  once at construction and again on every source change, read or not. Per
+  source change both cost one evaluation.
+- **Owned.** It installs an effect registered with the current owner, so it
+  stops recomputing when that owner is disposed, and then keeps returning the
+  last value it published.
+
+### Signature
+
+```moonbit
+fn memo_eq[T : Eq](fn : () -> T) -> () -> T
 ```
 
 ## batch
@@ -530,7 +575,8 @@ assert_true(res.is_pending())
 | `effect(fn)` | Create side effect, returns dispose |
 | `effect_when(cond, fn)` | Conditional effect |
 | `effect_once(fn)` | One-time effect |
-| `memo(fn)` / `computed(fn)` | Create cached computed |
+| `memo(fn)` / `computed(fn)` | Create cached computed (identity cutoff) |
+| `memo_eq(fn)` | Cached computed with `Eq` cutoff |
 | `batch(fn)` | Batch updates |
 | `untracked(fn)` | Run without tracking |
 | `on_cleanup(fn)` | Register cleanup |
@@ -549,6 +595,8 @@ assert_true(res.is_pending())
 
 | Function | Description |
 |----------|-------------|
+| `sig_map/sig_filter/sig_filter_map` | Derive a signal or getter |
+| `to_getter(signal)` | Read-only getter |
 | `combine2/3/4(signals, fn)` | Combine signals |
 | `all(signals)` | All true |
 | `any(signals)` | Any true |

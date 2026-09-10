@@ -122,8 +122,8 @@ test "propagation: watch cuts off on structural equality" {
 ///|
 test "propagation: memo does NOT cut off on structural equality" {
   let src = @resource.signal(0)
-  // Collapses every input below 100 onto the same String.
-  let bucket = @resource.memo(() => if src.get() < 100 { "low" } else { "high" })
+  // A fresh String per recomputation, equal to the last one every time.
+  let bucket = @resource.memo(() => "bucket \{src.get() / 100}")
   let runs = Ref(0)
   let _ = @resource.render_effect(() => {
     let _ = bucket()
@@ -131,32 +131,19 @@ test "propagation: memo does NOT cut off on structural equality" {
   })
   let base = runs.val
   drive(i => src.set(i))
-  // Known gap, asserted at the current value so a change is visible.
-  //
   // `memo` cuts off with `physical_equal`, so a freshly produced value that is
-  // structurally equal to the previous one still propagates. Downstream effects
-  // re-render once per source update even though nothing they can observe
-  // changed. `watch` above shows the Eq-based machinery already exists; it is
-  // just not wired into the derived-value graph.
-  //
-  // If this ever drops to 0, the cutoff landed: update the expectation.
+  // structurally equal to the previous one still propagates: downstream
+  // effects re-render once per source update even though nothing they can
+  // observe changed. This is the documented behaviour of `memo`, not a defect
+  // — reach for `memo_eq` when you want the other cutoff, as the next test
+  // does with the identical derivation.
   count_is("effect re-runs behind a collapsing memo", runs.val - base, UPDATES)
 }
 
 ///|
-/// A memo that cuts off on structural equality, built from the public API.
-/// `watch` only fires when its observed value actually changes, so the signal
-/// it feeds stays put while the derived value does.
-fn[T : Eq] memo_eq(f : () -> T) -> () -> T {
-  let out = @resource.signal(f())
-  let _ = @signals.watch(f, (next, _prev) => out.set(next))
-  () => out.get()
-}
-
-///|
-test "propagation: an Eq-aware memo closes the gap in user space" {
+test "propagation: an Eq-aware memo closes the gap" {
   let src = @resource.signal(0)
-  let bucket = memo_eq(() => if src.get() < 100 { "low" } else { "high" })
+  let bucket = @resource.memo_eq(() => "bucket \{src.get() / 100}")
   let runs = Ref(0)
   let _ = @resource.render_effect(() => {
     let _ = bucket()

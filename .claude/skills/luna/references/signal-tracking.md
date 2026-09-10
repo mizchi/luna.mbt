@@ -92,7 +92,8 @@ appending log, etc.).
 | Function | Use for |
 |---|---|
 | `@resource.signal(initial)` | Reactive cell |
-| `@resource.memo(fn)` | Cached derived value, re-computes only when reads change |
+| `@resource.memo(fn)` | Cached derived value, re-computes only when reads change; cuts off on **identity** |
+| `@resource.memo_eq(fn)` | Same, but cuts off on `Eq` — use when `fn` allocates a fresh value that is often equal |
 | `@resource.effect(fn)` | Side-effect that re-runs when its tracked reads change |
 | `@resource.render_effect(fn)` | Synchronous DOM-update effect (used inside luna's own `Show`/`For`) |
 | `@resource.untracked(fn)` | Run `fn` reading signals **without** subscribing the surrounding effect |
@@ -102,6 +103,7 @@ appending log, etc.).
 
 ## Pitfalls
 
+- **A `memo` that allocates wakes its dependents every time.** `memo` cuts off with `physical_equal`, so `memo(() => "page \{n.get() / 100}")` republishes on every change to `n` even while the text is identical, and every effect behind it re-runs. Reach for `@resource.memo_eq` when the derived value is freshly allocated and often equal — a formatted `String`, a small struct, a bucketed number. `luna/src/_bench/propagation_test.mbt` asserts the difference as exact counts: 5 effect runs versus 0 over the same five source updates.
 - **Don't put intentional deps inside untracked.** If you wrap `match_signal().get()` in `untracked`, the effect will only fire once and route changes won't re-render. The intentional `get()` calls live *outside* `untracked`.
 - **Don't reach for `untracked` to silence warnings.** If a `Signal::get()` is firing your effect when it shouldn't, first ask whether the signal even belongs in this effect's body. Often the right answer is to move the read into a memoized child component, not to wrap it.
 - **`render_effect` is for primitives (Show, For, render_to)**, not app-level code. App authors should default to `effect`. Reaching for `render_effect` usually means you're rebuilding a primitive that already exists — check `luna/src/dom/render.mbt` first.

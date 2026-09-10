@@ -62,6 +62,19 @@ function createEffect(fn: () => void): () => void;
 
 Returns a dispose function to stop the effect.
 
+**`createEffect` is deferred.** The body first runs on a microtask, not
+synchronously at the call site, so the logs above appear after the current task
+finishes. In a test, await a microtask before asserting:
+
+```typescript
+createEffect(() => { console.log(name()); });
+await new Promise(r => setTimeout(r, 0));   // now it has run
+```
+
+`createRenderEffect` is the synchronous variant — it runs immediately and again
+on every dependency change. Luna's own primitives (`Show`, `For`) use it;
+application code should default to `createEffect`.
+
 ## createMemo
 
 Create a cached computed value that updates when dependencies change.
@@ -288,22 +301,45 @@ const [data, { refetch }] = createResource((resolve, reject) => {
 });
 
 // Access resource
-data();         // value or undefined
-data.loading;   // boolean
+data();         // value or undefined  (tracked)
+data.loading;   // boolean             (untracked)
 data.error;     // string or undefined
 data.state;     // 'unresolved' | 'pending' | 'ready' | 'errored'
-data.latest;    // last successful value
+data.latest;    // last settled value, kept across a refetch
+data.pending;   // Accessor<boolean>   (tracked — use this inside an effect)
 
 // Refetch
 refetch();
 
 // Manual control with deferred
 const [resource, resolve, reject] = createDeferred<number>();
-// Later...
+resource.state;   // 'pending'
 resolve(42);
+resource.state;   // 'ready', resource() === 42
 // Or...
 reject("Failed!");
 ```
+
+`loading` and `state` are plain getters and do **not** register a dependency.
+`data()` and `data.pending` do — reach for those inside an effect:
+
+```typescript
+createEffect(() => {
+  if (data.pending()) console.log("loading…");
+  else console.log(data());
+});
+```
+
+Both `createResource` and `createDeferred` return the same accessor shape:
+
+| Member | Type | Tracked |
+|--------|------|---------|
+| `data()` | `T \| undefined` | yes |
+| `data.pending` | `Accessor<boolean>` | yes |
+| `data.loading` | `boolean` | no |
+| `data.error` | `string \| undefined` | no |
+| `data.state` | `'unresolved' \| 'pending' \| 'ready' \| 'errored'` | no |
+| `data.latest` | `T \| undefined` | no |
 
 ## Store API
 
@@ -393,7 +429,8 @@ const [group1, group2, rest] = splitProps(props, ['a'], ['b', 'c']);
 | Function | Description |
 |----------|-------------|
 | `createSignal(value)` | Create a reactive signal |
-| `createEffect(fn)` | Create a side effect |
+| `createEffect(fn)` | Create a side effect (deferred to a microtask) |
+| `createRenderEffect(fn)` | Create a synchronous side effect |
 | `createMemo(fn)` | Create a cached computed value |
 | `batch(fn)` | Batch multiple updates |
 | `untrack(fn)` | Run without tracking dependencies |

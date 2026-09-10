@@ -49,6 +49,8 @@ pub fn is_batching() -> Bool
 
 pub fn[T] memo(() -> T) -> () -> T
 
+pub fn[T : Eq] memo_eq(() -> T) -> () -> T
+
 pub fn new_effect_id() -> Int
 
 pub fn[T] on(@signals.Signal[T], (T) -> Unit) -> () -> Unit

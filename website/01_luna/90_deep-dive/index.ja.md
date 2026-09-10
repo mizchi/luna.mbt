@@ -308,7 +308,7 @@ import { createSignal, render } from '@luna_ui/luna';
 
 export default function hydrate(element: Element, state: { count?: number }) {
   const [count, setCount] = createSignal(state.count ?? 0);
-  render(element, () => (
+  render(element, (
     <button onClick={() => setCount(c => c + 1)}>Count: {count()}</button>
   ));
 }

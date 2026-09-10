@@ -74,7 +74,7 @@ Create a Web Components island element with raw string parameters. Internally th
   "/components/counter.js",
   initial.to_string(),
   [@element.div([@element.button([@element.text("Count: \{initial}")])])],
-  trigger=@luna.Load,
+  trigger=@luna.Trigger::Load,
 )
 ```
 
@@ -117,7 +117,7 @@ fn island_raw(
 ```moonbit
 // Lazy-loaded island - hydrates when scrolled into view
 @sol.island(
-  @types.lazy({}, trigger=@luna.TriggerType::Visible),
+  @types.lazy({}, trigger=@luna.Trigger::Visible),
   [@element.text("Lazy content")],
 )
 // Output: luna:wc-trigger="visible"
@@ -141,29 +141,29 @@ enum Trigger {
 
 | Value | HTML Output | Description |
 |-------|-------------|-------------|
-| `@luna.Load` | `load` | Immediate hydration |
-| `@luna.Idle` | `idle` | `requestIdleCallback` |
-| `@luna.Visible` | `visible` | `IntersectionObserver` |
-| `@luna.Media(query)` | `media:(query)` | Media query match |
-| `@luna.None` | `none` | Manual via `__LUNA_HYDRATE__` |
+| `@luna.Trigger::Load` | `load` | Immediate hydration |
+| `@luna.Trigger::Idle` | `idle` | `requestIdleCallback` |
+| `@luna.Trigger::Visible` | `visible` | `IntersectionObserver` |
+| `@luna.Trigger::Media(query)` | `media:(query)` | Media query match |
+| `@luna.Trigger::None` | `none` | Manual via `__LUNA_HYDRATE__` |
 
 ### Examples
 
 ```moonbit
 // Immediate (default)
-trigger=@luna.Load
+trigger=@luna.Trigger::Load
 
 // When browser is idle
-trigger=@luna.Idle
+trigger=@luna.Trigger::Idle
 
 // When scrolled into view
-trigger=@luna.Visible
+trigger=@luna.Trigger::Visible
 
 // Desktop only
-trigger=@luna.Media("(min-width: 768px)")
+trigger=@luna.Trigger::Media("(min-width: 768px)")
 
 // Manual trigger
-trigger=@luna.None
+trigger=@luna.Trigger::None
 ```
 
 ## render_with_preloads
@@ -186,7 +186,7 @@ let result = render_with_preloads(node)
 ```moonbit
 // Generate preload links for all islands
 let preload_links = result.preload_urls.map(fn(url) {
-  @element.link(rel="modulepreload", href=url)
+  @server_dom.link(rel="modulepreload", href=url)
 })
 ```
 
@@ -200,27 +200,31 @@ For direct string-based Web Component islands, use `@luna.wc_island` or `@sol.wc
 
 ```moonbit
 @luna.wc_island(
-  name="wc-counter",
-  url="/static/wc-counter.js",
-  state=initial.to_string(),
-  trigger=@luna.Load,
-  styles=":host { display: block; }",
-  children=[
-    @element.button([@element.text("Count: \{initial}")])
-  ],
+  "wc-counter",                        // name
+  "/static/wc-counter.js",             // url
+  ":host { display: block; }",         // styles
+  initial.to_string(),                 // state
+  [@server_dom.button([@server_dom.text("Count: \{initial}")])],
+  trigger=@luna.Trigger::Load,
 )
 ```
 
 ### Parameters (`@luna.wc_island`)
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `name` | `String` | Custom element tag name |
-| `url` | `String` | JavaScript module URL |
-| `state` | `String` | Serialized props (JSON) |
-| `trigger` | `Trigger` | When to hydrate |
-| `styles` | `String` | Scoped CSS for Shadow DOM |
-| `children` | `Array[Node]` | Server-rendered content |
+The first five are **positional, in this order**; only `trigger` is named.
+
+| # | Parameter | Type | Description |
+|---|-----------|------|-------------|
+| 1 | `name` | `String` | Custom element tag name |
+| 2 | `url` | `String` | JavaScript module URL |
+| 3 | `styles` | `String` | Scoped CSS for the shadow root |
+| 4 | `state` | `String` | Serialized props (JSON) |
+| 5 | `children` | `Array[Node[E, A]]` | Server-rendered content |
+| — | `trigger?` | `Trigger` | When to hydrate (default `Load`) |
+
+`@server_dom.wc_island` wraps the same thing with a friendlier shape for SSR —
+`(name, url, children)` positional, then `styles?`, `state?` and `trigger?` as
+named optionals with defaults.
 
 ### HTML Output
 
@@ -237,17 +241,19 @@ For direct string-based Web Component islands, use `@luna.wc_island` or `@sol.wc
 </wc-counter>
 ```
 
-## slot_
+## Slots
 
-Create a slot element for Web Components.
+There is no `slot` helper. Build the element with `@luna.h`, which takes a tag
+name, an attribute tuple list, and children:
 
 ```moonbit
-@luna.wc_island(
-  name="wc-card",
-  children=[
-    @element.slot_(),                    // Default slot
-    @element.slot_(name="header"),       // Named slot
-    @element.slot_(name="footer"),       // Named slot
+@server_dom.wc_island(
+  "wc-card",
+  "/static/wc-card.js",
+  [
+    @luna.h("slot", [], []),                                  // default slot
+    @luna.h("slot", [("name", @server_dom.attr("header"))], []),
+    @luna.h("slot", [("name", @server_dom.attr("footer"))], []),
   ],
 )
 ```
@@ -311,7 +317,7 @@ export default function hydrate(element: Element, state: { initial?: number }) {
   // state is parsed from luna:wc-state
   const [count, setCount] = createSignal(state.initial ?? 0);
 
-  render(element, () => (
+  render(element, (
     <button onClick={() => setCount(c => c + 1)}>
       Count: {count()}
     </button>
@@ -329,13 +335,13 @@ export default function hydrate(element: Element, state: { initial?: number }) {
 | `@server_dom.client(cref, children)` | Equivalent to `@sol.island` |
 | `@luna.wc_island(...)` | Create Web Component island (low-level) |
 | `@sol.wc_island_raw(...)` | Sol wrapper for WC island (low-level) |
-| `@element.slot_(name~)` | Create slot element |
+| `@luna.h("slot", attrs, [])` | Slot element (no dedicated helper) |
 | `render_with_preloads(node)` | Render and collect preload URLs |
 
 | Trigger | When |
 |---------|------|
-| `@luna.Load` | Page load (default) |
-| `@luna.Idle` | Browser idle |
-| `@luna.Visible` | In viewport |
-| `@luna.Media(query)` | Media query matches |
-| `@luna.None` | Manual |
+| `@luna.Trigger::Load` | Page load (default) |
+| `@luna.Trigger::Idle` | Browser idle |
+| `@luna.Trigger::Visible` | In viewport |
+| `@luna.Trigger::Media(query)` | Media query matches |
+| `@luna.Trigger::None` | Manual |

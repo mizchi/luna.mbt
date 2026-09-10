@@ -54,7 +54,7 @@ interface CounterProps {
 export default function hydrate(element: Element, state: CounterProps) {
   const [count, setCount] = createSignal(state.initial);
 
-  render(element, () => (
+  render(element, (
     <>
       <style>
         {`:host { display: block; padding: 16px; }
@@ -198,7 +198,7 @@ export default function hydrate(element: Element) {
     }));
   };
 
-  render(element, () => (
+  render(element, (
     <button onClick={handleClick}>Count: {count()}</button>
   ));
 }
@@ -347,7 +347,7 @@ export default function hydrate(element: Element, state: ToastProps) {
     element.remove();
   };
 
-  render(element, () => (
+  render(element, (
     <Show when={visible()}>
       <span>{state.message}</span>
       <button onClick={dismiss}>×</button>

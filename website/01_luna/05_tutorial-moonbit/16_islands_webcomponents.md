@@ -71,7 +71,7 @@ interface CounterProps {
 export default function hydrate(element: Element, state: CounterProps) {
   const [count, setCount] = createSignal(state.initial);
 
-  render(element, () => (
+  render(element, (
     <>
       <style>
         {`:host { display: block; padding: 16px; }

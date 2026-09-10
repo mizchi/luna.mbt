@@ -77,7 +77,7 @@ interface CounterProps {
 export default function hydrate(element: Element, state: CounterProps) {
   const [count, setCount] = createSignal(state.initial);
 
-  render(element, () => (
+  render(element, (
     <button onClick={() => setCount(c => c + 1)}>
       Count: {count()}
     </button>

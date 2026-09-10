@@ -84,17 +84,17 @@ moon test --target js -p mizchi/luna/_bench
 | 値が潰れる memo 越しの effect | **5** | 下記参照 |
 | `Eq` を見る memo 越しの effect | **0** | |
 
-7 行目だけが穴です。`memo` のカットオフは**同一性** (`physical_equal`) で判定するため、異なる入力を「等しいが新しく確保された値」に写す memo は、依存先へ通知してしまいます。`watch` は `Eq` で比較するのでカットオフが効きます。カットオフが必要なら memo を包みます:
+7 行目と 8 行目は、同じ導出を luna の 2 つのカットオフで測ったものです。`memo` は**同一性** (`physical_equal`) で判定するため、毎回新しい値を確保する計算 — ここでは組み立てた `String` — は、内容が変わっていなくても新しいオブジェクトを返し、依存先を起こしてしまいます。`memo_eq` は `Eq` で比較します:
 
 ```moonbit
-fn[T : Eq] memo_eq(f : () -> T) -> () -> T {
-  let out = @resource.signal(f())
-  let _ = @signals.watch(f, (next, _prev) => out.set(next))
-  () => out.get()
-}
+// 5 回のソース更新で effect は 5 回
+let loud = @resource.memo(() => "bucket \{src.get() / 100}")
+
+// 同じ 5 回の更新で effect は 0 回
+let quiet = @resource.memo_eq(() => "bucket \{src.get() / 100}")
 ```
 
-これが 7 行目と 8 行目の差 — effect 5 回 と 0 回 — です。
+ソース 1 変更あたりの本体評価回数はどちらも 1 回で、違うのは「何を再公開するか」だけです。
 
 ## 3. Signal のスループット
 

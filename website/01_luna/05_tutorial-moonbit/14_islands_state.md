@@ -77,7 +77,7 @@ export default function hydrate(element: Element, state: CounterProps) {
     setCount(c => Math.min(c + 1, state.max));
   };
 
-  render(element, () => (
+  render(element, (
     <button onClick={increment}>
       Count: {count()} / {state.max}
     </button>

@@ -365,7 +365,7 @@ export function createResource<T>(fetcher: (resolve: (v: T) => void, reject: (e:
         return "unresolved";
       },
     },
-    latest: { get: () => resourcePeek(resource) },
+    latest: { get: () => stateValue(resourcePeek(resource)) },
     pending: { value: resourcePendingGetter(resource) },
   });
 
@@ -386,6 +386,15 @@ export function createDeferred<T>(): [ResourceAccessor<T>, (value: T) => void, (
   Object.defineProperties(accessor, {
     loading: { get: () => resourceIsPending(resource) },
     error: { get: () => resourceError(resource) },
+    state: {
+      get: () => {
+        if (resourceIsPending(resource)) return "pending";
+        if (resourceIsSuccess(resource)) return "ready";
+        if (resourceIsFailure(resource)) return "errored";
+        return "unresolved";
+      },
+    },
+    latest: { get: () => stateValue(resourcePeek(resource)) },
     pending: { value: resourcePendingGetter(resource) },
   });
 
