@@ -145,11 +145,23 @@ pub(all) enum FileType {
 } derive(Eq, Debug)
 
 ///|
+/// Detect file type from a filename, honouring compound page extensions
+/// such as `.mbt.md` that `get_extension` alone cannot see.
+pub fn FileType::from_filename(filename : String) -> FileType {
+  match @astra.content_extension(filename) {
+    Some(ext) => FileType::from_extension(ext)
+    None => FileType::from_extension(get_extension(filename))
+  }
+}
+
+///|
 /// Detect file type from extension
 pub fn FileType::from_extension(ext : String) -> FileType {
   match ext.to_lower() {
     ".mbt" => FileType::MoonBit
-    ".md" => FileType::Markdown
+    // `.mbt.md` is literate Markdown, not MoonBit source: astra renders it as
+    // a Markdown page while `moon` compiles the fences inside it.
+    ".mbt.md" | ".md" => FileType::Markdown
     ".mdx" => FileType::Mdx
     ".html" | ".htm" => FileType::Html
     _ => FileType::Unknown

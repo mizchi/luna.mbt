@@ -306,3 +306,30 @@ test "is_directory - distinguishes file and directory" {
   assert_false(is_directory(fs, "/project/docs/intro.md"))
   assert_false(is_directory(fs, "/project/missing"))
 }
+
+// =============================================================================
+// MoonBit Literate Markdown (.mbt.md)
+// =============================================================================
+
+///|
+test "is_content_file - mbt.md is a page source" {
+  inspect(is_content_file("intro.mbt.md"), content="true")
+  inspect(is_content_file("intro.md"), content="true")
+  inspect(is_content_file("intro.mbt"), content="false")
+  inspect(is_content_file("moon.pkg"), content="false")
+}
+
+///|
+test "is_moonbit_markdown - only the compound extension" {
+  inspect(is_moonbit_markdown("intro.mbt.md"), content="true")
+  inspect(is_moonbit_markdown("intro.md"), content="false")
+  inspect(is_moonbit_markdown("intro.mbt"), content="false")
+}
+
+///|
+test "is_excluded - MoonBit build artifacts are always skipped" {
+  inspect(is_excluded("_build", "_build", []), content="true")
+  inspect(is_excluded("target", "guide/target", []), content="true")
+  inspect(is_excluded(".mooncakes", ".mooncakes", []), content="true")
+  inspect(is_excluded("guide", "guide", []), content="false")
+}

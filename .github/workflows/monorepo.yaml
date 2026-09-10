@@ -5,13 +5,20 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
+    # Prose is skipped, but `*.mbt.md` pages are compiled by `moon check` /
+    # `moon test`, so they must re-run the workspace check. Later patterns
+    # win, which is why the re-include comes last.
+    paths:
+      - "**"
+      - "!**/*.md"
+      - "!docs/**"
+      - "**/*.mbt.md"
   pull_request:
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
+    paths:
+      - "**"
+      - "!**/*.md"
+      - "!docs/**"
+      - "**/*.mbt.md"
 
 permissions:
   contents: read

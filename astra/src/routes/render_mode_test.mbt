@@ -180,3 +180,12 @@ test "FallbackConfig::spa_entry - SpaPrefix returns entry" {
     ),
   )
 }
+
+///|
+test "FileType::from_filename - mbt.md is Markdown, not MoonBit" {
+  debug_inspect(FileType::from_filename("intro.mbt.md"), content="Markdown")
+  debug_inspect(FileType::from_filename("component.mbt"), content="MoonBit")
+  debug_inspect(FileType::from_filename("intro.md"), content="Markdown")
+  debug_inspect(FileType::from_filename("intro.mdx"), content="Mdx")
+  debug_inspect(FileType::from_filename("page.html"), content="Html")
+}

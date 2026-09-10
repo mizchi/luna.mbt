@@ -201,3 +201,61 @@ test "replace_filename - basic" {
     content="a/b/c/file.md",
   )
 }
+
+// =============================================================================
+// MoonBit Literate Markdown (.mbt.md)
+// =============================================================================
+
+///|
+test "content_extension - compound .mbt.md wins over .md" {
+  debug_inspect(content_extension("intro.mbt.md"), content="Some(\".mbt.md\")")
+  debug_inspect(content_extension("intro.md"), content="Some(\".md\")")
+  debug_inspect(content_extension("intro.mdx"), content="Some(\".mdx\")")
+  debug_inspect(content_extension("custom.html"), content="Some(\".html\")")
+}
+
+///|
+test "content_extension - non-page sources" {
+  debug_inspect(content_extension("moon.pkg"), content="None")
+  debug_inspect(content_extension("component.mbt"), content="None")
+  debug_inspect(content_extension("pkg.generated.mbti"), content="None")
+}
+
+///|
+test "strip_content_extension - removes the whole compound extension" {
+  inspect(strip_content_extension("guide/intro.mbt.md"), content="guide/intro")
+  inspect(strip_content_extension("guide/intro.md"), content="guide/intro")
+  inspect(strip_content_extension("guide/intro.mbt"), content="guide/intro.mbt")
+}
+
+///|
+test "is_index_source - index pages in every page format" {
+  inspect(is_index_source("index.md"), content="true")
+  inspect(is_index_source("guide/index.mdx"), content="true")
+  inspect(is_index_source("guide/index.mbt.md"), content="true")
+  inspect(is_index_source("guide/intro.mbt.md"), content="false")
+}
+
+///|
+test "file_to_url_path - mbt.md extension" {
+  inspect(file_to_url_path("guide/intro.mbt.md"), content="/guide/intro/")
+  inspect(file_to_url_path("00_guide/01_intro.mbt.md"), content="/guide/intro/")
+}
+
+///|
+test "file_to_url_path - mbt.md index pages" {
+  inspect(file_to_url_path("index.mbt.md"), content="/")
+  inspect(file_to_url_path("guide/index.mbt.md"), content="/guide/")
+}
+
+///|
+test "extract_locale_suffix - mbt.md keeps the compound extension" {
+  debug_inspect(
+    extract_locale_suffix("intro.ja.mbt.md", ["en", "ja"]),
+    content="Some((\"ja\", \"intro.mbt.md\"))",
+  )
+  debug_inspect(
+    extract_locale_suffix("intro.mbt.md", ["en", "ja"]),
+    content="None",
+  )
+}

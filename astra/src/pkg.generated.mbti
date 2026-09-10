@@ -17,6 +17,8 @@ pub fn capitalize_first(String) -> String
 
 pub fn compare_strings_lex(String, String) -> Int
 
+pub fn content_extension(String) -> String?
+
 pub fn detect_locale_from_path(String, I18nConfig, trailing_slash? : Bool) -> (String, String)
 
 pub fn extract_locale_suffix(String, Array[String]) -> (String, String)?
@@ -39,7 +41,11 @@ pub fn get_locale_url_prefix(I18nConfig, String) -> String
 
 pub fn get_url_dir(String) -> String
 
+pub fn is_content_extension(String) -> Bool
+
 pub fn is_default_locale(I18nConfig, String) -> Bool
+
+pub fn is_index_source(String) -> Bool
 
 pub fn pad_number(Int, Int) -> String
 
@@ -54,6 +60,8 @@ pub fn parse_ssg_from_sol_config(String) -> SsgConfig?
 pub fn replace_filename(String, String) -> String
 
 pub fn resolve_base_url(String, String) -> String
+
+pub fn strip_content_extension(String) -> String
 
 pub fn strip_locale_from_url(String, I18nConfig) -> (String, String)
 

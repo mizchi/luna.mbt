@@ -67,22 +67,28 @@ long-running server (sol embedding, ISR with `revalidate`, dynamic
 content). For a pure docs / blog site the static path above is enough.
 
 ```moonbit
-import "mizchi/astra/middleware" as middleware
-import "mizchi/mars" as mars
-
-async fn main {
-  let cfg = @astra.SsgConfig::default()
-  let mw  = @middleware.create(cfg, cwd=".")
-  let app = @mars.Server::new()
-  app.all("/*", mw.handler())
-  app.listen(port=3000)
-}
+// Package imports are declared in moon.pkg, not in source:
+//   import { "mizchi/astra", "mizchi/astra/middleware", "mizchi/mars" }
+let cfg = @astra.SsgConfig::default()
+let mw = @middleware.create(cfg, cwd=".")
+let app = @mars.Server::new()
+app.all("/*", mw.handler())
+// `to_handler()` yields the request handler; the runtime adapter drives it
+// (a Node FFI listener in `astra dev`, `@adapters.cloudflare_handler` on
+// Workers). Mars itself has no `listen`.
+let handler = app.to_handler()
 ```
+
+This snippet is kept honest by
+[`website/03_astra/02_mount-on-mars.mbt.md`](../website/03_astra/02_mount-on-mars.mbt.md),
+where the same calls sit in ` ```mbt check ` fences that `moon check` and
+`moon test` compile.
 
 `Middleware::handler()` returns a Mars `Handler` that responds to GET on
 every page URL the document tree exposes plus the asset URLs in
-`@assets.list_asset_urls()`. `Middleware::list_urls()` returns the union,
-which the build CLI uses to crawl.
+`Middleware::asset_urls()` (`@assets.list_asset_urls()`).
+`Middleware::list_urls()` returns the union, which the build CLI uses to
+crawl.
 
 ## How dev and build share one Middleware
 
@@ -91,6 +97,34 @@ over HTTP; the build crawler calls `mw.render_url(url)` for each entry in
 `mw.list_urls()` and writes the response body to disk. So if a page
 renders correctly via `astra dev`, it is also correct in the static
 dump — there is no second renderer to keep in sync.
+
+## Type-checked pages (`.mbt.md`)
+
+A page can be written as `<name>.mbt.md` instead of `<name>.md`. Astra routes
+it exactly like Markdown (`guide/intro.mbt.md` → `/guide/intro/`, and
+`guide/intro.ja.mbt.md` is its `ja` translation), but the file is also
+MoonBit's literate-markdown format: every fence tagged ` ```mbt check ` is
+compiled by `moon check` and run by `moon test`.
+
+Put the pages in a directory with a `moon.pkg` and the sample code in your
+docs stops being prose the compiler never sees:
+
+```
+website/
+  moon.mod                       # a module in your moon.work
+  03_astra/
+    moon.pkg                     # imports the packages the samples call
+    02_mount-on-mars.mbt.md      # → /astra/mount-on-mars/
+    02_mount-on-mars.ja.mbt.md   # → /ja/astra/mount-on-mars/
+```
+
+Fences tagged plain ` ```mbt ` or ` ```moonbit ` are left as prose — only
+` ```mbt check ` is compiled, so illustrative fragments still render fine.
+`_build/`, `target/` and `.mooncakes/` are always skipped by the docs walk.
+
+One caveat: astra treats a directory containing `moon.pkg.json` as a MoonBit
+*component* directory. A directory holding `*.mbt.md` pages is recognised as a
+documentation package instead and walked for pages.
 
 ## Configuration
 

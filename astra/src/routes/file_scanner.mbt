@@ -55,6 +55,11 @@ pub fn is_excluded(
   if name == "public" || relative_path.has_prefix("public/") {
     return true
   }
+  // Always exclude MoonBit build artifacts, so a docs directory can double as
+  // a MoonBit package holding type-checked `*.mbt.md` pages.
+  if name == "_build" || name == "target" || name == ".mooncakes" {
+    return true
+  }
   for pattern in exclude {
     // Match by directory name (e.g., "internal" matches "docs/internal")
     if name == pattern {
@@ -139,11 +144,19 @@ pub fn get_extension(filename : String) -> String {
 }
 
 ///|
-/// Check if file is a content file (md, mdx, html)
+/// Check if file is a content file (md, mbt.md, mdx, html)
 pub fn is_content_file(filename : String) -> Bool {
-  filename.has_suffix(".md") ||
-  filename.has_suffix(".mdx") ||
-  filename.has_suffix(".html")
+  @astra.is_content_extension(filename)
+}
+
+///|
+/// Check if file is a MoonBit literate-markdown page (`*.mbt.md`).
+///
+/// These are ordinary Markdown pages to astra, but `moon check` / `moon test`
+/// compile every ` ```mbt check ` fence inside them, so their sample code is
+/// verified against the API it documents.
+pub fn is_moonbit_markdown(filename : String) -> Bool {
+  filename.has_suffix(".mbt.md")
 }
 
 ///|
@@ -176,6 +189,23 @@ pub fn[FS : @env.FileSystem] read_dir_entries(
   @env.FileSystem::readdir_sync(filesystem, path) catch {
     _ => []
   }
+}
+
+///|
+/// Check whether a directory contains at least one `*.mbt.md` page.
+/// Such a directory is a documentation package (its Markdown is compiled by
+/// `moon`), so it must be walked for pages rather than rendered as a single
+/// MoonBit component.
+pub fn[FS : @env.FileSystem] has_moonbit_markdown(
+  filesystem : FS,
+  path : String,
+) -> Bool {
+  for entry in read_dir_entries(filesystem, path) {
+    if is_moonbit_markdown(entry) {
+      return true
+    }
+  }
+  false
 }
 
 ///|

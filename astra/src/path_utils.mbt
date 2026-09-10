@@ -84,12 +84,67 @@ pub fn build_sort_key(path : String) -> String {
 }
 
 // =============================================================================
+// Content Extensions
+// =============================================================================
+
+///|
+/// Page source extensions astra understands, longest first so that the
+/// compound ".mbt.md" wins over the plain ".md" it ends with.
+///
+/// ".mbt.md" is MoonBit's literate-markdown format: the file is ordinary
+/// Markdown to astra, and every ` ```mbt check ` fence inside it is compiled
+/// by `moon check` / `moon test`. Docs written this way cannot drift away
+/// from the API they document without failing the build.
+let content_extensions : Array[String] = [".mbt.md", ".mdx", ".md", ".html"]
+
+///|
+/// Return the page-source extension of a filename, or None when the file is
+/// not a page source.
+/// e.g., "intro.mbt.md" -> Some(".mbt.md"), "intro.md" -> Some(".md"),
+///       "moon.pkg" -> None
+pub fn content_extension(filename : String) -> String? {
+  for ext in content_extensions {
+    if filename.has_suffix(ext) {
+      return Some(ext)
+    }
+  }
+  None
+}
+
+///|
+/// Whether a filename is a page source astra can render.
+pub fn is_content_extension(filename : String) -> Bool {
+  content_extension(filename) is Some(_)
+}
+
+///|
+/// Strip the page-source extension from a path. Paths that are not page
+/// sources are returned unchanged.
+/// e.g., "guide/intro.mbt.md" -> "guide/intro", "guide/intro.md" -> "guide/intro"
+pub fn strip_content_extension(path : String) -> String {
+  match content_extension(path) {
+    Some(ext) => @utils.slice_to(path, path.length() - ext.length())
+    None => path
+  }
+}
+
+///|
+/// Whether a source path is a directory index page.
+/// e.g., "index.md", "guide/index.mdx", "guide/index.mbt.md" -> true
+pub fn is_index_source(source_path : String) -> Bool {
+  source_path.has_suffix("index.md") ||
+  source_path.has_suffix("index.mdx") ||
+  source_path.has_suffix("index.mbt.md")
+}
+
+// =============================================================================
 // Path Conversion
 // =============================================================================
 
 ///|
 /// Convert file path to URL path (strips numeric prefixes)
 /// 00_guide/01_getting-started.md -> /guide/getting-started/ (with trailing slash)
+/// 00_guide/01_getting-started.mbt.md -> /guide/getting-started/
 /// 00_guide/01_getting-started.md -> /guide/getting-started (without trailing slash)
 /// docs/index.md -> /
 pub fn file_to_url_path(
@@ -98,6 +153,7 @@ pub fn file_to_url_path(
 ) -> String {
   let stripped = strip_numeric_prefixes(file_path)
   let path = stripped
+    .replace(old=".mbt.md", new="")
     .replace(old=".mdx", new="")
     .replace(old=".md", new="")
     .replace(old=".html", new="")
@@ -222,20 +278,16 @@ pub fn get_url_dir(url_path : String) -> String {
 ///|
 /// Extract locale suffix from filename
 /// "intro.ja.md" → Some(("ja", "intro.md"))
+/// "intro.ja.mbt.md" → Some(("ja", "intro.mbt.md"))
 /// "intro.md" → None
 pub fn extract_locale_suffix(
   filename : String,
   locale_codes : Array[String],
 ) -> (String, String)? {
-  // Find extension: .md, .mdx, .html
-  let ext = if filename.has_suffix(".mdx") {
-    ".mdx"
-  } else if filename.has_suffix(".md") {
-    ".md"
-  } else if filename.has_suffix(".html") {
-    ".html"
-  } else {
-    return None
+  // Find extension: .mbt.md, .mdx, .md, .html
+  let ext = match content_extension(filename) {
+    Some(ext) => ext
+    None => return None
   }
   // Strip extension: "intro.ja.md" → "intro.ja"
   let without_ext = @utils.slice_to(filename, filename.length() - ext.length())

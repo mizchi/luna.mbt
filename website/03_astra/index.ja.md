@@ -18,6 +18,23 @@ Astra は MoonBit 用の [Mars](https://mooncakes.io/docs/mizchi/mars/) にマ�
 - **ライブラリ**: 既存の Mars サーバーにアプリのルートと並べてマウント。同じ MoonBit バイナリで `/docs/*` のドキュメントと、ライブの API エンドポイントを同時に提供できます。
 - **静的サイト**: サーバーを使わず、`astra build --out ./dist` で自己完結したディレクトリを生成。GitHub Pages、Cloudflare、Vercel、Netlify などの静的ホストにそのままデプロイできます。
 
+### コンパイラが検査するページ
+
+ページは `<name>.md` の代わりに `<name>.mbt.md` として書けます。ルーティングは Markdown と完全に同じ — `guide/intro.mbt.md` は `/guide/intro/`、`guide/intro.ja.mbt.md` はその `ja` 版 — ですが、このファイルは同時に MoonBit の literate-markdown 形式でもあります。` ```mbt check ` とタグ付けされたフェンスは `moon check` で型検査され、`moon test` で実行されます:
+
+````md
+```mbt check
+///|
+test "ドキュメントのサンプルが実際に動く" {
+  let cfg = @astra.SsgConfig::default()
+  let mw = @middleware.create(cfg, cwd=".")
+  assert_true(mw.list_urls().length() >= 0)
+}
+```
+````
+
+こうしたページを `moon.pkg` のあるディレクトリに置き、そのモジュールを `moon.work` に載せれば、サンプルコードは「コンパイラが一度も見ない散文」ではなくなります。[Mars にマウントする](/ja/astra/mount-on-mars/) はこの形式で書かれており、掲載されているスニペットは `moon check` のたびにコンパイルされています。単なる ` ```mbt ` や ` ```moonbit ` は従来どおり散文として扱われるので、説明用の断片もそのまま書けます。
+
 ## Sol との使い分け
 
 | 用途 | 選ぶもの |
@@ -32,7 +49,7 @@ Astra は Sol に依存しません。`deps: mars + markdown + luna` のみ。So
 ## セクション
 
 - [はじめる](/ja/astra/getting-started/) — インストール、最初のプロジェクト、最初のビルド
-- [Mars にマウントする](/ja/astra/mount-on-mars/) — 既存の Mars サーバーへの組み込み方
+- [Mars にマウントする](/ja/astra/mount-on-mars/) — 既存の Mars サーバーへの組み込み方(`.mbt.md` で書かれており、サンプルはコンパイルされています)
 - [デプロイ](/ja/astra/deploy/) — GitHub Pages / Cloudflare / Vercel / Netlify
 
 ## インストール
