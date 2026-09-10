@@ -24,6 +24,16 @@ For TypeScript consumers, the JS bindings ship as
 - `spec/` — design notes
 - `vite.config.ts`, `vitest.config.ts` — JS-side dev / test runners
 
+## Animation and easing
+
+`mizchi/luna/easing` provides 31 numerical easing functions and CSS `linear()`
+conversion. `mizchi/luna/js/animation` adds typed keyframes, native Web Animations
+controls, and translation-only FLIP helpers. TypeScript consumers use
+`@luna_ui/luna/easing` and `@luna_ui/luna/animation`.
+
+See the [animation guide](../website/01_luna/07_animation/index.md) for usage,
+SSR behavior, lifecycle cleanup, and reduced-motion handling.
+
 ## Development
 
 From the repo root:

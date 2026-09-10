@@ -4,6 +4,8 @@ export default defineConfig([
   {
     entry: [
       "src/index.ts",
+      "src/animation.ts",
+      "src/easing.ts",
       "src/signals.ts",
       "src/signals-shared.ts",
       "src/resource.ts",

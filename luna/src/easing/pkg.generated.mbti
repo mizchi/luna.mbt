@@ -1,0 +1,78 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/easing"
+
+// Values
+pub fn back_in(Double) -> Double
+
+pub fn back_in_out(Double) -> Double
+
+pub fn back_out(Double) -> Double
+
+pub fn bounce_in(Double) -> Double
+
+pub fn bounce_in_out(Double) -> Double
+
+pub fn bounce_out(Double) -> Double
+
+pub fn circ_in(Double) -> Double
+
+pub fn circ_in_out(Double) -> Double
+
+pub fn circ_out(Double) -> Double
+
+pub fn cubic_in(Double) -> Double
+
+pub fn cubic_in_out(Double) -> Double
+
+pub fn cubic_out(Double) -> Double
+
+pub fn elastic_in(Double) -> Double
+
+pub fn elastic_in_out(Double) -> Double
+
+pub fn elastic_out(Double) -> Double
+
+pub fn expo_in(Double) -> Double
+
+pub fn expo_in_out(Double) -> Double
+
+pub fn expo_out(Double) -> Double
+
+pub fn linear(Double) -> Double
+
+pub fn quad_in(Double) -> Double
+
+pub fn quad_in_out(Double) -> Double
+
+pub fn quad_out(Double) -> Double
+
+pub fn quart_in(Double) -> Double
+
+pub fn quart_in_out(Double) -> Double
+
+pub fn quart_out(Double) -> Double
+
+pub fn quint_in(Double) -> Double
+
+pub fn quint_in_out(Double) -> Double
+
+pub fn quint_out(Double) -> Double
+
+pub fn sine_in(Double) -> Double
+
+pub fn sine_in_out(Double) -> Double
+
+pub fn sine_out(Double) -> Double
+
+pub fn to_css((Double) -> Double, samples? : Int) -> String raise InvalidSampling
+
+// Errors
+pub suberror InvalidSampling {
+  InvalidSampling(String)
+}
+
+// Types and methods
+
+// Type aliases
+
+// Traits

@@ -6,6 +6,7 @@ A lightweight reactive UI library with SolidJS-Like API. Implemented in MoonBit.
 
 - [API Reference](https://luna.mizchi.workers.dev/luna/api/js/)
 - [Tutorial](https://luna.mizchi.workers.dev/luna/tutorial/js/)
+- [Animation and easing](../../website/01_luna/07_animation/index.md)
 
 ## Quick Start
 

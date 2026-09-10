@@ -1,0 +1,64 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/luna/js/animation"
+
+import {
+  "mizchi/js/core",
+  "mizchi/js_browser/dom",
+  "mizchi/luna/easing",
+  "mizchi/luna/x/css",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn animate(@dom.Element, Array[Keyframe], duration? : Double, delay? : Double, easing? : (Double) -> Double, fill? : Fill, respect_reduced_motion? : Bool) -> Animation raise @easing.InvalidSampling
+
+pub fn computed_transform(@dom.Element) -> String
+
+pub fn flip(@dom.Element, Rect, duration? : Double, delay? : Double, easing? : (Double) -> Double, respect_reduced_motion? : Bool) -> Animation raise @easing.InvalidSampling
+
+pub fn flip_frames(Rect, Rect, String) -> Array[Keyframe]
+
+pub fn measure(@dom.Element) -> Rect
+
+pub fn play(@dom.Element, Array[Keyframe], Options, respect_reduced_motion? : Bool) -> Animation
+
+// Errors
+
+// Types and methods
+#external
+pub type Animation
+pub fn Animation::cancel(Self) -> Unit
+pub fn Animation::finish(Self) -> Unit
+pub fn Animation::finished(Self) -> @core.Promise[Self]
+pub fn Animation::pause(Self) -> Unit
+pub fn Animation::play(Self) -> Unit
+pub fn Animation::reverse(Self) -> Unit
+pub fn Animation::seek(Self, Double) -> Unit
+
+pub(all) enum Fill {
+  None
+  Forwards
+  Backwards
+  Both
+}
+
+#external
+pub type Keyframe
+pub fn Keyframe::new() -> Self
+pub fn Keyframe::offset(Self, Double) -> Self
+pub fn Keyframe::set(Self, @css.Property, String) -> Self
+
+#external
+pub type Options
+pub fn Options::new(duration? : Double, delay? : Double, easing? : String, fill? : Fill) -> Self
+
+pub(all) struct Rect {
+  left : Double
+  top : Double
+  width : Double
+  height : Double
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits

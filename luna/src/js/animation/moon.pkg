@@ -1,0 +1,17 @@
+import {
+  "mizchi/luna/easing",
+  "mizchi/luna/x/css",
+  "mizchi/js/core" @js,
+  "mizchi/js_browser/dom",
+}
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": {
+      "exports": [ "play", "measure", "flip_frames:flipFrames" ],
+      "format": "esm",
+    },
+  },
+)

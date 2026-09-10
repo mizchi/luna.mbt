@@ -80,6 +80,13 @@ test-vitest:
 test-e2e:
     env -u NO_COLOR pnpm playwright test --config luna/e2e/playwright.config.mts
 
+# animation / easing デモ: http://127.0.0.1:4179/animation.html
+demo-animation:
+    pnpm --filter examples-luna exec vite --host 127.0.0.1 --port 4179 --strictPort
+
+test-animation-demo:
+    pnpm --filter examples-luna exec playwright test --config animation.playwright.config.ts
+
 # E2E テスト（UI モード）
 test-e2e-ui:
     env -u NO_COLOR pnpm playwright test --config luna/e2e/playwright.config.mts --ui

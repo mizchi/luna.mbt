@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f8fc" />
+    <title>Luna · Motion playground</title>
+    <link rel="stylesheet" href="./animation.css" />
+    <script type="module" src="./animation.ts"></script>
+  </head>
+  <body>
+    <main>
+      <header class="topbar">
+        <a class="brand" href="./animation.html"><span class="moon" aria-hidden="true"></span> luna<span class="brand-detail">/ playground</span></a>
+        <span class="badge">Web Animations API</span>
+      </header>
+      <section class="intro">
+        <p class="eyebrow">ANIMATION & EASING</p>
+        <h1>Motion, by Luna.</h1>
+        <p>動きの表情を変える。時間を操る。レイアウトをつなぐ。<br />Luna の animation / easing を、その場で試せます。</p>
+      </section>
+
+      <div class="playground">
+        <section class="panel motion-panel" aria-labelledby="motion-title">
+          <div class="section-heading"><div><span class="index">01 / EASING</span><h2 id="motion-title">動きのカーブ</h2></div><span class="chip" id="curve-name">cubicOut</span></div>
+          <div class="curve-layout">
+            <svg class="curve" viewBox="0 0 320 220" role="img" aria-label="選択した easing の時間と進行度のカーブ">
+              <defs><pattern id="grid" width="60" height="30" patternUnits="userSpaceOnUse" x="40" y="40"><path d="M 60 0 L 0 0 0 30" fill="none" stroke="#e8eaf3" stroke-width="1" /></pattern></defs>
+              <rect x="40" y="40" width="240" height="120" fill="url(#grid)" />
+              <path d="M40 40V160H280" fill="none" stroke="#cbd0e1" />
+              <path d="M40 160L280 40" stroke="#d8dcec" stroke-dasharray="4 5" />
+              <path id="curve-path" fill="none" stroke="#635bdb" stroke-width="3" stroke-linecap="round" />
+              <circle id="curve-point" cx="40" cy="160" r="6" fill="#635bdb" stroke="white" stroke-width="3" />
+              <g fill="#7b829a" font-size="10" font-family="monospace"><text x="20" y="163">0</text><text x="20" y="43">1</text><text x="40" y="181">0</text><text x="276" y="181">1</text><text x="142" y="207">TIME →</text></g>
+            </svg>
+            <div class="curve-description"><span class="stat-label">Progress</span><strong id="progress" data-testid="progress">0%</strong><p>カーブの傾きが速さ。<br />直線なら等速、曲線なら加減速。</p><span class="direction" id="direction" data-testid="direction">→ Forward</span></div>
+          </div>
+          <div class="track-area"><div class="track"><div class="traveler" data-testid="traveler" id="traveler"><span></span></div></div><div class="track-labels"><span>START</span><span>END</span></div></div>
+          <div class="timeline-row"><label for="position">再生位置</label><output id="time">0 / 1200 ms</output></div>
+          <input id="position" type="range" min="0" max="1000" value="0" aria-label="再生位置" />
+          <div class="transport"><button id="play" class="primary" type="button" aria-label="再生">▶ 再生</button><button id="pause" type="button">一時停止</button><button id="reverse" type="button">逆再生</button><button id="reset" type="button">リセット</button></div>
+          <div class="state-row"><span><i class="status-dot"></i> <span id="play-state" data-testid="play-state" aria-live="polite">paused</span></span><span>Native Animation</span></div>
+        </section>
+
+        <aside class="panel settings" aria-labelledby="settings-title">
+          <span class="index">CONTROLS</span><h2 id="settings-title">動きを調整</h2>
+          <div class="field"><label for="easing">Easing</label><select id="easing"></select></div>
+          <div class="timeline-row"><label for="duration">Duration</label><output id="duration-value">1200 ms</output></div>
+          <input id="duration" type="range" min="400" max="3000" step="100" value="1200" />
+          <div class="field"><label for="speed">Playback speed</label><select id="speed"><option value="0.5">0.5× · slow</option><option value="1" selected>1× · normal</option><option value="2">2× · fast</option></select></div>
+          <label class="check"><input type="checkbox" id="respect-motion" checked />OS の減速設定を尊重</label>
+          <p class="preference" data-testid="motion-preference" id="motion-preference"></p>
+          <div class="code-heading">TRY THIS</div>
+          <pre><code id="example-code"></code></pre>
+          <p class="note">easing 関数は開始時に CSS <code>linear()</code> へ変換。再生はブラウザが担当します。</p>
+        </aside>
+      </div>
+
+      <section class="panel flip-panel" aria-labelledby="flip-title">
+        <div class="section-heading"><div><span class="index">02 / FLIP</span><h2 id="flip-title">位置の変化を、なめらかに。</h2><p>順番を変えると、同じカードが新しい位置へ移動します。</p></div><div class="flip-actions"><button id="shuffle" class="primary" type="button">シャッフル</button><button id="flip-order" type="button">順番を反転</button></div></div>
+        <div id="cards" class="cards" aria-label="並べ替えカード"></div>
+        <div class="flip-footer"><span id="flip-status" aria-live="polite">6 elements · ready</span><code>measure → reorder → flip</code></div>
+      </section>
+      <footer>LUNA / MOTION LAB<span>MoonBit core · TypeScript API · Native playback</span></footer>
+    </main>
+  </body>
+</html>

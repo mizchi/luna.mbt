@@ -10,6 +10,14 @@
     "luna": "./dist/cli.mjs"
   },
   "exports": {
+    "./animation": {
+      "types": "./dist/animation.d.ts",
+      "import": "./dist/animation.js"
+    },
+    "./easing": {
+      "types": "./dist/easing.d.ts",
+      "import": "./dist/easing.js"
+    },
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"

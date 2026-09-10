@@ -1,0 +1,47 @@
+import {
+  "moonbitlang/core/math",
+}
+
+supported_targets = "all"
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "linear:linear",
+        "quad_in:quadIn",
+        "quad_out:quadOut",
+        "quad_in_out:quadInOut",
+        "cubic_in:cubicIn",
+        "cubic_out:cubicOut",
+        "cubic_in_out:cubicInOut",
+        "quart_in:quartIn",
+        "quart_out:quartOut",
+        "quart_in_out:quartInOut",
+        "quint_in:quintIn",
+        "quint_out:quintOut",
+        "quint_in_out:quintInOut",
+        "sine_in:sineIn",
+        "sine_out:sineOut",
+        "sine_in_out:sineInOut",
+        "circ_in:circIn",
+        "circ_out:circOut",
+        "circ_in_out:circInOut",
+        "expo_in:expoIn",
+        "expo_out:expoOut",
+        "expo_in_out:expoInOut",
+        "back_in:backIn",
+        "back_out:backOut",
+        "back_in_out:backInOut",
+        "elastic_in:elasticIn",
+        "elastic_out:elasticOut",
+        "elastic_in_out:elasticInOut",
+        "bounce_in:bounceIn",
+        "bounce_out:bounceOut",
+        "bounce_in_out:bounceInOut",
+        "to_css:toCss",
+      ],
+      "format": "esm",
+    },
+  },
+)
