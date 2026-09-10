@@ -1,6 +1,6 @@
 name = "mizchi/luna"
 
-version = "0.24.0"
+version = "0.24.1"
 
 import {
   "moonbitlang/async@0.21.3",

@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna-v0.24.1] - 2026-09-10
+
+### Bug Fixes
+
+- **luna**: Correct JavaScript render, Portal, events, and resource APIs
+- **luna**: Simplify router-lite bindings and update MoonBit APIs
+
+### Features
+
+- **luna**: Add resource.memo_eq with an equality cutoff
+
+### Testing
+
+- **luna**: Add reactivity propagation regression coverage
+
 ## [luna-v0.24.0] - 2026-09-10
 
 ### Dependencies

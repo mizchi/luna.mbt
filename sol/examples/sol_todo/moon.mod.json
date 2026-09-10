@@ -16,7 +16,7 @@
     },
     "mizchi/luna": {
       "path": "../../../luna",
-      "version": "0.24.0"
+      "version": "0.24.1"
     },
     "mizchi/mars": "0.3.11",
     "mizchi/signals": "0.6.5",

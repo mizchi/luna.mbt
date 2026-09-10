@@ -1230,7 +1230,7 @@ test "template_moon_mod: uses current published moon deps" {
   assert_true(
     content.contains("\"mizchi/sol_adapter_node@\{@version.VERSION}\""),
   )
-  assert_true(content.contains("\"mizchi/luna@0.24.0\""))
+  assert_true(content.contains("\"mizchi/luna@0.24.1\""))
   assert_true(content.contains("\"mizchi/signals@0.6.5\""))
   assert_true(content.contains("\"mizchi/js@0.12.2\""))
   assert_true(content.contains("\"mizchi/js_browser@0.12.2\""))

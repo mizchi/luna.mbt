@@ -6,7 +6,7 @@ import {
   "mizchi/astra@0.23.2",
   "mizchi/js@0.12.1",
   "mizchi/js_browser@0.12.1",
-  "mizchi/luna@0.23.2",
+  "mizchi/luna@0.24.1",
   "mizchi/mars@0.3.10",
   "mizchi/signals@0.6.4",
 }
