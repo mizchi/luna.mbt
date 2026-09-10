@@ -4,383 +4,364 @@ title: Render API
 
 # Render API
 
-Server-side rendering utilities for generating HTML.
+Server-side rendering: build a node tree, turn it into an HTML string. Every
+name on this page comes from `mizchi/luna/dom/static`, conventionally imported
+as `@server_dom` (that is the alias `sol new` scaffolds):
+
+```
+import {
+  "mizchi/luna/dom/static" @server_dom,
+}
+```
+
+Nodes are `@luna.Node[Unit, String]` — the `Unit` event type is what makes
+them server-only. The browser-side element helpers live in `mizchi/luna/dom`
+(usually aliased `@element`) and are a **different, larger** set; see
+[Signals](/luna/api-moonbit/signals/) and the tutorial for client rendering.
 
 ## render
 
 Render a node tree to an HTML string.
 
 ```moonbit
-let node = @element.div([@element.p([@element.text("Hello, World!")])])
-let html = render(node)
-// Output: <div><p>Hello, World!</p></div>
+let node = @server_dom.div([@server_dom.p([@server_dom.text("Hello, World!")])])
+let html = @server_dom.render(node)
+// <div><p>Hello, World!</p></div>
 ```
 
 ### Signature
 
 ```moonbit
-fn render(node : @luna.Node) -> String
+fn render(@luna.Node[Unit, String]) -> String
 ```
 
 ## render_document
 
-Render with DOCTYPE declaration.
+Render with a `<!DOCTYPE html>` declaration.
 
 ```moonbit
-let node = document(
+let doc = @server_dom.document(
   lang="en",
-  head_children=[@element.title("My Page")],
-  body_children=[@element.h1([@element.text("Hello")])],
+  head_children=[@server_dom.title("My Page")],
+  body_children=[@server_dom.h1([@server_dom.text("Hello")])],
 )
-let html = render_document(node)
-// Output: <!DOCTYPE html><html lang="en">...
+let html = @server_dom.render_document(doc)
+// <!DOCTYPE html><html lang="en">...
 ```
 
 ## document
 
-Helper to create a full HTML document structure.
-
-```moonbit
-let doc = document(
-  lang="ja",
-  head_children=[
-    @element.title("Test"),
-    @element.meta(charset="UTF-8"),
-  ],
-  body_children=[
-    @element.p([@element.text("Hello World")]),
-  ],
-)
-```
+Build a full HTML document structure. `head_children` and `body_children` are
+required; everything else is optional.
 
 ### Signature
 
 ```moonbit
 fn document(
-  lang~ : String = "en",
-  head_children~ : Array[@luna.Node] = [],
-  body_children~ : Array[@luna.Node] = [],
-) -> @luna.Node
+  lang? : String,
+  head_children~ : Array[@luna.Node[Unit, String]],
+  body_children~ : Array[@luna.Node[Unit, String]],
+  body_class? : String,
+  body_id? : String,
+) -> @luna.Node[Unit, String]
 ```
 
-## HTML Element Factories
-
-All elements are accessed via the `@element` namespace.
-
-### Block Elements
-
 ```moonbit
-@element.div(children)
-@element.div(id="main", class="container", children)
-
-@element.p(children)
-@element.article(children)
-@element.section(children)
-@element.main_(children)     // Note: underscore suffix
-@element.header_(children)   // Note: underscore suffix
-@element.footer_(children)   // Note: underscore suffix
-@element.nav(children)
-@element.aside(children)
+let doc = @server_dom.document(
+  lang="ja",
+  head_children=[
+    @server_dom.title("Test"),
+    @server_dom.meta(charset="UTF-8"),
+  ],
+  body_children=[@server_dom.p([@server_dom.text("Hello World")])],
+)
 ```
 
-### Headings
+## Element helpers
+
+Every helper takes optional `id`, `class`, `style` and `attrs`, and — for
+non-void elements — a trailing `Array[@luna.Node[Unit, String]]` of children.
+
+### Block and inline
 
 ```moonbit
-@element.h1(children)
-@element.h2(children)
-@element.h3(children)
-@element.h4(children)
-@element.h5(children)
-@element.h6(children)
+@server_dom.div(children)
+@server_dom.div(id="main", class="container", children)
+@server_dom.p(children)
+@server_dom.span(children)
+@server_dom.article(children)
+@server_dom.section(children)
+@server_dom.main_(children)     // trailing underscore: `main` is a keyword
+@server_dom.header_(children)
+@server_dom.footer_(children)
+@server_dom.nav(children)
+@server_dom.aside(children)
+@server_dom.pre(children)
+@server_dom.code(children)
+@server_dom.em(children)
+@server_dom.strong(children)
 ```
 
-### Lists
+### Headings and lists
 
 ```moonbit
-@element.ul(children)
-@element.ol(children)
-@element.li(children)
+@server_dom.h1(children)  // through h6
+@server_dom.ul([@server_dom.li([@server_dom.text("Item 1")])])
+@server_dom.ol(children)
+```
 
-// Example
-let list = @element.ul([
-  @element.li([@element.text("Item 1")]),
-  @element.li([@element.text("Item 2")]),
+### Links and media
+
+```moonbit
+@server_dom.a(href="https://example.com", target="_blank", children)
+@server_dom.img(src="/image.png", alt="Description", width="64", height="64")
+@server_dom.br()
+@server_dom.hr()
+```
+
+### Document structure
+
+```moonbit
+@server_dom.html(lang="en", children)
+@server_dom.head(children)
+@server_dom.body(children)
+@server_dom.title("Page Title")
+@server_dom.meta(charset="UTF-8")
+@server_dom.meta(name="description", content="…")
+```
+
+### Scripts and styles
+
+```moonbit
+@server_dom.script(src="/app.js", type_="module", defer_=true)
+@server_dom.script(content="console.log('inline')")
+@server_dom.style_("body { margin: 0; }")
+@server_dom.link(rel="stylesheet", href="/style.css")
+```
+
+`script_trusted` and `style_trusted` take a `TrustedScript` / `TrustedStyle`
+built by `unsafe_trusted_script` / `unsafe_trusted_style`, for content you have
+audited yourself.
+
+### Forms
+
+```moonbit
+@server_dom.form(action="/search", http_method="get", [
+  @server_dom.label(for_="q", [@server_dom.text("Query")]),
+  @server_dom.input(type_="text", name="q", placeholder="Enter a query"),
+  @server_dom.button([@server_dom.text("Submit")]),
 ])
 ```
 
-### Links and Media
+`input` also accepts `value`, `disabled`, `readonly_`, `required` and
+`checked`; `button` accepts `disabled`.
+
+### Not provided
+
+There are no helpers for `<table>`, `<tr>`, `<td>`, `<select>`, `<option>` or
+`<textarea>` in the static package — `@server_dom` covers the elements the SSR
+paths in this repo actually emit. For anything else, `@luna.h` builds an
+element from a tag name:
 
 ```moonbit
-// Anchor
-@element.a(href="https://example.com", target="_blank", children)
-
-// Image (void element)
-@element.img(src="/image.png", alt="Description")
-
-// Line break and horizontal rule
-@element.br()
-@element.hr()
+@luna.h("table", [], [
+  @luna.h("tr", [], [
+    @luna.h("td", [], [@server_dom.text("Item 1")]),
+    @luna.h("td", [], [@server_dom.text("$10")]),
+  ]),
+])
 ```
 
-### Document Structure
-
-```moonbit
-@element.html(lang="en", children)
-@element.head(children)
-@element.body(children)
-@element.title("Page Title")
-@element.meta(charset="UTF-8")
-```
-
-### Scripts and Styles
-
-```moonbit
-// Script with attributes
-@element.script(src="/app.js", type_="module", defer_=true)
-
-// Inline style
-@element.style_("body { margin: 0; }")
-
-// Link stylesheet
-@element.link(rel="stylesheet", href="/style.css")
-```
+`h` is generic over the node's event type, so the same call works in the
+browser. Its second argument is the same `(name, Attr)` tuple list `attrs`
+takes. If you find yourself writing the same tag repeatedly, add the helper to
+`luna/src/dom/static/`.
 
 ## text
 
-Create a text node with automatic XSS escaping.
+Create a text node. Content is escaped on render.
 
 ```moonbit
-let node = @element.text("Hello, World!")
+@server_dom.text("Hello, World!")
 
-// XSS safe - content is escaped
-let safe = @element.text("<script>alert('xss')</script>")
-// Renders as: &lt;script&gt;alert('xss')&lt;/script&gt;
+@server_dom.text("<script>alert('xss')</script>")
+// renders as &lt;script&gt;alert('xss')&lt;/script&gt;
 ```
 
 ## fragment
 
-Group elements without a wrapper element.
+Group nodes without a wrapper element.
 
 ```moonbit
-let nodes = @element.fragment([
-  @element.text("A"),
-  @element.text("B"),
-  @element.text("C"),
+let nodes = @server_dom.fragment([
+  @server_dom.text("A"),
+  @server_dom.text("B"),
 ])
-let html = render(nodes)
-// Output: ABC
+@server_dom.render(nodes) // "AB"
 ```
 
-## Element Signatures
+## attr
 
-All elements follow a consistent pattern:
-
-```moonbit
-// Simple element with children only
-fn div(children : Array[@luna.Node]) -> @luna.Node
-
-// Element with common attributes
-fn div(
-  id~ : String = "",
-  class~ : String = "",
-  attrs~ : Array[Attr] = [],
-  children : Array[@luna.Node],
-) -> @luna.Node
-```
-
-### Attribute Examples
+`attr` wraps a single **value**; the attribute *name* is the first half of the
+tuple you pass to `attrs`:
 
 ```moonbit
-// With class
-@element.div(class="container", [@element.text("Content")])
-
-// With ID
-@element.div(id="main", [@element.text("Main content")])
-
-// With multiple attributes
-@element.div(
-  class="card",
-  id="card-1",
-  attrs=[@element.attr("data-id", "1")],
-  [@element.text("Card content")],
-)
-
-// Nested
-@element.div([
-  @element.h1([@element.text("Title")]),
-  @element.p([@element.text("Paragraph")]),
-])
-```
-
-## Custom Attributes
-
-```moonbit
-@element.div(
+@server_dom.div(
   attrs=[
-    @element.attr("data-id", "123"),
-    @element.attr("data-name", "item"),
-    @element.attr("aria-label", "Item 123"),
+    ("data-id", @server_dom.attr("123")),
+    ("aria-label", @server_dom.attr("Item 123")),
   ],
-  [@element.text("Content")],
+  [@server_dom.text("Content")],
 )
 ```
 
-### Boolean Attributes
+Boolean attributes take an empty value:
 
 ```moonbit
-// For boolean attributes, use empty string
-@element.input(attrs=[@element.attr("disabled", "")])
-// Renders: <input disabled>
-
-@element.input(attrs=[@element.attr("checked", "")])
-// Renders: <input checked>
+@server_dom.input(attrs=[("disabled", @server_dom.attr(""))])
+// <input disabled>
 ```
 
-## Form Elements
+`input` and `button` already have `disabled` as a named parameter, so reach for
+`attrs` only for attributes that have no dedicated one.
 
-### input
+### Signature
 
 ```moonbit
-@element.input(
-  type_="text",
-  name="username",
-  placeholder="Enter username",
-  value="",
-)
+fn attr(String) -> @luna.Attr[Unit, String]
 ```
 
-### button
+## Raw HTML (escape hatch)
+
+`raw_html` lives in `mizchi/luna` rather than the static package, and is
+generic, so the same call works on the server and in the browser:
 
 ```moonbit
-@element.button(
-  type_="submit",
-  class="btn",
-  [@element.text("Submit")],
-)
+@luna.raw_html("<svg>…</svg>")
 ```
 
-### select
-
-```moonbit
-@element.select(
-  name="country",
-  [
-    @element.option(value="us", [@element.text("United States")]),
-    @element.option(value="uk", [@element.text("United Kingdom")]),
-    @element.option(value="jp", [@element.text("Japan")]),
-  ],
-)
-```
-
-### textarea
-
-```moonbit
-@element.textarea(
-  name="message",
-  rows=5,
-  placeholder="Enter message",
-)
-```
-
-## Tables
-
-```moonbit
-@element.table([
-  @element.thead([
-    @element.tr([
-      @element.th([@element.text("Name")]),
-      @element.th([@element.text("Price")]),
-    ]),
-  ]),
-  @element.tbody([
-    @element.tr([
-      @element.td([@element.text("Item 1")]),
-      @element.td([@element.text("$10")]),
-    ]),
-    @element.tr([
-      @element.td([@element.text("Item 2")]),
-      @element.td([@element.text("$20")]),
-    ]),
-  ]),
-])
-```
-
-## Semantic Elements
-
-```moonbit
-@element.main_([
-  @element.header_([@element.nav([@element.text("Nav")])]),
-  @element.section([@element.article([@element.text("Content")])]),
-  @element.footer_([@element.text("Footer")]),
-])
-```
-
-**Note:** `main_`, `header_`, `footer_` have underscore suffix to avoid MoonBit keyword conflicts.
+**Warning:** the string is emitted verbatim. Only pass content you trust.
 
 ## render_with_preloads
 
-Render and collect island module URLs for preloading.
+Render and collect the island module URLs the tree references, so you can emit
+`<link rel="modulepreload">` tags for them.
 
 ```moonbit
-let node = @element.div([
-  @sol.island(@types.component_a({}), [@element.text("A")]),
-  @sol.island(@types.component_b({}), [@element.text("B")]),
-])
+let result = @server_dom.render_with_preloads(node)
+result.html          // String
+result.preload_urls  // Array[String]
 
-let result = render_with_preloads(node)
-// result.html: rendered HTML string
-// result.preload_urls: ["/static/component_a.js", "/static/component_b.js"]
+let tags = @server_dom.generate_preload_tags(result.preload_urls)
 ```
 
-## XSS Safety
+`render_document_with_preloads` does the same and adds the DOCTYPE.
 
-Text content is automatically escaped:
+## Sol integration helpers
+
+These exist for sol's SSR pipeline and are only meaningful inside it:
+
+| Function | Purpose |
+|----------|---------|
+| `sol_link(href~, children, prefetch?, replace?)` | Client-routed `<a>` |
+| `outlet(name~, children)` | Named slot filled by a nested layout |
+| `template_outlet(name~, children)` / `template_title(String)` | Streaming-template equivalents |
+| `wc_island(tag, id, children, styles?, state?, trigger?)` | Emit a web-component island with a hydration trigger |
+| `generate_utility_css()` | Collected utility-class CSS for the page |
+
+## Utility class helpers
+
+`ucss`, `ustyles`, `ucombine`, `uhover`, `ufocus`, `uactive`, `udark`, `uon`,
+`uat_md` and `uat_lg` build atomic class names for the utility-CSS pipeline.
+See [CSS](/luna/css/) for how they compose.
+
+## XSS safety
+
+`text` escapes on render; `attr` values are escaped too. The only ways to emit
+unescaped markup are `@luna.raw_html`, `script_trusted` and `style_trusted` —
+all three are explicit about it.
+
+## Low level: the node type
+
+`@server_dom` is a set of builders over one enum in `mizchi/luna/core`. You
+rarely construct these by hand, but the shape explains what the helpers can
+and cannot express:
 
 ```moonbit
-@element.p([@element.text("<script>alert('xss')</script>")])
-// Renders: <p>&lt;script&gt;alert('xss')&lt;/script&gt;</p>
+pub enum Node[E, A] {
+  Element(VElement[E, A])       // an HTML element
+  Text(String)                  // static text (escaped on render)
+  DynamicText(() -> String)     // text driven by a signal (client only)
+  Fragment(Array[Node[E, A]])
+  Show(condition~, child~)      // conditional
+  For(render~)                  // list
+  Component(render~)
+  WcIsland(VWcIsland[E, A])     // hydration boundary
+  Async(VAsync[E, A])
+  ErrorBoundary(VErrorBoundary[E, A])
+  Switch(VSwitch[E, A])
+  InternalRef(VInternalRef[E, A])
+  RawHtml(String)               // what `@luna.raw_html` builds
+}
+
+pub enum Attr[E, A] {
+  VStatic(A)                    // literal value
+  VDynamic(() -> A)             // signal-driven (client only)
+  VHandler(EventHandler[E])     // event handler
+  VAction(String)               // declarative action
+}
 ```
 
-## Raw HTML (Escape Hatch)
+`E` is the event type and `A` the attribute-value type. SSR nodes are
+`Node[Unit, String]`: `Unit` events means no handler can be attached, which is
+what makes them safe to render on the server.
 
-For trusted HTML content only:
+`mizchi/luna/core/render` holds the renderer the helpers above call into:
 
 ```moonbit
-@element.raw_html("<svg>...</svg>")
+fn render_to_string(@luna.Node[E, A], preload? : Bool, size_hint? : Int) -> SSRResult
+fn render_to_string_with_hydration(@luna.Node[E, A], size_hint? : Int) -> String
+
+pub struct SSRResult {
+  html : String
+  preload_urls : Array[String]
+}
 ```
 
-**Warning:** Only use with trusted content. User input must be sanitized.
+Note that `render_to_string` returns an `SSRResult`, not a `String` —
+`@server_dom.render` is the convenience wrapper that hands back just the HTML.
 
-## API Summary
+## API summary
 
 ### Rendering
 
 | Function | Description |
 |----------|-------------|
-| `render(node)` | Render to HTML string |
+| `render(node)` | Render to an HTML string |
 | `render_document(node)` | Render with DOCTYPE |
-| `render_with_preloads(node)` | Render and collect island URLs |
-| `document(lang~, head~, body~)` | Create HTML document |
+| `render_with_preloads(node)` | Render + island preload URLs |
+| `render_document_with_preloads(node)` | Both of the above |
+| `document(head_children~, body_children~, lang?)` | Build a document node |
 
 ### Elements
 
-| Function | Description |
-|----------|-------------|
-| `@element.div`, `p`, `span`, ... | Block/inline elements |
-| `@element.h1` - `h6` | Headings |
-| `@element.ul`, `ol`, `li` | Lists |
-| `@element.table`, `tr`, `td`, `th` | Tables |
-| `@element.form`, `input`, `button` | Form elements |
-| `@element.a`, `img`, `video` | Links and media |
-| `@element.html`, `head`, `body` | Document structure |
-| `@element.script`, `style_`, `link` | Resources |
-| `@element.main_`, `header_`, `footer_` | Semantic sections |
+| Group | Helpers |
+|-------|---------|
+| Block / inline | `div` `p` `span` `article` `section` `aside` `main_` `header_` `footer_` `nav` `pre` `code` `em` `strong` |
+| Headings | `h1`–`h6` |
+| Lists | `ul` `ol` `li` |
+| Links / media | `a` `img` `br` `hr` |
+| Document | `html` `head` `body` `title` `meta` |
+| Resources | `script` `script_trusted` `style_` `style_trusted` `link` |
+| Forms | `form` `input` `button` `label` |
+| SVG | `svg` and `svg_*` (path, circle, rect, text, …) |
 
 ### Content
 
 | Function | Description |
 |----------|-------------|
-| `@element.text(content)` | Text node (escaped) |
-| `@element.fragment(children)` | Group without wrapper |
-| `@element.raw_html(html)` | Raw HTML (unsafe) |
-| `@element.attr(name, value)` | Custom attribute |
+| `text(content)` | Text node (escaped) |
+| `fragment(children)` | Group without a wrapper |
+| `attr(value)` | Attribute value for the `attrs` tuple list |
+| `@luna.h(tag, attrs, children)` | Any element with no dedicated helper |
+| `@luna.raw_html(html)` | Unescaped markup (unsafe) |

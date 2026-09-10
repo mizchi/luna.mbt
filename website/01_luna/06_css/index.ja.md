@@ -154,18 +154,18 @@ let prop = "display"
 
 ```moonbit
 // ✓ 良い - SSR コンポーネント（サーバーサイドのみ）
-fn my_component() -> @static_dom.Node {
+fn my_component() -> @server_dom.ServerNode {
   div(class=@css.css("display", "flex"), [...])
 }
 
 // ✗ 避ける - Island コンポーネント（ブラウザで実行）
-fn my_island() -> @luna.Node[Unit] {
+fn my_island() -> @luna.Node[Unit, String] {
   // @css モジュールがクライアントバンドルに含まれてしまう！
   div(class=@css.css("display", "flex"), [...])
 }
 
 // ✓ Island では事前計算されたクラス文字列を使用
-fn my_island() -> @luna.Node[Unit] {
+fn my_island() -> @luna.Node[Unit, String] {
   div(class="_z5et", [...])  // @css インポート不要
 }
 ```
