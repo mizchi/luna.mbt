@@ -5,12 +5,12 @@ published independently to [mooncakes](https://mooncakes.io/):
 
 | Package | Role | Path | Latest |
 |---------|------|------|--------|
-| [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.21.0 |
-| [`mizchi/luna_components`](./luna_components/) | Headless and styled UI components | `luna_components/` | 0.21.0 |
-| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.21.1 |
-| [`mizchi/sol_adapter_cloudflare`](./sol_adapter_cloudflare/) | Cloudflare/Wrangler adapter utilities for Sol | `sol_adapter_cloudflare/` | 0.21.1 |
-| [`mizchi/sol_adapter_node`](./sol_adapter_node/) | Node.js adapter utilities for Sol | `sol_adapter_node/` | 0.21.1 |
-| [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.21.0 |
+| [`mizchi/luna`](./luna/)    | UI primitive — VDOM, hydration, stream renderer, Island runtime | `luna/`  | 0.23.2 |
+| [`mizchi/luna_components`](./luna_components/) | Headless and styled UI components | `luna_components/` | 0.23.2 |
+| [`mizchi/sol`](./sol/)      | Mars-based SSR framework with file-based routing                | `sol/`   | 0.23.2 |
+| [`mizchi/sol_adapter_cloudflare`](./sol_adapter_cloudflare/) | Cloudflare/Wrangler adapter utilities for Sol | `sol_adapter_cloudflare/` | 0.23.2 |
+| [`mizchi/sol_adapter_node`](./sol_adapter_node/) | Node.js adapter utilities for Sol | `sol_adapter_node/` | 0.23.2 |
+| [`mizchi/astra`](./astra/)  | Mountable Mars middleware for static site generation            | `astra/` | 0.23.2 |
 
 Each package's README has the canonical usage doc.
 

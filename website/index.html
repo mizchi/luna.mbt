@@ -11,7 +11,7 @@
   </h1>
 
   <p class="hero-subtitle">
-    Luna isn't just another framework. It's a shift in how we build. Zero-runtime overhead, type-safe, and compiled to ultra-compact WebAssembly.
+    Fine-grained reactive UI for MoonBit. Type-safe end to end, compiled to JavaScript, and small: a counter app is 5.4 KB min+gzip.
   </p>
 
   <div class="hero-actions">
@@ -31,13 +31,13 @@
       <svg class="hero-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
       </svg>
-      <span>Instant Performance</span>
+      <span>Fine-grained Updates</span>
     </div>
     <div class="hero-feature">
       <svg class="hero-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
       </svg>
-      <span>Wasm Native</span>
+      <span>Compiles to JS</span>
     </div>
     <div class="hero-feature">
       <svg class="hero-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -45,131 +45,6 @@
         <polyline points="12 6 12 12 16 14"/>
       </svg>
       <span>Type Safety</span>
-    </div>
-  </div>
-</section>
-
-<!-- Community Love Section (Marquee) -->
-<section class="community-section">
-  <div class="community-header">
-    <h2 class="community-title">Community Love</h2>
-    <p class="community-subtitle">Developers are building the future with Luna.</p>
-  </div>
-
-  <div class="marquee-container">
-    <div class="marquee-content">
-      <!-- Tweet 1 (Mizchi) -->
-      <div class="tweet-card">
-        <div class="tweet-header">
-          <img src="https://github.com/mizchi.png" alt="mizchi" class="tweet-avatar">
-          <div class="tweet-user-info">
-            <div class="tweet-name">
-              mizchi
-              <svg class="tweet-verified" viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg>
-            </div>
-            <div class="tweet-handle">@mizchi</div>
-          </div>
-        </div>
-        <div class="tweet-text">
-          Luna.mbt is actually insane. The performance metrics are off the charts compared to traditional JS frameworks. Finally, a true Wasm-native approach that feels ergonomic.
-        </div>
-        <div class="tweet-footer">
-          <span class="tweet-date">Nov 10, 2024</span>
-          <svg class="tweet-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </div>
-      </div>
-
-      <!-- Tweet 2 (Placeholder) -->
-      <div class="tweet-card">
-        <div class="tweet-header">
-          <div class="tweet-avatar" style="background: linear-gradient(135deg, #FF6B6B, #556270);"></div>
-          <div class="tweet-user-info">
-            <div class="tweet-name">Sarah Jenkins</div>
-            <div class="tweet-handle">@sarah_dev</div>
-          </div>
-        </div>
-        <div class="tweet-text">
-          Just migrated our marketing site to Luna + Sol. The Lighthouse score went from 82 to 100 instantly. The developer experience with MoonBit is surprisingly refreshing.
-        </div>
-        <div class="tweet-footer">
-          <span class="tweet-date">Dec 02, 2024</span>
-          <svg class="tweet-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </div>
-      </div>
-
-      <!-- Tweet 3 (Placeholder) -->
-      <div class="tweet-card">
-        <div class="tweet-header">
-          <div class="tweet-avatar" style="background: linear-gradient(135deg, #4ECDC4, #556270);"></div>
-          <div class="tweet-user-info">
-            <div class="tweet-name">Alex Chen</div>
-            <div class="tweet-handle">@alexc_code</div>
-          </div>
-        </div>
-        <div class="tweet-text">
-          Zero runtime overhead is not a buzzword here. The bundle size is tiny. Luna proves that WebAssembly is ready for UI development.
-        </div>
-        <div class="tweet-footer">
-          <span class="tweet-date">Dec 15, 2024</span>
-          <svg class="tweet-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </div>
-      </div>
-      
-       <!-- Tweet 4 (Placeholder) -->
-      <div class="tweet-card">
-        <div class="tweet-header">
-          <div class="tweet-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></div>
-          <div class="tweet-user-info">
-            <div class="tweet-name">David Wright</div>
-            <div class="tweet-handle">@dwright_io</div>
-          </div>
-        </div>
-        <div class="tweet-text">
-          I was skeptical about writing UI in a non-JS language, but Luna's signal system makes so much sense. It feels like SolidJS but compiled.
-        </div>
-        <div class="tweet-footer">
-          <span class="tweet-date">Dec 20, 2024</span>
-          <svg class="tweet-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </div>
-      </div>
-      
-      <!-- Duplicates for seamless loop -->
-      <div class="tweet-card">
-        <div class="tweet-header">
-          <img src="https://github.com/mizchi.png" alt="mizchi" class="tweet-avatar">
-          <div class="tweet-user-info">
-            <div class="tweet-name">
-              mizchi
-              <svg class="tweet-verified" viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .495.083.965.238 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg>
-            </div>
-            <div class="tweet-handle">@mizchi</div>
-          </div>
-        </div>
-        <div class="tweet-text">
-          Luna.mbt is actually insane. The performance metrics are off the charts compared to traditional JS frameworks. Finally, a true Wasm-native approach that feels ergonomic.
-        </div>
-        <div class="tweet-footer">
-          <span class="tweet-date">Nov 10, 2024</span>
-          <svg class="tweet-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </div>
-      </div>
-
-       <div class="tweet-card">
-        <div class="tweet-header">
-          <div class="tweet-avatar" style="background: linear-gradient(135deg, #FF6B6B, #556270);"></div>
-          <div class="tweet-user-info">
-            <div class="tweet-name">Sarah Jenkins</div>
-            <div class="tweet-handle">@sarah_dev</div>
-          </div>
-        </div>
-        <div class="tweet-text">
-          Just migrated our marketing site to Luna + Sol. The Lighthouse score went from 82 to 100 instantly. The developer experience with MoonBit is surprisingly refreshing.
-        </div>
-        <div class="tweet-footer">
-          <span class="tweet-date">Dec 02, 2024</span>
-          <svg class="tweet-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -185,7 +60,7 @@
       </div>
       <h3 class="feature-title">Fine-grained Reactivity</h3>
       <p class="feature-description">
-        No virtual DOM. No diffing. Direct DOM updates at the signal level deliver real performance gains without the overhead.
+        Signal updates write to the DOM directly, touching only the nodes that changed instead of re-rendering and diffing a whole tree.
       </p>
     </div>
 
@@ -199,7 +74,7 @@
       </div>
       <h3 class="feature-title">Island Architecture</h3>
       <p class="feature-description">
-        Ship 0KB of JavaScript by default. Hydrate only the interactive parts of your page with smart loading strategies.
+        Pages ship about 2 KB of inline JavaScript before any island loads. Interactive parts hydrate on their own schedule.
       </p>
     </div>
 
@@ -224,7 +99,7 @@
       </div>
       <h3 class="feature-title">MoonBit Type Safety</h3>
       <p class="feature-description">
-        Catch errors before they happen. A sound type system that compiles to ultra-fast WebAssembly.
+        Catch errors before they happen. MoonBit's type system covers markup, props and state, and compiles to JavaScript.
       </p>
     </div>
   </div>
@@ -372,7 +247,7 @@ npm install @luna_ui/sol</code></pre>
         <path d="M5 12h14M12 5l7 7-7 7"/>
       </svg>
     </a>
-    <a href="https://github.com/aspect-build/aspect-cli" class="hero-btn hero-btn-secondary" target="_blank" rel="noopener">
+    <a href="https://github.com/mizchi/luna.mbt" class="hero-btn hero-btn-secondary" target="_blank" rel="noopener">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
       </svg>

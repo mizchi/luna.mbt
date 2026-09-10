@@ -11,7 +11,7 @@ Astra は MoonBit 用の [Mars](https://mooncakes.io/docs/mizchi/mars/) にマ�
 
 ## Astra の特徴
 
-ミドルウェア配信と静的ダンプは、**同じ** `Middleware::handler()` を経由します。ビルドクローラーは、ミドルウェアが公開する各 URL に対して `@testing.invoke(handler, path=url)` を呼び、レスポンスボディをディスクに書き出すだけ。`astra dev` で正しく描画されるページは、静的ダンプでも必ず同じ結果になります。レンダラーが二系統に分かれる心配がありません。
+ミドルウェア配信と静的ダンプは、**同じ** `Middleware` で描画されます。`astra dev` はそれを HTTP で配信し、ビルドクローラーはミドルウェアが公開する各 URL に対して `Middleware::render_url(url)` を呼んでレスポンスボディをディスクに書き出すだけです(Mars の `Server` も localhost リスナーも介しません)。`astra dev` で正しく描画されるページは、静的ダンプでも必ず同じ結果になります。レンダラーが二系統に分かれる心配がありません。
 
 この性質によって、Astra には 2 つの使い方があります:
 
@@ -43,9 +43,9 @@ Astra は Sol に依存しません。`deps: mars + markdown + luna` のみ。So
 // moon.mod.json
 {
   "deps": {
-    "mizchi/astra": "0.22.3",
+    "mizchi/astra": "0.23.2",
     "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.22.3"
+    "mizchi/luna": "0.23.2"
   }
 }
 ```
@@ -55,7 +55,7 @@ CLI:
 ```sh
 moon install mizchi/astra/cmd/astra   # → $MOON_HOME/bin/astra
 # moon は無いが node がある場合
-pnpm add -g @luna_ui/astra            # 0.22.3
+pnpm add -g @luna_ui/astra            # 0.23.0
 ```
 
 ## さわってみる

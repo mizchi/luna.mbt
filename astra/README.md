@@ -23,9 +23,9 @@ Library:
 // moon.mod.json
 {
   "deps": {
-    "mizchi/astra": "0.20.0",
+    "mizchi/astra": "0.23.2",
     "mizchi/mars": "0.3.10",
-    "mizchi/luna": "0.20.0"
+    "mizchi/luna": "0.23.2"
   }
 }
 ```
@@ -35,7 +35,7 @@ CLI (binary):
 ```sh
 moon install mizchi/astra/cmd/astra  # → $MOON_HOME/bin/astra
 # or via npm
-pnpm add -g @luna_ui/astra           # 0.20.0
+pnpm add -g @luna_ui/astra           # 0.23.0
 ```
 
 ## Quick start — CLI (default path)
@@ -50,9 +50,10 @@ astra dev --port 3000
 
 `astra build` walks every URL the in-process middleware can serve and
 writes the rendered body to `<out>/<url-to-disk-path>`. No network
-listener is opened during the build — dispatch goes through the
-testing harness (`@testing.invoke`). Deploy the resulting tree to any
-static host (Cloudflare Workers Static Assets, GitHub Pages, S3, etc).
+listener is opened during the build, and no Mars `Server` is
+instantiated — `build_to_disk` calls `Middleware::render_url(url)`
+directly. Deploy the resulting tree to any static host (Cloudflare
+Workers Static Assets, GitHub Pages, S3, etc).
 
 A working example lives at
 [`astra/examples/sol_docs/`](./examples/sol_docs/) — a docs site with
@@ -85,8 +86,8 @@ which the build CLI uses to crawl.
 
 ## How dev and build share one Middleware
 
-Both modes go through the same `Middleware::handler()`. The build crawler
-calls `@testing.invoke(handler, path=url)` for each entry in
+Both modes render through the same `Middleware`. `astra dev` serves it
+over HTTP; the build crawler calls `mw.render_url(url)` for each entry in
 `mw.list_urls()` and writes the response body to disk. So if a page
 renders correctly via `astra dev`, it is also correct in the static
 dump — there is no second renderer to keep in sync.
