@@ -28,12 +28,12 @@ const CASES = [
   },
   {
     id: "render-static",
-    luna: `import { render, text, createElement } from "./index.js";\nconst app = () => createElement("div", null, [text("hello")]);\nrender(app, document.body);\n`,
+    luna: `import { render, text, createElement } from "./index.js";\nconst app = () => createElement("div", null, [text("hello")]);\nrender(document.body, app);\n`,
     preact: `import { h, render } from "preact";\nconst app = h("div", null, "hello");\nrender(app, document.body);\n`,
   },
   {
     id: "render-reactive",
-    luna: `import { render, textDyn, createElement, createSignal } from "./index.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(count)]);\nrender(app, document.body);\nsetCount(1);\n`,
+    luna: `import { render, textDyn, createElement, createSignal } from "./index.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(count)]);\nrender(document.body, app);\nsetCount(1);\n`,
     preact: `import { h, render } from "preact";\nimport { signal } from "@preact/signals";\nconst count = signal(0);\nconst App = () => h("div", null, count);\nrender(h(App, null), document.body);\ncount.value = 1;\n`,
   },
   {

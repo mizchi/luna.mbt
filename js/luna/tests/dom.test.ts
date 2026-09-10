@@ -12,7 +12,6 @@ import {
   jsx,
   jsxs,
   Fragment,
-  events,
   forEach,
   For,
   Show,
@@ -239,6 +238,31 @@ describe("DOM API", () => {
       mount(container, node);
       expect(container.textContent).toBe("existingappended");
     });
+
+    // SolidJS's render takes a thunk, so that is the shape JSX call sites
+    // reach for. TypeScript cannot flag the mix-up because LunaNode is
+    // `unknown`, which is how it reached 25 places in the docs before anyone
+    // ran it.
+    test("render accepts a thunk in the node position", () => {
+      container.innerHTML = "<p>existing</p>";
+      render(container, () => createElement("div", [], [text("from thunk")]));
+      expect(container.textContent).toBe("from thunk");
+      expect(container.querySelector("p")).toBeNull();
+      expect(container.querySelector("div")).not.toBeNull();
+    });
+
+    test("mount accepts a thunk in the node position", () => {
+      container.innerHTML = "<p>existing</p>";
+      mount(container, () => text("appended"));
+      expect(container.textContent).toBe("existingappended");
+    });
+
+    // The thunk must return a single node: routing it through the child
+    // resolver would pull `fragment` into every bundle that renders.
+    test("several nodes go through an explicit fragment", () => {
+      render(container, () => Fragment([text("a"), text("b")]));
+      expect(container.textContent).toBe("ab");
+    });
   });
 
   describe("show (conditional rendering)", () => {
@@ -320,10 +344,33 @@ describe("DOM API", () => {
     });
   });
 
-  describe("events helper", () => {
-    test("events returns handler map", () => {
-      const handlers = events();
-      expect(handlers).toBeDefined();
+  // The JS surface has no events() DSL: HandlerMap's chaining methods are
+  // MoonBit externs and never attach to the object it returns. These are the
+  // two idioms JavaScript actually has.
+  describe("event handlers", () => {
+    test("a Handler attr attaches a listener", () => {
+      let clicks = 0;
+      const node = createElement(
+        "button",
+        [attr("click", AttrValue.Handler(() => { clicks += 1; }))],
+        [text("go")]
+      );
+      mount(container, node);
+
+      container.querySelector("button")!.click();
+      expect(clicks).toBe(1);
+    });
+
+    test("onClick in JSX attaches a listener", () => {
+      let clicks = 0;
+      const node = jsxRuntime("button", {
+        onClick: () => { clicks += 1; },
+        children: "go",
+      });
+      mount(container, node);
+
+      container.querySelector("button")!.click();
+      expect(clicks).toBe(1);
     });
   });
 

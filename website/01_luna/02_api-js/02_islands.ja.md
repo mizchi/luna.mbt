@@ -219,7 +219,7 @@ import { Portal } from '@luna_ui/luna';
 </Portal>
 ```
 
-`Portal` は children を呼び出すので、**関数**でなければなりません。素の要素を渡すと `children is not a function` で失敗します。
+Portal は children を移動するだけで、いつ構築されたかに依存しません。`{<div />}` でも `{() => <div />}` でも動きます。
 
 #### シグネチャ
 
@@ -227,7 +227,7 @@ import { Portal } from '@luna_ui/luna';
 interface PortalProps {
   mount?: Element | string;  // 対象要素または CSS セレクタ
   useShadow?: boolean;       // Shadow DOM を使う
-  children: () => LunaNode;
+  children: LunaNode | (() => LunaNode);
 }
 
 function Portal(props: PortalProps): LunaNode;
@@ -260,7 +260,7 @@ const ThemeContext = createContext('light');
 const theme = useContext(ThemeContext);  // 'dark'
 ```
 
-`Portal` と同様、`Provider` も children を呼び出します。値がスコープに入っているのはその関数の実行中だけなので、素の要素を渡すと `f is not a function` で失敗します。
+`Provider` の children は**関数**でなければなりません。値がスコープに入っているのはその関数の実行中だけで、素の要素を渡した場合 JSX は `Provider` の呼び出し**前**にそれを評価してしまいます。その中の `useContext()` は外側の値を読み、Provider は何もしていないように見えます。そのため素の要素を渡すと `Provider children must be a function` で失敗します。
 
 ```typescript
 interface ProviderProps<T> {
@@ -279,17 +279,20 @@ interface ProviderProps<T> {
 ```typescript
 import { mount, render, createElement, text } from '@luna_ui/luna';
 
-// どちらも (root, node) を取ります。ノードであって「ノードを返す関数」ではありません
+// どちらも (root, node) を取ります。root が先である点に注意
 mount(document.getElementById('app'), <App />);
 render(document.getElementById('app'), <App />);
+
+// SolidJS の render と同じ書き方(サンク)も受け付けます
+render(document.getElementById('app'), () => <App />);
 ```
 
 ```typescript
-function mount(root: Element, node: LunaNode): void;
-function render(root: Element, node: LunaNode): void;
+function mount(root: Element, node: LunaNode | (() => LunaNode)): void;
+function render(root: Element, node: LunaNode | (() => LunaNode)): void;
 ```
 
-関数を渡すと — `render(el, () => <App />)` — 関数オブジェクトがそのままノードとして DOM に渡されるため、`appendChild` の内部で例外になります。
+`render` は root を空にしてから描画し、`mount` は既存の内容に追加します。注意が要るのは引数の順序だけです。SolidJS は `render(code, element)`、Luna はその逆です。
 
 ### text / textDyn
 
@@ -345,7 +348,7 @@ JSX ではハンドラを props として渡します:
 <input onInput={(e) => console.log('input')} onKeyDown={(e) => console.log('key')} />
 ```
 
-`events()` も export されていますが、そのチェーン DSL(`events().click(…)`)は MoonBit の API です。`HandlerMap::click` などは MoonBit の extern メソッドなので、JavaScript から `events()` を呼ぶとメソッドを持たない素のオブジェクトが返ります。JavaScript では上の JSX props を使ってください。
+`events().click(…)` は MoonBit 専用です。`HandlerMap` のチェーンメソッドは MoonBit の extern で、返されるオブジェクトには結び付きません。JavaScript からは使いようがなかったため、`@luna_ui/luna` からの export を取り下げました。JavaScript では上の JSX props を使ってください。
 
 JavaScript 向けに用意されているのは `event-utils` エントリポイントの読み取りヘルパーです:
 

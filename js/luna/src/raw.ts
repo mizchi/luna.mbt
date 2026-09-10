@@ -1,5 +1,10 @@
 // @ts-nocheck
-// Direct low-level re-exports from MoonBit JS API
+// Direct low-level re-exports from MoonBit JS API.
+//
+// These are the unwrapped MoonBit functions: `render`/`mount` here take a
+// built node only, where their "@luna_ui/luna" counterparts also accept a
+// thunk. `events()` is deliberately absent — its chaining methods are MoonBit
+// externs that never attach to the returned object, so it is unusable from JS.
 
 export {
   // Signals
@@ -37,7 +42,6 @@ export {
   createElementNs,
   svgNs,
   mathmlNs,
-  events,
   forEach,
   // Utilities
   debounced,

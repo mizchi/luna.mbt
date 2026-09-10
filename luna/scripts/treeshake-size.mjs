@@ -26,7 +26,7 @@ const ENTRIES = [
   },
   {
     id: "render",
-    contents: `import { render, text, createElement } from "./index.js";\nconst app = () => createElement("div", null, [text("hello")]);\nrender(app, document.body);\n`,
+    contents: `import { render, text, createElement } from "./index.js";\nconst app = () => createElement("div", null, [text("hello")]);\nrender(document.body, app);\n`,
   },
   {
     id: "router-resource",
@@ -50,11 +50,11 @@ const ENTRIES = [
   },
   {
     id: "split-signals",
-    contents: `import { render, textDyn, createElement } from "./index.js";\nimport { createSignal } from "./signals.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(() => String(count()))]);\nrender(app, document.body);\nsetCount(1);\n`,
+    contents: `import { render, textDyn, createElement } from "./index.js";\nimport { createSignal } from "./signals.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(() => String(count()))]);\nrender(document.body, app);\nsetCount(1);\n`,
   },
   {
     id: "split-signals-shared",
-    contents: `import { render, textDyn, createElement } from "./index.js";\nimport { createSignal } from "./signals-shared.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(() => String(count()))]);\nrender(app, document.body);\nsetCount(1);\n`,
+    contents: `import { render, textDyn, createElement } from "./index.js";\nimport { createSignal } from "./signals-shared.js";\nconst [count, setCount] = createSignal(0);\nconst app = () => createElement("div", null, [textDyn(() => String(count()))]);\nrender(document.body, app);\nsetCount(1);\n`,
   },
   {
     id: "raw-signals",

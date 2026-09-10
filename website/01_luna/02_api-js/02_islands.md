@@ -238,8 +238,8 @@ import { Portal } from '@luna_ui/luna';
 </Portal>
 ```
 
-`Portal` calls its children, so they must be a **function**. Passing a bare
-element throws `children is not a function`.
+A portal only relocates its children, so nothing depends on when they are
+built: `{<div />}` and `{() => <div />}` both work.
 
 #### Signature
 
@@ -247,7 +247,7 @@ element throws `children is not a function`.
 interface PortalProps {
   mount?: Element | string;  // Target element or CSS selector
   useShadow?: boolean;       // Use Shadow DOM
-  children: () => LunaNode;
+  children: LunaNode | (() => LunaNode);
 }
 
 function Portal(props: PortalProps): LunaNode;
@@ -285,8 +285,11 @@ const ThemeContext = createContext('light');
 const theme = useContext(ThemeContext);  // 'dark'
 ```
 
-Like `Portal`, `Provider` calls its children — the value is only in scope while
-that function runs, so bare element children throw `f is not a function`.
+`Provider` children must be a **function**. The value is only in scope while
+that function runs, and JSX evaluates a bare element child *before* `Provider`
+is called — a `useContext()` inside it would read the enclosing value and the
+provider would look like a no-op. Passing one throws
+`Provider children must be a function`.
 
 ```typescript
 interface ProviderProps<T> {
@@ -305,19 +308,22 @@ Mount a component to a DOM element.
 ```typescript
 import { mount, render, createElement, text } from '@luna_ui/luna';
 
-// Both take (root, node) — a node, not a function returning one
+// Both take (root, node) — note the order, the root comes first
 mount(document.getElementById('app'), <App />);
 render(document.getElementById('app'), <App />);
+
+// A thunk works too, matching how SolidJS's render is written
+render(document.getElementById('app'), () => <App />);
 ```
 
 ```typescript
-function mount(root: Element, node: LunaNode): void;
-function render(root: Element, node: LunaNode): void;
+function mount(root: Element, node: LunaNode | (() => LunaNode)): void;
+function render(root: Element, node: LunaNode | (() => LunaNode)): void;
 ```
 
-Passing a function instead — `render(el, () => <App />)` — throws inside
-`appendChild`, because the function object itself is handed to the DOM as if it
-were a node.
+`render` clears the root first; `mount` appends to whatever is already there.
+The argument order is the one thing to watch: SolidJS is `render(code, element)`
+and Luna is the reverse.
 
 ### text / textDyn
 
@@ -373,10 +379,10 @@ In JSX, attach handlers as props:
 <input onInput={(e) => console.log('input')} onKeyDown={(e) => console.log('key')} />
 ```
 
-`events()` is exported, but its chaining DSL (`events().click(…)`) is MoonBit
-API: `HandlerMap::click` and friends are MoonBit extern methods, so from
-JavaScript `events()` returns a plain object with no methods on it. Use the JSX
-props above instead.
+`events().click(…)` is MoonBit-only. `HandlerMap`'s chaining methods are
+MoonBit externs that never attach to the object, so `events()` was unusable
+from JavaScript and is no longer exported by `@luna_ui/luna`. Use the JSX props
+above.
 
 The `event-utils` entry point holds the reader helpers that *are* meant for
 JavaScript:
