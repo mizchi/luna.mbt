@@ -21,4 +21,3 @@ pub fn parse_markdown_native(String) -> (@frontmatter.Frontmatter, Array[@mizchi
 // Type aliases
 
 // Traits
-

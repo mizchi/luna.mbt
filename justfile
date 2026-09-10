@@ -258,6 +258,43 @@ luna *args:
 extract-css dir="luna/src" *flags:
     just luna css extract {{dir}} --pretty {{flags}}
 
+# Static CSS preprocessing before either debug or release MoonBit builds
+compile-css input output:
+    pnpm exec tsx js/luna/bin/cli.ts css compile {{quote(input)}} --output-dir {{quote(output)}}
+
+# Run the self-contained MoonBit CSS command (Node.js target)
+css *args:
+    moon run --target js luna/src/cmd/css -- {{args}}
+
+# Embed the shared compiler into the distributable Mooncake CLI
+generate-css-cli:
+    node scripts/generate-css-cli.mjs
+
+# Measure static CSS preprocessing separately from MoonBit compilation
+bench-css-compile files="1000":
+    node scripts/bench-css-compile.mjs {{files}}
+
+# Composable CSS: portable logic, extraction, SSR, and hydration
+test-css: _setup-test-env
+    node scripts/generate-css-properties.mjs --check
+    node scripts/generate-css-pseudos.mjs --check
+    node scripts/generate-css-cli.mjs --check
+    moon test --target js luna/src/x/css
+    moon test --target native luna/src/x/css
+    moon test --target wasm-gc luna/src/x/css
+    moon test --target js luna/src/tests/css_styles
+    node luna/src/x/css/extract.test.js
+    pnpm exec vitest run --config luna/vitest.config.ts --project node js/luna/tests/cli-style-compose.test.ts js/luna/tests/cli-style-compile.test.ts js/luna/tests/cli-css-vite.test.ts js/luna/tests/cli-moon-css.test.ts
+    env -u NO_COLOR pnpm exec playwright test --config luna/e2e/playwright.config.mts luna/e2e/css-styles.test.mts luna/e2e/css-watch.test.mts
+
+# Regenerate the typed CSS property API and extractor mapping from the pinned catalog
+generate-css-properties:
+    node scripts/generate-css-properties.mjs
+
+# Regenerate typed pseudo selectors and their extraction mapping
+generate-css-pseudos:
+    node scripts/generate-css-pseudos.mjs
+
 # CSS ミニファイ
 minify-css input *flags:
     just luna css minify {{input}} {{flags}}
@@ -273,6 +310,19 @@ bench-css scale="all":
 # =============================================================================
 # リリース
 # =============================================================================
+
+# npm パッケージのみビルド（サンプルは除外）
+build-npm:
+    pnpm build:npm
+
+# 公開アーカイブ・workspace 公開対象の検証
+test-npm-pack:
+    pnpm test:npm-pack
+
+# 未公開バージョンの npm パッケージを一括公開
+# 例: just release-npm --dry-run, just release-npm
+release-npm *args:
+    pnpm publish -r {{args}}
 
 # CHANGELOG 再生成（全履歴、リリース時に使用）
 changelog tag:

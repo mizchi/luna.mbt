@@ -17,10 +17,11 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "serve": "vite"
+    "serve": "vite",
+    "prepack": "pnpm build"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "keywords": [
     "web-components",

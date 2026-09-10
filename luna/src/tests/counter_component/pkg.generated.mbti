@@ -20,4 +20,3 @@ pub fn serialize_state(Int) -> String
 // Type aliases
 
 // Traits
-

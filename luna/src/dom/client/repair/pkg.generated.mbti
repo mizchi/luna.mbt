@@ -94,4 +94,3 @@ pub enum SmartHydrateResult {
 // Type aliases
 
 // Traits
-

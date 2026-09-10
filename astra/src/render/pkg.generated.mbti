@@ -66,4 +66,3 @@ pub fn ParallelCssConfig::default() -> Self
 // Type aliases
 
 // Traits
-

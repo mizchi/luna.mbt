@@ -44,4 +44,3 @@ pub fn HmrServer::start(Int) -> @core.Promise[Self]
 // Type aliases
 
 // Traits
-

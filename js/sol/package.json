@@ -14,9 +14,9 @@
   ],
   "scripts": {
     "build": "node scripts/build-release.mjs",
-    "prepack": "node scripts/build-release.mjs"
+    "prepack": "pnpm -w build:moon && node scripts/build-release.mjs"
   },
-  "description": "Sol — SSR-first web framework for MoonBit (CLI wrapper)",
+  "description": "Sol \u2014 SSR-first web framework for MoonBit (CLI wrapper)",
   "license": "MIT",
   "repository": {
     "type": "git",

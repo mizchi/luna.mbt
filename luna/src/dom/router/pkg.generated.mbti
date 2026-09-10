@@ -34,4 +34,3 @@ pub fn BrowserRouter::replace(Self, String) -> Unit
 // Type aliases
 
 // Traits
-

@@ -30,4 +30,3 @@ pub fn hydrate_sortable_list(@dom.Element, @core.Any) -> Unit
 // Type aliases
 
 // Traits
-

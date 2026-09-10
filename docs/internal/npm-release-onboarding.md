@@ -8,10 +8,11 @@ The two workflows together handle:
 - release-please proposes a "chore: release X" PR aggregating Conventional
   Commits across `js/*` packages.
 - Merging that PR creates per-package GitHub Releases tagged
-  `@luna_ui/<pkg>-v<version>`.
-- `publish.yml` reacts to each Release event and runs `npm publish` from
-  the matching `js/<pkg>` directory using OIDC Trusted Publishing
-  (no NPM_TOKEN needed).
+  `<pkg>-npm-v<version>`.
+- `publish.yml` reacts to each Release event, runs `pnpm pack` in the
+  matching `js/<pkg>` directory, then publishes the tarball with npm using
+  OIDC Trusted Publishing (no NPM_TOKEN needed). Packing with pnpm resolves
+  internal `workspace:^` ranges before npm uploads the artifact.
 
 Scope: 8 packages — `@luna_ui/{luna,sol,astra,components,luna-loader,stella,testing,wcr}`.
 
@@ -94,17 +95,28 @@ for pkg in luna sol astra components luna-loader stella testing wcr; do
 done
 ```
 
-For each `(not published)` package, from the package directory:
+For each `(not published)` package, from the repository root with your
+local npm login:
 
 ```sh
-cd js/<pkg>
-pnpm install
-pnpm -r build           # build deps
-npm publish --provenance --access public
+pnpm install --frozen-lockfile
+pnpm --filter @luna_ui/<pkg> publish
 ```
 
-(Use `npm publish` not `pnpm publish` — Trusted Publishing requires
-npm 11+ which currently provides the OIDC token exchange.)
+To publish all unpublished workspace versions locally, use `pnpm publish -r`.
+Run `pnpm publish -r --dry-run` first to preview the selection. For pending
+uncommitted changes, append `--no-git-checks` to the dry run. The eight public
+packages have `prepack` builds; examples, the root, `@sol/core`, and
+`@luna_ui/wcssr` are private. Internal dependencies use `workspace:^`, which
+pnpm converts to ordinary semver ranges in the package artifact.
+
+The command does not bump versions. Set intended npm versions through
+release-please or edit the relevant `js/*/package.json` first. These versions
+are independent of `moon.mod`. Already published versions are skipped.
+Keep pnpm's default Git checks enabled for releases: commit the changes and
+bring `main` up to date with origin before publishing.
+
+CI continues to use npm for OIDC publication of the pnpm-produced tarball.
 
 Per the table baked into `release-please-config.json`, at the time of
 this doc the packages most likely needing first-claim are:

@@ -393,4 +393,3 @@ pub type AsyncPageResolver = (String, @mars.Context, RouteParams) -> @static.Ser
 pub using @mars {type Context as Ctx}
 
 // Traits
-

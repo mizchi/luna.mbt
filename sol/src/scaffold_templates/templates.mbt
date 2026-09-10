@@ -37,13 +37,13 @@ pub fn template_moon_mod(package_name : String, luna_path : String?) -> String {
     #|import {
     #|  "mizchi/sol@0.23.2",
     #|  "mizchi/sol_adapter_node@0.23.2",
-    #|  "mizchi/mars@0.3.10",
-    #|  "mizchi/luna@0.23.2",
-    #|  "mizchi/signals@0.6.4",
-    #|  "mizchi/js@0.12.1",
-    #|  "mizchi/js_browser@0.12.1",
+    #|  "mizchi/mars@0.3.11",
+    #|  "mizchi/luna@0.24.0",
+    #|  "mizchi/signals@0.6.5",
+    #|  "mizchi/js@0.12.2",
+    #|  "mizchi/js_browser@0.12.2",
     #|  "mizchi/npm_typed@0.1.15",
-    #|  "moonbitlang/async@0.20.1",
+    #|  "moonbitlang/async@0.21.3",
     #|}
     #|
     #|source = "app"
@@ -84,11 +84,11 @@ pub fn template_package_json(project_name : String) -> String {
     #|    "generate": "sol generate"
     #|  },
     #|  "dependencies": {
-    #|    "hono": "^4.12.12",
-    #|    "@hono/node-server": "^1.19.13"
+    #|    "hono": "^4.13.7",
+    #|    "@hono/node-server": "^2.1.1"
     #|  },
     #|  "devDependencies": {
-    #|    "rolldown": "1.0.0-rc.13"
+    #|    "rolldown": "1.2.8"
     #|  }
     #|}
   tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
@@ -674,12 +674,12 @@ pub fn template_cloudflare_package_json(project_name : String) -> String {
     #|    "verify": "pnpm build && pnpm test:e2e"
     #|  },
     #|  "dependencies": {
-    #|    "hono": "^4.12.12"
+    #|    "hono": "^4.13.7"
     #|  },
     #|  "devDependencies": {
-    #|    "@playwright/test": "^1.58.2",
-    #|    "rolldown": "1.0.0-rc.13",
-    #|    "wrangler": "^4.81.0"
+    #|    "@playwright/test": "^1.63.0",
+    #|    "rolldown": "1.2.8",
+    #|    "wrangler": "^4.130.0"
     #|  }
     #|}
   tmpl.replace(old="{{PROJECT_NAME}}", new=project_name)
@@ -701,13 +701,13 @@ pub fn template_cloudflare_moon_mod(
     #|import {
     #|  "mizchi/sol@0.23.2",
     #|  "mizchi/sol_adapter_cloudflare@0.23.2",
-    #|  "mizchi/mars@0.3.10",
-    #|  "mizchi/luna@0.23.2",
-    #|  "mizchi/signals@0.6.4",
-    #|  "mizchi/js@0.12.1",
-    #|  "mizchi/js_browser@0.12.1",
+    #|  "mizchi/mars@0.3.11",
+    #|  "mizchi/luna@0.24.0",
+    #|  "mizchi/signals@0.6.5",
+    #|  "mizchi/js@0.12.2",
+    #|  "mizchi/js_browser@0.12.2",
     #|  "mizchi/npm_typed@0.1.15",
-    #|  "moonbitlang/async@0.20.1",
+    #|  "moonbitlang/async@0.21.3",
     #|}
     #|
     #|source = "app"
@@ -1060,7 +1060,7 @@ pub fn generate_cloudflare_templates(
       out.push(file)
     }
   }
-  out.push({ path: "worker.entry.mjs", content: template_worker_entry_mjs() })
+  out.push({ path: "worker.entry.mjs", content: template_worker_entry_mjs(), })
   out.push({
     path: "worker.entry.dev.mjs",
     content: template_worker_entry_mjs(sol_module="./.sol/dev/server/main.js"),
@@ -1102,28 +1102,31 @@ pub fn generate_templates(
 ) -> Array[TemplateFile] {
   let templates : Array[TemplateFile] = [
     // Root config files
-    { path: ".gitignore", content: template_gitignore() },
-    { path: "moon.mod", content: template_moon_mod(package_name, luna_path) },
-    { path: "package.json", content: template_package_json(project_name) },
-    { path: "sol.config.json", content: template_sol_config_json() },
+    { path: ".gitignore", content: template_gitignore(), },
+    { path: "moon.mod", content: template_moon_mod(package_name, luna_path), },
+    { path: "package.json", content: template_package_json(project_name), },
+    { path: "sol.config.json", content: template_sol_config_json(), },
     // Layout (explicit layout wrapper)
-    { path: "app/layout/moon.pkg", content: template_layout_moon_pkg() },
-    { path: "app/layout/layout.mbt", content: template_layout_mbt() },
-    { path: "app/layout/alias.mbt", content: template_server_using_mbt() },
+    { path: "app/layout/moon.pkg", content: template_layout_moon_pkg(), },
+    { path: "app/layout/layout.mbt", content: template_layout_mbt(), },
+    { path: "app/layout/alias.mbt", content: template_server_using_mbt(), },
     // Routes (single source of truth) + user-managed server entry
     {
       path: "app/server/moon.pkg",
       content: template_routes_moon_pkg(package_name),
     },
-    { path: "app/server/main.mbt", content: template_routes_main_mbt() },
+    { path: "app/server/main.mbt", content: template_routes_main_mbt(), },
     {
       path: "app/server/routes.mbt",
       content: template_routes_mbt(package_name),
     },
-    { path: "app/server/alias.mbt", content: template_routes_using_mbt() },
+    { path: "app/server/alias.mbt", content: template_routes_using_mbt(), },
     // Client islands (render + hydrate in same file)
-    { path: "app/client/moon.pkg", content: template_client_counter_moon_pkg() },
-    { path: "app/client/counter.mbt", content: template_client_counter_mbt() },
+    {
+      path: "app/client/moon.pkg",
+      content: template_client_counter_moon_pkg(),
+    },
+    { path: "app/client/counter.mbt", content: template_client_counter_mbt(), },
     {
       path: "app/client/api_tools.mbt",
       content: template_client_api_tools_mbt(),
@@ -1133,11 +1136,11 @@ pub fn generate_templates(
       path: "app/__gen__/types/moon.pkg",
       content: template_gen_types_moon_pkg(),
     },
-    { path: "app/__gen__/types/types.mbt", content: template_gen_types_mbt() },
+    { path: "app/__gen__/types/types.mbt", content: template_gen_types_mbt(), },
   ]
   match luna_path {
     Some(path) =>
-      templates.push({ path: "moon.work", content: template_moon_work(path) })
+      templates.push({ path: "moon.work", content: template_moon_work(path), })
     None => ()
   }
   templates

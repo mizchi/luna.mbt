@@ -489,32 +489,32 @@ test('class names use underscore prefix', () => {
   assertContains(css, '._');
 });
 
-test('hover classes use _h prefix', () => {
+test('hover classes match the MoonBit declaration hash', () => {
   cleanup();
   createTestFile('test.mbt', `let h = hover("color", "blue")`);
   const css = runExtract();
-  assertContains(css, '._h');
+  assertContains(css, '._1wv5q:hover{color:blue}');
 });
 
-test('focus classes use _f prefix', () => {
+test('focus classes match the MoonBit declaration hash', () => {
   cleanup();
   createTestFile('test.mbt', `let f = focus("outline", "none")`);
   const css = runExtract();
-  assertContains(css, '._f');
+  assertContains(css, '._5obcz:focus{outline:none}');
 });
 
-test('active classes use _ac prefix', () => {
+test('active classes match the MoonBit declaration hash', () => {
   cleanup();
   createTestFile('test.mbt', `let a = active("opacity", "0.8")`);
   const css = runExtract();
-  assertContains(css, '._ac');
+  assertContains(css, '._6guu6:active{opacity:0.8}');
 });
 
-test('media classes use _m prefix', () => {
+test('media classes match the MoonBit declaration hash', () => {
   cleanup();
   createTestFile('test.mbt', `let m = at_md("padding", "2rem")`);
   const css = runExtract();
-  assertContains(css, '._m');
+  assertContains(css, '._m2bz{padding:2rem}');
 });
 
 // =============================================================================

@@ -214,4 +214,3 @@ type Todo derive(Eq, ToJson, @json.FromJson)
 // Type aliases
 
 // Traits
-

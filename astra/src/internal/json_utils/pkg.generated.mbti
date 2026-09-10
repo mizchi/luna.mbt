@@ -27,4 +27,3 @@ pub fn parse_string_array(Array[Json]) -> Array[String]
 // Type aliases
 
 // Traits
-

@@ -142,4 +142,3 @@ pub(open) trait ActionKey {
   fn id(Self) -> String
   fn base_path(Self) -> String
 }
-

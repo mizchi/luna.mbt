@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [luna-v0.24.0] - 2026-09-10
+
+### Dependencies
+
+- Update MoonBit dependencies for the current toolchain
+
+### Features
+
+- **css**: Add composable styles with typed properties and pseudo selectors
+- **css**: Precompile static styles for SSR and browser builds
+- **cli**: Add the self-contained cmd/css compiler and Vite watch entry
+
 ## [luna-v0.23.2] - 2026-07-10
 
 ### Bug Fixes

@@ -50,4 +50,3 @@ pub(all) enum WarningKind {
 // Type aliases
 
 // Traits
-

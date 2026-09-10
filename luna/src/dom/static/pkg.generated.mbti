@@ -243,4 +243,3 @@ pub fn TrustedStyle::to_string(Self) -> String
 // Type aliases
 
 // Traits
-

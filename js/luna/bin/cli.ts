@@ -13,6 +13,7 @@ import {
   injectAndWrite,
 } from "../src/css/index.js";
 import { analyzeDirectory } from "../src/css-optimizer/moonbit-analyzer.js";
+import { runCssCommand } from "../src/css/command.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -72,11 +73,26 @@ Usage:
   luna css <subcommand> [options]
 
 Subcommands:
+  compile <dir>     Precompute composable CSS before MoonBit compilation
+  watch            Start the project's Vite server with CSS compilation
   extract <dir>     Extract CSS from .mbt files
   minify <file>     Minify CSS file
   inline <file>     Inline CSS class names into compiled JS
   inject <html>     Inject extracted CSS into HTML file
   analyze-mbt <dir> Analyze MoonBit source for CSS co-occurrences
+
+Compile Options:
+  --output-dir <dir>    Generated source directory (required, outside input)
+  --css-package <path>  CSS import path (default: mizchi/luna/x/css)
+  Copies the source tree, folds static styles, and writes luna.css.
+  Reuse the same output directory; unchanged files retain their timestamps.
+
+Watch Options:
+  --root <dir>         Project directory (default: current directory)
+  --config <file>      Vite config, relative to the project root
+  --host <host>        Development server host
+  --port <port>        Development server port
+  Install Vite and configure lunaCssCompile in the project's vite.config.
 
 Extract Options:
   -o, --output <file>   Output file (default: stdout)
@@ -116,6 +132,8 @@ Analyze-mbt Options:
   -v, --verbose         Show analysis details
 
 Examples:
+  luna css compile app --output-dir build/app
+  moon -C build/app build --target js
   luna css extract src -o dist/styles.css
   luna css extract src --json -o mapping.json
   luna css extract src --split --output-dir dist/css
@@ -994,6 +1012,10 @@ async function handleCss(args: string[]) {
   const subArgs = args.slice(1);
 
   switch (subcommand) {
+    case "compile":
+    case "watch":
+      await runCssCommand(args);
+      break;
     case "extract":
       handleCssExtract(subArgs);
       break;

@@ -19,4 +19,3 @@ pub fn yellow(String) -> String
 // Type aliases
 
 // Traits
-

@@ -56,16 +56,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Build the MoonBit workspace first — js/luna's tsdown step reads
-      # _build/js/release/build/mizchi/luna/js/api/api.js to strip abort
-      # locations. Without this step it fails with ENOENT.
-      - run: moon build --target js --release
-
-      # Workspace-wide build is the safest bet — most js/* packages have a
-      # build step that produces dist/ and we don't want to maintain a
-      # per-package matrix here.
-      - run: pnpm -r build
-
       # release-please tag format is "<component>-v<version>". Each npm package
       # sets component to "<name>-npm" in release-please-config.json so these
       # tags (e.g. "luna-npm-v0.23.1") never collide with the mooncake release
@@ -96,9 +86,15 @@ jobs:
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
           echo "dir=$DIR"   >> "$GITHUB_OUTPUT"
 
+      # pnpm resolves workspace: ranges in the artifact. The package's
+      # prepack hook builds its JS and, where needed, MoonBit output.
+      - name: Pack ${{ steps.pkg.outputs.name }}
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: pnpm pack --pack-destination "$RUNNER_TEMP/npm-package"
+
       - name: Publish ${{ steps.pkg.outputs.name }}
         working-directory: ${{ steps.pkg.outputs.dir }}
         # --provenance is auto-attached by npm 11+ in OIDC environments;
         # explicitly opting in here keeps it on for older npm too.
         # Do NOT set NPM_TOKEN — its presence disables the OIDC code path.
-        run: npm publish --provenance --access public
+        run: npm publish "$RUNNER_TEMP"/npm-package/*.tgz --provenance --access public

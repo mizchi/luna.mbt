@@ -28,4 +28,3 @@ pub fn Highlighter::highlight_sync(Self, String, String) -> String
 // Type aliases
 
 // Traits
-

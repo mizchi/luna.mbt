@@ -1230,12 +1230,12 @@ test "template_moon_mod: uses current published moon deps" {
   assert_true(
     content.contains("\"mizchi/sol_adapter_node@\{@version.VERSION}\""),
   )
-  assert_true(content.contains("\"mizchi/luna@\{@version.VERSION}\""))
-  assert_true(content.contains("\"mizchi/signals@0.6.4\""))
-  assert_true(content.contains("\"mizchi/js@0.12.1\""))
-  assert_true(content.contains("\"mizchi/js_browser@0.12.1\""))
+  assert_true(content.contains("\"mizchi/luna@0.24.0\""))
+  assert_true(content.contains("\"mizchi/signals@0.6.5\""))
+  assert_true(content.contains("\"mizchi/js@0.12.2\""))
+  assert_true(content.contains("\"mizchi/js_browser@0.12.2\""))
   assert_true(content.contains("\"mizchi/npm_typed@0.1.15\""))
-  assert_true(content.contains("\"moonbitlang/async@0.20.1\""))
+  assert_true(content.contains("\"moonbitlang/async@0.21.3\""))
 }
 
 ///|
@@ -1305,9 +1305,9 @@ test "generate_templates: package.json includes dev/build/serve scripts" {
 test "template_package_json: uses current npm deps" {
   let templates = generate_templates("tester/myapp", "myapp", None)
   let content = find_template_content(templates, "package.json").unwrap_or("")
-  assert_true(content.contains("\"hono\": \"^4.12.12\""))
-  assert_true(content.contains("\"@hono/node-server\": \"^1.19.13\""))
-  assert_true(content.contains("\"rolldown\": \"1.0.0-rc.13\""))
+  assert_true(content.contains("\"hono\": \"^4.13.7\""))
+  assert_true(content.contains("\"@hono/node-server\": \"^2.1.1\""))
+  assert_true(content.contains("\"rolldown\": \"1.2.8\""))
 }
 
 ///|

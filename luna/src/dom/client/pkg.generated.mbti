@@ -92,4 +92,3 @@ pub fn WcIslandContext::signal_int(Self, String, Int) -> @signals.Signal[Int]
 // Type aliases
 
 // Traits
-

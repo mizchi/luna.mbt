@@ -409,4 +409,3 @@ pub fn StaticRouteEntry::new(path~ : String, source~ : String, output~ : String)
 // Type aliases
 
 // Traits
-

@@ -60,16 +60,23 @@
     }
   },
   "scripts": {
-    "prepublishOnly": "pnpm build",
     "build": "node ../../luna/scripts/strip-moonbit-abort-loc.mjs && tsdown",
     "test": "vitest run --root ../..",
-    "build:examples": "vite build examples"
+    "build:examples": "vite build examples",
+    "prepack": "pnpm -w build:moon && pnpm build"
   },
   "devDependencies": {
-    "global-jsdom": "^29.0.0",
-    "jsdom": "^29.1.1",
-    "preact": "^10.29.5",
-    "tsdown": "0.22.3"
+    "jsdom": "^30.0.1",
+    "preact": "^10.29.8",
+    "tsdown": "0.23.0"
+  },
+  "peerDependencies": {
+    "vite": "^8.3.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
   },
   "repository": {
     "type": "git",

@@ -8,7 +8,8 @@
     "shiki": "npx tsx ../../scripts/shiki-highlight.ts dist"
   },
   "devDependencies": {
-    "shiki": "^4.0.2",
-    "tsx": "^4.21.0"
-  }
+    "shiki": "^4.4.3",
+    "tsx": "^4.23.13"
+  },
+  "private": true
 }

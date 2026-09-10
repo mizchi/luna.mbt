@@ -161,4 +161,3 @@ pub type StaticDomAttr = Attr[Unit, String]
 pub type StaticDomNode = Node[Unit, String]
 
 // Traits
-

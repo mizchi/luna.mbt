@@ -65,4 +65,3 @@ pub(all) enum StateConfig {
 // Type aliases
 
 // Traits
-

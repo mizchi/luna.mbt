@@ -28,4 +28,3 @@ pub fn StreamWriter::from_callback((String) -> Unit) -> Self
 // Type aliases
 
 // Traits
-

@@ -128,4 +128,3 @@ pub(all) enum SidebarNode {
 // Type aliases
 
 // Traits
-

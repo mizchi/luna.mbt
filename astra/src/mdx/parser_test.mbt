@@ -2,6 +2,17 @@
 /// MDX Parser tests
 
 ///|
+test "mdx preserves Markdown extension blocks" {
+  let source = "> [!NOTE]\n> Keep this note.\n"
+  let (_, nodes) = parse_mdx(source)
+  assert_eq(nodes.length(), 1)
+  match nodes[0] {
+    @astra.MdNode::Html(html) => assert_eq(html, @md_parser.md_to_html(source))
+    _ => fail("Expected the Markdown extension's HTML")
+  }
+}
+
+///|
 test "parse mdx with custom element containing BEM classes" {
   let content =
     #|<styled-checkbox-demo>

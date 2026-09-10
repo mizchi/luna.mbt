@@ -19,4 +19,3 @@ pub fn send_json_error(@mars.Context, String, status? : Int) -> Unit
 // Type aliases
 
 // Traits
-

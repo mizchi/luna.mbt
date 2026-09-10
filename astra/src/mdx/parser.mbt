@@ -53,9 +53,9 @@ fn extract_frontmatter_from_exports(
             Some(n) => {
               let cleaned = extract_string_value(value)
               if n == "title" && !cleaned.is_empty() {
-                fm = { ..fm, title: Some(cleaned) }
+                fm = { ..fm, title: Some(cleaned), }
               } else if n == "description" && !cleaned.is_empty() {
-                fm = { ..fm, description: Some(cleaned) }
+                fm = { ..fm, description: Some(cleaned), }
               }
             }
             None => ()
@@ -151,6 +151,11 @@ fn find_mdx_block_for_cst_block(
 /// Get span from a CST block
 fn get_block_span(block : @md_parser.Block) -> @md_parser.Span {
   match block {
+    @md_parser.Block::Attributed(span~, ..)
+    | @md_parser.Block::DefinitionList(span~, ..)
+    | @md_parser.Block::Directive(span~, ..)
+    | @md_parser.Block::MathBlock(span~, ..)
+    | @md_parser.Block::Alert(span~, ..) => span
     @md_parser.Block::ThematicBreak(span~, ..) => span
     @md_parser.Block::Heading(span~, ..) => span
     @md_parser.Block::Paragraph(span~, ..) => span
@@ -226,9 +231,9 @@ fn convert_jsx_to_embed(
 
   // Build CLS hints if any
   if width is Some(_) || height is Some(_) {
-    cls_hints = Some(@astra.ClsHints::{ width, height })
+    cls_hints = Some(@astra.ClsHints::{ width, height, })
   }
-  @astra.JsxComponentEmbed::{ tag, attrs, children, self_closing, cls_hints }
+  @astra.JsxComponentEmbed::{ tag, attrs, children, self_closing, cls_hints, }
 }
 
 ///|
@@ -262,6 +267,21 @@ fn mdx_attr_to_string(value : @astra.MdxAttrValue) -> String {
 /// This reuses the convert_block function logic from @cst
 fn convert_cst_block(block : @md_parser.Block) -> @astra.MdNode? {
   match block {
+    @md_parser.Block::Attributed(..)
+    | @md_parser.Block::DefinitionList(..)
+    | @md_parser.Block::Directive(..)
+    | @md_parser.Block::MathBlock(..)
+    | @md_parser.Block::Alert(..) =>
+      Some(
+        @astra.MdNode::Html(
+          @md_parser.render_html({
+            frontmatter: None,
+            children: [block],
+            definitions: [],
+            span: @md_parser.Span::empty(),
+          }),
+        ),
+      )
     @md_parser.Block::ThematicBreak(..) => Some(@astra.MdNode::ThematicBreak)
     @md_parser.Block::Heading(level~, children~, ..) => {
       let md_children = convert_inlines(children)
@@ -352,6 +372,23 @@ fn convert_inlines(inlines : Array[@md_parser.Inline]) -> Array[@astra.MdNode] {
 ///|
 fn convert_inline(inline : @md_parser.Inline) -> @astra.MdNode? {
   match inline {
+    @md_parser.Inline::Directive(span~, ..) => {
+      // Use the upstream renderer for extension attributes and escaping.
+      let html = @md_parser.render_html({
+        frontmatter: None,
+        children: [
+          @md_parser.Block::Paragraph(
+            children=[inline],
+            span~,
+            leading_trivia=@md_parser.Trivia::empty(),
+            trailing_trivia=@md_parser.Trivia::empty(),
+          ),
+        ],
+        definitions: [],
+        span,
+      })
+      Some(@astra.MdNode::Html(html[3:html.length() - 5].to_string()))
+    }
     @md_parser.Inline::Text(content~, ..) => Some(@astra.MdNode::Text(content))
     @md_parser.Inline::SoftBreak(..) => Some(@astra.MdNode::Text(" "))
     @md_parser.Inline::HardBreak(..) => Some(@astra.MdNode::LineBreak)

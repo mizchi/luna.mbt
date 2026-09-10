@@ -10,6 +10,8 @@ import path from "path";
 import { extract, extractSplit, type SplitExtractResult } from "./css/extract.js";
 import { optimizeCss, optimizeHtml, type OptimizeOptions } from "./css/optimizer.js";
 
+export { lunaCssCompile, type LunaCssCompileOptions, type LunaCssBuildContext } from "./css/vite-compile.js";
+
 export type OutputMode = "inline" | "external" | "auto";
 
 export interface LunaCssPluginOptions {

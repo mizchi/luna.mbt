@@ -85,4 +85,3 @@ pub enum WorkerState {
 // Type aliases
 
 // Traits
-

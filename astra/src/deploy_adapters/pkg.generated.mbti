@@ -25,4 +25,3 @@ pub fn write_vercel_config(@astra.BuildContext) -> Unit
 // Type aliases
 
 // Traits
-

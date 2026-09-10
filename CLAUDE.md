@@ -77,6 +77,20 @@ moon install mizchi/sol/cmd/sol
 moon install mizchi/astra/cmd/astra
 ```
 
+npm batch publishing (from the root):
+```sh
+just test-npm-pack                    # inspect all eight package archives
+pnpm publish -r --dry-run             # preview unpublished npm versions
+pnpm publish -r                       # or: just release-npm
+```
+Only the eight release-please-managed `js/*` packages are public. Keep
+examples, internal `@sol/core`, and `js/wcssr` private. Each public package
+has a `prepack` build; MoonBit-backed packages build MoonBit first. Use
+`workspace:^` for internal npm dependencies; pnpm rewrites them when packing.
+Inspect packed manifests when testing registry dependency ranges. CI uses
+`pnpm pack` followed by `npm publish <tarball>` for OIDC. npm versions are
+independent of Mooncake versions, and recursive publish does not bump them.
+
 ## Conventions
 
 - Conventional Commits (`feat`/`fix`/`refactor`/`docs`/`chore`/...).

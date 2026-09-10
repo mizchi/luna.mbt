@@ -5,6 +5,7 @@
  */
 
 export * from "./extract.js";
+export * from "./compile.js";
 export * from "./minify.js";
 export * from "./inline.js";
 export * from "./inject.js";

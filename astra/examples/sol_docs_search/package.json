@@ -14,7 +14,7 @@
     "test:e2e:update": "playwright test --config e2e/playwright.config.mts --update-snapshots"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
+    "@playwright/test": "^1.63.0",
     "http-server": "^14.1.1",
     "pagefind": "^1.5.2"
   }

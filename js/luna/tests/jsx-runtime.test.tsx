@@ -1,5 +1,4 @@
 import { describe, test, expect } from "vitest";
-import "global-jsdom/register";
 import { jsx, jsxs, Fragment, type JSX } from "../src/jsx-runtime";
 import { createSignal, createMemo, get, set, For, Show, render } from "../src/index";
 

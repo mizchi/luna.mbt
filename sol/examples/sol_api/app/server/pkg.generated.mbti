@@ -17,4 +17,3 @@ pub fn routes() -> Array[@router.SolRoutes]
 // Type aliases
 
 // Traits
-

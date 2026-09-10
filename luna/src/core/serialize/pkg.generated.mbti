@@ -99,4 +99,3 @@ pub(open) trait Serializable {
   fn to_state_value(Self) -> StateValue
   fn from_state_value(StateValue) -> Self?
 }
-

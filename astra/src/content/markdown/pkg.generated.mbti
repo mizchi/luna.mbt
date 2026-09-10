@@ -72,4 +72,3 @@ pub(all) enum MdxAttrValue {
 // Type aliases
 
 // Traits
-

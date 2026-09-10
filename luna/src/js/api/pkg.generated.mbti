@@ -175,4 +175,3 @@ pub struct JsResource(@resource.Resource[Any])
 // Type aliases
 
 // Traits
-

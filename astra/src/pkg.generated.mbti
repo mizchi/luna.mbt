@@ -372,4 +372,3 @@ pub using @frontmatter {type NavLink}
 pub using @frontmatter {type OutlineConfig}
 
 // Traits
-

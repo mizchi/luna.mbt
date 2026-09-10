@@ -17,4 +17,3 @@ pub fn[F] build_document_tree_with_fs(F, @astra.SsgConfig, Array[@astra.PageMeta
 // Type aliases
 
 // Traits
-

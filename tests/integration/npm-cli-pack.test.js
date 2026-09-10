@@ -35,10 +35,6 @@ const PACKAGES = [
   { id: "sol",   pkgDir: path.join(ROOT, "js/sol"),   bin: "sol.js" },
   { id: "astra", pkgDir: path.join(ROOT, "js/astra"), bin: "astra.js" },
 ];
-const EXPORT_PACKAGES = [
-  { id: "components", pkgDir: path.join(ROOT, "js/components") },
-  { id: "testing", pkgDir: path.join(ROOT, "js/testing") },
-];
 const PUBLIC_PACKAGE_DIRS = [
   "js/astra",
   "js/components",
@@ -108,80 +104,47 @@ function collectManifestPaths(manifest) {
     }
   }
   visit(manifest.exports);
-  return [...paths].filter((p) => p.startsWith("./dist/"));
+  return [...paths].filter((p) => p.startsWith("./"));
 }
 
-for (const pkg of EXPORT_PACKAGES) {
-  test(`@luna_ui/${pkg.id} package exports point at built files`, { timeout: 120_000 }, () => {
-    const build = spawnSync("pnpm", ["build"], {
-      cwd: pkg.pkgDir,
-      encoding: "utf8",
-    });
-    assert.equal(
-      build.status,
-      0,
-      `pnpm build failed in ${pkg.pkgDir}:\n${build.stdout}\n${build.stderr}`,
-    );
-
-    const manifest = JSON.parse(
-      readFileSync(path.join(pkg.pkgDir, "package.json"), "utf8"),
-    );
-    const exportedPaths = collectManifestPaths(manifest);
-    assert.ok(
-      exportedPaths.length > 0,
-      `js/${pkg.id}/package.json should expose at least one dist file`,
-    );
-    for (const rel of exportedPaths) {
-      const abs = path.join(pkg.pkgDir, rel);
-      assert.ok(
-        existsSync(abs),
-        `js/${pkg.id}/package.json points at missing build output: ${rel}`,
-      );
-    }
-  });
-}
-
-test("public npm package runtime dependency fields do not use workspace protocol", () => {
-  const dependencyFields = [
-    "dependencies",
-    "peerDependencies",
-    "optionalDependencies",
-    "bundleDependencies",
-    "bundledDependencies",
-  ];
-  for (const pkgDir of PUBLIC_PACKAGE_DIRS) {
-    const manifest = JSON.parse(
-      readFileSync(path.join(pkgDir, "package.json"), "utf8"),
-    );
-    for (const field of dependencyFields) {
-      const deps = manifest[field];
-      if (!deps || typeof deps !== "object") continue;
-      for (const [name, specifier] of Object.entries(deps)) {
-        assert.ok(
-          typeof specifier !== "string" || !specifier.startsWith("workspace:"),
-          `${path.relative(ROOT, pkgDir)}/package.json ${field}.${name} ` +
-            `uses ${specifier}; npm publishes must use registry semver ranges`,
-        );
+// Inspect the packed manifests, because pnpm replaces workspace: ranges at
+// this boundary. npm consumers must never receive local workspace specifiers.
+for (const pkgDir of PUBLIC_PACKAGE_DIRS) {
+  test(`${path.relative(ROOT, pkgDir)} packs complete exports and registry dependencies`, { timeout: 180_000 }, () => {
+    const stage = mkdtempSync(path.join(tmpdir(), "luna-npm-artifact-"));
+    try {
+      const pack = spawnSync("pnpm", ["pack", "--pack-destination", stage], {
+        cwd: pkgDir,
+        encoding: "utf8",
+        timeout: 150_000,
+      });
+      assert.equal(pack.status, 0, `pnpm pack failed:\n${pack.stdout}\n${pack.stderr}`);
+      const archive = readdirSync(stage).find((file) => file.endsWith(".tgz"));
+      assert.ok(archive, "pnpm pack must produce an archive");
+      const extract = spawnSync("tar", ["-xzf", path.join(stage, archive), "-C", stage], { encoding: "utf8" });
+      assert.equal(extract.status, 0, extract.stderr);
+      const manifest = JSON.parse(readFileSync(path.join(stage, "package/package.json"), "utf8"));
+      const bins = typeof manifest.bin === "string" ? [manifest.bin] : Object.values(manifest.bin ?? {});
+      const exportedPaths = [...collectManifestPaths(manifest), ...bins];
+      assert.ok(exportedPaths.length > 0, "package must expose an entry point");
+      for (const rel of exportedPaths) {
+        assert.ok(existsSync(path.join(stage, "package", rel)), `missing packed entry point: ${rel}`);
       }
+      for (const field of ["dependencies", "peerDependencies", "optionalDependencies"]) {
+        for (const [name, specifier] of Object.entries(manifest[field] ?? {})) {
+          assert.doesNotMatch(specifier, /^(workspace:|link:|file:)/, `${field}.${name}`);
+          const localDir = PUBLIC_PACKAGE_DIRS.find((dir) =>
+            JSON.parse(readFileSync(path.join(dir, "package.json"), "utf8")).name === name);
+          if (localDir) {
+            const local = JSON.parse(readFileSync(path.join(localDir, "package.json"), "utf8"));
+            assert.equal(specifier, `^${local.version}`, `${field}.${name} must track the workspace version`);
+          }
+        }
+      }
+    } finally {
+      rmSync(stage, { recursive: true, force: true });
     }
-  }
-});
-
-function ensureMoonReleaseBuild() {
-  const sentinel = path.join(
-    ROOT,
-    "_build/js/release/build/mizchi/sol/cmd/sol_js/sol_js.js",
-  );
-  if (existsSync(sentinel)) return;
-  const r = spawnSync("moon", ["build", "--target", "js", "--release"], {
-    cwd: ROOT,
-    encoding: "utf8",
   });
-  assert.equal(
-    r.status,
-    0,
-    `moon build --release failed:\n${r.stdout}\n${r.stderr}`,
-  );
 }
 
 function packAndInstall(pkgDir, binName) {
@@ -246,7 +209,6 @@ function packAndInstall(pkgDir, binName) {
 }
 
 test("@luna_ui/sol tarball contains a runnable CLI", { timeout: 240_000 }, () => {
-  ensureMoonReleaseBuild();
   const { extracted, installedRoot, cleanup } = packAndInstall(
     path.join(ROOT, "js/sol"),
     "sol",
@@ -295,7 +257,6 @@ test("@luna_ui/sol works under pnpm's .pnpm/ store layout (thesparq scenario)", 
   // traversed *past* the package root into a directory pnpm never
   // creates. Installing via `pnpm add` instead of `npm install`
   // exercises the exact resolution chain that crashed for thesparq.
-  ensureMoonReleaseBuild();
   const stage = mkdtempSync(path.join(tmpdir(), "luna-cli-pnpm-"));
   try {
     const pack = spawnSync(
@@ -361,7 +322,6 @@ test("@luna_ui/sol works under pnpm's .pnpm/ store layout (thesparq scenario)", 
 });
 
 test("@luna_ui/astra tarball contains a runnable CLI and bundled assets", { timeout: 240_000 }, () => {
-  ensureMoonReleaseBuild();
   const { extracted, installedRoot, cleanup } = packAndInstall(
     path.join(ROOT, "js/astra"),
     "astra",

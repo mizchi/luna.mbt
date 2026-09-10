@@ -23,4 +23,3 @@ pub fn render_template(String, String, String, String, String) -> String
 // Type aliases
 
 // Traits
-

@@ -88,17 +88,17 @@ test "active() returns class name with _ prefix" {
 }
 
 ///|
-test "at_md() returns class name with _m prefix" {
+test "at_md() returns class name with hash prefix" {
   reset_all()
   let cls = at_md("test-md-padding", "2rem")
-  assert_true(cls.has_prefix("_m"))
+  assert_true(cls.has_prefix("_"))
 }
 
 ///|
-test "dark() returns class name with _m prefix" {
+test "dark() returns class name with hash prefix" {
   reset_all()
   let cls = dark("test-dark-bg", "#1a1a1a")
-  assert_true(cls.has_prefix("_m"))
+  assert_true(cls.has_prefix("_"))
 }
 
 ///|
@@ -150,6 +150,17 @@ test "media queries are grouped by condition" {
   // md block should contain both md declarations
   assert_true(output.contains("." + md1 + "{test-group-padding:1rem}"))
   assert_true(output.contains("." + md2 + "{test-group-font-size:1.25rem}"))
+}
+
+///|
+test "media class names match static extraction and ignore registration order" {
+  reset_all()
+  let first = at_md("padding", "2rem")
+  // Same DJB2 input used by both static extractors.
+  assert_eq(first, "_m2bz")
+  reset_all()
+  ignore(at_lg("display", "flex"))
+  assert_eq(at_md("padding", "2rem"), first)
 }
 
 // =============================================================================

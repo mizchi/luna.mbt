@@ -24,4 +24,3 @@ pub(all) struct TocItem {
 // Type aliases
 
 // Traits
-

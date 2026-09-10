@@ -3,21 +3,21 @@ name = "mizchi/sol"
 version = "0.23.2"
 
 import {
-  "moonbitlang/yacc@0.7.17",
+  "moonbitlang/yacc@0.7.19",
   "mizchi/astra@0.23.2",
-  "mizchi/luna@0.23.2",
-  "moonbitlang/async@0.20.1",
-  "moonbitlang/x@0.4.50",
-  "moonbitlang/parser@0.3.8",
+  "mizchi/luna@0.24.0",
+  "moonbitlang/async@0.21.3",
+  "moonbitlang/x@0.5.4",
+  "moonbitlang/parser@0.3.19",
   "mizchi/npm_typed@0.1.15",
-  "mizchi/js@0.12.1",
-  "mizchi/js_browser@0.12.1",
-  "mizchi/mars@0.3.10",
-  "mizchi/ts@0.3.0",
-  "mizchi/wite@0.11.0",
-  "mizchi/x@0.3.0",
+  "mizchi/js@0.12.2",
+  "mizchi/js_browser@0.12.2",
+  "mizchi/mars@0.3.11",
+  "mizchi/ts@0.5.2",
+  "mizchi/wite@0.11.3",
+  "mizchi/x@0.6.0",
   "moonbitlang/lexer@0.3.16",
-  "mizchi/wit@0.3.1",
+  "mizchi/wit@0.3.3",
 }
 
 readme = "README.md"

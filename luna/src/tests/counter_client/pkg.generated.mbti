@@ -16,4 +16,3 @@ pub fn hydrate(@dom.Element, @core.Any) -> Unit
 // Type aliases
 
 // Traits
-

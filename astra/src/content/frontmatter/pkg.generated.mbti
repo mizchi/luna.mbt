@@ -50,4 +50,3 @@ pub(all) struct OutlineConfig {
 // Type aliases
 
 // Traits
-

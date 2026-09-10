@@ -17,4 +17,3 @@ pub fn minify_css(String) -> String
 // Type aliases
 
 // Traits
-

@@ -130,4 +130,3 @@ pub(open) trait BuildStateProvider {
   fn get_content_state(Self) -> String
   fn describe_state(Self) -> String
 }
-

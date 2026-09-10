@@ -40,7 +40,7 @@ export function createAuth(db: D1Database) {
 // Types
 // =============================================================================
 
-export type Auth = ReturnType<typeof createAuth>;
+export type Auth = ReturnType<typeof createAuth> | ReturnType<typeof createSQLiteAuth>;
 export type Session = Auth["$Infer"]["Session"];
 
 // =============================================================================
@@ -71,7 +71,21 @@ export function createAuthMiddleware(auth: Auth) {
 
 import Database from "better-sqlite3";
 
-let devAuth: Auth | null = null;
+let devAuth: ReturnType<typeof createSQLiteAuth> | null = null;
+
+export function createSQLiteAuth(db: Database.Database) {
+  return betterAuth({
+    database: db,
+    emailAndPassword: {
+      enabled: true,
+    },
+    session: {
+      expiresIn: authConfig.sessionExpiresIn,
+      updateAge: authConfig.sessionUpdateAge,
+    },
+    trustedOrigins: authConfig.trustedOrigins,
+  });
+}
 
 /**
  * Get auth instance for local development (uses SQLite)
@@ -81,16 +95,7 @@ export function getDevAuth(): Auth {
 
   const db = new Database("./sqlite.db");
 
-  devAuth = betterAuth({
-    database: db,
-    emailAndPassword: {
-      enabled: true,
-    },
-    session: {
-      expiresIn: authConfig.sessionExpiresIn,
-      updateAge: authConfig.sessionUpdateAge,
-    },
-  }) as Auth;
+  devAuth = createSQLiteAuth(db);
 
   return devAuth;
 }

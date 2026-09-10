@@ -29,4 +29,3 @@ pub let ssg_config_candidates : Array[String]
 // Type aliases
 
 // Traits
-

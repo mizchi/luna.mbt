@@ -1,17 +1,26 @@
+# Only the eight release-managed packages directly under js/ are public.
+# Keep apps, examples, internal packages, and the root private so that
+# `pnpm publish -r` can safely select the entire workspace.
 packages:
   - "astra"
-  - "astra/examples/sol_landing"
-  - "astra/examples/sol_changelog"
-  - "astra/examples/sol_components_demo"
-  - "astra/examples/sol_portfolio"
-  - "astra/examples/sol_api_ref"
-  - "astra/examples/sol_docs_search"
+  - "astra/examples/*"
+  - "luna"
+  - "website"
   - "sol"
+  - "sol/js/*"
+  - "sol/examples/*"
+  - "sol/e2e/mbt_e2e"
   - "js/*"
   - "js/luna/examples"
   - "js/luna/examples_preact"
+  - "js/stella/examples/*"
 
 linkWorkspacePackages: true
+
+# Miniflare pins a sharp release affected by GHSA-rgj7-g3m4-5g8c.
+# Remove this override when Miniflare includes sharp >= 0.35.4.
+overrides:
+  "miniflare>sharp": "^0.35.4"
 
 onlyBuiltDependencies:
   - better-sqlite3

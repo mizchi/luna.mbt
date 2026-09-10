@@ -5,28 +5,15 @@
 ///|
 /// Media query registry
 priv struct MediaRegistry {
-  // "@media(min-width:768px):padding:2rem" → "_m0"
+  // Deterministic keys shared with the static extractors.
   media_to_class : Map[String, String]
-  mut counter : Int
   // Store for CSS generation: class_name → (condition, property, value)
   entries : Array[(String, String, String, String)]
 }
 
 ///|
 /// Global media registry
-let media_registry : MediaRegistry = {
-  media_to_class: Map([]),
-  counter: 0,
-  entries: [],
-}
-
-///|
-/// Generate media query class name
-fn next_media_class_name() -> String {
-  let n = media_registry.counter
-  media_registry.counter += 1
-  "_m" + n.to_string()
-}
+let media_registry : MediaRegistry = { media_to_class: Map([]), entries: [] }
 
 ///|
 /// Register a media query declaration
@@ -39,7 +26,7 @@ fn register_media(
   match media_registry.media_to_class.get(key) {
     Some(cls) => cls
     None => {
-      let cls = next_media_class_name()
+      let cls = hash_class_name(key)
       media_registry.media_to_class.set(key, cls)
       media_registry.entries.push((cls, condition, property, value))
       cls
@@ -54,7 +41,7 @@ fn register_media(
 /// test {
 ///   reset_media_registry()
 ///   let cls = media("min-width:768px", "padding", "2rem")
-///   inspect(cls.has_prefix("_m"), content="true")
+///   inspect(cls.has_prefix("_"), content="true")
 /// }
 /// ```
 pub fn media(condition : String, property : String, value : String) -> String {
@@ -96,7 +83,6 @@ pub fn dark(property : String, value : String) -> String {
 pub fn reset_media_registry() -> Unit {
   media_registry.media_to_class.clear()
   media_registry.entries.clear()
-  media_registry.counter = 0
 }
 
 ///|

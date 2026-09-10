@@ -26,4 +26,3 @@ pub fn serve(@mars.Server, port? : Int) -> Unit
 pub using @mars {type Server as App}
 
 // Traits
-

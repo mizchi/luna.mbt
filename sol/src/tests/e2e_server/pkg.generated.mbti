@@ -19,4 +19,3 @@ pub struct FetchHandler((@mars.JsRequest) -> @js_async.Promise[@mars.JsResponse]
 // Type aliases
 
 // Traits
-

@@ -52,6 +52,21 @@ fn convert_blocks(blocks : Array[@md_parser.Block]) -> Array[@markdown.MdNode] {
 /// Convert single CST Block to MdNode
 fn convert_block(block : @md_parser.Block) -> @markdown.MdNode? {
   match block {
+    @md_parser.Block::Attributed(..)
+    | @md_parser.Block::DefinitionList(..)
+    | @md_parser.Block::Directive(..)
+    | @md_parser.Block::MathBlock(..)
+    | @md_parser.Block::Alert(..) =>
+      Some(
+        @markdown.MdNode::Html(
+          @md_parser.render_html({
+            frontmatter: None,
+            children: [block],
+            definitions: [],
+            span: @md_parser.Span::empty(),
+          }),
+        ),
+      )
     @md_parser.Block::ThematicBreak(..) => Some(@markdown.MdNode::ThematicBreak)
     @md_parser.Block::Heading(level~, children~, ..) => {
       let md_children = convert_inlines(children)
@@ -157,6 +172,23 @@ fn convert_inlines(
 /// Convert single CST Inline to MdNode
 fn convert_inline(inline : @md_parser.Inline) -> @markdown.MdNode? {
   match inline {
+    @md_parser.Inline::Directive(span~, ..) => {
+      // Use the upstream renderer for extension attributes and escaping.
+      let html = @md_parser.render_html({
+        frontmatter: None,
+        children: [
+          @md_parser.Block::Paragraph(
+            children=[inline],
+            span~,
+            leading_trivia=@md_parser.Trivia::empty(),
+            trailing_trivia=@md_parser.Trivia::empty(),
+          ),
+        ],
+        definitions: [],
+        span,
+      })
+      Some(@markdown.MdNode::Html(html[3:html.length() - 5].to_string()))
+    }
     @md_parser.Inline::Text(content~, ..) =>
       Some(@markdown.MdNode::Text(content))
     @md_parser.Inline::SoftBreak(..) => Some(@markdown.MdNode::Text(" "))

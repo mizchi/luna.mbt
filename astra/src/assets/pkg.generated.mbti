@@ -59,4 +59,3 @@ pub(all) struct Asset {
 // Type aliases
 
 // Traits
-

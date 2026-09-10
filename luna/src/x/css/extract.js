@@ -20,6 +20,7 @@
  *   --split-dir     Output per-directory CSS (JSON manifest)
  */
 
+import { extractStyleCalls, generateStyleCSS } from "./style-extract.js";
 import fs from 'fs';
 import path from 'path';
 
@@ -202,6 +203,11 @@ function detectWarnings(content, filePath) {
     }
   }
 
+  for (const warning of extractStyleCalls(content).warnings) {
+    warnings.push({ file: filePath, line: getLineNumber(content, warning.position),
+      func: warning.func, code: warning.code, reason: warning.reason });
+  }
+
   return warnings;
 }
 
@@ -284,6 +290,11 @@ function extractFromContent(content) {
     }
   }
 
+  const composable = extractStyleCalls(content);
+  for (const declaration of composable.base) base.add(declaration);
+  pseudo.push(...composable.pseudo);
+  media.push(...composable.media);
+
   // Extract base styles
   extractBase(CSS_PATTERN);
   extractBase(UCSS_PATTERN);
@@ -345,102 +356,8 @@ function findMbtFiles(dir) {
 // CSS Generation
 // =============================================================================
 
-/**
- * Generate class name from counter
- * @param {number} n - Counter value
- * @returns {string}
- */
-function generateClassName(n) {
-  const chars = 'abcdefghijklmnopqrstuvwxyz';
-  if (n < 26) {
-    return '_' + chars[n];
-  }
-  return '_' + chars[n % 26] + Math.floor(n / 26);
-}
-
-/**
- * Generate CSS from extracted styles
- * @param {ExtractedStyles} styles
- * @param {Object} options
- * @returns {{css: string, mapping: Object}}
- */
 function generateCSS(styles, options = {}) {
-  const { pretty = false } = options;
-  const mapping = {};
-  let counter = 0;
-  let hoverCounter = 0;
-  let focusCounter = 0;
-  let activeCounter = 0;
-  let otherCounter = 0;
-  let mediaCounter = 0;
-
-  const parts = [];
-
-  // Base styles
-  for (const decl of styles.base) {
-    const cls = generateClassName(counter++);
-    mapping[decl] = cls;
-    if (pretty) {
-      parts.push(`.${cls} { ${decl} }`);
-    } else {
-      parts.push(`.${cls}{${decl}}`);
-    }
-  }
-
-  // Pseudo-class styles
-  for (const { pseudo, property, value } of styles.pseudo) {
-    let cls;
-    if (pseudo === ':hover') {
-      cls = `_h${hoverCounter++}`;
-    } else if (pseudo === ':focus') {
-      cls = `_f${focusCounter++}`;
-    } else if (pseudo === ':active') {
-      cls = `_ac${activeCounter++}`;
-    } else {
-      cls = `_p${otherCounter++}`;
-    }
-    const key = `${pseudo}:${property}:${value}`;
-    mapping[key] = cls;
-    if (pretty) {
-      parts.push(`.${cls}${pseudo} { ${property}: ${value} }`);
-    } else {
-      parts.push(`.${cls}${pseudo}{${property}:${value}}`);
-    }
-  }
-
-  // Media query styles (grouped by condition)
-  const mediaGroups = new Map();
-  for (const { condition, property, value } of styles.media) {
-    if (!mediaGroups.has(condition)) {
-      mediaGroups.set(condition, []);
-    }
-    mediaGroups.get(condition).push({ property, value });
-  }
-
-  for (const [condition, declarations] of mediaGroups) {
-    const rules = [];
-    for (const { property, value } of declarations) {
-      const cls = `_m${mediaCounter++}`;
-      const key = `@media(${condition}):${property}:${value}`;
-      mapping[key] = cls;
-      if (pretty) {
-        rules.push(`  .${cls} { ${property}: ${value} }`);
-      } else {
-        rules.push(`.${cls}{${property}:${value}}`);
-      }
-    }
-    if (pretty) {
-      parts.push(`@media (${condition}) {\n${rules.join('\n')}\n}`);
-    } else {
-      parts.push(`@media(${condition}){${rules.join('')}}`);
-    }
-  }
-
-  const separator = pretty ? '\n' : '';
-  return {
-    css: parts.join(separator),
-    mapping,
-  };
+  return generateStyleCSS(styles, options);
 }
 
 // =============================================================================
@@ -666,7 +583,7 @@ function main() {
 
     // Collect warnings
     const allWarnings = [];
-    if (warn) {
+    if (warn || strict) {
       for (const file of files) {
         const content = fs.readFileSync(file, 'utf-8');
         const warnings = detectWarnings(content, file);
@@ -679,6 +596,11 @@ function main() {
       console.error(`Split mode: ${splitMode}`);
       console.error(`  - ${Object.keys(manifest.entries).length} entries`);
       console.error(`  - ${manifest.shared.base.length} shared declarations`);
+    }
+
+    if (strict && allWarnings.length > 0) {
+      console.error('Strict mode: non-literal CSS arguments detected');
+      process.exit(1);
     }
 
     const output = JSON.stringify(manifest, null, pretty ? 2 : 0);
@@ -713,10 +635,15 @@ function main() {
     combined.media.push(...extracted.media);
 
     // Detect warnings
-    if (warn) {
+    if (warn || strict) {
       const warnings = detectWarnings(content, file);
       allWarnings.push(...warnings);
     }
+  }
+
+  if (strict && allWarnings.length > 0) {
+    console.error('Strict mode: non-literal CSS arguments detected');
+    process.exit(1);
   }
 
   // Report warnings
@@ -731,10 +658,7 @@ function main() {
     console.error('  These calls cannot be statically extracted.');
     console.error('  Consider using string literals for static analysis.\n');
 
-    if (strict) {
-      console.error('❌ Strict mode: exiting with error due to warnings.');
-      process.exit(1);
-    }
+
   }
 
   if (verbose) {

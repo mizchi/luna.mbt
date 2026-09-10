@@ -5,6 +5,7 @@
  * This ensures all styles are collected regardless of runtime branches.
  */
 
+import { extractStyleCalls, generateStyleCSS, mediaKey } from "../../../../luna/src/x/css/style-extract.js";
 import fs from "fs";
 import path from "path";
 
@@ -169,7 +170,7 @@ export interface Warning {
 export interface ExtractedStyles {
   base: Set<string>;
   pseudo: Array<{ pseudo: string; property: string; value: string }>;
-  media: Array<{ condition: string; property: string; value: string }>;
+  media: Array<{ condition: string; pseudo?: string; property: string; value: string }>;
 }
 
 export interface ExtractOptions {
@@ -275,6 +276,11 @@ export function detectWarnings(content: string, filePath: string): Warning[] {
     }
   }
 
+  for (const warning of extractStyleCalls(content).warnings) {
+    warnings.push({ file: filePath, line: getLineNumber(content, warning.position),
+      func: warning.func, code: warning.code, reason: warning.reason });
+  }
+
   return warnings;
 }
 
@@ -340,6 +346,11 @@ export function extractFromContent(content: string): ExtractedStyles {
     }
   }
 
+  const composable = extractStyleCalls(content);
+  for (const declaration of composable.base) base.add(declaration);
+  pseudo.push(...composable.pseudo);
+  media.push(...composable.media);
+
   // Extract base styles
   extractBase(CSS_PATTERN);
   extractBase(UCSS_PATTERN);
@@ -399,112 +410,8 @@ export function findMbtFiles(dir: string): string[] {
 // CSS Generation - Hash-based class names
 // =============================================================================
 
-/**
- * DJB2 hash function - must match MoonBit registry.mbt implementation
- */
-function djb2Hash(s: string): number {
-  let hash = 5381;
-  for (let i = 0; i < s.length; i++) {
-    const c = s.charCodeAt(i);
-    // hash * 33 + c (using unsigned 32-bit arithmetic)
-    hash = ((hash << 5) + hash + c) >>> 0;
-  }
-  return hash;
-}
-
-/**
- * Convert hash to base36 string (0-9a-z)
- * Takes lower 24 bits to keep class names short (4-5 chars)
- */
-function toBase36(n: number): string {
-  const chars = "0123456789abcdefghijklmnopqrstuvwxyz";
-  // Take lower 24 bits
-  n = n & 0xffffff;
-  if (n === 0) return "0";
-  let result = "";
-  while (n > 0) {
-    result = chars[n % 36] + result;
-    n = Math.floor(n / 36);
-  }
-  return result;
-}
-
-/**
- * Generate class name from declaration hash
- */
-function hashClassName(decl: string): string {
-  const hash = djb2Hash(decl);
-  return "_" + toBase36(hash);
-}
-
-export function generateCSS(
-  styles: ExtractedStyles,
-  options: { pretty?: boolean } = {}
-): { css: string; mapping: Record<string, string> } {
-  const { pretty = false } = options;
-  const mapping: Record<string, string> = {};
-  const parts: string[] = [];
-
-  // Base styles - use hash-based class names for deterministic output
-  for (const decl of styles.base) {
-    const cls = hashClassName(decl);
-    mapping[decl] = cls;
-    if (pretty) {
-      parts.push(`.${cls} { ${decl} }`);
-    } else {
-      parts.push(`.${cls}{${decl}}`);
-    }
-  }
-
-  // Pseudo-class styles with hash-based class names
-  for (const { pseudo, property, value } of styles.pseudo) {
-    // Include pseudo in the hash key for uniqueness
-    const hashKey = `${pseudo}:${property}:${value}`;
-    const cls = hashClassName(hashKey);
-    mapping[hashKey] = cls;
-    if (pretty) {
-      parts.push(`.${cls}${pseudo} { ${property}: ${value} }`);
-    } else {
-      parts.push(`.${cls}${pseudo}{${property}:${value}}`);
-    }
-  }
-
-  // Media query styles (grouped by condition) with hash-based class names
-  const mediaGroups = new Map<
-    string,
-    Array<{ property: string; value: string }>
-  >();
-  for (const { condition, property, value } of styles.media) {
-    if (!mediaGroups.has(condition)) {
-      mediaGroups.set(condition, []);
-    }
-    mediaGroups.get(condition)!.push({ property, value });
-  }
-
-  for (const [condition, declarations] of mediaGroups) {
-    const rules: string[] = [];
-    for (const { property, value } of declarations) {
-      const hashKey = `@media(${condition}):${property}:${value}`;
-      const cls = hashClassName(hashKey);
-      mapping[hashKey] = cls;
-      if (pretty) {
-        rules.push(`  .${cls} { ${property}: ${value} }`);
-      } else {
-        rules.push(`.${cls}{${property}:${value}}`);
-      }
-    }
-    if (pretty) {
-      parts.push(`@media (${condition}) {\n${rules.join("\n")}\n}`);
-    } else {
-      parts.push(`@media(${condition}){${rules.join("")}}`);
-    }
-  }
-
-  const separator = pretty ? "\n" : "";
-  return {
-    css: parts.join(separator),
-    mapping,
-  };
+export function generateCSS(styles: ExtractedStyles, options: { pretty?: boolean } = {}): { css: string; mapping: Record<string, string> } {
+  return generateStyleCSS(styles, options);
 }
 
 // =============================================================================
@@ -536,7 +443,7 @@ export function extract(dir: string, options: ExtractOptions = {}): ExtractResul
     combined.pseudo.push(...extracted.pseudo);
     combined.media.push(...extracted.media);
 
-    if (warn) {
+    if (warn || strict) {
       const warnings = detectWarnings(content, file);
       allWarnings.push(...warnings);
     }
@@ -553,9 +460,10 @@ export function extract(dir: string, options: ExtractOptions = {}): ExtractResul
       console.error("");
     }
 
-    if (strict) {
-      throw new Error("Strict mode: non-literal CSS arguments detected");
-    }
+  }
+
+  if (strict && allWarnings.length > 0) {
+    throw new Error("Strict mode: non-literal CSS arguments detected");
   }
 
   if (verbose) {
@@ -613,6 +521,8 @@ export function extractSplit(
   // Track declarations per file/dir
   const declUsage = new Map<string, Set<string>>(); // decl -> Set<chunk_key>
   const pseudoUsage = new Map<string, Set<string>>(); // key -> Set<chunk_key>
+  const pseudoRules = new Map<string, ExtractedStyles["pseudo"][number]>();
+  const mediaRules = new Map<string, ExtractedStyles["media"][number]>();
   const mediaUsage = new Map<string, Set<string>>(); // key -> Set<chunk_key>
 
   // Per-chunk extracted styles
@@ -646,6 +556,7 @@ export function extractSplit(
     for (const p of extracted.pseudo) {
       const key = `${p.pseudo}:${p.property}:${p.value}`;
       chunk.pseudo.push(p);
+      pseudoRules.set(key, p);
       if (!pseudoUsage.has(key)) {
         pseudoUsage.set(key, new Set());
       }
@@ -654,15 +565,16 @@ export function extractSplit(
 
     // Track media declarations
     for (const m of extracted.media) {
-      const key = `@media(${m.condition}):${m.property}:${m.value}`;
+      const key = mediaKey(m);
       chunk.media.push(m);
+      mediaRules.set(key, m);
       if (!mediaUsage.has(key)) {
         mediaUsage.set(key, new Set());
       }
       mediaUsage.get(key)!.add(chunkKey);
     }
 
-    if (warn) {
+    if (warn || strict) {
       const warnings = detectWarnings(content, file);
       allWarnings.push(...warnings);
     }
@@ -685,8 +597,7 @@ export function extractSplit(
   for (const [key, chunks] of pseudoUsage) {
     if (chunks.size >= sharedThreshold && !seenPseudo.has(key)) {
       seenPseudo.add(key);
-      const [pseudo, property, value] = key.split(":");
-      sharedPseudo.push({ pseudo, property, value });
+      sharedPseudo.push(pseudoRules.get(key)!);
     }
   }
 
@@ -695,15 +606,7 @@ export function extractSplit(
   for (const [key, chunks] of mediaUsage) {
     if (chunks.size >= sharedThreshold && !seenMedia.has(key)) {
       seenMedia.add(key);
-      // Parse @media(condition):property:value
-      const match = key.match(/^@media\(([^)]+)\):([^:]+):(.+)$/);
-      if (match) {
-        sharedMedia.push({
-          condition: match[1],
-          property: match[2],
-          value: match[3],
-        });
-      }
+      sharedMedia.push(mediaRules.get(key)!);
     }
   }
 
@@ -728,7 +631,7 @@ export function extractSplit(
 
     // Filter out shared media declarations
     const chunkOnlyMedia = chunk.media.filter((m) => {
-      const key = `@media(${m.condition}):${m.property}:${m.value}`;
+      const key = mediaKey(m);
       return !seenMedia.has(key);
     });
 

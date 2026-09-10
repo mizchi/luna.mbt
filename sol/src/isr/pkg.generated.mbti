@@ -89,4 +89,3 @@ pub(open) trait ISRCache {
   fn delete(Self, String) -> Unit
   fn schedule_revalidation(Self, async () -> Unit) -> Unit
 }
-

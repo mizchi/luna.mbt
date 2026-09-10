@@ -38,7 +38,8 @@
     "src"
   ],
   "scripts": {
-    "build": "rm -rf dist && rolldown -c rolldown.config.mjs"
+    "build": "rm -rf dist && rolldown -c rolldown.config.mjs",
+    "prepack": "pnpm build"
   },
   "keywords": [
     "luna",

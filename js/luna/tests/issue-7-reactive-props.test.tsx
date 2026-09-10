@@ -9,7 +9,6 @@
  * - class={className()} → passes evaluated value → static, never updates (by design)
  */
 import { describe, test, expect } from "vitest";
-import "global-jsdom/register";
 import { createSignal, createMemo, render } from "../src/index";
 import type { JSX } from "../src/jsx-runtime";
 

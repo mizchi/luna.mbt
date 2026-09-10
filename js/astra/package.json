@@ -14,12 +14,12 @@
   ],
   "scripts": {
     "build": "node scripts/build-release.mjs",
-    "prepack": "node scripts/build-release.mjs"
+    "prepack": "pnpm -w build:moon && node scripts/build-release.mjs"
   },
   "dependencies": {
     "colorette": "^2.0.20"
   },
-  "description": "Astra — SSG / static-export companion for Sol (CLI wrapper)",
+  "description": "Astra \u2014 SSG / static-export companion for Sol (CLI wrapper)",
   "license": "MIT",
   "repository": {
     "type": "git",

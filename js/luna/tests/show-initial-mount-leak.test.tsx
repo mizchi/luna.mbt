@@ -1,6 +1,5 @@
 /** @jsxImportSource ../src */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import "global-jsdom/register";
 import {
   createSignal,
   onMount,

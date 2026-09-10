@@ -59,4 +59,3 @@ pub fn RoutesMatch::title(Self) -> String
 // Type aliases
 
 // Traits
-

@@ -17,4 +17,3 @@ pub fn template(@core.Any) -> String
 // Type aliases
 
 // Traits
-

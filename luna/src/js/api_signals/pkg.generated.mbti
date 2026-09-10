@@ -59,4 +59,3 @@ pub struct JsOwner(@signals.Owner)
 // Type aliases
 
 // Traits
-

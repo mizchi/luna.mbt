@@ -74,6 +74,12 @@ pnpm add @luna_ui/testing        # test helpers
 
 ## Development
 
+Use MoonBit v0.10.12 or newer and Node.js 24.15 or newer. The current
+dependencies use the newer MoonBit collection APIs and jsdom's updated Node
+requirements. Run `moon upgrade` and `moon update` when upgrading an older
+toolchain. All npm packages and examples share the root pnpm workspace and
+`pnpm-lock.yaml`; run `pnpm install` from the repository root.
+
 ```sh
 just check          # Type check workspace-wide
 just fmt            # Format
@@ -90,13 +96,34 @@ pnpm test:integration   # build/dev parity + 7-example matrix (node:test)
   - `release-please` (workflow_dispatch) opens a Release PR aggregating
     Conventional Commits across `js/*`.
   - Merging the PR creates per-package GitHub Releases tagged
-    `<pkg>-v<version>`.
-  - `.github/workflows/publish.yml` reacts to each Release event and runs
-    `npm publish --provenance` from the matching `js/<pkg>` directory using
-    OIDC Trusted Publishing (no `NPM_TOKEN`).
+    `<pkg>-npm-v<version>`.
+  - `.github/workflows/publish.yml` reacts to each Release event, packs
+    the matching `js/<pkg>` with pnpm, and publishes the tarball with
+    `npm publish --provenance` using OIDC Trusted Publishing (no `NPM_TOKEN`).
 - Documentation deploys (`luna.mizchi.workers.dev`,
   `mizchi.github.io/luna.mbt`) are tied to the `@luna_ui/luna` Release event,
   so each release-please cycle redeploys the docs once for both targets.
+
+For a local batch release, run from the repository root:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm publish -r --dry-run  # preview unpublished versions
+pnpm publish -r           # publish unpublished versions in dependency order
+```
+
+Only the eight public packages under `js/` are eligible. Examples, internal
+packages, and `js/wcssr` are private. Each package's `prepack` builds its
+artifacts, including MoonBit output where needed; no separate build is
+required. Internal `workspace:^` dependencies become registry semver ranges
+in the tarball. `just release-npm` forwards arguments to `pnpm publish -r`.
+
+Set the intended versions in `js/*/package.json` before publishing (normally
+via release-please). npm versions are independent of Mooncake versions;
+recursive publish does not bump versions and skips versions already on npm.
+Local publishing uses your npm login and pnpm's default Git checks: use a
+clean, committed `main` that is current with origin. For a dry run of pending
+changes, use `pnpm publish -r --dry-run --no-git-checks`.
 
 See `docs/internal/npm-release-onboarding.md` for the maintainer setup
 (GitHub App secret, npm Trusted Publisher × 8 packages, Cloudflare API

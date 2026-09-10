@@ -130,4 +130,3 @@ pub fn WcContext::shadow(Self) -> @core.Any
 // Type aliases
 
 // Traits
-

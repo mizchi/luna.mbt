@@ -48,4 +48,3 @@ pub fn WorkerInitData::to_json_string(Self) -> String
 // Type aliases
 
 // Traits
-

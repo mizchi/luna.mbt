@@ -11,4 +11,3 @@ pub fn mount_router_app() -> Unit
 // Type aliases
 
 // Traits
-

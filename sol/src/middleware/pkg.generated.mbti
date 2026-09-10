@@ -172,4 +172,3 @@ pub fn SecurityHeadersConfig::with_referrer_policy(Self, String) -> Self
 pub using @mars {type Context as Ctx}
 
 // Traits
-

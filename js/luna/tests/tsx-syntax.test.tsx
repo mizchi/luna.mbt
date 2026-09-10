@@ -1,6 +1,5 @@
 // Test actual TSX syntax with jsxImportSource
 import { describe, test, expect } from "vitest";
-import "global-jsdom/register";
 import { createSignal, createRoot, render, Fragment, Show, Switch, Match } from "../src/index";
 import type { JSX } from "../src/jsx-runtime";
 

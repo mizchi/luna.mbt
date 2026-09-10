@@ -58,4 +58,3 @@ pub(all) enum ThemeLayout {
 // Type aliases
 
 // Traits
-

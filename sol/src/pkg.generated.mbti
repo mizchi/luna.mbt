@@ -268,4 +268,3 @@ pub using @router {type RouterConfig}
 pub using @router {type SolRoutes}
 
 // Traits
-

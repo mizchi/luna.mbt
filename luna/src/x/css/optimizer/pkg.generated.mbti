@@ -126,4 +126,3 @@ pub struct ShorthandDef {
 // Type aliases
 
 // Traits
-

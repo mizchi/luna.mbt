@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/luna/x/css"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn active(String, String) -> String
 
@@ -12,7 +16,15 @@ pub fn at_sm(String, String) -> String
 
 pub fn at_xl(String, String) -> String
 
+pub fn attrs(Array[Style]) -> StyleAttrs
+
 pub fn combine(Array[String]) -> String
+
+pub fn compose(Array[Style]) -> Style
+
+pub fn create(Array[StyleRule]) -> Style
+
+pub fn create_theme(Array[(String, String)]) -> Style raise StyleError
 
 pub fn css(String, String) -> String
 
@@ -36,6 +48,10 @@ pub fn media(String, String, String) -> String
 
 pub fn on(String, String, String) -> String
 
+pub fn precompiled_rule(String, String?, String, String, String) -> StyleRule
+
+pub fn precompiled_style(Array[StyleRule]) -> Style
+
 pub fn registry_size() -> Int
 
 pub fn reset_all() -> Unit
@@ -46,13 +62,654 @@ pub fn reset_pseudo_registry() -> Unit
 
 pub fn reset_registry() -> Unit
 
+pub fn[P : PropertyName] rule(P, String) -> StyleRule
+
+pub fn[P : PropertyName] rule_media(String, P, String) -> StyleRule
+
+pub fn[S : PseudoSelector, P : PropertyName] rule_on(S, P, String) -> StyleRule
+
+pub fn[S : PseudoSelector, P : PropertyName] rule_when(String, S, P, String) -> StyleRule
+
 pub fn styles(Array[(String, String)]) -> String
 
+pub fn stylesheet(Array[Style]) -> String
+
+pub fn[P : PropertyName] unset(P) -> StyleRule
+
 // Errors
+pub suberror StyleError {
+  InvalidCustomProperty(String)
+}
 
 // Types and methods
+pub(all) enum Property {
+  AccentColor
+  AlignContent
+  AlignItems
+  AlignSelf
+  AlignmentBaseline
+  All
+  AnchorName
+  AnchorScope
+  Animation
+  AnimationComposition
+  AnimationDelay
+  AnimationDirection
+  AnimationDuration
+  AnimationFillMode
+  AnimationIterationCount
+  AnimationName
+  AnimationPlayState
+  AnimationRange
+  AnimationRangeEnd
+  AnimationRangeStart
+  AnimationTimeline
+  AnimationTimingFunction
+  AnimationTrigger
+  Appearance
+  AspectRatio
+  BackdropFilter
+  BackfaceVisibility
+  Background
+  BackgroundAttachment
+  BackgroundBlendMode
+  BackgroundClip
+  BackgroundColor
+  BackgroundImage
+  BackgroundOrigin
+  BackgroundPosition
+  BackgroundPositionX
+  BackgroundPositionY
+  BackgroundRepeat
+  BackgroundSize
+  BaselineShift
+  BaselineSource
+  BlockSize
+  Border
+  BorderBlock
+  BorderBlockColor
+  BorderBlockEnd
+  BorderBlockEndColor
+  BorderBlockEndStyle
+  BorderBlockEndWidth
+  BorderBlockStart
+  BorderBlockStartColor
+  BorderBlockStartStyle
+  BorderBlockStartWidth
+  BorderBlockStyle
+  BorderBlockWidth
+  BorderBottom
+  BorderBottomColor
+  BorderBottomLeftRadius
+  BorderBottomRightRadius
+  BorderBottomStyle
+  BorderBottomWidth
+  BorderCollapse
+  BorderColor
+  BorderEndEndRadius
+  BorderEndStartRadius
+  BorderImage
+  BorderImageOutset
+  BorderImageRepeat
+  BorderImageSlice
+  BorderImageSource
+  BorderImageWidth
+  BorderInline
+  BorderInlineColor
+  BorderInlineEnd
+  BorderInlineEndColor
+  BorderInlineEndStyle
+  BorderInlineEndWidth
+  BorderInlineStart
+  BorderInlineStartColor
+  BorderInlineStartStyle
+  BorderInlineStartWidth
+  BorderInlineStyle
+  BorderInlineWidth
+  BorderLeft
+  BorderLeftColor
+  BorderLeftStyle
+  BorderLeftWidth
+  BorderRadius
+  BorderRight
+  BorderRightColor
+  BorderRightStyle
+  BorderRightWidth
+  BorderShape
+  BorderSpacing
+  BorderStartEndRadius
+  BorderStartStartRadius
+  BorderStyle
+  BorderTop
+  BorderTopColor
+  BorderTopLeftRadius
+  BorderTopRightRadius
+  BorderTopStyle
+  BorderTopWidth
+  BorderWidth
+  Bottom
+  BoxDecorationBreak
+  BoxShadow
+  BoxSizing
+  BreakAfter
+  BreakBefore
+  BreakInside
+  CaptionSide
+  Caret
+  CaretAnimation
+  CaretColor
+  CaretShape
+  Clear
+  ClipPath
+  ClipRule
+  Color
+  ColorInterpolationFilters
+  ColorScheme
+  ColumnCount
+  ColumnFill
+  ColumnGap
+  ColumnHeight
+  ColumnRule
+  ColumnRuleColor
+  ColumnRuleStyle
+  ColumnRuleWidth
+  ColumnSpan
+  ColumnWidth
+  ColumnWrap
+  Columns
+  Contain
+  ContainIntrinsicBlockSize
+  ContainIntrinsicHeight
+  ContainIntrinsicInlineSize
+  ContainIntrinsicSize
+  ContainIntrinsicWidth
+  Container
+  ContainerName
+  ContainerType
+  Content
+  ContentVisibility
+  CornerBlockEndShape
+  CornerBlockStartShape
+  CornerBottomLeftShape
+  CornerBottomRightShape
+  CornerBottomShape
+  CornerEndEndShape
+  CornerEndStartShape
+  CornerInlineEndShape
+  CornerInlineStartShape
+  CornerLeftShape
+  CornerRightShape
+  CornerShape
+  CornerStartEndShape
+  CornerStartStartShape
+  CornerTopLeftShape
+  CornerTopRightShape
+  CornerTopShape
+  CounterIncrement
+  CounterReset
+  CounterSet
+  Cursor
+  Cx
+  Cy
+  D
+  Direction
+  Display
+  DominantBaseline
+  DynamicRangeLimit
+  EmptyCells
+  FieldSizing
+  Fill
+  FillOpacity
+  FillRule
+  Filter
+  Flex
+  FlexBasis
+  FlexDirection
+  FlexFlow
+  FlexGrow
+  FlexLineCount
+  FlexShrink
+  FlexWrap
+  Float
+  FloodColor
+  FloodOpacity
+  Font
+  FontFamily
+  FontFeatureSettings
+  FontKerning
+  FontLanguageOverride
+  FontOpticalSizing
+  FontPalette
+  FontSize
+  FontSizeAdjust
+  FontStyle
+  FontSynthesis
+  FontSynthesisPosition
+  FontSynthesisSmallCaps
+  FontSynthesisStyle
+  FontSynthesisWeight
+  FontVariant
+  FontVariantAlternates
+  FontVariantCaps
+  FontVariantEastAsian
+  FontVariantEmoji
+  FontVariantLigatures
+  FontVariantNumeric
+  FontVariantPosition
+  FontVariationSettings
+  FontWeight
+  FontWidth
+  ForcedColorAdjust
+  FrameSizing
+  Gap
+  Grid
+  GridArea
+  GridAutoColumns
+  GridAutoFlow
+  GridAutoRows
+  GridColumn
+  GridColumnEnd
+  GridColumnStart
+  GridRow
+  GridRowEnd
+  GridRowStart
+  GridTemplate
+  GridTemplateAreas
+  GridTemplateColumns
+  GridTemplateRows
+  HangingPunctuation
+  Height
+  HyphenateCharacter
+  HyphenateLimitChars
+  Hyphens
+  ImageOrientation
+  ImageRendering
+  ImageResolution
+  InitialLetter
+  InitialLetterAlign
+  InlineSize
+  Inset
+  InsetBlock
+  InsetBlockEnd
+  InsetBlockStart
+  InsetInline
+  InsetInlineEnd
+  InsetInlineStart
+  Interactivity
+  InterestDelay
+  InterestDelayEnd
+  InterestDelayStart
+  InterpolateSize
+  Isolation
+  JustifyContent
+  JustifyItems
+  JustifySelf
+  Left
+  LetterSpacing
+  LightingColor
+  LineBreak
+  LineClamp
+  LineHeight
+  LineHeightStep
+  LinkParameters
+  ListStyle
+  ListStyleImage
+  ListStylePosition
+  ListStyleType
+  Margin
+  MarginBlock
+  MarginBlockEnd
+  MarginBlockStart
+  MarginBottom
+  MarginInline
+  MarginInlineEnd
+  MarginInlineStart
+  MarginLeft
+  MarginRight
+  MarginTop
+  MarginTrim
+  Marker
+  MarkerEnd
+  MarkerMid
+  MarkerStart
+  Mask
+  MaskBorder
+  MaskBorderMode
+  MaskBorderOutset
+  MaskBorderRepeat
+  MaskBorderSlice
+  MaskBorderSource
+  MaskBorderWidth
+  MaskClip
+  MaskComposite
+  MaskImage
+  MaskMode
+  MaskOrigin
+  MaskPosition
+  MaskRepeat
+  MaskSize
+  MaskType
+  MathDepth
+  MathShift
+  MathStyle
+  MaxBlockSize
+  MaxHeight
+  MaxInlineSize
+  MaxLines
+  MaxWidth
+  MinBlockSize
+  MinHeight
+  MinInlineSize
+  MinWidth
+  MixBlendMode
+  ObjectFit
+  ObjectPosition
+  ObjectViewBox
+  Offset
+  OffsetAnchor
+  OffsetDistance
+  OffsetPath
+  OffsetPosition
+  OffsetRotate
+  Opacity
+  Order
+  Orphans
+  Outline
+  OutlineColor
+  OutlineOffset
+  OutlineStyle
+  OutlineWidth
+  Overflow
+  OverflowAnchor
+  OverflowBlock
+  OverflowClipMargin
+  OverflowInline
+  OverflowWrap
+  OverflowX
+  OverflowY
+  Overlay
+  OverscrollBehavior
+  OverscrollBehaviorBlock
+  OverscrollBehaviorInline
+  OverscrollBehaviorX
+  OverscrollBehaviorY
+  Padding
+  PaddingBlock
+  PaddingBlockEnd
+  PaddingBlockStart
+  PaddingBottom
+  PaddingInline
+  PaddingInlineEnd
+  PaddingInlineStart
+  PaddingLeft
+  PaddingRight
+  PaddingTop
+  Page
+  PaintOrder
+  PathLength
+  Perspective
+  PerspectiveOrigin
+  PlaceContent
+  PlaceItems
+  PlaceSelf
+  PointerEvents
+  Position
+  PositionAnchor
+  PositionArea
+  PositionTry
+  PositionTryFallbacks
+  PositionTryOrder
+  PositionVisibility
+  PrintColorAdjust
+  Quotes
+  R
+  ReadingFlow
+  ReadingOrder
+  Resize
+  Right
+  Rotate
+  RowGap
+  RubyAlign
+  RubyMerge
+  RubyOverhang
+  RubyPosition
+  Rx
+  Ry
+  Scale
+  ScrollBehavior
+  ScrollInitialTarget
+  ScrollMargin
+  ScrollMarginBlock
+  ScrollMarginBlockEnd
+  ScrollMarginBlockStart
+  ScrollMarginBottom
+  ScrollMarginInline
+  ScrollMarginInlineEnd
+  ScrollMarginInlineStart
+  ScrollMarginLeft
+  ScrollMarginRight
+  ScrollMarginTop
+  ScrollMarkerGroup
+  ScrollPadding
+  ScrollPaddingBlock
+  ScrollPaddingBlockEnd
+  ScrollPaddingBlockStart
+  ScrollPaddingBottom
+  ScrollPaddingInline
+  ScrollPaddingInlineEnd
+  ScrollPaddingInlineStart
+  ScrollPaddingLeft
+  ScrollPaddingRight
+  ScrollPaddingTop
+  ScrollSnapAlign
+  ScrollSnapStop
+  ScrollSnapType
+  ScrollTargetGroup
+  ScrollTimeline
+  ScrollTimelineAxis
+  ScrollTimelineName
+  ScrollbarColor
+  ScrollbarGutter
+  ScrollbarWidth
+  ShapeImageThreshold
+  ShapeMargin
+  ShapeOutside
+  ShapeRendering
+  SpeakAs
+  StopColor
+  StopOpacity
+  Stroke
+  StrokeColor
+  StrokeDasharray
+  StrokeDashoffset
+  StrokeLinecap
+  StrokeLinejoin
+  StrokeMiterlimit
+  StrokeOpacity
+  StrokeWidth
+  TabSize
+  TableLayout
+  TextAlign
+  TextAlignLast
+  TextAnchor
+  TextAutospace
+  TextBox
+  TextBoxEdge
+  TextBoxTrim
+  TextCombineUpright
+  TextDecoration
+  TextDecorationColor
+  TextDecorationInset
+  TextDecorationLine
+  TextDecorationSkip
+  TextDecorationSkipInk
+  TextDecorationStyle
+  TextDecorationThickness
+  TextEmphasis
+  TextEmphasisColor
+  TextEmphasisPosition
+  TextEmphasisStyle
+  TextFit
+  TextIndent
+  TextJustify
+  TextOrientation
+  TextOverflow
+  TextRendering
+  TextShadow
+  TextSizeAdjust
+  TextSpacingTrim
+  TextTransform
+  TextUnderlineOffset
+  TextUnderlinePosition
+  TextWrap
+  TextWrapMode
+  TextWrapStyle
+  TimelineScope
+  TimelineTrigger
+  TimelineTriggerActivationRange
+  TimelineTriggerActivationRangeEnd
+  TimelineTriggerActivationRangeStart
+  TimelineTriggerActiveRange
+  TimelineTriggerActiveRangeEnd
+  TimelineTriggerActiveRangeStart
+  TimelineTriggerName
+  TimelineTriggerSource
+  Top
+  TouchAction
+  Transform
+  TransformBox
+  TransformOrigin
+  TransformStyle
+  Transition
+  TransitionBehavior
+  TransitionDelay
+  TransitionDuration
+  TransitionProperty
+  TransitionTimingFunction
+  Translate
+  TriggerScope
+  UnicodeBidi
+  UserSelect
+  VectorEffect
+  VerticalAlign
+  ViewTimeline
+  ViewTimelineAxis
+  ViewTimelineInset
+  ViewTimelineName
+  ViewTransitionClass
+  ViewTransitionName
+  ViewTransitionScope
+  Visibility
+  WhiteSpace
+  WhiteSpaceCollapse
+  Widows
+  Width
+  WillChange
+  WordBreak
+  WordSpacing
+  WordWrap
+  WritingMode
+  X
+  Y
+  ZIndex
+  Zoom
+} derive(Eq, @debug.Debug)
+pub fn Property::css_name(Self) -> String
+pub impl PropertyName for Property
+
+pub(all) enum Pseudo {
+  Active
+  After
+  AnyLink
+  Autofill
+  Backdrop
+  Before
+  Checked
+  Default
+  Defined
+  Dir(String)
+  Disabled
+  Empty
+  Enabled
+  FileSelectorButton
+  FirstChild
+  FirstLetter
+  FirstLine
+  FirstOfType
+  Focus
+  FocusVisible
+  FocusWithin
+  Fullscreen
+  Has(String)
+  Highlight(String)
+  Hover
+  InRange
+  Indeterminate
+  Invalid
+  Is(String)
+  Lang(String)
+  LastChild
+  LastOfType
+  Link
+  Marker
+  Modal
+  Not(String)
+  NthChild(String)
+  NthLastChild(String)
+  NthLastOfType(String)
+  NthOfType(String)
+  OnlyChild
+  OnlyOfType
+  Open
+  Optional
+  OutOfRange
+  Part(String)
+  PictureInPicture
+  Placeholder
+  PlaceholderShown
+  PopoverOpen
+  ReadOnly
+  ReadWrite
+  Required
+  Root
+  Scope
+  Selection
+  Slotted(String)
+  State(String)
+  Target
+  UserInvalid
+  UserValid
+  Valid
+  Visited
+  Where(String)
+} derive(Eq, @debug.Debug)
+pub fn Pseudo::css_selector(Self) -> String
+pub impl PseudoSelector for Pseudo
+
+pub struct Style {
+  // private fields
+}
+pub fn Style::when(Self, Bool) -> Self
+pub fn Style::with_vars(Self, Array[(String, String)]) -> Self raise StyleError
+
+pub(all) struct StyleAttrs {
+  class_name : String
+  style : String
+} derive(Eq, @debug.Debug)
+
+pub struct StyleRule {
+  // private fields
+}
 
 // Type aliases
 
 // Traits
+pub trait PropertyName {
+  fn css_name(Self) -> String
+}
+pub impl PropertyName for String
 
+pub trait PseudoSelector {
+  fn css_selector(Self) -> String
+}
+pub impl PseudoSelector for String

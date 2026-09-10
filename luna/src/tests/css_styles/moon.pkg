@@ -1,0 +1,24 @@
+import {
+  "mizchi/luna/x/css",
+  "mizchi/luna/core",
+  "mizchi/luna/core/render",
+  "mizchi/luna/dom/client",
+  "mizchi/signals",
+  "mizchi/js/core" @js,
+  "mizchi/js_browser/dom" @js_dom,
+}
+
+import {
+  "mizchi/luna/core/stream_render" @stream,
+} for "test"
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": {
+      "exports": [ "render_html", "css_text", "hydrate_demo" ],
+      "format": "esm",
+    },
+  },
+)

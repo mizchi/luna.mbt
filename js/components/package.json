@@ -61,13 +61,14 @@
   "scripts": {
     "build": "tsdown src/*.ts --format esm --dts --clean",
     "test": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "pnpm build"
   },
   "devDependencies": {
-    "jsdom": "^29.1.1",
-    "tsdown": "0.22.3",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "jsdom": "^30.0.1",
+    "tsdown": "0.23.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
   },
   "keywords": [
     "headless",

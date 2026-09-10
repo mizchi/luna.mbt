@@ -38,4 +38,3 @@ pub fn PortalOptions::with_shadow() -> Self
 // Type aliases
 
 // Traits
-

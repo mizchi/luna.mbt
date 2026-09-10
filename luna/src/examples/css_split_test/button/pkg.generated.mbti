@@ -11,4 +11,3 @@ pub fn register_button_component() -> Unit
 // Type aliases
 
 // Traits
-

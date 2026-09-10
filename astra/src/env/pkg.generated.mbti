@@ -41,4 +41,3 @@ pub(open) trait FileSystem {
   fn rmdir_sync(Self, String, Bool) -> Unit raise
   fn stat_sync(Self, String) -> StatInfo raise
 }
-

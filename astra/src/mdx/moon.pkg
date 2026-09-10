@@ -3,7 +3,7 @@ import {
   "mizchi/astra",
   "mizchi/astra/content/frontmatter",
   "mizchi/markdown" @md_parser,
-  "mizchi/markdown/experimental/mdx" @md_mdx,
+  "mizchi/markdown/x/mdx" @md_mdx,
   "mizchi/markdown/slug",
   "mizchi/markdown/toc" @md_toc,
 }
