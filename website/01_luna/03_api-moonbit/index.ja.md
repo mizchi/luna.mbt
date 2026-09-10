@@ -4,13 +4,14 @@ title: MoonBit API
 
 # MoonBit API リファレンス
 
-インポートするパッケージごとに 1 ページずつ、計 3 ページです。掲載しているシグネチャはすべて、このリポジトリの生成済み `.mbti` と突き合わせて確認しています。
+インポートするパッケージごとに 1 ページずつ、計 4 ページです。掲載しているシグネチャはすべて、このリポジトリの生成済み `.mbti` と突き合わせて確認しています。Client DOM ページはさらに一歩進んでいて、`.mbt.md` なのでサンプルコードが `moon check` でコンパイルされ `moon test` で実行されます。
 
 | ページ | パッケージ | エイリアス |
 |--------|-----------|-----------|
 | [Signals](./signals) | `mizchi/luna/js/resource` | `@resource` |
 | [Islands](./islands) | `mizchi/sol` + `mizchi/luna` | `@sol`, `@luna` |
 | [Render](./render) | `mizchi/luna/dom/static` | `@server_dom` |
+| [Client DOM](./client-dom) | `mizchi/luna/dom` | `@element` |
 
 ## リアクティブプリミティブ
 
@@ -38,6 +39,16 @@ title: MoonBit API
 | [`@luna.wc_island`](./islands) | Web Component Island(低レベル) |
 | [`Trigger`](./islands#trigger) | ハイドレーションのタイミング |
 
+## クライアントサイドレンダリング
+
+| 関数 | 説明 |
+|------|------|
+| [`render_to`](./client-dom#ツリーをマウントする) | 要素を空にしてノードをマウント |
+| [`mount_to`](./client-dom#ツリーをマウントする) | 要素にノードを追加 |
+| [`events`](./client-dom#イベントハンドラ) | 型付きイベントハンドラを要素にチェーン |
+| [`portal_to_body` / `portal_to`](./client-dom#ポータル) | children をドキュメントの別の場所へ描画 |
+| [JS との違い](./client-dom#javascript-api-との違い) | JavaScript API が受け付けて MoonBit では不要な形 |
+
 ## サーバーサイドレンダリング
 
 | 関数 | 説明 |
@@ -56,3 +67,4 @@ title: MoonBit API
 - [Signals](./signals) — リアクティブな状態管理
 - [Islands](./islands) — サーバーサイド Island 描画とハイドレーショントリガー
 - [Render](./render) — SSR 要素ヘルパーとレンダラ
+- [Client DOM](./client-dom) — ブラウザでのマウント・イベント・ポータル・context

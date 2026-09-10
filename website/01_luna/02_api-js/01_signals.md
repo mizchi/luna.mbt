@@ -279,11 +279,17 @@ const result = provide(ThemeContext, 'dark', () => {
   return useContext(ThemeContext);  // 'dark'
 });
 
-// Or use Provider component
+// Or use the Provider component (children must be a function)
 <Provider context={ThemeContext} value="dark">
-  <App />
+  {() => <App />}
 </Provider>
 ```
+
+The children of `Provider` have to be a function. JSX evaluates a bare
+`<App />` *before* `Provider` runs, so a `useContext()` inside it would read
+the enclosing value and the provider would look like it did nothing — passing
+one throws `Provider children must be a function` rather than failing quietly.
+See [Provider](./islands#provider) for the component's full signature.
 
 ## Resource API
 

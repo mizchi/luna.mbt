@@ -131,10 +131,22 @@ pub fn strip_content_extension(path : String) -> String {
 ///|
 /// Whether a source path is a directory index page.
 /// e.g., "index.md", "guide/index.mdx", "guide/index.mbt.md" -> true
-pub fn is_index_source(source_path : String) -> Bool {
-  source_path.has_suffix("index.md") ||
-  source_path.has_suffix("index.mdx") ||
-  source_path.has_suffix("index.mbt.md")
+///
+/// Pass `locale` for a localised page so its suffix is stripped too:
+/// `is_index_source("guide/index.ja.md", locale="ja")` is true. Without it,
+/// a localised index reads as an ordinary content page, and every relative
+/// link in its body then resolves against the parent directory instead of
+/// its own.
+pub fn is_index_source(source_path : String, locale? : String = "") -> Bool {
+  if content_extension(source_path) is None {
+    return false
+  }
+  let without_ext = strip_content_extension(source_path)
+  let stem = match without_ext.rev_find("/") {
+    Some(idx) => @utils.slice_from(without_ext, idx + 1)
+    None => without_ext
+  }
+  stem == "index" || (locale != "" && stem == "index." + locale)
 }
 
 // =============================================================================

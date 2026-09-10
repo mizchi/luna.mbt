@@ -45,7 +45,7 @@ pub fn is_content_extension(String) -> Bool
 
 pub fn is_default_locale(I18nConfig, String) -> Bool
 
-pub fn is_index_source(String) -> Bool
+pub fn is_index_source(String, locale? : String) -> Bool
 
 pub fn pad_number(Int, Int) -> String
 

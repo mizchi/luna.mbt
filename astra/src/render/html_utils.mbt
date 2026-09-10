@@ -67,8 +67,11 @@ fn transform_url_path(url : String, trailing_slash : Bool) -> String {
   if !url.has_prefix("/") || url.has_prefix("//") {
     return url
   }
+  // Keep any #fragment / ?query out of the path rewriting
+  let (raw_path, suffix) = split_url_suffix(url)
+
   // Split by / and process each segment
-  let segments = url.split("/").collect()
+  let segments = raw_path.split("/").collect()
   let result : Array[String] = []
   for segment in segments {
     if segment.is_empty() {
@@ -81,11 +84,30 @@ fn transform_url_path(url : String, trailing_slash : Bool) -> String {
   }
   let path = result.join("/")
   // Ensure trailing slash consistency
-  if trailing_slash && !path.has_suffix("/") && !path.contains(".") {
+  let normalized = if trailing_slash &&
+    !path.has_suffix("/") &&
+    !path.contains(".") {
     path + "/"
   } else {
     path
   }
+  normalized + suffix
+}
+
+///|
+/// Split a URL into its path and its `#fragment` / `?query` tail.
+///
+/// The trailing slash belongs on the path, not after the fragment: without
+/// this, `/guide#intro` normalises to `/guide#intro/` and the browser looks
+/// for a fragment named `intro/`.
+fn split_url_suffix(url : String) -> (String, String) {
+  let chars = url.to_array()
+  for i = 0; i < chars.length(); i = i + 1 {
+    if chars[i] == '#' || chars[i] == '?' {
+      return (String::from_array(chars[0:i]), String::from_array(chars[i:]))
+    }
+  }
+  (url, "")
 }
 
 // =============================================================================

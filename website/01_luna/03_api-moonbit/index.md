@@ -4,14 +4,17 @@ title: "API: MoonBit"
 
 # MoonBit API Reference
 
-Three pages, one per package you import. Every signature on them is checked
-against the generated `.mbti` interfaces in this repository.
+Four pages, one per package you import. Every signature on them is checked
+against the generated `.mbti` interfaces in this repository, and the Client DOM
+page goes further: it is a `.mbt.md`, so its samples are compiled by
+`moon check` and run by `moon test`.
 
 | Page | Package | Alias |
 |------|---------|-------|
 | [Signals](./signals) | `mizchi/luna/js/resource` | `@resource` |
 | [Islands](./islands) | `mizchi/sol` + `mizchi/luna` | `@sol`, `@luna` |
 | [Render](./render) | `mizchi/luna/dom/static` | `@server_dom` |
+| [Client DOM](./client-dom) | `mizchi/luna/dom` | `@element` |
 
 ## Reactive primitives
 
@@ -39,6 +42,16 @@ against the generated `.mbti` interfaces in this repository.
 | [`@luna.wc_island`](./islands#web-components-island-low-level) | Web Component island (low level) |
 | [`Trigger`](./islands#trigger) | When hydration happens |
 
+## Client-side rendering
+
+| Function | Description |
+|----------|-------------|
+| [`render_to`](./client-dom#mounting-a-tree) | Clear an element, then mount a node |
+| [`mount_to`](./client-dom#mounting-a-tree) | Append a node to an element |
+| [`events`](./client-dom#event-handlers) | Chain typed event handlers onto an element |
+| [`portal_to_body` / `portal_to`](./client-dom#portals) | Render children elsewhere in the document |
+| [Differences from JS](./client-dom#differences-from-the-javascript-api) | What the JavaScript API accepts that MoonBit does not need |
+
 ## Server-side rendering
 
 | Function | Description |
@@ -57,3 +70,4 @@ against the generated `.mbti` interfaces in this repository.
 - [Signals](./signals) — reactive state management
 - [Islands](./islands) — server-side island rendering and hydration triggers
 - [Render](./render) — SSR element helpers and the renderer
+- [Client DOM](./client-dom) — mounting, events, portals and context in the browser

@@ -61,7 +61,11 @@ Three lines that **must** be present:
 
 Add additional imports as the example needs them:
 - Browser router: `"mizchi/luna/dom/router" @router`, `"mizchi/luna/core/routes"`
-- Portal (modals): `"mizchi/luna/dom/portal"`
+- Portal (modals): already in `@element` — `portal_to_body(children)`,
+  `portal_to(selector, children)`, `portal(target~, children~)`, all taking
+  `Array[DomNode]`. The `"mizchi/luna/dom/portal"` subpackage is the raw
+  layer and uses its own `DomNode` over browser nodes, so it needs
+  conversion — reach for `@element` unless you have a reason not to.
 - Web Components shadow registration: `"mizchi/luna/x/luna_api" @luna_api`, `"mizchi/luna" @luna`
 - CSS utility: `"mizchi/luna/x/css" @css`
 

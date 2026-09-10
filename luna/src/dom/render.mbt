@@ -197,7 +197,8 @@ pub fn mount(container : DomElement, n : DomNode) -> Unit {
 }
 
 ///|
-/// Mount to a jsdom container (for tests)
+/// Append to a raw `@js_dom.Element` — the type `document.getElementById`
+/// hands back. Use `mount` when you already hold a `DomElement`.
 pub fn mount_to(container : @js_dom.Element, n : DomNode) -> Unit {
   container.as_node().appendChild(n.to_dom()) |> ignore
 }
@@ -209,7 +210,7 @@ pub fn clear(container : DomElement) -> Unit {
 }
 
 ///|
-/// Clear a jsdom container (for tests)
+/// Clear a raw `@js_dom.Element`. `clear` is the `DomElement` equivalent.
 pub fn clear_jsdom(container : @js_dom.Element) -> Unit {
   container.as_node().setTextContent("")
 }
@@ -222,7 +223,11 @@ pub fn render(container : DomElement, n : DomNode) -> Unit {
 }
 
 ///|
-/// Render to a jsdom container (for tests)
+/// Clear a raw `@js_dom.Element` and mount into it. This is the usual client
+/// entry point — `document.getElementById` returns a `@js_dom.Element`, so an
+/// app's `main` reaches for this rather than `render`.
+///
+/// The second argument is a built `DomNode`, not a function returning one.
 pub fn render_to(container : @js_dom.Element, n : DomNode) -> Unit {
   clear_jsdom(container)
   mount_to(container, n)
