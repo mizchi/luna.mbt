@@ -66,8 +66,9 @@ test.describe("Luna UI website deploy smoke", () => {
 
   test("static assets are reachable", async ({ request }) => {
     const assets = [
-      { path: "/assets/loader.js", contentType: /javascript/ },
+      { path: "/assets/style.css", contentType: /css/ },
       { path: "/pagefind/pagefind.js", contentType: /javascript/ },
+      { path: "/pagefind/pagefind-ui.js", contentType: /javascript/ },
       { path: "/pagefind/pagefind-ui.css", contentType: /css/ },
     ];
     for (const asset of assets) {
