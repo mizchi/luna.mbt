@@ -9,7 +9,7 @@
 import { test, expect } from "@playwright/test";
 
 const PAGES = [
-  { path: "/", title: "Luna UI" },
+  { path: "/", title: /Luna UI/ },
   { path: "/introduction/overview/" },
   { path: "/luna/", title: /Luna/ },
   { path: "/sol/", title: /Sol/ },
@@ -25,7 +25,7 @@ const PAGES = [
 test.describe("Luna UI website deploy smoke", () => {
   for (const page of PAGES) {
     test(`page ${page.path} renders`, async ({ page: p }) => {
-      const res = await p.goto(page.path);
+      const res = await p.goto(`.${page.path}`);
       expect(res?.status(), `expected 2xx at ${page.path}`).toBe(200);
       if (page.title) {
         await expect(p).toHaveTitle(page.title);
@@ -37,7 +37,7 @@ test.describe("Luna UI website deploy smoke", () => {
   }
 
   test("home loads inline CSS with theme variables", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("./");
 
     // Astra inlines the design-system CSS (no external stylesheet for the
     // base theme). If the inline <style> goes missing the variables vanish
@@ -71,7 +71,7 @@ test.describe("Luna UI website deploy smoke", () => {
       { path: "/pagefind/pagefind-ui.css", contentType: /css/ },
     ];
     for (const asset of assets) {
-      const res = await request.get(asset.path);
+      const res = await request.get(`.${asset.path}`);
       expect(res.status(), `${asset.path} should be 200`).toBe(200);
       const ct = res.headers()["content-type"] ?? "";
       expect(ct, `${asset.path} content-type`).toMatch(asset.contentType);
@@ -79,21 +79,16 @@ test.describe("Luna UI website deploy smoke", () => {
   });
 
   test("pagefind search UI mounts on /search/", async ({ page }) => {
-    await page.goto("/search/");
-    // The search page should render pagefind's container — either the
-    // form input or its wrapper. We don't drive a real search here, just
-    // confirm the asset graph hooked up.
-    const searchAffordance = page
-      .locator('[data-pagefind-ui], input[type="search"], #search')
-      .first();
-    await expect(searchAffordance).toBeVisible();
+    await page.goto("./search/");
+    await expect(page.getByRole("textbox", { name: "Search docs..." })).toBeVisible();
   });
 
-  test("nav links to all four chapters from the home", async ({ page }) => {
-    await page.goto("/");
-    // Nav defined in website/sol.config.json: Luna, Sol, Astra, Search.
+  test("nav links to all four chapters from the home", async ({ page, baseURL }) => {
+    await page.goto("./");
+    // Nav defined in website/astra.config.json: Luna, Sol, Astra, Search.
     for (const target of ["/luna/", "/sol/", "/astra/", "/search/"]) {
-      const link = page.locator(`a[href="${target}"]`).first();
+      const href = new URL(`.${target}`, baseURL).pathname;
+      const link = page.locator(`a[href="${href}"]`).first();
       await expect(link, `home should link to ${target}`).toBeVisible();
     }
   });

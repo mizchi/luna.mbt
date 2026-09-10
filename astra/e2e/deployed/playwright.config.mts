@@ -13,7 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 //   WEBSITE_URL=https://mizchi.github.io/luna.mbt pnpm exec playwright test \
 //     --config=astra/e2e/deployed/playwright.config.mts
 const baseURL =
-  process.env.WEBSITE_URL ?? "https://luna.mizchi.workers.dev";
+  (process.env.WEBSITE_URL ?? "https://luna.mizchi.workers.dev").replace(/\/?$/, "/");
 
 export default defineConfig({
   testDir: __dirname,
