@@ -47,6 +47,9 @@ Astra scans `docs_dir` (default `docs/`) recursively and turns every `.md` file 
 | `docs/ja/index.md` | `/ja/` (= the `ja` locale's home, see i18n section) |
 | `docs/ja/guide/config.md` | `/ja/guide/config` |
 | `docs/[slug]/page.md` (dynamic) | template route — populate with `staticParams` in `page.json` |
+| `docs/guide/intro.mbt.md` | `/guide/intro` — a type-checked page, see below |
+
+`.mbt.md` is MoonBit's literate-markdown format and astra routes it exactly like `.md` (the whole compound extension is stripped, and `intro.ja.mbt.md` is the `ja` translation of `intro.mbt.md`). Its value is that a fence tagged ` ```mbt check ` is compiled by `moon check` and run by `moon test`, so the samples in a page cannot drift from the API. To use it, the directory holding the pages needs a `moon.pkg` and its module needs to be in `moon.work`; see `website/moon.mod` + `website/03_astra/`. Fences tagged plain ` ```mbt ` or ` ```moonbit ` stay prose — only ` ```mbt check ` is compiled. `_build/`, `target/` and `.mooncakes/` are always skipped by the walk, and a directory containing `*.mbt.md` is treated as a docs package rather than a MoonBit component directory even if it has a `moon.pkg.json`.
 
 The `trailing_slash` config controls whether routes end with `/`. The default is `false` for `astra` defaults but `true` in the `sol_docs` example and in `website/`.
 

@@ -225,9 +225,12 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         None => ()
       }
 
-      // Check if this is a component directory (contains moon.pkg.json)
+      // Check if this is a component directory (contains moon.pkg.json).
+      // A directory that also holds `*.mbt.md` pages is a documentation
+      // package, not a component: recurse into it so those pages are routed.
       let moon_pkg_path = join_path(entry_path, "moon.pkg.json")
-      if @env.FileSystem::exists_sync(filesystem, moon_pkg_path) {
+      if @env.FileSystem::exists_sync(filesystem, moon_pkg_path) &&
+        !has_moonbit_markdown(filesystem, entry_path) {
         // This is a component directory - treat as a single page
         let page = scan_component_dir_with_fs(
           filesystem, entry_path, entry_relative, i18n, trailing_slash,
@@ -257,9 +260,7 @@ fn[FS : @env.FileSystem] scan_recursive_with_fs(
         filesystem, entry_path, entry_relative, docs_dir, cwd, i18n, exclude, pages,
         trailing_slash,
       )
-    } else if entry.has_suffix(".md") ||
-      entry.has_suffix(".mdx") ||
-      entry.has_suffix(".html") {
+    } else if is_content_file(entry) {
       // Check if this is a dynamic file pattern (_id_.md, ___all___.md)
       match extract_param_from_filename(entry) {
         Some(param_info) => {

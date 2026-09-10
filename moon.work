@@ -5,4 +5,5 @@ members = [
   "./sol_adapter_cloudflare",
   "./sol_adapter_node",
   "./astra",
+  "./website",
 ]

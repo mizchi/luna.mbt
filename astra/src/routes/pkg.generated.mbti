@@ -84,6 +84,8 @@ pub fn get_static_routes(RouteManifest) -> Array[StaticRouteEntry]
 
 pub fn group_pages_by_dir(Array[@astra.PageMeta]) -> Map[String, Array[@astra.PageMeta]]
 
+pub fn[FS : @env.FileSystem] has_moonbit_markdown(FS, String) -> Bool
+
 pub fn is_content_file(String) -> Bool
 
 pub fn[FS : @env.FileSystem] is_directory(FS, String) -> Bool
@@ -91,6 +93,8 @@ pub fn[FS : @env.FileSystem] is_directory(FS, String) -> Bool
 pub fn is_excluded(String, String, Array[String]) -> Bool
 
 pub fn is_moonbit_component(String) -> Bool
+
+pub fn is_moonbit_markdown(String) -> Bool
 
 pub fn is_param_char(Char) -> Bool
 
@@ -275,6 +279,7 @@ pub(all) enum FileType {
   Unknown
 } derive(Eq, @debug.Debug)
 pub fn FileType::from_extension(String) -> Self
+pub fn FileType::from_filename(String) -> Self
 pub fn FileType::is_page(Self) -> Bool
 
 pub(all) struct HierarchicalManifest {

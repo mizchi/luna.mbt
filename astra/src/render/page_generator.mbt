@@ -407,7 +407,7 @@ pub fn render_page_html(
 
       // Convert to VNode with link resolution
       // Index pages use standard browser behavior, content pages use sibling behavior
-      let is_index = page.source_path.has_suffix("index.md")
+      let is_index = @astra.is_index_source(page.source_path)
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,
@@ -519,7 +519,7 @@ pub fn render_page_html(
       }
 
       // Convert to VNode (JsxComponent nodes are handled in transformer)
-      let is_index = page.source_path.has_suffix("index.mdx")
+      let is_index = @astra.is_index_source(page.source_path)
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,
@@ -632,7 +632,7 @@ async fn generate_page_with_highlight_async(
       }
 
       // Convert to VNode with link resolution
-      let is_index = page.source_path.has_suffix("index.md")
+      let is_index = @astra.is_index_source(page.source_path)
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,
@@ -764,7 +764,7 @@ async fn generate_page_with_highlight_async(
       }
 
       // Convert to VNode (JsxComponent nodes are handled in transformer)
-      let is_index = page.source_path.has_suffix("index.mdx")
+      let is_index = @astra.is_index_source(page.source_path)
       // Get locale prefix for i18n link resolution
       let locale_prefix = @astra.get_locale_url_prefix(
         ctx.config.i18n,

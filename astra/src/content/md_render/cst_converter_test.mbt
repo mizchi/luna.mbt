@@ -269,3 +269,19 @@ test "parse_code_block_info: json package.json" {
   inspect(info.filename, content="package.json")
   inspect(info.meta, content="")
 }
+
+///|
+test "parse_code_block_info: bare attribute after the language" {
+  let info = parse_code_block_info("mbt check")
+  inspect(info.lang, content="mbt")
+  inspect(info.filename, content="")
+  inspect(info.meta, content="check")
+}
+
+///|
+test "parse_code_block_info: filename plus bare attribute" {
+  let info = parse_code_block_info("ts:index.ts twoslash")
+  inspect(info.lang, content="ts")
+  inspect(info.filename, content="index.ts")
+  inspect(info.meta, content="twoslash")
+}

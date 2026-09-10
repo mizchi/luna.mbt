@@ -18,6 +18,23 @@ That property gives Astra two postures:
 - **Library**: mount on any Mars server alongside your application routes. The same MoonBit app can serve a `/docs/*` documentation tree and live API endpoints from one binary.
 - **Static site**: skip the server entirely. `astra build --out ./dist` produces a self-contained directory you can ship to GitHub Pages, Cloudflare, Vercel, or any static host.
 
+### Pages the compiler checks
+
+A page can be written as `<name>.mbt.md` instead of `<name>.md`. Astra routes it exactly like Markdown — `guide/intro.mbt.md` becomes `/guide/intro/`, and `guide/intro.ja.mbt.md` is its `ja` translation — but the file is also MoonBit's literate-markdown format. Every fence tagged ` ```mbt check ` is compiled by `moon check` and executed by `moon test`:
+
+````md
+```mbt check
+///|
+test "the sample in the docs actually runs" {
+  let cfg = @astra.SsgConfig::default()
+  let mw = @middleware.create(cfg, cwd=".")
+  assert_true(mw.list_urls().length() >= 0)
+}
+```
+````
+
+Put such pages in a directory with a `moon.pkg`, in a module listed in your `moon.work`, and sample code stops being prose the compiler never sees. [Mount on Mars](/astra/mount-on-mars/) is written this way — the snippets on it are compiled on every `moon check`. Fences tagged plain ` ```mbt ` or ` ```moonbit ` are left as prose, so illustrative fragments still render fine.
+
 ## When to choose Astra over Sol
 
 | Need | Reach for |
@@ -32,7 +49,7 @@ Astra has no edge to Sol: its dependency graph is built on mars, markdown and lu
 ## Sections
 
 - [Getting Started](/astra/getting-started/) — install, first project, first build
-- [Mount on Mars](/astra/mount-on-mars/) — embed Astra in an existing Mars server
+- [Mount on Mars](/astra/mount-on-mars/) — embed Astra in an existing Mars server (written as a `.mbt.md` page, so its samples are compiled)
 - [Deploy](/astra/deploy/) — GitHub Pages, Cloudflare, Vercel, Netlify
 
 ## Install

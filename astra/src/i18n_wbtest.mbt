@@ -10,9 +10,9 @@ fn create_multi_locale_config() -> I18nConfig {
   {
     default_locale: "en",
     locales: [
-      LocaleConfig::{ code: "en", label: "English", path: "" },
-      LocaleConfig::{ code: "ja", label: "日本語", path: "ja" },
-      LocaleConfig::{ code: "fr", label: "Français", path: "fr" },
+      LocaleConfig::{ code: "en", label: "English", path: "", },
+      LocaleConfig::{ code: "ja", label: "日本語", path: "ja", },
+      LocaleConfig::{ code: "fr", label: "Français", path: "fr", },
     ],
   }
 }
@@ -253,4 +253,20 @@ test "strip_locale_from_url - ja root path" {
   let (locale, canonical) = strip_locale_from_url("/ja/", config)
   inspect(locale, content="ja")
   inspect(canonical, content="/")
+}
+
+///|
+test "detect_locale_from_path - ja locale on a .mbt.md page" {
+  let config = create_multi_locale_config()
+  let (locale, url) = detect_locale_from_path("guide/intro.ja.mbt.md", config)
+  inspect(locale, content="ja")
+  inspect(url, content="/guide/intro/")
+}
+
+///|
+test "detect_locale_from_path - default locale on a .mbt.md page" {
+  let config = create_multi_locale_config()
+  let (locale, url) = detect_locale_from_path("guide/intro.mbt.md", config)
+  inspect(locale, content="en")
+  inspect(url, content="/guide/intro/")
 }
